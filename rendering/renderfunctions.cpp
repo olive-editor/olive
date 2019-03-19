@@ -128,7 +128,9 @@ QOpenGLShaderProgramPtr olive::rendering::GetPipeline(const QString& shader_code
   QOpenGLShaderProgramPtr program = std::make_shared<QOpenGLShaderProgram>();
 
   // Generate vertex shader
-  QString vert_shader = "#ifdef GL_ES\n"
+  QString vert_shader = "#version 110\n"
+                        "\n"
+                        "#ifdef GL_ES\n"
                         "precision mediump int;\n"
                         "precision mediump float;\n"
                         "#endif\n"
@@ -146,7 +148,9 @@ QOpenGLShaderProgramPtr olive::rendering::GetPipeline(const QString& shader_code
                         "}\n";
 
   // Generate fragment shader
-  QString frag_shader = "#ifdef GL_ES\n"
+  QString frag_shader = "#version 110\n"
+                        "\n"
+                        "#ifdef GL_ES\n"
                         "precision mediump int;\n"
                         "precision mediump float;\n"
                         "#endif\n"
