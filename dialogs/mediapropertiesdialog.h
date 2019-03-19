@@ -32,18 +32,19 @@
 #include "project/media.h"
 
 class MediaPropertiesDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 public:
-    MediaPropertiesDialog(QWidget *parent, Media* i);
+  MediaPropertiesDialog(QWidget *parent, Media* i);
 private:
-	QComboBox* interlacing_box;
-	QLineEdit* name_box;
-    Media* item;
-	QListWidget* track_list;
-	QDoubleSpinBox* conform_fr;
-	QCheckBox* premultiply_alpha_setting;
+  QComboBox* interlacing_box;
+  QLineEdit* name_box;
+  Media* item;
+  QListWidget* track_list;
+  QDoubleSpinBox* conform_fr;
+  QCheckBox* premultiply_alpha_setting;
+  QComboBox* color_management;
 private slots:
-	void accept();
+  void accept();
 };
 
 #endif // MEDIAPROPERTIESDIALOG_H

@@ -24,6 +24,10 @@
 #include <QOpenGLContext>
 #include <QVector>
 #include <QOpenGLShaderProgram>
+#ifndef NO_OCIO
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE;
+#endif
 
 #include "timeline/sequence.h"
 #include "effects/effect.h"
@@ -168,16 +172,7 @@ struct ComposeSequenceParams {
      *
      * When compose_sequence() is rendering the final image, this framebuffer will be bound.
      */
-    GLuint main_buffer;
-
-    /**
-     * @brief The attachment to the framebuffer in main_buffer
-     *
-     * Used only for video rendering. Never accessed with audio rendering.
-     *
-     * The OpenGL texture attached to the framebuffer referenced by main_buffer.
-     */
-    GLuint main_attachment;
+    const FramebufferObject* main_buffer;
 
     /**
      * @brief Backend OpenGL framebuffer 1 used for further processing before rendering to main_buffer
@@ -185,15 +180,7 @@ struct ComposeSequenceParams {
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"
      * between framebuffers. backend_buffer1 and backend_buffer2 are used for this purpose.
      */
-    GLuint backend_buffer1;
-
-    /**
-     * @brief Backend OpenGL framebuffer 1's texture attachment
-     *
-     * The texture that ComposeSequenceParams::backend_buffer1 renders to. Bound and drawn to
-     * ComposeSequenceParams::backend_buffer2 to "ping-pong" between them and various shaders.
-     */
-    GLuint backend_attachment1;
+    const FramebufferObject* backend_buffer1;
 
     /**
      * @brief Backend OpenGL framebuffer 2 used for further processing before rendering to main_buffer
@@ -201,25 +188,7 @@ struct ComposeSequenceParams {
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"
      * between framebuffers. backend_buffer1 and backend_buffer2 are used for this purpose.
      */
-    GLuint backend_buffer2;
-
-    /**
-     * @brief Backend OpenGL framebuffer 2's texture attachment
-     *
-     * The texture that ComposeSequenceParams::backend_buffer2 renders to. Bound and drawn to
-     * ComposeSequenceParams::backend_buffer1 to "ping-pong" between them and various shaders.
-     */
-    GLuint backend_attachment2;
-
-    /**
-     * @brief OpenGL shader containing OpenColorIO shader information
-     */
-    QOpenGLShaderProgram* ocio_shader;
-
-    /**
-     * @brief OpenGL texture containing LUT obtained form OpenColorIO
-     */
-    GLuint ocio_lut_texture;
+    const FramebufferObject* backend_buffer2;
 };
 
 /**
@@ -417,6 +386,13 @@ namespace olive {
     extern GLfloat flipped_blit_texcoords[];
     void Blit(QOpenGLShaderProgram* pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
     QOpenGLShaderProgramPtr GetPipeline(const QString &shader_code = QString());
+#ifndef NO_OCIO
+    QOpenGLShaderProgramPtr SetupOCIO(QOpenGLContext *ctx, GLuint &lut_texture, OCIO::ConstProcessorRcPtr processor);
+    GLuint OCIOBlit(QOpenGLShaderProgram *pipeline,
+                  GLuint lut,
+                  const FramebufferObject& fbo,
+                  GLuint texture);
+#endif
   }
 }
 

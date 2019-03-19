@@ -280,7 +280,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               int folder = 0;
 
               MediaPtr item = std::make_shared<Media>();
-              FootagePtr f(new Footage());
+              FootagePtr f = std::make_shared<Footage>();
 
               f->using_inout = false;
 
@@ -347,7 +347,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 } else if (attr.name() == "speed") {
                   f->speed = attr.value().toDouble();
                 } else if (attr.name() == "alphapremul") {
-                  f->alpha_is_premultiplied = (attr.value() == "1");
+                  f->alpha_is_associated = (attr.value() == "1");
                 } else if (attr.name() == "proxy") {
                   f->proxy = (attr.value() == "1");
                 } else if (attr.name() == "proxypath") {

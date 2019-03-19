@@ -519,9 +519,30 @@ struct Config {
   /**
    * @brief Path to OpenColorIO configuration file
    *
-   * Used if Config::enable_color_management is **TRUE**.
+   * Used if Config::enable_color_management is true.
    */
   QString ocio_config_path;
+
+  /**
+   * @brief OpenColorIO Display
+   *
+   * Used if Config::enable_color_management is true
+   */
+  QString ocio_display;
+
+  /**
+   * @brief OpenColorIO View
+   *
+   * Used if Config::enable_color_management is true
+   */
+  QString ocio_view;
+
+  /**
+   * @brief OpenColorIO Look
+   *
+   * Used if Config::enable_color_management is true
+   */
+  QString ocio_look;
 
   /**
    * @brief Style to use when theming Olive.
@@ -587,6 +608,14 @@ struct RuntimeConfig {
    * Overrides Config::language_file and sets the path to a language file to use.
    */
   QString external_translation_file;
+
+  /**
+   * @brief OpenColorIO Configuration Time
+   *
+   * A crude but quick way of determining whether the OCIO config has changed and if the rendering threads need to
+   * re-create their OCIO shaders. Not intended to be saved - could be moved
+   */
+  qint64 ocio_config_date;
 };
 
 namespace olive {

@@ -20,13 +20,6 @@
 
 #include "preferencesdialog.h"
 
-#include "global/global.h"
-#include "global/config.h"
-#include "global/path.h"
-#include "rendering/audio.h"
-#include "panels/panels.h"
-#include "ui/mainwindow.h"
-
 #include <QMenuBar>
 #include <QAction>
 #include <QVBoxLayout>
@@ -50,6 +43,13 @@
 #include <QApplication>
 #include <QProcess>
 #include <QDebug>
+
+#include "global/global.h"
+#include "global/config.h"
+#include "global/path.h"
+#include "rendering/audio.h"
+#include "panels/panels.h"
+#include "ui/mainwindow.h"
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
   : QKeySequenceEdit(parent), action(a) {
@@ -108,12 +108,28 @@ void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* 
   }
 }
 
-void PreferencesDialog::delete_previews(char type) {
-  if (type != 't' && type != 'w' && type != 1) return;
+void PreferencesDialog::delete_previews(PreviewDeleteTypes type) {
+  char delete_char = 0;
+
+  switch (type) {
+  case DELETE_WAVEFORMS:
+    delete_char = 'w';
+    break;
+  case DELETE_THUMBNAILS:
+    delete_char = 't';
+    break;
+  case DELETE_BOTH:
+    delete_char = 1;
+    break;
+  case DELETE_NONE:
+    break;
+  }
+
+  if (delete_char != 't' && delete_char != 'w' && delete_char != 1) return;
 
   QDir preview_path(get_data_path() + "/previews");
 
-  if (type == 1) {
+  if (delete_char == 1) {
     // indiscriminately delete everything
     preview_path.removeRecursively();
   } else {
@@ -134,10 +150,82 @@ void PreferencesDialog::delete_previews(char type) {
 
       // thumbnails will have a 't' towards the end of the filenames, waveforms will have a 'w'
       // if they match the type of preview we're deleting, remove them
-      if (preview_file_str.at(identifier_char_index) == type) {
+      if (preview_file_str.at(identifier_char_index) == delete_char) {
         QFile::remove(preview_path.filePath(preview_file_str));
       }
     }
+  }
+}
+
+void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
+{
+  // Get current display name (if the config is empty, get the current default display)
+  QString current_display = olive::CurrentConfig.ocio_display;
+  if (current_display.isEmpty()) {
+    current_display = config->getDefaultDisplay();
+  }
+
+  // Populate the display menu
+  ocio_display->clear();
+  for (int i=0;i<config->getNumDisplays();i++) {
+    ocio_display->addItem(config->getDisplay(i));
+
+    // Check if this index is the currently selected
+    if (config->getDisplay(i) == current_display) {
+      ocio_display->setCurrentIndex(i);
+    }
+  }
+
+  update_ocio_view_menu(config);
+
+  // Populate the look menu
+  ocio_look->clear();
+  ocio_look->addItem(tr("(None)"), QString());
+  for (int i=0;i<config->getNumLooks();i++) {
+    const char* look = config->getLookNameByIndex(i);
+
+    ocio_look->addItem(look, look);
+
+    if (look == olive::CurrentConfig.ocio_look) {
+      ocio_look->setCurrentIndex(i);
+    }
+  }
+}
+
+void PreferencesDialog::update_ocio_view_menu(OCIO::ConstConfigRcPtr config)
+{
+
+  // Get views for the current display set in `ocio_display`
+  QString display = ocio_display->currentText();
+
+  // Get current view
+  QString current_view = olive::CurrentConfig.ocio_view;
+  if (current_view.isEmpty()) {
+    current_view = config->getDefaultView(display.toUtf8());
+  }
+
+  // Populate the view menu
+  int ocio_view_count = config->getNumViews(display.toUtf8());
+  ocio_view->clear();
+  for (int i=0;i<ocio_view_count;i++) {
+    const char* view = config->getView(display.toUtf8(), i);
+
+    ocio_view->addItem(view);
+
+    if (current_view == view) {
+      ocio_view->setCurrentIndex(i);
+    }
+  }
+}
+
+void PreferencesDialog::update_ocio_config(const QString &s)
+{
+  if (!s.isEmpty() && QFileInfo::exists(s)) {
+    try {
+      OCIO::ConstConfigRcPtr file_config = OCIO::Config::CreateFromFile(s.toUtf8());
+
+      populate_ocio_menus(file_config);
+    } catch (OCIO::Exception& e) {}
   }
 }
 
@@ -209,9 +297,9 @@ void PreferencesDialog::save() {
   if (olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()
-#ifdef Q_OS_WIN32
+    #ifdef Q_OS_WIN32
       || olive::CurrentConfig.use_native_menu_styling != native_menus->isChecked()
-#endif
+    #endif
       || olive::CurrentConfig.style != static_cast<olive::styling::Style>(ui_style->currentData().toInt())) {
 
     // any changes to these settings will require a restart - ask the user if we should do one now or later
@@ -274,7 +362,31 @@ void PreferencesDialog::save() {
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
 
   olive::CurrentConfig.enable_color_management = enable_color_management->isChecked();
-  olive::CurrentConfig.ocio_config_path = ocio_config_file->text();
+
+#ifndef NO_OCIO
+  if (olive::CurrentConfig.ocio_config_path != ocio_config_file->text()) {
+    try {
+      OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8()));
+
+      olive::CurrentConfig.ocio_config_path = ocio_config_file->text();
+    } catch (OCIO::Exception& e) {
+      QMessageBox::critical(this,
+                            tr("OpenColorIO Config Error"),
+                            tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
+                            QMessageBox::Ok);
+    }
+
+  }
+
+  olive::CurrentConfig.ocio_display = ocio_display->currentText();
+  olive::CurrentConfig.ocio_view = ocio_view->currentText();
+
+  // We use data here instead of text because there's a "(None)" option with an empty string
+  olive::CurrentConfig.ocio_look = ocio_look->currentData().toString();
+
+  olive::CurrentRuntimeConfig.ocio_config_date = QDateTime::currentMSecsSinceEpoch();
+#endif
+
 
   olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
 #ifdef Q_OS_WIN
@@ -287,14 +399,14 @@ void PreferencesDialog::save() {
     // we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
 
     // delete nothing
-    char delete_match = 0;
+    PreviewDeleteTypes delete_type = DELETE_NONE;
 
     if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()) {
       // delete existing thumbnails
       olive::CurrentConfig.thumbnail_resolution = thumbnail_res_spinbox->value();
 
       // delete only thumbnails
-      delete_match = 't';
+      delete_type = DELETE_THUMBNAILS;
     }
 
     if (olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
@@ -302,16 +414,16 @@ void PreferencesDialog::save() {
       olive::CurrentConfig.waveform_resolution = waveform_res_spinbox->value();
 
       // if we're already deleting thumbnails
-      if (delete_match == 't') {
+      if (delete_type == DELETE_THUMBNAILS) {
         // delete all
-        delete_match = 1;
+        delete_type = DELETE_BOTH;
       } else {
         // just delete waveforms
-        delete_match = 'w';
+        delete_type = DELETE_WAVEFORMS;
       }
     }
 
-    delete_previews(delete_match);
+    delete_previews(delete_type);
   }
 
   // Save keyboard shortcuts
@@ -476,12 +588,17 @@ void PreferencesDialog::browse_ocio_config()
   }
 }
 
+void PreferencesDialog::update_ocio_view_menu()
+{
+  update_ocio_view_menu(OCIO::GetCurrentConfig());
+}
+
 void PreferencesDialog::delete_all_previews() {
   if (QMessageBox::question(this,
                             tr("Delete All Previews"),
                             tr("Are you sure you want to delete all previews?"),
                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    delete_previews(1);
+    delete_previews(DELETE_BOTH);
     QMessageBox::information(this,
                              tr("Previews Deleted"),
                              tr("All previews deleted succesfully. You may have to re-open your current project for "
@@ -772,32 +889,64 @@ void PreferencesDialog::setup_ui() {
 
 #ifdef NO_OCIO
   QLabel* no_ocio_available_lbl = new QLabel(tr("<html><b>Color management is unavailable because Olive was "
-                                               "compiled without OpenColorIO support.</b></html>"));
+                                                "compiled without OpenColorIO support.</b></html>"));
   no_ocio_available_lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   color_management_layout->addWidget(no_ocio_available_lbl, row, 0, 1, 3);
   row++;
 #endif
 
+  // COLOR MANAGEMENT -> Enable Color Management
   enable_color_management = new QCheckBox(tr("Enable Color Management"));
   enable_color_management->setChecked(olive::CurrentConfig.enable_color_management);
   color_management_layout->addWidget(enable_color_management, row, 0, 1, 3);
 
   row++;
 
+  // COLOR MANAGEMENT -> OpenColorIO Config File
   color_management_layout->addWidget(new QLabel(tr("OpenColorIO Config File:")), row, 0);
 
   ocio_config_file = new QLineEdit();
   ocio_config_file->setText(olive::CurrentConfig.ocio_config_path);
+  connect(ocio_config_file, SIGNAL(textChanged(const QString &)), this, SLOT(update_ocio_config(const QString&)));
   color_management_layout->addWidget(ocio_config_file, row, 1);
 
   QPushButton* ocio_config_browse_btn = new QPushButton(tr("Browse"));
   connect(ocio_config_browse_btn, SIGNAL(clicked(bool)), this, SLOT(browse_ocio_config()));
   color_management_layout->addWidget(ocio_config_browse_btn, row, 2);
 
+  row++;
+
+  // COLOR MANAGEMENT -> Display
+  ocio_display = new QComboBox();
+  connect(ocio_display, SIGNAL(currentIndexChanged(int)), this, SLOT(update_ocio_view_menu()));
+  color_management_layout->addWidget(new QLabel("Display:"), row, 0);
+  color_management_layout->addWidget(ocio_display, row, 1);
+
+  row++;
+
+  // COLOR MANAGEMENT -> View
+  ocio_view = new QComboBox();
+  color_management_layout->addWidget(new QLabel("View:"), row, 0);
+  color_management_layout->addWidget(ocio_view, row, 1);
+
+  row++;
+
+  // COLOR MANAGEMENT -> Look
+  ocio_look = new QComboBox();
+  color_management_layout->addWidget(new QLabel("Look:"), row, 0);
+  color_management_layout->addWidget(ocio_look, row, 1);
+
+  row++;
+
 #ifdef NO_OCIO
   enable_color_management->setEnabled(false);
   ocio_config_file->setEnabled(false);
   ocio_config_browse_btn->setEnabled(false);
+  ocio_display->setEnabled(false);
+  ocio_view->setEnabled(false);
+  ocio_look->setEnabled(false);
+#else
+  populate_ocio_menus(OCIO::GetCurrentConfig());
 #endif
 
   tabWidget->addTab(color_management_tab, tr("Color Management"));

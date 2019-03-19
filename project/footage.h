@@ -81,8 +81,13 @@ struct Footage {
   bool ready;
   bool invalid;
   double speed;
-  bool alpha_is_premultiplied;
+  bool alpha_is_associated;
   int start_number;
+
+#ifndef NO_OCIO
+  // color management
+  QString colorspace;
+#endif
 
   // proxy config
   bool proxy;

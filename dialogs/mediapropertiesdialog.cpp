@@ -30,6 +30,10 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QSpinBox>
+#ifndef NO_OCIO
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE;
+#endif
 
 #include "project/footage.h"
 #include "project/media.h"
@@ -103,7 +107,7 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 
     // premultiplied alpha mode
     premultiply_alpha_setting = new QCheckBox(tr("Alpha is Premultiplied"), this);
-    premultiply_alpha_setting->setChecked(f->alpha_is_premultiplied);
+    premultiply_alpha_setting->setChecked(f->alpha_is_associated);
     grid->addWidget(premultiply_alpha_setting, row, 0);
 
     row++;
@@ -128,6 +132,28 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
     grid->addWidget(interlacing_box, row, 1);
 
     row++;
+
+#ifndef NO_OCIO
+    color_management = new QComboBox(this);
+
+    OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+
+    for (int i=0;i<config->getNumColorSpaces();i++) {
+      QString colorspace = config->getColorSpaceNameByIndex(i);
+
+      color_management->addItem(colorspace);
+
+      if (colorspace == f->colorspace) {
+        color_management->setCurrentIndex(i);
+      }
+    }
+
+    grid->addWidget(new QLabel(tr("Color Space:")), row, 0);
+    grid->addWidget(color_management, row, 1);
+
+    row++;
+#endif
+
   }
 
   name_box = new QLineEdit(item->get_name(), this);
@@ -192,8 +218,12 @@ void MediaPropertiesDialog::accept() {
     }
 
     // set premultiplied alpha
-    f->alpha_is_premultiplied = premultiply_alpha_setting->isChecked();
+    f->alpha_is_associated = premultiply_alpha_setting->isChecked();
   }
+
+#ifndef NO_OCIO
+  f->colorspace = color_management->currentText();
+#endif
 
   // set name
   MediaRename* mr = new MediaRename(item, name_box->text());

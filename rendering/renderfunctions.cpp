@@ -31,11 +31,6 @@ extern "C" {
 #include <QOpenGLVertexArrayObject>
 #include <QDebug>
 
-#ifndef NO_OCIO
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE;
-#endif
-
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 #include "project/media.h"
@@ -79,6 +74,14 @@ GLfloat olive::rendering::flipped_blit_texcoords[] = {
   0.0, 0.0,
   1.0, 0.0
 };
+
+#ifndef NO_OCIO
+// copied from source code to OCIODisplay
+const int OCIO_LUT3D_EDGE_SIZE = 32;
+
+// copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
+const int OCIO_NUM_3D_ENTRIES = 98304;
+#endif
 
 void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatrix4x4 matrix) {
 
@@ -237,6 +240,7 @@ GLuint draw_clip(QOpenGLContext* ctx,
                  const FramebufferObject& fbo,
                  GLuint texture,
                  bool clear) {
+
   fbo.BindBuffer();
 
   if (clear) {
@@ -252,6 +256,7 @@ GLuint draw_clip(QOpenGLContext* ctx,
   fbo.ReleaseBuffer();
 
   return fbo.texture();
+
 }
 
 void process_effect(QOpenGLContext* ctx,
@@ -305,7 +310,7 @@ void process_effect(QOpenGLContext* ctx,
 }
 
 GLuint compose_sequence(ComposeSequenceParams &params) {
-  GLuint final_fbo = params.main_buffer;
+  GLuint final_fbo = params.video ? params.main_buffer->buffer() : 0;
 
   Sequence* s = params.seq;
   long playhead = s->playhead;
@@ -511,7 +516,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
             } else if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
-              if (!c->media()->to_footage()->alpha_is_premultiplied) {
+              if (!c->media()->to_footage()->alpha_is_associated) {
 
                 // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
                 params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
@@ -525,27 +530,52 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               }
 
 #ifndef NO_OCIO
-              // convert to linear colorspace
-              if (olive::CurrentConfig.enable_color_management && params.ocio_shader != nullptr)
+              // Convert frame from source to linear colorspace
+              if (olive::CurrentConfig.enable_color_management)
               {
 
-                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE2);
-                params.ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, params.ocio_lut_texture);
-                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE0);
+                if (c->ocio_shader == nullptr) {
+                  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
 
-                params.ocio_shader->bind();
+                  QString input_cs = OCIO::ROLE_SCENE_LINEAR;
 
-                params.ocio_shader->setUniformValue("tex2", 2);
+                  if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
-                textureID = draw_clip(params.ctx, params.ocio_shader, c->fbo.at(fbo_switcher), textureID, true);
+                    if (!c->media()->to_footage()->colorspace.isEmpty()) {
 
-                params.ocio_shader->release();
+                      input_cs = c->media()->to_footage()->colorspace;
 
-                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE2);
-                params.ctx->extraFunctions()->glBindTexture(GL_TEXTURE_3D, 0);
-                params.ctx->extraFunctions()->glActiveTexture(GL_TEXTURE0);
+                    } else {
 
-                fbo_switcher = !fbo_switcher;
+                      // If this is a footage clip, try to guess the color space from the filename
+                      QString guess_colorspace = config->parseColorSpaceFromString(c->media()->to_footage()->url.toUtf8());
+
+                      if (!guess_colorspace.isEmpty()) {
+                        input_cs = guess_colorspace;
+                      }
+
+                    }
+
+                  }
+
+                  try {
+                    OCIO::ConstProcessorRcPtr processor = config->getProcessor(input_cs.toUtf8(),
+                                                                               OCIO::ROLE_SCENE_LINEAR);
+
+                    c->ocio_shader = olive::rendering::SetupOCIO(params.ctx, c->ocio_lut_texture, processor);
+                  } catch (OCIO::Exception& e) {
+                    qWarning() << e.what();
+                  }
+                }
+
+                if (c->ocio_shader != nullptr) {
+                  textureID = olive::rendering::OCIOBlit(c->ocio_shader.get(),
+                                                         c->ocio_lut_texture,
+                                                         c->fbo.at(fbo_switcher),
+                                                         textureID);
+
+                  fbo_switcher = !fbo_switcher;
+                }
 
               }
 #endif
@@ -640,9 +670,9 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               backend_tex_1 = params.nests.last()->fbo[1].texture();
               backend_tex_2 = params.nests.last()->fbo[2].texture();
             } else {
-              back_buffer_1 = params.backend_buffer1;
-              backend_tex_1 = params.backend_attachment1;
-              backend_tex_2 = params.backend_attachment2;
+              back_buffer_1 = params.backend_buffer1->buffer();
+              backend_tex_1 = params.backend_buffer1->texture();
+              backend_tex_2 = params.backend_buffer2->texture();
             }
 
             // render a backbuffer
@@ -743,7 +773,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               if (params.nests.size() > 0) {
                 draw_clip(params.ctx, params.pipeline, params.nests.last()->fbo[2].buffer(), params.nests.last()->fbo[0].texture(), true);
               } else {
-                draw_clip(params.ctx, params.pipeline, params.backend_buffer2, params.main_attachment, true);
+                draw_clip(params.ctx, params.pipeline, params.backend_buffer2->buffer(), params.main_buffer->texture(), true);
               }
             }
 
@@ -909,6 +939,100 @@ void close_active_clips(Sequence* s) {
   }
 }
 
-void UpdateOCIOGLState(const ComposeSequenceParams& params)
+#ifndef NO_OCIO
+QOpenGLShaderProgramPtr olive::rendering::SetupOCIO(QOpenGLContext* ctx,
+                                                    GLuint& lut_texture,
+                                                    OCIO::ConstProcessorRcPtr processor)
 {
+
+  QOpenGLExtraFunctions* xf = ctx->extraFunctions();
+
+  // Create LUT texture
+  xf->glGenTextures(1, &lut_texture);
+
+  // Bind LUT
+  xf->glBindTexture(GL_TEXTURE_3D, lut_texture);
+
+  // Set texture parameters
+  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  // Allocate storage for texture
+  xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
+                   OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
+                   0, GL_RGB,GL_FLOAT, nullptr);
+
+  //
+  // SET UP GLSL SHADER
+  //
+
+  OCIO::GpuShaderDesc shaderDesc;
+  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
+  shaderDesc.setFunctionName("OCIODisplay");
+  shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
+
+  //
+  // COMPUTE 3D LUT
+  //
+
+  GLfloat* ocio_lut_data = new GLfloat[OCIO_NUM_3D_ENTRIES];
+  processor->getGpuLut3D(ocio_lut_data, shaderDesc);
+
+  // Upload LUT data to texture
+  xf->glTexSubImage3D(GL_TEXTURE_3D, 0,
+                      0, 0, 0,
+                      OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
+                      GL_RGB, GL_FLOAT, ocio_lut_data);
+
+  delete [] ocio_lut_data;
+
+  // Create OCIO shader code
+  QString shader_text(processor->getGpuShaderText(shaderDesc));
+  shader_text.append("\n"
+                     "uniform sampler3D tex2;\n"
+                     "\n"
+                     "vec4 process(vec4 col) {\n"
+                     "  return OCIODisplay(col, tex2);\n"
+                     "}\n");
+
+
+  // Get pipeline-based shader to inject OCIO shader into
+  QOpenGLShaderProgramPtr shader = olive::rendering::GetPipeline(shader_text);
+
+  // Release LUT
+  xf->glBindTexture(GL_TEXTURE_3D, 0);
+
+  return shader;
 }
+
+GLuint olive::rendering::OCIOBlit(QOpenGLShaderProgram *pipeline,
+                                  GLuint lut,
+                                  const FramebufferObject& fbo,
+                                  GLuint texture)
+{
+  QOpenGLContext* ctx = QOpenGLContext::currentContext();
+  QOpenGLExtraFunctions* xf = ctx->extraFunctions();
+
+  xf->glActiveTexture(GL_TEXTURE2);
+  xf->glBindTexture(GL_TEXTURE_3D, lut);
+  xf->glActiveTexture(GL_TEXTURE0);
+
+  pipeline->bind();
+
+  pipeline->setUniformValue("tex2", 2);
+
+  //textureID = draw_clip(params.ctx, pipeline, c->fbo.at(fbo_switcher), textureID, true);
+  GLuint textureID = draw_clip(ctx, pipeline, fbo, texture, true);
+
+  pipeline->release();
+
+  xf->glActiveTexture(GL_TEXTURE2);
+  xf->glBindTexture(GL_TEXTURE_3D, 0);
+  xf->glActiveTexture(GL_TEXTURE0);
+
+  return textureID;
+}
+#endif

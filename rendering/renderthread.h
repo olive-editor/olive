@@ -34,14 +34,6 @@
 #include "rendering/framebufferobject.h"
 #include "qopenglshaderprogramptr.h"
 
-#ifndef NO_OCIO
-// copied from source code to OCIODisplay
-const int OCIO_LUT3D_EDGE_SIZE = 32;
-
-// copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
-const int OCIO_NUM_3D_ENTRIES = 98304;
-#endif
-
 class RenderThread : public QThread {
   Q_OBJECT
 public:
@@ -80,10 +72,9 @@ private:
   void destroy_ocio();
 
   // OpenColorIO variables
-  float ocio_lut_data[OCIO_NUM_3D_ENTRIES];
   GLuint ocio_lut_texture;
   QOpenGLShaderProgramPtr ocio_shader;
-  QString ocio_loaded_config;
+  qint64 ocio_config_date;
 #endif
 
   FramebufferObject front_buffer_1;
@@ -91,6 +82,8 @@ private:
 
   FramebufferObject front_buffer_2;
   QMutex front_mutex2;
+
+  FramebufferObject composite_buffer;
 
   bool front_buffer_switcher;
 

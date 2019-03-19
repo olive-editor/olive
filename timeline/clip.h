@@ -157,6 +157,11 @@ public:
   QOpenGLTexture* texture;
   long texture_frame;
 
+#ifndef NO_OCIO
+  QOpenGLShaderProgramPtr ocio_shader;
+  GLuint ocio_lut_texture;
+#endif
+
 private:
   // timeline variables (should be copied in copy())
   bool enabled_;

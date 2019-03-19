@@ -299,5 +299,6 @@ void Config::save(QString path) {
 }
 
 RuntimeConfig::RuntimeConfig() :
-  shaders_are_enabled(true)
+  shaders_are_enabled(true),
+  ocio_config_date(QDateTime::currentMSecsSinceEpoch())
 {}

@@ -516,6 +516,11 @@ void Clip::Close(bool wait) {
     // delete framebuffers
     fbo.clear();
 
+#ifndef NO_OCIO
+    // delete OCIO shader
+    ocio_shader = nullptr;
+#endif
+
     if (UsesCacher()) {
       cacher.Close(wait);
     } else {
@@ -605,8 +610,8 @@ bool Clip::Retrieve()
       }
 
       texture->setData(QOpenGLTexture::RGBA,
-                          QOpenGLTexture::UInt8,
-                          const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
+                       QOpenGLTexture::UInt8,
+                       const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
 
       if (data_buffer_1 != frame->data[0]) {
         delete [] data_buffer_1;

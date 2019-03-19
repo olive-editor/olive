@@ -273,6 +273,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
   olive::icon::Initialize();
 
+#ifndef NO_OCIO
+  // Load OpenColorIO configuration if set
+  if (olive::CurrentConfig.enable_color_management && !olive::CurrentConfig.ocio_config_path.isEmpty()) {
+    try {
+      OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(olive::CurrentConfig.ocio_config_path.toUtf8()));
+    } catch (OCIO::Exception& e) {
+      QMessageBox::critical(this,
+                            tr("OpenColorIO Config Error"),
+                            tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
+                            QMessageBox::Ok);
+    }
+  }
+#endif
+
   alloc_panels(this);
 
   // populate menu bars

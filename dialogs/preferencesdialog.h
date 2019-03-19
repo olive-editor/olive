@@ -33,6 +33,10 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#ifndef NO_OCIO
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE;
+#endif
 
 #include "timeline/sequence.h"
 
@@ -71,9 +75,21 @@ private slots:
   void browse_css_file();
   void browse_ocio_config();
 
+  // OCIO function
+  void update_ocio_view_menu();
+  void update_ocio_view_menu(OCIO::ConstConfigRcPtr config);
+  void update_ocio_config(const QString&);
+
 private:
   void setup_ui();
   void setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent);
+
+  enum PreviewDeleteTypes {
+    DELETE_NONE,
+    DELETE_THUMBNAILS,
+    DELETE_WAVEFORMS,
+    DELETE_BOTH
+  };
 
   // used to delete previews
   // type can be: 't' for thumbnails, 'w' for waveforms, or 1 for all
@@ -82,9 +98,11 @@ private:
    *
    * @param type
    *
-   * The types of previews to
+   * The types of previews to delete.
    */
-  void delete_previews(char type);
+  void delete_previews(PreviewDeleteTypes type);
+
+  void populate_ocio_menus(OCIO::ConstConfigRcPtr config);
 
   QLineEdit* custom_css_fn;
   QLineEdit* imgSeqFormatEdit;
@@ -103,8 +121,13 @@ private:
   QSpinBox* thumbnail_res_spinbox;
   QSpinBox* waveform_res_spinbox;
   QCheckBox* add_default_effects_to_clips;
+
   QCheckBox* enable_color_management;
   QLineEdit* ocio_config_file;
+  QComboBox* ocio_display;
+  QComboBox* ocio_view;
+  QComboBox* ocio_look;
+
   QComboBox* ui_style;
   Sequence sequence_settings;
 #ifdef Q_OS_WIN

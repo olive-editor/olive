@@ -871,7 +871,12 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
             item = std::make_shared<Media>(parent);
           }
 
-          m = FootagePtr(new Footage());
+          m = std::make_shared<Footage>();
+
+          // Edge case for PNGs that standardized unassociated alpha
+          if (file.endsWith("png", Qt::CaseInsensitive)) {
+            m->alpha_is_associated = false;
+          }
 
           m->using_inout = false;
           m->url = file;
@@ -1107,7 +1112,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
           stream.writeAttribute("in", QString::number(f->in));
           stream.writeAttribute("out", QString::number(f->out));
           stream.writeAttribute("speed", QString::number(f->speed));
-          stream.writeAttribute("alphapremul", QString::number(f->alpha_is_premultiplied));
+          stream.writeAttribute("alphapremul", QString::number(f->alpha_is_associated));
           stream.writeAttribute("startnumber", QString::number(f->start_number));
 
           stream.writeAttribute("proxy", QString::number(f->proxy));

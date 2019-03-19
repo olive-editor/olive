@@ -27,17 +27,17 @@
 #include "project/previewgenerator.h"
 #include "timeline/clip.h"
 
-Footage::Footage() {
-  ready = (false);
-  preview_gen = (nullptr);
-  invalid = (false);
-  in = (0);
-  out = (0);
-  speed = (1.0);
-  alpha_is_premultiplied = (false);
-  proxy = (false);
-  start_number = 0;
-
+Footage::Footage() :
+  ready(false),
+  preview_gen(nullptr),
+  invalid(false),
+  in(0),
+  out(0),
+  speed(1.0),
+  alpha_is_associated(true),
+  proxy(false),
+  start_number(0)
+{
   ready_lock.lock();
 }
 
