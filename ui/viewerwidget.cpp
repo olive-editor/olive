@@ -41,7 +41,6 @@ extern "C" {
 #include <QScreen>
 #include <QMessageBox>
 #include <QOpenGLBuffer>
-#include <QOpenGLVertexArrayObject>
 
 #include "panels/panels.h"
 #include "project/projectelements.h"
@@ -61,6 +60,8 @@ extern "C" {
 #include "ui/viewerwindow.h"
 #include "ui/menu.h"
 #include "mainwindow.h"
+
+const int kTitleActionSafeVertexSize = 84;
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QOpenGLWidget(parent),
@@ -221,6 +222,13 @@ void ViewerWidget::initializeGL() {
   connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
 
   pipeline_ = olive::rendering::GetPipeline();
+
+  vao_.create();
+
+  title_safe_area_buffer_.create();
+  title_safe_area_buffer_.bind();
+  title_safe_area_buffer_.allocate(nullptr, kTitleActionSafeVertexSize * sizeof(GLfloat));
+  title_safe_area_buffer_.release();
 }
 
 void ViewerWidget::frame_update() {
@@ -276,6 +284,10 @@ void ViewerWidget::context_destroy() {
   }
 
   renderer.delete_ctx();
+
+  title_safe_area_buffer_.destroy();
+
+  vao_.destroy();
 
   pipeline_ = nullptr;
 
@@ -509,13 +521,22 @@ void ViewerWidget::draw_title_safe_area() {
     0.5f, 0.55f, 0.0f
   };
 
+  vao_.bind();
+
+  title_safe_area_buffer_.bind();
+  title_safe_area_buffer_.write(0, vertices, kTitleActionSafeVertexSize * sizeof(GLfloat));
+
   GLuint vertex_location = pipeline_->attributeLocation("a_position");
   func->glEnableVertexAttribArray(vertex_location);
-  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   func->glDrawArrays(GL_LINES, 0, 28);
 
   pipeline_->setUniformValue("color_only", false);
+
+  title_safe_area_buffer_.release();
+
+  vao_.release();
 
   pipeline_->release();
 
@@ -647,13 +668,22 @@ void ViewerWidget::draw_gizmos() {
     }
   }
 
+  vao_.bind();
+
+  QOpenGLBuffer vertex_buffer;
+  vertex_buffer.create();
+  vertex_buffer.bind();
+  vertex_buffer.allocate(vertices.constData(), vertices.size() * sizeof(GLfloat));
+
   GLuint vertex_location = pipeline_->attributeLocation("a_position");
   func->glEnableVertexAttribArray(vertex_location);
-  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices.constData());
+  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
   func->glDrawArrays(GL_LINES, 0, vertices.size() / 3);
 
   pipeline_->setUniformValue("color_only", false);
+
+  vao_.release();
 
   pipeline_->release();
 
@@ -669,9 +699,9 @@ void ViewerWidget::paintGL() {
     tex_lock->lock();
 
     QOpenGLFunctions* f = context()->functions();
-    //QOpenGLExtraFunctions* xf = context()->extraFunctions();
 
     makeCurrent();
+
 
     // clear to solid black
     f->glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -679,7 +709,6 @@ void ViewerWidget::paintGL() {
 
 
     // draw texture from render thread
-
 
     f->glViewport(0, 0, width(), height());
 

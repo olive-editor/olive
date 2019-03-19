@@ -29,6 +29,8 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QOpenGLFunctions>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
 
 #include "timeline/clip.h"
 #include "project/footage.h"
@@ -94,6 +96,8 @@ private:
   double y_scroll;
 
   QOpenGLShaderProgramPtr pipeline_;
+  QOpenGLVertexArrayObject vao_;
+  QOpenGLBuffer title_safe_area_buffer_;
 
 private slots:
   void context_destroy();
