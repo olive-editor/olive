@@ -229,6 +229,8 @@ void ViewerWidget::initializeGL() {
   title_safe_area_buffer_.bind();
   title_safe_area_buffer_.allocate(nullptr, kTitleActionSafeVertexSize * sizeof(GLfloat));
   title_safe_area_buffer_.release();
+
+  gizmo_buffer_.create();
 }
 
 void ViewerWidget::frame_update() {
@@ -286,6 +288,10 @@ void ViewerWidget::context_destroy() {
   renderer.delete_ctx();
 
   title_safe_area_buffer_.destroy();
+
+  if (gizmo_buffer_.isCreated()) {
+    gizmo_buffer_.destroy();
+  }
 
   vao_.destroy();
 
@@ -555,10 +561,14 @@ void ViewerWidget::draw_gizmos() {
   matrix.translate(-(viewer->seq->width-(width()/container->zoom))*x_scroll,
                    -((viewer->seq->height-(height()/container->zoom))*(1.0-y_scroll)));
 
+  // Set transformation matrix
   pipeline_->setUniformValue("mvp_matrix", matrix);
+
+  // Set pipeline shader to draw full white
   pipeline_->setUniformValue("color_only", true);
   pipeline_->setUniformValue("color_only_color", QColor(255, 255, 255, 255));
 
+  // Set up constants for gizmo sizes
   float size_diff = float(viewer->seq->width) / float(width());
   float dot_size = GIZMO_DOT_SIZE * size_diff;
   float target_size = GIZMO_TARGET_SIZE * size_diff;
@@ -570,7 +580,9 @@ void ViewerWidget::draw_gizmos() {
     EffectGizmo* g = gizmos->gizmo(j);
 
     switch (g->get_type()) {
-    case GIZMO_TYPE_DOT: // draw dot
+    case GIZMO_TYPE_DOT:
+
+      // Draw standard square dot
 
       vertices.append(g->screen_pos[0].x()-dot_size);
       vertices.append(g->screen_pos[0].y()-dot_size);
@@ -589,7 +601,9 @@ void ViewerWidget::draw_gizmos() {
       vertices.append(0.0f);
 
       break;
-    case GIZMO_TYPE_POLY: // draw lines for a polygon
+    case GIZMO_TYPE_POLY:
+
+      // Draw an arbitrary polygon with lines
 
       for (int k=1;k<g->get_point_count();k++) {
 
@@ -612,7 +626,9 @@ void ViewerWidget::draw_gizmos() {
       vertices.append(0.0f);
 
       break;
-    case GIZMO_TYPE_TARGET: // draw target
+    case GIZMO_TYPE_TARGET:
+
+      // Draw "target" gizmo (square with two lines through the middle)
 
       vertices.append(g->screen_pos[0].x()-target_size);
       vertices.append(g->screen_pos[0].y()-target_size);
@@ -670,14 +686,29 @@ void ViewerWidget::draw_gizmos() {
 
   vao_.bind();
 
-  QOpenGLBuffer vertex_buffer;
-  vertex_buffer.create();
-  vertex_buffer.bind();
-  vertex_buffer.allocate(vertices.constData(), vertices.size() * sizeof(GLfloat));
+  // The gizmo buffer may have been destroyed or not created yet, ensure it's created here
+  if (!gizmo_buffer_.isCreated() && !gizmo_buffer_.create()) {
+    return;
+  }
+
+  gizmo_buffer_.bind();
+
+  // Get the total byte size of the vertex array
+  int gizmo_buffer_desired_size = vertices.size() * sizeof(GLfloat);
+
+  // Determine if the gizmo count has changed, and if so reallocate the buffer
+  if (gizmo_buffer_.size() != gizmo_buffer_desired_size) {
+    gizmo_buffer_.allocate(vertices.constData(), gizmo_buffer_desired_size);
+  } else {
+    gizmo_buffer_.write(0, vertices.constData(), gizmo_buffer_desired_size);
+  }
+
 
   GLuint vertex_location = pipeline_->attributeLocation("a_position");
   func->glEnableVertexAttribArray(vertex_location);
   func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+  gizmo_buffer_.release();
 
   func->glDrawArrays(GL_LINES, 0, vertices.size() / 3);
 

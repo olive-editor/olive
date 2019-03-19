@@ -97,6 +97,7 @@ private:
 
   QOpenGLShaderProgramPtr pipeline_;
   QOpenGLVertexArrayObject vao_;
+  QOpenGLBuffer gizmo_buffer_;
   QOpenGLBuffer title_safe_area_buffer_;
 
 private slots:

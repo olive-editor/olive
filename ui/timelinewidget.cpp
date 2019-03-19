@@ -2814,6 +2814,11 @@ void draw_waveform(ClipPtr clip, const FootageStream* ms, long media_length, QPa
       int offset_range_min = qMin(offset_range_start, offset_range_end);
       int offset_range_max = qMax(offset_range_start, offset_range_end);
 
+      // Break if we're about to draw from an index that doesn't exist
+      if (offset_range_min+1 >= ms->audio_preview.size()) {
+        break;
+      }
+
       qint8 min = qint8(qRound(double(ms->audio_preview.at(offset_range_min)) / 128.0 * (channel_height/2)));
       qint8 max = qint8(qRound(double(ms->audio_preview.at(offset_range_min+1)) / 128.0 * (channel_height/2)));
 
