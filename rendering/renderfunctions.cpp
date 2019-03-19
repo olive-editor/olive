@@ -615,7 +615,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             params.gizmos->gizmo_draw(timecode, coords);
 
             // convert gizmo coords to screen coords
-            params.gizmos->gizmo_world_to_screen(projection, coords.matrix);
+            params.gizmos->gizmo_world_to_screen(coords.matrix, projection);
           }
 
 

@@ -989,6 +989,8 @@ void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& p
 
     for (int j=0;j<g->get_point_count();j++) {
 
+      // Convert the world point from the gizmo into a screen point relative to the sequence's dimensions
+
       QVector3D screen_pos = g->world_pos.at(j).project(matrix,
                                                         projection,
                                                         QRect(0,
@@ -996,7 +998,7 @@ void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& p
                                                               parent_clip->sequence->width,
                                                               parent_clip->sequence->height));
 
-      g->screen_pos[j] = QPoint(screen_pos.x(), screen_pos.y());
+      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->sequence->height-screen_pos.y());
 
     }
   }
