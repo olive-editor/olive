@@ -27,6 +27,8 @@ extern "C" {
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QOpenGLExtraFunctions>
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 #include <QDebug>
 
 #ifndef NO_OCIO
@@ -80,6 +82,22 @@ GLfloat olive::rendering::flipped_blit_texcoords[] = {
 
 void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatrix4x4 matrix) {
 
+  QOpenGLVertexArrayObject m_vao;
+  m_vao.create();
+  m_vao.bind();
+
+  QOpenGLBuffer m_vbo;
+  m_vbo.create();
+  m_vbo.bind();
+  m_vbo.allocate(blit_vertices, 18 * sizeof(GLfloat));
+  m_vbo.release();
+
+  QOpenGLBuffer m_vbo2;
+  m_vbo2.create();
+  m_vbo2.bind();
+  m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * sizeof(GLfloat));
+  m_vbo2.release();
+
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
   pipeline->bind();
@@ -88,12 +106,16 @@ void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatri
   pipeline->setUniformValue("texture", 0);
 
   GLuint vertex_location = pipeline->attributeLocation("a_position");
+  m_vbo.bind();
   func->glEnableVertexAttribArray(vertex_location);
-  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, blit_vertices);
+  func->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  m_vbo.release();
 
   GLuint tex_location = pipeline->attributeLocation("a_texcoord");
+  m_vbo2.bind();
   func->glEnableVertexAttribArray(tex_location);
-  func->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, flipped ? flipped_blit_texcoords : blit_texcoords);
+  func->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  m_vbo2.release();
 
   func->glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -655,18 +677,37 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               coords.texture_bottom_right.x(), coords.texture_bottom_right.y(),
 
               coords.texture_top_left.x(), coords.texture_top_left.y(),
-
               coords.texture_bottom_left.x(), coords.texture_bottom_left.y(),
               coords.texture_bottom_right.x(), coords.texture_bottom_right.y(),
             };
 
+            QOpenGLVertexArrayObject vao;
+            vao.create();
+            vao.bind();
+
+            QOpenGLBuffer vertex_buffer;
+            vertex_buffer.create();
+            vertex_buffer.bind();
+            vertex_buffer.allocate(vertices, 18 * sizeof(GLfloat));
+            vertex_buffer.release();
+
+            QOpenGLBuffer texcoord_buffer;
+            texcoord_buffer.create();
+            texcoord_buffer.bind();
+            texcoord_buffer.allocate(texcoords, 12 * sizeof(GLfloat));
+            texcoord_buffer.release();
+
             GLuint vertex_location = params.pipeline->attributeLocation("a_position");
+            vertex_buffer.bind();
             params.ctx->functions()->glEnableVertexAttribArray(vertex_location);
-            params.ctx->functions()->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+            params.ctx->functions()->glVertexAttribPointer(vertex_location, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            vertex_buffer.release();
 
             GLuint tex_location = params.pipeline->attributeLocation("a_texcoord");
+            texcoord_buffer.bind();
             params.ctx->functions()->glEnableVertexAttribArray(tex_location);
-            params.ctx->functions()->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
+            params.ctx->functions()->glVertexAttribPointer(tex_location, 2, GL_FLOAT, GL_FALSE, 0, 0);
+            texcoord_buffer.release();
 
             params.ctx->functions()->glDrawArrays(GL_TRIANGLES, 0, 6);
 
