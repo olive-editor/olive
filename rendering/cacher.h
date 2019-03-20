@@ -570,6 +570,11 @@ private:
    * audio to the audio buffer which will later be sent to the audio output device.
    */
   void CacheAudioWorker();
+
+  /**
+   * @brief Internal function using the Cacher's known information to determine whether this media is playing in reverse
+   */
+  bool IsReversed();
 };
 
 #endif // CACHER_H

@@ -169,7 +169,7 @@ void ViewerWidget::save_frame() {
       fn += selected_ext;
     }
 
-    renderer.start_render(context(), viewer->seq.get(), fn);
+    renderer.start_render(context(), viewer->seq.get(), 1, fn);
   }
 }
 
@@ -240,7 +240,7 @@ void ViewerWidget::frame_update() {
       update();
     } else {
       doneCurrent();
-      renderer.start_render(context(), viewer->seq.get());
+      renderer.start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
     }
 
     // render the audio
@@ -767,7 +767,7 @@ void ViewerWidget::paintGL() {
 
     if (renderer.did_texture_fail() && !viewer->playing) {
       doneCurrent();
-      renderer.start_render(context(), viewer->seq.get());
+      renderer.start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
     }
   }
 }

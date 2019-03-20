@@ -29,7 +29,7 @@
 
 #ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE;
+namespace OCIO = OCIO_NAMESPACE::v1;
 #endif
 
 #include "timeline/sequence.h"
@@ -220,7 +220,7 @@ void RenderThread::paint() {
   params.video = true;
   params.texture_failed = false;
   params.wait_for_mutexes = true;
-  params.playback_speed = 1;
+  params.playback_speed = playback_speed_;
   params.blend_mode_program = blend_mode_program.get();
   params.pipeline = pipeline_program.get();
   params.backend_buffer1 = &back_buffer_1;
@@ -315,6 +315,7 @@ void RenderThread::paint() {
 
 void RenderThread::start_render(QOpenGLContext *share,
                                 Sequence* s,
+                                int playback_speed,
                                 const QString& save,
                                 GLvoid* pixels,
                                 int pixel_linesize,
@@ -322,6 +323,8 @@ void RenderThread::start_render(QOpenGLContext *share,
   Q_UNUSED(idivider);
 
   seq = s;
+
+  playback_speed_ = playback_speed;
 
   // stall any dependent actions
   texture_failed = true;

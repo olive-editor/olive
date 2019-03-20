@@ -32,7 +32,7 @@
 #include <QSpinBox>
 #ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE;
+namespace OCIO = OCIO_NAMESPACE::v1;
 #endif
 
 #include "project/footage.h"
