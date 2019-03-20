@@ -57,7 +57,6 @@
 #include "global/debug.h"
 #include "effects/effect.h"
 #include "effects/internal/solideffect.h"
-#include "effects/internal/texteffect.h"
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
@@ -1022,7 +1021,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             switch (panel_timeline->creating_object) {
             case ADD_OBJ_TITLE:
               c->set_name(tr("Title"));
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TEXT, EFFECT_TYPE_EFFECT)));
+              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_RICHTEXT, EFFECT_TYPE_EFFECT)));
               break;
             case ADD_OBJ_SOLID:
               c->set_name(tr("Solid Color"));
