@@ -252,19 +252,31 @@ void RenderThread::paint() {
 
   FramebufferObject& buffer = front_buffer_switcher ? front_buffer_1 : front_buffer_2;
 
-  // Convert linear frame to display color space
+  // Blit the composite buffer to one of the front buffers
+  bool standard_blit = true;
+
 #ifndef NO_OCIO
-  olive::rendering::OCIOBlit(ocio_shader.get(),
-                             ocio_lut_texture,
-                             buffer,
-                             composite_buffer.texture());
+  // If we're color managing, conver the linear composited frame to display color space
+  if (olive::CurrentConfig.enable_color_management && ocio_shader != nullptr) {
+    olive::rendering::OCIOBlit(ocio_shader.get(),
+                               ocio_lut_texture,
+                               buffer,
+                               composite_buffer.texture());
+
+    standard_blit = false;
+  }
 #else
-  buffer.BindBuffer();
-  composite_buffer.BindTexture();
-  olive::rendering::Blit(pipeline_program.get());
-  composite_buffer.ReleaseTexture();
-  buffer.ReleaseBuffer();
+
 #endif
+
+  // If we're not color managing, just blit normally
+  if (standard_blit) {
+    buffer.BindBuffer();
+    composite_buffer.BindTexture();
+    olive::rendering::Blit(pipeline_program.get());
+    composite_buffer.ReleaseTexture();
+    buffer.ReleaseBuffer();
+  }
 
   // flush changes
   f->glFinish();
