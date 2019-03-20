@@ -893,6 +893,7 @@ GLuint Effect::process_superimpose(double timecode) {
   }
 
   if (texture == nullptr || texture->width() != img.width() || texture->height() != img.height()) {
+
     delete_texture();
 
     texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
@@ -903,6 +904,7 @@ GLuint Effect::process_superimpose(double timecode) {
     texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 
     redrew_image = true;
+
   }
 
   if (redrew_image) {
@@ -1088,10 +1090,8 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-  if (texture != nullptr) {
-    delete texture;
-    texture = nullptr;
-  }
+  delete texture;
+  texture = nullptr;
 }
 
 const EffectMeta* get_meta_from_name(const QString& input) {
