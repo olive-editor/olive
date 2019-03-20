@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,19 +24,19 @@
 
 ModulePtr LibLoad(const QString &filename) {
 #ifdef _WIN32
-	LPCWSTR dll_fn_w = reinterpret_cast<const wchar_t*>(filename.utf16());
-	return LoadLibrary(dll_fn_w);
+  LPCWSTR dll_fn_w = reinterpret_cast<const wchar_t*>(filename.utf16());
+  return LoadLibrary(dll_fn_w);
 #elif defined(__linux__) || defined(__APPLE__) || defined(__HAIKU__)
-	return dlopen(filename.toUtf8(), RTLD_LAZY);
+  return dlopen(filename.toUtf8(), RTLD_LAZY);
 #else
-	qWarning() << "Olive doesn't know how to open dynamic libraries on this platform, external libraries will not be functional";
-	return nullptr;
+  qWarning() << "Olive doesn't know how to open dynamic libraries on this platform, external libraries will not be functional";
+  return nullptr;
 #endif
 }
 
 QStringList LibFilter() {
 #ifdef _WIN32
-	return QStringList("*.dll");
+  return QStringList("*.dll");
 #elif defined(__linux__) || defined(__APPLE__) || defined(__HAIKU__)
     return {"*.so", "*.dylib"};
 #endif

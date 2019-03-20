@@ -84,7 +84,6 @@ SOURCES += \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
     dialogs/replaceclipmediadialog.cpp \
-    ui/fontcombobox.cpp \
     ui/checkboxex.cpp \
     ui/keyframeview.cpp \
     ui/texteditex.cpp \
@@ -210,7 +209,6 @@ HEADERS += \
     ui/comboboxex.h \
     ui/colorbutton.h \
     dialogs/replaceclipmediadialog.h \
-    ui/fontcombobox.h \
     ui/checkboxex.h \
     ui/keyframeview.h \
     ui/texteditex.h \
