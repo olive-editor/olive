@@ -498,8 +498,10 @@ void Clip::Close(bool wait) {
     }
 
     // destroy opengl texture in main thread
-    QOpenGLContext::currentContext()->functions()->glDeleteTextures(1, &texture);
-    texture = 0;
+    if (texture > 0) {
+      QOpenGLContext::currentContext()->functions()->glDeleteTextures(1, &texture);
+      texture = 0;
+    }
 
     // close all effects
     for (int i=0;i<effects.size();i++) {

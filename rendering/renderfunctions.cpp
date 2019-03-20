@@ -565,6 +565,8 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
 
                   }
 
+                  qDebug() << "Input colorspace:" << input_cs;
+
                   try {
                     OCIO::ConstProcessorRcPtr processor = config->getProcessor(input_cs.toUtf8(),
                                                                                OCIO::ROLE_SCENE_LINEAR);
