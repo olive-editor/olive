@@ -582,6 +582,7 @@ bool Clip::Retrieve()
 
       f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
 
+      /*
       // 2 data buffers to ping-pong between
       bool using_db_1 = true;
       uint8_t* data_buffer_1 = frame->data[0];
@@ -608,15 +609,18 @@ bool Clip::Retrieve()
           using_db_1 = !using_db_1;
         }
       }
+      */
 
       texture->setData(QOpenGLTexture::RGBA,
                        QOpenGLTexture::UInt8,
-                       const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
+                       const_cast<const uint8_t*>(frame->data[0]));
 
+      /*
       if (data_buffer_1 != frame->data[0]) {
         delete [] data_buffer_1;
         delete [] data_buffer_2;
       }
+      */
 
       f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 

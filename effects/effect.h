@@ -108,7 +108,6 @@ enum EffectInternal {
   EFFECT_INTERNAL_FILLLEFTRIGHT,
   EFFECT_INTERNAL_VST,
   EFFECT_INTERNAL_CORNERPIN,
-  EFFECT_INTERNAL_FREI0R,
   EFFECT_INTERNAL_RICHTEXT,
   EFFECT_INTERNAL_COUNT
 };
@@ -179,8 +178,7 @@ public:
   enum VideoEffectFlags {
     ShaderFlag        = 0x1,
     CoordsFlag        = 0x2,
-    SuperimposeFlag   = 0x4,
-    ImageFlag         = 0x8
+    SuperimposeFlag   = 0x4
   };
   int Flags();
   void SetFlags(int flags);

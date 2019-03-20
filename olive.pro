@@ -133,7 +133,6 @@ SOURCES += \
     dialogs/debugdialog.cpp \
     ui/viewerwindow.cpp \
     project/projectfilter.cpp \
-    effects/internal/frei0reffect.cpp \
     effects/effectloaders.cpp \
     global/crossplatformlib.cpp \
     effects/internal/vsthost.cpp \
@@ -260,7 +259,6 @@ HEADERS += \
     dialogs/debugdialog.h \
     ui/viewerwindow.h \
     project/projectfilter.h \
-    effects/internal/frei0reffect.h \
     effects/effectloaders.h \
     global/crossplatformlib.h \
     effects/internal/vsthost.h \

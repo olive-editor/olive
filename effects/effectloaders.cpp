@@ -20,6 +20,10 @@
 
 #include "effectloaders.h"
 
+#include <QDir>
+#include <QXmlStreamReader>
+#include <QDebug>
+
 #include "effects/effect.h"
 #include "effects/transition.h"
 #include "global/path.h"
@@ -27,16 +31,6 @@
 #include "panels/effectcontrols.h"
 #include "global/crossplatformlib.h"
 #include "global/config.h"
-
-#include <QDir>
-#include <QXmlStreamReader>
-
-#include <QDebug>
-
-#ifndef NOFREI0R
-#include <frei0r.h>
-typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
-#endif
 
 QMutex olive::effects_loaded;
 
@@ -206,73 +200,6 @@ void EffectInit::StartLoading() {
   init_thread->start();
 }
 
-#ifndef NOFREI0R
-void load_frei0r_effects_worker(const QString& dir, EffectMeta& em, QVector<QString>& loaded_names) {
-  QDir search_dir(dir);
-  if (search_dir.exists()) {
-    QList<QString> entry_list = search_dir.entryList(LibFilter(), QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-    for (int j=0;j<entry_list.size();j++) {
-      QString entry_path = search_dir.filePath(entry_list.at(j));
-      if (QFileInfo(entry_path).isDir()) {
-        load_frei0r_effects_worker(entry_path, em, loaded_names);
-      } else {
-        ModulePtr effect = LibLoad(entry_path);
-        if (effect != nullptr) {
-          f0rGetPluginInfo get_info_func = reinterpret_cast<f0rGetPluginInfo>(LibAddress(effect, "f0r_get_plugin_info"));
-          if (get_info_func != nullptr) {
-            f0r_plugin_info_t info;
-            get_info_func(&info);
-
-            if (!loaded_names.contains(info.name)
-                && info.plugin_type == F0R_PLUGIN_TYPE_FILTER
-                && info.color_model == F0R_COLOR_MODEL_RGBA8888) {
-              em.name = info.name;
-              em.path = dir;
-              em.filename = entry_list.at(j);
-              em.tooltip = QString("%1\n%2\n%3\n%4").arg(em.name, info.author, info.explanation, em.filename);
-
-              loaded_names.append(em.name);
-
-              olive::effects.append(em);
-            }
-//                        qDebug() << "Found:" << info.name << "by" << info.author;
-          }
-          LibClose(effect);
-        }
-//                qDebug() << search_dir.filePath(entry_list.at(j));
-      }
-    }
-  }
-}
-
-void load_frei0r_effects() {
-  QList<QString> effect_dirs = get_effects_paths();
-
-  // add defined paths for frei0r plugins on unix
-#if defined(__APPLE__) || defined(__linux__) || defined(__HAIKU__)
-  effect_dirs.prepend("/usr/lib/frei0r-1");
-  effect_dirs.prepend("/usr/local/lib/frei0r-1");
-  effect_dirs.prepend(QDir::homePath() + "/.frei0r-1/lib");
-#endif
-
-  QString env_path(qgetenv("FREI0R_PATH"));
-  if (!env_path.isEmpty()) effect_dirs.append(env_path);
-
-  QVector<QString> loaded_names;
-
-  // search for paths
-  EffectMeta em;
-  em.category = "Frei0r";
-  em.type = EFFECT_TYPE_EFFECT;
-  em.subtype = EFFECT_TYPE_VIDEO;
-  em.internal = EFFECT_INTERNAL_FREI0R;
-
-  for (int i=0;i<effect_dirs.size();i++) {
-    load_frei0r_effects_worker(effect_dirs.at(i), em, loaded_names);
-  }
-}
-#endif
-
 EffectInit::EffectInit() {
   olive::effects_loaded.lock();
 }
@@ -281,9 +208,6 @@ void EffectInit::run() {
   qInfo() << "Initializing effects...";
   load_internal_effects();
   load_shader_effects();
-#ifndef NOFREI0R
-  load_frei0r_effects();
-#endif
   olive::effects_loaded.unlock();
   qInfo() << "Finished initializing effects";
 }

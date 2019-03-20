@@ -66,7 +66,6 @@
 #include "effects/internal/cornerpineffect.h"
 #include "effects/internal/vsthost.h"
 #include "effects/internal/fillleftrighteffect.h"
-#include "effects/internal/frei0reffect.h"
 #include "effects/internal/richtexteffect.h"
 
 QVector<EffectMeta> olive::effects;
@@ -89,9 +88,6 @@ EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
     case EFFECT_INTERNAL_FILLLEFTRIGHT: return std::make_shared<FillLeftRightEffect>(c, em);
 #ifndef NOVST
     case EFFECT_INTERNAL_VST: return std::make_shared<VSTHost>(c, em);
-#endif
-#ifndef NOFREI0R
-    case EFFECT_INTERNAL_FREI0R: return std::make_shared<Frei0rEffect>(c, em);
 #endif
     case EFFECT_INTERNAL_RICHTEXT: return std::make_shared<RichTextEffect>(c, em);
     }
