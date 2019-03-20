@@ -270,6 +270,9 @@ void SourcesCommon::dropEvent(QWidget* parent,
                               const QModelIndexList& items) {
   const QMimeData* mimeData = event->mimeData();
   MediaPtr m = project_parent->item_to_media_ptr(drop_item);
+  if (m == nullptr) {
+    return;
+  }
   if (mimeData->hasUrls()) {
     // drag files in from outside
     QList<QUrl> urls = mimeData->urls();
