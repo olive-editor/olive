@@ -53,6 +53,7 @@ public:
   void paint();
   void start_render(QOpenGLContext* share,
                     Sequence *s,
+                    int playback_speed,
                     const QString &save = nullptr,
                     GLvoid *pixels = nullptr,
                     int pixel_linesize = 0,
@@ -102,6 +103,7 @@ private:
   QOpenGLShaderProgram* ocio_shader;
 
   Sequence* seq;
+  int playback_speed_;
   int divider;
   int tex_width;
   int tex_height;
