@@ -572,10 +572,10 @@ bool Clip::Retrieve()
         // composition
         texture->setSize(cacher.media_width(), cacher.media_height());
 
-        texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+        texture->setFormat(QOpenGLTexture::RGBA32F);
         texture->setMipLevels(texture->maximumMipLevels());
         texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-        texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+        texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::Float32);
       }
 
       QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();

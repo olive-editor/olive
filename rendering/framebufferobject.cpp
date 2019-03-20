@@ -61,8 +61,12 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   ctx->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 
   // allocate storage for texture
-  ctx->functions()->glTexImage2D(
+  /*ctx->functions()->glTexImage2D(
         GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr
+        );*/
+
+  ctx->functions()->glTexImage2D(
+        GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA,  GL_FLOAT, nullptr
         );
 
   // set texture filtering to bilinear
