@@ -31,6 +31,7 @@
 #include "project/proxygenerator.h"
 #include "project/footage.h"
 #include "ui/mainwindow.h"
+#include "global/global.h"
 
 ProxyDialog::ProxyDialog(QWidget *parent, const QVector<Media*> &media) :
   QDialog(parent),
@@ -155,7 +156,7 @@ void ProxyDialog::accept() {
     olive::proxy_generator.queue(info_list.at(i));
   }
 
-  olive::MainWindow->setWindowModified(true);
+  olive::Global->set_modified(true);
 
   QDialog::accept();
 }

@@ -774,7 +774,7 @@ void LoadThread::success_func() {
     panel_project->add_recent_project(filename_);
   }
 
-  olive::MainWindow->setWindowModified(autorecovery_ || !clear_);
+  olive::Global->set_modified(autorecovery_ || !clear_);
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }

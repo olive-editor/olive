@@ -1046,7 +1046,7 @@ void Project::new_project() {
   olive::Global->set_sequence(nullptr);
   panel_footage_viewer->set_media(nullptr);
   clear();
-  olive::MainWindow->setWindowModified(false);
+  olive::Global->set_modified(false);
 }
 
 void Project::load_project(const QString& filename, bool autorecovery, bool clear) {
@@ -1314,7 +1314,7 @@ void Project::save_project(bool autorecovery) {
 
   if (!autorecovery) {
     add_recent_project(olive::ActiveProjectFilename);
-    olive::MainWindow->setWindowModified(false);
+    olive::Global->set_modified(false);
   }
 }
 

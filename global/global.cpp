@@ -48,7 +48,9 @@ std::unique_ptr<OliveGlobal> olive::Global;
 QString olive::ActiveProjectFilename;
 QString olive::AppName;
 
-OliveGlobal::OliveGlobal() {
+OliveGlobal::OliveGlobal() :
+  changed_since_last_autorecovery(false)
+{
   // sets current app name
   QString version_id;
 
@@ -105,6 +107,17 @@ void OliveGlobal::set_rendering_state(bool rendering) {
   } else {
     autorecovery_timer.start();
   }
+}
+
+void OliveGlobal::set_modified(bool modified)
+{
+  olive::MainWindow->setWindowModified(modified);
+  changed_since_last_autorecovery = modified;
+}
+
+bool OliveGlobal::is_modified()
+{
+  return olive::MainWindow->isWindowModified();
 }
 
 void OliveGlobal::load_project_on_launch(const QString& s) {
@@ -219,7 +232,7 @@ bool OliveGlobal::save_project() {
 }
 
 bool OliveGlobal::can_close_project() {
-  if (olive::MainWindow->isWindowModified()) {
+  if (is_modified()) {
     QMessageBox* m = new QMessageBox(
           QMessageBox::Question,
           tr("Unsaved Project"),
@@ -281,8 +294,11 @@ void OliveGlobal::finished_initialize() {
 }
 
 void OliveGlobal::save_autorecovery_file() {
-  if (olive::MainWindow->isWindowModified()) {
+  if (changed_since_last_autorecovery) {
     panel_project->save_project(true);
+
+    changed_since_last_autorecovery = false;
+
     qInfo() << "Auto-recovery project saved";
   }
 }

@@ -319,8 +319,8 @@ void PreferencesDialog::save() {
   accept();
 
   if (restart_after_saving) {
-    // since we already ran can_close_project(), bypass checking again by running setWindowModified(false)
-    olive::MainWindow->setWindowModified(false);
+    // since we already ran can_close_project(), bypass checking again by running set_modified(false)
+    olive::Global->set_modified(false);
 
     olive::MainWindow->close();
 
