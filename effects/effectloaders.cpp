@@ -41,7 +41,9 @@ typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 QMutex olive::effects_loaded;
 
 void load_internal_effects() {
-  if (!olive::CurrentRuntimeConfig.shaders_are_enabled) qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+  if (!olive::CurrentRuntimeConfig.shaders_are_enabled) {
+    qWarning() << "Shaders are disabled, some effects may be nonfunctional";
+  }
 
   EffectMeta em;
 
@@ -137,15 +139,15 @@ void load_internal_effects() {
   olive::effects.append(em);
 }
 
-void load_shader_effects() {
-  QList<QString> effects_paths = get_effects_paths();
-
-  for (int h=0;h<effects_paths.size();h++) {
-    const QString& effects_path = effects_paths.at(h);
-    QDir effects_dir(effects_path);
-    if (effects_dir.exists()) {
-      QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::Files);
-      for (int i=0;i<entries.size();i++) {
+void load_shader_effects_worker(const QString& effects_path) {
+  QDir effects_dir(effects_path);
+  if (effects_dir.exists()) {
+    QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+    for (int i=0;i<entries.size();i++) {
+      QString entry_path = effects_dir.filePath(entries.at(i));
+      if (QFileInfo(entry_path).isDir()) {
+        load_shader_effects_worker(entry_path);
+      } else {
         QFile file(effects_path + "/" + entries.at(i));
         if (!file.open(QIODevice::ReadOnly)) {
           qCritical() << "Could not open" << entries.at(i);
@@ -186,6 +188,15 @@ void load_shader_effects() {
         file.close();
       }
     }
+  }
+}
+
+void load_shader_effects() {
+  QList<QString> effects_paths = get_effects_paths();
+
+  for (int h=0;h<effects_paths.size();h++) {
+    const QString& effects_path = effects_paths.at(h);
+    load_shader_effects_worker(effects_path);
   }
 }
 
