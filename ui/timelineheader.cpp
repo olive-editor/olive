@@ -328,11 +328,26 @@ double TimelineHeader::get_zoom() {
 
 void TimelineHeader::delete_markers() {
   if (selected_markers.size() > 0) {
+
+    // Send command to delete selected markers
     DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->marker_ref);
-    for (int i=0;i<selected_markers.size();i++) {
-      dma->markers.append(selected_markers.at(i));
-    }
+    dma->markers.append(selected_markers);
     olive::UndoStack.push(dma);
+
+    // remove any indices for the selected markers that no longer exist
+    for (int i=0;i<selected_markers.size();i++) {
+      if (selected_markers.at(i) >= viewer->marker_ref->size()) {
+        selected_markers.removeAt(i);
+        i--;
+      }
+    }
+
+    // if we removed all the indices, re-select the last marker in the array so something is always selected
+    // (allows users to hold delete when deleting markers)
+    if (selected_markers.isEmpty() && !viewer->marker_ref->isEmpty()) {
+      selected_markers.append(viewer->marker_ref->size() - 1);
+    }
+
     update_parents();
   }
 }
