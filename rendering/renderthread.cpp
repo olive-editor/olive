@@ -52,8 +52,10 @@ RenderThread::RenderThread() :
   ocio_shader(nullptr),
   #endif
   running(true),
-  front_buffer_switcher(false),
-  ocio_config_date(0)
+#ifndef NO_OCIO
+  ocio_config_date(0),
+#endif
+  front_buffer_switcher(false)
 {
   surface.create();
 }
@@ -248,11 +250,21 @@ void RenderThread::paint() {
   QMutex& active_mutex = front_buffer_switcher ? front_mutex1 : front_mutex2;
   active_mutex.lock();
 
+  FramebufferObject& buffer = front_buffer_switcher ? front_buffer_1 : front_buffer_2;
+
   // Convert linear frame to display color space
+#ifndef NO_OCIO
   olive::rendering::OCIOBlit(ocio_shader.get(),
                              ocio_lut_texture,
-                             front_buffer_switcher ? front_buffer_1 : front_buffer_2,
+                             buffer,
                              composite_buffer.texture());
+#else
+  buffer.BindBuffer();
+  composite_buffer.BindTexture();
+  olive::rendering::Blit(pipeline_program.get());
+  composite_buffer.ReleaseTexture();
+  buffer.ReleaseBuffer();
+#endif
 
   // flush changes
   f->glFinish();

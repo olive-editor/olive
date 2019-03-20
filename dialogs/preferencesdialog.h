@@ -76,9 +76,11 @@ private slots:
   void browse_ocio_config();
 
   // OCIO function
+#ifndef NO_OCIO
   void update_ocio_view_menu();
   void update_ocio_view_menu(OCIO::ConstConfigRcPtr config);
   void update_ocio_config(const QString&);
+#endif
 
 private:
   void setup_ui();
@@ -102,7 +104,9 @@ private:
    */
   void delete_previews(PreviewDeleteTypes type);
 
+#ifndef NO_OCIO
   void populate_ocio_menus(OCIO::ConstConfigRcPtr config);
+#endif
 
   QLineEdit* custom_css_fn;
   QLineEdit* imgSeqFormatEdit;

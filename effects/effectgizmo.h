@@ -35,6 +35,7 @@ enum GizmoType {
 #include <QRect>
 #include <QPoint>
 #include <QVector>
+#include <QVector3D>
 #include <QColor>
 
 class DoubleField;

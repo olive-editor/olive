@@ -157,6 +157,7 @@ void PreferencesDialog::delete_previews(PreviewDeleteTypes type) {
   }
 }
 
+#ifndef NO_OCIO
 void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
 {
   // Get current display name (if the config is empty, get the current default display)
@@ -228,6 +229,7 @@ void PreferencesDialog::update_ocio_config(const QString &s)
     } catch (OCIO::Exception& e) {}
   }
 }
+#endif
 
 void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
   QList<QAction*> menus = menubar->actions();
@@ -588,10 +590,12 @@ void PreferencesDialog::browse_ocio_config()
   }
 }
 
+#ifndef NO_OCIO
 void PreferencesDialog::update_ocio_view_menu()
 {
   update_ocio_view_menu(OCIO::GetCurrentConfig());
 }
+#endif
 
 void PreferencesDialog::delete_all_previews() {
   if (QMessageBox::question(this,

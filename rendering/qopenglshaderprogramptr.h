@@ -2,6 +2,7 @@
 #define QOPENGLSHADERPROGRAMPTR_H
 
 #include <QOpenGLShaderProgram>
+#include <memory>
 
 using QOpenGLShaderProgramPtr = std::shared_ptr<QOpenGLShaderProgram>;
 

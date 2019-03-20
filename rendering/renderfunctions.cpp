@@ -1013,6 +1013,10 @@ GLuint olive::rendering::OCIOBlit(QOpenGLShaderProgram *pipeline,
                                   const FramebufferObject& fbo,
                                   GLuint texture)
 {
+  if (pipeline == nullptr) {
+    return 0;
+  }
+
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
 
