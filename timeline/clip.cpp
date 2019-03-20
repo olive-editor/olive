@@ -57,8 +57,7 @@ Clip::Clip(Sequence* s) :
   undeletable = false;
   replaced = false;
   open_ = false;
-
-  reset();
+  texture = 0;
 }
 
 ClipPtr Clip::copy(Sequence* s) {
@@ -194,10 +193,6 @@ void Clip::move(ComboAction* ca, long iin, long iout, long iclip_in, int itrack,
                                           0));
     }
   }
-}
-
-void Clip::reset() {
-  texture = nullptr;
 }
 
 void Clip::reset_audio() {
@@ -503,8 +498,8 @@ void Clip::Close(bool wait) {
     }
 
     // destroy opengl texture in main thread
-    delete texture;
-    texture = nullptr;
+    QOpenGLContext::currentContext()->functions()->glDeleteTextures(1, &texture);
+    texture = 0;
 
     // close all effects
     for (int i=0;i<effects.size();i++) {
@@ -563,64 +558,45 @@ bool Clip::Retrieve()
 
     if (frame != nullptr && cacher.queue()->contains(frame)) {
 
+      bool allocate_data = false;
+
       // check if the opengl texture exists yet, create it if not
-      if (texture == nullptr) {
-        texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+      if (texture == 0) {
+        QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
 
-        // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
-        // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
-        // composition
-        texture->setSize(cacher.media_width(), cacher.media_height());
+        // create texture object
+        f->glGenTextures(1, &texture);
 
-        texture->setFormat(QOpenGLTexture::RGBA32F);
-        texture->setMipLevels(texture->maximumMipLevels());
-        texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-        texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::Float32);
+        f->glBindTexture(GL_TEXTURE_2D, texture);
+
+        // set texture filtering to bilinear
+        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // queue an allocation ahead
+        allocate_data = true;
+
       }
 
       QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
 
       f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
 
-      /*
-      // 2 data buffers to ping-pong between
-      bool using_db_1 = true;
-      uint8_t* data_buffer_1 = frame->data[0];
-      uint8_t* data_buffer_2 = nullptr;
+      int video_width = cacher.media_width();
+      int video_height = cacher.media_height();
 
-      int frame_size = frame->linesize[0]*frame->height;
-
-      for (int i=0;i<effects.size();i++) {
-        Effect* e = effects.at(i).get();
-        if ((e->Flags() & Effect::ImageFlag) && e->IsEnabled()) {
-          if (data_buffer_1 == frame->data[0]) {
-            data_buffer_1 = new uint8_t[frame_size];
-            data_buffer_2 = new uint8_t[frame_size];
-
-            memcpy(data_buffer_1, frame->data[0], frame_size);
-          }
-
-          e->process_image(get_timecode(this, cacher_frame),
-                           using_db_1 ? data_buffer_1 : data_buffer_2,
-                           using_db_1 ? data_buffer_2 : data_buffer_1,
-                           frame_size
-                           );
-
-          using_db_1 = !using_db_1;
-        }
+      if (allocate_data) {
+        // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
+        // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
+        // composition
+        f->glTexImage2D(
+              GL_TEXTURE_2D, 0, GL_RGBA8, video_width, video_height, 0, GL_RGBA,  GL_UNSIGNED_BYTE, frame->data[0]
+              );
+      } else {
+        f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video_width, video_height,  GL_RGBA, GL_UNSIGNED_BYTE, frame->data[0]);
       }
-      */
 
-      texture->setData(QOpenGLTexture::RGBA,
-                       QOpenGLTexture::UInt8,
-                       const_cast<const uint8_t*>(frame->data[0]));
-
-      /*
-      if (data_buffer_1 != frame->data[0]) {
-        delete [] data_buffer_1;
-        delete [] data_buffer_2;
-      }
-      */
+      f->glBindTexture(GL_TEXTURE_2D, 0);
 
       f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 

@@ -468,7 +468,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
             params.texture_failed = true;
           } else {
             // retrieve ID from c->texture
-            textureID = c->texture->textureId();
+            textureID = c->texture;
           }
 
           if (textureID == 0) {
@@ -530,6 +530,13 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
               }
 
 #ifndef NO_OCIO
+
+              // Convert texture to float
+              if (textureID != c->fbo.at(0).texture() && textureID != c->fbo.at(1).texture()) {
+                textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
+                fbo_switcher = !fbo_switcher;
+              }
+
               // Convert frame from source to linear colorspace
               if (olive::CurrentConfig.enable_color_management)
               {

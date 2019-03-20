@@ -117,7 +117,9 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   meta(em),
   flags_(0),
   shader_program_(nullptr),
-  texture(nullptr),
+  texture(0),
+  tex_width_(0),
+  tex_height_(0),
   isOpen(false),
   bound(false),
   iterations(1),
@@ -886,24 +888,26 @@ GLuint Effect::process_superimpose(double timecode) {
     redrew_image = true;
   }
 
-  if (texture == nullptr || texture->width() != img.width() || texture->height() != img.height()) {
+  QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+
+  if (texture == 0 || tex_width_ != img.width() || tex_height_ != img.height()) {
     delete_texture();
 
-    texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    texture->setSize(img.width(), img.height());
-    texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-    texture->setMipLevels(texture->maximumMipLevels());
-    texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-    texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
+    tex_width_ = img.width();
+    tex_height_ = img.height();
 
-    redrew_image = true;
+    f->glTexImage2D(
+          GL_TEXTURE_2D, 0, GL_RGBA8, tex_width_, tex_height_, 0, GL_RGBA,  GL_UNSIGNED_BYTE, img.constBits()
+        );
+
+    redrew_image = false;
   }
 
   if (redrew_image) {
-    texture->setData(0, QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, img.constBits());
+    f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex_width_, tex_height_,  GL_RGBA, GL_UNSIGNED_BYTE, img.constBits());
   }
 
-  return texture->textureId();
+  return texture;
 }
 
 void Effect::process_audio(double, double, quint8*, int, int) {}
@@ -1080,8 +1084,8 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-  delete texture;
-  texture = nullptr;
+  QOpenGLContext::currentContext()->functions()->glDeleteTextures(1, &texture);
+  texture = 0;
 }
 
 const EffectMeta* get_meta_from_name(const QString& input) {

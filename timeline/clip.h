@@ -116,7 +116,6 @@ public:
   AVRational time_base();
 
   void reset_audio();
-  void reset();
   void refresh();
 
   long length();
@@ -154,7 +153,7 @@ public:
 
   // video playback variables
   QVector<FramebufferObject> fbo;
-  QOpenGLTexture* texture;
+  GLuint texture;
   long texture_frame;
 
 #ifndef NO_OCIO

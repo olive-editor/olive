@@ -229,7 +229,9 @@ protected:
 
   // superimpose effect
   QImage img;
-  QOpenGLTexture* texture;
+  GLuint texture;
+  int tex_width_;
+  int tex_height_;
 
   // enable effect to update constantly
   virtual bool AlwaysUpdate();
