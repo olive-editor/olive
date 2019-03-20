@@ -563,7 +563,7 @@ void PreferencesDialog::setup_ui() {
 
   QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
 
-  add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
+  add_default_effects_to_clips = new QCheckBox(tr("Add Default Effects to New Clips"));
   add_default_effects_to_clips->setChecked(olive::CurrentConfig.add_default_effects_to_clips);
   behavior_tab_layout->addWidget(add_default_effects_to_clips);
 
