@@ -48,6 +48,7 @@
 #include "global/config.h"
 #include "global/path.h"
 #include "rendering/audio.h"
+#include "rendering/bitdepths.h"
 #include "panels/panels.h"
 #include "ui/mainwindow.h"
 
@@ -939,6 +940,26 @@ void PreferencesDialog::setup_ui() {
   ocio_look = new QComboBox();
   color_management_layout->addWidget(new QLabel("Look:"), row, 0);
   color_management_layout->addWidget(ocio_look, row, 1);
+
+  row++;
+
+  // COLOR MANAGEMENT -> Playback Bit Depth
+  QComboBox* playback_bit_depth = new QComboBox();
+  for (int i=0;i<olive::rendering::bit_depths.size();i++) {
+    playback_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
+  }
+  color_management_layout->addWidget(new QLabel("Playback Bit Depth:"), row, 0);
+  color_management_layout->addWidget(playback_bit_depth, row, 1);
+
+  row++;
+
+  // COLOR MANAGEMENT -> Rendering Bit Depth
+  QComboBox* rendering_bit_depth = new QComboBox();
+  for (int i=0;i<olive::rendering::bit_depths.size();i++) {
+    rendering_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
+  }
+  color_management_layout->addWidget(new QLabel("Rendering Bit Depth:"), row, 0);
+  color_management_layout->addWidget(rendering_bit_depth, row, 1);
 
   row++;
 

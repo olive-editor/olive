@@ -174,7 +174,8 @@ SOURCES += \
     effects/internal/richtexteffect.cpp \
     ui/blur.cpp \
     ui/menu.cpp \
-    rendering/qopenglshaderprogramptr.cpp
+    rendering/qopenglshaderprogramptr.cpp \
+    rendering/bitdepths.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -302,7 +303,8 @@ HEADERS += \
     effects/internal/richtexteffect.h \
     ui/blur.h \
     ui/menu.h \
-    rendering/qopenglshaderprogramptr.h
+    rendering/qopenglshaderprogramptr.h \
+    rendering/bitdepths.h
 
 FORMS +=
 
