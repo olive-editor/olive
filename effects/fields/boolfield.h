@@ -23,6 +23,11 @@
 
 #include "../effectfield.h"
 
+/**
+ * @brief The BoolField class
+ *
+ * An EffectField derivative the uses boolean values (true or false) and uses a checkbox as its visual representation.
+ */
 class BoolField : public EffectField
 {
   Q_OBJECT

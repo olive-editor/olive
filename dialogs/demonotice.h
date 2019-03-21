@@ -23,11 +23,22 @@
 
 #include <QDialog>
 
+/**
+ * @brief The DemoNotice class
+ *
+ * Simple dialog shown on startup to introduce Olive as alpha software (in release builds).
+ */
 class DemoNotice : public QDialog
 {
   Q_OBJECT
 public:
-  explicit DemoNotice(QWidget *parent = 0);
+  /**
+   * @brief DemoNotice Constructor
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow.
+   */
+  explicit DemoNotice(QWidget *parent = nullptr);
 };
 
 #endif // DEMONOTICE_H

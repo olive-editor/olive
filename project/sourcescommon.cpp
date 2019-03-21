@@ -39,6 +39,7 @@
 #include "project/projectfilter.h"
 #include "timeline/sequence.h"
 #include "global/config.h"
+#include "global/global.h"
 #include "dialogs/proxydialog.h"
 #include "ui/viewerwidget.h"
 #include "project/proxygenerator.h"
@@ -446,5 +447,5 @@ void SourcesCommon::clear_proxies_from_selected() {
     panel_sequence_viewer->viewer_widget->frame_update();
   }
 
-  olive::MainWindow->setWindowModified(true);
+  olive::Global->set_modified(true);
 }

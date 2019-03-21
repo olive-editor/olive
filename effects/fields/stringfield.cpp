@@ -30,7 +30,8 @@ StringField::StringField(EffectRow* parent, const QString& id, bool rich_text) :
   EffectField(parent, id, EFFECT_FIELD_STRING),
   rich_text_(rich_text)
 {
-
+  // Set default value to an empty string
+  SetValueAt(0, "");
 }
 
 QString StringField::GetStringAt(double timecode)
@@ -50,9 +51,9 @@ QWidget *StringField::CreateWidget(QWidget *existing)
     text_edit->setUndoRedoEnabled(true);
 
     // the "2" is because the height needs one extra pixel of padding on the top and the bottom
-    text_edit->setFixedHeight(qCeil(text_edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines
-                                    + text_edit->document()->documentMargin()
-                                    + text_edit->document()->documentMargin() + 2));
+    text_edit->setTextHeight(qCeil(text_edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines
+                                   + text_edit->document()->documentMargin()
+                                   + text_edit->document()->documentMargin() + 2));
 
   } else {
 

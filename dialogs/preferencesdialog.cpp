@@ -451,8 +451,8 @@ void PreferencesDialog::save() {
   accept();
 
   if (restart_after_saving) {
-    // since we already ran can_close_project(), bypass checking again by running setWindowModified(false)
-    olive::MainWindow->setWindowModified(false);
+    // since we already ran can_close_project(), bypass checking again by running set_modified(false)
+    olive::Global->set_modified(false);
 
     olive::MainWindow->close();
 
@@ -712,7 +712,7 @@ void PreferencesDialog::setup_ui() {
 
   QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
 
-  add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
+  add_default_effects_to_clips = new QCheckBox(tr("Add Default Effects to New Clips"));
   add_default_effects_to_clips->setChecked(olive::CurrentConfig.add_default_effects_to_clips);
   behavior_tab_layout->addWidget(add_default_effects_to_clips);
 

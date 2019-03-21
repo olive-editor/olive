@@ -72,27 +72,30 @@ struct VideoCodecParams {
 class ExportThread : public QThread {
   Q_OBJECT
 public:
-  ExportThread(const ExportParams& iparams, const VideoCodecParams& ivparams, QObject* parent = nullptr);
-  void run();
+  ExportThread(const ExportParams& params, const VideoCodecParams& vparams, QObject* parent = nullptr);
+  virtual void run() override;
 
-  const QString& getError();
+  const QString& GetError();
+
+  bool WasInterrupted();
+signals:
+  void ProgressChanged(int value, qint64 remaining_ms);
+public slots:
+  void Interrupt();
+private:
+  bool Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
+  bool SetupVideo();
+  bool SetupAudio();
+  bool SetupContainer();
+  void Export();
+  void Cleanup();
 
   QOffscreenSurface surface;
-
-  bool continueEncode;
-signals:
-  void progress_changed(int value, qint64 remaining_ms);
-public slots:
-  void wake();
-private:
-  bool encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
-  bool setupVideo();
-  bool setupAudio();
-  bool setupContainer();
+  bool interrupt_;
 
   // params imported from dialogs
-  ExportParams params;
-  VideoCodecParams vcodec_params;
+  ExportParams params_;
+  VideoCodecParams vcodec_params_;
 
   AVFormatContext* fmt_ctx;
   AVStream* video_stream;
@@ -121,6 +124,8 @@ private:
   QWaitCondition waitCond;
 
   QString export_error;
+private slots:
+  void wake();
 };
 
 #endif // EXPORTTHREAD_H

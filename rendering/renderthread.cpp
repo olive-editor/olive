@@ -243,7 +243,7 @@ void RenderThread::paint() {
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // Compose the current frame
-  compose_sequence(params);
+  olive::rendering::compose_sequence(params);
 
   // Copy composite buffer to front buffer
   // First lock the appropriate mutex for exclusivity

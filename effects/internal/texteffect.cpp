@@ -298,8 +298,6 @@ void TextEffect::redraw(double timecode) {
 }
 
 void TextEffect::shadow_enable(bool e) {
-  close();
-
   shadow_color->SetEnabled(e);
   shadow_angle->SetEnabled(e);
   shadow_distance->SetEnabled(e);

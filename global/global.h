@@ -93,6 +93,31 @@ public:
     void set_rendering_state(bool rendering);
 
     /**
+     * @brief Set the application's "modified" state
+     *
+     * Primarily controls whether the application prompts the user to save the project upon closing or not. Also
+     * technically controls whether to create autorecovery files as they'll only be generated if there are unsaved
+     * changes.
+     *
+     * @param modified
+     *
+     * TRUE if the project has been modified, FALSE if it has not.
+     */
+    void set_modified(bool modified);
+
+    /**
+     * @brief Get application's current "modified" state
+     *
+     * Currently just a wrapper around MainWindow::isWindowModified(), but use this instead in case it changes.
+     * This value is used to determine whether the currently open project has unsaved changes.
+     *
+     * @return
+     *
+     * TRUE if the project has been modified since the last save.
+     */
+    bool is_modified();
+
+    /**
      * @brief Set a project to load just after launching
      *
      * Called by main() if Olive was called with a project file as a running argument. Sets up Olive to load the
@@ -323,6 +348,16 @@ private:
      * @brief Internal translator object that interfaces with the currently loaded language file
      */
     std::unique_ptr<QTranslator> translator;
+
+    /**
+     * @brief Internal variable for whether the project has changed since the last autorecovery
+     *
+     * Set by set_modified(), which should be called alongside any change made to the project file and is "unset" when
+     * an autorecovery file is made. Provides an extra layer of abstraction from the application "modified" state to
+     * prevents an autorecovery file saving multiple times if the project hasn't actually changed since the last
+     * autorecovery, but still hasn't been saved into the original file yet.
+     */
+    bool changed_since_last_autorecovery;
 
 private slots:
 

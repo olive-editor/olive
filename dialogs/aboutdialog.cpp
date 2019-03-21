@@ -34,6 +34,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setSpacing(20);
 
+  // Construct About text
   QLabel* label =
       new QLabel(QString("<html><head/><body>"
                          "<p><img src=\":/icons/olive-splash.png\"/></p>"
@@ -49,6 +50,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                                   "protected by the GNU GPL."),
                                                tr("Olive Team is obliged to inform users that Olive source code is "
                                                   "available for download from its website.")), this);
+
+  // Set text formatting
   label->setAlignment(Qt::AlignCenter);
   label->setWordWrap(true);
   layout->addWidget(label);

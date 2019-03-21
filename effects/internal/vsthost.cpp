@@ -31,6 +31,7 @@
 
 #include "rendering/audio.h"
 #include "ui/mainwindow.h"
+#include "global/global.h"
 #include "global/debug.h"
 
 #ifdef __linux__
@@ -83,7 +84,7 @@ intptr_t hostCallback(AEffect* effect, int32_t opcode, int32_t index, intptr_t v
     // but we are aware of it
     break;
   case audioMasterEndEdit: // change made
-    olive::MainWindow->setWindowModified(true);
+    olive::Global->set_modified(true);
     break;
   default:
     qInfo() << "Plugin requested unhandled opcode" << opcode;

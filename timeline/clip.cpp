@@ -40,24 +40,22 @@ const int kRGBAComponentCount = 4;
 
 Clip::Clip(Sequence* s) :
   sequence(s),
-  cacher(this)
+  cacher(this),
+  enabled_(true),
+  clip_in_(0),
+  timeline_in_(0),
+  timeline_out_(0),
+  track_(0),
+  media_(nullptr),
+  reverse_(false),
+  autoscale_(olive::CurrentConfig.autoscale_by_default),
+  opening_transition(nullptr),
+  closing_transition(nullptr),
+  undeletable(false),
+  replaced(false),
+  open_(false),
+  texture(0)
 {
-  enabled_ = true;
-  clip_in_ = 0;
-  timeline_in_ = 0;
-  timeline_out_ = 0;
-  track_ = 0;
-  media_ = nullptr;
-  speed_.value = 1.0;
-  speed_.maintain_audio_pitch = false;
-  reverse_ = false;
-  autoscale_ = olive::CurrentConfig.autoscale_by_default;
-  opening_transition = nullptr;
-  closing_transition = nullptr;
-  undeletable = false;
-  replaced = false;
-  open_ = false;
-  texture = 0;
 }
 
 ClipPtr Clip::copy(Sequence* s) {
@@ -616,4 +614,10 @@ bool Clip::Retrieve()
 bool Clip::UsesCacher()
 {
   return track() >= 0 || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
+}
+
+ClipSpeed::ClipSpeed() :
+  value(1.0),
+  maintain_audio_pitch(false)
+{
 }

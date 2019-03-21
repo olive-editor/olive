@@ -44,7 +44,6 @@
 #include "panels/timeline.h"
 #include "panels/effectcontrols.h"
 #include "panels/grapheditor.h"
-#include "ui/checkboxex.h"
 #include "global/debug.h"
 #include "global/path.h"
 #include "ui/mainwindow.h"

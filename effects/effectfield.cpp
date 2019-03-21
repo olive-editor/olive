@@ -23,26 +23,14 @@
 #include <QDateTime>
 #include <QtMath>
 
-#include "ui/labelslider.h"
-#include "ui/colorbutton.h"
-#include "ui/texteditex.h"
-#include "ui/checkboxex.h"
-#include "ui/comboboxex.h"
-#include "ui/embeddedfilechooser.h"
-
 #include "rendering/renderfunctions.h"
-
 #include "global/config.h"
-
 #include "effects/effectrow.h"
 #include "effects/effect.h"
-
 #include "undo/undo.h"
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
-
 #include "global/math.h"
-
 #include "global/debug.h"
 
 EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t) :

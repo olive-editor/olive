@@ -45,6 +45,7 @@ extern "C" {
 }
 
 struct ClipSpeed {
+  ClipSpeed();
   double value;
   bool maintain_audio_pitch;
 };

@@ -466,6 +466,13 @@ private:
   bool caching_;
 
   /**
+   * @brief Internal variable for whether the current Cacher state is valid or not
+   *
+   * If there was an error opening the Cacher for any reason, this will be false.
+   */
+  bool is_valid_state_;
+
+  /**
    * @brief Internal function for opening the file handles and decoder
    *
    * After the thread has started, it'll call this function to start all resources necessary for caching. Any

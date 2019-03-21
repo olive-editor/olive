@@ -30,6 +30,7 @@
 
 #include <QtMath>
 #include <QAudioOutput>
+#include <QStatusBar>
 #include <math.h>
 
 #include "project/projectelements.h"
@@ -38,6 +39,7 @@
 #include "panels/panels.h"
 #include "global/config.h"
 #include "global/debug.h"
+#include "ui/mainwindow.h"
 
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
@@ -846,7 +848,12 @@ void Cacher::WakeMainThread()
 Cacher::Cacher(Clip* c) :
   clip(c),
   frame_(nullptr),
-  pkt(nullptr)
+  pkt(nullptr),
+  formatCtx(nullptr),
+  opts(nullptr),
+  filter_graph(nullptr),
+  codecCtx(nullptr),
+  is_valid_state_(false)
 {}
 
 void Cacher::OpenWorker() {
@@ -910,6 +917,7 @@ void Cacher::OpenWorker() {
       char err[1024];
       av_strerror(errCode, err, 1024);
       qCritical() << "Could not open" << filename << "-" << err;
+      olive::MainWindow->statusBar()->showMessage(tr("Could not open %1 - %2").arg(filename, err));
       return;
     }
 
@@ -918,6 +926,7 @@ void Cacher::OpenWorker() {
       char err[1024];
       av_strerror(errCode, err, 1024);
       qCritical() << "Could not open" << filename << "-" << err;
+      olive::MainWindow->statusBar()->showMessage(tr("Could not open %1 - %2").arg(filename, err));
       return;
     }
 
@@ -1082,6 +1091,8 @@ void Cacher::OpenWorker() {
   }
 
   qInfo() << "Clip opened on track" << clip->track() << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
+
+  is_valid_state_ = true;
 }
 
 void Cacher::CacheWorker() {
@@ -1111,17 +1122,27 @@ void Cacher::CloseWorker() {
   }
 
   if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-    avfilter_graph_free(&filter_graph);
+    if (filter_graph != nullptr) {
+      avfilter_graph_free(&filter_graph);
+      filter_graph = nullptr;
+    }
 
-    avcodec_close(codecCtx);
-    avcodec_free_context(&codecCtx);
+    if (codecCtx != nullptr) {
+      avcodec_close(codecCtx);
+      avcodec_free_context(&codecCtx);
+      codecCtx = nullptr;
+    }
 
-    av_dict_free(&opts);
+    if (opts != nullptr) {
+      av_dict_free(&opts);
+    }
 
     // protection for get_timebase()
     stream = nullptr;
 
-    avformat_close_input(&formatCtx);
+    if (formatCtx != nullptr) {
+      avformat_close_input(&formatCtx);
+    }
   }
 
   qInfo() << "Clip closed on track" << clip->track();
@@ -1141,10 +1162,15 @@ void Cacher::run() {
     queued_ = false;
     if (!caching_) {
       break;
-    } else {
+    } else if (is_valid_state_) {
       CacheWorker();
+    } else {
+      // main thread waits until cacher starts fully, but the cacher can't run, so we just wake it up here
+      WakeMainThread();
     }
   }
+
+  is_valid_state_ = false;
 
   CloseWorker();
 
@@ -1166,6 +1192,10 @@ void Cacher::Open()
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
 {
+  if (!is_valid_state_) {
+    return;
+  }
+
   if (clip->media_stream() != nullptr
       && queue_.size() > 0
       && clip->media_stream()->infinite_length) {
