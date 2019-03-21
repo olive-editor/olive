@@ -271,9 +271,6 @@ void SourcesCommon::dropEvent(QWidget* parent,
                               const QModelIndexList& items) {
   const QMimeData* mimeData = event->mimeData();
   MediaPtr m = project_parent->item_to_media_ptr(drop_item);
-  if (m == nullptr) {
-    return;
-  }
   if (mimeData->hasUrls()) {
     // drag files in from outside
     QList<QUrl> urls = mimeData->urls();
@@ -285,7 +282,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
       bool replace = false;
       if (urls.size() == 1
           && drop_item.isValid()
-          && m->get_type() == MEDIA_TYPE_FOOTAGE
+          && (m != nullptr && m->get_type() == MEDIA_TYPE_FOOTAGE)
           && !QFileInfo(paths.at(0)).isDir()
           && olive::CurrentConfig.drop_on_media_to_replace
           && QMessageBox::question(

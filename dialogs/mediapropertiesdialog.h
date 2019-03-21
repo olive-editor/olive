@@ -31,19 +31,62 @@
 #include "project/footage.h"
 #include "project/media.h"
 
+/**
+ * @brief The MediaPropertiesDialog class
+ *
+ * A dialog for setting properties on Media.
+ */
 class MediaPropertiesDialog : public QDialog {
   Q_OBJECT
 public:
+  /**
+   * @brief MediaPropertiesDialog Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow or Project panel.
+   *
+   * @param i
+   *
+   * Media object to set properties for.
+   */
   MediaPropertiesDialog(QWidget *parent, Media* i);
 private:
+  /**
+   * @brief ComboBox for interlacing setting
+   */
   QComboBox* interlacing_box;
+
+  /**
+   * @brief Media name text field
+   */
   QLineEdit* name_box;
+
+  /**
+   * @brief Internal pointer to Media object (set in constructor)
+   */
   Media* item;
+
+  /**
+   * @brief A list widget for listing the tracks in Media
+   */
   QListWidget* track_list;
+
+  /**
+   * @brief Frame rate to conform to
+   */
   QDoubleSpinBox* conform_fr;
+
+  /**
+   * @brief Setting for associated/premultiplied alpha
+   */
   QCheckBox* premultiply_alpha_setting;
+
   QComboBox* color_management;
 private slots:
+  /**
+   * @brief Overrided accept function for saving the properties back to the Media class
+   */
   void accept();
 };
 

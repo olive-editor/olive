@@ -66,8 +66,6 @@ public:
   bool reveal_media(Media *media, QModelIndex parent = QModelIndex());
   void add_recent_project(QString url);
 
-  void new_project();
-  void load_project(const QString &filename, bool autorecovery, bool clear);
   void save_project(bool autorecovery);
 
   MediaPtr create_folder_internal(QString name);

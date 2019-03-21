@@ -36,11 +36,29 @@
 class AdvancedVideoDialog : public QDialog {
   Q_OBJECT
 public:
+  /**
+   * @brief AdvancedVideoDialog Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually ExportDialog.
+   *
+   * @param encoding_codec
+   *
+   * The AVCodecID of the selected export codec.
+   *
+   * @param iparams
+   *
+   * A VideoCodecParams struct containing the extra codec data.
+   */
   AdvancedVideoDialog(QWidget* parent,
-                      int encoding_codec,
+                      AVCodecID encoding_codec,
                       VideoCodecParams& iparams);
 
 public slots:
+  /**
+   * @brief Overrided accept for saving the UI data into the provided VideoCodecParams struct.
+   */
   virtual void accept() override;
 private:
   /**

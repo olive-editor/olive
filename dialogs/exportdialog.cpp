@@ -330,16 +330,16 @@ void ExportDialog::format_changed(int index) {
   audioGroupbox->setEnabled(audio_enabled);
 }
 
-void ExportDialog::render_thread_finished() {
+void ExportDialog::export_thread_finished() {
   // Determine if the export succeeded
   bool succeeded = (progressBar->value() == 100);
 
   // If it failed and we didn't cancel it, it must have errored out. Show an error message.
-  if (!succeeded && !et->WasInterrupted()) {
+  if (!succeeded && !export_thread_->WasInterrupted()) {
     QMessageBox::critical(
           this,
           tr("Export Failed"),
-          tr("Export failed - %1").arg(et->GetError()),
+          tr("Export failed - %1").arg(export_thread_->GetError()),
           QMessageBox::Ok
           );
   }
@@ -358,10 +358,10 @@ void ExportDialog::render_thread_finished() {
   update_ui(false);
 
   // Disconnect cancel button from export thread
-  disconnect(renderCancel, SIGNAL(clicked(bool)), et, SLOT(Interrupt()));
+  disconnect(renderCancel, SIGNAL(clicked(bool)), export_thread_, SLOT(Interrupt()));
 
   // Free the export thread
-  et->deleteLater();
+  export_thread_->deleteLater();
 
   // If the export succeeded, close the dialog
   if (succeeded) {
@@ -562,12 +562,12 @@ void ExportDialog::StartExport() {
     }
 
     // Create export thread
-    et = new ExportThread(params, vcodec_params, this);
+    export_thread_ = new ExportThread(params, vcodec_params, this);
 
     // Connect export thread signals/slots
-    connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
-    connect(et, SIGNAL(ProgressChanged(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
-    connect(renderCancel, SIGNAL(clicked(bool)), et, SLOT(Interrupt()));
+    connect(export_thread_, SIGNAL(finished()), this, SLOT(export_thread_finished()));
+    connect(export_thread_, SIGNAL(ProgressChanged(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
+    connect(renderCancel, SIGNAL(clicked(bool)), export_thread_, SLOT(Interrupt()));
 
     // Close all currently open clips
     close_active_clips(olive::ActiveSequence.get());
@@ -580,7 +580,7 @@ void ExportDialog::StartExport() {
 
     total_export_time_start = QDateTime::currentMSecsSinceEpoch();
 
-    et->start();
+    export_thread_->start();
   }
 }
 
@@ -667,7 +667,7 @@ void ExportDialog::comp_type_changed(int) {
 }
 
 void ExportDialog::open_advanced_video_dialog() {
-  AdvancedVideoDialog avd(this, vcodecCombobox->currentData().toInt(), vcodec_params);
+  AdvancedVideoDialog avd(this, static_cast<AVCodecID>(vcodecCombobox->currentData().toInt()), vcodec_params);
   avd.exec();
 }
 

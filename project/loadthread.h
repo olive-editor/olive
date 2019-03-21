@@ -37,6 +37,7 @@ class LoadThread : public QThread
 public:
   LoadThread(const QString& filename, bool autorecovery, bool clear);
   void run();
+public slots:
   void cancel();
 signals:
   void start_question(const QString &title, const QString &text, int buttons);
@@ -75,6 +76,7 @@ private:
   QVector<ClipPtr> loaded_clips;
   QVector<Media*> loaded_sequences;
   Media* find_loaded_folder_by_id(int id);
+  void OrganizeFolders(int folder = 0);
 
   int current_element_count;
   int total_element_count;

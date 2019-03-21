@@ -193,7 +193,18 @@ public slots:
      * Confirms whether the current project can be closed, and if so, shows an open file dialog to allow the user to
      * select a project file and then triggers a project load with it.
      */
-    void open_project();
+    void OpenProject();
+
+    /**
+     * @brief Import project from file
+     *
+     * Imports an Olive project into the current project, effectively merging them.
+     *
+     * @param fn
+     *
+     * The filename of the project to import.
+     */
+    void ImportProject(const QString& fn);
 
     /**
      * @brief Open recent project from list
@@ -327,7 +338,35 @@ private:
      * beside the original project file so that it does not overwrite the original and so that the user is not working
      * on the autorecovery project in Olive's application data directory.
      */
-    void open_project_worker(const QString& fn, bool autorecovery);
+    void OpenProjectWorker(const QString& fn, bool autorecovery);
+
+    /**
+     * @brief Create a LoadDialog and start a LoadThread to load data from a project
+     *
+     * Loads data from an Olive project file creating a LoadDialog to show visual information and a LoadThread to load
+     * outside of the main/GUI thread.
+     *
+     * All project loading functions eventually lead to this one and there's no reason to use it directly. Instead use
+     * one of the following functions:
+     *
+     * * OpenProject() - to check if the current project can be closed and prompt the user for the new project file
+     * * OpenProjectWorker() - if you already have the filename and wish to close the current project and open it
+     * * ImportProject() - to import a project file into this one, effectively merging them both
+     *
+     * @param fn
+     *
+     * The URL of the project file to open
+     *
+     * @param autorecovery
+     *
+     * TRUE if this file is an autorecovery file, in which case it's loaded slightly differently
+     *
+     * @param clear
+     *
+     * TRUE if the current project should be closed before opening, FALSE if the project should be imported into the
+     * currently open one.
+     */
+    void LoadProject(const QString& fn, bool autorecovery, bool clear);
 
     /**
      * @brief File filter used for any file dialogs relating to Olive project files.

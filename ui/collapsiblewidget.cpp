@@ -87,6 +87,13 @@ bool CollapsibleWidget::IsExpanded() {
   return contents->isVisible();
 }
 
+void CollapsibleWidget::SetExpanded(bool s)
+{
+  contents->setVisible(s);
+  set_button_icon(s);
+  emit visibleChanged(s);
+}
+
 bool CollapsibleWidget::IsSelected()
 {
   return selected;
@@ -116,9 +123,7 @@ void CollapsibleWidget::SetTitle(const QString &s) {
 }
 
 void CollapsibleWidget::on_visible_change() {
-  contents->setVisible(!contents->isVisible());
-  set_button_icon(contents->isVisible());
-  emit visibleChanged();
+  SetExpanded(!IsExpanded());
 }
 
 CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {

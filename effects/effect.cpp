@@ -122,7 +122,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   isOpen(false),
   bound(false),
   iterations(1),
-  enabled_(true)
+  enabled_(true),
+  expanded_(true)
 {
   if (em != nullptr) {
     // set up UI from effect file
@@ -505,6 +506,16 @@ bool Effect::AlwaysUpdate()
 
 bool Effect::IsEnabled() {
   return enabled_;
+}
+
+bool Effect::IsExpanded()
+{
+  return expanded_;
+}
+
+void Effect::SetExpanded(bool e)
+{
+  expanded_ = e;
 }
 
 void Effect::SetEnabled(bool b) {
@@ -895,15 +906,30 @@ GLuint Effect::process_superimpose(double timecode) {
     tex_width_ = img.width();
     tex_height_ = img.height();
 
+    // create texture object
+    f->glGenTextures(1, &texture);
+
+    f->glBindTexture(GL_TEXTURE_2D, texture);
+
+    // set texture filtering to bilinear
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     f->glTexImage2D(
           GL_TEXTURE_2D, 0, GL_RGBA8, tex_width_, tex_height_, 0, GL_RGBA,  GL_UNSIGNED_BYTE, img.constBits()
         );
+
+    f->glBindTexture(GL_TEXTURE_2D, 0);
 
     redrew_image = false;
   }
 
   if (redrew_image) {
+    f->glBindTexture(GL_TEXTURE_2D, texture);
+
     f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex_width_, tex_height_,  GL_RGBA, GL_UNSIGNED_BYTE, img.constBits());
+
+    f->glBindTexture(GL_TEXTURE_2D, 0);
   }
 
   return texture;
