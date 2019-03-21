@@ -123,7 +123,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   isOpen(false),
   bound(false),
   iterations(1),
-  enabled_(true)
+  enabled_(true),
+  expanded_(true)
 {
   if (em != nullptr) {
     // set up UI from effect file
@@ -506,6 +507,16 @@ bool Effect::AlwaysUpdate()
 
 bool Effect::IsEnabled() {
   return enabled_;
+}
+
+bool Effect::IsExpanded()
+{
+  return expanded_;
+}
+
+void Effect::SetExpanded(bool e)
+{
+  expanded_ = e;
 }
 
 void Effect::SetEnabled(bool b) {

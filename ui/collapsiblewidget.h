@@ -52,6 +52,7 @@ public:
   void SetTitle(const QString &);
   bool IsFocused();
   bool IsExpanded();
+  void SetExpanded(bool s);
   bool IsSelected();
 protected:
   QCheckBox* enabled_check;
@@ -68,7 +69,7 @@ private:
 
 signals:
   void deselect_others(QWidget*);
-  void visibleChanged();
+  void visibleChanged(bool);
 
 private slots:
   void on_visible_change();
