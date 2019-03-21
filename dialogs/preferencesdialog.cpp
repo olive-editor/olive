@@ -87,9 +87,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
   fastSeekButton->setChecked(olive::CurrentConfig.fast_seeking);
   recordingComboBox->setCurrentIndex(olive::CurrentConfig.recording_mode - 1);
   imgSeqFormatEdit->setText(olive::CurrentConfig.img_seq_formats);
-}
 
-PreferencesDialog::~PreferencesDialog() {}
+  setup_kbd_shortcuts(olive::MainWindow->menuBar());
+}
 
 void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent) {
   QList<QAction*> actions = menu->actions();

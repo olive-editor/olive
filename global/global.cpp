@@ -344,7 +344,6 @@ void OliveGlobal::open_preferences() {
   panel_footage_viewer->pause();
 
   PreferencesDialog pd(olive::MainWindow);
-  pd.setup_kbd_shortcuts(olive::MainWindow->menuBar());
   pd.exec();
 }
 
