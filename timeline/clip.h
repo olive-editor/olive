@@ -44,6 +44,7 @@ extern "C" {
 }
 
 struct ClipSpeed {
+  ClipSpeed();
   double value;
   bool maintain_audio_pitch;
 };
@@ -115,7 +116,6 @@ public:
   AVRational time_base();
 
   void reset_audio();
-  void reset();
   void refresh();
 
   long length();

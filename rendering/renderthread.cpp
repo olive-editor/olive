@@ -178,7 +178,7 @@ void RenderThread::paint() {
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
 
-  compose_sequence(params);
+  olive::rendering::compose_sequence(params);
 
   // flush changes
   ctx->functions()->glFinish();

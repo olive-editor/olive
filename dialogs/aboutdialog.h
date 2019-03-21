@@ -23,11 +23,24 @@
 
 #include <QDialog>
 
+/**
+ * @brief The AboutDialog class
+ *
+ * The About dialog (accessible through Help > About). Contains license and version information.
+ */
 class AboutDialog : public QDialog
 {
   Q_OBJECT
-
 public:
+  /**
+   * @brief AboutDialog Constructor
+   *
+   * Creates About dialog.
+   *
+   * @param parent
+   *
+   * QWidget parent object. Usually this will be MainWindow.
+   */
   explicit AboutDialog(QWidget *parent = nullptr);
 };
 

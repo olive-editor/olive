@@ -30,8 +30,6 @@
 #include <QFrame>
 #include <QIcon>
 
-#include "ui/checkboxex.h"
-
 class CollapsibleWidgetHeader : public QWidget {
   Q_OBJECT
 public:
@@ -56,7 +54,7 @@ public:
   bool IsExpanded();
   bool IsSelected();
 protected:
-  CheckboxEx* enabled_check;
+  QCheckBox* enabled_check;
   CollapsibleWidgetHeader* title_bar;
   QWidget* contents;
 private:

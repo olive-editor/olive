@@ -1146,8 +1146,6 @@ void Cacher::CloseWorker() {
     }
   }
 
-  clip->reset();
-
   qInfo() << "Clip closed on track" << clip->track();
 }
 

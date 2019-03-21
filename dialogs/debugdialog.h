@@ -24,22 +24,52 @@
 #include <QDialog>
 #include <QTextEdit>
 
+/**
+ * @brief The DebugDialog class
+ *
+ * A dialog to display the current debug output.
+ */
 class DebugDialog : public QDialog {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	DebugDialog(QWidget* parent = 0);
+  /**
+   * @brief DebugDialog Constructor
+   * @param parent
+   *
+   * Parent widget. Usually MainWindow.
+   */
+  DebugDialog(QWidget* parent = nullptr);
+
+  /**
+   * @brief Retranslate window title
+   *
+   * Sets title based on the current translation.
+   */
   void Retranslate();
 public slots:
-	void update_log();
+  /**
+   * @brief Update the visual log with the debug text from get_debug_str()
+   */
+  void update_log();
 protected:
+  /**
+   * @brief Overrides change event to trigger Retranslate() on a LanguageChange event.
+   */
   virtual void changeEvent(QEvent* e) override;
+  /**
+   * @brief Overrides show event to trigger an update of the visual log (the visual log does not update while the
+   * debug dialog is hidden).
+   */
   virtual void showEvent(QShowEvent* event) override;
 private:
-	QTextEdit* textEdit;
+  /**
+   * @brief Display widget for the debug dialog.
+   */
+  QTextEdit* textEdit;
 };
 
 namespace olive {
-    extern DebugDialog* DebugDialog;
+extern DebugDialog* DebugDialog;
 }
 
 #endif // DEBUGDIALOG_H

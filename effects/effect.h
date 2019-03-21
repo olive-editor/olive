@@ -41,7 +41,6 @@
 #include <random>
 
 #include "ui/collapsiblewidget.h"
-#include "ui/checkboxex.h"
 #include "effectrow.h"
 #include "effectgizmo.h"
 

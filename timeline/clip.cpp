@@ -40,26 +40,23 @@ const int kRGBAComponentCount = 4;
 
 Clip::Clip(Sequence* s) :
   sequence(s),
-  cacher(this)
+  cacher(this),
+  enabled_(true),
+  clip_in_(0),
+  timeline_in_(0),
+  timeline_out_(0),
+  track_(0),
+  media_(nullptr),
+  reverse_(false),
+  autoscale_(olive::CurrentConfig.autoscale_by_default),
+  opening_transition(nullptr),
+  closing_transition(nullptr),
+  undeletable(false),
+  replaced(false),
+  fbo(nullptr),
+  open_(false),
+  texture(nullptr)
 {
-  enabled_ = true;
-  clip_in_ = 0;
-  timeline_in_ = 0;
-  timeline_out_ = 0;
-  track_ = 0;
-  media_ = nullptr;
-  speed_.value = 1.0;
-  speed_.maintain_audio_pitch = false;
-  reverse_ = false;
-  autoscale_ = olive::CurrentConfig.autoscale_by_default;
-  opening_transition = nullptr;
-  closing_transition = nullptr;
-  undeletable = false;
-  replaced = false;
-  fbo = nullptr;
-  open_ = false;
-
-  reset();
 }
 
 ClipPtr Clip::copy(Sequence* s) {
@@ -195,10 +192,6 @@ void Clip::move(ComboAction* ca, long iin, long iout, long iclip_in, int itrack,
                                           0));
     }
   }
-}
-
-void Clip::reset() {
-  texture = nullptr;
 }
 
 void Clip::reset_audio() {
@@ -619,7 +612,6 @@ bool Clip::Retrieve()
                           const_cast<const uint8_t*>(using_db_1 ? data_buffer_1 : data_buffer_2));
 
       if (data_buffer_1 != frame->data[0]) {
-        qDebug() << data_buffer_1 << frame->data[0];
         delete [] data_buffer_1;
         delete [] data_buffer_2;
       }
@@ -640,4 +632,10 @@ bool Clip::Retrieve()
 bool Clip::UsesCacher()
 {
   return track() >= 0 || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
+}
+
+ClipSpeed::ClipSpeed() :
+  value(1.0),
+  maintain_audio_pitch(false)
+{
 }

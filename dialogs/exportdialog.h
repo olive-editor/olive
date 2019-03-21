@@ -30,34 +30,41 @@
 #include <QGroupBox>
 
 #include "timeline/sequence.h"
-
 #include "rendering/exportthread.h"
 
+/**
+ * @brief The ExportDialog class
+ *
+ * The dialog to initiate an export.
+ */
 class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit ExportDialog(QWidget *parent = nullptr);
-  ~ExportDialog();
-  QString export_error;
+  /**
+   * @brief ExportDialog Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow.
+   */
+  explicit ExportDialog(QWidget *parent);
 
 private slots:
   void format_changed(int index);
   void export_action();
   void update_progress_bar(int value, qint64 remaining_ms);
-  void cancel_render();
   void render_thread_finished();
   void vcodec_changed(int index);
   void comp_type_changed(int index);
   void open_advanced_video_dialog();
 
 private:
-  QVector<QString> format_strings;
   void setup_ui();
-
-  ExportThread* et;
   void prep_ui_for_render(bool r);
-  bool cancelled;
+
+  QVector<QString> format_strings;
+  ExportThread* et;
 
   void add_codec_to_combobox(QComboBox* box, enum AVCodecID codec);
 

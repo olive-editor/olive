@@ -94,16 +94,23 @@ void ClipPropertiesDialog::accept()
   for (int i=0;i<clips_.size();i++) {
     Clip* clip = clips_.at(i);
 
-    if (!clip_name.isEmpty()) {
+    // If the user entered a Clip name and the name is different from the Clip's name, create a rename command
+    if (!clip_name.isEmpty() && clip_name != clip->name()) {
       ca->append(new RenameClipCommand(clip, clip_name));
     }
 
+    // If the user entered a clip duration (and the duration has changed), create a "clip move" command
     if (!qIsNaN(clip_duration)) {
-      clip->move(ca,
-                 clip->timeline_in(),
-                 clip->timeline_in() + qRound(clip_duration),
-                 clip->clip_in(),
-                 clip->track());
+      long clip_duration_rounded = qRound(clip_duration);
+
+      if (clip->length() != clip_duration_rounded) {
+        clip->move(ca,
+                   clip->timeline_in(),
+                   clip->timeline_in() + clip_duration_rounded,
+                   clip->clip_in(),
+                   clip->track());
+      }
+
     }
   }
 

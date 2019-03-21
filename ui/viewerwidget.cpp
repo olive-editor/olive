@@ -233,7 +233,7 @@ void ViewerWidget::frame_update() {
     }
 
     // render the audio
-    compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), viewer->WaitingForPlayWake());
+    olive::rendering::compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), viewer->WaitingForPlayWake());
   }
 }
 
