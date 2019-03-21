@@ -54,7 +54,7 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   tc_select->AddItem(tr("Media"), olive::effect::media);
   //if media type is not a sequence add source timecode selector
   if(!(parent_clip->media()->get_type() == MEDIA_TYPE_SEQUENCE)){
-              tc_select->AddItem(tr("Source"), olive::effect::source);
+    tc_select->AddItem(tr("Source"), olive::effect::source);
   }
   tc_select->SetValueAt(0, olive::effect::sequence);
 
