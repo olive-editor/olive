@@ -22,11 +22,21 @@
 #define TEXTEDITEX_H
 
 #include <QTextEdit>
+#include <QPushButton>
 
-class TextEditEx : public QTextEdit {
+class TextEditEx : public QWidget {
   Q_OBJECT
 public:
   TextEditEx(QWidget* parent = nullptr, bool enable_rich_text = true);
+
+  void setUndoRedoEnabled(bool e);
+  QTextDocument* document();
+  QTextCursor textCursor();
+  void setTextCursor(const QTextCursor &cursor);
+  void setTextHeight(int h);
+public slots:
+  void setHtml(const QString &text);
+  void setPlainText(const QString &text);
 signals:
   void textModified(const QString& s);
 private slots:
@@ -34,6 +44,8 @@ private slots:
   void open_text_edit();
   void queue_text_modified();
 private:
+  QTextEdit* text_editor_;
+
   bool enable_rich_text_;
 };
 

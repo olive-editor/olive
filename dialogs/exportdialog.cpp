@@ -372,10 +372,12 @@ void ExportDialog::render_thread_finished() {
 void ExportDialog::prep_ui_for_render(bool r) {
   export_button->setEnabled(!r);
   cancel_button->setEnabled(!r);
+  videoGroupbox->setEnabled(!r);
+  audioGroupbox->setEnabled(!r);
   renderCancel->setEnabled(r);
 }
 
-void ExportDialog::export_action() {
+void ExportDialog::StartExport() {
   if (widthSpinbox->value()%2 == 1 || heightSpinbox->value()%2 == 1) {
     QMessageBox::critical(
           this,
@@ -533,6 +535,7 @@ void ExportDialog::export_action() {
       }
     }
 
+    // Set up export parameters to send to the ExportThread
     ExportParams params;
     params.filename = filename;
     params.video_enabled = videoGroupbox->isChecked();
@@ -558,12 +561,15 @@ void ExportDialog::export_action() {
       params.end_frame = qMin(olive::ActiveSequence->workarea_out, params.end_frame);
     }
 
+    // Create export thread
     et = new ExportThread(params, vcodec_params, this);
 
+    // Connect export thread signals/slots
     connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
     connect(et, SIGNAL(ProgressChanged(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
     connect(renderCancel, SIGNAL(clicked(bool)), et, SLOT(Interrupt()));
 
+    // Close all currently open clips
     close_active_clips(olive::ActiveSequence.get());
 
     olive::Global->set_rendering_state(true);
@@ -776,7 +782,7 @@ void ExportDialog::setup_ui() {
 
   export_button = new QPushButton(this);
   export_button->setText("Export");
-  connect(export_button, SIGNAL(clicked(bool)), this, SLOT(export_action()));
+  connect(export_button, SIGNAL(clicked(bool)), this, SLOT(StartExport()));
 
   buttonLayout->addWidget(export_button);
 

@@ -51,8 +51,23 @@ public:
   explicit ExportDialog(QWidget *parent);
 
 private slots:
+  /**
+   * @brief Slot for when the user changes the format
+   *
+   * Used to populate the available codecs list for this format.
+   *
+   * @param index
+   *
+   * Current format index (corresponding to enum ExportFormats)
+   */
   void format_changed(int index);
-  void export_action();
+
+  /**
+   * @brief Slot for when the user clicks the Export button
+   *
+   * Asks the user for the file to save to.
+   */
+  void StartExport();
   void update_progress_bar(int value, qint64 remaining_ms);
   void render_thread_finished();
   void vcodec_changed(int index);
