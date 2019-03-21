@@ -608,8 +608,6 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
 }
 
 void LoadThread::OrganizeFolders(int folder) {
-  qDebug() << "starting with" << folder;
-
   for (int i=0;i<loaded_folders.size();i++) {
     MediaPtr item = loaded_folders.at(i);
     int parent_id = item->temp_id2;
@@ -617,7 +615,7 @@ void LoadThread::OrganizeFolders(int folder) {
     if (parent_id == folder) {
       olive::project_model.appendChild(find_loaded_folder_by_id(parent_id), item);
 
-      OrganizeFolders(parent_id);
+      OrganizeFolders(item->temp_id);
     }
 
   }
