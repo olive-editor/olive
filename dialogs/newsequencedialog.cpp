@@ -76,15 +76,15 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
   }
 }
 
-NewSequenceDialog::~NewSequenceDialog()
-{}
-
 void NewSequenceDialog::set_sequence_name(const QString& s) {
   sequence_name_edit->setText(s);
 }
 
-void NewSequenceDialog::create() {
+void NewSequenceDialog::accept() {
   if (existing_sequence == nullptr) {
+
+    // The dialog wasn't given an existing Sequence object, so we'll make a new one
+
     SequencePtr s = std::make_shared<Sequence>();
 
     s->name = sequence_name_edit->text();
@@ -97,7 +97,11 @@ void NewSequenceDialog::create() {
     ComboAction* ca = new ComboAction();
     panel_project->create_sequence_internal(ca, s, true, nullptr);
     olive::UndoStack.push(ca);
+
   } else {
+
+    // The dialog was given an existing Sequence object, so we'll apply the changes to it
+
     ComboAction* ca = new ComboAction();
 
     double multiplier = frame_rate_combobox->currentData().toDouble() / existing_sequence->frame_rate;
@@ -121,7 +125,7 @@ void NewSequenceDialog::create() {
     olive::UndoStack.push(ca);
   }
 
-  accept();
+  QDialog::accept();
 }
 
 void NewSequenceDialog::preset_changed(int index) {
