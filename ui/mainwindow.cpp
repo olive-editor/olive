@@ -453,7 +453,7 @@ void MainWindow::setup_menus() {
   new_menu = MenuHelper::create_submenu(file_menu);
   olive::MenuHelper.make_new_menu(new_menu);
 
-  open_project = MenuHelper::create_menu_action(file_menu, "openproj", olive::Global.get(), SLOT(open_project()), QKeySequence("Ctrl+O"));
+  open_project = MenuHelper::create_menu_action(file_menu, "openproj", olive::Global.get(), SLOT(OpenProject()), QKeySequence("Ctrl+O"));
 
   open_recent = MenuHelper::create_submenu(file_menu);
 

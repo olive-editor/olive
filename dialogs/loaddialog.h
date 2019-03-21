@@ -28,15 +28,37 @@
 #include "project/projectelements.h"
 #include "project/loadthread.h"
 
+/**
+ * @brief The LoadDialog class
+ *
+ * Shows a modal dialog for loading a project and creates a LoadThread to load it.
+ */
 class LoadDialog : public QDialog
 {
   Q_OBJECT
 public:
-  LoadDialog(QWidget* parent, const QString& filename, bool autorecovery, bool clear);
-private slots:
+  /**
+   * @brief LoadDialog Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow.
+   *
+   * @param filename
+   *
+   * URL of the project file to load.
+   *
+   * @param autorecovery
+   *
+   * TRUE if this is an autorecovery project
+   *
+   * @param clear
+   */
+  LoadDialog(QWidget* parent);
+
+  QProgressBar* progress_bar();
+signals:
   void cancel();
-  void die();
-  void thread_done();
 private:
   QProgressBar* bar;
   QPushButton* cancel_button;

@@ -37,6 +37,7 @@ class LoadThread : public QThread
 public:
   LoadThread(const QString& filename, bool autorecovery, bool clear);
   void run();
+public slots:
   void cancel();
 signals:
   void start_question(const QString &title, const QString &text, int buttons);

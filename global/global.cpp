@@ -38,6 +38,8 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
+#include "dialogs/loaddialog.h"
+#include "project/loadthread.h"
 #include "timeline/sequence.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
@@ -91,7 +93,7 @@ void OliveGlobal::check_for_autorecovery_file() {
     if (QFile::exists(autorecovery_filename)) {
       if (QMessageBox::question(nullptr, tr("Auto-recovery"), tr("Olive didn't close properly and an autorecovery file was detected. Would you like to open it?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
         enable_load_project_on_init = false;
-        open_project_worker(autorecovery_filename, true);
+        OpenProjectWorker(autorecovery_filename, true);
       }
     }
     autorecovery_timer.setInterval(60000);
@@ -164,6 +166,33 @@ void OliveGlobal::SetNativeStyling(QWidget *w)
 #endif
 }
 
+void OliveGlobal::LoadProject(const QString &fn, bool autorecovery, bool clear)
+{
+  // Normally, the user will be closing the previous project to load a new one, but just in case the user
+  // is importing a new project
+
+  if (clear) {
+    new_project();
+  }
+
+  LoadDialog ld(olive::MainWindow);
+
+  LoadThread* lt = new LoadThread(fn, autorecovery, clear);
+  connect(&ld, SIGNAL(cancel()), lt, SLOT(cancel()));
+  connect(lt, SIGNAL(success()), &ld, SLOT(accept()));
+  connect(lt, SIGNAL(error()), &ld, SLOT(reject()));
+  connect(lt, SIGNAL(error()), this, SLOT(new_project()));
+  connect(lt, SIGNAL(report_progress(int)), ld.progress_bar(), SLOT(setValue(int)));
+  lt->start();
+
+  ld.exec();
+}
+
+void OliveGlobal::ImportProject(const QString &fn)
+{
+  LoadProject(fn, false, false);
+}
+
 void OliveGlobal::new_project() {
   if (can_close_project()) {
     // clear graph editor
@@ -172,8 +201,12 @@ void OliveGlobal::new_project() {
     // clear effects panel
     panel_effect_controls->Clear(true);
 
+    // clear existing project
+    olive::Global->set_sequence(nullptr);
+    panel_footage_viewer->set_media(nullptr);
+
     // clear project contents (footage, sequences, etc.)
-    panel_project->new_project();
+    panel_project->clear();
 
     // clear undo stack
     olive::UndoStack.clear();
@@ -183,13 +216,16 @@ void OliveGlobal::new_project() {
 
     // full update of all panels
     update_ui(false);
+
+    // set to unmodified
+    olive::Global->set_modified(false);
   }
 }
 
-void OliveGlobal::open_project() {
+void OliveGlobal::OpenProject() {
   QString fn = QFileDialog::getOpenFileName(olive::MainWindow, tr("Open Project..."), "", project_file_filter);
   if (!fn.isEmpty() && can_close_project()) {
-    open_project_worker(fn, false);
+    OpenProjectWorker(fn, false);
   }
 }
 
@@ -205,7 +241,7 @@ void OliveGlobal::open_recent(int index) {
       panel_project->save_recent_projects();
     }
   } else if (can_close_project()) {
-    open_project_worker(recent_url, false);
+    OpenProjectWorker(recent_url, false);
   }
 }
 
@@ -269,7 +305,7 @@ void OliveGlobal::finished_initialize() {
 
     // if a project was set as a command line argument, we load it here
     if (QFileInfo::exists(olive::ActiveProjectFilename)) {
-      open_project_worker(olive::ActiveProjectFilename, false);
+      OpenProjectWorker(olive::ActiveProjectFilename, false);
     } else {
       QMessageBox::critical(olive::MainWindow,
                             tr("Missing Project File"),
@@ -323,9 +359,9 @@ void OliveGlobal::set_sequence(SequencePtr s)
   panel_timeline->setFocus();
 }
 
-void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
+void OliveGlobal::OpenProjectWorker(const QString& fn, bool autorecovery) {
   update_project_filename(fn);
-  panel_project->load_project(fn, autorecovery, true);
+  LoadProject(fn, autorecovery, true);
   olive::UndoStack.clear();
 }
 

@@ -33,7 +33,7 @@ extern "C" {
 }
 
 AdvancedVideoDialog::AdvancedVideoDialog(QWidget *parent,
-                                         int encoding_codec,
+                                         AVCodecID encoding_codec,
                                          VideoCodecParams &iparams) :
   QDialog(parent),
   params_(iparams)

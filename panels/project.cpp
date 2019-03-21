@@ -111,7 +111,7 @@ Project::Project(QWidget *parent) :
   QPushButton* toolbar_open = new QPushButton();
   toolbar_open->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
   toolbar_open->setToolTip("Open Project");
-  connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(open_project()));
+  connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(OpenProject()));
   toolbar->addWidget(toolbar_open);
 
   QPushButton* toolbar_save = new QPushButton();
@@ -724,7 +724,7 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
           // load the project without clearing the current one
-          load_project(file, false, false);
+          olive::Global->ImportProject(file);
 
         }
 
@@ -1039,27 +1039,6 @@ void Project::clear() {
 
   // update tree view (sometimes this doesn't seem to update reliably)
   tree_view->update();
-}
-
-void Project::new_project() {
-  // clear existing project
-  olive::Global->set_sequence(nullptr);
-  panel_footage_viewer->set_media(nullptr);
-  clear();
-  olive::Global->set_modified(false);
-}
-
-void Project::load_project(const QString& filename, bool autorecovery, bool clear) {
-
-  // Normally, the user will be closing the previous project to load a new one, but just in case the user
-  // is importing a new project
-
-  if (clear) {
-    new_project();
-  }
-
-  LoadDialog ld(this, filename, autorecovery, clear);
-  ld.exec();
 }
 
 void save_marker(QXmlStreamWriter& stream, const Marker& m) {
