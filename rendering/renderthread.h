@@ -60,7 +60,7 @@ public:
                     int idivider = 0);
   bool did_texture_fail();
   void cancel();
-
+  void wait_until_paused();
 
 public slots:
   // cleanup functions

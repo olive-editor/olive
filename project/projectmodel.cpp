@@ -44,10 +44,10 @@ void ProjectModel::make_root() {
 
 void ProjectModel::destroy_root() {
   if (panel_sequence_viewer != nullptr) {
-    panel_sequence_viewer->viewer_widget->delete_function();
+    panel_sequence_viewer->set_media(nullptr);
   }
   if (panel_footage_viewer != nullptr) {
-    panel_footage_viewer->viewer_widget->delete_function();
+    panel_footage_viewer->set_media(nullptr);
   }
 
   root_item_ = std::make_shared<Media>();

@@ -90,10 +90,6 @@ ViewerWidget::~ViewerWidget() {
   delete renderer;
 }
 
-void ViewerWidget::delete_function() {
-  close_active_clips(viewer->seq.get());
-}
-
 void ViewerWidget::set_waveform_scroll(int s) {
   if (waveform) {
     waveform_scroll = s;
@@ -379,6 +375,11 @@ void ViewerWidget::wheelEvent(QWheelEvent *event) {
 
 void ViewerWidget::close_window() {
   window->hide();
+}
+
+void ViewerWidget::wait_until_render_is_paused()
+{
+  renderer->wait_until_paused();
 }
 
 void ViewerWidget::draw_waveform_func() {

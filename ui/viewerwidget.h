@@ -48,8 +48,8 @@ public:
   ViewerWidget(QWidget *parent = nullptr);
   ~ViewerWidget();
 
-  void delete_function();
   void close_window();
+  void wait_until_render_is_paused();
 
   void paintGL();
   void initializeGL();
