@@ -316,6 +316,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
   long playhead = s->playhead;
 
   if (!params.nests.isEmpty()) {
+
     for (int i=0;i<params.nests.size();i++) {
       s = params.nests.at(i)->media()->to_sequence().get();
       playhead += params.nests.at(i)->clip_in(true) - params.nests.at(i)->timeline_in(true);
@@ -327,6 +328,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
       params.ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
       final_fbo = params.nests.last()->fbo.at(0).buffer();
     }
+
   }
 
   int audio_track_count = 0;
@@ -516,19 +518,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
             } else if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
-              if (!c->media()->to_footage()->alpha_is_associated) {
-
-                // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
-                params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
-
-                textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
-
-                params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-                fbo_switcher = !fbo_switcher;
-
-              }
-
 #ifndef NO_OCIO
 
               // Convert texture to float
@@ -588,6 +577,19 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
               }
 #endif
+
+              if (!c->media()->to_footage()->alpha_is_associated) {
+
+                // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
+                params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
+
+                textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
+
+                params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+                fbo_switcher = !fbo_switcher;
+
+              }
 
             }
           }
