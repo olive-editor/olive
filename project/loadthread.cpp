@@ -37,10 +37,9 @@
 #include <QFile>
 #include <QTreeWidgetItem>
 
-LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
+LoadThread::LoadThread(const QString& filename, bool autorecovery) :
   filename_(filename),
   autorecovery_(autorecovery),
-  clear_(clear),
   cancelled_(false)
 {
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -779,14 +778,12 @@ void LoadThread::success_func() {
       counter++;
     }
 
-    if (clear_) {
-      olive::Global->update_project_filename(orig_filename);
-    }
+    olive::Global->update_project_filename(orig_filename);
   } else {
     panel_project->add_recent_project(filename_);
   }
 
-  olive::Global->set_modified(autorecovery_ || !clear_);
+  olive::Global->set_modified(autorecovery_);
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }

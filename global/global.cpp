@@ -166,18 +166,11 @@ void OliveGlobal::SetNativeStyling(QWidget *w)
 #endif
 }
 
-void OliveGlobal::LoadProject(const QString &fn, bool autorecovery, bool clear)
+void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
 {
-  // Normally, the user will be closing the previous project to load a new one, but just in case the user
-  // is importing a new project
-
-  if (clear) {
-    new_project();
-  }
-
   LoadDialog ld(olive::MainWindow);
 
-  LoadThread* lt = new LoadThread(fn, autorecovery, clear);
+  LoadThread* lt = new LoadThread(fn, autorecovery);
   connect(&ld, SIGNAL(cancel()), lt, SLOT(cancel()));
   connect(lt, SIGNAL(success()), &ld, SLOT(accept()));
   connect(lt, SIGNAL(error()), &ld, SLOT(reject()));
@@ -188,37 +181,43 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery, bool clear)
   ld.exec();
 }
 
+void OliveGlobal::ClearProject()
+{
+  // clear graph editor
+  panel_graph_editor->set_row(nullptr);
+
+  // clear effects panel
+  panel_effect_controls->Clear(true);
+
+  // clear existing project
+  olive::Global->set_sequence(nullptr);
+  panel_footage_viewer->set_media(nullptr);
+
+  // clear project contents (footage, sequences, etc.)
+  panel_project->clear();
+
+  // clear undo stack
+  olive::UndoStack.clear();
+
+  // empty current project filename
+  update_project_filename("");
+
+  // full update of all panels
+  update_ui(false);
+
+  // set to unmodified
+  olive::Global->set_modified(false);
+}
+
 void OliveGlobal::ImportProject(const QString &fn)
 {
-  LoadProject(fn, false, false);
+  LoadProject(fn, false);
+  set_modified(true);
 }
 
 void OliveGlobal::new_project() {
   if (can_close_project()) {
-    // clear graph editor
-    panel_graph_editor->set_row(nullptr);
-
-    // clear effects panel
-    panel_effect_controls->Clear(true);
-
-    // clear existing project
-    olive::Global->set_sequence(nullptr);
-    panel_footage_viewer->set_media(nullptr);
-
-    // clear project contents (footage, sequences, etc.)
-    panel_project->clear();
-
-    // clear undo stack
-    olive::UndoStack.clear();
-
-    // empty current project filename
-    update_project_filename("");
-
-    // full update of all panels
-    update_ui(false);
-
-    // set to unmodified
-    olive::Global->set_modified(false);
+    ClearProject();
   }
 }
 
@@ -359,8 +358,9 @@ void OliveGlobal::set_sequence(SequencePtr s)
 }
 
 void OliveGlobal::OpenProjectWorker(const QString& fn, bool autorecovery) {
+  ClearProject();
   update_project_filename(fn);
-  LoadProject(fn, autorecovery, true);
+  LoadProject(fn, autorecovery);
   olive::UndoStack.clear();
 }
 

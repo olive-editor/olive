@@ -366,7 +366,15 @@ private:
      * TRUE if the current project should be closed before opening, FALSE if the project should be imported into the
      * currently open one.
      */
-    void LoadProject(const QString& fn, bool autorecovery, bool clear);
+    void LoadProject(const QString& fn, bool autorecovery);
+
+    /**
+     * @brief Indiscriminately clear the project without prompting the user
+     *
+     * Will clear the entire project without prompting to save. This is dangerous, use new_project() instead for
+     * anything initiated by the user.
+     */
+    void ClearProject();
 
     /**
      * @brief File filter used for any file dialogs relating to Olive project files.

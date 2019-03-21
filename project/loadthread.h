@@ -35,7 +35,7 @@ class LoadThread : public QThread
 {
   Q_OBJECT
 public:
-  LoadThread(const QString& filename, bool autorecovery, bool clear);
+  LoadThread(const QString& filename, bool autorecovery);
   void run();
 public slots:
   void cancel();
@@ -50,7 +50,6 @@ private slots:
   void success_func();
 private:
   bool autorecovery_;
-  bool clear_;
   QString filename_;
 
   bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
