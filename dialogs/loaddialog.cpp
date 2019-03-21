@@ -45,10 +45,11 @@ LoadDialog::LoadDialog(QWidget *parent) :
   bar->setValue(0);
   layout->addWidget(bar);
 
-  cancel_button = new QPushButton(tr("Cancel"), this);
+  QPushButton* cancel_button = new QPushButton(tr("Cancel"), this);
   connect(cancel_button, SIGNAL(clicked(bool)), this, SIGNAL(cancel()));
 
-  hboxLayout = new QHBoxLayout();
+  // Wrap cancel button in a horizontal layout so it can be centered
+  QHBoxLayout* hboxLayout = new QHBoxLayout();
   hboxLayout->addStretch();
   hboxLayout->addWidget(cancel_button);
   hboxLayout->addStretch();
@@ -56,7 +57,7 @@ LoadDialog::LoadDialog(QWidget *parent) :
   layout->addLayout(hboxLayout);
 }
 
-QProgressBar *LoadDialog::progress_bar()
+void LoadDialog::setValue(int i)
 {
-  return bar;
+  bar->setValue(i);
 }

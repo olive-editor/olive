@@ -31,7 +31,7 @@
 /**
  * @brief The LoadDialog class
  *
- * Shows a modal dialog for loading a project and creates a LoadThread to load it.
+ * Shows a modal dialog for loading a project. Designed to be connected to a LoadThread object.
  */
 class LoadDialog : public QDialog
 {
@@ -43,27 +43,32 @@ public:
    * @param parent
    *
    * QWidget parent. Usually MainWindow.
-   *
-   * @param filename
-   *
-   * URL of the project file to load.
-   *
-   * @param autorecovery
-   *
-   * TRUE if this is an autorecovery project
-   *
-   * @param clear
    */
   LoadDialog(QWidget* parent);
 
-  QProgressBar* progress_bar();
+public slots:
+  /**
+   * @brief Set the progress bar value
+   *
+   * Ideally, connect this to LoadThread::report_progress().
+   *
+   * @param i
+   *
+   * Should be a value between 0-100.
+   */
+  void setValue(int i);
 signals:
+  /**
+   * @brief Signal emitted when the cancel button is clicked.
+   *
+   * Ideally, connect this to LoadThread::cancel();
+   */
   void cancel();
 private:
+  /**
+   * @brief Progress bar widget
+   */
   QProgressBar* bar;
-  QPushButton* cancel_button;
-  QHBoxLayout* hboxLayout;
-  LoadThread* lt;
 };
 
 #endif // LOADDIALOG_H

@@ -182,7 +182,7 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery, bool clear)
   connect(lt, SIGNAL(success()), &ld, SLOT(accept()));
   connect(lt, SIGNAL(error()), &ld, SLOT(reject()));
   connect(lt, SIGNAL(error()), this, SLOT(new_project()));
-  connect(lt, SIGNAL(report_progress(int)), ld.progress_bar(), SLOT(setValue(int)));
+  connect(lt, SIGNAL(report_progress(int)), &ld, SLOT(setValue(int)));
   lt->start();
 
   ld.exec();
