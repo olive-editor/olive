@@ -284,6 +284,6 @@ void NewSequenceDialog::setup_ui() {
   verticalLayout->addWidget(buttonBox);
 
   connect(preset_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(preset_changed(int)));
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(create()));
+  connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
   connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }

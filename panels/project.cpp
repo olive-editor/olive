@@ -433,27 +433,30 @@ void Project::new_sequence() {
 }
 
 MediaPtr Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
-  if (parent == nullptr) {
-    parent = olive::project_model.get_root();
-  }
 
-  MediaPtr item = std::make_shared<Media>(parent);
+  MediaPtr item = std::make_shared<Media>();
   item->set_sequence(s);
 
   if (ca != nullptr) {
+
     ca->append(new AddMediaCommand(item, parent));
 
     if (open) {
       ca->append(new ChangeSequenceAction(s));
     }
+
   } else {
+
     olive::project_model.appendChild(parent, item);
 
     if (open) {
       olive::Global->set_sequence(s);
     }
+
   }
+
   return item;
+
 }
 
 QString Project::get_file_name_from_path(const QString& path) {
@@ -700,13 +703,13 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
         subdir_filenames.append(subdir_files.at(j).filePath());
       }
 
-      process_file_list(subdir_filenames, true, nullptr, folder.get());
-
       if (create_undo_action) {
         ca->append(new AddMediaCommand(folder, parent));
       } else {
         olive::project_model.appendChild(parent, folder);
       }
+
+      process_file_list(subdir_filenames, true, nullptr, folder.get());
 
       imported = true;
 
@@ -868,10 +871,10 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
           if (replace != nullptr) {
             item = replace;
           } else {
-            item = std::make_shared<Media>(parent);
+            item = std::make_shared<Media>();
           }
 
-          m = FootagePtr(new Footage());
+          m = std::make_shared<Footage>();
 
           m->using_inout = false;
           m->url = file;
@@ -886,7 +889,7 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
             if (create_undo_action) {
               ca->append(new AddMediaCommand(item, parent));
             } else {
-              parent->appendChild(item);
+              olive::project_model.appendChild(parent, item);
             }
           }
 

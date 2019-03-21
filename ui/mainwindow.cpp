@@ -60,8 +60,6 @@
 
 MainWindow* olive::MainWindow;
 
-#define DEFAULT_CSS "QPushButton::checked { background: rgb(25, 25, 25); }"
-
 void MainWindow::setup_layout(bool reset) {
   // load panels from file
   if (!reset) {
@@ -407,25 +405,66 @@ void MainWindow::Restyle()
     } else {
 
       // set default palette
-      QPalette darkPalette;
-      darkPalette.setColor(QPalette::Window, QColor(53,53,53));
-      darkPalette.setColor(QPalette::WindowText, Qt::white);
-      darkPalette.setColor(QPalette::Base, QColor(25,25,25));
-      darkPalette.setColor(QPalette::AlternateBase, QColor(53,53,53));
-      darkPalette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
-      darkPalette.setColor(QPalette::ToolTipText, Qt::white);
-      darkPalette.setColor(QPalette::Text, Qt::white);
-      darkPalette.setColor(QPalette::Button, QColor(53,53,53));
-      darkPalette.setColor(QPalette::ButtonText, Qt::white);
-      darkPalette.setColor(QPalette::BrightText, Qt::red);
-      darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
-      darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
-      darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
-      darkPalette.setColor(QPalette::HighlightedText, Qt::black);
-      qApp->setPalette(darkPalette);
+      QPalette palette;
 
-      // set default CSS
-      setStyleSheet(DEFAULT_CSS);
+      if (olive::CurrentConfig.style == olive::styling::kOliveDefaultLight) {
+
+        palette.setColor(QPalette::Window, QColor(208, 208, 208));
+        palette.setColor(QPalette::WindowText, Qt::black);
+        palette.setColor(QPalette::Base, QColor(240, 240, 240));
+        palette.setColor(QPalette::AlternateBase, QColor(208, 208, 208));
+        palette.setColor(QPalette::ToolTipBase, QColor(255, 255, 255));
+        palette.setColor(QPalette::ToolTipText, Qt::black);
+        palette.setColor(QPalette::Text, Qt::black);
+        palette.setColor(QPalette::Button, QColor(208, 208, 208));
+        palette.setColor(QPalette::ButtonText, Qt::black);
+        palette.setColor(QPalette::BrightText, Qt::red);
+        palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(208, 208, 208));
+        palette.setColor(QPalette::Link, QColor(42, 130, 218));
+        palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+        palette.setColor(QPalette::HighlightedText, Qt::white);
+
+        /* Olive Mid
+        palette.setColor(QPalette::Window, QColor(128, 128, 128));
+        palette.setColor(QPalette::WindowText, Qt::black);
+        palette.setColor(QPalette::Base, QColor(192, 192, 192));
+        palette.setColor(QPalette::AlternateBase, QColor(128, 128, 128));
+        palette.setColor(QPalette::ToolTipBase, QColor(192, 192, 192));
+        palette.setColor(QPalette::ToolTipText, Qt::black);
+        palette.setColor(QPalette::Text, Qt::black);
+        palette.setColor(QPalette::Button, QColor(128, 128, 128));
+        palette.setColor(QPalette::ButtonText, Qt::black);
+        palette.setColor(QPalette::BrightText, Qt::red);
+        palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
+        palette.setColor(QPalette::Link, QColor(42, 130, 218));
+        palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+        palette.setColor(QPalette::HighlightedText, Qt::black);
+        */
+
+      } else {
+
+        palette.setColor(QPalette::Window, QColor(53,53,53));
+        palette.setColor(QPalette::WindowText, Qt::white);
+        palette.setColor(QPalette::Base, QColor(25,25,25));
+        palette.setColor(QPalette::AlternateBase, QColor(53,53,53));
+        palette.setColor(QPalette::ToolTipBase, QColor(25,25,25));
+        palette.setColor(QPalette::ToolTipText, Qt::white);
+        palette.setColor(QPalette::Text, Qt::white);
+        palette.setColor(QPalette::Button, QColor(53,53,53));
+        palette.setColor(QPalette::ButtonText, Qt::white);
+        palette.setColor(QPalette::BrightText, Qt::red);
+        palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(128, 128, 128));
+        palette.setColor(QPalette::Link, QColor(42, 130, 218));
+        palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+        palette.setColor(QPalette::HighlightedText, Qt::white);
+
+        // set default CSS
+        setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }");
+
+      }
+
+      qApp->setPalette(palette);
+
     }
   }
 }

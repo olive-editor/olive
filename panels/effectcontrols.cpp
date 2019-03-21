@@ -45,6 +45,7 @@
 #include "panels/grapheditor.h"
 #include "ui/viewerwidget.h"
 #include "ui/menuhelper.h"
+#include "ui/icons.h"
 #include "project/clipboard.h"
 #include "global/config.h"
 #include "ui/timelineheader.h"
@@ -373,8 +374,8 @@ void EffectControls::setup_ui() {
   veHeaderLayout->setSpacing(0);
   veHeaderLayout->setMargin(0);
 
-  QIcon add_effect_icon(":/icons/add-effect.svg");
-  QIcon add_transition_icon(":/icons/add-transition.svg");
+  QIcon add_effect_icon = olive::icon::CreateIconFromSVG(":/icons/add-effect.svg", false);
+  QIcon add_transition_icon = olive::icon::CreateIconFromSVG(":/icons/add-transition.svg", false);
 
   btnAddVideoEffect = new QPushButton();
   btnAddVideoEffect->setIcon(add_effect_icon);

@@ -45,7 +45,7 @@ using MediaPtr = std::shared_ptr<Media>;
 class Media
 {
 public:
-  Media(Media* iparent = nullptr);
+  Media();
 
   Footage *to_footage();
   SequencePtr to_sequence();

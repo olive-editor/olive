@@ -213,6 +213,7 @@ public:
 private:
   MediaPtr item;
   Media* parent;
+  bool done_;
 };
 
 class DeleteMediaCommand : public OliveAction {

@@ -169,7 +169,7 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
   }
 }
 
-void PreferencesDialog::save() {
+void PreferencesDialog::accept() {
   bool restart_after_saving = false;
   bool reinit_audio = false;
   bool reload_language = false;
@@ -316,7 +316,7 @@ void PreferencesDialog::save() {
     olive::Global->load_translation_from_config();
   }
 
-  accept();
+  QDialog::accept();
 
   if (restart_after_saving) {
     // since we already ran can_close_project(), bypass checking again by running set_modified(false)
@@ -794,6 +794,6 @@ void PreferencesDialog::setup_ui() {
 
   verticalLayout->addWidget(buttonBox);
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(save()));
+  connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
   connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }

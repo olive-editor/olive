@@ -283,7 +283,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               int folder = 0;
 
               MediaPtr item = std::make_shared<Media>();
-              FootagePtr f(new Footage());
+              FootagePtr f = std::make_shared<Footage>();
 
               f->using_inout = false;
 
@@ -608,6 +608,22 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
   return nullptr;
 }
 
+void LoadThread::OrganizeFolders(int folder) {
+  qDebug() << "starting with" << folder;
+
+  for (int i=0;i<loaded_folders.size();i++) {
+    MediaPtr item = loaded_folders.at(i);
+    int parent_id = item->temp_id2;
+
+    if (parent_id == folder) {
+      olive::project_model.appendChild(find_loaded_folder_by_id(parent_id), item);
+
+      OrganizeFolders(parent_id);
+    }
+
+  }
+}
+
 void LoadThread::run() {
   mutex.lock();
 
@@ -660,15 +676,11 @@ void LoadThread::run() {
     cont = load_worker(file, stream, MEDIA_TYPE_FOLDER);
   }
 
-  // load media
   if (cont) {
     // since folders loaded correctly, organize them appropriately
-    for (int i=0;i<loaded_folders.size();i++) {
-      MediaPtr folder = loaded_folders.at(i);
-      int parent = folder->temp_id2;
-      olive::project_model.appendChild(find_loaded_folder_by_id(parent), folder);
-    }
+    OrganizeFolders();
 
+    // load media
     cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);
   }
 
