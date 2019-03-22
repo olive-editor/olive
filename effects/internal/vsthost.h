@@ -21,8 +21,6 @@
 #ifndef VSTHOSTWIN_H
 #define VSTHOSTWIN_H
 
-#ifndef NOVST
-
 #include "effects/effect.h"
 
 #include "global/crossplatformlib.h"
@@ -76,7 +74,5 @@ private:
   ModulePtr modulePtr;
 #endif
 };
-
-#endif
 
 #endif // VSTHOSTWIN_H

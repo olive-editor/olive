@@ -85,9 +85,7 @@ EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
     case EFFECT_INTERNAL_SHAKE: return std::make_shared<ShakeEffect>(c, em);
     case EFFECT_INTERNAL_CORNERPIN: return std::make_shared<CornerPinEffect>(c, em);
     case EFFECT_INTERNAL_FILLLEFTRIGHT: return std::make_shared<FillLeftRightEffect>(c, em);
-#ifndef NOVST
     case EFFECT_INTERNAL_VST: return std::make_shared<VSTHost>(c, em);
-#endif
 #ifndef NOFREI0R
     case EFFECT_INTERNAL_FREI0R: return std::make_shared<Frei0rEffect>(c, em);
 #endif

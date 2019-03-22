@@ -20,8 +20,6 @@
 
 #include "vsthost.h"
 
-#ifndef NOVST
-
 // adapted from http://teragonaudio.com/article/How-to-make-your-own-VST-host.html
 
 #include <QPushButton>
@@ -419,5 +417,3 @@ void VSTHost::change_plugin() {
   }
   show_interface_btn->SetEnabled(plugin != nullptr);
 }
-
-#endif

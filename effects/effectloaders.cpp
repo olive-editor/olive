@@ -59,11 +59,9 @@ void load_internal_effects() {
   em.internal = EFFECT_INTERNAL_PAN;
   effects.append(em);
 
-#ifndef NOVST
   em.name = "VST Plugin 2.x";
   em.internal = EFFECT_INTERNAL_VST;
   effects.append(em);
-#endif
 
   em.name = "Tone";
   em.internal = EFFECT_INTERNAL_TONE;
