@@ -152,7 +152,7 @@ void process_effect(Clip* c,
   }
 }
 
-GLuint compose_sequence(ComposeSequenceParams &params) {
+GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 //  qint64 time = QDateTime::currentMSecsSinceEpoch();
 
   GLuint final_fbo = params.main_buffer;
@@ -666,7 +666,7 @@ GLuint compose_sequence(ComposeSequenceParams &params) {
   return 0;
 }
 
-void compose_audio(Viewer* viewer, Sequence* seq, int playback_speed, bool wait_for_mutexes) {
+void olive::rendering::compose_audio(Viewer* viewer, Sequence* seq, int playback_speed, bool wait_for_mutexes) {
   ComposeSequenceParams params;
   params.viewer = viewer;
   params.ctx = nullptr;

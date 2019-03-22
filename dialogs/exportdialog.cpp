@@ -20,6 +20,10 @@
 
 #include "exportdialog.h"
 
+extern "C" {
+#include <libavformat/avformat.h>
+}
+
 #include <QOpenGLWidget>
 #include <QFileDialog>
 #include <QThread>
@@ -38,10 +42,6 @@
 #include "rendering/audio.h"
 #include "rendering/exportthread.h"
 #include "ui/mainwindow.h"
-
-extern "C" {
-#include <libavformat/avformat.h>
-}
 
 enum ExportFormats {
   FORMAT_3GPP,
@@ -117,9 +117,6 @@ ExportDialog::ExportDialog(QWidget *parent) :
   // set some advanced defaults
   vcodec_params.threads = 0;
 }
-
-ExportDialog::~ExportDialog()
-{}
 
 void ExportDialog::add_codec_to_combobox(QComboBox* box, enum AVCodecID codec) {
   QString codec_name;
@@ -333,31 +330,54 @@ void ExportDialog::format_changed(int index) {
   audioGroupbox->setEnabled(audio_enabled);
 }
 
-void ExportDialog::render_thread_finished() {
-  if (progressBar->value() < 100 && !cancelled) {
+void ExportDialog::export_thread_finished() {
+  // Determine if the export succeeded
+  bool succeeded = (progressBar->value() == 100);
+
+  // If it failed and we didn't cancel it, it must have errored out. Show an error message.
+  if (!succeeded && !export_thread_->WasInterrupted()) {
     QMessageBox::critical(
           this,
           tr("Export Failed"),
-          tr("Export failed - %1").arg(export_error),
+          tr("Export failed - %1").arg(export_thread_->GetError()),
           QMessageBox::Ok
           );
   }
+
+  // Clear audio buffer
   clear_audio_ibuffer();
+
+  // Re-enable/disable UI widgets based on the rendering state
   prep_ui_for_render(false);
+
+  // Move OpenGL context back to the sequence viewer
   panel_sequence_viewer->viewer_widget->makeCurrent();
   panel_sequence_viewer->viewer_widget->initializeGL();
+
+  // Update the application UI
   update_ui(false);
-  et->deleteLater();
-  if (progressBar->value() == 100) accept();
+
+  // Disconnect cancel button from export thread
+  disconnect(renderCancel, SIGNAL(clicked(bool)), export_thread_, SLOT(Interrupt()));
+
+  // Free the export thread
+  export_thread_->deleteLater();
+
+  // If the export succeeded, close the dialog
+  if (succeeded) {
+    accept();
+  }
 }
 
 void ExportDialog::prep_ui_for_render(bool r) {
   export_button->setEnabled(!r);
   cancel_button->setEnabled(!r);
+  videoGroupbox->setEnabled(!r);
+  audioGroupbox->setEnabled(!r);
   renderCancel->setEnabled(r);
 }
 
-void ExportDialog::export_action() {
+void ExportDialog::StartExport() {
   if (widthSpinbox->value()%2 == 1 || heightSpinbox->value()%2 == 1) {
     QMessageBox::critical(
           this,
@@ -515,6 +535,7 @@ void ExportDialog::export_action() {
       }
     }
 
+    // Set up export parameters to send to the ExportThread
     ExportParams params;
     params.filename = filename;
     params.video_enabled = videoGroupbox->isChecked();
@@ -540,11 +561,15 @@ void ExportDialog::export_action() {
       params.end_frame = qMin(olive::ActiveSequence->workarea_out, params.end_frame);
     }
 
-    et = new ExportThread(params, vcodec_params, this);
+    // Create export thread
+    export_thread_ = new ExportThread(params, vcodec_params, this);
 
-    connect(et, SIGNAL(finished()), this, SLOT(render_thread_finished()));
-    connect(et, SIGNAL(progress_changed(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
+    // Connect export thread signals/slots
+    connect(export_thread_, SIGNAL(finished()), this, SLOT(export_thread_finished()));
+    connect(export_thread_, SIGNAL(ProgressChanged(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
+    connect(renderCancel, SIGNAL(clicked(bool)), export_thread_, SLOT(Interrupt()));
 
+    // Close all currently open clips
     close_active_clips(olive::ActiveSequence.get());
 
     olive::Global->set_rendering_state(true);
@@ -553,11 +578,9 @@ void ExportDialog::export_action() {
 
     prep_ui_for_render(true);
 
-    cancelled = false;
-
     total_export_time_start = QDateTime::currentMSecsSinceEpoch();
 
-    et->start();
+    export_thread_->start();
   }
 }
 
@@ -585,11 +608,6 @@ void ExportDialog::update_progress_bar(int value, qint64 remaining_ms) {
   }
 
   progressBar->setValue(value);
-}
-
-void ExportDialog::cancel_render() {
-  et->continueEncode = false;
-  cancelled = true;
 }
 
 void ExportDialog::vcodec_changed(int index) {
@@ -649,7 +667,7 @@ void ExportDialog::comp_type_changed(int) {
 }
 
 void ExportDialog::open_advanced_video_dialog() {
-  AdvancedVideoDialog avd(this, vcodecCombobox->currentData().toInt(), vcodec_params);
+  AdvancedVideoDialog avd(this, static_cast<AVCodecID>(vcodecCombobox->currentData().toInt()), vcodec_params);
   avd.exec();
 }
 
@@ -755,7 +773,6 @@ void ExportDialog::setup_ui() {
   renderCancel = new QPushButton(this);
   renderCancel->setIcon(QIcon(":/icons/error.svg"));
   renderCancel->setEnabled(false);
-  connect(renderCancel, SIGNAL(clicked(bool)), this, SLOT(cancel_render()));
   progressLayout->addWidget(renderCancel);
 
   verticalLayout->addLayout(progressLayout);
@@ -765,7 +782,7 @@ void ExportDialog::setup_ui() {
 
   export_button = new QPushButton(this);
   export_button->setText("Export");
-  connect(export_button, SIGNAL(clicked(bool)), this, SLOT(export_action()));
+  connect(export_button, SIGNAL(clicked(bool)), this, SLOT(StartExport()));
 
   buttonLayout->addWidget(export_button);
 

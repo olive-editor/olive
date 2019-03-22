@@ -215,6 +215,8 @@ struct ComposeSequenceParams {
     GLuint ocio_lut_texture;
 };
 
+namespace olive {
+namespace rendering {
 /**
  * @brief Compose a frame of a given sequence
  *
@@ -263,6 +265,8 @@ GLuint compose_sequence(ComposeSequenceParams &params);
  * Whether to wait for media to open or simply fail if the media is not yet open. This should usually be **FALSE**.
  */
 void compose_audio(Viewer* viewer, Sequence *seq, int playback_speed, bool wait_for_mutexes);
+}
+}
 
 /**
  * @brief Rescale a frame number between two frame rates

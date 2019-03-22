@@ -39,6 +39,7 @@
 #include "project/projectfilter.h"
 #include "timeline/sequence.h"
 #include "global/config.h"
+#include "global/global.h"
 #include "dialogs/proxydialog.h"
 #include "ui/viewerwidget.h"
 #include "project/proxygenerator.h"
@@ -281,7 +282,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
       bool replace = false;
       if (urls.size() == 1
           && drop_item.isValid()
-          && m->get_type() == MEDIA_TYPE_FOOTAGE
+          && (m != nullptr && m->get_type() == MEDIA_TYPE_FOOTAGE)
           && !QFileInfo(paths.at(0)).isDir()
           && olive::CurrentConfig.drop_on_media_to_replace
           && QMessageBox::question(
@@ -443,5 +444,5 @@ void SourcesCommon::clear_proxies_from_selected() {
     panel_sequence_viewer->viewer_widget->frame_update();
   }
 
-  olive::MainWindow->setWindowModified(true);
+  olive::Global->set_modified(true);
 }

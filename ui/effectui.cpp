@@ -68,6 +68,9 @@ EffectUI::EffectUI(Effect* e) :
   QWidget* ui = new QWidget(this);
   SetContents(ui);
 
+  SetExpanded(e->IsExpanded());
+  connect(this, SIGNAL(visibleChanged(bool)), e, SLOT(SetExpanded(bool)));
+
   layout_ = new QGridLayout(ui);
   layout_->setSpacing(4);
 

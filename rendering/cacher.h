@@ -466,6 +466,13 @@ private:
   bool caching_;
 
   /**
+   * @brief Internal variable for whether the current Cacher state is valid or not
+   *
+   * If there was an error opening the Cacher for any reason, this will be false.
+   */
+  bool is_valid_state_;
+
+  /**
    * @brief Internal function for opening the file handles and decoder
    *
    * After the thread has started, it'll call this function to start all resources necessary for caching. Any
@@ -570,6 +577,11 @@ private:
    * audio to the audio buffer which will later be sent to the audio output device.
    */
   void CacheAudioWorker();
+
+  /**
+   * @brief Internal function using the Cacher's known information to determine whether this media is playing in reverse
+   */
+  bool IsReversed();
 };
 
 #endif // CACHER_H

@@ -93,6 +93,31 @@ public:
     void set_rendering_state(bool rendering);
 
     /**
+     * @brief Set the application's "modified" state
+     *
+     * Primarily controls whether the application prompts the user to save the project upon closing or not. Also
+     * technically controls whether to create autorecovery files as they'll only be generated if there are unsaved
+     * changes.
+     *
+     * @param modified
+     *
+     * TRUE if the project has been modified, FALSE if it has not.
+     */
+    void set_modified(bool modified);
+
+    /**
+     * @brief Get application's current "modified" state
+     *
+     * Currently just a wrapper around MainWindow::isWindowModified(), but use this instead in case it changes.
+     * This value is used to determine whether the currently open project has unsaved changes.
+     *
+     * @return
+     *
+     * TRUE if the project has been modified since the last save.
+     */
+    bool is_modified();
+
+    /**
      * @brief Set a project to load just after launching
      *
      * Called by main() if Olive was called with a project file as a running argument. Sets up Olive to load the
@@ -168,7 +193,18 @@ public slots:
      * Confirms whether the current project can be closed, and if so, shows an open file dialog to allow the user to
      * select a project file and then triggers a project load with it.
      */
-    void open_project();
+    void OpenProject();
+
+    /**
+     * @brief Import project from file
+     *
+     * Imports an Olive project into the current project, effectively merging them.
+     *
+     * @param fn
+     *
+     * The filename of the project to import.
+     */
+    void ImportProject(const QString& fn);
 
     /**
      * @brief Open recent project from list
@@ -302,7 +338,43 @@ private:
      * beside the original project file so that it does not overwrite the original and so that the user is not working
      * on the autorecovery project in Olive's application data directory.
      */
-    void open_project_worker(const QString& fn, bool autorecovery);
+    void OpenProjectWorker(const QString& fn, bool autorecovery);
+
+    /**
+     * @brief Create a LoadDialog and start a LoadThread to load data from a project
+     *
+     * Loads data from an Olive project file creating a LoadDialog to show visual information and a LoadThread to load
+     * outside of the main/GUI thread.
+     *
+     * All project loading functions eventually lead to this one and there's no reason to use it directly. Instead use
+     * one of the following functions:
+     *
+     * * OpenProject() - to check if the current project can be closed and prompt the user for the new project file
+     * * OpenProjectWorker() - if you already have the filename and wish to close the current project and open it
+     * * ImportProject() - to import a project file into this one, effectively merging them both
+     *
+     * @param fn
+     *
+     * The URL of the project file to open
+     *
+     * @param autorecovery
+     *
+     * TRUE if this file is an autorecovery file, in which case it's loaded slightly differently
+     *
+     * @param clear
+     *
+     * TRUE if the current project should be closed before opening, FALSE if the project should be imported into the
+     * currently open one.
+     */
+    void LoadProject(const QString& fn, bool autorecovery);
+
+    /**
+     * @brief Indiscriminately clear the project without prompting the user
+     *
+     * Will clear the entire project without prompting to save. This is dangerous, use new_project() instead for
+     * anything initiated by the user.
+     */
+    void ClearProject();
 
     /**
      * @brief File filter used for any file dialogs relating to Olive project files.
@@ -323,6 +395,16 @@ private:
      * @brief Internal translator object that interfaces with the currently loaded language file
      */
     std::unique_ptr<QTranslator> translator;
+
+    /**
+     * @brief Internal variable for whether the project has changed since the last autorecovery
+     *
+     * Set by set_modified(), which should be called alongside any change made to the project file and is "unset" when
+     * an autorecovery file is made. Provides an extra layer of abstraction from the application "modified" state to
+     * prevents an autorecovery file saving multiple times if the project hasn't actually changed since the last
+     * autorecovery, but still hasn't been saved into the original file yet.
+     */
+    bool changed_since_last_autorecovery;
 
 private slots:
 

@@ -31,7 +31,7 @@
 #include "ui/sourcetable.h"
 #include "ui/mainwindow.h"
 
-LoadDialog::LoadDialog(QWidget *parent, const QString& fn, bool autorecovery, bool clear) :
+LoadDialog::LoadDialog(QWidget *parent) :
   QDialog(parent)
 {
   setWindowTitle(tr("Loading..."));
@@ -45,36 +45,19 @@ LoadDialog::LoadDialog(QWidget *parent, const QString& fn, bool autorecovery, bo
   bar->setValue(0);
   layout->addWidget(bar);
 
-  cancel_button = new QPushButton(tr("Cancel"), this);
-  connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(cancel()));
+  QPushButton* cancel_button = new QPushButton(tr("Cancel"), this);
+  connect(cancel_button, SIGNAL(clicked(bool)), this, SIGNAL(cancel()));
 
-  hboxLayout = new QHBoxLayout();
+  // Wrap cancel button in a horizontal layout so it can be centered
+  QHBoxLayout* hboxLayout = new QHBoxLayout();
   hboxLayout->addStretch();
   hboxLayout->addWidget(cancel_button);
   hboxLayout->addStretch();
 
   layout->addLayout(hboxLayout);
-
-  update();
-
-  lt = new LoadThread(fn, autorecovery, clear);
-  QObject::connect(lt, SIGNAL(success()), this, SLOT(thread_done()));
-  QObject::connect(lt, SIGNAL(error()), this, SLOT(die()));
-  QObject::connect(lt, SIGNAL(report_progress(int)), bar, SLOT(setValue(int)));
-  lt->start();
 }
 
-void LoadDialog::cancel() {
-  lt->cancel();
-  lt->wait();
-  die();
-}
-
-void LoadDialog::die() {
-  olive::Global->new_project();
-  reject();
-}
-
-void LoadDialog::thread_done() {
-  accept();
+void LoadDialog::setValue(int i)
+{
+  bar->setValue(i);
 }

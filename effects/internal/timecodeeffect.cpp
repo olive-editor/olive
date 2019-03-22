@@ -87,7 +87,7 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   offset_y_val = new DoubleField(offset_row, "offsety");
 
   EffectRow* prepent_text_row = new EffectRow(this, tr("Prepend"));
-  prepend_text = new StringField(prepent_text_row, "prepend");
+  prepend_text = new StringField(prepent_text_row, "prepend", false);
   prepend_text->SetColumnSpan(2);
 }
 

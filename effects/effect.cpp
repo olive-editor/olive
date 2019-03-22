@@ -44,7 +44,6 @@
 #include "panels/timeline.h"
 #include "panels/effectcontrols.h"
 #include "panels/grapheditor.h"
-#include "ui/checkboxex.h"
 #include "global/debug.h"
 #include "global/path.h"
 #include "ui/mainwindow.h"
@@ -124,7 +123,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   isOpen(false),
   bound(false),
   iterations(1),
-  enabled_(true)
+  enabled_(true),
+  expanded_(true)
 {
   if (em != nullptr) {
     // set up UI from effect file
@@ -507,6 +507,16 @@ bool Effect::AlwaysUpdate()
 
 bool Effect::IsEnabled() {
   return enabled_;
+}
+
+bool Effect::IsExpanded()
+{
+  return expanded_;
+}
+
+void Effect::SetExpanded(bool e)
+{
+  expanded_ = e;
 }
 
 void Effect::SetEnabled(bool b) {
@@ -893,6 +903,7 @@ GLuint Effect::process_superimpose(double timecode) {
   }
 
   if (texture == nullptr || texture->width() != img.width() || texture->height() != img.height()) {
+
     delete_texture();
 
     texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
@@ -903,6 +914,7 @@ GLuint Effect::process_superimpose(double timecode) {
     texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
 
     redrew_image = true;
+
   }
 
   if (redrew_image) {
@@ -1088,10 +1100,8 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-  if (texture != nullptr) {
-    delete texture;
-    texture = nullptr;
-  }
+  delete texture;
+  texture = nullptr;
 }
 
 const EffectMeta* get_meta_from_name(const QString& input) {

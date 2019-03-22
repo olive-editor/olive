@@ -35,8 +35,9 @@ class LoadThread : public QThread
 {
   Q_OBJECT
 public:
-  LoadThread(const QString& filename, bool autorecovery, bool clear);
+  LoadThread(const QString& filename, bool autorecovery);
   void run();
+public slots:
   void cancel();
 signals:
   void start_question(const QString &title, const QString &text, int buttons);
@@ -49,7 +50,6 @@ private slots:
   void success_func();
 private:
   bool autorecovery_;
-  bool clear_;
   QString filename_;
 
   bool load_worker(QFile& f, QXmlStreamReader& stream, int type);
@@ -75,6 +75,7 @@ private:
   QVector<ClipPtr> loaded_clips;
   QVector<Media*> loaded_sequences;
   Media* find_loaded_folder_by_id(int id);
+  void OrganizeFolders(int folder = 0);
 
   int current_element_count;
   int total_element_count;

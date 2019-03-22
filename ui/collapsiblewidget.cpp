@@ -30,9 +30,7 @@
 #include <QWidget>
 #include <QPainter>
 
-#include "ui/checkboxex.h"
 #include "ui/icons.h"
-
 #include "global/debug.h"
 
 CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
@@ -47,7 +45,7 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   title_bar->setAutoFillBackground(true);
   title_bar_layout = new QHBoxLayout(title_bar);
   title_bar_layout->setMargin(5);
-  enabled_check = new CheckboxEx(title_bar);
+  enabled_check = new QCheckBox(title_bar);
   enabled_check->setChecked(true);
   header = new QLabel(title_bar);
   collapse_button = new QPushButton(title_bar);
@@ -89,6 +87,13 @@ bool CollapsibleWidget::IsExpanded() {
   return contents->isVisible();
 }
 
+void CollapsibleWidget::SetExpanded(bool s)
+{
+  contents->setVisible(s);
+  set_button_icon(s);
+  emit visibleChanged(s);
+}
+
 bool CollapsibleWidget::IsSelected()
 {
   return selected;
@@ -118,9 +123,7 @@ void CollapsibleWidget::SetTitle(const QString &s) {
 }
 
 void CollapsibleWidget::on_visible_change() {
-  contents->setVisible(!contents->isVisible());
-  set_button_icon(contents->isVisible());
-  emit visibleChanged();
+  SetExpanded(!IsExpanded());
 }
 
 CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {

@@ -31,6 +31,7 @@
 #include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
+#include <QStatusBar>
 #include <math.h>
 
 #include "project/projectelements.h"
@@ -39,6 +40,7 @@
 #include "panels/panels.h"
 #include "global/config.h"
 #include "global/debug.h"
+#include "ui/mainwindow.h"
 
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
@@ -117,7 +119,7 @@ void Cacher::CacheAudioWorker() {
   long target_frame = audio_target_frame;
 
   bool temp_reverse = (playback_speed_ < 0);
-  bool reverse_audio = (clip->reversed() != temp_reverse);
+  bool reverse_audio = IsReversed();
 
   long frame_skip = 0;
   double last_fr = clip->sequence->frame_rate;
@@ -462,6 +464,12 @@ void Cacher::CacheAudioWorker() {
   QMetaObject::invokeMethod(panel_sequence_viewer, "play_wake", Qt::QueuedConnection);
 }
 
+bool Cacher::IsReversed()
+{
+  // Here, the Clip reverse and reversed playback speed cancel each other out to produce normal playback
+  return (clip->reversed() != playback_speed_ < 0);
+}
+
 void Cacher::CacheVideoWorker() {
 
   // is this media a still image?
@@ -495,6 +503,9 @@ void Cacher::CacheVideoWorker() {
 
     // main thread waits until cacher starts fully, wake it up here
     WakeMainThread();
+
+    // determine if this media is reversed, which will affect how the queue is constructed
+    bool reversed = IsReversed();
 
     // get the timestamp we want in terms of the media's timebase
     int64_t target_pts = seconds_to_timestamp(clip, playhead_to_clip_seconds(clip, playhead_));
@@ -573,38 +584,54 @@ void Cacher::CacheVideoWorker() {
     // for FRAME_QUEUE_TYPE_FRAMES, this is used to store the maximum number of frames that can be added
     int64_t minimum_ts;
 
-    if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
-      // get the maximum number of previous frames that can be in the queue
-      minimum_ts = qCeil(olive::CurrentConfig.previous_queue_size);
-    } else {
-      // get the minimum frame timestamp that can be added to the queue
-      minimum_ts = target_pts - seconds_to_timestamp(clip, olive::CurrentConfig.previous_queue_size);
-    }
-
     // check if we can add more frames to this queue or not
 
     // for FRAME_QUEUE_TYPE_SECONDS, this is used to store the maximum timestamp
     // for FRAME_QUEUE_TYPE_FRAMES, this is used to store the maximum number of frames that can be added
     int64_t maximum_ts;
 
-    bool start_loop = true;
+    // Get queue configuration
+    int previous_queue_type, upcoming_queue_type;
+    double previous_queue_size, upcoming_queue_size;
 
-    if (olive::CurrentConfig.upcoming_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
-      maximum_ts = qCeil(olive::CurrentConfig.upcoming_queue_size);
+    // For reversed playback, we flip the queue stats as "upcoming" frames are going to be played before the "previous"
+    // frames now
+    if (reversed) {
+      previous_queue_type = olive::CurrentConfig.upcoming_queue_type;
+      previous_queue_size = olive::CurrentConfig.upcoming_queue_size;
+      upcoming_queue_type = olive::CurrentConfig.previous_queue_type;
+      upcoming_queue_size = olive::CurrentConfig.previous_queue_size;
+    } else {
+      previous_queue_type = olive::CurrentConfig.previous_queue_type;
+      previous_queue_size = olive::CurrentConfig.previous_queue_size;
+      upcoming_queue_type = olive::CurrentConfig.upcoming_queue_type;
+      upcoming_queue_size = olive::CurrentConfig.upcoming_queue_size;
+    }
 
-      // if we already have the maximum number of upcoming frames, don't bother running the below loop at all
-      if (frames_greater_than_target >= maximum_ts) {
-        start_loop = false;
-      }
+    // Determine "previous" queue statistics
+    if (previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
+      // get the maximum number of previous frames that can be in the queue
+      minimum_ts = qCeil(previous_queue_size);
+    } else {
+      // get the minimum frame timestamp that can be added to the queue
+      minimum_ts = qRound(target_pts - second_pts * previous_queue_size);
+    }
+
+    // Determine "upcoming" queue statistics
+    if (upcoming_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
+      maximum_ts = qCeil(upcoming_queue_size);
     } else {
       // get the maximum frame timestamp that can be added to the queue
-      maximum_ts = target_pts + seconds_to_timestamp(clip, olive::CurrentConfig.upcoming_queue_size);
-
-      // if the latest frame is already past the maximum queue seconds
-      if (latest_pts > maximum_ts) {
-        start_loop = false;
-      }
+      maximum_ts = qRound(target_pts + second_pts * upcoming_queue_size);
     }
+
+    // if we already have the maximum number of upcoming frames, don't bother running the retrieving any frames at all
+    bool start_loop = true;
+    if ((upcoming_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES && frames_greater_than_target >= maximum_ts)
+        || (upcoming_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS && latest_pts > maximum_ts)) {
+      start_loop = false;
+    }
+
 
     if (start_loop) {
 
@@ -631,7 +658,7 @@ void Cacher::CacheVideoWorker() {
         } else if (decoded_frame->pts != AV_NOPTS_VALUE) {
 
           // check if this frame exceeds the minimum timestamp
-          if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS
+          if (previous_queue_type == olive::FRAME_QUEUE_TYPE_SECONDS
               && decoded_frame->pts < minimum_ts) {
 
             // if so, we don't need it
@@ -641,16 +668,26 @@ void Cacher::CacheVideoWorker() {
 
             if (retrieved_frame == nullptr) {
               if (decoded_frame->pts == target_pts) {
-                SetRetrievedFrame(decoded_frame);
-              } else if (seeked_to_zero) {
 
-                // If this flag is set, it means this was somehow the earliest frame we could get for this timestamp
-                SetRetrievedFrame(decoded_frame);
-                seeked_to_zero = false;
+                // We retrieved the exact frame we're looking for
 
-              } else if (decoded_frame->pts > target_pts
-                         && queue_.size() > 0) {
-                SetRetrievedFrame(queue_.last());
+                SetRetrievedFrame(decoded_frame);
+
+              } else if (decoded_frame->pts > target_pts) {
+
+                if (queue_.size() > 0) {
+
+                  SetRetrievedFrame(queue_.last());
+
+                } else if (seeked_to_zero) {
+
+                  // If this flag is set but we still got a frame after the target timestamp, it means this was somehow
+                  // the earliest frame we could get
+                  SetRetrievedFrame(decoded_frame);
+                  seeked_to_zero = false;
+
+                }
+
               }
             }
 
@@ -661,7 +698,7 @@ void Cacher::CacheVideoWorker() {
 
             // check the amount of previous frames in the queue by using the current queue size for if we need to
             // remove any old entries (assumes the queue is chronological)
-            if (olive::CurrentConfig.previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
+            if (previous_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
 
               int previous_frame_count = 0;
 
@@ -693,7 +730,7 @@ void Cacher::CacheVideoWorker() {
             }
 
             // check if the queue is full according to olive::CurrentConfig
-            if (olive::CurrentConfig.upcoming_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
+            if (upcoming_queue_type == olive::FRAME_QUEUE_TYPE_FRAMES) {
 
               // if this frame is later than the target, it's an "upcoming" frame
               if (decoded_frame->pts > target_pts) {
@@ -812,7 +849,12 @@ void Cacher::WakeMainThread()
 Cacher::Cacher(Clip* c) :
   clip(c),
   frame_(nullptr),
-  pkt(nullptr)
+  pkt(nullptr),
+  formatCtx(nullptr),
+  opts(nullptr),
+  filter_graph(nullptr),
+  codecCtx(nullptr),
+  is_valid_state_(false)
 {}
 
 void Cacher::OpenWorker() {
@@ -876,6 +918,7 @@ void Cacher::OpenWorker() {
       char err[1024];
       av_strerror(errCode, err, 1024);
       qCritical() << "Could not open" << filename << "-" << err;
+      olive::MainWindow->statusBar()->showMessage(tr("Could not open %1 - %2").arg(filename, err));
       return;
     }
 
@@ -884,6 +927,7 @@ void Cacher::OpenWorker() {
       char err[1024];
       av_strerror(errCode, err, 1024);
       qCritical() << "Could not open" << filename << "-" << err;
+      olive::MainWindow->statusBar()->showMessage(tr("Could not open %1 - %2").arg(filename, err));
       return;
     }
 
@@ -1048,6 +1092,8 @@ void Cacher::OpenWorker() {
   }
 
   qInfo() << "Clip opened on track" << clip->track() << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
+
+  is_valid_state_ = true;
 }
 
 void Cacher::CacheWorker() {
@@ -1077,20 +1123,28 @@ void Cacher::CloseWorker() {
   }
 
   if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-    avfilter_graph_free(&filter_graph);
+    if (filter_graph != nullptr) {
+      avfilter_graph_free(&filter_graph);
+      filter_graph = nullptr;
+    }
 
-    avcodec_close(codecCtx);
-    avcodec_free_context(&codecCtx);
+    if (codecCtx != nullptr) {
+      avcodec_close(codecCtx);
+      avcodec_free_context(&codecCtx);
+      codecCtx = nullptr;
+    }
 
-    av_dict_free(&opts);
+    if (opts != nullptr) {
+      av_dict_free(&opts);
+    }
 
     // protection for get_timebase()
     stream = nullptr;
 
-    avformat_close_input(&formatCtx);
+    if (formatCtx != nullptr) {
+      avformat_close_input(&formatCtx);
+    }
   }
-
-  clip->reset();
 
   qInfo() << "Clip closed on track" << clip->track();
 }
@@ -1109,10 +1163,15 @@ void Cacher::run() {
     queued_ = false;
     if (!caching_) {
       break;
-    } else {
+    } else if (is_valid_state_) {
       CacheWorker();
+    } else {
+      // main thread waits until cacher starts fully, but the cacher can't run, so we just wake it up here
+      WakeMainThread();
     }
   }
+
+  is_valid_state_ = false;
 
   CloseWorker();
 
@@ -1134,6 +1193,10 @@ void Cacher::Open()
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
 {
+  if (!is_valid_state_) {
+    return;
+  }
+
   if (clip->media_stream() != nullptr
       && queue_.size() > 0
       && clip->media_stream()->infinite_length) {

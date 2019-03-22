@@ -148,7 +148,7 @@ void RenderThread::paint() {
   params.video = true;
   params.texture_failed = false;
   params.wait_for_mutexes = true;
-  params.playback_speed = 1;
+  params.playback_speed = playback_speed_;
   params.blend_mode_program = blend_mode_program;
   params.premultiply_program = premultiply_program;
   params.backend_buffer1 = back_buffer_1.buffer();
@@ -178,7 +178,7 @@ void RenderThread::paint() {
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
 
-  compose_sequence(params);
+  olive::rendering::compose_sequence(params);
 
   // flush changes
   ctx->functions()->glFinish();
@@ -230,6 +230,7 @@ void RenderThread::paint() {
 
 void RenderThread::start_render(QOpenGLContext *share,
                                 Sequence* s,
+                                int playback_speed,
                                 const QString& save,
                                 GLvoid* pixels,
                                 int pixel_linesize,
@@ -237,6 +238,8 @@ void RenderThread::start_render(QOpenGLContext *share,
   Q_UNUSED(idivider);
 
   seq = s;
+
+  playback_speed_ = playback_speed;
 
   // stall any dependent actions
   texture_failed = true;
@@ -268,6 +271,22 @@ void RenderThread::cancel() {
   running = false;
   wait_cond_.wakeAll();
   wait();
+}
+
+void RenderThread::wait_until_paused()
+{
+
+  // Wait for thread to finish whatever it's doing before proceeding.
+  //
+  // FIXME: This is slow. Perhaps there's a better way...
+
+  if (wait_lock_.tryLock()) {
+    wait_lock_.unlock();
+    return;
+  } else {
+    wait_lock_.lock();
+    wait_lock_.unlock();
+  }
 }
 
 void RenderThread::delete_buffers() {

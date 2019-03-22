@@ -111,7 +111,7 @@ Project::Project(QWidget *parent) :
   QPushButton* toolbar_open = new QPushButton();
   toolbar_open->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
   toolbar_open->setToolTip("Open Project");
-  connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(open_project()));
+  connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(OpenProject()));
   toolbar->addWidget(toolbar_open);
 
   QPushButton* toolbar_save = new QPushButton();
@@ -433,27 +433,30 @@ void Project::new_sequence() {
 }
 
 MediaPtr Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
-  if (parent == nullptr) {
-    parent = olive::project_model.get_root();
-  }
 
-  MediaPtr item = std::make_shared<Media>(parent);
+  MediaPtr item = std::make_shared<Media>();
   item->set_sequence(s);
 
   if (ca != nullptr) {
+
     ca->append(new AddMediaCommand(item, parent));
 
     if (open) {
       ca->append(new ChangeSequenceAction(s));
     }
+
   } else {
+
     olive::project_model.appendChild(parent, item);
 
     if (open) {
       olive::Global->set_sequence(s);
     }
+
   }
+
   return item;
+
 }
 
 QString Project::get_file_name_from_path(const QString& path) {
@@ -700,13 +703,13 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
         subdir_filenames.append(subdir_files.at(j).filePath());
       }
 
-      process_file_list(subdir_filenames, true, nullptr, folder.get());
-
       if (create_undo_action) {
         ca->append(new AddMediaCommand(folder, parent));
       } else {
         olive::project_model.appendChild(parent, folder);
       }
+
+      process_file_list(subdir_filenames, true, nullptr, folder.get());
 
       imported = true;
 
@@ -724,7 +727,7 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
           // load the project without clearing the current one
-          load_project(file, false, false);
+          olive::Global->ImportProject(file);
 
         }
 
@@ -868,10 +871,10 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
           if (replace != nullptr) {
             item = replace;
           } else {
-            item = std::make_shared<Media>(parent);
+            item = std::make_shared<Media>();
           }
 
-          m = FootagePtr(new Footage());
+          m = std::make_shared<Footage>();
 
           m->using_inout = false;
           m->url = file;
@@ -886,7 +889,7 @@ void Project::process_file_list(QStringList& files, bool recursive, MediaPtr rep
             if (create_undo_action) {
               ca->append(new AddMediaCommand(item, parent));
             } else {
-              parent->appendChild(item);
+              olive::project_model.appendChild(parent, item);
             }
           }
 
@@ -1039,27 +1042,6 @@ void Project::clear() {
 
   // update tree view (sometimes this doesn't seem to update reliably)
   tree_view->update();
-}
-
-void Project::new_project() {
-  // clear existing project
-  olive::Global->set_sequence(nullptr);
-  panel_footage_viewer->set_media(nullptr);
-  clear();
-  olive::MainWindow->setWindowModified(false);
-}
-
-void Project::load_project(const QString& filename, bool autorecovery, bool clear) {
-
-  // Normally, the user will be closing the previous project to load a new one, but just in case the user
-  // is importing a new project
-
-  if (clear) {
-    new_project();
-  }
-
-  LoadDialog ld(this, filename, autorecovery, clear);
-  ld.exec();
 }
 
 void save_marker(QXmlStreamWriter& stream, const Marker& m) {
@@ -1314,7 +1296,7 @@ void Project::save_project(bool autorecovery) {
 
   if (!autorecovery) {
     add_recent_project(olive::ActiveProjectFilename);
-    olive::MainWindow->setWindowModified(false);
+    olive::Global->set_modified(false);
   }
 }
 

@@ -87,9 +87,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
   fastSeekButton->setChecked(olive::CurrentConfig.fast_seeking);
   recordingComboBox->setCurrentIndex(olive::CurrentConfig.recording_mode - 1);
   imgSeqFormatEdit->setText(olive::CurrentConfig.img_seq_formats);
-}
 
-PreferencesDialog::~PreferencesDialog() {}
+  setup_kbd_shortcuts(olive::MainWindow->menuBar());
+}
 
 void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent) {
   QList<QAction*> actions = menu->actions();
@@ -169,7 +169,7 @@ void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
   }
 }
 
-void PreferencesDialog::save() {
+void PreferencesDialog::accept() {
   bool restart_after_saving = false;
   bool reinit_audio = false;
   bool reload_language = false;
@@ -316,11 +316,11 @@ void PreferencesDialog::save() {
     olive::Global->load_translation_from_config();
   }
 
-  accept();
+  QDialog::accept();
 
   if (restart_after_saving) {
-    // since we already ran can_close_project(), bypass checking again by running setWindowModified(false)
-    olive::MainWindow->setWindowModified(false);
+    // since we already ran can_close_project(), bypass checking again by running set_modified(false)
+    olive::Global->set_modified(false);
 
     olive::MainWindow->close();
 
@@ -563,7 +563,7 @@ void PreferencesDialog::setup_ui() {
 
   QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
 
-  add_default_effects_to_clips = new QCheckBox("Add Default Effects to New Clips");
+  add_default_effects_to_clips = new QCheckBox(tr("Add Default Effects to New Clips"));
   add_default_effects_to_clips->setChecked(olive::CurrentConfig.add_default_effects_to_clips);
   behavior_tab_layout->addWidget(add_default_effects_to_clips);
 
@@ -794,6 +794,6 @@ void PreferencesDialog::setup_ui() {
 
   verticalLayout->addWidget(buttonBox);
 
-  connect(buttonBox, SIGNAL(accepted()), this, SLOT(save()));
+  connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
   connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }

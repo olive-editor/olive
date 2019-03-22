@@ -28,20 +28,47 @@
 #include "project/projectelements.h"
 #include "project/loadthread.h"
 
+/**
+ * @brief The LoadDialog class
+ *
+ * Shows a modal dialog for loading a project. Designed to be connected to a LoadThread object.
+ */
 class LoadDialog : public QDialog
 {
   Q_OBJECT
 public:
-  LoadDialog(QWidget* parent, const QString& filename, bool autorecovery, bool clear);
-private slots:
+  /**
+   * @brief LoadDialog Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow.
+   */
+  LoadDialog(QWidget* parent);
+
+public slots:
+  /**
+   * @brief Set the progress bar value
+   *
+   * Ideally, connect this to LoadThread::report_progress().
+   *
+   * @param i
+   *
+   * Should be a value between 0-100.
+   */
+  void setValue(int i);
+signals:
+  /**
+   * @brief Signal emitted when the cancel button is clicked.
+   *
+   * Ideally, connect this to LoadThread::cancel();
+   */
   void cancel();
-  void die();
-  void thread_done();
 private:
+  /**
+   * @brief Progress bar widget
+   */
   QProgressBar* bar;
-  QPushButton* cancel_button;
-  QHBoxLayout* hboxLayout;
-  LoadThread* lt;
 };
 
 #endif // LOADDIALOG_H

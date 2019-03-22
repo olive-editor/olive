@@ -43,8 +43,12 @@ void ProjectModel::make_root() {
 }
 
 void ProjectModel::destroy_root() {
-  if (panel_sequence_viewer != nullptr) panel_sequence_viewer->viewer_widget->delete_function();
-  if (panel_footage_viewer != nullptr) panel_footage_viewer->viewer_widget->delete_function();
+  if (panel_sequence_viewer != nullptr) {
+    panel_sequence_viewer->set_media(nullptr);
+  }
+  if (panel_footage_viewer != nullptr) {
+    panel_footage_viewer->set_media(nullptr);
+  }
 
   root_item_ = std::make_shared<Media>();
 }
@@ -64,7 +68,9 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid())
     return QVariant();
 
-  return static_cast<Media*>(index.internalPointer())->data(index.column(), role);
+  Media* media = static_cast<Media*>(index.internalPointer());
+
+  return media->data(index.column(), role);
 }
 
 Qt::ItemFlags ProjectModel::flags(const QModelIndex &index) const {
@@ -191,11 +197,20 @@ void ProjectModel::set_icon(Media* m, const QIcon &ico) {
 }
 
 void ProjectModel::appendChild(Media* parent, MediaPtr child) {
+  QModelIndex row_start;
+
   if (parent == nullptr) {
+
     parent = get_root();
+    row_start = QModelIndex();
+
+  } else {
+
+    row_start = createIndex(parent->row(), 0, parent);
+
   }
-  beginInsertRows(parent == get_root() ?
-                    QModelIndex() : createIndex(parent->row(), 0, parent), parent->childCount(), parent->childCount());
+
+  beginInsertRows(row_start, parent->childCount(), parent->childCount());
   parent->appendChild(child);
   endInsertRows();
 }

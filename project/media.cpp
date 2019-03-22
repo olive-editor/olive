@@ -61,10 +61,10 @@ QString get_channel_layout_name(int channels, uint64_t layout) {
   }
 }
 
-Media::Media(Media* iparent) {
-  parent = iparent;
-  root = false;
-  type = -1;
+Media::Media() :
+  root(false),
+  type(-1)
+{
 }
 
 Footage* Media::to_footage() {
@@ -345,7 +345,7 @@ QVariant Media::data(int column, int role) {
 }
 
 int Media::row() const {
-  if (parent) {
+  if (parent != nullptr) {
     for (int i=0;i<parent->children.size();i++) {
       if (parent->children.at(i).get() == this) {
         return i;

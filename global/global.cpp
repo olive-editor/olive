@@ -38,6 +38,8 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
+#include "dialogs/loaddialog.h"
+#include "project/loadthread.h"
 #include "timeline/sequence.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
@@ -48,7 +50,9 @@ std::unique_ptr<OliveGlobal> olive::Global;
 QString olive::ActiveProjectFilename;
 QString olive::AppName;
 
-OliveGlobal::OliveGlobal() {
+OliveGlobal::OliveGlobal() :
+  changed_since_last_autorecovery(false)
+{
   // sets current app name
   QString version_id;
 
@@ -89,7 +93,7 @@ void OliveGlobal::check_for_autorecovery_file() {
     if (QFile::exists(autorecovery_filename)) {
       if (QMessageBox::question(nullptr, tr("Auto-recovery"), tr("Olive didn't close properly and an autorecovery file was detected. Would you like to open it?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
         enable_load_project_on_init = false;
-        open_project_worker(autorecovery_filename, true);
+        OpenProjectWorker(autorecovery_filename, true);
       }
     }
     autorecovery_timer.setInterval(60000);
@@ -105,6 +109,17 @@ void OliveGlobal::set_rendering_state(bool rendering) {
   } else {
     autorecovery_timer.start();
   }
+}
+
+void OliveGlobal::set_modified(bool modified)
+{
+  olive::MainWindow->setWindowModified(modified);
+  changed_since_last_autorecovery = modified;
+}
+
+bool OliveGlobal::is_modified()
+{
+  return olive::MainWindow->isWindowModified();
 }
 
 void OliveGlobal::load_project_on_launch(const QString& s) {
@@ -151,32 +166,65 @@ void OliveGlobal::SetNativeStyling(QWidget *w)
 #endif
 }
 
+void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
+{
+  LoadDialog ld(olive::MainWindow);
+
+  LoadThread* lt = new LoadThread(fn, autorecovery);
+  connect(&ld, SIGNAL(cancel()), lt, SLOT(cancel()));
+  connect(lt, SIGNAL(success()), &ld, SLOT(accept()));
+  connect(lt, SIGNAL(error()), &ld, SLOT(reject()));
+  connect(lt, SIGNAL(error()), this, SLOT(new_project()));
+  connect(lt, SIGNAL(report_progress(int)), &ld, SLOT(setValue(int)));
+  lt->start();
+
+  ld.exec();
+}
+
+void OliveGlobal::ClearProject()
+{
+  // clear graph editor
+  panel_graph_editor->set_row(nullptr);
+
+  // clear effects panel
+  panel_effect_controls->Clear(true);
+
+  // clear existing project
+  olive::Global->set_sequence(nullptr);
+  panel_footage_viewer->set_media(nullptr);
+
+  // clear project contents (footage, sequences, etc.)
+  panel_project->clear();
+
+  // clear undo stack
+  olive::UndoStack.clear();
+
+  // empty current project filename
+  update_project_filename("");
+
+  // full update of all panels
+  update_ui(false);
+
+  // set to unmodified
+  olive::Global->set_modified(false);
+}
+
+void OliveGlobal::ImportProject(const QString &fn)
+{
+  LoadProject(fn, false);
+  set_modified(true);
+}
+
 void OliveGlobal::new_project() {
   if (can_close_project()) {
-    // clear graph editor
-    panel_graph_editor->set_row(nullptr);
-
-    // clear effects panel
-    panel_effect_controls->Clear(true);
-
-    // clear project contents (footage, sequences, etc.)
-    panel_project->new_project();
-
-    // clear undo stack
-    olive::UndoStack.clear();
-
-    // empty current project filename
-    update_project_filename("");
-
-    // full update of all panels
-    update_ui(false);
+    ClearProject();
   }
 }
 
-void OliveGlobal::open_project() {
+void OliveGlobal::OpenProject() {
   QString fn = QFileDialog::getOpenFileName(olive::MainWindow, tr("Open Project..."), "", project_file_filter);
   if (!fn.isEmpty() && can_close_project()) {
-    open_project_worker(fn, false);
+    OpenProjectWorker(fn, false);
   }
 }
 
@@ -192,7 +240,7 @@ void OliveGlobal::open_recent(int index) {
       panel_project->save_recent_projects();
     }
   } else if (can_close_project()) {
-    open_project_worker(recent_url, false);
+    OpenProjectWorker(recent_url, false);
   }
 }
 
@@ -219,7 +267,7 @@ bool OliveGlobal::save_project() {
 }
 
 bool OliveGlobal::can_close_project() {
-  if (olive::MainWindow->isWindowModified()) {
+  if (is_modified()) {
     QMessageBox* m = new QMessageBox(
           QMessageBox::Question,
           tr("Unsaved Project"),
@@ -256,7 +304,7 @@ void OliveGlobal::finished_initialize() {
 
     // if a project was set as a command line argument, we load it here
     if (QFileInfo::exists(olive::ActiveProjectFilename)) {
-      open_project_worker(olive::ActiveProjectFilename, false);
+      OpenProjectWorker(olive::ActiveProjectFilename, false);
     } else {
       QMessageBox::critical(olive::MainWindow,
                             tr("Missing Project File"),
@@ -281,8 +329,11 @@ void OliveGlobal::finished_initialize() {
 }
 
 void OliveGlobal::save_autorecovery_file() {
-  if (olive::MainWindow->isWindowModified()) {
+  if (changed_since_last_autorecovery) {
     panel_project->save_project(true);
+
+    changed_since_last_autorecovery = false;
+
     qInfo() << "Auto-recovery project saved";
   }
 }
@@ -292,7 +343,6 @@ void OliveGlobal::open_preferences() {
   panel_footage_viewer->pause();
 
   PreferencesDialog pd(olive::MainWindow);
-  pd.setup_kbd_shortcuts(olive::MainWindow->menuBar());
   pd.exec();
 }
 
@@ -307,9 +357,10 @@ void OliveGlobal::set_sequence(SequencePtr s)
   panel_timeline->setFocus();
 }
 
-void OliveGlobal::open_project_worker(const QString& fn, bool autorecovery) {
+void OliveGlobal::OpenProjectWorker(const QString& fn, bool autorecovery) {
+  ClearProject();
   update_project_filename(fn);
-  panel_project->load_project(fn, autorecovery, true);
+  LoadProject(fn, autorecovery);
   olive::UndoStack.clear();
 }
 

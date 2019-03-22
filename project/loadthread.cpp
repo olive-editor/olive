@@ -37,10 +37,9 @@
 #include <QFile>
 #include <QTreeWidgetItem>
 
-LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
+LoadThread::LoadThread(const QString& filename, bool autorecovery) :
   filename_(filename),
   autorecovery_(autorecovery),
-  clear_(clear),
   cancelled_(false)
 {
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -283,7 +282,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               int folder = 0;
 
               MediaPtr item = std::make_shared<Media>();
-              FootagePtr f(new Footage());
+              FootagePtr f = std::make_shared<Footage>();
 
               f->using_inout = false;
 
@@ -608,6 +607,20 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
   return nullptr;
 }
 
+void LoadThread::OrganizeFolders(int folder) {
+  for (int i=0;i<loaded_folders.size();i++) {
+    MediaPtr item = loaded_folders.at(i);
+    int parent_id = item->temp_id2;
+
+    if (parent_id == folder) {
+      olive::project_model.appendChild(find_loaded_folder_by_id(parent_id), item);
+
+      OrganizeFolders(item->temp_id);
+    }
+
+  }
+}
+
 void LoadThread::run() {
   mutex.lock();
 
@@ -660,15 +673,11 @@ void LoadThread::run() {
     cont = load_worker(file, stream, MEDIA_TYPE_FOLDER);
   }
 
-  // load media
   if (cont) {
     // since folders loaded correctly, organize them appropriately
-    for (int i=0;i<loaded_folders.size();i++) {
-      MediaPtr folder = loaded_folders.at(i);
-      int parent = folder->temp_id2;
-      olive::project_model.appendChild(find_loaded_folder_by_id(parent), folder);
-    }
+    OrganizeFolders();
 
+    // load media
     cont = load_worker(file, stream, MEDIA_TYPE_FOOTAGE);
   }
 
@@ -767,14 +776,12 @@ void LoadThread::success_func() {
       counter++;
     }
 
-    if (clear_) {
-      olive::Global->update_project_filename(orig_filename);
-    }
+    olive::Global->update_project_filename(orig_filename);
   } else {
     panel_project->add_recent_project(filename_);
   }
 
-  olive::MainWindow->setWindowModified(autorecovery_ || !clear_);
+  olive::Global->set_modified(autorecovery_);
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }

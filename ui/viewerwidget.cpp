@@ -90,10 +90,6 @@ ViewerWidget::~ViewerWidget() {
   delete renderer;
 }
 
-void ViewerWidget::delete_function() {
-  close_active_clips(viewer->seq.get());
-}
-
 void ViewerWidget::set_waveform_scroll(int s) {
   if (waveform) {
     waveform_scroll = s;
@@ -169,7 +165,7 @@ void ViewerWidget::save_frame() {
       fn += selected_ext;
     }
 
-    renderer->start_render(context(), viewer->seq.get(), fn);
+    renderer->start_render(context(), viewer->seq.get(), 1, fn);
   }
 }
 
@@ -229,11 +225,11 @@ void ViewerWidget::frame_update() {
       update();
     } else {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq.get());
+      renderer->start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
     }
 
     // render the audio
-    compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), viewer->WaitingForPlayWake());
+    olive::rendering::compose_audio(viewer, viewer->seq.get(), viewer->get_playback_speed(), viewer->WaitingForPlayWake());
   }
 }
 
@@ -379,6 +375,11 @@ void ViewerWidget::wheelEvent(QWheelEvent *event) {
 
 void ViewerWidget::close_window() {
   window->hide();
+}
+
+void ViewerWidget::wait_until_render_is_paused()
+{
+  renderer->wait_until_paused();
 }
 
 void ViewerWidget::draw_waveform_func() {
@@ -613,7 +614,7 @@ void ViewerWidget::paintGL() {
 
     if (renderer->did_texture_fail() && !viewer->playing) {
       doneCurrent();
-      renderer->start_render(context(), viewer->seq.get());
+      renderer->start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
     }
   }
 }

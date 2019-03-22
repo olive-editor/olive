@@ -41,7 +41,6 @@
 #include <random>
 
 #include "ui/collapsiblewidget.h"
-#include "ui/checkboxex.h"
 #include "effectrow.h"
 #include "effectgizmo.h"
 
@@ -155,6 +154,7 @@ public:
   int gizmo_count();
 
   bool IsEnabled();
+  bool IsExpanded();
 
   virtual void refresh();
 
@@ -215,6 +215,7 @@ public:
 public slots:
   void FieldChanged();
   void SetEnabled(bool b);
+  void SetExpanded(bool e);
 signals:
   void EnabledChanged(bool);
 private slots:
@@ -244,6 +245,7 @@ private:
   int iterations;
 
   bool enabled_;
+  bool expanded_;
 
   int flags_;
 

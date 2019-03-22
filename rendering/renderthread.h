@@ -53,13 +53,14 @@ public:
   void paint();
   void start_render(QOpenGLContext* share,
                     Sequence *s,
+                    int playback_speed,
                     const QString &save = nullptr,
                     GLvoid *pixels = nullptr,
                     int pixel_linesize = 0,
                     int idivider = 0);
   bool did_texture_fail();
   void cancel();
-
+  void wait_until_paused();
 
 public slots:
   // cleanup functions
@@ -102,6 +103,7 @@ private:
   QOpenGLShaderProgram* ocio_shader;
 
   Sequence* seq;
+  int playback_speed_;
   int divider;
   int tex_width;
   int tex_height;

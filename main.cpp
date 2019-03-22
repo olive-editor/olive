@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
   olive::timeline::MultiplyTrackSizesByDPI();
 
   // connect main window's first paint to global's init finished function
-  QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()));
+  QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()), Qt::QueuedConnection);
 
   if (!load_proj.isEmpty()) {
     olive::Global->load_project_on_launch(load_proj);

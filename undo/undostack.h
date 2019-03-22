@@ -4,6 +4,9 @@
 #include <QUndoStack>
 
 namespace olive {
+/**
+ * @brief Global undo stack object
+ */
 extern QUndoStack UndoStack;
 }
 

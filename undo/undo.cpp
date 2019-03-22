@@ -316,16 +316,22 @@ void DeleteTransitionCommand::doRedo() {
 
 AddMediaCommand::AddMediaCommand(MediaPtr iitem, Media *iparent) :
   item(iitem),
-  parent(iparent)
+  parent(iparent),
+  done_(false)
 {
+  doRedo();
 }
 
 void AddMediaCommand::doUndo() {
   olive::project_model.removeChild(parent, item.get());
+  done_ = false;
 }
 
 void AddMediaCommand::doRedo() {
-  olive::project_model.appendChild(parent, item);
+  if (!done_) {
+    olive::project_model.appendChild(parent, item);
+    done_ = true;
+  }
 }
 
 DeleteMediaCommand::DeleteMediaCommand(MediaPtr i) :
@@ -1136,7 +1142,7 @@ void OliveAction::undo() {
   doUndo();
 
   if (set_window_modified) {
-    olive::MainWindow->setWindowModified(old_window_modified);
+    olive::Global->set_modified(old_window_modified);
   }
 }
 
@@ -1146,10 +1152,10 @@ void OliveAction::redo() {
   if (set_window_modified) {
 
     // store current modified state
-    old_window_modified = olive::MainWindow->isWindowModified();
+    old_window_modified = olive::Global->is_modified();
 
     // set modified to true
-    olive::MainWindow->setWindowModified(true);
+    olive::Global->set_modified(true);
 
   }
 }

@@ -120,7 +120,6 @@ bool Viewer::is_main_sequence() {
 }
 
 void Viewer::set_main_sequence() {
-  clean_created_seq();
   set_sequence(true, olive::ActiveSequence);
 }
 
@@ -720,10 +719,10 @@ void Viewer::set_media(Media* m) {
   main_sequence = false;
   media = m;
 
-  //reset the display of timecode toggle in timecode right click menu
   current_timecode_slider->HideSourceTimecodeToggle();
 
-  clean_created_seq();
+  SequencePtr new_sequence = nullptr;
+
   if (media != nullptr) {
     switch (media->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
@@ -732,31 +731,34 @@ void Viewer::set_media(Media* m) {
 
       marker_ref = &footage->markers;
 
-      seq = std::make_shared<Sequence>();
+      new_sequence = std::make_shared<Sequence>();
       created_sequence = true;
-      seq->wrapper_sequence = true;
-      seq->name = footage->name;
+      new_sequence->wrapper_sequence = true;
+      new_sequence->name = footage->name;
 
-      seq->using_workarea = footage->using_inout;
+      new_sequence->using_workarea = footage->using_inout;
       if (footage->using_inout) {
-        seq->workarea_in = footage->in;
-        seq->workarea_out = footage->out;
+        new_sequence->workarea_in = footage->in;
+        new_sequence->workarea_out = footage->out;
       }
 
       // FIXME: Move this magic number to Config
-      seq->frame_rate = 30;
+      new_sequence->frame_rate = 30;
 
       if (footage->video_tracks.size() > 0) {
         const FootageStream& video_stream = footage->video_tracks.at(0);
-        seq->width = video_stream.video_width;
-        seq->height = video_stream.video_height;
-        current_timecode_slider->SetTimecodeOffset(timecode_to_frame(video_stream.timecode_source_start, olive::CurrentConfig.timecode_view, video_stream.video_frame_rate));
-        if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) seq->frame_rate = video_stream.video_frame_rate * footage->speed;
 
-        ClipPtr c = std::make_shared<Clip>(seq.get());
+        new_sequence->width = video_stream.video_width;
+        new_sequence->height = video_stream.video_height;
+        current_timecode_slider->SetTimecodeOffset(timecode_to_frame(video_stream.timecode_source_start, olive::CurrentConfig.timecode_view, video_stream.video_frame_rate));
+        if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) {
+          new_sequence->frame_rate = video_stream.video_frame_rate * footage->speed;
+        }
+
+        ClipPtr c = std::make_shared<Clip>(new_sequence.get());
         c->set_media(media, video_stream.file_index);
         c->set_timeline_in(0);
-        c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));
+        c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
         if (c->timeline_out() <= 0) {
           // FIXME: Move this magic number to Config
           c->set_timeline_out(150);
@@ -764,25 +766,25 @@ void Viewer::set_media(Media* m) {
         c->set_track(-1);
         c->set_clip_in(0);
         c->refresh();
-        seq->clips.append(c);
+        new_sequence->clips.append(c);
       } else {
         // FIXME: Move this magic number to Config
-        seq->width = 1920;
-        seq->height = 1080;
+        new_sequence->width = 1920;
+        new_sequence->height = 1080;
       }
 
       if (footage->audio_tracks.size() > 0) {
         const FootageStream& audio_stream = footage->audio_tracks.at(0);
-        seq->audio_frequency = audio_stream.audio_frequency;
+        new_sequence->audio_frequency = audio_stream.audio_frequency;
 
-        ClipPtr c = std::make_shared<Clip>(seq.get());
+        ClipPtr c = std::make_shared<Clip>(new_sequence.get());
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);
-        c->set_timeline_out(footage->get_length_in_frames(seq->frame_rate));
+        c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
         c->set_track(0);
         c->set_clip_in(0);
         c->refresh();
-        seq->clips.append(c);
+        new_sequence->clips.append(c);
 
         if (footage->video_tracks.size() == 0) {
           viewer_widget->waveform = true;
@@ -792,18 +794,19 @@ void Viewer::set_media(Media* m) {
         }
       } else {
         // FIXME: Move this magic number to Config
-        seq->audio_frequency = 48000;
+        new_sequence->audio_frequency = 48000;
       }
 
-      seq->audio_layout = AV_CH_LAYOUT_STEREO;
+      new_sequence->audio_layout = AV_CH_LAYOUT_STEREO;
     }
       break;
     case MEDIA_TYPE_SEQUENCE:
-      seq = media->to_sequence();
+      new_sequence = media->to_sequence();
       break;
     }
   }
-  set_sequence(false, seq);
+
+  set_sequence(false, new_sequence);
 }
 
 void Viewer::update_playhead() {
@@ -865,7 +868,9 @@ void Viewer::clean_created_seq() {
     }
     */
 
+    // Delete the current sequence
     seq.reset();
+
     created_sequence = false;
   }
 }
@@ -875,12 +880,18 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 
   reset_all_audio();
 
-  main_sequence = main;
+  viewer_widget->wait_until_render_is_paused();
 
   // If we had a current sequence open, close it
   if (seq != nullptr) {
     close_active_clips(seq.get());
   }
+
+  clean_created_seq();
+
+  main_sequence = main;
+
+
 
   seq = (main) ? olive::ActiveSequence : s;
 

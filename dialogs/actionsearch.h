@@ -26,39 +26,145 @@
 #include <QListWidget>
 #include <QMenu>
 
-class ActionSearchList : public QListWidget {
-	Q_OBJECT
-public:
-	ActionSearchList(QWidget* parent);
-protected:
-	void mouseDoubleClickEvent(QMouseEvent *event);
-signals:
-	void dbl_click();
-};
+class ActionSearchList;
 
+/**
+ * @brief The ActionSearch class
+ *
+ * A popup window (accessible through Help > Action Search) that allows users to search for a menu command by typing
+ * rather than browsing through the menu bar.
+ */
 class ActionSearch : public QDialog
 {
-	Q_OBJECT
+  Q_OBJECT
 public:
-	ActionSearch(QWidget* parent = nullptr);
+  /**
+   * @brief ActionSearch Constructor
+   *
+   * Create ActionSearch popup.
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow.
+   */
+  ActionSearch(QWidget* parent);
 private slots:
-	void search_update(const QString& s, const QString &p = nullptr, QMenu *parent = nullptr);
-	void perform_action();
-	void move_selection_up();
-	void move_selection_down();
+  /**
+   * @brief Update the list of actions according to a search query
+   *
+   * This function adds/removes actions in the action list according to a given search query entered by the user.
+   *
+   * To loop over the menubar and all of its menus and submenus, this function will call itself recursively. As such
+   * some of its parameters do not need to be set externally, as these will be set by the function itself as it calls
+   * itself.
+   *
+   * @param s
+   *
+   * The search text. This is the only parameter that should be set externally.
+   *
+   * @param p
+   *
+   * The current parent hierarchy. In most cases, this should be left as nullptr when called externally.
+   * search_update() will fill this automatically as it needs while calling itself recursively.
+   *
+   * @param parent
+   *
+   * The current menu to loop over. In most cases, this should be left as nullptr when called externally.
+   * search_update() will fill this automatically as it needs while calling itself recursively.
+   */
+  void search_update(const QString& s, const QString &p = nullptr, QMenu *parent = nullptr);
+
+  /**
+   * @brief Perform the currently selected action
+   *
+   * Usually triggered by pressing Enter on the ActionSearchEntry field, this will trigger whatever action is currently
+   * highlighted and then close this popup. If no entries are highlighted (i.e. the list is empty), no action is
+   * triggered and the popup closes anyway.
+   */
+  void perform_action();
+
+  /**
+   * @brief Move selection up
+   *
+   * A slot for pressing up on the ActionSearchEntry field. Moves the selection in the list up once. If the
+   * selection is already at the top of the list, this is a no-op.
+   */
+  void move_selection_up();
+
+  /**
+   * @brief Move selection down
+   *
+   * A slot for pressing down on the ActionSearchEntry field. Moves the selection in the list down once. If the
+   * selection is already at the bottom of the list, this is a no-op.
+   */
+  void move_selection_down();
 private:
-	ActionSearchList* list_widget;
+  /**
+   * @brief Main widget that shows the list of commands
+   */
+  ActionSearchList* list_widget;
 };
 
-class ActionSearchEntry : public QLineEdit {
-	Q_OBJECT
+/**
+ * @brief The ActionSearchList class
+ *
+ * Simple wrapper around QListWidget that emits a signal when an item is double clicked that ActionSearch connects
+ * to a slot that triggers the currently selected action.
+ */
+class ActionSearchList : public QListWidget {
+  Q_OBJECT
 public:
-	ActionSearchEntry(QWidget* parent);
+  /**
+   * @brief ActionSearchList Constructor
+   * @param parent
+   *
+   * Usually ActionSearch.
+   */
+  ActionSearchList(QWidget* parent);
 protected:
-	void keyPressEvent(QKeyEvent * event);
+  /**
+   * @brief Override of QListWidget's double click event that emits a signal.
+   */
+  void mouseDoubleClickEvent(QMouseEvent *);
 signals:
-	void moveSelectionUp();
-	void moveSelectionDown();
+  /**
+   * @brief Signal emitted when a QListWidget item is double clicked.
+   */
+  void dbl_click();
+};
+
+/**
+ * @brief The ActionSearchEntry class
+ *
+ * Simple wrapper around QLineEdit that emits signals when the up or down arrow keys are pressed so that ActionSearch
+ * can connect them to moving the current selection up or down.
+ */
+class ActionSearchEntry : public QLineEdit {
+  Q_OBJECT
+public:
+  /**
+   * @brief ActionSearchEntry
+   * @param parent
+   *
+   * Usually ActionSearch.
+   */
+  ActionSearchEntry(QWidget* parent);
+protected:
+  /**
+   * @brief Override of QLineEdit's key press event that listens for up/down key presses.
+   * @param event
+   */
+  void keyPressEvent(QKeyEvent * event);
+signals:
+  /**
+   * @brief Emitted when the user presses the up arrow key.
+   */
+  void moveSelectionUp();
+
+  /**
+   * @brief Emitted when the user presses the down arrow key.
+   */
+  void moveSelectionDown();
 };
 
 #endif // ACTIONSEARCH_H
