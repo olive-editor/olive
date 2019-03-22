@@ -68,6 +68,8 @@ private:
   QDialog* dialog;
   QByteArray data_cache;
 
+  void send_data_cache_to_plugin();
+
 #if defined(__APPLE__)
   CFBundleRef bundle;
 #else

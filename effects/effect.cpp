@@ -597,6 +597,9 @@ void Effect::load(QXmlStreamReader& stream) {
                   field->keyframes.append(key);
                 }
               }
+
+              field->Changed();
+
             }
           }
         }

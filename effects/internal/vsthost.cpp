@@ -189,6 +189,7 @@ void VSTHost::loadPlugin() {
 void VSTHost::freePlugin() {
   if (plugin != nullptr) {
     stopPlugin();
+    data_cache.clear();
 #if defined(__APPLE__)
     CFBundleUnloadExecutable(bundle);
     CFRelease(bundle);
@@ -268,6 +269,11 @@ void VSTHost::CreateDialogIfNull()
   }
 }
 
+void VSTHost::send_data_cache_to_plugin()
+{
+  dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
+}
+
 VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
   Effect(c, em),
   plugin(nullptr),
@@ -284,7 +290,7 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
 
   EffectRow* file_row = new EffectRow(this, tr("Plugin"), true, false);
   file_field = new FileField(file_row, "filename");
-  connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()));
+  connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()), Qt::QueuedConnection);
 
   EffectRow* interface_row = new EffectRow(this, tr("Interface"), false, false);
 
@@ -346,7 +352,7 @@ void VSTHost::custom_load(QXmlStreamReader &stream) {
     stream.readNext();
     data_cache = QByteArray::fromBase64(stream.text().toUtf8());
     if (plugin != nullptr) {
-      dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
+      send_data_cache_to_plugin();
     }
   }
 }
@@ -393,6 +399,10 @@ void VSTHost::change_plugin() {
 
       VSTRect* eRect = nullptr;
       plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
+
+      if (!data_cache.isEmpty()) {
+        send_data_cache_to_plugin();
+      }
 
       CreateDialogIfNull();
       dialog->setFixedSize(eRect->right - eRect->left, eRect->bottom - eRect->top);
