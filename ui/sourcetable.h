@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QUndoCommand>
 
+#include "project/sourcescommon.h"
+
 class Project;
 class Media;
 
@@ -32,7 +34,7 @@ class SourceTable : public QTreeView
 {
   Q_OBJECT
 public:
-  SourceTable(QWidget* parent = 0);
+  SourceTable(SourcesCommon& commons);
   Project* project_parent;
 protected:
   void mousePressEvent(QMouseEvent*);
@@ -43,6 +45,8 @@ protected:
 private slots:
   void item_click(const QModelIndex& index);
   void show_context_menu();
+private:
+  SourcesCommon& commons_;
 };
 
 #endif // SOURCETABLE_H

@@ -190,6 +190,7 @@ void PreferencesDialog::accept() {
   if (olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()
+      || olive::CurrentConfig.css_path != custom_css_fn->text()
 #ifdef Q_OS_WIN32
       || olive::CurrentConfig.use_native_menu_styling != native_menus->isChecked()
 #endif
@@ -233,11 +234,7 @@ void PreferencesDialog::accept() {
   }
 
   // save settings from UI to backend
-  if (olive::CurrentConfig.css_path != custom_css_fn->text()) {
-    olive::CurrentConfig.css_path = custom_css_fn->text();
-    olive::MainWindow->Restyle();
-  }
-
+  olive::CurrentConfig.css_path = custom_css_fn->text();
   olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
   olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
   olive::CurrentConfig.upcoming_queue_size = upcoming_queue_spinbox->value();

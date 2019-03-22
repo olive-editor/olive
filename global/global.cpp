@@ -91,7 +91,12 @@ void OliveGlobal::check_for_autorecovery_file() {
     // detect auto-recovery file
     autorecovery_filename = data_dir + "/autorecovery.ove";
     if (QFile::exists(autorecovery_filename)) {
-      if (QMessageBox::question(nullptr, tr("Auto-recovery"), tr("Olive didn't close properly and an autorecovery file was detected. Would you like to open it?"), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+      if (QMessageBox::question(nullptr,
+                                tr("Auto-recovery"),
+                                tr("Olive didn't close properly and an autorecovery file "
+                                   "was detected. Would you like to open it?"),
+                                QMessageBox::Yes,
+                                QMessageBox::No) == QMessageBox::Yes) {
         enable_load_project_on_init = false;
         OpenProjectWorker(autorecovery_filename, true);
       }
@@ -168,6 +173,12 @@ void OliveGlobal::SetNativeStyling(QWidget *w)
 
 void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
 {
+  // QSortFilterProxyModels are not thread-safe, and as we'll be loading in another thread, leaving it connected
+  // can cause glitches in its presentation. Therefore for the duration of the loading process, we disconnect it,
+  // and reconnect it later once the loading is complete.
+
+  panel_project->DisconnectFilterToModel();
+
   LoadDialog ld(olive::MainWindow);
 
   LoadThread* lt = new LoadThread(fn, autorecovery);
@@ -179,6 +190,8 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
   lt->start();
 
   ld.exec();
+
+  panel_project->ConnectFilterToModel();
 }
 
 void OliveGlobal::ClearProject()

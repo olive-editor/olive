@@ -240,7 +240,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
   QVector<olive::timeline::MediaImportData> media_list;
   panel_timeline->importing_files = false;
 
-  if (event->source() == panel_project->tree_view || event->source() == panel_project->icon_view) {
+  if (panel_project->IsProjectWidget(event->source())) {
     QModelIndexList items = panel_project->get_current_selected();
     media_list.resize(items.size());
     for (int i=0;i<items.size();i++) {

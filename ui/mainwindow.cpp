@@ -391,16 +391,14 @@ bool MainWindow::load_css_from_file(const QString &fn) {
 void MainWindow::Restyle()
 {
   // Set up UI style
-  if (olive::styling::UseNativeUI()) {
-    qApp->setStyle(QStyleFactory::create(""));
-  } else {
+  if (!olive::styling::UseNativeUI()) {
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     // Set up whether to load custom CSS or default CSS+palette
     if (!olive::CurrentConfig.css_path.isEmpty()
         && load_css_from_file(olive::CurrentConfig.css_path)) {
 
-      setPalette(QPalette());
+      qApp->setPalette(qApp->style()->standardPalette());
 
     } else {
 

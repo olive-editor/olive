@@ -26,6 +26,7 @@
 #include <QVector>
 
 #include "project/footage.h"
+#include "project/projectfilter.h"
 
 class Project;
 class QMouseEvent;
@@ -36,7 +37,7 @@ class QDropEvent;
 class SourcesCommon : public QObject {
   Q_OBJECT
 public:
-  SourcesCommon(Project *parent);
+  SourcesCommon(Project *parent, ProjectFilter& sort_filter);
   QAbstractItemView* view;
   void show_context_menu(QWidget* parent, const QModelIndexList &items);
 
@@ -66,6 +67,8 @@ private:
 
   // we cache the selected footage items for open_create_proxy_dialog()
   QVector<Media*> cached_selected_footage;
+
+  ProjectFilter& sort_filter_;
 };
 
 #endif // SOURCESCOMMON_H

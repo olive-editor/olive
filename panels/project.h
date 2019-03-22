@@ -55,7 +55,9 @@ class Project : public Panel {
   Q_OBJECT
 public:
   explicit Project(QWidget *parent = nullptr);
-  ~Project();
+
+  void ConnectFilterToModel();
+  void DisconnectFilterToModel();
 
   bool is_focused();
   void clear();
@@ -78,19 +80,14 @@ public:
 
   QVector<Media*> list_all_project_sequences();
 
-  SourceTable* tree_view;
-  SourceIconView* icon_view;
-  SourcesCommon* sources_common;
-
-  ProjectFilter* sorter;
-
   QVector<Media*> last_imported_media;
 
   QModelIndexList get_current_selected();
 
   void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
 
-  QWidget* toolbar_widget;
+  bool IsToolbarVisible();
+  bool IsProjectWidget(QObject *child);
 
   virtual void Retranslate() override;
 protected:
@@ -104,6 +101,8 @@ public slots:
   void open_properties();
   void new_folder();
   void new_sequence();
+
+  void SetToolbarVisible(bool visible);
 private:
   void save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex &parent = QModelIndex());
   int folder_id;
@@ -115,6 +114,13 @@ private:
   QWidget* icon_view_container;
   QPushButton* directory_up;
   QLineEdit* toolbar_search;
+
+  QWidget* toolbar_widget;
+  SourceTable* tree_view;
+  SourceIconView* icon_view;
+
+  ProjectFilter sorter;
+  SourcesCommon sources_common;
 private slots:
   void update_view_type();
   void set_icon_view();

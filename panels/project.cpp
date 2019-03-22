@@ -78,7 +78,9 @@ QString autorecovery_filename;
 QStringList recent_projects;
 
 Project::Project(QWidget *parent) :
-  Panel(parent)
+  Panel(parent),
+  sorter(this),
+  sources_common(this, sorter)
 {
   QWidget* dockWidgetContents = new QWidget(this);
 
@@ -88,10 +90,7 @@ Project::Project(QWidget *parent) :
 
   setWidget(dockWidgetContents);
 
-  sources_common = new SourcesCommon(this);
-
-  sorter = new ProjectFilter(this);
-  sorter->setSourceModel(&olive::project_model);
+  ConnectFilterToModel();
 
   // optional toolbar
   toolbar_widget = new QWidget();
@@ -134,7 +133,7 @@ Project::Project(QWidget *parent) :
 
   toolbar_search = new QLineEdit();
   toolbar_search->setClearButtonEnabled(true);
-  connect(toolbar_search, SIGNAL(textChanged(QString)), sorter, SLOT(update_search_filter(const QString&)));
+  connect(toolbar_search, SIGNAL(textChanged(QString)), &sorter, SLOT(update_search_filter(const QString&)));
   toolbar->addWidget(toolbar_search);
 
   QPushButton* toolbar_tree_view = new QPushButton();
@@ -152,9 +151,9 @@ Project::Project(QWidget *parent) :
   verticalLayout->addWidget(toolbar_widget);
 
   // tree view
-  tree_view = new SourceTable();
+  tree_view = new SourceTable(sources_common);
   tree_view->project_parent = this;
-  tree_view->setModel(sorter);
+  tree_view->setModel(&sorter);
   verticalLayout->addWidget(tree_view);
 
   // Set the first column width
@@ -189,9 +188,9 @@ Project::Project(QWidget *parent) :
 
   icon_view_container_layout->addLayout(icon_view_controls);
 
-  icon_view = new SourceIconView();
+  icon_view = new SourceIconView(sources_common);
   icon_view->project_parent = this;
-  icon_view->setModel(sorter);
+  icon_view->setModel(&sorter);
   icon_view->setIconSize(QSize(100, 100));
   icon_view->setViewMode(QListView::IconMode);
   icon_view->setUniformItemSizes(true);
@@ -212,8 +211,14 @@ Project::Project(QWidget *parent) :
   Retranslate();
 }
 
-Project::~Project() {
-  delete sorter;
+void Project::ConnectFilterToModel()
+{
+  sorter.setSourceModel(&olive::project_model);
+}
+
+void Project::DisconnectFilterToModel()
+{
+  sorter.setSourceModel(nullptr);
 }
 
 void Project::Retranslate() {
@@ -418,10 +423,10 @@ void Project::new_folder() {
   QModelIndex index = olive::project_model.create_index(m->row(), 0, m.get());
   switch (olive::CurrentConfig.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
-    tree_view->edit(sorter->mapFromSource(index));
+    tree_view->edit(sorter.mapFromSource(index));
     break;
   case olive::PROJECT_VIEW_ICON:
-    icon_view->edit(sorter->mapFromSource(index));
+    icon_view->edit(sorter.mapFromSource(index));
     break;
   }
 }
@@ -475,7 +480,7 @@ MediaPtr Project::create_folder_internal(QString name) {
 }
 
 Media* Project::item_to_media(const QModelIndex &index) {
-  return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
+  return static_cast<Media*>(sorter.mapToSource(index).internalPointer());
 }
 
 MediaPtr Project::item_to_media_ptr(const QModelIndex &index) {
@@ -501,6 +506,21 @@ void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list
       list.append(item);
     }
   }
+}
+
+bool Project::IsToolbarVisible()
+{
+  return toolbar_widget->isVisible();
+}
+
+void Project::SetToolbarVisible(bool visible)
+{
+  toolbar_widget->setVisible(visible);
+}
+
+bool Project::IsProjectWidget(QObject *child)
+{
+  return (child == tree_view || child == icon_view);
 }
 
 bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
@@ -939,7 +959,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
       // if m == media, then we found the media object we were looking for
 
       // get sorter proxy item (the item that's "visible")
-      QModelIndex sorted_index = sorter->mapFromSource(item);
+      QModelIndex sorted_index = sorter.mapFromSource(item);
 
       // retrieve its parent item
       QModelIndex hierarchy = sorted_index.parent();
@@ -954,8 +974,8 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 
         // select item (requires a QItemSelection object to select the whole row)
         QItemSelection row_select(
-              sorter->index(sorted_index.row(), 0, sorted_index.parent()),
-              sorter->index(sorted_index.row(), sorter->columnCount()-1, sorted_index.parent())
+              sorter.index(sorted_index.row(), 0, sorted_index.parent()),
+              sorter.index(sorted_index.row(), sorter.columnCount()-1, sorted_index.parent())
               );
 
         tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
@@ -1306,10 +1326,10 @@ void Project::update_view_type() {
 
   switch (olive::CurrentConfig.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
-    sources_common->view = tree_view;
+    sources_common.view = tree_view;
     break;
   case olive::PROJECT_VIEW_ICON:
-    sources_common->view = icon_view;
+    sources_common.view = icon_view;
     break;
   }
 }

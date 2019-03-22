@@ -264,7 +264,7 @@ void Config::save(QString path) {
   stream.writeTextElement("HoverFocus", QString::number(hover_focus));
   stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
   stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
-  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
+  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->IsToolbarVisible()));
   stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
   stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
   stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));

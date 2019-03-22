@@ -875,7 +875,11 @@ void Viewer::timer_update() {
   previous_playhead = seq->playhead;
 
   seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed)));
-  if (olive::CurrentConfig.seek_also_selects) panel_timeline->select_from_playhead();
+
+  if (olive::CurrentConfig.seek_also_selects) {
+    panel_timeline->select_from_playhead();
+  }
+
   update_parents(olive::CurrentConfig.seek_also_selects);
 
   if (playing) {

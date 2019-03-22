@@ -47,9 +47,10 @@
 #include "ui/menu.h"
 #include "undo/undostack.h"
 
-SourcesCommon::SourcesCommon(Project* parent) :
+SourcesCommon::SourcesCommon(Project* parent, ProjectFilter &sort_filter) :
   editing_item(nullptr),
-  project_parent(parent)
+  project_parent(parent),
+  sort_filter_(sort_filter)
 {
   rename_timer.setInterval(1000);
   connect(&rename_timer, SIGNAL(timeout()), this, SLOT(rename_interval()));
@@ -97,13 +98,13 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
 
   QAction* toolbar_action = view_menu->addAction(tr("Show Toolbar"));
   toolbar_action->setCheckable(true);
-  toolbar_action->setChecked(project_parent->toolbar_widget->isVisible());
-  connect(toolbar_action, SIGNAL(triggered(bool)), project_parent->toolbar_widget, SLOT(setVisible(bool)));
+  toolbar_action->setChecked(project_parent->IsToolbarVisible());
+  connect(toolbar_action, SIGNAL(triggered(bool)), project_parent, SLOT(SetToolbarVisible(bool)));
 
   QAction* show_sequences = view_menu->addAction(tr("Show Sequences"));
   show_sequences->setCheckable(true);
-  show_sequences->setChecked(panel_project->sorter->get_show_sequences());
-  connect(show_sequences, SIGNAL(triggered(bool)), panel_project->sorter, SLOT(set_show_sequences(bool)));
+  show_sequences->setChecked(sort_filter_.get_show_sequences());
+  connect(show_sequences, SIGNAL(triggered(bool)), &sort_filter_, SLOT(set_show_sequences(bool)));
 
   if (items.size() > 0) {
     if (items.size() == 1) {
@@ -282,7 +283,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
       bool replace = false;
       if (urls.size() == 1
           && drop_item.isValid()
-          && (m != nullptr && m->get_type() == MEDIA_TYPE_FOOTAGE)
+          && m->get_type() == MEDIA_TYPE_FOOTAGE
           && !QFileInfo(paths.at(0)).isDir()
           && olive::CurrentConfig.drop_on_media_to_replace
           && QMessageBox::question(

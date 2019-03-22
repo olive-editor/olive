@@ -27,7 +27,9 @@
 #include "project/sourcescommon.h"
 #include "global/debug.h"
 
-SourceIconView::SourceIconView(QWidget *parent) : QListView(parent) {
+SourceIconView::SourceIconView(SourcesCommon &commons) :
+  commons_(commons)
+{
   setSelectionMode(QAbstractItemView::ExtendedSelection);
   setResizeMode(QListView::Adjust);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -36,17 +38,17 @@ SourceIconView::SourceIconView(QWidget *parent) : QListView(parent) {
 }
 
 void SourceIconView::show_context_menu() {
-  project_parent->sources_common->show_context_menu(this, selectedIndexes());
+  commons_.show_context_menu(this, selectedIndexes());
 }
 
 void SourceIconView::item_click(const QModelIndex& index) {
   if (selectedIndexes().size() == 1 && index.column() == 0) {
-    project_parent->sources_common->item_click(project_parent->item_to_media(index), index);
+    commons_.item_click(project_parent->item_to_media(index), index);
   }
 }
 
 void SourceIconView::mousePressEvent(QMouseEvent* event) {
-  project_parent->sources_common->mousePressEvent(event);
+  commons_.mousePressEvent(event);
   if (!indexAt(event->pos()).isValid()) selectionModel()->clear();
   QListView::mousePressEvent(event);
 }
@@ -70,7 +72,7 @@ void SourceIconView::dragMoveEvent(QDragMoveEvent *event) {
 void SourceIconView::dropEvent(QDropEvent* event) {
   QModelIndex drop_item = indexAt(event->pos());
   if (!drop_item.isValid()) drop_item = rootIndex();
-  project_parent->sources_common->dropEvent(this, event, drop_item, selectedIndexes());
+  commons_.dropEvent(this, event, drop_item, selectedIndexes());
 }
 
 void SourceIconView::mouseDoubleClickEvent(QMouseEvent *) {
@@ -84,6 +86,6 @@ void SourceIconView::mouseDoubleClickEvent(QMouseEvent *) {
     }
   }
   if (default_behavior) {
-    project_parent->sources_common->mouseDoubleClickEvent(selectedIndexes());
+    commons_.mouseDoubleClickEvent(selectedIndexes());
   }
 }
