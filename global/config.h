@@ -414,6 +414,13 @@ struct Config {
   bool seek_also_selects;
 
   /**
+   * @brief Automatically seek to the beginning of a sequence if the user plays beyond the end of it
+   *
+   * TRUE if this behavior should be enabled.
+   */
+  bool auto_seek_to_beginning;
+
+  /**
    * @brief CSS Path
    *
    * The URL to a CSS file if the user has loaded a custom stylesheet in. **EMPTY** if the user has not set a

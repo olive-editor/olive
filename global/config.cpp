@@ -64,6 +64,7 @@ Config::Config()
     upcoming_queue_type(olive::FRAME_QUEUE_TYPE_SECONDS),
     loop(false),
     seek_also_selects(false),
+    auto_seek_to_beginning(true),
     effect_textbox_lines(3),
     use_software_fallback(false),
     center_timeline_timecodes(true),
@@ -179,6 +180,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "SeekAlsoSelects") {
           stream.readNext();
           seek_also_selects = (stream.text() == "1");
+        } else if (stream.name() == "AutoSeekToBeginning") {
+          stream.readNext();
+          auto_seek_to_beginning = (stream.text() == "1");
         } else if (stream.name() == "CSSPath") {
           stream.readNext();
           css_path = stream.text().toString();
@@ -271,6 +275,7 @@ void Config::save(QString path) {
   stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
   stream.writeTextElement("Loop", QString::number(loop));
   stream.writeTextElement("SeekAlsoSelects", QString::number(seek_also_selects));
+  stream.writeTextElement("AutoSeekToBeginning", QString::number(auto_seek_to_beginning));
   stream.writeTextElement("CSSPath", css_path);
   stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
   stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));

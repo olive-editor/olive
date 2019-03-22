@@ -402,7 +402,7 @@ void Viewer::play(bool in_to_out) {
     if (!is_recording_cued()
         && playback_speed >= 0
         && (playing_in_to_out
-            || seq->playhead >= sequence_end_frame
+            || (olive::CurrentConfig.auto_seek_to_beginning && seq->playhead >= sequence_end_frame)
             || (seek_to_in && seq->playhead >= seq->workarea_out))) {
       seek(seek_to_in ? seq->workarea_in : 0);
     }
@@ -890,7 +890,8 @@ void Viewer::timer_update() {
         pause();
       }
     } else if (playback_speed > 0) {
-      if (seq->playhead >= seq->getEndFrame()) {
+      long end_frame = seq->getEndFrame();
+      if ((olive::CurrentConfig.auto_seek_to_beginning || previous_playhead < end_frame) && seq->playhead >= end_frame) {
         pause();
       }
       if (seq->using_workarea && seq->playhead >= seq->workarea_out) {

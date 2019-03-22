@@ -256,6 +256,8 @@ void PreferencesDialog::accept() {
   olive::CurrentConfig.use_native_menu_styling = native_menus->isChecked();
 #endif
 
+  olive::CurrentConfig.auto_seek_to_beginning = auto_seek_to_beginning->isChecked();
+
   // Check if the thumbnail or waveform icon
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
@@ -559,6 +561,10 @@ void PreferencesDialog::setup_ui() {
   add_default_effects_to_clips = new QCheckBox(tr("Add Default Effects to New Clips"));
   add_default_effects_to_clips->setChecked(olive::CurrentConfig.add_default_effects_to_clips);
   behavior_tab_layout->addWidget(add_default_effects_to_clips);
+
+  auto_seek_to_beginning = new QCheckBox(tr("Automatically Seek to the Beginning When Playing at the End of a Sequence"));
+  auto_seek_to_beginning->setChecked(olive::CurrentConfig.auto_seek_to_beginning);
+  behavior_tab_layout->addWidget(auto_seek_to_beginning);
 
   // Appearance
   QWidget* appearance_tab = new QWidget(this);

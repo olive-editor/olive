@@ -249,6 +249,11 @@ private:
   QCheckBox* add_default_effects_to_clips;
 
   /**
+   * @brief UI widget for enabling/disabling Config::auto_seek_to_beginning
+   */
+  QCheckBox* auto_seek_to_beginning;
+
+  /**
    * @brief UI widget for selecting the current UI style
    */
   QComboBox* ui_style;
