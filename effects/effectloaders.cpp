@@ -25,12 +25,11 @@
 #include "global/path.h"
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
-#include "global/crossplatformlib.h"
 #include "global/config.h"
 
 #include <QDir>
 #include <QXmlStreamReader>
-
+#include <QLibrary>
 #include <QDebug>
 
 #ifndef NOFREI0R
@@ -206,15 +205,19 @@ void EffectInit::StartLoading() {
 void load_frei0r_effects_worker(const QString& dir, EffectMeta& em, QVector<QString>& loaded_names) {
   QDir search_dir(dir);
   if (search_dir.exists()) {
-    QList<QString> entry_list = search_dir.entryList(LibFilter(), QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+    QList<QString> entry_list = search_dir.entryList(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     for (int j=0;j<entry_list.size();j++) {
       QString entry_path = search_dir.filePath(entry_list.at(j));
       if (QFileInfo(entry_path).isDir()) {
         load_frei0r_effects_worker(entry_path, em, loaded_names);
       } else {
-        ModulePtr effect = LibLoad(entry_path);
-        if (effect != nullptr) {
-          f0rGetPluginInfo get_info_func = reinterpret_cast<f0rGetPluginInfo>(LibAddress(effect, "f0r_get_plugin_info"));
+
+        QString path_without_extension = search_dir.filePath(QFileInfo(entry_list.at(j)).baseName());
+
+        QLibrary effect;
+        effect.setFileName(path_without_extension);
+        if (effect.load()) {
+          f0rGetPluginInfo get_info_func = reinterpret_cast<f0rGetPluginInfo>(effect.resolve("f0r_get_plugin_info"));
           if (get_info_func != nullptr) {
             f0r_plugin_info_t info;
             get_info_func(&info);
@@ -231,11 +234,9 @@ void load_frei0r_effects_worker(const QString& dir, EffectMeta& em, QVector<QStr
 
               effects.append(em);
             }
-//                        qDebug() << "Found:" << info.name << "by" << info.author;
           }
-          LibClose(effect);
+          effect.unload();
         }
-//                qDebug() << search_dir.filePath(entry_list.at(j));
       }
     }
   }

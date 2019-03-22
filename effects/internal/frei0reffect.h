@@ -23,6 +23,7 @@
 
 #ifndef NOFREI0R
 
+#include <QLibrary>
 #include <frei0r.h>
 
 #include "effects/effect.h"
@@ -41,7 +42,7 @@ public:
 
   virtual void refresh();
 private:
-  ModulePtr handle;
+  QLibrary handle;
   f0r_instance_t instance;
   int param_count;
   f0rGetParamInfo get_param_info;
