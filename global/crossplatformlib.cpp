@@ -24,7 +24,7 @@
 
 ModulePtr LibLoad(const QString &filename) {
 #ifdef _WIN32
-	LPCWSTR dll_fn_w = reinterpret_cast<const wchar_t*>(filename.utf16());
+	auto dll_fn_w = reinterpret_cast<const char*>(filename.utf16());
 	return LoadLibrary(dll_fn_w);
 #elif defined(__linux__) || defined(__APPLE__) || defined(__HAIKU__)
 	return dlopen(filename.toUtf8(), RTLD_LAZY);
