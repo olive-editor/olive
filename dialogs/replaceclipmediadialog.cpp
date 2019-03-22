@@ -50,16 +50,16 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media* old_media
   use_same_media_in_points->setChecked(true);
   layout->addWidget(use_same_media_in_points);
 
-    QHBoxLayout* buttons = new QHBoxLayout();
+  QHBoxLayout* buttons = new QHBoxLayout();
 
   buttons->addStretch();
 
   QPushButton* replace_button = new QPushButton(tr("Replace"), this);
-  connect(replace_button, SIGNAL(clicked(bool)), this, SLOT(replace()));
+  connect(replace_button, SIGNAL(clicked(bool)), this, SLOT(accept()));
   buttons->addWidget(replace_button);
 
   QPushButton* cancel_button = new QPushButton(tr("Cancel"), this);
-  connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(close()));
+  connect(cancel_button, SIGNAL(clicked(bool)), this, SLOT(reject()));
   buttons->addWidget(cancel_button);
 
   buttons->addStretch();
@@ -69,7 +69,7 @@ ReplaceClipMediaDialog::ReplaceClipMediaDialog(QWidget *parent, Media* old_media
   tree->setModel(&olive::project_model);
 }
 
-void ReplaceClipMediaDialog::replace() {
+void ReplaceClipMediaDialog::accept() {
   QModelIndexList selected_items = tree->selectionModel()->selectedRows();
   if (selected_items.size() != 1) {
     QMessageBox::critical(
@@ -77,23 +77,23 @@ void ReplaceClipMediaDialog::replace() {
           tr("No media selected"),
           tr("Please select a media to replace with or click 'Cancel'."),
           QMessageBox::Ok
-        );
+          );
   } else {
-        Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
+    Media* new_item = static_cast<Media*>(selected_items.at(0).internalPointer());
     if (media == new_item) {
       QMessageBox::critical(
             this,
             tr("Same media selected"),
             tr("You selected the same media that you're replacing. Please select a different one or click 'Cancel'."),
             QMessageBox::Ok
-          );
+            );
     } else if (new_item->get_type() == MEDIA_TYPE_FOLDER) {
       QMessageBox::critical(
             this,
             tr("Folder selected"),
             tr("You cannot replace footage with a folder."),
             QMessageBox::Ok
-          );
+            );
     } else {
       if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && olive::ActiveSequence == new_item->to_sequence()) {
         QMessageBox::critical(
@@ -101,16 +101,16 @@ void ReplaceClipMediaDialog::replace() {
               tr("Active sequence selected"),
               tr("You cannot insert a sequence into itself."),
               QMessageBox::Ok
-            );
+              );
       } else {
         ReplaceClipMediaCommand* rcmc = new ReplaceClipMediaCommand(
               media,
               new_item,
               use_same_media_in_points->isChecked()
-            );
+              );
 
         for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-                    ClipPtr c = olive::ActiveSequence->clips.at(i);
+          ClipPtr c = olive::ActiveSequence->clips.at(i);
           if (c != nullptr && c->media() == media) {
             rcmc->clips.append(c);
           }
@@ -118,7 +118,7 @@ void ReplaceClipMediaDialog::replace() {
 
         olive::UndoStack.push(rcmc);
 
-        close();
+        QDialog::accept();
       }
 
     }

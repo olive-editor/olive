@@ -34,7 +34,8 @@
 /**
  * @brief The MediaPropertiesDialog class
  *
- * A dialog for setting properties on Media.
+ * A dialog for setting properties on Media. This can be loaded from any part of the application provided it's given
+ * a valid Media object.
  */
 class MediaPropertiesDialog : public QDialog {
   Q_OBJECT

@@ -27,34 +27,106 @@
 #include "timeline/clip.h"
 #include "ui/labelslider.h"
 
+/**
+ * @brief The SpeedDialog class
+ *
+ * A dialog for setting the speed of one or more Clips. This can be run from anywhere provided it's given a valid
+ * array of Clips.
+ *
+ * It's preferable ot
+ */
 class SpeedDialog : public QDialog
 {
   Q_OBJECT
 public:
+  /**
+   * @brief SpeedDialog Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent. Usually MainWindow or Timeline panel.
+   *
+   * @param clips
+   *
+   * A valid array of Clips to change the speed of.
+   */
   SpeedDialog(QWidget* parent, QVector<Clip*> clips);
-
-  void run();
+public slots:
+  /**
+   * @brief Override of exec() to set up current Clip speed data just before opening
+   *
+   * @return
+   *
+   * The result of QDialog::exec(), a DialogCode result.
+   */
+  virtual int exec() override;
 private slots:
+  /**
+   * @brief Override of accept() to perform the selected changes on the Clips
+   */
+  virtual void accept() override;
+
+  /**
+   * @brief Slot when the speed percentage field is changed by the user
+   *
+   * The three fields (percent, duration, and frame rate) all work in tandem to create a speed multipler for the
+   * Clip. Each has a slot for when one of the fields changes to update the others appropriately so they all have the
+   * same speed multipler.
+   */
   void percent_update();
+
+  /**
+   * @brief Slot when the duration field is changed by the user
+   *
+   * The three fields (percent, duration, and frame rate) all work in tandem to create a speed multipler for the
+   * Clip. Each has a slot for when one of the fields changes to update the others appropriately so they all have the
+   * same speed multipler.
+   */
   void duration_update();
+
+  /**
+   * @brief Slot when the frame rate field is changed by the user
+   *
+   * The three fields (percent, duration, and frame rate) all work in tandem to create a speed multipler for the
+   * Clip. Each has a slot for when one of the fields changes to update the others appropriately so they all have the
+   * same speed multipler.
+   */
   void frame_rate_update();
-  void accept();
 private:
+  /**
+   * @brief Internal array of Clip objects
+   */
   QVector<Clip*> clips_;
 
+  /**
+   * @brief Speed percentage field
+   */
   LabelSlider* percent;
+
+  /**
+   * @brief Duration field
+   */
   LabelSlider* duration;
+
+  /**
+   * @brief Frame rate field
+   */
   LabelSlider* frame_rate;
 
+  /**
+   * @brief UI widget for setting the Clip's reverse value
+   */
   QCheckBox* reverse;
-  QCheckBox* maintain_pitch;
-  QCheckBox* ripple;
 
-  double default_frame_rate;
-  double current_frame_rate;
-  double current_percent;
-  long default_length;
-  long current_length;
+  /**
+   * @brief UI widget for setting the Clip's maintain pitch value
+   */
+  QCheckBox* maintain_pitch;
+
+  /**
+   * @brief UI widget for setting whether to ripple Clips around these changes or not
+   */
+  QCheckBox* ripple;
 };
 
 #endif // SPEEDDIALOG_H

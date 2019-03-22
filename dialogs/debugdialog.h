@@ -27,7 +27,8 @@
 /**
  * @brief The DebugDialog class
  *
- * A dialog to display the current debug output.
+ * A dialog to display the current debug output. This dialog is omnipresent and shown and hidden when the user wants
+ * to see it. For efficiency, it will not update if it's hidden.
  */
 class DebugDialog : public QDialog {
   Q_OBJECT
@@ -69,6 +70,9 @@ private:
 };
 
 namespace olive {
+/**
+ * @brief Omnipresent instance of DebugDialog to be shown or hidden as the user wants
+ */
 extern DebugDialog* DebugDialog;
 }
 

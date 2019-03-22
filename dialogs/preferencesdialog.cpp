@@ -72,7 +72,7 @@ QString KeySequenceEditor::action_name() {
 QString KeySequenceEditor::export_shortcut() {
   QString ks = keySequence().toString();
   if (ks != action->property("default")) {
-    return action->property("id").toString() + "\t" + keySequence().toString();
+    return action->property("id").toString() + "\t" + ks;
   }
   return nullptr;
 }
@@ -81,12 +81,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
   QDialog(parent)
 {
   setWindowTitle(tr("Preferences"));
-  setup_ui();
 
-  accurateSeekButton->setChecked(!olive::CurrentConfig.fast_seeking);
-  fastSeekButton->setChecked(olive::CurrentConfig.fast_seeking);
-  recordingComboBox->setCurrentIndex(olive::CurrentConfig.recording_mode - 1);
-  imgSeqFormatEdit->setText(olive::CurrentConfig.img_seq_formats);
+  setup_ui();
 
   setup_kbd_shortcuts(olive::MainWindow->menuBar());
 }
@@ -244,7 +240,6 @@ void PreferencesDialog::accept() {
 
   olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
   olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
-  olive::CurrentConfig.fast_seeking = fastSeekButton->isChecked();
   olive::CurrentConfig.upcoming_queue_size = upcoming_queue_spinbox->value();
   olive::CurrentConfig.upcoming_queue_type = upcoming_queue_type->currentIndex();
   olive::CurrentConfig.previous_queue_size = previous_queue_spinbox->value();
@@ -515,6 +510,7 @@ void PreferencesDialog::setup_ui() {
   general_layout->addWidget(new QLabel(tr("Image sequence formats:"), this), row, 0);
 
   imgSeqFormatEdit = new QLineEdit(general_tab);
+  imgSeqFormatEdit->setText(olive::CurrentConfig.img_seq_formats);
 
   general_layout->addWidget(imgSeqFormatEdit, row, 1, 1, 4);
 
@@ -625,18 +621,6 @@ void PreferencesDialog::setup_ui() {
   QWidget* playback_tab = new QWidget(this);
   QVBoxLayout* playback_tab_layout = new QVBoxLayout(playback_tab);
 
-  // Playback -> Seeking
-  QGroupBox* seeking_group = new QGroupBox(playback_tab);
-  seeking_group->setTitle(tr("Seeking"));
-  QVBoxLayout* seeking_group_layout = new QVBoxLayout(seeking_group);
-  accurateSeekButton = new QRadioButton(seeking_group);
-  accurateSeekButton->setText(tr("Accurate Seeking\nAlways show the correct frame (visual may pause briefly as correct frame is retrieved)"));
-  seeking_group_layout->addWidget(accurateSeekButton);
-  fastSeekButton = new QRadioButton(seeking_group);
-  fastSeekButton->setText(tr("Fast Seeking\nSeek quickly (may briefly show inaccurate frames when seeking - doesn't affect playback/export)"));
-  seeking_group_layout->addWidget(fastSeekButton);
-  playback_tab_layout->addWidget(seeking_group);
-
   // Playback -> Memory Usage
   QGroupBox* memory_usage_group = new QGroupBox(playback_tab);
   memory_usage_group->setTitle(tr("Memory Usage"));
@@ -739,6 +723,7 @@ void PreferencesDialog::setup_ui() {
   recordingComboBox = new QComboBox(general_tab);
   recordingComboBox->addItem(tr("Mono"));
   recordingComboBox->addItem(tr("Stereo"));
+  recordingComboBox->setCurrentIndex(olive::CurrentConfig.recording_mode - 1);
   audio_tab_layout->addWidget(recordingComboBox, row, 1);
 
   row++;

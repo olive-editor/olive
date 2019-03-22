@@ -10,7 +10,8 @@
 /**
  * @brief The ClipPropertiesDialog class
  *
- * A dialog for setting Clip properties, accessible by right clicking a Clip and clicking "Properties".
+ * A dialog for setting Clip properties, accessible by right clicking a Clip and clicking "Properties". This can be
+ * run from anywhere provided it's given a valid array of Clip objects.
  */
 class ClipPropertiesDialog : public QDialog {
     Q_OBJECT

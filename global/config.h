@@ -318,16 +318,6 @@ struct Config {
   int audio_rate;
 
   /**
-   * @brief Enable fast seeking
-   *
-   * Olive supports a seek mode that shows frames faster with the risk of briefly showing a "best-effort" frame that
-   * may not be the accurate frame at that point of the Timeline. This does not affect exporting.
-   *
-   * Set to **TRUE** if this mode should be enabled.
-   */
-  bool fast_seeking;
-
-  /**
    * @brief Enable hover focus
    *
    * Default behavior is panels are focused (and therefore respond to certain keyboard shortcuts)when they are clicked

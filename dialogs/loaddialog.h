@@ -31,7 +31,9 @@
 /**
  * @brief The LoadDialog class
  *
- * Shows a modal dialog for loading a project. Designed to be connected to a LoadThread object.
+ * Shows a modal dialog for loading a project. Designed to be connected to a LoadThread object. This dialog should
+ * generally not be created directly, use OliveGlobal::LoadProject (or its variants) to correctly set up a LoadDialog
+ * and LoadThread and connect them to each other.
  */
 class LoadDialog : public QDialog
 {

@@ -30,7 +30,8 @@
 /**
  * @brief The ProxyDialog class
  *
- * Dialog to set up proxy generation of footage
+ * Dialog to set up proxy generation of footage. This dialog can be called from anywhere provided it's given a valid
+ * array of Media and will start all proxy generation.
  */
 class ProxyDialog : public QDialog {
   Q_OBJECT

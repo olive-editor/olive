@@ -26,7 +26,8 @@
 /**
  * @brief The AboutDialog class
  *
- * The About dialog (accessible through Help > About). Contains license and version information.
+ * The About dialog (accessible through Help > About). Contains license and version information. This can be run from
+ * anywhere
  */
 class AboutDialog : public QDialog
 {

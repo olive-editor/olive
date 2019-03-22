@@ -33,7 +33,7 @@
 /**
  * @brief The NewSequenceDialog class
  *
- * A dialog that creates a new (or edits an existing) Sequence object.
+ * A dialog that creates a new (or edits an existing) Sequence object. Can be run from any part of the application.
  */
 class NewSequenceDialog : public QDialog
 {

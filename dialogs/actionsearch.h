@@ -32,7 +32,7 @@ class ActionSearchList;
  * @brief The ActionSearch class
  *
  * A popup window (accessible through Help > Action Search) that allows users to search for a menu command by typing
- * rather than browsing through the menu bar.
+ * rather than browsing through the menu bar. This can be created from anywhere provided olive::MainWindow is valid.
  */
 class ActionSearch : public QDialog
 {
