@@ -25,7 +25,6 @@
 #include <QLibrary>
 
 #include "effects/effect.h"
-#include "global/crossplatformlib.h"
 #include "include/vestige.h"
 
 // Plugin's dispatcher function

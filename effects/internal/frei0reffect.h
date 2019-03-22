@@ -27,7 +27,6 @@
 #include <frei0r.h>
 
 #include "effects/effect.h"
-#include "global/crossplatformlib.h"
 
 typedef void (*f0rGetParamInfo)(f0r_param_info_t * info,
                 int param_index );

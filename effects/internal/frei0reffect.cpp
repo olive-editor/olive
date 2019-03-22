@@ -50,29 +50,9 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
 
 
   if (!handle.load()) {
-    QString dll_error;
-
-#ifdef _WIN32
-    DWORD dll_err = GetLastError();
-    dll_error = QString::number(dll_err);
-#elif __linux__
-    dll_error = dlerror();
-#endif
-    qCritical() << "Failed to load Frei0r plugin" << dll_fn << "-" << dll_error;
-
-    QString msg_err = tr("Failed to load Frei0r plugin \"%1\": %2").arg(dll_fn, dll_error);
-
-#ifdef _WIN32
-    if (dll_err == 193) {
-#ifdef _WIN64
-      msg_err += "\n\n" + tr("NOTE: You can't load 32-bit Frei0r plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.");
-#elif _WIN32
-      msg_err += "\n\n" + tr("NOTE: You can't load 64-bit Frei0r plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
-#endif
-    }
-#endif
-
-    QMessageBox::critical(nullptr, tr("Error loading Frei0r plugin"), msg_err);
+    QString dll_error = handle.errorString();
+    QMessageBox::critical(nullptr, tr("Error loading Frei0r plugin"),
+                          tr("Failed to load Frei0r plugin \"%1\": %2").arg(dll_fn, dll_error));
 
     return;
   }
