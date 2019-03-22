@@ -34,11 +34,11 @@
 #include "ui/menu.h"
 
 LabelSlider::LabelSlider(QWidget* parent) :
-   QLabel(parent)
-  ,timecode_offset(0)
-  ,display_source_timecode(false)
-  ,source_timecode_menu_item(false)
-  ,tog_timecodeAct(new QAction(tr("Source Timecode")))
+   QLabel(parent),
+  timecode_offset(0),
+  display_source_timecode(false),
+  source_timecode_menu_item(false),
+  tog_timecodeAct(new QAction(tr("Source Timecode")))
 {
   // set a default frame rate - fallback, shouldn't ever really be used
   frame_rate = 30;
@@ -147,8 +147,10 @@ void LabelSlider::SetTimecodeOffset(long offset)
 {
   timecode_offset = offset;
   source_timecode_menu_item = true;
+  //get the current state of the timeline toggle
+  //TODO change to a list when LTC and Custom timecde modes are added?
+  display_source_timecode=tog_timecodeAct->isChecked();
   setText(ValueToString());
-
 }
 
 void LabelSlider::SetDefault(double v) {
@@ -312,7 +314,8 @@ void LabelSlider::ResetToDefault()
 
 void LabelSlider::HideSourceTimecodeToggle(){
   source_timecode_menu_item = false;
-  timecode_offset = 0;
+  display_source_timecode = false;
+  setText(ValueToString());
 }
 
 void LabelSlider::ShowDialog()
