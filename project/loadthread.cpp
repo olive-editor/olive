@@ -103,7 +103,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
         c->closing_transition = (sharing_clip->opening_transition);
 
         // since this is the closed clip, make this clip the secondary
-        c->opening_transition->secondary_clip = c;
+        c->closing_transition->secondary_clip = c;
       }
       return;
     }
