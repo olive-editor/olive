@@ -29,6 +29,7 @@
 #include "ui/timelinetools.h"
 #include "timeline/selection.h"
 #include "timeline/clip.h"
+#include "timeline/mediaimportdata.h"
 #include "undo/undo.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
@@ -125,7 +126,7 @@ public:
   void edit_to_point_internal(bool in, bool ripple);
   void delete_in_out_internal(bool ripple);
 
-  void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
+  void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<olive::timeline::MediaImportData> &media_list);
   void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
 
   int getTimelineScreenPointFromFrame(long frame);

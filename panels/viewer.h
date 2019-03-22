@@ -27,6 +27,7 @@
 #include <QPushButton>
 
 #include "timeline/marker.h"
+#include "timeline/mediaimportdata.h"
 #include "project/media.h"
 
 #include "ui/panel.h"
@@ -64,6 +65,7 @@ public:
   void set_out_point();
   void set_zoom(bool in);
   void set_panel_name(const QString& n);
+  void show_videoaudio_buttons(bool s);
 
   // playback functions
   void seek(long p);
@@ -98,6 +100,10 @@ public:
 
   TimelineHeader* headers;
 
+
+
+  void initiate_drag(olive::timeline::MediaImportType drag_type);
+
   virtual void Retranslate() override;
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
@@ -116,11 +122,16 @@ public slots:
   void close_media();
   void update_viewer();
 
+
+
 private slots:
   void update_playhead();
   void timer_update();
   void recording_flasher_update();
   void resize_move(double d);
+
+  void drag_video_only();
+  void drag_audio_only();
 
 private:
 
@@ -154,6 +165,9 @@ private:
   QPushButton* play_button;
   QPushButton* next_frame_button;
   QPushButton* go_to_end_frame;
+
+  QPushButton* video_only_button;
+  QPushButton* audio_only_button;
 
   bool cue_recording_internal;
   QTimer recording_flasher;

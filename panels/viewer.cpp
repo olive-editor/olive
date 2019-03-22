@@ -20,6 +20,21 @@
 
 #include "viewer.h"
 
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+}
+
+#include <QtMath>
+#include <QAudioOutput>
+#include <QPainter>
+#include <QStringList>
+#include <QTimer>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QDrag>
+#include <QMimeData>
+
 #include "rendering/audio.h"
 #include "timeline.h"
 #include "panels/project.h"
@@ -44,19 +59,6 @@
 
 #define FRAMES_IN_ONE_MINUTE 1798 // 1800 - 2
 #define FRAMES_IN_TEN_MINUTES 17978 // (FRAMES_IN_ONE_MINUTE * 10) - 2
-
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-}
-
-#include <QtMath>
-#include <QAudioOutput>
-#include <QPainter>
-#include <QStringList>
-#include <QTimer>
-#include <QHBoxLayout>
-#include <QPushButton>
 
 Viewer::Viewer(QWidget *parent) :
   Panel(parent),
@@ -538,6 +540,17 @@ void Viewer::update_viewer() {
   update_end_timecode();
 }
 
+void Viewer::initiate_drag(olive::timeline::MediaImportType drag_type)
+{
+  // FIXME: This should contain actual metadata rather than fake metadata
+
+  QDrag* drag = new QDrag(this);
+  QMimeData* mimeData = new QMimeData;
+  mimeData->setText(QString::number(drag_type));
+  drag->setMimeData(mimeData);
+  drag->exec();
+}
+
 void Viewer::clear_in() {
   if (seq != nullptr
       && seq->using_workarea) {
@@ -583,6 +596,12 @@ void Viewer::set_zoom(bool in) {
 void Viewer::set_panel_name(const QString &n) {
   panel_name = n;
   update_window_title();
+}
+
+void Viewer::show_videoaudio_buttons(bool s)
+{
+  video_only_button->setVisible(s);
+  audio_only_button->setVisible(s);
 }
 
 void Viewer::update_window_title() {
@@ -658,8 +677,12 @@ void Viewer::setup_ui() {
   QHBoxLayout* lower_control_layout = new QHBoxLayout(lower_controls);
   lower_control_layout->setMargin(0);
 
-  // current time code
+  QSizePolicy timecode_container_policy(QSizePolicy::Minimum, QSizePolicy::Maximum);
+  QSizePolicy lower_control_policy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+
+  // Current time code container
   QWidget* current_timecode_container = new QWidget();
+  current_timecode_container->setSizePolicy(timecode_container_policy);
   QHBoxLayout* current_timecode_container_layout = new QHBoxLayout(current_timecode_container);
   current_timecode_container_layout->setSpacing(0);
   current_timecode_container_layout->setMargin(0);
@@ -667,11 +690,19 @@ void Viewer::setup_ui() {
   current_timecode_container_layout->addWidget(current_timecode_slider);
   lower_control_layout->addWidget(current_timecode_container);
 
+  // Left controls container
+  QWidget* left_controls = new QWidget();
+  left_controls->setSizePolicy(lower_control_policy);
+  lower_control_layout->addWidget(left_controls);
+
+  // Playback controls container
   QWidget* playback_controls = new QWidget();
+  playback_controls->setSizePolicy(lower_control_policy);
 
   QHBoxLayout* playback_control_layout = new QHBoxLayout(playback_controls);
   playback_control_layout->setSpacing(0);
   playback_control_layout->setMargin(0);
+  playback_control_layout->addStretch();
 
   go_to_start_button = new QPushButton();
   go_to_start_button->setIcon(olive::icon::ViewerGoToStart);
@@ -698,9 +729,40 @@ void Viewer::setup_ui() {
   connect(go_to_end_frame, SIGNAL(clicked(bool)), this, SLOT(go_to_out()));
   playback_control_layout->addWidget(go_to_end_frame);
 
+  playback_control_layout->addStretch();
+
   lower_control_layout->addWidget(playback_controls);
 
+  // Right controls container
+  QWidget* right_controls = new QWidget();
+  right_controls->setSizePolicy(lower_control_policy);
+
+  QHBoxLayout* right_control_layout = new QHBoxLayout(right_controls);
+  right_control_layout->setSpacing(0);
+  right_control_layout->setMargin(0);
+  right_control_layout->addStretch();
+
+  video_only_button = new QPushButton();
+  video_only_button->setToolTip(tr("Drag video only"));
+  video_only_button->setIcon(olive::icon::MediaVideo);
+  video_only_button->setVisible(false);
+  right_control_layout->addWidget(video_only_button);
+  connect(video_only_button, SIGNAL(pressed()), this, SLOT(drag_video_only()));
+
+  audio_only_button = new QPushButton();
+  audio_only_button->setToolTip(tr("Drag audio only"));
+  audio_only_button->setIcon(olive::icon::MediaAudio);
+  audio_only_button->setVisible(false);
+  right_control_layout->addWidget(audio_only_button);
+  connect(audio_only_button, SIGNAL(pressed()), this, SLOT(drag_audio_only()));
+
+  right_control_layout->addStretch();
+
+  lower_control_layout->addWidget(right_controls);
+
+  // End time code container
   QWidget* end_timecode_container = new QWidget();
+  end_timecode_container->setSizePolicy(timecode_container_policy);
 
   QHBoxLayout* end_timecode_layout = new QHBoxLayout(end_timecode_container);
   end_timecode_layout->setSpacing(0);
@@ -851,6 +913,16 @@ void Viewer::resize_move(double d) {
   set_zoom_value(headers->get_zoom()*d);
 }
 
+void Viewer::drag_video_only()
+{
+  initiate_drag(olive::timeline::kImportVideoOnly);
+}
+
+void Viewer::drag_audio_only()
+{
+  initiate_drag(olive::timeline::kImportAudioOnly);
+}
+
 void Viewer::clean_created_seq() {
   viewer_widget->waveform = false;
 
@@ -902,6 +974,8 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
   play_button->setEnabled(!null_sequence);
   next_frame_button->setEnabled(!null_sequence);
   go_to_end_frame->setEnabled(!null_sequence);
+  video_only_button->setEnabled(!null_sequence);
+  audio_only_button->setEnabled(!null_sequence);
 
   if (!null_sequence) {
     current_timecode_slider->SetFrameRate(seq->frame_rate);

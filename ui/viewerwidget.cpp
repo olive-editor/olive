@@ -339,11 +339,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
       container->dragScrollMove(event->pos()*container->zoom);
     } else if (event->buttons() & Qt::LeftButton) {
       if (gizmos == nullptr) {
-        QDrag* drag = new QDrag(this);
-        QMimeData* mimeData = new QMimeData;
-        mimeData->setText("h"); // QMimeData will fail without some kind of data
-        drag->setMimeData(mimeData);
-        drag->exec();
+        viewer->initiate_drag(olive::timeline::kImportBoth);
         dragging = false;
       } else {
         move_gizmos(event, false);

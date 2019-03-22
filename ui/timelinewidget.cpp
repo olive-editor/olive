@@ -237,7 +237,7 @@ bool same_sign(int a, int b) {
 void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
   bool import_init = false;
 
-  QVector<Media*> media_list;
+  QVector<olive::timeline::MediaImportData> media_list;
   panel_timeline->importing_files = false;
 
   if (event->source() == panel_project->tree_view || event->source() == panel_project->icon_view) {
@@ -249,10 +249,13 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
     import_init = true;
   }
 
-  if (event->source() == panel_footage_viewer->viewer_widget) {
+  if (event->source() == panel_footage_viewer) {
     if (panel_footage_viewer->seq != olive::ActiveSequence) { // don't allow nesting the same sequence
-      media_list.append(panel_footage_viewer->media);
+
+      media_list.append(olive::timeline::MediaImportData(panel_footage_viewer->media,
+                         static_cast<olive::timeline::MediaImportType>(event->mimeData()->text().toInt())));
       import_init = true;
+
     }
   }
 

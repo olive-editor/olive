@@ -174,7 +174,8 @@ SOURCES += \
     undo/undostack.cpp \
     effects/internal/richtexteffect.cpp \
     ui/blur.cpp \
-    ui/menu.cpp
+    ui/menu.cpp \
+    timeline/mediaimportdata.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -302,7 +303,8 @@ HEADERS += \
     undo/undostack.h \
     effects/internal/richtexteffect.h \
     ui/blur.h \
-    ui/menu.h
+    ui/menu.h \
+    timeline/mediaimportdata.h
 
 FORMS +=
 

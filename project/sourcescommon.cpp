@@ -57,7 +57,7 @@ SourcesCommon::SourcesCommon(Project* parent) :
 
 void SourcesCommon::create_seq_from_selected() {
   if (!selected_items.isEmpty()) {
-    QVector<Media*> media_list;
+    QVector<olive::timeline::MediaImportData> media_list;
     for (int i=0;i<selected_items.size();i++) {
       media_list.append(project_parent->item_to_media(selected_items.at(i)));
     }

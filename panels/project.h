@@ -35,6 +35,7 @@
 #include "project/sourcescommon.h"
 #include "ui/panel.h"
 #include "ui/sourceiconview.h"
+#include "timeline/mediaimportdata.h"
 #include "undo/undo.h"
 
 #include "ui/sourcetable.h"
@@ -45,7 +46,7 @@
 extern QString autorecovery_filename;
 extern QStringList recent_projects;
 
-SequencePtr create_sequence_from_media(QVector<Media *> &media_list);
+SequencePtr create_sequence_from_media(QVector<olive::timeline::MediaImportData> &media_list);
 
 QString get_channel_layout_name(int channels, uint64_t layout);
 QString get_interlacing_name(int interlacing);

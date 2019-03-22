@@ -245,7 +245,7 @@ QString Project::get_next_sequence_name(QString start) {
   return name;
 }
 
-SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
+SequencePtr create_sequence_from_media(QVector<olive::timeline::MediaImportData>& media_list) {
   SequencePtr s(new Sequence());
 
   s->name = panel_project->get_next_sequence_name();
@@ -260,7 +260,7 @@ SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
   bool got_video_values = false;
   bool got_audio_values = false;
   for (int i=0;i<media_list.size();i++) {
-    Media* media = media_list.at(i);
+    Media* media = media_list.at(i).media();
     switch (media->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
     {
