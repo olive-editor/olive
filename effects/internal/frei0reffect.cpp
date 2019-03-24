@@ -100,7 +100,7 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
       }
         break;
       case F0R_PARAM_STRING:
-        new StringField(row, QString::number(i));
+        new StringField(row, QString::number(i), false);
         break;
       }
     }
