@@ -23,10 +23,19 @@
 
 #include <QListView>
 #include <QDropEvent>
+#include <QStyledItemDelegate>
 
 #include "project/sourcescommon.h"
 
 class Project;
+class SourceIconDelegate;
+
+class SourceIconDelegate : public QStyledItemDelegate {
+public:
+  SourceIconDelegate(QObject *parent = nullptr);
+  virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+  virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+};
 
 class SourceIconView : public QListView {
   Q_OBJECT
@@ -46,6 +55,7 @@ private slots:
   void item_click(const QModelIndex& index);
 private:
   SourcesCommon& commons_;
+  SourceIconDelegate delegate_;
 };
 
 #endif // SOURCEICONVIEW_H

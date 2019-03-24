@@ -52,5 +52,6 @@
         <file>align-right.svg</file>
         <file>justify-center.svg</file>
         <file>bold.svg</file>
+        <file>listview.svg</file>
     </qresource>
 </RCC>

@@ -112,6 +112,7 @@ private:
   QString get_file_name_from_path(const QString &path);
   QDir proj_dir;
   QWidget* icon_view_container;
+  QSlider* icon_size_slider;
   QPushButton* directory_up;
   QLineEdit* toolbar_search;
 
@@ -124,6 +125,7 @@ private:
 private slots:
   void update_view_type();
   void set_icon_view();
+  void set_list_view();
   void set_tree_view();
   void clear_recent_projects();
   void set_icon_view_size(int);

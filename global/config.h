@@ -120,7 +120,10 @@ namespace olive {
     PROJECT_VIEW_TREE,
 
     /** Display project media in icon browser */
-    PROJECT_VIEW_ICON
+    PROJECT_VIEW_ICON,
+
+    /** Display project media in list browser */
+    PROJECT_VIEW_LIST
   };
 
   /**
