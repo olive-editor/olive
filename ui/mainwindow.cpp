@@ -760,61 +760,7 @@ void MainWindow::setup_menus() {
 
   tools_menu->addSeparator();
 
-  selecting_also_seeks = MenuHelper::create_menu_action(tools_menu, "selectingalsoseeks", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  selecting_also_seeks->setCheckable(true);
-  selecting_also_seeks->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.select_also_seeks));
-
-  edit_tool_also_seeks = MenuHelper::create_menu_action(tools_menu, "editalsoseeks", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  edit_tool_also_seeks->setCheckable(true);
-  edit_tool_also_seeks->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.edit_tool_also_seeks));
-
-  edit_tool_selects_links = MenuHelper::create_menu_action(tools_menu, "editselectslinks", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  edit_tool_selects_links->setCheckable(true);
-  edit_tool_selects_links->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.edit_tool_selects_links));
-
-  seek_also_selects = MenuHelper::create_menu_action(tools_menu, "seekalsoselects", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  seek_also_selects->setCheckable(true);
-  seek_also_selects->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.seek_also_selects));
-
-  seek_to_end_of_pastes = MenuHelper::create_menu_action(tools_menu, "seektoendofpastes", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  seek_to_end_of_pastes->setCheckable(true);
-  seek_to_end_of_pastes->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.paste_seeks));
-
-  scroll_wheel_zooms = MenuHelper::create_menu_action(tools_menu, "scrollwheelzooms", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  scroll_wheel_zooms->setCheckable(true);
-  scroll_wheel_zooms->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.scroll_zooms));
-
-  invert_timeline_scroll_axes = MenuHelper::create_menu_action(tools_menu, "inverttimelinescrollaxes", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  invert_timeline_scroll_axes->setCheckable(true);
-  invert_timeline_scroll_axes->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.invert_timeline_scroll_axes));
-
-  enable_drag_files_to_timeline = MenuHelper::create_menu_action(tools_menu, "enabledragfilestotimeline", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  enable_drag_files_to_timeline->setCheckable(true);
-  enable_drag_files_to_timeline->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.enable_drag_files_to_timeline));
-
-  autoscale_by_default = MenuHelper::create_menu_action(tools_menu, "autoscalebydefault", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  autoscale_by_default->setCheckable(true);
-  autoscale_by_default->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.autoscale_by_default));
-
-  enable_seek_to_import = MenuHelper::create_menu_action(tools_menu, "enableseektoimport", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  enable_seek_to_import->setCheckable(true);
-  enable_seek_to_import->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.enable_seek_to_import));
-
-  enable_audio_scrubbing = MenuHelper::create_menu_action(tools_menu, "audioscrubbing", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  enable_audio_scrubbing->setCheckable(true);
-  enable_audio_scrubbing->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.enable_audio_scrubbing));
-
-  enable_drop_on_media_to_replace = MenuHelper::create_menu_action(tools_menu, "enabledropmediareplace", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  enable_drop_on_media_to_replace->setCheckable(true);
-  enable_drop_on_media_to_replace->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.drop_on_media_to_replace));
-
-  enable_hover_focus = MenuHelper::create_menu_action(tools_menu, "hoverfocus", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  enable_hover_focus->setCheckable(true);
-  enable_hover_focus->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.hover_focus));
-
-  set_name_and_marker = MenuHelper::create_menu_action(tools_menu, "asknamemarkerset", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  set_name_and_marker->setCheckable(true);
-  set_name_and_marker->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.set_name_with_marker));
+  autocut_silence_ = MenuHelper::create_menu_action(tools_menu, "autocutsilence", olive::Global.get(), SLOT(open_autocut_silence_dialog()));
 
   tools_menu->addSeparator();
 
@@ -952,21 +898,7 @@ void MainWindow::Retranslate()
   hand_tool_action->setText(tr("Hand Tool"));
   transition_tool_action->setText(tr("Transition Tool"));
   snap_toggle->setText(tr("Enable Snapping"));
-  selecting_also_seeks->setText(tr("Selecting Also Seeks"));
-  edit_tool_also_seeks->setText(tr("Edit Tool Also Seeks"));
-  edit_tool_selects_links->setText(tr("Edit Tool Selects Links"));
-  seek_also_selects->setText(tr("Seek Also Selects"));
-  seek_to_end_of_pastes->setText(tr("Seek to the End of Pastes"));
-  scroll_wheel_zooms->setText(tr("Scroll Wheel Zooms"));
-  scroll_wheel_zooms->setToolTip(tr("Hold CTRL to toggle this setting"));
-  invert_timeline_scroll_axes->setText(tr("Invert Timeline Scroll Axes"));
-  enable_drag_files_to_timeline->setText(tr("Enable Drag Files to Timeline"));
-  autoscale_by_default->setText(tr("Auto-Scale By Default"));
-  enable_seek_to_import->setText(tr("Enable Seek to Import"));
-  enable_audio_scrubbing->setText(tr("Audio Scrubbing"));
-  enable_drop_on_media_to_replace->setText(tr("Enable Drop on Media to Replace"));
-  enable_hover_focus->setText(tr("Enable Hover Focus"));
-  set_name_and_marker->setText(tr("Ask For Name When Setting Marker"));
+  autocut_silence_->setText(tr("Auto-Cut Silence"));
 
   no_autoscroll->setText(tr("No Auto-Scroll"));
   page_autoscroll->setText(tr("Page Auto-Scroll"));
@@ -1173,6 +1105,8 @@ void MainWindow::playbackMenu_About_To_Be_Shown() {
 void MainWindow::viewMenu_About_To_Be_Shown() {
   olive::MenuHelper.set_bool_action_checked(track_lines);
 
+  olive::MenuHelper.set_bool_action_checked(rectified_waveforms);
+
   olive::MenuHelper.set_int_action_checked(frames_action, olive::CurrentConfig.timecode_view);
   olive::MenuHelper.set_int_action_checked(drop_frame_action, olive::CurrentConfig.timecode_view);
   olive::MenuHelper.set_int_action_checked(nondrop_frame_action, olive::CurrentConfig.timecode_view);
@@ -1207,22 +1141,6 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
   olive::MenuHelper.set_button_action_checked(hand_tool_action);
   olive::MenuHelper.set_button_action_checked(transition_tool_action);
   olive::MenuHelper.set_button_action_checked(snap_toggle);
-
-  olive::MenuHelper.set_bool_action_checked(selecting_also_seeks);
-  olive::MenuHelper.set_bool_action_checked(edit_tool_also_seeks);
-  olive::MenuHelper.set_bool_action_checked(edit_tool_selects_links);
-  olive::MenuHelper.set_bool_action_checked(seek_to_end_of_pastes);
-  olive::MenuHelper.set_bool_action_checked(scroll_wheel_zooms);
-  olive::MenuHelper.set_bool_action_checked(invert_timeline_scroll_axes);
-  olive::MenuHelper.set_bool_action_checked(rectified_waveforms);
-  olive::MenuHelper.set_bool_action_checked(enable_drag_files_to_timeline);
-  olive::MenuHelper.set_bool_action_checked(autoscale_by_default);
-  olive::MenuHelper.set_bool_action_checked(enable_seek_to_import);
-  olive::MenuHelper.set_bool_action_checked(enable_audio_scrubbing);
-  olive::MenuHelper.set_bool_action_checked(enable_drop_on_media_to_replace);
-  olive::MenuHelper.set_bool_action_checked(enable_hover_focus);
-  olive::MenuHelper.set_bool_action_checked(set_name_and_marker);
-  olive::MenuHelper.set_bool_action_checked(seek_also_selects);
 
   olive::MenuHelper.set_int_action_checked(no_autoscroll, olive::CurrentConfig.autoscroll);
   olive::MenuHelper.set_int_action_checked(page_autoscroll, olive::CurrentConfig.autoscroll);

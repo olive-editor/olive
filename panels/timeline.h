@@ -117,6 +117,7 @@ public:
   bool split_selection(ComboAction* ca);
   bool split_all_clips_at_point(ComboAction *ca, long point);
   bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
+  void split_clip_at_positions(ComboAction* ca, int clip_index, QVector<long> positions);
   void clean_up_selections(QVector<Selection>& areas);
   void deselect_area(long in, long out, int track);
   void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);

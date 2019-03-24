@@ -209,11 +209,6 @@ private:
   QSpinBox* effect_textbox_lines_field;
 
   /**
-   * @brief UI widget for enabling/disabling software fallbacks
-   */
-  QCheckBox* use_software_fallbacks_checkbox;
-
-  /**
    * @brief UI widget for selecting the output audio device
    */
   QComboBox* audio_output_devices;
@@ -244,25 +239,9 @@ private:
   QSpinBox* waveform_res_spinbox;
 
   /**
-   * @brief UI widget for enabling/disabling default effects
-   */
-  QCheckBox* add_default_effects_to_clips;
-
-  /**
-   * @brief UI widget for enabling/disabling Config::auto_seek_to_beginning
-   */
-  QCheckBox* auto_seek_to_beginning;
-
-  /**
    * @brief UI widget for selecting the current UI style
    */
   QComboBox* ui_style;
-#ifdef Q_OS_WIN
-  /**
-   * @brief UI widget for forcing native menu styling on Windows
-   */
-  QCheckBox* native_menus;
-#endif
 
   /**
    * @brief List of keyboard shortcut actions that can be triggered (links with key_shortcut_items and
@@ -281,6 +260,45 @@ private:
    * key_shortcut_actions and key_shortcut_fields)
    */
   QVector<KeySequenceEditor*> key_shortcut_fields;
+
+  /**
+   * @brief Add an automated QCheckBox+boolean value pair
+   *
+   * Many preferences are simple true/false (or on/off) options. Rather than adding a QCheckBox for each one and
+   * manually setting its checked value to the configuration setting (and vice versa when saving), this convenience
+   * function will add it to an automated set of checkboxes, automatically setting the checked state to the current
+   * setting, and then saving the new checked state back to the setting when the user accepts the changes (clicks OK).
+   *
+   * @param ui
+   *
+   * A valid QCheckBox item. This function does not take ownership of the QWidget or place it in a layout anywhere.
+   *
+   * @param value
+   *
+   * A pointer to the Boolean value this QCheckBox should be shared with. The QCheckBox widget's checked state will be
+   * set to the value of this pointer.
+   *
+   * @param restart_required
+   *
+   * Defaults to FALSE, set this to TRUE if changing this setting should prompt the user for a restart of Olive before
+   * the setting change takes effect.
+   */
+  void AddBoolPair(QCheckBox* ui, bool* value, bool restart_required = false);
+
+  /**
+   * @brief Internal array managed by AddBoolPair(). Do not access this directly.
+   */
+  QVector<QCheckBox*> bool_ui;
+
+  /**
+   * @brief Internal array managed by AddBoolPair(). Do not access this directly.
+   */
+  QVector<bool*> bool_value;
+
+  /**
+   * @brief Internal array managed by AddBoolPair(). Do not access this directly.
+   */
+  QVector<bool> bool_restart_required;
 };
 
 /**

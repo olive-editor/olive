@@ -20,13 +20,6 @@
 
 #include "preferencesdialog.h"
 
-#include "global/global.h"
-#include "global/config.h"
-#include "global/path.h"
-#include "rendering/audio.h"
-#include "panels/panels.h"
-#include "ui/mainwindow.h"
-
 #include <QMenuBar>
 #include <QAction>
 #include <QVBoxLayout>
@@ -50,6 +43,14 @@
 #include <QApplication>
 #include <QProcess>
 #include <QDebug>
+
+#include "global/global.h"
+#include "global/config.h"
+#include "global/path.h"
+#include "rendering/audio.h"
+#include "panels/panels.h"
+#include "ui/columnedgridlayout.h"
+#include "ui/mainwindow.h"
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
   : QKeySequenceEdit(parent), action(a) {
@@ -142,6 +143,15 @@ void PreferencesDialog::delete_previews(char type) {
   }
 }
 
+void PreferencesDialog::AddBoolPair(QCheckBox *ui, bool *value, bool restart_required)
+{
+  bool_ui.append(ui);
+  bool_value.append(value);
+  bool_restart_required.append(restart_required);
+
+  ui->setChecked(*value);
+}
+
 void PreferencesDialog::setup_kbd_shortcuts(QMenuBar* menubar) {
   QList<QAction*> menus = menubar->actions();
 
@@ -186,14 +196,20 @@ void PreferencesDialog::accept() {
     reload_effects = true;
   }
 
+  bool bool_requires_restart = false;
+  for (int i=0;i<bool_restart_required.size();i++) {
+    if (bool_restart_required.at(i)
+        && bool_ui.at(i)->isChecked() != *bool_value.at(i)) {
+      bool_requires_restart = true;
+      break;
+    }
+  }
+
   // Check if any settings will require a restart of Olive
-  if (olive::CurrentConfig.use_software_fallback != use_software_fallbacks_checkbox->isChecked()
+  if (bool_requires_restart
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()
       || olive::CurrentConfig.css_path != custom_css_fn->text()
-#ifdef Q_OS_WIN32
-      || olive::CurrentConfig.use_native_menu_styling != native_menus->isChecked()
-#endif
       || olive::CurrentConfig.style != static_cast<olive::styling::Style>(ui_style->currentData().toInt())) {
 
     // any changes to these settings will require a restart - ask the user if we should do one now or later
@@ -241,22 +257,19 @@ void PreferencesDialog::accept() {
   olive::CurrentConfig.upcoming_queue_type = upcoming_queue_type->currentIndex();
   olive::CurrentConfig.previous_queue_size = previous_queue_spinbox->value();
   olive::CurrentConfig.previous_queue_type = previous_queue_type->currentIndex();
-  olive::CurrentConfig.add_default_effects_to_clips = add_default_effects_to_clips->isChecked();
 
   olive::CurrentConfig.preferred_audio_output = audio_output_devices->currentData().toString();
   olive::CurrentConfig.preferred_audio_input = audio_input_devices->currentData().toString();
   olive::CurrentConfig.audio_rate = audio_sample_rate->currentData().toInt();
 
   olive::CurrentConfig.effect_textbox_lines = effect_textbox_lines_field->value();
-  olive::CurrentConfig.use_software_fallback = use_software_fallbacks_checkbox->isChecked();
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
 
-  olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
-#ifdef Q_OS_WIN
-  olive::CurrentConfig.use_native_menu_styling = native_menus->isChecked();
-#endif
+  for (int i=0;i<bool_ui.size();i++) {
+    *bool_value[i] = bool_ui.at(i)->isChecked();
+  }
 
-  olive::CurrentConfig.auto_seek_to_beginning = auto_seek_to_beginning->isChecked();
+  olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
 
   // Check if the thumbnail or waveform icon
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
@@ -539,9 +552,8 @@ void PreferencesDialog::setup_ui() {
   row++;
 
   // General -> Use Software Fallbacks When Possible
-  use_software_fallbacks_checkbox = new QCheckBox(general_tab);
-  use_software_fallbacks_checkbox->setText(tr("Use Software Fallbacks When Possible"));
-  use_software_fallbacks_checkbox->setChecked(olive::CurrentConfig.use_software_fallback);
+  QCheckBox* use_software_fallbacks_checkbox = new QCheckBox(tr("Use Software Fallbacks When Possible"));
+  AddBoolPair(use_software_fallbacks_checkbox, &olive::CurrentConfig.use_software_fallback, true);
   general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 4);
 
   row++;
@@ -556,15 +568,72 @@ void PreferencesDialog::setup_ui() {
   QWidget* behavior_tab = new QWidget(this);
   tabWidget->addTab(behavior_tab, tr("Behavior"));
 
-  QVBoxLayout* behavior_tab_layout = new QVBoxLayout(behavior_tab);
+  ColumnedGridLayout* behavior_tab_layout = new ColumnedGridLayout(behavior_tab, 2);
 
-  add_default_effects_to_clips = new QCheckBox(tr("Add Default Effects to New Clips"));
-  add_default_effects_to_clips->setChecked(olive::CurrentConfig.add_default_effects_to_clips);
-  behavior_tab_layout->addWidget(add_default_effects_to_clips);
+  QCheckBox* add_default_effects_to_clips = new QCheckBox(tr("Add Default Effects to New Clips"));
+  AddBoolPair(add_default_effects_to_clips, &olive::CurrentConfig.add_default_effects_to_clips);
+  behavior_tab_layout->Add(add_default_effects_to_clips);
 
-  auto_seek_to_beginning = new QCheckBox(tr("Automatically Seek to the Beginning When Playing at the End of a Sequence"));
-  auto_seek_to_beginning->setChecked(olive::CurrentConfig.auto_seek_to_beginning);
-  behavior_tab_layout->addWidget(auto_seek_to_beginning);
+  QCheckBox* auto_seek_to_beginning = new QCheckBox(tr("Automatically Seek to the Beginning When Playing at the End of a Sequence"));
+  AddBoolPair(auto_seek_to_beginning, &olive::CurrentConfig.auto_seek_to_beginning);
+  behavior_tab_layout->Add(auto_seek_to_beginning);
+
+  QCheckBox* selecting_also_seeks = new QCheckBox(tr("Selecting Also Seeks"));
+  AddBoolPair(selecting_also_seeks, &olive::CurrentConfig.select_also_seeks);
+  behavior_tab_layout->Add(selecting_also_seeks);
+
+  QCheckBox* edit_tool_also_seeks = new QCheckBox(tr("Edit Tool Also Seeks"));
+  AddBoolPair(edit_tool_also_seeks, &olive::CurrentConfig.edit_tool_also_seeks);
+  behavior_tab_layout->Add(edit_tool_also_seeks);
+
+  QCheckBox* edit_tool_selects_links = new QCheckBox(tr("Edit Tool Selects Links"));
+  AddBoolPair(edit_tool_selects_links, &olive::CurrentConfig.edit_tool_selects_links);
+  behavior_tab_layout->Add(edit_tool_selects_links);
+
+  QCheckBox* seek_also_selects = new QCheckBox(tr("Seek Also Selects"));
+  AddBoolPair(seek_also_selects, &olive::CurrentConfig.seek_also_selects);
+  behavior_tab_layout->Add(seek_also_selects);
+
+  QCheckBox* seek_to_end_of_pastes = new QCheckBox(tr("Seek to the End of Pastes"));
+  AddBoolPair(seek_to_end_of_pastes, &olive::CurrentConfig.paste_seeks);
+  behavior_tab_layout->Add(seek_to_end_of_pastes);
+
+  QCheckBox* scroll_wheel_zooms = new QCheckBox(tr("Scroll Wheel Zooms"));
+  scroll_wheel_zooms->setToolTip(tr("Hold CTRL to toggle this setting"));
+  AddBoolPair(scroll_wheel_zooms, &olive::CurrentConfig.scroll_zooms);
+  behavior_tab_layout->Add(scroll_wheel_zooms);
+
+  QCheckBox* invert_timeline_scroll_axes = new QCheckBox(tr("Invert Timeline Scroll Axes"));
+  AddBoolPair(invert_timeline_scroll_axes, &olive::CurrentConfig.invert_timeline_scroll_axes);
+  behavior_tab_layout->Add(invert_timeline_scroll_axes);
+
+  QCheckBox* enable_drag_files_to_timeline = new QCheckBox(tr("Enable Drag Files to Timeline"));
+  AddBoolPair(enable_drag_files_to_timeline, &olive::CurrentConfig.enable_drag_files_to_timeline);
+  behavior_tab_layout->Add(enable_drag_files_to_timeline);
+
+  QCheckBox* autoscale_by_default = new QCheckBox(tr("Auto-Scale By Default"));
+  AddBoolPair(autoscale_by_default, &olive::CurrentConfig.autoscale_by_default);
+  behavior_tab_layout->Add(autoscale_by_default);
+
+  QCheckBox* enable_seek_to_import = new QCheckBox(tr("Auto-Seek to Imported Clips"));
+  AddBoolPair(enable_seek_to_import, &olive::CurrentConfig.enable_seek_to_import);
+  behavior_tab_layout->Add(enable_seek_to_import);
+
+  QCheckBox* enable_audio_scrubbing = new QCheckBox(tr("Audio Scrubbing"));
+  AddBoolPair(enable_audio_scrubbing, &olive::CurrentConfig.enable_audio_scrubbing);
+  behavior_tab_layout->Add(enable_audio_scrubbing);
+
+  QCheckBox* enable_drop_on_media_to_replace = new QCheckBox(tr("Drop Files on Media to Replace"));
+  AddBoolPair(enable_drop_on_media_to_replace, &olive::CurrentConfig.drop_on_media_to_replace);
+  behavior_tab_layout->Add(enable_drop_on_media_to_replace);
+
+  QCheckBox* enable_hover_focus = new QCheckBox(tr("Enable Hover Focus"));
+  AddBoolPair(enable_hover_focus, &olive::CurrentConfig.hover_focus);
+  behavior_tab_layout->Add(enable_hover_focus);
+
+  QCheckBox* set_name_and_marker = new QCheckBox(tr("Ask For Name When Setting Marker"));
+  AddBoolPair(set_name_and_marker, &olive::CurrentConfig.set_name_with_marker);
+  behavior_tab_layout->Add(set_name_and_marker);
 
   // Appearance
   QWidget* appearance_tab = new QWidget(this);
@@ -590,8 +659,8 @@ void PreferencesDialog::setup_ui() {
 #ifdef Q_OS_WIN
   // Native menu styling is only available on Windows. Environments like Ubuntu and Mac use the native menu system by
   // default
-  native_menus = new QCheckBox(tr("Use Native Menu Styling"));
-  native_menus->setChecked(olive::CurrentConfig.use_native_menu_styling);
+  QCheckBox* native_menus = new QCheckBox(tr("Use Native Menu Styling"));
+  AddBoolPair(native_menus, &olive::CurrentConfig.use_native_menu_styling);
   appearance_layout->addWidget(native_menus, row, 0, 1, 3);
 
   row++;

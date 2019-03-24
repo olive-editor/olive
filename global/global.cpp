@@ -39,6 +39,7 @@
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
 #include "dialogs/loaddialog.h"
+#include "dialogs/autocutsilencedialog.h"
 #include "project/loadthread.h"
 #include "timeline/sequence.h"
 #include "ui/mediaiconservice.h"
@@ -301,12 +302,7 @@ bool OliveGlobal::can_close_project() {
 }
 
 void OliveGlobal::open_export_dialog() {
-  if (olive::ActiveSequence == nullptr) {
-    QMessageBox::information(olive::MainWindow,
-                             tr("No active sequence"),
-                             tr("Please open the sequence you wish to export."),
-                             QMessageBox::Ok);
-  } else {
+  if (CheckForActiveSequence()) {
     ExportDialog e(olive::MainWindow);
     e.exec();
   }
@@ -377,6 +373,22 @@ void OliveGlobal::OpenProjectWorker(const QString& fn, bool autorecovery) {
   olive::UndoStack.clear();
 }
 
+bool OliveGlobal::CheckForActiveSequence(bool show_msg)
+{
+  if (olive::ActiveSequence == nullptr) {
+
+    if (show_msg) {
+      QMessageBox::information(olive::MainWindow,
+                               tr("No active sequence"),
+                               tr("Please open the sequence to perform this action."),
+                               QMessageBox::Ok);
+    }
+
+    return false;
+  }
+  return true;
+}
+
 void OliveGlobal::undo() {
   // workaround to prevent crash (and also users should never need to do this)
   if (!panel_timeline->importing) {
@@ -423,6 +435,24 @@ void OliveGlobal::open_speed_dialog() {
       SpeedDialog s(olive::MainWindow, selected_clips);
       s.exec();
     }
+  }
+}
+
+void OliveGlobal::open_autocut_silence_dialog() {
+  if (CheckForActiveSequence()) {
+
+    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+
+    if (selected_clips.isEmpty()) {
+      QMessageBox::critical(olive::MainWindow,
+                            tr("No clips selected"),
+                            tr("Select the clips you wish to auto-cut"),
+                            QMessageBox::Ok);
+    } else {
+      AutoCutSilenceDialog s(olive::MainWindow, selected_clips);
+      s.exec();
+    }
+
   }
 }
 

@@ -174,7 +174,9 @@ SOURCES += \
     effects/internal/richtexteffect.cpp \
     ui/blur.cpp \
     ui/menu.cpp \
-    timeline/mediaimportdata.cpp
+    timeline/mediaimportdata.cpp \
+    dialogs/autocutsilencedialog.cpp \
+    ui/columnedgridlayout.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -302,7 +304,9 @@ HEADERS += \
     effects/internal/richtexteffect.h \
     ui/blur.h \
     ui/menu.h \
-    timeline/mediaimportdata.h
+    timeline/mediaimportdata.h \
+    dialogs/autocutsilencedialog.h \
+    ui/columnedgridlayout.h
 
 FORMS +=
 

@@ -57,7 +57,7 @@ Config::Config()
     hover_focus(false),
     project_view_type(olive::PROJECT_VIEW_TREE),
     set_name_with_marker(true),
-    show_project_toolbar(false),
+    show_project_toolbar(true),
     previous_queue_size(3),
     previous_queue_type(olive::FRAME_QUEUE_TYPE_FRAMES),
     upcoming_queue_size(0.5),

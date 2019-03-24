@@ -118,11 +118,26 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
     if (!selected_clips.isEmpty()) {
 
+      bool video_clips_are_selected = false;
+      bool audio_clips_are_selected = false;
+
+      for (int i=0;i<selected_clips.size();i++) {
+        if (selected_clips.at(i)->track() < 0) {
+          video_clips_are_selected = true;
+        } else {
+          audio_clips_are_selected = true;
+        }
+      }
+
       menu.addSeparator();
 
       menu.addAction(tr("&Speed/Duration"), olive::Global.get(), SLOT(open_speed_dialog()));
 
-      QAction* autoscaleAction = menu.addAction(tr("Auto-s&cale"), this, SLOT(toggle_autoscale()));
+      if (audio_clips_are_selected) {
+        menu.addAction(tr("Auto-Cut Silence"), olive::Global.get(), SLOT(open_autocut_silence_dialog()));
+      }
+
+      QAction* autoscaleAction = menu.addAction(tr("Auto-S&cale"), this, SLOT(toggle_autoscale()));
       autoscaleAction->setCheckable(true);
       // set autoscale to the first selected clip
       autoscaleAction->setChecked(selected_clips.at(0)->autoscaled());

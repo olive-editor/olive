@@ -138,6 +138,53 @@ void Timeline::Retranslate() {
   UpdateTitle();
 }
 
+void Timeline::split_clip_at_positions(ComboAction* ca, int clip_index, QVector<long> positions) {
+
+  QVector<int> pre_splits;
+
+  // Add the clip and each of its links to the pre_splits array
+  Clip* clip = olive::ActiveSequence->clips.at(clip_index).get();
+  pre_splits.append(clip_index);
+  for (int i=0;i<clip->linked.size();i++)   {
+    pre_splits.append(clip->linked.at(i));
+  }
+
+  std::sort(positions.begin(), positions.end());
+
+  // Remove any duplicate positions
+  for (int i=1;i<positions.size();i++) {
+    if (positions.at(i-1) == positions.at(i)) {
+      positions.removeAt(i);
+      i--;
+    }
+  }
+
+  for (int i=1;i<positions.size();i++) {
+    Q_ASSERT(positions.at(i-1) < positions.at(i));
+  }
+
+  QVector< QVector<ClipPtr> > post_splits(positions.size());
+
+  for (int i=positions.size()-1;i>=0;i--) {
+
+    post_splits[i].resize(pre_splits.size());
+
+    for (int j=0;j<pre_splits.size();j++) {
+      post_splits[i][j] = split_clip(ca, true, pre_splits.at(j), positions.at(i));
+
+      if (post_splits[i][j] != nullptr && i + 1 < positions.size()) {
+        post_splits[i][j]->set_timeline_out(positions.at(i+1));
+      }
+    }
+  }
+
+  for (int i=0;i<post_splits.size();i++) {
+    relink_clips_using_ids(pre_splits, post_splits[i]);
+    ca->append(new AddClipCommand(olive::ActiveSequence.get(), post_splits[i]));
+  }
+
+}
+
 void Timeline::previous_cut() {
   if (olive::ActiveSequence != nullptr
       && olive::ActiveSequence->playhead > 0) {
