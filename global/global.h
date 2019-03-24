@@ -343,7 +343,7 @@ private:
      * beside the original project file so that it does not overwrite the original and so that the user is not working
      * on the autorecovery project in Olive's application data directory.
      */
-    void OpenProjectWorker(const QString& fn, bool autorecovery);
+    void OpenProjectWorker(QString fn, bool autorecovery);
 
     /**
      * @brief Returns whether a Sequence is currently active or not, and optionally displays a messagebox if not

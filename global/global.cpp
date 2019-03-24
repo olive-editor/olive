@@ -182,6 +182,8 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
 
   LoadDialog ld(olive::MainWindow);
 
+  ld.open();
+
   LoadThread* lt = new LoadThread(fn, autorecovery);
   connect(&ld, SIGNAL(cancel()), lt, SLOT(cancel()));
   connect(lt, SIGNAL(success()), &ld, SLOT(accept()));
@@ -189,8 +191,6 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
   connect(lt, SIGNAL(error()), this, SLOT(new_project()));
   connect(lt, SIGNAL(report_progress(int)), &ld, SLOT(setValue(int)));
   lt->start();
-
-  ld.exec();
 
   panel_project->ConnectFilterToModel();
 }
@@ -366,7 +366,7 @@ void OliveGlobal::set_sequence(SequencePtr s)
   panel_timeline->setFocus();
 }
 
-void OliveGlobal::OpenProjectWorker(const QString& fn, bool autorecovery) {
+void OliveGlobal::OpenProjectWorker(QString fn, bool autorecovery) {
   ClearProject();
   update_project_filename(fn);
   LoadProject(fn, autorecovery);
