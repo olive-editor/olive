@@ -1355,7 +1355,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="964"/>
         <source>Auto-Scale By Default</source>
-        <translation>Atur Ukuran Video secara Default</translation>
+        <translation type="unfinished">Atur Ukuran Video sebagai Default</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="965"/>
@@ -1588,17 +1588,17 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="161"/>
         <source>&amp;Project</source>
-        <translation>&amp;Proyek</translation>
+        <translation>&amp;Proyek Baru</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="162"/>
         <source>&amp;Sequence</source>
-        <translation>&amp;Rangkaian</translation>
+        <translation>&amp;Rangkaian Baru</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="163"/>
         <source>&amp;Folder</source>
-        <translation></translation>
+        <translation>&amp;Folder Baru</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="164"/>
@@ -2687,7 +2687,8 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../project/sourcescommon.cpp" line="86"/>
         <source>New</source>
-        <translation>Baru</translation>
+        <translatorcomment>thought it&apos;d made more sense to have the user read it as &quot;buat -&gt; rangkaian baru&quot; (&quot;create new sequence&quot;), instead of &quot;baru -&gt; rangkaian&quot;</translatorcomment>
+        <translation>Buat</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="90"/>
