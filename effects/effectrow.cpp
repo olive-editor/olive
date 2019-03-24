@@ -60,11 +60,6 @@ bool EffectRow::IsKeyframing() {
 }
 
 void EffectRow::SetKeyframingInternal(bool b) {
-  // No need to run this function if the keyframing state isn't actually changing.
-  if (b == keyframing_) {
-    return;
-  }
-
   if (GetParentEffect()->meta->type != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
@@ -126,7 +121,6 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
       update_ui(false);
 
     } else {
-
 
       SetKeyframingInternal(true);
 

@@ -76,16 +76,15 @@ void SourceIconView::dropEvent(QDropEvent* event) {
 }
 
 void SourceIconView::mouseDoubleClickEvent(QMouseEvent *) {
-  bool default_behavior = true;
   if (selectedIndexes().size() == 1) {
     Media* m = project_parent->item_to_media(selectedIndexes().at(0));
     if (m->get_type() == MEDIA_TYPE_FOLDER) {
-      default_behavior = false;
       setRootIndex(selectedIndexes().at(0));
       emit changed_root();
+      return;
     }
   }
-  if (default_behavior) {
-    commons_.mouseDoubleClickEvent(selectedIndexes());
-  }
+
+  // Double click was not a folder, so we perform the default behavior (sending the double click to SourcesCommon)
+  commons_.mouseDoubleClickEvent(selectedIndexes());
 }
