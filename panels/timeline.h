@@ -35,6 +35,7 @@
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
 #include "ui/panel.h"
+#include "ui/menu.h"
 
 enum CreateObjects {
   ADD_OBJ_TITLE,
@@ -284,6 +285,7 @@ private:
   int scroll;
   void set_sb_max();
   void UpdateTitle();
+  bool transition_menu_created;
 
   void setup_ui();
 
@@ -304,6 +306,7 @@ private:
   QPushButton* recordButton;
   QPushButton* addButton;
   QWidget* tool_button_widget;
+  Menu* transition_menu;
 };
 
 #endif // TIMELINE_H

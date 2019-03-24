@@ -87,7 +87,8 @@ Timeline::Timeline(QWidget *parent) :
   transition_tool_close_clip(-1),
   hand_moving(false),
   block_repaints(false),
-  scroll(0)
+  scroll(0),
+  transition_menu_created(false)
 {
   setup_ui();
 
@@ -114,6 +115,8 @@ Timeline::Timeline(QWidget *parent) :
   connect(horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
   update_sequence();
+
+  transition_menu = new Menu(this);
 
   Retranslate();
 }
@@ -1882,34 +1885,35 @@ void Timeline::record_btn_click() {
 
 void Timeline::transition_tool_click() {
   creating = false;
-
-  Menu transition_menu(this);
+  if(!transition_menu_created){
 
   for (int i=0;i<effects.size();i++) {
     const EffectMeta& em = effects.at(i);
     if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_VIDEO) {
-      QAction* a = transition_menu.addAction(em.name);
+      QAction* a = transition_menu->addAction(em.name);
       a->setObjectName("v");
       a->setData(reinterpret_cast<quintptr>(&em));
     }
   }
 
-  transition_menu.addSeparator();
+  transition_menu->addSeparator();
 
   for (int i=0;i<effects.size();i++) {
     const EffectMeta& em = effects.at(i);
     if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_AUDIO) {
-      QAction* a = transition_menu.addAction(em.name);
+      QAction* a = transition_menu->addAction(em.name);
       a->setObjectName("a");
       a->setData(reinterpret_cast<quintptr>(&em));
     }
   }
 
-  connect(&transition_menu, SIGNAL(triggered(QAction*)), this, SLOT(transition_menu_select(QAction*)));
+  connect(transition_menu, SIGNAL(triggered(QAction*)), this, SLOT(transition_menu_select(QAction*)));
 
   toolTransitionButton->setChecked(false);
 
-  transition_menu.exec(QCursor::pos());
+  transition_menu_created = true;
+  }
+  transition_menu->exec(QCursor::pos());
 }
 
 void Timeline::transition_menu_select(QAction* a) {
