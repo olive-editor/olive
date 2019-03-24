@@ -36,12 +36,12 @@
 
 // Load libraries for retrieving the native window handle. Used for VST plugins that have a separate window
 // dedicated to controls.
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
 #include <Windows.h>
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
 #include <CoreFoundation/CoreFoundation.h>
 class NSWindow;
-#elif defined(__linux__)
+#elif defined(Q_OS_LINUX)
 #include <X11/X.h>
 #endif
 
@@ -337,11 +337,11 @@ void VSTHost::show_interface(bool show) {
   dialog->setVisible(show);
 
   if (show) {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
-#elif defined(__linux__) || defined(__HAIKU__)
+#elif defined(Q_OS_LINUX) || defined(__HAIKU__)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
 #endif
   } else {
