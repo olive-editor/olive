@@ -458,9 +458,15 @@ void MainWindow::Restyle()
 
         // set default CSS
         QString stylesheet = "QPushButton::checked { background: rgb(25, 25, 25); }";
+
+        // Windows menus have the option of being native, so we may not need this CSS
+#ifdef Q_OS_WIN
         if (!olive::CurrentConfig.use_native_menu_styling) {
+#endif
           stylesheet.append("QMenu::separator { background: #404040; }");
+#ifdef Q_OS_WIN
         }
+#endif
         setStyleSheet(stylesheet);
 
       }
