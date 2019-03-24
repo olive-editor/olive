@@ -457,8 +457,11 @@ void MainWindow::Restyle()
         palette.setColor(QPalette::HighlightedText, Qt::white);
 
         // set default CSS
-        setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }"
-                      "QMenu::separator { background: #404040; }");
+        QString stylesheet = "QPushButton::checked { background: rgb(25, 25, 25); }";
+        if (!olive::CurrentConfig.use_native_menu_styling) {
+          stylesheet.append("QMenu::separator { background: #404040; }");
+        }
+        setStyleSheet(stylesheet);
 
       }
 
