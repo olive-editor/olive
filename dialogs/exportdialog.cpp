@@ -569,6 +569,9 @@ void ExportDialog::StartExport() {
     connect(export_thread_, SIGNAL(ProgressChanged(int, qint64)), this, SLOT(update_progress_bar(int, qint64)));
     connect(renderCancel, SIGNAL(clicked(bool)), export_thread_, SLOT(Interrupt()));
 
+    // Close all effects in effect controls (prevents UI threading issues)
+    panel_effect_controls->Clear();
+
     // Close all currently open clips
     close_active_clips(olive::ActiveSequence.get());
 
