@@ -534,6 +534,31 @@ struct Config {
   bool use_native_menu_styling;
 
   /**
+   * @brief Default Sequence video width
+   */
+  int default_sequence_width;
+
+  /**
+   * @brief Default Sequence video height
+   */
+  int default_sequence_height;
+
+  /**
+   * @brief Default Sequence video frame rate
+   */
+  double default_sequence_framerate;
+
+  /**
+   * @brief Default Sequence audio frequency
+   */
+  int default_sequence_audio_frequency;
+
+  /**
+   * @brief Default Sequence audio channel layout
+   */
+  int default_sequence_audio_channel_layout;
+
+  /**
    * @brief Load config from file
    *
    * Load configuration parameters from file

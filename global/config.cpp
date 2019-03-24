@@ -73,7 +73,12 @@ Config::Config()
     add_default_effects_to_clips(true),
     invert_timeline_scroll_axes(true),
     style(olive::styling::kOliveDefaultDark),
-    use_native_menu_styling(true)
+    use_native_menu_styling(true),
+    default_sequence_width(1920),
+    default_sequence_height(1080),
+    default_sequence_framerate(29.97),
+    default_sequence_audio_frequency(48000),
+    default_sequence_audio_channel_layout(3)
 {}
 
 void Config::load(QString path) {
@@ -219,6 +224,21 @@ void Config::load(QString path) {
         } else if (stream.name() == "NativeMenuStyling") {
           stream.readNext();
           use_native_menu_styling = (stream.text() == "1");
+        } else if (stream.name() == "DefaultSequenceWidth") {
+          stream.readNext();
+          default_sequence_width = stream.text().toInt();
+        } else if (stream.name() == "DefaultSequenceHeight") {
+          stream.readNext();
+          default_sequence_height = stream.text().toInt();
+        } else if (stream.name() == "DefaultSequenceFrameRate") {
+          stream.readNext();
+          default_sequence_framerate = stream.text().toDouble();
+        } else if (stream.name() == "DefaultSequenceAudioFrequency") {
+          stream.readNext();
+          default_sequence_audio_frequency = stream.text().toInt();
+        } else if (stream.name() == "DefaultSequenceAudioLayout") {
+          stream.readNext();
+          default_sequence_audio_channel_layout = stream.text().toInt();
         }
       }
     }
@@ -288,6 +308,11 @@ void Config::save(QString path) {
   stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
   stream.writeTextElement("Style", QString::number(style));
   stream.writeTextElement("NativeMenuStyling", QString::number(use_native_menu_styling));
+  stream.writeTextElement("DefaultSequenceWidth", QString::number(default_sequence_width));
+  stream.writeTextElement("DefaultSequenceHeight", QString::number(default_sequence_height));
+  stream.writeTextElement("DefaultSequenceFrameRate", QString::number(default_sequence_framerate));
+  stream.writeTextElement("DefaultSequenceAudioFrequency", QString::number(default_sequence_audio_frequency));
+  stream.writeTextElement("DefaultSequenceAudioLayout", QString::number(default_sequence_audio_channel_layout));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc

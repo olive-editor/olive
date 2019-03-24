@@ -65,13 +65,6 @@ extern "C" {
 #include "global/debug.h"
 #include "ui/menu.h"
 
-// TODO make these configurable
-const int kDefaultSequenceWidth = 1920;
-const int kDefaultSequenceHeight = 1080;
-const double kDefaultSequenceFrameRate = 29.97;
-const int kDefaultSequenceFrequency = 48000;
-const int kDefaultSequenceChannelLayout = 3;
-
 #define MAXIMUM_RECENT_PROJECTS 10 // FIXME: should be configurable
 
 QString autorecovery_filename;
@@ -261,12 +254,12 @@ SequencePtr create_sequence_from_media(QVector<olive::timeline::MediaImportData>
 
   s->name = panel_project->get_next_sequence_name();
 
-  // shitty hardcoded default values
-  s->width = kDefaultSequenceWidth;
-  s->height = kDefaultSequenceHeight;
-  s->frame_rate = kDefaultSequenceFrameRate;
-  s->audio_frequency = kDefaultSequenceFrequency;
-  s->audio_layout = kDefaultSequenceChannelLayout;
+  // Retrieve default Sequence settings from Config
+  s->width = olive::CurrentConfig.default_sequence_width;
+  s->height = olive::CurrentConfig.default_sequence_height;
+  s->frame_rate = olive::CurrentConfig.default_sequence_framerate;
+  s->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
+  s->audio_layout = olive::CurrentConfig.default_sequence_audio_channel_layout;
 
   bool got_video_values = false;
   bool got_audio_values = false;

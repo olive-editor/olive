@@ -51,6 +51,7 @@
 #include "panels/panels.h"
 #include "ui/columnedgridlayout.h"
 #include "ui/mainwindow.h"
+#include "dialogs/newsequencedialog.h"
 
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
   : QKeySequenceEdit(parent), action(a) {
@@ -86,6 +87,14 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
   setup_ui();
 
   setup_kbd_shortcuts(olive::MainWindow->menuBar());
+
+  // set up default sequence
+  default_sequence.name = tr("Default Sequence");
+  default_sequence.width = olive::CurrentConfig.default_sequence_width;
+  default_sequence.height = olive::CurrentConfig.default_sequence_height;
+  default_sequence.frame_rate = olive::CurrentConfig.default_sequence_framerate;
+  default_sequence.audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
+  default_sequence.audio_layout = olive::CurrentConfig.default_sequence_audio_channel_layout;
 }
 
 void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent) {
@@ -264,6 +273,12 @@ void PreferencesDialog::accept() {
 
   olive::CurrentConfig.effect_textbox_lines = effect_textbox_lines_field->value();
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
+
+  olive::CurrentConfig.default_sequence_width = default_sequence.width;
+  olive::CurrentConfig.default_sequence_height = default_sequence.height;
+  olive::CurrentConfig.default_sequence_framerate = default_sequence.frame_rate;
+  olive::CurrentConfig.default_sequence_audio_frequency = default_sequence.audio_frequency;
+  olive::CurrentConfig.default_sequence_audio_channel_layout = default_sequence.audio_layout;
 
   for (int i=0;i<bool_ui.size();i++) {
     *bool_value[i] = bool_ui.at(i)->isChecked();
@@ -470,6 +485,13 @@ void PreferencesDialog::delete_all_previews() {
   }
 }
 
+void PreferencesDialog::edit_default_sequence_settings()
+{
+  NewSequenceDialog nsd(this, nullptr, &default_sequence);
+  nsd.SetNameEditable(false);
+  nsd.exec();
+}
+
 void PreferencesDialog::setup_ui() {
   QVBoxLayout* verticalLayout = new QVBoxLayout(this);
   QTabWidget* tabWidget = new QTabWidget(this);
@@ -560,6 +582,7 @@ void PreferencesDialog::setup_ui() {
 
   // General -> Default Sequence Settings
   QPushButton* default_sequence_settings = new QPushButton(tr("Default Sequence Settings"));
+  connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
   general_layout->addWidget(default_sequence_settings);
 
   tabWidget->addTab(general_tab, tr("General"));

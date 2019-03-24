@@ -118,6 +118,11 @@ private slots:
    */
   void delete_all_previews();
 
+  /**
+   * @brief Shows a NewSequenceDialog attached to default_sequence
+   */
+  void edit_default_sequence_settings();
+
 private:
 
   /**
@@ -242,6 +247,14 @@ private:
    * @brief UI widget for selecting the current UI style
    */
   QComboBox* ui_style;
+
+  /**
+   * @brief Stored default Sequence object
+   *
+   * Default Sequence settings are loaded into an actual Sequence object that can be loaded into NewSequenceDialog
+   * for the sake of familiarity with the user.
+   */
+  Sequence default_sequence;
 
   /**
    * @brief List of keyboard shortcut actions that can be triggered (links with key_shortcut_items and

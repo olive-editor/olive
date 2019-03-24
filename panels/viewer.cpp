@@ -802,8 +802,7 @@ void Viewer::set_media(Media* m) {
         new_sequence->workarea_out = footage->out;
       }
 
-      // FIXME: Move this magic number to Config
-      new_sequence->frame_rate = 30;
+      new_sequence->frame_rate = olive::CurrentConfig.default_sequence_framerate;
 
       if (footage->video_tracks.size() > 0) {
         const FootageStream& video_stream = footage->video_tracks.at(0);
@@ -826,9 +825,8 @@ void Viewer::set_media(Media* m) {
         c->refresh();
         new_sequence->clips.append(c);
       } else {
-        // FIXME: Move this magic number to Config
-        new_sequence->width = 1920;
-        new_sequence->height = 1080;
+        new_sequence->width = olive::CurrentConfig.default_sequence_width;
+        new_sequence->height = olive::CurrentConfig.default_sequence_height;
       }
 
       if (footage->audio_tracks.size() > 0) {
@@ -851,8 +849,7 @@ void Viewer::set_media(Media* m) {
           viewer_widget->frame_update();
         }
       } else {
-        // FIXME: Move this magic number to Config
-        new_sequence->audio_frequency = 48000;
+        new_sequence->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
       }
 
       new_sequence->audio_layout = AV_CH_LAYOUT_STEREO;
