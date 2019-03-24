@@ -513,6 +513,32 @@ void Timeline::nest() {
       QVector<olive::timeline::MediaImportData> media_list;
       media_list.append(m.get());
       create_ghosts_from_media(olive::ActiveSequence.get(), earliest_point, media_list);
+
+      // ensure ghosts won't overlap anything
+      for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
+        Clip* c = olive::ActiveSequence->clips.at(j).get();
+        if (c != nullptr && !selected_clips.contains(j)) {
+          for (int i=0;i<ghosts.size();i++) {
+            Ghost& g = ghosts[i];
+            if (c->track() == g.track
+                && !((c->timeline_in() < g.in
+                && c->timeline_out() < g.in)
+                || (c->timeline_in() > g.out
+                    && c->timeline_out() > g.out))) {
+              // There's a clip occupied by the space taken up by this ghost. Move up/down a track, and seek again
+              if (g.track < 0) {
+                g.track--;
+              } else {
+                g.track++;
+              }
+              j = -1;
+              break;
+            }
+          }
+        }
+      }
+
+
       add_clips_from_ghosts(ca, olive::ActiveSequence.get());
 
       panel_graph_editor->set_row(nullptr);
