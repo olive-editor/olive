@@ -1909,10 +1909,9 @@ void Timeline::transition_tool_click() {
 
   connect(transition_menu, SIGNAL(triggered(QAction*)), this, SLOT(transition_menu_select(QAction*)));
 
-  toolTransitionButton->setChecked(false);
-
   transition_menu_created = true;
   }
+  toolTransitionButton->setChecked(false);
   transition_menu->exec(QCursor::pos());
 }
 
