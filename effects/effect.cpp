@@ -123,7 +123,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   bound(false),
   iterations(1),
   enabled_(true),
-  expanded_(true)
+  expanded_(true),
+  texture_ctx(nullptr)
 {
   if (em != nullptr) {
     // set up UI from effect file
@@ -881,7 +882,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
 
 void Effect::process_coords(double, GLTextureCoords&, int) {}
 
-GLuint Effect::process_superimpose(double timecode) {
+GLuint Effect::process_superimpose(QOpenGLContext* ctx, double timecode) {
   bool dimensions_changed = false;
   bool redrew_image = false;
 
@@ -898,7 +899,7 @@ GLuint Effect::process_superimpose(double timecode) {
     redrew_image = true;
   }
 
-  QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+  QOpenGLFunctions* f = ctx->functions();
 
   if (texture == 0 || tex_width_ != img.width() || tex_height_ != img.height()) {
     delete_texture();
@@ -1109,8 +1110,11 @@ bool Effect::valueHasChanged(double timecode) {
 }
 
 void Effect::delete_texture() {
-  QOpenGLContext::currentContext()->functions()->glDeleteTextures(1, &texture);
-  texture = 0;
+  if (texture_ctx != nullptr) {
+    texture_ctx->functions()->glDeleteTextures(1, &texture);
+    texture = 0;
+    texture_ctx = nullptr;
+  }
 }
 
 const EffectMeta* get_meta_from_name(const QString& input) {

@@ -191,7 +191,7 @@ public:
   virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
   virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
-  virtual GLuint process_superimpose(double timecode);
+  virtual GLuint process_superimpose(QOpenGLContext *ctx, double timecode);
   virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
@@ -231,6 +231,7 @@ protected:
   // superimpose effect
   QImage img;
   GLuint texture;
+  QOpenGLContext* texture_ctx;
   int tex_width_;
   int tex_height_;
 

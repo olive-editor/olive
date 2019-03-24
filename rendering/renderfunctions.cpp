@@ -284,7 +284,7 @@ void process_effect(QOpenGLContext* ctx,
         }
       }
       if (e->Flags() & Effect::SuperimposeFlag) {
-        GLuint superimpose_texture = e->process_superimpose(timecode);
+        GLuint superimpose_texture = e->process_superimpose(ctx, timecode);
 
         if (superimpose_texture == 0) {
           qWarning() << "Superimpose texture was nullptr, retrying...";
