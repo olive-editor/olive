@@ -660,7 +660,7 @@ void PreferencesDialog::setup_ui() {
   // Native menu styling is only available on Windows. Environments like Ubuntu and Mac use the native menu system by
   // default
   QCheckBox* native_menus = new QCheckBox(tr("Use Native Menu Styling"));
-  AddBoolPair(native_menus, &olive::CurrentConfig.use_native_menu_styling);
+  AddBoolPair(native_menus, &olive::CurrentConfig.use_native_menu_styling, true);
   appearance_layout->addWidget(native_menus, row, 0, 1, 3);
 
   row++;

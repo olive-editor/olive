@@ -457,7 +457,8 @@ void MainWindow::Restyle()
         palette.setColor(QPalette::HighlightedText, Qt::white);
 
         // set default CSS
-        setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }");
+        setStyleSheet("QPushButton::checked { background: rgb(25, 25, 25); }"
+                      "QMenu::separator { background: #404040; }");
 
       }
 
