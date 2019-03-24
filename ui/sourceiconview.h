@@ -22,6 +22,7 @@
 #define SOURCEICONVIEW_H
 
 #include <QListView>
+#include <QDropEvent>
 
 #include "project/sourcescommon.h"
 
