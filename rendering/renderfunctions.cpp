@@ -407,9 +407,9 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
           // run through all of the clip's effects
           for (int j=0;j<c->effects.size();j++) {
+
             Effect* e = c->effects.at(j).get();
             process_effect(c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
-
 
           }
 
