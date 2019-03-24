@@ -1537,7 +1537,7 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="53"/>
         <source>Tracks:</source>
-        <translation>Jumlah trek:</translation>
+        <translation type="unfinished">Daftar trek:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="61"/>
@@ -1559,7 +1559,7 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="95"/>
         <source>Conform to Frame Rate:</source>
-        <translation>Ubah laju frame jadi:</translation>
+        <translation type="unfinished">Ubah laju frame menjadi:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="105"/>
