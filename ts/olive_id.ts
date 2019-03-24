@@ -2224,7 +2224,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="765"/>
         <source>Reset Selected</source>
-        <translation>Kembalikan Seleksi</translation>
+        <translation>Kembalikan Terseleksi</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="769"/>
