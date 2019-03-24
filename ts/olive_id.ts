@@ -2008,7 +2008,7 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="565"/>
         <source>Automatically Seek to the Beginning When Playing at the End of a Sequence</source>
-        <translation>Pindahkan Kursor secara Otomatis ke Awal Ketika Mencapai Akhir Rangkaian</translation>
+        <translation>Pindahkan kursor secara otomatis ke awal ketika mencapai akhir rangkaian</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="601"/>
@@ -2028,7 +2028,7 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="724"/>
         <source>Audio Recording:</source>
-        <translation>Rekaman Audio:</translation>
+        <translation>Rekaman audio:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="727"/>
@@ -2049,12 +2049,12 @@ Tata Audio: %6</translation>
         <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
         <source>Thumbnail Resolution:</source>
         <translatorcomment>according to kbbi it should be &quot;keluku&quot; but not a lot of people know that</translatorcomment>
-        <translation>Resolusi Thumbnail:</translation>
+        <translation>Resolusi thumbnail:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="527"/>
         <source>Waveform Resolution:</source>
-        <translation>Resolusi Waveform:</translation>
+        <translation>Resolusi waveform:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="535"/>
@@ -2064,7 +2064,7 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="543"/>
         <source>Use Software Fallbacks When Possible</source>
-        <translation>Gunakan Software Fallback Sebisa Mungkin</translation>
+        <translation>Gunakan software fallback sebisa mungkin</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="550"/>
@@ -2084,7 +2084,7 @@ Tata Audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="561"/>
         <source>Add Default Effects to New Clips</source>
-        <translation>Tambahkan Efek-Efek Biasa pada Klip Baru</translation>
+        <translation>Tambahkan efek-efek biasa pada klip baru</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="571"/>
@@ -2146,7 +2146,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="631"/>
         <source>Upcoming Frame Queue:</source>
-        <translation>Antri Frame Ke Depan:</translation>
+        <translation>Antrian frame ke depan:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="636"/>
@@ -2163,7 +2163,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
         <source>Previous Frame Queue:</source>
-        <translation>Antri Frame Ke Belakang:</translation>
+        <translation>Antrian frame ke belakang:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="651"/>
@@ -2173,7 +2173,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="662"/>
         <source>Output Device:</source>
-        <translation>Peranti Output:</translation>
+        <translation>Peranti output:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="665"/>
@@ -2184,7 +2184,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="685"/>
         <source>Input Device:</source>
-        <translation>Peranti Masukan:</translation>
+        <translation>Peranti masukan:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="708"/>
