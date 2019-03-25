@@ -21,18 +21,14 @@
 #ifndef VSTHOSTWIN_H
 #define VSTHOSTWIN_H
 
-#ifndef NOVST
+#include <QDialog>
+#include <QLibrary>
 
 #include "effects/effect.h"
-
-#include "global/crossplatformlib.h"
-
 #include "include/vestige.h"
 
 // Plugin's dispatcher function
 typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t index, int32_t value, void *ptr, float opt);
-
-#include <QDialog>
 
 class VSTHost : public Effect {
   Q_OBJECT
@@ -68,13 +64,9 @@ private:
   QDialog* dialog;
   QByteArray data_cache;
 
-#if defined(__APPLE__)
-  CFBundleRef bundle;
-#else
-  ModulePtr modulePtr;
-#endif
-};
+  void send_data_cache_to_plugin();
 
-#endif
+  QLibrary modulePtr;
+};
 
 #endif // VSTHOSTWIN_H

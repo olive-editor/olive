@@ -31,6 +31,7 @@
 #include <QDebug>
 
 #include "rendering/renderfunctions.h"
+#include "ui/mainwindow.h"
 
 ViewerWindow::ViewerWindow(QWidget *parent) :
   QOpenGLWidget(parent, Qt::Window),
@@ -49,6 +50,41 @@ void ViewerWindow::set_texture(GLuint t, double iar, QMutex* imutex) {
   ar_ = iar;
   mutex_ = imutex;
   update();
+}
+
+void ViewerWindow::shortcut_copier(QVector<QShortcut*>& shortcuts, QMenu* menu) {
+  QList<QAction*> menu_action = menu->actions();
+  for (int i=0;i<menu_action.size();i++) {
+    if (menu_action.at(i)->menu() != nullptr) {
+      shortcut_copier(shortcuts, menu_action.at(i)->menu());
+    } else if (!menu_action.at(i)->isSeparator() && !menu_action.at(i)->shortcut().isEmpty()) {
+      QShortcut* sc = new QShortcut(this);
+      sc->setKey(menu_action.at(i)->shortcut());
+      connect(sc, SIGNAL(activated()), menu_action.at(i), SLOT(trigger()));
+      shortcuts.append(sc);
+    }
+  }
+}
+
+void ViewerWindow::showEvent(QShowEvent *)
+{
+  // Here, we copy all shortcuts from the MainWindow to this window. I don't like this solution, but messing around
+  // with Qt's event system proved fruitless. Also setting the shortcuts to ApplicationShortcut rather than
+  // WindowShortcut caused issues elsewhere (shortcuts being picked up in comboboxes and dialog boxes - we only
+  // want the shortcuts to be shared to this window). Therefore, this and shortcut_copier() are so far the best
+  // solutions I can find.
+
+  // Clear any existing shortcuts in case they've changed since the last showing
+  for (int i=0;i<shortcuts_.size();i++) {
+    delete shortcuts_.at(i);
+  }
+  shortcuts_.clear();
+
+  // Recursively copy all shortcuts from MainWindow to this window
+  QList<QAction*> menubar_actions = olive::MainWindow->menuBar()->actions();
+  for (int i=0;i<menubar_actions.size();i++) {
+    shortcut_copier(shortcuts_, menubar_actions.at(i)->menu());
+  }
 }
 
 void ViewerWindow::keyPressEvent(QKeyEvent *e) {

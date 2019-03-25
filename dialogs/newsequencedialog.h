@@ -33,7 +33,7 @@
 /**
  * @brief The NewSequenceDialog class
  *
- * A dialog that creates a new (or edits an existing) Sequence object.
+ * A dialog that creates a new (or edits an existing) Sequence object. Can be run from any part of the application.
  */
 class NewSequenceDialog : public QDialog
 {
@@ -50,8 +50,13 @@ public:
    *
    * Set this to a Sequence object (wrapped in a Media object) to edit an existing Sequence,
    * or leave as nullptr to create a new one.
+   *
+   * @param existing_sequence
+   *
+   * If your Sequence object is not wrapped in a Media object, use this to reference a raw Sequence pointer. You must
+   * not use both existing_sequence AND existing - one must be nullptr.
    */
-  explicit NewSequenceDialog(QWidget *parent = nullptr, Media* existing = nullptr);
+  explicit NewSequenceDialog(QWidget *parent = nullptr, Media* existing = nullptr, Sequence* iexisting_sequence = nullptr);
 
   /**
    * @brief Set the name for the new Sequence
@@ -67,6 +72,17 @@ public:
    * The name to set the new Sequence.
    */
   void set_sequence_name(const QString& s);
+
+  /**
+   * @brief Set whether the Sequence's name can be edited
+   *
+   * This defaults to TRUE.
+   *
+   * @param enabled
+   *
+   * TRUE to allow the user to edit the Sequence's name. FALSE if not.
+   */
+  void SetNameEditable(bool enabled);
 
 private slots:
   /**
@@ -87,14 +103,14 @@ private slots:
 
 private:
   /**
-   * @brief Internal reference to an existing Sequence (if one was provided to the constructor)
-   */
-  SequencePtr existing_sequence;
-
-  /**
    * @brief Internal reference to an existing Media wrapper (if one was provided to the constructor)
    */
   Media* existing_item;
+
+  /**
+   * @brief Internal reference to an existing Sequence (if one was provided to the constructor)
+   */
+  Sequence* existing_sequence;
 
   /**
    * @brief Internal function to create the dialog's UI
@@ -135,6 +151,13 @@ private:
    * @brief ComboBox to set the audio frequence
    */
   QComboBox* audio_frequency_combobox;
+
+  /**
+   * @brief Label marker for setting the Sequence's name
+   *
+   * Primarily a persistent class reference so it can be hidden with SetNameEditable() alongside sequence_name_edit.
+   */
+  QLabel* sequence_name_label;
 
   /**
    * @brief Line edit to set the Sequence's name

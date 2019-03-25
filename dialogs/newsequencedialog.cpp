@@ -39,19 +39,26 @@
 #include "panels/timeline.h"
 #include "project/media.h"
 #include "rendering/audio.h"
+#include "global/config.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
-NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing) :
+NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing, Sequence* iexisting_sequence) :
   QDialog(parent),
-  existing_item(existing)
+  existing_item(existing),
+  existing_sequence(iexisting_sequence)
 {
+  Q_ASSERT(!(existing != nullptr && iexisting_sequence != nullptr));
+
   setup_ui();
 
   if (existing != nullptr) {
-    existing_sequence = existing->to_sequence();
+    existing_sequence = existing->to_sequence().get();
+  }
+
+  if (existing_sequence != nullptr) {
     setWindowTitle(tr("Editing \"%1\"").arg(existing_sequence->name));
 
     width_numeric->setValue(existing_sequence->width);
@@ -80,6 +87,12 @@ void NewSequenceDialog::set_sequence_name(const QString& s) {
   sequence_name_edit->setText(s);
 }
 
+void NewSequenceDialog::SetNameEditable(bool enabled)
+{
+  sequence_name_edit->setVisible(enabled);
+  sequence_name_label->setVisible(enabled);
+}
+
 void NewSequenceDialog::accept() {
   if (existing_sequence == nullptr) {
 
@@ -98,7 +111,7 @@ void NewSequenceDialog::accept() {
     panel_project->create_sequence_internal(ca, s, true, nullptr);
     olive::UndoStack.push(ca);
 
-  } else {
+  } else if (existing_item != nullptr) {
 
     // The dialog was given an existing Sequence object, so we'll apply the changes to it
 
@@ -106,7 +119,7 @@ void NewSequenceDialog::accept() {
 
     double multiplier = frame_rate_combobox->currentData().toDouble() / existing_sequence->frame_rate;
 
-    EditSequenceCommand* esc = new EditSequenceCommand(existing_item, existing_sequence);
+    EditSequenceCommand* esc = new EditSequenceCommand(existing_item, existing_item->to_sequence());
     esc->name = sequence_name_edit->text();
     esc->width = width_numeric->value();
     esc->height = height_numeric->value();
@@ -123,6 +136,18 @@ void NewSequenceDialog::accept() {
     }
 
     olive::UndoStack.push(ca);
+
+  } else if (existing_sequence != nullptr) {
+
+    // This dialog was given an existing Sequence without a Media wrapper - therefore just directly apply the settings
+
+    existing_sequence->name = sequence_name_edit->text();
+    existing_sequence->width = width_numeric->value();
+    existing_sequence->height = height_numeric->value();
+    existing_sequence->frame_rate = frame_rate_combobox->currentData().toDouble();
+    existing_sequence->audio_frequency = audio_frequency_combobox->currentData().toInt();
+    existing_sequence->audio_layout = AV_CH_LAYOUT_STEREO;
+
   }
 
   QDialog::accept();
@@ -210,13 +235,13 @@ void NewSequenceDialog::setup_ui() {
   videoLayout->addWidget(new QLabel(tr("Width:"), this), 0, 0, 1, 1);
   width_numeric = new QSpinBox(videoGroupBox);
   width_numeric->setMaximum(9999);
-  width_numeric->setValue(1920);
+  width_numeric->setValue(olive::CurrentConfig.default_sequence_width);
   videoLayout->addWidget(width_numeric, 0, 2, 1, 2);
 
   videoLayout->addWidget(new QLabel(tr("Height:"), this), 1, 0, 1, 2);
   height_numeric = new QSpinBox(videoGroupBox);
   height_numeric->setMaximum(9999);
-  height_numeric->setValue(1080);
+  height_numeric->setValue(olive::CurrentConfig.default_sequence_height);
   videoLayout->addWidget(height_numeric, 1, 2, 1, 2);
 
   videoLayout->addWidget(new QLabel(tr("Frame Rate:"), this), 2, 0, 1, 1);
@@ -232,7 +257,11 @@ void NewSequenceDialog::setup_ui() {
   frame_rate_combobox->addItem("50 FPS", 50.0);
   frame_rate_combobox->addItem("59.94 FPS", 59.94);
   frame_rate_combobox->addItem("60 FPS", 60.0);
-  frame_rate_combobox->setCurrentIndex(6);
+  for (int i=0;i<frame_rate_combobox->count();i++) {
+    if (qFuzzyCompare(frame_rate_combobox->itemData(i).toDouble(), olive::CurrentConfig.default_sequence_framerate)) {
+      frame_rate_combobox->setCurrentIndex(i);
+    }
+  }
   videoLayout->addWidget(frame_rate_combobox, 2, 2, 1, 2);
 
   videoLayout->addWidget(new QLabel(tr("Pixel Aspect Ratio:"), this), 4, 0, 1, 1);
@@ -258,7 +287,11 @@ void NewSequenceDialog::setup_ui() {
 
   audio_frequency_combobox = new QComboBox(audioGroupBox);
   combobox_audio_sample_rates(audio_frequency_combobox);
-  audio_frequency_combobox->setCurrentIndex(4);
+  for (int i=0;i<audio_frequency_combobox->count();i++) {
+    if (audio_frequency_combobox->itemData(i) == olive::CurrentConfig.default_sequence_audio_frequency) {
+      audio_frequency_combobox->setCurrentIndex(i);
+    }
+  }
 
   audioLayout->addWidget(audio_frequency_combobox, 0, 1, 1, 1);
 
@@ -268,7 +301,8 @@ void NewSequenceDialog::setup_ui() {
   QHBoxLayout* nameLayout = new QHBoxLayout(nameWidget);
   nameLayout->setContentsMargins(0, 0, 0, 0);
 
-  nameLayout->addWidget(new QLabel(tr("Name:"), this));
+  sequence_name_label = new QLabel(tr("Name:"));
+  nameLayout->addWidget(sequence_name_label);
 
   sequence_name_edit = new QLineEdit(nameWidget);
 

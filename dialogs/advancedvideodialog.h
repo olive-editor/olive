@@ -31,7 +31,7 @@
  * @brief The AdvancedVideoDialog class
  *
  * A dialog for interfacing with VideoCodecParams, a struct for more advanced video settings sometimes specific to
- * one codec.
+ * one codec. Primarily a companion to ExportDialog which will provide the VideoCodecParams reference,
  */
 class AdvancedVideoDialog : public QDialog {
   Q_OBJECT

@@ -138,6 +138,53 @@ void Timeline::Retranslate() {
   UpdateTitle();
 }
 
+void Timeline::split_clip_at_positions(ComboAction* ca, int clip_index, QVector<long> positions) {
+
+  QVector<int> pre_splits;
+
+  // Add the clip and each of its links to the pre_splits array
+  Clip* clip = olive::ActiveSequence->clips.at(clip_index).get();
+  pre_splits.append(clip_index);
+  for (int i=0;i<clip->linked.size();i++)   {
+    pre_splits.append(clip->linked.at(i));
+  }
+
+  std::sort(positions.begin(), positions.end());
+
+  // Remove any duplicate positions
+  for (int i=1;i<positions.size();i++) {
+    if (positions.at(i-1) == positions.at(i)) {
+      positions.removeAt(i);
+      i--;
+    }
+  }
+
+  for (int i=1;i<positions.size();i++) {
+    Q_ASSERT(positions.at(i-1) < positions.at(i));
+  }
+
+  QVector< QVector<ClipPtr> > post_splits(positions.size());
+
+  for (int i=positions.size()-1;i>=0;i--) {
+
+    post_splits[i].resize(pre_splits.size());
+
+    for (int j=0;j<pre_splits.size();j++) {
+      post_splits[i][j] = split_clip(ca, true, pre_splits.at(j), positions.at(i));
+
+      if (post_splits[i][j] != nullptr && i + 1 < positions.size()) {
+        post_splits[i][j]->set_timeline_out(positions.at(i+1));
+      }
+    }
+  }
+
+  for (int i=0;i<post_splits.size();i++) {
+    relink_clips_using_ids(pre_splits, post_splits[i]);
+    ca->append(new AddClipCommand(olive::ActiveSequence.get(), post_splits[i]));
+  }
+
+}
+
 void Timeline::previous_cut() {
   if (olive::ActiveSequence != nullptr
       && olive::ActiveSequence->playhead > 0) {
@@ -192,14 +239,15 @@ void Timeline::toggle_show_all() {
   }
 }
 
-void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<Media*>& media_list) {
+void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector<olive::timeline::MediaImportData>& media_list) {
   video_ghosts = false;
   audio_ghosts = false;
 
   for (int i=0;i<media_list.size();i++) {
     bool can_import = true;
 
-    Media* medium = media_list.at(i);
+    const olive::timeline::MediaImportData import_data = media_list.at(i);
+    Media* medium = import_data.media();
     Footage* m = nullptr;
     Sequence* s = nullptr;
     long sequence_length = 0;
@@ -212,7 +260,9 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
       can_import = m->ready;
       if (m->using_inout) {
         double source_fr = 30;
-        if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) source_fr = m->video_tracks.at(0).video_frame_rate * m->speed;
+        if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) {
+          source_fr = m->video_tracks.at(0).video_frame_rate * m->speed;
+        }
         default_clip_in = rescale_frame_number(m->in, source_fr, seq->frame_rate);
         default_clip_out = rescale_frame_number(m->out, source_fr, seq->frame_rate);
       }
@@ -253,20 +303,27 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
           }
         }
 
-        for (int j=0;j<m->audio_tracks.size();j++) {
-          if (m->audio_tracks.at(j).enabled) {
-            g.track = j;
-            g.media_stream = m->audio_tracks.at(j).file_index;
-            ghosts.append(g);
-            audio_ghosts = true;
+        if (import_data.type() == olive::timeline::kImportAudioOnly
+            || import_data.type() == olive::timeline::kImportBoth) {
+          for (int j=0;j<m->audio_tracks.size();j++) {
+            if (m->audio_tracks.at(j).enabled) {
+              g.track = j;
+              g.media_stream = m->audio_tracks.at(j).file_index;
+              ghosts.append(g);
+              audio_ghosts = true;
+            }
           }
         }
-        for (int j=0;j<m->video_tracks.size();j++) {
-          if (m->video_tracks.at(j).enabled) {
-            g.track = -1-j;
-            g.media_stream = m->video_tracks.at(j).file_index;
-            ghosts.append(g);
-            video_ghosts = true;
+
+        if (import_data.type() == olive::timeline::kImportVideoOnly
+            || import_data.type() == olive::timeline::kImportBoth) {
+          for (int j=0;j<m->video_tracks.size();j++) {
+            if (m->video_tracks.at(j).enabled) {
+              g.track = -1-j;
+              g.media_stream = m->video_tracks.at(j).file_index;
+              ghosts.append(g);
+              video_ghosts = true;
+            }
           }
         }
         break;
@@ -277,10 +334,17 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
           g.out -= (sequence_length - default_clip_out);
         }
 
-        g.track = -1;
-        ghosts.append(g);
-        g.track = 0;
-        ghosts.append(g);
+        if (import_data.type() == olive::timeline::kImportVideoOnly
+            || import_data.type() == olive::timeline::kImportBoth) {
+          g.track = -1;
+          ghosts.append(g);
+        }
+
+        if (import_data.type() == olive::timeline::kImportAudioOnly
+            || import_data.type() == olive::timeline::kImportBoth) {
+          g.track = 0;
+          ghosts.append(g);
+        }
 
         video_ghosts = true;
         audio_ghosts = true;
@@ -446,9 +510,35 @@ void Timeline::nest() {
       MediaPtr m = panel_project->create_sequence_internal(ca, s, false, nullptr);
 
       // add nested sequence to active sequence
-      QVector<Media*> media_list;
+      QVector<olive::timeline::MediaImportData> media_list;
       media_list.append(m.get());
       create_ghosts_from_media(olive::ActiveSequence.get(), earliest_point, media_list);
+
+      // ensure ghosts won't overlap anything
+      for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
+        Clip* c = olive::ActiveSequence->clips.at(j).get();
+        if (c != nullptr && !selected_clips.contains(j)) {
+          for (int i=0;i<ghosts.size();i++) {
+            Ghost& g = ghosts[i];
+            if (c->track() == g.track
+                && !((c->timeline_in() < g.in
+                && c->timeline_out() < g.in)
+                || (c->timeline_in() > g.out
+                    && c->timeline_out() > g.out))) {
+              // There's a clip occupied by the space taken up by this ghost. Move up/down a track, and seek again
+              if (g.track < 0) {
+                g.track--;
+              } else {
+                g.track++;
+              }
+              j = -1;
+              break;
+            }
+          }
+        }
+      }
+
+
       add_clips_from_ghosts(ca, olive::ActiveSequence.get());
 
       panel_graph_editor->set_row(nullptr);

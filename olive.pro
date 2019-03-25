@@ -133,7 +133,6 @@ SOURCES += \
     ui/viewerwindow.cpp \
     project/projectfilter.cpp \
     effects/effectloaders.cpp \
-    global/crossplatformlib.cpp \
     effects/internal/vsthost.cpp \
     ui/flowlayout.cpp \
     dialogs/proxydialog.cpp \
@@ -174,7 +173,10 @@ SOURCES += \
     ui/blur.cpp \
     ui/menu.cpp \
     rendering/qopenglshaderprogramptr.cpp \
-    rendering/bitdepths.cpp
+    rendering/bitdepths.cpp \
+    timeline/mediaimportdata.cpp \
+    dialogs/autocutsilencedialog.cpp \
+    ui/columnedgridlayout.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -259,7 +261,6 @@ HEADERS += \
     ui/viewerwindow.h \
     project/projectfilter.h \
     effects/effectloaders.h \
-    global/crossplatformlib.h \
     effects/internal/vsthost.h \
     ui/flowlayout.h \
     dialogs/proxydialog.h \
@@ -302,7 +303,10 @@ HEADERS += \
     ui/blur.h \
     ui/menu.h \
     rendering/qopenglshaderprogramptr.h \
-    rendering/bitdepths.h
+    rendering/bitdepths.h \
+    timeline/mediaimportdata.h \
+    dialogs/autocutsilencedialog.h \
+    ui/columnedgridlayout.h
 
 FORMS +=
 
@@ -316,7 +320,8 @@ TRANSLATIONS += \
     ts/olive_ru.ts \
     ts/olive_uk.ts \
     ts/olive_bs.ts \
-    ts/olive_sr.ts
+    ts/olive_sr.ts \
+    ts/olive_id.ts
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
@@ -341,9 +346,6 @@ unix:!mac {
     !contains(DEFINES, NO_OCIO) {
         LIBS += -lOpenColorIO
     }
-}
-unix:!mac:!haiku {
-    LIBS += -ldl
 }
 
 RESOURCES += \

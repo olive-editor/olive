@@ -87,6 +87,8 @@ private:
   int type;
   VoidPtr object;
 
+  QString GetStringDuration();
+
   // item functions
   QList<MediaPtr> children;
   Media* parent;

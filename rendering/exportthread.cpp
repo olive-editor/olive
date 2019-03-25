@@ -20,17 +20,6 @@
 
 #include "exportthread.h"
 
-#include "global/global.h"
-#include "timeline/sequence.h"
-#include "panels/panels.h"
-
-#include "ui/viewerwidget.h"
-#include "rendering/renderthread.h"
-#include "rendering/renderfunctions.h"
-#include "rendering/audio.h"
-#include "ui/mainwindow.h"
-#include "global/debug.h"
-
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/opt.h>
@@ -42,6 +31,17 @@ extern "C" {
 #include <QOffscreenSurface>
 #include <QOpenGLPaintDevice>
 #include <QPainter>
+#include <QtMath>
+
+#include "global/global.h"
+#include "timeline/sequence.h"
+#include "panels/panels.h"
+#include "ui/viewerwidget.h"
+#include "rendering/renderthread.h"
+#include "rendering/renderfunctions.h"
+#include "rendering/audio.h"
+#include "ui/mainwindow.h"
+#include "global/debug.h"
 
 ExportThread::ExportThread(const ExportParams &params,
                            const VideoCodecParams& vparams,
@@ -91,7 +91,18 @@ bool ExportThread::Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, 
     }
 
     packet->stream_index = stream->index;
-    if (rescale) av_packet_rescale_ts(packet, codec_ctx->time_base, stream->time_base);
+    if (rescale) {
+      if (packet->pts != AV_NOPTS_VALUE) {
+        packet->pts = qRound(packet->pts * av_q2d(codec_ctx->time_base) / av_q2d(stream->time_base));
+      }
+      if (packet->dts != AV_NOPTS_VALUE) {
+        packet->dts = qRound(packet->dts * av_q2d(codec_ctx->time_base) / av_q2d(stream->time_base));
+      }
+      if (packet->duration > 0) {
+        packet->duration = qRound(packet->duration * av_q2d(codec_ctx->time_base) / av_q2d(stream->time_base));
+      }
+      //av_packet_rescale_ts(packet, codec_ctx->time_base, stream->time_base);
+    }
     av_interleaved_write_frame(ofmt_ctx, packet);
     av_packet_unref(packet);
   }
@@ -468,10 +479,10 @@ void ExportThread::Export()
 
       // Convert raw RGBA buffer to format expected by the encoder
       sws_scale(sws_ctx, video_frame->data, video_frame->linesize, 0, video_frame->height, sws_frame->data, sws_frame->linesize);
-      sws_frame->pts = qRound(timecode_secs/av_q2d(video_stream->time_base));
+      sws_frame->pts = qRound(timecode_secs/av_q2d(vcodec_ctx->time_base));
 
       // Send frame to encoder
-      if (!Encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream, false)) {
+      if (!Encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream, true)) {
         return;
       }
 
@@ -577,7 +588,7 @@ void ExportThread::Export()
   // Flush remaining packets out of video and audio encoders
   while (continueVideo && continueAudio) {
     if (continueVideo) {
-      continueVideo = Encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream, false);
+      continueVideo = Encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream, true);
     }
     if (continueAudio) {
       continueAudio = Encode(fmt_ctx, acodec_ctx, nullptr, &audio_pkt, audio_stream, true);

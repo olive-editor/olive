@@ -34,7 +34,14 @@
 #include "global/global.h"
 #include "global/debug.h"
 
-#ifdef __linux__
+// Load libraries for retrieving the native window handle. Used for VST plugins that have a separate window
+// dedicated to controls.
+#if defined(Q_OS_WIN)
+#include <Windows.h>
+#elif defined(Q_OS_MACOS)
+#include <CoreFoundation/CoreFoundation.h>
+class NSWindow;
+#elif defined(Q_OS_LINUX)
 #include <X11/X.h>
 #endif
 
@@ -105,94 +112,53 @@ typedef int32_t (*processEventsFuncPtr)(VstEvents *events);
 typedef void (*processFuncPtr)(AEffect *effect, float **inputs, float **outputs, int32_t sampleFrames);
 
 void VSTHost::loadPlugin() {
+
   QString dll_fn = file_field->GetFileAt(0);
 
   if (dll_fn.isEmpty()) {
     return;
   }
 
-#if defined(__APPLE__)
-  bundle = BundleLoad(dll_fn);
+  // Try to load the plugin
+  modulePtr.setFileName(dll_fn);
+  if (!modulePtr.load()) {
 
-  if (bundle == NULL) {
-    QMessageBox::critical(nullptr, tr("Error loading VST plugin"), tr("Failed to create VST reference"));
+    // Show an error if the plugin fails to load
+
+    qCritical() << "Failed to load VST plugin" << dll_fn << "-" << modulePtr.errorString();
+    QMessageBox::critical(olive::MainWindow,
+                          tr("Error loading VST plugin"),
+                          tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, modulePtr.errorString()));
+    return;
+
+  }
+
+  // Try to find the VST entry point (first using VSTPluginMain() )
+  vstPluginFuncPtr mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(modulePtr.resolve("VSTPluginMain"));
+
+  if (mainEntryPoint == nullptr) {
+    // If there's no VSTPluginMain(), the plugin may use main() instead
+    mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(modulePtr.resolve("main"));
+  }
+
+  if (mainEntryPoint == nullptr) {
+    QMessageBox::critical(olive::MainWindow,
+                          tr("Error loading VST plugin"),
+                          tr("Failed to locate entry point for dynamic library."));
+    modulePtr.unload();
     return;
   }
 
-  vstPluginFuncPtr mainEntryPoint = NULL;
-  mainEntryPoint = (vstPluginFuncPtr)CFBundleGetFunctionPointerForName(bundle, CFSTR("VSTPluginMain"));
-  // VST plugins previous to the 2.4 SDK used main_macho for the entry point name
-  if(mainEntryPoint == NULL) {
-    mainEntryPoint = (vstPluginFuncPtr)CFBundleGetFunctionPointerForName(bundle, CFSTR("main_macho"));
-  }
-  if(mainEntryPoint == NULL) {
-    qCritical() << "Couldn't get a pointer to VST plugin's main()";
-    BundleClose(bundle);
-    return;
-  }
-
+  // Instantiate the plugin
   plugin = mainEntryPoint(hostCallback);
-  if(plugin == NULL) {
-    qCritical() << "Plugin's main() returns null";
-    BundleClose(bundle);
-    return;
-  }
-#else
-  modulePtr = LibLoad(dll_fn);
-  if(modulePtr == nullptr) {
-    QString dll_error;
 
-#ifdef _WIN32
-    DWORD dll_err = GetLastError();
-    dll_error = QString::number(dll_err);
-#elif defined(__linux__) || defined(__HAIKU__)
-    dll_error = dlerror();
-#endif
-    qCritical() << "Failed to load VST plugin" << dll_fn << "-" << dll_error;
-
-    QString msg_err = tr("Failed to load VST plugin \"%1\": %2").arg(dll_fn, dll_error);
-
-#ifdef _WIN32
-    if (dll_err == 193) {
-#ifdef _WIN64
-      msg_err += "\n\n" + tr("NOTE: You can't load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.");
-#elif _WIN32
-      msg_err += "\n\n" + tr("NOTE: You can't load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.");
-#endif
-    }
-#endif
-
-    QMessageBox::critical(nullptr, tr("Error loading VST plugin"), msg_err);
-
-    return;
-  }
-
-  vstPluginFuncPtr mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "VSTPluginMain"));
-
-  if (mainEntryPoint == nullptr) {
-    // if there's no VSTPluginMain(), fallback to main()
-    mainEntryPoint = reinterpret_cast<vstPluginFuncPtr>(LibAddress(modulePtr, "main"));
-  }
-
-  if (mainEntryPoint == nullptr) {
-    QMessageBox::critical(nullptr, tr("Error loading VST plugin"), tr("Failed to locate entry point for dynamic library."));
-    LibClose(modulePtr);
-  } else {
-    // Instantiate the plugin
-    plugin = mainEntryPoint(hostCallback);
-  }
-#endif
 }
 
 void VSTHost::freePlugin() {
   if (plugin != nullptr) {
     stopPlugin();
-#if defined(__APPLE__)
-    CFBundleUnloadExecutable(bundle);
-    CFRelease(bundle);
-#else
-    LibClose(modulePtr);
-#endif
+    data_cache.clear();
+    modulePtr.unload();
     plugin = nullptr;
   }
 }
@@ -266,6 +232,11 @@ void VSTHost::CreateDialogIfNull()
   }
 }
 
+void VSTHost::send_data_cache_to_plugin()
+{
+  dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
+}
+
 VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
   Effect(c, em),
   plugin(nullptr),
@@ -282,7 +253,7 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
 
   EffectRow* file_row = new EffectRow(this, tr("Plugin"), true, false);
   file_field = new FileField(file_row, "filename");
-  connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()));
+  connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()), Qt::QueuedConnection);
 
   EffectRow* interface_row = new EffectRow(this, tr("Interface"), false, false);
 
@@ -344,7 +315,7 @@ void VSTHost::custom_load(QXmlStreamReader &stream) {
     stream.readNext();
     data_cache = QByteArray::fromBase64(stream.text().toUtf8());
     if (plugin != nullptr) {
-      dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
+      send_data_cache_to_plugin();
     }
   }
 }
@@ -366,11 +337,11 @@ void VSTHost::show_interface(bool show) {
   dialog->setVisible(show);
 
   if (show) {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<HWND>(dialog->windowHandle()->winId()), 0);
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<NSWindow*>(dialog->windowHandle()->winId()), 0);
-#elif defined(__linux__) || defined(__HAIKU__)
+#elif defined(Q_OS_LINUX) || defined(__HAIKU__)
     dispatcher(plugin, effEditOpen, 0, 0, reinterpret_cast<void*>(dialog->windowHandle()->winId()), 0);
 #endif
   } else {
@@ -392,17 +363,18 @@ void VSTHost::change_plugin() {
       VSTRect* eRect = nullptr;
       plugin->dispatcher(plugin, effEditGetRect, 0, 0, &eRect, 0);
 
+      if (!data_cache.isEmpty()) {
+        send_data_cache_to_plugin();
+      }
+
       CreateDialogIfNull();
       dialog->setFixedSize(eRect->right - eRect->left, eRect->bottom - eRect->top);
 
     } else {
-#ifdef __APPLE__
-      CFBundleUnloadExecutable(bundle);
-      CFRelease(bundle);
-#else
-      LibClose(modulePtr);
-#endif
+
+      modulePtr.unload();
       plugin = nullptr;
+
     }
   }
   show_interface_btn->SetEnabled(plugin != nullptr);

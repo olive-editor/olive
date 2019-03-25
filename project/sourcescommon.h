@@ -26,6 +26,7 @@
 #include <QVector>
 
 #include "project/footage.h"
+#include "project/projectfilter.h"
 
 class Project;
 class QMouseEvent;
@@ -36,7 +37,7 @@ class QDropEvent;
 class SourcesCommon : public QObject {
   Q_OBJECT
 public:
-  SourcesCommon(Project *parent);
+  SourcesCommon(Project *parent, ProjectFilter& sort_filter);
   QAbstractItemView* view;
   void show_context_menu(QWidget* parent, const QModelIndexList &items);
 
@@ -45,6 +46,8 @@ public:
   void dropEvent(QWidget *parent, QDropEvent* e, const QModelIndex& drop_item, const QModelIndexList &items);
 
   void item_click(Media* m, const QModelIndex &index);
+public slots:
+  void stop_rename_timer();
 private slots:
   void create_seq_from_selected();
   void reveal_in_browser();
@@ -61,11 +64,12 @@ private:
   QModelIndex editing_index;
   QModelIndexList selected_items;
   Project* project_parent;
-  void stop_rename_timer();
   QTimer rename_timer;
 
   // we cache the selected footage items for open_create_proxy_dialog()
   QVector<Media*> cached_selected_footage;
+
+  ProjectFilter& sort_filter_;
 };
 
 #endif // SOURCESCOMMON_H

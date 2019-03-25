@@ -284,6 +284,24 @@ int Media::columnCount() const {
   return 3;
 }
 
+QString Media::GetStringDuration() {
+  if (get_type() == MEDIA_TYPE_SEQUENCE) {
+    Sequence* s = to_sequence().get();
+    return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
+  }
+  if (get_type() == MEDIA_TYPE_FOOTAGE) {
+    Footage* f = to_footage();
+    double r = 30;
+
+    if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0).video_frame_rate))
+      r = f->video_tracks.at(0).video_frame_rate * f->speed;
+
+    long len = f->get_length_in_frames(r);
+    if (len > 0) return frame_to_timecode(len, olive::CurrentConfig.timecode_view, r);
+  }
+  return QString();
+}
+
 QVariant Media::data(int column, int role) {
   switch (role) {
   case Qt::DecorationRole:
@@ -292,7 +310,7 @@ QVariant Media::data(int column, int role) {
         Footage* f = to_footage();
         if (f->video_tracks.size() > 0
             && f->video_tracks.at(0).preview_done) {
-          return f->video_tracks.at(0).video_preview_square;
+          return QIcon(QPixmap::fromImage(f->video_tracks.at(0).video_preview));
         }
       }
 
@@ -304,20 +322,7 @@ QVariant Media::data(int column, int role) {
     case 0: return (root) ? QCoreApplication::translate("Media", "Name") : get_name();
     case 1:
       if (root) return QCoreApplication::translate("Media", "Duration");
-      if (get_type() == MEDIA_TYPE_SEQUENCE) {
-        Sequence* s = to_sequence().get();
-        return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
-      }
-      if (get_type() == MEDIA_TYPE_FOOTAGE) {
-        Footage* f = to_footage();
-        double r = 30;
-
-        if (f->video_tracks.size() > 0 && !qIsNull(f->video_tracks.at(0).video_frame_rate))
-          r = f->video_tracks.at(0).video_frame_rate * f->speed;
-
-        long len = f->get_length_in_frames(r);
-        if (len > 0) return frame_to_timecode(len, olive::CurrentConfig.timecode_view, r);
-      }
+      return GetStringDuration();
       break;
     case 2:
       if (root) return QCoreApplication::translate("Media", "Rate");
@@ -336,6 +341,10 @@ QVariant Media::data(int column, int role) {
     break;
   case Qt::ToolTipRole:
     return tooltip;
+
+  case Qt::UserRole:
+    // User role returns the duration
+    return GetStringDuration();
   }
   return QVariant();
 }

@@ -29,7 +29,6 @@
 #include "global/path.h"
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
-#include "global/crossplatformlib.h"
 #include "global/config.h"
 
 QMutex olive::effects_loaded;
@@ -55,11 +54,9 @@ void load_internal_effects() {
   em.internal = EFFECT_INTERNAL_PAN;
   olive::effects.append(em);
 
-#ifndef NOVST
   em.name = "VST Plugin 2.x";
   em.internal = EFFECT_INTERNAL_VST;
   olive::effects.append(em);
-#endif
 
   em.name = "Tone";
   em.internal = EFFECT_INTERNAL_TONE;

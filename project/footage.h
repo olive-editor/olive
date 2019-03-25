@@ -62,9 +62,7 @@ struct FootageStream {
   // preview thumbnail/waveform
   bool preview_done;
   QImage video_preview;
-  QIcon video_preview_square;
   QVector<char> audio_preview;
-  void make_square_thumb();
 };
 
 struct Footage {

@@ -120,7 +120,10 @@ namespace olive {
     PROJECT_VIEW_TREE,
 
     /** Display project media in icon browser */
-    PROJECT_VIEW_ICON
+    PROJECT_VIEW_ICON,
+
+    /** Display project media in list browser */
+    PROJECT_VIEW_LIST
   };
 
   /**
@@ -414,6 +417,13 @@ struct Config {
   bool seek_also_selects;
 
   /**
+   * @brief Automatically seek to the beginning of a sequence if the user plays beyond the end of it
+   *
+   * TRUE if this behavior should be enabled.
+   */
+  bool auto_seek_to_beginning;
+
+  /**
    * @brief CSS Path
    *
    * The URL to a CSS file if the user has loaded a custom stylesheet in. **EMPTY** if the user has not set a
@@ -557,6 +567,31 @@ struct Config {
    * Use native styling on menus rather than cross-platform Fusion.
    */
   bool use_native_menu_styling;
+
+  /**
+   * @brief Default Sequence video width
+   */
+  int default_sequence_width;
+
+  /**
+   * @brief Default Sequence video height
+   */
+  int default_sequence_height;
+
+  /**
+   * @brief Default Sequence video frame rate
+   */
+  double default_sequence_framerate;
+
+  /**
+   * @brief Default Sequence audio frequency
+   */
+  int default_sequence_audio_frequency;
+
+  /**
+   * @brief Default Sequence audio channel layout
+   */
+  int default_sequence_audio_channel_layout;
 
   /**
    * @brief Load config from file

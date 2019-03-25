@@ -57,13 +57,14 @@ Config::Config()
     hover_focus(false),
     project_view_type(olive::PROJECT_VIEW_TREE),
     set_name_with_marker(true),
-    show_project_toolbar(false),
+    show_project_toolbar(true),
     previous_queue_size(3),
     previous_queue_type(olive::FRAME_QUEUE_TYPE_FRAMES),
     upcoming_queue_size(0.5),
     upcoming_queue_type(olive::FRAME_QUEUE_TYPE_SECONDS),
     loop(false),
     seek_also_selects(false),
+    auto_seek_to_beginning(true),
     effect_textbox_lines(3),
     use_software_fallback(false),
     center_timeline_timecodes(true),
@@ -73,7 +74,12 @@ Config::Config()
     invert_timeline_scroll_axes(true),
     enable_color_management(false),
     style(olive::styling::kOliveDefaultDark),
-    use_native_menu_styling(true)
+    use_native_menu_styling(true),
+    default_sequence_width(1920),
+    default_sequence_height(1080),
+    default_sequence_framerate(29.97),
+    default_sequence_audio_frequency(48000),
+    default_sequence_audio_channel_layout(3)
 {}
 
 void Config::load(QString path) {
@@ -180,6 +186,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "SeekAlsoSelects") {
           stream.readNext();
           seek_also_selects = (stream.text() == "1");
+        } else if (stream.name() == "AutoSeekToBeginning") {
+          stream.readNext();
+          auto_seek_to_beginning = (stream.text() == "1");
         } else if (stream.name() == "CSSPath") {
           stream.readNext();
           css_path = stream.text().toString();
@@ -222,6 +231,21 @@ void Config::load(QString path) {
         } else if (stream.name() == "NativeMenuStyling") {
           stream.readNext();
           use_native_menu_styling = (stream.text() == "1");
+        } else if (stream.name() == "DefaultSequenceWidth") {
+          stream.readNext();
+          default_sequence_width = stream.text().toInt();
+        } else if (stream.name() == "DefaultSequenceHeight") {
+          stream.readNext();
+          default_sequence_height = stream.text().toInt();
+        } else if (stream.name() == "DefaultSequenceFrameRate") {
+          stream.readNext();
+          default_sequence_framerate = stream.text().toDouble();
+        } else if (stream.name() == "DefaultSequenceAudioFrequency") {
+          stream.readNext();
+          default_sequence_audio_frequency = stream.text().toInt();
+        } else if (stream.name() == "DefaultSequenceAudioLayout") {
+          stream.readNext();
+          default_sequence_audio_channel_layout = stream.text().toInt();
         }
       }
     }
@@ -271,13 +295,14 @@ void Config::save(QString path) {
   stream.writeTextElement("HoverFocus", QString::number(hover_focus));
   stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
   stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
-  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->toolbar_widget->isVisible()));
+  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->IsToolbarVisible()));
   stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
   stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
   stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
   stream.writeTextElement("UpcomingFrameQueueType", QString::number(upcoming_queue_type));
   stream.writeTextElement("Loop", QString::number(loop));
   stream.writeTextElement("SeekAlsoSelects", QString::number(seek_also_selects));
+  stream.writeTextElement("AutoSeekToBeginning", QString::number(auto_seek_to_beginning));
   stream.writeTextElement("CSSPath", css_path);
   stream.writeTextElement("EffectTextboxLines", QString::number(effect_textbox_lines));
   stream.writeTextElement("UseSoftwareFallback", QString::number(use_software_fallback));
@@ -292,6 +317,11 @@ void Config::save(QString path) {
   stream.writeTextElement("OCIOConfigPath", ocio_config_path);
   stream.writeTextElement("Style", QString::number(style));
   stream.writeTextElement("NativeMenuStyling", QString::number(use_native_menu_styling));
+  stream.writeTextElement("DefaultSequenceWidth", QString::number(default_sequence_width));
+  stream.writeTextElement("DefaultSequenceHeight", QString::number(default_sequence_height));
+  stream.writeTextElement("DefaultSequenceFrameRate", QString::number(default_sequence_framerate));
+  stream.writeTextElement("DefaultSequenceAudioFrequency", QString::number(default_sequence_audio_frequency));
+  stream.writeTextElement("DefaultSequenceAudioLayout", QString::number(default_sequence_audio_channel_layout));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc

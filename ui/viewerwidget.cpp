@@ -90,10 +90,6 @@ ViewerWidget::~ViewerWidget() {
   renderer.cancel();
 }
 
-void ViewerWidget::delete_function() {
-  close_active_clips(viewer->seq.get());
-}
-
 void ViewerWidget::set_waveform_scroll(int s) {
   if (waveform) {
     waveform_scroll = s;
@@ -383,11 +379,7 @@ void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
       container->dragScrollMove(event->pos()*container->zoom);
     } else if (event->buttons() & Qt::LeftButton) {
       if (gizmos == nullptr) {
-        QDrag* drag = new QDrag(this);
-        QMimeData* mimeData = new QMimeData;
-        mimeData->setText("h"); // QMimeData will fail without some kind of data
-        drag->setMimeData(mimeData);
-        drag->exec();
+        viewer->initiate_drag(olive::timeline::kImportBoth);
         dragging = false;
       } else {
         move_gizmos(event, false);
@@ -419,6 +411,11 @@ void ViewerWidget::wheelEvent(QWheelEvent *event) {
 
 void ViewerWidget::close_window() {
   window->hide();
+}
+
+void ViewerWidget::wait_until_render_is_paused()
+{
+  renderer.wait_until_paused();
 }
 
 void ViewerWidget::draw_waveform_func() {

@@ -22,25 +22,40 @@
 #define SOURCEICONVIEW_H
 
 #include <QListView>
+#include <QDropEvent>
+#include <QStyledItemDelegate>
+
+#include "project/sourcescommon.h"
 
 class Project;
+class SourceIconDelegate;
+
+class SourceIconDelegate : public QStyledItemDelegate {
+public:
+  SourceIconDelegate(QObject *parent = nullptr);
+  virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+  virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+};
 
 class SourceIconView : public QListView {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    SourceIconView(QWidget* parent = 0);
-    Project* project_parent;
+  SourceIconView(SourcesCommon& commons);
+  Project* project_parent;
 
-    void mousePressEvent(QMouseEvent* event);
-    void mouseDoubleClickEvent(QMouseEvent *event);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dropEvent(QDropEvent* event);
+  void mousePressEvent(QMouseEvent* event);
+  void mouseDoubleClickEvent(QMouseEvent *event);
+  void dragEnterEvent(QDragEnterEvent *event);
+  void dragMoveEvent(QDragMoveEvent *event);
+  void dropEvent(QDropEvent* event);
 signals:
-    void changed_root();
+  void changed_root();
 private slots:
-    void show_context_menu();
-    void item_click(const QModelIndex& index);
+  void show_context_menu();
+  void item_click(const QModelIndex& index);
+private:
+  SourcesCommon& commons_;
+  SourceIconDelegate delegate_;
 };
 
 #endif // SOURCEICONVIEW_H

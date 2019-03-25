@@ -85,9 +85,7 @@ EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
     case EFFECT_INTERNAL_SHAKE: return std::make_shared<ShakeEffect>(c, em);
     case EFFECT_INTERNAL_CORNERPIN: return std::make_shared<CornerPinEffect>(c, em);
     case EFFECT_INTERNAL_FILLLEFTRIGHT: return std::make_shared<FillLeftRightEffect>(c, em);
-#ifndef NOVST
     case EFFECT_INTERNAL_VST: return std::make_shared<VSTHost>(c, em);
-#endif
     case EFFECT_INTERNAL_RICHTEXT: return std::make_shared<RichTextEffect>(c, em);
     }
   } else if (!em->filename.isEmpty()) {
@@ -597,6 +595,9 @@ void Effect::load(QXmlStreamReader& stream) {
                   field->keyframes.append(key);
                 }
               }
+
+              field->Changed();
+
             }
           }
         }

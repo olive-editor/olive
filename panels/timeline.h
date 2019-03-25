@@ -29,6 +29,7 @@
 #include "ui/timelinetools.h"
 #include "timeline/selection.h"
 #include "timeline/clip.h"
+#include "timeline/mediaimportdata.h"
 #include "undo/undo.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
@@ -116,6 +117,7 @@ public:
   bool split_selection(ComboAction* ca);
   bool split_all_clips_at_point(ComboAction *ca, long point);
   bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
+  void split_clip_at_positions(ComboAction* ca, int clip_index, QVector<long> positions);
   void clean_up_selections(QVector<Selection>& areas);
   void deselect_area(long in, long out, int track);
   void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);
@@ -125,7 +127,7 @@ public:
   void edit_to_point_internal(bool in, bool ripple);
   void delete_in_out_internal(bool ripple);
 
-  void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<Media *> &media_list);
+  void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<olive::timeline::MediaImportData> &media_list);
   void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
 
   int getTimelineScreenPointFromFrame(long frame);

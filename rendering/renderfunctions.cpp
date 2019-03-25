@@ -696,8 +696,10 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, textureID);
 
             // set texture filter to bilinear
-            params.ctx->functions()->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            params.ctx->functions()->glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            //params.ctx->functions()->glGenerateMipmap(GL_TEXTURE_2D);
+            //params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             // draw clip on screen according to gl coordinates
             params.pipeline->bind();

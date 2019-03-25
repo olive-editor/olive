@@ -24,6 +24,7 @@
 #include <QOpenGLWidget>
 #include <QTimer>
 #include <QMutex>
+#include <QMenu>
 
 #include "rendering/qopenglshaderprogramptr.h"
 
@@ -33,6 +34,7 @@ public:
   ViewerWindow(QWidget *parent);
   void set_texture(GLuint t, double iar, QMutex *imutex);
 protected:
+  virtual void showEvent(QShowEvent*) override;
   virtual void keyPressEvent(QKeyEvent*) override;
   virtual void mousePressEvent(QMouseEvent*) override;
   virtual void mouseMoveEvent(QMouseEvent*) override;
@@ -44,6 +46,10 @@ private:
   double ar_;
   QMutex* mutex_;
   QOpenGLShaderProgramPtr pipeline_;
+
+  // shortcuts
+  void shortcut_copier(QVector<QShortcut*>& shortcuts, QMenu* menu);
+  QVector<QShortcut*> shortcuts_;
 
   // exit full screen message
   QTimer fullscreen_msg_timer_;

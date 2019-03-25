@@ -276,6 +276,11 @@ public slots:
     void open_speed_dialog();
 
     /**
+     * @brief Open the auto-cut silence dialog.
+     */
+    void open_autocut_silence_dialog();
+
+    /**
      * @brief Open the Action Search overlay.
      */
     void open_action_search();
@@ -338,7 +343,19 @@ private:
      * beside the original project file so that it does not overwrite the original and so that the user is not working
      * on the autorecovery project in Olive's application data directory.
      */
-    void OpenProjectWorker(const QString& fn, bool autorecovery);
+    void OpenProjectWorker(QString fn, bool autorecovery);
+
+    /**
+     * @brief Returns whether a Sequence is currently active or not, and optionally displays a messagebox if not
+     *
+     * Checks whether a Sequence is active and can display a messagebox if not to inform users to make one active in
+     * order to perform said action.
+     *
+     * @return
+     *
+     * TRUE if there is an active Sequence, FALSE if not.
+     */
+    bool CheckForActiveSequence(bool show_msg = true);
 
     /**
      * @brief Create a LoadDialog and start a LoadThread to load data from a project
@@ -366,7 +383,15 @@ private:
      * TRUE if the current project should be closed before opening, FALSE if the project should be imported into the
      * currently open one.
      */
-    void LoadProject(const QString& fn, bool autorecovery, bool clear);
+    void LoadProject(const QString& fn, bool autorecovery);
+
+    /**
+     * @brief Indiscriminately clear the project without prompting the user
+     *
+     * Will clear the entire project without prompting to save. This is dangerous, use new_project() instead for
+     * anything initiated by the user.
+     */
+    void ClearProject();
 
     /**
      * @brief File filter used for any file dialogs relating to Olive project files.

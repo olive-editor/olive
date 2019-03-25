@@ -35,6 +35,7 @@
 #include "project/sourcescommon.h"
 #include "ui/panel.h"
 #include "ui/sourceiconview.h"
+#include "timeline/mediaimportdata.h"
 #include "undo/undo.h"
 
 #include "ui/sourcetable.h"
@@ -45,7 +46,7 @@
 extern QString autorecovery_filename;
 extern QStringList recent_projects;
 
-SequencePtr create_sequence_from_media(QVector<Media *> &media_list);
+SequencePtr create_sequence_from_media(QVector<olive::timeline::MediaImportData> &media_list);
 
 QString get_channel_layout_name(int channels, uint64_t layout);
 QString get_interlacing_name(int interlacing);
@@ -54,7 +55,9 @@ class Project : public Panel {
   Q_OBJECT
 public:
   explicit Project(QWidget *parent = nullptr);
-  ~Project();
+
+  void ConnectFilterToModel();
+  void DisconnectFilterToModel();
 
   bool is_focused();
   void clear();
@@ -77,19 +80,14 @@ public:
 
   QVector<Media*> list_all_project_sequences();
 
-  SourceTable* tree_view;
-  SourceIconView* icon_view;
-  SourcesCommon* sources_common;
-
-  ProjectFilter* sorter;
-
   QVector<Media*> last_imported_media;
 
   QModelIndexList get_current_selected();
 
   void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
 
-  QWidget* toolbar_widget;
+  bool IsToolbarVisible();
+  bool IsProjectWidget(QObject *child);
 
   virtual void Retranslate() override;
 protected:
@@ -103,6 +101,8 @@ public slots:
   void open_properties();
   void new_folder();
   void new_sequence();
+
+  void SetToolbarVisible(bool visible);
 private:
   void save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex &parent = QModelIndex());
   int folder_id;
@@ -112,11 +112,20 @@ private:
   QString get_file_name_from_path(const QString &path);
   QDir proj_dir;
   QWidget* icon_view_container;
+  QSlider* icon_size_slider;
   QPushButton* directory_up;
   QLineEdit* toolbar_search;
+
+  QWidget* toolbar_widget;
+  SourceTable* tree_view;
+  SourceIconView* icon_view;
+
+  ProjectFilter sorter;
+  SourcesCommon sources_common;
 private slots:
   void update_view_type();
   void set_icon_view();
+  void set_list_view();
   void set_tree_view();
   void clear_recent_projects();
   void set_icon_view_size(int);

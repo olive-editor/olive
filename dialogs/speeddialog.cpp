@@ -85,16 +85,16 @@ SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent
   connect(duration, SIGNAL(valueChanged(double)), this, SLOT(duration_update()));
 }
 
-void SpeedDialog::run() {
+int SpeedDialog::exec() {
   bool enable_frame_rate = false;
   bool multiple_audio = false;
   maintain_pitch->setEnabled(false);
 
-  default_frame_rate = qSNaN();
-  current_frame_rate = qSNaN();
-  current_percent = qSNaN();
-  default_length = -1;
-  current_length = -1;
+  double default_frame_rate = qSNaN();
+  double current_frame_rate = qSNaN();
+  double current_percent = qSNaN();
+  long default_length = -1;
+  long current_length = -1;
 
   for (int i=0;i<clips_.size();i++) {
     Clip* c = clips_.at(i);
@@ -180,7 +180,7 @@ void SpeedDialog::run() {
   duration->SetDefault(default_length);
   duration->SetValue((current_length == -1) ? qSNaN() : current_length);
 
-  exec();
+  return QDialog::exec();
 }
 
 void SpeedDialog::percent_update() {

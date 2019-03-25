@@ -96,8 +96,8 @@ void olive::icon::Initialize()
   Diamond = CreateIconFromSVG(":/icons/diamond.svg", false);
   Clock = CreateIconFromSVG(":/icons/clock.svg", false);
 
-  MediaVideo = CreateIconFromSVG(":/icons/videosource.svg", false);
-  MediaAudio = CreateIconFromSVG(":/icons/audiosource.svg", false);
+  MediaVideo = CreateIconFromSVG(":/icons/videosource.svg");
+  MediaAudio = CreateIconFromSVG(":/icons/audiosource.svg");
   MediaImage = CreateIconFromSVG(":/icons/imagesource.svg", false);
   MediaError = CreateIconFromSVG(":/icons/error.svg", false);
   MediaSequence = CreateIconFromSVG(":/icons/sequence.svg", false);

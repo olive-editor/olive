@@ -26,7 +26,10 @@
 /**
  * @brief The DemoNotice class
  *
- * Simple dialog shown on startup to introduce Olive as alpha software (in release builds).
+ * Simple dialog shown on startup to introduce Olive as alpha software (in release builds). Can be run from anywhere,
+ * but there should be no reason to create it outside of the application launch.
+ *
+ * To be phased out as Olive gains maturity.
  */
 class DemoNotice : public QDialog
 {

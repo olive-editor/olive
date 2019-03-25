@@ -328,21 +328,8 @@ private:
   QAction* hand_tool_action;
   QAction* transition_tool_action;
   QAction* snap_toggle;
-  QAction* selecting_also_seeks;
-  QAction* edit_tool_also_seeks;
-  QAction* edit_tool_selects_links;
-  QAction* seek_to_end_of_pastes;
-  QAction* scroll_wheel_zooms;
-  QAction* invert_timeline_scroll_axes;
   QAction* rectified_waveforms;
-  QAction* enable_drag_files_to_timeline;
-  QAction* autoscale_by_default;
-  QAction* enable_seek_to_import;
-  QAction* enable_audio_scrubbing;
-  QAction* enable_drop_on_media_to_replace;
-  QAction* enable_hover_focus;
-  QAction* set_name_and_marker;
-  QAction* seek_also_selects;
+  QAction* autocut_silence_;
   QAction* preferences_action_;
   QAction* clear_undo_action_;
 

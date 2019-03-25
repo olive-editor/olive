@@ -153,8 +153,6 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
     QString thumb_path = get_thumbnail_path(hash, ms);
     QFile f(thumb_path);
     if (f.exists() && ms.video_preview.load(thumb_path)) {
-      //dout << "loaded thumb" << ms->file_index << "from" << thumb_path;
-      ms.make_square_thumb();
       ms.preview_done = true;
     } else {
       found = false;
@@ -363,8 +361,6 @@ void PreviewGenerator::generate_waveform() {
                         temp_frame->height,
                         &data,
                         linesize);
-
-              s->make_square_thumb();
 
               // is video interlaced?
               s->video_auto_interlacing = (temp_frame->interlaced_frame) ? ((temp_frame->top_field_first) ? VIDEO_TOP_FIELD_FIRST : VIDEO_BOTTOM_FIELD_FIRST) : VIDEO_PROGRESSIVE;

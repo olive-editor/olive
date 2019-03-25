@@ -45,7 +45,8 @@ class KeySequenceEditor;
 /**
  * @brief The PreferencesDialog class
  *
- * A dialog for the global application settings. Mostly an interface for Config.
+ * A dialog for the global application settings. Mostly an interface for Config. Can be loaded from any part of the
+ * application.
  */
 class PreferencesDialog : public QDialog
 {
@@ -130,6 +131,11 @@ private slots:
   void update_ocio_config(const QString&);
 #endif
 
+  /**
+   * @brief Shows a NewSequenceDialog attached to default_sequence
+   */
+  void edit_default_sequence_settings();
+
 private:
 
   /**
@@ -186,23 +192,81 @@ private:
   void populate_ocio_menus(OCIO::ConstConfigRcPtr config);
 #endif
 
+  /**
+   * @brief UI widget for editing the CSS filename
+   */
   QLineEdit* custom_css_fn;
+
+  /**
+   * @brief UI widget for editing the list of extensions to detect image sequences from
+   */
   QLineEdit* imgSeqFormatEdit;
+
+  /**
+   * @brief UI widget for editing the recording channels
+   */
   QComboBox* recordingComboBox;
+
+
+  /**
+   * @brief UI widget for editing keyboard shortcuts
+   */
   QTreeWidget* keyboard_tree;
+
+  /**
+   * @brief UI widget for editing the upcoming queue size
+   */
   QDoubleSpinBox* upcoming_queue_spinbox;
+
+  /**
+   * @brief UI widget for editing the upcoming queue type
+   */
   QComboBox* upcoming_queue_type;
+
+  /**
+   * @brief UI widget for editing the previous queue size
+   */
   QDoubleSpinBox* previous_queue_spinbox;
+
+  /**
+   * @brief UI widget for editing the previous queue type
+   */
   QComboBox* previous_queue_type;
+
+  /**
+   * @brief UI widget for editing the size of textboxes in the EffectControls panel
+   */
   QSpinBox* effect_textbox_lines_field;
-  QCheckBox* use_software_fallbacks_checkbox;
+
+  /**
+   * @brief UI widget for selecting the output audio device
+   */
   QComboBox* audio_output_devices;
+
+  /**
+   * @brief UI widget for selecting the input audio device
+   */
   QComboBox* audio_input_devices;
+
+  /**
+   * @brief UI widget for selecting the audio sampling rates
+   */
   QComboBox* audio_sample_rate;
+
+  /**
+   * @brief UI widget for selecting the UI language
+   */
   QComboBox* language_combobox;
+
+  /**
+   * @brief UI widget for selecting the resolution of the thumbnails to generate
+   */
   QSpinBox* thumbnail_res_spinbox;
+
+  /**
+   * @brief UI widget for selecting the resolution of the waveforms to generate
+   */
   QSpinBox* waveform_res_spinbox;
-  QCheckBox* add_default_effects_to_clips;
 
   QCheckBox* enable_color_management;
   QLineEdit* ocio_config_file;
@@ -210,26 +274,148 @@ private:
   QComboBox* ocio_view;
   QComboBox* ocio_look;
 
+  /**
+   * @brief UI widget for selecting the current UI style
+   */
   QComboBox* ui_style;
-  Sequence sequence_settings;
-#ifdef Q_OS_WIN
-  QCheckBox* native_menus;
-#endif
 
+  /**
+   * @brief Stored default Sequence object
+   *
+   * Default Sequence settings are loaded into an actual Sequence object that can be loaded into NewSequenceDialog
+   * for the sake of familiarity with the user.
+   */
+  Sequence default_sequence;
+
+  /**
+   * @brief List of keyboard shortcut actions that can be triggered (links with key_shortcut_items and
+   * key_shortcut_fields)
+   */
   QVector<QAction*> key_shortcut_actions;
+
+  /**
+   * @brief List of keyboard shortcut items in keyboard_tree corresponding to existing actions (links with
+   * key_shortcut_actions and key_shortcut_fields)
+   */
   QVector<QTreeWidgetItem*> key_shortcut_items;
+
+  /**
+   * @brief List of keyboard shortcut editing fields in keyboard_tree corresponding to existing actions (links with
+   * key_shortcut_actions and key_shortcut_fields)
+   */
   QVector<KeySequenceEditor*> key_shortcut_fields;
+
+  /**
+   * @brief Add an automated QCheckBox+boolean value pair
+   *
+   * Many preferences are simple true/false (or on/off) options. Rather than adding a QCheckBox for each one and
+   * manually setting its checked value to the configuration setting (and vice versa when saving), this convenience
+   * function will add it to an automated set of checkboxes, automatically setting the checked state to the current
+   * setting, and then saving the new checked state back to the setting when the user accepts the changes (clicks OK).
+   *
+   * @param ui
+   *
+   * A valid QCheckBox item. This function does not take ownership of the QWidget or place it in a layout anywhere.
+   *
+   * @param value
+   *
+   * A pointer to the Boolean value this QCheckBox should be shared with. The QCheckBox widget's checked state will be
+   * set to the value of this pointer.
+   *
+   * @param restart_required
+   *
+   * Defaults to FALSE, set this to TRUE if changing this setting should prompt the user for a restart of Olive before
+   * the setting change takes effect.
+   */
+  void AddBoolPair(QCheckBox* ui, bool* value, bool restart_required = false);
+
+  /**
+   * @brief Internal array managed by AddBoolPair(). Do not access this directly.
+   */
+  QVector<QCheckBox*> bool_ui;
+
+  /**
+   * @brief Internal array managed by AddBoolPair(). Do not access this directly.
+   */
+  QVector<bool*> bool_value;
+
+  /**
+   * @brief Internal array managed by AddBoolPair(). Do not access this directly.
+   */
+  QVector<bool> bool_restart_required;
 };
 
+/**
+ * @brief The KeySequenceEditor class
+ *
+ * Simple derived class of QKeySequenceEdit that attaches to a QAction and provides functions for transferring
+ * keyboard shortcuts to and from it.
+ */
 class KeySequenceEditor : public QKeySequenceEdit {
   Q_OBJECT
 public:
+  /**
+   * @brief KeySequenceEditor Constructor
+   *
+   * @param parent
+   *
+   * QWidget parent.
+   *
+   * @param a
+   *
+   * The QAction to link to. This cannot be changed throughout the lifetime of a KeySequenceEditor.
+   */
   KeySequenceEditor(QWidget *parent, QAction* a);
+
+  /**
+   * @brief Sets the attached QAction's shortcut to the shortcut entered in this field.
+   *
+   * This is not done automatically in case the user cancels out of the Preferences dialog, in which case the
+   * expectation is that the changes made will not be saved. Therefore, this needs to be triggered manually when
+   * PreferencesDialog saves.
+   */
   void set_action_shortcut();
+
+  /**
+   * @brief Set this shortcut back to the QAction's default shortcut
+   *
+   * Each QAction contains the default shortcut in its `property("default")` and can be used to restore the default
+   * "hard-coded" shortcut with this function.
+   *
+   * This function does not save the default shortcut back into the QAction, it simply loads the default shortcut from
+   * the QAction into this edit field. To save it into the QAction, it's necessary to call set_action_shortcut() after
+   * calling this function.
+   */
   void reset_to_default();
+
+  /**
+   * @brief Return attached QAction's unique ID
+   *
+   * Each of Olive's menu actions has a unique string ID (that, unlike the text, is not translated) for matching with
+   * an external shortcut configuration file. The ID is stored in the QAction's `property("id")`. This function returns
+   * that ID.
+   *
+   * @return
+   *
+   * The QAction's unique ID.
+   */
   QString action_name();
+
+  /**
+   * @brief Serialize this shortcut entry into a string that can be saved to a file
+   *
+   * @return
+   *
+   * A string serialization of this shortcut. The format is "[ID]\t[SEQUENCE]" where [ID] is the attached QAction's
+   * unique identifier and [SEQUENCE] is the current keyboard shortcut in the field (NOT necessarily the shortcut in
+   * the QAction). If the entered shortcut is the same as the QAction's default shortcut, the return value is empty
+   * because a default shortcut does not need to be saved to a file.
+   */
   QString export_shortcut();
 private:
+  /**
+   * @brief Internal reference to the linked QAction
+   */
   QAction* action;
 };
 

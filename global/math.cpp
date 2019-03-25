@@ -74,9 +74,28 @@ double cubic_t_from_x(double x_target, double a, double b, double c, double d) {
 }
 
 double amplitude_to_db(double amplitude) {
-    return (20.0*(qLn(amplitude)/qLn(10.0)));
+  return (20.0*(qLn(amplitude)/qLn(10.0)));
 }
 
 double db_to_amplitude(double db) {
-    return qPow(M_E, (db*qLn(10.0))/20.0);
+  return qPow(M_E, (db*qLn(10.0))/20.0);
+}
+
+QRect fit_size_into_rect(const QRect &r, int width, int height)
+{
+  // Get aspect ratio of object we're fitting
+  double inner_ar = double(width) / double(height);
+
+  // Get aspect ratio of rectangle
+  double rect_ar = double(r.width()) / double(r.height());
+
+  if (rect_ar > inner_ar) {
+    // The rect is wider than the object, so we'll be limiting by height and scaling by width
+    int new_width = qRound(r.height() * inner_ar);
+    return QRect(r.x() + (r.width() / 2 - new_width / 2), r.y(), new_width, r.height());
+  } else {
+    // The rect is taller than the object, so we'll be limiting by width and scaling by height
+    int new_height = qRound(r.width() / inner_ar);
+    return QRect(r.x(), r.y() + (r.height() / 2 - new_height / 2), r.width(), new_height);
+  }
 }

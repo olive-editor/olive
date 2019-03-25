@@ -45,7 +45,7 @@
 #include <QDir>
 #include <QProcess>
 
-SourceTable::SourceTable(QWidget* parent) : QTreeView(parent) {
+SourceTable::SourceTable(SourcesCommon& commons) : commons_(commons) {
   setSortingEnabled(true);
   setAcceptDrops(true);
   sortByColumn(0, Qt::AscendingOrder);
@@ -58,22 +58,22 @@ SourceTable::SourceTable(QWidget* parent) : QTreeView(parent) {
 }
 
 void SourceTable::show_context_menu() {
-  project_parent->sources_common->show_context_menu(this, selectionModel()->selectedRows());
+  commons_.show_context_menu(this, selectionModel()->selectedRows());
 }
 
 void SourceTable::item_click(const QModelIndex& index) {
   if (selectionModel()->selectedRows().size() == 1 && index.column() == 0) {
-    project_parent->sources_common->item_click(project_parent->item_to_media(index), index);
+    commons_.item_click(project_parent->item_to_media(index), index);
   }
 }
 
 void SourceTable::mousePressEvent(QMouseEvent* event) {
-  project_parent->sources_common->mousePressEvent(event);
+  commons_.mousePressEvent(event);
   QTreeView::mousePressEvent(event);
 }
 
 void SourceTable::mouseDoubleClickEvent(QMouseEvent* ) {
-  project_parent->sources_common->mouseDoubleClickEvent(selectionModel()->selectedRows());
+  commons_.mouseDoubleClickEvent(selectionModel()->selectedRows());
 }
 
 void SourceTable::dragEnterEvent(QDragEnterEvent *event) {
@@ -93,5 +93,5 @@ void SourceTable::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void SourceTable::dropEvent(QDropEvent* event) {
-  project_parent->sources_common->dropEvent(this, event, indexAt(event->pos()), selectionModel()->selectedRows());
+  commons_.dropEvent(this, event, indexAt(event->pos()), selectionModel()->selectedRows());
 }

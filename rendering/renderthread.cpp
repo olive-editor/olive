@@ -370,6 +370,22 @@ void RenderThread::cancel() {
   wait();
 }
 
+void RenderThread::wait_until_paused()
+{
+
+  // Wait for thread to finish whatever it's doing before proceeding.
+  //
+  // FIXME: This is slow. Perhaps there's a better way...
+
+  if (wait_lock_.tryLock()) {
+    wait_lock_.unlock();
+    return;
+  } else {
+    wait_lock_.lock();
+    wait_lock_.unlock();
+  }
+}
+
 void RenderThread::delete_buffers() {
   composite_buffer.Destroy();
   front_buffer_1.Destroy();

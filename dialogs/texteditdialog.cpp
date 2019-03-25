@@ -44,15 +44,6 @@ TextEditDialog::TextEditDialog(QWidget *parent, const QString &s, bool rich_text
   if (rich_text) {
     QHBoxLayout* toolbar = new QHBoxLayout();
 
-    // Bold Button
-    /*
-    bold_button = new QPushButton();
-    bold_button->setIcon(olive::icon::CreateIconFromSVG(":/icons/bold.svg", false));
-    bold_button->setCheckable(true);
-    connect(bold_button, SIGNAL(clicked(bool)), this, SLOT(SetBold(bool)));
-    toolbar->addWidget(bold_button);
-    */
-
     // Italic Button
     italic_button = new QPushButton();
     italic_button->setIcon(olive::icon::CreateIconFromSVG(":/icons/italic.svg", false));
@@ -156,10 +147,14 @@ TextEditDialog::TextEditDialog(QWidget *parent, const QString &s, bool rich_text
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
   buttons->setCenterButtons(true);
   layout->addWidget(buttons);
-  connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(cancel()));
+  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
+  // Connect the cursor position changing to the rich text toolbar buttons updating (so for example, when italic text
+  // is selected, the italic button will be pressed)
   connect(textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(UpdateUIFromTextCursor()));
+
+  // Set the widget's text based on the rich text mode
   if (rich_text_) {
     textEdit->setHtml(s);
   } else {
@@ -167,7 +162,7 @@ TextEditDialog::TextEditDialog(QWidget *parent, const QString &s, bool rich_text
   }
 
   // Helps ensure the UI elements update correctly at the beginning - when the cursor is at the start, the UI elements
-  // show up blank...
+  // show up blank. Setting it to the end is probably more expected behavior anyway.
   textEdit->moveCursor(QTextCursor::End);
 }
 
@@ -175,33 +170,14 @@ const QString& TextEditDialog::get_string() {
   return result_str;
 }
 
-void TextEditDialog::save() {
+void TextEditDialog::accept() {
   result_str = rich_text_ ? textEdit->toHtml() : textEdit->toPlainText();
-  accept();
-}
-
-void TextEditDialog::cancel() {
-  reject();
-}
-
-void TextEditDialog::SetBold(bool bold)
-{
-  QFont f = textEdit->currentFont();
-  f.setBold(bold);
-  textEdit->setCurrentFont(f);
-  UpdateUIFromTextCursor();
+  QDialog::accept();
 }
 
 void TextEditDialog::SetFontWeight(int i)
 {
   textEdit->setFontWeight(font_weight->itemData(i).toInt());
-}
-
-void TextEditDialog::SetLetterSpacing(qreal spacing)
-{
-  QFont f = textEdit->currentFont();
-  f.setLetterSpacing(f.letterSpacingType(), spacing);
-  textEdit->setCurrentFont(f);
 }
 
 void TextEditDialog::SetAlignmentFromProperty()

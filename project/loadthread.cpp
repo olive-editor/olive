@@ -34,10 +34,9 @@
 #include <QFile>
 #include <QTreeWidgetItem>
 
-LoadThread::LoadThread(const QString& filename, bool autorecovery, bool clear) :
+LoadThread::LoadThread(const QString& filename, bool autorecovery) :
   filename_(filename),
   autorecovery_(autorecovery),
-  clear_(clear),
   cancelled_(false)
 {
   connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
@@ -101,7 +100,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
         c->closing_transition = (sharing_clip->opening_transition);
 
         // since this is the closed clip, make this clip the secondary
-        c->opening_transition->secondary_clip = c;
+        c->closing_transition->secondary_clip = c;
       }
       return;
     }
@@ -606,8 +605,6 @@ Media* LoadThread::find_loaded_folder_by_id(int id) {
 }
 
 void LoadThread::OrganizeFolders(int folder) {
-  qDebug() << "starting with" << folder;
-
   for (int i=0;i<loaded_folders.size();i++) {
     MediaPtr item = loaded_folders.at(i);
     int parent_id = item->temp_id2;
@@ -615,7 +612,7 @@ void LoadThread::OrganizeFolders(int folder) {
     if (parent_id == folder) {
       olive::project_model.appendChild(find_loaded_folder_by_id(parent_id), item);
 
-      OrganizeFolders(parent_id);
+      OrganizeFolders(item->temp_id);
     }
 
   }
@@ -776,14 +773,12 @@ void LoadThread::success_func() {
       counter++;
     }
 
-    if (clear_) {
-      olive::Global->update_project_filename(orig_filename);
-    }
+    olive::Global->update_project_filename(orig_filename);
   } else {
     panel_project->add_recent_project(filename_);
   }
 
-  olive::Global->set_modified(autorecovery_ || !clear_);
+  olive::Global->set_modified(autorecovery_);
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }

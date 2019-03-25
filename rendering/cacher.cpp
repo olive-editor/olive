@@ -653,6 +653,7 @@ void Cacher::CacheVideoWorker() {
           // again, an EOF isn't an "error" but will how we add frames (see below)
 
           qCritical() << "Failed to retrieve frame from buffersink." << retrieve_code;
+          break;
 
         } else if (decoded_frame->pts != AV_NOPTS_VALUE) {
 

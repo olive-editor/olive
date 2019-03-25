@@ -65,20 +65,15 @@ extern "C" {
 #include "global/debug.h"
 #include "ui/menu.h"
 
-// TODO make these configurable
-const int kDefaultSequenceWidth = 1920;
-const int kDefaultSequenceHeight = 1080;
-const double kDefaultSequenceFrameRate = 29.97;
-const int kDefaultSequenceFrequency = 48000;
-const int kDefaultSequenceChannelLayout = 3;
-
 #define MAXIMUM_RECENT_PROJECTS 10 // FIXME: should be configurable
 
 QString autorecovery_filename;
 QStringList recent_projects;
 
 Project::Project(QWidget *parent) :
-  Panel(parent)
+  Panel(parent),
+  sorter(this),
+  sources_common(this, sorter)
 {
   QWidget* dockWidgetContents = new QWidget(this);
 
@@ -88,10 +83,7 @@ Project::Project(QWidget *parent) :
 
   setWidget(dockWidgetContents);
 
-  sources_common = new SourcesCommon(this);
-
-  sorter = new ProjectFilter(this);
-  sorter->setSourceModel(&olive::project_model);
+  ConnectFilterToModel();
 
   // optional toolbar
   toolbar_widget = new QWidget();
@@ -104,57 +96,63 @@ Project::Project(QWidget *parent) :
 
   QPushButton* toolbar_new = new QPushButton();
   toolbar_new->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/add-button.svg")));
-  toolbar_new->setToolTip("New");
+  toolbar_new->setToolTip(tr("New"));
   connect(toolbar_new, SIGNAL(clicked(bool)), this, SLOT(make_new_menu()));
   toolbar->addWidget(toolbar_new);
 
   QPushButton* toolbar_open = new QPushButton();
   toolbar_open->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/open.svg")));
-  toolbar_open->setToolTip("Open Project");
+  toolbar_open->setToolTip(tr("Open Project"));
   connect(toolbar_open, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(OpenProject()));
   toolbar->addWidget(toolbar_open);
 
   QPushButton* toolbar_save = new QPushButton();
   toolbar_save->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/save.svg")));
-  toolbar_save->setToolTip("Save Project");
+  toolbar_save->setToolTip(tr("Save Project"));
   connect(toolbar_save, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(save_project()));
   toolbar->addWidget(toolbar_save);
 
   QPushButton* toolbar_undo = new QPushButton();
   toolbar_undo->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/undo.svg")));
-  toolbar_undo->setToolTip("Undo");
+  toolbar_undo->setToolTip(tr("Undo"));
   connect(toolbar_undo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(undo()));
   toolbar->addWidget(toolbar_undo);
 
   QPushButton* toolbar_redo = new QPushButton();
   toolbar_redo->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/redo.svg")));
-  toolbar_redo->setToolTip("Redo");
+  toolbar_redo->setToolTip(tr("Redo"));
   connect(toolbar_redo, SIGNAL(clicked(bool)), olive::Global.get(), SLOT(redo()));
   toolbar->addWidget(toolbar_redo);
 
   toolbar_search = new QLineEdit();
   toolbar_search->setClearButtonEnabled(true);
-  connect(toolbar_search, SIGNAL(textChanged(QString)), sorter, SLOT(update_search_filter(const QString&)));
+  connect(toolbar_search, SIGNAL(textChanged(QString)), &sorter, SLOT(update_search_filter(const QString&)));
   toolbar->addWidget(toolbar_search);
 
   QPushButton* toolbar_tree_view = new QPushButton();
   toolbar_tree_view->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/treeview.svg")));
-  toolbar_tree_view->setToolTip("Tree View");
+  toolbar_tree_view->setToolTip(tr("Tree View"));
   connect(toolbar_tree_view, SIGNAL(clicked(bool)), this, SLOT(set_tree_view()));
   toolbar->addWidget(toolbar_tree_view);
 
   QPushButton* toolbar_icon_view = new QPushButton();
   toolbar_icon_view->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/iconview.svg")));
-  toolbar_icon_view->setToolTip("Icon View");
+  toolbar_icon_view->setToolTip(tr("Icon View"));
   connect(toolbar_icon_view, SIGNAL(clicked(bool)), this, SLOT(set_icon_view()));
   toolbar->addWidget(toolbar_icon_view);
+
+  QPushButton* toolbar_list_view = new QPushButton();
+  toolbar_list_view->setIcon(olive::icon::CreateIconFromSVG(QStringLiteral(":/icons/listview.svg")));
+  toolbar_list_view->setToolTip(tr("List View"));
+  connect(toolbar_list_view, SIGNAL(clicked(bool)), this, SLOT(set_list_view()));
+  toolbar->addWidget(toolbar_list_view);
 
   verticalLayout->addWidget(toolbar_widget);
 
   // tree view
-  tree_view = new SourceTable();
+  tree_view = new SourceTable(sources_common);
   tree_view->project_parent = this;
-  tree_view->setModel(sorter);
+  tree_view->setModel(&sorter);
   verticalLayout->addWidget(tree_view);
 
   // Set the first column width
@@ -181,23 +179,23 @@ Project::Project(QWidget *parent) :
 
   icon_view_controls->addStretch();
 
-  QSlider* icon_size_slider = new QSlider(Qt::Horizontal);
+  icon_size_slider = new QSlider(Qt::Horizontal);
   icon_size_slider->setMinimum(16);
-  icon_size_slider->setMaximum(120);
+  icon_size_slider->setMaximum(256);
   icon_view_controls->addWidget(icon_size_slider);
   connect(icon_size_slider, SIGNAL(valueChanged(int)), this, SLOT(set_icon_view_size(int)));
 
   icon_view_container_layout->addLayout(icon_view_controls);
 
-  icon_view = new SourceIconView();
+  icon_view = new SourceIconView(sources_common);
   icon_view->project_parent = this;
-  icon_view->setModel(sorter);
-  icon_view->setIconSize(QSize(100, 100));
+  icon_view->setModel(&sorter);
+  icon_view->setGridSize(QSize(100, 100));
   icon_view->setViewMode(QListView::IconMode);
   icon_view->setUniformItemSizes(true);
   icon_view_container_layout->addWidget(icon_view);
 
-  icon_size_slider->setValue(icon_view->iconSize().height());
+  icon_size_slider->setValue(icon_view->gridSize().height());
 
   verticalLayout->addWidget(icon_view_container);
 
@@ -212,8 +210,14 @@ Project::Project(QWidget *parent) :
   Retranslate();
 }
 
-Project::~Project() {
-  delete sorter;
+void Project::ConnectFilterToModel()
+{
+  sorter.setSourceModel(&olive::project_model);
+}
+
+void Project::DisconnectFilterToModel()
+{
+  sorter.setSourceModel(nullptr);
 }
 
 void Project::Retranslate() {
@@ -245,22 +249,22 @@ QString Project::get_next_sequence_name(QString start) {
   return name;
 }
 
-SequencePtr create_sequence_from_media(QVector<Media*>& media_list) {
+SequencePtr create_sequence_from_media(QVector<olive::timeline::MediaImportData>& media_list) {
   SequencePtr s(new Sequence());
 
   s->name = panel_project->get_next_sequence_name();
 
-  // shitty hardcoded default values
-  s->width = kDefaultSequenceWidth;
-  s->height = kDefaultSequenceHeight;
-  s->frame_rate = kDefaultSequenceFrameRate;
-  s->audio_frequency = kDefaultSequenceFrequency;
-  s->audio_layout = kDefaultSequenceChannelLayout;
+  // Retrieve default Sequence settings from Config
+  s->width = olive::CurrentConfig.default_sequence_width;
+  s->height = olive::CurrentConfig.default_sequence_height;
+  s->frame_rate = olive::CurrentConfig.default_sequence_framerate;
+  s->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
+  s->audio_layout = olive::CurrentConfig.default_sequence_audio_channel_layout;
 
   bool got_video_values = false;
   bool got_audio_values = false;
   for (int i=0;i<media_list.size();i++) {
-    Media* media = media_list.at(i);
+    Media* media = media_list.at(i).media();
     switch (media->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
     {
@@ -418,10 +422,10 @@ void Project::new_folder() {
   QModelIndex index = olive::project_model.create_index(m->row(), 0, m.get());
   switch (olive::CurrentConfig.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
-    tree_view->edit(sorter->mapFromSource(index));
+    tree_view->edit(sorter.mapFromSource(index));
     break;
   case olive::PROJECT_VIEW_ICON:
-    icon_view->edit(sorter->mapFromSource(index));
+    icon_view->edit(sorter.mapFromSource(index));
     break;
   }
 }
@@ -475,7 +479,7 @@ MediaPtr Project::create_folder_internal(QString name) {
 }
 
 Media* Project::item_to_media(const QModelIndex &index) {
-  return static_cast<Media*>(sorter->mapToSource(index).internalPointer());
+  return static_cast<Media*>(sorter.mapToSource(index).internalPointer());
 }
 
 MediaPtr Project::item_to_media_ptr(const QModelIndex &index) {
@@ -501,6 +505,21 @@ void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list
       list.append(item);
     }
   }
+}
+
+bool Project::IsToolbarVisible()
+{
+  return toolbar_widget->isVisible();
+}
+
+void Project::SetToolbarVisible(bool visible)
+{
+  toolbar_widget->setVisible(visible);
+}
+
+bool Project::IsProjectWidget(QObject *child)
+{
+  return (child == tree_view || child == icon_view);
 }
 
 bool delete_clips_in_clipboard_with_media(ComboAction* ca, Media* m) {
@@ -944,7 +963,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
       // if m == media, then we found the media object we were looking for
 
       // get sorter proxy item (the item that's "visible")
-      QModelIndex sorted_index = sorter->mapFromSource(item);
+      QModelIndex sorted_index = sorter.mapFromSource(item);
 
       // retrieve its parent item
       QModelIndex hierarchy = sorted_index.parent();
@@ -959,8 +978,8 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 
         // select item (requires a QItemSelection object to select the whole row)
         QItemSelection row_select(
-              sorter->index(sorted_index.row(), 0, sorted_index.parent()),
-              sorter->index(sorted_index.row(), sorter->columnCount()-1, sorted_index.parent())
+              sorter.index(sorted_index.row(), 0, sorted_index.parent()),
+              sorter.index(sorted_index.row(), sorter.columnCount()-1, sorted_index.parent())
               );
 
         tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
@@ -1307,20 +1326,35 @@ void Project::save_project(bool autorecovery) {
 
 void Project::update_view_type() {
   tree_view->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE);
-  icon_view_container->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON);
+  icon_view_container->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON
+                                  || olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_LIST);
+
 
   switch (olive::CurrentConfig.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
-    sources_common->view = tree_view;
+    sources_common.view = tree_view;
     break;
   case olive::PROJECT_VIEW_ICON:
-    sources_common->view = icon_view;
+  case olive::PROJECT_VIEW_LIST:
+    icon_view->setViewMode(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON ?
+                             QListView::IconMode : QListView::ListMode);
+
+    // update list/grid size since they use this value slightly differently
+    set_icon_view_size(icon_size_slider->value());
+
+    sources_common.view = icon_view;
     break;
   }
 }
 
 void Project::set_icon_view() {
   olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_ICON;
+  update_view_type();
+}
+
+void Project::set_list_view()
+{
+  olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_LIST;
   update_view_type();
 }
 
@@ -1352,7 +1386,12 @@ void Project::clear_recent_projects() {
 }
 
 void Project::set_icon_view_size(int s) {
-  icon_view->setIconSize(QSize(s, s));
+  if (icon_view->viewMode() == QListView::IconMode) {
+    icon_view->setGridSize(QSize(s, s));
+  } else {
+    icon_view->setGridSize(QSize());
+    icon_view->setIconSize(QSize(s, s));
+  }
 }
 
 void Project::set_up_dir_enabled() {

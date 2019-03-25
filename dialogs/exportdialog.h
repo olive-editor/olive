@@ -35,7 +35,9 @@
 /**
  * @brief The ExportDialog class
  *
- * The dialog to initiate an export.
+ * The dialog to initiate an export. Requires a valid Sequence to be set in olive::ActiveSequence or the result is
+ * defined (most likely a crash), so you should always do a `nullptr` check on olive::ActiveSequence before constructing
+ * this dialog.
  */
 class ExportDialog : public QDialog
 {
