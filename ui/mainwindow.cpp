@@ -341,7 +341,6 @@ void kbd_shortcut_processor(QByteArray& file, QMenu* menu, bool save, bool first
             }
           }
         }
-        a->setShortcutContext(Qt::ApplicationShortcut);
       }
     }
   }
