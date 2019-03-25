@@ -176,7 +176,8 @@ SOURCES += \
     rendering/bitdepths.cpp \
     timeline/mediaimportdata.cpp \
     dialogs/autocutsilencedialog.cpp \
-    ui/columnedgridlayout.cpp
+    ui/columnedgridlayout.cpp \
+    rendering/shadergenerators.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -306,7 +307,8 @@ HEADERS += \
     rendering/bitdepths.h \
     timeline/mediaimportdata.h \
     dialogs/autocutsilencedialog.h \
-    ui/columnedgridlayout.h
+    ui/columnedgridlayout.h \
+    rendering/shadergenerators.h
 
 FORMS +=
 

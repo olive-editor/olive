@@ -155,7 +155,7 @@ public:
   // video playback variables
   QVector<FramebufferObject> fbo;
   GLuint texture;
-  long texture_frame;
+  int64_t texture_timestamp;
 
 #ifndef NO_OCIO
   QOpenGLShaderProgramPtr ocio_shader;

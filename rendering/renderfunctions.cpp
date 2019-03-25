@@ -44,6 +44,7 @@ extern "C" {
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 #include "qopenglshaderprogramptr.h"
+#include "shadergenerators.h"
 
 GLfloat olive::rendering::blit_vertices[] = {
   -1.0f, -1.0f, 0.0f,
@@ -74,14 +75,6 @@ GLfloat olive::rendering::flipped_blit_texcoords[] = {
   0.0, 0.0,
   1.0, 0.0
 };
-
-#ifndef NO_OCIO
-// copied from source code to OCIODisplay
-const int OCIO_LUT3D_EDGE_SIZE = 32;
-
-// copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
-const int OCIO_NUM_3D_ENTRIES = 98304;
-#endif
 
 void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatrix4x4 matrix) {
 
@@ -124,95 +117,6 @@ void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatri
 
   pipeline->release();
 
-}
-
-QOpenGLShaderProgramPtr olive::rendering::GetPipeline(const QString& shader_code)
-{
-  QOpenGLShaderProgramPtr program = std::make_shared<QOpenGLShaderProgram>();
-
-  // Generate vertex shader
-  QString vert_shader = "#version 110\n"
-                        "\n"
-                        "#ifdef GL_ES\n"
-                        "precision mediump int;\n"
-                        "precision mediump float;\n"
-                        "#endif\n"
-                        "\n"
-                        "uniform mat4 mvp_matrix;\n"
-                        "\n"
-                        "attribute vec4 a_position;\n"
-                        "attribute vec2 a_texcoord;\n"
-                        "\n"
-                        "varying vec2 v_texcoord;\n"
-                        "\n"
-                        "void main() {\n"
-                        "  gl_Position = mvp_matrix * a_position;\n"
-                        "  v_texcoord = a_texcoord;\n"
-                        "}\n";
-
-  // Generate fragment shader
-  QString frag_shader = "#version 110\n"
-                        "\n"
-                        "#ifdef GL_ES\n"
-                        "precision mediump int;\n"
-                        "precision mediump float;\n"
-                        "#endif\n"
-                        "\n"
-                        "uniform sampler2D texture;\n"
-                        "uniform float opacity;\n"
-                        "uniform bool color_only;\n"
-                        "uniform vec4 color_only_color;\n"
-                        "varying vec2 v_texcoord;\n"
-                        "\n";
-
-  // Finish the function with the main function
-
-  // Check if additional code was passed to this function, add it here
-  if (shader_code.isEmpty()) {
-
-    // If not, just add a pure main() function
-
-    frag_shader.append("\n"
-                       "void main() {\n"
-                       "  if (color_only) {\n"
-                       "    gl_FragColor = color_only_color;"
-                       "  } else {\n"
-                       "    vec4 color = texture2D(texture, v_texcoord)*opacity;\n"
-                       "    gl_FragColor = color;\n"
-                       "  }\n"
-                       "}\n");
-
-  } else {
-
-    // If additional code was passed, add it and reference it in main().
-    //
-    // The function in the additional code is expected to be `vec4 process(vec4 color)`. The texture coordinate can be
-    // acquired through `v_texcoord`.
-
-    frag_shader.append(shader_code);
-
-    frag_shader.append("\n"
-                       "void main() {\n"
-                       "  vec4 color = process(texture2D(texture, v_texcoord))*opacity;\n"
-                       "  gl_FragColor = color;\n"
-                       "}\n");
-
-  }
-
-
-
-
-  // Add shaders to program
-  program->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_shader);
-  program->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_shader);
-  program->link();
-
-  // Set opacity default to 100%
-  program->bind();
-  program->setUniformValue("opacity", 1.0f);
-  program->release();
-
-  return program;
 }
 
 void draw_clip(QOpenGLContext* ctx,
@@ -560,7 +464,13 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
                     OCIO::ConstProcessorRcPtr processor = config->getProcessor(input_cs.toUtf8(),
                                                                                OCIO::ROLE_SCENE_LINEAR);
 
-                    c->ocio_shader = olive::rendering::SetupOCIO(params.ctx, c->ocio_lut_texture, processor);
+                    olive::shader::AlphaAssociateMode associate_mode = (c->media()->to_footage()->alpha_is_associated)
+                        ? olive::shader::DisassociateAndReassociate : olive::shader::Associate;
+
+                    c->ocio_shader = olive::shader::SetupOCIO(params.ctx,
+                                                              c->ocio_lut_texture,
+                                                              processor,
+                                                              associate_mode);
                   } catch (OCIO::Exception& e) {
                     qWarning() << e.what();
                   }
@@ -577,19 +487,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
               }
 #endif
-
-              if (!c->media()->to_footage()->alpha_is_associated) {
-
-                // alpha is not premultiplied, we'll need to multiply it for the rest of the pipeline
-                params.ctx->functions()->glBlendFuncSeparate(GL_SRC_ALPHA, GL_ZERO, GL_ONE, GL_ZERO);
-
-                textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
-
-                params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-                fbo_switcher = !fbo_switcher;
-
-              }
 
             }
           }
@@ -696,9 +593,8 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, textureID);
 
             // set texture filter to bilinear
-            //params.ctx->functions()->glGenerateMipmap(GL_TEXTURE_2D);
-            //params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            params.ctx->functions()->glGenerateMipmap(GL_TEXTURE_2D);
+            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             // draw clip on screen according to gl coordinates
@@ -953,74 +849,6 @@ void close_active_clips(Sequence* s) {
 }
 
 #ifndef NO_OCIO
-QOpenGLShaderProgramPtr olive::rendering::SetupOCIO(QOpenGLContext* ctx,
-                                                    GLuint& lut_texture,
-                                                    OCIO::ConstProcessorRcPtr processor)
-{
-
-  QOpenGLExtraFunctions* xf = ctx->extraFunctions();
-
-  // Create LUT texture
-  xf->glGenTextures(1, &lut_texture);
-
-  // Bind LUT
-  xf->glBindTexture(GL_TEXTURE_3D, lut_texture);
-
-  // Set texture parameters
-  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  xf->glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-  // Allocate storage for texture
-  xf->glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB16F_ARB,
-                   OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                   0, GL_RGB,GL_FLOAT, nullptr);
-
-  //
-  // SET UP GLSL SHADER
-  //
-
-  OCIO::GpuShaderDesc shaderDesc;
-  shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
-  shaderDesc.setFunctionName("OCIODisplay");
-  shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
-
-  //
-  // COMPUTE 3D LUT
-  //
-
-  GLfloat* ocio_lut_data = new GLfloat[OCIO_NUM_3D_ENTRIES];
-  processor->getGpuLut3D(ocio_lut_data, shaderDesc);
-
-  // Upload LUT data to texture
-  xf->glTexSubImage3D(GL_TEXTURE_3D, 0,
-                      0, 0, 0,
-                      OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE, OCIO_LUT3D_EDGE_SIZE,
-                      GL_RGB, GL_FLOAT, ocio_lut_data);
-
-  delete [] ocio_lut_data;
-
-  // Create OCIO shader code
-  QString shader_text(processor->getGpuShaderText(shaderDesc));
-  shader_text.append("\n"
-                     "uniform sampler3D tex2;\n"
-                     "\n"
-                     "vec4 process(vec4 col) {\n"
-                     "  return OCIODisplay(col, tex2);\n"
-                     "}\n");
-
-
-  // Get pipeline-based shader to inject OCIO shader into
-  QOpenGLShaderProgramPtr shader = olive::rendering::GetPipeline(shader_text);
-
-  // Release LUT
-  xf->glBindTexture(GL_TEXTURE_3D, 0);
-
-  return shader;
-}
-
 GLuint olive::rendering::OCIOBlit(QOpenGLShaderProgram *pipeline,
                                   GLuint lut,
                                   const FramebufferObject& fbo,

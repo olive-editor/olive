@@ -57,6 +57,7 @@ extern "C" {
 #include "ui/timelinewidget.h"
 #include "rendering/renderfunctions.h"
 #include "rendering/renderthread.h"
+#include "rendering/shadergenerators.h"
 #include "ui/viewerwindow.h"
 #include "ui/menu.h"
 #include "mainwindow.h"
@@ -217,7 +218,7 @@ void ViewerWidget::initializeGL() {
 
   connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(context_destroy()), Qt::DirectConnection);
 
-  pipeline_ = olive::rendering::GetPipeline();
+  pipeline_ = olive::shader::GetPipeline();
 
   vao_.create();
 

@@ -474,7 +474,7 @@ void Clip::Open() {
     }
 
     // reset variable used to optimize uploading frame data
-    texture_frame = -1;
+    texture_timestamp = -1;
 
     if (UsesCacher()) {
       // cacher will unlock open_lock
@@ -558,47 +558,60 @@ bool Clip::Retrieve()
 
     if (frame != nullptr && cacher.queue()->contains(frame)) {
 
-      bool allocate_data = false;
+      //if (frame->pts != texture_timestamp) {
 
-      // check if the opengl texture exists yet, create it if not
-      if (texture == 0) {
+        bool allocate_data = false;
+
         QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
 
-        // create texture object
-        f->glGenTextures(1, &texture);
+        // check if the opengl texture exists yet, create it if not
+        if (texture == 0) {
 
-        f->glBindTexture(GL_TEXTURE_2D, texture);
+          // create texture object
+          f->glGenTextures(1, &texture);
 
-        // set texture filtering to bilinear
-        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+          f->glBindTexture(GL_TEXTURE_2D, texture);
 
-        // queue an allocation ahead
-        allocate_data = true;
+          // set texture filtering to bilinear
+          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-      }
+          // queue an allocation ahead
+          allocate_data = true;
 
-      QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+        } else {
 
-      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
+          f->glBindTexture(GL_TEXTURE_2D, texture);
 
-      int video_width = cacher.media_width();
-      int video_height = cacher.media_height();
+        }
 
-      if (allocate_data) {
-        // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
-        // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
-        // composition
-        f->glTexImage2D(
-              GL_TEXTURE_2D, 0, GL_RGBA8, video_width, video_height, 0, GL_RGBA,  GL_UNSIGNED_BYTE, frame->data[0]
-              );
-      } else {
-        f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video_width, video_height,  GL_RGBA, GL_UNSIGNED_BYTE, frame->data[0]);
-      }
+        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
 
-      f->glBindTexture(GL_TEXTURE_2D, 0);
+        int video_width = cacher.media_width();
+        int video_height = cacher.media_height();
 
-      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        if (allocate_data) {
+
+          // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
+          // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
+          // composition
+          f->glTexImage2D(
+                GL_TEXTURE_2D, 0, GL_RGBA8, video_width, video_height, 0, GL_RGBA,  GL_UNSIGNED_BYTE, frame->data[0]
+                );
+
+        } else {
+
+          f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video_width, video_height,  GL_RGBA, GL_UNSIGNED_BYTE, frame->data[0]);
+
+        }
+
+        f->glBindTexture(GL_TEXTURE_2D, 0);
+
+        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+        texture_timestamp = frame->pts;
+
+      //}
 
       ret = true;
     } else {

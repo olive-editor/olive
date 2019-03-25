@@ -24,6 +24,9 @@
 #include <QOpenGLExtraFunctions>
 #include <QDebug>
 
+// TODO take this from Config rather than having a constant
+const GLuint kPixelFormat = GL_RGBA16F;
+
 FramebufferObject::FramebufferObject() :
   buffer_(0),
   texture_(0),
@@ -61,12 +64,8 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   ctx->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 
   // allocate storage for texture
-  /*ctx->functions()->glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr
-        );*/
-
   ctx->functions()->glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA,  GL_FLOAT, nullptr
+        GL_TEXTURE_2D, 0, kPixelFormat, width, height, 0, GL_RGBA,  GL_FLOAT, nullptr
         );
 
   // set texture filtering to bilinear

@@ -31,6 +31,7 @@
 #include <QDebug>
 
 #include "rendering/renderfunctions.h"
+#include "rendering/shadergenerators.h"
 #include "ui/mainwindow.h"
 
 ViewerWindow::ViewerWindow(QWidget *parent) :
@@ -109,7 +110,7 @@ void ViewerWindow::mouseMoveEvent(QMouseEvent *) {
 
 void ViewerWindow::initializeGL()
 {
-  pipeline_ = olive::rendering::GetPipeline();
+  pipeline_ = olive::shader::GetPipeline();
 }
 
 void ViewerWindow::paintGL() {

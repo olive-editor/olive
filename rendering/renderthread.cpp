@@ -36,6 +36,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 #include "effects/effectloaders.h"
 #include "global/config.h"
 #include "rendering/renderfunctions.h"
+#include "rendering/shadergenerators.h"
 
 RenderThread::RenderThread() :
   gizmos(nullptr),
@@ -117,7 +118,7 @@ void RenderThread::run() {
           olive::effects_loaded.unlock();
           blend_mode_program->link();
 
-          pipeline_program = olive::rendering::GetPipeline();
+          pipeline_program = olive::shader::GetPipeline();
         }
 
 #ifndef NO_OCIO
@@ -193,7 +194,7 @@ void RenderThread::set_up_ocio()
     OCIO::ConstProcessorRcPtr processor = config->getProcessor(transform);
 
     // Create a OCIO shader with this processor
-    ocio_shader = olive::rendering::SetupOCIO(ctx, ocio_lut_texture, processor);
+    ocio_shader = olive::shader::SetupOCIO(ctx, ocio_lut_texture, processor, olive::shader::NoAssociate);
 
   } catch(OCIO::Exception & e) {
     qCritical() << e.what();
