@@ -40,7 +40,7 @@ class MediaIconService : public QObject {
 public:
   MediaIconService();
 public slots:
-  void SetMediaIcon(Media* media, int icon_type);
+  void SetMediaIcon(Media* media, IconType icon_type);
 signals:
   void IconChanged();
 private slots:

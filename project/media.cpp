@@ -63,7 +63,8 @@ QString get_channel_layout_name(int channels, uint64_t layout) {
 
 Media::Media() :
   root(false),
-  type(-1)
+  type(-1),
+  disable_thumbnail_(false)
 {
 }
 
@@ -230,6 +231,11 @@ void Media::set_name(const QString &n) {
   }
 }
 
+void Media::disable_thumbnail(bool disable)
+{
+  disable_thumbnail_ = disable;
+}
+
 double Media::get_frame_rate(int stream) {
   switch (get_type()) {
   case MEDIA_TYPE_FOOTAGE:
@@ -308,7 +314,8 @@ QVariant Media::data(int column, int role) {
     if (column == 0) {
       if (get_type() == MEDIA_TYPE_FOOTAGE) {
         Footage* f = to_footage();
-        if (f->video_tracks.size() > 0
+        if (!disable_thumbnail_
+            && f->video_tracks.size() > 0
             && f->video_tracks.at(0).preview_done) {
           return QIcon(QPixmap::fromImage(f->video_tracks.at(0).video_preview));
         }

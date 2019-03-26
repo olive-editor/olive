@@ -585,9 +585,9 @@ bool Clip::Retrieve()
         int video_width = cacher.media_width();
         int video_height = cacher.media_height();
 
-        const olive::rendering::BitDepthInfo& bit_depth_info = olive::rendering::bit_depths.at(cacher.media_pixel_format());
+        const olive::PixelFormatInfo& pix_fmt_info = olive::pixel_formats.at(cacher.media_pixel_format());
 
-        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/bit_depth_info.bytes_per_pixel);
+        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/pix_fmt_info.bytes_per_pixel);
 
         if (allocate_data) {
 
@@ -595,12 +595,29 @@ bool Clip::Retrieve()
           // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
           // composition
           f->glTexImage2D(
-                GL_TEXTURE_2D, 0, bit_depth_info.internal_format, video_width, video_height, 0, bit_depth_info.pixel_format,  bit_depth_info.pixel_type, frame->data[0]
+                GL_TEXTURE_2D,
+                0,
+                pix_fmt_info.internal_format,
+                video_width,
+                video_height,
+                0,
+                pix_fmt_info.pixel_format,
+                pix_fmt_info.pixel_type,
+                frame->data[0]
                 );
 
         } else {
 
-          f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video_width, video_height,  bit_depth_info.pixel_format, bit_depth_info.pixel_type, frame->data[0]);
+          f->glTexSubImage2D(GL_TEXTURE_2D,
+                             0,
+                             0,
+                             0,
+                             video_width,
+                             video_height,
+                             pix_fmt_info.pixel_format,
+                             pix_fmt_info.pixel_type,
+                             frame->data[0]
+              );
 
         }
 

@@ -60,6 +60,7 @@ public:
   int get_type();
   const QString& get_name();
   void set_name(const QString& n);
+  void disable_thumbnail(bool disable);
 
   double get_frame_rate(int stream = -1);
   int get_sampling_rate(int stream = -1);
@@ -95,6 +96,7 @@ private:
   QString folder_name;
   QString tooltip;
   QIcon icon;
+  bool disable_thumbnail_;
 };
 
 #endif // MEDIA_H

@@ -302,6 +302,19 @@ private:
   QVector<KeySequenceEditor*> key_shortcut_fields;
 
   /**
+   * @brief Tests an OpenColorIO configuration file to determine whether it's valid and throws a messagebox if not
+   *
+   * @param url
+   *
+   * URL to the OpenColorIO configuration file.
+   *
+   * @return
+   *
+   * A OCIO::ConstConfigRcPtr config pointer if the configuration file is valid, nullptr if not.
+   */
+  OCIO::ConstConfigRcPtr TestOCIOConfig(const QString& url);
+
+  /**
    * @brief Add an automated QCheckBox+boolean value pair
    *
    * Many preferences are simple true/false (or on/off) options. Rather than adding a QCheckBox for each one and

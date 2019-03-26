@@ -26,9 +26,8 @@
 #include <QOpenGLExtraFunctions>
 
 namespace olive {
-namespace rendering {
 
-struct BitDepthInfo {
+struct PixelFormatInfo {
   QString name;
   GLint internal_format;
   GLenum pixel_format;
@@ -37,10 +36,10 @@ struct BitDepthInfo {
 };
 
 /**
- * @brief The OlivePixelFormat enum
+ * @brief The PixelFormat enum
  *
  * Olive's internal supported pixel formats. With the exception of OLIVE_PIX_FMT_COUNT, these must all
- * be defined in InitializeBitDepths().
+ * be defined in InitializePixelFormats().
  */
 enum PixelFormat {
   PIX_FMT_RGBA8,
@@ -50,11 +49,10 @@ enum PixelFormat {
   PIX_FMT_COUNT
 };
 
-extern QVector<BitDepthInfo> bit_depths;
+extern QVector<PixelFormatInfo> pixel_formats;
 
-void InitializeBitDepths();
+void InitializePixelFormats();
 
-}
 }
 
 #endif // BITDEPTHS_H

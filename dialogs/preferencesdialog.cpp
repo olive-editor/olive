@@ -48,7 +48,7 @@
 #include "global/config.h"
 #include "global/path.h"
 #include "rendering/audio.h"
-#include "rendering/bitdepths.h"
+#include "rendering/pixelformats.h"
 #include "panels/panels.h"
 #include "ui/columnedgridlayout.h"
 #include "ui/mainwindow.h"
@@ -170,36 +170,62 @@ void PreferencesDialog::delete_previews(PreviewDeleteTypes type) {
 
 void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
 {
-  // Get current display name (if the config is empty, get the current default display)
-  QString current_display = olive::CurrentConfig.ocio_display;
-  if (current_display.isEmpty()) {
-    current_display = config->getDefaultDisplay();
-  }
+  if (config == nullptr) {
 
-  // Populate the display menu
-  ocio_display->clear();
-  for (int i=0;i<config->getNumDisplays();i++) {
-    ocio_display->addItem(config->getDisplay(i));
+    // Just clear everything
+    ocio_display->clear();
+    ocio_view->clear();
+    ocio_look->clear();
 
-    // Check if this index is the currently selected
-    if (config->getDisplay(i) == current_display) {
-      ocio_display->setCurrentIndex(i);
+  } else {
+
+    // Get current display name (if the config is empty, get the current default display)
+    QString current_display = olive::CurrentConfig.ocio_display;
+    if (current_display.isEmpty()) {
+      current_display = config->getDefaultDisplay();
     }
-  }
 
-  update_ocio_view_menu(config);
+    // Populate the display menu
+    ocio_display->clear();
+    for (int i=0;i<config->getNumDisplays();i++) {
+      ocio_display->addItem(config->getDisplay(i));
 
-  // Populate the look menu
-  ocio_look->clear();
-  ocio_look->addItem(tr("(None)"), QString());
-  for (int i=0;i<config->getNumLooks();i++) {
-    const char* look = config->getLookNameByIndex(i);
-
-    ocio_look->addItem(look, look);
-
-    if (look == olive::CurrentConfig.ocio_look) {
-      ocio_look->setCurrentIndex(i);
+      // Check if this index is the currently selected
+      if (config->getDisplay(i) == current_display) {
+        ocio_display->setCurrentIndex(i);
+      }
     }
+
+    update_ocio_view_menu(config);
+
+    // Populate the look menu
+    ocio_look->clear();
+    ocio_look->addItem(tr("(None)"), QString());
+    for (int i=0;i<config->getNumLooks();i++) {
+      const char* look = config->getLookNameByIndex(i);
+
+      ocio_look->addItem(look, look);
+
+      if (look == olive::CurrentConfig.ocio_look) {
+        ocio_look->setCurrentIndex(i);
+      }
+    }
+
+  }
+}
+
+OCIO::ConstConfigRcPtr PreferencesDialog::TestOCIOConfig(const QString &url)
+{
+  // Check whether OCIO can load it
+  try {
+    OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8());
+    return config;
+  } catch (OCIO::Exception& e) {
+    QMessageBox::critical(this,
+                          tr("OpenColorIO Config Error"),
+                          tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
+                          QMessageBox::Ok);
+    return nullptr;
   }
 }
 
@@ -231,13 +257,13 @@ void PreferencesDialog::update_ocio_view_menu(OCIO::ConstConfigRcPtr config)
 
 void PreferencesDialog::update_ocio_config(const QString &s)
 {
-  if (!s.isEmpty() && QFileInfo::exists(s)) {
-    try {
-      OCIO::ConstConfigRcPtr file_config = OCIO::Config::CreateFromFile(s.toUtf8());
+  OCIO::ConstConfigRcPtr file_config = nullptr;
 
-      populate_ocio_menus(file_config);
-    } catch (OCIO::Exception& e) {}
+  if (!s.isEmpty() && QFileInfo::exists(s)) {
+    file_config = TestOCIOConfig(s);
   }
+
+  populate_ocio_menus(file_config);
 }
 
 void PreferencesDialog::AddBoolPair(QCheckBox *ui, bool *value, bool restart_required)
@@ -315,13 +341,9 @@ void PreferencesDialog::accept() {
     } else if (olive::CurrentConfig.ocio_config_path != ocio_config_file->text()) {
 
       // Check whether OCIO can load it
-      try {
-        OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8());
-      } catch (OCIO::Exception& e) {
-        QMessageBox::critical(this,
-                              tr("OpenColorIO Config Error"),
-                              tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
-                              QMessageBox::Ok);
+      OCIO::ConstConfigRcPtr file_config = TestOCIOConfig(ocio_config_file->text().toUtf8());
+
+      if (file_config == nullptr) {
         return;
       }
 
@@ -1066,8 +1088,8 @@ void PreferencesDialog::setup_ui() {
 
   // COLOR MANAGEMENT -> Bit Depth -> Playback
   playback_bit_depth = new QComboBox();
-  for (int i=0;i<olive::rendering::bit_depths.size();i++) {
-    playback_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
+  for (int i=0;i<olive::pixel_formats.size();i++) {
+    playback_bit_depth->addItem(olive::pixel_formats.at(i).name, i);
   }
   playback_bit_depth->setCurrentIndex(olive::CurrentConfig.playback_bit_depth);
   bit_depth_groupbox_layout->addWidget(new QLabel(tr("Playback (Offline):")), 0, 0);
@@ -1075,8 +1097,8 @@ void PreferencesDialog::setup_ui() {
 
   // COLOR MANAGEMENT -> Bit Depth -> Export
   export_bit_depth = new QComboBox();
-  for (int i=0;i<olive::rendering::bit_depths.size();i++) {
-    export_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
+  for (int i=0;i<olive::pixel_formats.size();i++) {
+    export_bit_depth->addItem(olive::pixel_formats.at(i).name, i);
   }
   export_bit_depth->setCurrentIndex(olive::CurrentConfig.export_bit_depth);
   bit_depth_groupbox_layout->addWidget(new QLabel(tr("Export (Online):")), 0, 2);

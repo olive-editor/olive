@@ -173,12 +173,12 @@ SOURCES += \
     ui/blur.cpp \
     ui/menu.cpp \
     rendering/qopenglshaderprogramptr.cpp \
-    rendering/bitdepths.cpp \
     timeline/mediaimportdata.cpp \
     dialogs/autocutsilencedialog.cpp \
     ui/columnedgridlayout.cpp \
     rendering/shadergenerators.cpp \
-    global/timing.cpp
+    global/timing.cpp \
+    rendering/pixelformats.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -305,12 +305,12 @@ HEADERS += \
     ui/blur.h \
     ui/menu.h \
     rendering/qopenglshaderprogramptr.h \
-    rendering/bitdepths.h \
     timeline/mediaimportdata.h \
     dialogs/autocutsilencedialog.h \
     ui/columnedgridlayout.h \
     rendering/shadergenerators.h \
-    global/timing.h
+    global/timing.h \
+    rendering/pixelformats.h
 
 FORMS +=
 

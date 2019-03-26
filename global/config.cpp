@@ -80,8 +80,8 @@ Config::Config()
     default_sequence_framerate(29.97),
     default_sequence_audio_frequency(48000),
     default_sequence_audio_channel_layout(3),
-    playback_bit_depth(olive::rendering::PIX_FMT_RGBA16F),
-    export_bit_depth(olive::rendering::PIX_FMT_RGBA32F)
+    playback_bit_depth(olive::PIX_FMT_RGBA16F),
+    export_bit_depth(olive::PIX_FMT_RGBA32F)
 {}
 
 void Config::load(QString path) {

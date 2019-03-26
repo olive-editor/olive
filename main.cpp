@@ -24,7 +24,7 @@
 #include "global/config.h"
 #include "global/global.h"
 #include "panels/timeline.h"
-#include "rendering/bitdepths.h"
+#include "rendering/pixelformats.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
   olive::timeline::MultiplyTrackSizesByDPI();
 
   // set up rendering bit depths
-  olive::rendering::InitializeBitDepths();
+  olive::InitializePixelFormats();
 
   // connect main window's first paint to global's init finished function
   QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()), Qt::QueuedConnection);

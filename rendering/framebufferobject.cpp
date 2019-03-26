@@ -26,7 +26,7 @@
 
 #include "global/config.h"
 #include "global/global.h"
-#include "bitdepths.h"
+#include "pixelformats.h"
 
 FramebufferObject::FramebufferObject() :
   buffer_(0),
@@ -65,9 +65,9 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   ctx->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 
   // allocate storage for texture
-  const olive::rendering::BitDepthInfo& bit_depth = olive::rendering::bit_depths.at(olive::Global->is_exporting() ?
-                                                                                      olive::CurrentConfig.export_bit_depth :
-                                                                                      olive::CurrentConfig.playback_bit_depth);
+  const olive::PixelFormatInfo& bit_depth = olive::pixel_formats.at(olive::Global->is_exporting() ?
+                                                                      olive::CurrentConfig.export_bit_depth :
+                                                                      olive::CurrentConfig.playback_bit_depth);
 
   ctx->functions()->glTexImage2D(
         GL_TEXTURE_2D,

@@ -999,10 +999,10 @@ void Cacher::OpenWorker() {
 
       if (pix_fmt == AV_PIX_FMT_RGBA) {
         qDebug() << "This is an 8-bit image.";
-        media_pixel_format_ = olive::rendering::PIX_FMT_RGBA8;
+        media_pixel_format_ = olive::PIX_FMT_RGBA8;
       } else {
         qDebug() << "This is an HDR image.";
-        media_pixel_format_ = olive::rendering::PIX_FMT_RGBA16;
+        media_pixel_format_ = olive::PIX_FMT_RGBA16;
       }
 
       const char* chosen_format = av_get_pix_fmt_name(pix_fmt);
@@ -1353,7 +1353,7 @@ ClipQueue *Cacher::queue()
   return &queue_;
 }
 
-const olive::rendering::PixelFormat &Cacher::media_pixel_format()
+const olive::PixelFormat &Cacher::media_pixel_format()
 {
   return media_pixel_format_;
 }

@@ -37,12 +37,13 @@ MediaIconService::MediaIconService() {
   throbber_pixmap_ = QPixmap(":/icons/throbber.png");
 }
 
-void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
+void MediaIconService::SetMediaIcon(Media *media, IconType icon_type) {
   // if this icon is already part of the throbber animation loop, remove it
   if (throbber_items_.contains(media)) {
     throbber_lock_.lock();
 
     throbber_items_.removeAll(media);
+    media->disable_thumbnail(false);
 
     throbber_lock_.unlock();
 
@@ -65,6 +66,8 @@ void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
     break;
   case ICON_TYPE_LOADING:
     throbber_items_.append(media);
+
+    media->disable_thumbnail(true);
 
     // if the animation timer isn't running, start it
     if (!throbber_animator_.isActive()) {

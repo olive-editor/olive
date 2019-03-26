@@ -43,7 +43,7 @@ extern "C" {
 #include <QMutex>
 
 #include "rendering/clipqueue.h"
-#include "rendering/bitdepths.h"
+#include "rendering/pixelformats.h"
 
 class Clip;
 
@@ -262,7 +262,7 @@ public:
    *
    * A olive::rendering::PixelFormat value corresponding to a member of olive::rendering::bit_depths.
    */
-  const olive::rendering::PixelFormat& media_pixel_format();
+  const olive::PixelFormat& media_pixel_format();
 
 private:
   /**
@@ -596,7 +596,7 @@ private:
   /**
    * @brief Internal struct holding bit depth information for the current media
    */
-  olive::rendering::PixelFormat media_pixel_format_;
+  olive::PixelFormat media_pixel_format_;
 };
 
 #endif // CACHER_H

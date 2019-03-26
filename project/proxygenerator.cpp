@@ -20,23 +20,24 @@
 
 #include "proxygenerator.h"
 
-#include "global/path.h"
-#include "project/previewgenerator.h"
-#include "ui/mainwindow.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QtMath>
-#include <QStatusBar>
-
-#include <QDebug>
-
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 }
 
+#include <QDir>
+#include <QFileInfo>
+#include <QtMath>
+#include <QStatusBar>
+#include <QDebug>
+
+#include "global/path.h"
+#include "project/previewgenerator.h"
+#include "ui/mediaiconservice.h"
+#include "ui/mainwindow.h"
+
+// TODO provide more codecs than just this one
 enum AVCodecID temp_enc_codec = AV_CODEC_ID_PRORES;
 
 ProxyGenerator::ProxyGenerator() : cancelled(false) {}
@@ -123,7 +124,7 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
       enc_ctx->width = qFloor(dec_ctx->width*info.size_multiplier);
       enc_ctx->height = qFloor(dec_ctx->height*info.size_multiplier);
       enc_ctx->sample_aspect_ratio = dec_ctx->sample_aspect_ratio;
-      enc_ctx->pix_fmt = enc_codec->pix_fmts[0];
+      enc_ctx->pix_fmt = avcodec_find_best_pix_fmt_of_list(enc_codec->pix_fmts, dec_ctx->pix_fmt, 1, nullptr);
       enc_ctx->framerate = dec_ctx->framerate;
       enc_ctx->time_base = in_stream->time_base;
       out_stream->time_base = in_stream->time_base;
@@ -356,8 +357,14 @@ void ProxyGenerator::run() {
       // set skip to false
       skip = false;
 
+      // set media icon to animated loading icon
+      olive::media_icon_service->SetMediaIcon(info.media, ICON_TYPE_LOADING);
+
       // transcode proxy
       transcode(info);
+
+      // set media icon back to video
+      olive::media_icon_service->SetMediaIcon(info.media, ICON_TYPE_VIDEO);
 
       // we're finished with this proxy, remove it
       proxy_queue.removeFirst();
