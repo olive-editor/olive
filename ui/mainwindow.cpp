@@ -1080,10 +1080,13 @@ void MainWindow::maximize_panel() {
       // store the current state of panels
       temp_panel_state = saveState();
 
-      // remove all dock widgets
+      // remove all dock widgets that aren't the hovered panel
       for (int i=0;i<olive::panels.size();i++) {
         if (olive::panels.at(i) != focused_panel) {
+          // hide the panel
           olive::panels.at(i)->setVisible(false);
+
+          // set it to floating
           olive::panels.at(i)->setFloating(true);
         }
       }
