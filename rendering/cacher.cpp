@@ -39,6 +39,7 @@
 #include "rendering/renderfunctions.h"
 #include "global/timing.h"
 #include "global/config.h"
+#include "global/global.h"
 #include "global/debug.h"
 #include "ui/mainwindow.h"
 
@@ -888,7 +889,8 @@ void Cacher::OpenWorker() {
     QByteArray ba;
 
     // do we have a proxy?
-    if (m->proxy
+    if ((!olive::Global->is_exporting() || !olive::CurrentConfig.dont_use_proxies_on_export)
+        && m->proxy
         && !m->proxy_path.isEmpty()
         && QFileInfo::exists(m->proxy_path)) {
       ba = m->proxy_path.toUtf8();

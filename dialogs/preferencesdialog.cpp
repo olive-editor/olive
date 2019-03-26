@@ -778,17 +778,27 @@ void PreferencesDialog::setup_ui() {
 
   row++;
 
+  QHBoxLayout* misc_general = new QHBoxLayout();
+
   // General -> Use Software Fallbacks When Possible
   QCheckBox* use_software_fallbacks_checkbox = new QCheckBox(tr("Use Software Fallbacks When Possible"));
   AddBoolPair(use_software_fallbacks_checkbox, &olive::CurrentConfig.use_software_fallback, true);
-  general_layout->addWidget(use_software_fallbacks_checkbox, row, 0, 1, 4);
+  misc_general->addWidget(use_software_fallbacks_checkbox);
 
-  row++;
+  // General -> Don't Use Proxies When Exporting
+  QCheckBox* dont_use_proxies_when_exporting = new QCheckBox(tr("Don't Use Proxies When Exporting"));
+  dont_use_proxies_when_exporting->setToolTip(tr("Use originals instead of proxies when exporting"));
+  AddBoolPair(dont_use_proxies_when_exporting, &olive::CurrentConfig.dont_use_proxies_on_export);
+  misc_general->addWidget(dont_use_proxies_when_exporting);
 
   // General -> Default Sequence Settings
   QPushButton* default_sequence_settings = new QPushButton(tr("Default Sequence Settings"));
   connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
-  general_layout->addWidget(default_sequence_settings);
+  misc_general->addWidget(default_sequence_settings);
+
+  general_layout->addLayout(misc_general, row, 0, 1, 5);
+
+  row++;
 
   tabWidget->addTab(general_tab, tr("General"));
 

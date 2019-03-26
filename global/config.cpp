@@ -81,7 +81,8 @@ Config::Config()
     default_sequence_audio_frequency(48000),
     default_sequence_audio_channel_layout(3),
     playback_bit_depth(olive::PIX_FMT_RGBA16F),
-    export_bit_depth(olive::PIX_FMT_RGBA32F)
+    export_bit_depth(olive::PIX_FMT_RGBA32F),
+    dont_use_proxies_on_export(true)
 {}
 
 void Config::load(QString path) {
@@ -254,6 +255,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "ExportBitDepth") {
           stream.readNext();
           export_bit_depth = stream.text().toInt();
+        } else if (stream.name() == "DontUseProxiesOnExport") {
+          stream.readNext();
+          dont_use_proxies_on_export = (stream.text() == "1");
         }
       }
     }
@@ -332,6 +336,7 @@ void Config::save(QString path) {
   stream.writeTextElement("DefaultSequenceAudioLayout", QString::number(default_sequence_audio_channel_layout));
   stream.writeTextElement("PlaybackBitDepth", QString::number(playback_bit_depth));
   stream.writeTextElement("ExportBitDepth", QString::number(export_bit_depth));
+  stream.writeTextElement("DontUseProxiesOnExport", QString::number(dont_use_proxies_on_export));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc

@@ -658,7 +658,7 @@ void ExportDialog::comp_type_changed(int) {
     break;
   case COMPRESSION_TYPE_CFR:
     videoBitrateLabel->setText(tr("Quality (CRF):"));
-    videobitrateSpinbox->setValue(36);
+    videobitrateSpinbox->setValue(23);
     videobitrateSpinbox->setMaximum(51);
     videobitrateSpinbox->setToolTip(tr("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = high quality\n51 = lowest quality possible"));
     break;

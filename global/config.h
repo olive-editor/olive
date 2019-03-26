@@ -604,6 +604,11 @@ struct Config {
   int export_bit_depth;
 
   /**
+   * @brief Don't use proxies on export (use originals instead)
+   */
+  bool dont_use_proxies_on_export;
+
+  /**
    * @brief Load config from file
    *
    * Load configuration parameters from file
