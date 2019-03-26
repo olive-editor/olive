@@ -40,7 +40,7 @@ class ButtonField : public EffectField
   Q_OBJECT
 public:
   /**
-   * @brief See Effect::Effect().
+   * @brief Reimplementation of EffectField::EffectField().
    */
   ButtonField(EffectRow* parent, const QString& string);
 
@@ -60,7 +60,9 @@ public:
   void SetCheckable(bool c);
 
   /**
-   * @brief See EffectField::CreateWidget()
+   * @brief Reimplementation of EffectField::CreateWidget()
+   *
+   * Creates and connects to a QPushButton.
    */
   virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
 
