@@ -133,50 +133,71 @@ void load_internal_effects() {
 void load_shader_effects_worker(const QString& effects_path) {
   QDir effects_dir(effects_path);
   if (effects_dir.exists()) {
-    QList<QString> entries = effects_dir.entryList(QStringList("*.xml"), QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+
+    QList<QString> entries = effects_dir.entryList({"*.xml", "*.blend"},
+                                                   QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+
     for (int i=0;i<entries.size();i++) {
       QString entry_path = effects_dir.filePath(entries.at(i));
       if (QFileInfo(entry_path).isDir()) {
         load_shader_effects_worker(entry_path);
       } else {
-        QFile file(effects_path + "/" + entries.at(i));
-        if (!file.open(QIODevice::ReadOnly)) {
-          qCritical() << "Could not open" << entries.at(i);
-          return;
-        }
+        QString file_url = QDir(effects_path).filePath(entries.at(i));
 
-        QXmlStreamReader reader(&file);
-        while (!reader.atEnd()) {
-          if (reader.name() == "effect") {
-            QString effect_name = "";
-            QString effect_cat = "";
-            const QXmlStreamAttributes attr = reader.attributes();
-            for (int j=0;j<attr.size();j++) {
-              if (attr.at(j).name() == "name") {
-                effect_name = attr.at(j).value().toString();
-              } else if (attr.at(j).name() == "category") {
-                effect_cat = attr.at(j).value().toString();
-              }
-            }
-            if (!effect_name.isEmpty()) {
-              EffectMeta em;
-              em.type = EFFECT_TYPE_EFFECT;
-              em.subtype = EFFECT_TYPE_VIDEO;
-              em.name = effect_name;
-              em.category = effect_cat;
-              em.filename = file.fileName();
-              em.path = effects_path;
-              em.internal = -1;
-              olive::effects.append(em);
-            } else {
-              qCritical() << "Invalid effect found in" << entries.at(i);
-            }
-            break;
+        if (file_url.endsWith(".blend", Qt::CaseInsensitive)) {
+
+          // Load blending mode shaders from file
+          QList<QString> blend_mode_entries = effects_dir.entryList(QStringList("*.blend"), QDir::Files);
+          for (int i=0;i<blend_mode_entries.size();i++) {
+            BlendMode b;
+            b.loaded = false;
+            b.url = effects_dir.filePath(blend_mode_entries.at(i));
+            b.name = QFileInfo(b.url).baseName();
+            olive::blend_modes.append(b);
           }
-          reader.readNext();
-        }
 
-        file.close();
+        } else {
+
+          QFile file(file_url);
+
+          if (!file.open(QIODevice::ReadOnly)) {
+            qCritical() << "Could not open" << entries.at(i);
+            return;
+          }
+
+          QXmlStreamReader reader(&file);
+          while (!reader.atEnd()) {
+            if (reader.name() == "effect") {
+              QString effect_name = "";
+              QString effect_cat = "";
+              const QXmlStreamAttributes attr = reader.attributes();
+              for (int j=0;j<attr.size();j++) {
+                if (attr.at(j).name() == "name") {
+                  effect_name = attr.at(j).value().toString();
+                } else if (attr.at(j).name() == "category") {
+                  effect_cat = attr.at(j).value().toString();
+                }
+              }
+              if (!effect_name.isEmpty()) {
+                EffectMeta em;
+                em.type = EFFECT_TYPE_EFFECT;
+                em.subtype = EFFECT_TYPE_VIDEO;
+                em.name = effect_name;
+                em.category = effect_cat;
+                em.filename = file.fileName();
+                em.path = effects_path;
+                em.internal = -1;
+                olive::effects.append(em);
+              } else {
+                qCritical() << "Invalid effect found in" << entries.at(i);
+              }
+              break;
+            }
+            reader.readNext();
+          }
+
+          file.close();
+        }
       }
     }
   }
