@@ -170,7 +170,7 @@ void PreferencesDialog::delete_previews(PreviewDeleteTypes type) {
 
 void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
 {
-  if (config == nullptr) {
+  if (!config) {
 
     // Just clear everything
     ocio_display->clear();
@@ -230,16 +230,16 @@ void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
 OCIO::ConstConfigRcPtr PreferencesDialog::TestOCIOConfig(const QString &url)
 {
   // Check whether OCIO can load it
+  OCIO::ConstConfigRcPtr config;
   try {
-    OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8());
-    return config;
+    config = OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8());
   } catch (OCIO::Exception& e) {
     QMessageBox::critical(this,
                           tr("OpenColorIO Config Error"),
                           tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
                           QMessageBox::Ok);
-    return nullptr;
   }
+  return config;
 }
 
 void PreferencesDialog::update_ocio_view_menu(OCIO::ConstConfigRcPtr config)
@@ -270,7 +270,7 @@ void PreferencesDialog::update_ocio_view_menu(OCIO::ConstConfigRcPtr config)
 
 void PreferencesDialog::update_ocio_config(const QString &s)
 {
-  OCIO::ConstConfigRcPtr file_config = nullptr;
+  OCIO::ConstConfigRcPtr file_config;
 
   if (!s.isEmpty() && QFileInfo::exists(s)) {
     file_config = TestOCIOConfig(s);
@@ -356,7 +356,7 @@ void PreferencesDialog::accept() {
       // Check whether OCIO can load it
       OCIO::ConstConfigRcPtr file_config = TestOCIOConfig(ocio_config_file->text().toUtf8());
 
-      if (file_config == nullptr) {
+      if (!file_config) {
         return;
       }
 

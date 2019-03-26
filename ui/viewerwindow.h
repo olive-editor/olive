@@ -25,6 +25,7 @@
 #include <QTimer>
 #include <QMutex>
 #include <QMenu>
+#include <QShortcut>
 
 #include "rendering/qopenglshaderprogramptr.h"
 

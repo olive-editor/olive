@@ -69,6 +69,7 @@
 #include "effects/internal/richtexteffect.h"
 
 QVector<EffectMeta> olive::effects;
+QVector<BlendMode> olive::blend_modes;
 QString olive::generated_blending_shader;
 
 EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
