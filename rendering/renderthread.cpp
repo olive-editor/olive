@@ -27,10 +27,8 @@
 #include <QOpenGLExtraFunctions>
 #include <QDebug>
 
-#ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
-#endif
 
 #include "timeline/sequence.h"
 #include "effects/effectloaders.h"
@@ -48,14 +46,10 @@ RenderThread::RenderThread() :
   tex_height(-1),
   queued(false),
   texture_failed(false),
-  #ifndef NO_OCIO
   ocio_lut_texture(0),
   ocio_shader(nullptr),
-  #endif
   running(true),
-  #ifndef NO_OCIO
   ocio_config_date(0),
-  #endif
   front_buffer_switcher(false)
 {
   surface.create();
@@ -121,17 +115,12 @@ void RenderThread::run() {
           pipeline_program = olive::shader::GetPipeline();
         }
 
-#ifndef NO_OCIO
         // If there's no OpenColorIO shader or the configuration has changed, (re-)create it now
-        if (olive::CurrentConfig.enable_color_management
-            && (ocio_shader == nullptr || ocio_config_date != olive::CurrentRuntimeConfig.ocio_config_date)) {
-          ocio_config_date = olive::CurrentRuntimeConfig.ocio_config_date;
-
+        if (olive::CurrentConfig.enable_color_management && ocio_shader == nullptr) {
           destroy_ocio();
 
           set_up_ocio();
         }
-#endif
 
         // draw frame
         paint();
@@ -160,7 +149,6 @@ const GLuint &RenderThread::get_texture()
   return front_buffer_switcher ? front_buffer_2.texture() : front_buffer_1.texture();
 }
 
-#ifndef NO_OCIO
 void RenderThread::set_up_ocio()
 {
 
@@ -194,7 +182,7 @@ void RenderThread::set_up_ocio()
     OCIO::ConstProcessorRcPtr processor = config->getProcessor(transform);
 
     // Create a OCIO shader with this processor
-    ocio_shader = olive::shader::SetupOCIO(ctx, ocio_lut_texture, processor, olive::shader::NoAssociate);
+    ocio_shader = olive::shader::SetupOCIO(ctx, ocio_lut_texture, processor, true);
 
   } catch(OCIO::Exception & e) {
     qCritical() << e.what();
@@ -205,12 +193,12 @@ void RenderThread::set_up_ocio()
 void RenderThread::destroy_ocio()
 {
   // Destroy LUT texture
-  ctx->functions()->glDeleteTextures(1, &ocio_lut_texture);
+  if (ocio_lut_texture > 0) {
+    ctx->functions()->glDeleteTextures(1, &ocio_lut_texture);
+  }
   ocio_lut_texture = 0;
-
   ocio_shader = nullptr;
 }
-#endif
 
 void RenderThread::paint() {
   // set up compose_sequence() parameters
@@ -254,29 +242,24 @@ void RenderThread::paint() {
   FramebufferObject& buffer = front_buffer_switcher ? front_buffer_1 : front_buffer_2;
 
   // Blit the composite buffer to one of the front buffers
-  bool standard_blit = true;
 
-#ifndef NO_OCIO
   // If we're color managing, conver the linear composited frame to display color space
   if (olive::CurrentConfig.enable_color_management && ocio_shader != nullptr) {
+
     olive::rendering::OCIOBlit(ocio_shader.get(),
                                ocio_lut_texture,
                                buffer,
                                composite_buffer.texture());
 
-    standard_blit = false;
-  }
-#else
+  } else {
 
-#endif
-
-  // If we're not color managing, just blit normally
-  if (standard_blit) {
+    // If we're not color managing, just blit normally
     buffer.BindBuffer();
     composite_buffer.BindTexture();
     olive::rendering::Blit(pipeline_program.get());
     composite_buffer.ReleaseTexture();
     buffer.ReleaseBuffer();
+
   }
 
   // flush changes
@@ -404,10 +387,7 @@ void RenderThread::delete_ctx() {
   if (ctx != nullptr) {
     delete_shaders();
     delete_buffers();
-
-#ifndef NO_OCIO
     destroy_ocio();
-#endif
   }
 
   delete ctx;

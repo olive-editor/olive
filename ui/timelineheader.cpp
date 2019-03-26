@@ -28,11 +28,10 @@
 
 #include "mainwindow.h"
 #include "panels/panels.h"
-#include "panels/timeline.h"
 #include "timeline/sequence.h"
 #include "undo/undo.h"
 #include "project/media.h"
-#include "panels/viewer.h"
+#include "global/timing.h"
 #include "global/config.h"
 #include "global/global.h"
 #include "ui/menu.h"

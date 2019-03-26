@@ -118,8 +118,6 @@ QString olive::shader::GetAlphaAssociateFunction(const QString &function_name)
                  "}\n").arg(function_name);
 }
 
-#ifndef NO_OCIO
-
 // copied from source code to OCIODisplay
 const int OCIO_LUT3D_EDGE_SIZE = 32;
 
@@ -129,7 +127,7 @@ const int OCIO_NUM_3D_ENTRIES = 98304;
 QOpenGLShaderProgramPtr olive::shader::SetupOCIO(QOpenGLContext* ctx,
                                                  GLuint& lut_texture,
                                                  OCIO::ConstProcessorRcPtr processor,
-                                                 AlphaAssociateMode alpha_associate_mode)
+                                                 bool alpha_is_associated)
 {
 
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
@@ -157,8 +155,9 @@ QOpenGLShaderProgramPtr olive::shader::SetupOCIO(QOpenGLContext* ctx,
   //
 
   OCIO::GpuShaderDesc shaderDesc;
+  const char* ocio_func_name = "OCIODisplay";
   shaderDesc.setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_0);
-  shaderDesc.setFunctionName("OCIODisplay");
+  shaderDesc.setFunctionName(ocio_func_name);
   shaderDesc.setLut3DEdgeLen(OCIO_LUT3D_EDGE_SIZE);
 
   //
@@ -179,39 +178,45 @@ QOpenGLShaderProgramPtr olive::shader::SetupOCIO(QOpenGLContext* ctx,
   // Create OCIO shader code
   QString shader_text(processor->getGpuShaderText(shaderDesc));
 
-  QString ocio_call_func;
+  QString shader_call;
 
   // Enforce alpha association
-  switch (alpha_associate_mode) {
-  case Associate:
+  if (alpha_is_associated) {
+
+    // If alpha is already associated, we'll need to disassociate and reassociate
+    shader_text.append("\n");
+
+    QString disassociate_func_name = "disassoc";
+    shader_text.append(GetAlphaDisassociateFunction(disassociate_func_name));
+
+    QString reassociate_func_name = "reassoc";
+    shader_text.append(GetAlphaReassociateFunction(reassociate_func_name));
+
+    // Make OCIO call pass through disassociate and reassociate function
+    shader_call = QString("%3(%1(%2(col), tex2));").arg(ocio_func_name,
+                                                        disassociate_func_name,
+                                                        reassociate_func_name);
+
+  } else {
+
     // If alpha is not already associated, we can just associate after OCIO
 
     // Add associate function
-    shader_text.append(GetAlphaAssociateFunction("assoc"));
+    QString associate_func_name = "assoc";
+    shader_text.append(GetAlphaAssociateFunction(associate_func_name));
 
     // Make OCIO call pass through associate function
-    ocio_call_func = "assoc(OCIODisplay(col, tex2));";
-    break;
-  case DisassociateAndReassociate:
-    // If alpha is already associated, we'll need to disassociate and reassociate
-    shader_text.append("\n");
-    shader_text.append(GetAlphaDisassociateFunction("disassoc"));
-    shader_text.append(GetAlphaReassociateFunction("reassoc"));
+    shader_call = QString("%2(%1(col, tex2));").arg(ocio_func_name, associate_func_name);
 
-    // Make OCIO call pass through disassociate and reassociate function
-    ocio_call_func = "reassoc(OCIODisplay(disassoc(col), tex2));";
-    break;
-  default:
-    // No association
-    ocio_call_func = "OCIODisplay(col, tex2);";
   }
 
+  // Add process() function, which GetPipeline() will call if specified
   shader_text.append(QString("\n"
                              "uniform sampler3D tex2;\n"
                              "\n"
                              "vec4 process(vec4 col) {\n"
                              "  return %1\n"
-                             "}\n").arg(ocio_call_func));
+                             "}\n").arg(shader_call));
 
 
   // Get pipeline-based shader to inject OCIO shader into
@@ -222,4 +227,3 @@ QOpenGLShaderProgramPtr olive::shader::SetupOCIO(QOpenGLContext* ctx,
 
   return shader;
 }
-#endif

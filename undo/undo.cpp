@@ -675,13 +675,13 @@ void SetClipProperty::MainLoop(bool undo)
 
 void SetClipProperty::doUndo() {
   MainLoop(true);
-  panel_sequence_viewer->viewer_widget->frame_update();
+  panel_sequence_viewer->viewer_widget()->frame_update();
 
 }
 
 void SetClipProperty::doRedo() {
   MainLoop(false);
-  panel_sequence_viewer->viewer_widget->frame_update();
+  panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
 AddMarkerAction::AddMarkerAction(QVector<Marker>* m, long t, QString n) {
@@ -896,7 +896,7 @@ void CloseAllClipsCommand::doUndo() {
 }
 
 void CloseAllClipsCommand::doRedo() {
-  close_active_clips(olive::ActiveSequence.get());
+  olive::ActiveSequence->Close();
 }
 
 UpdateFootageTooltip::UpdateFootageTooltip(Media *i) {
@@ -1112,7 +1112,7 @@ void UpdateViewer::doUndo() {
 }
 
 void UpdateViewer::doRedo() {
-  panel_sequence_viewer->viewer_widget->frame_update();
+  panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
 SetEffectData::SetEffectData(Effect *e, const QByteArray &s) {

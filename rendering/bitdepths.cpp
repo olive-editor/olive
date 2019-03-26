@@ -28,22 +28,29 @@ namespace rendering {
 QVector<BitDepthInfo> bit_depths;
 
 void InitializeBitDepths() {
-  BitDepthInfo bdi;
 
-  bdi.name = QCoreApplication::translate("bitdepths", "8-bit");
-  bdi.pixel_type = GL_UNSIGNED_BYTE;
-  bdi.internal_format = GL_RGBA8;
-  bit_depths.append(bdi);
+  bit_depths.resize(PIX_FMT_COUNT);
 
-  bdi.name = QCoreApplication::translate("bitdepths", "Half-Float (16-bit)");
-  bdi.pixel_type = GL_HALF_FLOAT;
-  bdi.internal_format = GL_RGBA16F;
-  bit_depths.append(bdi);
+  bit_depths[PIX_FMT_RGBA8].name = QCoreApplication::translate("bitdepths", "8-bit");
+  bit_depths[PIX_FMT_RGBA8].internal_format = GL_RGBA8;
+  bit_depths[PIX_FMT_RGBA8].pixel_format = GL_RGBA;
+  bit_depths[PIX_FMT_RGBA8].pixel_type = GL_UNSIGNED_BYTE;
 
-  bdi.name = QCoreApplication::translate("bitdepths", "Full-Float (32-bit)");
-  bdi.pixel_type = GL_FLOAT;
-  bdi.internal_format = GL_RGBA32F;
-  bit_depths.append(bdi);
+  bit_depths[PIX_FMT_RGBA16].name = QCoreApplication::translate("bitdepths", "16-bit Integer");
+  bit_depths[PIX_FMT_RGBA16].internal_format = GL_RGBA16UI;
+  bit_depths[PIX_FMT_RGBA16].pixel_format = GL_RGBA_INTEGER;
+  bit_depths[PIX_FMT_RGBA16].pixel_type = GL_UNSIGNED_SHORT;
+
+  bit_depths[PIX_FMT_RGBA16F].name = QCoreApplication::translate("bitdepths", "Half-Float (16-bit)");
+  bit_depths[PIX_FMT_RGBA16F].internal_format = GL_RGBA16F;
+  bit_depths[PIX_FMT_RGBA16F].pixel_format = GL_RGBA;
+  bit_depths[PIX_FMT_RGBA16F].pixel_type = GL_HALF_FLOAT;
+
+  bit_depths[PIX_FMT_RGBA32F].name = QCoreApplication::translate("bitdepths", "Full-Float (32-bit)");
+  bit_depths[PIX_FMT_RGBA32F].internal_format = GL_RGBA32F;
+  bit_depths[PIX_FMT_RGBA32F].pixel_format = GL_RGBA;
+  bit_depths[PIX_FMT_RGBA32F].pixel_type = GL_FLOAT;
+
 }
 
 }

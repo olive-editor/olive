@@ -177,7 +177,8 @@ SOURCES += \
     timeline/mediaimportdata.cpp \
     dialogs/autocutsilencedialog.cpp \
     ui/columnedgridlayout.cpp \
-    rendering/shadergenerators.cpp
+    rendering/shadergenerators.cpp \
+    global/timing.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -308,7 +309,8 @@ HEADERS += \
     timeline/mediaimportdata.h \
     dialogs/autocutsilencedialog.h \
     ui/columnedgridlayout.h \
-    rendering/shadergenerators.h
+    rendering/shadergenerators.h \
+    global/timing.h
 
 FORMS +=
 
@@ -327,27 +329,18 @@ TRANSLATIONS += \
 
 win32 {
     RC_FILE = packaging/windows/resources.rc
-    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-    !contains(DEFINES, NO_OCIO) {
-        LIBS += -lOpenColorIO
-    }
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lOpenColorIO -lopengl32 -luser32
 }
 
 mac {
-    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -framework CoreFoundation
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lOpenColorIO -framework CoreFoundation
     ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
-    !contains(DEFINES, NO_OCIO) {
-        LIBS += -lOpenColorIO
-    }
 }
 
 unix:!mac {
     CONFIG += link_pkgconfig
-    PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
-    !contains(DEFINES, NO_OCIO) {
-        LIBS += -lOpenColorIO
-    }
+    PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample OpenColorIO
 }
 
 RESOURCES += \

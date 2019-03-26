@@ -52,7 +52,8 @@ QString olive::ActiveProjectFilename;
 QString olive::AppName;
 
 OliveGlobal::OliveGlobal() :
-  changed_since_last_autorecovery(false)
+  changed_since_last_autorecovery(false),
+  rendering_(false)
 {
   // sets current app name
   QString version_id;
@@ -108,8 +109,13 @@ void OliveGlobal::check_for_autorecovery_file() {
   }
 }
 
-void OliveGlobal::set_rendering_state(bool rendering) {
-  audio_rendering = rendering;
+bool OliveGlobal::is_exporting()
+{
+  return rendering_;
+}
+
+void OliveGlobal::set_export_state(bool rendering) {
+  rendering_ = rendering;
   if (rendering) {
     autorecovery_timer.stop();
   } else {

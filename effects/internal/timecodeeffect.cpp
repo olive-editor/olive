@@ -37,7 +37,7 @@
 #include "ui/collapsiblewidget.h"
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
-#include "panels/viewer.h"
+#include "global/timing.h"
 #include "ui/comboboxex.h"
 #include "ui/colorbutton.h"
 #include "global/config.h"

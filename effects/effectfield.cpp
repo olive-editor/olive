@@ -25,6 +25,7 @@
 
 #include "rendering/renderfunctions.h"
 #include "global/config.h"
+#include "global/timing.h"
 #include "effects/effectrow.h"
 #include "effects/effect.h"
 #include "undo/undo.h"

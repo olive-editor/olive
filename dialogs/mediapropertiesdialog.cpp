@@ -30,10 +30,8 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QSpinBox>
-#ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
-#endif
 
 #include "project/footage.h"
 #include "project/media.h"
@@ -133,26 +131,26 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 
     row++;
 
-#ifndef NO_OCIO
-    color_management = new QComboBox(this);
+    input_color_space = new QComboBox(this);
 
     OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+
+    QString footage_colorspace = f->Colorspace();
 
     for (int i=0;i<config->getNumColorSpaces();i++) {
       QString colorspace = config->getColorSpaceNameByIndex(i);
 
-      color_management->addItem(colorspace);
+      input_color_space->addItem(colorspace);
 
-      if (colorspace == f->colorspace) {
-        color_management->setCurrentIndex(i);
+      if (colorspace == footage_colorspace) {
+        input_color_space->setCurrentIndex(i);
       }
     }
 
     grid->addWidget(new QLabel(tr("Color Space:")), row, 0);
-    grid->addWidget(color_management, row, 1);
+    grid->addWidget(input_color_space, row, 1);
 
     row++;
-#endif
 
   }
 
@@ -221,9 +219,7 @@ void MediaPropertiesDialog::accept() {
     f->alpha_is_associated = premultiply_alpha_setting->isChecked();
   }
 
-#ifndef NO_OCIO
-  f->colorspace = color_management->currentText();
-#endif
+  f->SetColorspace(input_color_space->currentText());
 
   // set name
   MediaRename* mr = new MediaRename(item, name_box->text());

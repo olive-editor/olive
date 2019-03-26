@@ -49,6 +49,7 @@ extern "C" {
 #include "global/config.h"
 #include "global/debug.h"
 #include "global/math.h"
+#include "global/timing.h"
 #include "ui/collapsiblewidget.h"
 #include "undo/undo.h"
 #include "project/media.h"
@@ -277,10 +278,6 @@ QMatrix4x4 ViewerWidget::get_matrix()
 
 void ViewerWidget::context_destroy() {
   makeCurrent();
-
-  if (viewer->seq != nullptr) {
-    close_active_clips(viewer->seq.get());
-  }
 
   renderer.delete_ctx();
 

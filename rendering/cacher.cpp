@@ -33,10 +33,11 @@
 #include <QStatusBar>
 #include <math.h>
 
+#include "panels/panels.h"
 #include "project/projectelements.h"
 #include "rendering/audio.h"
 #include "rendering/renderfunctions.h"
-#include "panels/panels.h"
+#include "global/timing.h"
 #include "global/config.h"
 #include "global/debug.h"
 #include "ui/mainwindow.h"
@@ -44,7 +45,6 @@
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
 
-const AVPixelFormat kDestPixFmt = AV_PIX_FMT_RGBA;
 const AVSampleFormat kDestSampleFmt = AV_SAMPLE_FMT_S16;
 
 double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
@@ -858,8 +858,6 @@ Cacher::Cacher(Clip* c) :
 {}
 
 void Cacher::OpenWorker() {
-  qint64 time_start = QDateTime::currentMSecsSinceEpoch();
-
   // set some defaults for the audio cacher
   if (clip->track() >= 0) {
     audio_reset_ = false;
@@ -988,7 +986,26 @@ void Cacher::OpenWorker() {
         last_filter = yadif_filter;
       }
 
-      const char* chosen_format = av_get_pix_fmt_name(kDestPixFmt);
+      AVPixelFormat possible_pix_fmts[] = {
+        AV_PIX_FMT_RGBA,
+        AV_PIX_FMT_RGBA64,
+        AV_PIX_FMT_NONE
+      };
+
+      AVPixelFormat pix_fmt = avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
+                                                                static_cast<AVPixelFormat>(stream->codecpar->format),
+                                                                1,
+                                                                nullptr);
+
+      if (pix_fmt == AV_PIX_FMT_RGBA) {
+        qDebug() << "This is an 8-bit image.";
+        media_pixel_format_ = olive::rendering::PIX_FMT_RGBA8;
+      } else {
+        qDebug() << "This is an HDR image.";
+        media_pixel_format_ = olive::rendering::PIX_FMT_RGBA16;
+      }
+
+      const char* chosen_format = av_get_pix_fmt_name(pix_fmt);
       snprintf(filter_args, sizeof(filter_args), "pix_fmts=%s", chosen_format);
 
       AVFilterContext* format_conv;
@@ -1091,7 +1108,7 @@ void Cacher::OpenWorker() {
     frame_ = av_frame_alloc();
   }
 
-  qInfo() << "Clip opened on track" << clip->track() << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
+  qInfo() << "Clip opened on track" << clip->track();
 
   is_valid_state_ = true;
 }
@@ -1334,6 +1351,11 @@ AVRational Cacher::media_time_base()
 ClipQueue *Cacher::queue()
 {
   return &queue_;
+}
+
+const olive::rendering::PixelFormat &Cacher::media_pixel_format()
+{
+  return media_pixel_format_;
 }
 
 int Cacher::RetrieveFrameFromDecoder(AVFrame* f) {

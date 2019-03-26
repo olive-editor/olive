@@ -53,6 +53,7 @@
 #include "ui/mainwindow.h"
 #include "undo/undostack.h"
 #include "global/debug.h"
+#include "global/timing.h"
 #include "ui/menu.h"
 
 int olive::timeline::kTrackDefaultHeight = 40;

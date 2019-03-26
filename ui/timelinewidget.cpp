@@ -39,6 +39,7 @@
 #include "project/projectelements.h"
 #include "rendering/audio.h"
 #include "global/config.h"
+#include "global/timing.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
 #include "undo/undo.h"

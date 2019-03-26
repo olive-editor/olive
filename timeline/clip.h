@@ -39,11 +39,6 @@
 
 #include "marker.h"
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavfilter/avfilter.h>
-}
-
 struct ClipSpeed {
   ClipSpeed();
   double value;

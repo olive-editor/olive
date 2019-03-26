@@ -43,6 +43,7 @@ extern "C" {
 #include <QMutex>
 
 #include "rendering/clipqueue.h"
+#include "rendering/bitdepths.h"
 
 class Clip;
 
@@ -253,6 +254,15 @@ public:
    * A pointer to the cacher's internal frame queue
    */
   ClipQueue* queue();
+
+  /**
+   * @brief Retrieve OpenGL information about this media's bit depth
+   *
+   * @return
+   *
+   * A olive::rendering::PixelFormat value corresponding to a member of olive::rendering::bit_depths.
+   */
+  const olive::rendering::PixelFormat& media_pixel_format();
 
 private:
   /**
@@ -582,6 +592,11 @@ private:
    * @brief Internal function using the Cacher's known information to determine whether this media is playing in reverse
    */
   bool IsReversed();
+
+  /**
+   * @brief Internal struct holding bit depth information for the current media
+   */
+  olive::rendering::PixelFormat media_pixel_format_;
 };
 
 #endif // CACHER_H

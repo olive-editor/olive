@@ -93,9 +93,9 @@ void FocusFilter::go_to_end() {
 
 void FocusFilter::set_viewer_fullscreen() {
   if (get_focused_panel() == panel_footage_viewer) {
-    panel_footage_viewer->viewer_widget->set_fullscreen();
+    panel_footage_viewer->viewer_widget()->set_fullscreen();
   } else {
-    panel_sequence_viewer->viewer_widget->set_fullscreen();
+    panel_sequence_viewer->viewer_widget()->set_fullscreen();
   }
 }
 

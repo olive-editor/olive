@@ -24,8 +24,9 @@
 #include <QOpenGLExtraFunctions>
 #include <QDebug>
 
-// TODO take this from Config rather than having a constant
-const GLuint kPixelFormat = GL_RGBA16F;
+#include "global/config.h"
+#include "global/global.h"
+#include "bitdepths.h"
 
 FramebufferObject::FramebufferObject() :
   buffer_(0),
@@ -64,8 +65,22 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   ctx->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 
   // allocate storage for texture
+  const olive::rendering::BitDepthInfo& bit_depth = olive::rendering::bit_depths.at(olive::Global->is_exporting() ?
+                                                                                      olive::CurrentConfig.export_bit_depth :
+                                                                                      olive::CurrentConfig.playback_bit_depth);
+
+  qDebug() << "hello" << bit_depth.name;
+
   ctx->functions()->glTexImage2D(
-        GL_TEXTURE_2D, 0, kPixelFormat, width, height, 0, GL_RGBA,  GL_FLOAT, nullptr
+        GL_TEXTURE_2D,
+        0,
+        bit_depth.internal_format,
+        width,
+        height,
+        0,
+        bit_depth.pixel_format,
+        bit_depth.pixel_type,
+        nullptr
         );
 
   // set texture filtering to bilinear

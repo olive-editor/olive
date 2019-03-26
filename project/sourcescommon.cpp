@@ -432,7 +432,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 
   if (olive::ActiveSequence != nullptr) {
     // close all clips so we can delete any proxies requested to be deleted
-    close_active_clips(olive::ActiveSequence.get());
+    olive::ActiveSequence->Close();
   }
 
   // delete proxies requested to be deleted
@@ -442,7 +442,7 @@ void SourcesCommon::clear_proxies_from_selected() {
 
   if (olive::ActiveSequence != nullptr) {
     // update viewer (will re-open active clips with original media)
-    panel_sequence_viewer->viewer_widget->frame_update();
+    panel_sequence_viewer->viewer_widget()->frame_update();
   }
 
   olive::Global->set_modified(true);

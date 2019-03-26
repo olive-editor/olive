@@ -127,7 +127,7 @@ void EffectControls::menu_select(QAction* q) {
     update_ui(true);
   } else {
     Reload();
-    panel_sequence_viewer->viewer_widget->frame_update();
+    panel_sequence_viewer->viewer_widget()->frame_update();
   }
 }
 
@@ -305,7 +305,7 @@ void EffectControls::deselect_all_effects(QWidget* sender) {
   }
 
   if (panel_sequence_viewer != nullptr) {
-    panel_sequence_viewer->viewer_widget->update();
+    panel_sequence_viewer->viewer_widget()->update();
   }
 }
 

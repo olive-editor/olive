@@ -351,8 +351,8 @@ void ExportDialog::export_thread_finished() {
   prep_ui_for_render(false);
 
   // Move OpenGL context back to the sequence viewer
-  panel_sequence_viewer->viewer_widget->makeCurrent();
-  panel_sequence_viewer->viewer_widget->initializeGL();
+  panel_sequence_viewer->viewer_widget()->makeCurrent();
+  panel_sequence_viewer->viewer_widget()->initializeGL();
 
   // Update the application UI
   update_ui(false);
@@ -573,9 +573,9 @@ void ExportDialog::StartExport() {
     panel_effect_controls->Clear();
 
     // Close all currently open clips
-    close_active_clips(olive::ActiveSequence.get());
+    olive::ActiveSequence->Close();
 
-    olive::Global->set_rendering_state(true);
+    olive::Global->set_export_state(true);
 
     olive::Global->save_autorecovery_file();
 

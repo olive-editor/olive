@@ -75,6 +75,16 @@ public:
     void check_for_autorecovery_file();
 
     /**
+     * @brief Get whether the project is currently being rendered or not. Useful for determining whether to treat the
+     * render as online or offline.
+     *
+     * @return
+     *
+     * TRUE if the project is being exported, FALSE if not.
+     */
+    bool is_exporting();
+
+    /**
      * @brief Set the application state depending on if the user is exporting a video
      *
      * Some background functions shouldn't run while Olive is exporting a video. This function will disable/enable them
@@ -90,7 +100,7 @@ public:
      *
      * **TRUE** if Olive is about to export a video. **FALSE** if Olive has finished exporting.
      */
-    void set_rendering_state(bool rendering);
+    void set_export_state(bool rendering);
 
     /**
      * @brief Set the application's "modified" state
@@ -422,6 +432,11 @@ private:
      * autorecovery, but still hasn't been saved into the original file yet.
      */
     bool changed_since_last_autorecovery;
+
+    /**
+     * @brief Internal variable for rendering state (set by set_rendering_state() and accessed by is_rendering() ).
+     */
+    bool rendering_;
 
 private slots:
 

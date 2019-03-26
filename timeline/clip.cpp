@@ -35,6 +35,7 @@
 #include "project/clipboard.h"
 #include "undo/undo.h"
 #include "global/debug.h"
+#include "global/timing.h"
 
 const int kRGBAComponentCount = 4;
 
@@ -492,7 +493,7 @@ void Clip::Close(bool wait) {
     open_ = false;
 
     if (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) {
-      close_active_clips(media()->to_sequence().get());
+      media()->to_sequence()->Close();
     }
 
     // destroy opengl texture in main thread
@@ -511,10 +512,8 @@ void Clip::Close(bool wait) {
     // delete framebuffers
     fbo.clear();
 
-#ifndef NO_OCIO
     // delete OCIO shader
     ocio_shader = nullptr;
-#endif
 
     if (UsesCacher()) {
       cacher.Close(wait);
@@ -590,18 +589,20 @@ bool Clip::Retrieve()
         int video_width = cacher.media_width();
         int video_height = cacher.media_height();
 
+        const olive::rendering::BitDepthInfo& bit_depth_info = olive::rendering::bit_depths.at(cacher.media_pixel_format());
+
         if (allocate_data) {
 
           // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
           // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
           // composition
           f->glTexImage2D(
-                GL_TEXTURE_2D, 0, GL_RGBA8, video_width, video_height, 0, GL_RGBA,  GL_UNSIGNED_BYTE, frame->data[0]
+                GL_TEXTURE_2D, 0, bit_depth_info.internal_format, video_width, video_height, 0, bit_depth_info.pixel_format,  bit_depth_info.pixel_type, frame->data[0]
                 );
 
         } else {
 
-          f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video_width, video_height,  GL_RGBA, GL_UNSIGNED_BYTE, frame->data[0]);
+          f->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, video_width, video_height,  bit_depth_info.pixel_format, bit_depth_info.pixel_type, frame->data[0]);
 
         }
 

@@ -34,6 +34,9 @@
 #include <QFile>
 #include <QTreeWidgetItem>
 
+const int LOAD_TYPE_VERSION = 100;
+const int LOAD_TYPE_URL = 101;
+
 LoadThread::LoadThread(const QString& filename, bool autorecovery) :
   filename_(filename),
   autorecovery_(autorecovery),

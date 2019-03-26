@@ -271,7 +271,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
   olive::icon::Initialize();
 
-#ifndef NO_OCIO
   // Load OpenColorIO configuration if set
   if (olive::CurrentConfig.enable_color_management && !olive::CurrentConfig.ocio_config_path.isEmpty()) {
     try {
@@ -283,7 +282,6 @@ MainWindow::MainWindow(QWidget *parent) :
                             QMessageBox::Ok);
     }
   }
-#endif
 
   alloc_panels(this);
 
@@ -971,8 +969,8 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
     olive::Global->set_sequence(nullptr);
 
-    panel_footage_viewer->viewer_widget->close_window();
-    panel_sequence_viewer->viewer_widget->close_window();
+    panel_footage_viewer->viewer_widget()->close_window();
+    panel_sequence_viewer->viewer_widget()->close_window();
 
     panel_footage_viewer->set_main_sequence();
 

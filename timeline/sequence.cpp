@@ -34,8 +34,6 @@ Sequence::Sequence() :
 {
 }
 
-Sequence::~Sequence() {}
-
 SequencePtr Sequence::copy() {
   SequencePtr s = std::make_shared<Sequence>();
   s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
@@ -73,6 +71,16 @@ long Sequence::getEndFrame() {
     }
   }
   return end;
+}
+
+void Sequence::Close()
+{
+  for (int i=0;i<clips.size();i++) {
+    Clip* c = clips.at(i).get();
+    if (c != nullptr) {
+      c->Close(true);
+    }
+  }
 }
 
 void Sequence::RefreshClips(Media *m) {

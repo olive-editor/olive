@@ -61,7 +61,6 @@ extern long audio_ibuffer_frame;
 extern double audio_ibuffer_timecode;
 extern bool audio_scrub;
 extern bool recording;
-extern bool audio_rendering;
 extern int audio_rendering_rate;
 void clear_audio_ibuffer();
 

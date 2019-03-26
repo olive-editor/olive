@@ -413,10 +413,10 @@ void ExportThread::Export()
   long remaining_frames, frame_count = 1;
 
   // Use Sequence Viewer's render thread - TODO separate this into a new render thread for background rendering
-  RenderThread* renderer = panel_sequence_viewer->viewer_widget->get_renderer();
+  RenderThread* renderer = panel_sequence_viewer->viewer_widget()->get_renderer();
 
   // Override connection from RenderThread
-  disconnect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
+  disconnect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget(), SLOT(queue_repaint()));
   connect(renderer, SIGNAL(ready()), this, SLOT(wake()));
 
   // Lock mutex (used for synchronization with RenderThread)
@@ -548,7 +548,7 @@ void ExportThread::Export()
 
   // Restore original connection from RenderThread
   disconnect(renderer, SIGNAL(ready()), this, SLOT(wake()));
-  connect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
+  connect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget(), SLOT(queue_repaint()));
 
   mutex.unlock();
 
@@ -559,7 +559,7 @@ void ExportThread::Export()
   if (params_.video_enabled) vpkt_alloc = true;
   if (params_.audio_enabled) apkt_alloc = true;
 
-  olive::Global->set_rendering_state(false);
+  olive::Global->set_export_state(false);
 
   // If audio is enabled, flush the rest of the audio out of swresample
   if (params_.audio_enabled) {

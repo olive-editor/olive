@@ -424,7 +424,7 @@ void Effect::move_up() {
   command->to = command->from - 1;
   olive::UndoStack.push(command);
   panel_effect_controls->Reload();
-  panel_sequence_viewer->viewer_widget->frame_update();
+  panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
 void Effect::move_down() {
@@ -439,7 +439,7 @@ void Effect::move_down() {
   command->to = command->from + 1;
   olive::UndoStack.push(command);
   panel_effect_controls->Reload();
-  panel_sequence_viewer->viewer_widget->frame_update();
+  panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
 void Effect::save_to_file() {

@@ -33,11 +33,11 @@ extern "C" {
 #include "undo/undo.h"
 #include "undo/undostack.h"
 #include "global/config.h"
-#include "panels/viewer.h"
 #include "panels/project.h"
 #include "ui/icons.h"
 #include "projectmodel.h"
 #include "global/debug.h"
+#include "global/timing.h"
 
 QString get_interlacing_name(int interlacing) {
   switch (interlacing) {

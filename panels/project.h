@@ -40,9 +40,6 @@
 
 #include "ui/sourcetable.h"
 
-#define LOAD_TYPE_VERSION 69
-#define LOAD_TYPE_URL 70
-
 extern QString autorecovery_filename;
 extern QStringList recent_projects;
 

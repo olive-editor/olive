@@ -83,7 +83,7 @@ private:
    */
   QCheckBox* premultiply_alpha_setting;
 
-  QComboBox* color_management;
+  QComboBox* input_color_space;
 private slots:
   /**
    * @brief Overrided accept function for saving the properties back to the Media class

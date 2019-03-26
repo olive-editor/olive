@@ -60,23 +60,20 @@ public:
 public slots:
   // cleanup functions
   void delete_ctx();
+  void delete_buffers();
+  void delete_shaders();
+  void destroy_ocio();
 signals:
   void ready();
 private:
-  // cleanup functions
-  void delete_buffers();
-  void delete_shaders();
 
-#ifndef NO_OCIO
   // OpenColorIO functions
   void set_up_ocio();
-  void destroy_ocio();
 
   // OpenColorIO variables
   GLuint ocio_lut_texture;
   QOpenGLShaderProgramPtr ocio_shader;
   qint64 ocio_config_date;
-#endif
 
   FramebufferObject front_buffer_1;
   QMutex front_mutex1;

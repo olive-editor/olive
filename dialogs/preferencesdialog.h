@@ -33,10 +33,8 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
-#ifndef NO_OCIO
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
-#endif
 
 #include "timeline/sequence.h"
 
@@ -125,11 +123,9 @@ private slots:
   void browse_ocio_config();
 
   // OCIO function
-#ifndef NO_OCIO
   void update_ocio_view_menu();
   void update_ocio_view_menu(OCIO::ConstConfigRcPtr config);
   void update_ocio_config(const QString&);
-#endif
 
   /**
    * @brief Shows a NewSequenceDialog attached to default_sequence
@@ -188,9 +184,7 @@ private:
    */
   void delete_previews(PreviewDeleteTypes type);
 
-#ifndef NO_OCIO
   void populate_ocio_menus(OCIO::ConstConfigRcPtr config);
-#endif
 
   /**
    * @brief UI widget for editing the CSS filename
@@ -273,6 +267,8 @@ private:
   QComboBox* ocio_display;
   QComboBox* ocio_view;
   QComboBox* ocio_look;
+  QComboBox* playback_bit_depth;
+  QComboBox* export_bit_depth;
 
   /**
    * @brief UI widget for selecting the current UI style

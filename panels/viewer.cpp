@@ -43,6 +43,7 @@ extern "C" {
 #include "timeline/clip.h"
 #include "panels/panels.h"
 #include "global/config.h"
+#include "global/timing.h"
 #include "project/footage.h"
 #include "project/media.h"
 #include "undo/undo.h"
@@ -77,8 +78,8 @@ Viewer::Viewer(QWidget *parent) :
   headers->snapping = false;
   headers->show_text(false);
   viewer_container->viewer = this;
-  viewer_widget = viewer_container->child;
-  viewer_widget->viewer = this;
+  viewer_widget_ = viewer_container->child;
+  viewer_widget_->viewer = this;
   set_media(nullptr);
 
   current_timecode_slider->setEnabled(false);
@@ -93,14 +94,12 @@ Viewer::Viewer(QWidget *parent) :
   connect(&playback_updater, SIGNAL(timeout()), this, SLOT(timer_update()));
   connect(&recording_flasher, SIGNAL(timeout()), this, SLOT(recording_flasher_update()));
   connect(horizontal_bar, SIGNAL(valueChanged(int)), headers, SLOT(set_scroll(int)));
-  connect(horizontal_bar, SIGNAL(valueChanged(int)), viewer_widget, SLOT(set_waveform_scroll(int)));
+  connect(horizontal_bar, SIGNAL(valueChanged(int)), viewer_widget_, SLOT(set_waveform_scroll(int)));
   connect(horizontal_bar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
 
   update_playhead_timecode(0);
   update_end_timecode();
 }
-
-Viewer::~Viewer() {}
 
 void Viewer::Retranslate() {
   /// Viewer panels are retranslated through the MainWindow to differentiate Media and Sequence Viewers
@@ -109,7 +108,7 @@ void Viewer::Retranslate() {
 
 bool Viewer::is_focused() {
   return headers->hasFocus()
-      || viewer_widget->hasFocus()
+      || viewer_widget_->hasFocus()
       || go_to_start_button->hasFocus()
       || prev_frame_button->hasFocus()
       || play_button->hasFocus()
@@ -144,132 +143,6 @@ void Viewer::reset_all_audio() {
     audio_ibuffer_timecode = double(audio_ibuffer_frame) / seq->frame_rate;
   }
   clear_audio_ibuffer();
-}
-
-long timecode_to_frame(const QString& s, int view, double frame_rate) {
-  QList<QString> list = s.split(QRegExp("[:;]"));
-
-  if (view == olive::kTimecodeFrames || (list.size() == 1 && view != olive::kTimecodeMilliseconds)) {
-    return s.toLong();
-  }
-
-  int frRound = qRound(frame_rate);
-  int hours, minutes, seconds, frames;
-
-  if (view == olive::kTimecodeMilliseconds) {
-    long milliseconds = s.toLong();
-
-    hours = milliseconds/3600000;
-    milliseconds -= (hours*3600000);
-    minutes = milliseconds/60000;
-    milliseconds -= (minutes*60000);
-    seconds = milliseconds/1000;
-    milliseconds -= (seconds*1000);
-    frames = qRound64((milliseconds*0.001)*frame_rate);
-
-    seconds = qRound64(seconds * frame_rate);
-    minutes = qRound64(minutes * frame_rate * 60);
-    hours = qRound64(hours * frame_rate * 3600);
-  } else {
-    hours = ((list.size() > 0) ? list.at(0).toInt() : 0) * frRound * 3600;
-    minutes = ((list.size() > 1) ? list.at(1).toInt() : 0) * frRound * 60;
-    seconds = ((list.size() > 2) ? list.at(2).toInt() : 0) * frRound;
-    frames = (list.size() > 3) ? list.at(3).toInt() : 0;
-  }
-
-  int f = (frames + seconds + minutes + hours);
-
-  if ((view == olive::kTimecodeDrop || view == olive::kTimecodeMilliseconds) && frame_rate_is_droppable(frame_rate)) {
-    // return drop
-    int d;
-    int m;
-
-    int dropFrames = qRound(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
-    int framesPer10Minutes = qRound(frame_rate * 60 * 10); //Number of frames per ten minutes
-    int framesPerMinute = (qRound(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
-
-    d = f / framesPer10Minutes;
-    f -= dropFrames*9*d;
-
-    m = f % framesPer10Minutes;
-
-    if (m > dropFrames) {
-      f -= (dropFrames * ((m - dropFrames) / framesPerMinute));
-    }
-  }
-
-  // return non-drop
-  return f;
-}
-
-QString frame_to_timecode(long f, int view, double frame_rate) {
-  if (view == olive::kTimecodeFrames) {
-    return QString::number(f);
-  }
-
-  // return timecode
-  int hours = 0;
-  int mins = 0;
-  int secs = 0;
-  int frames = 0;
-  QString token = ":";
-
-  if ((view == olive::kTimecodeDrop || view == olive::kTimecodeMilliseconds) && frame_rate_is_droppable(frame_rate)) {
-    //CONVERT A FRAME NUMBER TO DROP FRAME TIMECODE
-    //Code by David Heidelberger, adapted from Andrew Duncan, further adapted for Olive by Olive Team
-    //Given an int called framenumber and a double called framerate
-    //Framerate should be 29.97, 59.94, or 23.976, otherwise the calculations will be off.
-
-    int d;
-    int m;
-
-    int dropFrames = qRound(frame_rate * .066666); //Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
-    int framesPerHour = qRound(frame_rate*60*60); //Number of frqRound64ames in an hour
-    int framesPer24Hours = framesPerHour*24; //Number of frames in a day - timecode rolls over after 24 hours
-    int framesPer10Minutes = qRound(frame_rate * 60 * 10); //Number of frames per ten minutes
-    int framesPerMinute = (qRound(frame_rate)*60)-  dropFrames; //Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
-
-    //If framenumber is greater than 24 hrs, next operation will rollover clock
-    f = f % framesPer24Hours; // % is the modulus operator, which returns a remainder. a % b = the remainder of a/b
-
-    d = f / framesPer10Minutes; // \ means integer division, which is a/b without a remainder. Some languages you could use floor(a/b)
-    m = f % framesPer10Minutes;
-
-    //In the original post, the next line read m>1, which only worked for 29.97. Jean-Baptiste Mardelle correctly pointed out that m should be compared to dropFrames.
-    if (m > dropFrames) {
-      f = f + (dropFrames*9*d) + dropFrames * ((m - dropFrames) / framesPerMinute);
-    } else {
-      f = f + dropFrames*9*d;
-    }
-
-    int frRound = qRound(frame_rate);
-    frames = f % frRound;
-    secs = (f / frRound) % 60;
-    mins = ((f / frRound) / 60) % 60;
-    hours = (((f / frRound) / 60) / 60);
-
-    token = ";";
-  } else {
-    // non-drop timecode
-
-    int int_fps = qRound(frame_rate);
-    hours = f / (3600 * int_fps);
-    mins = f / (60*int_fps) % 60;
-    secs = f/int_fps % 60;
-    frames = f%int_fps;
-  }
-  if (view == olive::kTimecodeMilliseconds) {
-    return QString::number((hours*3600000)+(mins*60000)+(secs*1000)+qCeil(frames*1000/frame_rate));
-  }
-  return QString(QString::number(hours).rightJustified(2, '0') +
-                 ":" + QString::number(mins).rightJustified(2, '0') +
-                 ":" + QString::number(secs).rightJustified(2, '0') +
-                 token + QString::number(frames).rightJustified(2, '0')
-                 );
-}
-
-bool frame_rate_is_droppable(double rate) {
-  return (qFuzzyCompare(rate, 23.976) || qFuzzyCompare(rate, 29.97) || qFuzzyCompare(rate, 59.94));
 }
 
 void Viewer::seek(long p) {
@@ -499,7 +372,7 @@ void Viewer::update_header_zoom() {
       minimum_zoom = (sequenceEndFrame > 0) ? ((double) headers->width() / (double) sequenceEndFrame) : 1;
       headers->update_zoom(qMax(headers->get_zoom(), minimum_zoom));
       set_sb_max();
-      viewer_widget->waveform_zoom = headers->get_zoom();
+      viewer_widget_->waveform_zoom = headers->get_zoom();
     } else {
       headers->update();
     }
@@ -519,6 +392,11 @@ int Viewer::get_playback_speed() {
   return playback_speed;
 }
 
+ViewerWidget *Viewer::viewer_widget()
+{
+  return viewer_widget_;
+}
+
 void Viewer::set_marker() {
   set_marker_internal(seq.get());
 }
@@ -527,13 +405,13 @@ void Viewer::resizeEvent(QResizeEvent *e) {
   QDockWidget::resizeEvent(e);
   if (seq != nullptr) {
     set_sb_max();
-    viewer_widget->update();
+    viewer_widget_->update();
   }
 }
 
 void Viewer::update_viewer() {
   update_header_zoom();
-  viewer_widget->frame_update();
+  viewer_widget_->frame_update();
   if (seq != nullptr) {
     update_playhead_timecode(seq->playhead);
   }
@@ -616,9 +494,9 @@ void Viewer::update_window_title() {
 
 void Viewer::set_zoom_value(double d) {
   headers->update_zoom(d);
-  if (viewer_widget->waveform) {
-    viewer_widget->waveform_zoom = d;
-    viewer_widget->update();
+  if (viewer_widget_->waveform) {
+    viewer_widget_->waveform_zoom = d;
+    viewer_widget_->update();
   }
   if (seq != nullptr) {
     set_sb_max();
@@ -843,10 +721,10 @@ void Viewer::set_media(Media* m) {
         new_sequence->clips.append(c);
 
         if (footage->video_tracks.size() == 0) {
-          viewer_widget->waveform = true;
-          viewer_widget->waveform_clip = c;
-          viewer_widget->waveform_ms = &audio_stream;
-          viewer_widget->frame_update();
+          viewer_widget_->waveform = true;
+          viewer_widget_->waveform_clip = c;
+          viewer_widget_->waveform_ms = &audio_stream;
+          viewer_widget_->frame_update();
         }
       } else {
         new_sequence->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
@@ -926,7 +804,7 @@ void Viewer::drag_audio_only()
 }
 
 void Viewer::clean_created_seq() {
-  viewer_widget->waveform = false;
+  viewer_widget_->waveform = false;
 
   if (created_sequence) {
     // TODO delete undo commands referencing this sequence to avoid crashes
@@ -950,11 +828,11 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 
   reset_all_audio();
 
-  viewer_widget->wait_until_render_is_paused();
+  viewer_widget_->wait_until_render_is_paused();
 
   // If we had a current sequence open, close it
   if (seq != nullptr) {
-    close_active_clips(seq.get());
+    seq->Close();
   }
 
   clean_created_seq();
@@ -969,8 +847,8 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 
   headers->setEnabled(!null_sequence);
   current_timecode_slider->setEnabled(!null_sequence);
-  viewer_widget->setEnabled(!null_sequence);
-  viewer_widget->setVisible(!null_sequence);
+  viewer_widget_->setEnabled(!null_sequence);
+  viewer_widget_->setVisible(!null_sequence);
   go_to_start_button->setEnabled(!null_sequence);
   prev_frame_button->setEnabled(!null_sequence);
   play_button->setEnabled(!null_sequence);
@@ -1001,7 +879,7 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 
   update_header_zoom();
 
-  viewer_widget->frame_update();
+  viewer_widget_->frame_update();
 
   update();
 }

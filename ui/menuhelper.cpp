@@ -242,7 +242,7 @@ void MenuHelper::set_titlesafe_from_menu() {
 
   }
 
-  panel_sequence_viewer->viewer_widget->update();
+  panel_sequence_viewer->viewer_widget()->update();
 }
 
 void MenuHelper::set_autoscroll() {

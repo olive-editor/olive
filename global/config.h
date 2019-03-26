@@ -594,6 +594,16 @@ struct Config {
   int default_sequence_audio_channel_layout;
 
   /**
+   * @brief Playback bit depth (an index of olive::rendering::bit_depths)
+   */
+  int playback_bit_depth;
+
+  /**
+   * @brief Export bit depth (an index of olive::rendering::bit_depths)
+   */
+  int export_bit_depth;
+
+  /**
    * @brief Load config from file
    *
    * Load configuration parameters from file
@@ -644,13 +654,6 @@ struct RuntimeConfig {
    */
   QString external_translation_file;
 
-  /**
-   * @brief OpenColorIO Configuration Time
-   *
-   * A crude but quick way of determining whether the OCIO config has changed and if the rendering threads need to
-   * re-create their OCIO shaders. Not intended to be saved - could be moved
-   */
-  qint64 ocio_config_date;
 };
 
 namespace olive {

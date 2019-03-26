@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QtMath>
 #include <QPainter>
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "project/previewgenerator.h"
 #include "timeline/clip.h"
@@ -43,6 +45,28 @@ Footage::Footage() :
 
 Footage::~Footage() {
   reset();
+}
+
+QString Footage::Colorspace()
+{
+  if (!colorspace_.isEmpty()) {
+    return colorspace_;
+  }
+
+  // If this footage has no color space set, try to guess the color space from the filename
+  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+  QString guess_colorspace = config->parseColorSpaceFromString(url.toUtf8());
+
+  if (!guess_colorspace.isEmpty()) {
+    return guess_colorspace;
+  }
+
+  return OCIO::ROLE_SCENE_LINEAR;
+}
+
+void Footage::SetColorspace(const QString &cs)
+{
+  colorspace_ = cs;
 }
 
 void Footage::reset() {

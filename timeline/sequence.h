@@ -31,8 +31,8 @@
 class Sequence {
 public:
   Sequence();
-  ~Sequence();
   SequencePtr copy();
+
   QString name;
   void getTrackLimits(int* video_tracks, int* audio_tracks);
   long getEndFrame();
@@ -41,6 +41,19 @@ public:
   double frame_rate;
   int audio_frequency;
   int audio_layout;
+
+  /**
+   * @brief Close all open clips in a Sequence
+   *
+   * Closes any currently open clips on a Sequence and waits for them to close before returning. This may be slow as a
+   * result on large Sequence objects. If a Clip is a nested Sequence, this function calls itself recursively on that
+   * Sequence too.
+   *
+   * @param s
+   *
+   * The Sequence to close all clips on.
+   */
+  void Close();
 
   void RefreshClips(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);

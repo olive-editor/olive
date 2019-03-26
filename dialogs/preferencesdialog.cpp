@@ -168,7 +168,6 @@ void PreferencesDialog::delete_previews(PreviewDeleteTypes type) {
   }
 }
 
-#ifndef NO_OCIO
 void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
 {
   // Get current display name (if the config is empty, get the current default display)
@@ -240,7 +239,6 @@ void PreferencesDialog::update_ocio_config(const QString &s)
     } catch (OCIO::Exception& e) {}
   }
 }
-#endif
 
 void PreferencesDialog::AddBoolPair(QCheckBox *ui, bool *value, bool restart_required)
 {
@@ -279,6 +277,8 @@ void PreferencesDialog::accept() {
   bool reinit_audio = false;
   bool reload_language = false;
   bool reload_effects = false;
+  bool reset_ocio_shaders = false;
+  bool reset_render_threads = false;
 
   // Validate whether the specified CSS file exists
   if (!custom_css_fn->text().isEmpty() && !QFileInfo::exists(custom_css_fn->text())) {
@@ -290,31 +290,45 @@ void PreferencesDialog::accept() {
     return;
   }
 
-  // Validate whether the OCIO config path exists
-  if (enable_color_management->isChecked() && !QFileInfo::exists(ocio_config_file->text())) {
+  // Validate whether the chosen OCIO configuration file
+  if (enable_color_management->isChecked()) {
 
-    QString msg_title = tr("Invalid OpenColorIO Configuration File");
-    QString msg_body;
+    // Check whether the file exists
+    if (!QFileInfo::exists(ocio_config_file->text())) {
 
-    if (ocio_config_file->text().isEmpty()) {
-      msg_body = tr("You must specify an OpenColorIO configuration file if color management is enabled.");
-    } else {
-      msg_body = tr("OpenColorIO configuration file '%1' does not exist.").arg(ocio_config_file->text());
+      QString msg_title = tr("Invalid OpenColorIO Configuration File");
+      QString msg_body;
+
+      if (ocio_config_file->text().isEmpty()) {
+        msg_body = tr("You must specify an OpenColorIO configuration file if color management is enabled.");
+      } else {
+        msg_body = tr("OpenColorIO configuration file '%1' does not exist.").arg(ocio_config_file->text());
+      }
+
+      QMessageBox::critical(
+            this,
+            msg_title,
+            msg_body
+            );
+      return;
+
+    } else if (olive::CurrentConfig.ocio_config_path != ocio_config_file->text()) {
+
+      // Check whether OCIO can load it
+      try {
+        OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8());
+      } catch (OCIO::Exception& e) {
+        QMessageBox::critical(this,
+                              tr("OpenColorIO Config Error"),
+                              tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
+                              QMessageBox::Ok);
+        return;
+      }
+
     }
-
-    QMessageBox::critical(
-          this,
-          msg_title,
-          msg_body
-          );
-    return;
   }
 
-  // Validate whether the effects panel should refresh itself
-  if (olive::CurrentConfig.effect_textbox_lines != effect_textbox_lines_field->value()) {
-    reload_effects = true;
-  }
-
+  // Validate whether one of the bool options requires a restart
   bool bool_requires_restart = false;
   for (int i=0;i<bool_restart_required.size();i++) {
     if (bool_restart_required.at(i)
@@ -324,7 +338,7 @@ void PreferencesDialog::accept() {
     }
   }
 
-  // Check if any settings will require a restart of Olive
+  // Check if any settings will require a restart of Olive (including the bool options determined above)
   if (bool_requires_restart
       || olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()
@@ -355,20 +369,8 @@ void PreferencesDialog::accept() {
 
   }
 
-  // Audio settings may require the audio device to be re-initiated.
-  if (olive::CurrentConfig.preferred_audio_output != audio_output_devices->currentData().toString()
-      || olive::CurrentConfig.preferred_audio_input != audio_input_devices->currentData().toString()
-      || olive::CurrentConfig.audio_rate != audio_sample_rate->currentData().toInt()) {
-    reinit_audio = true;
-  }
 
-  // see if the language file should be reloaded (not necessary if the app is restarting anyway)
-  if (!restart_after_saving
-      && olive::CurrentConfig.language_file != language_combobox->currentData().toString()) {
-    reload_language = true;
-  }
-
-  // save settings from UI to backend
+  // Everything checks out, start saving settings from the UI to the backend
   olive::CurrentConfig.css_path = custom_css_fn->text();
   olive::CurrentConfig.recording_mode = recordingComboBox->currentIndex() + 1;
   olive::CurrentConfig.img_seq_formats = imgSeqFormatEdit->text();
@@ -377,53 +379,66 @@ void PreferencesDialog::accept() {
   olive::CurrentConfig.previous_queue_size = previous_queue_spinbox->value();
   olive::CurrentConfig.previous_queue_type = previous_queue_type->currentIndex();
 
+  // Audio settings may require the audio device to be re-initiated.
+  if (olive::CurrentConfig.preferred_audio_output != audio_output_devices->currentData().toString()
+      || olive::CurrentConfig.preferred_audio_input != audio_input_devices->currentData().toString()
+      || olive::CurrentConfig.audio_rate != audio_sample_rate->currentData().toInt()) {
+    reinit_audio = true;
+  }
   olive::CurrentConfig.preferred_audio_output = audio_output_devices->currentData().toString();
   olive::CurrentConfig.preferred_audio_input = audio_input_devices->currentData().toString();
   olive::CurrentConfig.audio_rate = audio_sample_rate->currentData().toInt();
 
   olive::CurrentConfig.effect_textbox_lines = effect_textbox_lines_field->value();
+
+  // see if the language file should be reloaded (not necessary if the app is restarting anyway)
+  if (!restart_after_saving
+      && olive::CurrentConfig.language_file != language_combobox->currentData().toString()) {
+    reload_language = true;
+  }
   olive::CurrentConfig.language_file = language_combobox->currentData().toString();
 
-  olive::CurrentConfig.enable_color_management = enable_color_management->isChecked();
-
-#ifndef NO_OCIO
-  if (olive::CurrentConfig.ocio_config_path != ocio_config_file->text()) {
-    try {
-      OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8()));
-
-      olive::CurrentConfig.ocio_config_path = ocio_config_file->text();
-    } catch (OCIO::Exception& e) {
-      QMessageBox::critical(this,
-                            tr("OpenColorIO Config Error"),
-                            tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
-                            QMessageBox::Ok);
-    }
-
+  // Check whether OCIO settings will require a reset of the render threads
+  if (olive::CurrentConfig.playback_bit_depth != playback_bit_depth->currentIndex()
+      || olive::CurrentConfig.export_bit_depth != export_bit_depth->currentIndex()) {
+    reset_render_threads = true;
   }
-
+  if (olive::CurrentConfig.ocio_config_path != ocio_config_file->text()
+      || olive::CurrentConfig.ocio_display != ocio_display->currentText()
+      || olive::CurrentConfig.ocio_view != ocio_view->currentText()
+      || olive::CurrentConfig.ocio_look != ocio_look->currentData().toString()) {
+    reset_ocio_shaders = true;
+  }
+  if (olive::CurrentConfig.ocio_config_path != ocio_config_file->text()) {
+    OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8()));
+    olive::CurrentConfig.ocio_config_path = ocio_config_file->text();
+  }
+  olive::CurrentConfig.enable_color_management = enable_color_management->isChecked();
+  olive::CurrentConfig.playback_bit_depth = playback_bit_depth->currentIndex();
+  olive::CurrentConfig.export_bit_depth = export_bit_depth->currentIndex();
   olive::CurrentConfig.ocio_display = ocio_display->currentText();
   olive::CurrentConfig.ocio_view = ocio_view->currentText();
 
   // We use data here instead of text because there's a "(None)" option with an empty string
   olive::CurrentConfig.ocio_look = ocio_look->currentData().toString();
 
-  olive::CurrentRuntimeConfig.ocio_config_date = QDateTime::currentMSecsSinceEpoch();
-#endif
 
-
+  // Set default sequence options
   olive::CurrentConfig.default_sequence_width = default_sequence.width;
   olive::CurrentConfig.default_sequence_height = default_sequence.height;
   olive::CurrentConfig.default_sequence_framerate = default_sequence.frame_rate;
   olive::CurrentConfig.default_sequence_audio_frequency = default_sequence.audio_frequency;
   olive::CurrentConfig.default_sequence_audio_channel_layout = default_sequence.audio_layout;
 
+  // Set all bool options
   for (int i=0;i<bool_ui.size();i++) {
     *bool_value[i] = bool_ui.at(i)->isChecked();
   }
 
+  // Set new style
   olive::CurrentConfig.style = static_cast<olive::styling::Style>(ui_style->currentData().toInt());
 
-  // Check if the thumbnail or waveform icon
+  // Check if the thumbnail or waveform icon fields have changed, we may need to recreate the previews if so
   if (olive::CurrentConfig.thumbnail_resolution != thumbnail_res_spinbox->value()
       || olive::CurrentConfig.waveform_resolution != waveform_res_spinbox->value()) {
     // we're changing the size of thumbnails and waveforms, so let's delete them and regenerate them next start
@@ -461,29 +476,46 @@ void PreferencesDialog::accept() {
     key_shortcut_fields.at(i)->set_action_shortcut();
   }
 
-  // Audio settings may require the audio device to be re-initiated.
-  if (reinit_audio) {
-    init_audio();
-  }
-
-  if (reload_effects) {
-    panel_effect_controls->Reload();
-  }
-
-  // reload language file if it changed
-  if (reload_language) {
-    olive::Global->load_translation_from_config();
-  }
-
   QDialog::accept();
 
   if (restart_after_saving) {
+
     // since we already ran can_close_project(), bypass checking again by running set_modified(false)
     olive::Global->set_modified(false);
 
     olive::MainWindow->close();
 
     QProcess::startDetached(QApplication::applicationFilePath(), { olive::ActiveProjectFilename });
+  } else {
+
+    // Audio settings may require the audio device to be re-initiated.
+    if (reinit_audio) {
+      init_audio();
+    }
+
+    if (reload_effects) {
+      panel_effect_controls->Reload();
+    }
+
+    // reload language file if it changed
+    if (reload_language) {
+      olive::Global->load_translation_from_config();
+    }
+
+    if (reset_render_threads) {
+      if (panel_footage_viewer->seq != nullptr) {
+        panel_footage_viewer->seq->Close();
+      }
+      panel_footage_viewer->viewer_widget()->get_renderer()->delete_ctx();
+      if (panel_sequence_viewer->seq != nullptr) {
+        panel_sequence_viewer->seq->Close();
+      }
+      panel_sequence_viewer->viewer_widget()->get_renderer()->delete_ctx();
+    } else if (reset_ocio_shaders) {
+      panel_footage_viewer->viewer_widget()->get_renderer()->destroy_ocio();
+      panel_sequence_viewer->viewer_widget()->get_renderer()->destroy_ocio();
+    }
+
   }
 }
 
@@ -618,12 +650,10 @@ void PreferencesDialog::browse_ocio_config()
   }
 }
 
-#ifndef NO_OCIO
 void PreferencesDialog::update_ocio_view_menu()
 {
   update_ocio_view_menu(OCIO::GetCurrentConfig());
 }
-#endif
 
 void PreferencesDialog::delete_all_previews() {
   if (QMessageBox::question(this,
@@ -988,87 +1018,77 @@ void PreferencesDialog::setup_ui() {
 
   row = 0;
 
-#ifdef NO_OCIO
-  QLabel* no_ocio_available_lbl = new QLabel(tr("<html><b>Color management is unavailable because Olive was "
-                                                "compiled without OpenColorIO support.</b></html>"));
-  no_ocio_available_lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  color_management_layout->addWidget(no_ocio_available_lbl, row, 0, 1, 3);
-  row++;
-#endif
-
   // COLOR MANAGEMENT -> Enable Color Management
   enable_color_management = new QCheckBox(tr("Enable Color Management"));
   enable_color_management->setChecked(olive::CurrentConfig.enable_color_management);
-  color_management_layout->addWidget(enable_color_management, row, 0, 1, 3);
+  color_management_layout->addWidget(enable_color_management, row, 0);
 
   row++;
 
+  QGroupBox* opencolorio_groupbox = new QGroupBox();
+  QGridLayout* opencolorio_groupbox_layout = new QGridLayout(opencolorio_groupbox);
+
   // COLOR MANAGEMENT -> OpenColorIO Config File
-  color_management_layout->addWidget(new QLabel(tr("OpenColorIO Config File:")), row, 0);
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("OpenColorIO Config File:")), 0, 0);
 
   ocio_config_file = new QLineEdit();
   ocio_config_file->setText(olive::CurrentConfig.ocio_config_path);
   connect(ocio_config_file, SIGNAL(textChanged(const QString &)), this, SLOT(update_ocio_config(const QString&)));
-  color_management_layout->addWidget(ocio_config_file, row, 1);
+  opencolorio_groupbox_layout->addWidget(ocio_config_file, 0, 1, 1, 4);
 
   QPushButton* ocio_config_browse_btn = new QPushButton(tr("Browse"));
   connect(ocio_config_browse_btn, SIGNAL(clicked(bool)), this, SLOT(browse_ocio_config()));
-  color_management_layout->addWidget(ocio_config_browse_btn, row, 2);
-
-  row++;
+  opencolorio_groupbox_layout->addWidget(ocio_config_browse_btn, 0, 5);
 
   // COLOR MANAGEMENT -> Display
   ocio_display = new QComboBox();
   connect(ocio_display, SIGNAL(currentIndexChanged(int)), this, SLOT(update_ocio_view_menu()));
-  color_management_layout->addWidget(new QLabel("Display:"), row, 0);
-  color_management_layout->addWidget(ocio_display, row, 1);
-
-  row++;
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Display:")), 1, 0);
+  opencolorio_groupbox_layout->addWidget(ocio_display, 1, 1);
 
   // COLOR MANAGEMENT -> View
   ocio_view = new QComboBox();
-  color_management_layout->addWidget(new QLabel("View:"), row, 0);
-  color_management_layout->addWidget(ocio_view, row, 1);
-
-  row++;
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("View:")), 1, 2);
+  opencolorio_groupbox_layout->addWidget(ocio_view, 1, 3);
 
   // COLOR MANAGEMENT -> Look
   ocio_look = new QComboBox();
-  color_management_layout->addWidget(new QLabel("Look:"), row, 0);
-  color_management_layout->addWidget(ocio_look, row, 1);
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Look:")), 1, 4);
+  opencolorio_groupbox_layout->addWidget(ocio_look, 1, 5);
+
+  color_management_layout->addWidget(opencolorio_groupbox, row, 0);
 
   row++;
 
-  // COLOR MANAGEMENT -> Playback Bit Depth
-  QComboBox* playback_bit_depth = new QComboBox();
+  // COLOR MANAGEMENT -> Bit Depth
+  QGroupBox* bit_depth_groupbox = new QGroupBox(tr("Bit Depth"));
+  QGridLayout* bit_depth_groupbox_layout = new QGridLayout(bit_depth_groupbox);
+
+  // COLOR MANAGEMENT -> Bit Depth -> Playback
+  playback_bit_depth = new QComboBox();
   for (int i=0;i<olive::rendering::bit_depths.size();i++) {
     playback_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
   }
-  color_management_layout->addWidget(new QLabel("Playback Bit Depth:"), row, 0);
-  color_management_layout->addWidget(playback_bit_depth, row, 1);
+  playback_bit_depth->setCurrentIndex(olive::CurrentConfig.playback_bit_depth);
+  bit_depth_groupbox_layout->addWidget(new QLabel(tr("Playback (Offline):")), 0, 0);
+  bit_depth_groupbox_layout->addWidget(playback_bit_depth, 0, 1);
 
-  row++;
-
-  // COLOR MANAGEMENT -> Rendering Bit Depth
-  QComboBox* rendering_bit_depth = new QComboBox();
+  // COLOR MANAGEMENT -> Bit Depth -> Export
+  export_bit_depth = new QComboBox();
   for (int i=0;i<olive::rendering::bit_depths.size();i++) {
-    rendering_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
+    export_bit_depth->addItem(olive::rendering::bit_depths.at(i).name, i);
   }
-  color_management_layout->addWidget(new QLabel("Rendering Bit Depth:"), row, 0);
-  color_management_layout->addWidget(rendering_bit_depth, row, 1);
+  export_bit_depth->setCurrentIndex(olive::CurrentConfig.export_bit_depth);
+  bit_depth_groupbox_layout->addWidget(new QLabel(tr("Export (Online):")), 0, 2);
+  bit_depth_groupbox_layout->addWidget(export_bit_depth, 0, 3);
 
-  row++;
+  color_management_layout->addWidget(bit_depth_groupbox, row, 0);
 
-#ifdef NO_OCIO
-  enable_color_management->setEnabled(false);
-  ocio_config_file->setEnabled(false);
-  ocio_config_browse_btn->setEnabled(false);
-  ocio_display->setEnabled(false);
-  ocio_view->setEnabled(false);
-  ocio_look->setEnabled(false);
-#else
+
+
+  //row++;
+
   populate_ocio_menus(OCIO::GetCurrentConfig());
-#endif
 
   tabWidget->addTab(color_management_tab, tr("Color Management"));
 

@@ -79,7 +79,9 @@ Config::Config()
     default_sequence_height(1080),
     default_sequence_framerate(29.97),
     default_sequence_audio_frequency(48000),
-    default_sequence_audio_channel_layout(3)
+    default_sequence_audio_channel_layout(3),
+    playback_bit_depth(olive::rendering::PIX_FMT_RGBA16F),
+    export_bit_depth(olive::rendering::PIX_FMT_RGBA32F)
 {}
 
 void Config::load(QString path) {
@@ -246,6 +248,12 @@ void Config::load(QString path) {
         } else if (stream.name() == "DefaultSequenceAudioLayout") {
           stream.readNext();
           default_sequence_audio_channel_layout = stream.text().toInt();
+        } else if (stream.name() == "PlaybackBitDepth") {
+          stream.readNext();
+          playback_bit_depth = stream.text().toInt();
+        } else if (stream.name() == "ExportBitDepth") {
+          stream.readNext();
+          export_bit_depth = stream.text().toInt();
         }
       }
     }
@@ -322,6 +330,8 @@ void Config::save(QString path) {
   stream.writeTextElement("DefaultSequenceFrameRate", QString::number(default_sequence_framerate));
   stream.writeTextElement("DefaultSequenceAudioFrequency", QString::number(default_sequence_audio_frequency));
   stream.writeTextElement("DefaultSequenceAudioLayout", QString::number(default_sequence_audio_channel_layout));
+  stream.writeTextElement("PlaybackBitDepth", QString::number(playback_bit_depth));
+  stream.writeTextElement("ExportBitDepth", QString::number(export_bit_depth));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc
@@ -329,6 +339,5 @@ void Config::save(QString path) {
 }
 
 RuntimeConfig::RuntimeConfig() :
-  shaders_are_enabled(true),
-  ocio_config_date(QDateTime::currentMSecsSinceEpoch())
+  shaders_are_enabled(true)
 {}

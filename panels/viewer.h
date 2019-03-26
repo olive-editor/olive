@@ -37,17 +37,12 @@
 #include "ui/labelslider.h"
 #include "ui/resizablescrollbar.h"
 
-bool frame_rate_is_droppable(double rate);
-long timecode_to_frame(const QString& s, int view, double frame_rate);
-QString frame_to_timecode(long f, int view, double frame_rate);
-
 class Viewer : public Panel
 {
   Q_OBJECT
 
 public:
   explicit Viewer(QWidget *parent = nullptr);
-  ~Viewer();
 
   bool is_focused();
   bool is_main_sequence();
@@ -90,7 +85,7 @@ public:
 
   int get_playback_speed();
 
-  ViewerWidget* viewer_widget;
+  ViewerWidget* viewer_widget();
 
   Media* media;
   SequencePtr seq;
@@ -134,7 +129,6 @@ private slots:
   void drag_audio_only();
 
 private:
-
   void update_window_title();
   void clean_created_seq();
   void set_sequence(bool main, SequencePtr s);
@@ -154,6 +148,8 @@ private:
   long get_seq_out();
 
   void setup_ui();
+
+  ViewerWidget* viewer_widget_;
 
   ResizableScrollBar* horizontal_bar;
   ViewerContainer* viewer_container;

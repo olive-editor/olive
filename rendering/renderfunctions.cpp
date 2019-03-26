@@ -40,9 +40,9 @@ extern "C" {
 #include "ui/collapsiblewidget.h"
 #include "rendering/audio.h"
 #include "global/math.h"
+#include "global/timing.h"
 #include "global/config.h"
 #include "panels/timeline.h"
-#include "panels/viewer.h"
 #include "qopenglshaderprogramptr.h"
 #include "shadergenerators.h"
 
@@ -365,6 +365,20 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
         int video_width = c->media_width();
         int video_height = c->media_height();
 
+        // prepare framebuffers for backend drawing operations
+        if (c->fbo.isEmpty()) {
+          // create 3 fbos for nested sequences, 2 for most clips
+          int fbo_count = (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
+
+          c->fbo.resize(fbo_count);
+
+          for (int j=0;j<fbo_count;j++) {
+            c->fbo[j].Create(params.ctx, video_width, video_height);
+          }
+        }
+
+        bool convert_frame_to_internal = false;
+
         // if media is footage
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
@@ -378,19 +392,13 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           }
 
           if (textureID == 0) {
+
             qWarning() << "Failed to create texture";
-          }
-        }
 
-        // prepare framebuffers for backend drawing operations
-        if (c->fbo.isEmpty()) {
-          // create 3 fbos for nested sequences, 2 for most clips
-          int fbo_count = (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) ? 3 : 2;
+          } else {
 
-          c->fbo.resize(fbo_count);
+            convert_frame_to_internal = true;
 
-          for (int j=0;j<fbo_count;j++) {
-            c->fbo[j].Create(params.ctx, video_width, video_height);
           }
         }
 
@@ -422,60 +430,43 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
             } else if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
-#ifndef NO_OCIO
-
-              // Convert texture to float
-              if (textureID != c->fbo.at(0).texture() && textureID != c->fbo.at(1).texture()) {
-                textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
-                fbo_switcher = !fbo_switcher;
-              }
-
               // Convert frame from source to linear colorspace
               if (olive::CurrentConfig.enable_color_management)
               {
 
-                if (c->ocio_shader == nullptr) {
-                  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+                // Convert texture to sequence's internal format
+                if (textureID != c->fbo.at(0).texture() && textureID != c->fbo.at(1).texture()) {
+                  textureID = draw_clip(params.ctx, params.pipeline, c->fbo.at(fbo_switcher), textureID, true);
+                  fbo_switcher = !fbo_switcher;
+                }
 
+                // Check if this clip has an OCIO shader set up or not
+                if (c->ocio_shader == nullptr) {
+
+
+                  // Set default input colorspace
                   QString input_cs = OCIO::ROLE_SCENE_LINEAR;
 
                   if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-
-                    if (!c->media()->to_footage()->colorspace.isEmpty()) {
-
-                      input_cs = c->media()->to_footage()->colorspace;
-
-                    } else {
-
-                      // If this is a footage clip, try to guess the color space from the filename
-                      QString guess_colorspace = config->parseColorSpaceFromString(c->media()->to_footage()->url.toUtf8());
-
-                      if (!guess_colorspace.isEmpty()) {
-                        input_cs = guess_colorspace;
-                      }
-
-                    }
-
+                    input_cs = c->media()->to_footage()->Colorspace();
                   }
 
-                  qDebug() << "Input colorspace:" << input_cs;
-
+                  // Try to get a shader based on the input color space to scene linear
                   try {
+                    OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
                     OCIO::ConstProcessorRcPtr processor = config->getProcessor(input_cs.toUtf8(),
                                                                                OCIO::ROLE_SCENE_LINEAR);
-
-                    olive::shader::AlphaAssociateMode associate_mode = (c->media()->to_footage()->alpha_is_associated)
-                        ? olive::shader::DisassociateAndReassociate : olive::shader::Associate;
 
                     c->ocio_shader = olive::shader::SetupOCIO(params.ctx,
                                                               c->ocio_lut_texture,
                                                               processor,
-                                                              associate_mode);
+                                                              c->media()->to_footage()->alpha_is_associated);
                   } catch (OCIO::Exception& e) {
                     qWarning() << e.what();
                   }
                 }
 
+                // Ensure we got a shader, and if so, blit with it
                 if (c->ocio_shader != nullptr) {
                   textureID = olive::rendering::OCIOBlit(c->ocio_shader.get(),
                                                          c->ocio_lut_texture,
@@ -486,8 +477,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
                 }
 
               }
-#endif
-
             }
           }
 
@@ -801,54 +790,6 @@ void olive::rendering::compose_audio(Viewer* viewer, Sequence* seq, int playback
   compose_sequence(params);
 }
 
-long rescale_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
-  return qRound((double(framenumber)/source_frame_rate)*target_frame_rate);
-}
-
-double get_timecode(Clip* c, long playhead) {
-  return double(playhead_to_clip_frame(c, playhead))/c->sequence->frame_rate;
-}
-
-long playhead_to_clip_frame(Clip* c, long playhead) {
-  return (qMax(0L, playhead - c->timeline_in(true)) + c->clip_in(true));
-}
-
-double playhead_to_clip_seconds(Clip* c, long playhead) {
-  // returns time in seconds
-  long clip_frame = playhead_to_clip_frame(c, playhead);
-
-  if (c->reversed()) {
-    clip_frame = c->media_length() - clip_frame - 1;
-  }
-
-  double secs = (double(clip_frame)/c->sequence->frame_rate)*c->speed().value;
-  if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-    secs *= c->media()->to_footage()->speed;
-  }
-
-  return secs;
-}
-
-int64_t seconds_to_timestamp(Clip *c, double seconds) {
-  return qRound64(seconds * av_q2d(av_inv_q(c->time_base())));
-}
-
-int64_t playhead_to_timestamp(Clip* c, long playhead) {
-  return seconds_to_timestamp(c, playhead_to_clip_seconds(c, playhead));
-}
-
-void close_active_clips(Sequence* s) {
-  if (s != nullptr) {
-    for (int i=0;i<s->clips.size();i++) {
-      Clip* c = s->clips.at(i).get();
-      if (c != nullptr) {
-        c->Close(true);
-      }
-    }
-  }
-}
-
-#ifndef NO_OCIO
 GLuint olive::rendering::OCIOBlit(QOpenGLShaderProgram *pipeline,
                                   GLuint lut,
                                   const FramebufferObject& fbo,
@@ -880,4 +821,3 @@ GLuint olive::rendering::OCIOBlit(QOpenGLShaderProgram *pipeline,
 
   return textureID;
 }
-#endif

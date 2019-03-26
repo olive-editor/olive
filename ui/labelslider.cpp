@@ -26,7 +26,7 @@
 #include <QMenu>
 
 #include "undo/undo.h"
-#include "panels/viewer.h"
+#include "global/timing.h"
 #include "global/config.h"
 #include "global/math.h"
 #include "global/debug.h"

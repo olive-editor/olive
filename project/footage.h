@@ -65,7 +65,8 @@ struct FootageStream {
   QVector<char> audio_preview;
 };
 
-struct Footage {
+class Footage {
+public:
   Footage();
   ~Footage();
 
@@ -82,10 +83,9 @@ struct Footage {
   bool alpha_is_associated;
   int start_number;
 
-#ifndef NO_OCIO
   // color management
-  QString colorspace;
-#endif
+  QString Colorspace();
+  void SetColorspace(const QString& cs);
 
   // proxy config
   bool proxy;
@@ -107,6 +107,8 @@ struct Footage {
   long get_length_in_frames(double frame_rate);
   FootageStream *get_stream_from_file_index(bool video, int index);
   void reset();
+private:
+  QString colorspace_;
 };
 
 using FootagePtr = std::shared_ptr<Footage>;
