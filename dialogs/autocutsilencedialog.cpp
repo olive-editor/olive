@@ -31,7 +31,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 
-AutoCutSilenceDialog::AutoCutSilenceDialog(QWidget *parent, QVector<Clip*> clips) :
+AutoCutSilenceDialog::AutoCutSilenceDialog(QWidget *parent, QVector<int> clips) :
   QDialog(parent),
   clips_(clips)
 {
@@ -119,10 +119,12 @@ void AutoCutSilenceDialog::accept() {
 }
 
 void AutoCutSilenceDialog::cut_silence() {
+  ComboAction* ca = new ComboAction();
+
   // Loop over clips provided to this dialog
   for (int j=0;j<clips_.size();j++) {
 
-    Clip* clip = clips_.at(j);
+    Clip* clip = olive::ActiveSequence->clips.at(clips_.at(j)).get();
 
     // Check if this clip is an audio footage clip
     if (clip->track() >= 0
@@ -200,23 +202,14 @@ void AutoCutSilenceDialog::cut_silence() {
         }
       }
 
-      ComboAction* ca = new ComboAction();
-
-      // NO GOOD VERY BAD TEST CODE
-      int clip_index = -1;
-      for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-        if (olive::ActiveSequence->clips.at(i).get() == clip) {
-          clip_index = i;
-          break;
-        }
-      }
-
-      Q_ASSERT(clip_index > -1);
-
-      panel_timeline->split_clip_at_positions(ca, clip_index, split_positions);
-      olive::UndoStack.push(ca);
+      panel_timeline->split_clip_at_positions(ca, clips_.at(j), split_positions);
     }
 
+  }
 
+  if (ca->hasActions()) {
+    olive::UndoStack.push(ca);
+  } else {
+    delete ca;
   }
 }

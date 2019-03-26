@@ -31,7 +31,7 @@ class AutoCutSilenceDialog : public QDialog
 {
   Q_OBJECT
 public:
-  AutoCutSilenceDialog(QWidget* parent, QVector<Clip*> clips);
+  AutoCutSilenceDialog(QWidget* parent, QVector<int> clips);
 public slots:
   virtual int exec() override;
 private slots:
@@ -39,7 +39,7 @@ private slots:
 private:
   void cut_silence();
 
-  QVector<Clip*> clips_;
+  QVector<int> clips_;
 
   LabelSlider* attack_threshold;
   LabelSlider* release_threshold;
