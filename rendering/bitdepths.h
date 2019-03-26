@@ -33,6 +33,7 @@ struct BitDepthInfo {
   GLint internal_format;
   GLenum pixel_format;
   GLenum pixel_type;
+  int bytes_per_pixel;
 };
 
 /**

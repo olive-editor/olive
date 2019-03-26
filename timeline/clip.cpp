@@ -37,8 +37,6 @@
 #include "global/debug.h"
 #include "global/timing.h"
 
-const int kRGBAComponentCount = 4;
-
 Clip::Clip(Sequence* s) :
   sequence(s),
   cacher(this),
@@ -584,12 +582,12 @@ bool Clip::Retrieve()
 
         }
 
-        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/kRGBAComponentCount);
-
         int video_width = cacher.media_width();
         int video_height = cacher.media_height();
 
         const olive::rendering::BitDepthInfo& bit_depth_info = olive::rendering::bit_depths.at(cacher.media_pixel_format());
+
+        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/bit_depth_info.bytes_per_pixel);
 
         if (allocate_data) {
 

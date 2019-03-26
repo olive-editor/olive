@@ -69,8 +69,6 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
                                                                                       olive::CurrentConfig.export_bit_depth :
                                                                                       olive::CurrentConfig.playback_bit_depth);
 
-  qDebug() << "hello" << bit_depth.name;
-
   ctx->functions()->glTexImage2D(
         GL_TEXTURE_2D,
         0,
