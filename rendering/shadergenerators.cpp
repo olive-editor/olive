@@ -2,7 +2,7 @@
 
 #include <QOpenGLExtraFunctions>
 
-QOpenGLShaderProgramPtr olive::shader::GetPipeline(const QString& shader_code)
+QOpenGLShaderProgramPtr olive::shader::GetPipeline(const QString& function_name, const QString& shader_code)
 {
   QOpenGLShaderProgramPtr program = std::make_shared<QOpenGLShaderProgram>();
 
@@ -62,16 +62,16 @@ QOpenGLShaderProgramPtr olive::shader::GetPipeline(const QString& shader_code)
 
     // If additional code was passed, add it and reference it in main().
     //
-    // The function in the additional code is expected to be `vec4 process(vec4 color)`. The texture coordinate can be
+    // The function in the additional code is expected to be `vec4 function_name(vec4 color)`. The texture coordinate can be
     // acquired through `v_texcoord`.
 
     frag_shader.append(shader_code);
 
-    frag_shader.append("\n"
+    frag_shader.append(QString("\n"
                        "void main() {\n"
-                       "  vec4 color = process(texture2D(texture, v_texcoord))*opacity;\n"
+                       "  vec4 color = %1(texture2D(texture, v_texcoord))*opacity;\n"
                        "  gl_FragColor = color;\n"
-                       "}\n");
+                       "}\n").arg(function_name));
 
   }
 
@@ -211,16 +211,17 @@ QOpenGLShaderProgramPtr olive::shader::SetupOCIO(QOpenGLContext* ctx,
   }
 
   // Add process() function, which GetPipeline() will call if specified
+  QString process_function_name = "process";
   shader_text.append(QString("\n"
                              "uniform sampler3D tex2;\n"
                              "\n"
-                             "vec4 process(vec4 col) {\n"
+                             "vec4 %2(vec4 col) {\n"
                              "  return %1\n"
-                             "}\n").arg(shader_call));
+                             "}\n").arg(shader_call, process_function_name));
 
 
   // Get pipeline-based shader to inject OCIO shader into
-  QOpenGLShaderProgramPtr shader = olive::shader::GetPipeline(shader_text);
+  QOpenGLShaderProgramPtr shader = olive::shader::GetPipeline(process_function_name, shader_text);
 
   // Release LUT
   xf->glBindTexture(GL_TEXTURE_3D, 0);

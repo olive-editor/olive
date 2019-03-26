@@ -174,10 +174,23 @@ void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
 
     // Just clear everything
     ocio_display->clear();
+    ocio_default_input->clear();
     ocio_view->clear();
     ocio_look->clear();
 
   } else {
+
+    // Get input color spaces for setting the default input color space
+    ocio_default_input->clear();
+    for (int i=0;i<config->getNumColorSpaces();i++) {
+      QString colorspace = config->getColorSpaceNameByIndex(i);
+
+      ocio_default_input->addItem(colorspace);
+
+      if (colorspace == olive::CurrentConfig.ocio_default_input_colorspace) {
+        ocio_default_input->setCurrentIndex(i);
+      }
+    }
 
     // Get current display name (if the config is empty, get the current default display)
     QString current_display = olive::CurrentConfig.ocio_display;
@@ -439,6 +452,7 @@ void PreferencesDialog::accept() {
   olive::CurrentConfig.playback_bit_depth = playback_bit_depth->currentIndex();
   olive::CurrentConfig.export_bit_depth = export_bit_depth->currentIndex();
   olive::CurrentConfig.ocio_display = ocio_display->currentText();
+  olive::CurrentConfig.ocio_default_input_colorspace = ocio_default_input->currentText();
   olive::CurrentConfig.ocio_view = ocio_view->currentText();
 
   // We use data here instead of text because there's a "(None)" option with an empty string
@@ -1072,21 +1086,26 @@ void PreferencesDialog::setup_ui() {
   connect(ocio_config_browse_btn, SIGNAL(clicked(bool)), this, SLOT(browse_ocio_config()));
   opencolorio_groupbox_layout->addWidget(ocio_config_browse_btn, 0, 5);
 
+  // COLOR MANAGEMENT -> Default Input Color Space
+  ocio_default_input = new QComboBox();
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Default Input Color Space:")), 1, 0);
+  opencolorio_groupbox_layout->addWidget(ocio_default_input, 1, 1, 1, 5);
+
   // COLOR MANAGEMENT -> Display
   ocio_display = new QComboBox();
   connect(ocio_display, SIGNAL(currentIndexChanged(int)), this, SLOT(update_ocio_view_menu()));
-  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Display:")), 1, 0);
-  opencolorio_groupbox_layout->addWidget(ocio_display, 1, 1);
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Display:")), 2, 0);
+  opencolorio_groupbox_layout->addWidget(ocio_display, 2, 1);
 
   // COLOR MANAGEMENT -> View
   ocio_view = new QComboBox();
-  opencolorio_groupbox_layout->addWidget(new QLabel(tr("View:")), 1, 2);
-  opencolorio_groupbox_layout->addWidget(ocio_view, 1, 3);
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("View:")), 2, 2);
+  opencolorio_groupbox_layout->addWidget(ocio_view, 2, 3);
 
   // COLOR MANAGEMENT -> Look
   ocio_look = new QComboBox();
-  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Look:")), 1, 4);
-  opencolorio_groupbox_layout->addWidget(ocio_look, 1, 5);
+  opencolorio_groupbox_layout->addWidget(new QLabel(tr("Look:")), 2, 4);
+  opencolorio_groupbox_layout->addWidget(ocio_look, 2, 5);
 
   color_management_layout->addWidget(opencolorio_groupbox, row, 0);
 

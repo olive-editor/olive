@@ -9,7 +9,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 namespace olive {
 namespace shader {
 
-QOpenGLShaderProgramPtr GetPipeline(const QString &shader_code = QString());
+QOpenGLShaderProgramPtr GetPipeline(const QString &function_name = QString(), const QString &shader_code = QString());
 
 QOpenGLShaderProgramPtr SetupOCIO(QOpenGLContext *ctx,
                                   GLuint &lut_texture,

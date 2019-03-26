@@ -555,6 +555,13 @@ struct Config {
   QString ocio_look;
 
   /**
+   * @brief OpenColorIO Default Input Colorspace
+   *
+   * The colorspace to default to if no colorspace can be determined from the filename or a manual setting.
+   */
+  QString ocio_default_input_colorspace;
+
+  /**
    * @brief Style to use when theming Olive.
    *
    * Set to a member of olive::styling::Style.

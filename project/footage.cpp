@@ -28,6 +28,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "project/previewgenerator.h"
 #include "timeline/clip.h"
+#include "global/config.h"
 
 Footage::Footage() :
   ready(false),
@@ -61,7 +62,7 @@ QString Footage::Colorspace()
     return guess_colorspace;
   }
 
-  return OCIO::ROLE_SCENE_LINEAR;
+  return olive::CurrentConfig.ocio_default_input_colorspace;
 }
 
 void Footage::SetColorspace(const QString &cs)

@@ -52,6 +52,7 @@
 #include "global/config.h"
 #include "transition.h"
 #include "undo/undostack.h"
+#include "rendering/shadergenerators.h"
 
 #include "effects/internal/transformeffect.h"
 #include "effects/internal/texteffect.h"
@@ -743,8 +744,23 @@ void Effect::open() {
     if (QOpenGLContext::currentContext() == nullptr) {
       qWarning() << "No current context to create a shader program for - will retry next repaint";
     } else {
-      shader_program_ = std::make_shared<QOpenGLShaderProgram>();
       validate_meta_path();
+
+      QString frag_shader_str;
+      QString frag_file_url = QDir(meta->path).filePath(shader_frag_path_);
+      QFile frag_file(frag_file_url);
+      if (frag_file.open(QFile::ReadOnly)) {
+        frag_shader_str = frag_file.readAll();
+        frag_file.close();
+      } else {
+        qWarning() << "Failed to open" << frag_file_url;
+      }
+
+      if (!frag_shader_str.isEmpty()) {
+        shader_program_ = olive::shader::GetPipeline("process", frag_shader_str);
+      }
+
+      /*
       bool shader_compiled = true;
       if (!shader_vert_path_.isEmpty()) {
         if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + shader_vert_path_)) {
@@ -769,6 +785,7 @@ void Effect::open() {
           qWarning() << "Shader program failed to link";
         }
       }
+      */
       isOpen = true;
     }
   } else {
@@ -789,21 +806,9 @@ bool Effect::is_shader_linked() {
   return shader_program_ != nullptr && shader_program_->isLinked();
 }
 
-void Effect::startEffect() {
-  if (!isOpen) {
-    open();
-    qWarning() << "Tried to start a closed effect - opening";
-  }
-  if (olive::CurrentRuntimeConfig.shaders_are_enabled
-      && (Flags() & Effect::ShaderFlag)
-      && shader_program_->isLinked()) {
-    bound = shader_program_->bind();
-  }
-}
-
-void Effect::endEffect() {
-  if (bound) shader_program_->release();
-  bound = false;
+QOpenGLShaderProgram *Effect::GetShaderPipeline()
+{
+  return shader_program_.get();
 }
 
 int Effect::Flags()
@@ -834,6 +839,8 @@ EffectPtr Effect::copy(Clip *c) {
 }
 
 void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
+  shader_program_->bind();
+
   shader_program_->setUniformValue("resolution", parent_clip->media_width(), parent_clip->media_height());
   shader_program_->setUniformValue("time", GLfloat(timecode));
   shader_program_->setUniformValue("iteration", iteration);
@@ -879,6 +886,8 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
       }
     }
   }
+
+  shader_program_->release();
 }
 
 void Effect::process_coords(double, GLTextureCoords&, int) {}

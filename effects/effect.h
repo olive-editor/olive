@@ -172,8 +172,7 @@ public:
   void open();
   void close();
   bool is_shader_linked();
-  virtual void startEffect();
-  virtual void endEffect();
+  QOpenGLShaderProgram* GetShaderPipeline();
 
   enum VideoEffectFlags {
     ShaderFlag        = 0x1,

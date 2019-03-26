@@ -172,7 +172,6 @@ SOURCES += \
     effects/internal/richtexteffect.cpp \
     ui/blur.cpp \
     ui/menu.cpp \
-    rendering/qopenglshaderprogramptr.cpp \
     timeline/mediaimportdata.cpp \
     dialogs/autocutsilencedialog.cpp \
     ui/columnedgridlayout.cpp \

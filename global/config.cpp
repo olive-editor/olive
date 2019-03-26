@@ -228,6 +228,18 @@ void Config::load(QString path) {
         } else if (stream.name() == "OCIOConfigPath") {
           stream.readNext();
           ocio_config_path = stream.text().toString();
+        } else if (stream.name() == "OCIODisplay") {
+          stream.readNext();
+          ocio_display = stream.text().toString();
+        } else if (stream.name() == "OCIOView") {
+          stream.readNext();
+          ocio_view = stream.text().toString();
+        } else if (stream.name() == "OCIOLook") {
+          stream.readNext();
+          ocio_look = stream.text().toString();
+        } else if (stream.name() == "OCIODefaultInput") {
+          stream.readNext();
+          ocio_default_input_colorspace = stream.text().toString();
         } else if (stream.name() == "Style") {
           stream.readNext();
           style = static_cast<olive::styling::Style>(stream.text().toInt());
@@ -327,6 +339,10 @@ void Config::save(QString path) {
   stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
   stream.writeTextElement("EnableColorManagement", QString::number(enable_color_management));
   stream.writeTextElement("OCIOConfigPath", ocio_config_path);
+  stream.writeTextElement("OCIODisplay", ocio_display);
+  stream.writeTextElement("OCIOView", ocio_view);
+  stream.writeTextElement("OCIOLook", ocio_look);
+  stream.writeTextElement("OCIODefaultInput", ocio_default_input_colorspace);
   stream.writeTextElement("Style", QString::number(style));
   stream.writeTextElement("NativeMenuStyling", QString::number(use_native_menu_styling));
   stream.writeTextElement("DefaultSequenceWidth", QString::number(default_sequence_width));

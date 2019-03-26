@@ -101,6 +101,7 @@ void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatri
   pipeline->setUniformValue("mvp_matrix", matrix);
   pipeline->setUniformValue("texture", 0);
 
+
   GLuint vertex_location = pipeline->attributeLocation("a_position");
   m_vbo.bind();
   func->glEnableVertexAttribArray(vertex_location);
@@ -179,11 +180,15 @@ void process_effect(QOpenGLContext* ctx,
     }
     bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::CurrentRuntimeConfig.shaders_are_enabled);
     if (can_process_shaders || (e->Flags() & Effect::SuperimposeFlag)) {
-      e->startEffect();
+
+      if (!e->is_open()) {
+        e->open();
+      }
+
       if (can_process_shaders && e->is_shader_linked()) {
         for (int i=0;i<e->getIterations();i++) {
           e->process_shader(timecode, coords, i);
-          composite_texture = draw_clip(ctx, pipeline, c->fbo.at(fbo_switcher), composite_texture, true);
+          composite_texture = draw_clip(ctx, e->GetShaderPipeline(), c->fbo.at(fbo_switcher), composite_texture, true);
           fbo_switcher = !fbo_switcher;
         }
       }
@@ -208,7 +213,6 @@ void process_effect(QOpenGLContext* ctx,
           composite_texture = draw_clip(ctx, pipeline, c->fbo.at(!fbo_switcher), superimpose_texture, false);
         }
       }
-      e->endEffect();
     }
   }
 }

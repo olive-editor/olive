@@ -83,6 +83,9 @@ private:
    */
   QCheckBox* premultiply_alpha_setting;
 
+  /**
+   * @brief Setting for this media's color space
+   */
   QComboBox* input_color_space;
 private slots:
   /**

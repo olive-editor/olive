@@ -27,14 +27,6 @@
 
 namespace olive {
 
-struct PixelFormatInfo {
-  QString name;
-  GLint internal_format;
-  GLenum pixel_format;
-  GLenum pixel_type;
-  int bytes_per_pixel;
-};
-
 /**
  * @brief The PixelFormat enum
  *
@@ -47,6 +39,21 @@ enum PixelFormat {
   PIX_FMT_RGBA16F,
   PIX_FMT_RGBA32F,
   PIX_FMT_COUNT
+};
+
+/**
+ * @brief The PixelFormatInfo struct
+ *
+ * A struct of information pertaining to each enum PixelFormat. Primarily this is a means of retrieving OpenGL texture
+ * information for different pixel formats/bit depths. Using the values in pixel_formats is always recommended over
+ * manually using OpenGL constants (e.g. GL_RGBA or GL_RGBA32F) directly.
+ */
+struct PixelFormatInfo {
+  QString name;
+  GLint internal_format;
+  GLenum pixel_format;
+  GLenum pixel_type;
+  int bytes_per_pixel;
 };
 
 extern QVector<PixelFormatInfo> pixel_formats;

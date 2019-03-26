@@ -264,6 +264,7 @@ private:
 
   QCheckBox* enable_color_management;
   QLineEdit* ocio_config_file;
+  QComboBox* ocio_default_input;
   QComboBox* ocio_display;
   QComboBox* ocio_view;
   QComboBox* ocio_look;
