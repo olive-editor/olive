@@ -277,7 +277,7 @@ void RenderThread::paint() {
       queued = true;
     } else {
       f->glBindFramebuffer(GL_READ_FRAMEBUFFER, composite_buffer.buffer());
-      QImage img(tex_width, tex_height, QImage::Format_RGBA8888);
+      QImage img(tex_width, tex_height, QImage::Format_RGBA8888_Premultiplied);
       f->glReadPixels(0, 0, tex_width, tex_height, GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
       img.save(save_fn);
       f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
