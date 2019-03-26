@@ -6,14 +6,14 @@
 /**
  * @brief The BoolField class
  *
- * An EffectField derivative the uses boolean values (true or false) and uses a checkbox as its visual representation.
+ * An EffectField derivative the produces boolean values (true or false) and uses a checkbox as its visual representation.
  */
 class BoolField : public EffectField
 {
   Q_OBJECT
 public:
   /**
-   * @brief See Effect::Effect().
+   * @brief Reimplementation of EffectField::EffectField().
    */
   BoolField(EffectRow* parent, const QString& id);
 
@@ -33,22 +33,24 @@ public:
   bool GetBoolAt(double timecode);
 
   /**
-   * @brief See EffectField::CreateWidget()
+   * @brief Reimplementation of EffectField::CreateWidget()
+   *
+   * Creates and connects to a QCheckBox.
    */
   virtual QWidget* CreateWidget(QWidget *existing = nullptr) override;
 
   /**
-   * @brief See EffectField::UpdateWidgetValue()
+   * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
   virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
 
   /**
-   * @brief See EffectField::ConvertStringToValue()
+   * @brief Reimplementation of EffectField::ConvertStringToValue()
    */
   virtual QVariant ConvertStringToValue(const QString& s) override;
 
   /**
-   * @brief See EffectField::ConvertValueToString()
+   * @brief Reimplementation of EffectField::ConvertValueToString()
    */
   virtual QString ConvertValueToString(const QVariant& v) override;
 signals:
