@@ -9,5 +9,5 @@
 	<row name="Vertical">
 		<field type="bool" default="1" id="vert_blur"/>
 	</row>
-	<shader vert="common.vert" frag="boxblur.frag" iterations="2"/>
+	<shader vert="common.vert" frag="boxblur.frag" iterations="2" />
 </effect>

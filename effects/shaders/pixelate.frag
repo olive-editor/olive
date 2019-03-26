@@ -1,20 +1,16 @@
-#version 110
-
-varying vec2 vTexCoord;
-uniform sampler2D texture;
 uniform float pixels_x;
 uniform float pixels_y;
 uniform bool bypass;
 
-void main(void) {
+vec4 process(vec4 col) {
 	if (bypass) {
-		gl_FragColor = texture2D(texture, vTexCoord);
+		return col;
 	} else {
-		vec2 p = vTexCoord;
+		vec2 p = v_texcoord;
 
 		p.x -= mod(p.x, 1.0 / pixels_x);
 		p.y -= mod(p.y, 1.0 / pixels_y);
 
-		gl_FragColor = texture2D(texture, p);
+		return texture2D(texture, p);
 	}  	
 }

@@ -1,9 +1,4 @@
-#version 110
-
-varying vec2 vTexCoord;
-
 uniform vec2 resolution; // Screen resolution
-uniform sampler2D tex0; // scene buffer
 
 uniform float xoff;
 uniform float yoff;
@@ -12,8 +7,8 @@ uniform bool tile;
 uniform bool hide_edges;
 uniform bool stretch;
 
-void main(void) {
-	vec2 texCoord = vTexCoord;
+vec4 process(vec4 col) {
+	vec2 texCoord = v_texcoord;
 
 	vec2 offset = vec2(1.0);
 
@@ -28,7 +23,7 @@ void main(void) {
 	}
 
 	vec2 p = 2.0 * texCoord - offset;
-	vec2 adj_tc = 2.0 * vTexCoord - 1.0;
+	vec2 adj_tc = 2.0 * v_texcoord - 1.0;
 	float r = dot(p,p);
 	if (r > 1.0) discard; 
 	float f = (1.0-sqrt(1.0-r))/(r);
@@ -39,7 +34,7 @@ void main(void) {
 		uv.x = mod(uv.x, 1.0);
 		uv.y = mod(uv.y, 1.0);
 	} else if (hide_edges && (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)) {
-		discard;
+		return vec4(0.0);
 	}
-	gl_FragColor = vec4(texture2D(tex0,uv));
+	return vec4(texture2D(texture,uv));
 }

@@ -1115,6 +1115,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
           stream.writeAttribute("speed", QString::number(f->speed));
           stream.writeAttribute("alphapremul", QString::number(f->alpha_is_associated));
           stream.writeAttribute("startnumber", QString::number(f->start_number));
+          stream.writeAttribute("colorspace", f->Colorspace());
 
           stream.writeAttribute("proxy", QString::number(f->proxy));
           stream.writeAttribute("proxypath", f->proxy_path);

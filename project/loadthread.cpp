@@ -356,6 +356,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   f->proxy_path = attr.value().toString();
                 } else if (attr.name() == "startnumber") {
                   f->start_number = attr.value().toInt();
+                } else if (attr.name() == "colorspace") {
+                  f->SetColorspace(attr.value().toString());
                 }
               }
 

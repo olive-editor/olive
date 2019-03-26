@@ -226,6 +226,7 @@ protected:
   QOpenGLShaderProgramPtr shader_program_;
   QString shader_vert_path_;
   QString shader_frag_path_;
+  QString shader_function_name_;
 
   // superimpose effect
   QImage img;

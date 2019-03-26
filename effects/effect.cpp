@@ -307,6 +307,8 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                 shader_frag_path_ = attr.value().toString();
               } else if (attr.name() == "iterations") {
                 setIterations(attr.value().toInt());
+              } else if (attr.name() == "function") {
+                shader_function_name_ = attr.value().toString();
               }
             }
           }/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
@@ -757,7 +759,17 @@ void Effect::open() {
       }
 
       if (!frag_shader_str.isEmpty()) {
-        shader_program_ = olive::shader::GetPipeline("process", frag_shader_str);
+
+        QString shader_func;
+
+        if (!shader_function_name_.isEmpty()) {
+          shader_func = shader_function_name_;
+        } else {
+          shader_func = "process";
+        }
+
+        shader_program_ = olive::shader::GetPipeline(shader_func, frag_shader_str);
+
       }
 
       /*
