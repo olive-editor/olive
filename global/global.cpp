@@ -441,7 +441,7 @@ void OliveGlobal::open_speed_dialog() {
 void OliveGlobal::open_autocut_silence_dialog() {
   if (CheckForActiveSequence()) {
 
-    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+    QVector<int> selected_clips = olive::ActiveSequence->SelectedClipIndexes();
 
     if (selected_clips.isEmpty()) {
       QMessageBox::critical(olive::MainWindow,
