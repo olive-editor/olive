@@ -26,6 +26,5 @@ void main(void) {
 		tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
 	}
 	tc += center;
-	vec3 color = texture2D(myTexture, tc / resolution).rgb;
-	gl_FragColor = vec4(color, 1.0);
+	gl_FragColor = texture2D(myTexture, tc / resolution);
 }
