@@ -6,12 +6,12 @@
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="42"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive è un editor video non lineare. Questo è software libero ed è protetto dalla licenza GNU GPL.</translation>
     </message>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="44"/>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gli sviluppatori di Olive sono grati di informare che il codice sorgente del programma è scaricabile dal sito.</translation>
     </message>
 </context>
 <context>
@@ -19,7 +19,7 @@
     <message>
         <location filename="../dialogs/actionsearch.cpp" line="46"/>
         <source>Search for action...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca un&apos;azione...</translation>
     </message>
 </context>
 <context>
@@ -27,12 +27,12 @@
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="41"/>
         <source>Advanced Video Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni video avanzate</translation>
     </message>
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="53"/>
         <source>Pixel Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato pixel:</translation>
     </message>
 </context>
 <context>
@@ -40,12 +40,12 @@
     <message>
         <location filename="../rendering/audio.cpp" line="331"/>
         <source>%1 Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio %1</translation>
     </message>
     <message>
         <location filename="../rendering/audio.cpp" line="344"/>
         <source>Recording %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrazione di %1</translation>
     </message>
 </context>
 <context>
@@ -53,7 +53,7 @@
     <message>
         <location filename="../effects/internal/audionoiseeffect.cpp" line="27"/>
         <source>Amount</source>
-        <translation type="unfinished"></translation>
+        <translation>Ammontare</translation>
     </message>
     <message>
         <location filename="../effects/internal/audionoiseeffect.cpp" line="32"/>
@@ -66,17 +66,17 @@
     <message>
         <location filename="../project/media.cpp" line="52"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Non valido</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="53"/>
         <source>Mono</source>
-        <translation type="unfinished"></translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="54"/>
         <source>Stereo</source>
-        <translation type="unfinished"></translation>
+        <translation>Stereo</translation>
     </message>
 </context>
 <context>
@@ -84,7 +84,7 @@
     <message>
         <location filename="../ui/collapsiblewidget.cpp" line="55"/>
         <source>&lt;untitled&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;senza titolo&gt;</translation>
     </message>
 </context>
 <context>
@@ -92,7 +92,7 @@
     <message>
         <location filename="../ui/colorbutton.cpp" line="54"/>
         <source>Set Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta colore</translation>
     </message>
 </context>
 <context>
@@ -100,27 +100,27 @@
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="31"/>
         <source>Top Left</source>
-        <translation type="unfinished"></translation>
+        <translation>In alto a sinistra</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="35"/>
         <source>Top Right</source>
-        <translation type="unfinished"></translation>
+        <translation>In alto a destra</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="39"/>
         <source>Bottom Left</source>
-        <translation type="unfinished"></translation>
+        <translation>In basso a sinistra</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="43"/>
         <source>Bottom Right</source>
-        <translation type="unfinished"></translation>
+        <translation>In basso a destra</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="47"/>
         <source>Perspective</source>
-        <translation type="unfinished"></translation>
+        <translation>Prospettico</translation>
     </message>
 </context>
 <context>
@@ -128,7 +128,7 @@
     <message>
         <location filename="../dialogs/debugdialog.cpp" line="44"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Log di debug</translation>
     </message>
 </context>
 <context>
@@ -137,22 +137,23 @@
         <location filename="../dialogs/demonotice.cpp" line="30"/>
         <location filename="../dialogs/demonotice.cpp" line="45"/>
         <source>Welcome to Olive!</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Maschile riferito all&apos;utente</translatorcomment>
+        <translation>Benvenuto in Olive!</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="47"/>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive è un editor video libero non lineare rilasciato sotto licenza GNU GPL. Se hai pagato per questo programma, sei stato truffato.</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="49"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offrimao alcuna garanzia, quindi usalo a tuo rischio. Si prega di segnalare errori o richieste di funzionalità a %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="51"/>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation type="unfinished"></translation>
+        <translation>Grazie per aver provato Olive, speriamo che ti piaccia!</translation>
     </message>
 </context>
 <context>
@@ -160,89 +161,89 @@
     <message>
         <location filename="../project/effect.cpp" line="100"/>
         <source>Invalid effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Effetto non valido</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="101"/>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun candidato per &apos;effetto &apos;%1&apos;. Questo effetto potrebbe essere corrotto. Prova a reinstallare l&apos;effetto o Olive.</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="402"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="403"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="410"/>
         <source>Move &amp;Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in s&amp;u</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="414"/>
         <source>Move &amp;Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta in &amp;giù</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="419"/>
         <source>D&amp;elete</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Elimina</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="423"/>
         <source>Load Settings From File</source>
-        <translation type="unfinished"></translation>
+        <translation>Carica le impostazioni da file</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="425"/>
         <source>Save Settings to File</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva le impostazioni su file</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="462"/>
         <source>Save Effect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva impostazioni degli effetti</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="464"/>
         <location filename="../project/effect.cpp" line="494"/>
         <source>Effect XML Settings %1</source>
-        <translation type="unfinished"></translation>
+        <translation>XML impostazioni effetti %1</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="482"/>
         <source>Save Settings Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvataggio impostazioni fallito</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="483"/>
         <source>Failed to open &quot;%1&quot; for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire il file &quot;%1&quot; in scrittura.</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="492"/>
         <source>Load Effect Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Carica impostazioni effetto</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="508"/>
         <location filename="../project/effect.cpp" line="717"/>
         <source>Load Settings Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento impostazioni fallito</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="509"/>
         <source>Failed to open &quot;%1&quot; for reading.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire &quot;%1&quot; in lettura.</translation>
     </message>
     <message>
         <location filename="../project/effect.cpp" line="718"/>
         <source>This settings file doesn&apos;t match this effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Questo file di impostazioni non corrisponde con questo effetto.</translation>
     </message>
 </context>
 <context>
@@ -250,52 +251,52 @@
     <message>
         <location filename="../panels/effectcontrols.cpp" line="494"/>
         <source>Effects: </source>
-        <translation type="unfinished"></translation>
+        <translation>Effetti: </translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="186"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Incolla</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="311"/>
         <source>(none)</source>
-        <translation type="unfinished"></translation>
+        <translation>(nessuno)</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="496"/>
         <source>Add Video Effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi effetto video</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="497"/>
         <source>VIDEO EFFECTS</source>
-        <translation type="unfinished"></translation>
+        <translation>EFFETTI VIDEO</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="498"/>
         <source>Add Video Transition</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi transizione video</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="499"/>
         <source>Add Audio Effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi effetto video</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="500"/>
         <source>AUDIO EFFECTS</source>
-        <translation type="unfinished"></translation>
+        <translation>EFFETTI AUDIO</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="501"/>
         <source>Add Audio Transition</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi transizione audio</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="502"/>
         <source>(Multiple clips selected)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Più clip selezionate)</translation>
     </message>
 </context>
 <context>
@@ -303,12 +304,12 @@
     <message>
         <location filename="../project/effectrow.cpp" line="97"/>
         <source>Disable Keyframes</source>
-        <translation type="unfinished"></translation>
+        <translation>Disattiva fotogrammi chiave</translation>
     </message>
     <message>
         <location filename="../project/effectrow.cpp" line="98"/>
         <source>Disabling keyframes will delete all current keyframes. Are you sure you want to do this?</source>
-        <translation type="unfinished"></translation>
+        <translation>Disabilitare i fotogrammi chiave eliminerà tutti quelli attualmente esistenti. Sei sicuro di volerlo fare?</translation>
     </message>
 </context>
 <context>
@@ -316,7 +317,7 @@
     <message>
         <location filename="../ui/embeddedfilechooser.cpp" line="57"/>
         <source>File:</source>
-        <translation type="unfinished"></translation>
+        <translation>File:</translation>
     </message>
 </context>
 <context>
@@ -324,57 +325,58 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="73"/>
         <source>Export &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Esporta &quot;%1&quot;</translatorcomment>
+        <translation>Esporta &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="125"/>
         <source>Unknown codec name %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome del codec %1 sconosciuto</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="331"/>
         <source>Export Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Esportazione non riuscita</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="332"/>
         <source>Export failed - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Esportazione non riuscita - %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="354"/>
         <source>Invalid dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensioni non valide</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="355"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation type="unfinished"></translation>
+        <translation>La larghezza e l&apos;altezza dell&apos;esportazione devono essere pari/divisibili per due.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="411"/>
         <source>Invalid codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Codec non valido</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="412"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile determinare i parametri d&apos;output per il codec selezionato. Questo è un errore, si prega di contattare gli sviluppatori.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="481"/>
         <source>Invalid format</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato non valido</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="482"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile determinare il formato di output. Questo è un errore, si prega di contattare gli sviluppatori.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="489"/>
         <source>Export Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta media</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="574"/>
@@ -384,33 +386,33 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="578"/>
         <source>Constant Bitrate</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate costante</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="587"/>
         <location filename="../dialogs/exportdialog.cpp" line="593"/>
         <source>Invalid Codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Codec non valido</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="588"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare un codificatore compatibile per questo codec. È facile che l&apos;esportazione fallisca.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="594"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare il formato dei pixel di questo codificatore. È facile che l&apos;esportazione fallisca.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="607"/>
         <source>Bitrate (Mbps):</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate (Mbps):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="611"/>
         <source>Quality (CRF):</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualità (CRF):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="614"/>
@@ -420,27 +422,32 @@
 17-18 = visually lossless (compressed, but unnoticeable)
 23 = high quality
 51 = lowest quality possible</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualità: fattore
+
+0 = senza perdita
+17-18 = visivamente senza perdita (compresso, ma non si nota)
+23 = alta qualità
+51 = peggiore qualità possibile</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="617"/>
         <source>Target File Size (MB):</source>
-        <translation type="unfinished"></translation>
+        <translation>Grandezza file desiderata (MB):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="633"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervallo:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="645"/>
         <source>Entire Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza completa</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="646"/>
@@ -450,53 +457,53 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="653"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="659"/>
         <location filename="../dialogs/exportdialog.cpp" line="702"/>
         <source>Codec:</source>
-        <translation type="unfinished"></translation>
+        <translation>Codec:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="663"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Larghezza:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="668"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Altezza:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="673"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogrammi al secondo:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="679"/>
         <source>Compression Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di compressione:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="690"/>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Avanzate</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="697"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="706"/>
         <source>Sampling Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza di campionamento:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="712"/>
         <source>Bitrate (Kbps/CBR):</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitrate (Kbps/CBR):</translation>
     </message>
 </context>
 <context>
