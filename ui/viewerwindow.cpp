@@ -111,7 +111,7 @@ void ViewerWindow::paintGL() {
   if (texture > 0) {
     if (mutex != nullptr) mutex->lock();
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_TEXTURE_2D);

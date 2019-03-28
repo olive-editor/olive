@@ -805,7 +805,9 @@ void Effect::startEffect() {
 }
 
 void Effect::endEffect() {
-  if (bound) glslProgram->release();
+  if (bound) {
+    glslProgram->release();
+  }
   bound = false;
 }
 

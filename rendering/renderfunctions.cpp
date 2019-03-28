@@ -51,7 +51,17 @@ namespace OCIO = OCIO_NAMESPACE;
 #include "panels/timeline.h"
 #include "panels/viewer.h"
 
+void PrepareToDraw(QOpenGLFunctions* f) {
+  f->glGenerateMipmap(GL_TEXTURE_2D);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+}
+
 void full_blit() {
+  PrepareToDraw(QOpenGLContext::currentContext()->functions());
+
   glPushMatrix();
   glLoadIdentity();
   glOrtho(0, 1, 0, 1, -1, 1);
@@ -484,9 +494,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             glBindTexture(GL_TEXTURE_2D, textureID);
 
             // set texture filter to bilinear
-            params.ctx->functions()->glGenerateMipmap(GL_TEXTURE_2D);
-            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            PrepareToDraw(params.ctx->functions());
 
             // draw clip on screen according to gl coordinates
             glBegin(GL_QUADS);
