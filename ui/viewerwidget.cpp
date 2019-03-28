@@ -548,7 +548,7 @@ void ViewerWidget::paintGL() {
     makeCurrent();
 
     // clear to solid black
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     // set color multipler to straight white
@@ -563,6 +563,8 @@ void ViewerWidget::paintGL() {
     // draw texture from render thread
 
     glBindTexture(GL_TEXTURE_2D, tex);
+
+    context()->functions()->glGenerateMipmap(GL_TEXTURE_2D);
 
     glBegin(GL_QUADS);
 

@@ -574,7 +574,7 @@ bool Clip::Retrieve()
 
         texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
         texture->setMipLevels(texture->maximumMipLevels());
-        texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+        texture->setMinMagFilters(QOpenGLTexture::LinearMipMapLinear, QOpenGLTexture::Linear);
         texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8);
       }
 

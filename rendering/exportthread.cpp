@@ -574,7 +574,7 @@ void ExportThread::Export()
     return;
   }
 
-  // Flush remaining packets out of video and audio encoders
+  // Flush remaining packets out of video and audio encoders by sending a null frame
   if (params_.video_enabled) {
     Encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream);
   }
