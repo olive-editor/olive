@@ -4,7 +4,7 @@
 
 uniform sampler2D image;
 
-// uniform float radius;
+uniform float radius;
 uniform float sigma;
 uniform vec2 resolution;
 uniform bool horiz_blur;
@@ -22,13 +22,13 @@ float gaussian2(float x, float y, float sigma) {
 }
 
 void main(void) {
-	float rad = ceil(sigma);
+	float rad = ceil(radius);
 
 	float sum = 0.0;
 
 	vec4 color = vec4(0.0);
 
-	bool radius_is_zero = (rad == 0.0);
+	bool radius_is_zero = (rad == 0.0 || sigma == 0.0);
 
 	if (!radius_is_zero) {
 		for (float x=-rad+0.5;x<=rad;x+=2.0) {
