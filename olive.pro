@@ -35,7 +35,7 @@ system("which git") {
         GITPATH = $$system(cygpath $$PWD)
     }
 
-    GITHASHVAR = $$system(git --git-dir="$$GITPATH/.git" --work-tree="$$GITPATH" log -1 --format=%h)
+    GITHASHVAR = $$system(git --git-dir=\"$$GITPATH/.git\" --work-tree=\"$$GITPATH\" log -1 --format=%h)
 
     # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
     # (see https://answers.launchpad.net/launchpad/+question/678556)
