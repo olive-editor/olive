@@ -58,7 +58,7 @@
     <message>
         <location filename="../effects/internal/audionoiseeffect.cpp" line="32"/>
         <source>Mix</source>
-        <translation type="unfinished"></translation>
+        <translation>Miscela</translation>
     </message>
 </context>
 <context>
@@ -452,7 +452,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="646"/>
         <source>In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Zona selezionata</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="653"/>
@@ -511,12 +511,12 @@
     <message>
         <location filename="../io/exportthread.cpp" line="81"/>
         <source>failed to send frame to encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>errore nell&apos;invio del fotogramma al codificatore (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="92"/>
         <source>failed to receive packet from encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>errore nella ricezione di un pacchetto dal codificatore (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="113"/>
@@ -599,17 +599,17 @@
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="27"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tio</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="29"/>
         <source>Fill Left with Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Riempi il sinistro con il destro</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="30"/>
         <source>Fill Right with Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Riempi il destro con il sinistro</translation>
     </message>
 </context>
 <context>
@@ -617,22 +617,22 @@
     <message>
         <location filename="../effects/internal/frei0reffect.cpp" line="61"/>
         <source>Failed to load Frei0r plugin &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile caricare il plugin Frei0r &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location filename="../effects/internal/frei0reffect.cpp" line="66"/>
         <source>NOTE: You can&apos;t load 32-bit Frei0r plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>NOTA: Non si possono caricare plugin Frei0r a 32 bit in una versione a 64 bit di Olive. Si prega di trovare la versione a 64 bit di questo plugin oppure di passare alla versione 32 bit di Olive.</translation>
     </message>
     <message>
         <location filename="../effects/internal/frei0reffect.cpp" line="68"/>
         <source>NOTE: You can&apos;t load 64-bit Frei0r plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>NOTA: Non si possono caricare plugin Frei0r a 64 bit in una versione a 32 bit di Olive. Si prega di trovare la versione a 32 bit di questo plugin oppure di passare alla versione 64 bit di Olive.</translation>
     </message>
     <message>
         <location filename="../effects/internal/frei0reffect.cpp" line="73"/>
         <source>Error loading Frei0r plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nel caricamento plugin Frei0r</translation>
     </message>
 </context>
 <context>
@@ -640,22 +640,22 @@
     <message>
         <location filename="../panels/grapheditor.cpp" line="133"/>
         <source>Graph Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del grafico</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="134"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineare</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="135"/>
         <source>Bezier</source>
-        <translation type="unfinished"></translation>
+        <translation>Bézier</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="136"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translation>Costante</translation>
     </message>
 </context>
 <context>
