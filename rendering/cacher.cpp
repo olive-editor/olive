@@ -460,8 +460,11 @@ void Cacher::CacheAudioWorker() {
     }
   }
 
-  QMetaObject::invokeMethod(panel_footage_viewer, "play_wake", Qt::QueuedConnection);
-  QMetaObject::invokeMethod(panel_sequence_viewer, "play_wake", Qt::QueuedConnection);
+  // If there's a QObject waiting for audio to be rendered, wake it now
+  QObject* audio_wake_object = GetAudioWakeObject();
+  if (audio_wake_object != nullptr) {
+    QMetaObject::invokeMethod(audio_wake_object, "play_wake", Qt::QueuedConnection);
+  }
 }
 
 bool Cacher::IsReversed()
