@@ -255,6 +255,7 @@ void RenderThread::paint() {
 
     // If we're not color managing, just blit normally
     buffer.BindBuffer();
+    f->glClear(GL_COLOR_BUFFER_BIT);
     composite_buffer.BindTexture();
     olive::rendering::Blit(pipeline_program.get());
     composite_buffer.ReleaseTexture();

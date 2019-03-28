@@ -1,11 +1,5 @@
 #define M_PI 3.1415926535897932384626433832795
 
-<<<<<<< HEAD
-=======
-uniform sampler2D image;
-
-//uniform float radius;
->>>>>>> master
 uniform float sigma;
 uniform vec2 resolution;
 uniform bool horiz_blur;

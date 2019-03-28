@@ -573,16 +573,22 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
             // use clip textures for nested sequences, otherwise use main frame buffers
             GLuint back_buffer_1;
+            GLuint back_buffer_2;
             GLuint backend_tex_1;
             GLuint backend_tex_2;
+            GLuint comp_texture;
             if (params.nests.size() > 0) {
               back_buffer_1 = params.nests.last()->fbo[1].buffer();
+              back_buffer_2 = params.nests.last()->fbo[2].buffer();
               backend_tex_1 = params.nests.last()->fbo[1].texture();
               backend_tex_2 = params.nests.last()->fbo[2].texture();
+              comp_texture = params.nests.last()->fbo[0].texture();
             } else {
               back_buffer_1 = params.backend_buffer1->buffer();
+              back_buffer_2 = params.backend_buffer2->buffer();
               backend_tex_1 = params.backend_buffer1->texture();
               backend_tex_2 = params.backend_buffer2->texture();
+              comp_texture = params.main_buffer->texture();
             }
 
             // render a backbuffer
@@ -679,11 +685,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
             // copy front buffer to back buffer (only if we're using a blending mode)
             if (coords.blendmode >= 0) {
-              if (params.nests.size() > 0) {
-                draw_clip(params.ctx, params.pipeline, params.nests.last()->fbo[2].buffer(), params.nests.last()->fbo[0].texture(), true);
-              } else {
-                draw_clip(params.ctx, params.pipeline, params.backend_buffer2->buffer(), params.main_buffer->texture(), true);
-              }
+              draw_clip(params.ctx, params.pipeline, back_buffer_2, comp_texture, true);
             }
 
 
