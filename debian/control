@@ -8,6 +8,6 @@ Homepage: https://olivevideoeditor.org/
 
 Package: olive-editor
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, libqt5multimedia5-plugins, frei0r-plugins
+Depends: ${misc:Depends}, ${shlibs:Depends}, libqt5multimedia5-plugins
 Description: Nonlinear video editor focused on performance and simplicity
 

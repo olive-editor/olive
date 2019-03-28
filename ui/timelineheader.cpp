@@ -468,6 +468,10 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
     path.lineTo(in_x+PLAYHEAD_SIZE+1, yoff);
     path.lineTo(start);
     p.fillPath(path, Qt::red);
+
+    // Draw white line at the top for clarity
+    p.setPen(Qt::gray);
+    p.drawLine(0, 0, width(), 0);
   }
 }
 
