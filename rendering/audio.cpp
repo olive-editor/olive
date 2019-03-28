@@ -419,5 +419,14 @@ QObject* GetAudioWakeObject()
 
 void SetAudioWakeObject(QObject *o)
 {
+  audio_wake_mutex.lock();
   audio_wake_object = o;
+  audio_wake_mutex.unlock();
+}
+
+void WakeAudioWakeObject() {
+  QObject* audio_wake_object = GetAudioWakeObject();
+  if (audio_wake_object != nullptr) {
+    QMetaObject::invokeMethod(audio_wake_object, "play_wake", Qt::QueuedConnection);
+  }
 }

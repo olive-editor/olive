@@ -461,10 +461,7 @@ void Cacher::CacheAudioWorker() {
   }
 
   // If there's a QObject waiting for audio to be rendered, wake it now
-  QObject* audio_wake_object = GetAudioWakeObject();
-  if (audio_wake_object != nullptr) {
-    QMetaObject::invokeMethod(audio_wake_object, "play_wake", Qt::QueuedConnection);
-  }
+  WakeAudioWakeObject();
 }
 
 bool Cacher::IsReversed()

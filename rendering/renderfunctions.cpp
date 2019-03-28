@@ -630,8 +630,8 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     }
   }
 
-  if (audio_track_count == 0 && params.viewer != nullptr) {
-    params.viewer->play_wake();
+  if (audio_track_count == 0) {
+    WakeAudioWakeObject();
   }
 
   if (params.video) {

@@ -67,6 +67,7 @@ void clear_audio_ibuffer();
 
 QObject *GetAudioWakeObject();
 void SetAudioWakeObject(QObject* o);
+void WakeAudioWakeObject();
 
 int current_audio_freq();
 
