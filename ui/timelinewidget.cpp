@@ -3269,7 +3269,7 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
         rect_select.translate(0, height());
       }
 
-      draw_selection_rectangle(p, rect_select);
+      olive::ui::DrawSelectionRectangle(p, rect_select);
     }
 
     // Draw ghosts

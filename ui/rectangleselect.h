@@ -23,6 +23,9 @@
 
 #include <QPainter>
 
+namespace olive {
+namespace ui {
+
 /**
  * @brief Routine for drawing a drag selection rectangle for any given QPainter
  *
@@ -34,6 +37,9 @@
  *
  * Rectangle to draw
  */
-void draw_selection_rectangle(QPainter& painter, const QRect& rect);
+void DrawSelectionRectangle(QPainter& painter, const QRect& rect);
+
+}
+}
 
 #endif // RECTANGLESELECT_H

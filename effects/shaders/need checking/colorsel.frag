@@ -2,10 +2,6 @@
 Based on Edward Cannon's Simple Chroma Key (adaptation by Olive Team)
 RGB to HSV based on MattKC's toonify source code
 Feel free to modify and use at will */
-#version 110
-
-uniform sampler2D tex;
-varying vec2 vTexCoord;
 
 uniform float loc;
 uniform float hic;
@@ -57,8 +53,7 @@ bool isNotIncreasingSequence(float a, float b, float c) {
     return (c < b || a > b);
 }
 
-void main(void) {
-	vec4 texture_color = texture2D(tex,vTexCoord);
+vec4 process(vec4 texture_color) {
     vec3 color = texture_color.rgb;
     float toCheck = 0.0;
     
@@ -79,5 +74,5 @@ void main(void) {
     }
 	texture_color.a = isNotIncreasingSequence(loc, toCheck, hic) ? (invert ? texture_color.a : 0.0) : (invert ? 0.0 : texture_color.a);
 	texture_color.rgb *= texture_color.a;
-	gl_FragColor = texture_color;
+	return texture_color;
 }

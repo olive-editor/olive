@@ -347,7 +347,7 @@ void GraphView::paintEvent(QPaintEvent *) {
     p.drawLine(playhead_x, 0, playhead_x, height());
 
     if (rect_select) {
-      draw_selection_rectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
+      olive::ui::DrawSelectionRectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
       p.setBrush(Qt::NoBrush);
     }
   }

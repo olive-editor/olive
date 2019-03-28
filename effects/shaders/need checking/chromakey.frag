@@ -4,9 +4,6 @@ feel free to use or modify at will*/
  
 /*the follwing three functions convert RGB into YCbCr in the same manner as in JPEG images*/ 
 
-uniform sampler2D tex;
-varying vec2 vTexCoord;
-
 uniform vec3 key_color;
 uniform float tola;
 uniform float tolb;
@@ -36,12 +33,10 @@ float colorclose(float Cb_p,float Cr_p,float Cb_key,float Cr_key,float tola,floa
 	return (1.0); 
 }
  
-void main(void) {
+vec4 process(vec4 texture_color) {
 	float cb_key = rgb2cb(key_color);
 	float cr_key = rgb2cr(key_color);
 	
-	vec4 texture_color = texture2D(tex, vTexCoord);
-
 	float cb = rgb2cb(texture_color.rgb); 
 	float cr = rgb2cr(texture_color.rgb); 
 	float mask = colorclose(cb, cr, cb_key, cr_key, (tola/100.0), (tolb/100.0));
@@ -61,5 +56,5 @@ void main(void) {
 	} else if (mode == 2) { // original
 	}
 	
-	gl_FragColor = texture_color;
+	return texture_color;
 }

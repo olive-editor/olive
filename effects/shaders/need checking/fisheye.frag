@@ -1,15 +1,12 @@
-#version 120
-uniform sampler2D tex0;
-varying vec2 vTexCoord;
 #define M_PI 3.1415926535897932384626433832795
 
 uniform float size;
 
-void main(void) {
+vec4 process(vec4 col) {
 	float maxFactor = 2.0 - (size * 0.01);
 
 	vec2 uv;
-	vec2 xy = 2.0 * vTexCoord - 1.0;
+	vec2 xy = 2.0 * v_texcoord - 1.0;
 	float d = length(xy);
 	if (d < (2.0-maxFactor)) 	{
 		d = length(xy * maxFactor);
@@ -20,8 +17,7 @@ void main(void) {
 		uv.x = r * cos(phi) + 0.5;
 		uv.y = r * sin(phi) + 0.5;
 	} else {
-		uv = vTexCoord;
+		uv = v_texcoord;
 	}
-	vec4 c = texture2D(tex0, uv);
-	gl_FragColor = c;
+	return texture2D(texture, uv);
 }

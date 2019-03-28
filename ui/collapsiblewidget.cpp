@@ -108,7 +108,6 @@ void CollapsibleWidget::SetContents(QWidget* c) {
   contents = c;
   if (!existing) {
     layout->addWidget(contents);
-    connect(enabled_check, SIGNAL(toggled(bool)), contents, SLOT(setEnabled(bool)));
     connect(collapse_button, SIGNAL(clicked()), this, SLOT(on_visible_change()));
   }
 }
