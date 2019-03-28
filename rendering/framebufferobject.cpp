@@ -52,17 +52,19 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   // set context to new context provided
   ctx_ = ctx;
 
+  QOpenGLFunctions* f = ctx->functions();
+
   // create framebuffer object
-  ctx->functions()->glGenFramebuffers(1, &buffer_);
+  f->glGenFramebuffers(1, &buffer_);
 
   // create texture
-  ctx->functions()->glGenTextures(1, &texture_);
+  f->glGenTextures(1, &texture_);
 
   // bind framebuffer for attaching
-  ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
+  f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
 
   // bind texture
-  ctx->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
+  f->glBindTexture(GL_TEXTURE_2D, texture_);
 
   // allocate storage for texture
   const olive::PixelFormatInfo& bit_depth = olive::pixel_formats.at(olive::Global->is_exporting() ?
@@ -82,8 +84,8 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
         );
 
   // set texture filtering to bilinear
-  ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // attach texture to framebuffer
   ctx->extraFunctions()->glFramebufferTexture2D(
@@ -95,10 +97,10 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
 
   // release texture
-  ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+  f->glBindTexture(GL_TEXTURE_2D, 0);
 
   // release framebuffer
-  ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 void FramebufferObject::Destroy()

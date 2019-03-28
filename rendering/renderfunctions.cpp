@@ -76,7 +76,18 @@ GLfloat olive::rendering::flipped_blit_texcoords[] = {
   1.0, 0.0
 };
 
+void PrepareToDraw(QOpenGLFunctions* f) {
+  f->glGenerateMipmap(GL_TEXTURE_2D);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+}
+
 void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatrix4x4 matrix) {
+
+  QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
+  PrepareToDraw(func);
 
   QOpenGLVertexArrayObject m_vao;
   m_vao.create();
@@ -93,8 +104,6 @@ void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatri
   m_vbo2.bind();
   m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * sizeof(GLfloat));
   m_vbo2.release();
-
-  QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
   pipeline->bind();
 
@@ -586,9 +595,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, textureID);
 
             // set texture filter to bilinear
-            params.ctx->functions()->glGenerateMipmap(GL_TEXTURE_2D);
-            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            params.ctx->functions()->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            PrepareToDraw(params.ctx->functions());
 
             // draw clip on screen according to gl coordinates
             params.pipeline->bind();

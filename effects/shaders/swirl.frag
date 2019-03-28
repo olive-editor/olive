@@ -21,5 +21,6 @@ vec4 process(vec4 col) {
 		tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
 	}
 	tc += center;
+
 	return texture2D(texture, tc / resolution);
 }

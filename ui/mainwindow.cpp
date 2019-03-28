@@ -1097,13 +1097,16 @@ void MainWindow::maximize_panel() {
       // store the current state of panels
       temp_panel_state = saveState();
 
-      // remove all dock widgets (kind of painful having to do each individually)
-      if (focused_panel != panel_project) removeDockWidget(panel_project);
-      if (focused_panel != panel_effect_controls) removeDockWidget(panel_effect_controls);
-      if (focused_panel != panel_timeline) removeDockWidget(panel_timeline);
-      if (focused_panel != panel_sequence_viewer) removeDockWidget(panel_sequence_viewer);
-      if (focused_panel != panel_footage_viewer) removeDockWidget(panel_footage_viewer);
-      if (focused_panel != panel_graph_editor) removeDockWidget(panel_graph_editor);
+      // remove all dock widgets that aren't the hovered panel
+      for (int i=0;i<olive::panels.size();i++) {
+        if (olive::panels.at(i) != focused_panel) {
+          // hide the panel
+          olive::panels.at(i)->setVisible(false);
+
+          // set it to floating
+          olive::panels.at(i)->setFloating(true);
+        }
+      }
     }
   } else {
     // we must be maximized, restore previous state

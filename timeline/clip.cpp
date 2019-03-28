@@ -570,7 +570,7 @@ bool Clip::Retrieve()
           f->glBindTexture(GL_TEXTURE_2D, texture);
 
           // set texture filtering to bilinear
-          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
           f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
           // set texture wrapping to clamp

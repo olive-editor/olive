@@ -117,7 +117,6 @@ void ViewerWindow::paintGL() {
   if (texture_ > 0) {
     if (mutex_ != nullptr) mutex_->lock();
 
-
     QOpenGLFunctions* f = context()->functions();
     //QOpenGLExtraFunctions* xf = context()->extraFunctions();
 

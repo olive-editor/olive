@@ -70,7 +70,7 @@ ExportThread::ExportThread(const ExportParams &params,
   surface.create();
 }
 
-bool ExportThread::Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale) {
+bool ExportThread::Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream) {
   ret = avcodec_send_frame(codec_ctx, frame);
   if (ret < 0) {
     qCritical() << "Failed to send frame to encoder." << ret;
@@ -91,18 +91,9 @@ bool ExportThread::Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, 
     }
 
     packet->stream_index = stream->index;
-    if (rescale) {
-      if (packet->pts != AV_NOPTS_VALUE) {
-        packet->pts = qRound(packet->pts * av_q2d(codec_ctx->time_base) / av_q2d(stream->time_base));
-      }
-      if (packet->dts != AV_NOPTS_VALUE) {
-        packet->dts = qRound(packet->dts * av_q2d(codec_ctx->time_base) / av_q2d(stream->time_base));
-      }
-      if (packet->duration > 0) {
-        packet->duration = qRound(packet->duration * av_q2d(codec_ctx->time_base) / av_q2d(stream->time_base));
-      }
-      //av_packet_rescale_ts(packet, codec_ctx->time_base, stream->time_base);
-    }
+
+    av_packet_rescale_ts(packet, codec_ctx->time_base, stream->time_base);
+
     av_interleaved_write_frame(ofmt_ctx, packet);
     av_packet_unref(packet);
   }
@@ -482,7 +473,7 @@ void ExportThread::Export()
       sws_frame->pts = qRound(timecode_secs/av_q2d(vcodec_ctx->time_base));
 
       // Send frame to encoder
-      if (!Encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream, true)) {
+      if (!Encode(fmt_ctx, vcodec_ctx, sws_frame, &video_pkt, video_stream)) {
         return;
       }
 
@@ -520,7 +511,7 @@ void ExportThread::Export()
         swr_frame->pts = file_audio_samples;
 
         // Send frame to encoder
-        if (!Encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) {
+        if (!Encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) {
           return;
         }
 
@@ -569,7 +560,7 @@ void ExportThread::Export()
       swr_convert_frame(swr_ctx, swr_frame, nullptr);
       if (swr_frame->nb_samples == 0) break;
       swr_frame->pts = file_audio_samples;
-      if (!Encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream, true)) {
+      if (!Encode(fmt_ctx, acodec_ctx, swr_frame, &audio_pkt, audio_stream)) {
         return;
       }
       file_audio_samples += swr_frame->nb_samples;
@@ -582,17 +573,12 @@ void ExportThread::Export()
     return;
   }
 
-  bool continueVideo = params_.video_enabled;
-  bool continueAudio = params_.audio_enabled;
-
-  // Flush remaining packets out of video and audio encoders
-  while (continueVideo && continueAudio) {
-    if (continueVideo) {
-      continueVideo = Encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream, true);
-    }
-    if (continueAudio) {
-      continueAudio = Encode(fmt_ctx, acodec_ctx, nullptr, &audio_pkt, audio_stream, true);
-    }
+  // Flush remaining packets out of video and audio encoders by sending a null frame
+  if (params_.video_enabled) {
+    Encode(fmt_ctx, vcodec_ctx, nullptr, &video_pkt, video_stream);
+  }
+  if (params_.audio_enabled) {
+    Encode(fmt_ctx, acodec_ctx, nullptr, &audio_pkt, audio_stream);
   }
 
   // Write container trailer

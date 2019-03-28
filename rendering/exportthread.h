@@ -83,7 +83,7 @@ signals:
 public slots:
   void Interrupt();
 private:
-  bool Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream, bool rescale);
+  bool Encode(AVFormatContext* ofmt_ctx, AVCodecContext* codec_ctx, AVFrame* frame, AVPacket* packet, AVStream* stream);
   bool SetupVideo();
   bool SetupAudio();
   bool SetupContainer();
