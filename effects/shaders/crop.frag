@@ -18,19 +18,19 @@ vec4 process(vec4 col) {
 		float f = pow(2.0, 10.0-(feather*0.1));
 
 		if (left > 0.0) {
-			alpha = clamp(((v_texcoord.x+(0.5/f))-(left*0.01))*f, 0.0, 1.0); // left
+			alpha *= clamp(((v_texcoord.x+(0.5/f))-(left*0.01))*f, 0.0, 1.0); // left
 		}
 
 		if (top > 0.0) {
-			alpha = clamp(((v_texcoord.y+(0.5/f))-(top*0.01))*f, 0.0, 1.0); // top
+			alpha *= clamp(((v_texcoord.y+(0.5/f))-(top*0.01))*f, 0.0, 1.0); // top
 		}
 
 		if (right > 0.0) {
-			alpha = clamp((((1.0-v_texcoord.x)+(0.5/f))-(right*0.01))*f, 0.0, 1.0); // right
+			alpha *= clamp((((1.0-v_texcoord.x)+(0.5/f))-(right*0.01))*f, 0.0, 1.0); // right
 		}
 
 		if (bottom > 0.0) {
-			alpha = clamp((((1.0-v_texcoord.y)+(0.5/f))-(bottom*0.01))*f, 0.0, 1.0); // bottom
+			alpha *= clamp((((1.0-v_texcoord.y)+(0.5/f))-(bottom*0.01))*f, 0.0, 1.0); // bottom
 		}
 	}
 
