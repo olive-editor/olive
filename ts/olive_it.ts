@@ -148,7 +148,7 @@
     <message>
         <location filename="../dialogs/demonotice.cpp" line="49"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offrimao alcuna garanzia, quindi usalo a tuo rischio. Si prega di segnalare errori o richieste di funzionalità a %1</translation>
+        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offriamo alcuna garanzia, quindi usalo a tuo rischio. Si prega di segnalare errori o richieste di funzionalità a %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="51"/>
@@ -381,7 +381,7 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="574"/>
         <source>Quality-based (Constant Rate Factor)</source>
-        <translation type="unfinished"></translation>
+        <translation>Basata sulla qualità (CFR bitrate variabile)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="578"/>
@@ -526,22 +526,22 @@
     <message>
         <location filename="../io/exportthread.cpp" line="122"/>
         <source>could not allocate video stream</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile allocare stream video</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="131"/>
         <source>could not allocate video encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile allocale contesto di codifica del video</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="169"/>
         <source>could not open output video encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile aprire il codificatore video d&apos;output (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="177"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile copiare i parametri del codificatore video allo stream di output (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="215"/>
@@ -551,47 +551,47 @@
     <message>
         <location filename="../io/exportthread.cpp" line="224"/>
         <source>could not allocate audio stream</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile allocare lo stream audio</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="233"/>
         <source>could not allocate audio encoding context</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile allocale contesto di codifica dell&apos;audio</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="258"/>
         <source>could not open output audio encoder (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile aprire il codificatore dell&apos;output audio (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="266"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile copiare i parametri del codificatore audio allo stream di output (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="296"/>
         <source>could not allocate audio buffer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile allocare il buffer audio (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="318"/>
         <source>could not create output format context</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile creare il constesto del formato d&apos;output</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="327"/>
         <source>could not open output file (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile aprire il file di output (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="353"/>
         <source>could not write output file header (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile scrivere l&apos;intestazione del file di output (%1)</translation>
     </message>
     <message>
         <location filename="../io/exportthread.cpp" line="490"/>
         <source>could not write output file trailer (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>impossibile scrivere la fine del file d&apos;output (%1)</translation>
     </message>
 </context>
 <context>
@@ -663,17 +663,17 @@
     <message>
         <location filename="../ui/graphview.cpp" line="81"/>
         <source>Zoom to Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci la selezione</translation>
     </message>
     <message>
         <location filename="../ui/graphview.cpp" line="88"/>
         <source>Zoom to Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci per mostrare tutto</translation>
     </message>
     <message>
         <location filename="../ui/graphview.cpp" line="97"/>
         <source>Reset View</source>
-        <translation type="unfinished"></translation>
+        <translation>Reimposta ingrandimento</translation>
     </message>
 </context>
 <context>
@@ -681,22 +681,22 @@
     <message>
         <location filename="../project/media.cpp" line="43"/>
         <source>None (Progressive)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno (progressivo)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="44"/>
         <source>Top Field First</source>
-        <translation type="unfinished"></translation>
+        <translation>Prima la linea in alto</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="45"/>
         <source>Bottom Field First</source>
-        <translation type="unfinished"></translation>
+        <translation>Prima la linea in basso</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="46"/>
         <source>Invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Non valido</translation>
     </message>
 </context>
 <context>
@@ -704,7 +704,7 @@
     <message>
         <location filename="../ui/keyframenavigator.cpp" line="65"/>
         <source>Enable Keyframes</source>
-        <translation type="unfinished"></translation>
+        <translation>Abilita fotogrammi chiave</translation>
     </message>
 </context>
 <context>
@@ -712,17 +712,17 @@
     <message>
         <location filename="../ui/keyframeview.cpp" line="69"/>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineare</translation>
     </message>
     <message>
         <location filename="../ui/keyframeview.cpp" line="71"/>
         <source>Bezier</source>
-        <translation type="unfinished"></translation>
+        <translation>Bézier</translation>
     </message>
     <message>
         <location filename="../ui/keyframeview.cpp" line="73"/>
         <source>Hold</source>
-        <translation type="unfinished"></translation>
+        <translation>Costante</translation>
     </message>
 </context>
 <context>
@@ -731,13 +731,13 @@
         <location filename="../ui/labelslider.cpp" line="269"/>
         <location filename="../ui/labelslider.cpp" line="308"/>
         <source>Set Value</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta valore</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="270"/>
         <location filename="../ui/labelslider.cpp" line="309"/>
         <source>New value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo valore:</translation>
     </message>
 </context>
 <context>
@@ -745,17 +745,17 @@
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="35"/>
         <source>Loading...</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento...</translation>
     </message>
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="40"/>
         <source>Loading &apos;%1&apos;...</source>
-        <translation type="unfinished"></translation>
+        <translation>Caricamento di &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="46"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
 </context>
 <context>
@@ -763,52 +763,52 @@
     <message>
         <location filename="../io/loadthread.cpp" line="181"/>
         <source>Version Mismatch</source>
-        <translation type="unfinished"></translation>
+        <translation>Mancata corrispondenza della versione</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="182"/>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Questo progetto è stato salvato con una versione diversa di Olive e potrebbe non essere compatibile con questa. Vuoi provare a caricarlo ugualmente?</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="506"/>
         <source>Invalid Clip Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Link della clip non valido</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="507"/>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Questo progetto contiene un collegamento non valido a una clip. Potrebbe essere danneggiato. Vuoi continuare a caricarlo?</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="629"/>
         <source>%1 - Line: %2 Col: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - Linea: %2 Colonna: %3</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="656"/>
         <source>User aborted loading</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;utente ha interrotto il caricamento</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="687"/>
         <source>XML Parsing Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nell&apos;analisi XML</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="688"/>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile caricare &apos;%1&apos;. %2</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="692"/>
         <source>Project Load Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nel caricamento del progetto</translation>
     </message>
     <message>
         <location filename="../io/loadthread.cpp" line="693"/>
         <source>Error loading project: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile caricare il progetto %1</translation>
     </message>
 </context>
 <context>
@@ -816,82 +816,82 @@
     <message>
         <location filename="../mainwindow.cpp" line="221"/>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Benvenuti in %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="696"/>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;File</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="697"/>
         <source>&amp;New</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nuovo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="698"/>
         <source>&amp;Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri pr&amp;ogetto</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="699"/>
         <source>Clear Recent List</source>
-        <translation type="unfinished"></translation>
+        <translation>Svuota lista recenti</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="700"/>
         <source>Open Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri recenti</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="701"/>
         <source>&amp;Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Salva progetto</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="702"/>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;alva progetto come</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="703"/>
         <source>&amp;Import...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importa...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="704"/>
         <source>&amp;Export...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Esporta...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="705"/>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation>Es&amp;ci</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="707"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Modifica</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="708"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Annulla</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="709"/>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>Rifai</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="710"/>
         <source>Select &amp;All</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona t&amp;utto</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="711"/>
         <source>Deselect All</source>
-        <translation type="unfinished"></translation>
+        <translation>Deseleziona tutto</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="712"/>
@@ -916,7 +916,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="716"/>
         <source>Delete In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina punti di inizio/fine selezione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="717"/>
@@ -926,162 +926,162 @@
     <message>
         <location filename="../mainwindow.cpp" line="718"/>
         <source>Set/Edit Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta/modifica marcatore</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="720"/>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Visualizza</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="721"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="722"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpicciolisci</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="723"/>
         <source>Increase Track Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumenta l&apos;altezza delle tracce</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="724"/>
         <source>Decrease Track Height</source>
-        <translation type="unfinished"></translation>
+        <translation>Diminuisci altezza traccia</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="725"/>
         <source>Toggle Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta mostra tutti</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="726"/>
         <source>Track Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Linee delle tracce</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="727"/>
         <source>Rectified Waveforms</source>
-        <translation type="unfinished"></translation>
+        <translation>Forme d&apos;onda rettificate</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="728"/>
         <source>Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogrammi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="729"/>
         <source>Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Salta fotogrammi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="730"/>
         <source>Non-Drop Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Non saltare fotogrammi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="731"/>
         <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
+        <translation>Millisecondi</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="733"/>
         <source>Title/Action Safe Area</source>
-        <translation type="unfinished"></translation>
+        <translation>Area di sicurezza del titolo/azione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="734"/>
         <source>Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Disattivato</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="735"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefinito</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="736"/>
         <source>4:3</source>
-        <translation type="unfinished"></translation>
+        <translation>4:3</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="737"/>
         <source>16:9</source>
-        <translation type="unfinished"></translation>
+        <translation>16:9</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="738"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalizzato</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="740"/>
         <source>Full Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Schermo intero</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="741"/>
         <source>Full Screen Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizzatore a schermo intero</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="743"/>
         <source>&amp;Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Riproduzione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="744"/>
         <source>Go to Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai all&apos;inizio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="745"/>
         <source>Previous Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogramma precedente</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="746"/>
         <source>Play/Pause</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduci/pausa</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="747"/>
         <source>Play In to Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduci tra punti di inizio e fine</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="748"/>
         <source>Next Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogramma successivo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="749"/>
         <source>Go to End</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai alla fine</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="751"/>
         <source>Go to Previous Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al taglio precedente</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="752"/>
         <source>Go to Next Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al taglio successivo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="753"/>
         <source>Go to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al punto di inizio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="754"/>
         <source>Go to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai al punto di uscita</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="756"/>
@@ -1101,62 +1101,62 @@
     <message>
         <location filename="../mainwindow.cpp" line="760"/>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciclico</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="762"/>
         <source>&amp;Window</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Finestra</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="764"/>
         <source>Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="765"/>
         <source>Effect Controls</source>
-        <translation type="unfinished"></translation>
+        <translation>Controllo effetti</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="766"/>
         <source>Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Linea temporale</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="767"/>
         <source>Graph Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor del grafico</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="768"/>
         <source>Media Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizzatore media</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="769"/>
         <source>Sequence Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizzatore sequenza</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="771"/>
         <source>Maximize Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Massimizza pannello</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="772"/>
         <source>Lock Panels</source>
-        <translation type="unfinished"></translation>
+        <translation>Blocca pannelli</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="773"/>
         <source>Reset to Default Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Torna alla disposizione predefinita</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="775"/>
         <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;trumenti</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="777"/>
@@ -1201,7 +1201,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="785"/>
         <source>Enable Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Attiva bordi magnetici</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="786"/>
@@ -1241,7 +1241,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="793"/>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Scala automaticamente in maniera predefinita</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="794"/>
@@ -1251,7 +1251,8 @@
     <message>
         <location filename="../mainwindow.cpp" line="795"/>
         <source>Audio Scrubbing</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Da rivedere in base alla traduzione della linea verticale di riproduzione</translatorcomment>
+        <translation>Audio attivo durante il trascinamento</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="796"/>
@@ -1266,27 +1267,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="798"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiedi un nome nell&apos;impostazione del marcatore</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="800"/>
         <source>No Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>No scorrimento automatico</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="801"/>
         <source>Page Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorrimento pagina automatico</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="802"/>
         <source>Smooth Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorrimento automatico fluido</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="804"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="805"/>
@@ -1296,27 +1297,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="807"/>
         <source>&amp;Help</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aiuto</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="809"/>
         <source>A&amp;ction Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Ri&amp;cerca azione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="810"/>
         <source>Debug Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Log di debug</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="811"/>
         <source>&amp;About...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inform&amp;azioni...</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="829"/>
         <source>&lt;untitled&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;senza titolo&gt;</translation>
     </message>
 </context>
 <context>
@@ -1324,17 +1325,17 @@
     <message>
         <location filename="../project/marker.cpp" line="63"/>
         <source>Set Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta marcatore</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="65"/>
         <source>Set clip marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta nome del markatore della clip:</translation>
     </message>
     <message>
         <location filename="../project/marker.cpp" line="66"/>
         <source>Set sequence marker name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta nome del marcatore della sequenza:</translation>
     </message>
 </context>
 <context>
@@ -1342,47 +1343,47 @@
     <message>
         <location filename="../project/media.cpp" line="96"/>
         <source>New Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova cartella</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="115"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="115"/>
         <source>Filename:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome file:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="119"/>
         <source>Video Dimensions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensioni video:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="129"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogrammi al secondo:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="139"/>
         <source>%1 field(s) (%2 frame(s))</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 campo(i) (%2 fotogramma(i))</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="148"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interlacciamento:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="160"/>
         <source>Audio Frequency:</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza audio:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="169"/>
         <source>Audio Channels:</source>
-        <translation type="unfinished"></translation>
+        <translation>Canali audio:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="187"/>
@@ -1391,22 +1392,26 @@ Video Dimensions: %2x%3
 Frame Rate: %4
 Audio Frequency: %5
 Audio Layout: %6</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome: %1
+Dimensioni video: %2x%3
+Fotogrammi al secondo: %4
+Frequenza audio: %5
+Disposizione audio: %6</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="300"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="302"/>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Durata</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="319"/>
         <source>Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza</translation>
     </message>
 </context>
 <context>
@@ -1414,55 +1419,55 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="43"/>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Proprietà di &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="52"/>
         <source>Tracks:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tracce:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="60"/>
         <source>Video %1: %2x%3 %4FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Video %1: %2x%3 %4FPS</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="76"/>
         <source>Audio %1: %2Hz %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio %1: %2Hz %3</translation>
     </message>
     <message numerus="yes">
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="79"/>
         <source>%n channel(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n canale</numerusform>
+            <numerusform>%n canali</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="94"/>
         <source>Conform to Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Conforme alla velocità dei fotogrammi:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="104"/>
         <source>Alpha is Premultiplied</source>
-        <translation type="unfinished"></translation>
+        <translation>Canale alfa premoltiplicato</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="113"/>
         <source>Auto (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatico (%1)</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="126"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interlacciamento:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="133"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome:</translation>
     </message>
 </context>
 <context>
@@ -1470,77 +1475,77 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="158"/>
         <source>&amp;Project</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Progetto</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="159"/>
         <source>&amp;Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Sequenza</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="160"/>
         <source>&amp;Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>C&amp;artella</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="161"/>
         <source>Set In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta punto di inizio</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="162"/>
         <source>Set Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta punto di fine</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="163"/>
         <source>Reset In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Azzera punto inizio selezione</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="164"/>
         <source>Reset Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Azzera punto fine selezione</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="165"/>
         <source>Clear In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulisci punti di inizio/fine selezione</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="166"/>
         <source>Add Default Transition</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi transizione predefinita</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="167"/>
         <source>Link/Unlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Collega/scollega</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="168"/>
         <source>Enable/Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Attiva/disattiva</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="169"/>
         <source>Nest</source>
-        <translation type="unfinished"></translation>
+        <translation>Annida</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="170"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="171"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="172"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Incolla</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="173"/>
@@ -1550,12 +1555,12 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="174"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplica</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="175"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="176"/>
@@ -1565,27 +1570,27 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="177"/>
         <source>Split</source>
-        <translation type="unfinished"></translation>
+        <translation>Dividi</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="220"/>
         <source>Invalid aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Rapporto d&apos;aspetto non valido</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="220"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il rapporto d&apos;aspetto &apos;%1&apos; non è valido. Si prega di riprovare.</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Enter custom aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci rapporto d&apos;aspetto personalizzato</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci il rapporto d&apos;aspetto da usare per l&apos;area di sicurezza (es. 16:9):</translation>
     </message>
 </context>
 <context>
@@ -1593,127 +1598,127 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="54"/>
         <source>Editing &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica di &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="74"/>
         <source>New Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova sequenza</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="179"/>
         <source>Preset:</source>
-        <translation type="unfinished"></translation>
+        <translation>Preimpostazioni:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="183"/>
         <source>Film 4K</source>
-        <translation type="unfinished"></translation>
+        <translation>Film 4K</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="184"/>
         <source>TV 4K (Ultra HD/2160p)</source>
-        <translation type="unfinished"></translation>
+        <translation>TV 4K (Ultra HD/2160p)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="185"/>
         <source>1080p</source>
-        <translation type="unfinished"></translation>
+        <translation>1080p</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="186"/>
         <source>720p</source>
-        <translation type="unfinished"></translation>
+        <translation>720p</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="187"/>
         <source>480p</source>
-        <translation type="unfinished"></translation>
+        <translation>480p</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="188"/>
         <source>360p</source>
-        <translation type="unfinished"></translation>
+        <translation>360p</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="189"/>
         <source>240p</source>
-        <translation type="unfinished"></translation>
+        <translation>240p</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="190"/>
         <source>144p</source>
-        <translation type="unfinished"></translation>
+        <translation>144p</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="191"/>
         <source>NTSC (480i)</source>
-        <translation type="unfinished"></translation>
+        <translation>NTSC (480i)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="192"/>
         <source>PAL (576i)</source>
-        <translation type="unfinished"></translation>
+        <translation>PAL (576i)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="193"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalizzato</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="201"/>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="205"/>
         <source>Width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Larghezza:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="211"/>
         <source>Height:</source>
-        <translation type="unfinished"></translation>
+        <translation>Altezza:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="217"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità fotogrammi:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="233"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proporzioni del pixel:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="235"/>
         <source>Square Pixels (1.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pixel quadrati (1.0)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="238"/>
         <source>Interlacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Interlacciamento:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="240"/>
         <source>None (Progressive)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuno (progressivo)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="248"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="252"/>
         <source>Sample Rate: </source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza di campionamento: </translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="266"/>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome:</translation>
     </message>
 </context>
 <context>
@@ -1721,22 +1726,22 @@ Audio Layout: %6</source>
     <message>
         <location filename="../oliveglobal.cpp" line="63"/>
         <source>Olive Project %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto di Olive %1</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="90"/>
         <source>Auto-recovery</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristino automatico</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="90"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive non è stato chiuso correttamente ed è stato trovato un file di ripristino. Desideri aprirlo?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="165"/>
         <source>Open Project...</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri progetto...</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="176"/>
@@ -1746,42 +1751,42 @@ Audio Layout: %6</source>
     <message>
         <location filename="../oliveglobal.cpp" line="177"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il progetto &apos;%1&apos; non esiste più. Vuoi rimuoverlo dalla lista dei progetti recenti?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="188"/>
         <source>Save Project As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva progetto come...</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="213"/>
         <source>Unsaved Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto non salvato</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="214"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il progetto è stato modificato rispetto all&apos;ultimo salvataggio. Desideri salvarlo prima di chiuderlo?</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="233"/>
         <source>No active sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna sequenza attiva</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="234"/>
         <source>Please open the sequence you wish to export.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si prega di aprire la sequenza che si desidera esportare.</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="250"/>
         <source>Missing Project File</source>
-        <translation type="unfinished"></translation>
+        <translation>File del progetto mancante</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="251"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il progetto specificato &apos;%1&apos; non esiste.</translation>
     </message>
 </context>
 <context>
@@ -1789,7 +1794,7 @@ Audio Layout: %6</source>
     <message>
         <location filename="../effects/internal/paneffect.cpp" line="32"/>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Trasla</translation>
     </message>
 </context>
 <context>
@@ -1797,123 +1802,123 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="83"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="181"/>
         <source>Invalid CSS File</source>
-        <translation type="unfinished"></translation>
+        <translation>File CSS non valido</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="182"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file CSS &apos;%1&apos; non esiste.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="321"/>
         <source>Confirm Reset All Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Conferma l&apos;azzeramento di tutte le scorciatoie da tastiera</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="322"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sei sicuro di voler riportare tutte le scorciatoie da tastiera ai valori predefiniti?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="372"/>
         <source>Import Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa scorciatoie da tastiera</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="396"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="420"/>
         <source>Error saving shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nel salvataggio delle scorciatoie</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="397"/>
         <source>Failed to open file for reading</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nell&apos;apertura del file in lettura</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="404"/>
         <source>Export Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta scorciatoie da tastiera</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="418"/>
         <source>Export Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta scorciatoie</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="418"/>
         <source>Shortcuts exported successfully</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorciatoie esportate con successo</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="420"/>
         <source>Failed to open file for writing</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nell&apos;apertura del file in scrittura</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="426"/>
         <source>Browse for CSS file</source>
-        <translation type="unfinished"></translation>
+        <translation>Sfoglia file CSS</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="434"/>
         <source>Delete All Previews</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina tutte le anteprime</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="435"/>
         <source>Are you sure you want to delete all previews?</source>
-        <translation type="unfinished"></translation>
+        <translation>Sei sicuro di voler eliminare tutte le anteprime?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="439"/>
         <source>Previews Deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteprime eliminate</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="440"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutte le anteprime sono state eliminate con successo. Potresti dover riaprire il progetto attuale affinché i cambiamenti abbiano effetto.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="457"/>
         <source>Language:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lingua:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="494"/>
         <source>Custom CSS:</source>
-        <translation type="unfinished"></translation>
+        <translation>CSS personalizzato:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="500"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Sfoglia</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="507"/>
         <source>Image sequence formats:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formati delle sequenze immagini:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="516"/>
         <source>Audio Recording:</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrazione audio:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
         <source>Mono</source>
-        <translation type="unfinished"></translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="520"/>
         <source>Stereo</source>
-        <translation type="unfinished"></translation>
+        <translation>Stereo</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="526"/>
@@ -1923,17 +1928,17 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="536"/>
         <source>Thumbnail Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Risoluzione anteprime:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="544"/>
         <source>Waveform Resolution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Risoluzione forma d&apos;onda:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="552"/>
         <source>Delete Previews</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina anteprime</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="560"/>
@@ -1943,12 +1948,12 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="564"/>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Generale</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="568"/>
         <source>Behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Comportamento</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="582"/>
@@ -1997,7 +2002,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="616"/>
         <source>Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduzione</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
