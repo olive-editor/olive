@@ -750,7 +750,7 @@
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="40"/>
         <source>Loading &apos;%1&apos;...</source>
-        <translation>Caricamento di &apos;%1&apos;</translation>
+        <translation>Caricamento di &apos;%1&apos;...</translation>
     </message>
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="46"/>
@@ -1076,27 +1076,27 @@
     <message>
         <location filename="../mainwindow.cpp" line="753"/>
         <source>Go to In Point</source>
-        <translation>Vai al punto di inizio</translation>
+        <translation>Vai al punto di inizio selezione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="754"/>
         <source>Go to Out Point</source>
-        <translation>Vai al punto di uscita</translation>
+        <translation>Vai al punto di fine selezione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="756"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorri riproduzione a sinistra</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="757"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferma scorrimento riproduzione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="758"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorri riproduzione a destra</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="760"/>
@@ -1161,42 +1161,42 @@
     <message>
         <location filename="../mainwindow.cpp" line="777"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento puntatore</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="778"/>
         <source>Edit Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di modifica</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="779"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ridimensionamento a catena</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="780"/>
         <source>Razor Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di taglio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="781"/>
         <source>Slip Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di slittamento</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="782"/>
         <source>Slide Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di scorrimento</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="783"/>
         <source>Hand Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento mano</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="784"/>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento transizione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="785"/>
@@ -1206,37 +1206,37 @@
     <message>
         <location filename="../mainwindow.cpp" line="786"/>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Selezionando si sposta anche il cursore</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="787"/>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished"></translation>
+        <translation>Lo strumento di modifica sposta anche il cursore</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="788"/>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Lo strumento di modifica seleziona anche i collegamenti</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="789"/>
         <source>Seek Also Selects</source>
-        <translation type="unfinished"></translation>
+        <translation>Spostare il cursore seleziona anche</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="790"/>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta cursore alla fine di ciò che viene incollato</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="791"/>
         <source>Scroll Wheel Zooms</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci con la rotellina del mouse</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="792"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Permetti il trascinamento dei file nella linea temporale</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="793"/>
@@ -1246,7 +1246,7 @@
     <message>
         <location filename="../mainwindow.cpp" line="794"/>
         <source>Enable Seek to Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta cursore all&apos;importazione</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="795"/>
@@ -1257,12 +1257,12 @@
     <message>
         <location filename="../mainwindow.cpp" line="796"/>
         <source>Enable Drop on Media to Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Permetti di rilasciare su un media per rimpiazzarlo</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="797"/>
         <source>Enable Hover Focus</source>
-        <translation type="unfinished"></translation>
+        <translation>Abilita focus al passaggio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="798"/>
@@ -1565,7 +1565,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="176"/>
         <source>Ripple Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina mantenendo distanze clip</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="177"/>
@@ -1746,7 +1746,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../oliveglobal.cpp" line="176"/>
         <source>Missing recent project</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto recente mancante</translation>
     </message>
     <message>
         <location filename="../oliveglobal.cpp" line="177"/>
@@ -1958,46 +1958,48 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="582"/>
         <source>Seeking</source>
-        <translation type="unfinished"></translation>
+        <translation>Spostamento cursore</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="585"/>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Spostamento cursore accurato
+Mostra sempre il fotogramma corretto (il video potrebbe bloccarsi brevemente per caricare il fotogramma)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="588"/>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
-        <translation type="unfinished"></translation>
+        <translation>Spostamento veloce del cursore
+Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente accurati durante lo spostamento - non interessa la riproduzione/esportazione)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="594"/>
         <source>Memory Usage</source>
-        <translation type="unfinished"></translation>
+        <translation>Uso della memoria</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="596"/>
         <source>Upcoming Frame Queue:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogrammi seguenti in coda:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="601"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="610"/>
         <source>frames</source>
-        <translation type="unfinished"></translation>
+        <translation>fotogrammi</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="602"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="611"/>
         <source>seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>secondi</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="605"/>
         <source>Previous Frame Queue:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotogrammi precedenti in coda:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="616"/>
@@ -2007,68 +2009,68 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
         <source>Output Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo d&apos;uscita:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="626"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="645"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Predefinito</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="642"/>
         <source>Input Device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo d&apos;ingresso:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="661"/>
         <source>Sample Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza di campionamento:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="682"/>
         <source>Search for action or shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca un&apos;azione o una scorciatoia</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="689"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Azione</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="690"/>
         <source>Shortcut</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorciatoia</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="695"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="699"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="705"/>
         <source>Reset Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Reimposta quelle selezionate</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="709"/>
         <source>Reset All</source>
-        <translation type="unfinished"></translation>
+        <translation>Reimposta tutto</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="715"/>
         <source>Keyboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastiera</translation>
     </message>
 </context>
 <context>
@@ -2076,12 +2078,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../io/previewgenerator.cpp" line="531"/>
         <source>Could not open file - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impssibile aprire il file - %1</translation>
     </message>
     <message>
         <location filename="../io/previewgenerator.cpp" line="538"/>
         <source>Could not find stream information - %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare le informazioni sullo stream - %1</translation>
     </message>
 </context>
 <context>
@@ -2089,94 +2091,94 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/project.cpp" line="244"/>
         <source>Search media, markers, etc.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca media, marcatori, ecc.</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="245"/>
         <source>Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="249"/>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="369"/>
         <source>Replace &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="371"/>
         <location filename="../panels/project.cpp" line="908"/>
         <source>All Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i file</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="382"/>
         <location filename="../panels/project.cpp" line="920"/>
         <source>No active sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna sequenza attiva</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="383"/>
         <source>No sequence is active, please open the sequence you want to replace clips from.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna sequenza attiva, si prega di aprire quella da cui vuoi rimpiazzare le clip.</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="391"/>
         <source>Active sequence selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza attiva selezionata</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="392"/>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non puoi inserire una sequenza dentro sé stessa, in questa sequenza non ci sarebbero clip di questo media.</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="423"/>
         <source>Rename &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Rinomina &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="424"/>
         <source>Enter new name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci un nuovo nome:</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="569"/>
         <source>Delete media in use?</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminare il media in uso?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="570"/>
         <source>The media &apos;%1&apos; is currently used in &apos;%2&apos;. Deleting it will remove all instances in the sequence. Are you sure you want to do this?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il media &apos;%1&apos; è attualmente usato in &apos;%2&apos;. Eliminandolo, toglierai tutte le sue istanze dalla sequenza. Sei sicuro di volerlo fare?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="573"/>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Salta</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="784"/>
         <source>Image sequence detected</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza di immagini rilevata</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="785"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file &apos;%1&apos; sembra far parte di una sequenza di immagini. Desideri importarla come tale?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="908"/>
         <source>Import media...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa media...</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="921"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna sequenza attiva, si prega di aprire la sequenza da cui vuoi eliminare le clip.</translation>
     </message>
 </context>
 <context>
@@ -2184,77 +2186,77 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="40"/>
         <source>Create Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="43"/>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="49"/>
         <source>Dimensions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensioni:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="52"/>
         <source>Same Size as Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Stessa dimensione del file originale</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="53"/>
         <source>Half Resolution (1/2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Metà della risoluzione (1/2)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="54"/>
         <source>Quarter Resolution (1/4)</source>
-        <translation type="unfinished"></translation>
+        <translation>Un quarto della risoluzione (1/4)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="55"/>
         <source>Eighth Resolution (1/8)</source>
-        <translation type="unfinished"></translation>
+        <translation>Un ottavo della risoluzione (1/8)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="56"/>
         <source>Sixteenth Resolution (1/16)</source>
-        <translation type="unfinished"></translation>
+        <translation>Un sedicesimo della risoluzione (1/16)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="60"/>
         <source>Format:</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="63"/>
         <source>ProRes HQ</source>
-        <translation type="unfinished"></translation>
+        <translation>ProRes HQ</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="71"/>
         <source>Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Posizione:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="74"/>
         <source>Same as Source (in &quot;%1&quot; folder)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stessa del file originale (nella cartella &quot;%1&quot;)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="127"/>
         <source>Proxy file exists</source>
-        <translation type="unfinished"></translation>
+        <translation>La clip rappresentativa esiste</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="128"/>
         <source>The file &quot;%1&quot; already exists. Do you wish to replace it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il file &quot;%1&quot; esiste già. Desideri sovrascriverlo?</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="181"/>
         <source>Custom Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Posizione personalizzata</translation>
     </message>
 </context>
 <context>
@@ -2262,7 +2264,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../io/proxygenerator.cpp" line="326"/>
         <source>Finished generating proxy for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Generazione clip rappresentative di &quot;%1&quot; terminata</translation>
     </message>
 </context>
 <context>
@@ -2270,12 +2272,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="37"/>
         <source>Replace clips using &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza clip usando &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="43"/>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona quale media vuoi usare per rimpiazzare le clip di questo media:</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="49"/>
@@ -2285,52 +2287,52 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="57"/>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="61"/>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="77"/>
         <source>No media selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun media selezionato</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="78"/>
         <source>Please select a media to replace with or click &apos;Cancel&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si prega di selezionare una media per la sostituzione o di cliccare &quot;Annulla&quot;.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="86"/>
         <source>Same media selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Stesso media selezionato</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
         <source>You selected the same media that you&apos;re replacing. Please select a different one or click &apos;Cancel&apos;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hai selezionato lo stesso media che stai cercando di rimpiazzare. Si prega di selezionarne un altro o di cliccare &apos;Annulla&apos;.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="93"/>
         <source>Folder selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Cartella selezionata</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="94"/>
         <source>You cannot replace footage with a folder.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non puoi rimpiazzare un filmato con una cartella.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="101"/>
         <source>Active sequence selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza attiva selezionata</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="102"/>
         <source>You cannot insert a sequence into itself.</source>
-        <translation type="unfinished"></translation>
+        <translation>Non puoi inserire una sequenza dentro sé stessa.</translation>
     </message>
 </context>
 <context>
@@ -2338,7 +2340,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/sequence.cpp" line="39"/>
         <source>%1 (copy)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (copia)</translation>
     </message>
 </context>
 <context>
@@ -2346,17 +2348,17 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/shakeeffect.cpp" line="39"/>
         <source>Intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Intensità</translation>
     </message>
     <message>
         <location filename="../effects/internal/shakeeffect.cpp" line="43"/>
         <source>Rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotazione</translation>
     </message>
     <message>
         <location filename="../effects/internal/shakeeffect.cpp" line="47"/>
         <source>Frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza</translation>
     </message>
 </context>
 <context>
@@ -2364,37 +2366,37 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="44"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="45"/>
         <source>Solid Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore a tinta unita</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="46"/>
         <source>SMPTE Bars</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre SMPTE</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="47"/>
         <source>Checkerboard</source>
-        <translation type="unfinished"></translation>
+        <translation>A scacchi</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="49"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacità</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="54"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="57"/>
         <source>Checkerboard Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensione scacchiera</translation>
     </message>
 </context>
 <context>
@@ -2402,142 +2404,142 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/sourcescommon.cpp" line="81"/>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa...</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="84"/>
         <source>New</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuovo</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="87"/>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizza</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="89"/>
         <source>Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista ad albero</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="92"/>
         <source>Icon View</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista ad icone</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="95"/>
         <source>Show Toolbar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra barra degli strumenti</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="100"/>
         <source>Show Sequences</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra sequenza</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="112"/>
         <source>Replace/Relink Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza/Ricollega media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="116"/>
         <source>Reveal in Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra in Esplora risorse</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="118"/>
         <source>Reveal in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra in Finder</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="120"/>
         <source>Reveal in File Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra nel gestore file</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="125"/>
         <source>Replace Clips Using This Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza clip usando questo media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="148"/>
         <source>Create Sequence With This Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea sequenza con questo media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="154"/>
         <source>Duplicate</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplica</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="160"/>
         <source>Delete All Clips Using This Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina tutte le clip che usano questo media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="163"/>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="169"/>
         <source>Generating proxy: %1% complete</source>
-        <translation type="unfinished"></translation>
+        <translation>Generazione clip rappresentative: %1% completo</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="193"/>
         <source>Create/Modify Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea/modifica clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="196"/>
         <source>Create Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="207"/>
         <source>Modify Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="210"/>
         <source>Restore Original</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina l&apos;originale</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="216"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="223"/>
         <source>Preview in Media Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteprima nel Visualizzatore media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="229"/>
         <source>Properties...</source>
-        <translation type="unfinished"></translation>
+        <translation>Proprietà...</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="283"/>
         <source>Replace Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="284"/>
         <source>You dropped a file onto &apos;%1&apos;. Would you like to replace it with the dropped file?</source>
-        <translation type="unfinished"></translation>
+        <translation>Hai rilasciato un file dentro &apos;%1&apos;. Desideri rimpiazzarlo con quello rilasciato?</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="413"/>
         <source>Delete proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina clip rappresentativa</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="414"/>
         <source>Would you like to delete the proxy file &quot;%1&quot; as well?</source>
-        <translation type="unfinished"></translation>
+        <translation>Desideri eliminare anche il file della clip rappresentativa &quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -2545,32 +2547,32 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="39"/>
         <source>Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità/Durata</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="46"/>
         <source>Speed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="53"/>
         <source>Frame Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità fotogrammi:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="58"/>
         <source>Duration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Durata:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="66"/>
         <source>Reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>In senso inverso</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="67"/>
         <source>Maintain Audio Pitch</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni la tonalità dell&apos;audio</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="68"/>
@@ -2583,7 +2585,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="29"/>
         <source>Edit Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica testo</translation>
     </message>
 </context>
 <context>
@@ -2591,118 +2593,118 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="52"/>
         <source>Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Testo</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="57"/>
         <source>Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Carattere</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="59"/>
         <source>Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensione</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="62"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="64"/>
         <source>Alignment</source>
-        <translation type="unfinished"></translation>
+        <translation>Allineamento</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="66"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>A sinistra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="67"/>
         <location filename="../effects/internal/texteffect.cpp" line="73"/>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>Al centro</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="68"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>A destra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="69"/>
         <source>Justify</source>
-        <translation type="unfinished"></translation>
+        <translation>Giustifica</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="72"/>
         <source>Top</source>
-        <translation type="unfinished"></translation>
+        <translation>In alto</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="74"/>
         <source>Bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>In basso</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="76"/>
         <source>Word Wrap</source>
-        <translation type="unfinished"></translation>
+        <translation>A capo automatico</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="78"/>
         <source>Outline</source>
-        <translation type="unfinished"></translation>
+        <translation>Bordo</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="79"/>
         <source>Outline Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore bordo</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="80"/>
         <source>Outline Width</source>
-        <translation type="unfinished"></translation>
+        <translation>Larghezza bordo</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="83"/>
         <source>Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation>Ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="84"/>
         <source>Shadow Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="85"/>
         <source>Shadow Angle</source>
-        <translation type="unfinished"></translation>
+        <translation>Angolo dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="86"/>
         <source>Shadow Distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Distanza dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="88"/>
         <source>Shadow Softness</source>
-        <translation type="unfinished"></translation>
+        <translation>Morbidezza dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="90"/>
         <source>Shadow Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacità dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="95"/>
         <source>Sample Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Testo di esempio</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="334"/>
         <source>&amp;Edit Text</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica t&amp;esto</translation>
     </message>
 </context>
 <context>
@@ -2710,47 +2712,47 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="52"/>
         <source>Timecode</source>
-        <translation type="unfinished"></translation>
+        <translation>Codice temporale</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="54"/>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="55"/>
         <source>Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Media</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="58"/>
         <source>Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Scala</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="63"/>
         <source>Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="66"/>
         <source>Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore di sfondo</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="69"/>
         <source>Background Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacità dello sfondo</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="74"/>
         <source>Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Traslazione</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="78"/>
         <source>Prepend</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi all&apos;inizio</translation>
     </message>
 </context>
 <context>
@@ -2758,152 +2760,152 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="1847"/>
         <source>Timeline: </source>
-        <translation type="unfinished"></translation>
+        <translation>Linea temporale: </translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="421"/>
         <source>Nested Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza annidata</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1257"/>
         <source>Effect already exists</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;effetto esiste già</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1258"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
-        <translation type="unfinished"></translation>
+        <translation>La clip &apos;%1&apos; contiene già un effetto &apos;%2&apos;. Desideri rimpiazzarlo con quello incollato oppure aggiungerlo come effetto separato?</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1263"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1264"/>
         <source>Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpiazza</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1265"/>
         <source>Skip</source>
-        <translation type="unfinished"></translation>
+        <translation>Salta</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1267"/>
         <source>Do this for all conflicts found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripeti per ogni conflitto trovato</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1734"/>
         <source>Title...</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1739"/>
         <source>Solid Color...</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore a tinta unita...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1744"/>
         <source>Bars...</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1751"/>
         <source>Tone...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suono...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1756"/>
         <source>Noise...</source>
-        <translation type="unfinished"></translation>
+        <translation>Rumore...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1779"/>
         <source>Unsaved Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Progetto non salvato</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1780"/>
         <source>You must save this project before you can record audio in it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Devi salvare il progetto prima di poterci registrare dell&apos;audio.</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1786"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fa&apos; clic sulla linea temporale nel punto in cui vuoi iniziare la registrazione (trascina per limitare la registrazione in una certa finestra)</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1849"/>
         <source>(none)</source>
-        <translation type="unfinished"></translation>
+        <translation>(nessuno)</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="119"/>
         <source>Pointer Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento puntatore</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="120"/>
         <source>Edit Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di modifica</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="121"/>
         <source>Ripple Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Ridimensionamento a catena</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="122"/>
         <source>Razor Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di taglio</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="123"/>
         <source>Slip Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di slittamento</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="124"/>
         <source>Slide Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento di scorrimento</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="125"/>
         <source>Hand Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento mano</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="126"/>
         <source>Transition Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Strumento transizione</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="127"/>
         <source>Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Bordi magnetici</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="128"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandisci</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="129"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpicciolisci</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="130"/>
         <source>Record audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Registra audio</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="131"/>
         <source>Add title, solid, bars, etc.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi titolo, colori, barre ecc.</translation>
     </message>
 </context>
 <context>
@@ -2911,7 +2913,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelineheader.cpp" line="464"/>
         <source>Center Timecodes</source>
-        <translation type="unfinished"></translation>
+        <translation>Centra codici temporali</translation>
     </message>
 </context>
 <context>
@@ -2919,47 +2921,47 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="94"/>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Ann&amp;ulla</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="95"/>
         <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rifai</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="113"/>
         <source>C&amp;ut</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="114"/>
         <source>Cop&amp;y</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="117"/>
         <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Incolla</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="127"/>
         <source>R&amp;ipple Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>El&amp;imina mantenendo distanze clip</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="131"/>
         <source>Sequence Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni sequenza</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="137"/>
         <source>&amp;Speed/Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Velocità/durata</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="139"/>
         <source>Auto-s&amp;cale</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;cala automaticamente</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="174"/>
@@ -2969,7 +2971,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="178"/>
         <source>R&amp;ename</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rinomina</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="210"/>
@@ -2977,62 +2979,65 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 Start: %2
 End: %3
 Duration: %4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1
+Inizio: %2
+Fine: %3
+Durata: %4</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="232"/>
         <source>Rename &apos;%1&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Rinomina &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="233"/>
         <source>Rename multiple clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Rinomina più clip</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="234"/>
         <source>Enter a new name for this clip:</source>
-        <translation type="unfinished"></translation>
+        <translation>Inserisci un nuovo nome per questa clip:</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="262"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="262"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare contenitore media per la sequenza.</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1040"/>
         <source>Title</source>
-        <translation type="unfinished"></translation>
+        <translation>Titolo</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1044"/>
         <source>Solid Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Colore a tinta unita</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1049"/>
         <source>Bars</source>
-        <translation type="unfinished"></translation>
+        <translation>Barre</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1056"/>
         <source>Tone</source>
-        <translation type="unfinished"></translation>
+        <translation>Suono</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1060"/>
         <source>Noise</source>
-        <translation type="unfinished"></translation>
+        <translation>Rumore</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1980"/>
         <source>Duration:</source>
-        <translation type="unfinished"></translation>
+        <translation>Durata:</translation>
     </message>
 </context>
 <context>
@@ -3040,22 +3045,22 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="32"/>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="35"/>
         <source>Frequency</source>
-        <translation type="unfinished"></translation>
+        <translation>Frequenza</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="40"/>
         <source>Amount</source>
-        <translation type="unfinished"></translation>
+        <translation>Ammontare</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="45"/>
         <source>Mix</source>
-        <translation type="unfinished"></translation>
+        <translation>Miscela</translation>
     </message>
 </context>
 <context>
@@ -3063,57 +3068,57 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="49"/>
         <source>Position</source>
-        <translation type="unfinished"></translation>
+        <translation>Posizione</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="53"/>
         <source>Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Scalatura</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="61"/>
         <source>Uniform Scale</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni proporzioni</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="64"/>
         <source>Rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotazione</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="67"/>
         <source>Anchor Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Punto di ancoraggio</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="71"/>
         <source>Opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacità</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="76"/>
         <source>Blend Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modalità miscela</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="78"/>
         <source>Normal</source>
-        <translation type="unfinished"></translation>
+        <translation>Normale</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="79"/>
         <source>Darken</source>
-        <translation type="unfinished"></translation>
+        <translation>Scurisci</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="80"/>
         <source>Multiply</source>
-        <translation type="unfinished"></translation>
+        <translation>Moltiplica</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="81"/>
         <source>Color Burn</source>
-        <translation type="unfinished"></translation>
+        <translation>Brucia colore</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="82"/>
@@ -3123,17 +3128,17 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="83"/>
         <source>Lighten</source>
-        <translation type="unfinished"></translation>
+        <translation>Illumina</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="84"/>
         <source>Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Scherma</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="85"/>
         <source>Color Dodge</source>
-        <translation type="unfinished"></translation>
+        <translation>Scherma colore</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="86"/>
@@ -3143,17 +3148,17 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="87"/>
         <source>Overlay</source>
-        <translation type="unfinished"></translation>
+        <translation>Sovrapponi</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="88"/>
         <source>Soft Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Luce leggera</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="89"/>
         <source>Hard Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Luce forte</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="90"/>
@@ -3178,12 +3183,12 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="94"/>
         <source>Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Differenza</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="95"/>
         <source>Exclusion</source>
-        <translation type="unfinished"></translation>
+        <translation>Esclusione</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="96"/>
@@ -3221,7 +3226,7 @@ Duration: %4</source>
     <message>
         <location filename="../project/transition.cpp" line="48"/>
         <source>Length</source>
-        <translation type="unfinished"></translation>
+        <translation>Lunghezza</translation>
     </message>
 </context>
 <context>
@@ -3231,27 +3236,27 @@ Duration: %4</source>
         <location filename="../effects/internal/vsthost.cpp" line="166"/>
         <location filename="../effects/internal/vsthost.cpp" line="179"/>
         <source>Error loading VST plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nel caricamento del plugin VST</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="119"/>
         <source>Failed to create VST reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nella creazione del riferimento VST</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="154"/>
         <source>Failed to load VST plugin &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile caricare il plugin VST &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="159"/>
         <source>NOTE: You can&apos;t load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>NOTA: Non si possono caricare plugin VST a 32 bit in una versione a 64 bit di Olive. Si prega di trovare la versione a 64 bit di questo plugin oppure di passare alla versione 32 bit di Olive.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="161"/>
         <source>NOTE: You can&apos;t load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>NOTA: Non si possono caricare plugin VST a 64 bit in una versione a 32 bit di Olive. Si prega di trovare la versione a 32 bit di questo plugin oppure di passare alla versione 64 bit di Olive.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="179"/>
@@ -3261,7 +3266,7 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="207"/>
         <source>VST Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore VST</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="207"/>
@@ -3271,22 +3276,22 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="269"/>
         <source>Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="272"/>
         <source>Interface</source>
-        <translation type="unfinished"></translation>
+        <translation>Interfaccia</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="273"/>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="280"/>
         <source>VST Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin VST</translation>
     </message>
 </context>
 <context>
@@ -3294,17 +3299,17 @@ Duration: %4</source>
     <message>
         <location filename="../mainwindow.cpp" line="813"/>
         <source>Sequence Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizzatore sequenza</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="814"/>
         <source>Media Viewer</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizzatore media</translation>
     </message>
     <message>
         <location filename="../panels/viewer.cpp" line="584"/>
         <source>(none)</source>
-        <translation type="unfinished"></translation>
+        <translation>(nessuno)</translation>
     </message>
 </context>
 <context>
@@ -3312,57 +3317,57 @@ Duration: %4</source>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="121"/>
         <source>Save Frame as Image...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva fotogramma come immagine...</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="124"/>
         <source>Show Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra a schermo intero</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="127"/>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Disattiva</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="130"/>
         <source>Screen %1: %2x%3</source>
-        <translation type="unfinished"></translation>
+        <translation>Schermo %1: %2x%3</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="138"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandimento</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="139"/>
         <source>Fit</source>
-        <translation type="unfinished"></translation>
+        <translation>Adatta</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="149"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalizzato</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="155"/>
         <source>Close Media</source>
-        <translation type="unfinished"></translation>
+        <translation>Chiudi media</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="165"/>
         <source>Save Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva fotogramma</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="199"/>
         <source>Viewer Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrandimento visualizzatore</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="200"/>
         <source>Set Custom Zoom Value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta un valore di ingrandimento personalizzato:</translation>
     </message>
 </context>
 <context>
@@ -3370,7 +3375,7 @@ Duration: %4</source>
     <message>
         <location filename="../ui/viewerwindow.cpp" line="135"/>
         <source>Exit Fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>Esci dalla modalità a schermo intero</translation>
     </message>
 </context>
 <context>
@@ -3378,12 +3383,12 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/voideffect.cpp" line="34"/>
         <source>(unknown)</source>
-        <translation type="unfinished"></translation>
+        <translation>(sconosciuto)</translation>
     </message>
     <message>
         <location filename="../effects/internal/voideffect.cpp" line="38"/>
         <source>Missing Effect</source>
-        <translation type="unfinished"></translation>
+        <translation>Effetto mancante</translation>
     </message>
 </context>
 <context>
@@ -3391,7 +3396,7 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/volumeeffect.cpp" line="32"/>
         <source>Volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume</translation>
     </message>
 </context>
 <context>
@@ -3399,12 +3404,12 @@ Duration: %4</source>
     <message>
         <location filename="../project/transition.cpp" line="122"/>
         <source>Invalid transition</source>
-        <translation type="unfinished"></translation>
+        <translation>Transizione non valida</translation>
     </message>
     <message>
         <location filename="../project/transition.cpp" line="123"/>
         <source>No candidate for transition &apos;%1&apos;. This transition may be corrupt. Try reinstalling it or Olive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun candidato per la transizione &apos;%1&apos;. Questa transizione potrebbe essere danneggiata. Prova a reinstallare la transizione o Olive.</translation>
     </message>
 </context>
 </TS>

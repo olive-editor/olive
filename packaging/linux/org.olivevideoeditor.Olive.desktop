@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Olive
 Comment=Professional open-source non-linear video editor
+Comment[it]=Programma di montaggio video professionale open-source
 Exec=olive-editor
 Icon=org.olivevideoeditor.Olive
 Terminal=false
