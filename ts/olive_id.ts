@@ -67,10 +67,38 @@
     </message>
 </context>
 <context>
+    <name>AutoCutSilenceDialog</name>
+    <message>
+        <location filename="../dialogs/autocutsilencedialog.cpp" line="38"/>
+        <source>Cut Silence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/autocutsilencedialog.cpp" line="44"/>
+        <source>Attack Threshold:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/autocutsilencedialog.cpp" line="49"/>
+        <source>Attack Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/autocutsilencedialog.cpp" line="54"/>
+        <source>Release Threshold:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/autocutsilencedialog.cpp" line="59"/>
+        <source>Release Time:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Cacher</name>
     <message>
-        <location filename="../rendering/cacher.cpp" line="921"/>
-        <location filename="../rendering/cacher.cpp" line="930"/>
+        <location filename="../rendering/cacher.cpp" line="922"/>
+        <location filename="../rendering/cacher.cpp" line="931"/>
         <source>Could not open %1 - %2</source>
         <translation>Tidak dapat membuka %1 - %2</translation>
     </message>
@@ -332,12 +360,12 @@
 <context>
     <name>EffectRow</name>
     <message>
-        <location filename="../effects/effectrow.cpp" line="109"/>
+        <location filename="../effects/effectrow.cpp" line="104"/>
         <source>Disable Keyframes</source>
         <translation>Matikan Keyframe</translation>
     </message>
     <message>
-        <location filename="../effects/effectrow.cpp" line="110"/>
+        <location filename="../effects/effectrow.cpp" line="105"/>
         <source>Disabling keyframes will delete all current keyframes. Are you sure you want to do this?</source>
         <translation>Mematikan keyframe akan menghapus semua keyframe di efek ini. Benarkah Anda ingin melakukan hal tersebut?</translation>
     </message>
@@ -355,42 +383,42 @@
         <translation>%1 (Menutup)</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="157"/>
+        <location filename="../ui/effectui.cpp" line="158"/>
         <source>%1 (multiple)</source>
         <translation>%1 (beberapa)</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="285"/>
+        <location filename="../ui/effectui.cpp" line="286"/>
         <source>Cu&amp;t</source>
         <translation>&amp;Potong</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="288"/>
+        <location filename="../ui/effectui.cpp" line="289"/>
         <source>&amp;Copy</source>
         <translation>&amp;Salin</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="299"/>
+        <location filename="../ui/effectui.cpp" line="300"/>
         <source>Move &amp;Up</source>
         <translation>Pindah ke &amp;Atas</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="303"/>
+        <location filename="../ui/effectui.cpp" line="304"/>
         <source>Move &amp;Down</source>
         <translation>Pindah ke &amp;Bawah</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="308"/>
+        <location filename="../ui/effectui.cpp" line="309"/>
         <source>D&amp;elete</source>
         <translation>&amp;Hapus</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="325"/>
+        <location filename="../ui/effectui.cpp" line="326"/>
         <source>Load Settings From File</source>
         <translation>Buka Pengaturan Efek dari File</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="327"/>
+        <location filename="../ui/effectui.cpp" line="328"/>
         <source>Save Settings to File</source>
         <translation>Simpan Pengaturan ke File</translation>
     </message>
@@ -461,53 +489,53 @@
         <translation>Ekspor Media</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="600"/>
+        <location filename="../dialogs/exportdialog.cpp" line="603"/>
         <source>%p% (Total: %1:%2:%3)</source>
         <translation>%p% (lama: %1:%2:%3)</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="605"/>
+        <location filename="../dialogs/exportdialog.cpp" line="608"/>
         <source>%p% (ETA: %1:%2:%3)</source>
         <translation>%p% (perkiraan: %1:%2:%3)</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="620"/>
+        <location filename="../dialogs/exportdialog.cpp" line="623"/>
         <source>Quality-based (Constant Rate Factor)</source>
         <translation>Berbasis kualitas (CRF)</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="624"/>
+        <location filename="../dialogs/exportdialog.cpp" line="627"/>
         <source>Constant Bitrate</source>
         <translation>Laju bit konstan (CBR)</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="633"/>
-        <location filename="../dialogs/exportdialog.cpp" line="639"/>
+        <location filename="../dialogs/exportdialog.cpp" line="636"/>
+        <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Invalid Codec</source>
         <translation>Kodek Salah</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="634"/>
+        <location filename="../dialogs/exportdialog.cpp" line="637"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
         <translation>Tidak dapat mencari enkoder yang cocok untuk kodek ini. Ekspor kemungkinan gagal.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="640"/>
+        <location filename="../dialogs/exportdialog.cpp" line="643"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
         <translation>Tidak dapat menentukan format piksel untuk enkoder ini. Ekspor kemungkinan gagal.</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="653"/>
+        <location filename="../dialogs/exportdialog.cpp" line="656"/>
         <source>Bitrate (Mbps):</source>
         <translation>Laju bit (Mbps):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="657"/>
+        <location filename="../dialogs/exportdialog.cpp" line="660"/>
         <source>Quality (CRF):</source>
         <translation>Kualitas (CRF):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="660"/>
+        <location filename="../dialogs/exportdialog.cpp" line="663"/>
         <source>Quality Factor:
 
 0 = lossless
@@ -522,78 +550,78 @@
 51 = kualitas paling rendah</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="663"/>
+        <location filename="../dialogs/exportdialog.cpp" line="666"/>
         <source>Target File Size (MB):</source>
         <translation>Ukuran File yang Ditargetkan (MB):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="679"/>
+        <location filename="../dialogs/exportdialog.cpp" line="682"/>
         <source>Format:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="688"/>
+        <location filename="../dialogs/exportdialog.cpp" line="691"/>
         <source>Range:</source>
         <translation>Sepanjang:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="691"/>
+        <location filename="../dialogs/exportdialog.cpp" line="694"/>
         <source>Entire Sequence</source>
         <translation>Seluruh rangkaian</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="692"/>
+        <location filename="../dialogs/exportdialog.cpp" line="695"/>
         <source>In to Out</source>
         <translation>Masuk hingga Keluar</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="699"/>
+        <location filename="../dialogs/exportdialog.cpp" line="702"/>
         <source>Video</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="705"/>
-        <location filename="../dialogs/exportdialog.cpp" line="748"/>
+        <location filename="../dialogs/exportdialog.cpp" line="708"/>
+        <location filename="../dialogs/exportdialog.cpp" line="751"/>
         <source>Codec:</source>
         <translation>Kodek:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="709"/>
+        <location filename="../dialogs/exportdialog.cpp" line="712"/>
         <source>Width:</source>
         <translation>Lebar:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="714"/>
+        <location filename="../dialogs/exportdialog.cpp" line="717"/>
         <source>Height:</source>
         <translation>Tinggi:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="719"/>
+        <location filename="../dialogs/exportdialog.cpp" line="722"/>
         <source>Frame Rate:</source>
         <translation>Laju frame (fps):</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="725"/>
+        <location filename="../dialogs/exportdialog.cpp" line="728"/>
         <source>Compression Type:</source>
         <translation>Jenis Kompresi:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="736"/>
+        <location filename="../dialogs/exportdialog.cpp" line="739"/>
         <source>Advanced</source>
         <translation>Pengaturan Lanjut</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="743"/>
+        <location filename="../dialogs/exportdialog.cpp" line="746"/>
         <source>Audio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="752"/>
+        <location filename="../dialogs/exportdialog.cpp" line="755"/>
         <source>Sampling Rate:</source>
         <translation>Laju sampel:</translation>
     </message>
     <message>
-        <location filename="../dialogs/exportdialog.cpp" line="758"/>
+        <location filename="../dialogs/exportdialog.cpp" line="761"/>
         <source>Bitrate (Kbps/CBR):</source>
         <translation>Laju bit (Kbps/CBR):</translation>
     </message>
@@ -601,87 +629,87 @@
 <context>
     <name>ExportThread</name>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="78"/>
+        <location filename="../rendering/exportthread.cpp" line="79"/>
         <source>failed to send frame to encoder (%1)</source>
         <translation>gagal mengirim frame ke enkoder (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="89"/>
+        <location filename="../rendering/exportthread.cpp" line="90"/>
         <source>failed to receive packet from encoder (%1)</source>
         <translation>gagal menerima paket dari enkoder (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="110"/>
+        <location filename="../rendering/exportthread.cpp" line="113"/>
         <source>could not video encoder for %1</source>
         <translation>tidak dapat mencari enkoder video untuk %1</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="119"/>
+        <location filename="../rendering/exportthread.cpp" line="122"/>
         <source>could not allocate video stream</source>
         <translation>tidak dapat mengalokasikan stream video</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="128"/>
+        <location filename="../rendering/exportthread.cpp" line="131"/>
         <source>could not allocate video encoding context</source>
         <translation>tidak dapat mengalokasikan konteks mengenkode video</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="177"/>
+        <location filename="../rendering/exportthread.cpp" line="180"/>
         <source>could not open output video encoder (%1)</source>
         <translation>tidak dapat membuka enkoder video keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="185"/>
+        <location filename="../rendering/exportthread.cpp" line="188"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
         <translation>tidak dapat menyalin parameter enkoder video ke stream keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="222"/>
+        <location filename="../rendering/exportthread.cpp" line="227"/>
         <source>could not audio encoder for %1</source>
         <translation>tidak dapat mencari enkoder audio untuk %1</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="230"/>
+        <location filename="../rendering/exportthread.cpp" line="235"/>
         <source>could not allocate audio stream</source>
         <translation>tidak dapat mengalokasikan stream audio</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="244"/>
+        <location filename="../rendering/exportthread.cpp" line="249"/>
         <source>could not allocate audio encoding context</source>
         <translation>tidak dapat mengalokasikan konteks mengenkode audio</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="269"/>
+        <location filename="../rendering/exportthread.cpp" line="274"/>
         <source>could not open output audio encoder (%1)</source>
         <translation>tidak dapat membuka enkoder audio keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="277"/>
+        <location filename="../rendering/exportthread.cpp" line="282"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
         <translation>tidak dapat menyalin parameter enkoder audio ke stream keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="314"/>
+        <location filename="../rendering/exportthread.cpp" line="319"/>
         <source>could not allocate audio buffer (%1)</source>
         <translation>tidak dapat mengalokasikan buffer audio (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="345"/>
+        <location filename="../rendering/exportthread.cpp" line="350"/>
         <source>could not create output format context</source>
         <translation>tidak dapat membuat konteks format keluaran</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="355"/>
+        <location filename="../rendering/exportthread.cpp" line="360"/>
         <source>could not open output file (%1)</source>
         <translation>tidak dapat membuka file keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="391"/>
+        <location filename="../rendering/exportthread.cpp" line="396"/>
         <source>could not write output file header (%1)</source>
         <translation>tidak dapat menulis header untuk file keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="592"/>
+        <location filename="../rendering/exportthread.cpp" line="604"/>
         <source>could not write output file trailer (%1)</source>
         <translation>tidak dapat menulis trailer untuk file keluaran (%1)</translation>
     </message>
@@ -792,7 +820,7 @@
 <context>
     <name>KeyframeNavigator</name>
     <message>
-        <location filename="../ui/keyframenavigator.cpp" line="71"/>
+        <location filename="../ui/keyframenavigator.cpp" line="77"/>
         <source>Enable Keyframes</source>
         <translation>Nyalakan Keyframe</translation>
     </message>
@@ -920,515 +948,505 @@
         <translation>Selamat datang di %1</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="865"/>
+        <location filename="../ui/mainwindow.cpp" line="820"/>
         <source>&amp;File</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="866"/>
+        <location filename="../ui/mainwindow.cpp" line="821"/>
         <source>&amp;New</source>
         <translation>&amp;Baru</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="867"/>
+        <location filename="../ui/mainwindow.cpp" line="822"/>
         <source>&amp;Open Project</source>
         <translation type="unfinished">Buka &amp;Proyek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="868"/>
+        <location filename="../ui/mainwindow.cpp" line="823"/>
         <source>Clear Recent List</source>
         <translation>Hapus Daftar &quot;Terakhir Dibuka&quot;</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="869"/>
+        <location filename="../ui/mainwindow.cpp" line="824"/>
         <source>Open Recent</source>
         <translation>Buka Terakhir</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="870"/>
+        <location filename="../ui/mainwindow.cpp" line="825"/>
         <source>&amp;Save Project</source>
         <translation>&amp;Simpan Proyek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="871"/>
+        <location filename="../ui/mainwindow.cpp" line="826"/>
         <source>Save Project &amp;As</source>
         <translation type="unfinished">Simpan Proyek Seba&amp;gai</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="872"/>
+        <location filename="../ui/mainwindow.cpp" line="827"/>
         <source>&amp;Import...</source>
         <translation>&amp;Impor...</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="873"/>
+        <location filename="../ui/mainwindow.cpp" line="828"/>
         <source>&amp;Export...</source>
         <translation>&amp;Ekspor...</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="874"/>
+        <location filename="../ui/mainwindow.cpp" line="829"/>
         <source>E&amp;xit</source>
         <translation>&amp;Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="876"/>
+        <location filename="../ui/mainwindow.cpp" line="831"/>
         <source>&amp;Edit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="877"/>
+        <location filename="../ui/mainwindow.cpp" line="832"/>
         <source>&amp;Undo</source>
         <translation>&amp;Urung</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="878"/>
+        <location filename="../ui/mainwindow.cpp" line="833"/>
         <source>Redo</source>
         <translation>Ulangi</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="879"/>
+        <location filename="../ui/mainwindow.cpp" line="834"/>
         <source>Select &amp;All</source>
         <translation>Seleksi &amp;Semua</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="880"/>
+        <location filename="../ui/mainwindow.cpp" line="835"/>
         <source>Deselect All</source>
         <translation>Batalkan Semua Pilihan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="881"/>
+        <location filename="../ui/mainwindow.cpp" line="836"/>
         <source>Ripple to In Point</source>
         <translation>Atur hingga Titik Masuk</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="882"/>
+        <location filename="../ui/mainwindow.cpp" line="837"/>
         <source>Ripple to Out Point</source>
         <translation>Atur hingga Titik Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="883"/>
+        <location filename="../ui/mainwindow.cpp" line="838"/>
         <source>Edit to In Point</source>
         <translation>Edit ke Titik Masuk</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="884"/>
+        <location filename="../ui/mainwindow.cpp" line="839"/>
         <source>Edit to Out Point</source>
         <translation>Edit ke Titik Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="885"/>
+        <location filename="../ui/mainwindow.cpp" line="840"/>
         <source>Delete In/Out Point</source>
         <translation>Hapus Titik Masuk/Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="886"/>
+        <location filename="../ui/mainwindow.cpp" line="841"/>
         <source>Ripple Delete In/Out Point</source>
         <translation>Hapus dan Sesuaikan Titik Masuk/Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="887"/>
+        <location filename="../ui/mainwindow.cpp" line="842"/>
         <source>Set/Edit Marker</source>
         <translation>Set/Edit Penanda</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="889"/>
+        <location filename="../ui/mainwindow.cpp" line="844"/>
         <source>&amp;View</source>
         <translation>&amp;Tampilan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="890"/>
+        <location filename="../ui/mainwindow.cpp" line="845"/>
         <source>Zoom In</source>
         <translation>Perbesar Tampilan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="891"/>
+        <location filename="../ui/mainwindow.cpp" line="846"/>
         <source>Zoom Out</source>
         <translation>Perkecil Tampilan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="892"/>
+        <location filename="../ui/mainwindow.cpp" line="847"/>
         <source>Increase Track Height</source>
         <translation>Lebarkan Trek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="893"/>
+        <location filename="../ui/mainwindow.cpp" line="848"/>
         <source>Decrease Track Height</source>
         <translation>Persempit Trek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="894"/>
+        <location filename="../ui/mainwindow.cpp" line="849"/>
         <source>Toggle Show All</source>
         <translatorcomment>&quot;show all&quot;</translatorcomment>
         <translation>Perlihatkan Semua</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="895"/>
+        <location filename="../ui/mainwindow.cpp" line="850"/>
         <source>Track Lines</source>
         <translation>Garis Trek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="896"/>
+        <location filename="../ui/mainwindow.cpp" line="851"/>
         <source>Rectified Waveforms</source>
         <translatorcomment>&quot;flatten&quot; or &quot;center at bottom&quot;</translatorcomment>
         <translation>Visualisasi Audio Rata Bawah</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="897"/>
+        <location filename="../ui/mainwindow.cpp" line="852"/>
         <source>Frames</source>
         <translation>Frame</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="898"/>
+        <location filename="../ui/mainwindow.cpp" line="853"/>
         <source>Drop Frame</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="899"/>
+        <location filename="../ui/mainwindow.cpp" line="854"/>
         <source>Non-Drop Frame</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="900"/>
+        <location filename="../ui/mainwindow.cpp" line="855"/>
         <source>Milliseconds</source>
         <translation>Milisekon</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="902"/>
+        <location filename="../ui/mainwindow.cpp" line="857"/>
         <source>Title/Action Safe Area</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="903"/>
+        <location filename="../ui/mainwindow.cpp" line="858"/>
         <source>Off</source>
         <translation>Matikan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="904"/>
+        <location filename="../ui/mainwindow.cpp" line="859"/>
         <source>Default</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="905"/>
+        <location filename="../ui/mainwindow.cpp" line="860"/>
         <source>4:3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="906"/>
+        <location filename="../ui/mainwindow.cpp" line="861"/>
         <source>16:9</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="907"/>
+        <location filename="../ui/mainwindow.cpp" line="862"/>
         <source>Custom</source>
         <translation>Kustom</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="909"/>
+        <location filename="../ui/mainwindow.cpp" line="864"/>
         <source>Full Screen</source>
         <translation>Layar Penuh</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="910"/>
+        <location filename="../ui/mainwindow.cpp" line="865"/>
         <source>Full Screen Viewer</source>
         <translation>Penampil Layar Penuh</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="912"/>
+        <location filename="../ui/mainwindow.cpp" line="867"/>
         <source>&amp;Playback</source>
         <translation>&amp;Pemutaran</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="913"/>
+        <location filename="../ui/mainwindow.cpp" line="868"/>
         <source>Go to Start</source>
         <translation>Lompat ke Awal</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="914"/>
+        <location filename="../ui/mainwindow.cpp" line="869"/>
         <source>Previous Frame</source>
         <translation>Frame sebelumnya</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="915"/>
+        <location filename="../ui/mainwindow.cpp" line="870"/>
         <source>Play/Pause</source>
         <translation>Mainkan/Berhenti</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="916"/>
+        <location filename="../ui/mainwindow.cpp" line="871"/>
         <source>Play In to Out</source>
         <translation>Mainkan dari Titik Masuk hingga Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="917"/>
+        <location filename="../ui/mainwindow.cpp" line="872"/>
         <source>Next Frame</source>
         <translation>Frame berikutnya</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="918"/>
+        <location filename="../ui/mainwindow.cpp" line="873"/>
         <source>Go to End</source>
         <translation>Lompat ke Akhir</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="920"/>
+        <location filename="../ui/mainwindow.cpp" line="875"/>
         <source>Go to Previous Cut</source>
         <translation>Lompat ke Cut Sebelumnya</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="921"/>
+        <location filename="../ui/mainwindow.cpp" line="876"/>
         <source>Go to Next Cut</source>
         <translation>Lompat ke Cut Berikutnya</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="922"/>
+        <location filename="../ui/mainwindow.cpp" line="877"/>
         <source>Go to In Point</source>
         <translation>Lompat ke Titik Masuk</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="923"/>
+        <location filename="../ui/mainwindow.cpp" line="878"/>
         <source>Go to Out Point</source>
         <translation>Lompat ke Titik Keluar</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="925"/>
+        <location filename="../ui/mainwindow.cpp" line="880"/>
         <source>Shuttle Left</source>
         <translation>Jalankan ke Kiri</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="926"/>
+        <location filename="../ui/mainwindow.cpp" line="881"/>
         <source>Shuttle Stop</source>
         <translation>Hentikan jalan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="927"/>
+        <location filename="../ui/mainwindow.cpp" line="882"/>
         <source>Shuttle Right</source>
         <translation>Jalankan ke Kanan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="929"/>
+        <location filename="../ui/mainwindow.cpp" line="884"/>
         <source>Loop</source>
         <translation>Putar secara Berulang</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="931"/>
+        <location filename="../ui/mainwindow.cpp" line="886"/>
         <source>&amp;Window</source>
         <translation>&amp;Jendela</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="933"/>
+        <location filename="../ui/mainwindow.cpp" line="888"/>
         <source>Project</source>
         <translation>Proyek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="934"/>
+        <location filename="../ui/mainwindow.cpp" line="889"/>
         <source>Effect Controls</source>
         <translation>Pengaturan Efek</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="935"/>
+        <location filename="../ui/mainwindow.cpp" line="890"/>
         <source>Timeline</source>
         <translation>Garis Waktu</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="936"/>
+        <location filename="../ui/mainwindow.cpp" line="891"/>
         <source>Graph Editor</source>
         <translation>Pengedit Grafik</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="937"/>
+        <location filename="../ui/mainwindow.cpp" line="892"/>
         <source>Media Viewer</source>
         <translation>Penampil Media</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="938"/>
+        <location filename="../ui/mainwindow.cpp" line="893"/>
         <source>Sequence Viewer</source>
         <translation>Penampil Rangkaian</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="940"/>
+        <location filename="../ui/mainwindow.cpp" line="895"/>
         <source>Maximize Panel</source>
         <translation>Lebarkan Panel</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="941"/>
+        <location filename="../ui/mainwindow.cpp" line="896"/>
         <source>Lock Panels</source>
         <translation>Kunci Panel</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="942"/>
+        <location filename="../ui/mainwindow.cpp" line="897"/>
         <source>Reset to Default Layout</source>
         <translation>Kembalikan Layout Semula</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="944"/>
+        <location filename="../ui/mainwindow.cpp" line="899"/>
         <source>&amp;Tools</source>
         <translation>&amp;Alat</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="946"/>
+        <location filename="../ui/mainwindow.cpp" line="901"/>
         <source>Pointer Tool</source>
         <translation>Alat Tunjuk</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="947"/>
+        <location filename="../ui/mainwindow.cpp" line="902"/>
         <source>Edit Tool</source>
         <translation>Alat Edit</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="948"/>
+        <location filename="../ui/mainwindow.cpp" line="903"/>
         <source>Ripple Tool</source>
         <translation>Alat Pengatur</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="949"/>
+        <location filename="../ui/mainwindow.cpp" line="904"/>
         <source>Razor Tool</source>
         <translation>Alat Potong</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="950"/>
+        <location filename="../ui/mainwindow.cpp" line="905"/>
         <source>Slip Tool</source>
         <translation>Alat Slip</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="951"/>
+        <location filename="../ui/mainwindow.cpp" line="906"/>
         <source>Slide Tool</source>
         <translation>Alat Geser Klip</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="952"/>
+        <location filename="../ui/mainwindow.cpp" line="907"/>
         <source>Hand Tool</source>
         <translation>Alat Geser Tampilan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="953"/>
+        <location filename="../ui/mainwindow.cpp" line="908"/>
         <source>Transition Tool</source>
         <translation>Alat Transisi</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="954"/>
+        <location filename="../ui/mainwindow.cpp" line="909"/>
         <source>Enable Snapping</source>
         <translation>Nyalakan Lekatan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="955"/>
+        <location filename="../ui/mainwindow.cpp" line="910"/>
+        <source>Auto-Cut Silence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Selecting Also Seeks</source>
         <translatorcomment>idk how to translate this</translatorcomment>
-        <translation type="unfinished">Menyeleksi Juga Menggeser</translation>
+        <translation type="obsolete">Menyeleksi Juga Menggeser</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="956"/>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished">Alat Edit Juga Menggeser</translation>
+        <translation type="obsolete">Alat Edit Juga Menggeser</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="957"/>
         <source>Edit Tool Selects Links</source>
-        <translation>Alat Edit Menyeleksi Tautan</translation>
+        <translation type="vanished">Alat Edit Menyeleksi Tautan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="958"/>
         <source>Seek Also Selects</source>
-        <translation type="unfinished">Menggeser Juga Menyeleksi</translation>
+        <translation type="obsolete">Menggeser Juga Menyeleksi</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="959"/>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished">Geser hingga Akhir Tempelan</translation>
+        <translation type="obsolete">Geser hingga Akhir Tempelan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="960"/>
         <source>Scroll Wheel Zooms</source>
-        <translation>Scroll Wheel Memperbesar/Memperkecil Tampilan</translation>
+        <translation type="vanished">Scroll Wheel Memperbesar/Memperkecil Tampilan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="961"/>
         <source>Hold CTRL to toggle this setting</source>
-        <translation>Tekan CTRL untuk mengaktifkan pengaturan ini</translation>
+        <translation type="vanished">Tekan CTRL untuk mengaktifkan pengaturan ini</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="962"/>
         <source>Invert Timeline Scroll Axes</source>
-        <translation>Balikkan Arah Gulir Garis Waktu</translation>
+        <translation type="vanished">Balikkan Arah Gulir Garis Waktu</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="963"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation>Seret dan Lepas file ke Timeline</translation>
+        <translation type="vanished">Seret dan Lepas file ke Timeline</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="964"/>
         <source>Auto-Scale By Default</source>
-        <translation>Atur Ukuran Video secara Default</translation>
+        <translation type="vanished">Atur Ukuran Video secara Default</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="965"/>
         <source>Enable Seek to Import</source>
-        <translation type="unfinished">Nyalakan Geser-untuk-Impor</translation>
+        <translation type="obsolete">Nyalakan Geser-untuk-Impor</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="966"/>
         <source>Audio Scrubbing</source>
-        <translation>Nyalakan Audio Scrubbing</translation>
+        <translation type="vanished">Nyalakan Audio Scrubbing</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="967"/>
         <source>Enable Drop on Media to Replace</source>
-        <translation>Seret pada Media untuk Menggantikan</translation>
+        <translation type="vanished">Seret pada Media untuk Menggantikan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="968"/>
         <source>Enable Hover Focus</source>
-        <translation>Nyalakan Fokus Melayang</translation>
+        <translation type="vanished">Nyalakan Fokus Melayang</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="969"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation>Tanyakan Nama ketika Menaruh Penanda</translation>
+        <translation type="vanished">Tanyakan Nama ketika Menaruh Penanda</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="971"/>
+        <location filename="../ui/mainwindow.cpp" line="912"/>
         <source>No Auto-Scroll</source>
         <translation>Matikan Gulir Otomatis</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="972"/>
+        <location filename="../ui/mainwindow.cpp" line="913"/>
         <source>Page Auto-Scroll</source>
         <translation>Gulir Halaman Otomatis</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="973"/>
+        <location filename="../ui/mainwindow.cpp" line="914"/>
         <source>Smooth Auto-Scroll</source>
         <translation>Gulir Halus Otomatis</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="975"/>
+        <location filename="../ui/mainwindow.cpp" line="916"/>
         <source>Preferences</source>
         <translation>Preferensi</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="977"/>
+        <location filename="../ui/mainwindow.cpp" line="918"/>
         <source>Clear Undo</source>
         <translation>Hapus Daftar Urung (Undo)</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="980"/>
+        <location filename="../ui/mainwindow.cpp" line="921"/>
         <source>&amp;Help</source>
         <translation>&amp;Bantuan</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="982"/>
+        <location filename="../ui/mainwindow.cpp" line="923"/>
         <source>A&amp;ction Search</source>
         <translation>&amp;Cari Aksi</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="983"/>
+        <location filename="../ui/mainwindow.cpp" line="924"/>
         <source>Debug Log</source>
         <translation>Awakutu / Debug</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="984"/>
+        <location filename="../ui/mainwindow.cpp" line="925"/>
         <source>&amp;About...</source>
         <translation>&amp;Tentang...</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="1002"/>
+        <location filename="../ui/mainwindow.cpp" line="943"/>
         <source>&lt;untitled&gt;</source>
         <translation>&lt;belum dinamai&gt;</translation>
     </message>
@@ -1512,17 +1530,17 @@ Frekuensi Audio: %5
 Tata Audio: %6</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="304"/>
+        <location filename="../project/media.cpp" line="322"/>
         <source>Name</source>
         <translation>Nama</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="306"/>
+        <location filename="../project/media.cpp" line="324"/>
         <source>Duration</source>
         <translation>Durasi</translation>
     </message>
     <message>
-        <location filename="../project/media.cpp" line="323"/>
+        <location filename="../project/media.cpp" line="328"/>
         <source>Rate</source>
         <translation>Laju</translation>
     </message>
@@ -1711,127 +1729,127 @@ Tata Audio: %6</translation>
 <context>
     <name>NewSequenceDialog</name>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="55"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="62"/>
         <source>Editing &quot;%1&quot;</source>
         <translation>Mengedit &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="75"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="82"/>
         <source>New Sequence</source>
         <translation>Rangkaian Baru</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="184"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="209"/>
         <source>Preset:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="188"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="213"/>
         <source>Film 4K</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="189"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="214"/>
         <source>TV 4K (Ultra HD/2160p)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="190"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="215"/>
         <source>1080p</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="191"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="216"/>
         <source>720p</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="192"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="217"/>
         <source>480p</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="193"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="218"/>
         <source>360p</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="194"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="219"/>
         <source>240p</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="195"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="220"/>
         <source>144p</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="196"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="221"/>
         <source>NTSC (480i)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="197"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="222"/>
         <source>PAL (576i)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="198"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="223"/>
         <source>Custom</source>
         <translation>Kustom</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="206"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="231"/>
         <source>Video</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="210"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="235"/>
         <source>Width:</source>
         <translation>Lebar:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="216"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="241"/>
         <source>Height:</source>
         <translation>Tinggi:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="222"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="247"/>
         <source>Frame Rate:</source>
         <translation>Laju frame (fps):</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="238"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="267"/>
         <source>Pixel Aspect Ratio:</source>
         <translation>Rasio aspek piksel:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="240"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="269"/>
         <source>Square Pixels (1.0)</source>
         <translation>Persegi (1.0)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="243"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="272"/>
         <source>Interlacing:</source>
         <translation>Mode interlace:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="245"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="274"/>
         <source>None (Progressive)</source>
         <translation>Tidak ada (Progresif)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="253"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="282"/>
         <source>Audio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="257"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="286"/>
         <source>Sample Rate: </source>
         <translation>Laju sampel: </translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="271"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="304"/>
         <source>Name:</source>
         <translation>Nama:</translation>
     </message>
@@ -1839,67 +1857,81 @@ Tata Audio: %6</translation>
 <context>
     <name>OliveGlobal</name>
     <message>
-        <location filename="../global/global.cpp" line="67"/>
+        <location filename="../global/global.cpp" line="68"/>
         <source>Olive Project %1</source>
         <translation>Proyek Olive %1</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="95"/>
+        <location filename="../global/global.cpp" line="96"/>
         <source>Auto-recovery</source>
         <translation>Auto-pulih</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="96"/>
+        <location filename="../global/global.cpp" line="97"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
         <translation>Olive tidak ditutup sebagaimana mestinya, dan ditemukan sebuah file auto-pulih. Buka?</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="238"/>
+        <location filename="../global/global.cpp" line="239"/>
         <source>Open Project...</source>
         <translation>Buka Proyek...</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="249"/>
+        <location filename="../global/global.cpp" line="250"/>
         <source>Missing recent project</source>
         <translation>Proyek Terakhir Tidak Ada</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="250"/>
+        <location filename="../global/global.cpp" line="251"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
         <translation>Proyek &apos;%1&apos; tidak ada lagi. Hapus dari daftar &quot;proyek terakhir&quot;?</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="261"/>
+        <location filename="../global/global.cpp" line="262"/>
         <source>Save Project As...</source>
         <translation>Simpan Proyek Sebagai...</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="286"/>
+        <location filename="../global/global.cpp" line="287"/>
         <source>Unsaved Project</source>
         <translation>Proyek Belum Disimpan</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="287"/>
+        <location filename="../global/global.cpp" line="288"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
         <translation>Proyek ini diubah sejak terakhir disimpan. Simpan sebelum ditutup?</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="306"/>
+        <location filename="../global/global.cpp" line="382"/>
         <source>No active sequence</source>
         <translation>Tidak ada rangkaian aktif</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="307"/>
-        <source>Please open the sequence you wish to export.</source>
-        <translation>Buka dahulu rangkaian/sequence yang ingin diekspor.</translation>
+        <location filename="../global/global.cpp" line="383"/>
+        <source>Please open the sequence to perform this action.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="323"/>
+        <location filename="../global/global.cpp" line="448"/>
+        <source>No clips selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../global/global.cpp" line="449"/>
+        <source>Select the clips you wish to auto-cut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please open the sequence you wish to export.</source>
+        <translation type="vanished">Buka dahulu rangkaian/sequence yang ingin diekspor.</translation>
+    </message>
+    <message>
+        <location filename="../global/global.cpp" line="319"/>
         <source>Missing Project File</source>
         <translation>File Proyek Tidak Ada</translation>
     </message>
     <message>
-        <location filename="../global/global.cpp" line="324"/>
+        <location filename="../global/global.cpp" line="320"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
         <translation>Proyek yang dipilih, &apos;%1&apos;, tidak ditemukan.</translation>
     </message>
@@ -1915,209 +1947,289 @@ Tata Audio: %6</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="83"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="84"/>
         <source>Preferences</source>
         <translation>Preferensi</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="178"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="91"/>
+        <source>Default Sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="196"/>
         <source>Invalid CSS File</source>
         <translation>File CSS Salah</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="179"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="197"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
         <translation>Tidak ditemukan file CSS &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="336"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="363"/>
         <source>Confirm Reset All Shortcuts</source>
         <translation>Konfirmasi</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="337"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="364"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
         <translation>Anda ingin mengembalikan semua pintasan keyboard seperti semula. Yakin?</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="387"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="414"/>
         <source>Import Keyboard Shortcuts</source>
         <translation>Impor Pintasan Keyboard</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="411"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="435"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="462"/>
         <source>Error saving shortcuts</source>
         <translation>Gagal menyimpan pintasan</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="412"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="439"/>
         <source>Failed to open file for reading</source>
         <translation>Gagal membuka file</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="419"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="446"/>
         <source>Export Keyboard Shortcuts</source>
         <translation>Ekspor Pintasan Keyboard</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="433"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="460"/>
         <source>Export Shortcuts</source>
         <translation>Ekspor Pintasan</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="433"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="460"/>
         <source>Shortcuts exported successfully</source>
         <translation>Pintasan berhasil diekspor</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="435"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="462"/>
         <source>Failed to open file for writing</source>
         <translation>Gagal membaca file</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="441"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="468"/>
         <source>Browse for CSS file</source>
         <translation>Telusuri file CSS</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="449"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="476"/>
         <source>Delete All Previews</source>
         <translation>Hapus Semua Pratinjau</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="450"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="477"/>
         <source>Are you sure you want to delete all previews?</source>
         <translation>Yakin menghapus semua pratinjau?</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="454"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="481"/>
         <source>Previews Deleted</source>
         <translation>Pratinjau Dihapus</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="455"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="482"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
         <translation>Semua pratinjau berhasil dihapus. Anda mungkin perlu membuka proyek kembali.</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="472"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="506"/>
         <source>Language:</source>
         <translation>Bahasa:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="565"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="599"/>
         <source>Automatically Seek to the Beginning When Playing at the End of a Sequence</source>
         <translation>Pindahkan Kursor secara Otomatis ke Awal Ketika Mencapai Akhir Rangkaian</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="601"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="603"/>
+        <source>Selecting Also Seeks</source>
+        <translation type="unfinished">Menyeleksi Juga Menggeser</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
+        <source>Edit Tool Also Seeks</source>
+        <translation type="unfinished">Alat Edit Juga Menggeser</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="611"/>
+        <source>Edit Tool Selects Links</source>
+        <translation type="unfinished">Alat Edit Menyeleksi Tautan</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="615"/>
+        <source>Seek Also Selects</source>
+        <translation type="unfinished">Menggeser Juga Menyeleksi</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="619"/>
+        <source>Seek to the End of Pastes</source>
+        <translation type="unfinished">Geser hingga Akhir Tempelan</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
+        <source>Scroll Wheel Zooms</source>
+        <translation type="unfinished">Scroll Wheel Memperbesar/Memperkecil Tampilan</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="624"/>
+        <source>Hold CTRL to toggle this setting</source>
+        <translation type="unfinished">Tekan CTRL untuk mengaktifkan pengaturan ini</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="628"/>
+        <source>Invert Timeline Scroll Axes</source>
+        <translation type="unfinished">Balikkan Arah Gulir Garis Waktu</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="632"/>
+        <source>Enable Drag Files to Timeline</source>
+        <translation type="unfinished">Seret dan Lepas file ke Timeline</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="636"/>
+        <source>Auto-Scale By Default</source>
+        <translation type="unfinished">Atur Ukuran Video secara Default</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
+        <source>Auto-Seek to Imported Clips</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="644"/>
+        <source>Audio Scrubbing</source>
+        <translation type="unfinished">Nyalakan Audio Scrubbing</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="648"/>
+        <source>Drop Files on Media to Replace</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="652"/>
+        <source>Enable Hover Focus</source>
+        <translation type="unfinished">Nyalakan Fokus Melayang</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="656"/>
+        <source>Ask For Name When Setting Marker</source>
+        <translation type="unfinished">Tanyakan Nama ketika Menaruh Penanda</translation>
+    </message>
+    <message>
+        <location filename="../dialogs/preferencesdialog.cpp" line="692"/>
         <source>Custom CSS:</source>
         <translation>CSS Custom:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="698"/>
         <source>Browse</source>
         <translation>Telusur</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="509"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="543"/>
         <source>Image sequence formats:</source>
         <translation>Format rangkaian gambar:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="724"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="815"/>
         <source>Audio Recording:</source>
         <translation>Rekaman Audio:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="727"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="818"/>
         <source>Mono</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="728"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="819"/>
         <source>Stereo</source>
         <translation>Stereo</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="614"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="705"/>
         <source>Effect Textbox Lines:</source>
         <translation>Baris Teks Efek:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="519"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
         <source>Thumbnail Resolution:</source>
         <translatorcomment>according to kbbi it should be &quot;keluku&quot; but not a lot of people know that</translatorcomment>
         <translation>Resolusi Thumbnail:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="527"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="561"/>
         <source>Waveform Resolution:</source>
         <translation>Resolusi Waveform:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="535"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="569"/>
         <source>Delete Previews</source>
         <translation>Hapus Pratinjau</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="543"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="576"/>
         <source>Use Software Fallbacks When Possible</source>
         <translation>Gunakan Software Fallback Sebisa Mungkin</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="550"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
         <source>Default Sequence Settings</source>
         <translation>Pengaturan Rangkaian</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="587"/>
         <source>General</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="557"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="591"/>
         <source>Behavior</source>
         <translation>Kelakuan</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="561"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="595"/>
         <source>Add Default Effects to New Clips</source>
         <translation>Tambahkan Efek-Efek Biasa pada Klip Baru</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="571"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="662"/>
         <source>Appearance</source>
         <translation>Penampilan</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="578"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="669"/>
         <source>Theme</source>
         <translation>Tema</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="581"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="672"/>
         <source>Olive Dark (Default)</source>
         <translation>Gelap (Default)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="582"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="673"/>
         <source>Olive Light</source>
         <translation>Terang</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
         <source>Native</source>
         <translation>Selaras/native</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="584"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="675"/>
         <source>Native (Light Icons)</source>
         <translation>Selaras (Ikon Terang)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="593"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="684"/>
         <source>Use Native Menu Styling</source>
         <translation>Gunakan Gaya Menu Selaras</translation>
     </message>
@@ -2139,100 +2251,100 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
 Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggeser kursor di timeline - tidak berpengaruh pada pemutaran/ekspor)</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="629"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="720"/>
         <source>Memory Usage</source>
         <translation>Pemakaian Memori</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="631"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="722"/>
         <source>Upcoming Frame Queue:</source>
         <translation>Antri Frame Ke Depan:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="636"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="645"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="727"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="736"/>
         <source>frames</source>
         <translation>frame</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="637"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="646"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="728"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="737"/>
         <source>seconds</source>
         <translation>detik</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="731"/>
         <source>Previous Frame Queue:</source>
         <translation>Antri Frame Ke Belakang:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="651"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="742"/>
         <source>Playback</source>
         <translation>Pemutaran</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="662"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="753"/>
         <source>Output Device:</source>
         <translation>Peranti Output:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="665"/>
-        <location filename="../dialogs/preferencesdialog.cpp" line="688"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="756"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="779"/>
         <source>Default</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="685"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="776"/>
         <source>Input Device:</source>
         <translation>Peranti Masukan:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="708"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="799"/>
         <source>Sample Rate:</source>
         <translation>Laju sampel:</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="734"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="825"/>
         <source>Audio</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="742"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="833"/>
         <source>Search for action or shortcut</source>
         <translation>Cari aksi atau pintasan</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="749"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="840"/>
         <source>Action</source>
         <translation>Aksi</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="750"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="841"/>
         <source>Shortcut</source>
         <translation>Pintasan</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="755"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="846"/>
         <source>Import</source>
         <translation>Impor</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="759"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="850"/>
         <source>Export</source>
         <translation>Ekspor</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="765"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="856"/>
         <source>Reset Selected</source>
         <translation>Kembalikan Seleksi</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="769"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="860"/>
         <source>Reset All</source>
         <translation>Kembalikan Semua</translation>
     </message>
     <message>
-        <location filename="../dialogs/preferencesdialog.cpp" line="775"/>
+        <location filename="../dialogs/preferencesdialog.cpp" line="866"/>
         <source>Keyboard</source>
         <translation></translation>
     </message>
@@ -2240,17 +2352,17 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
 <context>
     <name>PreviewGenerator</name>
     <message>
-        <location filename="../project/previewgenerator.cpp" line="205"/>
+        <location filename="../project/previewgenerator.cpp" line="203"/>
         <source>Failed to find any valid video/audio streams</source>
         <translation>Gagal mencari stream video/audio yang benar</translation>
     </message>
     <message>
-        <location filename="../project/previewgenerator.cpp" line="563"/>
+        <location filename="../project/previewgenerator.cpp" line="559"/>
         <source>Could not open file - %1</source>
         <translation>Tidak dapat membuka file - %1</translation>
     </message>
     <message>
-        <location filename="../project/previewgenerator.cpp" line="570"/>
+        <location filename="../project/previewgenerator.cpp" line="566"/>
         <source>Could not find stream information - %1</source>
         <translation>Tidak dapat mencari informasi stream - %1</translation>
     </message>
@@ -2258,104 +2370,144 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
 <context>
     <name>Project</name>
     <message>
-        <location filename="../panels/project.cpp" line="225"/>
+        <location filename="../panels/project.cpp" line="99"/>
+        <source>New</source>
+        <translation type="unfinished">Baru</translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="105"/>
+        <source>Open Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="111"/>
+        <source>Save Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="117"/>
+        <source>Undo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="123"/>
+        <source>Redo</source>
+        <translation type="unfinished">Ulangi</translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="134"/>
+        <source>Tree View</source>
+        <translation type="unfinished">Tampilan Pohon</translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="140"/>
+        <source>Icon View</source>
+        <translation type="unfinished">Tampilan Ikon</translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="146"/>
+        <source>List View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../panels/project.cpp" line="224"/>
         <source>Search media, markers, etc.</source>
         <translation>Cari media, penanda, dll.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="226"/>
+        <location filename="../panels/project.cpp" line="225"/>
         <source>Project</source>
         <translation>Proyek</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="230"/>
+        <location filename="../panels/project.cpp" line="229"/>
         <source>Sequence</source>
         <translation>Rangkaian</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="352"/>
+        <location filename="../panels/project.cpp" line="351"/>
         <source>Replace &apos;%1&apos;</source>
         <translation>Ganti &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="354"/>
-        <location filename="../panels/project.cpp" line="1003"/>
+        <location filename="../panels/project.cpp" line="353"/>
+        <location filename="../panels/project.cpp" line="1002"/>
         <source>All Files</source>
         <translation>Semua file</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="365"/>
-        <location filename="../panels/project.cpp" line="1015"/>
+        <location filename="../panels/project.cpp" line="364"/>
+        <location filename="../panels/project.cpp" line="1014"/>
         <source>No active sequence</source>
         <translation>Tidak ada rangkaian aktif</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="366"/>
+        <location filename="../panels/project.cpp" line="365"/>
         <source>No sequence is active, please open the sequence you want to replace clips from.</source>
         <translation>Tidak ada rangkaian aktif, silahkan buka rangkaian yang akan diganti klipnya.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="374"/>
+        <location filename="../panels/project.cpp" line="373"/>
         <source>Active sequence selected</source>
         <translation>Rangkaian aktif terseleksi</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="375"/>
+        <location filename="../panels/project.cpp" line="374"/>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
         <translation>Anda tak dapat memasukkan rangkaian ke dalam rangkaian itu sendiri, jadi tidak ada klip sejenis ini dalam rangkaian.</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="406"/>
+        <location filename="../panels/project.cpp" line="405"/>
         <source>Rename &apos;%1&apos;</source>
         <translation>Ganti nama &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="407"/>
+        <location filename="../panels/project.cpp" line="406"/>
         <source>Enter new name:</source>
         <translation>Masukkan nama pengganti:</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="577"/>
+        <location filename="../panels/project.cpp" line="576"/>
         <source>Delete media in use?</source>
         <translation>Hapus media yang sedang dipakai?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="578"/>
+        <location filename="../panels/project.cpp" line="577"/>
         <source>The media &apos;%1&apos; is currently used in &apos;%2&apos;. Deleting it will remove all instances in the sequence. Are you sure you want to do this?</source>
         <translation>Media &apos;%1&apos; sedang dipakai dalam &apos;%2&apos;. Menghapus media tersebut akan menghapus semua instans media dalam rangkaian. Yakin akan melakukan hal tersebut?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="581"/>
+        <location filename="../panels/project.cpp" line="580"/>
         <source>Skip</source>
         <translation>Lewati</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="744"/>
+        <location filename="../panels/project.cpp" line="743"/>
         <source>Import a Project</source>
         <translation>Impor Proyek</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="745"/>
+        <location filename="../panels/project.cpp" line="744"/>
         <source>&quot;%1&quot; is an Olive project file. It will merge with this project. Do you wish to continue?</source>
         <translation>&quot;%1&quot; adalah file proyek Olive. File tersebut akan bergabung dengan proyek ini. Lanjutkan?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="848"/>
+        <location filename="../panels/project.cpp" line="847"/>
         <source>Image sequence detected</source>
         <translation>Rangkaian gambar terdeteksi</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="849"/>
+        <location filename="../panels/project.cpp" line="848"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
         <translation>File &apos;%1&apos; sepertinya merupakan rangkaian gambar. Apakah Anda ingin mengimpornya sebaga rangkaian gambar?</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="1003"/>
+        <location filename="../panels/project.cpp" line="1002"/>
         <source>Import media...</source>
         <translation>Impor media...</translation>
     </message>
     <message>
-        <location filename="../panels/project.cpp" line="1016"/>
+        <location filename="../panels/project.cpp" line="1015"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
         <translation>Tidak ada rangkaian aktif, silahkan buka rangkaian yang Anda ingin hapus klipnya.</translation>
     </message>
@@ -3165,87 +3317,87 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
         <translation>Masukkan judul, warna, bars, dll.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="440"/>
+        <location filename="../panels/timeline.cpp" line="487"/>
         <source>Nested Sequence</source>
         <translation>Rangkaian Bersarang</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1280"/>
+        <location filename="../panels/timeline.cpp" line="1353"/>
         <source>Effect already exists</source>
         <translation>Efek sudah ada</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1281"/>
+        <location filename="../panels/timeline.cpp" line="1354"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
         <translation>Klip &apos;%1&apos; sudah memiliki efek &apos;%2&apos;. Ganti dengan yang akan ditempel atau tambahkan sebagai efek sendiri?</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1286"/>
+        <location filename="../panels/timeline.cpp" line="1359"/>
         <source>Add</source>
         <translation>Tambah</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1287"/>
+        <location filename="../panels/timeline.cpp" line="1360"/>
         <source>Replace</source>
         <translation>Ganti</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1288"/>
+        <location filename="../panels/timeline.cpp" line="1361"/>
         <source>Skip</source>
         <translation>Lewati</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1290"/>
+        <location filename="../panels/timeline.cpp" line="1363"/>
         <source>Do this for all conflicts found</source>
         <translation>Lakukan untuk semua konflik yang ditemukan</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1753"/>
+        <location filename="../panels/timeline.cpp" line="1826"/>
         <source>Title...</source>
         <translation>Judul...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1758"/>
+        <location filename="../panels/timeline.cpp" line="1831"/>
         <source>Solid Color...</source>
         <translation>Warna...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1763"/>
+        <location filename="../panels/timeline.cpp" line="1836"/>
         <source>Bars...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1770"/>
+        <location filename="../panels/timeline.cpp" line="1843"/>
         <source>Tone...</source>
         <translation>Nada...</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1775"/>
+        <location filename="../panels/timeline.cpp" line="1848"/>
         <source>Noise...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1798"/>
+        <location filename="../panels/timeline.cpp" line="1871"/>
         <source>Unsaved Project</source>
         <translation>Proyek Belum Disimpan</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1799"/>
+        <location filename="../panels/timeline.cpp" line="1872"/>
         <source>You must save this project before you can record audio in it.</source>
         <translation>Proyek ini harus disimpan sebelum merekam suara.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1805"/>
+        <location filename="../panels/timeline.cpp" line="1878"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
         <translation>Klik tempat dimana Anda akan mulai merekam (seret untuk membatasi rekaman dalam waktu tertentu)</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1866"/>
+        <location filename="../panels/timeline.cpp" line="1939"/>
         <source>Timeline: </source>
         <translation>Garis Waktu:</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="1868"/>
+        <location filename="../panels/timeline.cpp" line="1941"/>
         <source>(none)</source>
         <translation>(tidak ada)</translation>
     </message>
@@ -3253,7 +3405,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
 <context>
     <name>TimelineHeader</name>
     <message>
-        <location filename="../ui/timelineheader.cpp" line="482"/>
+        <location filename="../ui/timelineheader.cpp" line="486"/>
         <source>Center Timecodes</source>
         <translation>Ratakan Kode Waktu</translation>
     </message>
@@ -3287,27 +3439,36 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
         <translation>Pengaturan Rangkaian</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="123"/>
+        <location filename="../ui/timelinewidget.cpp" line="134"/>
         <source>&amp;Speed/Duration</source>
         <translation>&amp;Kecepatan/Durasi</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="125"/>
         <source>Auto-s&amp;cale</source>
-        <translation>Per&amp;besar otomatis</translation>
+        <translation type="vanished">Per&amp;besar otomatis</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="160"/>
+        <location filename="../ui/timelinewidget.cpp" line="137"/>
+        <source>Auto-Cut Silence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/timelinewidget.cpp" line="140"/>
+        <source>Auto-S&amp;cale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/timelinewidget.cpp" line="175"/>
         <source>&amp;Reveal in Project</source>
         <translation>&amp;Buka di Proyek</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="164"/>
+        <location filename="../ui/timelinewidget.cpp" line="179"/>
         <source>Properties</source>
         <translation>Properti</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="192"/>
+        <location filename="../ui/timelinewidget.cpp" line="207"/>
         <source>%1
 Start: %2
 End: %3
@@ -3318,42 +3479,42 @@ Akhir: %3
 Durasi: %4</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="218"/>
+        <location filename="../ui/timelinewidget.cpp" line="233"/>
         <source>Error</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="218"/>
+        <location filename="../ui/timelinewidget.cpp" line="233"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1026"/>
+        <location filename="../ui/timelinewidget.cpp" line="1041"/>
         <source>Title</source>
         <translation>Judul</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1030"/>
+        <location filename="../ui/timelinewidget.cpp" line="1045"/>
         <source>Solid Color</source>
         <translation>Warna</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1035"/>
+        <location filename="../ui/timelinewidget.cpp" line="1050"/>
         <source>Bars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1046"/>
+        <location filename="../ui/timelinewidget.cpp" line="1061"/>
         <source>Tone</source>
         <translation>Nada</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1050"/>
+        <location filename="../ui/timelinewidget.cpp" line="1065"/>
         <source>Noise</source>
         <translation>Kebisingan/Noise</translation>
     </message>
     <message>
-        <location filename="../ui/timelinewidget.cpp" line="1979"/>
+        <location filename="../ui/timelinewidget.cpp" line="1994"/>
         <source>Duration:</source>
         <translation>Durasi:</translation>
     </message>
@@ -3497,27 +3658,27 @@ Durasi: %4</translation>
 <context>
     <name>Viewer</name>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="986"/>
+        <location filename="../ui/mainwindow.cpp" line="927"/>
         <source>Sequence Viewer</source>
         <translation>Tampilan Rangkaian</translation>
     </message>
     <message>
-        <location filename="../ui/mainwindow.cpp" line="987"/>
+        <location filename="../ui/mainwindow.cpp" line="928"/>
         <source>Media Viewer</source>
         <translation>Tampilan Media</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="610"/>
+        <location filename="../panels/viewer.cpp" line="601"/>
         <source>(none)</source>
         <translation>(tidak ada)</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="746"/>
+        <location filename="../panels/viewer.cpp" line="737"/>
         <source>Drag video only</source>
         <translation>Tarik video saja</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="753"/>
+        <location filename="../panels/viewer.cpp" line="744"/>
         <source>Drag audio only</source>
         <translation>Tarik audio saja</translation>
     </message>
@@ -3583,7 +3744,7 @@ Durasi: %4</translation>
 <context>
     <name>ViewerWindow</name>
     <message>
-        <location filename="../ui/viewerwindow.cpp" line="135"/>
+        <location filename="../ui/viewerwindow.cpp" line="170"/>
         <source>Exit Fullscreen</source>
         <translation>Keluar dari Layar Penuh</translation>
     </message>
