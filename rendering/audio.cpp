@@ -401,3 +401,32 @@ void combobox_audio_sample_rates(QComboBox *combobox) {
   combobox->addItem("88200 Hz", 88200);
   combobox->addItem("96000 Hz", 96000);
 }
+
+QObject* audio_wake_object = nullptr;
+QMutex audio_wake_mutex;
+
+QObject* GetAudioWakeObject()
+{
+  audio_wake_mutex.lock();
+
+  QObject* wake_object = audio_wake_object;
+  audio_wake_object = nullptr;
+
+  audio_wake_mutex.unlock();
+
+  return wake_object;
+}
+
+void SetAudioWakeObject(QObject *o)
+{
+  audio_wake_mutex.lock();
+  audio_wake_object = o;
+  audio_wake_mutex.unlock();
+}
+
+void WakeAudioWakeObject() {
+  QObject* audio_wake_object = GetAudioWakeObject();
+  if (audio_wake_object != nullptr) {
+    QMetaObject::invokeMethod(audio_wake_object, "play_wake", Qt::QueuedConnection);
+  }
+}

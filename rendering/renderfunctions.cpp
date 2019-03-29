@@ -600,17 +600,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             // == END FINAL DRAW ON SEQUENCE BUFFER ==
           }
 
-          // prepare gizmos
-          /*
-          if ((*params.gizmos) != nullptr
-              && params.nests.isEmpty()
-              && ((*params.gizmos) == first_gizmo_effect
-                  || (*params.gizmos) == selected_effect)) {
-            (*params.gizmos)->gizmo_draw(timecode, coords); // set correct gizmo coords
-            (*params.gizmos)->gizmo_world_to_screen(); // convert gizmo coords to screen coords
-          }
-          */
-
           glPopMatrix();
         }
       } else {
@@ -631,22 +620,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
           }
         }
-
-        /*
-        // visually update all the keyframe values
-        if (c->sequence == params.seq) { // only if you can currently see them
-          double ts = (playhead - c->timeline_in(true) + c->clip_in(true))/s->frame_rate;
-          for (int i=0;i<c->effects.size();i++) {
-            EffectPtr e = c->effects.at(i);
-            for (int j=0;j<e->row_count();j++) {
-              EffectRow* r = e->row(j);
-              for (int k=0;k<r->fieldCount();k++) {
-                r->field(k)->validate_keyframe_data(ts);
-              }
-            }
-          }
-        }
-        */
       }
     } else {
       params.texture_failed = true;
@@ -657,8 +630,8 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     }
   }
 
-  if (audio_track_count == 0 && params.viewer != nullptr) {
-    params.viewer->play_wake();
+  if (audio_track_count == 0) {
+    WakeAudioWakeObject();
   }
 
   if (params.video) {

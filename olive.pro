@@ -48,10 +48,6 @@ system("which git") {
 
 CONFIG += c++11
 
-CONFIG(debug, debug|release) {
-    CONFIG += console
-}
-
 SOURCES += \
         main.cpp \
         ui/mainwindow.cpp \
@@ -324,6 +320,10 @@ TRANSLATIONS += \
     ts/olive_id.ts
 
 win32 {
+    CONFIG(debug, debug|release) {
+        CONFIG += console
+    }
+
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
     contains(DEFINES, OLIVE_OCIO) {

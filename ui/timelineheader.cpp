@@ -67,9 +67,9 @@ TimelineHeader::TimelineHeader(QWidget *parent) :
   in_visible(0),
   fm(font()),
   dragging_markers(false),
-  scroll(0)
+  scroll(0),
+  height_actual(fm.height())
 {
-  height_actual = fm.height();
   setCursor(Qt::ArrowCursor);
   setMouseTracking(true);
   setFocusPolicy(Qt::ClickFocus);
@@ -468,6 +468,10 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
     path.lineTo(in_x+PLAYHEAD_SIZE+1, yoff);
     path.lineTo(start);
     p.fillPath(path, Qt::red);
+
+    // Draw white line at the top for clarity
+    p.setPen(Qt::gray);
+    p.drawLine(0, 0, width(), 0);
   }
 }
 

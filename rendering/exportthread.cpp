@@ -60,6 +60,7 @@ ExportThread::ExportThread(const ExportParams &params,
   audio_stream(nullptr),
   acodec(nullptr),
   audio_frame(nullptr),
+  sws_frame(nullptr),
   swr_frame(nullptr),
   acodec_ctx(nullptr),
   swr_ctx(nullptr),
@@ -216,6 +217,8 @@ bool ExportThread::SetupVideo() {
 }
 
 bool ExportThread::SetupAudio() {
+  // if video is disabled, no setup necessary
+  if (!params_.audio_enabled) return true;
 
   // Find encoder for this codec
   acodec = avcodec_find_encoder(static_cast<AVCodecID>(params_.audio_codec));
@@ -374,12 +377,12 @@ void ExportThread::Export()
   }
 
   // If video is enabled, set it up in the container now
-  if (params_.video_enabled && !SetupVideo()) {
+  if (!SetupVideo()) {
     return;
   }
 
   // If audio is enabled, set it up in the container now
-  if (params_.audio_enabled && !SetupAudio()) {
+  if (!SetupAudio()) {
     return;
   }
 
@@ -422,6 +425,8 @@ void ExportThread::Export()
 
     // If we're exporting audio, run compose_audio() which will write mixed audio to the internal audio buffer
     if (params_.audio_enabled) {
+      waiting_for_audio_ = true;
+      SetAudioWakeObject(this);
       olive::rendering::compose_audio(nullptr, olive::ActiveSequence.get(), 1, true);
     }
 
@@ -485,6 +490,13 @@ void ExportThread::Export()
     // If we're exporting audio, copy audio from the buffer into an AVFrame for encoding
     if (params_.audio_enabled) {
 
+      if (waiting_for_audio_) {
+        waitCond.wait(&mutex);
+      }
+
+      // Make sure nothing is writing while we're retrieving
+      audio_write_lock.lock();
+
       // Check if the count of encoded samples exceeds the current Sequence playhead, in which case we don't need to
       // encode any audio at this moment
       while (!interrupt_ && file_audio_samples <= (timecode_secs*params_.audio_sampling_rate)) {
@@ -519,6 +531,9 @@ void ExportThread::Export()
         // Increment by the frame's number of samples
         file_audio_samples += swr_frame->nb_samples;
       }
+
+      audio_write_lock.unlock();
+
     }
 
     // Generating encoding statistics (e.g. the time it took to encode this frame/estimated remaining time)
@@ -671,6 +686,14 @@ bool ExportThread::WasInterrupted()
 void ExportThread::Interrupt()
 {
   interrupt_ = true;
+}
+
+void ExportThread::play_wake()
+{
+  mutex.lock();
+  waiting_for_audio_ = false;
+  waitCond.wakeAll();
+  mutex.unlock();
 }
 
 void ExportThread::wake() {

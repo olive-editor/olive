@@ -65,6 +65,10 @@ extern bool audio_rendering;
 extern int audio_rendering_rate;
 void clear_audio_ibuffer();
 
+QObject *GetAudioWakeObject();
+void SetAudioWakeObject(QObject* o);
+void WakeAudioWakeObject();
+
 int current_audio_freq();
 
 bool is_audio_device_set();
