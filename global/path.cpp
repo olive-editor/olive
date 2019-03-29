@@ -79,6 +79,9 @@ QList<QString> get_effects_paths() {
   // folder in share folder - best for Linux
   effects_paths.append(app_dir.filePath("../share/olive-editor/effects"));
 
+  // user path - best for linux
+  effects_paths.append(QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("effects"));
+
   // Olive will also accept a manually provided folder with an environment variable
   QString env_path(qgetenv("OLIVE_EFFECTS_PATH"));
   if (!env_path.isEmpty()) effects_paths.append(env_path);
