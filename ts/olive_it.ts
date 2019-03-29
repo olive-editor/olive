@@ -37,7 +37,7 @@
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="77"/>
         <source>Threads:</source>
-        <translation type="unfinished"></translation>
+        <translation>Thread:</translation>
     </message>
 </context>
 <context>
@@ -71,27 +71,27 @@
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="38"/>
         <source>Cut Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglia silenzio</translation>
     </message>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="44"/>
         <source>Attack Threshold:</source>
-        <translation type="unfinished"></translation>
+        <translation>Soglia d&apos;attacco:</translation>
     </message>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="49"/>
         <source>Attack Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo d&apos;attacco:</translation>
     </message>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="54"/>
         <source>Release Threshold:</source>
-        <translation type="unfinished"></translation>
+        <translation>Soglia di rilascio:</translation>
     </message>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="59"/>
         <source>Release Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo di rilascio:</translation>
     </message>
 </context>
 <context>
@@ -100,7 +100,7 @@
         <location filename="../rendering/cacher.cpp" line="922"/>
         <location filename="../rendering/cacher.cpp" line="931"/>
         <source>Could not open %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile aprire %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -126,27 +126,27 @@
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="14"/>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished">Proprietà di &quot;%1&quot;</translation>
+        <translation>Proprietà di &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="15"/>
         <source>Multiple Clip Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Proprietà di clip multiple</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="24"/>
         <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
+        <translation>Nome:</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="33"/>
         <source>Duration:</source>
-        <translation type="unfinished">Durata:</translation>
+        <translation>Durata:</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="71"/>
         <source>(multiple)</source>
-        <translation type="unfinished"></translation>
+        <translation>(multiple)</translation>
     </message>
 </context>
 <context>
@@ -378,52 +378,52 @@
     <message>
         <location filename="../ui/effectui.cpp" line="54"/>
         <source>%1 (Opening)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (in apertura)</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="56"/>
         <source>%1 (Closing)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (in chiusura)</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="158"/>
         <source>%1 (multiple)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (multiple)</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="286"/>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">&amp;Taglia</translation>
+        <translation>&amp;Taglia</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="289"/>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Copia</translation>
+        <translation>&amp;Copia</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="300"/>
         <source>Move &amp;Up</source>
-        <translation type="unfinished">Sposta in s&amp;u</translation>
+        <translation>Sposta in s&amp;u</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="304"/>
         <source>Move &amp;Down</source>
-        <translation type="unfinished">Sposta in &amp;giù</translation>
+        <translation>Sposta in &amp;giù</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="309"/>
         <source>D&amp;elete</source>
-        <translation type="unfinished">&amp;Elimina</translation>
+        <translation>&amp;Elimina</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="326"/>
         <source>Load Settings From File</source>
-        <translation type="unfinished">Carica le impostazioni da file</translation>
+        <translation>Carica le impostazioni da file</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="328"/>
         <source>Save Settings to File</source>
-        <translation type="unfinished">Salva le impostazioni su file</translation>
+        <translation>Salva le impostazioni su file</translation>
     </message>
 </context>
 <context>
@@ -495,12 +495,12 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="603"/>
         <source>%p% (Total: %1:%2:%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%p% (totale: %1:%2:%3)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="608"/>
         <source>%p% (ETA: %1:%2:%3)</source>
-        <translation type="unfinished"></translation>
+        <translation>%p% (tempo residuo %1:%2:%3)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="623"/>
@@ -645,7 +645,7 @@
     <message>
         <location filename="../rendering/exportthread.cpp" line="113"/>
         <source>could not video encoder for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare un codificatore video per %1</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="122"/>
@@ -670,7 +670,7 @@
     <message>
         <location filename="../rendering/exportthread.cpp" line="227"/>
         <source>could not audio encoder for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare un codificatore audio per %1</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="235"/>
@@ -852,12 +852,12 @@
     <message>
         <location filename="../ui/labelslider.cpp" line="271"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Modifica</translation>
+        <translation>&amp;Modifica</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="275"/>
         <source>&amp;Reset to Default</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ripristina predefinito</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="306"/>
@@ -1048,12 +1048,12 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="840"/>
         <source>Delete In/Out Point</source>
-        <translation>Elimina punti di inizio/fine selezione</translation>
+        <translation>Elimina tra l&apos;inizio e fine selezione</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="841"/>
         <source>Ripple Delete In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina a catena tra l&apos;inizio e fine selezione</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="842"/>
@@ -1218,7 +1218,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="880"/>
         <source>Shuttle Left</source>
-        <translation>Scorri riproduzione a sinistra</translation>
+        <translation>Scorri riproducendo verso sinistra</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="881"/>
@@ -1228,7 +1228,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="882"/>
         <source>Shuttle Right</source>
-        <translation>Scorri riproduzione a destra</translation>
+        <translation>Scorri riproducendo verso destra</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="884"/>
@@ -1303,7 +1303,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="903"/>
         <source>Ripple Tool</source>
-        <translation>Ridimensionamento a catena</translation>
+        <translation>Strumento ridimensiona a catena</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="904"/>
@@ -1313,7 +1313,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="905"/>
         <source>Slip Tool</source>
-        <translation>Strumento di slittamento</translation>
+        <translation>Strumento di scivolamento</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="906"/>
@@ -1338,7 +1338,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="910"/>
         <source>Auto-Cut Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglio automatico del silenzio</translation>
     </message>
     <message>
         <source>Selecting Also Seeks</source>
@@ -1675,7 +1675,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="176"/>
         <source>Paste Insert</source>
-        <translation type="unfinished"></translation>
+        <translation>Incolla e inserisci</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="177"/>
@@ -1901,17 +1901,17 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../global/global.cpp" line="383"/>
         <source>Please open the sequence to perform this action.</source>
-        <translation type="unfinished"></translation>
+        <translation>Si prega di aprire una sequenza per poter eseguire questa azione.</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="448"/>
         <source>No clips selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessuna clip selezionata</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="449"/>
         <source>Select the clips you wish to auto-cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona le clip che vuoi tagliare automaticamente</translation>
     </message>
     <message>
         <source>Please open the sequence you wish to export.</source>
@@ -1946,7 +1946,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="91"/>
         <source>Default Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenza predefinita</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="196"/>
@@ -2037,127 +2037,128 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
         <source>Default Sequence Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Impostazioni predefinite della sequenza</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="595"/>
         <source>Add Default Effects to New Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi gli effetti predefiniti alle nuove clip</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="599"/>
         <source>Automatically Seek to the Beginning When Playing at the End of a Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta automaticamente il cursore all&apos;inizio quando si riproduce alla fine di una sequenza</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="603"/>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished">Selezionando si sposta anche il cursore</translation>
+        <translation>Selezionando si sposta anche il cursore</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished">Lo strumento di modifica sposta anche il cursore</translation>
+        <translation>Lo strumento di modifica sposta anche il cursore</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="611"/>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished">Lo strumento di modifica seleziona anche i collegamenti</translation>
+        <translatorcomment>collegamenti o collegàti?</translatorcomment>
+        <translation>Lo strumento di modifica seleziona anche i collegamenti</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="615"/>
         <source>Seek Also Selects</source>
-        <translation type="unfinished">Spostare il cursore seleziona anche</translation>
+        <translation>Spostare il cursore seleziona anche</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="619"/>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished">Sposta cursore alla fine di ciò che viene incollato</translation>
+        <translation>Sposta cursore alla fine di ciò che viene incollato</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
         <source>Scroll Wheel Zooms</source>
-        <translation type="unfinished">Ingrandisci con la rotellina del mouse</translation>
+        <translation>Ingrandisci con la rotellina del mouse</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="624"/>
         <source>Hold CTRL to toggle this setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Tieni premuto CTRL per commutare questa impostazione</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="628"/>
         <source>Invert Timeline Scroll Axes</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverti assi di scorrimento della linea temporale</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="632"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished">Permetti il trascinamento dei file nella linea temporale</translation>
+        <translation>Permetti il trascinamento dei file nella linea temporale</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="636"/>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished">Scala automaticamente in maniera predefinita</translation>
+        <translation>Scala automaticamente in maniera predefinita</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
         <source>Auto-Seek to Imported Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta il cursore alle clip importate</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="644"/>
         <source>Audio Scrubbing</source>
-        <translation type="unfinished">Audio attivo durante il trascinamento</translation>
+        <translation>Audio attivo durante il trascinamento</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="648"/>
         <source>Drop Files on Media to Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Rilascia i file sui media per rimpiazzarli</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="652"/>
         <source>Enable Hover Focus</source>
-        <translation type="unfinished">Abilita focus al passaggio</translation>
+        <translation>Abilita focus al passaggio</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="656"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished">Chiedi un nome nell&apos;impostazione del marcatore</translation>
+        <translation>Chiedi un nome nell&apos;impostazione del marcatore</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="662"/>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Aspetto</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="669"/>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="672"/>
         <source>Olive Dark (Default)</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive scuro (predefinito)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="673"/>
         <source>Olive Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Olive chiaro</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
         <source>Native</source>
-        <translation type="unfinished"></translation>
+        <translation>Nativo</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="675"/>
         <source>Native (Light Icons)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nativo (icone chiare)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="684"/>
         <source>Use Native Menu Styling</source>
-        <translation type="unfinished"></translation>
+        <translation>Usa lo stile nativo per i menu</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="692"/>
@@ -2212,7 +2213,8 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="576"/>
         <source>Use Software Fallbacks When Possible</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>tradurre o no software fallback? è linguaggio parecchio tecnico</translatorcomment>
+        <translation>Usa i software fallback quando possibile</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="587"/>
@@ -2344,7 +2346,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../project/previewgenerator.cpp" line="203"/>
         <source>Failed to find any valid video/audio streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare stream audio/video validi</translation>
     </message>
     <message>
         <location filename="../project/previewgenerator.cpp" line="559"/>
@@ -2362,42 +2364,42 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/project.cpp" line="99"/>
         <source>New</source>
-        <translation type="unfinished">Nuovo</translation>
+        <translation>Nuovo</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="105"/>
         <source>Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri progetto</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="111"/>
         <source>Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva progetto</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="117"/>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Annulla</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="123"/>
         <source>Redo</source>
-        <translation type="unfinished">Rifai</translation>
+        <translation>Rifai</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="134"/>
         <source>Tree View</source>
-        <translation type="unfinished">Vista ad albero</translation>
+        <translation>Vista ad albero</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="140"/>
         <source>Icon View</source>
-        <translation type="unfinished">Vista ad icone</translation>
+        <translation>Vista ad icone</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="146"/>
         <source>List View</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista a lista</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="224"/>
@@ -2474,12 +2476,12 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/project.cpp" line="743"/>
         <source>Import a Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa un progetto</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="744"/>
         <source>&quot;%1&quot; is an Olive project file. It will merge with this project. Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; è un file di un progetto Olive. Verrà unito a questo progetto. Desideri continuare?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="847"/>
@@ -2603,7 +2605,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="49"/>
         <source>Keep the same media in-points</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni lo stesso media nei punti</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="57"/>
@@ -2661,97 +2663,97 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="22"/>
         <source>Text</source>
-        <translation type="unfinished">Testo</translation>
+        <translation>Testo</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="26"/>
         <source>Padding</source>
-        <translation type="unfinished"></translation>
+        <translation>Spaziatura</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="30"/>
         <source>Position</source>
-        <translation type="unfinished">Posizione</translation>
+        <translation>Posizione</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="34"/>
         <source>Vertical Align:</source>
-        <translation type="unfinished"></translation>
+        <translation>Allineamento verticale:</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="36"/>
         <source>Top</source>
-        <translation type="unfinished">In alto</translation>
+        <translation>In alto</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="37"/>
         <source>Center</source>
-        <translation type="unfinished">Al centro</translation>
+        <translation>Al centro</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="38"/>
         <source>Bottom</source>
-        <translation type="unfinished">In basso</translation>
+        <translation>In basso</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="42"/>
         <source>Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation>Scorri automaticamente</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="44"/>
         <source>Off</source>
-        <translation type="unfinished">Disattivato</translation>
+        <translation>Disattivato</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="45"/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Verso su</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="46"/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Verso giù</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="47"/>
         <source>Left</source>
-        <translation type="unfinished">A sinistra</translation>
+        <translation>Verso sinistra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="48"/>
         <source>Right</source>
-        <translation type="unfinished">A destra</translation>
+        <translation>Verso destra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="51"/>
         <source>Shadow</source>
-        <translation type="unfinished">Ombra</translation>
+        <translation>Ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="55"/>
         <source>Shadow Color</source>
-        <translation type="unfinished">Colore dell&apos;ombra</translation>
+        <translation>Colore dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="59"/>
         <source>Shadow Angle</source>
-        <translation type="unfinished">Angolo dell&apos;ombra</translation>
+        <translation>Angolo dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="63"/>
         <source>Shadow Distance</source>
-        <translation type="unfinished">Distanza dell&apos;ombra</translation>
+        <translation>Distanza dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="68"/>
         <source>Shadow Softness</source>
-        <translation type="unfinished">Morbidezza dell&apos;ombra</translation>
+        <translation>Morbidezza dell&apos;ombra</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="73"/>
         <source>Shadow Opacity</source>
-        <translation type="unfinished">Opacità dell&apos;ombra</translation>
+        <translation>Opacità dell&apos;ombra</translation>
     </message>
 </context>
 <context>
@@ -2996,7 +2998,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="71"/>
         <source>Ripple Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni distanze con le clip successive</translation>
     </message>
 </context>
 <context>
@@ -3009,47 +3011,47 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="68"/>
         <source>Thin</source>
-        <translation type="unfinished"></translation>
+        <translation>Sottile</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="69"/>
         <source>Extra Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Molto leggero</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="70"/>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Leggero</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="71"/>
         <source>Normal</source>
-        <translation type="unfinished">Normale</translation>
+        <translation>Normale</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="72"/>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>Medio</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="73"/>
         <source>Demi Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Grassetto corsivo</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="74"/>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Grassetto</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="75"/>
         <source>Extra Bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Grassetto più spesso</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="76"/>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation>Nero</translation>
     </message>
 </context>
 <context>
@@ -3057,12 +3059,12 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../ui/texteditex.cpp" line="40"/>
         <source>Edit Text</source>
-        <translation type="unfinished">Modifica testo</translation>
+        <translation>Modifica testo</translation>
     </message>
     <message>
         <location filename="../ui/texteditex.cpp" line="88"/>
         <source>&amp;Edit Text</source>
-        <translation type="unfinished">Modifica t&amp;esto</translation>
+        <translation>Modifica t&amp;esto</translation>
     </message>
 </context>
 <context>
@@ -3131,12 +3133,12 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="84"/>
         <source>Padding</source>
-        <translation type="unfinished"></translation>
+        <translation>Spaziatura</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="88"/>
         <source>Position</source>
-        <translation type="unfinished">Posizione</translation>
+        <translation>Posizione</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="92"/>
@@ -3341,7 +3343,8 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/timeline.cpp" line="126"/>
         <source>Ripple Tool</source>
-        <translation>Ridimensionamento a catena</translation>
+        <translatorcomment>Su premier è tradotto come -strumento montaggio con scarto-. Valutare quale usare</translatorcomment>
+        <translation>Strumento ridimensiona a catena</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="127"/>
@@ -3351,7 +3354,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/timeline.cpp" line="128"/>
         <source>Slip Tool</source>
-        <translation>Strumento di slittamento</translation>
+        <translation>Strumento di scivolamento</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="129"/>
@@ -3447,7 +3450,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../ui/timelinewidget.cpp" line="175"/>
         <source>&amp;Reveal in Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra nel progetto</translation>
     </message>
     <message>
         <source>R&amp;ename</source>
@@ -3479,22 +3482,22 @@ Durata: %4</translation>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="111"/>
         <source>R&amp;ipple Delete Empty Space</source>
-        <translation type="unfinished"></translation>
+        <translation>El&amp;imina spazio vuoto a catena</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="137"/>
         <source>Auto-Cut Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglio automatico del silenzio</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="140"/>
         <source>Auto-S&amp;cale</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;cala automaticamente</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="179"/>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Proprietà</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="233"/>
@@ -3547,7 +3550,7 @@ Durata: %4</translation>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="33"/>
         <source>Sine</source>
-        <translation type="unfinished"></translation>
+        <translation>Seno</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="35"/>
@@ -3665,7 +3668,7 @@ Durata: %4</translation>
     <message>
         <location filename="../ui/updatenotification.cpp" line="35"/>
         <source>An update is available from the Olive website. Visit www.olivevideoeditor.org to download it.</source>
-        <translation type="unfinished"></translation>
+        <translation>È disponibile un aggiornamento sul sito di Olive. Visita www.olivevideoeditor.org per scaricarlo.</translation>
     </message>
 </context>
 <context>
@@ -3696,7 +3699,7 @@ Durata: %4</translation>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="147"/>
         <source>Failed to locate entry point for dynamic library.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile trovare punto d&apos;ingresso per la libreria dinamica.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="172"/>
@@ -3706,7 +3709,7 @@ Durata: %4</translation>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="172"/>
         <source>Plugin&apos;s magic number is invalid</source>
-        <translation type="unfinished"></translation>
+        <translation>Il magic number del plugin non è valido</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="254"/>
@@ -3749,12 +3752,12 @@ Durata: %4</translation>
     <message>
         <location filename="../panels/viewer.cpp" line="737"/>
         <source>Drag video only</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta solamente il video</translation>
     </message>
     <message>
         <location filename="../panels/viewer.cpp" line="744"/>
         <source>Drag audio only</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta solamente l&apos;audio</translation>
     </message>
 </context>
 <context>
