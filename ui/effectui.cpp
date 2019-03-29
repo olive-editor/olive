@@ -86,6 +86,7 @@ EffectUI::EffectUI(Effect* e) :
   SetTitle(effect_name);
 
   QWidget* ui = new QWidget(this);
+  ui->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   SetContents(ui);
 
   SetExpanded(e->IsExpanded());

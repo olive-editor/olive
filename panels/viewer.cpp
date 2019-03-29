@@ -64,7 +64,6 @@ extern "C" {
 Viewer::Viewer(QWidget *parent) :
   Panel(parent),
   playing(false),
-  just_played_(false),
   media(nullptr),
   seq(nullptr),
   created_sequence(false),
@@ -292,7 +291,7 @@ void Viewer::play(bool in_to_out) {
 
     playhead_start = seq->playhead;
     playing = true;
-    just_played_ = true;
+    SetAudioWakeObject(this);
     set_playpause_icon(false);
     start_msecs = QDateTime::currentMSecsSinceEpoch();
 
@@ -301,17 +300,14 @@ void Viewer::play(bool in_to_out) {
 }
 
 void Viewer::play_wake() {
-  if (just_played_) {
-    start_msecs = QDateTime::currentMSecsSinceEpoch();
-    playback_updater.start();
-    if (audio_thread != nullptr) audio_thread->notifyReceiver();
-    just_played_ = false;
-  }
+  start_msecs = QDateTime::currentMSecsSinceEpoch();
+  playback_updater.start();
+  if (audio_thread != nullptr) audio_thread->notifyReceiver();
 }
 
 void Viewer::pause() {
   playing = false;
-  just_played_ = false;
+  SetAudioWakeObject(nullptr);
   set_playpause_icon(true);
   playback_updater.stop();
   playback_speed = 0;
@@ -350,11 +346,6 @@ void Viewer::pause() {
       olive::UndoStack.push(new AddClipCommand(seq.get(), add_clips)); // add clip
     }
   }
-}
-
-bool Viewer::WaitingForPlayWake()
-{
-  return just_played_;
 }
 
 void Viewer::update_playhead_timecode(long p) {

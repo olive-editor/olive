@@ -35,7 +35,7 @@ system("which git") {
         GITPATH = $$system(cygpath $$PWD)
     }
 
-    GITHASHVAR = $$system(git --git-dir="$$GITPATH/.git" --work-tree="$$GITPATH" log -1 --format=%h)
+    GITHASHVAR = $$system(git --git-dir=\"$$GITPATH/.git\" --work-tree=\"$$GITPATH\" log -1 --format=%h)
 
     # Fallback for Ubuntu/Launchpad (extracts Git hash from debian/changelog rather than Git repo)
     # (see https://answers.launchpad.net/launchpad/+question/678556)
@@ -47,10 +47,6 @@ system("which git") {
 }
 
 CONFIG += c++11
-
-CONFIG(debug, debug|release) {
-    CONFIG += console
-}
 
 SOURCES += \
         main.cpp \
@@ -327,6 +323,10 @@ TRANSLATIONS += \
     ts/olive_id.ts
 
 win32 {
+    CONFIG(debug, debug|release) {
+        CONFIG += console
+    }
+
     RC_FILE = packaging/windows/resources.rc
     LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lOpenColorIO -lopengl32 -luser32
 }

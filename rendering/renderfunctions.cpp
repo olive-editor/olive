@@ -748,7 +748,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
             // == END FINAL DRAW ON SEQUENCE BUFFER ==
           }
-
         }
       } else {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) {
@@ -778,8 +777,8 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     }
   }
 
-  if (audio_track_count == 0 && params.viewer != nullptr) {
-    params.viewer->play_wake();
+  if (audio_track_count == 0) {
+    WakeAudioWakeObject();
   }
 
   if (!params.nests.isEmpty() && !params.nests.last()->fbo.isEmpty()) {

@@ -98,7 +98,7 @@ SourceIconDelegate::SourceIconDelegate(QObject *parent) :
 {
 }
 
-QSize SourceIconDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize SourceIconDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &) const
 {
   if (option.decorationPosition == QStyleOptionViewItem::Top) { // Icon Mode
 

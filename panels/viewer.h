@@ -66,7 +66,6 @@ public:
   void seek(long p);
   void play(bool in_to_out = false);
   void pause();
-  bool WaitingForPlayWake();
   bool playing;
   long playhead_start;
   qint64 start_msecs;
@@ -139,7 +138,6 @@ private:
   double minimum_zoom;
   bool playing_in_to_out;
   long last_playhead;
-  bool just_played_;
   void set_zoom_value(double d);
   void set_sb_max();
   void set_playback_speed(int s);
