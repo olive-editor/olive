@@ -36,8 +36,8 @@
 #include "project/media.h"
 #include "project/footage.h"
 #include "rendering/framebufferobject.h"
-
 #include "marker.h"
+#include "track.h"
 
 struct ClipSpeed {
   ClipSpeed();
@@ -47,16 +47,19 @@ struct ClipSpeed {
 
 using ClipPtr = std::shared_ptr<Clip>;
 
-class Sequence;
-
 class Clip {
 public:
-  Clip(Sequence *s);
+  Clip(Track *s);
   ~Clip();
-  ClipPtr copy(Sequence *s);
+  ClipPtr copy(Track *s);
+
+  void Save(QXmlStreamWriter& stream);
 
   bool IsActiveAt(long timecode);
   bool IsSelected(bool containing = true);
+  bool IsTransitionSelected(TransitionType type);
+
+  Track::Type type();
 
   const QColor& color();
   void set_color(int r, int g, int b);
@@ -91,8 +94,8 @@ public:
   long timeline_out(bool with_transition = false);
   void set_timeline_out(long t);
 
-  int track();
-  void set_track(int t);
+  Track* track();
+  void set_track(Track* t);
 
   bool reversed();
   void set_reversed(bool r);
@@ -117,7 +120,7 @@ public:
   long length();
 
   void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
-  Sequence* sequence;
+  Track* parent_;
 
   // markers
   QVector<Marker>& get_markers();
@@ -159,11 +162,11 @@ public:
 
 private:
   // timeline variables (should be copied in copy())
+  Track* track_;
   bool enabled_;
   long clip_in_;
   long timeline_in_;
   long timeline_out_;
-  int track_;
   QString name_;
   Media* media_;
   int media_stream_;

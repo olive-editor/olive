@@ -646,11 +646,11 @@ void EffectControls::Load() {
       }
     }
     if (c->opening_transition != nullptr
-        && (whole_clip_is_selected || c->sequence->IsTransitionSelected(c->opening_transition.get()))) {
+        && (whole_clip_is_selected || c->track()->IsTransitionSelected(c->opening_transition.get()))) {
       effects_to_open.append(c->opening_transition.get());
     }
     if (c->closing_transition != nullptr
-        && (whole_clip_is_selected || c->sequence->IsTransitionSelected(c->closing_transition.get()))) {
+        && (whole_clip_is_selected || c->track()->IsTransitionSelected(c->closing_transition.get()))) {
       effects_to_open.append(c->closing_transition.get());
     }
 

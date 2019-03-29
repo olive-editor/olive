@@ -58,8 +58,15 @@ public:
   int childCount(Media* parent = nullptr);
   void set_icon(Media* m, const QIcon &ico);
 
+  QVector<Media*> GetAllSequences();
+  QVector<Media*> GetAllFootage();
+  QVector<Media*> GetAllFolders();
+
 private:
   MediaPtr root_item_;
+
+  QVector<Media*> GetAllMediaOfType(int search_type);
+  void RecurseTree(Media* parent, QVector<Media *> &list, int search_type);
 };
 
 namespace olive {

@@ -50,7 +50,7 @@ void ProjectModel::destroy_root() {
     panel_footage_viewer->set_media(nullptr);
   }
 
-  root_item_ = std::make_shared<Media>();
+  root_item_ = nullptr;
 }
 
 void ProjectModel::clear() {
@@ -194,6 +194,44 @@ void ProjectModel::set_icon(Media* m, const QIcon &ico) {
   QModelIndex index = createIndex(m->row(), 0, m);
   m->set_icon(ico);
   emit dataChanged(index, index);
+}
+
+QVector<Media *> ProjectModel::GetAllSequences()
+{
+  return GetAllMediaOfType(MEDIA_TYPE_SEQUENCE);
+}
+
+QVector<Media *> ProjectModel::GetAllFootage()
+{
+  return GetAllMediaOfType(MEDIA_TYPE_FOOTAGE);
+}
+
+QVector<Media *> ProjectModel::GetAllFolders()
+{
+  return GetAllMediaOfType(MEDIA_TYPE_FOLDER);
+}
+
+QVector<Media *> ProjectModel::GetAllMediaOfType(int search_type)
+{
+  QVector<Media*> media_list;
+  RecurseTree(root_item_.get(), media_list, search_type);
+  return media_list;
+}
+
+void ProjectModel::RecurseTree(Media* parent, QVector<Media*>& list, int search_type)
+{
+  for (int i=0;i<parent->childCount();i++) {
+
+    Media* child = parent->child(i);
+
+    if (child->get_type() == search_type) {
+      list.append(child);
+    }
+
+    if (child->childCount() > 0) {
+      RecurseTree(child, list, search_type);
+    }
+  }
 }
 
 void ProjectModel::appendChild(Media* parent, MediaPtr child) {

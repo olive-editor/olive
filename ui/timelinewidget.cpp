@@ -58,6 +58,7 @@
 #include "global/debug.h"
 #include "effects/effect.h"
 #include "effects/internal/solideffect.h"
+#include "timeline/track.h"
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
@@ -123,7 +124,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
       bool audio_clips_are_selected = false;
 
       for (int i=0;i<selected_clips.size();i++) {
-        if (selected_clips.at(i)->track() < 0) {
+        if (selected_clips.at(i)->type() == Track::kTypeVideo) {
           video_clips_are_selected = true;
         } else {
           audio_clips_are_selected = true;
@@ -200,30 +201,22 @@ void TimelineWidget::toggle_autoscale() {
 }
 
 void TimelineWidget::tooltip_timer_timeout() {
-  if (olive::ActiveSequence != nullptr) {
-    if (tooltip_clip < olive::ActiveSequence->clips.size()) {
-      ClipPtr c = olive::ActiveSequence->clips.at(tooltip_clip);
-      if (c != nullptr) {
-        QToolTip::showText(QCursor::pos(),
-                           tr("%1\nStart: %2\nEnd: %3\nDuration: %4").arg(
-                             c->name(),
-                             frame_to_timecode(c->timeline_in(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate),
-                             frame_to_timecode(c->timeline_out(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate),
-                             frame_to_timecode(c->length(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate)
-                             ));
-      }
-    }
+  if (tooltip_clip != nullptr) {
+    QToolTip::showText(QCursor::pos(),
+                       tr("%1\nStart: %2\nEnd: %3\nDuration: %4").arg(
+                         tooltip_clip->name(),
+                         frame_to_timecode(tooltip_clip->timeline_in(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate),
+                         frame_to_timecode(tooltip_clip->timeline_out(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate),
+                         frame_to_timecode(tooltip_clip->length(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate)
+                         ));
   }
+
   tooltip_timer.stop();
 }
 
 void TimelineWidget::open_sequence_properties() {
-  QList<Media*> sequence_items;
-  QList<Media*> all_top_level_items;
-  for (int i=0;i<olive::project_model.childCount();i++) {
-    all_top_level_items.append(olive::project_model.child(i));
-  }
-  panel_project->get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
+  QVector<Media*> sequence_items = olive::project_model.GetAllSequences();
+
   for (int i=0;i<sequence_items.size();i++) {
     if (sequence_items.at(i)->to_sequence() == olive::ActiveSequence) {
       NewSequenceDialog nsd(this, sequence_items.at(i));
@@ -231,6 +224,7 @@ void TimelineWidget::open_sequence_properties() {
       return;
     }
   }
+
   QMessageBox::critical(this, tr("Error"), tr("Couldn't locate media wrapper for sequence."));
 }
 

@@ -174,7 +174,9 @@ SOURCES += \
     rendering/shadergenerators.cpp \
     global/timing.cpp \
     rendering/pixelformats.cpp \
-    timeline/timelinefunctions.cpp
+    timeline/timelinefunctions.cpp \
+    timeline/track.cpp \
+    timeline/tracklist.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -308,7 +310,9 @@ HEADERS += \
     global/timing.h \
     rendering/pixelformats.h \
     timeline/ghost.h \
-    timeline/timelinefunctions.h
+    timeline/timelinefunctions.h \
+    timeline/track.h \
+    timeline/tracklist.h
 
 FORMS +=
 

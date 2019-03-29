@@ -72,12 +72,12 @@ public:
   QTimer playback_updater;
 
 
-  void cue_recording(long start, long end, int track);
+  void cue_recording(long start, long end, Track *track);
   void uncue_recording();
   bool is_recording_cued();
   long recording_start;
   long recording_end;
-  int recording_track;
+  Track* recording_track;
 
   void reset_all_audio();
   void update_parents(bool reload_fx = false);

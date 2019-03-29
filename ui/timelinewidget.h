@@ -37,18 +37,16 @@
 
 class Timeline;
 
-struct TimelineTrackHeight {
-  int index;
-  int height;
-};
-
 bool same_sign(int a, int b);
 void draw_waveform(ClipPtr clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
 
 class TimelineWidget : public QWidget {
   Q_OBJECT
 public:
-  explicit TimelineWidget(QWidget *parent = 0);
+  explicit TimelineWidget(QWidget *parent);
+
+  void SetTracks(QVector<Track>& tracks);
+
   QScrollBar* scrollBar;
   bool bottom_align;
 
@@ -92,7 +90,7 @@ private:
   SequencePtr self_created_sequence;
 
   QTimer tooltip_timer;
-  int tooltip_clip;
+  Clip* tooltip_clip;
 
   int scroll;
 

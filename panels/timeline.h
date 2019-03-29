@@ -38,28 +38,6 @@
 #include "ui/panel.h"
 
 
-
-namespace olive {
-  namespace timeline {
-    const int kGhostThickness = 2;
-    const int kClipTextPadding = 3;
-
-    /**
-     * @brief Set default track sizes
-     *
-     * Olive has a few default constants used for adjusting track heights in the Timeline. For HiDPI, it makes
-     * sense to multiply these by the current DPI scale. It uses a variable from QApplication to do this multiplication,
-     * which means the QApplication instance needs to be instantiated before these are calculated. Therefore, call this
-     * function ONCE after QApplication is created to multiply the track heights correctly.
-     */
-    void MultiplyTrackSizesByDPI();
-
-    extern int kTrackDefaultHeight;
-    extern int kTrackMinHeight;
-    extern int kTrackHeightIncrement;
-  }
-}
-
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 bool selection_contains_transition(const Selection& s, Clip *c, int type);
@@ -72,7 +50,6 @@ class Timeline : public Panel
   Q_OBJECT
 public:
   explicit Timeline(QWidget *parent = nullptr);
-  virtual ~Timeline() override;
 
   bool focused();
   void multiply_zoom(double m);
@@ -254,8 +231,6 @@ private:
   // ripple delete empty space variables
   long rc_ripple_min;
   long rc_ripple_max;
-
-  QVector<TimelineTrackHeight> track_heights;
 
   QWidget* timeline_area;
   TimelineWidget* video_area;

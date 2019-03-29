@@ -25,6 +25,7 @@
 
 #include <QString>
 #include <QPainter>
+#include <QXmlStreamWriter>
 #include <memory>
 
 class Sequence;
@@ -33,9 +34,10 @@ using SequencePtr = std::shared_ptr<Sequence>;
 struct Marker {
   long frame;
   QString name;
-};
 
-void draw_marker(QPainter& p, int x, int y, int bottom, bool selected);
+  void Save(QXmlStreamWriter& stream) const;
+  static void Draw(QPainter& p, int x, int y, int bottom, bool selected);
+};
 
 void set_marker_internal(Sequence *seq, const QVector<int>& clips);
 void set_marker_internal(Sequence* seq);

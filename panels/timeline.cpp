@@ -56,10 +56,6 @@
 #include "global/timing.h"
 #include "ui/menu.h"
 
-int olive::timeline::kTrackDefaultHeight = 40;
-int olive::timeline::kTrackMinHeight = 30;
-int olive::timeline::kTrackHeightIncrement = 10;
-
 Timeline::Timeline(QWidget *parent) :
   Panel(parent),
   cursor_frame(0),
@@ -118,8 +114,6 @@ Timeline::Timeline(QWidget *parent) :
 
   Retranslate();
 }
-
-Timeline::~Timeline() {}
 
 void Timeline::Retranslate() {
   toolArrowButton->setToolTip(tr("Pointer Tool") + " (V)");
@@ -270,7 +264,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
       break;
     case MEDIA_TYPE_SEQUENCE:
       s = medium->to_sequence().get();
-      sequence_length = s->getEndFrame();
+      sequence_length = s->GetEndFrame();
       if (seq != nullptr) sequence_length = rescale_frame_number(sequence_length, s->frame_rate, seq->frame_rate);
       can_import = (s != seq && sequence_length != 0);
       if (s->using_workarea) {

@@ -492,21 +492,6 @@ MediaPtr Project::item_to_media_ptr(const QModelIndex &index) {
   return raw_ptr->parentItem()->get_shared_ptr(raw_ptr);
 }
 
-void Project::get_all_media_from_table(QList<Media*>& items, QList<Media*>& list, int search_type) {
-  for (int i=0;i<items.size();i++) {
-    Media* item = items.at(i);
-    if (item->get_type() == MEDIA_TYPE_FOLDER) {
-      QList<Media*> children;
-      for (int j=0;j<item->childCount();j++) {
-        children.append(item->child(j));
-      }
-      get_all_media_from_table(children, list, search_type);
-    } else if (search_type == item->get_type() || search_type == -1) {
-      list.append(item);
-    }
-  }
-}
-
 bool Project::IsToolbarVisible()
 {
   return toolbar_widget->isVisible();
@@ -550,25 +535,22 @@ void Project::delete_selected_media() {
 
   // check if media is in use
   QVector<Media*> parents;
-  QList<Media*> sequence_items;
-  QList<Media*> all_top_level_items;
-  for (int i=0;i<olive::project_model.childCount();i++) {
-    all_top_level_items.append(olive::project_model.child(i));
-  }
-  get_all_media_from_table(all_top_level_items, sequence_items, MEDIA_TYPE_SEQUENCE); // find all sequences in project
-  if (sequence_items.size() > 0) {
+  QVector<Media*> all_sequences = olive::project_model.GetAllSequences();
+  if (all_sequences.size() > 0) {
 
-    QList<Media*> media_items;
-    get_all_media_from_table(items, media_items, MEDIA_TYPE_FOOTAGE);
+    QVector<Media*> all_footage = olive::project_model.GetAllFootage();
 
-    for (int i=0;i<media_items.size();i++) {
-      Media* item = media_items.at(i);
+    for (int i=0;i<all_footage.size();i++) {
+      Media* item = all_footage.at(i);
       Footage* media = item->to_footage();
       bool confirm_delete = false;
-      for (int j=0;j<sequence_items.size();j++) {
-        Sequence* s = sequence_items.at(j)->to_sequence().get();
-        for (int k=0;k<s->clips.size();k++) {
-          ClipPtr c = s->clips.at(k);
+      for (int j=0;j<all_sequences.size();j++) {
+
+        Sequence* s = all_sequences.at(j)->to_sequence().get();
+        QVector<Clip*> sequence_clips = s->GetAllClips();
+
+        for (int k=0;k<sequence_clips.size();k++) {
+          Clip* c = sequence_clips.at(k);
           if (c != nullptr && c->media() == item) {
             if (!confirm_delete) {
               // we found a reference, so we know we'll need to ask if the user wants to delete it
@@ -608,13 +590,13 @@ void Project::delete_selected_media() {
                   parent = parent->parentItem();
                 }
 
-                j = sequence_items.size();
-                k = s->clips.size();
+                j = all_sequences.size();
+                k = sequence_clips.size();
               } else if (confirm.clickedButton() == abort_button) {
                 // break out of loop
-                i = media_items.size();
-                j = sequence_items.size();
-                k = s->clips.size();
+                i = all_footage.size();
+                j = all_sequences.size();
+                k = sequence_clips.size();
 
                 remove = false;
               }
@@ -636,7 +618,9 @@ void Project::delete_selected_media() {
     panel_graph_editor->set_row(nullptr);
     panel_effect_controls->Clear(true);
 
-    if (olive::ActiveSequence != nullptr) olive::ActiveSequence->selections.clear();
+    if (olive::ActiveSequence != nullptr) {
+      olive::ActiveSequence->ClearSelections();
+    }
 
     // remove media and parents
     for (int m=0;m<parents.size();m++) {
@@ -665,14 +649,8 @@ void Project::delete_selected_media() {
           panel_footage_viewer->set_media(nullptr);
         }
       } else if (items.at(i)->get_type() == MEDIA_TYPE_FOOTAGE) {
-        if (panel_footage_viewer->seq != nullptr) {
-          for (int j=0;j<panel_footage_viewer->seq->clips.size();j++) {
-            ClipPtr c = panel_footage_viewer->seq->clips.at(j);
-            if (c != nullptr && c->media() == items.at(i)) {
-              panel_footage_viewer->set_media(nullptr);
-              break;
-            }
-          }
+        if (panel_footage_viewer->media == items.at(i)) {
+          panel_footage_viewer->set_media(nullptr);
         }
       }
     }
@@ -1023,8 +1001,9 @@ void Project::delete_clips_using_selected_media() {
     ComboAction* ca = new ComboAction();
     bool deleted = false;
     QModelIndexList items = get_current_selected();
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      const ClipPtr& c = olive::ActiveSequence->clips.at(i);
+    QVector<Clip*> sequence_clips = olive::ActiveSequence->GetAllClips();
+    for (int i=0;i<sequence_clips.size();i++) {
+      Clip* c = sequence_clips.at(i);
       if (c != nullptr) {
         for (int j=0;j<items.size();j++) {
           Media* m = item_to_media(items.at(j));
@@ -1066,13 +1045,6 @@ void Project::clear() {
 
   // update tree view (sometimes this doesn't seem to update reliably)
   tree_view->update();
-}
-
-void save_marker(QXmlStreamWriter& stream, const Marker& m) {
-  stream.writeStartElement("marker");
-  stream.writeAttribute("frame", QString::number(m.frame));
-  stream.writeAttribute("name", m.name);
-  stream.writeEndElement();
 }
 
 void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
@@ -1145,7 +1117,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
 
           // save footage markers
           for (int j=0;j<f->markers.size();j++) {
-            save_marker(stream, f->markers.at(j));
+            f->markers.at(j).Save(stream);
           }
 
           stream.writeEndElement(); // footage
@@ -1156,114 +1128,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
             s->save_id = sequence_id;
             sequence_id++;
           } else {
-            stream.writeStartElement("sequence");
-            stream.writeAttribute("id", QString::number(s->save_id));
-            stream.writeAttribute("folder", QString::number(folder));
-            stream.writeAttribute("name", s->name);
-            stream.writeAttribute("width", QString::number(s->width));
-            stream.writeAttribute("height", QString::number(s->height));
-            stream.writeAttribute("framerate", QString::number(s->frame_rate, 'f', 10));
-            stream.writeAttribute("afreq", QString::number(s->audio_frequency));
-            stream.writeAttribute("alayout", QString::number(s->audio_layout));
-            if (s == olive::ActiveSequence.get()) {
-              stream.writeAttribute("open", "1");
-            }
-            stream.writeAttribute("workarea", QString::number(s->using_workarea));
-            stream.writeAttribute("workareaIn", QString::number(s->workarea_in));
-            stream.writeAttribute("workareaOut", QString::number(s->workarea_out));
-
-            QVector<TransitionPtr> transition_save_cache;
-            QVector<int> transition_clip_save_cache;
-
-            for (int j=0;j<s->clips.size();j++) {
-              const ClipPtr& c = s->clips.at(j);
-              if (c != nullptr) {
-                stream.writeStartElement("clip"); // clip
-                stream.writeAttribute("id", QString::number(j));
-                stream.writeAttribute("enabled", QString::number(c->enabled()));
-                stream.writeAttribute("name", c->name());
-                stream.writeAttribute("clipin", QString::number(c->clip_in()));
-                stream.writeAttribute("in", QString::number(c->timeline_in()));
-                stream.writeAttribute("out", QString::number(c->timeline_out()));
-                stream.writeAttribute("track", QString::number(c->track()));
-
-                stream.writeAttribute("r", QString::number(c->color().red()));
-                stream.writeAttribute("g", QString::number(c->color().green()));
-                stream.writeAttribute("b", QString::number(c->color().blue()));
-
-                stream.writeAttribute("autoscale", QString::number(c->autoscaled()));
-                stream.writeAttribute("speed", QString::number(c->speed().value, 'f', 10));
-                stream.writeAttribute("maintainpitch", QString::number(c->speed().maintain_audio_pitch));
-                stream.writeAttribute("reverse", QString::number(c->reversed()));
-
-                if (c->media() != nullptr) {
-                  stream.writeAttribute("type", QString::number(c->media()->get_type()));
-                  switch (c->media()->get_type()) {
-                  case MEDIA_TYPE_FOOTAGE:
-                    stream.writeAttribute("media", QString::number(c->media()->to_footage()->save_id));
-                    stream.writeAttribute("stream", QString::number(c->media_stream_index()));
-                    break;
-                  case MEDIA_TYPE_SEQUENCE:
-                    stream.writeAttribute("sequence", QString::number(c->media()->to_sequence()->save_id));
-                    break;
-                  }
-                }
-
-                // save markers
-                // only necessary for null media clips, since media has its own markers
-                if (c->media() == nullptr) {
-                  for (int k=0;k<c->get_markers().size();k++) {
-                    save_marker(stream, c->get_markers().at(k));
-                  }
-                }
-
-                // save clip links
-                stream.writeStartElement("linked"); // linked
-                for (int k=0;k<c->linked.size();k++) {
-                  stream.writeStartElement("link"); // link
-                  stream.writeAttribute("id", QString::number(c->linked.at(k)));
-                  stream.writeEndElement(); // link
-                }
-                stream.writeEndElement(); // linked
-
-                // save opening and closing transitions
-                for (int t=kTransitionOpening;t<=kTransitionClosing;t++) {
-                  TransitionPtr transition = (t == kTransitionOpening) ? c->opening_transition : c->closing_transition;
-
-                  if (transition != nullptr) {
-                    stream.writeStartElement((t == kTransitionOpening) ? "opening" : "closing");
-
-                    // check if this is a shared transition and the transition has already been saved
-                    int transition_cache_index = transition_save_cache.indexOf(transition);
-
-                    if (transition_cache_index > -1) {
-                      // if so, just save a reference to the other clip
-                      stream.writeAttribute("shared",
-                                            QString::number(transition_clip_save_cache.at(transition_cache_index)));
-                    } else {
-                      // otherwise save the whole transition
-                      transition->save(stream);
-                      transition_save_cache.append(transition);
-                      transition_clip_save_cache.append(j);
-                    }
-
-                    stream.writeEndElement(); // opening
-                  }
-                }
-
-                for (int k=0;k<c->effects.size();k++) {
-                  stream.writeStartElement("effect"); // effect
-                  c->effects.at(k)->save(stream);
-                  stream.writeEndElement(); // effect
-                }
-
-                stream.writeEndElement(); // clip
-              }
-            }
-            for (int j=0;j<s->markers.size();j++) {
-              save_marker(stream, s->markers.at(j));
-            }
-            stream.writeEndElement();
+            s->Save(stream);
           }
         }
       }

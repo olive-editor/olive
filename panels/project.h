@@ -81,8 +81,6 @@ public:
 
   QModelIndexList get_current_selected();
 
-  void get_all_media_from_table(QList<Media *> &items, QList<Media *> &list, int type = -1);
-
   bool IsToolbarVisible();
   bool IsProjectWidget(QObject *child);
 

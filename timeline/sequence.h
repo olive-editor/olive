@@ -27,20 +27,26 @@
 #include "clip.h"
 #include "marker.h"
 #include "selection.h"
+#include "tracklist.h"
 
-class Sequence {
+class Sequence : public QObject {
+  Q_OBJECT
 public:
   Sequence();
   SequencePtr copy();
 
+  void Save(QXmlStreamWriter& stream);
+
   QString name;
-  void getTrackLimits(int* video_tracks, int* audio_tracks);
-  long getEndFrame();
   int width;
   int height;
   double frame_rate;
   int audio_frequency;
   int audio_layout;
+
+  long GetEndFrame();
+  QVector<Clip*> GetAllClips();
+  TrackList* GetTrackList(Track::Type type);
 
   /**
    * @brief Close all open clips in a Sequence
@@ -55,17 +61,17 @@ public:
    */
   void Close();
 
-  void RefreshClips(Media* m = nullptr);
+  void RefreshClipsUsingMedia(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);
   QVector<int> SelectedClipIndexes();
 
   Effect* GetSelectedGizmo();
 
-  bool IsClipSelected(int clip_index, bool containing = true);
   bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);
 
-  QVector<Selection> selections;
+  void ClearSelections();
+
   long playhead;
 
   bool using_workarea;
@@ -77,7 +83,8 @@ public:
   int save_id;
 
   QVector<Marker> markers;
-  QVector<ClipPtr> clips;
+private:
+  QVector<TrackList*> track_lists;
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;

@@ -144,7 +144,7 @@ void Cacher::CacheAudioWorker() {
   }
 
   if (temp_reverse) {
-    long seq_end = olive::ActiveSequence->getEndFrame();
+    long seq_end = olive::ActiveSequence->GetEndFrame();
     timeline_in = seq_end - timeline_in;
     timeline_out = seq_end - timeline_out;
     target_frame = seq_end - target_frame;

@@ -37,14 +37,13 @@
 #include "global/debug.h"
 #include "global/timing.h"
 
-Clip::Clip(Sequence* s) :
-  sequence(s),
+Clip::Clip(Track *s) :
+  track_(s),
   cacher(this),
   enabled_(true),
   clip_in_(0),
   timeline_in_(0),
   timeline_out_(0),
-  track_(0),
   media_(nullptr),
   reverse_(false),
   autoscale_(olive::CurrentConfig.autoscale_by_default),
@@ -57,7 +56,7 @@ Clip::Clip(Sequence* s) :
 {
 }
 
-ClipPtr Clip::copy(Sequence* s) {
+ClipPtr Clip::copy(Track* s) {
   ClipPtr copy = std::make_shared<Clip>(s);
 
   copy->set_enabled(enabled());
@@ -76,7 +75,7 @@ ClipPtr Clip::copy(Sequence* s) {
     copy->effects.append(effects.at(i)->copy(copy.get()));
   }
 
-  copy->set_cached_frame_rate((this->sequence == nullptr) ? cached_frame_rate() : this->sequence->frame_rate);
+  copy->set_cached_frame_rate((this->track_ == nullptr) ? cached_frame_rate() : this->track_->frame_rate);
 
   copy->refresh();
 
@@ -85,25 +84,36 @@ ClipPtr Clip::copy(Sequence* s) {
 
 bool Clip::IsActiveAt(long timecode)
 {
-  // these buffers allow clips to be opened and prepared well before they're displayed
-  // as well as closed a little after they're not needed anymore
-  int open_buffer = qCeil(this->sequence->frame_rate*2);
-  int close_buffer = qCeil(this->sequence->frame_rate);
-
-
   return enabled()
-      && timeline_in(true) < timecode + open_buffer
-      && timeline_out(true) > timecode - close_buffer
+      && timeline_in(true) < timecode
+      && timeline_out(true) > timecode
       && timecode - timeline_in(true) + clip_in(true) < media_length();
 }
 
 bool Clip::IsSelected(bool containing)
 {
-  if (this->sequence == nullptr) {
+  if (this->track_ == nullptr) {
     return false;
   }
 
-  return this->sequence->IsClipSelected(this, containing);
+  return this->track_->IsClipSelected(this, containing);
+}
+
+bool Clip::IsTransitionSelected(TransitionType type)
+{
+  switch (type) {
+  case kTransitionOpening:
+    return track_->IsTransitionSelected(opening_transition.get());
+  case kTransitionClosing:
+    return track_->IsTransitionSelected(closing_transition.get());
+  default:
+    return false;
+  }
+}
+
+Track::Type Clip::type()
+{
+  return track()->type();
 }
 
 const QColor &Clip::color()
@@ -132,7 +142,7 @@ FootageStream *Clip::media_stream()
 {
   if (media() != nullptr
       && media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-    return media()->to_footage()->get_stream_from_file_index(track() < 0, media_stream_index());
+    return media()->to_footage()->get_stream_from_file_index(type() == Track::kTypeVideo, media_stream_index());
   }
 
   return nullptr;
@@ -212,9 +222,9 @@ void Clip::refresh() {
   if (replaced && media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     Footage* m = media()->to_footage();
 
-    if (track() < 0 && m->video_tracks.size() > 0)  {
+    if (type() == Track::kTypeVideo && m->video_tracks.size() > 0)  {
       set_media(media(), m->video_tracks.at(0).file_index);
-    } else if (track() >= 0 && m->audio_tracks.size() > 0) {
+    } else if (type() == Track::kTypeAudio && m->audio_tracks.size() > 0) {
       set_media(media(), m->audio_tracks.at(0).file_index);
     }
   }
@@ -247,8 +257,88 @@ Clip::~Clip() {
   if (IsOpen()) {
     Close(true);
   }
+}
 
-  effects.clear();
+void Clip::Save(QXmlStreamWriter &stream)
+{
+  stream.writeAttribute("enabled", QString::number(enabled()));
+  stream.writeAttribute("name", name());
+  stream.writeAttribute("clipin", QString::number(clip_in()));
+  stream.writeAttribute("in", QString::number(timeline_in()));
+  stream.writeAttribute("out", QString::number(timeline_out()));
+  stream.writeAttribute("track", QString::number(track()));
+
+  stream.writeAttribute("r", QString::number(color().red()));
+  stream.writeAttribute("g", QString::number(color().green()));
+  stream.writeAttribute("b", QString::number(color().blue()));
+
+  stream.writeAttribute("autoscale", QString::number(autoscaled()));
+  stream.writeAttribute("speed", QString::number(speed().value, 'f', 10));
+  stream.writeAttribute("maintainpitch", QString::number(speed().maintain_audio_pitch));
+  stream.writeAttribute("reverse", QString::number(reversed()));
+
+  if (c->media() != nullptr) {
+    stream.writeAttribute("type", QString::number(media()->get_type()));
+    switch (c->media()->get_type()) {
+    case MEDIA_TYPE_FOOTAGE:
+      stream.writeAttribute("media", QString::number(media()->to_footage()->save_id));
+      stream.writeAttribute("stream", QString::number(media_stream_index()));
+      break;
+    case MEDIA_TYPE_SEQUENCE:
+      stream.writeAttribute("sequence", QString::number(media()->to_sequence()->save_id));
+      break;
+    }
+  }
+
+  // save markers
+  // only necessary for null media clips, since media has its own markers
+  if (media() == nullptr) {
+    for (int k=0;k<get_markers().size();k++) {
+      get_markers().at(k).Save(stream);
+    }
+  }
+
+  // save clip links
+  stream.writeStartElement("linked"); // linked
+  for (int k=0;k<linked.size();k++) {
+    stream.writeStartElement("link"); // link
+    stream.writeAttribute("id", QString::number(linked.at(k)));
+    stream.writeEndElement(); // link
+  }
+  stream.writeEndElement(); // linked
+
+  // save opening and closing transitions
+  for (int t=kTransitionOpening;t<=kTransitionClosing;t++) {
+    TransitionPtr transition = (t == kTransitionOpening) ? opening_transition : closing_transition;
+
+    if (transition != nullptr) {
+      stream.writeStartElement((t == kTransitionOpening) ? "opening" : "closing");
+
+      // check if this is a shared transition and the transition has already been saved
+      int transition_cache_index = transition_save_cache.indexOf(transition);
+
+      if (transition_cache_index > -1) {
+        // if so, just save a reference to the other clip
+        stream.writeAttribute("shared",
+                              QString::number(transition_clip_save_cache.at(transition_cache_index)));
+      } else {
+        // otherwise save the whole transition
+        transition->save(stream);
+        transition_save_cache.append(transition);
+        transition_clip_save_cache.append(j);
+      }
+
+      stream.writeEndElement(); // opening
+    }
+  }
+
+  for (int k=0;k<effects.size();k++) {
+    stream.writeStartElement("effect"); // effect
+    effects.at(k)->save(stream);
+    stream.writeEndElement(); // effect
+  }
+
+
 }
 
 long Clip::clip_in(bool with_transition) {
@@ -346,12 +436,12 @@ AVRational Clip::time_base()
   return cacher.media_time_base();
 }
 
-int Clip::track()
+Track *Clip::track()
 {
   return track_;
 }
 
-void Clip::set_track(int t)
+void Clip::set_track(Track *t)
 {
   track_ = t;
 }
@@ -362,7 +452,7 @@ long Clip::length() {
 }
 
 double Clip::media_frame_rate() {
-  Q_ASSERT(track_ < 0);
+  Q_ASSERT(type() == Track::kTypeVideo);
   if (media_ != nullptr) {
     double rate = media_->get_frame_rate(media_stream_index());
     if (!qIsNaN(rate)) return rate;
@@ -394,7 +484,7 @@ long Clip::media_length() {
       case MEDIA_TYPE_SEQUENCE:
       {
         Sequence* s = media_->to_sequence().get();
-        return rescale_frame_number(s->getEndFrame(), s->frame_rate, fr);
+        return rescale_frame_number(s->GetEndFrame(), s->frame_rate, fr);
       }
       }
     }

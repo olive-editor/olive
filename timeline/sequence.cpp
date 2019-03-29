@@ -32,6 +32,12 @@ Sequence::Sequence() :
   workarea_out(0),
   wrapper_sequence(false)
 {
+  // Set up tracks
+  track_lists.resize(Track::kTypeCount);
+
+  for (int i=0;i<track_lists.size();i++) {
+    track_lists[i] = std::make_shared<TrackList>(this, i);
+  }
 }
 
 SequencePtr Sequence::copy() {
@@ -44,16 +50,8 @@ SequencePtr Sequence::copy() {
   s->audio_layout = audio_layout;
 
   // deep copy all of the sequence's clips
-  s->clips.resize(clips.size());
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
-    if (c == nullptr) {
-      s->clips[i] = nullptr;
-    } else {
-      ClipPtr copy = c->copy(s.get());
-      copy->linked = c->linked;
-      s->clips[i] = copy;
-    }
+  for (int i=0;i<track_lists.size();i++) {
+    s->track_lists[i] = track_lists.at(i).copy(s.get());
   }
 
   // copy all of the sequence's markers
@@ -62,41 +60,91 @@ SequencePtr Sequence::copy() {
   return s;
 }
 
-long Sequence::getEndFrame() {
-  long end = 0;
-  for (int j=0;j<clips.size();j++) {
-    ClipPtr c = clips.at(j);
-    if (c != nullptr && c->timeline_out() > end) {
-      end = c->timeline_out();
-    }
+void Sequence::Save(QXmlStreamWriter &stream)
+{
+  stream.writeStartElement("sequence");
+  stream.writeAttribute("id", QString::number(save_id));
+  stream.writeAttribute("name", name);
+  stream.writeAttribute("width", QString::number(width));
+  stream.writeAttribute("height", QString::number(height));
+  stream.writeAttribute("framerate", QString::number(frame_rate, 'f', 10));
+  stream.writeAttribute("afreq", QString::number(audio_frequency));
+  stream.writeAttribute("alayout", QString::number(audio_layout));
+  if (this == olive::ActiveSequence.get()) {
+    stream.writeAttribute("open", "1");
   }
-  return end;
+  stream.writeAttribute("workarea", QString::number(using_workarea));
+  stream.writeAttribute("workareaIn", QString::number(workarea_in));
+  stream.writeAttribute("workareaOut", QString::number(workarea_out));
+
+  QVector<TransitionPtr> transition_save_cache;
+  QVector<int> transition_clip_save_cache;
+
+  for (int j=0;j<tracks.size();j++) {
+    tracks.at(j)->Save(stream);
+  }
+
+
+  for (int j=0;j<markers.size();j++) {
+    markers.at(j).Save(stream);
+  }
+  stream.writeEndElement();
+}
+
+long Sequence::GetEndFrame() {
+  long end_frame = 0;
+
+  for (int i=0;i<tracks.size();i++) {
+    end_frame = qMax(tracks.at(i)->GetEndFrame(), end_frame);
+  }
+
+  return end_frame;
+}
+
+QVector<Clip *> Sequence::GetAllClips()
+{
+  QVector<Clip*> all_clips;
+
+  for (int i=0;i<tracks.size();i++) {
+    all_clips.append(tracks.at(i)->GetAllClips());
+  }
+
+  return all_clips;
+}
+
+TrackList *Sequence::GetTrackList(Track::Type type)
+{
+  return track_lists.at(type).get();
 }
 
 void Sequence::Close()
 {
-  for (int i=0;i<clips.size();i++) {
-    Clip* c = clips.at(i).get();
-    if (c != nullptr) {
-      c->Close(true);
-    }
+  QVector<Clip*> all_clips = GetAllClips();
+
+  for (int i=0;i<all_clips.size();i++) {
+    all_clips.at(i)->Close(true);
   }
 }
 
-void Sequence::RefreshClips(Media *m) {
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr c = clips.at(i);
+void Sequence::RefreshClipsUsingMedia(Media *m) {
 
-    if (c != nullptr
-        && (m == nullptr || c->media() == m)) {
+  QVector<Clip*> all_clips = GetAllClips();
+
+  for (int i=0;i<all_clips.size();i++) {
+    Clip* c = all_clips.at(i);
+
+    if (m == nullptr || c->media() == m) {
       c->Close(true);
       c->refresh();
     }
   }
+
 }
 
 QVector<Clip *> Sequence::SelectedClips(bool containing)
 {
+  QVector<Clip*> all_clips = GetAllClips();
+
   QVector<Clip*> selected_clips;
 
   for (int i=0;i<clips.size();i++) {
@@ -164,81 +212,11 @@ Effect *Sequence::GetSelectedGizmo()
   return gizmo_ptr;
 }
 
-bool Sequence::IsClipSelected(int clip_index, bool containing)
+void Sequence::ClearSelections()
 {
-  return IsClipSelected(clips.at(clip_index).get(), containing);
-}
-
-bool Sequence::IsClipSelected(Clip *clip, bool containing)
-{
-  for (int i=0;i<selections.size();i++) {
-    const Selection& s = selections.at(i);
-    if (clip->track() == s.track && ((clip->timeline_in() >= s.in && clip->timeline_out() <= s.out)
-                                  || (!containing && !(clip->timeline_in() < s.in && clip->timeline_out() < s.in)
-                                   && !(clip->timeline_in() > s.in && clip->timeline_out() > s.in)))) {
-      return true;
-    }
+  for (int i=0;i<tracks.size();i++) {
+    tracks.at(i)->ClearSelections();
   }
-  return false;
-}
-
-bool Sequence::IsTransitionSelected(Transition *t)
-{
-  if (t == nullptr) {
-    return false;
-  }
-
-  Clip* c = t->parent_clip;
-
-  int transition_track = t->parent_clip->track();
-  long transition_in_point;
-  long transition_out_point;
-
-  // Get positions of the transition on the timeline
-
-  if (t == c->opening_transition.get()) {
-    transition_in_point = c->timeline_in();
-    transition_out_point = c->timeline_in() + t->get_true_length();
-
-    if (t->secondary_clip != nullptr) {
-      transition_in_point -= t->get_true_length();
-    }
-  } else {
-    transition_in_point = c->timeline_out() - t->get_true_length();
-    transition_out_point = c->timeline_out();
-
-    if (t->secondary_clip != nullptr) {
-      transition_out_point += t->get_true_length();
-    }
-  }
-
-  // See if there's a selection matching this
-  for (int i=0;i<selections.size();i++) {
-    if (selections.at(i).in <= transition_in_point
-        && selections.at(i).out >= transition_out_point
-        && selections.at(i).track == transition_track) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-void Sequence::getTrackLimits(int* video_tracks, int* audio_tracks) {
-  int vt = 0;
-  int at = 0;
-  for (int j=0;j<clips.size();j++) {
-    ClipPtr c = clips.at(j);
-    if (c != nullptr) {
-      if (c->track() < 0 && c->track() < vt) { // video clip
-        vt = c->track();
-      } else if (c->track() > at) {
-        at = c->track();
-      }
-    }
-  }
-  if (video_tracks != nullptr) *video_tracks = vt;
-  if (audio_tracks != nullptr) *audio_tracks = at;
 }
 
 // static variable for the currently active sequence

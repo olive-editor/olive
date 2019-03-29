@@ -32,7 +32,7 @@
 #include <QInputDialog>
 #include <QCoreApplication>
 
-void draw_marker(QPainter &p, int x, int y, int bottom, bool selected) {
+void Marker::Draw(QPainter &p, int x, int y, int bottom, bool selected) {
   const QPoint points[5] = {
     QPoint(x, bottom),
     QPoint(x + MARKER_SIZE, bottom - MARKER_SIZE),
@@ -125,4 +125,12 @@ void set_marker_internal(Sequence *seq) {
   QVector<int> clips;
 
   set_marker_internal(seq, clips);
+}
+
+void Marker::Save(QXmlStreamWriter &stream) const
+{
+  stream.writeStartElement("marker");
+  stream.writeAttribute("frame", QString::number(frame));
+  stream.writeAttribute("name", name);
+  stream.writeEndElement();
 }

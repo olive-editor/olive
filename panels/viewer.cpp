@@ -127,12 +127,15 @@ void Viewer::reset_all_audio() {
   // reset all clip audio
   if (seq != nullptr) {
     long last_frame = 0;
-    for (int i=0;i<seq->clips.size();i++) {
-      ClipPtr c = seq->clips.at(i);
-      if (c != nullptr) {
-        c->reset_audio();
-        last_frame = qMax(last_frame, c->timeline_out());
-      }
+
+    QVector<Clip*> all_clips = seq->GetAllClips();
+    for (int i=0;i<all_clips.size();i++) {
+
+      Clip* c = all_clips.at(i);
+
+      c->reset_audio();
+      last_frame = qMax(last_frame, c->timeline_out());
+
     }
 
     audio_ibuffer_frame = seq->playhead;
@@ -149,7 +152,7 @@ void Viewer::seek(long p) {
   if (main_sequence) {
     seq->playhead = p;
   } else {
-    seq->playhead = qMin(seq->getEndFrame(), qMax(0L, p));
+    seq->playhead = qMin(seq->GetEndFrame(), qMax(0L, p));
   }
   bool update_fx = false;
   if (main_sequence) {
@@ -171,7 +174,7 @@ void Viewer::go_to_start() {
 }
 
 void Viewer::go_to_end() {
-  if (seq != nullptr) seek(seq->getEndFrame());
+  if (seq != nullptr) seek(seq->GetEndFrame());
 }
 
 void Viewer::close_media() {
@@ -206,7 +209,7 @@ void Viewer::go_to_out() {
   }
 }
 
-void Viewer::cue_recording(long start, long end, int track) {
+void Viewer::cue_recording(long start, long end, Track* track) {
   recording_start = start;
   recording_end = end;
   recording_track = track;
@@ -257,7 +260,7 @@ void Viewer::play(bool in_to_out) {
   if (panel_sequence_viewer->playing) panel_sequence_viewer->pause();
   if (panel_footage_viewer->playing) panel_footage_viewer->pause();
 
-  long sequence_end_frame = seq->getEndFrame();
+  long sequence_end_frame = seq->GetEndFrame();
   if (sequence_end_frame == 0) {
     return;
   }
@@ -353,12 +356,12 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::CurrentConfig.timecode_view, 30) : frame_to_timecode(seq->getEndFrame(), olive::CurrentConfig.timecode_view, seq->frame_rate));
+  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::CurrentConfig.timecode_view, 30) : frame_to_timecode(seq->GetEndFrame(), olive::CurrentConfig.timecode_view, seq->frame_rate));
 }
 
 void Viewer::update_header_zoom() {
   if (seq != nullptr) {
-    long sequenceEndFrame = seq->getEndFrame();
+    long sequenceEndFrame = seq->GetEndFrame();
     if (cached_end_frame != sequenceEndFrame) {
       minimum_zoom = (sequenceEndFrame > 0) ? ((double) headers->width() / (double) sequenceEndFrame) : 1;
       headers->update_zoom(qMax(headers->get_zoom(), minimum_zoom));
@@ -431,7 +434,7 @@ void Viewer::clear_in() {
 void Viewer::clear_out() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), true, seq->workarea_in, seq->getEndFrame()));
+    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), true, seq->workarea_in, seq->GetEndFrame()));
     update_parents();
   }
 }
@@ -497,7 +500,7 @@ void Viewer::set_zoom_value(double d) {
 }
 
 void Viewer::set_sb_max() {
-  headers->set_scrollbar_max(horizontal_bar, seq->getEndFrame(), headers->width());
+  headers->set_scrollbar_max(horizontal_bar, seq->GetEndFrame(), headers->width());
 }
 
 void Viewer::set_playback_speed(int s) {
@@ -517,7 +520,7 @@ long Viewer::get_seq_in() {
 long Viewer::get_seq_out() {
   return ((olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
       ? seq->workarea_out
-      : seq->getEndFrame();
+      : seq->GetEndFrame();
 }
 
 void Viewer::setup_ui() {
@@ -689,10 +692,11 @@ void Viewer::set_media(Media* m) {
           // FIXME: Move this magic number to Config
           c->set_timeline_out(150);
         }
-        c->set_track(-1);
+        Track* track = new_sequence->GetTrackList(Track::kTypeVideo)->First();
+        c->set_track(track);
         c->set_clip_in(0);
         c->refresh();
-        new_sequence->clips.append(c);
+        track->AddClip(c);
       } else {
         new_sequence->width = olive::CurrentConfig.default_sequence_width;
         new_sequence->height = olive::CurrentConfig.default_sequence_height;
@@ -706,10 +710,11 @@ void Viewer::set_media(Media* m) {
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
-        c->set_track(0);
+        Track* track = new_sequence->GetTrackList(Track::kTypeAudio)->First();
+        c->set_track(track);
         c->set_clip_in(0);
         c->refresh();
-        new_sequence->clips.append(c);
+        track->AddClip(c);
 
         if (footage->video_tracks.size() == 0) {
           viewer_widget_->waveform = true;
@@ -756,7 +761,7 @@ void Viewer::timer_update() {
         pause();
       }
     } else if (playback_speed > 0) {
-      long end_frame = seq->getEndFrame();
+      long end_frame = seq->GetEndFrame();
       if ((olive::CurrentConfig.auto_seek_to_beginning || previous_playhead < end_frame) && seq->playhead >= end_frame) {
         pause();
       }
