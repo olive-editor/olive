@@ -466,8 +466,6 @@ void insert_clips(ComboAction* ca) {
     }
   }
 
-  panel_timeline->split_cache.clear();
-
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     ClipPtr c = olive::ActiveSequence->clips.at(i);
     if (c != nullptr) {
@@ -624,14 +622,14 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
     if (panel_timeline->creating) {
       int comp = 0;
       switch (panel_timeline->creating_object) {
-      case ADD_OBJ_TITLE:
-      case ADD_OBJ_SOLID:
-      case ADD_OBJ_BARS:
+      case olive::timeline::ADD_OBJ_TITLE:
+      case olive::timeline::ADD_OBJ_SOLID:
+      case olive::timeline::ADD_OBJ_BARS:
         comp = -1;
         break;
-      case ADD_OBJ_TONE:
-      case ADD_OBJ_NOISE:
-      case ADD_OBJ_AUDIO:
+      case olive::timeline::ADD_OBJ_TONE:
+      case olive::timeline::ADD_OBJ_NOISE:
+      case olive::timeline::ADD_OBJ_AUDIO:
         comp = 1;
         break;
       }
@@ -644,7 +642,7 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event) {
         g.track = g.old_track = panel_timeline->drag_track_start;
         g.transition = nullptr;
         g.clip = -1;
-        g.trim_type = TRIM_OUT;
+        g.trim_type = olive::timeline::TRIM_OUT;
         panel_timeline->ghosts.append(g);
 
         panel_timeline->moving_init = true;
@@ -1003,7 +1001,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (panel_timeline->ghosts.size() > 0) {
           const Ghost& g = panel_timeline->ghosts.at(0);
 
-          if (panel_timeline->creating_object == ADD_OBJ_AUDIO) {
+          if (panel_timeline->creating_object == olive::timeline::ADD_OBJ_AUDIO) {
             olive::MainWindow->statusBar()->clearMessage();
             panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
             panel_timeline->creating = false;
@@ -1038,15 +1036,15 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             }
 
             switch (panel_timeline->creating_object) {
-            case ADD_OBJ_TITLE:
+            case olive::timeline::ADD_OBJ_TITLE:
               c->set_name(tr("Title"));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_RICHTEXT, EFFECT_TYPE_EFFECT)));
               break;
-            case ADD_OBJ_SOLID:
+            case olive::timeline::ADD_OBJ_SOLID:
               c->set_name(tr("Solid Color"));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT)));
               break;
-            case ADD_OBJ_BARS:
+            case olive::timeline::ADD_OBJ_BARS:
             {
               c->set_name(tr("Bars"));
               EffectPtr e = Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
@@ -1058,11 +1056,11 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
               c->effects.append(e);
             }
               break;
-            case ADD_OBJ_TONE:
+            case olive::timeline::ADD_OBJ_TONE:
               c->set_name(tr("Tone"));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TONE, EFFECT_TYPE_EFFECT)));
               break;
-            case ADD_OBJ_NOISE:
+            case olive::timeline::ADD_OBJ_NOISE:
               c->set_name(tr("Noise"));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
               break;
@@ -1110,7 +1108,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
             long ripple_length;
             long ripple_point = LONG_MAX;
 
-            if (panel_timeline->trim_type == TRIM_IN) {
+            if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
 
               // it's assumed that all the ghosts rippled by the same length, so we just take the difference of the
               // first ghost here
@@ -1136,19 +1134,19 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
 
               // for the same reason that we pushed selections forward above, for in trimming,
               // we push the ghosts forward here
-              if (panel_timeline->trim_type == TRIM_IN) {
+              if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
                 ignore_clips.append(g.clip);
                 panel_timeline->ghosts[i].in += ripple_length;
                 panel_timeline->ghosts[i].out += ripple_length;
               }
 
               // find the earliest ripple point
-              long comp_point = (panel_timeline->trim_type == TRIM_IN) ? g.old_in : g.old_out;
+              long comp_point = (panel_timeline->trim_type == olive::timeline::TRIM_IN) ? g.old_in : g.old_out;
               ripple_point = qMin(ripple_point, comp_point);
             }
 
             // if this was out trimming, flip the direction of the ripple
-            if (panel_timeline->trim_type == TRIM_OUT) ripple_length = -ripple_length;
+            if (panel_timeline->trim_type == olive::timeline::TRIM_OUT) ripple_length = -ripple_length;
 
             // finally, ripple everything
             ripple_clips(ca, olive::ActiveSequence.get(), ripple_point, ripple_length, ignore_clips);
@@ -1281,7 +1279,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
                 if (g.transition->secondary_clip != nullptr) {
 
                   // if this is a shared transition
-                  if (g.in != g.old_in && g.trim_type == TRIM_NONE) {
+                  if (g.in != g.old_in && g.trim_type == olive::timeline::TRIM_NONE) {
                     long movement = g.in - g.old_in;
 
                     // check if the transition is going to extend the out point (opening clip)
@@ -1508,7 +1506,6 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
         if (split) {
           push_undo = true;
         }
-        panel_timeline->split_cache.clear();
       }
 
       // remove duplicate selections
@@ -1641,7 +1638,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       // snap ghost's in point
       if ((panel_timeline->tool != TIMELINE_TOOL_TRANSITION && panel_timeline->trim_target == -1)
-          || g.trim_type == TRIM_IN
+          || g.trim_type == olive::timeline::TRIM_IN
           || panel_timeline->transition_tool_open_clip > -1) {
         fm = g.old_in + frame_diff;
         if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1652,7 +1649,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       // snap ghost's out point
       if ((panel_timeline->tool != TIMELINE_TOOL_TRANSITION && panel_timeline->trim_target == -1)
-          || g.trim_type == TRIM_OUT
+          || g.trim_type == olive::timeline::TRIM_OUT
           || panel_timeline->transition_tool_close_clip > -1) {
         fm = g.old_out + frame_diff;
         if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
@@ -1706,8 +1703,8 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         validator += g.ghost_length;
         if (validator > g.media_length) frame_diff += validator - g.media_length;
       }
-    } else if (g.trim_type != TRIM_NONE) {
-      if (g.trim_type == TRIM_IN) {
+    } else if (g.trim_type != olive::timeline::TRIM_NONE) {
+      if (g.trim_type == olive::timeline::TRIM_IN) {
         // prevent clip/transition length from being less than 1 frame long
         validator = g.ghost_length - frame_diff;
         if (validator < 1) frame_diff -= (1 - validator);
@@ -1742,7 +1739,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         Clip* otc = g.transition->parent_clip;
         Clip* ctc = g.transition->secondary_clip;
 
-        if (g.trim_type == TRIM_IN) {
+        if (g.trim_type == olive::timeline::TRIM_IN) {
           frame_diff -= g.transition->get_true_length();
         } else {
           frame_diff += g.transition->get_true_length();
@@ -1756,7 +1753,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         validate_transitions(ctc, kTransitionClosing, frame_diff);
         frame_diff = -frame_diff;
 
-        if (g.trim_type == TRIM_IN) {
+        if (g.trim_type == olive::timeline::TRIM_IN) {
           frame_diff += g.transition->get_true_length();
         } else {
           frame_diff -= g.transition->get_true_length();
@@ -1769,7 +1766,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
           ClipPtr post = post_clips.at(j);
 
           // prevent any rippled clip from going below 0
-          if (panel_timeline->trim_type == TRIM_IN) {
+          if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
             validator = post->timeline_in() - frame_diff;
             if (validator < 0) frame_diff += validator;
           }
@@ -1778,7 +1775,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
           for (int k=0;k<pre_clips.size();k++) {
             ClipPtr pre = pre_clips.at(k);
             if (pre != post && pre->track() == post->track()) {
-              if (panel_timeline->trim_type == TRIM_IN) {
+              if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
                 validator = post->timeline_in() - frame_diff - pre->timeline_out();
                 if (validator < 0) frame_diff += validator;
               } else {
@@ -1878,7 +1875,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
     if (effective_tool == TIMELINE_TOOL_SLIP) {
       g.clip_in = g.old_clip_in - frame_diff;
-    } else if (g.trim_type != TRIM_NONE) {
+    } else if (g.trim_type != olive::timeline::TRIM_NONE) {
       long ghost_diff = frame_diff;
 
       // prevent trimming clips from overlapping each other
@@ -1886,7 +1883,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         const Ghost& comp = panel_timeline->ghosts.at(j);
         if (i != j && g.track == comp.track) {
           long validator;
-          if (g.trim_type == TRIM_IN && comp.out < g.out) {
+          if (g.trim_type == olive::timeline::TRIM_IN && comp.out < g.out) {
             validator = (g.old_in + ghost_diff) - comp.out;
             if (validator < 0) ghost_diff -= validator;
           } else if (comp.in > g.in) {
@@ -1898,10 +1895,10 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       // apply changes
       if (g.transition != nullptr && g.transition->secondary_clip != nullptr) {
-        if (g.trim_type == TRIM_IN) ghost_diff = -ghost_diff;
+        if (g.trim_type == olive::timeline::TRIM_IN) ghost_diff = -ghost_diff;
         g.in = g.old_in - ghost_diff;
         g.out = g.old_out + ghost_diff;
-      } else if (g.trim_type == TRIM_IN) {
+      } else if (g.trim_type == olive::timeline::TRIM_IN) {
         g.in = g.old_in + ghost_diff;
         g.clip_in = g.old_clip_in + ghost_diff;
       } else {
@@ -1950,7 +1947,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
     for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
       Selection& s = olive::ActiveSequence->selections[i];
       if (panel_timeline->trim_target > -1) {
-        if (panel_timeline->trim_type == TRIM_IN) {
+        if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
           s.in = s.old_in + frame_diff;
         } else {
           s.out = s.old_out + frame_diff;
@@ -1994,7 +1991,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       if (g != nullptr) {
         tip += " " + tr("Duration:") + " ";
         long len = (g->old_out-g->old_in);
-        if (panel_timeline->trim_type == TRIM_IN) {
+        if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
           len -= frame_diff;
         } else {
           len += frame_diff;
@@ -2256,7 +2253,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
               for (int i=0;i<ghost_arr_size;i++) {
 
                 Ghost& g = panel_timeline->ghosts[i];
-                g.trim_type = TRIM_NONE; // the selected clips will be moving, not trimming
+                g.trim_type = olive::timeline::TRIM_NONE; // the selected clips will be moving, not trimming
 
                 ClipPtr ghost_clip = olive::ActiveSequence->clips.at(g.clip);
 
@@ -2279,7 +2276,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                       Ghost gh;
                       gh.transition = nullptr;
                       gh.clip = j;
-                      gh.trim_type = is_in ? TRIM_IN : TRIM_OUT;
+                      gh.trim_type = is_in ? olive::timeline::TRIM_IN : olive::timeline::TRIM_OUT;
                       panel_timeline->ghosts.append(gh);
                     }
                   }
@@ -2304,7 +2301,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
           for (int i=0;i<panel_timeline->ghosts.size();i++) {
             ClipPtr c = olive::ActiveSequence->clips.at(panel_timeline->ghosts.at(i).clip);
-            if (panel_timeline->trim_type == TRIM_IN) {
+            if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
               axis = qMin(axis, c->timeline_in());
             } else {
               axis = qMin(axis, c->timeline_out());
@@ -2535,7 +2532,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
       panel_timeline->transition_select = kTransitionNone;
 
       // we also default to no trimming which may be changed later in this function
-      panel_timeline->trim_type = TRIM_NONE;
+      panel_timeline->trim_type = olive::timeline::TRIM_NONE;
 
       // set currently trimming clip to -1 (aka null)
       panel_timeline->trim_target = -1;
@@ -2588,7 +2585,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
                 // if so, this is the point we'll make active for now (unless we find a closer one later)
                 panel_timeline->trim_target = i;
-                panel_timeline->trim_type = TRIM_IN;
+                panel_timeline->trim_type = olive::timeline::TRIM_IN;
                 closeness = nc;
                 found = true;
 
@@ -2606,7 +2603,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
 
                 // if so, this is the point we'll make active for now (unless we find a closer one later)
                 panel_timeline->trim_target = i;
-                panel_timeline->trim_type = TRIM_OUT;
+                panel_timeline->trim_type = olive::timeline::TRIM_OUT;
                 closeness = nc;
                 found = true;
 
@@ -2630,7 +2627,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                   int nc = qAbs(transition_point - 1 - panel_timeline->cursor_frame);
                   if (nc < closeness) {
                     panel_timeline->trim_target = i;
-                    panel_timeline->trim_type = TRIM_OUT;
+                    panel_timeline->trim_type = olive::timeline::TRIM_OUT;
                     panel_timeline->transition_select = kTransitionOpening;
                     closeness = nc;
                     found = true;
@@ -2651,7 +2648,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
                   int nc = qAbs(transition_point + 1 - panel_timeline->cursor_frame);
                   if (nc < closeness) {
                     panel_timeline->trim_target = i;
-                    panel_timeline->trim_type = TRIM_IN;
+                    panel_timeline->trim_type = olive::timeline::TRIM_IN;
                     panel_timeline->transition_select = kTransitionClosing;
                     closeness = nc;
                     found = true;
@@ -2666,7 +2663,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
       // if the cursor is indeed on a clip edge, we set the cursor accordingly
       if (found) {
 
-        if (panel_timeline->trim_type == TRIM_IN) { // if we're trimming an IN point
+        if (panel_timeline->trim_type == olive::timeline::TRIM_IN) { // if we're trimming an IN point
           setCursor(panel_timeline->tool == TIMELINE_TOOL_RIPPLE ? olive::cursor::LeftRipple : olive::cursor::LeftTrim);
         } else { // if we're trimming an OUT point
           setCursor(panel_timeline->tool == TIMELINE_TOOL_RIPPLE ? olive::cursor::RightRipple : olive::cursor::RightTrim);
@@ -2742,7 +2739,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
           g.track = c->track();
           g.clip = primary;
           g.media_stream = primary_type;
-          g.trim_type = TRIM_NONE;
+          g.trim_type = olive::timeline::TRIM_NONE;
 
           panel_timeline->ghosts.append(g);
 

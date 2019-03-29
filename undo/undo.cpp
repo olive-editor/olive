@@ -42,20 +42,20 @@
 #include "project/previewgenerator.h"
 #include "ui/mainwindow.h"
 
-MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) {
-  clip = c;
-
-  old_in = c->timeline_in();
-  old_out = c->timeline_out();
-  old_clip_in = c->clip_in();
-  old_track = c->track();
-
-  new_in = iin;
-  new_out = iout;
-  new_clip_in = iclip_in;
-  new_track = itrack;
-
-  relative = irelative;
+MoveClipAction::MoveClipAction(Clip *c, long iin, long iout, long iclip_in, int itrack, bool irelative) :
+  clip(c),
+  old_in(c->timeline_in()),
+  old_out(c->timeline_out()),
+  old_clip_in(c->clip_in()),
+  old_track(c->track()),
+  new_in(iin),
+  new_out(iout),
+  new_clip_in(iclip_in),
+  new_track(itrack),
+  relative(irelative),
+  done(false)
+{
+  doRedo();
 }
 
 void MoveClipAction::doUndo() {
@@ -70,19 +70,23 @@ void MoveClipAction::doUndo() {
     clip->set_clip_in(old_clip_in);
     clip->set_track(old_track);
   }
+  done = false;
 }
 
 void MoveClipAction::doRedo() {
-  if (relative) {
-    clip->set_timeline_in(clip->timeline_in() + new_in);
-    clip->set_timeline_out(clip->timeline_out() + new_out);
-    clip->set_clip_in(clip->clip_in() + new_clip_in);
-    clip->set_track(clip->track() + new_track);
-  } else {
-    clip->set_timeline_in(new_in);
-    clip->set_timeline_out(new_out);
-    clip->set_clip_in(new_clip_in);
-    clip->set_track(new_track);
+  if (!done) {
+    if (relative) {
+      clip->set_timeline_in(clip->timeline_in() + new_in);
+      clip->set_timeline_out(clip->timeline_out() + new_out);
+      clip->set_clip_in(clip->clip_in() + new_clip_in);
+      clip->set_track(clip->track() + new_track);
+    } else {
+      clip->set_timeline_in(new_in);
+      clip->set_timeline_out(new_out);
+      clip->set_clip_in(new_clip_in);
+      clip->set_track(new_track);
+    }
+    done = true;
   }
 }
 
@@ -348,13 +352,14 @@ void DeleteMediaCommand::doRedo() {
   olive::project_model.removeChild(parent, item.get());
 }
 
-AddClipCommand::AddClipCommand(Sequence *s, QVector<ClipPtr>& add) {
-  link_offset_ = 0;
-  seq = s;
-  clips = add;
+AddClipCommand::AddClipCommand(Sequence *s, QVector<ClipPtr>& add) :
+  link_offset_(0),
+  seq(s),
+  clips(add),
+  done_(false)
+{
+  doRedo();
 }
-
-AddClipCommand::~AddClipCommand() {}
 
 void AddClipCommand::doUndo() {
   // clear effects panel
@@ -383,23 +388,27 @@ void AddClipCommand::doUndo() {
     seq->clips.removeLast();
   }
 
+  done_ = false;
 }
 
 void AddClipCommand::doRedo() {
-  link_offset_ = seq->clips.size();
-  for (int i=0;i<clips.size();i++) {
-    ClipPtr original = clips.at(i);
+  if (!done_) {
+    link_offset_ = seq->clips.size();
+    for (int i=0;i<clips.size();i++) {
+      ClipPtr original = clips.at(i);
 
-    if (original != nullptr) {
+      if (original != nullptr) {
 
-      // offset all links by the current clip size
-      for (int j=0;j<original->linked.size();j++) {
-        original->linked[j] += link_offset_;
+        // offset all links by the current clip size
+        for (int j=0;j<original->linked.size();j++) {
+          original->linked[j] += link_offset_;
+        }
+
       }
 
+      seq->clips.append(original);
     }
-
-    seq->clips.append(original);
+    done_ = true;
   }
 }
 

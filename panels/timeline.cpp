@@ -77,7 +77,7 @@ Timeline::Timeline(QWidget *parent) :
   moving_proc(false),
   move_insert(false),
   trim_target(-1),
-  trim_type(TRIM_NONE),
+  trim_type(olive::timeline::TRIM_NONE),
   splitting(false),
   importing(false),
   importing_files(false),
@@ -285,7 +285,7 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
     if (can_import) {
       Ghost g;
       g.clip = -1;
-      g.trim_type = TRIM_NONE;
+      g.trim_type = olive::timeline::TRIM_NONE;
       g.old_clip_in = g.clip_in = default_clip_in;
       g.media = medium;
       g.in = entry_point;
@@ -1012,13 +1012,6 @@ ClipPtr Timeline::split_clip(ComboAction* ca, bool transitions, int p, long fram
 }
 
 bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool relink) {
-  // see if we split this clip before
-  if (split_cache.contains(clip)) {
-    return false;
-  }
-
-  split_cache.append(clip);
-
   Clip* c = olive::ActiveSequence->clips.at(clip).get();
   if (c != nullptr) {
     QVector<int> pre_clips;
@@ -1040,15 +1033,12 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
         // find linked clips of old clip
         for (int i=0;i<c->linked.size();i++) {
           int l = c->linked.at(i);
-          if (!split_cache.contains(l)) {
-            Clip* link = olive::ActiveSequence->clips.at(l).get();
-            if ((original_clip_is_selected && link->IsSelected()) || !original_clip_is_selected) {
-              split_cache.append(l);
-              ClipPtr s = split_clip(ca, true, l, frame);
-              if (s != nullptr) {
-                pre_clips.append(l);
-                post_clips.append(s);
-              }
+          Clip* link = olive::ActiveSequence->clips.at(l).get();
+          if ((original_clip_is_selected && link->IsSelected()) || !original_clip_is_selected) {
+            ClipPtr s = split_clip(ca, true, l, frame);
+            if (s != nullptr) {
+              pre_clips.append(l);
+              post_clips.append(s);
             }
           }
         }
@@ -1292,7 +1282,6 @@ void Timeline::paste(bool insert) {
         }
       }
       if (insert) {
-        split_cache.clear();
         split_all_clips_at_point(ca, olive::ActiveSequence->playhead);
         ripple_clips(ca, olive::ActiveSequence.get(), paste_start, paste_end - paste_start);
       } else {
@@ -1570,7 +1559,6 @@ bool Timeline::split_all_clips_at_point(ComboAction* ca, long point) {
 void Timeline::split_at_playhead() {
   ComboAction* ca = new ComboAction();
   bool split_selected = false;
-  split_cache.clear();
 
   if (olive::ActiveSequence->selections.size() > 0) {
     // see if whole clips are selected
@@ -1825,29 +1813,29 @@ void Timeline::add_btn_click() {
 
   QAction* titleMenuItem = new QAction(&add_menu);
   titleMenuItem->setText(tr("Title..."));
-  titleMenuItem->setData(ADD_OBJ_TITLE);
+  titleMenuItem->setData(olive::timeline::ADD_OBJ_TITLE);
   add_menu.addAction(titleMenuItem);
 
   QAction* solidMenuItem = new QAction(&add_menu);
   solidMenuItem->setText(tr("Solid Color..."));
-  solidMenuItem->setData(ADD_OBJ_SOLID);
+  solidMenuItem->setData(olive::timeline::ADD_OBJ_SOLID);
   add_menu.addAction(solidMenuItem);
 
   QAction* barsMenuItem = new QAction(&add_menu);
   barsMenuItem->setText(tr("Bars..."));
-  barsMenuItem->setData(ADD_OBJ_BARS);
+  barsMenuItem->setData(olive::timeline::ADD_OBJ_BARS);
   add_menu.addAction(barsMenuItem);
 
   add_menu.addSeparator();
 
   QAction* toneMenuItem = new QAction(&add_menu);
   toneMenuItem->setText(tr("Tone..."));
-  toneMenuItem->setData(ADD_OBJ_TONE);
+  toneMenuItem->setData(olive::timeline::ADD_OBJ_TONE);
   add_menu.addAction(toneMenuItem);
 
   QAction* noiseMenuItem = new QAction(&add_menu);
   noiseMenuItem->setText(tr("Noise..."));
-  noiseMenuItem->setData(ADD_OBJ_NOISE);
+  noiseMenuItem->setData(olive::timeline::ADD_OBJ_NOISE);
   add_menu.addAction(noiseMenuItem);
 
   connect(&add_menu, SIGNAL(triggered(QAction*)), this, SLOT(add_menu_item(QAction*)));
@@ -1874,7 +1862,7 @@ void Timeline::record_btn_click() {
                           QMessageBox::Ok);
   } else {
     creating = true;
-    creating_object = ADD_OBJ_AUDIO;
+    creating_object = olive::timeline::ADD_OBJ_AUDIO;
     olive::MainWindow->statusBar()->showMessage(
           tr("Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)"),
           10000);

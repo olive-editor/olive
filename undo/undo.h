@@ -94,6 +94,8 @@ private:
   int new_track;
 
   bool relative;
+
+  bool done;
 };
 
 class RippleAction : public OliveAction {
@@ -229,13 +231,13 @@ private:
 class AddClipCommand : public OliveAction {
 public:
   AddClipCommand(Sequence* s, QVector<ClipPtr>& add);
-  virtual ~AddClipCommand() override;
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
   Sequence* seq;
   QVector<ClipPtr> clips;
   int link_offset_;
+  bool done_;
 };
 
 class LinkCommand : public OliveAction {

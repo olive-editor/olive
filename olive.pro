@@ -173,7 +173,8 @@ SOURCES += \
     ui/columnedgridlayout.cpp \
     rendering/shadergenerators.cpp \
     global/timing.cpp \
-    rendering/pixelformats.cpp
+    rendering/pixelformats.cpp \
+    timeline/timelinefunctions.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -305,7 +306,9 @@ HEADERS += \
     ui/columnedgridlayout.h \
     rendering/shadergenerators.h \
     global/timing.h \
-    rendering/pixelformats.h
+    rendering/pixelformats.h \
+    timeline/ghost.h \
+    timeline/timelinefunctions.h
 
 FORMS +=
 

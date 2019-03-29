@@ -30,26 +30,14 @@
 #include "timeline/selection.h"
 #include "timeline/clip.h"
 #include "timeline/mediaimportdata.h"
+#include "timeline/ghost.h"
 #include "undo/undo.h"
 #include "ui/timelineheader.h"
 #include "ui/resizablescrollbar.h"
 #include "ui/audiomonitor.h"
 #include "ui/panel.h"
 
-enum CreateObjects {
-  ADD_OBJ_TITLE,
-  ADD_OBJ_SOLID,
-  ADD_OBJ_BARS,
-  ADD_OBJ_TONE,
-  ADD_OBJ_NOISE,
-  ADD_OBJ_AUDIO
-};
 
-enum TrimType {
-  TRIM_NONE,
-  TRIM_IN,
-  TRIM_OUT
-};
 
 namespace olive {
   namespace timeline {
@@ -77,30 +65,7 @@ long getFrameFromScreenPoint(double zoom, int x);
 bool selection_contains_transition(const Selection& s, Clip *c, int type);
 void ripple_clips(ComboAction *ca, Sequence *s, long point, long length, const QVector<int>& ignore = QVector<int>());
 
-struct Ghost {
-  int clip;
-  long in;
-  long out;
-  int track;
-  long clip_in;
 
-  long old_in;
-  long old_out;
-  int old_track;
-  long old_clip_in;
-
-  // importing variables
-  Media* media;
-  int media_stream;
-
-  // other variables
-  long ghost_length;
-  long media_length;
-  TrimType trim_type;
-
-  // transition trimming
-  TransitionPtr transition;
-};
 
 class Timeline : public Panel
 {
@@ -179,13 +144,12 @@ public:
 
   // trimming
   int trim_target;
-  TrimType trim_type;
+  olive::timeline::TrimType trim_type;
   int transition_select;
 
   // splitting
   bool splitting;
   QVector<int> split_tracks;
-  QVector<int> split_cache;
 
   // importing
   bool importing;
