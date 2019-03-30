@@ -18,7 +18,7 @@
 
 ***/
 
-#include "timelinewidget.h"
+#include "timelineview.h"
 
 #include <QPainter>
 #include <QColor>
@@ -63,7 +63,7 @@
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
 
-TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
+TimelineView::TimelineView(QWidget *parent) : QWidget(parent) {
   selection_command = nullptr;
   self_created_sequence = nullptr;
   scroll = 0;
@@ -81,7 +81,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) : QWidget(parent) {
   connect(&tooltip_timer, SIGNAL(timeout()), this, SLOT(tooltip_timer_timeout()));
 }
 
-void TimelineWidget::show_context_menu(const QPoint& pos) {
+void TimelineView::show_context_menu(const QPoint& pos) {
   if (olive::ActiveSequence != nullptr) {
     // hack because sometimes right clicking doesn't trigger mouse release event
     panel_timeline->rect_select_init = false;
@@ -146,23 +146,6 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
 
       olive::MenuHelper.make_clip_functions_menu(&menu);
 
-      // stabilizer option
-      /*int video_clip_count = 0;
-      bool all_video_is_footage = true;
-      for (int i=0;i<selected_clips.size();i++) {
-        if (selected_clips.at(i)->track() < 0) {
-          video_clip_count++;
-          if (selected_clips.at(i)->media() == nullptr
-              || selected_clips.at(i)->media()->get_type() != MEDIA_TYPE_FOOTAGE) {
-            all_video_is_footage = false;
-          }
-        }
-      }
-      if (video_clip_count == 1 && all_video_is_footage) {
-        QAction* stabilizerAction = menu.addAction("S&tabilizer");
-        connect(stabilizerAction, SIGNAL(triggered(bool)), this, SLOT(show_stabilizer_diag()));
-      }*/
-
       // check if all selected clips have the same media for a "Reveal In Project"
       bool same_media = true;
       rc_reveal_media = selected_clips.at(0)->media();
@@ -185,7 +168,7 @@ void TimelineWidget::show_context_menu(const QPoint& pos) {
   }
 }
 
-void TimelineWidget::toggle_autoscale() {
+void TimelineView::toggle_autoscale() {
   QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
 
   if (!selected_clips.isEmpty()) {
@@ -200,7 +183,7 @@ void TimelineWidget::toggle_autoscale() {
   }
 }
 
-void TimelineWidget::tooltip_timer_timeout() {
+void TimelineView::tooltip_timer_timeout() {
   if (tooltip_clip != nullptr) {
     QToolTip::showText(QCursor::pos(),
                        tr("%1\nStart: %2\nEnd: %3\nDuration: %4").arg(
@@ -214,7 +197,7 @@ void TimelineWidget::tooltip_timer_timeout() {
   tooltip_timer.stop();
 }
 
-void TimelineWidget::open_sequence_properties() {
+void TimelineView::open_sequence_properties() {
   QVector<Media*> sequence_items = olive::project_model.GetAllSequences();
 
   for (int i=0;i<sequence_items.size();i++) {
@@ -228,7 +211,7 @@ void TimelineWidget::open_sequence_properties() {
   QMessageBox::critical(this, tr("Error"), tr("Couldn't locate media wrapper for sequence."));
 }
 
-void TimelineWidget::show_clip_properties()
+void TimelineView::show_clip_properties()
 {
   // get list of selected clips
   QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
@@ -244,19 +227,26 @@ bool same_sign(int a, int b) {
   return (a < 0) == (b < 0);
 }
 
-void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
+void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
   bool import_init = false;
 
   QVector<olive::timeline::MediaImportData> media_list;
   panel_timeline->importing_files = false;
 
-  if (panel_project->IsProjectWidget(event->source())) {
-    QModelIndexList items = panel_project->get_current_selected();
-    media_list.resize(items.size());
-    for (int i=0;i<items.size();i++) {
-      media_list[i] = panel_project->item_to_media(items.at(i));
+  for (int i=0;i<panel_project.size();i++) {
+    if (panel_project.at(i)->IsProjectWidget(event->source())) {
+
+      QModelIndexList items = panel_project.at(i)->get_current_selected();
+
+      media_list.resize(items.size());
+      for (int i=0;i<items.size();i++) {
+        media_list[i] = panel_project.at(i)->item_to_media(items.at(i));
+      }
+      import_init = true;
+
+      break;
+
     }
-    import_init = true;
   }
 
   if (event->source() == panel_footage_viewer) {
@@ -326,7 +316,7 @@ void TimelineWidget::dragEnterEvent(QDragEnterEvent *event) {
   }
 }
 
-void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
+void TimelineView::dragMoveEvent(QDragMoveEvent *event) {
   if (panel_timeline->importing) {
     event->acceptProposedAction();
 
@@ -340,7 +330,7 @@ void TimelineWidget::dragMoveEvent(QDragMoveEvent *event) {
   }
 }
 
-void TimelineWidget::wheelEvent(QWheelEvent *event) {
+void TimelineView::wheelEvent(QWheelEvent *event) {
 
   // TODO: implement pixel scrolling
 
@@ -403,7 +393,7 @@ void TimelineWidget::wheelEvent(QWheelEvent *event) {
   }
 }
 
-void TimelineWidget::dragLeaveEvent(QDragLeaveEvent* event) {
+void TimelineView::dragLeaveEvent(QDragLeaveEvent* event) {
   event->accept();
   if (panel_timeline->importing) {
     if (panel_timeline->importing_files) {
@@ -511,7 +501,7 @@ void insert_clips(ComboAction* ca) {
   }
 }
 
-void TimelineWidget::dropEvent(QDropEvent* event) {
+void TimelineView::dropEvent(QDropEvent* event) {
   if (panel_timeline->importing && panel_timeline->ghosts.size() > 0) {
     event->acceptProposedAction();
 
@@ -540,7 +530,7 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
   }
 }
 
-void TimelineWidget::mouseDoubleClickEvent(QMouseEvent *event) {
+void TimelineView::mouseDoubleClickEvent(QMouseEvent *event) {
   if (olive::ActiveSequence != nullptr) {
     if (panel_timeline->tool == TIMELINE_TOOL_EDIT) {
       int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
@@ -570,7 +560,7 @@ bool current_tool_shows_cursor() {
   return (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR || panel_timeline->creating);
 }
 
-void TimelineWidget::mousePressEvent(QMouseEvent *event) {
+void TimelineView::mousePressEvent(QMouseEvent *event) {
   if (olive::ActiveSequence != nullptr) {
 
     int effective_tool = panel_timeline->tool;
@@ -980,7 +970,7 @@ void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, lo
   }
 }
 
-void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
+void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
   QToolTip::hideText();
   if (olive::ActiveSequence != nullptr) {
     bool alt = (event->modifiers() & Qt::AltModifier);
@@ -1542,7 +1532,7 @@ void TimelineWidget::mouseReleaseEvent(QMouseEvent *event) {
   }
 }
 
-void TimelineWidget::init_ghosts() {
+void TimelineView::init_ghosts() {
   for (int i=0;i<panel_timeline->ghosts.size();i++) {
     Ghost& g = panel_timeline->ghosts[i];
     ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
@@ -1612,7 +1602,7 @@ void validate_transitions(Clip* c, int transition_type, long& frame_diff) {
   }
 }
 
-void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
+void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
   int effective_tool = panel_timeline->tool;
   if (panel_timeline->importing || panel_timeline->creating) effective_tool = TIMELINE_TOOL_POINTER;
 
@@ -1997,7 +1987,7 @@ void TimelineWidget::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
   }
 }
 
-void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
+void TimelineView::mouseMoveEvent(QMouseEvent *event) {
   // interrupt any potential tooltip about to show
   tooltip_timer.stop();
 
@@ -2794,7 +2784,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
   }
 }
 
-void TimelineWidget::leaveEvent(QEvent*) {
+void TimelineView::leaveEvent(QEvent*) {
   tooltip_timer.stop();
 }
 
@@ -2906,7 +2896,7 @@ void draw_transition(QPainter& p, ClipPtr c, const QRect& clip_rect, QRect& text
 
 }
 
-void TimelineWidget::paintEvent(QPaintEvent*) {
+void TimelineView::paintEvent(QPaintEvent*) {
   // Draw clips
   if (olive::ActiveSequence != nullptr) {
     QPainter p(this);
@@ -3352,11 +3342,11 @@ void TimelineWidget::paintEvent(QPaintEvent*) {
   }
 }
 
-void TimelineWidget::resizeEvent(QResizeEvent *) {
+void TimelineView::resizeEvent(QResizeEvent *) {
   scrollBar->setPageStep(height());
 }
 
-bool TimelineWidget::is_track_visible(int track) {
+bool TimelineView::is_track_visible(int track) {
   return (bottom_align == (track < 0));
 }
 
@@ -3364,7 +3354,7 @@ bool TimelineWidget::is_track_visible(int track) {
 // screen point <-> frame/track functions
 // **************************************
 
-int TimelineWidget::getTrackFromScreenPoint(int y) {
+int TimelineView::getTrackFromScreenPoint(int y) {
   int track_candidate = 0;
 
   y += scroll;
@@ -3403,7 +3393,7 @@ int TimelineWidget::getTrackFromScreenPoint(int y) {
   }
 }
 
-int TimelineWidget::getScreenPointFromTrack(int track) {
+int TimelineView::getScreenPointFromTrack(int track) {
   int point = 0;
 
   int start = (track < 0) ? -1 : 0;
@@ -3423,7 +3413,7 @@ int TimelineWidget::getScreenPointFromTrack(int track) {
   }
 }
 
-int TimelineWidget::getClipIndexFromCoords(long frame, int track) {
+int TimelineView::getClipIndexFromCoords(long frame, int track) {
   for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
     ClipPtr c = olive::ActiveSequence->clips.at(i);
     if (c != nullptr && c->track() == track && frame >= c->timeline_in() && frame < c->timeline_out()) {
@@ -3433,11 +3423,11 @@ int TimelineWidget::getClipIndexFromCoords(long frame, int track) {
   return -1;
 }
 
-void TimelineWidget::setScroll(int s) {
+void TimelineView::setScroll(int s) {
   scroll = s;
   update();
 }
 
-void TimelineWidget::reveal_media() {
+void TimelineView::reveal_media() {
   panel_project->reveal_media(rc_reveal_media);
 }

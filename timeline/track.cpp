@@ -8,7 +8,10 @@ int olive::timeline::kTrackHeightIncrement = 10;
 
 Track::Track(TrackList* parent, Type type) :
   parent_(parent),
-  type_(type)
+  type_(type),
+  muted_(false),
+  soloed_(false),
+  locked_(false)
 {
 }
 
@@ -171,4 +174,34 @@ long Track::GetEndFrame()
   }
 
   return end_frame;
+}
+
+bool Track::IsMuted()
+{
+  return muted_;
+}
+
+void Track::SetMuted(bool muted)
+{
+  muted_ = muted;
+}
+
+bool Track::IsSoloed()
+{
+  return soloed_;
+}
+
+void Track::SetSoloed(bool soloed)
+{
+  soloed_ = soloed;
+}
+
+bool Track::IsLocked()
+{
+  return locked_;
+}
+
+void Track::SetLocked(bool locked)
+{
+  locked_ = locked;
 }

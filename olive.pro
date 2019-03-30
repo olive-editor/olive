@@ -57,7 +57,6 @@ SOURCES += \
     panels/timeline.cpp \
     ui/sourcetable.cpp \
     dialogs/aboutdialog.cpp \
-    ui/timelinewidget.cpp \
     project/media.cpp \
     project/footage.cpp \
     timeline/sequence.cpp \
@@ -178,7 +177,11 @@ SOURCES += \
     timeline/track.cpp \
     timeline/tracklist.cpp \
     project/savethread.cpp \
-    project/projectfunctions.cpp
+    project/projectfunctions.cpp \
+    ui/timelinearea.cpp \
+    timeline/timelineshared.cpp \
+    ui/timelineview.cpp \
+    ui/timelinelabel.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -188,7 +191,6 @@ HEADERS += \
     panels/timeline.h \
     ui/sourcetable.h \
     dialogs/aboutdialog.h \
-    ui/timelinewidget.h \
     project/media.h \
     project/footage.h \
     timeline/sequence.h \
@@ -316,7 +318,11 @@ HEADERS += \
     timeline/track.h \
     timeline/tracklist.h \
     project/savethread.h \
-    project/projectfunctions.h
+    project/projectfunctions.h \
+    ui/timelinearea.h \
+    timeline/timelineshared.h \
+    ui/timelineview.h \
+    ui/timelinelabel.h
 
 FORMS +=
 

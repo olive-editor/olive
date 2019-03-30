@@ -65,6 +65,16 @@ public:
   void ClearSelections();
 
   long GetEndFrame();
+
+  bool IsMuted();
+  bool IsSoloed();
+  bool IsLocked();
+
+public slots:
+  void SetMuted(bool muted);
+  void SetSoloed(bool soloed);
+  void SetLocked(bool locked);
+
 private:
   void ResizeClipArray(int new_size);
 
@@ -74,6 +84,10 @@ private:
   QVector<ClipPtr> clips_;
   QVector<EffectPtr> effects_;
   QVector<Selection> selections_;
+
+  bool muted_;
+  bool soloed_;
+  bool locked_;
 };
 
 #endif // TRACK_H

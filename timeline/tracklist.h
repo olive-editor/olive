@@ -13,10 +13,10 @@ public:
   void AddTrack();
   void RemoveTrack(int i);
   Track* First();
+  int TrackCount();
   QVector<Track*> tracks();
 
   Sequence* GetParent();
-
 
 private:
   void ResizeTrackArray(int i);

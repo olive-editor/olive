@@ -37,7 +37,7 @@
 #include "global/global.h"
 #include "panels/panels.h"
 #include "project/projectelements.h"
-#include "ui/timelinewidget.h"
+#include "ui/timelineview.h"
 #include "ui/icons.h"
 #include "ui/viewerwidget.h"
 #include "rendering/audio.h"
@@ -2058,7 +2058,7 @@ void Timeline::setup_ui() {
   videoContainerLayout->setSpacing(0);
   videoContainerLayout->setContentsMargins(0, 0, 0, 0);
 
-  video_area = new TimelineWidget();
+  video_area = new TimelineView();
   video_area->setFocusPolicy(Qt::ClickFocus);
   videoContainerLayout->addWidget(video_area);
 
@@ -2075,7 +2075,7 @@ void Timeline::setup_ui() {
   audioContainerLayout->setSpacing(0);
   audioContainerLayout->setContentsMargins(0, 0, 0, 0);
 
-  audio_area = new TimelineWidget();
+  audio_area = new TimelineView();
   audio_area->setFocusPolicy(Qt::ClickFocus);
 
   audioContainerLayout->addWidget(audio_area);

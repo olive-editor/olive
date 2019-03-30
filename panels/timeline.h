@@ -25,7 +25,7 @@
 #include <QTime>
 #include <QPushButton>
 
-#include "ui/timelinewidget.h"
+#include "ui/timelinearea.h"
 #include "ui/timelinetools.h"
 #include "timeline/selection.h"
 #include "timeline/clip.h"
@@ -93,9 +93,6 @@ public:
   void update_effect_controls();
   bool showing_all;
   double old_zoom;
-
-  int GetTrackHeight(int track);
-  void SetTrackHeight(int track, int height);
 
   // snapping
   bool snapping;
@@ -233,8 +230,8 @@ private:
   long rc_ripple_max;
 
   QWidget* timeline_area;
-  TimelineWidget* video_area;
-  TimelineWidget* audio_area;
+  TimelineArea* video_area;
+  TimelineArea* audio_area;
   QWidget* editAreas;
   QScrollBar* videoScrollbar;
   QScrollBar* audioScrollbar;

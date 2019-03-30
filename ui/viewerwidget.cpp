@@ -55,7 +55,7 @@ extern "C" {
 #include "project/media.h"
 #include "ui/viewercontainer.h"
 #include "rendering/cacher.h"
-#include "ui/timelinewidget.h"
+#include "ui/timelineview.h"
 #include "rendering/renderfunctions.h"
 #include "rendering/renderthread.h"
 #include "rendering/shadergenerators.h"

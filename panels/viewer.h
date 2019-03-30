@@ -32,7 +32,7 @@
 
 #include "ui/panel.h"
 #include "ui/viewerwidget.h"
-#include "ui/timelinewidget.h"
+#include "ui/timelineview.h"
 #include "ui/timelineheader.h"
 #include "ui/labelslider.h"
 #include "ui/resizablescrollbar.h"

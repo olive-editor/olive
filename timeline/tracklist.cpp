@@ -39,6 +39,11 @@ Track *TrackList::First()
   return tracks_.first().get();
 }
 
+int TrackList::TrackCount()
+{
+  return tracks_.size();
+}
+
 QVector<TrackPtr> TrackList::tracks()
 {
   return tracks_;

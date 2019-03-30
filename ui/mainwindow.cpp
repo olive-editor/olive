@@ -684,7 +684,7 @@ void MainWindow::setup_menus() {
 
   window_project_action = MenuHelper::create_menu_action(window_menu, "panelproject", this, SLOT(toggle_panel_visibility()));
   window_project_action->setCheckable(true);
-  window_project_action->setData(reinterpret_cast<quintptr>(panel_project));
+  window_project_action->setData(reinterpret_cast<quintptr>(panel_project.first()));
 
   window_effectcontrols_action = MenuHelper::create_menu_action(window_menu, "paneleffectcontrols", this, SLOT(toggle_panel_visibility()));
   window_effectcontrols_action->setCheckable(true);

@@ -19,6 +19,12 @@ enum TrimType {
   TRIM_OUT
 };
 
+enum Alignment {
+  kAlignmentTop,
+  kAlignmentBottom,
+  kAlignmentSingle
+};
+
 }
 }
 
