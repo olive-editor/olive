@@ -236,7 +236,7 @@
     <message>
         <location filename="../effects/effect.cpp" line="101"/>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Nessun candidato per &apos;effetto &apos;%1&apos;. Questo effetto potrebbe essere corrotto. Prova a reinstallare l&apos;effetto o Olive.</translation>
+        <translation>Nessun candidato per &apos;effetto &quot;%1&quot;. Questo effetto potrebbe essere corrotto. Prova a reinstallare l&apos;effetto o Olive.</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
@@ -882,7 +882,7 @@
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="42"/>
         <source>Loading &apos;%1&apos;...</source>
-        <translation>Caricamento di &apos;%1&apos;...</translation>
+        <translation>Caricamento di &quot;%1&quot;...</translation>
     </message>
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="48"/>
@@ -930,7 +930,7 @@
     <message>
         <location filename="../project/loadthread.cpp" line="753"/>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
-        <translation>Impossibile caricare &apos;%1&apos;. %2</translation>
+        <translation>Impossibile caricare &quot;%1&quot;. %2</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="757"/>
@@ -1094,7 +1094,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="850"/>
         <source>Track Lines</source>
-        <translation>Linee delle tracce</translation>
+        <translation>Linee tra le tracce</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="851"/>
@@ -1706,7 +1706,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
-        <translation>Il rapporto d&apos;aspetto &apos;%1&apos; non è valido. Si prega di riprovare.</translation>
+        <translation>Il rapporto d&apos;aspetto &quot;%1&quot; non è valido. Si prega di riprovare.</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="226"/>
@@ -1877,7 +1877,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../global/global.cpp" line="251"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation>Il progetto &apos;%1&apos; non esiste più. Vuoi rimuoverlo dalla lista dei progetti recenti?</translation>
+        <translation>Il progetto &quot;%1&quot; non esiste più. Vuoi rimuoverlo dalla lista dei progetti recenti?</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="262"/>
@@ -1926,7 +1926,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../global/global.cpp" line="320"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
-        <translation>Il progetto specificato &apos;%1&apos; non esiste.</translation>
+        <translation>Il progetto specificato &quot;%1&quot; non esiste.</translation>
     </message>
 </context>
 <context>
@@ -1957,7 +1957,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="197"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
-        <translation>Il file CSS &apos;%1&apos; non esiste.</translation>
+        <translation>Il file CSS &quot;%1&quot; non esiste.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="363"/>
@@ -2352,7 +2352,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../project/previewgenerator.cpp" line="559"/>
         <source>Could not open file - %1</source>
-        <translation>Impssibile aprire il file - %1</translation>
+        <translation>Impossibile aprire il file - %1</translation>
     </message>
     <message>
         <location filename="../project/previewgenerator.cpp" line="566"/>
@@ -2420,7 +2420,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/project.cpp" line="351"/>
         <source>Replace &apos;%1&apos;</source>
-        <translation>Rimpiazza &apos;%1&apos;</translation>
+        <translation>Rimpiazza &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="353"/>
@@ -2452,7 +2452,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/project.cpp" line="405"/>
         <source>Rename &apos;%1&apos;</source>
-        <translation>Rinomina &apos;%1&apos;</translation>
+        <translation>Rinomina &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="406"/>
@@ -2467,7 +2467,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/project.cpp" line="577"/>
         <source>The media &apos;%1&apos; is currently used in &apos;%2&apos;. Deleting it will remove all instances in the sequence. Are you sure you want to do this?</source>
-        <translation>Il media &apos;%1&apos; è attualmente usato in &apos;%2&apos;. Eliminandolo, toglierai tutte le sue istanze dalla sequenza. Sei sicuro di volerlo fare?</translation>
+        <translation>Il media &quot;%1&quot; è attualmente usato in &quot;%2&quot;. Eliminandolo, toglierai tutte le sue istanze dalla sequenza. Sei sicuro di volerlo fare?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="580"/>
@@ -2492,7 +2492,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/project.cpp" line="848"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Il file &apos;%1&apos; sembra far parte di una sequenza di immagini. Desideri importarla come tale?</translation>
+        <translation>Il file &quot;%1&quot; sembra far parte di una sequenza di immagini. Desideri importarla come tale?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="1002"/>
@@ -2636,7 +2636,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
         <source>You selected the same media that you&apos;re replacing. Please select a different one or click &apos;Cancel&apos;.</source>
-        <translation>Hai selezionato lo stesso media che stai cercando di rimpiazzare. Si prega di selezionarne un altro o di cliccare &apos;Annulla&apos;.</translation>
+        <translation>Hai selezionato lo stesso media che stai cercando di rimpiazzare. Si prega di selezionarne un altro o di cliccare &quot;Annulla&quot;.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="93"/>
@@ -2951,7 +2951,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../project/sourcescommon.cpp" line="292"/>
         <source>You dropped a file onto &apos;%1&apos;. Would you like to replace it with the dropped file?</source>
-        <translation>Hai rilasciato un file dentro &apos;%1&apos;. Desideri rimpiazzarlo con quello rilasciato?</translation>
+        <translation>Hai rilasciato un file dentro &quot;%1&quot;. Desideri rimpiazzarlo con quello rilasciato?</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="421"/>
@@ -3264,7 +3264,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/timeline.cpp" line="1354"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
-        <translation>La clip &apos;%1&apos; contiene già un effetto &apos;%2&apos;. Desideri rimpiazzarlo con quello incollato oppure aggiungerlo come effetto separato?</translation>
+        <translation>La clip &quot;%1&quot; contiene già un effetto &quot;%2&quot;. Desideri rimpiazzarlo con quello incollato oppure aggiungerlo come effetto separato?</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1359"/>
@@ -3858,7 +3858,7 @@ Durata: %4</translation>
     <message>
         <location filename="../effects/transition.cpp" line="118"/>
         <source>No candidate for transition &apos;%1&apos;. This transition may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Nessun candidato per la transizione &apos;%1&apos;. Questa transizione potrebbe essere danneggiata. Prova a reinstallare la transizione o Olive.</translation>
+        <translation>Nessun candidato per la transizione &quot;%1&quot;. Questa transizione potrebbe essere danneggiata. Prova a reinstallare la transizione o Olive.</translation>
     </message>
 </context>
 </TS>
