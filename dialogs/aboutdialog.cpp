@@ -53,6 +53,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
   // Set text formatting
   label->setAlignment(Qt::AlignCenter);
+  label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  label->setCursor(Qt::IBeamCursor);
   label->setWordWrap(true);
   layout->addWidget(label);
 
