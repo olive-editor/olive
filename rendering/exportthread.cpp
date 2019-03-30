@@ -414,9 +414,6 @@ void ExportThread::Export()
   disconnect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
   connect(renderer, SIGNAL(ready()), this, SLOT(wake()));
 
-  // Lock mutex (used for synchronization with RenderThread)
-  mutex.lock();
-
   // Loop from now (set to the beginning frame earlier) to the end of the frame
   while (olive::ActiveSequence->playhead <= params_.end_frame && !interrupt_) {
 
@@ -557,8 +554,6 @@ void ExportThread::Export()
   disconnect(renderer, SIGNAL(ready()), this, SLOT(wake()));
   connect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
 
-  mutex.unlock();
-
   if (interrupt_) {
     return;
   }
@@ -667,8 +662,13 @@ void ExportThread::run() {
   // Seek to the first frame we're exporting
   panel_sequence_viewer->seek(params_.start_frame);
 
+  // Lock mutex (used for thread synchronizations)
+  mutex.lock();
+
   // Run export function (which will return if there's a failure)
   Export();
+
+  mutex.unlock();
 
   // Clean up anything that was allocated in Export() (whether it succeeded or not)
   Cleanup();
