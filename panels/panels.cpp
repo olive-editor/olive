@@ -29,7 +29,7 @@
 #include <QScrollBar>
 #include <QCoreApplication>
 
-Project* panel_project = nullptr;
+QVector<Project*> panel_project;
 EffectControls* panel_effect_controls = nullptr;
 Viewer* panel_sequence_viewer = nullptr;
 Viewer* panel_footage_viewer = nullptr;
@@ -49,33 +49,19 @@ void update_ui(bool modified) {
 QDockWidget *get_focused_panel(bool force_hover) {
   QDockWidget* w = nullptr;
   if (olive::CurrentConfig.hover_focus || force_hover) {
-    if (panel_project->underMouse()) {
-      w = panel_project;
-    } else if (panel_effect_controls->underMouse()) {
-      w = panel_effect_controls;
-    } else if (panel_sequence_viewer->underMouse()) {
-      w = panel_sequence_viewer;
-    } else if (panel_footage_viewer->underMouse()) {
-      w = panel_footage_viewer;
-    } else if (panel_timeline->underMouse()) {
-      w = panel_timeline;
-    } else if (panel_graph_editor->view_is_under_mouse()) {
-      w = panel_graph_editor;
+    for (int i=0;i<olive::panels.size();i++) {
+      if (olive::panels.at(i)->underMouse()) {
+        w = olive::panels.at(i);
+        break;
+      }
     }
   }
   if (w == nullptr) {
-    if (panel_project->is_focused()) {
-      w = panel_project;
-    } else if (panel_effect_controls->keyframe_focus() || panel_effect_controls->is_focused()) {
-      w = panel_effect_controls;
-    } else if (panel_sequence_viewer->is_focused()) {
-      w = panel_sequence_viewer;
-    } else if (panel_footage_viewer->is_focused()) {
-      w = panel_footage_viewer;
-    } else if (panel_timeline->focused()) {
-      w = panel_timeline;
-    } else if (panel_graph_editor->view_is_focused()) {
-      w = panel_graph_editor;
+    for (int i=0;i<olive::panels.size();i++) {
+      if (olive::panels.at(i)->focused()) {
+        w = olive::panels.at(i);
+        break;
+      }
     }
   }
   return w;
@@ -87,8 +73,9 @@ void alloc_panels(QWidget* parent) {
   panel_footage_viewer = new Viewer(parent);
   panel_footage_viewer->setObjectName("footage_viewer");
   panel_footage_viewer->show_videoaudio_buttons(true);
-  panel_project = new Project(parent);
-  panel_project->setObjectName("proj_root");
+  Project* first_project_panel = new Project(parent);
+  first_project_panel->setObjectName("proj_root");
+  panel_project.append(first_project_panel);
   panel_effect_controls = new EffectControls(parent);
   panel_effect_controls->setObjectName("fx_controls");
   panel_timeline = new Timeline(parent);

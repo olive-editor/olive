@@ -32,6 +32,7 @@
 #include <QSplitter>
 
 #include "project/projectelements.h"
+#include "timeline/track.h"
 #include "ui/timelineheader.h"
 #include "ui/keyframeview.h"
 #include "ui/resizablescrollbar.h"
@@ -67,9 +68,8 @@ public:
   bool IsEffectSelected(Effect* e);
 
   void DeleteSelectedEffects();
-  bool is_focused();
+  virtual bool focused() override;
   void set_zoom(bool in);
-  bool keyframe_focus();
   void delete_selected_keyframes();
   void scroll_to_frame(long frame);
 
@@ -110,7 +110,7 @@ private:
 
   void DeleteEffect(ComboAction* ca, Effect* effect_ref);
 
-  void show_effect_menu(int type, int subtype);
+  void show_effect_menu(int type, Track::Type subtype);
   void load_keyframes();
   void open_effect(QVBoxLayout* hlayout, Effect *e);
   void UpdateTitle();
@@ -118,7 +118,7 @@ private:
   void setup_ui();
 
   int effect_menu_type;
-  int effect_menu_subtype;
+  Track::Type effect_menu_subtype;
   QString panel_name;
 
   QWidget* video_effect_area;

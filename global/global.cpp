@@ -38,9 +38,11 @@
 #include "dialogs/aboutdialog.h"
 #include "dialogs/speeddialog.h"
 #include "dialogs/actionsearch.h"
+#include "dialogs/newsequencedialog.h"
 #include "dialogs/loaddialog.h"
 #include "dialogs/autocutsilencedialog.h"
 #include "project/loadthread.h"
+#include "project/savethread.h"
 #include "timeline/sequence.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
@@ -175,7 +177,55 @@ void OliveGlobal::SetNativeStyling(QWidget *w)
   w->setStyleSheet("");
   w->setPalette(w->style()->standardPalette());
   w->setStyle(QStyleFactory::create("windowsvista"));
+#else
+  Q_UNUSED(w);
 #endif
+}
+
+void OliveGlobal::add_recent_project(const QString &url)
+{
+  bool found = false;
+  for (int i=0;i<recent_projects.size();i++) {
+    if (url == recent_projects.at(i)) {
+      found = true;
+      recent_projects.move(i, 0);
+      break;
+    }
+  }
+  if (!found) {
+    recent_projects.prepend(url);
+    if (recent_projects.size() > olive::CurrentConfig.maximum_recent_projects) {
+      recent_projects.removeLast();
+    }
+  }
+  save_recent_projects();
+}
+
+void OliveGlobal::load_recent_projects()
+{
+  QFile f(get_recent_project_list_file());
+  if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
+    QTextStream text_stream(&f);
+    while (true) {
+      QString line = text_stream.readLine();
+      if (line.isNull()) {
+        break;
+      } else {
+        recent_projects.append(line);
+      }
+    }
+    f.close();
+  }
+}
+
+int OliveGlobal::recent_project_count()
+{
+  return recent_projects.size();
+}
+
+const QString &OliveGlobal::recent_project(int index)
+{
+  return recent_projects.at(index);
 }
 
 void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
@@ -184,7 +234,9 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
   // can cause glitches in its presentation. Therefore for the duration of the loading process, we disconnect it,
   // and reconnect it later once the loading is complete.
 
-  panel_project->DisconnectFilterToModel();
+  for (int i=0;i<panel_project.size();i++) {
+    panel_project.at(i)->DisconnectFilterToModel();
+  }
 
   LoadDialog ld(olive::MainWindow);
 
@@ -198,7 +250,9 @@ void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
   connect(lt, SIGNAL(report_progress(int)), &ld, SLOT(setValue(int)));
   lt->start();
 
-  panel_project->ConnectFilterToModel();
+  for (int i=0;i<panel_project.size();i++) {
+    panel_project.at(i)->ConnectFilterToModel();
+  }
 }
 
 void OliveGlobal::ClearProject()
@@ -210,11 +264,17 @@ void OliveGlobal::ClearProject()
   panel_effect_controls->Clear(true);
 
   // clear existing project
-  olive::Global->set_sequence(nullptr);
+  set_sequence(nullptr);
   panel_footage_viewer->set_media(nullptr);
 
+  // delete sequences first because it's important to close all the clips before deleting the media
+  QVector<Media*> sequences = olive::project_model.GetAllSequences();
+  for (int i=0;i<sequences.size();i++) {
+    sequences.at(i)->set_sequence(nullptr);
+  }
+
   // clear project contents (footage, sequences, etc.)
-  panel_project->clear();
+  olive::project_model.clear();
 
   // clear undo stack
   olive::UndoStack.clear();
@@ -226,7 +286,25 @@ void OliveGlobal::ClearProject()
   update_ui(false);
 
   // set to unmodified
-  olive::Global->set_modified(false);
+  set_modified(false);
+}
+
+void OliveGlobal::save_recent_projects()
+{
+  // save to file
+  QFile f(get_recent_project_list_file());
+  if (f.open(QFile::WriteOnly | QFile::Truncate | QFile::Text)) {
+    QTextStream out(&f);
+    for (int i=0;i<recent_projects.size();i++) {
+      if (i > 0) {
+        out << "\n";
+      }
+      out << recent_projects.at(i);
+    }
+    f.close();
+  } else {
+    qWarning() << "Could not save recent projects";
+  }
 }
 
 void OliveGlobal::ImportProject(const QString &fn)
@@ -257,7 +335,7 @@ void OliveGlobal::open_recent(int index) {
           tr("The project '%1' no longer exists. Would you like to remove it from the recent projects list?").arg(recent_url),
           QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
       recent_projects.removeAt(index);
-      panel_project->save_recent_projects();
+      save_recent_projects();
     }
   } else if (can_close_project()) {
     OpenProjectWorker(recent_url, false);
@@ -271,7 +349,7 @@ bool OliveGlobal::save_project_as() {
       fn += ".ove";
     }
     update_project_filename(fn);
-    panel_project->save_project(false);
+    olive::Save(false);
     return true;
   }
   return false;
@@ -281,7 +359,7 @@ bool OliveGlobal::save_project() {
   if (olive::ActiveProjectFilename.isEmpty()) {
     return save_project_as();
   } else {
-    panel_project->save_project(false);
+    olive::Save(false);
     return true;
   }
 }
@@ -305,6 +383,33 @@ bool OliveGlobal::can_close_project() {
     }
   }
   return true;
+}
+
+void OliveGlobal::new_sequence()
+{
+  NewSequenceDialog nsd(olive::MainWindow);
+  nsd.set_sequence_name(olive::project_model.GetNextSequenceName());
+  nsd.exec();
+}
+
+void OliveGlobal::open_import_dialog()
+{
+  QFileDialog fd(olive::MainWindow, tr("Import media..."), "", tr("All Files") + " (*)");
+  fd.setFileMode(QFileDialog::ExistingFiles);
+
+  if (fd.exec()) {
+    QStringList files = fd.selectedFiles();
+
+    Media* parent = nullptr;
+    for (int i=0;i<panel_project.size();i++) {
+      if (panel_project.at(i)->focused()) {
+        parent = panel_project.at(i)->get_selected_folder();
+        break;
+      }
+    }
+
+    olive::project_model.process_file_list(files, false, nullptr, parent);
+  }
 }
 
 void OliveGlobal::open_export_dialog() {
@@ -345,7 +450,7 @@ void OliveGlobal::finished_initialize() {
 
 void OliveGlobal::save_autorecovery_file() {
   if (changed_since_last_autorecovery) {
-    panel_project->save_project(true);
+    olive::Save(true);
 
     changed_since_last_autorecovery = false;
 
@@ -370,6 +475,12 @@ void OliveGlobal::set_sequence(SequencePtr s)
   panel_sequence_viewer->set_main_sequence();
   panel_timeline->update_sequence();
   panel_timeline->setFocus();
+}
+
+void OliveGlobal::clear_recent_projects()
+{
+  recent_projects.clear();
+  save_recent_projects();
 }
 
 void OliveGlobal::OpenProjectWorker(QString fn, bool autorecovery) {

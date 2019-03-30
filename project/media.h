@@ -47,6 +47,8 @@ class Media
 public:
   Media();
 
+  void Save(QXmlStreamWriter& stream);
+
   Footage *to_footage();
   SequencePtr to_sequence();
   void set_icon(const QString& str);

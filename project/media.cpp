@@ -68,6 +68,23 @@ Media::Media() :
 {
 }
 
+void Media::Save(QXmlStreamWriter &stream)
+{
+  switch (type) {
+  case MEDIA_TYPE_FOLDER:
+    stream.writeStartElement("folder");
+    stream.writeAttribute("name", get_name());
+    stream.writeEndElement();
+    break;
+  case MEDIA_TYPE_FOOTAGE:
+    to_footage()->Save(stream);
+    break;
+  case MEDIA_TYPE_SEQUENCE:
+    to_sequence()->Save(stream);
+    break;
+  }
+}
+
 Footage* Media::to_footage() {
   return static_cast<Footage*>(object.get());
 }

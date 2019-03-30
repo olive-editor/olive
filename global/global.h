@@ -159,6 +159,51 @@ public:
      */
     static void SetNativeStyling(QWidget* w);
 
+    /**
+     * @brief Adds a project URL to the recent projects list
+     *
+     * @param url
+     *
+     * The project URL to add
+     */
+    void add_recent_project(const QString& url);
+
+    /**
+     * @brief Load recent projects from file
+     *
+     * Should be called on application startup.
+     */
+    void load_recent_projects();
+
+    /**
+     * @brief Total count of recent projects
+     *
+     * @return
+     *
+     * Number of recent projects in the list
+     */
+    int recent_project_count();
+
+    /**
+     * @brief Get the recent project at a given index
+     *
+     * @param index
+     *
+     * @return
+     *
+     * The recent project at index
+     */
+    const QString& recent_project(int index);
+
+    /**
+     * @brief Retrieves the filename of the autorecovery file to save to during this session
+     *
+     * @return
+     *
+     * A URL pointing to the autorecovery file
+     */
+    const QString& get_autorecovery_filename();
+
 public slots:
     /**
      * @brief Undo user's last action
@@ -266,6 +311,16 @@ public slots:
     bool can_close_project();
 
     /**
+     * @brief Opens the NewSequenceDialog to create a new Sequence
+     */
+    void new_sequence();
+
+    /**
+     * @brief Open a file dialog for importing files into the project
+     */
+    void open_import_dialog();
+
+    /**
      * @brief Open the Export dialog to trigger an export of the current sequence.
      */
     void open_export_dialog();
@@ -336,6 +391,13 @@ public slots:
      */
     void set_sequence(SequencePtr s);
 
+    /**
+     * @brief Clear the recent projects list
+     *
+     * Also saves the cleared recent projects to the config file making it permanent.
+     */
+    void clear_recent_projects();
+
 private:
     /**
      * @brief Internal function to handle loading a project from file
@@ -404,6 +466,13 @@ private:
     void ClearProject();
 
     /**
+     * @brief Saves current recent project list to the configuration file
+     *
+     * This should be called whenever the recent projects change so the changes can be persistent.
+     */
+    void save_recent_projects();
+
+    /**
      * @brief File filter used for any file dialogs relating to Olive project files.
      */
     QString project_file_filter;
@@ -437,6 +506,16 @@ private:
      * @brief Internal variable for rendering state (set by set_rendering_state() and accessed by is_rendering() ).
      */
     bool rendering_;
+
+    /**
+     * @brief Internal variable for the filename to the autorecovery project file
+     */
+    QString autorecovery_filename;
+
+    /**
+     * @brief Internal list of recent projects
+     */
+    QStringList recent_projects;
 
 private slots:
 

@@ -26,15 +26,17 @@
 QVector<Panel*> olive::panels;
 
 Panel::Panel(QWidget *parent) : QDockWidget (parent) {
-//  setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-//  setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-
   olive::panels.append(this);
 }
 
 Panel::~Panel()
 {
   olive::panels.removeAll(this);
+}
+
+bool Panel::focused()
+{
+  return hasFocus();
 }
 
 void Panel::LoadLayoutState(const QByteArray &) {}

@@ -27,7 +27,7 @@
 #include "grapheditor.h"
 #include "project.h"
 
-extern Project* panel_project;
+extern QVector<Project*> panel_project;
 extern EffectControls* panel_effect_controls;
 extern Viewer* panel_sequence_viewer;
 extern Viewer* panel_footage_viewer;

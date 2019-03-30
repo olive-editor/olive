@@ -70,6 +70,8 @@ public:
   Footage();
   ~Footage();
 
+  void Save(QXmlStreamWriter& stream);
+
   // footage metadata
   QString url;
   QString name;
@@ -107,6 +109,9 @@ public:
   long get_length_in_frames(double frame_rate);
   FootageStream *get_stream_from_file_index(bool video, int index);
   void reset();
+
+  static QString get_channel_layout_name(int channels, uint64_t layout);
+  static QString get_interlacing_name(int interlacing);
 private:
   QString colorspace_;
 };

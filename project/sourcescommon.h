@@ -27,10 +27,10 @@
 
 #include "project/footage.h"
 #include "project/projectfilter.h"
+#include "media.h"
 
 class Project;
 class QMouseEvent;
-class Media;
 class QAbstractItemView;
 class QDropEvent;
 
@@ -40,6 +40,8 @@ public:
   SourcesCommon(Project *parent, ProjectFilter& sort_filter);
   QAbstractItemView* view;
   void show_context_menu(QWidget* parent, const QModelIndexList &items);
+
+  void replace_media(MediaPtr item, QString filename);
 
   void mousePressEvent(QMouseEvent* e);
   void mouseDoubleClickEvent(const QModelIndexList& selected_items);

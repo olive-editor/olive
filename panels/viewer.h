@@ -44,7 +44,7 @@ class Viewer : public Panel
 public:
   explicit Viewer(QWidget *parent = nullptr);
 
-  bool is_focused();
+  virtual bool focused() override;
   bool is_main_sequence();
   void set_main_sequence();
   void set_media(Media *m);

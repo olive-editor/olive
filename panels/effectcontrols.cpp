@@ -86,10 +86,6 @@ EffectControls::~EffectControls()
   Clear(true);
 }
 
-bool EffectControls::keyframe_focus() {
-  return headers->hasFocus() || keyframeView->hasFocus();
-}
-
 void EffectControls::set_zoom(bool in) {
   zoom *= (in) ? 2 : 0.5;
   update_keyframes();
@@ -100,7 +96,7 @@ void EffectControls::menu_select(QAction* q) {
   ComboAction* ca = new ComboAction();
   for (int i=0;i<selected_clips_.size();i++) {
     Clip* c = selected_clips_.at(i);
-    if ((c->track() < 0) == (effect_menu_subtype == EFFECT_TYPE_VIDEO)) {
+    if (c->type() == effect_menu_subtype) {
       const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
         if (c->opening_transition == nullptr) {
@@ -194,7 +190,7 @@ void EffectControls::cut() {
   copy(true);
 }
 
-void EffectControls::show_effect_menu(int type, int subtype) {
+void EffectControls::show_effect_menu(int type, Track::Type subtype) {
   effect_menu_type = type;
   effect_menu_subtype = subtype;
 
@@ -598,6 +594,23 @@ void EffectControls::DeleteSelectedEffects() {
   }
 }
 
+bool EffectControls::focused()
+{
+  if (this->hasFocus()
+      || headers->hasFocus()
+      || keyframeView->hasFocus()) {
+    return true;
+  }
+
+  for (int i=0;i<open_effects_.size();i++) {
+    if (open_effects_.at(i)->IsFocused()) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void EffectControls::Reload() {
   Clear(false);
   Load();
@@ -708,35 +721,23 @@ void EffectControls::Load() {
 }
 
 void EffectControls::video_effect_click() {
-  show_effect_menu(EFFECT_TYPE_EFFECT, EFFECT_TYPE_VIDEO);
+  show_effect_menu(EFFECT_TYPE_EFFECT, Track::kTypeVideo);
 }
 
 void EffectControls::audio_effect_click() {
-  show_effect_menu(EFFECT_TYPE_EFFECT, EFFECT_TYPE_AUDIO);
+  show_effect_menu(EFFECT_TYPE_EFFECT, Track::kTypeAudio);
 }
 
 void EffectControls::video_transition_click() {
-  show_effect_menu(EFFECT_TYPE_TRANSITION, EFFECT_TYPE_VIDEO);
+  show_effect_menu(EFFECT_TYPE_TRANSITION, Track::kTypeVideo);
 }
 
 void EffectControls::audio_transition_click() {
-  show_effect_menu(EFFECT_TYPE_TRANSITION, EFFECT_TYPE_AUDIO);
+  show_effect_menu(EFFECT_TYPE_TRANSITION, Track::kTypeAudio);
 }
 
 void EffectControls::resizeEvent(QResizeEvent*) {
   update_scrollbar();
-}
-
-bool EffectControls::is_focused() {
-  if (this->hasFocus()) return true;
-
-  for (int i=0;i<open_effects_.size();i++) {
-    if (open_effects_.at(i)->IsFocused()) {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 EffectsArea::EffectsArea(QWidget* parent) :

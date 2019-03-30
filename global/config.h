@@ -616,6 +616,11 @@ struct Config {
   bool dont_use_proxies_on_export;
 
   /**
+   * @brief The maximum amount of recent projects stored in the Open Recent list
+   */
+  int maximum_recent_projects;
+
+  /**
    * @brief Load config from file
    *
    * Load configuration parameters from file

@@ -82,7 +82,8 @@ Config::Config()
     default_sequence_audio_channel_layout(3),
     playback_bit_depth(olive::PIX_FMT_RGBA16F),
     export_bit_depth(olive::PIX_FMT_RGBA32F),
-    dont_use_proxies_on_export(true)
+    dont_use_proxies_on_export(true),
+    maximum_recent_projects(10)
 {}
 
 void Config::load(QString path) {

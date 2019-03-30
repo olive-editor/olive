@@ -25,6 +25,7 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <QDebug>
 
 #include "ui/menuhelper.h"
@@ -43,6 +44,7 @@
 #include "dialogs/proxydialog.h"
 #include "ui/viewerwidget.h"
 #include "project/proxygenerator.h"
+#include "project/projectfunctions.h"
 #include "ui/mainwindow.h"
 #include "ui/menu.h"
 #include "undo/undostack.h"
@@ -64,13 +66,13 @@ void SourcesCommon::create_seq_from_selected() {
     }
 
     ComboAction* ca = new ComboAction();
-    SequencePtr s = create_sequence_from_media(media_list);
+    SequencePtr s = olive::project::CreateSequenceFromMedia(media_list);
 
     // add clips to it
     panel_timeline->create_ghosts_from_media(s.get(), 0, media_list);
     panel_timeline->add_clips_from_ghosts(ca, s.get());
 
-    project_parent->create_sequence_internal(ca, s, true, nullptr);
+    olive::project_model.CreateSequence(ca, s, true, nullptr);
     olive::UndoStack.push(ca);
   }
 }
@@ -239,6 +241,21 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
   menu.exec(QCursor::pos());
 }
 
+void SourcesCommon::replace_media(MediaPtr item, QString filename)
+{
+  if (filename.isEmpty()) {
+    filename = QFileDialog::getOpenFileName(
+          this,
+          tr("Replace '%1'").arg(item->get_name()),
+          "",
+          tr("All Files") + " (*)");
+  }
+  if (!filename.isEmpty()) {
+    ReplaceMediaCommand* rmc = new ReplaceMediaCommand(item, filename);
+    olive::UndoStack.push(rmc);
+  }
+}
+
 void SourcesCommon::mousePressEvent(QMouseEvent *) {
   stop_rename_timer();
 }
@@ -255,7 +272,7 @@ void SourcesCommon::item_click(Media *m, const QModelIndex& index) {
 void SourcesCommon::mouseDoubleClickEvent(const QModelIndexList& selected_items) {
   stop_rename_timer();
   if (selected_items.size() == 0) {
-    project_parent->import_dialog();
+    olive::Global->open_import_dialog();
   } else if (selected_items.size() == 1) {
     Media* media = project_parent->item_to_media(selected_items.at(0));
     if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
@@ -292,7 +309,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
             tr("You dropped a file onto '%1'. Would you like to replace it with the dropped file?").arg(m->get_name()),
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
         replace = true;
-        project_parent->replace_media(m, paths.at(0));
+        replace_media(m, paths.at(0));
       }
       if (!replace) {
         QModelIndex parent;
@@ -303,7 +320,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
             parent = drop_item.parent();
           }
         }
-        project_parent->process_file_list(paths, false, nullptr, panel_project->item_to_media(parent));
+        olive::project_model.process_file_list(paths, false, nullptr, panel_project->item_to_media(parent));
       }
     }
     event->acceptProposedAction();

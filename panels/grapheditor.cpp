@@ -161,6 +161,11 @@ void GraphEditor::update_panel() {
   }
 }
 
+bool GraphEditor::focused()
+{
+  return hasFocus() || view->hasFocus() || header->hasFocus();
+}
+
 void GraphEditor::set_row(EffectRow *r) {
   for (int i=0;i<field_sliders_.size();i++) {
     delete field_sliders_.at(i);
@@ -218,14 +223,6 @@ void GraphEditor::set_row(EffectRow *r) {
   }
   view->set_row(row);
   update_panel();
-}
-
-bool GraphEditor::view_is_focused() {
-  return view->hasFocus() || header->hasFocus();
-}
-
-bool GraphEditor::view_is_under_mouse() {
-  return view->underMouse() || header->underMouse();
 }
 
 void GraphEditor::delete_selected_keys() {

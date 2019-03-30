@@ -146,7 +146,7 @@ void MainWindow::setup_layout(bool reset) {
       removeDockWidget(olive::panels.at(i));
     }
 
-    addDockWidget(Qt::TopDockWidgetArea, panel_project);
+    addDockWidget(Qt::TopDockWidgetArea, panel_project.first());
     addDockWidget(Qt::TopDockWidgetArea, panel_graph_editor);
     addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
     tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
@@ -154,25 +154,25 @@ void MainWindow::setup_layout(bool reset) {
     addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
     addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
 
-    panel_project->show();
+    panel_project.first()->show();
     panel_effect_controls->show();
     panel_footage_viewer->show();
     panel_sequence_viewer->show();
     panel_timeline->show();
     panel_graph_editor->hide();
 
-    panel_project->setFloating(false);
+    panel_project.first()->setFloating(false);
     panel_effect_controls->setFloating(false);
     panel_footage_viewer->setFloating(false);
     panel_sequence_viewer->setFloating(false);
     panel_timeline->setFloating(false);
     panel_graph_editor->setFloating(true);
 
-    resizeDocks({panel_project, panel_footage_viewer, panel_sequence_viewer},
+    resizeDocks({panel_project.first(), panel_footage_viewer, panel_sequence_viewer},
                 {width()/3, width()/3, width()/3},
                 Qt::Horizontal);
 
-    resizeDocks({panel_project, panel_timeline},
+    resizeDocks({panel_project.first(), panel_timeline},
                 {height()/2, height()/2},
                 Qt::Vertical);
   }
@@ -242,19 +242,7 @@ MainWindow::MainWindow(QWidget *parent) :
       }
 
       // search for open recents list
-      QFile f(olive::Global->get_recent_project_list_file());
-      if (f.exists() && f.open(QFile::ReadOnly | QFile::Text)) {
-        QTextStream text_stream(&f);
-        while (true) {
-          QString line = text_stream.readLine();
-          if (line.isNull()) {
-            break;
-          } else {
-            recent_projects.append(line);
-          }
-        }
-        f.close();
-      }
+      olive::Global->load_recent_projects();
     }
   }
   QString config_path = get_config_path();
@@ -518,7 +506,7 @@ void MainWindow::setup_menus() {
 
   open_recent = MenuHelper::create_submenu(file_menu);
 
-  clear_open_recent_action = MenuHelper::create_menu_action(nullptr, "clearopenrecent", panel_project, SLOT(clear_recent_projects()));
+  clear_open_recent_action = MenuHelper::create_menu_action(nullptr, "clearopenrecent", olive::Global.get(), SLOT(clear_recent_projects()));
 
   save_project = MenuHelper::create_menu_action(file_menu, "saveproj", olive::Global.get(), SLOT(save_project()), QKeySequence("Ctrl+S"));
 
@@ -526,7 +514,7 @@ void MainWindow::setup_menus() {
 
   file_menu->addSeparator();
 
-  import_action = MenuHelper::create_menu_action(file_menu, "import", panel_project, SLOT(import_dialog()), QKeySequence("Ctrl+I"));
+  import_action = MenuHelper::create_menu_action(file_menu, "import", olive::Global.get(), SLOT(open_import_dialog()), QKeySequence("Ctrl+I"));
 
   file_menu->addSeparator();
 
@@ -978,9 +966,12 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 
     QString data_dir = get_data_path();
     QString config_path = get_config_path();
+
+    const QString& autorecovery_filename = olive::Global->get_autorecovery_filename();
     if (!data_dir.isEmpty() && !autorecovery_filename.isEmpty()) {
       if (QFile::exists(autorecovery_filename)) {
-        QFile::rename(autorecovery_filename, autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
+        QFile::rename(autorecovery_filename,
+                      autorecovery_filename + "." + QDateTime::currentDateTimeUtc().toString("yyyyMMddHHmmss"));
       }
     }
     if (!config_path.isEmpty()) {
@@ -1208,11 +1199,11 @@ void MainWindow::set_panels_locked(bool locked)
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {
-  if (recent_projects.size() > 0) {
+  if (olive::Global->recent_project_count() > 0) {
     open_recent->clear();
     open_recent->setEnabled(true);
-    for (int i=0;i<recent_projects.size();i++) {
-      QAction* action = open_recent->addAction(recent_projects.at(i));
+    for (int i=0;i<olive::Global->recent_project_count();i++) {
+      QAction* action = open_recent->addAction(olive::Global->recent_project(i));
       action->setProperty("keyignore", true);
       action->setData(i);
       connect(action, SIGNAL(triggered()), &olive::MenuHelper, SLOT(open_recent_from_menu()));

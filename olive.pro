@@ -176,7 +176,9 @@ SOURCES += \
     rendering/pixelformats.cpp \
     timeline/timelinefunctions.cpp \
     timeline/track.cpp \
-    timeline/tracklist.cpp
+    timeline/tracklist.cpp \
+    project/savethread.cpp \
+    project/projectfunctions.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -312,7 +314,9 @@ HEADERS += \
     timeline/ghost.h \
     timeline/timelinefunctions.h \
     timeline/track.h \
-    timeline/tracklist.h
+    timeline/tracklist.h \
+    project/savethread.h \
+    project/projectfunctions.h
 
 FORMS +=
 

@@ -29,6 +29,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 #include "project/previewgenerator.h"
 #include "timeline/clip.h"
 #include "global/config.h"
+#include "global/global.h"
 
 Footage::Footage() :
   ready(false),
@@ -46,6 +47,58 @@ Footage::Footage() :
 
 Footage::~Footage() {
   reset();
+}
+
+void Footage::Save(QXmlStreamWriter &stream)
+{
+  QDir proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
+
+  stream.writeStartElement("footage");
+  stream.writeAttribute("id", QString::number(media_id));
+  stream.writeAttribute("name", name);
+  stream.writeAttribute("url", proj_dir.relativeFilePath(url));
+  stream.writeAttribute("duration", QString::number(length));
+  stream.writeAttribute("using_inout", QString::number(using_inout));
+  stream.writeAttribute("in", QString::number(in));
+  stream.writeAttribute("out", QString::number(out));
+  stream.writeAttribute("speed", QString::number(speed));
+  stream.writeAttribute("alphapremul", QString::number(alpha_is_associated));
+  stream.writeAttribute("startnumber", QString::number(start_number));
+  stream.writeAttribute("colorspace", Colorspace());
+
+  stream.writeAttribute("proxy", QString::number(proxy));
+  stream.writeAttribute("proxypath", proxy_path);
+
+  // save video stream metadata
+  for (int j=0;j<f->video_tracks.size();j++) {
+    const FootageStream& ms = f->video_tracks.at(j);
+    stream.writeStartElement("video");
+    stream.writeAttribute("id", QString::number(ms.file_index));
+    stream.writeAttribute("width", QString::number(ms.video_width));
+    stream.writeAttribute("height", QString::number(ms.video_height));
+    stream.writeAttribute("framerate", QString::number(ms.video_frame_rate, 'f', 10));
+    stream.writeAttribute("infinite", QString::number(ms.infinite_length));
+    stream.writeEndElement(); // video
+  }
+
+  // save audio stream metadata
+  for (int j=0;j<f->audio_tracks.size();j++) {
+    const FootageStream& ms = f->audio_tracks.at(j);
+    stream.writeStartElement("audio");
+    stream.writeAttribute("id", QString::number(ms.file_index));
+    stream.writeAttribute("channels", QString::number(ms.audio_channels));
+    stream.writeAttribute("layout", QString::number(ms.audio_layout));
+    stream.writeAttribute("frequency", QString::number(ms.audio_frequency));
+    stream.writeEndElement(); // audio
+  }
+
+  // save footage markers
+  for (int j=0;j<f->markers.size();j++) {
+    f->markers.at(j).Save(stream);
+  }
+
+  stream.writeEndElement(); // footage
+  media_id++;
 }
 
 QString Footage::Colorspace()

@@ -51,7 +51,7 @@ class Timeline : public Panel
 public:
   explicit Timeline(QWidget *parent = nullptr);
 
-  bool focused();
+  virtual bool focused() override;
   void multiply_zoom(double m);
   void copy(bool del);
   ClipPtr split_clip(ComboAction* ca, bool transitions, int p, long frame);

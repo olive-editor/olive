@@ -41,8 +41,7 @@ public:
   void set_row(EffectRow* r);
 
   void update_panel();
-  bool view_is_focused();
-  bool view_is_under_mouse();
+  virtual bool focused() override;
   void delete_selected_keys();
   void select_all();
 

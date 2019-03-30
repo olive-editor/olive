@@ -34,6 +34,7 @@ extern "C" {
 #include <QPushButton>
 #include <QDrag>
 #include <QMimeData>
+#include <QMessageBox>
 
 #include "rendering/audio.h"
 #include "timeline.h"
@@ -105,7 +106,7 @@ void Viewer::Retranslate() {
 //  update_window_title();
 }
 
-bool Viewer::is_focused() {
+bool Viewer::focused() {
   return headers->hasFocus()
       || viewer_widget_->hasFocus()
       || go_to_start_button->hasFocus()
@@ -324,29 +325,47 @@ void Viewer::pause() {
       // import audio
       QStringList file_list;
       file_list.append(get_recorded_audio_filename());
-      panel_project->process_file_list(file_list);
+      olive::project_model.process_file_list(file_list);
 
       // add it to the sequence
-      ClipPtr c = std::make_shared<Clip>(seq.get());
-      Media* m = panel_project->last_imported_media.at(0);
+      QVector<Media*> last_imported_media = olive::project_model.GetLastImportedMedia();
+      Media* m = last_imported_media.first();
       Footage* f = m->to_footage();
 
       // wait for footage to be completely ready before taking metadata from it
       f->ready_lock.lock();
-
-      c->set_media(m, 0); // latest media
-      c->set_timeline_in(recording_start);
-      c->set_timeline_out(recording_start + f->get_length_in_frames(seq->frame_rate));
-      c->set_clip_in(0);
-      c->set_track(recording_track);
-      c->set_color(128, 192, 128);
-      c->set_name(m->get_name());
-
       f->ready_lock.unlock();
 
-      QVector<ClipPtr> add_clips;
-      add_clips.append(c);
-      olive::UndoStack.push(new AddClipCommand(seq.get(), add_clips)); // add clip
+      // Check if we were able to import the audio we just recorded
+      if (f->invalid) {
+
+        QMessageBox::critical(this,
+                              tr("Failed to import recorded file"),
+                              tr("An error occurred trying to import the recorded audio"),
+                              QMessageBox::Ok);
+
+      } else {
+
+        // Make a clip out of it and add it to the Sequence
+
+        ClipPtr c = std::make_shared<Clip>(seq.get());
+
+        c->set_media(m, 0); // latest media
+        c->set_timeline_in(recording_start);
+        c->set_timeline_out(recording_start + f->get_length_in_frames(seq->frame_rate));
+        c->set_clip_in(0);
+        c->set_track(recording_track);
+        c->set_color(128, 192, 128);
+        c->set_name(m->get_name());
+
+        QVector<ClipPtr> add_clips;
+        add_clips.append(c);
+        olive::UndoStack.push(new AddClipCommand(seq.get(), add_clips)); // add clip
+
+      }
+
+
+
     }
   }
 }

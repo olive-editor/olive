@@ -31,6 +31,8 @@ public:
 
   virtual void Retranslate() = 0;
 
+  virtual bool focused();
+
   virtual void LoadLayoutState(const QByteArray& data);
   virtual QByteArray SaveLayoutState();
 protected:

@@ -81,8 +81,6 @@ double log_volume(double linear);
 
 enum EffectType {
   EFFECT_TYPE_INVALID,
-  EFFECT_TYPE_VIDEO,
-  EFFECT_TYPE_AUDIO,
   EFFECT_TYPE_EFFECT,
   EFFECT_TYPE_TRANSITION
 };

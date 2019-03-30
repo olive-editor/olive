@@ -24,6 +24,7 @@
 #include <QAbstractItemModel>
 
 #include "project/media.h"
+#include "undo/comboaction.h"
 
 class ProjectModel : public QAbstractItemModel
 {
@@ -31,6 +32,42 @@ class ProjectModel : public QAbstractItemModel
 public:
   ProjectModel(QObject* parent = nullptr);
   ~ProjectModel() override;
+
+  /**
+   * @brief Makes preparations for saving the project file.
+   *
+   * Some items require IDs to link between them (e.g. the Footage or Nested Sequences used by Clips, linked clips,
+   * etc). This function sets up those IDs before saving.
+   *
+   * NOTE: This function should **always** be called before Save().
+   *
+   * @return
+   *
+   * A count of the elements in the project to save into the project file. The loading system can later use this value
+   * to determine the load progress.
+   */
+  int PrepareToSave();
+
+  /**
+   * @brief Initiate a save of all the project data
+   *
+   * Recursively goes through the entire project tree saving everything to a specified QXmlStreamWriter object.
+   *
+   * It's not recommended to use this function directly as it expects an existing QXmlStreamWriter and doesn't write a
+   * header and footer for the resulting XML document. Instead use olive::Save().
+   *
+   * NOTE: **Always** call PrepareToSave() just before calling this function to set up valid IDs for saving.
+   *
+   * @param stream
+   *
+   * A QXmlStreamWriter object.
+   *
+   * @param root
+   *
+   * Used for recursion, set to any child and called again whenever a child is found with children. If this is nullptr,
+   * this function will loop over the root item.
+   */
+  void Save(QXmlStreamWriter& stream, Media *root = nullptr);
 
   void make_root();
   void destroy_root();
@@ -58,15 +95,34 @@ public:
   int childCount(Media* parent = nullptr);
   void set_icon(Media* m, const QIcon &ico);
 
+  void process_file_list(QStringList& files, bool recursive = false, MediaPtr replace = nullptr, Media *parent = nullptr);
+
+  /**
+   * @brief Get a list of the last imported media
+   *
+   * @return
+   *
+   * Returns a list of all the Media processed by the last call to process_file_list().
+   */
+  QVector<Media*> GetLastImportedMedia();
+
   QVector<Media*> GetAllSequences();
   QVector<Media*> GetAllFootage();
   QVector<Media*> GetAllFolders();
 
+  QString GetNextSequenceName(QString prepend = QString());
+
+  MediaPtr CreateSequence(ComboAction *ca, SequencePtr s, bool open, Media* parent);
+
 private:
   MediaPtr root_item_;
 
+  QVector<Media*> last_imported_media;
+
   QVector<Media*> GetAllMediaOfType(int search_type);
   void RecurseTree(Media* parent, QVector<Media *> &list, int search_type);
+
+  void PrepareToSaveInternal(int& element_count, Media* root);
 };
 
 namespace olive {

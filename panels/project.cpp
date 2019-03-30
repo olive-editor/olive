@@ -51,8 +51,8 @@ extern "C" {
 #include "rendering/cacher.h"
 #include "dialogs/replaceclipmediadialog.h"
 #include "panels/effectcontrols.h"
-#include "dialogs/newsequencedialog.h"
 #include "dialogs/mediapropertiesdialog.h"
+#include "dialogs/newsequencedialog.h"
 #include "dialogs/loaddialog.h"
 #include "project/clipboard.h"
 #include "ui/sourcetable.h"
@@ -62,13 +62,9 @@ extern "C" {
 #include "ui/mediaiconservice.h"
 #include "project/sourcescommon.h"
 #include "project/projectfilter.h"
+#include "project/projectfunctions.h"
 #include "global/debug.h"
 #include "ui/menu.h"
-
-#define MAXIMUM_RECENT_PROJECTS 10 // FIXME: should be configurable
-
-QString autorecovery_filename;
-QStringList recent_projects;
 
 Project::Project(QWidget *parent) :
   Panel(parent),
@@ -225,97 +221,6 @@ void Project::Retranslate() {
   setWindowTitle(tr("Project"));
 }
 
-QString Project::get_next_sequence_name(QString start) {
-  if (start.isEmpty()) start = tr("Sequence");
-
-  int n = 1;
-  bool found = true;
-  QString name;
-  while (found) {
-    found = false;
-    name = start + " ";
-    if (n < 10) {
-      name += "0";
-    }
-    name += QString::number(n);
-    for (int i=0;i<olive::project_model.childCount();i++) {
-      if (QString::compare(olive::project_model.child(i)->get_name(), name, Qt::CaseInsensitive) == 0) {
-        found = true;
-        n++;
-        break;
-      }
-    }
-  }
-  return name;
-}
-
-SequencePtr create_sequence_from_media(QVector<olive::timeline::MediaImportData>& media_list) {
-  SequencePtr s(new Sequence());
-
-  s->name = panel_project->get_next_sequence_name();
-
-  // Retrieve default Sequence settings from Config
-  s->width = olive::CurrentConfig.default_sequence_width;
-  s->height = olive::CurrentConfig.default_sequence_height;
-  s->frame_rate = olive::CurrentConfig.default_sequence_framerate;
-  s->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
-  s->audio_layout = olive::CurrentConfig.default_sequence_audio_channel_layout;
-
-  bool got_video_values = false;
-  bool got_audio_values = false;
-  for (int i=0;i<media_list.size();i++) {
-    Media* media = media_list.at(i).media();
-    switch (media->get_type()) {
-    case MEDIA_TYPE_FOOTAGE:
-    {
-      Footage* m = media->to_footage();
-      if (m->ready) {
-        if (!got_video_values) {
-          for (int j=0;j<m->video_tracks.size();j++) {
-            const FootageStream& ms = m->video_tracks.at(j);
-            s->width = ms.video_width;
-            s->height = ms.video_height;
-            if (!qFuzzyCompare(ms.video_frame_rate, 0.0)) {
-              s->frame_rate = ms.video_frame_rate * m->speed;
-
-              if (ms.video_interlacing != VIDEO_PROGRESSIVE) s->frame_rate *= 2;
-
-              // only break with a decent frame rate, otherwise there may be a better candidate
-              got_video_values = true;
-              break;
-            }
-          }
-        }
-        if (!got_audio_values && m->audio_tracks.size() > 0) {
-          const FootageStream& ms = m->audio_tracks.at(0);
-          s->audio_frequency = ms.audio_frequency;
-          got_audio_values = true;
-        }
-      }
-    }
-      break;
-    case MEDIA_TYPE_SEQUENCE:
-    {
-      // Clone all attributes of the original sequence (seq) into the new one (s)
-      Sequence* seq = media->to_sequence().get();
-
-      s->width = seq->width;
-      s->height = seq->height;
-      s->frame_rate = seq->frame_rate;
-      s->audio_frequency = seq->audio_frequency;
-      s->audio_layout = seq->audio_layout;
-
-      got_video_values = true;
-      got_audio_values = true;
-    }
-      break;
-    }
-    if (got_video_values && got_audio_values) break;
-  }
-
-  return s;
-}
-
 void Project::duplicate_selected() {
   QModelIndexList items = get_current_selected();
   bool duped = false;
@@ -323,7 +228,7 @@ void Project::duplicate_selected() {
   for (int j=0;j<items.size();j++) {
     Media* i = item_to_media(items.at(j));
     if (i->get_type() == MEDIA_TYPE_SEQUENCE) {
-      create_sequence_internal(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
+      olive::project_model.CreateSequence(ca, i->to_sequence()->copy(), false, item_to_media(items.at(j).parent()));
       duped = true;
     }
   }
@@ -339,22 +244,8 @@ void Project::replace_selected_file() {
   if (selected_items.size() == 1) {
     MediaPtr item = item_to_media_ptr(selected_items.at(0));
     if (item->get_type() == MEDIA_TYPE_FOOTAGE) {
-      replace_media(item, nullptr);
+      sources_common.replace_media(item, nullptr);
     }
-  }
-}
-
-void Project::replace_media(MediaPtr item, QString filename) {
-  if (filename.isEmpty()) {
-    filename = QFileDialog::getOpenFileName(
-          this,
-          tr("Replace '%1'").arg(item->get_name()),
-          "",
-          tr("All Files") + " (*)");
-  }
-  if (!filename.isEmpty()) {
-    ReplaceMediaCommand* rmc = new ReplaceMediaCommand(item, filename);
-    olive::UndoStack.push(rmc);
   }
 }
 
@@ -416,7 +307,7 @@ void Project::open_properties() {
 }
 
 void Project::new_folder() {
-  MediaPtr m = create_folder_internal(nullptr);
+  MediaPtr m = olive::project::CreateFolder(nullptr);
   olive::UndoStack.push(new AddMediaCommand(m, get_selected_folder()));
 
   QModelIndex index = olive::project_model.create_index(m->row(), 0, m.get());
@@ -430,52 +321,8 @@ void Project::new_folder() {
   }
 }
 
-void Project::new_sequence() {
-  NewSequenceDialog nsd(this);
-  nsd.set_sequence_name(get_next_sequence_name());
-  nsd.exec();
-}
-
-MediaPtr Project::create_sequence_internal(ComboAction *ca, SequencePtr s, bool open, Media* parent) {
-
-  MediaPtr item = std::make_shared<Media>();
-  item->set_sequence(s);
-
-  if (ca != nullptr) {
-
-    ca->append(new AddMediaCommand(item, parent));
-
-    if (open) {
-      ca->append(new ChangeSequenceAction(s));
-    }
-
-  } else {
-
-    olive::project_model.appendChild(parent, item);
-
-    if (open) {
-      olive::Global->set_sequence(s);
-    }
-
-  }
-
-  return item;
-
-}
-
-QString Project::get_file_name_from_path(const QString& path) {
-  return path.mid(path.lastIndexOf('/')+1);
-}
-
-bool Project::is_focused() {
+bool Project::focused() {
   return tree_view->hasFocus() || icon_view->hasFocus();
-}
-
-MediaPtr Project::create_folder_internal(QString name) {
-  MediaPtr item = std::make_shared<Media>();
-  item->set_folder();
-  item->set_name(name);
-  return item;
 }
 
 Media* Project::item_to_media(const QModelIndex &index) {
@@ -665,258 +512,6 @@ void Project::delete_selected_media() {
   }
 }
 
-void Project::process_file_list(QStringList& files, bool recursive, MediaPtr replace, Media* parent) {
-  bool imported = false;
-
-  // retrieve the array of image formats from the user's configuration
-  QStringList image_sequence_formats = olive::CurrentConfig.img_seq_formats.split("|");
-
-  // a cache of image sequence formatted URLS to assist the user in importing image sequences
-  QVector<QString> image_sequence_urls;
-  QVector<bool> image_sequence_importassequence;
-
-  if (!recursive) last_imported_media.clear();
-
-  bool create_undo_action = (!recursive && replace == nullptr);
-  ComboAction* ca = nullptr;
-  if (create_undo_action) ca = new ComboAction();
-
-  // Loop through received files
-  for (int i=0;i<files.size();i++) {
-
-    // If this file is a directory, we'll recursively call this function again to process the directory's contents
-    if (QFileInfo(files.at(i)).isDir()) {
-
-      QString folder_name = get_file_name_from_path(files.at(i));
-      MediaPtr folder = create_folder_internal(folder_name);
-
-      QDir directory(files.at(i));
-      directory.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
-
-      QFileInfoList subdir_files = directory.entryInfoList();
-      QStringList subdir_filenames;
-
-      for (int j=0;j<subdir_files.size();j++) {
-        subdir_filenames.append(subdir_files.at(j).filePath());
-      }
-
-      if (create_undo_action) {
-        ca->append(new AddMediaCommand(folder, parent));
-      } else {
-        olive::project_model.appendChild(parent, folder);
-      }
-
-      process_file_list(subdir_filenames, true, nullptr, folder.get());
-
-      imported = true;
-
-    } else if (!files.at(i).isEmpty()) {
-      QString file = files.at(i);
-
-      // Check if the user is importing an Olive project file
-      if (file.endsWith(".ove", Qt::CaseInsensitive)) {
-
-        // This file is an Olive project file. Ask the user if they really want to import it.
-        if (QMessageBox::question(this,
-                                  tr("Import a Project"),
-                                  tr("\"%1\" is an Olive project file. It will merge with this project. "
-                                     "Do you wish to continue?").arg(file),
-                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-
-          // load the project without clearing the current one
-          olive::Global->ImportProject(file);
-
-        }
-
-      } else {
-
-        // This file is NOT an Olive project file
-
-        // Used later if this file is part of an already processed image sequence
-        bool skip = false;
-
-        /* Heuristic to determine whether file is part of an image sequence */
-
-        // Firstly, we run a heuristic on whether this file is an image by checking its file extension
-
-        bool file_is_an_image = false;
-
-        // Get the string position of the extension in the filename
-        int lastcharindex = file.lastIndexOf(".");
-
-        if (lastcharindex != -1 && lastcharindex > file.lastIndexOf('/')) {
-
-          QString ext = file.mid(lastcharindex+1);
-
-          // If the file extension is part of a predetermined list (from Config::img_seq_formats), we'll treat it
-          // as an image
-          if (image_sequence_formats.contains(ext, Qt::CaseInsensitive)) {
-            file_is_an_image = true;
-          }
-
-        } else {
-
-          // If we're here, the file has no extension, but we'll still check if its an image sequence just in case
-          lastcharindex = file.length();
-          file_is_an_image = true;
-
-        }
-
-        // Some image sequence's don't start at "0", if it is indeed an image sequence, we'll use this variable
-        // later to determine where it does start
-        int start_number = 0;
-
-        // Check if we passed the earlier heuristic to check whether this is a file, and whether the last number in
-        // the filename (before the extension) is a number
-        if (file_is_an_image && file[lastcharindex-1].isDigit()) {
-
-          // Check how many digits are at the end of this filename
-          int digit_count = 0;
-          int digit_test = lastcharindex-1;
-          while (file[digit_test].isDigit()) {
-            digit_count++;
-            digit_test--;
-          }
-
-          // Retrieve the integer represented at the end of this filename
-          digit_test++;
-          int file_number = file.mid(digit_test, digit_count).toInt();
-
-          // Check whether a file exists with the same format but one number higher or one number lower
-          if (QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number-1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))
-              || QFileInfo::exists(QString(file.left(digit_test) + QString("%1").arg(file_number+1, digit_count, 10, QChar('0')) + file.mid(lastcharindex)))) {
-
-            //
-            // If so, it certainly looks like it *could* be an image sequence, but we'll ask the user just in case
-            //
-
-            // Firstly we should check if this file is part of a sequence the user has already confirmed as either a
-            // sequence or not a sequence (e.g. if the user happened to select a bunch of images that happen to increase
-            // consecutively). We format the filename with FFmpeg's '%Nd' (N = digits) formatting for reading image
-            // sequences
-            QString new_filename = file.left(digit_test) + "%" + QString::number(digit_count) + "d" + file.mid(lastcharindex);
-
-            int does_url_cache_already_contain_this = image_sequence_urls.indexOf(new_filename);
-
-            if (does_url_cache_already_contain_this > -1) {
-
-              // We've already processed an image with the same formatting
-
-              // Check if the last time we saw this formatting, the user chose to import as a sequence
-              if (image_sequence_importassequence.at(does_url_cache_already_contain_this)) {
-
-                // If so, no need to import this file too, so we signal to the rest of the function to skip this file
-                skip = true;
-
-              }
-
-              // If not, we can fall-through to the next step which is importing normally
-
-            } else {
-
-              // If we're here, we've never seen a file with this formatting before, so we'll ask whether to import
-              // as a sequence or not
-
-              // Add this file formatting file to the URL cache
-              image_sequence_urls.append(new_filename);
-
-              // This does look like an image sequence, let's ask the user if it'll indeed be an image sequence
-              if (QMessageBox::question(this,
-                                        tr("Image sequence detected"),
-                                        tr("The file '%1' appears to be part of an image sequence. "
-                                           "Would you like to import it as such?").arg(file),
-                                        QMessageBox::Yes | QMessageBox::No,
-                                        QMessageBox::Yes) == QMessageBox::Yes) {
-
-                // Proceed to the next step of this with the formatted filename
-                file = new_filename;
-
-                // Cache the user's answer alongside the image_sequence_urls value - in this case, YES, this will be an
-                // image sequence
-                image_sequence_importassequence.append(true);
-
-
-                // FFmpeg needs to know what file number to start at in the sequence. In case the image sequence doesn't
-                // start at a zero, we'll loop decreasing the number until it doesn't exist anymore
-                QString test_filename_format = QString("%1%2%3").arg(file.left(digit_test), "%1", file.mid(lastcharindex));
-                int test_file_number = file_number;
-                do {
-                  test_file_number--;
-                } while (QFileInfo::exists(test_filename_format.arg(QString("%1").arg(test_file_number, digit_count, 10, QChar('0')))));
-
-                // set the image sequence's start number to the last that existed
-                start_number = test_file_number + 1;
-
-              } else {
-
-                // Cache the user's response to the image sequence question - i.e. none of the files imported with this
-                // formatting should be imported as an image sequence
-                image_sequence_importassequence.append(false);
-
-              }
-            }
-
-          }
-
-        }
-
-        // If we're not skipping this file, let's import it
-        if (!skip) {
-          MediaPtr item;
-          FootagePtr m;
-
-          if (replace != nullptr) {
-            item = replace;
-          } else {
-            item = std::make_shared<Media>();
-          }
-
-          m = std::make_shared<Footage>();
-
-          // Edge case for PNGs that standardized unassociated alpha
-          if (file.endsWith("png", Qt::CaseInsensitive)) {
-            m->alpha_is_associated = false;
-          }
-
-          m->using_inout = false;
-          m->url = file;
-          m->name = get_file_name_from_path(files.at(i));
-          m->start_number = start_number;
-
-          item->set_footage(m);
-
-          last_imported_media.append(item.get());
-
-          if (replace == nullptr) {
-            if (create_undo_action) {
-              ca->append(new AddMediaCommand(item, parent));
-            } else {
-              olive::project_model.appendChild(parent, item);
-            }
-          }
-
-          imported = true;
-        }
-
-      }
-
-
-    }
-  }
-  if (create_undo_action) {
-    if (imported) {
-      olive::UndoStack.push(ca);
-
-      for (int i=0;i<last_imported_media.size();i++) {
-        // generate waveform/thumbnail in another thread
-        PreviewGenerator::AnalyzeMedia(last_imported_media.at(i));
-      }
-    } else {
-      delete ca;
-    }
-  }
-}
-
 Media* Project::get_selected_folder() {
   // if one item is selected and it's a folder, return it
   QModelIndexList selected_items = get_current_selected();
@@ -981,16 +576,6 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
   return false;
 }
 
-void Project::import_dialog() {
-  QFileDialog fd(this, tr("Import media..."), "", tr("All Files") + " (*)");
-  fd.setFileMode(QFileDialog::ExistingFiles);
-
-  if (fd.exec()) {
-    QStringList files = fd.selectedFiles();
-    process_file_list(files, false, nullptr, get_selected_folder());
-  }
-}
-
 void Project::delete_clips_using_selected_media() {
   if (olive::ActiveSequence == nullptr) {
     QMessageBox::critical(this,
@@ -1024,169 +609,6 @@ void Project::delete_clips_using_selected_media() {
     } else {
       delete ca;
     }
-  }
-}
-
-void Project::clear() {
-  // clear graph editor
-  panel_graph_editor->set_row(nullptr);
-
-  // clear effects cache
-  panel_effect_controls->Clear(true);
-
-  // delete sequences first because it's important to close all the clips before deleting the media
-  QVector<Media*> sequences = list_all_project_sequences();
-  for (int i=0;i<sequences.size();i++) {
-    sequences.at(i)->set_sequence(nullptr);
-  }
-
-  // delete everything else
-  olive::project_model.clear();
-
-  // update tree view (sometimes this doesn't seem to update reliably)
-  tree_view->update();
-}
-
-void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
-  for (int i=0;i<olive::project_model.rowCount(parent);i++) {
-    const QModelIndex& item = olive::project_model.index(i, 0, parent);
-    Media* m = olive::project_model.getItem(item);
-
-    if (type == m->get_type()) {
-      if (m->get_type() == MEDIA_TYPE_FOLDER) {
-        if (set_ids_only) {
-          m->temp_id = folder_id; // saves a temporary ID for matching in the project file
-          folder_id++;
-        } else {
-          // if we're saving folders, save the folder
-          stream.writeStartElement("folder");
-          stream.writeAttribute("name", m->get_name());
-          stream.writeAttribute("id", QString::number(m->temp_id));
-          if (!item.parent().isValid()) {
-            stream.writeAttribute("parent", "0");
-          } else {
-            stream.writeAttribute("parent", QString::number(olive::project_model.getItem(item.parent())->temp_id));
-          }
-          stream.writeEndElement();
-        }
-        // save_folder(stream, item, type, set_ids_only);
-      } else {
-        int folder = m->parentItem()->temp_id;
-        if (type == MEDIA_TYPE_FOOTAGE) {
-          Footage* f = m->to_footage();
-          f->save_id = media_id;
-          stream.writeStartElement("footage");
-          stream.writeAttribute("id", QString::number(media_id));
-          stream.writeAttribute("folder", QString::number(folder));
-          stream.writeAttribute("name", f->name);
-          stream.writeAttribute("url", proj_dir.relativeFilePath(f->url));
-          stream.writeAttribute("duration", QString::number(f->length));
-          stream.writeAttribute("using_inout", QString::number(f->using_inout));
-          stream.writeAttribute("in", QString::number(f->in));
-          stream.writeAttribute("out", QString::number(f->out));
-          stream.writeAttribute("speed", QString::number(f->speed));
-          stream.writeAttribute("alphapremul", QString::number(f->alpha_is_associated));
-          stream.writeAttribute("startnumber", QString::number(f->start_number));
-          stream.writeAttribute("colorspace", f->Colorspace());
-
-          stream.writeAttribute("proxy", QString::number(f->proxy));
-          stream.writeAttribute("proxypath", f->proxy_path);
-
-          // save video stream metadata
-          for (int j=0;j<f->video_tracks.size();j++) {
-            const FootageStream& ms = f->video_tracks.at(j);
-            stream.writeStartElement("video");
-            stream.writeAttribute("id", QString::number(ms.file_index));
-            stream.writeAttribute("width", QString::number(ms.video_width));
-            stream.writeAttribute("height", QString::number(ms.video_height));
-            stream.writeAttribute("framerate", QString::number(ms.video_frame_rate, 'f', 10));
-            stream.writeAttribute("infinite", QString::number(ms.infinite_length));
-            stream.writeEndElement(); // video
-          }
-
-          // save audio stream metadata
-          for (int j=0;j<f->audio_tracks.size();j++) {
-            const FootageStream& ms = f->audio_tracks.at(j);
-            stream.writeStartElement("audio");
-            stream.writeAttribute("id", QString::number(ms.file_index));
-            stream.writeAttribute("channels", QString::number(ms.audio_channels));
-            stream.writeAttribute("layout", QString::number(ms.audio_layout));
-            stream.writeAttribute("frequency", QString::number(ms.audio_frequency));
-            stream.writeEndElement(); // audio
-          }
-
-          // save footage markers
-          for (int j=0;j<f->markers.size();j++) {
-            f->markers.at(j).Save(stream);
-          }
-
-          stream.writeEndElement(); // footage
-          media_id++;
-        } else if (type == MEDIA_TYPE_SEQUENCE) {
-          Sequence* s = m->to_sequence().get();
-          if (set_ids_only) {
-            s->save_id = sequence_id;
-            sequence_id++;
-          } else {
-            s->Save(stream);
-          }
-        }
-      }
-    }
-
-    if (m->get_type() == MEDIA_TYPE_FOLDER) {
-      save_folder(stream, type, set_ids_only, item);
-    }
-  }
-}
-
-void Project::save_project(bool autorecovery) {
-  folder_id = 1;
-  media_id = 1;
-  sequence_id = 1;
-
-  QFile file(autorecovery ? autorecovery_filename : olive::ActiveProjectFilename);
-  if (!file.open(QIODevice::WriteOnly)) {
-    qCritical() << "Could not open file";
-    return;
-  }
-
-  QXmlStreamWriter stream(&file);
-  stream.setAutoFormatting(true);
-  stream.writeStartDocument(); // doc
-
-  stream.writeStartElement("project"); // project
-
-  stream.writeTextElement("version", QString::number(olive::kSaveVersion));
-
-  stream.writeTextElement("url", olive::ActiveProjectFilename);
-  proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
-
-  save_folder(stream, MEDIA_TYPE_FOLDER, true);
-
-  stream.writeStartElement("folders"); // folders
-  save_folder(stream, MEDIA_TYPE_FOLDER, false);
-  stream.writeEndElement(); // folders
-
-  stream.writeStartElement("media"); // media
-  save_folder(stream, MEDIA_TYPE_FOOTAGE, false);
-  stream.writeEndElement(); // media
-
-  save_folder(stream, MEDIA_TYPE_SEQUENCE, true);
-
-  stream.writeStartElement("sequences"); // sequences
-  save_folder(stream, MEDIA_TYPE_SEQUENCE, false);
-  stream.writeEndElement();// sequences
-
-  stream.writeEndElement(); // project
-
-  stream.writeEndDocument(); // doc
-
-  file.close();
-
-  if (!autorecovery) {
-    add_recent_project(olive::ActiveProjectFilename);
-    olive::Global->set_modified(false);
   }
 }
 
@@ -1229,28 +651,6 @@ void Project::set_tree_view() {
   update_view_type();
 }
 
-void Project::save_recent_projects() {
-  // save to file
-  QFile f(olive::Global->get_recent_project_list_file());
-  if (f.open(QFile::WriteOnly | QFile::Truncate | QFile::Text)) {
-    QTextStream out(&f);
-    for (int i=0;i<recent_projects.size();i++) {
-      if (i > 0) {
-        out << "\n";
-      }
-      out << recent_projects.at(i);
-    }
-    f.close();
-  } else {
-    qWarning() << "Could not save recent projects";
-  }
-}
-
-void Project::clear_recent_projects() {
-  recent_projects.clear();
-  save_recent_projects();
-}
-
 void Project::set_icon_view_size(int s) {
   if (icon_view->viewMode() == QListView::IconMode) {
     icon_view->setGridSize(QSize(s, s));
@@ -1273,44 +673,6 @@ void Project::make_new_menu() {
   Menu new_menu(this);
   olive::MenuHelper.make_new_menu(&new_menu);
   new_menu.exec(QCursor::pos());
-}
-
-void Project::add_recent_project(QString url) {
-  bool found = false;
-  for (int i=0;i<recent_projects.size();i++) {
-    if (url == recent_projects.at(i)) {
-      found = true;
-      recent_projects.move(i, 0);
-      break;
-    }
-  }
-  if (!found) {
-    recent_projects.insert(0, url);
-    if (recent_projects.size() > MAXIMUM_RECENT_PROJECTS) {
-      recent_projects.removeLast();
-    }
-  }
-  save_recent_projects();
-}
-
-void Project::list_all_sequences_worker(QVector<Media*>* list, Media* parent) {
-  for (int i=0;i<olive::project_model.childCount(parent);i++) {
-    Media* item = olive::project_model.child(i, parent);
-    switch (item->get_type()) {
-    case MEDIA_TYPE_SEQUENCE:
-      list->append(item);
-      break;
-    case MEDIA_TYPE_FOLDER:
-      list_all_sequences_worker(list, item);
-      break;
-    }
-  }
-}
-
-QVector<Media*> Project::list_all_project_sequences() {
-  QVector<Media*> list;
-  list_all_sequences_worker(&list, nullptr);
-  return list;
 }
 
 QModelIndexList Project::get_current_selected() {
