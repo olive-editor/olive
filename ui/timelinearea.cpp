@@ -1,9 +1,28 @@
 #include "timelinearea.h"
 
 TimelineArea::TimelineArea() :
-  track_list_(nullptr)
+  track_list_(nullptr),
+  alignment_(olive::timeline::kAlignmentTop)
 {
+  QHBoxLayout* layout = new QHBoxLayout(this);
 
+  // LABELS
+  QWidget* label_container = new QWidget();
+  QVBoxLayout* label_container_layout = new QVBoxLayout(label_container);
+  layout->addWidget(label_container);
+
+  // VIEW
+  view_ = new TimelineView();
+  layout->addWidget(view_);
+
+  // SCROLLBAR
+  QScrollBar* scrollbar = new QScrollBar(Qt::Vertical);
+  layout->addWidget(scrollbar);
+}
+
+void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)
+{
+  alignment_ = alignment;
 }
 
 void TimelineArea::SetTrackList(Sequence *sequence, Track::Type track_list)
@@ -29,7 +48,7 @@ void TimelineArea::RefreshLabels()
 
     labels_.resize(track_list_->TrackCount());
     for (int i=0;i<labels_.size();i++) {
-      labels_.at(i).settra
+      labels_[i].SetTrack(track_list_->TrackAt(i));
     }
 
   }

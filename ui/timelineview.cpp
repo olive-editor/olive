@@ -72,6 +72,8 @@ TimelineView::TimelineView(QWidget *parent) : QWidget(parent) {
   track_resizing = false;
   setMouseTracking(true);
 
+  setFocusPolicy(Qt::ClickFocus);
+
   setAcceptDrops(true);
 
   setContextMenuPolicy(Qt::CustomContextMenu);

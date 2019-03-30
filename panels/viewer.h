@@ -115,7 +115,8 @@ public slots:
   void go_to_end();
   void close_media();
   void update_viewer();
-
+  void prev_cut();
+  void next_cut();
 
 
 private slots:

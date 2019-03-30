@@ -63,7 +63,12 @@ public:
 
   void RefreshClipsUsingMedia(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);
-  QVector<int> SelectedClipIndexes();
+  //QVector<int> SelectedClipIndexes();
+
+  void DeleteAreas();
+
+  bool SplitAllClipsAtPoint(ComboAction *ca, long point);
+  void SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool relink = true);
 
   Effect* GetSelectedGizmo();
 
@@ -84,7 +89,10 @@ public:
 
   QVector<Marker> markers;
 private:
-  QVector<TrackList*> track_lists;
+  QVector<TrackList*> track_lists_;
+
+  ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
+  ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame, long post_in);
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;

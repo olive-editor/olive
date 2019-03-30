@@ -449,7 +449,7 @@ void Project::delete_selected_media() {
               }
             }
             if (confirm_delete) {
-              ca->append(new DeleteClipAction(s, k));
+              ca->append(new DeleteClipAction(c));
             }
           }
         }
@@ -589,13 +589,12 @@ void Project::delete_clips_using_selected_media() {
     QVector<Clip*> sequence_clips = olive::ActiveSequence->GetAllClips();
     for (int i=0;i<sequence_clips.size();i++) {
       Clip* c = sequence_clips.at(i);
-      if (c != nullptr) {
-        for (int j=0;j<items.size();j++) {
-          Media* m = item_to_media(items.at(j));
-          if (c->media() == m) {
-            ca->append(new DeleteClipAction(olive::ActiveSequence.get(), i));
-            deleted = true;
-          }
+
+      for (int j=0;j<items.size();j++) {
+        Media* m = item_to_media(items.at(j));
+        if (c->media() == m) {
+          ca->append(new DeleteClipAction(c));
+          deleted = true;
         }
       }
     }

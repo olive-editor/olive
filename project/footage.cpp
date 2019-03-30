@@ -54,7 +54,7 @@ void Footage::Save(QXmlStreamWriter &stream)
   QDir proj_dir = QFileInfo(olive::ActiveProjectFilename).absoluteDir();
 
   stream.writeStartElement("footage");
-  stream.writeAttribute("id", QString::number(media_id));
+  stream.writeAttribute("id", QString::number(save_id));
   stream.writeAttribute("name", name);
   stream.writeAttribute("url", proj_dir.relativeFilePath(url));
   stream.writeAttribute("duration", QString::number(length));
@@ -70,8 +70,8 @@ void Footage::Save(QXmlStreamWriter &stream)
   stream.writeAttribute("proxypath", proxy_path);
 
   // save video stream metadata
-  for (int j=0;j<f->video_tracks.size();j++) {
-    const FootageStream& ms = f->video_tracks.at(j);
+  for (int j=0;j<video_tracks.size();j++) {
+    const FootageStream& ms = video_tracks.at(j);
     stream.writeStartElement("video");
     stream.writeAttribute("id", QString::number(ms.file_index));
     stream.writeAttribute("width", QString::number(ms.video_width));
@@ -82,8 +82,8 @@ void Footage::Save(QXmlStreamWriter &stream)
   }
 
   // save audio stream metadata
-  for (int j=0;j<f->audio_tracks.size();j++) {
-    const FootageStream& ms = f->audio_tracks.at(j);
+  for (int j=0;j<audio_tracks.size();j++) {
+    const FootageStream& ms = audio_tracks.at(j);
     stream.writeStartElement("audio");
     stream.writeAttribute("id", QString::number(ms.file_index));
     stream.writeAttribute("channels", QString::number(ms.audio_channels));
@@ -93,12 +93,11 @@ void Footage::Save(QXmlStreamWriter &stream)
   }
 
   // save footage markers
-  for (int j=0;j<f->markers.size();j++) {
-    f->markers.at(j).Save(stream);
+  for (int j=0;j<markers.size();j++) {
+    markers.at(j).Save(stream);
   }
 
   stream.writeEndElement(); // footage
-  media_id++;
 }
 
 QString Footage::Colorspace()

@@ -64,7 +64,6 @@ ClipPtr Clip::copy(Track* s) {
   copy->set_clip_in(clip_in());
   copy->set_timeline_in(timeline_in());
   copy->set_timeline_out(timeline_out());
-  copy->set_track(track());
   copy->set_color(color());
   copy->set_media(media(), media_stream_index());
   copy->set_autoscaled(autoscaled());
@@ -75,7 +74,7 @@ ClipPtr Clip::copy(Track* s) {
     copy->effects.append(effects.at(i)->copy(copy.get()));
   }
 
-  copy->set_cached_frame_rate((this->track_ == nullptr) ? cached_frame_rate() : this->track_->frame_rate);
+  copy->set_cached_frame_rate((this->track_ == nullptr) ? cached_frame_rate() : this->track_->sequence()->frame_rate);
 
   copy->refresh();
 
@@ -207,13 +206,13 @@ void Clip::reset_audio() {
     cacher.ResetAudio();
   }
   if (media() != nullptr && media()->get_type() == MEDIA_TYPE_SEQUENCE) {
-    Sequence* nested_sequence = media()->to_sequence().get();
-    for (int i=0;i<nested_sequence->clips.size();i++) {
-      Clip* c = nested_sequence->clips.at(i).get();
-      if (c != nullptr) {
-        c->reset_audio();
-      }
+
+    QVector<Clip*> nested_sequence_clips = media()->to_sequence()->GetAllClips();
+
+    for (int i=0;i<nested_sequence_clips.size();i++) {
+      nested_sequence_clips.at(i)->reset_audio();
     }
+
   }
 }
 
@@ -266,7 +265,6 @@ void Clip::Save(QXmlStreamWriter &stream)
   stream.writeAttribute("clipin", QString::number(clip_in()));
   stream.writeAttribute("in", QString::number(timeline_in()));
   stream.writeAttribute("out", QString::number(timeline_out()));
-  stream.writeAttribute("track", QString::number(track()));
 
   stream.writeAttribute("r", QString::number(color().red()));
   stream.writeAttribute("g", QString::number(color().green()));
@@ -277,9 +275,9 @@ void Clip::Save(QXmlStreamWriter &stream)
   stream.writeAttribute("maintainpitch", QString::number(speed().maintain_audio_pitch));
   stream.writeAttribute("reverse", QString::number(reversed()));
 
-  if (c->media() != nullptr) {
+  if (media() != nullptr) {
     stream.writeAttribute("type", QString::number(media()->get_type()));
-    switch (c->media()->get_type()) {
+    switch (media()->get_type()) {
     case MEDIA_TYPE_FOOTAGE:
       stream.writeAttribute("media", QString::number(media()->to_footage()->save_id));
       stream.writeAttribute("stream", QString::number(media_stream_index()));
@@ -302,7 +300,7 @@ void Clip::Save(QXmlStreamWriter &stream)
   stream.writeStartElement("linked"); // linked
   for (int k=0;k<linked.size();k++) {
     stream.writeStartElement("link"); // link
-    stream.writeAttribute("id", QString::number(linked.at(k)));
+    stream.writeAttribute("id", QString::number(linked.at(k)->load_id));
     stream.writeEndElement(); // link
   }
   stream.writeEndElement(); // linked
@@ -457,13 +455,13 @@ double Clip::media_frame_rate() {
     double rate = media_->get_frame_rate(media_stream_index());
     if (!qIsNaN(rate)) return rate;
   }
-  if (sequence != nullptr) return sequence->frame_rate;
+  if (track() != nullptr) return track()->sequence()->frame_rate;
   return qSNaN();
 }
 
 long Clip::media_length() {
-  if (this->sequence != nullptr) {
-    double fr = this->sequence->frame_rate;
+  if (this->track() != nullptr) {
+    double fr = this->track()->sequence()->frame_rate;
 
     fr /= speed_.value;
 
@@ -474,7 +472,7 @@ long Clip::media_length() {
       case MEDIA_TYPE_FOOTAGE:
       {
         Footage* m = media_->to_footage();
-        const FootageStream* ms = m->get_stream_from_file_index(track_ < 0, media_stream_index());
+        const FootageStream* ms = m->get_stream_from_file_index(type() == Track::kTypeVideo, media_stream_index());
         if (ms != nullptr && ms->infinite_length) {
           return LONG_MAX;
         } else {
@@ -493,13 +491,13 @@ long Clip::media_length() {
 }
 
 int Clip::media_width() {
-  if (media_ == nullptr && sequence != nullptr) return sequence->width;
+  if (media_ == nullptr && track() != nullptr) return track()->sequence()->width;
   switch (media_->get_type()) {
   case MEDIA_TYPE_FOOTAGE:
   {
     const FootageStream* ms = media_stream();
     if (ms != nullptr) return ms->video_width;
-    if (sequence != nullptr) return sequence->width;
+    if (track() != nullptr) return track()->sequence()->width;
     break;
   }
   case MEDIA_TYPE_SEQUENCE:

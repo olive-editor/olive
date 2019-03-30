@@ -43,7 +43,7 @@ void draw_waveform(ClipPtr clip, const FootageStream *ms, long media_length, QPa
 class TimelineView : public QWidget {
   Q_OBJECT
 public:
-  explicit TimelineView(QWidget *parent);
+  explicit TimelineView(QWidget *parent = nullptr);
 
   QScrollBar* scrollBar;
   bool bottom_align;

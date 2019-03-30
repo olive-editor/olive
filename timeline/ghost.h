@@ -3,17 +3,18 @@
 
 #include "effects/transition.h"
 #include "timelinefunctions.h"
+#include "track.h"
 
 struct Ghost {
   int clip;
   long in;
   long out;
-  int track;
+  Track* track;
   long clip_in;
 
   long old_in;
   long old_out;
-  int old_track;
+  Track* old_track;
   long old_clip_in;
 
   // importing variables

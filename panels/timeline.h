@@ -54,16 +54,9 @@ public:
   virtual bool focused() override;
   void multiply_zoom(double m);
   void copy(bool del);
-  ClipPtr split_clip(ComboAction* ca, bool transitions, int p, long frame);
-  ClipPtr split_clip(ComboAction* ca, bool transitions, int p, long frame, long post_in);
-  bool split_selection(ComboAction* ca);
-  bool split_all_clips_at_point(ComboAction *ca, long point);
-  bool split_clip_and_relink(ComboAction* ca, int clip, long frame, bool relink);
-  void split_clip_at_positions(ComboAction* ca, int clip_index, QVector<long> positions);
   void clean_up_selections(QVector<Selection>& areas);
   void deselect_area(long in, long out, int track);
   void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);
-  void relink_clips_using_ids(QVector<int>& old_clips, QVector<ClipPtr>& new_clips);
   void update_sequence();
 
   void edit_to_point_internal(bool in, bool ripple);
@@ -77,7 +70,7 @@ public:
   int getDisplayScreenPointFromFrame(long frame);
   long getDisplayFrameFromScreenPoint(int x);
 
-  int get_snap_range();
+  long get_snap_range();
   bool snap_to_point(long point, long* l);
   bool snap_to_timeline(long* l, bool use_playhead, bool use_markers, bool use_workarea);
   void set_marker();
@@ -152,6 +145,8 @@ public:
   AudioMonitor* audio_monitor;
   ResizableScrollBar* horizontalScrollBar;
 
+  QVector<QPushButton*> tool_buttons;
+  QButtonGroup* tool_button_group;
   QPushButton* toolArrowButton;
   QPushButton* toolEditButton;
   QPushButton* toolRippleButton;
@@ -216,8 +211,6 @@ private slots:
 private:
   void ChangeTrackHeightUniformly(int diff);
   void set_zoom_value(double v);
-  QVector<QPushButton*> tool_buttons;
-  void decheck_tool_buttons(QObject* sender);
   void set_tool(int tool);
   int scroll;
   void set_sb_max();
@@ -233,8 +226,6 @@ private:
   TimelineArea* video_area;
   TimelineArea* audio_area;
   QWidget* editAreas;
-  QScrollBar* videoScrollbar;
-  QScrollBar* audioScrollbar;
   QPushButton* zoomInButton;
   QPushButton* zoomOutButton;
   QPushButton* recordButton;

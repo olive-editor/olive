@@ -348,13 +348,12 @@ void Viewer::pause() {
 
         // Make a clip out of it and add it to the Sequence
 
-        ClipPtr c = std::make_shared<Clip>(seq.get());
+        ClipPtr c = std::make_shared<Clip>(recording_track);
 
         c->set_media(m, 0); // latest media
         c->set_timeline_in(recording_start);
         c->set_timeline_out(recording_start + f->get_length_in_frames(seq->frame_rate));
         c->set_clip_in(0);
-        c->set_track(recording_track);
         c->set_color(128, 192, 128);
         c->set_name(m->get_name());
 
@@ -382,7 +381,7 @@ void Viewer::update_header_zoom() {
   if (seq != nullptr) {
     long sequenceEndFrame = seq->GetEndFrame();
     if (cached_end_frame != sequenceEndFrame) {
-      minimum_zoom = (sequenceEndFrame > 0) ? ((double) headers->width() / (double) sequenceEndFrame) : 1;
+      minimum_zoom = (sequenceEndFrame > 0) ? (double(headers->width()) / double(sequenceEndFrame)) : 1;
       headers->update_zoom(qMax(headers->get_zoom(), minimum_zoom));
       set_sb_max();
       viewer_widget_->waveform_zoom = headers->get_zoom();
@@ -429,6 +428,51 @@ void Viewer::update_viewer() {
     update_playhead_timecode(seq->playhead);
   }
   update_end_timecode();
+}
+
+void Viewer::prev_cut()
+{
+  if (seq != nullptr
+      && seq->playhead > 0) {
+
+    QVector<Clip*> sequence_clips = olive::ActiveSequence->GetAllClips();
+
+    long p_cut = 0;
+    for (int i=0;i<sequence_clips.size();i++) {
+      Clip* c = sequence_clips.at(i);
+      if (c->timeline_out() > p_cut && c->timeline_out() < seq->playhead) {
+        p_cut = c->timeline_out();
+      } else if (c->timeline_in() > p_cut && c->timeline_in() < seq->playhead) {
+        p_cut = c->timeline_in();
+      }
+    }
+    panel_sequence_viewer->seek(p_cut);
+  }
+}
+
+void Viewer::next_cut()
+{
+  if (seq != nullptr) {
+
+    QVector<Clip*> sequence_clips = seq->GetAllClips();
+
+    bool seek_enabled = false;
+    long n_cut = LONG_MAX;
+    for (int i=0;i<sequence_clips.size();i++) {
+      Clip* c = sequence_clips.at(i);
+      if (c->timeline_in() < n_cut && c->timeline_in() > seq->playhead) {
+        n_cut = c->timeline_in();
+        seek_enabled = true;
+      } else if (c->timeline_out() < n_cut && c->timeline_out() > seq->playhead) {
+        n_cut = c->timeline_out();
+        seek_enabled = true;
+      }
+    }
+
+    if (seek_enabled) {
+      panel_sequence_viewer->seek(n_cut);
+    }
+  }
 }
 
 void Viewer::initiate_drag(olive::timeline::MediaImportType drag_type)
@@ -703,7 +747,7 @@ void Viewer::set_media(Media* m) {
           new_sequence->frame_rate = video_stream.video_frame_rate * footage->speed;
         }
 
-        ClipPtr c = std::make_shared<Clip>(new_sequence.get());
+        ClipPtr c = std::make_shared<Clip>(new_sequence->GetTrackList(Track::kTypeVideo)->First());
         c->set_media(media, video_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));

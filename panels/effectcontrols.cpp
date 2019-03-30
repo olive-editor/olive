@@ -639,10 +639,10 @@ void EffectControls::Load() {
 
     QVBoxLayout* layout;
 
-    if (c->track() < 0) {
+    if (c->type() == Track::kTypeVideo) {
       vcontainer->setVisible(true);
       layout = video_effect_layout;
-    } else {
+    } else if (c->type() == Track::kTypeAudio) {
       acontainer->setVisible(true);
       layout = audio_effect_layout;
     }

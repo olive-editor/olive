@@ -1,5 +1,7 @@
 #include "tracklist.h"
 
+#include "timeline/sequence.h"
+
 TrackList::TrackList(Sequence *parent, Track::Type type) :
   QObject(parent),
   type_(type)
@@ -8,13 +10,24 @@ TrackList::TrackList(Sequence *parent, Track::Type type) :
   AddTrack();
 }
 
-TrackListPtr TrackList::copy(Sequence *parent)
+void TrackList::Save(QXmlStreamWriter &stream)
 {
-  TrackListPtr t = std::make_shared<TrackList>(parent, type_);
+  stream.writeStartElement("Tracks");
+
+  for (int i=0;i<tracks_.size();i++) {
+    tracks_.at(i)->Save(stream);
+  }
+
+  stream.writeEndElement(); // Tracks
+}
+
+TrackList* TrackList::copy(Sequence *parent)
+{
+  TrackList* t = new TrackList(parent, type_);
 
   t->ResizeTrackArray(tracks_.size());
   for (int i=0;i<tracks_.size();i++) {
-    t->tracks_[i] = tracks_.at(i)->copy(t.get());
+    t->tracks_[i] = tracks_.at(i)->copy(t);
   }
 
   return t;
@@ -22,7 +35,7 @@ TrackListPtr TrackList::copy(Sequence *parent)
 
 void TrackList::AddTrack()
 {
-  TrackPtr track = std::make_shared<Track>(this, type_);
+  Track* track = new Track(this, type_);
   tracks_.append(track);
 }
 
@@ -36,7 +49,7 @@ void TrackList::RemoveTrack(int i)
 
 Track *TrackList::First()
 {
-  return tracks_.first().get();
+  return tracks_.first();
 }
 
 int TrackList::TrackCount()
@@ -44,7 +57,27 @@ int TrackList::TrackCount()
   return tracks_.size();
 }
 
-QVector<TrackPtr> TrackList::tracks()
+int TrackList::IndexOfTrack(Track *track)
+{
+  for (int i=0;i<tracks_.size();i++) {
+    if (tracks_.at(i) == track) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+Track *TrackList::TrackAt(int i)
+{
+  while (i >= tracks_.size()) {
+    AddTrack();
+  }
+
+  return tracks_.at(i);
+}
+
+QVector<Track*> TrackList::tracks()
 {
   return tracks_;
 }

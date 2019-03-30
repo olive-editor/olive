@@ -4,6 +4,7 @@
 #include "timeline/sequence.h"
 #include "timeline/track.h"
 #include "timeline/tracklist.h"
+#include "timeline/timelinefunctions.h"
 #include "ui/timelineview.h"
 #include "ui/timelinelabel.h"
 
@@ -13,6 +14,7 @@ class TimelineArea : public QWidget
 public:
   TimelineArea();
 
+  void SetAlignment(olive::timeline::Alignment alignment);
   void SetTrackList(Sequence* sequence, Track::Type track_list);
 public slots:
   void RefreshLabels();
@@ -20,6 +22,7 @@ private:
   TrackList* track_list_;
   TimelineView* view_;
   QVector<TimelineLabel> labels_;
+  olive::timeline::Alignment alignment_;
 };
 
 #endif // TIMELINEAREA_H

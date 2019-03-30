@@ -113,20 +113,13 @@ private:
 
 class DeleteClipAction : public OliveAction {
 public:
-  DeleteClipAction(Sequence* s, int clip);
-  virtual ~DeleteClipAction() override;
+  DeleteClipAction(Clip* clip);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Sequence* seq;
-  ClipPtr ref;
-  int index;
+  ClipPtr clip_;
 
-  int opening_transition;
-  int closing_transition;
-
-  QVector<int> linkClipIndex;
-  QVector<int> linkLinkIndex;
+  QVector<Clip*> clips_linked_to_this_one_;
 };
 
 class ChangeSequenceAction : public OliveAction {

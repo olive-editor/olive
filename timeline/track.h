@@ -43,6 +43,9 @@ public:
   Track(TrackList* parent, Type type);
   Track* copy(TrackList* parent);
 
+  Sequence* sequence();
+  TrackList* track_list();
+
   void Save(QXmlStreamWriter& stream);
 
   Type type();
@@ -55,13 +58,17 @@ public:
   ClipPtr GetClip(int i);
   void RemoveClip(int i);
   void RemoveClip(Clip* c);
-  QVector<ClipPtr> GetAllClips();
-  QVector<Clip*> GetSelectedClips();
+  QVector<Clip*> GetAllClips();
+  QVector<Clip*> GetSelectedClips(bool containing);
+  ClipPtr GetClipObjectFromRawPtr(Clip* c);
+
+  int Index();
 
   bool IsClipSelected(int clip_index, bool containing = true);
   bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);
 
+  void TidySelections();
   void ClearSelections();
 
   long GetEndFrame();

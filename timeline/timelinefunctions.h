@@ -1,6 +1,10 @@
 #ifndef TIMELINEFUNCTIONS_H
 #define TIMELINEFUNCTIONS_H
 
+#include <QVector>
+
+#include "timeline/clip.h"
+
 namespace olive {
 namespace timeline {
 
@@ -25,13 +29,9 @@ enum Alignment {
   kAlignmentSingle
 };
 
-}
-}
+void RelinkClips(QVector<Clip*>& pre_clips, QVector<ClipPtr> &post_clips);
 
-class TimelineFunctions
-{
-public:
-  TimelineFunctions();
-};
+}
+}
 
 #endif // TIMELINEFUNCTIONS_H

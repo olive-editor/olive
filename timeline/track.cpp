@@ -1,6 +1,8 @@
 #include "track.h"
 
 #include "timeline/clip.h"
+#include "timeline/tracklist.h"
+#include "timeline/sequence.h"
 
 int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
@@ -30,20 +32,29 @@ Track *Track::copy(TrackList *parent)
   return t;
 }
 
+Sequence *Track::sequence()
+{
+  return parent_->GetParent();
+}
+
+TrackList *Track::track_list()
+{
+  return parent_;
+}
+
 void Track::Save(QXmlStreamWriter &stream)
 {
   stream.writeStartElement("track");
 
   for (int j=0;j<clips_.size();j++) {
     Clip* c = clips_.at(j).get();
-    if (c != nullptr) {
-      stream.writeStartElement("clip");
-      stream.writeAttribute("id", QString::number(j));
 
-      c->Save(stream);
+    stream.writeStartElement("clip");
+    stream.writeAttribute("id", QString::number(c->load_id));
 
-      stream.writeEndElement(); // clip
-    }
+    c->Save(stream);
+
+    stream.writeEndElement(); // clip
   }
 
   stream.writeEndElement(); // track
@@ -93,9 +104,49 @@ void Track::ResizeClipArray(int new_size)
   clips_.resize(new_size);
 }
 
-QVector<ClipPtr> Track::GetAllClips()
+QVector<Clip*> Track::GetAllClips()
 {
-  return clips_;
+  QVector<Clip*> clips;
+
+  clips.resize(clips_.size());
+  for (int i=0;i<clips_.size();i++) {
+    clips[i] = clips_.at(i).get();
+  }
+
+  return clips;
+}
+
+QVector<Clip *> Track::GetSelectedClips(bool containing)
+{
+  QVector<Clip*> selected_clips;
+
+  for (int i=0;i<clips_.size();i++) {
+
+    Clip* c = clips_.at(i).get();
+
+    if (IsClipSelected(c, containing)) {
+      selected_clips.append(c);
+    }
+  }
+
+  return selected_clips;
+}
+
+ClipPtr Track::GetClipObjectFromRawPtr(Clip *c)
+{
+  for (int i=0;i<clips_.size();i++) {
+    if (clips_.at(i).get() == c) {
+      return clips_.at(i);
+    }
+  }
+
+  // Assert here since we shouldn't be calling this function ever
+  Q_ASSERT(false);
+}
+
+int Track::Index()
+{
+  return parent_->IndexOfTrack(this);
 }
 
 bool Track::IsClipSelected(int clip_index, bool containing)
@@ -155,6 +206,37 @@ bool Track::IsTransitionSelected(Transition *t)
   }
 
   return false;
+}
+
+void Track::TidySelections()
+{
+  for (int i=0;i<areas.size();i++) {
+    Selection& s = areas[i];
+    for (int j=0;j<areas.size();j++) {
+      if (i != j) {
+        Selection& ss = areas[j];
+        if (s.track == ss.track) {
+          bool remove = false;
+          if (s.in < ss.in && s.out > ss.out) {
+            // do nothing
+          } else if (s.in >= ss.in && s.out <= ss.out) {
+            remove = true;
+          } else if (s.in <= ss.out && s.out > ss.out) {
+            ss.out = s.out;
+            remove = true;
+          } else if (s.out >= ss.in && s.in < ss.in) {
+            ss.in = s.in;
+            remove = true;
+          }
+          if (remove) {
+            areas.removeAt(i);
+            i--;
+            break;
+          }
+        }
+      }
+    }
+  }
 }
 
 void Track::ClearSelections()

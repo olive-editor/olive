@@ -90,14 +90,12 @@ void MoveClipAction::doRedo() {
   }
 }
 
-DeleteClipAction::DeleteClipAction(Sequence *s, int clip) {
-  seq = s;
-  index = clip;
-  opening_transition = -1;
-  closing_transition = -1;
-}
+DeleteClipAction::DeleteClipAction(Clip *clip)
+{
+  // Get shared_ptr object to take ownership of this Clip
 
-DeleteClipAction::~DeleteClipAction() {}
+  clip_ = clip->track()->GetClipObjectFromRawPtr(clip);
+}
 
 void DeleteClipAction::doUndo() {
   // restore ref to clip
@@ -113,13 +111,14 @@ void DeleteClipAction::doUndo() {
 
 void DeleteClipAction::doRedo() {
   // remove ref to clip
-  ref = seq->clips.at(index);
-  if (ref->IsOpen()) {
-    ref->Close(true);
+  if (clip_->IsOpen()) {
+    clip_->Close(true);
   }
-  seq->clips[index] = nullptr;
+
+  clip_->track()->RemoveClip(clip_.get());
 
   // delete link to this clip
+  QVector<Clip*> clips = clip_->track()->
   linkClipIndex.clear();
   linkLinkIndex.clear();
   for (int i=0;i<seq->clips.size();i++) {

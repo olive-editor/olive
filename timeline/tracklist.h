@@ -10,10 +10,14 @@ public:
   TrackList(Sequence* parent, Track::Type type);
   TrackList* copy(Sequence* parent);
 
+  void Save(QXmlStreamWriter& stream);
+
   void AddTrack();
   void RemoveTrack(int i);
   Track* First();
   int TrackCount();
+  int IndexOfTrack(Track* track);
+  Track* TrackAt(int i);
   QVector<Track*> tracks();
 
   Sequence* GetParent();
