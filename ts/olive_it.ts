@@ -2194,7 +2194,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="705"/>
         <source>Effect Textbox Lines:</source>
-        <translation>Numero linee nelle opzioni dell&apos;effetto Text:</translation>
+        <translation>N° linee nelle caselle di testo degli effetti:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
