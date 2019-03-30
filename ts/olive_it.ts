@@ -1184,7 +1184,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="871"/>
         <source>Play In to Out</source>
-        <translation>Riproduci tra punti di inizio e fine</translation>
+        <translation>Riproduci tra inizio e fine selezione</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="872"/>
@@ -1397,7 +1397,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="912"/>
         <source>No Auto-Scroll</source>
-        <translation>No scorrimento automatico</translation>
+        <translation>Disattiva scorrimento automatico</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="913"/>
