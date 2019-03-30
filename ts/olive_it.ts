@@ -218,7 +218,7 @@
     <message>
         <location filename="../dialogs/demonotice.cpp" line="49"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offriamo alcuna garanzia, quindi usalo a tuo rischio. Si prega di segnalare errori o richieste di funzionalità a %1</translation>
+        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offriamo alcuna garanzia, quindi usalo a tuo rischio. Si prega di segnalare errori o richiedere funzionalità su %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="51"/>
@@ -1028,22 +1028,23 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="836"/>
         <source>Ripple to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglia a catena fino al punto iniziale</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="837"/>
         <source>Ripple to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Intende il punto fine selezione o il cursore?</translatorcomment>
+        <translation>Taglia a catena dal punto finale</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="838"/>
         <source>Edit to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglia fino al punto iniziale</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="839"/>
         <source>Edit to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>Taglia dal punto finale</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="840"/>
@@ -1416,7 +1417,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="918"/>
         <source>Clear Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimentica cronologia azioni</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="921"/>
@@ -1690,7 +1691,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="179"/>
         <source>Ripple Delete</source>
-        <translation>Elimina mantenendo distanze clip</translation>
+        <translation>Elimina a catena</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="180"/>
@@ -2193,7 +2194,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="705"/>
         <source>Effect Textbox Lines:</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero linee nelle opzioni dell&apos;effetto Text:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
@@ -3450,7 +3451,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../ui/timelinewidget.cpp" line="175"/>
         <source>&amp;Reveal in Project</source>
-        <translation>Mostra nel progetto</translation>
+        <translation>Most&amp;ra nel progetto</translation>
     </message>
     <message>
         <source>R&amp;ename</source>
