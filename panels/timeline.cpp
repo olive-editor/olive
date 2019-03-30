@@ -1870,7 +1870,7 @@ void Timeline::transition_tool_click() {
 
   for (int i=0;i<olive::effects.size();i++) {
     const EffectMeta& em = olive::effects.at(i);
-    if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_VIDEO) {
+    if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == Track::kTypeVideo) {
       QAction* a = transition_menu.addAction(em.name);
       a->setObjectName("v");
       a->setData(reinterpret_cast<quintptr>(&em));
@@ -1881,7 +1881,7 @@ void Timeline::transition_tool_click() {
 
   for (int i=0;i<olive::effects.size();i++) {
     const EffectMeta& em = olive::effects.at(i);
-    if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == EFFECT_TYPE_AUDIO) {
+    if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == Track::kTypeAudio) {
       QAction* a = transition_menu.addAction(em.name);
       a->setObjectName("a");
       a->setData(reinterpret_cast<quintptr>(&em));

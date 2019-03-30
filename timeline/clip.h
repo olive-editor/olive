@@ -128,7 +128,7 @@ public:
   // other variables (should be deep copied/duplicated in copy())
   int IndexOfEffect(Effect* e);
   QList<EffectPtr> effects;
-  QVector<int> linked;
+  QVector<Clip*> linked;
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;
 
