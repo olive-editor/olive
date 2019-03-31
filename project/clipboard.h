@@ -23,16 +23,37 @@
 
 #include <QVector>
 
-#include <effects/transition.h>
-
-#define CLIPBOARD_TYPE_CLIP 0
-#define CLIPBOARD_TYPE_EFFECT 1
+#include "effects/transition.h"
 
 using VoidPtr = std::shared_ptr<void>;
 
-extern int clipboard_type;
-extern QVector<TransitionPtr> clipboard_transitions;
-extern QVector<VoidPtr> clipboard;
-void clear_clipboard();
+class Clipboard {
+public:
+  enum Type {
+    CLIPBOARD_TYPE_CLIP,
+    CLIPBOARD_TYPE_EFFECT
+  };
+
+  Clipboard();
+  void Append(VoidPtr obj);
+  void Clear();
+  int Count();
+  VoidPtr Get(int i);
+  void SetType(Type type);
+  bool IsEmpty();
+  Type type();
+
+  bool DeleteClipsWithMedia(ComboAction* ca, Media* m);
+
+private:
+  Type type_;
+
+  QVector<TransitionPtr> clipboard_transitions_;
+  QVector<VoidPtr> clipboard_;
+};
+
+namespace olive {
+extern Clipboard clipboard;
+}
 
 #endif // CLIPBOARD_H

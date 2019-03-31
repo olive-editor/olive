@@ -21,14 +21,29 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
-struct Selection {
-  long in;
-  long out;
+#include <QVector>
 
-  long old_in;
-  long old_out;
+class Track;
 
-  bool trim_in;
+class Selection {
+public:
+  Selection(long in, long out, Track* track);
+
+  long in() const;
+  long out() const;
+  Track* track() const;
+
+  void set_in(long in);
+  void set_out(long out);
+
+  static void Tidy(QVector<Selection&> selections);
+
+private:
+  long in_;
+  long out_;
+  Track* track_;
+
+  bool trim_in_;
 };
 
 #endif // SELECTION_H

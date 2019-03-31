@@ -473,6 +473,11 @@ private:
     void save_recent_projects();
 
     /**
+     * @brief Internal pasting function
+     */
+    void PasteInternal(Sequence* s);
+
+    /**
      * @brief File filter used for any file dialogs relating to Olive project files.
      */
     QString project_file_filter;

@@ -3,6 +3,7 @@
 #include "timeline/clip.h"
 #include "timeline/tracklist.h"
 #include "timeline/sequence.h"
+#include "global/math.h"
 
 int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
@@ -72,7 +73,7 @@ int Track::height()
 
 void Track::set_height(int h)
 {
-  height_ = h;
+  height_ = qMax(h, olive::timeline::kTrackMinHeight);
 }
 
 void Track::AddClip(ClipPtr clip)
@@ -158,9 +159,9 @@ bool Track::IsClipSelected(Clip *clip, bool containing)
 {
   for (int i=0;i<selections_.size();i++) {
     const Selection& s = selections_.at(i);
-    if (((clip->timeline_in() >= s.in && clip->timeline_out() <= s.out)
-         || (!containing && !(clip->timeline_in() < s.in && clip->timeline_out() < s.in)
-             && !(clip->timeline_in() > s.in && clip->timeline_out() > s.in)))) {
+    if (((clip->timeline_in() >= s.in() && clip->timeline_out() <= s.out())
+         || (!containing && !(clip->timeline_in() < s.in() && clip->timeline_out() < s.in())
+             && !(clip->timeline_in() > s.in() && clip->timeline_out() > s.in())))) {
       return true;
     }
   }
@@ -199,8 +200,8 @@ bool Track::IsTransitionSelected(Transition *t)
   // See if there's a selection matching this
   for (int i=0;i<selections_.size();i++) {
     const Selection& s = selections_.at(i);
-    if (s.in <= transition_in_point
-        && s.out >= transition_out_point) {
+    if (s.in() <= transition_in_point
+        && s.out() >= transition_out_point) {
       return true;
     }
   }
@@ -208,33 +209,33 @@ bool Track::IsTransitionSelected(Transition *t)
   return false;
 }
 
-void Track::TidySelections()
+void Track::SelectClip(Clip* c)
 {
-  for (int i=0;i<areas.size();i++) {
-    Selection& s = areas[i];
-    for (int j=0;j<areas.size();j++) {
-      if (i != j) {
-        Selection& ss = areas[j];
-        if (s.track == ss.track) {
-          bool remove = false;
-          if (s.in < ss.in && s.out > ss.out) {
-            // do nothing
-          } else if (s.in >= ss.in && s.out <= ss.out) {
-            remove = true;
-          } else if (s.in <= ss.out && s.out > ss.out) {
-            ss.out = s.out;
-            remove = true;
-          } else if (s.out >= ss.in && s.in < ss.in) {
-            ss.in = s.in;
-            remove = true;
-          }
-          if (remove) {
-            areas.removeAt(i);
-            i--;
-            break;
-          }
-        }
-      }
+  selections_.append(Selection(c->timeline_in(), c->timeline_out(), this));
+}
+
+void Track::SelectAll()
+{
+  ClearSelections();
+
+  // Select every clip
+  for (int i=0;i<clips_.size();i++) {
+    SelectClip(clips_.at(i).get());
+  }
+}
+
+void Track::SelectAtPoint(long point)
+{
+  ClearSelections();
+
+  // Select every clip that this point is within
+  for (int i=0;i<clips_.size();i++) {
+
+    Clip* c = clips_.at(i).get();
+
+    if (c->timeline_in() <= point
+        && c->timeline_out() > point) {
+      SelectClip(c);
     }
   }
 }
@@ -242,6 +243,38 @@ void Track::TidySelections()
 void Track::ClearSelections()
 {
   selections_.clear();
+}
+
+void Track::DeselectArea(long in, long out)
+{
+  int selection_count = selections_.size();
+    for (int i=0;i<selection_count;i++) {
+      Selection& s = selections_[i];
+
+      if (s.in() >= in && s.out() <= out) {
+        // whole selection is in deselect area
+        selections_.removeAt(i);
+        i--;
+        selection_count--;
+      } else if (s.in() < in && s.out() > out) {
+        // middle of selection is in deselect area
+        Selection new_sel(out, s.out(), s.track());
+        selections_.append(new_sel);
+
+        s.set_out(in);
+      } else if (s.in() < in && s.out() > in) {
+        // only out point is in deselect area
+        s.set_out(in);
+      } else if (s.in() < out && s.out() > out) {
+        // only in point is in deselect area
+        s.set_in(out);
+      }
+  }
+}
+
+QVector<Selection> Track::Selections()
+{
+  return selections_;
 }
 
 long Track::GetEndFrame()

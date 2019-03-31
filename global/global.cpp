@@ -30,6 +30,7 @@
 #include "panels/panels.h"
 #include "global/path.h"
 #include "global/config.h"
+#include "project/clipboard.h"
 #include "rendering/audio.h"
 #include "dialogs/demonotice.h"
 #include "dialogs/preferencesdialog.h"
@@ -304,6 +305,148 @@ void OliveGlobal::save_recent_projects()
     f.close();
   } else {
     qWarning() << "Could not save recent projects";
+  }
+}
+
+void OliveGlobal::PasteInternal(Sequence *s)
+{
+  if (!olive::clipboard.IsEmpty()) {
+    if (olive::clipboard.type() == Clipboard::CLIPBOARD_TYPE_CLIP) {
+      ComboAction* ca = new ComboAction();
+
+      // create copies and delete areas that we'll be pasting to
+      QVector<Selection> delete_areas;
+      QVector<ClipPtr> pasted_clips;
+      long paste_start = LONG_MAX;
+      long paste_end = LONG_MIN;
+
+      for (int i=0;i<olive::clipboard.size();i++) {
+        ClipPtr c = std::static_pointer_cast<Clip>(olive::clipboard.at(i));
+
+        // create copy of clip and offset by playhead
+        ClipPtr cc = c->copy(olive::ActiveSequence.get());
+
+        // convert frame rates
+        cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
+        cc->set_timeline_out(rescale_frame_number(cc->timeline_out(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
+        cc->set_clip_in(rescale_frame_number(cc->clip_in(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
+
+        cc->set_timeline_in(cc->timeline_in() + olive::ActiveSequence->playhead);
+        cc->set_timeline_out(cc->timeline_out() + olive::ActiveSequence->playhead);
+        cc->set_track(c->track());
+
+        paste_start = qMin(paste_start, cc->timeline_in());
+        paste_end = qMax(paste_end, cc->timeline_out());
+
+        pasted_clips.append(cc);
+
+        if (!insert) {
+          delete_areas.append(Selection(cc->timeline_in(), cc->timeline_out(), c->track()));
+        }
+      }
+      if (insert) {
+        split_all_clips_at_point(ca, olive::ActiveSequence->playhead);
+        ripple_clips(ca, olive::ActiveSequence.get(), paste_start, paste_end - paste_start);
+      } else {
+        delete_areas_and_relink(ca, delete_areas, false);
+      }
+
+      // correct linked clips
+      for (int i=0;i<clipboard.size();i++) {
+        // these indices should correspond
+        ClipPtr oc = std::static_pointer_cast<Clip>(clipboard.at(i));
+
+        for (int j=0;j<oc->linked.size();j++) {
+          for (int k=0;k<clipboard.size();k++) { // find clip with that ID
+            ClipPtr comp = std::static_pointer_cast<Clip>(clipboard.at(k));
+            if (comp->load_id == oc->linked.at(j)) {
+              pasted_clips.at(i)->linked.append(k);
+            }
+          }
+        }
+      }
+
+      ca->append(new AddClipCommand(olive::ActiveSequence.get(), pasted_clips));
+
+      olive::UndoStack.push(ca);
+
+      update_ui(true);
+
+      if (olive::CurrentConfig.paste_seeks) {
+        panel_sequence_viewer->seek(paste_end);
+      }
+
+    } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
+      ComboAction* ca = new ComboAction();
+
+      bool replace = false;
+      bool skip = false;
+      bool ask_conflict = true;
+
+      QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+
+      for (int i=0;i<selected_clips.size();i++) {
+        Clip* c = selected_clips.at(i);
+
+        for (int j=0;j<clipboard.size();j++) {
+          EffectPtr e = std::static_pointer_cast<Effect>(clipboard.at(j));
+          if ((c->track() < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
+            int found = -1;
+            if (ask_conflict) {
+              replace = false;
+              skip = false;
+            }
+            for (int k=0;k<c->effects.size();k++) {
+              if (c->effects.at(k)->meta == e->meta) {
+                found = k;
+                break;
+              }
+            }
+            if (found >= 0 && ask_conflict) {
+              QMessageBox box(this);
+              box.setWindowTitle(tr("Effect already exists"));
+              box.setText(tr("Clip '%1' already contains a '%2' effect. "
+                             "Would you like to replace it with the pasted one or add it as a separate effect?")
+                          .arg(c->name(), e->meta->name));
+              box.setIcon(QMessageBox::Icon::Question);
+
+              box.addButton(tr("Add"), QMessageBox::YesRole);
+              QPushButton* replace_button = box.addButton(tr("Replace"), QMessageBox::NoRole);
+              QPushButton* skip_button = box.addButton(tr("Skip"), QMessageBox::RejectRole);
+
+              QCheckBox* future_box = new QCheckBox(tr("Do this for all conflicts found"), &box);
+              box.setCheckBox(future_box);
+
+              box.exec();
+
+              if (box.clickedButton() == replace_button) {
+                replace = true;
+              } else if (box.clickedButton() == skip_button) {
+                skip = true;
+              }
+              ask_conflict = !future_box->isChecked();
+            }
+
+            if (found >= 0 && skip) {
+              // do nothing
+            } else if (found >= 0 && replace) {
+              ca->append(new EffectDeleteCommand(c->effects.at(found).get()));
+
+              ca->append(new AddEffectCommand(c, e->copy(c), nullptr, found));
+            } else {
+              ca->append(new AddEffectCommand(c, e->copy(c), nullptr));
+            }
+          }
+        }
+      }
+      if (ca->hasActions()) {
+        ca->appendPost(new ReloadEffectsCommand());
+        olive::UndoStack.push(ca);
+      } else {
+        delete ca;
+      }
+      update_ui(true);
+    }
   }
 }
 

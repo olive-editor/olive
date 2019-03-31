@@ -41,8 +41,6 @@
 int getScreenPointFromFrame(double zoom, long frame);
 long getFrameFromScreenPoint(double zoom, int x);
 bool selection_contains_transition(const Selection& s, Clip *c, int type);
-void ripple_clips(ComboAction *ca, Sequence *s, long point, long length, const QVector<int>& ignore = QVector<int>());
-
 
 
 class Timeline : public Panel
@@ -95,7 +93,6 @@ public:
   // selecting functions
   bool selecting;
   int selection_offset;
-  void delete_selection(QVector<Selection> &selections, bool ripple);
   void select_all();
   bool rect_select_init;
   bool rect_select_proc;

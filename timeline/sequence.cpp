@@ -23,6 +23,7 @@
 #include <QCoreApplication>
 
 #include "panels/panels.h"
+#include "project/clipboard.h"
 #include "global/debug.h"
 
 Sequence::Sequence() :
@@ -176,9 +177,54 @@ QVector<Clip *> Sequence::SelectedClips(bool containing)
   return selected_clips;
 }
 
-void Sequence::DeleteAreas(ComboAction* ca, QVector<Selection>& areas, bool deselect_areas)
+void Sequence::DeleteInToOut(bool ripple)
 {
-  clean_up_selections(areas);
+  if (using_workarea) {
+
+    QVector<Selection> areas_to_delete;
+
+    for (int i=0;i<track_lists_.size();i++) {
+
+      TrackList* tl = track_lists_.at(i);
+
+      for (int j=0;j<tl->TrackCount();j++) {
+        areas_to_delete.append(Selection(workarea_in, workarea_out, tl->TrackAt(j)));
+      }
+
+    }
+
+    ComboAction* ca = new ComboAction();
+    DeleteAreas(ca, areas_to_delete, true);
+    if (ripple) Ripple(ca,
+                       workarea_in,
+                       workarea_in - workarea_out);
+    ca->append(new SetTimelineInOutCommand(olive::ActiveSequence.get(), false, 0, 0));
+    olive::UndoStack.push(ca);
+    update_ui(true);
+  }
+}
+
+void Sequence::Ripple(ComboAction *ca, long point, long length, const QVector<int> &ignore)
+{
+  ca->append(new RippleAction(this, point, length, ignore));
+}
+
+void Sequence::ChangeTrackHeightsRelatively(int diff)
+{
+  for (int i=0;i<track_lists_.size();i++) {
+    TrackList* tl = track_lists_.at(i);
+
+    for (int j=0;j<tl->TrackCount();j++) {
+      Track* t = tl->TrackAt(j);
+
+      t->set_height(t->height() + diff);
+    }
+  }
+}
+
+void Sequence::DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool deselect_areas)
+{
+  Selection::Tidy(areas);
 
   panel_graph_editor->set_row(nullptr);
   panel_effect_controls->Clear(true);
@@ -192,41 +238,41 @@ void Sequence::DeleteAreas(ComboAction* ca, QVector<Selection>& areas, bool dese
     const Selection& s = areas.at(i);
     for (int j=0;j<all_clips.size();j++) {
       Clip* c = all_clips.at(j);
-      if (c != nullptr && c->track() == s.track && !c->undeletable) {
+      if (c->track() == s.track() && !c->undeletable) {
         if (selection_contains_transition(s, c, kTransitionOpening)) {
           // delete opening transition
           ca->append(new DeleteTransitionCommand(c->opening_transition));
         } else if (selection_contains_transition(s, c, kTransitionClosing)) {
           // delete closing transition
           ca->append(new DeleteTransitionCommand(c->closing_transition));
-        } else if (c->timeline_in() >= s.in && c->timeline_out() <= s.out) {
+        } else if (c->timeline_in() >= s.in() && c->timeline_out() <= s.out()) {
           // clips falls entirely within deletion area
           ca->append(new DeleteClipAction(c));
-        } else if (c->timeline_in() < s.in && c->timeline_out() > s.out) {
+        } else if (c->timeline_in() < s.in() && c->timeline_out() > s.out()) {
           // middle of clip is within deletion area
 
           // duplicate clip
-          ClipPtr post = SplitClip(ca, true, c, s.in, s.out);
+          ClipPtr post = SplitClip(ca, true, c, s.in(), s.out());
 
           pre_clips.append(j);
           post_clips.append(post);
-        } else if (c->timeline_in() < s.in && c->timeline_out() > s.in) {
+        } else if (c->timeline_in() < s.in() && c->timeline_out() > s.in()) {
           // only out point is in deletion area
-          c->move(ca, c->timeline_in(), s.in, c->clip_in(), c->track());
+          c->move(ca, c->timeline_in(), s.in(), c->clip_in(), c->track());
 
           if (c->closing_transition != nullptr) {
-            if (s.in < c->timeline_out() - c->closing_transition->get_true_length()) {
+            if (s.in() < c->timeline_out() - c->closing_transition->get_true_length()) {
               ca->append(new DeleteTransitionCommand(c->closing_transition));
             } else {
               ca->append(new ModifyTransitionCommand(c->closing_transition, c->closing_transition->get_true_length() - (c->timeline_out() - s.in)));
             }
           }
-        } else if (c->timeline_in() < s.out && c->timeline_out() > s.out) {
+        } else if (c->timeline_in() < s.out() && c->timeline_out() > s.out()) {
           // only in point is in deletion area
-          c->move(ca, s.out, c->timeline_out(), c->clip_in() + (s.out - c->timeline_in()), c->track());
+          c->move(ca, s.out(), c->timeline_out(), c->clip_in() + (s.out() - c->timeline_in()), c->track());
 
           if (c->opening_transition != nullptr) {
-            if (s.out > c->timeline_in() + c->opening_transition->get_true_length()) {
+            if (s.out() > c->timeline_in() + c->opening_transition->get_true_length()) {
               ca->append(new DeleteTransitionCommand(c->opening_transition));
             } else {
               ca->append(new ModifyTransitionCommand(c->opening_transition, c->opening_transition->get_true_length() - (s.out - c->timeline_in())));
@@ -370,6 +416,28 @@ Effect *Sequence::GetSelectedGizmo()
   return gizmo_ptr;
 }
 
+void Sequence::SelectAll()
+{
+  for (int j=0;j<track_lists_.size();j++) {
+    TrackList* tl = track_lists_.at(j);
+
+    for (int i=0;i<tl->TrackCount();i++) {
+      tl->TrackAt(i)->SelectAll();
+    }
+  }
+}
+
+void Sequence::SelectAtPlayhead()
+{
+  for (int j=0;j<track_lists_.size();j++) {
+    TrackList* tl = track_lists_.at(j);
+
+    for (int i=0;i<tl->TrackCount();i++) {
+      tl->TrackAt(i)->SelectAtPoint(playhead);
+    }
+  }
+}
+
 void Sequence::ClearSelections()
 {
   for (int j=0;j<track_lists_.size();j++) {
@@ -379,6 +447,94 @@ void Sequence::ClearSelections()
       tl->TrackAt(i)->ClearSelections();
     }
   }
+}
+
+void Sequence::AddSelectionsToClipboard(bool delete_originals)
+{
+  olive::clipboard.Clear();
+  olive::clipboard.SetType(Clipboard::CLIPBOARD_TYPE_CLIP);
+
+  QVector<Clip*> original_clips;
+  QVector<ClipPtr> copied_clips;
+
+  long min_in = LONG_MAX;
+
+  QVector<Selection> selections = Selections();
+  for (int i=0;i<selections.size();i++) {
+    const Selection& s = selections.at(i);
+
+    // Get the clips contained in the track this selection pertains to
+    QVector<Clip*> track_clips = s.track()->GetAllClips();
+
+    for (int j=0;j<track_clips.size();j++) {
+
+      Clip* c = track_clips.at(j);
+
+      // Check if this selection contains this clip
+      if (!(c->timeline_out() < s.in() || c->timeline_in() > s.out())) {
+
+        // If so, we'll be copying this clip
+        original_clips.append(c);
+
+        ClipPtr copy = c->copy(nullptr);
+
+        // If we only copied part of this clip, adjust the copy so it's only that part of the clip
+        if (copy->timeline_in() < s.in()) {
+          copy->set_clip_in(copy->clip_in() + (s.in() - copy->timeline_in()));
+          copy->set_timeline_in(s.in());
+        }
+
+        if (copy->timeline_out() > s.out()) {
+          copy->set_timeline_out(s.out());
+        }
+
+        // Store the minimum in point as all copies will be stored offset from 0
+        min_in = qMin(min_in, s.in());
+
+        copied_clips.append(copy);
+        olive::clipboard.Append(copy);
+
+      }
+    }
+  }
+
+  // Determine whether we actually copied anything
+  if (min_in < LONG_MAX) {
+
+    // Offset all copied clips to 0
+    for (int i=0;i<copied_clips.size();i++) {
+      Clip* copy = copied_clips.at(i).get();
+
+      copy->set_timeline_in(copy->timeline_in() - min_in);
+      copy->set_timeline_out(copy->timeline_out() - min_in);
+    }
+
+    // Relink the copied clips with each other
+    olive::timeline::RelinkClips(original_clips, copied_clips);
+
+    // If we're deleting the originals (i.e. cutting), delete them now
+    if (delete_originals) {
+      ComboAction* ca = new ComboAction();
+      DeleteAreas(ca, selections, true);
+      olive::UndoStack.push(ca);
+    }
+
+  }
+}
+
+QVector<Selection> Sequence::Selections()
+{
+  QVector<Selection> selections;
+
+  for (int j=0;j<track_lists_.size();j++) {
+    TrackList* tl = track_lists_.at(j);
+
+    for (int i=0;i<tl->TrackCount();i++) {
+      selections.append(tl->TrackAt(i)->Selections());
+    }
+  }
+
+  return selections;
 }
 
 ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long frame)

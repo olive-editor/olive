@@ -65,7 +65,12 @@ public:
   QVector<Clip*> SelectedClips(bool containing = true);
   //QVector<int> SelectedClipIndexes();
 
-  void DeleteAreas();
+  void DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool deselect_areas);
+  void DeleteInToOut(bool ripple);
+
+  void Ripple(ComboAction *ca, long point, long length, const QVector<int>& ignore = QVector<int>());
+
+  void ChangeTrackHeightsRelatively(int diff);
 
   bool SplitAllClipsAtPoint(ComboAction *ca, long point);
   void SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool relink = true);
@@ -75,7 +80,11 @@ public:
   bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);
 
+  void SelectAll();
+  void SelectAtPlayhead();
   void ClearSelections();
+  void AddSelectionsToClipboard(bool delete_originals);
+  QVector<Selection> Selections();
 
   long playhead;
 

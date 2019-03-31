@@ -24,11 +24,60 @@
 #include "effects/effect.h"
 #include "effects/transition.h"
 
-int clipboard_type = CLIPBOARD_TYPE_CLIP;
-QVector<VoidPtr> clipboard;
-QVector<TransitionPtr> clipboard_transitions;
-
-void clear_clipboard() {
-  clipboard.clear();
-  clipboard_transitions.clear();
+Clipboard::Clipboard() :
+  type_(CLIPBOARD_TYPE_CLIP)
+{
 }
+
+void Clipboard::Append(VoidPtr obj)
+{
+  clipboard_.append(obj);
+}
+
+void Clipboard::Clear()
+{
+  clipboard_.clear();
+  clipboard_transitions_.clear();
+}
+
+int Clipboard::Count()
+{
+  return clipboard_.size();
+}
+
+VoidPtr Clipboard::Get(int i)
+{
+  return clipboard_.at(i);
+}
+
+bool Clipboard::IsEmpty()
+{
+  return clipboard_.isEmpty();
+}
+
+Clipboard::Type Clipboard::type()
+{
+  return type_;
+}
+
+bool Clipboard::DeleteClipsWithMedia(ComboAction *ca, Media *m)
+{
+  if (type_ != CLIPBOARD_TYPE_CLIP) {
+    return false;
+  }
+
+  int delete_count = 0;
+
+  for (int i=0;i<clipboard_.size();i++) {
+    Clip* c = std::static_pointer_cast<Clip>(clipboard_.at(i)).get();
+
+    if (c->media() == m) {
+      ca->append(new RemoveClipsFromClipboard(i-delete_count));
+      delete_count++;
+    }
+  }
+
+  return (delete_count > 0);
+}
+
+Clipboard olive::clipboard;

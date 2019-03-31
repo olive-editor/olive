@@ -181,7 +181,8 @@ SOURCES += \
     ui/timelinearea.cpp \
     timeline/timelineshared.cpp \
     ui/timelineview.cpp \
-    ui/timelinelabel.cpp
+    ui/timelinelabel.cpp \
+    timeline/selection.cpp
 
 HEADERS += \
         ui/mainwindow.h \

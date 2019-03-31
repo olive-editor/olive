@@ -99,3 +99,9 @@ QRect fit_size_into_rect(const QRect &r, int width, int height)
     return QRect(r.x(), r.y() + (r.height() / 2 - new_height / 2), r.width(), new_height);
   }
 }
+
+template<typename T>
+const T &clamp(const T &val, T &min, T &max)
+{
+  return qMax(qMin(max, val), min);
+}

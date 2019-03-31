@@ -156,12 +156,12 @@ void EffectControls::copy(bool del) {
       if (e->meta->type == EFFECT_TYPE_EFFECT) {
 
         if (!cleared) {
-          clear_clipboard();
+          olive::clipboard.Clear();
           cleared = true;
-          clipboard_type = CLIPBOARD_TYPE_EFFECT;
+          olive::clipboard.SetType(Clipboard::CLIPBOARD_TYPE_EFFECT);
         }
 
-        clipboard.append(e->copy(nullptr));
+        olive::clipboard.Append(e->copy(nullptr));
 
         if (del) {
 

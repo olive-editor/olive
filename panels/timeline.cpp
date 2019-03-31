@@ -142,10 +142,6 @@ void Timeline::Retranslate() {
   UpdateTitle();
 }
 
-void ripple_clips(ComboAction* ca, Sequence* s, long point, long length, const QVector<int>& ignore) {
-  ca->append(new RippleAction(s, point, length, ignore));
-}
-
 void Timeline::toggle_show_all() {
   if (olive::ActiveSequence != nullptr) {
     showing_all = !showing_all;
@@ -453,9 +449,9 @@ void Timeline::nest() {
             Ghost& g = ghosts[i];
             if (c->track() == g.track
                 && !((c->timeline_in() < g.in
-                && c->timeline_out() < g.in)
-                || (c->timeline_in() > g.out
-                    && c->timeline_out() > g.out))) {
+                      && c->timeline_out() < g.in)
+                     || (c->timeline_in() > g.out
+                         && c->timeline_out() > g.out))) {
 
               // There's a clip occupied by the space taken up by this ghost. Move up a track, and seek again.
               g.track = g.track->track_list()->TrackAt(g.track->Index() + 1);
@@ -547,17 +543,7 @@ void Timeline::repaint_timeline() {
 
 void Timeline::select_all() {
   if (olive::ActiveSequence != nullptr) {
-    olive::ActiveSequence->ClearSelections();
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(i);
-      if (c != nullptr) {
-        Selection s;
-        s.in = c->timeline_in();
-        s.out = c->timeline_out();
-        s.track = c->track();
-        olive::ActiveSequence->selections.append(s);
-      }
-    }
+    olive::ActiveSequence->SelectAll();
     repaint_timeline();
   }
 }
@@ -567,60 +553,9 @@ void Timeline::scroll_to_frame(long frame) {
 }
 
 void Timeline::select_from_playhead() {
-  olive::ActiveSequence->selections.clear();
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    ClipPtr c = olive::ActiveSequence->clips.at(i);
-    if (c != nullptr
-        && c->timeline_in() <= olive::ActiveSequence->playhead
-        && c->timeline_out() > olive::ActiveSequence->playhead) {
-      Selection s;
-      s.in = c->timeline_in();
-      s.out = c->timeline_out();
-      s.track = c->track();
-      olive::ActiveSequence->selections.append(s);
-    }
+  if (olive::ActiveSequence != nullptr) {
+    olive::ActiveSequence->SelectAtPlayhead();
   }
-}
-
-bool Timeline::can_ripple_empty_space(long frame, int track) {
-  bool can_ripple_delete = true;
-  bool at_end_of_sequence = true;
-  rc_ripple_min = 0;
-  rc_ripple_max = LONG_MAX;
-
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    ClipPtr c = olive::ActiveSequence->clips.at(i);
-    if (c != nullptr) {
-      if (c->timeline_in() > frame || c->timeline_out() > frame) {
-        at_end_of_sequence = false;
-      }
-      if (c->track() == track) {
-        if (c->timeline_in() <= frame && c->timeline_out() >= frame) {
-          can_ripple_delete = false;
-          break;
-        } else if (c->timeline_out() < frame) {
-          rc_ripple_min = qMax(rc_ripple_min, c->timeline_out());
-        } else if (c->timeline_in() > frame) {
-          rc_ripple_max = qMin(rc_ripple_max, c->timeline_in());
-        }
-      }
-    }
-  }
-
-  return (can_ripple_delete && !at_end_of_sequence);
-}
-
-void Timeline::ripple_delete_empty_space() {
-  QVector<Selection> sels;
-
-  Selection s;
-  s.in = rc_ripple_min;
-  s.out = rc_ripple_max;
-  s.track = cursor_track;
-
-  sels.append(s);
-
-  delete_selection(sels, true);
 }
 
 void Timeline::resizeEvent(QResizeEvent *) {
@@ -654,30 +589,6 @@ void Timeline::resizeEvent(QResizeEvent *) {
   tool_button_widget->setFixedWidth((tool_button_children.at(0)->sizeHint().width())*cols + horizontal_spacing*(cols-1) + 1);
 }
 
-void Timeline::delete_in_out_internal(bool ripple) {
-  if (olive::ActiveSequence != nullptr && olive::ActiveSequence->using_workarea) {
-    QVector<Selection> areas;
-    int video_tracks = 0, audio_tracks = 0;
-    olive::ActiveSequence->getTrackLimits(&video_tracks, &audio_tracks);
-    for (int i=video_tracks;i<=audio_tracks;i++) {
-      Selection s;
-      s.in = olive::ActiveSequence->workarea_in;
-      s.out = olive::ActiveSequence->workarea_out;
-      s.track = i;
-      areas.append(s);
-    }
-    ComboAction* ca = new ComboAction();
-    delete_areas_and_relink(ca, areas, true);
-    if (ripple) ripple_clips(ca,
-                             olive::ActiveSequence.get(),
-                             olive::ActiveSequence->workarea_in,
-                             olive::ActiveSequence->workarea_in - olive::ActiveSequence->workarea_out);
-    ca->append(new SetTimelineInOutCommand(olive::ActiveSequence.get(), false, 0, 0));
-    olive::UndoStack.push(ca);
-    update_ui(true);
-  }
-}
-
 void Timeline::toggle_enable_on_selected_clips() {
   if (olive::ActiveSequence != nullptr) {
 
@@ -698,76 +609,6 @@ void Timeline::toggle_enable_on_selected_clips() {
       olive::UndoStack.push(set_action);
       update_ui(false);
     }
-  }
-}
-
-void Timeline::delete_selection(QVector<Selection>& selections, bool ripple_delete) {
-  if (selections.size() > 0) {
-    panel_graph_editor->set_row(nullptr);
-    panel_effect_controls->Clear(true);
-
-    ComboAction* ca = new ComboAction();
-
-    // delete the areas currently selected by `selections`
-    // if we're ripple deleting, we don't want to delete the selections since we still need them for the ripple
-    delete_areas_and_relink(ca, selections, !ripple_delete);
-
-    if (ripple_delete) {
-      long ripple_point = selections.at(0).in;
-      long ripple_length = selections.at(0).out - selections.at(0).in;
-
-      // retrieve ripple_point and ripple_length from current selection
-      for (int i=1;i<selections.size();i++) {
-        const Selection& s = selections.at(i);
-        ripple_point = qMin(ripple_point, s.in);
-        ripple_length = qMin(ripple_length, s.out - s.in);
-      }
-
-      // it feels a little more intuitive with this here
-      ripple_point++;
-
-      bool can_ripple = true;
-      for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-        ClipPtr c = olive::ActiveSequence->clips.at(i);
-        if (c != nullptr && c->timeline_in() < ripple_point && c->timeline_out() > ripple_point) {
-          // conflict detected, but this clip may be getting deleted so let's check
-          bool deleted = false;
-          for (int j=0;j<selections.size();j++) {
-            const Selection& s = selections.at(j);
-            if (s.track == c->track()
-                && !(c->timeline_in() < s.in && c->timeline_out() < s.in)
-                && !(c->timeline_in() > s.out && c->timeline_out() > s.out)) {
-              deleted = true;
-              break;
-            }
-          }
-          if (!deleted) {
-            for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
-              ClipPtr cc = olive::ActiveSequence->clips.at(j);
-              if (cc != nullptr
-                  && cc->track() == c->track()
-                  && cc->timeline_in() > c->timeline_out()
-                  && cc->timeline_in() < c->timeline_out() + ripple_length) {
-                ripple_length = cc->timeline_in() - c->timeline_out();
-              }
-            }
-          }
-        }
-      }
-
-      if (can_ripple) {
-        ripple_clips(ca, olive::ActiveSequence.get(), ripple_point, -ripple_length);
-        panel_sequence_viewer->seek(ripple_point-1);
-      }
-
-      // if we're rippling, we can clear the selections here - if we're not rippling, delete_areas_and_relink() will
-      // clear the selections for us
-      selections.clear();
-    }
-
-    olive::UndoStack.push(ca);
-
-    update_ui(true);
   }
 }
 
@@ -808,38 +649,9 @@ void Timeline::zoom_out() {
   multiply_zoom(0.5);
 }
 
-int Timeline::GetTrackHeight(int track) {
-  for (int i=0;i<track_heights.size();i++) {
-    if (track_heights.at(i).index == track) {
-      return track_heights.at(i).height;
-    }
-  }
-  return olive::timeline::kTrackDefaultHeight;
-}
-
-void Timeline::SetTrackHeight(int track, int height) {
-  for (int i=0;i<track_heights.size();i++) {
-    if (track_heights.at(i).index == track) {
-      track_heights[i].height = height;
-      return;
-    }
-  }
-
-  // we don't have a track height, so set a new one
-  TimelineTrackHeight t;
-  t.index = track;
-  t.height = height;
-  track_heights.append(t);
-}
-
 void Timeline::ChangeTrackHeightUniformly(int diff) {
-  // get range of tracks currently active
-  int min_track, max_track;
-  olive::ActiveSequence->getTrackLimits(&min_track, &max_track);
-
-  // for each active track, set the track to increase/decrease based on `diff`
-  for (int i=min_track;i<=max_track;i++) {
-    SetTrackHeight(i, qMax(GetTrackHeight(i) + diff, olive::timeline::kTrackMinHeight));
+  if (olive::ActiveSequence != nullptr) {
+    olive::ActiveSequence->ChangeTrackHeightsRelatively(diff);
   }
 
   // update the timeline
@@ -904,205 +716,13 @@ bool Timeline::split_clip_and_relink(ComboAction *ca, int clip, long frame, bool
 
 
 void Timeline::copy(bool del) {
-  bool cleared = false;
-  bool copied = false;
-
-  long min_in = 0;
-
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    ClipPtr c = olive::ActiveSequence->clips.at(i);
-    if (c != nullptr) {
-      for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
-        const Selection& s = olive::ActiveSequence->selections.at(j);
-        if (s.track == c->track() && !((c->timeline_in() <= s.in && c->timeline_out() <= s.in) || (c->timeline_in() >= s.out && c->timeline_out() >= s.out))) {
-          if (!cleared) {
-            clear_clipboard();
-            cleared = true;
-            clipboard_type = CLIPBOARD_TYPE_CLIP;
-          }
-
-          ClipPtr copied_clip = c->copy(nullptr);
-
-          // copy linked IDs (we correct these later in paste())
-          copied_clip->linked = c->linked;
-
-          if (copied_clip->timeline_in() < s.in) {
-            copied_clip->set_clip_in(copied_clip->clip_in() + (s.in - copied_clip->timeline_in()));
-            copied_clip->set_timeline_in(s.in);
-          }
-
-          if (copied_clip->timeline_out() > s.out) {
-            copied_clip->set_timeline_out(s.out);
-          }
-
-          if (copied) {
-            min_in = qMin(min_in, s.in);
-          } else {
-            min_in = s.in;
-            copied = true;
-          }
-
-          copied_clip->load_id = i;
-
-          clipboard.append(copied_clip);
-        }
-      }
-    }
-  }
-
-  for (int i=0;i<clipboard.size();i++) {
-    // initialize all timeline_ins to 0 or offsets of
-    ClipPtr c = std::static_pointer_cast<Clip>(clipboard.at(i));
-    c->set_timeline_in(c->timeline_in() - min_in);
-    c->set_timeline_out(c->timeline_out() - min_in);
-  }
-
-  if (del && copied) {
-    delete_selection(olive::ActiveSequence->selections, false);
+  if (olive::ActiveSequence != nullptr) {
+    olive::ActiveSequence->AddSelectionsToClipboard(del);
   }
 }
 
 void Timeline::paste(bool insert) {
-  if (clipboard.size() > 0) {
-    if (clipboard_type == CLIPBOARD_TYPE_CLIP) {
-      ComboAction* ca = new ComboAction();
 
-      // create copies and delete areas that we'll be pasting to
-      QVector<Selection> delete_areas;
-      QVector<ClipPtr> pasted_clips;
-      long paste_start = LONG_MAX;
-      long paste_end = LONG_MIN;
-      for (int i=0;i<clipboard.size();i++) {
-        ClipPtr c = std::static_pointer_cast<Clip>(clipboard.at(i));
-
-        // create copy of clip and offset by playhead
-        ClipPtr cc = c->copy(olive::ActiveSequence.get());
-
-        // convert frame rates
-        cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
-        cc->set_timeline_out(rescale_frame_number(cc->timeline_out(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
-        cc->set_clip_in(rescale_frame_number(cc->clip_in(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
-
-        cc->set_timeline_in(cc->timeline_in() + olive::ActiveSequence->playhead);
-        cc->set_timeline_out(cc->timeline_out() + olive::ActiveSequence->playhead);
-        cc->set_track(c->track());
-
-        paste_start = qMin(paste_start, cc->timeline_in());
-        paste_end = qMax(paste_end, cc->timeline_out());
-
-        pasted_clips.append(cc);
-
-        if (!insert) {
-          Selection s;
-          s.in = cc->timeline_in();
-          s.out = cc->timeline_out();
-          s.track = c->track();
-          delete_areas.append(s);
-        }
-      }
-      if (insert) {
-        split_all_clips_at_point(ca, olive::ActiveSequence->playhead);
-        ripple_clips(ca, olive::ActiveSequence.get(), paste_start, paste_end - paste_start);
-      } else {
-        delete_areas_and_relink(ca, delete_areas, false);
-      }
-
-      // correct linked clips
-      for (int i=0;i<clipboard.size();i++) {
-        // these indices should correspond
-        ClipPtr oc = std::static_pointer_cast<Clip>(clipboard.at(i));
-
-        for (int j=0;j<oc->linked.size();j++) {
-          for (int k=0;k<clipboard.size();k++) { // find clip with that ID
-            ClipPtr comp = std::static_pointer_cast<Clip>(clipboard.at(k));
-            if (comp->load_id == oc->linked.at(j)) {
-              pasted_clips.at(i)->linked.append(k);
-            }
-          }
-        }
-      }
-
-      ca->append(new AddClipCommand(olive::ActiveSequence.get(), pasted_clips));
-
-      olive::UndoStack.push(ca);
-
-      update_ui(true);
-
-      if (olive::CurrentConfig.paste_seeks) {
-        panel_sequence_viewer->seek(paste_end);
-      }
-    } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
-      ComboAction* ca = new ComboAction();
-
-      bool replace = false;
-      bool skip = false;
-      bool ask_conflict = true;
-
-      QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
-
-      for (int i=0;i<selected_clips.size();i++) {
-        Clip* c = selected_clips.at(i);
-
-        for (int j=0;j<clipboard.size();j++) {
-          EffectPtr e = std::static_pointer_cast<Effect>(clipboard.at(j));
-          if ((c->track() < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
-            int found = -1;
-            if (ask_conflict) {
-              replace = false;
-              skip = false;
-            }
-            for (int k=0;k<c->effects.size();k++) {
-              if (c->effects.at(k)->meta == e->meta) {
-                found = k;
-                break;
-              }
-            }
-            if (found >= 0 && ask_conflict) {
-              QMessageBox box(this);
-              box.setWindowTitle(tr("Effect already exists"));
-              box.setText(tr("Clip '%1' already contains a '%2' effect. "
-                             "Would you like to replace it with the pasted one or add it as a separate effect?")
-                          .arg(c->name(), e->meta->name));
-              box.setIcon(QMessageBox::Icon::Question);
-
-              box.addButton(tr("Add"), QMessageBox::YesRole);
-              QPushButton* replace_button = box.addButton(tr("Replace"), QMessageBox::NoRole);
-              QPushButton* skip_button = box.addButton(tr("Skip"), QMessageBox::RejectRole);
-
-              QCheckBox* future_box = new QCheckBox(tr("Do this for all conflicts found"), &box);
-              box.setCheckBox(future_box);
-
-              box.exec();
-
-              if (box.clickedButton() == replace_button) {
-                replace = true;
-              } else if (box.clickedButton() == skip_button) {
-                skip = true;
-              }
-              ask_conflict = !future_box->isChecked();
-            }
-
-            if (found >= 0 && skip) {
-              // do nothing
-            } else if (found >= 0 && replace) {
-              ca->append(new EffectDeleteCommand(c->effects.at(found).get()));
-
-              ca->append(new AddEffectCommand(c, e->copy(c), nullptr, found));
-            } else {
-              ca->append(new AddEffectCommand(c, e->copy(c), nullptr));
-            }
-          }
-        }
-      }
-      if (ca->hasActions()) {
-        ca->appendPost(new ReloadEffectsCommand());
-        olive::UndoStack.push(ca);
-      } else {
-        delete ca;
-      }
-      update_ui(true);
-    }
-  }
 }
 
 void Timeline::edit_to_point_internal(bool in, bool ripple) {
@@ -1379,30 +999,32 @@ bool Timeline::snap_to_timeline(long* l, bool use_playhead, bool use_markers, bo
     }
 
     // snap to clip/transition
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      ClipPtr c = olive::ActiveSequence->clips.at(i);
-      if (c != nullptr) {
-        if (snap_to_point(c->timeline_in(), l)) {
-          return true;
-        } else if (snap_to_point(c->timeline_out(), l)) {
-          return true;
-        } else if (c->opening_transition != nullptr
-                   && snap_to_point(c->timeline_in() + c->opening_transition->get_true_length(), l)) {
-          return true;
-        } else if (c->closing_transition != nullptr
-                   && snap_to_point(c->timeline_out() - c->closing_transition->get_true_length(), l)) {
-          return true;
-        } else {
-          // try to snap to clip markers
-          for (int j=0;j<c->get_markers().size();j++) {
-            if (snap_to_point(c->get_markers().at(j).frame + c->timeline_in() - c->clip_in(), l)) {
-              return true;
-            }
+    QVector<Clip*> all_clips = olive::ActiveSequence->GetAllClips();
+    for (int i=0;i<all_clips.size();i++) {
+
+      Clip* c = all_clips.at(i);
+      if (snap_to_point(c->timeline_in(), l)) {
+        return true;
+      } else if (snap_to_point(c->timeline_out(), l)) {
+        return true;
+      } else if (c->opening_transition != nullptr
+                 && snap_to_point(c->timeline_in() + c->opening_transition->get_true_length(), l)) {
+        return true;
+      } else if (c->closing_transition != nullptr
+                 && snap_to_point(c->timeline_out() - c->closing_transition->get_true_length(), l)) {
+        return true;
+      } else {
+        // try to snap to clip markers
+        for (int j=0;j<c->get_markers().size();j++) {
+          if (snap_to_point(c->get_markers().at(j).frame + c->timeline_in() - c->clip_in(), l)) {
+            return true;
           }
         }
       }
+
     }
   }
+
   return false;
 }
 

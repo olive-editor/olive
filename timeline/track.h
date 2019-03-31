@@ -68,8 +68,16 @@ public:
   bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);
 
+  void DeleteArea(ComboAction *ca, const Selection& s);
+  void DeleteArea(ComboAction *ca, long in, long out);
+
+  void SelectClip(Clip *c);
+  void SelectAll();
+  void SelectAtPoint(long point);
   void TidySelections();
   void ClearSelections();
+  void DeselectArea(long in, long out);
+  QVector<Selection> Selections();
 
   long GetEndFrame();
 

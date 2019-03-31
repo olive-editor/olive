@@ -32,6 +32,9 @@ double cubic_from_t(double a, double b, double c, double d, double t);
 double cubic_t_from_x(double x_target, double a, double b, double c, double d);
 double solveCubicBezier(double p0, double p1, double p2, double p3, double x);
 
+template <typename T>
+const T& clamp(const T& val, T& min, T& max);
+
 QRect fit_size_into_rect(const QRect& r, int width, int height);
 
 // decibel conversion functions
