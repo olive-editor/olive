@@ -278,6 +278,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
   }
 
   if (params.video) {
+
     // set default coordinates based on the sequence, with 0 in the direct center
     glPushMatrix();
     glLoadIdentity();
@@ -287,6 +288,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     int half_width = s->width/2;
     int half_height = s->height/2;
     glOrtho(-half_width, half_width, -half_height, half_height, -1, 10);
+
   }
 
   // loop through current clips
@@ -609,7 +611,17 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           params.nests.removeLast();
         } else {
           // Check whether cacher is currently active, if not activate it now
-          if (c->cache_lock.tryLock()) {
+
+          bool got_mutex2 = false;
+
+          if (params.wait_for_mutexes) {
+            c->cache_lock.lock();
+            got_mutex2 = true;
+          } else {
+            got_mutex2 = c->cache_lock.tryLock(got_mutex2);
+          }
+
+          if (got_mutex2) {
 
             c->cache_lock.unlock();
 

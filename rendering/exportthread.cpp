@@ -487,7 +487,7 @@ void ExportThread::Export()
     // If we're exporting audio, copy audio from the buffer into an AVFrame for encoding
     if (params_.audio_enabled) {
 
-      if (waiting_for_audio_) {
+      if (waiting_for_audio_ && !interrupt_) {
         waitCond.wait(&mutex);
       }
 
@@ -685,7 +685,10 @@ bool ExportThread::WasInterrupted()
 
 void ExportThread::Interrupt()
 {
+  mutex.lock();
   interrupt_ = true;
+  waitCond.wakeAll();
+  mutex.unlock();
 }
 
 void ExportThread::play_wake()

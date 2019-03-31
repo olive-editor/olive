@@ -1194,6 +1194,7 @@ void Cacher::Open()
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
 {
+
   if (!is_valid_state_) {
     return;
   }
