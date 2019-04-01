@@ -218,7 +218,7 @@
     <message>
         <location filename="../dialogs/demonotice.cpp" line="49"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offriamo alcuna garanzia, quindi usalo a tuo rischio. Si prega di segnalare errori o richiedere funzionalità su %1</translation>
+        <translation>Il software è attualmente in ALFA; ciò significa che non è stabile ed è probabile che vada in crash, abbia errori o manchino alcune funzioni. Non offriamo alcuna garanzia, quindi usalo a tuo rischio. Puoi segnalare errori o richiedere funzionalità su %1</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="51"/>
@@ -236,7 +236,7 @@
     <message>
         <location filename="../effects/effect.cpp" line="101"/>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Nessun candidato per &apos;effetto &quot;%1&quot;. Questo effetto potrebbe essere corrotto. Prova a reinstallare l&apos;effetto o Olive.</translation>
+        <translation>Nessun candidato per l&apos;effetto &quot;%1&quot;. Questo effetto potrebbe essere corrotto. Prova a reinstallare l&apos;effetto o Olive.</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
@@ -365,7 +365,7 @@
     <message>
         <location filename="../effects/effectrow.cpp" line="104"/>
         <source>Disable Keyframes</source>
-        <translation>Disattiva fotogrammi chiave</translation>
+        <translation>Disabilita fotogrammi chiave</translation>
     </message>
     <message>
         <location filename="../effects/effectrow.cpp" line="105"/>
@@ -546,7 +546,7 @@
 17-18 = visually lossless (compressed, but unnoticeable)
 23 = high quality
 51 = lowest quality possible</source>
-        <translation>Qualità: fattore
+        <translation>Fattore di qualità:
 
 0 = senza perdita
 17-18 = visivamente senza perdita (compresso, ma non si nota)
@@ -645,7 +645,7 @@
     <message>
         <location filename="../rendering/exportthread.cpp" line="113"/>
         <source>could not video encoder for %1</source>
-        <translation>Impossibile trovare un codificatore video per %1</translation>
+        <translation>impossibile trovare un codificatore video per %1</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="122"/>
@@ -670,7 +670,7 @@
     <message>
         <location filename="../rendering/exportthread.cpp" line="227"/>
         <source>could not audio encoder for %1</source>
-        <translation>Impossibile trovare un codificatore audio per %1</translation>
+        <translation>impossibile trovare un codificatore audio per %1</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="235"/>
@@ -700,7 +700,7 @@
     <message>
         <location filename="../rendering/exportthread.cpp" line="350"/>
         <source>could not create output format context</source>
-        <translation>impossibile creare il constesto del formato d&apos;output</translation>
+        <translation>impossibile creare il contesto del formato d&apos;output</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="360"/>
@@ -723,7 +723,7 @@
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="27"/>
         <source>Type</source>
-        <translation>Tio</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="29"/>
@@ -940,7 +940,7 @@
     <message>
         <location filename="../project/loadthread.cpp" line="758"/>
         <source>Error loading project: %1</source>
-        <translation>Impossibile caricare il progetto %1</translation>
+        <translation>Impossibile caricare il progetto: %1</translation>
     </message>
 </context>
 <context>
@@ -983,7 +983,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="826"/>
         <source>Save Project &amp;As</source>
-        <translation>S&amp;alva progetto come</translation>
+        <translation>S&amp;alva progetto con nome</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="827"/>
@@ -1084,7 +1084,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="848"/>
         <source>Decrease Track Height</source>
-        <translation>Diminuisci altezza traccia</translation>
+        <translation>Diminuisci altezza delle tracce</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="849"/>
@@ -1367,7 +1367,7 @@
     </message>
     <message>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="vanished">Permetti il trascinamento dei file nella linea temporale</translation>
+        <translation type="vanished">Permetti il trascinamento dei file alla linea temporale</translation>
     </message>
     <message>
         <source>Auto-Scale By Default</source>
@@ -1455,7 +1455,7 @@
     <message>
         <location filename="../timeline/marker.cpp" line="66"/>
         <source>Set clip marker name:</source>
-        <translation>Imposta nome del markatore della clip:</translation>
+        <translation>Imposta nome del marcatore della clip:</translation>
     </message>
     <message>
         <location filename="../timeline/marker.cpp" line="67"/>
@@ -1488,7 +1488,7 @@
     <message>
         <location filename="../project/media.cpp" line="133"/>
         <source>Frame Rate:</source>
-        <translation>Fotogrammi al secondo:</translation>
+        <translation>Velocità fotogrammi:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="143"/>
@@ -1519,7 +1519,7 @@ Audio Frequency: %5
 Audio Layout: %6</source>
         <translation>Nome: %1
 Dimensioni video: %2x%3
-Fotogrammi al secondo: %4
+Velocità fotogrammi: %4
 Frequenza audio: %5
 Disposizione audio: %6</translation>
     </message>
@@ -1615,12 +1615,12 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="164"/>
         <source>Set In Point</source>
-        <translation>Imposta punto di inizio</translation>
+        <translation>Imposta punto di inizio selezione</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="165"/>
         <source>Set Out Point</source>
-        <translation>Imposta punto di fine</translation>
+        <translation>Imposta punto di fine selezione</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="166"/>
@@ -1706,7 +1706,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
-        <translation>Il rapporto d&apos;aspetto &quot;%1&quot; non è valido. Si prega di riprovare.</translation>
+        <translation>Il rapporto d&apos;aspetto &quot;%1&quot; non è valido. Riprovare.</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="226"/>
@@ -1814,7 +1814,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="267"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation>Proporzioni del pixel:</translation>
+        <translation>Proporzioni dei pixel:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="269"/>
@@ -1882,7 +1882,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../global/global.cpp" line="262"/>
         <source>Save Project As...</source>
-        <translation>Salva progetto come...</translation>
+        <translation>Salva progetto con nome...</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="287"/>
@@ -1892,7 +1892,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../global/global.cpp" line="288"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation>Il progetto è stato modificato rispetto all&apos;ultimo salvataggio. Desideri salvarlo prima di chiuderlo?</translation>
+        <translation>Il progetto è stato modificato rispetto all&apos;ultimo salvataggio. Vuoi salvarlo prima di chiuderlo?</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="382"/>
@@ -1967,7 +1967,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="364"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation>Sei sicuro di voler riportare tutte le scorciatoie da tastiera ai valori predefiniti?</translation>
+        <translation>Sei sicuro di voler riportare tutte le scorciatoie da tastiera ai valori iniziali?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="414"/>
@@ -2048,7 +2048,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="599"/>
         <source>Automatically Seek to the Beginning When Playing at the End of a Sequence</source>
-        <translation>Sposta automaticamente il cursore all&apos;inizio quando si riproduce alla fine di una sequenza</translation>
+        <translation>Riporta il cursore all&apos;inizio quando si riproduce alla fine di una sequenza</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="603"/>
@@ -2094,7 +2094,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="632"/>
         <source>Enable Drag Files to Timeline</source>
-        <translation>Permetti il trascinamento dei file nella linea temporale</translation>
+        <translation>Permetti il trascinamento dei file alla linea temporale</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="636"/>
@@ -2109,7 +2109,7 @@ Disposizione audio: %6</translation>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="644"/>
         <source>Audio Scrubbing</source>
-        <translation>Audio attivo durante il trascinamento</translation>
+        <translation>Audio attivo durante il trascinamento cursore</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="648"/>
@@ -2861,7 +2861,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../project/sourcescommon.cpp" line="116"/>
         <source>Replace/Relink Media</source>
-        <translation>Rimpiazza/Ricollega media</translation>
+        <translation>Rimpiazza/ricollega media</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="120"/>
@@ -2969,7 +2969,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="40"/>
         <source>Speed/Duration</source>
-        <translation>Velocità/Durata</translation>
+        <translation>Velocità/durata</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="49"/>
@@ -2999,7 +2999,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="71"/>
         <source>Ripple Changes</source>
-        <translation>Mantieni distanze con le clip successive</translation>
+        <translation>Sposta clip successive a catena</translation>
     </message>
 </context>
 <context>
@@ -3264,7 +3264,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     <message>
         <location filename="../panels/timeline.cpp" line="1354"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
-        <translation>La clip &quot;%1&quot; contiene già un effetto &quot;%2&quot;. Desideri rimpiazzarlo con quello incollato oppure aggiungerlo come effetto separato?</translation>
+        <translation>La clip &quot;%1&quot; contiene già un effetto &quot;%2&quot;. Vuoi rimpiazzarlo con quello incollato oppure aggiungerlo come effetto separato?</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1359"/>
@@ -3432,7 +3432,7 @@ Sposta velocemente il cursore (potrebbe mostrare fotogrammi non perfettamente ac
     </message>
     <message>
         <source>R&amp;ipple Delete</source>
-        <translation type="vanished">El&amp;imina mantenendo distanze clip</translation>
+        <translation type="vanished">El&amp;imina a catena</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="115"/>
