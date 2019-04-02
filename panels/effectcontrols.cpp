@@ -47,7 +47,7 @@
 #include "ui/viewerwidget.h"
 #include "ui/menuhelper.h"
 #include "ui/icons.h"
-#include "project/clipboard.h"
+#include "global/clipboard.h"
 #include "global/config.h"
 #include "ui/timelineheader.h"
 #include "ui/keyframeview.h"
@@ -89,7 +89,10 @@ EffectControls::~EffectControls()
 void EffectControls::set_zoom(bool in) {
   zoom *= (in) ? 2 : 0.5;
   update_keyframes();
-  scroll_to_frame(olive::ActiveSequence->playhead);
+
+  if (!selected_clips_.isEmpty()) {
+    scroll_to_frame(selected_clips_.first()->track()->sequence()->playhead);
+  }
 }
 
 void EffectControls::menu_select(QAction* q) {
@@ -104,21 +107,21 @@ void EffectControls::menu_select(QAction* q) {
                                               nullptr,
                                               nullptr,
                                               meta,
-                                              olive::CurrentConfig.default_transition_length));
+                                              olive::config.default_transition_length));
         }
         if (c->closing_transition == nullptr) {
           ca->append(new AddTransitionCommand(nullptr,
                                               c,
                                               nullptr,
                                               meta,
-                                              olive::CurrentConfig.default_transition_length));
+                                              olive::config.default_transition_length));
         }
       } else {
         ca->append(new AddEffectCommand(c, nullptr, meta));
       }
     }
   }
-  olive::UndoStack.push(ca);
+  olive::undo_stack.push(ca);
   if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
     update_ui(true);
   } else {
@@ -175,7 +178,7 @@ void EffectControls::copy(bool del) {
 
   if (del) {
     if (ca->hasActions()) {
-      olive::UndoStack.push(ca);
+      olive::undo_stack.push(ca);
     } else {
       delete ca;
     }
@@ -587,7 +590,7 @@ void EffectControls::DeleteSelectedEffects() {
   }
 
   if (ca->hasActions()) {
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     update_ui(true);
   } else {
     delete ca;
@@ -620,11 +623,13 @@ void EffectControls::SetClips()
 {
   Clear(true);
 
-  if (olive::ActiveSequence == nullptr) {
+  Sequence* top_sequence = Timeline::GetTopSequence().get();
+
+  if (top_sequence == nullptr) {
     selected_clips_.clear();
   } else {
     // replace clip vector
-    selected_clips_ = olive::ActiveSequence->SelectedClips(false);
+    selected_clips_ = top_sequence->SelectedClips(false);
 
     Load();
   }

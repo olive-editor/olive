@@ -20,11 +20,18 @@
 
 #include "projectmodel.h"
 
+#include <QMessageBox>
+
 #include "panels/panels.h"
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
+#include "ui/mainwindow.h"
 #include "project/media.h"
 #include "global/debug.h"
+#include "global/config.h"
+#include "global/global.h"
+#include "projectfunctions.h"
+#include "previewgenerator.h"
 
 ProjectModel olive::project_model;
 
@@ -297,18 +304,14 @@ MediaPtr ProjectModel::CreateSequence(ComboAction *ca, SequencePtr s, bool open,
 
     ca->append(new AddMediaCommand(item, parent));
 
-    if (open) {
-      ca->append(new ChangeSequenceAction(s));
-    }
-
   } else {
 
     appendChild(parent, item);
 
-    if (open) {
-      olive::Global->set_sequence(s);
-    }
+  }
 
+  if (open) {
+    Timeline::OpenSequence(s);
   }
 
   return item;
@@ -404,7 +407,7 @@ void ProjectModel::process_file_list(QStringList& files, bool recursive, MediaPt
   bool imported = false;
 
   // retrieve the array of image formats from the user's configuration
-  QStringList image_sequence_formats = olive::CurrentConfig.img_seq_formats.split("|");
+  QStringList image_sequence_formats = olive::config.img_seq_formats.split("|");
 
   // a cache of image sequence formatted URLS to assist the user in importing image sequences
   QVector<QString> image_sequence_urls;
@@ -422,8 +425,8 @@ void ProjectModel::process_file_list(QStringList& files, bool recursive, MediaPt
     // If this file is a directory, we'll recursively call this function again to process the directory's contents
     if (QFileInfo(files.at(i)).isDir()) {
 
-      QString folder_name = get_file_name_from_path(files.at(i));
-      MediaPtr folder = CreateFolder(folder_name);
+      QString folder_name = QFileInfo(files.at(i)).fileName();
+      MediaPtr folder = olive::project::CreateFolder(folder_name);
 
       QDir directory(files.at(i));
       directory.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
@@ -452,7 +455,7 @@ void ProjectModel::process_file_list(QStringList& files, bool recursive, MediaPt
       if (file.endsWith(".ove", Qt::CaseInsensitive)) {
 
         // This file is an Olive project file. Ask the user if they really want to import it.
-        if (QMessageBox::question(this,
+        if (QMessageBox::question(olive::MainWindow,
                                   tr("Import a Project"),
                                   tr("\"%1\" is an Olive project file. It will merge with this project. "
                                      "Do you wish to continue?").arg(file),
@@ -556,7 +559,7 @@ void ProjectModel::process_file_list(QStringList& files, bool recursive, MediaPt
               image_sequence_urls.append(new_filename);
 
               // This does look like an image sequence, let's ask the user if it'll indeed be an image sequence
-              if (QMessageBox::question(this,
+              if (QMessageBox::question(olive::MainWindow,
                                         tr("Image sequence detected"),
                                         tr("The file '%1' appears to be part of an image sequence. "
                                            "Would you like to import it as such?").arg(file),
@@ -640,7 +643,7 @@ void ProjectModel::process_file_list(QStringList& files, bool recursive, MediaPt
   }
   if (create_undo_action) {
     if (imported) {
-      olive::UndoStack.push(ca);
+      olive::undo_stack.push(ca);
 
       for (int i=0;i<last_imported_media.size();i++) {
         // generate waveform/thumbnail in another thread
@@ -650,4 +653,9 @@ void ProjectModel::process_file_list(QStringList& files, bool recursive, MediaPt
       delete ca;
     }
   }
+}
+
+QVector<Media *> ProjectModel::GetLastImportedMedia()
+{
+  return last_imported_media;
 }

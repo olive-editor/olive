@@ -87,5 +87,5 @@ void ComboField::UpdateFromWidget(int index)
   SetValueAt(Now(), items_.at(index).data);
 
   kdc->SetNewKeyframes();
-  olive::UndoStack.push(kdc);
+  olive::undo_stack.push(kdc);
 }

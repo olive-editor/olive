@@ -67,5 +67,5 @@ void ColorField::UpdateFromWidget(const QColor& c)
   SetValueAt(Now(), c);
 
   kdc->SetNewKeyframes();
-  olive::UndoStack.push(kdc);
+  olive::undo_stack.push(kdc);
 }

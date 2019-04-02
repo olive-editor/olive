@@ -34,7 +34,6 @@ extern "C" {
 #include <QtMath>
 
 #include "global/global.h"
-#include "timeline/sequence.h"
 #include "panels/panels.h"
 #include "ui/viewerwidget.h"
 #include "rendering/renderthread.h"
@@ -192,16 +191,16 @@ bool ExportThread::SetupVideo() {
   video_frame = av_frame_alloc();
   av_frame_make_writable(video_frame);
   video_frame->format = AV_PIX_FMT_RGBA;
-  video_frame->width = olive::ActiveSequence->width;
-  video_frame->height = olive::ActiveSequence->height;
+  video_frame->width = params_.sequence->width;
+  video_frame->height = params_.sequence->height;
   av_frame_get_buffer(video_frame, 0);
 
   av_init_packet(&video_pkt);
 
   // Set up conversion context
   sws_ctx = sws_getContext(
-        olive::ActiveSequence->width,
-        olive::ActiveSequence->height,
+        params_.sequence->width,
+        params_.sequence->height,
         AV_PIX_FMT_RGBA,
         params_.video_width,
         params_.video_height,
@@ -288,7 +287,7 @@ bool ExportThread::SetupAudio() {
         acodec_ctx->channel_layout,
         acodec_ctx->sample_fmt,
         acodec_ctx->sample_rate,
-        olive::ActiveSequence->audio_layout,
+        params_.sequence->audio_layout,
         AV_SAMPLE_FMT_S16,
         acodec_ctx->sample_rate,
         0,
@@ -417,7 +416,7 @@ void ExportThread::Export()
   mutex.lock();
 
   // Loop from now (set to the beginning frame earlier) to the end of the frame
-  while (olive::ActiveSequence->playhead <= params_.end_frame && !interrupt_) {
+  while (params_.sequence->playhead <= params_.end_frame && !interrupt_) {
 
     // Start timing how long this frame will take
     frame_start_time = QDateTime::currentMSecsSinceEpoch();
@@ -426,14 +425,14 @@ void ExportThread::Export()
     if (params_.audio_enabled) {
       waiting_for_audio_ = true;
       SetAudioWakeObject(this);
-      olive::rendering::compose_audio(nullptr, olive::ActiveSequence.get(), 1, true);
+      olive::rendering::compose_audio(nullptr, params_.sequence, 1, true);
     }
 
     // If we're exporting video, trigger a render on the RenderThread
     if (params_.video_enabled) {
       do {
         // TODO optimize by rendering the next frame while encoding the last
-        renderer->start_render(nullptr, olive::ActiveSequence.get(), 1, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
+        renderer->start_render(nullptr, params_.sequence, 1, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
 
         // Wait for RenderThread to return
         waitCond.wait(&mutex);
@@ -452,7 +451,7 @@ void ExportThread::Export()
     }
 
     // Get the current sequence playhead in seconds (used for timestamp calculations later on)
-    double timecode_secs = double(olive::ActiveSequence->playhead - params_.start_frame) / olive::ActiveSequence->frame_rate;
+    double timecode_secs = double(params_.sequence->playhead - params_.start_frame) / params_.sequence->frame_rate;
 
     // If we're exporting video, construct an AVFrame in the destination codec's pixel format to convert the raw RGBA
     // OpenGL buffer to
@@ -538,15 +537,15 @@ void ExportThread::Export()
     // Generating encoding statistics (e.g. the time it took to encode this frame/estimated remaining time)
     frame_time = (QDateTime::currentMSecsSinceEpoch()-frame_start_time);
     total_time += frame_time;
-    remaining_frames = (params_.end_frame - olive::ActiveSequence->playhead);
+    remaining_frames = (params_.end_frame - params_.sequence->playhead);
     avg_time = (total_time/frame_count);
     eta = (remaining_frames*avg_time);
 
     // Emit a signal for the percent of the sequence that's been encoded so far
-    emit ProgressChanged(qRound((double(olive::ActiveSequence->playhead - params_.start_frame) / double(params_.end_frame - params_.start_frame)) * 100.0), eta);
+    emit ProgressChanged(qRound((double(params_.sequence->playhead - params_.start_frame) / double(params_.end_frame - params_.start_frame)) * 100.0), eta);
 
     // Increment sequence playhead
-    olive::ActiveSequence->playhead++;
+    params_.sequence->playhead++;
 
     // Increment frame count (used for generating encoding statistics above)
     frame_count++;

@@ -152,27 +152,27 @@ void MainWindow::setup_layout(bool reset) {
     tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
     panel_footage_viewer->raise();
     addDockWidget(Qt::TopDockWidgetArea, panel_sequence_viewer);
-    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline);
+    addDockWidget(Qt::BottomDockWidgetArea, panel_timeline.first());
 
     panel_project.first()->show();
     panel_effect_controls->show();
     panel_footage_viewer->show();
     panel_sequence_viewer->show();
-    panel_timeline->show();
+    panel_timeline.first()->show();
     panel_graph_editor->hide();
 
     panel_project.first()->setFloating(false);
     panel_effect_controls->setFloating(false);
     panel_footage_viewer->setFloating(false);
     panel_sequence_viewer->setFloating(false);
-    panel_timeline->setFloating(false);
+    panel_timeline.first()->setFloating(false);
     panel_graph_editor->setFloating(true);
 
     resizeDocks({panel_project.first(), panel_footage_viewer, panel_sequence_viewer},
                 {width()/3, width()/3, width()/3},
                 Qt::Horizontal);
 
-    resizeDocks({panel_project.first(), panel_timeline},
+    resizeDocks({panel_project.first(), panel_timeline.first()},
                 {height()/2, height()/2},
                 Qt::Vertical);
   }
@@ -251,7 +251,7 @@ MainWindow::MainWindow(QWidget *parent) :
     config_dir.mkpath(".");
     QString config_fn = config_dir.filePath("config.xml");
     if (QFileInfo::exists(config_fn)) {
-      olive::CurrentConfig.load(config_fn);
+      olive::config.load(config_fn);
     }
   }
 
@@ -260,9 +260,9 @@ MainWindow::MainWindow(QWidget *parent) :
   olive::icon::Initialize();
 
   // Load OpenColorIO configuration if set
-  if (olive::CurrentConfig.enable_color_management && !olive::CurrentConfig.ocio_config_path.isEmpty()) {
+  if (olive::config.enable_color_management && !olive::config.ocio_config_path.isEmpty()) {
     try {
-      OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(olive::CurrentConfig.ocio_config_path.toUtf8()));
+      OCIO::SetCurrentConfig(OCIO::Config::CreateFromFile(olive::config.ocio_config_path.toUtf8()));
     } catch (OCIO::Exception& e) {
       QMessageBox::critical(this,
                             tr("OpenColorIO Config Error"),
@@ -397,8 +397,8 @@ void MainWindow::Restyle()
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     // Set up whether to load custom CSS or default CSS+palette
-    if (!olive::CurrentConfig.css_path.isEmpty()
-        && load_css_from_file(olive::CurrentConfig.css_path)) {
+    if (!olive::config.css_path.isEmpty()
+        && load_css_from_file(olive::config.css_path)) {
 
       qApp->setPalette(qApp->style()->standardPalette());
 
@@ -407,7 +407,7 @@ void MainWindow::Restyle()
       // set default palette
       QPalette palette;
 
-      if (olive::CurrentConfig.style == olive::styling::kOliveDefaultLight) {
+      if (olive::config.style == olive::styling::kOliveDefaultLight) {
 
         palette.setColor(QPalette::Window, QColor(208, 208, 208));
         palette.setColor(QPalette::WindowText, Qt::black);
@@ -480,14 +480,14 @@ void MainWindow::Restyle()
 }
 
 void MainWindow::editMenu_About_To_Be_Shown() {
-  undo_action->setEnabled(olive::UndoStack.canUndo());
-  redo_action->setEnabled(olive::UndoStack.canRedo());
+  undo_action->setEnabled(olive::undo_stack.canUndo());
+  redo_action->setEnabled(olive::undo_stack.canRedo());
 }
 
 void MainWindow::setup_menus() {
   QMenuBar* menuBar = new QMenuBar(this);
 
-  if (olive::CurrentConfig.use_native_menu_styling) {
+  if (olive::config.use_native_menu_styling) {
     OliveGlobal::SetNativeStyling(menuBar);
   }
 
@@ -538,7 +538,7 @@ void MainWindow::setup_menus() {
   edit_menu->addSeparator();
 
   select_all_action = MenuHelper::create_menu_action(edit_menu, "selectall", &olive::FocusFilter, SLOT(select_all()), QKeySequence("Ctrl+A"));
-  deselect_all_action = MenuHelper::create_menu_action(edit_menu, "deselectall", panel_timeline, SLOT(deselect()), QKeySequence("Ctrl+Shift+A"));
+  deselect_all_action = MenuHelper::create_menu_action(edit_menu, "deselectall", panel_timeline.first(), SLOT(deselect()), QKeySequence("Ctrl+Shift+A"));
 
   edit_menu->addSeparator();
 
@@ -546,16 +546,16 @@ void MainWindow::setup_menus() {
 
   edit_menu->addSeparator();
 
-  ripple_to_in_point_ = MenuHelper::create_menu_action(edit_menu, "rippletoin", panel_timeline, SLOT(ripple_to_in_point()), QKeySequence("Q"));
-  ripple_to_out_point_ = MenuHelper::create_menu_action(edit_menu, "rippletoout", panel_timeline, SLOT(ripple_to_out_point()), QKeySequence("W"));
-  edit_to_in_point_ = MenuHelper::create_menu_action(edit_menu, "edittoin", panel_timeline, SLOT(edit_to_in_point()), QKeySequence("Ctrl+Alt+Q"));
-  edit_to_out_point_ = MenuHelper::create_menu_action(edit_menu, "edittoout", panel_timeline, SLOT(edit_to_out_point()), QKeySequence("Ctrl+Alt+W"));
+  ripple_to_in_point_ = MenuHelper::create_menu_action(edit_menu, "rippletoin", panel_timeline.first(), SLOT(ripple_to_in_point()), QKeySequence("Q"));
+  ripple_to_out_point_ = MenuHelper::create_menu_action(edit_menu, "rippletoout", panel_timeline.first(), SLOT(ripple_to_out_point()), QKeySequence("W"));
+  edit_to_in_point_ = MenuHelper::create_menu_action(edit_menu, "edittoin", panel_timeline.first(), SLOT(edit_to_in_point()), QKeySequence("Ctrl+Alt+Q"));
+  edit_to_out_point_ = MenuHelper::create_menu_action(edit_menu, "edittoout", panel_timeline.first(), SLOT(edit_to_out_point()), QKeySequence("Ctrl+Alt+W"));
 
   edit_menu->addSeparator();
 
   olive::MenuHelper.make_inout_menu(edit_menu);
-  delete_inout_point_ = MenuHelper::create_menu_action(edit_menu, "deleteinout", panel_timeline, SLOT(delete_inout()), QKeySequence(";"));
-  ripple_delete_inout_point_ = MenuHelper::create_menu_action(edit_menu, "rippledeleteinout", panel_timeline, SLOT(ripple_delete_inout()), QKeySequence("'"));
+  delete_inout_point_ = MenuHelper::create_menu_action(edit_menu, "deleteinout", panel_timeline.first(), SLOT(delete_inout()), QKeySequence(";"));
+  ripple_delete_inout_point_ = MenuHelper::create_menu_action(edit_menu, "rippledeleteinout", panel_timeline.first(), SLOT(ripple_delete_inout()), QKeySequence("'"));
 
   edit_menu->addSeparator();
 
@@ -567,21 +567,17 @@ void MainWindow::setup_menus() {
 
   zoom_in_ = MenuHelper::create_menu_action(view_menu, "zoomin", &olive::FocusFilter, SLOT(zoom_in()), QKeySequence("="));
   zoom_out_ = MenuHelper::create_menu_action(view_menu, "zoomout", &olive::FocusFilter, SLOT(zoom_out()), QKeySequence("-"));
-  increase_track_height_ = MenuHelper::create_menu_action(view_menu, "vzoomin", panel_timeline, SLOT(IncreaseTrackHeight()), QKeySequence("Ctrl+="));
-  decrease_track_height_ = MenuHelper::create_menu_action(view_menu, "vzoomout", panel_timeline, SLOT(DecreaseTrackHeight()), QKeySequence("Ctrl+-"));
+  increase_track_height_ = MenuHelper::create_menu_action(view_menu, "vzoomin", panel_timeline.first(), SLOT(IncreaseTrackHeight()), QKeySequence("Ctrl+="));
+  decrease_track_height_ = MenuHelper::create_menu_action(view_menu, "vzoomout", panel_timeline.first(), SLOT(DecreaseTrackHeight()), QKeySequence("Ctrl+-"));
 
-  show_all = MenuHelper::create_menu_action(view_menu, "showall", panel_timeline, SLOT(toggle_show_all()), QKeySequence("\\"));
+  show_all = MenuHelper::create_menu_action(view_menu, "showall", panel_timeline.first(), SLOT(toggle_show_all()), QKeySequence("\\"));
   show_all->setCheckable(true);
 
   view_menu->addSeparator();
 
-  track_lines = MenuHelper::create_menu_action(view_menu, "tracklines", &olive::MenuHelper, SLOT(toggle_bool_action()));
-  track_lines->setCheckable(true);
-  track_lines->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.show_track_lines));
-
   rectified_waveforms = MenuHelper::create_menu_action(view_menu, "rectifiedwaveforms", &olive::MenuHelper, SLOT(toggle_bool_action()));
   rectified_waveforms->setCheckable(true);
-  rectified_waveforms->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.rectified_waveforms));
+  rectified_waveforms->setData(reinterpret_cast<quintptr>(&olive::config.rectified_waveforms));
 
   view_menu->addSeparator();
 
@@ -658,8 +654,8 @@ void MainWindow::setup_menus() {
 
   playback_menu->addSeparator();
 
-  go_to_prev_cut_ = MenuHelper::create_menu_action(playback_menu, "prevcut", panel_timeline, SLOT(previous_cut()), QKeySequence("Up"));
-  go_to_next_cut_ = MenuHelper::create_menu_action(playback_menu, "nextcut", panel_timeline, SLOT(next_cut()), QKeySequence("Down"));
+  go_to_prev_cut_ = MenuHelper::create_menu_action(playback_menu, "prevcut", panel_project.first(), SLOT(previous_cut()), QKeySequence("Up"));
+  go_to_next_cut_ = MenuHelper::create_menu_action(playback_menu, "nextcut", panel_project.first(), SLOT(next_cut()), QKeySequence("Down"));
 
   playback_menu->addSeparator();
 
@@ -676,7 +672,7 @@ void MainWindow::setup_menus() {
 
   loop_action_ = MenuHelper::create_menu_action(playback_menu, "loop", &olive::MenuHelper, SLOT(toggle_bool_action()));
   loop_action_->setCheckable(true);
-  loop_action_->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.loop));
+  loop_action_->setData(reinterpret_cast<quintptr>(&olive::config.loop));
 
   // INITIALIZE WINDOW MENU
 
@@ -692,7 +688,7 @@ void MainWindow::setup_menus() {
 
   window_timeline_action = MenuHelper::create_menu_action(window_menu, "paneltimeline", this, SLOT(toggle_panel_visibility()));
   window_timeline_action->setCheckable(true);
-  window_timeline_action->setData(reinterpret_cast<quintptr>(panel_timeline));
+  window_timeline_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()));
 
   window_graph_editor_action = MenuHelper::create_menu_action(window_menu, "panelgrapheditor", this, SLOT(toggle_panel_visibility()));
   window_graph_editor_action->setCheckable(true);
@@ -726,49 +722,49 @@ void MainWindow::setup_menus() {
 
   pointer_tool_action = MenuHelper::create_menu_action(tools_menu, "pointertool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("V"));
   pointer_tool_action->setCheckable(true);
-  pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolArrowButton));
+  pointer_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolArrowButton));
   tools_group->addAction(pointer_tool_action);
 
   edit_tool_action = MenuHelper::create_menu_action(tools_menu, "edittool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("X"));
   edit_tool_action->setCheckable(true);
-  edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolEditButton));
+  edit_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolEditButton));
   tools_group->addAction(edit_tool_action);
 
   ripple_tool_action = MenuHelper::create_menu_action(tools_menu, "rippletool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("B"));
   ripple_tool_action->setCheckable(true);
-  ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRippleButton));
+  ripple_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolRippleButton));
   tools_group->addAction(ripple_tool_action);
 
   razor_tool_action = MenuHelper::create_menu_action(tools_menu, "razortool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("C"));
   razor_tool_action->setCheckable(true);
-  razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolRazorButton));
+  razor_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolRazorButton));
   tools_group->addAction(razor_tool_action);
 
   slip_tool_action = MenuHelper::create_menu_action(tools_menu, "sliptool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("Y"));
   slip_tool_action->setCheckable(true);
-  slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlipButton));
+  slip_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolSlipButton));
   tools_group->addAction(slip_tool_action);
 
   slide_tool_action = MenuHelper::create_menu_action(tools_menu, "slidetool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("U"));
   slide_tool_action->setCheckable(true);
-  slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolSlideButton));
+  slide_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolSlideButton));
   tools_group->addAction(slide_tool_action);
 
   hand_tool_action = MenuHelper::create_menu_action(tools_menu, "handtool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("H"));
   hand_tool_action->setCheckable(true);
-  hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolHandButton));
+  hand_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolHandButton));
   tools_group->addAction(hand_tool_action);
 
   transition_tool_action = MenuHelper::create_menu_action(tools_menu, "transitiontool", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("T"));
   transition_tool_action->setCheckable(true);
-  transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline->toolTransitionButton));
+  transition_tool_action->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolTransitionButton));
   tools_group->addAction(transition_tool_action);
 
   tools_menu->addSeparator();
 
   snap_toggle = MenuHelper::create_menu_action(tools_menu, "snapping", &olive::MenuHelper, SLOT(menu_click_button()), QKeySequence("S"));
   snap_toggle->setCheckable(true);
-  snap_toggle->setData(reinterpret_cast<quintptr>(panel_timeline->snappingButton));
+  snap_toggle->setData(reinterpret_cast<quintptr>(panel_timeline.first()->snappingButton));
 
   tools_menu->addSeparator();
 
@@ -850,7 +846,6 @@ void MainWindow::Retranslate()
   increase_track_height_->setText(tr("Increase Track Height"));
   decrease_track_height_->setText(tr("Decrease Track Height"));
   show_all->setText(tr("Toggle Show All"));
-  track_lines->setText(tr("Track Lines"));
   rectified_waveforms->setText(tr("Rectified Waveforms"));
   frames_action->setText(tr("Frames"));
   drop_frame_action->setText(tr("Drop Frame"));
@@ -955,14 +950,10 @@ void MainWindow::closeEvent(QCloseEvent *e) {
     panel_graph_editor->set_row(nullptr);
     panel_effect_controls->Clear(true);
 
-    olive::Global->set_sequence(nullptr);
-
     panel_footage_viewer->viewer_widget()->close_window();
     panel_sequence_viewer->viewer_widget()->close_window();
 
-    panel_footage_viewer->set_main_sequence();
-
-    olive::UndoStack.clear();
+    olive::undo_stack.clear();
 
     QString data_dir = get_data_path();
     QString config_path = get_config_path();
@@ -980,7 +971,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
       QString config_fn = config_dir.filePath("config.xml");
 
       // save settings
-      olive::CurrentConfig.save(config_fn);
+      olive::config.save(config_fn);
 
       // save panel layout
       QFile panel_config(get_config_dir().filePath("layout"));
@@ -1123,32 +1114,30 @@ void MainWindow::playbackMenu_About_To_Be_Shown() {
 }
 
 void MainWindow::viewMenu_About_To_Be_Shown() {
-  olive::MenuHelper.set_bool_action_checked(track_lines);
-
   olive::MenuHelper.set_bool_action_checked(rectified_waveforms);
 
-  olive::MenuHelper.set_int_action_checked(frames_action, olive::CurrentConfig.timecode_view);
-  olive::MenuHelper.set_int_action_checked(drop_frame_action, olive::CurrentConfig.timecode_view);
-  olive::MenuHelper.set_int_action_checked(nondrop_frame_action, olive::CurrentConfig.timecode_view);
-  olive::MenuHelper.set_int_action_checked(milliseconds_action, olive::CurrentConfig.timecode_view);
+  olive::MenuHelper.set_int_action_checked(frames_action, olive::config.timecode_view);
+  olive::MenuHelper.set_int_action_checked(drop_frame_action, olive::config.timecode_view);
+  olive::MenuHelper.set_int_action_checked(nondrop_frame_action, olive::config.timecode_view);
+  olive::MenuHelper.set_int_action_checked(milliseconds_action, olive::config.timecode_view);
 
-  title_safe_off->setChecked(!olive::CurrentConfig.show_title_safe_area);
-  title_safe_default->setChecked(olive::CurrentConfig.show_title_safe_area
-                                 && !olive::CurrentConfig.use_custom_title_safe_ratio);
-  title_safe_43->setChecked(olive::CurrentConfig.show_title_safe_area
-                            && olive::CurrentConfig.use_custom_title_safe_ratio
-                            && qFuzzyCompare(olive::CurrentConfig.custom_title_safe_ratio, title_safe_43->data().toDouble()));
-  title_safe_169->setChecked(olive::CurrentConfig.show_title_safe_area
-                             && olive::CurrentConfig.use_custom_title_safe_ratio
-                             && qFuzzyCompare(olive::CurrentConfig.custom_title_safe_ratio, title_safe_169->data().toDouble()));
-  title_safe_custom->setChecked(olive::CurrentConfig.show_title_safe_area
-                                && olive::CurrentConfig.use_custom_title_safe_ratio
+  title_safe_off->setChecked(!olive::config.show_title_safe_area);
+  title_safe_default->setChecked(olive::config.show_title_safe_area
+                                 && !olive::config.use_custom_title_safe_ratio);
+  title_safe_43->setChecked(olive::config.show_title_safe_area
+                            && olive::config.use_custom_title_safe_ratio
+                            && qFuzzyCompare(olive::config.custom_title_safe_ratio, title_safe_43->data().toDouble()));
+  title_safe_169->setChecked(olive::config.show_title_safe_area
+                             && olive::config.use_custom_title_safe_ratio
+                             && qFuzzyCompare(olive::config.custom_title_safe_ratio, title_safe_169->data().toDouble()));
+  title_safe_custom->setChecked(olive::config.show_title_safe_area
+                                && olive::config.use_custom_title_safe_ratio
                                 && !title_safe_43->isChecked()
                                 && !title_safe_169->isChecked());
 
   full_screen->setChecked(windowState() == Qt::WindowFullScreen);
 
-  show_all->setChecked(panel_timeline->showing_all);
+  show_all->setChecked(panel_timeline.first()->showing_all);
 }
 
 void MainWindow::toolMenu_About_To_Be_Shown() {
@@ -1162,9 +1151,9 @@ void MainWindow::toolMenu_About_To_Be_Shown() {
   olive::MenuHelper.set_button_action_checked(transition_tool_action);
   olive::MenuHelper.set_button_action_checked(snap_toggle);
 
-  olive::MenuHelper.set_int_action_checked(no_autoscroll, olive::CurrentConfig.autoscroll);
-  olive::MenuHelper.set_int_action_checked(page_autoscroll, olive::CurrentConfig.autoscroll);
-  olive::MenuHelper.set_int_action_checked(smooth_autoscroll, olive::CurrentConfig.autoscroll);
+  olive::MenuHelper.set_int_action_checked(no_autoscroll, olive::config.autoscroll);
+  olive::MenuHelper.set_int_action_checked(page_autoscroll, olive::config.autoscroll);
+  olive::MenuHelper.set_int_action_checked(smooth_autoscroll, olive::config.autoscroll);
 }
 
 void MainWindow::toggle_panel_visibility() {

@@ -32,8 +32,8 @@
 #include "timeline/sequence.h"
 #include "panels/timeline.h"
 #include "project/media.h"
-#include "project/clipboard.h"
 #include "undo/undo.h"
+#include "global/clipboard.h"
 #include "global/debug.h"
 #include "global/timing.h"
 
@@ -46,7 +46,7 @@ Clip::Clip(Track *s) :
   timeline_out_(0),
   media_(nullptr),
   reverse_(false),
-  autoscale_(olive::CurrentConfig.autoscale_by_default),
+  autoscale_(olive::config.autoscale_by_default),
   opening_transition(nullptr),
   closing_transition(nullptr),
   undeletable(false),
@@ -110,6 +110,11 @@ bool Clip::IsTransitionSelected(TransitionType type)
   }
 }
 
+Selection Clip::ToSelection()
+{
+  return Selection(timeline_in(), timeline_out(), track());
+}
+
 Track::Type Clip::type()
 {
   return track()->type();
@@ -158,6 +163,11 @@ void Clip::set_media(Media *m, int s)
   media_stream_ = s;
 }
 
+void Clip::Move(ComboAction *ca, long iin, long iout, long iclip_in, Track *itrack, bool verify_transitions, bool relative)
+{
+  track()->sequence()->MoveClip(this, ca, iin, iout, iclip_in, itrack, verify_transitions, relative);
+}
+
 bool Clip::enabled()
 {
   return enabled_;
@@ -166,39 +176,6 @@ bool Clip::enabled()
 void Clip::set_enabled(bool e)
 {
   enabled_ = e;
-}
-
-void Clip::move(ComboAction* ca, long iin, long iout, long iclip_in, int itrack, bool verify_transitions, bool relative)
-{
-  ca->append(new MoveClipAction(this, iin, iout, iclip_in, itrack, relative));
-
-  if (verify_transitions) {
-
-    // if this is a shared transition, and the corresponding clip will be moved away somehow
-    if (opening_transition != nullptr
-        && opening_transition->secondary_clip != nullptr
-        && opening_transition->secondary_clip->timeline_out() != iin) {
-      // separate transition
-      ca->append(new SetPointer(reinterpret_cast<void**>(&opening_transition->secondary_clip), nullptr));
-      ca->append(new AddTransitionCommand(nullptr,
-                                          opening_transition->secondary_clip,
-                                          opening_transition,
-                                          nullptr,
-                                          0));
-    }
-
-    if (closing_transition != nullptr
-        && closing_transition->secondary_clip != nullptr
-        && closing_transition->parent_clip->timeline_in() != iout) {
-      // separate transition
-      ca->append(new SetPointer(reinterpret_cast<void**>(&closing_transition->secondary_clip), nullptr));
-      ca->append(new AddTransitionCommand(nullptr,
-                                          this,
-                                          closing_transition,
-                                          nullptr,
-                                          0));
-    }
-  }
 }
 
 void Clip::reset_audio() {
@@ -260,6 +237,9 @@ Clip::~Clip() {
 
 void Clip::Save(QXmlStreamWriter &stream)
 {
+  stream.writeStartElement("clip");
+  stream.writeAttribute("id", QString::number(load_id));
+
   stream.writeAttribute("enabled", QString::number(enabled()));
   stream.writeAttribute("name", name());
   stream.writeAttribute("clipin", QString::number(clip_in()));
@@ -312,21 +292,17 @@ void Clip::Save(QXmlStreamWriter &stream)
     if (transition != nullptr) {
       stream.writeStartElement((t == kTransitionOpening) ? "opening" : "closing");
 
-      // check if this is a shared transition and the transition has already been saved
-      int transition_cache_index = transition_save_cache.indexOf(transition);
-
-      if (transition_cache_index > -1) {
+      // check if this is a shared transition
+      if (this == transition->secondary_clip) {
         // if so, just save a reference to the other clip
         stream.writeAttribute("shared",
-                              QString::number(transition_clip_save_cache.at(transition_cache_index)));
+                              QString::number(transition->parent_clip->load_id));
       } else {
         // otherwise save the whole transition
         transition->save(stream);
-        transition_save_cache.append(transition);
-        transition_clip_save_cache.append(j);
       }
 
-      stream.writeEndElement(); // opening
+      stream.writeEndElement(); // opening/closing
     }
   }
 
@@ -336,7 +312,7 @@ void Clip::Save(QXmlStreamWriter &stream)
     stream.writeEndElement(); // effect
   }
 
-
+  stream.writeEndElement(); // clip
 }
 
 long Clip::clip_in(bool with_transition) {
@@ -441,6 +417,15 @@ Track *Clip::track()
 
 void Clip::set_track(Track *t)
 {
+  // Ensure this clip has already been added to this track
+  bool found = false;
+  for (int i=0;i<t->ClipCount();i++) {
+    if (t->GetClip(i).get() == this) {
+      found = true;
+      break;
+    }
+  }
+
   track_ = t;
 }
 
@@ -510,13 +495,13 @@ int Clip::media_width() {
 }
 
 int Clip::media_height() {
-  if (media_ == nullptr && sequence != nullptr) return sequence->height;
+  if (media_ == nullptr && track() != nullptr) return track()->sequence()->height;
   switch (media_->get_type()) {
   case MEDIA_TYPE_FOOTAGE:
   {
     const FootageStream* ms = media_stream();
     if (ms != nullptr) return ms->video_height;
-    if (sequence != nullptr) return sequence->height;
+    if (track() != nullptr) return track()->sequence()->height;
   }
     break;
   case MEDIA_TYPE_SEQUENCE:
@@ -530,11 +515,12 @@ int Clip::media_height() {
 
 void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points) {
   if (change_timeline_points) {
-    this->move(ca,
-               qRound(double(timeline_in_) * multiplier),
-               qRound(double(timeline_out_) * multiplier),
-               qRound(double(clip_in_) * multiplier),
-               track_);
+    track()->sequence()->MoveClip(this,
+                                  ca,
+                                  qRound(double(timeline_in_) * multiplier),
+                                  qRound(double(timeline_out_) * multiplier),
+                                  qRound(double(clip_in_) * multiplier),
+                                  track_);
   }
 
   // move keyframes
@@ -645,79 +631,79 @@ bool Clip::Retrieve()
 
       //if (frame->pts != texture_timestamp) {
 
-        bool allocate_data = false;
+      bool allocate_data = false;
 
-        QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+      QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
 
-        // check if the opengl texture exists yet, create it if not
-        if (texture == 0) {
+      // check if the opengl texture exists yet, create it if not
+      if (texture == 0) {
 
-          // create texture object
-          f->glGenTextures(1, &texture);
+        // create texture object
+        f->glGenTextures(1, &texture);
 
-          f->glBindTexture(GL_TEXTURE_2D, texture);
+        f->glBindTexture(GL_TEXTURE_2D, texture);
 
-          // set texture filtering to bilinear
-          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // set texture filtering to bilinear
+        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-          // set texture wrapping to clamp
-          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-          f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // set texture wrapping to clamp
+        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-          // queue an allocation ahead
-          allocate_data = true;
+        // queue an allocation ahead
+        allocate_data = true;
 
-        } else {
+      } else {
 
-          f->glBindTexture(GL_TEXTURE_2D, texture);
+        f->glBindTexture(GL_TEXTURE_2D, texture);
 
-        }
+      }
 
-        int video_width = cacher.media_width();
-        int video_height = cacher.media_height();
+      int video_width = cacher.media_width();
+      int video_height = cacher.media_height();
 
-        const olive::PixelFormatInfo& pix_fmt_info = olive::pixel_formats.at(cacher.media_pixel_format());
+      const olive::PixelFormatInfo& pix_fmt_info = olive::pixel_formats.at(cacher.media_pixel_format());
 
-        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/pix_fmt_info.bytes_per_pixel);
+      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, frame->linesize[0]/pix_fmt_info.bytes_per_pixel);
 
-        if (allocate_data) {
+      if (allocate_data) {
 
-          // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
-          // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
-          // composition
-          f->glTexImage2D(
-                GL_TEXTURE_2D,
-                0,
-                pix_fmt_info.internal_format,
-                video_width,
-                video_height,
-                0,
-                pix_fmt_info.pixel_format,
-                pix_fmt_info.pixel_type,
-                frame->data[0]
-                );
+        // the raw frame size may differ from the one we're using (e.g. a lower resolution proxy), so we make sure
+        // the texture is using the correct dimensions, but then treat it as if it's the original resolution in the
+        // composition
+        f->glTexImage2D(
+              GL_TEXTURE_2D,
+              0,
+              pix_fmt_info.internal_format,
+              video_width,
+              video_height,
+              0,
+              pix_fmt_info.pixel_format,
+              pix_fmt_info.pixel_type,
+              frame->data[0]
+            );
 
-        } else {
+      } else {
 
-          f->glTexSubImage2D(GL_TEXTURE_2D,
-                             0,
-                             0,
-                             0,
-                             video_width,
-                             video_height,
-                             pix_fmt_info.pixel_format,
-                             pix_fmt_info.pixel_type,
-                             frame->data[0]
-              );
+        f->glTexSubImage2D(GL_TEXTURE_2D,
+                           0,
+                           0,
+                           0,
+                           video_width,
+                           video_height,
+                           pix_fmt_info.pixel_format,
+                           pix_fmt_info.pixel_type,
+                           frame->data[0]
+            );
 
-        }
+      }
 
-        f->glBindTexture(GL_TEXTURE_2D, 0);
+      f->glBindTexture(GL_TEXTURE_2D, 0);
 
-        f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+      f->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
-        texture_timestamp = frame->pts;
+      texture_timestamp = frame->pts;
 
       //}
 

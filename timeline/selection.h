@@ -23,10 +23,12 @@
 
 #include <QVector>
 
+class Clip;
 class Track;
 
 class Selection {
 public:
+  Selection();
   Selection(long in, long out, Track* track);
 
   long in() const;
@@ -36,7 +38,9 @@ public:
   void set_in(long in);
   void set_out(long out);
 
-  static void Tidy(QVector<Selection&> selections);
+  bool ContainsTransition(Clip* c, int type) const;
+
+  static void Tidy(QVector<Selection> &selections);
 
 private:
   long in_;

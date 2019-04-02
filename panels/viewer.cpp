@@ -70,7 +70,8 @@ Viewer::Viewer(QWidget *parent) :
   created_sequence(false),
   minimum_zoom(1.0),
   cue_recording_internal(false),
-  playback_speed(0)
+  playback_speed(0),
+  mode_(kTimelineMode)
 {
   setup_ui();
 
@@ -101,6 +102,16 @@ Viewer::Viewer(QWidget *parent) :
   update_end_timecode();
 }
 
+void Viewer::SetMode(Viewer::Mode mode)
+{
+  mode_ = mode;
+}
+
+Viewer::Mode Viewer::mode()
+{
+  return mode_;
+}
+
 void Viewer::Retranslate() {
   /// Viewer panels are retranslated through the MainWindow to differentiate Media and Sequence Viewers
 //  update_window_title();
@@ -114,14 +125,6 @@ bool Viewer::focused() {
       || play_button->hasFocus()
       || next_frame_button->hasFocus()
       || go_to_end_frame->hasFocus();
-}
-
-bool Viewer::is_main_sequence() {
-  return main_sequence;
-}
-
-void Viewer::set_main_sequence() {
-  set_sequence(true, olive::ActiveSequence);
 }
 
 void Viewer::reset_all_audio() {
@@ -150,20 +153,24 @@ void Viewer::reset_all_audio() {
 
 void Viewer::seek(long p) {
   pause();
-  if (main_sequence) {
+
+  if (mode_ == kTimelineMode) {
     seq->playhead = p;
   } else {
     seq->playhead = qMin(seq->GetEndFrame(), qMax(0L, p));
   }
+
   bool update_fx = false;
-  if (main_sequence) {
-    panel_timeline->scroll_to_frame(p);
+
+  if (mode_ == kTimelineMode) {
+    panel_timeline.first()->scroll_to_frame(p);
     panel_effect_controls->scroll_to_frame(p);
-    if (olive::CurrentConfig.seek_also_selects) {
-      panel_timeline->select_from_playhead();
+    if (olive::config.seek_also_selects) {
+      seq->SelectAtPlayhead();
       update_fx = true;
     }
   }
+
   reset_all_audio();
   audio_scrub = true;
   last_playhead = seq->playhead;
@@ -274,11 +281,11 @@ void Viewer::play(bool in_to_out) {
       uncue_recording();
     }
 
-    bool seek_to_in = (seq->using_workarea && (olive::CurrentConfig.loop || playing_in_to_out));
+    bool seek_to_in = (seq->using_workarea && (olive::config.loop || playing_in_to_out));
     if (!is_recording_cued()
         && playback_speed >= 0
         && (playing_in_to_out
-            || (olive::CurrentConfig.auto_seek_to_beginning && seq->playhead >= sequence_end_frame)
+            || (olive::config.auto_seek_to_beginning && seq->playhead >= sequence_end_frame)
             || (seek_to_in && seq->playhead >= seq->workarea_out))) {
       seek(seek_to_in ? seq->workarea_in : 0);
     }
@@ -359,7 +366,7 @@ void Viewer::pause() {
 
         QVector<ClipPtr> add_clips;
         add_clips.append(c);
-        olive::UndoStack.push(new AddClipCommand(seq.get(), add_clips)); // add clip
+        olive::undo_stack.push(new AddClipCommand(add_clips)); // add clip
 
       }
 
@@ -374,7 +381,7 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::CurrentConfig.timecode_view, 30) : frame_to_timecode(seq->GetEndFrame(), olive::CurrentConfig.timecode_view, seq->frame_rate));
+  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::config.timecode_view, 30) : frame_to_timecode(seq->GetEndFrame(), olive::config.timecode_view, seq->frame_rate));
 }
 
 void Viewer::update_header_zoom() {
@@ -392,11 +399,10 @@ void Viewer::update_header_zoom() {
 }
 
 void Viewer::update_parents(bool reload_fx) {
-  if (main_sequence) {
+  if (mode_ == kTimelineMode) {
     update_ui(reload_fx);
   } else {
     update_viewer();
-    panel_timeline->repaint_timeline();
   }
 }
 
@@ -410,7 +416,7 @@ ViewerWidget *Viewer::viewer_widget()
 }
 
 void Viewer::set_marker() {
-  set_marker_internal(seq.get());
+  Marker::SetOnSequence(seq.get());
 }
 
 void Viewer::resizeEvent(QResizeEvent *e) {
@@ -435,7 +441,7 @@ void Viewer::prev_cut()
   if (seq != nullptr
       && seq->playhead > 0) {
 
-    QVector<Clip*> sequence_clips = olive::ActiveSequence->GetAllClips();
+    QVector<Clip*> sequence_clips = seq->GetAllClips();
 
     long p_cut = 0;
     for (int i=0;i<sequence_clips.size();i++) {
@@ -489,7 +495,7 @@ void Viewer::initiate_drag(olive::timeline::MediaImportType drag_type)
 void Viewer::clear_in() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), true, 0, seq->workarea_out));
+    olive::undo_stack.push(new SetTimelineInOutCommand(seq.get(), true, 0, seq->workarea_out));
     update_parents();
   }
 }
@@ -497,7 +503,7 @@ void Viewer::clear_in() {
 void Viewer::clear_out() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), true, seq->workarea_in, seq->GetEndFrame()));
+    olive::undo_stack.push(new SetTimelineInOutCommand(seq.get(), true, seq->workarea_in, seq->GetEndFrame()));
     update_parents();
   }
 }
@@ -505,7 +511,7 @@ void Viewer::clear_out() {
 void Viewer::clear_inout_point() {
   if (seq != nullptr
       && seq->using_workarea) {
-    olive::UndoStack.push(new SetTimelineInOutCommand(seq.get(), false, 0, 0));
+    olive::undo_stack.push(new SetTimelineInOutCommand(seq.get(), false, 0, 0));
     update_parents();
   }
 }
@@ -575,13 +581,13 @@ void Viewer::set_playback_speed(int s) {
 }
 
 long Viewer::get_seq_in() {
-  return ((olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea)
+  return ((olive::config.loop || playing_in_to_out) && seq->using_workarea)
       ? seq->workarea_in
       : 0;
 }
 
 long Viewer::get_seq_out() {
-  return ((olive::CurrentConfig.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
+  return ((olive::config.loop || playing_in_to_out) && seq->using_workarea && previous_playhead < seq->workarea_out)
       ? seq->workarea_out
       : seq->GetEndFrame();
 }
@@ -713,7 +719,6 @@ void Viewer::setup_ui() {
 }
 
 void Viewer::set_media(Media* m) {
-  main_sequence = false;
   media = m;
 
   SequencePtr new_sequence = nullptr;
@@ -737,7 +742,7 @@ void Viewer::set_media(Media* m) {
         new_sequence->workarea_out = footage->out;
       }
 
-      new_sequence->frame_rate = olive::CurrentConfig.default_sequence_framerate;
+      new_sequence->frame_rate = olive::config.default_sequence_framerate;
 
       if (footage->video_tracks.size() > 0) {
         const FootageStream& video_stream = footage->video_tracks.at(0);
@@ -761,20 +766,19 @@ void Viewer::set_media(Media* m) {
         c->refresh();
         track->AddClip(c);
       } else {
-        new_sequence->width = olive::CurrentConfig.default_sequence_width;
-        new_sequence->height = olive::CurrentConfig.default_sequence_height;
+        new_sequence->width = olive::config.default_sequence_width;
+        new_sequence->height = olive::config.default_sequence_height;
       }
 
       if (footage->audio_tracks.size() > 0) {
         const FootageStream& audio_stream = footage->audio_tracks.at(0);
         new_sequence->audio_frequency = audio_stream.audio_frequency;
 
-        ClipPtr c = std::make_shared<Clip>(new_sequence.get());
+        Track* track = new_sequence->GetTrackList(Track::kTypeAudio)->First();
+        ClipPtr c = std::make_shared<Clip>(track);
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
-        Track* track = new_sequence->GetTrackList(Track::kTypeAudio)->First();
-        c->set_track(track);
         c->set_clip_in(0);
         c->refresh();
         track->AddClip(c);
@@ -786,7 +790,7 @@ void Viewer::set_media(Media* m) {
           viewer_widget_->frame_update();
         }
       } else {
-        new_sequence->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
+        new_sequence->audio_frequency = olive::config.default_sequence_audio_frequency;
       }
 
       new_sequence->audio_layout = AV_CH_LAYOUT_STEREO;
@@ -798,7 +802,7 @@ void Viewer::set_media(Media* m) {
     }
   }
 
-  set_sequence(false, new_sequence);
+  set_sequence(new_sequence);
 }
 
 void Viewer::update_playhead() {
@@ -810,11 +814,11 @@ void Viewer::timer_update() {
 
   seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed)));
 
-  if (olive::CurrentConfig.seek_also_selects) {
-    panel_timeline->select_from_playhead();
+  if (olive::config.seek_also_selects) {
+    seq->SelectAtPlayhead();
   }
 
-  update_parents(olive::CurrentConfig.seek_also_selects);
+  update_parents(olive::config.seek_also_selects);
 
   if (playing) {
     if (playback_speed < 0 && seq->playhead == 0) {
@@ -825,11 +829,11 @@ void Viewer::timer_update() {
       }
     } else if (playback_speed > 0) {
       long end_frame = seq->GetEndFrame();
-      if ((olive::CurrentConfig.auto_seek_to_beginning || previous_playhead < end_frame) && seq->playhead >= end_frame) {
+      if ((olive::config.auto_seek_to_beginning || previous_playhead < end_frame) && seq->playhead >= end_frame) {
         pause();
       }
       if (seq->using_workarea && seq->playhead >= seq->workarea_out) {
-        if (olive::CurrentConfig.loop) {
+        if (olive::config.loop) {
           // loop
           play();
         } else if (playing_in_to_out) {
@@ -882,7 +886,7 @@ void Viewer::clean_created_seq() {
   }
 }
 
-void Viewer::set_sequence(bool main, SequencePtr s) {
+void Viewer::set_sequence(SequencePtr s) {
   pause();
 
   reset_all_audio();
@@ -896,11 +900,7 @@ void Viewer::set_sequence(bool main, SequencePtr s) {
 
   clean_created_seq();
 
-  main_sequence = main;
-
-
-
-  seq = (main) ? olive::ActiveSequence : s;
+  seq = s;
 
   bool null_sequence = (seq == nullptr);
 

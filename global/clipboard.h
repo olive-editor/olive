@@ -18,16 +18,44 @@
 
 ***/
 
-#ifndef SCROLLAREA_H
-#define SCROLLAREA_H
+#ifndef CLIPBOARD_H
+#define CLIPBOARD_H
 
-#include <QScrollArea>
+#include <QVector>
 
-class ScrollArea : public QScrollArea
-{
+#include "effects/transition.h"
+
+using VoidPtr = std::shared_ptr<void>;
+
+class Clipboard {
 public:
-    ScrollArea(QWidget* parent = 0);
-    void wheelEvent(QWheelEvent *);
+  enum Type {
+    CLIPBOARD_TYPE_CLIP,
+    CLIPBOARD_TYPE_EFFECT
+  };
+
+  Clipboard();
+  void Append(VoidPtr obj);
+  void Insert(int pos, VoidPtr obj);
+  void RemoveAt(int pos);
+  void Clear();
+  int Count();
+  VoidPtr Get(int i);
+  void SetType(Type type);
+  bool IsEmpty();
+  Type type();
+
+  bool DeleteClipsWithMedia(ComboAction* ca, Media* m);
+
+private:
+  Type type_;
+
+  QVector<TransitionPtr> clipboard_transitions_;
+  QVector<VoidPtr> clipboard_;
 };
 
-#endif // SCROLLAREA_H
+namespace olive {
+extern Clipboard clipboard;
+}
+
+#endif // CLIPBOARD_H

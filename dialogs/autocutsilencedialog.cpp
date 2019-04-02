@@ -31,7 +31,7 @@
 #include "panels/panels.h"
 #include "panels/timeline.h"
 
-AutoCutSilenceDialog::AutoCutSilenceDialog(QWidget *parent, QVector<int> clips) :
+AutoCutSilenceDialog::AutoCutSilenceDialog(QWidget *parent, QVector<Clip*> clips) :
   QDialog(parent),
   clips_(clips)
 {
@@ -124,16 +124,16 @@ void AutoCutSilenceDialog::cut_silence() {
   // Loop over clips provided to this dialog
   for (int j=0;j<clips_.size();j++) {
 
-    Clip* clip = olive::ActiveSequence->clips.at(clips_.at(j)).get();
+    Clip* clip = clips_.at(j);
 
     // Check if this clip is an audio footage clip
-    if (clip->track() >= 0
+    if (clip->type() == Track::kTypeAudio
         && clip->media() != nullptr
         && clip->media_stream()->preview_done) { // TODO provide warning for preview not being done
 
       QVector<long> split_positions;
 
-      int clip_start = clip->timeline_in();
+      long clip_start = clip->timeline_in();
       const FootageStream* ms = clip->media_stream();
 
       long media_length = clip->media_length();
@@ -156,7 +156,7 @@ void AutoCutSilenceDialog::cut_silence() {
 
         // read the current sample into the circular array
         qint8 tmp = 0;
-        for (int k=start; k<start+chunk_size; k++){
+        for (long k=start; k<start+chunk_size; k++){
           tmp = qMax(tmp, qint8(qRound(double(ms->audio_preview.at(k)))));
         }
         vols[circular_index] = tmp;
@@ -202,13 +202,13 @@ void AutoCutSilenceDialog::cut_silence() {
         }
       }
 
-      panel_timeline->split_clip_at_positions(ca, clips_.at(j), split_positions);
+      clip->track()->sequence()->SplitClipAtPositions(ca, clips_.at(j), split_positions);
     }
 
   }
 
   if (ca->hasActions()) {
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
   } else {
     delete ca;
   }

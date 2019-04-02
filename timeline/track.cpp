@@ -50,12 +50,8 @@ void Track::Save(QXmlStreamWriter &stream)
   for (int j=0;j<clips_.size();j++) {
     Clip* c = clips_.at(j).get();
 
-    stream.writeStartElement("clip");
-    stream.writeAttribute("id", QString::number(c->load_id));
-
     c->Save(stream);
 
-    stream.writeEndElement(); // clip
   }
 
   stream.writeEndElement(); // track
@@ -78,11 +74,25 @@ void Track::set_height(int h)
 
 void Track::AddClip(ClipPtr clip)
 {
+  if (clips_.contains(clip)) {
+    return;
+  }
+
   clips_.append(clip);
   if (clip->track() != nullptr) {
     clip->track()->RemoveClip(clip.get());
   }
   clip->set_track(this);
+}
+
+int Track::ClipCount()
+{
+  return clips_.size();
+}
+
+ClipPtr Track::GetClip(int i)
+{
+  return clips_.at(i);
 }
 
 void Track::RemoveClip(int i)
@@ -143,6 +153,19 @@ ClipPtr Track::GetClipObjectFromRawPtr(Clip *c)
 
   // Assert here since we shouldn't be calling this function ever
   Q_ASSERT(false);
+}
+
+Clip *Track::GetClipFromPoint(long point)
+{
+  for (int i=0;i<clips_.size();i++) {
+    Clip* c = clips_.at(i).get();
+
+    if (c->timeline_in() <= point && c->timeline_out() > point) {
+      return c;
+    }
+  }
+
+  return nullptr;
 }
 
 int Track::Index()
@@ -207,6 +230,11 @@ bool Track::IsTransitionSelected(Transition *t)
   }
 
   return false;
+}
+
+void Track::SelectArea(long in, long out)
+{
+  selections_.append(Selection(in, out, this));
 }
 
 void Track::SelectClip(Clip* c)

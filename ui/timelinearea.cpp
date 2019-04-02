@@ -1,6 +1,7 @@
 #include "timelinearea.h"
 
-TimelineArea::TimelineArea() :
+TimelineArea::TimelineArea(Timeline* timeline) :
+  timeline_(timeline),
   track_list_(nullptr),
   alignment_(olive::timeline::kAlignmentTop)
 {
@@ -8,21 +9,24 @@ TimelineArea::TimelineArea() :
 
   // LABELS
   QWidget* label_container = new QWidget();
-  QVBoxLayout* label_container_layout = new QVBoxLayout(label_container);
+  label_container_layout_ = new QVBoxLayout(label_container);
   layout->addWidget(label_container);
 
   // VIEW
-  view_ = new TimelineView();
+  view_ = new TimelineView(timeline_);
   layout->addWidget(view_);
 
   // SCROLLBAR
   QScrollBar* scrollbar = new QScrollBar(Qt::Vertical);
   layout->addWidget(scrollbar);
+
+  view_->scrollBar = scrollbar;
 }
 
 void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)
 {
   alignment_ = alignment;
+  view_->SetAlignment(alignment);
 }
 
 void TimelineArea::SetTrackList(Sequence *sequence, Track::Type track_list)
@@ -37,7 +41,7 @@ void TimelineArea::SetTrackList(Sequence *sequence, Track::Type track_list)
 
   }
 
-
+  view_->SetTrackList(track_list_);
 }
 
 void TimelineArea::RefreshLabels()
@@ -48,7 +52,7 @@ void TimelineArea::RefreshLabels()
 
     labels_.resize(track_list_->TrackCount());
     for (int i=0;i<labels_.size();i++) {
-      labels_[i].SetTrack(track_list_->TrackAt(i));
+      labels_[i]->SetTrack(track_list_->TrackAt(i));
     }
 
   }

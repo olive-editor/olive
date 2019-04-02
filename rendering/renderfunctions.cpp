@@ -187,7 +187,7 @@ void process_effect(QOpenGLContext* ctx,
     if (e->Flags() & Effect::CoordsFlag) {
       e->process_coords(timecode, coords, data);
     }
-    bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::CurrentRuntimeConfig.shaders_are_enabled);
+    bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::runtime_config.shaders_are_enabled);
     if (can_process_shaders || (e->Flags() & Effect::SuperimposeFlag)) {
 
       if (!e->is_open()) {
@@ -227,7 +227,7 @@ void process_effect(QOpenGLContext* ctx,
 }
 
 GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
-  GLuint final_fbo = params.video ? params.main_buffer->buffer() : 0;
+  GLuint final_fbo = params.type == Track::kTypeVideo ? params.main_buffer->buffer() : 0;
 
   Sequence* s = params.seq;
   long playhead = s->playhead;
@@ -237,10 +237,10 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     for (int i=0;i<params.nests.size();i++) {
       s = params.nests.at(i)->media()->to_sequence().get();
       playhead += params.nests.at(i)->clip_in(true) - params.nests.at(i)->timeline_in(true);
-      playhead = rescale_frame_number(playhead, params.nests.at(i)->sequence->frame_rate, s->frame_rate);
+      playhead = rescale_frame_number(playhead, params.nests.at(i)->track()->sequence()->frame_rate, s->frame_rate);
     }
 
-    if (params.video && !params.nests.last()->fbo.isEmpty()) {
+    if (params.type == Track::kTypeVideo && !params.nests.last()->fbo.isEmpty()) {
       params.nests.last()->fbo.at(0).BindBuffer();
       params.ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
       final_fbo = params.nests.last()->fbo.at(0).buffer();
@@ -253,14 +253,15 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
   QVector<Clip*> current_clips;
 
   // loop through clips, find currently active, and sort by track
-  for (int i=0;i<s->clips.size();i++) {
+  QVector<Clip*> sequence_clips = s->GetAllClips();
+  for (int i=0;i<sequence_clips.size();i++) {
 
-    Clip* c = s->clips.at(i).get();
+    Clip* c = sequence_clips.at(i);
 
     if (c != nullptr) {
 
       // if clip is video and we're processing video
-      if ((c->track() < 0) == params.video) {
+      if (c->type() == params.type) {
 
         bool clip_is_active = false;
 
@@ -269,7 +270,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           Footage* m = c->media()->to_footage();
 
           // does the clip have a valid media source?
-          if (!m->invalid && !(c->track() >= 0 && !is_audio_device_set())) {
+          if (!m->invalid && !(c->type() == Track::kTypeAudio && !is_audio_device_set())) {
 
             // is the media process and ready?
             if (m->ready) {
@@ -286,7 +287,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
                 clip_is_active = true;
 
                 // increment audio track count
-                if (c->track() >= 0) audio_track_count++;
+                if (c->type() == Track::kTypeAudio) audio_track_count++;
 
               } else if (c->IsOpen()) {
 
@@ -320,7 +321,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
           // track sorting is only necessary for video clips
           // audio clips are mixed equally, so we skip sorting for those
-          if (params.video) {
+          if (params.type == Track::kTypeVideo) {
 
             // insertion sort by track
             for (int j=0;j<current_clips.size();j++) {
@@ -343,7 +344,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
   QMatrix4x4 projection;
 
-  if (params.video) {
+  if (params.type == Track::kTypeVideo) {
     // set default coordinates based on the sequence, with 0 in the direct center
 
     params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -444,7 +445,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             } else if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
               // Convert frame from source to linear colorspace
-              if (olive::CurrentConfig.enable_color_management)
+              if (olive::config.enable_color_management)
               {
 
                 // Convert texture to sequence's internal format
@@ -794,7 +795,7 @@ void olive::rendering::compose_audio(Viewer* viewer, Sequence* seq, int playback
   params.viewer = viewer;
   params.ctx = nullptr;
   params.seq = seq;
-  params.video = false;
+  params.type = Track::kTypeAudio;
   params.gizmos = nullptr;
   params.wait_for_mutexes = wait_for_mutexes;
   params.playback_speed = playback_speed;

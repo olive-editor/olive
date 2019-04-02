@@ -27,7 +27,7 @@ namespace olive {
 /**
  * @brief Global undo stack object
  */
-extern QUndoStack UndoStack;
+extern QUndoStack undo_stack;
 }
 
 #endif // UNDOSTACK_H

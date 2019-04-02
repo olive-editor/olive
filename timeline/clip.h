@@ -59,6 +59,8 @@ public:
   bool IsSelected(bool containing = true);
   bool IsTransitionSelected(TransitionType type);
 
+  Selection ToSelection();
+
   Track::Type type();
 
   const QColor& color();
@@ -74,16 +76,16 @@ public:
   long media_length();
   void set_media(Media* m, int s);
 
-  bool enabled();
-  void set_enabled(bool e);
-
-  void move(ComboAction* ca,
+  void Move(ComboAction* ca,
             long iin,
             long iout,
             long iclip_in,
-            int itrack,
+            Track *itrack,
             bool verify_transitions = true,
             bool relative = false);
+
+  bool enabled();
+  void set_enabled(bool e);
 
   long clip_in(bool with_transition = false);
   void set_clip_in(long c);

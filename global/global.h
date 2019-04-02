@@ -204,6 +204,18 @@ public:
      */
     const QString& get_autorecovery_filename();
 
+    /**
+     * @brief Returns whether a Sequence is currently active or not, and optionally displays a messagebox if not
+     *
+     * Checks whether a Sequence is active and can display a messagebox if not to inform users to make one active in
+     * order to perform said action.
+     *
+     * @return
+     *
+     * TRUE if there is an active Sequence, FALSE if not.
+     */
+    bool CheckForActiveSequence(bool show_msg = true);
+
 public slots:
     /**
      * @brief Undo user's last action
@@ -313,7 +325,7 @@ public slots:
     /**
      * @brief Opens the NewSequenceDialog to create a new Sequence
      */
-    void new_sequence();
+    void open_new_sequence_dialog();
 
     /**
      * @brief Open a file dialog for importing files into the project
@@ -379,24 +391,19 @@ public slots:
     void open_preferences();
 
     /**
-     * @brief Set the current active Sequence
-     *
-     * Call this to change the active Sequence (e.g. when the user double clicks a Sequence in the Project panel).
-     * This will affect panel_timeline, panel_sequence_viewer, and panel_effect_controls and can then be retrieved
-     * using olive::ActiveSequence.
-     *
-     * @param s
-     *
-     * The Sequence to set as the active Sequence.
-     */
-    void set_sequence(SequencePtr s);
-
-    /**
      * @brief Clear the recent projects list
      *
      * Also saves the cleared recent projects to the config file making it permanent.
      */
     void clear_recent_projects();
+
+    /**
+     * @brief Slot for when the primary sequence has changed.
+     *
+     * Usually by opening a sequence or bringing a corresponding
+     * Timeline widget on top.
+     */
+    void PrimarySequenceChanged();
 
 private:
     /**
@@ -416,18 +423,6 @@ private:
      * on the autorecovery project in Olive's application data directory.
      */
     void OpenProjectWorker(QString fn, bool autorecovery);
-
-    /**
-     * @brief Returns whether a Sequence is currently active or not, and optionally displays a messagebox if not
-     *
-     * Checks whether a Sequence is active and can display a messagebox if not to inform users to make one active in
-     * order to perform said action.
-     *
-     * @return
-     *
-     * TRUE if there is an active Sequence, FALSE if not.
-     */
-    bool CheckForActiveSequence(bool show_msg = true);
 
     /**
      * @brief Create a LoadDialog and start a LoadThread to load data from a project
@@ -475,7 +470,7 @@ private:
     /**
      * @brief Internal pasting function
      */
-    void PasteInternal(Sequence* s);
+    void PasteInternal(Sequence* s, bool insert);
 
     /**
      * @brief File filter used for any file dialogs relating to Olive project files.

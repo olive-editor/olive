@@ -27,7 +27,7 @@
 
 #include "ui/keyframenavigator.h"
 #include "ui/timelineheader.h"
-#include "ui/timelinetools.h"
+#include "timeline/timelinetools.h"
 #include "ui/labelslider.h"
 #include "ui/graphview.h"
 #include "effects/effect.h"

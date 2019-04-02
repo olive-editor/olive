@@ -20,6 +20,8 @@ public:
   Track* TrackAt(int i);
   QVector<Track*> tracks();
 
+  Track::Type type();
+
   Sequence* GetParent();
 
 private:

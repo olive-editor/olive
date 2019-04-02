@@ -24,8 +24,7 @@
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 #include "global/debug.h"
-
-#include "project/clipboard.h"
+#include "global/clipboard.h"
 
 #include "effects/internal/crossdissolvetransition.h"
 #include "effects/internal/linearfadetransition.h"
@@ -50,8 +49,8 @@ Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
   length_field->SetDefault(30);
   length_field->SetMinimum(1);
   length_field->SetDisplayType(LabelSlider::FrameNumber);
-  length_field->SetFrameRate(parent_clip->sequence == nullptr ?
-                               parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
+  length_field->SetFrameRate(parent_clip->track()->sequence() == nullptr ?
+                               parent_clip->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
 
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }

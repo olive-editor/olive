@@ -80,9 +80,9 @@ struct ComposeSequenceParams {
     /**
      * @brief Set compose mode to video or audio
      *
-     * **TRUE** if this function should render video, **FALSE** if this function should render audio.
+     * Accepts Track::kTypeVideo to render video, Track::kTypeAudio if this function should render audio.
      */
-    bool video;
+    Track::Type type;
 
     /**
      * @brief Set to the Effect whose gizmos were chosen to be drawn on screen

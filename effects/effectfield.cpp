@@ -235,13 +235,13 @@ void EffectField::SetValueAt(double time, const QVariant &value)
 double EffectField::Now()
 {
   Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
-  return playhead_to_clip_seconds(c, c->sequence->playhead);
+  return playhead_to_clip_seconds(c, c->track()->sequence()->playhead);
 }
 
 long EffectField::NowInFrames()
 {
   Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
-  return playhead_to_clip_frame(c, c->sequence->playhead);
+  return playhead_to_clip_frame(c, c->track()->sequence()->playhead);
 }
 
 void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
@@ -331,11 +331,11 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
 }
 
 double EffectField::FrameToSeconds(long frame) {
-  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
+  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate);
 }
 
 long EffectField::SecondsToFrame(double seconds) {
-  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
+  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate);
 }
 
 void EffectField::GetKeyframeData(double timecode, int &before, int &after, double &progress) {

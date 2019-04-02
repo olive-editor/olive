@@ -24,7 +24,7 @@
 
 bool olive::styling::UseDarkIcons()
 {
-  return olive::CurrentConfig.style == kOliveDefaultLight || olive::CurrentConfig.style == kNativeDarkIcons;
+  return olive::config.style == kOliveDefaultLight || olive::config.style == kNativeDarkIcons;
 }
 
 QColor olive::styling::GetIconColor()
@@ -40,5 +40,5 @@ QColor olive::styling::GetIconColor()
 
 bool olive::styling::UseNativeUI()
 {
-  return olive::CurrentConfig.style == kNativeLightIcons || olive::CurrentConfig.style == kNativeDarkIcons;
+  return olive::config.style == kNativeLightIcons || olive::config.style == kNativeDarkIcons;
 }

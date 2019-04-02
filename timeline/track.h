@@ -61,6 +61,7 @@ public:
   QVector<Clip*> GetAllClips();
   QVector<Clip*> GetSelectedClips(bool containing);
   ClipPtr GetClipObjectFromRawPtr(Clip* c);
+  Clip* GetClipFromPoint(long point);
 
   int Index();
 
@@ -71,6 +72,7 @@ public:
   void DeleteArea(ComboAction *ca, const Selection& s);
   void DeleteArea(ComboAction *ca, long in, long out);
 
+  void SelectArea(long in, long out);
   void SelectClip(Clip *c);
   void SelectAll();
   void SelectAtPoint(long point);

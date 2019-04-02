@@ -50,7 +50,7 @@ public:
    *
    * QWidget parent. Usually MainWindow.
    */
-  explicit ExportDialog(QWidget *parent);
+  explicit ExportDialog(QWidget *parent, Sequence *sequence);
 
 private slots:
   /**
@@ -270,6 +270,8 @@ private:
    * @brief Time value set when exporting begins to determine the total duration of the export
    */
   qint64 total_export_time_start;
+
+  Sequence* sequence_;
 };
 
 #endif // EXPORTDIALOG_H

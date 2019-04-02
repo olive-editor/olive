@@ -59,17 +59,20 @@
 #include "effects/effect.h"
 #include "effects/internal/solideffect.h"
 #include "timeline/track.h"
+#include "global/math.h"
+#include "project/projectfunctions.h"
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
 
-TimelineView::TimelineView(QWidget *parent) : QWidget(parent) {
-  selection_command = nullptr;
-  self_created_sequence = nullptr;
-  scroll = 0;
-
-  bottom_align = false;
-  track_resizing = false;
+TimelineView::TimelineView(Timeline *parent) :
+  timeline_(parent),
+  self_created_sequence(nullptr),
+  track_list_(nullptr),
+  scroll(0),
+  alignment_(olive::timeline::kAlignmentTop),
+  track_resizing(false)
+{
   setMouseTracking(true);
 
   setFocusPolicy(Qt::ClickFocus);
@@ -83,11 +86,23 @@ TimelineView::TimelineView(QWidget *parent) : QWidget(parent) {
   connect(&tooltip_timer, SIGNAL(timeout()), this, SLOT(tooltip_timer_timeout()));
 }
 
+void TimelineView::SetAlignment(olive::timeline::Alignment alignment)
+{
+  alignment_ = alignment;
+}
+
+void TimelineView::SetTrackList(TrackList *tl)
+{
+  track_list_ = tl;
+
+  update();
+}
+
 void TimelineView::show_context_menu(const QPoint& pos) {
-  if (olive::ActiveSequence != nullptr) {
+  if (sequence() != nullptr) {
     // hack because sometimes right clicking doesn't trigger mouse release event
-    panel_timeline->rect_select_init = false;
-    panel_timeline->rect_select_proc = false;
+    ParentTimeline()->rect_select_init = false;
+    ParentTimeline()->rect_select_proc = false;
 
     Menu menu(this);
 
@@ -95,12 +110,12 @@ void TimelineView::show_context_menu(const QPoint& pos) {
     QAction* redoAction = menu.addAction(tr("&Redo"));
     connect(undoAction, SIGNAL(triggered(bool)), olive::Global.get(), SLOT(undo()));
     connect(redoAction, SIGNAL(triggered(bool)), olive::Global.get(), SLOT(redo()));
-    undoAction->setEnabled(olive::UndoStack.canUndo());
-    redoAction->setEnabled(olive::UndoStack.canRedo());
+    undoAction->setEnabled(olive::undo_stack.canUndo());
+    redoAction->setEnabled(olive::undo_stack.canRedo());
     menu.addSeparator();
 
     // collect all the selected clips
-    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+    QVector<Clip*> selected_clips = sequence()->SelectedClips();
 
     olive::MenuHelper.make_edit_functions_menu(&menu, !selected_clips.isEmpty());
 
@@ -108,12 +123,13 @@ void TimelineView::show_context_menu(const QPoint& pos) {
       // no clips are selected
 
       // determine if we can perform a ripple empty space
-      panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(pos.x());
-      panel_timeline->cursor_track = getTrackFromScreenPoint(pos.y());
+      ParentTimeline()->cursor_frame = ParentTimeline()->getTimelineFrameFromScreenPoint(pos.x());
+      ParentTimeline()->cursor_track = getTrackFromScreenPoint(pos.y());
 
-      if (panel_timeline->can_ripple_empty_space(panel_timeline->cursor_frame, panel_timeline->cursor_track)) {
+      // check if the space the cursor is currently at is empty
+      if (ParentTimeline()->cursor_track->GetClipFromPoint(ParentTimeline()->cursor_frame) == nullptr) {
         QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete Empty Space"));
-        connect(ripple_delete_action, SIGNAL(triggered(bool)), panel_timeline, SLOT(ripple_delete_empty_space()));
+        connect(ripple_delete_action, SIGNAL(triggered(bool)), ParentTimeline(), SLOT(ripple_delete_empty_space()));
       }
 
       QAction* seq_settings = menu.addAction(tr("Sequence Settings"));
@@ -171,7 +187,7 @@ void TimelineView::show_context_menu(const QPoint& pos) {
 }
 
 void TimelineView::toggle_autoscale() {
-  QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+  QVector<Clip*> selected_clips = sequence()->SelectedClips();
 
   if (!selected_clips.isEmpty()) {
     SetClipProperty* action = new SetClipProperty(kSetClipPropertyAutoscale);
@@ -181,7 +197,7 @@ void TimelineView::toggle_autoscale() {
       action->AddSetting(c, !c->autoscaled());
     }
 
-    olive::UndoStack.push(action);
+    olive::undo_stack.push(action);
   }
 }
 
@@ -190,9 +206,9 @@ void TimelineView::tooltip_timer_timeout() {
     QToolTip::showText(QCursor::pos(),
                        tr("%1\nStart: %2\nEnd: %3\nDuration: %4").arg(
                          tooltip_clip->name(),
-                         frame_to_timecode(tooltip_clip->timeline_in(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate),
-                         frame_to_timecode(tooltip_clip->timeline_out(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate),
-                         frame_to_timecode(tooltip_clip->length(), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate)
+                         frame_to_timecode(tooltip_clip->timeline_in(), olive::config.timecode_view, sequence()->frame_rate),
+                         frame_to_timecode(tooltip_clip->timeline_out(), olive::config.timecode_view, sequence()->frame_rate),
+                         frame_to_timecode(tooltip_clip->length(), olive::config.timecode_view, sequence()->frame_rate)
                          ));
   }
 
@@ -203,7 +219,7 @@ void TimelineView::open_sequence_properties() {
   QVector<Media*> sequence_items = olive::project_model.GetAllSequences();
 
   for (int i=0;i<sequence_items.size();i++) {
-    if (sequence_items.at(i)->to_sequence() == olive::ActiveSequence) {
+    if (sequence_items.at(i)->to_sequence().get() == sequence()) {
       NewSequenceDialog nsd(this, sequence_items.at(i));
       nsd.exec();
       return;
@@ -216,7 +232,7 @@ void TimelineView::open_sequence_properties() {
 void TimelineView::show_clip_properties()
 {
   // get list of selected clips
-  QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+  QVector<Clip*> selected_clips = sequence()->SelectedClips();
 
   // if clips are selected, open the clip properties dialog
   if (!selected_clips.isEmpty()) {
@@ -225,15 +241,11 @@ void TimelineView::show_clip_properties()
   }
 }
 
-bool same_sign(int a, int b) {
-  return (a < 0) == (b < 0);
-}
-
 void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
   bool import_init = false;
 
   QVector<olive::timeline::MediaImportData> media_list;
-  panel_timeline->importing_files = false;
+  ParentTimeline()->importing_files = false;
 
   for (int i=0;i<panel_project.size();i++) {
     if (panel_project.at(i)->IsProjectWidget(event->source())) {
@@ -252,16 +264,16 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
   }
 
   if (event->source() == panel_footage_viewer) {
-    if (panel_footage_viewer->seq != olive::ActiveSequence) { // don't allow nesting the same sequence
+    if (panel_footage_viewer->seq.get() != sequence()) { // don't allow nesting the same sequence
 
       media_list.append(olive::timeline::MediaImportData(panel_footage_viewer->media,
-                         static_cast<olive::timeline::MediaImportType>(event->mimeData()->text().toInt())));
+                                                         static_cast<olive::timeline::MediaImportType>(event->mimeData()->text().toInt())));
       import_init = true;
 
     }
   }
 
-  if (olive::CurrentConfig.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
+  if (olive::config.enable_drag_files_to_timeline && event->mimeData()->hasUrls()) {
     QList<QUrl> urls = event->mimeData()->urls();
     if (!urls.isEmpty()) {
       QStringList file_list;
@@ -270,10 +282,11 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
         file_list.append(urls.at(i).toLocalFile());
       }
 
-      panel_project->process_file_list(file_list);
+      olive::project_model.process_file_list(file_list);
 
-      for (int i=0;i<panel_project->last_imported_media.size();i++) {
-        Footage* f = panel_project->last_imported_media.at(i)->to_footage();
+      QVector<Media*> last_imported_media = olive::project_model.GetLastImportedMedia();
+      for (int i=0;i<last_imported_media.size();i++) {
+        Footage* f = last_imported_media.at(i)->to_footage();
 
         // waits for media to have a duration
         // TODO would be much nicer if this was multithreaded
@@ -281,15 +294,15 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
         f->ready_lock.unlock();
 
         if (f->ready) {
-          media_list.append(panel_project->last_imported_media.at(i));
+          media_list.append(last_imported_media.at(i));
         }
       }
 
       if (media_list.isEmpty()) {
-        olive::UndoStack.undo();
+        olive::undo_stack.undo();
       } else {
         import_init = true;
-        panel_timeline->importing_files = true;
+        ParentTimeline()->importing_files = true;
       }
     }
   }
@@ -298,35 +311,35 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
     event->acceptProposedAction();
 
     long entry_point;
-    Sequence* seq = olive::ActiveSequence.get();
+    Sequence* seq = sequence();
 
     if (seq == nullptr) {
       // if no sequence, we're going to create a new one using the clips as a reference
       entry_point = 0;
 
-      self_created_sequence = create_sequence_from_media(media_list);
+      self_created_sequence = olive::project::CreateSequenceFromMedia(media_list);
       seq = self_created_sequence.get();
     } else {
-      entry_point = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
-      panel_timeline->drag_frame_start = entry_point + getFrameFromScreenPoint(panel_timeline->zoom, 50);
-      panel_timeline->drag_track_start = (bottom_align) ? -1 : 0;
+      entry_point = ParentTimeline()->getTimelineFrameFromScreenPoint(event->pos().x());
+      ParentTimeline()->drag_frame_start = entry_point + getFrameFromScreenPoint(ParentTimeline()->zoom, 50);
+      ParentTimeline()->drag_track_start = track_list_->First();
     }
 
-    panel_timeline->create_ghosts_from_media(seq, entry_point, media_list);
+    ParentTimeline()->ghosts = olive::timeline::CreateGhostsFromMedia(seq, entry_point, media_list);
 
-    panel_timeline->importing = true;
+    ParentTimeline()->importing = true;
   }
 }
 
 void TimelineView::dragMoveEvent(QDragMoveEvent *event) {
-  if (panel_timeline->importing) {
+  if (ParentTimeline()->importing) {
     event->acceptProposedAction();
 
-    if (olive::ActiveSequence != nullptr) {
+    if (sequence() != nullptr) {
       QPoint pos = event->pos();
-      panel_timeline->scroll_to_frame(panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x()));
+      ParentTimeline()->scroll_to_frame(ParentTimeline()->getTimelineFrameFromScreenPoint(event->pos().x()));
       update_ghosts(pos, event->keyboardModifiers() & Qt::ShiftModifier);
-      panel_timeline->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->importing));
+      ParentTimeline()->move_insert = ((event->keyboardModifiers() & Qt::ControlModifier) && (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER || ParentTimeline()->importing));
       update_ui(false);
     }
   }
@@ -344,11 +357,11 @@ void TimelineView::wheelEvent(QWheelEvent *event) {
   // "Scroll Zooms" false + Control down:     zooming
   // "Scroll Zooms" true  + Control up  :     zooming
   // "Scroll Zooms" true  + Control down: not zooming
-  bool zooming = (olive::CurrentConfig.scroll_zooms != ctrl);
+  bool zooming = (olive::config.scroll_zooms != ctrl);
 
   // Allow shift for axis swap, but don't swap on zoom... Unless
   // we need to override Qt's axis swap via Alt
-  bool swap_hv = ((shift != olive::CurrentConfig.invert_timeline_scroll_axes) &
+  bool swap_hv = ((shift != olive::config.invert_timeline_scroll_axes) &
                   !zooming) | (alt & !shift & zooming);
 
   int delta_h = swap_hv ? event->angleDelta().y() : event->angleDelta().x();
@@ -371,7 +384,7 @@ void TimelineView::wheelEvent(QWheelEvent *event) {
         zoom_ratio = 1.0 / zoom_ratio;
       }
 
-      panel_timeline->multiply_zoom(zoom_ratio);
+      ParentTimeline()->multiply_zoom(zoom_ratio);
     }
 
   } else {
@@ -380,7 +393,7 @@ void TimelineView::wheelEvent(QWheelEvent *event) {
     // widget's scrollbar for vertical scrolling.
 
     QScrollBar* bar_v = scrollBar;
-    QScrollBar* bar_h = panel_timeline->horizontalScrollBar;
+    QScrollBar* bar_h = ParentTimeline()->horizontalScrollBar;
 
     // Match the wheel events to the size of a step as per
     // https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
@@ -397,13 +410,13 @@ void TimelineView::wheelEvent(QWheelEvent *event) {
 
 void TimelineView::dragLeaveEvent(QDragLeaveEvent* event) {
   event->accept();
-  if (panel_timeline->importing) {
-    if (panel_timeline->importing_files) {
-      olive::UndoStack.undo();
+  if (ParentTimeline()->importing) {
+    if (ParentTimeline()->importing_files) {
+      olive::undo_stack.undo();
     }
-    panel_timeline->importing_files = false;
-    panel_timeline->ghosts.clear();
-    panel_timeline->importing = false;
+    ParentTimeline()->importing_files = false;
+    ParentTimeline()->ghosts.clear();
+    ParentTimeline()->importing = false;
     update_ui(false);
   }
   if (self_created_sequence != nullptr) {
@@ -412,21 +425,16 @@ void TimelineView::dragLeaveEvent(QDragLeaveEvent* event) {
   }
 }
 
-void delete_area_under_ghosts(ComboAction* ca) {
+void TimelineView::delete_area_under_ghosts(ComboAction* ca, Sequence* s) {
   // delete areas before adding
   QVector<Selection> delete_areas;
-  for (int i=0;i<panel_timeline->ghosts.size();i++) {
-    const Ghost& g = panel_timeline->ghosts.at(i);
-    Selection sel;
-    sel.in = g.in;
-    sel.out = g.out;
-    sel.track = g.track;
-    delete_areas.append(sel);
+  for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+    delete_areas.append(ParentTimeline()->ghosts.at(i).ToSelection());
   }
-  panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
+  s->DeleteAreas(ca, delete_areas, false);
 }
 
-void insert_clips(ComboAction* ca) {
+void TimelineView::insert_clips(ComboAction* ca, Sequence* s) {
   bool ripple_old_point = true;
 
   long earliest_old_point = LONG_MAX;
@@ -435,16 +443,16 @@ void insert_clips(ComboAction* ca) {
   long earliest_new_point = LONG_MAX;
   long latest_new_point = LONG_MIN;
 
-  QVector<int> ignore_clips;
-  for (int i=0;i<panel_timeline->ghosts.size();i++) {
-    const Ghost& g = panel_timeline->ghosts.at(i);
+  QVector<Clip*> ignore_clips;
+  for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+    const Ghost& g = ParentTimeline()->ghosts.at(i);
 
     earliest_old_point = qMin(earliest_old_point, g.old_in);
     latest_old_point = qMax(latest_old_point, g.old_out);
     earliest_new_point = qMin(earliest_new_point, g.in);
     latest_new_point = qMax(latest_new_point, g.out);
 
-    if (g.clip >= 0) {
+    if (g.clip != nullptr) {
       ignore_clips.append(g.clip);
     } else {
       // don't try to close old gap if importing
@@ -452,79 +460,81 @@ void insert_clips(ComboAction* ca) {
     }
   }
 
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    ClipPtr c = olive::ActiveSequence->clips.at(i);
-    if (c != nullptr) {
-      // don't split any clips that are moving
-      bool found = false;
-      for (int j=0;j<panel_timeline->ghosts.size();j++) {
-        if (panel_timeline->ghosts.at(j).clip == i) {
-          found = true;
-          break;
-        }
+  QVector<Clip*> sequence_clips = sequence()->GetAllClips();
+  for (int i=0;i<sequence_clips.size();i++) {
+    Clip* c = sequence_clips.at(i);
+    // don't split any clips that are moving
+    bool found = false;
+    for (int j=0;j<ParentTimeline()->ghosts.size();j++) {
+      if (ParentTimeline()->ghosts.at(j).clip == c) {
+        found = true;
+        break;
       }
-      if (!found) {
-        if (c->timeline_in() < earliest_new_point && c->timeline_out() > earliest_new_point) {
-          panel_timeline->split_clip_and_relink(ca, i, earliest_new_point, true);
-        }
+    }
+    if (!found) {
+      if (c->timeline_in() < earliest_new_point && c->timeline_out() > earliest_new_point) {
+        sequence()->SplitClipAtPositions(ca, c, {earliest_new_point}, true);
+      }
 
-        // determine if we should close the gap the old clips left behind
-        if (ripple_old_point
-            && !((c->timeline_in() < earliest_old_point && c->timeline_out() <= earliest_old_point) || (c->timeline_in() >= latest_old_point && c->timeline_out() > latest_old_point))
-            && !ignore_clips.contains(i)) {
-          ripple_old_point = false;
-        }
+      // determine if we should close the gap the old clips left behind
+      if (ripple_old_point
+          && !((c->timeline_in() < earliest_old_point && c->timeline_out() <= earliest_old_point) || (c->timeline_in() >= latest_old_point && c->timeline_out() > latest_old_point))
+          && !ignore_clips.contains(c)) {
+        ripple_old_point = false;
       }
     }
   }
 
   long ripple_length = (latest_new_point - earliest_new_point);
 
-  ripple_clips(ca, olive::ActiveSequence.get(), earliest_new_point, ripple_length, ignore_clips);
+  sequence()->Ripple(ca, earliest_new_point, ripple_length, ignore_clips);
 
   if (ripple_old_point) {
     // works for moving later clips earlier but not earlier to later
     long second_ripple_length = (earliest_old_point - latest_old_point);
 
-    ripple_clips(ca, olive::ActiveSequence.get(), latest_old_point, second_ripple_length, ignore_clips);
+    sequence()->Ripple(ca, latest_old_point, second_ripple_length, ignore_clips);
 
     if (earliest_old_point < earliest_new_point) {
-      for (int i=0;i<panel_timeline->ghosts.size();i++) {
-        Ghost& g = panel_timeline->ghosts[i];
+      for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+        Ghost& g = ParentTimeline()->ghosts[i];
         g.in += second_ripple_length;
         g.out += second_ripple_length;
       }
-      for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
-        Selection& s = olive::ActiveSequence->selections[i];
-        s.in += second_ripple_length;
-        s.out += second_ripple_length;
+
+      QVector<Selection> sequence_selections = sequence()->Selections();
+      for (int i=0;i<sequence_selections.size();i++) {
+        Selection& s = sequence_selections[i];
+        s.set_in(s.in() + second_ripple_length);
+        s.set_out(s.out() + second_ripple_length);
       }
+      sequence()->SetSelections(sequence_selections);
     }
   }
 }
 
 void TimelineView::dropEvent(QDropEvent* event) {
-  if (panel_timeline->importing && panel_timeline->ghosts.size() > 0) {
+  if (ParentTimeline()->importing && ParentTimeline()->ghosts.size() > 0) {
     event->acceptProposedAction();
 
     ComboAction* ca = new ComboAction();
 
-    Sequence* s = olive::ActiveSequence.get();
+    Sequence* s = sequence();
 
     // if we're dropping into nothing, create a new sequences based on the clip being dragged
     if (s == nullptr) {
       s = self_created_sequence.get();
-      panel_project->create_sequence_internal(ca, self_created_sequence, true, nullptr);
+      olive::project_model.CreateSequence(ca, self_created_sequence, true, nullptr);
       self_created_sequence = nullptr;
     } else if (event->keyboardModifiers() & Qt::ControlModifier) {
-      insert_clips(ca);
+      insert_clips(ca, s);
     } else {
-      delete_area_under_ghosts(ca);
+      delete_area_under_ghosts(ca, s);
     }
 
-    panel_timeline->add_clips_from_ghosts(ca, s);
+    s->AddClipsFromGhosts(ca, ParentTimeline()->ghosts);
 
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
 
     setFocus();
 
@@ -533,64 +543,71 @@ void TimelineView::dropEvent(QDropEvent* event) {
 }
 
 void TimelineView::mouseDoubleClickEvent(QMouseEvent *event) {
-  if (olive::ActiveSequence != nullptr) {
-    if (panel_timeline->tool == TIMELINE_TOOL_EDIT) {
-      int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
-      if (clip_index >= 0) {
-        ClipPtr clip = olive::ActiveSequence->clips.at(clip_index);
-        if (!(event->modifiers() & Qt::ShiftModifier)) olive::ActiveSequence->selections.clear();
-        Selection s;
-        s.in = clip->timeline_in();
-        s.out = clip->timeline_out();
-        s.track = clip->track();
-        olive::ActiveSequence->selections.append(s);
+  if (sequence() != nullptr) {
+    if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_EDIT) {
+      Clip* clip = GetClipAtCursor();
+      if (clip != nullptr) {
+        if (!(event->modifiers() & Qt::ShiftModifier)) {
+          sequence()->ClearSelections();
+        }
+        clip->track()->SelectClip(clip);
         update_ui(false);
       }
-    } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
-      int clip_index = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
-      if (clip_index >= 0) {
-        ClipPtr c = olive::ActiveSequence->clips.at(clip_index);
+    } else if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER) {
+      Clip* c = GetClipAtCursor();
+      if (c != nullptr) {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) {
-          olive::Global->set_sequence(c->media()->to_sequence());
+          Timeline::OpenSequence(c->media()->to_sequence());
         }
       }
     }
   }
 }
 
-bool current_tool_shows_cursor() {
-  return (panel_timeline->tool == TIMELINE_TOOL_EDIT || panel_timeline->tool == TIMELINE_TOOL_RAZOR || panel_timeline->creating);
+bool TimelineView::current_tool_shows_cursor() {
+  return (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_EDIT
+          || olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_RAZOR
+          || ParentTimeline()->creating);
+}
+
+Clip *TimelineView::GetClipAtCursor()
+{
+  if (ParentTimeline()->cursor_track == nullptr) {
+    return nullptr;
+  }
+
+  return ParentTimeline()->cursor_track->GetClipFromPoint(ParentTimeline()->cursor_frame);
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event) {
-  if (olive::ActiveSequence != nullptr) {
+  if (sequence() != nullptr) {
 
-    int effective_tool = panel_timeline->tool;
+    int effective_tool = olive::timeline::current_tool;
 
     // some user actions will override which tool we'll be using
     if (event->button() == Qt::MiddleButton) {
-      effective_tool = TIMELINE_TOOL_HAND;
-      panel_timeline->creating = false;
+      effective_tool = olive::timeline::TIMELINE_TOOL_HAND;
+      ParentTimeline()->creating = false;
     } else if (event->button() == Qt::RightButton) {
-      effective_tool = TIMELINE_TOOL_MENU;
-      panel_timeline->creating = false;
+      effective_tool = olive::timeline::TIMELINE_TOOL_MENU;
+      ParentTimeline()->creating = false;
     }
 
     // ensure cursor_frame and cursor_track are up to date
     mouseMoveEvent(event);
 
     // store current cursor positions
-    panel_timeline->drag_x_start = event->pos().x();
-    panel_timeline->drag_y_start = event->pos().y();
+    ParentTimeline()->drag_x_start = event->pos().x();
+    ParentTimeline()->drag_y_start = event->pos().y();
 
     // store current frame/tracks as the values to start dragging from
-    panel_timeline->drag_frame_start = panel_timeline->cursor_frame;
-    panel_timeline->drag_track_start = panel_timeline->cursor_track;
+    ParentTimeline()->drag_frame_start = ParentTimeline()->cursor_frame;
+    ParentTimeline()->drag_track_start = ParentTimeline()->cursor_track;
 
     // get the clip the user is currently hovering over, priority to trim_target set from mouseMoveEvent
-    int hovered_clip = panel_timeline->trim_target == -1 ?
-          getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track)
-        : panel_timeline->trim_target;
+    Clip* hovered_clip = ParentTimeline()->trim_target == nullptr ?
+          GetClipAtCursor()
+        : ParentTimeline()->trim_target;
 
     bool shift = (event->modifiers() & Qt::ShiftModifier);
     bool alt = (event->modifiers() & Qt::AltModifier);
@@ -599,40 +616,39 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
     // to the existing selections. `selection_offset` is the index to change selections from (and we don't touch
     // any prior to that)
     if (shift) {
-      panel_timeline->selection_offset = olive::ActiveSequence->selections.size();
+      ParentTimeline()->selection_offset = sequence()->Selections().size();
     } else {
-      panel_timeline->selection_offset = 0;
+      ParentTimeline()->selection_offset = 0;
     }
 
     // if the user is creating an object
-    if (panel_timeline->creating) {
-      int comp = 0;
-      switch (panel_timeline->creating_object) {
+    if (ParentTimeline()->creating) {
+      Track::Type create_type = Track::kTypeVideo;
+      switch (ParentTimeline()->creating_object) {
       case olive::timeline::ADD_OBJ_TITLE:
       case olive::timeline::ADD_OBJ_SOLID:
       case olive::timeline::ADD_OBJ_BARS:
-        comp = -1;
         break;
       case olive::timeline::ADD_OBJ_TONE:
       case olive::timeline::ADD_OBJ_NOISE:
       case olive::timeline::ADD_OBJ_AUDIO:
-        comp = 1;
+        create_type = Track::kTypeAudio;
         break;
       }
 
       // if the track the user clicked is correct for the type of object we're adding
 
-      if ((panel_timeline->drag_track_start < 0) == (comp < 0)) {
+      if (ParentTimeline()->drag_track_start->type() == create_type) {
         Ghost g;
-        g.in = g.old_in = g.out = g.old_out = panel_timeline->drag_frame_start;
-        g.track = g.old_track = panel_timeline->drag_track_start;
+        g.in = g.old_in = g.out = g.old_out = ParentTimeline()->drag_frame_start;
+        g.track = g.old_track = ParentTimeline()->drag_track_start;
         g.transition = nullptr;
-        g.clip = -1;
+        g.clip = nullptr;
         g.trim_type = olive::timeline::TRIM_OUT;
-        panel_timeline->ghosts.append(g);
+        ParentTimeline()->ghosts.append(g);
 
-        panel_timeline->moving_init = true;
-        panel_timeline->moving_proc = true;
+        ParentTimeline()->moving_init = true;
+        ParentTimeline()->moving_proc = true;
       }
     } else {
 
@@ -640,73 +656,75 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
       switch (effective_tool) {
 
       // many tools share pointer-esque behavior
-      case TIMELINE_TOOL_POINTER:
-      case TIMELINE_TOOL_RIPPLE:
-      case TIMELINE_TOOL_SLIP:
-      case TIMELINE_TOOL_ROLLING:
-      case TIMELINE_TOOL_SLIDE:
-      case TIMELINE_TOOL_MENU:
+      case olive::timeline::TIMELINE_TOOL_POINTER:
+      case olive::timeline::TIMELINE_TOOL_RIPPLE:
+      case olive::timeline::TIMELINE_TOOL_SLIP:
+      case olive::timeline::TIMELINE_TOOL_ROLLING:
+      case olive::timeline::TIMELINE_TOOL_SLIDE:
+      case olive::timeline::TIMELINE_TOOL_MENU:
       {
-        if (track_resizing && effective_tool != TIMELINE_TOOL_MENU) {
+        if (track_resizing && effective_tool != olive::timeline::TIMELINE_TOOL_MENU) {
 
           // if the cursor is currently hovering over a track, init track resizing
-          panel_timeline->moving_init = true;
+          ParentTimeline()->moving_init = true;
 
         } else {
 
           // check if we're currently hovering over a clip or not
-          if (hovered_clip >= 0) {
-            Clip* clip = olive::ActiveSequence->clips.at(hovered_clip).get();
+          if (hovered_clip != nullptr) {
 
-            if (clip->IsSelected()) {
+            if (hovered_clip->IsSelected()) {
 
               if (shift) {
 
                 // if the user clicks a selected clip while holding shift, deselect the clip
-                panel_timeline->deselect_area(clip->timeline_in(), clip->timeline_out(), clip->track());
+                hovered_clip->track()->DeselectArea(hovered_clip->timeline_in(), hovered_clip->timeline_out());
 
                 // if the user isn't holding alt, also deselect all of its links as well
                 if (!alt) {
-                  for (int i=0;i<clip->linked.size();i++) {
-                    ClipPtr link = olive::ActiveSequence->clips.at(clip->linked.at(i));
-                    panel_timeline->deselect_area(link->timeline_in(), link->timeline_out(), link->track());
+                  for (int i=0;i<hovered_clip->linked.size();i++) {
+                    Clip* link = hovered_clip->linked.at(i);
+                    link->track()->DeselectArea(link->timeline_in(), link->timeline_out());
                   }
                 }
 
-              } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER
-                          && panel_timeline->transition_select != kTransitionNone) {
+              } else if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER
+                         && ParentTimeline()->transition_select != kTransitionNone) {
 
                 // if the clip was selected by then the user clicked a transition, de-select the clip and its links
                 // and select the transition only
 
-                panel_timeline->deselect_area(clip->timeline_in(), clip->timeline_out(), clip->track());
+                hovered_clip->track()->DeselectArea(hovered_clip->timeline_in(), hovered_clip->timeline_out());
 
-                for (int i=0;i<clip->linked.size();i++) {
-                  ClipPtr link = olive::ActiveSequence->clips.at(clip->linked.at(i));
-                  panel_timeline->deselect_area(link->timeline_in(), link->timeline_out(), link->track());
+                for (int i=0;i<hovered_clip->linked.size();i++) {
+                  Clip* link = hovered_clip->linked.at(i);
+                  link->track()->DeselectArea(link->timeline_in(), link->timeline_out());
                 }
 
-                Selection s;
-                s.track = clip->track();
+                long s_in, s_out;
 
                 // select the transition only
-                if (panel_timeline->transition_select == kTransitionOpening && clip->opening_transition != nullptr) {
-                  s.in = clip->timeline_in();
+                if (ParentTimeline()->transition_select == kTransitionOpening
+                    && hovered_clip->opening_transition != nullptr) {
+                  s_in = hovered_clip->timeline_in();
 
-                  if (clip->opening_transition->secondary_clip != nullptr) {
-                    s.in -= clip->opening_transition->get_true_length();
+                  if (hovered_clip->opening_transition->secondary_clip != nullptr) {
+                    s_in -= hovered_clip->opening_transition->get_true_length();
                   }
 
-                  s.out = clip->timeline_in() + clip->opening_transition->get_true_length();
-                } else if (panel_timeline->transition_select == kTransitionClosing && clip->closing_transition != nullptr) {
-                  s.in = clip->timeline_out() - clip->closing_transition->get_true_length();
-                  s.out = clip->timeline_out();
+                  s_out = hovered_clip->timeline_in() + hovered_clip->opening_transition->get_true_length();
 
-                  if (clip->closing_transition->secondary_clip != nullptr) {
-                    s.out += clip->closing_transition->get_true_length();
+                } else if (ParentTimeline()->transition_select == kTransitionClosing
+                           && hovered_clip->closing_transition != nullptr) {
+
+                  s_in = hovered_clip->timeline_out() - hovered_clip->closing_transition->get_true_length();
+                  s_out = hovered_clip->timeline_out();
+
+                  if (hovered_clip->closing_transition->secondary_clip != nullptr) {
+                    s_out += hovered_clip->closing_transition->get_true_length();
                   }
                 }
-                olive::ActiveSequence->selections.append(s);
+                hovered_clip->track()->SelectArea(s_in, s_out);
               }
             } else {
 
@@ -714,59 +732,52 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
 
               // if shift is NOT down, we change clear all current selections
               if (!shift) {
-                olive::ActiveSequence->selections.clear();
+                sequence()->ClearSelections();
               }
 
-              Selection s;
-
-              s.in = clip->timeline_in();
-              s.out = clip->timeline_out();
-              s.track = clip->track();
+              long s_in = hovered_clip->timeline_in();
+              long s_out = hovered_clip->timeline_out();
 
               // if user is using the pointer tool, they may be trying to select a transition
               // check if the use is hovering over a transition
-              if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
-                if (panel_timeline->transition_select == kTransitionOpening) {
+              if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER) {
+                if (ParentTimeline()->transition_select == kTransitionOpening) {
                   // move the selection to only select the transitoin
-                  s.out = clip->timeline_in() + clip->opening_transition->get_true_length();
+                  s_out = hovered_clip->timeline_in() + hovered_clip->opening_transition->get_true_length();
 
                   // if the transition is a "shared" transition, adjust the selection to select both sides
-                  if (clip->opening_transition->secondary_clip != nullptr) {
-                    s.in -= clip->opening_transition->get_true_length();
+                  if (hovered_clip->opening_transition->secondary_clip != nullptr) {
+                    s_in -= hovered_clip->opening_transition->get_true_length();
                   }
-                } else if (panel_timeline->transition_select == kTransitionClosing) {
+                } else if (ParentTimeline()->transition_select == kTransitionClosing) {
                   // move the selection to only select the transitoin
-                  s.in = clip->timeline_out() - clip->closing_transition->get_true_length();
+                  s_in = hovered_clip->timeline_out() - hovered_clip->closing_transition->get_true_length();
 
                   // if the transition is a "shared" transition, adjust the selection to select both sides
-                  if (clip->closing_transition->secondary_clip != nullptr) {
-                    s.out += clip->closing_transition->get_true_length();
+                  if (hovered_clip->closing_transition->secondary_clip != nullptr) {
+                    s_out += hovered_clip->closing_transition->get_true_length();
                   }
                 }
               }
 
               // add the selection to the array
-              olive::ActiveSequence->selections.append(s);
+              hovered_clip->track()->SelectArea(s_in, s_out);
 
               // if the config is set to also seek with selections, do so now
-              if (olive::CurrentConfig.select_also_seeks) {
-                panel_sequence_viewer->seek(clip->timeline_in());
+              if (olive::config.select_also_seeks) {
+                panel_sequence_viewer->seek(hovered_clip->timeline_in());
               }
 
               // if alt is not down, select links (provided we're not selecting transitions)
-              if (!alt && panel_timeline->transition_select == kTransitionNone) {
+              if (!alt && ParentTimeline()->transition_select == kTransitionNone) {
 
-                for (int i=0;i<clip->linked.size();i++) {
+                for (int i=0;i<hovered_clip->linked.size();i++) {
 
-                  Clip* link = olive::ActiveSequence->clips.at(clip->linked.at(i)).get();
+                  Clip* link = hovered_clip->linked.at(i);
 
                   // check if the clip is already selected
                   if (!link->IsSelected()) {
-                    Selection ss;
-                    ss.in = link->timeline_in();
-                    ss.out = link->timeline_out();
-                    ss.track = link->track();
-                    olive::ActiveSequence->selections.append(ss);
+                    link->track()->SelectClip(link);
                   }
 
                 }
@@ -775,8 +786,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
             }
 
             // authorize the starting of a move action if the mouse moves after this
-            if (effective_tool != TIMELINE_TOOL_MENU) {
-              panel_timeline->moving_init = true;
+            if (effective_tool != olive::timeline::TIMELINE_TOOL_MENU) {
+              ParentTimeline()->moving_init = true;
             }
 
           } else {
@@ -784,10 +795,10 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
             // if the user did not click a clip at all, we start a rectangle selection
 
             if (!shift) {
-              olive::ActiveSequence->selections.clear();
+              sequence()->ClearSelections();
             }
 
-            panel_timeline->rect_select_init = true;
+            ParentTimeline()->rect_select_init = true;
           }
 
           // update everything
@@ -795,42 +806,42 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
         }
       }
         break;
-      case TIMELINE_TOOL_HAND:
+      case olive::timeline::TIMELINE_TOOL_HAND:
 
         // initiate moving with the hand tool
-        panel_timeline->hand_moving = true;
+        ParentTimeline()->hand_moving = true;
 
         break;
-      case TIMELINE_TOOL_EDIT:
+      case olive::timeline::TIMELINE_TOOL_EDIT:
 
         // if the config is set to seek with the edit tool, do so now
-        if (olive::CurrentConfig.edit_tool_also_seeks) {
-          panel_sequence_viewer->seek(panel_timeline->drag_frame_start);
+        if (olive::config.edit_tool_also_seeks) {
+          panel_sequence_viewer->seek(ParentTimeline()->drag_frame_start);
         }
 
         // initiate selecting
-        panel_timeline->selecting = true;
+        ParentTimeline()->selecting = true;
 
         break;
-      case TIMELINE_TOOL_RAZOR:
+      case olive::timeline::TIMELINE_TOOL_RAZOR:
       {
 
         // initiate razor tool
-        panel_timeline->splitting = true;
+        ParentTimeline()->splitting = true;
 
         // add this track as a track being split by the razor
-        panel_timeline->split_tracks.append(panel_timeline->drag_track_start);
+        ParentTimeline()->split_tracks.append(ParentTimeline()->drag_track_start);
 
         update_ui(false);
       }
         break;
-      case TIMELINE_TOOL_TRANSITION:
+      case olive::timeline::TIMELINE_TOOL_TRANSITION:
       {
 
         // if there is a clip to run the transition tool on, initiate the transition tool
-        if (panel_timeline->transition_tool_open_clip > -1
-              || panel_timeline->transition_tool_close_clip > -1) {
-          panel_timeline->transition_tool_init = true;
+        if (ParentTimeline()->transition_tool_open_clip != nullptr
+            || ParentTimeline()->transition_tool_close_clip != nullptr) {
+          ParentTimeline()->transition_tool_init = true;
         }
 
       }
@@ -882,7 +893,7 @@ void make_room_for_transition(ComboAction* ca,
   }
 }
 
-void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, long transition_start, long transition_end) {
+void TimelineView::VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, long transition_start, long transition_end) {
   // in case the user made the transition larger than the clips, we're going to delete everything under
   // the transition ghost and extend the clips to the transition's coordinates as necessary
 
@@ -894,7 +905,7 @@ void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, lo
   // determine whether this is a "shared" transition between to clips or not
   bool shared_transition = (open != nullptr && close != nullptr);
 
-  int track = 0;
+  Track* track = nullptr;
 
   // first we set the clips to "undeletable" so they aren't affected by delete_areas_and_relink()
   if (open != nullptr) {
@@ -908,12 +919,8 @@ void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, lo
 
   // set the area to delete to the transition's coordinates and clear it
   QVector<Selection> areas;
-  Selection s;
-  s.in = transition_start;
-  s.out = transition_end;
-  s.track = track;
-  areas.append(s);
-  panel_timeline->delete_areas_and_relink(ca, areas, false);
+  areas.append(Selection(transition_start, transition_end, track));
+  sequence()->DeleteAreas(ca, areas, false);
 
   // set the clips back to undeletable now that we're done
   if (open != nullptr) {
@@ -962,7 +969,7 @@ void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, lo
 
 
 
-        clip_ref->move(ca,
+        clip_ref->Move(ca,
                        new_in,
                        new_out,
                        clip_ref->clip_in() - (clip_ref->timeline_in() - new_in),
@@ -974,7 +981,7 @@ void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, lo
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
   QToolTip::hideText();
-  if (olive::ActiveSequence != nullptr) {
+  if (sequence() != nullptr) {
     bool alt = (event->modifiers() & Qt::AltModifier);
     bool shift = (event->modifiers() & Qt::ShiftModifier);
     bool ctrl = (event->modifiers() & Qt::ControlModifier);
@@ -983,45 +990,38 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
       ComboAction* ca = new ComboAction();
       bool push_undo = false;
 
-      if (panel_timeline->creating) {
-        if (panel_timeline->ghosts.size() > 0) {
-          const Ghost& g = panel_timeline->ghosts.at(0);
+      if (ParentTimeline()->creating) {
+        if (ParentTimeline()->ghosts.size() > 0) {
+          const Ghost& g = ParentTimeline()->ghosts.at(0);
 
-          if (panel_timeline->creating_object == olive::timeline::ADD_OBJ_AUDIO) {
+          if (ParentTimeline()->creating_object == olive::timeline::ADD_OBJ_AUDIO) {
             olive::MainWindow->statusBar()->clearMessage();
             panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
-            panel_timeline->creating = false;
+            ParentTimeline()->creating = false;
           } else if (g.in != g.out) {
-            ClipPtr c = std::make_shared<Clip>(olive::ActiveSequence.get());
+            ClipPtr c = std::make_shared<Clip>(g.track);
             c->set_media(nullptr, 0);
             c->set_timeline_in(qMin(g.in, g.out));
             c->set_timeline_out(qMax(g.in, g.out));
             c->set_clip_in(0);
             c->set_color(192, 192, 64);
-            c->set_track(g.track);
 
             if (ctrl) {
-              insert_clips(ca);
+              insert_clips(ca, sequence());
             } else {
-              Selection s;
-              s.in = c->timeline_in();
-              s.out = c->timeline_out();
-              s.track = c->track();
-              QVector<Selection> areas;
-              areas.append(s);
-              panel_timeline->delete_areas_and_relink(ca, areas, false);
+              sequence()->DeleteAreas(ca, {c->ToSelection()}, false);
             }
 
             QVector<ClipPtr> add;
             add.append(c);
-            ca->append(new AddClipCommand(olive::ActiveSequence.get(), add));
+            ca->append(new AddClipCommand(add));
 
-            if (c->track() < 0 && olive::CurrentConfig.add_default_effects_to_clips) {
+            if (c->type() == Track::kTypeVideo && olive::config.add_default_effects_to_clips) {
               // default video effects (before custom effects)
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
             }
 
-            switch (panel_timeline->creating_object) {
+            switch (ParentTimeline()->creating_object) {
             case olive::timeline::ADD_OBJ_TITLE:
               c->set_name(tr("Title"));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_RICHTEXT, EFFECT_TYPE_EFFECT)));
@@ -1052,7 +1052,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
               break;
             }
 
-            if (c->track() >= 0 && olive::CurrentConfig.add_default_effects_to_clips) {
+            if (c->type() == Track::kTypeAudio && olive::config.add_default_effects_to_clips) {
               // default audio effects (after custom effects)
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
@@ -1061,19 +1061,19 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             push_undo = true;
 
             if (!shift) {
-              panel_timeline->creating = false;
+              ParentTimeline()->creating = false;
             }
           }
         }
-      } else if (panel_timeline->moving_proc) {
+      } else if (ParentTimeline()->moving_proc) {
 
         // see if any clips actually moved, otherwise we don't need to do any processing
         // (perhaps this could be moved further up to cover more actions?)
 
         bool process_moving = false;
 
-        for (int i=0;i<panel_timeline->ghosts.size();i++) {
-          const Ghost& g = panel_timeline->ghosts.at(i);
+        for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+          const Ghost& g = ParentTimeline()->ghosts.at(i);
           if (g.in != g.old_in
               || g.out != g.old_out
               || g.clip_in != g.old_clip_in
@@ -1084,17 +1084,17 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
         }
 
         if (process_moving) {
-          const Ghost& first_ghost = panel_timeline->ghosts.at(0);
+          const Ghost& first_ghost = ParentTimeline()->ghosts.at(0);
 
           // start a ripple movement
-          if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
+          if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_RIPPLE) {
 
             // ripple_length becomes the length/number of frames we trimmed
             // ripple_point is the "axis" around which we move all the clips, any clips after it get moved
             long ripple_length;
             long ripple_point = LONG_MAX;
 
-            if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+            if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
 
               // it's assumed that all the ghosts rippled by the same length, so we just take the difference of the
               // first ghost here
@@ -1102,66 +1102,63 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
 
               // for in trimming movements we also move the selections forward (unnecessary for out trimming since
               // the selected clips more or less stay in the same place)
-              for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
-                olive::ActiveSequence->selections[i].in += ripple_length;
-                olive::ActiveSequence->selections[i].out += ripple_length;
+              /*
+              for (int i=0;i<sequence()->selections.size();i++) {
+                sequence()->selections[i].in += ripple_length;
+                sequence()->selections[i].out += ripple_length;
               }
+              */
             } else {
 
               // use the out points for length if the user trimmed the out point
-              ripple_length = first_ghost.old_out - panel_timeline->ghosts.at(0).out;
+              ripple_length = first_ghost.old_out - ParentTimeline()->ghosts.at(0).out;
 
             }
 
             // build a list of "ignore clips" that won't get affected by ripple_clips() below
-            QVector<int> ignore_clips;
-            for (int i=0;i<panel_timeline->ghosts.size();i++) {
-              const Ghost& g = panel_timeline->ghosts.at(i);
+            QVector<Clip*> ignore_clips;
+            for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+              const Ghost& g = ParentTimeline()->ghosts.at(i);
 
               // for the same reason that we pushed selections forward above, for in trimming,
               // we push the ghosts forward here
-              if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+              if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
                 ignore_clips.append(g.clip);
-                panel_timeline->ghosts[i].in += ripple_length;
-                panel_timeline->ghosts[i].out += ripple_length;
+                ParentTimeline()->ghosts[i].in += ripple_length;
+                ParentTimeline()->ghosts[i].out += ripple_length;
               }
 
               // find the earliest ripple point
-              long comp_point = (panel_timeline->trim_type == olive::timeline::TRIM_IN) ? g.old_in : g.old_out;
+              long comp_point = (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) ? g.old_in : g.old_out;
               ripple_point = qMin(ripple_point, comp_point);
             }
 
             // if this was out trimming, flip the direction of the ripple
-            if (panel_timeline->trim_type == olive::timeline::TRIM_OUT) ripple_length = -ripple_length;
+            if (ParentTimeline()->trim_type == olive::timeline::TRIM_OUT) ripple_length = -ripple_length;
 
             // finally, ripple everything
-            ripple_clips(ca, olive::ActiveSequence.get(), ripple_point, ripple_length, ignore_clips);
+            sequence()->Ripple(ca, ripple_point, ripple_length, ignore_clips);
           }
 
-          if (panel_timeline->tool == TIMELINE_TOOL_POINTER
+          if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER
               && (event->modifiers() & Qt::AltModifier)
-              && panel_timeline->trim_target == -1) {
+              && ParentTimeline()->trim_target == nullptr) {
 
             // if the user was holding alt (and not trimming), we duplicate clips rather than move them
-            QVector<int> old_clips;
+            QVector<Clip*> old_clips;
             QVector<ClipPtr> new_clips;
             QVector<Selection> delete_areas;
-            for (int i=0;i<panel_timeline->ghosts.size();i++) {
-              const Ghost& g = panel_timeline->ghosts.at(i);
+            for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+              const Ghost& g = ParentTimeline()->ghosts.at(i);
               if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
 
                 // create copy of clip
-                ClipPtr c = olive::ActiveSequence->clips.at(g.clip)->copy(olive::ActiveSequence.get());
+                ClipPtr c = g.clip->copy(g.track);
 
                 c->set_timeline_in(g.in);
                 c->set_timeline_out(g.out);
-                c->set_track(g.track);
 
-                Selection s;
-                s.in = g.in;
-                s.out = g.out;
-                s.track = g.track;
-                delete_areas.append(s);
+                delete_areas.append(g.ToSelection());
 
                 old_clips.append(g.clip);
                 new_clips.append(c);
@@ -1172,13 +1169,13 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             if (new_clips.size() > 0) {
 
               // delete anything under the new clips
-              panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
+              sequence()->DeleteAreas(ca, delete_areas, false);
 
               // relink duplicated clips
-              panel_timeline->relink_clips_using_ids(old_clips, new_clips);
+              olive::timeline::RelinkClips(old_clips, new_clips);
 
               // add them
-              ca->append(new AddClipCommand(olive::ActiveSequence.get(), new_clips));
+              ca->append(new AddClipCommand(new_clips));
 
             }
 
@@ -1187,22 +1184,22 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             // if we're not holding alt, this will just be a move
 
             // if the user is holding ctrl, perform an insert rather than an overwrite
-            if (panel_timeline->tool == TIMELINE_TOOL_POINTER && ctrl) {
+            if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER && ctrl) {
 
-              insert_clips(ca);
+              insert_clips(ca, sequence());
 
-            } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER || panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
+            } else if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER || olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_SLIDE) {
 
               // if the user is not holding ctrl, we start standard clip movement
 
               // delete everything under the new clips
               QVector<Selection> delete_areas;
-              for (int i=0;i<panel_timeline->ghosts.size();i++) {
+              for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
                 // step 1 - set clips that are moving to "undeletable" (to avoid step 2 deleting any part of them)
-                const Ghost& g = panel_timeline->ghosts.at(i);
+                const Ghost& g = ParentTimeline()->ghosts.at(i);
 
                 // set clip to undeletable so it's unaffected by delete_areas_and_relink() below
-                olive::ActiveSequence->clips.at(g.clip)->undeletable = true;
+                g.clip->undeletable = true;
 
                 // if the user was moving a transition make sure they're undeletable too
                 if (g.transition != nullptr) {
@@ -1213,19 +1210,15 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                 }
 
                 // set area to delete
-                Selection s;
-                s.in = g.in;
-                s.out = g.out;
-                s.track = g.track;
-                delete_areas.append(s);
+                delete_areas.append(g.ToSelection());
               }
 
-              panel_timeline->delete_areas_and_relink(ca, delete_areas, false);
+              sequence()->DeleteAreas(ca, delete_areas, false);
 
               // clean up, i.e. make everything not undeletable again
-              for (int i=0;i<panel_timeline->ghosts.size();i++) {
-                const Ghost& g = panel_timeline->ghosts.at(i);
-                olive::ActiveSequence->clips.at(g.clip)->undeletable = false;
+              for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+                const Ghost& g = ParentTimeline()->ghosts.at(i);
+                g.clip->undeletable = false;
 
                 if (g.transition != nullptr) {
                   g.transition->parent_clip->undeletable = false;
@@ -1237,16 +1230,22 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             }
 
             // finally, perform actual movement of clips
-            for (int i=0;i<panel_timeline->ghosts.size();i++) {
-              Ghost& g = panel_timeline->ghosts[i];
+            for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+              Ghost& g = ParentTimeline()->ghosts[i];
 
-              Clip* c = olive::ActiveSequence->clips.at(g.clip).get();
+              Clip* c = g.clip;
 
               if (g.transition == nullptr) {
 
                 // if this was a clip rather than a transition
 
-                c->move(ca, (g.in - g.old_in), (g.out - g.old_out), (g.clip_in - g.old_clip_in), (g.track - g.old_track), false, true);
+                c->Move(ca,
+                        (g.in - g.old_in),
+                        (g.out - g.old_out),
+                        (g.clip_in - g.old_clip_in),
+                        g.track,
+                        false,
+                        true);
 
               } else {
 
@@ -1257,7 +1256,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                 if (g.transition->secondary_clip != nullptr) new_transition_length >>= 1;
                 ca->append(
                       new ModifyTransitionCommand(is_opening_transition ? c->opening_transition : c->closing_transition,
-                                                       new_transition_length)
+                                                  new_transition_length)
                       );
 
                 long clip_length = c->length();
@@ -1280,8 +1279,8 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                       timeline_in_movement = g.in - g.transition->secondary_clip->timeline_in();
                     }
 
-                    g.transition->parent_clip->move(ca, movement, timeline_out_movement, movement, 0, false, true);
-                    g.transition->secondary_clip->move(ca, timeline_in_movement, movement, timeline_in_movement, 0, false, true);
+                    g.transition->parent_clip->Move(ca, movement, timeline_out_movement, movement, g.transition->parent_clip->track(), false, true);
+                    g.transition->secondary_clip->Move(ca, timeline_in_movement, movement, timeline_in_movement, g.transition->secondary_clip->track(), false, true);
 
                     make_room_for_transition(ca, g.transition->parent_clip, kTransitionOpening, g.in, g.out, false);
                     make_room_for_transition(ca, g.transition->secondary_clip, kTransitionClosing, g.in, g.out, false);
@@ -1299,7 +1298,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                       timeline_out_movement = g.out - g.transition->parent_clip->timeline_out();
                     }
 
-                    c->move(ca, (g.in - g.old_in), timeline_out_movement, (g.clip_in - g.old_clip_in), 0, false, true);
+                    c->Move(ca, (g.in - g.old_in), timeline_out_movement, (g.clip_in - g.old_clip_in), 0, false, true);
                     clip_length -= (g.in - g.old_in);
                   }
 
@@ -1316,7 +1315,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                     }
 
                     // if transition is going to make the clip bigger, make the clip bigger
-                    c->move(ca, timeline_in_movement, (g.out - g.old_out), timeline_in_movement, 0, false, true);
+                    c->Move(ca, timeline_in_movement, (g.out - g.old_out), timeline_in_movement, 0, false, true);
                     clip_length += (g.out - g.old_out);
                   }
 
@@ -1327,12 +1326,12 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             }
 
             // time to verify the transitions of moved clips
-            for (int i=0;i<panel_timeline->ghosts.size();i++) {
-              const Ghost& g = panel_timeline->ghosts.at(i);
+            for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+              const Ghost& g = ParentTimeline()->ghosts.at(i);
 
               // only applies to moving clips, transitions are verified above instead
               if (g.transition == nullptr) {
-                ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
+                Clip* c = g.clip;
 
                 long new_clip_length = g.out - g.in;
 
@@ -1369,12 +1368,12 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                         // for a shared transition, the secondary_clip will always be the closing transition side and
                         // the parent_clip will always be the opening transition side
                         Clip* search_clip = (t == kTransitionOpening)
-                                                      ? transition->secondary_clip : transition->parent_clip;
+                            ? transition->secondary_clip : transition->parent_clip;
 
-                        for (int j=0;j<panel_timeline->ghosts.size();j++) {
-                          const Ghost& other_clip_ghost = panel_timeline->ghosts.at(j);
+                        for (int j=0;j<ParentTimeline()->ghosts.size();j++) {
+                          const Ghost& other_clip_ghost = ParentTimeline()->ghosts.at(j);
 
-                          if (olive::ActiveSequence->clips.at(other_clip_ghost.clip).get() == search_clip) {
+                          if (other_clip_ghost.clip == search_clip) {
 
                             // we found the other clip in the current ghosts/selections
 
@@ -1442,9 +1441,9 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
           }
           push_undo = true;
         }
-      } else if (panel_timeline->selecting || panel_timeline->rect_select_proc) {
-      } else if (panel_timeline->transition_tool_proc) {
-        const Ghost& g = panel_timeline->ghosts.at(0);
+      } else if (ParentTimeline()->selecting || ParentTimeline()->rect_select_proc) {
+      } else if (ParentTimeline()->transition_tool_proc) {
+        const Ghost& g = ParentTimeline()->ghosts.at(0);
 
         // if the transition is greater than 0 length (if it is 0, we make nothing)
         if (g.in != g.out) {
@@ -1454,13 +1453,9 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
           long transition_end = qMax(g.in, g.out);
 
           // get clip references from tool's cached data
-          Clip* open = (panel_timeline->transition_tool_open_clip > -1)
-              ? olive::ActiveSequence->clips.at(panel_timeline->transition_tool_open_clip).get()
-              : nullptr;
+          Clip* open = ParentTimeline()->transition_tool_open_clip;
 
-          Clip* close = (panel_timeline->transition_tool_close_clip > -1)
-              ? olive::ActiveSequence->clips.at(panel_timeline->transition_tool_close_clip).get()
-              : nullptr;
+          Clip* close = ParentTimeline()->transition_tool_close_clip;
 
 
 
@@ -1476,16 +1471,17 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
           ca->append(new AddTransitionCommand(open,
                                               close,
                                               nullptr,
-                                              panel_timeline->transition_tool_meta,
+                                              ParentTimeline()->transition_tool_meta,
                                               transition_length));
 
           push_undo = true;
         }
-      } else if (panel_timeline->splitting) {
+      } else if (ParentTimeline()->splitting) {
         bool split = false;
-        for (int i=0;i<panel_timeline->split_tracks.size();i++) {
-          int split_index = getClipIndexFromCoords(panel_timeline->drag_frame_start, panel_timeline->split_tracks.at(i));
-          if (split_index > -1 && panel_timeline->split_clip_and_relink(ca, split_index, panel_timeline->drag_frame_start, !alt)) {
+        for (int i=0;i<ParentTimeline()->split_tracks.size();i++) {
+          Clip* split_index = ParentTimeline()->split_tracks.at(i)->GetClipFromPoint(ParentTimeline()->drag_frame_start);
+          if (split_index != nullptr
+              && sequence()->SplitClipAtPositions(ca, split_index, {ParentTimeline()->drag_frame_start}, !alt)) {
             split = true;
           }
         }
@@ -1495,54 +1491,56 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
       }
 
       // remove duplicate selections
-      panel_timeline->clean_up_selections(olive::ActiveSequence->selections);
+      sequence()->TidySelections();
 
+      /*
       if (selection_command != nullptr) {
-        selection_command->new_data = olive::ActiveSequence->selections;
+        selection_command->new_data = sequence()->selections;
         ca->append(selection_command);
         selection_command = nullptr;
         push_undo = true;
       }
+      */
 
       if (push_undo) {
-        olive::UndoStack.push(ca);
+        olive::undo_stack.push(ca);
       } else {
         delete ca;
       }
 
       // destroy all ghosts
-      panel_timeline->ghosts.clear();
+      ParentTimeline()->ghosts.clear();
 
       // clear split tracks
-      panel_timeline->split_tracks.clear();
+      ParentTimeline()->split_tracks.clear();
 
-      panel_timeline->selecting = false;
-      panel_timeline->moving_proc = false;
-      panel_timeline->moving_init = false;
-      panel_timeline->splitting = false;
-      panel_timeline->snapped = false;
-      panel_timeline->rect_select_init = false;
-      panel_timeline->rect_select_proc = false;
-      panel_timeline->transition_tool_init = false;
-      panel_timeline->transition_tool_proc = false;
+      ParentTimeline()->selecting = false;
+      ParentTimeline()->moving_proc = false;
+      ParentTimeline()->moving_init = false;
+      ParentTimeline()->splitting = false;
+      olive::timeline::snapped = false;
+      ParentTimeline()->rect_select_init = false;
+      ParentTimeline()->rect_select_proc = false;
+      ParentTimeline()->transition_tool_init = false;
+      ParentTimeline()->transition_tool_proc = false;
       pre_clips.clear();
       post_clips.clear();
 
       update_ui(true);
     }
-    panel_timeline->hand_moving = false;
+    ParentTimeline()->hand_moving = false;
   }
 }
 
 void TimelineView::init_ghosts() {
-  for (int i=0;i<panel_timeline->ghosts.size();i++) {
-    Ghost& g = panel_timeline->ghosts[i];
-    ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
+  for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+    Ghost& g = ParentTimeline()->ghosts[i];
+    Clip* c = g.clip;
 
     g.track = g.old_track = c->track();
     g.clip_in = g.old_clip_in = c->clip_in();
 
-    if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+    if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_SLIP) {
       g.clip_in = g.old_clip_in = c->clip_in(true);
       g.in = g.old_in = c->timeline_in(true);
       g.out = g.old_out = c->timeline_out(true);
@@ -1566,12 +1564,14 @@ void TimelineView::init_ghosts() {
     // used for trim ops
     g.media_length = c->media_length();
   }
-  for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
-    Selection& s = olive::ActiveSequence->selections[i];
+  /*
+  for (int i=0;i<sequence()->selections.size();i++) {
+    Selection& s = sequence()->selections[i];
     s.old_in = s.in;
     s.old_out = s.out;
     s.old_track = s.track;
   }
+  */
 }
 
 void validate_transitions(Clip* c, int transition_type, long& frame_diff) {
@@ -1605,52 +1605,54 @@ void validate_transitions(Clip* c, int transition_type, long& frame_diff) {
 }
 
 void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
-  int effective_tool = panel_timeline->tool;
-  if (panel_timeline->importing || panel_timeline->creating) effective_tool = TIMELINE_TOOL_POINTER;
+  int effective_tool = olive::timeline::current_tool;
+  if (ParentTimeline()->importing || ParentTimeline()->creating) effective_tool = olive::timeline::TIMELINE_TOOL_POINTER;
 
-  int mouse_track = getTrackFromScreenPoint(mouse_pos.y());
-  long frame_diff = (lock_frame) ? 0 : panel_timeline->getTimelineFrameFromScreenPoint(mouse_pos.x()) - panel_timeline->drag_frame_start;
-  int track_diff = ((effective_tool == TIMELINE_TOOL_SLIDE || panel_timeline->transition_select != kTransitionNone) && !panel_timeline->importing) ? 0 : mouse_track - panel_timeline->drag_track_start;
+  Track* mouse_track = getTrackFromScreenPoint(mouse_pos.y());
+  long frame_diff = (lock_frame) ? 0 : ParentTimeline()->getTimelineFrameFromScreenPoint(mouse_pos.x()) - ParentTimeline()->drag_frame_start;
+  int track_diff = ((effective_tool == olive::timeline::TIMELINE_TOOL_SLIDE || ParentTimeline()->transition_select != kTransitionNone) && !ParentTimeline()->importing) ? 0 : mouse_track - ParentTimeline()->drag_track_start;
   long validator;
   long earliest_in_point = LONG_MAX;
 
   // first try to snap
   long fm;
 
-  if (effective_tool != TIMELINE_TOOL_SLIP) {
+  if (effective_tool != olive::timeline::TIMELINE_TOOL_SLIP) {
     // slipping doesn't move the clips so we don't bother snapping for it
-    for (int i=0;i<panel_timeline->ghosts.size();i++) {
-      const Ghost& g = panel_timeline->ghosts.at(i);
+    for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+      const Ghost& g = ParentTimeline()->ghosts.at(i);
 
       // snap ghost's in point
-      if ((panel_timeline->tool != TIMELINE_TOOL_TRANSITION && panel_timeline->trim_target == -1)
+      if ((olive::timeline::current_tool != olive::timeline::TIMELINE_TOOL_TRANSITION && ParentTimeline()->trim_target == nullptr)
           || g.trim_type == olive::timeline::TRIM_IN
-          || panel_timeline->transition_tool_open_clip > -1) {
+          || ParentTimeline()->transition_tool_open_clip != nullptr) {
         fm = g.old_in + frame_diff;
-        if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+        if (sequence()->SnapPoint(&fm, ParentTimeline()->zoom, true, true, true)) {
           frame_diff = fm - g.old_in;
           break;
         }
       }
 
       // snap ghost's out point
-      if ((panel_timeline->tool != TIMELINE_TOOL_TRANSITION && panel_timeline->trim_target == -1)
+      if ((olive::timeline::current_tool != olive::timeline::TIMELINE_TOOL_TRANSITION && ParentTimeline()->trim_target == nullptr)
           || g.trim_type == olive::timeline::TRIM_OUT
-          || panel_timeline->transition_tool_close_clip > -1) {
+          || ParentTimeline()->transition_tool_close_clip != nullptr) {
         fm = g.old_out + frame_diff;
-        if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+        if (sequence()->SnapPoint(&fm, ParentTimeline()->zoom, true, true, true)) {
           frame_diff = fm - g.old_out;
           break;
         }
       }
 
       // if the ghost is attached to a clip, snap its markers too
-      if (panel_timeline->trim_target == -1 && g.clip >= 0 && panel_timeline->tool != TIMELINE_TOOL_TRANSITION) {
-        ClipPtr c = olive::ActiveSequence->clips.at(g.clip);
+      if (ParentTimeline()->trim_target == nullptr
+          && g.clip != nullptr
+          && olive::timeline::current_tool != olive::timeline::TIMELINE_TOOL_TRANSITION) {
+        Clip* c = g.clip;
         for (int j=0;j<c->get_markers().size();j++) {
           long marker_real_time = c->get_markers().at(j).frame + c->timeline_in() - c->clip_in();
           fm = marker_real_time + frame_diff;
-          if (panel_timeline->snap_to_timeline(&fm, true, true, true)) {
+          if (sequence()->SnapPoint(&fm, ParentTimeline()->zoom, true, true, true)) {
             frame_diff = fm - marker_real_time;
             break;
           }
@@ -1659,26 +1661,26 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
     }
   }
 
-  bool clips_are_movable = (effective_tool == TIMELINE_TOOL_POINTER || effective_tool == TIMELINE_TOOL_SLIDE);
+  bool clips_are_movable = (effective_tool == olive::timeline::TIMELINE_TOOL_POINTER || effective_tool == olive::timeline::TIMELINE_TOOL_SLIDE);
 
   // validate ghosts
   long temp_frame_diff = frame_diff; // cache to see if we change it (thus cancelling any snap)
-  for (int i=0;i<panel_timeline->ghosts.size();i++) {
-    const Ghost& g = panel_timeline->ghosts.at(i);
+  for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+    const Ghost& g = ParentTimeline()->ghosts.at(i);
     Clip* c = nullptr;
-    if (g.clip != -1) {
-      c = olive::ActiveSequence->clips.at(g.clip).get();
+    if (g.clip != nullptr) {
+      c = g.clip;
     }
 
     const FootageStream* ms = nullptr;
-    if (g.clip != -1 && c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
+    if (g.clip != nullptr && c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
       ms = c->media_stream();
     }
 
     // validate ghosts for trimming
-    if (panel_timeline->creating) {
+    if (ParentTimeline()->creating) {
       // i feel like we might need something here but we haven't so far?
-    } else if (effective_tool == TIMELINE_TOOL_SLIP) {
+    } else if (effective_tool == olive::timeline::TIMELINE_TOOL_SLIP) {
       if ((c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE)
           || (ms != nullptr && !ms->infinite_length)) {
         // prevent slip moving a clip below 0 clip_in
@@ -1696,7 +1698,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         if (validator < 1) frame_diff -= (1 - validator);
 
         // prevent timeline in from going below 0
-        if (effective_tool != TIMELINE_TOOL_RIPPLE) {
+        if (effective_tool != olive::timeline::TIMELINE_TOOL_RIPPLE) {
           validator = g.old_in + frame_diff;
           if (validator < 0) frame_diff -= validator;
         }
@@ -1747,21 +1749,21 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
 
       // ripple ops
-      if (effective_tool == TIMELINE_TOOL_RIPPLE) {
+      if (effective_tool == olive::timeline::TIMELINE_TOOL_RIPPLE) {
         for (int j=0;j<post_clips.size();j++) {
-          ClipPtr post = post_clips.at(j);
+          Clip* post = post_clips.at(j);
 
           // prevent any rippled clip from going below 0
-          if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+          if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
             validator = post->timeline_in() - frame_diff;
             if (validator < 0) frame_diff += validator;
           }
 
           // prevent any post-clips colliding with pre-clips
           for (int k=0;k<pre_clips.size();k++) {
-            ClipPtr pre = pre_clips.at(k);
+            Clip* pre = pre_clips.at(k);
             if (pre != post && pre->track() == post->track()) {
-              if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+              if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
                 validator = post->timeline_in() - frame_diff - pre->timeline_out();
                 if (validator < 0) frame_diff += validator;
               } else {
@@ -1810,7 +1812,8 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
 
       // prevent clips from crossing tracks
-      if (same_sign(g.old_track, panel_timeline->drag_track_start)) {
+      /*
+      if (same_sign(g.old_track, ParentTimeline()->drag_track_start)) {
         while (!same_sign(g.old_track, g.old_track + track_diff)) {
           if (g.old_track < 0) {
             track_diff--;
@@ -1819,16 +1822,17 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
           }
         }
       }
-    } else if (effective_tool == TIMELINE_TOOL_TRANSITION) {
-      if (panel_timeline->transition_tool_open_clip == -1
-          || panel_timeline->transition_tool_close_clip == -1) {
+      */
+    } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
+      if (ParentTimeline()->transition_tool_open_clip == nullptr
+          || ParentTimeline()->transition_tool_close_clip == nullptr) {
         validate_transitions(c, g.media_stream, frame_diff);
       } else {
         // open transition clip
-        Clip* otc = olive::ActiveSequence->clips.at(panel_timeline->transition_tool_open_clip).get();
+        Clip* otc = ParentTimeline()->transition_tool_open_clip;
 
         // close transition clip
-        Clip* ctc = olive::ActiveSequence->clips.at(panel_timeline->transition_tool_close_clip).get();
+        Clip* ctc = ParentTimeline()->transition_tool_close_clip;
 
         if (g.media_stream == kTransitionClosing) {
           // swap
@@ -1852,21 +1856,21 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
   // if the above validation changed the frame movement, it's unlikely we're still snapped
   if (temp_frame_diff != frame_diff) {
-    panel_timeline->snapped = false;
+    olive::timeline::snapped = false;
   }
 
   // apply changes to ghosts
-  for (int i=0;i<panel_timeline->ghosts.size();i++) {
-    Ghost& g = panel_timeline->ghosts[i];
+  for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+    Ghost& g = ParentTimeline()->ghosts[i];
 
-    if (effective_tool == TIMELINE_TOOL_SLIP) {
+    if (effective_tool == olive::timeline::TIMELINE_TOOL_SLIP) {
       g.clip_in = g.old_clip_in - frame_diff;
     } else if (g.trim_type != olive::timeline::TRIM_NONE) {
       long ghost_diff = frame_diff;
 
       // prevent trimming clips from overlapping each other
-      for (int j=0;j<panel_timeline->ghosts.size();j++) {
-        const Ghost& comp = panel_timeline->ghosts.at(j);
+      for (int j=0;j<ParentTimeline()->ghosts.size();j++) {
+        const Ghost& comp = ParentTimeline()->ghosts.at(j);
         if (i != j && g.track == comp.track) {
           long validator;
           if (g.trim_type == olive::timeline::TRIM_IN && comp.out < g.out) {
@@ -1896,13 +1900,14 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       g.out = g.old_out + frame_diff;
 
       if (g.transition != nullptr
-          && g.transition == olive::ActiveSequence->clips.at(g.clip)->opening_transition) {
+          && g.transition == g.clip->opening_transition) {
         g.clip_in = g.old_clip_in + frame_diff;
       }
 
-      if (panel_timeline->importing) {
-        if ((panel_timeline->video_ghosts && mouse_track < 0)
-            || (panel_timeline->audio_ghosts && mouse_track >= 0)) {
+      if (ParentTimeline()->importing) {
+        /*
+        if ((ParentTimeline()->video_ghosts && mouse_track->type() == Track::kTypeVideo)
+            || (ParentTimeline()->audio_ghosts && mouse_track->type() == Track::kTypeAudio)) {
           int abs_track_diff = abs(track_diff);
           if (g.old_track < 0) { // clip is video
             g.track -= abs_track_diff;
@@ -1910,15 +1915,17 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
             g.track += abs_track_diff;
           }
         }
-      } else if (same_sign(g.old_track, panel_timeline->drag_track_start)) {
+        */
+        g.track = track_list_->First();
+      } else if (g.old_track->type() == ParentTimeline()->drag_track_start->type()) {
         g.track += track_diff;
       }
-    } else if (effective_tool == TIMELINE_TOOL_TRANSITION) {
-      if (panel_timeline->transition_tool_open_clip > -1
-            && panel_timeline->transition_tool_close_clip > -1) {
+    } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
+      if (ParentTimeline()->transition_tool_open_clip != nullptr
+          && ParentTimeline()->transition_tool_close_clip != nullptr) {
         g.in = g.old_in - frame_diff;
         g.out = g.old_out + frame_diff;
-      } else if (panel_timeline->transition_tool_open_clip == g.clip) {
+      } else if (ParentTimeline()->transition_tool_open_clip == g.clip) {
         g.out = g.old_out + frame_diff;
       } else {
         g.in = g.old_in + frame_diff;
@@ -1929,23 +1936,24 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
   }
 
   // apply changes to selections
-  if (effective_tool != TIMELINE_TOOL_SLIP && !panel_timeline->importing && !panel_timeline->creating) {
-    for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
-      Selection& s = olive::ActiveSequence->selections[i];
-      if (panel_timeline->trim_target > -1) {
-        if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+  /*
+  if (effective_tool != olive::timeline::TIMELINE_TOOL_SLIP && !ParentTimeline()->importing && !ParentTimeline()->creating) {
+    for (int i=0;i<sequence()->selections.size();i++) {
+      Selection& s = sequence()->selections[i];
+      if (ParentTimeline()->trim_target > -1) {
+        if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
           s.in = s.old_in + frame_diff;
         } else {
           s.out = s.old_out + frame_diff;
         }
       } else if (clips_are_movable) {
-        for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
-          Selection& s = olive::ActiveSequence->selections[i];
+        for (int i=0;i<sequence()->selections.size();i++) {
+          Selection& s = sequence()->selections[i];
           s.in = s.old_in + frame_diff;
           s.out = s.old_out + frame_diff;
           s.track = s.old_track;
 
-          if (panel_timeline->importing) {
+          if (ParentTimeline()->importing) {
             int abs_track_diff = abs(track_diff);
             if (s.old_track < 0) {
               s.track -= abs_track_diff;
@@ -1953,23 +1961,25 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
               s.track += abs_track_diff;
             }
           } else {
-            if (same_sign(s.track, panel_timeline->drag_track_start)) s.track += track_diff;
+            if (same_sign(s.track, ParentTimeline()->drag_track_start)) s.track += track_diff;
           }
         }
       }
     }
   }
+  */
 
-  if (panel_timeline->importing) {
-    QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate));
+  if (ParentTimeline()->importing) {
+    QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, olive::config.timecode_view, sequence()->frame_rate));
   } else {
-    QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate);
-    if (panel_timeline->trim_target > -1) {
+    QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), olive::config.timecode_view, sequence()->frame_rate);
+
+    if (ParentTimeline()->trim_target != nullptr) {
       // find which clip is being moved
       const Ghost* g = nullptr;
-      for (int i=0;i<panel_timeline->ghosts.size();i++) {
-        if (panel_timeline->ghosts.at(i).clip == panel_timeline->trim_target) {
-          g = &panel_timeline->ghosts.at(i);
+      for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+        if (ParentTimeline()->ghosts.at(i).clip == ParentTimeline()->trim_target) {
+          g = &ParentTimeline()->ghosts.at(i);
           break;
         }
       }
@@ -1977,14 +1987,15 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       if (g != nullptr) {
         tip += " " + tr("Duration:") + " ";
         long len = (g->old_out-g->old_in);
-        if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+        if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
           len -= frame_diff;
         } else {
           len += frame_diff;
         }
-        tip += frame_to_timecode(len, olive::CurrentConfig.timecode_view, olive::ActiveSequence->frame_rate);
+        tip += frame_to_timecode(len, olive::config.timecode_view, sequence()->frame_rate);
       }
     }
+
     QToolTip::showText(mapToGlobal(mouse_pos), tip);
   }
 }
@@ -1993,85 +2004,87 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
   // interrupt any potential tooltip about to show
   tooltip_timer.stop();
 
-  if (olive::ActiveSequence != nullptr) {
+  if (sequence() != nullptr) {
     bool alt = (event->modifiers() & Qt::AltModifier);
 
     // store current frame/track corresponding to the cursor
-    panel_timeline->cursor_frame = panel_timeline->getTimelineFrameFromScreenPoint(event->pos().x());
-    panel_timeline->cursor_track = getTrackFromScreenPoint(event->pos().y());
+    ParentTimeline()->cursor_frame = ParentTimeline()->getTimelineFrameFromScreenPoint(event->pos().x());
+    ParentTimeline()->cursor_track = getTrackFromScreenPoint(event->pos().y());
 
     // if holding the mouse button down, let's scroll to that location
-    if (event->buttons() != 0 && panel_timeline->tool != TIMELINE_TOOL_HAND) {
-      panel_timeline->scroll_to_frame(panel_timeline->cursor_frame);
+    if (event->buttons() != 0 && olive::timeline::current_tool != olive::timeline::TIMELINE_TOOL_HAND) {
+      ParentTimeline()->scroll_to_frame(ParentTimeline()->cursor_frame);
     }
 
     // determine if the action should be "inserting" rather than "overwriting"
     // Default behavior is to replace/overwrite clips under any clips we're dropping over them. Inserting will
     // split and move existing clips at the drop point to make space for the drop
-    panel_timeline->move_insert = ((event->modifiers() & Qt::ControlModifier)
-                                   && (panel_timeline->tool == TIMELINE_TOOL_POINTER
-                                       || panel_timeline->importing
-                                       || panel_timeline->creating));
+    ParentTimeline()->move_insert = ((event->modifiers() & Qt::ControlModifier)
+                                     && (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER
+                                         || ParentTimeline()->importing
+                                         || ParentTimeline()->creating));
 
     // if we're not currently resizing already, default track resizing to false (we'll set it to true later if
     // the user is still hovering over a track line)
-    if (!panel_timeline->moving_init) {
+    if (!ParentTimeline()->moving_init) {
       track_resizing = false;
     }
 
     // if the current tool uses an on-screen visible cursor, we snap the cursor to the timeline
     if (current_tool_shows_cursor()) {
-      panel_timeline->snap_to_timeline(&panel_timeline->cursor_frame,
+      sequence()->SnapPoint(&ParentTimeline()->cursor_frame,
+                            ParentTimeline()->zoom,
 
-                                       // only snap to the playhead if the edit tool doesn't force the playhead to
-                                       // follow it (or if we're not selecting since that means the playhead is
-                                       // static at the moment)
-                                       !olive::CurrentConfig.edit_tool_also_seeks || !panel_timeline->selecting,
+                            // only snap to the playhead if the edit tool doesn't force the playhead to
+                            // follow it (or if we're not selecting since that means the playhead is
+                            // static at the moment)
+                            !olive::config.edit_tool_also_seeks || !ParentTimeline()->selecting,
 
-                                       true,
-                                       true);
+                            true,
+                            true);
     }
 
-    if (panel_timeline->selecting) {
+    if (ParentTimeline()->selecting) {
 
+      /*
       // get number of selections based on tracks in selection area
-      int selection_tool_count = 1 + qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start) - qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
+      int selection_tool_count = 1 + qMax(ParentTimeline()->cursor_track, ParentTimeline()->drag_track_start) - qMin(ParentTimeline()->cursor_track, ParentTimeline()->drag_track_start);
 
       // add count to selection offset for the total number of selection objects
       // (offset is usually 0, unless the user is holding shift in which case we add to existing selections)
-      int selection_count = selection_tool_count + panel_timeline->selection_offset;
+      int selection_count = selection_tool_count + ParentTimeline()->selection_offset;
 
       // resize selection object array to new count
-      if (olive::ActiveSequence->selections.size() != selection_count) {
-        olive::ActiveSequence->selections.resize(selection_count);
+      if (sequence()->selections.size() != selection_count) {
+        sequence()->selections.resize(selection_count);
       }
 
       // loop through tracks in selection area and adjust them accordingly
-      int minimum_selection_track = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
-      int maximum_selection_track = qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start);
-      long selection_in = qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
-      long selection_out = qMax(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
-      for (int i=panel_timeline->selection_offset;i<selection_count;i++) {
-        Selection& s = olive::ActiveSequence->selections[i];
-        s.track = minimum_selection_track + i - panel_timeline->selection_offset;
+      int minimum_selection_track = qMin(ParentTimeline()->cursor_track, ParentTimeline()->drag_track_start);
+      int maximum_selection_track = qMax(ParentTimeline()->cursor_track, ParentTimeline()->drag_track_start);
+      long selection_in = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+      long selection_out = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+      for (int i=ParentTimeline()->selection_offset;i<selection_count;i++) {
+        Selection& s = sequence()->selections[i];
+        s.track = minimum_selection_track + i - ParentTimeline()->selection_offset;
         s.in = selection_in;
         s.out = selection_out;
       }
 
       // If the config is set to select links as well with the edit tool
-      if (olive::CurrentConfig.edit_tool_selects_links) {
+      if (olive::config.edit_tool_selects_links) {
 
         // find which clips are selected
-        for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
+        for (int j=0;j<sequence()->clips.size();j++) {
 
-          Clip* c = olive::ActiveSequence->clips.at(j).get();
+          Clip* c = sequence()->clips.at(j).get();
 
           if (c != nullptr && c->IsSelected(false)) {
 
             // loop through linked clips
             for (int k=0;k<c->linked.size();k++) {
 
-              ClipPtr link = olive::ActiveSequence->clips.at(c->linked.at(k));
+              ClipPtr link = sequence()->clips.at(c->linked.at(k));
 
               // see if one of the selections is already covering this track
               if (!(link->track() >= minimum_selection_track
@@ -2082,7 +2095,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
                 link_sel.in = selection_in;
                 link_sel.out = selection_out;
                 link_sel.track = link->track();
-                olive::ActiveSequence->selections.append(link_sel);
+                sequence()->selections.append(link_sel);
 
               }
 
@@ -2093,40 +2106,41 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       }
 
       // if the config is set to seek with the edit too, do so now
-      if (olive::CurrentConfig.edit_tool_also_seeks) {
-        panel_sequence_viewer->seek(qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame));
+      if (olive::config.edit_tool_also_seeks) {
+        panel_sequence_viewer->seek(qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame));
       } else {
         // if not, repaint (seeking will trigger a repaint)
-        panel_timeline->repaint_timeline();
+        ParentTimeline()->repaint_timeline();
       }
+      */
 
-    } else if (panel_timeline->hand_moving) {
+    } else if (ParentTimeline()->hand_moving) {
 
       // if we're hand moving, we'll be adding values directly to the scrollbars
 
       // the scrollbars trigger repaints when they scroll, which is unnecessary here so we block them
-      panel_timeline->block_repaints = true;
-      panel_timeline->horizontalScrollBar->setValue(panel_timeline->horizontalScrollBar->value() + panel_timeline->drag_x_start - event->pos().x());
-      scrollBar->setValue(scrollBar->value() + panel_timeline->drag_y_start - event->pos().y());
-      panel_timeline->block_repaints = false;
+      ParentTimeline()->block_repaints = true;
+      ParentTimeline()->horizontalScrollBar->setValue(ParentTimeline()->horizontalScrollBar->value() + ParentTimeline()->drag_x_start - event->pos().x());
+      scrollBar->setValue(scrollBar->value() + ParentTimeline()->drag_y_start - event->pos().y());
+      ParentTimeline()->block_repaints = false;
 
       // finally repaint
-      panel_timeline->repaint_timeline();
+      ParentTimeline()->repaint_timeline();
 
       // store current cursor position for next hand move event
-      panel_timeline->drag_x_start = event->pos().x();
-      panel_timeline->drag_y_start = event->pos().y();
+      ParentTimeline()->drag_x_start = event->pos().x();
+      ParentTimeline()->drag_y_start = event->pos().y();
 
-    } else if (panel_timeline->moving_init) {
+    } else if (ParentTimeline()->moving_init) {
 
       if (track_resizing) {
 
         // get cursor movement
-        int diff = (event->pos().y() - panel_timeline->drag_y_start);
+        int diff = (event->pos().y() - ParentTimeline()->drag_y_start);
 
         // add it to the current track height
-        int new_height = panel_timeline->GetTrackHeight(track_target);
-        if (bottom_align) {
+        int new_height = track_target->height();
+        if (alignment_ == olive::timeline::kAlignmentBottom) {
           new_height -= diff;
         } else {
           new_height += diff;
@@ -2136,13 +2150,13 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         new_height = qMax(new_height, olive::timeline::kTrackMinHeight);
 
         // set the track height
-        panel_timeline->SetTrackHeight(track_target, new_height);
+        track_target->set_height(new_height);
 
         // store current cursor position for next track resize event
-        panel_timeline->drag_y_start = event->pos().y();
+        ParentTimeline()->drag_y_start = event->pos().y();
 
         update();
-      } else if (panel_timeline->moving_proc) {
+      } else if (ParentTimeline()->moving_proc) {
 
         // we're currently dragging ghosts
         update_ghosts(event->pos(), event->modifiers() & Qt::ShiftModifier);
@@ -2153,9 +2167,10 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         // actually apply it to the clips (in mouseReleaseEvent)
 
         // loop through clips for any currently selected
-        for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
+        QVector<Clip*> partially_selected_clips = sequence()->SelectedClips(false);
+        for (int i=0;i<partially_selected_clips.size();i++) {
 
-          Clip* c = olive::ActiveSequence->clips.at(i).get();
+          Clip* c = partially_selected_clips.at(i);
 
           if (c != nullptr) {
             Ghost g;
@@ -2166,30 +2181,16 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
             // check if a transition is selected (prioritize transition selection)
             // (only the pointer tool supports moving transitions)
-            if (panel_timeline->tool == TIMELINE_TOOL_POINTER
+            if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER
                 && (c->opening_transition != nullptr || c->closing_transition != nullptr)) {
 
               // check if any selections contain a whole transition
-              for (int j=0;j<olive::ActiveSequence->selections.size();j++) {
-
-                const Selection& s = olive::ActiveSequence->selections.at(j);
-
-                if (s.track == c->track()) {
-                  if (selection_contains_transition(s, c, kTransitionOpening)) {
-
-                    g.transition = c->opening_transition;
-                    add = true;
-                    break;
-
-                  } else if (selection_contains_transition(s, c, kTransitionClosing)) {
-
-                    g.transition = c->closing_transition;
-                    add = true;
-                    break;
-
-                  }
-                }
-
+              if (c->IsTransitionSelected(kTransitionOpening)) {
+                g.transition = c->opening_transition;
+                add = true;
+              } else if (c->IsTransitionSelected(kTransitionClosing)) {
+                g.transition = c->closing_transition;
+                add = true;
               }
 
             }
@@ -2204,8 +2205,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
               if (g.transition != nullptr) {
 
                 // transition may be a dual transition, check if it's already been added elsewhere
-                for (int j=0;j<panel_timeline->ghosts.size();j++) {
-                  if (panel_timeline->ghosts.at(j).transition == g.transition) {
+                for (int j=0;j<ParentTimeline()->ghosts.size();j++) {
+                  if (ParentTimeline()->ghosts.at(j).transition == g.transition) {
                     add = false;
                     break;
                   }
@@ -2214,60 +2215,51 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
               }
 
               if (add) {
-                g.clip = i;
-                g.trim_type = panel_timeline->trim_type;
-                panel_timeline->ghosts.append(g);
+                g.clip = c;
+                g.trim_type = ParentTimeline()->trim_type;
+                ParentTimeline()->ghosts.append(g);
               }
 
             }
           }
         }
 
-        if (panel_timeline->tool == TIMELINE_TOOL_SLIDE) {
+        if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_SLIDE) {
 
           // for the slide tool, we add the surrounding clips as ghosts that are getting trimmed the opposite way
 
           // store original array size since we'll be adding to it
-          int ghost_arr_size = panel_timeline->ghosts.size();
+          int ghost_arr_size = ParentTimeline()->ghosts.size();
 
           // loop through clips for any that are "touching" the selected clips
-          for (int j=0;j<olive::ActiveSequence->clips.size();j++) {
+          for (int i=0;i<ghost_arr_size;i++) {
+            Clip* ghost_clip = ParentTimeline()->ghosts.at(i).clip;
 
-            ClipPtr c = olive::ActiveSequence->clips.at(j);
-            if (c != nullptr) {
+            Clip* pre_clip = ghost_clip->track()->GetClipFromPoint(ghost_clip->timeline_in() - 1);
+            Clip* post_clip = ghost_clip->track()->GetClipFromPoint(ghost_clip->timeline_out() + 1);
 
-              for (int i=0;i<ghost_arr_size;i++) {
-
-                Ghost& g = panel_timeline->ghosts[i];
-                g.trim_type = olive::timeline::TRIM_NONE; // the selected clips will be moving, not trimming
-
-                ClipPtr ghost_clip = olive::ActiveSequence->clips.at(g.clip);
-
-                if (c->track() == ghost_clip->track()) {
-
-                  // see if this clip is currently selected, if so we won't add it as a "touching" clip
-                  bool found = false;
-                  for (int k=0;k<ghost_arr_size;k++) {
-                    if (panel_timeline->ghosts.at(k).clip == j) {
-                      found = true;
-                      break;
-                    }
-                  }
-
-                  if (!found) { // the clip is not currently selected
-
-                    // check if this clip is indeed touching
-                    bool is_in = (c->timeline_in() == ghost_clip->timeline_out());
-                    if (is_in || c->timeline_out() == ghost_clip->timeline_in()) {
-                      Ghost gh;
-                      gh.transition = nullptr;
-                      gh.clip = j;
-                      gh.trim_type = is_in ? olive::timeline::TRIM_IN : olive::timeline::TRIM_OUT;
-                      panel_timeline->ghosts.append(gh);
-                    }
-                  }
-                }
+            // Check if this clip is already in the ghosts, in which case don't add it
+            for (int j=0;j<ghost_arr_size;j++) {
+              if (ParentTimeline()->ghosts.at(j).clip == pre_clip) {
+                pre_clip = nullptr;
+              } else if (ParentTimeline()->ghosts.at(j).clip == post_clip) {
+                post_clip = nullptr;
               }
+            }
+
+            Ghost gh;
+            gh.transition = nullptr;
+
+            if (pre_clip != nullptr) {
+              gh.clip = pre_clip;
+              gh.trim_type = olive::timeline::TRIM_OUT;
+              ParentTimeline()->ghosts.append(gh);
+            }
+
+            if (post_clip != nullptr) {
+              gh.clip = post_clip;
+              gh.trim_type = olive::timeline::TRIM_IN;
+              ParentTimeline()->ghosts.append(gh);
             }
           }
         }
@@ -2276,18 +2268,18 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         init_ghosts();
 
         // if the ripple tool is selected, prepare to ripple
-        if (panel_timeline->tool == TIMELINE_TOOL_RIPPLE) {
+        if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_RIPPLE) {
 
           long axis = LONG_MAX;
 
           // find the earliest point within the selected clips which is the point we'll ripple around
           // also store the currently selected clips so we don't have to do it later
-          QVector<ClipPtr> ghost_clips;
-          ghost_clips.resize(panel_timeline->ghosts.size());
+          QVector<Clip*> ghost_clips;
+          ghost_clips.resize(ParentTimeline()->ghosts.size());
 
-          for (int i=0;i<panel_timeline->ghosts.size();i++) {
-            ClipPtr c = olive::ActiveSequence->clips.at(panel_timeline->ghosts.at(i).clip);
-            if (panel_timeline->trim_type == olive::timeline::TRIM_IN) {
+          for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+            Clip* c = ParentTimeline()->ghosts.at(i).clip;
+            if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) {
               axis = qMin(axis, c->timeline_in());
             } else {
               axis = qMin(axis, c->timeline_out());
@@ -2298,19 +2290,20 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           }
 
           // loop through clips and cache which are earlier than the axis and which after after
-          for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-            ClipPtr c = olive::ActiveSequence->clips.at(i);
-            if (c != nullptr && !ghost_clips.contains(c)) {
+          QVector<Clip*> sequence_clips = sequence()->GetAllClips();
+          for (int i=0;i<sequence_clips.size();i++) {
+            Clip* c = sequence_clips.at(i);
+            if (!ghost_clips.contains(c)) {
               bool clip_is_post = (c->timeline_in() >= axis);
 
               // construct the list of pre and post clips
-              QVector<ClipPtr>& clip_list = (clip_is_post) ? post_clips : pre_clips;
+              QVector<Clip*>& clip_list = (clip_is_post) ? post_clips : pre_clips;
 
               // check if there's already a clip in this list on this track, and if this clip is closer or not
               bool found = false;
               for (int j=0;j<clip_list.size();j++) {
 
-                ClipPtr compare = clip_list.at(j);
+                Clip* compare = clip_list.at(j);
 
                 if (compare->track() == c->track()) {
 
@@ -2335,26 +2328,28 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         }
 
         // store selections
-        selection_command = new SetSelectionsCommand(olive::ActiveSequence.get());
-        selection_command->old_data = olive::ActiveSequence->selections;
+        /*
+        selection_command = new SetSelectionsCommand(sequence().get());
+        selection_command->old_data = sequence()->selections;
+        */
 
         // ready to start moving clips
-        panel_timeline->moving_proc = true;
+        ParentTimeline()->moving_proc = true;
       }
 
       update_ui(false);
 
-    } else if (panel_timeline->splitting) {
+    } else if (ParentTimeline()->splitting) {
 
       // get the range of tracks currently dragged
-      int track_start = qMin(panel_timeline->cursor_track, panel_timeline->drag_track_start);
-      int track_end = qMax(panel_timeline->cursor_track, panel_timeline->drag_track_start);
+      int track_start = qMin(ParentTimeline()->cursor_track->Index(), ParentTimeline()->drag_track_start->Index());
+      int track_end = qMax(ParentTimeline()->cursor_track->Index(), ParentTimeline()->drag_track_start->Index());
       int track_size = 1 + track_end - track_start;
 
       // set tracks to be split
-      panel_timeline->split_tracks.resize(track_size);
+      ParentTimeline()->split_tracks.resize(track_size);
       for (int i=0;i<track_size;i++) {
-        panel_timeline->split_tracks[i] = track_start + i;
+        ParentTimeline()->split_tracks[i] = ParentTimeline()->cursor_track->track_list()->TrackAt(track_start + i);
       }
 
       // if alt isn't being held, also add the tracks of the clip's links
@@ -2362,17 +2357,16 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         for (int i=0;i<track_size;i++) {
 
           // make sure there's a clip in this track
-          int clip_index = getClipIndexFromCoords(panel_timeline->drag_frame_start, panel_timeline->split_tracks[i]);
+          Clip* clip = ParentTimeline()->split_tracks[i]->GetClipFromPoint(ParentTimeline()->drag_frame_start);
 
-          if (clip_index > -1) {
-            ClipPtr clip = olive::ActiveSequence->clips.at(clip_index);
+          if (clip != nullptr) {
             for (int j=0;j<clip->linked.size();j++) {
 
-              ClipPtr link = olive::ActiveSequence->clips.at(clip->linked.at(j));
+              Clip* link = clip->linked.at(j);
 
               // if this clip isn't already in the list of tracks to split
-              if (link->track() < track_start || link->track() > track_end) {
-                panel_timeline->split_tracks.append(link->track());
+              if (link->track()->Index() < track_start || link->track()->Index() > track_end) {
+                ParentTimeline()->split_tracks.append(link->track());
               }
 
             }
@@ -2382,108 +2376,95 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
       update_ui(false);
 
-    } else if (panel_timeline->rect_select_init) {
+    } else if (ParentTimeline()->rect_select_init) {
 
       // set if the user started dragging at point where there was no clip
 
-      if (panel_timeline->rect_select_proc) {
+      if (ParentTimeline()->rect_select_proc) {
 
         // we're currently rectangle selecting
 
         // set the right/bottom coords to the current mouse position
         // (left/top were set to the starting drag position earlier)
-        panel_timeline->rect_select_rect.setRight(event->pos().x());
+        ParentTimeline()->rect_select_rect.setRight(event->pos().x());
 
-        if (bottom_align) {
-          panel_timeline->rect_select_rect.setBottom(event->pos().y() - height());
+        if (alignment_ == olive::timeline::kAlignmentBottom) {
+          ParentTimeline()->rect_select_rect.setBottom(event->pos().y() - height());
         } else {
-          panel_timeline->rect_select_rect.setBottom(event->pos().y());
+          ParentTimeline()->rect_select_rect.setBottom(event->pos().y());
         }
 
-        long frame_min = qMin(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
-        long frame_max = qMax(panel_timeline->drag_frame_start, panel_timeline->cursor_frame);
+        long frame_min = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+        long frame_max = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
 
-        int track_min = qMin(panel_timeline->drag_track_start, panel_timeline->cursor_track);
-        int track_max = qMax(panel_timeline->drag_track_start, panel_timeline->cursor_track);
+        int track_min = qMin(ParentTimeline()->drag_track_start->Index(), ParentTimeline()->cursor_track->Index());
+        int track_max = qMax(ParentTimeline()->drag_track_start->Index(), ParentTimeline()->cursor_track->Index());
 
         // determine which clips are in this rectangular selection
-        QVector<ClipPtr> selected_clips;
-        for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-          ClipPtr clip = olive::ActiveSequence->clips.at(i);
-          if (clip != nullptr &&
-              clip->track() >= track_min &&
-              clip->track() <= track_max &&
-              !(clip->timeline_in() < frame_min && clip->timeline_out() < frame_min) &&
-              !(clip->timeline_in() > frame_max && clip->timeline_out() > frame_max)) {
+        QVector<Clip*> selected_clips;
+        for (int j=0;j<track_list_->TrackCount();j++) {
+          Track* track = track_list_->TrackAt(j);
 
-            // create a group of the clip (and its links if alt is not pressed)
-            QVector<ClipPtr> session_clips;
-            session_clips.append(clip);
+          for (int i=0;i<track->ClipCount();i++) {
+            Clip* clip = track->GetClip(i).get();
+            if (clip->track()->Index() >= track_min &&
+                clip->track()->Index() <= track_max &&
+                !(clip->timeline_in() < frame_min && clip->timeline_out() < frame_min) &&
+                !(clip->timeline_in() > frame_max && clip->timeline_out() > frame_max)) {
 
-            if (!alt) {
-              for (int j=0;j<clip->linked.size();j++) {
-                session_clips.append(olive::ActiveSequence->clips.at(clip->linked.at(j)));
+              // create a group of the clip (and its links if alt is not pressed)
+              QVector<Clip*> session_clips;
+              session_clips.append(clip);
+
+              if (!alt) {
+                session_clips.append(clip->linked);
               }
-            }
 
-            // for each of these clips, see if clip has already been added -
-            // this can easily happen due to adding linked clips
-            for (int j=0;j<session_clips.size();j++) {
-              bool found = false;
+              // for each of these clips, see if clip has already been added -
+              // this can easily happen due to adding linked clips
+              for (int j=0;j<session_clips.size();j++) {
+                Clip* c = session_clips.at(j);
 
-              ClipPtr c = session_clips.at(j);
-              for (int k=0;k<selected_clips.size();k++) {
-                if (selected_clips.at(k) == c) {
-                  found = true;
-                  break;
+                if (!selected_clips.contains(c)) {
+                  selected_clips.append(c);
                 }
-              }
-
-              // if the clip isn't already in the selection add it
-              if (!found) {
-                selected_clips.append(c);
               }
             }
           }
         }
 
         // add each of the selected clips to the main sequence's selections
-        olive::ActiveSequence->selections.resize(selected_clips.size() + panel_timeline->selection_offset);
         for (int i=0;i<selected_clips.size();i++) {
-          Selection& s = olive::ActiveSequence->selections[i+panel_timeline->selection_offset];
-          ClipPtr clip = selected_clips.at(i);
-          s.old_in = s.in = clip->timeline_in();
-          s.old_out = s.out = clip->timeline_out();
-          s.old_track = s.track = clip->track();
+          selected_clips.at(i)->track()->SelectClip(selected_clips.at(i));
         }
 
-        panel_timeline->repaint_timeline();
+        ParentTimeline()->repaint_timeline();
       } else {
 
         // set up rectangle selecting
-        panel_timeline->rect_select_rect.setX(event->pos().x());
+        ParentTimeline()->rect_select_rect.setX(event->pos().x());
 
-        if (bottom_align) {
+        if (alignment_ == olive::timeline::kAlignmentBottom) {
           // bottom aligned widgets start with 0 at the bottom and go down to a negative number
-          panel_timeline->rect_select_rect.setY(event->pos().y() - height());
+          ParentTimeline()->rect_select_rect.setY(event->pos().y() - height());
         } else {
-          panel_timeline->rect_select_rect.setY(event->pos().y());
+          ParentTimeline()->rect_select_rect.setY(event->pos().y());
         }
 
-        panel_timeline->rect_select_rect.setWidth(0);
-        panel_timeline->rect_select_rect.setHeight(0);
+        ParentTimeline()->rect_select_rect.setWidth(0);
+        ParentTimeline()->rect_select_rect.setHeight(0);
 
-        panel_timeline->rect_select_proc = true;
+        ParentTimeline()->rect_select_proc = true;
 
       }
     } else if (current_tool_shows_cursor()) {
 
       // we're not currently performing an action (click is not pressed), but redraw because we have an on-screen cursor
-      panel_timeline->repaint_timeline();
+      ParentTimeline()->repaint_timeline();
 
-    } else if (panel_timeline->tool == TIMELINE_TOOL_POINTER ||
-               panel_timeline->tool == TIMELINE_TOOL_RIPPLE ||
-               panel_timeline->tool == TIMELINE_TOOL_ROLLING) {
+    } else if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER ||
+               olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_RIPPLE ||
+               olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_ROLLING) {
 
       // hide any tooltip that may be currently showing
       QToolTip::hideText();
@@ -2497,8 +2478,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
       // threshold around a trim point that the cursor can be within and still considered "trimming"
       int lim = 5;
-      long mouse_frame_lower = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
-      long mouse_frame_upper = panel_timeline->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
+      long mouse_frame_lower = ParentTimeline()->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
+      long mouse_frame_upper = ParentTimeline()->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
 
       // used to determine whether we the cursor found a trim point or not
       bool found = false;
@@ -2510,135 +2491,126 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       // (and more specifically, whether another point is closer or not)
       int closeness = INT_MAX;
 
-      // while we loop through the clips, we cache the maximum/minimum tracks in this sequence
-      int min_track = INT_MAX;
-      int max_track = INT_MIN;
-
       // we default to selecting no transition, but set this accordingly if the cursor is on a transition
-      panel_timeline->transition_select = kTransitionNone;
+      ParentTimeline()->transition_select = kTransitionNone;
 
       // we also default to no trimming which may be changed later in this function
-      panel_timeline->trim_type = olive::timeline::TRIM_NONE;
+      ParentTimeline()->trim_type = olive::timeline::TRIM_NONE;
 
       // set currently trimming clip to -1 (aka null)
-      panel_timeline->trim_target = -1;
+      ParentTimeline()->trim_target = nullptr;
 
       // loop through current clips in the sequence
-      for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-        ClipPtr c = olive::ActiveSequence->clips.at(i);
-        if (c != nullptr) {
+      QVector<Clip*> sequence_clips = sequence()->GetAllClips();
+      for (int i=0;i<sequence_clips.size();i++) {
+        Clip* c = sequence_clips.at(i);
 
-          // cache track range
-          min_track = qMin(min_track, c->track());
-          max_track = qMax(max_track, c->track());
+        // if this clip is on the same track the mouse is
+        if (c->track() == ParentTimeline()->cursor_track) {
 
-          // if this clip is on the same track the mouse is
-          if (c->track() == panel_timeline->cursor_track) {
+          // if this cursor is inside the boundaries of this clip (hovering over the clip)
+          if (ParentTimeline()->cursor_frame >= c->timeline_in() &&
+              ParentTimeline()->cursor_frame <= c->timeline_out()) {
 
-            // if this cursor is inside the boundaries of this clip (hovering over the clip)
-            if (panel_timeline->cursor_frame >= c->timeline_in() &&
-                panel_timeline->cursor_frame <= c->timeline_out()) {
+            // acknowledge that we are hovering over a clip
+            cursor_contains_clip = true;
 
-              // acknowledge that we are hovering over a clip
-              cursor_contains_clip = true;
+            // start a timer to show a tooltip about this clip
+            tooltip_timer.start();
+            tooltip_clip = c;
 
-              // start a timer to show a tooltip about this clip
-              tooltip_timer.start();
-              tooltip_clip = i;
+            // check if the cursor is specifically hovering over one of the clip's transitions
+            if (c->opening_transition != nullptr
+                && ParentTimeline()->cursor_frame <= c->timeline_in() + c->opening_transition->get_true_length()) {
 
-              // check if the cursor is specifically hovering over one of the clip's transitions
-              if (c->opening_transition != nullptr
-                  && panel_timeline->cursor_frame <= c->timeline_in() + c->opening_transition->get_true_length()) {
+              ParentTimeline()->transition_select = kTransitionOpening;
 
-                panel_timeline->transition_select = kTransitionOpening;
+            } else if (c->closing_transition != nullptr
+                       && ParentTimeline()->cursor_frame >= c->timeline_out() - c->closing_transition->get_true_length()) {
 
-              } else if (c->closing_transition != nullptr
-                         && panel_timeline->cursor_frame >= c->timeline_out() - c->closing_transition->get_true_length()) {
+              ParentTimeline()->transition_select = kTransitionClosing;
 
-                panel_timeline->transition_select = kTransitionClosing;
-
-              }
             }
+          }
 
-            // is the cursor hovering around the clip's IN point?
-            if (c->timeline_in() > mouse_frame_lower && c->timeline_in() < mouse_frame_upper) {
+          // is the cursor hovering around the clip's IN point?
+          if (c->timeline_in() > mouse_frame_lower && c->timeline_in() < mouse_frame_upper) {
 
-              // test how close this IN point is to the cursor
-              int nc = qAbs(c->timeline_in() + 1 - panel_timeline->cursor_frame);
+            // test how close this IN point is to the cursor
+            int nc = qAbs(c->timeline_in() + 1 - ParentTimeline()->cursor_frame);
 
-              // and test whether it's closer than the last in/out point we found
-              if (nc < closeness) {
+            // and test whether it's closer than the last in/out point we found
+            if (nc < closeness) {
 
-                // if so, this is the point we'll make active for now (unless we find a closer one later)
-                panel_timeline->trim_target = i;
-                panel_timeline->trim_type = olive::timeline::TRIM_IN;
-                closeness = nc;
-                found = true;
+              // if so, this is the point we'll make active for now (unless we find a closer one later)
+              ParentTimeline()->trim_target = c;
+              ParentTimeline()->trim_type = olive::timeline::TRIM_IN;
+              closeness = nc;
+              found = true;
 
-              }
             }
+          }
 
-            // is the cursor hovering around the clip's OUT point?
-            if (c->timeline_out() > mouse_frame_lower && c->timeline_out() < mouse_frame_upper) {
+          // is the cursor hovering around the clip's OUT point?
+          if (c->timeline_out() > mouse_frame_lower && c->timeline_out() < mouse_frame_upper) {
 
-              // test how close this OUT point is to the cursor
-              int nc = qAbs(c->timeline_out() - 1 - panel_timeline->cursor_frame);
+            // test how close this OUT point is to the cursor
+            int nc = qAbs(c->timeline_out() - 1 - ParentTimeline()->cursor_frame);
 
-              // and test whether it's closer than the last in/out point we found
-              if (nc < closeness) {
+            // and test whether it's closer than the last in/out point we found
+            if (nc < closeness) {
 
-                // if so, this is the point we'll make active for now (unless we find a closer one later)
-                panel_timeline->trim_target = i;
-                panel_timeline->trim_type = olive::timeline::TRIM_OUT;
-                closeness = nc;
-                found = true;
+              // if so, this is the point we'll make active for now (unless we find a closer one later)
+              ParentTimeline()->trim_target = c;
+              ParentTimeline()->trim_type = olive::timeline::TRIM_OUT;
+              closeness = nc;
+              found = true;
 
-              }
             }
+          }
 
-            // the pointer can be used to resize/trim transitions, here we test if the
-            // cursor is within the trim point of one of the clip's transitions
-            if (panel_timeline->tool == TIMELINE_TOOL_POINTER) {
+          // the pointer can be used to resize/trim transitions, here we test if the
+          // cursor is within the trim point of one of the clip's transitions
+          if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER) {
 
-              // if the clip has an opening transition
-              if (c->opening_transition != nullptr) {
+            // if the clip has an opening transition
+            if (c->opening_transition != nullptr) {
 
-                // cache the timeline frame where the transition ends
-                long transition_point = c->timeline_in() + c->opening_transition->get_true_length();
+              // cache the timeline frame where the transition ends
+              long transition_point = c->timeline_in() + c->opening_transition->get_true_length();
 
-                // check if the cursor is hovering around it (within the threshold)
-                if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
+              // check if the cursor is hovering around it (within the threshold)
+              if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 
-                  // similar to above, test how close it is and if it's closer, make this active
-                  int nc = qAbs(transition_point - 1 - panel_timeline->cursor_frame);
-                  if (nc < closeness) {
-                    panel_timeline->trim_target = i;
-                    panel_timeline->trim_type = olive::timeline::TRIM_OUT;
-                    panel_timeline->transition_select = kTransitionOpening;
-                    closeness = nc;
-                    found = true;
-                  }
+                // similar to above, test how close it is and if it's closer, make this active
+                int nc = qAbs(transition_point - 1 - ParentTimeline()->cursor_frame);
+                if (nc < closeness) {
+                  ParentTimeline()->trim_target = c;
+                  ParentTimeline()->trim_type = olive::timeline::TRIM_OUT;
+                  ParentTimeline()->transition_select = kTransitionOpening;
+                  closeness = nc;
+                  found = true;
                 }
               }
+            }
 
-              // if the clip has a closing transition
-              if (c->closing_transition != nullptr) {
+            // if the clip has a closing transition
+            if (c->closing_transition != nullptr) {
 
-                // cache the timeline frame where the transition starts
-                long transition_point = c->timeline_out() - c->closing_transition->get_true_length();
+              // cache the timeline frame where the transition starts
+              long transition_point = c->timeline_out() - c->closing_transition->get_true_length();
 
-                // check if the cursor is hovering around it (within the threshold)
-                if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
+              // check if the cursor is hovering around it (within the threshold)
+              if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 
-                  // similar to above, test how close it is and if it's closer, make this active
-                  int nc = qAbs(transition_point + 1 - panel_timeline->cursor_frame);
-                  if (nc < closeness) {
-                    panel_timeline->trim_target = i;
-                    panel_timeline->trim_type = olive::timeline::TRIM_IN;
-                    panel_timeline->transition_select = kTransitionClosing;
-                    closeness = nc;
-                    found = true;
-                  }
+                // similar to above, test how close it is and if it's closer, make this active
+                int nc = qAbs(transition_point + 1 - ParentTimeline()->cursor_frame);
+                if (nc < closeness) {
+                  ParentTimeline()->trim_target = c;
+                  ParentTimeline()->trim_type = olive::timeline::TRIM_IN;
+                  ParentTimeline()->transition_select = kTransitionClosing;
+                  closeness = nc;
+                  found = true;
                 }
               }
             }
@@ -2649,10 +2621,10 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       // if the cursor is indeed on a clip edge, we set the cursor accordingly
       if (found) {
 
-        if (panel_timeline->trim_type == olive::timeline::TRIM_IN) { // if we're trimming an IN point
-          setCursor(panel_timeline->tool == TIMELINE_TOOL_RIPPLE ? olive::cursor::LeftRipple : olive::cursor::LeftTrim);
+        if (ParentTimeline()->trim_type == olive::timeline::TRIM_IN) { // if we're trimming an IN point
+          setCursor(olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_RIPPLE ? olive::cursor::LeftRipple : olive::cursor::LeftTrim);
         } else { // if we're trimming an OUT point
-          setCursor(panel_timeline->tool == TIMELINE_TOOL_RIPPLE ? olive::cursor::RightRipple : olive::cursor::RightTrim);
+          setCursor(olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_RIPPLE ? olive::cursor::RightRipple : olive::cursor::RightTrim);
         }
 
       } else {
@@ -2662,44 +2634,44 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         unsetCursor();
 
         // check to see if we're resizing a track height
-        int test_range = 5;
         int mouse_pos = event->pos().y();
-        int hover_track = getTrackFromScreenPoint(mouse_pos);
-        int track_y_edge = getScreenPointFromTrack(hover_track);
+        Track* hover_track = getTrackFromScreenPoint(mouse_pos);
 
-        if (!bottom_align) {
-          track_y_edge += panel_timeline->GetTrackHeight(hover_track);
-        }
+        if (hover_track != nullptr) {
+          int test_range = 5; // FIXME magic number
 
-        if (mouse_pos > track_y_edge - test_range
-            && mouse_pos < track_y_edge + test_range) {
-          if (cursor_contains_clip
-              || (olive::CurrentConfig.show_track_lines
-                  && panel_timeline->cursor_track >= min_track
-                  && panel_timeline->cursor_track <= max_track)) {
+          int track_y_edge = getScreenPointFromTrack(hover_track);
+
+          if (alignment_ == olive::timeline::kAlignmentTop) {
+            track_y_edge += hover_track->height();
+          }
+
+          if (mouse_pos > track_y_edge - test_range
+              && mouse_pos < track_y_edge + test_range) {
             track_resizing = true;
             track_target = hover_track;
             setCursor(Qt::SizeVerCursor);
           }
         }
+
       }
-    } else if (panel_timeline->tool == TIMELINE_TOOL_SLIP) {
+    } else if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_SLIP) {
 
       // we're not currently performing any slipping, all we do here is set the cursor if mouse is hovering over a
       // cursor
-      if (getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track) > -1) {
+      if (GetClipAtCursor() != nullptr) {
         setCursor(olive::cursor::Slip);
       } else {
         unsetCursor();
       }
 
-    } else if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+    } else if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
 
-      if (panel_timeline->transition_tool_init) {
+      if (ParentTimeline()->transition_tool_init) {
 
         // the transition tool has started
 
-        if (panel_timeline->transition_tool_proc) {
+        if (ParentTimeline()->transition_tool_proc) {
 
           // ghosts have been set up, so just run update
           update_ghosts(event->pos(), event->modifiers() & Qt::ShiftModifier);
@@ -2707,29 +2679,27 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         } else {
 
           // transition tool is being used but ghosts haven't been set up yet, set them up now
-          int primary_type = kTransitionOpening;
-          int primary = panel_timeline->transition_tool_open_clip;
-          if (primary == -1) {
+          TransitionType primary_type = kTransitionOpening;
+          Clip* primary = ParentTimeline()->transition_tool_open_clip;
+          if (primary == nullptr) {
             primary_type = kTransitionClosing;
-            primary = panel_timeline->transition_tool_close_clip;
+            primary = ParentTimeline()->transition_tool_close_clip;
           }
-
-          ClipPtr c = olive::ActiveSequence->clips.at(primary);
 
           Ghost g;
 
           g.in = g.old_in = g.out = g.old_out = (primary_type == kTransitionOpening) ?
-                                                  c->timeline_in()
-                                                : c->timeline_out();
+                primary->timeline_in()
+              : primary->timeline_out();
 
-          g.track = c->track();
+          g.track = primary->track();
           g.clip = primary;
           g.media_stream = primary_type;
           g.trim_type = olive::timeline::TRIM_NONE;
 
-          panel_timeline->ghosts.append(g);
+          ParentTimeline()->ghosts.append(g);
 
-          panel_timeline->transition_tool_proc = true;
+          ParentTimeline()->transition_tool_proc = true;
 
         }
 
@@ -2738,42 +2708,40 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         // transition tool has been selected but is not yet active, so we show screen feedback to the user on
         // possible transitions
 
-        int mouse_clip = getClipIndexFromCoords(panel_timeline->cursor_frame, panel_timeline->cursor_track);
+        Clip* mouse_clip = GetClipAtCursor();
 
         // set default transition tool references to no clip
-        panel_timeline->transition_tool_open_clip = -1;
-        panel_timeline->transition_tool_close_clip = -1;
+        ParentTimeline()->transition_tool_open_clip = nullptr;
+        ParentTimeline()->transition_tool_close_clip = nullptr;
 
-        if (mouse_clip > -1) {
+        if (mouse_clip != nullptr) {
 
           // cursor is hovering over a clip
 
-          ClipPtr c = olive::ActiveSequence->clips.at(mouse_clip);
-
           // check if the clip and transition are both the same sign (meaning video/audio are the same)
-          if (same_sign(c->track(), panel_timeline->transition_tool_side)) {
+          if (mouse_clip->track()->type() == ParentTimeline()->transition_tool_side) {
 
             // the range within which the transition tool will assume the user wants to make a shared transition
             // between two clips rather than just one transition on one clip
-            long between_range = getFrameFromScreenPoint(panel_timeline->zoom, TRANSITION_BETWEEN_RANGE) + 1;
+            long between_range = getFrameFromScreenPoint(ParentTimeline()->zoom, TRANSITION_BETWEEN_RANGE) + 1;
 
             // set whether the transition is opening or closing based on whether the cursor is on the left half
             // or right half of the clip
-            if (panel_timeline->cursor_frame > (c->timeline_in() + (c->length()/2))) {
-              panel_timeline->transition_tool_close_clip = mouse_clip;
+            if (ParentTimeline()->cursor_frame > (mouse_clip->timeline_in() + (mouse_clip->length()/2))) {
+              ParentTimeline()->transition_tool_close_clip = mouse_clip;
 
               // if the cursor is within this range, set the post_clip to be the next clip touching
               //
               // getClipIndexFromCoords() will automatically set to -1 if there's no clip there which means the
               // end result will be the same as not setting a clip here at all
-              if (panel_timeline->cursor_frame > c->timeline_out() - between_range) {
-                panel_timeline->transition_tool_open_clip = getClipIndexFromCoords(c->timeline_out()+1, c->track());
+              if (ParentTimeline()->cursor_frame > mouse_clip->timeline_out() - between_range) {
+                ParentTimeline()->transition_tool_open_clip = mouse_clip->track()->GetClipFromPoint(mouse_clip->timeline_out()+1);
               }
             } else {
-              panel_timeline->transition_tool_open_clip = mouse_clip;
+              ParentTimeline()->transition_tool_open_clip = mouse_clip;
 
-              if (panel_timeline->cursor_frame < c->timeline_in() + between_range) {
-                panel_timeline->transition_tool_close_clip = getClipIndexFromCoords(c->timeline_in()-1, c->track());
+              if (ParentTimeline()->cursor_frame < mouse_clip->timeline_in() + between_range) {
+                ParentTimeline()->transition_tool_close_clip = mouse_clip->track()->GetClipFromPoint(mouse_clip->timeline_in()-1);
               }
             }
 
@@ -2781,7 +2749,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         }
       }
 
-      panel_timeline->repaint_timeline();
+      ParentTimeline()->repaint_timeline();
     }
   }
 }
@@ -2790,7 +2758,7 @@ void TimelineView::leaveEvent(QEvent*) {
   tooltip_timer.stop();
 }
 
-void draw_waveform(ClipPtr clip, const FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
+void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
   // audio channels multiplied by the number of bytes in a 16-bit audio sample
   int divider = ms->audio_channels*2;
 
@@ -2808,7 +2776,7 @@ void draw_waveform(ClipPtr clip, const FootageStream* ms, long media_length, QPa
     if (last_waveform_index < 0) last_waveform_index = waveform_index;
 
     for (int j=0;j<ms->audio_channels;j++) {
-      int mid = (olive::CurrentConfig.rectified_waveforms) ? clip_rect.top()+channel_height*(j+1) : clip_rect.top()+channel_height*j+(channel_height/2);
+      int mid = (olive::config.rectified_waveforms) ? clip_rect.top()+channel_height*(j+1) : clip_rect.top()+channel_height*j+(channel_height/2);
 
       int offset_range_start = last_waveform_index+(j*2);
       int offset_range_end = waveform_index+(j*2);
@@ -2832,7 +2800,7 @@ void draw_waveform(ClipPtr clip, const FootageStream* ms, long media_length, QPa
         }
 
         // draw waveforms
-        if (olive::CurrentConfig.rectified_waveforms)  {
+        if (olive::config.rectified_waveforms)  {
 
           // rectified waveforms start from the bottom and draw upwards
           p->drawLine(clip_rect.left()+i, mid, clip_rect.left()+i, mid - (max - min));
@@ -2848,11 +2816,11 @@ void draw_waveform(ClipPtr clip, const FootageStream* ms, long media_length, QPa
   }
 }
 
-void draw_transition(QPainter& p, ClipPtr c, const QRect& clip_rect, QRect& text_rect, int transition_type) {
+void TimelineView::draw_transition(QPainter& p, Clip* c, const QRect& clip_rect, QRect& text_rect, int transition_type) {
   TransitionPtr t = (transition_type == kTransitionOpening) ? c->opening_transition : c->closing_transition;
   if (t != nullptr) {
     QColor transition_color(255, 0, 0, 16);
-    int transition_width = getScreenPointFromFrame(panel_timeline->zoom, t->get_true_length());
+    int transition_width = getScreenPointFromFrame(ParentTimeline()->zoom, t->get_true_length());
     int transition_height = clip_rect.height();
     int tr_y = clip_rect.y();
     int tr_x = 0;
@@ -2900,44 +2868,40 @@ void draw_transition(QPainter& p, ClipPtr c, const QRect& clip_rect, QRect& text
 
 void TimelineView::paintEvent(QPaintEvent*) {
   // Draw clips
-  if (olive::ActiveSequence != nullptr) {
+  if (track_list_ != nullptr) {
     QPainter p(this);
 
     // get widget width and height
-    int video_track_limit = 0;
-    int audio_track_limit = 0;
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      ClipPtr clip = olive::ActiveSequence->clips.at(i);
-      if (clip != nullptr) {
-        video_track_limit = qMin(video_track_limit, clip->track());
-        audio_track_limit = qMax(audio_track_limit, clip->track());
-      }
-    }
 
     // start by adding a track height worth of padding
     int panel_height = olive::timeline::kTrackDefaultHeight;
 
-    // loop through tracks for maximum panel height
-    if (bottom_align) {
-      for (int i=-1;i>=video_track_limit;i--) {
-        panel_height += panel_timeline->GetTrackHeight(i);
-      }
-    } else {
-      for (int i=0;i<=audio_track_limit;i++) {
-        panel_height += panel_timeline->GetTrackHeight(i);
-      }
+    for (int i=0;i<track_list_->TrackCount();i++) {
+      panel_height += track_list_->TrackAt(i)->height() + 1;
     }
-    if (bottom_align) {
+    if (alignment_ == olive::timeline::kAlignmentBottom) {
       scrollBar->setMinimum(qMin(0, - panel_height + height()));
     } else {
       scrollBar->setMaximum(qMax(0, panel_height - height()));
     }
 
-    for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-      ClipPtr clip = olive::ActiveSequence->clips.at(i);
-      if (clip != nullptr && is_track_visible(clip->track())) {
-        QRect clip_rect(panel_timeline->getTimelineScreenPointFromFrame(clip->timeline_in()), getScreenPointFromTrack(clip->track()), getScreenPointFromFrame(panel_timeline->zoom, clip->length()), panel_timeline->GetTrackHeight(clip->track()));
-        QRect text_rect(clip_rect.left() + olive::timeline::kClipTextPadding, clip_rect.top() + olive::timeline::kClipTextPadding, clip_rect.width() - olive::timeline::kClipTextPadding - 1, clip_rect.height() - olive::timeline::kClipTextPadding - 1);
+    int track_line = 0;
+
+    for (int i=0;i<track_list_->TrackCount();i++) {
+
+      Track* track = track_list_->TrackAt(i);
+
+      for (int j=0;j<track->ClipCount();j++) {
+        Clip* clip = track->GetClip(j).get();
+
+        QRect clip_rect(ParentTimeline()->getTimelineScreenPointFromFrame(clip->timeline_in()),
+                        getScreenPointFromTrack(clip->track()),
+                        getScreenPointFromFrame(ParentTimeline()->zoom, clip->length()),
+                        clip->track()->height());
+        QRect text_rect(clip_rect.left() + olive::timeline::kClipTextPadding,
+                        clip_rect.top() + olive::timeline::kClipTextPadding,
+                        clip_rect.width() - olive::timeline::kClipTextPadding - 1,
+                        clip_rect.height() - olive::timeline::kClipTextPadding - 1);
         if (clip_rect.left() < width() && clip_rect.right() >= 0 && clip_rect.top() < height() && clip_rect.bottom() >= 0) {
           QRect actual_clip_rect = clip_rect;
           if (actual_clip_rect.x() < 0) actual_clip_rect.setX(0);
@@ -2993,18 +2957,18 @@ void TimelineView::paintEvent(QPaintEvent*) {
               // draw thumbnail/waveform
               long media_length = clip->media_length();
 
-              if (clip->track() < 0) {
+              if (clip->type() == Track::kTypeVideo) {
                 // draw thumbnail
                 int thumb_y = p.fontMetrics().height()+olive::timeline::kClipTextPadding+olive::timeline::kClipTextPadding;
                 if (thumb_x < width() && thumb_y < height()) {
                   int space_for_thumb = clip_rect.width()-1;
                   if (clip->opening_transition != nullptr) {
-                    int ot_width = getScreenPointFromFrame(panel_timeline->zoom, clip->opening_transition->get_true_length());
+                    int ot_width = getScreenPointFromFrame(ParentTimeline()->zoom, clip->opening_transition->get_true_length());
                     thumb_x += ot_width;
                     space_for_thumb -= ot_width;
                   }
                   if (clip->closing_transition != nullptr) {
-                    space_for_thumb -= getScreenPointFromFrame(panel_timeline->zoom, clip->closing_transition->get_true_length());
+                    space_for_thumb -= getScreenPointFromFrame(ParentTimeline()->zoom, clip->closing_transition->get_true_length());
                   }
                   int thumb_height = clip_rect.height()-thumb_y;
                   int thumb_width = qRound(thumb_height*(double(ms->video_preview.width())/double(ms->video_preview.height())));
@@ -3028,14 +2992,14 @@ void TimelineView::paintEvent(QPaintEvent*) {
                 }
                 if (clip->timeline_out() - clip->timeline_in() + clip->clip_in() > clip->media_length()) {
                   draw_checkerboard = true;
-                  checkerboard_rect.setLeft(panel_timeline->getTimelineScreenPointFromFrame(clip->media_length() + clip->timeline_in() - clip->clip_in()));
+                  checkerboard_rect.setLeft(ParentTimeline()->getTimelineScreenPointFromFrame(clip->media_length() + clip->timeline_in() - clip->clip_in()));
                 }
               } else if (clip_rect.height() > olive::timeline::kTrackMinHeight) {
                 // draw waveform
                 p.setPen(QColor(80, 80, 80));
 
                 int waveform_start = -qMin(clip_rect.x(), 0);
-                int waveform_limit = qMin(clip_rect.width(), getScreenPointFromFrame(panel_timeline->zoom, media_length - clip->clip_in()));
+                int waveform_limit = qMin(clip_rect.width(), getScreenPointFromFrame(ParentTimeline()->zoom, media_length - clip->clip_in()));
 
                 if ((clip_rect.x() + waveform_limit) > width()) {
                   waveform_limit -= (clip_rect.x() + waveform_limit - width());
@@ -3044,7 +3008,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
                   if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
                 }
 
-                draw_waveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, panel_timeline->zoom);
+                draw_waveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, ParentTimeline()->zoom);
               }
             }
             if (draw_checkerboard) {
@@ -3086,9 +3050,9 @@ void TimelineView::paintEvent(QPaintEvent*) {
 
             // convert marker time (in clip time) to sequence time
             long marker_time = m.frame + clip->timeline_in() - clip->clip_in();
-            int marker_x = panel_timeline->getTimelineScreenPointFromFrame(marker_time);
+            int marker_x = ParentTimeline()->getTimelineScreenPointFromFrame(marker_time);
             if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
-              draw_marker(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false);
+              Marker::Draw(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false);
             }
           }
           p.setBrush(Qt::NoBrush);
@@ -3112,7 +3076,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
             }
             if (clip->linked.size() > 0) {
               int underline_y = olive::timeline::kClipTextPadding + p.fontMetrics().height() + clip_rect.top();
-                int underline_width = qMin(text_rect.width() - 1, p.fontMetrics().width(clip->name()));
+              int underline_width = qMin(text_rect.width() - 1, p.fontMetrics().width(clip->name()));
               p.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
             }
             QString name = clip->name();
@@ -3130,22 +3094,22 @@ void TimelineView::paintEvent(QPaintEvent*) {
           if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
 
           // draw transition tool
-          if (panel_timeline->tool == TIMELINE_TOOL_TRANSITION) {
+          if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
 
-            bool shared_transition = (panel_timeline->transition_tool_open_clip > -1
-                                      && panel_timeline->transition_tool_close_clip > -1);
+            bool shared_transition = (ParentTimeline()->transition_tool_open_clip != nullptr
+                && ParentTimeline()->transition_tool_close_clip != nullptr);
 
             QRect transition_tool_rect = clip_rect;
             bool draw_transition_tool_rect = false;
 
-            if (panel_timeline->transition_tool_open_clip == i) {
+            if (ParentTimeline()->transition_tool_open_clip == clip) {
               if (shared_transition) {
                 transition_tool_rect.setWidth(TRANSITION_BETWEEN_RANGE);
               } else {
                 transition_tool_rect.setWidth(transition_tool_rect.width()>>2);
               }
               draw_transition_tool_rect = true;
-            } else if (panel_timeline->transition_tool_close_clip == i) {
+            } else if (ParentTimeline()->transition_tool_close_clip == clip) {
               if (shared_transition) {
                 transition_tool_rect.setLeft(transition_tool_rect.right() - TRANSITION_BETWEEN_RANGE);
               } else {
@@ -3168,87 +3132,101 @@ void TimelineView::paintEvent(QPaintEvent*) {
           }
         }
       }
-    }
 
-    // Draw recording clip if recording if valid
-    if (panel_sequence_viewer->is_recording_cued() && is_track_visible(panel_sequence_viewer->recording_track)) {
-      int rec_track_x = panel_timeline->getTimelineScreenPointFromFrame(panel_sequence_viewer->recording_start);
-      int rec_track_y = getScreenPointFromTrack(panel_sequence_viewer->recording_track);
-      int rec_track_height = panel_timeline->GetTrackHeight(panel_sequence_viewer->recording_track);
-      if (panel_sequence_viewer->recording_start != panel_sequence_viewer->recording_end) {
-        QRect rec_rect(
+      // Draw recording clip if recording if valid
+      if (panel_sequence_viewer->is_recording_cued() && panel_sequence_viewer->recording_track == track) {
+        int rec_track_x = ParentTimeline()->getTimelineScreenPointFromFrame(panel_sequence_viewer->recording_start);
+        int rec_track_y = getScreenPointFromTrack(panel_sequence_viewer->recording_track);
+        int rec_track_height = track->height();
+        if (panel_sequence_viewer->recording_start != panel_sequence_viewer->recording_end) {
+          QRect rec_rect(
+                rec_track_x,
+                rec_track_y,
+                getScreenPointFromFrame(ParentTimeline()->zoom, panel_sequence_viewer->recording_end - panel_sequence_viewer->recording_start),
+                rec_track_height
+                );
+          p.setPen(QPen(QColor(96, 96, 96), 2));
+          p.fillRect(rec_rect, QColor(192, 192, 192));
+          p.drawRect(rec_rect);
+        }
+        QRect active_rec_rect(
               rec_track_x,
               rec_track_y,
-              getScreenPointFromFrame(panel_timeline->zoom, panel_sequence_viewer->recording_end - panel_sequence_viewer->recording_start),
+              getScreenPointFromFrame(ParentTimeline()->zoom, panel_sequence_viewer->seq->playhead - panel_sequence_viewer->recording_start),
               rec_track_height
               );
-        p.setPen(QPen(QColor(96, 96, 96), 2));
-        p.fillRect(rec_rect, QColor(192, 192, 192));
-        p.drawRect(rec_rect);
-      }
-      QRect active_rec_rect(
-            rec_track_x,
-            rec_track_y,
-            getScreenPointFromFrame(panel_timeline->zoom, panel_sequence_viewer->seq->playhead - panel_sequence_viewer->recording_start),
-            rec_track_height
-            );
-      p.setPen(QPen(QColor(192, 0, 0), 2));
-      p.fillRect(active_rec_rect, QColor(255, 96, 96));
-      p.drawRect(active_rec_rect);
+        p.setPen(QPen(QColor(192, 0, 0), 2));
+        p.fillRect(active_rec_rect, QColor(255, 96, 96));
+        p.drawRect(active_rec_rect);
 
-      p.setPen(Qt::NoPen);
+        p.setPen(Qt::NoPen);
 
-      if (!panel_sequence_viewer->playing) {
-        int rec_marker_size = 6;
-        int rec_track_midY = rec_track_y + (rec_track_height >> 1);
-        p.setBrush(Qt::white);
-        QPoint cue_marker[3] = {
-          QPoint(rec_track_x, rec_track_midY - rec_marker_size),
-          QPoint(rec_track_x + rec_marker_size, rec_track_midY),
-          QPoint(rec_track_x, rec_track_midY + rec_marker_size)
-        };
-        p.drawPolygon(cue_marker, 3);
-      }
-    }
-
-    // Draw track lines
-    if (olive::CurrentConfig.show_track_lines) {
-      p.setPen(QColor(0, 0, 0, 96));
-      audio_track_limit++;
-      if (video_track_limit == 0) video_track_limit--;
-
-      if (bottom_align) {
-        // only draw lines for video tracks
-        for (int i=video_track_limit;i<0;i++) {
-          int line_y = getScreenPointFromTrack(i) - 1;
-          p.drawLine(0, line_y, rect().width(), line_y);
-        }
-      } else {
-        // only draw lines for audio tracks
-        for (int i=0;i<audio_track_limit;i++) {
-          int line_y = getScreenPointFromTrack(i) + panel_timeline->GetTrackHeight(i);
-          p.drawLine(0, line_y, rect().width(), line_y);
+        if (!panel_sequence_viewer->playing) {
+          int rec_marker_size = 6;
+          int rec_track_midY = rec_track_y + (rec_track_height >> 1);
+          p.setBrush(Qt::white);
+          QPoint cue_marker[3] = {
+            QPoint(rec_track_x, rec_track_midY - rec_marker_size),
+            QPoint(rec_track_x + rec_marker_size, rec_track_midY),
+            QPoint(rec_track_x, rec_track_midY + rec_marker_size)
+          };
+          p.drawPolygon(cue_marker, 3);
         }
       }
-    }
 
-    // Draw selections
-    for (int i=0;i<olive::ActiveSequence->selections.size();i++) {
-      const Selection& s = olive::ActiveSequence->selections.at(i);
-      if (is_track_visible(s.track)) {
-        int selection_y = getScreenPointFromTrack(s.track);
-        int selection_x = panel_timeline->getTimelineScreenPointFromFrame(s.in);
+      // Draw selections
+      QVector<Selection> selections = track->Selections();
+      for (int j=0;j<selections.size();j++) {
+        const Selection& s = selections.at(j);
+
+        int selection_x = ParentTimeline()->getTimelineScreenPointFromFrame(s.in());
         p.setPen(Qt::NoPen);
         p.setBrush(Qt::NoBrush);
-        p.fillRect(selection_x, selection_y, panel_timeline->getTimelineScreenPointFromFrame(s.out) - selection_x, panel_timeline->GetTrackHeight(s.track), QColor(0, 0, 0, 64));
+        p.fillRect(selection_x,
+                   track_line,
+                   ParentTimeline()->getTimelineScreenPointFromFrame(s.out()) - selection_x,
+                   s.track()->height(),
+                   QColor(0, 0, 0, 64));
       }
+
+      // Draw splitting cursor
+      if (ParentTimeline()->splitting && ParentTimeline()->split_tracks.contains(track)) {
+        int cursor_x = ParentTimeline()->getTimelineScreenPointFromFrame(ParentTimeline()->drag_frame_start);
+
+        p.setPen(QColor(64, 64, 64));
+        p.drawLine(cursor_x,
+                   track_line,
+                   cursor_x,
+                   track_line + track->height());
+      }
+
+      // Draw edit cursor
+      if (current_tool_shows_cursor() && ParentTimeline()->cursor_track == track) {
+        int cursor_x = ParentTimeline()->getTimelineScreenPointFromFrame(ParentTimeline()->cursor_frame);
+
+        p.setPen(Qt::gray);
+        p.drawLine(cursor_x,
+                   track_line,
+                   cursor_x,
+                   track_line + track->height());
+      }
+
+      // Draw track's line
+      track_line += track->height();
+      if (track_line >= 0 && track_line < height()) {
+        p.setPen(QColor(0, 0, 0, 96));
+        p.drawLine(0, track_line, rect().width(), track_line);
+      }
+      track_line++;
+
+
     }
 
     // draw rectangle select
-    if (panel_timeline->rect_select_proc) {
-      QRect rect_select = panel_timeline->rect_select_rect;
+    if (ParentTimeline()->rect_select_proc) {
+      QRect rect_select = ParentTimeline()->rect_select_rect;
 
-      if (bottom_align) {
+      if (alignment_ == olive::timeline::kAlignmentBottom) {
         rect_select.translate(0, height());
       }
 
@@ -3256,17 +3234,17 @@ void TimelineView::paintEvent(QPaintEvent*) {
     }
 
     // Draw ghosts
-    if (!panel_timeline->ghosts.isEmpty()) {
+    if (!ParentTimeline()->ghosts.isEmpty()) {
       QVector<int> insert_points;
       long first_ghost = LONG_MAX;
-      for (int i=0;i<panel_timeline->ghosts.size();i++) {
-        const Ghost& g = panel_timeline->ghosts.at(i);
+      for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+        const Ghost& g = ParentTimeline()->ghosts.at(i);
         first_ghost = qMin(first_ghost, g.in);
-        if (is_track_visible(g.track)) {
-          int ghost_x = panel_timeline->getTimelineScreenPointFromFrame(g.in);
+        if (g.track->type() == track_list_->type()) {
+          int ghost_x = ParentTimeline()->getTimelineScreenPointFromFrame(g.in);
           int ghost_y = getScreenPointFromTrack(g.track);
-          int ghost_width = panel_timeline->getTimelineScreenPointFromFrame(g.out) - ghost_x - 1;
-          int ghost_height = panel_timeline->GetTrackHeight(g.track) - 1;
+          int ghost_width = ParentTimeline()->getTimelineScreenPointFromFrame(g.out) - ghost_x - 1;
+          int ghost_height = g.track->height() - 1;
 
           insert_points.append(ghost_y + (ghost_height>>1));
 
@@ -3278,10 +3256,10 @@ void TimelineView::paintEvent(QPaintEvent*) {
       }
 
       // draw insert indicator
-      if (panel_timeline->move_insert && !insert_points.isEmpty()) {
+      if (ParentTimeline()->move_insert && !insert_points.isEmpty()) {
         p.setBrush(Qt::white);
         p.setPen(Qt::NoPen);
-        int insert_x = panel_timeline->getTimelineScreenPointFromFrame(first_ghost);
+        int insert_x = ParentTimeline()->getTimelineScreenPointFromFrame(first_ghost);
         int tri_size = olive::timeline::kTrackMinHeight>>2;
 
         for (int i=0;i<insert_points.size();i++) {
@@ -3295,51 +3273,30 @@ void TimelineView::paintEvent(QPaintEvent*) {
       }
     }
 
-
-    // Draw splitting cursor
-    if (panel_timeline->splitting) {
-      for (int i=0;i<panel_timeline->split_tracks.size();i++) {
-        if (is_track_visible(panel_timeline->split_tracks.at(i))) {
-          int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->drag_frame_start);
-          int cursor_y = getScreenPointFromTrack(panel_timeline->split_tracks.at(i));
-
-          p.setPen(QColor(64, 64, 64));
-          p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->GetTrackHeight(panel_timeline->split_tracks.at(i)));
-        }
-      }
-    }
-
     // Draw playhead
     p.setPen(Qt::red);
-    int playhead_x = panel_timeline->getTimelineScreenPointFromFrame(olive::ActiveSequence->playhead);
+    int playhead_x = ParentTimeline()->getTimelineScreenPointFromFrame(sequence()->playhead);
     p.drawLine(playhead_x, rect().top(), playhead_x, rect().bottom());
 
     // Draw single frame highlight
-    int playhead_frame_width = panel_timeline->getTimelineScreenPointFromFrame(olive::ActiveSequence->playhead+1) - playhead_x;
+    int playhead_frame_width = ParentTimeline()->getTimelineScreenPointFromFrame(sequence()->playhead+1) - playhead_x;
     if (playhead_frame_width > 5){ //hardcoded for now, maybe better way to do this?
-        QRectF singleFrameRect(playhead_x, rect().top(), playhead_frame_width, rect().bottom());
-        p.fillRect(singleFrameRect, QColor(255,255,255,15));
+      QRectF singleFrameRect(playhead_x, rect().top(), playhead_frame_width, rect().bottom());
+      p.fillRect(singleFrameRect, QColor(255,255,255,15));
     }
 
     // draw border
     p.setPen(QColor(0, 0, 0, 64));
-    int edge_y = (bottom_align) ? rect().height()-1 : 0;
+    int edge_y = 0;
+    p.drawLine(0, edge_y, rect().width(), edge_y);
+    edge_y = rect().height()-1;
     p.drawLine(0, edge_y, rect().width(), edge_y);
 
     // draw snap point
-    if (panel_timeline->snapped) {
+    if (olive::timeline::snapped) {
       p.setPen(Qt::white);
-      int snap_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->snap_point);
+      int snap_x = ParentTimeline()->getTimelineScreenPointFromFrame(olive::timeline::snap_point);
       p.drawLine(snap_x, 0, snap_x, height());
-    }
-
-    // Draw edit cursor
-    if (current_tool_shows_cursor() && is_track_visible(panel_timeline->cursor_track)) {
-      int cursor_x = panel_timeline->getTimelineScreenPointFromFrame(panel_timeline->cursor_frame);
-      int cursor_y = getScreenPointFromTrack(panel_timeline->cursor_track);
-
-      p.setPen(Qt::gray);
-      p.drawLine(cursor_x, cursor_y, cursor_x, cursor_y + panel_timeline->GetTrackHeight(panel_timeline->cursor_track));
     }
   }
 }
@@ -3348,81 +3305,50 @@ void TimelineView::resizeEvent(QResizeEvent *) {
   scrollBar->setPageStep(height());
 }
 
-bool TimelineView::is_track_visible(int track) {
-  return (bottom_align == (track < 0));
-}
-
 // **************************************
 // screen point <-> frame/track functions
 // **************************************
 
-int TimelineView::getTrackFromScreenPoint(int y) {
-  int track_candidate = 0;
-
+Track *TimelineView::getTrackFromScreenPoint(int y) {
   y += scroll;
 
-  if (bottom_align) {
-    y -= height();
-  }
+  int heights = 0;
+  for (int i=0;i<track_list_->TrackCount();i++) {
+    int new_heights = heights + track_list_->TrackAt(i)->height() + 1;
 
-  if (y < 0) {
-    track_candidate--;
-  }
-
-  int compounded_heights = 0;
-
-  while (true) {
-    int track_height = panel_timeline->GetTrackHeight(track_candidate);
-    if (olive::CurrentConfig.show_track_lines) track_height++;
-    if (y < 0) {
-      track_height = -track_height;
+    if (y >= heights && y < new_heights) {
+      return track_list_->TrackAt(i);
     }
 
-    int next_compounded_height = compounded_heights + track_height;
-
-
-    if (y >= qMin(next_compounded_height, compounded_heights) && y < qMax(next_compounded_height, compounded_heights)) {
-      return track_candidate;
-    }
-
-    compounded_heights = next_compounded_height;
-
-    if (y < 0) {
-      track_candidate--;
-    } else {
-      track_candidate++;
-    }
+    heights = new_heights;
   }
+
+  return nullptr;
 }
 
-int TimelineView::getScreenPointFromTrack(int track) {
+int TimelineView::getScreenPointFromTrack(Track *track) {
   int point = 0;
-
-  int start = (track < 0) ? -1 : 0;
-  int interval = (track < 0) ? -1 : 1;
-
-  if (track < 0) track--;
-
-  for (int i=start;i!=track;i+=interval) {
-    point += panel_timeline->GetTrackHeight(i);
-    if (olive::CurrentConfig.show_track_lines) point++;
+  for (int i=0;i<track_list_->TrackCount();i++) {
+    if (track == track_list_->TrackAt(i)) {
+      return point;
+    }
+    point += track_list_->TrackAt(i)->height() + 1;
   }
-
-  if (bottom_align) {
-    return height() - point - scroll;
-  } else {
-    return point - scroll;
-  }
+  return point - scroll;
 }
 
-int TimelineView::getClipIndexFromCoords(long frame, int track) {
-  for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-    ClipPtr c = olive::ActiveSequence->clips.at(i);
-    if (c != nullptr && c->track() == track && frame >= c->timeline_in() && frame < c->timeline_out()) {
-      return i;
-    }
+Timeline *TimelineView::ParentTimeline()
+{
+  return timeline_;
+}
+
+Sequence *TimelineView::sequence()
+{
+  if (track_list_ == nullptr) {
+    return nullptr;
   }
-  return -1;
+
+  return track_list_->GetParent();
 }
 
 void TimelineView::setScroll(int s) {
@@ -3431,5 +3357,5 @@ void TimelineView::setScroll(int s) {
 }
 
 void TimelineView::reveal_media() {
-  panel_project->reveal_media(rc_reveal_media);
+  panel_project.first()->reveal_media(rc_reveal_media);
 }

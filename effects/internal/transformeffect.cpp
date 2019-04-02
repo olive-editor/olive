@@ -152,13 +152,13 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 }
 
 void TransformEffect::refresh() {
-  if (parent_clip != nullptr && parent_clip->sequence != nullptr) {
+  if (parent_clip != nullptr && parent_clip->track()->sequence() != nullptr) {
 
-    position_x->SetDefault(parent_clip->sequence->width/2);
-    position_y->SetDefault(parent_clip->sequence->height/2);
+    position_x->SetDefault(parent_clip->track()->sequence()->width/2);
+    position_y->SetDefault(parent_clip->track()->sequence()->height/2);
 
-    double x_percent_multipler = 200.0 / parent_clip->sequence->width;
-    double y_percent_multipler = 200.0 / parent_clip->sequence->height;
+    double x_percent_multipler = 200.0 / parent_clip->track()->sequence()->width;
+    double y_percent_multipler = 200.0 / parent_clip->track()->sequence()->height;
 
     top_left_gizmo->x_field_multi1 = -x_percent_multipler;
     top_left_gizmo->y_field_multi1 = -y_percent_multipler;
@@ -190,8 +190,8 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
   // position
-  coords.matrix.translate(position_x->GetDoubleAt(timecode)-(parent_clip->sequence->width/2),
-                          position_y->GetDoubleAt(timecode)-(parent_clip->sequence->height/2),
+  coords.matrix.translate(position_x->GetDoubleAt(timecode)-(parent_clip->track()->sequence()->width/2),
+                          position_y->GetDoubleAt(timecode)-(parent_clip->track()->sequence()->height/2),
                           0);
 
   // anchor point

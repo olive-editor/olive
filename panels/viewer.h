@@ -44,9 +44,16 @@ class Viewer : public Panel
 public:
   explicit Viewer(QWidget *parent = nullptr);
 
+  enum Mode {
+    kFootageMode,
+    kTimelineMode
+  };
+
+  void SetMode(Mode mode);
+  Mode mode();
+
   virtual bool focused() override;
   bool is_main_sequence();
-  void set_main_sequence();
   void set_media(Media *m);
   void compose();
   void set_playpause_icon(bool play);
@@ -131,8 +138,7 @@ private slots:
 private:
   void update_window_title();
   void clean_created_seq();
-  void set_sequence(bool main, SequencePtr s);
-  bool main_sequence;
+  void set_sequence(SequencePtr s);
   bool created_sequence;
   long cached_end_frame;
   QString panel_name;
@@ -169,6 +175,8 @@ private:
 
   long previous_playhead;
   int playback_speed;
+
+  Mode mode_;
 };
 
 #endif // VIEWER_H

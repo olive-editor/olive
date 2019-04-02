@@ -69,7 +69,7 @@ QAudioDeviceInfo get_audio_device(QAudio::Mode mode) {
   QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(mode);
 
   // try to retrieve preferred device from config
-  QString preferred_device = (mode == QAudio::AudioOutput) ? olive::CurrentConfig.preferred_audio_output : olive::CurrentConfig.preferred_audio_input;
+  QString preferred_device = (mode == QAudio::AudioOutput) ? olive::config.preferred_audio_output : olive::config.preferred_audio_input;
   if (!preferred_device.isEmpty()) {
     for (int i=0;i<devs.size();i++) {
       // try to match available devices with preferred device
@@ -98,7 +98,7 @@ void init_audio() {
   stop_audio();
 
   QAudioFormat audio_format;
-  audio_format.setSampleRate(olive::CurrentConfig.audio_rate);
+  audio_format.setSampleRate(olive::config.audio_rate);
   audio_format.setChannelCount(2);
   audio_format.setSampleSize(16);
   audio_format.setCodec("audio/pcm");
@@ -232,7 +232,7 @@ int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
       averages[i] = log_volume(1.0-(averages[i]));
     }
 
-    panel_timeline->audio_monitor->set_value(averages);
+    panel_timeline.first()->audio_monitor->set_value(averages);
   }
 
   memset(audio_ibuffer+offset, 0, actual_write);
@@ -324,8 +324,7 @@ void write_wave_trailer(QFile& f) {
 }
 
 bool start_recording() {
-  if (olive::ActiveSequence == nullptr) {
-    qCritical() << "No active sequence to record into";
+  if (!olive::Global->CheckForActiveSequence(true)) {
     return false;
   }
 
@@ -355,8 +354,8 @@ bool start_recording() {
   }
 
   QAudioFormat audio_format = audio_output->format();
-  if (olive::CurrentConfig.recording_mode != audio_format.channelCount()) {
-    audio_format.setChannelCount(olive::CurrentConfig.recording_mode);
+  if (olive::config.recording_mode != audio_format.channelCount()) {
+    audio_format.setChannelCount(olive::config.recording_mode);
   }
 
   QAudioDeviceInfo info = get_audio_device(QAudio::AudioInput);

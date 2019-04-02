@@ -54,7 +54,7 @@ extern "C" {
 #include "dialogs/mediapropertiesdialog.h"
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/loaddialog.h"
-#include "project/clipboard.h"
+#include "global/clipboard.h"
 #include "ui/sourcetable.h"
 #include "ui/sourceiconview.h"
 #include "ui/icons.h"
@@ -83,7 +83,7 @@ Project::Project(QWidget *parent) :
 
   // optional toolbar
   toolbar_widget = new QWidget();
-  toolbar_widget->setVisible(olive::CurrentConfig.show_project_toolbar);
+  toolbar_widget->setVisible(olive::config.show_project_toolbar);
   toolbar_widget->setObjectName("project_toolbar");
 
   QHBoxLayout* toolbar = new QHBoxLayout(toolbar_widget);
@@ -233,7 +233,7 @@ void Project::duplicate_selected() {
     }
   }
   if (duped) {
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
   } else {
     delete ca;
   }
@@ -250,7 +250,9 @@ void Project::replace_selected_file() {
 }
 
 void Project::replace_clip_media() {
-  if (olive::ActiveSequence == nullptr) {
+  Sequence* top_sequence = Timeline::GetTopSequence().get();
+
+  if (top_sequence == nullptr) {
     QMessageBox::critical(this,
                           tr("No active sequence"),
                           tr("No sequence is active, please open the sequence you want to replace clips from."),
@@ -259,7 +261,7 @@ void Project::replace_clip_media() {
     QModelIndexList selected_items = get_current_selected();
     if (selected_items.size() == 1) {
       Media* item = item_to_media(selected_items.at(0));
-      if (item->get_type() == MEDIA_TYPE_SEQUENCE && olive::ActiveSequence == item->to_sequence()) {
+      if (item->get_type() == MEDIA_TYPE_SEQUENCE && top_sequence == item->to_sequence().get()) {
         QMessageBox::critical(this,
                               tr("Active sequence selected"),
                               tr("You cannot insert a sequence into itself, so no clips of this media would be in this sequence."),
@@ -299,7 +301,7 @@ void Project::open_properties() {
                                                item->get_name());
       if (!new_name.isEmpty()) {
         MediaRename* mr = new MediaRename(item, new_name);
-        olive::UndoStack.push(mr);
+        olive::undo_stack.push(mr);
       }
     }
     }
@@ -308,10 +310,10 @@ void Project::open_properties() {
 
 void Project::new_folder() {
   MediaPtr m = olive::project::CreateFolder(nullptr);
-  olive::UndoStack.push(new AddMediaCommand(m, get_selected_folder()));
+  olive::undo_stack.push(new AddMediaCommand(m, get_selected_folder()));
 
   QModelIndex index = olive::project_model.create_index(m->row(), 0, m.get());
-  switch (olive::CurrentConfig.project_view_type) {
+  switch (olive::config.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
     tree_view->edit(sorter.mapFromSource(index));
     break;
@@ -451,8 +453,9 @@ void Project::delete_selected_media() {
     panel_graph_editor->set_row(nullptr);
     panel_effect_controls->Clear(true);
 
-    if (olive::ActiveSequence != nullptr) {
-      olive::ActiveSequence->ClearSelections();
+    Sequence* top_sequence = Timeline::GetTopSequence().get();
+    if (top_sequence != nullptr) {
+      top_sequence->ClearSelections();
     }
 
     // remove media and parents
@@ -474,9 +477,7 @@ void Project::delete_selected_media() {
 
         Sequence* s = items.at(i)->to_sequence().get();
 
-        if (s == olive::ActiveSequence.get()) {
-          ca->append(new ChangeSequenceAction(nullptr));
-        }
+        Timeline::CloseSequence(s);
 
         if (s == panel_footage_viewer->seq.get()) {
           panel_footage_viewer->set_media(nullptr);
@@ -487,7 +488,7 @@ void Project::delete_selected_media() {
         }
       }
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
 
     // redraw clips
     if (redraw) {
@@ -527,7 +528,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
       // retrieve its parent item
       QModelIndex hierarchy = sorted_index.parent();
 
-      if (olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE) {
+      if (olive::config.project_view_type == olive::PROJECT_VIEW_TREE) {
 
         // if we're in tree view, expand every folder in the hierarchy containing the media
         while (hierarchy.isValid()) {
@@ -542,7 +543,7 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
               );
 
         tree_view->selectionModel()->select(row_select, QItemSelectionModel::Select);
-      } else if (olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON) {
+      } else if (olive::config.project_view_type == olive::PROJECT_VIEW_ICON) {
 
         // if we're in icon view, we just "browse" to the parent folder
         icon_view->setRootIndex(hierarchy);
@@ -563,55 +564,42 @@ bool Project::reveal_media(Media *media, QModelIndex parent) {
 }
 
 void Project::delete_clips_using_selected_media() {
-  if (olive::ActiveSequence == nullptr) {
+  Sequence* top_sequence = Timeline::GetTopSequence().get();
+
+  if (top_sequence == nullptr) {
     QMessageBox::critical(this,
                           tr("No active sequence"),
                           tr("No sequence is active, please open the sequence you want to delete clips from."),
                           QMessageBox::Ok);
   } else {
-    ComboAction* ca = new ComboAction();
-    bool deleted = false;
-    QModelIndexList items = get_current_selected();
-    QVector<Clip*> sequence_clips = olive::ActiveSequence->GetAllClips();
-    for (int i=0;i<sequence_clips.size();i++) {
-      Clip* c = sequence_clips.at(i);
 
-      for (int j=0;j<items.size();j++) {
-        Media* m = item_to_media(items.at(j));
-        if (c->media() == m) {
-          ca->append(new DeleteClipAction(c));
-          deleted = true;
-        }
-      }
+    QModelIndexList items = get_current_selected();
+    QVector<Media*> media;
+
+    media.resize(items.size());
+
+    for (int i=0;i<items.size();i++) {
+      media[i] = item_to_media(items.at(i));
     }
-    for (int j=0;j<items.size();j++) {
-      Media* m = item_to_media(items.at(j));
-      if (olive::clipboard.DeleteClipsWithMedia(ca, m)) {
-        deleted = true;
-      }
-    }
-    if (deleted) {
-      olive::UndoStack.push(ca);
-      update_ui(true);
-    } else {
-      delete ca;
-    }
+
+    top_sequence->DeleteClipsUsingMedia(media);
+
   }
 }
 
 void Project::update_view_type() {
-  tree_view->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE);
-  icon_view_container->setVisible(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON
-                                  || olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_LIST);
+  tree_view->setVisible(olive::config.project_view_type == olive::PROJECT_VIEW_TREE);
+  icon_view_container->setVisible(olive::config.project_view_type == olive::PROJECT_VIEW_ICON
+                                  || olive::config.project_view_type == olive::PROJECT_VIEW_LIST);
 
 
-  switch (olive::CurrentConfig.project_view_type) {
+  switch (olive::config.project_view_type) {
   case olive::PROJECT_VIEW_TREE:
     sources_common.view = tree_view;
     break;
   case olive::PROJECT_VIEW_ICON:
   case olive::PROJECT_VIEW_LIST:
-    icon_view->setViewMode(olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_ICON ?
+    icon_view->setViewMode(olive::config.project_view_type == olive::PROJECT_VIEW_ICON ?
                              QListView::IconMode : QListView::ListMode);
 
     // update list/grid size since they use this value slightly differently
@@ -623,18 +611,18 @@ void Project::update_view_type() {
 }
 
 void Project::set_icon_view() {
-  olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_ICON;
+  olive::config.project_view_type = olive::PROJECT_VIEW_ICON;
   update_view_type();
 }
 
 void Project::set_list_view()
 {
-  olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_LIST;
+  olive::config.project_view_type = olive::PROJECT_VIEW_LIST;
   update_view_type();
 }
 
 void Project::set_tree_view() {
-  olive::CurrentConfig.project_view_type = olive::PROJECT_VIEW_TREE;
+  olive::config.project_view_type = olive::PROJECT_VIEW_TREE;
   update_view_type();
 }
 
@@ -663,7 +651,7 @@ void Project::make_new_menu() {
 }
 
 QModelIndexList Project::get_current_selected() {
-  if (olive::CurrentConfig.project_view_type == olive::PROJECT_VIEW_TREE) {
+  if (olive::config.project_view_type == olive::PROJECT_VIEW_TREE) {
     return tree_view->selectionModel()->selectedRows();
   }
   return icon_view->selectionModel()->selectedIndexes();

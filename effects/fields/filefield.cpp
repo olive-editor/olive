@@ -62,5 +62,5 @@ void FileField::UpdateFromWidget(const QString &s)
   SetValueAt(Now(), s);
 
   kdc->SetNewKeyframes();
-  olive::UndoStack.push(kdc);
+  olive::undo_stack.push(kdc);
 }

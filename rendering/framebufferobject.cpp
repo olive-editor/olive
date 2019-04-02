@@ -68,8 +68,8 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
 
   // allocate storage for texture
   const olive::PixelFormatInfo& bit_depth = olive::pixel_formats.at(olive::Global->is_exporting() ?
-                                                                      olive::CurrentConfig.export_bit_depth :
-                                                                      olive::CurrentConfig.playback_bit_depth);
+                                                                      olive::config.export_bit_depth :
+                                                                      olive::config.playback_bit_depth);
 
   ctx->functions()->glTexImage2D(
         GL_TEXTURE_2D,

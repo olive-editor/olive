@@ -263,7 +263,6 @@ private:
   QAction* zoom_out_;
   QAction* increase_track_height_;
   QAction* decrease_track_height_;
-  QAction* track_lines;
   QAction* frames_action;
   QAction* drop_frame_action;
   QAction* nondrop_frame_action;

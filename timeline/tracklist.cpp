@@ -82,7 +82,17 @@ QVector<Track*> TrackList::tracks()
   return tracks_;
 }
 
+Track::Type TrackList::type()
+{
+  return type_;
+}
+
 Sequence *TrackList::GetParent()
 {
   return static_cast<Sequence*>(parent());
+}
+
+void TrackList::ResizeTrackArray(int i)
+{
+  tracks_.resize(i);
 }

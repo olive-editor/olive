@@ -20,4 +20,4 @@
 
 #include "undostack.h"
 
-QUndoStack olive::UndoStack;
+QUndoStack olive::undo_stack;

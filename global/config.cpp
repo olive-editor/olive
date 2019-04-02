@@ -29,12 +29,11 @@
 
 #include "debug.h"
 
-Config olive::CurrentConfig;
-RuntimeConfig olive::CurrentRuntimeConfig;
+Config olive::config;
+RuntimeConfig olive::runtime_config;
 
 Config::Config()
-  : show_track_lines(true),
-    scroll_zooms(false),
+  : scroll_zooms(false),
     edit_tool_selects_links(false),
     edit_tool_also_seeks(false),
     select_also_seeks(false),
@@ -94,10 +93,7 @@ void Config::load(QString path) {
     while (!stream.atEnd()) {
       stream.readNext();
       if (stream.isStartElement()) {
-        if (stream.name() == "ShowTrackLines") {
-          stream.readNext();
-          show_track_lines = (stream.text() == "1");
-        } else if (stream.name() == "ScrollZooms") {
+        if (stream.name() == "ScrollZooms") {
           stream.readNext();
           scroll_zooms = (stream.text() == "1");
         } else if (stream.name() == "InvertTimelineScrollAxes") {
@@ -295,7 +291,6 @@ void Config::save(QString path) {
   stream.writeStartElement("Configuration"); // configuration
 
   stream.writeTextElement("Version", QString::number(olive::kSaveVersion));
-  stream.writeTextElement("ShowTrackLines", QString::number(show_track_lines));
   stream.writeTextElement("ScrollZooms", QString::number(scroll_zooms));
   stream.writeTextElement("InvertTimelineScrollAxes", QString::number(invert_timeline_scroll_axes));
   stream.writeTextElement("EditToolSelectsLinks", QString::number(edit_tool_selects_links));
@@ -320,7 +315,7 @@ void Config::save(QString path) {
   stream.writeTextElement("HoverFocus", QString::number(hover_focus));
   stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
   stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
-  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->IsToolbarVisible()));
+  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project.first()->IsToolbarVisible()));
   stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
   stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
   stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));

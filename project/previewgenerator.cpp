@@ -218,8 +218,9 @@ void PreviewGenerator::finalize_media() {
       media_->update_tooltip();
     }
 
-    if (olive::ActiveSequence != nullptr) {
-      olive::ActiveSequence->RefreshClips(media_);
+    QVector<Media*> all_sequences = olive::project_model.GetAllSequences();
+    for (int i=0;i<all_sequences.size();i++) {
+      all_sequences.at(i)->to_sequence()->RefreshClipsUsingMedia(media_);
     }
   }
 }
@@ -258,8 +259,8 @@ void PreviewGenerator::generate_waveform() {
 
     // we only generate previews for video and audio
     // and only if the thumbnail and waveform sizes are > 0
-    if ((fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::CurrentConfig.thumbnail_resolution > 0)
-        || (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::CurrentConfig.waveform_resolution > 0)) {
+    if ((fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::config.thumbnail_resolution > 0)
+        || (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::config.waveform_resolution > 0)) {
       AVCodec* codec = avcodec_find_decoder(fmt_ctx_->streams[i]->codecpar->codec_id);
       if (codec != nullptr) {
 
@@ -332,7 +333,7 @@ void PreviewGenerator::generate_waveform() {
         if (s != nullptr) {
           if (fmt_ctx_->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             if (!s->preview_done) {
-              int dstH = olive::CurrentConfig.thumbnail_resolution;
+              int dstH = olive::config.thumbnail_resolution;
               int dstW = qRound(dstH * (float(temp_frame->width)/float(temp_frame->height)));
 
               sws_ctx = sws_getContext(
@@ -401,7 +402,7 @@ void PreviewGenerator::generate_waveform() {
             // `config.waveform_resolution` determines how many samples per second are stored in waveform.
             // `sample_rate` is samples per second, so `interval` is how many samples are averaged in
             // each "point" of the waveform
-            int interval = qFloor((temp_frame->sample_rate/olive::CurrentConfig.waveform_resolution)/4)*4;
+            int interval = qFloor((temp_frame->sample_rate/olive::config.waveform_resolution)/4)*4;
 
             // get the amount of bytes in an audio sample
             int sample_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(swr_frame->format));

@@ -41,4 +41,8 @@ QRect fit_size_into_rect(const QRect& r, int width, int height);
 double amplitude_to_db(double amplitude);
 double db_to_amplitude(double db);
 
+// frame <-> pixel conversion functions
+int getScreenPointFromFrame(double zoom, long frame);
+long getFrameFromScreenPoint(double zoom, int x);
+
 #endif // MATH_H

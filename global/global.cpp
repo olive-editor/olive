@@ -30,7 +30,8 @@
 #include "panels/panels.h"
 #include "global/path.h"
 #include "global/config.h"
-#include "project/clipboard.h"
+#include "global/timing.h"
+#include "global/clipboard.h"
 #include "rendering/audio.h"
 #include "dialogs/demonotice.h"
 #include "dialogs/preferencesdialog.h"
@@ -147,12 +148,12 @@ QString OliveGlobal::get_recent_project_list_file() {
 }
 
 void OliveGlobal::load_translation_from_config() {
-  QString language_file = olive::CurrentRuntimeConfig.external_translation_file.isEmpty() ?
-        olive::CurrentConfig.language_file :
-        olive::CurrentRuntimeConfig.external_translation_file;
+  QString language_file = olive::runtime_config.external_translation_file.isEmpty() ?
+        olive::config.language_file :
+        olive::runtime_config.external_translation_file;
 
   // clear runtime language file so if the user sets a different language, we won't load it next time
-  olive::CurrentRuntimeConfig.external_translation_file.clear();
+  olive::runtime_config.external_translation_file.clear();
 
   // remove current translation if there is one
   QApplication::removeTranslator(translator.get());
@@ -195,7 +196,7 @@ void OliveGlobal::add_recent_project(const QString &url)
   }
   if (!found) {
     recent_projects.prepend(url);
-    if (recent_projects.size() > olive::CurrentConfig.maximum_recent_projects) {
+    if (recent_projects.size() > olive::config.maximum_recent_projects) {
       recent_projects.removeLast();
     }
   }
@@ -227,6 +228,11 @@ int OliveGlobal::recent_project_count()
 const QString &OliveGlobal::recent_project(int index)
 {
   return recent_projects.at(index);
+}
+
+const QString &OliveGlobal::get_autorecovery_filename()
+{
+  return autorecovery_filename;
 }
 
 void OliveGlobal::LoadProject(const QString &fn, bool autorecovery)
@@ -265,7 +271,7 @@ void OliveGlobal::ClearProject()
   panel_effect_controls->Clear(true);
 
   // clear existing project
-  set_sequence(nullptr);
+  Timeline::CloseAll();
   panel_footage_viewer->set_media(nullptr);
 
   // delete sequences first because it's important to close all the clips before deleting the media
@@ -278,7 +284,7 @@ void OliveGlobal::ClearProject()
   olive::project_model.clear();
 
   // clear undo stack
-  olive::UndoStack.clear();
+  olive::undo_stack.clear();
 
   // empty current project filename
   update_project_filename("");
@@ -308,36 +314,42 @@ void OliveGlobal::save_recent_projects()
   }
 }
 
-void OliveGlobal::PasteInternal(Sequence *s)
+void OliveGlobal::PasteInternal(Sequence *s, bool insert)
 {
+  if (s == nullptr) {
+    return;
+  }
+
   if (!olive::clipboard.IsEmpty()) {
     if (olive::clipboard.type() == Clipboard::CLIPBOARD_TYPE_CLIP) {
       ComboAction* ca = new ComboAction();
 
       // create copies and delete areas that we'll be pasting to
       QVector<Selection> delete_areas;
+      QVector<Clip*> original_clips;
       QVector<ClipPtr> pasted_clips;
       long paste_start = LONG_MAX;
       long paste_end = LONG_MIN;
 
-      for (int i=0;i<olive::clipboard.size();i++) {
-        ClipPtr c = std::static_pointer_cast<Clip>(olive::clipboard.at(i));
+      for (int i=0;i<olive::clipboard.Count();i++) {
+        ClipPtr c = std::static_pointer_cast<Clip>(olive::clipboard.Get(i));
 
         // create copy of clip and offset by playhead
-        ClipPtr cc = c->copy(olive::ActiveSequence.get());
+        ClipPtr cc = c->copy(s->GetTrackList(c->track()->type())->TrackAt(c->track()->Index()));
 
         // convert frame rates
-        cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
-        cc->set_timeline_out(rescale_frame_number(cc->timeline_out(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
-        cc->set_clip_in(rescale_frame_number(cc->clip_in(), c->cached_frame_rate(), olive::ActiveSequence->frame_rate));
+        cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), s->frame_rate));
+        cc->set_timeline_out(rescale_frame_number(cc->timeline_out(), c->cached_frame_rate(), s->frame_rate));
+        cc->set_clip_in(rescale_frame_number(cc->clip_in(), c->cached_frame_rate(), s->frame_rate));
 
-        cc->set_timeline_in(cc->timeline_in() + olive::ActiveSequence->playhead);
-        cc->set_timeline_out(cc->timeline_out() + olive::ActiveSequence->playhead);
+        cc->set_timeline_in(cc->timeline_in() + s->playhead);
+        cc->set_timeline_out(cc->timeline_out() + s->playhead);
         cc->set_track(c->track());
 
         paste_start = qMin(paste_start, cc->timeline_in());
         paste_end = qMax(paste_end, cc->timeline_out());
 
+        original_clips.append(c.get());
         pasted_clips.append(cc);
 
         if (!insert) {
@@ -345,52 +357,40 @@ void OliveGlobal::PasteInternal(Sequence *s)
         }
       }
       if (insert) {
-        split_all_clips_at_point(ca, olive::ActiveSequence->playhead);
-        ripple_clips(ca, olive::ActiveSequence.get(), paste_start, paste_end - paste_start);
+        s->SplitAllClipsAtPoint(ca, s->playhead);
+        s->Ripple(ca, paste_start, paste_end - paste_start);
       } else {
-        delete_areas_and_relink(ca, delete_areas, false);
+        s->DeleteAreas(ca, delete_areas, false);
       }
 
       // correct linked clips
-      for (int i=0;i<clipboard.size();i++) {
-        // these indices should correspond
-        ClipPtr oc = std::static_pointer_cast<Clip>(clipboard.at(i));
+      olive::timeline::RelinkClips(original_clips, pasted_clips);
 
-        for (int j=0;j<oc->linked.size();j++) {
-          for (int k=0;k<clipboard.size();k++) { // find clip with that ID
-            ClipPtr comp = std::static_pointer_cast<Clip>(clipboard.at(k));
-            if (comp->load_id == oc->linked.at(j)) {
-              pasted_clips.at(i)->linked.append(k);
-            }
-          }
-        }
-      }
+      ca->append(new AddClipCommand(pasted_clips));
 
-      ca->append(new AddClipCommand(olive::ActiveSequence.get(), pasted_clips));
-
-      olive::UndoStack.push(ca);
+      olive::undo_stack.push(ca);
 
       update_ui(true);
 
-      if (olive::CurrentConfig.paste_seeks) {
+      if (olive::config.paste_seeks) {
         panel_sequence_viewer->seek(paste_end);
       }
 
-    } else if (clipboard_type == CLIPBOARD_TYPE_EFFECT) {
+    } else if (olive::clipboard.type() == Clipboard::CLIPBOARD_TYPE_EFFECT) {
       ComboAction* ca = new ComboAction();
 
       bool replace = false;
       bool skip = false;
       bool ask_conflict = true;
 
-      QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+      QVector<Clip*> selected_clips = s->SelectedClips();
 
       for (int i=0;i<selected_clips.size();i++) {
         Clip* c = selected_clips.at(i);
 
-        for (int j=0;j<clipboard.size();j++) {
-          EffectPtr e = std::static_pointer_cast<Effect>(clipboard.at(j));
-          if ((c->track() < 0) == (e->meta->subtype == EFFECT_TYPE_VIDEO)) {
+        for (int j=0;j<olive::clipboard.Count();j++) {
+          EffectPtr e = std::static_pointer_cast<Effect>(olive::clipboard.Get(j));
+          if (c->type() == e->meta->subtype) {
             int found = -1;
             if (ask_conflict) {
               replace = false;
@@ -403,7 +403,7 @@ void OliveGlobal::PasteInternal(Sequence *s)
               }
             }
             if (found >= 0 && ask_conflict) {
-              QMessageBox box(this);
+              QMessageBox box(olive::MainWindow);
               box.setWindowTitle(tr("Effect already exists"));
               box.setText(tr("Clip '%1' already contains a '%2' effect. "
                              "Would you like to replace it with the pasted one or add it as a separate effect?")
@@ -441,7 +441,7 @@ void OliveGlobal::PasteInternal(Sequence *s)
       }
       if (ca->hasActions()) {
         ca->appendPost(new ReloadEffectsCommand());
-        olive::UndoStack.push(ca);
+        olive::undo_stack.push(ca);
       } else {
         delete ca;
       }
@@ -528,7 +528,7 @@ bool OliveGlobal::can_close_project() {
   return true;
 }
 
-void OliveGlobal::new_sequence()
+void OliveGlobal::open_new_sequence_dialog()
 {
   NewSequenceDialog nsd(olive::MainWindow);
   nsd.set_sequence_name(olive::project_model.GetNextSequenceName());
@@ -557,7 +557,7 @@ void OliveGlobal::open_import_dialog()
 
 void OliveGlobal::open_export_dialog() {
   if (CheckForActiveSequence()) {
-    ExportDialog e(olive::MainWindow);
+    ExportDialog e(olive::MainWindow, Timeline::GetTopSequence().get());
     e.exec();
   }
 }
@@ -609,15 +609,10 @@ void OliveGlobal::open_preferences() {
   pd.exec();
 }
 
-void OliveGlobal::set_sequence(SequencePtr s)
+void OliveGlobal::PrimarySequenceChanged()
 {
   panel_graph_editor->set_row(nullptr);
   panel_effect_controls->Clear(true);
-
-  olive::ActiveSequence = s;
-  panel_sequence_viewer->set_main_sequence();
-  panel_timeline->update_sequence();
-  panel_timeline->setFocus();
 }
 
 void OliveGlobal::clear_recent_projects()
@@ -630,12 +625,12 @@ void OliveGlobal::OpenProjectWorker(QString fn, bool autorecovery) {
   ClearProject();
   update_project_filename(fn);
   LoadProject(fn, autorecovery);
-  olive::UndoStack.clear();
+  olive::undo_stack.clear();
 }
 
 bool OliveGlobal::CheckForActiveSequence(bool show_msg)
 {
-  if (olive::ActiveSequence == nullptr) {
+  if (Timeline::GetTopSequence()  == nullptr) {
 
     if (show_msg) {
       QMessageBox::information(olive::MainWindow,
@@ -651,30 +646,26 @@ bool OliveGlobal::CheckForActiveSequence(bool show_msg)
 
 void OliveGlobal::undo() {
   // workaround to prevent crash (and also users should never need to do this)
-  if (!panel_timeline->importing) {
-    olive::UndoStack.undo();
+  if (!Timeline::IsImporting()) {
+    olive::undo_stack.undo();
     update_ui(true);
   }
 }
 
 void OliveGlobal::redo() {
   // workaround to prevent crash (and also users should never need to do this)
-  if (!panel_timeline->importing) {
-    olive::UndoStack.redo();
+  if (!Timeline::IsImporting()) {
+    olive::undo_stack.redo();
     update_ui(true);
   }
 }
 
 void OliveGlobal::paste() {
-  if (olive::ActiveSequence != nullptr) {
-    panel_timeline->paste(false);
-  }
+  PasteInternal(Timeline::GetTopSequence().get(), false);
 }
 
 void OliveGlobal::paste_insert() {
-  if (olive::ActiveSequence != nullptr) {
-    panel_timeline->paste(true);
-  }
+  PasteInternal(Timeline::GetTopSequence().get(), true);
 }
 
 void OliveGlobal::open_about_dialog() {
@@ -687,9 +678,9 @@ void OliveGlobal::open_debug_log() {
 }
 
 void OliveGlobal::open_speed_dialog() {
-  if (olive::ActiveSequence != nullptr) {
+  if (Timeline::GetTopSequence() != nullptr) {
 
-    QVector<Clip*> selected_clips = olive::ActiveSequence->SelectedClips();
+    QVector<Clip*> selected_clips = Timeline::GetTopSequence()->SelectedClips();
 
     if (!selected_clips.isEmpty()) {
       SpeedDialog s(olive::MainWindow, selected_clips);
@@ -701,7 +692,7 @@ void OliveGlobal::open_speed_dialog() {
 void OliveGlobal::open_autocut_silence_dialog() {
   if (CheckForActiveSequence()) {
 
-    QVector<int> selected_clips = olive::ActiveSequence->SelectedClipIndexes();
+    QVector<Clip*> selected_clips = Timeline::GetTopSequence()->SelectedClips();
 
     if (selected_clips.isEmpty()) {
       QMessageBox::critical(olive::MainWindow,
@@ -717,7 +708,7 @@ void OliveGlobal::open_autocut_silence_dialog() {
 }
 
 void OliveGlobal::clear_undo_stack() {
-  olive::UndoStack.clear();
+  olive::undo_stack.clear();
 }
 
 void OliveGlobal::open_action_search() {

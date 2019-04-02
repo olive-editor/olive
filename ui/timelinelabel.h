@@ -2,6 +2,7 @@
 #define TIMELINELABEL_H
 
 #include <QWidget>
+#include <memory>
 
 #include "timeline/track.h"
 
@@ -19,5 +20,7 @@ private:
 
   Track* track_;
 };
+
+using TimelineLabelPtr = std::shared_ptr<TimelineLabel>;
 
 #endif // TIMELINELABEL_H

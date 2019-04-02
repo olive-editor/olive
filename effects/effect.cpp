@@ -48,7 +48,7 @@
 #include "global/path.h"
 #include "ui/mainwindow.h"
 #include "global/math.h"
-#include "project/clipboard.h"
+#include "global/clipboard.h"
 #include "global/config.h"
 #include "transition.h"
 #include "undo/undostack.h"
@@ -412,7 +412,7 @@ void Effect::FieldChanged() {
 }
 
 void Effect::delete_self() {
-  olive::UndoStack.push(new EffectDeleteCommand(this));
+  olive::undo_stack.push(new EffectDeleteCommand(this));
   update_ui(true);
 }
 
@@ -426,7 +426,7 @@ void Effect::move_up() {
   command->clip = parent_clip;
   command->from = index_of_effect;
   command->to = command->from - 1;
-  olive::UndoStack.push(command);
+  olive::undo_stack.push(command);
   panel_effect_controls->Reload();
   panel_sequence_viewer->viewer_widget()->frame_update();
 }
@@ -441,7 +441,7 @@ void Effect::move_down() {
   command->clip = parent_clip;
   command->from = index_of_effect;
   command->to = command->from + 1;
-  olive::UndoStack.push(command);
+  olive::undo_stack.push(command);
   panel_effect_controls->Reload();
   panel_sequence_viewer->viewer_widget()->frame_update();
 }
@@ -488,7 +488,7 @@ void Effect::load_from_file() {
     QFile file_handle(file);
     if (file_handle.open(QFile::ReadOnly)) {
 
-      olive::UndoStack.push(new SetEffectData(this, file_handle.readAll()));
+      olive::undo_stack.push(new SetEffectData(this, file_handle.readAll()));
 
       file_handle.close();
 
@@ -743,7 +743,7 @@ void Effect::open() {
     qWarning() << "Tried to open an effect that was already open";
     close();
   }
-  if (olive::CurrentRuntimeConfig.shaders_are_enabled && (Flags() & ShaderFlag)) {
+  if (olive::runtime_config.shaders_are_enabled && (Flags() & ShaderFlag)) {
     if (QOpenGLContext::currentContext() == nullptr) {
       qWarning() << "No current context to create a shader program for - will retry next repaint";
     } else {
@@ -1023,7 +1023,7 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
           ca->append(gizmo_dragging_actions_.at(j));
         }
 
-        olive::UndoStack.push(ca);
+        olive::undo_stack.push(ca);
 
         gizmo_dragging_actions_.clear();
       }
@@ -1044,10 +1044,10 @@ void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& p
                                                         projection,
                                                         QRect(0,
                                                               0,
-                                                              parent_clip->sequence->width,
-                                                              parent_clip->sequence->height));
+                                                              parent_clip->track()->sequence()->width,
+                                                              parent_clip->track()->sequence()->height));
 
-      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->sequence->height-screen_pos.y());
+      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->track()->sequence()->height-screen_pos.y());
 
     }
   }

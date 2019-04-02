@@ -30,23 +30,25 @@
 
 #include "timeline/sequence.h"
 #include "timeline/clip.h"
+#include "timeline/timelinetools.h"
+#include "timeline/timelinefunctions.h"
 #include "project/footage.h"
 #include "project/media.h"
 #include "undo/undo.h"
-#include "timelinetools.h"
 
 class Timeline;
 
-bool same_sign(int a, int b);
-void draw_waveform(ClipPtr clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
+void draw_waveform(Clip* clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
 
 class TimelineView : public QWidget {
   Q_OBJECT
 public:
-  explicit TimelineView(QWidget *parent = nullptr);
+  explicit TimelineView(Timeline *parent);
+
+  void SetAlignment(olive::timeline::Alignment alignment);
+  void SetTrackList(TrackList* tl);
 
   QScrollBar* scrollBar;
-  bool bottom_align;
 
 public slots:
 
@@ -70,18 +72,29 @@ protected:
 private:
   void init_ghosts();
   void update_ghosts(const QPoint& mouse_pos, bool lock_frame);
-  bool is_track_visible(int track);
-  int getTrackFromScreenPoint(int y);
-  int getScreenPointFromTrack(int track);
-  int getClipIndexFromCoords(long frame, int track);
+  Track* getTrackFromScreenPoint(int y);
+  int getScreenPointFromTrack(Track* track);
+  Timeline* ParentTimeline();
+  Sequence* sequence();
+  void delete_area_under_ghosts(ComboAction* ca, Sequence *s);
+  void insert_clips(ComboAction* ca, Sequence *s);
+  bool current_tool_shows_cursor();
+  void draw_transition(QPainter& p, Clip *c, const QRect& clip_rect, QRect& text_rect, int transition_type);
+  Clip* GetClipAtCursor();
 
+  void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, long transition_start, long transition_end);
   void VerifyTransitionHelper();
 
-  bool track_resizing;
-  int track_target;
+  Timeline* timeline_;
 
-  QVector<ClipPtr> pre_clips;
-  QVector<ClipPtr> post_clips;
+  olive::timeline::Alignment alignment_;
+  TrackList* track_list_;
+
+  bool track_resizing;
+  Track* track_target;
+
+  QVector<Clip*> pre_clips;
+  QVector<Clip*> post_clips;
 
   Media* rc_reveal_media;
 
@@ -92,7 +105,6 @@ private:
 
   int scroll;
 
-  SetSelectionsCommand* selection_command;
 signals:
 
 public slots:

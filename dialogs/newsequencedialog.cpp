@@ -108,8 +108,8 @@ void NewSequenceDialog::accept() {
     s->audio_layout = AV_CH_LAYOUT_STEREO;
 
     ComboAction* ca = new ComboAction();
-    panel_project->create_sequence_internal(ca, s, true, nullptr);
-    olive::UndoStack.push(ca);
+    olive::project_model.CreateSequence(ca, s, true, nullptr);
+    olive::undo_stack.push(ca);
 
   } else if (existing_item != nullptr) {
 
@@ -128,14 +128,12 @@ void NewSequenceDialog::accept() {
     esc->audio_layout = AV_CH_LAYOUT_STEREO;
     ca->append(esc);
 
-    for (int i=0;i<existing_sequence->clips.size();i++) {
-      ClipPtr c = existing_sequence->clips.at(i);
-      if (c != nullptr) {
-        c->refactor_frame_rate(ca, multiplier, true);
-      }
+    QVector<Clip*> existing_sequence_clips = existing_sequence->GetAllClips();
+    for (int i=0;i<existing_sequence_clips.size();i++) {
+      existing_sequence_clips.at(i)->refactor_frame_rate(ca, multiplier, true);
     }
 
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
 
   } else if (existing_sequence != nullptr) {
 
@@ -235,13 +233,13 @@ void NewSequenceDialog::setup_ui() {
   videoLayout->addWidget(new QLabel(tr("Width:"), this), 0, 0, 1, 1);
   width_numeric = new QSpinBox(videoGroupBox);
   width_numeric->setMaximum(9999);
-  width_numeric->setValue(olive::CurrentConfig.default_sequence_width);
+  width_numeric->setValue(olive::config.default_sequence_width);
   videoLayout->addWidget(width_numeric, 0, 2, 1, 2);
 
   videoLayout->addWidget(new QLabel(tr("Height:"), this), 1, 0, 1, 2);
   height_numeric = new QSpinBox(videoGroupBox);
   height_numeric->setMaximum(9999);
-  height_numeric->setValue(olive::CurrentConfig.default_sequence_height);
+  height_numeric->setValue(olive::config.default_sequence_height);
   videoLayout->addWidget(height_numeric, 1, 2, 1, 2);
 
   videoLayout->addWidget(new QLabel(tr("Frame Rate:"), this), 2, 0, 1, 1);
@@ -258,7 +256,7 @@ void NewSequenceDialog::setup_ui() {
   frame_rate_combobox->addItem("59.94 FPS", 59.94);
   frame_rate_combobox->addItem("60 FPS", 60.0);
   for (int i=0;i<frame_rate_combobox->count();i++) {
-    if (qFuzzyCompare(frame_rate_combobox->itemData(i).toDouble(), olive::CurrentConfig.default_sequence_framerate)) {
+    if (qFuzzyCompare(frame_rate_combobox->itemData(i).toDouble(), olive::config.default_sequence_framerate)) {
       frame_rate_combobox->setCurrentIndex(i);
     }
   }
@@ -288,7 +286,7 @@ void NewSequenceDialog::setup_ui() {
   audio_frequency_combobox = new QComboBox(audioGroupBox);
   combobox_audio_sample_rates(audio_frequency_combobox);
   for (int i=0;i<audio_frequency_combobox->count();i++) {
-    if (audio_frequency_combobox->itemData(i) == olive::CurrentConfig.default_sequence_audio_frequency) {
+    if (audio_frequency_combobox->itemData(i) == olive::config.default_sequence_audio_frequency) {
       audio_frequency_combobox->setCurrentIndex(i);
     }
   }

@@ -28,6 +28,7 @@
 #include "marker.h"
 #include "selection.h"
 #include "tracklist.h"
+#include "ghost.h"
 
 class Sequence : public QObject {
   Q_OBJECT
@@ -63,17 +64,37 @@ public:
 
   void RefreshClipsUsingMedia(Media* m = nullptr);
   QVector<Clip*> SelectedClips(bool containing = true);
-  //QVector<int> SelectedClipIndexes();
 
-  void DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool deselect_areas);
+  void AddClipsFromGhosts(ComboAction *ca, const QVector<Ghost> &ghosts);
+
+  void MoveClip(Clip* c,
+                ComboAction* ca,
+                long iin,
+                long iout,
+                long iclip_in,
+                Track *itrack,
+                bool verify_transitions = true,
+                bool relative = false);
+
+  void EditToPoint(bool in, bool ripple);
+
+  bool SnapPoint(long* l, double zoom, bool use_playhead, bool use_markers, bool use_workarea);
+
+  void DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool deselect_areas = false, bool ripple = false);
   void DeleteInToOut(bool ripple);
+  void DeleteClipsUsingMedia(const QVector<Media *> &media);
 
-  void Ripple(ComboAction *ca, long point, long length, const QVector<int>& ignore = QVector<int>());
+  void Ripple(ComboAction *ca, long point, long length, const QVector<Clip *> &ignore = QVector<Clip*>());
 
   void ChangeTrackHeightsRelatively(int diff);
 
+  void ToggleLinksOnSelected();
+
+  void Split();
   bool SplitAllClipsAtPoint(ComboAction *ca, long point);
-  void SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool relink = true);
+  bool SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool relink = true);
+
+  void RippleDeleteEmptySpace(Track *track, long point);
 
   Effect* GetSelectedGizmo();
 
@@ -85,6 +106,8 @@ public:
   void ClearSelections();
   void AddSelectionsToClipboard(bool delete_originals);
   QVector<Selection> Selections();
+  void SetSelections(const QVector<Selection>& selections);
+  void TidySelections();
 
   long playhead;
 
@@ -102,13 +125,9 @@ private:
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame, long post_in);
+  bool SplitSelection(ComboAction* ca, QVector<Selection> selections);
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;
-
-// static variable for the currently active sequence
-namespace olive {
-  extern SequencePtr ActiveSequence;
-}
 
 #endif // SEQUENCE_H

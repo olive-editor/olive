@@ -146,7 +146,7 @@ void ViewerWidget::show_context_menu() {
   connect(&zoom_menu, SIGNAL(triggered(QAction*)), this, SLOT(set_menu_zoom(QAction*)));
   menu.addMenu(&zoom_menu);
 
-  if (!viewer->is_main_sequence()) {
+  if (viewer->mode() != Viewer::kTimelineMode) {
     menu.addAction(tr("Close Media"), viewer, SLOT(close_media()));
   }
 
@@ -338,7 +338,12 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
     int x_movement = qRound((event->pos().x() - drag_start_x)*multiplier);
     int y_movement = qRound((event->pos().y() - drag_start_y)*multiplier);
 
-    gizmos->gizmo_move(selected_gizmo, x_movement, y_movement, get_timecode(gizmos->parent_clip, gizmos->parent_clip->sequence->playhead), done);
+    gizmos->gizmo_move(selected_gizmo,
+                       x_movement,
+                       y_movement,
+                       get_timecode(gizmos->parent_clip,
+                                    gizmos->parent_clip->track()->sequence()->playhead),
+                       done);
 
     gizmo_x_mvmt += x_movement;
     gizmo_y_mvmt += y_movement;
@@ -351,7 +356,7 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
 void ViewerWidget::mousePressEvent(QMouseEvent* event) {
   if (waveform) {
     seek_from_click(event->x());
-  } else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
+  } else if (event->buttons() & Qt::MiddleButton || olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND) {
     container->dragScrollPress(event->pos()*container->zoom);
   } else if (event->buttons() & Qt::LeftButton) {
     drag_start_x = event->pos().x();
@@ -367,13 +372,13 @@ void ViewerWidget::mousePressEvent(QMouseEvent* event) {
 
 void ViewerWidget::mouseMoveEvent(QMouseEvent* event) {
   unsetCursor();
-  if (panel_timeline->tool == TIMELINE_TOOL_HAND) {
+  if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND) {
     setCursor(Qt::OpenHandCursor);
   }
   if (dragging) {
     if (waveform) {
       seek_from_click(event->x());
-    } else if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
+    } else if (event->buttons() & Qt::MiddleButton || olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND) {
       container->dragScrollMove(event->pos()*container->zoom);
     } else if (event->buttons() & Qt::LeftButton) {
       if (gizmos == nullptr) {
@@ -397,7 +402,7 @@ void ViewerWidget::mouseReleaseEvent(QMouseEvent *event) {
   if (dragging
       && gizmos != nullptr
       && event->button() == Qt::LeftButton
-      && panel_timeline->tool != TIMELINE_TOOL_HAND) {
+      && olive::timeline::current_tool != olive::timeline::TIMELINE_TOOL_HAND) {
     move_gizmos(event, true);
   }
   dragging = false;
@@ -431,7 +436,7 @@ void ViewerWidget::draw_waveform_func() {
   wr.setX(wr.x() - waveform_scroll);
 
   p.setPen(Qt::green);
-  draw_waveform(waveform_clip, waveform_ms, waveform_clip->timeline_out(), &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
+  draw_waveform(waveform_clip.get(), waveform_ms, waveform_clip->timeline_out(), &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
   p.setPen(Qt::red);
   int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
   p.drawLine(playhead_x, 0, playhead_x, height());
@@ -452,16 +457,16 @@ void ViewerWidget::draw_title_safe_area() {
   matrix.ortho(0.0f, 1.0f, 0.0f, 1.0f, -1.0f, 1.0f);
 
   // adjust the horizontal center cross by the aspect ratio to appear "square"
-  if (olive::CurrentConfig.use_custom_title_safe_ratio && olive::CurrentConfig.custom_title_safe_ratio > 0) {
-    if (ar > olive::CurrentConfig.custom_title_safe_ratio) {
-      matrix.translate(((ar - olive::CurrentConfig.custom_title_safe_ratio) / 2.0) / ar, 0.0f);
-      matrix.scale(olive::CurrentConfig.custom_title_safe_ratio / ar, 1.0f);
+  if (olive::config.use_custom_title_safe_ratio && olive::config.custom_title_safe_ratio > 0) {
+    if (ar > olive::config.custom_title_safe_ratio) {
+      matrix.translate(((ar - olive::config.custom_title_safe_ratio) / 2.0) / ar, 0.0f);
+      matrix.scale(olive::config.custom_title_safe_ratio / ar, 1.0f);
     } else {
-      matrix.translate(0.0f, (((olive::CurrentConfig.custom_title_safe_ratio - ar) / 2.0) / olive::CurrentConfig.custom_title_safe_ratio));
-      matrix.scale(1.0f, ar / olive::CurrentConfig.custom_title_safe_ratio);
+      matrix.translate(0.0f, (((olive::config.custom_title_safe_ratio - ar) / 2.0) / olive::config.custom_title_safe_ratio));
+      matrix.scale(1.0f, ar / olive::config.custom_title_safe_ratio);
     }
 
-    horizontal_cross_size *= ar/olive::CurrentConfig.custom_title_safe_ratio;
+    horizontal_cross_size *= ar/olive::config.custom_title_safe_ratio;
   }
 
   float adjusted_cross_x1 = 0.5f - horizontal_cross_size;
@@ -745,7 +750,7 @@ void ViewerWidget::paintGL() {
     f->glBindTexture(GL_TEXTURE_2D, 0);
 
     // draw title/action safe area
-    if (olive::CurrentConfig.show_title_safe_area) {
+    if (olive::config.show_title_safe_area) {
       draw_title_safe_area();
     }
 

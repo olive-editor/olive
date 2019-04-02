@@ -4,6 +4,8 @@
 #include <QVector>
 
 #include "timeline/clip.h"
+#include "timeline/mediaimportdata.h"
+#include "ghost.h"
 
 namespace olive {
 namespace timeline {
@@ -17,12 +19,6 @@ enum CreateObjects {
   ADD_OBJ_AUDIO
 };
 
-enum TrimType {
-  TRIM_NONE,
-  TRIM_IN,
-  TRIM_OUT
-};
-
 enum Alignment {
   kAlignmentTop,
   kAlignmentBottom,
@@ -30,6 +26,15 @@ enum Alignment {
 };
 
 void RelinkClips(QVector<Clip*>& pre_clips, QVector<ClipPtr> &post_clips);
+
+bool SnapToPoint(long point, long* l, double zoom);
+
+QVector<Ghost> CreateGhostsFromMedia(Sequence *seq, long entry_point, QVector<olive::timeline::MediaImportData> &media_list);
+
+// snapping
+extern bool snapping;
+extern bool snapped;
+extern long snap_point;
 
 }
 }

@@ -34,7 +34,7 @@
 QMutex olive::effects_loaded;
 
 void load_internal_effects() {
-  if (!olive::CurrentRuntimeConfig.shaders_are_enabled) {
+  if (!olive::runtime_config.shaders_are_enabled) {
     qWarning() << "Shaders are disabled, some effects may be nonfunctional";
   }
 
@@ -44,7 +44,7 @@ void load_internal_effects() {
   em.path = ":/internalshaders";
 
   em.type = EFFECT_TYPE_EFFECT;
-  em.subtype = EFFECT_TYPE_AUDIO;
+  em.subtype = Track::kTypeAudio;
 
   em.name = "Volume";
   em.internal = EFFECT_INTERNAL_VOLUME;
@@ -70,7 +70,7 @@ void load_internal_effects() {
   em.internal = EFFECT_INTERNAL_FILLLEFTRIGHT;
   olive::effects.append(em);
 
-  em.subtype = EFFECT_TYPE_VIDEO;
+  em.subtype = Track::kTypeVideo;
 
   em.name = "Transform";
   em.category = "Distort";
@@ -115,7 +115,7 @@ void load_internal_effects() {
   em.internal = TRANSITION_INTERNAL_CROSSDISSOLVE;
   olive::effects.append(em);
 
-  em.subtype = EFFECT_TYPE_AUDIO;
+  em.subtype = Track::kTypeAudio;
 
   em.name = "Linear Fade";
   em.internal = TRANSITION_INTERNAL_LINEARFADE;
@@ -181,7 +181,7 @@ void load_shader_effects_worker(const QString& effects_path) {
               if (!effect_name.isEmpty()) {
                 EffectMeta em;
                 em.type = EFFECT_TYPE_EFFECT;
-                em.subtype = EFFECT_TYPE_VIDEO;
+                em.subtype = Track::kTypeVideo;
                 em.name = effect_name;
                 em.category = effect_cat;
                 em.filename = file.fileName();

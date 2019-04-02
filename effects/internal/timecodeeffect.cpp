@@ -88,14 +88,16 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
 
 
 void TimecodeEffect::redraw(double timecode) {
+  Sequence* sequence = parent_clip->track()->sequence();
+
   if (tc_select->GetValueAt(timecode).toBool()) {
-    display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(olive::ActiveSequence->playhead,
-                                                                               olive::CurrentConfig.timecode_view,
-                                                                               olive::ActiveSequence->frame_rate);
+    display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(sequence->playhead,
+                                                                               olive::config.timecode_view,
+                                                                               sequence->frame_rate);
   } else {
     double media_rate = parent_clip->media_frame_rate();
     display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(qRound(timecode * media_rate),
-                                                                               olive::CurrentConfig.timecode_view,
+                                                                               olive::config.timecode_view,
                                                                                media_rate);
   }
   img.fill(Qt::transparent);

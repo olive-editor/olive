@@ -2,11 +2,22 @@
 #define GHOST_H
 
 #include "effects/transition.h"
-#include "timelinefunctions.h"
 #include "track.h"
 
+namespace olive {
+namespace timeline {
+
+enum TrimType {
+  TRIM_NONE,
+  TRIM_IN,
+  TRIM_OUT
+};
+
+}
+}
+
 struct Ghost {
-  int clip;
+  Clip* clip;
   long in;
   long out;
   Track* track;
@@ -28,6 +39,8 @@ struct Ghost {
 
   // transition trimming
   TransitionPtr transition;
+
+  Selection ToSelection() const;
 };
 
 #endif // GHOST_H

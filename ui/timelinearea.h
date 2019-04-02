@@ -12,17 +12,19 @@ class TimelineArea : public QWidget
 {
   Q_OBJECT
 public:
-  TimelineArea();
+  TimelineArea(Timeline *timeline);
 
   void SetAlignment(olive::timeline::Alignment alignment);
   void SetTrackList(Sequence* sequence, Track::Type track_list);
 public slots:
   void RefreshLabels();
 private:
+  Timeline* timeline_;
   TrackList* track_list_;
   TimelineView* view_;
-  QVector<TimelineLabel> labels_;
+  QVector<TimelineLabelPtr> labels_;
   olive::timeline::Alignment alignment_;
+  QVBoxLayout* label_container_layout_;
 };
 
 #endif // TIMELINEAREA_H

@@ -60,7 +60,7 @@ void delete_keyframes(QVector<EffectField *>& selected_key_fields, QVector<int> 
     for (int i=0;i<key_indices.size();i++) {
       ca->append(new KeyframeDelete(fields.at(i), key_indices.at(i)));
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     selected_keys.clear();
     selected_key_fields.clear();
     update_ui(false);

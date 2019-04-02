@@ -1,12 +1,16 @@
 #include "selection.h"
 
+#include "effects/transition.h"
+#include "timeline/clip.h"
+
+Selection::Selection()
+{
+}
+
 Selection::Selection(long in, long out, Track *track) :
   in_(in),
   out_(out),
-  track_(track),
-  old_in_(in),
-  old_out_(out),
-  old_track_(track)
+  track_(track)
 {
 }
 
@@ -35,7 +39,22 @@ void Selection::set_out(long out)
   out_ = out;
 }
 
-void Selection::Tidy(QVector<Selection &> selections)
+bool Selection::ContainsTransition(Clip* c, int type) const
+{
+  if (type == kTransitionOpening) {
+      return c->opening_transition != nullptr
+          && out_ == c->timeline_in() + c->opening_transition->get_true_length()
+          && ((c->opening_transition->secondary_clip == nullptr && in_ == c->timeline_in())
+              || (c->opening_transition->secondary_clip != nullptr && in_ == c->timeline_in() - c->opening_transition->get_true_length()));
+    } else {
+      return c->closing_transition != nullptr
+          && in_ == c->timeline_out() - c->closing_transition->get_true_length()
+          && ((c->closing_transition->secondary_clip == nullptr && out_ == c->timeline_out())
+              || (c->closing_transition->secondary_clip != nullptr && out_ == c->timeline_out() + c->closing_transition->get_true_length()));
+  }
+}
+
+void Selection::Tidy(QVector<Selection>& selections)
 {
   for (int i=0;i<selections.size();i++) {
       Selection& s = selections[i];
@@ -49,10 +68,10 @@ void Selection::Tidy(QVector<Selection &> selections)
             } else if (s.in() >= ss.in() && s.out() <= ss.out()) {
               remove = true;
             } else if (s.in() <= ss.out() && s.out() > ss.out()) {
-              ss.out = s.out();
+              ss.set_out(s.out());
               remove = true;
             } else if (s.out() >= ss.in() && s.in() < ss.in()) {
-              ss.in = s.in();
+              ss.set_in(s.in());
               remove = true;
             }
             if (remove) {

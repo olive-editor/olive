@@ -75,7 +75,6 @@ SOURCES += \
     dialogs/preferencesdialog.cpp \
     ui/audiomonitor.cpp \
     undo/undo.cpp \
-    ui/scrollarea.cpp \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
     dialogs/replaceclipmediadialog.cpp \
@@ -108,7 +107,6 @@ SOURCES += \
     effects/effect.cpp \
     effects/effectrow.cpp \
     effects/effectgizmo.cpp \
-    project/clipboard.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp \
@@ -182,7 +180,10 @@ SOURCES += \
     timeline/timelineshared.cpp \
     ui/timelineview.cpp \
     ui/timelinelabel.cpp \
-    timeline/selection.cpp
+    timeline/selection.cpp \
+    global/clipboard.cpp \
+    timeline/timelinetools.cpp \
+    timeline/ghost.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -204,14 +205,12 @@ HEADERS += \
     ui/collapsiblewidget.h \
     panels/panels.h \
     rendering/exportthread.h \
-    ui/timelinetools.h \
     ui/timelineheader.h \
     project/previewgenerator.h \
     ui/labelslider.h \
     dialogs/preferencesdialog.h \
     ui/audiomonitor.h \
     undo/undo.h \
-    ui/scrollarea.h \
     ui/comboboxex.h \
     ui/colorbutton.h \
     dialogs/replaceclipmediadialog.h \
@@ -246,7 +245,6 @@ HEADERS += \
     effects/effectrow.h \
     effects/internal/cubetransition.h \
     effects/effectgizmo.h \
-    project/clipboard.h \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h \
@@ -323,7 +321,9 @@ HEADERS += \
     ui/timelinearea.h \
     timeline/timelineshared.h \
     ui/timelineview.h \
-    ui/timelinelabel.h
+    ui/timelinelabel.h \
+    global/clipboard.h \
+    timeline/timelinetools.h
 
 FORMS +=
 

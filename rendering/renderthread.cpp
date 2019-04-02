@@ -116,7 +116,7 @@ void RenderThread::run() {
         }
 
         // If there's no OpenColorIO shader or the configuration has changed, (re-)create it now
-        if (olive::CurrentConfig.enable_color_management && ocio_shader == nullptr) {
+        if (olive::config.enable_color_management && ocio_shader == nullptr) {
           destroy_ocio();
 
           set_up_ocio();
@@ -155,12 +155,12 @@ void RenderThread::set_up_ocio()
   OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
 
   // Get current OCIO display from Config (or defaults if there is no setting)
-  QString display = olive::CurrentConfig.ocio_display;
+  QString display = olive::config.ocio_display;
   if (display.isEmpty()) {
     display = config->getDefaultDisplay();
   }
 
-  QString view = olive::CurrentConfig.ocio_view;
+  QString view = olive::config.ocio_view;
   if (view.isEmpty()) {
     view = config->getDefaultView(display.toUtf8());
   }
@@ -171,8 +171,8 @@ void RenderThread::set_up_ocio()
   transform->setDisplay(display.toUtf8());
   transform->setView(view.toUtf8());
 
-  if (!olive::CurrentConfig.ocio_look.isEmpty()) {
-    transform->setLooksOverride(olive::CurrentConfig.ocio_look.toUtf8());
+  if (!olive::config.ocio_look.isEmpty()) {
+    transform->setLooksOverride(olive::config.ocio_look.toUtf8());
     transform->setLooksOverrideEnabled(true);
   }
 
@@ -206,7 +206,7 @@ void RenderThread::paint() {
   params.viewer = nullptr;
   params.ctx = ctx;
   params.seq = seq;
-  params.video = true;
+  params.type = Track::kTypeVideo;
   params.texture_failed = false;
   params.wait_for_mutexes = true;
   params.playback_speed = playback_speed_;
@@ -244,7 +244,7 @@ void RenderThread::paint() {
   // Blit the composite buffer to one of the front buffers
 
   // If we're color managing, conver the linear composited frame to display color space
-  if (olive::CurrentConfig.enable_color_management && ocio_shader != nullptr) {
+  if (olive::config.enable_color_management && ocio_shader != nullptr) {
 
     olive::rendering::OCIOBlit(ocio_shader.get(),
                                ocio_lut_texture,

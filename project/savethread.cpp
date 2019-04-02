@@ -9,11 +9,12 @@
 #include "global/config.h"
 #include "projectmodel.h"
 
+/*
 void RecursiveSave() {
 
 }
 
-void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
+void save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only, const QModelIndex& parent) {
   for (int i=0;i<olive::project_model.rowCount(parent);i++) {
     const QModelIndex& item = olive::project_model.index(i, 0, parent);
     Media* m = olive::project_model.getItem(item);
@@ -57,6 +58,7 @@ void Project::save_folder(QXmlStreamWriter& stream, int type, bool set_ids_only,
     }
   }
 }
+*/
 
 void olive::Save(bool autorecovery)
 {
@@ -91,7 +93,7 @@ void olive::Save(bool autorecovery)
   file.close();
 
   if (!autorecovery) {
-    add_recent_project(olive::ActiveProjectFilename);
+    olive::Global->add_recent_project(olive::ActiveProjectFilename);
     olive::Global->set_modified(false);
   }
 }

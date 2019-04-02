@@ -65,8 +65,8 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   }
   if (clip->opening_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-      double transition_start = (clip->clip_in(true) / clip->sequence->frame_rate);
-      double transition_end = (clip->clip_in(true) + clip->opening_transition->get_length()) / clip->sequence->frame_rate;
+      double transition_start = (clip->clip_in(true) / clip->track()->sequence()->frame_rate);
+      double transition_end = (clip->clip_in(true) + clip->opening_transition->get_length()) / clip->track()->sequence()->frame_rate;
       if (timecode_end < transition_end) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
@@ -78,8 +78,8 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   if (clip->closing_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
       long length_with_transitions = clip->timeline_out(true) - clip->timeline_in(true);
-      double transition_start = (clip->clip_in(true) + length_with_transitions - clip->closing_transition->get_length()) / clip->sequence->frame_rate;
-      double transition_end = (clip->clip_in(true) + length_with_transitions) / clip->sequence->frame_rate;
+      double transition_start = (clip->clip_in(true) + length_with_transitions - clip->closing_transition->get_length()) / clip->track()->sequence()->frame_rate;
+      double transition_end = (clip->clip_in(true) + length_with_transitions) / clip->track()->sequence()->frame_rate;
       if (timecode_start > transition_start) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
@@ -93,7 +93,7 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
     Clip* next_nest = nests.last();
     nests.removeLast();
     apply_audio_effects(next_nest,
-                        timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->sequence->frame_rate),
+                        timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->track()->sequence()->frame_rate),
                         frame,
                         nb_bytes,
                         nests);
@@ -122,16 +122,16 @@ void Cacher::CacheAudioWorker() {
   bool reverse_audio = IsReversed();
 
   long frame_skip = 0;
-  double last_fr = clip->sequence->frame_rate;
+  double last_fr = clip->track()->sequence()->frame_rate;
   if (!nests_.isEmpty()) {
     for (int i=nests_.size()-1;i>=0;i--) {
-      timeline_in = rescale_frame_number(timeline_in, last_fr, nests_.at(i)->sequence->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
-      timeline_out = rescale_frame_number(timeline_out, last_fr, nests_.at(i)->sequence->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
-      target_frame = rescale_frame_number(target_frame, last_fr, nests_.at(i)->sequence->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      timeline_in = rescale_frame_number(timeline_in, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      timeline_out = rescale_frame_number(timeline_out, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      target_frame = rescale_frame_number(target_frame, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
 
       timeline_out = qMin(timeline_out, nests_.at(i)->timeline_out(true));
 
-      frame_skip = rescale_frame_number(frame_skip, last_fr, nests_.at(i)->sequence->frame_rate);
+      frame_skip = rescale_frame_number(frame_skip, last_fr, nests_.at(i)->track()->sequence()->frame_rate);
 
       long validator = nests_.at(i)->timeline_in(true) - timeline_in;
       if (validator > 0) {
@@ -139,12 +139,13 @@ void Cacher::CacheAudioWorker() {
         //timeline_in = nests_.at(i)->timeline_in(true);
       }
 
-      last_fr = nests_.at(i)->sequence->frame_rate;
+      last_fr = nests_.at(i)->track()->sequence()->frame_rate;
     }
   }
 
   if (temp_reverse) {
-    long seq_end = olive::ActiveSequence->GetEndFrame();
+    // FIXME breakable?
+    long seq_end = Timeline::GetTopSequence()->GetEndFrame();
     timeline_in = seq_end - timeline_in;
     timeline_out = seq_end - timeline_out;
     target_frame = seq_end - target_frame;
@@ -394,7 +395,7 @@ void Cacher::CacheAudioWorker() {
       // apply any audio effects to the data
       if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
       if (new_frame) {
-        apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
+        apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->track()->sequence()->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
       }
     }
 
@@ -402,7 +403,7 @@ void Cacher::CacheAudioWorker() {
     if (frame->nb_samples == 0) {
       break;
     } else {
-      qint64 buffer_timeline_out = get_buffer_offset_from_frame(clip->sequence->frame_rate, timeline_out);
+      qint64 buffer_timeline_out = get_buffer_offset_from_frame(clip->track()->sequence()->frame_rate, timeline_out);
 
       audio_write_lock.lock();
 
@@ -597,15 +598,15 @@ void Cacher::CacheVideoWorker() {
     // For reversed playback, we flip the queue stats as "upcoming" frames are going to be played before the "previous"
     // frames now
     if (reversed) {
-      previous_queue_type = olive::CurrentConfig.upcoming_queue_type;
-      previous_queue_size = olive::CurrentConfig.upcoming_queue_size;
-      upcoming_queue_type = olive::CurrentConfig.previous_queue_type;
-      upcoming_queue_size = olive::CurrentConfig.previous_queue_size;
+      previous_queue_type = olive::config.upcoming_queue_type;
+      previous_queue_size = olive::config.upcoming_queue_size;
+      upcoming_queue_type = olive::config.previous_queue_type;
+      upcoming_queue_size = olive::config.previous_queue_size;
     } else {
-      previous_queue_type = olive::CurrentConfig.previous_queue_type;
-      previous_queue_size = olive::CurrentConfig.previous_queue_size;
-      upcoming_queue_type = olive::CurrentConfig.upcoming_queue_type;
-      upcoming_queue_size = olive::CurrentConfig.upcoming_queue_size;
+      previous_queue_type = olive::config.previous_queue_type;
+      previous_queue_size = olive::config.previous_queue_size;
+      upcoming_queue_type = olive::config.upcoming_queue_type;
+      upcoming_queue_size = olive::config.upcoming_queue_size;
     }
 
     // Determine "previous" queue statistics
@@ -794,7 +795,7 @@ void Cacher::CacheVideoWorker() {
 void Cacher::Reset() {
   // if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
   if (clip->media() == nullptr) {
-    if (clip->track() >= 0) {
+    if (clip->type() == Track::kTypeAudio) {
       // a null-media audio clip is usually an auto-generated sound clip such as Tone or Noise
       reached_end = false;
       audio_target_frame = playhead_;
@@ -860,7 +861,7 @@ Cacher::Cacher(Clip* c) :
 
 void Cacher::OpenWorker() {
   // set some defaults for the audio cacher
-  if (clip->track() >= 0) {
+  if (clip->type() == Track::kTypeAudio) {
     audio_reset_ = false;
     frame_sample_index_ = -1;
     audio_buffer_write = 0;
@@ -868,10 +869,10 @@ void Cacher::OpenWorker() {
   reached_end = false;
 
   if (clip->media() == nullptr) {
-    if (clip->track() >= 0) {
+    if (clip->type() == Track::kTypeAudio) {
       frame_ = av_frame_alloc();
       frame_->format = kDestSampleFmt;
-      frame_->channel_layout = clip->sequence->audio_layout;
+      frame_->channel_layout = clip->track()->sequence()->audio_layout;
       frame_->channels = av_get_channel_layout_nb_channels(frame_->channel_layout);
       frame_->sample_rate = current_audio_freq();
       frame_->nb_samples = 2048;
@@ -889,7 +890,7 @@ void Cacher::OpenWorker() {
     QByteArray ba;
 
     // do we have a proxy?
-    if ((!olive::Global->is_exporting() || !olive::CurrentConfig.dont_use_proxies_on_export)
+    if ((!olive::Global->is_exporting() || !olive::config.dont_use_proxies_on_export)
         && m->proxy
         && !m->proxy_path.isEmpty()
         && QFileInfo::exists(m->proxy_path)) {
@@ -1029,8 +1030,8 @@ void Cacher::OpenWorker() {
 
         reverse_frame->format = kDestSampleFmt;
         reverse_frame->nb_samples = current_audio_freq()*10;
-        reverse_frame->channel_layout = clip->sequence->audio_layout;
-        reverse_frame->channels = av_get_channel_layout_nb_channels(clip->sequence->audio_layout);
+        reverse_frame->channel_layout = clip->track()->sequence()->audio_layout;
+        reverse_frame->channels = av_get_channel_layout_nb_channels(clip->track()->sequence()->audio_layout);
         av_frame_get_buffer(reverse_frame, 0);
 
         queue_.append(reverse_frame);
@@ -1116,7 +1117,7 @@ void Cacher::OpenWorker() {
 }
 
 void Cacher::CacheWorker() {
-  if (clip->track() < 0) {
+  if (clip->type() == Track::kTypeVideo) {
     // clip is a video track, start caching video
     CacheVideoWorker();
   } else {
@@ -1207,7 +1208,7 @@ void Cacher::Open()
   caching_ = true;
   queued_ = false;
 
-  start((clip->track() < 0) ? QThread::HighPriority : QThread::TimeCriticalPriority);
+  start((clip->type() == Track::kTypeVideo) ? QThread::HighPriority : QThread::TimeCriticalPriority);
 }
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)

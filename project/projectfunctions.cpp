@@ -21,11 +21,11 @@ SequencePtr olive::project::CreateSequenceFromMedia(QVector<olive::timeline::Med
   s->name = olive::project_model.GetNextSequenceName();
 
   // Retrieve default Sequence settings from Config
-  s->width = olive::CurrentConfig.default_sequence_width;
-  s->height = olive::CurrentConfig.default_sequence_height;
-  s->frame_rate = olive::CurrentConfig.default_sequence_framerate;
-  s->audio_frequency = olive::CurrentConfig.default_sequence_audio_frequency;
-  s->audio_layout = olive::CurrentConfig.default_sequence_audio_channel_layout;
+  s->width = olive::config.default_sequence_width;
+  s->height = olive::config.default_sequence_height;
+  s->frame_rate = olive::config.default_sequence_framerate;
+  s->audio_frequency = olive::config.default_sequence_audio_frequency;
+  s->audio_layout = olive::config.default_sequence_audio_channel_layout;
 
   bool got_video_values = false;
   bool got_audio_values = false;

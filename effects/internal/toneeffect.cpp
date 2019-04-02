@@ -55,7 +55,7 @@ void ToneEffect::process_audio(double timecode_start, double timecode_end, quint
     double timecode = timecode_start+(interval*i);
 
     qint16 left_tone_sample = qint16(qRound(qSin((2*M_PI*sinX*freq_val->GetDoubleAt(timecode))
-                                                 /parent_clip->sequence->audio_frequency)
+                                                 /parent_clip->track()->sequence()->audio_frequency)
                                             *log_volume(amount_val->GetDoubleAt(timecode)*0.01)*INT16_MAX));
     qint16 right_tone_sample = left_tone_sample;
 

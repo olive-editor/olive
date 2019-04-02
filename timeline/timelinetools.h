@@ -21,7 +21,10 @@
 #ifndef TIMELINETOOLS_H
 #define TIMELINETOOLS_H
 
-enum TimelineTool {
+namespace olive {
+namespace timeline {
+
+enum Tool {
   TIMELINE_TOOL_POINTER,
   TIMELINE_TOOL_EDIT,
   TIMELINE_TOOL_RAZOR,
@@ -35,5 +38,10 @@ enum TimelineTool {
   TIMELINE_TOOL_TRANSITION,
   TIMELINE_TOOL_COUNT
 };
+
+extern Tool current_tool;
+
+}
+}
 
 #endif // TIMELINETOOLS_H

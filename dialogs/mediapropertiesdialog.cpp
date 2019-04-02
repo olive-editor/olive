@@ -114,12 +114,12 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
     interlacing_box = new QComboBox(this);
     interlacing_box->addItem(
           tr("Auto (%1)").arg(
-            get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing)
+            Footage::get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing)
             )
           );
-    interlacing_box->addItem(get_interlacing_name(VIDEO_PROGRESSIVE));
-    interlacing_box->addItem(get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
-    interlacing_box->addItem(get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
+    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_PROGRESSIVE));
+    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
+    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
 
     interlacing_box->setCurrentIndex(
           (f->video_tracks.at(0).video_auto_interlacing == f->video_tracks.at(0).video_interlacing)
@@ -232,7 +232,7 @@ void MediaPropertiesDialog::accept() {
   }
   ca->appendPost(new UpdateViewer());
 
-  olive::UndoStack.push(ca);
+  olive::undo_stack.push(ca);
 
   QDialog::accept();
 }

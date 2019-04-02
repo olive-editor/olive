@@ -470,7 +470,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 void GraphView::mouseMoveEvent(QMouseEvent *event) {
   if (!mousedown || !click_add) unsetCursor();
   if (mousedown) {
-    if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
+    if (event->buttons() & Qt::MiddleButton || olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND) {
       set_scroll_x(x_scroll + start_x - event->pos().x());
       set_scroll_y(y_scroll + event->pos().y() - start_y);
       start_x = event->pos().x();
@@ -701,7 +701,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *) {
   if (click_add_proc) {
-    olive::UndoStack.push(new KeyframeAdd(click_add_field, click_add_key));
+    olive::undo_stack.push(new KeyframeAdd(click_add_field, click_add_key));
   } else if (moved_keys && selected_keys.size() > 0) {
     ComboAction* ca = new ComboAction();
     switch (current_handle) {
@@ -723,7 +723,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
     }
       break;
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
   }
   moved_keys = false;
   mousedown = false;
@@ -757,7 +757,7 @@ void GraphView::wheelEvent(QWheelEvent *event) {
   double new_x_zoom = x_zoom;
   double new_y_zoom = y_zoom;
 
-  if (ctrl != olive::CurrentConfig.scroll_zooms) {
+  if (ctrl != olive::config.scroll_zooms) {
     zooming = true;
   }
 
@@ -849,7 +849,7 @@ void GraphView::set_selected_keyframe_type(int type) {
       EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
       ca->append(new SetInt(&key.type, type));
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     update_ui(false);
   }
 }

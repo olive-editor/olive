@@ -39,28 +39,6 @@ extern "C" {
 #include "global/debug.h"
 #include "global/timing.h"
 
-QString get_interlacing_name(int interlacing) {
-  switch (interlacing) {
-  case VIDEO_PROGRESSIVE: return QCoreApplication::translate("InterlacingName", "None (Progressive)");
-  case VIDEO_TOP_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Top Field First");
-  case VIDEO_BOTTOM_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Bottom Field First");
-  default: return QCoreApplication::translate("InterlacingName", "Invalid");
-  }
-}
-
-QString get_channel_layout_name(int channels, uint64_t layout) {
-  switch (channels) {
-  case 0: return QCoreApplication::translate("ChannelLayoutName", "Invalid");
-  case 1: return QCoreApplication::translate("ChannelLayoutName", "Mono");
-  case 2: return QCoreApplication::translate("ChannelLayoutName", "Stereo");
-  default: {
-    char buf[50];
-    av_get_channel_layout_string(buf, sizeof(buf), channels, layout);
-    return QString(buf);
-  }
-  }
-}
-
 Media::Media() :
   root(false),
   type(-1),
@@ -172,7 +150,7 @@ void Media::update_tooltip(const QString& error) {
           if (i > 0) {
             tooltip += ", ";
           }
-          tooltip += get_interlacing_name(f->video_tracks.at(i).video_interlacing);
+          tooltip += Footage::get_interlacing_name(f->video_tracks.at(i).video_interlacing);
         }
       }
 
@@ -193,7 +171,7 @@ void Media::update_tooltip(const QString& error) {
           if (i > 0) {
             tooltip += ", ";
           }
-          tooltip += get_channel_layout_name(f->audio_tracks.at(i).audio_channels, f->audio_tracks.at(i).audio_layout);
+          tooltip += Footage::get_channel_layout_name(f->audio_tracks.at(i).audio_channels, f->audio_tracks.at(i).audio_layout);
         }
         // tooltip += "\n";
       }
@@ -216,7 +194,7 @@ void Media::update_tooltip(const QString& error) {
           QString::number(s->height),
           QString::number(s->frame_rate),
           QString::number(s->audio_frequency),
-          get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout)
+          Footage::get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout)
           );
   }
     break;
@@ -288,7 +266,7 @@ bool Media::setData(int col, const QVariant &value) {
   if (col == 0) {
     QString n = value.toString();
     if (!n.isEmpty() && get_name() != n) {
-      olive::UndoStack.push(new MediaRename(this, value.toString()));
+      olive::undo_stack.push(new MediaRename(this, value.toString()));
       return true;
     }
   }
@@ -310,7 +288,7 @@ int Media::columnCount() const {
 QString Media::GetStringDuration() {
   if (get_type() == MEDIA_TYPE_SEQUENCE) {
     Sequence* s = to_sequence().get();
-    return frame_to_timecode(s->GetEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
+    return frame_to_timecode(s->GetEndFrame(), olive::config.timecode_view, s->frame_rate);
   }
   if (get_type() == MEDIA_TYPE_FOOTAGE) {
     Footage* f = to_footage();
@@ -320,7 +298,7 @@ QString Media::GetStringDuration() {
       r = f->video_tracks.at(0).video_frame_rate * f->speed;
 
     long len = f->get_length_in_frames(r);
-    if (len > 0) return frame_to_timecode(len, olive::CurrentConfig.timecode_view, r);
+    if (len > 0) return frame_to_timecode(len, olive::config.timecode_view, r);
   }
   return QString();
 }

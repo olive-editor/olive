@@ -143,7 +143,7 @@ void DoubleField::UpdateFromWidget(double d)
   if (!ls->IsDragging() && kdc_ != nullptr) {
     kdc_->SetNewKeyframes();
 
-    olive::UndoStack.push(kdc_);
+    olive::undo_stack.push(kdc_);
 
     kdc_ = nullptr;
   }

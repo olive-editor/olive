@@ -93,7 +93,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
       Field(i)->PrepareDataForKeyframing(true, ca);
     }
 
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
 
     update_ui(false);
 
@@ -116,7 +116,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
       // Disable keyframing setting on this row
       ca->append(new SetIsKeyframing(this, false));
 
-      olive::UndoStack.push(ca);
+      olive::undo_stack.push(ca);
 
       update_ui(false);
 
@@ -131,7 +131,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
 void EffectRow::GoToPreviousKeyframe() {
   long key = LONG_MIN;
   Clip* c = GetParentEffect()->parent_clip;
-  long sequence_playhead = c->sequence->playhead;
+  long sequence_playhead = c->track()->sequence()->playhead;
 
   // Used to convert clip frame number to sequence frame number
   long time_adjustment = c->timeline_in() - c->clip_in();
@@ -158,7 +158,7 @@ void EffectRow::GoToPreviousKeyframe() {
 
 void EffectRow::ToggleKeyframe() {
   Clip* c = GetParentEffect()->parent_clip;
-  long sequence_playhead = c->sequence->playhead;
+  long sequence_playhead = c->track()->sequence()->playhead;
 
   // Used to convert clip frame number to sequence frame number
   long time_adjustment = c->timeline_in() - c->clip_in();
@@ -222,7 +222,7 @@ void EffectRow::ToggleKeyframe() {
 
   }
 
-  olive::UndoStack.push(ca);
+  olive::undo_stack.push(ca);
   update_ui(false);
 }
 
@@ -233,7 +233,7 @@ void EffectRow::GoToNextKeyframe() {
     EffectField* f = Field(i);
     for (int j=0;j<f->keyframes.size();j++) {
       long comp = f->keyframes.at(j).time - c->clip_in() + c->timeline_in();
-      if (comp > olive::ActiveSequence->playhead) {
+      if (comp > c->track()->sequence()->playhead) {
         key = qMin(comp, key);
       }
     }

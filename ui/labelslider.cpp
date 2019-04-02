@@ -94,7 +94,7 @@ QString LabelSlider::ValueToString() {
   } else {
     switch (display_type) {
     case FrameNumber:
-      return frame_to_timecode(long(v), olive::CurrentConfig.timecode_view, frame_rate);
+      return frame_to_timecode(long(v), olive::config.timecode_view, frame_rate);
     case Percent:
       return QString::number((v*100), 'f', decimal_places).append("%");
     case Decibel:
@@ -311,7 +311,7 @@ void LabelSlider::ShowDialog()
     if (s.isEmpty()) return;
 
     // parse string timecode to a frame number
-    d = timecode_to_frame(s, olive::CurrentConfig.timecode_view, frame_rate);
+    d = timecode_to_frame(s, olive::config.timecode_view, frame_rate);
 
   } else {
 

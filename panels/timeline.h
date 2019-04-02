@@ -26,7 +26,8 @@
 #include <QPushButton>
 
 #include "ui/timelinearea.h"
-#include "ui/timelinetools.h"
+#include "timeline/timelinetools.h"
+#include "timeline/timelinefunctions.h"
 #include "timeline/selection.h"
 #include "timeline/clip.h"
 #include "timeline/mediaimportdata.h"
@@ -37,58 +38,43 @@
 #include "ui/audiomonitor.h"
 #include "ui/panel.h"
 
-
-int getScreenPointFromFrame(double zoom, long frame);
-long getFrameFromScreenPoint(double zoom, int x);
-bool selection_contains_transition(const Selection& s, Clip *c, int type);
-
-
 class Timeline : public Panel
 {
   Q_OBJECT
 public:
   explicit Timeline(QWidget *parent = nullptr);
 
+  static Timeline* GetTopTimeline();
+  static SequencePtr GetTopSequence();
+  static void OpenSequence(SequencePtr s);
+  static void CloseSequence(Sequence* s);
+  static void CloseAll();
+  static bool IsImporting();
+
+  void SetSequence(SequencePtr sequence);
+
   virtual bool focused() override;
   void multiply_zoom(double m);
   void copy(bool del);
-  void clean_up_selections(QVector<Selection>& areas);
-  void deselect_area(long in, long out, int track);
-  void delete_areas_and_relink(ComboAction *ca, QVector<Selection>& areas, bool deselect_areas);
   void update_sequence();
-
-  void edit_to_point_internal(bool in, bool ripple);
-  void delete_in_out_internal(bool ripple);
-
-  void create_ghosts_from_media(Sequence *seq, long entry_point, QVector<olive::timeline::MediaImportData> &media_list);
-  void add_clips_from_ghosts(ComboAction *ca, Sequence *s);
 
   int getTimelineScreenPointFromFrame(long frame);
   long getTimelineFrameFromScreenPoint(int x);
   int getDisplayScreenPointFromFrame(long frame);
   long getDisplayFrameFromScreenPoint(int x);
 
-  long get_snap_range();
-  bool snap_to_point(long point, long* l);
-  bool snap_to_timeline(long* l, bool use_playhead, bool use_markers, bool use_workarea);
   void set_marker();
 
   // shared information
-  int tool;
   long cursor_frame;
-  int cursor_track;
+  Track* cursor_track;
   double zoom;
   bool zoom_just_changed;
   long drag_frame_start;
-  int drag_track_start;
+  Track* drag_track_start;
   void update_effect_controls();
   bool showing_all;
   double old_zoom;
-
-  // snapping
-  bool snapping;
-  bool snapped;
-  long snap_point;
 
   // selecting functions
   bool selecting;
@@ -102,18 +88,16 @@ public:
   bool moving_init;
   bool moving_proc;
   QVector<Ghost> ghosts;
-  bool video_ghosts;
-  bool audio_ghosts;
   bool move_insert;
 
   // trimming
-  int trim_target;
+  Clip* trim_target;
   olive::timeline::TrimType trim_type;
   int transition_select;
 
   // splitting
   bool splitting;
-  QVector<int> split_tracks;
+  QVector<Track*> split_tracks;
 
   // importing
   bool importing;
@@ -121,15 +105,15 @@ public:
 
   // creating variables
   bool creating;
-  int creating_object;
+  olive::timeline::CreateObjects creating_object;
 
   // transition variables
   bool transition_tool_init;
   bool transition_tool_proc;
-  int transition_tool_open_clip;
-  int transition_tool_close_clip;
+  Clip* transition_tool_open_clip;
+  Clip* transition_tool_close_clip;
   const EffectMeta* transition_tool_meta;
-  int transition_tool_side;
+  Track::Type transition_tool_side;
 
   // hand tool variables
   bool hand_moving;
@@ -155,7 +139,6 @@ public:
   QPushButton* snappingButton;
 
   void scroll_to_frame(long frame);
-  void select_from_playhead();
 
   bool can_ripple_empty_space(long frame, int track);
 
@@ -163,11 +146,9 @@ public:
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 public slots:
-  void paste(bool insert = false);
   void repaint_timeline();
   void toggle_show_all();
   void deselect();
-  void toggle_links();
   void split_at_playhead();
   void ripple_delete();
   void ripple_delete_empty_space();
@@ -184,15 +165,15 @@ public slots:
   void IncreaseTrackHeight();
   void DecreaseTrackHeight();
 
-  void previous_cut();
-  void next_cut();
-
   void add_transition();
 
   void nest();
 
   void zoom_in();
   void zoom_out();
+
+signals:
+  void SequenceChanged(SequencePtr s);
 
 private slots:
   void snapping_clicked(bool checked);
@@ -206,6 +187,8 @@ private slots:
   void set_tool();
 
 private:
+  SequencePtr sequence_;
+
   void ChangeTrackHeightUniformly(int diff);
   void set_zoom_value(double v);
   void set_tool(int tool);

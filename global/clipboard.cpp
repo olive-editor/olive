@@ -34,6 +34,16 @@ void Clipboard::Append(VoidPtr obj)
   clipboard_.append(obj);
 }
 
+void Clipboard::Insert(int pos, VoidPtr obj)
+{
+  clipboard_.insert(pos, obj);
+}
+
+void Clipboard::RemoveAt(int pos)
+{
+  clipboard_.removeAt(pos);
+}
+
 void Clipboard::Clear()
 {
   clipboard_.clear();
@@ -48,6 +58,16 @@ int Clipboard::Count()
 VoidPtr Clipboard::Get(int i)
 {
   return clipboard_.at(i);
+}
+
+void Clipboard::SetType(Clipboard::Type type)
+{
+  if (type == type_) {
+    return;
+  }
+
+  Clear();
+  type_ = type;
 }
 
 bool Clipboard::IsEmpty()

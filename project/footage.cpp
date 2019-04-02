@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QtMath>
 #include <QPainter>
+#include <QCoreApplication>
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
@@ -114,7 +115,7 @@ QString Footage::Colorspace()
     return guess_colorspace;
   }
 
-  return olive::CurrentConfig.ocio_default_input_colorspace;
+  return olive::config.ocio_default_input_colorspace;
 }
 
 void Footage::SetColorspace(const QString &cs)
@@ -153,4 +154,26 @@ FootageStream* Footage::get_stream_from_file_index(bool video, int index) {
     }
   }
   return nullptr;
+}
+
+QString Footage::get_interlacing_name(int interlacing) {
+  switch (interlacing) {
+  case VIDEO_PROGRESSIVE: return QCoreApplication::translate("InterlacingName", "None (Progressive)");
+  case VIDEO_TOP_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Top Field First");
+  case VIDEO_BOTTOM_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Bottom Field First");
+  default: return QCoreApplication::translate("InterlacingName", "Invalid");
+  }
+}
+
+QString Footage::get_channel_layout_name(int channels, uint64_t layout) {
+  switch (channels) {
+  case 0: return QCoreApplication::translate("ChannelLayoutName", "Invalid");
+  case 1: return QCoreApplication::translate("ChannelLayoutName", "Mono");
+  case 2: return QCoreApplication::translate("ChannelLayoutName", "Stereo");
+  default: {
+    char buf[50];
+    av_get_channel_layout_string(buf, sizeof(buf), channels, layout);
+    return QString(buf);
+  }
+  }
 }

@@ -21,10 +21,16 @@
 #ifndef EXPORTTHREAD_H
 #define EXPORTTHREAD_H
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 #include <QThread>
 #include <QOffscreenSurface>
 #include <QMutex>
 #include <QWaitCondition>
+
+#include "timeline/sequence.h"
 
 struct AVFormatContext;
 struct AVCodecContext;
@@ -35,19 +41,19 @@ struct AVCodec;
 struct SwsContext;
 struct SwrContext;
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-}
-
-#define COMPRESSION_TYPE_CBR 0
-#define COMPRESSION_TYPE_CFR 1
-#define COMPRESSION_TYPE_TARGETSIZE 2
-#define COMPRESSION_TYPE_TARGETBR 3
+enum CompressionType {
+  COMPRESSION_TYPE_CBR,
+  COMPRESSION_TYPE_CFR,
+  COMPRESSION_TYPE_TARGETSIZE,
+  COMPRESSION_TYPE_TARGETBR
+};
 
 // structs that store parameters passed from the export dialogs to this thread
 
 struct ExportParams {
+
   // export parameters
+  Sequence* sequence;
   QString filename;
   bool video_enabled;
   int video_codec;

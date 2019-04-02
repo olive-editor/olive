@@ -61,7 +61,7 @@ SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent
   grid->addWidget(new QLabel(tr("Duration:"), this), 2, 0);
   duration = new LabelSlider(this);
   duration->SetDisplayType(LabelSlider::FrameNumber);
-  duration->SetFrameRate(olive::ActiveSequence->frame_rate);
+  duration->SetFrameRate(clips_.first()->track()->sequence()->frame_rate);
   grid->addWidget(duration, 2, 1);
 
   main_layout->addLayout(grid);
@@ -103,7 +103,7 @@ int SpeedDialog::exec() {
 
     // get default frame rate/percentage
     clip_percent = c->speed().value;
-    if (c->track() < 0) {
+    if (c->type() == Track::kTypeVideo) {
       bool process_video = true;
       if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
         FootageStream* ms = c->media_stream();
@@ -131,7 +131,7 @@ int SpeedDialog::exec() {
 
         enable_frame_rate = true;
       }
-    } else {
+    } else if (c->type() == Track::kTypeAudio) {
       maintain_pitch->setEnabled(true);
 
       if (!multiple_audio) {
@@ -192,7 +192,7 @@ void SpeedDialog::percent_update() {
     Clip* c = clips_.at(i);
 
     // get frame rate
-    if (frame_rate->isEnabled() && c->track() < 0) {
+    if (frame_rate->isEnabled() && c->type() == Track::kTypeVideo) {
       double clip_fr = c->media_frame_rate() * percent->value();
       if (got_fr) {
         if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
@@ -236,7 +236,7 @@ void SpeedDialog::duration_update() {
     }
 
     // get frame rate
-    if (frame_rate->isEnabled() && c->track() < 0) {
+    if (frame_rate->isEnabled() && c->type() == Track::kTypeVideo) {
       double clip_fr = c->media_frame_rate() * clip_pc;
       if (got_fr) {
         if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
@@ -276,7 +276,7 @@ void SpeedDialog::frame_rate_update() {
       old_pc_val = qSNaN();
     }
 
-    if (c->track() < 0) {
+    if (c->type() == Track::kTypeVideo) {
       // what would the new speed be based on this frame rate
       double new_clip_speed = frame_rate->value() / c->media_frame_rate();
       if (!got_pc_val) {
@@ -301,7 +301,7 @@ void SpeedDialog::frame_rate_update() {
   for (int i=0;i<clips_.size();i++) {
     Clip* c = clips_.at(i);
 
-    if (c->track() >= 0) {
+    if (c->type() == Track::kTypeAudio) {
 
       long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ?
             c->length() : qRound((c->length() * c->speed().value) / pc_val);
@@ -318,15 +318,17 @@ void SpeedDialog::frame_rate_update() {
 }
 
 void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, long& lr) {
-  panel_timeline->deselect_area(c->timeline_in(), c->timeline_out(), c->track());
+  c->track()->DeselectArea(c->timeline_in(), c->timeline_out());
 
   long proposed_out = c->timeline_out();
   double multiplier = (c->speed().value / speed);
   proposed_out = qRound(c->timeline_in() + (c->length() * multiplier));
   ca->append(new SetSpeedAction(c, speed));
   if (!ripple && proposed_out > c->timeline_out()) {
-    for (int i=0;i<c->sequence->clips.size();i++) {
-            ClipPtr compare = c->sequence->clips.at(i);
+    QVector<Clip*> all_clips = c->track()->sequence()->GetAllClips();
+
+    for (int i=0;i<all_clips.size();i++) {
+      Clip* compare = all_clips.at(i);
       if (compare != nullptr
           && compare->track() == c->track()
           && compare->timeline_in() >= c->timeline_out() && compare->timeline_in() < proposed_out) {
@@ -336,15 +338,16 @@ void set_speed(ComboAction* ca, Clip* c, double speed, bool ripple, long& ep, lo
   }
   ep = qMin(ep, c->timeline_out());
   lr = qMax(lr, proposed_out - c->timeline_out());
-  c->move(ca, c->timeline_in(), proposed_out, qRound(c->clip_in() * multiplier), c->track());
+  c->track()->sequence()->MoveClip(c,
+                                   ca,
+                                   c->timeline_in(),
+                                   proposed_out,
+                                   qRound(c->clip_in() * multiplier),
+                                   c->track());
 
   c->refactor_frame_rate(ca, multiplier, false);
 
-  Selection sel;
-  sel.in = c->timeline_in();
-  sel.out = proposed_out;
-  sel.track = c->track();
-  olive::ActiveSequence->selections.append(sel);
+  c->track()->SelectArea(c->timeline_in(), proposed_out);
 }
 
 void SpeedDialog::accept() {
@@ -357,8 +360,8 @@ void SpeedDialog::accept() {
   SetClipProperty* reversed_action = new SetClipProperty(kSetClipPropertyReversed);
 
   // undoable action for restoring clip selections
-  SetSelectionsCommand* sel_command = new SetSelectionsCommand(olive::ActiveSequence.get());
-  sel_command->old_data = olive::ActiveSequence->selections;
+  Sequence* sequence = clips_.first()->track()->sequence();
+  QVector<Selection> old_selections = sequence->Selections();
 
   // variables used to calculate ripples
   long earliest_point = LONG_MAX;
@@ -373,7 +376,7 @@ void SpeedDialog::accept() {
     }
 
     // set maintain audio pitch if the user made a selection
-    if (c->track() >= 0
+    if (c->type() == Track::kTypeAudio
         && maintain_pitch->checkState() != Qt::PartiallyChecked
         && c->speed().maintain_audio_pitch != maintain_pitch->isChecked()) {
       audio_pitch_action->AddSetting(c, maintain_pitch->isChecked());
@@ -382,7 +385,12 @@ void SpeedDialog::accept() {
     // set reverse setting if the user made a selection
     if (reverse->checkState() != Qt::PartiallyChecked && c->reversed() != reverse->isChecked()) {
       long new_clip_in = (c->media_length() - (c->length() + c->clip_in()));
-      c->move(ca, c->timeline_in(), c->timeline_out(), new_clip_in, c->track());
+      c->track()->sequence()->MoveClip(c,
+                                       ca,
+                                       c->timeline_in(),
+                                       c->timeline_out(),
+                                       new_clip_in,
+                                       c->track());
       c->set_clip_in(new_clip_in);
       reversed_action->AddSetting(c, reverse->isChecked());
     }
@@ -423,7 +431,7 @@ void SpeedDialog::accept() {
     // make changes
     for (int i=0;i<clips_.size();i++) {
       Clip* c = clips_.at(i);
-      if (c->track() < 0) {
+      if (c->type() == Track::kTypeVideo) {
         set_speed(ca, c, frame_rate->value() / c->media_frame_rate(), ripple->isChecked(), earliest_point, longest_ripple);
       } else if (can_change_all) {
         set_speed(ca, c, frame_rate->value() / cached_fr, ripple->isChecked(), earliest_point, longest_ripple);
@@ -438,16 +446,15 @@ void SpeedDialog::accept() {
   }
 
   if (ripple->isChecked()) {
-    ripple_clips(ca, clips_.at(0)->sequence, earliest_point, longest_ripple);
+    sequence->Ripple(ca, earliest_point, longest_ripple);
   }
 
-  sel_command->new_data = olive::ActiveSequence->selections;
-  ca->append(sel_command);
+  ca->append(new SetSelectionsCommand(sequence, old_selections, sequence->Selections()));
 
   ca->append(reversed_action);
   ca->append(audio_pitch_action);
 
-  olive::UndoStack.push(ca);
+  olive::undo_stack.push(ca);
 
   update_ui(true);
   QDialog::accept();

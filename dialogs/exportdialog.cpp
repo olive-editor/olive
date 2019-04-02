@@ -68,14 +68,15 @@ enum ExportFormats {
   FORMAT_SIZE
 };
 
-ExportDialog::ExportDialog(QWidget *parent) :
-  QDialog(parent)
+ExportDialog::ExportDialog(QWidget *parent, Sequence* sequence) :
+  QDialog(parent),
+  sequence_(sequence)
 {
-  setWindowTitle(tr("Export \"%1\"").arg(olive::ActiveSequence->name));
+  setWindowTitle(tr("Export \"%1\"").arg(sequence->name));
   setup_ui();
 
   rangeCombobox->setCurrentIndex(0);
-  if (olive::ActiveSequence->using_workarea) {
+  if (sequence->using_workarea) {
     rangeCombobox->setEnabled(true);
     rangeCombobox->setCurrentIndex(1);
   }
@@ -109,10 +110,10 @@ ExportDialog::ExportDialog(QWidget *parent) :
   formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
   // default to sequence's native dimensions
-  widthSpinbox->setValue(olive::ActiveSequence->width);
-  heightSpinbox->setValue(olive::ActiveSequence->height);
-  samplingRateSpinbox->setValue(olive::ActiveSequence->audio_frequency);
-  framerateSpinbox->setValue(olive::ActiveSequence->frame_rate);
+  widthSpinbox->setValue(sequence->width);
+  heightSpinbox->setValue(sequence->height);
+  samplingRateSpinbox->setValue(sequence->audio_frequency);
+  framerateSpinbox->setValue(sequence->frame_rate);
 
   // set some advanced defaults
   vcodec_params.threads = 0;
@@ -537,6 +538,7 @@ void ExportDialog::StartExport() {
 
     // Set up export parameters to send to the ExportThread
     ExportParams params;
+    params.sequence = sequence_;
     params.filename = filename;
     params.video_enabled = videoGroupbox->isChecked();
     if (params.video_enabled) {
@@ -555,10 +557,10 @@ void ExportDialog::StartExport() {
     }
 
     params.start_frame = 0;
-    params.end_frame = olive::ActiveSequence->getEndFrame(); // entire sequence
+    params.end_frame = sequence_->GetEndFrame(); // entire sequence
     if (rangeCombobox->currentIndex() == 1) {
-      params.start_frame = qMax(olive::ActiveSequence->workarea_in, params.start_frame);
-      params.end_frame = qMin(olive::ActiveSequence->workarea_out, params.end_frame);
+      params.start_frame = qMax(sequence_->workarea_in, params.start_frame);
+      params.end_frame = qMin(sequence_->workarea_out, params.end_frame);
     }
 
     // Create export thread
@@ -573,7 +575,7 @@ void ExportDialog::StartExport() {
     panel_effect_controls->Clear();
 
     // Close all currently open clips
-    olive::ActiveSequence->Close();
+    sequence_->Close();
 
     olive::Global->set_export_state(true);
 
@@ -654,7 +656,7 @@ void ExportDialog::comp_type_changed(int) {
   case COMPRESSION_TYPE_CBR:
   case COMPRESSION_TYPE_TARGETBR:
     videoBitrateLabel->setText(tr("Bitrate (Mbps):"));
-    videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * olive::ActiveSequence->height) - 4.5)));
+    videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence_->height) - 4.5)));
     break;
   case COMPRESSION_TYPE_CFR:
     videoBitrateLabel->setText(tr("Quality (CRF):"));

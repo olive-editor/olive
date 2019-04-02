@@ -24,6 +24,7 @@
 #include <QString>
 
 #include "ui/styling.h"
+#include "timeline/timelinetools.h"
 
 namespace olive {
   /**
@@ -158,13 +159,6 @@ struct Config {
    * Sets all configuration variables to their defaults.
    */
   Config();
-
-  /**
-   * @brief Show track lines
-   *
-   * **TRUE** if the Timeline should show lines between tracks.
-   */
-  bool show_track_lines;
 
   /**
    * @brief The scroll wheel zooms rather than scrolls
@@ -674,8 +668,8 @@ struct RuntimeConfig {
 };
 
 namespace olive {
-extern Config CurrentConfig;
-extern RuntimeConfig CurrentRuntimeConfig;
+extern Config config;
+extern RuntimeConfig runtime_config;
 }
 
 #endif // CONFIG_H

@@ -92,7 +92,7 @@ ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clip
   }
 
   // it's assumed all the clips come from the same sequence
-  duration_field_->SetFrameRate(first_clip->sequence->frame_rate);
+  duration_field_->SetFrameRate(first_clip->track()->sequence()->frame_rate);
 
   if (all_clips_have_same_duration) {
     duration_field_->SetDefault(first_clip->length());
@@ -124,7 +124,7 @@ void ClipPropertiesDialog::accept()
       long clip_duration_rounded = qRound(clip_duration);
 
       if (clip->length() != clip_duration_rounded) {
-        clip->move(ca,
+        clip->Move(ca,
                    clip->timeline_in(),
                    clip->timeline_in() + clip_duration_rounded,
                    clip->clip_in(),
@@ -135,7 +135,7 @@ void ClipPropertiesDialog::accept()
   }
 
   if (ca->hasActions()) {
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     update_ui(false);
   } else {
     delete ca;

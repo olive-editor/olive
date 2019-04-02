@@ -28,8 +28,8 @@
 #include <QXmlStreamWriter>
 #include <memory>
 
+class Clip;
 class Sequence;
-using SequencePtr = std::shared_ptr<Sequence>;
 
 struct Marker {
   long frame;
@@ -37,9 +37,10 @@ struct Marker {
 
   void Save(QXmlStreamWriter& stream) const;
   static void Draw(QPainter& p, int x, int y, int bottom, bool selected);
-};
 
-void set_marker_internal(Sequence *seq, const QVector<int>& clips);
-void set_marker_internal(Sequence* seq);
+
+  static void SetOnClips(const QVector<Clip*>& clips);
+  static void SetOnSequence(Sequence* seq);
+};
 
 #endif // MARKER_H
