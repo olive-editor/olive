@@ -82,7 +82,7 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
   selected_items = items;
 
   QAction* import_action = menu.addAction(tr("Import..."));
-  QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
+  QObject::connect(import_action, SIGNAL(triggered(bool)), olive::Global.get(), SLOT(open_import_dialog()));
 
   Menu* new_menu = new Menu(tr("New"));
   menu.addMenu(new_menu);

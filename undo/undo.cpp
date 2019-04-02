@@ -369,6 +369,7 @@ void AddClipCommand::doRedo() {
       ClipPtr original = clips_.at(i);
 
       if (original != nullptr) {
+        qDebug() << "h";
         original->track()->AddClip(original);
       }      
     }

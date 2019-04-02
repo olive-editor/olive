@@ -14,7 +14,8 @@ Track::Track(TrackList* parent, Type type) :
   type_(type),
   muted_(false),
   soloed_(false),
-  locked_(false)
+  locked_(false),
+  height_(olive::timeline::kTrackDefaultHeight)
 {
 }
 
@@ -79,7 +80,7 @@ void Track::AddClip(ClipPtr clip)
   }
 
   clips_.append(clip);
-  if (clip->track() != nullptr) {
+  if (clip->track() != nullptr && clip->track() != this) {
     clip->track()->RemoveClip(clip.get());
   }
   clip->set_track(this);

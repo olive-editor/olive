@@ -6,10 +6,15 @@ TimelineArea::TimelineArea(Timeline* timeline) :
   alignment_(olive::timeline::kAlignmentTop)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
+  layout->setMargin(0);
+  layout->setSpacing(0);
 
   // LABELS
   QWidget* label_container = new QWidget();
+  label_container->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
   label_container_layout_ = new QVBoxLayout(label_container);
+  label_container_layout_->setMargin(0);
+  label_container_layout_->setSpacing(0);
   layout->addWidget(label_container);
 
   // VIEW
@@ -35,13 +40,22 @@ void TimelineArea::SetTrackList(Sequence *sequence, Track::Type track_list)
 
     track_list_ = nullptr;
 
+    labels_.clear();
+
   } else {
 
     track_list_ = sequence->GetTrackList(track_list);
 
+    labels_.resize(track_list_->TrackCount());
+    for (int i=0;i<labels_.size();i++) {
+      labels_[i] = std::make_shared<TimelineLabel>();
+      label_container_layout_->addWidget(labels_[i].get());
+    }
+
   }
 
   view_->SetTrackList(track_list_);
+
 }
 
 void TimelineArea::RefreshLabels()

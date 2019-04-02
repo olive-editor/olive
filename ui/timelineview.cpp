@@ -2891,7 +2891,12 @@ void TimelineView::paintEvent(QPaintEvent*) {
 
       Track* track = track_list_->TrackAt(i);
 
+      qDebug() << "track clip cound was" << track->ClipCount();
+
       for (int j=0;j<track->ClipCount();j++) {
+
+        qDebug() << "going to draw a clip!!!";
+
         Clip* clip = track->GetClip(j).get();
 
         QRect clip_rect(ParentTimeline()->getTimelineScreenPointFromFrame(clip->timeline_in()),

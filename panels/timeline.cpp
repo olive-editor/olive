@@ -162,11 +162,11 @@ void Timeline::OpenSequence(SequencePtr s)
   }
 
   Timeline* t = new Timeline(olive::MainWindow);
-  panel_timeline.append(t);
-  olive::MainWindow->addDockWidget(Qt::BottomDockWidgetArea, t);
   olive::MainWindow->tabifyDockWidget(panel_timeline.last(), t);
   t->SetSequence(s);
+  t->show();
   t->raise();
+  panel_timeline.append(t);
 }
 
 void Timeline::CloseSequence(Sequence *s)
