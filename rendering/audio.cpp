@@ -209,6 +209,8 @@ void AudioSenderThread::run() {
 
 int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
   // send audio to device
+  audio_write_lock.lock();
+
   qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(audio_ibuffer)+offset, max);
 
   qint64 audio_ibuffer_limit = audio_ibuffer_read + actual_write;
@@ -238,6 +240,8 @@ int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
   memset(audio_ibuffer+offset, 0, actual_write);
 
   audio_ibuffer_read = audio_ibuffer_limit;
+
+  audio_write_lock.unlock();
 
   return actual_write;
 }

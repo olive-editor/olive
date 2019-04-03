@@ -73,6 +73,31 @@ void Track::set_height(int h)
   height_ = qMax(h, olive::timeline::kTrackMinHeight);
 }
 
+QString Track::name()
+{
+  if (name_.isEmpty()) {
+    int display_index = Index() + 1;
+
+    switch (type_) {
+    case kTypeVideo:
+      return tr("Video %1").arg(display_index);
+    case kTypeAudio:
+      return tr("Audio %1").arg(display_index);
+    case kTypeSubtitle:
+      return tr("Subtitle %1").arg(display_index);
+    default:
+      return tr("Unknown %1").arg(display_index);
+    }
+  }
+
+  return name_;
+}
+
+void Track::SetName(const QString &s)
+{
+  name_ = s;
+}
+
 void Track::AddClip(ClipPtr clip)
 {
   if (clips_.contains(clip)) {

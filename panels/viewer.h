@@ -53,7 +53,6 @@ public:
   Mode mode();
 
   virtual bool focused() override;
-  bool is_main_sequence();
   void set_media(Media *m);
   void compose();
   void set_playpause_icon(bool play);
@@ -110,6 +109,8 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
 public slots:
+  void set_sequence(SequencePtr s);
+
   void play_wake();
   void go_to_start();
   void go_to_in();
@@ -138,7 +139,6 @@ private slots:
 private:
   void update_window_title();
   void clean_created_seq();
-  void set_sequence(SequencePtr s);
   bool created_sequence;
   long cached_end_frame;
   QString panel_name;

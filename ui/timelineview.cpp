@@ -534,6 +534,8 @@ void TimelineView::dropEvent(QDropEvent* event) {
 
     s->AddClipsFromGhosts(ca, ParentTimeline()->ghosts);
 
+    ParentTimeline()->ghosts.clear();
+
     olive::undo_stack.push(ca);
 
     setFocus();
@@ -1905,20 +1907,15 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
 
       if (ParentTimeline()->importing) {
-        /*
-        if ((ParentTimeline()->video_ghosts && mouse_track->type() == Track::kTypeVideo)
-            || (ParentTimeline()->audio_ghosts && mouse_track->type() == Track::kTypeAudio)) {
-          int abs_track_diff = abs(track_diff);
-          if (g.old_track < 0) { // clip is video
-            g.track -= abs_track_diff;
-          } else { // clip is audio
-            g.track += abs_track_diff;
-          }
+
+        if (mouse_track != nullptr) {
+          g.track = g.track->track_list()->TrackAt(mouse_track->Index());
         }
-        */
-        g.track = track_list_->First();
+
       } else if (g.old_track->type() == ParentTimeline()->drag_track_start->type()) {
+
         g.track += track_diff;
+
       }
     } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
       if (ParentTimeline()->transition_tool_open_clip != nullptr
@@ -2891,11 +2888,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
 
       Track* track = track_list_->TrackAt(i);
 
-      qDebug() << "track clip cound was" << track->ClipCount();
-
       for (int j=0;j<track->ClipCount();j++) {
-
-        qDebug() << "going to draw a clip!!!";
 
         Clip* clip = track->GetClip(j).get();
 
@@ -3291,11 +3284,13 @@ void TimelineView::paintEvent(QPaintEvent*) {
     }
 
     // draw border
+    /*
     p.setPen(QColor(0, 0, 0, 64));
     int edge_y = 0;
     p.drawLine(0, edge_y, rect().width(), edge_y);
     edge_y = rect().height()-1;
     p.drawLine(0, edge_y, rect().width(), edge_y);
+    */
 
     // draw snap point
     if (olive::timeline::snapped) {
@@ -3318,8 +3313,11 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
   y += scroll;
 
   int heights = 0;
+
   for (int i=0;i<track_list_->TrackCount();i++) {
-    int new_heights = heights + track_list_->TrackAt(i)->height() + 1;
+    int new_heights = heights + 1;
+
+    new_heights += track_list_->TrackAt(i)->height();
 
     if (y >= heights && y < new_heights) {
       return track_list_->TrackAt(i);
@@ -3333,6 +3331,7 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 
 int TimelineView::getScreenPointFromTrack(Track *track) {
   int point = 0;
+
   for (int i=0;i<track_list_->TrackCount();i++) {
     if (track == track_list_->TrackAt(i)) {
       return point;

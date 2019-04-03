@@ -1,17 +1,19 @@
 #include "timelinelabel.h"
 
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
+#include <QInputDialog>
 
 TimelineLabel::TimelineLabel() :
   track_(nullptr)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
+  layout->setMargin(0);
+  layout->setSpacing(layout->spacing()/2);
 
-  QLabel* label = new QLabel("Track!");
-  layout->addWidget(label);
-
+  label_ = new ClickableLabel();
+  layout->addWidget(label_);
+  connect(label_, SIGNAL(double_clicked()), this, SLOT(RenameTrack()));
 
   mute_button_ = new QPushButton("M");
   QSize fixed_size(mute_button_->sizeHint().height(), mute_button_->sizeHint().height());
@@ -44,13 +46,36 @@ void TimelineLabel::SetTrack(Track *track)
 
   track_ = track;
 
-  if (track != nullptr) {
-    mute_button_->setChecked(track->IsMuted());
-    solo_button_->setChecked(track->IsSoloed());
-    lock_button_->setChecked(track->IsLocked());
+  if (track_ != nullptr) {
+    UpdateState();
 
     connect(mute_button_, SIGNAL(toggled(bool)), track_, SLOT(SetMuted(bool)));
     connect(solo_button_, SIGNAL(toggled(bool)), track_, SLOT(SetSoloed(bool)));
     connect(lock_button_, SIGNAL(toggled(bool)), track_, SLOT(SetLocked(bool)));
+  }
+}
+
+void TimelineLabel::UpdateState()
+{
+  label_->setText(track_->name());
+
+  mute_button_->setChecked(track_->IsMuted());
+  solo_button_->setChecked(track_->IsSoloed());
+  lock_button_->setChecked(track_->IsLocked());
+}
+
+void TimelineLabel::RenameTrack()
+{
+  bool ok;
+  QString new_name = QInputDialog::getText(this,
+                                           tr("Rename Track"),
+                                           tr("Enter the new name for this track"),
+                                           QLineEdit::Normal,
+                                           track_->name(),
+                                           &ok);
+  if (ok) {
+    track_->SetName(new_name);
+
+    UpdateState();
   }
 }

@@ -49,6 +49,7 @@ void TimelineArea::SetTrackList(Sequence *sequence, Track::Type track_list)
     labels_.resize(track_list_->TrackCount());
     for (int i=0;i<labels_.size();i++) {
       labels_[i] = std::make_shared<TimelineLabel>();
+      labels_[i]->SetTrack(track_list_->TrackAt(i));
       label_container_layout_->addWidget(labels_[i].get());
     }
 

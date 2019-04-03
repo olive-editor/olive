@@ -185,6 +185,7 @@ private slots:
   void transition_menu_select(QAction*);
   void resize_move(double d);
   void set_tool();
+  void visibility_changed_slot(bool visibility);
 
 private:
   SequencePtr sequence_;

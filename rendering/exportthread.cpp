@@ -160,7 +160,8 @@ bool ExportThread::SetupVideo() {
       break;
     }
     break;
-
+  default:
+    break;
   }
 
   // Set export to be multithreaded

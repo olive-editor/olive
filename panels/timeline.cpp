@@ -114,9 +114,9 @@ Timeline::Timeline(QWidget *parent) :
   toolArrowButton->click();
 
   connect(horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(setScroll(int)));
-  //connect(videoScrollbar, SIGNAL(valueChanged(int)), video_area, SLOT(setScroll(int)));
-  //connect(audioScrollbar, SIGNAL(valueChanged(int)), audio_area, SLOT(setScroll(int)));
   connect(horizontalScrollBar, SIGNAL(resize_move(double)), this, SLOT(resize_move(double)));
+  connect(this, SIGNAL(SequenceChanged(SequencePtr)), panel_sequence_viewer, SLOT(set_sequence(SequencePtr)));
+  connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(visibility_changed_slot(bool)));
 
   update_sequence();
 
@@ -1048,6 +1048,13 @@ void Timeline::set_tool() {
     break;
   default:
     timeline_area->setCursor(Qt::ArrowCursor);
+  }
+}
+
+void Timeline::visibility_changed_slot(bool visibility)
+{
+  if (visibility) {
+    emit SequenceChanged(sequence_);
   }
 }
 

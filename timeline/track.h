@@ -53,6 +53,9 @@ public:
   int height();
   void set_height(int h);
 
+  QString name();
+  void SetName(const QString& s);
+
   void AddClip(ClipPtr clip);
   int ClipCount();
   ClipPtr GetClip(int i);
@@ -105,6 +108,8 @@ private:
   bool muted_;
   bool soloed_;
   bool locked_;
+
+  QString name_;
 };
 
 #endif // TRACK_H
