@@ -2399,39 +2399,45 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         long frame_min = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
         long frame_max = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
 
-        int track_min = qMin(ParentTimeline()->drag_track_start->Index(), ParentTimeline()->cursor_track->Index());
-        int track_max = qMax(ParentTimeline()->drag_track_start->Index(), ParentTimeline()->cursor_track->Index());
-
         // determine which clips are in this rectangular selection
         QVector<Clip*> selected_clips;
         for (int j=0;j<track_list_->TrackCount();j++) {
           Track* track = track_list_->TrackAt(j);
 
-          for (int i=0;i<track->ClipCount();i++) {
-            Clip* clip = track->GetClip(i).get();
-            if (clip->track()->Index() >= track_min &&
-                clip->track()->Index() <= track_max &&
-                !(clip->timeline_in() < frame_min && clip->timeline_out() < frame_min) &&
-                !(clip->timeline_in() > frame_max && clip->timeline_out() > frame_max)) {
+          int track_top = getScreenPointFromTrack(track);
+          int track_bottom = track_top + track->height();
+          int rect_top = qMin(ParentTimeline()->rect_select_rect.top(), ParentTimeline()->rect_select_rect.bottom());
+          int rect_bottom = qMax(ParentTimeline()->rect_select_rect.top(), ParentTimeline()->rect_select_rect.bottom());
 
-              // create a group of the clip (and its links if alt is not pressed)
-              QVector<Clip*> session_clips;
-              session_clips.append(clip);
+          // See if this track touches this rectangle at all
+          if (!(track_bottom < rect_top
+              || track_top > rect_bottom)) {
 
-              if (!alt) {
-                session_clips.append(clip->linked);
-              }
+            // Loop through track's clips for clips touching this rectangle
+            for (int i=0;i<track->ClipCount();i++) {
+              Clip* clip = track->GetClip(i).get();
+              if (!(clip->timeline_out() < frame_min || clip->timeline_in() > frame_max) ) {
 
-              // for each of these clips, see if clip has already been added -
-              // this can easily happen due to adding linked clips
-              for (int j=0;j<session_clips.size();j++) {
-                Clip* c = session_clips.at(j);
+                // create a group of the clip (and its links if alt is not pressed)
+                QVector<Clip*> session_clips;
+                session_clips.append(clip);
 
-                if (!selected_clips.contains(c)) {
-                  selected_clips.append(c);
+                if (!alt) {
+                  session_clips.append(clip->linked);
+                }
+
+                // for each of these clips, see if clip has already been added -
+                // this can easily happen due to adding linked clips
+                for (int j=0;j<session_clips.size();j++) {
+                  Clip* c = session_clips.at(j);
+
+                  if (!selected_clips.contains(c)) {
+                    selected_clips.append(c);
+                  }
                 }
               }
             }
+
           }
         }
 
@@ -3323,9 +3329,9 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 
   int heights = 0;
 
-  //for (int i=0;i<track_list_->TrackCount();i++) {
-  int i = 0;
-  while (true) {
+  for (int i=0;i<track_list_->TrackCount();i++) {
+//  int i = 0;
+//  while (true) {
 
     int new_heights = heights + 1;
 
@@ -3337,8 +3343,10 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 
     heights = new_heights;
 
-    i++;
+//    i++;
   }
+
+  return nullptr;
 }
 
 int TimelineView::getScreenPointFromTrack(Track *track) {

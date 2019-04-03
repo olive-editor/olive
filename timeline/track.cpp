@@ -261,11 +261,12 @@ bool Track::IsTransitionSelected(Transition *t)
 void Track::SelectArea(long in, long out)
 {
   selections_.append(Selection(in, out, this));
+  Selection::Tidy(selections_);
 }
 
 void Track::SelectClip(Clip* c)
 {
-  selections_.append(Selection(c->timeline_in(), c->timeline_out(), this));
+  SelectArea(c->timeline_in(), c->timeline_out());
 }
 
 void Track::SelectAll()

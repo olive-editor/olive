@@ -706,8 +706,6 @@ bool Clip::Retrieve()
 
       texture_timestamp = frame->pts;
 
-      //}
-
       ret = true;
     } else {
       qCritical() << "Failed to retrieve frame for clip" << name();
