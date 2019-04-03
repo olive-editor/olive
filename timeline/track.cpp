@@ -345,6 +345,27 @@ long Track::GetEndFrame()
   return end_frame;
 }
 
+bool Track::IsEffectivelyMuted()
+{
+  // Check if this track is muted
+  if (muted_) {
+    return true;
+  }
+
+  // Check if any tracks are soloed
+  bool a_track_is_soloed = false;
+
+  for (int i=0;i<track_list()->TrackCount();i++) {
+    if (track_list()->TrackAt(i)->IsSoloed()) {
+      a_track_is_soloed = true;
+      break;
+    }
+  }
+
+  // Return if a track is soloed and this track is not soloed
+  return (a_track_is_soloed && !soloed_);
+}
+
 bool Track::IsMuted()
 {
   return muted_;

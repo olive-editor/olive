@@ -86,6 +86,7 @@ public:
 
   long GetEndFrame();
 
+  bool IsEffectivelyMuted();
   bool IsMuted();
   bool IsSoloed();
   bool IsLocked();
