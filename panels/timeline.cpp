@@ -90,7 +90,7 @@ Timeline::Timeline(QWidget *parent) :
 
   headers->viewer = panel_sequence_viewer;
 
-  video_area->SetAlignment(olive::timeline::kAlignmentBottom);
+  //video_area->SetAlignment(olive::timeline::kAlignmentBottom);
 
   tool_buttons.append(toolArrowButton);
   tool_buttons.append(toolEditButton);
@@ -993,8 +993,11 @@ void Timeline::setup_ui() {
   timeline_area_layout->setSpacing(0);
   timeline_area_layout->setContentsMargins(0, 0, 0, 0);
 
+  QHBoxLayout* timeline_header_layout = new QHBoxLayout();
+  timeline_header_layout->addSpacing(olive::timeline::kTimelineLabelFixedWidth);
   headers = new TimelineHeader();
-  timeline_area_layout->addWidget(headers);
+  timeline_header_layout->addWidget(headers);
+  timeline_area_layout->addLayout(timeline_header_layout);
 
   editAreas = new QWidget();
   QHBoxLayout* editAreaLayout = new QHBoxLayout(editAreas);
@@ -1063,4 +1066,5 @@ void olive::timeline::MultiplyTrackSizesByDPI()
   kTrackDefaultHeight *= QApplication::desktop()->devicePixelRatio();
   kTrackMinHeight *= QApplication::desktop()->devicePixelRatio();
   kTrackHeightIncrement *= QApplication::desktop()->devicePixelRatio();
+  kTimelineLabelFixedWidth *= QApplication::desktop()->devicePixelRatio();
 }

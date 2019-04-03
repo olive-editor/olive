@@ -536,6 +536,8 @@ void TimelineView::dropEvent(QDropEvent* event) {
 
     ParentTimeline()->ghosts.clear();
 
+    ParentTimeline()->importing = false;
+
     olive::undo_stack.push(ca);
 
     setFocus();
@@ -1914,7 +1916,10 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       } else if (g.old_track->type() == ParentTimeline()->drag_track_start->type()) {
 
-        g.track += track_diff;
+        if (mouse_track != nullptr) {
+          g.track = g.track->track_list()->TrackAt(mouse_track->Index());
+        }
+        //g.track += track_diff;
 
       }
     } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
@@ -3310,11 +3315,18 @@ void TimelineView::resizeEvent(QResizeEvent *) {
 // **************************************
 
 Track *TimelineView::getTrackFromScreenPoint(int y) {
+  if (y < 0 || y > height()) {
+    return nullptr;
+  }
+
   y += scroll;
 
   int heights = 0;
 
-  for (int i=0;i<track_list_->TrackCount();i++) {
+  //for (int i=0;i<track_list_->TrackCount();i++) {
+  int i = 0;
+  while (true) {
+
     int new_heights = heights + 1;
 
     new_heights += track_list_->TrackAt(i)->height();
@@ -3324,9 +3336,9 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
     }
 
     heights = new_heights;
-  }
 
-  return nullptr;
+    i++;
+  }
 }
 
 int TimelineView::getScreenPointFromTrack(Track *track) {

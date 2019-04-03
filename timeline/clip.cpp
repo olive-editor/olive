@@ -721,7 +721,7 @@ bool Clip::Retrieve()
 
 bool Clip::UsesCacher()
 {
-  return track() >= 0 || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
+  return type() == Track::kTypeAudio || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
 }
 
 ClipSpeed::ClipSpeed() :

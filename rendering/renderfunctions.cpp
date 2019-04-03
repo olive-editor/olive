@@ -370,7 +370,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
     if (got_mutex && c->IsOpen()) {
       // if clip is a video clip
-      if (c->track() < 0) {
+      if (c->type() == Track::kTypeVideo) {
 
         // textureID variable contains texture to be drawn on screen at the end
         GLuint textureID = 0;
@@ -750,7 +750,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             // == END FINAL DRAW ON SEQUENCE BUFFER ==
           }
         }
-      } else {
+      } else if (c->type() == Track::kTypeAudio) {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) {
           params.nests.append(c);
           compose_sequence(params);

@@ -24,6 +24,8 @@ namespace olive {
     extern int kTrackDefaultHeight;
     extern int kTrackMinHeight;
     extern int kTrackHeightIncrement;
+
+    extern int kTimelineLabelFixedWidth;
   }
 }
 

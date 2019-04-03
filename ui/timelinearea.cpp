@@ -1,5 +1,7 @@
 #include "timelinearea.h"
 
+int olive::timeline::kTimelineLabelFixedWidth = 200;
+
 TimelineArea::TimelineArea(Timeline* timeline) :
   timeline_(timeline),
   track_list_(nullptr),
@@ -11,7 +13,7 @@ TimelineArea::TimelineArea(Timeline* timeline) :
 
   // LABELS
   QWidget* label_container = new QWidget();
-  label_container->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+  label_container->setFixedWidth(olive::timeline::kTimelineLabelFixedWidth);
   label_container_layout_ = new QVBoxLayout(label_container);
   label_container_layout_->setMargin(0);
   label_container_layout_->setSpacing(0);

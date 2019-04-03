@@ -418,7 +418,7 @@ void SpeedDialog::accept() {
       if (i > 0 && !qFuzzyCompare(cached_speed, c->speed().value)) {
         can_change_all = false;
       }
-      if (c->track() < 0) {
+      if (c->type() == Track::kTypeVideo) {
         if (qIsNaN(cached_fr)) {
           cached_fr = c->media_frame_rate();
         } else if (!qFuzzyCompare(cached_fr, c->media_frame_rate())) {
