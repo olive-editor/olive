@@ -23,6 +23,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QMutex>
 
 /**
  * @brief The AudioMonitor class
@@ -83,6 +84,13 @@ private:
    * @brief Internal value storage
    */
   QVector<double> values;
+
+  /**
+   * @brief Value mutex
+   *
+   * Audio is often processed and sent to this object from other threads. To keep them synchronized, we lock them here.
+   */
+  QMutex value_lock;
 
   /**
    * @brief Internal timer to clear the audio monitor after a certain amount of time

@@ -46,9 +46,13 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
 }
 
 void AudioMonitor::set_value(const QVector<double> &ivalues) {
-  values = ivalues;
-  update();
+  qDebug() << "am set";
 
+  value_lock.lock();
+  values = ivalues;
+  value_lock.unlock();
+
+  QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
   QMetaObject::invokeMethod(&clear_timer, "start", Qt::QueuedConnection);
 }
 
@@ -68,7 +72,10 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
 }
 
 void AudioMonitor::paintEvent(QPaintEvent *) {
+  value_lock.lock();
+  qDebug() << "am paint";
   if (values.size() > 0) {
+    qDebug() << "am paint 2";
     QPainter p(this);
     int channel_x = AUDIO_MONITOR_GAP;
     int channel_count = values.size();
@@ -95,4 +102,5 @@ void AudioMonitor::paintEvent(QPaintEvent *) {
       channel_x += channel_width + AUDIO_MONITOR_GAP;
     }
   }
+  value_lock.unlock();
 }
