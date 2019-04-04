@@ -253,7 +253,7 @@
     <message>
         <location filename="../effects/effect.cpp" line="469"/>
         <source>Failed to open &quot;%1&quot; for writing.</source>
-        <translation>Gagal menulis file &quot;%1&quot;</translation>
+        <translation>Gagal menulis file &quot;%1&quot;.</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="478"/>
@@ -932,7 +932,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="867"/>
         <source>&amp;Open Project</source>
-        <translation type="unfinished">Buka &amp;Proyek</translation>
+        <translation>Buka &amp;Proyek</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="868"/>
@@ -952,7 +952,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="871"/>
         <source>Save Project &amp;As</source>
-        <translation type="unfinished">Simpan Proyek Seba&amp;gai</translation>
+        <translation>Simpan Proyek Seba&amp;gai</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="872"/>
@@ -3090,7 +3090,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="81"/>
         <source>Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Penggeseran</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="85"/>
@@ -3326,7 +3326,7 @@ Durasi: %4</translation>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="218"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak dapat mencari bungkus media untuk rangkaian.</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1026"/>
