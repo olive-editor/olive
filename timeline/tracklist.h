@@ -15,6 +15,7 @@ public:
   void AddTrack();
   void RemoveTrack(int i);
   Track* First();
+  Track* Last();
   int TrackCount();
   int IndexOfTrack(Track* track);
   Track* TrackAt(int i);
@@ -23,6 +24,9 @@ public:
   Track::Type type();
 
   Sequence* GetParent();
+
+signals:
+  void TrackCountChanged();
 
 private:
   void ResizeTrackArray(int i);

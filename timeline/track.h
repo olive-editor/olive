@@ -98,6 +98,9 @@ public slots:
   void SetSoloed(bool soloed);
   void SetLocked(bool locked);
 
+signals:
+  void HeightChanged(int height);
+
 private:
   void ResizeClipArray(int new_size);
 

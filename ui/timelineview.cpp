@@ -1614,7 +1614,6 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
   Track* mouse_track = getTrackFromScreenPoint(mouse_pos.y());
   long frame_diff = (lock_frame) ? 0 : ParentTimeline()->getTimelineFrameFromScreenPoint(mouse_pos.x()) - ParentTimeline()->drag_frame_start;
-  int track_diff = ((effective_tool == olive::timeline::TIMELINE_TOOL_SLIDE || ParentTimeline()->transition_select != kTransitionNone) && !ParentTimeline()->importing) ? 0 : mouse_track - ParentTimeline()->drag_track_start;
   long validator;
   long earliest_in_point = LONG_MAX;
 
@@ -3321,17 +3320,19 @@ void TimelineView::resizeEvent(QResizeEvent *) {
 // **************************************
 
 Track *TimelineView::getTrackFromScreenPoint(int y) {
-  if (y < 0 || y > height()) {
-    return nullptr;
+  if (y < 0) {
+    return track_list_->First();
+  } else if (y > height()) {
+    return track_list_->Last();
   }
 
   y += scroll;
 
   int heights = 0;
 
-  for (int i=0;i<track_list_->TrackCount();i++) {
-//  int i = 0;
-//  while (true) {
+//  for (int i=0;i<track_list_->TrackCount();i++) {
+  int i = 0;
+  while (true) {
 
     int new_heights = heights + 1;
 
@@ -3343,10 +3344,10 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 
     heights = new_heights;
 
-//    i++;
+    i++;
   }
 
-  return nullptr;
+//  return nullptr;
 }
 
 int TimelineView::getScreenPointFromTrack(Track *track) {

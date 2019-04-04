@@ -25,6 +25,7 @@ private:
   Track* track_;
 private slots:
   void RenameTrack();
+  void UpdateHeight(int h);
 };
 
 using TimelineLabelPtr = std::shared_ptr<TimelineLabel>;

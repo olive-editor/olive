@@ -12,9 +12,8 @@ class TimelineArea : public QWidget
 {
   Q_OBJECT
 public:
-  TimelineArea(Timeline *timeline);
+  TimelineArea(Timeline *timeline, olive::timeline::Alignment alignment = olive::timeline::kAlignmentTop);
 
-  void SetAlignment(olive::timeline::Alignment alignment);
   void SetTrackList(Sequence* sequence, Track::Type track_list);
 public slots:
   void RefreshLabels();

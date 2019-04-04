@@ -71,6 +71,7 @@ int Track::height()
 void Track::set_height(int h)
 {
   height_ = qMax(h, olive::timeline::kTrackMinHeight);
+  emit HeightChanged(h);
 }
 
 QString Track::name()

@@ -52,12 +52,16 @@ void TimelineLabel::SetTrack(Track *track)
     connect(mute_button_, SIGNAL(toggled(bool)), track_, SLOT(SetMuted(bool)));
     connect(solo_button_, SIGNAL(toggled(bool)), track_, SLOT(SetSoloed(bool)));
     connect(lock_button_, SIGNAL(toggled(bool)), track_, SLOT(SetLocked(bool)));
+
+    connect(track_, SIGNAL(HeightChanged(int)), this, SLOT(UpdateHeight(int)));
   }
 }
 
 void TimelineLabel::UpdateState()
 {
   label_->setText(track_->name());
+
+  UpdateHeight(track_->height());
 
   mute_button_->setChecked(track_->IsMuted());
   solo_button_->setChecked(track_->IsSoloed());
@@ -78,4 +82,9 @@ void TimelineLabel::RenameTrack()
 
     UpdateState();
   }
+}
+
+void TimelineLabel::UpdateHeight(int h)
+{
+  setFixedHeight(h);
 }

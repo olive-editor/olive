@@ -37,6 +37,8 @@ void TrackList::AddTrack()
 {
   Track* track = new Track(this, type_);
   tracks_.append(track);
+
+  emit TrackCountChanged();
 }
 
 void TrackList::RemoveTrack(int i)
@@ -45,11 +47,18 @@ void TrackList::RemoveTrack(int i)
     return;
   }
   tracks_.removeAt(i);
+
+  emit TrackCountChanged();
 }
 
 Track *TrackList::First()
 {
   return tracks_.first();
+}
+
+Track *TrackList::Last()
+{
+  return tracks_.last();
 }
 
 int TrackList::TrackCount()
