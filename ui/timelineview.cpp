@@ -1826,9 +1826,14 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
       }
 
       // Prevent any clips from going below the "zeroeth" track
-      int track_validator = g.track->Index() + track_diff;
-      if (track_validator < 0) {
-        track_diff -= track_validator;
+
+      if (ParentTimeline()->importing || g.track->type() == ParentTimeline()->drag_track_start->type()) {
+
+        int track_validator = g.track->Index() + track_diff;
+        if (track_validator < 0) {
+          track_diff -= track_validator;
+        }
+
       }
 
     } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
