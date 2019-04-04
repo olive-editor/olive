@@ -1020,7 +1020,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="835"/>
         <source>Deselect All</source>
-        <translation>Batalkan Semua Pilihan</translation>
+        <translation>Batalkan Semua Seleksi</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="836"/>
@@ -2629,7 +2629,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="77"/>
         <source>No media selected</source>
-        <translation>Tidak ada media yang dipilih</translation>
+        <translation>Tidak ada media yang diseleksi</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="78"/>
@@ -2639,17 +2639,17 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="86"/>
         <source>Same media selected</source>
-        <translation>Terpilih media yang sama</translation>
+        <translation>Terseleksi media yang sama</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
         <source>You selected the same media that you&apos;re replacing. Please select a different one or click &apos;Cancel&apos;.</source>
-        <translation>Anda memilih media yang sama dengan yang akan diganti. Silahkan pilih yang lain atau klik &quot;Batalkan&quot;.</translation>
+        <translation>Anda menyeleksi media yang sama dengan yang akan diganti. Silahkan pilih yang lain atau klik &quot;Batalkan&quot;.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="93"/>
         <source>Folder selected</source>
-        <translation>Folder terpilih</translation>
+        <translation>Folder terseleksi</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="94"/>
