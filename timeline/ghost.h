@@ -18,15 +18,17 @@ enum TrimType {
 
 struct Ghost {
   Clip* clip;
+
   long in;
   long out;
-  Track* track;
   long clip_in;
 
   long old_in;
   long old_out;
-  Track* old_track;
   long old_clip_in;
+
+  Track* track;
+  int track_movement;
 
   // importing variables
   Media* media;

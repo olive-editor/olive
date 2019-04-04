@@ -189,12 +189,11 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
 
     earliest_point = qMin(earliest_point, g.in);
 
-    ClipPtr c = std::make_shared<Clip>(g.track);
+    ClipPtr c = std::make_shared<Clip>(g.track->Sibling(g.track_movement));
     c->set_media(g.media, g.media_stream);
     c->set_timeline_in(g.in);
     c->set_timeline_out(g.out);
     c->set_clip_in(g.clip_in);
-    c->set_track(g.track);
     if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
       Footage* m = c->media()->to_footage();
       if (m->video_tracks.size() == 0) {

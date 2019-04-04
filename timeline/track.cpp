@@ -195,6 +195,31 @@ Clip *Track::GetClipFromPoint(long point)
   return nullptr;
 }
 
+Track *Track::Previous()
+{
+  int index = Index();
+
+  if (index == 0) {
+    return nullptr;
+  }
+
+  return parent_->TrackAt(index - 1);
+}
+
+Track *Track::Next()
+{
+  return parent_->TrackAt(Index() + 1);
+}
+
+Track *Track::Sibling(int diff)
+{
+  if (diff == 0) {
+    return this;
+  }
+
+  return track_list()->TrackAt(qMax(0, Index() + diff));
+}
+
 int Track::Index()
 {
   return parent_->IndexOfTrack(this);

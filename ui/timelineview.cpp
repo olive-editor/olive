@@ -645,7 +645,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
       if (ParentTimeline()->drag_track_start->type() == create_type) {
         Ghost g;
         g.in = g.old_in = g.out = g.old_out = ParentTimeline()->drag_frame_start;
-        g.track = g.old_track = ParentTimeline()->drag_track_start;
+        g.track = ParentTimeline()->drag_track_start;
+        g.track_movement = 0;
         g.transition = nullptr;
         g.clip = nullptr;
         g.trim_type = olive::timeline::TRIM_OUT;
@@ -1054,6 +1055,8 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
               c->set_name(tr("Noise"));
               c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
               break;
+            default:
+              break;
             }
 
             if (c->type() == Track::kTypeAudio && olive::config.add_default_effects_to_clips) {
@@ -1081,7 +1084,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
           if (g.in != g.old_in
               || g.out != g.old_out
               || g.clip_in != g.old_clip_in
-              || g.track != g.old_track) {
+              || g.track_movement != 0) {
             process_moving = true;
             break;
           }
@@ -1154,10 +1157,10 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             QVector<Selection> delete_areas;
             for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
               const Ghost& g = ParentTimeline()->ghosts.at(i);
-              if (g.old_in != g.in || g.old_out != g.out || g.track != g.old_track || g.clip_in != g.old_clip_in) {
+              if (g.old_in != g.in || g.old_out != g.out || g.track_movement != 0 || g.clip_in != g.old_clip_in) {
 
                 // create copy of clip
-                ClipPtr c = g.clip->copy(g.track);
+                ClipPtr c = g.clip->copy(g.track->Sibling(g.track_movement));
 
                 c->set_timeline_in(g.in);
                 c->set_timeline_out(g.out);
@@ -1247,7 +1250,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                         (g.in - g.old_in),
                         (g.out - g.old_out),
                         (g.clip_in - g.old_clip_in),
-                        g.track,
+                        g.track->Sibling(g.track_movement),
                         false,
                         true);
 
@@ -1302,7 +1305,13 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                       timeline_out_movement = g.out - g.transition->parent_clip->timeline_out();
                     }
 
-                    c->Move(ca, (g.in - g.old_in), timeline_out_movement, (g.clip_in - g.old_clip_in), 0, false, true);
+                    c->Move(ca,
+                            (g.in - g.old_in),
+                            timeline_out_movement,
+                            (g.clip_in - g.old_clip_in),
+                            g.track,
+                            false,
+                            true);
                     clip_length -= (g.in - g.old_in);
                   }
 
@@ -1319,7 +1328,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                     }
 
                     // if transition is going to make the clip bigger, make the clip bigger
-                    c->Move(ca, timeline_in_movement, (g.out - g.old_out), timeline_in_movement, 0, false, true);
+                    c->Move(ca, timeline_in_movement, (g.out - g.old_out), timeline_in_movement, c->track(), false, true);
                     clip_length += (g.out - g.old_out);
                   }
 
@@ -1541,7 +1550,8 @@ void TimelineView::init_ghosts() {
     Ghost& g = ParentTimeline()->ghosts[i];
     Clip* c = g.clip;
 
-    g.track = g.old_track = c->track();
+    g.track = c->track();
+    g.track_movement = 0;
     g.clip_in = g.old_clip_in = c->clip_in();
 
     if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_SLIP) {
@@ -1616,6 +1626,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
   long frame_diff = (lock_frame) ? 0 : ParentTimeline()->getTimelineFrameFromScreenPoint(mouse_pos.x()) - ParentTimeline()->drag_frame_start;
   long validator;
   long earliest_in_point = LONG_MAX;
+  int track_diff = getTrackIndexFromScreenPoint(mouse_pos.y()) - ParentTimeline()->drag_track_start->Index();
 
   // first try to snap
   long fm;
@@ -1814,18 +1825,12 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         }
       }
 
-      // prevent clips from crossing tracks
-      /*
-      if (same_sign(g.old_track, ParentTimeline()->drag_track_start)) {
-        while (!same_sign(g.old_track, g.old_track + track_diff)) {
-          if (g.old_track < 0) {
-            track_diff--;
-          } else {
-            track_diff++;
-          }
-        }
+      // Prevent any clips from going below the "zeroeth" track
+      int track_validator = g.track->Index() + track_diff;
+      if (track_validator < 0) {
+        track_diff -= track_validator;
       }
-      */
+
     } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
       if (ParentTimeline()->transition_tool_open_clip == nullptr
           || ParentTimeline()->transition_tool_close_clip == nullptr) {
@@ -1898,7 +1903,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         g.out = g.old_out + ghost_diff;
       }
     } else if (clips_are_movable) {
-      g.track = g.old_track;
+      g.track_movement = 0;
       g.in = g.old_in + frame_diff;
       g.out = g.old_out + frame_diff;
 
@@ -1909,16 +1914,11 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       if (ParentTimeline()->importing) {
 
-        if (mouse_track != nullptr) {
-          g.track = g.track->track_list()->TrackAt(mouse_track->Index());
-        }
+        g.track_movement = getTrackIndexFromScreenPoint(mouse_pos.y());
 
-      } else if (g.old_track->type() == ParentTimeline()->drag_track_start->type()) {
+      } else if (g.track->type() == ParentTimeline()->drag_track_start->type()) {
 
-        if (mouse_track != nullptr) {
-          g.track = g.track->track_list()->TrackAt(mouse_track->Index());
-        }
-        //g.track += track_diff;
+        g.track_movement = track_diff;
 
       }
     } else if (effective_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
@@ -3250,7 +3250,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
         first_ghost = qMin(first_ghost, g.in);
         if (g.track->type() == track_list_->type()) {
           int ghost_x = ParentTimeline()->getTimelineScreenPointFromFrame(g.in);
-          int ghost_y = getScreenPointFromTrack(g.track);
+          int ghost_y = getScreenPointFromTrackIndex(g.track->Index() + g.track_movement);
           int ghost_width = ParentTimeline()->getTimelineScreenPointFromFrame(g.out) - ghost_x - 1;
           int ghost_height = g.track->height() - 1;
 
@@ -3320,26 +3320,44 @@ void TimelineView::resizeEvent(QResizeEvent *) {
 // **************************************
 
 Track *TimelineView::getTrackFromScreenPoint(int y) {
+
+  int index = getTrackIndexFromScreenPoint(y);
+
+  if (index < track_list_->TrackCount()) {
+    return track_list_->TrackAt(index);
+  }
+
+  return nullptr;
+
+}
+
+int TimelineView::getScreenPointFromTrack(Track *track) {
+  return getScreenPointFromTrackIndex(track_list_->IndexOfTrack(track));
+}
+
+int TimelineView::getTrackIndexFromScreenPoint(int y)
+{
   if (y < 0) {
-    return track_list_->First();
-  } else if (y > height()) {
-    return track_list_->Last();
+    return 0;
   }
 
   y += scroll;
 
   int heights = 0;
 
-//  for (int i=0;i<track_list_->TrackCount();i++) {
   int i = 0;
   while (true) {
 
     int new_heights = heights + 1;
 
-    new_heights += track_list_->TrackAt(i)->height();
+    if (i < track_list_->TrackCount()) {
+      new_heights += track_list_->TrackAt(i)->height();
+    } else {
+      new_heights += olive::timeline::kTrackDefaultHeight;
+    }
 
     if (y >= heights && y < new_heights) {
-      return track_list_->TrackAt(i);
+      return i;
     }
 
     heights = new_heights;
@@ -3347,18 +3365,20 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
     i++;
   }
 
-//  return nullptr;
 }
 
-int TimelineView::getScreenPointFromTrack(Track *track) {
+int TimelineView::getScreenPointFromTrackIndex(int track)
+{
   int point = 0;
 
-  for (int i=0;i<track_list_->TrackCount();i++) {
-    if (track == track_list_->TrackAt(i)) {
-      return point;
+  for (int i=0;i<track;i++) {
+    if (i < track_list_->TrackCount()) {
+      point += track_list_->TrackAt(i)->height() + 1;
+    } else {
+      point += olive::timeline::kTrackDefaultHeight + 1;
     }
-    point += track_list_->TrackAt(i)->height() + 1;
   }
+
   return point - scroll;
 }
 

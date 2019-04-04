@@ -72,8 +72,13 @@ protected:
 private:
   void init_ghosts();
   void update_ghosts(const QPoint& mouse_pos, bool lock_frame);
+
   Track* getTrackFromScreenPoint(int y);
   int getScreenPointFromTrack(Track* track);
+
+  int getTrackIndexFromScreenPoint(int y);
+  int getScreenPointFromTrackIndex(int track);
+
   Timeline* ParentTimeline();
   Sequence* sequence();
   void delete_area_under_ghosts(ComboAction* ca, Sequence *s);

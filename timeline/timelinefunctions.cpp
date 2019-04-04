@@ -165,7 +165,7 @@ QVector<Ghost> olive::timeline::CreateGhostsFromMedia(Sequence *seq,
     Ghost& g = ghosts[i];
     g.old_in = g.in;
     g.old_out = g.out;
-    g.old_track = g.track;
+    g.track_movement = 0;
   }
 
   return ghosts;

@@ -370,7 +370,7 @@ void Timeline::nest() {
                          && c->timeline_out() > g.out))) {
 
               // There's a clip occupied by the space taken up by this ghost. Move up a track, and seek again.
-              g.track = g.track->track_list()->TrackAt(g.track->Index() + 1);
+              g.track = g.track->Next();
 
               // Restart entire loop again
               j = -1;

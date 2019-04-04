@@ -68,6 +68,10 @@ public:
   ClipPtr GetClipObjectFromRawPtr(Clip* c);
   Clip* GetClipFromPoint(long point);
 
+  Track* Previous();
+  Track* Next();
+  Track* Sibling(int diff);
+
   int Index();
 
   bool IsClipSelected(int clip_index, bool containing = true);
