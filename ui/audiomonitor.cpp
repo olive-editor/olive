@@ -29,8 +29,6 @@
 #include <QLinearGradient>
 #include <QtMath>
 
-#include <QDebug>
-
 #define AUDIO_MONITOR_PEAK_HEIGHT 15
 #define AUDIO_MONITOR_GAP 3
 
@@ -46,8 +44,6 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
 }
 
 void AudioMonitor::set_value(const QVector<double> &ivalues) {
-  qDebug() << "am set";
-
   value_lock.lock();
   values = ivalues;
   value_lock.unlock();
@@ -73,9 +69,7 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
 
 void AudioMonitor::paintEvent(QPaintEvent *) {
   value_lock.lock();
-  qDebug() << "am paint";
   if (values.size() > 0) {
-    qDebug() << "am paint 2";
     QPainter p(this);
     int channel_x = AUDIO_MONITOR_GAP;
     int channel_count = values.size();
