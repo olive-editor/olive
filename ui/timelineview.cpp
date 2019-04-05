@@ -2402,16 +2402,16 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
         // set the right/bottom coords to the current mouse position
         // (left/top were set to the starting drag position earlier)
-        ParentTimeline()->rect_select_rect.setRight(event->pos().x());
-
-        if (alignment_ == olive::timeline::kAlignmentBottom) {
-          ParentTimeline()->rect_select_rect.setBottom(event->pos().y() - height());
-        } else {
-          ParentTimeline()->rect_select_rect.setBottom(event->pos().y());
-        }
+        ParentTimeline()->rect_select_rect.setBottomRight(mapToGlobal(event->pos()));
 
         long frame_min = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
         long frame_max = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+
+        QPoint relative_tl = mapFromGlobal(ParentTimeline()->rect_select_rect.topLeft());
+        QPoint relative_br = mapFromGlobal(ParentTimeline()->rect_select_rect.bottomRight());
+
+        int rect_top = qMin(relative_tl.y(), relative_br.y());
+        int rect_bottom = qMax(relative_tl.y(), relative_br.y());
 
         // determine which clips are in this rectangular selection
         QVector<Clip*> selected_clips;
@@ -2420,8 +2420,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
           int track_top = getScreenPointFromTrack(track);
           int track_bottom = track_top + track->height();
-          int rect_top = qMin(ParentTimeline()->rect_select_rect.top(), ParentTimeline()->rect_select_rect.bottom());
-          int rect_bottom = qMax(ParentTimeline()->rect_select_rect.top(), ParentTimeline()->rect_select_rect.bottom());
 
           // See if this track touches this rectangle at all
           if (!(track_bottom < rect_top
@@ -2464,17 +2462,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       } else {
 
         // set up rectangle selecting
-        ParentTimeline()->rect_select_rect.setX(event->pos().x());
-
-        if (alignment_ == olive::timeline::kAlignmentBottom) {
-          // bottom aligned widgets start with 0 at the bottom and go down to a negative number
-          ParentTimeline()->rect_select_rect.setY(event->pos().y() - height());
-        } else {
-          ParentTimeline()->rect_select_rect.setY(event->pos().y());
-        }
-
-        ParentTimeline()->rect_select_rect.setWidth(0);
-        ParentTimeline()->rect_select_rect.setHeight(0);
+        ParentTimeline()->rect_select_rect.setTopLeft(mapToGlobal(event->pos()));
+        ParentTimeline()->rect_select_rect.setSize(QSize(0, 0));
 
         ParentTimeline()->rect_select_proc = true;
 
@@ -3247,13 +3236,10 @@ void TimelineView::paintEvent(QPaintEvent*) {
 
     // draw rectangle select
     if (ParentTimeline()->rect_select_proc) {
-      QRect rect_select = ParentTimeline()->rect_select_rect;
+      QRect relative_rect = QRect(mapFromGlobal(ParentTimeline()->rect_select_rect.topLeft()),
+                                  mapFromGlobal(ParentTimeline()->rect_select_rect.bottomRight()));
 
-      if (alignment_ == olive::timeline::kAlignmentBottom) {
-        rect_select.translate(0, height());
-      }
-
-      olive::ui::DrawSelectionRectangle(p, rect_select);
+      olive::ui::DrawSelectionRectangle(p, relative_rect);
     }
 
     // Draw ghosts
