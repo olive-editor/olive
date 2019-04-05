@@ -78,7 +78,7 @@ public:
 
   // selecting functions
   bool selecting;
-  int selection_offset;
+  QVector<Selection> selection_cache;
   void select_all();
   bool rect_select_init;
   bool rect_select_proc;

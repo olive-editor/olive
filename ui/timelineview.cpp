@@ -620,9 +620,9 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
     // to the existing selections. `selection_offset` is the index to change selections from (and we don't touch
     // any prior to that)
     if (shift) {
-      ParentTimeline()->selection_offset = sequence()->Selections().size();
+      ParentTimeline()->selection_cache = sequence()->Selections();
     } else {
-      ParentTimeline()->selection_offset = 0;
+      ParentTimeline()->selection_cache.clear();
     }
 
     // if the user is creating an object
@@ -2017,6 +2017,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event) {
+
   // interrupt any potential tooltip about to show
   tooltip_timer.stop();
 
@@ -2062,9 +2063,72 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
     if (ParentTimeline()->selecting) {
 
+      QVector<Selection> selections = ParentTimeline()->selection_cache;
+
+      if (ParentTimeline()->drag_track_start != nullptr || ParentTimeline()->cursor_track != nullptr) {
+
+        long selection_in = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+        long selection_out = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+
+        int start_track = (ParentTimeline()->drag_track_start == nullptr)
+            ? track_list_->TrackCount() - 1
+            : ParentTimeline()->drag_track_start->Index();
+
+        int end_track = (ParentTimeline()->cursor_track == nullptr)
+            ? track_list_->TrackCount() - 1
+            : ParentTimeline()->cursor_track->Index();
+
+        int min_track = qMin(start_track, end_track);
+        int max_track = qMax(start_track, end_track);
+
+        for (int i=min_track;i<=max_track;i++) {
+
+          Track* track = track_list_->TrackAt(i);
+
+          selections.append(Selection(selection_in, selection_out, track));
+
+          // If the config is set to select links as well with the edit tool
+          if (olive::config.edit_tool_selects_links) {
+
+            for (int j=0;j<track->ClipCount();j++) {
+
+              Clip* c = track->GetClip(j).get();
+
+              // See if this selection contains this clip
+              if (!(c->timeline_in() > selection_out || c->timeline_out() < selection_in)) {
+
+                // If so, select its links as well
+                for (int k=0;k<c->linked.size();k++) {
+                  Clip* link = c->linked.at(k);
+
+                  // Make sure there isn't already a selection for this link
+                  bool found = false;
+                  for (int l=0;l<selections.size();l++) {
+                    if (selections.at(l).in() == selection_in
+                        && selections.at(l).out() == selection_out
+                        && selections.at(l).track() == link->track()) {
+                      found = true;
+                      break;
+                    }
+                  }
+                  // If not, make one now
+                  if (!found) {
+                    selections.append(Selection(selection_in, selection_out, link->track()));
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      sequence()->SetSelections(selections);
+
       /*
       // get number of selections based on tracks in selection area
-      int selection_tool_count = 1 + qMax(ParentTimeline()->cursor_track, ParentTimeline()->drag_track_start) - qMin(ParentTimeline()->cursor_track, ParentTimeline()->drag_track_start);
+      int selection_tool_count = 1
+          + qMax(ParentTimeline()->cursor_track->Index(), ParentTimeline()->drag_track_start->Index())
+          - qMin(ParentTimeline()->cursor_track->Index(), ParentTimeline()->drag_track_start->Index());
 
       // add count to selection offset for the total number of selection objects
       // (offset is usually 0, unless the user is holding shift in which case we add to existing selections)
@@ -2120,6 +2184,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           }
         }
       }
+      */
 
       // if the config is set to seek with the edit too, do so now
       if (olive::config.edit_tool_also_seeks) {
@@ -2127,8 +2192,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       } else {
         // if not, repaint (seeking will trigger a repaint)
         ParentTimeline()->repaint_timeline();
-      }
-      */
+      }      
 
     } else if (ParentTimeline()->hand_moving) {
 
@@ -2400,6 +2464,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
         // we're currently rectangle selecting
 
+        QVector<Selection> selections = ParentTimeline()->selection_cache;
+
         // set the right/bottom coords to the current mouse position
         // (left/top were set to the starting drag position earlier)
         ParentTimeline()->rect_select_rect.setBottomRight(mapToGlobal(event->pos()));
@@ -2455,8 +2521,10 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
         // add each of the selected clips to the main sequence's selections
         for (int i=0;i<selected_clips.size();i++) {
-          selected_clips.at(i)->track()->SelectClip(selected_clips.at(i));
+          selections.append(selected_clips.at(i)->ToSelection());
         }
+
+        sequence()->SetSelections(selections);
 
         ParentTimeline()->repaint_timeline();
       } else {
