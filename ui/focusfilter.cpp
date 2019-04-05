@@ -206,9 +206,12 @@ void FocusFilter::delete_function() {
     panel_graph_editor->delete_selected_keys();
   } else {
     Sequence* top_sequence = Timeline::GetTopSequence().get();
-    ComboAction* ca = new ComboAction();
-    top_sequence->DeleteAreas(ca, top_sequence->Selections(), true);
-    olive::undo_stack.push(ca);
+    if (top_sequence != nullptr) {
+      ComboAction* ca = new ComboAction();
+      top_sequence->DeleteAreas(ca, top_sequence->Selections(), true);
+      olive::undo_stack.push(ca);
+      Timeline::GetTopTimeline()->repaint_timeline();
+    }
   }
 }
 

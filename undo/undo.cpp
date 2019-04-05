@@ -270,8 +270,9 @@ void ModifyTransitionCommand::doRedo() {
   transition_ref_->set_length(new_length_);
 }
 
-DeleteTransitionCommand::DeleteTransitionCommand(TransitionPtr t) {
-  transition_ref_ = t;
+DeleteTransitionCommand::DeleteTransitionCommand(TransitionPtr t) :
+  transition_ref_(t)
+{
 }
 
 void DeleteTransitionCommand::doUndo() {

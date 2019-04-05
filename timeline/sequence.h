@@ -120,6 +120,8 @@ public:
   int save_id;
 
   QVector<Marker> markers;
+signals:
+  void Changed();
 private:
   QVector<TrackList*> track_lists_;
 
