@@ -654,8 +654,8 @@ void MainWindow::setup_menus() {
 
   playback_menu->addSeparator();
 
-  go_to_prev_cut_ = MenuHelper::create_menu_action(playback_menu, "prevcut", panel_project.first(), SLOT(previous_cut()), QKeySequence("Up"));
-  go_to_next_cut_ = MenuHelper::create_menu_action(playback_menu, "nextcut", panel_project.first(), SLOT(next_cut()), QKeySequence("Down"));
+  go_to_prev_cut_ = MenuHelper::create_menu_action(playback_menu, "prevcut", panel_sequence_viewer, SLOT(prev_cut()), QKeySequence("Up"));
+  go_to_next_cut_ = MenuHelper::create_menu_action(playback_menu, "nextcut", panel_sequence_viewer, SLOT(next_cut()), QKeySequence("Down"));
 
   playback_menu->addSeparator();
 
