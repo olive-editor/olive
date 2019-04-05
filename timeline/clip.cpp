@@ -84,7 +84,7 @@ ClipPtr Clip::copy(Track* s) {
 bool Clip::IsActiveAt(long timecode)
 {
   return enabled()
-      && timeline_in(true) < timecode
+      && timeline_in(true) <= timecode
       && timeline_out(true) > timecode
       && timecode - timeline_in(true) + clip_in(true) < media_length()
       && !track()->IsEffectivelyMuted();
