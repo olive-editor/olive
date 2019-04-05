@@ -68,7 +68,7 @@ void MoveClipAction::doUndo() {
     clip->set_timeline_out(old_out);
     clip->set_clip_in(old_clip_in);
   }
-  clip->set_track(old_track);
+  old_track->AddClip(clip);
   done = false;
 }
 
@@ -370,7 +370,6 @@ void AddClipCommand::doRedo() {
       ClipPtr original = clips_.at(i);
 
       if (original != nullptr) {
-        qDebug() << "h";
         original->track()->AddClip(original);
       }      
     }

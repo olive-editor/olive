@@ -642,11 +642,17 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
 
       // if the track the user clicked is correct for the type of object we're adding
 
-      if (ParentTimeline()->drag_track_start->type() == create_type) {
+      if (track_list_->type() == create_type) {
         Ghost g;
         g.in = g.old_in = g.out = g.old_out = ParentTimeline()->drag_frame_start;
+
         g.track = ParentTimeline()->drag_track_start;
         g.track_movement = 0;
+        if (g.track == nullptr) {
+          g.track = track_list_->Last();
+          g.track_movement = getTrackIndexFromScreenPoint(event->pos().x()) - g.track->Index();
+        }
+
         g.transition = nullptr;
         g.clip = nullptr;
         g.trim_type = olive::timeline::TRIM_OUT;
@@ -1366,7 +1372,8 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
 
                       // check if the transition's "edge" is going to move
                       if ((t == kTransitionOpening && g.in != g.old_in)
-                          || (t == kTransitionClosing && g.out != g.old_out)) {
+                          || (t == kTransitionClosing && g.out != g.old_out)
+                          || (g.track_movement != 0)) {
 
                         // if we're here, this clip shares its opening transition as the closing transition of another
                         // clip (or vice versa), and the in point is moving, so we may have to account for this
@@ -1396,11 +1403,14 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                             // also only do this if j is less than i, because it only needs to happen once and chances are
                             // the other clip already
 
-                            bool edges_still_touch;
-                            if (t == kTransitionOpening) {
-                              edges_still_touch = (other_clip_ghost.out == g.in);
-                            } else {
-                              edges_still_touch = (other_clip_ghost.in == g.out);
+                            bool edges_still_touch = (other_clip_ghost.track_movement == g.track_movement);
+
+                            if (edges_still_touch) {
+                              if (t == kTransitionOpening) {
+                                edges_still_touch = (other_clip_ghost.out == g.in);
+                              } else {
+                                edges_still_touch = (other_clip_ghost.in == g.out);
+                              }
                             }
 
                             if (edges_still_touch || j < i) {
@@ -1827,7 +1837,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       // Prevent any clips from going below the "zeroeth" track
 
-      if (ParentTimeline()->importing || g.track->type() == ParentTimeline()->drag_track_start->type()) {
+      if (ParentTimeline()->importing || g.track->type() == track_list_->type()) {
 
         int track_validator = g.track->Index() + track_diff;
         if (track_validator < 0) {
@@ -1921,7 +1931,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
         g.track_movement = getTrackIndexFromScreenPoint(mouse_pos.y());
 
-      } else if (g.track->type() == ParentTimeline()->drag_track_start->type()) {
+      } else if (g.track->type() == track_list_->type()) {
 
         g.track_movement = track_diff;
 
@@ -2731,7 +2741,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           // cursor is hovering over a clip
 
           // check if the clip and transition are both the same sign (meaning video/audio are the same)
-          if (mouse_clip->track()->type() == ParentTimeline()->transition_tool_side) {
+          if (track_list_->type() == ParentTimeline()->transition_tool_side) {
 
             // the range within which the transition tool will assume the user wants to make a shared transition
             // between two clips rather than just one transition on one clip

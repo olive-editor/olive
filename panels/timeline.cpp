@@ -860,6 +860,7 @@ void Timeline::transition_menu_select(QAction* a) {
   }
 
   timeline_area->setCursor(Qt::CrossCursor);
+  olive::timeline::current_tool = olive::timeline::TIMELINE_TOOL_TRANSITION;
   toolTransitionButton->setChecked(true);
 }
 
