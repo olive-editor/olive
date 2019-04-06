@@ -2016,20 +2016,15 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         long selection_in = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
         long selection_out = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
 
-        int start_track = (ParentTimeline()->drag_track_start == nullptr)
-            ? track_list_->TrackCount() - 1
-            : ParentTimeline()->drag_track_start->Index();
+        int selection_top = mapToGlobal(QPoint(0, ParentTimeline()->drag_y_start)).y();
+        int selection_bottom = mapToGlobal(event->pos()).y();
 
-        int end_track = (ParentTimeline()->cursor_track == nullptr)
-            ? track_list_->TrackCount() - 1
-            : ParentTimeline()->cursor_track->Index();
+        QVector<Track*> selected_tracks = ParentTimeline()->GetTracksInRectangle(selection_top,
+                                                                                 selection_bottom);
 
-        int min_track = qMin(start_track, end_track);
-        int max_track = qMax(start_track, end_track);
+        Track* track;
 
-        for (int i=min_track;i<=max_track;i++) {
-
-          Track* track = track_list_->TrackAt(i);
+        foreach (track, selected_tracks) {
 
           selections.append(Selection(selection_in, selection_out, track));
 
@@ -2402,7 +2397,42 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         // (left/top were set to the starting drag position earlier)
         ParentTimeline()->rect_select_rect.setBottomRight(mapToGlobal(event->pos()));
 
-        QVector<Clip*> selected_clips = ParentTimeline()->GetClipsInRectangleSelection(!alt);
+        QVector<Clip*> selected_clips;
+
+        QVector<Track*> selected_tracks = ParentTimeline()->GetTracksInRectangle(ParentTimeline()->rect_select_rect.top(),
+                                                                                 ParentTimeline()->rect_select_rect.bottom());
+
+        long frame_min = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+        long frame_max = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
+
+        Track* track;
+
+        foreach (track, selected_tracks) {
+          // Loop through track's clips for clips touching this rectangle
+          for (int i=0;i<track->ClipCount();i++) {
+            Clip* clip = track->GetClip(i).get();
+            if (!(clip->timeline_out() < frame_min || clip->timeline_in() > frame_max) ) {
+
+              // create a group of the clip (and its links if alt is not pressed)
+              QVector<Clip*> session_clips;
+              session_clips.append(clip);
+
+              if (!alt) {
+                session_clips.append(clip->linked);
+              }
+
+              // for each of these clips, see if clip has already been added -
+              // this can easily happen due to adding linked clips
+              for (int j=0;j<session_clips.size();j++) {
+                Clip* c = session_clips.at(j);
+
+                if (!selected_clips.contains(c)) {
+                  selected_clips.append(c);
+                }
+              }
+            }
+          }
+        }
 
         // add each of the selected clips to the main sequence's selections
         for (int i=0;i<selected_clips.size();i++) {

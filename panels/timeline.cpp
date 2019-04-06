@@ -761,18 +761,15 @@ long Timeline::getTimelineFrameFromScreenPoint(int x) {
   return getFrameFromScreenPoint(zoom, x + scroll);
 }
 
-QVector<Clip *> Timeline::GetClipsInRectangleSelection(bool autoselect_links)
+QVector<Track *> Timeline::GetTracksInRectangle(int global_top, int global_bottom)
 {
-  QVector<Clip*> selected_clips;
+  QVector<Track*> tracks;
 
   TimelineArea* area;
 
-  long frame_min = qMin(drag_frame_start, cursor_frame);
-  long frame_max = qMax(drag_frame_start, cursor_frame);
-
   foreach (area, areas) {
-    QPoint relative_tl = area->mapFromGlobal(rect_select_rect.topLeft());
-    QPoint relative_br = area->mapFromGlobal(rect_select_rect.bottomRight());
+    QPoint relative_tl = area->mapFromGlobal(QPoint(0, global_top));
+    QPoint relative_br = area->mapFromGlobal(QPoint(0, global_bottom));
 
     int rect_top = qMin(relative_tl.y(), relative_br.y());
     int rect_bottom = qMax(relative_tl.y(), relative_br.y());
@@ -789,35 +786,14 @@ QVector<Clip *> Timeline::GetClipsInRectangleSelection(bool autoselect_links)
       if (!(track_bottom < rect_top
             || track_top > rect_bottom)) {
 
-        // Loop through track's clips for clips touching this rectangle
-        for (int i=0;i<track->ClipCount();i++) {
-          Clip* clip = track->GetClip(i).get();
-          if (!(clip->timeline_out() < frame_min || clip->timeline_in() > frame_max) ) {
+        // It does, so we add it to the list
+        tracks.append(track);
 
-            // create a group of the clip (and its links if alt is not pressed)
-            QVector<Clip*> session_clips;
-            session_clips.append(clip);
-
-            if (autoselect_links) {
-              session_clips.append(clip->linked);
-            }
-
-            // for each of these clips, see if clip has already been added -
-            // this can easily happen due to adding linked clips
-            for (int j=0;j<session_clips.size();j++) {
-              Clip* c = session_clips.at(j);
-
-              if (!selected_clips.contains(c)) {
-                selected_clips.append(c);
-              }
-            }
-          }
-        }
       }
     }
   }
 
-  return selected_clips;
+  return tracks;
 }
 
 int Timeline::getTimelineScreenPointFromFrame(long frame) {

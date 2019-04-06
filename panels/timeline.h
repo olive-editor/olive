@@ -63,7 +63,7 @@ public:
   int getDisplayScreenPointFromFrame(long frame);
   long getDisplayFrameFromScreenPoint(int x);
 
-  QVector<Clip*> GetClipsInRectangleSelection(bool autoselect_links);
+  QVector<Track*> GetTracksInRectangle(int global_top, int global_bottom);
 
   void set_marker();
 
