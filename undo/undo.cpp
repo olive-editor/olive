@@ -68,7 +68,13 @@ void MoveClipAction::doUndo() {
     clip->set_timeline_out(old_out);
     clip->set_clip_in(old_clip_in);
   }
-  old_track->AddClip(clip);
+
+  // Move clip to the new track ONLY IF the old track currently contains this clip - a workaround to ensure this
+  // action doesn't accidentaly add a clip that it's not supposed to
+  if (new_track->ContainsClip(clip.get())) {
+    old_track->AddClip(clip);
+  }
+
   done = false;
 }
 
@@ -83,7 +89,13 @@ void MoveClipAction::doRedo() {
       clip->set_timeline_out(new_out);
       clip->set_clip_in(new_clip_in);
     }
-    new_track->AddClip(clip);
+
+    // Move clip to the new track ONLY IF the old track currently contains this clip - a workaround to ensure this
+    // action doesn't accidentaly add a clip that it's not supposed to
+    if (old_track->ContainsClip(clip.get())) {
+      new_track->AddClip(clip);
+    }
+
     done = true;
   }
 }

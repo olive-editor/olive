@@ -67,6 +67,7 @@ public:
   QVector<Clip*> GetSelectedClips(bool containing);
   ClipPtr GetClipObjectFromRawPtr(Clip* c);
   Clip* GetClipFromPoint(long point);
+  bool ContainsClip(Clip* c);
 
   Track* Previous();
   Track* Next();

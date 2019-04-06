@@ -195,6 +195,17 @@ Clip *Track::GetClipFromPoint(long point)
   return nullptr;
 }
 
+bool Track::ContainsClip(Clip *c)
+{
+  ClipPtr clip;
+  foreach (clip, clips_) {
+    if (clip.get() == c) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Track *Track::Previous()
 {
   int index = Index();
