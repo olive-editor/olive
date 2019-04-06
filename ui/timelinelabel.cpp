@@ -68,6 +68,14 @@ void TimelineLabel::UpdateState()
   lock_button_->setChecked(track_->IsLocked());
 }
 
+void TimelineLabel::paintEvent(QPaintEvent *)
+{
+  QPainter p(this);
+
+  p.setPen(QColor(0, 0, 0, 96));
+  p.drawLine(0, height() - 1, width(), height() - 1);
+}
+
 void TimelineLabel::RenameTrack()
 {
   bool ok;
@@ -86,5 +94,5 @@ void TimelineLabel::RenameTrack()
 
 void TimelineLabel::UpdateHeight(int h)
 {
-  setFixedHeight(h);
+  setFixedHeight(h+1);
 }

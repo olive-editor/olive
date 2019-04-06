@@ -15,6 +15,8 @@ public:
 
   void SetTrack(Track* track);
   void UpdateState();
+protected:
+  virtual void paintEvent(QPaintEvent *event) override;
 private:
   QPushButton* mute_button_;
   QPushButton* solo_button_;

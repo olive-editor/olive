@@ -48,14 +48,8 @@ public:
   void SetAlignment(olive::timeline::Alignment alignment);
   void SetTrackList(TrackList* tl);
 
-  QScrollBar* scrollBar;
-
-public slots:
-
 protected:
   void paintEvent(QPaintEvent*);
-
-  void resizeEvent(QResizeEvent *event);
 
   void mouseDoubleClickEvent(QMouseEvent *event);
   void mousePressEvent(QMouseEvent *event);
@@ -111,6 +105,8 @@ private:
   int scroll;
 
 signals:
+  void setScrollMaximum(int);
+  void requestScrollChange(int);
 
 public slots:
   void setScroll(int);

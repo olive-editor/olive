@@ -346,66 +346,7 @@ void TimelineView::dragMoveEvent(QDragMoveEvent *event) {
 }
 
 void TimelineView::wheelEvent(QWheelEvent *event) {
-
-  // TODO: implement pixel scrolling
-
-  bool shift = (event->modifiers() & Qt::ShiftModifier);
-  bool ctrl = (event->modifiers() & Qt::ControlModifier);
-  bool alt = (event->modifiers() & Qt::AltModifier);
-
-  // "Scroll Zooms" false + Control up  : not zooming
-  // "Scroll Zooms" false + Control down:     zooming
-  // "Scroll Zooms" true  + Control up  :     zooming
-  // "Scroll Zooms" true  + Control down: not zooming
-  bool zooming = (olive::config.scroll_zooms != ctrl);
-
-  // Allow shift for axis swap, but don't swap on zoom... Unless
-  // we need to override Qt's axis swap via Alt
-  bool swap_hv = ((shift != olive::config.invert_timeline_scroll_axes) &
-                  !zooming) | (alt & !shift & zooming);
-
-  int delta_h = swap_hv ? event->angleDelta().y() : event->angleDelta().x();
-  int delta_v = swap_hv ? event->angleDelta().x() : event->angleDelta().y();
-
-  if (zooming) {
-
-    // Zoom only uses vertical scrolling, to avoid glitches on touchpads.
-    // Don't do anything if not scrolling vertically.
-
-    if (delta_v != 0) {
-
-      // delta_v == 120 for one click of a mousewheel. Less or more for a
-      // touchpad gesture. Calculate speed to compensate.
-      // 120 = ratio of 4/3 (1.33), -120 = ratio of 3/4 (.75)
-
-      double zoom_ratio = 1.0 + (abs(delta_v) * 0.33 / 120);
-
-      if (delta_v < 0) {
-        zoom_ratio = 1.0 / zoom_ratio;
-      }
-
-      ParentTimeline()->multiply_zoom(zoom_ratio);
-    }
-
-  } else {
-
-    // Use the Timeline's main scrollbar for horizontal scrolling, and this
-    // widget's scrollbar for vertical scrolling.
-
-    QScrollBar* bar_v = scrollBar;
-    QScrollBar* bar_h = ParentTimeline()->horizontalScrollBar;
-
-    // Match the wheel events to the size of a step as per
-    // https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
-
-    int step_h = bar_h->singleStep() * delta_h / -120;
-    int step_v = bar_v->singleStep() * delta_v / -120;
-
-    // Apply to appropriate scrollbars
-
-    bar_h->setValue(bar_h->value() + step_h);
-    bar_v->setValue(bar_v->value() + step_v);
-  }
+  static_cast<TimelineArea*>(parent())->wheelEvent(event);
 }
 
 void TimelineView::dragLeaveEvent(QDragLeaveEvent* event) {
@@ -2206,7 +2147,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       // the scrollbars trigger repaints when they scroll, which is unnecessary here so we block them
       ParentTimeline()->block_repaints = true;
       ParentTimeline()->horizontalScrollBar->setValue(ParentTimeline()->horizontalScrollBar->value() + ParentTimeline()->drag_x_start - event->pos().x());
-      scrollBar->setValue(scrollBar->value() + ParentTimeline()->drag_y_start - event->pos().y());
+      emit requestScrollChange(scroll + ParentTimeline()->drag_y_start - event->pos().y());
       ParentTimeline()->block_repaints = false;
 
       // finally repaint
@@ -2224,12 +2165,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         int diff = (event->pos().y() - ParentTimeline()->drag_y_start);
 
         // add it to the current track height
-        int new_height = track_target->height();
-        if (alignment_ == olive::timeline::kAlignmentBottom) {
-          new_height -= diff;
-        } else {
-          new_height += diff;
-        }
+        int new_height = track_target->height() + diff;
 
         // limit track height to track minimum height constant
         new_height = qMax(new_height, olive::timeline::kTrackMinHeight);
@@ -2713,13 +2649,9 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         Track* hover_track = getTrackFromScreenPoint(mouse_pos);
 
         if (hover_track != nullptr) {
-          int test_range = 5; // FIXME magic number
+          int test_range = 10; // FIXME magic number
 
           int track_y_edge = getScreenPointFromTrack(hover_track);
-
-          if (alignment_ == olive::timeline::kAlignmentTop) {
-            track_y_edge += hover_track->height();
-          }
 
           if (mouse_pos > track_y_edge - test_range
               && mouse_pos < track_y_edge + test_range) {
@@ -2952,350 +2884,344 @@ void TimelineView::paintEvent(QPaintEvent*) {
     int panel_height = olive::timeline::kTrackDefaultHeight;
 
     for (int i=0;i<track_list_->TrackCount();i++) {
-      panel_height += track_list_->TrackAt(i)->height() + 1;
-    }
-    if (alignment_ == olive::timeline::kAlignmentBottom) {
-      scrollBar->setMinimum(qMin(0, - panel_height + height()));
-    } else {
-      scrollBar->setMaximum(qMax(0, panel_height - height()));
+      panel_height += track_list_->TrackAt(i)->height();
     }
 
-    int track_line = 0;
+    emit setScrollMaximum(panel_height);
 
     for (int i=0;i<track_list_->TrackCount();i++) {
 
       Track* track = track_list_->TrackAt(i);
 
-      for (int j=0;j<track->ClipCount();j++) {
+      int track_top = getScreenPointFromTrack(track);
+      int track_bottom = track_top + track->height();
 
-        Clip* clip = track->GetClip(j).get();
+      if (track_bottom > 0 && track_top < height()) {
+        for (int j=0;j<track->ClipCount();j++) {
 
-        QRect clip_rect(ParentTimeline()->getTimelineScreenPointFromFrame(clip->timeline_in()),
-                        getScreenPointFromTrack(clip->track()),
-                        getScreenPointFromFrame(ParentTimeline()->zoom, clip->length()),
-                        clip->track()->height());
-        QRect text_rect(clip_rect.left() + olive::timeline::kClipTextPadding,
-                        clip_rect.top() + olive::timeline::kClipTextPadding,
-                        clip_rect.width() - olive::timeline::kClipTextPadding - 1,
-                        clip_rect.height() - olive::timeline::kClipTextPadding - 1);
-        if (clip_rect.left() < width() && clip_rect.right() >= 0 && clip_rect.top() < height() && clip_rect.bottom() >= 0) {
-          QRect actual_clip_rect = clip_rect;
-          if (actual_clip_rect.x() < 0) actual_clip_rect.setX(0);
-          if (actual_clip_rect.right() > width()) actual_clip_rect.setRight(width());
-          if (actual_clip_rect.y() < 0) actual_clip_rect.setY(0);
-          if (actual_clip_rect.bottom() > height()) actual_clip_rect.setBottom(height());
-          p.fillRect(actual_clip_rect, (clip->enabled()) ? clip->color() : QColor(96, 96, 96));
+          Clip* clip = track->GetClip(j).get();
 
-          int thumb_x = clip_rect.x() + 1;
+          QRect clip_rect(ParentTimeline()->getTimelineScreenPointFromFrame(clip->timeline_in()),
+                          track_top,
+                          getScreenPointFromFrame(ParentTimeline()->zoom, clip->length()),
+                          track->height() - 1);
+          QRect text_rect(clip_rect.left() + olive::timeline::kClipTextPadding,
+                          clip_rect.top() + olive::timeline::kClipTextPadding,
+                          clip_rect.width() - olive::timeline::kClipTextPadding - 1,
+                          clip_rect.height() - olive::timeline::kClipTextPadding - 1);
+          if (clip_rect.left() < width() && clip_rect.right() >= 0 && clip_rect.top() < height() && clip_rect.bottom() >= 0) {
+            QRect actual_clip_rect = clip_rect;
+            if (actual_clip_rect.x() < 0) actual_clip_rect.setX(0);
+            if (actual_clip_rect.right() > width()) actual_clip_rect.setRight(width());
+            if (actual_clip_rect.y() < 0) actual_clip_rect.setY(0);
+            if (actual_clip_rect.bottom() > height()) actual_clip_rect.setBottom(height());
+            p.fillRect(actual_clip_rect, (clip->enabled()) ? clip->color() : QColor(96, 96, 96));
 
-          if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-            bool draw_checkerboard = false;
-            QRect checkerboard_rect(clip_rect);
-            FootageStream* ms = clip->media_stream();
-            if (ms == nullptr) {
-              draw_checkerboard = true;
-            } else if (ms->preview_done) {
-              // draw top and tail triangles
-              int triangle_size = olive::timeline::kTrackMinHeight >> 2;
-              if (!ms->infinite_length && clip_rect.width() > triangle_size) {
-                p.setPen(Qt::NoPen);
-                p.setBrush(QColor(80, 80, 80));
-                if (clip->clip_in() == 0
-                    && clip_rect.x() + triangle_size > 0
-                    && clip_rect.y() + triangle_size > 0
-                    && clip_rect.x() < width()
-                    && clip_rect.y() < height()) {
-                  const QPoint points[3] = {
-                    QPoint(clip_rect.x(), clip_rect.y()),
-                    QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
-                    QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
-                  };
-                  p.drawPolygon(points, 3);
-                  text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
-                }
-                if (clip->timeline_out() - clip->timeline_in() + clip->clip_in() == clip->media_length()
-                    && clip_rect.right() - triangle_size < width()
-                    && clip_rect.y() + triangle_size > 0
-                    && clip_rect.right() > 0
-                    && clip_rect.y() < height()) {
-                  const QPoint points[3] = {
-                    QPoint(clip_rect.right(), clip_rect.y()),
-                    QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
-                    QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
-                  };
-                  p.drawPolygon(points, 3);
-                  text_rect.setRight(text_rect.right() - (triangle_size >> 2));
-                }
-              }
+            int thumb_x = clip_rect.x() + 1;
 
-              p.setBrush(Qt::NoBrush);
-
-              // draw thumbnail/waveform
-              long media_length = clip->media_length();
-
-              if (clip->type() == Track::kTypeVideo) {
-                // draw thumbnail
-                int thumb_y = p.fontMetrics().height()+olive::timeline::kClipTextPadding+olive::timeline::kClipTextPadding;
-                if (thumb_x < width() && thumb_y < height()) {
-                  int space_for_thumb = clip_rect.width()-1;
-                  if (clip->opening_transition != nullptr) {
-                    int ot_width = getScreenPointFromFrame(ParentTimeline()->zoom, clip->opening_transition->get_true_length());
-                    thumb_x += ot_width;
-                    space_for_thumb -= ot_width;
+            if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
+              bool draw_checkerboard = false;
+              QRect checkerboard_rect(clip_rect);
+              FootageStream* ms = clip->media_stream();
+              if (ms == nullptr) {
+                draw_checkerboard = true;
+              } else if (ms->preview_done) {
+                // draw top and tail triangles
+                int triangle_size = olive::timeline::kTrackMinHeight >> 2;
+                if (!ms->infinite_length && clip_rect.width() > triangle_size) {
+                  p.setPen(Qt::NoPen);
+                  p.setBrush(QColor(80, 80, 80));
+                  if (clip->clip_in() == 0
+                      && clip_rect.x() + triangle_size > 0
+                      && clip_rect.y() + triangle_size > 0
+                      && clip_rect.x() < width()
+                      && clip_rect.y() < height()) {
+                    const QPoint points[3] = {
+                      QPoint(clip_rect.x(), clip_rect.y()),
+                      QPoint(clip_rect.x() + triangle_size, clip_rect.y()),
+                      QPoint(clip_rect.x(), clip_rect.y() + triangle_size)
+                    };
+                    p.drawPolygon(points, 3);
+                    text_rect.setLeft(text_rect.left() + (triangle_size >> 2));
                   }
-                  if (clip->closing_transition != nullptr) {
-                    space_for_thumb -= getScreenPointFromFrame(ParentTimeline()->zoom, clip->closing_transition->get_true_length());
-                  }
-                  int thumb_height = clip_rect.height()-thumb_y;
-                  int thumb_width = qRound(thumb_height*(double(ms->video_preview.width())/double(ms->video_preview.height())));
-                  if (thumb_x + thumb_width >= 0
-                      && thumb_height > thumb_y
-                      && thumb_y + thumb_height >= 0
-                      && space_for_thumb > MAX_TEXT_WIDTH) {
-                    int thumb_clip_width = qMin(thumb_width, space_for_thumb);
-                    p.drawImage(QRect(thumb_x,
-                                      clip_rect.y()+thumb_y,
-                                      thumb_clip_width,
-                                      thumb_height),
-                                ms->video_preview,
-                                QRect(0,
-                                      0,
-                                      qRound(thumb_clip_width*(double(ms->video_preview.width())/double(thumb_width))),
-                                      ms->video_preview.height()
-                                      )
-                                );
+                  if (clip->timeline_out() - clip->timeline_in() + clip->clip_in() == clip->media_length()
+                      && clip_rect.right() - triangle_size < width()
+                      && clip_rect.y() + triangle_size > 0
+                      && clip_rect.right() > 0
+                      && clip_rect.y() < height()) {
+                    const QPoint points[3] = {
+                      QPoint(clip_rect.right(), clip_rect.y()),
+                      QPoint(clip_rect.right() - triangle_size, clip_rect.y()),
+                      QPoint(clip_rect.right(), clip_rect.y() + triangle_size)
+                    };
+                    p.drawPolygon(points, 3);
+                    text_rect.setRight(text_rect.right() - (triangle_size >> 2));
                   }
                 }
-                if (clip->timeline_out() - clip->timeline_in() + clip->clip_in() > clip->media_length()) {
-                  draw_checkerboard = true;
-                  checkerboard_rect.setLeft(ParentTimeline()->getTimelineScreenPointFromFrame(clip->media_length() + clip->timeline_in() - clip->clip_in()));
-                }
-              } else if (clip_rect.height() > olive::timeline::kTrackMinHeight) {
-                // draw waveform
-                p.setPen(QColor(80, 80, 80));
 
-                int waveform_start = -qMin(clip_rect.x(), 0);
-                int waveform_limit = qMin(clip_rect.width(), getScreenPointFromFrame(ParentTimeline()->zoom, media_length - clip->clip_in()));
+                p.setBrush(Qt::NoBrush);
 
-                if ((clip_rect.x() + waveform_limit) > width()) {
-                  waveform_limit -= (clip_rect.x() + waveform_limit - width());
-                } else if (waveform_limit < clip_rect.width()) {
-                  draw_checkerboard = true;
-                  if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
-                }
+                // draw thumbnail/waveform
+                long media_length = clip->media_length();
 
-                draw_waveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, ParentTimeline()->zoom);
-              }
-            }
-            if (draw_checkerboard) {
-              checkerboard_rect.setLeft(qMax(checkerboard_rect.left(), 0));
-              checkerboard_rect.setRight(qMin(checkerboard_rect.right(), width()));
-              checkerboard_rect.setTop(qMax(checkerboard_rect.top(), 0));
-              checkerboard_rect.setBottom(qMin(checkerboard_rect.bottom(), height()));
-
-              if (checkerboard_rect.left() < width()
-                  && checkerboard_rect.right() >= 0
-                  && checkerboard_rect.top() < height()
-                  && checkerboard_rect.bottom() >= 0) {
-                // draw "error lines" if media stream is missing
-                p.setPen(QPen(QColor(64, 64, 64), 2));
-                int limit = checkerboard_rect.width();
-                int clip_height = checkerboard_rect.height();
-                for (int j=-clip_height;j<limit;j+=15) {
-                  int lines_start_x = checkerboard_rect.left()+j;
-                  int lines_start_y = checkerboard_rect.bottom();
-                  int lines_end_x = lines_start_x + clip_height;
-                  int lines_end_y = checkerboard_rect.top();
-                  if (lines_start_x < checkerboard_rect.left()) {
-                    lines_start_y -= (checkerboard_rect.left() - lines_start_x);
-                    lines_start_x = checkerboard_rect.left();
+                if (clip->type() == Track::kTypeVideo) {
+                  // draw thumbnail
+                  int thumb_y = p.fontMetrics().height()+olive::timeline::kClipTextPadding+olive::timeline::kClipTextPadding;
+                  if (thumb_x < width() && thumb_y < height()) {
+                    int space_for_thumb = clip_rect.width()-1;
+                    if (clip->opening_transition != nullptr) {
+                      int ot_width = getScreenPointFromFrame(ParentTimeline()->zoom, clip->opening_transition->get_true_length());
+                      thumb_x += ot_width;
+                      space_for_thumb -= ot_width;
+                    }
+                    if (clip->closing_transition != nullptr) {
+                      space_for_thumb -= getScreenPointFromFrame(ParentTimeline()->zoom, clip->closing_transition->get_true_length());
+                    }
+                    int thumb_height = clip_rect.height()-thumb_y;
+                    int thumb_width = qRound(thumb_height*(double(ms->video_preview.width())/double(ms->video_preview.height())));
+                    if (thumb_x + thumb_width >= 0
+                        && thumb_height > thumb_y
+                        && thumb_y + thumb_height >= 0
+                        && space_for_thumb > MAX_TEXT_WIDTH) {
+                      int thumb_clip_width = qMin(thumb_width, space_for_thumb);
+                      p.drawImage(QRect(thumb_x,
+                                        clip_rect.y()+thumb_y,
+                                        thumb_clip_width,
+                                        thumb_height),
+                                  ms->video_preview,
+                                  QRect(0,
+                                        0,
+                                        qRound(thumb_clip_width*(double(ms->video_preview.width())/double(thumb_width))),
+                                        ms->video_preview.height()
+                                        )
+                                  );
+                    }
                   }
-                  if (lines_end_x > checkerboard_rect.right()) {
-                    lines_end_y -= (checkerboard_rect.right() - lines_end_x);
-                    lines_end_x = checkerboard_rect.right();
+                  if (clip->timeline_out() - clip->timeline_in() + clip->clip_in() > clip->media_length()) {
+                    draw_checkerboard = true;
+                    checkerboard_rect.setLeft(ParentTimeline()->getTimelineScreenPointFromFrame(clip->media_length() + clip->timeline_in() - clip->clip_in()));
                   }
-                  p.drawLine(lines_start_x, lines_start_y, lines_end_x, lines_end_y);
+                } else if (clip_rect.height() > olive::timeline::kTrackMinHeight) {
+                  // draw waveform
+                  p.setPen(QColor(80, 80, 80));
+
+                  int waveform_start = -qMin(clip_rect.x(), 0);
+                  int waveform_limit = qMin(clip_rect.width(), getScreenPointFromFrame(ParentTimeline()->zoom, media_length - clip->clip_in()));
+
+                  if ((clip_rect.x() + waveform_limit) > width()) {
+                    waveform_limit -= (clip_rect.x() + waveform_limit - width());
+                  } else if (waveform_limit < clip_rect.width()) {
+                    draw_checkerboard = true;
+                    if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
+                  }
+
+                  draw_waveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, ParentTimeline()->zoom);
+                }
+              }
+              if (draw_checkerboard) {
+                checkerboard_rect.setLeft(qMax(checkerboard_rect.left(), 0));
+                checkerboard_rect.setRight(qMin(checkerboard_rect.right(), width()));
+                checkerboard_rect.setTop(qMax(checkerboard_rect.top(), 0));
+                checkerboard_rect.setBottom(qMin(checkerboard_rect.bottom(), height()));
+
+                if (checkerboard_rect.left() < width()
+                    && checkerboard_rect.right() >= 0
+                    && checkerboard_rect.top() < height()
+                    && checkerboard_rect.bottom() >= 0) {
+                  // draw "error lines" if media stream is missing
+                  p.setPen(QPen(QColor(64, 64, 64), 2));
+                  int limit = checkerboard_rect.width();
+                  int clip_height = checkerboard_rect.height();
+                  for (int j=-clip_height;j<limit;j+=15) {
+                    int lines_start_x = checkerboard_rect.left()+j;
+                    int lines_start_y = checkerboard_rect.bottom();
+                    int lines_end_x = lines_start_x + clip_height;
+                    int lines_end_y = checkerboard_rect.top();
+                    if (lines_start_x < checkerboard_rect.left()) {
+                      lines_start_y -= (checkerboard_rect.left() - lines_start_x);
+                      lines_start_x = checkerboard_rect.left();
+                    }
+                    if (lines_end_x > checkerboard_rect.right()) {
+                      lines_end_y -= (checkerboard_rect.right() - lines_end_x);
+                      lines_end_x = checkerboard_rect.right();
+                    }
+                    p.drawLine(lines_start_x, lines_start_y, lines_end_x, lines_end_y);
+                  }
                 }
               }
             }
-          }
 
-          // draw clip markers
-          for (int j=0;j<clip->get_markers().size();j++) {
-            const Marker& m = clip->get_markers().at(j);
+            // draw clip markers
+            for (int j=0;j<clip->get_markers().size();j++) {
+              const Marker& m = clip->get_markers().at(j);
 
-            // convert marker time (in clip time) to sequence time
-            long marker_time = m.frame + clip->timeline_in() - clip->clip_in();
-            int marker_x = ParentTimeline()->getTimelineScreenPointFromFrame(marker_time);
-            if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
-              Marker::Draw(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false);
-            }
-          }
-          p.setBrush(Qt::NoBrush);
-
-          // draw clip transitions
-          draw_transition(p, clip, clip_rect, text_rect, kTransitionOpening);
-          draw_transition(p, clip, clip_rect, text_rect, kTransitionClosing);
-
-          // top left bevel
-          p.setPen(Qt::white);
-          if (clip_rect.x() >= 0 && clip_rect.x() < width()) p.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
-          if (clip_rect.y() >= 0 && clip_rect.y() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.top()), QPoint(qMin(width(), clip_rect.right()), clip_rect.top()));
-
-          // draw text
-          if (text_rect.width() > MAX_TEXT_WIDTH && text_rect.right() > 0 && text_rect.left() < width()) {
-            if (!clip->enabled()) {
-              p.setPen(Qt::gray);
-            } else if (clip->color().lightness() > 160) {
-              // set to black if color is bright
-              p.setPen(Qt::black);
-            }
-            if (clip->linked.size() > 0) {
-              int underline_y = olive::timeline::kClipTextPadding + p.fontMetrics().height() + clip_rect.top();
-              int underline_width = qMin(text_rect.width() - 1, p.fontMetrics().width(clip->name()));
-              p.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
-            }
-            QString name = clip->name();
-            if (clip->speed().value != 1.0 || clip->reversed()) {
-              name += " (";
-              if (clip->reversed()) name += "-";
-              name += QString::number(clip->speed().value*100) + "%)";
-            }
-            p.drawText(text_rect, 0, name, &text_rect);
-          }
-
-          // bottom right gray
-          p.setPen(QColor(0, 0, 0, 128));
-          if (clip_rect.right() >= 0 && clip_rect.right() < width()) p.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
-          if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
-
-          // draw transition tool
-          if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
-
-            bool shared_transition = (ParentTimeline()->transition_tool_open_clip != nullptr
-                && ParentTimeline()->transition_tool_close_clip != nullptr);
-
-            QRect transition_tool_rect = clip_rect;
-            bool draw_transition_tool_rect = false;
-
-            if (ParentTimeline()->transition_tool_open_clip == clip) {
-              if (shared_transition) {
-                transition_tool_rect.setWidth(TRANSITION_BETWEEN_RANGE);
-              } else {
-                transition_tool_rect.setWidth(transition_tool_rect.width()>>2);
+              // convert marker time (in clip time) to sequence time
+              long marker_time = m.frame + clip->timeline_in() - clip->clip_in();
+              int marker_x = ParentTimeline()->getTimelineScreenPointFromFrame(marker_time);
+              if (marker_x > clip_rect.x() && marker_x < clip_rect.right()) {
+                Marker::Draw(p, marker_x, clip_rect.bottom()-p.fontMetrics().height(), clip_rect.bottom(), false);
               }
-              draw_transition_tool_rect = true;
-            } else if (ParentTimeline()->transition_tool_close_clip == clip) {
-              if (shared_transition) {
-                transition_tool_rect.setLeft(transition_tool_rect.right() - TRANSITION_BETWEEN_RANGE);
-              } else {
-                transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));
+            }
+            p.setBrush(Qt::NoBrush);
+
+            // draw clip transitions
+            draw_transition(p, clip, clip_rect, text_rect, kTransitionOpening);
+            draw_transition(p, clip, clip_rect, text_rect, kTransitionClosing);
+
+            // top left bevel
+            p.setPen(Qt::white);
+            if (clip_rect.x() >= 0 && clip_rect.x() < width()) p.drawLine(clip_rect.bottomLeft(), clip_rect.topLeft());
+            if (clip_rect.y() >= 0 && clip_rect.y() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.top()), QPoint(qMin(width(), clip_rect.right()), clip_rect.top()));
+
+            // draw text
+            if (text_rect.width() > MAX_TEXT_WIDTH && text_rect.right() > 0 && text_rect.left() < width()) {
+              if (!clip->enabled()) {
+                p.setPen(Qt::gray);
+              } else if (clip->color().lightness() > 160) {
+                // set to black if color is bright
+                p.setPen(Qt::black);
               }
-              draw_transition_tool_rect = true;
+              if (clip->linked.size() > 0) {
+                int underline_y = olive::timeline::kClipTextPadding + p.fontMetrics().height() + clip_rect.top();
+                int underline_width = qMin(text_rect.width() - 1, p.fontMetrics().width(clip->name()));
+                p.drawLine(text_rect.x(), underline_y, text_rect.x() + underline_width, underline_y);
+              }
+              QString name = clip->name();
+              if (clip->speed().value != 1.0 || clip->reversed()) {
+                name += " (";
+                if (clip->reversed()) name += "-";
+                name += QString::number(clip->speed().value*100) + "%)";
+              }
+              p.drawText(text_rect, 0, name, &text_rect);
             }
 
-            if (draw_transition_tool_rect
-                && transition_tool_rect.left() < width()
-                && transition_tool_rect.right() > 0) {
-              if (transition_tool_rect.left() < 0) {
-                transition_tool_rect.setLeft(0);
+            // bottom right gray
+            p.setPen(QColor(0, 0, 0, 128));
+            if (clip_rect.right() >= 0 && clip_rect.right() < width()) p.drawLine(clip_rect.bottomRight(), clip_rect.topRight());
+            if (clip_rect.bottom() >= 0 && clip_rect.bottom() < height()) p.drawLine(QPoint(qMax(0, clip_rect.left()), clip_rect.bottom()), QPoint(qMin(width(), clip_rect.right()), clip_rect.bottom()));
+
+            // draw transition tool
+            if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_TRANSITION) {
+
+              bool shared_transition = (ParentTimeline()->transition_tool_open_clip != nullptr
+                  && ParentTimeline()->transition_tool_close_clip != nullptr);
+
+              QRect transition_tool_rect = clip_rect;
+              bool draw_transition_tool_rect = false;
+
+              if (ParentTimeline()->transition_tool_open_clip == clip) {
+                if (shared_transition) {
+                  transition_tool_rect.setWidth(TRANSITION_BETWEEN_RANGE);
+                } else {
+                  transition_tool_rect.setWidth(transition_tool_rect.width()>>2);
+                }
+                draw_transition_tool_rect = true;
+              } else if (ParentTimeline()->transition_tool_close_clip == clip) {
+                if (shared_transition) {
+                  transition_tool_rect.setLeft(transition_tool_rect.right() - TRANSITION_BETWEEN_RANGE);
+                } else {
+                  transition_tool_rect.setLeft(transition_tool_rect.left() + (3*(transition_tool_rect.width()>>2)));
+                }
+                draw_transition_tool_rect = true;
               }
-              if (transition_tool_rect.right() > width()) {
-                transition_tool_rect.setRight(width());
+
+              if (draw_transition_tool_rect
+                  && transition_tool_rect.left() < width()
+                  && transition_tool_rect.right() > 0) {
+                if (transition_tool_rect.left() < 0) {
+                  transition_tool_rect.setLeft(0);
+                }
+                if (transition_tool_rect.right() > width()) {
+                  transition_tool_rect.setRight(width());
+                }
+                p.fillRect(transition_tool_rect, QColor(0, 0, 0, 128));
               }
-              p.fillRect(transition_tool_rect, QColor(0, 0, 0, 128));
             }
           }
         }
-      }
 
-      // Draw recording clip if recording if valid
-      if (panel_sequence_viewer->is_recording_cued() && panel_sequence_viewer->recording_track == track) {
-        int rec_track_x = ParentTimeline()->getTimelineScreenPointFromFrame(panel_sequence_viewer->recording_start);
-        int rec_track_y = getScreenPointFromTrack(panel_sequence_viewer->recording_track);
-        int rec_track_height = track->height();
-        if (panel_sequence_viewer->recording_start != panel_sequence_viewer->recording_end) {
-          QRect rec_rect(
+        // Draw recording clip if recording if valid
+        if (panel_sequence_viewer->is_recording_cued() && panel_sequence_viewer->recording_track == track) {
+          int rec_track_x = ParentTimeline()->getTimelineScreenPointFromFrame(panel_sequence_viewer->recording_start);
+          int rec_track_y = getScreenPointFromTrack(panel_sequence_viewer->recording_track);
+          int rec_track_height = track->height();
+          if (panel_sequence_viewer->recording_start != panel_sequence_viewer->recording_end) {
+            QRect rec_rect(
+                  rec_track_x,
+                  rec_track_y,
+                  getScreenPointFromFrame(ParentTimeline()->zoom, panel_sequence_viewer->recording_end - panel_sequence_viewer->recording_start),
+                  rec_track_height
+                  );
+            p.setPen(QPen(QColor(96, 96, 96), 2));
+            p.fillRect(rec_rect, QColor(192, 192, 192));
+            p.drawRect(rec_rect);
+          }
+          QRect active_rec_rect(
                 rec_track_x,
                 rec_track_y,
-                getScreenPointFromFrame(ParentTimeline()->zoom, panel_sequence_viewer->recording_end - panel_sequence_viewer->recording_start),
+                getScreenPointFromFrame(ParentTimeline()->zoom, panel_sequence_viewer->seq->playhead - panel_sequence_viewer->recording_start),
                 rec_track_height
                 );
-          p.setPen(QPen(QColor(96, 96, 96), 2));
-          p.fillRect(rec_rect, QColor(192, 192, 192));
-          p.drawRect(rec_rect);
+          p.setPen(QPen(QColor(192, 0, 0), 2));
+          p.fillRect(active_rec_rect, QColor(255, 96, 96));
+          p.drawRect(active_rec_rect);
+
+          p.setPen(Qt::NoPen);
+
+          if (!panel_sequence_viewer->playing) {
+            int rec_marker_size = 6;
+            int rec_track_midY = rec_track_y + (rec_track_height >> 1);
+            p.setBrush(Qt::white);
+            QPoint cue_marker[3] = {
+              QPoint(rec_track_x, rec_track_midY - rec_marker_size),
+              QPoint(rec_track_x + rec_marker_size, rec_track_midY),
+              QPoint(rec_track_x, rec_track_midY + rec_marker_size)
+            };
+            p.drawPolygon(cue_marker, 3);
+          }
         }
-        QRect active_rec_rect(
-              rec_track_x,
-              rec_track_y,
-              getScreenPointFromFrame(ParentTimeline()->zoom, panel_sequence_viewer->seq->playhead - panel_sequence_viewer->recording_start),
-              rec_track_height
-              );
-        p.setPen(QPen(QColor(192, 0, 0), 2));
-        p.fillRect(active_rec_rect, QColor(255, 96, 96));
-        p.drawRect(active_rec_rect);
 
-        p.setPen(Qt::NoPen);
+        // Draw selections
+        QVector<Selection> selections = track->Selections();
+        for (int j=0;j<selections.size();j++) {
+          const Selection& s = selections.at(j);
 
-        if (!panel_sequence_viewer->playing) {
-          int rec_marker_size = 6;
-          int rec_track_midY = rec_track_y + (rec_track_height >> 1);
-          p.setBrush(Qt::white);
-          QPoint cue_marker[3] = {
-            QPoint(rec_track_x, rec_track_midY - rec_marker_size),
-            QPoint(rec_track_x + rec_marker_size, rec_track_midY),
-            QPoint(rec_track_x, rec_track_midY + rec_marker_size)
-          };
-          p.drawPolygon(cue_marker, 3);
+          int selection_x = ParentTimeline()->getTimelineScreenPointFromFrame(s.in());
+          p.setPen(Qt::NoPen);
+          p.setBrush(Qt::NoBrush);
+          p.fillRect(selection_x,
+                     track_top,
+                     ParentTimeline()->getTimelineScreenPointFromFrame(s.out()) - selection_x,
+                     track->height(),
+                     QColor(0, 0, 0, 64));
         }
-      }
 
-      // Draw selections
-      QVector<Selection> selections = track->Selections();
-      for (int j=0;j<selections.size();j++) {
-        const Selection& s = selections.at(j);
+        // Draw splitting cursor
+        if (ParentTimeline()->splitting && ParentTimeline()->split_tracks.contains(track)) {
+          int cursor_x = ParentTimeline()->getTimelineScreenPointFromFrame(ParentTimeline()->drag_frame_start);
 
-        int selection_x = ParentTimeline()->getTimelineScreenPointFromFrame(s.in());
-        p.setPen(Qt::NoPen);
-        p.setBrush(Qt::NoBrush);
-        p.fillRect(selection_x,
-                   track_line,
-                   ParentTimeline()->getTimelineScreenPointFromFrame(s.out()) - selection_x,
-                   s.track()->height(),
-                   QColor(0, 0, 0, 64));
-      }
+          p.setPen(QColor(64, 64, 64));
+          p.drawLine(cursor_x,
+                     track_top,
+                     cursor_x,
+                     track_top + track->height());
+        }
 
-      // Draw splitting cursor
-      if (ParentTimeline()->splitting && ParentTimeline()->split_tracks.contains(track)) {
-        int cursor_x = ParentTimeline()->getTimelineScreenPointFromFrame(ParentTimeline()->drag_frame_start);
+        // Draw edit cursor
+        if (current_tool_shows_cursor() && ParentTimeline()->cursor_track == track) {
+          int cursor_x = ParentTimeline()->getTimelineScreenPointFromFrame(ParentTimeline()->cursor_frame);
 
-        p.setPen(QColor(64, 64, 64));
-        p.drawLine(cursor_x,
-                   track_line,
-                   cursor_x,
-                   track_line + track->height());
-      }
+          p.setPen(Qt::gray);
+          p.drawLine(cursor_x,
+                     track_top,
+                     cursor_x,
+                     track_top + track->height());
+        }
 
-      // Draw edit cursor
-      if (current_tool_shows_cursor() && ParentTimeline()->cursor_track == track) {
-        int cursor_x = ParentTimeline()->getTimelineScreenPointFromFrame(ParentTimeline()->cursor_frame);
-
-        p.setPen(Qt::gray);
-        p.drawLine(cursor_x,
-                   track_line,
-                   cursor_x,
-                   track_line + track->height());
-      }
-
-      // Draw track's line
-      track_line += track->height();
-      if (track_line >= 0 && track_line < height()) {
+        // Draw track line
         p.setPen(QColor(0, 0, 0, 96));
-        p.drawLine(0, track_line, rect().width(), track_line);
+        p.drawLine(0, track_bottom, rect().width(), track_bottom);
       }
-      track_line++;
-
-
     }
 
     // draw rectangle select
@@ -3376,10 +3302,6 @@ void TimelineView::paintEvent(QPaintEvent*) {
   }
 }
 
-void TimelineView::resizeEvent(QResizeEvent *) {
-  scrollBar->setPageStep(height());
-}
-
 // **************************************
 // screen point <-> frame/track functions
 // **************************************
@@ -3402,18 +3324,28 @@ int TimelineView::getScreenPointFromTrack(Track *track) {
 
 int TimelineView::getTrackIndexFromScreenPoint(int y)
 {
+  if (alignment_ == olive::timeline::kAlignmentSingle) {
+    return 0;
+  }
+
   if (y < 0) {
     return 0;
   }
 
   y += scroll;
 
+  /*
+  if (alignment_ == olive::timeline::kAlignmentBottom) {
+    y = height() - y;
+  }
+  */
+
   int heights = 0;
 
   int i = 0;
   while (true) {
 
-    int new_heights = heights + 1;
+    int new_heights = heights;
 
     if (i < track_list_->TrackCount()) {
       new_heights += track_list_->TrackAt(i)->height();
@@ -3434,6 +3366,10 @@ int TimelineView::getTrackIndexFromScreenPoint(int y)
 
 int TimelineView::getScreenPointFromTrackIndex(int track)
 {
+  if (alignment_ == olive::timeline::kAlignmentSingle) {
+    return 0;
+  }
+
   int point = 0;
 
   for (int i=0;i<track;i++) {
@@ -3444,7 +3380,14 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
     }
   }
 
-  return point - scroll;
+  int screen_point = point - scroll;
+
+  /*
+  if (alignment_ == olive::timeline::kAlignmentBottom) {
+    return height() - screen_point - track_list_->First()->height();
+  }
+  */
+  return screen_point;
 }
 
 Timeline *TimelineView::ParentTimeline()
