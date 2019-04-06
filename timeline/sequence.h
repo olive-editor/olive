@@ -92,7 +92,7 @@ public:
 
   void Split();
   bool SplitAllClipsAtPoint(ComboAction *ca, long point);
-  bool SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool relink = true);
+  bool SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool also_split_links = true);
 
   void RippleDeleteEmptySpace(ComboAction *ca, Track *track, long point);
   void RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length);

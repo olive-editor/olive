@@ -578,8 +578,9 @@ void Sequence::ToggleLinksOnSelected()
 void Sequence::Split()
 {
   ComboAction* ca = new ComboAction();
-  bool split_selected = false;
+  bool split_occurred = false;
 
+  // See if there are any selected clips at the current playhead to split
   QVector<Clip*> selected_clips = SelectedClips(true);
   if (selected_clips.size() > 0) {
     // see if whole clips are selected
@@ -594,31 +595,62 @@ void Sequence::Split()
       if (s != nullptr) {
         pre_clips.append(c);
         post_clips.append(s);
-        split_selected = true;
+        split_occurred = true;
       }
     }
 
-    if (split_selected) {
+    if (split_occurred) {
 
       // relink clips if we split
       olive::timeline::RelinkClips(pre_clips, post_clips);
       ca->append(new AddClipCommand(post_clips));
 
-    } else {
+    }
+  }
 
-      // split a selection if not
-      // FIXME reimplement split selection
-      //split_selected = split_selection(ca);
+  // If we weren't able to split any selected clips above, see if there are arbitrary selections to split
+  if (!split_occurred) {
 
+    TrackList* track_list;
+    Track* track;
+
+    foreach (track_list, track_lists_) {
+
+      QVector<Track*> tracks = track_list->tracks();
+      foreach (track, tracks) {
+
+        QVector<Selection> track_selections = track->Selections();
+        QVector<long> split_positions;
+
+        for (int j=0;j<track_selections.size();j++) {
+          const Selection& s = track_selections.at(j);
+
+          if (!split_positions.contains(s.in())) {
+            split_positions.append(s.in());
+          }
+
+          if (!split_positions.contains(s.out())) {
+            split_positions.append(s.out());
+          }
+        }
+
+        for (int i=0;i<track->ClipCount();i++) {
+          Clip* c = track->GetClip(i).get();
+
+          if (SplitClipAtPositions(ca, c, split_positions, false)) {
+            split_occurred = true;
+          }
+        }
+      }
     }
   }
 
   // if nothing was selected or no selections fell within playhead, simply split at playhead
-  if (!split_selected) {
-    split_selected = SplitAllClipsAtPoint(ca, playhead);
+  if (!split_occurred) {
+    split_occurred = SplitAllClipsAtPoint(ca, playhead);
   }
 
-  if (split_selected) {
+  if (split_occurred) {
     olive::undo_stack.push(ca);
     update_ui(true);
   } else {
@@ -734,7 +766,7 @@ bool Sequence::SplitAllClipsAtPoint(ComboAction *ca, long point)
   return split;
 }
 
-bool Sequence::SplitClipAtPositions(ComboAction *ca, Clip* clip, QVector<long> positions, bool relink)
+bool Sequence::SplitClipAtPositions(ComboAction *ca, Clip* clip, QVector<long> positions, bool also_split_links)
 {
   // Add the clip and each of its links to the pre_splits array
 
@@ -743,7 +775,7 @@ bool Sequence::SplitClipAtPositions(ComboAction *ca, Clip* clip, QVector<long> p
   QVector<Clip*> pre_splits;
   pre_splits.append(clip);
 
-  if (relink) {
+  if (also_split_links) {
     for (int i=0;i<clip->linked.size();i++)   {
       pre_splits.append(clip->linked.at(i));
     }
@@ -772,7 +804,8 @@ bool Sequence::SplitClipAtPositions(ComboAction *ca, Clip* clip, QVector<long> p
         split_occurred = true;
 
         if (i + 1 < positions.size()) {
-          post_splits[i][j]->set_timeline_out(positions.at(i+1));
+          post_splits[i][j]->set_timeline_out(qMin(post_splits[i][j]->timeline_out(),
+                                                   positions.at(i+1)));
         }
       }
     }
