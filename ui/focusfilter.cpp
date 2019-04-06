@@ -210,7 +210,7 @@ void FocusFilter::delete_function() {
       ComboAction* ca = new ComboAction();
       top_sequence->DeleteAreas(ca, top_sequence->Selections(), true);
       olive::undo_stack.push(ca);
-      Timeline::GetTopTimeline()->repaint_timeline();
+      update_ui(false);
     }
   }
 }

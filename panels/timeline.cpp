@@ -628,22 +628,27 @@ void Timeline::copy(bool del) {
 }
 
 void Timeline::ripple_delete() {
+
   if (sequence_ != nullptr) {
 
     QVector<Selection> selections = sequence_->Selections();
 
-    if (selections.isEmpty()) {
-
-      sequence_->RippleDeleteEmptySpace(cursor_track, cursor_frame);
-
-    } else if (olive::config.hover_focus && get_focused_panel() == this) {
+    if (!selections.isEmpty()) {
 
       ComboAction* ca = new ComboAction();
       sequence_->DeleteAreas(ca, selections, true, true);
       olive::undo_stack.push(ca);
 
+    } else if (olive::config.hover_focus && get_focused_panel() == this) {
+
+      ComboAction* ca = new ComboAction();
+      sequence_->RippleDeleteEmptySpace(ca, cursor_track, cursor_frame);
+      olive::undo_stack.push(ca);
+
     }
   }
+
+  repaint_timeline();
 }
 
 void Timeline::ripple_delete_empty_space()

@@ -88,11 +88,13 @@ void MoveClipAction::doRedo() {
   }
 }
 
-DeleteClipAction::DeleteClipAction(Clip *clip)
+DeleteClipAction::DeleteClipAction(Clip *clip) :
+  done_(false)
 {
   // Get shared_ptr object to take ownership of this Clip
 
   clip_ = clip->track()->GetClipObjectFromRawPtr(clip);
+  doRedo();
 }
 
 void DeleteClipAction::doUndo() {
@@ -101,30 +103,38 @@ void DeleteClipAction::doUndo() {
 
   // restore links to this clip
   for (int i=0;i<clips_linked_to_this_one_.size();i++) {
-    clips_linked_to_this_one_.append(clip_.get());
+    clips_linked_to_this_one_.at(i)->linked.append(clip_.get());
   }
+
+  done_ = false;
 }
 
 void DeleteClipAction::doRedo() {
-  // remove ref to clip
-  if (clip_->IsOpen()) {
-    clip_->Close(true);
-  }
+  if (!done_) {
 
-  clip_->track()->RemoveClip(clip_.get());
+    // remove ref to clip
+    if (clip_->IsOpen()) {
+      clip_->Close(true);
+    }
 
-  // delete link to this clip
-  QVector<Clip*> clips = clip_->track()->sequence()->GetAllClips();
-  for (int i=0;i<clips.size();i++) {
-    Clip* c = clips.at(i);
+    clip_->track()->RemoveClip(clip_.get());
 
-    for (int j=0;j<c->linked.size();j++) {
-      if (c->linked.at(j) == clip_.get()) {
-        c->linked.removeAt(j);
-        clips_linked_to_this_one_.append(c);
-        break;
+    // delete link to this clip
+    QVector<Clip*> clips = clip_->track()->sequence()->GetAllClips();
+    for (int i=0;i<clips.size();i++) {
+      Clip* c = clips.at(i);
+
+      for (int j=0;j<c->linked.size();j++) {
+        if (c->linked.at(j) == clip_.get()) {
+          c->linked.removeAt(j);
+          clips_linked_to_this_one_.append(c);
+          break;
+        }
       }
     }
+
+    done_ = true;
+
   }
 }
 
@@ -783,23 +793,19 @@ void SetBool::doRedo() {
 SetSelectionsCommand::SetSelectionsCommand(Sequence *s,
                                            const QVector<Selection> &old_data,
                                            const QVector<Selection> &new_data) :
+  seq_(s),
   old_data_(old_data),
-  new_data_(new_data),
-  done_(true)
+  new_data_(new_data)
 {
 
 }
 
 void SetSelectionsCommand::doUndo() {
   seq_->SetSelections(old_data_);
-  done_ = false;
 }
 
 void SetSelectionsCommand::doRedo() {
-  if (!done_) {
-    seq_->SetSelections(new_data_);
-    done_ = true;
-  }
+  seq_->SetSelections(new_data_);
 }
 
 EditSequenceCommand::EditSequenceCommand(Media* i, SequencePtr s) {

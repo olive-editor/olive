@@ -119,6 +119,7 @@ public:
 private:
   ClipPtr clip_;
   QVector<Clip*> clips_linked_to_this_one_;
+  bool done_;
 };
 
 class AddEffectCommand : public OliveAction {
@@ -417,7 +418,6 @@ private:
   QVector<Selection> old_data_;
   QVector<Selection> new_data_;
   Sequence* seq_;
-  bool done_;
 };
 
 class EditSequenceCommand : public OliveAction {

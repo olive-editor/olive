@@ -647,14 +647,12 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
         g.in = g.old_in = g.out = g.old_out = ParentTimeline()->drag_frame_start;
 
         g.track = ParentTimeline()->drag_track_start;
-        g.track_movement = 0;
         if (g.track == nullptr) {
           g.track = track_list_->Last();
-          g.track_movement = getTrackIndexFromScreenPoint(event->pos().x()) - g.track->Index();
+          ParentTimeline()->drag_track_start = track_list_->Last();
+          g.track_movement = getTrackIndexFromScreenPoint(event->pos().y()) - g.track->Index();
         }
 
-        g.transition = nullptr;
-        g.clip = nullptr;
         g.trim_type = olive::timeline::TRIM_OUT;
         ParentTimeline()->ghosts.append(g);
 
@@ -1010,7 +1008,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             panel_sequence_viewer->cue_recording(qMin(g.in, g.out), qMax(g.in, g.out), g.track);
             ParentTimeline()->creating = false;
           } else if (g.in != g.out) {
-            ClipPtr c = std::make_shared<Clip>(g.track);
+            ClipPtr c = std::make_shared<Clip>(g.track->Sibling(g.track_movement));
             c->set_media(nullptr, 0);
             c->set_timeline_in(qMin(g.in, g.out));
             c->set_timeline_out(qMax(g.in, g.out));
@@ -1097,6 +1095,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
         }
 
         if (process_moving) {
+
           const Ghost& first_ghost = ParentTimeline()->ghosts.at(0);
 
           // start a ripple movement
@@ -1462,7 +1461,16 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
               }
             }
           }
+
+          // move selections to match new ghosts
+          QVector<Selection> new_selections;
+          for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
+            new_selections.append(ParentTimeline()->ghosts.at(i).ToSelection());
+          }
+          ca->append(new SetSelectionsCommand(sequence(), sequence()->Selections(), new_selections));
+
           push_undo = true;
+
         }
       } else if (ParentTimeline()->selecting || ParentTimeline()->rect_select_proc) {
       } else if (ParentTimeline()->transition_tool_proc) {
@@ -1561,7 +1569,6 @@ void TimelineView::init_ghosts() {
     Clip* c = g.clip;
 
     g.track = c->track();
-    g.track_movement = 0;
     g.clip_in = g.old_clip_in = c->clip_in();
 
     if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_SLIP) {
@@ -1632,7 +1639,6 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
   int effective_tool = olive::timeline::current_tool;
   if (ParentTimeline()->importing || ParentTimeline()->creating) effective_tool = olive::timeline::TIMELINE_TOOL_POINTER;
 
-  Track* mouse_track = getTrackFromScreenPoint(mouse_pos.y());
   long frame_diff = (lock_frame) ? 0 : ParentTimeline()->getTimelineFrameFromScreenPoint(mouse_pos.x()) - ParentTimeline()->drag_frame_start;
   long validator;
   long earliest_in_point = LONG_MAX;
@@ -1918,7 +1924,6 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         g.out = g.old_out + ghost_diff;
       }
     } else if (clips_are_movable) {
-      g.track_movement = 0;
       g.in = g.old_in + frame_diff;
       g.out = g.old_out + frame_diff;
 
@@ -1931,7 +1936,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
         g.track_movement = getTrackIndexFromScreenPoint(mouse_pos.y());
 
-      } else if (g.track->type() == track_list_->type()) {
+      } else if (g.track->type() == track_list_->type() && g.transition == nullptr) {
 
         g.track_movement = track_diff;
 
@@ -2192,7 +2197,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       } else {
         // if not, repaint (seeking will trigger a repaint)
         ParentTimeline()->repaint_timeline();
-      }      
+      }
 
     } else if (ParentTimeline()->hand_moving) {
 
@@ -2254,52 +2259,43 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
           if (c != nullptr) {
             Ghost g;
-            g.transition = nullptr;
 
-            // check if whole clip is added
-            bool add = false;
+            // check if whole clip is selected
+            bool add = c->IsSelected();
 
-            // check if a transition is selected (prioritize transition selection)
-            // (only the pointer tool supports moving transitions)
-            if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER
-                && (c->opening_transition != nullptr || c->closing_transition != nullptr)) {
-
-              // check if any selections contain a whole transition
-              if (c->IsTransitionSelected(kTransitionOpening)) {
-                g.transition = c->opening_transition;
-                add = true;
-              } else if (c->IsTransitionSelected(kTransitionClosing)) {
-                g.transition = c->closing_transition;
-                add = true;
-              }
-
-            }
-
-            // if a transition isn't selected, check if the whole clip is
             if (!add) {
-              add = c->IsSelected();
-            }
+              // check if a transition is selected
+              // (only the pointer tool supports moving transitions)
+              if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_POINTER
+                  && (c->opening_transition != nullptr || c->closing_transition != nullptr)) {
 
-            if (add) {
-
-              if (g.transition != nullptr) {
-
-                // transition may be a dual transition, check if it's already been added elsewhere
-                for (int j=0;j<ParentTimeline()->ghosts.size();j++) {
-                  if (ParentTimeline()->ghosts.at(j).transition == g.transition) {
-                    add = false;
-                    break;
-                  }
+                // check if any selections contain a whole transition
+                if (c->IsTransitionSelected(kTransitionOpening)) {
+                  g.transition = c->opening_transition;
+                  add = true;
+                } else if (c->IsTransitionSelected(kTransitionClosing)) {
+                  g.transition = c->closing_transition;
+                  add = true;
                 }
 
               }
+            }
 
-              if (add) {
-                g.clip = c;
-                g.trim_type = ParentTimeline()->trim_type;
-                ParentTimeline()->ghosts.append(g);
+            if (add && g.transition != nullptr) {
+
+              // transition may be a shared transition, check if it's already been added elsewhere
+              for (int j=0;j<ParentTimeline()->ghosts.size();j++) {
+                if (ParentTimeline()->ghosts.at(j).transition == g.transition) {
+                  add = false;
+                  break;
+                }
               }
+            }
 
+            if (add) {
+              g.clip = c;
+              g.trim_type = ParentTimeline()->trim_type;
+              ParentTimeline()->ghosts.append(g);
             }
           }
         }
@@ -2489,7 +2485,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
           // See if this track touches this rectangle at all
           if (!(track_bottom < rect_top
-              || track_top > rect_bottom)) {
+                || track_top > rect_bottom)) {
 
             // Loop through track's clips for clips touching this rectangle
             for (int i=0;i<track->ClipCount();i++) {

@@ -628,6 +628,10 @@ void Sequence::Split()
 
 void Sequence::DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool deselect_areas, bool ripple)
 {
+  if (areas.isEmpty()) {
+    return;
+  }
+
   Selection::Tidy(areas);
 
   panel_graph_editor->set_row(nullptr);
@@ -690,16 +694,22 @@ void Sequence::DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool desel
   }
 
   // deselect selected clip areas
+  long minimum_in = LONG_MAX;
+  long minimum_length = LONG_MAX;
   if (deselect_areas) {
     QVector<Selection> area_copy = areas;
     for (int i=0;i<area_copy.size();i++) {
       const Selection& s = area_copy.at(i);
       s.track()->DeselectArea(s.in(), s.out());
+
+      // Get ripple point and ripple length
+      minimum_in = qMin(minimum_in, s.in());
+      minimum_length = qMin(minimum_length, s.in() - s.out());
     }
   }
 
   if (ripple) {
-
+    RippleDeleteArea(ca, minimum_in, minimum_length);
   }
 
   olive::timeline::RelinkClips(pre_clips, post_clips);
@@ -776,7 +786,7 @@ bool Sequence::SplitClipAtPositions(ComboAction *ca, Clip* clip, QVector<long> p
   return split_occurred;
 }
 
-void Sequence::RippleDeleteEmptySpace(Track* track, long point)
+void Sequence::RippleDeleteEmptySpace(ComboAction* ca, Track* track, long point)
 {
   QVector<Clip*> track_clips = track->GetAllClips();
 
@@ -805,6 +815,11 @@ void Sequence::RippleDeleteEmptySpace(Track* track, long point)
   // We now know the maximum ripple we could do to clear this empty space, but we need to ensure it won't cause
   // overlaps of clips in other tracks
 
+  RippleDeleteArea(ca, point, ripple_end - ripple_start);
+}
+
+void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length) {
+
   for (int i=0;i<track_lists_.size();i++) {
     TrackList* tl = track_lists_.at(i);
 
@@ -812,66 +827,46 @@ void Sequence::RippleDeleteEmptySpace(Track* track, long point)
       Track* t = tl->TrackAt(j);
 
       // We've already tested `track`, so we don't need to test it again
-      if (t != track) {
+      long first_in_point_after_point = LONG_MAX;
+      long out_point_just_before_first_in_point = LONG_MIN;
 
-        long first_in_point_after_point = LONG_MAX;
-        long out_point_just_before_first_in_point = LONG_MIN;
+      QVector<Clip*> track_clips = t->GetAllClips();
 
-        QVector<Clip*> track_clips = t->GetAllClips();
+      // Find the in point of the clip directly after the point
+      for (int k=0;k<track_clips.size();k++) {
+        Clip* c = track_clips.at(k);
 
-        // Find the in point of the clip directly after the point
+        if (c->timeline_in() >= ripple_point) {
+          first_in_point_after_point = qMin(first_in_point_after_point, c->timeline_in());
+        }
+      }
+
+      // Ensure we found a valid in point before proceeding
+      if (first_in_point_after_point != LONG_MAX) {
+
+        // Find the out point of the clip directly before the clip found above
         for (int k=0;k<track_clips.size();k++) {
           Clip* c = track_clips.at(k);
 
-          if (c->timeline_in() > point) {
-            first_in_point_after_point = qMin(first_in_point_after_point, c->timeline_in());
+          if (c->timeline_out() <= first_in_point_after_point) {
+            out_point_just_before_first_in_point = qMax(out_point_just_before_first_in_point, c->timeline_out());
           }
         }
 
-        // Ensure we found a valid in point before proceeding
-        if (first_in_point_after_point != LONG_MAX) {
+        long ripple_test = first_in_point_after_point - out_point_just_before_first_in_point + ripple_length;
 
-          // Find the out point of the clip directly before the clip found above
-          for (int k=0;k<track_clips.size();k++) {
-            Clip* c = track_clips.at(k);
-
-            if (c->timeline_out() < first_in_point_after_point) {
-              out_point_just_before_first_in_point = qMax(out_point_just_before_first_in_point, c->timeline_out());
-            }
-          }
-
-          long gap_between_clips = first_in_point_after_point - out_point_just_before_first_in_point;
-
-          if (gap_between_clips > (ripple_end - ripple_start)) {
-            ripple_end = ripple_start + gap_between_clips;
-          }
+        if (ripple_test < 0) {
+          ripple_length -= ripple_test;
         }
       }
     }
   }
 
-  if (ripple_start != ripple_end) {
-    ComboAction* ca = new ComboAction();
-    Ripple(ca, ripple_start, ripple_start - ripple_end);
-    olive::undo_stack.push(ca);
-  }
-}
-
-/*
-QVector<int> Sequence::SelectedClipIndexes()
-{
-  QVector<int> selected_clips;
-
-  for (int i=0;i<clips.size();i++) {
-    Clip* c = clips.at(i).get();
-    if (c != nullptr && IsClipSelected(c, true)) {
-      selected_clips.append(i);
-    }
+  if (ripple_length != 0) {
+    Ripple(ca, ripple_point, ripple_length);
   }
 
-  return selected_clips;
 }
-*/
 
 Effect *Sequence::GetSelectedGizmo()
 {

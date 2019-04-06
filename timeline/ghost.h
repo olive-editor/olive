@@ -17,6 +17,8 @@ enum TrimType {
 }
 
 struct Ghost {
+  Ghost();
+
   Clip* clip;
 
   long in;

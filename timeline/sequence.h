@@ -94,7 +94,8 @@ public:
   bool SplitAllClipsAtPoint(ComboAction *ca, long point);
   bool SplitClipAtPositions(ComboAction* ca, Clip *clip, QVector<long> positions, bool relink = true);
 
-  void RippleDeleteEmptySpace(Track *track, long point);
+  void RippleDeleteEmptySpace(ComboAction *ca, Track *track, long point);
+  void RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length);
 
   Effect* GetSelectedGizmo();
 

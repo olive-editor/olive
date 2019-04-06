@@ -27,8 +27,9 @@ CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectM
 }
 
 void CrossDissolveTransition::process_coords(double progress, GLTextureCoords& coords, int data) {
-  if (!(data == kTransitionClosing && secondary_clip != nullptr)) {
-    if (data == kTransitionClosing) progress = 1.0 - progress;
+  if (data == kTransitionClosing) {
+    coords.opacity *= (1.0 - progress);
+  } else {
     coords.opacity *= progress;
   }
 }
