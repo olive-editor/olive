@@ -5,7 +5,8 @@
 #include <QInputDialog>
 
 TimelineLabel::TimelineLabel() :
-  track_(nullptr)
+  track_(nullptr),
+  alignment_(olive::timeline::kAlignmentTop)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
@@ -68,12 +69,25 @@ void TimelineLabel::UpdateState()
   lock_button_->setChecked(track_->IsLocked());
 }
 
+void TimelineLabel::SetAlignment(olive::timeline::Alignment alignment)
+{
+  alignment_ = alignment;
+  update();
+}
+
 void TimelineLabel::paintEvent(QPaintEvent *)
 {
+  if (alignment_ != olive::timeline::kAlignmentTop && alignment_ != olive::timeline::kAlignmentBottom) {
+    return;
+  }
+
   QPainter p(this);
 
   p.setPen(QColor(0, 0, 0, 96));
-  p.drawLine(0, height() - 1, width(), height() - 1);
+
+  int line_y = (alignment_ == olive::timeline::kAlignmentTop) ? height() - 1 : 0;
+
+  p.drawLine(0, line_y, width(), line_y);
 }
 
 void TimelineLabel::RenameTrack()

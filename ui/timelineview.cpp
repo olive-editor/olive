@@ -929,6 +929,18 @@ void TimelineView::VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, C
   }
 }
 
+int TimelineView::GetTotalAreaHeight()
+{
+  // start by adding a track height worth of padding
+  int panel_height = olive::timeline::kTrackDefaultHeight;
+
+  for (int i=0;i<track_list_->TrackCount();i++) {
+    panel_height += track_list_->TrackAt(i)->height();
+  }
+
+  return panel_height;
+}
+
 void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
   QToolTip::hideText();
   if (sequence() != nullptr) {
@@ -2865,15 +2877,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
     QPainter p(this);
 
     // get widget width and height
-
-    // start by adding a track height worth of padding
-    int panel_height = olive::timeline::kTrackDefaultHeight;
-
-    for (int i=0;i<track_list_->TrackCount();i++) {
-      panel_height += track_list_->TrackAt(i)->height();
-    }
-
-    emit setScrollMaximum(panel_height);
+    emit setScrollMaximum(GetTotalAreaHeight());
 
     for (int i=0;i<track_list_->TrackCount();i++) {
 
@@ -2890,7 +2894,14 @@ void TimelineView::paintEvent(QPaintEvent*) {
           QRect clip_rect(ParentTimeline()->getTimelineScreenPointFromFrame(clip->timeline_in()),
                           track_top,
                           getScreenPointFromFrame(ParentTimeline()->zoom, clip->length()),
-                          track->height() - 1);
+                          track->height());
+
+          if (alignment_ == olive::timeline::kAlignmentTop) {
+            clip_rect.setHeight(track->height() - 1);
+          } else if (alignment_ == olive::timeline::kAlignmentBottom) {
+            clip_rect.setTop(track_top + 1);
+          }
+
           QRect text_rect(clip_rect.left() + olive::timeline::kClipTextPadding,
                           clip_rect.top() + olive::timeline::kClipTextPadding,
                           clip_rect.width() - olive::timeline::kClipTextPadding - 1,
@@ -3206,7 +3217,11 @@ void TimelineView::paintEvent(QPaintEvent*) {
 
         // Draw track line
         p.setPen(QColor(0, 0, 0, 96));
-        p.drawLine(0, track_bottom, rect().width(), track_bottom);
+        if (alignment_ == olive::timeline::kAlignmentTop) {
+          p.drawLine(0, track_bottom, rect().width(), track_bottom);
+        } else if (alignment_ == olive::timeline::kAlignmentBottom) {
+          p.drawLine(0, track_top, rect().width(), track_top);
+        }
       }
     }
 
@@ -3315,17 +3330,15 @@ int TimelineView::getTrackIndexFromScreenPoint(int y)
     return 0;
   }
 
+  if (alignment_ == olive::timeline::kAlignmentBottom) {
+    y = -(y + 1 + scroll - qMax(height(), GetTotalAreaHeight()));
+  } else {
+    y += scroll;
+  }
+
   if (y < 0) {
     return 0;
   }
-
-  y += scroll;
-
-  /*
-  if (alignment_ == olive::timeline::kAlignmentBottom) {
-    y = height() - y;
-  }
-  */
 
   int heights = 0;
 
@@ -3363,14 +3376,11 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
     point += getTrackHeightFromTrackIndex(i) + 1;
   }
 
-  int screen_point = point - scroll;
-
-  /*
   if (alignment_ == olive::timeline::kAlignmentBottom) {
-    return height() - screen_point - track_list_->First()->height();
+    return qMax(height(), GetTotalAreaHeight()) - point - scroll - track_list_->First()->height() - 1;
   }
-  */
-  return screen_point;
+
+  return point - scroll;
 }
 
 int TimelineView::getTrackHeightFromTrackIndex(int track)

@@ -90,7 +90,7 @@ Timeline::Timeline(QWidget *parent) :
 
   headers->viewer = panel_sequence_viewer;
 
-//  video_area->SetAlignment(olive::timeline::kAlignmentBottom);
+  video_area->SetAlignment(olive::timeline::kAlignmentBottom);
 
   tool_buttons.append(toolArrowButton);
   tool_buttons.append(toolEditButton);

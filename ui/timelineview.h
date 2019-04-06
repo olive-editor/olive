@@ -86,6 +86,8 @@ private:
   void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, long transition_start, long transition_end);
   void VerifyTransitionHelper();
 
+  int GetTotalAreaHeight();
+
   Timeline* timeline_;
 
   olive::timeline::Alignment alignment_;

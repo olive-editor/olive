@@ -6,6 +6,7 @@
 
 #include "ui/clickablelabel.h"
 #include "timeline/track.h"
+#include "timeline/timelinefunctions.h"
 
 class TimelineLabel : public QWidget
 {
@@ -15,6 +16,7 @@ public:
 
   void SetTrack(Track* track);
   void UpdateState();
+  void SetAlignment(olive::timeline::Alignment alignment);
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
 private:
@@ -25,6 +27,8 @@ private:
   ClickableLabel* label_;
 
   Track* track_;
+
+  olive::timeline::Alignment alignment_;
 private slots:
   void RenameTrack();
   void UpdateHeight(int h);

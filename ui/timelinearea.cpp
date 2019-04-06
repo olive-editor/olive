@@ -166,6 +166,7 @@ void TimelineArea::RefreshLabels()
     for (int i=0;i<labels_.size();i++) {
       labels_[i] = std::make_shared<TimelineLabel>();
       labels_[i]->SetTrack(track_list_->TrackAt(i));
+      labels_[i]->SetAlignment(alignment_);
 
       switch (alignment_) {
       case olive::timeline::kAlignmentTop:
