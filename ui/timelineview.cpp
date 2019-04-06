@@ -2402,54 +2402,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         // (left/top were set to the starting drag position earlier)
         ParentTimeline()->rect_select_rect.setBottomRight(mapToGlobal(event->pos()));
 
-        long frame_min = qMin(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
-        long frame_max = qMax(ParentTimeline()->drag_frame_start, ParentTimeline()->cursor_frame);
-
-        QPoint relative_tl = mapFromGlobal(ParentTimeline()->rect_select_rect.topLeft());
-        QPoint relative_br = mapFromGlobal(ParentTimeline()->rect_select_rect.bottomRight());
-
-        int rect_top = qMin(relative_tl.y(), relative_br.y());
-        int rect_bottom = qMax(relative_tl.y(), relative_br.y());
-
-        // determine which clips are in this rectangular selection
-        QVector<Clip*> selected_clips;
-        for (int j=0;j<track_list_->TrackCount();j++) {
-          Track* track = track_list_->TrackAt(j);
-
-          int track_top = getScreenPointFromTrack(track);
-          int track_bottom = track_top + track->height();
-
-          // See if this track touches this rectangle at all
-          if (!(track_bottom < rect_top
-                || track_top > rect_bottom)) {
-
-            // Loop through track's clips for clips touching this rectangle
-            for (int i=0;i<track->ClipCount();i++) {
-              Clip* clip = track->GetClip(i).get();
-              if (!(clip->timeline_out() < frame_min || clip->timeline_in() > frame_max) ) {
-
-                // create a group of the clip (and its links if alt is not pressed)
-                QVector<Clip*> session_clips;
-                session_clips.append(clip);
-
-                if (!alt) {
-                  session_clips.append(clip->linked);
-                }
-
-                // for each of these clips, see if clip has already been added -
-                // this can easily happen due to adding linked clips
-                for (int j=0;j<session_clips.size();j++) {
-                  Clip* c = session_clips.at(j);
-
-                  if (!selected_clips.contains(c)) {
-                    selected_clips.append(c);
-                  }
-                }
-              }
-            }
-
-          }
-        }
+        QVector<Clip*> selected_clips = ParentTimeline()->GetClipsInRectangleSelection(!alt);
 
         // add each of the selected clips to the main sequence's selections
         for (int i=0;i<selected_clips.size();i++) {
@@ -2500,7 +2453,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
       // used to determine how close the cursor is to a trim point
       // (and more specifically, whether another point is closer or not)
-      int closeness = INT_MAX;
+      long closeness = LONG_MAX;
 
       // we default to selecting no transition, but set this accordingly if the cursor is on a transition
       ParentTimeline()->transition_select = kTransitionNone;
@@ -2548,7 +2501,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           if (c->timeline_in() > mouse_frame_lower && c->timeline_in() < mouse_frame_upper) {
 
             // test how close this IN point is to the cursor
-            int nc = qAbs(c->timeline_in() + 1 - ParentTimeline()->cursor_frame);
+            long nc = qAbs(c->timeline_in() + 1 - ParentTimeline()->cursor_frame);
 
             // and test whether it's closer than the last in/out point we found
             if (nc < closeness) {
@@ -2566,7 +2519,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           if (c->timeline_out() > mouse_frame_lower && c->timeline_out() < mouse_frame_upper) {
 
             // test how close this OUT point is to the cursor
-            int nc = qAbs(c->timeline_out() - 1 - ParentTimeline()->cursor_frame);
+            long nc = qAbs(c->timeline_out() - 1 - ParentTimeline()->cursor_frame);
 
             // and test whether it's closer than the last in/out point we found
             if (nc < closeness) {
@@ -2594,7 +2547,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
               if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 
                 // similar to above, test how close it is and if it's closer, make this active
-                int nc = qAbs(transition_point - 1 - ParentTimeline()->cursor_frame);
+                long nc = qAbs(transition_point - 1 - ParentTimeline()->cursor_frame);
                 if (nc < closeness) {
                   ParentTimeline()->trim_target = c;
                   ParentTimeline()->trim_type = olive::timeline::TRIM_OUT;
@@ -2615,7 +2568,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
               if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 
                 // similar to above, test how close it is and if it's closer, make this active
-                int nc = qAbs(transition_point + 1 - ParentTimeline()->cursor_frame);
+                long nc = qAbs(transition_point + 1 - ParentTimeline()->cursor_frame);
                 if (nc < closeness) {
                   ParentTimeline()->trim_target = c;
                   ParentTimeline()->trim_type = olive::timeline::TRIM_IN;
@@ -2646,18 +2599,21 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
         // check to see if we're resizing a track height
         int mouse_pos = event->pos().y();
-        Track* hover_track = getTrackFromScreenPoint(mouse_pos);
 
-        if (hover_track != nullptr) {
-          int test_range = 10; // FIXME magic number
+        // cursor range for resizing a track
+        int test_range = 10; // FIXME magic number
 
-          int track_y_edge = getScreenPointFromTrack(hover_track);
+        for (int i=0;i<track_list_->TrackCount();i++) {
+          Track* track = track_list_->TrackAt(i);
 
-          if (mouse_pos > track_y_edge - test_range
-              && mouse_pos < track_y_edge + test_range) {
+          int resize_point = getScreenPointFromTrackIndex(i + 1);
+
+          if (mouse_pos > resize_point - test_range
+              && mouse_pos < resize_point + test_range) {
             track_resizing = true;
-            track_target = hover_track;
+            track_target = track;
             setCursor(Qt::SizeVerCursor);
+            break;
           }
         }
 
@@ -3240,10 +3196,11 @@ void TimelineView::paintEvent(QPaintEvent*) {
         const Ghost& g = ParentTimeline()->ghosts.at(i);
         first_ghost = qMin(first_ghost, g.in);
         if (g.track->type() == track_list_->type()) {
+
           int ghost_x = ParentTimeline()->getTimelineScreenPointFromFrame(g.in);
           int ghost_y = getScreenPointFromTrackIndex(g.track->Index() + g.track_movement);
           int ghost_width = ParentTimeline()->getTimelineScreenPointFromFrame(g.out) - ghost_x - 1;
-          int ghost_height = g.track->height() - 1;
+          int ghost_height = getTrackHeightFromTrackIndex(g.track->Index() + g.track_movement) - 1;
 
           insert_points.append(ghost_y + (ghost_height>>1));
 
@@ -3373,11 +3330,7 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
   int point = 0;
 
   for (int i=0;i<track;i++) {
-    if (i < track_list_->TrackCount()) {
-      point += track_list_->TrackAt(i)->height() + 1;
-    } else {
-      point += olive::timeline::kTrackDefaultHeight + 1;
-    }
+    point += getTrackHeightFromTrackIndex(i) + 1;
   }
 
   int screen_point = point - scroll;
@@ -3388,6 +3341,15 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
   }
   */
   return screen_point;
+}
+
+int TimelineView::getTrackHeightFromTrackIndex(int track)
+{
+  if (track < track_list_->TrackCount()) {
+    return track_list_->TrackAt(track)->height();
+  } else {
+    return olive::timeline::kTrackDefaultHeight;
+  }
 }
 
 Timeline *TimelineView::ParentTimeline()

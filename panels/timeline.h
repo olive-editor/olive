@@ -63,6 +63,8 @@ public:
   int getDisplayScreenPointFromFrame(long frame);
   long getDisplayFrameFromScreenPoint(int x);
 
+  QVector<Clip*> GetClipsInRectangleSelection(bool autoselect_links);
+
   void set_marker();
 
   // shared information
@@ -206,6 +208,7 @@ private:
   QWidget* timeline_area;
   TimelineArea* video_area;
   TimelineArea* audio_area;
+  QVector<TimelineArea*> areas;
   QWidget* editAreas;
   QPushButton* zoomInButton;
   QPushButton* zoomOutButton;

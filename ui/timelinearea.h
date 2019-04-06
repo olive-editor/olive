@@ -17,6 +17,9 @@ public:
   void SetTrackList(Sequence* sequence, Track::Type track_list);
   void SetAlignment(olive::timeline::Alignment alignment);
 
+  TrackList* track_list();
+  TimelineView* view();
+
   virtual void wheelEvent(QWheelEvent *event) override;
 public slots:
   void RefreshLabels();

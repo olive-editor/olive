@@ -761,6 +761,65 @@ long Timeline::getTimelineFrameFromScreenPoint(int x) {
   return getFrameFromScreenPoint(zoom, x + scroll);
 }
 
+QVector<Clip *> Timeline::GetClipsInRectangleSelection(bool autoselect_links)
+{
+  QVector<Clip*> selected_clips;
+
+  TimelineArea* area;
+
+  long frame_min = qMin(drag_frame_start, cursor_frame);
+  long frame_max = qMax(drag_frame_start, cursor_frame);
+
+  foreach (area, areas) {
+    QPoint relative_tl = area->mapFromGlobal(rect_select_rect.topLeft());
+    QPoint relative_br = area->mapFromGlobal(rect_select_rect.bottomRight());
+
+    int rect_top = qMin(relative_tl.y(), relative_br.y());
+    int rect_bottom = qMax(relative_tl.y(), relative_br.y());
+
+    // determine which clips are in this rectangular selection
+    TrackList* track_list = area->track_list();
+    for (int j=0;j<track_list->TrackCount();j++) {
+      Track* track = track_list->TrackAt(j);
+
+      int track_top = area->view()->getScreenPointFromTrack(track);
+      int track_bottom = track_top + track->height();
+
+      // See if this track touches this rectangle at all
+      if (!(track_bottom < rect_top
+            || track_top > rect_bottom)) {
+
+        // Loop through track's clips for clips touching this rectangle
+        for (int i=0;i<track->ClipCount();i++) {
+          Clip* clip = track->GetClip(i).get();
+          if (!(clip->timeline_out() < frame_min || clip->timeline_in() > frame_max) ) {
+
+            // create a group of the clip (and its links if alt is not pressed)
+            QVector<Clip*> session_clips;
+            session_clips.append(clip);
+
+            if (autoselect_links) {
+              session_clips.append(clip->linked);
+            }
+
+            // for each of these clips, see if clip has already been added -
+            // this can easily happen due to adding linked clips
+            for (int j=0;j<session_clips.size();j++) {
+              Clip* c = session_clips.at(j);
+
+              if (!selected_clips.contains(c)) {
+                selected_clips.append(c);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return selected_clips;
+}
+
 int Timeline::getTimelineScreenPointFromFrame(long frame) {
   return getScreenPointFromFrame(zoom, frame) - scroll;
 }
@@ -1018,9 +1077,11 @@ void Timeline::setup_ui() {
   splitter->setOrientation(Qt::Vertical);
 
   video_area = new TimelineArea(this);
+  areas.append(video_area);
   splitter->addWidget(video_area);
 
   audio_area = new TimelineArea(this);
+  areas.append(audio_area);
   splitter->addWidget(audio_area);
 
   editAreaLayout->addWidget(splitter);

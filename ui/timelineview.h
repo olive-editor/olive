@@ -48,6 +48,14 @@ public:
   void SetAlignment(olive::timeline::Alignment alignment);
   void SetTrackList(TrackList* tl);
 
+  Track* getTrackFromScreenPoint(int y);
+  int getScreenPointFromTrack(Track* track);
+
+  int getTrackIndexFromScreenPoint(int y);
+  int getScreenPointFromTrackIndex(int track);
+
+  int getTrackHeightFromTrackIndex(int track);
+
 protected:
   void paintEvent(QPaintEvent*);
 
@@ -66,12 +74,6 @@ protected:
 private:
   void init_ghosts();
   void update_ghosts(const QPoint& mouse_pos, bool lock_frame);
-
-  Track* getTrackFromScreenPoint(int y);
-  int getScreenPointFromTrack(Track* track);
-
-  int getTrackIndexFromScreenPoint(int y);
-  int getScreenPointFromTrackIndex(int track);
 
   Timeline* ParentTimeline();
   Sequence* sequence();
