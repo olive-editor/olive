@@ -83,6 +83,8 @@ private:
   void draw_transition(QPainter& p, Clip *c, const QRect& clip_rect, QRect& text_rect, int transition_type);
   Clip* GetClipAtCursor();
 
+  QVector<Track*> GetSplitTracksFromMouseCoords(bool also_split_links, long frame, int top, int bottom);
+
   void VerifyTransitionsAfterCreating(ComboAction* ca, Clip* open, Clip* close, long transition_start, long transition_end);
   void VerifyTransitionHelper();
 

@@ -524,6 +524,48 @@ Clip *TimelineView::GetClipAtCursor()
   return ParentTimeline()->cursor_track->GetClipFromPoint(ParentTimeline()->cursor_frame);
 }
 
+QVector<Track *> TimelineView::GetSplitTracksFromMouseCoords(bool also_split_links, long frame, int top, int bottom)
+{
+  // Convert top and bottom coords to global coordinates used by GetTracksInRectangle()
+  int global_top = mapToGlobal(QPoint(0, top)).y();
+  int global_bottom = mapToGlobal(QPoint(0, bottom)).y();
+
+  // Get the current tracks in this mouse range
+  QVector<Track*> split_tracks = ParentTimeline()->GetTracksInRectangle(global_top, global_bottom);
+
+  // If we're also splitting links, loop through each track and search for clips that will be split at this point
+  if (also_split_links) {
+
+    // Cache array size because we'll be adding to it and don't want to cause an infinite loop
+    int split_track_size = split_tracks.size();
+    for (int i=0;i<split_track_size;i++) {
+
+      Track* track = split_tracks.at(i);
+
+      for (int j=0;j<track->ClipCount();j++) {
+        Clip* c = track->GetClip(j).get();
+
+        // Check if this clip is going to be split at this frame
+        if (c->timeline_in() < frame && c->timeline_out() > frame) {
+
+          // Loop through clip's links for more tracks to split
+          for (int k=0;k<c->linked.size();k++) {
+            Track* link_track = c->linked.at(k)->track();
+            if (!split_tracks.contains(link_track)) {
+              split_tracks.append(link_track);
+            }
+          }
+
+          // Break because there will only be one clip active at this frame per track
+          break;
+        }
+      }
+    }
+  }
+
+  return split_tracks;
+}
+
 void TimelineView::mousePressEvent(QMouseEvent *event) {
   if (sequence() != nullptr) {
 
@@ -779,8 +821,10 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
         // initiate razor tool
         ParentTimeline()->splitting = true;
 
-        // add this track as a track being split by the razor
-        ParentTimeline()->split_tracks.append(ParentTimeline()->drag_track_start);
+        ParentTimeline()->split_tracks = GetSplitTracksFromMouseCoords(!alt,
+                                                                       ParentTimeline()->drag_frame_start,
+                                                                       event->pos().y(),
+                                                                       event->pos().y());
 
         update_ui(false);
       }
@@ -1461,30 +1505,23 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
           push_undo = true;
         }
       } else if (ParentTimeline()->splitting) {
-        bool split = false;
-        for (int i=0;i<ParentTimeline()->split_tracks.size();i++) {
-          Clip* split_index = ParentTimeline()->split_tracks.at(i)->GetClipFromPoint(ParentTimeline()->drag_frame_start);
+
+        QVector<Track*> split_tracks = GetSplitTracksFromMouseCoords(false,
+                                                                     ParentTimeline()->drag_frame_start,
+                                                                     ParentTimeline()->drag_y_start,
+                                                                     event->pos().y());
+
+        for (int i=0;i<split_tracks.size();i++) {
+          Clip* split_index = split_tracks.at(i)->GetClipFromPoint(ParentTimeline()->drag_frame_start);
           if (split_index != nullptr
               && sequence()->SplitClipAtPositions(ca, split_index, {ParentTimeline()->drag_frame_start}, !alt)) {
-            split = true;
+            push_undo = true;
           }
-        }
-        if (split) {
-          push_undo = true;
         }
       }
 
       // remove duplicate selections
       sequence()->TidySelections();
-
-      /*
-      if (selection_command != nullptr) {
-        selection_command->new_data = sequence()->selections;
-        ca->append(selection_command);
-        selection_command = nullptr;
-        push_undo = true;
-      }
-      */
 
       if (push_undo) {
         olive::undo_stack.push(ca);
@@ -2360,39 +2397,10 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
     } else if (ParentTimeline()->splitting) {
 
-      // get the range of tracks currently dragged
-      int track_start = qMin(ParentTimeline()->cursor_track->Index(), ParentTimeline()->drag_track_start->Index());
-      int track_end = qMax(ParentTimeline()->cursor_track->Index(), ParentTimeline()->drag_track_start->Index());
-      int track_size = 1 + track_end - track_start;
-
-      // set tracks to be split
-      ParentTimeline()->split_tracks.resize(track_size);
-      for (int i=0;i<track_size;i++) {
-        ParentTimeline()->split_tracks[i] = ParentTimeline()->cursor_track->track_list()->TrackAt(track_start + i);
-      }
-
-      // if alt isn't being held, also add the tracks of the clip's links
-      if (!alt) {
-        for (int i=0;i<track_size;i++) {
-
-          // make sure there's a clip in this track
-          Clip* clip = ParentTimeline()->split_tracks[i]->GetClipFromPoint(ParentTimeline()->drag_frame_start);
-
-          if (clip != nullptr) {
-            for (int j=0;j<clip->linked.size();j++) {
-
-              Clip* link = clip->linked.at(j);
-
-              // if this clip isn't already in the list of tracks to split
-              if (link->track()->Index() < track_start || link->track()->Index() > track_end) {
-                ParentTimeline()->split_tracks.append(link->track());
-              }
-
-            }
-          }
-        }
-      }
-
+      ParentTimeline()->split_tracks = GetSplitTracksFromMouseCoords(!alt,
+                                                                     ParentTimeline()->drag_frame_start,
+                                                                     ParentTimeline()->drag_y_start,
+                                                                     event->pos().y());
       update_ui(false);
 
     } else if (ParentTimeline()->rect_select_init) {
