@@ -638,23 +638,26 @@ void Timeline::ripple_delete() {
       ComboAction* ca = new ComboAction();
       sequence_->DeleteAreas(ca, selections, true, true);
       olive::undo_stack.push(ca);
+      repaint_timeline();
 
     } else if (olive::config.hover_focus && get_focused_panel() == this) {
 
-      ComboAction* ca = new ComboAction();
-      sequence_->RippleDeleteEmptySpace(ca, cursor_track, cursor_frame);
-      olive::undo_stack.push(ca);
+      ripple_delete_empty_space();
 
     }
   }
 
-  repaint_timeline();
+
 }
 
 void Timeline::ripple_delete_empty_space()
 {
   if (sequence_ != nullptr) {
+    ComboAction* ca = new ComboAction();
+    sequence_->RippleDeleteEmptySpace(ca, cursor_track, cursor_frame);
+    olive::undo_stack.push(ca);
 
+    repaint_timeline();
   }
 }
 

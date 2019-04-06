@@ -801,11 +801,11 @@ void Sequence::RippleDeleteEmptySpace(ComboAction* ca, Track* track, long point)
       return;
     }
 
-    if (c->timeline_out() < point) {
+    if (c->timeline_out() <= point) {
 
       ripple_start = qMin(c->timeline_out(), ripple_start);
 
-    } else if (c->timeline_in() > point) {
+    } else if (c->timeline_in() >= point) {
 
       ripple_end = qMin(c->timeline_in(), ripple_end);
 
@@ -815,7 +815,11 @@ void Sequence::RippleDeleteEmptySpace(ComboAction* ca, Track* track, long point)
   // We now know the maximum ripple we could do to clear this empty space, but we need to ensure it won't cause
   // overlaps of clips in other tracks
 
-  RippleDeleteArea(ca, point, ripple_end - ripple_start);
+  if (ripple_start == ripple_end) {
+    return;
+  }
+
+  RippleDeleteArea(ca, point, ripple_start - ripple_end);
 }
 
 void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length) {
