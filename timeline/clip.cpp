@@ -318,7 +318,7 @@ void Clip::Save(QXmlStreamWriter &stream)
 
 long Clip::clip_in(bool with_transition) {
   if (with_transition && opening_transition != nullptr && opening_transition->secondary_clip != nullptr) {
-    // we must be the secondary clip, so return (timeline in - length)
+    // we must be the secondary clip, so return (clip in - length)
     return clip_in_ - opening_transition->get_true_length();
   }
   return clip_in_;
@@ -344,7 +344,7 @@ void Clip::set_timeline_in(long t)
 
 long Clip::timeline_out(bool with_transitions) {
   if (with_transitions && closing_transition != nullptr && closing_transition->secondary_clip != nullptr) {
-    // we must be the primary clip, so return (timeline out + length2)
+    // we must be the primary clip, so return (timeline out + length)
     return timeline_out_ + closing_transition->get_true_length();
   } else {
     return timeline_out_;

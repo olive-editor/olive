@@ -397,7 +397,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
 
           // retrieve video frame from cache and store it in c->texture
-          c->Cache(qMax(playhead, c->timeline_in()), false, params.nests, params.playback_speed);
+          c->Cache(qMax(playhead, c->timeline_in(true)), false, params.nests, params.playback_speed);
           if (!c->Retrieve()) {
             params.texture_failed = true;
           } else {
