@@ -2208,6 +2208,10 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         // get cursor movement
         int diff = (event->pos().y() - ParentTimeline()->drag_y_start);
 
+        if (alignment_ == olive::timeline::kAlignmentBottom) {
+          diff = -diff;
+        }
+
         // add it to the current track height
         int new_height = track_target->height() + diff;
 
@@ -2221,6 +2225,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         ParentTimeline()->drag_y_start = event->pos().y();
 
         update();
+
       } else if (ParentTimeline()->moving_proc) {
 
         // we're currently dragging ghosts
@@ -2656,7 +2661,15 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         for (int i=0;i<track_list_->TrackCount();i++) {
           Track* track = track_list_->TrackAt(i);
 
-          int resize_point = getScreenPointFromTrackIndex(i + 1);
+          int effective_track_index = i;
+
+          // If alignment is top, use the next track's screen point as the resize anchor so we resize the bottom
+          // of the track
+          if (alignment_ == olive::timeline::kAlignmentTop) {
+            effective_track_index++;
+          }
+
+          int resize_point = getScreenPointFromTrackIndex(effective_track_index);
 
           if (mouse_pos > resize_point - test_range
               && mouse_pos < resize_point + test_range) {
