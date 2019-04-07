@@ -422,22 +422,20 @@ void Cacher::CacheAudioWorker() {
 
       audio_write_lock.lock();
 
-      int sample_skip = 4*qMax(0, qAbs(playback_speed_)-1);
+      int sample_skip = qMax(0, qAbs(playback_speed_)-1);
 
       while (frame_sample_index_ < nb_samples
              && audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
              && audio_buffer_write < buffer_timeline_out) {
         for (int i=0;i<frame->channels;i++) {
           int buffer_index = audio_buffer_write%audio_ibuffer_size;
-          int frame_index = frame_sample_index_ * sizeof(float);
 
-          audio_ibuffer[buffer_index] += static_cast<float>((frame->data[0][frame_index+3] & 0xFF) << 24
-                                                           | (frame->data[0][frame_index+2] & 0xFF) << 16
-                                                           | (frame->data[0][frame_index+1] & 0xFF) << 8
-                                                           | (frame->data[0][frame_index] & 0xFF));
+          audio_ibuffer[buffer_index] += reinterpret_cast<float*>(frame->data[i])[frame_sample_index_];
+
           audio_buffer_write++;
-          frame_sample_index_++;
         }
+
+        frame_sample_index_++;
 
         frame_sample_index_ += sample_skip;
 

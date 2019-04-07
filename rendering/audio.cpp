@@ -54,7 +54,7 @@ bool recording = false;
 
 int audio_rendering_rate = 0;
 
-qint8 audio_ibuffer[audio_ibuffer_size];
+float audio_ibuffer[audio_ibuffer_size];
 qint64 audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
 double audio_ibuffer_timecode = 0;
@@ -100,10 +100,10 @@ void init_audio() {
   QAudioFormat audio_format;
   audio_format.setSampleRate(olive::config.audio_rate);
   audio_format.setChannelCount(2);
-  audio_format.setSampleSize(16);
+  audio_format.setSampleSize(32);
   audio_format.setCodec("audio/pcm");
   audio_format.setByteOrder(QAudioFormat::LittleEndian);
-  audio_format.setSampleType(QAudioFormat::SignedInt);
+  audio_format.setSampleType(QAudioFormat::Float);
 
   QAudioDeviceInfo info = get_audio_device(QAudio::AudioOutput);
 
@@ -146,7 +146,7 @@ void stop_audio() {
 void clear_audio_ibuffer() {
   if (audio_thread != nullptr) audio_thread->lock.lock();
   audio_write_lock.lock();
-  memset(audio_ibuffer, 0, audio_ibuffer_size);
+  memset(audio_ibuffer, 0, audio_ibuffer_size * sizeof(float));
   audio_ibuffer_read = 0;
   audio_write_lock.unlock();
   if (audio_thread != nullptr) audio_thread->lock.unlock();
@@ -158,7 +158,7 @@ int current_audio_freq() {
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {
   if (frame >= audio_ibuffer_frame) {
-    int multiplier = av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+    int multiplier = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
     return qFloor((double(frame - audio_ibuffer_frame)/framerate)*current_audio_freq())*multiplier;
   } else {
     qWarning() << "Invalid values passed to get_buffer_offset_from_frame" << frame << "<" << audio_ibuffer_frame;
@@ -190,15 +190,13 @@ void AudioSenderThread::run() {
     if (close) {
       break;
     } else if (panel_sequence_viewer->playing || panel_footage_viewer->playing || audio_scrub) {
-      int written_bytes = 0;
 
-      int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
-      int max_write = audio_ibuffer_size - adjusted_read_index;
+      int adjusted_read_index = (audio_ibuffer_read%audio_ibuffer_size);
+      int max_write = (audio_ibuffer_size - adjusted_read_index) * sizeof(float);
       int actual_write = send_audio_to_output(adjusted_read_index, max_write);
-      written_bytes += actual_write;
       if (actual_write == max_write) {
         // got all the bytes, write again
-        written_bytes += send_audio_to_output(0, audio_ibuffer_size);
+        send_audio_to_output(0, audio_ibuffer_size);
       }
 
       audio_scrub = false;
@@ -211,10 +209,9 @@ int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
   // send audio to device
   audio_write_lock.lock();
 
-  qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(audio_ibuffer)+offset, max);
+  qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(audio_ibuffer+offset), max);
 
-  qint64 audio_ibuffer_limit = audio_ibuffer_read + actual_write;
-
+  /*
   if (actual_write > 0) {
     // average values and send to audio monitor
     int channels = audio_output->format().channelCount();
@@ -236,10 +233,11 @@ int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
 
     panel_timeline.first()->audio_monitor->set_value(averages);
   }
+  */
 
   memset(audio_ibuffer+offset, 0, actual_write);
 
-  audio_ibuffer_read = audio_ibuffer_limit;
+  audio_ibuffer_read += (actual_write / sizeof(float));
 
   audio_write_lock.unlock();
 
