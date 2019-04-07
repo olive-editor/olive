@@ -183,7 +183,8 @@ SOURCES += \
     timeline/selection.cpp \
     global/clipboard.cpp \
     timeline/timelinetools.cpp \
-    timeline/ghost.cpp
+    timeline/ghost.cpp \
+    ui/waveform.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -323,7 +324,8 @@ HEADERS += \
     ui/timelineview.h \
     ui/timelinelabel.h \
     global/clipboard.h \
-    timeline/timelinetools.h
+    timeline/timelinetools.h \
+    ui/waveform.h
 
 FORMS +=
 

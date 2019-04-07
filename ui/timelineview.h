@@ -38,8 +38,6 @@
 
 class Timeline;
 
-void draw_waveform(Clip* clip, const FootageStream *ms, long media_length, QPainter* p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom);
-
 class TimelineView : public QWidget {
   Q_OBJECT
 public:

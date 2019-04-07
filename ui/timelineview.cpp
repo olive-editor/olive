@@ -61,6 +61,7 @@
 #include "timeline/track.h"
 #include "global/math.h"
 #include "project/projectfunctions.h"
+#include "ui/waveform.h"
 
 #define MAX_TEXT_WIDTH 20
 #define TRANSITION_BETWEEN_RANGE 40
@@ -2784,64 +2785,6 @@ void TimelineView::leaveEvent(QEvent*) {
   tooltip_timer.stop();
 }
 
-void draw_waveform(Clip* clip, const FootageStream* ms, long media_length, QPainter *p, const QRect& clip_rect, int waveform_start, int waveform_limit, double zoom) {
-  // audio channels multiplied by the number of bytes in a 16-bit audio sample
-  int divider = ms->audio_channels*2;
-
-  int channel_height = clip_rect.height()/ms->audio_channels;
-
-  int last_waveform_index = -1;
-
-  for (int i=waveform_start;i<waveform_limit;i++) {
-    int waveform_index = qFloor((((clip->clip_in() + (double(i)/zoom))/media_length) * ms->audio_preview.size())/divider)*divider;
-
-    if (clip->reversed()) {
-      waveform_index = ms->audio_preview.size() - waveform_index - (ms->audio_channels * 2);
-    }
-
-    if (last_waveform_index < 0) last_waveform_index = waveform_index;
-
-    for (int j=0;j<ms->audio_channels;j++) {
-      int mid = (olive::config.rectified_waveforms) ? clip_rect.top()+channel_height*(j+1) : clip_rect.top()+channel_height*j+(channel_height/2);
-
-      int offset_range_start = last_waveform_index+(j*2);
-      int offset_range_end = waveform_index+(j*2);
-      int offset_range_min = qMin(offset_range_start, offset_range_end);
-      int offset_range_max = qMax(offset_range_start, offset_range_end);
-
-      // Break if we're about to draw from an index that doesn't exist
-      if (offset_range_min+1 >= ms->audio_preview.size()) {
-        break;
-      }
-
-      qint8 min = qint8(qRound(double(ms->audio_preview.at(offset_range_min)) / 128.0 * (channel_height/2)));
-      qint8 max = qint8(qRound(double(ms->audio_preview.at(offset_range_min+1)) / 128.0 * (channel_height/2)));
-
-      if ((offset_range_max + 1) < ms->audio_preview.size()) {
-
-        // for waveform drawings, we get the maximum below 0 and maximum above 0 for this waveform range
-        for (int k=offset_range_min+2;k<=offset_range_max;k+=2) {
-          min = qMin(min, qint8(qRound(double(ms->audio_preview.at(k)) / 128.0 * (channel_height/2))));
-          max = qMax(max, qint8(qRound(double(ms->audio_preview.at(k+1)) / 128.0 * (channel_height/2))));
-        }
-
-        // draw waveforms
-        if (olive::config.rectified_waveforms)  {
-
-          // rectified waveforms start from the bottom and draw upwards
-          p->drawLine(clip_rect.left()+i, mid, clip_rect.left()+i, mid - (max - min));
-        } else {
-
-          // non-rectified waveforms start from the center and draw outwards
-          p->drawLine(clip_rect.left()+i, mid+min, clip_rect.left()+i, mid+max);
-
-        }
-      }
-    }
-    last_waveform_index = waveform_index;
-  }
-}
-
 void TimelineView::draw_transition(QPainter& p, Clip* c, const QRect& clip_rect, QRect& text_rect, int transition_type) {
   TransitionPtr t = (transition_type == kTransitionOpening) ? c->opening_transition : c->closing_transition;
   if (t != nullptr) {
@@ -3033,7 +2976,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
                     if (waveform_limit > 0) checkerboard_rect.setLeft(checkerboard_rect.left() + waveform_limit);
                   }
 
-                  draw_waveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, ParentTimeline()->zoom);
+                  olive::ui::DrawWaveform(clip, ms, media_length, &p, clip_rect, waveform_start, waveform_limit, ParentTimeline()->zoom);
                 }
               }
               if (draw_checkerboard) {

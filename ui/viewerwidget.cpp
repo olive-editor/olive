@@ -61,6 +61,7 @@ extern "C" {
 #include "rendering/shadergenerators.h"
 #include "ui/viewerwindow.h"
 #include "ui/menu.h"
+#include "ui/waveform.h"
 #include "mainwindow.h"
 
 const int kTitleActionSafeVertexSize = 84;
@@ -436,7 +437,7 @@ void ViewerWidget::draw_waveform_func() {
   wr.setX(wr.x() - waveform_scroll);
 
   p.setPen(Qt::green);
-  draw_waveform(waveform_clip.get(), waveform_ms, waveform_clip->timeline_out(), &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
+  olive::ui::DrawWaveform(waveform_clip.get(), waveform_ms, waveform_clip->timeline_out(), &p, wr, waveform_scroll, width()+waveform_scroll, waveform_zoom);
   p.setPen(Qt::red);
   int playhead_x = getScreenPointFromFrame(waveform_zoom, viewer->seq->playhead) - waveform_scroll;
   p.drawLine(playhead_x, 0, playhead_x, height());

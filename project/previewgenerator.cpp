@@ -168,10 +168,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
       f.open(QFile::ReadOnly);
       QByteArray data = f.readAll();
       ms.audio_preview.resize(data.size());
-      for (int j=0;j<data.size();j++) {
-        // faster way?
-        ms.audio_preview[j] = data.at(j);
-      }
+      memcpy(ms.audio_preview.data(), data, data.size());
       ms.preview_done = true;
       f.close();
     } else {
@@ -245,7 +242,7 @@ void PreviewGenerator::generate_waveform() {
   int64_t* media_lengths = new int64_t[fmt_ctx_->nb_streams]{0};
 
   // stores samples while scanning before they get sent to preview file
-  qint16*** waveform_cache_data = new qint16** [fmt_ctx_->nb_streams];
+  qint8*** waveform_cache_data = new qint8** [fmt_ctx_->nb_streams];
   int waveform_cache_count = 0;
 
   // defaults to false, sets to true if we find a valid stream to make a preview of
@@ -275,11 +272,11 @@ void PreviewGenerator::generate_waveform() {
         if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
           // allocate sample cache for this stream
-          waveform_cache_data[i] = new qint16* [fmt_ctx_->streams[i]->codecpar->channels];
+          waveform_cache_data[i] = new qint8* [fmt_ctx_->streams[i]->codecpar->channels];
 
           // each channel gets a min and a max value so we allocate two ints for each one
           for (int j=0;j<fmt_ctx_->streams[i]->codecpar->channels;j++) {
-            waveform_cache_data[i][j] = new qint16[2];
+            waveform_cache_data[i][j] = new qint8[2];
           }
 
           // if codec context has no defined channel layout, guess it from the channel count
@@ -381,7 +378,7 @@ void PreviewGenerator::generate_waveform() {
             AVFrame* swr_frame = av_frame_alloc();
             swr_frame->channel_layout = temp_frame->channel_layout;
             swr_frame->sample_rate = temp_frame->sample_rate;
-            swr_frame->format = AV_SAMPLE_FMT_S16P;
+            swr_frame->format = AV_SAMPLE_FMT_U8P;
 
             swr_ctx = swr_alloc_set_opts(
                   nullptr,
@@ -419,11 +416,11 @@ void PreviewGenerator::generate_waveform() {
                 // if so, we dump our cached values into the preview and reset them
                 // for the next interval
                 for (int j=0;j<swr_frame->channels;j++) {
-                  qint16& min = waveform_cache_data[packet->stream_index][j][0];
-                  qint16& max = waveform_cache_data[packet->stream_index][j][1];
+                  qint8& min = waveform_cache_data[packet->stream_index][j][0];
+                  qint8& max = waveform_cache_data[packet->stream_index][j][1];
 
-                  s->audio_preview.append(min >> 8);
-                  s->audio_preview.append(max >> 8);
+                  s->audio_preview.append(min);
+                  s->audio_preview.append(max);
                 }
 
                 waveform_cache_count = 0;
@@ -431,8 +428,8 @@ void PreviewGenerator::generate_waveform() {
 
               // standard processing for each channel of information
               for (int j=0;j<swr_frame->channels;j++) {
-                qint16& min = waveform_cache_data[packet->stream_index][j][0];
-                qint16& max = waveform_cache_data[packet->stream_index][j][1];
+                qint8& min = waveform_cache_data[packet->stream_index][j][0];
+                qint8& max = waveform_cache_data[packet->stream_index][j][1];
 
                 // if we're starting over, reset cache to zero
                 if (waveform_cache_count == 0) {
@@ -440,8 +437,10 @@ void PreviewGenerator::generate_waveform() {
                   max = 0;
                 }
 
-                // store most minimum and most maximum samples of this interval
-                qint16 sample = qint16((swr_frame->data[j][i+1] << 8) | swr_frame->data[j][i]);
+                // Convert unsigned 8-bit PCM sample to signed
+                qint8 sample = qint8(int(swr_frame->data[j][i]-128));
+
+                // Store most minimum and most maximum samples of this interval
                 min = qMin(min, sample);
                 max = qMax(max, sample);
               }
@@ -590,7 +589,7 @@ void PreviewGenerator::run() {
               FootageStream& ms = footage_->audio_tracks[i];
               QFile f(get_waveform_path(hash, ms));
               f.open(QFile::WriteOnly);
-              f.write(ms.audio_preview.constData(), ms.audio_preview.size());
+              f.write(reinterpret_cast<const char*>(ms.audio_preview.constData()), ms.audio_preview.size());
               f.close();
               //dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
             }

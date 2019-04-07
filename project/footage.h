@@ -62,7 +62,7 @@ struct FootageStream {
   // preview thumbnail/waveform
   bool preview_done;
   QImage video_preview;
-  QVector<char> audio_preview;
+  QVector<qint8> audio_preview;
 };
 
 class Footage {
