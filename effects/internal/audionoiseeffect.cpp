@@ -35,30 +35,29 @@ AudioNoiseEffect::AudioNoiseEffect(Clip* c, const EffectMeta *em) : Effect(c, em
   mix_val->SetValueAt(0, true);
 }
 
-void AudioNoiseEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {
-  double interval = (timecode_end - timecode_start)/nb_bytes;
-  for (int i=0;i<nb_bytes;i+=4) {
+void AudioNoiseEffect::process_audio(double timecode_start,
+                                     double timecode_end,
+                                     float **samples,
+                                     int nb_samples,
+                                     int channel_count,
+                                     int type) {
+  double interval = (timecode_end - timecode_start)/nb_samples;
+  for (int i=0;i<nb_samples;i+=4) {
     double timecode = timecode_start+(interval*i);
 
-    qint16 left_noise_sample = this->randomNumber<qint16>();
-    qint16 right_noise_sample = this->randomNumber<qint16>();
-
     // set noise volume
-    double vol = log_volume( amount_val->GetDoubleAt(timecode)*0.01 );
-    left_noise_sample *= vol;
-    right_noise_sample *= vol;
+    float vol = log_volume( amount_val->GetDoubleAt(timecode)*0.01 );
 
-    // mix with source audio
-    if (mix_val->GetBoolAt(timecode)) {
-      qint16 left_sample = static_cast<qint16> (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-      qint16 right_sample = static_cast<qint16> (((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-      left_noise_sample = mix_audio_sample(left_noise_sample, left_sample);
-      right_noise_sample = mix_audio_sample(right_noise_sample, right_sample);
+    for (int j=0;j<channel_count;j++) {
+      // Generate noise sample
+      float noise_sample = this->randomFloat<float>() * vol;
+
+      // mix with source audio
+      if (mix_val->GetBoolAt(timecode)) {
+        samples[j][i] += noise_sample;
+      } else {
+        samples[j][i] = noise_sample;
+      }
     }
-
-    samples[i+3] = static_cast<quint8> (right_noise_sample >> 8);
-    samples[i+2] = static_cast<quint8> (right_noise_sample);
-    samples[i+1] = static_cast<quint8> (left_noise_sample >> 8);
-    samples[i] = static_cast<quint8> (left_noise_sample);
   }
 }

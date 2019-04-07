@@ -30,9 +30,14 @@ FillLeftRightEffect::FillLeftRightEffect(Clip* c, const EffectMeta *em) : Effect
   fill_type->AddItem(tr("Fill Right with Left"), FILL_TYPE_RIGHT);
 }
 
-void FillLeftRightEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
-  double interval = (timecode_end-timecode_start)/nb_bytes;
-  for (int i=0;i<nb_bytes;i+=4) {
+void FillLeftRightEffect::process_audio(double timecode_start,
+                                        double timecode_end,
+                                        float **samples,
+                                        int nb_samples,
+                                        int channel_count,
+                                        int type) {
+  double interval = (timecode_end-timecode_start)/nb_samples;
+  for (int i=0;i<nb_samples;i+=4) {
     if (fill_type->GetValueAt(timecode_start+(interval*i)) == FILL_TYPE_LEFT) {
       samples[i+1] = samples[i+3];
       samples[i] = samples[i+2];

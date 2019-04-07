@@ -678,7 +678,7 @@ void Effect::load_from_string(const QByteArray &s) {
       for (int i=0;i<attributes.size();i++) {
         const QXmlStreamAttribute& attr = attributes.at(i);
         if (attr.name() == "name") {
-          if (get_meta_from_name(attr.value().toString()) == meta) {
+          if (Effect::GetMetaFromName(attr.value().toString()) == meta) {
             // pass off to standard loading function
             load(stream);
           } else {
@@ -959,7 +959,7 @@ GLuint Effect::process_superimpose(QOpenGLContext* ctx, double timecode) {
   return texture;
 }
 
-void Effect::process_audio(double, double, quint8*, int, int) {}
+void Effect::process_audio(double, double, float **, int, int, int) {}
 
 void Effect::gizmo_draw(double, GLTextureCoords &) {}
 
@@ -1140,7 +1140,7 @@ void Effect::delete_texture() {
   }
 }
 
-const EffectMeta* get_meta_from_name(const QString& input) {
+const EffectMeta* Effect::GetMetaFromName(const QString& input) {
   int split_index = input.indexOf('/');
   QString category;
   if (split_index > -1) {
@@ -1156,10 +1156,4 @@ const EffectMeta* get_meta_from_name(const QString& input) {
     }
   }
   return nullptr;
-}
-
-qint16 mix_audio_sample(qint16 a, qint16 b) {
-  qint32 mixed_sample = static_cast<qint32>(a) + static_cast<qint32>(b);
-  mixed_sample = qMax(qMin(mixed_sample, static_cast<qint32>(INT16_MAX)), static_cast<qint32>(INT16_MIN));
-  return static_cast<qint16>(mixed_sample);
 }

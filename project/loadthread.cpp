@@ -120,7 +120,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
   // find effect with this name
   if (!effect_name.isEmpty()) {
-    meta = get_meta_from_name(effect_name);
+    meta = Effect::GetMetaFromName(effect_name);
   }
 
   olive::effects_loaded.unlock();

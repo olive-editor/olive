@@ -27,7 +27,7 @@ class RichTextEffect : public Effect {
   Q_OBJECT
 public:
   RichTextEffect(Clip* c, const EffectMeta *em);
-  void redraw(double timecode);
+  virtual void redraw(double timecode) override;
 protected:
   virtual bool AlwaysUpdate() override;
 private:

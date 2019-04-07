@@ -46,21 +46,25 @@
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
 
-const AVSampleFormat kDestSampleFmt = AV_SAMPLE_FMT_S16;
+const AVSampleFormat kDestSampleFmt = AV_SAMPLE_FMT_FLTP;
 
-double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
-  return (double(nb_bytes >> 1) / nb_channels / sample_rate);
+double samples_to_seconds(int nb_samples, int nb_channels, int sample_rate) {
+  return (double(nb_samples) / double(nb_channels) / double(sample_rate));
 }
 
-void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
+int samples_to_bytes(int nb_samples, int nb_channels) {
+  return nb_samples * nb_channels * sizeof(float);
+}
+
+void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int nb_samples, int nb_channels, QVector<Clip*> nests) {
   // perform all audio effects
   double timecode_end;
-  timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
+  timecode_end = timecode_start + samples_to_seconds(nb_samples, frame->channels, frame->sample_rate);
 
   for (int j=0;j<clip->effects.size();j++) {
     Effect* e = clip->effects.at(j).get();
     if (e->IsEnabled()) {
-      e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
+      e->process_audio(timecode_start, timecode_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionNone);
     }
   }
   if (clip->opening_transition != nullptr) {
@@ -71,7 +75,7 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
         double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-        clip->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionOpening);
+        clip->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionOpening);
       }
     }
   }
@@ -84,7 +88,7 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
         double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-        clip->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionClosing);
+        clip->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionClosing);
       }
     }
   }
@@ -95,7 +99,8 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
     apply_audio_effects(next_nest,
                         timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->track()->sequence()->frame_rate),
                         frame,
-                        nb_bytes,
+                        nb_samples,
+                        nb_channels,
                         nests);
   }
 }
@@ -157,16 +162,16 @@ void Cacher::CacheAudioWorker() {
 
   while (true) {
     AVFrame* frame;
-    int nb_bytes = INT_MAX;
+    int nb_samples = INT_MAX;
 
     if (clip->media() == nullptr) {
       frame = frame_;
-      nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
-      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+      nb_samples = frame->nb_samples;
+      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_samples) && nb_samples > 0) {
         // create "new frame"
-        memset(frame_->data[0], 0, nb_bytes);
-        apply_audio_effects(clip, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes, nests_);
-        frame_->pts += nb_bytes;
+        memset(frame_->data[0], 0, nb_samples);
+        apply_audio_effects(clip, samples_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_samples, frame->channels, nests_);
+        frame_->pts += nb_samples;
         frame_sample_index_ = 0;
         if (audio_buffer_write == 0) {
           audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
@@ -184,7 +189,7 @@ void Cacher::CacheAudioWorker() {
 
       // retrieve frame
       bool new_frame = false;
-      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_samples) && nb_samples > 0) {
 
         // no more audio left in frame, get a new one
         if (!reached_end) {
@@ -338,10 +343,10 @@ void Cacher::CacheAudioWorker() {
         if (frame_sample_index_ < 0) {
           frame_sample_index_ = 0;
         } else {
-          frame_sample_index_ -= nb_bytes;
+          frame_sample_index_ -= nb_samples;
         }
 
-        nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+        nb_samples = frame->nb_samples;
 
         if (audio_just_reset) {
           // get precise sample offset for the elected clip_in from this audio frame
@@ -356,7 +361,7 @@ void Cacher::CacheAudioWorker() {
           dout << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (reverse_target * timebase);
           dout << "fsi-calc:" << frame_sample_index;
 #endif
-          if (reverse_audio) frame_sample_index_ = nb_bytes - frame_sample_index_;
+          if (reverse_audio) frame_sample_index_ = nb_samples - frame_sample_index_;
           audio_just_reset = false;
         }
 
@@ -393,9 +398,19 @@ void Cacher::CacheAudioWorker() {
 #endif
 
       // apply any audio effects to the data
-      if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+      if (nb_samples == INT_MAX) {
+        nb_samples = frame->nb_samples;
+      }
       if (new_frame) {
-        apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->track()->sequence()->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
+        apply_audio_effects(clip,
+                            samples_to_seconds(audio_buffer_write, 2, current_audio_freq())
+                              + audio_ibuffer_timecode
+                              + (double(clip->clip_in(true))/clip->track()->sequence()->frame_rate)
+                              - (double(timeline_in)/last_fr),
+                            frame,
+                            nb_samples,
+                            frame->channels,
+                            nests_);
       }
     }
 
@@ -408,23 +423,20 @@ void Cacher::CacheAudioWorker() {
       audio_write_lock.lock();
 
       int sample_skip = 4*qMax(0, qAbs(playback_speed_)-1);
-      int sample_byte_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format));
 
-      while (frame_sample_index_ < nb_bytes
+      while (frame_sample_index_ < nb_samples
              && audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
              && audio_buffer_write < buffer_timeline_out) {
         for (int i=0;i<frame->channels;i++) {
-          int upper_byte_index = (audio_buffer_write+1)%audio_ibuffer_size;
-          int lower_byte_index = (audio_buffer_write)%audio_ibuffer_size;
-          qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
-          qint16 new_sample = static_cast<qint16>((frame->data[0][frame_sample_index_+1] & 0xFF) << 8 | (frame->data[0][frame_sample_index_] & 0xFF));
-          qint16 mixed_sample = mix_audio_sample(old_sample, new_sample);
+          int buffer_index = audio_buffer_write%audio_ibuffer_size;
+          int frame_index = frame_sample_index_ * sizeof(float);
 
-          audio_ibuffer[upper_byte_index] = quint8((mixed_sample >> 8) & 0xFF);
-          audio_ibuffer[lower_byte_index] = quint8(mixed_sample & 0xFF);
-
-          audio_buffer_write+=sample_byte_size;
-          frame_sample_index_+=sample_byte_size;
+          audio_ibuffer[buffer_index] += static_cast<float>((frame->data[0][frame_index+3] & 0xFF) << 24
+                                                           | (frame->data[0][frame_index+2] & 0xFF) << 16
+                                                           | (frame->data[0][frame_index+1] & 0xFF) << 8
+                                                           | (frame->data[0][frame_index] & 0xFF));
+          audio_buffer_write++;
+          frame_sample_index_++;
         }
 
         frame_sample_index_ += sample_skip;
@@ -444,7 +456,7 @@ void Cacher::CacheAudioWorker() {
         if (audio_thread != nullptr) audio_thread->notifyReceiver();
       }
 
-      if (frame_sample_index_ >= nb_bytes) {
+      if (frame_sample_index_ >= nb_samples) {
         frame_sample_index_ = -1;
       } else {
         // assume we have no more data to send

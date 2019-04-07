@@ -36,26 +36,30 @@ PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
   pan_val->SetMaximum(100);
 }
 
-void PanEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
-  double interval = (timecode_end - timecode_start)/nb_bytes;
-  for (int i=0;i<nb_bytes;i+=4) {
+void PanEffect::process_audio(double timecode_start,
+                              double timecode_end,
+                              float **samples,
+                              int nb_samples,
+                              int channel_count,
+                              int type) {
+
+  // This has no effect on mono sources
+  if (channel_count < 2) {
+    return;
+  }
+
+  double interval = (timecode_end - timecode_start)/nb_samples;
+
+  for (int i=0;i<nb_samples;i++) {
     double pan_field_val = pan_val->GetDoubleAt(timecode_start+(interval*i));
     double pval = log_volume(qAbs(pan_field_val)*0.01);
 
-    qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-    qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-
     if (pan_field_val < 0) {
       // affect right channel
-      right_sample *= (1.0-pval);
+      samples[1][i] *= (1.0-pval);
     } else {
       // affect left channel
-      left_sample *= (1.0-pval);
+      samples[0][i] *= (1.0-pval);
     }
-
-    samples[i+3] = quint8(right_sample >> 8);
-    samples[i+2] = quint8(right_sample);
-    samples[i+1] = quint8(left_sample >> 8);
-    samples[i] = quint8(left_sample);
   }
 }

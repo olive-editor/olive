@@ -49,28 +49,36 @@ ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_
   mix_val->SetValueAt(0, true);
 }
 
-void ToneEffect::process_audio(double timecode_start, double timecode_end, quint8 *samples, int nb_bytes, int) {
-  double interval = (timecode_end - timecode_start)/nb_bytes;
-  for (int i=0;i<nb_bytes;i+=4) {
+void ToneEffect::process_audio(double timecode_start,
+                               double timecode_end,
+                               float **samples,
+                               int nb_samples,
+                               int channel_count,
+                               int type) {
+  double interval = (timecode_end - timecode_start)/nb_samples;
+
+  for (int i=0;i<nb_samples;i++) {
+
     double timecode = timecode_start+(interval*i);
+    float tone_sample = qSin((2*M_PI*sinX*freq_val->GetDoubleAt(timecode))
+                                           /parent_clip->track()->sequence()->audio_frequency)
+                                      *log_volume(amount_val->GetDoubleAt(timecode)*0.01);
 
-    qint16 left_tone_sample = qint16(qRound(qSin((2*M_PI*sinX*freq_val->GetDoubleAt(timecode))
-                                                 /parent_clip->track()->sequence()->audio_frequency)
-                                            *log_volume(amount_val->GetDoubleAt(timecode)*0.01)*INT16_MAX));
-    qint16 right_tone_sample = left_tone_sample;
+    for (int j=0;j<channel_count;j++) {
 
-    // mix with source audio
-    if (mix_val->GetBoolAt(timecode)) {
-      qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-      qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-      left_tone_sample = mix_audio_sample(left_tone_sample, left_sample);
-      right_tone_sample = mix_audio_sample(right_tone_sample, right_sample);
+      if (mix_val->GetBoolAt(timecode)) {
+
+        // mix with source audio
+        samples[j][i] += tone_sample;
+
+      } else {
+
+        // replace source audio
+        samples[j][i] = tone_sample;
+
+      }
+
     }
-
-    samples[i+3] = quint8(right_tone_sample >> 8);
-    samples[i+2] = quint8(right_tone_sample);
-    samples[i+1] = quint8(left_tone_sample >> 8);
-    samples[i] = quint8(left_tone_sample);
 
     sinX++;
   }

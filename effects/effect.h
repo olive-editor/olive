@@ -126,10 +126,6 @@ struct GLTextureCoords {
   float opacity;
 };
 
-const EffectMeta* get_meta_from_name(const QString& input);
-
-qint16 mix_audio_sample(qint16 a, qint16 b);
-
 class Effect : public QObject {
   Q_OBJECT
 public:
@@ -189,7 +185,7 @@ public:
   virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data);
   virtual GLuint process_superimpose(QOpenGLContext *ctx, double timecode);
-  virtual void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  virtual void process_audio(double timecode_start, double timecode_end, float **samples, int nb_samples, int nb_channels, int type);
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords);
   void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
@@ -205,8 +201,18 @@ public:
     return distribution(generator);
   }
 
+  template <typename T>
+  T randomFloat()
+  {
+    static std::random_device device;
+    static std::mt19937 generator(device());
+    static std::uniform_int_distribution<> distribution(-1.0, 1.0);
+    return distribution(generator);
+  }
+
   static EffectPtr Create(Clip *c, const EffectMeta *em);
   static const EffectMeta* GetInternalMeta(int internal_id, int type);
+  static const EffectMeta* GetMetaFromName(const QString& input);
 public slots:
   void FieldChanged();
   void SetEnabled(bool b);

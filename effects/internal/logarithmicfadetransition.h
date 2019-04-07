@@ -25,8 +25,13 @@
 
 class LogarithmicFadeTransition : public Transition {
 public:
-    LogarithmicFadeTransition(Clip* c, Clip* s, const EffectMeta* em);
-  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  LogarithmicFadeTransition(Clip* c, Clip* s, const EffectMeta* em);
+  virtual void process_audio(double timecode_start,
+                             double timecode_end,
+                             float **samples,
+                             int nb_samples,
+                             int channel_count,
+                             int type) override;
 };
 
 #endif // LOGARITHMICFADETRANSITION_H

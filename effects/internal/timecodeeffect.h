@@ -30,7 +30,7 @@ class TimecodeEffect : public Effect {
   Q_OBJECT
 public:
   TimecodeEffect(Clip* c, const EffectMeta *em);
-  void redraw(double timecode);
+  virtual void redraw(double timecode) override;
   DoubleField* scale_val;
   ColorField* color_val;
   ColorField* color_bg_val;

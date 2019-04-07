@@ -27,10 +27,10 @@ class TransformEffect : public Effect {
   Q_OBJECT
 public:
   TransformEffect(Clip* c, const EffectMeta* em);
-  void refresh();
-  void process_coords(double timecode, GLTextureCoords& coords, int data);
+  virtual void refresh() override;
+  virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
 
-  void gizmo_draw(double timecode, GLTextureCoords& coords);
+  virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
 public slots:
   void toggle_uniform_scale(bool enabled);
 private:

@@ -30,15 +30,36 @@
 // Plugin's dispatcher function
 typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t index, int32_t value, void *ptr, float opt);
 
+class SampleCache {
+public:
+  SampleCache(int block_size);
+  ~SampleCache();
+
+  void Create(int channels);
+  void SetZero();
+
+  float** data();
+private:
+  int channel_count_;
+  int block_size_;
+  float** array_;
+  void destroy();
+};
+
 class VSTHost : public Effect {
   Q_OBJECT
 public:
   VSTHost(Clip* c, const EffectMeta* em);
   ~VSTHost();
-  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  virtual void process_audio(double timecode_start,
+                             double timecode_end,
+                             float **samples,
+                             int nb_samples,
+                             int channel_count,
+                             int type) override;
 
-  void custom_load(QXmlStreamReader& stream);
-  void save(QXmlStreamWriter& stream);
+  virtual void custom_load(QXmlStreamReader& stream) override;
+  virtual void save(QXmlStreamWriter& stream) override;
 private slots:
   void show_interface(bool show);
   void uncheck_show_button();
@@ -57,12 +78,11 @@ private:
   void resumePlugin();
   void suspendPlugin();
   bool canPluginDo(char *canDoString);
-  void processAudio(long numFrames);
   void CreateDialogIfNull();
-  float** inputs;
-  float** outputs;
   QDialog* dialog;
   QByteArray data_cache;
+  SampleCache input_cache;
+  SampleCache output_cache;
 
   void send_data_cache_to_plugin();
 

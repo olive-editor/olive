@@ -24,32 +24,27 @@
 
 ExponentialFadeTransition::ExponentialFadeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {}
 
-void ExponentialFadeTransition::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int type) {
-  double interval = (timecode_end-timecode_start)/nb_bytes;
+void ExponentialFadeTransition::process_audio(double timecode_start,
+                                              double timecode_end,
+                                              float **samples,
+                                              int nb_samples,
+                                              int channel_count,
+                                              int type) {
+  double interval = (timecode_end-timecode_start)/nb_samples;
 
-  for (int i=0;i<nb_bytes;i+=2) {
-    qint16 samp = (qint16) (((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
+  for (int i=0;i<nb_samples;i++) {
 
-    /*switch (type) {
-    case TRAN_TYPE_OPEN:
-    case TRAN_TYPE_OPENWLINK:
-      samp *= qSqrt(timecode_start + (interval * i));
-      break;
-    case TRAN_TYPE_CLOSE:
-    case TRAN_TYPE_CLOSEWLINK:
-      samp *= qSqrt(1 - (timecode_start + (interval * i)));
-      break;
-    }*/
-    switch (type) {
-        case kTransitionOpening:
-      samp *= qPow(timecode_start + (interval * i), 2);
-      break;
-        case kTransitionClosing:
-      samp *= qPow(1 - (timecode_start + (interval * i)), 2);
-      break;
+    double multi = timecode_start + (interval * i);
+
+    for (int j=0;j<channel_count;j++) {
+      switch (type) {
+      case kTransitionOpening:
+        samples[j][i] *= qPow(multi, 2);
+        break;
+      case kTransitionClosing:
+        samples[j][i] *= qPow(1.0 - multi, 2);
+        break;
+      }
     }
-
-    samples[i+1] = (quint8) (samp >> 8);
-    samples[i] = (quint8) samp;
   }
 }

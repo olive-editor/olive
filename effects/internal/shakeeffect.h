@@ -28,8 +28,8 @@
 class ShakeEffect : public Effect {
   Q_OBJECT
 public:
-    ShakeEffect(Clip* c, const EffectMeta* em);
-    void process_coords(double timecode, GLTextureCoords& coords, int data);
+  ShakeEffect(Clip* c, const EffectMeta* em);
+  virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
 
   DoubleField* intensity_val;
   DoubleField* rotation_val;

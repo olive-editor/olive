@@ -30,7 +30,7 @@ class TextEffect : public Effect {
   Q_OBJECT
 public:
   TextEffect(Clip* c, const EffectMeta *em);
-  void redraw(double timecode);
+  virtual void redraw(double timecode) override;
 private slots:
   void outline_enable(bool);
   void shadow_enable(bool);
