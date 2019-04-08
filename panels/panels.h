@@ -26,6 +26,7 @@
 #include "viewer.h"
 #include "grapheditor.h"
 #include "project.h"
+#include "nodeeditor.h"
 
 extern QVector<Project*> panel_project;
 extern EffectControls* panel_effect_controls;
@@ -33,6 +34,7 @@ extern Viewer* panel_sequence_viewer;
 extern Viewer* panel_footage_viewer;
 extern QVector<Timeline*> panel_timeline;
 extern GraphEditor* panel_graph_editor;
+extern NodeEditor* panel_node_editor;
 
 void update_ui(bool modified);
 QDockWidget* get_focused_panel(bool force_hover = false);

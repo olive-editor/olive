@@ -36,6 +36,7 @@ Viewer* panel_sequence_viewer = nullptr;
 Viewer* panel_footage_viewer = nullptr;
 QVector<Timeline*> panel_timeline;
 GraphEditor* panel_graph_editor = nullptr;
+NodeEditor* panel_node_editor = nullptr;
 
 void update_ui(bool modified) {
   if (modified) {
@@ -86,6 +87,8 @@ void alloc_panels(QWidget* parent) {
   panel_timeline.append(first_timeline_panel);
   panel_graph_editor = new GraphEditor(parent);
   panel_graph_editor->setObjectName("graph_editor");
+  panel_node_editor = new NodeEditor(parent);
+  panel_node_editor->setObjectName("node_editor");
 }
 
 void free_panels() {

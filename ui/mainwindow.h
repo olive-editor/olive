@@ -308,6 +308,7 @@ private:
   QAction* window_effectcontrols_action;
   QAction* window_timeline_action;
   QAction* window_graph_editor_action;
+  QAction* window_node_editor_action;
   QAction* window_footageviewer_action;
   QAction* window_sequenceviewer_action;
 

@@ -184,7 +184,11 @@ SOURCES += \
     global/clipboard.cpp \
     timeline/timelinetools.cpp \
     timeline/ghost.cpp \
-    ui/waveform.cpp
+    ui/waveform.cpp \
+    panels/nodeeditor.cpp \
+    ui/nodeview.cpp \
+    nodes/medianode.cpp \
+    nodes/node.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -325,7 +329,11 @@ HEADERS += \
     ui/timelinelabel.h \
     global/clipboard.h \
     timeline/timelinetools.h \
-    ui/waveform.h
+    ui/waveform.h \
+    panels/nodeeditor.h \
+    ui/nodeview.h \
+    nodes/medianode.h \
+    nodes/node.h
 
 FORMS +=
 

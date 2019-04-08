@@ -148,6 +148,7 @@ void MainWindow::setup_layout(bool reset) {
 
     addDockWidget(Qt::TopDockWidgetArea, panel_project.first());
     addDockWidget(Qt::TopDockWidgetArea, panel_graph_editor);
+    addDockWidget(Qt::TopDockWidgetArea, panel_node_editor);
     addDockWidget(Qt::TopDockWidgetArea, panel_footage_viewer);
     tabifyDockWidget(panel_footage_viewer, panel_effect_controls);
     panel_footage_viewer->raise();
@@ -160,6 +161,7 @@ void MainWindow::setup_layout(bool reset) {
     panel_sequence_viewer->show();
     panel_timeline.first()->show();
     panel_graph_editor->hide();
+    panel_node_editor->hide();
 
     panel_project.first()->setFloating(false);
     panel_effect_controls->setFloating(false);
@@ -167,6 +169,7 @@ void MainWindow::setup_layout(bool reset) {
     panel_sequence_viewer->setFloating(false);
     panel_timeline.first()->setFloating(false);
     panel_graph_editor->setFloating(true);
+    panel_node_editor->setFloating(true);
 
     resizeDocks({panel_project.first(), panel_footage_viewer, panel_sequence_viewer},
                 {width()/3, width()/3, width()/3},
@@ -694,6 +697,10 @@ void MainWindow::setup_menus() {
   window_graph_editor_action->setCheckable(true);
   window_graph_editor_action->setData(reinterpret_cast<quintptr>(panel_graph_editor));
 
+  window_node_editor_action = MenuHelper::create_menu_action(window_menu, "panelnodeeditor", this, SLOT(toggle_panel_visibility()));
+  window_node_editor_action->setCheckable(true);
+  window_node_editor_action->setData(reinterpret_cast<quintptr>(panel_node_editor));
+
   window_footageviewer_action = MenuHelper::create_menu_action(window_menu, "panelfootageviewer", this, SLOT(toggle_panel_visibility()));
   window_footageviewer_action->setCheckable(true);
   window_footageviewer_action->setData(reinterpret_cast<quintptr>(panel_footage_viewer));
@@ -887,6 +894,7 @@ void MainWindow::Retranslate()
   window_effectcontrols_action->setText(tr("Effect Controls"));
   window_timeline_action->setText(tr("Timeline"));
   window_graph_editor_action->setText(tr("Graph Editor"));
+  window_node_editor_action->setText(tr("Node Editor"));
   window_footageviewer_action->setText(tr("Media Viewer"));
   window_sequenceviewer_action->setText(tr("Sequence Viewer"));
 
