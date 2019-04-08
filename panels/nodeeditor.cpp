@@ -10,6 +10,7 @@ NodeEditor::NodeEditor(QWidget *parent) :
   EffectsPanel(parent),
   view_(&scene_)
 {
+  setWindowTitle(tr("Node Editor"));
   resize(720, 480);
 
   QWidget* central_widget = new QWidget();
