@@ -3,9 +3,11 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QGraphicsProxyWidget>
+#include <QDebug>
 
 NodeEditor::NodeEditor(QWidget *parent) :
-  Panel(parent),
+  EffectsPanel(parent),
   view_(&scene_)
 {
   resize(720, 480);
@@ -18,12 +20,25 @@ NodeEditor::NodeEditor(QWidget *parent) :
 
   view_.setInteractive(true);
   view_.setDragMode(QGraphicsView::RubberBandDrag);
-
-  QPushButton* push_button = new QPushButton("heck!!!");
-  scene_.addWidget(push_button);
+  connect(&view_, SIGNAL(ScrollChanged(qreal, qreal)), this, SLOT(Scroll(qreal, qreal)));
 }
 
 void NodeEditor::Retranslate()
 {
 
+}
+
+void NodeEditor::LoadEvent()
+{
+  for (int i=0;i<open_effects_.size();i++) {
+    scene_.addWidget(open_effects_.at(i));
+  }
+}
+
+void NodeEditor::Scroll(qreal x, qreal y)
+{
+  NodeUI* node;
+  foreach (node, nodes_) {
+    node->moveBy(x, y);
+  }
 }

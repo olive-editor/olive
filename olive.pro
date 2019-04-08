@@ -188,7 +188,10 @@ SOURCES += \
     panels/nodeeditor.cpp \
     ui/nodeview.cpp \
     nodes/medianode.cpp \
-    nodes/node.cpp
+    nodes/node.cpp \
+    ui/nodeui.cpp \
+    ui/nodewidget.cpp \
+    panels/effectspanel.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -333,7 +336,10 @@ HEADERS += \
     panels/nodeeditor.h \
     ui/nodeview.h \
     nodes/medianode.h \
-    nodes/node.h
+    nodes/node.h \
+    ui/nodeui.h \
+    ui/nodewidget.h \
+    panels/effectspanel.h
 
 FORMS +=
 

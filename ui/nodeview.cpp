@@ -9,20 +9,36 @@ NodeView::NodeView(QGraphicsScene *scene, QWidget *parent) :
 {
   setMouseTracking(true);
   setWindowTitle(tr("Node Editor"));
+
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
-  QGraphicsView::mousePressEvent(event);
+  if (event->button() == Qt::RightButton) {
+    hand_moving_ = true;
+    drag_start_ = event->pos();
+  } else {
+    QGraphicsView::mousePressEvent(event);
+  }
 }
 
 void NodeView::mouseMoveEvent(QMouseEvent *event)
 {
-  QGraphicsView::mouseMoveEvent(event);
+  if (hand_moving_) {
+    QPointF scene_delta = mapToScene(event->pos() - drag_start_) - mapToScene(0.0, 0.0);
+    emit ScrollChanged(scene_delta.x(), scene_delta.y());
+    drag_start_ = event->pos();
+  } else {
+    QGraphicsView::mouseMoveEvent(event);
+  }
 }
 
 void NodeView::mouseReleaseEvent(QMouseEvent *event)
 {
+  hand_moving_ = false;
+  QGraphicsView::mouseReleaseEvent(event);
 }
 
 void NodeView::wheelEvent(QWheelEvent *event)

@@ -41,6 +41,7 @@ NodeEditor* panel_node_editor = nullptr;
 void update_ui(bool modified) {
   if (modified) {
     panel_effect_controls->SetClips();
+    panel_node_editor->SetClips();
   }
   panel_effect_controls->update_keyframes();
   for (int i=0;i<panel_timeline.size();i++) {
