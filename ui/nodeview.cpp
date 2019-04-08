@@ -10,8 +10,8 @@ NodeView::NodeView(QGraphicsScene *scene, QWidget *parent) :
   setMouseTracking(true);
   setWindowTitle(tr("Node Editor"));
 
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 }
 
 void NodeView::mousePressEvent(QMouseEvent *event)

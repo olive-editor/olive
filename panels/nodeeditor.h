@@ -16,6 +16,7 @@ public:
 
 protected:
   virtual void LoadEvent() override;
+  virtual void ClearEvent() override;
 
 private:
   QGraphicsScene scene_;

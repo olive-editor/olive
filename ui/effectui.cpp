@@ -30,7 +30,8 @@
 #include "panels/panels.h"
 
 EffectUI::EffectUI(Effect* e) :
-  effect_(e)
+  effect_(e),
+  node_parent_(nullptr)
 {
   Q_ASSERT(e != nullptr);
 
@@ -88,6 +89,8 @@ EffectUI::EffectUI(Effect* e) :
   QWidget* ui = new QWidget(this);
   ui->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   SetContents(ui);
+
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   SetExpanded(e->IsExpanded());
   connect(this, SIGNAL(visibleChanged(bool)), e, SLOT(SetExpanded(bool)));
@@ -274,6 +277,31 @@ bool EffectUI::IsAttachedToClip(Clip *c)
   }
 
   return false;
+}
+
+void EffectUI::SetNodeParent(NodeUI *parent)
+{
+  node_parent_ = parent;
+}
+
+void EffectUI::resizeEvent(QResizeEvent *event)
+{
+  if (node_parent_ != nullptr) {
+    node_parent_->Resize(event->size());
+  }
+}
+
+bool EffectUI::event(QEvent *event)
+{
+  if (node_parent_ != nullptr
+      && (event->type() == QEvent::MouseButtonPress
+      || event->type() == QEvent::MouseButtonRelease
+      || event->type() == QEvent::MouseMove
+      || event->type() == QEvent::MouseButtonDblClick)
+      && node_parent_->scene()->sendEvent(node_parent_, event)) {
+    return true;
+  }
+  return CollapsibleWidget::event(event);
 }
 
 QWidget *EffectUI::Widget(int row, int field)

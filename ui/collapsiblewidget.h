@@ -34,12 +34,20 @@ class CollapsibleWidgetHeader : public QWidget {
   Q_OBJECT
 public:
   CollapsibleWidgetHeader(QWidget* parent = nullptr);
-  bool selected;
+
+  bool IsSelected();
+  void SetSelected(bool s, bool deselect_others = false);
+
+  void SetSelectable(bool s);
 protected:
-  void mousePressEvent(QMouseEvent* event);
-  void paintEvent(QPaintEvent *event);
+  virtual bool event(QEvent *event) override;
+  virtual void mousePressEvent(QMouseEvent* event) override;
+  virtual void paintEvent(QPaintEvent *event) override;
 signals:
-  void select(bool, bool);
+  void select();
+private:
+  bool selected_;
+  bool selectable_;
 };
 
 class CollapsibleWidget : public QWidget
@@ -53,13 +61,15 @@ public:
   bool IsFocused();
   bool IsExpanded();
   void SetExpanded(bool s);
+
   bool IsSelected();
+  void Deselect();
+  void SetSelectable(bool s);
 protected:
   QCheckBox* enabled_check;
   CollapsibleWidgetHeader* title_bar;
   QWidget* contents;
 private:
-  bool selected;
   QLabel* header;
   QVBoxLayout* layout;
   QPushButton* collapse_button;
@@ -75,7 +85,7 @@ private slots:
   void on_visible_change();
 
 public slots:
-  void header_click(bool s, bool deselect);
+  void Selected();
 };
 
 #endif // COLLAPSIBLEWIDGET_H

@@ -4,18 +4,20 @@
 #include <QWidget>
 #include <QGraphicsItem>
 
-#include "ui/nodewidget.h"
-
 class NodeUI : public QGraphicsRectItem {
 public:
   NodeUI();
+  virtual ~NodeUI() override;
+
   void AddToScene(QGraphicsScene* scene);
   void Resize(const QSize& s);
+  void SetWidget(QWidget* widget);
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
 private:
-  NodeWidget central_widget_;
+  QWidget* central_widget_;
+  QGraphicsProxyWidget* proxy_;
+  QPainterPath path_;
 };
 
 #endif // NODEUI_H

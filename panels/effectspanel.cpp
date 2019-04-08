@@ -151,7 +151,7 @@ void EffectsPanel::deselect_all_effects(QWidget* sender) {
 
   for (int i=0;i<open_effects_.size();i++) {
     if (open_effects_.at(i) != sender) {
-      open_effects_.at(i)->header_click(false, false);
+      open_effects_.at(i)->Deselect();
     }
   }
 

@@ -29,13 +29,16 @@
 #include <QMouseEvent>
 #include <QWidget>
 #include <QPainter>
+#include <QStyle>
+#include <QApplication>
 
 #include "ui/icons.h"
 #include "global/debug.h"
 
-CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
-  selected = false;
-
+CollapsibleWidget::CollapsibleWidget(QWidget* parent) :
+  QWidget(parent),
+  contents(nullptr)
+{
   layout = new QVBoxLayout(this);
   layout->setMargin(0);
   layout->setSpacing(0);
@@ -58,24 +61,13 @@ CollapsibleWidget::CollapsibleWidget(QWidget* parent) : QWidget(parent) {
   title_bar_layout->addStretch();
   layout->addWidget(title_bar);
 
-  connect(title_bar, SIGNAL(select(bool, bool)), this, SLOT(header_click(bool, bool)));
+  connect(title_bar, SIGNAL(select()), this, SLOT(Selected()));
 
   set_button_icon(true);
-
-  contents = nullptr;
 }
 
-void CollapsibleWidget::header_click(bool s, bool deselect) {
-  selected = s;
-  title_bar->selected = s;
-  if (s) {
-    QPalette p = title_bar->palette();
-    p.setColor(QPalette::Background, QColor(255, 255, 255, 64));
-    title_bar->setPalette(p);
-  } else {
-    title_bar->setPalette(palette());
-  }
-  if (deselect) emit deselect_others(this);
+void CollapsibleWidget::Selected() {
+  emit deselect_others(this);
 }
 
 bool CollapsibleWidget::IsFocused() {
@@ -96,7 +88,17 @@ void CollapsibleWidget::SetExpanded(bool s)
 
 bool CollapsibleWidget::IsSelected()
 {
-  return selected;
+  return title_bar->IsSelected();
+}
+
+void CollapsibleWidget::Deselect()
+{
+  title_bar->SetSelected(false);
+}
+
+void CollapsibleWidget::SetSelectable(bool s)
+{
+  title_bar->SetSelectable(s);
 }
 
 void CollapsibleWidget::set_button_icon(bool open) {
@@ -125,19 +127,65 @@ void CollapsibleWidget::on_visible_change() {
   SetExpanded(!IsExpanded());
 }
 
-CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) : QWidget(parent), selected(false) {
+CollapsibleWidgetHeader::CollapsibleWidgetHeader(QWidget* parent) :
+  QWidget(parent),
+  selected_(false),
+  selectable_(true)
+{
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
+bool CollapsibleWidgetHeader::IsSelected()
+{
+  return selected_;
+}
+
+void CollapsibleWidgetHeader::SetSelected(bool s, bool deselect_others)
+{
+  selected_ = s;
+
+  if (s) {
+    QPalette p = palette();
+    p.setColor(QPalette::Background, QColor(255, 255, 255, 64));
+    setPalette(p);
+  } else {
+    setPalette(qApp->palette());
+  }
+
+  if (deselect_others) {
+    emit select();
+  }
+}
+
+void CollapsibleWidgetHeader::SetSelectable(bool s)
+{
+  selectable_ = s;
+
+  if (!selectable_ && selected_) {
+    SetSelected(false);
+  }
+}
+
+bool CollapsibleWidgetHeader::event(QEvent *event)
+{
+  if (!selectable_
+      && (event->type() == QEvent::MouseButtonPress
+      || event->type() == QEvent::MouseButtonRelease
+      || event->type() == QEvent::MouseMove
+      || event->type() == QEvent::MouseButtonDblClick)
+      && QApplication::sendEvent(parent(), event)) {
+    return true;
+  }
+  return QWidget::event(event);
+}
+
 void CollapsibleWidgetHeader::mousePressEvent(QMouseEvent* event) {
-  if (selected) {
-    if ((event->modifiers() & Qt::ShiftModifier)) {
-      selected = false;
-      emit select(selected, false);
+  if (selected_) {
+    if (event->modifiers() & Qt::ShiftModifier) {
+      SetSelected(false);
     }
   } else {
-    selected = true;
-    emit select(selected, !(event->modifiers() & Qt::ShiftModifier));
+    SetSelected(true, !(event->modifiers() & Qt::ShiftModifier));
   }
 }
 

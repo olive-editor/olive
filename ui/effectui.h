@@ -23,6 +23,7 @@
 
 #include "collapsiblewidget.h"
 #include "effects/effect.h"
+#include "ui/nodeui.h"
 
 /**
  * @brief The EffectUI class
@@ -131,6 +132,12 @@ public:
    */
   bool IsAttachedToClip(Clip* c);
 
+  void SetNodeParent(NodeUI* parent);
+
+protected:
+  virtual void resizeEvent(QResizeEvent* event) override;
+  virtual bool event(QEvent* event) override;
+
 signals:
   /**
    * @brief Cut signal
@@ -194,6 +201,11 @@ private:
    * @brief Array of KeyframeNavigator objects corresponding to each row.
    */
   QVector<KeyframeNavigator*> keyframe_navigators_;
+
+  /**
+   * @brief Internal reference to node parent
+   */
+  NodeUI* node_parent_;
 
   /**
    * @brief Attach a KeyframeNavigator object to an EffectRow.
