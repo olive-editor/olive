@@ -43,6 +43,8 @@ void PanEffect::process_audio(double timecode_start,
                               int channel_count,
                               int type) {
 
+  Q_UNUSED(type)
+
   // This has no effect on mono sources
   if (channel_count < 2) {
     return;

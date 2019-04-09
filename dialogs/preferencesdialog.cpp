@@ -232,7 +232,7 @@ OCIO::ConstConfigRcPtr PreferencesDialog::TestOCIOConfig(const QString &url)
   // Check whether OCIO can load it
   OCIO::ConstConfigRcPtr config;
   try {
-    config = OCIO::Config::CreateFromFile(ocio_config_file->text().toUtf8());
+    config = OCIO::Config::CreateFromFile(url.toUtf8());
   } catch (OCIO::Exception& e) {
     QMessageBox::critical(this,
                           tr("OpenColorIO Config Error"),

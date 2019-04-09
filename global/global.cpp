@@ -180,7 +180,7 @@ void OliveGlobal::SetNativeStyling(QWidget *w)
   w->setPalette(w->style()->standardPalette());
   w->setStyle(QStyleFactory::create("windowsvista"));
 #else
-  Q_UNUSED(w);
+  Q_UNUSED(w)
 #endif
 }
 

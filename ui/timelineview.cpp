@@ -402,7 +402,7 @@ void TimelineView::insert_clips(ComboAction* ca, Sequence* s) {
     }
   }
 
-  QVector<Clip*> sequence_clips = sequence()->GetAllClips();
+  QVector<Clip*> sequence_clips = s->GetAllClips();
   for (int i=0;i<sequence_clips.size();i++) {
     Clip* c = sequence_clips.at(i);
     // don't split any clips that are moving
@@ -415,7 +415,7 @@ void TimelineView::insert_clips(ComboAction* ca, Sequence* s) {
     }
     if (!found) {
       if (c->timeline_in() < earliest_new_point && c->timeline_out() > earliest_new_point) {
-        sequence()->SplitClipAtPositions(ca, c, {earliest_new_point}, true);
+        s->SplitClipAtPositions(ca, c, {earliest_new_point}, true);
       }
 
       // determine if we should close the gap the old clips left behind
@@ -429,13 +429,13 @@ void TimelineView::insert_clips(ComboAction* ca, Sequence* s) {
 
   long ripple_length = (latest_new_point - earliest_new_point);
 
-  sequence()->Ripple(ca, earliest_new_point, ripple_length, ignore_clips);
+  s->Ripple(ca, earliest_new_point, ripple_length, ignore_clips);
 
   if (ripple_old_point) {
     // works for moving later clips earlier but not earlier to later
     long second_ripple_length = (earliest_old_point - latest_old_point);
 
-    sequence()->Ripple(ca, latest_old_point, second_ripple_length, ignore_clips);
+    s->Ripple(ca, latest_old_point, second_ripple_length, ignore_clips);
 
     if (earliest_old_point < earliest_new_point) {
       for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
@@ -444,13 +444,13 @@ void TimelineView::insert_clips(ComboAction* ca, Sequence* s) {
         g.out += second_ripple_length;
       }
 
-      QVector<Selection> sequence_selections = sequence()->Selections();
+      QVector<Selection> sequence_selections = s->Selections();
       for (int i=0;i<sequence_selections.size();i++) {
         Selection& s = sequence_selections[i];
         s.set_in(s.in() + second_ripple_length);
         s.set_out(s.out() + second_ripple_length);
       }
-      sequence()->SetSelections(sequence_selections);
+      s->SetSelections(sequence_selections);
     }
   }
 }
@@ -694,7 +694,8 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
                   link->track()->DeselectArea(link->timeline_in(), link->timeline_out());
                 }
 
-                long s_in, s_out;
+                long s_in = 0;
+                long s_out = 0;
 
                 // select the transition only
                 if (ParentTimeline()->transition_select == kTransitionOpening
@@ -2504,9 +2505,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       // used to determine whether we the cursor found a trim point or not
       bool found = false;
 
-      // used to determine whether the cursor is within the rect of a clip
-      bool cursor_contains_clip = false;
-
       // used to determine how close the cursor is to a trim point
       // (and more specifically, whether another point is closer or not)
       long closeness = LONG_MAX;
@@ -2531,9 +2529,6 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           // if this cursor is inside the boundaries of this clip (hovering over the clip)
           if (ParentTimeline()->cursor_frame >= c->timeline_in() &&
               ParentTimeline()->cursor_frame <= c->timeline_out()) {
-
-            // acknowledge that we are hovering over a clip
-            cursor_contains_clip = true;
 
             // start a timer to show a tooltip about this clip
             tooltip_timer.start();

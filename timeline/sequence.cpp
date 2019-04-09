@@ -1167,6 +1167,7 @@ ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long f
 
 bool Sequence::SplitSelection(ComboAction *ca, QVector<Selection> selections)
 {
+  bool ret = false;
   QVector<Clip*> all_clips = GetAllClips();
 
   for (int i=0;i<all_clips.size();i++) {
@@ -1187,6 +1188,10 @@ bool Sequence::SplitSelection(ComboAction *ca, QVector<Selection> selections)
       }
     }
 
-
+    if (SplitClipAtPositions(ca, c, points, false)) {
+      ret = true;
+    }
   }
+
+  return ret;
 }

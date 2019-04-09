@@ -117,12 +117,7 @@ void EffectControls::menu_select(QAction* q) {
     }
   }
   olive::undo_stack.push(ca);
-  if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
-    update_ui(true);
-  } else {
-    Reload();
-    panel_sequence_viewer->viewer_widget()->frame_update();
-  }
+  update_ui(true);
 }
 
 void EffectControls::update_keyframes() {

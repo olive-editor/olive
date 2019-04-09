@@ -418,15 +418,6 @@ Track *Clip::track()
 
 void Clip::set_track(Track *t)
 {
-  // Ensure this clip has already been added to this track
-  bool found = false;
-  for (int i=0;i<t->ClipCount();i++) {
-    if (t->GetClip(i).get() == this) {
-      found = true;
-      break;
-    }
-  }
-
   track_ = t;
 }
 

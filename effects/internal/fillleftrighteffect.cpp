@@ -20,8 +20,10 @@
 
 #include "fillleftrighteffect.h"
 
-#define FILL_TYPE_LEFT 0
-#define FILL_TYPE_RIGHT 1
+enum FillType {
+  FILL_TYPE_LEFT,
+  FILL_TYPE_RIGHT
+};
 
 FillLeftRightEffect::FillLeftRightEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
   EffectRow* type_row = new EffectRow(this, tr("Type"));
@@ -36,14 +38,18 @@ void FillLeftRightEffect::process_audio(double timecode_start,
                                         int nb_samples,
                                         int channel_count,
                                         int type) {
+
+  Q_UNUSED(type)
+
   double interval = (timecode_end-timecode_start)/nb_samples;
-  for (int i=0;i<nb_samples;i+=4) {
-    if (fill_type->GetValueAt(timecode_start+(interval*i)) == FILL_TYPE_LEFT) {
-      samples[i+1] = samples[i+3];
-      samples[i] = samples[i+2];
-    } else {
-      samples[i+3] = samples[i+1];
-      samples[i+2] = samples[i];
+
+  if (channel_count == 2) {
+    for (int i=0;i<nb_samples;i++) {
+      if (fill_type->GetValueAt(timecode_start+(interval*i)) == FILL_TYPE_LEFT) {
+        samples[0][i] = samples[1][i];
+      } else {
+        samples[1][i] = samples[0][i];
+      }
     }
   }
 }

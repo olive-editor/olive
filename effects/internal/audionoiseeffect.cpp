@@ -41,6 +41,9 @@ void AudioNoiseEffect::process_audio(double timecode_start,
                                      int nb_samples,
                                      int channel_count,
                                      int type) {
+
+  Q_UNUSED(type)
+
   double interval = (timecode_end - timecode_start)/nb_samples;
   for (int i=0;i<nb_samples;i+=4) {
     double timecode = timecode_start+(interval*i);

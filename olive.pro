@@ -48,6 +48,8 @@ system("which git") {
 
 CONFIG += c++11
 
+QMAKE_CXXFLAGS += -Wno-reorder
+
 SOURCES += \
         main.cpp \
         ui/mainwindow.cpp \
@@ -188,7 +190,6 @@ SOURCES += \
     panels/nodeeditor.cpp \
     ui/nodeview.cpp \
     nodes/medianode.cpp \
-    nodes/node.cpp \
     ui/nodeui.cpp \
     panels/effectspanel.cpp
 
@@ -335,7 +336,6 @@ HEADERS += \
     panels/nodeeditor.h \
     ui/nodeview.h \
     nodes/medianode.h \
-    nodes/node.h \
     ui/nodeui.h \
     panels/effectspanel.h
 
