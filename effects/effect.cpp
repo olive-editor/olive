@@ -852,14 +852,14 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
       EffectField* field = row->Field(j);
       if (!field->id().isEmpty()) {
         switch (field->type()) {
-        case olive::nodes::kFloat:
+        case EFFECT_FIELD_DOUBLE:
         {
           DoubleField* double_field = static_cast<DoubleField*>(field);
           shader_program_->setUniformValue(double_field->id().toUtf8().constData(),
                                            GLfloat(double_field->GetDoubleAt(timecode)));
         }
           break;
-        case olive::nodes::kColor:
+        case EFFECT_FIELD_COLOR:
         {
           ColorField* color_field = static_cast<ColorField*>(field);
           shader_program_->setUniformValue(
@@ -870,18 +870,18 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
                 );
         }
           break;
-        case olive::nodes::kBoolean:
+        case EFFECT_FIELD_BOOL:
           shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toBool());
           break;
-        case olive::nodes::kCombo:
+        case EFFECT_FIELD_COMBO:
           shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
           break;
 
           // can you even send a string to a uniform value?
-        case olive::nodes::kString:
-        case olive::nodes::kFont:
-        case olive::nodes::kFile:
-        case olive::nodes::kUI:
+        case EFFECT_FIELD_STRING:
+        case EFFECT_FIELD_FONT:
+        case EFFECT_FIELD_FILE:
+        case EFFECT_FIELD_UI:
           break;
         }
       }

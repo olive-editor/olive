@@ -25,7 +25,6 @@ NodeEditor::NodeEditor(QWidget *parent) :
 
 void NodeEditor::Retranslate()
 {
-
 }
 
 void NodeEditor::LoadEvent()

@@ -93,7 +93,7 @@ QVariant EffectField::GetValueAt(double timecode)
 
     const QVariant& before_data = keyframes.at(before_keyframe).data;
     switch (type_) {
-    case olive::nodes::kFloat:
+    case EFFECT_FIELD_DOUBLE:
     {
       double value;
       if (before_keyframe == after_keyframe) {
@@ -163,7 +163,7 @@ QVariant EffectField::GetValueAt(double timecode)
       persistent_data_ = value;
       break;
     }
-    case olive::nodes::kColor:
+    case EFFECT_FIELD_COLOR:
     {
       QColor value;
       if (before_keyframe == after_keyframe) {
@@ -178,11 +178,11 @@ QVariant EffectField::GetValueAt(double timecode)
       persistent_data_ = value;
       break;
     }
-    case olive::nodes::kString:
-    case olive::nodes::kBoolean:
-    case olive::nodes::kCombo:
-    case olive::nodes::kFont:
-    case olive::nodes::kFile:
+    case EFFECT_FIELD_STRING:
+    case EFFECT_FIELD_BOOL:
+    case EFFECT_FIELD_COMBO:
+    case EFFECT_FIELD_FONT:
+    case EFFECT_FIELD_FILE:
       persistent_data_ = before_data;
       break;
     default:
@@ -360,7 +360,7 @@ void EffectField::GetKeyframeData(double timecode, int &before, int &after, doub
     }
   }
 
-  if ((type_ == olive::nodes::kFloat || type_ == olive::nodes::kColor)
+  if ((type_ == EFFECT_FIELD_DOUBLE || type_ == EFFECT_FIELD_COLOR)
       && (before_keyframe_index > -1 && after_keyframe_index > -1)) {
     // interpolate
     before = before_keyframe_index;
