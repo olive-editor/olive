@@ -23,7 +23,7 @@
 #include <QPushButton>
 
 ButtonField::ButtonField(EffectRow *parent, const QString &string) :
-  EffectField(parent, nullptr, olive::nodes::kUI),
+  EffectField(parent, nullptr, EffectField::EFFECT_FIELD_UI),
   button_text_(string)
 {}
 

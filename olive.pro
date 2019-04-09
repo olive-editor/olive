@@ -192,7 +192,8 @@ SOURCES += \
     nodes/medianode.cpp \
     ui/nodeui.cpp \
     panels/effectspanel.cpp \
-    nodes/nodedatatypes.cpp
+    nodes/nodedatatypes.cpp \
+    nodes/nodeplug.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -339,7 +340,8 @@ HEADERS += \
     nodes/medianode.h \
     ui/nodeui.h \
     panels/effectspanel.h \
-    nodes/nodedatatypes.h
+    nodes/nodedatatypes.h \
+    nodes/nodeplug.h
 
 FORMS +=
 

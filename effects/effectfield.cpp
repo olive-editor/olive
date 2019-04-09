@@ -34,7 +34,7 @@
 #include "global/math.h"
 #include "global/debug.h"
 
-EffectField::EffectField(EffectRow* parent, const QString &i, olive::nodes::DataType t) :
+EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t) :
   QObject(parent),
   type_(t),
   id_(i),
@@ -43,7 +43,7 @@ EffectField::EffectField(EffectRow* parent, const QString &i, olive::nodes::Data
 {
   // EffectField MUST be created with a parent.
   Q_ASSERT(parent != nullptr);
-  Q_ASSERT(!i.isEmpty() || t == olive::nodes::kUI);
+  Q_ASSERT(!i.isEmpty() || t == EFFECT_FIELD_UI);
 
   // Add this field to the parent row specified
   parent->AddField(this);
@@ -274,7 +274,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
   }
 }
 
-const olive::nodes::DataType &EffectField::type()
+const EffectField::EffectFieldType &EffectField::type()
 {
   return type_;
 }

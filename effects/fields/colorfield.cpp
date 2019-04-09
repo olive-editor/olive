@@ -25,7 +25,7 @@
 #include "ui/colorbutton.h"
 
 ColorField::ColorField(EffectRow* parent, const QString& id) :
-  EffectField(parent, id, olive::nodes::kColor)
+  EffectField(parent, id, EffectField::EFFECT_FIELD_COLOR)
 {}
 
 QColor ColorField::GetColorAt(double timecode)

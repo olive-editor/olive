@@ -23,7 +23,7 @@
 #include <QCheckBox>
 
 BoolField::BoolField(EffectRow *parent, const QString &id) :
-  EffectField(parent, id, olive::nodes::kBoolean)
+  EffectField(parent, id, EffectField::EFFECT_FIELD_BOOL)
 {}
 
 bool BoolField::GetBoolAt(double timecode)

@@ -41,8 +41,10 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
 void NodeView::mouseReleaseEvent(QMouseEvent *event)
 {
-  hand_moving_ = false;
-  QGraphicsView::mouseReleaseEvent(event);
+  if (!hand_moving_) {
+    hand_moving_ = false;
+    QGraphicsView::mouseReleaseEvent(event);
+  }
 }
 
 void NodeView::wheelEvent(QWheelEvent *event)

@@ -23,7 +23,7 @@
 #include "effects/effectrow.h"
 
 DoubleField::DoubleField(EffectRow* parent, const QString& id) :
-  EffectField(parent, id, olive::nodes::kFloat),
+  EffectField(parent, id, EffectField::EFFECT_FIELD_DOUBLE),
   min_(qSNaN()),
   max_(qSNaN()),
   default_(0),
