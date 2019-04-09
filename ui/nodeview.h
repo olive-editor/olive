@@ -8,9 +8,6 @@ class NodeView : public QGraphicsView {
 public:
   NodeView(QGraphicsScene *scene, QWidget* parent = nullptr);
 
-signals:
-  void ScrollChanged(qreal x, qreal y);
-
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

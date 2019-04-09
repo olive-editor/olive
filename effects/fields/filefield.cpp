@@ -25,7 +25,7 @@
 #include "ui/embeddedfilechooser.h"
 
 FileField::FileField(EffectRow* parent, const QString &id) :
-  EffectField(parent, id, EFFECT_FIELD_FILE)
+  EffectField(parent, id, olive::nodes::kFile)
 {
   // Set default value to an empty string
   SetValueAt(0, "");

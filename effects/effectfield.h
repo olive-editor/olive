@@ -28,6 +28,7 @@
 #include "effects/keyframe.h"
 #include "undo/undo.h"
 #include "undo/undostack.h"
+#include "nodes/nodedatatypes.h"
 
 class EffectRow;
 class ComboAction;
@@ -56,39 +57,6 @@ class ComboAction;
 class EffectField : public QObject {
   Q_OBJECT
 public:
-  /**
-   * @brief The EffectFieldType enum
-   *
-   * Predetermined types of fields. Used throughout Olive to identify what kind of data to expect from GetValueAt().
-   *
-   * This enum is also currently used to match an external XML effect's fields with the correct derived class (e.g.
-   * EFFECT_FIELD_DOUBLE matches to DoubleField).
-   */
-  enum EffectFieldType {
-    /** Values are doubles. Also corresponds to DoubleField. */
-    EFFECT_FIELD_DOUBLE,
-
-    /** Values are colors. Also corresponds to ColorField. */
-    EFFECT_FIELD_COLOR,
-
-    /** Values are strings. Also corresponds to StringField. */
-    EFFECT_FIELD_STRING,
-
-    /** Values are booleans. Also corresponds to BoolField. */
-    EFFECT_FIELD_BOOL,
-
-    /** Values are arbitrary data. Also corresponds to ComboField. */
-    EFFECT_FIELD_COMBO,
-
-    /** Values are font family names (in string). Also corresponds to FontField. */
-    EFFECT_FIELD_FONT,
-
-    /** Values are filenames (in string). Also corresponds to FileField. */
-    EFFECT_FIELD_FILE,
-
-    /** Values is a UI object with no data. Corresponds to nothing. */
-    EFFECT_FIELD_UI
-  };
 
   /**
    * @brief EffectField Constructor
@@ -112,7 +80,7 @@ public:
    *
    * The type of data contained within this field. This is expected to be filled by a derived class.
    */
-  EffectField(EffectRow* parent, const QString& i, EffectFieldType t);
+  EffectField(EffectRow* parent, const QString& i, olive::nodes::DataType t);
 
   /**
    * @brief Get the EffectRow that this field is a member of.
@@ -130,9 +98,9 @@ public:
    *
    * @return
    *
-   * A member of the EffectFieldType enum.
+   * A member of the olive::nodes::DataType enum.
    */
-  const EffectFieldType& type();
+  const olive::nodes::DataType& type();
 
   /**
    * @brief Get the unique identifier of this field set in the constructor
@@ -430,7 +398,7 @@ private:
   /**
    * @brief Internal type variable set in the constructor. Access with type().
    */
-  EffectFieldType type_;
+  olive::nodes::DataType type_;
 
   /**
    * @brief Internal unique identifier for this field set in the constructor. Access with id().

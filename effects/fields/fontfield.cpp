@@ -28,7 +28,7 @@
 // NOTE/TODO: This shares a lot of similarity with ComboField, and could probably be a derived class of it
 
 FontField::FontField(EffectRow* parent, const QString &id) :
-  EffectField(parent, id, EFFECT_FIELD_FONT)
+  EffectField(parent, id, olive::nodes::kFont)
 {
   font_list = QFontDatabase().families();
 

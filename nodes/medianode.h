@@ -1,9 +1,7 @@
 #ifndef MEDIANODE_H
 #define MEDIANODE_H
 
-#include "node.h"
-
-class MediaNode : public Node
+class MediaNode
 {
 public:
   MediaNode();

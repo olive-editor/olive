@@ -34,7 +34,7 @@
 #include "global/math.h"
 #include "global/debug.h"
 
-EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t) :
+EffectField::EffectField(EffectRow* parent, const QString &i, olive::nodes::DataType t) :
   QObject(parent),
   type_(t),
   id_(i),
@@ -43,7 +43,7 @@ EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t)
 {
   // EffectField MUST be created with a parent.
   Q_ASSERT(parent != nullptr);
-  Q_ASSERT(!i.isEmpty() || t == EFFECT_FIELD_UI);
+  Q_ASSERT(!i.isEmpty() || t == olive::nodes::kUI);
 
   // Add this field to the parent row specified
   parent->AddField(this);
@@ -93,7 +93,7 @@ QVariant EffectField::GetValueAt(double timecode)
 
     const QVariant& before_data = keyframes.at(before_keyframe).data;
     switch (type_) {
-    case EFFECT_FIELD_DOUBLE:
+    case olive::nodes::kFloat:
     {
       double value;
       if (before_keyframe == after_keyframe) {
@@ -163,7 +163,7 @@ QVariant EffectField::GetValueAt(double timecode)
       persistent_data_ = value;
       break;
     }
-    case EFFECT_FIELD_COLOR:
+    case olive::nodes::kColor:
     {
       QColor value;
       if (before_keyframe == after_keyframe) {
@@ -178,11 +178,11 @@ QVariant EffectField::GetValueAt(double timecode)
       persistent_data_ = value;
       break;
     }
-    case EFFECT_FIELD_STRING:
-    case EFFECT_FIELD_BOOL:
-    case EFFECT_FIELD_COMBO:
-    case EFFECT_FIELD_FONT:
-    case EFFECT_FIELD_FILE:
+    case olive::nodes::kString:
+    case olive::nodes::kBoolean:
+    case olive::nodes::kCombo:
+    case olive::nodes::kFont:
+    case olive::nodes::kFile:
       persistent_data_ = before_data;
       break;
     default:
@@ -274,7 +274,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
   }
 }
 
-const EffectField::EffectFieldType &EffectField::type()
+const olive::nodes::DataType &EffectField::type()
 {
   return type_;
 }
@@ -360,7 +360,7 @@ void EffectField::GetKeyframeData(double timecode, int &before, int &after, doub
     }
   }
 
-  if ((type_ == EFFECT_FIELD_DOUBLE || type_ == EFFECT_FIELD_COLOR)
+  if ((type_ == olive::nodes::kFloat || type_ == olive::nodes::kColor)
       && (before_keyframe_index > -1 && after_keyframe_index > -1)) {
     // interpolate
     before = before_keyframe_index;

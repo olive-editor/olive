@@ -21,7 +21,6 @@ NodeEditor::NodeEditor(QWidget *parent) :
 
   view_.setInteractive(true);
   view_.setDragMode(QGraphicsView::RubberBandDrag);
-  connect(&view_, SIGNAL(ScrollChanged(qreal, qreal)), this, SLOT(Scroll(qreal, qreal)));
 }
 
 void NodeEditor::Retranslate()
@@ -56,13 +55,4 @@ void NodeEditor::ClearEvent()
   }
 
   nodes_.clear();
-}
-
-void NodeEditor::Scroll(qreal x, qreal y)
-{
-  NodeUI* node;
-
-  foreach (node, nodes_) {
-    node->moveBy(x, y);
-  }
 }

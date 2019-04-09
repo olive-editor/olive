@@ -244,7 +244,7 @@ void GraphView::paintEvent(QPaintEvent *) {
       for (int i=row->FieldCount()-1;i>=0;i--) {
         EffectField* field = row->Field(i);
 
-        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
+        if (field->type() == olive::nodes::kFloat && field_visibility.at(i)) {
           // sort keyframes by time
           QVector<int> sorted_keys = sort_keys_from_field(field);
 
@@ -386,7 +386,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
     } else {
       for (int i=0;i<row->FieldCount();i++) {
         EffectField* field = row->Field(i);
-        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE && field_visibility.at(i)) {
+        if (field->type() == olive::nodes::kFloat && field_visibility.at(i)) {
           for (int j=0;j<field->keyframes.size();j++) {
             const EffectKeyframe& key = field->keyframes.at(j);
             int key_x = get_screen_x(key.time);

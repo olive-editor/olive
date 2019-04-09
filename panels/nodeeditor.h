@@ -23,9 +23,6 @@ private:
   NodeView view_;
   QVector<NodeUI*> nodes_;
 
-private slots:
-  void Scroll(qreal x, qreal y);
-
 };
 
 #endif // NODEEDITOR_H

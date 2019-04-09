@@ -159,21 +159,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                     const QXmlStreamAttribute& attr = attributes.at(i);
                     if (attr.name() == "type") {
                       QString comp = attr.value().toString().toUpper();
-                      if (comp == "DOUBLE") {
-                        type = EffectField::EFFECT_FIELD_DOUBLE;
-                      } else if (comp == "BOOL") {
-                        type = EffectField::EFFECT_FIELD_BOOL;
-                      } else if (comp == "COLOR") {
-                        type = EffectField::EFFECT_FIELD_COLOR;
-                      } else if (comp == "COMBO") {
-                        type = EffectField::EFFECT_FIELD_COMBO;
-                      } else if (comp == "FONT") {
-                        type = EffectField::EFFECT_FIELD_FONT;
-                      } else if (comp == "STRING") {
-                        type = EffectField::EFFECT_FIELD_STRING;
-                      } else if (comp == "FILE") {
-                        type = EffectField::EFFECT_FIELD_FILE;
-                      }
+                      type = olive::nodes::StringToDataType(comp);
                     } else if (attr.name() == "id") {
                       id = attr.value().toString();
                     }
@@ -181,11 +167,13 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
 
                   if (id.isEmpty()) {
                     qCritical() << "Couldn't load field from" << em->filename << "- ID cannot be empty.";
+                  } else if (type == olive::nodes::kInvalid) {
+                    qWarning() << "Invalid field type found";
                   } else {
                     EffectField* field = nullptr;
 
                     switch (type) {
-                    case EffectField::EFFECT_FIELD_DOUBLE:
+                    case olive::nodes::kFloat:
                     {
 
                       DoubleField* double_field = new DoubleField(row, id);
@@ -204,7 +192,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                       field = double_field;
                     }
                       break;
-                    case EffectField::EFFECT_FIELD_COLOR:
+                    case olive::nodes::kColor:
                     {
                       QColor color;
 
@@ -232,7 +220,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                       field->SetValueAt(0, color);
                     }
                       break;
-                    case EffectField::EFFECT_FIELD_STRING:
+                    case olive::nodes::kString:
                       field = new StringField(row, id);
                       for (int i=0;i<attributes.size();i++) {
                         const QXmlStreamAttribute& attr = attributes.at(i);
@@ -241,7 +229,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                         }
                       }
                       break;
-                    case EffectField::EFFECT_FIELD_BOOL:
+                    case olive::nodes::kBoolean:
                       field = new BoolField(row, id);
                       for (int i=0;i<attributes.size();i++) {
                         const QXmlStreamAttribute& attr = attributes.at(i);
@@ -250,7 +238,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                         }
                       }
                       break;
-                    case EffectField::EFFECT_FIELD_COMBO:
+                    case olive::nodes::kCombo:
                     {
                       ComboField* combo_field = new ComboField(row, id);
                       int combo_default_index = 0;
@@ -274,7 +262,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                       field = combo_field;
                     }
                       break;
-                    case EffectField::EFFECT_FIELD_FONT:
+                    case olive::nodes::kFont:
                       field = new FontField(row, id);
                       for (int i=0;i<attributes.size();i++) {
                         const QXmlStreamAttribute& attr = attributes.at(i);
@@ -283,7 +271,7 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
                         }
                       }
                       break;
-                    case EffectField::EFFECT_FIELD_FILE:
+                    case olive::nodes::kFile:
                       field = new FileField(row, id);
                       for (int i=0;i<attributes.size();i++) {
                         const QXmlStreamAttribute& attr = attributes.at(i);
@@ -864,14 +852,14 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
       EffectField* field = row->Field(j);
       if (!field->id().isEmpty()) {
         switch (field->type()) {
-        case EffectField::EFFECT_FIELD_DOUBLE:
+        case olive::nodes::kFloat:
         {
           DoubleField* double_field = static_cast<DoubleField*>(field);
           shader_program_->setUniformValue(double_field->id().toUtf8().constData(),
                                            GLfloat(double_field->GetDoubleAt(timecode)));
         }
           break;
-        case EffectField::EFFECT_FIELD_COLOR:
+        case olive::nodes::kColor:
         {
           ColorField* color_field = static_cast<ColorField*>(field);
           shader_program_->setUniformValue(
@@ -882,18 +870,18 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
                 );
         }
           break;
-        case EffectField::EFFECT_FIELD_BOOL:
+        case olive::nodes::kBoolean:
           shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toBool());
           break;
-        case EffectField::EFFECT_FIELD_COMBO:
+        case olive::nodes::kCombo:
           shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
           break;
 
           // can you even send a string to a uniform value?
-        case EffectField::EFFECT_FIELD_STRING:
-        case EffectField::EFFECT_FIELD_FONT:
-        case EffectField::EFFECT_FIELD_FILE:
-        case EffectField::EFFECT_FIELD_UI:
+        case olive::nodes::kString:
+        case olive::nodes::kFont:
+        case olive::nodes::kFile:
+        case olive::nodes::kUI:
           break;
         }
       }

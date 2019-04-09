@@ -1,6 +1,7 @@
 #include "nodeview.h"
 
 #include <QWheelEvent>
+#include <QScrollBar>
 #include <QDebug>
 
 NodeView::NodeView(QGraphicsScene *scene, QWidget *parent) :
@@ -27,8 +28,14 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 void NodeView::mouseMoveEvent(QMouseEvent *event)
 {
   if (hand_moving_) {
-    QPointF scene_delta = mapToScene(event->pos() - drag_start_) - mapToScene(0.0, 0.0);
-    emit ScrollChanged(scene_delta.x(), scene_delta.y());
+    //QPointF scene_delta = mapToScene(event->pos() - drag_start_) - mapToScene(0.0, 0.0);
+    //emit ScrollChanged(scene_delta.x(), scene_delta.y());
+
+    QPoint delta = event->pos() - drag_start_;
+
+    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + delta.x());
+    verticalScrollBar()->setValue(verticalScrollBar()->value() + delta.y());
+
     drag_start_ = event->pos();
   } else {
     QGraphicsView::mouseMoveEvent(event);
