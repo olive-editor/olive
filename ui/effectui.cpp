@@ -127,9 +127,9 @@ EffectUI::EffectUI(Effect* e) :
 
       widgets_[i][j] = widget;
 
-      layout_->addWidget(widget, i, column, 1, field->GetColumnSpan());
+      layout_->addWidget(widget, i, column, 1, 1);
 
-      column += field->GetColumnSpan();
+      column++;
     }
 
     // Find maximum column to place keyframe controls
@@ -237,7 +237,7 @@ void EffectUI::UpdateFromEffect()
       // Check if this UI object is attached to one effect or many
       if (additional_effects_.isEmpty()) {
 
-        field->UpdateWidgetValue(Widget(j, k), field->Now());
+        field->UpdateWidgetValue(Widget(j, k), effect->Now());
 
       } else {
 
@@ -247,14 +247,14 @@ void EffectUI::UpdateFromEffect()
           EffectField* previous_field = i > 0 ? additional_effects_.at(i-1)->row(j)->Field(k) : field;
           EffectField* additional_field = additional_effects_.at(i)->row(j)->Field(k);
 
-          if (additional_field->GetValueAt(additional_field->Now()) != previous_field->GetValueAt(previous_field->Now())) {
+          if (additional_field->GetValueAt(additional_effects_.at(i)->Now()) != previous_field->GetValueAt(additional_effects_.at(i-1)->Now())) {
             same_value = false;
             break;
           }
         }
 
         if (same_value) {
-          field->UpdateWidgetValue(Widget(j, k), field->Now());
+          field->UpdateWidgetValue(Widget(j, k), effect->Now());
         } else {
           field->UpdateWidgetValue(Widget(j, k), qSNaN());
         }

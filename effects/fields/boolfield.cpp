@@ -22,6 +22,8 @@
 
 #include <QCheckBox>
 
+#include "effects/effect.h"
+
 BoolField::BoolField(EffectRow *parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_BOOL)
 {}
@@ -89,7 +91,7 @@ void BoolField::UpdateFromWidget(bool b)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), b);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), b);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

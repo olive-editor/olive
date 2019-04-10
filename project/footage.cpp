@@ -159,8 +159,8 @@ FootageStream* Footage::get_stream_from_file_index(bool video, int index) {
 QString Footage::get_interlacing_name(int interlacing) {
   switch (interlacing) {
   case VIDEO_PROGRESSIVE: return QCoreApplication::translate("InterlacingName", "None (Progressive)");
-  case VIDEO_TOP_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Top Field First");
-  case VIDEO_BOTTOM_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Bottom Field First");
+  case VIDEO_TOP_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Upper Field First");
+  case VIDEO_BOTTOM_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Lower Field First");
   default: return QCoreApplication::translate("InterlacingName", "Invalid");
   }
 }

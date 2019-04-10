@@ -260,6 +260,13 @@ void Timeline::toggle_show_all() {
   }
 }
 
+void Timeline::toggle_links()
+{
+  if (sequence_ != nullptr) {
+    sequence_->ToggleLinksOnSelected();
+  }
+}
+
 void Timeline::add_transition() {
   ComboAction* ca = new ComboAction();
   bool adding = false;

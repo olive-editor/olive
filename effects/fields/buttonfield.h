@@ -42,7 +42,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  ButtonField(EffectRow* parent);
+  ButtonField(EffectRow* parent, const QString& string);
 
   /**
    * @brief Set whether this pushbutton is checkable

@@ -37,7 +37,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  FontField(EffectRow* parent, const QString& id);
+  FontField(EffectRow* parent);
 
   /**
    * @brief Get the font family name at the given timecode

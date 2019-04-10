@@ -31,14 +31,13 @@ class TimecodeEffect : public Effect {
 public:
   TimecodeEffect(Clip* c, const EffectMeta *em);
   virtual void redraw(double timecode) override;
-  DoubleField* scale_val;
-  ColorField* color_val;
-  ColorField* color_bg_val;
-  DoubleField* bg_alpha;
-  DoubleField* offset_x_val;
-  DoubleField* offset_y_val;
-  StringField* prepend_text;
-  ComboField* tc_select;
+  DoubleInput* scale_val;
+  ColorInput* color_val;
+  ColorInput* color_bg_val;
+  DoubleInput* bg_alpha;
+  Vec2Input* offset_val;
+  StringInput* prepend_text;
+  ComboInput* tc_select;
 
 protected:
   virtual bool AlwaysUpdate() override;

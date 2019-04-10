@@ -24,11 +24,12 @@
 #include <QDebug>
 
 #include "ui/comboboxex.h"
+#include "effects/effect.h"
 
-// NOTE/TODO: This shares a lot of similarity with ComboField, and could probably be a derived class of it
+// NOTE/TODO: This shares a lot of similarity with ComboInput, and could probably be a derived class of it
 
-FontField::FontField(EffectRow* parent, const QString &id) :
-  EffectField(parent, id, EffectField::EFFECT_FIELD_FONT)
+FontField::FontField(EffectRow* parent) :
+  EffectField(parent, EffectField::EFFECT_FIELD_FONT)
 {
   font_list = QFontDatabase().families();
 
@@ -86,7 +87,7 @@ void FontField::UpdateFromWidget(const QString& s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), s);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

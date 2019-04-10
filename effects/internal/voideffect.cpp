@@ -34,9 +34,8 @@ VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
   } else {
     display_name = n;
   }
-  EffectRow* row = new EffectRow(this, tr("Missing Effect"), false, false);
 
-  new LabelField(row, display_name);
+  new LabelWidget(this, tr("Missing Effect"), display_name);
 
   name = display_name;
 

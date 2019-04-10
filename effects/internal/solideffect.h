@@ -41,10 +41,10 @@ public:
 private slots:
   void ui_update(const QVariant &d);
 private:
-  ComboField* solid_type;
-  ColorField* solid_color_field;
-  DoubleField* opacity_field;
-  DoubleField* checkerboard_size_field;
+  ComboInput* solid_type;
+  ColorInput* solid_color_field;
+  DoubleInput* opacity_field;
+  DoubleInput* checkerboard_size_field;
 };
 
 #endif // SOLIDEFFECT_H

@@ -65,8 +65,8 @@ private slots:
   void uncheck_show_button();
   void change_plugin();
 private:
-  FileField* file_field;
-  ButtonField* show_interface_btn;
+  FileInput* file_field;
+  ButtonWidget* show_interface_btn;
 
   void loadPlugin();
   void freePlugin();

@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "effects/effect.h"
 #include "ui/comboboxex.h"
 
 ComboField::ComboField(EffectRow* parent) :
@@ -84,7 +85,7 @@ void ComboField::UpdateFromWidget(int index)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), items_.at(index).data);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), items_.at(index).data);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

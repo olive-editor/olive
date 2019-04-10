@@ -53,6 +53,10 @@ EffectRow::EffectRow(Effect *parent, const QString &id, const QString &name, boo
 void EffectRow::AddField(EffectField *field)
 {
   field->setParent(this);
+
+  connect(field, SIGNAL(Clicked()), this, SIGNAL(Clicked()));
+  connect(field, SIGNAL(Changed()), this, SIGNAL(Changed()));
+
   fields_.append(field);
 }
 
@@ -75,6 +79,27 @@ bool EffectRow::IsSavable()
 bool EffectRow::IsKeyframable()
 {
   return keyframable_;
+}
+
+QVariant EffectRow::GetValueAt(double timecode)
+{
+  Q_ASSERT(FieldCount() == 1);
+
+  return Field(0)->GetValueAt(timecode);
+}
+
+void EffectRow::SetValueAt(double timecode, const QVariant &value)
+{
+  Q_ASSERT(FieldCount() == 1);
+
+  Field(0)->SetValueAt(timecode, value);
+}
+
+void EffectRow::SetEnabled(bool enabled)
+{
+  for (int i=0;i<FieldCount();i++) {
+    Field(i)->SetEnabled(enabled);
+  }
 }
 
 void EffectRow::SetKeyframingEnabled(bool enabled) {
@@ -252,7 +277,7 @@ void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
 
     KeyframeDataChange* kdc = new KeyframeDataChange(field);
 
-    field->SetValueAt(field->Now(), field->GetValueAt(field->Now()));
+    field->SetValueAt(GetParentEffect()->Now(), field->GetValueAt(GetParentEffect()->Now()));
 
     kdc->SetNewKeyframes();
     ca->append(kdc);

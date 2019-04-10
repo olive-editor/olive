@@ -37,27 +37,26 @@ private slots:
 private:
   QFont font;
 
-  StringField* text_val;
-  DoubleField* size_val;
-  ColorField* set_color_button;
-  FontField* set_font_combobox;
-  ComboField* halign_field;
-  ComboField* valign_field;
-  BoolField* word_wrap_field;
-  DoubleField* padding_field;
-  DoubleField* position_x;
-  DoubleField* position_y;
+  StringInput* text_val;
+  DoubleInput* size_val;
+  ColorInput* set_color_button;
+  FontInput* set_font_combobox;
+  ComboInput* halign_field;
+  ComboInput* valign_field;
+  BoolInput* word_wrap_field;
+  DoubleInput* padding_field;
+  Vec2Input* position;
 
-  BoolField* outline_bool;
-  DoubleField* outline_width;
-  ColorField* outline_color;
+  BoolInput* outline_bool;
+  DoubleInput* outline_width;
+  ColorInput* outline_color;
 
-  BoolField* shadow_bool;
-  DoubleField* shadow_angle;
-  DoubleField* shadow_distance;
-  ColorField* shadow_color;
-  DoubleField* shadow_softness;
-  DoubleField* shadow_opacity;
+  BoolInput* shadow_bool;
+  DoubleInput* shadow_angle;
+  DoubleInput* shadow_distance;
+  ColorInput* shadow_color;
+  DoubleInput* shadow_softness;
+  DoubleInput* shadow_opacity;
 
 };
 

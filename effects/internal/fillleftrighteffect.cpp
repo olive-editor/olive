@@ -26,8 +26,7 @@ enum FillType {
 };
 
 FillLeftRightEffect::FillLeftRightEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  EffectRow* type_row = new EffectRow(this, tr("Type"));
-  fill_type = new ComboField(type_row, "type");
+  fill_type = new ComboInput(this, "type", tr("Type"));
   fill_type->AddItem(tr("Fill Left with Right"), FILL_TYPE_LEFT);
   fill_type->AddItem(tr("Fill Right with Left"), FILL_TYPE_RIGHT);
 }

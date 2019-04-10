@@ -149,8 +149,8 @@ void GraphEditor::update_panel() {
       int slider_index = 0;
       for (int i=0;i<row->FieldCount();i++) {
         EffectField* field = row->Field(i);
-        if (field->type() == olive::nodes::kFloat) {
-          field->UpdateWidgetValue(field_sliders_.at(slider_index), field->Now());
+        if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
+          field->UpdateWidgetValue(field_sliders_.at(slider_index), row->GetParentEffect()->Now());
           slider_index++;
         }
       }
@@ -186,7 +186,7 @@ void GraphEditor::set_row(EffectRow *r) {
   if (r != nullptr && r->IsKeyframing()) {
     for (int i=0;i<r->FieldCount();i++) {
       EffectField* field = r->Field(i);
-      if (field->type() == olive::nodes::kFloat) {
+      if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
         QPushButton* slider_button = new QPushButton();
         slider_button->setCheckable(true);
         slider_button->setChecked(field->IsEnabled());

@@ -44,6 +44,7 @@
 #include "effectrow.h"
 #include "effectgizmo.h"
 #include "rendering/qopenglshaderprogramptr.h"
+#include "nodes/inputs.h"
 
 class Clip;
 
@@ -191,6 +192,30 @@ public:
   void gizmo_move(EffectGizmo* sender, int x_movement, int y_movement, double timecode, bool done);
   void gizmo_world_to_screen(const QMatrix4x4 &matrix, const QMatrix4x4 &projection);
   bool are_gizmos_enabled();
+
+  /**
+   * @brief Get the current clip/media time
+   *
+   * A convenience function that can be plugged into GetValueAt() to get the value wherever the appropriate Sequence's
+   * playhead it.
+   *
+   * @return
+   *
+   * Current clip/media time in seconds.
+   */
+  double Now();
+
+  /**
+   * @brief Retrieve the current clip as a frame number
+   *
+   * Same as Now() but retrieves the value as a frame number (in the appropriate Sequence's frame rate) instead of
+   * seconds.
+   *
+   * @return
+   *
+   * The current clip time in frames
+   */
+  long NowInFrames();
 
   template <typename T>
   T randomNumber()

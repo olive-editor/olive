@@ -150,6 +150,7 @@ protected:
 public slots:
   void repaint_timeline();
   void toggle_show_all();
+  void toggle_links();
   void deselect();
   void split_at_playhead();
   void ripple_delete();

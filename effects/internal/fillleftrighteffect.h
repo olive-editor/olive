@@ -34,7 +34,7 @@ public:
                              int channel_count,
                              int type) override;
 private:
-  ComboField* fill_type;
+  ComboInput* fill_type;
 };
 
 #endif // FILLLEFTRIGHTEFFECT_H

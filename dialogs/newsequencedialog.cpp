@@ -270,8 +270,6 @@ void NewSequenceDialog::setup_ui() {
   videoLayout->addWidget(new QLabel(tr("Interlacing:"), this), 6, 0, 1, 1);
   interlacing_combobox = new QComboBox(videoGroupBox);
   interlacing_combobox->addItem(tr("None (Progressive)"));
-  //	interlacing_combobox->addItem("Upper Field First");
-  //	interlacing_combobox->addItem("Lower Field First");
   videoLayout->addWidget(interlacing_combobox, 6, 2, 1, 2);
 
   verticalLayout->addWidget(videoGroupBox);

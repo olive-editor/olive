@@ -53,6 +53,7 @@
 #include "transition.h"
 #include "undo/undostack.h"
 #include "rendering/shadergenerators.h"
+#include "global/timing.h"
 
 #include "effects/internal/transformeffect.h"
 #include "effects/internal/texteffect.h"
@@ -136,153 +137,138 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
         QXmlStreamReader reader(&effect_file);
 
         while (!reader.atEnd()) {
-          if (reader.name() == "row" && reader.isStartElement()) {
-            QString row_name;
+          if (reader.name() == "field" && reader.isStartElement()) {
+            int type = olive::nodes::kInvalid;
+            QString id;
+            QString name;
+
+            // get field type
             const QXmlStreamAttributes& attributes = reader.attributes();
             for (int i=0;i<attributes.size();i++) {
               const QXmlStreamAttribute& attr = attributes.at(i);
-              if (attr.name() == "name") {
-                row_name = attr.value().toString();
+              if (attr.name() == "type") {
+                QString comp = attr.value().toString().toUpper();
+                type = olive::nodes::StringToDataType(comp);
+              } else if (attr.name() == "id") {
+                id = attr.value().toString();
+              } else if (attr.name() == "name") {
+                name = attr.value().toString();
               }
             }
-            if (!row_name.isEmpty()) {
-              EffectRow* row = new EffectRow(this, row_name);
-              while (!reader.atEnd() && !(reader.name() == "row" && reader.isEndElement())) {
-                reader.readNext();
-                if (reader.name() == "field" && reader.isStartElement()) {
-                  int type = -1;
-                  QString id;
 
-                  // get field type
-                  const QXmlStreamAttributes& attributes = reader.attributes();
-                  for (int i=0;i<attributes.size();i++) {
-                    const QXmlStreamAttribute& attr = attributes.at(i);
-                    if (attr.name() == "type") {
-                      QString comp = attr.value().toString().toUpper();
-                      type = olive::nodes::StringToDataType(comp);
-                    } else if (attr.name() == "id") {
-                      id = attr.value().toString();
-                    }
-                  }
+            if (id.isEmpty() || name.isEmpty() || type == olive::nodes::kInvalid) {
+              qCritical() << "Couldn't load field from" << em->filename << "- ID, type, and name cannot be empty.";
+            } else {
+              EffectRow* field = nullptr;
 
-                  if (id.isEmpty()) {
-                    qCritical() << "Couldn't load field from" << em->filename << "- ID cannot be empty.";
-                  } else if (type == olive::nodes::kInvalid) {
-                    qWarning() << "Invalid field type found";
-                  } else {
-                    EffectField* field = nullptr;
+              switch (type) {
+              case olive::nodes::kFloat:
+              {
 
-                    switch (type) {
-                    case olive::nodes::kFloat:
-                    {
+                DoubleInput* double_field = new DoubleInput(this, id, name);
 
-                      DoubleField* double_field = new DoubleField(row, id);
-
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "default") {
-                          double_field->SetDefault(attr.value().toDouble());
-                        } else if (attr.name() == "min") {
-                          double_field->SetMinimum(attr.value().toDouble());
-                        } else if (attr.name() == "max") {
-                          double_field->SetMaximum(attr.value().toDouble());
-                        }
-                      }
-
-                      field = double_field;
-                    }
-                      break;
-                    case olive::nodes::kColor:
-                    {
-                      QColor color;
-
-                      field = new ColorField(row, id);
-
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "r") {
-                          color.setRed(attr.value().toInt());
-                        } else if (attr.name() == "g") {
-                          color.setGreen(attr.value().toInt());
-                        } else if (attr.name() == "b") {
-                          color.setBlue(attr.value().toInt());
-                        } else if (attr.name() == "rf") {
-                          color.setRedF(attr.value().toDouble());
-                        } else if (attr.name() == "gf") {
-                          color.setGreenF(attr.value().toDouble());
-                        } else if (attr.name() == "bf") {
-                          color.setBlueF(attr.value().toDouble());
-                        } else if (attr.name() == "hex") {
-                          color.setNamedColor(attr.value().toString());
-                        }
-                      }
-
-                      field->SetValueAt(0, color);
-                    }
-                      break;
-                    case olive::nodes::kString:
-                      field = new StringField(row, id);
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "default") {
-                          field->SetValueAt(0, attr.value().toString());
-                        }
-                      }
-                      break;
-                    case olive::nodes::kBoolean:
-                      field = new BoolField(row, id);
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "default") {
-                          field->SetValueAt(0, attr.value() == "1");
-                        }
-                      }
-                      break;
-                    case olive::nodes::kCombo:
-                    {
-                      ComboField* combo_field = new ComboField(row, id);
-                      int combo_default_index = 0;
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "default") {
-                          combo_default_index = attr.value().toInt();
-                          break;
-                        }
-                      }
-                      int combo_item_count = 0;
-                      while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
-                        reader.readNext();
-                        if (reader.name() == "option" && reader.isStartElement()) {
-                          reader.readNext();
-                          combo_field->AddItem(reader.text().toString(), combo_item_count);
-                          combo_item_count++;
-                        }
-                      }
-                      combo_field->SetValueAt(0, combo_default_index);
-                      field = combo_field;
-                    }
-                      break;
-                    case olive::nodes::kFont:
-                      field = new FontField(row, id);
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "default") {
-                          field->SetValueAt(0, attr.value().toString());
-                        }
-                      }
-                      break;
-                    case olive::nodes::kFile:
-                      field = new FileField(row, id);
-                      for (int i=0;i<attributes.size();i++) {
-                        const QXmlStreamAttribute& attr = attributes.at(i);
-                        if (attr.name() == "filename") {
-                          field->SetValueAt(0, attr.value().toString());
-                        }
-                      }
-                      break;
-                    }
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "default") {
+                    double_field->SetDefault(attr.value().toDouble());
+                  } else if (attr.name() == "min") {
+                    double_field->SetMinimum(attr.value().toDouble());
+                  } else if (attr.name() == "max") {
+                    double_field->SetMaximum(attr.value().toDouble());
                   }
                 }
+
+                field = double_field;
+              }
+                break;
+              case olive::nodes::kColor:
+              {
+                QColor color;
+
+                field = new ColorInput(this, id, name);
+
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "r") {
+                    color.setRed(attr.value().toInt());
+                  } else if (attr.name() == "g") {
+                    color.setGreen(attr.value().toInt());
+                  } else if (attr.name() == "b") {
+                    color.setBlue(attr.value().toInt());
+                  } else if (attr.name() == "rf") {
+                    color.setRedF(attr.value().toDouble());
+                  } else if (attr.name() == "gf") {
+                    color.setGreenF(attr.value().toDouble());
+                  } else if (attr.name() == "bf") {
+                    color.setBlueF(attr.value().toDouble());
+                  } else if (attr.name() == "hex") {
+                    color.setNamedColor(attr.value().toString());
+                  }
+                }
+
+                field->SetValueAt(0, color);
+              }
+                break;
+              case olive::nodes::kString:
+                field = new StringInput(this, id, name);
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "default") {
+                    field->SetValueAt(0, attr.value().toString());
+                  }
+                }
+                break;
+              case olive::nodes::kBoolean:
+                field = new BoolInput(this, id, name);
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "default") {
+                    field->SetValueAt(0, attr.value() == "1");
+                  }
+                }
+                break;
+              case olive::nodes::kCombo:
+              {
+                ComboInput* combo_field = new ComboInput(this, id, name);
+                int combo_default_index = 0;
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "default") {
+                    combo_default_index = attr.value().toInt();
+                    break;
+                  }
+                }
+                int combo_item_count = 0;
+                while (!reader.atEnd() && !(reader.name() == "field" && reader.isEndElement())) {
+                  reader.readNext();
+                  if (reader.name() == "option" && reader.isStartElement()) {
+                    reader.readNext();
+                    combo_field->AddItem(reader.text().toString(), combo_item_count);
+                    combo_item_count++;
+                  }
+                }
+                combo_field->SetValueAt(0, combo_default_index);
+                field = combo_field;
+              }
+                break;
+              case olive::nodes::kFont:
+                field = new FontInput(this, id, name);
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "default") {
+                    field->SetValueAt(0, attr.value().toString());
+                  }
+                }
+                break;
+              case olive::nodes::kFile:
+                field = new FileInput(this, id, name);
+                for (int i=0;i<attributes.size();i++) {
+                  const QXmlStreamAttribute& attr = attributes.at(i);
+                  if (attr.name() == "filename") {
+                    field->SetValueAt(0, attr.value().toString());
+                  }
+                }
+                break;
               }
             }
           } else if (reader.name() == "shader" && reader.isStartElement()) {
@@ -515,6 +501,7 @@ void Effect::SetEnabled(bool b) {
 }
 
 void Effect::load(QXmlStreamReader& stream) {
+  /*
   int row_count = 0;
 
   QString tag = stream.name().toString();
@@ -602,11 +589,13 @@ void Effect::load(QXmlStreamReader& stream) {
       custom_load(stream);
     }
   }
+  */
 }
 
 void Effect::custom_load(QXmlStreamReader &) {}
 
 void Effect::save(QXmlStreamWriter& stream) {
+  /*
   stream.writeAttribute("name", meta->category + "/" + meta->name);
   stream.writeAttribute("enabled", QString::number(IsEnabled()));
 
@@ -639,6 +628,7 @@ void Effect::save(QXmlStreamWriter& stream) {
       stream.writeEndElement(); // row
     }
   }
+  */
 }
 
 void Effect::load_from_string(const QByteArray &s) {
@@ -840,6 +830,7 @@ EffectPtr Effect::copy(Clip *c) {
 }
 
 void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
+  /*
   shader_program_->bind();
 
   shader_program_->setUniformValue("resolution", parent_clip->media_width(), parent_clip->media_height());
@@ -848,20 +839,21 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
 
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
+
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
       if (!field->id().isEmpty()) {
         switch (field->type()) {
-        case EFFECT_FIELD_DOUBLE:
+        case EffectField::EFFECT_FIELD_DOUBLE:
         {
           DoubleField* double_field = static_cast<DoubleField*>(field);
           shader_program_->setUniformValue(double_field->id().toUtf8().constData(),
                                            GLfloat(double_field->GetDoubleAt(timecode)));
         }
           break;
-        case EFFECT_FIELD_COLOR:
+        case EffectField::EFFECT_FIELD_COLOR:
         {
-          ColorField* color_field = static_cast<ColorField*>(field);
+          ColorField* color_field = static_cast<ColorField *>(field);
           shader_program_->setUniformValue(
                 color_field->id().toUtf8().constData(),
                 GLfloat(color_field->GetColorAt(timecode).redF()),
@@ -870,18 +862,18 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
                 );
         }
           break;
-        case EFFECT_FIELD_BOOL:
+        case EffectField::EFFECT_FIELD_BOOL:
           shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toBool());
           break;
-        case EFFECT_FIELD_COMBO:
+        case EffectField::EFFECT_FIELD_COMBO:
           shader_program_->setUniformValue(field->id().toUtf8().constData(), field->GetValueAt(timecode).toInt());
           break;
 
           // can you even send a string to a uniform value?
-        case EFFECT_FIELD_STRING:
-        case EFFECT_FIELD_FONT:
-        case EFFECT_FIELD_FILE:
-        case EFFECT_FIELD_UI:
+        case EffectField::EFFECT_FIELD_STRING:
+        case EffectField::EFFECT_FIELD_FONT:
+        case EffectField::EFFECT_FIELD_FILE:
+        case EffectField::EFFECT_FIELD_UI:
           break;
         }
       }
@@ -889,6 +881,7 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
   }
 
   shader_program_->release();
+  */
 }
 
 void Effect::process_coords(double, GLTextureCoords&, int) {}
@@ -929,7 +922,7 @@ GLuint Effect::process_superimpose(QOpenGLContext* ctx, double timecode) {
 
     f->glTexImage2D(
           GL_TEXTURE_2D, 0, GL_RGBA8, tex_width_, tex_height_, 0, GL_RGBA,  GL_UNSIGNED_BYTE, img.constBits()
-        );
+          );
 
     f->glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -1045,6 +1038,16 @@ bool Effect::are_gizmos_enabled() {
   return (gizmos.size() > 0);
 }
 
+double Effect::Now()
+{
+  return playhead_to_clip_seconds(parent_clip, parent_clip->track()->sequence()->playhead);
+}
+
+long Effect::NowInFrames()
+{
+  return playhead_to_clip_frame(parent_clip, parent_clip->track()->sequence()->playhead);
+}
+
 void Effect::redraw(double) {
   /*
   // run javascript
@@ -1062,22 +1065,22 @@ void Effect::redraw(double) {
       EffectField* field = row->field(j);
       if (!field->id.isEmpty()) {
         switch (field->type) {
-        case EFFECT_FIELD_DOUBLE:
+        case EffectField::EFFECT_FIELD_DOUBLE:
           jsEngine.globalObject().setProperty(field->id, field->get_double_value(timecode));
           break;
-        case EFFECT_FIELD_COLOR:
+        case EffectField::EFFECT_FIELD_COLOR:
           jsEngine.globalObject().setProperty(field->id, field->get_color_value(timecode).name());
           break;
-        case EFFECT_FIELD_STRING:
+        case EffectField::EFFECT_FIELD_STRING:
           jsEngine.globalObject().setProperty(field->id, field->get_string_value(timecode));
           break;
-        case EFFECT_FIELD_BOOL:
+        case EffectField::EFFECT_FIELD_BOOL:
           jsEngine.globalObject().setProperty(field->id, field->get_bool_value(timecode));
           break;
-        case EFFECT_FIELD_COMBO:
+        case EffectField::EFFECT_FIELD_COMBO:
           jsEngine.globalObject().setProperty(field->id, field->get_combo_index(timecode));
           break;
-        case EFFECT_FIELD_FONT:
+        case EffectField::EFFECT_FIELD_FONT:
           jsEngine.globalObject().setProperty(field->id, field->get_font_name(timecode));
           break;
         }

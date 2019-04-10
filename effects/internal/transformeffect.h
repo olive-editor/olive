@@ -31,19 +31,17 @@ public:
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
 
   virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
+
 public slots:
   void toggle_uniform_scale(bool enabled);
+
 private:
-  DoubleField* position_x;
-  DoubleField* position_y;
-  DoubleField* scale_x;
-  DoubleField* scale_y;
-  BoolField* uniform_scale_field;
-  DoubleField* rotation;
-  DoubleField* anchor_x_box;
-  DoubleField* anchor_y_box;
-  DoubleField* opacity;
-  ComboField* blend_mode_box;
+  Vec2Input* position;
+  Vec2Input* scale;
+  BoolInput* uniform_scale_field;
+  DoubleInput* rotation;
+  Vec2Input* anchor_point;
+  DoubleInput* opacity;
 
   EffectGizmo* top_left_gizmo;
   EffectGizmo* top_center_gizmo;

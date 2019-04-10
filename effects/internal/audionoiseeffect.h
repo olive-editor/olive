@@ -34,8 +34,8 @@ public:
                              int channel_count,
                              int type) override;
 
-  DoubleField* amount_val;
-  BoolField* mix_val;
+  DoubleInput* amount_val;
+  BoolInput* mix_val;
 };
 
 #endif // AUDIONOISEEFFECT_H

@@ -39,7 +39,7 @@ public:
    * Provides a setting for whether this StringField - and its attached TextEditEx objects - should operate in rich
    * text or plain text mode, defaulting to rich text mode.
    */
-  StringField(EffectRow* parent, const QString& id, bool rich_text = true);
+  StringField(EffectRow* parent, bool rich_text = true);
 
   /**
    * @brief Get the string at the given timecode

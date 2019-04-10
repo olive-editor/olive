@@ -12,13 +12,13 @@ namespace nodes {
  * Predetermined types of fields. Used throughout Olive to identify what kind of data to expect from GetValueAt().
  *
  * This enum is also currently used to match an external XML effect's fields with the correct derived class (e.g.
- * EFFECT_FIELD_DOUBLE matches to DoubleField).
+ * EFFECT_FIELD_DOUBLE matches to DoubleInput).
  */
 enum DataType {
   /** Invalid data type. Used only for error handling. */
   kInvalid,
 
-  /** Values are doubles. Also corresponds to DoubleField. */
+  /** Values are doubles. Also corresponds to DoubleInput. */
   kFloat,
 
   /** Value is an 2-component vector of floats. */
@@ -33,22 +33,22 @@ enum DataType {
   /** Value is an array of floats. This cannot be an input field, and can only be passed between nodes. */
   kArray,
 
-  /** Values are colors. Equivalent to kVec4 but represents as a color. Corresponds to ColorField. */
+  /** Values are colors. Equivalent to kVec4 but represents as a color. Corresponds to ColorInput. */
   kColor,
 
-  /** Values are strings. Also corresponds to StringField. */
+  /** Values are strings. Also corresponds to StringInput. */
   kString,
 
-  /** Values are booleans. Also corresponds to BoolField. */
+  /** Values are booleans. Also corresponds to BoolInput. */
   kBoolean,
 
-  /** Values are arbitrary data. Also corresponds to ComboField. */
+  /** Values are arbitrary data. Also corresponds to ComboInput. */
   kCombo,
 
-  /** Values are font family names (in string). Also corresponds to FontField. */
+  /** Values are font family names (in string). Also corresponds to FontInput. */
   kFont,
 
-  /** Values are filenames (in string). Also corresponds to FileField. */
+  /** Values are filenames (in string). Also corresponds to FileInput. */
   kFile,
 
   /** Values are integers. */

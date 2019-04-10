@@ -194,7 +194,15 @@ SOURCES += \
     panels/effectspanel.cpp \
     nodes/nodedatatypes.cpp \
     nodes/nodeplug.cpp \
-    nodes/inputs/doubleinput.cpp
+    nodes/inputs/boolinput.cpp \
+    nodes/inputs/comboinput.cpp \
+    nodes/inputs/colorinput.cpp \
+    nodes/inputs/stringinput.cpp \
+    nodes/inputs/fontinput.cpp \
+    nodes/inputs/vecinput.cpp \
+    nodes/widgets/labelwidget.cpp \
+    nodes/inputs/fileinput.cpp \
+    nodes/widgets/buttonwidget.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -343,7 +351,16 @@ HEADERS += \
     panels/effectspanel.h \
     nodes/nodedatatypes.h \
     nodes/nodeplug.h \
-    nodes/inputs/doubleinput.h
+    nodes/inputs.h \
+    nodes/inputs/boolinput.h \
+    nodes/inputs/comboinput.h \
+    nodes/inputs/colorinput.h \
+    nodes/inputs/stringinput.h \
+    nodes/inputs/fontinput.h \
+    nodes/inputs/vecinput.h \
+    nodes/widgets/labelwidget.h \
+    nodes/inputs/fileinput.h \
+    nodes/widgets/buttonwidget.h
 
 FORMS +=
 

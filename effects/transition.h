@@ -61,7 +61,7 @@ public:
   static TransitionPtr CreateFromMeta(Clip *c, Clip *s, const EffectMeta* em);
 
 private:
-  DoubleField* length_field;
+  DoubleInput* length_field;
 
 private slots:
   void UpdateMaximumLength();

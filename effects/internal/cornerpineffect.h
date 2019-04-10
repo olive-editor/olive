@@ -31,15 +31,12 @@ public:
   void process_shader(double timecode, GLTextureCoords& coords, int iterations);
   void gizmo_draw(double timecode, GLTextureCoords& coords);
 private:
-  DoubleField* top_left_x;
-  DoubleField* top_left_y;
-  DoubleField* top_right_x;
-  DoubleField* top_right_y;
-  DoubleField* bottom_left_x;
-  DoubleField* bottom_left_y;
-  DoubleField* bottom_right_x;
-  DoubleField* bottom_right_y;
-  BoolField* perspective;
+  Vec2Input* top_left;
+  Vec2Input* top_right;
+  Vec2Input* bottom_left;
+  Vec2Input* bottom_right;
+
+  BoolInput* perspective;
 
   EffectGizmo* top_left_gizmo;
   EffectGizmo* top_right_gizmo;

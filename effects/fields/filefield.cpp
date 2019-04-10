@@ -23,9 +23,10 @@
 #include <QDebug>
 
 #include "ui/embeddedfilechooser.h"
+#include "effects/effect.h"
 
-FileField::FileField(EffectRow* parent, const QString &id) :
-  EffectField(parent, id, EffectField::EFFECT_FIELD_FILE)
+FileField::FileField(EffectRow* parent) :
+  EffectField(parent, EffectField::EFFECT_FIELD_FILE)
 {
   // Set default value to an empty string
   SetValueAt(0, "");
@@ -59,7 +60,7 @@ void FileField::UpdateFromWidget(const QString &s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), s);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

@@ -34,7 +34,7 @@ public:
                              int channel_count,
                              int type) override;
 
-  DoubleField* pan_val;
+  DoubleInput* pan_val;
 };
 
 #endif // PANEFFECT_H

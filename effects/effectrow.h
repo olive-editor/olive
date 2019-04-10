@@ -131,6 +131,15 @@ public:
   const QString& name();
 
   /**
+   * @brief Get the unique identifier of this field set in the constructor
+   *
+   * Mostly used for saving/loading or interacting with GLSL-based shader effects (see EffectField() for more details).
+   *
+   * @return
+   */
+  const QString& id();
+
+  /**
    * @brief Get whether this row is keyframing or not
    *
    * @return True if this row is keyframing.
@@ -158,6 +167,63 @@ public:
    * @return True if this row can be keyframed. This value is set in the constructor.
    */
   bool IsKeyframable();
+
+  /**
+   * @brief Get value at a given timecode
+   *
+   * Functions as a wrapper for EffectField::GetValueAt().
+   *
+   * The default function is to return the result of the first EffectField on this EffectRow which should be sufficient
+   * for most input types. If this EffectRow has more or less than one EffectField, you must override this function in a
+   * derived class to provide the correct field <-> row coordination or else it will trigger an abort.
+   *
+   * @param timecode
+   *
+   * Timecode to get the value at
+   *
+   * @return
+   *
+   * The value of the first EffectField at the given timecode
+   */
+  virtual QVariant GetValueAt(double timecode);
+
+  /**
+   * @brief SetValueAt
+   *
+   * Functions as a wrapper for EffectField::SetValueAt().
+   *
+   * The default function is to call the function of the first EffectField on this EffectRow which should be sufficient
+   * for most input types. If this EffectRow has more or less than one EffectField, you must override this function in a
+   * derived class to provide the correct field <-> row coordination or else it will trigger an abort.
+   *
+   * @param timecode
+   *
+   * Timecode to set the value at
+   *
+   * @param value
+   *
+   * Value to set at this timecode
+   */
+  virtual void SetValueAt(double timecode, const QVariant& value);
+
+  /**
+   * @brief Sets the enabled state on all EffectField objects on this row to enabled
+   */
+  void SetEnabled(bool enabled);
+
+protected:
+  /**
+   * @brief Add a field to this row
+   *
+   * Ownership of the EffectField is transferred to this row and the row will free its memory. In the Effect's UI, this
+   * will add the field to an additional column.
+   *
+   * @param Field
+   *
+   * The field to add to this row.
+   */
+  void AddField(EffectField* Field);
+
 public slots:
   /**
    * @brief Go to previous keyframe
@@ -194,6 +260,7 @@ public slots:
    */
   void FocusRow();
 signals:
+
   /**
    * @brief Keyframing setting changed signal
    *
@@ -204,6 +271,21 @@ signals:
    * True if keyframing was enabled, false if keyframing was disabled.
    */
   void KeyframingSetChanged(bool);
+
+  /**
+   * @brief Changed signal
+   *
+   * Wrapper for EffectField::Changed().
+   */
+  void Changed();
+
+  /**
+   * @brief Clicked signal
+   *
+   * Wrapper for EffectField::Clicked().
+   */
+  void Clicked();
+
 private slots:
   /**
    * @brief Set keyframing enabled state
@@ -217,17 +299,6 @@ private slots:
    */
   void SetKeyframingEnabled(bool);
 private:
-  /**
-   * @brief Add a field to this row
-   *
-   * Ownership of the EffectField is transferred to this row and the row will free its memory. In the Effect's UI, this
-   * will add the field to an additional column.
-   *
-   * @param Field
-   *
-   * The field to add to this row.
-   */
-  void AddField(EffectField* Field);
 
   /**
    * @brief Internal unique identifier for this field set in the constructor. Access with id().

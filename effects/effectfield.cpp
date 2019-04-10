@@ -37,16 +37,10 @@
 EffectField::EffectField(EffectRow* parent, EffectFieldType t) :
   QObject(parent),
   type_(t),
-  id_(i),
-  enabled_(true),
-  colspan_(1)
+  enabled_(true)
 {
   // EffectField MUST be created with a parent.
   Q_ASSERT(parent != nullptr);
-  Q_ASSERT(!i.isEmpty() || t == EFFECT_FIELD_UI);
-
-  // Add this field to the parent row specified
-  parent->AddField(this);
 
   // Set a very base default value
   SetValueAt(0, 0);
@@ -58,17 +52,6 @@ EffectField::EffectField(EffectRow* parent, EffectFieldType t) :
 EffectRow *EffectField::GetParentRow()
 {
   return static_cast<EffectRow*>(parent());
-}
-
-int EffectField::GetColumnSpan()
-{
-  return colspan_;
-}
-
-void EffectField::SetColumnSpan(int i)
-{
-  Q_ASSERT(i >= 1);
-  colspan_ = i;
 }
 
 QVariant EffectField::ConvertStringToValue(const QString &s)
@@ -232,18 +215,6 @@ void EffectField::SetValueAt(double time, const QVariant &value)
   emit Changed();
 }
 
-double EffectField::Now()
-{
-  Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
-  return playhead_to_clip_seconds(c, c->track()->sequence()->playhead);
-}
-
-long EffectField::NowInFrames()
-{
-  Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
-  return playhead_to_clip_frame(c, c->track()->sequence()->playhead);
-}
-
 void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
 {
   if (enabled) {
@@ -251,7 +222,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Create keyframe from perpetual data
     EffectKeyframe key;
 
-    key.time = NowInFrames();
+    key.time = GetParentRow()->GetParentEffect()->NowInFrames();
     key.data = persistent_data_;
     key.type = EFFECT_KEYFRAME_LINEAR;
 
@@ -264,7 +235,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Convert keyframes to one "perpetual" keyframe
 
     // Set first keyframe to whatever the data is now
-    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(Now())));
+    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(GetParentRow()->GetParentEffect()->Now())));
 
     // Delete all keyframes
     for (int i=0;i<keyframes.size();i++) {
@@ -277,11 +248,6 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
 const EffectField::EffectFieldType &EffectField::type()
 {
   return type_;
-}
-
-const QString &EffectField::id()
-{
-  return id_;
 }
 
 double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {

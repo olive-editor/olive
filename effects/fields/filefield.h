@@ -24,7 +24,7 @@
 #include "../effectfield.h"
 
 /**
- * @brief The FileField class
+ * @brief The FileInput class
  *
  * An EffectField derivative that produces filenames in string and uses an EmbeddedFileChooser
  * as its visual representation.
@@ -36,7 +36,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  FileField(EffectRow* parent, const QString& id);
+  FileField(EffectRow* parent);
 
   /**
    * @brief Get the filename at the given timecode

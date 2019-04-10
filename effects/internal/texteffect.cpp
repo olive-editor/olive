@@ -47,85 +47,52 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
 {
   SetFlags(Effect::SuperimposeFlag);
 
-  EffectRow* text_field = new EffectRow(this, tr("Text"));
-  text_val = new StringField(text_field, "text", false);
-  text_val->SetColumnSpan(2);
+  text_val = new StringInput(this, "text", tr("Text"), false);
 
-  EffectRow* font_row = new EffectRow(this, tr("Font"));
-  set_font_combobox = new FontField(font_row, "font");
-  set_font_combobox->SetColumnSpan(2);
+  set_font_combobox = new FontInput(this, "font", tr("Font"));
 
-  EffectRow* size_row = new EffectRow(this, tr("Size"));
-  size_val = new DoubleField(size_row, "size");
+  size_val = new DoubleInput(this, "size", tr("Size"));
   size_val->SetMinimum(0);
-  size_val->SetColumnSpan(2);
 
-  EffectRow* color_row = new EffectRow(this, tr("Color"));
-  set_color_button = new ColorField(color_row, "color");
-  set_color_button->SetColumnSpan(2);
+  set_color_button = new ColorInput(this, "color", tr("Color"));
 
-  EffectRow* alignment_row = new EffectRow(this, tr("Alignment"));
-  halign_field = new ComboField(alignment_row, "halign");
+  halign_field = new ComboInput(this, "halign", tr("Horizontal Alignment"));
   halign_field->AddItem(tr("Left"), Qt::AlignLeft);
   halign_field->AddItem(tr("Center"), Qt::AlignHCenter);
   halign_field->AddItem(tr("Right"), Qt::AlignRight);
   halign_field->AddItem(tr("Justify"), Qt::AlignJustify);
 
-  valign_field = new ComboField(alignment_row, "valign");
+  valign_field = new ComboInput(this, "valign", tr("Vertical Alignment"));
   valign_field->AddItem(tr("Top"), Qt::AlignTop);
   valign_field->AddItem(tr("Center"), Qt::AlignVCenter);
   valign_field->AddItem(tr("Bottom"), Qt::AlignBottom);
 
-  EffectRow* word_wrap_row = new EffectRow(this, tr("Word Wrap"));
-  word_wrap_field = new BoolField(word_wrap_row, "wordwrap");
-  word_wrap_field->SetColumnSpan(2);
+  word_wrap_field = new BoolInput(this, "wordwrap", tr("Word Wrap"));
 
-  EffectRow* padding_row = new EffectRow(this, tr("Padding"));
-  padding_field = new DoubleField(padding_row, "padding");
-  padding_field->SetColumnSpan(2);
+  padding_field = new DoubleInput(this, "padding", tr("Padding"));
 
-  EffectRow* position_row = new EffectRow(this, tr("Position"));
-  position_x = new DoubleField(position_row, "posx");
-  position_y = new DoubleField(position_row, "posy");
+  position = new Vec2Input(this, "pos", tr("Position"));
 
-  EffectRow* outline_row = new EffectRow(this, tr("Outline"));
-  outline_bool = new BoolField(outline_row, "outline");
-  outline_bool->SetColumnSpan(2);
+  outline_bool = new BoolInput(this, "outline", tr("Outline"));
 
-  EffectRow* outline_color_row = new EffectRow(this, tr("Outline Color"));
-  outline_color = new ColorField(outline_color_row, "outlinecolor");
-  outline_color->SetColumnSpan(2);
+  outline_color = new ColorInput(this, "outlinecolor", tr("Outline Color"));
 
-  EffectRow* outline_width_row = new EffectRow(this, tr("Outline Width"));
-  outline_width = new DoubleField(outline_width_row, "outlinewidth");
-  outline_width->SetColumnSpan(2);
+  outline_width = new DoubleInput(this, "outlinewidth", tr("Outline Width"));
   outline_width->SetMinimum(0);
 
-  EffectRow* shadow_row = new EffectRow(this, tr("Shadow"));
-  shadow_bool = new BoolField(shadow_row, "shadow");
-  shadow_bool->SetColumnSpan(2);
+  shadow_bool = new BoolInput(this, "shadow", tr("Shadow"));
 
-  EffectRow* shadow_color_row = new EffectRow(this, tr("Shadow Color"));
-  shadow_color = new ColorField(shadow_color_row, "shadowcolor");
-  shadow_color->SetColumnSpan(2);
+  shadow_color = new ColorInput(this, "shadowcolor", tr("Shadow Color"));
 
-  EffectRow* shadow_angle_row = new EffectRow(this, tr("Shadow Angle"));
-  shadow_angle = new DoubleField(shadow_angle_row, "shadowangle");
-  shadow_angle->SetColumnSpan(2);
+  shadow_angle = new DoubleInput(this, "shadowangle", tr("Shadow Angle"));
 
-  EffectRow* shadow_distance_row = new EffectRow(this, tr("Shadow Distance"));
-  shadow_distance = new DoubleField(shadow_distance_row, "shadowdistance");
-  shadow_distance->SetColumnSpan(2);
+  shadow_distance = new DoubleInput(this, "shadowdistance", tr("Shadow Distance"));
   shadow_distance->SetMinimum(0);
 
-  EffectRow* shadow_softness_row = new EffectRow(this, tr("Shadow Softness"));
-  shadow_softness = new DoubleField(shadow_softness_row, "shadowsoftness");
-  shadow_softness->SetColumnSpan(2);
+  shadow_softness = new DoubleInput(this, "shadowsoftness", tr("Shadow Softness"));
   shadow_softness->SetMinimum(0);
 
-  EffectRow* shadow_opacity_row = new EffectRow(this, tr("Shadow Opacity"));
-  shadow_opacity = new DoubleField(shadow_opacity_row, "shadowopacity");
-  shadow_opacity->SetColumnSpan(2);
+  shadow_opacity = new DoubleInput(this, "shadowopacity", tr("Shadow Opacity"));
   shadow_opacity->SetMinimum(0);
   shadow_opacity->SetMaximum(100);
 
@@ -252,7 +219,7 @@ void TextEffect::redraw(double timecode) {
     path.addText(text_x, text_y, font, lines.at(i));
   }
 
-  path.translate(position_x->GetDoubleAt(timecode) + padding, position_y->GetDoubleAt(timecode) + padding);
+  path.translate(position->GetVector2DAt(timecode).toPointF() + QPointF(padding, padding));
 
   // draw software shadow
   if (shadow_bool->GetBoolAt(timecode)) {

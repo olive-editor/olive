@@ -46,107 +46,77 @@
 TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
   SetFlags(Effect::CoordsFlag);
 
-  EffectRow* position_row = new EffectRow(this, tr("Position"));
+  position = new Vec2Input(this, "pos", tr("Position"));
 
-  position_x = new DoubleField(position_row, "posx"); // position X
-  position_y = new DoubleField(position_row, "posy"); // position Y
+  scale = new Vec2Input(this, "scale", tr("Scale"));
+  scale->SetMinimum(0);
+  scale->SetDefault(100);
 
-  EffectRow* scale_row = new EffectRow(this, tr("Scale"));
+  uniform_scale_field = new BoolInput(this, "uniformscale", tr("Uniform Scale"));
+  connect(uniform_scale_field, SIGNAL(Toggled(bool)), scale, SLOT(SetSingleValueMode(bool)));
+  uniform_scale_field->SetValueAt(0, true);
 
-  // scale X (and Y is uniform scale is selected)
-  scale_x = new DoubleField(scale_row, "scalex");
-  scale_x->SetMinimum(0);
+  rotation = new DoubleInput(this, "rotation", tr("Rotation"));
 
-  // scale Y (disabled if uniform scale is selected)
-  scale_y = new DoubleField(scale_row, "scaley");
-  scale_y->SetMinimum(0);
-
-  EffectRow* uniform_scale_row = new EffectRow(this, tr("Uniform Scale"));
-
-  uniform_scale_field = new BoolField(uniform_scale_row, "uniformscale"); // uniform scale option
-
-  EffectRow* rotation_row = new EffectRow(this, tr("Rotation"));
-
-  rotation = new DoubleField(rotation_row, "rotation");
-
-  EffectRow* anchor_point_row = new EffectRow(this, tr("Anchor Point"));
-
-  anchor_x_box = new DoubleField(anchor_point_row, "anchorx"); // anchor point X
-  anchor_y_box = new DoubleField(anchor_point_row, "anchory"); // anchor point Y
-
-  EffectRow* opacity_row = new EffectRow(this, tr("Opacity"));
+  anchor_point = new Vec2Input(this, "anchor", tr("Anchor Point"));
+  anchor_point->SetDefault(0);
 
   // opacity
-  opacity = new DoubleField(opacity_row, "opacity");
+  opacity = new DoubleInput(this, "opacity", tr("Opacity"));
   opacity->SetMinimum(0);
   opacity->SetMaximum(100);
-
-  EffectRow* blend_mode_row = new EffectRow(this, tr("Blend Mode"));
-
-  // blend mode
-  blend_mode_box = new ComboField(blend_mode_row, "blendmode");
-  blend_mode_box->SetColumnSpan(2);
-  blend_mode_box->AddItem(tr("Normal"), -1);
+  opacity->SetDefault(100);
 
   // set up gizmos
   top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
-  top_left_gizmo->x_field1 = scale_x;
+  top_left_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_center_gizmo->set_cursor(Qt::SizeVerCursor);
-  top_center_gizmo->y_field1 = scale_x;
+  top_center_gizmo->y_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
-  top_right_gizmo->x_field1 = scale_x;
+  top_right_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
-  bottom_left_gizmo->x_field1 = scale_x;
+  bottom_left_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
-  bottom_center_gizmo->y_field1 = scale_x;
+  bottom_center_gizmo->y_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
-  bottom_right_gizmo->x_field1 = scale_x;
+  bottom_right_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   left_center_gizmo->set_cursor(Qt::SizeHorCursor);
-  left_center_gizmo->x_field1 = scale_x;
+  left_center_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   right_center_gizmo->set_cursor(Qt::SizeHorCursor);
-  right_center_gizmo->x_field1 = scale_x;
+  right_center_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   anchor_gizmo = add_gizmo(GIZMO_TYPE_TARGET);
   anchor_gizmo->set_cursor(Qt::SizeAllCursor);
-  anchor_gizmo->x_field1 = anchor_x_box;
-  anchor_gizmo->y_field1 = anchor_y_box;
-  anchor_gizmo->x_field2 = position_x;
-  anchor_gizmo->y_field2 = position_y;
+  anchor_gizmo->x_field1 = static_cast<DoubleField*>(anchor_point->Field(0));
+  anchor_gizmo->y_field1 = static_cast<DoubleField*>(anchor_point->Field(1));
+  anchor_gizmo->x_field2 = static_cast<DoubleField*>(position->Field(0));
+  anchor_gizmo->y_field2 = static_cast<DoubleField*>(position->Field(1));
 
   rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   rotate_gizmo->color = Qt::green;
   rotate_gizmo->set_cursor(Qt::SizeAllCursor);
-  rotate_gizmo->x_field1 = rotation;
+  rotate_gizmo->x_field1 = static_cast<DoubleField*>(rotation->Field(0));
 
   rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
-  rect_gizmo->x_field1 = position_x;
-  rect_gizmo->y_field1 = position_y;
+  rect_gizmo->x_field1 = static_cast<DoubleField*>(position->Field(0));
+  rect_gizmo->y_field1 = static_cast<DoubleField*>(position->Field(1));
 
   connect(uniform_scale_field, SIGNAL(Toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
-
-  // set defaults
-  uniform_scale_field->SetValueAt(0, true);
-  blend_mode_box->SetValueAt(0, -1);
-  anchor_x_box->SetDefault(0);
-  anchor_y_box->SetDefault(0);
-  opacity->SetDefault(100);
-  scale_x->SetDefault(100);
-  scale_y->SetDefault(100);
 
   refresh();
 }
@@ -154,8 +124,8 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
 void TransformEffect::refresh() {
   if (parent_clip != nullptr && parent_clip->track()->sequence() != nullptr) {
 
-    position_x->SetDefault(parent_clip->track()->sequence()->width/2);
-    position_y->SetDefault(parent_clip->track()->sequence()->height/2);
+    position->SetDefault({float(parent_clip->track()->sequence()->width)*0.5f,
+                          float(parent_clip->track()->sequence()->height)*0.5f});
 
     double x_percent_multipler = 200.0 / parent_clip->track()->sequence()->width;
     double y_percent_multipler = 200.0 / parent_clip->track()->sequence()->height;
@@ -178,7 +148,10 @@ void TransformEffect::refresh() {
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {
-  scale_y->SetEnabled(!enabled);
+  scale->SetSingleValueMode(enabled);
+
+  DoubleField* scale_x = static_cast<DoubleField*>(scale->Field(0));
+  DoubleField* scale_y = static_cast<DoubleField*>(scale->Field(1));
 
   top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
   bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
@@ -190,29 +163,23 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
   // position
-  coords.matrix.translate(position_x->GetDoubleAt(timecode)-(parent_clip->track()->sequence()->width/2),
-                          position_y->GetDoubleAt(timecode)-(parent_clip->track()->sequence()->height/2),
-                          0);
+  coords.matrix.translate(position->GetVector2DAt(timecode)
+                          - QVector2D(parent_clip->track()->sequence()->width*0.5f,
+                                      parent_clip->track()->sequence()->height*0.5f));
 
   // anchor point
-  int anchor_x_offset = qRound(anchor_x_box->GetDoubleAt(timecode));
-  int anchor_y_offset = qRound(anchor_y_box->GetDoubleAt(timecode));
+  QVector2D anchor_val = anchor_point->GetVector2DAt(timecode);
 
-  coords.vertex_top_left -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
-  coords.vertex_top_right -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
-  coords.vertex_bottom_left -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
-  coords.vertex_bottom_right -= QVector3D(anchor_x_offset, anchor_y_offset, 0.0f);
+  coords.vertex_top_left -= anchor_val;
+  coords.vertex_top_right -= anchor_val;
+  coords.vertex_bottom_left -= anchor_val;
+  coords.vertex_bottom_right -= anchor_val;
 
   // rotation
   coords.matrix.rotate(QQuaternion::fromEulerAngles(0, 0, rotation->GetDoubleAt(timecode)));
 
   // scale
-  double sx = scale_x->GetDoubleAt(timecode)*0.01;
-  double sy = (uniform_scale_field->GetBoolAt(timecode)) ? sx : scale_y->GetDoubleAt(timecode)*0.01;
-  coords.matrix.scale(sx, sy);
-
-  // blend mode
-  coords.blendmode = blend_mode_box->GetValueAt(timecode).toInt();
+  coords.matrix.scale(scale->GetVector2DAt(timecode)*0.01);
 
   // opacity
   coords.opacity *= float(opacity->GetDoubleAt(timecode)*0.01);
@@ -239,9 +206,9 @@ void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
 
   rotate_gizmo->world_pos[0] = QVector3D(
         float_lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), 0.5f),
-        float_lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1f),
-        0.0f
-        );
+      float_lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1f),
+      0.0f
+      );
 
   rect_gizmo->world_pos[0] = coords.vertex_top_left;
   rect_gizmo->world_pos[1] = coords.vertex_top_right;

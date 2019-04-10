@@ -31,9 +31,9 @@ public:
   ShakeEffect(Clip* c, const EffectMeta* em);
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
 
-  DoubleField* intensity_val;
-  DoubleField* rotation_val;
-  DoubleField* frequency_val;
+  DoubleInput* intensity_val;
+  DoubleInput* rotation_val;
+  DoubleInput* frequency_val;
 private:
   double random_vals[RANDOM_VAL_SIZE];
 };

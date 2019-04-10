@@ -130,15 +130,6 @@ public:
   const EffectFieldType& type();
 
   /**
-   * @brief Get the unique identifier of this field set in the constructor
-   *
-   * Mostly used for saving/loading or interacting with GLSL-based shader effects (see EffectField() for more details).
-   *
-   * @return
-   */
-  const QString& id();
-
-  /**
    * @brief Get the value of this field at a given timecode
    *
    * EffectFields are designed to be keyframable, meaning the user can make the values change over the course of the
@@ -189,18 +180,6 @@ public:
   void SetValueAt(double time, const QVariant& value);
 
   /**
-   * @brief Get the current clip/media time
-   *
-   * A convenience function that can be plugged into GetValueAt() to get the value wherever the appropriate Sequence's
-   * playhead it.
-   *
-   * @return
-   *
-   * Current clip/media time in seconds.
-   */
-  double Now();
-
-  /**
    * @brief Set up keyframing on this field
    *
    * This should always be called if the user is enabling/disabling keyframing on the parent row. This function will
@@ -222,30 +201,6 @@ public:
    * keyframing on the parent EffectRow, so this function will add commands to this ComboAction.
    */
   void PrepareDataForKeyframing(bool enabled, ComboAction* ca);
-
-  /**
-   * @brief Get field's column span
-   *
-   * Used whenever constructing the effect's UI. EffectFields are visually laid out in a table, and some widgets can
-   * be set to take up multiple columns for a better visual flow.
-   *
-   * @return
-   *
-   * The current column span.
-   */
-  int GetColumnSpan();
-
-  /**
-   * @brief Set field's column span
-   *
-   * Used whenever constructing the effect's UI. EffectFields are visually laid out in a table, and some widgets can
-   * be set to take up multiple columns for a better visual flow.
-   *
-   * @param i
-   *
-   * The column span to set on this field.
-   */
-  void SetColumnSpan(int i);
 
   /**
    * @brief Convert a value from this field to a string
@@ -483,26 +438,9 @@ private:
   void GetKeyframeData(double timecode, int& before, int& after, double& d);
 
   /**
-   * @brief Retrieve the current clip as a frame number
-   *
-   * Same as Now() but retrieves the value as a frame number (in the appropriate Sequence's frame rate) instead of
-   * seconds.
-   *
-   * @return
-   *
-   * The current clip time in frames
-   */
-  long NowInFrames();
-
-  /**
    * @brief Internal enabled value
    */
   bool enabled_;
-
-  /**
-   * @brief Internal column span value
-   */
-  int colspan_;
 
 };
 

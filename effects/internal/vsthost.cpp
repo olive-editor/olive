@@ -236,13 +236,10 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
 {
   plugin = nullptr;
 
-  EffectRow* file_row = new EffectRow(this, tr("Plugin"), true, false);
-  file_field = new FileField(file_row, "filename");
+  file_field = new FileInput(this, "filename", tr("Plugin"), true, false);
   connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()), Qt::QueuedConnection);
 
-  EffectRow* interface_row = new EffectRow(this, tr("Interface"), false, false);
-
-  show_interface_btn = new ButtonField(interface_row, tr("Show"));
+  show_interface_btn = new ButtonWidget(this, tr("Interface"), tr("Show"));
   show_interface_btn->SetCheckable(true);
   show_interface_btn->SetEnabled(false);
   connect(show_interface_btn, SIGNAL(Toggled(bool)), this, SLOT(show_interface(bool)));

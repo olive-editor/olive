@@ -31,19 +31,18 @@ public:
 protected:
   virtual bool AlwaysUpdate() override;
 private:
-  StringField* text_val;
-  DoubleField* padding_field;
-  DoubleField* position_x;
-  DoubleField* position_y;
-  ComboField* vertical_align;
-  ComboField* autoscroll;
+  StringInput* text_val;
+  DoubleInput* padding_field;
+  Vec2Input* position;
+  ComboInput* vertical_align;
+  ComboInput* autoscroll;
 
-  BoolField* shadow_bool;
-  DoubleField* shadow_angle;
-  DoubleField* shadow_distance;
-  ColorField* shadow_color;
-  DoubleField* shadow_softness;
-  DoubleField* shadow_opacity;
+  BoolInput* shadow_bool;
+  DoubleInput* shadow_angle;
+  DoubleInput* shadow_distance;
+  ColorInput* shadow_color;
+  DoubleInput* shadow_softness;
+  DoubleInput* shadow_opacity;
 };
 
 #endif // RICHTEXTEFFECT_H

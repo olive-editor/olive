@@ -34,7 +34,7 @@ public:
                              int channel_count,
                              int type) override;
 
-  DoubleField* volume_val;
+  DoubleInput* volume_val;
 };
 
 #endif // VOLUMEEFFECT_H

@@ -20,7 +20,7 @@
 
 #include "doublefield.h"
 
-#include "effects/effectrow.h"
+#include "effects/effect.h"
 
 DoubleField::DoubleField(EffectRow* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_DOUBLE),
@@ -138,7 +138,7 @@ void DoubleField::UpdateFromWidget(double d)
     kdc_ = new KeyframeDataChange(this);
   }
 
-  SetValueAt(Now(), d);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), d);
 
   if (!ls->IsDragging() && kdc_ != nullptr) {
     kdc_->SetNewKeyframes();

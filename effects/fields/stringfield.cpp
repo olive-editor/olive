@@ -23,6 +23,7 @@
 #include <QtMath>
 #include <QDebug>
 
+#include "effects/effect.h"
 #include "ui/texteditex.h"
 #include "global/config.h"
 
@@ -92,7 +93,7 @@ void StringField::UpdateFromWidget(const QString &s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), s);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

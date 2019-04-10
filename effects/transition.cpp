@@ -44,8 +44,7 @@ Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
   Effect(c, em),
   secondary_clip(s)
 {
-  EffectRow* length_row = new EffectRow(this, tr("Length"), false, false);
-  length_field = new DoubleField(length_row, "length");
+  length_field = new DoubleInput(this, "length", tr("Length"), false, false);
   length_field->SetDefault(30);
   length_field->SetMinimum(1);
   length_field->SetDisplayType(LabelSlider::FrameNumber);

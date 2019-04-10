@@ -34,10 +34,10 @@ public:
                              int channel_count,
                              int type) override;
 
-  ComboField* type_val;
-  DoubleField* freq_val;
-  DoubleField* amount_val;
-  BoolField* mix_val;
+  ComboInput* type_val;
+  DoubleInput* freq_val;
+  DoubleInput* amount_val;
+  BoolInput* mix_val;
 private:
   int sinX;
 };
