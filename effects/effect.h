@@ -180,8 +180,6 @@ public:
   int getIterations();
   void setIterations(int i);
 
-  const char* ffmpeg_filter;
-
   virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
   virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data);

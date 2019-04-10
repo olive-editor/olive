@@ -90,6 +90,7 @@ EffectUI::EffectUI(Effect* e) :
   ui->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   SetContents(ui);
 
+  title_bar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   SetExpanded(e->IsExpanded());
@@ -103,9 +104,8 @@ EffectUI::EffectUI(Effect* e) :
           this,
           SLOT(show_context_menu(const QPoint&)));
 
-  int maximum_column = 0;
-
   widgets_.resize(e->row_count());
+  keyframe_navigators_.resize(e->row_count());
 
   for (int i=0;i<e->row_count();i++) {
     EffectRow* row = e->row(i);
@@ -119,7 +119,7 @@ EffectUI::EffectUI(Effect* e) :
 
     widgets_[i].resize(row->FieldCount());
 
-    int column = 1;
+    QGridLayout* field_layout = new QGridLayout();
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
 
@@ -127,22 +127,9 @@ EffectUI::EffectUI(Effect* e) :
 
       widgets_[i][j] = widget;
 
-      layout_->addWidget(widget, i, column, 1, 1);
-
-      column++;
+      field_layout->addWidget(widget, 0, j);
     }
-
-    // Find maximum column to place keyframe controls
-    maximum_column = qMax(row->FieldCount(), maximum_column);
-  }
-
-  // Create keyframe controls
-  maximum_column++;
-
-  keyframe_navigators_.resize(e->row_count());
-
-  for (int i=0;i<e->row_count();i++) {
-    EffectRow* row = e->row(i);
+    layout_->addLayout(field_layout, i, 1);
 
     KeyframeNavigator* nav;
 
@@ -154,7 +141,7 @@ EffectUI::EffectUI(Effect* e) :
 
       AttachKeyframeNavigationToRow(row, nav);
 
-      layout_->addWidget(nav, i, maximum_column);
+      layout_->addWidget(nav, i, 2);
 
     } else {
 
@@ -163,7 +150,6 @@ EffectUI::EffectUI(Effect* e) :
     }
 
     keyframe_navigators_[i] = nav;
-
   }
 
   enabled_check->setChecked(e->IsEnabled());

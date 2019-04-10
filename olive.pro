@@ -202,7 +202,8 @@ SOURCES += \
     nodes/inputs/vecinput.cpp \
     nodes/widgets/labelwidget.cpp \
     nodes/inputs/fileinput.cpp \
-    nodes/widgets/buttonwidget.cpp
+    nodes/widgets/buttonwidget.cpp \
+    nodes/nodegraph.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -360,7 +361,8 @@ HEADERS += \
     nodes/inputs/vecinput.h \
     nodes/widgets/labelwidget.h \
     nodes/inputs/fileinput.h \
-    nodes/widgets/buttonwidget.h
+    nodes/widgets/buttonwidget.h \
+    nodes/nodegraph.h
 
 FORMS +=
 

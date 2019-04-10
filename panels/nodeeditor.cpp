@@ -17,6 +17,9 @@ NodeEditor::NodeEditor(QWidget *parent) :
   setWidget(central_widget);
 
   QVBoxLayout* layout = new QVBoxLayout(central_widget);
+  layout->setSpacing(0);
+  layout->setMargin(0);
+
   layout->addWidget(&view_);
 
   view_.setInteractive(true);
