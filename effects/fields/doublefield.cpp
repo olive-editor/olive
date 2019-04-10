@@ -22,8 +22,8 @@
 
 #include "effects/effectrow.h"
 
-DoubleField::DoubleField(EffectRow* parent, const QString& id) :
-  EffectField(parent, id, EffectField::EFFECT_FIELD_DOUBLE),
+DoubleField::DoubleField(EffectRow* parent) :
+  EffectField(parent, EffectField::EFFECT_FIELD_DOUBLE),
   min_(qSNaN()),
   max_(qSNaN()),
   default_(0),

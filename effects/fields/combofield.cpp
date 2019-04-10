@@ -24,8 +24,8 @@
 
 #include "ui/comboboxex.h"
 
-ComboField::ComboField(EffectRow* parent, const QString& id) :
-  EffectField(parent, id, EffectField::EFFECT_FIELD_COMBO)
+ComboField::ComboField(EffectRow* parent) :
+  EffectField(parent, EffectField::EFFECT_FIELD_COMBO)
 {}
 
 void ComboField::AddItem(const QString &text, const QVariant &data)

@@ -22,8 +22,8 @@
 
 #include <QPushButton>
 
-ButtonField::ButtonField(EffectRow *parent, const QString &string) :
-  EffectField(parent, nullptr, EffectField::EFFECT_FIELD_UI),
+ButtonField::ButtonField(EffectRow *parent) :
+  EffectField(parent, EffectField::EFFECT_FIELD_UI),
   button_text_(string)
 {}
 

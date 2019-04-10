@@ -60,7 +60,14 @@ public:
    * EffectRow and automatically frees it through the QObject parent/child system. EffectRows are never intended to
    * change parents throughout their lifetimes.
    *
-   * @param n
+   * @param id
+   *
+   * Field ID. Must be non-empty. Must also be unique within this Effect. Used for saving/loading values into project
+   * files so that if ordering of fields are changed, or fields are added/removed from Effects later in development,
+   * saved values in project files will still link with the correct field. Also used as the uniform variable name
+   * in GLSL shaders.
+   *
+   * @param name
    *
    * Row name. This is not used as an internal identifier, it's just for the user interface, so it can be translated
    * with no issue.
@@ -75,19 +82,7 @@ public:
    * Whether keyframing can be enabled on this row or not. This is true by default. Some values you may want to prevent
    * the user from keyframing (e.g. the filename of a VST plugin), which can be done by setting this to false.
    */
-  EffectRow(Effect* parent, const QString& n, bool savable = true, bool keyframable = true);
-
-  /**
-   * @brief Add a field to this row
-   *
-   * Ownership of the EffectField is transferred to this row and the row will free its memory. In the Effect's UI, this
-   * will add the field to an additional column.
-   *
-   * @param Field
-   *
-   * The field to add to this row.
-   */
-  void AddField(EffectField* Field);
+  EffectRow(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Retrieve the EffectField at this index. Must be less than FieldCount().
@@ -222,6 +217,23 @@ private slots:
    */
   void SetKeyframingEnabled(bool);
 private:
+  /**
+   * @brief Add a field to this row
+   *
+   * Ownership of the EffectField is transferred to this row and the row will free its memory. In the Effect's UI, this
+   * will add the field to an additional column.
+   *
+   * @param Field
+   *
+   * The field to add to this row.
+   */
+  void AddField(EffectField* Field);
+
+  /**
+   * @brief Internal unique identifier for this field set in the constructor. Access with id().
+   */
+  QString id_;
+
   /**
    * @brief Internal variable for the row's name
    *

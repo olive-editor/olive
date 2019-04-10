@@ -37,9 +37,10 @@
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-EffectRow::EffectRow(Effect *parent, const QString &n, bool savable, bool keyframable) :
+EffectRow::EffectRow(Effect *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
   QObject(parent),
-  name_(n),
+  id_(id),
+  name_(name),
   keyframable_(keyframable),
   keyframing_(false),
   savable_(savable)

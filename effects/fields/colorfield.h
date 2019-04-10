@@ -35,7 +35,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  ColorField(EffectRow* parent, const QString& id);
+  ColorField(EffectRow* parent);
 
   /**
    * @brief Get the color value at a given timecode

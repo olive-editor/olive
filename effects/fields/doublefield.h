@@ -37,7 +37,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  DoubleField(EffectRow* parent, const QString& id);
+  DoubleField(EffectRow* parent);
 
   /**
    * @brief Get double value at timecode

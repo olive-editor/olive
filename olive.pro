@@ -193,7 +193,8 @@ SOURCES += \
     ui/nodeui.cpp \
     panels/effectspanel.cpp \
     nodes/nodedatatypes.cpp \
-    nodes/nodeplug.cpp
+    nodes/nodeplug.cpp \
+    nodes/inputs/doubleinput.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -341,7 +342,8 @@ HEADERS += \
     ui/nodeui.h \
     panels/effectspanel.h \
     nodes/nodedatatypes.h \
-    nodes/nodeplug.h
+    nodes/nodeplug.h \
+    nodes/inputs/doubleinput.h
 
 FORMS +=
 

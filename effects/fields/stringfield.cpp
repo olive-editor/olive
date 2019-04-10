@@ -26,8 +26,8 @@
 #include "ui/texteditex.h"
 #include "global/config.h"
 
-StringField::StringField(EffectRow* parent, const QString& id, bool rich_text) :
-  EffectField(parent, id, EffectField::EFFECT_FIELD_STRING),
+StringField::StringField(EffectRow* parent, bool rich_text) :
+  EffectField(parent, EffectField::EFFECT_FIELD_STRING),
   rich_text_(rich_text)
 {
   // Set default value to an empty string

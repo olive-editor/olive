@@ -34,7 +34,7 @@
 #include "global/math.h"
 #include "global/debug.h"
 
-EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t) :
+EffectField::EffectField(EffectRow* parent, EffectFieldType t) :
   QObject(parent),
   type_(t),
   id_(i),

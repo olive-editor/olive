@@ -103,18 +103,11 @@ public:
    * using the QObject parent/child system to automate memory management. EffectFields are never expected
    * to change parent during their lifetime.
    *
-   * @param i
-   *
-   * Field ID. Must be non-empty. Must also be unique within this Effect. Used for saving/loading values into project
-   * files so that if ordering of fields are changed, or fields are added/removed from Effects later in development,
-   * saved values in project files will still link with the correct field. Also used as the uniform variable name
-   * in GLSL shaders.
-   *
    * @param t
    *
    * The type of data contained within this field. This is expected to be filled by a derived class.
    */
-  EffectField(EffectRow* parent, const QString& i, EffectFieldType t);
+  EffectField(EffectRow* parent, EffectFieldType t);
 
   /**
    * @brief Get the EffectRow that this field is a member of.
@@ -433,11 +426,6 @@ private:
    * @brief Internal type variable set in the constructor. Access with type().
    */
   EffectFieldType type_;
-
-  /**
-   * @brief Internal unique identifier for this field set in the constructor. Access with id().
-   */
-  QString id_;
 
   /**
    * @brief Used by GetValueAt() to determine whether to use keyframe data or persistent data

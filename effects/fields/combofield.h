@@ -48,7 +48,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  ComboField(EffectRow* parent, const QString& id);
+  ComboField(EffectRow* parent);
 
   /**
    * @brief Add an item to this ComboField
