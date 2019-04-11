@@ -2,7 +2,13 @@
 
 #include <QDebug>
 
-NodeGraph::NodeGraph()
+NodeGraph::NodeGraph() :
+  output_node_(nullptr)
 {
 
+}
+
+Effect *NodeGraph::OutputNode()
+{
+  return output_node_.get();
 }

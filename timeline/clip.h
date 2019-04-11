@@ -38,6 +38,7 @@
 #include "rendering/framebufferobject.h"
 #include "marker.h"
 #include "track.h"
+#include "nodes/nodegraph.h"
 
 struct ClipSpeed {
   ClipSpeed();
@@ -179,6 +180,8 @@ private:
 
   Cacher cacher;
   long cacher_frame;
+
+  NodeGraph pipeline_;
 
   QVector<Marker> markers;
   QColor color_;
