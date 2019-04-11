@@ -4,6 +4,8 @@ ColorInput::ColorInput(Effect* parent, const QString& id, const QString& name, b
   EffectRow(parent, id, name, savable, keyframable)
 {
   AddField(new ColorField(this));
+
+  AddNodeInput(olive::nodes::kColor);
 }
 
 QColor ColorInput::GetColorAt(double timecode)

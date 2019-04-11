@@ -60,6 +60,11 @@ void EffectRow::AddField(EffectField *field)
   fields_.append(field);
 }
 
+void EffectRow::AddNodeInput(olive::nodes::DataType type)
+{
+  accepted_datatypes_.append(type);
+}
+
 bool EffectRow::IsKeyframing() {
   return keyframing_;
 }
@@ -100,6 +105,11 @@ void EffectRow::SetEnabled(bool enabled)
   for (int i=0;i<FieldCount();i++) {
     Field(i)->SetEnabled(enabled);
   }
+}
+
+bool EffectRow::CanConnectNodes()
+{
+  return !accepted_datatypes_.isEmpty();
 }
 
 void EffectRow::SetKeyframingEnabled(bool enabled) {

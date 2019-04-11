@@ -6,6 +6,8 @@ ComboInput::ComboInput(Effect* parent, const QString& id, const QString& name, b
   ComboField* combo_field = new ComboField(this);
   connect(combo_field, SIGNAL(DataChanged(const QVariant&)), this, SIGNAL(DataChanged(const QVariant&)));
   AddField(combo_field);
+
+  AddNodeInput(olive::nodes::kCombo);
 }
 
 void ComboInput::AddItem(const QString &text, const QVariant &data)

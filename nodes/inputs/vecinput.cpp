@@ -14,6 +14,17 @@ VecInput::VecInput(Effect* parent, const QString& id, const QString& name, int v
   for (int i=0;i<values_;i++) {
     AddField(new DoubleField(this));
   }
+
+  AddNodeInput(olive::nodes::kFloat);
+  if (values > 1) {
+    AddNodeInput(olive::nodes::kVec2);
+  }
+  if (values > 2) {
+    AddNodeInput(olive::nodes::kVec3);
+  }
+  if (values > 3) {
+    AddNodeInput(olive::nodes::kVec4);
+  }
 }
 
 void VecInput::SetMinimum(double minimum)

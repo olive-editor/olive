@@ -9,7 +9,6 @@ public:
   NodeGraph();
 
 private:
-  Effect* end_node_;
 };
 
 #endif // NODEGRAPH_H

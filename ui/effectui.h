@@ -95,7 +95,7 @@ public:
    *
    * The row's Y position.
    */
-  int GetRowY(int row, QWidget *mapToWidget);
+  int GetRowY(int row, QWidget *mapToWidget = nullptr);
 
   /**
    * @brief Update widgets with the current Effect's values.

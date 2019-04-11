@@ -6,6 +6,8 @@ BoolInput::BoolInput(Effect* parent, const QString& id, const QString& name, boo
   BoolField* bool_field = new BoolField(this);
   connect(bool_field, SIGNAL(Toggled(bool)), this, SIGNAL(Toggled(bool)));
   AddField(bool_field);
+
+  AddNodeInput(olive::nodes::kBoolean);
 }
 
 bool BoolInput::GetBoolAt(double timecode)

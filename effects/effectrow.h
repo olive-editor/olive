@@ -211,6 +211,17 @@ public:
    */
   void SetEnabled(bool enabled);
 
+  /**
+   * @brief Check if nodes can be connected to this input.
+   *
+   * Connecting is enabled by adding an accepted node input using AddNodeInput().
+   *
+   * @return
+   *
+   * TRUE if nodes can be connected.
+   */
+  bool CanConnectNodes();
+
 protected:
   /**
    * @brief Add a field to this row
@@ -223,6 +234,18 @@ protected:
    * The field to add to this row.
    */
   void AddField(EffectField* Field);
+
+  /**
+   * @brief Adds a node data type that can be accepted by this input
+   *
+   * Allows this input to take a node connection from a data type specified by type. An input can take several data
+   * types.
+   *
+   * @param type
+   *
+   * The data type to add
+   */
+  void AddNodeInput(olive::nodes::DataType type);
 
 public slots:
   /**
@@ -340,6 +363,11 @@ private:
    * get freed automatically.
    */
   QVector<EffectField*> fields_;
+
+  /**
+   * @brief Internal array of accepted node data types
+   */
+  QVector<olive::nodes::DataType> accepted_datatypes_;
 };
 
 #endif // EFFECTROW_H

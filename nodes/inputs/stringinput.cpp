@@ -4,6 +4,8 @@ StringInput::StringInput(Effect* parent, const QString& id, const QString& name,
   EffectRow(parent, id, name, savable, keyframable)
 {
   AddField(new StringField(this, rich_text));
+
+  AddNodeInput(olive::nodes::kString);
 }
 
 QString StringInput::GetStringAt(double timecode)

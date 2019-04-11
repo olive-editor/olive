@@ -4,6 +4,8 @@ FontInput::FontInput(Effect* parent, const QString& id, const QString& name, boo
   EffectRow(parent, id, name, savable, keyframable)
 {
   AddField(new FontField(this));
+
+  AddNodeInput(olive::nodes::kFont);
 }
 
 QString FontInput::GetFontAt(double timecode)

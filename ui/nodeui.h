@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QGraphicsItem>
 
+class EffectUI;
+
 class NodeUI : public QGraphicsRectItem {
 public:
   NodeUI();
@@ -11,11 +13,11 @@ public:
 
   void AddToScene(QGraphicsScene* scene);
   void Resize(const QSize& s);
-  void SetWidget(QWidget* widget);
+  void SetWidget(EffectUI* widget);
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 private:
-  QWidget* central_widget_;
+  EffectUI* central_widget_;
   QGraphicsProxyWidget* proxy_;
   QPainterPath path_;
 };

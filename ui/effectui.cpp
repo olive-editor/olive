@@ -202,11 +202,19 @@ int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
 
   QLabel* row_label = labels_.at(row);
 
+  int mapped_coord;
+  if (mapToWidget == nullptr) {
+    mapped_coord = contents->pos().y();
+  } else {
+    // FIXME Problematic now that EffectUIs are used outside of EffectControls
+    mapped_coord = mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y();
+    mapped_coord -= title_bar->height();
+  }
+
   // Get center point of label (label->rect()->center()->y() - instead of y()+height/2 - produces an inaccurate result)
   return row_label->y()
       + row_label->height() / 2
-      + mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y()
-      - title_bar->height();
+      + mapped_coord;
 }
 
 void EffectUI::UpdateFromEffect()
