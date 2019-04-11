@@ -12,13 +12,14 @@
 #include <QPainter>
 
 #include "ui/effectui.h"
+#include "global/math.h"
 
 const int kRoundedRectRadius = 5;
 const int kNodePlugSize = 10;
 
 NodeUI::NodeUI() :
   central_widget_(nullptr),
-  clicked_socket_(false)
+  clicked_socket_(-1)
 {
   setFlag(QGraphicsItem::ItemIsMovable, true);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -94,17 +95,20 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   QVector<QRectF> sockets = GetNodeSocketRects();
 
-  clicked_socket_ = false;
+  clicked_socket_ = -1;
 
   for (int i=0;i<sockets.size();i++) {
     if (sockets.at(i).contains(event->pos())) {
-      clicked_socket_ = true;
+      clicked_socket_ = i;
       break;
     }
   }
 
-  if (clicked_socket_) {
-    qDebug() << "Clicked socket!";
+  if (clicked_socket_ > -1) {
+    drag_line_start_ = pos() + sockets.at(clicked_socket_).center();
+    drag_line_ = scene()->addPath(GetEdgePath(drag_line_start_, event->scenePos()),
+                                  QPen(Qt::white, 2));
+
     event->accept();
   } else {
     QGraphicsItem::mousePressEvent(event);
@@ -113,7 +117,11 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void NodeUI::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  if (clicked_socket_) {
+  if (clicked_socket_ > -1) {
+
+    drag_line_->setPath(GetEdgePath(drag_line_start_, event->scenePos()));
+
+    event->accept();
 
   } else {
     QGraphicsItem::mouseMoveEvent(event);
@@ -122,11 +130,26 @@ void NodeUI::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void NodeUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  if (clicked_socket_) {
-
+  if (clicked_socket_ > -1) {
+    scene()->removeItem(drag_line_);
+    delete drag_line_;
+    event->accept();
   } else {
     QGraphicsItem::mouseReleaseEvent(event);
   }
+}
+
+QPainterPath NodeUI::GetEdgePath(const QPointF &start_pos, const QPointF &end_pos)
+{
+  double mid_x = double_lerp(start_pos.x(), end_pos.x(), 0.5);
+
+  QPainterPath path_;
+  path_.moveTo(start_pos);
+  path_.cubicTo(QPointF(mid_x, start_pos.y()),
+                QPointF(mid_x, end_pos.y()),
+                end_pos);
+
+  return path_;
 }
 
 QVector<QRectF> NodeUI::GetNodeSocketRects()

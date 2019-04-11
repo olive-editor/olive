@@ -22,12 +22,16 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 private:
   QVector<QRectF> GetNodeSocketRects();
+  QPainterPath GetEdgePath(const QPointF& start_pos, const QPointF& end_pos);
 
   EffectUI* central_widget_;
   QGraphicsProxyWidget* proxy_;
   QPainterPath path_;
 
-  bool clicked_socket_;
+  QGraphicsPathItem* drag_line_;
+  QPointF drag_line_start_;
+
+  int clicked_socket_;
 };
 
 #endif // NODEUI_H
