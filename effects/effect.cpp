@@ -128,6 +128,10 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   expanded_(true),
   texture_ctx(nullptr)
 {  
+  if (em != nullptr) {
+    // set up UI from effect metadata
+    name = em->name;
+  }
 }
 
 Effect::~Effect() {

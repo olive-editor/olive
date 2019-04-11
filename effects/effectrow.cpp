@@ -37,13 +37,18 @@
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-EffectRow::EffectRow(Effect *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
+EffectRow::EffectRow(Effect *parent,
+                     const QString &id,
+                     const QString &name,
+                     bool savable,
+                     bool keyframable) :
   QObject(parent),
   id_(id),
   name_(name),
   keyframable_(keyframable),
   keyframing_(false),
-  savable_(savable)
+  savable_(savable),
+  output_type_(olive::nodes::kInvalid)
 {
   Q_ASSERT(parent != nullptr);
 
@@ -62,7 +67,9 @@ void EffectRow::AddField(EffectField *field)
 
 void EffectRow::AddNodeInput(olive::nodes::DataType type)
 {
-  accepted_datatypes_.append(type);
+  Q_ASSERT(output_type_ == olive::nodes::kInvalid);
+
+  accepted_inputs_.append(type);
 }
 
 bool EffectRow::IsKeyframing() {
@@ -107,9 +114,21 @@ void EffectRow::SetEnabled(bool enabled)
   }
 }
 
-bool EffectRow::CanConnectNodes()
+void EffectRow::SetOutputDataType(olive::nodes::DataType type)
 {
-  return !accepted_datatypes_.isEmpty();
+  Q_ASSERT(accepted_inputs_.isEmpty());
+
+  output_type_ = type;
+}
+
+bool EffectRow::IsNodeInput()
+{
+  return !accepted_inputs_.isEmpty();
+}
+
+bool EffectRow::IsNodeOutput()
+{
+  return output_type_ != olive::nodes::kInvalid;
 }
 
 void EffectRow::SetKeyframingEnabled(bool enabled) {

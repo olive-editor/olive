@@ -67,6 +67,10 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
   opacity->SetMaximum(100);
   opacity->SetDefault(100);
 
+  // TEMP - Create matrix output
+  EffectRow* matrix_output = new EffectRow(this, "matrix", "Matrix", false, false);
+  matrix_output->SetOutputDataType(olive::nodes::kMatrix);
+
   // set up gizmos
   top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);

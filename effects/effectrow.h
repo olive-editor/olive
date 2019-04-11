@@ -51,6 +51,7 @@ class ClickableLabel;
 class EffectRow : public QObject {
   Q_OBJECT
 public:
+
   /**
    * @brief EffectRow Constructor
    *
@@ -82,7 +83,11 @@ public:
    * Whether keyframing can be enabled on this row or not. This is true by default. Some values you may want to prevent
    * the user from keyframing (e.g. the filename of a VST plugin), which can be done by setting this to false.
    */
-  EffectRow(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  EffectRow(Effect* parent,
+            const QString& id,
+            const QString& name,
+            bool savable = true,
+            bool keyframable = true);
 
   /**
    * @brief Retrieve the EffectField at this index. Must be less than FieldCount().
@@ -212,15 +217,33 @@ public:
   void SetEnabled(bool enabled);
 
   /**
-   * @brief Check if nodes can be connected to this input.
+   * @brief Check if nodes can be connected to this as an input.
    *
    * Connecting is enabled by adding an accepted node input using AddNodeInput().
    *
    * @return
    *
-   * TRUE if nodes can be connected.
+   * TRUE if nodes can be connected as an input.
    */
-  bool CanConnectNodes();
+  bool IsNodeInput();
+
+  /**
+   * @brief Check if nodes can be connected to this as an output
+   *
+   * Connecting is enabled by setting an output data type in SetOutputDataType().
+   *
+   * @return
+   *
+   * TRUE if nodes can be connected as an output
+   */
+  bool IsNodeOutput();
+
+  /**
+   * @brief Set output data type
+   *
+   * Set the type of data this row outputs to type
+   */
+  void SetOutputDataType(olive::nodes::DataType type);
 
 protected:
   /**
@@ -365,9 +388,20 @@ private:
   QVector<EffectField*> fields_;
 
   /**
-   * @brief Internal array of accepted node data types
+   * @brief Internal array of accepted node data types.
+   *
+   * Is mutally-exclusive with accepted_outputs_, i.e. you cannot have values added to this and also a value set in
+   * accepted_outputs_.
    */
-  QVector<olive::nodes::DataType> accepted_datatypes_;
+  QVector<olive::nodes::DataType> accepted_inputs_;
+
+  /**
+   * @brief Internal value for what kind of data this row outputs
+   *
+   * Is mutally-exclusive with accepted_inputs_, i.e. you cannot have values added to it and also a value set in
+   * this.
+   */
+  olive::nodes::DataType output_type_;
 };
 
 #endif // EFFECTROW_H

@@ -115,41 +115,50 @@ EffectUI::EffectUI(Effect* e) :
 
     labels_.append(row_label);
 
-    layout_->addWidget(row_label, i, 0);
+    if (row->IsNodeOutput()) {
 
-    widgets_[i].resize(row->FieldCount());
-
-    QGridLayout* field_layout = new QGridLayout();
-    for (int j=0;j<row->FieldCount();j++) {
-      EffectField* field = row->Field(j);
-
-      QWidget* widget = field->CreateWidget();
-
-      widgets_[i][j] = widget;
-
-      field_layout->addWidget(widget, 0, j);
-    }
-    layout_->addLayout(field_layout, i, 1);
-
-    KeyframeNavigator* nav;
-
-    if (row->IsKeyframable()) {
-
-      nav = new KeyframeNavigator();
-
-      nav->enable_keyframes(row->IsKeyframing());
-
-      AttachKeyframeNavigationToRow(row, nav);
-
-      layout_->addWidget(nav, i, 2);
+      row_label->setAlignment(Qt::AlignRight);
+      layout_->addWidget(row_label, i, 2);
 
     } else {
 
-      nav = nullptr;
+      layout_->addWidget(row_label, i, 0);
+
+      widgets_[i].resize(row->FieldCount());
+
+      QGridLayout* field_layout = new QGridLayout();
+      for (int j=0;j<row->FieldCount();j++) {
+        EffectField* field = row->Field(j);
+
+        QWidget* widget = field->CreateWidget();
+
+        widgets_[i][j] = widget;
+
+        field_layout->addWidget(widget, 0, j);
+      }
+      layout_->addLayout(field_layout, i, 1);
+
+      KeyframeNavigator* nav;
+
+      if (row->IsKeyframable()) {
+
+        nav = new KeyframeNavigator();
+
+        nav->enable_keyframes(row->IsKeyframing());
+
+        AttachKeyframeNavigationToRow(row, nav);
+
+        layout_->addWidget(nav, i, 2);
+
+      } else {
+
+        nav = nullptr;
+
+      }
+
+      keyframe_navigators_[i] = nav;
 
     }
-
-    keyframe_navigators_[i] = nav;
   }
 
   enabled_check->setChecked(e->IsEnabled());

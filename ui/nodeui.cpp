@@ -14,7 +14,7 @@
 #include "ui/effectui.h"
 
 const int kRoundedRectRadius = 5;
-const int kNodePlugSize = 6;
+const int kNodePlugSize = 10;
 
 NodeUI::NodeUI() :
   central_widget_(nullptr)
@@ -117,15 +117,16 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
     Effect* e = central_widget_->GetEffect();
 
     for (int i=0;i<e->row_count();i++) {
-      if (e->row(i)->CanConnectNodes()) {
-        int y = central_widget_->GetRowY(i);
 
-        rects.append(QRectF(rect().x(),
+      EffectRow* row = e->row(i);
+      qreal x = (row->IsNodeOutput()) ? rect().right() - kNodePlugSize : rect().x();
+      int y = central_widget_->GetRowY(i);
+
+      if (row->IsNodeInput() || row->IsNodeOutput()) {
+        rects.append(QRectF(x,
                             proxy_->pos().y() + y - kNodePlugSize/2,
                             kNodePlugSize,
                             kNodePlugSize));
-
-
       }
     }
   }
