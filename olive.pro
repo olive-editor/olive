@@ -203,8 +203,11 @@ SOURCES += \
     nodes/inputs/fileinput.cpp \
     nodes/widgets/buttonwidget.cpp \
     nodes/nodegraph.cpp \
-    nodes/nodemedia.cpp \
-    nodes/nodeimageoutput.cpp
+    nodes/nodes/nodeimageoutput.cpp \
+    nodes/nodes/nodemedia.cpp \
+    nodes/nodes/nodeshader.cpp \
+    decoders/ffmpegdecoder.cpp \
+    decoders/decoder.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -363,8 +366,12 @@ HEADERS += \
     nodes/inputs/fileinput.h \
     nodes/widgets/buttonwidget.h \
     nodes/nodegraph.h \
-    nodes/nodemedia.h \
-    nodes/nodeimageoutput.h
+    nodes/nodes/nodemedia.h \
+    nodes/nodes/nodeimageoutput.h \
+    nodes/nodes/nodeshader.h \
+    nodes/nodes.h \
+    decoders/ffmpegdecoder.h \
+    decoders/decoder.h
 
 FORMS +=
 
