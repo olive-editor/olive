@@ -1,10 +1,10 @@
 #ifndef MEDIANODE_H
 #define MEDIANODE_H
 
-class MediaNode
+class NodeMedia
 {
 public:
-  MediaNode();
+  NodeMedia();
 };
 
 #endif // MEDIANODE_H

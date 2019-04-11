@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsProxyWidget>
 #include <QStyleOptionGraphicsItem>
+#include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
 #include "ui/effectui.h"
@@ -67,17 +68,13 @@ void NodeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
 {
   Q_UNUSED(widget)
 
-  if (proxy_ != nullptr) {
-    Effect* e = central_widget_->GetEffect();
+  QVector<QRectF> sockets = GetNodeSocketRects();
+  if (!sockets.isEmpty()) {
+    painter->setPen(Qt::black);
+    painter->setBrush(Qt::gray);
 
-    for (int i=0;i<e->row_count();i++) {
-      if (e->row(i)->CanConnectNodes()) {
-        int y = central_widget_->GetRowY(i);
-
-        painter->setPen(Qt::black);
-        painter->setBrush(Qt::gray);
-        painter->drawEllipse(QPointF(rect().x() + kNodePlugSize / 2, proxy_->pos().y() + y), kNodePlugSize, kNodePlugSize);
-      }
+    for (int i=0;i<sockets.size();i++) {
+      painter->drawEllipse(sockets.at(i));
     }
   }
 
@@ -90,4 +87,48 @@ void NodeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
   }
   painter->setBrush(palette.window());
   painter->drawPath(path_);
+}
+
+void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  QVector<QRectF> sockets = GetNodeSocketRects();
+
+  bool clicked_socket = false;
+
+  for (int i=0;i<sockets.size();i++) {
+    if (sockets.at(i).contains(event->pos())) {
+      clicked_socket = true;
+      break;
+    }
+  }
+
+  if (clicked_socket) {
+    qDebug() << "CLICKED SOCKET!";
+  } else {
+    QGraphicsItem::mousePressEvent(event);
+  }
+}
+
+QVector<QRectF> NodeUI::GetNodeSocketRects()
+{
+  QVector<QRectF> rects;
+
+  if (proxy_ != nullptr) {
+    Effect* e = central_widget_->GetEffect();
+
+    for (int i=0;i<e->row_count();i++) {
+      if (e->row(i)->CanConnectNodes()) {
+        int y = central_widget_->GetRowY(i);
+
+        rects.append(QRectF(rect().x(),
+                            proxy_->pos().y() + y - kNodePlugSize/2,
+                            kNodePlugSize,
+                            kNodePlugSize));
+
+
+      }
+    }
+  }
+
+  return rects;
 }

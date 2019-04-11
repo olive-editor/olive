@@ -189,7 +189,6 @@ SOURCES += \
     ui/waveform.cpp \
     panels/nodeeditor.cpp \
     ui/nodeview.cpp \
-    nodes/medianode.cpp \
     ui/nodeui.cpp \
     panels/effectspanel.cpp \
     nodes/nodedatatypes.cpp \
@@ -203,7 +202,9 @@ SOURCES += \
     nodes/widgets/labelwidget.cpp \
     nodes/inputs/fileinput.cpp \
     nodes/widgets/buttonwidget.cpp \
-    nodes/nodegraph.cpp
+    nodes/nodegraph.cpp \
+    nodes/nodemedia.cpp \
+    nodes/nodeimageoutput.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -347,7 +348,6 @@ HEADERS += \
     ui/waveform.h \
     panels/nodeeditor.h \
     ui/nodeview.h \
-    nodes/medianode.h \
     ui/nodeui.h \
     panels/effectspanel.h \
     nodes/nodedatatypes.h \
@@ -362,7 +362,9 @@ HEADERS += \
     nodes/widgets/labelwidget.h \
     nodes/inputs/fileinput.h \
     nodes/widgets/buttonwidget.h \
-    nodes/nodegraph.h
+    nodes/nodegraph.h \
+    nodes/nodemedia.h \
+    nodes/nodeimageoutput.h
 
 FORMS +=
 

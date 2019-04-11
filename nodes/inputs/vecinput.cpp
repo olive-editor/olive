@@ -71,8 +71,6 @@ void VecInput::SetFrameRate(const double &rate)
 
 void VecInput::SetSingleValueMode(bool on)
 {
-  qDebug() << "i'm here";
-
   single_value_mode_ = on;
 
   // Disable all fields except the first
