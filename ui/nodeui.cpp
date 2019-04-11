@@ -17,7 +17,8 @@ const int kRoundedRectRadius = 5;
 const int kNodePlugSize = 10;
 
 NodeUI::NodeUI() :
-  central_widget_(nullptr)
+  central_widget_(nullptr),
+  clicked_socket_(false)
 {
   setFlag(QGraphicsItem::ItemIsMovable, true);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -93,19 +94,38 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   QVector<QRectF> sockets = GetNodeSocketRects();
 
-  bool clicked_socket = false;
+  clicked_socket_ = false;
 
   for (int i=0;i<sockets.size();i++) {
     if (sockets.at(i).contains(event->pos())) {
-      clicked_socket = true;
+      clicked_socket_ = true;
       break;
     }
   }
 
-  if (clicked_socket) {
-    qDebug() << "CLICKED SOCKET!";
+  if (clicked_socket_) {
+    qDebug() << "Clicked socket!";
+    event->accept();
   } else {
     QGraphicsItem::mousePressEvent(event);
+  }
+}
+
+void NodeUI::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  if (clicked_socket_) {
+
+  } else {
+    QGraphicsItem::mouseMoveEvent(event);
+  }
+}
+
+void NodeUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  if (clicked_socket_) {
+
+  } else {
+    QGraphicsItem::mouseReleaseEvent(event);
   }
 }
 
