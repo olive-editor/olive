@@ -209,33 +209,25 @@ int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
   // send audio to device
   audio_write_lock.lock();
 
-  qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(audio_ibuffer+offset), max);
+  qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(&audio_ibuffer[offset]), max);
 
-  /*
   if (actual_write > 0) {
     // average values and send to audio monitor
     int channels = audio_output->format().channelCount();
-    qint64 lim = offset + actual_write;
-    QVector<double> averages;
+    qint64 lim = offset + (actual_write/sizeof(float));
+    QVector<float> averages;
     averages.resize(channels);
-    averages.fill(0);
+    averages.fill(0.0);
 
-    int counter = 0;
-    qint16 sample;
-    for (qint64 i=offset;i<lim;i+=2) {
-      sample = qint16(((audio_ibuffer[i+1] & 0xFF) << 8) | (audio_ibuffer[i] & 0xFF));
-      averages[counter] = qMax((double(qAbs(sample))/32768.0), averages[counter]);
-      counter = (counter+1)%channels;
-    }
-    for (int i=0;i<channels;i++) {
-      averages[i] = log_volume(1.0-(averages[i]));
+    for (qint64 i=offset;i<lim;i++) {
+      int channel = i%channels;
+      averages[channel] = qMax(qAbs(audio_ibuffer[i]), averages[channel]);
     }
 
     panel_timeline.first()->audio_monitor->set_value(averages);
   }
-  */
 
-  memset(audio_ibuffer+offset, 0, actual_write);
+  memset(&audio_ibuffer[offset], 0, actual_write);
 
   audio_ibuffer_read += (actual_write / sizeof(float));
 
@@ -246,7 +238,7 @@ int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
 
 double log_volume(double linear) {
   // expects a value between 0 and 1 (or more if amplifying)
-  return (qExp(linear)-1)/(M_E-1);
+  return (qExp(linear)-1.0f)/(M_E-1.0f);
 }
 
 void int32_to_char_array(qint32 i, char* array) {

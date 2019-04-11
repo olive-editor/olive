@@ -53,22 +53,29 @@ public:
    * An array of doubles between 0.0 and 1.0 to display the amplitude. 0.0 is no audio, 1.0 is full volume. Each array
    * entry is a channel and the audio monitor will automatically adjust to the channel count in the array.
    */
-  void set_value(const QVector<double>& values);
+  void set_value(const QVector<float> &values);
 
 protected:
   /**
    * @brief Internal paint event
    *
-   * Paints the
+   * Paints the audio monitor
    */
-  void paintEvent(QPaintEvent *);
+  virtual void paintEvent(QPaintEvent *) override;
 
   /**
    * @brief Internal resize event handler
    *
    * Triggers a repaint when the widget is resized.
    */
-  void resizeEvent(QResizeEvent *);
+  virtual void resizeEvent(QResizeEvent *) override;
+
+  /**
+   * @brief Internal mouse press handler
+   *
+   * @param event
+   */
+  virtual void mousePressEvent(QMouseEvent *event) override;
 
 signals:
 
@@ -83,7 +90,7 @@ private:
   /**
    * @brief Internal value storage
    */
-  QVector<double> values;
+  QVector<float> values;
 
   /**
    * @brief Value mutex
@@ -99,6 +106,11 @@ private:
    * monitor is cleared.
    */
   QTimer clear_timer;
+
+  /**
+   * @brief Internal variable for whether audio played as peaked or not
+   */
+  QVector<bool> peaked_;
 
 private slots:
   /**

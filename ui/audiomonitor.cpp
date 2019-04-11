@@ -37,25 +37,33 @@ extern "C" {
 }
 
 AudioMonitor::AudioMonitor(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  peaked_(false)
 {
   clear_timer.setInterval(500);
   connect(&clear_timer, SIGNAL(timeout()), this, SLOT(clear()));
 }
 
-void AudioMonitor::set_value(const QVector<double> &ivalues) {
-  value_lock.lock();
-  values = ivalues;
-  value_lock.unlock();
+void AudioMonitor::set_value(const QVector<float> &ivalues) {
+  if (value_lock.tryLock()) {
+    values = ivalues;
 
-  QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
-  QMetaObject::invokeMethod(&clear_timer, "start", Qt::QueuedConnection);
+    if (peaked_.size() != values.size()) {
+      peaked_.resize(values.size());
+      peaked_.fill(false);
+    }
+
+    value_lock.unlock();
+
+    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(&clear_timer, "start", Qt::QueuedConnection);
+  }
 }
 
 void AudioMonitor::clear() {
   clear_timer.stop();
-
-  values.fill(1);
+  peaked_.fill(false);
+  values.fill(0.0);
   update();
 }
 
@@ -67,6 +75,12 @@ void AudioMonitor::resizeEvent(QResizeEvent *e) {
   QWidget::resizeEvent(e);
 }
 
+void AudioMonitor::mousePressEvent(QMouseEvent *)
+{
+  peaked_.fill(false);
+  update();
+}
+
 void AudioMonitor::paintEvent(QPaintEvent *) {
   value_lock.lock();
   if (values.size() > 0) {
@@ -74,18 +88,26 @@ void AudioMonitor::paintEvent(QPaintEvent *) {
     int channel_x = AUDIO_MONITOR_GAP;
     int channel_count = values.size();
     int channel_width = (width()/channel_count) - AUDIO_MONITOR_GAP;
-    int i;
-    for (i=0;i<channel_count;i++) {
+
+    for (int i=0;i<channel_count;i++) {
+
+      // Fill audio monitor with red-yellow-green gradient
       QRect r(channel_x, AUDIO_MONITOR_PEAK_HEIGHT + AUDIO_MONITOR_GAP, channel_width, height());
       p.fillRect(r, gradient);
 
-      bool peak = false;
+      // Check if we've peaked
+      if (!peaked_[i] && values.at(i) > 1.0f) {
+        peaked_[i] = true;
+      }
 
-      r.setHeight(qRound(r.height()*(values.at(i))));
-      peak = (r.height() == 0);
+      // We draw an inverted dark shadow over the gradient to represent to are not lit up
+      // TODO change to decibel representation
+      float val = 1.0f - qMin(1.0f, values.at(i));
+      r.setHeight(qRound(r.height()*val));
 
       QRect peak_rect(channel_x, 0, channel_width, AUDIO_MONITOR_PEAK_HEIGHT);
-      if (peak) {
+      if (peaked_[i]) {
+        // We're peaked on this channel, so we light up the peak light
         p.fillRect(peak_rect, QColor(255, 0, 0));
       } else {
         p.fillRect(peak_rect, QColor(64, 0, 0));
