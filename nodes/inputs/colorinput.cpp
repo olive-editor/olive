@@ -5,7 +5,7 @@ ColorInput::ColorInput(Node* parent, const QString& id, const QString& name, boo
 {
   AddField(new ColorField(this));
 
-  AddNodeInput(olive::nodes::kColor);
+  AddAcceptedNodeInput(olive::nodes::kColor);
 }
 
 QColor ColorInput::GetColorAt(double timecode)

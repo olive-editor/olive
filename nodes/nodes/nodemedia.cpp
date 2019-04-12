@@ -3,6 +3,8 @@
 NodeMedia::NodeMedia(Clip* c) :
   Node(c)
 {
+  EffectRow* matrix_input = new EffectRow(this, "matrix", tr("Matrix"), true, false);
+  matrix_input->AddAcceptedNodeInput(olive::nodes::kMatrix);
 }
 
 QString NodeMedia::name()

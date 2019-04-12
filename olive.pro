@@ -191,7 +191,6 @@ SOURCES += \
     ui/nodeui.cpp \
     panels/effectspanel.cpp \
     nodes/nodedatatypes.cpp \
-    nodes/nodeplug.cpp \
     nodes/inputs/boolinput.cpp \
     nodes/inputs/comboinput.cpp \
     nodes/inputs/colorinput.cpp \
@@ -207,7 +206,9 @@ SOURCES += \
     nodes/nodes/nodeshader.cpp \
     decoders/ffmpegdecoder.cpp \
     decoders/decoder.cpp \
-    nodes/node.cpp
+    nodes/node.cpp \
+    nodes/nodeedge.cpp \
+    ui/nodeedgeui.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -353,7 +354,6 @@ HEADERS += \
     ui/nodeui.h \
     panels/effectspanel.h \
     nodes/nodedatatypes.h \
-    nodes/nodeplug.h \
     nodes/inputs.h \
     nodes/inputs/boolinput.h \
     nodes/inputs/comboinput.h \
@@ -372,7 +372,9 @@ HEADERS += \
     decoders/ffmpegdecoder.h \
     decoders/decoder.h \
     nodes/node.h \
-    timeline/tracktypes.h
+    timeline/tracktypes.h \
+    nodes/nodeedge.h \
+    ui/nodeedgeui.h
 
 FORMS +=
 

@@ -5,7 +5,7 @@ FileInput::FileInput(Node* parent, const QString& id, const QString& name, bool 
 {
   AddField(new FileField(this));
 
-  AddNodeInput(olive::nodes::kFile);
+  AddAcceptedNodeInput(olive::nodes::kFile);
 }
 
 QString FileInput::GetFileAt(double timecode)

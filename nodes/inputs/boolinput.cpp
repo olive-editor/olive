@@ -7,7 +7,7 @@ BoolInput::BoolInput(Node* parent, const QString& id, const QString& name, bool 
   connect(bool_field, SIGNAL(Toggled(bool)), this, SIGNAL(Toggled(bool)));
   AddField(bool_field);
 
-  AddNodeInput(olive::nodes::kBoolean);
+  AddAcceptedNodeInput(olive::nodes::kBoolean);
 }
 
 bool BoolInput::GetBoolAt(double timecode)

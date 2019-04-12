@@ -15,15 +15,15 @@ VecInput::VecInput(Node* parent, const QString& id, const QString& name, int val
     AddField(new DoubleField(this));
   }
 
-  AddNodeInput(olive::nodes::kFloat);
+  AddAcceptedNodeInput(olive::nodes::kFloat);
   if (values > 1) {
-    AddNodeInput(olive::nodes::kVec2);
+    AddAcceptedNodeInput(olive::nodes::kVec2);
   }
   if (values > 2) {
-    AddNodeInput(olive::nodes::kVec3);
+    AddAcceptedNodeInput(olive::nodes::kVec3);
   }
   if (values > 3) {
-    AddNodeInput(olive::nodes::kVec4);
+    AddAcceptedNodeInput(olive::nodes::kVec4);
   }
 }
 

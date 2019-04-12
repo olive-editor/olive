@@ -35,6 +35,7 @@ class KeyframeNavigator;
 class ClickableLabel;
 
 #include "effectfields.h"
+#include "nodes/nodeedge.h"
 
 /**
  * @brief The EffectRow class
@@ -245,6 +246,64 @@ public:
    */
   void SetOutputDataType(olive::nodes::DataType type);
 
+  /**
+   * @brief Check if this row can accept the data type specified in type
+   *
+   * @return
+   *
+   * TRUE if this row can accept this data type. If this row is not an input, this function will always return FALSE.
+   */
+  bool CanAcceptDataType(olive::nodes::DataType type);
+
+  /**
+   * @brief Get this row's output data type
+   *
+   * @return
+   *
+   * If this is not an output, this will always return olive::nodes::kInvalid
+   */
+  olive::nodes::DataType OutputDataType();
+
+  /**
+   * @brief Adds a node data type that can be accepted by this input
+   *
+   * Allows this input to take a node connection from a data type specified by type. An input can take several data
+   * types.
+   *
+   * @param type
+   *
+   * The data type to add
+   */
+  void AddAcceptedNodeInput(olive::nodes::DataType type);
+
+  /**
+   * @brief Connect two node sockets together
+   *
+   * For outputs, the maximum amount of edges is unlimited and this will continually add to a list of edges. For inputs,
+   * there can only be one edge and adding a second will destroy the first.
+   *
+   * @param edge
+   *
+   * The edge to add (output) or replace the current edge (input).
+   */
+  static void ConnectEdge(EffectRow* output, EffectRow* input);
+
+  /**
+   * @brief Disconnect an edge
+   *
+   * Disconnects two nodes and destroys the edge object connecting them together
+   *
+   * @param edge
+   *
+   * Edge to be removed
+   */
+  static void DisconnectEdge(NodeEdgePtr edge);
+
+  /**
+   * @brief Get a list of references to all edges currently connected to this row
+   */
+  QVector<NodeEdge *> edges();
+
 protected:
   /**
    * @brief Add a field to this row
@@ -257,18 +316,6 @@ protected:
    * The field to add to this row.
    */
   void AddField(EffectField* Field);
-
-  /**
-   * @brief Adds a node data type that can be accepted by this input
-   *
-   * Allows this input to take a node connection from a data type specified by type. An input can take several data
-   * types.
-   *
-   * @param type
-   *
-   * The data type to add
-   */
-  void AddNodeInput(olive::nodes::DataType type);
 
 public slots:
   /**
@@ -331,6 +378,13 @@ signals:
    * Wrapper for EffectField::Clicked().
    */
   void Clicked();
+
+  /**
+   * @brief Edges changed signal
+   *
+   * Signal emitted any time an edge is connected or disconnected from this row
+   */
+  void EdgesChanged();
 
 private slots:
   /**
@@ -402,6 +456,11 @@ private:
    * this.
    */
   olive::nodes::DataType output_type_;
+
+  /**
+   * @brief Internal array of node edges. Access with AddEdge() and RemoveEdge().
+   */
+  QVector<NodeEdgePtr> node_edges_;
 };
 
 #endif // EFFECTROW_H

@@ -65,11 +65,52 @@ void EffectRow::AddField(EffectField *field)
   fields_.append(field);
 }
 
-void EffectRow::AddNodeInput(olive::nodes::DataType type)
+void EffectRow::AddAcceptedNodeInput(olive::nodes::DataType type)
 {
   Q_ASSERT(output_type_ == olive::nodes::kInvalid);
 
   accepted_inputs_.append(type);
+}
+
+void EffectRow::ConnectEdge(EffectRow *output, EffectRow *input)
+{
+  Q_ASSERT(output->IsNodeOutput());
+  Q_ASSERT(input->IsNodeInput());
+
+  if (!input->node_edges_.isEmpty()) {
+    DisconnectEdge(input->node_edges_.first());
+  }
+
+  NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
+
+  output->node_edges_.append(edge);
+  input->node_edges_.append(edge);
+
+  emit output->EdgesChanged();
+  emit input->EdgesChanged();
+}
+
+void EffectRow::DisconnectEdge(NodeEdgePtr edge)
+{
+  EffectRow* output = edge->output();
+  EffectRow* input = edge->input();
+
+  output->node_edges_.removeAll(edge);
+  input->node_edges_.removeAll(edge);
+
+  emit output->EdgesChanged();
+  emit input->EdgesChanged();
+}
+
+QVector<NodeEdge*> EffectRow::edges()
+{
+  QVector<NodeEdge*> edges;
+
+  for (int i=0;i<node_edges_.size();i++) {
+    edges.append(node_edges_.at(i).get());
+  }
+
+  return edges;
 }
 
 bool EffectRow::IsKeyframing() {
@@ -119,6 +160,20 @@ void EffectRow::SetOutputDataType(olive::nodes::DataType type)
   Q_ASSERT(accepted_inputs_.isEmpty());
 
   output_type_ = type;
+}
+
+bool EffectRow::CanAcceptDataType(olive::nodes::DataType type)
+{
+  if (!IsNodeInput()) {
+    return false;
+  }
+
+  return accepted_inputs_.contains(type);
+}
+
+olive::nodes::DataType EffectRow::OutputDataType()
+{
+  return output_type_;
 }
 
 bool EffectRow::IsNodeInput()

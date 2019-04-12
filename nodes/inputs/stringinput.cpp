@@ -5,7 +5,7 @@ StringInput::StringInput(Node* parent, const QString& id, const QString& name, b
 {
   AddField(new StringField(this, rich_text));
 
-  AddNodeInput(olive::nodes::kString);
+  AddAcceptedNodeInput(olive::nodes::kString);
 }
 
 QString StringInput::GetStringAt(double timecode)

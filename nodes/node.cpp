@@ -148,6 +148,11 @@ void Node::AddRow(EffectRow *row)
   rows.append(row);
 }
 
+int Node::IndexOfRow(EffectRow *row)
+{
+  return rows.indexOf(row);
+}
+
 void Node::copy_field_keyframes(NodePtr e) {
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
@@ -189,6 +194,17 @@ EffectGizmo *Node::gizmo(int i) {
 
 int Node::gizmo_count() {
   return gizmos.size();
+}
+
+QVector<NodeEdge *> Node::GetAllEdges()
+{
+  QVector<NodeEdge*> edges;
+
+  for (int i=0;i<row_count();i++) {
+    edges.append(row(i)->edges());
+  }
+
+  return edges;
 }
 
 void Node::refresh() {}
@@ -308,6 +324,11 @@ bool Node::IsExpanded()
 void Node::SetExpanded(bool e)
 {
   expanded_ = e;
+}
+
+void Node::SetPos(const QPointF &pos)
+{
+  pos_ = pos;
 }
 
 void Node::SetEnabled(bool b) {
@@ -613,6 +634,11 @@ int Node::getIterations() {
 
 void Node::setIterations(int i) {
   iterations = i;
+}
+
+const QPointF &Node::pos()
+{
+  return pos_;
 }
 
 void Node::process_image(double, uint8_t *, uint8_t *, int){}

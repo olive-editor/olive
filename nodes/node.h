@@ -127,13 +127,15 @@ public:
   virtual NodePtr Create(Clip *c) = 0;
 
   void AddRow(EffectRow* row);
-
+  int IndexOfRow(EffectRow* row);
   EffectRow* row(int i);
   int row_count();
 
   EffectGizmo* add_gizmo(int type);
   EffectGizmo* gizmo(int i);
   int gizmo_count();
+
+  QVector<NodeEdge*> GetAllEdges();
 
   bool IsEnabled();
   bool IsExpanded();
@@ -167,6 +169,8 @@ public:
 
   int getIterations();
   void setIterations(int i);
+
+  const QPointF& pos();
 
   virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
   virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
@@ -225,6 +229,7 @@ public slots:
   void FieldChanged();
   void SetEnabled(bool b);
   void SetExpanded(bool e);
+  void SetPos(const QPointF& pos);
 signals:
   void EnabledChanged(bool);
 private slots:
@@ -263,6 +268,8 @@ private:
   int flags_;
 
   QVector<KeyframeDataChange*> gizmo_dragging_actions_;
+
+  QPointF pos_;
 
   // superimpose functions
   virtual void redraw(double timecode);

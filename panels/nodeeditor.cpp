@@ -24,6 +24,8 @@ NodeEditor::NodeEditor(QWidget *parent) :
 
   view_.setInteractive(true);
   view_.setDragMode(QGraphicsView::RubberBandDrag);
+
+  connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(ItemsChanged()));
 }
 
 void NodeEditor::Retranslate()
@@ -32,9 +34,9 @@ void NodeEditor::Retranslate()
 
 void NodeEditor::LoadEvent()
 {
-  nodes_.resize(open_effects_.size());
-
   if (!open_effects_.isEmpty()) {
+    QVector<NodeEdge*> added_edges;
+
     Clip* first_clip = open_effects_.first()->GetEffect()->parent_clip;
 
     for (int i=0;i<open_effects_.size();i++) {
@@ -48,20 +50,53 @@ void NodeEditor::LoadEvent()
 
         node_ui->SetWidget(effect_ui);
         node_ui->AddToScene(&scene_);
+        node_ui->setPos(effect_ui->GetEffect()->pos());
 
-        nodes_[i] = node_ui;
+        nodes_.append(node_ui);
+
+        // Get node edges
+        QVector<NodeEdge*> edges = open_effects_.at(i)->GetEffect()->GetAllEdges();
+        for (int j=0;j<edges.size();j++) {
+
+          NodeEdge* edge = edges.at(j);
+
+          if (!added_edges.contains(edge)) {
+            NodeEdgeUI* edge_ui = new NodeEdgeUI(edge);
+            scene_.addItem(edge_ui);
+            edges_.append(edge_ui);
+
+            added_edges.append(edge);
+          }
+        }
       }
     }
+
+    ItemsChanged();
   }
 }
 
 void NodeEditor::ClearEvent()
 {
-  NodeUI* node;
-
-  foreach (node, nodes_) {
-    delete node;
+  foreach (NodeUI* node, nodes_) {
+    scene_.removeItem(node);
   }
 
   nodes_.clear();
+
+  foreach (NodeEdgeUI* edge, edges_) {
+    scene_.removeItem(edge);
+  }
+
+  edges_.clear();
+}
+
+void NodeEditor::ItemsChanged()
+{
+  foreach (NodeEdgeUI* edge, edges_) {
+    edge->adjust();
+  }
+
+  foreach (NodeUI* node, nodes_) {
+    node->Widget()->GetEffect()->SetPos(node->pos());
+  }
 }
