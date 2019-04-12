@@ -33,18 +33,25 @@ void NodeEditor::Retranslate()
 void NodeEditor::LoadEvent()
 {
   nodes_.resize(open_effects_.size());
-  for (int i=0;i<open_effects_.size();i++) {
-    EffectUI* effect_ui = open_effects_.at(i);
 
-    NodeUI* node_ui = new NodeUI();
+  if (!open_effects_.isEmpty()) {
+    Clip* first_clip = open_effects_.first()->GetEffect()->parent_clip;
 
-    effect_ui->SetNodeParent(node_ui);
-    effect_ui->SetSelectable(false);
+    for (int i=0;i<open_effects_.size();i++) {
+      EffectUI* effect_ui = open_effects_.at(i);
 
-    node_ui->SetWidget(effect_ui);
-    node_ui->AddToScene(&scene_);
+      if (effect_ui->GetEffect()->parent_clip == first_clip) {
+        NodeUI* node_ui = new NodeUI();
 
-    nodes_[i] = node_ui;
+        effect_ui->SetNodeParent(node_ui);
+        effect_ui->SetSelectable(false);
+
+        node_ui->SetWidget(effect_ui);
+        node_ui->AddToScene(&scene_);
+
+        nodes_[i] = node_ui;
+      }
+    }
   }
 }
 

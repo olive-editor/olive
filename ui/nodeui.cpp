@@ -15,7 +15,7 @@
 #include "global/math.h"
 
 const int kRoundedRectRadius = 5;
-const int kNodePlugSize = 10;
+const int kNodePlugSize = 12;
 
 NodeUI::NodeUI() :
   central_widget_(nullptr),
