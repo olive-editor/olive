@@ -49,7 +49,7 @@ void NodeView::mouseReleaseEvent(QMouseEvent *event)
 
 void NodeView::wheelEvent(QWheelEvent *event)
 {
-  if (event->angleDelta().y() > 0) {
+  if (event->angleDelta().y() < 0) {
     scale(0.9, 0.9);
   } else {
     scale(1.1, 1.1);
