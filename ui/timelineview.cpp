@@ -56,7 +56,7 @@
 #include "ui/focusfilter.h"
 #include "dialogs/clippropertiesdialog.h"
 #include "global/debug.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/internal/solideffect.h"
 #include "timeline/track.h"
 #include "global/math.h"
@@ -143,7 +143,7 @@ void TimelineView::show_context_menu(const QPoint& pos) {
       bool audio_clips_are_selected = false;
 
       for (int i=0;i<selected_clips.size();i++) {
-        if (selected_clips.at(i)->type() == Track::kTypeVideo) {
+        if (selected_clips.at(i)->type() == olive::kTypeVideo) {
           video_clips_are_selected = true;
         } else {
           audio_clips_are_selected = true;
@@ -611,7 +611,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
 
     // if the user is creating an object
     if (ParentTimeline()->creating) {
-      Track::Type create_type = Track::kTypeVideo;
+      olive::TrackType create_type = olive::kTypeVideo;
       switch (ParentTimeline()->creating_object) {
       case olive::timeline::ADD_OBJ_TITLE:
       case olive::timeline::ADD_OBJ_SOLID:
@@ -620,7 +620,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
       case olive::timeline::ADD_OBJ_TONE:
       case olive::timeline::ADD_OBJ_NOISE:
       case olive::timeline::ADD_OBJ_AUDIO:
-        create_type = Track::kTypeAudio;
+        create_type = olive::kTypeAudio;
         break;
       }
 
@@ -1024,24 +1024,24 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             add.append(c);
             ca->append(new AddClipCommand(add));
 
-            if (c->type() == Track::kTypeVideo && olive::config.add_default_effects_to_clips) {
-              // default video effects (before custom effects)
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
+            if (c->type() == olive::kTypeVideo && olive::config.add_default_effects_to_clips) {
+              // default video effects (before custom effects)              
+              c->effects.append(olive::node_library[kTransformEffect]->Create(c.get()));
             }
 
             switch (ParentTimeline()->creating_object) {
             case olive::timeline::ADD_OBJ_TITLE:
               c->set_name(tr("Title"));
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_RICHTEXT, EFFECT_TYPE_EFFECT)));
+              c->effects.append(olive::node_library[kRichTextInput]->Create(c.get()));
               break;
             case olive::timeline::ADD_OBJ_SOLID:
               c->set_name(tr("Solid Color"));
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT)));
+              c->effects.append(olive::node_library[kSolidInput]->Create(c.get()));
               break;
             case olive::timeline::ADD_OBJ_BARS:
             {
               c->set_name(tr("Bars"));
-              EffectPtr e = Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_SOLID, EFFECT_TYPE_EFFECT));
+              NodePtr e = olive::node_library[kSolidInput]->Create(c.get());
 
               // Auto-select bars
               SolidEffect* solid_effect = static_cast<SolidEffect*>(e.get());
@@ -1052,20 +1052,20 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
               break;
             case olive::timeline::ADD_OBJ_TONE:
               c->set_name(tr("Tone"));
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TONE, EFFECT_TYPE_EFFECT)));
+              c->effects.append(olive::node_library[kToneInput]->Create(c.get()));
               break;
             case olive::timeline::ADD_OBJ_NOISE:
               c->set_name(tr("Noise"));
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_NOISE, EFFECT_TYPE_EFFECT)));
+              c->effects.append(olive::node_library[kNoiseInput]->Create(c.get()));
               break;
             default:
               break;
             }
 
-            if (c->type() == Track::kTypeAudio && olive::config.add_default_effects_to_clips) {
+            if (c->type() == olive::kTypeAudio && olive::config.add_default_effects_to_clips) {
               // default audio effects (after custom effects)
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
-              c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
+              c->effects.append(olive::node_library[kVolumeEffect]->Create(c.get()));
+              c->effects.append(olive::node_library[kPanEffect]->Create(c.get()));
             }
 
             push_undo = true;
@@ -1432,7 +1432,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                             ca->append(new AddTransitionCommand(nullptr,
                                                                 transition->secondary_clip,
                                                                 transition,
-                                                                nullptr,
+                                                                kInvalidNode,
                                                                 0));
 
                           } else {
@@ -1447,7 +1447,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
                             ca->append(new AddTransitionCommand(nullptr,
                                                                 transition->secondary_clip,
                                                                 transition,
-                                                                nullptr,
+                                                                kInvalidNode,
                                                                 0));
 
                           }
@@ -2821,7 +2821,7 @@ void TimelineView::draw_transition(QPainter& p, Clip* c, const QRect& clip_rect,
 
       if (draw_text) {
         p.setPen(Qt::white);
-        p.drawText(transition_text_rect, 0, t->meta->name, &transition_text_rect);
+        p.drawText(transition_text_rect, 0, t->name(), &transition_text_rect);
       }
     }
     p.setPen(Qt::black);
@@ -2920,7 +2920,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
                 // draw thumbnail/waveform
                 long media_length = clip->media_length();
 
-                if (clip->type() == Track::kTypeVideo) {
+                if (clip->type() == olive::kTypeVideo) {
                   // draw thumbnail
                   int thumb_y = p.fontMetrics().height()+olive::timeline::kClipTextPadding+olive::timeline::kClipTextPadding;
                   if (thumb_x < width() && thumb_y < height()) {

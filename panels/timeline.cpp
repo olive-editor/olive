@@ -221,10 +221,10 @@ void Timeline::SetSequence(SequencePtr sequence)
     return;
   }
 
-  sequence_ = sequence;  
+  sequence_ = sequence;
   update_sequence();
-  video_area->SetTrackList(sequence_.get(), Track::kTypeVideo);
-  audio_area->SetTrackList(sequence_.get(), Track::kTypeAudio);
+  video_area->SetTrackList(sequence_.get(), olive::kTypeVideo);
+  audio_area->SetTrackList(sequence_.get(), olive::kTypeAudio);
   repaint_timeline();
 
   emit SequenceChanged(sequence_);
@@ -276,14 +276,14 @@ void Timeline::add_transition() {
   for (int i=0;i<selected_clips.size();i++) {
     Clip* c = selected_clips.at(i);
 
-    int transition_to_add = (c->type() == Track::kTypeVideo) ? TRANSITION_INTERNAL_CROSSDISSOLVE
-                                                             : TRANSITION_INTERNAL_LINEARFADE;
+    NodeType transition_to_add = (c->type() == olive::kTypeVideo) ? kCrossDissolveTransition
+                                                                  : kLinearFadeTransition;
 
     if (c->opening_transition == nullptr) {
       ca->append(new AddTransitionCommand(c,
                                           nullptr,
                                           nullptr,
-                                          Effect::GetInternalMeta(transition_to_add, EFFECT_TYPE_TRANSITION),
+                                          transition_to_add,
                                           olive::config.default_transition_length));
       adding = true;
     }
@@ -292,7 +292,7 @@ void Timeline::add_transition() {
       ca->append(new AddTransitionCommand(nullptr,
                                           c,
                                           nullptr,
-                                          Effect::GetInternalMeta(transition_to_add, EFFECT_TYPE_TRANSITION),
+                                          transition_to_add,
                                           olive::config.default_transition_length));
       adding = true;
     }
@@ -873,23 +873,23 @@ void Timeline::transition_tool_click() {
 
   Menu transition_menu(this);
 
-  for (int i=0;i<olive::effects.size();i++) {
-    const EffectMeta& em = olive::effects.at(i);
-    if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == Track::kTypeVideo) {
-      QAction* a = transition_menu.addAction(em.name);
+  for (int i=0;i<olive::node_library.size();i++) {
+    NodePtr node = olive::node_library.at(i);
+    if (node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
+      QAction* a = transition_menu.addAction(node->name());
       a->setObjectName("v");
-      a->setData(reinterpret_cast<quintptr>(&em));
+      a->setData(i);
     }
   }
 
   transition_menu.addSeparator();
 
-  for (int i=0;i<olive::effects.size();i++) {
-    const EffectMeta& em = olive::effects.at(i);
-    if (em.type == EFFECT_TYPE_TRANSITION && em.subtype == Track::kTypeAudio) {
-      QAction* a = transition_menu.addAction(em.name);
+  for (int i=0;i<olive::node_library.size();i++) {
+    NodePtr node = olive::node_library.at(i);
+    if (node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
+      QAction* a = transition_menu.addAction(node->name());
       a->setObjectName("a");
-      a->setData(reinterpret_cast<quintptr>(&em));
+      a->setData(i);
     }
   }
 
@@ -901,12 +901,12 @@ void Timeline::transition_tool_click() {
 }
 
 void Timeline::transition_menu_select(QAction* a) {
-  transition_tool_meta = reinterpret_cast<const EffectMeta*>(a->data().value<quintptr>());
+  transition_tool_meta = static_cast<NodeType>(a->data().toInt());
 
   if (a->objectName() == "v") {
-    transition_tool_side = Track::kTypeVideo;
+    transition_tool_side = olive::kTypeVideo;
   } else {
-    transition_tool_side = Track::kTypeAudio;
+    transition_tool_side = olive::kTypeAudio;
   }
 
   timeline_area->setCursor(Qt::CrossCursor);

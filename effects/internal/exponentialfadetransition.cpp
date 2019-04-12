@@ -22,7 +22,40 @@
 
 #include <QtMath>
 
-ExponentialFadeTransition::ExponentialFadeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {}
+ExponentialFadeTransition::ExponentialFadeTransition(Clip* c) :
+  Transition(c)
+{
+}
+
+QString ExponentialFadeTransition::name()
+{
+  return tr("Exponential Fade");
+}
+
+QString ExponentialFadeTransition::id()
+{
+  return "org.olivevideoeditor.Olive.exponentialfade";
+}
+
+QString ExponentialFadeTransition::description()
+{
+  return tr("An exponential audio fade that starts slow and ends fast.");
+}
+
+EffectType ExponentialFadeTransition::type()
+{
+  return EFFECT_TYPE_TRANSITION;
+}
+
+olive::TrackType ExponentialFadeTransition::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr ExponentialFadeTransition::Create(Clip *c)
+{
+  return std::make_shared<ExponentialFadeTransition>(c);
+}
 
 void ExponentialFadeTransition::process_audio(double timecode_start,
                                               double timecode_end,

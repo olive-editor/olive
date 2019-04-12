@@ -32,12 +32,12 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/grapheditor.h"
-#include "effect.h"
+#include "nodes/node.h"
 #include "ui/viewerwidget.h"
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-EffectRow::EffectRow(Effect *parent,
+EffectRow::EffectRow(Node *parent,
                      const QString &id,
                      const QString &name,
                      bool savable,
@@ -77,7 +77,7 @@ bool EffectRow::IsKeyframing() {
 }
 
 void EffectRow::SetKeyframingInternal(bool b) {
-  if (GetParentEffect()->meta->type != EFFECT_TYPE_TRANSITION) {
+  if (GetParentEffect()->type() != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
   }
@@ -315,9 +315,9 @@ void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
   panel_effect_controls->update_keyframes();
 }
 
-Effect *EffectRow::GetParentEffect()
+Node *EffectRow::GetParentEffect()
 {
-  return static_cast<Effect*>(parent());
+  return static_cast<Node*>(parent());
 }
 
 const QString &EffectRow::name() {

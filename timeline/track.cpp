@@ -9,7 +9,7 @@ int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
 int olive::timeline::kTrackHeightIncrement = 10;
 
-Track::Track(TrackList* parent, Type type) :
+Track::Track(TrackList* parent, olive::TrackType type) :
   parent_(parent),
   type_(type),
   muted_(false),
@@ -58,7 +58,7 @@ void Track::Save(QXmlStreamWriter &stream)
   stream.writeEndElement(); // track
 }
 
-Track::Type Track::type()
+olive::TrackType Track::type()
 {
   return type_;
 }
@@ -80,11 +80,11 @@ QString Track::name()
     int display_index = Index() + 1;
 
     switch (type_) {
-    case kTypeVideo:
+    case olive::kTypeVideo:
       return tr("Video %1").arg(display_index);
-    case kTypeAudio:
+    case olive::kTypeAudio:
       return tr("Audio %1").arg(display_index);
-    case kTypeSubtitle:
+    case olive::kTypeSubtitle:
       return tr("Subtitle %1").arg(display_index);
     default:
       return tr("Unknown %1").arg(display_index);

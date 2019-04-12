@@ -20,7 +20,37 @@
 
 #include "linearfadetransition.h"
 
-LinearFadeTransition::LinearFadeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {}
+LinearFadeTransition::LinearFadeTransition(Clip* c) : Transition(c) {}
+
+QString LinearFadeTransition::name()
+{
+  return tr("Linear Fade");
+}
+
+QString LinearFadeTransition::id()
+{
+  return "org.olivevideoeditor.Olive.linearfade";
+}
+
+QString LinearFadeTransition::description()
+{
+  return tr("An linear audio fade that fades evenly at a constant rate.");
+}
+
+EffectType LinearFadeTransition::type()
+{
+  return EFFECT_TYPE_TRANSITION;
+}
+
+olive::TrackType LinearFadeTransition::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr LinearFadeTransition::Create(Clip *c)
+{
+  return std::make_shared<LinearFadeTransition>(c);
+}
 
 void LinearFadeTransition::process_audio(double timecode_start,
                                          double timecode_end,

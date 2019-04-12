@@ -28,12 +28,42 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-VolumeEffect::VolumeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
+VolumeEffect::VolumeEffect(Clip* c) : Node(c) {
   volume_val = new DoubleInput(this, "volume", tr("Volume"));
 
   // set defaults
   volume_val->SetDefault(1);
   volume_val->SetDisplayType(LabelSlider::Decibel);
+}
+
+QString VolumeEffect::name()
+{
+  return tr("Volume");
+}
+
+QString VolumeEffect::id()
+{
+  return "org.olivevideoeditor.Olive.volume";
+}
+
+QString VolumeEffect::description()
+{
+  return tr("Adjust the volume of this clip's audio");
+}
+
+EffectType VolumeEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType VolumeEffect::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr VolumeEffect::Create(Clip *c)
+{
+  return std::make_shared<VolumeEffect>(c);
 }
 
 void VolumeEffect::process_audio(double timecode_start,

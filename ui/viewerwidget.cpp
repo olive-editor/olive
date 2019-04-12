@@ -63,6 +63,7 @@ extern "C" {
 #include "ui/menu.h"
 #include "ui/waveform.h"
 #include "mainwindow.h"
+#include "effects/effectgizmo.h"
 
 const int kTitleActionSafeVertexSize = 84;
 

@@ -106,7 +106,6 @@ SOURCES += \
     effects/internal/logarithmicfadetransition.cpp \
     effects/internal/cornerpineffect.cpp \
     global/math.cpp \
-    effects/effect.cpp \
     effects/effectrow.cpp \
     effects/effectgizmo.cpp \
     ui/resizablescrollbar.cpp \
@@ -207,7 +206,8 @@ SOURCES += \
     nodes/nodes/nodemedia.cpp \
     nodes/nodes/nodeshader.cpp \
     decoders/ffmpegdecoder.cpp \
-    decoders/decoder.cpp
+    decoders/decoder.cpp \
+    nodes/node.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -265,7 +265,6 @@ HEADERS += \
     effects/internal/logarithmicfadetransition.h \
     effects/internal/cornerpineffect.h \
     global/math.h \
-    effects/effect.h \
     effects/effectrow.h \
     effects/internal/cubetransition.h \
     effects/effectgizmo.h \
@@ -371,7 +370,9 @@ HEADERS += \
     nodes/nodes/nodeshader.h \
     nodes/nodes.h \
     decoders/ffmpegdecoder.h \
-    decoders/decoder.h
+    decoders/decoder.h \
+    nodes/node.h \
+    timeline/tracktypes.h
 
 FORMS +=
 

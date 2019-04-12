@@ -60,7 +60,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   QString tag = stream.name().toString();
 
   // variables to store effect metadata in
-  int effect_id = -1;
+  QString effect_id;
   QString effect_name;
   bool effect_enabled = true;
   long effect_length = -1;
@@ -68,10 +68,10 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   // loop through attributes for effect metadata
   for (int j=0;j<stream.attributes().size();j++) {
     const QXmlStreamAttribute& attr = stream.attributes().at(j);
-    if (attr.name() == "id") {
-      effect_id = attr.value().toInt();
-    } else if (attr.name() == "enabled") {
+    if (attr.name() == "enabled") {
       effect_enabled = (attr.value() == "1");
+    } else if (attr.name() == "id") {
+      effect_id = attr.value().toString();
     } else if (attr.name() == "name") {
       effect_name = attr.value().toString();
     } else if (attr.name() == "length") {
@@ -116,30 +116,35 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   // for all the effects to finish loading
   olive::effects_loaded.lock();
 
-  const EffectMeta* meta = nullptr;
+  NodeType type = kInvalidNode;
 
   // find effect with this name
-  if (!effect_name.isEmpty()) {
-    meta = Effect::GetMetaFromName(effect_name);
+  if (!effect_id.isEmpty()) {
+    for (int i=0;i<olive::node_library.size();i++) {
+      if (i != kInvalidNode && olive::node_library.at(i)->id() == effect_id) {
+        type = static_cast<NodeType>(i);
+        break;
+      }
+    }
   }
 
   olive::effects_loaded.unlock();
 
-  int type;
+  TransitionType ttype;
   if (tag == "opening") {
-    type = kTransitionOpening;
+    ttype = kTransitionOpening;
   } else if (tag == "closing") {
-    type = kTransitionClosing;
+    ttype = kTransitionClosing;
   } else {
-    type = kTransitionNone;
+    ttype = kTransitionNone;
   }
 
   // effect construction
   if (cancelled_) return;
-  if (type == kTransitionNone) {
-    if (meta == nullptr) {
+  if (ttype == kTransitionNone) {
+    if (type == kInvalidNode) {
       // create void effect
-      EffectPtr ve(new VoidEffect(c, effect_name));
+      NodePtr ve = std::make_shared<VoidEffect>(c, effect_name, effect_id);
       ve->SetEnabled(effect_enabled);
       ve->load(stream);
 
@@ -147,7 +152,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
       c->effects.append(ve);
     } else {
-      EffectPtr e(Effect::Create(c, meta));
+      NodePtr e = olive::node_library[type]->Create(c);
       e->SetEnabled(effect_enabled);
       e->load(stream);
 
@@ -156,14 +161,16 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
       c->effects.append(e);
     }
   } else {
-    TransitionPtr t = Transition::Create(c, nullptr, meta);
-    if (effect_length > -1) t->set_length(effect_length);
+    TransitionPtr t = std::static_pointer_cast<Transition>(olive::node_library[type]->Create(c));
+    if (effect_length > -1) {
+      t->set_length(effect_length);
+    }
     t->SetEnabled(effect_enabled);
     t->load(stream);
 
     t->moveToThread(QApplication::instance()->thread());
 
-    if (type == kTransitionOpening) {
+    if (ttype == kTransitionOpening) {
       c->opening_transition = t;
     } else {
       c->closing_transition = t;

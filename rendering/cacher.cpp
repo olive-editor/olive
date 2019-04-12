@@ -62,7 +62,7 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   timecode_end = timecode_start + samples_to_seconds(nb_samples, frame->channels, frame->sample_rate);
 
   for (int j=0;j<clip->effects.size();j++) {
-    Effect* e = clip->effects.at(j).get();
+    Node* e = clip->effects.at(j).get();
     if (e->IsEnabled()) {
       e->process_audio(timecode_start, timecode_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionNone);
     }
@@ -805,7 +805,7 @@ void Cacher::CacheVideoWorker() {
 void Cacher::Reset() {
   // if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
   if (clip->media() == nullptr) {
-    if (clip->type() == Track::kTypeAudio) {
+    if (clip->type() == olive::kTypeAudio) {
       // a null-media audio clip is usually an auto-generated sound clip such as Tone or Noise
       reached_end = false;
       audio_target_frame = playhead_;
@@ -871,7 +871,7 @@ Cacher::Cacher(Clip* c) :
 
 void Cacher::OpenWorker() {
   // set some defaults for the audio cacher
-  if (clip->type() == Track::kTypeAudio) {
+  if (clip->type() == olive::kTypeAudio) {
     audio_reset_ = false;
     frame_sample_index_ = -1;
     audio_buffer_write = 0;
@@ -879,7 +879,7 @@ void Cacher::OpenWorker() {
   reached_end = false;
 
   if (clip->media() == nullptr) {
-    if (clip->type() == Track::kTypeAudio) {
+    if (clip->type() == olive::kTypeAudio) {
       frame_ = av_frame_alloc();
       frame_->format = kDestSampleFmt;
       frame_->channel_layout = clip->track()->sequence()->audio_layout;
@@ -1127,7 +1127,7 @@ void Cacher::OpenWorker() {
 }
 
 void Cacher::CacheWorker() {
-  if (clip->type() == Track::kTypeVideo) {
+  if (clip->type() == olive::kTypeVideo) {
     // clip is a video track, start caching video
     CacheVideoWorker();
   } else {
@@ -1218,7 +1218,7 @@ void Cacher::Open()
   caching_ = true;
   queued_ = false;
 
-  start((clip->type() == Track::kTypeVideo) ? QThread::HighPriority : QThread::TimeCriticalPriority);
+  start((clip->type() == olive::kTypeVideo) ? QThread::HighPriority : QThread::TimeCriticalPriority);
 }
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)

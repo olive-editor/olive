@@ -76,7 +76,7 @@ void EffectsPanel::Load() {
     Clip* c = selected_clips_.at(i);
 
     // Create a list of the effects we'll open
-    QVector<Effect*> effects_to_open;
+    QVector<Node*> effects_to_open;
 
     // Determine based on the current selections whether to load all effects or just the transitions
     bool whole_clip_is_selected = c->IsSelected();
@@ -100,7 +100,7 @@ void EffectsPanel::Load() {
       // Check if we've already opened an effect of this type before
       bool already_opened = false;
       for (int k=0;k<open_effects_.size();k++) {
-        if (open_effects_.at(k)->GetEffect()->meta == effects_to_open.at(j)->meta
+        if (open_effects_.at(k)->GetEffect()->id() == effects_to_open.at(j)->id()
             && !open_effects_.at(k)->IsAttachedToClip(c)) {
 
           open_effects_.at(k)->AddAdditionalEffect(effects_to_open.at(j));
@@ -137,7 +137,7 @@ void EffectsPanel::Load() {
   LoadEvent();
 }
 
-bool EffectsPanel::IsEffectSelected(Effect *e)
+bool EffectsPanel::IsEffectSelected(Node *e)
 {
   for (int i=0;i<open_effects_.size();i++) {
     if (open_effects_.at(i)->GetEffect() == e && open_effects_.at(i)->IsSelected()) {
@@ -174,9 +174,9 @@ void EffectsPanel::copy(bool del) {
 
   for (int i=0;i<open_effects_.size();i++) {
     if (open_effects_.at(i)->IsSelected()) {
-      Effect* e = open_effects_.at(i)->GetEffect();
+      Node* e = open_effects_.at(i)->GetEffect();
 
-      if (e->meta->type == EFFECT_TYPE_EFFECT) {
+      if (e->type() == EFFECT_TYPE_EFFECT) {
 
         if (!cleared) {
           olive::clipboard.Clear();
@@ -205,12 +205,12 @@ void EffectsPanel::copy(bool del) {
   }
 }
 
-void EffectsPanel::DeleteEffect(ComboAction* ca, Effect* effect_ref) {
-  if (effect_ref->meta->type == EFFECT_TYPE_EFFECT) {
+void EffectsPanel::DeleteEffect(ComboAction* ca, Node* effect_ref) {
+  if (effect_ref->type() == EFFECT_TYPE_EFFECT) {
 
     ca->append(new EffectDeleteCommand(effect_ref));
 
-  } else if (effect_ref->meta->type == EFFECT_TYPE_TRANSITION) {
+  } else if (effect_ref->type() == EFFECT_TYPE_TRANSITION) {
 
     // Retrieve shared ptr for this transition
 
@@ -258,7 +258,7 @@ void EffectsPanel::DeleteSelectedEffects() {
   }
 }
 
-void EffectsPanel::open_effect(Effect* e) {
+void EffectsPanel::open_effect(Node* e) {
   EffectUI* container = new EffectUI(e);
 
   connect(container, SIGNAL(CutRequested()), this, SLOT(cut()));

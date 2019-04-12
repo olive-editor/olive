@@ -752,7 +752,7 @@ void Viewer::set_media(Media* m) {
           new_sequence->frame_rate = video_stream.video_frame_rate * footage->speed;
         }
 
-        ClipPtr c = std::make_shared<Clip>(new_sequence->GetTrackList(Track::kTypeVideo)->First());
+        ClipPtr c = std::make_shared<Clip>(new_sequence->GetTrackList(olive::kTypeVideo)->First());
         c->set_media(media, video_stream.file_index);
         c->set_timeline_in(0);
         c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
@@ -760,7 +760,7 @@ void Viewer::set_media(Media* m) {
           // FIXME: Move this magic number to Config
           c->set_timeline_out(150);
         }
-        Track* track = new_sequence->GetTrackList(Track::kTypeVideo)->First();
+        Track* track = new_sequence->GetTrackList(olive::kTypeVideo)->First();
         c->set_track(track);
         c->set_clip_in(0);
         c->refresh();
@@ -774,7 +774,7 @@ void Viewer::set_media(Media* m) {
         const FootageStream& audio_stream = footage->audio_tracks.at(0);
         new_sequence->audio_frequency = audio_stream.audio_frequency;
 
-        Track* track = new_sequence->GetTrackList(Track::kTypeAudio)->First();
+        Track* track = new_sequence->GetTrackList(olive::kTypeAudio)->First();
         ClipPtr c = std::make_shared<Clip>(track);
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);

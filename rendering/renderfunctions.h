@@ -28,7 +28,7 @@
 namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "timeline/sequence.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "panels/viewer.h"
 
 /**
@@ -80,16 +80,16 @@ struct ComposeSequenceParams {
     /**
      * @brief Set compose mode to video or audio
      *
-     * Accepts Track::kTypeVideo to render video, Track::kTypeAudio if this function should render audio.
+     * Accepts olive::kTypeVideo to render video, olive::kTypeAudio if this function should render audio.
      */
-    Track::Type type;
+    olive::TrackType type;
 
     /**
      * @brief Set to the Effect whose gizmos were chosen to be drawn on screen
      *
      * The currently active Effect that compose_sequence() will update the gizmos of.
      */
-    Effect* gizmos;
+    Node* gizmos;
 
     /**
      * @brief A variable that compose_sequence() will set to **TRUE** if any of the clips couldn't be shown.
@@ -137,19 +137,6 @@ struct ComposeSequenceParams {
      * \see ComposeSequenceParams::video
      */
     int playback_speed;
-
-    /**
-     * @brief Blending mode shader
-     *
-     * Used only for video rendering. Never accessed with audio rendering.
-     *
-     * A program containing the current active
-     * blending mode shader that can be bound during rendering. Must be compiled and linked beforehand. See
-     * RenderThread::blend_mode_program for how this is properly set up.
-     *
-     * \see ComposeSequenceParams::video
-     */
-    QOpenGLShaderProgram* blend_mode_program;
 
     /**
      * @brief Premultiply alpha shader

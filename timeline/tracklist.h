@@ -7,7 +7,7 @@ class TrackList : public QObject
 {
   Q_OBJECT
 public:
-  TrackList(Sequence* parent, Track::Type type);
+  TrackList(Sequence* parent, olive::TrackType type);
   TrackList* copy(Sequence* parent);
 
   void Save(QXmlStreamWriter& stream);
@@ -21,7 +21,7 @@ public:
   Track* TrackAt(int i);
   QVector<Track*> tracks();
 
-  Track::Type type();
+  olive::TrackType type();
 
   Sequence* GetParent();
 
@@ -31,7 +31,7 @@ signals:
 private:
   void ResizeTrackArray(int i);
 
-  Track::Type type_;
+  olive::TrackType type_;
   QVector<Track*> tracks_;
 };
 

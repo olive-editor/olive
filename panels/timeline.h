@@ -114,8 +114,8 @@ public:
   bool transition_tool_proc;
   Clip* transition_tool_open_clip;
   Clip* transition_tool_close_clip;
-  const EffectMeta* transition_tool_meta;
-  Track::Type transition_tool_side;
+  NodeType transition_tool_meta;
+  olive::TrackType transition_tool_side;
 
   // hand tool variables
   bool hand_moving;

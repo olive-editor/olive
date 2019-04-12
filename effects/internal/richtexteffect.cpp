@@ -34,10 +34,10 @@ enum AutoscrollDirection {
   SCROLL_RIGHT,
 };
 
-RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em) :
-  Effect(c, em)
+RichTextEffect::RichTextEffect(Clip *c) :
+  Node(c)
 {
-  SetFlags(Effect::SuperimposeFlag);
+  SetFlags(Node::SuperimposeFlag);
 
   text_val = new StringInput(this, "text", tr("Text"));
 
@@ -80,6 +80,41 @@ RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em) :
                               "<center>Sample Text</center>"
                             "</body>"
                           "</html>");
+}
+
+QString RichTextEffect::name()
+{
+  return tr("Rich Text");
+}
+
+QString RichTextEffect::id()
+{
+  return "org.olivevideoeditor.Olive.richtext";
+}
+
+QString RichTextEffect::category()
+{
+  return tr("Render");
+}
+
+QString RichTextEffect::description()
+{
+  return tr("Render formatted rich text over a clip.");
+}
+
+EffectType RichTextEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType RichTextEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr RichTextEffect::Create(Clip *c)
+{
+  return std::make_shared<RichTextEffect>(c);
 }
 
 void RichTextEffect::redraw(double timecode)

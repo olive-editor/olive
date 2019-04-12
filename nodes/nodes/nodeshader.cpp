@@ -1,10 +1,18 @@
 #include "nodeshader.h"
 
-NodeShader::NodeShader(Clip* c, const EffectMeta *em) :
-  Effect(c, em)
+NodeShader::NodeShader(Clip* c,
+                       const QString &name,
+                       const QString &id,
+                       const QString &category,
+                       const QString &filename) :
+  Node(c),
+  name_(name),
+  id_(id),
+  category_(category),
+  filename_(filename)
 {
-  if (em != nullptr && !em->filename.isEmpty() && em->internal == -1) {
-    QFile effect_file(em->filename);
+  if (!filename_.isEmpty()) {
+    QFile effect_file(filename_);
     if (effect_file.open(QFile::ReadOnly)) {
       QXmlStreamReader reader(&effect_file);
 
@@ -29,7 +37,7 @@ NodeShader::NodeShader(Clip* c, const EffectMeta *em) :
           }
 
           if (id.isEmpty() || name.isEmpty() || type == olive::nodes::kInvalid) {
-            qCritical() << "Couldn't load field from" << em->filename << "- ID, type, and name cannot be empty.";
+            qCritical() << "Couldn't load field from" << filename_ << "- ID, type, and name cannot be empty.";
           } else {
             EffectRow* field = nullptr;
 
@@ -158,29 +166,56 @@ NodeShader::NodeShader(Clip* c, const EffectMeta *em) :
               shader_function_name_ = attr.value().toString();
             }
           }
-        }/* else if (reader.name() == "superimpose" && reader.isStartElement()) {
-          enable_superimpose = true;
-          const QXmlStreamAttributes& attributes = reader.attributes();
-          for (int i=0;i<attributes.size();i++) {
-            const QXmlStreamAttribute& attr = attributes.at(i);
-            if (attr.name() == "script") {
-              QFile script_file(get_effects_dir() + "/" + attr.value().toString());
-              if (script_file.open(QFile::ReadOnly)) {
-                script = script_file.readAll();
-              } else {
-                qCritical() << "Failed to open superimpose script file for" << em->filename;
-                enable_superimpose = false;
-              }
-              break;
-            }
-          }
-        }*/
+        } else if (reader.name() == "description" && reader.isStartElement()) {
+          reader.readNext();
+          description_ = reader.text().toString();
+        }
         reader.readNext();
       }
 
       effect_file.close();
     } else {
-      qCritical() << "Failed to open effect file" << em->filename;
+      qCritical() << "Failed to open effect file" << filename;
     }
   }
+}
+
+QString NodeShader::name()
+{
+  return name_;
+}
+
+QString NodeShader::id()
+{
+  return id_;
+}
+
+QString NodeShader::category()
+{
+  return category_;
+}
+
+QString NodeShader::description()
+{
+  return description_;
+}
+
+EffectType NodeShader::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType NodeShader::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+bool NodeShader::IsCreatable()
+{
+  return !filename_.isEmpty();
+}
+
+NodePtr NodeShader::Create(Clip *)
+{
+  Q_ASSERT(false);
 }

@@ -23,7 +23,8 @@
 #include <QDebug>
 
 #include "ui/embeddedfilechooser.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "undo/undo.h"
 
 FileField::FileField(EffectRow* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_FILE)

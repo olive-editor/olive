@@ -20,7 +20,8 @@
 
 #include "doublefield.h"
 
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "undo/undo.h"
 
 DoubleField::DoubleField(EffectRow* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_DOUBLE),

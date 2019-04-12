@@ -40,7 +40,6 @@ RenderThread::RenderThread() :
   gizmos(nullptr),
   share_ctx(nullptr),
   ctx(nullptr),
-  blend_mode_program(nullptr),
   seq(nullptr),
   tex_width(-1),
   tex_height(-1),
@@ -50,7 +49,8 @@ RenderThread::RenderThread() :
   ocio_shader(nullptr),
   running(true),
   ocio_config_date(0),
-  front_buffer_switcher(false)
+  front_buffer_switcher(false),
+  pipeline_program(nullptr)
 {
   surface.create();
 }
@@ -101,16 +101,9 @@ void RenderThread::run() {
           back_buffer_2.Create(ctx, seq->width, seq->height);
         }
 
-        // If there's no blending mode shader, create it now
-        if (blend_mode_program == nullptr) {
+        // If there's no pipeline shader, create it now
+        if (pipeline_program == nullptr) {
           delete_shaders();
-
-          blend_mode_program = std::make_shared<QOpenGLShaderProgram>();
-          blend_mode_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/internalshaders/common.vert");
-          olive::effects_loaded.lock();
-          blend_mode_program->addShaderFromSourceCode(QOpenGLShader::Fragment, olive::generated_blending_shader);
-          olive::effects_loaded.unlock();
-          blend_mode_program->link();
 
           pipeline_program = olive::shader::GetPipeline();
         }
@@ -206,11 +199,10 @@ void RenderThread::paint() {
   params.viewer = nullptr;
   params.ctx = ctx;
   params.seq = seq;
-  params.type = Track::kTypeVideo;
+  params.type = olive::kTypeVideo;
   params.texture_failed = false;
   params.wait_for_mutexes = true;
   params.playback_speed = playback_speed_;
-  params.blend_mode_program = blend_mode_program.get();
   params.pipeline = pipeline_program.get();
   params.backend_buffer1 = &back_buffer_1;
   params.backend_buffer2 = &back_buffer_2;
@@ -380,7 +372,6 @@ void RenderThread::delete_buffers() {
 }
 
 void RenderThread::delete_shaders() {
-  blend_mode_program = nullptr;
   pipeline_program = nullptr;
 }
 

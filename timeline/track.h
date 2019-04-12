@@ -4,7 +4,13 @@
 #include <QVector>
 #include <memory>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "tracktypes.h"
+#include "undo/comboaction.h"
+#include "timeline/selection.h"
+
+class Sequence;
+class Transition;
 
 namespace olive {
   namespace timeline {
@@ -35,14 +41,7 @@ class Track : public QObject
 {
   Q_OBJECT
 public:
-  enum Type {
-    kTypeVideo,
-    kTypeAudio,
-    kTypeSubtitle,
-    kTypeCount
-  };
-
-  Track(TrackList* parent, Type type);
+  Track(TrackList* parent, olive::TrackType type);
   Track* copy(TrackList* parent);
 
   Sequence* sequence();
@@ -50,7 +49,7 @@ public:
 
   void Save(QXmlStreamWriter& stream);
 
-  Type type();
+  olive::TrackType type();
 
   int height();
   void set_height(int h);
@@ -110,10 +109,10 @@ private:
   void ResizeClipArray(int new_size);
 
   TrackList* parent_;
-  Type type_;
+  olive::TrackType type_;
   int height_;
   QVector<ClipPtr> clips_;
-  QVector<EffectPtr> effects_;
+  QVector<NodePtr> effects_;
   QVector<Selection> selections_;
 
   bool muted_;

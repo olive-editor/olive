@@ -27,7 +27,7 @@
 #include "ui/effectui.h"
 
 class Clip;
-class Effect;
+class Node;
 class EffectRow;
 class EffectField;
 class TimelineHeader;

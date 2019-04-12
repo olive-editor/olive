@@ -1,6 +1,6 @@
 #include "buttonwidget.h"
 
-ButtonWidget::ButtonWidget(Effect* parent, const QString& name, const QString& text) :
+ButtonWidget::ButtonWidget(Node* parent, const QString& name, const QString& text) :
   EffectRow(parent, nullptr, name, false, false)
 {
   ButtonField* button_field = new ButtonField(this, text);

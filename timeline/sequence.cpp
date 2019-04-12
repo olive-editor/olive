@@ -36,10 +36,10 @@ Sequence::Sequence() :
   wrapper_sequence(false)
 {
   // Set up tracks
-  track_lists_.resize(Track::kTypeCount);
+  track_lists_.resize(olive::kTypeCount);
 
   for (int i=0;i<track_lists_.size();i++) {
-    track_lists_[i] = new TrackList(this, static_cast<Track::Type>(i));
+    track_lists_[i] = new TrackList(this, static_cast<olive::TrackType>(i));
   }
 }
 
@@ -133,7 +133,7 @@ QVector<Clip *> Sequence::GetAllClips()
   return all_clips;
 }
 
-TrackList *Sequence::GetTrackList(Track::Type type)
+TrackList *Sequence::GetTrackList(olive::TrackType type)
 {
   return track_lists_.at(type);
 }
@@ -230,13 +230,13 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
     }
 
     if (olive::config.add_default_effects_to_clips) {
-      if (c->type() == Track::kTypeVideo) {
+      if (c->type() == olive::kTypeVideo) {
         // add default video effects
-        c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_TRANSFORM, EFFECT_TYPE_EFFECT)));
-      } else if (c->type() == Track::kTypeAudio) {
+        c->effects.append(olive::node_library[kTransformEffect]->Create(c.get()));
+      } else if (c->type() == olive::kTypeAudio) {
         // add default audio effects
-        c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_VOLUME, EFFECT_TYPE_EFFECT)));
-        c->effects.append(Effect::Create(c.get(), Effect::GetInternalMeta(EFFECT_INTERNAL_PAN, EFFECT_TYPE_EFFECT)));
+        c->effects.append(olive::node_library[kVolumeEffect]->Create(c.get()));
+        c->effects.append(olive::node_library[kPanEffect]->Create(c.get()));
       }
     }
   }
@@ -265,7 +265,7 @@ void Sequence::MoveClip(Clip *c, ComboAction *ca, long iin, long iout, long icli
       ca->append(new AddTransitionCommand(nullptr,
                                           c->opening_transition->secondary_clip,
                                           c->opening_transition,
-                                          nullptr,
+                                          kInvalidNode,
                                           0));
     }
 
@@ -277,7 +277,7 @@ void Sequence::MoveClip(Clip *c, ComboAction *ca, long iin, long iout, long icli
       ca->append(new AddTransitionCommand(nullptr,
                                           c,
                                           c->closing_transition,
-                                          nullptr,
+                                          kInvalidNode,
                                           0));
     }
   }
@@ -905,9 +905,9 @@ void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_
 
 }
 
-Effect *Sequence::GetSelectedGizmo()
+Node *Sequence::GetSelectedGizmo()
 {
-  Effect* gizmo_ptr = nullptr;
+  Node* gizmo_ptr = nullptr;
 
   QVector<Clip*> clips = GetAllClips();
 
@@ -923,7 +923,7 @@ Effect *Sequence::GetSelectedGizmo()
         // none selected
 
         for (int j=0;j<c->effects.size();j++) {
-          Effect* e = c->effects.at(j).get();
+          Node* e = c->effects.at(j).get();
 
           // retrieve gizmo data from effect
           if (e->are_gizmos_enabled()) {
@@ -1156,7 +1156,7 @@ ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long f
     ca->append(new AddTransitionCommand(nullptr,
                                         pre->opening_transition->secondary_clip,
                                         pre->opening_transition,
-                                        nullptr,
+                                        kInvalidNode,
                                         0)
                );
 

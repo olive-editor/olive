@@ -22,7 +22,40 @@
 
 #include <QtMath>
 
-LogarithmicFadeTransition::LogarithmicFadeTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {}
+LogarithmicFadeTransition::LogarithmicFadeTransition(Clip* c) :
+  Transition(c)
+{
+}
+
+QString LogarithmicFadeTransition::name()
+{
+  return tr("Logarithmic Fade");
+}
+
+QString LogarithmicFadeTransition::id()
+{
+  return "org.olivevideoeditor.Olive.logarithmicfade";
+}
+
+QString LogarithmicFadeTransition::description()
+{
+  return tr("An logarithmic audio fade that starts fast and ends slow.");
+}
+
+EffectType LogarithmicFadeTransition::type()
+{
+  return EFFECT_TYPE_TRANSITION;
+}
+
+olive::TrackType LogarithmicFadeTransition::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr LogarithmicFadeTransition::Create(Clip *c)
+{
+  return std::make_shared<LogarithmicFadeTransition>(c);
+}
 
 void LogarithmicFadeTransition::process_audio(double timecode_start,
                                               double timecode_end,

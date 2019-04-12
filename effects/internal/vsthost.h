@@ -24,7 +24,7 @@
 #include <QDialog>
 #include <QLibrary>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "include/vestige.h"
 
 // Plugin's dispatcher function
@@ -46,11 +46,19 @@ private:
   void destroy();
 };
 
-class VSTHost : public Effect {
+class VSTHost : public Node {
   Q_OBJECT
 public:
-  VSTHost(Clip* c, const EffectMeta* em);
-  ~VSTHost();
+  VSTHost(Clip* c);
+  virtual ~VSTHost() override;
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void process_audio(double timecode_start,
                              double timecode_end,
                              float **samples,

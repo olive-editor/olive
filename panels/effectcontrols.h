@@ -94,14 +94,14 @@ protected:
   virtual void ClearEvent() override;
   virtual void LoadEvent() override;
 private:
-  void show_effect_menu(int type, Track::Type subtype);
+  void show_effect_menu(EffectType type, olive::TrackType subtype);
   void load_keyframes();
   void UpdateTitle();
 
   void setup_ui();
 
   int effect_menu_type;
-  Track::Type effect_menu_subtype;
+  olive::TrackType effect_menu_subtype;
   QString panel_name;
 
   QWidget* video_effect_area;

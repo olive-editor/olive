@@ -24,12 +24,35 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/transition.h"
 #include "global/path.h"
 #include "panels/panels.h"
 #include "panels/effectcontrols.h"
 #include "global/config.h"
+
+#include "effects/internal/transformeffect.h"
+#include "effects/internal/texteffect.h"
+#include "effects/internal/timecodeeffect.h"
+#include "effects/internal/solideffect.h"
+#include "effects/internal/audionoiseeffect.h"
+#include "effects/internal/toneeffect.h"
+#include "effects/internal/volumeeffect.h"
+#include "effects/internal/paneffect.h"
+#include "effects/internal/shakeeffect.h"
+#include "effects/internal/cornerpineffect.h"
+#include "effects/internal/vsthost.h"
+#include "effects/internal/fillleftrighteffect.h"
+#include "effects/internal/richtexteffect.h"
+
+#include "effects/internal/crossdissolvetransition.h"
+#include "effects/internal/linearfadetransition.h"
+#include "effects/internal/logarithmicfadetransition.h"
+#include "effects/internal/exponentialfadetransition.h"
+
+#include "nodes/nodes/nodemedia.h"
+#include "nodes/nodes/nodeimageoutput.h"
+#include "nodes/nodes/nodeshader.h"
 
 QMutex olive::effects_loaded;
 
@@ -38,103 +61,35 @@ void load_internal_effects() {
     qWarning() << "Shaders are disabled, some effects may be nonfunctional";
   }
 
-  EffectMeta em;
+  olive::node_library.resize(kInvalidNode);
+  olive::node_library.fill(nullptr);
 
-  // load internal effects
-  em.path = ":/internalshaders";
-
-  em.type = EFFECT_TYPE_EFFECT;
-  em.subtype = Track::kTypeAudio;
-
-  em.name = "Volume";
-  em.internal = EFFECT_INTERNAL_VOLUME;
-  olive::effects.append(em);
-
-  em.name = "Pan";
-  em.internal = EFFECT_INTERNAL_PAN;
-  olive::effects.append(em);
-
-  em.name = "VST Plugin 2.x";
-  em.internal = EFFECT_INTERNAL_VST;
-  olive::effects.append(em);
-
-  em.name = "Tone";
-  em.internal = EFFECT_INTERNAL_TONE;
-  olive::effects.append(em);
-
-  em.name = "Noise";
-  em.internal = EFFECT_INTERNAL_NOISE;
-  olive::effects.append(em);
-
-  em.name = "Fill Left/Right";
-  em.internal = EFFECT_INTERNAL_FILLLEFTRIGHT;
-  olive::effects.append(em);
-
-  em.subtype = Track::kTypeVideo;
-
-  em.name = "Transform";
-  em.category = "Distort";
-  em.internal = EFFECT_INTERNAL_TRANSFORM;
-  olive::effects.append(em);
-
-  em.name = "Corner Pin";
-  em.internal = EFFECT_INTERNAL_CORNERPIN;
-  olive::effects.append(em);
-
-  /*em.name = "Mask";
-  em.internal = EFFECT_INTERNAL_MASK;
-  olive::effects.append(em);*/
-
-  em.name = "Shake";
-  em.internal = EFFECT_INTERNAL_SHAKE;
-  olive::effects.append(em);
-
-  em.name = "Text";
-  em.category = "Render";
-  em.internal = EFFECT_INTERNAL_TEXT;
-  olive::effects.append(em);
-
-  em.name = "Rich Text";
-  em.category = "Render";
-  em.internal = EFFECT_INTERNAL_RICHTEXT;
-  olive::effects.append(em);
-
-  em.name = "Timecode";
-  em.internal = EFFECT_INTERNAL_TIMECODE;
-  olive::effects.append(em);
-
-  em.name = "Solid";
-  em.internal = EFFECT_INTERNAL_SOLID;
-  olive::effects.append(em);
-
-  // internal transitions
-  em.type = EFFECT_TYPE_TRANSITION;
-  em.category = "";
-
-  em.name = "Cross Dissolve";
-  em.internal = TRANSITION_INTERNAL_CROSSDISSOLVE;
-  olive::effects.append(em);
-
-  em.subtype = Track::kTypeAudio;
-
-  em.name = "Linear Fade";
-  em.internal = TRANSITION_INTERNAL_LINEARFADE;
-  olive::effects.append(em);
-
-  em.name = "Exponential Fade";
-  em.internal = TRANSITION_INTERNAL_EXPONENTIALFADE;
-  olive::effects.append(em);
-
-  em.name = "Logarithmic Fade";
-  em.internal = TRANSITION_INTERNAL_LOGARITHMICFADE;
-  olive::effects.append(em);
+  olive::node_library[kTransformEffect] = std::make_shared<TransformEffect>(nullptr);
+  olive::node_library[kTextInput] = std::make_shared<TextEffect>(nullptr);
+  olive::node_library[kSolidInput] = std::make_shared<SolidEffect>(nullptr);
+  olive::node_library[kNoiseInput] = std::make_shared<AudioNoiseEffect>(nullptr);
+  olive::node_library[kVolumeEffect] = std::make_shared<VolumeEffect>(nullptr);
+  olive::node_library[kPanEffect] = std::make_shared<PanEffect>(nullptr);
+  olive::node_library[kToneInput] = std::make_shared<ToneEffect>(nullptr);
+  olive::node_library[kShakeEffect] = std::make_shared<ShakeEffect>(nullptr);
+  olive::node_library[kTimecodeEffect] = std::make_shared<TimecodeEffect>(nullptr);
+  olive::node_library[kFillLeftRightEffect] = std::make_shared<FillLeftRightEffect>(nullptr);
+  olive::node_library[kVstEffect] = std::make_shared<VSTHost>(nullptr);
+  olive::node_library[kCornerPinEffect] = std::make_shared<CornerPinEffect>(nullptr);
+  olive::node_library[kRichTextInput] = std::make_shared<RichTextEffect>(nullptr);
+  olive::node_library[kMediaInput] = std::make_shared<NodeMedia>(nullptr);
+  olive::node_library[kImageOutput] = std::make_shared<NodeImageOutput>(nullptr);
+  olive::node_library[kCrossDissolveTransition] = std::make_shared<CrossDissolveTransition>(nullptr);
+  olive::node_library[kLinearFadeTransition] = std::make_shared<LinearFadeTransition>(nullptr);
+  olive::node_library[kExponentialFadeTransition] = std::make_shared<ExponentialFadeTransition>(nullptr);
+  olive::node_library[kLogarithmicFadeTransition] = std::make_shared<LogarithmicFadeTransition>(nullptr);
 }
 
 void load_shader_effects_worker(const QString& effects_path) {
   QDir effects_dir(effects_path);
   if (effects_dir.exists()) {
 
-    QList<QString> entries = effects_dir.entryList({"*.xml", "*.blend"},
+    QList<QString> entries = effects_dir.entryList({"*.xml"},
                                                    QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
 
     for (int i=0;i<entries.size();i++) {
@@ -144,60 +99,44 @@ void load_shader_effects_worker(const QString& effects_path) {
       } else {
         QString file_url = QDir(effects_path).filePath(entries.at(i));
 
-        if (file_url.endsWith(".blend", Qt::CaseInsensitive)) {
+        QFile file(file_url);
 
-          // Load blending mode shaders from file
-          QList<QString> blend_mode_entries = effects_dir.entryList(QStringList("*.blend"), QDir::Files);
-          for (int i=0;i<blend_mode_entries.size();i++) {
-            BlendMode b;
-            b.loaded = false;
-            b.url = effects_dir.filePath(blend_mode_entries.at(i));
-            b.name = QFileInfo(b.url).baseName();
-            olive::blend_modes.append(b);
-          }
-
-        } else {
-
-          QFile file(file_url);
-
-          if (!file.open(QIODevice::ReadOnly)) {
-            qCritical() << "Could not open" << entries.at(i);
-            return;
-          }
-
-          QXmlStreamReader reader(&file);
-          while (!reader.atEnd()) {
-            if (reader.name() == "effect") {
-              QString effect_name = "";
-              QString effect_cat = "";
-              const QXmlStreamAttributes attr = reader.attributes();
-              for (int j=0;j<attr.size();j++) {
-                if (attr.at(j).name() == "name") {
-                  effect_name = attr.at(j).value().toString();
-                } else if (attr.at(j).name() == "category") {
-                  effect_cat = attr.at(j).value().toString();
-                }
-              }
-              if (!effect_name.isEmpty()) {
-                EffectMeta em;
-                em.type = EFFECT_TYPE_EFFECT;
-                em.subtype = Track::kTypeVideo;
-                em.name = effect_name;
-                em.category = effect_cat;
-                em.filename = file.fileName();
-                em.path = effects_path;
-                em.internal = -1;
-                olive::effects.append(em);
-              } else {
-                qCritical() << "Invalid effect found in" << entries.at(i);
-              }
-              break;
-            }
-            reader.readNext();
-          }
-
-          file.close();
+        if (!file.open(QIODevice::ReadOnly)) {
+          qCritical() << "Could not open" << entries.at(i);
+          return;
         }
+
+        QXmlStreamReader reader(&file);
+        while (!reader.atEnd()) {
+          if (reader.name() == "effect") {
+            QString effect_name;
+            QString effect_cat;
+            QString effect_id;
+            const QXmlStreamAttributes attr = reader.attributes();
+            for (int j=0;j<attr.size();j++) {
+              if (attr.at(j).name() == "name") {
+                effect_name = attr.at(j).value().toString();
+              } else if (attr.at(j).name() == "category") {
+                effect_cat = attr.at(j).value().toString();
+              } else if (attr.at(j).name() == "id") {
+                effect_id = attr.at(j).value().toString();
+              }
+            }
+            if (!effect_name.isEmpty() && !effect_id.isEmpty()) {
+              olive::node_library.append(std::make_shared<NodeShader>(nullptr,
+                                                                      effect_name,
+                                                                      effect_id,
+                                                                      effect_cat,
+                                                                      file_url));
+            } else {
+              qCritical() << "Invalid effect found in" << entries.at(i);
+            }
+            break;
+          }
+          reader.readNext();
+        }
+
+        file.close();
       }
     }
   }

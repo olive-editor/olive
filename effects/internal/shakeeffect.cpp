@@ -32,8 +32,8 @@
 #include "panels/timeline.h"
 #include "global/debug.h"
 
-ShakeEffect::ShakeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  SetFlags(Effect::CoordsFlag);
+ShakeEffect::ShakeEffect(Clip* c) : Node(c) {
+  SetFlags(Node::CoordsFlag);
 
   intensity_val = new DoubleInput(this, "intensity", tr("Intensity"));
   intensity_val->SetMinimum(0);
@@ -78,4 +78,39 @@ void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords, int) 
   coords.matrix.translate(xoff, yoff, 0.0);
 
   coords.matrix.rotate(QQuaternion::fromEulerAngles(0.0f, 0.0f, rotoff));
+}
+
+QString ShakeEffect::name()
+{
+  return tr("Shake");
+}
+
+QString ShakeEffect::id()
+{
+  return "org.olivevideoeditor.Olive.shake";
+}
+
+QString ShakeEffect::category()
+{
+  return tr("Distort");
+}
+
+QString ShakeEffect::description()
+{
+  return tr("Simulate a camera shake movement.");
+}
+
+EffectType ShakeEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType ShakeEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr ShakeEffect::Create(Clip *c)
+{
+  return std::make_shared<ShakeEffect>(c);
 }

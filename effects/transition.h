@@ -21,7 +21,8 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 
-#include "effect.h"
+#include "nodes/node.h"
+#include "nodes/inputs.h"
 
 enum TransitionType {
   kTransitionNone,
@@ -29,23 +30,16 @@ enum TransitionType {
   kTransitionClosing
 };
 
-enum TransitionInternal {
-  TRANSITION_INTERNAL_CROSSDISSOLVE,
-  TRANSITION_INTERNAL_LINEARFADE,
-  TRANSITION_INTERNAL_EXPONENTIALFADE,
-  TRANSITION_INTERNAL_LOGARITHMICFADE,
-  //TRANSITION_INTERNAL_CUBE,
-  TRANSITION_INTERNAL_COUNT
-};
-
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-class Transition : public Effect {
+class Transition : public Node {
   Q_OBJECT
 public:
-  Transition(Clip* c, Clip* s, const EffectMeta* em);
-  virtual TransitionPtr copy(Clip* c, Clip* s);
+  Transition(Clip* c);
+
+  virtual NodePtr copy(Clip* c) override;
+
   Clip* secondary_clip;
 
   virtual void save(QXmlStreamWriter& stream) override;
@@ -57,8 +51,6 @@ public:
   Clip* get_opened_clip();
   Clip* get_closed_clip();
 
-  static TransitionPtr Create(Clip* c, Clip* s, const EffectMeta* em, long length = 0);
-  static TransitionPtr CreateFromMeta(Clip *c, Clip *s, const EffectMeta* em);
 
 private:
   DoubleInput* length_field;

@@ -27,7 +27,7 @@
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 
-ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_MIN) {
+ToneEffect::ToneEffect(Clip* c) : Node(c), sinX(INT_MIN) {
   type_val = new ComboInput(this, "type", tr("Type"));
   type_val->AddItem(tr("Sine"), TONE_TYPE_SINE);
 
@@ -43,6 +43,36 @@ ToneEffect::ToneEffect(Clip* c, const EffectMeta *em) : Effect(c, em), sinX(INT_
 
   mix_val = new BoolInput(this, "mix", tr("Mix"));
   mix_val->SetValueAt(0, true);
+}
+
+QString ToneEffect::name()
+{
+  return tr("Tone");
+}
+
+QString ToneEffect::id()
+{
+  return "org.olivevideoeditor.Olive.tone";
+}
+
+QString ToneEffect::description()
+{
+  return tr("Generate a sine wave tone to mix into this clip's audio.");
+}
+
+EffectType ToneEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType ToneEffect::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr ToneEffect::Create(Clip *c)
+{
+  return std::make_shared<ToneEffect>(c);
 }
 
 void ToneEffect::process_audio(double timecode_start,

@@ -34,7 +34,7 @@ extern "C" {
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 #include "project/media.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "project/footage.h"
 #include "effects/transition.h"
 #include "ui/collapsiblewidget.h"
@@ -110,7 +110,6 @@ void olive::rendering::Blit(QOpenGLShaderProgram* pipeline, bool flipped, QMatri
   pipeline->setUniformValue("mvp_matrix", matrix);
   pipeline->setUniformValue("texture", 0);
 
-
   GLuint vertex_location = pipeline->attributeLocation("a_position");
   m_vbo.bind();
   func->glEnableVertexAttribArray(vertex_location);
@@ -176,7 +175,7 @@ GLuint draw_clip(QOpenGLContext* ctx,
 void process_effect(QOpenGLContext* ctx,
                     QOpenGLShaderProgram* pipeline,
                     Clip* c,
-                    Effect* e,
+                    Node* e,
                     double timecode,
                     GLTextureCoords& coords,
                     GLuint& composite_texture,
@@ -184,11 +183,11 @@ void process_effect(QOpenGLContext* ctx,
                     bool& texture_failed,
                     int data) {
   if (e->IsEnabled()) {
-    if (e->Flags() & Effect::CoordsFlag) {
+    if (e->Flags() & Node::CoordsFlag) {
       e->process_coords(timecode, coords, data);
     }
-    bool can_process_shaders = ((e->Flags() & Effect::ShaderFlag) && olive::runtime_config.shaders_are_enabled);
-    if (can_process_shaders || (e->Flags() & Effect::SuperimposeFlag)) {
+    bool can_process_shaders = ((e->Flags() & Node::ShaderFlag) && olive::runtime_config.shaders_are_enabled);
+    if (can_process_shaders || (e->Flags() & Node::SuperimposeFlag)) {
 
       if (!e->is_open()) {
         e->open();
@@ -201,7 +200,7 @@ void process_effect(QOpenGLContext* ctx,
           fbo_switcher = !fbo_switcher;
         }
       }
-      if (e->Flags() & Effect::SuperimposeFlag) {
+      if (e->Flags() & Node::SuperimposeFlag) {
         GLuint superimpose_texture = e->process_superimpose(ctx, timecode);
 
         if (superimpose_texture == 0) {
@@ -227,7 +226,7 @@ void process_effect(QOpenGLContext* ctx,
 }
 
 GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
-  GLuint final_fbo = params.type == Track::kTypeVideo ? params.main_buffer->buffer() : 0;
+  GLuint final_fbo = params.type == olive::kTypeVideo ? params.main_buffer->buffer() : 0;
 
   Sequence* s = params.seq;
   long playhead = s->playhead;
@@ -240,7 +239,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
       playhead = rescale_frame_number(playhead, params.nests.at(i)->track()->sequence()->frame_rate, s->frame_rate);
     }
 
-    if (params.type == Track::kTypeVideo && !params.nests.last()->fbo.isEmpty()) {
+    if (params.type == olive::kTypeVideo && !params.nests.last()->fbo.isEmpty()) {
       params.nests.last()->fbo.at(0).BindBuffer();
       params.ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
       final_fbo = params.nests.last()->fbo.at(0).buffer();
@@ -270,7 +269,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           Footage* m = c->media()->to_footage();
 
           // does the clip have a valid media source?
-          if (!m->invalid && !(c->type() == Track::kTypeAudio && !is_audio_device_set())) {
+          if (!m->invalid && !(c->type() == olive::kTypeAudio && !is_audio_device_set())) {
 
             // is the media process and ready?
             if (m->ready) {
@@ -287,7 +286,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
                 clip_is_active = true;
 
                 // increment audio track count
-                if (c->type() == Track::kTypeAudio) audio_track_count++;
+                if (c->type() == olive::kTypeAudio) audio_track_count++;
 
               } else if (c->IsOpen()) {
 
@@ -321,7 +320,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
           // track sorting is only necessary for video clips
           // audio clips are mixed equally, so we skip sorting for those
-          if (params.type == Track::kTypeVideo) {
+          if (params.type == olive::kTypeVideo) {
 
             // insertion sort by track
             for (int j=0;j<current_clips.size();j++) {
@@ -344,7 +343,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
   QMatrix4x4 projection;
 
-  if (params.type == Track::kTypeVideo) {
+  if (params.type == olive::kTypeVideo) {
     // set default coordinates based on the sequence, with 0 in the direct center
 
     params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -370,7 +369,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
     if (got_mutex && c->IsOpen()) {
       // if clip is a video clip
-      if (c->type() == Track::kTypeVideo) {
+      if (c->type() == olive::kTypeVideo) {
 
         // textureID variable contains texture to be drawn on screen at the end
         GLuint textureID = 0;
@@ -504,7 +503,6 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           coords.texture_top_right = QVector2D(1.0f, 0.0f);
           coords.texture_bottom_left = QVector2D(0.0f, 1.0f);
           coords.texture_bottom_right = QVector2D(1.0f, 1.0f);
-          coords.blendmode = -1;
           coords.opacity = 1.0;
 
           // == EFFECT CODE START ==
@@ -515,7 +513,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           // run through all of the clip's effects
           for (int j=0;j<c->effects.size();j++) {
 
-            Effect* e = c->effects.at(j).get();
+            Node* e = c->effects.at(j).get();
             process_effect(params.ctx, params.pipeline, c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
           }
@@ -685,9 +683,11 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
 
             // copy front buffer to back buffer (only if we're using a blending mode)
+            /*
             if (coords.blendmode >= 0) {
               draw_clip(params.ctx, params.pipeline, back_buffer_2, comp_texture, true);
             }
+            */
 
 
 
@@ -700,7 +700,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, final_fbo);
 
             // Check if we're using a blend mode (< 0 means no blend mode)
-            if (coords.blendmode < 0) {
+            //if (coords.blendmode < 0) {
 
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, backend_tex_1);
 
@@ -708,7 +708,9 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 
-            } else {
+            //} else {
+
+              /*
 
               // load background texture into texture unit 0
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
@@ -739,7 +741,9 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
               params.ctx->functions()->glActiveTexture(GL_TEXTURE0 + 0); // Texture unit 0
               params.ctx->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 
-            }
+              */
+
+            //}
 
             // unbind framebuffer
             params.ctx->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -750,7 +754,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
             // == END FINAL DRAW ON SEQUENCE BUFFER ==
           }
         }
-      } else if (c->type() == Track::kTypeAudio) {
+      } else if (c->type() == olive::kTypeAudio) {
         if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_SEQUENCE) {
           params.nests.append(c);
           compose_sequence(params);
@@ -795,11 +799,10 @@ void olive::rendering::compose_audio(Viewer* viewer, Sequence* seq, int playback
   params.viewer = viewer;
   params.ctx = nullptr;
   params.seq = seq;
-  params.type = Track::kTypeAudio;
+  params.type = olive::kTypeAudio;
   params.gizmos = nullptr;
   params.wait_for_mutexes = wait_for_mutexes;
   params.playback_speed = playback_speed;
-  params.blend_mode_program = nullptr;
   compose_sequence(params);
 }
 

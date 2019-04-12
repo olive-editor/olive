@@ -33,7 +33,7 @@
 #include "ui/keyframedrawing.h"
 #include "undo/undo.h"
 #include "undo/undostack.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "timeline/clip.h"
 #include "ui/rectangleselect.h"
 #include "ui/menu.h"

@@ -23,7 +23,7 @@
 #include <QDateTime>
 #include <QtMath>
 
-AudioNoiseEffect::AudioNoiseEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
+AudioNoiseEffect::AudioNoiseEffect(Clip* c) : Node(c) {
   amount_val = new DoubleInput(this, "amount", tr("Amount"));
   amount_val->SetMinimum(0);
   amount_val->SetDefault(20);
@@ -31,6 +31,36 @@ AudioNoiseEffect::AudioNoiseEffect(Clip* c, const EffectMeta *em) : Effect(c, em
 
   mix_val = new BoolInput(this, "mix", tr("Mix"));
   mix_val->SetValueAt(0, true);
+}
+
+QString AudioNoiseEffect::name()
+{
+  return tr("Noise");
+}
+
+QString AudioNoiseEffect::id()
+{
+  return "org.olivevideoeditor.Olive.noise";
+}
+
+QString AudioNoiseEffect::description()
+{
+  return tr("Generate audio noise that can be mixed with this clip.");
+}
+
+EffectType AudioNoiseEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType AudioNoiseEffect::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr AudioNoiseEffect::Create(Clip *c)
+{
+  return std::make_shared<AudioNoiseEffect>(c);
 }
 
 void AudioNoiseEffect::process_audio(double timecode_start,

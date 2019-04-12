@@ -227,8 +227,8 @@ void VSTHost::send_data_cache_to_plugin()
   dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
 }
 
-VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
-  Effect(c, em),
+VSTHost::VSTHost(Clip* c) :
+  Node(c),
   plugin(nullptr),
   dialog(nullptr),
   input_cache(BLOCK_SIZE),
@@ -247,6 +247,36 @@ VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
 
 VSTHost::~VSTHost() {
   freePlugin();
+}
+
+QString VSTHost::name()
+{
+  return tr("VST Plugin 2.x");
+}
+
+QString VSTHost::id()
+{
+  return "org.olivevideoeditor.Olive.vst2x";
+}
+
+QString VSTHost::description()
+{
+  return tr("Use a VST 2.x plugin on this clip's audio.");
+}
+
+EffectType VSTHost::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType VSTHost::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr VSTHost::Create(Clip *c)
+{
+  return std::make_shared<VSTHost>(c);
 }
 
 void VSTHost::process_audio(double timecode_start,
@@ -291,7 +321,7 @@ void VSTHost::custom_load(QXmlStreamReader &stream) {
 }
 
 void VSTHost::save(QXmlStreamWriter &stream) {
-  Effect::save(stream);
+  Node::save(stream);
   if (plugin != nullptr) {
     char* p = nullptr;
     int32_t length = int32_t(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));

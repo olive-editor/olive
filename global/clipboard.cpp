@@ -21,8 +21,9 @@
 #include "clipboard.h"
 
 #include "timeline/clip.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/transition.h"
+#include "undo/undo.h"
 
 Clipboard::Clipboard() :
   type_(CLIPBOARD_TYPE_CLIP)

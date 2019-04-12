@@ -47,7 +47,7 @@ public:
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
-  TrackList* GetTrackList(Track::Type type);
+  TrackList* GetTrackList(olive::TrackType type);
 
   /**
    * @brief Close all open clips in a Sequence
@@ -97,7 +97,7 @@ public:
   void RippleDeleteEmptySpace(ComboAction *ca, Track *track, long point);
   void RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length);
 
-  Effect* GetSelectedGizmo();
+  Node* GetSelectedGizmo();
 
   bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);

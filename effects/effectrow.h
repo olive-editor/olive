@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QVector>
 
-class Effect;
+class Node;
 class QGridLayout;
 class EffectField;
 class QLabel;
@@ -83,7 +83,7 @@ public:
    * Whether keyframing can be enabled on this row or not. This is true by default. Some values you may want to prevent
    * the user from keyframing (e.g. the filename of a VST plugin), which can be done by setting this to false.
    */
-  EffectRow(Effect* parent,
+  EffectRow(Node* parent,
             const QString& id,
             const QString& name,
             bool savable = true,
@@ -126,7 +126,7 @@ public:
    *
    * @return The parent Effect object that this row is attached to.
    */
-  Effect* GetParentEffect();
+  Node* GetParentEffect();
 
   /**
    * @brief Return the row's name

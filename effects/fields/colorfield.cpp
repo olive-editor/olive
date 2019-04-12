@@ -23,7 +23,8 @@
 #include <QColor>
 
 #include "ui/colorbutton.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "undo/undo.h"
 
 ColorField::ColorField(EffectRow* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COLOR)

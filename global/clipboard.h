@@ -24,6 +24,7 @@
 #include <QVector>
 
 #include "effects/transition.h"
+#include "project/media.h"
 
 using VoidPtr = std::shared_ptr<void>;
 

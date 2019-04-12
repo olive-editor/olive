@@ -30,7 +30,7 @@
 #include "timeline/timelinetools.h"
 #include "ui/labelslider.h"
 #include "ui/graphview.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/effectfields.h"
 #include "effects/effectrow.h"
 #include "timeline/clip.h"
@@ -210,7 +210,7 @@ void GraphEditor::set_row(EffectRow *r) {
   if (found_vals) {
     row = r;
     current_row_desc->setText(row->GetParentEffect()->parent_clip->name()
-                              + " :: " + row->GetParentEffect()->meta->name
+                              + " :: " + row->GetParentEffect()->name()
                               + " :: " + row->name());
     header->set_visible_in(r->GetParentEffect()->parent_clip->timeline_in());
 

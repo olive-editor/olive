@@ -22,7 +22,7 @@
 
 #include <QtMath>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/transition.h"
 #include "project/footage.h"
 #include "global/config.h"
@@ -116,7 +116,7 @@ Selection Clip::ToSelection()
   return Selection(timeline_in(), timeline_out(), track());
 }
 
-Track::Type Clip::type()
+olive::TrackType Clip::type()
 {
   return track()->type();
 }
@@ -147,7 +147,7 @@ FootageStream *Clip::media_stream()
 {
   if (media() != nullptr
       && media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-    return media()->to_footage()->get_stream_from_file_index(type() == Track::kTypeVideo, media_stream_index());
+    return media()->to_footage()->get_stream_from_file_index(type() == olive::kTypeVideo, media_stream_index());
   }
 
   return nullptr;
@@ -199,9 +199,9 @@ void Clip::refresh() {
   if (replaced && media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     Footage* m = media()->to_footage();
 
-    if (type() == Track::kTypeVideo && m->video_tracks.size() > 0)  {
+    if (type() == olive::kTypeVideo && m->video_tracks.size() > 0)  {
       set_media(media(), m->video_tracks.at(0).file_index);
-    } else if (type() == Track::kTypeAudio && m->audio_tracks.size() > 0) {
+    } else if (type() == olive::kTypeAudio && m->audio_tracks.size() > 0) {
       set_media(media(), m->audio_tracks.at(0).file_index);
     }
   }
@@ -220,7 +220,7 @@ QVector<Marker> &Clip::get_markers() {
   return markers;
 }
 
-int Clip::IndexOfEffect(Effect *e)
+int Clip::IndexOfEffect(Node *e)
 {
   for (int i=0;i<effects.size();i++) {
     if (effects.at(i).get() == e) {
@@ -427,7 +427,7 @@ long Clip::length() {
 }
 
 double Clip::media_frame_rate() {
-  Q_ASSERT(type() == Track::kTypeVideo);
+  Q_ASSERT(type() == olive::kTypeVideo);
   if (media_ != nullptr) {
     double rate = media_->get_frame_rate(media_stream_index());
     if (!qIsNaN(rate)) return rate;
@@ -449,7 +449,7 @@ long Clip::media_length() {
       case MEDIA_TYPE_FOOTAGE:
       {
         Footage* m = media_->to_footage();
-        const FootageStream* ms = m->get_stream_from_file_index(type() == Track::kTypeVideo, media_stream_index());
+        const FootageStream* ms = m->get_stream_from_file_index(type() == olive::kTypeVideo, media_stream_index());
         if (ms != nullptr && ms->infinite_length) {
           return LONG_MAX;
         } else {
@@ -517,7 +517,7 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
 
   // move keyframes
   for (int i=0;i<effects.size();i++) {
-    EffectPtr e = effects.at(i);
+    NodePtr e = effects.at(i);
     for (int j=0;j<e->row_count();j++) {
       EffectRow* r = e->row(j);
       for (int l=0;l<r->FieldCount();l++) {
@@ -710,7 +710,7 @@ bool Clip::Retrieve()
 
 bool Clip::UsesCacher()
 {
-  return type() == Track::kTypeAudio || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
+  return type() == olive::kTypeAudio || (media() != nullptr && media()->get_type() == MEDIA_TYPE_FOOTAGE);
 }
 
 ClipSpeed::ClipSpeed() :

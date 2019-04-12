@@ -7,7 +7,7 @@ class StringInput : public EffectRow
 {
   Q_OBJECT
 public:
-  StringInput(Effect* parent,
+  StringInput(Node* parent,
               const QString& id,
               const QString& name,
               bool rich_text = true,

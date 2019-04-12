@@ -21,11 +21,11 @@
 #ifndef SOLIDEFFECT_H
 #define SOLIDEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
 #include <QImage>
 
-class SolidEffect : public Effect {
+class SolidEffect : public Node {
   Q_OBJECT
 public:
   enum SolidType {
@@ -34,7 +34,16 @@ public:
     SOLID_TYPE_CHECKERBOARD
   };
 
-  SolidEffect(Clip* c, const EffectMeta *em);
+  SolidEffect(Clip* c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString category() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void redraw(double timecode) override;
 
   void SetType(SolidType type);

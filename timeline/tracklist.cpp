@@ -2,7 +2,7 @@
 
 #include "timeline/sequence.h"
 
-TrackList::TrackList(Sequence *parent, Track::Type type) :
+TrackList::TrackList(Sequence *parent, olive::TrackType type) :
   QObject(parent),
   type_(type)
 {
@@ -91,7 +91,7 @@ QVector<Track*> TrackList::tracks()
   return tracks_;
 }
 
-Track::Type TrackList::type()
+olive::TrackType TrackList::type()
 {
   return type_;
 }

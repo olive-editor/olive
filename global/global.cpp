@@ -389,15 +389,15 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
         Clip* c = selected_clips.at(i);
 
         for (int j=0;j<olive::clipboard.Count();j++) {
-          EffectPtr e = std::static_pointer_cast<Effect>(olive::clipboard.Get(j));
-          if (c->type() == e->meta->subtype) {
+          NodePtr e = std::static_pointer_cast<Node>(olive::clipboard.Get(j));
+          if (c->type() == e->subtype()) {
             int found = -1;
             if (ask_conflict) {
               replace = false;
               skip = false;
             }
             for (int k=0;k<c->effects.size();k++) {
-              if (c->effects.at(k)->meta == e->meta) {
+              if (c->effects.at(k)->id() == e->id()) {
                 found = k;
                 break;
               }
@@ -407,7 +407,7 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
               box.setWindowTitle(tr("Effect already exists"));
               box.setText(tr("Clip '%1' already contains a '%2' effect. "
                              "Would you like to replace it with the pasted one or add it as a separate effect?")
-                          .arg(c->name(), e->meta->name));
+                          .arg(c->name(), e->name()));
               box.setIcon(QMessageBox::Icon::Question);
 
               box.addButton(tr("Add"), QMessageBox::YesRole);
@@ -432,9 +432,9 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
             } else if (found >= 0 && replace) {
               ca->append(new EffectDeleteCommand(c->effects.at(found).get()));
 
-              ca->append(new AddEffectCommand(c, e->copy(c), nullptr, found));
+              ca->append(new AddEffectCommand(c, e->copy(c), kInvalidNode, found));
             } else {
-              ca->append(new AddEffectCommand(c, e->copy(c), nullptr));
+              ca->append(new AddEffectCommand(c, e->copy(c), kInvalidNode));
             }
           }
         }

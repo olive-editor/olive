@@ -24,7 +24,8 @@
 #include <QDebug>
 
 #include "ui/comboboxex.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "undo/undo.h"
 
 // NOTE/TODO: This shares a lot of similarity with ComboInput, and could probably be a derived class of it
 

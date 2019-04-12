@@ -42,10 +42,10 @@
 #include "ui/colorbutton.h"
 #include "global/config.h"
 
-TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
-  Effect(c, em)
+TimecodeEffect::TimecodeEffect(Clip* c) :
+  Node(c)
 {
-  SetFlags(Effect::SuperimposeFlag);
+  SetFlags(Node::SuperimposeFlag);
 
   tc_select = new ComboInput(this, "tc_selector", tr("Timecode"));
   tc_select->AddItem(tr("Sequence"), true);
@@ -72,6 +72,41 @@ TimecodeEffect::TimecodeEffect(Clip* c, const EffectMeta* em) :
   offset_val->SetDefault(0);
 
   prepend_text = new StringInput(this, "prepend", tr("Prepend"), false);
+}
+
+QString TimecodeEffect::name()
+{
+  return tr("Timecode");
+}
+
+QString TimecodeEffect::id()
+{
+  return "org.olivevideoeditor.Olive.timecode";
+}
+
+QString TimecodeEffect::category()
+{
+  return tr("Render");
+}
+
+QString TimecodeEffect::description()
+{
+  return tr("Render the media or sequence timecode on this clip.");
+}
+
+EffectType TimecodeEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType TimecodeEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr TimecodeEffect::Create(Clip *c)
+{
+  return std::make_shared<TimecodeEffect>(c);
 }
 
 

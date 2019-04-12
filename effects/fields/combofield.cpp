@@ -22,8 +22,9 @@
 
 #include <QDebug>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/comboboxex.h"
+#include "undo/undo.h"
 
 ComboField::ComboField(EffectRow* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COMBO)

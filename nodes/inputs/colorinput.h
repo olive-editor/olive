@@ -7,7 +7,7 @@ class ColorInput : public EffectRow
 {
   Q_OBJECT
 public:
-  ColorInput(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  ColorInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the color value at a given timecode

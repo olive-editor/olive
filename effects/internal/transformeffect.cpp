@@ -43,8 +43,8 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 
-TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
-  SetFlags(Effect::CoordsFlag);
+TransformEffect::TransformEffect(Clip* c) : Node(c) {
+  SetFlags(Node::CoordsFlag);
 
   position = new Vec2Input(this, "pos", tr("Position"));
 
@@ -123,6 +123,41 @@ TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) 
   connect(uniform_scale_field, SIGNAL(Toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
 
   refresh();
+}
+
+QString TransformEffect::name()
+{
+  return tr("Transform");
+}
+
+QString TransformEffect::id()
+{
+  return "org.olivevideoeditor.Olive.transform";
+}
+
+QString TransformEffect::category()
+{
+  return tr("Distort");
+}
+
+QString TransformEffect::description()
+{
+  return tr("Transform the position, scale, and rotation of this clip.");
+}
+
+EffectType TransformEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType TransformEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr TransformEffect::Create(Clip *c)
+{
+  return std::make_shared<TransformEffect>(c);
 }
 
 void TransformEffect::refresh() {

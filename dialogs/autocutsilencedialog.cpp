@@ -127,7 +127,7 @@ void AutoCutSilenceDialog::cut_silence() {
     Clip* clip = clips_.at(j);
 
     // Check if this clip is an audio footage clip
-    if (clip->type() == Track::kTypeAudio
+    if (clip->type() == olive::kTypeAudio
         && clip->media() != nullptr
         && clip->media_stream()->preview_done) { // TODO provide warning for preview not being done
 

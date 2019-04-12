@@ -18,7 +18,7 @@
 
 ***/
 
-#include "effect.h"
+#include "node.h"
 
 #include <QCheckBox>
 #include <QGridLayout>
@@ -50,61 +50,47 @@
 #include "global/math.h"
 #include "global/clipboard.h"
 #include "global/config.h"
-#include "transition.h"
+#include "effects/transition.h"
 #include "undo/undostack.h"
 #include "rendering/shadergenerators.h"
 #include "global/timing.h"
 #include "nodes/nodes.h"
 
-#include "effects/internal/transformeffect.h"
-#include "effects/internal/texteffect.h"
-#include "effects/internal/timecodeeffect.h"
-#include "effects/internal/solideffect.h"
-#include "effects/internal/audionoiseeffect.h"
-#include "effects/internal/toneeffect.h"
-#include "effects/internal/volumeeffect.h"
-#include "effects/internal/paneffect.h"
-#include "effects/internal/shakeeffect.h"
-#include "effects/internal/cornerpineffect.h"
-#include "effects/internal/vsthost.h"
-#include "effects/internal/fillleftrighteffect.h"
-#include "effects/internal/richtexteffect.h"
+QVector<NodePtr> olive::node_library;
 
-QVector<EffectMeta> olive::effects;
-QVector<BlendMode> olive::blend_modes;
-QString olive::generated_blending_shader;
-
-EffectPtr Effect::Create(Clip* c, const EffectMeta* em) {
-  if (em->internal >= 0 && em->internal < EFFECT_INTERNAL_COUNT) {
-    // must be an internal effect
-    switch (em->internal) {
-    case EFFECT_INTERNAL_TRANSFORM: return std::make_shared<TransformEffect>(c, em);
-    case EFFECT_INTERNAL_TEXT: return std::make_shared<TextEffect>(c, em);
-    case EFFECT_INTERNAL_TIMECODE: return std::make_shared<TimecodeEffect>(c, em);
-    case EFFECT_INTERNAL_SOLID: return std::make_shared<SolidEffect>(c, em);
-    case EFFECT_INTERNAL_NOISE: return std::make_shared<AudioNoiseEffect>(c, em);
-    case EFFECT_INTERNAL_VOLUME: return std::make_shared<VolumeEffect>(c, em);
-    case EFFECT_INTERNAL_PAN: return std::make_shared<PanEffect>(c, em);
-    case EFFECT_INTERNAL_TONE: return std::make_shared<ToneEffect>(c, em);
-    case EFFECT_INTERNAL_SHAKE: return std::make_shared<ShakeEffect>(c, em);
-    case EFFECT_INTERNAL_CORNERPIN: return std::make_shared<CornerPinEffect>(c, em);
-    case EFFECT_INTERNAL_FILLLEFTRIGHT: return std::make_shared<FillLeftRightEffect>(c, em);
-    case EFFECT_INTERNAL_VST: return std::make_shared<VSTHost>(c, em);
-    case EFFECT_INTERNAL_RICHTEXT: return std::make_shared<RichTextEffect>(c, em);
-    }
-  } else if (!em->filename.isEmpty()) {
-    // load effect from file
-    return std::make_shared<NodeShader>(c, em);
-  } else {
+/*
+NodePtr Node::Create(Clip* c) {
+  // must be an internal effect
+  switch (em->internal) {
+  case kTransformEffect: return std::make_shared<TransformEffect>(c, em);
+  case kTextInput: return std::make_shared<TextEffect>(c, em);
+  case kTimecodeEffect: return std::make_shared<TimecodeEffect>(c, em);
+  case kSolidInput: return std::make_shared<SolidEffect>(c, em);
+  case kNoiseInput: return std::make_shared<AudioNoiseEffect>(c, em);
+  case kVolumeEffect: return std::make_shared<VolumeEffect>(c, em);
+  case kPanEffect: return std::make_shared<PanEffect>(c, em);
+  case kToneInput: return std::make_shared<ToneEffect>(c, em);
+  case kShakeEffect: return std::make_shared<ShakeEffect>(c, em);
+  case kCornerPinEffect: return std::make_shared<CornerPinEffect>(c, em);
+  case kFillLeftRightEffect: return std::make_shared<FillLeftRightEffect>(c, em);
+  case kVstEffect: return std::make_shared<VSTHost>(c, em);
+  case kRichTextInput: return std::make_shared<RichTextEffect>(c, em);
+  case kMediaInput: return std::make_shared<NodeMedia>(c, em);
+  case kShaderEffect: return std::make_shared<NodeShader>(c, em);
+  case kImageOutput: return std::make_shared<NodeImageOutput>(c, em);
+  default:
     qCritical() << "Invalid effect data";
     QMessageBox::critical(olive::MainWindow,
                           QCoreApplication::translate("Effect", "Invalid effect"),
-                          QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be corrupt. Try reinstalling it or Olive.").arg(em->name));
+                          QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be "
+                                                                "corrupt. Try reinstalling it or Olive.").arg(em->name));
+    return nullptr;
   }
-  return nullptr;
 }
+*/
 
-const EffectMeta* Effect::GetInternalMeta(int internal_id, int type) {
+/*
+const EffectMeta* Node::GetInternalMeta(int internal_id, int type) {
   for (int i=0;i<olive::effects.size();i++) {
     if (olive::effects.at(i).internal == internal_id && olive::effects.at(i).type == type) {
       return &olive::effects.at(i);
@@ -112,10 +98,10 @@ const EffectMeta* Effect::GetInternalMeta(int internal_id, int type) {
   }
   return nullptr;
 }
+*/
 
-Effect::Effect(Clip* c, const EffectMeta *em) :
+Node::Node(Clip* c) :
   parent_clip(c),
-  meta(em),
   flags_(0),
   shader_program_(nullptr),
   texture(0),
@@ -127,14 +113,10 @@ Effect::Effect(Clip* c, const EffectMeta *em) :
   enabled_(true),
   expanded_(true),
   texture_ctx(nullptr)
-{  
-  if (em != nullptr) {
-    // set up UI from effect metadata
-    name = em->name;
-  }
+{
 }
 
-Effect::~Effect() {
+Node::~Node() {
   if (isOpen) {
     close();
   }
@@ -150,13 +132,23 @@ Effect::~Effect() {
   }
 }
 
-void Effect::AddRow(EffectRow *row)
+QString Node::category()
+{
+  return QString();
+}
+
+bool Node::IsCreatable()
+{
+  return true;
+}
+
+void Node::AddRow(EffectRow *row)
 {
   row->setParent(this);
   rows.append(row);
 }
 
-void Effect::copy_field_keyframes(EffectPtr e) {
+void Node::copy_field_keyframes(NodePtr e) {
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
     EffectRow* copy_row = e->rows.at(i);
@@ -177,40 +169,43 @@ void Effect::copy_field_keyframes(EffectPtr e) {
   }
 }
 
-EffectRow* Effect::row(int i) {
+EffectRow* Node::row(int i) {
   return rows.at(i);
 }
 
-int Effect::row_count() {
+int Node::row_count() {
   return rows.size();
 }
 
-EffectGizmo *Effect::add_gizmo(int type) {
+EffectGizmo *Node::add_gizmo(int type) {
   EffectGizmo* gizmo = new EffectGizmo(this, type);
   gizmos.append(gizmo);
   return gizmo;
 }
 
-EffectGizmo *Effect::gizmo(int i) {
+EffectGizmo *Node::gizmo(int i) {
   return gizmos.at(i);
 }
 
-int Effect::gizmo_count() {
+int Node::gizmo_count() {
   return gizmos.size();
 }
 
-void Effect::refresh() {}
+void Node::refresh() {}
 
-void Effect::FieldChanged() {
-  update_ui(false);
+void Node::FieldChanged() {
+  // Update the UI if a field has been modified, but don't both if this effect is inactive
+  if (parent_clip != nullptr) {
+    update_ui(false);
+  }
 }
 
-void Effect::delete_self() {
+void Node::delete_self() {
   olive::undo_stack.push(new EffectDeleteCommand(this));
   update_ui(true);
 }
 
-void Effect::move_up() {
+void Node::move_up() {
   int index_of_effect = parent_clip->IndexOfEffect(this);
   if (index_of_effect == 0) {
     return;
@@ -225,7 +220,7 @@ void Effect::move_up() {
   panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
-void Effect::move_down() {
+void Node::move_down() {
   int index_of_effect = parent_clip->IndexOfEffect(this);
   if (index_of_effect == parent_clip->effects.size()-1) {
     return;
@@ -240,7 +235,7 @@ void Effect::move_down() {
   panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
-void Effect::save_to_file() {
+void Node::save_to_file() {
   // save effect settings to file
   QString file = QFileDialog::getSaveFileName(olive::MainWindow,
                                               tr("Save Effect Settings"),
@@ -270,7 +265,7 @@ void Effect::save_to_file() {
   }
 }
 
-void Effect::load_from_file() {
+void Node::load_from_file() {
   // load effect settings from file
   QString file = QFileDialog::getOpenFileName(olive::MainWindow,
                                               tr("Load Effect Settings"),
@@ -296,31 +291,31 @@ void Effect::load_from_file() {
   }
 }
 
-bool Effect::AlwaysUpdate()
+bool Node::AlwaysUpdate()
 {
   return false;
 }
 
-bool Effect::IsEnabled() {
+bool Node::IsEnabled() {
   return enabled_;
 }
 
-bool Effect::IsExpanded()
+bool Node::IsExpanded()
 {
   return expanded_;
 }
 
-void Effect::SetExpanded(bool e)
+void Node::SetExpanded(bool e)
 {
   expanded_ = e;
 }
 
-void Effect::SetEnabled(bool b) {
+void Node::SetEnabled(bool b) {
   enabled_ = b;
   emit EnabledChanged(b);
 }
 
-void Effect::load(QXmlStreamReader& stream) {
+void Node::load(QXmlStreamReader& stream) {
   /*
   int row_count = 0;
 
@@ -412,9 +407,9 @@ void Effect::load(QXmlStreamReader& stream) {
   */
 }
 
-void Effect::custom_load(QXmlStreamReader &) {}
+void Node::custom_load(QXmlStreamReader &) {}
 
-void Effect::save(QXmlStreamWriter& stream) {
+void Node::save(QXmlStreamWriter& stream) {
   /*
   stream.writeAttribute("name", meta->category + "/" + meta->name);
   stream.writeAttribute("enabled", QString::number(IsEnabled()));
@@ -451,7 +446,7 @@ void Effect::save(QXmlStreamWriter& stream) {
   */
 }
 
-void Effect::load_from_string(const QByteArray &s) {
+void Node::load_from_string(const QByteArray &s) {
   // clear existing keyframe data
   for (int i=0;i<rows.size();i++) {
     EffectRow* row = rows.at(i);
@@ -465,6 +460,8 @@ void Effect::load_from_string(const QByteArray &s) {
   // write settings with xml writer
   QXmlStreamReader stream(s);
 
+  bool found_id = false;
+
   while (!stream.atEnd()) {
     stream.readNext();
 
@@ -475,16 +472,9 @@ void Effect::load_from_string(const QByteArray &s) {
       const QXmlStreamAttributes& attributes = stream.attributes();
       for (int i=0;i<attributes.size();i++) {
         const QXmlStreamAttribute& attr = attributes.at(i);
-        if (attr.name() == "name") {
-          if (Effect::GetMetaFromName(attr.value().toString()) == meta) {
-            // pass off to standard loading function
-            load(stream);
-          } else {
-            QMessageBox::critical(olive::MainWindow,
-                                  tr("Load Settings Failed"),
-                                  tr("This settings file doesn't match this effect."),
-                                  QMessageBox::Ok);
-          }
+        if (attr.name() == "id") {
+          load(stream);
+          found_id = true;
           break;
         }
       }
@@ -493,9 +483,16 @@ void Effect::load_from_string(const QByteArray &s) {
       break;
     }
   }
+
+  if (!found_id) {
+    QMessageBox::critical(olive::MainWindow,
+                          tr("Load Settings Failed"),
+                          tr("This settings file doesn't match this effect."),
+                          QMessageBox::Ok);
+  }
 }
 
-QByteArray Effect::save_to_string() {
+QByteArray Node::save_to_string() {
   QByteArray save_data;
 
   // write settings to string with xml writer
@@ -515,11 +512,12 @@ QByteArray Effect::save_to_string() {
   return save_data;
 }
 
-bool Effect::is_open() {
+bool Node::is_open() {
   return isOpen;
 }
 
-void Effect::validate_meta_path() {
+void Node::validate_meta_path() {
+  /*
   if (!meta->path.isEmpty() || (shader_vert_path_.isEmpty() && shader_frag_path_.isEmpty())) return;
   QList<QString> effects_paths = get_effects_paths();
   const QString& test_fn = shader_vert_path_.isEmpty() ? shader_frag_path_ : shader_vert_path_;
@@ -534,9 +532,11 @@ void Effect::validate_meta_path() {
       return;
     }
   }
+  */
 }
 
-void Effect::open() {
+void Node::open() {
+  /*
   if (isOpen) {
     qWarning() << "Tried to open an effect that was already open";
     close();
@@ -548,7 +548,7 @@ void Effect::open() {
       validate_meta_path();
 
       QString frag_shader_str;
-      QString frag_file_url = QDir(meta->path).filePath(shader_frag_path_);
+      QString frag_file_url = QDir(file).filePath(shader_frag_path_);
       QFile frag_file(frag_file_url);
       if (frag_file.open(QFile::ReadOnly)) {
         frag_shader_str = frag_file.readAll();
@@ -570,41 +570,16 @@ void Effect::open() {
         shader_program_ = olive::shader::GetPipeline(shader_func, frag_shader_str);
 
       }
-
-      /*
-      bool shader_compiled = true;
-      if (!shader_vert_path_.isEmpty()) {
-        if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Vertex, meta->path + "/" + shader_vert_path_)) {
-          qInfo() << "Vertex shader added successfully";
-        } else {
-          shader_compiled = false;
-          qWarning() << "Vertex shader could not be added";
-        }
-      }
-      if (!shader_frag_path_.isEmpty()) {
-        if (shader_program_->addShaderFromSourceFile(QOpenGLShader::Fragment, meta->path + "/" + shader_frag_path_)) {
-          qInfo() << "Fragment shader added successfully";
-        } else {
-          shader_compiled = false;
-          qWarning() << "Fragment shader could not be added";
-        }
-      }
-      if (shader_compiled) {
-        if (shader_program_->link()) {
-          qInfo() << "Shader program linked successfully";
-        } else {
-          qWarning() << "Shader program failed to link";
-        }
-      }
-      */
       isOpen = true;
     }
   } else {
     isOpen = true;
   }
+  */
+  isOpen = true;
 }
 
-void Effect::close() {
+void Node::close() {
   if (!isOpen) {
     qWarning() << "Tried to close an effect that was already closed";
   }
@@ -613,43 +588,43 @@ void Effect::close() {
   isOpen = false;
 }
 
-bool Effect::is_shader_linked() {
+bool Node::is_shader_linked() {
   return shader_program_ != nullptr && shader_program_->isLinked();
 }
 
-QOpenGLShaderProgram *Effect::GetShaderPipeline()
+QOpenGLShaderProgram *Node::GetShaderPipeline()
 {
   return shader_program_.get();
 }
 
-int Effect::Flags()
+int Node::Flags()
 {
   return flags_;
 }
 
-void Effect::SetFlags(int flags)
+void Node::SetFlags(int flags)
 {
   flags_ = flags;
 }
 
-int Effect::getIterations() {
+int Node::getIterations() {
   return iterations;
 }
 
-void Effect::setIterations(int i) {
+void Node::setIterations(int i) {
   iterations = i;
 }
 
-void Effect::process_image(double, uint8_t *, uint8_t *, int){}
+void Node::process_image(double, uint8_t *, uint8_t *, int){}
 
-EffectPtr Effect::copy(Clip *c) {
-  EffectPtr copy = Effect::Create(c, meta);
+NodePtr Node::copy(Clip *c) {
+  NodePtr copy = Create(c);
   copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
   return copy;
 }
 
-void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
+void Node::process_shader(double timecode, GLTextureCoords&, int iteration) {
   /*
   shader_program_->bind();
 
@@ -704,9 +679,9 @@ void Effect::process_shader(double timecode, GLTextureCoords&, int iteration) {
   */
 }
 
-void Effect::process_coords(double, GLTextureCoords&, int) {}
+void Node::process_coords(double, GLTextureCoords&, int) {}
 
-GLuint Effect::process_superimpose(QOpenGLContext* ctx, double timecode) {
+GLuint Node::process_superimpose(QOpenGLContext* ctx, double timecode) {
   bool dimensions_changed = false;
   bool redrew_image = false;
 
@@ -760,11 +735,11 @@ GLuint Effect::process_superimpose(QOpenGLContext* ctx, double timecode) {
   return texture;
 }
 
-void Effect::process_audio(double, double, float **, int, int, int) {}
+void Node::process_audio(double, double, float **, int, int, int) {}
 
-void Effect::gizmo_draw(double, GLTextureCoords &) {}
+void Node::gizmo_draw(double, GLTextureCoords &) {}
 
-void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
+void Node::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, double timecode, bool done) {
   // Loop through each gizmo to find `gizmo`
   for (int i=0;i<gizmos.size();i++) {
 
@@ -833,7 +808,7 @@ void Effect::gizmo_move(EffectGizmo* gizmo, int x_movement, int y_movement, doub
   }
 }
 
-void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
+void Node::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& projection) {
   for (int i=0;i<gizmos.size();i++) {
     EffectGizmo* g = gizmos.at(i);
 
@@ -854,21 +829,21 @@ void Effect::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& p
   }
 }
 
-bool Effect::are_gizmos_enabled() {
+bool Node::are_gizmos_enabled() {
   return (gizmos.size() > 0);
 }
 
-double Effect::Now()
+double Node::Now()
 {
   return playhead_to_clip_seconds(parent_clip, parent_clip->track()->sequence()->playhead);
 }
 
-long Effect::NowInFrames()
+long Node::NowInFrames()
 {
   return playhead_to_clip_frame(parent_clip, parent_clip->track()->sequence()->playhead);
 }
 
-void Effect::redraw(double) {
+void Node::redraw(double) {
   /*
   // run javascript
   QPainter p(&img);
@@ -912,7 +887,7 @@ void Effect::redraw(double) {
   */
 }
 
-bool Effect::valueHasChanged(double timecode) {
+bool Node::valueHasChanged(double timecode) {
   if (cachedValues.isEmpty()) {
 
     for (int i=0;i<row_count();i++) {
@@ -943,7 +918,7 @@ bool Effect::valueHasChanged(double timecode) {
   }
 }
 
-void Effect::delete_texture() {
+void Node::delete_texture() {
   if (texture_ctx != nullptr) {
     texture_ctx->functions()->glDeleteTextures(1, &texture);
     texture = 0;
@@ -951,7 +926,18 @@ void Effect::delete_texture() {
   }
 }
 
-const EffectMeta* Effect::GetMetaFromName(const QString& input) {
+int GetNodeLibraryIndexFromId(const QString& id) {
+  for (int i=0;i<olive::node_library.size();i++) {
+    if (olive::node_library.at(i)->id() == id) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+/*
+const EffectMeta* Node::GetMetaFromName(const QString& input) {
   int split_index = input.indexOf('/');
   QString category;
   if (split_index > -1) {
@@ -968,3 +954,4 @@ const EffectMeta* Effect::GetMetaFromName(const QString& input) {
   }
   return nullptr;
 }
+*/

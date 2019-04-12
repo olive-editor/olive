@@ -22,7 +22,8 @@
 
 #include <QCheckBox>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "undo/undo.h"
 
 BoolField::BoolField(EffectRow *parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_BOOL)

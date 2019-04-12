@@ -23,7 +23,7 @@
 #include <QMouseEvent>
 #include <QtMath>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
 #include "timeline/clip.h"
@@ -120,7 +120,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
     for (int j=0;j<open_effects_.size();j++) {
 
       EffectUI* container = open_effects_.at(j);
-      Effect* e = container->GetEffect();
+      Node* e = container->GetEffect();
 
       if (container->IsExpanded()) {
         for (int j=0;j<e->row_count();j++) {

@@ -49,7 +49,7 @@ TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignm
   connect(view_, SIGNAL(requestScrollChange(int)), scrollbar_, SLOT(setValue(int)));
 }
 
-void TimelineArea::SetTrackList(Sequence *sequence, Track::Type track_list)
+void TimelineArea::SetTrackList(Sequence *sequence, olive::TrackType track_list)
 {
   if (track_list_ != nullptr) {
     disconnect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));

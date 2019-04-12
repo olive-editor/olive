@@ -157,7 +157,7 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
   QVector<QRectF> rects;
 
   if (proxy_ != nullptr) {
-    Effect* e = central_widget_->GetEffect();
+    Node* e = central_widget_->GetEffect();
 
     for (int i=0;i<e->row_count();i++) {
 

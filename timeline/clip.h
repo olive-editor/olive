@@ -30,23 +30,23 @@
 
 #include "rendering/cacher.h"
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/transition.h"
 #include "undo/comboaction.h"
 #include "project/media.h"
 #include "project/footage.h"
 #include "rendering/framebufferobject.h"
 #include "marker.h"
-#include "track.h"
 #include "nodes/nodegraph.h"
+#include "selection.h"
+
+class Track;
 
 struct ClipSpeed {
   ClipSpeed();
   double value;
   bool maintain_audio_pitch;
 };
-
-using ClipPtr = std::shared_ptr<Clip>;
 
 class Clip {
 public:
@@ -62,7 +62,7 @@ public:
 
   Selection ToSelection();
 
-  Track::Type type();
+  olive::TrackType type();
 
   const QColor& color();
   void set_color(int r, int g, int b);
@@ -129,8 +129,8 @@ public:
   QVector<Marker>& get_markers();
 
   // other variables (should be deep copied/duplicated in copy())
-  int IndexOfEffect(Effect* e);
-  QList<EffectPtr> effects;
+  int IndexOfEffect(Node* e);
+  QList<NodePtr> effects;
   QVector<Clip*> linked;
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;

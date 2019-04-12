@@ -25,7 +25,15 @@
 
 class LinearFadeTransition : public Transition {
 public:
-  LinearFadeTransition(Clip* c, Clip* s, const EffectMeta* em);
+  LinearFadeTransition(Clip* c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void process_audio(double timecode_start,
                              double timecode_end,
                              float **samples,

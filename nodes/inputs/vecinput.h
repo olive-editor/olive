@@ -9,7 +9,7 @@ class VecInput : public EffectRow
 {
   Q_OBJECT
 public:
-  VecInput(Effect* parent, const QString& id, const QString& name, int values, bool savable = true, bool keyframable = true);
+  VecInput(Node* parent, const QString& id, const QString& name, int values, bool savable = true, bool keyframable = true);
 
   void SetMinimum(double minimum);
   void SetMaximum(double maximum);
@@ -43,14 +43,14 @@ private:
 class DoubleInput : public VecInput
 {
 public:
-  DoubleInput(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  DoubleInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   double GetDoubleAt(double timecode);
 };
 
 class Vec2Input : public VecInput {
 public:
-  Vec2Input(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  Vec2Input(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   QVector2D GetVector2DAt(double timecode);
   virtual QVariant GetValueAt(double timecode) override;
@@ -59,7 +59,7 @@ public:
 
 class Vec3Input : public VecInput {
 public:
-  Vec3Input(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  Vec3Input(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   QVector3D GetVector3DAt(double timecode);
   virtual QVariant GetValueAt(double timecode) override;
@@ -68,7 +68,7 @@ public:
 
 class Vec4Input : public VecInput {
 public:
-  Vec4Input(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  Vec4Input(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   QVector4D GetVector4DAt(double timecode);
   virtual QVariant GetValueAt(double timecode) override;

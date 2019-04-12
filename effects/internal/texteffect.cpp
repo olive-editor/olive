@@ -42,10 +42,10 @@
 #include "ui/blur.h"
 #include "global/config.h"
 
-TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
-  Effect(c, em)
+TextEffect::TextEffect(Clip* c) :
+  Node(c)
 {
-  SetFlags(Effect::SuperimposeFlag);
+  SetFlags(Node::SuperimposeFlag);
 
   text_val = new StringInput(this, "text", tr("Text"), false);
 
@@ -119,6 +119,41 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
 
   shader_vert_path_ = "common.vert";
   shader_frag_path_ = "dropshadow.frag";
+}
+
+QString TextEffect::name()
+{
+  return tr("Text");
+}
+
+QString TextEffect::id()
+{
+  return "org.olivevideoeditor.Olive.text";
+}
+
+QString TextEffect::category()
+{
+  return tr("Render");
+}
+
+QString TextEffect::description()
+{
+  return tr("Generate simple text over this clip");
+}
+
+EffectType TextEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType TextEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr TextEffect::Create(Clip *c)
+{
+  return std::make_shared<TextEffect>(c);
 }
 
 void TextEffect::redraw(double timecode) {

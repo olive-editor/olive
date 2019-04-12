@@ -189,7 +189,7 @@ void SetTimelineInOutCommand::doRedo() {
   }
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, EffectPtr e, const EffectMeta *m, int insert_pos) {
+AddEffectCommand::AddEffectCommand(Clip* c, NodePtr e, NodeType m, int insert_pos) {
   clip = c;
   ref = e;
   meta = m;
@@ -207,7 +207,7 @@ void AddEffectCommand::doUndo() {
 
 void AddEffectCommand::doRedo() {
   if (ref == nullptr) {
-    ref = Effect::Create(clip, meta);
+    ref = olive::node_library[meta]->Create(clip);
   }
   if (pos < 0) {
     clip->effects.append(ref);
@@ -219,7 +219,7 @@ void AddEffectCommand::doRedo() {
 AddTransitionCommand::AddTransitionCommand(Clip* iopen,
                                            Clip* iclose,
                                            TransitionPtr copy,
-                                           const EffectMeta *itransition,
+                                           NodeType itransition,
                                            int ilength) {
   open_ = iopen;
   close_ = iclose;
@@ -251,9 +251,10 @@ void AddTransitionCommand::doRedo() {
   // create new transition object
   if (new_transition_ref_ == nullptr) {
     if (transition_to_copy_ == nullptr) {
-      new_transition_ref_ = Transition::CreateFromMeta(primary, secondary, transition_meta_);
+      new_transition_ref_ = std::static_pointer_cast<Transition>(olive::node_library[transition_meta_]->Create(primary));
+      new_transition_ref_->secondary_clip = secondary;
     } else {
-      new_transition_ref_ = transition_to_copy_->copy(primary, nullptr);
+      new_transition_ref_ = std::static_pointer_cast<Transition>(transition_to_copy_->copy(primary));
     }
   }
 
@@ -544,7 +545,7 @@ void ReplaceClipMediaCommand::doRedo() {
   update_ui(true);
 }
 
-EffectDeleteCommand::EffectDeleteCommand(Effect *e) :
+EffectDeleteCommand::EffectDeleteCommand(Node *e) :
   effect_(e)
 {}
 
@@ -1132,7 +1133,7 @@ void UpdateViewer::doRedo() {
   panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
-SetEffectData::SetEffectData(Effect *e, const QByteArray &s) {
+SetEffectData::SetEffectData(Node *e, const QByteArray &s) {
   effect = e;
   data = s;
 }

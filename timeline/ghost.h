@@ -3,6 +3,7 @@
 
 #include "effects/transition.h"
 #include "track.h"
+#include "project/media.h"
 
 namespace olive {
 namespace timeline {

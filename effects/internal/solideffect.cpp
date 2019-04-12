@@ -34,10 +34,10 @@ const int SMPTE_BARS = 7;
 const int SMPTE_STRIP_COUNT = 3;
 const int SMPTE_LOWER_BARS = 4;
 
-SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
-  Effect(c, em)
+SolidEffect::SolidEffect(Clip* c) :
+  Node(c)
 {
-  SetFlags(Effect::SuperimposeFlag);
+  SetFlags(Node::SuperimposeFlag);
 
   // Field for solid type
   solid_type = new ComboInput(this, "type", tr("Type"));
@@ -67,6 +67,41 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
 
   /*vertPath = ":/shaders/common.vert";
   fragPath = ":/shaders/solideffect.frag";*/
+}
+
+QString SolidEffect::name()
+{
+  return tr("Solid");
+}
+
+QString SolidEffect::id()
+{
+  return "org.olivevideoeditor.Olive.solid";
+}
+
+QString SolidEffect::category()
+{
+  return tr("Render");
+}
+
+QString SolidEffect::description()
+{
+  return tr("Render a solid color over this clip.");
+}
+
+EffectType SolidEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType SolidEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr SolidEffect::Create(Clip *c)
+{
+  return std::make_shared<SolidEffect>(c);
 }
 
 void SolidEffect::redraw(double timecode) {

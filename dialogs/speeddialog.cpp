@@ -33,7 +33,7 @@
 #include "panels/timeline.h"
 #include "undo/undo.h"
 #include "undo/undostack.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent) {
@@ -103,7 +103,7 @@ int SpeedDialog::exec() {
 
     // get default frame rate/percentage
     clip_percent = c->speed().value;
-    if (c->type() == Track::kTypeVideo) {
+    if (c->type() == olive::kTypeVideo) {
       bool process_video = true;
       if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
         FootageStream* ms = c->media_stream();
@@ -131,7 +131,7 @@ int SpeedDialog::exec() {
 
         enable_frame_rate = true;
       }
-    } else if (c->type() == Track::kTypeAudio) {
+    } else if (c->type() == olive::kTypeAudio) {
       maintain_pitch->setEnabled(true);
 
       if (!multiple_audio) {
@@ -192,7 +192,7 @@ void SpeedDialog::percent_update() {
     Clip* c = clips_.at(i);
 
     // get frame rate
-    if (frame_rate->isEnabled() && c->type() == Track::kTypeVideo) {
+    if (frame_rate->isEnabled() && c->type() == olive::kTypeVideo) {
       double clip_fr = c->media_frame_rate() * percent->value();
       if (got_fr) {
         if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
@@ -236,7 +236,7 @@ void SpeedDialog::duration_update() {
     }
 
     // get frame rate
-    if (frame_rate->isEnabled() && c->type() == Track::kTypeVideo) {
+    if (frame_rate->isEnabled() && c->type() == olive::kTypeVideo) {
       double clip_fr = c->media_frame_rate() * clip_pc;
       if (got_fr) {
         if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
@@ -276,7 +276,7 @@ void SpeedDialog::frame_rate_update() {
       old_pc_val = qSNaN();
     }
 
-    if (c->type() == Track::kTypeVideo) {
+    if (c->type() == olive::kTypeVideo) {
       // what would the new speed be based on this frame rate
       double new_clip_speed = frame_rate->value() / c->media_frame_rate();
       if (!got_pc_val) {
@@ -301,7 +301,7 @@ void SpeedDialog::frame_rate_update() {
   for (int i=0;i<clips_.size();i++) {
     Clip* c = clips_.at(i);
 
-    if (c->type() == Track::kTypeAudio) {
+    if (c->type() == olive::kTypeAudio) {
 
       long new_clip_len = (qIsNaN(old_pc_val) || qIsNaN(pc_val)) ?
             c->length() : qRound((c->length() * c->speed().value) / pc_val);
@@ -376,7 +376,7 @@ void SpeedDialog::accept() {
     }
 
     // set maintain audio pitch if the user made a selection
-    if (c->type() == Track::kTypeAudio
+    if (c->type() == olive::kTypeAudio
         && maintain_pitch->checkState() != Qt::PartiallyChecked
         && c->speed().maintain_audio_pitch != maintain_pitch->isChecked()) {
       audio_pitch_action->AddSetting(c, maintain_pitch->isChecked());
@@ -418,7 +418,7 @@ void SpeedDialog::accept() {
       if (i > 0 && !qFuzzyCompare(cached_speed, c->speed().value)) {
         can_change_all = false;
       }
-      if (c->type() == Track::kTypeVideo) {
+      if (c->type() == olive::kTypeVideo) {
         if (qIsNaN(cached_fr)) {
           cached_fr = c->media_frame_rate();
         } else if (!qFuzzyCompare(cached_fr, c->media_frame_rate())) {
@@ -431,7 +431,7 @@ void SpeedDialog::accept() {
     // make changes
     for (int i=0;i<clips_.size();i++) {
       Clip* c = clips_.at(i);
-      if (c->type() == Track::kTypeVideo) {
+      if (c->type() == olive::kTypeVideo) {
         set_speed(ca, c, frame_rate->value() / c->media_frame_rate(), ripple->isChecked(), earliest_point, longest_ripple);
       } else if (can_change_all) {
         set_speed(ca, c, frame_rate->value() / cached_fr, ripple->isChecked(), earliest_point, longest_ripple);

@@ -25,10 +25,40 @@ enum FillType {
   FILL_TYPE_RIGHT
 };
 
-FillLeftRightEffect::FillLeftRightEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
+FillLeftRightEffect::FillLeftRightEffect(Clip* c) : Node(c) {
   fill_type = new ComboInput(this, "type", tr("Type"));
   fill_type->AddItem(tr("Fill Left with Right"), FILL_TYPE_LEFT);
   fill_type->AddItem(tr("Fill Right with Left"), FILL_TYPE_RIGHT);
+}
+
+QString FillLeftRightEffect::name()
+{
+  return tr("Fill Left/Right");
+}
+
+QString FillLeftRightEffect::id()
+{
+  return "org.olivevideoeditor.Olive.fillleftright";
+}
+
+QString FillLeftRightEffect::description()
+{
+  return tr("Replaces either the left or right channel with the other");
+}
+
+EffectType FillLeftRightEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType FillLeftRightEffect::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr FillLeftRightEffect::Create(Clip *c)
+{
+  return std::make_shared<FillLeftRightEffect>(c);
 }
 
 void FillLeftRightEffect::process_audio(double timecode_start,

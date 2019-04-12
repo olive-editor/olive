@@ -34,7 +34,7 @@
 
 #include "timeline/clip.h"
 #include "project/footage.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/viewerwindow.h"
 #include "ui/viewercontainer.h"
 #include "rendering/renderthread.h"
@@ -84,7 +84,7 @@ private:
   bool dragging;
   void seek_from_click(int x);
   QMatrix4x4 get_matrix();
-  Effect* gizmos;
+  Node* gizmos;
   int drag_start_x;
   int drag_start_y;
   int gizmo_x_mvmt;

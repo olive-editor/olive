@@ -27,19 +27,28 @@
  * isn't lost if the user saves over the project.
  */
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
-class VoidEffect : public Effect {
+class VoidEffect : public Node {
   Q_OBJECT
 public:
-  VoidEffect(Clip* c, const QString& n);
+  VoidEffect(Clip* c, const QString& n, const QString &id);
 
-  virtual EffectPtr copy(Clip* c) override;
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual bool IsCreatable() override;
+  virtual NodePtr Create(Clip *c) override;
+  virtual NodePtr copy(Clip* c) override;
+
   virtual void load(QXmlStreamReader &stream) override;
   virtual void save(QXmlStreamWriter &stream) override;
 private:
-  QByteArray bytes;
-  EffectMeta void_meta;
+  QByteArray bytes_;
+  QString display_name_;
+  QString id_;
 };
 
 #endif // VOIDEFFECT_H

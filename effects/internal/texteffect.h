@@ -21,15 +21,24 @@
 #ifndef TEXTEFFECT_H
 #define TEXTEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
 #include <QFont>
 #include <QImage>
 
-class TextEffect : public Effect {
+class TextEffect : public Node {
   Q_OBJECT
 public:
-  TextEffect(Clip* c, const EffectMeta *em);
+  TextEffect(Clip* c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString category() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void redraw(double timecode) override;
 private slots:
   void outline_enable(bool);

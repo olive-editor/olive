@@ -21,13 +21,23 @@
 #ifndef RICHTEXTEFFECT_H
 #define RICHTEXTEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
-class RichTextEffect : public Effect {
+class RichTextEffect : public Node {
   Q_OBJECT
 public:
-  RichTextEffect(Clip* c, const EffectMeta *em);
+  RichTextEffect(Clip* c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString category() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void redraw(double timecode) override;
+
 protected:
   virtual bool AlwaysUpdate() override;
 private:

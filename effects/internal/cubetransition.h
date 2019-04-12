@@ -25,7 +25,7 @@
 
 class CubeTransition : public Transition {
 public:
-  CubeTransition(Clip* c, Clip* s, const EffectMeta* em);
+  CubeTransition(Clip* c, Clip* s);
   void process_coords(double timecode, GLTextureCoords &, int data);
 };
 

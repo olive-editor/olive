@@ -1,7 +1,7 @@
 #ifndef NODEGRAPH_H
 #define NODEGRAPH_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
 class NodeGraph
 {
@@ -15,7 +15,7 @@ public:
    *
    * @param node
    */
-  void AddNode(EffectPtr node);
+  void AddNode(NodePtr node);
 
   /**
    * @brief Process the graph
@@ -39,15 +39,15 @@ public:
    *
    * The node to set as the output node. The graph takes ownership of the node and the user cannot delete it.
    */
-  void SetOutputNode(EffectPtr node);
+  void SetOutputNode(NodePtr node);
 
   /**
    * @brief Returns the currently set output node
    */
-  Effect* OutputNode();
+  Node* OutputNode();
 
 private:  
-  EffectPtr output_node_;
+  NodePtr output_node_;
 };
 
 #endif // NODEGRAPH_H

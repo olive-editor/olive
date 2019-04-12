@@ -27,7 +27,7 @@
 #include "global/config.h"
 #include "global/timing.h"
 #include "effects/effectrow.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "undo/undo.h"
 #include "timeline/clip.h"
 #include "timeline/sequence.h"

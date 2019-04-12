@@ -23,9 +23,10 @@
 #include <QtMath>
 #include <QDebug>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/texteditex.h"
 #include "global/config.h"
+#include "undo/undo.h"
 
 StringField::StringField(EffectRow* parent, bool rich_text) :
   EffectField(parent, EffectField::EFFECT_FIELD_STRING),

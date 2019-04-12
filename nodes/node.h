@@ -40,43 +40,44 @@
 #include <QXmlStreamWriter>
 #include <random>
 
-#include "ui/collapsiblewidget.h"
-#include "effectrow.h"
-#include "effectgizmo.h"
+#include "timeline/tracktypes.h"
 #include "rendering/qopenglshaderprogramptr.h"
-#include "nodes/inputs.h"
+#include "inputs.h"
+#include "effects/effectgizmo.h"
+
+class EffectGizmo;
+class KeyframeDataChange;
 
 class Clip;
+using ClipPtr = std::shared_ptr<Clip>;
 
-class Effect;
-using EffectPtr = std::shared_ptr<Effect>;
+class Node;
+using NodePtr = std::shared_ptr<Node>;
 
-struct EffectMeta {
-  QString name;
-  QString category;
-  QString filename;
-  QString path;
-  QString tooltip;
-  int internal;
-  int type;
-  int subtype;
+enum NodeType {
+  kTransformEffect,
+  kTextInput,
+  kSolidInput,
+  kNoiseInput,
+  kVolumeEffect,
+  kPanEffect,
+  kToneInput,
+  kShakeEffect,
+  kTimecodeEffect,
+  kMaskEffect,
+  kFillLeftRightEffect,
+  kVstEffect,
+  kCornerPinEffect,
+  kRichTextInput,
+  kMediaInput,
+  kShaderEffect,
+  kImageOutput,
+  kCrossDissolveTransition,
+  kLinearFadeTransition,
+  kExponentialFadeTransition,
+  kLogarithmicFadeTransition,
+  kInvalidNode
 };
-
-struct BlendMode {
-  QString name;
-  QString url;
-  QString function_name;
-
-  bool loaded;
-};
-
-namespace olive {
-  extern QVector<EffectMeta> effects;
-  extern QVector<BlendMode> blend_modes;
-
-  // TODO weird place to put this?
-  extern QString generated_blending_shader;
-}
 
 double log_volume(double linear);
 
@@ -92,24 +93,6 @@ enum EffectKeyframeType {
   EFFECT_KEYFRAME_HOLD
 };
 
-enum EffectInternal {
-  EFFECT_INTERNAL_TRANSFORM,
-  EFFECT_INTERNAL_TEXT,
-  EFFECT_INTERNAL_SOLID,
-  EFFECT_INTERNAL_NOISE,
-  EFFECT_INTERNAL_VOLUME,
-  EFFECT_INTERNAL_PAN,
-  EFFECT_INTERNAL_TONE,
-  EFFECT_INTERNAL_SHAKE,
-  EFFECT_INTERNAL_TIMECODE,
-  EFFECT_INTERNAL_MASK,
-  EFFECT_INTERNAL_FILLLEFTRIGHT,
-  EFFECT_INTERNAL_VST,
-  EFFECT_INTERNAL_CORNERPIN,
-  EFFECT_INTERNAL_RICHTEXT,
-  EFFECT_INTERNAL_COUNT
-};
-
 struct GLTextureCoords {
   QMatrix4x4 matrix;
 
@@ -123,20 +106,25 @@ struct GLTextureCoords {
   QVector2D texture_bottom_left;
   QVector2D texture_bottom_right;
 
-  int blendmode;
   float opacity;
 };
 
-class Effect : public QObject {
+class Node : public QObject {
   Q_OBJECT
 public:
-  Effect(Clip *c, const EffectMeta* em);
-  ~Effect();
+  Node(Clip *c);
+  ~Node();
 
   Clip* parent_clip;
-  const EffectMeta* meta;
-  int id;
-  QString name;
+
+  virtual QString name() = 0;
+  virtual QString id() = 0;
+  virtual QString category();
+  virtual QString description() = 0;
+  virtual EffectType type() = 0;
+  virtual olive::TrackType subtype() = 0;
+  virtual bool IsCreatable();
+  virtual NodePtr Create(Clip *c) = 0;
 
   void AddRow(EffectRow* row);
 
@@ -152,8 +140,8 @@ public:
 
   virtual void refresh();
 
-  virtual EffectPtr copy(Clip* c);
-  void copy_field_keyframes(EffectPtr e);
+  virtual NodePtr copy(Clip* c);
+  void copy_field_keyframes(NodePtr e);
 
   virtual void load(QXmlStreamReader& stream);
   virtual void custom_load(QXmlStreamReader& stream);
@@ -233,9 +221,6 @@ public:
     return distribution(generator);
   }
 
-  static EffectPtr Create(Clip *c, const EffectMeta *em);
-  static const EffectMeta* GetInternalMeta(int internal_id, int type);
-  static const EffectMeta* GetMetaFromName(const QString& input);
 public slots:
   void FieldChanged();
   void SetEnabled(bool b);
@@ -286,5 +271,9 @@ private:
   void delete_texture();
   void validate_meta_path();
 };
+
+namespace olive {
+  extern QVector<NodePtr> node_library;
+}
 
 #endif // EFFECT_H

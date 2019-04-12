@@ -25,8 +25,17 @@
 
 class CrossDissolveTransition : public Transition {
 public:
-  CrossDissolveTransition(Clip *c, Clip *s, const EffectMeta* em);
-  void process_coords(double timecode, GLTextureCoords &, int data);
+  CrossDissolveTransition(Clip *c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString category() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
+  virtual void process_coords(double timecode, GLTextureCoords &, int data) override;
 };
 
 #endif // CROSSDISSOLVETRANSITION_H

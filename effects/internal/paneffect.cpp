@@ -28,11 +28,41 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
+PanEffect::PanEffect(Clip* c) : Node(c) {
   pan_val = new DoubleInput(this, "pan", tr("Pan"));
   pan_val->SetMinimum(-100);
   pan_val->SetDefault(0);
   pan_val->SetMaximum(100);
+}
+
+QString PanEffect::name()
+{
+  return tr("Pan");
+}
+
+QString PanEffect::id()
+{
+  return "org.olivevideoeditor.Olive.pan";
+}
+
+QString PanEffect::description()
+{
+  return tr("Modifying the panning on a stereo audio clip.");
+}
+
+EffectType PanEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType PanEffect::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr PanEffect::Create(Clip *c)
+{
+  return std::make_shared<PanEffect>(c);
 }
 
 void PanEffect::process_audio(double timecode_start,

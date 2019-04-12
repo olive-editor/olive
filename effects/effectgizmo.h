@@ -39,12 +39,12 @@ enum GizmoType {
 #include <QColor>
 
 class DoubleField;
-class Effect;
+class Node;
 
 class EffectGizmo : public QObject {
   Q_OBJECT
 public:
-  EffectGizmo(Effect* parent, int type);
+  EffectGizmo(Node* parent, int type);
 
   QVector<QVector3D> world_pos;
   QVector<QPoint> screen_pos;

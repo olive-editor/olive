@@ -30,6 +30,7 @@
 
 #include "comboaction.h"
 
+#include "nodes/node.h"
 #include "timeline/marker.h"
 #include "timeline/selection.h"
 #include "effects/keyframe.h"
@@ -43,13 +44,12 @@ using SequencePtr = std::shared_ptr<Sequence>;
 class Media;
 using MediaPtr = std::shared_ptr<Media>;
 
-class Effect;
-using EffectPtr = std::shared_ptr<Effect>;
+class Node;
+using NodePtr = std::shared_ptr<Node>;
 
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-struct EffectMeta;
 class EffectRow;
 class EffectField;
 
@@ -124,27 +124,27 @@ private:
 
 class AddEffectCommand : public OliveAction {
 public:
-  AddEffectCommand(Clip* c, EffectPtr e, const EffectMeta* m, int insert_pos = -1);
+  AddEffectCommand(Clip* c, NodePtr e, NodeType m, int insert_pos = -1);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
   Clip* clip;
-  const EffectMeta* meta;
-  EffectPtr ref;
+  NodeType meta;
+  NodePtr ref;
   int pos;
   bool done;
 };
 
 class AddTransitionCommand : public OliveAction {
 public:
-  AddTransitionCommand(Clip* iopen, Clip* iclose, TransitionPtr copy, const EffectMeta* itransition, int ilength);
+  AddTransitionCommand(Clip* iopen, Clip* iclose, TransitionPtr copy, NodeType itransition, int ilength);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
   Clip* open_;
   Clip* close_;
   TransitionPtr transition_to_copy_;
-  const EffectMeta* transition_meta_;
+  NodeType transition_meta_;
   int length_;
   TransitionPtr old_open_transition_;
   TransitionPtr old_close_transition_;
@@ -273,12 +273,12 @@ private:
 
 class EffectDeleteCommand : public OliveAction {
 public:
-  EffectDeleteCommand(Effect* e);
+  EffectDeleteCommand(Node* e);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Effect* effect_;
-  EffectPtr deleted_obj_;
+  Node* effect_;
+  NodePtr deleted_obj_;
   Clip* parent_clip_;
   int index_;
 };
@@ -593,11 +593,11 @@ public:
 
 class SetEffectData : public OliveAction {
 public:
-  SetEffectData(Effect* e, const QByteArray &s);
+  SetEffectData(Node* e, const QByteArray &s);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Effect* effect;
+  Node* effect;
   QByteArray data;
   QByteArray old_data;
 };

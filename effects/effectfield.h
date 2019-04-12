@@ -26,7 +26,6 @@
 #include <QVector>
 
 #include "effects/keyframe.h"
-#include "undo/undo.h"
 #include "undo/undostack.h"
 #include "nodes/nodedatatypes.h"
 

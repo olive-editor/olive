@@ -24,8 +24,8 @@
 #include "timeline/clip.h"
 #include "global/debug.h"
 
-CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  SetFlags(Effect::CoordsFlag | Effect::ShaderFlag);
+CornerPinEffect::CornerPinEffect(Clip* c) : Node(c) {
+  SetFlags(Node::CoordsFlag | Node::ShaderFlag);
 
   top_left = new Vec2Input(this, "topleft", tr("Top Left"));
 
@@ -56,6 +56,41 @@ CornerPinEffect::CornerPinEffect(Clip* c, const EffectMeta *em) : Effect(c, em) 
 
   shader_vert_path_ = "cornerpin.vert";
   shader_frag_path_ = "cornerpin.frag";
+}
+
+QString CornerPinEffect::name()
+{
+  return tr("Corner Pin");
+}
+
+QString CornerPinEffect::id()
+{
+  return "org.olivevideoeditor.Olive.cornerpin";
+}
+
+QString CornerPinEffect::category()
+{
+  return tr("Distort");
+}
+
+QString CornerPinEffect::description()
+{
+  return tr("Distort/warp this clip by pinning each of its four corners.");
+}
+
+EffectType CornerPinEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType CornerPinEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr CornerPinEffect::Create(Clip *c)
+{
+  return std::make_shared<CornerPinEffect>(c);
 }
 
 void CornerPinEffect::process_coords(double timecode, GLTextureCoords &coords, int) {

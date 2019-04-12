@@ -22,8 +22,43 @@
 
 #include <QOpenGLFunctions>
 
-CrossDissolveTransition::CrossDissolveTransition(Clip* c, Clip* s, const EffectMeta* em) : Transition(c, s, em) {
-  SetFlags(Effect::CoordsFlag);
+CrossDissolveTransition::CrossDissolveTransition(Clip* c) : Transition(c) {
+  SetFlags(Node::CoordsFlag);
+}
+
+QString CrossDissolveTransition::name()
+{
+  return tr("Cross Dissolve");
+}
+
+QString CrossDissolveTransition::id()
+{
+  return "org.olivevideoeditor.Olive.crossdissolve";
+}
+
+QString CrossDissolveTransition::category()
+{
+  return tr("Dissolves");
+}
+
+QString CrossDissolveTransition::description()
+{
+  return tr("Dissolve clips evenly.");
+}
+
+EffectType CrossDissolveTransition::type()
+{
+  return EFFECT_TYPE_TRANSITION;
+}
+
+olive::TrackType CrossDissolveTransition::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr CrossDissolveTransition::Create(Clip *c)
+{
+  return std::make_shared<CrossDissolveTransition>(c);
 }
 
 void CrossDissolveTransition::process_coords(double progress, GLTextureCoords& coords, int data) {

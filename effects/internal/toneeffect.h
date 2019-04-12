@@ -21,12 +21,20 @@
 #ifndef TONEEFFECT_H
 #define TONEEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
-class ToneEffect : public Effect {
+class ToneEffect : public Node {
   Q_OBJECT
 public:
-  ToneEffect(Clip* c, const EffectMeta* em);
+  ToneEffect(Clip* c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void process_audio(double timecode_start,
                              double timecode_end,
                              float **samples,
@@ -34,11 +42,12 @@ public:
                              int channel_count,
                              int type) override;
 
+private:
   ComboInput* type_val;
   DoubleInput* freq_val;
   DoubleInput* amount_val;
   BoolInput* mix_val;
-private:
+
   int sinX;
 };
 

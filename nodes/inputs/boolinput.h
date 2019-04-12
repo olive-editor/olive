@@ -7,7 +7,7 @@ class BoolInput : public EffectRow
 {
   Q_OBJECT
 public:
-  BoolInput(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  BoolInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the boolean value at a given timecode

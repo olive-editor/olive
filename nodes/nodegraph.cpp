@@ -8,7 +8,7 @@ NodeGraph::NodeGraph() :
 
 }
 
-Effect *NodeGraph::OutputNode()
+Node *NodeGraph::OutputNode()
 {
   return output_node_.get();
 }

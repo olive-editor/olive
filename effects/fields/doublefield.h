@@ -24,6 +24,8 @@
 #include "../effectfield.h"
 #include "ui/labelslider.h"
 
+class KeyframeDataChange;
+
 /**
  * @brief The DoubleField class
  *

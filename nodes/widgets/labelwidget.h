@@ -6,7 +6,7 @@
 class LabelWidget : public EffectRow
 {
 public:
-  LabelWidget(Effect* parent, const QString& name, const QString& text);
+  LabelWidget(Node* parent, const QString& name, const QString& text);
 };
 
 #endif // LABELWIDGET_H

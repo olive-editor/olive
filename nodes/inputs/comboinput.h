@@ -7,7 +7,7 @@ class ComboInput : public EffectRow
 {
   Q_OBJECT
 public:
-  ComboInput(Effect* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  ComboInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Add an item to this ComboInput

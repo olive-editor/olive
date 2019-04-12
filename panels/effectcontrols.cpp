@@ -32,7 +32,7 @@
 #include <QApplication>
 
 #include "panels/panels.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/effectloaders.h"
 #include "effects/transition.h"
 #include "timeline/clip.h"
@@ -95,24 +95,24 @@ void EffectControls::menu_select(QAction* q) {
   for (int i=0;i<selected_clips_.size();i++) {
     Clip* c = selected_clips_.at(i);
     if (c->type() == effect_menu_subtype) {
-      const EffectMeta* meta = reinterpret_cast<const EffectMeta*>(q->data().value<quintptr>());
+      NodeType node_type = static_cast<NodeType>(q->data().toInt());
       if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
         if (c->opening_transition == nullptr) {
           ca->append(new AddTransitionCommand(c,
                                               nullptr,
                                               nullptr,
-                                              meta,
+                                              node_type,
                                               olive::config.default_transition_length));
         }
         if (c->closing_transition == nullptr) {
           ca->append(new AddTransitionCommand(nullptr,
                                               c,
                                               nullptr,
-                                              meta,
+                                              node_type,
                                               olive::config.default_transition_length));
         }
       } else {
-        ca->append(new AddEffectCommand(c, nullptr, meta));
+        ca->append(new AddEffectCommand(c, nullptr, node_type));
       }
     }
   }
@@ -138,7 +138,7 @@ void EffectControls::scroll_to_frame(long frame) {
   scroll_to_frame_internal(horizontalScrollBar, frame - keyframeView->visible_in, zoom, keyframeView->width());
 }
 
-void EffectControls::show_effect_menu(int type, Track::Type subtype) {
+void EffectControls::show_effect_menu(EffectType type, olive::TrackType subtype) {
   effect_menu_type = type;
   effect_menu_subtype = subtype;
 
@@ -147,24 +147,25 @@ void EffectControls::show_effect_menu(int type, Track::Type subtype) {
   Menu effects_menu(this);
   effects_menu.setToolTipsVisible(true);
 
-  for (int i=0;i<olive::effects.size();i++) {
-    const EffectMeta& em = olive::effects.at(i);
+  for (int i=0;i<olive::node_library.size();i++) {
 
-    if (em.type == type && em.subtype == subtype) {
+    NodePtr node = olive::node_library.at(i);
+
+    if (node != nullptr && node->type() == type && node->subtype() == subtype) {
       QAction* action = new QAction(&effects_menu);
-      action->setText(em.name);
-      action->setData(reinterpret_cast<quintptr>(&em));
-      if (!em.tooltip.isEmpty()) {
-        action->setToolTip(em.tooltip);
+      action->setText(node->name());
+      action->setData(i);
+      if (!node->description().isEmpty()) {
+        action->setToolTip(node->description());
       }
 
       QMenu* parent = &effects_menu;
-      if (!em.category.isEmpty()) {
+      if (!node->category().isEmpty()) {
         bool found = false;
         for (int j=0;j<effects_menu.actions().size();j++) {
           QAction* action = effects_menu.actions().at(j);
           if (action->menu() != nullptr) {
-            if (action->menu()->title() == em.category) {
+            if (action->menu()->title() == node->category()) {
               parent = action->menu();
               found = true;
               break;
@@ -174,12 +175,12 @@ void EffectControls::show_effect_menu(int type, Track::Type subtype) {
         if (!found) {
           parent = new Menu(&effects_menu);
           parent->setToolTipsVisible(true);
-          parent->setTitle(em.category);
+          parent->setTitle(node->category());
 
           bool found = false;
           for (int i=0;i<effects_menu.actions().size();i++) {
             QAction* comp_action = effects_menu.actions().at(i);
-            if (comp_action->text() > em.category) {
+            if (comp_action->text() > node->category()) {
               effects_menu.insertMenu(comp_action, parent);
               found = true;
               break;
@@ -444,19 +445,19 @@ bool EffectControls::focused()
 }
 
 void EffectControls::video_effect_click() {
-  show_effect_menu(EFFECT_TYPE_EFFECT, Track::kTypeVideo);
+  show_effect_menu(EFFECT_TYPE_EFFECT, olive::kTypeVideo);
 }
 
 void EffectControls::audio_effect_click() {
-  show_effect_menu(EFFECT_TYPE_EFFECT, Track::kTypeAudio);
+  show_effect_menu(EFFECT_TYPE_EFFECT, olive::kTypeAudio);
 }
 
 void EffectControls::video_transition_click() {
-  show_effect_menu(EFFECT_TYPE_TRANSITION, Track::kTypeVideo);
+  show_effect_menu(EFFECT_TYPE_TRANSITION, olive::kTypeVideo);
 }
 
 void EffectControls::audio_transition_click() {
-  show_effect_menu(EFFECT_TYPE_TRANSITION, Track::kTypeAudio);
+  show_effect_menu(EFFECT_TYPE_TRANSITION, olive::kTypeAudio);
 }
 
 void EffectControls::resizeEvent(QResizeEvent*) {
@@ -491,12 +492,12 @@ void EffectControls::LoadEvent()
     QVBoxLayout* layout = nullptr;
 
     EffectUI* container = open_effects_.at(i);
-    Effect* e = open_effects_.at(i)->GetEffect();
+    Node* e = open_effects_.at(i)->GetEffect();
 
-    if (e->meta->subtype == Track::kTypeVideo) {
+    if (e->subtype() == olive::kTypeVideo) {
       vcontainer->setVisible(true);
       layout = video_effect_layout;
-    } else if (e->meta->subtype == Track::kTypeAudio) {
+    } else if (e->subtype() == olive::kTypeAudio) {
       acontainer->setVisible(true);
       layout = audio_effect_layout;
     }

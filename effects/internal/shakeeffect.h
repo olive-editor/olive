@@ -21,15 +21,23 @@
 #ifndef SHAKEEFFECT_H
 #define SHAKEEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
 #define RANDOM_VAL_SIZE 30
 
-class ShakeEffect : public Effect {
+class ShakeEffect : public Node {
   Q_OBJECT
 public:
-  ShakeEffect(Clip* c, const EffectMeta* em);
+  ShakeEffect(Clip* c);
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString category() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
 
   DoubleInput* intensity_val;
   DoubleInput* rotation_val;

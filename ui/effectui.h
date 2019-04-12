@@ -22,8 +22,9 @@
 #define EFFECTUI_H
 
 #include "collapsiblewidget.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/nodeui.h"
+#include "ui/keyframenavigator.h"
 
 /**
  * @brief The EffectUI class
@@ -49,7 +50,7 @@ public:
    *
    * The Effect to make a UI of. It must be a valid object.
    */
-  EffectUI(Effect* e);
+  EffectUI(Node* e);
 
   /**
    * @brief Attach additional effects to this UI
@@ -62,7 +63,7 @@ public:
    *
    * The Effect to add to this UI object.
    */
-  void AddAdditionalEffect(Effect* e);
+  void AddAdditionalEffect(Node* e);
 
   /**
    * @brief Get the primary Effect that this UI object was created for
@@ -71,7 +72,7 @@ public:
    *
    * The Effect object passed to the constrcutor whe creating this EffectUI.
    */
-  Effect* GetEffect();
+  Node* GetEffect();
 
   /**
    * @brief Get the Y position of a given row
@@ -175,12 +176,12 @@ private:
   /**
    * @brief Internal reference to the Effect this object was constructed around.
    */
-  Effect* effect_;
+  Node* effect_;
 
   /**
    * @brief Internal array of additional Effect objects attached to this UI.
    */
-  QVector<Effect*> additional_effects_;
+  QVector<Node*> additional_effects_;
 
   /**
    * @brief Layout for UI widgets

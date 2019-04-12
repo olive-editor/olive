@@ -29,7 +29,7 @@
 #include "ui/menu.h"
 #include "panels/panels.h"
 
-EffectUI::EffectUI(Effect* e) :
+EffectUI::EffectUI(Node* e) :
   effect_(e),
   node_parent_(nullptr)
 {
@@ -38,7 +38,7 @@ EffectUI::EffectUI(Effect* e) :
   QString effect_name;
 
   // If this effect is actually a transition
-  if (e->meta->type == EFFECT_TYPE_TRANSITION) {
+  if (e->type() == EFFECT_TYPE_TRANSITION) {
 
     Transition* t = static_cast<Transition*>(e);
 
@@ -70,17 +70,17 @@ EffectUI::EffectUI(Effect* e) :
 
     // See if the transition is the clip's opening or closing transition and label it accordingly
     if (both_selected) {
-      effect_name = t->name;
+      effect_name = t->name();
     } else if (selected_clip->opening_transition.get() == t) {
-      effect_name = tr("%1 (Opening)").arg(t->name);
+      effect_name = tr("%1 (Opening)").arg(t->name());
     } else {
-      effect_name = tr("%1 (Closing)").arg(t->name);
+      effect_name = tr("%1 (Closing)").arg(t->name());
     }
 
   } else {
 
     // Otherwise just set the title normally
-    effect_name = e->name;
+    effect_name = e->name();
 
   }
 
@@ -166,10 +166,10 @@ EffectUI::EffectUI(Effect* e) :
   connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(FieldChanged()));
 }
 
-void EffectUI::AddAdditionalEffect(Effect *e)
+void EffectUI::AddAdditionalEffect(Node *e)
 {
   // Ensure this is the same kind of effect and will be fully compatible
-  Q_ASSERT(e->meta == effect_->meta);
+  Q_ASSERT(e->id() == effect_->id());
 
   // Add multiple modifer to header label (but only once)
   if (additional_effects_.isEmpty()) {
@@ -199,7 +199,7 @@ void EffectUI::AddAdditionalEffect(Effect *e)
   }
 }
 
-Effect *EffectUI::GetEffect()
+Node *EffectUI::GetEffect()
 {
   return effect_;
 }
@@ -228,7 +228,7 @@ int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
 
 void EffectUI::UpdateFromEffect()
 {
-  Effect* effect = GetEffect();
+  Node* effect = GetEffect();
 
   for (int j=0;j<effect->row_count();j++) {
 
@@ -327,7 +327,7 @@ void EffectUI::AttachKeyframeNavigationToRow(EffectRow *row, KeyframeNavigator *
 }
 
 void EffectUI::show_context_menu(const QPoint& pos) {
-  if (effect_->meta->type == EFFECT_TYPE_EFFECT) {
+  if (effect_->type() == EFFECT_TYPE_EFFECT) {
     Menu menu;
 
     Clip* c = effect_->parent_clip;

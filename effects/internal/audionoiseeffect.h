@@ -21,12 +21,20 @@
 #ifndef AUDIONOISEEFFECT_H
 #define AUDIONOISEEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
-class AudioNoiseEffect : public Effect {
+class AudioNoiseEffect : public Node {
   Q_OBJECT
 public:
-  AudioNoiseEffect(Clip* c, const EffectMeta* em);
+  AudioNoiseEffect(Clip* c);
+
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
   virtual void process_audio(double timecode_start,
                              double timecode_end,
                              float **samples,
