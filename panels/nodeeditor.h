@@ -24,9 +24,17 @@ private:
   NodeView view_;
   QVector<NodeUI*> nodes_;
   QVector<NodeEdgeUI*> edges_;
+  QVector<EffectRow*> connected_rows_;
+
+  void ClearEdges();
+  void LoadEdges();
+
+  void ConnectRow(EffectRow* row);
+  void DisconnectAllRows();
 
 private slots:
   void ItemsChanged();
+  void ReloadEdges();
 
 };
 

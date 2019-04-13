@@ -302,7 +302,7 @@ public:
   /**
    * @brief Get a list of references to all edges currently connected to this row
    */
-  QVector<NodeEdge *> edges();
+  QVector<NodeEdgePtr> edges();
 
 protected:
   /**

@@ -7,6 +7,7 @@
 class EffectUI;
 class EffectRow;
 class NodeEdge;
+class Node;
 
 class NodeUI : public QGraphicsRectItem {
 public:
@@ -29,12 +30,14 @@ protected:
 
 private:
   EffectRow *GetRowFromIndex(int i);
+  NodeUI* FindUIFromNode(Node* n);
 
   EffectUI* central_widget_;
   QGraphicsProxyWidget* proxy_;
 
   QGraphicsPathItem* drag_line_;
   QPointF drag_line_start_;
+  EffectRow* drag_source_;
   EffectRow* drag_destination_;
   QPainterPath drag_path_;
 

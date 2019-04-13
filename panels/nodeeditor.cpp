@@ -53,12 +53,58 @@ void NodeEditor::LoadEvent()
         node_ui->setPos(effect_ui->GetEffect()->pos());
 
         nodes_.append(node_ui);
+      }
+    }
+  }
+
+  LoadEdges();
+}
+
+void NodeEditor::ClearEvent()
+{
+  foreach (NodeUI* node, nodes_) {
+    scene_.removeItem(node);
+  }
+
+  nodes_.clear();
+
+  ClearEdges();
+}
+
+void NodeEditor::ClearEdges()
+{
+  foreach (NodeEdgeUI* edge, edges_) {
+    scene_.removeItem(edge);
+  }
+
+  edges_.clear();
+
+  DisconnectAllRows();
+}
+
+void NodeEditor::LoadEdges()
+{
+  if (!open_effects_.isEmpty()) {
+    QVector<NodeEdge*> added_edges;
+
+    Clip* first_clip = open_effects_.first()->GetEffect()->parent_clip;
+
+    for (int i=0;i<open_effects_.size();i++) {
+
+      Node* n = open_effects_.at(i)->GetEffect();
+
+      if (n->parent_clip == first_clip) {
+
+        // Connect all rows to this
+        for (int j=0;j<n->row_count();j++) {
+          ConnectRow(n->row(j));
+        }
 
         // Get node edges
-        QVector<NodeEdge*> edges = open_effects_.at(i)->GetEffect()->GetAllEdges();
+        QVector<NodeEdgePtr> edges = n->GetAllEdges();
         for (int j=0;j<edges.size();j++) {
 
-          NodeEdge* edge = edges.at(j);
+          NodeEdge* edge = edges.at(j).get();
 
           if (!added_edges.contains(edge)) {
             NodeEdgeUI* edge_ui = new NodeEdgeUI(edge);
@@ -75,19 +121,20 @@ void NodeEditor::LoadEvent()
   }
 }
 
-void NodeEditor::ClearEvent()
+void NodeEditor::ConnectRow(EffectRow *row)
 {
-  foreach (NodeUI* node, nodes_) {
-    scene_.removeItem(node);
+  if (!connected_rows_.contains(row)) {
+    connect(row, SIGNAL(EdgesChanged()), this, SLOT(ReloadEdges()));
+    connected_rows_.append(row);
   }
+}
 
-  nodes_.clear();
-
-  foreach (NodeEdgeUI* edge, edges_) {
-    scene_.removeItem(edge);
+void NodeEditor::DisconnectAllRows()
+{
+  for (int i=0;i<connected_rows_.size();i++) {
+    disconnect(connected_rows_.at(i), SIGNAL(EdgesChanged()), this, SLOT(ReloadEdges()));
   }
-
-  edges_.clear();
+  connected_rows_.clear();
 }
 
 void NodeEditor::ItemsChanged()
@@ -99,4 +146,12 @@ void NodeEditor::ItemsChanged()
   foreach (NodeUI* node, nodes_) {
     node->Widget()->GetEffect()->SetPos(node->pos());
   }
+}
+
+void NodeEditor::ReloadEdges()
+{
+  qDebug() << "reload edges called";
+
+  ClearEdges();
+  LoadEdges();
 }

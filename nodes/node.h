@@ -135,7 +135,7 @@ public:
   EffectGizmo* gizmo(int i);
   int gizmo_count();
 
-  QVector<NodeEdge*> GetAllEdges();
+  QVector<NodeEdgePtr> GetAllEdges();
 
   bool IsEnabled();
   bool IsExpanded();

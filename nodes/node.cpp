@@ -196,9 +196,9 @@ int Node::gizmo_count() {
   return gizmos.size();
 }
 
-QVector<NodeEdge *> Node::GetAllEdges()
+QVector<NodeEdgePtr> Node::GetAllEdges()
 {
-  QVector<NodeEdge*> edges;
+  QVector<NodeEdgePtr> edges;
 
   for (int i=0;i<row_count();i++) {
     edges.append(row(i)->edges());

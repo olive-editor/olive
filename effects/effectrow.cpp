@@ -74,9 +74,17 @@ void EffectRow::AddAcceptedNodeInput(olive::nodes::DataType type)
 
 void EffectRow::ConnectEdge(EffectRow *output, EffectRow *input)
 {
-  Q_ASSERT(output->IsNodeOutput());
-  Q_ASSERT(input->IsNodeInput());
+  // Make sure one is an output and one is an input
+  Q_ASSERT(output->IsNodeInput() != input->IsNodeInput());
 
+  // Swap them if necessary
+  if (input->IsNodeOutput()) {
+    EffectRow* temp = output;
+    output = input;
+    input = temp;
+  }
+
+  // Inputs can only have one edge, so we disconnect it here if there is one
   if (!input->node_edges_.isEmpty()) {
     DisconnectEdge(input->node_edges_.first());
   }
@@ -87,7 +95,6 @@ void EffectRow::ConnectEdge(EffectRow *output, EffectRow *input)
   input->node_edges_.append(edge);
 
   emit output->EdgesChanged();
-  emit input->EdgesChanged();
 }
 
 void EffectRow::DisconnectEdge(NodeEdgePtr edge)
@@ -99,18 +106,11 @@ void EffectRow::DisconnectEdge(NodeEdgePtr edge)
   input->node_edges_.removeAll(edge);
 
   emit output->EdgesChanged();
-  emit input->EdgesChanged();
 }
 
-QVector<NodeEdge*> EffectRow::edges()
+QVector<NodeEdgePtr> EffectRow::edges()
 {
-  QVector<NodeEdge*> edges;
-
-  for (int i=0;i<node_edges_.size();i++) {
-    edges.append(node_edges_.at(i).get());
-  }
-
-  return edges;
+  return node_edges_;
 }
 
 bool EffectRow::IsKeyframing() {
