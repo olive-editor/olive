@@ -2741,7 +2741,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           // cursor is hovering over a clip
 
           // check if the clip and transition are both the same sign (meaning video/audio are the same)
-          if (track_list_->type() == ParentTimeline()->transition_tool_side) {
+          if (track_list_->type() == olive::node_library[ParentTimeline()->transition_tool_meta]->subtype()) {
 
             // the range within which the transition tool will assume the user wants to make a shared transition
             // between two clips rather than just one transition on one clip

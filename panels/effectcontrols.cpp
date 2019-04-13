@@ -49,6 +49,7 @@
 #include "ui/icons.h"
 #include "global/clipboard.h"
 #include "global/config.h"
+#include "global/global.h"
 #include "ui/timelineheader.h"
 #include "ui/keyframeview.h"
 #include "ui/resizablescrollbar.h"
@@ -90,36 +91,6 @@ void EffectControls::set_zoom(bool in) {
   }
 }
 
-void EffectControls::menu_select(QAction* q) {
-  ComboAction* ca = new ComboAction();
-  for (int i=0;i<selected_clips_.size();i++) {
-    Clip* c = selected_clips_.at(i);
-    if (c->type() == effect_menu_subtype) {
-      NodeType node_type = static_cast<NodeType>(q->data().toInt());
-      if (effect_menu_type == EFFECT_TYPE_TRANSITION) {
-        if (c->opening_transition == nullptr) {
-          ca->append(new AddTransitionCommand(c,
-                                              nullptr,
-                                              nullptr,
-                                              node_type,
-                                              olive::config.default_transition_length));
-        }
-        if (c->closing_transition == nullptr) {
-          ca->append(new AddTransitionCommand(nullptr,
-                                              c,
-                                              nullptr,
-                                              node_type,
-                                              olive::config.default_transition_length));
-        }
-      } else {
-        ca->append(new AddEffectCommand(c, nullptr, node_type));
-      }
-    }
-  }
-  olive::undo_stack.push(ca);
-  update_ui(true);
-}
-
 void EffectControls::update_keyframes() {
   for (int i=0;i<open_effects_.size();i++) {
     EffectUI* ui = open_effects_.at(i);
@@ -136,77 +107,6 @@ void EffectControls::delete_selected_keyframes() {
 
 void EffectControls::scroll_to_frame(long frame) {
   scroll_to_frame_internal(horizontalScrollBar, frame - keyframeView->visible_in, zoom, keyframeView->width());
-}
-
-void EffectControls::show_effect_menu(EffectType type, olive::TrackType subtype) {
-  effect_menu_type = type;
-  effect_menu_subtype = subtype;
-
-  olive::effects_loaded.lock();
-
-  Menu effects_menu(this);
-  effects_menu.setToolTipsVisible(true);
-
-  for (int i=0;i<olive::node_library.size();i++) {
-
-    NodePtr node = olive::node_library.at(i);
-
-    if (node != nullptr && node->type() == type && node->subtype() == subtype) {
-      QAction* action = new QAction(&effects_menu);
-      action->setText(node->name());
-      action->setData(i);
-      if (!node->description().isEmpty()) {
-        action->setToolTip(node->description());
-      }
-
-      QMenu* parent = &effects_menu;
-      if (!node->category().isEmpty()) {
-        bool found = false;
-        for (int j=0;j<effects_menu.actions().size();j++) {
-          QAction* action = effects_menu.actions().at(j);
-          if (action->menu() != nullptr) {
-            if (action->menu()->title() == node->category()) {
-              parent = action->menu();
-              found = true;
-              break;
-            }
-          }
-        }
-        if (!found) {
-          parent = new Menu(&effects_menu);
-          parent->setToolTipsVisible(true);
-          parent->setTitle(node->category());
-
-          bool found = false;
-          for (int i=0;i<effects_menu.actions().size();i++) {
-            QAction* comp_action = effects_menu.actions().at(i);
-            if (comp_action->text() > node->category()) {
-              effects_menu.insertMenu(comp_action, parent);
-              found = true;
-              break;
-            }
-          }
-          if (!found) effects_menu.addMenu(parent);
-        }
-      }
-
-      bool found = false;
-      for (int i=0;i<parent->actions().size();i++) {
-        QAction* comp_action = parent->actions().at(i);
-        if (comp_action->text() > action->text()) {
-          parent->insertAction(comp_action, action);
-          found = true;
-          break;
-        }
-      }
-      if (!found) parent->addAction(action);
-    }
-  }
-
-  olive::effects_loaded.unlock();
-
-  connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(menu_select(QAction*)));
-  effects_menu.exec(QCursor::pos());
 }
 
 void EffectControls::UpdateTitle() {
@@ -445,19 +345,19 @@ bool EffectControls::focused()
 }
 
 void EffectControls::video_effect_click() {
-  show_effect_menu(EFFECT_TYPE_EFFECT, olive::kTypeVideo);
+  olive::Global->ShowEffectMenu(EFFECT_TYPE_EFFECT, olive::kTypeVideo, selected_clips_);
 }
 
 void EffectControls::audio_effect_click() {
-  show_effect_menu(EFFECT_TYPE_EFFECT, olive::kTypeAudio);
+  olive::Global->ShowEffectMenu(EFFECT_TYPE_EFFECT, olive::kTypeAudio, selected_clips_);
 }
 
 void EffectControls::video_transition_click() {
-  show_effect_menu(EFFECT_TYPE_TRANSITION, olive::kTypeVideo);
+  olive::Global->ShowEffectMenu(EFFECT_TYPE_TRANSITION, olive::kTypeVideo, selected_clips_);
 }
 
 void EffectControls::audio_transition_click() {
-  show_effect_menu(EFFECT_TYPE_TRANSITION, olive::kTypeAudio);
+  olive::Global->ShowEffectMenu(EFFECT_TYPE_TRANSITION, olive::kTypeAudio, selected_clips_);
 }
 
 void EffectControls::resizeEvent(QResizeEvent*) {

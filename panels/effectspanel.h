@@ -25,6 +25,7 @@ public slots:
   void cut();
   void copy(bool del = false);
 protected:
+  virtual void AboutToClearEvent();
   virtual void ClearEvent();
   virtual void LoadEvent();
 

@@ -5,6 +5,9 @@ NodeMedia::NodeMedia(Clip* c) :
 {
   EffectRow* matrix_input = new EffectRow(this, "matrix", tr("Matrix"), true, false);
   matrix_input->AddAcceptedNodeInput(olive::nodes::kMatrix);
+
+  EffectRow* texture_output = new EffectRow(this, "texture", tr("Texture"), true, false);
+  texture_output->SetOutputDataType(olive::nodes::kTexture);
 }
 
 QString NodeMedia::name()

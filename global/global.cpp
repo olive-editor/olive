@@ -43,11 +43,13 @@
 #include "dialogs/newsequencedialog.h"
 #include "dialogs/loaddialog.h"
 #include "dialogs/autocutsilencedialog.h"
+#include "effects/effectloaders.h"
 #include "project/loadthread.h"
 #include "project/savethread.h"
 #include "timeline/sequence.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
+#include "ui/menu.h"
 #include "ui/updatenotification.h"
 #include "undo/undostack.h"
 
@@ -450,6 +452,40 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
   }
 }
 
+void OliveGlobal::EffectMenuAction(QAction *q)
+{
+  ComboAction* ca = new ComboAction();
+
+  NodeType node_type = static_cast<NodeType>(q->data().toInt());
+  Node* n = olive::node_library[node_type].get();
+
+  for (int i=0;i<effect_menu_selected_clips.size();i++) {
+    Clip* c = effect_menu_selected_clips.at(i);
+    if (c->type() == n->subtype()) {
+      if (n->type() == EFFECT_TYPE_TRANSITION) {
+        if (c->opening_transition == nullptr) {
+          ca->append(new AddTransitionCommand(c,
+                                              nullptr,
+                                              nullptr,
+                                              node_type,
+                                              olive::config.default_transition_length));
+        }
+        if (c->closing_transition == nullptr) {
+          ca->append(new AddTransitionCommand(nullptr,
+                                              c,
+                                              nullptr,
+                                              node_type,
+                                              olive::config.default_transition_length));
+        }
+      } else {
+        ca->append(new AddEffectCommand(c, nullptr, node_type));
+      }
+    }
+  }
+  olive::undo_stack.push(ca);
+  update_ui(true);
+}
+
 void OliveGlobal::ImportProject(const QString &fn)
 {
   LoadProject(fn, false);
@@ -642,6 +678,77 @@ bool OliveGlobal::CheckForActiveSequence(bool show_msg)
     return false;
   }
   return true;
+}
+
+void OliveGlobal::ShowEffectMenu(EffectType type, olive::TrackType subtype, const QVector<Clip*> selected_clips)
+{
+  effect_menu_selected_clips = selected_clips;
+
+  olive::effects_loaded.lock();
+
+  Menu effects_menu(olive::MainWindow);
+  effects_menu.setToolTipsVisible(true);
+
+  for (int i=0;i<olive::node_library.size();i++) {
+
+    NodePtr node = olive::node_library.at(i);
+
+    if (node != nullptr && node->type() == type && node->subtype() == subtype) {
+      QAction* action = new QAction(&effects_menu);
+      action->setText(node->name());
+      action->setData(i);
+      if (!node->description().isEmpty()) {
+        action->setToolTip(node->description());
+      }
+
+      QMenu* parent = &effects_menu;
+      if (!node->category().isEmpty()) {
+        bool found = false;
+        for (int j=0;j<effects_menu.actions().size();j++) {
+          QAction* action = effects_menu.actions().at(j);
+          if (action->menu() != nullptr) {
+            if (action->menu()->title() == node->category()) {
+              parent = action->menu();
+              found = true;
+              break;
+            }
+          }
+        }
+        if (!found) {
+          parent = new Menu(&effects_menu);
+          parent->setToolTipsVisible(true);
+          parent->setTitle(node->category());
+
+          bool found = false;
+          for (int i=0;i<effects_menu.actions().size();i++) {
+            QAction* comp_action = effects_menu.actions().at(i);
+            if (comp_action->text() > node->category()) {
+              effects_menu.insertMenu(comp_action, parent);
+              found = true;
+              break;
+            }
+          }
+          if (!found) effects_menu.addMenu(parent);
+        }
+      }
+
+      bool found = false;
+      for (int i=0;i<parent->actions().size();i++) {
+        QAction* comp_action = parent->actions().at(i);
+        if (comp_action->text() > action->text()) {
+          parent->insertAction(comp_action, action);
+          found = true;
+          break;
+        }
+      }
+      if (!found) parent->addAction(action);
+    }
+  }
+
+  olive::effects_loaded.unlock();
+
+  connect(&effects_menu, SIGNAL(triggered(QAction*)), this, SLOT(EffectMenuAction(QAction*)));
+  effects_menu.exec(QCursor::pos());
 }
 
 void OliveGlobal::undo() {

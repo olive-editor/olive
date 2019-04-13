@@ -29,8 +29,8 @@ NodeUI::NodeUI() :
 
 NodeUI::~NodeUI()
 {
-  if (scene() != nullptr) {
-    scene()->removeItem(proxy_);
+  if (proxy_ != nullptr) {
+    proxy_->setParentItem(nullptr);
   }
 }
 
@@ -164,6 +164,7 @@ void NodeUI::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
   if (clicked_socket_ > -1) {
 
     bool line_is_touching_node = false;
+    drag_destination_ = nullptr;
 
     QPointF drag_line_end = event->scenePos();
 
@@ -234,6 +235,8 @@ void NodeUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   if (clicked_socket_ > -1) {
     scene()->removeItem(drag_line_);
+    delete drag_line_;
+
     event->accept();
 
     if (drag_destination_ != nullptr) {

@@ -76,8 +76,6 @@ public:
 public slots:
   void update_keyframes();
 private slots:
-  void menu_select(QAction* q);
-
   void video_effect_click();
   void audio_effect_click();
   void video_transition_click();
@@ -94,14 +92,11 @@ protected:
   virtual void ClearEvent() override;
   virtual void LoadEvent() override;
 private:
-  void show_effect_menu(EffectType type, olive::TrackType subtype);
   void load_keyframes();
   void UpdateTitle();
 
   void setup_ui();
 
-  int effect_menu_type;
-  olive::TrackType effect_menu_subtype;
   QString panel_name;
 
   QWidget* video_effect_area;

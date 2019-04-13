@@ -47,6 +47,7 @@
 #include "global/debug.h"
 #include "global/path.h"
 #include "ui/mainwindow.h"
+#include "ui/menu.h"
 #include "global/math.h"
 #include "global/clipboard.h"
 #include "global/config.h"
@@ -55,50 +56,9 @@
 #include "rendering/shadergenerators.h"
 #include "global/timing.h"
 #include "nodes/nodes.h"
+#include "effects/effectloaders.h"
 
 QVector<NodePtr> olive::node_library;
-
-/*
-NodePtr Node::Create(Clip* c) {
-  // must be an internal effect
-  switch (em->internal) {
-  case kTransformEffect: return std::make_shared<TransformEffect>(c, em);
-  case kTextInput: return std::make_shared<TextEffect>(c, em);
-  case kTimecodeEffect: return std::make_shared<TimecodeEffect>(c, em);
-  case kSolidInput: return std::make_shared<SolidEffect>(c, em);
-  case kNoiseInput: return std::make_shared<AudioNoiseEffect>(c, em);
-  case kVolumeEffect: return std::make_shared<VolumeEffect>(c, em);
-  case kPanEffect: return std::make_shared<PanEffect>(c, em);
-  case kToneInput: return std::make_shared<ToneEffect>(c, em);
-  case kShakeEffect: return std::make_shared<ShakeEffect>(c, em);
-  case kCornerPinEffect: return std::make_shared<CornerPinEffect>(c, em);
-  case kFillLeftRightEffect: return std::make_shared<FillLeftRightEffect>(c, em);
-  case kVstEffect: return std::make_shared<VSTHost>(c, em);
-  case kRichTextInput: return std::make_shared<RichTextEffect>(c, em);
-  case kMediaInput: return std::make_shared<NodeMedia>(c, em);
-  case kShaderEffect: return std::make_shared<NodeShader>(c, em);
-  case kImageOutput: return std::make_shared<NodeImageOutput>(c, em);
-  default:
-    qCritical() << "Invalid effect data";
-    QMessageBox::critical(olive::MainWindow,
-                          QCoreApplication::translate("Effect", "Invalid effect"),
-                          QCoreApplication::translate("Effect", "No candidate for effect '%1'. This effect may be "
-                                                                "corrupt. Try reinstalling it or Olive.").arg(em->name));
-    return nullptr;
-  }
-}
-*/
-
-/*
-const EffectMeta* Node::GetInternalMeta(int internal_id, int type) {
-  for (int i=0;i<olive::effects.size();i++) {
-    if (olive::effects.at(i).internal == internal_id && olive::effects.at(i).type == type) {
-      return &olive::effects.at(i);
-    }
-  }
-  return nullptr;
-}
-*/
 
 Node::Node(Clip* c) :
   parent_clip(c),

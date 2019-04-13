@@ -3,7 +3,8 @@
 NodeImageOutput::NodeImageOutput(Clip *c) :
   Node(c)
 {
-
+  EffectRow* input_texture = new EffectRow(this, "texture", tr("Texture"), true, false);
+  input_texture->AddAcceptedNodeInput(olive::nodes::kTexture);
 }
 
 QString NodeImageOutput::name()

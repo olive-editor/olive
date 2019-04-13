@@ -12,12 +12,13 @@ class NodeEditor : public EffectsPanel {
   Q_OBJECT
 public:
   NodeEditor(QWidget* parent = nullptr);
+  virtual ~NodeEditor() override;
 
   virtual void Retranslate() override;
 
 protected:
   virtual void LoadEvent() override;
-  virtual void ClearEvent() override;
+  virtual void AboutToClearEvent() override;
 
 private:
   QGraphicsScene scene_;
@@ -35,6 +36,7 @@ private:
 private slots:
   void ItemsChanged();
   void ReloadEdges();
+  void ContextMenu();
 
 };
 

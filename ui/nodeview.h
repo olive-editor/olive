@@ -3,10 +3,15 @@
 
 #include <QGraphicsView>
 
+#include "timeline/tracktypes.h"
+
 class NodeView : public QGraphicsView {
   Q_OBJECT
 public:
   NodeView(QGraphicsScene *scene, QWidget* parent = nullptr);
+
+signals:
+  void RequestContextMenu();
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;

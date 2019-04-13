@@ -4,6 +4,9 @@
 #include <QScrollBar>
 #include <QDebug>
 
+#include "ui/menu.h"
+#include "nodes/node.h"
+
 NodeView::NodeView(QGraphicsScene *scene, QWidget *parent) :
   QGraphicsView(scene, parent),
   hand_moving_(false)
@@ -20,6 +23,11 @@ void NodeView::mousePressEvent(QMouseEvent *event)
   if (event->button() == Qt::MidButton) {
     hand_moving_ = true;
     drag_start_ = event->pos();
+  } else if (event->button() == Qt::RightButton && scene()->itemAt(mapToScene(event->pos()), QTransform()) == nullptr) {
+
+    // If the user clicked with the right button on empty space, show the context menu
+    emit RequestContextMenu();
+
   } else {
     QGraphicsView::mousePressEvent(event);
   }

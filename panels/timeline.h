@@ -115,7 +115,6 @@ public:
   Clip* transition_tool_open_clip;
   Clip* transition_tool_close_clip;
   NodeType transition_tool_meta;
-  olive::TrackType transition_tool_side;
 
   // hand tool variables
   bool hand_moving;

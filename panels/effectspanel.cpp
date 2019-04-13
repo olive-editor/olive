@@ -16,6 +16,8 @@ EffectsPanel::~EffectsPanel()
 }
 
 void EffectsPanel::Clear(bool clear_cache) {
+  AboutToClearEvent();
+
   // clear existing clips
   deselect_all_effects(nullptr);
 
@@ -203,6 +205,10 @@ void EffectsPanel::copy(bool del) {
       delete ca;
     }
   }
+}
+
+void EffectsPanel::AboutToClearEvent()
+{
 }
 
 void EffectsPanel::DeleteEffect(ComboAction* ca, Node* effect_ref) {

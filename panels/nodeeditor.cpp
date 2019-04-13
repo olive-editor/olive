@@ -6,6 +6,8 @@
 #include <QGraphicsProxyWidget>
 #include <QDebug>
 
+#include "global/global.h"
+
 NodeEditor::NodeEditor(QWidget *parent) :
   EffectsPanel(parent),
   view_(&scene_)
@@ -26,6 +28,12 @@ NodeEditor::NodeEditor(QWidget *parent) :
   view_.setDragMode(QGraphicsView::RubberBandDrag);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(ItemsChanged()));
+  connect(&view_, SIGNAL(RequestContextMenu()), this, SLOT(ContextMenu()));
+}
+
+NodeEditor::~NodeEditor()
+{
+  Clear(true);
 }
 
 void NodeEditor::Retranslate()
@@ -60,10 +68,10 @@ void NodeEditor::LoadEvent()
   LoadEdges();
 }
 
-void NodeEditor::ClearEvent()
+void NodeEditor::AboutToClearEvent()
 {
   foreach (NodeUI* node, nodes_) {
-    scene_.removeItem(node);
+    delete node;
   }
 
   nodes_.clear();
@@ -75,6 +83,7 @@ void NodeEditor::ClearEdges()
 {
   foreach (NodeEdgeUI* edge, edges_) {
     scene_.removeItem(edge);
+    delete edge;
   }
 
   edges_.clear();
@@ -150,8 +159,14 @@ void NodeEditor::ItemsChanged()
 
 void NodeEditor::ReloadEdges()
 {
-  qDebug() << "reload edges called";
-
   ClearEdges();
   LoadEdges();
+}
+
+void NodeEditor::ContextMenu()
+{
+  if (!open_effects_.isEmpty()) {
+    Clip* c = open_effects_.first()->GetEffect()->parent_clip;
+    olive::Global->ShowEffectMenu(EFFECT_TYPE_EFFECT, c->type(), {c});
+  }
 }

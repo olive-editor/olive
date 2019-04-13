@@ -873,22 +873,24 @@ void Timeline::transition_tool_click() {
 
   Menu transition_menu(this);
 
+  transition_menu.addAction(tr("Video Transitions"))->setEnabled(false);
+
   for (int i=0;i<olive::node_library.size();i++) {
     NodePtr node = olive::node_library.at(i);
-    if (node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
+    if (node != nullptr && node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
       QAction* a = transition_menu.addAction(node->name());
-      a->setObjectName("v");
       a->setData(i);
     }
   }
 
   transition_menu.addSeparator();
 
+  transition_menu.addAction(tr("Audio Transitions"))->setEnabled(false);
+
   for (int i=0;i<olive::node_library.size();i++) {
     NodePtr node = olive::node_library.at(i);
-    if (node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
+    if (node != nullptr && node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeAudio) {
       QAction* a = transition_menu.addAction(node->name());
-      a->setObjectName("a");
       a->setData(i);
     }
   }
@@ -902,13 +904,6 @@ void Timeline::transition_tool_click() {
 
 void Timeline::transition_menu_select(QAction* a) {
   transition_tool_meta = static_cast<NodeType>(a->data().toInt());
-
-  if (a->objectName() == "v") {
-    transition_tool_side = olive::kTypeVideo;
-  } else {
-    transition_tool_side = olive::kTypeAudio;
-  }
-
   timeline_area->setCursor(Qt::CrossCursor);
   olive::timeline::current_tool = olive::timeline::TIMELINE_TOOL_TRANSITION;
   toolTransitionButton->setChecked(true);
