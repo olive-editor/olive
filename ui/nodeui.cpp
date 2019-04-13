@@ -115,12 +115,13 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
     // See if this socket already has an edge connected
     QVector<NodeEdgePtr> edges = central_widget_->GetEffect()->row(clicked_socket_)->edges();
-    if (!edges.isEmpty()) {
+    if (!edges.isEmpty() && edges.last()->input()->GetParentEffect() == central_widget_->GetEffect()) {
 
       NodeEdge* e = edges.last().get();
 
-      EffectRow* other_row = (e->input()->GetParentEffect() == central_widget_->GetEffect()) ?
-            e->output() : e->input();
+      // If this node is the edge's "input", then we'll drag that instead of creating a new edge
+
+      EffectRow* other_row = e->output();
 
       Node* other_node = other_row->GetParentEffect();
 
@@ -135,6 +136,8 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
       // Disconnect the existing edge, and treat our dynamic one as an edit of that one
       EffectRow::DisconnectEdge(edges.last());
+
+
 
     } else {
 
