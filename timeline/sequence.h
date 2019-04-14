@@ -29,8 +29,9 @@
 #include "selection.h"
 #include "tracklist.h"
 #include "ghost.h"
+#include "timelineobject.h"
 
-class Sequence : public QObject {
+class Sequence : public TimelineObject {
   Q_OBJECT
 public:
   Sequence();
@@ -44,6 +45,12 @@ public:
   double frame_rate;
   int audio_frequency;
   int audio_layout;
+
+  virtual int SequenceWidth() override;
+  virtual int SequenceHeight() override;
+  virtual double SequenceFrameRate() override;
+
+  virtual long SequencePlayhead() override;
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();

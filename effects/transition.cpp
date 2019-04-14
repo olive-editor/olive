@@ -50,14 +50,19 @@ Transition::Transition(Clip *c) :
   length_field->SetDisplayType(LabelSlider::FrameNumber);
 
   if (parent_clip != nullptr) {
-    length_field->SetFrameRate(parent_clip->track()->sequence() == nullptr ?
-                                 parent_clip->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
+    length_field->SetFrameRate(GetParentClip()->track()->sequence() == nullptr ?
+                                 GetParentClip()->cached_frame_rate() : GetParentClip()->SequenceFrameRate());
   }
 
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }
 
-NodePtr Transition::copy(Clip *c) {
+Clip *Transition::GetParentClip()
+{
+  return static_cast<Clip*>(parent_clip);
+}
+
+NodePtr Transition::copy(TimelineObject *c) {
   NodePtr node = Node::copy(c);
 
   static_cast<Transition*>(node.get())->set_length(get_true_length());
@@ -86,8 +91,8 @@ int Transition::get_length() {
 }
 
 Clip* Transition::get_opened_clip() {
-  if (parent_clip->opening_transition.get() == this) {
-    return parent_clip;
+  if (GetParentClip()->opening_transition.get() == this) {
+    return GetParentClip();
   } else if (secondary_clip != nullptr && secondary_clip->opening_transition.get() == this) {
     return secondary_clip;
   }
@@ -95,8 +100,8 @@ Clip* Transition::get_opened_clip() {
 }
 
 Clip* Transition::get_closed_clip() {
-  if (parent_clip->closing_transition.get() == this) {
-    return parent_clip;
+  if (GetParentClip()->closing_transition.get() == this) {
+    return GetParentClip();
   } else if (secondary_clip != nullptr && secondary_clip->closing_transition.get() == this) {
     return secondary_clip;
   }
@@ -131,7 +136,7 @@ TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s) {
 void Transition::UpdateMaximumLength()
 {
   // Get the maximum area this transition can occupy on the clip
-  long maximum_length = GetMaximumEmptySpaceOnClip(parent_clip);
+  long maximum_length = GetMaximumEmptySpaceOnClip(GetParentClip());
 
   // If this clip is a shared transition, get the maximum area this can occupy on the other clip too
   if (secondary_clip != nullptr) {

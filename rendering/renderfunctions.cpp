@@ -375,8 +375,8 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
         GLuint textureID = 0;
 
         // store video source dimensions
-        int video_width = c->media_width();
-        int video_height = c->media_height();
+        int video_width = c->MediaWidth();
+        int video_height = c->MediaHeight();
 
         // prepare framebuffers for backend drawing operations
         if (c->fbo.isEmpty()) {

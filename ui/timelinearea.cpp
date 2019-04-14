@@ -5,8 +5,6 @@
 #include "panels/timeline.h"
 #include "global/config.h"
 
-int olive::timeline::kTimelineLabelFixedWidth = 200;
-
 TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignment) :
   timeline_(timeline),
   track_list_(nullptr),

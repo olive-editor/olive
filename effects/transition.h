@@ -24,6 +24,8 @@
 #include "nodes/node.h"
 #include "nodes/inputs.h"
 
+class Clip;
+
 enum TransitionType {
   kTransitionNone,
   kTransitionOpening,
@@ -38,7 +40,9 @@ class Transition : public Node {
 public:
   Transition(Clip* c);
 
-  virtual NodePtr copy(Clip* c) override;
+  virtual NodePtr copy(TimelineObject* c) override;
+
+  Clip* GetParentClip();
 
   Clip* secondary_clip;
 

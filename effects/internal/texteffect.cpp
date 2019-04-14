@@ -36,7 +36,6 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 #include "timeline/clip.h"
-#include "timeline/sequence.h"
 #include "ui/comboboxex.h"
 #include "ui/colorbutton.h"
 #include "ui/blur.h"

@@ -143,8 +143,8 @@ void RichTextEffect::redraw(double timecode)
   double scroll_progress = 0;
 
   if (auto_scroll_dir != SCROLL_OFF) {
-    double clip_length_secs = double(parent_clip->length()) / parent_clip->media_frame_rate();
-    scroll_progress = (timecode - double(parent_clip->clip_in()) / parent_clip->media_frame_rate()) / clip_length_secs;
+    double clip_length_secs = double(parent_clip->length()) / parent_clip->MediaFrameRate();
+    scroll_progress = (timecode - double(parent_clip->clip_in()) / parent_clip->MediaFrameRate()) / clip_length_secs;
   }
 
   if (auto_scroll_dir == SCROLL_OFF || auto_scroll_dir == SCROLL_LEFT || auto_scroll_dir == SCROLL_RIGHT) {

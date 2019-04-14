@@ -131,7 +131,7 @@ public:
    *
    * True is an Effect from this Clip is already attached to this EffectUI.
    */
-  bool IsAttachedToClip(Clip* c);
+  bool IsAttachedToClip(TimelineObject* c);
 
   void SetNodeParent(NodeUI* parent);
 

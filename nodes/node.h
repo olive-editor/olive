@@ -48,8 +48,7 @@
 class EffectGizmo;
 class KeyframeDataChange;
 
-class Clip;
-using ClipPtr = std::shared_ptr<Clip>;
+class TimelineObject;
 
 class Node;
 using NodePtr = std::shared_ptr<Node>;
@@ -112,10 +111,10 @@ struct GLTextureCoords {
 class Node : public QObject {
   Q_OBJECT
 public:
-  Node(Clip *c);
+  Node(TimelineObject *c);
   ~Node();
 
-  Clip* parent_clip;
+  TimelineObject* parent_clip;
 
   virtual QString name() = 0;
   virtual QString id() = 0;
@@ -124,7 +123,7 @@ public:
   virtual EffectType type() = 0;
   virtual olive::TrackType subtype() = 0;
   virtual bool IsCreatable();
-  virtual NodePtr Create(Clip *c) = 0;
+  virtual NodePtr Create(TimelineObject *c) = 0;
 
   void AddRow(EffectRow* row);
   int IndexOfRow(EffectRow* row);
@@ -142,7 +141,7 @@ public:
 
   virtual void refresh();
 
-  virtual NodePtr copy(Clip* c);
+  virtual NodePtr copy(TimelineObject* c);
   void copy_field_keyframes(NodePtr e);
 
   virtual void load(QXmlStreamReader& stream);

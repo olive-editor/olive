@@ -208,7 +208,8 @@ SOURCES += \
     decoders/decoder.cpp \
     nodes/node.cpp \
     nodes/nodeedge.cpp \
-    ui/nodeedgeui.cpp
+    ui/nodeedgeui.cpp \
+    timeline/timelineobject.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -374,7 +375,8 @@ HEADERS += \
     nodes/node.h \
     timeline/tracktypes.h \
     nodes/nodeedge.h \
-    ui/nodeedgeui.h
+    ui/nodeedgeui.h \
+    timeline/timelineobject.h
 
 FORMS +=
 

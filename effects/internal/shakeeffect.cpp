@@ -28,7 +28,6 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 #include "timeline/clip.h"
-#include "timeline/sequence.h"
 #include "panels/timeline.h"
 #include "global/debug.h"
 
