@@ -100,26 +100,6 @@ void Sequence::Save(QXmlStreamWriter &stream)
   stream.writeEndElement();
 }
 
-int Sequence::SequenceWidth()
-{
-  return width;
-}
-
-int Sequence::SequenceHeight()
-{
-  return height;
-}
-
-double Sequence::SequenceFrameRate()
-{
-  return frame_rate;
-}
-
-long Sequence::SequencePlayhead()
-{
-  return playhead;
-}
-
 long Sequence::GetEndFrame() {
   long end_frame = 0;
 
@@ -291,7 +271,7 @@ void Sequence::MoveClip(Clip *c, ComboAction *ca, long iin, long iout, long icli
 
     if (c->closing_transition != nullptr
         && c->closing_transition->secondary_clip != nullptr
-        && c->closing_transition->GetParentClip()->timeline_in() != iout) {
+        && c->closing_transition->parent_clip->timeline_in() != iout) {
       // separate transition
       ca->append(new SetPointer(reinterpret_cast<void**>(&c->closing_transition->secondary_clip), nullptr));
       ca->append(new AddTransitionCommand(nullptr,

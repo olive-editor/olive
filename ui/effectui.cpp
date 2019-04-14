@@ -43,7 +43,7 @@ EffectUI::EffectUI(Node* e) :
     Transition* t = static_cast<Transition*>(e);
 
     // Since effects can have two clip attachments, find out which one is selected
-    Clip* selected_clip = t->GetParentClip();
+    Clip* selected_clip = t->parent_clip;
     bool both_selected = false;
 
     // Check if this is a shared transition
@@ -54,12 +54,12 @@ EffectUI::EffectUI(Node* e) :
 
         selected_clip = t->secondary_clip;
 
-        if (t->GetParentClip()->IsSelected()) {
+        if (t->parent_clip->IsSelected()) {
           // Both clips are selected
           both_selected = true;
         }
 
-      } else if (!t->GetParentClip()->IsSelected()) {
+      } else if (!t->parent_clip->IsSelected()) {
 
         // Neither are selected, but the naming scheme (no "opening" or "closing" modifier) will be the same
         both_selected = true;
@@ -267,7 +267,7 @@ void EffectUI::UpdateFromEffect()
   }
 }
 
-bool EffectUI::IsAttachedToClip(TimelineObject *c)
+bool EffectUI::IsAttachedToClip(Clip *c)
 {
   if (GetEffect()->parent_clip == c) {
     return true;

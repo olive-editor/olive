@@ -60,7 +60,7 @@
 
 QVector<NodePtr> olive::node_library;
 
-Node::Node(TimelineObject* c) :
+Node::Node(Clip* c) :
   parent_clip(c),
   flags_(0),
   shader_program_(nullptr),
@@ -182,7 +182,6 @@ void Node::delete_self() {
 }
 
 void Node::move_up() {
-  /*
   int index_of_effect = parent_clip->IndexOfEffect(this);
   if (index_of_effect == 0) {
     return;
@@ -195,11 +194,9 @@ void Node::move_up() {
   olive::undo_stack.push(command);
   panel_effect_controls->Reload();
   panel_sequence_viewer->viewer_widget()->frame_update();
-  */
 }
 
 void Node::move_down() {
-  /*
   int index_of_effect = parent_clip->IndexOfEffect(this);
   if (index_of_effect == parent_clip->effects.size()-1) {
     return;
@@ -212,7 +209,6 @@ void Node::move_down() {
   olive::undo_stack.push(command);
   panel_effect_controls->Reload();
   panel_sequence_viewer->viewer_widget()->frame_update();
-  */
 }
 
 void Node::save_to_file() {
@@ -607,7 +603,7 @@ const QPointF &Node::pos()
 
 void Node::process_image(double, uint8_t *, uint8_t *, int){}
 
-NodePtr Node::copy(TimelineObject *c) {
+NodePtr Node::copy(Clip *c) {
   NodePtr copy = Create(c);
   copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
@@ -675,8 +671,8 @@ GLuint Node::process_superimpose(QOpenGLContext* ctx, double timecode) {
   bool dimensions_changed = false;
   bool redrew_image = false;
 
-  int width = parent_clip->MediaWidth();
-  int height = parent_clip->MediaHeight();
+  int width = parent_clip->media_width();
+  int height = parent_clip->media_height();
 
   if (width != img.width() || height != img.height()) {
     img = QImage(width, height, QImage::Format_RGBA8888_Premultiplied);
@@ -810,10 +806,10 @@ void Node::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatrix4x4& pro
                                                         projection,
                                                         QRect(0,
                                                               0,
-                                                              parent_clip->SequenceWidth(),
-                                                              parent_clip->SequenceHeight()));
+                                                              parent_clip->track()->sequence()->width,
+                                                              parent_clip->track()->sequence()->height));
 
-      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->SequenceHeight()-screen_pos.y());
+      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->track()->sequence()->height-screen_pos.y());
 
     }
   }

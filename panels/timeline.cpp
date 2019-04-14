@@ -1108,3 +1108,11 @@ void Timeline::visibility_changed_slot(bool visibility)
     emit SequenceChanged(sequence_);
   }
 }
+
+void olive::timeline::MultiplyTrackSizesByDPI()
+{
+  kTrackDefaultHeight *= QApplication::desktop()->devicePixelRatio();
+  kTrackMinHeight *= QApplication::desktop()->devicePixelRatio();
+  kTrackHeightIncrement *= QApplication::desktop()->devicePixelRatio();
+  kTimelineLabelFixedWidth *= QApplication::desktop()->devicePixelRatio();
+}

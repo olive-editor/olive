@@ -297,7 +297,7 @@ void Clip::Save(QXmlStreamWriter &stream)
       if (this == transition->secondary_clip) {
         // if so, just save a reference to the other clip
         stream.writeAttribute("shared",
-                              QString::number(transition->GetParentClip()->load_id));
+                              QString::number(transition->parent_clip->load_id));
       } else {
         // otherwise save the whole transition
         transition->save(stream);
@@ -426,87 +426,14 @@ long Clip::length() {
   return timeline_out_ - timeline_in_;
 }
 
-int Clip::MediaWidth() {
-  if (media_ != nullptr) {
-    switch (media_->get_type()) {
-    case MEDIA_TYPE_FOOTAGE:
-    {
-      const FootageStream* ms = media_stream();
-      if (ms != nullptr) return ms->video_width;
-      break;
-    }
-    case MEDIA_TYPE_SEQUENCE:
-    {
-      Sequence* s = media_->to_sequence().get();
-      return s->width;
-    }
-    }
-  }
-
-  if (track() != nullptr) {
-    return SequenceWidth();
-  }
-
-  return 0;
-}
-
-int Clip::MediaHeight() {
-  if (media_ != nullptr) {
-    switch (media_->get_type()) {
-    case MEDIA_TYPE_FOOTAGE:
-    {
-      const FootageStream* ms = media_stream();
-      if (ms != nullptr) return ms->video_height;
-    }
-      break;
-    case MEDIA_TYPE_SEQUENCE:
-    {
-      Sequence* s = media_->to_sequence().get();
-      return s->height;
-    }
-    }
-  }
-
-  if (track() != nullptr) {
-    return SequenceHeight();
-  }
-
-  return 0;
-}
-
-double Clip::MediaFrameRate() {
+double Clip::media_frame_rate() {
   Q_ASSERT(type() == olive::kTypeVideo);
-
   if (media_ != nullptr) {
     double rate = media_->get_frame_rate(media_stream_index());
     if (!qIsNaN(rate)) return rate;
   }
-
-  if (track() != nullptr) {
-    return SequenceFrameRate();
-  }
-
+  if (track() != nullptr) return track()->sequence()->frame_rate;
   return qSNaN();
-}
-
-int Clip::SequenceWidth()
-{
-  return track()->sequence()->width;
-}
-
-int Clip::SequenceHeight()
-{
-  return track()->sequence()->height;
-}
-
-double Clip::SequenceFrameRate()
-{
-  return track()->sequence()->frame_rate;
-}
-
-long Clip::SequencePlayhead()
-{
-  return track()->sequence()->playhead;
 }
 
 long Clip::media_length() {
@@ -536,6 +463,44 @@ long Clip::media_length() {
       }
       }
     }
+  }
+  return 0;
+}
+
+int Clip::media_width() {
+  if (media_ == nullptr && track() != nullptr) return track()->sequence()->width;
+  switch (media_->get_type()) {
+  case MEDIA_TYPE_FOOTAGE:
+  {
+    const FootageStream* ms = media_stream();
+    if (ms != nullptr) return ms->video_width;
+    if (track() != nullptr) return track()->sequence()->width;
+    break;
+  }
+  case MEDIA_TYPE_SEQUENCE:
+  {
+    Sequence* s = media_->to_sequence().get();
+    return s->width;
+  }
+  }
+  return 0;
+}
+
+int Clip::media_height() {
+  if (media_ == nullptr && track() != nullptr) return track()->sequence()->height;
+  switch (media_->get_type()) {
+  case MEDIA_TYPE_FOOTAGE:
+  {
+    const FootageStream* ms = media_stream();
+    if (ms != nullptr) return ms->video_height;
+    if (track() != nullptr) return track()->sequence()->height;
+  }
+    break;
+  case MEDIA_TYPE_SEQUENCE:
+  {
+    Sequence* s = media_->to_sequence().get();
+    return s->height;
+  }
   }
   return 0;
 }

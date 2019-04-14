@@ -113,7 +113,7 @@ int SpeedDialog::exec() {
       }
 
       if (process_video) {
-        double media_frame_rate = c->MediaFrameRate();
+        double media_frame_rate = c->media_frame_rate();
 
         // get "default" frame rate"
         if (enable_frame_rate) {
@@ -193,7 +193,7 @@ void SpeedDialog::percent_update() {
 
     // get frame rate
     if (frame_rate->isEnabled() && c->type() == olive::kTypeVideo) {
-      double clip_fr = c->MediaFrameRate() * percent->value();
+      double clip_fr = c->media_frame_rate() * percent->value();
       if (got_fr) {
         if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
           fr_val = qSNaN();
@@ -237,7 +237,7 @@ void SpeedDialog::duration_update() {
 
     // get frame rate
     if (frame_rate->isEnabled() && c->type() == olive::kTypeVideo) {
-      double clip_fr = c->MediaFrameRate() * clip_pc;
+      double clip_fr = c->media_frame_rate() * clip_pc;
       if (got_fr) {
         if (!qIsNaN(fr_val) && !qFuzzyCompare(fr_val, clip_fr)) {
           fr_val = qSNaN();
@@ -278,7 +278,7 @@ void SpeedDialog::frame_rate_update() {
 
     if (c->type() == olive::kTypeVideo) {
       // what would the new speed be based on this frame rate
-      double new_clip_speed = frame_rate->value() / c->MediaFrameRate();
+      double new_clip_speed = frame_rate->value() / c->media_frame_rate();
       if (!got_pc_val) {
         pc_val = new_clip_speed;
         got_pc_val = true;
@@ -420,8 +420,8 @@ void SpeedDialog::accept() {
       }
       if (c->type() == olive::kTypeVideo) {
         if (qIsNaN(cached_fr)) {
-          cached_fr = c->MediaFrameRate();
-        } else if (!qFuzzyCompare(cached_fr, c->MediaFrameRate())) {
+          cached_fr = c->media_frame_rate();
+        } else if (!qFuzzyCompare(cached_fr, c->media_frame_rate())) {
           can_change_all = false;
           break;
         }
@@ -432,7 +432,7 @@ void SpeedDialog::accept() {
     for (int i=0;i<clips_.size();i++) {
       Clip* c = clips_.at(i);
       if (c->type() == olive::kTypeVideo) {
-        set_speed(ca, c, frame_rate->value() / c->MediaFrameRate(), ripple->isChecked(), earliest_point, longest_ripple);
+        set_speed(ca, c, frame_rate->value() / c->media_frame_rate(), ripple->isChecked(), earliest_point, longest_ripple);
       } else if (can_change_all) {
         set_speed(ca, c, frame_rate->value() / cached_fr, ripple->isChecked(), earliest_point, longest_ripple);
       }

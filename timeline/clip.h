@@ -39,7 +39,6 @@
 #include "marker.h"
 #include "nodes/nodegraph.h"
 #include "selection.h"
-#include "timelineobject.h"
 
 class Track;
 
@@ -49,13 +48,10 @@ struct ClipSpeed {
   bool maintain_audio_pitch;
 };
 
-class Clip;
-using ClipPtr = std::shared_ptr<Clip>;
-
-class Clip : public TimelineObject {
+class Clip {
 public:
   Clip(Track *s);
-  virtual ~Clip() override;
+  ~Clip();
   ClipPtr copy(Track *s);
 
   void Save(QXmlStreamWriter& stream);
@@ -75,17 +71,9 @@ public:
   Media* media();
   FootageStream* media_stream();
   int media_stream_index();
-
-  virtual int MediaWidth() override;
-  virtual int MediaHeight() override;
-  virtual double MediaFrameRate() override;
-
-  virtual int SequenceWidth() override;
-  virtual int SequenceHeight() override;
-  virtual double SequenceFrameRate() override;
-
-  virtual long SequencePlayhead() override;
-
+  int media_width();
+  int media_height();
+  double media_frame_rate();
   long media_length();
   void set_media(Media* m, int s);
 
@@ -192,6 +180,8 @@ private:
 
   Cacher cacher;
   long cacher_frame;
+
+  NodeGraph pipeline_;
 
   QVector<Marker> markers;
   QColor color_;

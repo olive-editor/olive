@@ -344,7 +344,7 @@ void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
                        x_movement,
                        y_movement,
                        get_timecode(gizmos->parent_clip,
-                                    gizmos->parent_clip->SequencePlayhead()),
+                                    gizmos->parent_clip->track()->sequence()->playhead),
                        done);
 
     gizmo_x_mvmt += x_movement;

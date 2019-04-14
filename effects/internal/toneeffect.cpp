@@ -25,7 +25,7 @@
 #define TONE_TYPE_SINE 0
 
 #include "timeline/clip.h"
-#include "rendering/audio.h"
+#include "timeline/sequence.h"
 
 ToneEffect::ToneEffect(Clip* c) : Node(c), sinX(INT_MIN) {
   type_val = new ComboInput(this, "type", tr("Type"));
@@ -90,7 +90,7 @@ void ToneEffect::process_audio(double timecode_start,
 
     double timecode = timecode_start+(interval*i);
     float tone_sample = qSin((2*M_PI*sinX*freq_val->GetDoubleAt(timecode))
-                                           /current_audio_freq())
+                                           /parent_clip->track()->sequence()->audio_frequency)
                                       *log_volume(amount_val->GetDoubleAt(timecode)*0.01);
 
     for (int j=0;j<channel_count;j++) {

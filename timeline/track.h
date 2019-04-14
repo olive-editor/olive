@@ -8,8 +8,6 @@
 #include "tracktypes.h"
 #include "undo/comboaction.h"
 #include "timeline/selection.h"
-#include "timelineobject.h"
-#include "clip.h"
 
 class Sequence;
 class Transition;
@@ -39,7 +37,7 @@ namespace olive {
 
 class TrackList;
 
-class Track : public TimelineObject
+class Track : public QObject
 {
   Q_OBJECT
 public:
@@ -69,12 +67,6 @@ public:
   ClipPtr GetClipObjectFromRawPtr(Clip* c);
   Clip* GetClipFromPoint(long point);
   bool ContainsClip(Clip* c);
-
-  virtual int SequenceWidth() override;
-  virtual int SequenceHeight() override;
-  virtual double SequenceFrameRate() override;
-
-  virtual long SequencePlayhead() override;
 
   Track* Previous();
   Track* Next();

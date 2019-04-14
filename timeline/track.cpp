@@ -1,8 +1,5 @@
 #include "track.h"
 
-#include <QApplication>
-#include <QDesktopWidget>
-
 #include "timeline/clip.h"
 #include "timeline/tracklist.h"
 #include "timeline/sequence.h"
@@ -11,8 +8,6 @@
 int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
 int olive::timeline::kTrackHeightIncrement = 10;
-
-int olive::timeline::kTimelineLabelFixedWidth = 200;
 
 Track::Track(TrackList* parent, olive::TrackType type) :
   parent_(parent),
@@ -209,26 +204,6 @@ bool Track::ContainsClip(Clip *c)
     }
   }
   return false;
-}
-
-int Track::SequenceWidth()
-{
-  return sequence()->width;
-}
-
-int Track::SequenceHeight()
-{
-  return sequence()->height;
-}
-
-double Track::SequenceFrameRate()
-{
-  return sequence()->frame_rate;
-}
-
-long Track::SequencePlayhead()
-{
-  return sequence()->playhead;
 }
 
 Track *Track::Previous()
@@ -458,12 +433,3 @@ void Track::SetLocked(bool locked)
 {
   locked_ = locked;
 }
-
-void olive::timeline::MultiplyTrackSizesByDPI()
-{
-  kTrackDefaultHeight *= qApp->fontMetrics().height() * 3;
-  kTrackMinHeight *= qApp->fontMetrics().height();
-  kTrackHeightIncrement *= qApp->fontMetrics().height() / 2;
-  kTimelineLabelFixedWidth *= QApplication::desktop()->devicePixelRatio();
-}
-
