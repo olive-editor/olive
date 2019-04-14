@@ -562,6 +562,7 @@ void ExportThread::Export()
   if (params_.audio_enabled) apkt_alloc = true;
 
   olive::Global->set_rendering_state(false);
+  close_active_clips(olive::ActiveSequence.get());
 
   // If audio is enabled, flush the rest of the audio out of swresample
   if (params_.audio_enabled) {
