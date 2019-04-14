@@ -466,7 +466,7 @@ void MainWindow::Restyle()
 
         // Windows menus have the option of being native, so we may not need this CSS
 #ifdef Q_OS_WIN
-        if (!olive::CurrentConfig.use_native_menu_styling) {
+        if (!olive::config.use_native_menu_styling) {
 #endif
           stylesheet.append("QMenu::separator { background: #404040; }");
 #ifdef Q_OS_WIN
