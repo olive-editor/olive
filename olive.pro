@@ -48,7 +48,7 @@ system("which git") {
 
 CONFIG += c++11
 
-QMAKE_CXXFLAGS += -Wno-reorder
+gcc:QMAKE_CXXFLAGS += -Wno-reorder
 
 SOURCES += \
         main.cpp \

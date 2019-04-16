@@ -218,4 +218,5 @@ bool NodeShader::IsCreatable()
 NodePtr NodeShader::Create(Clip *)
 {
   Q_ASSERT(false);
+  return nullptr;
 }
