@@ -2604,12 +2604,12 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="37"/>
         <source>Replace clips using &quot;%1&quot;</source>
-        <translation>Ganti klip dengan &quot;%1&quot;</translation>
+        <translation>Ganti klip yang menggunakan &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="43"/>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
-        <translation>Pilih media pengganti media dari klip:</translation>
+        <translation>Pilih media pengganti:</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="49"/>
@@ -2891,7 +2891,7 @@ Tampilkan frame dengan cepat (dapat menampilkan frame yang salah ketika menggese
     <message>
         <location filename="../project/sourcescommon.cpp" line="129"/>
         <source>Replace Clips Using This Media</source>
-        <translation>Ganti Klip dengan Media Ini</translation>
+        <translation>Ganti Semua Klip yang Menggunakan Media Ini</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="152"/>
