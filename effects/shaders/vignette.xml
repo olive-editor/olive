@@ -9,5 +9,9 @@
 	<row name="Circular">
 		<field type="bool" default="false" id="circular"/>
 	</row>
+	<row name="Center">
+		<field type="double" default="0" id="centerX"/>
+		<field type="double" default="0" id="centerY"/>
+	</row>
 	<shader vert="common.vert" frag="vignette.frag"/>
 </effect>
