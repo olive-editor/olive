@@ -78,7 +78,8 @@ Config::Config()
     default_sequence_height(1080),
     default_sequence_framerate(29.97),
     default_sequence_audio_frequency(48000),
-    default_sequence_audio_channel_layout(3)
+    default_sequence_audio_channel_layout(3),
+    locked_panels(false)
 {}
 
 void Config::load(QString path) {
@@ -239,6 +240,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "DefaultSequenceAudioLayout") {
           stream.readNext();
           default_sequence_audio_channel_layout = stream.text().toInt();
+        } else if (stream.name() == "LockedPanels") {
+          stream.readNext();
+          locked_panels = (stream.text() == "1");
         }
       }
     }
@@ -313,6 +317,7 @@ void Config::save(QString path) {
   stream.writeTextElement("DefaultSequenceFrameRate", QString::number(default_sequence_framerate));
   stream.writeTextElement("DefaultSequenceAudioFrequency", QString::number(default_sequence_audio_frequency));
   stream.writeTextElement("DefaultSequenceAudioLayout", QString::number(default_sequence_audio_channel_layout));
+  stream.writeTextElement("LockedPanels", QString::number(locked_panels));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc

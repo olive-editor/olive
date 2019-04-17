@@ -559,6 +559,11 @@ struct Config {
   int default_sequence_audio_channel_layout;
 
   /**
+   * @brief Sets whether panels should load locked or not
+   */
+  bool locked_panels;
+
+  /**
    * @brief Load config from file
    *
    * Load configuration parameters from file
