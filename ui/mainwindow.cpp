@@ -285,6 +285,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
   olive::Global->check_for_autorecovery_file();
 
+  // lock panels if the config says so
+  set_panels_locked(olive::config.locked_panels);
+
   // set up output audio device
   init_audio();
 
@@ -1193,6 +1196,8 @@ void MainWindow::set_panels_locked(bool locked)
       panel->setTitleBarWidget(nullptr);
     }
   }
+
+  olive::config.locked_panels = locked;
 }
 
 void MainWindow::fileMenu_About_To_Be_Shown() {

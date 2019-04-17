@@ -82,7 +82,8 @@ Config::Config()
     playback_bit_depth(olive::PIX_FMT_RGBA16F),
     export_bit_depth(olive::PIX_FMT_RGBA32F),
     dont_use_proxies_on_export(true),
-    maximum_recent_projects(10)
+    maximum_recent_projects(10),
+    locked_panels(false)
 {}
 
 void Config::load(QString path) {
@@ -267,6 +268,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "DontUseProxiesOnExport") {
           stream.readNext();
           dont_use_proxies_on_export = (stream.text() == "1");
+        } else if (stream.name() == "LockedPanels") {
+          stream.readNext();
+          locked_panels = (stream.text() == "1");
         }
       }
     }
@@ -349,6 +353,7 @@ void Config::save(QString path) {
   stream.writeTextElement("PlaybackBitDepth", QString::number(playback_bit_depth));
   stream.writeTextElement("ExportBitDepth", QString::number(export_bit_depth));
   stream.writeTextElement("DontUseProxiesOnExport", QString::number(dont_use_proxies_on_export));
+  stream.writeTextElement("LockedPanels", QString::number(locked_panels));
 
   stream.writeEndElement(); // configuration
   stream.writeEndDocument(); // doc
