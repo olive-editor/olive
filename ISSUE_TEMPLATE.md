@@ -14,7 +14,7 @@
 
 ### Why should Olive include the feature? What are the benefits?
 
-[Explain why the feature's importance to Olive.]
+[Explain the feature's importance to Olive and NLEs in general.]
 
 ---
 
