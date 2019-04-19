@@ -2,11 +2,11 @@
 
 ### I have read the following
 
-- [ ] The Olive Wiki
+- [ ] The [Olive Wiki](https://github.com/olive-editor/olive/wiki)
 
-- [ ] Previous issues that include [FR]/[Feature Request]
+- [ ] Previous issues that include ["FR"](https://github.com/olive-editor/olive/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+FR)or ["Feature Request"](https://github.com/olive-editor/olive/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Feature+Request)
 
-- [ ] Olive's Project Tab
+- [ ] Olive's [Project Goals](https://github.com/olive-editor/olive/projects)
 
 ### Detailed description of the feature request
 
