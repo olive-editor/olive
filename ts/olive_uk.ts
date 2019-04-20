@@ -686,7 +686,7 @@
         <translation>не вдалося записати заголовок вихідного файлу (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="604"/>
+        <location filename="../rendering/exportthread.cpp" line="600"/>
         <source>could not write output file trailer (%1)</source>
         <translatorcomment>Уточнити</translatorcomment>
         <translation>не вдалося записати кінець вихідного файла (%1)</translation>
