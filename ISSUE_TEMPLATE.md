@@ -2,11 +2,11 @@
 
 ### I have read the following
 
-- [ ] The [Olive Wiki](https://github.com/olive-editor/olive/wiki)
+- [ ] The Olive Wiki
 
-- [ ] Previous issues that include ["FR"](https://github.com/olive-editor/olive/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+FR)or ["Feature Request"](https://github.com/olive-editor/olive/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+Feature+Request)
+- [ ] Previous issues that include "FR" or "Feature Request"
 
-- [ ] Olive's [Project Goals](https://github.com/olive-editor/olive/projects)
+- [ ] Olive's Project Tab
 
 ### Detailed description of the feature request
 
@@ -14,7 +14,7 @@
 
 ### Why should Olive include the feature? What are the benefits?
 
-[Explain the feature's importance to Olive and NLEs in general.]
+[Please explain why you would like to have the feature added. Be as clear as possible, and be direct with your words.]
 
 ---
 
