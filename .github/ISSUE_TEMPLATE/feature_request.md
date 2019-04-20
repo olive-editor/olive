@@ -22,6 +22,7 @@ A clear and concise description of what you want to happen.
 A clear and concise description of any alternative solutions or features you've considered.
 
 **Do you know any libraries or sources that can help the Olive Team include the feature?**
+List open-source libraries related to the feature.
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
