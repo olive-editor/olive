@@ -720,6 +720,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
                 }
                 hovered_clip->track()->SelectArea(s_in, s_out);
               }
+
             } else {
 
               // if the clip is not already selected
@@ -2498,9 +2499,9 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
       //
 
       // threshold around a trim point that the cursor can be within and still considered "trimming"
-      int lim = 5;
-      long mouse_frame_lower = ParentTimeline()->getTimelineFrameFromScreenPoint(pos.x()-lim)-1;
-      long mouse_frame_upper = ParentTimeline()->getTimelineFrameFromScreenPoint(pos.x()+lim)+1;
+      int lim = 10; // FIXME Magic number for the clip trimming threshold
+      int mouse_frame_lower = pos.x() - lim;
+      int mouse_frame_upper = pos.x() + lim;
 
       // used to determine whether we the cursor found a trim point or not
       bool found = false;
@@ -2548,11 +2549,14 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
             }
           }
 
+          int visual_in_point = ParentTimeline()->getTimelineScreenPointFromFrame(c->timeline_in());
+          int visual_out_point = ParentTimeline()->getTimelineScreenPointFromFrame(c->timeline_out());
+
           // is the cursor hovering around the clip's IN point?
-          if (c->timeline_in() > mouse_frame_lower && c->timeline_in() < mouse_frame_upper) {
+          if (visual_in_point > mouse_frame_lower && visual_in_point < mouse_frame_upper) {
 
             // test how close this IN point is to the cursor
-            long nc = qAbs(c->timeline_in() + 1 - ParentTimeline()->cursor_frame);
+            int nc = qAbs(visual_in_point + 1 - pos.x());
 
             // and test whether it's closer than the last in/out point we found
             if (nc < closeness) {
@@ -2567,10 +2571,10 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           }
 
           // is the cursor hovering around the clip's OUT point?
-          if (c->timeline_out() > mouse_frame_lower && c->timeline_out() < mouse_frame_upper) {
+          if (visual_out_point > mouse_frame_lower && visual_out_point < mouse_frame_upper) {
 
             // test how close this OUT point is to the cursor
-            long nc = qAbs(c->timeline_out() - 1 - ParentTimeline()->cursor_frame);
+            int nc = qAbs(visual_out_point - 1 - pos.x());
 
             // and test whether it's closer than the last in/out point we found
             if (nc < closeness) {
@@ -2592,13 +2596,14 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
             if (c->opening_transition != nullptr) {
 
               // cache the timeline frame where the transition ends
-              long transition_point = c->timeline_in() + c->opening_transition->get_true_length();
+              int transition_point = ParentTimeline()->getTimelineScreenPointFromFrame(c->timeline_in()
+                                                                                     + c->opening_transition->get_true_length());
 
               // check if the cursor is hovering around it (within the threshold)
               if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 
                 // similar to above, test how close it is and if it's closer, make this active
-                long nc = qAbs(transition_point - 1 - ParentTimeline()->cursor_frame);
+                int nc = qAbs(transition_point - 1 - pos.x());
                 if (nc < closeness) {
                   ParentTimeline()->trim_target = c;
                   ParentTimeline()->trim_type = olive::timeline::TRIM_OUT;
@@ -2613,13 +2618,14 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
             if (c->closing_transition != nullptr) {
 
               // cache the timeline frame where the transition starts
-              long transition_point = c->timeline_out() - c->closing_transition->get_true_length();
+              int transition_point = ParentTimeline()->getTimelineScreenPointFromFrame(c->timeline_out()
+                                                                                     - c->closing_transition->get_true_length());
 
               // check if the cursor is hovering around it (within the threshold)
               if (transition_point > mouse_frame_lower && transition_point < mouse_frame_upper) {
 
                 // similar to above, test how close it is and if it's closer, make this active
-                long nc = qAbs(transition_point + 1 - ParentTimeline()->cursor_frame);
+                int nc = qAbs(transition_point + 1 - pos.x());
                 if (nc < closeness) {
                   ParentTimeline()->trim_target = c;
                   ParentTimeline()->trim_type = olive::timeline::TRIM_IN;

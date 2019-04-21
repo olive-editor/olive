@@ -753,7 +753,7 @@ void Timeline::split_at_playhead()
 }
 
 long getFrameFromScreenPoint(double zoom, int x) {
-  long f = qRound(double(x) / zoom);
+  long f = qFloor(double(x) / zoom);
   if (f < 0) {
     return 0;
   }

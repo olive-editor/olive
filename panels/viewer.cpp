@@ -619,7 +619,7 @@ void Viewer::setup_ui() {
   lower_control_layout->setMargin(0);
 
   QSizePolicy timecode_container_policy(QSizePolicy::Minimum, QSizePolicy::Maximum);
-  QSizePolicy lower_control_policy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  QSizePolicy lower_control_policy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
   // Current time code container
   QWidget* current_timecode_container = new QWidget();
