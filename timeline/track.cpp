@@ -246,8 +246,7 @@ bool Track::IsClipSelected(Clip *clip, bool containing)
   for (int i=0;i<selections_.size();i++) {
     const Selection& s = selections_.at(i);
     if (((clip->timeline_in() >= s.in() && clip->timeline_out() <= s.out())
-         || (!containing && !(clip->timeline_in() < s.in() && clip->timeline_out() < s.in())
-             && !(clip->timeline_in() > s.in() && clip->timeline_out() > s.in())))) {
+         || (!containing && !(clip->timeline_in() >= s.out() || clip->timeline_out() <= s.in())))) {
       return true;
     }
   }
@@ -340,27 +339,27 @@ void Track::ClearSelections()
 void Track::DeselectArea(long in, long out)
 {
   int selection_count = selections_.size();
-    for (int i=0;i<selection_count;i++) {
-      Selection& s = selections_[i];
+  for (int i=0;i<selection_count;i++) {
+    Selection& s = selections_[i];
 
-      if (s.in() >= in && s.out() <= out) {
-        // whole selection is in deselect area
-        selections_.removeAt(i);
-        i--;
-        selection_count--;
-      } else if (s.in() < in && s.out() > out) {
-        // middle of selection is in deselect area
-        Selection new_sel(out, s.out(), s.track());
-        selections_.append(new_sel);
+    if (s.in() >= in && s.out() <= out) {
+      // whole selection is in deselect area
+      selections_.removeAt(i);
+      i--;
+      selection_count--;
+    } else if (s.in() < in && s.out() > out) {
+      // middle of selection is in deselect area
+      Selection new_sel(out, s.out(), s.track());
+      selections_.append(new_sel);
 
-        s.set_out(in);
-      } else if (s.in() < in && s.out() > in) {
-        // only out point is in deselect area
-        s.set_out(in);
-      } else if (s.in() < out && s.out() > out) {
-        // only in point is in deselect area
-        s.set_in(out);
-      }
+      s.set_out(in);
+    } else if (s.in() < in && s.out() > in) {
+      // only out point is in deselect area
+      s.set_out(in);
+    } else if (s.in() < out && s.out() > out) {
+      // only in point is in deselect area
+      s.set_in(out);
+    }
   }
 }
 
