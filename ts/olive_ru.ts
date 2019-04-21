@@ -349,42 +349,42 @@
         <translation>%1 (закрывается)</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="157"/>
+        <location filename="../ui/effectui.cpp" line="158"/>
         <source>%1 (multiple)</source>
         <translation>%1 (больше одного)</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="285"/>
+        <location filename="../ui/effectui.cpp" line="286"/>
         <source>Cu&amp;t</source>
         <translation>В&amp;ырезать</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="288"/>
+        <location filename="../ui/effectui.cpp" line="289"/>
         <source>&amp;Copy</source>
         <translation>&amp;Скопировать</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="299"/>
+        <location filename="../ui/effectui.cpp" line="300"/>
         <source>Move &amp;Up</source>
         <translation>&amp;Поднять</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="303"/>
+        <location filename="../ui/effectui.cpp" line="304"/>
         <source>Move &amp;Down</source>
         <translation>&amp;Опустить</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="308"/>
+        <location filename="../ui/effectui.cpp" line="309"/>
         <source>D&amp;elete</source>
         <translation>&amp;Удалить</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="325"/>
+        <location filename="../ui/effectui.cpp" line="326"/>
         <source>Load Settings From File</source>
         <translation>Загрузить параметры из файла</translation>
     </message>
     <message>
-        <location filename="../ui/effectui.cpp" line="327"/>
+        <location filename="../ui/effectui.cpp" line="328"/>
         <source>Save Settings to File</source>
         <translation>Сохранить параметры в файл</translation>
     </message>
@@ -595,87 +595,87 @@
 <context>
     <name>ExportThread</name>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="78"/>
+        <location filename="../rendering/exportthread.cpp" line="79"/>
         <source>failed to send frame to encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="89"/>
+        <location filename="../rendering/exportthread.cpp" line="90"/>
         <source>failed to receive packet from encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="121"/>
+        <location filename="../rendering/exportthread.cpp" line="113"/>
         <source>could not video encoder for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="130"/>
+        <location filename="../rendering/exportthread.cpp" line="122"/>
         <source>could not allocate video stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="139"/>
+        <location filename="../rendering/exportthread.cpp" line="131"/>
         <source>could not allocate video encoding context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="188"/>
+        <location filename="../rendering/exportthread.cpp" line="180"/>
         <source>could not open output video encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="196"/>
+        <location filename="../rendering/exportthread.cpp" line="188"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="233"/>
+        <location filename="../rendering/exportthread.cpp" line="227"/>
         <source>could not audio encoder for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="241"/>
+        <location filename="../rendering/exportthread.cpp" line="235"/>
         <source>could not allocate audio stream</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="255"/>
+        <location filename="../rendering/exportthread.cpp" line="249"/>
         <source>could not allocate audio encoding context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="280"/>
+        <location filename="../rendering/exportthread.cpp" line="274"/>
         <source>could not open output audio encoder (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="288"/>
+        <location filename="../rendering/exportthread.cpp" line="282"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="325"/>
+        <location filename="../rendering/exportthread.cpp" line="319"/>
         <source>could not allocate audio buffer (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="356"/>
+        <location filename="../rendering/exportthread.cpp" line="350"/>
         <source>could not create output format context</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="366"/>
+        <location filename="../rendering/exportthread.cpp" line="360"/>
         <source>could not open output file (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="402"/>
+        <location filename="../rendering/exportthread.cpp" line="396"/>
         <source>could not write output file header (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="603"/>
+        <location filename="../rendering/exportthread.cpp" line="600"/>
         <source>could not write output file trailer (%1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -778,7 +778,7 @@
 <context>
     <name>KeyframeNavigator</name>
     <message>
-        <location filename="../ui/keyframenavigator.cpp" line="71"/>
+        <location filename="../ui/keyframenavigator.cpp" line="77"/>
         <source>Enable Keyframes</source>
         <translation>Включить ключевые кадры</translation>
     </message>
@@ -3275,7 +3275,7 @@ Audio Layout: %6</source>
 <context>
     <name>TimelineHeader</name>
     <message>
-        <location filename="../ui/timelineheader.cpp" line="482"/>
+        <location filename="../ui/timelineheader.cpp" line="486"/>
         <source>Center Timecodes</source>
         <translation>Центрировать тайм-код</translation>
     </message>
@@ -3528,17 +3528,17 @@ Duration: %4</source>
         <translation>Просмотр проекта</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="610"/>
+        <location filename="../panels/viewer.cpp" line="601"/>
         <source>(none)</source>
         <translation>(нет)</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="746"/>
+        <location filename="../panels/viewer.cpp" line="737"/>
         <source>Drag video only</source>
         <translation>Перетаскивать только видео</translation>
     </message>
     <message>
-        <location filename="../panels/viewer.cpp" line="753"/>
+        <location filename="../panels/viewer.cpp" line="744"/>
         <source>Drag audio only</source>
         <translation>Перетаскивать только звук</translation>
     </message>

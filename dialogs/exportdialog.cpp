@@ -572,10 +572,10 @@ void ExportDialog::StartExport() {
     // Close all effects in effect controls (prevents UI threading issues)
     panel_effect_controls->Clear();
 
+    olive::Global->set_rendering_state(true);
+
     // Close all currently open clips
     close_active_clips(olive::ActiveSequence.get());
-
-    olive::Global->set_rendering_state(true);
 
     olive::Global->save_autorecovery_file();
 
