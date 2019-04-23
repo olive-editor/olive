@@ -160,6 +160,9 @@ void TextEffect::redraw(double timecode) {
   bkg.setAlpha(0);
   img.fill(bkg);
 
+  if (size_val->GetDoubleAt(timecode) <= 0)
+      return;
+
   QPainter p(&img);
   p.setRenderHint(QPainter::Antialiasing);
   int padding = qRound(padding_field->GetDoubleAt(timecode));
