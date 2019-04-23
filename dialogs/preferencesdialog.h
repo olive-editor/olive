@@ -33,6 +33,7 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <QTimeEdit>
 
 #include "timeline/sequence.h"
 
@@ -242,6 +243,11 @@ private:
    * @brief UI widget for selecting the resolution of the waveforms to generate
    */
   QSpinBox* waveform_res_spinbox;
+
+  /**
+   * @brief UI widget for selecting the default length of an image footage
+   */
+  QTimeEdit* default_image_duration_timeedit;
 
   /**
    * @brief UI widget for selecting the current UI style

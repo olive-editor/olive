@@ -294,7 +294,8 @@ void Timeline::create_ghosts_from_media(Sequence* seq, long entry_point, QVector
       case MEDIA_TYPE_FOOTAGE:
         // is video source a still image?
         if (m->video_tracks.size() > 0 && m->video_tracks.at(0).infinite_length && m->audio_tracks.size() == 0) {
-          g.out = g.in + 100;
+          double length = qFloor(QTime(0,0).secsTo(olive::CurrentConfig.default_image_duration) * seq->frame_rate);
+          g.out = g.in + length;
         } else {
           long length = m->get_length_in_frames(seq->frame_rate);
           g.out = entry_point + length - default_clip_in;

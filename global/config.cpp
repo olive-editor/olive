@@ -76,6 +76,7 @@ Config::Config()
     use_native_menu_styling(true),
     default_sequence_width(1920),
     default_sequence_height(1080),
+    default_image_duration(QTime(0, 0, 6)),
     default_sequence_framerate(29.97),
     default_sequence_audio_frequency(48000),
     default_sequence_audio_channel_layout(3),
@@ -216,6 +217,9 @@ void Config::load(QString path) {
         } else if (stream.name() == "WaveformResolution") {
           stream.readNext();
           waveform_resolution = stream.text().toInt();
+        } else if (stream.name() == "DefaultImageDuration") {
+          stream.readNext();
+          default_image_duration = QTime::fromString(stream.text().toString(), olive::kDefaultTimeFormat);
         } else if (stream.name() == "AddDefaultEffectsToClips") {
           stream.readNext();
           add_default_effects_to_clips = (stream.text() == "1");
@@ -309,6 +313,7 @@ void Config::save(QString path) {
   stream.writeTextElement("LanguageFile", language_file);
   stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
   stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
+  stream.writeTextElement("DefaultImageDuration", default_image_duration.toString(olive::kDefaultTimeFormat));
   stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
   stream.writeTextElement("Style", QString::number(style));
   stream.writeTextElement("NativeMenuStyling", QString::number(use_native_menu_styling));

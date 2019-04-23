@@ -318,6 +318,9 @@ void PreferencesDialog::accept() {
     delete_previews(delete_match);
   }
 
+  // Save default image duration
+  olive::CurrentConfig.default_image_duration = default_image_duration_timeedit->time();
+
   // Save keyboard shortcuts
   for (int i=0;i<key_shortcut_fields.size();i++) {
     key_shortcut_fields.at(i)->set_action_shortcut();
@@ -569,6 +572,17 @@ void PreferencesDialog::setup_ui() {
   QPushButton* delete_preview_btn = new QPushButton(tr("Delete Previews"));
   general_layout->addWidget(delete_preview_btn, row, 4);
   connect(delete_preview_btn, SIGNAL(clicked(bool)), this, SLOT(delete_all_previews()));
+
+  row++;
+
+  // General -> Default Image Duration
+  general_layout->addWidget(new QLabel(tr("Default Image Duration:"), this), row, 0);
+
+  default_image_duration_timeedit = new QTimeEdit(this);
+  default_image_duration_timeedit->setDisplayFormat("HH:mm:ss.zzz");
+  default_image_duration_timeedit->setMinimumTime(QTime(0, 0, 0, 1));
+  default_image_duration_timeedit->setTime(olive::CurrentConfig.default_image_duration);
+  general_layout->addWidget(default_image_duration_timeedit, row, 1);
 
   row++;
 

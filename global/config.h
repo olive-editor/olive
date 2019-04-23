@@ -22,6 +22,7 @@
 #define CONFIG_H
 
 #include <QString>
+#include <QTime>
 
 #include "ui/styling.h"
 
@@ -54,6 +55,12 @@ namespace olive {
    * constant stays the same forever, but in this early stage it's not strictly necessary.
    */
   const int kMinimumSaveVersion = 190219; // lowest compatible project version
+
+
+  /**
+   * @brief Default time format used for saving QTime data
+   */
+  const QString kDefaultTimeFormat = "HH:mm:ss.zzz";
 
   /**
    * @brief The TimecodeType enum
@@ -542,6 +549,11 @@ struct Config {
    * @brief Default Sequence video height
    */
   int default_sequence_height;
+
+  /**
+   * @brief Default Image duration
+   */
+  QTime default_image_duration;
 
   /**
    * @brief Default Sequence video frame rate
