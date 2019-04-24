@@ -30,8 +30,7 @@
 #include "panels/panels.h"
 
 EffectUI::EffectUI(Node* e) :
-  effect_(e),
-  node_parent_(nullptr)
+  effect_(e)
 {
   Q_ASSERT(e != nullptr);
 
@@ -280,31 +279,6 @@ bool EffectUI::IsAttachedToClip(Clip *c)
   }
 
   return false;
-}
-
-void EffectUI::SetNodeParent(NodeUI *parent)
-{
-  node_parent_ = parent;
-}
-
-void EffectUI::resizeEvent(QResizeEvent *event)
-{
-  if (node_parent_ != nullptr) {
-    node_parent_->Resize(event->size());
-  }
-}
-
-bool EffectUI::event(QEvent *event)
-{
-  if (node_parent_ != nullptr
-      && (event->type() == QEvent::MouseButtonPress
-      || event->type() == QEvent::MouseButtonRelease
-      || event->type() == QEvent::MouseMove
-      || event->type() == QEvent::MouseButtonDblClick)
-      && node_parent_->scene()->sendEvent(node_parent_, event)) {
-    return true;
-  }
-  return CollapsibleWidget::event(event);
 }
 
 QWidget *EffectUI::Widget(int row, int field)

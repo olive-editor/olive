@@ -153,7 +153,8 @@ void clear_audio_ibuffer() {
 }
 
 int current_audio_freq() {
-  return olive::Global->is_exporting() ? audio_rendering_rate : audio_output->format().sampleRate();
+  return olive::Global->is_exporting()
+      ? audio_rendering_rate : audio_output->format().sampleRate();
 }
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {

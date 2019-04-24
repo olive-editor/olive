@@ -26,7 +26,7 @@ void NodeEdgeUI::adjust()
       if (node != nullptr) {
 
         // Check if this node has the output row
-        int row_index = node->Widget()->GetEffect()->IndexOfRow(edge_->output());
+        int row_index = node->GetNode()->IndexOfRow(edge_->output());
 
         if (row_index > -1) {
           output_node_ = node;
@@ -34,7 +34,7 @@ void NodeEdgeUI::adjust()
         }
 
         // Check if this node has the input row
-        row_index = node->Widget()->GetEffect()->IndexOfRow(edge_->input());
+        row_index = node->GetNode()->IndexOfRow(edge_->input());
 
         if (row_index > -1) {
           input_node_ = node;

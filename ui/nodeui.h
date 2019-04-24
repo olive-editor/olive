@@ -12,12 +12,11 @@ class Node;
 class NodeUI : public QGraphicsRectItem {
 public:
   NodeUI();
-  virtual ~NodeUI() override;
 
   void AddToScene(QGraphicsScene* scene);
-  void Resize(const QSize& s);
-  void SetWidget(EffectUI* widget);
-  EffectUI* Widget();
+  //void Resize(const QSize& s);
+  void SetNode(Node* n);
+  Node* GetNode();
 
   QVector<QRectF> GetNodeSocketRects();
 
@@ -31,9 +30,9 @@ protected:
 private:
   EffectRow *GetRowFromIndex(int i);
   NodeUI* FindUIFromNode(Node* n);
+  int GetRowY(int index);
 
-  EffectUI* central_widget_;
-  QGraphicsProxyWidget* proxy_;
+  Node* node_;
 
   QGraphicsPathItem* drag_line_;
   QPointF drag_line_start_;

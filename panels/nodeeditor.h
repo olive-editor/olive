@@ -23,9 +23,12 @@ protected:
 private:
   QGraphicsScene scene_;
   NodeView view_;
+  QWidget props_;
   QVector<NodeUI*> nodes_;
   QVector<NodeEdgeUI*> edges_;
   QVector<EffectRow*> connected_rows_;
+  QVBoxLayout* prop_layout_;
+  QVector<EffectUI*> nodes_open_in_props_;
 
   void ClearEdges();
   void LoadEdges();
@@ -37,7 +40,7 @@ private slots:
   void ItemsChanged();
   void ReloadEdges();
   void ContextMenu();
-
+  void UpdateNodeProperties();
 };
 
 #endif // NODEEDITOR_H
