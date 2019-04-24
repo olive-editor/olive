@@ -48,7 +48,7 @@ public:
    *
    * @return
    *
-   * The Effect object passed to the constrcutor whe creating this EffectUI.
+   * The Effect object passed to the constructor when creating this EffectUI.
    */
   Effect* GetEffect();
 

@@ -85,7 +85,7 @@ private slots:
    *
    * The current index of the QWidget (QComboBox in this case). Automatically set when this slot is connected
    * to the QComboBox::currentIndexChanged() signal. This is the only time ComboFields deal with indices since the
-   * QComboBox's indices will match precisely to the items_ array. Outside of this function, QVariant data is prefered.
+   * QComboBox's indices will match precisely to the items_ array. Outside of this function, QVariant data is preferred.
    */
   void UpdateFromWidget(int index);
 };

@@ -2,7 +2,7 @@
 (c) 2008 Edward Cannon (adapted to GLSL by Olive Team)
 feel free to use or modify at will*/
  
-/*the follwing three functions convert RGB into YCbCr in the same manner as in JPEG images*/ 
+/*the following three functions convert RGB into YCbCr in the same manner as in JPEG images*/ 
 
 uniform sampler2D tex;
 varying vec2 vTexCoord;

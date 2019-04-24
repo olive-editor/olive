@@ -33,7 +33,7 @@
  * A dialog for setting the speed of one or more Clips. This can be run from anywhere provided it's given a valid
  * array of Clips.
  *
- * It's preferable ot
+ * It's preferable to
  */
 class SpeedDialog : public QDialog
 {
