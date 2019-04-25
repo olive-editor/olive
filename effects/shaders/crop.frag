@@ -5,6 +5,7 @@ uniform float top;
 uniform float right;
 uniform float bottom;
 uniform float feather;
+uniform bool invert;
 
 uniform mediump float amount_val;
 uniform sampler2D myTexture;
@@ -25,10 +26,18 @@ void main(void) {
 		if (bottom > 0.0) alpha = alpha * clamp((((1.0-vTexCoord.y)+(0.5/f))-(bottom*0.01))*f, 0.0, 1.0); // bottom
 	}
 
-	gl_FragColor = vec4(
-		textureColor.r*alpha,
-		textureColor.g*alpha,
-		textureColor.b*alpha,
+	if (invert)
+	{gl_FragColor = vec4(
+		textureColor.r*(1.0 - alpha),
+		textureColor.g*(1.0 - alpha),
+		textureColor.b*(1.0 - alpha),
+		1.0 - alpha
+	);}
+	else{
+		gl_FragColor = vec4(
+		textureColor.r*(alpha),
+		textureColor.g*(alpha),
+		textureColor.b*(alpha),
 		alpha
-	);
+	);}
 }
