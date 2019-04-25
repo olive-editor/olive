@@ -39,7 +39,11 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
     key_controls->addStretch();
   }
 
+  QSizePolicy button_size_policy;
+  button_size_policy.setRetainSizeWhenHidden(true);
+
   left_key_nav = new QPushButton(this);
+  left_key_nav->setSizePolicy(button_size_policy);
   left_key_nav->setIcon(olive::icon::LeftArrow);
   left_key_nav->setIconSize(left_key_nav->iconSize()*0.5);
   left_key_nav->setVisible(false);
@@ -48,6 +52,7 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
   connect(left_key_nav, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));
 
   key_addremove = new QPushButton(this);
+  key_addremove->setSizePolicy(button_size_policy);
   key_addremove->setIcon(olive::icon::Diamond);
   key_addremove->setIconSize(key_addremove->iconSize()*0.5);
   key_addremove->setVisible(false);
@@ -56,6 +61,7 @@ KeyframeNavigator::KeyframeNavigator(QWidget *parent, bool addLeftPad) : QWidget
   connect(key_addremove, SIGNAL(clicked(bool)), this, SIGNAL(clicked()));
 
   right_key_nav = new QPushButton(this);
+  right_key_nav->setSizePolicy(button_size_policy);
   right_key_nav->setIcon(olive::icon::RightArrow);
   right_key_nav->setIconSize(right_key_nav->iconSize()*0.5);
   right_key_nav->setVisible(false);

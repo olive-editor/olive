@@ -60,6 +60,7 @@ ExportThread::ExportThread(const ExportParams &params,
   audio_stream(nullptr),
   acodec(nullptr),
   audio_frame(nullptr),
+  sws_frame(nullptr),
   swr_frame(nullptr),
   acodec_ctx(nullptr),
   swr_ctx(nullptr),
@@ -216,6 +217,8 @@ bool ExportThread::SetupVideo() {
 }
 
 bool ExportThread::SetupAudio() {
+  // if video is disabled, no setup necessary
+  if (!params_.audio_enabled) return true;
 
   // Find encoder for this codec
   acodec = avcodec_find_encoder(static_cast<AVCodecID>(params_.audio_codec));
@@ -374,12 +377,12 @@ void ExportThread::Export()
   }
 
   // If video is enabled, set it up in the container now
-  if (params_.video_enabled && !SetupVideo()) {
+  if (!SetupVideo()) {
     return;
   }
 
   // If audio is enabled, set it up in the container now
-  if (params_.audio_enabled && !SetupAudio()) {
+  if (!SetupAudio()) {
     return;
   }
 
@@ -411,9 +414,6 @@ void ExportThread::Export()
   disconnect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
   connect(renderer, SIGNAL(ready()), this, SLOT(wake()));
 
-  // Lock mutex (used for synchronization with RenderThread)
-  mutex.lock();
-
   // Loop from now (set to the beginning frame earlier) to the end of the frame
   while (olive::ActiveSequence->playhead <= params_.end_frame && !interrupt_) {
 
@@ -422,6 +422,8 @@ void ExportThread::Export()
 
     // If we're exporting audio, run compose_audio() which will write mixed audio to the internal audio buffer
     if (params_.audio_enabled) {
+      waiting_for_audio_ = true;
+      SetAudioWakeObject(this);
       olive::rendering::compose_audio(nullptr, olive::ActiveSequence.get(), 1, true);
     }
 
@@ -485,6 +487,13 @@ void ExportThread::Export()
     // If we're exporting audio, copy audio from the buffer into an AVFrame for encoding
     if (params_.audio_enabled) {
 
+      if (waiting_for_audio_ && !interrupt_) {
+        waitCond.wait(&mutex);
+      }
+
+      // Make sure nothing is writing while we're retrieving
+      audio_write_lock.lock();
+
       // Check if the count of encoded samples exceeds the current Sequence playhead, in which case we don't need to
       // encode any audio at this moment
       while (!interrupt_ && file_audio_samples <= (timecode_secs*params_.audio_sampling_rate)) {
@@ -519,6 +528,9 @@ void ExportThread::Export()
         // Increment by the frame's number of samples
         file_audio_samples += swr_frame->nb_samples;
       }
+
+      audio_write_lock.unlock();
+
     }
 
     // Generating encoding statistics (e.g. the time it took to encode this frame/estimated remaining time)
@@ -542,8 +554,6 @@ void ExportThread::Export()
   disconnect(renderer, SIGNAL(ready()), this, SLOT(wake()));
   connect(renderer, SIGNAL(ready()), panel_sequence_viewer->viewer_widget, SLOT(queue_repaint()));
 
-  mutex.unlock();
-
   if (interrupt_) {
     return;
   }
@@ -552,6 +562,7 @@ void ExportThread::Export()
   if (params_.audio_enabled) apkt_alloc = true;
 
   olive::Global->set_rendering_state(false);
+  close_active_clips(olive::ActiveSequence.get());
 
   // If audio is enabled, flush the rest of the audio out of swresample
   if (params_.audio_enabled) {
@@ -652,8 +663,13 @@ void ExportThread::run() {
   // Seek to the first frame we're exporting
   panel_sequence_viewer->seek(params_.start_frame);
 
+  // Lock mutex (used for thread synchronizations)
+  mutex.lock();
+
   // Run export function (which will return if there's a failure)
   Export();
+
+  mutex.unlock();
 
   // Clean up anything that was allocated in Export() (whether it succeeded or not)
   Cleanup();
@@ -670,7 +686,18 @@ bool ExportThread::WasInterrupted()
 
 void ExportThread::Interrupt()
 {
+  mutex.lock();
   interrupt_ = true;
+  waitCond.wakeAll();
+  mutex.unlock();
+}
+
+void ExportThread::play_wake()
+{
+  mutex.lock();
+  waiting_for_audio_ = false;
+  waitCond.wakeAll();
+  mutex.unlock();
 }
 
 void ExportThread::wake() {
