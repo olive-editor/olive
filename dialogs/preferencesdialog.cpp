@@ -220,7 +220,8 @@ void PreferencesDialog::populate_ocio_menus(OCIO::ConstConfigRcPtr config)
       ocio_look->addItem(look, look);
 
       if (look == olive::config.ocio_look) {
-        ocio_look->setCurrentIndex(i);
+        // +1 to take "(None)" into account
+        ocio_look->setCurrentIndex(i+1);
       }
     }
 
