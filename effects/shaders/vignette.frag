@@ -7,6 +7,7 @@ uniform float centerX;
 uniform float centerY;
 uniform bool circular;
 uniform vec2 resolution;
+uniform bool invert;
 // uniform vec2 lensRadius; // 0.45, 0.38
 
 varying vec2 vTexCoord;
@@ -24,6 +25,11 @@ void main(void) {
 	}
 	float dist = distance(vignetteCoord, vec2(0.5 + centerX*0.01, 0.5 + centerY*0.01));
 	float size = (lensRadiusX*0.01);
-	c *= smoothstep(size, size*0.99*(1.0-lensRadiusY*0.01), dist);
+	
+	if (invert)
+	{c *= 1.0 - smoothstep(size, size*0.99*(1.0-lensRadiusY*0.01), dist);}
+	else
+	{c *= smoothstep(size, size*0.99*(1.0-lensRadiusY*0.01), dist);}
+	
 	gl_FragColor = c;
 }
