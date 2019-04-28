@@ -709,7 +709,7 @@
         <translation>tidak dapat menulis header untuk file keluaran (%1)</translation>
     </message>
     <message>
-        <location filename="../rendering/exportthread.cpp" line="599"/>
+        <location filename="../rendering/exportthread.cpp" line="600"/>
         <source>could not write output file trailer (%1)</source>
         <translation>tidak dapat menulis trailer untuk file keluaran (%1)</translation>
     </message>
