@@ -1,6 +1,6 @@
 /***
     Despill - for cleaning up keying residue.
-    Implementation by unfa for Olive-Editor Community
+    Written by unfa for Olive Video Editor.
 ***/
 
 uniform sampler2D tex;
