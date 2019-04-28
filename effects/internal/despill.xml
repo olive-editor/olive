@@ -7,5 +7,10 @@
 			<option>Blue</option>
 		</field>
 	</row>
+    
+    <row name="Factor">
+		<field type="double" min="0" max="100" default="100" id="factor"/>
+	</row>
+
         <shader vert="../COMMON/common.vert" frag="despill.frag"/>
 </effect>
