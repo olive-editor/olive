@@ -12,5 +12,5 @@
 		<field type="double" min="0" max="100" default="100" id="factor"/>
 	</row>
 
-        <shader vert="../COMMON/common.vert" frag="despill.frag"/>
+        <shader vert="common.vert" frag="despill.frag"/>
 </effect>
