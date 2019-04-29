@@ -9,7 +9,11 @@
 	</row>
     
     <row name="Factor">
-		<field type="double" min="0" max="100" default="100" id="factor"/>
+		<field type="double" min="0" max="100" default="100" id="factorIn"/>
+	</row>
+    
+    <row name="Balance">
+		<field type="double" min="-100" max="100" default="0" id="balanceIn"/>
 	</row>
 
         <shader vert="common.vert" frag="despill.frag"/>
