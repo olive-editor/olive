@@ -14,7 +14,7 @@ const vec2 renderScale = vec2(1,1);
 void main(void)
 {
     
-    factor = factor * 0.01; // convert factor from 0-100 scale to 0-1 scale
+    float factorOut = factor * 0.01; // convert factor from 0-100 scale to 0-1 scale
     
     vec2 uv = gl_FragCoord.xy/resolution.xy;
 
@@ -35,7 +35,7 @@ void main(void)
         float r2 = (g + b) * 0.5;
         
         // now composite the original and new gree channel using the "darken" mode
-        r = ( min(r, r2) * factor ) + (r * ( 1.0 - factor));
+        r = ( min(r, r2) * factorOut ) + (r * ( 1.0 - factorOut));
     }
     
     if (channel == 1) // GREEN
@@ -44,7 +44,7 @@ void main(void)
         float g2 = (r + b) * 0.5;
         
         // now composite the original and new gree channel using the "darken" mode
-        g = ( min(g, g2) * factor ) + (g * ( 1.0 - factor));
+        g = ( min(g, g2) * factorOut ) + (g * ( 1.0 - factorOut));
     }
     
     if (channel == 2) // BLUE
@@ -53,7 +53,7 @@ void main(void)
         float b2 = (r + g) * 0.5;
         
         // now composite the original and new gree channel using the "darken" mode
-        b = ( min(b, b2) * factor ) + (b * ( 1.0 - factor));
+        b = ( min(b, b2) * factorOut ) + (b * ( 1.0 - factorOut));
     }
         
 
