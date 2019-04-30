@@ -22,7 +22,7 @@ float rgb2y (vec3 c) {
 // 0.2126 R, 0.7152 G, and 0.722 B. Easy change.
 // The coefficients for YCbCr are calculated off of the
 // REC.709 values.
-	return (0.2126*c.r + 0.7152*c.g + 0.0.722*c.b);
+	return (0.2126*c.r + 0.7152*c.g + 0.0722*c.b);
 } 
  
 float rgb2cb (vec3 c) { 
