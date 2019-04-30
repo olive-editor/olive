@@ -545,8 +545,6 @@ void ViewerWidget::paintGL() {
 
     tex_lock->lock();
 
-    makeCurrent();
-
     // clear to solid black
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
