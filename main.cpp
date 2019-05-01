@@ -125,7 +125,10 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setOrganizationName("olivevideoeditor.org");
   QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
   QCoreApplication::setApplicationName("Olive");
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
+#endif
 
   MainWindow w(nullptr);
 
