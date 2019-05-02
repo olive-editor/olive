@@ -156,6 +156,10 @@ TextEffect::TextEffect(Clip* c, const EffectMeta* em) :
 }
 
 void TextEffect::redraw(double timecode) {
+  if (size_val->GetDoubleAt(timecode) <= 0) {
+    return;
+  }
+
   QColor bkg = set_color_button->GetColorAt(timecode);
   bkg.setAlpha(0);
   img.fill(bkg);
