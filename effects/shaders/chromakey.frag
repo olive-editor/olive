@@ -42,7 +42,7 @@ float colorclose(float Cb_p,float Cr_p,float Cb_key,float Cr_key,float tola,floa
 	if (temp < tolb) {return ((temp-tola)/(tolb-tola));} 
 	return (1.0); 
 }
- 
+
 void main(void) {
 	float cb_key = rgb2cb(key_color);
 	float cr_key = rgb2cr(key_color);
