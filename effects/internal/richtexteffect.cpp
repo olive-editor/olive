@@ -173,7 +173,7 @@ void RichTextEffect::redraw(double timecode)
 
     p.setCompositionMode(QPainter::CompositionMode_SourceIn);
 
-    p.fillRect(img.rect(), shadow_color->GetColorAt(timecode));
+    p.fillRect(clip_rect, shadow_color->GetColorAt(timecode));
 
     p.setCompositionMode(QPainter::CompositionMode_SourceOver);
 
