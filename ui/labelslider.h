@@ -82,7 +82,7 @@ public:
    * * `LABELSLIDER_FRAMENUMBER` - Shows the number as a timecode according to `config.timecode_view`. By default,
    * will render hh:mm:ss:ff
    * * `LABELSLIDER_PERCENT` - Shows the number as a percentage. 1.0 becomes "100%", 0.5 becomes 50%, etc.
-   * * `LABELSLIDER_DECIBLE` - Shows the number as a decibel. 1.0 becomes "0 dB", 2.0 becames roughly "6 dB", 0.5
+   * * `LABELSLIDER_DECIBLE` - Shows the number as a decibel. 1.0 becomes "0 dB", 2.0 becomes roughly "6 dB", 0.5
    * becomes roughly "-6 dB", etc.
    *
    * @param type

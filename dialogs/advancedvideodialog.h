@@ -57,7 +57,7 @@ public:
 
 public slots:
   /**
-   * @brief Overrided accept for saving the UI data into the provided VideoCodecParams struct.
+   * @brief Overridden accept for saving the UI data into the provided VideoCodecParams struct.
    */
   virtual void accept() override;
 private:

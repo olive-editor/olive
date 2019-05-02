@@ -213,7 +213,7 @@ public slots:
      *
      * @param index
      *
-     * Index in the list of the project fille to load
+     * Index in the list of the project file to load
      */
     void open_recent(int index);
 
