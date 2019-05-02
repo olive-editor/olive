@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 project(olive-editor LANGUAGES CXX)
+
+option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -76,6 +78,8 @@ if(DEFINED GIT_HASH)
 else()
   message("Olive: No git hash defined!")
 endif()
+
+find_package(Doxygen)
 
 set(OLIVE_SOURCES
   dialogs/aboutdialog.cpp
@@ -461,6 +465,14 @@ target_link_libraries(${OLIVE_TARGET}
 
 if(WIN32 AND OPENCOLORIO_FOUND)
   target_link_libraries(${OLIVE_TARGET} PRIVATE OpenColorIO)
+endif()
+
+if(DOXYGEN_FOUND AND BUILD_DOXYGEN)
+  set(DOXYGEN_PROJECT_NAME "Olive")
+  set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
+  set(DOXYGEN_EXTRACT_ALL "YES")
+  set(DOXYGEN_EXTRACT_PRIVATE "YES")
+  doxygen_add_docs(docs ALL ${OLIVE_SOURCES})
 endif()
 
 if(UNIX AND NOT APPLE)
