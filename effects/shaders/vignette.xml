@@ -13,5 +13,8 @@
 		<field type="double" default="0" id="centerX"/>
 		<field type="double" default="0" id="centerY"/>
 	</row>
+	<row name="Invert">
+		<field type="bool" default="0" id="invert"/>
+	</row>
 	<shader vert="common.vert" frag="vignette.frag"/>
 </effect>

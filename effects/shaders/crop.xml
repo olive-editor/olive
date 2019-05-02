@@ -16,4 +16,7 @@
 		<field type="double" min="0" default="0" id="feather"/>
 	</row>
 	<shader vert="common.vert" frag="crop.frag"/>
+	<row name="Invert">
+		<field type="bool" default="0" id="invert"/>
+	</row>
 </effect>
