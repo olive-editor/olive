@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect name="Despill" category="Keying">
+    <row name="Channel">
+		<field type="combo" default="1" id="channel">
+			<option>Red</option>
+			<option>Green</option>
+			<option>Blue</option>
+		</field>
+	</row>
+        <shader vert="../COMMON/common.vert" frag="despill.frag"/>
+</effect>

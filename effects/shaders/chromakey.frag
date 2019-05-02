@@ -12,6 +12,9 @@ uniform float tola;
 uniform float tolb;
 uniform bool opt;
 uniform int mode;
+ 
+float rgb2y (vec3 c) { 
+	/*a utility function to convert colors in RGB into YCbCr*/ 
 
 // This isn’t colour managed and is a huge mess, but in the
 // short term, using correct weights will give significantly
@@ -20,18 +23,18 @@ uniform int mode;
 // The coefficients for YCbCr are calculated off of the
 // REC.709 values.
 	return (0.2126*c.r + 0.7152*c.g + 0.0722*c.b);
-}
-
+} 
+ 
 float rgb2cb (vec3 c) { 
 	/*a utility function to convert colors in RGB into YCbCr*/ 
 	return (0.5 + -0.1145721061*c.r - 0.3854278939*c.g + 0.5*c.b);
-}
-
+} 
+ 
 float rgb2cr (vec3 c) { 
 	/*a utility function to convert colors in RGB into YCbCr*/ 
 	return (0.5 + 0.5*c.r - 0.4541529083*c.g - 0.0458470917*c.b);
-}
-
+} 
+ 
 float colorclose(float Cb_p,float Cr_p,float Cb_key,float Cr_key,float tola,float tolb) { 
 	/*decides if a color is close to the specified hue*/ 
 	float temp = sqrt(((Cb_key-Cb_p)*(Cb_key-Cb_p))+((Cr_key-Cr_p)*(Cr_key-Cr_p)));
