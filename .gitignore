@@ -5,6 +5,8 @@ effects/frei0r
 ts/*.qm
 docs
 
+.vscode
+
 #
 # Qt ignores taken from https://github.com/github/gitignore
 #
