@@ -54,6 +54,15 @@ Section "Create Start Menu shortcut"
 	CreateShortCut "$SMPROGRAMS\${APP_NAME}\Uninstall ${APP_NAME}.lnk" "$INSTDIR\uninstall.exe"
 SectionEnd
 
+Section "Associate *.ove files with Olive"
+	WriteRegStr HKCR ".ove" "" "OliveEditor.OVEFile"
+	WriteRegStr HKCR ".ove" "Content Type" "application/vnd.olive-project"
+	WriteRegStr HKCR "OliveEditor.OVEFile" "" "Olive project file"
+	WriteRegStr HKCR "OliveEditor.OVEFile\DefaultIcon" "" "$INSTDIR\olive-editor.exe,1"
+	WriteRegStr HKCR "OliveEditor.OVEFile\shell\open\command" "" "$\"$INSTDIR\olive-editor.exe$\" $\"%1$\""
+	System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
+SectionEnd
+
 UninstPage uninstConfirm
 UninstPage instfiles
 
@@ -63,7 +72,12 @@ Section "uninstall"
 
 	Delete "$DESKTOP\${APP_NAME}.lnk"
 	rmdir /r "$SMPROGRAMS\${APP_NAME}"
-
+	
+	DeleteRegKey HKCR ".ove"
+	DeleteRegKey HKCR "OliveEditor.OVEFile"
+	DeleteRegKey HKCR "OliveEditor.OVEFile\DefaultIcon" ""
+	DeleteRegKey HKCR "OliveEditor.OVEFile\shell\open\command" ""
+	System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
 SectionEnd
 
 Function LaunchOlive
