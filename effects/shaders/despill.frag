@@ -7,11 +7,27 @@ uniform sampler2D tex;
 varying vec2 uTexCoord;
 uniform vec2 resolution;
 uniform int channel;
+uniform float factorIn;
+uniform float balanceIn;
 
 const vec2 renderScale = vec2(1,1);
 
+float average(float a, float b, float balance)
+{
+    return ( ( (a * ( 1 + balance)) + (b * (1 - balance)) ) * 0.5 );
+}
+
+float composite(float a, float b, float factor)
+{
+    return (( min(a, b) * factor ) + (a * ( 1.0 - factor)));
+}
+
 void main(void)
 {
+    
+    float factor  = factorIn  * 0.01; // convert factor from 0..100 scale to 0..1 scale
+    float balance = balanceIn * 0.01; // convert balance from -100..100 scale to -1..1 scale
+    
     vec2 uv = gl_FragCoord.xy/resolution.xy;
 
     vec4 col = texture2D(tex, uv);
@@ -27,33 +43,27 @@ void main(void)
     
     if (channel == 0) // RED
     { 
-        // replace new green channel by avaraging between existing red and blue channels
-        float r2 = (g + b) * 0.5;
+        // replace new channel by avaraging between existing channels
+        float r2 = average(g, b, balance);
         
-        // now composite the original and new gree channel using the "darken" mode
-        r = min(r, r2);
+        // now composite the original and new channel using the "darken" mode
+        r = composite(r, r2, factor);
     }
     
     if (channel == 1) // GREEN
     { 
-        // replace new green channel by avaraging between existing red and blue channels
-        float g2 = (r + b) * 0.5;
-        
-        // now composite the original and new gree channel using the "darken" mode
-        g = min(g, g2);
+        float g2 = average(r, b, balance);
+
+        g = composite(g, g2, factor);
     }
     
     if (channel == 2) // BLUE
-    { 
-        // replace new green channel by avaraging between existing red and blue channels
-        float b2 = (r + g) * 0.5;
+    {
+        float b2 = average(r, g, balance);
         
-        // now composite the original and new gree channel using the "darken" mode
-        b = min(b, b2);
+        b = composite(b, b2, factor);
     }
-        
 
-    // and return the result
-
+    // return the result
     gl_FragColor = vec4(r, g, b, a);
 }
