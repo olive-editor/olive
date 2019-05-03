@@ -31,7 +31,7 @@ void main(void) {
 		textureColor.r*(1.0 - alpha),
 		textureColor.g*(1.0 - alpha),
 		textureColor.b*(1.0 - alpha),
-		1.0 - alpha
+		textureColor.a - (alpha)
 	);}
 	else{
 		gl_FragColor = vec4(
