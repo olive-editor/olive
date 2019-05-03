@@ -551,7 +551,7 @@ bool Clip::Retrieve()
     // Wait for exclusive control of the queue to avoid any threading collisions
     cacher.queue()->lock();
 
-    // Check if we retrieved a frame (nullptr) and if the queue stil contains this frame.
+    // Check if we retrieved a frame (nullptr) and if the queue still contains this frame.
     //
     // `nullptr` is returned if the cacher failed to get any sort of frame and is uncommon, but we do need
     // to handle it.

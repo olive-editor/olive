@@ -479,7 +479,7 @@ void PreferencesDialog::delete_all_previews() {
     delete_previews(1);
     QMessageBox::information(this,
                              tr("Previews Deleted"),
-                             tr("All previews deleted succesfully. You may have to re-open your current project for changes to take effect."),
+                             tr("All previews deleted successfully. You may have to re-open your current project for changes to take effect."),
                              QMessageBox::Ok);
   }
 }

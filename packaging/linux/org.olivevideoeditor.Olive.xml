@@ -3,6 +3,5 @@
   <mime-type type="application/vnd.olive-project">
     <comment>Olive project</comment>
     <glob pattern="*.ove"/>
-    <icon name="org.olivevideoeditor.Olive"/>
   </mime-type>
 </mime-info>

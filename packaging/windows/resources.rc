@@ -1,4 +1,5 @@
 IDI_ICON1   ICON    DISCARDABLE "olive.ico"
+IDI_ICON2   ICON    DISCARDABLE "olive_ove.ico"
 
 #include <windows.h>
 #include "version.h"

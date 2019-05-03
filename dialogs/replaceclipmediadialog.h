@@ -51,7 +51,7 @@ public:
   ReplaceClipMediaDialog(QWidget* parent, Media* old_media);
 private slots:
   /**
-   * @brief Overrided accept for when the user clicks "Replace"
+   * @brief Overridden accept for when the user clicks "Replace"
    *
    * Checks whether the requested replace is valid using the following criteria:
    * * Any Media is selected

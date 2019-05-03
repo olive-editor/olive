@@ -275,7 +275,7 @@ bool ExportThread::SetupAudio() {
     return false;
   }
 
-  // Copy paramters from the codec context (set up above) to the output stream
+  // Copy parameters from the codec context (set up above) to the output stream
   ret = avcodec_parameters_from_context(audio_stream->codecpar, acodec_ctx);
   if (ret < 0) {
     qCritical() << "Could not copy audio encoder parameters to output stream." << ret;

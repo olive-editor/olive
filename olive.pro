@@ -380,5 +380,19 @@ unix:!mac {
     icon256.path = $$PREFIX/share/icons/hicolor/256x256/apps
     icon512.files = $$PWD/packaging/linux/icons/512x512/org.olivevideoeditor.Olive.png
     icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
-    INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512
+    mime16.files = $$PWD/packaging/linux/icons/16x16/application-vnd.olive-project.png
+    mime16.path = $$PREFIX/share/icons/hicolor/16x16/mimetypes
+    mime32.files = $$PWD/packaging/linux/icons/32x32/application-vnd.olive-project.png
+    mime32.path = $$PREFIX/share/icons/hicolor/32x32/mimetypes
+    mime48.files = $$PWD/packaging/linux/icons/48x48/application-vnd.olive-project.png
+    mime48.path = $$PREFIX/share/icons/hicolor/48x48/mimetypes
+    mime64.files = $$PWD/packaging/linux/icons/64x64/application-vnd.olive-project.png
+    mime64.path = $$PREFIX/share/icons/hicolor/64x64/mimetypes
+    mime128.files = $$PWD/packaging/linux/icons/128x128/application-vnd.olive-project.png
+    mime128.path = $$PREFIX/share/icons/hicolor/128x128/mimetypes
+    mime256.files = $$PWD/packaging/linux/icons/256x256/application-vnd.olive-project.png
+    mime256.path = $$PREFIX/share/icons/hicolor/256x256/mimetypes
+    mime512.files = $$PWD/packaging/linux/icons/512x512/application-vnd.olive-project.png
+    mime512.path = $$PREFIX/share/icons/hicolor/512x512/mimetypes
+    INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512 mime16 mime32 mime48 mime64 mime128 mime256 mime512
 }

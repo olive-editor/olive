@@ -153,7 +153,7 @@ void EffectUI::AddAdditionalEffect(Effect *e)
   // Ensure this is the same kind of effect and will be fully compatible
   Q_ASSERT(e->meta == effect_->meta);
 
-  // Add multiple modifer to header label (but only once)
+  // Add 'multiple' modifier to header label (but only once)
   if (additional_effects_.isEmpty()) {
     QString new_title = tr("%1 (multiple)").arg(Title());
 

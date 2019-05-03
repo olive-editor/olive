@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 project(olive-editor LANGUAGES CXX)
+
+option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -76,6 +78,8 @@ if(DEFINED GIT_HASH)
 else()
   message("Olive: No git hash defined!")
 endif()
+
+find_package(Doxygen)
 
 set(OLIVE_SOURCES
   dialogs/aboutdialog.cpp
@@ -463,6 +467,14 @@ if(WIN32 AND OPENCOLORIO_FOUND)
   target_link_libraries(${OLIVE_TARGET} PRIVATE OpenColorIO)
 endif()
 
+if(DOXYGEN_FOUND AND BUILD_DOXYGEN)
+  set(DOXYGEN_PROJECT_NAME "Olive")
+  set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
+  set(DOXYGEN_EXTRACT_ALL "YES")
+  set(DOXYGEN_EXTRACT_PRIVATE "YES")
+  doxygen_add_docs(docs ALL ${OLIVE_SOURCES})
+endif()
+
 if(UNIX AND NOT APPLE)
   install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
   install(FILES ${OLIVE_EFFECTS} DESTINATION share/olive-editor/effects)
@@ -476,5 +488,12 @@ if(UNIX AND NOT APPLE)
   install(FILES packaging/linux/icons/128x128/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/128x128/apps)
   install(FILES packaging/linux/icons/256x256/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/256x256/apps)
   install(FILES packaging/linux/icons/512x512/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/512x512/apps)
+  install(FILES packaging/linux/icons/16x16/application-vnd.olive-project.png DESTINATION share/icons/hicolor/16x16/mimetypes)
+  install(FILES packaging/linux/icons/32x32/application-vnd.olive-project.png DESTINATION share/icons/hicolor/32x32/mimetypes)
+  install(FILES packaging/linux/icons/48x48/application-vnd.olive-project.png DESTINATION share/icons/hicolor/48x48/mimetypes)
+  install(FILES packaging/linux/icons/64x64/application-vnd.olive-project.png DESTINATION share/icons/hicolor/64x64/mimetypes)
+  install(FILES packaging/linux/icons/128x128/application-vnd.olive-project.png DESTINATION share/icons/hicolor/128x128/mimetypes)
+  install(FILES packaging/linux/icons/256x256/application-vnd.olive-project.png DESTINATION share/icons/hicolor/256x256/mimetypes)
+  install(FILES packaging/linux/icons/512x512/application-vnd.olive-project.png DESTINATION share/icons/hicolor/512x512/mimetypes)
   install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
 endif()

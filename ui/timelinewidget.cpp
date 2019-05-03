@@ -2093,7 +2093,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event) {
               if (!(link->track() >= minimum_selection_track
                     && link->track() <= maximum_selection_track)) {
 
-                // clip is not in selectin area, time to select it
+                // clip is not in selection area, time to select it
                 Selection link_sel;
                 link_sel.in = selection_in;
                 link_sel.out = selection_out;

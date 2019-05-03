@@ -84,7 +84,7 @@ private:
   QCheckBox* premultiply_alpha_setting;
 private slots:
   /**
-   * @brief Overrided accept function for saving the properties back to the Media class
+   * @brief Overridden accept function for saving the properties back to the Media class
    */
   void accept();
 };
