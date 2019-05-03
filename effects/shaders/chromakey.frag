@@ -14,24 +14,24 @@ uniform bool opt;
 uniform int mode;
  
 float rgb2y (vec3 c) { 
-	/*a utility function to convert colors in RGB into YCbCr*/ 
+	/*a utility function to convert colors from REC.709 RGB into YCbCr*/ 
 
 // This isn’t colour managed and is a huge mess, but in the
 // short term, using correct weights will give significantly
 // more ideal results. The correct weights for REC.709 are
-// 0.2126 R, 0.7152 G, and 0.722 B. Easy change.
+// 0.2126 R, 0.7152 G, and 0.0722 B. Easy change.
 // The coefficients for YCbCr are calculated off of the
 // REC.709 values.
 	return (0.2126*c.r + 0.7152*c.g + 0.0722*c.b);
 } 
  
 float rgb2cb (vec3 c) { 
-	/*a utility function to convert colors in RGB into YCbCr*/ 
+	/*a utility function to convert colors from REC.709 RGB into YCbCr*/ 
 	return (0.5 + -0.1145721061*c.r - 0.3854278939*c.g + 0.5*c.b);
 } 
  
 float rgb2cr (vec3 c) { 
-	/*a utility function to convert colors in RGB into YCbCr*/ 
+	/*a utility function to convert colors from REC.709 RGB into YCbCr*/ 
 	return (0.5 + 0.5*c.r - 0.4541529083*c.g - 0.0458470917*c.b);
 } 
  
