@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -28,11 +28,11 @@
 
 #include "mainwindow.h"
 #include "panels/panels.h"
-#include "panels/timeline.h"
+#include "global/math.h"
 #include "timeline/sequence.h"
 #include "undo/undo.h"
 #include "project/media.h"
-#include "panels/viewer.h"
+#include "global/timing.h"
 #include "global/config.h"
 #include "global/global.h"
 #include "ui/menu.h"
@@ -94,7 +94,7 @@ int TimelineHeader::getHeaderScreenPointFromFrame(long frame) {
 
 void TimelineHeader::set_playhead(int mouse_x) {
   long frame = getHeaderFrameFromScreenPoint(mouse_x);
-  if (snapping) panel_timeline->snap_to_timeline(&frame, false, true, true);
+  if (snapping) viewer->seq->SnapPoint(&frame, zoom, false, true, true);
   if (frame != viewer->seq->playhead) {
     viewer->seek(frame);
   }
@@ -114,10 +114,10 @@ void TimelineHeader::set_in_point(long new_in) {
   if (new_out == new_in) {
     new_in--;
   } else if (new_out < new_in) {
-    new_out = viewer->seq->getEndFrame();
+    new_out = viewer->seq->GetEndFrame();
   }
 
-  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
+  olive::undo_stack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
   update_parents();
 }
 
@@ -129,7 +129,7 @@ void TimelineHeader::set_out_point(long new_out) {
     new_in = 0;
   }
 
-  olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
+  olive::undo_stack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, new_in, new_out));
   update_parents();
 }
 
@@ -150,7 +150,7 @@ void TimelineHeader::show_text(bool enable) {
 void TimelineHeader::mousePressEvent(QMouseEvent* event) {
   if (viewer->seq != nullptr && event->buttons() & Qt::LeftButton) {
     if (resizing_workarea) {
-      sequence_end = viewer->seq->getEndFrame();
+      sequence_end = viewer->seq->GetEndFrame();
     } else {
       /*int
       QPoint start(in_x, height()+2);
@@ -216,7 +216,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
     if (dragging) {
       if (resizing_workarea) {
         long frame = getHeaderFrameFromScreenPoint(event->pos().x());
-        if (snapping) panel_timeline->snap_to_timeline(&frame, true, true, false);
+        if (snapping) viewer->seq->SnapPoint(&frame, zoom, true, true, false);
 
         if (resizing_workarea_in) {
           temp_workarea_in = qMax(qMin(temp_workarea_out-1, frame), 0L);
@@ -231,7 +231,7 @@ void TimelineHeader::mouseMoveEvent(QMouseEvent* event) {
         // snap markers
         for (int i=0;i<selected_markers.size();i++) {
           long fm = selected_marker_original_times.at(i) + frame_movement;
-          if (snapping && panel_timeline->snap_to_timeline(&fm, true, false, true)) {
+          if (snapping && viewer->seq->SnapPoint(&fm, zoom, true, false, true)) {
             frame_movement = fm - selected_marker_original_times.at(i);
             break;
           }
@@ -282,7 +282,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
   if (viewer->seq != nullptr) {
     dragging = false;
     if (resizing_workarea) {
-      olive::UndoStack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, temp_workarea_in, temp_workarea_out));
+      olive::undo_stack.push(new SetTimelineInOutCommand(viewer->seq.get(), true, temp_workarea_in, temp_workarea_out));
     } else if (dragging_markers && selected_markers.size() > 0) {
       bool moved = false;
       ComboAction* ca = new ComboAction();
@@ -294,7 +294,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
         }
       }
       if (moved) {
-        olive::UndoStack.push(ca);
+        olive::undo_stack.push(ca);
       } else {
         delete ca;
       }
@@ -303,7 +303,7 @@ void TimelineHeader::mouseReleaseEvent(QMouseEvent*) {
     resizing_workarea = false;
     dragging = false;
     dragging_markers = false;
-    panel_timeline->snapped = false;
+    olive::timeline::snapped = false;
     update_parents();
   }
 }
@@ -332,7 +332,7 @@ void TimelineHeader::delete_markers() {
     // Send command to delete selected markers
     DeleteMarkerAction* dma = new DeleteMarkerAction(viewer->marker_ref);
     dma->markers.append(selected_markers);
-    olive::UndoStack.push(dma);
+    olive::undo_stack.push(dma);
 
     // remove any indices for the selected markers that no longer exist
     for (int i=0;i<selected_markers.size();i++) {
@@ -389,14 +389,14 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
       // draw text
       bool draw_text = false;
       if (text_enabled && lineX-textWidth > lastTextBoundary) {
-        timecode = frame_to_timecode(frame + in_visible, olive::CurrentConfig.timecode_view, viewer->seq->frame_rate);
+        timecode = frame_to_timecode(frame + in_visible, olive::config.timecode_view, viewer->seq->frame_rate);
         fullTextWidth = fm.width(timecode);
         textWidth = fullTextWidth>>1;
 
         text_x = lineX;
 
         // centers the text to that point on the timeline, LEFT aligns it if not
-        if (olive::CurrentConfig.center_timeline_timecodes) {
+        if (olive::config.center_timeline_timecodes) {
           text_x -= textWidth;
         } else {
           text_x += TEXT_PADDING_FROM_LINE;
@@ -416,7 +416,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
 
         // draw line markers
         p.setPen(Qt::gray);
-        p.drawLine(lineX, (!olive::CurrentConfig.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
+        p.drawLine(lineX, (!olive::config.center_timeline_timecodes && draw_text) ? 0 : yoff, lineX, height());
 
         // draw sub-line markers
         for (int j=1;j<sublineCount;j++) {
@@ -455,7 +455,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
         }
       }
 
-      draw_marker(p, marker_x, yoff, height()-1, selected);
+      Marker::Draw(p, marker_x, yoff, height()-1, selected);
     }
 
     // draw playhead triangle
@@ -485,8 +485,8 @@ void TimelineHeader::show_context_menu(const QPoint &pos) {
 
   QAction* center_timecodes = menu.addAction(tr("Center Timecodes"), &olive::MenuHelper, SLOT(toggle_bool_action()));
   center_timecodes->setCheckable(true);
-  center_timecodes->setChecked(olive::CurrentConfig.center_timeline_timecodes);
-  center_timecodes->setData(reinterpret_cast<quintptr>(&olive::CurrentConfig.center_timeline_timecodes));
+  center_timecodes->setChecked(olive::config.center_timeline_timecodes);
+  center_timecodes->setData(reinterpret_cast<quintptr>(&olive::config.center_timeline_timecodes));
 
   menu.exec(mapToGlobal(pos));
 }

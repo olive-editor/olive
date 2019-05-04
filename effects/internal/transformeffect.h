@@ -1,49 +1,56 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
 #ifndef TRANSFORMEFFECT_H
 #define TRANSFORMEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
-class TransformEffect : public Effect {
+class TransformEffect : public Node {
   Q_OBJECT
 public:
-  TransformEffect(Clip* c, const EffectMeta* em);
-  void refresh();
-  void process_coords(double timecode, GLTextureCoords& coords, int data);
+  TransformEffect(Clip* c);
 
-  void gizmo_draw(double timecode, GLTextureCoords& coords);
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString category() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
+  virtual void refresh() override;
+  virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;
+
+  virtual void gizmo_draw(double timecode, GLTextureCoords& coords) override;
+
 public slots:
   void toggle_uniform_scale(bool enabled);
+
 private:
-  DoubleField* position_x;
-  DoubleField* position_y;
-  DoubleField* scale_x;
-  DoubleField* scale_y;
-  BoolField* uniform_scale_field;
-  DoubleField* rotation;
-  DoubleField* anchor_x_box;
-  DoubleField* anchor_y_box;
-  DoubleField* opacity;
-  ComboField* blend_mode_box;
+  Vec2Input* position;
+  Vec2Input* scale;
+  BoolInput* uniform_scale_field;
+  DoubleInput* rotation;
+  Vec2Input* anchor_point;
+  DoubleInput* opacity;
 
   EffectGizmo* top_left_gizmo;
   EffectGizmo* top_center_gizmo;

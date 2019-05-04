@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -27,25 +27,55 @@
 #include "ui/collapsiblewidget.h"
 #include "global/debug.h"
 
-VoidEffect::VoidEffect(Clip* c, const QString& n) : Effect(c, nullptr) {
-  QString display_name;
-  if (n.isEmpty()) {
-    display_name = tr("(unknown)");
-  } else {
-    display_name = n;
+VoidEffect::VoidEffect(Clip* c, const QString& n, const QString& id) :
+  Node(c),
+  display_name_(n),
+  id_(id)
+{
+  if (display_name_.isEmpty()) {
+    display_name_ = tr("(unknown)");
   }
-  EffectRow* row = new EffectRow(this, tr("Missing Effect"), false, false);
 
-  new LabelField(row, display_name);
-
-  name = display_name;
-
-  void_meta.type = EFFECT_TYPE_EFFECT;
-  meta = &void_meta;
+  new LabelWidget(this, tr("Missing Effect"), display_name_);
 }
 
-EffectPtr VoidEffect::copy(Clip* c) {
-  EffectPtr copy = std::make_shared<VoidEffect>(c, name);
+QString VoidEffect::name()
+{
+  return display_name_;
+}
+
+QString VoidEffect::id()
+{
+  return id_;
+}
+
+QString VoidEffect::description()
+{
+  return QString();
+}
+
+EffectType VoidEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType VoidEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+bool VoidEffect::IsCreatable()
+{
+  return false;
+}
+
+NodePtr VoidEffect::Create(Clip *)
+{
+  return nullptr;
+}
+
+NodePtr VoidEffect::copy(Clip* c) {
+  NodePtr copy = std::make_shared<VoidEffect>(c, display_name_, id_);
   copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
   return copy;
@@ -54,7 +84,7 @@ EffectPtr VoidEffect::copy(Clip* c) {
 void VoidEffect::load(QXmlStreamReader &stream) {
   QString tag = stream.name().toString();
 
-  QXmlStreamWriter writer(&bytes);
+  QXmlStreamWriter writer(&bytes_);
 
   // copy XML from reader to writer
   while (!stream.atEnd() && !(stream.name() == tag && stream.isEndElement())) {
@@ -76,18 +106,18 @@ void VoidEffect::load(QXmlStreamReader &stream) {
 }
 
 void VoidEffect::save(QXmlStreamWriter &stream) {
-  if (!name.isEmpty()) {
-    stream.writeAttribute("name", name);
+  if (!display_name_.isEmpty()) {
+    stream.writeAttribute("name", display_name_);
     stream.writeAttribute("enabled", QString::number(IsEnabled()));
 
     // force xml writer to expand <effect> tag, ignored when loading
     stream.writeStartElement("void");
     stream.writeEndElement();
 
-    if (!bytes.isEmpty()) {
+    if (!bytes_.isEmpty()) {
       // write stored data
       QIODevice* device = stream.device();
-      device->write(bytes);
+      device->write(bytes_);
     }
   }
 }

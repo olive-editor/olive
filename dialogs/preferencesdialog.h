@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -33,6 +33,8 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "timeline/sequence.h"
 
@@ -109,14 +111,21 @@ private slots:
   void save_shortcut_file();
 
   /**
-   * @brief Show a file dialog to browse for an external CSS file to load for styling the application.
-   */
-  void browse_css_file();
-
-  /**
    * @brief Delete all previews (waveform and thumbnail cache)
    */
   void delete_all_previews();
+
+  // Browse for file functionns
+  /**
+   * @brief Show a file dialog to browse for an external CSS file to load for styling the application.
+   */
+  void browse_css_file();
+  void browse_ocio_config();
+
+  // OCIO function
+  void update_ocio_view_menu();
+  void update_ocio_view_menu(OCIO::ConstConfigRcPtr config);
+  void update_ocio_config(const QString&);
 
   /**
    * @brief Shows a NewSequenceDialog attached to default_sequence
@@ -157,6 +166,13 @@ private:
    */
   void setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent);
 
+  enum PreviewDeleteTypes {
+    DELETE_NONE,
+    DELETE_THUMBNAILS,
+    DELETE_WAVEFORMS,
+    DELETE_BOTH
+  };
+
   // used to delete previews
   // type can be: 't' for thumbnails, 'w' for waveforms, or 1 for all
   /**
@@ -164,9 +180,11 @@ private:
    *
    * @param type
    *
-   * The types of previews to
+   * The types of previews to delete.
    */
-  void delete_previews(char type);
+  void delete_previews(PreviewDeleteTypes type);
+
+  void populate_ocio_menus(OCIO::ConstConfigRcPtr config);
 
   /**
    * @brief UI widget for editing the CSS filename
@@ -182,6 +200,7 @@ private:
    * @brief UI widget for editing the recording channels
    */
   QComboBox* recordingComboBox;
+
 
   /**
    * @brief UI widget for editing keyboard shortcuts
@@ -243,6 +262,15 @@ private:
    */
   QSpinBox* waveform_res_spinbox;
 
+  QCheckBox* enable_color_management;
+  QLineEdit* ocio_config_file;
+  QComboBox* ocio_default_input;
+  QComboBox* ocio_display;
+  QComboBox* ocio_view;
+  QComboBox* ocio_look;
+  QComboBox* playback_bit_depth;
+  QComboBox* export_bit_depth;
+
   /**
    * @brief UI widget for selecting the current UI style
    */
@@ -273,6 +301,19 @@ private:
    * key_shortcut_actions and key_shortcut_fields)
    */
   QVector<KeySequenceEditor*> key_shortcut_fields;
+
+  /**
+   * @brief Tests an OpenColorIO configuration file to determine whether it's valid and throws a messagebox if not
+   *
+   * @param url
+   *
+   * URL to the OpenColorIO configuration file.
+   *
+   * @return
+   *
+   * A OCIO::ConstConfigRcPtr config pointer if the configuration file is valid, nullptr if not.
+   */
+  OCIO::ConstConfigRcPtr TestOCIOConfig(const QString& url);
 
   /**
    * @brief Add an automated QCheckBox+boolean value pair

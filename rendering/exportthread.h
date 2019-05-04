@@ -1,30 +1,36 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
 #ifndef EXPORTTHREAD_H
 #define EXPORTTHREAD_H
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 #include <QThread>
 #include <QOffscreenSurface>
 #include <QMutex>
 #include <QWaitCondition>
+
+#include "timeline/sequence.h"
 
 struct AVFormatContext;
 struct AVCodecContext;
@@ -35,19 +41,19 @@ struct AVCodec;
 struct SwsContext;
 struct SwrContext;
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-}
-
-#define COMPRESSION_TYPE_CBR 0
-#define COMPRESSION_TYPE_CFR 1
-#define COMPRESSION_TYPE_TARGETSIZE 2
-#define COMPRESSION_TYPE_TARGETBR 3
+enum CompressionType {
+  COMPRESSION_TYPE_CBR,
+  COMPRESSION_TYPE_CFR,
+  COMPRESSION_TYPE_TARGETSIZE,
+  COMPRESSION_TYPE_TARGETBR
+};
 
 // structs that store parameters passed from the export dialogs to this thread
 
 struct ExportParams {
+
   // export parameters
+  Sequence* sequence;
   QString filename;
   bool video_enabled;
   int video_codec;

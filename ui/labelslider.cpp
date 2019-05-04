@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -26,7 +26,7 @@
 #include <QMenu>
 
 #include "undo/undo.h"
-#include "panels/viewer.h"
+#include "global/timing.h"
 #include "global/config.h"
 #include "global/math.h"
 #include "global/debug.h"
@@ -94,7 +94,7 @@ QString LabelSlider::ValueToString() {
   } else {
     switch (display_type) {
     case FrameNumber:
-      return frame_to_timecode(long(v), olive::CurrentConfig.timecode_view, frame_rate);
+      return frame_to_timecode(long(v), olive::config.timecode_view, frame_rate);
     case Percent:
       return QString::number((v*100), 'f', decimal_places).append("%");
     case Decibel:
@@ -311,7 +311,7 @@ void LabelSlider::ShowDialog()
     if (s.isEmpty()) return;
 
     // parse string timecode to a frame number
-    d = timecode_to_frame(s, olive::CurrentConfig.timecode_view, frame_rate);
+    d = timecode_to_frame(s, olive::config.timecode_view, frame_rate);
 
   } else {
 

@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -168,10 +168,7 @@ bool PreviewGenerator::retrieve_preview(const QString& hash) {
       f.open(QFile::ReadOnly);
       QByteArray data = f.readAll();
       ms.audio_preview.resize(data.size());
-      for (int j=0;j<data.size();j++) {
-        // faster way?
-        ms.audio_preview[j] = data.at(j);
-      }
+      memcpy(ms.audio_preview.data(), data, data.size());
       ms.preview_done = true;
       f.close();
     } else {
@@ -218,8 +215,9 @@ void PreviewGenerator::finalize_media() {
       media_->update_tooltip();
     }
 
-    if (olive::ActiveSequence != nullptr) {
-      olive::ActiveSequence->RefreshClips(media_);
+    QVector<Media*> all_sequences = olive::project_model.GetAllSequences();
+    for (int i=0;i<all_sequences.size();i++) {
+      all_sequences.at(i)->to_sequence()->RefreshClipsUsingMedia(media_);
     }
   }
 }
@@ -244,7 +242,7 @@ void PreviewGenerator::generate_waveform() {
   int64_t* media_lengths = new int64_t[fmt_ctx_->nb_streams]{0};
 
   // stores samples while scanning before they get sent to preview file
-  qint16*** waveform_cache_data = new qint16** [fmt_ctx_->nb_streams];
+  qint8*** waveform_cache_data = new qint8** [fmt_ctx_->nb_streams];
   int waveform_cache_count = 0;
 
   // defaults to false, sets to true if we find a valid stream to make a preview of
@@ -258,8 +256,8 @@ void PreviewGenerator::generate_waveform() {
 
     // we only generate previews for video and audio
     // and only if the thumbnail and waveform sizes are > 0
-    if ((fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::CurrentConfig.thumbnail_resolution > 0)
-        || (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::CurrentConfig.waveform_resolution > 0)) {
+    if ((fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && olive::config.thumbnail_resolution > 0)
+        || (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && olive::config.waveform_resolution > 0)) {
       AVCodec* codec = avcodec_find_decoder(fmt_ctx_->streams[i]->codecpar->codec_id);
       if (codec != nullptr) {
 
@@ -274,11 +272,11 @@ void PreviewGenerator::generate_waveform() {
         if (fmt_ctx_->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
           // allocate sample cache for this stream
-          waveform_cache_data[i] = new qint16* [fmt_ctx_->streams[i]->codecpar->channels];
+          waveform_cache_data[i] = new qint8* [fmt_ctx_->streams[i]->codecpar->channels];
 
           // each channel gets a min and a max value so we allocate two ints for each one
           for (int j=0;j<fmt_ctx_->streams[i]->codecpar->channels;j++) {
-            waveform_cache_data[i][j] = new qint16[2];
+            waveform_cache_data[i][j] = new qint8[2];
           }
 
           // if codec context has no defined channel layout, guess it from the channel count
@@ -332,7 +330,7 @@ void PreviewGenerator::generate_waveform() {
         if (s != nullptr) {
           if (fmt_ctx_->streams[packet->stream_index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             if (!s->preview_done) {
-              int dstH = olive::CurrentConfig.thumbnail_resolution;
+              int dstH = olive::config.thumbnail_resolution;
               int dstW = qRound(dstH * (float(temp_frame->width)/float(temp_frame->height)));
 
               sws_ctx = sws_getContext(
@@ -380,7 +378,7 @@ void PreviewGenerator::generate_waveform() {
             AVFrame* swr_frame = av_frame_alloc();
             swr_frame->channel_layout = temp_frame->channel_layout;
             swr_frame->sample_rate = temp_frame->sample_rate;
-            swr_frame->format = AV_SAMPLE_FMT_S16P;
+            swr_frame->format = AV_SAMPLE_FMT_U8P;
 
             swr_ctx = swr_alloc_set_opts(
                   nullptr,
@@ -401,7 +399,7 @@ void PreviewGenerator::generate_waveform() {
             // `config.waveform_resolution` determines how many samples per second are stored in waveform.
             // `sample_rate` is samples per second, so `interval` is how many samples are averaged in
             // each "point" of the waveform
-            int interval = qFloor((temp_frame->sample_rate/olive::CurrentConfig.waveform_resolution)/4)*4;
+            int interval = qFloor((temp_frame->sample_rate/olive::config.waveform_resolution)/4)*4;
 
             // get the amount of bytes in an audio sample
             int sample_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(swr_frame->format));
@@ -418,11 +416,11 @@ void PreviewGenerator::generate_waveform() {
                 // if so, we dump our cached values into the preview and reset them
                 // for the next interval
                 for (int j=0;j<swr_frame->channels;j++) {
-                  qint16& min = waveform_cache_data[packet->stream_index][j][0];
-                  qint16& max = waveform_cache_data[packet->stream_index][j][1];
+                  qint8& min = waveform_cache_data[packet->stream_index][j][0];
+                  qint8& max = waveform_cache_data[packet->stream_index][j][1];
 
-                  s->audio_preview.append(min >> 8);
-                  s->audio_preview.append(max >> 8);
+                  s->audio_preview.append(min);
+                  s->audio_preview.append(max);
                 }
 
                 waveform_cache_count = 0;
@@ -430,8 +428,8 @@ void PreviewGenerator::generate_waveform() {
 
               // standard processing for each channel of information
               for (int j=0;j<swr_frame->channels;j++) {
-                qint16& min = waveform_cache_data[packet->stream_index][j][0];
-                qint16& max = waveform_cache_data[packet->stream_index][j][1];
+                qint8& min = waveform_cache_data[packet->stream_index][j][0];
+                qint8& max = waveform_cache_data[packet->stream_index][j][1];
 
                 // if we're starting over, reset cache to zero
                 if (waveform_cache_count == 0) {
@@ -439,8 +437,10 @@ void PreviewGenerator::generate_waveform() {
                   max = 0;
                 }
 
-                // store most minimum and most maximum samples of this interval
-                qint16 sample = qint16((swr_frame->data[j][i+1] << 8) | swr_frame->data[j][i]);
+                // Convert unsigned 8-bit PCM sample to signed
+                qint8 sample = qint8(int(swr_frame->data[j][i]-128));
+
+                // Store most minimum and most maximum samples of this interval
                 min = qMin(min, sample);
                 max = qMax(max, sample);
               }
@@ -589,7 +589,7 @@ void PreviewGenerator::run() {
               FootageStream& ms = footage_->audio_tracks[i];
               QFile f(get_waveform_path(hash, ms));
               f.open(QFile::WriteOnly);
-              f.write(ms.audio_preview.constData(), ms.audio_preview.size());
+              f.write(reinterpret_cast<const char*>(ms.audio_preview.constData()), ms.audio_preview.size());
               f.close();
               //dout << "saved" << ms->file_index << "waveform to" << get_waveform_path(hash, ms);
             }

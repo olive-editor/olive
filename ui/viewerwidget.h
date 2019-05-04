@@ -1,20 +1,20 @@
 ﻿/***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -29,10 +29,12 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QOpenGLFunctions>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLBuffer>
 
 #include "timeline/clip.h"
 #include "project/footage.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/viewerwindow.h"
 #include "ui/viewercontainer.h"
 #include "rendering/renderthread.h"
@@ -41,7 +43,7 @@ class Viewer;
 class QOpenGLFramebufferObject;
 struct GLTextureCoords;
 
-class ViewerWidget : public QOpenGLWidget, QOpenGLFunctions
+class ViewerWidget : public QOpenGLWidget
 {
   Q_OBJECT
 public:
@@ -81,16 +83,23 @@ private:
   void move_gizmos(QMouseEvent *event, bool done);
   bool dragging;
   void seek_from_click(int x);
-  Effect* gizmos;
+  QMatrix4x4 get_matrix();
+  Node* gizmos;
   int drag_start_x;
   int drag_start_y;
   int gizmo_x_mvmt;
   int gizmo_y_mvmt;
   EffectGizmo* selected_gizmo;
-  RenderThread* renderer;
+  RenderThread renderer;
   ViewerWindow* window;
   double x_scroll;
   double y_scroll;
+
+  QOpenGLShaderProgramPtr pipeline_;
+  QOpenGLVertexArrayObject vao_;
+  QOpenGLBuffer gizmo_buffer_;
+  QOpenGLBuffer title_safe_area_buffer_;
+
 private slots:
   void context_destroy();
   void retry();

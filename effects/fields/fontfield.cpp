@@ -1,14 +1,36 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "fontfield.h"
 
 #include <QFontDatabase>
 #include <QDebug>
 
 #include "ui/comboboxex.h"
+#include "nodes/node.h"
+#include "undo/undo.h"
 
-// NOTE/TODO: This shares a lot of similarity with ComboField, and could probably be a derived class of it
+// NOTE/TODO: This shares a lot of similarity with ComboInput, and could probably be a derived class of it
 
-FontField::FontField(EffectRow* parent, const QString &id) :
-  EffectField(parent, id, EFFECT_FIELD_FONT)
+FontField::FontField(EffectRow* parent) :
+  EffectField(parent, EffectField::EFFECT_FIELD_FONT)
 {
   font_list = QFontDatabase().families();
 
@@ -66,8 +88,8 @@ void FontField::UpdateFromWidget(const QString& s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), s);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
 
   kdc->SetNewKeyframes();
-  olive::UndoStack.push(kdc);
+  olive::undo_stack.push(kdc);
 }

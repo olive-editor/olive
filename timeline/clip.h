@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -30,18 +30,17 @@
 
 #include "rendering/cacher.h"
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/transition.h"
 #include "undo/comboaction.h"
 #include "project/media.h"
 #include "project/footage.h"
-
+#include "rendering/framebufferobject.h"
 #include "marker.h"
+#include "nodes/nodegraph.h"
+#include "selection.h"
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavfilter/avfilter.h>
-}
+class Track;
 
 struct ClipSpeed {
   ClipSpeed();
@@ -49,18 +48,21 @@ struct ClipSpeed {
   bool maintain_audio_pitch;
 };
 
-using ClipPtr = std::shared_ptr<Clip>;
-
-class Sequence;
-
 class Clip {
 public:
-  Clip(Sequence *s);
+  Clip(Track *s);
   ~Clip();
-  ClipPtr copy(Sequence *s);
+  ClipPtr copy(Track *s);
+
+  void Save(QXmlStreamWriter& stream);
 
   bool IsActiveAt(long timecode);
   bool IsSelected(bool containing = true);
+  bool IsTransitionSelected(TransitionType type);
+
+  Selection ToSelection();
+
+  olive::TrackType type();
 
   const QColor& color();
   void set_color(int r, int g, int b);
@@ -75,16 +77,16 @@ public:
   long media_length();
   void set_media(Media* m, int s);
 
-  bool enabled();
-  void set_enabled(bool e);
-
-  void move(ComboAction* ca,
+  void Move(ComboAction* ca,
             long iin,
             long iout,
             long iclip_in,
-            int itrack,
+            Track *itrack,
             bool verify_transitions = true,
             bool relative = false);
+
+  bool enabled();
+  void set_enabled(bool e);
 
   long clip_in(bool with_transition = false);
   void set_clip_in(long c);
@@ -95,8 +97,8 @@ public:
   long timeline_out(bool with_transition = false);
   void set_timeline_out(long t);
 
-  int track();
-  void set_track(int t);
+  Track* track();
+  void set_track(Track* t);
 
   bool reversed();
   void set_reversed(bool r);
@@ -121,15 +123,15 @@ public:
   long length();
 
   void refactor_frame_rate(ComboAction* ca, double multiplier, bool change_timeline_points);
-  Sequence* sequence;
+  Track* parent_;
 
   // markers
   QVector<Marker>& get_markers();
 
   // other variables (should be deep copied/duplicated in copy())
-  int IndexOfEffect(Effect* e);
-  QList<EffectPtr> effects;
-  QVector<int> linked;
+  int IndexOfEffect(Node* e);
+  QList<NodePtr> effects;
+  QVector<Clip*> linked;
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;
 
@@ -152,17 +154,22 @@ public:
   QMutex cache_lock;
 
   // video playback variables
-  QOpenGLFramebufferObject** fbo;
-  QOpenGLTexture* texture;
-  long texture_frame;
+  QVector<FramebufferObject> fbo;
+  GLuint texture;
+  int64_t texture_timestamp;
+
+#ifndef NO_OCIO
+  QOpenGLShaderProgramPtr ocio_shader;
+  GLuint ocio_lut_texture;
+#endif
 
 private:
   // timeline variables (should be copied in copy())
+  Track* track_;
   bool enabled_;
   long clip_in_;
   long timeline_in_;
   long timeline_out_;
-  int track_;
   QString name_;
   Media* media_;
   int media_stream_;
@@ -173,6 +180,8 @@ private:
 
   Cacher cacher;
   long cacher_frame;
+
+  NodeGraph pipeline_;
 
   QVector<Marker> markers;
   QColor color_;

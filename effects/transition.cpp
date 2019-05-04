@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,8 +24,7 @@
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 #include "global/debug.h"
-
-#include "project/clipboard.h"
+#include "global/clipboard.h"
 
 #include "effects/internal/crossdissolvetransition.h"
 #include "effects/internal/linearfadetransition.h"
@@ -41,28 +40,34 @@
 #include <QMessageBox>
 #include <QCoreApplication>
 
-Transition::Transition(Clip *c, Clip *s, const EffectMeta* em) :
-  Effect(c, em),
-  secondary_clip(s)
+Transition::Transition(Clip *c) :
+  Node(c),
+  secondary_clip(nullptr)
 {
-  EffectRow* length_row = new EffectRow(this, tr("Length"), false, false);
-  length_field = new DoubleField(length_row, "length");
+  length_field = new DoubleInput(this, "length", tr("Length"), false, false);
   length_field->SetDefault(30);
   length_field->SetMinimum(1);
   length_field->SetDisplayType(LabelSlider::FrameNumber);
-  length_field->SetFrameRate(parent_clip->sequence == nullptr ?
-                               parent_clip->cached_frame_rate() : parent_clip->sequence->frame_rate);
+
+  if (parent_clip != nullptr) {
+    length_field->SetFrameRate(parent_clip->track()->sequence() == nullptr ?
+                                 parent_clip->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
+  }
 
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }
 
-TransitionPtr Transition::copy(Clip *c, Clip *s) {
-  return Transition::Create(c, s, meta, get_true_length());
+NodePtr Transition::copy(Clip *c) {
+  NodePtr node = Node::copy(c);
+
+  static_cast<Transition*>(node.get())->set_length(get_true_length());
+
+  return node;
 }
 
 void Transition::save(QXmlStreamWriter &stream) {
   stream.writeAttribute("length", QString::number(get_true_length()));
-  Effect::save(stream);
+  Node::save(stream);
 }
 
 void Transition::set_length(int l) {
@@ -98,17 +103,18 @@ Clip* Transition::get_closed_clip() {
   return nullptr;
 }
 
-TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s, const EffectMeta* em) {
+/*
+TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s) {
   if (!em->filename.isEmpty()) {
     // load effect from file
     return TransitionPtr(new Transition(c, s, em));
   } else if (em->internal >= 0 && em->internal < TRANSITION_INTERNAL_COUNT) {
     // must be an internal effect
     switch (em->internal) {
-    case TRANSITION_INTERNAL_CROSSDISSOLVE: return TransitionPtr(new CrossDissolveTransition(c, s, em));
-    case TRANSITION_INTERNAL_LINEARFADE: return TransitionPtr(new LinearFadeTransition(c, s, em));
-    case TRANSITION_INTERNAL_EXPONENTIALFADE: return TransitionPtr(new ExponentialFadeTransition(c, s, em));
-    case TRANSITION_INTERNAL_LOGARITHMICFADE: return TransitionPtr(new LogarithmicFadeTransition(c, s, em));
+    case kCrossDissolveTransition: return TransitionPtr(new CrossDissolveTransition(c, s, em));
+    case kLinearFadeTransition: return TransitionPtr(new LinearFadeTransition(c, s, em));
+    case kExponentialFadeTransition: return TransitionPtr(new ExponentialFadeTransition(c, s, em));
+    case kLogarithmicFadeTransition: return TransitionPtr(new LogarithmicFadeTransition(c, s, em));
     //case TRANSITION_INTERNAL_CUBE: return TransitionPtr(new CubeTransition(c, s, em));
     }
   } else {
@@ -120,6 +126,7 @@ TransitionPtr Transition::CreateFromMeta(Clip* c, Clip* s, const EffectMeta* em)
   }
   return nullptr;
 }
+*/
 
 void Transition::UpdateMaximumLength()
 {
@@ -155,15 +162,4 @@ long Transition::GetMaximumEmptySpaceOnClip(Clip *c)
   }
 
   return maximum_transition_length;
-}
-
-TransitionPtr Transition::Create(Clip* c, Clip* s, const EffectMeta* em, long length) {
-  TransitionPtr t(CreateFromMeta(c, s, em));
-  if (t != nullptr) {
-    if (length > 0) {
-      t->set_length(length);
-    }
-    return t;
-  }
-  return nullptr;
 }

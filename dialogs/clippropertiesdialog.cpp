@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "clippropertiesdialog.h"
 
 #include <QGridLayout>
@@ -72,7 +92,7 @@ ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clip
   }
 
   // it's assumed all the clips come from the same sequence
-  duration_field_->SetFrameRate(first_clip->sequence->frame_rate);
+  duration_field_->SetFrameRate(first_clip->track()->sequence()->frame_rate);
 
   if (all_clips_have_same_duration) {
     duration_field_->SetDefault(first_clip->length());
@@ -104,7 +124,7 @@ void ClipPropertiesDialog::accept()
       long clip_duration_rounded = qRound(clip_duration);
 
       if (clip->length() != clip_duration_rounded) {
-        clip->move(ca,
+        clip->Move(ca,
                    clip->timeline_in(),
                    clip->timeline_in() + clip_duration_rounded,
                    clip->clip_in(),
@@ -115,7 +135,7 @@ void ClipPropertiesDialog::accept()
   }
 
   if (ca->hasActions()) {
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     update_ui(false);
   } else {
     delete ca;

@@ -48,6 +48,8 @@ system("which git") {
 
 CONFIG += c++11
 
+gcc:QMAKE_CXXFLAGS += -Wno-reorder
+
 SOURCES += \
         main.cpp \
         ui/mainwindow.cpp \
@@ -57,7 +59,6 @@ SOURCES += \
     panels/timeline.cpp \
     ui/sourcetable.cpp \
     dialogs/aboutdialog.cpp \
-    ui/timelinewidget.cpp \
     project/media.cpp \
     project/footage.cpp \
     timeline/sequence.cpp \
@@ -76,11 +77,9 @@ SOURCES += \
     dialogs/preferencesdialog.cpp \
     ui/audiomonitor.cpp \
     undo/undo.cpp \
-    ui/scrollarea.cpp \
     ui/comboboxex.cpp \
     ui/colorbutton.cpp \
     dialogs/replaceclipmediadialog.cpp \
-    ui/fontcombobox.cpp \
     ui/keyframeview.cpp \
     ui/texteditex.cpp \
     dialogs/demonotice.cpp \
@@ -107,10 +106,8 @@ SOURCES += \
     effects/internal/logarithmicfadetransition.cpp \
     effects/internal/cornerpineffect.cpp \
     global/math.cpp \
-    effects/effect.cpp \
     effects/effectrow.cpp \
     effects/effectgizmo.cpp \
-    project/clipboard.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
     project/sourcescommon.cpp \
@@ -129,7 +126,6 @@ SOURCES += \
     dialogs/debugdialog.cpp \
     ui/viewerwindow.cpp \
     project/projectfilter.cpp \
-    effects/internal/frei0reffect.cpp \
     effects/effectloaders.cpp \
     effects/internal/vsthost.cpp \
     ui/flowlayout.cpp \
@@ -172,7 +168,47 @@ SOURCES += \
     ui/menu.cpp \
     timeline/mediaimportdata.cpp \
     dialogs/autocutsilencedialog.cpp \
-    ui/columnedgridlayout.cpp
+    ui/columnedgridlayout.cpp \
+    rendering/shadergenerators.cpp \
+    global/timing.cpp \
+    rendering/pixelformats.cpp \
+    timeline/timelinefunctions.cpp \
+    timeline/track.cpp \
+    timeline/tracklist.cpp \
+    project/savethread.cpp \
+    project/projectfunctions.cpp \
+    ui/timelinearea.cpp \
+    timeline/timelineshared.cpp \
+    ui/timelineview.cpp \
+    ui/timelinelabel.cpp \
+    timeline/selection.cpp \
+    global/clipboard.cpp \
+    timeline/timelinetools.cpp \
+    timeline/ghost.cpp \
+    ui/waveform.cpp \
+    panels/nodeeditor.cpp \
+    ui/nodeview.cpp \
+    ui/nodeui.cpp \
+    panels/effectspanel.cpp \
+    nodes/nodedatatypes.cpp \
+    nodes/inputs/boolinput.cpp \
+    nodes/inputs/comboinput.cpp \
+    nodes/inputs/colorinput.cpp \
+    nodes/inputs/stringinput.cpp \
+    nodes/inputs/fontinput.cpp \
+    nodes/inputs/vecinput.cpp \
+    nodes/widgets/labelwidget.cpp \
+    nodes/inputs/fileinput.cpp \
+    nodes/widgets/buttonwidget.cpp \
+    nodes/nodegraph.cpp \
+    nodes/nodes/nodeimageoutput.cpp \
+    nodes/nodes/nodemedia.cpp \
+    nodes/nodes/nodeshader.cpp \
+    decoders/ffmpegdecoder.cpp \
+    decoders/decoder.cpp \
+    nodes/node.cpp \
+    nodes/nodeedge.cpp \
+    ui/nodeedgeui.cpp
 
 HEADERS += \
         ui/mainwindow.h \
@@ -182,7 +218,6 @@ HEADERS += \
     panels/timeline.h \
     ui/sourcetable.h \
     dialogs/aboutdialog.h \
-    ui/timelinewidget.h \
     project/media.h \
     project/footage.h \
     timeline/sequence.h \
@@ -195,18 +230,15 @@ HEADERS += \
     ui/collapsiblewidget.h \
     panels/panels.h \
     rendering/exportthread.h \
-    ui/timelinetools.h \
     ui/timelineheader.h \
     project/previewgenerator.h \
     ui/labelslider.h \
     dialogs/preferencesdialog.h \
     ui/audiomonitor.h \
     undo/undo.h \
-    ui/scrollarea.h \
     ui/comboboxex.h \
     ui/colorbutton.h \
     dialogs/replaceclipmediadialog.h \
-    ui/fontcombobox.h \
     ui/keyframeview.h \
     ui/texteditex.h \
     dialogs/demonotice.h \
@@ -234,11 +266,9 @@ HEADERS += \
     effects/internal/logarithmicfadetransition.h \
     effects/internal/cornerpineffect.h \
     global/math.h \
-    effects/effect.h \
     effects/effectrow.h \
     effects/internal/cubetransition.h \
     effects/effectgizmo.h \
-    project/clipboard.h \
     ui/resizablescrollbar.h \
     ui/sourceiconview.h \
     project/sourcescommon.h \
@@ -257,7 +287,6 @@ HEADERS += \
     dialogs/debugdialog.h \
     ui/viewerwindow.h \
     project/projectfilter.h \
-    effects/internal/frei0reffect.h \
     effects/effectloaders.h \
     effects/internal/vsthost.h \
     ui/flowlayout.h \
@@ -300,9 +329,52 @@ HEADERS += \
     effects/internal/richtexteffect.h \
     ui/blur.h \
     ui/menu.h \
+    rendering/qopenglshaderprogramptr.h \
     timeline/mediaimportdata.h \
     dialogs/autocutsilencedialog.h \
-    ui/columnedgridlayout.h
+    ui/columnedgridlayout.h \
+    rendering/shadergenerators.h \
+    global/timing.h \
+    rendering/pixelformats.h \
+    timeline/ghost.h \
+    timeline/timelinefunctions.h \
+    timeline/track.h \
+    timeline/tracklist.h \
+    project/savethread.h \
+    project/projectfunctions.h \
+    ui/timelinearea.h \
+    timeline/timelineshared.h \
+    ui/timelineview.h \
+    ui/timelinelabel.h \
+    global/clipboard.h \
+    timeline/timelinetools.h \
+    ui/waveform.h \
+    panels/nodeeditor.h \
+    ui/nodeview.h \
+    ui/nodeui.h \
+    panels/effectspanel.h \
+    nodes/nodedatatypes.h \
+    nodes/inputs.h \
+    nodes/inputs/boolinput.h \
+    nodes/inputs/comboinput.h \
+    nodes/inputs/colorinput.h \
+    nodes/inputs/stringinput.h \
+    nodes/inputs/fontinput.h \
+    nodes/inputs/vecinput.h \
+    nodes/widgets/labelwidget.h \
+    nodes/inputs/fileinput.h \
+    nodes/widgets/buttonwidget.h \
+    nodes/nodegraph.h \
+    nodes/nodes/nodemedia.h \
+    nodes/nodes/nodeimageoutput.h \
+    nodes/nodes/nodeshader.h \
+    nodes/nodes.h \
+    decoders/ffmpegdecoder.h \
+    decoders/decoder.h \
+    nodes/node.h \
+    timeline/tracktypes.h \
+    nodes/nodeedge.h \
+    ui/nodeedgeui.h
 
 FORMS +=
 
@@ -325,21 +397,18 @@ win32 {
     }
 
     RC_FILE = packaging/windows/resources.rc
-    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lopengl32 -luser32
-    contains(DEFINES, OLIVE_OCIO) {
-        LIBS += -lOpenColorIO
-    }
+    LIBS += -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lOpenColorIO -lopengl32 -luser32
 }
 
 mac {
-    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -framework CoreFoundation
+    LIBS += -L/usr/local/lib -lavutil -lavformat -lavcodec -lavfilter -lswscale -lswresample -lOpenColorIO -framework CoreFoundation
     ICON = packaging/macos/olive.icns
     INCLUDEPATH = /usr/local/include
 }
 
 unix:!mac {
     CONFIG += link_pkgconfig
-    PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample
+    PKGCONFIG += libavutil libavformat libavcodec libavfilter libswscale libswresample OpenColorIO
 }
 
 RESOURCES += \
@@ -395,4 +464,5 @@ unix:!mac {
     mime512.files = $$PWD/packaging/linux/icons/512x512/application-vnd.olive-project.png
     mime512.path = $$PREFIX/share/icons/hicolor/512x512/mimetypes
     INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512 mime16 mime32 mime48 mime64 mime128 mime256 mime512
+    INSTALLS += target effects translations metainfo desktop mime icon16 icon32 icon48 icon64 icon128 icon256 icon512
 }

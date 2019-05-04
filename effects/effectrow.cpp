@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -32,17 +32,23 @@
 #include "panels/effectcontrols.h"
 #include "panels/viewer.h"
 #include "panels/grapheditor.h"
-#include "effect.h"
+#include "nodes/node.h"
 #include "ui/viewerwidget.h"
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-EffectRow::EffectRow(Effect *parent, const QString &n, bool savable, bool keyframable) :
+EffectRow::EffectRow(Node *parent,
+                     const QString &id,
+                     const QString &name,
+                     bool savable,
+                     bool keyframable) :
   QObject(parent),
-  name_(n),
+  id_(id),
+  name_(name),
   keyframable_(keyframable),
   keyframing_(false),
-  savable_(savable)
+  savable_(savable),
+  output_type_(olive::nodes::kInvalid)
 {
   Q_ASSERT(parent != nullptr);
 
@@ -52,7 +58,59 @@ EffectRow::EffectRow(Effect *parent, const QString &n, bool savable, bool keyfra
 void EffectRow::AddField(EffectField *field)
 {
   field->setParent(this);
+
+  connect(field, SIGNAL(Clicked()), this, SIGNAL(Clicked()));
+  connect(field, SIGNAL(Changed()), this, SIGNAL(Changed()));
+
   fields_.append(field);
+}
+
+void EffectRow::AddAcceptedNodeInput(olive::nodes::DataType type)
+{
+  Q_ASSERT(output_type_ == olive::nodes::kInvalid);
+
+  accepted_inputs_.append(type);
+}
+
+void EffectRow::ConnectEdge(EffectRow *output, EffectRow *input)
+{
+  // Make sure one is an output and one is an input
+  Q_ASSERT(output->IsNodeInput() != input->IsNodeInput());
+
+  // Swap them if necessary
+  if (input->IsNodeOutput()) {
+    EffectRow* temp = output;
+    output = input;
+    input = temp;
+  }
+
+  // Inputs can only have one edge, so we disconnect it here if there is one
+  if (!input->node_edges_.isEmpty()) {
+    DisconnectEdge(input->node_edges_.first());
+  }
+
+  NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
+
+  output->node_edges_.append(edge);
+  input->node_edges_.append(edge);
+
+  emit output->EdgesChanged();
+}
+
+void EffectRow::DisconnectEdge(NodeEdgePtr edge)
+{
+  EffectRow* output = edge->output();
+  EffectRow* input = edge->input();
+
+  output->node_edges_.removeAll(edge);
+  input->node_edges_.removeAll(edge);
+
+  emit output->EdgesChanged();
+}
+
+QVector<NodeEdgePtr> EffectRow::edges()
+{
+  return node_edges_;
 }
 
 bool EffectRow::IsKeyframing() {
@@ -60,7 +118,7 @@ bool EffectRow::IsKeyframing() {
 }
 
 void EffectRow::SetKeyframingInternal(bool b) {
-  if (GetParentEffect()->meta->type != EFFECT_TYPE_TRANSITION) {
+  if (GetParentEffect()->type() != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
   }
@@ -74,6 +132,58 @@ bool EffectRow::IsSavable()
 bool EffectRow::IsKeyframable()
 {
   return keyframable_;
+}
+
+QVariant EffectRow::GetValueAt(double timecode)
+{
+  Q_ASSERT(FieldCount() == 1);
+
+  return Field(0)->GetValueAt(timecode);
+}
+
+void EffectRow::SetValueAt(double timecode, const QVariant &value)
+{
+  Q_ASSERT(FieldCount() == 1);
+
+  Field(0)->SetValueAt(timecode, value);
+}
+
+void EffectRow::SetEnabled(bool enabled)
+{
+  for (int i=0;i<FieldCount();i++) {
+    Field(i)->SetEnabled(enabled);
+  }
+}
+
+void EffectRow::SetOutputDataType(olive::nodes::DataType type)
+{
+  Q_ASSERT(accepted_inputs_.isEmpty());
+
+  output_type_ = type;
+}
+
+bool EffectRow::CanAcceptDataType(olive::nodes::DataType type)
+{
+  if (!IsNodeInput()) {
+    return false;
+  }
+
+  return accepted_inputs_.contains(type);
+}
+
+olive::nodes::DataType EffectRow::OutputDataType()
+{
+  return output_type_;
+}
+
+bool EffectRow::IsNodeInput()
+{
+  return !accepted_inputs_.isEmpty();
+}
+
+bool EffectRow::IsNodeOutput()
+{
+  return output_type_ != olive::nodes::kInvalid;
 }
 
 void EffectRow::SetKeyframingEnabled(bool enabled) {
@@ -93,7 +203,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
       Field(i)->PrepareDataForKeyframing(true, ca);
     }
 
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
 
     update_ui(false);
 
@@ -116,7 +226,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
       // Disable keyframing setting on this row
       ca->append(new SetIsKeyframing(this, false));
 
-      olive::UndoStack.push(ca);
+      olive::undo_stack.push(ca);
 
       update_ui(false);
 
@@ -131,7 +241,7 @@ void EffectRow::SetKeyframingEnabled(bool enabled) {
 void EffectRow::GoToPreviousKeyframe() {
   long key = LONG_MIN;
   Clip* c = GetParentEffect()->parent_clip;
-  long sequence_playhead = c->sequence->playhead;
+  long sequence_playhead = c->track()->sequence()->playhead;
 
   // Used to convert clip frame number to sequence frame number
   long time_adjustment = c->timeline_in() - c->clip_in();
@@ -158,7 +268,7 @@ void EffectRow::GoToPreviousKeyframe() {
 
 void EffectRow::ToggleKeyframe() {
   Clip* c = GetParentEffect()->parent_clip;
-  long sequence_playhead = c->sequence->playhead;
+  long sequence_playhead = c->track()->sequence()->playhead;
 
   // Used to convert clip frame number to sequence frame number
   long time_adjustment = c->timeline_in() - c->clip_in();
@@ -222,7 +332,7 @@ void EffectRow::ToggleKeyframe() {
 
   }
 
-  olive::UndoStack.push(ca);
+  olive::undo_stack.push(ca);
   update_ui(false);
 }
 
@@ -233,7 +343,7 @@ void EffectRow::GoToNextKeyframe() {
     EffectField* f = Field(i);
     for (int j=0;j<f->keyframes.size();j++) {
       long comp = f->keyframes.at(j).time - c->clip_in() + c->timeline_in();
-      if (comp > olive::ActiveSequence->playhead) {
+      if (comp > c->track()->sequence()->playhead) {
         key = qMin(comp, key);
       }
     }
@@ -251,7 +361,7 @@ void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
 
     KeyframeDataChange* kdc = new KeyframeDataChange(field);
 
-    field->SetValueAt(field->Now(), field->GetValueAt(field->Now()));
+    field->SetValueAt(GetParentEffect()->Now(), field->GetValueAt(GetParentEffect()->Now()));
 
     kdc->SetNewKeyframes();
     ca->append(kdc);
@@ -260,9 +370,9 @@ void EffectRow::SetKeyframeOnAllFields(ComboAction* ca) {
   panel_effect_controls->update_keyframes();
 }
 
-Effect *EffectRow::GetParentEffect()
+Node *EffectRow::GetParentEffect()
 {
-  return static_cast<Effect*>(parent());
+  return static_cast<Node*>(parent());
 }
 
 const QString &EffectRow::name() {

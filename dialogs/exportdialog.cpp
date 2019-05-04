@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -68,14 +68,15 @@ enum ExportFormats {
   FORMAT_SIZE
 };
 
-ExportDialog::ExportDialog(QWidget *parent) :
-  QDialog(parent)
+ExportDialog::ExportDialog(QWidget *parent, Sequence* sequence) :
+  QDialog(parent),
+  sequence_(sequence)
 {
-  setWindowTitle(tr("Export \"%1\"").arg(olive::ActiveSequence->name));
+  setWindowTitle(tr("Export \"%1\"").arg(sequence->name));
   setup_ui();
 
   rangeCombobox->setCurrentIndex(0);
-  if (olive::ActiveSequence->using_workarea) {
+  if (sequence->using_workarea) {
     rangeCombobox->setEnabled(true);
     rangeCombobox->setCurrentIndex(1);
   }
@@ -109,10 +110,10 @@ ExportDialog::ExportDialog(QWidget *parent) :
   formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
   // default to sequence's native dimensions
-  widthSpinbox->setValue(olive::ActiveSequence->width);
-  heightSpinbox->setValue(olive::ActiveSequence->height);
-  samplingRateSpinbox->setValue(olive::ActiveSequence->audio_frequency);
-  framerateSpinbox->setValue(olive::ActiveSequence->frame_rate);
+  widthSpinbox->setValue(sequence->width);
+  heightSpinbox->setValue(sequence->height);
+  samplingRateSpinbox->setValue(sequence->audio_frequency);
+  framerateSpinbox->setValue(sequence->frame_rate);
 
   // set some advanced defaults
   vcodec_params.threads = 0;
@@ -351,8 +352,8 @@ void ExportDialog::export_thread_finished() {
   prep_ui_for_render(false);
 
   // Move OpenGL context back to the sequence viewer
-  panel_sequence_viewer->viewer_widget->makeCurrent();
-  panel_sequence_viewer->viewer_widget->initializeGL();
+  panel_sequence_viewer->viewer_widget()->makeCurrent();
+  panel_sequence_viewer->viewer_widget()->initializeGL();
 
   // Update the application UI
   update_ui(false);
@@ -537,6 +538,7 @@ void ExportDialog::StartExport() {
 
     // Set up export parameters to send to the ExportThread
     ExportParams params;
+    params.sequence = sequence_;
     params.filename = filename;
     params.video_enabled = videoGroupbox->isChecked();
     if (params.video_enabled) {
@@ -555,10 +557,10 @@ void ExportDialog::StartExport() {
     }
 
     params.start_frame = 0;
-    params.end_frame = olive::ActiveSequence->getEndFrame(); // entire sequence
+    params.end_frame = sequence_->GetEndFrame(); // entire sequence
     if (rangeCombobox->currentIndex() == 1) {
-      params.start_frame = qMax(olive::ActiveSequence->workarea_in, params.start_frame);
-      params.end_frame = qMin(olive::ActiveSequence->workarea_out, params.end_frame);
+      params.start_frame = qMax(sequence_->workarea_in, params.start_frame);
+      params.end_frame = qMin(sequence_->workarea_out, params.end_frame);
     }
 
     // Create export thread
@@ -572,10 +574,10 @@ void ExportDialog::StartExport() {
     // Close all effects in effect controls (prevents UI threading issues)
     panel_effect_controls->Clear();
 
-    olive::Global->set_rendering_state(true);
-
     // Close all currently open clips
-    close_active_clips(olive::ActiveSequence.get());
+    sequence_->Close();
+
+    olive::Global->set_export_state(true);
 
     olive::Global->save_autorecovery_file();
 
@@ -654,11 +656,11 @@ void ExportDialog::comp_type_changed(int) {
   case COMPRESSION_TYPE_CBR:
   case COMPRESSION_TYPE_TARGETBR:
     videoBitrateLabel->setText(tr("Bitrate (Mbps):"));
-    videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * olive::ActiveSequence->height) - 4.5)));
+    videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence_->height) - 4.5)));
     break;
   case COMPRESSION_TYPE_CFR:
     videoBitrateLabel->setText(tr("Quality (CRF):"));
-    videobitrateSpinbox->setValue(36);
+    videobitrateSpinbox->setValue(23);
     videobitrateSpinbox->setMaximum(51);
     videobitrateSpinbox->setToolTip(tr("Quality Factor:\n\n0 = lossless\n17-18 = visually lossless (compressed, but unnoticeable)\n23 = high quality\n51 = lowest quality possible"));
     break;

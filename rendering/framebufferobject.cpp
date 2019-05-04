@@ -1,6 +1,32 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "framebufferobject.h"
 
 #include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
+#include <QDebug>
+
+#include "global/config.h"
+#include "global/global.h"
+#include "pixelformats.h"
 
 FramebufferObject::FramebufferObject() :
   buffer_(0),
@@ -41,8 +67,20 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   f->glBindTexture(GL_TEXTURE_2D, texture_);
 
   // allocate storage for texture
-  f->glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr
+  const olive::PixelFormatInfo& bit_depth = olive::pixel_formats.at(olive::Global->is_exporting() ?
+                                                                      olive::config.export_bit_depth :
+                                                                      olive::config.playback_bit_depth);
+
+  ctx->functions()->glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        bit_depth.internal_format,
+        width,
+        height,
+        0,
+        bit_depth.pixel_format,
+        bit_depth.pixel_type,
+        nullptr
         );
 
   // set texture filtering to bilinear
@@ -50,9 +88,13 @@ void FramebufferObject::Create(QOpenGLContext *ctx, int width, int height)
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // attach texture to framebuffer
-  f->glFramebufferTexture2D(
-        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_, 0
+  ctx->extraFunctions()->glFramebufferTexture2D(
+        GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_, 0
         );
+
+  // clear new texture
+  ctx->functions()->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
 
   // release texture
   f->glBindTexture(GL_TEXTURE_2D, 0);
@@ -72,12 +114,44 @@ void FramebufferObject::Destroy()
   ctx_ = nullptr;
 }
 
-const GLuint &FramebufferObject::buffer()
+void FramebufferObject::BindBuffer() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
+}
+
+void FramebufferObject::ReleaseBuffer() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+void FramebufferObject::BindTexture() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
+}
+
+void FramebufferObject::ReleaseTexture() const
+{
+  if (ctx_ == nullptr) {
+    return;
+  }
+  ctx_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+const GLuint &FramebufferObject::buffer() const
 {
   return buffer_;
 }
 
-const GLuint &FramebufferObject::texture()
+const GLuint &FramebufferObject::texture() const
 {
   return texture_;
 }

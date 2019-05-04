@@ -1,6 +1,3 @@
-#version 110
-
-uniform sampler2D sceneTex; // 0
 uniform float lensRadiusX;
 uniform float lensRadiusY;
 uniform float centerX;
@@ -10,14 +7,11 @@ uniform vec2 resolution;
 uniform bool invert;
 // uniform vec2 lensRadius; // 0.45, 0.38
 
-varying vec2 vTexCoord;
-
-void main(void) {
+vec4 process(vec4 c) {
 	if (lensRadiusX == 0.0) {
-		discard;
+		return vec4(0.0);
 	}
-	vec4 c = texture2D(sceneTex, vTexCoord);
-	vec2 vignetteCoord = vTexCoord;
+	vec2 vignetteCoord = v_texcoord;
 	if (circular) {
 		float ar = (resolution.x/resolution.y);
 		vignetteCoord.x *= ar;
@@ -31,5 +25,5 @@ void main(void) {
 	else
 	{c *= smoothstep(size, size*0.99*(1.0-lensRadiusY*0.01), dist);}
 	
-	gl_FragColor = c;
+	return c;
 }

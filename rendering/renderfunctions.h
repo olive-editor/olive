@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,16 +24,18 @@
 #include <QOpenGLContext>
 #include <QVector>
 #include <QOpenGLShaderProgram>
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "timeline/sequence.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "panels/viewer.h"
 
 /**
- * @brief The ComposeSequenceParams struct
- *
- * Struct sent to the compose_sequence() function.
- */
+  * @brief The ComposeSequenceParams struct
+  *
+  * Struct sent to the compose_sequence() function.
+  */
 struct ComposeSequenceParams {
 
     /**
@@ -51,6 +53,13 @@ struct ComposeSequenceParams {
      * \see ComposeSequenceParams::video
      */
     QOpenGLContext* ctx;
+
+    /**
+     * @brief The OpenGL pipeline used for rendering
+     *
+     * \see olive::rendering::GetPipeline().
+     */
+    QOpenGLShaderProgram* pipeline;
 
     /**
      * @brief The sequence to compose
@@ -71,16 +80,16 @@ struct ComposeSequenceParams {
     /**
      * @brief Set compose mode to video or audio
      *
-     * **TRUE** if this function should render video, **FALSE** if this function should render audio.
+     * Accepts olive::kTypeVideo to render video, olive::kTypeAudio if this function should render audio.
      */
-    bool video;
+    olive::TrackType type;
 
     /**
      * @brief Set to the Effect whose gizmos were chosen to be drawn on screen
      *
      * The currently active Effect that compose_sequence() will update the gizmos of.
      */
-    Effect* gizmos;
+    Node* gizmos;
 
     /**
      * @brief A variable that compose_sequence() will set to **TRUE** if any of the clips couldn't be shown.
@@ -130,19 +139,6 @@ struct ComposeSequenceParams {
     int playback_speed;
 
     /**
-     * @brief Blending mode shader
-     *
-     * Used only for video rendering. Never accessed with audio rendering.
-     *
-     * A program containing the current active
-     * blending mode shader that can be bound during rendering. Must be compiled and linked beforehand. See
-     * RenderThread::blend_mode_program for how this is properly set up.
-     *
-     * \see ComposeSequenceParams::video
-     */
-    QOpenGLShaderProgram* blend_mode_program;
-
-    /**
      * @brief Premultiply alpha shader
      *
      * Used only for video rendering. Never accessed with audio rendering.
@@ -161,16 +157,7 @@ struct ComposeSequenceParams {
      *
      * When compose_sequence() is rendering the final image, this framebuffer will be bound.
      */
-    GLuint main_buffer;
-
-    /**
-     * @brief The attachment to the framebuffer in main_buffer
-     *
-     * Used only for video rendering. Never accessed with audio rendering.
-     *
-     * The OpenGL texture attached to the framebuffer referenced by main_buffer.
-     */
-    GLuint main_attachment;
+    const FramebufferObject* main_buffer;
 
     /**
      * @brief Backend OpenGL framebuffer 1 used for further processing before rendering to main_buffer
@@ -178,15 +165,7 @@ struct ComposeSequenceParams {
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"
      * between framebuffers. backend_buffer1 and backend_buffer2 are used for this purpose.
      */
-    GLuint backend_buffer1;
-
-    /**
-     * @brief Backend OpenGL framebuffer 1's texture attachment
-     *
-     * The texture that ComposeSequenceParams::backend_buffer1 renders to. Bound and drawn to
-     * ComposeSequenceParams::backend_buffer2 to "ping-pong" between them and various shaders.
-     */
-    GLuint backend_attachment1;
+    const FramebufferObject* backend_buffer1;
 
     /**
      * @brief Backend OpenGL framebuffer 2 used for further processing before rendering to main_buffer
@@ -194,51 +173,33 @@ struct ComposeSequenceParams {
      * In some situations, compose_sequence() will do some processing through shaders that requires "ping-ponging"
      * between framebuffers. backend_buffer1 and backend_buffer2 are used for this purpose.
      */
-    GLuint backend_buffer2;
-
-    /**
-     * @brief Backend OpenGL framebuffer 2's texture attachment
-     *
-     * The texture that ComposeSequenceParams::backend_buffer2 renders to. Bound and drawn to
-     * ComposeSequenceParams::backend_buffer1 to "ping-pong" between them and various shaders.
-     */
-    GLuint backend_attachment2;
-
-    /**
-     * @brief OpenGL shader containing OpenColorIO shader information
-     */
-    QOpenGLShaderProgram* ocio_shader;
-
-    /**
-     * @brief OpenGL texture containing LUT obtained form OpenColorIO
-     */
-    GLuint ocio_lut_texture;
+    const FramebufferObject* backend_buffer2;
 };
 
 namespace olive {
 namespace rendering {
 /**
- * @brief Compose a frame of a given sequence
- *
- * For any given Sequence, this function will render the current frame indicated by Sequence::playhead. Will
- * automatically open and close clips (memory allocation and file handles) as necessary, communicate with the
- * Clip::cacher objects to retrieve upcoming frames and store them in memory, run Effect processing functions, and
- * finally composite all the currently active clips together into a final texture.
- *
- * Will sometimes render a frame incomplete or inaccurately, e.g. if a video file hadn't finished opening by the time
- * of the render or a clip's cacher didn't have the requested frame available at the time of the render. If so,
- * the `texture_failed` variable of `params` will be set to **TRUE**. Check this after calling compose_sequence() and
- * if it is **TRUE**, compose_sequence() should be called again later to attempt another render (unless the Sequence
- * is being played, in which case just play the next frame rather than redrawing an old frame).
- *
- * @param params
- *
- * A struct of parameters to use while rendering.
- *
- * @return A reference to the OpenGL texture resulting from the render. Will usually be equal to
- * ComposeSequenceParams::main_attachment unless it's rendering a nested sequence, in which case it'll be a reference
- * to one of the textures referenced by Clip::fbo. Can be used directly to draw the rendered frame.
- */
+  * @brief Compose a frame of a given sequence
+  *
+  * For any given Sequence, this function will render the current frame indicated by Sequence::playhead. Will
+  * automatically open and close clips (memory allocation and file handles) as necessary, communicate with the
+  * Clip::cacher objects to retrieve upcoming frames and store them in memory, run Effect processing functions, and
+  * finally composite all the currently active clips together into a final texture.
+  *
+  * Will sometimes render a frame incomplete or inaccurately, e.g. if a video file hadn't finished opening by the time
+  * of the render or a clip's cacher didn't have the requested frame available at the time of the render. If so,
+  * the `texture_failed` variable of `params` will be set to  **TRUE**. Check this after calling compose_sequence() and
+  * if it is  **TRUE**, compose_sequence() should be called again later to attempt another render (unless the Sequence
+  * is being played, in which case just play the next frame rather than redrawing an old frame).
+  *
+  * @param params
+  *
+  * A struct of parameters to use while rendering.
+  *
+  * @return A reference to the OpenGL texture resulting from the render. Will usually be equal to
+  * ComposeSequenceParams::main_attachment unless it's rendering a nested sequence, in which case it'll be a reference
+  * to one of the textures referenced by Clip::fbo. Can be used directly to draw the rendered frame.
+  */
 GLuint compose_sequence(ComposeSequenceParams &params);
 
 /**
@@ -268,141 +229,19 @@ void compose_audio(Viewer* viewer, Sequence *seq, int playback_speed, bool wait_
 }
 }
 
-/**
- * @brief Rescale a frame number between two frame rates
- *
- * Converts a frame number from one frame rate to its equivalent in another frame rate
- *
- * @param framenumber
- *
- * The frame number to convert
- *
- * @param source_frame_rate
- *
- * Frame rate that the frame number is currently in
- *
- * @param target_frame_rate
- *
- * Frame rate to convert to
- *
- * @return
- *
- * Rescaled frame number
- */
-long rescale_frame_number(long framenumber, double source_frame_rate, double target_frame_rate);
+void UpdateOCIOGLState(const ComposeSequenceParams &params);
 
-/**
- * @brief Get timecode
- *
- * Get the current clip/media time from the Timeline playhead in seconds. For instance if the playhead was at the start
- * of a clip (whose in point wasn't trimmed), this would be 0.0 as it's the start of the clip/media;
- *
- * @param c
- *
- * Clip to get the timecode of
- *
- * @param playhead
- *
- * Sequence playhead to convert to a clip/media timecode
- *
- * @return
- *
- * Timecode in seconds
- */
-double get_timecode(Clip *c, long playhead);
-
-/**
- * @brief Convert playhead frame number to a clip frame number
- *
- * Converts a Timeline playhead to a the current clip's frame. Equivalent to
- * `PLAYHEAD - CLIP_TIMELINE_IN + CLIP_MEDIA_IN`. All keyframes are in clip frames.
- *
- * @param c
- *
- * The clip to get the current frame number of
- *
- * @param playhead
- *
- * The current Timeline frame number
- *
- * @return
- *
- * The curren frame number of the clip at `playhead`
- */
-long playhead_to_clip_frame(Clip* c, long playhead);
-
-/**
- * @brief Converts the playhead to clip seconds
- *
- * Get the current timecode at the playhead in terms of clip seconds.
- *
- * FIXME: Possible duplicate of get_timecode()? Will need to research this more.
- *
- * @param c
- *
- * Clip to return clip seconds of.
- *
- * @param playhead
- *
- * Current Timeline playhead to convert to clip seconds
- *
- * @return
- *
- * Clip time in seconds
- */
-double playhead_to_clip_seconds(Clip *c, long playhead);
-
-/**
- * @brief Convert seconds to FFmpeg timestamp
- *
- * Used for interaction with FFmpeg, converts seconds in a floating-point value to a timestamp in AVStream->time_base
- * units.
- *
- * @param c
- *
- * Clip to get timestamp of
- *
- * @param seconds
- *
- * Clip time in seconds
- *
- * @return
- *
- * An FFmpeg-compatible timestamp in AVStream->time_base units.
- */
-int64_t seconds_to_timestamp(Clip* c, double seconds);
-
-/**
- * @brief Convert Timeline playhead to FFmpeg timestamp
- *
- * Used for interaction with FFmpeg, converts the Timeline playhead to a timestamp in AVStream->time_base
- * units.
- *
- * @param c
- *
- * Clip to get timestamp of
- *
- * @param playhead
- *
- * Timeline playhead to convert to a timestamp
- *
- * @return
- *
- * An FFmpeg-compatible timestamp in AVStream->time_base units.
- */
-int64_t playhead_to_timestamp(Clip *c, long playhead);
-
-/**
- * @brief Close all open clips in a Sequence
- *
- * Closes any currently open clips on a Sequence and waits for them to close before returning. This may be slow as a
- * result on large Sequence objects. If a Clip is a nested Sequence, this function calls itself recursively on that
- * Sequence too.
- *
- * @param s
- *
- * The Sequence to close all clips on.
- */
-void close_active_clips(Sequence* s);
+namespace olive {
+  namespace rendering {
+    extern GLfloat blit_vertices[];
+    extern GLfloat blit_texcoords[];
+    extern GLfloat flipped_blit_texcoords[];
+    void Blit(QOpenGLShaderProgram* pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+    GLuint OCIOBlit(QOpenGLShaderProgram *pipeline,
+                  GLuint lut,
+                  const FramebufferObject& fbo,
+                  GLuint texture);
+  }
+}
 
 #endif // RENDERFUNCTIONS_H

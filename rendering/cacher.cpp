@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -28,63 +28,67 @@
 
 #include <inttypes.h>
 
-#include <QOpenGLFramebufferObject>
 #include <QtMath>
 #include <QAudioOutput>
 #include <QStatusBar>
 #include <math.h>
 
+#include "panels/panels.h"
 #include "project/projectelements.h"
 #include "rendering/audio.h"
 #include "rendering/renderfunctions.h"
-#include "panels/panels.h"
+#include "global/timing.h"
 #include "global/config.h"
+#include "global/global.h"
 #include "global/debug.h"
 #include "ui/mainwindow.h"
 
 // Enable verbose audio messages - good for debugging reversed audio
 //#define AUDIOWARNINGS
 
-const AVPixelFormat kDestPixFmt = AV_PIX_FMT_RGBA;
-const AVSampleFormat kDestSampleFmt = AV_SAMPLE_FMT_S16;
+const AVSampleFormat kDestSampleFmt = AV_SAMPLE_FMT_FLTP;
 
-double bytes_to_seconds(int nb_bytes, int nb_channels, int sample_rate) {
-  return (double(nb_bytes >> 1) / nb_channels / sample_rate);
+double samples_to_seconds(int nb_samples, int nb_channels, int sample_rate) {
+  return (double(nb_samples) / double(nb_channels) / double(sample_rate));
 }
 
-void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int nb_bytes, QVector<Clip*> nests) {
+int samples_to_bytes(int nb_samples, int nb_channels) {
+  return nb_samples * nb_channels * sizeof(float);
+}
+
+void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int nb_samples, int nb_channels, QVector<Clip*> nests) {
   // perform all audio effects
   double timecode_end;
-  timecode_end = timecode_start + bytes_to_seconds(nb_bytes, frame->channels, frame->sample_rate);
+  timecode_end = timecode_start + samples_to_seconds(nb_samples, frame->channels, frame->sample_rate);
 
   for (int j=0;j<clip->effects.size();j++) {
-    Effect* e = clip->effects.at(j).get();
+    Node* e = clip->effects.at(j).get();
     if (e->IsEnabled()) {
-      e->process_audio(timecode_start, timecode_end, frame->data[0], nb_bytes, 2);
+      e->process_audio(timecode_start, timecode_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionNone);
     }
   }
   if (clip->opening_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-      double transition_start = (clip->clip_in(true) / clip->sequence->frame_rate);
-      double transition_end = (clip->clip_in(true) + clip->opening_transition->get_length()) / clip->sequence->frame_rate;
+      double transition_start = (clip->clip_in(true) / clip->track()->sequence()->frame_rate);
+      double transition_end = (clip->clip_in(true) + clip->opening_transition->get_length()) / clip->track()->sequence()->frame_rate;
       if (timecode_end < transition_end) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
         double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-        clip->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionOpening);
+        clip->opening_transition->process_audio(adjusted_range_start, adjusted_range_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionOpening);
       }
     }
   }
   if (clip->closing_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
       long length_with_transitions = clip->timeline_out(true) - clip->timeline_in(true);
-      double transition_start = (clip->clip_in(true) + length_with_transitions - clip->closing_transition->get_length()) / clip->sequence->frame_rate;
-      double transition_end = (clip->clip_in(true) + length_with_transitions) / clip->sequence->frame_rate;
+      double transition_start = (clip->clip_in(true) + length_with_transitions - clip->closing_transition->get_length()) / clip->track()->sequence()->frame_rate;
+      double transition_end = (clip->clip_in(true) + length_with_transitions) / clip->track()->sequence()->frame_rate;
       if (timecode_start > transition_start) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
         double adjusted_range_end = (timecode_end - transition_start) / adjustment;
-        clip->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, frame->data[0], nb_bytes, kTransitionClosing);
+        clip->closing_transition->process_audio(adjusted_range_start, adjusted_range_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionClosing);
       }
     }
   }
@@ -93,9 +97,10 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
     Clip* next_nest = nests.last();
     nests.removeLast();
     apply_audio_effects(next_nest,
-                        timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->sequence->frame_rate),
+                        timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->track()->sequence()->frame_rate),
                         frame,
-                        nb_bytes,
+                        nb_samples,
+                        nb_channels,
                         nests);
   }
 }
@@ -122,16 +127,16 @@ void Cacher::CacheAudioWorker() {
   bool reverse_audio = IsReversed();
 
   long frame_skip = 0;
-  double last_fr = clip->sequence->frame_rate;
+  double last_fr = clip->track()->sequence()->frame_rate;
   if (!nests_.isEmpty()) {
     for (int i=nests_.size()-1;i>=0;i--) {
-      timeline_in = rescale_frame_number(timeline_in, last_fr, nests_.at(i)->sequence->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
-      timeline_out = rescale_frame_number(timeline_out, last_fr, nests_.at(i)->sequence->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
-      target_frame = rescale_frame_number(target_frame, last_fr, nests_.at(i)->sequence->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      timeline_in = rescale_frame_number(timeline_in, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      timeline_out = rescale_frame_number(timeline_out, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      target_frame = rescale_frame_number(target_frame, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
 
       timeline_out = qMin(timeline_out, nests_.at(i)->timeline_out(true));
 
-      frame_skip = rescale_frame_number(frame_skip, last_fr, nests_.at(i)->sequence->frame_rate);
+      frame_skip = rescale_frame_number(frame_skip, last_fr, nests_.at(i)->track()->sequence()->frame_rate);
 
       long validator = nests_.at(i)->timeline_in(true) - timeline_in;
       if (validator > 0) {
@@ -139,12 +144,13 @@ void Cacher::CacheAudioWorker() {
         //timeline_in = nests_.at(i)->timeline_in(true);
       }
 
-      last_fr = nests_.at(i)->sequence->frame_rate;
+      last_fr = nests_.at(i)->track()->sequence()->frame_rate;
     }
   }
 
   if (temp_reverse) {
-    long seq_end = olive::ActiveSequence->getEndFrame();
+    // FIXME breakable?
+    long seq_end = Timeline::GetTopSequence()->GetEndFrame();
     timeline_in = seq_end - timeline_in;
     timeline_out = seq_end - timeline_out;
     target_frame = seq_end - target_frame;
@@ -156,16 +162,16 @@ void Cacher::CacheAudioWorker() {
 
   while (true) {
     AVFrame* frame;
-    int nb_bytes = INT_MAX;
+    int nb_samples = INT_MAX;
 
     if (clip->media() == nullptr) {
       frame = frame_;
-      nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
-      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+      nb_samples = frame->nb_samples;
+      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_samples) && nb_samples > 0) {
         // create "new frame"
-        memset(frame_->data[0], 0, nb_bytes);
-        apply_audio_effects(clip, bytes_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_bytes, nests_);
-        frame_->pts += nb_bytes;
+        memset(frame_->data[0], 0, nb_samples);
+        apply_audio_effects(clip, samples_to_seconds(frame->pts, frame->channels, frame->sample_rate), frame, nb_samples, frame->channels, nests_);
+        frame_->pts += nb_samples;
         frame_sample_index_ = 0;
         if (audio_buffer_write == 0) {
           audio_buffer_write = get_buffer_offset_from_frame(last_fr, qMax(timeline_in, target_frame));
@@ -183,7 +189,7 @@ void Cacher::CacheAudioWorker() {
 
       // retrieve frame
       bool new_frame = false;
-      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_bytes) && nb_bytes > 0) {
+      while ((frame_sample_index_ == -1 || frame_sample_index_ >= nb_samples) && nb_samples > 0) {
 
         // no more audio left in frame, get a new one
         if (!reached_end) {
@@ -337,10 +343,10 @@ void Cacher::CacheAudioWorker() {
         if (frame_sample_index_ < 0) {
           frame_sample_index_ = 0;
         } else {
-          frame_sample_index_ -= nb_bytes;
+          frame_sample_index_ -= nb_samples;
         }
 
-        nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+        nb_samples = frame->nb_samples;
 
         if (audio_just_reset) {
           // get precise sample offset for the elected clip_in from this audio frame
@@ -355,7 +361,7 @@ void Cacher::CacheAudioWorker() {
           dout << "fsts:" << frame_sts << "tsts:" << target_sts << "nbs:" << nb_samples << "nbb:" << nb_bytes << "rev_targetToSec:" << (reverse_target * timebase);
           dout << "fsi-calc:" << frame_sample_index;
 #endif
-          if (reverse_audio) frame_sample_index_ = nb_bytes - frame_sample_index_;
+          if (reverse_audio) frame_sample_index_ = nb_samples - frame_sample_index_;
           audio_just_reset = false;
         }
 
@@ -392,9 +398,19 @@ void Cacher::CacheAudioWorker() {
 #endif
 
       // apply any audio effects to the data
-      if (nb_bytes == INT_MAX) nb_bytes = frame->nb_samples * av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format)) * frame->channels;
+      if (nb_samples == INT_MAX) {
+        nb_samples = frame->nb_samples;
+      }
       if (new_frame) {
-        apply_audio_effects(clip, bytes_to_seconds(audio_buffer_write, 2, current_audio_freq()) + audio_ibuffer_timecode + ((double)clip->clip_in(true)/clip->sequence->frame_rate) - ((double)timeline_in/last_fr), frame, nb_bytes, nests_);
+        apply_audio_effects(clip,
+                            samples_to_seconds(audio_buffer_write, 2, current_audio_freq())
+                              + audio_ibuffer_timecode
+                              + (double(clip->clip_in(true))/clip->track()->sequence()->frame_rate)
+                              - (double(timeline_in)/last_fr),
+                            frame,
+                            nb_samples,
+                            frame->channels,
+                            nests_);
       }
     }
 
@@ -402,29 +418,24 @@ void Cacher::CacheAudioWorker() {
     if (frame->nb_samples == 0) {
       break;
     } else {
-      qint64 buffer_timeline_out = get_buffer_offset_from_frame(clip->sequence->frame_rate, timeline_out);
+      qint64 buffer_timeline_out = get_buffer_offset_from_frame(clip->track()->sequence()->frame_rate, timeline_out);
 
       audio_write_lock.lock();
 
-      int sample_skip = 4*qMax(0, qAbs(playback_speed_)-1);
-      int sample_byte_size = av_get_bytes_per_sample(static_cast<AVSampleFormat>(frame->format));
+      int sample_skip = qMax(0, qAbs(playback_speed_)-1);
 
-      while (frame_sample_index_ < nb_bytes
+      while (frame_sample_index_ < nb_samples
              && audio_buffer_write < audio_ibuffer_read+(audio_ibuffer_size>>1)
              && audio_buffer_write < buffer_timeline_out) {
         for (int i=0;i<frame->channels;i++) {
-          int upper_byte_index = (audio_buffer_write+1)%audio_ibuffer_size;
-          int lower_byte_index = (audio_buffer_write)%audio_ibuffer_size;
-          qint16 old_sample = static_cast<qint16>((audio_ibuffer[upper_byte_index] & 0xFF) << 8 | (audio_ibuffer[lower_byte_index] & 0xFF));
-          qint16 new_sample = static_cast<qint16>((frame->data[0][frame_sample_index_+1] & 0xFF) << 8 | (frame->data[0][frame_sample_index_] & 0xFF));
-          qint16 mixed_sample = mix_audio_sample(old_sample, new_sample);
+          int buffer_index = audio_buffer_write%audio_ibuffer_size;
 
-          audio_ibuffer[upper_byte_index] = quint8((mixed_sample >> 8) & 0xFF);
-          audio_ibuffer[lower_byte_index] = quint8(mixed_sample & 0xFF);
+          audio_ibuffer[buffer_index] += reinterpret_cast<float*>(frame->data[i])[frame_sample_index_];
 
-          audio_buffer_write+=sample_byte_size;
-          frame_sample_index_+=sample_byte_size;
+          audio_buffer_write++;
         }
+
+        frame_sample_index_++;
 
         frame_sample_index_ += sample_skip;
 
@@ -443,7 +454,7 @@ void Cacher::CacheAudioWorker() {
         if (audio_thread != nullptr) audio_thread->notifyReceiver();
       }
 
-      if (frame_sample_index_ >= nb_bytes) {
+      if (frame_sample_index_ >= nb_samples) {
         frame_sample_index_ = -1;
       } else {
         // assume we have no more data to send
@@ -597,15 +608,15 @@ void Cacher::CacheVideoWorker() {
     // For reversed playback, we flip the queue stats as "upcoming" frames are going to be played before the "previous"
     // frames now
     if (reversed) {
-      previous_queue_type = olive::CurrentConfig.upcoming_queue_type;
-      previous_queue_size = olive::CurrentConfig.upcoming_queue_size;
-      upcoming_queue_type = olive::CurrentConfig.previous_queue_type;
-      upcoming_queue_size = olive::CurrentConfig.previous_queue_size;
+      previous_queue_type = olive::config.upcoming_queue_type;
+      previous_queue_size = olive::config.upcoming_queue_size;
+      upcoming_queue_type = olive::config.previous_queue_type;
+      upcoming_queue_size = olive::config.previous_queue_size;
     } else {
-      previous_queue_type = olive::CurrentConfig.previous_queue_type;
-      previous_queue_size = olive::CurrentConfig.previous_queue_size;
-      upcoming_queue_type = olive::CurrentConfig.upcoming_queue_type;
-      upcoming_queue_size = olive::CurrentConfig.upcoming_queue_size;
+      previous_queue_type = olive::config.previous_queue_type;
+      previous_queue_size = olive::config.previous_queue_size;
+      upcoming_queue_type = olive::config.upcoming_queue_type;
+      upcoming_queue_size = olive::config.upcoming_queue_size;
     }
 
     // Determine "previous" queue statistics
@@ -794,7 +805,7 @@ void Cacher::CacheVideoWorker() {
 void Cacher::Reset() {
   // if we seek to a whole other place in the timeline, we'll need to reset the cache with new values
   if (clip->media() == nullptr) {
-    if (clip->track() >= 0) {
+    if (clip->type() == olive::kTypeAudio) {
       // a null-media audio clip is usually an auto-generated sound clip such as Tone or Noise
       reached_end = false;
       audio_target_frame = playhead_;
@@ -859,10 +870,8 @@ Cacher::Cacher(Clip* c) :
 {}
 
 void Cacher::OpenWorker() {
-  qint64 time_start = QDateTime::currentMSecsSinceEpoch();
-
   // set some defaults for the audio cacher
-  if (clip->track() >= 0) {
+  if (clip->type() == olive::kTypeAudio) {
     audio_reset_ = false;
     frame_sample_index_ = -1;
     audio_buffer_write = 0;
@@ -870,10 +879,10 @@ void Cacher::OpenWorker() {
   reached_end = false;
 
   if (clip->media() == nullptr) {
-    if (clip->track() >= 0) {
+    if (clip->type() == olive::kTypeAudio) {
       frame_ = av_frame_alloc();
       frame_->format = kDestSampleFmt;
-      frame_->channel_layout = clip->sequence->audio_layout;
+      frame_->channel_layout = clip->track()->sequence()->audio_layout;
       frame_->channels = av_get_channel_layout_nb_channels(frame_->channel_layout);
       frame_->sample_rate = current_audio_freq();
       frame_->nb_samples = 2048;
@@ -891,7 +900,8 @@ void Cacher::OpenWorker() {
     QByteArray ba;
 
     // do we have a proxy?
-    if (m->proxy
+    if ((!olive::Global->is_exporting() || !olive::config.dont_use_proxies_on_export)
+        && m->proxy
         && !m->proxy_path.isEmpty()
         && QFileInfo::exists(m->proxy_path)) {
       ba = m->proxy_path.toUtf8();
@@ -989,7 +999,26 @@ void Cacher::OpenWorker() {
         last_filter = yadif_filter;
       }
 
-      const char* chosen_format = av_get_pix_fmt_name(kDestPixFmt);
+      AVPixelFormat possible_pix_fmts[] = {
+        AV_PIX_FMT_RGBA,
+        AV_PIX_FMT_RGBA64,
+        AV_PIX_FMT_NONE
+      };
+
+      AVPixelFormat pix_fmt = avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
+                                                                static_cast<AVPixelFormat>(stream->codecpar->format),
+                                                                1,
+                                                                nullptr);
+
+      if (pix_fmt == AV_PIX_FMT_RGBA) {
+        qDebug() << "This is an 8-bit image.";
+        media_pixel_format_ = olive::PIX_FMT_RGBA8;
+      } else {
+        qDebug() << "This is an HDR image.";
+        media_pixel_format_ = olive::PIX_FMT_RGBA16;
+      }
+
+      const char* chosen_format = av_get_pix_fmt_name(pix_fmt);
       snprintf(filter_args, sizeof(filter_args), "pix_fmts=%s", chosen_format);
 
       AVFilterContext* format_conv;
@@ -1011,8 +1040,8 @@ void Cacher::OpenWorker() {
 
         reverse_frame->format = kDestSampleFmt;
         reverse_frame->nb_samples = current_audio_freq()*10;
-        reverse_frame->channel_layout = clip->sequence->audio_layout;
-        reverse_frame->channels = av_get_channel_layout_nb_channels(clip->sequence->audio_layout);
+        reverse_frame->channel_layout = clip->track()->sequence()->audio_layout;
+        reverse_frame->channels = av_get_channel_layout_nb_channels(clip->track()->sequence()->audio_layout);
         av_frame_get_buffer(reverse_frame, 0);
 
         queue_.append(reverse_frame);
@@ -1092,13 +1121,13 @@ void Cacher::OpenWorker() {
     frame_ = av_frame_alloc();
   }
 
-  qInfo() << "Clip opened on track" << clip->track() << "(took" << (QDateTime::currentMSecsSinceEpoch() - time_start) << "ms)";
+  qInfo() << "Clip opened on track" << clip->track();
 
   is_valid_state_ = true;
 }
 
 void Cacher::CacheWorker() {
-  if (clip->track() < 0) {
+  if (clip->type() == olive::kTypeVideo) {
     // clip is a video track, start caching video
     CacheVideoWorker();
   } else {
@@ -1189,7 +1218,7 @@ void Cacher::Open()
   caching_ = true;
   queued_ = false;
 
-  start((clip->track() < 0) ? QThread::HighPriority : QThread::TimeCriticalPriority);
+  start((clip->type() == olive::kTypeVideo) ? QThread::HighPriority : QThread::TimeCriticalPriority);
 }
 
 void Cacher::Cache(long playhead, bool scrubbing, QVector<Clip*>& nests, int playback_speed)
@@ -1336,6 +1365,11 @@ AVRational Cacher::media_time_base()
 ClipQueue *Cacher::queue()
 {
   return &queue_;
+}
+
+const olive::PixelFormat &Cacher::media_pixel_format()
+{
+  return media_pixel_format_;
 }
 
 int Cacher::RetrieveFrameFromDecoder(AVFrame* f) {

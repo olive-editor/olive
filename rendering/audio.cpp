@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -52,10 +52,9 @@ QAudioInput* audio_input = nullptr;
 QFile output_recording;
 bool recording = false;
 
-bool audio_rendering = false;
 int audio_rendering_rate = 0;
 
-qint8 audio_ibuffer[audio_ibuffer_size];
+float audio_ibuffer[audio_ibuffer_size];
 qint64 audio_ibuffer_read = 0;
 long audio_ibuffer_frame = 0;
 double audio_ibuffer_timecode = 0;
@@ -70,7 +69,7 @@ QAudioDeviceInfo get_audio_device(QAudio::Mode mode) {
   QList<QAudioDeviceInfo> devs = QAudioDeviceInfo::availableDevices(mode);
 
   // try to retrieve preferred device from config
-  QString preferred_device = (mode == QAudio::AudioOutput) ? olive::CurrentConfig.preferred_audio_output : olive::CurrentConfig.preferred_audio_input;
+  QString preferred_device = (mode == QAudio::AudioOutput) ? olive::config.preferred_audio_output : olive::config.preferred_audio_input;
   if (!preferred_device.isEmpty()) {
     for (int i=0;i<devs.size();i++) {
       // try to match available devices with preferred device
@@ -99,12 +98,12 @@ void init_audio() {
   stop_audio();
 
   QAudioFormat audio_format;
-  audio_format.setSampleRate(olive::CurrentConfig.audio_rate);
+  audio_format.setSampleRate(olive::config.audio_rate);
   audio_format.setChannelCount(2);
-  audio_format.setSampleSize(16);
+  audio_format.setSampleSize(32);
   audio_format.setCodec("audio/pcm");
   audio_format.setByteOrder(QAudioFormat::LittleEndian);
-  audio_format.setSampleType(QAudioFormat::SignedInt);
+  audio_format.setSampleType(QAudioFormat::Float);
 
   QAudioDeviceInfo info = get_audio_device(QAudio::AudioOutput);
 
@@ -147,19 +146,20 @@ void stop_audio() {
 void clear_audio_ibuffer() {
   if (audio_thread != nullptr) audio_thread->lock.lock();
   audio_write_lock.lock();
-  memset(audio_ibuffer, 0, audio_ibuffer_size);
+  memset(audio_ibuffer, 0, audio_ibuffer_size * sizeof(float));
   audio_ibuffer_read = 0;
   audio_write_lock.unlock();
   if (audio_thread != nullptr) audio_thread->lock.unlock();
 }
 
 int current_audio_freq() {
-  return audio_rendering ? audio_rendering_rate : audio_output->format().sampleRate();
+  return olive::Global->is_exporting()
+      ? audio_rendering_rate : audio_output->format().sampleRate();
 }
 
 qint64 get_buffer_offset_from_frame(double framerate, long frame) {
   if (frame >= audio_ibuffer_frame) {
-    int multiplier = av_get_bytes_per_sample(AV_SAMPLE_FMT_S16)*av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
+    int multiplier = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
     return qFloor((double(frame - audio_ibuffer_frame)/framerate)*current_audio_freq())*multiplier;
   } else {
     qWarning() << "Invalid values passed to get_buffer_offset_from_frame" << frame << "<" << audio_ibuffer_frame;
@@ -191,15 +191,13 @@ void AudioSenderThread::run() {
     if (close) {
       break;
     } else if (panel_sequence_viewer->playing || panel_footage_viewer->playing || audio_scrub) {
-      int written_bytes = 0;
 
-      int adjusted_read_index = audio_ibuffer_read%audio_ibuffer_size;
-      int max_write = audio_ibuffer_size - adjusted_read_index;
+      int adjusted_read_index = (audio_ibuffer_read%audio_ibuffer_size);
+      int max_write = (audio_ibuffer_size - adjusted_read_index) * sizeof(float);
       int actual_write = send_audio_to_output(adjusted_read_index, max_write);
-      written_bytes += actual_write;
       if (actual_write == max_write) {
         // got all the bytes, write again
-        written_bytes += send_audio_to_output(0, audio_ibuffer_size);
+        send_audio_to_output(0, audio_ibuffer_size);
       }
 
       audio_scrub = false;
@@ -210,42 +208,38 @@ void AudioSenderThread::run() {
 
 int AudioSenderThread::send_audio_to_output(qint64 offset, int max) {
   // send audio to device
-  qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(audio_ibuffer)+offset, max);
+  audio_write_lock.lock();
 
-  qint64 audio_ibuffer_limit = audio_ibuffer_read + actual_write;
+  qint64 actual_write = audio_io_device->write(reinterpret_cast<const char*>(&audio_ibuffer[offset]), max);
 
   if (actual_write > 0) {
     // average values and send to audio monitor
     int channels = audio_output->format().channelCount();
-    qint64 lim = offset + actual_write;
-    QVector<double> averages;
+    qint64 lim = offset + (actual_write/sizeof(float));
+    QVector<float> averages;
     averages.resize(channels);
-    averages.fill(0);
+    averages.fill(0.0);
 
-    int counter = 0;
-    qint16 sample;
-    for (qint64 i=offset;i<lim;i+=2) {
-      sample = qint16(((audio_ibuffer[i+1] & 0xFF) << 8) | (audio_ibuffer[i] & 0xFF));
-      averages[counter] = qMax((double(qAbs(sample))/32768.0), averages[counter]);
-      counter = (counter+1)%channels;
-    }
-    for (int i=0;i<channels;i++) {
-      averages[i] = log_volume(1.0-(averages[i]));
+    for (qint64 i=offset;i<lim;i++) {
+      int channel = i%channels;
+      averages[channel] = qMax(qAbs(audio_ibuffer[i]), averages[channel]);
     }
 
-    panel_timeline->audio_monitor->set_value(averages);
+    panel_timeline.first()->audio_monitor->set_value(averages);
   }
 
-  memset(audio_ibuffer+offset, 0, actual_write);
+  memset(&audio_ibuffer[offset], 0, actual_write);
 
-  audio_ibuffer_read = audio_ibuffer_limit;
+  audio_ibuffer_read += (actual_write / sizeof(float));
+
+  audio_write_lock.unlock();
 
   return actual_write;
 }
 
 double log_volume(double linear) {
   // expects a value between 0 and 1 (or more if amplifying)
-  return (qExp(linear)-1)/(M_E-1);
+  return (qExp(linear)-1.0f)/(M_E-1.0f);
 }
 
 void int32_to_char_array(qint32 i, char* array) {
@@ -325,8 +319,7 @@ void write_wave_trailer(QFile& f) {
 }
 
 bool start_recording() {
-  if (olive::ActiveSequence == nullptr) {
-    qCritical() << "No active sequence to record into";
+  if (!olive::Global->CheckForActiveSequence(true)) {
     return false;
   }
 
@@ -356,8 +349,8 @@ bool start_recording() {
   }
 
   QAudioFormat audio_format = audio_output->format();
-  if (olive::CurrentConfig.recording_mode != audio_format.channelCount()) {
-    audio_format.setChannelCount(olive::CurrentConfig.recording_mode);
+  if (olive::config.recording_mode != audio_format.channelCount()) {
+    audio_format.setChannelCount(olive::config.recording_mode);
   }
 
   QAudioDeviceInfo info = get_audio_device(QAudio::AudioInput);

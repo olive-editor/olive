@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -30,6 +30,8 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QSpinBox>
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "project/footage.h"
 #include "project/media.h"
@@ -103,7 +105,7 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
 
     // premultiplied alpha mode
     premultiply_alpha_setting = new QCheckBox(tr("Alpha is Premultiplied"), this);
-    premultiply_alpha_setting->setChecked(f->alpha_is_premultiplied);
+    premultiply_alpha_setting->setChecked(f->alpha_is_associated);
     grid->addWidget(premultiply_alpha_setting, row, 0);
 
     row++;
@@ -112,12 +114,12 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
     interlacing_box = new QComboBox(this);
     interlacing_box->addItem(
           tr("Auto (%1)").arg(
-            get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing)
+            Footage::get_interlacing_name(f->video_tracks.at(0).video_auto_interlacing)
             )
           );
-    interlacing_box->addItem(get_interlacing_name(VIDEO_PROGRESSIVE));
-    interlacing_box->addItem(get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
-    interlacing_box->addItem(get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
+    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_PROGRESSIVE));
+    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_TOP_FIELD_FIRST));
+    interlacing_box->addItem(Footage::get_interlacing_name(VIDEO_BOTTOM_FIELD_FIRST));
 
     interlacing_box->setCurrentIndex(
           (f->video_tracks.at(0).video_auto_interlacing == f->video_tracks.at(0).video_interlacing)
@@ -128,6 +130,28 @@ MediaPropertiesDialog::MediaPropertiesDialog(QWidget *parent, Media *i) :
     grid->addWidget(interlacing_box, row, 1);
 
     row++;
+
+    input_color_space = new QComboBox(this);
+
+    OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+
+    QString footage_colorspace = f->Colorspace();
+
+    for (int i=0;i<config->getNumColorSpaces();i++) {
+      QString colorspace = config->getColorSpaceNameByIndex(i);
+
+      input_color_space->addItem(colorspace);
+
+      if (colorspace == footage_colorspace) {
+        input_color_space->setCurrentIndex(i);
+      }
+    }
+
+    grid->addWidget(new QLabel(tr("Color Space:")), row, 0);
+    grid->addWidget(input_color_space, row, 1);
+
+    row++;
+
   }
 
   name_box = new QLineEdit(item->get_name(), this);
@@ -192,8 +216,10 @@ void MediaPropertiesDialog::accept() {
     }
 
     // set premultiplied alpha
-    f->alpha_is_premultiplied = premultiply_alpha_setting->isChecked();
+    f->alpha_is_associated = premultiply_alpha_setting->isChecked();
   }
+
+  f->SetColorspace(input_color_space->currentText());
 
   // set name
   MediaRename* mr = new MediaRename(item, name_box->text());
@@ -206,7 +232,7 @@ void MediaPropertiesDialog::accept() {
   }
   ca->appendPost(new UpdateViewer());
 
-  olive::UndoStack.push(ca);
+  olive::undo_stack.push(ca);
 
   QDialog::accept();
 }

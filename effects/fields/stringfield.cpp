@@ -1,13 +1,35 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "stringfield.h"
 
 #include <QtMath>
 #include <QDebug>
 
+#include "nodes/node.h"
 #include "ui/texteditex.h"
 #include "global/config.h"
+#include "undo/undo.h"
 
-StringField::StringField(EffectRow* parent, const QString& id, bool rich_text) :
-  EffectField(parent, id, EFFECT_FIELD_STRING),
+StringField::StringField(EffectRow* parent, bool rich_text) :
+  EffectField(parent, EffectField::EFFECT_FIELD_STRING),
   rich_text_(rich_text)
 {
   // Set default value to an empty string
@@ -31,7 +53,7 @@ QWidget *StringField::CreateWidget(QWidget *existing)
     text_edit->setUndoRedoEnabled(true);
 
     // the "2" is because the height needs one extra pixel of padding on the top and the bottom
-    text_edit->setTextHeight(qCeil(text_edit->fontMetrics().lineSpacing()*olive::CurrentConfig.effect_textbox_lines
+    text_edit->setTextHeight(qCeil(text_edit->fontMetrics().lineSpacing()*olive::config.effect_textbox_lines
                                    + text_edit->document()->documentMargin()
                                    + text_edit->document()->documentMargin() + 2));
 
@@ -72,8 +94,8 @@ void StringField::UpdateFromWidget(const QString &s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(Now(), s);
+  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
 
   kdc->SetNewKeyframes();
-  olive::UndoStack.push(kdc);
+  olive::undo_stack.push(kdc);
 }

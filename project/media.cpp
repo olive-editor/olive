@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -33,38 +33,34 @@ extern "C" {
 #include "undo/undo.h"
 #include "undo/undostack.h"
 #include "global/config.h"
-#include "panels/viewer.h"
 #include "panels/project.h"
 #include "ui/icons.h"
 #include "projectmodel.h"
 #include "global/debug.h"
-
-QString get_interlacing_name(int interlacing) {
-  switch (interlacing) {
-  case VIDEO_PROGRESSIVE: return QCoreApplication::translate("InterlacingName", "None (Progressive)");
-  case VIDEO_TOP_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Top Field First");
-  case VIDEO_BOTTOM_FIELD_FIRST: return QCoreApplication::translate("InterlacingName", "Bottom Field First");
-  default: return QCoreApplication::translate("InterlacingName", "Invalid");
-  }
-}
-
-QString get_channel_layout_name(int channels, uint64_t layout) {
-  switch (channels) {
-  case 0: return QCoreApplication::translate("ChannelLayoutName", "Invalid");
-  case 1: return QCoreApplication::translate("ChannelLayoutName", "Mono");
-  case 2: return QCoreApplication::translate("ChannelLayoutName", "Stereo");
-  default: {
-    char buf[50];
-    av_get_channel_layout_string(buf, sizeof(buf), channels, layout);
-    return QString(buf);
-  }
-  }
-}
+#include "global/timing.h"
 
 Media::Media() :
   root(false),
-  type(-1)
+  type(-1),
+  disable_thumbnail_(false)
 {
+}
+
+void Media::Save(QXmlStreamWriter &stream)
+{
+  switch (type) {
+  case MEDIA_TYPE_FOLDER:
+    stream.writeStartElement("folder");
+    stream.writeAttribute("name", get_name());
+    stream.writeEndElement();
+    break;
+  case MEDIA_TYPE_FOOTAGE:
+    to_footage()->Save(stream);
+    break;
+  case MEDIA_TYPE_SEQUENCE:
+    to_sequence()->Save(stream);
+    break;
+  }
 }
 
 Footage* Media::to_footage() {
@@ -154,7 +150,7 @@ void Media::update_tooltip(const QString& error) {
           if (i > 0) {
             tooltip += ", ";
           }
-          tooltip += get_interlacing_name(f->video_tracks.at(i).video_interlacing);
+          tooltip += Footage::get_interlacing_name(f->video_tracks.at(i).video_interlacing);
         }
       }
 
@@ -175,7 +171,7 @@ void Media::update_tooltip(const QString& error) {
           if (i > 0) {
             tooltip += ", ";
           }
-          tooltip += get_channel_layout_name(f->audio_tracks.at(i).audio_channels, f->audio_tracks.at(i).audio_layout);
+          tooltip += Footage::get_channel_layout_name(f->audio_tracks.at(i).audio_channels, f->audio_tracks.at(i).audio_layout);
         }
         // tooltip += "\n";
       }
@@ -198,7 +194,7 @@ void Media::update_tooltip(const QString& error) {
           QString::number(s->height),
           QString::number(s->frame_rate),
           QString::number(s->audio_frequency),
-          get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout)
+          Footage::get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout)
           );
   }
     break;
@@ -228,6 +224,11 @@ void Media::set_name(const QString &n) {
   case MEDIA_TYPE_SEQUENCE: to_sequence()->name = n; break;
   case MEDIA_TYPE_FOLDER: folder_name = n; break;
   }
+}
+
+void Media::disable_thumbnail(bool disable)
+{
+  disable_thumbnail_ = disable;
 }
 
 double Media::get_frame_rate(int stream) {
@@ -265,7 +266,7 @@ bool Media::setData(int col, const QVariant &value) {
   if (col == 0) {
     QString n = value.toString();
     if (!n.isEmpty() && get_name() != n) {
-      olive::UndoStack.push(new MediaRename(this, value.toString()));
+      olive::undo_stack.push(new MediaRename(this, value.toString()));
       return true;
     }
   }
@@ -287,7 +288,7 @@ int Media::columnCount() const {
 QString Media::GetStringDuration() {
   if (get_type() == MEDIA_TYPE_SEQUENCE) {
     Sequence* s = to_sequence().get();
-    return frame_to_timecode(s->getEndFrame(), olive::CurrentConfig.timecode_view, s->frame_rate);
+    return frame_to_timecode(s->GetEndFrame(), olive::config.timecode_view, s->frame_rate);
   }
   if (get_type() == MEDIA_TYPE_FOOTAGE) {
     Footage* f = to_footage();
@@ -297,7 +298,7 @@ QString Media::GetStringDuration() {
       r = f->video_tracks.at(0).video_frame_rate * f->speed;
 
     long len = f->get_length_in_frames(r);
-    if (len > 0) return frame_to_timecode(len, olive::CurrentConfig.timecode_view, r);
+    if (len > 0) return frame_to_timecode(len, olive::config.timecode_view, r);
   }
   return QString();
 }
@@ -308,7 +309,8 @@ QVariant Media::data(int column, int role) {
     if (column == 0) {
       if (get_type() == MEDIA_TYPE_FOOTAGE) {
         Footage* f = to_footage();
-        if (f->video_tracks.size() > 0
+        if (!disable_thumbnail_
+            && f->video_tracks.size() > 0
             && f->video_tracks.at(0).preview_done) {
           return QIcon(QPixmap::fromImage(f->video_tracks.at(0).video_preview));
         }

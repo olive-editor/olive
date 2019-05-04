@@ -1,20 +1,20 @@
 ﻿/***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -47,6 +47,8 @@ class Media
 public:
   Media();
 
+  void Save(QXmlStreamWriter& stream);
+
   Footage *to_footage();
   SequencePtr to_sequence();
   void set_icon(const QString& str);
@@ -60,6 +62,7 @@ public:
   int get_type();
   const QString& get_name();
   void set_name(const QString& n);
+  void disable_thumbnail(bool disable);
 
   double get_frame_rate(int stream = -1);
   int get_sampling_rate(int stream = -1);
@@ -95,6 +98,7 @@ private:
   QString folder_name;
   QString tooltip;
   QIcon icon;
+  bool disable_thumbnail_;
 };
 
 #endif // MEDIA_H

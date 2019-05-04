@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -27,10 +27,10 @@
 
 #include "ui/keyframenavigator.h"
 #include "ui/timelineheader.h"
-#include "ui/timelinetools.h"
+#include "timeline/timelinetools.h"
 #include "ui/labelslider.h"
 #include "ui/graphview.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "effects/effectfields.h"
 #include "effects/effectrow.h"
 #include "timeline/clip.h"
@@ -150,7 +150,7 @@ void GraphEditor::update_panel() {
       for (int i=0;i<row->FieldCount();i++) {
         EffectField* field = row->Field(i);
         if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
-          field->UpdateWidgetValue(field_sliders_.at(slider_index), field->Now());
+          field->UpdateWidgetValue(field_sliders_.at(slider_index), row->GetParentEffect()->Now());
           slider_index++;
         }
       }
@@ -159,6 +159,11 @@ void GraphEditor::update_panel() {
     header->update();
     view->update();
   }
+}
+
+bool GraphEditor::focused()
+{
+  return hasFocus() || view->hasFocus() || header->hasFocus();
 }
 
 void GraphEditor::set_row(EffectRow *r) {
@@ -205,7 +210,7 @@ void GraphEditor::set_row(EffectRow *r) {
   if (found_vals) {
     row = r;
     current_row_desc->setText(row->GetParentEffect()->parent_clip->name()
-                              + " :: " + row->GetParentEffect()->meta->name
+                              + " :: " + row->GetParentEffect()->name()
                               + " :: " + row->name());
     header->set_visible_in(r->GetParentEffect()->parent_clip->timeline_in());
 
@@ -218,14 +223,6 @@ void GraphEditor::set_row(EffectRow *r) {
   }
   view->set_row(row);
   update_panel();
-}
-
-bool GraphEditor::view_is_focused() {
-  return view->hasFocus() || header->hasFocus();
-}
-
-bool GraphEditor::view_is_under_mouse() {
-  return view->underMouse() || header->underMouse();
 }
 
 void GraphEditor::delete_selected_keys() {

@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -62,12 +62,15 @@ struct FootageStream {
   // preview thumbnail/waveform
   bool preview_done;
   QImage video_preview;
-  QVector<char> audio_preview;
+  QVector<qint8> audio_preview;
 };
 
-struct Footage {
+class Footage {
+public:
   Footage();
   ~Footage();
+
+  void Save(QXmlStreamWriter& stream);
 
   // footage metadata
   QString url;
@@ -79,8 +82,12 @@ struct Footage {
   bool ready;
   bool invalid;
   double speed;
-  bool alpha_is_premultiplied;
+  bool alpha_is_associated;
   int start_number;
+
+  // color management
+  QString Colorspace();
+  void SetColorspace(const QString& cs);
 
   // proxy config
   bool proxy;
@@ -102,6 +109,11 @@ struct Footage {
   long get_length_in_frames(double frame_rate);
   FootageStream *get_stream_from_file_index(bool video, int index);
   void reset();
+
+  static QString get_channel_layout_name(int channels, uint64_t layout);
+  static QString get_interlacing_name(int interlacing);
+private:
+  QString colorspace_;
 };
 
 using FootagePtr = std::shared_ptr<Footage>;

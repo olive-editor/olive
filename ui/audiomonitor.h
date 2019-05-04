@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -23,6 +23,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QMutex>
 
 /**
  * @brief The AudioMonitor class
@@ -52,22 +53,29 @@ public:
    * An array of doubles between 0.0 and 1.0 to display the amplitude. 0.0 is no audio, 1.0 is full volume. Each array
    * entry is a channel and the audio monitor will automatically adjust to the channel count in the array.
    */
-  void set_value(const QVector<double>& values);
+  void set_value(const QVector<float> &values);
 
 protected:
   /**
    * @brief Internal paint event
    *
-   * Paints the
+   * Paints the audio monitor
    */
-  void paintEvent(QPaintEvent *);
+  virtual void paintEvent(QPaintEvent *) override;
 
   /**
    * @brief Internal resize event handler
    *
    * Triggers a repaint when the widget is resized.
    */
-  void resizeEvent(QResizeEvent *);
+  virtual void resizeEvent(QResizeEvent *) override;
+
+  /**
+   * @brief Internal mouse press handler
+   *
+   * @param event
+   */
+  virtual void mousePressEvent(QMouseEvent *event) override;
 
 signals:
 
@@ -82,7 +90,14 @@ private:
   /**
    * @brief Internal value storage
    */
-  QVector<double> values;
+  QVector<float> values;
+
+  /**
+   * @brief Value mutex
+   *
+   * Audio is often processed and sent to this object from other threads. To keep them synchronized, we lock them here.
+   */
+  QMutex value_lock;
 
   /**
    * @brief Internal timer to clear the audio monitor after a certain amount of time
@@ -91,6 +106,11 @@ private:
    * monitor is cleared.
    */
   QTimer clear_timer;
+
+  /**
+   * @brief Internal variable for whether audio played as peaked or not
+   */
+  QVector<bool> peaked_;
 
 private slots:
   /**

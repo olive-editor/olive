@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -25,6 +25,7 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include <QDesktopServices>
+#include <QFileDialog>
 #include <QDebug>
 
 #include "ui/menuhelper.h"
@@ -43,6 +44,7 @@
 #include "dialogs/proxydialog.h"
 #include "ui/viewerwidget.h"
 #include "project/proxygenerator.h"
+#include "project/projectfunctions.h"
 #include "ui/mainwindow.h"
 #include "ui/menu.h"
 #include "undo/undostack.h"
@@ -64,14 +66,13 @@ void SourcesCommon::create_seq_from_selected() {
     }
 
     ComboAction* ca = new ComboAction();
-    SequencePtr s = create_sequence_from_media(media_list);
+    SequencePtr s = olive::project::CreateSequenceFromMedia(media_list);
 
-    // add clips to it
-    panel_timeline->create_ghosts_from_media(s.get(), 0, media_list);
-    panel_timeline->add_clips_from_ghosts(ca, s.get());
+    // add clips to it    
+    s->AddClipsFromGhosts(ca, olive::timeline::CreateGhostsFromMedia(s.get(), 0, media_list));
 
-    project_parent->create_sequence_internal(ca, s, true, nullptr);
-    olive::UndoStack.push(ca);
+    olive::project_model.CreateSequence(ca, s, true, nullptr);
+    olive::undo_stack.push(ca);
   }
 }
 
@@ -81,7 +82,7 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
   selected_items = items;
 
   QAction* import_action = menu.addAction(tr("Import..."));
-  QObject::connect(import_action, SIGNAL(triggered(bool)), project_parent, SLOT(import_dialog()));
+  QObject::connect(import_action, SIGNAL(triggered(bool)), olive::Global.get(), SLOT(open_import_dialog()));
 
   Menu* new_menu = new Menu(tr("New"));
   menu.addMenu(new_menu);
@@ -239,6 +240,21 @@ void SourcesCommon::show_context_menu(QWidget* parent, const QModelIndexList& it
   menu.exec(QCursor::pos());
 }
 
+void SourcesCommon::replace_media(MediaPtr item, QString filename)
+{
+  if (filename.isEmpty()) {
+    filename = QFileDialog::getOpenFileName(
+          olive::MainWindow,
+          tr("Replace '%1'").arg(item->get_name()),
+          "",
+          tr("All Files") + " (*)");
+  }
+  if (!filename.isEmpty()) {
+    ReplaceMediaCommand* rmc = new ReplaceMediaCommand(item, filename);
+    olive::undo_stack.push(rmc);
+  }
+}
+
 void SourcesCommon::mousePressEvent(QMouseEvent *) {
   stop_rename_timer();
 }
@@ -255,11 +271,11 @@ void SourcesCommon::item_click(Media *m, const QModelIndex& index) {
 void SourcesCommon::mouseDoubleClickEvent(const QModelIndexList& selected_items) {
   stop_rename_timer();
   if (selected_items.size() == 0) {
-    project_parent->import_dialog();
+    olive::Global->open_import_dialog();
   } else if (selected_items.size() == 1) {
     Media* media = project_parent->item_to_media(selected_items.at(0));
     if (media->get_type() == MEDIA_TYPE_SEQUENCE) {
-      olive::UndoStack.push(new ChangeSequenceAction(media->to_sequence()));
+      Timeline::OpenSequence(media->to_sequence());
     } else {
       OpenSelectedMediaInMediaViewer(project_parent->item_to_media(selected_items.at(0)));
     }
@@ -285,14 +301,14 @@ void SourcesCommon::dropEvent(QWidget* parent,
           && drop_item.isValid()
           && m->get_type() == MEDIA_TYPE_FOOTAGE
           && !QFileInfo(paths.at(0)).isDir()
-          && olive::CurrentConfig.drop_on_media_to_replace
+          && olive::config.drop_on_media_to_replace
           && QMessageBox::question(
             parent,
             tr("Replace Media"),
             tr("You dropped a file onto '%1'. Would you like to replace it with the dropped file?").arg(m->get_name()),
             QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
         replace = true;
-        project_parent->replace_media(m, paths.at(0));
+        replace_media(m, paths.at(0));
       }
       if (!replace) {
         QModelIndex parent;
@@ -303,7 +319,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
             parent = drop_item.parent();
           }
         }
-        project_parent->process_file_list(paths, false, nullptr, panel_project->item_to_media(parent));
+        olive::project_model.process_file_list(paths, false, nullptr, project_parent->item_to_media(parent));
       }
     }
     event->acceptProposedAction();
@@ -342,7 +358,7 @@ void SourcesCommon::dropEvent(QWidget* parent,
         MediaMove* mm = new MediaMove();
         mm->to = m.get();
         mm->items = move_items;
-        olive::UndoStack.push(mm);
+        olive::undo_stack.push(mm);
       }
     }
   }
@@ -386,7 +402,7 @@ void SourcesCommon::rename_interval() {
 void SourcesCommon::item_renamed(Media* item) {
   if (editing_item == item) {
     MediaRename* mr = new MediaRename(item, "idk");
-    olive::UndoStack.push(mr);
+    olive::undo_stack.push(mr);
     editing_item = nullptr;
   }
 }
@@ -430,9 +446,10 @@ void SourcesCommon::clear_proxies_from_selected() {
     f->proxy_path.clear();
   }
 
-  if (olive::ActiveSequence != nullptr) {
+  QVector<Media*> all_sequences = olive::project_model.GetAllSequences();
+  for (int i=0;i<all_sequences.size();i++) {
     // close all clips so we can delete any proxies requested to be deleted
-    close_active_clips(olive::ActiveSequence.get());
+    all_sequences.at(i)->to_sequence()->Close();
   }
 
   // delete proxies requested to be deleted
@@ -440,9 +457,9 @@ void SourcesCommon::clear_proxies_from_selected() {
     QFile::remove(delete_list.at(i));
   }
 
-  if (olive::ActiveSequence != nullptr) {
+  if (panel_sequence_viewer->seq != nullptr) {
     // update viewer (will re-open active clips with original media)
-    panel_sequence_viewer->viewer_widget->frame_update();
+    panel_sequence_viewer->viewer_widget()->frame_update();
   }
 
   olive::Global->set_modified(true);

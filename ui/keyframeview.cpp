@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -23,7 +23,7 @@
 #include <QMouseEvent>
 #include <QtMath>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
 #include "timeline/clip.h"
@@ -42,6 +42,7 @@
 #include "effects/keyframe.h"
 #include "ui/graphview.h"
 #include "ui/menu.h"
+#include "global/math.h"
 
 KeyframeView::KeyframeView(QWidget *parent) :
   QWidget(parent),
@@ -95,7 +96,7 @@ void KeyframeView::menu_set_key_type(QAction* a) {
       EffectField* f = selected_fields.at(i);
       ca->append(new SetInt(&f->keyframes[selected_keyframes.at(i)].type, a->data().toInt()));
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     update_ui(false);
   }
 }
@@ -119,7 +120,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
     for (int j=0;j<open_effects_.size();j++) {
 
       EffectUI* container = open_effects_.at(j);
-      Effect* e = container->GetEffect();
+      Node* e = container->GetEffect();
 
       if (container->IsExpanded()) {
         for (int j=0;j<e->row_count();j++) {
@@ -172,8 +173,9 @@ void KeyframeView::paintEvent(QPaintEvent*) {
     panel_effect_controls->horizontalScrollBar->setMaximum(qMax(max_width - width(), 0));
     header->set_visible_in(visible_in);
 
-    int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom, olive::ActiveSequence->playhead-visible_in) - x_scroll;
-    if (dragging && panel_timeline->snapped) {
+    int playhead_x = getScreenPointFromFrame(panel_effect_controls->zoom,
+                                             open_effects_.first()->GetEffect()->parent_clip->track()->sequence()->playhead-visible_in) - x_scroll;
+    if (dragging && olive::timeline::snapped) {
       p.setPen(Qt::white);
     } else {
       p.setPen(Qt::red);
@@ -182,7 +184,7 @@ void KeyframeView::paintEvent(QPaintEvent*) {
   }
 
   if (select_rect) {
-    draw_selection_rectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
+    olive::ui::DrawSelectionRectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
   }
 
   /*if (mouseover && mouseover_row < rowY.size()) {
@@ -234,7 +236,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
   rect_select_w = 0;
   rect_select_h = 0;
 
-  if (panel_timeline->tool == TIMELINE_TOOL_HAND || event->buttons() & Qt::MiddleButton) {
+  if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND || event->buttons() & Qt::MiddleButton) {
     scroll_drag = true;
     return;
   }
@@ -323,7 +325,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
-  if (panel_timeline->tool == TIMELINE_TOOL_HAND) {
+  if (olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND) {
     setCursor(Qt::OpenHandCursor);
   } else {
     unsetCursor();
@@ -376,14 +378,14 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
       long frame_diff = current_frame - drag_frame_start;
 
       // snapping to playhead
-      panel_timeline->snapped = false;
-      if (panel_timeline->snapping) {
+      olive::timeline::snapped = false;
+      if (olive::timeline::snapping) {
         for (int i=0;i<selected_keyframes.size();i++) {
           EffectField* field = selected_fields.at(i);
           Clip* c = field->GetParentRow()->GetParentEffect()->parent_clip;
           long key_time = old_key_vals.at(i) + frame_diff - c->clip_in() + c->timeline_in();
           long key_eval = key_time;
-          if (panel_timeline->snap_to_point(olive::ActiveSequence->playhead, &key_eval)) {
+          if (olive::timeline::SnapToPoint(c->track()->sequence()->playhead, &key_eval, header->get_zoom())) {
             frame_diff += (key_eval - key_time);
             break;
           }
@@ -398,10 +400,10 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
           while (!keyframeIsSelected(field, j) && field->keyframes.at(j).time == eval_key + frame_diff) {
             if (last_frame_diff > frame_diff) {
               frame_diff++;
-              panel_timeline->snapped = false;
+              olive::timeline::snapped = false;
             } else {
               frame_diff--;
-              panel_timeline->snapped = false;
+              olive::timeline::snapped = false;
             }
           }
         }
@@ -432,13 +434,13 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
                  selected_fields.at(i)->keyframes.at(selected_keyframes.at(i)).time
                  ));
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
   }
 
   select_rect = false;
   dragging = false;
   mousedown = false;
   scroll_drag = false;
-  panel_timeline->snapped = false;
+  olive::timeline::snapped = false;
   update_ui(false);
 }

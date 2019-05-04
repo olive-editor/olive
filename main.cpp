@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,6 +24,7 @@
 #include "global/config.h"
 #include "global/global.h"
 #include "panels/timeline.h"
+#include "rendering/pixelformats.h"
 #include "ui/mediaiconservice.h"
 #include "ui/mainwindow.h"
 
@@ -58,7 +59,6 @@ int main(int argc, char *argv[]) {
                  "\t-f, --fullscreen\tStart in full screen mode\n"
                  "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
                  "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
-                 "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
                  "\t--translation <file>\tSet an external language file to use\n"
                  "\n"
                  "Environment Variables:\n"
@@ -70,15 +70,13 @@ int main(int argc, char *argv[]) {
         } else if (!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f")) {
           launch_fullscreen = true;
         } else if (!strcmp(argv[i], "--disable-shaders")) {
-          olive::CurrentRuntimeConfig.shaders_are_enabled = false;
+          olive::runtime_config.shaders_are_enabled = false;
         } else if (!strcmp(argv[i], "--no-debug")) {
           use_internal_logger = false;
-        } else if (!strcmp(argv[i], "--disable-blend-modes")) {
-          olive::CurrentRuntimeConfig.disable_blending = true;
         } else if (!strcmp(argv[i], "--translation")) {
           if (i + 1 < argc && argv[i + 1][0] != '-') {
             // load translation file
-            olive::CurrentRuntimeConfig.external_translation_file = argv[i + 1];
+            olive::runtime_config.external_translation_file = argv[i + 1];
 
             i++;
           } else {
@@ -112,7 +110,9 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
   QSurfaceFormat format;
+  format.setVersion(3, 2);
   format.setDepthBufferSize(24);
+  format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
   QApplication a(argc, argv);
@@ -135,6 +135,9 @@ int main(int argc, char *argv[]) {
   // multiply track height constants by the current DPI scale
   olive::timeline::MultiplyTrackSizesByDPI();
 
+  // set up rendering bit depths
+  olive::InitializePixelFormats();
+
   // connect main window's first paint to global's init finished function
   QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()), Qt::QueuedConnection);
 
@@ -147,5 +150,5 @@ int main(int argc, char *argv[]) {
     w.showMaximized();
   }
 
-  return a.exec();
+    return a.exec();
 }

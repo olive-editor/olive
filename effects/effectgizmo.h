@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -27,25 +27,26 @@ enum GizmoType {
   GIZMO_TYPE_TARGET
 };
 
-#define GIZMO_DOT_SIZE 2.5
-#define GIZMO_TARGET_SIZE 5.0
+#define GIZMO_DOT_SIZE 2.5f
+#define GIZMO_TARGET_SIZE 5.0f
 
 #include <QObject>
 #include <QString>
 #include <QRect>
 #include <QPoint>
 #include <QVector>
+#include <QVector3D>
 #include <QColor>
 
 class DoubleField;
-class Effect;
+class Node;
 
 class EffectGizmo : public QObject {
   Q_OBJECT
 public:
-  EffectGizmo(Effect* parent, int type);
+  EffectGizmo(Node* parent, int type);
 
-  QVector<QPoint> world_pos;
+  QVector<QVector3D> world_pos;
   QVector<QPoint> screen_pos;
 
   DoubleField* x_field1;

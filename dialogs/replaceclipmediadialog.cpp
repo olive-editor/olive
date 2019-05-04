@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -95,7 +95,10 @@ void ReplaceClipMediaDialog::accept() {
             QMessageBox::Ok
             );
     } else {
-      if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && olive::ActiveSequence == new_item->to_sequence()) {
+
+      SequencePtr top_sequence = Timeline::GetTopSequence();
+
+      if (new_item->get_type() == MEDIA_TYPE_SEQUENCE && top_sequence == new_item->to_sequence()) {
         QMessageBox::critical(
               this,
               tr("Active sequence selected"),
@@ -109,14 +112,15 @@ void ReplaceClipMediaDialog::accept() {
               use_same_media_in_points->isChecked()
               );
 
-        for (int i=0;i<olive::ActiveSequence->clips.size();i++) {
-          ClipPtr c = olive::ActiveSequence->clips.at(i);
-          if (c != nullptr && c->media() == media) {
+        QVector<Clip*> all_clips = top_sequence->GetAllClips();
+        for (int i=0;i<all_clips.size();i++) {
+          Clip* c = all_clips.at(i);
+          if (c->media() == media) {
             rcmc->clips.append(c);
           }
         }
 
-        olive::UndoStack.push(rcmc);
+        olive::undo_stack.push(rcmc);
 
         QDialog::accept();
       }

@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -93,14 +93,14 @@ void FocusFilter::go_to_end() {
 
 void FocusFilter::set_viewer_fullscreen() {
   if (get_focused_panel() == panel_footage_viewer) {
-    panel_footage_viewer->viewer_widget->set_fullscreen();
+    panel_footage_viewer->viewer_widget()->set_fullscreen();
   } else {
-    panel_sequence_viewer->viewer_widget->set_fullscreen();
+    panel_sequence_viewer->viewer_widget()->set_fullscreen();
   }
 }
 
 void FocusFilter::set_marker() {
-  if (olive::ActiveSequence != nullptr) {
+  if (Timeline::GetTopSequence() != nullptr) {
     QDockWidget* focused_panel = get_focused_panel();
 
     if (focused_panel == panel_footage_viewer) {
@@ -108,7 +108,7 @@ void FocusFilter::set_marker() {
     } else if (focused_panel == panel_sequence_viewer) {
       panel_sequence_viewer->set_marker();
     } else {
-      panel_timeline->set_marker();
+      panel_timeline.first()->set_marker();
     }
   }
 }
@@ -190,28 +190,34 @@ void FocusFilter::clear_inout() {
 }
 
 void FocusFilter::delete_function() {
-  if (panel_timeline->headers->hasFocus()) {
-    panel_timeline->headers->delete_markers();
+  if (panel_timeline.first()->headers->hasFocus()) {
+    panel_timeline.first()->headers->delete_markers();
   } else if (panel_footage_viewer->headers->hasFocus()) {
     panel_footage_viewer->headers->delete_markers();
   } else if (panel_sequence_viewer->headers->hasFocus()) {
     panel_sequence_viewer->headers->delete_markers();
-  } else if (panel_effect_controls->is_focused()) {
+  } else if (panel_effect_controls->focused()) {
     panel_effect_controls->DeleteSelectedEffects();
-  } else if (panel_project->is_focused()) {
-    panel_project->delete_selected_media();
-  } else if (panel_effect_controls->keyframe_focus()) {
+  } else if (panel_project.first()->focused()) {
+    panel_project.first()->delete_selected_media();
+  } else if (panel_effect_controls->focused()) {
     panel_effect_controls->delete_selected_keyframes();
-  } else if (panel_graph_editor->view_is_focused()) {
+  } else if (panel_graph_editor->focused()) {
     panel_graph_editor->delete_selected_keys();
   } else {
-    panel_timeline->delete_selection(olive::ActiveSequence->selections, false);
+    Sequence* top_sequence = Timeline::GetTopSequence().get();
+    if (top_sequence != nullptr) {
+      ComboAction* ca = new ComboAction();
+      top_sequence->DeleteAreas(ca, top_sequence->Selections(), true);
+      olive::undo_stack.push(ca);
+      update_ui(false);
+    }
   }
 }
 
 void FocusFilter::duplicate() {
-  if (panel_project->is_focused()) {
-    panel_project->duplicate_selected();
+  if (panel_project.first()->focused()) {
+    panel_project.first()->duplicate_selected();
   }
 }
 
@@ -220,7 +226,7 @@ void FocusFilter::select_all() {
   if (focused_panel == panel_graph_editor) {
     panel_graph_editor->select_all();
   } else {
-    panel_timeline->select_all();
+    panel_timeline.first()->select_all();
   }
 }
 
@@ -233,7 +239,7 @@ void FocusFilter::zoom_in() {
   } else if (focused_panel == panel_sequence_viewer) {
     panel_sequence_viewer->set_zoom(true);
   } else {
-    panel_timeline->zoom_in();
+    panel_timeline.first()->zoom_in();
   }
 }
 
@@ -246,28 +252,28 @@ void FocusFilter::zoom_out() {
   } else if (focused_panel == panel_sequence_viewer) {
     panel_sequence_viewer->set_zoom(false);
   } else {
-    panel_timeline->zoom_out();
+    panel_timeline.first()->zoom_out();
   }
 }
 
 void FocusFilter::cut() {
-  if (olive::ActiveSequence != nullptr) {
+  if (Timeline::GetTopSequence() != nullptr) {
     QDockWidget* focused_panel = get_focused_panel();
     if (panel_effect_controls == focused_panel) {
       panel_effect_controls->copy(true);
     } else {
-      panel_timeline->copy(true);
+      panel_timeline.first()->copy(true);
     }
   }
 }
 
 void FocusFilter::copy() {
-  if (olive::ActiveSequence != nullptr) {
+  if (Timeline::GetTopSequence() != nullptr) {
     QDockWidget* focused_panel = get_focused_panel();
     if (panel_effect_controls == focused_panel) {
       panel_effect_controls->copy(false);
     } else {
-      panel_timeline->copy(false);
+      panel_timeline.first()->copy(false);
     }
   }
 }

@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -32,21 +32,18 @@
 #include "panels/timeline.h"
 #include "global/debug.h"
 
-ShakeEffect::ShakeEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  SetFlags(Effect::CoordsFlag);
+ShakeEffect::ShakeEffect(Clip* c) : Node(c) {
+  SetFlags(Node::CoordsFlag);
 
-  EffectRow* intensity_row = new EffectRow(this, tr("Intensity"));
-  intensity_val = new DoubleField(intensity_row, "intensity");
+  intensity_val = new DoubleInput(this, "intensity", tr("Intensity"));
   intensity_val->SetMinimum(0);
   intensity_val->SetDefault(25);
 
-  EffectRow* rotation_row = new EffectRow(this, tr("Rotation"));
-  rotation_val = new DoubleField(rotation_row, "rotation");
+  rotation_val = new DoubleInput(this, "rotation", tr("Rotation"));
   rotation_val->SetMinimum(0);
   rotation_val->SetDefault(10);
 
-  EffectRow* frequency_row = new EffectRow(this, tr("Frequency"));
-  frequency_val = new DoubleField(frequency_row, "frequency");
+  frequency_val = new DoubleInput(this, "frequency", tr("Frequency"));
   frequency_val->SetMinimum(0);
   frequency_val->SetDefault(5);
 
@@ -78,15 +75,42 @@ void ShakeEffect::process_coords(double timecode, GLTextureCoords& coords, int) 
   yoff *= multiplier;
   rotoff *= rotmult;
 
-  coords.vertexTopLeftX += xoff;
-  coords.vertexTopRightX += xoff;
-  coords.vertexBottomLeftX += xoff;
-  coords.vertexBottomRightX += xoff;
+  coords.matrix.translate(xoff, yoff, 0.0);
 
-  coords.vertexTopLeftY += yoff;
-  coords.vertexTopRightY += yoff;
-  coords.vertexBottomLeftY += yoff;
-  coords.vertexBottomRightY += yoff;
+  coords.matrix.rotate(QQuaternion::fromEulerAngles(0.0f, 0.0f, rotoff));
+}
 
-  glRotatef(rotoff, 0, 0, 1);
+QString ShakeEffect::name()
+{
+  return tr("Shake");
+}
+
+QString ShakeEffect::id()
+{
+  return "org.olivevideoeditor.Olive.shake";
+}
+
+QString ShakeEffect::category()
+{
+  return tr("Distort");
+}
+
+QString ShakeEffect::description()
+{
+  return tr("Simulate a camera shake movement.");
+}
+
+EffectType ShakeEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType ShakeEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr ShakeEffect::Create(Clip *c)
+{
+  return std::make_shared<ShakeEffect>(c);
 }

@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,28 +24,57 @@
 #include <QDialog>
 #include <QLibrary>
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "include/vestige.h"
 
 // Plugin's dispatcher function
 typedef intptr_t (*dispatcherFuncPtr)(AEffect *effect, int32_t opCode, int32_t index, int32_t value, void *ptr, float opt);
 
-class VSTHost : public Effect {
+class SampleCache {
+public:
+  SampleCache(int block_size);
+  ~SampleCache();
+
+  void Create(int channels);
+  void SetZero();
+
+  float** data();
+private:
+  int channel_count_;
+  int block_size_;
+  float** array_;
+  void destroy();
+};
+
+class VSTHost : public Node {
   Q_OBJECT
 public:
-  VSTHost(Clip* c, const EffectMeta* em);
-  ~VSTHost();
-  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  VSTHost(Clip* c);
+  virtual ~VSTHost() override;
 
-  void custom_load(QXmlStreamReader& stream);
-  void save(QXmlStreamWriter& stream);
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
+  virtual void process_audio(double timecode_start,
+                             double timecode_end,
+                             float **samples,
+                             int nb_samples,
+                             int channel_count,
+                             int type) override;
+
+  virtual void custom_load(QXmlStreamReader& stream) override;
+  virtual void save(QXmlStreamWriter& stream) override;
 private slots:
   void show_interface(bool show);
   void uncheck_show_button();
   void change_plugin();
 private:
-  FileField* file_field;
-  ButtonField* show_interface_btn;
+  FileInput* file_field;
+  ButtonWidget* show_interface_btn;
 
   void loadPlugin();
   void freePlugin();
@@ -57,12 +86,11 @@ private:
   void resumePlugin();
   void suspendPlugin();
   bool canPluginDo(char *canDoString);
-  void processAudio(long numFrames);
   void CreateDialogIfNull();
-  float** inputs;
-  float** outputs;
   QDialog* dialog;
   QByteArray data_cache;
+  SampleCache input_cache;
+  SampleCache output_cache;
 
   void send_data_cache_to_plugin();
 

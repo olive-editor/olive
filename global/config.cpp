@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -29,12 +29,11 @@
 
 #include "debug.h"
 
-Config olive::CurrentConfig;
-RuntimeConfig olive::CurrentRuntimeConfig;
+Config olive::config;
+RuntimeConfig olive::runtime_config;
 
 Config::Config()
-  : show_track_lines(true),
-    scroll_zooms(false),
+  : scroll_zooms(false),
     edit_tool_selects_links(false),
     edit_tool_also_seeks(false),
     select_also_seeks(false),
@@ -72,6 +71,7 @@ Config::Config()
     thumbnail_resolution(120),
     add_default_effects_to_clips(true),
     invert_timeline_scroll_axes(true),
+    enable_color_management(false),
     style(olive::styling::kOliveDefaultDark),
     use_native_menu_styling(true),
     default_sequence_width(1920),
@@ -79,6 +79,10 @@ Config::Config()
     default_sequence_framerate(29.97),
     default_sequence_audio_frequency(48000),
     default_sequence_audio_channel_layout(3),
+    playback_bit_depth(olive::PIX_FMT_RGBA16F),
+    export_bit_depth(olive::PIX_FMT_RGBA32F),
+    dont_use_proxies_on_export(true),
+    maximum_recent_projects(10),
     locked_panels(false)
 {}
 
@@ -90,10 +94,7 @@ void Config::load(QString path) {
     while (!stream.atEnd()) {
       stream.readNext();
       if (stream.isStartElement()) {
-        if (stream.name() == "ShowTrackLines") {
-          stream.readNext();
-          show_track_lines = (stream.text() == "1");
-        } else if (stream.name() == "ScrollZooms") {
+        if (stream.name() == "ScrollZooms") {
           stream.readNext();
           scroll_zooms = (stream.text() == "1");
         } else if (stream.name() == "InvertTimelineScrollAxes") {
@@ -219,6 +220,24 @@ void Config::load(QString path) {
         } else if (stream.name() == "AddDefaultEffectsToClips") {
           stream.readNext();
           add_default_effects_to_clips = (stream.text() == "1");
+        } else if (stream.name() == "EnableColorManagement") {
+          stream.readNext();
+          enable_color_management = (stream.text() == "1");
+        } else if (stream.name() == "OCIOConfigPath") {
+          stream.readNext();
+          ocio_config_path = stream.text().toString();
+        } else if (stream.name() == "OCIODisplay") {
+          stream.readNext();
+          ocio_display = stream.text().toString();
+        } else if (stream.name() == "OCIOView") {
+          stream.readNext();
+          ocio_view = stream.text().toString();
+        } else if (stream.name() == "OCIOLook") {
+          stream.readNext();
+          ocio_look = stream.text().toString();
+        } else if (stream.name() == "OCIODefaultInput") {
+          stream.readNext();
+          ocio_default_input_colorspace = stream.text().toString();
         } else if (stream.name() == "Style") {
           stream.readNext();
           style = static_cast<olive::styling::Style>(stream.text().toInt());
@@ -240,6 +259,15 @@ void Config::load(QString path) {
         } else if (stream.name() == "DefaultSequenceAudioLayout") {
           stream.readNext();
           default_sequence_audio_channel_layout = stream.text().toInt();
+        } else if (stream.name() == "PlaybackBitDepth") {
+          stream.readNext();
+          playback_bit_depth = stream.text().toInt();
+        } else if (stream.name() == "ExportBitDepth") {
+          stream.readNext();
+          export_bit_depth = stream.text().toInt();
+        } else if (stream.name() == "DontUseProxiesOnExport") {
+          stream.readNext();
+          dont_use_proxies_on_export = (stream.text() == "1");
         } else if (stream.name() == "LockedPanels") {
           stream.readNext();
           locked_panels = (stream.text() == "1");
@@ -267,7 +295,6 @@ void Config::save(QString path) {
   stream.writeStartElement("Configuration"); // configuration
 
   stream.writeTextElement("Version", QString::number(olive::kSaveVersion));
-  stream.writeTextElement("ShowTrackLines", QString::number(show_track_lines));
   stream.writeTextElement("ScrollZooms", QString::number(scroll_zooms));
   stream.writeTextElement("InvertTimelineScrollAxes", QString::number(invert_timeline_scroll_axes));
   stream.writeTextElement("EditToolSelectsLinks", QString::number(edit_tool_selects_links));
@@ -292,7 +319,7 @@ void Config::save(QString path) {
   stream.writeTextElement("HoverFocus", QString::number(hover_focus));
   stream.writeTextElement("ProjectViewType", QString::number(project_view_type));
   stream.writeTextElement("SetNameWithMarker", QString::number(set_name_with_marker));
-  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project->IsToolbarVisible()));
+  stream.writeTextElement("ShowProjectToolbar", QString::number(panel_project.first()->IsToolbarVisible()));
   stream.writeTextElement("PreviousFrameQueueSize", QString::number(previous_queue_size));
   stream.writeTextElement("PreviousFrameQueueType", QString::number(previous_queue_type));
   stream.writeTextElement("UpcomingFrameQueueSize", QString::number(upcoming_queue_size));
@@ -310,6 +337,12 @@ void Config::save(QString path) {
   stream.writeTextElement("ThumbnailResolution", QString::number(thumbnail_resolution));
   stream.writeTextElement("WaveformResolution", QString::number(waveform_resolution));
   stream.writeTextElement("AddDefaultEffectsToClips", QString::number(add_default_effects_to_clips));
+  stream.writeTextElement("EnableColorManagement", QString::number(enable_color_management));
+  stream.writeTextElement("OCIOConfigPath", ocio_config_path);
+  stream.writeTextElement("OCIODisplay", ocio_display);
+  stream.writeTextElement("OCIOView", ocio_view);
+  stream.writeTextElement("OCIOLook", ocio_look);
+  stream.writeTextElement("OCIODefaultInput", ocio_default_input_colorspace);
   stream.writeTextElement("Style", QString::number(style));
   stream.writeTextElement("NativeMenuStyling", QString::number(use_native_menu_styling));
   stream.writeTextElement("DefaultSequenceWidth", QString::number(default_sequence_width));
@@ -317,6 +350,9 @@ void Config::save(QString path) {
   stream.writeTextElement("DefaultSequenceFrameRate", QString::number(default_sequence_framerate));
   stream.writeTextElement("DefaultSequenceAudioFrequency", QString::number(default_sequence_audio_frequency));
   stream.writeTextElement("DefaultSequenceAudioLayout", QString::number(default_sequence_audio_channel_layout));
+  stream.writeTextElement("PlaybackBitDepth", QString::number(playback_bit_depth));
+  stream.writeTextElement("ExportBitDepth", QString::number(export_bit_depth));
+  stream.writeTextElement("DontUseProxiesOnExport", QString::number(dont_use_proxies_on_export));
   stream.writeTextElement("LockedPanels", QString::number(locked_panels));
 
   stream.writeEndElement(); // configuration
@@ -325,6 +361,5 @@ void Config::save(QString path) {
 }
 
 RuntimeConfig::RuntimeConfig() :
-  shaders_are_enabled(true),
-  disable_blending(false)
+  shaders_are_enabled(true)
 {}

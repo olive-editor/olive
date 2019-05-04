@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,33 +24,23 @@
 #include <QtMath>
 
 #include "rendering/renderfunctions.h"
-
 #include "global/config.h"
-
+#include "global/timing.h"
 #include "effects/effectrow.h"
-#include "effects/effect.h"
-
+#include "nodes/node.h"
 #include "undo/undo.h"
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
-
 #include "global/math.h"
-
 #include "global/debug.h"
 
-EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t) :
+EffectField::EffectField(EffectRow* parent, EffectFieldType t) :
   QObject(parent),
   type_(t),
-  id_(i),
-  enabled_(true),
-  colspan_(1)
+  enabled_(true)
 {
   // EffectField MUST be created with a parent.
   Q_ASSERT(parent != nullptr);
-  Q_ASSERT(!i.isEmpty() || t == EFFECT_FIELD_UI);
-
-  // Add this field to the parent row specified
-  parent->AddField(this);
 
   // Set a very base default value
   SetValueAt(0, 0);
@@ -62,17 +52,6 @@ EffectField::EffectField(EffectRow* parent, const QString &i, EffectFieldType t)
 EffectRow *EffectField::GetParentRow()
 {
   return static_cast<EffectRow*>(parent());
-}
-
-int EffectField::GetColumnSpan()
-{
-  return colspan_;
-}
-
-void EffectField::SetColumnSpan(int i)
-{
-  Q_ASSERT(i >= 1);
-  colspan_ = i;
 }
 
 QVariant EffectField::ConvertStringToValue(const QString &s)
@@ -175,7 +154,9 @@ QVariant EffectField::GetValueAt(double timecode)
       } else {
         QColor before_data = keyframes.at(before_keyframe).data.value<QColor>();
         QColor after_data = keyframes.at(after_keyframe).data.value<QColor>();
-        value = QColor(lerp(before_data.red(), after_data.red(), progress), lerp(before_data.green(), after_data.green(), progress), lerp(before_data.blue(), after_data.blue(), progress));
+        value = QColor(lerp(before_data.red(), after_data.red(), progress),
+                       lerp(before_data.green(), after_data.green(), progress),
+                       lerp(before_data.blue(), after_data.blue(), progress));
       }
       persistent_data_ = value;
       break;
@@ -234,18 +215,6 @@ void EffectField::SetValueAt(double time, const QVariant &value)
   emit Changed();
 }
 
-double EffectField::Now()
-{
-  Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
-  return playhead_to_clip_seconds(c, c->sequence->playhead);
-}
-
-long EffectField::NowInFrames()
-{
-  Clip* c = GetParentRow()->GetParentEffect()->parent_clip;
-  return playhead_to_clip_frame(c, c->sequence->playhead);
-}
-
 void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
 {
   if (enabled) {
@@ -253,7 +222,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Create keyframe from perpetual data
     EffectKeyframe key;
 
-    key.time = NowInFrames();
+    key.time = GetParentRow()->GetParentEffect()->NowInFrames();
     key.data = persistent_data_;
     key.type = EFFECT_KEYFRAME_LINEAR;
 
@@ -266,7 +235,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Convert keyframes to one "perpetual" keyframe
 
     // Set first keyframe to whatever the data is now
-    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(Now())));
+    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(GetParentRow()->GetParentEffect()->Now())));
 
     // Delete all keyframes
     for (int i=0;i<keyframes.size();i++) {
@@ -279,11 +248,6 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
 const EffectField::EffectFieldType &EffectField::type()
 {
   return type_;
-}
-
-const QString &EffectField::id()
-{
-  return id_;
 }
 
 double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
@@ -333,11 +297,11 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
 }
 
 double EffectField::FrameToSeconds(long frame) {
-  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
+  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate);
 }
 
 long EffectField::SecondsToFrame(double seconds) {
-  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->sequence->frame_rate);
+  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate);
 }
 
 void EffectField::GetKeyframeData(double timecode, int &before, int &after, double &progress) {

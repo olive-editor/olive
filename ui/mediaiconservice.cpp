@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -37,12 +37,13 @@ MediaIconService::MediaIconService() {
   throbber_pixmap_ = QPixmap(":/icons/throbber.png");
 }
 
-void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
+void MediaIconService::SetMediaIcon(Media *media, IconType icon_type) {
   // if this icon is already part of the throbber animation loop, remove it
   if (throbber_items_.contains(media)) {
     throbber_lock_.lock();
 
     throbber_items_.removeAll(media);
+    media->disable_thumbnail(false);
 
     throbber_lock_.unlock();
 
@@ -65,6 +66,8 @@ void MediaIconService::SetMediaIcon(Media *media, int icon_type) {
     break;
   case ICON_TYPE_LOADING:
     throbber_items_.append(media);
+
+    media->disable_thumbnail(true);
 
     // if the animation timer isn't running, start it
     if (!throbber_animator_.isActive()) {

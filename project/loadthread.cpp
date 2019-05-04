@@ -1,41 +1,42 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
 #include "loadthread.h"
 
 #include "global/global.h"
-
 #include "ui/mainwindow.h"
-
 #include "panels/panels.h"
-
 #include "project/projectelements.h"
-
 #include "global/config.h"
 #include "rendering/renderfunctions.h"
 #include "project/previewgenerator.h"
+#include "project/projectfunctions.h"
 #include "effects/internal/voideffect.h"
 #include "global/debug.h"
+#include "effects/effectloaders.h"
 
 #include <QFile>
 #include <QTreeWidgetItem>
+
+const int LOAD_TYPE_VERSION = 100;
+const int LOAD_TYPE_URL = 101;
 
 LoadThread::LoadThread(const QString& filename, bool autorecovery) :
   filename_(filename),
@@ -59,7 +60,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   QString tag = stream.name().toString();
 
   // variables to store effect metadata in
-  int effect_id = -1;
+  QString effect_id;
   QString effect_name;
   bool effect_enabled = true;
   long effect_length = -1;
@@ -67,10 +68,10 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   // loop through attributes for effect metadata
   for (int j=0;j<stream.attributes().size();j++) {
     const QXmlStreamAttribute& attr = stream.attributes().at(j);
-    if (attr.name() == "id") {
-      effect_id = attr.value().toInt();
-    } else if (attr.name() == "enabled") {
+    if (attr.name() == "enabled") {
       effect_enabled = (attr.value() == "1");
+    } else if (attr.name() == "id") {
+      effect_id = attr.value().toString();
     } else if (attr.name() == "name") {
       effect_name = attr.value().toString();
     } else if (attr.name() == "length") {
@@ -82,8 +83,10 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
       // Find the clip with the ID referenced in the transition
       int clip_id = attr.value().toInt();
-      for (int i=0;i<c->sequence->clips.size();i++) {
-        Clip* test_clip = c->sequence->clips.at(i).get();
+
+      QVector<Clip*> sequence_clips = c->track()->sequence()->GetAllClips();
+      for (int i=0;i<sequence_clips.size();i++) {
+        Clip* test_clip = sequence_clips.at(i);
         if (test_clip->load_id == clip_id) {
           sharing_clip = test_clip;
           break;
@@ -111,32 +114,37 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
   // Effect loading occurs in another thread, and while it's usually very quick, just for safety we wait here
   // for all the effects to finish loading
-  panel_effect_controls->effects_loaded.lock();
+  olive::effects_loaded.lock();
 
-  const EffectMeta* meta = nullptr;
+  NodeType type = kInvalidNode;
 
   // find effect with this name
-  if (!effect_name.isEmpty()) {
-    meta = get_meta_from_name(effect_name);
+  if (!effect_id.isEmpty()) {
+    for (int i=0;i<olive::node_library.size();i++) {
+      if (i != kInvalidNode && olive::node_library.at(i)->id() == effect_id) {
+        type = static_cast<NodeType>(i);
+        break;
+      }
+    }
   }
 
-  panel_effect_controls->effects_loaded.unlock();
+  olive::effects_loaded.unlock();
 
-  int type;
+  TransitionType ttype;
   if (tag == "opening") {
-    type = kTransitionOpening;
+    ttype = kTransitionOpening;
   } else if (tag == "closing") {
-    type = kTransitionClosing;
+    ttype = kTransitionClosing;
   } else {
-    type = kTransitionNone;
+    ttype = kTransitionNone;
   }
 
   // effect construction
   if (cancelled_) return;
-  if (type == kTransitionNone) {
-    if (meta == nullptr) {
+  if (ttype == kTransitionNone) {
+    if (type == kInvalidNode) {
       // create void effect
-      EffectPtr ve(new VoidEffect(c, effect_name));
+      NodePtr ve = std::make_shared<VoidEffect>(c, effect_name, effect_id);
       ve->SetEnabled(effect_enabled);
       ve->load(stream);
 
@@ -144,7 +152,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
       c->effects.append(ve);
     } else {
-      EffectPtr e(Effect::Create(c, meta));
+      NodePtr e = olive::node_library[type]->Create(c);
       e->SetEnabled(effect_enabled);
       e->load(stream);
 
@@ -153,14 +161,16 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
       c->effects.append(e);
     }
   } else {
-    TransitionPtr t = Transition::Create(c, nullptr, meta);
-    if (effect_length > -1) t->set_length(effect_length);
+    TransitionPtr t = std::static_pointer_cast<Transition>(olive::node_library[type]->Create(c));
+    if (effect_length > -1) {
+      t->set_length(effect_length);
+    }
     t->SetEnabled(effect_enabled);
     t->load(stream);
 
     t->moveToThread(QApplication::instance()->thread());
 
-    if (type == kTransitionOpening) {
+    if (ttype == kTransitionOpening) {
       c->opening_transition = t;
     } else {
       c->closing_transition = t;
@@ -262,7 +272,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
             switch (type) {
             case MEDIA_TYPE_FOLDER:
             {
-              MediaPtr folder = panel_project->create_folder_internal(nullptr);
+              MediaPtr folder = olive::project::CreateFolder(nullptr);
               folder->temp_id2 = 0;
               for (int j=0;j<stream.attributes().size();j++) {
                 const QXmlStreamAttribute& attr = stream.attributes().at(j);
@@ -349,13 +359,15 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                 } else if (attr.name() == "speed") {
                   f->speed = attr.value().toDouble();
                 } else if (attr.name() == "alphapremul") {
-                  f->alpha_is_premultiplied = (attr.value() == "1");
+                  f->alpha_is_associated = (attr.value() == "1");
                 } else if (attr.name() == "proxy") {
                   f->proxy = (attr.value() == "1");
                 } else if (attr.name() == "proxypath") {
                   f->proxy_path = attr.value().toString();
                 } else if (attr.name() == "startnumber") {
                   f->start_number = attr.value().toInt();
+                } else if (attr.name() == "colorspace") {
+                  f->SetColorspace(attr.value().toString());
                 }
               }
 
@@ -438,7 +450,9 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   int media_id = -1;
                   int stream_id = -1;
 
-                  ClipPtr c = std::make_shared<Clip>(s.get());
+                  Track* t;
+                  ClipPtr c = std::make_shared<Clip>(t);
+                  //ClipPtr c = std::make_shared<Clip>(s.get());
 
                   QColor clip_color;
                   ClipSpeed speed_info = c->speed();
@@ -457,8 +471,6 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                       c->set_timeline_in(attr.value().toLong());
                     } else if (attr.name() == "out") {
                       c->set_timeline_out(attr.value().toLong());
-                    } else if (attr.name() == "track") {
-                      c->set_track(attr.value().toInt());
                     } else if (attr.name() == "r") {
                       clip_color.setRed(attr.value().toInt());
                     } else if (attr.name() == "g") {
@@ -516,7 +528,8 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                             for (int k=0;k<stream.attributes().size();k++) {
                               const QXmlStreamAttribute& link_attr = stream.attributes().at(k);
                               if (link_attr.name() == "id") {
-                                c->linked.append(link_attr.value().toInt());
+                                // FIXME reimplement this
+                                //c->linked.append(link_attr.value().toInt());
                                 break;
                               }
                             }
@@ -544,11 +557,12 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
                   }
                   if (cancelled_) return false;
 
-                  s->clips.append(c);
+                  //s->clips.append(c);
                 }
               }
               if (cancelled_) return false;
 
+              /*
               // correct links, clip IDs, transitions
               for (int i=0;i<s->clips.size();i++) {
                 // correct links
@@ -583,6 +597,7 @@ bool LoadThread::load_worker(QFile& f, QXmlStreamReader& stream, int type) {
               MediaPtr m = panel_project->create_sequence_internal(nullptr, s, false, parent);
 
               loaded_sequences.append(m.get());
+              */
             }
               break;
             }
@@ -778,11 +793,11 @@ void LoadThread::success_func() {
 
     olive::Global->update_project_filename(orig_filename);
   } else {
-    panel_project->add_recent_project(filename_);
+    olive::Global->add_recent_project(filename_);
   }
 
   olive::Global->set_modified(autorecovery_);
   if (open_seq != nullptr) {
-    olive::Global->set_sequence(open_seq);
+    Timeline::OpenSequence(open_seq);
   }
 }

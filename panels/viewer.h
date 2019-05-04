@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -32,14 +32,10 @@
 
 #include "ui/panel.h"
 #include "ui/viewerwidget.h"
-#include "ui/timelinewidget.h"
+#include "ui/timelineview.h"
 #include "ui/timelineheader.h"
 #include "ui/labelslider.h"
 #include "ui/resizablescrollbar.h"
-
-bool frame_rate_is_droppable(double rate);
-long timecode_to_frame(const QString& s, int view, double frame_rate);
-QString frame_to_timecode(long f, int view, double frame_rate);
 
 class Viewer : public Panel
 {
@@ -47,11 +43,16 @@ class Viewer : public Panel
 
 public:
   explicit Viewer(QWidget *parent = nullptr);
-  ~Viewer();
 
-  bool is_focused();
-  bool is_main_sequence();
-  void set_main_sequence();
+  enum Mode {
+    kFootageMode,
+    kTimelineMode
+  };
+
+  void SetMode(Mode mode);
+  Mode mode();
+
+  virtual bool focused() override;
   void set_media(Media *m);
   void compose();
   void set_playpause_icon(bool play);
@@ -77,19 +78,19 @@ public:
   QTimer playback_updater;
 
 
-  void cue_recording(long start, long end, int track);
+  void cue_recording(long start, long end, Track *track);
   void uncue_recording();
   bool is_recording_cued();
   long recording_start;
   long recording_end;
-  int recording_track;
+  Track* recording_track;
 
   void reset_all_audio();
   void update_parents(bool reload_fx = false);
 
   int get_playback_speed();
 
-  ViewerWidget* viewer_widget;
+  ViewerWidget* viewer_widget();
 
   Media* media;
   SequencePtr seq;
@@ -108,6 +109,8 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
 public slots:
+  void set_sequence(SequencePtr s);
+
   void play_wake();
   void go_to_start();
   void go_to_in();
@@ -120,7 +123,8 @@ public slots:
   void go_to_end();
   void close_media();
   void update_viewer();
-
+  void prev_cut();
+  void next_cut();
 
 
 private slots:
@@ -133,11 +137,8 @@ private slots:
   void drag_audio_only();
 
 private:
-
   void update_window_title();
   void clean_created_seq();
-  void set_sequence(bool main, SequencePtr s);
-  bool main_sequence;
   bool created_sequence;
   long cached_end_frame;
   QString panel_name;
@@ -152,6 +153,8 @@ private:
   long get_seq_out();
 
   void setup_ui();
+
+  ViewerWidget* viewer_widget_;
 
   ResizableScrollBar* horizontal_bar;
   ViewerContainer* viewer_container;
@@ -172,6 +175,8 @@ private:
 
   long previous_playhead;
   int playback_speed;
+
+  Mode mode_;
 };
 
 #endif // VIEWER_H

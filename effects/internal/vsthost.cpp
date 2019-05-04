@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -46,7 +46,6 @@ class NSWindow;
 #endif
 
 #define BLOCK_SIZE 512
-#define CHANNEL_COUNT 2
 
 struct VSTRect {
   int16_t top;
@@ -212,15 +211,6 @@ bool VSTHost::canPluginDo(char *canDoString) {
   return (dispatcher(plugin, effCanDo, 0, 0, static_cast<void*>(canDoString), 0.0f) > 0);
 }
 
-void VSTHost::processAudio(long numFrames) {
-  // Always reset the output array before processing.
-  for (int i=0;i<CHANNEL_COUNT;i++) {
-    memset(outputs[i], 0, BLOCK_SIZE*sizeof(float));
-  }
-
-  plugin->processReplacing(plugin, inputs, outputs, numFrames);
-}
-
 void VSTHost::CreateDialogIfNull()
 {
   if (dialog == nullptr) {
@@ -237,74 +227,84 @@ void VSTHost::send_data_cache_to_plugin()
   dispatcher(plugin, effSetChunk, 0, int32_t(data_cache.size()), static_cast<void*>(data_cache.data()), 0);
 }
 
-VSTHost::VSTHost(Clip* c, const EffectMeta *em) :
-  Effect(c, em),
+VSTHost::VSTHost(Clip* c) :
+  Node(c),
   plugin(nullptr),
-  dialog(nullptr)
+  dialog(nullptr),
+  input_cache(BLOCK_SIZE),
+  output_cache(BLOCK_SIZE)
 {
   plugin = nullptr;
 
-  inputs = new float* [CHANNEL_COUNT];
-  outputs = new float* [CHANNEL_COUNT];
-  for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
-    inputs[channel] = new float[BLOCK_SIZE];
-    outputs[channel] = new float[BLOCK_SIZE];
-  }
-
-  EffectRow* file_row = new EffectRow(this, tr("Plugin"), true, false);
-  file_field = new FileField(file_row, "filename");
+  file_field = new FileInput(this, "filename", tr("Plugin"), true, false);
   connect(file_field, SIGNAL(Changed()), this, SLOT(change_plugin()), Qt::QueuedConnection);
 
-  EffectRow* interface_row = new EffectRow(this, tr("Interface"), false, false);
-
-  show_interface_btn = new ButtonField(interface_row, tr("Show"));
+  show_interface_btn = new ButtonWidget(this, tr("Interface"), tr("Show"));
   show_interface_btn->SetCheckable(true);
   show_interface_btn->SetEnabled(false);
   connect(show_interface_btn, SIGNAL(Toggled(bool)), this, SLOT(show_interface(bool)));
 }
 
 VSTHost::~VSTHost() {
-  for(int channel = 0; channel < CHANNEL_COUNT; channel++) {
-    delete [] inputs[channel];
-    delete [] outputs[channel];
-  }
-  delete [] outputs;
-  delete [] inputs;
-
   freePlugin();
 }
 
-void VSTHost::process_audio(double, double, quint8* samples, int nb_bytes, int) {
+QString VSTHost::name()
+{
+  return tr("VST Plugin 2.x");
+}
+
+QString VSTHost::id()
+{
+  return "org.olivevideoeditor.Olive.vst2x";
+}
+
+QString VSTHost::description()
+{
+  return tr("Use a VST 2.x plugin on this clip's audio.");
+}
+
+EffectType VSTHost::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType VSTHost::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr VSTHost::Create(Clip *c)
+{
+  return std::make_shared<VSTHost>(c);
+}
+
+void VSTHost::process_audio(double timecode_start,
+                            double timecode_end,
+                            float **samples,
+                            int nb_samples,
+                            int channel_count,
+                            int type) {
   if (plugin != nullptr) {
-    int interval = BLOCK_SIZE*4;
-    for (int i=0;i<nb_bytes;i+=interval) {
-      int process_size = qMin(interval, nb_bytes - i);
-      int lim = i + process_size;
 
-      // convert to float
-      for (int j=i;j<lim;j+=4) {
-        qint16 left_sample = qint16(((samples[j+1] & 0xFF) << 8) | (samples[j] & 0xFF));
-        qint16 right_sample = qint16(((samples[j+3] & 0xFF) << 8) | (samples[j+2] & 0xFF));
+    // Make copy of audio
+    input_cache.Create(channel_count);
+    output_cache.Create(channel_count);
 
-        int index = (j-i)>>2;
-        inputs[0][index] = float(left_sample) / float(INT16_MAX);
-        inputs[1][index] = float(right_sample) / float(INT16_MAX);
+    for (int i=0;i<nb_samples;i+=BLOCK_SIZE) {
+      int sample_size = qMin(BLOCK_SIZE, nb_samples - i);
+
+      // Copy samples to input cache
+      for (int j=0;j<channel_count;j++) {
+        memcpy(input_cache.data()[j], &samples[j][i], nb_samples * sizeof(float));
       }
 
       // send to VST
-      processAudio(process_size>>2);
+      plugin->processReplacing(plugin, input_cache.data(), output_cache.data(), sample_size);
 
-      // convert back to int16
-      for (int j=i;j<lim;j+=4) {
-        int index = (j-i)>>2;
-
-        qint16 left_sample = qint16(qRound(outputs[0][index] * INT16_MAX));
-        qint16 right_sample = qint16(qRound(outputs[1][index] * INT16_MAX));
-
-        samples[j+3] = quint8(right_sample >> 8);
-        samples[j+2] = quint8(right_sample);
-        samples[j+1] = quint8(left_sample >> 8);
-        samples[j] = quint8(left_sample);
+      // Copy output cache back to samples
+      for (int j=0;j<channel_count;j++) {
+        memcpy(&samples[j][i], output_cache.data()[j], nb_samples * sizeof(float));
       }
     }
   }
@@ -321,7 +321,7 @@ void VSTHost::custom_load(QXmlStreamReader &stream) {
 }
 
 void VSTHost::save(QXmlStreamWriter &stream) {
-  Effect::save(stream);
+  Node::save(stream);
   if (plugin != nullptr) {
     char* p = nullptr;
     int32_t length = int32_t(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));
@@ -378,4 +378,55 @@ void VSTHost::change_plugin() {
     }
   }
   show_interface_btn->SetEnabled(plugin != nullptr);
+}
+
+SampleCache::SampleCache(int block_size) :
+  block_size_(block_size),
+  channel_count_(0),
+  array_(nullptr)
+{
+}
+
+SampleCache::~SampleCache()
+{
+  destroy();
+}
+
+void SampleCache::Create(int channels)
+{
+  if (channel_count_ != channels) {
+
+    if (channel_count_ > 0) {
+      destroy();
+    }
+
+    channel_count_ = channels;
+
+    array_ = new float* [channel_count_];
+    for (int i=0;i<channel_count_;i++) {
+      array_[i] = new float[block_size_];
+    }
+  }
+}
+
+void SampleCache::SetZero()
+{
+  for (int i=0;i<channel_count_;i++) {
+    memset(array_[i], 0, block_size_ * sizeof(float));
+  }
+}
+
+float **SampleCache::data()
+{
+  return array_;
+}
+
+void SampleCache::destroy()
+{
+  for (int i=0;i<channel_count_;i++) {
+    delete [] array_[i];
+  }
+
+  delete [] array_;
+  array_ = nullptr;
 }

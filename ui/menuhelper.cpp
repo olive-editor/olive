@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -26,7 +26,7 @@
 #include <QStyleFactory>
 
 #include "global/config.h"
-#include "project/clipboard.h"
+#include "global/clipboard.h"
 #include "ui/mainwindow.h"
 #include "global/global.h"
 #include "panels/panels.h"
@@ -39,10 +39,10 @@ void MenuHelper::InitializeSharedMenus()
   new_project_ = create_menu_action(nullptr, "newproj", olive::Global.get(), SLOT(new_project()), QKeySequence("Ctrl+N"));
   new_project_->setParent(this);
 
-  new_sequence_ = create_menu_action(nullptr, "newseq", panel_project, SLOT(new_sequence()), QKeySequence("Ctrl+Shift+N"));
+  new_sequence_ = create_menu_action(nullptr, "newseq", olive::Global.get(), SLOT(open_new_sequence_dialog()), QKeySequence("Ctrl+Shift+N"));
   new_sequence_->setParent(this);
 
-  new_folder_ = create_menu_action(nullptr, "newfolder", panel_project, SLOT(new_folder()));
+  new_folder_ = create_menu_action(nullptr, "newfolder", panel_project.first(), SLOT(new_folder()));
   new_folder_->setParent(this);
 
   set_in_point_ = create_menu_action(nullptr, "setinpoint", &olive::FocusFilter, SLOT(set_in_point()), QKeySequence("I"));
@@ -60,16 +60,16 @@ void MenuHelper::InitializeSharedMenus()
   clear_inout_point = create_menu_action(nullptr, "clearinout", &olive::FocusFilter, SLOT(clear_inout()), QKeySequence("G"));
   clear_inout_point->setParent(this);
 
-  add_default_transition_ = create_menu_action(nullptr, "deftransition", panel_timeline, SLOT(add_transition()), QKeySequence("Ctrl+Shift+D"));
+  add_default_transition_ = create_menu_action(nullptr, "deftransition", panel_timeline.first(), SLOT(add_transition()), QKeySequence("Ctrl+Shift+D"));
   add_default_transition_->setParent(this);
 
-  link_unlink_ = create_menu_action(nullptr, "linkunlink", panel_timeline, SLOT(toggle_links()), QKeySequence("Ctrl+L"));
+  link_unlink_ = create_menu_action(nullptr, "linkunlink", panel_timeline.first(), SLOT(toggle_links()), QKeySequence("Ctrl+L"));
   link_unlink_->setParent(this);
 
-  enable_disable_ = create_menu_action(nullptr, "enabledisable", panel_timeline, SLOT(toggle_enable_on_selected_clips()), QKeySequence("Shift+E"));
+  enable_disable_ = create_menu_action(nullptr, "enabledisable", panel_timeline.first(), SLOT(toggle_enable_on_selected_clips()), QKeySequence("Shift+E"));
   enable_disable_->setParent(this);
 
-  nest_ = create_menu_action(nullptr, "nest", panel_timeline, SLOT(nest()));
+  nest_ = create_menu_action(nullptr, "nest", panel_timeline.first(), SLOT(nest()));
   nest_->setParent(this);
 
   cut_ = create_menu_action(nullptr, "cut", &olive::FocusFilter, SLOT(cut()), QKeySequence("Ctrl+X"));
@@ -90,10 +90,10 @@ void MenuHelper::InitializeSharedMenus()
   delete_ = create_menu_action(nullptr, "delete", &olive::FocusFilter, SLOT(delete_function()), QKeySequence("Del"));
   delete_->setParent(this);
 
-  ripple_delete_ = create_menu_action(nullptr, "rippledelete", panel_timeline, SLOT(ripple_delete()), QKeySequence("Shift+Del"));
+  ripple_delete_ = create_menu_action(nullptr, "rippledelete", panel_timeline.first(), SLOT(ripple_delete()), QKeySequence("Shift+Del"));
   ripple_delete_->setParent(this);
 
-  split_ = create_menu_action(nullptr, "split", panel_timeline, SLOT(split_at_playhead()), QKeySequence("Ctrl+K"));
+  split_ = create_menu_action(nullptr, "split", panel_timeline.first(), SLOT(split_at_playhead()), QKeySequence("Ctrl+K"));
   split_->setParent(this);
 
   Retranslate();
@@ -193,23 +193,23 @@ void MenuHelper::set_titlesafe_from_menu() {
   if (qIsNaN(tsa)) {
 
     // disable title safe area
-    olive::CurrentConfig.show_title_safe_area = false;
+    olive::config.show_title_safe_area = false;
 
   } else {
 
     // using title safe area
-    olive::CurrentConfig.show_title_safe_area = true;
+    olive::config.show_title_safe_area = true;
 
     // are we using the default area aspect ratio, or a specific one
     if (qIsNull(tsa)) {
 
       // default title safe area
-      olive::CurrentConfig.use_custom_title_safe_ratio = false;
+      olive::config.use_custom_title_safe_ratio = false;
 
     } else {
 
       // using a specific aspect ratio
-      olive::CurrentConfig.use_custom_title_safe_ratio = true;
+      olive::config.use_custom_title_safe_ratio = true;
 
       if (tsa < 0.0) {
 
@@ -229,25 +229,25 @@ void MenuHelper::set_titlesafe_from_menu() {
 
         if (!input.isEmpty()) {
           QStringList inputList = input.split(':');
-          olive::CurrentConfig.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
+          olive::config.custom_title_safe_ratio = inputList.at(0).toDouble()/inputList.at(1).toDouble();
         }
 
       } else {
 
         // specified tsa is a specific custom aspect ratio
-        olive::CurrentConfig.custom_title_safe_ratio = tsa;
+        olive::config.custom_title_safe_ratio = tsa;
       }
 
     }
 
   }
 
-  panel_sequence_viewer->viewer_widget->update();
+  panel_sequence_viewer->viewer_widget()->update();
 }
 
 void MenuHelper::set_autoscroll() {
   QAction* action = static_cast<QAction*>(sender());
-  olive::CurrentConfig.autoscroll = action->data().toInt();
+  olive::config.autoscroll = action->data().toInt();
 }
 
 void MenuHelper::menu_click_button() {
@@ -256,7 +256,7 @@ void MenuHelper::menu_click_button() {
 
 void MenuHelper::set_timecode_view() {
   QAction* action = static_cast<QAction*>(sender());
-  olive::CurrentConfig.timecode_view = action->data().toInt();
+  olive::config.timecode_view = action->data().toInt();
   update_ui(false);
 }
 
@@ -267,8 +267,8 @@ void MenuHelper::open_recent_from_menu() {
 
 void MenuHelper::create_effect_paste_action(QMenu *menu)
 {
-  QAction* paste_action = menu->addAction(tr("&Paste"), panel_timeline, SLOT(paste(bool)));
-  paste_action->setEnabled(clipboard.size() > 0 && clipboard_type == CLIPBOARD_TYPE_EFFECT);
+  QAction* paste_action = menu->addAction(tr("&Paste"), olive::Global.get(), SLOT(paste(bool)));
+  paste_action->setEnabled(olive::clipboard.Count() > 0 && olive::clipboard.type() == Clipboard::CLIPBOARD_TYPE_EFFECT);
 }
 
 Menu* MenuHelper::create_submenu(QMenuBar* parent,

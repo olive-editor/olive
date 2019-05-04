@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -43,6 +43,7 @@ extern "C" {
 #include <QMutex>
 
 #include "rendering/clipqueue.h"
+#include "rendering/pixelformats.h"
 
 class Clip;
 
@@ -253,6 +254,15 @@ public:
    * A pointer to the cacher's internal frame queue
    */
   ClipQueue* queue();
+
+  /**
+   * @brief Retrieve OpenGL information about this media's bit depth
+   *
+   * @return
+   *
+   * A olive::rendering::PixelFormat value corresponding to a member of olive::rendering::bit_depths.
+   */
+  const olive::PixelFormat& media_pixel_format();
 
 private:
   /**
@@ -582,6 +592,11 @@ private:
    * @brief Internal function using the Cacher's known information to determine whether this media is playing in reverse
    */
   bool IsReversed();
+
+  /**
+   * @brief Internal struct holding bit depth information for the current media
+   */
+  olive::PixelFormat media_pixel_format_;
 };
 
 #endif // CACHER_H

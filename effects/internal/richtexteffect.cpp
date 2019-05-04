@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "richtexteffect.h"
 
 #include <QTextDocument>
@@ -14,65 +34,43 @@ enum AutoscrollDirection {
   SCROLL_RIGHT,
 };
 
-RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em) :
-  Effect(c, em)
+RichTextEffect::RichTextEffect(Clip *c) :
+  Node(c)
 {
-  SetFlags(Effect::SuperimposeFlag);
+  SetFlags(Node::SuperimposeFlag);
 
-  EffectRow* text_row = new EffectRow(this, tr("Text"));
-  text_val = new StringField(text_row, "text");
-  text_val->SetColumnSpan(2);
+  text_val = new StringInput(this, "text", tr("Text"));
 
-  EffectRow* padding_row = new EffectRow(this, tr("Padding"));
-  padding_field = new DoubleField(padding_row, "padding");
-  padding_field->SetColumnSpan(2);
+  padding_field = new DoubleInput(this, "padding", tr("Padding"));
 
-  EffectRow* position_row = new EffectRow(this, tr("Position"));
-  position_x = new DoubleField(position_row, "posx");
-  position_y = new DoubleField(position_row, "posy");
+  position = new Vec2Input(this, "pos", tr("Position"));
 
-  EffectRow* vertical_align_row = new EffectRow(this, tr("Vertical Align:"));
-  vertical_align = new ComboField(vertical_align_row, "valign");
+  vertical_align = new ComboInput(this, "valign", tr("Vertical Align:"));
   vertical_align->AddItem(tr("Top"), Qt::AlignTop);
   vertical_align->AddItem(tr("Center"), Qt::AlignCenter);
   vertical_align->AddItem(tr("Bottom"), Qt::AlignBottom);
   vertical_align->SetValueAt(0, Qt::AlignCenter);
-  vertical_align->SetColumnSpan(2);
 
-  EffectRow* autoscroll_row = new EffectRow(this, tr("Auto-Scroll"));
-  autoscroll = new ComboField(autoscroll_row, "autoscroll");
+  autoscroll = new ComboInput(this, "autoscroll", tr("Auto-Scroll"));
   autoscroll->AddItem(tr("Off"), SCROLL_OFF);
   autoscroll->AddItem(tr("Up"), SCROLL_UP);
   autoscroll->AddItem(tr("Down"), SCROLL_DOWN);
   autoscroll->AddItem(tr("Left"), SCROLL_LEFT);
   autoscroll->AddItem(tr("Right"), SCROLL_RIGHT);
-  autoscroll->SetColumnSpan(2);
 
-  EffectRow* shadow_row = new EffectRow(this, tr("Shadow"));
-  shadow_bool = new BoolField(shadow_row, "shadow");
-  shadow_bool->SetColumnSpan(2);
+  shadow_bool = new BoolInput(this, "shadow", tr("Shadow"));
 
-  EffectRow* shadow_color_row = new EffectRow(this, tr("Shadow Color"));
-  shadow_color = new ColorField(shadow_color_row, "shadowcolor");
-  shadow_color->SetColumnSpan(2);
+  shadow_color = new ColorInput(this, "shadowcolor", tr("Shadow Color"));
 
-  EffectRow* shadow_angle_row = new EffectRow(this, tr("Shadow Angle"));
-  shadow_angle = new DoubleField(shadow_angle_row, "shadowangle");
-  shadow_angle->SetColumnSpan(2);
+  shadow_angle = new DoubleInput(this, "shadowangle", tr("Shadow Angle"));
 
-  EffectRow* shadow_distance_row = new EffectRow(this, tr("Shadow Distance"));
-  shadow_distance = new DoubleField(shadow_distance_row, "shadowdistance");
-  shadow_distance->SetColumnSpan(2);
+  shadow_distance = new DoubleInput(this, "shadowdistance", tr("Shadow Distance"));
   shadow_distance->SetMinimum(0);
 
-  EffectRow* shadow_softness_row = new EffectRow(this, tr("Shadow Softness"));
-  shadow_softness = new DoubleField(shadow_softness_row, "shadowsoftness");
-  shadow_softness->SetColumnSpan(2);
+  shadow_softness = new DoubleInput(this, "shadowsoftness", tr("Shadow Softness"));
   shadow_softness->SetMinimum(0);
 
-  EffectRow* shadow_opacity_row = new EffectRow(this, tr("Shadow Opacity"));
-  shadow_opacity = new DoubleField(shadow_opacity_row, "shadowopacity");
-  shadow_opacity->SetColumnSpan(2);
+  shadow_opacity = new DoubleInput(this, "shadowopacity", tr("Shadow Opacity"));
   shadow_opacity->SetMinimum(0);
   shadow_opacity->SetMaximum(100);
 
@@ -82,6 +80,41 @@ RichTextEffect::RichTextEffect(Clip *c, const EffectMeta *em) :
                               "<center>Sample Text</center>"
                             "</body>"
                           "</html>");
+}
+
+QString RichTextEffect::name()
+{
+  return tr("Rich Text");
+}
+
+QString RichTextEffect::id()
+{
+  return "org.olivevideoeditor.Olive.richtext";
+}
+
+QString RichTextEffect::category()
+{
+  return tr("Render");
+}
+
+QString RichTextEffect::description()
+{
+  return tr("Render formatted rich text over a clip.");
+}
+
+EffectType RichTextEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType RichTextEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr RichTextEffect::Create(Clip *c)
+{
+  return std::make_shared<RichTextEffect>(c);
 }
 
 void RichTextEffect::redraw(double timecode)
@@ -100,8 +133,8 @@ void RichTextEffect::redraw(double timecode)
   td.setHtml(text_val->GetStringAt(timecode));
   td.setTextWidth(width);
 
-  int translate_x = qRound(position_x->GetDoubleAt(timecode) + padding);
-  int translate_y = qRound(position_y->GetDoubleAt(timecode) + padding);
+  QPoint translation = position->GetVector2DAt(timecode).toPoint();
+  translation += {padding, padding};
 
   int doc_height = qRound(td.size().height());
 
@@ -118,9 +151,9 @@ void RichTextEffect::redraw(double timecode)
 
     // If we're not auto-scrolling the vertical direction, respect the vertical alignment
     if (vertical_align->GetValueAt(timecode).toInt() == Qt::AlignCenter) {
-      translate_y += height / 2 - doc_height / 2;
+      translation.setY(translation.y() + height / 2 - doc_height / 2);
     } else if (vertical_align->GetValueAt(timecode).toInt() == Qt::AlignBottom) {
-      translate_y += height - doc_height;
+      translation.setY(translation.y() + height - doc_height);
     }
 
     // Check if we are autoscrolling
@@ -131,7 +164,7 @@ void RichTextEffect::redraw(double timecode)
       }
 
       int doc_width = qRound(td.size().width());
-      translate_x += qRound(-doc_width + (img.width() + doc_width) * scroll_progress);
+      translation.setX(translation.x() + qRound(-doc_width + (img.width() + doc_width) * scroll_progress));
     }
 
   } else if (auto_scroll_dir == SCROLL_UP || auto_scroll_dir == SCROLL_DOWN) {
@@ -142,13 +175,13 @@ void RichTextEffect::redraw(double timecode)
       scroll_progress = 1.0 - scroll_progress;
     }
 
-    translate_y += qRound(-doc_height + (img.height() + doc_height)*scroll_progress);
+    translation.setY(translation.y() + qRound(-doc_height + (img.height() + doc_height)*scroll_progress));
 
   }
 
   QRect clip_rect = img.rect();
-  clip_rect.translate(-translate_x, -translate_y);
-  p.translate(translate_x, translate_y);
+  clip_rect.translate(-translation);
+  p.translate(translation);
 
   img.fill(Qt::transparent);
 
@@ -188,5 +221,5 @@ void RichTextEffect::redraw(double timecode)
 
 bool RichTextEffect::AlwaysUpdate()
 {
-  return autoscroll->GetValueAt(autoscroll->Now()).toInt() != SCROLL_OFF;
+  return autoscroll->GetValueAt(Now()).toInt() != SCROLL_OFF;
 }

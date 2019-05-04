@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -33,7 +33,7 @@
 #include "ui/keyframedrawing.h"
 #include "undo/undo.h"
 #include "undo/undostack.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
 #include "timeline/clip.h"
 #include "ui/rectangleselect.h"
 #include "ui/menu.h"
@@ -347,7 +347,7 @@ void GraphView::paintEvent(QPaintEvent *) {
     p.drawLine(playhead_x, 0, playhead_x, height());
 
     if (rect_select) {
-      draw_selection_rectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
+      olive::ui::DrawSelectionRectangle(p, QRect(rect_select_x, rect_select_y, rect_select_w, rect_select_h));
       p.setBrush(Qt::NoBrush);
     }
   }
@@ -470,7 +470,7 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
 void GraphView::mouseMoveEvent(QMouseEvent *event) {
   if (!mousedown || !click_add) unsetCursor();
   if (mousedown) {
-    if (event->buttons() & Qt::MiddleButton || panel_timeline->tool == TIMELINE_TOOL_HAND) {
+    if (event->buttons() & Qt::MiddleButton || olive::timeline::current_tool == olive::timeline::TIMELINE_TOOL_HAND) {
       set_scroll_x(x_scroll + start_x - event->pos().x());
       set_scroll_y(y_scroll + event->pos().y() - start_y);
       start_x = event->pos().x();
@@ -701,7 +701,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
 
 void GraphView::mouseReleaseEvent(QMouseEvent *) {
   if (click_add_proc) {
-    olive::UndoStack.push(new KeyframeAdd(click_add_field, click_add_key));
+    olive::undo_stack.push(new KeyframeAdd(click_add_field, click_add_key));
   } else if (moved_keys && selected_keys.size() > 0) {
     ComboAction* ca = new ComboAction();
     switch (current_handle) {
@@ -723,7 +723,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
     }
       break;
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
   }
   moved_keys = false;
   mousedown = false;
@@ -757,7 +757,7 @@ void GraphView::wheelEvent(QWheelEvent *event) {
   double new_x_zoom = x_zoom;
   double new_y_zoom = y_zoom;
 
-  if (ctrl != olive::CurrentConfig.scroll_zooms) {
+  if (ctrl != olive::config.scroll_zooms) {
     zooming = true;
   }
 
@@ -849,7 +849,7 @@ void GraphView::set_selected_keyframe_type(int type) {
       EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
       ca->append(new SetInt(&key.type, type));
     }
-    olive::UndoStack.push(ca);
+    olive::undo_stack.push(ca);
     update_ui(false);
   }
 }

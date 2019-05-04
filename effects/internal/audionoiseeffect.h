@@ -1,36 +1,49 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
 #ifndef AUDIONOISEEFFECT_H
 #define AUDIONOISEEFFECT_H
 
-#include "effects/effect.h"
+#include "nodes/node.h"
 
-class AudioNoiseEffect : public Effect {
+class AudioNoiseEffect : public Node {
   Q_OBJECT
 public:
-  AudioNoiseEffect(Clip* c, const EffectMeta* em);
-  void process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int channel_count);
+  AudioNoiseEffect(Clip* c);
 
-  DoubleField* amount_val;
-  BoolField* mix_val;
+  virtual QString name() override;
+  virtual QString id() override;
+  virtual QString description() override;
+  virtual EffectType type() override;
+  virtual olive::TrackType subtype() override;
+  virtual NodePtr Create(Clip *c) override;
+
+  virtual void process_audio(double timecode_start,
+                             double timecode_end,
+                             float **samples,
+                             int nb_samples,
+                             int channel_count,
+                             int type) override;
+
+  DoubleInput* amount_val;
+  BoolInput* mix_val;
 };
 
 #endif // AUDIONOISEEFFECT_H

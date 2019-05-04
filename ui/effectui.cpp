@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "effectui.h"
 
 #include <QPoint>
@@ -9,7 +29,7 @@
 #include "ui/menu.h"
 #include "panels/panels.h"
 
-EffectUI::EffectUI(Effect* e) :
+EffectUI::EffectUI(Node* e) :
   effect_(e)
 {
   Q_ASSERT(e != nullptr);
@@ -17,7 +37,7 @@ EffectUI::EffectUI(Effect* e) :
   QString effect_name;
 
   // If this effect is actually a transition
-  if (e->meta->type == EFFECT_TYPE_TRANSITION) {
+  if (e->type() == EFFECT_TYPE_TRANSITION) {
 
     Transition* t = static_cast<Transition*>(e);
 
@@ -49,17 +69,17 @@ EffectUI::EffectUI(Effect* e) :
 
     // See if the transition is the clip's opening or closing transition and label it accordingly
     if (both_selected) {
-      effect_name = t->name;
+      effect_name = t->name();
     } else if (selected_clip->opening_transition.get() == t) {
-      effect_name = tr("%1 (Opening)").arg(t->name);
+      effect_name = tr("%1 (Opening)").arg(t->name());
     } else {
-      effect_name = tr("%1 (Closing)").arg(t->name);
+      effect_name = tr("%1 (Closing)").arg(t->name());
     }
 
   } else {
 
     // Otherwise just set the title normally
-    effect_name = e->name;
+    effect_name = e->name();
 
   }
 
@@ -68,6 +88,9 @@ EffectUI::EffectUI(Effect* e) :
   QWidget* ui = new QWidget(this);
   ui->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   SetContents(ui);
+
+  title_bar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   SetExpanded(e->IsExpanded());
   connect(this, SIGNAL(visibleChanged(bool)), e, SLOT(SetExpanded(bool)));
@@ -80,9 +103,8 @@ EffectUI::EffectUI(Effect* e) :
           this,
           SLOT(show_context_menu(const QPoint&)));
 
-  int maximum_column = 0;
-
   widgets_.resize(e->row_count());
+  keyframe_navigators_.resize(e->row_count());
 
   for (int i=0;i<e->row_count();i++) {
     EffectRow* row = e->row(i);
@@ -92,55 +114,50 @@ EffectUI::EffectUI(Effect* e) :
 
     labels_.append(row_label);
 
-    layout_->addWidget(row_label, i, 0);
+    if (row->IsNodeOutput()) {
 
-    widgets_[i].resize(row->FieldCount());
-
-    int column = 1;
-    for (int j=0;j<row->FieldCount();j++) {
-      EffectField* field = row->Field(j);
-
-      QWidget* widget = field->CreateWidget();
-
-      widgets_[i][j] = widget;
-
-      layout_->addWidget(widget, i, column, 1, field->GetColumnSpan());
-
-      column += field->GetColumnSpan();
-    }
-
-    // Find maximum column to place keyframe controls
-    maximum_column = qMax(row->FieldCount(), maximum_column);
-  }
-
-  // Create keyframe controls
-  maximum_column++;
-
-  keyframe_navigators_.resize(e->row_count());
-
-  for (int i=0;i<e->row_count();i++) {
-    EffectRow* row = e->row(i);
-
-    KeyframeNavigator* nav;
-
-    if (row->IsKeyframable()) {
-
-      nav = new KeyframeNavigator();
-
-      nav->enable_keyframes(row->IsKeyframing());
-
-      AttachKeyframeNavigationToRow(row, nav);
-
-      layout_->addWidget(nav, i, maximum_column);
+      row_label->setAlignment(Qt::AlignRight);
+      layout_->addWidget(row_label, i, 2);
 
     } else {
 
-      nav = nullptr;
+      layout_->addWidget(row_label, i, 0);
+
+      widgets_[i].resize(row->FieldCount());
+
+      QGridLayout* field_layout = new QGridLayout();
+      for (int j=0;j<row->FieldCount();j++) {
+        EffectField* field = row->Field(j);
+
+        QWidget* widget = field->CreateWidget();
+
+        widgets_[i][j] = widget;
+
+        field_layout->addWidget(widget, 0, j);
+      }
+      layout_->addLayout(field_layout, i, 1);
+
+      KeyframeNavigator* nav;
+
+      if (row->IsKeyframable()) {
+
+        nav = new KeyframeNavigator();
+
+        nav->enable_keyframes(row->IsKeyframing());
+
+        AttachKeyframeNavigationToRow(row, nav);
+
+        layout_->addWidget(nav, i, 2);
+
+      } else {
+
+        nav = nullptr;
+
+      }
+
+      keyframe_navigators_[i] = nav;
 
     }
-
-    keyframe_navigators_[i] = nav;
-
   }
 
   enabled_check->setChecked(e->IsEnabled());
@@ -148,10 +165,10 @@ EffectUI::EffectUI(Effect* e) :
   connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(FieldChanged()));
 }
 
-void EffectUI::AddAdditionalEffect(Effect *e)
+void EffectUI::AddAdditionalEffect(Node *e)
 {
   // Ensure this is the same kind of effect and will be fully compatible
-  Q_ASSERT(e->meta == effect_->meta);
+  Q_ASSERT(e->id() == effect_->id());
 
   // Add 'multiple' modifier to header label (but only once)
   if (additional_effects_.isEmpty()) {
@@ -181,7 +198,7 @@ void EffectUI::AddAdditionalEffect(Effect *e)
   }
 }
 
-Effect *EffectUI::GetEffect()
+Node *EffectUI::GetEffect()
 {
   return effect_;
 }
@@ -193,16 +210,24 @@ int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
 
   QLabel* row_label = labels_.at(row);
 
+  int mapped_coord;
+  if (mapToWidget == nullptr) {
+    mapped_coord = contents->pos().y();
+  } else {
+    // FIXME Problematic now that EffectUIs are used outside of EffectControls
+    mapped_coord = mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y();
+    mapped_coord -= title_bar->height();
+  }
+
   // Get center point of label (label->rect()->center()->y() - instead of y()+height/2 - produces an inaccurate result)
   return row_label->y()
       + row_label->height() / 2
-      + mapToWidget->mapFrom(panel_effect_controls, contents->mapTo(panel_effect_controls, contents->pos())).y()
-      - title_bar->height();
+      + mapped_coord;
 }
 
 void EffectUI::UpdateFromEffect()
 {
-  Effect* effect = GetEffect();
+  Node* effect = GetEffect();
 
   for (int j=0;j<effect->row_count();j++) {
 
@@ -214,7 +239,7 @@ void EffectUI::UpdateFromEffect()
       // Check if this UI object is attached to one effect or many
       if (additional_effects_.isEmpty()) {
 
-        field->UpdateWidgetValue(Widget(j, k), field->Now());
+        field->UpdateWidgetValue(Widget(j, k), effect->Now());
 
       } else {
 
@@ -224,14 +249,14 @@ void EffectUI::UpdateFromEffect()
           EffectField* previous_field = i > 0 ? additional_effects_.at(i-1)->row(j)->Field(k) : field;
           EffectField* additional_field = additional_effects_.at(i)->row(j)->Field(k);
 
-          if (additional_field->GetValueAt(additional_field->Now()) != previous_field->GetValueAt(previous_field->Now())) {
+          if (additional_field->GetValueAt(additional_effects_.at(i)->Now()) != previous_field->GetValueAt(additional_effects_.at(i-1)->Now())) {
             same_value = false;
             break;
           }
         }
 
         if (same_value) {
-          field->UpdateWidgetValue(Widget(j, k), field->Now());
+          field->UpdateWidgetValue(Widget(j, k), effect->Now());
         } else {
           field->UpdateWidgetValue(Widget(j, k), qSNaN());
         }
@@ -276,7 +301,7 @@ void EffectUI::AttachKeyframeNavigationToRow(EffectRow *row, KeyframeNavigator *
 }
 
 void EffectUI::show_context_menu(const QPoint& pos) {
-  if (effect_->meta->type == EFFECT_TYPE_EFFECT) {
+  if (effect_->type() == EFFECT_TYPE_EFFECT) {
     Menu menu;
 
     Clip* c = effect_->parent_clip;

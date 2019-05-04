@@ -1,35 +1,24 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
 #include "proxygenerator.h"
-
-#include "global/path.h"
-#include "project/previewgenerator.h"
-#include "ui/mainwindow.h"
-
-#include <QDir>
-#include <QFileInfo>
-#include <QtMath>
-#include <QStatusBar>
-
-#include <QDebug>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -37,6 +26,18 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <QDir>
+#include <QFileInfo>
+#include <QtMath>
+#include <QStatusBar>
+#include <QDebug>
+
+#include "global/path.h"
+#include "project/previewgenerator.h"
+#include "ui/mediaiconservice.h"
+#include "ui/mainwindow.h"
+
+// TODO provide more codecs than just this one
 enum AVCodecID temp_enc_codec = AV_CODEC_ID_PRORES;
 
 ProxyGenerator::ProxyGenerator() : cancelled(false) {}
@@ -123,7 +124,7 @@ void ProxyGenerator::transcode(const ProxyInfo& info) {
       enc_ctx->width = qFloor(dec_ctx->width*info.size_multiplier);
       enc_ctx->height = qFloor(dec_ctx->height*info.size_multiplier);
       enc_ctx->sample_aspect_ratio = dec_ctx->sample_aspect_ratio;
-      enc_ctx->pix_fmt = enc_codec->pix_fmts[0];
+      enc_ctx->pix_fmt = avcodec_find_best_pix_fmt_of_list(enc_codec->pix_fmts, dec_ctx->pix_fmt, 1, nullptr);
       enc_ctx->framerate = dec_ctx->framerate;
       enc_ctx->time_base = in_stream->time_base;
       out_stream->time_base = in_stream->time_base;
@@ -356,8 +357,14 @@ void ProxyGenerator::run() {
       // set skip to false
       skip = false;
 
+      // set media icon to animated loading icon
+      olive::media_icon_service->SetMediaIcon(info.media, ICON_TYPE_LOADING);
+
       // transcode proxy
       transcode(info);
+
+      // set media icon back to video
+      olive::media_icon_service->SetMediaIcon(info.media, ICON_TYPE_VIDEO);
 
       // we're finished with this proxy, remove it
       proxy_queue.removeFirst();

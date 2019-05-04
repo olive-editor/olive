@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -24,6 +24,7 @@
 #include <QString>
 
 #include "ui/styling.h"
+#include "timeline/timelinetools.h"
 
 namespace olive {
   /**
@@ -158,13 +159,6 @@ struct Config {
    * Sets all configuration variables to their defaults.
    */
   Config();
-
-  /**
-   * @brief Show track lines
-   *
-   * **TRUE** if the Timeline should show lines between tracks.
-   */
-  bool show_track_lines;
 
   /**
    * @brief The scroll wheel zooms rather than scrolls
@@ -520,6 +514,48 @@ struct Config {
   bool invert_timeline_scroll_axes;
 
   /**
+   * @brief Enable color managemennt
+   *
+   * **TRUE** if color management through OpenColorIO should be enabled
+   */
+  bool enable_color_management;
+
+  /**
+   * @brief Path to OpenColorIO configuration file
+   *
+   * Used if Config::enable_color_management is true.
+   */
+  QString ocio_config_path;
+
+  /**
+   * @brief OpenColorIO Display
+   *
+   * Used if Config::enable_color_management is true
+   */
+  QString ocio_display;
+
+  /**
+   * @brief OpenColorIO View
+   *
+   * Used if Config::enable_color_management is true
+   */
+  QString ocio_view;
+
+  /**
+   * @brief OpenColorIO Look
+   *
+   * Used if Config::enable_color_management is true
+   */
+  QString ocio_look;
+
+  /**
+   * @brief OpenColorIO Default Input Colorspace
+   *
+   * The colorspace to default to if no colorspace can be determined from the filename or a manual setting.
+   */
+  QString ocio_default_input_colorspace;
+
+  /**
    * @brief Style to use when theming Olive.
    *
    * Set to a member of olive::styling::Style.
@@ -557,6 +593,26 @@ struct Config {
    * @brief Default Sequence audio channel layout
    */
   int default_sequence_audio_channel_layout;
+
+  /**
+   * @brief Playback bit depth (an index of olive::rendering::bit_depths)
+   */
+  int playback_bit_depth;
+
+  /**
+   * @brief Export bit depth (an index of olive::rendering::bit_depths)
+   */
+  int export_bit_depth;
+
+  /**
+   * @brief Don't use proxies on export (use originals instead)
+   */
+  bool dont_use_proxies_on_export;
+
+  /**
+   * @brief The maximum amount of recent projects stored in the Open Recent list
+   */
+  int maximum_recent_projects;
 
   /**
    * @brief Sets whether panels should load locked or not
@@ -608,24 +664,17 @@ struct RuntimeConfig {
   bool shaders_are_enabled;
 
   /**
-   * @brief Disable blending modes
-   *
-   * Some users had difficulty utilizing blending modes (provided by shaders). Set this to **TRUE** to bypass
-   * shader-based blending modes and utilize standard (less versatile) OpenGL blending instead.
-   */
-  bool disable_blending;
-
-  /**
    * @brief Load an external translation file
    *
    * Overrides Config::language_file and sets the path to a language file to use.
    */
   QString external_translation_file;
+
 };
 
 namespace olive {
-extern Config CurrentConfig;
-extern RuntimeConfig CurrentRuntimeConfig;
+extern Config config;
+extern RuntimeConfig runtime_config;
 }
 
 #endif // CONFIG_H

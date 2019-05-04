@@ -1,20 +1,20 @@
 ﻿/***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -43,122 +43,131 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 
-TransformEffect::TransformEffect(Clip* c, const EffectMeta* em) : Effect(c, em) {
-  SetFlags(Effect::CoordsFlag);
+TransformEffect::TransformEffect(Clip* c) : Node(c) {
+  SetFlags(Node::CoordsFlag);
 
-  EffectRow* position_row = new EffectRow(this, tr("Position"));
+  position = new Vec2Input(this, "pos", tr("Position"));
 
-  position_x = new DoubleField(position_row, "posx"); // position X
-  position_y = new DoubleField(position_row, "posy"); // position Y
+  scale = new Vec2Input(this, "scale", tr("Scale"));
+  scale->SetMinimum(0);
+  scale->SetDefault(100);
 
-  EffectRow* scale_row = new EffectRow(this, tr("Scale"));
+  uniform_scale_field = new BoolInput(this, "uniformscale", tr("Uniform Scale"));
+  connect(uniform_scale_field, SIGNAL(Toggled(bool)), scale, SLOT(SetSingleValueMode(bool)));
+  uniform_scale_field->SetValueAt(0, true);
 
-  // scale X (and Y is uniform scale is selected)
-  scale_x = new DoubleField(scale_row, "scalex");
-  scale_x->SetMinimum(0);
+  rotation = new DoubleInput(this, "rotation", tr("Rotation"));
 
-  // scale Y (disabled if uniform scale is selected)
-  scale_y = new DoubleField(scale_row, "scaley");
-  scale_y->SetMinimum(0);
-
-  EffectRow* uniform_scale_row = new EffectRow(this, tr("Uniform Scale"));
-
-  uniform_scale_field = new BoolField(uniform_scale_row, "uniformscale"); // uniform scale option
-
-  EffectRow* rotation_row = new EffectRow(this, tr("Rotation"));
-
-  rotation = new DoubleField(rotation_row, "rotation");
-
-  EffectRow* anchor_point_row = new EffectRow(this, tr("Anchor Point"));
-
-  anchor_x_box = new DoubleField(anchor_point_row, "anchorx"); // anchor point X
-  anchor_y_box = new DoubleField(anchor_point_row, "anchory"); // anchor point Y
-
-  EffectRow* opacity_row = new EffectRow(this, tr("Opacity"));
+  anchor_point = new Vec2Input(this, "anchor", tr("Anchor Point"));
+  anchor_point->SetDefault(0);
 
   // opacity
-  opacity = new DoubleField(opacity_row, "opacity");
+  opacity = new DoubleInput(this, "opacity", tr("Opacity"));
   opacity->SetMinimum(0);
   opacity->SetMaximum(100);
+  opacity->SetDefault(100);
 
-  EffectRow* blend_mode_row = new EffectRow(this, tr("Blend Mode"));
-
-  // blend mode
-  blend_mode_box = new ComboField(blend_mode_row, "blendmode");
-  blend_mode_box->SetColumnSpan(2);
-  blend_mode_box->AddItem(tr("Normal"), "");
+  // TEMP - Create matrix output
+  EffectRow* matrix_output = new EffectRow(this, "matrix", "Matrix", false, false);
+  matrix_output->SetOutputDataType(olive::nodes::kMatrix);
 
   // set up gizmos
   top_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_left_gizmo->set_cursor(Qt::SizeFDiagCursor);
-  top_left_gizmo->x_field1 = scale_x;
+  top_left_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   top_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_center_gizmo->set_cursor(Qt::SizeVerCursor);
-  top_center_gizmo->y_field1 = scale_x;
+  top_center_gizmo->y_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   top_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   top_right_gizmo->set_cursor(Qt::SizeBDiagCursor);
-  top_right_gizmo->x_field1 = scale_x;
+  top_right_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   bottom_left_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   bottom_left_gizmo->set_cursor(Qt::SizeBDiagCursor);
-  bottom_left_gizmo->x_field1 = scale_x;
+  bottom_left_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   bottom_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   bottom_center_gizmo->set_cursor(Qt::SizeVerCursor);
-  bottom_center_gizmo->y_field1 = scale_x;
+  bottom_center_gizmo->y_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   bottom_right_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   bottom_right_gizmo->set_cursor(Qt::SizeFDiagCursor);
-  bottom_right_gizmo->x_field1 = scale_x;
+  bottom_right_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   left_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   left_center_gizmo->set_cursor(Qt::SizeHorCursor);
-  left_center_gizmo->x_field1 = scale_x;
+  left_center_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   right_center_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   right_center_gizmo->set_cursor(Qt::SizeHorCursor);
-  right_center_gizmo->x_field1 = scale_x;
+  right_center_gizmo->x_field1 = static_cast<DoubleField*>(scale->Field(0));
 
   anchor_gizmo = add_gizmo(GIZMO_TYPE_TARGET);
   anchor_gizmo->set_cursor(Qt::SizeAllCursor);
-  anchor_gizmo->x_field1 = anchor_x_box;
-  anchor_gizmo->y_field1 = anchor_y_box;
-  anchor_gizmo->x_field2 = position_x;
-  anchor_gizmo->y_field2 = position_y;
+  anchor_gizmo->x_field1 = static_cast<DoubleField*>(anchor_point->Field(0));
+  anchor_gizmo->y_field1 = static_cast<DoubleField*>(anchor_point->Field(1));
+  anchor_gizmo->x_field2 = static_cast<DoubleField*>(position->Field(0));
+  anchor_gizmo->y_field2 = static_cast<DoubleField*>(position->Field(1));
 
   rotate_gizmo = add_gizmo(GIZMO_TYPE_DOT);
   rotate_gizmo->color = Qt::green;
   rotate_gizmo->set_cursor(Qt::SizeAllCursor);
-  rotate_gizmo->x_field1 = rotation;
+  rotate_gizmo->x_field1 = static_cast<DoubleField*>(rotation->Field(0));
 
   rect_gizmo = add_gizmo(GIZMO_TYPE_POLY);
-  rect_gizmo->x_field1 = position_x;
-  rect_gizmo->y_field1 = position_y;
+  rect_gizmo->x_field1 = static_cast<DoubleField*>(position->Field(0));
+  rect_gizmo->y_field1 = static_cast<DoubleField*>(position->Field(1));
 
   connect(uniform_scale_field, SIGNAL(Toggled(bool)), this, SLOT(toggle_uniform_scale(bool)));
-
-  // set defaults
-  uniform_scale_field->SetValueAt(0, true);
-  blend_mode_box->SetValueAt(0, "");
-  anchor_x_box->SetDefault(0);
-  anchor_y_box->SetDefault(0);
-  opacity->SetDefault(100);
-  scale_x->SetDefault(100);
-  scale_y->SetDefault(100);
 
   refresh();
 }
 
+QString TransformEffect::name()
+{
+  return tr("Transform");
+}
+
+QString TransformEffect::id()
+{
+  return "org.olivevideoeditor.Olive.transform";
+}
+
+QString TransformEffect::category()
+{
+  return tr("Distort");
+}
+
+QString TransformEffect::description()
+{
+  return tr("Transform the position, scale, and rotation of this clip.");
+}
+
+EffectType TransformEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType TransformEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr TransformEffect::Create(Clip *c)
+{
+  return std::make_shared<TransformEffect>(c);
+}
+
 void TransformEffect::refresh() {
-  if (parent_clip != nullptr && parent_clip->sequence != nullptr) {
+  if (parent_clip != nullptr && parent_clip->track()->sequence() != nullptr) {
 
-    position_x->SetDefault(parent_clip->sequence->width/2);
-    position_y->SetDefault(parent_clip->sequence->height/2);
+    position->SetDefault({parent_clip->track()->sequence()->width*0.5,
+                          parent_clip->track()->sequence()->height*0.5});
 
-    double x_percent_multipler = 200.0 / parent_clip->sequence->width;
-    double y_percent_multipler = 200.0 / parent_clip->sequence->height;
+    double x_percent_multipler = 200.0 / parent_clip->track()->sequence()->width;
+    double y_percent_multipler = 200.0 / parent_clip->track()->sequence()->height;
 
     top_left_gizmo->x_field_multi1 = -x_percent_multipler;
     top_left_gizmo->y_field_multi1 = -y_percent_multipler;
@@ -178,7 +187,10 @@ void TransformEffect::refresh() {
 }
 
 void TransformEffect::toggle_uniform_scale(bool enabled) {
-  scale_y->SetEnabled(!enabled);
+  scale->SetSingleValueMode(enabled);
+
+  DoubleField* scale_x = static_cast<DoubleField*>(scale->Field(0));
+  DoubleField* scale_y = static_cast<DoubleField*>(scale->Field(1));
 
   top_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
   bottom_center_gizmo->y_field1 = enabled ? scale_x : scale_y;
@@ -190,51 +202,55 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
   // position
-  glTranslated(position_x->GetDoubleAt(timecode)-(parent_clip->sequence->width/2),
-               position_y->GetDoubleAt(timecode)-(parent_clip->sequence->height/2),
-               0);
+  coords.matrix.translate(position->GetVector2DAt(timecode)
+                          - QVector2D(parent_clip->track()->sequence()->width*0.5f,
+                                      parent_clip->track()->sequence()->height*0.5f));
 
   // anchor point
-  int anchor_x_offset = qRound(anchor_x_box->GetDoubleAt(timecode));
-  int anchor_y_offset = qRound(anchor_y_box->GetDoubleAt(timecode));
-  coords.vertexTopLeftX -= anchor_x_offset;
-  coords.vertexTopRightX -= anchor_x_offset;
-  coords.vertexBottomLeftX -= anchor_x_offset;
-  coords.vertexBottomRightX -= anchor_x_offset;
-  coords.vertexTopLeftY -= anchor_y_offset;
-  coords.vertexTopRightY -= anchor_y_offset;
-  coords.vertexBottomLeftY -= anchor_y_offset;
-  coords.vertexBottomRightY -= anchor_y_offset;
+  QVector2D anchor_val = anchor_point->GetVector2DAt(timecode);
+
+  coords.vertex_top_left -= anchor_val;
+  coords.vertex_top_right -= anchor_val;
+  coords.vertex_bottom_left -= anchor_val;
+  coords.vertex_bottom_right -= anchor_val;
 
   // rotation
-  glRotated(rotation->GetDoubleAt(timecode), 0, 0, 1);
+  coords.matrix.rotate(QQuaternion::fromEulerAngles(0, 0, float(rotation->GetDoubleAt(timecode))));
 
   // scale
-  double sx = scale_x->GetDoubleAt(timecode)*0.01;
-  double sy = (uniform_scale_field->GetBoolAt(timecode)) ? sx : scale_y->GetDoubleAt(timecode)*0.01;
-  glScaled(sx, sy, 1);
-
-  // blend mode
-  coords.blendmode = blend_mode_box->GetValueAt(timecode).toInt();
+  coords.matrix.scale(scale->GetVector2DAt(timecode)*0.01f);
 
   // opacity
   coords.opacity *= float(opacity->GetDoubleAt(timecode)*0.01);
 }
 
+QVector3D LerpVector3D(const QVector3D& a, const QVector3D& b, float t) {
+  return QVector3D(
+        float_lerp(a.x(), b.x(), t),
+        float_lerp(a.y(), b.y(), t),
+        float_lerp(a.z(), b.z(), t)
+        );
+}
+
 void TransformEffect::gizmo_draw(double, GLTextureCoords& coords) {
-  top_left_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-  top_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopLeftX, coords.vertexTopRightX, 0.5), lerp(coords.vertexTopLeftY, coords.vertexTopRightY, 0.5));
-  top_right_gizmo->world_pos[0] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-  right_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexTopRightX, coords.vertexBottomRightX, 0.5), lerp(coords.vertexTopRightY, coords.vertexBottomRightY, 0.5));
-  bottom_right_gizmo->world_pos[0] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-  bottom_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomRightX, coords.vertexBottomLeftX, 0.5), lerp(coords.vertexBottomRightY, coords.vertexBottomLeftY, 0.5));
-  bottom_left_gizmo->world_pos[0] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
-  left_center_gizmo->world_pos[0] = QPoint(lerp(coords.vertexBottomLeftX, coords.vertexTopLeftX, 0.5), lerp(coords.vertexBottomLeftY, coords.vertexTopLeftY, 0.5));
+  top_left_gizmo->world_pos[0] = coords.vertex_top_left;
+  top_right_gizmo->world_pos[0] = coords.vertex_top_right;
+  bottom_right_gizmo->world_pos[0] = coords.vertex_bottom_right;
+  bottom_left_gizmo->world_pos[0] = coords.vertex_bottom_left;
 
-  rotate_gizmo->world_pos[0] = QPoint(lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), -0.1), lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1));
+  top_center_gizmo->world_pos[0] = LerpVector3D(coords.vertex_top_left, coords.vertex_top_right, 0.5);
+  right_center_gizmo->world_pos[0] = LerpVector3D(coords.vertex_top_right, coords.vertex_bottom_right, 0.5);
+  bottom_center_gizmo->world_pos[0] = LerpVector3D(coords.vertex_bottom_right, coords.vertex_bottom_left, 0.5);
+  left_center_gizmo->world_pos[0] = LerpVector3D(coords.vertex_bottom_left, coords.vertex_top_left, 0.5);
 
-  rect_gizmo->world_pos[0] = QPoint(coords.vertexTopLeftX, coords.vertexTopLeftY);
-  rect_gizmo->world_pos[1] = QPoint(coords.vertexTopRightX, coords.vertexTopRightY);
-  rect_gizmo->world_pos[2] = QPoint(coords.vertexBottomRightX, coords.vertexBottomRightY);
-  rect_gizmo->world_pos[3] = QPoint(coords.vertexBottomLeftX, coords.vertexBottomLeftY);
+  rotate_gizmo->world_pos[0] = QVector3D(
+        float_lerp(top_center_gizmo->world_pos[0].x(), bottom_center_gizmo->world_pos[0].x(), 0.5f),
+      float_lerp(top_center_gizmo->world_pos[0].y(), bottom_center_gizmo->world_pos[0].y(), -0.1f),
+      0.0f
+      );
+
+  rect_gizmo->world_pos[0] = coords.vertex_top_left;
+  rect_gizmo->world_pos[1] = coords.vertex_top_right;
+  rect_gizmo->world_pos[2] = coords.vertex_bottom_right;
+  rect_gizmo->world_pos[3] = coords.vertex_bottom_left;
 }

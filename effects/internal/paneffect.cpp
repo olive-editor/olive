@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -28,34 +28,69 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-PanEffect::PanEffect(Clip* c, const EffectMeta *em) : Effect(c, em) {
-  EffectRow* pan_row = new EffectRow(this, tr("Pan"));
-  pan_val = new DoubleField(pan_row, "pan");
+PanEffect::PanEffect(Clip* c) : Node(c) {
+  pan_val = new DoubleInput(this, "pan", tr("Pan"));
   pan_val->SetMinimum(-100);
   pan_val->SetDefault(0);
   pan_val->SetMaximum(100);
 }
 
-void PanEffect::process_audio(double timecode_start, double timecode_end, quint8* samples, int nb_bytes, int) {
-  double interval = (timecode_end - timecode_start)/nb_bytes;
-  for (int i=0;i<nb_bytes;i+=4) {
+QString PanEffect::name()
+{
+  return tr("Pan");
+}
+
+QString PanEffect::id()
+{
+  return "org.olivevideoeditor.Olive.pan";
+}
+
+QString PanEffect::description()
+{
+  return tr("Modifying the panning on a stereo audio clip.");
+}
+
+EffectType PanEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType PanEffect::subtype()
+{
+  return olive::kTypeAudio;
+}
+
+NodePtr PanEffect::Create(Clip *c)
+{
+  return std::make_shared<PanEffect>(c);
+}
+
+void PanEffect::process_audio(double timecode_start,
+                              double timecode_end,
+                              float **samples,
+                              int nb_samples,
+                              int channel_count,
+                              int type) {
+
+  Q_UNUSED(type)
+
+  // This has no effect on mono sources
+  if (channel_count < 2) {
+    return;
+  }
+
+  double interval = (timecode_end - timecode_start)/nb_samples;
+
+  for (int i=0;i<nb_samples;i++) {
     double pan_field_val = pan_val->GetDoubleAt(timecode_start+(interval*i));
     double pval = log_volume(qAbs(pan_field_val)*0.01);
 
-    qint16 left_sample = qint16(((samples[i+1] & 0xFF) << 8) | (samples[i] & 0xFF));
-    qint16 right_sample = qint16(((samples[i+3] & 0xFF) << 8) | (samples[i+2] & 0xFF));
-
     if (pan_field_val < 0) {
       // affect right channel
-      right_sample *= (1.0-pval);
+      samples[1][i] *= (1.0-pval);
     } else {
       // affect left channel
-      left_sample *= (1.0-pval);
+      samples[0][i] *= (1.0-pval);
     }
-
-    samples[i+3] = quint8(right_sample >> 8);
-    samples[i+2] = quint8(right_sample);
-    samples[i+1] = quint8(left_sample >> 8);
-    samples[i] = quint8(left_sample);
   }
 }

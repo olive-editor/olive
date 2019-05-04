@@ -1,8 +1,30 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef EFFECTUI_H
 #define EFFECTUI_H
 
 #include "collapsiblewidget.h"
-#include "effects/effect.h"
+#include "nodes/node.h"
+#include "ui/nodeui.h"
+#include "ui/keyframenavigator.h"
 
 /**
  * @brief The EffectUI class
@@ -28,7 +50,7 @@ public:
    *
    * The Effect to make a UI of. It must be a valid object.
    */
-  EffectUI(Effect* e);
+  EffectUI(Node* e);
 
   /**
    * @brief Attach additional effects to this UI
@@ -41,7 +63,7 @@ public:
    *
    * The Effect to add to this UI object.
    */
-  void AddAdditionalEffect(Effect* e);
+  void AddAdditionalEffect(Node* e);
 
   /**
    * @brief Get the primary Effect that this UI object was created for
@@ -50,7 +72,7 @@ public:
    *
    * The Effect object passed to the constructor when creating this EffectUI.
    */
-  Effect* GetEffect();
+  Node* GetEffect();
 
   /**
    * @brief Get the Y position of a given row
@@ -74,7 +96,7 @@ public:
    *
    * The row's Y position.
    */
-  int GetRowY(int row, QWidget *mapToWidget);
+  int GetRowY(int row, QWidget *mapToWidget = nullptr);
 
   /**
    * @brief Update widgets with the current Effect's values.
@@ -110,6 +132,8 @@ public:
    * True is an Effect from this Clip is already attached to this EffectUI.
    */
   bool IsAttachedToClip(Clip* c);
+
+protected:
 
 signals:
   /**
@@ -148,12 +172,12 @@ private:
   /**
    * @brief Internal reference to the Effect this object was constructed around.
    */
-  Effect* effect_;
+  Node* effect_;
 
   /**
    * @brief Internal array of additional Effect objects attached to this UI.
    */
-  QVector<Effect*> additional_effects_;
+  QVector<Node*> additional_effects_;
 
   /**
    * @brief Layout for UI widgets

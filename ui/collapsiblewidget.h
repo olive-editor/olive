@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -34,12 +34,20 @@ class CollapsibleWidgetHeader : public QWidget {
   Q_OBJECT
 public:
   CollapsibleWidgetHeader(QWidget* parent = nullptr);
-  bool selected;
+
+  bool IsSelected();
+  void SetSelected(bool s, bool deselect_others = false);
+
+  void SetSelectable(bool s);
 protected:
-  void mousePressEvent(QMouseEvent* event);
-  void paintEvent(QPaintEvent *event);
+  virtual bool event(QEvent *event) override;
+  virtual void mousePressEvent(QMouseEvent* event) override;
+  virtual void paintEvent(QPaintEvent *event) override;
 signals:
-  void select(bool, bool);
+  void select();
+private:
+  bool selected_;
+  bool selectable_;
 };
 
 class CollapsibleWidget : public QWidget
@@ -53,13 +61,15 @@ public:
   bool IsFocused();
   bool IsExpanded();
   void SetExpanded(bool s);
+
   bool IsSelected();
+  void Deselect();
+  void SetSelectable(bool s);
 protected:
   QCheckBox* enabled_check;
   CollapsibleWidgetHeader* title_bar;
   QWidget* contents;
 private:
-  bool selected;
   QLabel* header;
   QVBoxLayout* layout;
   QPushButton* collapse_button;
@@ -75,7 +85,7 @@ private slots:
   void on_visible_change();
 
 public slots:
-  void header_click(bool s, bool deselect);
+  void Selected();
 };
 
 #endif // COLLAPSIBLEWIDGET_H

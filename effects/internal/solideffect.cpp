@@ -1,20 +1,20 @@
 /***
 
-    Olive - Non-Linear Video Editor
-    Copyright (C) 2019  Olive Team
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019  Olive Team
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
 
@@ -34,30 +34,26 @@ const int SMPTE_BARS = 7;
 const int SMPTE_STRIP_COUNT = 3;
 const int SMPTE_LOWER_BARS = 4;
 
-SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
-  Effect(c, em)
+SolidEffect::SolidEffect(Clip* c) :
+  Node(c)
 {
-  SetFlags(Effect::SuperimposeFlag);
+  SetFlags(Node::SuperimposeFlag);
 
   // Field for solid type
-  EffectRow* type_row = new EffectRow(this, tr("Type"));
-  solid_type = new ComboField(type_row, "type");
+  solid_type = new ComboInput(this, "type", tr("Type"));
   solid_type->AddItem(tr("Solid Color"), SOLID_TYPE_COLOR);
   solid_type->AddItem(tr("SMPTE Bars"), SOLID_TYPE_BARS);
   solid_type->AddItem(tr("Checkerboard"), SOLID_TYPE_CHECKERBOARD);
 
-  EffectRow* opacity_row = new EffectRow(this, tr("Opacity"));
-  opacity_field = new DoubleField(opacity_row, "opacity");
+  opacity_field = new DoubleInput(this, "opacity", tr("Opacity"));
   opacity_field->SetMinimum(0);
   opacity_field->SetDefault(100);
   opacity_field->SetMaximum(100);
 
-  EffectRow* solid_color_row = new EffectRow(this, tr("Color"));
-  solid_color_field = new ColorField(solid_color_row, "color");
+  solid_color_field = new ColorInput(this, "color", tr("Color"));
   solid_color_field->SetValueAt(0, QColor(Qt::red));
 
-  EffectRow* checkerboard_size = new EffectRow(this, tr("Checkerboard Size"));
-  checkerboard_size_field = new DoubleField(checkerboard_size, "checker_size");
+  checkerboard_size_field = new DoubleInput(this, "checker_size", tr("Checkerboard Size"));
   checkerboard_size_field->SetMinimum(1);
   checkerboard_size_field->SetDefault(10);
 
@@ -71,6 +67,41 @@ SolidEffect::SolidEffect(Clip* c, const EffectMeta* em) :
 
   /*vertPath = ":/shaders/common.vert";
   fragPath = ":/shaders/solideffect.frag";*/
+}
+
+QString SolidEffect::name()
+{
+  return tr("Solid");
+}
+
+QString SolidEffect::id()
+{
+  return "org.olivevideoeditor.Olive.solid";
+}
+
+QString SolidEffect::category()
+{
+  return tr("Render");
+}
+
+QString SolidEffect::description()
+{
+  return tr("Render a solid color over this clip.");
+}
+
+EffectType SolidEffect::type()
+{
+  return EFFECT_TYPE_EFFECT;
+}
+
+olive::TrackType SolidEffect::subtype()
+{
+  return olive::kTypeVideo;
+}
+
+NodePtr SolidEffect::Create(Clip *c)
+{
+  return std::make_shared<SolidEffect>(c);
 }
 
 void SolidEffect::redraw(double timecode) {
