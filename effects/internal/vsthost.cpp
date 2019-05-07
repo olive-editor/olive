@@ -228,7 +228,7 @@ void VSTHost::send_data_cache_to_plugin()
 }
 
 VSTHost::VSTHost(Clip* c) :
-  Node(c),
+  OldEffectNode(c),
   plugin(nullptr),
   dialog(nullptr),
   input_cache(BLOCK_SIZE),
@@ -274,7 +274,7 @@ olive::TrackType VSTHost::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr VSTHost::Create(Clip *c)
+OldEffectNodePtr VSTHost::Create(Clip *c)
 {
   return std::make_shared<VSTHost>(c);
 }
@@ -321,7 +321,7 @@ void VSTHost::custom_load(QXmlStreamReader &stream) {
 }
 
 void VSTHost::save(QXmlStreamWriter &stream) {
-  Node::save(stream);
+  OldEffectNode::save(stream);
   if (plugin != nullptr) {
     char* p = nullptr;
     int32_t length = int32_t(dispatcher(plugin, effGetChunk, 0, 0, &p, 0));

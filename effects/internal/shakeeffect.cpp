@@ -32,8 +32,8 @@
 #include "panels/timeline.h"
 #include "global/debug.h"
 
-ShakeEffect::ShakeEffect(Clip* c) : Node(c) {
-  SetFlags(Node::CoordsFlag);
+ShakeEffect::ShakeEffect(Clip* c) : OldEffectNode(c) {
+  SetFlags(OldEffectNode::CoordsFlag);
 
   intensity_val = new DoubleInput(this, "intensity", tr("Intensity"));
   intensity_val->SetMinimum(0);
@@ -110,7 +110,7 @@ olive::TrackType ShakeEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr ShakeEffect::Create(Clip *c)
+OldEffectNodePtr ShakeEffect::Create(Clip *c)
 {
   return std::make_shared<ShakeEffect>(c);
 }

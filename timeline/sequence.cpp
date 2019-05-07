@@ -905,9 +905,9 @@ void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_
 
 }
 
-Node *Sequence::GetSelectedGizmo()
+OldEffectNode *Sequence::GetSelectedGizmo()
 {
-  Node* gizmo_ptr = nullptr;
+  OldEffectNode* gizmo_ptr = nullptr;
 
   QVector<Clip*> clips = GetAllClips();
 
@@ -923,7 +923,7 @@ Node *Sequence::GetSelectedGizmo()
         // none selected
 
         for (int j=0;j<c->effects.size();j++) {
-          Node* e = c->effects.at(j).get();
+          OldEffectNode* e = c->effects.at(j).get();
 
           // retrieve gizmo data from effect
           if (e->are_gizmos_enabled()) {

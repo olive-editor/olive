@@ -21,11 +21,11 @@
 #ifndef SOLIDEFFECT_H
 #define SOLIDEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
 #include <QImage>
 
-class SolidEffect : public Node {
+class SolidEffect : public OldEffectNode {
   Q_OBJECT
 public:
   enum SolidType {
@@ -42,7 +42,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void redraw(double timecode) override;
 

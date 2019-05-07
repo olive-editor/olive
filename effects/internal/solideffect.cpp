@@ -35,9 +35,9 @@ const int SMPTE_STRIP_COUNT = 3;
 const int SMPTE_LOWER_BARS = 4;
 
 SolidEffect::SolidEffect(Clip* c) :
-  Node(c)
+  OldEffectNode(c)
 {
-  SetFlags(Node::SuperimposeFlag);
+  SetFlags(OldEffectNode::SuperimposeFlag);
 
   // Field for solid type
   solid_type = new ComboInput(this, "type", tr("Type"));
@@ -99,7 +99,7 @@ olive::TrackType SolidEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr SolidEffect::Create(Clip *c)
+OldEffectNodePtr SolidEffect::Create(Clip *c)
 {
   return std::make_shared<SolidEffect>(c);
 }

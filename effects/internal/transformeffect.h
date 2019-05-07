@@ -21,9 +21,9 @@
 #ifndef TRANSFORMEFFECT_H
 #define TRANSFORMEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class TransformEffect : public Node {
+class TransformEffect : public OldEffectNode {
   Q_OBJECT
 public:
   TransformEffect(Clip* c);
@@ -34,7 +34,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void refresh() override;
   virtual void process_coords(double timecode, GLTextureCoords& coords, int data) override;

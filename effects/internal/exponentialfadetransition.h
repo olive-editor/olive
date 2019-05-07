@@ -32,7 +32,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void process_audio(double timecode_start,
                              double timecode_end,

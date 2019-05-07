@@ -28,7 +28,7 @@
 namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "timeline/sequence.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "panels/viewer.h"
 
 /**
@@ -89,7 +89,7 @@ struct ComposeSequenceParams {
      *
      * The currently active Effect that compose_sequence() will update the gizmos of.
      */
-    Node* gizmos;
+    OldEffectNode* gizmos;
 
     /**
      * @brief A variable that compose_sequence() will set to **TRUE** if any of the clips couldn't be shown.

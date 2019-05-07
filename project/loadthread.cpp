@@ -144,7 +144,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
   if (ttype == kTransitionNone) {
     if (type == kInvalidNode) {
       // create void effect
-      NodePtr ve = std::make_shared<VoidEffect>(c, effect_name, effect_id);
+      OldEffectNodePtr ve = std::make_shared<VoidEffect>(c, effect_name, effect_id);
       ve->SetEnabled(effect_enabled);
       ve->load(stream);
 
@@ -152,7 +152,7 @@ void LoadThread::load_effect(QXmlStreamReader& stream, Clip* c) {
 
       c->effects.append(ve);
     } else {
-      NodePtr e = olive::node_library[type]->Create(c);
+      OldEffectNodePtr e = olive::node_library[type]->Create(c);
       e->SetEnabled(effect_enabled);
       e->load(stream);
 

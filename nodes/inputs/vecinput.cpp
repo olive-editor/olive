@@ -4,8 +4,8 @@
 #include <QVector4D>
 #include <QDebug>
 
-VecInput::VecInput(Node* parent, const QString& id, const QString& name, int values, bool savable, bool keyframable) :
-  EffectRow(parent, id, name, savable, keyframable),
+VecInput::VecInput(OldEffectNode* parent, const QString& id, const QString& name, int values, bool savable, bool keyframable) :
+  NodeIO(parent, id, name, savable, keyframable),
   single_value_mode_(false),
   values_(values)
 {
@@ -79,7 +79,7 @@ void VecInput::SetSingleValueMode(bool on)
   }
 }
 
-DoubleInput::DoubleInput(Node *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
+DoubleInput::DoubleInput(OldEffectNode *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
   VecInput(parent, id, name, 1, savable, keyframable)
 {
 }
@@ -89,7 +89,7 @@ double DoubleInput::GetDoubleAt(double timecode)
   return static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode);
 }
 
-Vec2Input::Vec2Input(Node *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
+Vec2Input::Vec2Input(OldEffectNode *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
   VecInput(parent, id, name, 2, savable, keyframable)
 {
 }
@@ -121,7 +121,7 @@ void Vec2Input::SetValueAt(double timecode, const QVariant &value)
   static_cast<DoubleField*>(Field(1))->SetValueAt(timecode, vec2.y());
 }
 
-Vec3Input::Vec3Input(Node *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
+Vec3Input::Vec3Input(OldEffectNode *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
   VecInput(parent, id, name, 3, savable, keyframable)
 {
 }
@@ -156,7 +156,7 @@ void Vec3Input::SetValueAt(double timecode, const QVariant &value)
   static_cast<DoubleField*>(Field(2))->SetValueAt(timecode, vec3.z());
 }
 
-Vec4Input::Vec4Input(Node *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
+Vec4Input::Vec4Input(OldEffectNode *parent, const QString &id, const QString &name, bool savable, bool keyframable) :
   VecInput(parent, id, name, 4, savable, keyframable)
 {
 }

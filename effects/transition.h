@@ -21,7 +21,7 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "nodes/inputs.h"
 
 enum TransitionType {
@@ -33,12 +33,12 @@ enum TransitionType {
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-class Transition : public Node {
+class Transition : public OldEffectNode {
   Q_OBJECT
 public:
   Transition(Clip* c);
 
-  virtual NodePtr copy(Clip* c) override;
+  virtual OldEffectNodePtr copy(Clip* c) override;
 
   Clip* secondary_clip;
 

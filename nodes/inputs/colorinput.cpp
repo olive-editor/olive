@@ -1,7 +1,7 @@
 #include "colorinput.h"
 
-ColorInput::ColorInput(Node* parent, const QString& id, const QString& name, bool savable, bool keyframable) :
-  EffectRow(parent, id, name, savable, keyframable)
+ColorInput::ColorInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable, bool keyframable) :
+  NodeIO(parent, id, name, savable, keyframable)
 {
   AddField(new ColorField(this));
 

@@ -5,9 +5,9 @@
 #include <QGraphicsItem>
 
 class EffectUI;
-class EffectRow;
+class NodeIO;
 class NodeEdge;
-class Node;
+class OldEffectNode;
 
 class NodeUI : public QGraphicsRectItem {
 public:
@@ -15,8 +15,8 @@ public:
 
   void AddToScene(QGraphicsScene* scene);
   //void Resize(const QSize& s);
-  void SetNode(Node* n);
-  Node* GetNode();
+  void SetNode(OldEffectNode* n);
+  OldEffectNode* GetNode();
 
   QVector<QRectF> GetNodeSocketRects();
 
@@ -28,16 +28,16 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-  EffectRow *GetRowFromIndex(int i);
-  NodeUI* FindUIFromNode(Node* n);
+  NodeIO *GetRowFromIndex(int i);
+  NodeUI* FindUIFromNode(OldEffectNode* n);
   int GetRowY(int index);
 
-  Node* node_;
+  OldEffectNode* node_;
 
   QGraphicsPathItem* drag_line_;
   QPointF drag_line_start_;
-  EffectRow* drag_source_;
-  EffectRow* drag_destination_;
+  NodeIO* drag_source_;
+  NodeIO* drag_destination_;
   QPainterPath drag_path_;
 
   int clicked_socket_;

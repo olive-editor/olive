@@ -1,13 +1,13 @@
 #ifndef BOOLINPUT_H
 #define BOOLINPUT_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class BoolInput : public EffectRow
+class BoolInput : public NodeIO
 {
   Q_OBJECT
 public:
-  BoolInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  BoolInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the boolean value at a given timecode

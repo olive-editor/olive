@@ -1,9 +1,9 @@
 #include "nodeimageoutput.h"
 
 NodeImageOutput::NodeImageOutput(Clip *c) :
-  Node(c)
+  OldEffectNode(c)
 {
-  EffectRow* input_texture = new EffectRow(this, "texture", tr("Texture"), true, false);
+  NodeIO* input_texture = new NodeIO(this, "texture", tr("Texture"), true, false);
   input_texture->AddAcceptedNodeInput(olive::nodes::kTexture);
 }
 
@@ -37,7 +37,7 @@ olive::TrackType NodeImageOutput::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr NodeImageOutput::Create(Clip *c)
+OldEffectNodePtr NodeImageOutput::Create(Clip *c)
 {
   return std::make_shared<NodeImageOutput>(c);
 }

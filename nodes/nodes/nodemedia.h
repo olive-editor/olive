@@ -1,9 +1,9 @@
 #ifndef MEDIANODE_H
 #define MEDIANODE_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class NodeMedia : public Node
+class NodeMedia : public OldEffectNode
 {
 public:
   NodeMedia(Clip *c);
@@ -14,7 +14,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 };
 
 #endif // MEDIANODE_H

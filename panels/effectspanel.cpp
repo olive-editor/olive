@@ -78,7 +78,7 @@ void EffectsPanel::Load() {
     Clip* c = selected_clips_.at(i);
 
     // Create a list of the effects we'll open
-    QVector<Node*> effects_to_open;
+    QVector<OldEffectNode*> effects_to_open;
 
     // Determine based on the current selections whether to load all effects or just the transitions
     bool whole_clip_is_selected = c->IsSelected();
@@ -121,7 +121,7 @@ void EffectsPanel::Load() {
       // to clear the graph editor later.
       if (!graph_editor_row_is_still_active) {
         for (int k=0;k<effects_to_open.at(j)->row_count();k++) {
-          EffectRow* row = effects_to_open.at(j)->row(k);
+          NodeIO* row = effects_to_open.at(j)->row(k);
           if (row == panel_graph_editor->get_row()) {
             graph_editor_row_is_still_active = true;
             break;
@@ -139,7 +139,7 @@ void EffectsPanel::Load() {
   LoadEvent();
 }
 
-bool EffectsPanel::IsEffectSelected(Node *e)
+bool EffectsPanel::IsEffectSelected(OldEffectNode *e)
 {
   for (int i=0;i<open_effects_.size();i++) {
     if (open_effects_.at(i)->GetEffect() == e && open_effects_.at(i)->IsSelected()) {
@@ -176,7 +176,7 @@ void EffectsPanel::copy(bool del) {
 
   for (int i=0;i<open_effects_.size();i++) {
     if (open_effects_.at(i)->IsSelected()) {
-      Node* e = open_effects_.at(i)->GetEffect();
+      OldEffectNode* e = open_effects_.at(i)->GetEffect();
 
       if (e->type() == EFFECT_TYPE_EFFECT) {
 
@@ -211,7 +211,7 @@ void EffectsPanel::AboutToClearEvent()
 {
 }
 
-void EffectsPanel::DeleteEffect(ComboAction* ca, Node* effect_ref) {
+void EffectsPanel::DeleteEffect(ComboAction* ca, OldEffectNode* effect_ref) {
   if (effect_ref->type() == EFFECT_TYPE_EFFECT) {
 
     ca->append(new EffectDeleteCommand(effect_ref));
@@ -264,7 +264,7 @@ void EffectsPanel::DeleteSelectedEffects() {
   }
 }
 
-void EffectsPanel::open_effect(Node* e) {
+void EffectsPanel::open_effect(OldEffectNode* e) {
   EffectUI* container = new EffectUI(e);
 
   connect(container, SIGNAL(CutRequested()), this, SLOT(cut()));

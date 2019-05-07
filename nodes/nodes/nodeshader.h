@@ -1,9 +1,9 @@
 #ifndef NODESHADER_H
 #define NODESHADER_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class NodeShader : public Node {
+class NodeShader : public OldEffectNode {
   Q_OBJECT
 public:
   NodeShader(Clip *c,
@@ -19,7 +19,7 @@ public:
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
   virtual bool IsCreatable() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
 private:
   QString name_;

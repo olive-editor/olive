@@ -33,7 +33,7 @@
 #include "panels/timeline.h"
 #include "undo/undo.h"
 #include "undo/undostack.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "project/media.h"
 
 SpeedDialog::SpeedDialog(QWidget *parent, QVector<Clip*> clips) : QDialog(parent) {

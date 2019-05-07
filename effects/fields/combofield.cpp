@@ -22,11 +22,11 @@
 
 #include <QDebug>
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "ui/comboboxex.h"
 #include "undo/undo.h"
 
-ComboField::ComboField(EffectRow* parent) :
+ComboField::ComboField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COMBO)
 {}
 

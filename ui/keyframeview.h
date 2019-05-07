@@ -27,8 +27,8 @@
 #include "ui/effectui.h"
 
 class Clip;
-class Node;
-class EffectRow;
+class OldEffectNode;
+class NodeIO;
 class EffectField;
 class TimelineHeader;
 
@@ -57,7 +57,7 @@ private:
   QVector<EffectField*> selected_fields;
   QVector<int> selected_keyframes;
   QVector<int> rowY;
-  QVector<EffectRow*> rows;
+  QVector<NodeIO*> rows;
   QVector<long> old_key_vals;
   void mousePressEvent(QMouseEvent* event);
   void mouseMoveEvent(QMouseEvent* event);

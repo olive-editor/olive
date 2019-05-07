@@ -189,7 +189,7 @@ void SetTimelineInOutCommand::doRedo() {
   }
 }
 
-AddEffectCommand::AddEffectCommand(Clip* c, NodePtr e, NodeType m, int insert_pos) {
+AddEffectCommand::AddEffectCommand(Clip* c, OldEffectNodePtr e, NodeType m, int insert_pos) {
   clip = c;
   ref = e;
   meta = m;
@@ -545,7 +545,7 @@ void ReplaceClipMediaCommand::doRedo() {
   update_ui(true);
 }
 
-EffectDeleteCommand::EffectDeleteCommand(Node *e) :
+EffectDeleteCommand::EffectDeleteCommand(OldEffectNode *e) :
   effect_(e)
 {}
 
@@ -1086,7 +1086,7 @@ void KeyframeAdd::doRedo() {
   }
 }
 
-SetIsKeyframing::SetIsKeyframing(EffectRow *irow, bool ib) {
+SetIsKeyframing::SetIsKeyframing(NodeIO *irow, bool ib) {
   row = irow;
   b = ib;
 }
@@ -1133,7 +1133,7 @@ void UpdateViewer::doRedo() {
   panel_sequence_viewer->viewer_widget()->frame_update();
 }
 
-SetEffectData::SetEffectData(Node *e, const QByteArray &s) {
+SetEffectData::SetEffectData(OldEffectNode *e, const QByteArray &s) {
   effect = e;
   data = s;
 }

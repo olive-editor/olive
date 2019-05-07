@@ -4,7 +4,7 @@
 #include <QVector>
 #include <memory>
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "tracktypes.h"
 #include "undo/comboaction.h"
 #include "timeline/selection.h"
@@ -112,7 +112,7 @@ private:
   olive::TrackType type_;
   int height_;
   QVector<ClipPtr> clips_;
-  QVector<NodePtr> effects_;
+  QVector<OldEffectNodePtr> effects_;
   QVector<Selection> selections_;
 
   bool muted_;

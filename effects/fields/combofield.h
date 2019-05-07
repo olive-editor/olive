@@ -48,7 +48,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  ComboField(EffectRow* parent);
+  ComboField(NodeIO* parent);
 
   /**
    * @brief Add an item to this ComboField

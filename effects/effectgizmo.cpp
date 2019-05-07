@@ -22,9 +22,9 @@
 
 #include "ui/labelslider.h"
 #include "effects/fields/doublefield.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-EffectGizmo::EffectGizmo(Node *parent, int type) :
+EffectGizmo::EffectGizmo(OldEffectNode *parent, int type) :
   QObject(parent),
   x_field1(nullptr),
   x_field_multi1(1.0),

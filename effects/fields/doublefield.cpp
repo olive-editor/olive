@@ -20,10 +20,10 @@
 
 #include "doublefield.h"
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "undo/undo.h"
 
-DoubleField::DoubleField(EffectRow* parent) :
+DoubleField::DoubleField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_DOUBLE),
   min_(qSNaN()),
   max_(qSNaN()),

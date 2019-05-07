@@ -1,13 +1,13 @@
 #ifndef COLORINPUT_H
 #define COLORINPUT_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class ColorInput : public EffectRow
+class ColorInput : public NodeIO
 {
   Q_OBJECT
 public:
-  ColorInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  ColorInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the color value at a given timecode

@@ -28,7 +28,7 @@
 #include "global/debug.h"
 
 VoidEffect::VoidEffect(Clip* c, const QString& n, const QString& id) :
-  Node(c),
+  OldEffectNode(c),
   display_name_(n),
   id_(id)
 {
@@ -69,13 +69,13 @@ bool VoidEffect::IsCreatable()
   return false;
 }
 
-NodePtr VoidEffect::Create(Clip *)
+OldEffectNodePtr VoidEffect::Create(Clip *)
 {
   return nullptr;
 }
 
-NodePtr VoidEffect::copy(Clip* c) {
-  NodePtr copy = std::make_shared<VoidEffect>(c, display_name_, id_);
+OldEffectNodePtr VoidEffect::copy(Clip* c) {
+  OldEffectNodePtr copy = std::make_shared<VoidEffect>(c, display_name_, id_);
   copy->SetEnabled(IsEnabled());
   copy_field_keyframes(copy);
   return copy;

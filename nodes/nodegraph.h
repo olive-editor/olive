@@ -1,6 +1,8 @@
 #ifndef NODEGRAPH_H
 #define NODEGRAPH_H
 
+#include <QVector>
+
 #include "nodes/node.h"
 
 class NodeGraph
@@ -48,6 +50,8 @@ public:
 
 private:  
   NodePtr output_node_;
+
+  QVector<NodePtr> nodes_;
 };
 
 #endif // NODEGRAPH_H

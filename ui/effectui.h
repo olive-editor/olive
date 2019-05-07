@@ -22,7 +22,7 @@
 #define EFFECTUI_H
 
 #include "collapsiblewidget.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "ui/nodeui.h"
 #include "ui/keyframenavigator.h"
 
@@ -50,7 +50,7 @@ public:
    *
    * The Effect to make a UI of. It must be a valid object.
    */
-  EffectUI(Node* e);
+  EffectUI(OldEffectNode* e);
 
   /**
    * @brief Attach additional effects to this UI
@@ -63,7 +63,7 @@ public:
    *
    * The Effect to add to this UI object.
    */
-  void AddAdditionalEffect(Node* e);
+  void AddAdditionalEffect(OldEffectNode* e);
 
   /**
    * @brief Get the primary Effect that this UI object was created for
@@ -72,7 +72,7 @@ public:
    *
    * The Effect object passed to the constructor when creating this EffectUI.
    */
-  Node* GetEffect();
+  OldEffectNode* GetEffect();
 
   /**
    * @brief Get the Y position of a given row
@@ -172,12 +172,12 @@ private:
   /**
    * @brief Internal reference to the Effect this object was constructed around.
    */
-  Node* effect_;
+  OldEffectNode* effect_;
 
   /**
    * @brief Internal array of additional Effect objects attached to this UI.
    */
-  QVector<Node*> additional_effects_;
+  QVector<OldEffectNode*> additional_effects_;
 
   /**
    * @brief Layout for UI widgets
@@ -212,7 +212,7 @@ private:
    *
    * The KeyframeNavigator object.
    */
-  void AttachKeyframeNavigationToRow(EffectRow* row, KeyframeNavigator* nav);
+  void AttachKeyframeNavigationToRow(NodeIO* row, KeyframeNavigator* nav);
 private slots:
   /**
    * @brief Slot for titlebar's right-click signal to show a context menu for extra Effect functions.

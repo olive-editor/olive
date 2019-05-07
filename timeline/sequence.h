@@ -97,7 +97,7 @@ public:
   void RippleDeleteEmptySpace(ComboAction *ca, Track *track, long point);
   void RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length);
 
-  Node* GetSelectedGizmo();
+  OldEffectNode* GetSelectedGizmo();
 
   bool IsClipSelected(Clip* clip, bool containing = true);
   bool IsTransitionSelected(Transition* t);

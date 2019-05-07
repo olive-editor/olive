@@ -52,7 +52,7 @@ olive::TrackType LogarithmicFadeTransition::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr LogarithmicFadeTransition::Create(Clip *c)
+OldEffectNodePtr LogarithmicFadeTransition::Create(Clip *c)
 {
   return std::make_shared<LogarithmicFadeTransition>(c);
 }

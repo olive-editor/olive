@@ -69,7 +69,7 @@ OliveGlobal::OliveGlobal() :
   version_id = QString(" | %1").arg(GITHASH);
 #endif
 
-  olive::AppName = QString("Olive (April 2019 | Alpha%1)").arg(version_id);
+  olive::AppName = QString("Olive (May 2019 | Alpha%1)").arg(version_id);
 
   // set the file filter used in all file dialogs pertaining to Olive project files.
   project_file_filter = tr("Olive Project %1").arg("(*.ove)");
@@ -391,7 +391,7 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
         Clip* c = selected_clips.at(i);
 
         for (int j=0;j<olive::clipboard.Count();j++) {
-          NodePtr e = std::static_pointer_cast<Node>(olive::clipboard.Get(j));
+          OldEffectNodePtr e = std::static_pointer_cast<OldEffectNode>(olive::clipboard.Get(j));
           if (c->type() == e->subtype()) {
             int found = -1;
             if (ask_conflict) {
@@ -457,7 +457,7 @@ void OliveGlobal::EffectMenuAction(QAction *q)
   ComboAction* ca = new ComboAction();
 
   NodeType node_type = static_cast<NodeType>(q->data().toInt());
-  Node* n = olive::node_library[node_type].get();
+  OldEffectNode* n = olive::node_library[node_type].get();
 
   for (int i=0;i<effect_menu_selected_clips.size();i++) {
     Clip* c = effect_menu_selected_clips.at(i);
@@ -691,7 +691,7 @@ void OliveGlobal::ShowEffectMenu(EffectType type, olive::TrackType subtype, cons
 
   for (int i=0;i<olive::node_library.size();i++) {
 
-    NodePtr node = olive::node_library.at(i);
+    OldEffectNodePtr node = olive::node_library.at(i);
 
     if (node != nullptr && node->type() == type && node->subtype() == subtype) {
       QAction* action = new QAction(&effects_menu);

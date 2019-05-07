@@ -1,13 +1,13 @@
 #ifndef FILEINPUT_H
 #define FILEINPUT_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class FileInput : public EffectRow
+class FileInput : public NodeIO
 {
   Q_OBJECT
 public:
-  FileInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  FileInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the filename at the given timecode

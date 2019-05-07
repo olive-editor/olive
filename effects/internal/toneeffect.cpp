@@ -27,7 +27,7 @@
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 
-ToneEffect::ToneEffect(Clip* c) : Node(c), sinX(INT_MIN) {
+ToneEffect::ToneEffect(Clip* c) : OldEffectNode(c), sinX(INT_MIN) {
   type_val = new ComboInput(this, "type", tr("Type"));
   type_val->AddItem(tr("Sine"), TONE_TYPE_SINE);
 
@@ -70,7 +70,7 @@ olive::TrackType ToneEffect::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr ToneEffect::Create(Clip *c)
+OldEffectNodePtr ToneEffect::Create(Clip *c)
 {
   return std::make_shared<ToneEffect>(c);
 }

@@ -5,7 +5,7 @@ NodeShader::NodeShader(Clip* c,
                        const QString &id,
                        const QString &category,
                        const QString &filename) :
-  Node(c),
+  OldEffectNode(c),
   name_(name),
   id_(id),
   category_(category),
@@ -39,7 +39,7 @@ NodeShader::NodeShader(Clip* c,
           if (id.isEmpty() || name.isEmpty() || type == olive::nodes::kInvalid) {
             qCritical() << "Couldn't load field from" << filename_ << "- ID, type, and name cannot be empty.";
           } else {
-            EffectRow* field = nullptr;
+            NodeIO* field = nullptr;
 
             switch (type) {
             case olive::nodes::kFloat:
@@ -215,7 +215,7 @@ bool NodeShader::IsCreatable()
   return !filename_.isEmpty();
 }
 
-NodePtr NodeShader::Create(Clip *)
+OldEffectNodePtr NodeShader::Create(Clip *)
 {
   Q_ASSERT(false);
   return nullptr;

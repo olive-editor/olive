@@ -62,7 +62,7 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   timecode_end = timecode_start + samples_to_seconds(nb_samples, frame->channels, frame->sample_rate);
 
   for (int j=0;j<clip->effects.size();j++) {
-    Node* e = clip->effects.at(j).get();
+    OldEffectNode* e = clip->effects.at(j).get();
     if (e->IsEnabled()) {
       e->process_audio(timecode_start, timecode_end, reinterpret_cast<float**>(frame->data), nb_samples, nb_channels, kTransitionNone);
     }

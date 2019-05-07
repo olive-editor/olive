@@ -21,11 +21,11 @@
 #ifndef SHAKEEFFECT_H
 #define SHAKEEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
 #define RANDOM_VAL_SIZE 30
 
-class ShakeEffect : public Node {
+class ShakeEffect : public OldEffectNode {
   Q_OBJECT
 public:
   ShakeEffect(Clip* c);
@@ -37,7 +37,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   DoubleInput* intensity_val;
   DoubleInput* rotation_val;

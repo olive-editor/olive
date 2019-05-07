@@ -32,7 +32,7 @@
 #include <QApplication>
 
 #include "panels/panels.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "effects/effectloaders.h"
 #include "effects/transition.h"
 #include "timeline/clip.h"
@@ -392,7 +392,7 @@ void EffectControls::LoadEvent()
     QVBoxLayout* layout = nullptr;
 
     EffectUI* container = open_effects_.at(i);
-    Node* e = open_effects_.at(i)->GetEffect();
+    OldEffectNode* e = open_effects_.at(i)->GetEffect();
 
     if (e->subtype() == olive::kTypeVideo) {
       vcontainer->setVisible(true);

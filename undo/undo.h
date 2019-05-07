@@ -30,7 +30,7 @@
 
 #include "comboaction.h"
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "timeline/marker.h"
 #include "timeline/selection.h"
 #include "effects/keyframe.h"
@@ -44,13 +44,13 @@ using SequencePtr = std::shared_ptr<Sequence>;
 class Media;
 using MediaPtr = std::shared_ptr<Media>;
 
-class Node;
-using NodePtr = std::shared_ptr<Node>;
+class OldEffectNode;
+using OldEffectNodePtr = std::shared_ptr<OldEffectNode>;
 
 class Transition;
 using TransitionPtr = std::shared_ptr<Transition>;
 
-class EffectRow;
+class NodeIO;
 class EffectField;
 
 class OliveAction : public QUndoCommand {
@@ -124,13 +124,13 @@ private:
 
 class AddEffectCommand : public OliveAction {
 public:
-  AddEffectCommand(Clip* c, NodePtr e, NodeType m, int insert_pos = -1);
+  AddEffectCommand(Clip* c, OldEffectNodePtr e, NodeType m, int insert_pos = -1);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
   Clip* clip;
   NodeType meta;
-  NodePtr ref;
+  OldEffectNodePtr ref;
   int pos;
   bool done;
 };
@@ -273,12 +273,12 @@ private:
 
 class EffectDeleteCommand : public OliveAction {
 public:
-  EffectDeleteCommand(Node* e);
+  EffectDeleteCommand(OldEffectNode* e);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Node* effect_;
-  NodePtr deleted_obj_;
+  OldEffectNode* effect_;
+  OldEffectNodePtr deleted_obj_;
   Clip* parent_clip_;
   int index_;
 };
@@ -568,11 +568,11 @@ private:
 
 class SetIsKeyframing : public OliveAction {
 public:
-  SetIsKeyframing(EffectRow* irow, bool ib);
+  SetIsKeyframing(NodeIO* irow, bool ib);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  EffectRow* row;
+  NodeIO* row;
   bool b;
 };
 
@@ -593,11 +593,11 @@ public:
 
 class SetEffectData : public OliveAction {
 public:
-  SetEffectData(Node* e, const QByteArray &s);
+  SetEffectData(OldEffectNode* e, const QByteArray &s);
   virtual void doUndo() override;
   virtual void doRedo() override;
 private:
-  Node* effect;
+  OldEffectNode* effect;
   QByteArray data;
   QByteArray old_data;
 };

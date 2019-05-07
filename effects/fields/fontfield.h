@@ -37,7 +37,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::EffectField().
    */
-  FontField(EffectRow* parent);
+  FontField(NodeIO* parent);
 
   /**
    * @brief Get the font family name at the given timecode

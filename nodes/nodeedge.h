@@ -3,7 +3,7 @@
 
 #include <memory>
 
-class EffectRow;
+class NodeIO;
 
 class NodeEdge;
 using NodeEdgePtr = std::shared_ptr<NodeEdge>;
@@ -26,14 +26,14 @@ public:
    *
    * Input/to EffectRow that this edge "ends" at
    */
-  NodeEdge(EffectRow* output, EffectRow* input);
+  NodeEdge(NodeIO* output, NodeIO* input);
 
-  EffectRow* output();
-  EffectRow* input();
+  NodeIO* output();
+  NodeIO* input();
 
 private:
-  EffectRow* output_;
-  EffectRow* input_;
+  NodeIO* output_;
+  NodeIO* input_;
 };
 
 #endif // NODEEDGE_H

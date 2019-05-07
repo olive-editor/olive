@@ -22,10 +22,10 @@
 
 #include <QCheckBox>
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "undo/undo.h"
 
-BoolField::BoolField(EffectRow *parent) :
+BoolField::BoolField(NodeIO *parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_BOOL)
 {}
 

@@ -28,7 +28,7 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-PanEffect::PanEffect(Clip* c) : Node(c) {
+PanEffect::PanEffect(Clip* c) : OldEffectNode(c) {
   pan_val = new DoubleInput(this, "pan", tr("Pan"));
   pan_val->SetMinimum(-100);
   pan_val->SetDefault(0);
@@ -60,7 +60,7 @@ olive::TrackType PanEffect::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr PanEffect::Create(Clip *c)
+OldEffectNodePtr PanEffect::Create(Clip *c)
 {
   return std::make_shared<PanEffect>(c);
 }

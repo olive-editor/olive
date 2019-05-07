@@ -23,10 +23,10 @@
 #include <QColor>
 
 #include "ui/colorbutton.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "undo/undo.h"
 
-ColorField::ColorField(EffectRow* parent) :
+ColorField::ColorField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COLOR)
 {}
 

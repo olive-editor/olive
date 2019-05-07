@@ -30,7 +30,7 @@
 
 #include "rendering/cacher.h"
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "effects/transition.h"
 #include "undo/comboaction.h"
 #include "project/media.h"
@@ -129,8 +129,8 @@ public:
   QVector<Marker>& get_markers();
 
   // other variables (should be deep copied/duplicated in copy())
-  int IndexOfEffect(Node* e);
-  QList<NodePtr> effects;
+  int IndexOfEffect(OldEffectNode* e);
+  QList<OldEffectNodePtr> effects;
   QVector<Clip*> linked;
   TransitionPtr opening_transition;
   TransitionPtr closing_transition;

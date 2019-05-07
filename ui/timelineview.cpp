@@ -56,7 +56,7 @@
 #include "ui/focusfilter.h"
 #include "dialogs/clippropertiesdialog.h"
 #include "global/debug.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "effects/internal/solideffect.h"
 #include "timeline/track.h"
 #include "global/math.h"
@@ -1042,7 +1042,7 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event) {
             case olive::timeline::ADD_OBJ_BARS:
             {
               c->set_name(tr("Bars"));
-              NodePtr e = olive::node_library[kSolidInput]->Create(c.get());
+              OldEffectNodePtr e = olive::node_library[kSolidInput]->Create(c.get());
 
               // Auto-select bars
               SolidEffect* solid_effect = static_cast<SolidEffect*>(e.get());

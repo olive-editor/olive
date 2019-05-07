@@ -21,9 +21,9 @@
 #ifndef PANEFFECT_H
 #define PANEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class PanEffect : public Node {
+class PanEffect : public OldEffectNode {
   Q_OBJECT
 public:
   PanEffect(Clip* c);
@@ -33,7 +33,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void process_audio(double timecode_start,
                              double timecode_end,

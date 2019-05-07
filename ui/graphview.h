@@ -24,7 +24,7 @@
 #include <QWidget>
 #include <QVector>
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 #include "effects/effectfields.h"
 
 QColor get_curve_color(int index, int length);
@@ -40,7 +40,7 @@ public:
   void mouseReleaseEvent(QMouseEvent *event);
   void wheelEvent(QWheelEvent *event);
 
-  void set_row(EffectRow* r);
+  void set_row(NodeIO* r);
 
   void set_selected_keyframe_type(int type);
   void set_field_visibility(int field, bool b);
@@ -95,7 +95,7 @@ private:
   void draw_lines(QPainter &p, bool vert);
   void draw_line_text(QPainter &p, bool vert, int line_no, int line_pos, int next_line_pos);
 
-  EffectRow* row;
+  NodeIO* row;
 
   bool rect_select;
   int rect_select_x;

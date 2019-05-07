@@ -32,7 +32,7 @@ void NodeUI::AddToScene(QGraphicsScene *scene)
   scene->addItem(this);
 }
 
-void NodeUI::SetNode(Node *n)
+void NodeUI::SetNode(OldEffectNode *n)
 {
   node_ = n;
 
@@ -51,7 +51,7 @@ void NodeUI::SetNode(Node *n)
   setRect(rectangle);
 }
 
-Node *NodeUI::GetNode()
+OldEffectNode *NodeUI::GetNode()
 {
   return node_;
 }
@@ -135,9 +135,9 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
       // If this node is the edge's "input", then we'll drag that instead of creating a new edge
 
-      EffectRow* other_row = e->output();
+      NodeIO* other_row = e->output();
 
-      Node* other_node = other_row->GetParentEffect();
+      OldEffectNode* other_node = other_row->GetParentEffect();
 
       int other_row_index = other_node->IndexOfRow(other_row);
 
@@ -149,7 +149,7 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
       drag_source_ = other_row;
 
       // Disconnect the existing edge, and treat our dynamic one as an edit of that one
-      EffectRow::DisconnectEdge(edges.last());
+      NodeIO::DisconnectEdge(edges.last());
 
 
 
@@ -202,15 +202,15 @@ void NodeUI::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
             // If so, see if the two rows can be connected
 
-            EffectRow* local_row = drag_source_;
-            EffectRow* remote_row = mouse_node->GetRowFromIndex(i);
+            NodeIO* local_row = drag_source_;
+            NodeIO* remote_row = mouse_node->GetRowFromIndex(i);
 
             // Ensure one is an input and one is an output and whether their data types are compatible
             if (local_row->IsNodeInput() != remote_row->IsNodeInput()) {
 
               // Determine which row is the input and which row is the output
-              EffectRow* input_row = (local_row->IsNodeInput()) ? local_row : remote_row;
-              EffectRow* output_row = (local_row->IsNodeInput()) ? remote_row : local_row;
+              NodeIO* input_row = (local_row->IsNodeInput()) ? local_row : remote_row;
+              NodeIO* output_row = (local_row->IsNodeInput()) ? remote_row : local_row;
 
               if (input_row->CanAcceptDataType(output_row->OutputDataType())) {
                 // This is a valid connection
@@ -257,7 +257,7 @@ void NodeUI::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     event->accept();
 
     if (drag_destination_ != nullptr) {
-      EffectRow::ConnectEdge(drag_source_, drag_destination_);
+      NodeIO::ConnectEdge(drag_source_, drag_destination_);
     }
   } else {
     QGraphicsItem::mouseReleaseEvent(event);
@@ -269,11 +269,11 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
   QVector<QRectF> rects;
 
   if (node_ != nullptr) {
-    Node* e = node_;
+    OldEffectNode* e = node_;
 
     for (int i=0;i<e->row_count();i++) {
 
-      EffectRow* row = e->row(i);      
+      NodeIO* row = e->row(i);      
 
       if (row->IsNodeInput() || row->IsNodeOutput()) {
         qreal x = (row->IsNodeOutput()) ? rect().right() - kNodePlugSize : rect().x();
@@ -290,7 +290,7 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
   return rects;
 }
 
-EffectRow *NodeUI::GetRowFromIndex(int i)
+NodeIO *NodeUI::GetRowFromIndex(int i)
 {
   if (node_ != nullptr && i < node_->row_count()) {
     return node_->row(i);
@@ -298,7 +298,7 @@ EffectRow *NodeUI::GetRowFromIndex(int i)
   return nullptr;
 }
 
-NodeUI *NodeUI::FindUIFromNode(Node* n)
+NodeUI *NodeUI::FindUIFromNode(OldEffectNode* n)
 {
   QList<QGraphicsItem*> all_items = scene()->items();
 

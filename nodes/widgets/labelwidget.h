@@ -1,12 +1,12 @@
 #ifndef LABELWIDGET_H
 #define LABELWIDGET_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class LabelWidget : public EffectRow
+class LabelWidget : public NodeIO
 {
 public:
-  LabelWidget(Node* parent, const QString& name, const QString& text);
+  LabelWidget(OldEffectNode* parent, const QString& name, const QString& text);
 };
 
 #endif // LABELWIDGET_H

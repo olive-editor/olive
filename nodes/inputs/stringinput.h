@@ -1,13 +1,13 @@
 #ifndef STRINGINPUT_H
 #define STRINGINPUT_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class StringInput : public EffectRow
+class StringInput : public NodeIO
 {
   Q_OBJECT
 public:
-  StringInput(Node* parent,
+  StringInput(OldEffectNode* parent,
               const QString& id,
               const QString& name,
               bool rich_text = true,

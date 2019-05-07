@@ -43,9 +43,9 @@
 #include "global/config.h"
 
 TextEffect::TextEffect(Clip* c) :
-  Node(c)
+  OldEffectNode(c)
 {
-  SetFlags(Node::SuperimposeFlag);
+  SetFlags(OldEffectNode::SuperimposeFlag);
 
   text_val = new StringInput(this, "text", tr("Text"), false);
 
@@ -151,7 +151,7 @@ olive::TrackType TextEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr TextEffect::Create(Clip *c)
+OldEffectNodePtr TextEffect::Create(Clip *c)
 {
   return std::make_shared<TextEffect>(c);
 }

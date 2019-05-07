@@ -24,7 +24,7 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "effects/transition.h"
 #include "global/path.h"
 #include "panels/panels.h"

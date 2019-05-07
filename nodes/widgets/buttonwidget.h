@@ -1,12 +1,12 @@
 #ifndef BUTTONWIDGET_H
 #define BUTTONWIDGET_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class ButtonWidget : public EffectRow
+class ButtonWidget : public NodeIO
 {
 public:
-  ButtonWidget(Node* parent, const QString& name, const QString& text);
+  ButtonWidget(OldEffectNode* parent, const QString& name, const QString& text);
 
   /**
    * @brief Wrapper for ButtonField::SetCheckable.

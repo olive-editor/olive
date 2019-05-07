@@ -34,7 +34,7 @@ extern "C" {
 #include "timeline/clip.h"
 #include "timeline/sequence.h"
 #include "project/media.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "project/footage.h"
 #include "effects/transition.h"
 #include "ui/collapsiblewidget.h"
@@ -175,7 +175,7 @@ GLuint draw_clip(QOpenGLContext* ctx,
 void process_effect(QOpenGLContext* ctx,
                     QOpenGLShaderProgram* pipeline,
                     Clip* c,
-                    Node* e,
+                    OldEffectNode* e,
                     double timecode,
                     GLTextureCoords& coords,
                     GLuint& composite_texture,
@@ -183,11 +183,11 @@ void process_effect(QOpenGLContext* ctx,
                     bool& texture_failed,
                     int data) {
   if (e->IsEnabled()) {
-    if (e->Flags() & Node::CoordsFlag) {
+    if (e->Flags() & OldEffectNode::CoordsFlag) {
       e->process_coords(timecode, coords, data);
     }
-    bool can_process_shaders = ((e->Flags() & Node::ShaderFlag) && olive::runtime_config.shaders_are_enabled);
-    if (can_process_shaders || (e->Flags() & Node::SuperimposeFlag)) {
+    bool can_process_shaders = ((e->Flags() & OldEffectNode::ShaderFlag) && olive::runtime_config.shaders_are_enabled);
+    if (can_process_shaders || (e->Flags() & OldEffectNode::SuperimposeFlag)) {
 
       if (!e->is_open()) {
         e->open();
@@ -200,7 +200,7 @@ void process_effect(QOpenGLContext* ctx,
           fbo_switcher = !fbo_switcher;
         }
       }
-      if (e->Flags() & Node::SuperimposeFlag) {
+      if (e->Flags() & OldEffectNode::SuperimposeFlag) {
         GLuint superimpose_texture = e->process_superimpose(ctx, timecode);
 
         if (superimpose_texture == 0) {
@@ -514,7 +514,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           // run through all of the clip's effects
           for (int j=0;j<c->effects.size();j++) {
 
-            Node* e = c->effects.at(j).get();
+            OldEffectNode* e = c->effects.at(j).get();
             process_effect(params.ctx, params.pipeline, c, e, timecode, coords, textureID, fbo_switcher, params.texture_failed, kTransitionNone);
 
           }

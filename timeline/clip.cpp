@@ -22,7 +22,7 @@
 
 #include <QtMath>
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "effects/transition.h"
 #include "project/footage.h"
 #include "global/config.h"
@@ -220,7 +220,7 @@ QVector<Marker> &Clip::get_markers() {
   return markers;
 }
 
-int Clip::IndexOfEffect(Node *e)
+int Clip::IndexOfEffect(OldEffectNode *e)
 {
   for (int i=0;i<effects.size();i++) {
     if (effects.at(i).get() == e) {
@@ -517,9 +517,9 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
 
   // move keyframes
   for (int i=0;i<effects.size();i++) {
-    NodePtr e = effects.at(i);
+    OldEffectNodePtr e = effects.at(i);
     for (int j=0;j<e->row_count();j++) {
-      EffectRow* r = e->row(j);
+      NodeIO* r = e->row(j);
       for (int l=0;l<r->FieldCount();l++) {
         EffectField* f = r->Field(l);
         for (int k=0;k<f->keyframes.size();k++) {

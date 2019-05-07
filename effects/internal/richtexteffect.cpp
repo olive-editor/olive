@@ -35,9 +35,9 @@ enum AutoscrollDirection {
 };
 
 RichTextEffect::RichTextEffect(Clip *c) :
-  Node(c)
+  OldEffectNode(c)
 {
-  SetFlags(Node::SuperimposeFlag);
+  SetFlags(OldEffectNode::SuperimposeFlag);
 
   text_val = new StringInput(this, "text", tr("Text"));
 
@@ -112,7 +112,7 @@ olive::TrackType RichTextEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr RichTextEffect::Create(Clip *c)
+OldEffectNodePtr RichTextEffect::Create(Clip *c)
 {
   return std::make_shared<RichTextEffect>(c);
 }

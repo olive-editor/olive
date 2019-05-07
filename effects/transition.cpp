@@ -41,7 +41,7 @@
 #include <QCoreApplication>
 
 Transition::Transition(Clip *c) :
-  Node(c),
+  OldEffectNode(c),
   secondary_clip(nullptr)
 {
   length_field = new DoubleInput(this, "length", tr("Length"), false, false);
@@ -57,8 +57,8 @@ Transition::Transition(Clip *c) :
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));
 }
 
-NodePtr Transition::copy(Clip *c) {
-  NodePtr node = Node::copy(c);
+OldEffectNodePtr Transition::copy(Clip *c) {
+  OldEffectNodePtr node = OldEffectNode::copy(c);
 
   static_cast<Transition*>(node.get())->set_length(get_true_length());
 
@@ -67,7 +67,7 @@ NodePtr Transition::copy(Clip *c) {
 
 void Transition::save(QXmlStreamWriter &stream) {
   stream.writeAttribute("length", QString::number(get_true_length()));
-  Node::save(stream);
+  OldEffectNode::save(stream);
 }
 
 void Transition::set_length(int l) {

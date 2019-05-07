@@ -24,12 +24,12 @@
 #include <QDebug>
 
 #include "ui/comboboxex.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "undo/undo.h"
 
 // NOTE/TODO: This shares a lot of similarity with ComboInput, and could probably be a derived class of it
 
-FontField::FontField(EffectRow* parent) :
+FontField::FontField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_FONT)
 {
   font_list = QFontDatabase().families();

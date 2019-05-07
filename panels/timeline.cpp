@@ -876,7 +876,7 @@ void Timeline::transition_tool_click() {
   transition_menu.addAction(tr("Video Transitions"))->setEnabled(false);
 
   for (int i=0;i<olive::node_library.size();i++) {
-    NodePtr node = olive::node_library.at(i);
+    OldEffectNodePtr node = olive::node_library.at(i);
     if (node != nullptr && node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeVideo) {
       QAction* a = transition_menu.addAction(node->name());
       a->setData(i);
@@ -888,7 +888,7 @@ void Timeline::transition_tool_click() {
   transition_menu.addAction(tr("Audio Transitions"))->setEnabled(false);
 
   for (int i=0;i<olive::node_library.size();i++) {
-    NodePtr node = olive::node_library.at(i);
+    OldEffectNodePtr node = olive::node_library.at(i);
     if (node != nullptr && node->type() == EFFECT_TYPE_TRANSITION && node->subtype() == olive::kTypeAudio) {
       QAction* a = transition_menu.addAction(node->name());
       a->setData(i);

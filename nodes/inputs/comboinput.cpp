@@ -1,7 +1,7 @@
 #include "comboinput.h"
 
-ComboInput::ComboInput(Node* parent, const QString& id, const QString& name, bool savable, bool keyframable) :
-  EffectRow(parent, id, name, savable, keyframable)
+ComboInput::ComboInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable, bool keyframable) :
+  NodeIO(parent, id, name, savable, keyframable)
 {
   ComboField* combo_field = new ComboField(this);
   connect(combo_field, SIGNAL(DataChanged(const QVariant&)), this, SIGNAL(DataChanged(const QVariant&)));

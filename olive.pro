@@ -52,6 +52,10 @@ gcc:QMAKE_CXXFLAGS += -Wno-reorder
 
 SOURCES += \
         main.cpp \
+    nodes/node.cpp \
+    nodes/nodeio.cpp \
+    nodes/nodes/nodeclip.cpp \
+    nodes/oldeffectnode.cpp \
         ui/mainwindow.cpp \
     panels/project.cpp \
     panels/effectcontrols.cpp \
@@ -106,7 +110,6 @@ SOURCES += \
     effects/internal/logarithmicfadetransition.cpp \
     effects/internal/cornerpineffect.cpp \
     global/math.cpp \
-    effects/effectrow.cpp \
     effects/effectgizmo.cpp \
     ui/resizablescrollbar.cpp \
     ui/sourceiconview.cpp \
@@ -206,11 +209,14 @@ SOURCES += \
     nodes/nodes/nodeshader.cpp \
     decoders/ffmpegdecoder.cpp \
     decoders/decoder.cpp \
-    nodes/node.cpp \
     nodes/nodeedge.cpp \
     ui/nodeedgeui.cpp
 
 HEADERS += \
+    nodes/node.h \
+    nodes/nodeio.h \
+    nodes/nodes/nodeclip.h \
+    nodes/oldeffectnode.h \
         ui/mainwindow.h \
     panels/project.h \
     panels/effectcontrols.h \
@@ -266,7 +272,6 @@ HEADERS += \
     effects/internal/logarithmicfadetransition.h \
     effects/internal/cornerpineffect.h \
     global/math.h \
-    effects/effectrow.h \
     effects/internal/cubetransition.h \
     effects/effectgizmo.h \
     ui/resizablescrollbar.h \
@@ -371,7 +376,6 @@ HEADERS += \
     nodes/nodes.h \
     decoders/ffmpegdecoder.h \
     decoders/decoder.h \
-    nodes/node.h \
     timeline/tracktypes.h \
     nodes/nodeedge.h \
     ui/nodeedgeui.h

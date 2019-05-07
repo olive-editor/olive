@@ -47,7 +47,7 @@ olive::TrackType LinearFadeTransition::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr LinearFadeTransition::Create(Clip *c)
+OldEffectNodePtr LinearFadeTransition::Create(Clip *c)
 {
   return std::make_shared<LinearFadeTransition>(c);
 }

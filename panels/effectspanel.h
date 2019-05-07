@@ -18,7 +18,7 @@ public:
 
   virtual bool focused() override;
 
-  bool IsEffectSelected(Node* e);
+  bool IsEffectSelected(OldEffectNode* e);
   void DeleteSelectedEffects();
 
 public slots:
@@ -33,8 +33,8 @@ protected:
   QVector<EffectUI*> open_effects_;
 private:
   void Load();
-  void open_effect(Node *e);
-  void DeleteEffect(ComboAction* ca, Node* effect_ref);
+  void open_effect(OldEffectNode *e);
+  void DeleteEffect(ComboAction* ca, OldEffectNode* effect_ref);
 private slots:
   void deselect_all_effects(QWidget*);
 };

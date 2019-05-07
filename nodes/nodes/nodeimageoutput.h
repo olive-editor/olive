@@ -1,9 +1,9 @@
 #ifndef NODEIMAGEOUTPUT_H
 #define NODEIMAGEOUTPUT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class NodeImageOutput : public Node
+class NodeImageOutput : public OldEffectNode
 {
 public:
   NodeImageOutput(Clip* c);
@@ -14,7 +14,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 };
 
 #endif // NODEIMAGEOUTPUT_H

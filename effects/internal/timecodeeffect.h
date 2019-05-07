@@ -21,12 +21,12 @@
 #ifndef TIMECODEEFFECT_H
 #define TIMECODEEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
 #include <QFont>
 #include <QImage>
 
-class TimecodeEffect : public Node {
+class TimecodeEffect : public OldEffectNode {
   Q_OBJECT
 public:
   TimecodeEffect(Clip* c);
@@ -37,7 +37,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void redraw(double timecode) override;
   DoubleInput* scale_val;

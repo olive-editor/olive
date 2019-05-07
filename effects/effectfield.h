@@ -29,7 +29,7 @@
 #include "undo/undostack.h"
 #include "nodes/nodedatatypes.h"
 
-class EffectRow;
+class NodeIO;
 class ComboAction;
 
 /**
@@ -106,7 +106,7 @@ public:
    *
    * The type of data contained within this field. This is expected to be filled by a derived class.
    */
-  EffectField(EffectRow* parent, EffectFieldType t);
+  EffectField(NodeIO* parent, EffectFieldType t);
 
   /**
    * @brief Get the EffectRow that this field is a member of.
@@ -117,7 +117,7 @@ public:
    *
    * The EffectRow that this field is a member of.
    */
-  EffectRow* GetParentRow();
+  NodeIO* GetParentRow();
 
   /**
    * @brief Get the type of data to expect from this field

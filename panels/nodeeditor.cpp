@@ -66,7 +66,7 @@ void NodeEditor::LoadEvent()
 
     for (int i=0;i<open_effects_.size();i++) {
       EffectUI* effect_ui = open_effects_.at(i);
-      Node* node = effect_ui->GetEffect();
+      OldEffectNode* node = effect_ui->GetEffect();
 
       if (node->parent_clip == first_clip) {
         NodeUI* node_ui = new NodeUI();
@@ -120,7 +120,7 @@ void NodeEditor::LoadEdges()
 
     for (int i=0;i<open_effects_.size();i++) {
 
-      Node* n = open_effects_.at(i)->GetEffect();
+      OldEffectNode* n = open_effects_.at(i)->GetEffect();
 
       if (n->parent_clip == first_clip) {
 
@@ -150,7 +150,7 @@ void NodeEditor::LoadEdges()
   }
 }
 
-void NodeEditor::ConnectRow(EffectRow *row)
+void NodeEditor::ConnectRow(NodeIO *row)
 {
   if (!connected_rows_.contains(row)) {
     connect(row, SIGNAL(EdgesChanged()), this, SLOT(ReloadEdges()));

@@ -21,12 +21,12 @@
 #ifndef TEXTEFFECT_H
 #define TEXTEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
 #include <QFont>
 #include <QImage>
 
-class TextEffect : public Node {
+class TextEffect : public OldEffectNode {
   Q_OBJECT
 public:
   TextEffect(Clip* c);
@@ -37,7 +37,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void redraw(double timecode) override;
 private slots:

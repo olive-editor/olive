@@ -23,7 +23,7 @@
 #include <QMouseEvent>
 #include <QtMath>
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "ui/collapsiblewidget.h"
 #include "panels/panels.h"
 #include "timeline/clip.h"
@@ -120,11 +120,11 @@ void KeyframeView::paintEvent(QPaintEvent*) {
     for (int j=0;j<open_effects_.size();j++) {
 
       EffectUI* container = open_effects_.at(j);
-      Node* e = container->GetEffect();
+      OldEffectNode* e = container->GetEffect();
 
       if (container->IsExpanded()) {
         for (int j=0;j<e->row_count();j++) {
-          EffectRow* row = e->row(j);
+          NodeIO* row = e->row(j);
 
           int keyframe_y = container->GetRowY(j, this);
 
@@ -254,7 +254,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
   long frame_max = getFrameFromScreenPoint(panel_effect_controls->zoom, mouse_x+KEYFRAME_SIZE);
   for (int i=0;i<rowY.size();i++) {
     if (mouse_y > rowY.at(i)-KEYFRAME_SIZE-KEYFRAME_SIZE && mouse_y < rowY.at(i)+KEYFRAME_SIZE+KEYFRAME_SIZE) {
-      EffectRow* row = rows.at(i);
+      NodeIO* row = rows.at(i);
 
       row->FocusRow();
 
@@ -358,7 +358,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
 
       for (int i=0;i<rowY.size();i++) {
         if (rowY.at(i) >= min_row && rowY.at(i) <= max_row) {
-          EffectRow* row = rows.at(i);
+          NodeIO* row = rows.at(i);
           for (int k=0;k<row->FieldCount();k++) {
             EffectField* field = row->Field(k);
             for (int j=0;j<field->keyframes.size();j++) {

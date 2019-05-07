@@ -52,7 +52,7 @@ olive::TrackType ExponentialFadeTransition::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr ExponentialFadeTransition::Create(Clip *c)
+OldEffectNodePtr ExponentialFadeTransition::Create(Clip *c)
 {
   return std::make_shared<ExponentialFadeTransition>(c);
 }

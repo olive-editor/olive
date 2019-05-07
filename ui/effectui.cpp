@@ -29,7 +29,7 @@
 #include "ui/menu.h"
 #include "panels/panels.h"
 
-EffectUI::EffectUI(Node* e) :
+EffectUI::EffectUI(OldEffectNode* e) :
   effect_(e)
 {
   Q_ASSERT(e != nullptr);
@@ -107,7 +107,7 @@ EffectUI::EffectUI(Node* e) :
   keyframe_navigators_.resize(e->row_count());
 
   for (int i=0;i<e->row_count();i++) {
-    EffectRow* row = e->row(i);
+    NodeIO* row = e->row(i);
 
     ClickableLabel* row_label = new ClickableLabel(row->name());
     connect(row_label, SIGNAL(clicked()), row, SLOT(FocusRow()));
@@ -165,7 +165,7 @@ EffectUI::EffectUI(Node* e) :
   connect(enabled_check, SIGNAL(toggled(bool)), e, SLOT(FieldChanged()));
 }
 
-void EffectUI::AddAdditionalEffect(Node *e)
+void EffectUI::AddAdditionalEffect(OldEffectNode *e)
 {
   // Ensure this is the same kind of effect and will be fully compatible
   Q_ASSERT(e->id() == effect_->id());
@@ -183,7 +183,7 @@ void EffectUI::AddAdditionalEffect(Node *e)
   // Attach this UI's widgets to the additional effect
   for (int i=0;i<effect_->row_count();i++) {
 
-    EffectRow* row = effect_->row(i);
+    NodeIO* row = effect_->row(i);
 
     // Attach existing keyframe navigator to this effect's row
     AttachKeyframeNavigationToRow(e->row(i), keyframe_navigators_.at(i));
@@ -198,7 +198,7 @@ void EffectUI::AddAdditionalEffect(Node *e)
   }
 }
 
-Node *EffectUI::GetEffect()
+OldEffectNode *EffectUI::GetEffect()
 {
   return effect_;
 }
@@ -227,11 +227,11 @@ int EffectUI::GetRowY(int row, QWidget* mapToWidget) {
 
 void EffectUI::UpdateFromEffect()
 {
-  Node* effect = GetEffect();
+  OldEffectNode* effect = GetEffect();
 
   for (int j=0;j<effect->row_count();j++) {
 
-    EffectRow* row = effect->row(j);
+    NodeIO* row = effect->row(j);
 
     for (int k=0;k<row->FieldCount();k++) {
       EffectField* field = row->Field(k);
@@ -286,7 +286,7 @@ QWidget *EffectUI::Widget(int row, int field)
   return widgets_.at(row).at(field);
 }
 
-void EffectUI::AttachKeyframeNavigationToRow(EffectRow *row, KeyframeNavigator *nav)
+void EffectUI::AttachKeyframeNavigationToRow(NodeIO *row, KeyframeNavigator *nav)
 {
   if (nav == nullptr) {
     return;

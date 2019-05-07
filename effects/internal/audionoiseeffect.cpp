@@ -23,7 +23,7 @@
 #include <QDateTime>
 #include <QtMath>
 
-AudioNoiseEffect::AudioNoiseEffect(Clip* c) : Node(c) {
+AudioNoiseEffect::AudioNoiseEffect(Clip* c) : OldEffectNode(c) {
   amount_val = new DoubleInput(this, "amount", tr("Amount"));
   amount_val->SetMinimum(0);
   amount_val->SetDefault(20);
@@ -58,7 +58,7 @@ olive::TrackType AudioNoiseEffect::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr AudioNoiseEffect::Create(Clip *c)
+OldEffectNodePtr AudioNoiseEffect::Create(Clip *c)
 {
   return std::make_shared<AudioNoiseEffect>(c);
 }

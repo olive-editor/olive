@@ -1,13 +1,13 @@
 #ifndef FONTINPUT_H
 #define FONTINPUT_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class FontInput : public EffectRow
+class FontInput : public NodeIO
 {
   Q_OBJECT
 public:
-  FontInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  FontInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the font family name at the given timecode

@@ -28,7 +28,7 @@
 #include "ui/labelslider.h"
 #include "ui/collapsiblewidget.h"
 
-VolumeEffect::VolumeEffect(Clip* c) : Node(c) {
+VolumeEffect::VolumeEffect(Clip* c) : OldEffectNode(c) {
   volume_val = new DoubleInput(this, "volume", tr("Volume"));
 
   // set defaults
@@ -61,7 +61,7 @@ olive::TrackType VolumeEffect::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr VolumeEffect::Create(Clip *c)
+OldEffectNodePtr VolumeEffect::Create(Clip *c)
 {
   return std::make_shared<VolumeEffect>(c);
 }

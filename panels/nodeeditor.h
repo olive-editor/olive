@@ -26,14 +26,14 @@ private:
   QWidget props_;
   QVector<NodeUI*> nodes_;
   QVector<NodeEdgeUI*> edges_;
-  QVector<EffectRow*> connected_rows_;
+  QVector<NodeIO*> connected_rows_;
   QVBoxLayout* prop_layout_;
   QVector<EffectUI*> nodes_open_in_props_;
 
   void ClearEdges();
   void LoadEdges();
 
-  void ConnectRow(EffectRow* row);
+  void ConnectRow(NodeIO* row);
   void DisconnectAllRows();
 
 private slots:

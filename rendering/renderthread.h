@@ -30,7 +30,7 @@
 #include <QOpenGLShaderProgram>
 
 #include "timeline/sequence.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "rendering/framebufferobject.h"
 #include "qopenglshaderprogramptr.h"
 
@@ -44,7 +44,7 @@ public:
   QMutex* get_texture_mutex();
   const GLuint& get_texture();
 
-  Node* gizmos;
+  OldEffectNode* gizmos;
   void paint();
   void start_render(QOpenGLContext* share,
                     Sequence *s,

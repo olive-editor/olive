@@ -25,7 +25,7 @@ enum FillType {
   FILL_TYPE_RIGHT
 };
 
-FillLeftRightEffect::FillLeftRightEffect(Clip* c) : Node(c) {
+FillLeftRightEffect::FillLeftRightEffect(Clip* c) : OldEffectNode(c) {
   fill_type = new ComboInput(this, "type", tr("Type"));
   fill_type->AddItem(tr("Fill Left with Right"), FILL_TYPE_LEFT);
   fill_type->AddItem(tr("Fill Right with Left"), FILL_TYPE_RIGHT);
@@ -56,7 +56,7 @@ olive::TrackType FillLeftRightEffect::subtype()
   return olive::kTypeAudio;
 }
 
-NodePtr FillLeftRightEffect::Create(Clip *c)
+OldEffectNodePtr FillLeftRightEffect::Create(Clip *c)
 {
   return std::make_shared<FillLeftRightEffect>(c);
 }

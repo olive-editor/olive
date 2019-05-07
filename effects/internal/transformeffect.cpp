@@ -43,8 +43,8 @@
 #include "panels/viewer.h"
 #include "ui/viewerwidget.h"
 
-TransformEffect::TransformEffect(Clip* c) : Node(c) {
-  SetFlags(Node::CoordsFlag);
+TransformEffect::TransformEffect(Clip* c) : OldEffectNode(c) {
+  SetFlags(OldEffectNode::CoordsFlag);
 
   position = new Vec2Input(this, "pos", tr("Position"));
 
@@ -68,7 +68,7 @@ TransformEffect::TransformEffect(Clip* c) : Node(c) {
   opacity->SetDefault(100);
 
   // TEMP - Create matrix output
-  EffectRow* matrix_output = new EffectRow(this, "matrix", "Matrix", false, false);
+  NodeIO* matrix_output = new NodeIO(this, "matrix", "Matrix", false, false);
   matrix_output->SetOutputDataType(olive::nodes::kMatrix);
 
   // set up gizmos
@@ -155,7 +155,7 @@ olive::TrackType TransformEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr TransformEffect::Create(Clip *c)
+OldEffectNodePtr TransformEffect::Create(Clip *c)
 {
   return std::make_shared<TransformEffect>(c);
 }

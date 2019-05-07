@@ -43,9 +43,9 @@
 #include "global/config.h"
 
 TimecodeEffect::TimecodeEffect(Clip* c) :
-  Node(c)
+  OldEffectNode(c)
 {
-  SetFlags(Node::SuperimposeFlag);
+  SetFlags(OldEffectNode::SuperimposeFlag);
 
   tc_select = new ComboInput(this, "tc_selector", tr("Timecode"));
   tc_select->AddItem(tr("Sequence"), true);
@@ -104,7 +104,7 @@ olive::TrackType TimecodeEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr TimecodeEffect::Create(Clip *c)
+OldEffectNodePtr TimecodeEffect::Create(Clip *c)
 {
   return std::make_shared<TimecodeEffect>(c);
 }

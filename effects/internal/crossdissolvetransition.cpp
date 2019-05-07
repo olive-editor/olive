@@ -23,7 +23,7 @@
 #include <QOpenGLFunctions>
 
 CrossDissolveTransition::CrossDissolveTransition(Clip* c) : Transition(c) {
-  SetFlags(Node::CoordsFlag);
+  SetFlags(OldEffectNode::CoordsFlag);
 }
 
 QString CrossDissolveTransition::name()
@@ -56,7 +56,7 @@ olive::TrackType CrossDissolveTransition::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr CrossDissolveTransition::Create(Clip *c)
+OldEffectNodePtr CrossDissolveTransition::Create(Clip *c)
 {
   return std::make_shared<CrossDissolveTransition>(c);
 }

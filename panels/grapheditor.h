@@ -30,15 +30,15 @@
 #include "ui/timelineheader.h"
 #include "ui/labelslider.h"
 #include "ui/keyframenavigator.h"
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
 class GraphEditor : public Panel {
   Q_OBJECT
 public:
   GraphEditor(QWidget* parent = nullptr);
 
-  EffectRow* get_row();
-  void set_row(EffectRow* r);
+  NodeIO* get_row();
+  void set_row(NodeIO* r);
 
   void update_panel();
   virtual bool focused() override;
@@ -54,7 +54,7 @@ private:
   QVector<LabelSlider*> field_sliders_;
   QVector<QPushButton*> field_enable_buttons;
   QLabel* current_row_desc;
-  EffectRow* row;
+  NodeIO* row;
   KeyframeNavigator* keyframe_nav;
   QPushButton* linear_button;
   QPushButton* bezier_button;

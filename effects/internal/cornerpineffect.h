@@ -21,9 +21,9 @@
 #ifndef CORNERPINEFFECT_H
 #define CORNERPINEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class CornerPinEffect : public Node {
+class CornerPinEffect : public OldEffectNode {
   Q_OBJECT
 public:
   CornerPinEffect(Clip* c);
@@ -34,7 +34,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   void process_coords(double timecode, GLTextureCoords& coords, int data);
   void process_shader(double timecode, GLTextureCoords& coords, int iterations);

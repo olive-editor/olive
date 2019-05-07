@@ -1,13 +1,13 @@
 #ifndef COMBOINPUT_H
 #define COMBOINPUT_H
 
-#include "effects/effectrow.h"
+#include "nodes/nodeio.h"
 
-class ComboInput : public EffectRow
+class ComboInput : public NodeIO
 {
   Q_OBJECT
 public:
-  ComboInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  ComboInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Add an item to this ComboInput

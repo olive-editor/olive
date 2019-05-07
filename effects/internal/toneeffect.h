@@ -21,9 +21,9 @@
 #ifndef TONEEFFECT_H
 #define TONEEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class ToneEffect : public Node {
+class ToneEffect : public OldEffectNode {
   Q_OBJECT
 public:
   ToneEffect(Clip* c);
@@ -33,7 +33,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void process_audio(double timecode_start,
                              double timecode_end,

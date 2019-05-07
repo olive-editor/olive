@@ -24,8 +24,8 @@
 #include "timeline/clip.h"
 #include "global/debug.h"
 
-CornerPinEffect::CornerPinEffect(Clip* c) : Node(c) {
-  SetFlags(Node::CoordsFlag | Node::ShaderFlag);
+CornerPinEffect::CornerPinEffect(Clip* c) : OldEffectNode(c) {
+  SetFlags(OldEffectNode::CoordsFlag | OldEffectNode::ShaderFlag);
 
   top_left = new Vec2Input(this, "topleft", tr("Top Left"));
 
@@ -88,7 +88,7 @@ olive::TrackType CornerPinEffect::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr CornerPinEffect::Create(Clip *c)
+OldEffectNodePtr CornerPinEffect::Create(Clip *c)
 {
   return std::make_shared<CornerPinEffect>(c);
 }

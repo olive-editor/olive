@@ -21,7 +21,7 @@
 #include "clipboard.h"
 
 #include "timeline/clip.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 #include "effects/transition.h"
 #include "undo/undo.h"
 

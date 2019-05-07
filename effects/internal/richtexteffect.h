@@ -21,9 +21,9 @@
 #ifndef RICHTEXTEFFECT_H
 #define RICHTEXTEFFECT_H
 
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
-class RichTextEffect : public Node {
+class RichTextEffect : public OldEffectNode {
   Q_OBJECT
 public:
   RichTextEffect(Clip* c);
@@ -34,7 +34,7 @@ public:
   virtual QString description() override;
   virtual EffectType type() override;
   virtual olive::TrackType subtype() override;
-  virtual NodePtr Create(Clip *c) override;
+  virtual OldEffectNodePtr Create(Clip *c) override;
 
   virtual void redraw(double timecode) override;
 

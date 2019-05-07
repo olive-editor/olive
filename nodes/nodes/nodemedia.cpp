@@ -1,12 +1,12 @@
 #include "nodemedia.h"
 
 NodeMedia::NodeMedia(Clip* c) :
-  Node(c)
+  OldEffectNode(c)
 {
-  EffectRow* matrix_input = new EffectRow(this, "matrix", tr("Matrix"), true, false);
+  NodeIO* matrix_input = new NodeIO(this, "matrix", tr("Matrix"), true, false);
   matrix_input->AddAcceptedNodeInput(olive::nodes::kMatrix);
 
-  EffectRow* texture_output = new EffectRow(this, "texture", tr("Texture"), true, false);
+  NodeIO* texture_output = new NodeIO(this, "texture", tr("Texture"), true, false);
   texture_output->SetOutputDataType(olive::nodes::kTexture);
 }
 
@@ -40,7 +40,7 @@ olive::TrackType NodeMedia::subtype()
   return olive::kTypeVideo;
 }
 
-NodePtr NodeMedia::Create(Clip *c)
+OldEffectNodePtr NodeMedia::Create(Clip *c)
 {
   return std::make_shared<NodeMedia>(c);
 }

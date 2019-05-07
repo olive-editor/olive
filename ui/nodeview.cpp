@@ -5,7 +5,7 @@
 #include <QDebug>
 
 #include "ui/menu.h"
-#include "nodes/node.h"
+#include "nodes/oldeffectnode.h"
 
 NodeView::NodeView(QGraphicsScene *scene, QWidget *parent) :
   QGraphicsView(scene, parent),
