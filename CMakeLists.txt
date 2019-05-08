@@ -70,7 +70,9 @@ else()
   message("Olive: No git hash defined!")
 endif()
 
-find_package(Doxygen)
+if(BUILD_DOXYGEN)
+  find_package(Doxygen)
+endif()
 
 set(OLIVE_SOURCES
   decoders/decoder.cpp
@@ -519,7 +521,7 @@ target_link_libraries(${OLIVE_TARGET}
   OpenColorIO
 )
 
-if(DOXYGEN_FOUND AND BUILD_DOXYGEN)
+if(DOXYGEN_FOUND)
   set(DOXYGEN_PROJECT_NAME "Olive")
   set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
   set(DOXYGEN_EXTRACT_ALL "YES")
