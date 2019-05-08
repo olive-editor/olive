@@ -19,7 +19,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 if(UNIX AND NOT APPLE AND NOT DEFINED OpenGL_GL_PREFERENCE)
   set(OpenGL_GL_PREFERENCE LEGACY)
 endif()
+
 find_package(OpenGL REQUIRED)
+
+find_package(OpenColorIO REQUIRED)
 
 find_package(Qt5 5.7 REQUIRED
   COMPONENTS
@@ -41,18 +44,6 @@ find_package(FFMPEG 3.4 REQUIRED
   swscale
   swresample
 )
-
-find_package(frei0r)
-if(NOT FREI0R_FOUND)
-  list(APPEND OLIVE_DEFINITIONS -DNOFREI0R)
-endif()
-
-if(WIN32)
-  find_package(OpenColorIO)
-  if(OPENCOLORIO_FOUND)
-    list(APPEND OLIVE_DEFINITIONS -DOLIVE_OCIO)
-  endif()
-endif()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   find_package(Git)
@@ -82,6 +73,10 @@ endif()
 find_package(Doxygen)
 
 set(OLIVE_SOURCES
+  decoders/decoder.cpp
+  decoders/decoder.h
+  decoders/ffmpegdecoder.cpp
+  decoders/ffmpegdecoder.h
   dialogs/aboutdialog.cpp
   dialogs/aboutdialog.h
   dialogs/actionsearch.cpp
@@ -114,6 +109,15 @@ set(OLIVE_SOURCES
   dialogs/speeddialog.h
   dialogs/texteditdialog.cpp
   dialogs/texteditdialog.h
+  effects/effectfield.cpp
+  effects/effectfield.h
+  effects/effectfields.h
+  effects/effectgizmo.cpp
+  effects/effectgizmo.h
+  effects/effectloaders.cpp
+  effects/effectloaders.h
+  effects/effectrow.cpp
+  effects/effectrow.h
   effects/fields/boolfield.cpp
   effects/fields/boolfield.h
   effects/fields/buttonfield.cpp
@@ -134,33 +138,23 @@ set(OLIVE_SOURCES
   effects/fields/stringfield.h
   effects/internal/audionoiseeffect.cpp
   effects/internal/audionoiseeffect.h
-  effects/internal/blending.frag
-  effects/internal/common.vert
-  effects/internal/cornerpin.frag
-  effects/internal/cornerpin.vert
   effects/internal/cornerpineffect.cpp
   effects/internal/cornerpineffect.h
   effects/internal/crossdissolvetransition.cpp
   effects/internal/crossdissolvetransition.h
   effects/internal/cubetransition.h
-  effects/internal/dropshadow.frag
   effects/internal/dropshadoweffect.cpp
   effects/internal/dropshadoweffect.h
   effects/internal/exponentialfadetransition.cpp
   effects/internal/exponentialfadetransition.h
   effects/internal/fillleftrighteffect.cpp
   effects/internal/fillleftrighteffect.h
-  effects/internal/frei0reffect.cpp
-  effects/internal/frei0reffect.h
-  effects/internal/internalshaders.qrc
   effects/internal/linearfadetransition.cpp
   effects/internal/linearfadetransition.h
   effects/internal/logarithmicfadetransition.cpp
   effects/internal/logarithmicfadetransition.h
-  effects/internal/ocio.frag
   effects/internal/paneffect.cpp
   effects/internal/paneffect.h
-  effects/internal/premultiply.frag
   effects/internal/richtexteffect.cpp
   effects/internal/richtexteffect.h
   effects/internal/shakeeffect.cpp
@@ -181,21 +175,12 @@ set(OLIVE_SOURCES
   effects/internal/volumeeffect.h
   effects/internal/vsthost.cpp
   effects/internal/vsthost.h
-  effects/effect.cpp
-  effects/effect.h
-  effects/effectfield.cpp
-  effects/effectfield.h
-  effects/effectfields.h
-  effects/effectgizmo.cpp
-  effects/effectgizmo.h
-  effects/effectloaders.cpp
-  effects/effectloaders.h
-  effects/effectrow.cpp
-  effects/effectrow.h
   effects/keyframe.cpp
   effects/keyframe.h
   effects/transition.cpp
   effects/transition.h
+  global/clipboard.cpp
+  global/clipboard.h
   global/config.cpp
   global/config.h
   global/debug.cpp
@@ -206,11 +191,50 @@ set(OLIVE_SOURCES
   global/math.h
   global/path.cpp
   global/path.h
-  include/vestige.h
+  global/timing.cpp
+  global/timing.h
+  nodes/inputs/boolinput.cpp
+  nodes/inputs/boolinput.h
+  nodes/inputs/colorinput.cpp
+  nodes/inputs/colorinput.h
+  nodes/inputs/comboinput.cpp
+  nodes/inputs/comboinput.h
+  nodes/inputs/fileinput.cpp
+  nodes/inputs/fileinput.h
+  nodes/inputs/fontinput.cpp
+  nodes/inputs/fontinput.h
+  nodes/inputs.h
+  nodes/inputs/stringinput.cpp
+  nodes/inputs/stringinput.h
+  nodes/inputs/vecinput.cpp
+  nodes/inputs/vecinput.h
+  nodes/node.cpp
+  nodes/nodedatatypes.cpp
+  nodes/nodedatatypes.h
+  nodes/nodeedge.cpp
+  nodes/nodeedge.h
+  nodes/nodegraph.cpp
+  nodes/nodegraph.h
+  nodes/node.h
+  nodes/nodes.h
+  nodes/nodes/nodeimageoutput.cpp
+  nodes/nodes/nodeimageoutput.h
+  nodes/nodes/nodemedia.cpp
+  nodes/nodes/nodemedia.h
+  nodes/nodes/nodeshader.cpp
+  nodes/nodes/nodeshader.h
+  nodes/widgets/buttonwidget.cpp
+  nodes/widgets/buttonwidget.h
+  nodes/widgets/labelwidget.cpp
+  nodes/widgets/labelwidget.h
   panels/effectcontrols.cpp
   panels/effectcontrols.h
+  panels/effectspanel.cpp
+  panels/effectspanel.h
   panels/grapheditor.cpp
   panels/grapheditor.h
+  panels/nodeeditor.cpp
+  panels/nodeeditor.h
   panels/panels.cpp
   panels/panels.h
   panels/project.cpp
@@ -219,8 +243,6 @@ set(OLIVE_SOURCES
   panels/timeline.h
   panels/viewer.cpp
   panels/viewer.h
-  project/clipboard.cpp
-  project/clipboard.h
   project/footage.cpp
   project/footage.h
   project/loadthread.cpp
@@ -232,10 +254,14 @@ set(OLIVE_SOURCES
   project/projectelements.h
   project/projectfilter.cpp
   project/projectfilter.h
+  project/projectfunctions.cpp
+  project/projectfunctions.h
   project/projectmodel.cpp
   project/projectmodel.h
   project/proxygenerator.cpp
   project/proxygenerator.h
+  project/savethread.cpp
+  project/savethread.h
   project/sourcescommon.cpp
   project/sourcescommon.h
   rendering/audio.cpp
@@ -248,19 +274,38 @@ set(OLIVE_SOURCES
   rendering/exportthread.h
   rendering/framebufferobject.cpp
   rendering/framebufferobject.h
+  rendering/pixelformats.cpp
+  rendering/pixelformats.h
+  rendering/qopenglshaderprogramptr.h
   rendering/renderfunctions.cpp
   rendering/renderfunctions.h
   rendering/renderthread.cpp
   rendering/renderthread.h
+  rendering/shadergenerators.cpp
+  rendering/shadergenerators.h
   timeline/clip.cpp
   timeline/clip.h
+  timeline/ghost.cpp
+  timeline/ghost.h
   timeline/marker.cpp
   timeline/marker.h
   timeline/mediaimportdata.cpp
   timeline/mediaimportdata.h
+  timeline/selection.cpp
   timeline/selection.h
   timeline/sequence.cpp
   timeline/sequence.h
+  timeline/timelinefunctions.cpp
+  timeline/timelinefunctions.h
+  timeline/timelineshared.cpp
+  timeline/timelineshared.h
+  timeline/timelinetools.cpp
+  timeline/timelinetools.h
+  timeline/track.cpp
+  timeline/track.h
+  timeline/tracklist.cpp
+  timeline/tracklist.h
+  timeline/tracktypes.h
   ui/audiomonitor.cpp
   ui/audiomonitor.h
   ui/blur.cpp
@@ -269,10 +314,10 @@ set(OLIVE_SOURCES
   ui/clickablelabel.h
   ui/collapsiblewidget.cpp
   ui/collapsiblewidget.h
-  ui/columnedgridlayout.cpp
-  ui/columnedgridlayout.h
   ui/colorbutton.cpp
   ui/colorbutton.h
+  ui/columnedgridlayout.cpp
+  ui/columnedgridlayout.h
   ui/comboboxex.cpp
   ui/comboboxex.h
   ui/cursors.cpp
@@ -285,8 +330,6 @@ set(OLIVE_SOURCES
   ui/flowlayout.h
   ui/focusfilter.cpp
   ui/focusfilter.h
-  ui/fontcombobox.cpp
-  ui/fontcombobox.h
   ui/graphview.cpp
   ui/graphview.h
   ui/icons.cpp
@@ -307,16 +350,18 @@ set(OLIVE_SOURCES
   ui/menu.h
   ui/menuhelper.cpp
   ui/menuhelper.h
+  ui/nodeedgeui.cpp
+  ui/nodeedgeui.h
+  ui/nodeui.cpp
+  ui/nodeui.h
+  ui/nodeview.cpp
+  ui/nodeview.h
   ui/panel.cpp
   ui/panel.h
-  ui/playbutton.cpp
-  ui/playbutton.h
   ui/rectangleselect.cpp
   ui/rectangleselect.h
   ui/resizablescrollbar.cpp
   ui/resizablescrollbar.h
-  ui/scrollarea.cpp
-  ui/scrollarea.h
   ui/sourceiconview.cpp
   ui/sourceiconview.h
   ui/sourcetable.cpp
@@ -325,11 +370,14 @@ set(OLIVE_SOURCES
   ui/styling.h
   ui/texteditex.cpp
   ui/texteditex.h
+  ui/timelinearea.cpp
+  ui/timelinearea.h
   ui/timelineheader.cpp
   ui/timelineheader.h
-  ui/timelinetools.h
-  ui/timelinewidget.cpp
-  ui/timelinewidget.h
+  ui/timelinelabel.cpp
+  ui/timelinelabel.h
+  ui/timelineview.cpp
+  ui/timelineview.h
   ui/updatenotification.cpp
   ui/updatenotification.h
   ui/viewercontainer.cpp
@@ -338,6 +386,8 @@ set(OLIVE_SOURCES
   ui/viewerwidget.h
   ui/viewerwindow.cpp
   ui/viewerwindow.h
+  ui/waveform.cpp
+  ui/waveform.h
   undo/comboaction.cpp
   undo/comboaction.h
   undo/undo.cpp
@@ -354,49 +404,56 @@ set(OLIVE_RESOURCES
 )
 
 set(OLIVE_EFFECTS
+  effects/internal/cornerpin.frag
+  effects/internal/dropshadow.frag
+  effects/internal/ocio.frag
+  effects/internal/premultiply.frag
   effects/shaders/boxblur.frag
   effects/shaders/boxblur.xml
   effects/shaders/bulge.frag
   effects/shaders/bulge.xml
-  effects/shaders/chromakey.frag
-  effects/shaders/chromakey.xml
   effects/shaders/chromaticaberration.frag
   effects/shaders/chromaticaberration.xml
-  effects/shaders/colorcorrection.frag
-  effects/shaders/colorcorrection.xml
-  effects/shaders/colorsel.frag
-  effects/shaders/colorsel.xml
-  effects/shaders/common.frag
-  effects/shaders/common.vert
   effects/shaders/crop.frag
   effects/shaders/crop.xml
-  effects/shaders/crossstitch.frag
-  effects/shaders/crossstitch.xml
+  effects/shaders/despill.frag
+  effects/shaders/despill.xml
   effects/shaders/directionalblur.frag
   effects/shaders/directionalblur.xml
-  effects/shaders/dropshadow.xml.disabled
-  effects/shaders/emboss.frag
-  effects/shaders/emboss.xml
-  effects/shaders/findedges.frag
-  effects/shaders/findedges.xml.disabled
-  effects/shaders/fisheye.frag
-  effects/shaders/fisheye.xml
   effects/shaders/flip.frag
   effects/shaders/flip.xml
   effects/shaders/gaussianblur.frag
   effects/shaders/gaussianblur.xml
-  effects/shaders/huesatbri.frag
-  effects/shaders/huesatbri.xml
-  effects/shaders/invert.frag
-  effects/shaders/invert.xml
-  effects/shaders/lumakey.frag
-  effects/shaders/lumakey.xml
+  effects/shaders/need\ checking/chromakey.frag
+  effects/shaders/need\ checking/chromakey.xml
+  effects/shaders/need\ checking/colorcorrection.frag
+  effects/shaders/need\ checking/colorcorrection.xml
+  effects/shaders/need\ checking/colorsel.frag
+  effects/shaders/need\ checking/colorsel.xml
+  effects/shaders/need\ checking/common.frag
+  effects/shaders/need\ checking/crossstitch.frag
+  effects/shaders/need\ checking/crossstitch.xml
+  effects/shaders/need\ checking/emboss.frag
+  effects/shaders/need\ checking/emboss.xml
+  effects/shaders/need\ checking/findedges.frag
+  effects/shaders/need\ checking/fisheye.frag
+  effects/shaders/need\ checking/fisheye.xml
+  effects/shaders/need\ checking/huesatbri.frag
+  effects/shaders/need\ checking/huesatbri.xml
+  effects/shaders/need\ checking/invert.frag
+  effects/shaders/need\ checking/invert.xml
+  effects/shaders/need\ checking/lumakey.frag
+  effects/shaders/need\ checking/lumakey.xml
+  effects/shaders/need\ checking/posterize.frag
+  effects/shaders/need\ checking/posterize.xml
+  effects/shaders/need\ checking/toonify.frag
+  effects/shaders/need\ checking/toonify.xml
+  effects/shaders/need\ checking/volumetriclight.frag
+  effects/shaders/need\ checking/volumetriclight.xml
   effects/shaders/noise.frag
   effects/shaders/noise.xml
   effects/shaders/pixelate.frag
   effects/shaders/pixelate.xml
-  effects/shaders/posterize.frag
-  effects/shaders/posterize.xml
   effects/shaders/radialblur.frag
   effects/shaders/radialblur.xml
   effects/shaders/ripple.frag
@@ -407,12 +464,8 @@ set(OLIVE_EFFECTS
   effects/shaders/swirl.xml
   effects/shaders/tile.frag
   effects/shaders/tile.xml
-  effects/shaders/toonify.frag
-  effects/shaders/toonify.xml
   effects/shaders/vignette.frag
   effects/shaders/vignette.xml
-  effects/shaders/volumetriclight.frag
-  effects/shaders/volumetriclight.xml
   effects/shaders/wave.frag
   effects/shaders/wave.xml
 )
@@ -444,6 +497,8 @@ add_executable(${OLIVE_TARGET}
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
+target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder>)
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 target_link_libraries(${OLIVE_TARGET}
@@ -461,11 +516,8 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::avfilter
   FFMPEG::swscale
   FFMPEG::swresample
+  OpenColorIO
 )
-
-if(WIN32 AND OPENCOLORIO_FOUND)
-  target_link_libraries(${OLIVE_TARGET} PRIVATE OpenColorIO)
-endif()
 
 if(DOXYGEN_FOUND AND BUILD_DOXYGEN)
   set(DOXYGEN_PROJECT_NAME "Olive")
