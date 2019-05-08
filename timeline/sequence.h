@@ -27,7 +27,6 @@
 #include "clip.h"
 #include "marker.h"
 #include "selection.h"
-#include "tracklist.h"
 #include "ghost.h"
 
 class Sequence : public QObject {
@@ -47,7 +46,7 @@ public:
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
-  TrackList* GetTrackList(olive::TrackType type);
+  QVector<Track*> GetTrackList(olive::TrackType type);
 
   /**
    * @brief Close all open clips in a Sequence
@@ -110,6 +109,11 @@ public:
   void SetSelections(const QVector<Selection>& selections);
   void TidySelections();
 
+  Track* PreviousTrack(Track* t);
+  Track* NextTrack(Track* t);
+  Track* SiblingTrack(Track* t, int diff);
+  int IndexOfTrack(Track* t);
+
   long playhead;
 
   bool using_workarea;
@@ -124,7 +128,7 @@ public:
 signals:
   void Changed();
 private:
-  QVector<TrackList*> track_lists_;
+  QVector<Track*> tracks_;
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame, long post_in);

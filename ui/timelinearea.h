@@ -3,7 +3,6 @@
 
 #include "timeline/sequence.h"
 #include "timeline/track.h"
-#include "timeline/tracklist.h"
 #include "timeline/timelinefunctions.h"
 #include "ui/timelineview.h"
 #include "ui/timelinelabel.h"
@@ -14,10 +13,10 @@ class TimelineArea : public QWidget
 public:
   TimelineArea(Timeline *timeline, olive::timeline::Alignment alignment = olive::timeline::kAlignmentTop);
 
-  void SetTrackList(Sequence* sequence, olive::TrackType track_list);
+  void SetTrackType(Sequence* sequence, olive::TrackType track_type);
   void SetAlignment(olive::timeline::Alignment alignment);
 
-  TrackList* track_list();
+  olive::TrackType track_type();
   TimelineView* view();
 
   virtual void wheelEvent(QWheelEvent *event) override;
@@ -27,7 +26,8 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 private:
   Timeline* timeline_;
-  TrackList* track_list_;
+  Sequence* track_list_;
+  olive::TrackType type_;
   TimelineView* view_;
   QVector<TimelineLabelPtr> labels_;
   olive::timeline::Alignment alignment_;

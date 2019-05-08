@@ -49,8 +49,9 @@ TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignm
   connect(view_, SIGNAL(requestScrollChange(int)), scrollbar_, SLOT(setValue(int)));
 }
 
-void TimelineArea::SetTrackList(Sequence *sequence, olive::TrackType track_list)
+void TimelineArea::SetTrackType(Sequence *sequence, olive::TrackType track_type)
 {
+  /* FIXME
   if (track_list_ != nullptr) {
     disconnect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
   }
@@ -61,7 +62,7 @@ void TimelineArea::SetTrackList(Sequence *sequence, olive::TrackType track_list)
 
   } else {
 
-    track_list_ = sequence->GetTrackList(track_list);
+    track_list_ = sequence->GetTrackList(track_type);
     connect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
 
   }
@@ -69,7 +70,7 @@ void TimelineArea::SetTrackList(Sequence *sequence, olive::TrackType track_list)
   RefreshLabels();
 
   view_->SetTrackList(track_list_);
-
+  */
 }
 
 void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)
@@ -80,9 +81,9 @@ void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)
   RefreshLabels();
 }
 
-TrackList *TimelineArea::track_list()
+olive::TrackType TimelineArea::track_type()
 {
-  return track_list_;
+  return type_;
 }
 
 TimelineView *TimelineArea::view()
@@ -162,6 +163,7 @@ void TimelineArea::RefreshLabels()
 
   } else {
 
+    /* FIXME
     labels_.resize(track_list_->TrackCount());
     for (int i=0;i<labels_.size();i++) {
       labels_[i] = std::make_shared<TimelineLabel>();
@@ -179,7 +181,7 @@ void TimelineArea::RefreshLabels()
         break;
       }
     }
-
+    */
   }
 }
 

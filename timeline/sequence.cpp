@@ -35,12 +35,6 @@ Sequence::Sequence() :
   workarea_out(0),
   wrapper_sequence(false)
 {
-  // Set up tracks
-  track_lists_.resize(olive::kTypeCount);
-
-  for (int i=0;i<track_lists_.size();i++) {
-    track_lists_[i] = new TrackList(this, static_cast<olive::TrackType>(i));
-  }
 }
 
 SequencePtr Sequence::copy() {
@@ -52,10 +46,12 @@ SequencePtr Sequence::copy() {
   s->audio_frequency = audio_frequency;
   s->audio_layout = audio_layout;
 
+  /* FIXME
   // deep copy all of the sequence's clips
   for (int i=0;i<track_lists_.size();i++) {
     s->track_lists_[i] = track_lists_.at(i)->copy(s.get());
   }
+  */
 
   // copy all of the sequence's markers
   s->markers = markers;
@@ -89,9 +85,11 @@ void Sequence::Save(QXmlStreamWriter &stream)
   QVector<TransitionPtr> transition_save_cache;
   QVector<int> transition_clip_save_cache;
 
+  /* FIXME
   for (int j=0;j<track_lists_.size();j++) {
     track_lists_.at(j)->Save(stream);
   }
+  */
 
   for (int j=0;j<markers.size();j++) {
     markers.at(j).Save(stream);
@@ -103,14 +101,8 @@ void Sequence::Save(QXmlStreamWriter &stream)
 long Sequence::GetEndFrame() {
   long end_frame = 0;
 
-  for (int j=0;j<track_lists_.size();j++) {
-
-    TrackList* track_list = track_lists_.at(j);
-
-    for (int i=0;i<track_list->TrackCount();i++) {
-      end_frame = qMax(track_list->TrackAt(i)->GetEndFrame(), end_frame);
-    }
-
+  for (int i=0;i<tracks_.size();i++) {
+    end_frame = qMax(tracks_.at(i)->GetEndFrame(), end_frame);
   }
 
   return end_frame;
@@ -120,22 +112,26 @@ QVector<Clip *> Sequence::GetAllClips()
 {
   QVector<Clip*> all_clips;
 
-  for (int j=0;j<track_lists_.size();j++) {
+  for (int j=0;j<tracks_.size();j++) {
 
-    TrackList* track_list = track_lists_.at(j);
-
-    for (int i=0;i<track_list->TrackCount();i++) {
-      all_clips.append(track_list->TrackAt(i)->GetAllClips());
-    }
+    all_clips.append(tracks_.at(j)->GetAllClips());
 
   }
 
   return all_clips;
 }
 
-TrackList *Sequence::GetTrackList(olive::TrackType type)
+QVector<Track *> Sequence::GetTrackList(olive::TrackType type)
 {
-  return track_lists_.at(type);
+  QVector<Track*> tracks;
+
+  for (int i=0;i<tracks_.size();i++) {
+    if (tracks_.at(i)->type() == type) {
+      tracks.append(tracks_.at(i));
+    }
+  }
+
+  return tracks;
 }
 
 void Sequence::Close()
@@ -166,14 +162,10 @@ QVector<Clip *> Sequence::SelectedClips(bool containing)
 {
   QVector<Clip*> selected_clips;
 
-  for (int i=0;i<track_lists_.size();i++) {
-    TrackList* tl = track_lists_.at(i);
+  for (int j=0;j<tracks_.size();j++) {
+    Track* t = tracks_.at(j);
 
-    for (int j=0;j<tl->TrackCount();j++) {
-      Track* t = tl->TrackAt(j);
-
-      selected_clips.append(t->GetSelectedClips(containing));
-    }
+    selected_clips.append(t->GetSelectedClips(containing));
   }
 
   return selected_clips;
@@ -340,14 +332,8 @@ void Sequence::EditToPoint(bool in, bool ripple)
 
         if (in_point >= 0) {
 
-          for (int i=0;i<track_lists_.size();i++) {
-
-            TrackList* tl = track_lists_.at(i);
-
-            for (int j=0;j<tl->TrackCount();j++) {
-              areas.append(Selection(in_point, in_point+1, tl->TrackAt(j)));
-            }
-
+          for (int j=0;j<tracks_.size();j++) {
+            areas.append(Selection(in_point, in_point+1, tracks_.at(j)));
           }
 
           // trim and move clips around the in point
@@ -382,14 +368,8 @@ void Sequence::EditToPoint(bool in, bool ripple)
 
       } else {
 
-        for (int i=0;i<track_lists_.size();i++) {
-
-          TrackList* tl = track_lists_.at(i);
-
-          for (int j=0;j<tl->TrackCount();j++) {
-            areas.append(Selection(area_in, area_out, tl->TrackAt(j)));
-          }
-
+        for (int j=0;j<tracks_.size();j++) {
+          areas.append(Selection(area_in, area_out, tracks_.at(j)));
         }
 
         // trim and move clips around the in point
@@ -474,14 +454,8 @@ void Sequence::DeleteInToOut(bool ripple)
 
     QVector<Selection> areas_to_delete;
 
-    for (int i=0;i<track_lists_.size();i++) {
-
-      TrackList* tl = track_lists_.at(i);
-
-      for (int j=0;j<tl->TrackCount();j++) {
-        areas_to_delete.append(Selection(workarea_in, workarea_out, tl->TrackAt(j)));
-      }
-
+    for (int j=0;j<tracks_.size();j++) {
+      areas_to_delete.append(Selection(workarea_in, workarea_out, tracks_.at(j)));
     }
 
     ComboAction* ca = new ComboAction();
@@ -534,14 +508,10 @@ void Sequence::Ripple(ComboAction *ca, long point, long length, const QVector<Cl
 
 void Sequence::ChangeTrackHeightsRelatively(int diff)
 {
-  for (int i=0;i<track_lists_.size();i++) {
-    TrackList* tl = track_lists_.at(i);
+  for (int j=0;j<tracks_.size();j++) {
+    Track* t = tracks_.at(j);
 
-    for (int j=0;j<tl->TrackCount();j++) {
-      Track* t = tl->TrackAt(j);
-
-      t->set_height(t->height() + diff);
-    }
+    t->set_height(t->height() + diff);
   }
 }
 
@@ -611,35 +581,30 @@ void Sequence::Split()
   // If we weren't able to split any selected clips above, see if there are arbitrary selections to split
   if (!split_occurred) {
 
-    TrackList* track_list;
     Track* track;
 
-    foreach (track_list, track_lists_) {
+    foreach (track, tracks_) {
 
-      QVector<Track*> tracks = track_list->tracks();
-      foreach (track, tracks) {
+      QVector<Selection> track_selections = track->Selections();
+      QVector<long> split_positions;
 
-        QVector<Selection> track_selections = track->Selections();
-        QVector<long> split_positions;
+      for (int j=0;j<track_selections.size();j++) {
+        const Selection& s = track_selections.at(j);
 
-        for (int j=0;j<track_selections.size();j++) {
-          const Selection& s = track_selections.at(j);
-
-          if (!split_positions.contains(s.in())) {
-            split_positions.append(s.in());
-          }
-
-          if (!split_positions.contains(s.out())) {
-            split_positions.append(s.out());
-          }
+        if (!split_positions.contains(s.in())) {
+          split_positions.append(s.in());
         }
 
-        for (int i=0;i<track->ClipCount();i++) {
-          Clip* c = track->GetClip(i).get();
+        if (!split_positions.contains(s.out())) {
+          split_positions.append(s.out());
+        }
+      }
 
-          if (SplitClipAtPositions(ca, c, split_positions, false)) {
-            split_occurred = true;
-          }
+      for (int i=0;i<track->ClipCount();i++) {
+        Clip* c = track->GetClip(i).get();
+
+        if (SplitClipAtPositions(ca, c, split_positions, false)) {
+          split_occurred = true;
         }
       }
     }
@@ -857,44 +822,40 @@ void Sequence::RippleDeleteEmptySpace(ComboAction* ca, Track* track, long point)
 
 void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length) {
 
-  for (int i=0;i<track_lists_.size();i++) {
-    TrackList* tl = track_lists_.at(i);
+  for (int j=0;j<tracks_.size();j++) {
+    Track* t = tracks_.at(j);
 
-    for (int j=0;j<tl->TrackCount();j++) {
-      Track* t = tl->TrackAt(j);
+    // We've already tested `track`, so we don't need to test it again
+    long first_in_point_after_point = LONG_MAX;
+    long out_point_just_before_first_in_point = LONG_MIN;
 
-      // We've already tested `track`, so we don't need to test it again
-      long first_in_point_after_point = LONG_MAX;
-      long out_point_just_before_first_in_point = LONG_MIN;
+    QVector<Clip*> track_clips = t->GetAllClips();
 
-      QVector<Clip*> track_clips = t->GetAllClips();
+    // Find the in point of the clip directly after the point
+    for (int k=0;k<track_clips.size();k++) {
+      Clip* c = track_clips.at(k);
 
-      // Find the in point of the clip directly after the point
+      if (c->timeline_in() >= ripple_point) {
+        first_in_point_after_point = qMin(first_in_point_after_point, c->timeline_in());
+      }
+    }
+
+    // Ensure we found a valid in point before proceeding
+    if (first_in_point_after_point != LONG_MAX) {
+
+      // Find the out point of the clip directly before the clip found above
       for (int k=0;k<track_clips.size();k++) {
         Clip* c = track_clips.at(k);
 
-        if (c->timeline_in() >= ripple_point) {
-          first_in_point_after_point = qMin(first_in_point_after_point, c->timeline_in());
+        if (c->timeline_out() <= first_in_point_after_point) {
+          out_point_just_before_first_in_point = qMax(out_point_just_before_first_in_point, c->timeline_out());
         }
       }
 
-      // Ensure we found a valid in point before proceeding
-      if (first_in_point_after_point != LONG_MAX) {
+      long ripple_test = first_in_point_after_point - out_point_just_before_first_in_point + ripple_length;
 
-        // Find the out point of the clip directly before the clip found above
-        for (int k=0;k<track_clips.size();k++) {
-          Clip* c = track_clips.at(k);
-
-          if (c->timeline_out() <= first_in_point_after_point) {
-            out_point_just_before_first_in_point = qMax(out_point_just_before_first_in_point, c->timeline_out());
-          }
-        }
-
-        long ripple_test = first_in_point_after_point - out_point_just_before_first_in_point + ripple_length;
-
-        if (ripple_test < 0) {
-          ripple_length -= ripple_test;
-        }
+      if (ripple_test < 0) {
+        ripple_length -= ripple_test;
       }
     }
   }
@@ -949,34 +910,22 @@ OldEffectNode *Sequence::GetSelectedGizmo()
 
 void Sequence::SelectAll()
 {
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
-
-    for (int i=0;i<tl->TrackCount();i++) {
-      tl->TrackAt(i)->SelectAll();
-    }
+  for (int i=0;i<tracks_.size();i++) {
+    tracks_.at(i)->SelectAll();
   }
 }
 
 void Sequence::SelectAtPlayhead()
 {
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
-
-    for (int i=0;i<tl->TrackCount();i++) {
-      tl->TrackAt(i)->SelectAtPoint(playhead);
-    }
+  for (int i=0;i<tracks_.size();i++) {
+    tracks_.at(i)->SelectAtPoint(playhead);
   }
 }
 
 void Sequence::ClearSelections()
 {
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
-
-    for (int i=0;i<tl->TrackCount();i++) {
-      tl->TrackAt(i)->ClearSelections();
-    }
+  for (int i=0;i<tracks_.size();i++) {
+    tracks_.at(i)->ClearSelections();
   }
 }
 
@@ -1057,12 +1006,8 @@ QVector<Selection> Sequence::Selections()
 {
   QVector<Selection> selections;
 
-  for (int j=0;j<track_lists_.size();j++) {
-    TrackList* tl = track_lists_.at(j);
-
-    for (int i=0;i<tl->TrackCount();i++) {
-      selections.append(tl->TrackAt(i)->Selections());
-    }
+  for (int i=0;i<tracks_.size();i++) {
+    selections.append(tracks_.at(i)->Selections());
   }
 
   return selections;
@@ -1084,6 +1029,72 @@ void Sequence::TidySelections()
   QVector<Selection> selections = Selections();
   Selection::Tidy(selections);
   SetSelections(selections);
+}
+
+Track *Sequence::PreviousTrack(Track *t)
+{
+  Track* previous_track = nullptr;
+
+  // Loop through tracks
+  for (int i=0;i<tracks_.size();i++) {
+
+    if (tracks_.at(i) == t) {
+      // If this is the track, we'll know the previous track by now
+      break;
+    } else if (tracks_.at(i)->type() == t->type()) {
+      // Otherwise, we'll keep "track" of it
+      previous_track = t;
+    }
+  }
+
+  return previous_track;
+}
+
+Track *Sequence::NextTrack(Track *t)
+{
+  // FIXME: The old code created extra tracks if it couldn't find one here
+
+  Track* next_track = nullptr;
+
+  // Loop through tracks
+  for (int i=tracks_.size()-1;i>=0;i--) {
+
+    if (tracks_.at(i) == t) {
+      // If this is the track, we'll know the previous track by now
+      break;
+    } else if (tracks_.at(i)->type() == t->type()) {
+      // Otherwise, we'll keep "track" of it
+      next_track = t;
+    }
+  }
+
+  return next_track;
+}
+
+Track *Sequence::SiblingTrack(Track *t, int diff)
+{
+  // FIXME: The old code created extra tracks if it couldn't find one here
+
+  if (diff == 0) {
+    return t;
+  }
+
+  QVector<Track*> tracks = GetTrackList(t->type());
+
+  return tracks.at(qMax(0, IndexOfTrack(t) + diff));
+}
+
+int Sequence::IndexOfTrack(Track *t)
+{
+  QVector<Track*> tracks = GetTrackList(t->type());
+
+  for (int i=0;i<tracks.size();i++) {
+    if (tracks.at(i) == t) {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long frame)

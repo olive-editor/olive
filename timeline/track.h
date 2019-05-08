@@ -35,17 +35,16 @@ namespace olive {
   }
 }
 
-class TrackList;
+class Sequence;
 
 class Track : public QObject
 {
   Q_OBJECT
 public:
-  Track(TrackList* parent, olive::TrackType type);
-  Track* copy(TrackList* parent);
+  Track(Sequence* parent, olive::TrackType type);
+  Track* copy(Sequence* parent);
 
   Sequence* sequence();
-  TrackList* track_list();
 
   void Save(QXmlStreamWriter& stream);
 
@@ -108,7 +107,7 @@ signals:
 private:
   void ResizeClipArray(int new_size);
 
-  TrackList* parent_;
+  Sequence* parent_;
   olive::TrackType type_;
   int height_;
   QVector<ClipPtr> clips_;

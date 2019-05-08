@@ -69,7 +69,8 @@
 TimelineView::TimelineView(Timeline *parent) :
   timeline_(parent),
   self_created_sequence(nullptr),
-  track_list_(nullptr),
+  sequence_(nullptr),
+  type_(olive::kTypeCount),
   scroll(0),
   alignment_(olive::timeline::kAlignmentTop),
   track_resizing(false)
@@ -92,9 +93,10 @@ void TimelineView::SetAlignment(olive::timeline::Alignment alignment)
   alignment_ = alignment;
 }
 
-void TimelineView::SetTrackList(TrackList *tl)
+void TimelineView::SetTrackType(Sequence* s, olive::TrackType type)
 {
-  track_list_ = tl;
+  sequence_ = s;
+  type_ = type;
 
   update();
 }
@@ -323,7 +325,7 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
     } else {
       entry_point = ParentTimeline()->getTimelineFrameFromScreenPoint(event->pos().x());
       ParentTimeline()->drag_frame_start = entry_point + getFrameFromScreenPoint(ParentTimeline()->zoom, 50);
-      ParentTimeline()->drag_track_start = track_list_->First();
+      ParentTimeline()->drag_track_start = sequence_->GetTrackList(type_).first();
     }
 
     ParentTimeline()->ghosts = olive::timeline::CreateGhostsFromMedia(seq, entry_point, media_list);
@@ -625,15 +627,15 @@ void TimelineView::mousePressEvent(QMouseEvent *event) {
       }
 
       // if the track the user clicked is correct for the type of object we're adding
-
-      if (track_list_->type() == create_type) {
+      if (type_ == create_type) {
         Ghost g;
         g.in = g.old_in = g.out = g.old_out = ParentTimeline()->drag_frame_start;
 
         g.track = ParentTimeline()->drag_track_start;
         if (g.track == nullptr) {
-          g.track = track_list_->Last();
-          ParentTimeline()->drag_track_start = track_list_->Last();
+          QVector<Track*> track_list = sequence_->GetTrackList(type_);
+          g.track = track_list.last();
+          ParentTimeline()->drag_track_start = track_list.last();
           g.track_movement = getTrackIndexFromScreenPoint(event->pos().y()) - g.track->Index();
         }
 
@@ -981,8 +983,9 @@ int TimelineView::GetTotalAreaHeight()
   // start by adding a track height worth of padding
   int panel_height = olive::timeline::kTrackDefaultHeight;
 
-  for (int i=0;i<track_list_->TrackCount();i++) {
-    panel_height += track_list_->TrackAt(i)->height();
+  QVector<Track*> track_list = sequence_->GetTrackList(type_);
+  for (int i=0;i<track_list.size();i++) {
+    panel_height += track_list.at(i)->height();
   }
 
   return panel_height;
@@ -1836,7 +1839,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
       // Prevent any clips from going below the "zeroeth" track
 
-      if (ParentTimeline()->importing || g.track->type() == track_list_->type()) {
+      if (ParentTimeline()->importing || g.track->type() == type_) {
 
         int track_validator = g.track->Index() + track_diff;
         if (track_validator < 0) {
@@ -1929,7 +1932,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
 
         g.track_movement = getTrackIndexFromScreenPoint(mouse_pos.y());
 
-      } else if (g.track->type() == track_list_->type() && g.transition == nullptr) {
+      } else if (g.track->type() == type_ && g.transition == nullptr) {
 
         g.track_movement = track_diff;
 
@@ -2649,6 +2652,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         }
 
       } else {
+        QVector<Track*> track_list = sequence_->GetTrackList(type_);
+
         // we didn't find a trim target, so we must be doing something else
         // (e.g. dragging a clip or resizing the track heights)
 
@@ -2660,8 +2665,8 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
         // cursor range for resizing a track
         int test_range = 10; // FIXME magic number
 
-        for (int i=0;i<track_list_->TrackCount();i++) {
-          Track* track = track_list_->TrackAt(i);
+        for (int i=0;i<track_list.size();i++) {
+          Track* track = track_list.at(i);
 
           int effective_track_index = i;
 
@@ -2747,7 +2752,7 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
           // cursor is hovering over a clip
 
           // check if the clip and transition are both the same sign (meaning video/audio are the same)
-          if (track_list_->type() == olive::node_library[ParentTimeline()->transition_tool_meta]->subtype()) {
+          if (type_ == olive::node_library[ParentTimeline()->transition_tool_meta]->subtype()) {
 
             // the range within which the transition tool will assume the user wants to make a shared transition
             // between two clips rather than just one transition on one clip
@@ -2838,15 +2843,16 @@ void TimelineView::draw_transition(QPainter& p, Clip* c, const QRect& clip_rect,
 
 void TimelineView::paintEvent(QPaintEvent*) {
   // Draw clips
-  if (track_list_ != nullptr) {
+  if (sequence_ != nullptr) {
     QPainter p(this);
 
     // get widget width and height
     emit setScrollMaximum(GetTotalAreaHeight());
 
-    for (int i=0;i<track_list_->TrackCount();i++) {
+    QVector<Track*> track_list = sequence_->GetTrackList(type_);
+    for (int i=0;i<track_list.size();i++) {
 
-      Track* track = track_list_->TrackAt(i);
+      Track* track = track_list.at(i);
 
       int track_top = getScreenPointFromTrack(track);
       int track_bottom = track_top + track->height();
@@ -3205,7 +3211,7 @@ void TimelineView::paintEvent(QPaintEvent*) {
       for (int i=0;i<ParentTimeline()->ghosts.size();i++) {
         const Ghost& g = ParentTimeline()->ghosts.at(i);
         first_ghost = qMin(first_ghost, g.in);
-        if (g.track->type() == track_list_->type()) {
+        if (g.track->type() == type_) {
 
           int ghost_x = ParentTimeline()->getTimelineScreenPointFromFrame(g.in);
           int ghost_y = getScreenPointFromTrackIndex(g.track->Index() + g.track_movement);
@@ -3277,8 +3283,10 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 
   int index = getTrackIndexFromScreenPoint(y);
 
-  if (index < track_list_->TrackCount()) {
-    return track_list_->TrackAt(index);
+  QVector<Track*> track_list = sequence_->GetTrackList(type_);
+
+  if (index < track_list.size()) {
+    return track_list.at(index);
   }
 
   return nullptr;
@@ -3286,7 +3294,7 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 }
 
 int TimelineView::getScreenPointFromTrack(Track *track) {
-  return getScreenPointFromTrackIndex(track_list_->IndexOfTrack(track));
+  return getScreenPointFromTrackIndex(track->Index());
 }
 
 int TimelineView::getTrackIndexFromScreenPoint(int y)
@@ -3312,8 +3320,9 @@ int TimelineView::getTrackIndexFromScreenPoint(int y)
 
     int new_heights = heights;
 
-    if (i < track_list_->TrackCount()) {
-      new_heights += track_list_->TrackAt(i)->height();
+    QVector<Track*> track_list = sequence_->GetTrackList(type_);
+    if (i < track_list.size()) {
+      new_heights += track_list.at(i)->height();
     } else {
       new_heights += olive::timeline::kTrackDefaultHeight;
     }
@@ -3342,7 +3351,8 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
   }
 
   if (alignment_ == olive::timeline::kAlignmentBottom) {
-    return qMax(height(), GetTotalAreaHeight()) - point - scroll - track_list_->First()->height() - 1;
+    QVector<Track*> track_list = sequence_->GetTrackList(type_);
+    return qMax(height(), GetTotalAreaHeight()) - point - scroll - track_list.first()->height() - 1;
   }
 
   return point - scroll;
@@ -3350,8 +3360,9 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
 
 int TimelineView::getTrackHeightFromTrackIndex(int track)
 {
-  if (track < track_list_->TrackCount()) {
-    return track_list_->TrackAt(track)->height();
+  QVector<Track*> track_list = sequence_->GetTrackList(type_);
+  if (track < track_list.size()) {
+    return track_list.at(track)->height();
   } else {
     return olive::timeline::kTrackDefaultHeight;
   }
@@ -3364,11 +3375,7 @@ Timeline *TimelineView::ParentTimeline()
 
 Sequence *TimelineView::sequence()
 {
-  if (track_list_ == nullptr) {
-    return nullptr;
-  }
-
-  return track_list_->GetParent();
+  return sequence_;
 }
 
 void TimelineView::setScroll(int s) {

@@ -1,7 +1,6 @@
 #include "track.h"
 
 #include "timeline/clip.h"
-#include "timeline/tracklist.h"
 #include "timeline/sequence.h"
 #include "global/math.h"
 
@@ -9,7 +8,7 @@ int olive::timeline::kTrackDefaultHeight = 40;
 int olive::timeline::kTrackMinHeight = 30;
 int olive::timeline::kTrackHeightIncrement = 10;
 
-Track::Track(TrackList* parent, olive::TrackType type) :
+Track::Track(Sequence* parent, olive::TrackType type) :
   parent_(parent),
   type_(type),
   muted_(false),
@@ -19,7 +18,7 @@ Track::Track(TrackList* parent, olive::TrackType type) :
 {
 }
 
-Track *Track::copy(TrackList *parent)
+Track *Track::copy(Sequence *parent)
 {
   Track* t = new Track(parent, type_);
 
@@ -35,11 +34,6 @@ Track *Track::copy(TrackList *parent)
 }
 
 Sequence *Track::sequence()
-{
-  return parent_->GetParent();
-}
-
-TrackList *Track::track_list()
 {
   return parent_;
 }
@@ -210,27 +204,17 @@ bool Track::ContainsClip(Clip *c)
 
 Track *Track::Previous()
 {
-  int index = Index();
-
-  if (index == 0) {
-    return nullptr;
-  }
-
-  return parent_->TrackAt(index - 1);
+  return parent_->PreviousTrack(this);
 }
 
 Track *Track::Next()
 {
-  return parent_->TrackAt(Index() + 1);
+  return parent_->NextTrack(this);
 }
 
 Track *Track::Sibling(int diff)
 {
-  if (diff == 0) {
-    return this;
-  }
-
-  return track_list()->TrackAt(qMax(0, Index() + diff));
+  return parent_->SiblingTrack(this, diff);
 }
 
 int Track::Index()
@@ -394,8 +378,9 @@ bool Track::IsEffectivelyMuted()
   // Check if any tracks are soloed
   bool a_track_is_soloed = false;
 
-  for (int i=0;i<track_list()->TrackCount();i++) {
-    if (track_list()->TrackAt(i)->IsSoloed()) {
+  QVector<Track*> siblings = parent_->GetTrackList(type_);
+  for (int i=0;i<siblings.size();i++) {
+    if (siblings.at(i)->IsSoloed()) {
       a_track_is_soloed = true;
       break;
     }

@@ -44,7 +44,7 @@ public:
   explicit TimelineView(Timeline *parent);
 
   void SetAlignment(olive::timeline::Alignment alignment);
-  void SetTrackList(TrackList* tl);
+  void SetTrackType(Sequence* s, olive::TrackType type);
 
   Track* getTrackFromScreenPoint(int y);
   int getScreenPointFromTrack(Track* track);
@@ -91,7 +91,8 @@ private:
   Timeline* timeline_;
 
   olive::timeline::Alignment alignment_;
-  TrackList* track_list_;
+  Sequence* sequence_;
+  olive::TrackType type_;
 
   bool track_resizing;
   Track* track_target;

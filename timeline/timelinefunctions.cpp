@@ -119,7 +119,7 @@ QVector<Ghost> olive::timeline::CreateGhostsFromMedia(Sequence *seq,
             || import_data.type() == olive::timeline::kImportBoth) {
           for (int j=0;j<m->audio_tracks.size();j++) {
             if (m->audio_tracks.at(j).enabled) {
-              g.track = seq->GetTrackList(olive::kTypeAudio)->TrackAt(j);
+              g.track = seq->GetTrackList(olive::kTypeAudio).at(j);
               g.media_stream = m->audio_tracks.at(j).file_index;
               ghosts.append(g);
             }
@@ -130,7 +130,7 @@ QVector<Ghost> olive::timeline::CreateGhostsFromMedia(Sequence *seq,
             || import_data.type() == olive::timeline::kImportBoth) {
           for (int j=0;j<m->video_tracks.size();j++) {
             if (m->video_tracks.at(j).enabled) {
-              g.track = seq->GetTrackList(olive::kTypeVideo)->TrackAt(j);
+              g.track = seq->GetTrackList(olive::kTypeVideo).at(j);
               g.media_stream = m->video_tracks.at(j).file_index;
               ghosts.append(g);
             }
@@ -146,13 +146,13 @@ QVector<Ghost> olive::timeline::CreateGhostsFromMedia(Sequence *seq,
 
         if (import_data.type() == olive::timeline::kImportVideoOnly
             || import_data.type() == olive::timeline::kImportBoth) {
-          g.track = seq->GetTrackList(olive::kTypeVideo)->First();
+          g.track = seq->GetTrackList(olive::kTypeVideo).first();
           ghosts.append(g);
         }
 
         if (import_data.type() == olive::timeline::kImportAudioOnly
             || import_data.type() == olive::timeline::kImportBoth) {
-          g.track = seq->GetTrackList(olive::kTypeAudio)->First();
+          g.track = seq->GetTrackList(olive::kTypeAudio).first();
           ghosts.append(g);
         }
 
