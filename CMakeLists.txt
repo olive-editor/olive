@@ -24,7 +24,7 @@ find_package(OpenGL REQUIRED)
 
 find_package(OpenColorIO REQUIRED)
 
-find_package(Qt5 5.7 REQUIRED
+find_package(Qt5 5.6 REQUIRED
   COMPONENTS
   Core
   Gui
@@ -116,8 +116,6 @@ set(OLIVE_SOURCES
   effects/effectgizmo.h
   effects/effectloaders.cpp
   effects/effectloaders.h
-  effects/effectrow.cpp
-  effects/effectrow.h
   effects/fields/boolfield.cpp
   effects/fields/boolfield.h
   effects/fields/buttonfield.cpp
@@ -215,8 +213,12 @@ set(OLIVE_SOURCES
   nodes/nodeedge.h
   nodes/nodegraph.cpp
   nodes/nodegraph.h
+  nodes/nodeio.cpp
+  nodes/nodeio.h
   nodes/node.h
   nodes/nodes.h
+  nodes/oldeffectnode.h
+  nodes/oldeffectnode.cpp
   nodes/nodes/nodeimageoutput.cpp
   nodes/nodes/nodeimageoutput.h
   nodes/nodes/nodemedia.cpp
@@ -303,8 +305,6 @@ set(OLIVE_SOURCES
   timeline/timelinetools.h
   timeline/track.cpp
   timeline/track.h
-  timeline/tracklist.cpp
-  timeline/tracklist.h
   timeline/tracktypes.h
   ui/audiomonitor.cpp
   ui/audiomonitor.h
