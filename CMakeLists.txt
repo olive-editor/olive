@@ -20,10 +20,6 @@ if(UNIX AND NOT APPLE AND NOT DEFINED OpenGL_GL_PREFERENCE)
   set(OpenGL_GL_PREFERENCE LEGACY)
 endif()
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder")
-endif()
-
 find_package(OpenGL REQUIRED)
 
 find_package(OpenColorIO REQUIRED)
@@ -500,6 +496,8 @@ add_executable(${OLIVE_TARGET}
 )
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
+
+target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder>)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
