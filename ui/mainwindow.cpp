@@ -1118,6 +1118,8 @@ void MainWindow::windowMenu_About_To_Be_Shown() {
       a->setChecked(reinterpret_cast<QDockWidget*>(a->data().value<quintptr>())->isVisible());
     }
   }
+
+  lock_panels_->setChecked(olive::config.locked_panels);
 }
 
 void MainWindow::playbackMenu_About_To_Be_Shown() {
