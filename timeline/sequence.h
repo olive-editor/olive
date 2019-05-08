@@ -57,7 +57,6 @@ public:
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
-  QVector<Track*> GetTrackList(olive::TrackType type);
 
   /**
    * @brief Close all open clips in a Sequence
@@ -124,6 +123,11 @@ public:
   Track* NextTrack(Track* t);
   Track* SiblingTrack(Track* t, int diff);
   int IndexOfTrack(Track* t);
+  Track* FirstTrack(olive::TrackType type);
+  Track* LastTrack(olive::TrackType type);
+  Track* TrackAt(olive::TrackType type, int index);
+  int TrackCount(olive::TrackType type);
+  QVector<Track*> GetTrackList(olive::TrackType type);
 
   long playhead;
 
@@ -138,7 +142,10 @@ public:
   QVector<Marker> markers;
 signals:
   void SequenceParametersChanged();
+  void TrackCountChanged();
 private:
+  Track *AddTrack(olive::TrackType type);
+
   QVector<Track*> tracks_;
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);

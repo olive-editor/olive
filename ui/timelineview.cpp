@@ -325,7 +325,7 @@ void TimelineView::dragEnterEvent(QDragEnterEvent *event) {
     } else {
       entry_point = ParentTimeline()->getTimelineFrameFromScreenPoint(event->pos().x());
       ParentTimeline()->drag_frame_start = entry_point + getFrameFromScreenPoint(ParentTimeline()->zoom, 50);
-      ParentTimeline()->drag_track_start = sequence_->GetTrackList(type_).first();
+      ParentTimeline()->drag_track_start = sequence_->FirstTrack(type_);
     }
 
     ParentTimeline()->ghosts = olive::timeline::CreateGhostsFromMedia(seq, entry_point, media_list);
@@ -3294,6 +3294,7 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 }
 
 int TimelineView::getScreenPointFromTrack(Track *track) {
+  qDebug() << "Getting screen point from" << track << track->Index();
   return getScreenPointFromTrackIndex(track->Index());
 }
 
@@ -3316,11 +3317,13 @@ int TimelineView::getTrackIndexFromScreenPoint(int y)
   int heights = 0;
 
   int i = 0;
+
+  QVector<Track*> track_list = sequence_->GetTrackList(type_);
+
   while (true) {
 
     int new_heights = heights;
 
-    QVector<Track*> track_list = sequence_->GetTrackList(type_);
     if (i < track_list.size()) {
       new_heights += track_list.at(i)->height();
     } else {
@@ -3346,13 +3349,18 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
 
   int point = 0;
 
-  for (int i=0;i<track;i++) {
+  int loop_start = 0;
+  int loop_end = track;
+  if (alignment_ == olive::timeline::kAlignmentBottom) {
+    loop_start++;
+    loop_end++;
+  }
+  for (int i=loop_start;i<loop_end;i++) {
     point += getTrackHeightFromTrackIndex(i) + 1;
   }
 
   if (alignment_ == olive::timeline::kAlignmentBottom) {
-    QVector<Track*> track_list = sequence_->GetTrackList(type_);
-    return qMax(height(), GetTotalAreaHeight()) - point - scroll - track_list.first()->height() - 1;
+    return qMax(height(), GetTotalAreaHeight()) - point - scroll - sequence_->FirstTrack(type_)->height() - 1;
   }
 
   return point - scroll;
@@ -3360,9 +3368,8 @@ int TimelineView::getScreenPointFromTrackIndex(int track)
 
 int TimelineView::getTrackHeightFromTrackIndex(int track)
 {
-  QVector<Track*> track_list = sequence_->GetTrackList(type_);
-  if (track < track_list.size()) {
-    return track_list.at(track)->height();
+  if (track < sequence_->TrackCount(type_)) {
+    return sequence_->TrackAt(type_, track)->height();
   } else {
     return olive::timeline::kTrackDefaultHeight;
   }

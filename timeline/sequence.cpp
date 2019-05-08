@@ -35,6 +35,8 @@ Sequence::Sequence() :
   workarea_out(0),
   wrapper_sequence(false)
 {
+  AddTrack(olive::kTypeVideo);
+  AddTrack(olive::kTypeAudio);
 }
 
 SequencePtr Sequence::copy() {
@@ -1118,49 +1120,120 @@ Track *Sequence::PreviousTrack(Track *t)
 
 Track *Sequence::NextTrack(Track *t)
 {
-  // FIXME: The old code created extra tracks if it couldn't find one here
+  if (LastTrack(t->type()) == t) {
 
-  Track* next_track = nullptr;
+    return AddTrack(t->type());
 
-  // Loop through tracks
-  for (int i=tracks_.size()-1;i>=0;i--) {
+  } else {
 
-    if (tracks_.at(i) == t) {
-      // If this is the track, we'll know the previous track by now
-      break;
-    } else if (tracks_.at(i)->type() == t->type()) {
-      // Otherwise, we'll keep "track" of it
-      next_track = t;
+    Track* next_track = nullptr;
+
+    for (int i=tracks_.size()-1;i>=0;i--) {
+
+      if (tracks_.at(i) == t) {
+        break;
+      }
+
+      if (tracks_.at(i)->type() == t->type()) {
+        next_track = tracks_.at(i);
+      }
+
     }
-  }
 
-  return next_track;
+    return next_track;
+  }
 }
 
 Track *Sequence::SiblingTrack(Track *t, int diff)
 {
-  // FIXME: The old code created extra tracks if it couldn't find one here
-
   if (diff == 0) {
     return t;
   }
 
-  QVector<Track*> tracks = GetTrackList(t->type());
-
-  return tracks.at(qMax(0, IndexOfTrack(t) + diff));
+  return TrackAt(t->type(), qMax(0, IndexOfTrack(t) + diff));
 }
 
 int Sequence::IndexOfTrack(Track *t)
 {
-  QVector<Track*> tracks = GetTrackList(t->type());
+  int counter = -1;
 
-  for (int i=0;i<tracks.size();i++) {
-    if (tracks.at(i) == t) {
-      return i;
+  for (int i=0;i<tracks_.size();i++) {
+
+    if (tracks_.at(i)->type() == t->type()) {
+      counter++;
+    }
+
+    if (tracks_.at(i) == t) {
+      return counter;
     }
   }
 
   return -1;
+}
+
+Track *Sequence::FirstTrack(olive::TrackType type)
+{
+  for (int i=0;i<tracks_.size();i++) {
+    if (tracks_.at(i)->type() == type) {
+      return tracks_.at(i);
+    }
+  }
+  return nullptr;
+}
+
+Track *Sequence::LastTrack(olive::TrackType type)
+{
+  for (int i=tracks_.size()-1;i>=0;i--) {
+    if (tracks_.at(i)->type() == type) {
+      return tracks_.at(i);
+    }
+  }
+  return nullptr;
+}
+
+Track *Sequence::TrackAt(olive::TrackType type, int index)
+{
+  int counter = -1;
+
+  for (int i=0;i<tracks_.size();i++) {
+    if (tracks_.at(i)->type() == type) {
+      counter++;
+    }
+
+    if (counter == index) {
+      return tracks_.at(i);
+    }
+  }
+
+  Track* t;
+
+  do {
+    t = AddTrack(type);
+    counter++;
+  } while (index > counter);
+
+  return t;
+}
+
+int Sequence::TrackCount(olive::TrackType type)
+{
+  int counter = 0;
+
+  for (int i=0;i<tracks_.size();i++) {
+    if (tracks_.at(i)->type() == type) {
+      counter++;
+    }
+  }
+
+  return counter;
+}
+
+Track* Sequence::AddTrack(olive::TrackType type)
+{
+  Track* track = new Track(this, type);
+  tracks_.append(track);
+  emit TrackCountChanged();
+  return track;
 }
 
 ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long frame)

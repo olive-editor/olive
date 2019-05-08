@@ -51,26 +51,22 @@ TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignm
 
 void TimelineArea::SetTrackType(Sequence *sequence, olive::TrackType track_type)
 {
-  /* FIXME
-  if (track_list_ != nullptr) {
-    disconnect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
+  if (sequence_ != nullptr) {
+    disconnect(sequence_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
   }
 
-  if (sequence == nullptr) {
+  sequence_ = sequence;
+  type_ = track_type;
 
-    track_list_ = nullptr;
+  if (sequence_ != nullptr) {
 
-  } else {
-
-    track_list_ = sequence->GetTrackList(track_type);
-    connect(track_list_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
+    connect(sequence_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
 
   }
 
   RefreshLabels();
 
-  view_->SetTrackList(track_list_);
-  */
+  view_->SetTrackType(sequence_, type_);
 }
 
 void TimelineArea::SetAlignment(olive::timeline::Alignment alignment)

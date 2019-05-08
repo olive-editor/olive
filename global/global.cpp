@@ -337,7 +337,7 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
         ClipPtr c = std::static_pointer_cast<Clip>(olive::clipboard.Get(i));
 
         // create copy of clip and offset by playhead
-        ClipPtr cc = c->copy(s->GetTrackList(c->track()->type()).at(c->track()->Index()));
+        ClipPtr cc = c->copy(s->TrackAt(c->track()->type(), c->track()->Index()));
 
         // convert frame rates
         cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), s->frame_rate()));

@@ -343,7 +343,7 @@ void Timeline::nest() {
         ca->append(new DeleteClipAction(c));
 
         // copy to new
-        Track* track = s->GetTrackList(c->type()).at(c->track()->Index());
+        Track* track = s->TrackAt(c->type(), c->track()->Index());
         ClipPtr copy = selected_clips.at(i)->copy(track);
         copy->set_timeline_in(copy->timeline_in() - earliest_point);
         copy->set_timeline_out(copy->timeline_out() - earliest_point);
