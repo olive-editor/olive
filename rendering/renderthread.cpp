@@ -76,29 +76,29 @@ void RenderThread::run() {
         ctx->makeCurrent(&surface);
 
         // if the sequence size has changed, we'll need to reinitialize the textures
-        if (seq->width != tex_width || seq->height != tex_height) {
+        if (seq->width() != tex_width || seq->height() != tex_height) {
           delete_buffers();
 
           // cache sequence values for future checks
-          tex_width = seq->width;
-          tex_height = seq->height;
+          tex_width = seq->width();
+          tex_height = seq->height();
         }
 
         // create any buffers that don't yet exist
         if (!composite_buffer.IsCreated()) {
-          composite_buffer.Create(ctx, seq->width, seq->height);
+          composite_buffer.Create(ctx, seq->width(), seq->height());
         }
         if (!front_buffer_1.IsCreated()) {
-          front_buffer_1.Create(ctx, seq->width, seq->height);
+          front_buffer_1.Create(ctx, seq->width(), seq->height());
         }
         if (!front_buffer_2.IsCreated()) {
-          front_buffer_2.Create(ctx, seq->width, seq->height);
+          front_buffer_2.Create(ctx, seq->width(), seq->height());
         }
         if (!back_buffer_1.IsCreated()) {
-          back_buffer_1.Create(ctx, seq->width, seq->height);
+          back_buffer_1.Create(ctx, seq->width(), seq->height());
         }
         if (!back_buffer_2.IsCreated()) {
-          back_buffer_2.Create(ctx, seq->width, seq->height);
+          back_buffer_2.Create(ctx, seq->width(), seq->height());
         }
 
         // If there's no pipeline shader, create it now

@@ -340,9 +340,9 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
         ClipPtr cc = c->copy(s->GetTrackList(c->track()->type()).at(c->track()->Index()));
 
         // convert frame rates
-        cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), s->frame_rate));
-        cc->set_timeline_out(rescale_frame_number(cc->timeline_out(), c->cached_frame_rate(), s->frame_rate));
-        cc->set_clip_in(rescale_frame_number(cc->clip_in(), c->cached_frame_rate(), s->frame_rate));
+        cc->set_timeline_in(rescale_frame_number(cc->timeline_in(), c->cached_frame_rate(), s->frame_rate()));
+        cc->set_timeline_out(rescale_frame_number(cc->timeline_out(), c->cached_frame_rate(), s->frame_rate()));
+        cc->set_clip_in(rescale_frame_number(cc->clip_in(), c->cached_frame_rate(), s->frame_rate()));
 
         cc->set_timeline_in(cc->timeline_in() + s->playhead);
         cc->set_timeline_out(cc->timeline_out() + s->playhead);

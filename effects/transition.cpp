@@ -51,7 +51,7 @@ Transition::Transition(Clip *c) :
 
   if (parent_clip != nullptr) {
     length_field->SetFrameRate(parent_clip->track()->sequence() == nullptr ?
-                                 parent_clip->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate);
+                                 parent_clip->cached_frame_rate() : parent_clip->track()->sequence()->frame_rate());
   }
 
   connect(length_field, SIGNAL(Changed()), this, SLOT(UpdateMaximumLength()));

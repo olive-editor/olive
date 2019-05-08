@@ -92,7 +92,7 @@ ClipPropertiesDialog::ClipPropertiesDialog(QWidget *parent, QVector<Clip *> clip
   }
 
   // it's assumed all the clips come from the same sequence
-  duration_field_->SetFrameRate(first_clip->track()->sequence()->frame_rate);
+  duration_field_->SetFrameRate(first_clip->track()->sequence()->frame_rate());
 
   if (all_clips_have_same_duration) {
     duration_field_->SetDefault(first_clip->length());

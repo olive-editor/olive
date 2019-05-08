@@ -933,8 +933,8 @@ void MainWindow::Retranslate()
   debug_log_->setText(tr("Debug Log"));
   about_action_->setText(tr("&About..."));
 
-  panel_sequence_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Sequence Viewer"));
-  panel_footage_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Media Viewer"));
+  panel_sequence_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Sequence Viewer: %1"));
+  panel_footage_viewer->set_panel_name(QCoreApplication::translate("Viewer", "Media Viewer: %1"));
 
   // the recommended changeEvent() and event() methods of propagating language change messages provided mixed results
   // (i.e. different panels failed to translate in different sessions), so we translate them manually here

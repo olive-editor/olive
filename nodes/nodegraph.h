@@ -2,11 +2,13 @@
 #define NODEGRAPH_H
 
 #include <QVector>
+#include <QObject>
 
 #include "nodes/node.h"
 
-class NodeGraph
+class NodeGraph : public QObject
 {
+  Q_OBJECT
 public:
   NodeGraph();
 
@@ -47,6 +49,9 @@ public:
    * @brief Returns the currently set output node
    */
   Node* OutputNode();
+
+signals:
+  void NodeGraphChanged();
 
 private:  
   NodePtr output_node_;

@@ -59,20 +59,20 @@ NewSequenceDialog::NewSequenceDialog(QWidget *parent, Media *existing, Sequence*
   }
 
   if (existing_sequence != nullptr) {
-    setWindowTitle(tr("Editing \"%1\"").arg(existing_sequence->name));
+    setWindowTitle(tr("Editing \"%1\"").arg(existing_sequence->name()));
 
-    width_numeric->setValue(existing_sequence->width);
-    height_numeric->setValue(existing_sequence->height);
-    int comp_rate = qRound(existing_sequence->frame_rate*100);
+    width_numeric->setValue(existing_sequence->width());
+    height_numeric->setValue(existing_sequence->height());
+    int comp_rate = qRound(existing_sequence->frame_rate()*100);
     for (int i=0;i<frame_rate_combobox->count();i++) {
       if (qRound(frame_rate_combobox->itemData(i).toDouble()*100) == comp_rate) {
         frame_rate_combobox->setCurrentIndex(i);
         break;
       }
     }
-    sequence_name_edit->setText(existing_sequence->name);
+    sequence_name_edit->setText(existing_sequence->name());
     for (int i=0;i<audio_frequency_combobox->count();i++) {
-      if (audio_frequency_combobox->itemData(i) == existing_sequence->audio_frequency) {
+      if (audio_frequency_combobox->itemData(i) == existing_sequence->audio_frequency()) {
         audio_frequency_combobox->setCurrentIndex(i);
         break;
       }
@@ -100,12 +100,12 @@ void NewSequenceDialog::accept() {
 
     SequencePtr s = std::make_shared<Sequence>();
 
-    s->name = sequence_name_edit->text();
-    s->width = width_numeric->value();
-    s->height = height_numeric->value();
-    s->frame_rate = frame_rate_combobox->currentData().toDouble();
-    s->audio_frequency = audio_frequency_combobox->currentData().toInt();
-    s->audio_layout = AV_CH_LAYOUT_STEREO;
+    s->set_name(sequence_name_edit->text());
+    s->set_width(width_numeric->value());
+    s->set_height(height_numeric->value());
+    s->set_frame_rate(frame_rate_combobox->currentData().toDouble());
+    s->set_audio_frequency(audio_frequency_combobox->currentData().toInt());
+    s->set_audio_layout(AV_CH_LAYOUT_STEREO);
 
     ComboAction* ca = new ComboAction();
     olive::project_model.CreateSequence(ca, s, true, nullptr);
@@ -117,7 +117,7 @@ void NewSequenceDialog::accept() {
 
     ComboAction* ca = new ComboAction();
 
-    double multiplier = frame_rate_combobox->currentData().toDouble() / existing_sequence->frame_rate;
+    double multiplier = frame_rate_combobox->currentData().toDouble() / existing_sequence->frame_rate();
 
     EditSequenceCommand* esc = new EditSequenceCommand(existing_item, existing_item->to_sequence());
     esc->name = sequence_name_edit->text();
@@ -139,12 +139,12 @@ void NewSequenceDialog::accept() {
 
     // This dialog was given an existing Sequence without a Media wrapper - therefore just directly apply the settings
 
-    existing_sequence->name = sequence_name_edit->text();
-    existing_sequence->width = width_numeric->value();
-    existing_sequence->height = height_numeric->value();
-    existing_sequence->frame_rate = frame_rate_combobox->currentData().toDouble();
-    existing_sequence->audio_frequency = audio_frequency_combobox->currentData().toInt();
-    existing_sequence->audio_layout = AV_CH_LAYOUT_STEREO;
+    existing_sequence->set_name(sequence_name_edit->text());
+    existing_sequence->set_width(width_numeric->value());
+    existing_sequence->set_height(height_numeric->value());
+    existing_sequence->set_frame_rate(frame_rate_combobox->currentData().toDouble());
+    existing_sequence->set_audio_frequency(audio_frequency_combobox->currentData().toInt());
+    existing_sequence->set_audio_layout(AV_CH_LAYOUT_STEREO);
 
   }
 

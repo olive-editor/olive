@@ -26,7 +26,7 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 private:
   Timeline* timeline_;
-  Sequence* track_list_;
+  Sequence* sequence_;
   olive::TrackType type_;
   TimelineView* view_;
   QVector<TimelineLabelPtr> labels_;

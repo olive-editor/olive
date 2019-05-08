@@ -9,7 +9,7 @@ int olive::timeline::kTimelineLabelFixedWidth = 200;
 
 TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignment) :
   timeline_(timeline),
-  track_list_(nullptr),
+  sequence_(nullptr),
   alignment_(alignment)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -157,17 +157,18 @@ void TimelineArea::wheelEvent(QWheelEvent *event)
 
 void TimelineArea::RefreshLabels()
 {
-  if (track_list_ == nullptr) {
+  if (sequence_ == nullptr) {
 
     labels_.clear();
 
   } else {
 
-    /* FIXME
-    labels_.resize(track_list_->TrackCount());
+    QVector<Track*> track_list = sequence_->GetTrackList(type_);
+
+    labels_.resize(track_list.size());
     for (int i=0;i<labels_.size();i++) {
       labels_[i] = std::make_shared<TimelineLabel>();
-      labels_[i]->SetTrack(track_list_->TrackAt(i));
+      labels_[i]->SetTrack(track_list.at(i));
       labels_[i]->SetAlignment(alignment_);
 
       switch (alignment_) {
@@ -181,7 +182,6 @@ void TimelineArea::RefreshLabels()
         break;
       }
     }
-    */
   }
 }
 

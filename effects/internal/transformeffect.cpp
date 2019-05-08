@@ -163,11 +163,11 @@ OldEffectNodePtr TransformEffect::Create(Clip *c)
 void TransformEffect::refresh() {
   if (parent_clip != nullptr && parent_clip->track()->sequence() != nullptr) {
 
-    position->SetDefault({parent_clip->track()->sequence()->width*0.5,
-                          parent_clip->track()->sequence()->height*0.5});
+    position->SetDefault({parent_clip->track()->sequence()->width()*0.5,
+                          parent_clip->track()->sequence()->height()*0.5});
 
-    double x_percent_multipler = 200.0 / parent_clip->track()->sequence()->width;
-    double y_percent_multipler = 200.0 / parent_clip->track()->sequence()->height;
+    double x_percent_multipler = 200.0 / parent_clip->track()->sequence()->width();
+    double y_percent_multipler = 200.0 / parent_clip->track()->sequence()->height();
 
     top_left_gizmo->x_field_multi1 = -x_percent_multipler;
     top_left_gizmo->y_field_multi1 = -y_percent_multipler;
@@ -203,8 +203,8 @@ void TransformEffect::toggle_uniform_scale(bool enabled) {
 void TransformEffect::process_coords(double timecode, GLTextureCoords& coords, int) {
   // position
   coords.matrix.translate(position->GetVector2DAt(timecode)
-                          - QVector2D(parent_clip->track()->sequence()->width*0.5f,
-                                      parent_clip->track()->sequence()->height*0.5f));
+                          - QVector2D(parent_clip->track()->sequence()->width()*0.5f,
+                                      parent_clip->track()->sequence()->height()*0.5f));
 
   // anchor point
   QVector2D anchor_val = anchor_point->GetVector2DAt(timecode);

@@ -146,7 +146,7 @@ void Viewer::reset_all_audio() {
     if (playback_speed < 0) {
       audio_ibuffer_frame = last_frame - audio_ibuffer_frame;
     }
-    audio_ibuffer_timecode = double(audio_ibuffer_frame) / seq->frame_rate;
+    audio_ibuffer_timecode = double(audio_ibuffer_frame) / seq->frame_rate();
   }
   clear_audio_ibuffer();
 }
@@ -359,7 +359,7 @@ void Viewer::pause() {
 
         c->set_media(m, 0); // latest media
         c->set_timeline_in(recording_start);
-        c->set_timeline_out(recording_start + f->get_length_in_frames(seq->frame_rate));
+        c->set_timeline_out(recording_start + f->get_length_in_frames(seq->frame_rate()));
         c->set_clip_in(0);
         c->set_color(128, 192, 128);
         c->set_name(m->get_name());
@@ -381,7 +381,7 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::config.timecode_view, 30) : frame_to_timecode(seq->GetEndFrame(), olive::config.timecode_view, seq->frame_rate));
+  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::config.timecode_view, 30) : frame_to_timecode(seq->GetEndFrame(), olive::config.timecode_view, seq->frame_rate()));
 }
 
 void Viewer::update_header_zoom() {
@@ -546,13 +546,7 @@ void Viewer::show_videoaudio_buttons(bool s)
 }
 
 void Viewer::update_window_title() {
-  QString name;
-  if (seq == nullptr) {
-    name = tr("(none)");
-  } else {
-    name = seq->name;
-  }
-  setWindowTitle(QString("%1: %2").arg(panel_name, name));
+  setWindowTitle(panel_name.arg((seq == nullptr) ? tr("(none)") : seq->name()));
 }
 
 void Viewer::set_zoom_value(double d) {
@@ -734,7 +728,7 @@ void Viewer::set_media(Media* m) {
       new_sequence = std::make_shared<Sequence>();
       created_sequence = true;
       new_sequence->wrapper_sequence = true;
-      new_sequence->name = footage->name;
+      new_sequence->set_name(footage->name);
 
       new_sequence->using_workarea = footage->using_inout;
       if (footage->using_inout) {
@@ -742,14 +736,14 @@ void Viewer::set_media(Media* m) {
         new_sequence->workarea_out = footage->out;
       }
 
-      new_sequence->frame_rate = olive::config.default_sequence_framerate;
+      new_sequence->set_frame_rate(olive::config.default_sequence_framerate);
 
       if (footage->video_tracks.size() > 0) {
         const FootageStream& video_stream = footage->video_tracks.at(0);
-        new_sequence->width = video_stream.video_width;
-        new_sequence->height = video_stream.video_height;
+        new_sequence->set_width(video_stream.video_width);
+        new_sequence->set_height(video_stream.video_height);
         if (video_stream.video_frame_rate > 0 && !video_stream.infinite_length) {
-          new_sequence->frame_rate = video_stream.video_frame_rate * footage->speed;
+          new_sequence->set_frame_rate(video_stream.video_frame_rate * footage->speed);
         }
 
         Track* first_track = new_sequence->GetTrackList(olive::kTypeVideo).first();
@@ -757,7 +751,7 @@ void Viewer::set_media(Media* m) {
         ClipPtr c = std::make_shared<Clip>(first_track);
         c->set_media(media, video_stream.file_index);
         c->set_timeline_in(0);
-        c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
+        c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate()));
         if (c->timeline_out() <= 0) {
           // FIXME: Move this magic number to Config
           c->set_timeline_out(150);
@@ -767,19 +761,19 @@ void Viewer::set_media(Media* m) {
         c->refresh();
         first_track->AddClip(c);
       } else {
-        new_sequence->width = olive::config.default_sequence_width;
-        new_sequence->height = olive::config.default_sequence_height;
+        new_sequence->set_width(olive::config.default_sequence_width);
+        new_sequence->set_height(olive::config.default_sequence_height);
       }
 
       if (footage->audio_tracks.size() > 0) {
         const FootageStream& audio_stream = footage->audio_tracks.at(0);
-        new_sequence->audio_frequency = audio_stream.audio_frequency;
+        new_sequence->set_audio_frequency(audio_stream.audio_frequency);
 
         Track* track = new_sequence->GetTrackList(olive::kTypeAudio).first();
         ClipPtr c = std::make_shared<Clip>(track);
         c->set_media(media, audio_stream.file_index);
         c->set_timeline_in(0);
-        c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate));
+        c->set_timeline_out(footage->get_length_in_frames(new_sequence->frame_rate()));
         c->set_clip_in(0);
         c->refresh();
         track->AddClip(c);
@@ -791,10 +785,10 @@ void Viewer::set_media(Media* m) {
           viewer_widget_->frame_update();
         }
       } else {
-        new_sequence->audio_frequency = olive::config.default_sequence_audio_frequency;
+        new_sequence->set_audio_frequency(olive::config.default_sequence_audio_frequency);
       }
 
-      new_sequence->audio_layout = AV_CH_LAYOUT_STEREO;
+      new_sequence->set_audio_layout(AV_CH_LAYOUT_STEREO);
     }
       break;
     case MEDIA_TYPE_SEQUENCE:
@@ -813,7 +807,7 @@ void Viewer::update_playhead() {
 void Viewer::timer_update() {
   previous_playhead = seq->playhead;
 
-  seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate * playback_speed)));
+  seq->playhead = qMax(0, qRound(playhead_start + ((QDateTime::currentMSecsSinceEpoch()-start_msecs) * 0.001 * seq->frame_rate() * playback_speed)));
 
   if (olive::config.seek_also_selects) {
     seq->SelectAtPlayhead();
@@ -918,9 +912,9 @@ void Viewer::set_sequence(SequencePtr s) {
   audio_only_button->setEnabled(!null_sequence);
 
   if (!null_sequence) {
-    current_timecode_slider->SetFrameRate(seq->frame_rate);
+    current_timecode_slider->SetFrameRate(seq->frame_rate());
 
-    playback_updater.setInterval(qFloor(1000 / seq->frame_rate));
+    playback_updater.setInterval(qFloor(1000 / seq->frame_rate()));
 
     update_playhead_timecode(seq->playhead);
     update_end_timecode();

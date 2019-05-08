@@ -189,12 +189,12 @@ void Media::update_tooltip(const QString& error) {
                                                    "\nFrame Rate: %4"
                                                    "\nAudio Frequency: %5"
                                                    "\nAudio Layout: %6").arg(
-          s->name,
-          QString::number(s->width),
-          QString::number(s->height),
-          QString::number(s->frame_rate),
-          QString::number(s->audio_frequency),
-          Footage::get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout), s->audio_layout)
+          s->name(),
+          QString::number(s->width()),
+          QString::number(s->height()),
+          QString::number(s->frame_rate()),
+          QString::number(s->audio_frequency()),
+          Footage::get_channel_layout_name(av_get_channel_layout_nb_channels(s->audio_layout()), s->audio_layout())
           );
   }
     break;
@@ -213,7 +213,7 @@ int Media::get_type() {
 const QString &Media::get_name() {
   switch (type) {
   case MEDIA_TYPE_FOOTAGE: return to_footage()->name;
-  case MEDIA_TYPE_SEQUENCE: return to_sequence()->name;
+  case MEDIA_TYPE_SEQUENCE: return to_sequence()->name();
   default: return folder_name;
   }
 }
@@ -221,7 +221,7 @@ const QString &Media::get_name() {
 void Media::set_name(const QString &n) {
   switch (type) {
   case MEDIA_TYPE_FOOTAGE: to_footage()->name = n; break;
-  case MEDIA_TYPE_SEQUENCE: to_sequence()->name = n; break;
+  case MEDIA_TYPE_SEQUENCE: to_sequence()->set_name(n); break;
   case MEDIA_TYPE_FOLDER: folder_name = n; break;
   }
 }
@@ -239,7 +239,7 @@ double Media::get_frame_rate(int stream) {
     if (stream < 0) return f->video_tracks.at(0).video_frame_rate * f->speed;
     return f->get_stream_from_file_index(true, stream)->video_frame_rate * f->speed;
   }
-  case MEDIA_TYPE_SEQUENCE: return to_sequence()->frame_rate;
+  case MEDIA_TYPE_SEQUENCE: return to_sequence()->frame_rate();
   }
   return 0;
 }
@@ -252,7 +252,7 @@ int Media::get_sampling_rate(int stream) {
     if (stream < 0) return f->audio_tracks.at(0).audio_frequency * f->speed;
     return to_footage()->get_stream_from_file_index(false, stream)->audio_frequency * f->speed;
   }
-  case MEDIA_TYPE_SEQUENCE: return to_sequence()->audio_frequency;
+  case MEDIA_TYPE_SEQUENCE: return to_sequence()->audio_frequency();
   }
   return 0;
 }
@@ -288,7 +288,7 @@ int Media::columnCount() const {
 QString Media::GetStringDuration() {
   if (get_type() == MEDIA_TYPE_SEQUENCE) {
     Sequence* s = to_sequence().get();
-    return frame_to_timecode(s->GetEndFrame(), olive::config.timecode_view, s->frame_rate);
+    return frame_to_timecode(s->GetEndFrame(), olive::config.timecode_view, s->frame_rate());
   }
   if (get_type() == MEDIA_TYPE_FOOTAGE) {
     Footage* f = to_footage();

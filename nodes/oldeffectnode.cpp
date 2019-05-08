@@ -811,10 +811,10 @@ void OldEffectNode::gizmo_world_to_screen(const QMatrix4x4& matrix, const QMatri
                                                         projection,
                                                         QRect(0,
                                                               0,
-                                                              parent_clip->track()->sequence()->width,
-                                                              parent_clip->track()->sequence()->height));
+                                                              parent_clip->track()->sequence()->width(),
+                                                              parent_clip->track()->sequence()->height()));
 
-      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->track()->sequence()->height-screen_pos.y());
+      g->screen_pos[j] = QPoint(screen_pos.x(), parent_clip->track()->sequence()->height() - screen_pos.y());
 
     }
   }

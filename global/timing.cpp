@@ -5,7 +5,7 @@
 #include "global/config.h"
 
 double get_timecode(Clip* c, long playhead) {
-  return double(playhead_to_clip_frame(c, playhead))/c->track()->sequence()->frame_rate;
+  return double(playhead_to_clip_frame(c, playhead))/c->track()->sequence()->frame_rate();
 }
 
 long rescale_frame_number(long framenumber, double source_frame_rate, double target_frame_rate) {
@@ -24,7 +24,7 @@ double playhead_to_clip_seconds(Clip* c, long playhead) {
     clip_frame = c->media_length() - clip_frame - 1;
   }
 
-  double secs = (double(clip_frame)/c->track()->sequence()->frame_rate)*c->speed().value;
+  double secs = (double(clip_frame)/c->track()->sequence()->frame_rate())*c->speed().value;
   if (c->media() != nullptr && c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
     secs *= c->media()->to_footage()->speed;
   }

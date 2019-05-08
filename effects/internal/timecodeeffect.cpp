@@ -116,7 +116,7 @@ void TimecodeEffect::redraw(double timecode) {
   if (tc_select->GetValueAt(timecode).toBool()) {
     display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(sequence->playhead,
                                                                                olive::config.timecode_view,
-                                                                               sequence->frame_rate);
+                                                                               sequence->frame_rate());
   } else {
     double media_rate = parent_clip->media_frame_rate();
     display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(qRound(timecode * media_rate),

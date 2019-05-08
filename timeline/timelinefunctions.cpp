@@ -75,18 +75,18 @@ QVector<Ghost> olive::timeline::CreateGhostsFromMedia(Sequence *seq,
         if (m->video_tracks.size() > 0 && !qIsNull(m->video_tracks.at(0).video_frame_rate)) {
           source_fr = m->video_tracks.at(0).video_frame_rate * m->speed;
         }
-        default_clip_in = rescale_frame_number(m->in, source_fr, seq->frame_rate);
-        default_clip_out = rescale_frame_number(m->out, source_fr, seq->frame_rate);
+        default_clip_in = rescale_frame_number(m->in, source_fr, seq->frame_rate());
+        default_clip_out = rescale_frame_number(m->out, source_fr, seq->frame_rate());
       }
       break;
     case MEDIA_TYPE_SEQUENCE:
       s = medium->to_sequence().get();
       sequence_length = s->GetEndFrame();
-      if (seq != nullptr) sequence_length = rescale_frame_number(sequence_length, s->frame_rate, seq->frame_rate);
+      if (seq != nullptr) sequence_length = rescale_frame_number(sequence_length, s->frame_rate(), seq->frame_rate());
       can_import = (s != seq && sequence_length != 0);
       if (s->using_workarea) {
-        default_clip_in = rescale_frame_number(s->workarea_in, s->frame_rate, seq->frame_rate);
-        default_clip_out = rescale_frame_number(s->workarea_out, s->frame_rate, seq->frame_rate);
+        default_clip_in = rescale_frame_number(s->workarea_in, s->frame_rate(), seq->frame_rate());
+        default_clip_out = rescale_frame_number(s->workarea_out, s->frame_rate(), seq->frame_rate());
       }
       break;
     default:
@@ -108,7 +108,7 @@ QVector<Ghost> olive::timeline::CreateGhostsFromMedia(Sequence *seq,
         if (m->video_tracks.size() > 0 && m->video_tracks.at(0).infinite_length && m->audio_tracks.size() == 0) {
           g.out = g.in + 100;
         } else {
-          long length = m->get_length_in_frames(seq->frame_rate);
+          long length = m->get_length_in_frames(seq->frame_rate());
           g.out = entry_point + length - default_clip_in;
           if (m->using_inout) {
             g.out -= (length - default_clip_out);

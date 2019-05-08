@@ -89,12 +89,12 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
   setup_kbd_shortcuts(olive::MainWindow->menuBar());
 
   // set up default sequence
-  default_sequence.name = tr("Default Sequence");
-  default_sequence.width = olive::config.default_sequence_width;
-  default_sequence.height = olive::config.default_sequence_height;
-  default_sequence.frame_rate = olive::config.default_sequence_framerate;
-  default_sequence.audio_frequency = olive::config.default_sequence_audio_frequency;
-  default_sequence.audio_layout = olive::config.default_sequence_audio_channel_layout;
+  default_sequence.set_name(tr("Default Sequence"));
+  default_sequence.set_width(olive::config.default_sequence_width);
+  default_sequence.set_height(olive::config.default_sequence_height);
+  default_sequence.set_frame_rate(olive::config.default_sequence_framerate);
+  default_sequence.set_audio_frequency(olive::config.default_sequence_audio_frequency);
+  default_sequence.set_audio_layout(olive::config.default_sequence_audio_channel_layout);
 }
 
 void PreferencesDialog::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent) {
@@ -460,11 +460,11 @@ void PreferencesDialog::accept() {
 
 
   // Set default sequence options
-  olive::config.default_sequence_width = default_sequence.width;
-  olive::config.default_sequence_height = default_sequence.height;
-  olive::config.default_sequence_framerate = default_sequence.frame_rate;
-  olive::config.default_sequence_audio_frequency = default_sequence.audio_frequency;
-  olive::config.default_sequence_audio_channel_layout = default_sequence.audio_layout;
+  olive::config.default_sequence_width = default_sequence.width();
+  olive::config.default_sequence_height = default_sequence.height();
+  olive::config.default_sequence_framerate = default_sequence.frame_rate();
+  olive::config.default_sequence_audio_frequency = default_sequence.audio_frequency();
+  olive::config.default_sequence_audio_channel_layout = default_sequence.audio_layout();
 
   // Set all bool options
   for (int i=0;i<bool_ui.size();i++) {

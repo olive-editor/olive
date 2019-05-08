@@ -357,7 +357,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
     QPainter p(this);
     int yoff = get_marker_offset();
 
-    double interval = viewer->seq->frame_rate;
+    double interval = viewer->seq->frame_rate();
     int textWidth = 0;
     int lastTextBoundary = INT_MIN;
 
@@ -389,7 +389,7 @@ void TimelineHeader::paintEvent(QPaintEvent*) {
       // draw text
       bool draw_text = false;
       if (text_enabled && lineX-textWidth > lastTextBoundary) {
-        timecode = frame_to_timecode(frame + in_visible, olive::config.timecode_view, viewer->seq->frame_rate);
+        timecode = frame_to_timecode(frame + in_visible, olive::config.timecode_view, viewer->seq->frame_rate());
         fullTextWidth = fm.width(timecode);
         textWidth = fullTextWidth>>1;
 

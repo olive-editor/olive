@@ -209,9 +209,9 @@ void TimelineView::tooltip_timer_timeout() {
     QToolTip::showText(QCursor::pos(),
                        tr("%1\nStart: %2\nEnd: %3\nDuration: %4").arg(
                          tooltip_clip->name(),
-                         frame_to_timecode(tooltip_clip->timeline_in(), olive::config.timecode_view, sequence()->frame_rate),
-                         frame_to_timecode(tooltip_clip->timeline_out(), olive::config.timecode_view, sequence()->frame_rate),
-                         frame_to_timecode(tooltip_clip->length(), olive::config.timecode_view, sequence()->frame_rate)
+                         frame_to_timecode(tooltip_clip->timeline_in(), olive::config.timecode_view, sequence()->frame_rate()),
+                         frame_to_timecode(tooltip_clip->timeline_out(), olive::config.timecode_view, sequence()->frame_rate()),
+                         frame_to_timecode(tooltip_clip->length(), olive::config.timecode_view, sequence()->frame_rate())
                          ));
   }
 
@@ -1987,9 +1987,9 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
   */
 
   if (ParentTimeline()->importing) {
-    QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, olive::config.timecode_view, sequence()->frame_rate));
+    QToolTip::showText(mapToGlobal(mouse_pos), frame_to_timecode(earliest_in_point, olive::config.timecode_view, sequence()->frame_rate()));
   } else {
-    QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), olive::config.timecode_view, sequence()->frame_rate);
+    QString tip = ((frame_diff < 0) ? "-" : "+") + frame_to_timecode(qAbs(frame_diff), olive::config.timecode_view, sequence()->frame_rate());
 
     if (ParentTimeline()->trim_target != nullptr) {
       // find which clip is being moved
@@ -2009,7 +2009,7 @@ void TimelineView::update_ghosts(const QPoint& mouse_pos, bool lock_frame) {
         } else {
           len += frame_diff;
         }
-        tip += frame_to_timecode(len, olive::config.timecode_view, sequence()->frame_rate);
+        tip += frame_to_timecode(len, olive::config.timecode_view, sequence()->frame_rate());
       }
     }
 

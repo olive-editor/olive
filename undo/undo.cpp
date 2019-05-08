@@ -824,31 +824,31 @@ void SetSelectionsCommand::doRedo() {
 EditSequenceCommand::EditSequenceCommand(Media* i, SequencePtr s) {
   item = i;
   seq = s;
-  old_name = s->name;
-  old_width = s->width;
-  old_height = s->height;
-  old_frame_rate = s->frame_rate;
-  old_audio_frequency = s->audio_frequency;
-  old_audio_layout = s->audio_layout;
+  old_name = s->name();
+  old_width = s->width();
+  old_height = s->height();
+  old_frame_rate = s->frame_rate();
+  old_audio_frequency = s->audio_frequency();
+  old_audio_layout = s->audio_layout();
 }
 
 void EditSequenceCommand::doUndo() {
-  seq->name = old_name;
-  seq->width = old_width;
-  seq->height = old_height;
-  seq->frame_rate = old_frame_rate;
-  seq->audio_frequency = old_audio_frequency;
-  seq->audio_layout = old_audio_layout;
+  seq->set_name(old_name);
+  seq->set_width(old_width);
+  seq->set_height(old_height);
+  seq->set_frame_rate(old_frame_rate);
+  seq->set_audio_frequency(old_audio_frequency);
+  seq->set_audio_layout(old_audio_layout);
   update();
 }
 
 void EditSequenceCommand::doRedo() {
-  seq->name = name;
-  seq->width = width;
-  seq->height = height;
-  seq->frame_rate = frame_rate;
-  seq->audio_frequency = audio_frequency;
-  seq->audio_layout = audio_layout;
+  seq->set_name(name);
+  seq->set_width(width);
+  seq->set_height(height);
+  seq->set_frame_rate(frame_rate);
+  seq->set_audio_frequency(audio_frequency);
+  seq->set_audio_layout(audio_layout);
   update();
 }
 

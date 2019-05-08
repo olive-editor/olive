@@ -192,16 +192,16 @@ bool ExportThread::SetupVideo() {
   video_frame = av_frame_alloc();
   av_frame_make_writable(video_frame);
   video_frame->format = AV_PIX_FMT_RGBA;
-  video_frame->width = params_.sequence->width;
-  video_frame->height = params_.sequence->height;
+  video_frame->width = params_.sequence->width();
+  video_frame->height = params_.sequence->height();
   av_frame_get_buffer(video_frame, 0);
 
   av_init_packet(&video_pkt);
 
   // Set up conversion context
   sws_ctx = sws_getContext(
-        params_.sequence->width,
-        params_.sequence->height,
+        params_.sequence->width(),
+        params_.sequence->height(),
         AV_PIX_FMT_RGBA,
         params_.video_width,
         params_.video_height,
@@ -288,7 +288,7 @@ bool ExportThread::SetupAudio() {
         acodec_ctx->channel_layout,
         acodec_ctx->sample_fmt,
         acodec_ctx->sample_rate,
-        params_.sequence->audio_layout,
+        params_.sequence->audio_layout(),
         AV_SAMPLE_FMT_S16,
         acodec_ctx->sample_rate,
         0,
@@ -449,7 +449,7 @@ void ExportThread::Export()
     }
 
     // Get the current sequence playhead in seconds (used for timestamp calculations later on)
-    double timecode_secs = double(params_.sequence->playhead - params_.start_frame) / params_.sequence->frame_rate;
+    double timecode_secs = double(params_.sequence->playhead - params_.start_frame) / params_.sequence->frame_rate();
 
     // If we're exporting video, construct an AVFrame in the destination codec's pixel format to convert the raw RGBA
     // OpenGL buffer to

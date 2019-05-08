@@ -90,7 +90,7 @@ void ToneEffect::process_audio(double timecode_start,
 
     double timecode = timecode_start+(interval*i);
     float tone_sample = qSin((2*M_PI*sinX*freq_val->GetDoubleAt(timecode))
-                                           /parent_clip->track()->sequence()->audio_frequency)
+                                           /parent_clip->track()->sequence()->audio_frequency())
                                       *log_volume(amount_val->GetDoubleAt(timecode)*0.01);
 
     for (int j=0;j<channel_count;j++) {

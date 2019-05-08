@@ -37,12 +37,23 @@ public:
 
   void Save(QXmlStreamWriter& stream);
 
-  QString name;
-  int width;
-  int height;
-  double frame_rate;
-  int audio_frequency;
-  int audio_layout;
+  const QString& name();
+  void set_name(const QString& s);
+
+  const int& width();
+  void set_width(const int& w);
+
+  const int& height();
+  void set_height(const int& h);
+
+  const double& frame_rate();
+  void set_frame_rate(const double& d);
+
+  const int& audio_frequency();
+  void set_audio_frequency(const int& f);
+
+  const int& audio_layout();
+  void set_audio_layout(const int& l);
 
   long GetEndFrame();
   QVector<Clip*> GetAllClips();
@@ -126,13 +137,20 @@ public:
 
   QVector<Marker> markers;
 signals:
-  void Changed();
+  void SequenceParametersChanged();
 private:
   QVector<Track*> tracks_;
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame, long post_in);
   bool SplitSelection(ComboAction* ca, QVector<Selection> selections);
+
+  QString name_;
+  int width_;
+  int height_;
+  double frame_rate_;
+  int audio_frequency_;
+  int audio_layout_;
 };
 
 using SequencePtr = std::shared_ptr<Sequence>;

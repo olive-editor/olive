@@ -266,7 +266,7 @@ QMatrix4x4 ViewerWidget::get_matrix()
 {
   QMatrix4x4 matrix;
 
-  double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+  double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width()));
 
   if (zoom_factor > 1.0) {
     double zoom_size = (zoom_factor*2.0) - 2.0;
@@ -298,7 +298,7 @@ void ViewerWidget::context_destroy() {
 
 EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
   if (gizmos != nullptr) {
-    double multiplier = double(viewer->seq->width) / double(width());
+    double multiplier = double(viewer->seq->width()) / double(width());
     QPoint mouse_pos(qRound(x*multiplier), qRound((height()-y)*multiplier));
     int dot_size = 2 * qRound(GIZMO_DOT_SIZE * multiplier);
     int target_size = 2 * qRound(GIZMO_TARGET_SIZE * multiplier);
@@ -335,7 +335,7 @@ EffectGizmo* ViewerWidget::get_gizmo_from_mouse(int x, int y) {
 
 void ViewerWidget::move_gizmos(QMouseEvent *event, bool done) {
   if (selected_gizmo != nullptr) {
-    double multiplier = double(viewer->seq->width) / double(width());
+    double multiplier = double(viewer->seq->width()) / double(width());
 
     int x_movement = qRound((event->pos().x() - drag_start_x)*multiplier);
     int y_movement = qRound((event->pos().y() - drag_start_y)*multiplier);
@@ -555,13 +555,13 @@ void ViewerWidget::draw_gizmos() {
 
   pipeline_->bind();
 
-  double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width));
+  double zoom_factor = container->zoom/(double(width())/double(viewer->seq->width()));
 
   QMatrix4x4 matrix;
-  matrix.ortho(0, viewer->seq->width, 0, viewer->seq->height, -1, 1);
+  matrix.ortho(0, viewer->seq->width(), 0, viewer->seq->height(), -1, 1);
   matrix.scale(zoom_factor, zoom_factor);
-  matrix.translate(-(viewer->seq->width-(width()/container->zoom))*x_scroll,
-                   -((viewer->seq->height-(height()/container->zoom))*(1.0-y_scroll)));
+  matrix.translate(-(viewer->seq->width()-(width()/container->zoom))*x_scroll,
+                   -((viewer->seq->height()-(height()/container->zoom))*(1.0-y_scroll)));
 
   // Set transformation matrix
   pipeline_->setUniformValue("mvp_matrix", matrix);
@@ -571,7 +571,7 @@ void ViewerWidget::draw_gizmos() {
   pipeline_->setUniformValue("color_only_color", QColor(255, 255, 255, 255));
 
   // Set up constants for gizmo sizes
-  float size_diff = float(viewer->seq->width) / float(width());
+  float size_diff = float(viewer->seq->width()) / float(width());
   float dot_size = GIZMO_DOT_SIZE * size_diff;
   float target_size = GIZMO_TARGET_SIZE * size_diff;
 
@@ -761,7 +761,7 @@ void ViewerWidget::paintGL() {
     }
 
     if (window->isVisible()) {
-      window->set_texture(tex, double(viewer->seq->width)/double(viewer->seq->height), tex_lock);
+      window->set_texture(tex, double(viewer->seq->width())/double(viewer->seq->height()), tex_lock);
     }
 
     tex_lock->unlock();

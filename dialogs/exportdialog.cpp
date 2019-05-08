@@ -72,7 +72,7 @@ ExportDialog::ExportDialog(QWidget *parent, Sequence* sequence) :
   QDialog(parent),
   sequence_(sequence)
 {
-  setWindowTitle(tr("Export \"%1\"").arg(sequence->name));
+  setWindowTitle(tr("Export \"%1\"").arg(sequence->name()));
   setup_ui();
 
   rangeCombobox->setCurrentIndex(0);
@@ -110,10 +110,10 @@ ExportDialog::ExportDialog(QWidget *parent, Sequence* sequence) :
   formatCombobox->setCurrentIndex(FORMAT_MPEG4);
 
   // default to sequence's native dimensions
-  widthSpinbox->setValue(sequence->width);
-  heightSpinbox->setValue(sequence->height);
-  samplingRateSpinbox->setValue(sequence->audio_frequency);
-  framerateSpinbox->setValue(sequence->frame_rate);
+  widthSpinbox->setValue(sequence->width());
+  heightSpinbox->setValue(sequence->height());
+  samplingRateSpinbox->setValue(sequence->audio_frequency());
+  framerateSpinbox->setValue(sequence->frame_rate());
 
   // set some advanced defaults
   vcodec_params.threads = 0;
@@ -656,7 +656,7 @@ void ExportDialog::comp_type_changed(int) {
   case COMPRESSION_TYPE_CBR:
   case COMPRESSION_TYPE_TARGETBR:
     videoBitrateLabel->setText(tr("Bitrate (Mbps):"));
-    videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence_->height) - 4.5)));
+    videobitrateSpinbox->setValue(qMax(0.5, (double) qRound((0.01528 * sequence_->height()) - 4.5)));
     break;
   case COMPRESSION_TYPE_CFR:
     videoBitrateLabel->setText(tr("Quality (CRF):"));

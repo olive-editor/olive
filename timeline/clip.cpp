@@ -74,7 +74,7 @@ ClipPtr Clip::copy(Track* s) {
     copy->effects.append(effects.at(i)->copy(copy.get()));
   }
 
-  copy->set_cached_frame_rate((this->track_ == nullptr) ? cached_frame_rate() : this->track_->sequence()->frame_rate);
+  copy->set_cached_frame_rate((this->track_ == nullptr) ? cached_frame_rate() : this->track_->sequence()->frame_rate());
 
   copy->refresh();
 
@@ -432,13 +432,13 @@ double Clip::media_frame_rate() {
     double rate = media_->get_frame_rate(media_stream_index());
     if (!qIsNaN(rate)) return rate;
   }
-  if (track() != nullptr) return track()->sequence()->frame_rate;
+  if (track() != nullptr) return track()->sequence()->frame_rate();
   return qSNaN();
 }
 
 long Clip::media_length() {
   if (this->track() != nullptr) {
-    double fr = this->track()->sequence()->frame_rate;
+    double fr = this->track()->sequence()->frame_rate();
 
     fr /= speed_.value;
 
@@ -459,7 +459,7 @@ long Clip::media_length() {
       case MEDIA_TYPE_SEQUENCE:
       {
         Sequence* s = media_->to_sequence().get();
-        return rescale_frame_number(s->GetEndFrame(), s->frame_rate, fr);
+        return rescale_frame_number(s->GetEndFrame(), s->frame_rate(), fr);
       }
       }
     }
@@ -468,38 +468,38 @@ long Clip::media_length() {
 }
 
 int Clip::media_width() {
-  if (media_ == nullptr && track() != nullptr) return track()->sequence()->width;
+  if (media_ == nullptr && track() != nullptr) return track()->sequence()->width();
   switch (media_->get_type()) {
   case MEDIA_TYPE_FOOTAGE:
   {
     const FootageStream* ms = media_stream();
     if (ms != nullptr) return ms->video_width;
-    if (track() != nullptr) return track()->sequence()->width;
+    if (track() != nullptr) return track()->sequence()->width();
     break;
   }
   case MEDIA_TYPE_SEQUENCE:
   {
     Sequence* s = media_->to_sequence().get();
-    return s->width;
+    return s->width();
   }
   }
   return 0;
 }
 
 int Clip::media_height() {
-  if (media_ == nullptr && track() != nullptr) return track()->sequence()->height;
+  if (media_ == nullptr && track() != nullptr) return track()->sequence()->height();
   switch (media_->get_type()) {
   case MEDIA_TYPE_FOOTAGE:
   {
     const FootageStream* ms = media_stream();
     if (ms != nullptr) return ms->video_height;
-    if (track() != nullptr) return track()->sequence()->height;
+    if (track() != nullptr) return track()->sequence()->height();
   }
     break;
   case MEDIA_TYPE_SEQUENCE:
   {
     Sequence* s = media_->to_sequence().get();
-    return s->height;
+    return s->height();
   }
   }
   return 0;

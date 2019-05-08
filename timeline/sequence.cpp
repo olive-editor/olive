@@ -39,12 +39,12 @@ Sequence::Sequence() :
 
 SequencePtr Sequence::copy() {
   SequencePtr s = std::make_shared<Sequence>();
-  s->name = QCoreApplication::translate("Sequence", "%1 (copy)").arg(name);
-  s->width = width;
-  s->height = height;
-  s->frame_rate = frame_rate;
-  s->audio_frequency = audio_frequency;
-  s->audio_layout = audio_layout;
+  s->name_ = tr("%1 (copy)").arg(name_);
+  s->width_ = width_;
+  s->height_ = height_;
+  s->frame_rate_ = frame_rate_;
+  s->audio_frequency_ = audio_frequency_;
+  s->audio_layout_ = audio_layout_;
 
   /* FIXME
   // deep copy all of the sequence's clips
@@ -69,12 +69,12 @@ void Sequence::Save(QXmlStreamWriter &stream)
 
   stream.writeStartElement("sequence");
   stream.writeAttribute("id", QString::number(save_id));
-  stream.writeAttribute("name", name);
-  stream.writeAttribute("width", QString::number(width));
-  stream.writeAttribute("height", QString::number(height));
-  stream.writeAttribute("framerate", QString::number(frame_rate, 'f', 10));
-  stream.writeAttribute("afreq", QString::number(audio_frequency));
-  stream.writeAttribute("alayout", QString::number(audio_layout));
+  stream.writeAttribute("name", name_);
+  stream.writeAttribute("width", QString::number(width_));
+  stream.writeAttribute("height", QString::number(height_));
+  stream.writeAttribute("framerate", QString::number(frame_rate_, 'f', 10));
+  stream.writeAttribute("afreq", QString::number(audio_frequency_));
+  stream.writeAttribute("alayout", QString::number(audio_layout_));
   if (this == Timeline::GetTopSequence().get()) {
     stream.writeAttribute("open", "1");
   }
@@ -96,6 +96,72 @@ void Sequence::Save(QXmlStreamWriter &stream)
   }
 
   stream.writeEndElement();
+}
+
+const QString &Sequence::name()
+{
+  return name_;
+}
+
+void Sequence::set_name(const QString &s)
+{
+  name_ = s;
+  emit SequenceParametersChanged();
+}
+
+const int &Sequence::width()
+{
+  return width_;
+}
+
+const int &Sequence::height()
+{
+  return height_;
+}
+
+void Sequence::set_width(const int& w)
+{
+  width_ = w;
+  emit SequenceParametersChanged();
+}
+
+void Sequence::set_height(const int& h)
+{
+  height_ = h;
+  emit SequenceParametersChanged();
+}
+
+const double &Sequence::frame_rate()
+{
+  return frame_rate_;
+}
+
+void Sequence::set_frame_rate(const double& d)
+{
+  frame_rate_ = d;
+  emit SequenceParametersChanged();
+}
+
+const int &Sequence::audio_frequency()
+{
+  return audio_frequency_;
+}
+
+void Sequence::set_audio_frequency(const int& f)
+{
+  audio_frequency_ = f;
+  emit SequenceParametersChanged();
+}
+
+const int &Sequence::audio_layout()
+{
+  return audio_layout_;
+}
+
+void Sequence::set_audio_layout(const int& l)
+{
+  audio_layout_ = l;
+  emit SequenceParametersChanged();
 }
 
 long Sequence::GetEndFrame() {
@@ -203,7 +269,7 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
       // sequence (red?ish?)
       c->set_color(192, 128, 128);
 
-      c->set_name(c->media()->to_sequence()->name);
+      c->set_name(c->media()->to_sequence()->name());
     }
     c->refresh();
     added_clips.append(c);

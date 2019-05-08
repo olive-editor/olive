@@ -326,12 +326,12 @@ void Timeline::nest() {
       // create "nest" sequence with the same attributes as the current sequence
       SequencePtr s = std::make_shared<Sequence>();
 
-      s->name = olive::project_model.GetNextSequenceName(tr("Nested Sequence"));
-      s->width = sequence_->width;
-      s->height = sequence_->height;
-      s->frame_rate = sequence_->frame_rate;
-      s->audio_frequency = sequence_->audio_frequency;
-      s->audio_layout = sequence_->audio_layout;
+      s->set_name(olive::project_model.GetNextSequenceName(tr("Nested Sequence")));
+      s->set_width(sequence_->width());
+      s->set_height(sequence_->height());
+      s->set_frame_rate(sequence_->frame_rate());
+      s->set_audio_frequency(sequence_->audio_frequency());
+      s->set_audio_layout(sequence_->audio_layout());
 
       QVector<ClipPtr> new_clips;
 
@@ -919,13 +919,11 @@ void Timeline::set_sb_max() {
 }
 
 void Timeline::UpdateTitle() {
-  QString title = tr("Timeline: ");
-  if (sequence_ == nullptr) {
-    setWindowTitle(title + tr("(none)"));
-  } else {
-    setWindowTitle(title + sequence_->name);
-    update_ui(false);
-  }
+  setWindowTitle(
+        tr("Timeline: %1").arg(
+          (sequence_ == nullptr) ? tr("(none)") : sequence_->name()
+                                   )
+        );
 }
 
 void Timeline::setup_ui() {

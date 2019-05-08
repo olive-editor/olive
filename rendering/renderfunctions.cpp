@@ -236,7 +236,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
     for (int i=0;i<params.nests.size();i++) {
       s = params.nests.at(i)->media()->to_sequence().get();
       playhead += params.nests.at(i)->clip_in(true) - params.nests.at(i)->timeline_in(true);
-      playhead = rescale_frame_number(playhead, params.nests.at(i)->track()->sequence()->frame_rate, s->frame_rate);
+      playhead = rescale_frame_number(playhead, params.nests.at(i)->track()->sequence()->frame_rate(), s->frame_rate());
     }
 
     if (params.type == olive::kTypeVideo && !params.nests.last()->fbo.isEmpty()) {
@@ -348,8 +348,8 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
     params.ctx->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-    int half_width = s->width/2;
-    int half_height = s->height/2;
+    int half_width = s->width()/2;
+    int half_height = s->height()/2;
 
     projection.ortho(-half_width, half_width, -half_height, half_height, -1, 1);
   }
@@ -540,10 +540,10 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
 
           // Check whether the parent clip is auto-scaled
           if (c->autoscaled()
-              && (video_width != s->width
-                  && video_height != s->height)) {
-            float width_multiplier = float(s->width) / float(video_width);
-            float height_multiplier = float(s->height) / float(video_height);
+              && (video_width != s->width()
+                  && video_height != s->height())) {
+            float width_multiplier = float(s->width()) / float(video_width);
+            float height_multiplier = float(s->height()) / float(video_height);
             float scale_multiplier = qMin(width_multiplier, height_multiplier);
 
             coords.matrix.scale(scale_multiplier, scale_multiplier);
@@ -563,7 +563,7 @@ GLuint olive::rendering::compose_sequence(ComposeSequenceParams &params) {
           if (textureID > 0) {
 
             // set viewport to sequence size
-            params.ctx->functions()->glViewport(0, 0, s->width, s->height);
+            params.ctx->functions()->glViewport(0, 0, s->width(), s->height());
 
 
 

@@ -297,11 +297,11 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
 }
 
 double EffectField::FrameToSeconds(long frame) {
-  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate);
+  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate());
 }
 
 long EffectField::SecondsToFrame(double seconds) {
-  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate);
+  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate());
 }
 
 void EffectField::GetKeyframeData(double timecode, int &before, int &after, double &progress) {

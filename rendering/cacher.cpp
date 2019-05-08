@@ -69,8 +69,8 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   }
   if (clip->opening_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
-      double transition_start = (clip->clip_in(true) / clip->track()->sequence()->frame_rate);
-      double transition_end = (clip->clip_in(true) + clip->opening_transition->get_length()) / clip->track()->sequence()->frame_rate;
+      double transition_start = (clip->clip_in(true) / clip->track()->sequence()->frame_rate());
+      double transition_end = (clip->clip_in(true) + clip->opening_transition->get_length()) / clip->track()->sequence()->frame_rate();
       if (timecode_end < transition_end) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
@@ -82,8 +82,8 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
   if (clip->closing_transition != nullptr) {
     if (clip->media() != nullptr && clip->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
       long length_with_transitions = clip->timeline_out(true) - clip->timeline_in(true);
-      double transition_start = (clip->clip_in(true) + length_with_transitions - clip->closing_transition->get_length()) / clip->track()->sequence()->frame_rate;
-      double transition_end = (clip->clip_in(true) + length_with_transitions) / clip->track()->sequence()->frame_rate;
+      double transition_start = (clip->clip_in(true) + length_with_transitions - clip->closing_transition->get_length()) / clip->track()->sequence()->frame_rate();
+      double transition_end = (clip->clip_in(true) + length_with_transitions) / clip->track()->sequence()->frame_rate();
       if (timecode_start > transition_start) {
         double adjustment = transition_end - transition_start;
         double adjusted_range_start = (timecode_start - transition_start) / adjustment;
@@ -97,7 +97,7 @@ void apply_audio_effects(Clip* clip, double timecode_start, AVFrame* frame, int 
     Clip* next_nest = nests.last();
     nests.removeLast();
     apply_audio_effects(next_nest,
-                        timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->track()->sequence()->frame_rate),
+                        timecode_start + (double(clip->timeline_in(true)-clip->clip_in(true))/clip->track()->sequence()->frame_rate()),
                         frame,
                         nb_samples,
                         nb_channels,
@@ -127,16 +127,16 @@ void Cacher::CacheAudioWorker() {
   bool reverse_audio = IsReversed();
 
   long frame_skip = 0;
-  double last_fr = clip->track()->sequence()->frame_rate;
+  double last_fr = clip->track()->sequence()->frame_rate();
   if (!nests_.isEmpty()) {
     for (int i=nests_.size()-1;i>=0;i--) {
-      timeline_in = rescale_frame_number(timeline_in, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
-      timeline_out = rescale_frame_number(timeline_out, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
-      target_frame = rescale_frame_number(target_frame, last_fr, nests_.at(i)->track()->sequence()->frame_rate) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      timeline_in = rescale_frame_number(timeline_in, last_fr, nests_.at(i)->track()->sequence()->frame_rate()) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      timeline_out = rescale_frame_number(timeline_out, last_fr, nests_.at(i)->track()->sequence()->frame_rate()) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
+      target_frame = rescale_frame_number(target_frame, last_fr, nests_.at(i)->track()->sequence()->frame_rate()) + nests_.at(i)->timeline_in(true) - nests_.at(i)->clip_in(true);
 
       timeline_out = qMin(timeline_out, nests_.at(i)->timeline_out(true));
 
-      frame_skip = rescale_frame_number(frame_skip, last_fr, nests_.at(i)->track()->sequence()->frame_rate);
+      frame_skip = rescale_frame_number(frame_skip, last_fr, nests_.at(i)->track()->sequence()->frame_rate());
 
       long validator = nests_.at(i)->timeline_in(true) - timeline_in;
       if (validator > 0) {
@@ -144,7 +144,7 @@ void Cacher::CacheAudioWorker() {
         //timeline_in = nests_.at(i)->timeline_in(true);
       }
 
-      last_fr = nests_.at(i)->track()->sequence()->frame_rate;
+      last_fr = nests_.at(i)->track()->sequence()->frame_rate();
     }
   }
 
@@ -405,7 +405,7 @@ void Cacher::CacheAudioWorker() {
         apply_audio_effects(clip,
                             samples_to_seconds(audio_buffer_write, 2, current_audio_freq())
                               + audio_ibuffer_timecode
-                              + (double(clip->clip_in(true))/clip->track()->sequence()->frame_rate)
+                              + (double(clip->clip_in(true))/clip->track()->sequence()->frame_rate())
                               - (double(timeline_in)/last_fr),
                             frame,
                             nb_samples,
@@ -418,7 +418,7 @@ void Cacher::CacheAudioWorker() {
     if (frame->nb_samples == 0) {
       break;
     } else {
-      qint64 buffer_timeline_out = get_buffer_offset_from_frame(clip->track()->sequence()->frame_rate, timeline_out);
+      qint64 buffer_timeline_out = get_buffer_offset_from_frame(clip->track()->sequence()->frame_rate(), timeline_out);
 
       audio_write_lock.lock();
 
@@ -882,7 +882,7 @@ void Cacher::OpenWorker() {
     if (clip->type() == olive::kTypeAudio) {
       frame_ = av_frame_alloc();
       frame_->format = kDestSampleFmt;
-      frame_->channel_layout = clip->track()->sequence()->audio_layout;
+      frame_->channel_layout = clip->track()->sequence()->audio_layout();
       frame_->channels = av_get_channel_layout_nb_channels(frame_->channel_layout);
       frame_->sample_rate = current_audio_freq();
       frame_->nb_samples = 2048;
@@ -1040,8 +1040,8 @@ void Cacher::OpenWorker() {
 
         reverse_frame->format = kDestSampleFmt;
         reverse_frame->nb_samples = current_audio_freq()*10;
-        reverse_frame->channel_layout = clip->track()->sequence()->audio_layout;
-        reverse_frame->channels = av_get_channel_layout_nb_channels(clip->track()->sequence()->audio_layout);
+        reverse_frame->channel_layout = clip->track()->sequence()->audio_layout();
+        reverse_frame->channels = av_get_channel_layout_nb_channels(clip->track()->sequence()->audio_layout());
         av_frame_get_buffer(reverse_frame, 0);
 
         queue_.append(reverse_frame);
