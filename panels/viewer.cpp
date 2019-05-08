@@ -68,6 +68,7 @@ Viewer::Viewer(QWidget *parent) :
   media(nullptr),
   seq(nullptr),
   created_sequence(false),
+  panel_name(tr("Viewer: %1")),
   minimum_zoom(1.0),
   cue_recording_internal(false),
   playback_speed(0),
