@@ -249,7 +249,8 @@ void EffectUI::UpdateFromEffect()
           EffectField* previous_field = i > 0 ? additional_effects_.at(i-1)->row(j)->Field(k) : field;
           EffectField* additional_field = additional_effects_.at(i)->row(j)->Field(k);
 
-          if (additional_field->GetValueAt(additional_effects_.at(i)->Now()) != previous_field->GetValueAt(additional_effects_.at(i-1)->Now())) {
+          if (additional_field->GetValueAt(additional_effects_.at(i)->Now())
+              != previous_field->GetValueAt(additional_effects_.at(i)->Now())) {
             same_value = false;
             break;
           }
