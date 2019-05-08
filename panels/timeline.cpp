@@ -126,7 +126,7 @@ Timeline::Timeline(QWidget *parent) :
 Timeline *Timeline::GetTopTimeline()
 {
   for (int i=0;i<panel_timeline.size();i++) {
-    if (panel_timeline.at(i)->isVisible()) {
+    if (!panel_timeline.at(i)->visibleRegion().isEmpty()) {
       return panel_timeline.at(i);
     }
   }
