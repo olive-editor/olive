@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 project(olive-editor LANGUAGES CXX)
 
+option(UPDATE_TS "Update translations" OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -472,7 +473,7 @@ set(OLIVE_EFFECTS
   effects/shaders/wave.xml
 )
 
-qt5_add_translation(OLIVE_QM_FILES
+set(OLIVE_TS_FILES
   ts/olive_ar.ts
   ts/olive_bs.ts
   ts/olive_cs.ts
@@ -484,6 +485,12 @@ qt5_add_translation(OLIVE_QM_FILES
   ts/olive_sr.ts
   ts/olive_id.ts
 )
+
+if(UPDATE_TS)
+  qt5_create_translation(OLIVE_QM_FILES ${CMAKE_SOURCE_DIR} ${OLIVE_TS_FILES})
+else()
+  qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
+endif()
 
 set(OLIVE_TARGET "olive-editor")
 if(APPLE)
