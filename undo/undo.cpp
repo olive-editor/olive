@@ -71,7 +71,7 @@ void MoveClipAction::doUndo() {
 
   // Move clip to the new track ONLY IF the old track currently contains this clip - a workaround to ensure this
   // action doesn't accidentaly add a clip that it's not supposed to
-  if (new_track->ContainsClip(clip.get())) {
+  if (old_track != new_track && new_track->ContainsClip(clip.get())) {
     old_track->AddClip(clip);
   }
 
@@ -92,7 +92,7 @@ void MoveClipAction::doRedo() {
 
     // Move clip to the new track ONLY IF the old track currently contains this clip - a workaround to ensure this
     // action doesn't accidentaly add a clip that it's not supposed to
-    if (old_track->ContainsClip(clip.get())) {
+    if (old_track != new_track && old_track->ContainsClip(clip.get())) {
       new_track->AddClip(clip);
     }
 
@@ -1012,7 +1012,7 @@ void RippleAction::doRedo() {
                     length,
                     0,
                     c->track(),
-                    true,
+                    false,
                     true);
       }
     }

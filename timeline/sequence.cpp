@@ -758,18 +758,22 @@ void Sequence::DeleteAreas(ComboAction* ca, QVector<Selection> areas, bool desel
     }
   }
 
-  // deselect selected clip areas
+  // Get ripple point and ripple length
   long minimum_in = LONG_MAX;
   long minimum_length = LONG_MAX;
+  for (int i=0;i<areas.size();i++) {
+    const Selection& s = areas.at(i);
+
+    minimum_in = qMin(minimum_in, s.in());
+    minimum_length = qMin(minimum_length, s.in() - s.out());
+  }
+
+  // deselect selected clip areas
   if (deselect_areas) {
     QVector<Selection> area_copy = areas;
     for (int i=0;i<area_copy.size();i++) {
       const Selection& s = area_copy.at(i);
       s.track()->DeselectArea(s.in(), s.out());
-
-      // Get ripple point and ripple length
-      minimum_in = qMin(minimum_in, s.in());
-      minimum_length = qMin(minimum_length, s.in() - s.out());
     }
   }
 
@@ -895,7 +899,7 @@ void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_
 
     // We've already tested `track`, so we don't need to test it again
     long first_in_point_after_point = LONG_MAX;
-    long out_point_just_before_first_in_point = LONG_MIN;
+    long out_point_just_before_first_in_point = 0;
 
     QVector<Clip*> track_clips = t->GetAllClips();
 

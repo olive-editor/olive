@@ -2441,8 +2441,11 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event) {
 
         foreach (track, selected_tracks) {
           // Loop through track's clips for clips touching this rectangle
+
           for (int i=0;i<track->ClipCount();i++) {
+
             Clip* clip = track->GetClip(i).get();
+
             if (!(clip->timeline_out() < frame_min || clip->timeline_in() > frame_max) ) {
 
               // create a group of the clip (and its links if alt is not pressed)
