@@ -64,10 +64,10 @@ elseif(UNIX AND NOT APPLE)
   )
 endif()
 if(DEFINED GIT_HASH)
-  message("Olive: git hash = " "${GIT_HASH}")
+  message("Olive: Git hash = " "${GIT_HASH}")
   list(APPEND OLIVE_DEFINITIONS -DGITHASH="${GIT_HASH}")
 else()
-  message("Olive: No git hash defined!")
+  message("Olive: No Git hash defined!")
 endif()
 
 find_package(Doxygen)
@@ -87,6 +87,8 @@ set(OLIVE_SOURCES
   dialogs/autocutsilencedialog.h
   dialogs/clippropertiesdialog.cpp
   dialogs/clippropertiesdialog.h
+  dialogs/crashdialog.cpp
+  dialogs/crashdialog.h
   dialogs/debugdialog.cpp
   dialogs/debugdialog.h
   dialogs/demonotice.cpp
@@ -497,7 +499,8 @@ add_executable(${OLIVE_TARGET}
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
-target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder>)
+target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder -rdynamic>)
+target_link_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

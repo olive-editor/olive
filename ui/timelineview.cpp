@@ -130,7 +130,8 @@ void TimelineView::show_context_menu(const QPoint& pos) {
       ParentTimeline()->cursor_track = getTrackFromScreenPoint(pos.y());
 
       // check if the space the cursor is currently at is empty
-      if (ParentTimeline()->cursor_track->GetClipFromPoint(ParentTimeline()->cursor_frame) == nullptr) {
+      if (ParentTimeline()->cursor_track != nullptr
+          && ParentTimeline()->cursor_track->GetClipFromPoint(ParentTimeline()->cursor_frame) == nullptr) {
         QAction* ripple_delete_action = menu.addAction(tr("R&ipple Delete Empty Space"));
         connect(ripple_delete_action, SIGNAL(triggered(bool)), ParentTimeline(), SLOT(ripple_delete_empty_space()));
       }
@@ -3294,7 +3295,6 @@ Track *TimelineView::getTrackFromScreenPoint(int y) {
 }
 
 int TimelineView::getScreenPointFromTrack(Track *track) {
-  qDebug() << "Getting screen point from" << track << track->Index();
   return getScreenPointFromTrackIndex(track->Index());
 }
 

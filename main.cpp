@@ -19,7 +19,15 @@
 ***/
 
 #include <QApplication>
+#include <QMessageBox>
 
+#ifdef __GNUC__
+#include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
+#endif
+
+#include "dialogs/crashdialog.h"
 #include "global/debug.h"
 #include "global/config.h"
 #include "global/global.h"
@@ -33,7 +41,33 @@ extern "C" {
 #include <libavfilter/avfilter.h>
 }
 
+#ifdef __GNUC__
+void handler(int sig) {
+  void *array[10];
+  size_t size;
+
+  // get void*'s for all entries on the stack
+  size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  fprintf(stderr, "Signal: %d\n\n", sig);
+  backtrace_symbols_fd(array, size, STDERR_FILENO);
+
+  // try to show a GUI crash report
+  char** bt_syms = backtrace_symbols(array, size);
+  olive::crash_dialog->SetData(sig, bt_syms, size);
+  olive::crash_dialog->exec();
+  free(bt_syms);
+
+  abort();
+}
+#endif
+
 int main(int argc, char *argv[]) {
+#ifdef __GNUC__
+  signal(SIGSEGV, handler);
+#endif
+
   olive::Global = std::unique_ptr<OliveGlobal>(new OliveGlobal);
 
   bool launch_fullscreen = false;
@@ -130,6 +164,8 @@ int main(int argc, char *argv[]) {
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 #endif
 
+  olive::crash_dialog = new CrashDialog();
+
   MainWindow w(nullptr);
 
   // multiply track height constants by the current DPI scale
@@ -150,5 +186,5 @@ int main(int argc, char *argv[]) {
     w.showMaximized();
   }
 
-    return a.exec();
+  return a.exec();
 }
