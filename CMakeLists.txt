@@ -183,6 +183,8 @@ set(OLIVE_SOURCES
   global/clipboard.h
   global/config.cpp
   global/config.h
+  global/crashhandler.cpp
+  global/crashhandler.h
   global/debug.cpp
   global/debug.h
   global/global.cpp
