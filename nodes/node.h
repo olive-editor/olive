@@ -3,18 +3,23 @@
 
 #include <memory>
 
+#include "nodes/nodeio.h"
+
 class NodeGraph;
 
-class Node;
-using NodePtr = std::shared_ptr<Node>;
-
-class Node
+class Node : public QObject
 {
+  Q_OBJECT
 public:
   Node(NodeGraph* parent);
 
+  void AddParameter(NodeIO* row);
+  int IndexOfParameter(NodeIO* row);
+  NodeIO* Parameter(int i);
+  int ParameterCount();
+
 private:
-  NodeGraph* parent_;
+  QVector<NodeIO*> parameters_;
 };
 
 #endif // NODE_H
