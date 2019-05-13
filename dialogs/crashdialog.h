@@ -9,7 +9,7 @@ class CrashDialog : public QDialog
 public:
   CrashDialog();
 
-  void SetData(int signal, char** t, int size);
+  void SetData(int signal, const QStringList &strings);
 
 private:
   QTextEdit* text_edit;

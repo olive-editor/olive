@@ -17,7 +17,6 @@ CrashDialog::CrashDialog()
                                   "Please send the following data to developers:")));
 
   text_edit = new QTextEdit();
-  //text_edit->setWordWrapMode(QTextOption::NoWrap);
   text_edit->setReadOnly(true);
   layout->addWidget(text_edit);
 
@@ -37,11 +36,11 @@ CrashDialog::CrashDialog()
   text_edit->append(QString());
 }
 
-void CrashDialog::SetData(int signal, char **t, int size)
+void CrashDialog::SetData(int signal, const QStringList& strings)
 {
   text_edit->append(QString("Signal: %1").arg(signal));
   text_edit->append(QString());
-  for (int i=0;i<size;i++) {
-    text_edit->append(t[i]);
+  for (int i=0;i<strings.size();i++) {
+    text_edit->append(strings.at(i));
   }
 }

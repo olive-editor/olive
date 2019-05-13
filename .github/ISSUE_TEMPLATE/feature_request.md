@@ -7,11 +7,6 @@ assignees: ''
 
 ---
 
-**I have read the following**
-- [ ] The Olive Wiki
-- [ ] Previous issues that include "FR" or "Feature Request"
-- [ ] Olive's Project Tab
-
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 

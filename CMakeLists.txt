@@ -499,8 +499,7 @@ add_executable(${OLIVE_TARGET}
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
-target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder -rdynamic>)
-target_link_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
+target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder>)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -521,6 +520,15 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swresample
   OpenColorIO
 )
+
+if(MINGW)
+  target_link_libraries(${OLIVE_TARGET} PRIVATE DbgHelp)
+
+  # Crash report uses MSVC-style PDBs, we convert symbols to this format here
+  add_custom_command(TARGET ${OLIVE_TARGET}
+    POST_BUILD
+    COMMAND ${CMAKE_SOURCE_DIR}/packaging/windows/cv2pdb -C -n "${CMAKE_BINARY_DIR}/${OLIVE_TARGET}.exe")
+endif()
 
 if(DOXYGEN_FOUND AND BUILD_DOXYGEN)
   set(DOXYGEN_PROJECT_NAME "Olive")
@@ -551,4 +559,6 @@ if(UNIX AND NOT APPLE)
   install(FILES packaging/linux/icons/256x256/application-vnd.olive-project.png DESTINATION share/icons/hicolor/256x256/mimetypes)
   install(FILES packaging/linux/icons/512x512/application-vnd.olive-project.png DESTINATION share/icons/hicolor/512x512/mimetypes)
   install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
+
+  target_link_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
 endif()
