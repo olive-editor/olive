@@ -1,6 +1,6 @@
 #include "buttonwidget.h"
 
-ButtonWidget::ButtonWidget(OldEffectNode* parent, const QString& name, const QString& text) :
+ButtonWidget::ButtonWidget(Node* parent, const QString& name, const QString& text) :
   NodeIO(parent, nullptr, name, false, false)
 {
   ButtonField* button_field = new ButtonField(this, text);

@@ -125,8 +125,8 @@ void NodeEditor::LoadEdges()
       if (n->parent_clip == first_clip) {
 
         // Connect all rows to this
-        for (int j=0;j<n->row_count();j++) {
-          ConnectRow(n->row(j));
+        for (int j=0;j<n->ParameterCount();j++) {
+          ConnectRow(n->Parameter(j));
         }
 
         // Get node edges

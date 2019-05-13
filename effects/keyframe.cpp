@@ -29,10 +29,8 @@
 
 EffectKeyframe::EffectKeyframe()
 {
-  pre_handle_x = -40;
-  pre_handle_y = 0;
-  post_handle_x = 40;
-  post_handle_y = 0;
+  pre_handle = QPointF(-40, 0);
+  post_handle = QPointF(40, 0);
 }
 
 void delete_keyframes(QVector<EffectField *>& selected_key_fields, QVector<int> &selected_keys) {

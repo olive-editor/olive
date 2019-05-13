@@ -13,13 +13,24 @@ class Node : public QObject
 public:
   Node(NodeGraph* parent);
 
+  virtual QString name();
+
   void AddParameter(NodeIO* row);
   int IndexOfParameter(NodeIO* row);
   NodeIO* Parameter(int i);
   int ParameterCount();
 
+  NodeGraph* ParentGraph();
+  double Time();
+
+  const QPointF& pos();
+
+public slots:
+  void SetPos(const QPointF& pos);
+
 private:
   QVector<NodeIO*> parameters_;
+  QPointF pos_;
 };
 
 #endif // NODE_H

@@ -7,7 +7,7 @@ class BoolInput : public NodeIO
 {
   Q_OBJECT
 public:
-  BoolInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  BoolInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the boolean value at a given timecode

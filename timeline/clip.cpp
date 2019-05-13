@@ -518,12 +518,12 @@ void Clip::refactor_frame_rate(ComboAction* ca, double multiplier, bool change_t
   // move keyframes
   for (int i=0;i<effects.size();i++) {
     OldEffectNodePtr e = effects.at(i);
-    for (int j=0;j<e->row_count();j++) {
-      NodeIO* r = e->row(j);
+    for (int j=0;j<e->ParameterCount();j++) {
+      NodeIO* r = e->Parameter(j);
       for (int l=0;l<r->FieldCount();l++) {
         EffectField* f = r->Field(l);
         for (int k=0;k<f->keyframes.size();k++) {
-          ca->append(new SetLong(&f->keyframes[k].time, f->keyframes[k].time, qRound(f->keyframes[k].time * multiplier)));
+          ca->append(new SetDouble(&f->keyframes[k].time, f->keyframes[k].time, qRound(f->keyframes[k].time * multiplier)));
         }
       }
     }

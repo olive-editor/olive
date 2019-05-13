@@ -489,6 +489,17 @@ private:
   QString newval;
 };
 
+class SetPointF : public OliveAction {
+public:
+  SetPointF(QPointF* pointer, const QPointF& old_val, const QPointF& new_val);
+  virtual void doUndo() override;
+  virtual void doRedo() override;
+private:
+  QPointF* pointer_;
+  QPointF old_val_;
+  QPointF new_val_;
+};
+
 class CloseAllClipsCommand : public OliveAction {
 public:
   virtual void doUndo() override;

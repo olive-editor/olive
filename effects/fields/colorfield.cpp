@@ -23,7 +23,7 @@
 #include <QColor>
 
 #include "ui/colorbutton.h"
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "undo/undo.h"
 
 ColorField::ColorField(NodeIO* parent) :
@@ -66,7 +66,7 @@ void ColorField::UpdateFromWidget(const QColor& c)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), c);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), c);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

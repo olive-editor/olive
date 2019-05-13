@@ -24,3 +24,14 @@ Node *NodeGraph::OutputNode()
 {
   return output_node_;
 }
+
+double NodeGraph::Time()
+{
+  return time_;
+}
+
+void NodeGraph::SetTime(double d)
+{
+  time_ = d;
+  emit TimeChanged();
+}

@@ -22,6 +22,7 @@
 
 #include <QDateTime>
 #include <QtMath>
+#include <cfloat>
 
 #include "rendering/renderfunctions.h"
 #include "global/config.h"
@@ -46,7 +47,7 @@ EffectField::EffectField(NodeIO* parent, EffectFieldType t) :
   SetValueAt(0, 0);
 
   // Connect this field to the effect's changed function
-  connect(this, SIGNAL(Changed()), parent->GetParentEffect(), SLOT(FieldChanged()));
+  connect(this, SIGNAL(Changed()), parent->ParentNode(), SLOT(FieldChanged()));
 }
 
 NodeIO *EffectField::GetParentRow()
@@ -99,40 +100,40 @@ QVariant EffectField::GetValueAt(double timecode)
           if (before_key.type == EFFECT_KEYFRAME_BEZIER && after_key.type == EFFECT_KEYFRAME_BEZIER) {
 
             // cubic bezier
-            double t = cubic_t_from_x(SecondsToFrame(timecode),
+            double t = cubic_t_from_x(timecode,
                                       before_key.time,
                                       before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true),
                                       after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false),
                                       after_key.time);
 
             value = cubic_from_t(before_dbl,
-                                 before_dbl+before_key.post_handle_y,
-                                 after_dbl+after_key.pre_handle_y,
+                                 before_dbl+before_key.post_handle.y(),
+                                 after_dbl+after_key.pre_handle.y(),
                                  after_dbl,
                                  t);
 
           } else if (after_key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 
             // last keyframe is the bezier one
-            double t = quad_t_from_x(SecondsToFrame(timecode),
+            double t = quad_t_from_x(timecode,
                                      before_key.time,
                                      before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true),
                                      after_key.time);
 
             value = quad_from_t(before_dbl,
-                                before_dbl+before_key.post_handle_y,
+                                before_dbl+before_key.post_handle.y(),
                                 after_dbl,
                                 t);
 
           } else {
             // this keyframe is the bezier one
-            double t = quad_t_from_x(SecondsToFrame(timecode),
+            double t = quad_t_from_x(timecode,
                                      before_key.time,
                                      after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false),
                                      after_key.time);
 
             value = quad_from_t(before_dbl,
-                                after_dbl+after_key.pre_handle_y,
+                                after_dbl+after_key.pre_handle.y(),
                                 after_dbl,
                                 t);
           }
@@ -182,13 +183,10 @@ void EffectField::SetValueAt(double time, const QVariant &value)
 
     // Create keyframe here
 
-    // Convert seconds timecode to frame
-    long frame_timecode = SecondsToFrame(time);
-
     // Check array if a keyframe at this time already exists
     int keyframe_index = -1;
     for (int i=0;i<keyframes.size();i++) {
-      if (keyframes.at(i).time == frame_timecode) {
+      if (qFuzzyCompare(keyframes.at(i).time, time)) {
         keyframe_index = i;
         break;
       }
@@ -197,7 +195,7 @@ void EffectField::SetValueAt(double time, const QVariant &value)
     // If keyframe doesn't exist, make it
     if (keyframe_index == -1) {
       EffectKeyframe key;
-      key.time = frame_timecode;
+      key.time = time;
       key.data = value;
       key.type = (keyframes.isEmpty()) ? EFFECT_KEYFRAME_LINEAR : keyframes.last().type;
       keyframes.append(key);
@@ -222,7 +220,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Create keyframe from perpetual data
     EffectKeyframe key;
 
-    key.time = GetParentRow()->GetParentEffect()->NowInFrames();
+    key.time = GetParentRow()->ParentNode()->ParentGraph()->Time();
     key.data = persistent_data_;
     key.type = EFFECT_KEYFRAME_LINEAR;
 
@@ -235,7 +233,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Convert keyframes to one "perpetual" keyframe
 
     // Set first keyframe to whatever the data is now
-    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(GetParentRow()->GetParentEffect()->Now())));
+    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(GetParentRow()->ParentNode()->ParentGraph()->Time())));
 
     // Delete all keyframes
     for (int i=0;i<keyframes.size();i++) {
@@ -264,7 +262,7 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
     }
   }
 
-  double adjusted_key = post ? keyframes.at(key).post_handle_x : keyframes.at(key).pre_handle_x;
+  double adjusted_key = post ? keyframes.at(key).post_handle.x() : keyframes.at(key).pre_handle.x();
 
   // if this is the earliest/latest keyframe, no validation is required
   if (comp_key == -1) {
@@ -275,10 +273,10 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
 
   // if comp keyframe is bezier, validate with its accompanying handle
   if (keyframes.at(comp_key).type == EFFECT_KEYFRAME_BEZIER) {
-    double relative_comp_handle = comp + (post ? keyframes.at(comp_key).pre_handle_x : keyframes.at(comp_key).post_handle_x);
+    double relative_comp_handle = comp + (post ? keyframes.at(comp_key).pre_handle.x() : keyframes.at(comp_key).post_handle.x());
     // return an average
-    if ((post && keyframes.at(key).post_handle_x > relative_comp_handle)
-        || (!post && keyframes.at(key).pre_handle_x < relative_comp_handle)) {
+    if ((post && keyframes.at(key).post_handle.x() > relative_comp_handle)
+        || (!post && keyframes.at(key).pre_handle.x() < relative_comp_handle)) {
       adjusted_key = (adjusted_key + relative_comp_handle)*0.5;
     }
   }
@@ -296,31 +294,22 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
   return adjusted_key;
 }
 
-double EffectField::FrameToSeconds(long frame) {
-  return (double(frame) / GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate());
-}
-
-long EffectField::SecondsToFrame(double seconds) {
-  return qRound(seconds * GetParentRow()->GetParentEffect()->parent_clip->track()->sequence()->frame_rate());
-}
-
 void EffectField::GetKeyframeData(double timecode, int &before, int &after, double &progress) {
   int before_keyframe_index = -1;
   int after_keyframe_index = -1;
-  long before_keyframe_time = LONG_MIN;
-  long after_keyframe_time = LONG_MAX;
-  long frame = SecondsToFrame(timecode);
+  double before_keyframe_time = DBL_MIN;
+  double after_keyframe_time = DBL_MAX;
 
   for (int i=0;i<keyframes.size();i++) {
-    long eval_keyframe_time = keyframes.at(i).time;
-    if (eval_keyframe_time == frame) {
+    double eval_keyframe_time = keyframes.at(i).time;
+    if (qFuzzyCompare(eval_keyframe_time, timecode)) {
       before = i;
       after = i;
       return;
-    } else if (eval_keyframe_time < frame && eval_keyframe_time > before_keyframe_time) {
+    } else if (eval_keyframe_time < timecode && eval_keyframe_time > before_keyframe_time) {
       before_keyframe_index = i;
       before_keyframe_time = eval_keyframe_time;
-    } else if (eval_keyframe_time > frame && eval_keyframe_time < after_keyframe_time) {
+    } else if (eval_keyframe_time > timecode && eval_keyframe_time < after_keyframe_time) {
       after_keyframe_index = i;
       after_keyframe_time = eval_keyframe_time;
     }
@@ -331,7 +320,7 @@ void EffectField::GetKeyframeData(double timecode, int &before, int &after, doub
     // interpolate
     before = before_keyframe_index;
     after = after_keyframe_index;
-    progress = (timecode-FrameToSeconds(before_keyframe_time))/(FrameToSeconds(after_keyframe_time)-FrameToSeconds(before_keyframe_time));
+    progress = (timecode-before_keyframe_time)/(after_keyframe_time-before_keyframe_time);
   } else if (before_keyframe_index > -1) {
     before = before_keyframe_index;
     after = before_keyframe_index;

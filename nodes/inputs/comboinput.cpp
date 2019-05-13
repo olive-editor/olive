@@ -1,6 +1,6 @@
 #include "comboinput.h"
 
-ComboInput::ComboInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable, bool keyframable) :
+ComboInput::ComboInput(Node *parent, const QString& id, const QString& name, bool savable, bool keyframable) :
   NodeIO(parent, id, name, savable, keyframable)
 {
   ComboField* combo_field = new ComboField(this);

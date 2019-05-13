@@ -41,14 +41,20 @@ public:
    */
   Node* OutputNode();
 
+  double Time();
+  void SetTime(double d);
+
 signals:
   void NodeGraphChanged();
+  void TimeChanged();
 
 protected:
   virtual void childEvent(QChildEvent *event) override;
 
 private:  
   Node* output_node_;
+
+  double time_;
 };
 
 #endif // NODEGRAPH_H

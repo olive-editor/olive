@@ -123,8 +123,8 @@ void KeyframeView::paintEvent(QPaintEvent*) {
       OldEffectNode* e = container->GetEffect();
 
       if (container->IsExpanded()) {
-        for (int j=0;j<e->row_count();j++) {
-          NodeIO* row = e->row(j);
+        for (int j=0;j<e->ParameterCount();j++) {
+          NodeIO* row = e->Parameter(j);
 
           int keyframe_y = container->GetRowY(j, this);
 
@@ -261,6 +261,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
       for (int k=0;k<row->FieldCount();k++) {
         EffectField* f = row->Field(k);
         for (int j=0;j<f->keyframes.size();j++) {
+          /* FIXME
           long eval_keyframe_time = f->keyframes.at(j).time-row->GetParentEffect()->parent_clip->clip_in()+(row->GetParentEffect()->parent_clip->timeline_in()-visible_in);
           if (eval_keyframe_time >= frame_min && eval_keyframe_time <= frame_max) {
             long eval_frame_diff = qAbs(eval_keyframe_time - drag_frame_start);
@@ -271,6 +272,7 @@ void KeyframeView::mousePressEvent(QMouseEvent *event) {
               frame_diff = eval_frame_diff;
             }
           }
+          */
         }
       }
       break;
@@ -381,6 +383,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
       olive::timeline::snapped = false;
       if (olive::timeline::snapping) {
         for (int i=0;i<selected_keyframes.size();i++) {
+          /* FIXME
           EffectField* field = selected_fields.at(i);
           Clip* c = field->GetParentRow()->GetParentEffect()->parent_clip;
           long key_time = old_key_vals.at(i) + frame_diff - c->clip_in() + c->timeline_in();
@@ -389,6 +392,7 @@ void KeyframeView::mouseMoveEvent(QMouseEvent* event) {
             frame_diff += (key_eval - key_time);
             break;
           }
+          */
         }
       }
 
@@ -428,7 +432,7 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent*) {
   if (dragging) {
     ComboAction* ca = new ComboAction();
     for (int i=0;i<selected_fields.size();i++) {
-      ca->append(new SetLong(
+      ca->append(new SetDouble(
                    &selected_fields.at(i)->keyframes[selected_keyframes.at(i)].time,
                  old_key_vals.at(i),
                  selected_fields.at(i)->keyframes.at(selected_keyframes.at(i)).time

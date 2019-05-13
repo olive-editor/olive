@@ -23,7 +23,7 @@
 #include <QDebug>
 
 #include "ui/embeddedfilechooser.h"
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "undo/undo.h"
 
 FileField::FileField(NodeIO* parent) :
@@ -61,7 +61,7 @@ void FileField::UpdateFromWidget(const QString &s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), s);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

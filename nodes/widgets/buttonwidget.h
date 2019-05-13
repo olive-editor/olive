@@ -6,7 +6,7 @@
 class ButtonWidget : public NodeIO
 {
 public:
-  ButtonWidget(OldEffectNode* parent, const QString& name, const QString& text);
+  ButtonWidget(Node* parent, const QString& name, const QString& text);
 
   /**
    * @brief Wrapper for ButtonField::SetCheckable.

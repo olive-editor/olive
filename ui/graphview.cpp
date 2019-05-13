@@ -114,8 +114,8 @@ void GraphView::reset_view() {
 
 void GraphView::set_view_to_selection() {
   if (row != nullptr && selected_keys.size() > 0) {
-    long min_time = LONG_MAX;
-    long max_time = LONG_MIN;
+    double min_time = DBL_MAX;
+    double max_time = DBL_MIN;
     double min_dbl = DBL_MAX;
     double max_dbl = DBL_MIN;
     for (int i=0;i<selected_keys.size();i++) {
@@ -126,8 +126,10 @@ void GraphView::set_view_to_selection() {
       max_dbl = qMax(key.data.toDouble(), max_dbl);
     }
 
+    /* FIXME
     min_time -= row->GetParentEffect()->parent_clip->clip_in();
     max_time -= row->GetParentEffect()->parent_clip->clip_in();
+    */
 
     set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
   }
@@ -137,8 +139,8 @@ void GraphView::set_view_to_all() {
   if (row != nullptr) {
     bool can_set = false;
 
-    long min_time = LONG_MAX;
-    long max_time = LONG_MIN;
+    double min_time = DBL_MAX;
+    double max_time = DBL_MIN;
     double min_dbl = DBL_MAX;
     double max_dbl = DBL_MIN;
     for (int i=0;i<row->FieldCount();i++) {
@@ -152,15 +154,17 @@ void GraphView::set_view_to_all() {
       }
     }
     if (can_set) {
+      /* FIXME
       min_time -= row->GetParentEffect()->parent_clip->clip_in();
       max_time -= row->GetParentEffect()->parent_clip->clip_in();
+      */
 
       set_view_to_rect(min_time, min_dbl, max_time, max_dbl);
     }
   }
 }
 
-void GraphView::set_view_to_rect(int x1, double y1, int x2, double y2) {
+void GraphView::set_view_to_rect(double x1, double y1, double x2, double y2) {
   double padding = 1.5;
   double x_diff = double(x2 - x1);
   double y_diff = (y2 - y1);
@@ -278,20 +282,20 @@ void GraphView::paintEvent(QPaintEvent *) {
                 if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
                   // cubic bezier
                   bezier_path.cubicTo(
-                        QPointF(last_key_x+last_post_handle*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
-                        QPointF(key_x+pre_handle*x_zoom, key_y-key.pre_handle_y*y_zoom),
+                        QPointF(last_key_x+last_post_handle*x_zoom, last_key_y-last_key.post_handle.y()*y_zoom),
+                        QPointF(key_x+pre_handle*x_zoom, key_y-key.pre_handle.y()*y_zoom),
                         QPointF(key_x, key_y)
                         );
                 } else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
                   // last keyframe is the bezier one
                   bezier_path.quadTo(
-                        QPointF(last_key_x+last_post_handle*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
+                        QPointF(last_key_x+last_post_handle*x_zoom, last_key_y-last_key.post_handle.y()*y_zoom),
                         QPointF(key_x, key_y)
                         );
                 } else {
                   // this keyframe is the bezier one
                   bezier_path.quadTo(
-                        QPointF(key_x+pre_handle*x_zoom, key_y-key.pre_handle_y*y_zoom),
+                        QPointF(key_x+pre_handle*x_zoom, key_y-key.pre_handle.y()*y_zoom),
                         QPointF(key_x, key_y)
                         );
                 }
@@ -317,12 +321,12 @@ void GraphView::paintEvent(QPaintEvent *) {
               p.setPen(Qt::gray);
 
               // pre handle line
-              QPointF pre_point(key_x + key.pre_handle_x*x_zoom, key_y - key.pre_handle_y*y_zoom);
+              QPointF pre_point(key_x + key.pre_handle.x()*x_zoom, key_y - key.pre_handle.y()*y_zoom);
               p.drawLine(pre_point, QPointF(key_x, key_y));
               p.drawEllipse(pre_point, kBezierHandleSize, kBezierHandleSize);
 
               // post handle line
-              QPointF post_point(key_x + key.post_handle_x*x_zoom, key_y - key.post_handle_y*y_zoom);
+              QPointF post_point(key_x + key.post_handle.x()*x_zoom, key_y - key.post_handle.y()*y_zoom);
               p.drawLine(post_point, QPointF(key_x, key_y));
               p.drawEllipse(post_point, kBezierHandleSize, kBezierHandleSize);
             }
@@ -400,8 +404,8 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
               break;
             } else {
               // selecting a handle
-              QPointF pre_point(key_x + key.pre_handle_x*x_zoom, key_y - key.pre_handle_y*y_zoom);
-              QPointF post_point(key_x + key.post_handle_x*x_zoom, key_y - key.post_handle_y*y_zoom);
+              QPointF pre_point(key_x + key.pre_handle.x()*x_zoom, key_y - key.pre_handle.y()*y_zoom);
+              QPointF post_point(key_x + key.post_handle.x()*x_zoom, key_y - key.post_handle.y()*y_zoom);
               if (event->pos().x() > pre_point.x()-kBezierHandleSize
                   && event->pos().x() < pre_point.x()+kBezierHandleSize
                   && event->pos().y() > pre_point.y()-kBezierHandleSize
@@ -419,10 +423,10 @@ void GraphView::mousePressEvent(QMouseEvent *event) {
                 sel_key_field = i;
                 handle_index = j;
                 handle_field = i;
-                old_pre_handle_x = key.pre_handle_x;
-                old_pre_handle_y = key.pre_handle_y;
-                old_post_handle_x = key.post_handle_x;
-                old_post_handle_y = key.post_handle_y;
+                old_pre_handle_x = key.pre_handle.x();
+                old_pre_handle_y = key.pre_handle.y();
+                old_post_handle_x = key.post_handle.x();
+                old_post_handle_y = key.post_handle.y();
                 break;
               }
             }
@@ -551,10 +555,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
         }
 
         EffectKeyframe& key = row->Field(handle_field)->keyframes[handle_index];
-        key.pre_handle_x = qMin(0.0, new_pre_handle_x);
-        key.pre_handle_y = new_pre_handle_y;
-        key.post_handle_x = qMax(0.0, new_post_handle_x);
-        key.post_handle_y = new_post_handle_y;
+        key.pre_handle = QPointF(qMin(0.0, new_pre_handle_x), new_pre_handle_y);
+        key.post_handle = QPointF(qMax(0.0, new_post_handle_x), new_post_handle_y);
 
         moved_keys = true;
         update_ui(false);
@@ -580,14 +582,14 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
               KEYFRAME_SIZE+KEYFRAME_SIZE
               );
         QRect pre_rect(
-              qRound(key_x + key.pre_handle_x*x_zoom - kBezierHandleSize),
-              qRound(key_y + key.pre_handle_y*y_zoom - kBezierHandleSize),
+              qRound(key_x + key.pre_handle.x()*x_zoom - kBezierHandleSize),
+              qRound(key_y + key.pre_handle.y()*y_zoom - kBezierHandleSize),
               kBezierHandleSize+kBezierHandleSize,
               kBezierHandleSize+kBezierHandleSize
               );
         QRect post_rect(
-              qRound(key_x + key.post_handle_x*x_zoom - kBezierHandleSize),
-              qRound(key_y + key.post_handle_y*y_zoom - kBezierHandleSize),
+              qRound(key_x + key.post_handle.x()*x_zoom - kBezierHandleSize),
+              qRound(key_y + key.post_handle.y()*y_zoom - kBezierHandleSize),
               kBezierHandleSize+kBezierHandleSize,
               kBezierHandleSize+kBezierHandleSize
               );
@@ -653,20 +655,20 @@ void GraphView::mouseMoveEvent(QMouseEvent *event) {
                     if (last_key.type == EFFECT_KEYFRAME_BEZIER && key.type == EFFECT_KEYFRAME_BEZIER) {
                       // cubic bezier
                       bezier_path.cubicTo(
-                            QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
-                            QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
+                            QPointF(last_key_x+last_key.post_handle.x()*x_zoom, last_key_y-last_key.post_handle.y()*y_zoom),
+                            QPointF(key_x+key.pre_handle.x()*x_zoom, key_y-key.pre_handle.y()*y_zoom),
                             QPointF(key_x, key_y)
                             );
                     } else if (key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
                       // last keyframe is the bezier one
                       bezier_path.quadTo(
-                            QPointF(last_key_x+last_key.post_handle_x*x_zoom, last_key_y-last_key.post_handle_y*y_zoom),
+                            QPointF(last_key_x+last_key.post_handle.x()*x_zoom, last_key_y-last_key.post_handle.y()*y_zoom),
                             QPointF(key_x, key_y)
                             );
                     } else {
                       // this keyframe is the bezier one
                       bezier_path.quadTo(
-                            QPointF(key_x+key.pre_handle_x*x_zoom, key_y-key.pre_handle_y*y_zoom),
+                            QPointF(key_x+key.pre_handle.x()*x_zoom, key_y-key.pre_handle.y()*y_zoom),
                             QPointF(key_x, key_y)
                             );
                     }
@@ -708,7 +710,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
     case kBezierHandleNone:
       for (int i=0;i<selected_keys.size();i++) {
         EffectKeyframe& key = row->Field(selected_keys_fields.at(i))->keyframes[selected_keys.at(i)];
-        ca->append(new SetLong(&key.time, selected_keys_old_vals.at(i), key.time));
+        ca->append(new SetDouble(&key.time, selected_keys_old_vals.at(i), key.time));
         ca->append(new SetQVariant(&key.data, selected_keys_old_doubles.at(i), key.data));
       }
       break;
@@ -716,10 +718,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *) {
     case kBezierHandlePost:
     {
       EffectKeyframe& key = row->Field(handle_field)->keyframes[handle_index];
-      ca->append(new SetDouble(&key.pre_handle_x, old_pre_handle_x, key.pre_handle_x));
-      ca->append(new SetDouble(&key.pre_handle_y, old_pre_handle_y, key.pre_handle_y));
-      ca->append(new SetDouble(&key.post_handle_x, old_post_handle_x, key.post_handle_x));
-      ca->append(new SetDouble(&key.post_handle_y, old_post_handle_y, key.post_handle_y));
+      ca->append(new SetPointF(&key.pre_handle, QPointF(old_pre_handle_x, old_pre_handle_y), key.pre_handle));
+      ca->append(new SetPointF(&key.post_handle, QPointF(old_post_handle_x, old_post_handle_y), key.post_handle));
     }
       break;
     }
@@ -834,7 +834,8 @@ void GraphView::set_row(NodeIO *r) {
       for (int i=0;i<row->FieldCount();i++) {
         field_visibility[i] = row->Field(i)->IsEnabled();
       }
-      visible_in = row->GetParentEffect()->parent_clip->timeline_in();
+      // FIXME
+      //visible_in = row->ParentNode()->parent_clip->timeline_in();
       set_view_to_all();
     } else {
       update();
@@ -902,7 +903,8 @@ void GraphView::set_zoom(double xz, double yz) {
 
 int GraphView::get_screen_x(double d) {
   if (row != nullptr) {
-    d -= row->GetParentEffect()->parent_clip->clip_in();
+    // FIXME
+    //d -= row->GetParentEffect()->parent_clip->clip_in();
   }
   return qRound((d*x_zoom) - x_scroll);
 }
@@ -914,7 +916,8 @@ int GraphView::get_screen_y(double d) {
 long GraphView::get_value_x(int i) {
   long frame = qRound((i + x_scroll)/x_zoom);
   if (row != nullptr) {
-    frame += row->GetParentEffect()->parent_clip->clip_in();
+    // FIXME
+    //frame += row->GetParentEffect()->parent_clip->clip_in();
   }
   return frame;
 }

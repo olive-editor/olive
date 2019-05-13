@@ -77,7 +77,7 @@ private:
 
   QVector<int> selected_keys;
   QVector<int> selected_keys_fields;
-  QVector<long> selected_keys_old_vals;
+  QVector<double> selected_keys_old_vals;
   QVector<double> selected_keys_old_doubles;
 
   double old_pre_handle_x;
@@ -116,7 +116,7 @@ private slots:
   void reset_view();
   void set_view_to_selection();
   void set_view_to_all();
-  void set_view_to_rect(int x1, double y1, int x2, double y2);
+  void set_view_to_rect(double x1, double y1, double x2, double y2);
 };
 
 #endif // GRAPHVIEW_H

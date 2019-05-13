@@ -7,7 +7,7 @@ class FileInput : public NodeIO
 {
   Q_OBJECT
 public:
-  FileInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  FileInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the filename at the given timecode

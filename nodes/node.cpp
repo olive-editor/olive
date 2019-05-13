@@ -7,6 +7,11 @@ Node::Node(NodeGraph *graph) :
 {
 }
 
+QString Node::name()
+{
+  return tr("Node");
+}
+
 void Node::AddParameter(NodeIO *param)
 {
   param->setParent(this);
@@ -26,4 +31,24 @@ NodeIO *Node::Parameter(int i)
 int Node::ParameterCount()
 {
   return parameters_.size();
+}
+
+NodeGraph *Node::ParentGraph()
+{
+  return static_cast<NodeGraph*>(parent());
+}
+
+double Node::Time()
+{
+  return ParentGraph()->Time();
+}
+
+const QPointF &Node::pos()
+{
+  return pos_;
+}
+
+void Node::SetPos(const QPointF &pos)
+{
+  pos_ = pos;
 }
