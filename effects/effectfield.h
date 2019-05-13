@@ -390,32 +390,6 @@ private:
   bool HasKeyframes();
 
   /**
-   * @brief Convert clip time in frames to clip time in seconds
-   *
-   * @param frame
-   *
-   * Clip time in frames
-   *
-   * @return
-   *
-   * Clip time in seconds
-   */
-  double FrameToSeconds(long frame);
-
-  /**
-   * @brief Convert clip time in seconds to clip time in frames
-   *
-   * @param seconds
-   *
-   * Clip time in seconds
-   *
-   * @return
-   *
-   * Clip time in frames
-   */
-  long SecondsToFrame(double seconds);
-
-  /**
    * @brief Internal function for determining where we are between the available keyframes
    *
    * @param timecode

@@ -103,11 +103,11 @@ EffectUI::EffectUI(OldEffectNode* e) :
           this,
           SLOT(show_context_menu(const QPoint&)));
 
-  widgets_.resize(e->row_count());
-  keyframe_navigators_.resize(e->row_count());
+  widgets_.resize(e->ParameterCount());
+  keyframe_navigators_.resize(e->ParameterCount());
 
-  for (int i=0;i<e->row_count();i++) {
-    NodeIO* row = e->row(i);
+  for (int i=0;i<e->ParameterCount();i++) {
+    NodeIO* row = e->Parameter(i);
 
     ClickableLabel* row_label = new ClickableLabel(row->name());
     connect(row_label, SIGNAL(clicked()), row, SLOT(FocusRow()));
@@ -181,17 +181,17 @@ void EffectUI::AddAdditionalEffect(OldEffectNode *e)
   additional_effects_.append(e);
 
   // Attach this UI's widgets to the additional effect
-  for (int i=0;i<effect_->row_count();i++) {
+  for (int i=0;i<effect_->ParameterCount();i++) {
 
-    NodeIO* row = effect_->row(i);
+    NodeIO* row = effect_->Parameter(i);
 
     // Attach existing keyframe navigator to this effect's row
-    AttachKeyframeNavigationToRow(e->row(i), keyframe_navigators_.at(i));
+    AttachKeyframeNavigationToRow(e->Parameter(i), keyframe_navigators_.at(i));
 
     for (int j=0;j<row->FieldCount();j++) {
 
       // Attach existing field widget to this effect's field
-      e->row(i)->Field(j)->CreateWidget(Widget(i, j));
+      e->Parameter(i)->Field(j)->CreateWidget(Widget(i, j));
 
     }
 
@@ -229,9 +229,9 @@ void EffectUI::UpdateFromEffect()
 {
   OldEffectNode* effect = GetEffect();
 
-  for (int j=0;j<effect->row_count();j++) {
+  for (int j=0;j<effect->ParameterCount();j++) {
 
-    NodeIO* row = effect->row(j);
+    NodeIO* row = effect->Parameter(j);
 
     for (int k=0;k<row->FieldCount();k++) {
       EffectField* field = row->Field(k);
@@ -246,8 +246,8 @@ void EffectUI::UpdateFromEffect()
         bool same_value = true;
 
         for (int i=0;i<additional_effects_.size();i++) {
-          EffectField* previous_field = i > 0 ? additional_effects_.at(i-1)->row(j)->Field(k) : field;
-          EffectField* additional_field = additional_effects_.at(i)->row(j)->Field(k);
+          EffectField* previous_field = i > 0 ? additional_effects_.at(i-1)->Parameter(j)->Field(k) : field;
+          EffectField* additional_field = additional_effects_.at(i)->Parameter(j)->Field(k);
 
           if (additional_field->GetValueAt(additional_effects_.at(i)->Now())
               != previous_field->GetValueAt(additional_effects_.at(i)->Now())) {

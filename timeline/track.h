@@ -8,6 +8,7 @@
 #include "tracktypes.h"
 #include "undo/comboaction.h"
 #include "timeline/selection.h"
+#include "nodes/node.h"
 
 class Sequence;
 class Transition;
@@ -37,7 +38,7 @@ namespace olive {
 
 class Sequence;
 
-class Track : public QObject
+class Track : public Node
 {
   Q_OBJECT
 public:
@@ -107,7 +108,6 @@ signals:
 private:
   void ResizeClipArray(int new_size);
 
-  Sequence* parent_;
   olive::TrackType type_;
   int height_;
   QVector<ClipPtr> clips_;

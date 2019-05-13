@@ -120,8 +120,8 @@ void EffectsPanel::Load() {
       // Check if one of the open effects contains the row currently active in the graph editor. If not, we'll have
       // to clear the graph editor later.
       if (!graph_editor_row_is_still_active) {
-        for (int k=0;k<effects_to_open.at(j)->row_count();k++) {
-          NodeIO* row = effects_to_open.at(j)->row(k);
+        for (int k=0;k<effects_to_open.at(j)->ParameterCount();k++) {
+          NodeIO* row = effects_to_open.at(j)->Parameter(k);
           if (row == panel_graph_editor->get_row()) {
             graph_editor_row_is_still_active = true;
             break;

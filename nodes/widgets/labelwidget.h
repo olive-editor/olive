@@ -6,7 +6,7 @@
 class LabelWidget : public NodeIO
 {
 public:
-  LabelWidget(OldEffectNode* parent, const QString& name, const QString& text);
+  LabelWidget(Node* parent, const QString& name, const QString& text);
 };
 
 #endif // LABELWIDGET_H

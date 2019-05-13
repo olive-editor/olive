@@ -23,7 +23,7 @@
 #include <QtMath>
 #include <QDebug>
 
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "ui/texteditex.h"
 #include "global/config.h"
 #include "undo/undo.h"
@@ -94,7 +94,7 @@ void StringField::UpdateFromWidget(const QString &s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), s);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

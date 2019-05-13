@@ -24,7 +24,7 @@
 #include <QDebug>
 
 #include "ui/comboboxex.h"
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "undo/undo.h"
 
 // NOTE/TODO: This shares a lot of similarity with ComboInput, and could probably be a derived class of it
@@ -88,7 +88,7 @@ void FontField::UpdateFromWidget(const QString& s)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), s);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), s);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

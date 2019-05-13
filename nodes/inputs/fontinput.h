@@ -7,7 +7,7 @@ class FontInput : public NodeIO
 {
   Q_OBJECT
 public:
-  FontInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
+  FontInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
   /**
    * @brief Get the font family name at the given timecode

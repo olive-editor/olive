@@ -1,20 +1,37 @@
 #include "nodegraph.h"
 
+#include <QChildEvent>
 #include <QDebug>
 
-NodeGraph::NodeGraph() :
-  output_node_(nullptr)
+NodeGraph::NodeGraph()
 {
 
 }
 
-void NodeGraph::AddNode(NodePtr node)
+void NodeGraph::childEvent(QChildEvent *event)
 {
-  nodes_.append(node);
-  emit NodeGraphChanged();
+  if (event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildRemoved) {
+    emit NodeGraphChanged();
+  }
+}
+
+void NodeGraph::SetOutputNode(Node *node)
+{
+  output_node_ = node;
 }
 
 Node *NodeGraph::OutputNode()
 {
-  return output_node_.get();
+  return output_node_;
+}
+
+double NodeGraph::Time()
+{
+  return time_;
+}
+
+void NodeGraph::SetTime(double d)
+{
+  time_ = d;
+  emit TimeChanged();
 }

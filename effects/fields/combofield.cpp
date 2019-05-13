@@ -22,7 +22,7 @@
 
 #include <QDebug>
 
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "ui/comboboxex.h"
 #include "undo/undo.h"
 
@@ -86,7 +86,7 @@ void ComboField::UpdateFromWidget(int index)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), items_.at(index).data);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), items_.at(index).data);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

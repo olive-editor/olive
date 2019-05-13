@@ -44,6 +44,7 @@
 #include "rendering/qopenglshaderprogramptr.h"
 #include "inputs.h"
 #include "effects/effectgizmo.h"
+#include "node.h"
 
 class EffectGizmo;
 class KeyframeDataChange;
@@ -109,7 +110,7 @@ struct GLTextureCoords {
   float opacity;
 };
 
-class OldEffectNode : public QObject {
+class OldEffectNode : public Node {
   Q_OBJECT
 public:
   OldEffectNode(Clip *c);
@@ -125,11 +126,6 @@ public:
   virtual olive::TrackType subtype() = 0;
   virtual bool IsCreatable();
   virtual OldEffectNodePtr Create(Clip *c) = 0;
-
-  void AddRow(NodeIO* row);
-  int IndexOfRow(NodeIO* row);
-  NodeIO* row(int i);
-  int row_count();
 
   EffectGizmo* add_gizmo(int type);
   EffectGizmo* gizmo(int i);
@@ -170,7 +166,7 @@ public:
   int getIterations();
   void setIterations(int i);
 
-  const QPointF& pos();
+
 
   virtual void process_image(double timecode, uint8_t* input, uint8_t* output, int size);
   virtual void process_shader(double timecode, GLTextureCoords&, int iteration);
@@ -229,7 +225,7 @@ public slots:
   void FieldChanged();
   void SetEnabled(bool b);
   void SetExpanded(bool e);
-  void SetPos(const QPointF& pos);
+
 signals:
   void EnabledChanged(bool);
 private slots:
@@ -257,7 +253,6 @@ protected:
 
 private:
   bool isOpen;
-  QVector<NodeIO*> rows;
   QVector<EffectGizmo*> gizmos;
   bool bound;
   int iterations;
@@ -269,7 +264,7 @@ private:
 
   QVector<KeyframeDataChange*> gizmo_dragging_actions_;
 
-  QPointF pos_;
+
 
   // superimpose functions
   virtual void redraw(double timecode);

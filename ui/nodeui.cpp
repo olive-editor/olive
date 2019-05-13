@@ -32,14 +32,14 @@ void NodeUI::AddToScene(QGraphicsScene *scene)
   scene->addItem(this);
 }
 
-void NodeUI::SetNode(OldEffectNode *n)
+void NodeUI::SetNode(Node *n)
 {
   node_ = n;
 
   QRectF rectangle;
 
   rectangle.setTopLeft(pos());
-  rectangle.setSize(QSizeF(200, GetRowY(node_->row_count())));
+  rectangle.setSize(QSizeF(200, GetRowY(node_->ParameterCount())));
 
   QRectF inner_rect = rectangle;
   inner_rect.setX(inner_rect.x() + kNodePlugSize/2);
@@ -51,7 +51,7 @@ void NodeUI::SetNode(OldEffectNode *n)
   setRect(rectangle);
 }
 
-OldEffectNode *NodeUI::GetNode()
+Node *NodeUI::GetNode()
 {
   return node_;
 }
@@ -90,12 +90,12 @@ void NodeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
                     node_->name());
 
   // Draw node row names
-  for (int i=0;i<node_->row_count();i++) {
+  for (int i=0;i<node_->ParameterCount();i++) {
     int text_x;
 
-    if (node_->row(i)->IsNodeOutput()) {
+    if (node_->Parameter(i)->IsNodeOutput()) {
       // right alignment
-      text_x = rect().right() - kNodePlugSize/2 - qApp->fontMetrics().width(node_->row(i)->name()) - kTextPadding;
+      text_x = rect().right() - kNodePlugSize/2 - qApp->fontMetrics().width(node_->Parameter(i)->name()) - kTextPadding;
     } else {
       // left alignment
       text_x = left_text_x;
@@ -103,7 +103,7 @@ void NodeUI::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QW
 
     painter->drawText(text_x,
                       GetRowY(i) + qApp->fontMetrics().ascent(),
-                      node_->row(i)->name());
+                      node_->Parameter(i)->name());
   }
 
   // Draw title splitter line
@@ -128,8 +128,8 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
   if (clicked_socket_ > -1) {
 
     // See if this socket already has an edge connected
-    QVector<NodeEdgePtr> edges = node_->row(clicked_socket_)->edges();
-    if (!edges.isEmpty() && edges.last()->input()->GetParentEffect() == node_) {
+    QVector<NodeEdgePtr> edges = node_->Parameter(clicked_socket_)->edges();
+    if (!edges.isEmpty() && edges.last()->input()->ParentNode() == node_) {
 
       NodeEdge* e = edges.last().get();
 
@@ -137,9 +137,9 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
       NodeIO* other_row = e->output();
 
-      OldEffectNode* other_node = other_row->GetParentEffect();
+      Node* other_node = other_row->ParentNode();
 
-      int other_row_index = other_node->IndexOfRow(other_row);
+      int other_row_index = other_node->IndexOfParameter(other_row);
 
       NodeUI* other_node_ui = FindUIFromNode(other_node);
 
@@ -158,7 +158,7 @@ void NodeUI::mousePressEvent(QGraphicsSceneMouseEvent *event)
       // Start a new edge here
       drag_line_start_ = pos() + sockets.at(clicked_socket_).center();
 
-      drag_source_ = node_->row(clicked_socket_);
+      drag_source_ = node_->Parameter(clicked_socket_);
 
     }
 
@@ -269,11 +269,11 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
   QVector<QRectF> rects;
 
   if (node_ != nullptr) {
-    OldEffectNode* e = node_;
+    Node* e = node_;
 
-    for (int i=0;i<e->row_count();i++) {
+    for (int i=0;i<e->ParameterCount();i++) {
 
-      NodeIO* row = e->row(i);      
+      NodeIO* row = e->Parameter(i);
 
       if (row->IsNodeInput() || row->IsNodeOutput()) {
         qreal x = (row->IsNodeOutput()) ? rect().right() - kNodePlugSize : rect().x();
@@ -292,13 +292,13 @@ QVector<QRectF> NodeUI::GetNodeSocketRects()
 
 NodeIO *NodeUI::GetRowFromIndex(int i)
 {
-  if (node_ != nullptr && i < node_->row_count()) {
-    return node_->row(i);
+  if (node_ != nullptr && i < node_->ParameterCount()) {
+    return node_->Parameter(i);
   }
   return nullptr;
 }
 
-NodeUI *NodeUI::FindUIFromNode(OldEffectNode* n)
+NodeUI *NodeUI::FindUIFromNode(Node* n)
 {
   QList<QGraphicsItem*> all_items = scene()->items();
 

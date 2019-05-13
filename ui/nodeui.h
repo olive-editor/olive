@@ -7,7 +7,7 @@
 class EffectUI;
 class NodeIO;
 class NodeEdge;
-class OldEffectNode;
+class Node;
 
 class NodeUI : public QGraphicsRectItem {
 public:
@@ -15,8 +15,8 @@ public:
 
   void AddToScene(QGraphicsScene* scene);
   //void Resize(const QSize& s);
-  void SetNode(OldEffectNode* n);
-  OldEffectNode* GetNode();
+  void SetNode(Node* n);
+  Node* GetNode();
 
   QVector<QRectF> GetNodeSocketRects();
 
@@ -29,10 +29,10 @@ protected:
 
 private:
   NodeIO *GetRowFromIndex(int i);
-  NodeUI* FindUIFromNode(OldEffectNode* n);
+  NodeUI* FindUIFromNode(Node *n);
   int GetRowY(int index);
 
-  OldEffectNode* node_;
+  Node* node_;
 
   QGraphicsPathItem* drag_line_;
   QPointF drag_line_start_;

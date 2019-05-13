@@ -28,8 +28,9 @@
 #include "marker.h"
 #include "selection.h"
 #include "ghost.h"
+#include "nodes/nodegraph.h"
 
-class Sequence : public QObject {
+class Sequence : public NodeGraph {
   Q_OBJECT
 public:
   Sequence();
@@ -142,11 +143,10 @@ public:
   QVector<Marker> markers;
 signals:
   void SequenceParametersChanged();
-  void TrackCountChanged();
 private:
   Track *AddTrack(olive::TrackType type);
 
-  QVector<Track*> tracks_;
+  //QVector<Track*> tracks_;
 
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame);
   ClipPtr SplitClip(ComboAction* ca, bool transitions, Clip *clip, long frame, long post_in);

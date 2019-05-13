@@ -13,15 +13,6 @@ public:
   NodeGraph();
 
   /**
-   * @brief Add a node to this graph
-   *
-   * The graph takes ownership of the node.
-   *
-   * @param node
-   */
-  void AddNode(NodePtr node);
-
-  /**
    * @brief Process the graph
    *
    * Using the output node set by SetOutputNode(), this function will work backwards and perform every action in the
@@ -43,20 +34,27 @@ public:
    *
    * The node to set as the output node. The graph takes ownership of the node and the user cannot delete it.
    */
-  void SetOutputNode(NodePtr node);
+  void SetOutputNode(Node* node);
 
   /**
    * @brief Returns the currently set output node
    */
   Node* OutputNode();
 
+  double Time();
+  void SetTime(double d);
+
 signals:
   void NodeGraphChanged();
+  void TimeChanged();
+
+protected:
+  virtual void childEvent(QChildEvent *event) override;
 
 private:  
-  NodePtr output_node_;
+  Node* output_node_;
 
-  QVector<NodePtr> nodes_;
+  double time_;
 };
 
 #endif // NODEGRAPH_H

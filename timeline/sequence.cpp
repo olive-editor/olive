@@ -169,8 +169,11 @@ void Sequence::set_audio_layout(const int& l)
 long Sequence::GetEndFrame() {
   long end_frame = 0;
 
-  for (int i=0;i<tracks_.size();i++) {
-    end_frame = qMax(tracks_.at(i)->GetEndFrame(), end_frame);
+  const QObjectList& all_tracks = children();
+
+  for (int i=0;i<all_tracks.size();i++) {
+    Track* t = static_cast<Track*>(all_tracks.at(i));
+    end_frame = qMax(t->GetEndFrame(), end_frame);
   }
 
   return end_frame;
@@ -180,9 +183,11 @@ QVector<Clip *> Sequence::GetAllClips()
 {
   QVector<Clip*> all_clips;
 
-  for (int j=0;j<tracks_.size();j++) {
+  const QObjectList& tracks = children();
 
-    all_clips.append(tracks_.at(j)->GetAllClips());
+  for (int j=0;j<tracks.size();j++) {
+
+    all_clips.append(static_cast<Track*>(tracks.at(j))->GetAllClips());
 
   }
 
@@ -193,9 +198,12 @@ QVector<Track *> Sequence::GetTrackList(olive::TrackType type)
 {
   QVector<Track*> tracks;
 
-  for (int i=0;i<tracks_.size();i++) {
-    if (tracks_.at(i)->type() == type) {
-      tracks.append(tracks_.at(i));
+  const QObjectList& all_tracks = children();
+
+  for (int i=0;i<all_tracks.size();i++) {
+    Track* t = static_cast<Track*>(all_tracks.at(i));
+    if (t->type() == type) {
+      tracks.append(t);
     }
   }
 
@@ -230,8 +238,10 @@ QVector<Clip *> Sequence::SelectedClips(bool containing)
 {
   QVector<Clip*> selected_clips;
 
-  for (int j=0;j<tracks_.size();j++) {
-    Track* t = tracks_.at(j);
+  const QObjectList& all_tracks = children();
+
+  for (int j=0;j<all_tracks.size();j++) {
+    Track* t = static_cast<Track*>(all_tracks.at(j));
 
     selected_clips.append(t->GetSelectedClips(containing));
   }
@@ -388,6 +398,8 @@ void Sequence::EditToPoint(bool in, bool ripple)
     bool push_undo = true;
     long seek = playhead;
 
+    const QObjectList& all_tracks = children();
+
     if ((in && (playhead_falls_on_out || (playhead_falls_on_in && playhead == 0)))
         || (!in && (playhead_falls_on_in || (playhead_falls_on_out && playhead == sequence_end)))) { // one frame mode
       if (ripple) {
@@ -400,8 +412,9 @@ void Sequence::EditToPoint(bool in, bool ripple)
 
         if (in_point >= 0) {
 
-          for (int j=0;j<tracks_.size();j++) {
-            areas.append(Selection(in_point, in_point+1, tracks_.at(j)));
+          for (int j=0;j<all_tracks.size();j++) {
+            Track* t = static_cast<Track*>(all_tracks.at(j));
+            areas.append(Selection(in_point, in_point+1, t));
           }
 
           // trim and move clips around the in point
@@ -436,8 +449,9 @@ void Sequence::EditToPoint(bool in, bool ripple)
 
       } else {
 
-        for (int j=0;j<tracks_.size();j++) {
-          areas.append(Selection(area_in, area_out, tracks_.at(j)));
+        for (int j=0;j<all_tracks.size();j++) {
+          Track* t = static_cast<Track*>(all_tracks.at(j));
+          areas.append(Selection(area_in, area_out, t));
         }
 
         // trim and move clips around the in point
@@ -522,8 +536,11 @@ void Sequence::DeleteInToOut(bool ripple)
 
     QVector<Selection> areas_to_delete;
 
-    for (int j=0;j<tracks_.size();j++) {
-      areas_to_delete.append(Selection(workarea_in, workarea_out, tracks_.at(j)));
+    const QObjectList& all_tracks = children();
+
+    for (int j=0;j<all_tracks.size();j++) {
+      Track* t = static_cast<Track*>(all_tracks.at(j));
+      areas_to_delete.append(Selection(workarea_in, workarea_out, t));
     }
 
     ComboAction* ca = new ComboAction();
@@ -576,8 +593,10 @@ void Sequence::Ripple(ComboAction *ca, long point, long length, const QVector<Cl
 
 void Sequence::ChangeTrackHeightsRelatively(int diff)
 {
-  for (int j=0;j<tracks_.size();j++) {
-    Track* t = tracks_.at(j);
+  const QObjectList& all_tracks = children();
+
+  for (int j=0;j<all_tracks.size();j++) {
+    Track* t = static_cast<Track*>(all_tracks.at(j));
 
     t->set_height(t->height() + diff);
   }
@@ -649,9 +668,12 @@ void Sequence::Split()
   // If we weren't able to split any selected clips above, see if there are arbitrary selections to split
   if (!split_occurred) {
 
-    Track* track;
+    const QObjectList& all_tracks = children();
+    QObject* obj;
 
-    foreach (track, tracks_) {
+    foreach (obj, all_tracks) {
+
+      Track* track = static_cast<Track*>(obj);
 
       QVector<Selection> track_selections = track->Selections();
       QVector<long> split_positions;
@@ -894,8 +916,10 @@ void Sequence::RippleDeleteEmptySpace(ComboAction* ca, Track* track, long point)
 
 void Sequence::RippleDeleteArea(ComboAction* ca, long ripple_point, long ripple_length) {
 
-  for (int j=0;j<tracks_.size();j++) {
-    Track* t = tracks_.at(j);
+  const QObjectList& all_tracks = children();
+
+  for (int j=0;j<all_tracks.size();j++) {
+    Track* t = static_cast<Track*>(all_tracks.at(j));
 
     // We've already tested `track`, so we don't need to test it again
     long first_in_point_after_point = LONG_MAX;
@@ -982,22 +1006,25 @@ OldEffectNode *Sequence::GetSelectedGizmo()
 
 void Sequence::SelectAll()
 {
-  for (int i=0;i<tracks_.size();i++) {
-    tracks_.at(i)->SelectAll();
+  const QObjectList& all_tracks = children();
+  for (int i=0;i<all_tracks.size();i++) {
+    static_cast<Track*>(all_tracks.at(i))->SelectAll();
   }
 }
 
 void Sequence::SelectAtPlayhead()
 {
-  for (int i=0;i<tracks_.size();i++) {
-    tracks_.at(i)->SelectAtPoint(playhead);
+  const QObjectList& all_tracks = children();
+  for (int i=0;i<all_tracks.size();i++) {
+    static_cast<Track*>(all_tracks.at(i))->SelectAtPoint(playhead);
   }
 }
 
 void Sequence::ClearSelections()
 {
-  for (int i=0;i<tracks_.size();i++) {
-    tracks_.at(i)->ClearSelections();
+  const QObjectList& all_tracks = children();
+  for (int i=0;i<all_tracks.size();i++) {
+    static_cast<Track*>(all_tracks.at(i))->ClearSelections();
   }
 }
 
@@ -1078,8 +1105,10 @@ QVector<Selection> Sequence::Selections()
 {
   QVector<Selection> selections;
 
-  for (int i=0;i<tracks_.size();i++) {
-    selections.append(tracks_.at(i)->Selections());
+  const QObjectList& all_tracks = children();
+
+  for (int i=0;i<all_tracks.size();i++) {
+    selections.append(static_cast<Track*>(all_tracks.at(i))->Selections());
   }
 
   return selections;
@@ -1108,12 +1137,15 @@ Track *Sequence::PreviousTrack(Track *t)
   Track* previous_track = nullptr;
 
   // Loop through tracks
-  for (int i=0;i<tracks_.size();i++) {
+  const QObjectList& all_tracks = children();
+  for (int i=0;i<all_tracks.size();i++) {
 
-    if (tracks_.at(i) == t) {
+    Track* comp_track = static_cast<Track*>(all_tracks.at(i));
+
+    if (comp_track == t) {
       // If this is the track, we'll know the previous track by now
       break;
-    } else if (tracks_.at(i)->type() == t->type()) {
+    } else if (comp_track->type() == t->type()) {
       // Otherwise, we'll keep "track" of it
       previous_track = t;
     }
@@ -1132,14 +1164,18 @@ Track *Sequence::NextTrack(Track *t)
 
     Track* next_track = nullptr;
 
-    for (int i=tracks_.size()-1;i>=0;i--) {
+    const QObjectList& all_tracks = children();
 
-      if (tracks_.at(i) == t) {
+    for (int i=all_tracks.size()-1;i>=0;i--) {
+
+      Track* track = static_cast<Track*>(all_tracks.at(i));
+
+      if (track == t) {
         break;
       }
 
-      if (tracks_.at(i)->type() == t->type()) {
-        next_track = tracks_.at(i);
+      if (track->type() == t->type()) {
+        next_track = track;
       }
 
     }
@@ -1161,13 +1197,17 @@ int Sequence::IndexOfTrack(Track *t)
 {
   int counter = -1;
 
-  for (int i=0;i<tracks_.size();i++) {
+  const QObjectList& all_tracks = children();
 
-    if (tracks_.at(i)->type() == t->type()) {
+  for (int i=0;i<all_tracks.size();i++) {
+
+    Track* track = static_cast<Track*>(all_tracks.at(i));
+
+    if (track->type() == t->type()) {
       counter++;
     }
 
-    if (tracks_.at(i) == t) {
+    if (track == t) {
       return counter;
     }
   }
@@ -1177,9 +1217,14 @@ int Sequence::IndexOfTrack(Track *t)
 
 Track *Sequence::FirstTrack(olive::TrackType type)
 {
-  for (int i=0;i<tracks_.size();i++) {
-    if (tracks_.at(i)->type() == type) {
-      return tracks_.at(i);
+  const QObjectList& all_tracks = children();
+
+  for (int i=0;i<all_tracks.size();i++) {
+
+    Track* track = static_cast<Track*>(all_tracks.at(i));
+
+    if (track->type() == type) {
+      return track;
     }
   }
   return nullptr;
@@ -1187,9 +1232,14 @@ Track *Sequence::FirstTrack(olive::TrackType type)
 
 Track *Sequence::LastTrack(olive::TrackType type)
 {
-  for (int i=tracks_.size()-1;i>=0;i--) {
-    if (tracks_.at(i)->type() == type) {
-      return tracks_.at(i);
+  const QObjectList& all_tracks = children();
+
+  for (int i=all_tracks.size()-1;i>=0;i--) {
+
+    Track* track = static_cast<Track*>(all_tracks.at(i));
+
+    if (track->type() == type) {
+      return track;
     }
   }
   return nullptr;
@@ -1199,13 +1249,18 @@ Track *Sequence::TrackAt(olive::TrackType type, int index)
 {
   int counter = -1;
 
-  for (int i=0;i<tracks_.size();i++) {
-    if (tracks_.at(i)->type() == type) {
+  const QObjectList& all_tracks = children();
+
+  for (int i=0;i<all_tracks.size();i++) {
+
+    Track* track = static_cast<Track*>(all_tracks.at(i));
+
+    if (track->type() == type) {
       counter++;
     }
 
     if (counter == index) {
-      return tracks_.at(i);
+      return track;
     }
   }
 
@@ -1223,8 +1278,13 @@ int Sequence::TrackCount(olive::TrackType type)
 {
   int counter = 0;
 
-  for (int i=0;i<tracks_.size();i++) {
-    if (tracks_.at(i)->type() == type) {
+  const QObjectList& all_tracks = children();
+
+  for (int i=0;i<all_tracks.size();i++) {
+
+    Track* track = static_cast<Track*>(all_tracks.at(i));
+
+    if (track->type() == type) {
       counter++;
     }
   }
@@ -1234,10 +1294,9 @@ int Sequence::TrackCount(olive::TrackType type)
 
 Track* Sequence::AddTrack(olive::TrackType type)
 {
-  Track* track = new Track(this, type);
-  tracks_.append(track);
-  emit TrackCountChanged();
-  return track;
+  Track* t = new Track(nullptr, type);
+  t->setParent(this);
+  return t;
 }
 
 ClipPtr Sequence::SplitClip(ComboAction *ca, bool transitions, Clip* pre, long frame)

@@ -52,7 +52,7 @@ TimelineArea::TimelineArea(Timeline* timeline, olive::timeline::Alignment alignm
 void TimelineArea::SetTrackType(Sequence *sequence, olive::TrackType track_type)
 {
   if (sequence_ != nullptr) {
-    disconnect(sequence_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
+    disconnect(sequence_, SIGNAL(NodeGraphChanged()), this, SLOT(RefreshLabels()));
   }
 
   sequence_ = sequence;
@@ -60,7 +60,7 @@ void TimelineArea::SetTrackType(Sequence *sequence, olive::TrackType track_type)
 
   if (sequence_ != nullptr) {
 
-    connect(sequence_, SIGNAL(TrackCountChanged()), this, SLOT(RefreshLabels()));
+    connect(sequence_, SIGNAL(NodeGraphChanged()), this, SLOT(RefreshLabels()));
 
   }
 

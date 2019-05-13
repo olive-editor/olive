@@ -22,7 +22,7 @@
 
 #include <QCheckBox>
 
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "undo/undo.h"
 
 BoolField::BoolField(NodeIO *parent) :
@@ -92,7 +92,7 @@ void BoolField::UpdateFromWidget(bool b)
 {
   KeyframeDataChange* kdc = new KeyframeDataChange(this);
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), b);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), b);
 
   kdc->SetNewKeyframes();
   olive::undo_stack.push(kdc);

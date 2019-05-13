@@ -20,7 +20,7 @@
 
 #include "doublefield.h"
 
-#include "nodes/oldeffectnode.h"
+#include "nodes/node.h"
 #include "undo/undo.h"
 
 DoubleField::DoubleField(NodeIO* parent) :
@@ -139,7 +139,7 @@ void DoubleField::UpdateFromWidget(double d)
     kdc_ = new KeyframeDataChange(this);
   }
 
-  SetValueAt(GetParentRow()->GetParentEffect()->Now(), d);
+  SetValueAt(GetParentRow()->ParentNode()->Time(), d);
 
   if (!ls->IsDragging() && kdc_ != nullptr) {
     kdc_->SetNewKeyframes();

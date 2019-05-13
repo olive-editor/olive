@@ -60,8 +60,8 @@ enum DataType {
   /** Value is a 4x4 matrix. This cannot be an input field, and can only be passed between nodes. */
   kMatrix,
 
-  /** Values is a UI object with no data. Corresponds to nothing. */
-  kUI,
+  /** Value is a Clip node */
+  kClip,
 
   /** Total count of valid node data types. Never use this as an actual data type. */
   kDataTypeCount

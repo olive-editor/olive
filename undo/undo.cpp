@@ -1207,3 +1207,20 @@ void KeyframeDataChange::doRedo()
     done_ = true;
   }
 }
+
+SetPointF::SetPointF(QPointF *pointer, const QPointF &old_val, const QPointF &new_val) :
+  pointer_(pointer),
+  old_val_(old_val),
+  new_val_(new_val)
+{
+}
+
+void SetPointF::doUndo()
+{
+  *pointer_ = old_val_;
+}
+
+void SetPointF::doRedo()
+{
+  *pointer_ = new_val_;
+}

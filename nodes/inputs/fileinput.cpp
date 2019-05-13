@@ -1,6 +1,6 @@
 #include "fileinput.h"
 
-FileInput::FileInput(OldEffectNode* parent, const QString& id, const QString& name, bool savable, bool keyframable) :
+FileInput::FileInput(Node *parent, const QString& id, const QString& name, bool savable, bool keyframable) :
   NodeIO(parent, id, name, savable, keyframable)
 {
   AddField(new FileField(this));

@@ -60,7 +60,8 @@
 
 QVector<OldEffectNodePtr> olive::node_library;
 
-OldEffectNode::OldEffectNode(Clip* c) :
+OldEffectNode::OldEffectNode(Clip *c) :
+  Node(nullptr),
   parent_clip(c),
   flags_(0),
   shader_program_(nullptr),
@@ -83,8 +84,8 @@ OldEffectNode::~OldEffectNode() {
 
   // Clear graph editor if it's using one of these rows
   if (panel_graph_editor != nullptr) {
-    for (int i=0;i<row_count();i++) {
-      if (row(i) == panel_graph_editor->get_row()) {
+    for (int i=0;i<ParameterCount();i++) {
+      if (Parameter(i) == panel_graph_editor->get_row()) {
         panel_graph_editor->set_row(nullptr);
         break;
       }
@@ -107,21 +108,10 @@ bool OldEffectNode::IsCreatable()
   return true;
 }
 
-void OldEffectNode::AddRow(NodeIO *row)
-{
-  row->setParent(this);
-  rows.append(row);
-}
-
-int OldEffectNode::IndexOfRow(NodeIO *row)
-{
-  return rows.indexOf(row);
-}
-
 void OldEffectNode::copy_field_keyframes(OldEffectNodePtr e) {
-  for (int i=0;i<rows.size();i++) {
-    NodeIO* row = rows.at(i);
-    NodeIO* copy_row = e->rows.at(i);
+  for (int i=0;i<ParameterCount();i++) {
+    NodeIO* row = Parameter(i);
+    NodeIO* copy_row = e->Parameter(i);
     copy_row->SetKeyframingInternal(row->IsKeyframing());
     for (int j=0;j<row->FieldCount();j++) {
       // Get field from this (the source) effect
@@ -137,14 +127,6 @@ void OldEffectNode::copy_field_keyframes(OldEffectNodePtr e) {
       copy_field->persistent_data_ = field->persistent_data_;
     }
   }
-}
-
-NodeIO* OldEffectNode::row(int i) {
-  return rows.at(i);
-}
-
-int OldEffectNode::row_count() {
-  return rows.size();
 }
 
 EffectGizmo *OldEffectNode::add_gizmo(int type) {
@@ -165,8 +147,8 @@ QVector<NodeEdgePtr> OldEffectNode::GetAllEdges()
 {
   QVector<NodeEdgePtr> edges;
 
-  for (int i=0;i<row_count();i++) {
-    edges.append(row(i)->edges());
+  for (int i=0;i<ParameterCount();i++) {
+    edges.append(Parameter(i)->edges());
   }
 
   return edges;
@@ -289,11 +271,6 @@ bool OldEffectNode::IsExpanded()
 void OldEffectNode::SetExpanded(bool e)
 {
   expanded_ = e;
-}
-
-void OldEffectNode::SetPos(const QPointF &pos)
-{
-  pos_ = pos;
 }
 
 void OldEffectNode::SetEnabled(bool b) {
@@ -434,8 +411,8 @@ void OldEffectNode::save(QXmlStreamWriter& stream) {
 
 void OldEffectNode::load_from_string(const QByteArray &s) {
   // clear existing keyframe data
-  for (int i=0;i<rows.size();i++) {
-    NodeIO* row = rows.at(i);
+  for (int i=0;i<ParameterCount();i++) {
+    NodeIO* row = Parameter(i);
     row->SetKeyframingInternal(false);
     for (int j=0;j<row->FieldCount();j++) {
       EffectField* field = row->Field(j);
@@ -599,11 +576,6 @@ int OldEffectNode::getIterations() {
 
 void OldEffectNode::setIterations(int i) {
   iterations = i;
-}
-
-const QPointF &OldEffectNode::pos()
-{
-  return pos_;
 }
 
 void OldEffectNode::process_image(double, uint8_t *, uint8_t *, int){}
@@ -881,8 +853,8 @@ void OldEffectNode::redraw(double) {
 bool OldEffectNode::valueHasChanged(double timecode) {
   if (cachedValues.isEmpty()) {
 
-    for (int i=0;i<row_count();i++) {
-      NodeIO* crow = row(i);
+    for (int i=0;i<ParameterCount();i++) {
+      NodeIO* crow = Parameter(i);
       for (int j=0;j<crow->FieldCount();j++) {
         cachedValues.append(crow->Field(j)->GetValueAt(timecode));
       }
@@ -893,8 +865,8 @@ bool OldEffectNode::valueHasChanged(double timecode) {
 
     bool changed = false;
     int index = 0;
-    for (int i=0;i<row_count();i++) {
-      NodeIO* crow = row(i);
+    for (int i=0;i<ParameterCount();i++) {
+      NodeIO* crow = Parameter(i);
       for (int j=0;j<crow->FieldCount();j++) {
         EffectField* field = crow->Field(j);
         if (cachedValues.at(index) != field->GetValueAt(timecode)) {

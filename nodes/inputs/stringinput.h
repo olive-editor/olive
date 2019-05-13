@@ -7,7 +7,7 @@ class StringInput : public NodeIO
 {
   Q_OBJECT
 public:
-  StringInput(OldEffectNode* parent,
+  StringInput(Node* parent,
               const QString& id,
               const QString& name,
               bool rich_text = true,

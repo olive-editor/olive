@@ -37,7 +37,7 @@
 #include "ui/keyframenavigator.h"
 #include "ui/clickablelabel.h"
 
-NodeIO::NodeIO(OldEffectNode *parent,
+NodeIO::NodeIO(Node *parent,
                      const QString &id,
                      const QString &name,
                      bool savable,
@@ -52,7 +52,7 @@ NodeIO::NodeIO(OldEffectNode *parent,
 {
   Q_ASSERT(parent != nullptr);
 
-  parent->AddRow(this);
+  parent->AddParameter(this);
 }
 
 void NodeIO::AddField(EffectField *field)
@@ -118,10 +118,12 @@ bool NodeIO::IsKeyframing() {
 }
 
 void NodeIO::SetKeyframingInternal(bool b) {
+  /* FIXME
   if (GetParentEffect()->type() != EFFECT_TYPE_TRANSITION) {
     keyframing_ = b;
     emit KeyframingSetChanged(keyframing_);
   }
+  */
 }
 
 bool NodeIO::IsSavable()
@@ -239,6 +241,7 @@ void NodeIO::SetKeyframingEnabled(bool enabled) {
 }
 
 void NodeIO::GoToPreviousKeyframe() {
+  /* FIXME
   long key = LONG_MIN;
   Clip* c = GetParentEffect()->parent_clip;
   long sequence_playhead = c->track()->sequence()->playhead;
@@ -264,9 +267,11 @@ void NodeIO::GoToPreviousKeyframe() {
 
   // If we found a keyframe less than the playhead, jump to it
   if (key != LONG_MIN) panel_sequence_viewer->seek(key);
+  */
 }
 
 void NodeIO::ToggleKeyframe() {
+  /* FIXME
   Clip* c = GetParentEffect()->parent_clip;
   long sequence_playhead = c->track()->sequence()->playhead;
 
@@ -334,9 +339,11 @@ void NodeIO::ToggleKeyframe() {
 
   olive::undo_stack.push(ca);
   update_ui(false);
+  */
 }
 
 void NodeIO::GoToNextKeyframe() {
+  /* FIXME
   long key = LONG_MAX;
   Clip* c = GetParentEffect()->parent_clip;
   for (int i=0;i<FieldCount();i++) {
@@ -349,10 +356,15 @@ void NodeIO::GoToNextKeyframe() {
     }
   }
   if (key != LONG_MAX) panel_sequence_viewer->seek(key);
+  */
 }
 
 void NodeIO::FocusRow() {
   panel_graph_editor->set_row(this);
+}
+
+Node* NodeIO::ParentNode() {
+  return static_cast<Node*>(parent());
 }
 
 void NodeIO::SetKeyframeOnAllFields(ComboAction* ca) {
@@ -361,18 +373,13 @@ void NodeIO::SetKeyframeOnAllFields(ComboAction* ca) {
 
     KeyframeDataChange* kdc = new KeyframeDataChange(field);
 
-    field->SetValueAt(GetParentEffect()->Now(), field->GetValueAt(GetParentEffect()->Now()));
+    field->SetValueAt(ParentNode()->Time(), field->GetValueAt(ParentNode()->Time()));
 
     kdc->SetNewKeyframes();
     ca->append(kdc);
   }
 
   panel_effect_controls->update_keyframes();
-}
-
-OldEffectNode *NodeIO::GetParentEffect()
-{
-  return static_cast<OldEffectNode*>(parent());
 }
 
 const QString &NodeIO::name() {

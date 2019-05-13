@@ -150,7 +150,7 @@ void GraphEditor::update_panel() {
       for (int i=0;i<row->FieldCount();i++) {
         EffectField* field = row->Field(i);
         if (field->type() == EffectField::EFFECT_FIELD_DOUBLE) {
-          field->UpdateWidgetValue(field_sliders_.at(slider_index), row->GetParentEffect()->Now());
+          field->UpdateWidgetValue(field_sliders_.at(slider_index), row->ParentNode()->Time());
           slider_index++;
         }
       }
@@ -209,10 +209,12 @@ void GraphEditor::set_row(NodeIO *r) {
 
   if (found_vals) {
     row = r;
-    current_row_desc->setText(row->GetParentEffect()->parent_clip->name()
+    /* FIXME
+    current_row_desc->setText(row->ParentNode()->parent_clip->name()
                               + " :: " + row->GetParentEffect()->name()
                               + " :: " + row->name());
-    header->set_visible_in(r->GetParentEffect()->parent_clip->timeline_in());
+    header->set_visible_in(r->ParentNode()->parent_clip->timeline_in());
+    */
 
     connect(keyframe_nav, SIGNAL(goto_previous_key()), row, SLOT(GoToPreviousKeyframe()));
     connect(keyframe_nav, SIGNAL(toggle_key()), row, SLOT(ToggleKeyframe()));

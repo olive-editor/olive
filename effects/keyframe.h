@@ -22,6 +22,7 @@
 #define KEYFRAME_H
 
 #include <QVariant>
+#include <QPointF>
 
 class EffectField;
 
@@ -30,14 +31,12 @@ public:
   EffectKeyframe();
 
   int type;
-  long time;
+  double time;
   QVariant data;
 
   // only for bezier type
-  double pre_handle_x;
-  double pre_handle_y;
-  double post_handle_x;
-  double post_handle_y;
+  QPointF pre_handle;
+  QPointF post_handle;
 };
 
 void delete_keyframes(QVector<EffectField *> &selected_key_fields, QVector<int> &selected_keys);

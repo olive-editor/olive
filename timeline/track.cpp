@@ -9,7 +9,7 @@ int olive::timeline::kTrackMinHeight = 30;
 int olive::timeline::kTrackHeightIncrement = 10;
 
 Track::Track(Sequence* parent, olive::TrackType type) :
-  parent_(parent),
+  Node(parent),
   type_(type),
   muted_(false),
   soloed_(false),
@@ -35,7 +35,7 @@ Track *Track::copy(Sequence *parent)
 
 Sequence *Track::sequence()
 {
-  return parent_;
+  return static_cast<Sequence*>(parent());
 }
 
 void Track::Save(QXmlStreamWriter &stream)
@@ -204,22 +204,22 @@ bool Track::ContainsClip(Clip *c)
 
 Track *Track::Previous()
 {
-  return parent_->PreviousTrack(this);
+  return sequence()->PreviousTrack(this);
 }
 
 Track *Track::Next()
 {
-  return parent_->NextTrack(this);
+  return sequence()->NextTrack(this);
 }
 
 Track *Track::Sibling(int diff)
 {
-  return parent_->SiblingTrack(this, diff);
+  return sequence()->SiblingTrack(this, diff);
 }
 
 int Track::Index()
 {
-  return parent_->IndexOfTrack(this);
+  return sequence()->IndexOfTrack(this);
 }
 
 bool Track::IsClipSelected(int clip_index, bool containing)
@@ -378,7 +378,7 @@ bool Track::IsEffectivelyMuted()
   // Check if any tracks are soloed
   bool a_track_is_soloed = false;
 
-  QVector<Track*> siblings = parent_->GetTrackList(type_);
+  QVector<Track*> siblings = sequence()->GetTrackList(type_);
   for (int i=0;i<siblings.size();i++) {
     if (siblings.at(i)->IsSoloed()) {
       a_track_is_soloed = true;
