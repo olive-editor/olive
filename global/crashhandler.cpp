@@ -12,7 +12,6 @@
 #elif defined(Q_OS_LINUX)
 #include <execinfo.h>
 #endif
-#include <signal.h>
 #include <unistd.h>
 #endif
 
