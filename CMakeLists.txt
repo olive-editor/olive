@@ -474,7 +474,8 @@ set(OLIVE_EFFECTS
   effects/shaders/wave.xml
 )
 
-qt5_add_translation(OLIVE_QM_FILES
+qt5_create_translation(OLIVE_QM_FILES
+  ${CMAKE_SOURCE_DIR}
   ts/olive_ar.ts
   ts/olive_bs.ts
   ts/olive_cs.ts
