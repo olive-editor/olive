@@ -233,6 +233,8 @@ set(OLIVE_SOURCES
   nodes/nodes/nodemedia.h
   nodes/nodes/nodeshader.cpp
   nodes/nodes/nodeshader.h
+  nodes/nodes/nodevideoclip.cpp
+  nodes/nodes/nodevideoclip.h
   nodes/widgets/buttonwidget.cpp
   nodes/widgets/buttonwidget.h
   nodes/widgets/labelwidget.cpp
