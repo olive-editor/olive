@@ -193,6 +193,8 @@ set(OLIVE_SOURCES
   global/math.h
   global/path.cpp
   global/path.h
+  global/rational.h
+  global/rational.cpp
   global/timing.cpp
   global/timing.h
   nodes/inputs/boolinput.cpp
