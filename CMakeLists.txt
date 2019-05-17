@@ -476,7 +476,8 @@ set(OLIVE_EFFECTS
   effects/shaders/wave.xml
 )
 
-qt5_add_translation(OLIVE_QM_FILES
+qt5_create_translation(OLIVE_QM_FILES
+  ${CMAKE_SOURCE_DIR}
   ts/olive_ar.ts
   ts/olive_bs.ts
   ts/olive_cs.ts
@@ -564,5 +565,6 @@ if(UNIX AND NOT APPLE)
   install(FILES packaging/linux/icons/512x512/application-vnd.olive-project.png DESTINATION share/icons/hicolor/512x512/mimetypes)
   install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
 
-  target_link_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
+  set(CMAKE_CXX_FLAGS "-rdynamic ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic ${CMAKE_SHARED_LINKER_FLAGS}")
 endif()
