@@ -12,6 +12,11 @@ QString Node::name()
   return tr("Node");
 }
 
+QString Node::id()
+{
+  return "node";
+}
+
 void Node::AddParameter(NodeIO *param)
 {
   param->setParent(this);

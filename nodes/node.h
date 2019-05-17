@@ -14,6 +14,7 @@ public:
   Node(NodeGraph* parent);
 
   virtual QString name();
+  virtual QString id();
 
   void AddParameter(NodeIO* row);
   int IndexOfParameter(NodeIO* row);

@@ -30,7 +30,7 @@ QString olive::nodes::DataTypeToString(DataType type) {
     return "TEXTURE";
   case kMatrix:
     return "MATRIX";
-  case kClip:
+  case kBlock:
     return "CLIP";
   default:
     return QString();
@@ -68,7 +68,7 @@ olive::nodes::DataType olive::nodes::StringToDataType(const QString &s)
   } else if (s == "MATRIX") {
     return kMatrix;
   } else if (s == "CLIP") {
-    return kClip;
+    return kBlock;
   }
   return kInvalid;
 }

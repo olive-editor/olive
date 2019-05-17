@@ -225,6 +225,8 @@ set(OLIVE_SOURCES
   nodes/nodes.h
   nodes/oldeffectnode.h
   nodes/oldeffectnode.cpp
+  nodes/nodes/nodeblock.h
+  nodes/nodes/nodeblock.cpp
   nodes/nodes/nodeimageoutput.cpp
   nodes/nodes/nodeimageoutput.h
   nodes/nodes/nodemedia.cpp

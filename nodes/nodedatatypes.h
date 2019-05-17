@@ -61,7 +61,7 @@ enum DataType {
   kMatrix,
 
   /** Value is a Clip node */
-  kClip,
+  kBlock,
 
   /** Total count of valid node data types. Never use this as an actual data type. */
   kDataTypeCount
