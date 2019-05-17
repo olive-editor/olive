@@ -175,6 +175,16 @@ public:
   bool IsKeyframable();
 
   /**
+   * @brief Get value
+   *
+   * A convenience value for a parameters that doesn't keyframe. Equivalent to GetValueAt(0) where the parameter
+   * doesn't keyframe so the 0 is ignored.
+   *
+   * @param value
+   */
+  QVariant GetValue();
+
+  /**
    * @brief Get value at a given timecode
    *
    * Functions as a wrapper for EffectField::GetValueAt().
@@ -192,6 +202,16 @@ public:
    * The value of the first EffectField at the given timecode
    */
   virtual QVariant GetValueAt(double timecode);
+
+  /**
+   * @brief Set value
+   *
+   * A convenience value for a parameters that doesn't keyframe. Equivalent to SetValueAt(0, value) where the parameter
+   * doesn't keyframe so the 0 is ignored.
+   *
+   * @param value
+   */
+  void SetValue(const QVariant& value);
 
   /**
    * @brief SetValueAt

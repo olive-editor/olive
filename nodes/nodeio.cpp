@@ -136,6 +136,11 @@ bool NodeIO::IsKeyframable()
   return keyframable_;
 }
 
+QVariant NodeIO::GetValue()
+{
+  return GetValueAt(0);
+}
+
 QVariant NodeIO::GetValueAt(double timecode)
 {
   if (FieldCount() == 0) {
@@ -145,6 +150,11 @@ QVariant NodeIO::GetValueAt(double timecode)
   Q_ASSERT(FieldCount() == 1);
 
   return Field(0)->GetValueAt(timecode);
+}
+
+void NodeIO::SetValue(const QVariant &value)
+{
+  SetValueAt(0, value);
 }
 
 void NodeIO::SetValueAt(double timecode, const QVariant &value)

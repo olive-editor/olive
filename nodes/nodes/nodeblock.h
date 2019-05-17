@@ -15,20 +15,31 @@ class NodeBlock : public Node
 public:
   NodeBlock(NodeGraph* graph);
 
-  const olive::rational& track_in();
-  const olive::rational& track_out();
+  rational track_in();
+  rational track_out();
 
-  const olive::rational& length();
-  void set_length(const olive::rational& l);
+  const rational& length();
+  void set_length(const rational& l);
 
   virtual QString name() override;
   virtual QString id() override;
 
+  /**
+   * @brief Retrieves the NodeBlock connected to the "Previous" parameter
+   */
   NodeBlock* previous_block();
+  void set_previous_block(NodeBlock* p);
+
+  /**
+   * @brief Retrieves the NodeBlock connected to the "Next" parameter
+   */
   NodeBlock* next_block();
+  void set_next_block(NodeBlock* p);
+
+
 
 private:
-  olive::rational length_;
+  rational length_;
 
   NodeIO* previous_block_;
   NodeIO* next_block_;
