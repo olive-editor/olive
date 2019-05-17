@@ -2,6 +2,7 @@
 #define CRASHHANDLER_H
 
 #ifdef __GNUC__
+#include <signal.h>
 void handler(int sig);
 #endif
 

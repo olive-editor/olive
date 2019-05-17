@@ -563,5 +563,6 @@ if(UNIX AND NOT APPLE)
   install(FILES packaging/linux/icons/512x512/application-vnd.olive-project.png DESTINATION share/icons/hicolor/512x512/mimetypes)
   install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
 
-  target_link_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-rdynamic>)
+  set(CMAKE_CXX_FLAGS "-rdynamic ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_SHARED_LINKER_FLAGS "-rdynamic ${CMAKE_SHARED_LINKER_FLAGS}")
 endif()
