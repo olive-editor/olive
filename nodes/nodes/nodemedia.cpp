@@ -1,13 +1,16 @@
 #include "nodemedia.h"
 
-NodeMedia::NodeMedia(Clip* c) :
-  OldEffectNode(c)
-{
-  NodeIO* matrix_input = new NodeIO(this, "matrix", tr("Matrix"), true, false);
-  matrix_input->AddAcceptedNodeInput(olive::nodes::kMatrix);
+#include "nodes/nodegraph.h"
 
-  NodeIO* texture_output = new NodeIO(this, "texture", tr("Texture"), true, false);
-  texture_output->SetOutputDataType(olive::nodes::kTexture);
+NodeMedia::NodeMedia(NodeGraph* c) :
+  Node(c),
+  buffer_(c->memory_cache())
+{
+  matrix_input_ = new NodeIO(this, "matrix", tr("Matrix"), true, false);
+  matrix_input_->AddAcceptedNodeInput(olive::nodes::kMatrix);
+
+  texture_output_ = new NodeIO(this, "texture", tr("Texture"), true, false);
+  texture_output_->SetOutputDataType(olive::nodes::kTexture);
 }
 
 QString NodeMedia::name()
@@ -20,27 +23,30 @@ QString NodeMedia::id()
   return "org.olivevideoeditor.Olive.media";
 }
 
-QString NodeMedia::category()
+void NodeMedia::Process(rational time)
 {
-  return tr("Inputs");
+  Q_UNUSED(time)
+
+  buffer_.buffer()->BindBuffer();
+
+  // DEBUG CODE - we should see a solid red color return from this function
+  glClearColor(1.0, 0.0, 0.0, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+  // END DEBUG CODE
+
+  buffer_.buffer()->ReleaseBuffer();
+
+  texture_output_->SetValue(buffer_.buffer()->texture());
 }
 
-QString NodeMedia::description()
+NodeIO *NodeMedia::matrix_input()
 {
-  return tr("Retrieve frames from a media source.");
+  return matrix_input_;
 }
 
-EffectType NodeMedia::type()
+NodeIO *NodeMedia::texture_output()
 {
-  return EFFECT_TYPE_EFFECT;
+  return texture_output_;
 }
 
-olive::TrackType NodeMedia::subtype()
-{
-  return olive::kTypeVideo;
-}
 
-OldEffectNodePtr NodeMedia::Create(Clip *c)
-{
-  return std::make_shared<NodeMedia>(c);
-}

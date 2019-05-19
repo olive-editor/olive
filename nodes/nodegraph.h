@@ -5,12 +5,19 @@
 #include <QObject>
 
 #include "nodes/node.h"
+#include "rendering/memorycache.h"
 
 class NodeGraph : public QObject
 {
   Q_OBJECT
 public:
   NodeGraph();
+
+  const int& width();
+  void set_width(const int& w);
+
+  const int& height();
+  void set_height(const int& h);
 
   /**
    * @brief Process the graph
@@ -41,12 +48,18 @@ public:
    */
   Node* OutputNode();
 
-  double Time();
-  void SetTime(double d);
+  const rational &Time();
+  void SetTime(const rational& d);
+
+  MemoryCache* memory_cache();
+
+  QOpenGLContext* GLContext();
+  void SetGLContext(QOpenGLContext* ctx);
 
 signals:
   void NodeGraphChanged();
   void TimeChanged();
+  void ParametersChanged();
 
 protected:
   virtual void childEvent(QChildEvent *event) override;
@@ -54,7 +67,13 @@ protected:
 private:  
   Node* output_node_;
 
-  double time_;
+  MemoryCache memory_cache_;
+  QOpenGLContext* ctx_;
+
+  int width_;
+  int height_;
+
+  rational time_;
 };
 
 #endif // NODEGRAPH_H

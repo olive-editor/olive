@@ -286,6 +286,8 @@ set(OLIVE_SOURCES
   rendering/exportthread.h
   rendering/framebufferobject.cpp
   rendering/framebufferobject.h
+  rendering/memorycache.h
+  rendering/memorycache.cpp
   rendering/pixelformats.cpp
   rendering/pixelformats.h
   rendering/qopenglshaderprogramptr.h

@@ -38,14 +38,14 @@ int Node::ParameterCount()
   return parameters_.size();
 }
 
+void Node::Process(rational time)
+{
+  Q_UNUSED(time)
+}
+
 NodeGraph *Node::ParentGraph()
 {
   return static_cast<NodeGraph*>(parent());
-}
-
-double Node::Time()
-{
-  return ParentGraph()->Time();
 }
 
 const QPointF &Node::pos()

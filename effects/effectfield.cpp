@@ -220,7 +220,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Create keyframe from perpetual data
     EffectKeyframe key;
 
-    key.time = GetParentRow()->ParentNode()->ParentGraph()->Time();
+    key.time = GetParentRow()->ParentNode()->Time();
     key.data = persistent_data_;
     key.type = EFFECT_KEYFRAME_LINEAR;
 
@@ -233,7 +233,7 @@ void EffectField::PrepareDataForKeyframing(bool enabled, ComboAction *ca)
     // Convert keyframes to one "perpetual" keyframe
 
     // Set first keyframe to whatever the data is now
-    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(GetParentRow()->ParentNode()->ParentGraph()->Time())));
+    ca->append(new SetQVariant(&persistent_data_, persistent_data_, GetValueAt(GetParentRow()->ParentNode()->Time())));
 
     // Delete all keyframes
     for (int i=0;i<keyframes.size();i++) {

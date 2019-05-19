@@ -1,9 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <memory>
-
 #include "nodes/nodeio.h"
+#include "global/rational.h"
 
 class NodeGraph;
 
@@ -16,15 +15,19 @@ public:
   virtual QString name();
   virtual QString id();
 
+  virtual void Process(rational time);
+
   void AddParameter(NodeIO* row);
   int IndexOfParameter(NodeIO* row);
   NodeIO* Parameter(int i);
   int ParameterCount();
 
   NodeGraph* ParentGraph();
-  double Time();
 
   const QPointF& pos();
+
+protected:
+  virtual void GLContextChangeEvent();
 
 public slots:
   void SetPos(const QPointF& pos);
