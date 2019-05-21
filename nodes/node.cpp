@@ -38,6 +38,11 @@ int Node::ParameterCount()
   return parameters_.size();
 }
 
+double Node::Time()
+{
+  return 0;
+}
+
 void Node::Process(rational time)
 {
   Q_UNUSED(time)

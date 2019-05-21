@@ -22,12 +22,11 @@ public:
   NodeIO* Parameter(int i);
   int ParameterCount();
 
+  double Time();
+
   NodeGraph* ParentGraph();
 
   const QPointF& pos();
-
-protected:
-  virtual void GLContextChangeEvent();
 
 public slots:
   void SetPos(const QPointF& pos);
