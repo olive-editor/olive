@@ -41,12 +41,6 @@ public:
   const QString& name();
   void set_name(const QString& s);
 
-  const int& width();
-  void set_width(const int& w);
-
-  const int& height();
-  void set_height(const int& h);
-
   const double& frame_rate();
   void set_frame_rate(const double& d);
 
@@ -141,8 +135,7 @@ public:
   int save_id;
 
   QVector<Marker> markers;
-signals:
-  void SequenceParametersChanged();
+
 private:
   Track *AddTrack(olive::TrackType type);
 
@@ -153,8 +146,6 @@ private:
   bool SplitSelection(ComboAction* ca, QVector<Selection> selections);
 
   QString name_;
-  int width_;
-  int height_;
   double frame_rate_;
   int audio_frequency_;
   int audio_layout_;

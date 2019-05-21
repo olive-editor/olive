@@ -221,7 +221,16 @@ void Timeline::SetSequence(SequencePtr sequence)
     return;
   }
 
+  if (sequence_ != nullptr) {
+    sequence_->SetGLContext(nullptr);
+  }
+
   sequence_ = sequence;
+
+  if (sequence_ != nullptr) {
+    sequence_->SetGLContext(QOpenGLContext::globalShareContext());
+  }
+
   update_sequence();
   video_area->SetTrackType(sequence_.get(), olive::kTypeVideo);
   audio_area->SetTrackType(sequence_.get(), olive::kTypeAudio);

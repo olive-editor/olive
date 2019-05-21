@@ -41,6 +41,10 @@
 #include "rendering/audio.h"
 #include "global/config.h"
 
+// FIXME: TEST CODE
+#include "nodes/nodes/nodemedia.h"
+// END TEST CODE
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 }
@@ -106,6 +110,10 @@ void NewSequenceDialog::accept() {
     s->set_frame_rate(frame_rate_combobox->currentData().toDouble());
     s->set_audio_frequency(audio_frequency_combobox->currentData().toInt());
     s->set_audio_layout(AV_CH_LAYOUT_STEREO);
+
+    // FIXME: TEST CODE
+    new NodeMedia(s.get());
+    // END TEST CODE
 
     ComboAction* ca = new ComboAction();
     olive::project_model.CreateSequence(ca, s, true, nullptr);

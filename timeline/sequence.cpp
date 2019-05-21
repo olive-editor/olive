@@ -42,8 +42,8 @@ Sequence::Sequence() :
 SequencePtr Sequence::copy() {
   SequencePtr s = std::make_shared<Sequence>();
   s->name_ = tr("%1 (copy)").arg(name_);
-  s->width_ = width_;
-  s->height_ = height_;
+  s->set_width(width());
+  s->set_height(height());
   s->frame_rate_ = frame_rate_;
   s->audio_frequency_ = audio_frequency_;
   s->audio_layout_ = audio_layout_;
@@ -72,8 +72,8 @@ void Sequence::Save(QXmlStreamWriter &stream)
   stream.writeStartElement("sequence");
   stream.writeAttribute("id", QString::number(save_id));
   stream.writeAttribute("name", name_);
-  stream.writeAttribute("width", QString::number(width_));
-  stream.writeAttribute("height", QString::number(height_));
+  stream.writeAttribute("width", QString::number(width()));
+  stream.writeAttribute("height", QString::number(height()));
   stream.writeAttribute("framerate", QString::number(frame_rate_, 'f', 10));
   stream.writeAttribute("afreq", QString::number(audio_frequency_));
   stream.writeAttribute("alayout", QString::number(audio_layout_));
@@ -108,29 +108,7 @@ const QString &Sequence::name()
 void Sequence::set_name(const QString &s)
 {
   name_ = s;
-  emit SequenceParametersChanged();
-}
-
-const int &Sequence::width()
-{
-  return width_;
-}
-
-const int &Sequence::height()
-{
-  return height_;
-}
-
-void Sequence::set_width(const int& w)
-{
-  width_ = w;
-  emit SequenceParametersChanged();
-}
-
-void Sequence::set_height(const int& h)
-{
-  height_ = h;
-  emit SequenceParametersChanged();
+  emit ParametersChanged();
 }
 
 const double &Sequence::frame_rate()
@@ -141,7 +119,7 @@ const double &Sequence::frame_rate()
 void Sequence::set_frame_rate(const double& d)
 {
   frame_rate_ = d;
-  emit SequenceParametersChanged();
+  emit ParametersChanged();
 }
 
 const int &Sequence::audio_frequency()
@@ -152,7 +130,7 @@ const int &Sequence::audio_frequency()
 void Sequence::set_audio_frequency(const int& f)
 {
   audio_frequency_ = f;
-  emit SequenceParametersChanged();
+  emit ParametersChanged();
 }
 
 const int &Sequence::audio_layout()
@@ -163,7 +141,7 @@ const int &Sequence::audio_layout()
 void Sequence::set_audio_layout(const int& l)
 {
   audio_layout_ = l;
-  emit SequenceParametersChanged();
+  emit ParametersChanged();
 }
 
 long Sequence::GetEndFrame() {
