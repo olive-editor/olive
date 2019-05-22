@@ -723,6 +723,33 @@ void ViewerWidget::draw_gizmos() {
 }
 
 void ViewerWidget::paintGL() {
+
+  if (viewer->seq != nullptr) {
+
+    QOpenGLFunctions* f = context()->functions();
+
+    makeCurrent();
+
+    // clear to solid black
+    f->glClearColor(0.0, 0.0, 0.0, 0.0);
+    f->glClear(GL_COLOR_BUFFER_BIT);
+
+
+    // draw texture from render thread
+
+    f->glViewport(0, 0, width(), height());
+
+    f->glBindTexture(GL_TEXTURE_2D, viewer->seq->texture());
+
+    qDebug() << "drawing texture" << viewer->seq->texture();
+
+    olive::rendering::Blit(pipeline_.get(), true, get_matrix());
+
+    f->glBindTexture(GL_TEXTURE_2D, 0);
+
+  }
+
+  /*
   if (waveform) {
     draw_waveform_func();
   } else {
@@ -771,4 +798,5 @@ void ViewerWidget::paintGL() {
       renderer.start_render(context(), viewer->seq.get(), viewer->get_playback_speed());
     }
   }
+  */
 }

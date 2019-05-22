@@ -150,8 +150,11 @@ long Sequence::GetEndFrame() {
   const QObjectList& all_tracks = children();
 
   for (int i=0;i<all_tracks.size();i++) {
-    Track* t = static_cast<Track*>(all_tracks.at(i));
-    end_frame = qMax(t->GetEndFrame(), end_frame);
+    Track* t = dynamic_cast<Track*>(all_tracks.at(i));
+
+    if (t != nullptr) {
+      end_frame = qMax(t->GetEndFrame(), end_frame);
+    }
   }
 
   return end_frame;
@@ -165,7 +168,11 @@ QVector<Clip *> Sequence::GetAllClips()
 
   for (int j=0;j<tracks.size();j++) {
 
-    all_clips.append(static_cast<Track*>(tracks.at(j))->GetAllClips());
+    Track* t = dynamic_cast<Track*>(tracks.at(j));
+
+    if (t != nullptr) {
+      all_clips.append(t->GetAllClips());
+    }
 
   }
 
@@ -186,6 +193,11 @@ QVector<Track *> Sequence::GetTrackList(olive::TrackType type)
   }
 
   return tracks;
+}
+
+GLuint Sequence::texture()
+{
+  return texture_io->GetValue().value<GLuint>();
 }
 
 void Sequence::Close()

@@ -112,7 +112,8 @@ void NewSequenceDialog::accept() {
     s->set_audio_layout(AV_CH_LAYOUT_STEREO);
 
     // FIXME: TEST CODE
-    new NodeMedia(s.get());
+    NodeMedia* m = new NodeMedia(s.get());
+    s->texture_io = m->texture_output();
     // END TEST CODE
 
     ComboAction* ca = new ComboAction();

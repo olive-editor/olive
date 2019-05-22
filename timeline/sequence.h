@@ -124,6 +124,11 @@ public:
   int TrackCount(olive::TrackType type);
   QVector<Track*> GetTrackList(olive::TrackType type);
 
+  // FIXME: TEST CODE
+  GLuint texture();
+  NodeIO* texture_io;
+  // END TEST CODE
+
   long playhead;
 
   bool using_workarea;
