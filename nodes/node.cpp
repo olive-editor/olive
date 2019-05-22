@@ -43,7 +43,7 @@ double Node::Time()
   return 0;
 }
 
-void Node::Process(rational time)
+void Node::Process(const rational &time)
 {
   Q_UNUSED(time)
 }

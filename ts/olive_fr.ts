@@ -2153,44 +2153,35 @@ Canaux audio : %6</translation>
     </message>
 </context>
 <context>
-    <name>NodeImageOutput</name>
-    <message>
-        <location filename="../nodes/nodes/nodeimageoutput.cpp" line="6"/>
-        <source>Texture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../nodes/nodes/nodeimageoutput.cpp" line="12"/>
-        <source>Image Output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../nodes/nodes/nodeimageoutput.cpp" line="22"/>
-        <source>Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../nodes/nodes/nodeimageoutput.cpp" line="27"/>
-        <source>Used for outputting images outside of the node graph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>NodeMedia</name>
     <message>
-        <location filename="../nodes/nodes/nodemedia.cpp" line="9"/>
+        <location filename="../nodes/nodes/nodemedia.cpp" line="11"/>
         <source>Matrix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../nodes/nodes/nodemedia.cpp" line="12"/>
+        <location filename="../nodes/nodes/nodemedia.cpp" line="14"/>
         <source>Texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../nodes/nodes/nodemedia.cpp" line="18"/>
+        <location filename="../nodes/nodes/nodemedia.cpp" line="20"/>
         <source>Media</source>
         <translation type="unfinished">Média</translation>
+    </message>
+</context>
+<context>
+    <name>NodeTexturePassthru</name>
+    <message>
+        <location filename="../nodes/nodes/nodetexturepassthru.cpp" line="6"/>
+        <location filename="../nodes/nodes/nodetexturepassthru.cpp" line="9"/>
+        <source>Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../nodes/nodes/nodetexturepassthru.cpp" line="15"/>
+        <source>Image Output</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1662,25 +1662,6 @@ Rozložení zvuku: %6</translation>
     </message>
 </context>
 <context>
-    <name>NodeImageOutput</name>
-    <message>
-        <source>Texture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image Output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Outputs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Used for outputting images outside of the node graph.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>NodeMedia</name>
     <message>
         <source>Matrix</source>
@@ -1693,6 +1674,17 @@ Rozložení zvuku: %6</translation>
     <message>
         <source>Media</source>
         <translation type="unfinished">Záznamy</translation>
+    </message>
+</context>
+<context>
+    <name>NodeTexturePassthru</name>
+    <message>
+        <source>Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Output</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

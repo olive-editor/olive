@@ -15,7 +15,7 @@ public:
   virtual QString name();
   virtual QString id();
 
-  virtual void Process(rational time);
+  virtual void Process(const rational& time);
 
   void AddParameter(NodeIO* row);
   int IndexOfParameter(NodeIO* row);

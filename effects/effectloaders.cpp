@@ -51,7 +51,7 @@
 #include "effects/internal/exponentialfadetransition.h"
 
 #include "nodes/nodes/nodemedia.h"
-#include "nodes/nodes/nodeimageoutput.h"
+#include "nodes/nodes/nodetexturepassthru.h"
 #include "nodes/nodes/nodeshader.h"
 
 QMutex olive::effects_loaded;
@@ -78,7 +78,7 @@ void load_internal_effects() {
   olive::node_library[kCornerPinEffect] = std::make_shared<CornerPinEffect>(nullptr);
   olive::node_library[kRichTextInput] = std::make_shared<RichTextEffect>(nullptr);
   //olive::node_library[kMediaInput] = std::make_shared<NodeMedia>(nullptr);
-  olive::node_library[kImageOutput] = std::make_shared<NodeImageOutput>(nullptr);
+  //olive::node_library[kImageOutput] = std::make_shared<NodeTexturePassthru>(nullptr);
   olive::node_library[kCrossDissolveTransition] = std::make_shared<CrossDissolveTransition>(nullptr);
   olive::node_library[kLinearFadeTransition] = std::make_shared<LinearFadeTransition>(nullptr);
   olive::node_library[kExponentialFadeTransition] = std::make_shared<ExponentialFadeTransition>(nullptr);

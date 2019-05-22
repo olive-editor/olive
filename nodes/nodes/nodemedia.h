@@ -13,7 +13,7 @@ public:
   virtual QString name() override;
   virtual QString id() override;
 
-  virtual void Process(rational time) override;
+  virtual void Process(const rational& time) override;
 
   NodeIO* matrix_input();
   NodeIO* texture_output();
