@@ -96,6 +96,7 @@ int MemoryCache::RequestBufferInternal(MemoryCache::Reference *r)
   buffers_.append(FramebufferObject());
   refs_.append(r);
   access_times_.append(time(nullptr));
+  buffers_.last().Create(ctx_, width_, height_);
 
   return buffers_.size() - 1;
 }

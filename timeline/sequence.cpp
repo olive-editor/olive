@@ -197,6 +197,7 @@ QVector<Track *> Sequence::GetTrackList(olive::TrackType type)
 
 GLuint Sequence::texture()
 {
+  texture_io->ParentNode()->Process(0);
   return texture_io->GetValue().value<GLuint>();
 }
 

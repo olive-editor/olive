@@ -1980,127 +1980,127 @@ Canaux audio : %6</translation>
 <context>
     <name>NewSequenceDialog</name>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="62"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="66"/>
         <source>Editing &quot;%1&quot;</source>
         <translation>Édition &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="82"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="86"/>
         <source>New Sequence</source>
         <translation>Nouvelle séquence</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="207"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="216"/>
         <source>Preset:</source>
         <translation>Préréglage :</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="211"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="220"/>
         <source>Film 4K</source>
         <translation>Film 4K</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="212"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="221"/>
         <source>TV 4K (Ultra HD/2160p)</source>
         <translation>TV 4K (Ultra HD/2160p)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="213"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="222"/>
         <source>1080p</source>
         <translation>1080p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="214"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="223"/>
         <source>720p</source>
         <translation>720p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="215"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="224"/>
         <source>480p</source>
         <translation>480p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="216"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="225"/>
         <source>360p</source>
         <translation>360p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="217"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="226"/>
         <source>240p</source>
         <translation>240p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="218"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="227"/>
         <source>144p</source>
         <translation>144p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="219"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="228"/>
         <source>NTSC (480i)</source>
         <translation>NTSC (480i)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="220"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="229"/>
         <source>PAL (576i)</source>
         <translation>PAL (576i)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="221"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="230"/>
         <source>Custom</source>
         <translation>Personnalisé</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="229"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="238"/>
         <source>Video</source>
         <translation>Vidéo</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="233"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="242"/>
         <source>Width:</source>
         <translation>Largeur :</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="239"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="248"/>
         <source>Height:</source>
         <translation>Hauteur :</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="245"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="254"/>
         <source>Frame Rate:</source>
         <translation>Images par seconde :</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="265"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="274"/>
         <source>Pixel Aspect Ratio:</source>
         <translation>Ratio des pixels :</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="267"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="276"/>
         <source>Square Pixels (1.0)</source>
         <translation>Pixels carré (1,0)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="270"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="279"/>
         <source>Interlacing:</source>
         <translation>Entrelacement :</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="272"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="281"/>
         <source>None (Progressive)</source>
         <translation>Aucun (Progressif)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="278"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="287"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="282"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="291"/>
         <source>Sample Rate: </source>
         <translation>Taux d&apos;échantillonnage : </translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="300"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="309"/>
         <source>Name:</source>
         <translation>Nom :</translation>
     </message>
@@ -3919,7 +3919,7 @@ Montrer rapidement (la prévisualition peut montrer brièvement des images impr�
         <translation type="vanished">&lt;aucun&gt;</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="329"/>
+        <location filename="../panels/timeline.cpp" line="338"/>
         <source>Nested Sequence</source>
         <translation type="unfinished">Séquence imbriquée</translation>
     </message>
@@ -3948,127 +3948,127 @@ Montrer rapidement (la prévisualition peut montrer brièvement des images impr�
         <translation type="vanished">Faire ceci pour tous les conflits</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="815"/>
+        <location filename="../panels/timeline.cpp" line="824"/>
         <source>Title...</source>
         <translation>Titre…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="820"/>
+        <location filename="../panels/timeline.cpp" line="829"/>
         <source>Solid Color...</source>
         <translation>Couleur unie…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="825"/>
+        <location filename="../panels/timeline.cpp" line="834"/>
         <source>Bars...</source>
         <translation>Barres…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="832"/>
+        <location filename="../panels/timeline.cpp" line="841"/>
         <source>Tone...</source>
         <translation>Ton…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="837"/>
+        <location filename="../panels/timeline.cpp" line="846"/>
         <source>Noise...</source>
         <translation>Bruit…</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="860"/>
+        <location filename="../panels/timeline.cpp" line="869"/>
         <source>Unsaved Project</source>
         <translation>Projet non-sauvegardé</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="861"/>
+        <location filename="../panels/timeline.cpp" line="870"/>
         <source>You must save this project before you can record audio in it.</source>
         <translation>Vous devez sauvegarder ce projet avant d&apos;effectuer un enregistrement audio à l&apos;intérieur.</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="867"/>
+        <location filename="../panels/timeline.cpp" line="876"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
         <translation>Cliquez sur la ligne du temps là où vous souhaitez commencer l&apos;enregistrement (tirez pour limiter l&apos;enregistrement jusqu&apos;à une certaine image)</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="877"/>
+        <location filename="../panels/timeline.cpp" line="886"/>
         <source>Video Transitions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="889"/>
+        <location filename="../panels/timeline.cpp" line="898"/>
         <source>Audio Transitions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="923"/>
+        <location filename="../panels/timeline.cpp" line="932"/>
         <source>Timeline: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="924"/>
+        <location filename="../panels/timeline.cpp" line="933"/>
         <source>(none)</source>
         <translation type="unfinished">(aucun)</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="234"/>
+        <location filename="../panels/timeline.cpp" line="243"/>
         <source>Pointer Tool</source>
         <translation>Curseur</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="235"/>
+        <location filename="../panels/timeline.cpp" line="244"/>
         <source>Edit Tool</source>
         <translation>Éditer</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="236"/>
+        <location filename="../panels/timeline.cpp" line="245"/>
         <source>Ripple Tool</source>
         <translation>Propagation</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="237"/>
+        <location filename="../panels/timeline.cpp" line="246"/>
         <source>Razor Tool</source>
         <translation>Cutter</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="238"/>
+        <location filename="../panels/timeline.cpp" line="247"/>
         <source>Slip Tool</source>
         <translation>Déplacer dessous</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="239"/>
+        <location filename="../panels/timeline.cpp" line="248"/>
         <source>Slide Tool</source>
         <translation>Déplacer dessus</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="240"/>
+        <location filename="../panels/timeline.cpp" line="249"/>
         <source>Hand Tool</source>
         <translation>Main</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="241"/>
+        <location filename="../panels/timeline.cpp" line="250"/>
         <source>Transition Tool</source>
         <translation>Transition</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="242"/>
+        <location filename="../panels/timeline.cpp" line="251"/>
         <source>Snapping</source>
         <translation>Magnétisme</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="243"/>
+        <location filename="../panels/timeline.cpp" line="252"/>
         <source>Zoom In</source>
         <translation>Zoomer</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="244"/>
+        <location filename="../panels/timeline.cpp" line="253"/>
         <source>Zoom Out</source>
         <translation>Dézoomer</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="245"/>
+        <location filename="../panels/timeline.cpp" line="254"/>
         <source>Record audio</source>
         <translation>Enregistrement audio</translation>
     </message>
     <message>
-        <location filename="../panels/timeline.cpp" line="246"/>
+        <location filename="../panels/timeline.cpp" line="255"/>
         <source>Add title, solid, bars, etc.</source>
         <translation>Ajouter un titre, une couleur unie, des barres, etc.</translation>
     </message>

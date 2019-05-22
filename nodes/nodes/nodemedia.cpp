@@ -1,5 +1,7 @@
 #include "nodemedia.h"
 
+#include <QDebug>
+
 #include "nodes/nodegraph.h"
 
 NodeMedia::NodeMedia(NodeGraph* c) :
@@ -35,6 +37,8 @@ void NodeMedia::Process(rational time)
   // END DEBUG CODE
 
   buffer_.buffer()->ReleaseBuffer();
+
+  qDebug() << "Node Media has" << buffer_.buffer()->texture();
 
   texture_output_->SetValue(buffer_.buffer()->texture());
 }
