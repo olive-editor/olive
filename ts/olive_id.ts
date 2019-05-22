@@ -2016,17 +2016,17 @@ Tata Audio: %6</translation>
 <context>
     <name>NodeMedia</name>
     <message>
-        <location filename="../nodes/nodes/nodemedia.cpp" line="11"/>
+        <location filename="../nodes/nodes/nodemedia.cpp" line="12"/>
         <source>Matrix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../nodes/nodes/nodemedia.cpp" line="14"/>
+        <location filename="../nodes/nodes/nodemedia.cpp" line="15"/>
         <source>Texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../nodes/nodes/nodemedia.cpp" line="20"/>
+        <location filename="../nodes/nodes/nodemedia.cpp" line="21"/>
         <source>Media</source>
         <translation type="unfinished"></translation>
     </message>
