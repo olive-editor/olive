@@ -1,6 +1,6 @@
 #include "rational.h"
 
-rational::rational(const int &numerator) :
+rational::rational(const int64_t &numerator) :
   numerator_(numerator),
   denominator_(1)
 {
@@ -9,7 +9,7 @@ rational::rational(const int &numerator) :
   }
 }
 
-rational::rational(const int &numerator, const int &denominator) :
+rational::rational(const int64_t &numerator, const int64_t &denominator) :
   numerator_(numerator),
   denominator_(denominator)
 {
@@ -295,6 +295,15 @@ bool rational::operator!() const
   return !numerator_;
 }
 
+double rational::ToDouble() const
+{
+  if (denominator_ == 0) {
+    return 0;
+  } else {
+    return static_cast<double>(numerator_)/static_cast<double>(denominator_);
+  }
+}
+
 void rational::FixSigns()
 {
   // Ensures denominator is always positive (while numerator can be positive or negative)
@@ -312,7 +321,7 @@ void rational::FixSigns()
 
 void rational::Reduce()
 {
-  int d = 1;
+  int64_t d = 1;
 
   if(denominator_ != 0 && numerator_ != 0) {
     d = GreatestCommonDenominator(numerator_, denominator_);
@@ -324,12 +333,12 @@ void rational::Reduce()
   }
 }
 
-int rational::GreatestCommonDenominator(const int& x, const int& y)
+int64_t rational::GreatestCommonDenominator(const int64_t& x, const int64_t& y)
 {
   if (y == 0) {
     return x;
   } else {
-    int tmp = x % y;
+    int64_t tmp = x % y;
     return GreatestCommonDenominator(y, tmp);
   }
 }

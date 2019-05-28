@@ -79,8 +79,12 @@ set(OLIVE_SOURCES
   decoders/ffmpegdecoder.h
   decoders/ffmpegvideodecoder.cpp
   decoders/ffmpegvideodecoder.h
+  decoders/frame.cpp
+  decoders/frame.h
   decoders/pixelformatconverter.cpp
   decoders/pixelformatconverter.h
+  decoders/audio/ffmpegaudiodecoder.cpp
+  decoders/audio/ffmpegaudiodecoder.h
   dialogs/aboutdialog.cpp
   dialogs/aboutdialog.h
   dialogs/actionsearch.cpp

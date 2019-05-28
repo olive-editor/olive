@@ -45,18 +45,27 @@ enum VideoInterlacingMode {
 class Sequence;
 class Clip;
 class PreviewGenerator;
+class Footage;
 
 struct FootageStream {
+  // Format stream index
+  Footage* footage;
   int file_index;
+
+  // Video parameters
   int video_width;
   int video_height;
-  bool infinite_length;
   double video_frame_rate;
   int video_interlacing;
   int video_auto_interlacing;
+  bool infinite_length;
+
+  // Audio parameters
   int audio_channels;
   int audio_layout;
   int audio_frequency;
+
+  // Enabled
   bool enabled;
 
   // preview thumbnail/waveform

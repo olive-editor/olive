@@ -1,9 +1,14 @@
 #include "pixelformatconverter.h"
 
+extern "C" {
+  #include <libavcodec/avcodec.h>
+  #include <libswscale/swscale.h>
+}
+
 #include <QtMath>
 #include <QDebug>
 
-PixelFormatConverter olive::pix_fmt_conv;
+PixelFormatConverter* olive::pix_fmt_conv;
 
 PixelFormatConverter::PixelFormatConverter()
 {
@@ -35,9 +40,41 @@ void PixelFormatConverter::AVFrameToPipeline(uint8_t **input_buffer,
   //       (functioning as abstraction from the rest of the code) while remaining support is added.
 
 
-  // The main focus of this function is to convert to float. There's currently no intention to support converting to
-  // integer formats.
-  Q_ASSERT(output_fmt == olive::PIX_FMT_RGBA16F || output_fmt == olive::PIX_FMT_RGBA32F);
+  // Currently we don't natively support anything other than RGBA and RGBA64 so if it isn't this, we'll need to
+  // swscale it to one of those for the timebeing
+  uint8_t *converted_buffer = nullptr;
+  if (input_fmt != AV_PIX_FMT_RGBA && input_fmt != AV_PIX_FMT_RGBA64) {
+
+    converted_buffer = new uint8_t[input_linesize[0] * height];
+
+    // Determine whether this is an 8-bit image or higher
+    AVPixelFormat possible_pix_fmts[] = {
+      AV_PIX_FMT_RGBA,
+      AV_PIX_FMT_RGBA64,
+      AV_PIX_FMT_NONE
+    };
+
+    AVPixelFormat pix_fmt = avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
+                                                              input_fmt,
+                                                              1,
+                                                              nullptr);
+
+    SwsContext* sws_ctx = sws_getContext(width,
+                                         height,
+                                         input_fmt,
+                                         width,
+                                         height,
+                                         pix_fmt,
+                                         0,
+                                         nullptr,
+                                         nullptr,
+                                         nullptr);
+
+    sws_scale(sws_ctx, input_buffer, input_linesize, 0, height, &converted_buffer, input_linesize);
+
+    input_fmt = pix_fmt;
+
+  }
 
 
   // Wait til other frame conversions are done
@@ -69,6 +106,10 @@ void PixelFormatConverter::AVFrameToPipeline(uint8_t **input_buffer,
 
 
   mutex_.unlock();
+
+  if (converted_buffer != nullptr) {
+    delete [] converted_buffer;
+  }
 }
 
 int PixelFormatConverter::GetBufferSize(olive::PixelFormat format, const int &width, const int &height)
@@ -141,7 +182,7 @@ void PixFmtConvertThread::Process()
     int in_start = input_linesize_[0]*line_start_;
     int out_start = width_*line_start_;
     float f;
-    int channels = 4; // RGBA
+    int channels = 4; // FIXME RGBA magic number
 
     for (int i=0;i<line_count_;i++) {
 

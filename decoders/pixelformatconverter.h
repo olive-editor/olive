@@ -56,7 +56,7 @@ private:
  * replacement of FFmpeg's swscale for all pixel format conversions. It's main advantages over swscale are:
  *
  * * Support for floating-point pixel formats
- * * Better control over the conversion from YUV to RGB
+ * * Better control over the conversion from YCbCr to RGB
  * * Multithreaded by design
  *
  * In the old system, frame pixel formats were converted twice - once to RGBA32 or RGBA64 by swscale, then a second
@@ -134,7 +134,7 @@ private:
 };
 
 namespace olive {
-extern PixelFormatConverter pix_fmt_conv;
+extern PixelFormatConverter* pix_fmt_conv;
 }
 
 #endif // PIXELFORMATCONVERTER_H

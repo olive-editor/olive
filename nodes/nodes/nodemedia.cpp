@@ -7,7 +7,8 @@
 NodeMedia::NodeMedia(NodeGraph* c) :
   Node(c),
   media_(nullptr),
-  buffer_(c->memory_cache())
+  buffer_(c->memory_cache()),
+  decoder_(nullptr)
 {
   matrix_input_ = new NodeIO(this, "matrix", tr("Matrix"), true, false);
   matrix_input_->AddAcceptedNodeInput(olive::nodes::kMatrix);

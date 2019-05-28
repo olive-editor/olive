@@ -4,13 +4,16 @@
 // Adapted from https://github.com/angularadam/Qt-Class-rational used in compliance with the GNU General Public License
 
 #include <iostream>
-#include <libavformat/avformat.h>
+
+extern "C" {
+  #include <libavformat/avformat.h>
+}
 
 class rational {
 public:
   // Constructors
-  rational(const int& numerator = 0);
-  rational(const int& numerator, const int& denominator);
+  rational(const int64_t& numerator = 0);
+  rational(const int64_t& numerator, const int64_t& denominator);
   rational(const AVRational& r); // Auto-convert from an FFmpeg AVRational
   rational(const rational& r);
 
@@ -51,12 +54,12 @@ public:
   // Convert to double
   double ToDouble() const;
 private:
-  int numerator_;
-  int denominator_;
+  int64_t numerator_;
+  int64_t denominator_;
 
   void FixSigns();
   void Reduce();
-  int GreatestCommonDenominator(const int &x, const int &y);
+  int64_t GreatestCommonDenominator(const int64_t &x, const int64_t &y);
 };
 
 #endif // RATIONAL_H

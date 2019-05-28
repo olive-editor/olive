@@ -8,7 +8,9 @@ class FFmpegVideoDecoder : public FFmpegDecoder
 public:
   FFmpegVideoDecoder();
 
+  virtual FramePtr Retrieve(const rational& timecode, const rational& length = 0);
 
+private:
 };
 
 #endif // FFMPEGVIDEODECODER_H

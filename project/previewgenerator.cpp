@@ -127,6 +127,8 @@ void PreviewGenerator::parse_media() {
           }
         }
 
+        ms.footage = footage_;
+
         if (append) stream_list.append(ms);
       }
     }

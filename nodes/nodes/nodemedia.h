@@ -4,6 +4,7 @@
 #include "nodes/node.h"
 #include "rendering/memorycache.h"
 #include "project/media.h"
+#include "decoders/decoder.h"
 
 /**
  * @brief The NodeMedia class
@@ -46,6 +47,9 @@ private:
   // Texture buffer
   // TODO Probable cache point
   MemoryCache::Reference buffer_;
+
+  // Decoder
+  DecoderPtr decoder_;
 };
 
 #endif // MEDIANODE_H
