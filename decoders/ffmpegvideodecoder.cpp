@@ -2,8 +2,7 @@
 
 #include <QDebug>
 
-FFmpegVideoDecoder::FFmpegVideoDecoder(QObject *parent) :
-  FFmpegDecoder(parent)
+FFmpegVideoDecoder::FFmpegVideoDecoder()
 {
 
 }

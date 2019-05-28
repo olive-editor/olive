@@ -12,8 +12,7 @@ extern "C" {
 
 #include "ui/mainwindow.h"
 
-FFmpegDecoder::FFmpegDecoder(QObject *parent) :
-  Decoder(parent),
+FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
   opts_(nullptr)

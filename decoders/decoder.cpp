@@ -1,7 +1,6 @@
 #include "decoder.h"
 
-Decoder::Decoder(QObject *parent) :
-  QObject(parent),
+Decoder::Decoder() :
   open_(false)
 {
 }

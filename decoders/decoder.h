@@ -20,9 +20,9 @@ class Decoder : public QObject
 {
   Q_OBJECT
 public:
-  Decoder(QObject* parent = nullptr);
+  Decoder();
 
-  Decoder(FootageStream* fs, QObject *parent = nullptr);
+  Decoder(FootageStream* fs);
 
   virtual ~Decoder();
 
