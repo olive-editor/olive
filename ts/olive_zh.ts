@@ -45,7 +45,7 @@
     <message>
         <source>Audio</source>
         <translatorcomment>Same as in english</translatorcomment>
-        <translation type="vanished">Audio</translation>
+        <translation type="vanished">音频</translation>
     </message>
     <message>
         <source>Recording</source>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../rendering/audio.cpp" line="333"/>
         <source>%1 Audio</source>
-        <translation>%1 Audio</translation>
+        <translation>%1 音频</translation>
     </message>
     <message>
         <location filename="../rendering/audio.cpp" line="346"/>
@@ -254,11 +254,11 @@
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="vanished">&amp;Ausschneiden</translation>
+        <translation type="vanished">&amp;切割</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Kopieren</translation>
+        <translation type="vanished">&amp;复制</translation>
     </message>
     <message>
         <source>Move &amp;Up</source>
