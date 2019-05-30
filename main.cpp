@@ -21,6 +21,7 @@
 #include <QApplication>
 #include <QMessageBox>
 
+#include "decoders/pixelformatconverter.h"
 #include "dialogs/crashdialog.h"
 #include "global/crashhandler.h"
 #include "global/debug.h"
@@ -146,6 +147,9 @@ int main(int argc, char *argv[]) {
 
   // set up rendering bit depths
   olive::InitializePixelFormats();
+
+  // initialize pixel format converter
+  olive::pix_fmt_conv = new PixelFormatConverter();
 
   // connect main window's first paint to global's init finished function
   QObject::connect(&w, SIGNAL(finished_first_paint()), olive::Global.get(), SLOT(finished_initialize()), Qt::QueuedConnection);

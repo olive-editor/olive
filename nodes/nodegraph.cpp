@@ -45,9 +45,14 @@ void NodeGraph::SetTime(const rational &d)
   emit TimeChanged();
 }
 
-MemoryCache *NodeGraph::memory_cache()
+ImageCache *NodeGraph::memory_cache()
 {
   return &memory_cache_;
+}
+
+QOpenGLContext *NodeGraph::GLContext()
+{
+  return ctx_;
 }
 
 const int &NodeGraph::width()
@@ -74,5 +79,8 @@ void NodeGraph::set_height(const int& h)
 
 void NodeGraph::SetGLContext(QOpenGLContext *ctx)
 {
-  memory_cache_.SetParameters(ctx, width_, height_);
+  if (ctx_ != ctx) {
+    ctx_ = ctx;
+    memory_cache_.SetParameters(ctx, width_, height_);
+  }
 }

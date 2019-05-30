@@ -5,7 +5,7 @@
 #include <QObject>
 
 #include "nodes/node.h"
-#include "rendering/memorycache.h"
+#include "rendering/imagecache.h"
 
 class NodeGraph : public QObject
 {
@@ -51,7 +51,7 @@ public:
   const rational &Time();
   void SetTime(const rational& d);
 
-  MemoryCache* memory_cache();
+  ImageCache* memory_cache();
 
   QOpenGLContext* GLContext();
   void SetGLContext(QOpenGLContext* ctx);
@@ -67,7 +67,7 @@ protected:
 private:  
   Node* output_node_;
 
-  MemoryCache memory_cache_;
+  ImageCache memory_cache_;
   QOpenGLContext* ctx_;
 
   int width_;

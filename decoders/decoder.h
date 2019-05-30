@@ -33,10 +33,6 @@ public:
   virtual FramePtr Retrieve(const rational& timecode, const rational& length = 0) = 0;
   virtual void Close() = 0;
 
-  // For video decoding
-  virtual int width() = 0;
-  virtual int height() = 0;
-
 protected:
   bool open_;
 

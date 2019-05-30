@@ -25,6 +25,9 @@ public:
                AVPixelFormat input_fmt,
                void* output_buffer,
                olive::PixelFormat output_fmt);
+
+  void WaitUntilComplete();
+
   void Cancel();
 
 private:
@@ -34,6 +37,7 @@ private:
   // Threading variables
   QWaitCondition wait_cond_;
   QMutex mutex_;
+  QMutex mutex2_;
   bool cancelled_;
 
   // Input variables for conversion

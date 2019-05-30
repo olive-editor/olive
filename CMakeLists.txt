@@ -294,8 +294,10 @@ set(OLIVE_SOURCES
   rendering/exportthread.h
   rendering/framebufferobject.cpp
   rendering/framebufferobject.h
-  rendering/memorycache.h
-  rendering/memorycache.cpp
+  rendering/imagecache.h
+  rendering/imagecache.cpp
+  rendering/memorybuffer.h
+  rendering/memorybuffer.cpp
   rendering/pixelformats.cpp
   rendering/pixelformats.h
   rendering/qopenglshaderprogramptr.h
@@ -544,9 +546,9 @@ if(MINGW)
   target_link_libraries(${OLIVE_TARGET} PRIVATE DbgHelp)
 
   # Crash report uses MSVC-style PDBs, we convert symbols to this format here
-  add_custom_command(TARGET ${OLIVE_TARGET}
-    POST_BUILD
-    COMMAND ${CMAKE_SOURCE_DIR}/packaging/windows/cv2pdb -C -n "${CMAKE_BINARY_DIR}/${OLIVE_TARGET}.exe")
+  #add_custom_command(TARGET ${OLIVE_TARGET}
+  #  POST_BUILD
+  #  COMMAND ${CMAKE_SOURCE_DIR}/packaging/windows/cv2pdb -C -n "${CMAKE_BINARY_DIR}/${OLIVE_TARGET}.exe")
 endif()
 
 if(DOXYGEN_FOUND AND BUILD_DOXYGEN)

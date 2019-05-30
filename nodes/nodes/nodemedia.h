@@ -2,7 +2,7 @@
 #define MEDIANODE_H
 
 #include "nodes/node.h"
-#include "rendering/memorycache.h"
+#include "rendering/imagecache.h"
 #include "project/media.h"
 #include "decoders/decoder.h"
 
@@ -29,7 +29,7 @@ public:
 
   virtual void Process(const rational& time) override;
 
-  void SetMedia(Media* f);
+  void SetMedia(FootageStream* f);
 
   NodeIO* matrix_input();
   NodeIO* texture_output();
@@ -42,11 +42,12 @@ private:
   NodeIO* texture_output_;
 
   // Media object to display
-  Media* media_;
+  FootageStream* media_;
 
   // Texture buffer
   // TODO Probable cache point
-  MemoryCache::Reference buffer_;
+  ImageCache::ImgRef img_buffer_;
+  ImageCache::TexRef tex_buffer_;
 
   // Decoder
   DecoderPtr decoder_;

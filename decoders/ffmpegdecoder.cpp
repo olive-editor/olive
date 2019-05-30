@@ -27,6 +27,10 @@ bool FFmpegDecoder::Open()
 
   int error_code;
 
+  qDebug() << "shid";
+  qDebug() << stream()->footage;
+  qDebug() << stream()->footage->url;
+
   QByteArray ba = stream()->footage->url.toUtf8();
   const char* filename = ba.constData();
 

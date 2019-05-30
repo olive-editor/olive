@@ -70,6 +70,16 @@ const int &Frame::format()
   return frame_->format;
 }
 
+uint8_t **Frame::data()
+{
+  return frame_->data;
+}
+
+int *Frame::linesize()
+{
+  return frame_->linesize;
+}
+
 void Frame::FreeChild()
 {
   if (frame_ != nullptr) {

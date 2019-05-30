@@ -120,6 +120,13 @@ bool OliveGlobal::is_exporting()
   return rendering_;
 }
 
+const olive::PixelFormat &OliveGlobal::effective_bit_depth()
+{
+  // FIXME uncomment this
+//  return olive::Global->is_exporting() ? olive::config.export_bit_depth : olive::config.playback_bit_depth;
+  return olive::config.export_bit_depth;
+}
+
 void OliveGlobal::set_export_state(bool rendering) {
   rendering_ = rendering;
   if (rendering) {

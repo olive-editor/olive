@@ -9,6 +9,13 @@ FFmpegVideoDecoder::FFmpegVideoDecoder()
 
 FramePtr FFmpegVideoDecoder::Retrieve(const rational &timecode, const rational &length)
 {
+  if (!open_ && !Open()) {
+    qWarning() << "Failed to open FFmpeg stream";
+    return nullptr;
+  }
+
+
+
   // TODO index frames
 
   int receive_ret;

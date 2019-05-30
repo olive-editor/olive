@@ -25,6 +25,7 @@
 
 #include "ui/styling.h"
 #include "timeline/timelinetools.h"
+#include "rendering/pixelformats.h"
 
 namespace olive {
   /**
@@ -597,12 +598,12 @@ struct Config {
   /**
    * @brief Playback bit depth (an index of olive::rendering::bit_depths)
    */
-  int playback_bit_depth;
+  olive::PixelFormat playback_bit_depth;
 
   /**
    * @brief Export bit depth (an index of olive::rendering::bit_depths)
    */
-  int export_bit_depth;
+  olive::PixelFormat export_bit_depth;
 
   /**
    * @brief Don't use proxies on export (use originals instead)

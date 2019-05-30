@@ -114,6 +114,12 @@ void NewSequenceDialog::accept() {
     // FIXME: TEST CODE
     NodeMedia* m = new NodeMedia(s.get());
     s->texture_io = m->texture_output();
+
+    QStringList strings = {"E:/samples/P1270472.MP4"};
+    olive::project_model.process_file_list(strings);
+    Footage* fff = olive::project_model.GetLastImportedMedia().first()->to_footage();
+    fff->ready_lock.lock();
+    m->SetMedia(&fff->video_tracks.first());
     // END TEST CODE
 
     ComboAction* ca = new ComboAction();

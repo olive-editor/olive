@@ -261,10 +261,10 @@ void Config::load(QString path) {
           default_sequence_audio_channel_layout = stream.text().toInt();
         } else if (stream.name() == "PlaybackBitDepth") {
           stream.readNext();
-          playback_bit_depth = stream.text().toInt();
+          playback_bit_depth = static_cast<olive::PixelFormat>(stream.text().toInt());
         } else if (stream.name() == "ExportBitDepth") {
           stream.readNext();
-          export_bit_depth = stream.text().toInt();
+          export_bit_depth = static_cast<olive::PixelFormat>(stream.text().toInt());
         } else if (stream.name() == "DontUseProxiesOnExport") {
           stream.readNext();
           dont_use_proxies_on_export = (stream.text() == "1");

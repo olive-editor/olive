@@ -449,8 +449,8 @@ void PreferencesDialog::accept() {
     olive::config.ocio_config_path = ocio_config_file->text();
   }
   olive::config.enable_color_management = enable_color_management->isChecked();
-  olive::config.playback_bit_depth = playback_bit_depth->currentIndex();
-  olive::config.export_bit_depth = export_bit_depth->currentIndex();
+  olive::config.playback_bit_depth = static_cast<olive::PixelFormat>(playback_bit_depth->currentIndex());
+  olive::config.export_bit_depth = static_cast<olive::PixelFormat>(export_bit_depth->currentIndex());
   olive::config.ocio_display = ocio_display->currentText();
   olive::config.ocio_default_input_colorspace = ocio_default_input->currentText();
   olive::config.ocio_view = ocio_view->currentText();

@@ -22,11 +22,13 @@
 #define OLIVEGLOBAL_H
 
 #include <memory>
-#include "undo/undo.h"
 
 #include <QTimer>
 #include <QFile>
 #include <QTranslator>
+
+#include "undo/undo.h"
+#include "rendering/pixelformats.h"
 
 /**
  * @brief The Olive Global class
@@ -83,6 +85,14 @@ public:
      * TRUE if the project is being exported, FALSE if not.
      */
   bool is_exporting();
+
+  /**
+   * @brief Returns the "effective" bit depth for the composition pipeline
+   *
+   * Convenience function for using Config::playback_bit_depth or Config::export_bit_depth depending on the state of
+   * OliveGlobal::is_exporting()
+   */
+  const olive::PixelFormat& effective_bit_depth();
 
   /**
      * @brief Set the application state depending on if the user is exporting a video
@@ -554,6 +564,10 @@ extern QString ActiveProjectFilename;
      * @brief Current application name
      */
 extern QString AppName;
+
+/**
+  * Rational type for
+  */
 }
 
 #endif // OLIVEGLOBAL_H

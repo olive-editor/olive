@@ -33,7 +33,8 @@ Sequence::Sequence() :
   using_workarea(false),
   workarea_in(0),
   workarea_out(0),
-  wrapper_sequence(false)
+  wrapper_sequence(false),
+  texture_io(nullptr)
 {
   AddTrack(olive::kTypeVideo);
   AddTrack(olive::kTypeAudio);
@@ -197,6 +198,8 @@ QVector<Track *> Sequence::GetTrackList(olive::TrackType type)
 
 GLuint Sequence::texture()
 {
+  if (texture_io == nullptr) return 0;
+
   texture_io->ParentNode()->Process(0);
   return texture_io->GetValue().value<GLuint>();
 }

@@ -43,9 +43,10 @@ void PixelFormatConverter::AVFrameToPipeline(uint8_t **input_buffer,
   // Currently we don't natively support anything other than RGBA and RGBA64 so if it isn't this, we'll need to
   // swscale it to one of those for the timebeing
   uint8_t *converted_buffer = nullptr;
+  int converted_linesize[AV_NUM_DATA_POINTERS];
   if (input_fmt != AV_PIX_FMT_RGBA && input_fmt != AV_PIX_FMT_RGBA64) {
 
-    converted_buffer = new uint8_t[input_linesize[0] * height];
+    converted_buffer = new uint8_t[input_linesize[0] * height * 4];
 
     // Determine whether this is an 8-bit image or higher
     AVPixelFormat possible_pix_fmts[] = {
@@ -70,9 +71,26 @@ void PixelFormatConverter::AVFrameToPipeline(uint8_t **input_buffer,
                                          nullptr,
                                          nullptr);
 
-    sws_scale(sws_ctx, input_buffer, input_linesize, 0, height, &converted_buffer, input_linesize);
+
+    switch (pix_fmt) {
+    case AV_PIX_FMT_RGBA:
+      converted_linesize[0] = width * 4;
+      break;
+    case AV_PIX_FMT_RGBA64:
+      converted_linesize[0] = width * 8;
+      break;
+    default:
+      // We shouldn't really ever get here, but we may as well handle it
+      qWarning() << "Invalid destination pixel format";
+    }
+
+
+    sws_scale(sws_ctx, input_buffer, input_linesize, 0, height, &converted_buffer, converted_linesize);
+
+    sws_freeContext(sws_ctx);
 
     input_fmt = pix_fmt;
+    input_buffer = &converted_buffer;
 
   }
 
@@ -101,27 +119,27 @@ void PixelFormatConverter::AVFrameToPipeline(uint8_t **input_buffer,
 
   // Wait for each thread to complete
   for (int i=0;i<threads_.size();i++) {
-    threads_.at(i)->wait();
+    threads_.at(i)->WaitUntilComplete();
   }
 
 
   mutex_.unlock();
 
-  if (converted_buffer != nullptr) {
-    delete [] converted_buffer;
-  }
+  delete [] converted_buffer;
 }
 
 int PixelFormatConverter::GetBufferSize(olive::PixelFormat format, const int &width, const int &height)
 {
+  int rgba_channels = 4;
+
   switch (format) {
   case olive::PIX_FMT_RGBA8:
-    return width * height;
+    return width * height * rgba_channels;
   case olive::PIX_FMT_RGBA16:
   case olive::PIX_FMT_RGBA16F:
-    return 2 * width * height;
+    return 2 * width * height * rgba_channels;
   case olive::PIX_FMT_RGBA32F:
-    return 4 * width * height;
+    return 4 * width * height * rgba_channels;
   default:
     return 0;
   }
@@ -134,12 +152,16 @@ PixFmtConvertThread::PixFmtConvertThread() :
 
 void PixFmtConvertThread::run()
 {
+  mutex_.lock();
+
   while (!cancelled_) {
     wait_cond_.wait(&mutex_);
     if (cancelled_) break;
 
     Process();
   }
+
+  mutex_.unlock();
 }
 
 void PixFmtConvertThread::Convert(uint8_t **input_buffer,
@@ -151,6 +173,7 @@ void PixFmtConvertThread::Convert(uint8_t **input_buffer,
                                   void *output_buffer,
                                   olive::PixelFormat output_fmt)
 {
+  mutex2_.lock();
   mutex_.lock();
 
   input_buffer_ = input_buffer;
@@ -167,6 +190,14 @@ void PixFmtConvertThread::Convert(uint8_t **input_buffer,
   mutex_.unlock();
 }
 
+void PixFmtConvertThread::WaitUntilComplete()
+{
+  mutex2_.lock();
+  mutex_.lock();
+  mutex2_.unlock();
+  mutex_.unlock();
+}
+
 void PixFmtConvertThread::Cancel()
 {
   cancelled_ = true;
@@ -176,28 +207,29 @@ void PixFmtConvertThread::Cancel()
 
 void PixFmtConvertThread::Process()
 {
+  mutex2_.unlock();
+
   switch (input_fmt_) {
   case AV_PIX_FMT_RGBA:
   {
-    int in_start = input_linesize_[0]*line_start_;
-    int out_start = width_*line_start_;
-    float f;
     int channels = 4; // FIXME RGBA magic number
+
+    int byte_linesize = input_linesize_[0]*channels;
+
+    int input_start = byte_linesize*line_start_;
+    int output_start = width_*channels*line_start_;
 
     for (int i=0;i<line_count_;i++) {
 
-      int in_line_start = in_start + input_linesize_[0]*i;
-      int in_line_end = in_line_start + width_*channels;
-      int out_line_start = out_start + width_*i;
+      int input_line_start = input_start + byte_linesize*i;
+      int input_line_end = width_*channels;
 
-      for (int j=in_line_start;j<in_line_end;j++) {
+      int output_line_start = output_start + width_*channels*i;
 
-        // Convert 8-bit integer to float
-        f = input_buffer_[0][in_line_start+j] / 255.0f;
+      for (int j=0;j<input_line_end;j++) {
 
-        // Place float into output buffer
-        // TODO only float support, no half float support yet
-        static_cast<float*>(output_buffer_)[out_line_start+j] = f;
+        // Convert 8-bit integer to float and store in output buffer
+        static_cast<float*>(output_buffer_)[output_line_start+j] = input_buffer_[0][input_line_start+j] / 255.0f;
 
       }
     }

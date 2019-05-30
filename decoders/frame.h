@@ -73,6 +73,16 @@ public:
    */
   const int& format();
 
+  /**
+   * @brief Get the data buffer of this frame
+   */
+  uint8_t** data();
+
+  /**
+   * @brief Get the linesize information for this frame
+   */
+  int* linesize();
+
 private:
 
   void FreeChild();

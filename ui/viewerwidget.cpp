@@ -728,6 +728,8 @@ void ViewerWidget::paintGL() {
 
     QOpenGLFunctions* f = context()->functions();
 
+    viewer->seq->SetGLContext(context());
+
     makeCurrent();
 
     // clear to solid black
@@ -739,9 +741,11 @@ void ViewerWidget::paintGL() {
 
     f->glViewport(0, 0, width(), height());
 
-    f->glBindTexture(GL_TEXTURE_2D, viewer->seq->texture());
+    GLuint tex = viewer->seq->texture();
 
-    qDebug() << "drawing texture" << viewer->seq->texture();
+    f->glBindTexture(GL_TEXTURE_2D, tex);
+
+    qDebug() << "drawing texture" << tex;
 
     olive::rendering::Blit(pipeline_.get(), true, get_matrix());
 
