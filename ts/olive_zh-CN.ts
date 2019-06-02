@@ -1179,27 +1179,27 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="877"/>
         <source>Go to In Point</source>
-        <translation type="unfinished"></translation>
+        <translation>转到时间的起始标记处</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="878"/>
         <source>Go to Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>转到时间的结束标记处</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="880"/>
         <source>Shuttle Left</source>
-        <translation type="unfinished"></translation>
+        <translation>向左播放</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="881"/>
         <source>Shuttle Stop</source>
-        <translation type="unfinished"></translation>
+        <translation>停止播放</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="882"/>
         <source>Shuttle Right</source>
-        <translation type="unfinished"></translation>
+        <translation>向右播放</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="884"/>
@@ -1591,22 +1591,22 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="164"/>
         <source>Set In Point</source>
-        <translation>设置开始的时间点</translation>
+        <translation>设置时间的起始标记</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="165"/>
         <source>Set Out Point</source>
-        <translation>设置结束的时间点</translation>
+        <translation>设置时间的结束标记</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="166"/>
         <source>Reset In Point</source>
-        <translation>重置开始的时间点</translation>
+        <translation>重置时间的起始标记</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="167"/>
         <source>Reset Out Point</source>
-        <translation>重置结束时间点</translation>
+        <translation>重置时间的结束标记</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="168"/>
