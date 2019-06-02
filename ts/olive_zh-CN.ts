@@ -1264,12 +1264,12 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="901"/>
         <source>Pointer Tool</source>
-        <translation>指标工具 </translation>
+        <translation>选择/移动/默认</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="902"/>
         <source>Edit Tool</source>
-        <translation>编辑工具</translation>
+        <translation>选择部分</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="903"/>
@@ -1279,22 +1279,22 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="904"/>
         <source>Razor Tool</source>
-        <translation>剪刀 </translation>
+        <translation>剪刀</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="905"/>
         <source>Slip Tool</source>
-        <translation>滑动工具 </translation>
+        <translation>滑动工具</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="906"/>
         <source>Slide Tool</source>
-        <translation>幻灯片工具 </translation>
+        <translation>幻灯片工具</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="907"/>
         <source>Hand Tool</source>
-        <translation>手工具</translation>
+        <translation>手形工具</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="908"/>
@@ -3414,7 +3414,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="140"/>
         <source>Auto-S&amp;cale</source>
-        <translation>自动缩放&amp;C</translation>
+        <translation>自动缩放(&amp;C)</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="175"/>
