@@ -974,7 +974,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="831"/>
         <source>&amp;Edit</source>
-        <translation>輸入值(&amp;E)</translation>
+        <translation>編輯(&amp;E)</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="832"/>
@@ -1019,7 +1019,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="840"/>
         <source>Delete In/Out Point</source>
-        <translation type="unfinished"></translation>
+        <translation>刪除標記的區域</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="841"/>
@@ -1059,7 +1059,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="849"/>
         <source>Toggle Show All</source>
-        <translation>切換顯示所有</translation>
+        <translation>軌道全部顯示</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="850"/>
@@ -1154,7 +1154,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="871"/>
         <source>Play In to Out</source>
-        <translation>從內到外</translation>
+        <translation>播放已標記的區域</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="872"/>
@@ -1164,7 +1164,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="873"/>
         <source>Go to End</source>
-        <translation>到終點</translation>
+        <translation>轉到結束幀</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="875"/>
@@ -1204,7 +1204,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="884"/>
         <source>Loop</source>
-        <translation>循環</translation>
+        <translation>循環播放</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="886"/>
@@ -1294,7 +1294,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="907"/>
         <source>Hand Tool</source>
-        <translation>手形工具</translation>
+        <translation>移動時間軸</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="908"/>
@@ -1611,7 +1611,7 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="168"/>
         <source>Clear In/Out Point</source>
-        <translation>清除時間點</translation>
+        <translation>清除時間標記</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="169"/>
