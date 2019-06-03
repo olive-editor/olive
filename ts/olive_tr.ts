@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="tr_TR">
 <context>
-    <name>HakkındaDiyalog</name>
+    <name>AboutDialog</name>
     <message>
         <location filename="../dialogs/aboutdialog.cpp" line="49"/>
         <source>Olive is a non-linear video editor. This software is free and protected by the GNU GPL.</source>
@@ -15,7 +15,7 @@
     </message>
 </context>
 <context>
-    <name>İşlemArama</name>
+    <name>ActionSearch</name>
     <message>
         <location filename="../dialogs/actionsearch.cpp" line="57"/>
         <source>Search for action...</source>
@@ -23,7 +23,7 @@
     </message>
 </context>
 <context>
-    <name>GelişmişVideoDiyalog</name>
+    <name>AdvancedVideoDialog</name>
     <message>
         <location filename="../dialogs/advancedvideodialog.cpp" line="41"/>
         <source>Advanced Video Settings</source>
@@ -41,7 +41,7 @@
     </message>
 </context>
 <context>
-    <name>Ses</name>
+    <name>Audio</name>
     <message>
         <location filename="../rendering/audio.cpp" line="333"/>
         <source>%1 Audio</source>
@@ -55,7 +55,7 @@
     </message>
 </context>
 <context>
-    <name>SesParazitEfekti</name>
+    <name>AudioNoiseEffect</name>
     <message>
         <location filename="../effects/internal/audionoiseeffect.cpp" line="24"/>
         <source>Amount</source>
@@ -68,10 +68,10 @@
     </message>
 </context>
 <context>
-    <name>OtomatikSessizlikKesmeDiyalog</name>
+    <name>AutoCutSilenceDialog</name>
     <message>
         <location filename="../dialogs/autocutsilencedialog.cpp" line="38"/>
-        <source>Sessizlik Kesme</source>
+        <source>Cut Silence</source>
         <translation>Sessizlik</translation>
     </message>
     <message>
@@ -105,7 +105,7 @@
     </message>
 </context>
 <context>
-    <name>KanalYerleşimAdı</name>
+    <name>ChannelLayoutName</name>
     <message>
         <location filename="../project/media.cpp" line="53"/>
         <source>Invalid</source>
@@ -128,30 +128,30 @@
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="14"/>
         <source>&quot;%1&quot; Properties</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Параметри &quot;%1&quot;</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>Ayarlar &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="15"/>
         <source>Multiple Clip Properties</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Параметри множинного кліпа</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>Çoklu klip parametreleri</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="24"/>
         <source>Name:</source>
-        <translation>Назва:</translation>
+        <translation>Ad:</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="33"/>
         <source>Duration:</source>
-        <translation>Тривалість:</translation>
+        <translation>Uzunluk:</translation>
     </message>
     <message>
         <location filename="../dialogs/clippropertiesdialog.cpp" line="71"/>
         <source>(multiple)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>(множинний)</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>(çoklu)</translation>
     </message>
 </context>
 <context>
@@ -159,7 +159,7 @@
     <message>
         <location filename="../ui/collapsiblewidget.cpp" line="54"/>
         <source>&lt;untitled&gt;</source>
-        <translation>&lt;без назви&gt;</translation>
+        <translation>&lt;Adsız&gt;</translation>
     </message>
 </context>
 <context>
@@ -167,7 +167,7 @@
     <message>
         <location filename="../ui/colorbutton.cpp" line="47"/>
         <source>Set Color</source>
-        <translation>Визначити колір</translation>
+        <translation>Renk Tanımla</translation>
     </message>
 </context>
 <context>
@@ -175,27 +175,27 @@
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="30"/>
         <source>Top Left</source>
-        <translation>Верхній Лівий</translation>
+        <translation>Sol Üst</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="34"/>
         <source>Top Right</source>
-        <translation>Верхній Правий</translation>
+        <translation>Sağ Üst</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="38"/>
         <source>Bottom Left</source>
-        <translation>Нижній Лівий</translation>
+        <translation>Sol Alt</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="42"/>
         <source>Bottom Right</source>
-        <translation>Нижній Правий</translation>
+        <translation>Sağ Alt</translation>
     </message>
     <message>
         <location filename="../effects/internal/cornerpineffect.cpp" line="46"/>
         <source>Perspective</source>
-        <translation>Перспектива</translation>
+        <translation>Perspektif</translation>
     </message>
 </context>
 <context>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../dialogs/debugdialog.cpp" line="44"/>
         <source>Debug Log</source>
-        <translation>Журнал злагодження</translation>
+        <translation>Hata Ayıklama Günlüğü</translation>
     </message>
 </context>
 <context>
@@ -212,22 +212,22 @@
         <location filename="../dialogs/demonotice.cpp" line="30"/>
         <location filename="../dialogs/demonotice.cpp" line="45"/>
         <source>Welcome to Olive!</source>
-        <translation>Ласкаво просимо в Olive!</translation>
+        <translation>Olive'e Hoşgeldiniz!</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="47"/>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation>Olive є вільним нелінійним редактором відео створеним на умовах ліцензії GNU GPL. Якщо ви платили за це програмне забезпечення, то вас обманули.</translation>
+        <translation>Olive, GNU GPL kapsamında yayınlanan ücretsiz bir açık kaynaklı video editörüdür. Bu yazılımın parasını ödediyseniz, kandırılmış olursunuz.</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="49"/>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Це програмне забезпечення наразі в стадії АЛЬФА і це означає що програма є нестабільною і може працювати некоректно, має помилки та відсутні функції. Ми не несемо відповідальності тож викикористовуйте програму на власний ризик. Будь-ласка, повідомляйте нам про помилки та бажані функції через %1</translation>
+        <translation>Bu yazılım ALFA aşamasında, hatalar ve eksik özelliklere sahip kararsız ve çökmesine çok muhtemel olduğu anlamına gelir.Hiçbir garanti sunmuyoruz, bu yüzden kendi sorumluluğunuzda kullanın. Lütfen %1 adresindeki hata veya özellik isteklerini bildirin</translation>
     </message>
     <message>
         <location filename="../dialogs/demonotice.cpp" line="51"/>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation>Дякуємо що спробували і маємо надію що вам сподобаєтся Olive!</translation>
+        <translation>Olive'i denediğiniz için teşekkür ederiz ve beğeneceğinizi umuyoruz!</translation>
     </message>
 </context>
 <context>
@@ -235,54 +235,54 @@
     <message>
         <location filename="../effects/effect.cpp" line="100"/>
         <source>Invalid effect</source>
-        <translation>Некоректний ефект</translation>
+        <translation>Geçersiz efekt</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="101"/>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Відсутній відповідник для ефекту &apos;%1&apos;. Цей ефект можливо пошкоджений. Спробуйте перевстановити його або ж Olive.</translation>
+        <translation>Etki için aday yok &apos;%1&apos;. Bu etki bozulmuş olabilir. Yeniden kurmayı ya da Olive'i deneyin.</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="448"/>
         <source>Save Effect Settings</source>
-        <translation>Зберегти налаштування ефектів</translation>
+        <translation>Efekt Ayarlarını Kaydet</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="450"/>
         <location filename="../effects/effect.cpp" line="480"/>
         <source>Effect XML Settings %1</source>
-        <translation>Файли з налаштуваннями ефектів %1</translation>
+        <translation>Efekt XML Ayarları %1</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="468"/>
         <source>Save Settings Failed</source>
-        <translation>Не вдалося зберегти налаштування</translation>
+        <translation>Ayarları Kaydetme Başarısız</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="469"/>
         <source>Failed to open &quot;%1&quot; for writing.</source>
-        <translation>Не вдалося відкрити &quot;%1&quot; для запису.</translation>
+        <translation>Açılamadı &quot;%1&quot; yazmak için.</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="478"/>
         <source>Load Effect Settings</source>
-        <translation>Завантажити налаштування ефектів</translation>
+        <translation>Efekt Ayarlarını Yükle</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="494"/>
         <location filename="../effects/effect.cpp" line="682"/>
         <source>Load Settings Failed</source>
-        <translation>Не вдалося завантажити налаштування</translation>
+        <translation>Yükleme Ayarları Başarısız Oldu</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="495"/>
         <source>Failed to open &quot;%1&quot; for reading.</source>
-        <translation>Не вдалося відкрити &quot;%1&quot; для зчитування.</translation>
+        <translation>Açılamadı &quot;%1&quot; Okumak için.</translation>
     </message>
     <message>
         <location filename="../effects/effect.cpp" line="683"/>
         <source>This settings file doesn&apos;t match this effect.</source>
-        <translation>Цей файл налаштувань не підходить для даного ефекта.</translation>
+        <translation>Bu ayar dosyası doesn&apos;t bu efekt ile eşleşmiyor</translation>
     </message>
 </context>
 <context>
@@ -295,37 +295,37 @@
     <message>
         <location filename="../panels/effectcontrols.cpp" line="507"/>
         <source>Effects: </source>
-        <translation>Ефекти: </translation>
+        <translation>Efekt: </translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="509"/>
         <source>Add Video Effect</source>
-        <translation>Додати відеоефект</translation>
+        <translation>Video Efekti Ekle</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="510"/>
         <source>VIDEO EFFECTS</source>
-        <translation>ВІДЕОЕФЕКТИ</translation>
+        <translation>VİDEO EFEKT</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="511"/>
         <source>Add Video Transition</source>
-        <translation>Додати відеоперехід</translation>
+        <translation>Video Geçişi Ekle</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="512"/>
         <source>Add Audio Effect</source>
-        <translation>Додати аудіоефект</translation>
+        <translation>Ses Efekti Ekleme</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="513"/>
         <source>AUDIO EFFECTS</source>
-        <translation>АУДІОЕФЕКТИ</translation>
+        <translation>SES EFEKTİ</translation>
     </message>
     <message>
         <location filename="../panels/effectcontrols.cpp" line="514"/>
         <source>Add Audio Transition</source>
-        <translation>Додати аудіоперехід</translation>
+        <translation>Ses Geçişi Ekle</translation>
     </message>
 </context>
 <context>
@@ -333,68 +333,68 @@
     <message>
         <location filename="../effects/effectrow.cpp" line="104"/>
         <source>Disable Keyframes</source>
-        <translation>Вимкнути ключові кадри</translation>
+        <translation>Anahtar Kareleri Devre Dışı Bırak</translation>
     </message>
     <message>
         <location filename="../effects/effectrow.cpp" line="105"/>
         <source>Disabling keyframes will delete all current keyframes. Are you sure you want to do this?</source>
-        <translation>Вимкнення ключових кадрів видалить усі існуючі ключові кадри. Ви впевнені що хочете зробити це?</translation>
+        <translation>Anahtar kareleri devre dışı bırakmak geçerli tüm anahtar kareleri siler. Bunu yapmak istediğinden emin misin?</translation>
     </message>
 </context>
 <context>
-    <name>EffectUI</name>
+    <name>EfektUI</name>
     <message>
         <location filename="../ui/effectui.cpp" line="54"/>
         <source>%1 (Opening)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>%1 (Відкривання)</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>%1 (Açılış)</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="56"/>
         <source>%1 (Closing)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>%1 (Закривання)</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>%1 (Kapanış)</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="158"/>
         <source>%1 (multiple)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>%1 (множинний)</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>%1 (çoklu)</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="286"/>
         <source>Cu&amp;t</source>
-        <translation>Ви&amp;різати</translation>
+        <translation>Sen&amp;kestin</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="289"/>
         <source>&amp;Copy</source>
-        <translation>&amp;Копіювати</translation>
+        <translation>&amp;Kopya</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="300"/>
         <source>Move &amp;Up</source>
-        <translation>Перемістити В&amp;низ</translation>
+        <translation>Yukarı &amp;Taşı</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="304"/>
         <source>Move &amp;Down</source>
-        <translation>Перемістити В&amp;гору</translation>
+        <translation>Aşağı &amp;Taşı</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="309"/>
         <source>D&amp;elete</source>
-        <translation>Ви&amp;далити</translation>
+        <translation>S&amp;il</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="326"/>
         <source>Load Settings From File</source>
-        <translation>Завантажити налаштування з файла</translation>
+        <translation>Ayarları Dosyadan Yükle</translation>
     </message>
     <message>
         <location filename="../ui/effectui.cpp" line="328"/>
         <source>Save Settings to File</source>
-        <translation>Зберегти налаштування у файл</translation>
+        <translation>Ayarları Dosyaya Kaydet</translation>
     </message>
 </context>
 <context>
@@ -402,124 +402,124 @@
     <message>
         <location filename="../ui/embeddedfilechooser.cpp" line="52"/>
         <source>File:</source>
-        <translation>Файл:</translation>
+        <translation>Dosya:</translation>
     </message>
 </context>
 <context>
-    <name>ExportDialog</name>
+    <name>İhraçDiyalog</name>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="74"/>
         <source>Export &quot;%1&quot;</source>
-        <translation>Експортувати &quot;%1&quot;</translation>
+        <translation>İhraç &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="127"/>
         <source>Unknown codec name %1</source>
-        <translation>Невідома назва кодека %1</translation>
+        <translation>Bilinmeyen kodlayıcı adı %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="341"/>
         <source>Export Failed</source>
-        <translation>Не вдалося експортувати</translation>
+        <translation>Dışa Aktarma Başarısız Oldu</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="342"/>
         <source>Export failed - %1</source>
-        <translation>Не вдалося експортувати - %1</translation>
+        <translation>Dışa aktarma başarısız oldu - %1</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="384"/>
         <source>Invalid dimensions</source>
-        <translation>Некоректні розміри кадра</translation>
+        <translation>Geçersiz boyutlar</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="385"/>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation>Для експорту значення ширини та висоти повинні бути цілими парними числами.</translation>
+        <translation>İhracat genişliğinin ve yüksekliğinin her ikisi ikinci sayılar/bölünebilir olmalıdır.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="441"/>
         <source>Invalid codec</source>
-        <translation>Некоректний кодек</translation>
+        <translation>Geçersiz kodek</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="442"/>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
-        <translation>Неможливо визначити вихідні параметри для обраного кодека. Це помилка, будь-ласка, зв&apos;яжітся з розробниками.</translation>
+        <translation>Seçilen kod çözücünün çıktı parametrelerini belirleyemedi. Bu bir hatadır, lütfen geliştiricilere başvurun..</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="511"/>
         <source>Invalid format</source>
-        <translation>Некоректний формат</translation>
+        <translation>Geçersiz format</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="512"/>
         <source>Couldn&apos;t determine output format. This is a bug, please contact the developers.</source>
-        <translation>Неможливо визначити вихідний формат. Це помилка, будь-ласка, зв&apos;яжітся з розробниками.</translation>
+        <translation>Çıkış formatı belirlenemiyor. Bu bir hata, geliştiricilerle irtibata geçiniz.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="519"/>
         <source>Export Media</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Експортувати медіафайл</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>Medyayı Dışa Aktar</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="603"/>
         <source>%p% (Total: %1:%2:%3)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>%p% (Загалом: %1:%2:%3)</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>%p% (Toplam: %1:%2:%3)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="608"/>
         <source>%p% (ETA: %1:%2:%3)</source>
-        <translation>%p% (Залишилося: %1:%2:%3)</translation>
+        <translation>%p% (Durdu: %1:%2:%3)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="623"/>
         <source>Quality-based (Constant Rate Factor)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Якість (Constant Rate Factor)</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>Kalite (Sabit Hız Faktörü)</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="627"/>
         <source>Constant Bitrate</source>
-        <translation>Стала швидкість потока</translation>
+        <translation>Sabit bit hızı</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="636"/>
         <location filename="../dialogs/exportdialog.cpp" line="642"/>
         <source>Invalid Codec</source>
-        <translation>Некоректний кодек</translation>
+        <translation>Geçersiz Codec</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="637"/>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation>Не вдалося знайти відповідний кодувальник для цього кодека. Експорт може бути некоректним.</translation>
+        <translation>Bu codec bileşeni için uygun bir kodlayıcı bulunamadı. İhracat muhtemelen başarısız olacak.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="643"/>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation>Не вдалося знайти формат пікселів для цього кодувальника. Експорт може бути некоректним.</translation>
+        <translation>Bu kodlayıcı için piksel formatı bulunamadı. İhracat muhtemelen başarısız olacak.</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="656"/>
         <source>Bitrate (Mbps):</source>
-        <translation>Швидкість потока (Мбіт/с):</translation>
+        <translation>Akış hızı (Мбіт/с):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="660"/>
         <source>Quality (CRF):</source>
-        <translation>Якість (CRF):</translation>
+        <translation>Kalite (CRF):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="663"/>
-        <source>Quality Factor:
+        <source>Kalite Faktörü:
 
 0 = lossless
 17-18 = visually lossless (compressed, but unnoticeable)
 23 = high quality
 51 = lowest quality possible</source>
-        <translation>Коефіцієнт Якості:
+        <translation>Kalite Katsayısı:
 
 0 = без втрат
 17-18 = візульно без втрат (стиснуто, але майже непомітно)
@@ -529,185 +529,185 @@
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="666"/>
         <source>Target File Size (MB):</source>
-        <translation>Кінцевий розмір файла (Мб):</translation>
+        <translation>Hedef Dosya Boyutu (MB):</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="682"/>
         <source>Format:</source>
-        <translation>Формат:</translation>
+        <translation>Biçim:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="691"/>
         <source>Range:</source>
-        <translation>Діапазон:</translation>
+        <translation>Menzil:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="694"/>
         <source>Entire Sequence</source>
-        <translation>Уся послідовність</translation>
+        <translation>Tam Sıra</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="695"/>
         <source>In to Out</source>
-        <translation>Від входу до виходу</translation>
+        <translation>Girişten Çıkışa</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="702"/>
         <source>Video</source>
-        <translation>Відео</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="708"/>
         <location filename="../dialogs/exportdialog.cpp" line="751"/>
         <source>Codec:</source>
-        <translation>Кодек:</translation>
+        <translation>Kodek:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="712"/>
         <source>Width:</source>
-        <translation>Ширина:</translation>
+        <translation>Genişlik:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="717"/>
         <source>Height:</source>
-        <translation>Висота:</translation>
+        <translation>Yükseklik:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="722"/>
         <source>Frame Rate:</source>
-        <translation>Частота кадрів:</translation>
+        <translation>Kare Hızı:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="728"/>
         <source>Compression Type:</source>
-        <translation>Тип cтискання:</translation>
+        <translation>Sıkıştırma Tipi:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="739"/>
         <source>Advanced</source>
-        <translation>Додатково</translation>
+        <translation>Gelişmiş</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="746"/>
         <source>Audio</source>
-        <translation>Аудіо</translation>
+        <translation>Ses</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="755"/>
         <source>Sampling Rate:</source>
-        <translation>Частота дискретизації:</translation>
+        <translation>Örnekleme oranı:</translation>
     </message>
     <message>
         <location filename="../dialogs/exportdialog.cpp" line="761"/>
         <source>Bitrate (Kbps/CBR):</source>
-        <translation>Швидкість потока (Кбіт/с / CBR):</translation>
+        <translation>Bit hızı (Kbps/CBR):</translation>
     </message>
 </context>
 <context>
-    <name>ExportThread</name>
+    <name>İhraçThread</name>
     <message>
         <location filename="../rendering/exportthread.cpp" line="79"/>
         <source>failed to send frame to encoder (%1)</source>
-        <translation>не вдалося надіслати кадр до кодувальника (%1)</translation>
+        <translation>kodlayıcıya çerçeve gönderilemedi (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="90"/>
         <source>failed to receive packet from encoder (%1)</source>
-        <translation>не вдалося отримати пакет від кодувальника (%1)</translation>
+        <translation>kodlayıcıdan paket alınamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="113"/>
         <source>could not video encoder for %1</source>
-        <translation>не вдалося знайти кодувальник відео для %1</translation>
+        <translation>için video kodlayıcı açılamadı %1</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="122"/>
         <source>could not allocate video stream</source>
-        <translation>не вдалося встановити поток відео</translation>
+        <translation>video akışı ayrılamadı</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="131"/>
         <source>could not allocate video encoding context</source>
-        <translation>не вдалося встановити контекст кодувльника відео</translation>
+        <translation>video kodlama içeriği ayrılamadı</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="180"/>
         <source>could not open output video encoder (%1)</source>
-        <translation>не вдалося відкрити вихідний кодувальник відео (%1)</translation>
+        <translation>çıkış video kodlayıcı açılamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="188"/>
         <source>could not copy video encoder parameters to output stream (%1)</source>
-        <translation>не вдалося скопіювати параметри кодувальника відео для вихідного потоку (%1)</translation>
+        <translation>video kodlayıcı parametreleri çıktı akışına kopyalanamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="227"/>
         <source>could not audio encoder for %1</source>
-        <translation>не вдалося знайти кодувальник аудіо для %1</translation>
+        <translation>için ses kodlayıcı açılamadı %1</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="235"/>
         <source>could not allocate audio stream</source>
-        <translation>не вдалося встановити поток аудіо</translation>
+        <translation>ses akışı ayrılamadı</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="249"/>
         <source>could not allocate audio encoding context</source>
-        <translation>не вдалося встановити контекст кодувльника аудіо</translation>
+        <translation>ses kodlama içeriği ayrılamadı</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="274"/>
         <source>could not open output audio encoder (%1)</source>
-        <translation>не вдалося відкрити вихідний кодувальник аудіо (%1)</translation>
+        <translation>çıkış ses kodlayıcı açılamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="282"/>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
-        <translation>не вдалося скопіювати параметри кодувальника аудіо для вихідного потоку (%1)</translation>
+        <translation>ses kodlayıcı parametreleri çıktı akışına kopyalanamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="319"/>
         <source>could not allocate audio buffer (%1)</source>
-        <translation>не вдалося встановити буфер аудіо (%1)</translation>
+        <translation>ses arabelleği ayrılamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="350"/>
         <source>could not create output format context</source>
-        <translation>не вдалося створити контекст вихідного формату</translation>
+        <translation>çıktı formatı bağlamı oluşturulamadı</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="360"/>
         <source>could not open output file (%1)</source>
-        <translation>не вдалося відкрити вихідний файл (%1)</translation>
+        <translation> çıktı dosyası açılamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="396"/>
         <source>could not write output file header (%1)</source>
-        <translation>не вдалося записати заголовок вихідного файлу (%1)</translation>
+        <translation>çıktı dosyası başlığı yazamadı (%1)</translation>
     </message>
     <message>
         <location filename="../rendering/exportthread.cpp" line="600"/>
         <source>could not write output file trailer (%1)</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>не вдалося записати кінець вихідного файла (%1)</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>çıktı dosyası fragmanını yazamadı (%1)</translation>
     </message>
 </context>
 <context>
-    <name>FillLeftRightEffect</name>
+    <name>SolSağEfektiDoldurun</name>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="27"/>
         <source>Type</source>
-        <translation>Тип</translation>
+        <translation>Tür</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="29"/>
         <source>Fill Left with Right</source>
-        <translation>Заповнити лівий канал правим</translation>
+        <translation>Sağa Sola Doldur</translation>
     </message>
     <message>
         <location filename="../effects/internal/fillleftrighteffect.cpp" line="30"/>
         <source>Fill Right with Left</source>
-        <translation>Заповнити правий канал лівим</translation>
+        <translation>Sağdaki kanalı Sola doğru doldur</translation>
     </message>
 </context>
 <context>
@@ -715,20 +715,20 @@
     <message>
         <location filename="../effects/internal/frei0reffect.cpp" line="55"/>
         <source>Failed to load Frei0r plugin &quot;%1&quot;: %2</source>
-        <translation>Не вдалося завантажити плагін Frei0r &quot;%1&quot;: %2</translation>
+        <translation>Frei0r eklentisi yüklenemedi &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>NOTE: You can&apos;t load 32-bit Frei0r plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.</source>
-        <translation type="vanished">ПРИМІТКА: Ви не можете завантажувати 32-розрядні плагіни Frei0r у 64-розрядний Olive. Знайдіть 64-розрядну версію цього плагіна або встановіть 32-розрядну версію Olive.</translation>
+        <translation type="vanished">NOT: 32-bit Frei0r eklentilerini 64-bit Olive inşa edemezsiniz. Lütfen bu eklentinin 64 bit sürümünü bulun veya 32 bit Olive ürününe geçin.</translation>
     </message>
     <message>
         <source>NOTE: You can&apos;t load 64-bit Frei0r plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
-        <translation type="vanished">ПРИМІТКА: Ви не можете завантажувати 64-розрядні плагіни Frei0r у 32-розрядний Olive. Знайдіть 64-розрядну версію цього плагіна або встановіть 64-розрядну версію Olive.</translation>
+        <translation type="vanished">NOT: 64-bit Frei0r eklentilerini 32-bit Olive'de indiremezsiniz. Bu eklentinin 64 bit sürümünü bulun veya Olive'in 64 bit sürümünü yükleyin.</translation>
     </message>
     <message>
         <location filename="../effects/internal/frei0reffect.cpp" line="54"/>
         <source>Error loading Frei0r plugin</source>
-        <translation>Помилка при завантаженні плагіна Frei0r</translation>
+        <translation>Frei0r eklentisi yüklenirken hata oluştu</translation>
     </message>
 </context>
 <context>
@@ -736,23 +736,23 @@
     <message>
         <location filename="../panels/grapheditor.cpp" line="140"/>
         <source>Graph Editor</source>
-        <translation>Редактор графів</translation>
+        <translation>Grafik Editörü</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="141"/>
         <source>Linear</source>
-        <translation>Лінійний</translation>
+        <translation>Doğrusal</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="142"/>
         <source>Bezier</source>
-        <translation>Безьє</translation>
+        <translation>Bezier</translation>
     </message>
     <message>
         <location filename="../panels/grapheditor.cpp" line="143"/>
         <source>Hold</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Стала</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>Oldu</translation>
     </message>
 </context>
 <context>
@@ -760,17 +760,17 @@
     <message>
         <location filename="../ui/graphview.cpp" line="80"/>
         <source>Zoom to Selection</source>
-        <translation>Масштабувати до виділеного</translation>
+        <translation>Seçime Yakınlaştır</translation>
     </message>
     <message>
         <location filename="../ui/graphview.cpp" line="87"/>
         <source>Zoom to Show All</source>
-        <translation>Масштабувати і показати все</translation>
+        <translation>Ölçekle ve her şeyi göster</translation>
     </message>
     <message>
         <location filename="../ui/graphview.cpp" line="96"/>
         <source>Reset View</source>
-        <translation>Скинути масштабування</translation>
+        <translation>Görünümü Sıfırla</translation>
     </message>
 </context>
 <context>
@@ -778,22 +778,22 @@
     <message>
         <location filename="../project/media.cpp" line="44"/>
         <source>None (Progressive)</source>
-        <translation>Ні (прогресивно)</translation>
+        <translation>Merhaba (İlerleyen)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="45"/>
         <source>Top Field First</source>
-        <translation>Спочатку верхне поле </translation>
+        <translation>İlk önce üst alan </translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="46"/>
         <source>Bottom Field First</source>
-        <translation>Спочатку нижнє поле</translation>
+        <translation>Önce Alt Alan</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="47"/>
         <source>Invalid</source>
-        <translation>Некоректно</translation>
+        <translation>Geçersiz</translation>
     </message>
 </context>
 <context>
@@ -801,7 +801,7 @@
     <message>
         <location filename="../ui/keyframenavigator.cpp" line="77"/>
         <source>Enable Keyframes</source>
-        <translation>Увімкнути ключові кадри</translation>
+        <translation>Anahtar Kareleri Etkinleştir</translation>
     </message>
 </context>
 <context>
@@ -809,18 +809,18 @@
     <message>
         <location filename="../ui/keyframeview.cpp" line="74"/>
         <source>Linear</source>
-        <translation>Лінійний</translation>
+        <translation>Doğrusal</translation>
     </message>
     <message>
         <location filename="../ui/keyframeview.cpp" line="76"/>
         <source>Bezier</source>
-        <translation>Безьє</translation>
+        <translation>Bezier</translation>
     </message>
     <message>
         <location filename="../ui/keyframeview.cpp" line="78"/>
         <source>Hold</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Стала</translation>
+        <translatorcomment>Rafine</translatorcomment>
+        <translation>Oldu</translation>
     </message>
 </context>
 <context>
@@ -828,25 +828,25 @@
     <message>
         <location filename="../ui/labelslider.cpp" line="271"/>
         <source>&amp;Edit</source>
-        <translation>&amp;Редагувати</translation>
+        <translation>&amp;Düzenle</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="275"/>
         <source>&amp;Reset to Default</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>&amp;Скинути до стандартних</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>&amp;Varsayılana sıfırla</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="306"/>
         <location filename="../ui/labelslider.cpp" line="345"/>
         <source>Set Value</source>
-        <translation>Встановити значення</translation>
+        <translation>Değeri Ayarla</translation>
     </message>
     <message>
         <location filename="../ui/labelslider.cpp" line="307"/>
         <location filename="../ui/labelslider.cpp" line="346"/>
         <source>New value:</source>
-        <translation>Нове значення:</translation>
+        <translation>Yeni değer:</translation>
     </message>
 </context>
 <context>
@@ -854,18 +854,18 @@
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="37"/>
         <source>Loading...</source>
-        <translation>Завантаження...</translation>
+        <translation>Yüklüyor...</translation>
     </message>
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="42"/>
         <source>Loading &apos;%1&apos;...</source>
-        <translation>Завантажується &apos;%1&apos;...</translation>
+        <translation>Yüklüyor &apos;%1&apos;...</translation>
     </message>
     <message>
         <location filename="../dialogs/loaddialog.cpp" line="48"/>
         <source>Cancel</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Відміна</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>İptal</translation>
     </message>
 </context>
 <context>
@@ -873,52 +873,52 @@
     <message>
         <location filename="../project/loadthread.cpp" line="246"/>
         <source>Version Mismatch</source>
-        <translation>Невідповіність версій</translation>
+        <translation>Sürüm uyuşmazlığı</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="247"/>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
-        <translation>Цей проект булр збережено в іншій версії Olive, котра неповністью сумісна з наявною версією. Ви все ж хочете спробувати завантажити цей проект?</translation>
+        <translation>Bu proje Olive'in farklı bir sürümünde kaydedildi ve bu sürümle tam olarak uyumlu olmayabilir. Yine de yüklemeyi denemek ister misiniz?</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="570"/>
         <source>Invalid Clip Link</source>
-        <translation>Некоректний зв&apos;язок кліпів</translation>
+        <translation>Geçersiz Klip Bağlantısı</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="571"/>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
-        <translation>У проекті виявлено некоректний зв&apos;язок кліпів. Ви хочете продовжити завантаження?</translation>
+        <translation>Bu proje geçersiz bir klip bağlantısı içeriyor. Bozulabilir. Yüklemeye devam etmek ister misiniz?</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="694"/>
         <source>%1 - Line: %2 Col: %3</source>
-        <translation>%1 - Рядок: %2 Стовпчик: %3</translation>
+        <translation>%1 - Sıra: %2 Kolon: %3</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="721"/>
         <source>User aborted loading</source>
-        <translation>Завантаження зупинено користувачем</translation>
+        <translation>Kullanıcı iptal edildi</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="752"/>
         <source>XML Parsing Error</source>
-        <translation>Помилка розбору XML</translation>
+        <translation>XML Ayrıştırma Hatası</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="753"/>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
-        <translation>Не вдалося завантажити &apos;%1&apos;. %2</translation>
+        <translation>Yüklenemdi &apos;%1&apos;. %2</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="757"/>
         <source>Project Load Error</source>
-        <translation>Помилка при завантаженні проекта</translation>
+        <translation>Proje Yükleme Hatası</translation>
     </message>
     <message>
         <location filename="../project/loadthread.cpp" line="758"/>
         <source>Error loading project: %1</source>
-        <translation>Помилка при завантаженні проекта: %1</translation>
+        <translation>Proje yüklenirken hata oluştu: %1</translation>
     </message>
 </context>
 <context>
@@ -926,194 +926,194 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="277"/>
         <source>Welcome to %1</source>
-        <translation>Вітаємо в %1</translation>
+        <translation>Hoşgeldiniz %1</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="820"/>
         <source>&amp;File</source>
-        <translation>&amp;Файл</translation>
+        <translation>&amp;Dosya</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="821"/>
         <source>&amp;New</source>
-        <translation>&amp;Новий</translation>
+        <translation>&amp;Yeni</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="822"/>
         <source>&amp;Open Project</source>
-        <translation>&amp;Відкрити проект</translation>
+        <translation>&amp;Proje Aç</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="823"/>
         <source>Clear Recent List</source>
-        <translation>Очистити історію</translation>
+        <translation>Geçmişi temizle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="824"/>
         <source>Open Recent</source>
-        <translation>Відкрити недавній</translation>
+        <translation>Son Aç</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="825"/>
         <source>&amp;Save Project</source>
-        <translation>&amp;Зберегти проект</translation>
+        <translation>&amp;Projeyi Kaydet</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="826"/>
         <source>Save Project &amp;As</source>
-        <translation>Зберегти проект &amp;як</translation>
+        <translation>Projeyi Farklı &amp;Kaydet </translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="827"/>
         <source>&amp;Import...</source>
-        <translation>&amp;Імпортувати...</translation>
+        <translation>&amp;Dışa aktar...</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="828"/>
         <source>&amp;Export...</source>
-        <translation>&amp;Експортувати...</translation>
+        <translation>&amp;İhraç...</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="829"/>
         <source>E&amp;xit</source>
-        <translation>Ви&amp;хід</translation>
+        <translation>Çı&amp;kış</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="831"/>
         <source>&amp;Edit</source>
-        <translation>&amp;Редагування</translation>
+        <translation>&amp;Düzenle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="832"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Відмінити</translation>
+        <translation>&amp;Geri al</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="833"/>
         <source>Redo</source>
-        <translation>Повернути</translation>
+        <translation>Yinele</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="834"/>
         <source>Select &amp;All</source>
-        <translation>Виділити &amp;усе</translation>
+        <translation>Tümünü &amp;Seç</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="835"/>
         <source>Deselect All</source>
-        <translation>Скасувати виділення</translation>
+        <translation>Hiçbirini seçme</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="836"/>
         <source>Ripple to In Point</source>
-        <translation>Зсунути до точки входу</translation>
+        <translation>Giriş noktasına taşı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="837"/>
         <source>Ripple to Out Point</source>
-        <translation>Зсунути до точки виходу</translation>
+        <translation>Çıkış noktasına taşı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="838"/>
         <source>Edit to In Point</source>
-        <translation>Редагування до точки входу</translation>
+        <translation>Giriş noktasına Düzenle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="839"/>
         <source>Edit to Out Point</source>
-        <translation>Редагування до точки виходу</translation>
+        <translation>Çıkış Noktasına göre Düzenle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="840"/>
         <source>Delete In/Out Point</source>
-        <translation>Видалити точку входу/виходу</translation>
+        <translation>Giriş/Çıkış Noktasını Silin</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="841"/>
         <source>Ripple Delete In/Out Point</source>
-        <translation>Видалити зі зміщенням точку входу/виходу</translation>
+        <translation>Dalgalanma Silme Giriş/Çıkış Noktası</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="842"/>
         <source>Set/Edit Marker</source>
-        <translation>Встановити/Редагувати маркер</translation>
+        <translation>İşaretleyiciyi Kur/Düzenle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="844"/>
         <source>&amp;View</source>
-        <translation>&amp;Вигляд</translation>
+        <translation>&amp;Görünüm</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="845"/>
         <source>Zoom In</source>
-        <translation>Наблизити</translation>
+        <translation>Yakınlaştır</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="846"/>
         <source>Zoom Out</source>
-        <translation>Віддалити</translation>
+        <translation>Uzaklaştır</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="847"/>
         <source>Increase Track Height</source>
-        <translation>Збільшити висоту доріжки</translation>
+        <translation>İz Yüksekliğini Artır</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="848"/>
         <source>Decrease Track Height</source>
-        <translation>Зменшити висоту доріжки</translation>
+        <translation>Parça Yüksekliğini Azalt</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="849"/>
         <source>Toggle Show All</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Показувати увесь проект</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Tümünü Göster'e Geçiş Yap</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="850"/>
         <source>Track Lines</source>
-        <translation>Лінії доріжок</translation>
+        <translation>İz Hatları</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="851"/>
         <source>Rectified Waveforms</source>
-        <translation>Хвильова форма від низу</translation>
+        <translation>Alt Dalga Şekli</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="852"/>
         <source>Frames</source>
-        <translation>Кадри</translation>
+        <translation>Çerçeve</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="853"/>
         <source>Drop Frame</source>
-        <translation>З пропусканням кадрів</translation>
+        <translation>Başlangıç Çerçevesi</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="854"/>
         <source>Non-Drop Frame</source>
-        <translation>Без пропускання кадрів</translation>
+        <translation>Alt Düşmeyen Çerçeve</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="855"/>
         <source>Milliseconds</source>
-        <translation>Мілісекунди</translation>
+        <translation>Milisaniyeler</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="857"/>
         <source>Title/Action Safe Area</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Безпечна зона титрів/ефекта</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Güvenli Başlık/Aksiyon Alan</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="858"/>
         <source>Off</source>
-        <translation>Вимкнено</translation>
+        <translation>Kapalı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="859"/>
         <source>Default</source>
-        <translation>Типово</translation>
+        <translation>Varsayılan</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="860"/>
@@ -1128,321 +1128,321 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="862"/>
         <source>Custom</source>
-        <translation>Інше</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="864"/>
         <source>Full Screen</source>
-        <translation>Повноекранний режим</translation>
+        <translation>Tam Ekran Modu</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="865"/>
         <source>Full Screen Viewer</source>
-        <translation>Перегляд в повноекранному режимі</translation>
+        <translation>Tam Ekran Görüntüleyici Modunda</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="867"/>
         <source>&amp;Playback</source>
-        <translation>Від&amp;творення</translation>
+        <translation>Yeniden&amp;Oynat</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="868"/>
         <source>Go to Start</source>
-        <translation>На початок</translation>
+        <translation>Başlaş Git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="869"/>
         <source>Previous Frame</source>
-        <translation>Попередній кадр</translation>
+        <translation>Önceki Çerçeve</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="870"/>
         <source>Play/Pause</source>
-        <translation>Відтворення/Пауза</translation>
+        <translation>Oynat/Durdur</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="871"/>
         <source>Play In to Out</source>
-        <translation>Відтворити від входу до виходу</translation>
+        <translation>Dışarıda Oynat</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="872"/>
         <source>Next Frame</source>
-        <translation>Наступний кадр</translation>
+        <translation>Sonraki Çerçeve</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="873"/>
         <source>Go to End</source>
-        <translation>У кінець</translation>
+        <translation>Sona Git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="875"/>
         <source>Go to Previous Cut</source>
-        <translation>До попереднього розрізу</translation>
+        <translation>Önceki bölüme git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="876"/>
         <source>Go to Next Cut</source>
-        <translation>До наступного розрізу</translation>
+        <translation>Snraki bölüme git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="877"/>
         <source>Go to In Point</source>
-        <translation>До точки входу</translation>
+        <translation>Giriş noktasına git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="878"/>
         <source>Go to Out Point</source>
-        <translation>До точки виходу</translation>
+        <translation>Çıkış noktasına git</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="880"/>
         <source>Shuttle Left</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Зменшити швидкість</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Hız Azaltma</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="881"/>
         <source>Shuttle Stop</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Пауза</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Durma</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="882"/>
         <source>Shuttle Right</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Збільшити швидкість</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Hızını arttır</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="884"/>
         <source>Loop</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Повторення петлі</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Döngü tekrarlayın</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="886"/>
         <source>&amp;Window</source>
-        <translation>&amp;Вікно</translation>
+        <translation>&amp;Pencere</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="888"/>
         <source>Project</source>
-        <translation>Проект</translation>
+        <translation>Proje</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="889"/>
         <source>Effect Controls</source>
-        <translation>Керування ефектами</translation>
+        <translation>Efekt Kontrolleri</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="890"/>
         <source>Timeline</source>
-        <translation>Монтажний стіл</translation>
+        <translation>Montaj Masası</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="891"/>
         <source>Graph Editor</source>
-        <translation>Редактор графів</translation>
+        <translation>Grafik Editörü</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="892"/>
         <source>Media Viewer</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Переглядач медіа файлів</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Medya Dosyası Tarayıcısı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="893"/>
         <source>Sequence Viewer</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Переглядач послідовності</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Sıra Görüntüleyici</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="895"/>
         <source>Maximize Panel</source>
-        <translation>Розгорнути панель</translation>
+        <translation>Paneli Büyüt</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="896"/>
         <source>Lock Panels</source>
-        <translation>Зафіксувати панель</translation>
+        <translation>Paneli Kilitle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="897"/>
         <source>Reset to Default Layout</source>
-        <translation>Повернути початкове розташування панелей</translation>
+        <translation>Panel'i Varsayılan Düzen'e Sıfırla</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="899"/>
         <source>&amp;Tools</source>
-        <translation>&amp;Інструменти</translation>
+        <translation>&amp;Araçlar</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="901"/>
         <source>Pointer Tool</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Вказівник</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>İşaretçi Aracı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="902"/>
         <source>Edit Tool</source>
-        <translation>Виділення</translation>
+        <translation>Düzenleme Aracı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="903"/>
         <source>Ripple Tool</source>
-        <translation>Монтаж зі зсувом</translation>
+        <translation>Makas ve Montaj Aracı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="904"/>
         <source>Razor Tool</source>
-        <translation>Підрізка</translation>
+        <translation>Budama</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="905"/>
         <source>Slip Tool</source>
-        <translation>Прокручування зі зміщенням</translation>
+        <translation>Kaydırma Aracı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="906"/>
         <source>Slide Tool</source>
-        <translation>Прокручування</translation>
+        <translation>Kaydırma</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="907"/>
         <source>Hand Tool</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Навігація</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Yol Bulma Aracı</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="908"/>
         <source>Transition Tool</source>
-        <translation>Перехід</translation>
+        <translation>Geçiş</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="909"/>
         <source>Enable Snapping</source>
-        <translation>Увімкнути прилипання</translation>
+        <translation>Yapıştırmayı Etkinleştir</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="910"/>
         <source>Auto-Cut Silence</source>
-        <translation>Автовирізання тиші</translation>
+        <translation>Otomatik Kesim Sessizliği</translation>
     </message>
     <message>
         <source>Selecting Also Seeks</source>
-        <translation type="vanished">Виділення з прокручуванням</translation>
+        <translation type="vanished">Kaydırma ile seçim</translation>
     </message>
     <message>
         <source>Edit Tool Also Seeks</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation type="vanished">Виділення з прокручуванням</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation type="vanished">Kaydırma ile seçim</translation>
     </message>
     <message>
         <source>Edit Tool Selects Links</source>
-        <translation type="vanished">Виділення обирає зв&apos;язки</translation>
+        <translation type="vanished">Seçim, bağlantıları seçer</translation>
     </message>
     <message>
         <source>Seek Also Selects</source>
-        <translation type="vanished">Прокручування з виділенням</translation>
+        <translation type="vanished">Ayrıca Arayın</translation>
     </message>
     <message>
         <source>Seek to the End of Pastes</source>
-        <translation type="vanished">Прокручування до кінця вставок</translation>
+        <translation type="vanished">Eklerin sonuna gidin</translation>
     </message>
     <message>
         <source>Scroll Wheel Zooms</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation type="vanished">Колесо миші масштабує монтажний стіл</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation type="vanished">Fare tekerleği montaj tablasını ölçeklendirir</translation>
     </message>
     <message>
         <source>Hold CTRL to toggle this setting</source>
-        <translation type="vanished">Утримуйте CTRL для перемикання цього налаштування</translation>
+        <translation type="vanished">Bu ayarı değiştirmek için CTRL tuşunu basılı tutun</translation>
     </message>
     <message>
         <source>Invert Timeline Scroll Axes</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation type="vanished">Інвертувати напрямки прокручування монтажного столу</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation type="vanished">Zaman Çizelgesi Kaydırma Eksenlerini Ters Çevir</translation>
     </message>
     <message>
         <source>Enable Drag Files to Timeline</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation type="vanished">Увімкнути перетягування файлів на монтажний стіл</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation type="vanished">Sürükle Dosyaları Zaman Çizelgesi'ne Etkinleştir</translation>
     </message>
     <message>
         <source>Auto-Scale By Default</source>
-        <translation type="vanished">Автомасштабування за умовчанням</translation>
+        <translation type="vanished">Varsayılan Olarak Otomatik Ölçeklendir</translation>
     </message>
     <message>
         <source>Enable Seek to Import</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation type="vanished">Увімкнути прокручування для імпортування</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation type="vanished">Alınacak Arama'yı Etkinleştir</translation>
     </message>
     <message>
         <source>Audio Scrubbing</source>
-        <translation type="vanished">Відтворювати звук під час прокручування</translation>
+        <translation type="vanished">Kaydırırken ses çal</translation>
     </message>
     <message>
         <source>Enable Drop on Media to Replace</source>
         <translatorcomment>Уточнити</translatorcomment>
-        <translation type="vanished">Увімкнути перетягування на медіа для заміни</translation>
+        <translation type="vanished">Değiştirilecek Medyada Bırakmayı Etkinleştir</translation>
     </message>
     <message>
         <source>Enable Hover Focus</source>
-        <translation type="vanished">Увімкнути фокус наведенням</translation>
+        <translation type="vanished">Odağı Aç</translation>
     </message>
     <message>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="vanished">Запитувати назву маркера при додаванні</translation>
+        <translation type="vanished">İşaretleyiciyi Ayarlarken Ad İste</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="912"/>
         <source>No Auto-Scroll</source>
-        <translation>Без автопрокручування</translation>
+        <translation>Otomatik Kaydırma Yok</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="913"/>
         <source>Page Auto-Scroll</source>
-        <translation>Авторокручування перегортанням</translation>
+        <translation>Sayfa Otomatik Kaydırma</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="914"/>
         <source>Smooth Auto-Scroll</source>
-        <translation>Плавне автопрокручування</translation>
+        <translation>Düzgün Otomatik Kaydırma</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="916"/>
         <source>Preferences</source>
-        <translation>Параметри</translation>
+        <translation>Ayarlar</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="918"/>
         <source>Clear Undo</source>
-        <translation>Очистити історію змін</translation>
+        <translation>Değişikliklerin geçmişini temizle</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="921"/>
         <source>&amp;Help</source>
-        <translation>&amp;Довідка</translation>
+        <translation>&amp;Yardım</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="923"/>
         <source>A&amp;ction Search</source>
-        <translation>По&amp;шук дії</translation>
+        <translation>Et&amp;kin Arama</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="924"/>
         <source>Debug Log</source>
-        <translation>Журнал злагодження</translation>
+        <translation>Hata ayıklama günlüğü</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="925"/>
         <source>&amp;About...</source>
-        <translation>&amp;Про програму...</translation>
+        <translation>&amp;Program Hakkında...</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="943"/>
         <source>&lt;untitled&gt;</source>
-        <translation>&lt;без назви&gt;</translation>
+        <translation>&lt;başlıksız&gt;</translation>
     </message>
 </context>
 <context>
@@ -1450,17 +1450,17 @@
     <message>
         <location filename="../timeline/marker.cpp" line="64"/>
         <source>Set Marker</source>
-        <translation>Встановити маркер</translation>
+        <translation>İşaretçiyi ayarla</translation>
     </message>
     <message>
         <location filename="../timeline/marker.cpp" line="66"/>
         <source>Set clip marker name:</source>
-        <translation>Назва маркера кліпу:</translation>
+        <translation>Klip İşaretçisi Adı:</translation>
     </message>
     <message>
         <location filename="../timeline/marker.cpp" line="67"/>
         <source>Set sequence marker name:</source>
-        <translation>Назва маркера послідовності:</translation>
+        <translation>Sıra işaretleyicisinin adını ayarla:</translation>
     </message>
 </context>
 <context>
@@ -1468,48 +1468,48 @@
     <message>
         <location filename="../project/media.cpp" line="94"/>
         <source>New Folder</source>
-        <translation>Нова тека</translation>
+        <translation>Yeni Dosya</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="119"/>
         <source>Name:</source>
-        <translation>Назва:</translation>
+        <translation>Ad:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="119"/>
         <source>Filename:</source>
-        <translation>Ім&apos;я файла:</translation>
+        <translation>Dosyaadı:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="123"/>
         <source>Video Dimensions:</source>
-        <translation>Розмір кадрів:</translation>
+        <translation>Video Boyutları:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="133"/>
         <source>Frame Rate:</source>
-        <translation>Частота кадрів:</translation>
+        <translation>Kare Hızı:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="143"/>
         <source>%1 field(s) (%2 frame(s))</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>полів: %1 (кадрів: %2)</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>alanlar: %1 (çerçeveler: %2)</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="152"/>
         <source>Interlacing:</source>
-        <translation>Черезрядковість:</translation>
+        <translation>Tarama:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="164"/>
         <source>Audio Frequency:</source>
-        <translation>Частота звука:</translation>
+        <translation>Ses Frekansı:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="173"/>
         <source>Audio Channels:</source>
-        <translation>Звукові канали:</translation>
+        <translation>Ses Kanalı:</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="191"/>
@@ -1518,26 +1518,26 @@ Video Dimensions: %2x%3
 Frame Rate: %4
 Audio Frequency: %5
 Audio Layout: %6</source>
-        <translation>Назва: %1
-Розмір кадрів: %2x%3
-Частота кадрів: %4
-Частота звука: %5
-Звукові канали: %6</translation>
+        <translation>Ad: %1
+Video Boyutu: %2x%3
+Kare Hızı: %4
+Ses Frekansı: %5
+Ses Kanalları: %6</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="322"/>
         <source>Name</source>
-        <translation>Назва</translation>
+        <translation>Ad</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="324"/>
         <source>Duration</source>
-        <translation>Тривалість</translation>
+        <translation>Süre</translation>
     </message>
     <message>
         <location filename="../project/media.cpp" line="328"/>
         <source>Rate</source>
-        <translation>Частота</translation>
+        <translation>Oran</translation>
     </message>
 </context>
 <context>
@@ -1545,57 +1545,57 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="44"/>
         <source>&quot;%1&quot; Properties</source>
-        <translation>Властивості &quot;%1&quot;</translation>
+        <translation>Sahne Özellikleri &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="53"/>
         <source>Tracks:</source>
-        <translation>Доріжок:</translation>
+        <translation>İzler:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="61"/>
         <source>Video %1: %2x%3 %4FPS</source>
-        <translation>Відео %1: %2x%3 %4к/c</translation>
+        <translation>Video %1: %2x%3 %4FPS</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="77"/>
         <source>Audio %1: %2Hz %3</source>
-        <translation>Аудіо %1: %2Гц %3</translation>
+        <translation>Ses %1: %2Hz %3<</translation>
     </message>
     <message numerus="yes">
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="80"/>
         <source>%n channel(s)</source>
         <translation>
-            <numerusform>%n канал</numerusform>
-            <numerusform>%n канали</numerusform>
-            <numerusform>%n каналів</numerusform>
+            <numerusform>%n kanal</numerusform>
+            <numerusform>%n kanallar</numerusform>
+            <numerusform>%n kanallar</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="95"/>
         <source>Conform to Frame Rate:</source>
-        <translation>Підігнати до частоти кадрів:</translation>
+        <translation>Kare Hızına Uygunluk:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="105"/>
         <source>Alpha is Premultiplied</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Альфа-значення помножено у зворотньому порядку</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Alfa, Önceden Gerçekleştirildi</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="114"/>
         <source>Auto (%1)</source>
-        <translation>Авто (%1)</translation>
+        <translation>Otomatik (%1)</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="127"/>
         <source>Interlacing:</source>
-        <translation>Черезрядковість:</translation>
+        <translation>Geçmeli Tarama:</translation>
     </message>
     <message>
         <location filename="../dialogs/mediapropertiesdialog.cpp" line="134"/>
         <source>Name:</source>
-        <translation>Назва:</translation>
+        <translation>Ad:</translation>
     </message>
 </context>
 <context>
@@ -1603,124 +1603,124 @@ Audio Layout: %6</source>
     <message>
         <location filename="../ui/menuhelper.cpp" line="161"/>
         <source>&amp;Project</source>
-        <translation>&amp;Проект</translation>
+        <translation>&amp;Proje</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="162"/>
         <source>&amp;Sequence</source>
-        <translation>П&amp;ослідовність</translation>
+        <translation>&amp;Sıra</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="163"/>
         <source>&amp;Folder</source>
-        <translation>Т&amp;ека</translation>
+        <translation>&amp;Dosya</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="164"/>
         <source>Set In Point</source>
-        <translation>Встановити точку входа</translation>
+        <translation>Giriş Noktasını Ayarla</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="165"/>
         <source>Set Out Point</source>
-        <translation>Встановити точку вихода</translation>
+        <translation>Çıkış Noktasını Ayarla</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="166"/>
         <source>Reset In Point</source>
-        <translation>Скинути точку входа</translation>
+        <translation>Giriş noktasını sıfırla</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="167"/>
         <source>Reset Out Point</source>
-        <translation>Скинути точку вихода</translation>
+        <translation>Çıkış Noktasını Sıfırla</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="168"/>
         <source>Clear In/Out Point</source>
-        <translation>Очистити точку входа/вихода</translation>
+        <translation>Giriş/Çıkış Noktasını Temizle</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="169"/>
         <source>Add Default Transition</source>
-        <translation>Додати типовий перехід</translation>
+        <translation>Varsayılan Geçiş Ekle</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="170"/>
         <source>Link/Unlink</source>
-        <translation>Зв&apos;язати/Прибрати зв&apos;язок</translation>
+        <translation>Bağlantı/Bağlantıyı Kes</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="171"/>
         <source>Enable/Disable</source>
-        <translation>Увімкнути/Вимкнути</translation>
+        <translation>Etkin/Devredışı</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="172"/>
         <source>Nest</source>
-        <translation>Вкласти</translation>
+        <translation>Yuvarla</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="173"/>
         <source>Cu&amp;t</source>
-        <translation>Ви&amp;різати</translation>
+        <translation>Kes&amp;s</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="174"/>
         <source>Cop&amp;y</source>
-        <translation>С&amp;копіювати</translation>
+        <translation>K&amp;opya</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="175"/>
         <location filename="../ui/menuhelper.cpp" line="270"/>
         <source>&amp;Paste</source>
-        <translation>В&amp;ставити</translation>
+        <translation>&amp;Yapıştır</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="176"/>
         <source>Paste Insert</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Вставити з заміною</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Yapıştır Ekle</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="177"/>
         <source>Duplicate</source>
-        <translation>Дюблювати</translation>
+        <translation>Yinele</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="178"/>
         <source>Delete</source>
-        <translation>Видалити</translation>
+        <translation>Sil</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="179"/>
         <source>Ripple Delete</source>
-        <translation>Видалити зі зміщенням</translation>
+        <translation>Dalgacığı Sil</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="180"/>
         <source>Split</source>
-        <translation>Розділити</translation>
+        <translation>Böl</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>Invalid aspect ratio</source>
-        <translation>Некоректні пропорції сторін</translation>
+        <translation>Geçersiz en boy oranı</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
         <source>The aspect ratio &apos;%1&apos; is invalid. Please try again.</source>
-        <translation>Пропорції сторін &apos;%1&apos; є некоректними. Будь-ласка, спробуйте ще раз.</translation>
+        <translation>En boy oranı &apos;%1&apos; geçersizdir. Lütfen tekrar deneyin.</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="226"/>
         <source>Enter custom aspect ratio</source>
-        <translation>Встановіть інші пропорції сторін</translation>
+        <translation>Özel en boy oranını girin</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="226"/>
         <source>Enter the aspect ratio to use for the title/action safe area (e.g. 16:9):</source>
-        <translation>Встановіть пропорції сторін для безпечної зони титрів/ефекта (наприклад, 16:9):</translation>
+        <translation>Başlık/işlem güvenli alanı için kullanılacak en boy oranını girin (misal, 16:9):</translation>
     </message>
 </context>
 <context>
@@ -1728,23 +1728,23 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="62"/>
         <source>Editing &quot;%1&quot;</source>
-        <translation>Редагування &quot;%1&quot;</translation>
+        <translation>Kurgu &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="82"/>
         <source>New Sequence</source>
-        <translation>Нова послідовність</translation>
+        <translation>Yeni Sıra</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="209"/>
         <source>Preset:</source>
         <translatorcomment>Уточнити</translatorcomment>
-        <translation>Профіль:</translation>
+        <translation>Önayar:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="213"/>
         <source>Film 4K</source>
-        <translation>Фільм 4К</translation>
+        <translation>Film 4К</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="214"/>
@@ -1794,62 +1794,62 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="223"/>
         <source>Custom</source>
-        <translation>Інше</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="231"/>
         <source>Video</source>
-        <translation>Відео</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="235"/>
         <source>Width:</source>
-        <translation>Ширина:</translation>
+        <translation>Genişlik:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="241"/>
         <source>Height:</source>
-        <translation>Висота:</translation>
+        <translation>Yükseklik:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="247"/>
         <source>Frame Rate:</source>
-        <translation>Частота кадрів:</translation>
+        <translation>Kare Hızı:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="267"/>
         <source>Pixel Aspect Ratio:</source>
-        <translation>Пропорції сторін пікселів:</translation>
+        <translation>Piksel en boy oranı:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="269"/>
         <source>Square Pixels (1.0)</source>
-        <translation>Квадратні пікселі (1.0)</translation>
+        <translation>Kare Piksel (1.0)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="272"/>
         <source>Interlacing:</source>
-        <translation>Черезрядковість:</translation>
+        <translation>Karıştır:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="274"/>
         <source>None (Progressive)</source>
-        <translation>Ні (прогресивно)</translation>
+        <translation>Merhaba (ilerleyen)</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="282"/>
         <source>Audio</source>
-        <translation>Аудіо</translation>
+        <translation>Ses</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="286"/>
         <source>Sample Rate: </source>
-        <translation>Частота дискретизації:</translation>
+        <translation>Aynı Oran:</translation>
     </message>
     <message>
         <location filename="../dialogs/newsequencedialog.cpp" line="304"/>
         <source>Name:</source>
-        <translation>Назва:</translation>
+        <translation>Ad:</translation>
     </message>
 </context>
 <context>
@@ -1857,82 +1857,82 @@ Audio Layout: %6</source>
     <message>
         <location filename="../global/global.cpp" line="68"/>
         <source>Olive Project %1</source>
-        <translation>Olive Проект %1</translation>
+        <translation>Olive Proje %1</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="96"/>
         <source>Auto-recovery</source>
-        <translation>Автовідновлення</translation>
+        <translation>Otomatik-kurtarma</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="97"/>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation>Olive аварійно завершив роботу і виявив файл автовідновлення. Відкрити його?</translation>
+        <translation>Olive düzgün kapanmadı veya çöktü ve otomatik kurtarma dosyası buldu. Açmak istermisin?</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="239"/>
         <source>Open Project...</source>
-        <translation>Відкрити проект...</translation>
+        <translation>Proje Aç...</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="250"/>
         <source>Missing recent project</source>
-        <translation>Відсутній недавній проект</translation>
+        <translation>Son Proje Eksik</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="251"/>
         <source>The project &apos;%1&apos; no longer exists. Would you like to remove it from the recent projects list?</source>
-        <translation>Проект &apos;%1&apos; більше не існує. Видалити його з історії?</translation>
+        <translation>Proje &apos;%1&apos; artık yok. Son projeler listesinden kaldırmak ister misiniz?</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="262"/>
         <source>Save Project As...</source>
-        <translation>Зберегти проект як...</translation>
+        <translation>Projeyi farklı kaydet...</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="287"/>
         <source>Unsaved Project</source>
-        <translation>Незбережений проект</translation>
+        <translation>Kaydedilmemiş Proje</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="288"/>
         <source>This project has changed since it was last saved. Would you like to save it before closing?</source>
-        <translation>Проект було змінено з момента останнього збереження. Хочете зберегти його перед закриттям?</translation>
+        <translation>Bu proje son kurtarıldığından bu yana değişti. Kapatmadan önce kaydetmek ister misiniz?</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="382"/>
         <source>No active sequence</source>
-        <translation>Немає активних послідовностей</translation>
+        <translation>Aktif dizi yok</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="383"/>
         <source>Please open the sequence to perform this action.</source>
-        <translation>Відкрийте послідовність для застосування цієї дії.</translation>
+        <translation>Lütfen bu işlemi gerçekleştirmek için sırayı açın.</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="448"/>
         <source>No clips selected</source>
-        <translation>Не обрано кліпи</translation>
+        <translation>Seçili klip yok</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="449"/>
         <source>Select the clips you wish to auto-cut</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Оберіть кліпи для автовирізання</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Otomatik kesmek istediğiniz klipleri seçin</translation>
     </message>
     <message>
         <source>Please open the sequence you wish to export.</source>
-        <translation type="vanished">Будь-ласка, відкрийте послідовність котру хочете експортувати.</translation>
+        <translation type="vanished">Lütfen dışa aktarmak istediğiniz sırayı açın.</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="319"/>
         <source>Missing Project File</source>
-        <translation>Відсутній файл проекта</translation>
+        <translation>Eksik Proje Dosyası</translation>
     </message>
     <message>
         <location filename="../global/global.cpp" line="320"/>
         <source>Specified project &apos;%1&apos; does not exist.</source>
-        <translation>Вказаний проект &apos;%1&apos; не існує.</translation>
+        <translation>Belirtilen &apos;%1&apos; proje yok.</translation>
     </message>
 </context>
 <context>
@@ -1940,8 +1940,8 @@ Audio Layout: %6</source>
     <message>
         <location filename="../effects/internal/paneffect.cpp" line="32"/>
         <source>Pan</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Панорама</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Panorama</translation>
     </message>
 </context>
 <context>
@@ -1949,410 +1949,410 @@ Audio Layout: %6</source>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="84"/>
         <source>Preferences</source>
-        <translation>Параметри</translation>
+        <translation>Ayarlar</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="91"/>
         <source>Default Sequence</source>
-        <translation>Типова послідовність</translation>
+        <translation>Varsayılan Sıra</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="196"/>
         <source>Invalid CSS File</source>
-        <translation>Некоректний файл CSS</translation>
+        <translation>Geçersiz CSS Dosyası</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="197"/>
         <source>CSS file &apos;%1&apos; does not exist.</source>
-        <translation>Файл CSS &apos;%1&apos; не існує.</translation>
+        <translation>CSS dosyası &apos;%1&apos; yok.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="363"/>
         <source>Confirm Reset All Shortcuts</source>
-        <translation>Підтвердіть скидання всіх комбінацій клавіш</translation>
+        <translation>Tüm Kısayolları Sıfırlamayı Onayla</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="364"/>
         <source>Are you sure you wish to reset all keyboard shortcuts to their defaults?</source>
-        <translation>Ви дійсно хочете скинути всі комбінації клавіш до типових значень?</translation>
+        <translation>Tüm klavye kısayollarını varsayılan ayarlarına sıfırlamak istediğinizden emin misiniz?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="414"/>
         <source>Import Keyboard Shortcuts</source>
-        <translation>Імпортувати комбінації клавіш</translation>
+        <translation>Klavye Kısayollarını İçe Aktar/translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="438"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="462"/>
         <source>Error saving shortcuts</source>
-        <translation>Помилка при збереженні комбінацій клавіш</translation>
+        <translation>Kısayollar kaydedilirken hata oluştu</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="439"/>
         <source>Failed to open file for reading</source>
-        <translation>Не вдалося відкрити файл для читання</translation>
+        <translation>Dosya okumak için açılamadı</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="446"/>
         <source>Export Keyboard Shortcuts</source>
-        <translation>Експортувати комбінації клавіш</translation>
+        <translation>Klavye Kısayollarını Dışa Aktar</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="460"/>
         <source>Export Shortcuts</source>
-        <translation>Експортувати комбінації клавіш</translation>
+        <translation>Kısayolları Dışa Aktar</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="460"/>
         <source>Shortcuts exported successfully</source>
-        <translation>Комбінації клавіш експортовано</translation>
+        <translation>Kısayollar başarıyla verildi</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="462"/>
         <source>Failed to open file for writing</source>
-        <translation>Не вдалося відкрити файл для запису</translation>
+        <translation>Dosya yazma için açılamadı</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="468"/>
         <source>Browse for CSS file</source>
-        <translation>Обрати файл CSS</translation>
+        <translation>CSS dosyasına göz atın</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="476"/>
         <source>Delete All Previews</source>
-        <translation>Видалити усі мініатюри</translation>
+        <translation>Tüm Önizlemeleri Sil</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="477"/>
         <source>Are you sure you want to delete all previews?</source>
-        <translation>Дійсно видалити усі мініатюри?</translation>
+        <translation>Tüm önizlemeleri silmek istediğinize emin misiniz?</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="481"/>
         <source>Previews Deleted</source>
-        <translation>Мініатюри видалено</translation>
+        <translation>Önizlemeler Silindi</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="482"/>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Усі мініатюри видалено. Можливо знадобится перевідкрити поточний проект для того щоб зміни вступили в силу.</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Tüm önizlemeler başarıyla silindi. Değişikliklerin geçerli olması için mevcut projenizi yeniden açmanız gerekebilir.</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="506"/>
         <source>Language:</source>
-        <translation>Мова:</translation>
+        <translation>Dil:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="543"/>
         <source>Image sequence formats:</source>
-        <translation>Формати зображень:</translation>
+        <translation>Görüntü sırası formatları:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="553"/>
         <source>Thumbnail Resolution:</source>
-        <translation>Розмір мініатюр:</translation>
+        <translation>Küçük Resim Çözünürlüğü:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="561"/>
         <source>Waveform Resolution:</source>
-        <translation>Деталізація форми хвиль:</translation>
+        <translation>Dalga biçimi çözünürlük:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="569"/>
         <source>Delete Previews</source>
-        <translation>Видалити мініатюри</translation>
+        <translation>Önizlemeleri Sil</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="576"/>
         <source>Use Software Fallbacks When Possible</source>
-        <translation>По можливості використовувати програмну реалізацію</translation>
+        <translation>Mümkün olduğunda yazılım uygulamasını kullanın</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="583"/>
         <source>Default Sequence Settings</source>
-        <translation>Типові налаштування послідовності</translation>
+        <translation>Varsayılan Sıralama Ayarları</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="587"/>
         <source>General</source>
-        <translation>Загальні</translation>
+        <translation>Genel</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="591"/>
         <source>Behavior</source>
-        <translation>Поведінка</translation>
+        <translation>Davranış</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="595"/>
         <source>Add Default Effects to New Clips</source>
-        <translation>Додавати типові ефекти для нових кліпів</translation>
+        <translation>Yeni Kliplere Varsayılan Efektler Ekleme</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="599"/>
         <source>Automatically Seek to the Beginning When Playing at the End of a Sequence</source>
-        <translation>Автопрокручувати на початок при відворенні з кінця послідовності</translation>
+        <translation>Bir Sıranın Sonunda Oynarken Başlangıcı Otomatik Olarak Ara</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="603"/>
         <source>Selecting Also Seeks</source>
-        <translation>Виділення з прокручуванням</translation>
+        <translation>Ayrıca Seçme</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="607"/>
         <source>Edit Tool Also Seeks</source>
-        <translation>Виділення з прокручуванням</translation>
+        <translation>Düzenleme Aracında Aranıyor</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="611"/>
         <source>Edit Tool Selects Links</source>
-        <translation>Виділення обирає зв&apos;язки</translation>
+        <translation>Düzenleme Aracı Bağlantıları Seçer</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="615"/>
         <source>Seek Also Selects</source>
-        <translation>Прокручування з виділенням</translation>
+        <translation>Ayrıca Arayınor</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="619"/>
         <source>Seek to the End of Pastes</source>
-        <translation>Прокручування до кінця вставок</translation>
+        <translation>Eklerin sonuna gidin açın</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="623"/>
         <source>Scroll Wheel Zooms</source>
-        <translation>Колесо миші масштабує монтажний стіл</translation>
+        <translation>Kaydırma Tekerleği Yakınlaştırmaları</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="624"/>
         <source>Hold CTRL to toggle this setting</source>
-        <translation>Утримуйте CTRL для перемикання цього налаштування</translation>
+        <translation>Bu ayarı değiştirmek için CTRL tuşunu basılı tutun</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="628"/>
         <source>Invert Timeline Scroll Axes</source>
-        <translation>Інвертувати напрямки прокручування монтажного столу</translation>
+        <translation>Zaman Çizelgesi Kaydırma Eksenlerini Ters Çevir</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="632"/>
         <source>Enable Drag Files to Timeline</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Увімкнути перетягування файлів на монтажний стіл</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Dosyaları sürükleyerek kurulum tablosuna etkinleştirin</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="636"/>
         <source>Auto-Scale By Default</source>
-        <translation>Автомасштабування за умовчанням</translation>
+        <translation>Otomatik ölçeklendirme varsayılanı</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="640"/>
         <source>Auto-Seek to Imported Clips</source>
         <translatorcomment>Уточнити</translatorcomment>
-        <translation>Автопрокручувати до імпортованих кліпів</translation>
+        <translation>Alınan Kliplere Otomatik Arama</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="644"/>
         <source>Audio Scrubbing</source>
-        <translation>Відтворювати звук під час прокручування</translation>
+        <translation>Kaydırırken ses çal</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="648"/>
         <source>Drop Files on Media to Replace</source>
         <translatorcomment>Уточнити</translatorcomment>
-        <translation>Перетягування файлів на медіа для заміни</translation>
+        <translation>Medyada Değiştirilecek Dosyaları Bırak</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="652"/>
         <source>Enable Hover Focus</source>
-        <translation>Увімкнути фокус наведенням</translation>
+        <translation>Vurgulu Odağı Etkinleştir</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="656"/>
         <source>Ask For Name When Setting Marker</source>
-        <translation>Запитувати назву маркера при додаванні</translation>
+        <translation>İşaretleyiciyi Ayarlarken Ad İste</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="662"/>
         <source>Appearance</source>
-        <translation>Вигляд</translation>
+        <translation>Görünüm</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="669"/>
         <source>Theme</source>
-        <translation>Тема</translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="672"/>
         <source>Olive Dark (Default)</source>
-        <translation>Olive Dark (типово)</translation>
+        <translation>Olive Kara (типово)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="673"/>
         <source>Olive Light</source>
-        <translation>Olive Light</translation>
+        <translation>Olive Hafif</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="674"/>
         <source>Native</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Native</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Yerel</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="675"/>
         <source>Native (Light Icons)</source>
         <translatorcomment>Уточнити</translatorcomment>
-        <translation>Native (світлі іконки)</translation>
+        <translation>Yerel (Hafif Simgeler)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="684"/>
         <source>Use Native Menu Styling</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Використовувати стиль меню Native</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Yerel Menü Stilini Kullan</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="692"/>
         <source>Custom CSS:</source>
-        <translation>Інший CSS:</translation>
+        <translation>Özel CSS:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="698"/>
         <source>Browse</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Обрати</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Göz at</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="705"/>
         <source>Effect Textbox Lines:</source>
-        <translation>Кількість рядків у полі вводу тексту:</translation>
+        <translation>Efekt Metin Kutusu Satırları:</translation>
     </message>
     <message>
         <source>Seeking</source>
-        <translation type="vanished">Позиціонування</translation>
+        <translation type="vanished">Konumlandırma</translation>
     </message>
     <message>
         <source>Accurate Seeking
 Always show the correct frame (visual may pause briefly as correct frame is retrieved)</source>
-        <translation type="vanished">Точне позиціонування
-Завжди показувати правильний кадр (відображення може уповільнюватися)</translation>
+        <translation type="vanished">Doğru Arama
+Her zaman doğru çerçeveyi göster (doğru çerçeve alındıkça görsel kısaca yavaşlayabilir)</translation>
     </message>
     <message>
         <source>Fast Seeking
 Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t affect playback/export)</source>
-        <translation type="vanished">Швидке позиціонування
-Позиціонувати швидко (можливе неточне відображення кадрів - не впливає на відтворення)</translation>
+        <translation type="vanished">Hızlı konumlandırma
+Hızlı konumlandırma (belki yanlış çerçeve ekranı-oynatmayı etkilemez)</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="720"/>
         <source>Memory Usage</source>
-        <translation>Використання пам&apos;яті</translation>
+        <translation>Hafıza kullanımı</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="722"/>
         <source>Upcoming Frame Queue:</source>
-        <translation>Резервування послідуючих кадрів:</translation>
+        <translation>Yaklaşan Çerçeve Kuyruğu:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="727"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="736"/>
         <source>frames</source>
-        <translation>кадрів</translation>
+        <translation>Çerçeve</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="728"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="737"/>
         <source>seconds</source>
-        <translation>секунд</translation>
+        <translation>saniye</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="731"/>
         <source>Previous Frame Queue:</source>
-        <translation>Резервування попередніх кадрів:</translation>
+        <translation>Önceki Çerçeve Sırası:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="742"/>
         <source>Playback</source>
-        <translation>Відтворення</translation>
+        <translation>Yeniden Oynat</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="753"/>
         <source>Output Device:</source>
-        <translation>Пристрій виводу:</translation>
+        <translation>Çıkış Cihazı:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="756"/>
         <location filename="../dialogs/preferencesdialog.cpp" line="779"/>
         <source>Default</source>
-        <translation>Типово</translation>
+        <translation>Varsayılan</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="776"/>
         <source>Input Device:</source>
-        <translation>Пристрій вводу:</translation>
+        <translation>Giriş aygıtı:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="799"/>
         <source>Sample Rate:</source>
-        <translation>Частота дискретизації:</translation>
+        <translation>Aynı oran:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="815"/>
         <source>Audio Recording:</source>
-        <translation>Запис звука:</translation>
+        <translation>Ses Kayıt:</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="818"/>
         <source>Mono</source>
-        <translation>Моно</translation>
+        <translation>Mono</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="819"/>
         <source>Stereo</source>
-        <translation>Стерео</translation>
+        <translation>Stereo</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="825"/>
         <source>Audio</source>
-        <translation>Аудіо</translation>
+        <translation>Ses</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="833"/>
         <source>Search for action or shortcut</source>
-        <translation>Знайти дію або комбінацію клавіш</translation>
+        <translation>İşlem veya kısayol ara</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="840"/>
         <source>Action</source>
-        <translation>Дія</translation>
+        <translation>Faaliyet</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="841"/>
         <source>Shortcut</source>
-        <translation>Комбінація клавіш</translation>
+        <translation>Klavye Kısayol</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="846"/>
         <source>Import</source>
-        <translation>Імпортувати</translation>
+        <translation>Dışa Aktar</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="850"/>
         <source>Export</source>
-        <translation>Експортувати</translation>
+        <translation>İhraç</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="856"/>
         <source>Reset Selected</source>
-        <translation>Скинути виділення</translation>
+        <translation>Seçileni Sıfırla</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="860"/>
         <source>Reset All</source>
-        <translation>Скинути все</translation>
+        <translation>Tümünü Sıfırla</translation>
     </message>
     <message>
         <location filename="../dialogs/preferencesdialog.cpp" line="866"/>
         <source>Keyboard</source>
-        <translation>Комбінації клавіш</translation>
+        <translation>Klavye Kısayolları</translation>
     </message>
 </context>
 <context>
@@ -2360,17 +2360,17 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/previewgenerator.cpp" line="203"/>
         <source>Failed to find any valid video/audio streams</source>
-        <translation>Не вдалося знайти коректні відео/аудіо потоки</translation>
+        <translation>Geçerli herhangi bir video/ses akışı bulunamadı</translation>
     </message>
     <message>
         <location filename="../project/previewgenerator.cpp" line="559"/>
         <source>Could not open file - %1</source>
-        <translation>Не вдалося відкрити файл — %1</translation>
+        <translation>Dosya açılamadı — %1</translation>
     </message>
     <message>
         <location filename="../project/previewgenerator.cpp" line="566"/>
         <source>Could not find stream information - %1</source>
-        <translation>Не вдалося знайти інформацію потоку — %1</translation>
+        <translation>Akış bilgisi bulunamadı — %1</translation>
     </message>
 </context>
 <context>
@@ -2378,146 +2378,146 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/project.cpp" line="99"/>
         <source>New</source>
-        <translation>Створити</translation>
+        <translation>Yeni</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="105"/>
         <source>Open Project</source>
-        <translation>Відкрити проект</translation>
+        <translation>Proje Aç</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="111"/>
         <source>Save Project</source>
-        <translation>Зберегти проект</translation>
+        <translation>Projeyi Kaydet</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="117"/>
         <source>Undo</source>
-        <translation>Відмінити</translation>
+        <translation>Geri Al</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="123"/>
         <source>Redo</source>
-        <translation>Повернути</translation>
+        <translation>Yinele</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="134"/>
         <source>Tree View</source>
-        <translation>У вигляді таблиці</translation>
+        <translation>Ağaç Görünümü</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="140"/>
         <source>Icon View</source>
-        <translation>У вигляді мініатюр</translation>
+        <translation>Simge Görünümü</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="146"/>
         <source>List View</source>
-        <translation>У вигляді списку</translation>
+        <translation>Liste Görünümü</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="224"/>
         <source>Search media, markers, etc.</source>
-        <translation>Шукати файли, маркери, і т.п.</translation>
+        <translation>Medya, işaretleyiciler vb.</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="225"/>
         <source>Project</source>
-        <translation>Проект</translation>
+        <translation>Proje</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="229"/>
         <source>Sequence</source>
-        <translation>Послідовність</translation>
+        <translation>Düzen</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="351"/>
         <source>Replace &apos;%1&apos;</source>
-        <translation>Замінити &apos;%1&apos;</translation>
+        <translation>Değiştir &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="353"/>
         <location filename="../panels/project.cpp" line="1002"/>
         <source>All Files</source>
-        <translation>Усі файли</translation>
+        <translation>Tüm Dosyalar</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="364"/>
         <location filename="../panels/project.cpp" line="1014"/>
         <source>No active sequence</source>
-        <translation>Немає активних послідовностей</translation>
+        <translation>Etkin sıra yok</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="365"/>
         <source>No sequence is active, please open the sequence you want to replace clips from.</source>
-        <translation>Немає активних послідовносте. Відкрийте послідовність в якій хочете замінити кліпи.</translation>
+        <translation> Hiçbir dizi etkin değil, lütfen klipleri değiştirmek istediğiniz sırayı açın..</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="373"/>
         <source>Active sequence selected</source>
-        <translation>Обрано активну послідовність</translation>
+        <translation>Aktif sıra seçildi</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="374"/>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Ви не можете вставити послідовність в саму себе, тож кліпи з цих файлів не можуть бути вставлені в цю послідовність.</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Kendi içine bir dizi ekleyemezsiniz, bu nedenle bu ortamın hiçbir klibi bu sıralamada olmaz.</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="405"/>
         <source>Rename &apos;%1&apos;</source>
-        <translation>Перейменувати &apos;%1&apos;</translation>
+        <translation>Yeni ad ver &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="406"/>
         <source>Enter new name:</source>
-        <translation>Введіть нову назву:</translation>
+        <translation>Yeni ad girin:</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="576"/>
         <source>Delete media in use?</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Видалити використані у проекті файли?</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Kullanılan medyayı sil?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="577"/>
         <source>The media &apos;%1&apos; is currently used in &apos;%2&apos;. Deleting it will remove all instances in the sequence. Are you sure you want to do this?</source>
-        <translation>Файл &apos;%1&apos; вже використовується у &apos;%2&apos;. Його видалення приведе до видалення усіх його копій у вибраній послідовності. Ви точно цього хочете?</translation>
+        <translation>Medya '% 1'; şu anda '% 2' içinde kullanılmaktadır &apos;%2&apos;. Silme, dizideki tüm örnekleri siler. Bunu yapmak istediğinden emin misin?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="580"/>
         <source>Skip</source>
-        <translation>Пропустити</translation>
+        <translation>Atla</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="743"/>
         <source>Import a Project</source>
-        <translation>Імпортувати проект</translation>
+        <translation>Projeyi İçe Aktar</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="744"/>
         <source>&quot;%1&quot; is an Olive project file. It will merge with this project. Do you wish to continue?</source>
-        <translation>&quot;%1&quot; є файлом проекту Olive. Його буде об&apos;єднано з поточним проектом. Ви хочете продовжити?</translation>
+        <translation>&quot;%1&quot; bir Olive proje dosyasıdır. Bu proje ile birleşecek. Devam etmek istiyor musun?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="847"/>
         <source>Image sequence detected</source>
-        <translation>Виявлено послідовність зображень</translation>
+        <translation>Görüntü sırası algılandı</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="848"/>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Схоже що файл &apos;%1&apos; є частиною послідовності зображень. Імпортувати його як є?</translation>
+        <translation>Dosya &apos;%1&apos; bir görüntü dizisinin parçası gibi görünüyor.. Bu şekilde ithal etmek ister misiniz?</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="1002"/>
         <source>Import media...</source>
-        <translation>Імпортувати медіафайли...</translation>
+        <translation>Medyayı içe aktar...</translation>
     </message>
     <message>
         <location filename="../panels/project.cpp" line="1015"/>
         <source>No sequence is active, please open the sequence you want to delete clips from.</source>
-        <translation>Немає активних послідовносте. Відкрийте послідовність з якої хочете видалити кліпи.</translation>
+        <translation>Aktif dizi yok. Klipleri kaldırmak istediğiniz sırayı açın.</translation>
     </message>
 </context>
 <context>
@@ -2525,77 +2525,77 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="41"/>
         <source>Create Proxy</source>
-        <translation>Створити проксі</translation>
+        <translation>Vekil Oluştur</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="44"/>
         <source>Proxy</source>
-        <translation>Проксі</translation>
+        <translation>Vekil</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="50"/>
         <source>Dimensions:</source>
-        <translation>Розміри:</translation>
+        <translation>Boyutlar:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="53"/>
         <source>Same Size as Source</source>
-        <translation>Оригінальний розмір</translation>
+        <translation>Kaynakla Aynı Boyut</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="54"/>
         <source>Half Resolution (1/2)</source>
-        <translation>Половина оригінала (1/2)</translation>
+        <translation>Yarısının Çözünürlüğü (1/2)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="55"/>
         <source>Quarter Resolution (1/4)</source>
-        <translation>Чверть оригіналу (1/4)</translation>
+        <translation>Çeyrek Çözünürlük (1/4)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="56"/>
         <source>Eighth Resolution (1/8)</source>
-        <translation>Восьма оригиніалу (1/8)</translation>
+        <translation>Sekizinci Çözünürlük (1/8)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="57"/>
         <source>Sixteenth Resolution (1/16)</source>
-        <translation>Шістнадцята оригіналу (1/16)</translation>
+        <translation>Onaltıncı Çözünürlük (1/16)</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="61"/>
         <source>Format:</source>
-        <translation>Формат:</translation>
+        <translation>Biçim:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="64"/>
         <source>ProRes HQ</source>
-        <translation>ProRes HQ</translation>
+        <translation>ProRes HD</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="72"/>
         <source>Location:</source>
-        <translation>Розташування:</translation>
+        <translation>Konum:</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="75"/>
         <source>Same as Source (in &quot;%1&quot; folder)</source>
-        <translation>Як в оригіналі (у теці &quot;%1&quot;)</translation>
+        <translation>Kaynakla aynı (dosya &quot;%1&quot; içinde )</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="128"/>
         <source>Proxy file exists</source>
-        <translation>Проксі-файл вже існує</translation>
+        <translation>Vekil dosyası var</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="129"/>
         <source>The file &quot;%1&quot; already exists. Do you wish to replace it?</source>
-        <translation>Файл &quot;%1&quot; вже існує. Замінити його?</translation>
+        <translation>Dosya &quot;%1&quot; zaten var. Değiştirmek ister misiniz?</translation>
     </message>
     <message>
         <location filename="../dialogs/proxydialog.cpp" line="182"/>
         <source>Custom Location</source>
-        <translation>Інше місцезнаходження</translation>
+        <translation>Özel Konum</translation>
     </message>
 </context>
 <context>
@@ -2603,7 +2603,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/proxygenerator.cpp" line="332"/>
         <source>Finished generating proxy for &quot;%1&quot;</source>
-        <translation>Завершено створення проксі для &quot;%1&quot;</translation>
+        <translation>İçin tam bir vekil oluşturma &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -2611,67 +2611,67 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="37"/>
         <source>Replace clips using &quot;%1&quot;</source>
-        <translation>Замінити кліпи на &quot;%1&quot;</translation>
+        <translation>Üzerindeki klipleri değiştir &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="43"/>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
-        <translation>Оберіть файли, які хочете замінити у кліпах з цими файлами:</translation>
+        <translation>Bu ortamın kliplerini hangi ortamla değiştirmek istediğinizi seçin:</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="49"/>
         <source>Keep the same media in-points</source>
-        <translation>Зберегти існуючі точки входу</translation>
+        <translation>Aynı ortamı yerinde tutun</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="57"/>
         <source>Replace</source>
-        <translation>Замінити</translation>
+        <translation>Değiştir</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="61"/>
         <source>Cancel</source>
-        <translation>Відмінити</translation>
+        <translation>İptal</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="77"/>
         <source>No media selected</source>
-        <translation>Не обрано медіафайли</translation>
+        <translation>Medya seçilmedi</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="78"/>
         <source>Please select a media to replace with or click &apos;Cancel&apos;.</source>
-        <translation>Оберіть медіафайли для заміни та натисніть «Відміна».</translation>
+        <translation>Lütfen değiştirmek için bir medya seçin veya tıklayın «İptal».</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="86"/>
         <source>Same media selected</source>
-        <translation>Обрано ті ж самі файли</translation>
+        <translation>Aynı ortam seçildi</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="87"/>
         <source>You selected the same media that you&apos;re replacing. Please select a different one or click &apos;Cancel&apos;.</source>
-        <translation>Ви обрали ті ж самі файли, що й хочете замінити. Оберіть якісь інші файли або ж натисніть «Відміна».</translation>
+        <translation>Değiştirdiğiniz medyayı seçtiniz. Lütfen farklı bir tane seçin veya tıklayın «İptal».</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="93"/>
         <source>Folder selected</source>
-        <translation>Теку обрано</translation>
+        <translation>Klasör seçildi</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="94"/>
         <source>You cannot replace footage with a folder.</source>
-        <translation>Ви не можете замінити відеоряд текою.</translation>
+        <translation>Görüntüleri bir klasörle değiştiremezsiniz.</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="101"/>
         <source>Active sequence selected</source>
-        <translation>Обрано активну послідовність</translation>
+        <translation>Aktif sıra seçildi</translation>
     </message>
     <message>
         <location filename="../dialogs/replaceclipmediadialog.cpp" line="102"/>
         <source>You cannot insert a sequence into itself.</source>
-        <translation>Ви не можете вставити послідовність в саму себе.</translation>
+        <translation>Kendi içinde bir sıra ekleyemezsiniz.</translation>
     </message>
 </context>
 <context>
@@ -2679,98 +2679,98 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="22"/>
         <source>Text</source>
-        <translation>Текст</translation>
+        <translation>Metin</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="26"/>
         <source>Padding</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Відступ</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Dolgu</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="30"/>
         <source>Position</source>
-        <translation>Позиція</translation>
+        <translation>Pozisyon</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="34"/>
         <source>Vertical Align:</source>
-        <translation>Верктикальне вирівнювання:</translation>
+        <translation>Dikey Hizala:</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="36"/>
         <source>Top</source>
-        <translation>Вгорі</translation>
+        <translation>Üst</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="37"/>
         <source>Center</source>
-        <translation>По центру</translation>
+        <translation>Merkez</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="38"/>
         <source>Bottom</source>
-        <translation>Внизу</translation>
+        <translation>Alt</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="42"/>
         <source>Auto-Scroll</source>
-        <translation>Автопрокручування</translation>
+        <translation>Ototomatik-kaydırma</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="44"/>
         <source>Off</source>
-        <translation>Вимкнено</translation>
+        <translation>Kapalı</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="45"/>
         <source>Up</source>
-        <translation>Вгору</translation>
+        <translation>Yukarı</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="46"/>
         <source>Down</source>
-        <translation>Вниз</translation>
+        <translation>Aşağı</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="47"/>
         <source>Left</source>
-        <translation>Вліво</translation>
+        <translation>Sola</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="48"/>
         <source>Right</source>
-        <translation>Вправо</translation>
+        <translation>Sağa</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="51"/>
         <source>Shadow</source>
-        <translation>Тінь</translation>
+        <translation>Gölge</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="55"/>
         <source>Shadow Color</source>
-        <translation>Колір тіні</translation>
+        <translation>Gölge Rengi</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="59"/>
         <source>Shadow Angle</source>
-        <translation>Кут падіння тіні</translation>
+        <translation>Gölge Açısı</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="63"/>
         <source>Shadow Distance</source>
-        <translation>Відстань до тіні</translation>
+        <translation>Gölge Mesafesi</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="68"/>
         <source>Shadow Softness</source>
-        <translation>Розсіювання тіні</translation>
+        <translation>Gölge Yumuşaklığı</translation>
     </message>
     <message>
         <location filename="../effects/internal/richtexteffect.cpp" line="73"/>
         <source>Shadow Opacity</source>
-        <translation>Непрозорість тіні</translation>
+        <translation>Gölge Opaklığı</translation>
     </message>
 </context>
 <context>
@@ -2778,7 +2778,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../timeline/sequence.cpp" line="41"/>
         <source>%1 (copy)</source>
-        <translation>%1 (копія)</translation>
+        <translation>%1 (kopya)</translation>
     </message>
 </context>
 <context>
@@ -2786,17 +2786,17 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/shakeeffect.cpp" line="38"/>
         <source>Intensity</source>
-        <translation>Інтенсивність</translation>
+        <translation>Yoğunluk</translation>
     </message>
     <message>
         <location filename="../effects/internal/shakeeffect.cpp" line="43"/>
         <source>Rotation</source>
-        <translation>Обертання</translation>
+        <translation>Dönüş</translation>
     </message>
     <message>
         <location filename="../effects/internal/shakeeffect.cpp" line="48"/>
         <source>Frequency</source>
-        <translation>Частота</translation>
+        <translation>Frekans</translation>
     </message>
 </context>
 <context>
@@ -2804,37 +2804,37 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="43"/>
         <source>Type</source>
-        <translation>Тип</translation>
+        <translation>Tür</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="45"/>
         <source>Solid Color</source>
-        <translation>Суцільна заливка</translation>
+        <translation>Koyu Renk</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="46"/>
         <source>SMPTE Bars</source>
-        <translation>Таблиця SMPTE</translation>
+        <translation>SMPTE Çubuğu</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="47"/>
         <source>Checkerboard</source>
-        <translation>Шахівниця</translation>
+        <translation>Santrançtahtası</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="49"/>
         <source>Opacity</source>
-        <translation>Непрозорість</translation>
+        <translation>Opaklık</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="55"/>
         <source>Color</source>
-        <translation>Колір</translation>
+        <translation>Renk</translation>
     </message>
     <message>
         <location filename="../effects/internal/solideffect.cpp" line="59"/>
         <source>Checkerboard Size</source>
-        <translation>Розмір клітинок</translation>
+        <translation>Hücre boyutu</translation>
     </message>
 </context>
 <context>
@@ -2842,145 +2842,145 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../project/sourcescommon.cpp" line="83"/>
         <source>Import...</source>
-        <translation>Імпортувати...</translation>
+        <translation>İthal...</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="86"/>
         <source>New</source>
-        <translation>Створити</translation>
+        <translation>Yeni</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="90"/>
         <source>View</source>
-        <translation>Вигляд</translation>
+        <translation>Gör</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="93"/>
         <source>Tree View</source>
-        <translation>У вигляді таблиці</translation>
+        <translation>Ağaç Görünümü</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="96"/>
         <source>Icon View</source>
-        <translation>У вигляді мініатюр</translation>
+        <translation>Simge Görünümü</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="99"/>
         <source>Show Toolbar</source>
-        <translation>Показувати панель</translation>
+        <translation>Araç Çubuğunu Göster</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="104"/>
         <source>Show Sequences</source>
-        <translation>Показувати послідовності</translation>
+        <translation>Sıraları Göster</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="116"/>
         <source>Replace/Relink Media</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Замінити/Перезв&apos;язати файли</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Medyayı Değiştir/Yeniden Bağla</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="120"/>
         <source>Reveal in Explorer</source>
-        <translation>Відкрити у Explorer</translation>
+        <translation>Gezgin içinde Göster</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="122"/>
         <source>Reveal in Finder</source>
-        <translation>Відкрити у Finder</translation>
+        <translation>Bul içinde Göster</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="124"/>
         <source>Reveal in File Manager</source>
-        <translation>Відкрити у менеджері файлів</translation>
+        <translation>Dosya Yöneticisinde Göster</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="129"/>
         <source>Replace Clips Using This Media</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Замінити кліпи з цими файлами</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Bu Medyayı Kullanarak Klipleri Değiştir</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="152"/>
         <source>Create Sequence With This Media</source>
-        <translation>Створити послідовність з цими файлами</translation>
+        <translation>Bu dosyalarla bir sıra oluşturun</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="158"/>
         <source>Duplicate</source>
-        <translation>Дублювати</translation>
+        <translation>Benzer</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="164"/>
         <source>Delete All Clips Using This Media</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Видалити усі кліпи з цими файлами</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Bu Medyayı Kullanarak Tüm Klipleri Sil</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="167"/>
         <source>Proxy</source>
-        <translation>Проксі</translation>
+        <translation>Vekil</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="174"/>
         <source>Generating proxy: %1% complete</source>
-        <translation>Створення проксі: завершено на %1%</translation>
+        <translation>Vekil oluşturma: Tamamlandı %1%</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="198"/>
         <source>Create/Modify Proxy</source>
-        <translation>Створити/Змінити проксі</translation>
+        <translation>Vekil Oluştur/Değiştir</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="201"/>
         <source>Create Proxy</source>
-        <translation>Створити проксі</translation>
+        <translation>Vekil Oluştur</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="212"/>
         <source>Modify Proxy</source>
-        <translation>Змінити проксі</translation>
+        <translation>Vekil'i Değiştir</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="215"/>
         <source>Restore Original</source>
-        <translation>Відновити оригінал</translation>
+        <translation>Orijinali Geri Yükle</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="221"/>
         <source>Delete</source>
-        <translation>Видалити</translation>
+        <translation>Sil</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="228"/>
         <source>Preview in Media Viewer</source>
-        <translation>Переглянути у Переглядачі медіа файлів</translation>
+        <translation>Medya Görüntüleyicide Önizleme</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="234"/>
         <source>Properties...</source>
-        <translation>Властивості...</translation>
+        <translation>Sahne Özellikleri...</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="291"/>
         <source>Replace Media</source>
-        <translation>Замінити медіафайли</translation>
+        <translation>Medyayı Değiştir</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="292"/>
         <source>You dropped a file onto &apos;%1&apos;. Would you like to replace it with the dropped file?</source>
-        <translation>Ви перетягнули файл на &apos;%1&apos;. Ви хочете замінити на цей файл?</translation>
+        <translation>Dosyayı. &apos;%1&apos;. Bu dosyayı değiştirmek istiyor musunuz?</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="421"/>
         <source>Delete proxy</source>
-        <translation>Видалити проксі</translation>
+        <translation>Vekil Sunucu</translation>
     </message>
     <message>
         <location filename="../project/sourcescommon.cpp" line="422"/>
         <source>Would you like to delete the proxy file &quot;%1&quot; as well?</source>
-        <translation>Заразом видалити проксі-файл &quot;%1&quot;?</translation>
+        <translation>Vekil dosyasını silmek ister misiniz? &quot;%1&quot;?</translation>
     </message>
 </context>
 <context>
@@ -2988,37 +2988,37 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="40"/>
         <source>Speed/Duration</source>
-        <translation>Швидкість/Тривалість</translation>
+        <translation>Hız/Süre</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="49"/>
         <source>Speed:</source>
-        <translation>Швидкість:</translation>
+        <translation>Hız:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="56"/>
         <source>Frame Rate:</source>
-        <translation>Частота кадрів:</translation>
+        <translation>Kare hızı:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="61"/>
         <source>Duration:</source>
-        <translation>Тривалість:</translation>
+        <translation>Süre:</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="69"/>
         <source>Reverse</source>
-        <translation>Реверс</translation>
+        <translation>Ters</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="70"/>
         <source>Maintain Audio Pitch</source>
-        <translation>Зберегти висоту тона</translation>
+        <translation>Ses Alanını Koru</translation>
     </message>
     <message>
         <location filename="../dialogs/speeddialog.cpp" line="71"/>
         <source>Ripple Changes</source>
-        <translation>Змінювати зі зміщенням</translation>
+        <translation>Dalgalanma Değişiklikleri</translation>
     </message>
 </context>
 <context>
@@ -3026,61 +3026,61 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="35"/>
         <source>Edit Text</source>
-        <translation>Змінити текст</translation>
+        <translation>Metni Düzenle</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="68"/>
         <source>Thin</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Thin</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>İnce</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="69"/>
         <source>Extra Light</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Extra Light</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Ekstra Işık</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="70"/>
         <source>Light</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Light</translation>
+        <translatorcomment>rafine/translatorcomment>
+        <translation>Işık</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="71"/>
         <source>Normal</source>
-        <translatorcomment>Уточнити</translatorcomment>
+        <translatorcomment>rafine</translatorcomment>
         <translation>Normal</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="72"/>
         <source>Medium</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Medium</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Orta</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="73"/>
         <source>Demi Bold</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Demi Bold</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Yarı Kalın</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="74"/>
         <source>Bold</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Bold</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Kalın</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="75"/>
         <source>Extra Bold</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Extra Bold</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Ekstra Kalın</translation>
     </message>
     <message>
         <location filename="../dialogs/texteditdialog.cpp" line="76"/>
         <source>Black</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>Black</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>Kara</translation>
     </message>
 </context>
 <context>
@@ -3088,12 +3088,12 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/texteditex.cpp" line="40"/>
         <source>Edit Text</source>
-        <translation>Редагувати текст</translation>
+        <translation>Metni Düzenle</translation>
     </message>
     <message>
         <location filename="../ui/texteditex.cpp" line="88"/>
         <source>&amp;Edit Text</source>
-        <translation>&amp;Редагувати Текст</translation>
+        <translation>&amp;Metni Düzenle</translation>
     </message>
 </context>
 <context>
@@ -3101,123 +3101,123 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="51"/>
         <source>Text</source>
-        <translation>Текст</translation>
+        <translation>Metin</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="55"/>
         <source>Font</source>
-        <translation>Шрифт</translation>
+        <translation>Yazıtipi</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="59"/>
         <source>Size</source>
-        <translation>Розмір</translation>
+        <translation>Boyut</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="64"/>
         <source>Color</source>
-        <translation>Колір</translation>
+        <translation>Renk</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="68"/>
         <source>Alignment</source>
-        <translation>Вирівнювання</translation>
+        <translation>Hizalama</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="70"/>
         <source>Left</source>
-        <translation>Ліворуч</translation>
+        <translation>Sol</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="71"/>
         <location filename="../effects/internal/texteffect.cpp" line="77"/>
         <source>Center</source>
-        <translation>По центру</translation>
+        <translation>Merkez</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="72"/>
         <source>Right</source>
-        <translation>Праворуч</translation>
+        <translation>Sağ</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="73"/>
         <source>Justify</source>
-        <translation>По ширині</translation>
+        <translation>Yaslama</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="76"/>
         <source>Top</source>
-        <translation>Вгорі</translation>
+        <translation>Üstte</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="78"/>
         <source>Bottom</source>
-        <translation>Внизу</translation>
+        <translation>Alt</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="80"/>
         <source>Word Wrap</source>
-        <translation>Перенесення слів</translation>
+        <translation>Sözcük Kaydır</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="84"/>
         <source>Padding</source>
-        <translation>Відступ</translation>
+        <translation>Dolgu</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="88"/>
         <source>Position</source>
-        <translation>Позиція</translation>
+        <translation>Pozisyon</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="92"/>
         <source>Outline</source>
-        <translation>Контури</translation>
+        <translation>Taslak</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="96"/>
         <source>Outline Color</source>
-        <translation>Колір контурів</translation>
+        <translation>anahat Renk</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="100"/>
         <source>Outline Width</source>
-        <translation>Ширина контурів</translation>
+        <translation>Anahat Genişliği</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="105"/>
         <source>Shadow</source>
-        <translation>Тінь</translation>
+        <translation>Gölge</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="109"/>
         <source>Shadow Color</source>
-        <translation>Колір тіні</translation>
+        <translation>Gölge Renk</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="113"/>
         <source>Shadow Angle</source>
-        <translation>Кут падіння тіні</translation>
+        <translation>Gölge Açısı</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="117"/>
         <source>Shadow Distance</source>
-        <translation>Відстань до тіні</translation>
+        <translation>Gölge Mesafesi</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="122"/>
         <source>Shadow Softness</source>
-        <translation>Розсіювання тіні</translation>
+        <translation>Gölge Yumuşaklığı</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="127"/>
         <source>Shadow Opacity</source>
-        <translation>Непрозорість тіні</translation>
+        <translation>Gölge Opaklığı</translation>
     </message>
     <message>
         <location filename="../effects/internal/texteffect.cpp" line="134"/>
         <source>Sample Text</source>
-        <translation>Зразок тексту</translation>
+        <translation>Örnek yazı</translation>
     </message>
 </context>
 <context>
@@ -3225,47 +3225,47 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="51"/>
         <source>Timecode</source>
-        <translation>Тайм-код</translation>
+        <translation>Zaman-kodu</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="53"/>
         <source>Sequence</source>
-        <translation>Послідовність</translation>
+        <translation>Sıra</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="54"/>
         <source>Media</source>
-        <translation>Файл</translation>
+        <translation>Dosya</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="57"/>
         <source>Scale</source>
-        <translation>Масштаб</translation>
+        <translation>Ölçü</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="64"/>
         <source>Color</source>
-        <translation>Колір</translation>
+        <translation>Renk</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="69"/>
         <source>Background Color</source>
-        <translation>Колір фону</translation>
+        <translation>Arkaplan Rengi</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="74"/>
         <source>Background Opacity</source>
-        <translation>Непрозорість фону</translation>
+        <translation>Arkaplan Opaklığı</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="81"/>
         <source>Offset</source>
-        <translation>Зміщення</translation>
+        <translation>Kaydırma</translation>
     </message>
     <message>
         <location filename="../effects/internal/timecodeeffect.cpp" line="85"/>
         <source>Prepend</source>
-        <translation>Префікс</translation>
+        <translation>Başına Ekle</translation>
     </message>
 </context>
 <context>
@@ -3273,152 +3273,152 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../panels/timeline.cpp" line="124"/>
         <source>Pointer Tool</source>
-        <translation>Вказівник</translation>
+        <translation>İşaretçi Aracı</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="125"/>
         <source>Edit Tool</source>
-        <translation>Виділення</translation>
+        <translation>Düzenleme Aracı</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="126"/>
         <source>Ripple Tool</source>
-        <translation>Монтаж зі зміщенням</translation>
+        <translation>Dalgalanma Aracı</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="127"/>
         <source>Razor Tool</source>
-        <translation>Підрізання</translation>
+        <translation>Kırpma</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="128"/>
         <source>Slip Tool</source>
-        <translation>Прокручування зі зміщенням</translation>
+        <translation>Ofset kaydırma</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="129"/>
         <source>Slide Tool</source>
-        <translation>Прокручування</translation>
+        <translation>Kaydırma Aracı</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="130"/>
         <source>Hand Tool</source>
-        <translation>Навігація</translation>
+        <translation>Yol Bul</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="131"/>
         <source>Transition Tool</source>
-        <translation>Перехід</translation>
+        <translation>Geçiş</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="132"/>
         <source>Snapping</source>
-        <translation>Прилипання</translation>
+        <translation>Yapışma</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="133"/>
         <source>Zoom In</source>
-        <translation>Наблизити</translation>
+        <translation>Yakınlaştır</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="134"/>
         <source>Zoom Out</source>
-        <translation>Віддалити</translation>
+        <translation>Uzaklaştırmak</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="135"/>
         <source>Record audio</source>
-        <translation>Запис звука</translation>
+        <translation>Ses kaydı</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="136"/>
         <source>Add title, solid, bars, etc.</source>
-        <translation>Додати титри, заливку, тестову таблицю, і т.п.</translation>
+        <translation>Başlık, katı, çubuk vb. Ekleyin.</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="487"/>
         <source>Nested Sequence</source>
-        <translation>Вкладена послідовність</translation>
+        <translation>İç içe sıra</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1353"/>
         <source>Effect already exists</source>
-        <translation>Ефект уже додано</translation>
+        <translation>Efekt zaten eklenmiş</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1354"/>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
-        <translation>Кліп &apos;%1&apos; уже містить ефект &apos;%2&apos;. Хочете замінити його на вставлюваний чи додати цей ефект як окремий?</translation>
+        <translation>Klip &apos;%1&apos; zaten bir efekt &apos;%2&apos; içeriyor. Yapıştırılanla değiştirmek veya ayrı bir efekt olarak eklemek ister misiniz?</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1359"/>
         <source>Add</source>
-        <translation>Додати</translation>
+        <translation>Ekle</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1360"/>
         <source>Replace</source>
-        <translation>Замінити</translation>
+        <translation>Değiştir</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1361"/>
         <source>Skip</source>
-        <translation>Пропустити</translation>
+        <translation>Atlama</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1363"/>
         <source>Do this for all conflicts found</source>
-        <translation>Застосувати для всіх конфліктів</translation>
+        <translation>Bulunan tüm çatışmalar için bunu yap</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1826"/>
         <source>Title...</source>
-        <translation>Титри...</translation>
+        <translation>Başlık...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1831"/>
         <source>Solid Color...</source>
-        <translation>Суцільна заливка...</translation>
+        <translation>Koyu Renk...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1836"/>
         <source>Bars...</source>
-        <translation>Тестова таблиця...</translation>
+        <translation>Test Masası...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1843"/>
         <source>Tone...</source>
-        <translation>Звуковой сигнал…</translation>
+        <translation>Ton…</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1848"/>
         <source>Noise...</source>
-        <translation>Шум...</translation>
+        <translation>Gürültü...</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1871"/>
         <source>Unsaved Project</source>
-        <translation>Незбережений проект</translation>
+        <translation>Kaydedilmemiş Proje</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1872"/>
         <source>You must save this project before you can record audio in it.</source>
-        <translation>Перед записом звука необхідно зберегти проект.</translation>
+        <translation>Ses kaydı yapmadan önce bu projeyi kaydetmelisiniz.</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1878"/>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
-        <translation>Клікніть на монтажному столі у точці, куди хочете почати запис звука (перетягніть курсор після кліка щоб відразу встановити тривалість запису)</translation>
+        <translation>Kaydı başlatmak istediğiniz zaman çizelgesine tıklayın (kaydı belirli bir zaman dilimine sınırlamak için sürükleyin)</translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1939"/>
         <source>Timeline: </source>
-        <translation>Монтажний стіл: </translation>
+        <translation>Montaj Masası: </translation>
     </message>
     <message>
         <location filename="../panels/timeline.cpp" line="1941"/>
         <source>(none)</source>
-        <translation>(пусто)</translation>
+        <translation>(boş)</translation>
     </message>
 </context>
 <context>
@@ -3426,7 +3426,7 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelineheader.cpp" line="486"/>
         <source>Center Timecodes</source>
-        <translation>Центрувати тайм-код</translation>
+        <translation>Tarih Kodunuortala</translation>
     </message>
 </context>
 <context>
@@ -3434,28 +3434,28 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="90"/>
         <source>&amp;Undo</source>
-        <translation>&amp;Відмінити</translation>
+        <translation>&amp;Geri Al</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="91"/>
         <source>&amp;Redo</source>
-        <translation>По&amp;вернути</translation>
+        <translation>&amp;Yinele</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="111"/>
         <source>R&amp;ipple Delete Empty Space</source>
         <translatorcomment>Уточнити</translatorcomment>
-        <translation>Видалити зі зміщенням порожнє &amp;місце</translation>
+        <translation>D&amp;algalanma Boş Alanı Sil</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="115"/>
         <source>Sequence Settings</source>
-        <translation>Налаштування послідовності</translation>
+        <translation>Sıra Ayarları</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="134"/>
         <source>&amp;Speed/Duration</source>
-        <translation>&amp;Швидкість/Тривалість</translation>
+        <translation>&amp;Hız/Süre</translation>
     </message>
     <message>
         <source>Auto-s&amp;cale</source>
@@ -3464,23 +3464,23 @@ Seek quickly (may briefly show inaccurate frames when seeking - doesn&apos;t aff
     <message>
         <location filename="../ui/timelinewidget.cpp" line="137"/>
         <source>Auto-Cut Silence</source>
-        <translation>Автовирізання тиші</translation>
+        <translation>Otomatik Kesme Sessizliği</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="140"/>
         <source>Auto-S&amp;cale</source>
-        <translation>Авто&amp;масштабування</translation>
+        <translation>Otomatik&amp;ölçeklendirme</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="175"/>
         <source>&amp;Reveal in Project</source>
-        <translatorcomment>Уточнити</translatorcomment>
-        <translation>&amp;Показати у проекті</translation>
+        <translatorcomment>rafine</translatorcomment>
+        <translation>&amp;Projede Göster</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="179"/>
         <source>Properties</source>
-        <translation>Властивості</translation>
+        <translation>Sahne Özellikleri</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="207"/>
@@ -3489,49 +3489,49 @@ Start: %2
 End: %3
 Duration: %4</source>
         <translation>%1
-Початок: %2
-Кінець: %3
-Тривалість: %4</translation>
+Başlat: %2
+Son: %3
+Süre: %4</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="233"/>
         <source>Error</source>
-        <translation>Помилка</translation>
+        <translation>Hata</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="233"/>
         <source>Couldn&apos;t locate media wrapper for sequence.</source>
-        <translation>Не вдається визначити обробник медіа для послідовності.</translation>
+        <translation>Dizi için ortam sargısı bulunamadı.</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1041"/>
         <source>Title</source>
-        <translation>Титри</translation>
+        <translation>Başlık</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1045"/>
         <source>Solid Color</source>
-        <translation>Суцільна заливка</translation>
+        <translation>Koyu Renk</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1050"/>
         <source>Bars</source>
-        <translation>Тестова таблиця</translation>
+        <translation>Test Çubuğu</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1061"/>
         <source>Tone</source>
-        <translation>Звуковой сигнал</translation>
+        <translation>Ton</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1065"/>
         <source>Noise</source>
-        <translation>Шум</translation>
+        <translation>Gürültü</translation>
     </message>
     <message>
         <location filename="../ui/timelinewidget.cpp" line="1994"/>
         <source>Duration:</source>
-        <translation>Тривалість:</translation>
+        <translation>Süre:</translation>
     </message>
 </context>
 <context>
@@ -3539,27 +3539,27 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="31"/>
         <source>Type</source>
-        <translation>Тип</translation>
+        <translation>Тür</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="33"/>
         <source>Sine</source>
-        <translation>Синусоїда</translation>
+        <translation>Sinüs</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="35"/>
         <source>Frequency</source>
-        <translation>Частота</translation>
+        <translation>Frekans</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="41"/>
         <source>Amount</source>
-        <translation>Кількість</translation>
+        <translation>Toplam</translation>
     </message>
     <message>
         <location filename="../effects/internal/toneeffect.cpp" line="47"/>
         <source>Mix</source>
-        <translation>Змішування</translation>
+        <translation>Karıştır</translation>
     </message>
 </context>
 <context>
@@ -3567,42 +3567,42 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="49"/>
         <source>Position</source>
-        <translation>Позиція</translation>
+        <translation>Pozisyon</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="54"/>
         <source>Scale</source>
-        <translation>Масштаб</translation>
+        <translation>Ölçek</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="64"/>
         <source>Uniform Scale</source>
-        <translation>Пропорційний масштаб</translation>
+        <translation>Tek tip ölçek</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="68"/>
         <source>Rotation</source>
-        <translation>Обертання</translation>
+        <translation>Dönme</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="72"/>
         <source>Anchor Point</source>
-        <translation>Якірна точка</translation>
+        <translation>Dayanak noktası</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="77"/>
         <source>Opacity</source>
-        <translation>Непрозорість</translation>
+        <translation>Opaklık</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="84"/>
         <source>Blend Mode</source>
-        <translation>Режим змішування</translation>
+        <translation>Karıştırma modu</translation>
     </message>
     <message>
         <location filename="../effects/internal/transformeffect.cpp" line="89"/>
         <source>Normal</source>
-        <translation>Звичайний</translation>
+        <translation>Normal</translation>
     </message>
 </context>
 <context>
@@ -3610,7 +3610,7 @@ Duration: %4</source>
     <message>
         <location filename="../effects/transition.cpp" line="48"/>
         <source>Length</source>
-        <translation>Тривалість</translation>
+        <translation>Süre</translation>
     </message>
 </context>
 <context>
@@ -3618,7 +3618,7 @@ Duration: %4</source>
     <message>
         <location filename="../ui/updatenotification.cpp" line="35"/>
         <source>An update is available from the Olive website. Visit www.olivevideoeditor.org to download it.</source>
-        <translation>Оновлення доступне на сайті Olive. Відвідайте www.olivevideoeditor.org для завантаження.</translation>
+        <translation>Olive web sitesinde bir güncelleme mevcut. İndirmek için www.olivevideoeditor.org adresini ziyaret edin.</translation>
     </message>
 </context>
 <context>
@@ -3627,59 +3627,59 @@ Duration: %4</source>
         <location filename="../effects/internal/vsthost.cpp" line="130"/>
         <location filename="../effects/internal/vsthost.cpp" line="146"/>
         <source>Error loading VST plugin</source>
-        <translation>Помилка при завантаженні плагіна VST</translation>
+        <translation>VST eklentisi yüklenirken hata oluştu</translation>
     </message>
     <message>
         <source>Failed to create VST reference</source>
-        <translation type="vanished">Не вдалося створити зв&apos;язок VST</translation>
+        <translation type="vanished">VST referansı oluşturulamadı</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="131"/>
         <source>Failed to load VST plugin &quot;%1&quot;: %2</source>
-        <translation>Не вдалося завантажити плагін VST &quot;%1&quot;: %2</translation>
+        <translation>VST eklentisi yüklenemedi &quot;%1&quot;: %2</translation>
     </message>
     <message>
         <source>NOTE: You can&apos;t load 32-bit VST plugins into a 64-bit build of Olive. Please find a 64-bit version of this plugin or switch to a 32-bit build of Olive.</source>
-        <translation type="vanished">ПРИМІТКА: Ви не можете завантажувати 32-розрядні плагіни VST у 64-розрядний Olive. Знайдіть 64-розрядну версію цього плагіна або встановіть 32-розрядну версію Olive.</translation>
+        <translation type="vanished">NOT: 64-bit Olive'de 32-bit VST eklentilerini indiremezsiniz. Bu eklentinin 64 bit sürümünü bulun veya Olive'in 32 bit sürümünü yükleyin.</translation>
     </message>
     <message>
         <source>NOTE: You can&apos;t load 64-bit VST plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
-        <translation type="vanished">ПРИМІТКА: Ви не можете завантажувати 64-розрядні плагіни VST у 32-розрядний Olive. Знайдіть 64-розрядну версію цього плагіна або встановіть 64-розрядну версію Olive.</translation>
+        <translation type="vanished">NOT: 64-bit VST eklentilerini 32-bit bir Olive yapısına yükleyebilirsiniz. Lütfen bu eklentinin 32 bit sürümünü bulun veya 64 bit Olive ürününe geçin.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="147"/>
         <source>Failed to locate entry point for dynamic library.</source>
-        <translation>Не вдалося визначити вхідну точку для динамічної бібліотеки.</translation>
+        <translation>Dinamik kütüphane için giriş noktası bulunamadı.</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="172"/>
         <source>VST Error</source>
-        <translation>Помилка VST</translation>
+        <translation>VST Hata</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="172"/>
         <source>Plugin&apos;s magic number is invalid</source>
-        <translation>Магічний номер плагіна некоректний</translation>
+        <translation>Eklentinin sihirli numarası geçersiz</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="228"/>
         <source>VST Plugin</source>
-        <translation>Плагін VST</translation>
+        <translation>VST Eklenti</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="254"/>
         <source>Plugin</source>
-        <translation>Плагін</translation>
+        <translation>Eklenti</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="258"/>
         <source>Interface</source>
-        <translation>Інтерфейс</translation>
+        <translation>Arayüz</translation>
     </message>
     <message>
         <location filename="../effects/internal/vsthost.cpp" line="260"/>
         <source>Show</source>
-        <translation>Показати</translation>
+        <translation>Göster</translation>
     </message>
 </context>
 <context>
@@ -3687,27 +3687,27 @@ Duration: %4</source>
     <message>
         <location filename="../panels/viewer.cpp" line="601"/>
         <source>(none)</source>
-        <translation>(пусто)</translation>
+        <translation>(hiçbiri)</translation>
     </message>
     <message>
         <location filename="../panels/viewer.cpp" line="737"/>
         <source>Drag video only</source>
-        <translation>Перетягнути лише відео</translation>
+        <translation>Yalnızca video sürükleyin</translation>
     </message>
     <message>
         <location filename="../panels/viewer.cpp" line="744"/>
         <source>Drag audio only</source>
-        <translation>Перетягнути лише аудіо</translation>
+        <translation>Yalnızca sesi sürükleyin</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="927"/>
         <source>Sequence Viewer</source>
-        <translation>Переглядач послідовності</translation>
+        <translation>Sıra Görüntüleyici</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="928"/>
         <source>Media Viewer</source>
-        <translation>Переглядач медіа файлів</translation>
+        <translation>Medya Görüntüleyici</translation>
     </message>
 </context>
 <context>
@@ -3715,57 +3715,57 @@ Duration: %4</source>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="113"/>
         <source>Save Frame as Image...</source>
-        <translation>Зберегти кадр як зображення...</translation>
+        <translation>Çerçeveyi Görüntü Olarak Kaydet...</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="116"/>
         <source>Show Fullscreen</source>
-        <translation>Повноекранний режим</translation>
+        <translation>Tam ekran modu</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="120"/>
         <source>Disable</source>
-        <translation>Вимкнути</translation>
+        <translation>Devre Dışı</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="123"/>
         <source>Screen %1: %2x%3</source>
-        <translation>Екран %1: %2x%3</translation>
+        <translation>Ekran %1: %2x%3</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="131"/>
         <source>Zoom</source>
-        <translation>Масштаб</translation>
+        <translation>Yakınlaştır</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="132"/>
         <source>Fit</source>
-        <translation>Підігнати</translation>
+        <translation>Sığdır</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="142"/>
         <source>Custom</source>
-        <translation>Інше</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="148"/>
         <source>Close Media</source>
-        <translation>Закрити файл</translation>
+        <translation>Medyayı Kapat</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="158"/>
         <source>Save Frame</source>
-        <translation>Зберегти кадр</translation>
+        <translation>Çerçeveyi Kaydet</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="192"/>
         <source>Viewer Zoom</source>
-        <translation>Масштаб перегляду</translation>
+        <translation>Görüntüleyici Yakınlaştırma</translation>
     </message>
     <message>
         <location filename="../ui/viewerwidget.cpp" line="193"/>
         <source>Set Custom Zoom Value:</source>
-        <translation>Інше значення масштаба:</translation>
+        <translation>Özel Yakınlaştırma Değerini Ayarla:</translation>
     </message>
 </context>
 <context>
@@ -3773,7 +3773,7 @@ Duration: %4</source>
     <message>
         <location filename="../ui/viewerwindow.cpp" line="170"/>
         <source>Exit Fullscreen</source>
-        <translation>Вийти з повноекранного режиму</translation>
+        <translation>Tam ekrandan çık</translation>
     </message>
 </context>
 <context>
@@ -3781,12 +3781,12 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/voideffect.cpp" line="33"/>
         <source>(unknown)</source>
-        <translation>(невідомо)</translation>
+        <translation>(bilinmiyor)</translation>
     </message>
     <message>
         <location filename="../effects/internal/voideffect.cpp" line="37"/>
         <source>Missing Effect</source>
-        <translation>Відсутній ефект</translation>
+        <translation>Kayıp Efekt</translation>
     </message>
 </context>
 <context>
@@ -3794,7 +3794,7 @@ Duration: %4</source>
     <message>
         <location filename="../effects/internal/volumeeffect.cpp" line="32"/>
         <source>Volume</source>
-        <translation>Гучність</translation>
+        <translation>Ses Seviyesi</translation>
     </message>
 </context>
 <context>
@@ -3802,12 +3802,12 @@ Duration: %4</source>
     <message>
         <location filename="../effects/transition.cpp" line="117"/>
         <source>Invalid transition</source>
-        <translation>Некоректний перехід</translation>
+        <translation>Geçersiz geçiş</translation>
     </message>
     <message>
         <location filename="../effects/transition.cpp" line="118"/>
         <source>No candidate for transition &apos;%1&apos;. This transition may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Немає кандидата для переходу &apos;%1&apos;. Цей перехід може бути некоректний. Спробуйте перевстановити його або ж Olive.</translation>
+        <translation>Geçiş için aday yok &apos;%1&apos;. Bu geçiş bozuk olabilir. Yeniden kurmayı ya da Olive'i deneyin.</translation>
     </message>
 </context>
 </TS>
