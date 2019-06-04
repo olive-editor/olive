@@ -1079,12 +1079,14 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="853"/>
         <source>Drop Frame</source>
-        <translation>丟失的幀</translation>
+        <translatorcomment>丟失的幀</translatorcomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="854"/>
         <source>Non-Drop Frame</source>
-        <translation>保留的幀</translation>
+        <translatorcomment>保留的幀</translatorcomment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="855"/>
