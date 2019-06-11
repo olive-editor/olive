@@ -36,6 +36,8 @@ typedef void (*f0rDestructFunc)(f0r_instance_t instance);
 typedef void (*f0rGetPluginInfo)(f0r_plugin_info_t* info);
 typedef void (*f0rSetParamValue) (f0r_instance_t instance,
         f0r_param_t param, int param_index);
+typedef void (*f0rGetParamValue) (f0r_instance_t instance,
+        f0r_param_t param, int param_index);
 
 Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
   Effect(c, em),
@@ -69,6 +71,10 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
   param_count = info.num_params;
 
   get_param_info = reinterpret_cast<f0rGetParamInfo>(handle.resolve("f0r_get_param_info"));
+
+  f0rGetParamValue get_param_value = reinterpret_cast<f0rGetParamValue>(handle.resolve("f0r_get_param_value"));
+  
+  double default_value;
   for (int i=0;i<param_count;i++) {
     f0r_param_info_t param_info;
     get_param_info(&param_info, i);
@@ -77,13 +83,19 @@ Frei0rEffect::Frei0rEffect(Clip* c, const EffectMeta *em) :
       EffectRow* row = new EffectRow(this, param_info.name);
       switch (param_info.type) {
       case F0R_PARAM_BOOL:
-        new BoolField(row, QString::number(i));
+      {
+        BoolField* f = new BoolField(row, QString::number(i));
+        get_param_value(instance, &default_value, i);
+        f->SetValueAt(0, default_value > 0.5);
+      }
         break;
       case F0R_PARAM_DOUBLE:
       {
         DoubleField* f = new DoubleField(row, QString::number(i));
         f->SetMinimum(0);
         f->SetMaximum(100);
+        get_param_value(instance, &default_value, i);
+        f->SetValueAt(0, 100 * default_value);
       }
         break;
       case F0R_PARAM_COLOR:
