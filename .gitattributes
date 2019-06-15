@@ -1,0 +1,6 @@
+# Default behavior
+* text=auto
+
+# Enforce LF line endings on source files
+*.h     text    eol=lf
+*.cpp   text    eol=lf
