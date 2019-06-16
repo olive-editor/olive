@@ -52,7 +52,7 @@ public:
    *
    * The font family name at this timecode
    */
-  QString GetFontAt(double timecode);
+  QString GetFontAt(const rational &timecode);
 
   /**
    * @brief Reimplementation of EffectField::CreateWidget()
@@ -64,7 +64,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode) override;
 
 private:
   /**

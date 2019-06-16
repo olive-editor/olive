@@ -29,7 +29,7 @@ BoolField::BoolField(NodeIO *parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_BOOL)
 {}
 
-bool BoolField::GetBoolAt(double timecode)
+bool BoolField::GetBoolAt(const rational &timecode)
 {
   return GetValueAt(timecode).toBool();
 }
@@ -56,7 +56,7 @@ QWidget *BoolField::CreateWidget(QWidget *existing)
   return cb;
 }
 
-void BoolField::UpdateWidgetValue(QWidget *widget, double timecode)
+void BoolField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
   QCheckBox* cb = static_cast<QCheckBox*>(widget);
 
@@ -65,13 +65,8 @@ void BoolField::UpdateWidgetValue(QWidget *widget, double timecode)
 
   cb->blockSignals(true);
 
-  if (qIsNaN(timecode)) {
-    cb->setTristate(true);
-    cb->setCheckState(Qt::PartiallyChecked);
-  } else {
-    cb->setTristate(false);
-    cb->setChecked(GetBoolAt(timecode));
-  }
+  cb->setTristate(false);
+  cb->setChecked(GetBoolAt(timecode));
 
   cb->blockSignals(false);
 

@@ -129,7 +129,7 @@ public:
   NodeIO* texture_io;
   // END TEST CODE
 
-  long playhead;
+  rational playhead;
 
   bool using_workarea;
   long workarea_in;

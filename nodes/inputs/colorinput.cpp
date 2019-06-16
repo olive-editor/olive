@@ -8,7 +8,7 @@ ColorInput::ColorInput(Node *parent, const QString& id, const QString& name, boo
   AddAcceptedNodeInput(olive::nodes::kColor);
 }
 
-QColor ColorInput::GetColorAt(double timecode)
+QColor ColorInput::GetColorAt(const rational& timecode)
 {
   return static_cast<ColorField*>(Field(0))->GetColorAt(timecode);
 }

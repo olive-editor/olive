@@ -22,7 +22,7 @@ public:
    *
    * The font family name at this timecode
    */
-  QString GetFontAt(double timecode);
+  QString GetFontAt(const rational &timecode);
 };
 
 #endif // FONTINPUT_H

@@ -129,6 +129,7 @@ bool Viewer::focused() {
 }
 
 void Viewer::reset_all_audio() {
+  /* FIXME: Entire audio system is being rewritten
   // reset all clip audio
   if (seq != nullptr) {
     long last_frame = 0;
@@ -150,6 +151,7 @@ void Viewer::reset_all_audio() {
     audio_ibuffer_timecode = double(audio_ibuffer_frame) / seq->frame_rate();
   }
   clear_audio_ibuffer();
+  */
 }
 
 void Viewer::seek(long p) {
@@ -174,7 +176,6 @@ void Viewer::seek(long p) {
 
   reset_all_audio();
   audio_scrub = true;
-  last_playhead = seq->playhead;
   update_parents(update_fx);
 }
 
@@ -382,7 +383,7 @@ void Viewer::update_playhead_timecode(long p) {
 }
 
 void Viewer::update_end_timecode() {
-  end_timecode->setText((seq == nullptr) ? frame_to_timecode(0, olive::config.timecode_view, 30) : frame_to_timecode(seq->GetEndFrame(), olive::config.timecode_view, seq->frame_rate()));
+  end_timecode->setText((seq == nullptr) ? TimeToSMPTE(0, olive::config.timecode_view, 30) : TimeToSMPTE(seq->GetEndFrame(), olive::config.timecode_view, seq->frame_rate()));
 }
 
 void Viewer::update_header_zoom() {

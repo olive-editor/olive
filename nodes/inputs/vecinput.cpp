@@ -84,7 +84,7 @@ DoubleInput::DoubleInput(Node *parent, const QString &id, const QString &name, b
 {
 }
 
-double DoubleInput::GetDoubleAt(double timecode)
+double DoubleInput::GetDoubleAt(const rational& timecode)
 {
   return static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode);
 }
@@ -94,12 +94,12 @@ Vec2Input::Vec2Input(Node *parent, const QString &id, const QString &name, bool 
 {
 }
 
-QVector2D Vec2Input::GetVector2DAt(double timecode)
+QVector2D Vec2Input::GetVector2DAt(const rational &timecode)
 {
   return GetValueAt(timecode).value<QVector2D>();
 }
 
-QVariant Vec2Input::GetValueAt(double timecode)
+QVariant Vec2Input::GetValueAt(const rational &timecode)
 {
   QVector2D vec2;
   vec2.setX(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
@@ -113,7 +113,7 @@ QVariant Vec2Input::GetValueAt(double timecode)
   return vec2;
 }
 
-void Vec2Input::SetValueAt(double timecode, const QVariant &value)
+void Vec2Input::SetValueAt(const rational &timecode, const QVariant &value)
 {
   QVector2D vec2 = value.value<QVector2D>();
 
@@ -126,12 +126,12 @@ Vec3Input::Vec3Input(Node *parent, const QString &id, const QString &name, bool 
 {
 }
 
-QVector3D Vec3Input::GetVector3DAt(double timecode)
+QVector3D Vec3Input::GetVector3DAt(const rational &timecode)
 {
   return GetValueAt(timecode).value<QVector3D>();
 }
 
-QVariant Vec3Input::GetValueAt(double timecode)
+QVariant Vec3Input::GetValueAt(const rational &timecode)
 {
   QVector3D vec3;
   vec3.setX(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
@@ -147,7 +147,7 @@ QVariant Vec3Input::GetValueAt(double timecode)
   return vec3;
 }
 
-void Vec3Input::SetValueAt(double timecode, const QVariant &value)
+void Vec3Input::SetValueAt(const rational &timecode, const QVariant &value)
 {
   QVector3D vec3 = value.value<QVector3D>();
 
@@ -161,12 +161,12 @@ Vec4Input::Vec4Input(Node *parent, const QString &id, const QString &name, bool 
 {
 }
 
-QVector4D Vec4Input::GetVector4DAt(double timecode)
+QVector4D Vec4Input::GetVector4DAt(const rational &timecode)
 {
   return GetValueAt(timecode).value<QVector4D>();
 }
 
-QVariant Vec4Input::GetValueAt(double timecode)
+QVariant Vec4Input::GetValueAt(const rational &timecode)
 {
   QVector4D vec4;
   vec4.setX(static_cast<DoubleField*>(Field(0))->GetDoubleAt(timecode));
@@ -184,7 +184,7 @@ QVariant Vec4Input::GetValueAt(double timecode)
   return vec4;
 }
 
-void Vec4Input::SetValueAt(double timecode, const QVariant &value)
+void Vec4Input::SetValueAt(const rational &timecode, const QVariant &value)
 {
   QVector4D vec4 = value.value<QVector4D>();
 

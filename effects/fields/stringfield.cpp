@@ -36,7 +36,7 @@ StringField::StringField(NodeIO* parent, bool rich_text) :
   SetValueAt(0, "");
 }
 
-QString StringField::GetStringAt(double timecode)
+QString StringField::GetStringAt(const rational& timecode)
 {
   return GetValueAt(timecode).toString();
 }
@@ -69,7 +69,7 @@ QWidget *StringField::CreateWidget(QWidget *existing)
   return text_edit;
 }
 
-void StringField::UpdateWidgetValue(QWidget *widget, double timecode)
+void StringField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
   TextEditEx* text = static_cast<TextEditEx*>(widget);
 

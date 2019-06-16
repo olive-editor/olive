@@ -22,6 +22,8 @@
 
 #include <QCoreApplication>
 
+#include "nodes/nodes/nodemedia.h"
+#include "nodes/nodes/nodevideoclip.h"
 #include "timelinefunctions.h"
 #include "panels/panels.h"
 #include "global/clipboard.h"
@@ -310,6 +312,74 @@ void Sequence::AddClipsFromGhosts(ComboAction* ca, const QVector<Ghost>& ghosts)
   }
 
   olive::timeline::snapped = false;
+
+  /* FIXME: Old Clip create code, should be removed but keeping for reference for the timebeing
+  // add clips
+  long earliest_point = LONG_MAX;
+  QVector<ClipPtr> added_clips;
+  for (int i=0;i<ghosts.size();i++) {
+    const Ghost& g = ghosts.at(i);
+
+    earliest_point = qMin(earliest_point, g.in);
+
+    ClipPtr c = std::make_shared<Clip>(g.track->Sibling(g.track_movement));
+    c->set_media(g.media, g.media_stream);
+    c->set_timeline_in(g.in);
+    c->set_timeline_out(g.out);
+    c->set_clip_in(g.clip_in);
+    if (c->media()->get_type() == MEDIA_TYPE_FOOTAGE) {
+      Footage* m = c->media()->to_footage();
+      if (m->video_tracks.size() == 0) {
+        // audio only (greenish)
+        c->set_color(128, 192, 128);
+      } else if (m->audio_tracks.size() == 0) {
+        // video only (orangeish)
+        c->set_color(192, 160, 128);
+      } else {
+        // video and audio (blueish)
+        c->set_color(128, 128, 192);
+      }
+      c->set_name(m->name);
+    } else if (c->media()->get_type() == MEDIA_TYPE_SEQUENCE) {
+      // sequence (red?ish?)
+      c->set_color(192, 128, 128);
+
+      c->set_name(c->media()->to_sequence()->name());
+    }
+    c->refresh();
+    added_clips.append(c);
+
+  }
+  ca->append(new AddClipCommand(added_clips));
+
+  // link clips from the same media
+  for (int i=0;i<added_clips.size();i++) {
+    ClipPtr c = added_clips.at(i);
+    for (int j=0;j<added_clips.size();j++) {
+      ClipPtr cc = added_clips.at(j);
+      if (c != cc && c->media() == cc->media()) {
+        c->linked.append(cc.get());
+      }
+    }
+
+    if (olive::config.add_default_effects_to_clips) {
+      if (c->type() == olive::kTypeVideo) {
+        // add default video effects
+        c->effects.append(olive::node_library[kTransformEffect]->Create(c.get()));
+      } else if (c->type() == olive::kTypeAudio) {
+        // add default audio effects
+        c->effects.append(olive::node_library[kVolumeEffect]->Create(c.get()));
+        c->effects.append(olive::node_library[kPanEffect]->Create(c.get()));
+      }
+    }
+  }
+
+  if (olive::config.enable_seek_to_import) {
+    panel_sequence_viewer->seek(earliest_point);
+  }
+
+  olive::timeline::snapped = false;
+  */
 }
 
 void Sequence::MoveClip(Clip *c, ComboAction *ca, long iin, long iout, long iclip_in, Track *itrack, bool verify_transitions, bool relative)

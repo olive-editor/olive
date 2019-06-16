@@ -79,7 +79,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode) override;
 
 signals:
   /**

@@ -36,6 +36,7 @@ class ClickableLabel;
 
 #include "effects/effectfields.h"
 #include "nodes/nodeedge.h"
+#include "global/rational.h"
 
 /**
  * @brief The EffectRow class
@@ -201,7 +202,7 @@ public:
    *
    * The value of the first EffectField at the given timecode
    */
-  virtual QVariant GetValueAt(double timecode);
+  virtual QVariant GetValueAt(const rational &timecode);
 
   /**
    * @brief Set value
@@ -230,7 +231,7 @@ public:
    *
    * Value to set at this timecode
    */
-  virtual void SetValueAt(double timecode, const QVariant& value);
+  virtual void SetValueAt(const rational& timecode, const QVariant& value);
 
   /**
    * @brief Sets the enabled state on all EffectField objects on this row to enabled

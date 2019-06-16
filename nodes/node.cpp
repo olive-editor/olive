@@ -38,7 +38,7 @@ int Node::ParameterCount()
   return parameters_.size();
 }
 
-double Node::Time()
+const rational& Node::Time()
 {
   return 0;
 }

@@ -110,18 +110,18 @@ OldEffectNodePtr TimecodeEffect::Create(Clip *c)
 }
 
 
-void TimecodeEffect::redraw(double timecode) {
+void TimecodeEffect::redraw(const rational &timecode) {
   Sequence* sequence = parent_clip->track()->sequence();
 
   if (tc_select->GetValueAt(timecode).toBool()) {
-    display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(sequence->playhead,
-                                                                               olive::config.timecode_view,
-                                                                               sequence->frame_rate());
+    display_timecode = prepend_text->GetStringAt(timecode) + TimeToSMPTE(sequence->playhead,
+                                                                         olive::config.timecode_view,
+                                                                         sequence->frame_rate());
   } else {
     double media_rate = parent_clip->media_frame_rate();
-    display_timecode = prepend_text->GetStringAt(timecode) + frame_to_timecode(qRound(timecode * media_rate),
-                                                                               olive::config.timecode_view,
-                                                                               media_rate);
+    display_timecode = prepend_text->GetStringAt(timecode) + TimeToSMPTE(timecode,
+                                                                         olive::config.timecode_view,
+                                                                         media_rate);
   }
   img.fill(Qt::transparent);
 

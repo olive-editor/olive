@@ -54,7 +54,7 @@ public:
    *
    * Double value at the set timecode
    */
-  double GetDoubleAt(double timecode);
+  double GetDoubleAt(const rational &timecode);
 
   /**
    * @brief Sets the minimum allowed number for the user to set to `minimum`.
@@ -103,7 +103,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode) override;
 signals:
   /**
    * @brief Signal emitted when the field's maximum value has changed

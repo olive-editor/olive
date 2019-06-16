@@ -54,7 +54,7 @@ public:
    *
    * The string at this timecode
    */
-  QString GetStringAt(double timecode);
+  QString GetStringAt(const rational &timecode);
 
   /**
    * @brief Reimplementation of EffectField::CreateWidget()
@@ -66,7 +66,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode) override;
 private slots:
   /**
    * @brief Internal function connected to any QWidget made from CreateWidget() to update the value based on user input

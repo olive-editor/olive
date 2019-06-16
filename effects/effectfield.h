@@ -28,6 +28,7 @@
 #include "effects/keyframe.h"
 #include "undo/undostack.h"
 #include "nodes/nodedatatypes.h"
+#include "global/rational.h"
 
 class NodeIO;
 class ComboAction;
@@ -151,7 +152,7 @@ public:
    *
    * A QVariant representation of the value at the given timecode.
    */
-  QVariant GetValueAt(double timecode);
+  QVariant GetValueAt(const rational &timecode);
 
   /**
    * @brief Set the value of this field at a given timecode
@@ -176,7 +177,7 @@ public:
    *
    * The QVariant value to set at this time.
    */
-  void SetValueAt(double time, const QVariant& value);
+  void SetValueAt(const rational& time, const QVariant& value);
 
   /**
    * @brief Set up keyframing on this field
@@ -285,7 +286,7 @@ public:
    *
    * The time in clip/media seconds to retrieve data from.
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode);
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode);
 
   /**
    * @brief Get the correct X position/time value of a bezier keyframe's handles
@@ -408,7 +409,7 @@ private:
    *
    * The progress between the `before` keyframe and `after` keyframe from 0.0 to 1.0.
    */
-  void GetKeyframeData(double timecode, int& before, int& after, double& d);
+  void GetKeyframeData(const rational &timecode, int& before, int& after, double& d);
 
   /**
    * @brief Internal enabled value

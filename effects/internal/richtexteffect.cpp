@@ -117,7 +117,7 @@ OldEffectNodePtr RichTextEffect::Create(Clip *c)
   return std::make_shared<RichTextEffect>(c);
 }
 
-void RichTextEffect::redraw(double timecode)
+void RichTextEffect::redraw(const rational &timecode)
 {
   QPainter p(&img);
   p.setRenderHint(QPainter::Antialiasing);
@@ -144,7 +144,7 @@ void RichTextEffect::redraw(double timecode)
 
   if (auto_scroll_dir != SCROLL_OFF) {
     double clip_length_secs = double(parent_clip->length()) / parent_clip->media_frame_rate();
-    scroll_progress = (timecode - double(parent_clip->clip_in()) / parent_clip->media_frame_rate()) / clip_length_secs;
+    scroll_progress = (timecode.ToDouble() - double(parent_clip->clip_in()) / parent_clip->media_frame_rate()) / clip_length_secs;
   }
 
   if (auto_scroll_dir == SCROLL_OFF || auto_scroll_dir == SCROLL_LEFT || auto_scroll_dir == SCROLL_RIGHT) {
@@ -221,5 +221,7 @@ void RichTextEffect::redraw(double timecode)
 
 bool RichTextEffect::AlwaysUpdate()
 {
-  return autoscroll->GetValueAt(Now()).toInt() != SCROLL_OFF;
+  // FIXME
+  //return autoscroll->GetValueAt(Now()).toInt() != SCROLL_OFF;
+  return false;
 }

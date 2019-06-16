@@ -22,7 +22,7 @@ public:
    *
    * The color value at this timecode
    */
-  QColor GetColorAt(double timecode);
+  QColor GetColorAt(const rational &timecode);
 };
 
 #endif // COLORINPUT_H

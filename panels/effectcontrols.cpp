@@ -87,7 +87,8 @@ void EffectControls::set_zoom(bool in) {
   update_keyframes();
 
   if (!selected_clips_.isEmpty()) {
-    scroll_to_frame(selected_clips_.first()->track()->sequence()->playhead);
+    // FIXME
+    //scroll_to_frame(selected_clips_.first()->track()->sequence()->playhead);
   }
 }
 

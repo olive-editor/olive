@@ -36,7 +36,7 @@ DoubleField::DoubleField(NodeIO* parent) :
   connect(this, SIGNAL(Changed()), this, SLOT(ValueHasBeenSet()), Qt::DirectConnection);
 }
 
-double DoubleField::GetDoubleAt(double timecode)
+double DoubleField::GetDoubleAt(const rational& timecode)
 {
   return GetValueAt(timecode).toDouble();
 }
@@ -117,13 +117,13 @@ QWidget *DoubleField::CreateWidget(QWidget *existing)
   return ls;
 }
 
-void DoubleField::UpdateWidgetValue(QWidget *widget, double timecode)
+void DoubleField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
-  if (qIsNaN(timecode)) {
-    static_cast<LabelSlider*>(widget)->SetValue(qSNaN());
-  } else {
+  //if (qIsNaN(timecode)) {
+    //static_cast<LabelSlider*>(widget)->SetValue(qSNaN());
+  //} else {
     static_cast<LabelSlider*>(widget)->SetValue(GetDoubleAt(timecode));
-  }
+  //}
 }
 
 void DoubleField::ValueHasBeenSet()

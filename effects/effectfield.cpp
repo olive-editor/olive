@@ -65,9 +65,9 @@ QString EffectField::ConvertValueToString(const QVariant &v)
   return v.toString();
 }
 
-void EffectField::UpdateWidgetValue(QWidget *, double) {}
+void EffectField::UpdateWidgetValue(QWidget *, const rational &) {}
 
-QVariant EffectField::GetValueAt(double timecode)
+QVariant EffectField::GetValueAt(const rational& timecode)
 {
   if (HasKeyframes()) {
     int before_keyframe;
@@ -96,15 +96,19 @@ QVariant EffectField::GetValueAt(double timecode)
 
         } else if (before_key.type == EFFECT_KEYFRAME_BEZIER || after_key.type == EFFECT_KEYFRAME_BEZIER) {
 
+          double timecode_dbl = timecode.ToDouble();
+          double before_time_dbl = before_key.time.ToDouble();
+          double after_time_dbl = after_key.time.ToDouble();
+
           // bezier interpolation
           if (before_key.type == EFFECT_KEYFRAME_BEZIER && after_key.type == EFFECT_KEYFRAME_BEZIER) {
 
             // cubic bezier
-            double t = cubic_t_from_x(timecode,
-                                      before_key.time,
-                                      before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true),
-                                      after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false),
-                                      after_key.time);
+            double t = cubic_t_from_x(timecode_dbl,
+                                      before_time_dbl,
+                                      before_time_dbl+GetValidKeyframeHandlePosition(before_keyframe, true),
+                                      after_time_dbl+GetValidKeyframeHandlePosition(after_keyframe, false),
+                                      after_time_dbl);
 
             value = cubic_from_t(before_dbl,
                                  before_dbl+before_key.post_handle.y(),
@@ -115,10 +119,10 @@ QVariant EffectField::GetValueAt(double timecode)
           } else if (after_key.type == EFFECT_KEYFRAME_LINEAR) { // quadratic bezier
 
             // last keyframe is the bezier one
-            double t = quad_t_from_x(timecode,
-                                     before_key.time,
-                                     before_key.time+GetValidKeyframeHandlePosition(before_keyframe, true),
-                                     after_key.time);
+            double t = quad_t_from_x(timecode_dbl,
+                                     before_time_dbl,
+                                     before_time_dbl+GetValidKeyframeHandlePosition(before_keyframe, true),
+                                     after_time_dbl);
 
             value = quad_from_t(before_dbl,
                                 before_dbl+before_key.post_handle.y(),
@@ -127,10 +131,10 @@ QVariant EffectField::GetValueAt(double timecode)
 
           } else {
             // this keyframe is the bezier one
-            double t = quad_t_from_x(timecode,
-                                     before_key.time,
-                                     after_key.time+GetValidKeyframeHandlePosition(after_keyframe, false),
-                                     after_key.time);
+            double t = quad_t_from_x(timecode_dbl,
+                                     before_time_dbl,
+                                     after_time_dbl+GetValidKeyframeHandlePosition(after_keyframe, false),
+                                     after_time_dbl);
 
             value = quad_from_t(before_dbl,
                                 after_dbl+after_key.pre_handle.y(),
@@ -177,7 +181,7 @@ QVariant EffectField::GetValueAt(double timecode)
   return persistent_data_;
 }
 
-void EffectField::SetValueAt(double time, const QVariant &value)
+void EffectField::SetValueAt(const rational &time, const QVariant &value)
 {
   if (HasKeyframes()) {
 
@@ -186,7 +190,7 @@ void EffectField::SetValueAt(double time, const QVariant &value)
     // Check array if a keyframe at this time already exists
     int keyframe_index = -1;
     for (int i=0;i<keyframes.size();i++) {
-      if (qFuzzyCompare(keyframes.at(i).time, time)) {
+      if (keyframes.at(i).time == time) {
         keyframe_index = i;
         break;
       }
@@ -256,7 +260,7 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
     if (i != key
         && ((keyframes.at(i).time > keyframes.at(key).time) == post)
         && (comp_key == -1
-          || ((keyframes.at(i).time < keyframes.at(comp_key).time) == post))) {
+            || ((keyframes.at(i).time < keyframes.at(comp_key).time) == post))) {
       // compare with next keyframe for post or previous frame for pre
       comp_key = i;
     }
@@ -269,7 +273,7 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
     return adjusted_key;
   }
 
-  double comp = keyframes.at(comp_key).time - keyframes.at(key).time;
+  double comp = keyframes.at(comp_key).time.ToDouble() - keyframes.at(key).time.ToDouble();
 
   // if comp keyframe is bezier, validate with its accompanying handle
   if (keyframes.at(comp_key).type == EFFECT_KEYFRAME_BEZIER) {
@@ -294,24 +298,29 @@ double EffectField::GetValidKeyframeHandlePosition(int key, bool post) {
   return adjusted_key;
 }
 
-void EffectField::GetKeyframeData(double timecode, int &before, int &after, double &progress) {
+void EffectField::GetKeyframeData(const rational& timecode, int &before, int &after, double &progress) {
   int before_keyframe_index = -1;
   int after_keyframe_index = -1;
   double before_keyframe_time = DBL_MIN;
   double after_keyframe_time = DBL_MAX;
 
   for (int i=0;i<keyframes.size();i++) {
-    double eval_keyframe_time = keyframes.at(i).time;
-    if (qFuzzyCompare(eval_keyframe_time, timecode)) {
+    const rational& eval_keyframe_time = keyframes.at(i).time;
+    if (eval_keyframe_time == timecode) {
       before = i;
       after = i;
       return;
-    } else if (eval_keyframe_time < timecode && eval_keyframe_time > before_keyframe_time) {
-      before_keyframe_index = i;
-      before_keyframe_time = eval_keyframe_time;
-    } else if (eval_keyframe_time > timecode && eval_keyframe_time < after_keyframe_time) {
-      after_keyframe_index = i;
-      after_keyframe_time = eval_keyframe_time;
+    } else {
+
+      double eval_keyframe_dbl = eval_keyframe_time.ToDouble();
+
+      if (eval_keyframe_time < timecode && eval_keyframe_dbl > before_keyframe_time) {
+        before_keyframe_index = i;
+        before_keyframe_time = eval_keyframe_dbl;
+      } else if (eval_keyframe_time > timecode && eval_keyframe_dbl < after_keyframe_time) {
+        after_keyframe_index = i;
+        after_keyframe_time = eval_keyframe_dbl;
+      }
     }
   }
 
@@ -320,7 +329,7 @@ void EffectField::GetKeyframeData(double timecode, int &before, int &after, doub
     // interpolate
     before = before_keyframe_index;
     after = after_keyframe_index;
-    progress = (timecode-before_keyframe_time)/(after_keyframe_time-before_keyframe_time);
+    progress = (timecode.ToDouble()-before_keyframe_time)/(after_keyframe_time-before_keyframe_time);
   } else if (before_keyframe_index > -1) {
     before = before_keyframe_index;
     after = before_keyframe_index;

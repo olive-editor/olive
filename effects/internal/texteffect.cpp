@@ -156,7 +156,7 @@ OldEffectNodePtr TextEffect::Create(Clip *c)
   return std::make_shared<TextEffect>(c);
 }
 
-void TextEffect::redraw(double timecode) {
+void TextEffect::redraw(const rational &timecode) {
   if (size_val->GetDoubleAt(timecode) <= 0) {
     return;
   }

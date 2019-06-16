@@ -59,9 +59,7 @@ void TimelineArea::SetTrackType(Sequence *sequence, olive::TrackType track_type)
   type_ = track_type;
 
   if (sequence_ != nullptr) {
-
     connect(sequence_, SIGNAL(NodeGraphChanged()), this, SLOT(RefreshLabels()));
-
   }
 
   RefreshLabels();

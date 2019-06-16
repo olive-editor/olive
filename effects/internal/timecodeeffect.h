@@ -39,7 +39,7 @@ public:
   virtual olive::TrackType subtype() override;
   virtual OldEffectNodePtr Create(Clip *c) override;
 
-  virtual void redraw(double timecode) override;
+  virtual void redraw(const rational &timecode) override;
   DoubleInput* scale_val;
   ColorInput* color_val;
   ColorInput* color_bg_val;

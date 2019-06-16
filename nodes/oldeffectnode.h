@@ -179,30 +179,6 @@ public:
   void gizmo_world_to_screen(const QMatrix4x4 &matrix, const QMatrix4x4 &projection);
   bool are_gizmos_enabled();
 
-  /**
-   * @brief Get the current clip/media time
-   *
-   * A convenience function that can be plugged into GetValueAt() to get the value wherever the appropriate Sequence's
-   * playhead it.
-   *
-   * @return
-   *
-   * Current clip/media time in seconds.
-   */
-  double Now();
-
-  /**
-   * @brief Retrieve the current clip as a frame number
-   *
-   * Same as Now() but retrieves the value as a frame number (in the appropriate Sequence's frame rate) instead of
-   * seconds.
-   *
-   * @return
-   *
-   * The current clip time in frames
-   */
-  long NowInFrames();
-
   template <typename T>
   T randomNumber()
   {
@@ -267,8 +243,8 @@ private:
 
 
   // superimpose functions
-  virtual void redraw(double timecode);
-  bool valueHasChanged(double timecode);
+  virtual void redraw(const rational& timecode);
+  bool valueHasChanged(const rational& timecode);
   QVector<QVariant> cachedValues;
   void delete_texture();
   void validate_meta_path();

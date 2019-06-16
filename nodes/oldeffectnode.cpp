@@ -796,17 +796,7 @@ bool OldEffectNode::are_gizmos_enabled() {
   return (gizmos.size() > 0);
 }
 
-double OldEffectNode::Now()
-{
-  return playhead_to_clip_seconds(parent_clip, parent_clip->track()->sequence()->playhead);
-}
-
-long OldEffectNode::NowInFrames()
-{
-  return playhead_to_clip_frame(parent_clip, parent_clip->track()->sequence()->playhead);
-}
-
-void OldEffectNode::redraw(double) {
+void OldEffectNode::redraw(const rational &) {
   /*
   // run javascript
   QPainter p(&img);
@@ -850,7 +840,7 @@ void OldEffectNode::redraw(double) {
   */
 }
 
-bool OldEffectNode::valueHasChanged(double timecode) {
+bool OldEffectNode::valueHasChanged(const rational &timecode) {
   if (cachedValues.isEmpty()) {
 
     for (int i=0;i<ParameterCount();i++) {

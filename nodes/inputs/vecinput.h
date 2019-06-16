@@ -45,34 +45,34 @@ class DoubleInput : public VecInput
 public:
   DoubleInput(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
-  double GetDoubleAt(double timecode);
+  double GetDoubleAt(const rational &timecode);
 };
 
 class Vec2Input : public VecInput {
 public:
   Vec2Input(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
-  QVector2D GetVector2DAt(double timecode);
-  virtual QVariant GetValueAt(double timecode) override;
-  virtual void SetValueAt(double timecode, const QVariant &value) override;
+  QVector2D GetVector2DAt(const rational& timecode);
+  virtual QVariant GetValueAt(const rational& timecode) override;
+  virtual void SetValueAt(const rational& timecode, const QVariant &value) override;
 };
 
 class Vec3Input : public VecInput {
 public:
   Vec3Input(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
-  QVector3D GetVector3DAt(double timecode);
-  virtual QVariant GetValueAt(double timecode) override;
-  virtual void SetValueAt(double timecode, const QVariant &value) override;
+  QVector3D GetVector3DAt(const rational& timecode);
+  virtual QVariant GetValueAt(const rational& timecode) override;
+  virtual void SetValueAt(const rational& timecode, const QVariant &value) override;
 };
 
 class Vec4Input : public VecInput {
 public:
   Vec4Input(Node* parent, const QString& id, const QString& name, bool savable = true, bool keyframable = true);
 
-  QVector4D GetVector4DAt(double timecode);
-  virtual QVariant GetValueAt(double timecode) override;
-  virtual void SetValueAt(double timecode, const QVariant &value) override;
+  QVector4D GetVector4DAt(const rational& timecode);
+  virtual QVariant GetValueAt(const rational& timecode) override;
+  virtual void SetValueAt(const rational& timecode, const QVariant &value) override;
 };
 
 #endif // VEC2INPUT_H

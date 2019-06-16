@@ -10,7 +10,7 @@ BoolInput::BoolInput(Node *parent, const QString& id, const QString& name, bool 
   AddAcceptedNodeInput(olive::nodes::kBoolean);
 }
 
-bool BoolInput::GetBoolAt(double timecode)
+bool BoolInput::GetBoolAt(const rational& timecode)
 {
   return static_cast<BoolField*>(Field(0))->GetBoolAt(timecode);
 }

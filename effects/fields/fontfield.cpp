@@ -37,7 +37,7 @@ FontField::FontField(NodeIO* parent) :
   SetValueAt(0, font_list.first());
 }
 
-QString FontField::GetFontAt(double timecode)
+QString FontField::GetFontAt(const rational& timecode)
 {
   return GetValueAt(timecode).toString();
 }
@@ -66,7 +66,7 @@ QWidget *FontField::CreateWidget(QWidget *existing)
   return fcb;
 }
 
-void FontField::UpdateWidgetValue(QWidget *widget, double timecode)
+void FontField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
   QVariant data = GetValueAt(timecode);
 

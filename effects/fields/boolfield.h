@@ -50,7 +50,7 @@ public:
    *
    * The boolean value at this timecode
    */
-  bool GetBoolAt(double timecode);
+  bool GetBoolAt(const rational& timecode);
 
   /**
    * @brief Reimplementation of EffectField::CreateWidget()
@@ -62,7 +62,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode) override;
 
   /**
    * @brief Reimplementation of EffectField::ConvertStringToValue()

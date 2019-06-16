@@ -22,7 +22,7 @@ public:
   NodeIO* Parameter(int i);
   int ParameterCount();
 
-  double Time();
+  const rational &Time();
 
   NodeGraph* ParentGraph();
 

@@ -4,6 +4,8 @@
 #include <QString>
 #include <QtMath>
 
+#include "global/rational.h"
+
 class Clip;
 
 /**
@@ -131,7 +133,7 @@ int64_t seconds_to_timestamp(Clip* c, double seconds);
 int64_t playhead_to_timestamp(Clip  *c, long playhead);
 
 bool frame_rate_is_droppable(double rate);
-long timecode_to_frame(const QString& s, int view, double frame_rate);
-QString frame_to_timecode(long f, int view, double frame_rate);
+long SMPTEToTime(const QString& s, int view, double frame_rate);
+QString TimeToSMPTE(const rational &time, int view, double frame_rate);
 
 #endif // TIMING_H

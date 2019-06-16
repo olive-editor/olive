@@ -24,6 +24,8 @@
 #include <QVariant>
 #include <QPointF>
 
+#include "global/rational.h"
+
 class EffectField;
 
 class EffectKeyframe {
@@ -31,7 +33,7 @@ public:
   EffectKeyframe();
 
   int type;
-  double time;
+  rational time;
   QVariant data;
 
   // only for bezier type

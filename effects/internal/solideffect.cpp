@@ -104,7 +104,7 @@ OldEffectNodePtr SolidEffect::Create(Clip *c)
   return std::make_shared<SolidEffect>(c);
 }
 
-void SolidEffect::redraw(double timecode) {
+void SolidEffect::redraw(const rational &timecode) {
   int w = img.width();
   int h = img.height();
   int alpha = qRound(opacity_field->GetDoubleAt(timecode)*2.55);

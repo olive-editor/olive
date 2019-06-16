@@ -8,7 +8,7 @@ FontInput::FontInput(Node *parent, const QString& id, const QString& name, bool 
   AddAcceptedNodeInput(olive::nodes::kFont);
 }
 
-QString FontInput::GetFontAt(double timecode)
+QString FontInput::GetFontAt(const rational& timecode)
 {
   return static_cast<FontField*>(Field(0))->GetFontAt(timecode);
 }

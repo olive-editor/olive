@@ -22,7 +22,7 @@ public:
    *
    * The boolean value at this timecode
    */
-  bool GetBoolAt(double timecode);
+  bool GetBoolAt(const rational &timecode);
 
 signals:
   /**

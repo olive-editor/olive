@@ -50,7 +50,7 @@ public:
    *
    * The color value at this timecode
    */
-  QColor GetColorAt(double timecode);
+  QColor GetColorAt(const rational &timecode);
 
   /**
    * @brief CreateWidget
@@ -62,7 +62,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget* widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget* widget, const rational& timecode) override;
 
   /**
    * @brief Reimplementation of EffectField::ConvertStringToValue()

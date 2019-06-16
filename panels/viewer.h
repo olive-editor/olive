@@ -144,7 +144,6 @@ private:
   QString panel_name;
   double minimum_zoom;
   bool playing_in_to_out;
-  long last_playhead;
   void set_zoom_value(double d);
   void set_sb_max();
   void set_playback_speed(int s);

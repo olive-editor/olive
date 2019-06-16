@@ -46,7 +46,7 @@ bool frame_rate_is_droppable(double rate) {
           || qFuzzyCompare(rate, 59.94));
 }
 
-long timecode_to_frame(const QString& s, int view, double frame_rate) {
+long SMPTEToTime(const QString& s, int view, double frame_rate) {
   QList<QString> list = s.split(QRegExp("[:;]"));
 
   if (view == olive::kTimecodeFrames || (list.size() == 1 && view != olive::kTimecodeMilliseconds)) {
@@ -102,7 +102,9 @@ long timecode_to_frame(const QString& s, int view, double frame_rate) {
   return f;
 }
 
-QString frame_to_timecode(long f, int view, double frame_rate) {
+QString TimeToSMPTE(const rational& time, int view, double frame_rate) {
+  long f = qFloor(time.ToDouble()*frame_rate); // FIXME: Not sure if this should be Floor or Round
+
   if (view == olive::kTimecodeFrames) {
     return QString::number(f);
   }

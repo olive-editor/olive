@@ -30,7 +30,7 @@ ColorField::ColorField(NodeIO* parent) :
   EffectField(parent, EffectField::EFFECT_FIELD_COLOR)
 {}
 
-QColor ColorField::GetColorAt(double timecode)
+QColor ColorField::GetColorAt(const rational& timecode)
 {
   return GetValueAt(timecode).value<QColor>();
 }
@@ -45,7 +45,7 @@ QWidget *ColorField::CreateWidget(QWidget *existing)
   return cb;
 }
 
-void ColorField::UpdateWidgetValue(QWidget *widget, double timecode)
+void ColorField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
   ColorButton* cb = static_cast<ColorButton*>(widget);
 

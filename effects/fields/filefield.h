@@ -51,7 +51,7 @@ public:
    *
    * The filename at this timecode
    */
-  QString GetFileAt(double timecode);
+  QString GetFileAt(const rational &timecode);
 
   /**
    * @brief Reimplementation of EffectField::CreateWidget()
@@ -63,7 +63,7 @@ public:
   /**
    * @brief Reimplementation of EffectField::UpdateWidgetValue()
    */
-  virtual void UpdateWidgetValue(QWidget *widget, double timecode) override;
+  virtual void UpdateWidgetValue(QWidget *widget, const rational& timecode) override;
 private slots:
   /**
    * @brief Internal function connected to any QWidget made from CreateWidget() to update the value based on user input

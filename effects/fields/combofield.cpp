@@ -62,7 +62,7 @@ QWidget *ComboField::CreateWidget(QWidget *existing)
   return cb;
 }
 
-void ComboField::UpdateWidgetValue(QWidget *widget, double timecode)
+void ComboField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
   QVariant data = GetValueAt(timecode);
 

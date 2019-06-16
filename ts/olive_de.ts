@@ -2040,121 +2040,121 @@ Audio Layout: %6</translation>
         <translation>Neue Sequenz</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="222"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="211"/>
         <source>Preset:</source>
         <translatorcomment>Could be also preset</translatorcomment>
         <translation>Vorgabe:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="226"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="215"/>
         <source>Film 4K</source>
         <translation>Film 4K</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="227"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="216"/>
         <source>TV 4K (Ultra HD/2160p)</source>
         <translation>TV 4K (Ultra HD/2160p)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="228"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="217"/>
         <source>1080p</source>
         <translation>1080p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="229"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="218"/>
         <source>720p</source>
         <translation>720p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="230"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="219"/>
         <source>480p</source>
         <translation>480p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="231"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="220"/>
         <source>360p</source>
         <translation>360p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="232"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="221"/>
         <source>240p</source>
         <translation>240p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="233"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="222"/>
         <source>144p</source>
         <translation>144p</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="234"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="223"/>
         <source>NTSC (480i)</source>
         <translation>NTSC (480i)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="235"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="224"/>
         <source>PAL (576i)</source>
         <translation>PAL (576i)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="236"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="225"/>
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="244"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="233"/>
         <source>Video</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="248"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="237"/>
         <source>Width:</source>
         <translation>Breite:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="254"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="243"/>
         <source>Height:</source>
         <translation>Höhe:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="260"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="249"/>
         <source>Frame Rate:</source>
         <translation>Bildrate:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="280"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="269"/>
         <source>Pixel Aspect Ratio:</source>
         <translation>Pixel-Seitenverhältnis:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="282"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="271"/>
         <source>Square Pixels (1.0)</source>
         <translation>Quadratische Pixel (1.0)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="285"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="274"/>
         <source>Interlacing:</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Interlacing:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="287"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="276"/>
         <source>None (Progressive)</source>
         <translation>Keine (Progressive)</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="293"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="282"/>
         <source>Audio</source>
         <translatorcomment>Same as in english</translatorcomment>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="297"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="286"/>
         <source>Sample Rate: </source>
         <translation>Abtastrate:</translation>
     </message>
     <message>
-        <location filename="../dialogs/newsequencedialog.cpp" line="315"/>
+        <location filename="../dialogs/newsequencedialog.cpp" line="304"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
@@ -3410,7 +3410,7 @@ Sucht schneller (kann kurzzeitig ungenaue Frame anzeigen - wirkt sich nicht auf 
 <context>
     <name>Sequence</name>
     <message>
-        <location filename="../timeline/sequence.cpp" line="45"/>
+        <location filename="../timeline/sequence.cpp" line="47"/>
         <source>%1 (copy)</source>
         <translation>%1 (kopieren)</translation>
     </message>

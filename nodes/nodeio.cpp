@@ -141,7 +141,7 @@ QVariant NodeIO::GetValue()
   return GetValueAt(0);
 }
 
-QVariant NodeIO::GetValueAt(double timecode)
+QVariant NodeIO::GetValueAt(const rational& timecode)
 {
   if (FieldCount() == 0) {
     return data_;
@@ -157,7 +157,7 @@ void NodeIO::SetValue(const QVariant &value)
   SetValueAt(0, value);
 }
 
-void NodeIO::SetValueAt(double timecode, const QVariant &value)
+void NodeIO::SetValueAt(const rational &timecode, const QVariant &value)
 {
   if (FieldCount() == 0) {
     data_ = value;

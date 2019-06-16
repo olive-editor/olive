@@ -33,7 +33,7 @@ FileField::FileField(NodeIO* parent) :
   SetValueAt(0, "");
 }
 
-QString FileField::GetFileAt(double timecode)
+QString FileField::GetFileAt(const rational& timecode)
 {
   return GetValueAt(timecode).toString();
 }
@@ -48,7 +48,7 @@ QWidget *FileField::CreateWidget(QWidget *existing)
   return efc;
 }
 
-void FileField::UpdateWidgetValue(QWidget *widget, double timecode)
+void FileField::UpdateWidgetValue(QWidget *widget, const rational &timecode)
 {
   EmbeddedFileChooser* efc = static_cast<EmbeddedFileChooser*>(widget);
 

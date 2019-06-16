@@ -27,7 +27,7 @@ public:
    *
    * The string at this timecode
    */
-  QString GetStringAt(double timecode);
+  QString GetStringAt(const rational &timecode);
 };
 
 #endif // STRINGINPUT_H

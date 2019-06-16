@@ -325,6 +325,7 @@ void OliveGlobal::save_recent_projects()
 
 void OliveGlobal::PasteInternal(Sequence *s, bool insert)
 {
+  /* FIXME: Broken, will probably need rewrite
   if (s == nullptr) {
     return;
   }
@@ -457,6 +458,7 @@ void OliveGlobal::PasteInternal(Sequence *s, bool insert)
       update_ui(true);
     }
   }
+  */
 }
 
 void OliveGlobal::EffectMenuAction(QAction *q)

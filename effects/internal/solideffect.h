@@ -44,7 +44,7 @@ public:
   virtual olive::TrackType subtype() override;
   virtual OldEffectNodePtr Create(Clip *c) override;
 
-  virtual void redraw(double timecode) override;
+  virtual void redraw(const rational& timecode) override;
 
   void SetType(SolidType type);
 private slots:

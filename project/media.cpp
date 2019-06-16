@@ -288,7 +288,7 @@ int Media::columnCount() const {
 QString Media::GetStringDuration() {
   if (get_type() == MEDIA_TYPE_SEQUENCE) {
     Sequence* s = to_sequence().get();
-    return frame_to_timecode(s->GetEndFrame(), olive::config.timecode_view, s->frame_rate());
+    return TimeToSMPTE(s->GetEndFrame(), olive::config.timecode_view, s->frame_rate());
   }
   if (get_type() == MEDIA_TYPE_FOOTAGE) {
     Footage* f = to_footage();
@@ -298,7 +298,7 @@ QString Media::GetStringDuration() {
       r = f->video_tracks.at(0).video_frame_rate * f->speed;
 
     long len = f->get_length_in_frames(r);
-    if (len > 0) return frame_to_timecode(len, olive::config.timecode_view, r);
+    if (len > 0) return TimeToSMPTE(len, olive::config.timecode_view, r);
   }
   return QString();
 }

@@ -8,7 +8,7 @@ StringInput::StringInput(Node *parent, const QString& id, const QString& name, b
   AddAcceptedNodeInput(olive::nodes::kString);
 }
 
-QString StringInput::GetStringAt(double timecode)
+QString StringInput::GetStringAt(const rational& timecode)
 {
   return static_cast<StringField*>(Field(0))->GetStringAt(timecode);
 }
