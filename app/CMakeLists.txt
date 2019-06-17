@@ -16,12 +16,15 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  core.h
+  core.cpp
   main.cpp
 )
 
 add_subdirectory(panel)
 add_subdirectory(project)
 add_subdirectory(render)
+add_subdirectory(ui)
 add_subdirectory(widget)
 add_subdirectory(window)
 
@@ -29,6 +32,11 @@ set(OLIVE_TARGET "olive-editor")
 if(APPLE)
   set(OLIVE_TARGET "Olive")
 endif()
+
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
+  #effects/internal/internalshaders.qrc
+)
 
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}
@@ -39,7 +47,7 @@ add_executable(${OLIVE_TARGET}
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
-target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wno-reorder>)
+target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Werror -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
 
 target_link_libraries(${OLIVE_TARGET}
   PRIVATE
@@ -57,12 +65,6 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swscale
   FFMPEG::swresample
   OpenColorIO
-)
-
-set(OLIVE_RESOURCES
-  cursors/cursors.qrc
-  effects/internal/internalshaders.qrc
-  icons/icons.qrc
 )
 
 set(OLIVE_EFFECTS

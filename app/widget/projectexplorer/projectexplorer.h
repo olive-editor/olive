@@ -1,9 +1,10 @@
 #ifndef PROJECTEXPLORER_H
 #define PROJECTEXPLORER_H
 
-#include <QWidget>
+#include <QStackedWidget>
+#include <QTreeView>
 
-class ProjectExplorer : public QWidget
+class ProjectExplorer : public QStackedWidget
 {
 public:
   enum ViewType {
@@ -20,6 +21,7 @@ public:
 private:
   ViewType view_type_;
 
+  QTreeView* tree_view_;
 };
 
 #endif // PROJECTEXPLORER_H

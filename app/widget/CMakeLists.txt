@@ -16,7 +16,9 @@
 
 add_subdirectory(viewer)
 add_subdirectory(panel)
+add_subdirectory(playbackcontrols)
 add_subdirectory(projectexplorer)
+add_subdirectory(projecttoolbar)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

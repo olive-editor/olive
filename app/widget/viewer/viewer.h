@@ -6,6 +6,7 @@
 #include <QLabel>
 
 #include "viewerglwidget.h"
+#include "widget/playbackcontrols/playbackcontrols.h"
 
 /**
  * @brief The ViewerWidget class
@@ -18,11 +19,12 @@ class ViewerWidget : public QWidget
 public:
   ViewerWidget(QWidget* parent);
 
+  void SetPlaybackControlsEnabled(bool enabled);
+
 private:
   ViewerGLWidget* gl_widget_;
+  PlaybackControls* controls_;
 
-  QLabel* cur_tc_lbl_;
-  QLabel* end_tc_lbl_;
 };
 
 #endif // VIEWER_WIDGET_H

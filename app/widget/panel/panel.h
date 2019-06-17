@@ -2,6 +2,7 @@
 #define PANEL_WIDGET_H
 
 #include <QDockWidget>
+#include <QEvent>
 
 /**
  * @brief The PanelWidget class

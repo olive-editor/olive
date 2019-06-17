@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 
 // Panel objects
+#include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
+#include "panel/timeline/timeline.h"
 
 olive::MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
@@ -19,12 +21,12 @@ olive::MainWindow::MainWindow(QWidget *parent) :
   setDockNestingEnabled(true);
 
   // TODO Use settings data to create panels and restore state if they exist
-  ViewerPanel* viewer_panel = new ViewerPanel(this);
+  ProjectPanel* viewer_panel = new ProjectPanel(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel);
   ViewerPanel* viewer_panel2 = new ViewerPanel(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
-  ViewerPanel* viewer_panel3 = new ViewerPanel(this);
-  addDockWidget(Qt::BottomDockWidgetArea, viewer_panel3);
   ViewerPanel* viewer_panel4 = new ViewerPanel(this);
-  addDockWidget(Qt::BottomDockWidgetArea, viewer_panel4);
+  addDockWidget(Qt::TopDockWidgetArea, viewer_panel4);
+  TimelinePanel* viewer_panel3 = new TimelinePanel(this);
+  addDockWidget(Qt::BottomDockWidgetArea, viewer_panel3);
 }

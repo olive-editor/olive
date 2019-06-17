@@ -1,9 +1,11 @@
 #include "projectexplorer.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
-  QWidget(parent),
+  QStackedWidget(parent),
   view_type_(TreeView)
 {
+  tree_view_ = new QTreeView(this);
+  addWidget(tree_view_);
 }
 
 const ProjectExplorer::ViewType &ProjectExplorer::view_type()

@@ -6,7 +6,7 @@
 class ViewerGLWidget : public QOpenGLWidget
 {
 public:
-  ViewerGLWidget();
+  ViewerGLWidget(QWidget* parent);
 
   void SetTexture(GLuint tex);
 protected:

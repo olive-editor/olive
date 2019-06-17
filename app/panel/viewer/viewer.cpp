@@ -13,4 +13,21 @@ ViewerPanel::ViewerPanel(QWidget *parent) :
 
   // Set ViewerWidget as the central widget
   setWidget(viewer);
+
+  // Set strings
+  Retranslate();
+}
+
+void ViewerPanel::changeEvent(QEvent *e)
+{
+  if (e->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+  QDockWidget::changeEvent(e);
+}
+
+void ViewerPanel::Retranslate()
+{
+  SetTitle(tr("Viewer"));
+  SetSubtitle(tr("(none)"));
 }

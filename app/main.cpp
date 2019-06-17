@@ -21,7 +21,7 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-#include "window/mainwindow/mainwindow.h"
+#include "core.h"
 
 int main(int argc, char *argv[]) {
   // Create application instance
@@ -43,11 +43,11 @@ int main(int argc, char *argv[]) {
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
-  // Create main window instance
-  olive::MainWindow w;
+  olive::core.Start();
 
-  // Show main window
-  w.showMaximized();
+  int exit_code = a.exec();
 
-  return a.exec();
+  olive::core.Stop();
+
+  return exit_code;
 }

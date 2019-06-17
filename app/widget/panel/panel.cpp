@@ -1,6 +1,8 @@
 #include "panel.h"
 
-PanelWidget::PanelWidget(QWidget *parent) {
+PanelWidget::PanelWidget(QWidget *parent) :
+  QDockWidget(parent)
+{
 }
 
 void PanelWidget::SetTitle(const QString &t)
