@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2019  Olive Team
+  Copyright (C) 2019 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,10 +43,13 @@ int main(int argc, char *argv[]) {
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 
+  // Start core
   olive::core.Start();
 
+  // Run application loop and receive exit code
   int exit_code = a.exec();
 
+  // Clear core memory
   olive::core.Stop();
 
   return exit_code;

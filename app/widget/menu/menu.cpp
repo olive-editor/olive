@@ -57,6 +57,14 @@ QAction *Menu::CreateItem(QObject* parent,
   return a;
 }
 
+void Menu::SetBooleanAction(QAction *a, bool* boolean)
+{
+  // FIXME: Connect to some boolean function
+  a->setCheckable(true);
+  a->setChecked(*boolean);
+  a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
+}
+
 void Menu::SetStyling()
 {
   //if (olive::config.use_native_menu_styling) {

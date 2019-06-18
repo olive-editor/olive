@@ -21,6 +21,8 @@ public:
                              const char* member,
                              const QString& key = QString());
 
+  static void SetBooleanAction(QAction* a, bool *boolean);
+
 private:
   void SetStyling();
 };
