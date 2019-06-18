@@ -1,10 +1,14 @@
 #ifndef STYLEMANAGER_H
 #define STYLEMANAGER_H
 
+#include <QWidget>
+
 namespace olive {
 namespace style {
 
-void SetDefault();
+void AppSetDefault();
+
+void WidgetSetNative(QWidget *w);
 
 }
 }

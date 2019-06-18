@@ -5,6 +5,9 @@
 #include "panel/viewer/viewer.h"
 #include "panel/timeline/timeline.h"
 
+// Main menu bar
+#include "mainmenu.h"
+
 olive::MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
 {
@@ -29,4 +32,7 @@ olive::MainWindow::MainWindow(QWidget *parent) :
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel4);
   TimelinePanel* viewer_panel3 = new TimelinePanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, viewer_panel3);
+
+  MainMenu* main_menu = new MainMenu(this);
+  setMenuBar(main_menu);
 }

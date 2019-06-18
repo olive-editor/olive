@@ -6,6 +6,7 @@
 
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
+#include "widget/menu/menushared.h"
 
 Core olive::core;
 
@@ -52,7 +53,10 @@ void Core::Start()
   olive::icon::LoadAll();
 
   // Set UI style
-  olive::style::SetDefault();
+  olive::style::AppSetDefault();
+
+  // Set up shared menus
+  olive::menu_shared.Initialize();
 
   // Create main window and open it
   main_window_ = new olive::MainWindow();

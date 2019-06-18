@@ -4,7 +4,7 @@
 #include <QPalette>
 #include <QStyleFactory>
 
-void olive::style::SetDefault()
+void olive::style::AppSetDefault()
 {
   qApp->setStyle(QStyleFactory::create("Fusion"));
 
@@ -35,10 +35,22 @@ void olive::style::SetDefault()
   bool set_separator_color = false;
 #ifndef Q_OS_WIN
   //set_separator_color = !olive::config.use_native_menu_styling;
+  set_separator_color = true;
 #endif
   if (set_separator_color) {
-    stylesheet.append("QMenu::separator { background: #404040; }");
+    stylesheet.append("QMenu::separator { background: #303030; }");
   }
 
   qApp->setStyleSheet(stylesheet);
+}
+
+void olive::style::WidgetSetNative(QWidget *w)
+{
+#ifdef Q_OS_WIN
+  w->setStyleSheet("");
+  w->setPalette(w->style()->standardPalette());
+  w->setStyle(QStyleFactory::create("windowsvista"));
+#else
+  Q_UNUSED(w)
+#endif
 }
