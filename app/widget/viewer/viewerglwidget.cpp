@@ -7,16 +7,14 @@
 #include "render/gl/glfunc.h"
 #include "render/gl/shadergenerators.h"
 
-QImage img;
-
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent)
 {
-  img.load("/home/matt/Pictures/heck.png");
 }
 
 void ViewerGLWidget::paintGL()
 {
+  /*
   QOpenGLFunctions* f = context()->functions();
 
   f->glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -33,4 +31,5 @@ void ViewerGLWidget::paintGL()
   tex->release();
 
   delete tex;
+  */
 }
