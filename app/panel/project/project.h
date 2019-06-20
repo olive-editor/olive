@@ -1,5 +1,5 @@
-#ifndef PROJECT_H
-#define PROJECT_H
+#ifndef PROJECT_PANEL_H
+#define PROJECT_PANEL_H
 
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"

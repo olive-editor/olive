@@ -1,9 +1,0 @@
-#!/usr/bin/make -f
-export QT_SELECT := qt5
-
-%:
-	dh $@
-
-override_dh_auto_build:
-	lrelease olive.pro
-	dh_auto_build

@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/internalshaders">
-        <file>common.vert</file>
-        <file>cornerpin.frag</file>
-        <file>cornerpin.vert</file>
-        <file>premultiply.frag</file>
-        <file>dropshadow.frag</file>
-    </qresource>
-</RCC>

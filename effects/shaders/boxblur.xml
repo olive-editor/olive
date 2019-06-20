@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<effect name="Box Blur" category="Blur" id="org.olivevideoeditor.Olive.boxblur">
-	<field name="Radius" type="double" min="0" default="10" id="radius"/>
-	<field name="Horizontal" type="bool" default="1" id="horiz_blur"/>
-	<field name="Vertical" type="bool" default="1" id="vert_blur"/>
-	<shader vert="common.vert" frag="boxblur.frag" iterations="2" />
-</effect>
