@@ -24,6 +24,12 @@ public:
     kRate
   };
 
+  /**
+   * @brief ProjectViewModel Constructor
+   *
+   * @param parent
+   * Parent object for memory handling
+   */
   ProjectViewModel(QObject* parent);
 
   /**
@@ -55,6 +61,7 @@ public:
 
   /** Optional Qt QAbstractItemModel overrides */
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+  virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
   Project* project_;

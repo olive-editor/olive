@@ -141,3 +141,21 @@ QVariant ProjectViewModel::headerData(int section, Qt::Orientation orientation, 
 
   return QAbstractItemModel::headerData(section, orientation, role);
 }
+
+bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
+{
+  // Check if this is a valid index
+  if (parent.isValid()) {
+    Item* item = static_cast<Item*>(parent.internalPointer());
+
+    // Check if this item is a kFolder type
+    // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
+    // even when there are no "physical" children
+    if (item->type() == Item::kFolder) {
+      return true;
+    }
+  }
+
+  // Otherwise, return default behavior
+  return QAbstractItemModel::hasChildren(parent);
+}
