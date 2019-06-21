@@ -26,6 +26,19 @@ QIcon olive::icon::Redo;
 QIcon olive::icon::TreeView;
 QIcon olive::icon::ListView;
 QIcon olive::icon::IconView;
+QIcon olive::icon::ToolPointer;
+QIcon olive::icon::ToolEdit;
+QIcon olive::icon::ToolRipple;
+QIcon olive::icon::ToolRazor;
+QIcon olive::icon::ToolSlip;
+QIcon olive::icon::ToolSlide;
+QIcon olive::icon::ToolHand;
+QIcon olive::icon::ToolTransition;
+QIcon olive::icon::Snapping;
+QIcon olive::icon::ZoomIn;
+QIcon olive::icon::ZoomOut;
+QIcon olive::icon::Record;
+QIcon olive::icon::Add;
 
 void olive::icon::LoadAll()
 {
@@ -44,6 +57,21 @@ void olive::icon::LoadAll()
   TreeView = Create("treeview");
   ListView = Create("listview");
   IconView = Create("iconview");
+
+  ToolPointer = Create("arrow");
+  ToolEdit = Create("beam");
+  ToolRipple = Create("ripple");
+  ToolRazor = Create("razor");
+  ToolSlip = Create("slip");
+  ToolSlide = Create("slide");
+  ToolHand = Create("hand");
+  ToolTransition = Create("transition-tool");
+
+  Snapping = Create("magnet");
+  ZoomIn = Create("zoomin");
+  ZoomOut = Create("zoomout");
+  Record = Create("record");
+  Add = Create("add-button");
 }
 
 QIcon olive::icon::Create(const QString &name)

@@ -23,4 +23,4 @@ private:
   ProjectExplorer* explorer_;
 };
 
-#endif // PROJECT_H
+#endif // PROJECT_PANEL_H

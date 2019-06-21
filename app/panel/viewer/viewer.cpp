@@ -5,9 +5,6 @@
 ViewerPanel::ViewerPanel(QWidget *parent) :
   PanelWidget(parent)
 {
-  SetTitle(tr("Viewer"));
-  SetSubtitle(tr("(None)"));
-
   // QObject system handles deleting this
   ViewerWidget* viewer = new ViewerWidget(this);
 

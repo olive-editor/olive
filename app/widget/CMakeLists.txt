@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+add_subdirectory(flowlayout)
 add_subdirectory(menu)
 add_subdirectory(panel)
 add_subdirectory(playbackcontrols)
 add_subdirectory(projectexplorer)
 add_subdirectory(projecttoolbar)
+add_subdirectory(toolbar)
 add_subdirectory(viewer)
 
 set(OLIVE_SOURCES

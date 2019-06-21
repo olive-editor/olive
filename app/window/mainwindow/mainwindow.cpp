@@ -24,6 +24,7 @@
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
 #include "panel/timeline/timeline.h"
+#include "panel/tool/tool.h"
 
 // Main menu bar
 #include "mainmenu.h"
@@ -60,6 +61,9 @@ void olive::MainWindow::ProjectOpen(Project* p)
 
   ViewerPanel* viewer_panel2 = new ViewerPanel(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
+
+  ToolPanel* tool_panel = new ToolPanel(this);
+  addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
 
   TimelinePanel* timeline_panel = new TimelinePanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);

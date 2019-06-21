@@ -24,6 +24,23 @@ extern QIcon TreeView;
 extern QIcon ListView;
 extern QIcon IconView;
 
+// Tool Icons
+extern QIcon ToolPointer;
+extern QIcon ToolEdit;
+extern QIcon ToolRipple;
+extern QIcon ToolRazor;
+extern QIcon ToolSlip;
+extern QIcon ToolSlide;
+extern QIcon ToolHand;
+extern QIcon ToolTransition;
+
+// Miscellaneous Icons
+extern QIcon Snapping;
+extern QIcon ZoomIn;
+extern QIcon ZoomOut;
+extern QIcon Record;
+extern QIcon Add;
+
 QIcon Create(const QString& name);
 void LoadAll();
 

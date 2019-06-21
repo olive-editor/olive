@@ -1,5 +1,5 @@
-#ifndef TIMELINE_H
-#define TIMELINE_H
+#ifndef TIMELINE_PANEL_H
+#define TIMELINE_PANEL_H
 
 #include "widget/panel/panel.h"
 
@@ -16,4 +16,4 @@ private:
   void Retranslate();
 };
 
-#endif // TIMELINE_H
+#endif // TIMELINE_PANEL_H
