@@ -85,6 +85,13 @@ void Core::Start()
   } else {
     main_window_->showMaximized();
   }
+
+  // When a new project is opened, update the mainwindow
+  connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
+
+  // Create new project on startup
+  // TODO: Load project from startup_project_ instead if not empty
+  AddOpenProject(std::make_shared<Project>());
 }
 
 void Core::Stop()
@@ -95,4 +102,10 @@ void Core::Stop()
 olive::MainWindow *Core::main_window()
 {
   return main_window_;
+}
+
+void Core::AddOpenProject(ProjectPtr p)
+{
+  open_projects_.append(p);
+  emit ProjectOpened(p.get());
 }

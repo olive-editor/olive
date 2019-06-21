@@ -47,7 +47,10 @@ add_executable(${OLIVE_TARGET}
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
-target_compile_options(${OLIVE_TARGET} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Werror -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
+target_compile_options(
+  ${OLIVE_TARGET}
+  PRIVATE
+  $<$<CXX_COMPILER_ID:GNU>:-Werror -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
 
 target_link_libraries(${OLIVE_TARGET}
   PRIVATE

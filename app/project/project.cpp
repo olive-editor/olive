@@ -2,5 +2,9 @@
 
 Project::Project()
 {
+}
 
+Folder *Project::root()
+{
+  return &root_;
 }

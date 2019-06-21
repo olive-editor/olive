@@ -43,16 +43,24 @@ olive::MainWindow::MainWindow(QWidget *parent) :
   // Allow panels to be tabbed within each other
   setDockNestingEnabled(true);
 
-  // TODO Use settings data to create panels and restore state if they exist
-  ProjectPanel* viewer_panel = new ProjectPanel(this);
-  addDockWidget(Qt::TopDockWidgetArea, viewer_panel);
-  ViewerPanel* viewer_panel2 = new ViewerPanel(this);
-  addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
-  ViewerPanel* viewer_panel4 = new ViewerPanel(this);
-  addDockWidget(Qt::TopDockWidgetArea, viewer_panel4);
-  TimelinePanel* viewer_panel3 = new TimelinePanel(this);
-  addDockWidget(Qt::BottomDockWidgetArea, viewer_panel3);
-
+  // Create and set main menu
   MainMenu* main_menu = new MainMenu(this);
   setMenuBar(main_menu);
+}
+
+void olive::MainWindow::ProjectOpen(Project* p)
+{
+  // TODO Use settings data to create panels and restore state if they exist
+  ProjectPanel* project_panel = new ProjectPanel(this);
+  project_panel->set_project(p);
+  addDockWidget(Qt::TopDockWidgetArea, project_panel);
+
+  ViewerPanel* viewer_panel1 = new ViewerPanel(this);
+  addDockWidget(Qt::TopDockWidgetArea, viewer_panel1);
+
+  ViewerPanel* viewer_panel2 = new ViewerPanel(this);
+  addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
+
+  TimelinePanel* timeline_panel = new TimelinePanel(this);
+  addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
 }

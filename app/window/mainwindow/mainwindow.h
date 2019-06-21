@@ -23,6 +23,8 @@
 
 #include <QMainWindow>
 
+#include "project/project.h"
+
 namespace olive {
 
 /**
@@ -34,7 +36,13 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 public:
   MainWindow(QWidget* parent = nullptr);
+
+public slots:
+  void ProjectOpen(Project *p);
+
 private:
+
+
 };
 
 }

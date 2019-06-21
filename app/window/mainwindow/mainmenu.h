@@ -25,15 +25,31 @@
 
 #include "widget/menu/menu.h"
 
+/**
+ * @brief The MainMenu class
+ *
+ * Olive's menubar attached to its main window. Responsible for creating the menu, connecting signals/slots, and
+ * retranslating the items on a language change.
+ */
 class MainMenu : public QMenuBar
 {
 public:
   MainMenu(QWidget* parent);
 
 protected:
+  /**
+   * @brief changeEvent
+   *
+   * Qt changeEvent override to catch a QEvent::LanguageEvent.
+   *
+   * @param e
+   */
   virtual void changeEvent(QEvent* e);
 
 private:
+  /**
+   * @brief Set strings based on the current application language.
+   */
   void Retranslate();
 
   Menu* file_menu_;

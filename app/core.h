@@ -21,6 +21,9 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <QList>
+
+#include "project/project.h"
 #include "window/mainwindow/mainwindow.h"
 
 /**
@@ -62,7 +65,23 @@ public:
    * Pointer to the olive::MainWindow object, or nullptr if running in CLI mode.
    */
   olive::MainWindow* main_window();
+
+signals:
+  /**
+   * @brief Signal emitted when a project is opened
+   *
+   * Connects to main window so its UI can update based on the project
+   *
+   * @param p
+   */
+  void ProjectOpened(Project* p);
+
 private:
+  /**
+   * @brief Creates an empty project and adds it to the "open projects"
+   */
+  void AddOpenProject(ProjectPtr p);
+
   /**
    * @brief Internal main window object
    */
@@ -75,6 +94,11 @@ private:
    * project URL here to be loaded once Olive has finished initializing.
    */
   QString startup_project_;
+
+  /**
+   * @brief List of currently open projects
+   */
+  QList<ProjectPtr> open_projects_;
 };
 
 namespace olive {

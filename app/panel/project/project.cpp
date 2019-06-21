@@ -19,11 +19,21 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   layout->addWidget(toolbar);
 
   // Set up main explorer object
-  ProjectExplorer* explorer = new ProjectExplorer(this);
-  layout->addWidget(explorer);
+  explorer_ = new ProjectExplorer(this);
+  layout->addWidget(explorer_);
 
   // Set strings
   Retranslate();
+}
+
+Project *ProjectPanel::project()
+{
+  return explorer_->project();
+}
+
+void ProjectPanel::set_project(Project *p)
+{
+  explorer_->set_project(p);
 }
 
 void ProjectPanel::changeEvent(QEvent *e)

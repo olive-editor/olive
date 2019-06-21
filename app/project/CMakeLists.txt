@@ -16,7 +16,13 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  project/folder.h
+  project/folder.cpp
+  project/item.h
+  project/item.cpp
   project/project.h
   project/project.cpp
+  project/projectviewmodel.h
+  project/projectviewmodel.cpp
   PARENT_SCOPE
 )
