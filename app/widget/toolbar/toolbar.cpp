@@ -47,8 +47,7 @@ Toolbar::Toolbar(QWidget *parent) :
   btn_add_ = CreateToolButton(olive::icon::Add, olive::tool::kAdd);
 
   // Create snapping button, which is not actually a tool, it's a toggle option
-  btn_snapping_toggle_ = new ToolbarButton(this, olive::icon::Snapping, olive::tool::kNone);
-  layout_->addWidget(btn_snapping_toggle_);
+  btn_snapping_toggle_ = CreateNonToolButton(olive::icon::Snapping);
   connect(btn_snapping_toggle_, SIGNAL(clicked(bool)), this, SLOT(SnappingButtonClicked(bool)));
 
   Retranslate();
@@ -107,6 +106,17 @@ ToolbarButton* Toolbar::CreateToolButton(const QIcon &icon, const olive::tool::T
 
   // Connect it to the tool button click handler
   connect(b, SIGNAL(clicked(bool)), this, SLOT(ToolButtonClicked()));
+
+  return b;
+}
+
+ToolbarButton *Toolbar::CreateNonToolButton(const QIcon &icon)
+{
+  // Create a ToolbarButton object
+  ToolbarButton* b = new ToolbarButton(this, icon, olive::tool::kNone);
+
+  // Add it to the layout
+  layout_->addWidget(b);
 
   return b;
 }
