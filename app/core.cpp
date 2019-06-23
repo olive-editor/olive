@@ -104,6 +104,13 @@ olive::MainWindow *Core::main_window()
   return main_window_;
 }
 
+void Core::SetTool(const olive::tool::Tool &tool)
+{
+  tool_ = tool;
+
+  emit ToolChanged(tool_);
+}
+
 void Core::AddOpenProject(ProjectPtr p)
 {
   open_projects_.append(p);

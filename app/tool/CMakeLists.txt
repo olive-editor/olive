@@ -16,9 +16,6 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/toolbar/toolbar.h
-  widget/toolbar/toolbar.cpp
-  widget/toolbar/toolbarbutton.h
-  widget/toolbar/toolbarbutton.cpp
+  tool/tool.h
   PARENT_SCOPE
 )

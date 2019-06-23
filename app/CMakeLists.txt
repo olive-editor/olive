@@ -25,6 +25,7 @@ set(OLIVE_SOURCES
 add_subdirectory(panel)
 add_subdirectory(project)
 add_subdirectory(render)
+add_subdirectory(tool)
 add_subdirectory(ui)
 add_subdirectory(widget)
 add_subdirectory(window)

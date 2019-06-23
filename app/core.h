@@ -25,6 +25,7 @@
 
 #include "project/project.h"
 #include "window/mainwindow/mainwindow.h"
+#include "tool/tool.h"
 
 /**
  * @brief The Core class
@@ -66,6 +67,14 @@ public:
    */
   olive::MainWindow* main_window();
 
+public slots:
+  /**
+   * @brief Set the current application-wide tool
+   *
+   * @param tool
+   */
+  void SetTool(const olive::tool::Tool& tool);
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -75,6 +84,13 @@ signals:
    * @param p
    */
   void ProjectOpened(Project* p);
+
+  /**
+   * @brief Signal emitted when the tool is changed from somewhere
+   *
+   * @param tool
+   */
+  void ToolChanged(const olive::tool::Tool& tool);
 
 private:
   /**
@@ -99,6 +115,11 @@ private:
    * @brief List of currently open projects
    */
   QList<ProjectPtr> open_projects_;
+
+  /**
+   * @brief Currently active tool
+   */
+  olive::tool::Tool tool_;
 };
 
 namespace olive {

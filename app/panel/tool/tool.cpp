@@ -1,5 +1,6 @@
 #include "tool.h"
 
+#include "core.h"
 #include "widget/toolbar/toolbar.h"
 
 ToolPanel::ToolPanel(QWidget *parent) :
@@ -8,6 +9,9 @@ ToolPanel::ToolPanel(QWidget *parent) :
   Toolbar* t = new Toolbar(this);
 
   setWidget(t);
+
+  connect(t, SIGNAL(ToolChanged(const olive::tool::Tool&)), &olive::core, SLOT(SetTool(const olive::tool::Tool&)));
+  connect(&olive::core, SIGNAL(ToolChanged(const olive::tool::Tool&)), t, SLOT(SetTool(const olive::tool::Tool&)));
 
   Retranslate();
 }
