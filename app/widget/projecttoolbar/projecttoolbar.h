@@ -25,6 +25,14 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+/**
+ * @brief The ProjectToolbar class
+ *
+ * A toolbar consisting of project functions (new/open/save), edit functions (undo/redo), a search field, and a
+ * project view selector (tree/icon/list).
+ *
+ * This object's signals can be connected to various functions in the application for better user experience.
+ */
 class ProjectToolbar : public QWidget
 {
   Q_OBJECT

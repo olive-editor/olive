@@ -27,6 +27,16 @@
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 
+/**
+ * @brief The ProjectExplorer class
+ *
+ * A widget for browsing through a Project structure.
+ *
+ * ProjectExplorer automatically handles the view<->model system using a ProjectViewModel. Therefore, all that needs to
+ * be provided is the Project structure itself.
+ *
+ * This widget contains three views, tree view, list view, and icon view. These can be switched at any time.
+ */
 class ProjectExplorer : public QStackedWidget
 {
 public:

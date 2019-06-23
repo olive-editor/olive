@@ -24,6 +24,9 @@
 #include <QOpenGLShaderProgram>
 #include <memory>
 
+/**
+ * @brief A simple shared_ptr around QOpenGLShaderProgram to simplify shader creation/destruction
+ */
 using ShaderPtr = std::shared_ptr<QOpenGLShaderProgram>;
 
 #endif // QOPENGLSHADERPROGRAMPTR_H

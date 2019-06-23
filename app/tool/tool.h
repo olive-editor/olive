@@ -24,18 +24,47 @@
 namespace olive {
 namespace tool {
 
+/**
+ * @brief The Tool enum
+ *
+ * A list of tools that can be used throughout the application
+ */
 enum Tool {
+  /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
+  /// a tool somewhere.
   kNone,
+
+  /// Pointer tool
   kPointer,
+
+  /// Edit tool
   kEdit,
+
+  /// Ripple tool
   kRipple,
+
+  /// Razor tool
   kRazor,
+
+  /// Slip tool
   kSlip,
+
+  /// Slide tool
   kSlide,
+
+  /// Hand tool
   kHand,
+
+  /// Zoom tool
   kZoom,
+
+  /// Transition tool
   kTransition,
+
+  /// Record tool
   kRecord,
+
+  /// Add tool
   kAdd
 };
 
