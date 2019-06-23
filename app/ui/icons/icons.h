@@ -61,7 +61,39 @@ extern QIcon ZoomOut;
 extern QIcon Record;
 extern QIcon Add;
 
+/**
+ * @brief Create an icon object loaded from file
+ *
+ * Using `name`, this function will load icon files to create an icon object that can be used throughout the
+ * application.
+ *
+ * Olive's icons are stored in a very specific format. They are all sourced from SVGs, but stored as PNGs of various
+ * sizes. See `app/ui/icons/genicons.sh`, as this script not only generates the multiple sizes but also the QRC file
+ * used to compile the icons into the executable.
+ *
+ * This function is heavily tied into `genicons.sh` and will load all the different sized images (using the same
+ * filename formatting and QRC resource directory) that `genicons.sh` generates into one QIcon file. If you change
+ * either this function or `genicons.sh`, you will very likely have to change the other too.
+ *
+ * There is not much reason to call this outside of LoadAll() (which stores icons globally in memory so they don't
+ * have to be reloaded each time a new object needs an icon).
+ *
+ * @param name
+ *
+ * Name of the icon (will correspond to the original SVG's filename with no path or extension)
+ *
+ * @return
+ *
+ * A QIcon object containing the various icon sizes loaded from resource
+ */
 QIcon Create(const QString& name);
+
+/**
+ * @brief Methodically load all Olive icons into global variables that can be accessed throughout the application
+ *
+ * It's recommended to load any UI icons here so they're ready at startup and don't need to be re-loaded upon each
+ * use.
+ */
 void LoadAll();
 
 }
