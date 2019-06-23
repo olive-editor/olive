@@ -34,6 +34,8 @@ Project *ProjectPanel::project()
 void ProjectPanel::set_project(Project *p)
 {
   explorer_->set_project(p);
+
+  Retranslate();
 }
 
 void ProjectPanel::changeEvent(QEvent *e)
@@ -47,5 +49,10 @@ void ProjectPanel::changeEvent(QEvent *e)
 void ProjectPanel::Retranslate()
 {
   SetTitle(tr("Project"));
-  SetSubtitle(tr("(untitled)"));
+
+  if (project() == nullptr) {
+    SetSubtitle(tr("(none)"));
+  } else {
+    SetSubtitle(project()->name());
+  }
 }
