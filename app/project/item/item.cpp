@@ -7,6 +7,10 @@ Item::Item() :
 
 Item::~Item()
 {
+  // Delete all children
+  for (int i=0;i<children_.size();i++) {
+    delete children_.at(i);
+  }
 }
 
 void Item::add_child(Item* c)

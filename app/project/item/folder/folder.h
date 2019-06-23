@@ -1,7 +1,7 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
-#include "item.h"
+#include "project/item/item.h"
 
 class Folder : public Item
 {

@@ -19,6 +19,8 @@ set(OLIVE_SOURCES
   core.h
   core.cpp
   main.cpp
+  rational.h
+  rational.cpp
 )
 
 #add_subdirectory(decoder)

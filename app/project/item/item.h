@@ -13,10 +13,35 @@ public:
     kSequence
   };
 
+  /**
+   * @brief Item constructor
+   */
   Item();
 
-  // Required virtual destructor (it's empty)
+  /**
+   * @brief Item destructor, deletes all children
+   */
   virtual ~Item();
+
+  /**
+   * @brief Deleted copy constructor
+   */
+  Item(const Item& other) = delete;
+
+  /**
+   * @brief Deleted move constructor
+   */
+  Item(Item&& other) = delete;
+
+  /**
+   * @brief Deleted copy assignment
+   */
+  Item& operator=(const Item& other) = delete;
+
+  /**
+   * @brief Deleted move assignment
+   */
+  Item& operator=(Item&& other) = delete;
 
   virtual Type type() const = 0;
 

@@ -4,7 +4,7 @@
 #include <QObject>
 #include <memory>
 
-#include "folder.h"
+#include "project/item/folder/folder.h"
 
 class Project : public QObject
 {

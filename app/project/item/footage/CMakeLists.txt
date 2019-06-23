@@ -14,13 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(item)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  project/project.h
-  project/project.cpp
-  project/projectviewmodel.h
-  project/projectviewmodel.cpp
+  project/item/footage/audiostream.h
+  project/item/footage/audiostream.cpp
+  project/item/footage/footage.h
+  project/item/footage/footage.cpp
+  project/item/footage/videostream.h
+  project/item/footage/videostream.cpp
   PARENT_SCOPE
 )
