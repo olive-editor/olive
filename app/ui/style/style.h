@@ -26,8 +26,26 @@
 namespace olive {
 namespace style {
 
+/**
+ * @brief Sets the application style to "Olive Default"
+ *
+ * This function should probably be replaced (or at least renamed) later as alternative styles are reimplemented.
+ * At the moment, this is a convenience function for setting to "Olive Default" which is a cross-platform default
+ * style used in Olive.
+ */
 void AppSetDefault();
 
+/**
+ * @brief (Windows only) Sets a widget to use the OS' native styling (windowsvista)
+ *
+ * Used primarily to set menus to the default Windows style. It was thought this would look better on Windows than the
+ * cross-platform styled menus and provide a more "native" experience. Unfortunately the only way to do this (when the
+ * application style is set) is to manually set the menus to not use the application style, thus this function.
+ *
+ * @param w
+ *
+ * Widget to set to native styling
+ */
 void WidgetSetNative(QWidget *w);
 
 }
