@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef RATIONAL_H
 #define RATIONAL_H
 
@@ -5,10 +25,21 @@
 
 #include <iostream>
 
+/**
+ * Including AVFormat to support converting from AVRational to Olive's rational class
+ */
 extern "C" {
   #include <libavformat/avformat.h>
 }
 
+/**
+ * @brief The Rational class
+ *
+ * A rational (numerator/denominator) class with C++ operations built in for ease of use.
+ *
+ * Rationals in Olive most frequently represent timing information to easily handle timing in various different
+ * frame/sample rates without the inaccuracy/rounding errors of a floating point type.
+ */
 class rational {
 public:
   // Constructors
