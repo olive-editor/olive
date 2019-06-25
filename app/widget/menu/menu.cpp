@@ -34,7 +34,8 @@ Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
   }
 }
 
-Menu::Menu(Menu *menu, const QObject *receiver, const char *member)
+Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
+  QMenu(menu)
 {
   SetStyling();
 
