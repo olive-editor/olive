@@ -57,7 +57,7 @@ void PanelFocusManager::FocusChanged(QWidget *old, QWidget *now)
 
       // Force the old panel to repaint (if there is one) so it hides its border
       if (!focus_history_.isEmpty()) {
-        focus_history_.first()->update();
+        focus_history_.first()->SetBorderVisible(false);
       }
 
       // If it's not in the focus history, prepend it, otherwise move it
@@ -68,7 +68,7 @@ void PanelFocusManager::FocusChanged(QWidget *old, QWidget *now)
       }
 
       // Force the panel to repaint so it shows a border
-      panel_cast_test->update();
+      panel_cast_test->SetBorderVisible(true);
 
       break;
     }
