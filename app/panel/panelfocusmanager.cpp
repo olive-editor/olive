@@ -1,8 +1,26 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "panelfocusmanager.h"
 
-#include <QDebug>
-
-PanelFocusManager* olive::panel_focus_manager;
+PanelFocusManager* olive::panel_focus_manager = nullptr;
 
 PanelFocusManager::PanelFocusManager(QObject *parent) :
   QObject(parent)
@@ -57,4 +75,20 @@ void PanelFocusManager::FocusChanged(QWidget *old, QWidget *now)
 
     parent = parent->parent();
   }
+}
+
+template<typename T>
+T *PanelFocusManager::MostRecentlyFocused()
+{
+  T* cast_test;
+
+  for (int i=0;i<focus_history_.size();i++) {
+    cast_test = dynamic_cast<T*>(focus_history_.at(i));
+
+    if (cast_test != nullptr) {
+      return cast_test;
+    }
+  }
+
+  return nullptr;
 }

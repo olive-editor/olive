@@ -14,6 +14,9 @@ public:
 
   PanelWidget* CurrentlyFocused();
 
+  template<typename T>
+  PanelWidget* MostRecentlyFocused();
+
 public slots:
   void FocusChanged(QWidget* old, QWidget* now);
 
