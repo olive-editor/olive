@@ -67,6 +67,8 @@ void PanelWidget::paintEvent(QPaintEvent *event)
 
 void PanelWidget::UpdateTitle()
 {
+  // If there's no subtitle, just use the title. Otherwise, we set a formatted combination of the two that can
+  // differ based on translation
   if (subtitle_.isEmpty()) {
     setWindowTitle(title_);
   } else {
