@@ -50,7 +50,7 @@ void Core::Start()
   parser.addVersionOption();
 
   // Project from command line option
-  // FIXME: What's the correct way to make an "optional" positional argument?
+  // FIXME: What's the correct way to make a visually "optional" positional argument?
   parser.addPositionalArgument("[project]", tr("Project to open on startup"));
 
   // Create fullscreen option
@@ -86,7 +86,10 @@ void Core::Start()
   olive::panel_focus_manager = new PanelFocusManager(this);
 
   // Connect the PanelFocusManager to the application's focus change signal
-  connect(app, SIGNAL(focusChanged(QWidget*, QWidget*)), olive::panel_focus_manager, SLOT(FocusChanged(QWidget*, QWidget*)));
+  connect(app,
+          SIGNAL(focusChanged(QWidget*, QWidget*)),
+          olive::panel_focus_manager,
+          SLOT(FocusChanged(QWidget*, QWidget*)));
 
   // Create main window and open it
   main_window_ = new olive::MainWindow();
