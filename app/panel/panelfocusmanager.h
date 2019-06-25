@@ -24,6 +24,7 @@
 #include <QObject>
 #include <QList>
 
+#include "panel/viewer/viewer.h"
 #include "widget/panel/panel.h"
 
 /**
@@ -49,9 +50,8 @@ public:
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused
    */
-  PanelWidget* CurrentlyFocused();
+  PanelWidget* CurrentlyFocused() const;
 
-  template<typename T>
   /**
    * @brief Get most recently focused panel of a certain type
    *
@@ -59,6 +59,7 @@ public:
    *
    * The most recently focused panel of the specified type, or nullptr if none exists
    */
+  template<class T>
   T* MostRecentlyFocused();
 
 public slots:
@@ -75,6 +76,22 @@ private:
    */
   QList<PanelWidget*> focus_history_;
 };
+
+template<class T>
+T* PanelFocusManager::MostRecentlyFocused()
+{
+  T* cast_test;
+
+  for (int i=0;i<focus_history_.size();i++) {
+    cast_test = dynamic_cast<T*>(focus_history_.at(i));
+
+    if (cast_test != nullptr) {
+      return cast_test;
+    }
+  }
+
+  return nullptr;
+}
 
 namespace olive {
 extern PanelFocusManager* panel_focus_manager;

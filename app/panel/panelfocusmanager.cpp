@@ -20,6 +20,9 @@
 
 #include "panelfocusmanager.h"
 
+#include "panel/project/project.h"
+#include "panel/viewer/viewer.h"
+
 PanelFocusManager* olive::panel_focus_manager = nullptr;
 
 PanelFocusManager::PanelFocusManager(QObject *parent) :
@@ -28,7 +31,7 @@ PanelFocusManager::PanelFocusManager(QObject *parent) :
 
 }
 
-PanelWidget *PanelFocusManager::CurrentlyFocused()
+PanelWidget *PanelFocusManager::CurrentlyFocused() const
 {
   if (focus_history_.isEmpty()) {
     return nullptr;
@@ -75,20 +78,4 @@ void PanelFocusManager::FocusChanged(QWidget *old, QWidget *now)
 
     parent = parent->parent();
   }
-}
-
-template<typename T>
-T *PanelFocusManager::MostRecentlyFocused()
-{
-  T* cast_test;
-
-  for (int i=0;i<focus_history_.size();i++) {
-    cast_test = dynamic_cast<T*>(focus_history_.at(i));
-
-    if (cast_test != nullptr) {
-      return cast_test;
-    }
-  }
-
-  return nullptr;
 }

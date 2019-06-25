@@ -26,9 +26,13 @@
 #include <QDebug>
 
 #include "panel/panelfocusmanager.h"
+#include "panel/project/project.h"
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
 #include "widget/menu/menushared.h"
+
+
+#include "panel/viewer/viewer.h"
 
 Core olive::core;
 
@@ -122,7 +126,7 @@ void Core::ImportFiles(const QStringList &urls)
   for (int i=0;i<urls.size();i++) {
     //const QString& url = urls.at(i);
 
-
+    //qDebug() << olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>();
   }
 }
 
