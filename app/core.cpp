@@ -22,17 +22,17 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
-#include <QFileDialog>
 #include <QDebug>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QMessageBox>
 
 #include "panel/panelfocusmanager.h"
 #include "panel/project/project.h"
+#include "project/item/footage/footage.h"
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
 #include "widget/menu/menushared.h"
-
-
-#include "panel/viewer/viewer.h"
 
 Core olive::core;
 
@@ -54,7 +54,8 @@ void Core::Start()
   parser.addVersionOption();
 
   // Project from command line option
-  // FIXME: What's the correct way to make a visually "optional" positional argument?
+  // FIXME: What's the correct way to make a visually "optional" positional argument, or is manually adding square
+  // brackets like this correct?
   parser.addPositionalArgument("[project]", tr("Project to open on startup"));
 
   // Create fullscreen option
@@ -123,10 +124,40 @@ olive::MainWindow *Core::main_window()
 
 void Core::ImportFiles(const QStringList &urls)
 {
-  for (int i=0;i<urls.size();i++) {
-    //const QString& url = urls.at(i);
+  QString error_capt = tr("Import error");
 
-    //qDebug() << olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>();
+  if (urls.isEmpty()) {
+    QMessageBox::critical(main_window_, error_capt, tr("Nothing to import"));
+    return;
+  }
+
+  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+  Project* active_project;
+
+  if (active_project_panel == nullptr // Check that we found a Project panel
+      || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
+
+    QMessageBox::critical(main_window_, error_capt, tr("Failed to find active Project panel"));
+
+  } else {
+
+    for (int i=0;i<urls.size();i++) {
+      const QString& url = urls.at(i);
+
+      Footage* f = new Footage();
+
+      QFileInfo file_info(url);
+
+      f->set_filename(url);
+      f->set_name(file_info.fileName());
+      //file_info.lastModified();
+
+      active_project->root()->add_child(f);
+
+    }
+
+    // FIXME: Dumb way of resetting the model to update for new information
+    active_project_panel->set_project(active_project);
   }
 }
 

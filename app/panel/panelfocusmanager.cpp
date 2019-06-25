@@ -20,9 +20,6 @@
 
 #include "panelfocusmanager.h"
 
-#include "panel/project/project.h"
-#include "panel/viewer/viewer.h"
-
 PanelFocusManager* olive::panel_focus_manager = nullptr;
 
 PanelFocusManager::PanelFocusManager(QObject *parent) :

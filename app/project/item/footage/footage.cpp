@@ -35,6 +35,16 @@ void Footage::set_filename(const QString &s)
   filename_ = s;
 }
 
+const QDateTime &Footage::timestamp()
+{
+  return timestamp_;
+}
+
+void Footage::set_timestamp(const QDateTime &t)
+{
+  timestamp_ = t;
+}
+
 Item::Type Footage::type() const
 {
   return kFootage;
