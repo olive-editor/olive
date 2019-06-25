@@ -21,5 +21,7 @@ add_subdirectory(viewer)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  panel/panelfocusmanager.h
+  panel/panelfocusmanager.cpp
   PARENT_SCOPE
 )

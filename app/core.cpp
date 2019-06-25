@@ -25,6 +25,7 @@
 #include <QFileDialog>
 #include <QDebug>
 
+#include "panel/panelfocusmanager.h"
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
 #include "widget/menu/menushared.h"
@@ -42,6 +43,8 @@ void Core::Start()
   // Parse command line arguments
   //
 
+  QCoreApplication* app = QCoreApplication::instance();
+
   QCommandLineParser parser;
   parser.addHelpOption();
   parser.addVersionOption();
@@ -55,7 +58,7 @@ void Core::Start()
   parser.addOption(fullscreen_option);
 
   // Parse options
-  parser.process(*QApplication::instance());
+  parser.process(*app);
 
   QStringList args = parser.positionalArguments();
 
@@ -78,6 +81,12 @@ void Core::Start()
 
   // Set up shared menus
   olive::menu_shared.Initialize();
+
+  // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
+  olive::panel_focus_manager = new PanelFocusManager(this);
+
+  // Connect the PanelFocusManager to the application's focus change signal
+  connect(app, SIGNAL(focusChanged(QWidget*, QWidget*)), olive::panel_focus_manager, SLOT(FocusChanged(QWidget*, QWidget*)));
 
   // Create main window and open it
   main_window_ = new olive::MainWindow();

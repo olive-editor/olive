@@ -69,6 +69,12 @@ protected:
    * String to set the subtitle to
    */
   void SetSubtitle(const QString& t);
+
+  /**
+   * @brief paintEvent
+   * @param event
+   */
+  void paintEvent(QPaintEvent *event) override;
 private:
   /**
    * @brief Internal function that sets the QDockWidget's window title whenever the title/subtitle change.

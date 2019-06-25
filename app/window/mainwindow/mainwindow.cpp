@@ -20,6 +20,8 @@
 
 #include "mainwindow.h"
 
+#include <QDebug>
+
 // Panel objects
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"

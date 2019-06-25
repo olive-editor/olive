@@ -20,9 +20,14 @@
 
 #include "panel.h"
 
+#include <QPainter>
+
+#include "panel/panelfocusmanager.h"
+
 PanelWidget::PanelWidget(QWidget *parent) :
   QDockWidget(parent)
 {
+  setFocusPolicy(Qt::ClickFocus);
 }
 
 void PanelWidget::SetTitle(const QString &t)
@@ -35,6 +40,29 @@ void PanelWidget::SetSubtitle(const QString &t)
 {
   subtitle_ = t;
   UpdateTitle();
+}
+
+void PanelWidget::paintEvent(QPaintEvent *event)
+{
+  // Perform default behavior
+  QDockWidget::paintEvent(event);
+
+  // Check if this panel (or a child of it) has focus using PanelFocusManager
+  if (olive::panel_focus_manager->CurrentlyFocused() == this) {
+
+    // Draw a highlight border if so
+    QPainter p(this);
+
+    // We need to adjust the rect by 1 pixel since the bottom and right are "offscreen"
+    QRect highlight_border = rect();
+    highlight_border.adjust(0, 0, -1, -1);
+
+    // Set the color to the palette's highlight color
+    p.setPen(QPen(palette().highlight().color()));
+
+    // Draw the highlight border
+    p.drawRect(highlight_border);
+  }
 }
 
 void PanelWidget::UpdateTitle()
