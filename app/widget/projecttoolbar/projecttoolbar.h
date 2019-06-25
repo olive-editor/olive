@@ -25,6 +25,8 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include "project/projectviewtype.h"
+
 /**
  * @brief The ProjectToolbar class
  *
@@ -38,8 +40,13 @@ class ProjectToolbar : public QWidget
   Q_OBJECT
 public:
   ProjectToolbar(QWidget* parent);
+
+public slots:
+  void SetView(olive::ProjectViewType type);
+
 protected:
   void changeEvent(QEvent *) override;
+
 signals:
   void NewClicked();
   void OpenClicked();
@@ -50,9 +57,8 @@ signals:
 
   void SearchChanged(const QString&);
 
-  void TreeViewClicked();
-  void IconViewClicked();
-  void ListViewClicked();
+  void ViewChanged(olive::ProjectViewType type);
+
 private:
   void Retranslate();
 
@@ -67,6 +73,9 @@ private:
   QPushButton* tree_button_;
   QPushButton* list_button_;
   QPushButton* icon_button_;
+
+private slots:
+  void ViewButtonClicked();
 };
 
 #endif // PROJECTTOOLBAR_H

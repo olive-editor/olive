@@ -22,7 +22,7 @@
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QStackedWidget(parent),
-  view_type_(TreeView),
+  view_type_(olive::TreeView),
   model_(this)
 {
   tree_view_ = new QTreeView(this);
@@ -30,12 +30,12 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   addWidget(tree_view_);
 }
 
-const ProjectExplorer::ViewType &ProjectExplorer::view_type()
+const olive::ProjectViewType &ProjectExplorer::view_type()
 {
   return view_type_;
 }
 
-void ProjectExplorer::set_view_type(const ProjectExplorer::ViewType &type)
+void ProjectExplorer::set_view_type(olive::ProjectViewType type)
 {
   view_type_ = type;
 }

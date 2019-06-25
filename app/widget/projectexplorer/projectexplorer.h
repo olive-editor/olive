@@ -26,6 +26,7 @@
 
 #include "project/project.h"
 #include "project/projectviewmodel.h"
+#include "project/projectviewtype.h"
 
 /**
  * @brief The ProjectExplorer class
@@ -39,25 +40,22 @@
  */
 class ProjectExplorer : public QStackedWidget
 {
+  Q_OBJECT
 public:
-  enum ViewType {
-    TreeView,
-    ListView,
-    IconView
-  };
-
   ProjectExplorer(QWidget* parent);
 
-  const ViewType& view_type();
-  void set_view_type(const ViewType& type);
+  const olive::ProjectViewType& view_type();
 
   Project* project();
   void set_project(Project* p);
 
+public slots:
+  void set_view_type(olive::ProjectViewType type);
+
 private:
   QTreeView* tree_view_;
 
-  ViewType view_type_;
+  olive::ProjectViewType view_type_;
 
   ProjectViewModel model_;
 };

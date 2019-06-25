@@ -42,6 +42,15 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   explorer_ = new ProjectExplorer(this);
   layout->addWidget(explorer_);
 
+  // Set toolbar's view to the explorer's view
+  toolbar->SetView(explorer_->view_type());
+
+  // Connect toolbar's view change signal to the explorer's view change slot
+  connect(toolbar,
+          SIGNAL(ViewChanged(olive::ProjectViewType)),
+          explorer_,
+          SLOT(set_view_type(olive::ProjectViewType)));
+
   // Set strings
   Retranslate();
 }

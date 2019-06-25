@@ -66,19 +66,19 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   tree_button_ = new QPushButton();
   tree_button_->setIcon(olive::icon::TreeView);
   tree_button_->setCheckable(true);
-  connect(tree_button_, SIGNAL(clicked(bool)), this, SIGNAL(TreeViewClicked()));
+  connect(tree_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
   layout->addWidget(tree_button_);
 
   list_button_ = new QPushButton();
   list_button_->setIcon(olive::icon::ListView);
   list_button_->setCheckable(true);
-  connect(list_button_, SIGNAL(clicked(bool)), this, SIGNAL(ListViewClicked()));
+  connect(list_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
   layout->addWidget(list_button_);
 
   icon_button_ = new QPushButton();
   icon_button_->setIcon(olive::icon::IconView);
   icon_button_->setCheckable(true);
-  connect(icon_button_, SIGNAL(clicked(bool)), this, SIGNAL(IconViewClicked()));
+  connect(icon_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
   layout->addWidget(icon_button_);
 
   // Group Tree/List/Icon view buttons into a button group for easy exclusive-buttons
@@ -89,6 +89,21 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   view_button_group->addButton(icon_button_);
 
   Retranslate();
+}
+
+void ProjectToolbar::SetView(olive::ProjectViewType type)
+{
+  switch (type) {
+  case olive::TreeView:
+    tree_button_->setChecked(true);
+    break;
+  case olive::IconView:
+    icon_button_->setChecked(true);
+    break;
+  case olive::ListView:
+    list_button_->setChecked(true);
+    break;
+  }
 }
 
 void ProjectToolbar::changeEvent(QEvent *e)
@@ -112,4 +127,19 @@ void ProjectToolbar::Retranslate()
   tree_button_->setToolTip(tr("Switch to Tree View"));
   list_button_->setToolTip(tr("Switch to List View"));
   icon_button_->setToolTip(tr("Switch to Icon View"));
+}
+
+void ProjectToolbar::ViewButtonClicked()
+{
+  // Determine which view button triggered this slot and emit a signal accordingly
+  if (sender() == tree_button_) {
+    emit ViewChanged(olive::TreeView);
+  } else if (sender() == icon_button_) {
+    emit ViewChanged(olive::IconView);
+  } else if (sender() == list_button_) {
+    emit ViewChanged(olive::ListView);
+  } else {
+    // Assert that it was one of the above buttons
+    Q_ASSERT(false);
+  }
 }
