@@ -67,6 +67,13 @@ public:
    */
   olive::MainWindow* main_window();
 
+  /**
+   * @brief Import a list of files
+   *
+   * @param urls
+   */
+  void ImportFiles(const QStringList& urls);
+
 public slots:
   /**
    * @brief Set the current application-wide tool
@@ -74,6 +81,11 @@ public slots:
    * @param tool
    */
   void SetTool(const olive::tool::Tool& tool);
+
+  /**
+   * @brief Open the import footage dialog and import the files selected (runs ImportFiles())
+   */
+  void StartImportFootage();
 
 signals:
   /**

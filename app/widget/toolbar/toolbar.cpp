@@ -42,8 +42,8 @@ Toolbar::Toolbar(QWidget *parent) :
   btn_slide_tool_ = CreateToolButton(olive::icon::ToolSlide, olive::tool::kSlide);
   btn_hand_tool_ = CreateToolButton(olive::icon::ToolHand, olive::tool::kHand);
   btn_zoom_tool_ = CreateToolButton(olive::icon::ZoomIn, olive::tool::kZoom);
-  btn_transition_tool_ = CreateToolButton(olive::icon::ToolTransition, olive::tool::kTransition);
   btn_record_ = CreateToolButton(olive::icon::Record, olive::tool::kRecord);
+  btn_transition_tool_ = CreateToolButton(olive::icon::ToolTransition, olive::tool::kTransition);
   btn_add_ = CreateToolButton(olive::icon::Add, olive::tool::kAdd);
 
   // Create snapping button, which is not actually a tool, it's a toggle option
@@ -88,9 +88,9 @@ void Toolbar::Retranslate()
   btn_hand_tool_->setToolTip(tr("Hand Tool"));
   btn_zoom_tool_->setToolTip(tr("Zoom Tool"));
   btn_transition_tool_->setToolTip(tr("Transition Tool"));
+  btn_record_->setToolTip(tr("Record Tool"));
+  btn_add_->setToolTip(tr("Add Tool"));
   btn_snapping_toggle_->setToolTip(tr("Toggle Snapping"));
-  btn_record_->setToolTip(tr("Record Audio"));
-  btn_add_->setToolTip(tr("Add Object"));
 }
 
 ToolbarButton* Toolbar::CreateToolButton(const QIcon &icon, const olive::tool::Tool& tool)

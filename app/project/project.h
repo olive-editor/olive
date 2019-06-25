@@ -26,6 +26,16 @@
 
 #include "project/item/folder/folder.h"
 
+/**
+ * @brief The Project class
+ *
+ * A project instance containing all the data pertaining to the user's project, including:
+ *
+ * * Footage
+ * * Sequences
+ * * Project Settings
+ * * Window Layout
+ */
 class Project : public QObject
 {
   Q_OBJECT

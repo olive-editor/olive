@@ -1,3 +1,4 @@
+
 /***
 
   Olive - Non-Linear Video Editor
@@ -34,6 +35,12 @@ public:
 
   const QString& filename();
   void set_filename(const QString& s);
+
+  void add_audio_stream(const AudioStream& as);
+  void add_video_stream(const VideoStream& vs);
+
+  const AudioStream* audio_stream(int index);
+  const VideoStream* video_stream(int index);
 
   virtual Type type() const override;
 

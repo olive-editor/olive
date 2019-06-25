@@ -22,6 +22,7 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QFileDialog>
 #include <QDebug>
 
 #include "ui/icons/icons.h"
@@ -104,11 +105,32 @@ olive::MainWindow *Core::main_window()
   return main_window_;
 }
 
+void Core::ImportFiles(const QStringList &urls)
+{
+  for (int i=0;i<urls.size();i++) {
+    //const QString& url = urls.at(i);
+
+
+  }
+}
+
 void Core::SetTool(const olive::tool::Tool &tool)
 {
   tool_ = tool;
 
   emit ToolChanged(tool_);
+}
+
+void Core::StartImportFootage()
+{
+  // Open dialog for user to select files
+  QStringList files = QFileDialog::getOpenFileNames(main_window_,
+                                                    tr("Import footage..."));
+
+  // Check if the user actually selected files to import
+  if (!files.isEmpty()) {
+    ImportFiles(files);
+  }
 }
 
 void Core::AddOpenProject(ProjectPtr p)

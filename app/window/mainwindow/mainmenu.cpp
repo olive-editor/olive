@@ -23,6 +23,7 @@
 #include <QEvent>
 
 #include "widget/menu/menushared.h"
+#include "core.h"
 
 MainMenu::MainMenu(QWidget *parent) :
   QMenuBar(parent)
@@ -39,7 +40,7 @@ MainMenu::MainMenu(QWidget *parent) :
   file_save_item_ = file_menu_->AddItem("saveproj", nullptr, nullptr, "Ctrl+S");
   file_save_as_item_ = file_menu_->AddItem("saveprojas", nullptr, nullptr, "Ctrl+Shift+S");
   file_menu_->addSeparator();
-  file_import_item_ = file_menu_->AddItem("import", nullptr, nullptr, "Ctrl+I");
+  file_import_item_ = file_menu_->AddItem("import", &olive::core, SLOT(StartImportFootage()), "Ctrl+I");
   file_menu_->addSeparator();
   file_export_item_ = file_menu_->AddItem("export", nullptr, nullptr, "Ctrl+M");
   file_menu_->addSeparator();
