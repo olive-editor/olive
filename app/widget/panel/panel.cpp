@@ -22,12 +22,17 @@
 
 #include <QPainter>
 
-#include "panel/panelfocusmanager.h"
-
 PanelWidget::PanelWidget(QWidget *parent) :
-  QDockWidget(parent)
+  QDockWidget(parent),
+  border_visible_(false)
 {
   setFocusPolicy(Qt::ClickFocus);
+}
+
+void PanelWidget::SetBorderVisible(bool enabled)
+{
+  border_visible_ = enabled;
+  update();
 }
 
 void PanelWidget::SetTitle(const QString &t)
@@ -48,7 +53,7 @@ void PanelWidget::paintEvent(QPaintEvent *event)
   QDockWidget::paintEvent(event);
 
   // Check if this panel (or a child of it) has focus using PanelFocusManager
-  if (olive::panel_focus_manager->CurrentlyFocused() == this) {
+  if (border_visible_) {
 
     // Draw a highlight border if so
     QPainter p(this);

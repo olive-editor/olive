@@ -41,6 +41,13 @@ public:
    * MainWindow.
    */
   PanelWidget(QWidget* parent);
+
+  /**
+   * @brief Set visibility of panel's highlighted border, mostly used for showing panel focus
+   *
+   * @param enabled
+   */
+  void SetBorderVisible(bool enabled);
 protected:
   /**
    * @brief Set panel's title
@@ -92,6 +99,11 @@ private:
    * @brief Internal subtitle string
    */
   QString subtitle_;
+
+  /**
+   * @brief Internal border visibility value
+   */
+  bool border_visible_;
 };
 
 #endif // PANEL_WIDGET_H
