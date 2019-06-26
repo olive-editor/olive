@@ -21,6 +21,8 @@ set(OLIVE_SOURCES
   project/item/footage/audiostream.cpp
   project/item/footage/footage.h
   project/item/footage/footage.cpp
+  project/item/footage/stream.h
+  project/item/footage/stream.cpp
   project/item/footage/videostream.h
   project/item/footage/videostream.cpp
   PARENT_SCOPE

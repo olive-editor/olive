@@ -22,16 +22,14 @@
 #define AUDIOSTREAM_H
 
 #include "rational.h"
+#include "stream.h"
 
-class Footage;
-
-class AudioStream
+class AudioStream : public Stream
 {
 public:
-  AudioStream(Footage* footage, const int& channels, const int& layout, const int& sample_rate);
+  AudioStream();
 
-  Footage* footage();
-  void set_footage(Footage* f);
+  virtual Type type() override;
 
   const int& channels();
   void set_channels(const int& channels);
@@ -43,8 +41,6 @@ public:
   void set_sample_rate(const int& sample_rate);
 
 private:
-  Footage* footage_;
-
   int channels_;
   int layout_;
   int sample_rate_;

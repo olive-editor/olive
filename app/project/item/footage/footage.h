@@ -40,11 +40,8 @@ public:
   const QDateTime& timestamp();
   void set_timestamp(const QDateTime& t);
 
-  void add_audio_stream(const AudioStream& as);
-  void add_video_stream(const VideoStream& vs);
-
-  const AudioStream* audio_stream(int index);
-  const VideoStream* video_stream(int index);
+  void add_stream(const Stream& s);
+  const Stream* stream(int index);
 
   virtual Type type() const override;
 
@@ -53,8 +50,7 @@ private:
 
   QDateTime timestamp_;
 
-  QList<VideoStream> video_streams_;
-  QList<AudioStream> audio_streams_;
+  QList<Stream> streams_;
 };
 
 #endif // FOOTAGE_H

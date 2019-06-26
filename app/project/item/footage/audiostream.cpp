@@ -20,26 +20,14 @@
 
 #include "audiostream.h"
 
-AudioStream::AudioStream(Footage* footage,
-                         const int& channels,
-                         const int& layout,
-                         const int& sample_rate) :
-  footage_(footage),
-  channels_(channels),
-  layout_(layout),
-  sample_rate_(sample_rate)
+AudioStream::AudioStream()
 {
 
 }
 
-Footage *AudioStream::footage()
+Stream::Type AudioStream::type()
 {
-  return footage_;
-}
-
-void AudioStream::set_footage(Footage *f)
-{
-  footage_ = f;
+  return kAudio;
 }
 
 const int &AudioStream::channels()

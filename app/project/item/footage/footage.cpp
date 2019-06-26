@@ -45,6 +45,20 @@ void Footage::set_timestamp(const QDateTime &t)
   timestamp_ = t;
 }
 
+void Footage::add_stream(const Stream &s)
+{
+  // Add a copy of this stream to the list
+  streams_.append(s);
+
+  // Set its footage parent to this
+  streams_.last().set_footage(this);
+}
+
+const Stream *Footage::stream(int index)
+{
+  return &streams_.at(index);
+}
+
 Item::Type Footage::type() const
 {
   return kFootage;

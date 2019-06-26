@@ -23,7 +23,7 @@ set(OLIVE_SOURCES
   rational.cpp
 )
 
-#add_subdirectory(decoder)
+add_subdirectory(decoder)
 add_subdirectory(panel)
 add_subdirectory(project)
 add_subdirectory(render)
