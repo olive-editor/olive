@@ -1,13 +1,24 @@
 #include "stream.h"
 
 Stream::Stream() :
-  footage_(nullptr)
+  footage_(nullptr),
+  type_(kUnknown)
 {
 
 }
 
 Stream::~Stream()
 {
+}
+
+const Stream::Type &Stream::type()
+{
+  return type_;
+}
+
+void Stream::set_type(const Stream::Type &type)
+{
+  type_ = type;
 }
 
 Footage *Stream::footage()
@@ -18,11 +29,6 @@ Footage *Stream::footage()
 void Stream::set_footage(Footage *f)
 {
   footage_ = f;
-}
-
-Stream::Type Stream::type()
-{
-  return kUnknown;
 }
 
 const rational &Stream::timebase()

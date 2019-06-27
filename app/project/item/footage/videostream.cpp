@@ -22,11 +22,7 @@
 
 VideoStream::VideoStream()
 {
-}
-
-Stream::Type VideoStream::type()
-{
-  return kVideo;
+  set_type(kVideo);
 }
 
 const int &VideoStream::width()

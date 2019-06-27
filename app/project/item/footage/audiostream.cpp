@@ -22,11 +22,7 @@
 
 AudioStream::AudioStream()
 {
-}
-
-Stream::Type AudioStream::type()
-{
-  return kAudio;
+  set_type(kAudio);
 }
 
 const int &AudioStream::channels()
@@ -39,12 +35,12 @@ void AudioStream::set_channels(const int &channels)
   channels_ = channels;
 }
 
-const int &AudioStream::layout()
+const uint64_t &AudioStream::layout()
 {
   return layout_;
 }
 
-void AudioStream::set_layout(const int &layout)
+void AudioStream::set_layout(const uint64_t &layout)
 {
   layout_ = layout;
 }

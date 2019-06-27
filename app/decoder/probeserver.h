@@ -5,7 +5,7 @@
 
 namespace olive {
 
-bool Probe(Footage* f);
+bool ProbeMedia(Footage* f);
 
 }
 

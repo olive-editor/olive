@@ -100,6 +100,14 @@ bool FFmpegDecoder::Open()
   return true;
 }
 
+FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &length)
+{
+  Q_UNUSED(timecode)
+  Q_UNUSED(length)
+
+  return nullptr;
+}
+
 void FFmpegDecoder::Close()
 {
   if (opts_ != nullptr) {
@@ -118,6 +126,95 @@ void FFmpegDecoder::Close()
   }
 
   open_ = false;
+}
+
+bool FFmpegDecoder::Probe(Footage *f)
+{
+  int error_code;
+
+  // Convert QString to a C strng
+  QByteArray ba = f->filename().toUtf8();
+  const char* filename = ba.constData();
+
+  // Open file in a format context
+  error_code = avformat_open_input(&fmt_ctx_, filename, nullptr, nullptr);
+
+  // Handle format context error
+  if (error_code == 0) {
+
+    // Retrieve metadata about the media
+    av_dump_format(fmt_ctx_, stream()->index(), filename, 0);
+
+    // Dump it into the Footage object
+    for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
+
+      avstream_ = fmt_ctx_->streams[i];
+
+      Stream* str;
+
+      if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+
+        // Create a video stream object
+        VideoStream* video_stream = new VideoStream();
+
+        video_stream->set_width(avstream_->codecpar->width);
+        video_stream->set_height(avstream_->codecpar->height);
+
+        str = video_stream;
+
+      } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+
+        // Create an audio stream object
+        AudioStream* audio_stream = new AudioStream();
+
+        audio_stream->set_layout(avstream_->codecpar->channel_layout);
+        audio_stream->set_channels(avstream_->codecpar->channels);
+        audio_stream->set_sample_rate(avstream_->codecpar->sample_rate);
+
+        str = audio_stream;
+
+      } else {
+
+        // This is data we can't utilize at the moment, but we make a Stream object anyway to keep parity with the file
+        str = new Stream();
+
+        // Set the correct codec type based on FFmpeg's result
+        switch (avstream_->codecpar->codec_type) {
+        case AVMEDIA_TYPE_UNKNOWN:
+          str->set_type(Stream::kUnknown);
+          break;
+        case AVMEDIA_TYPE_DATA:
+          str->set_type(Stream::kData);
+          break;
+        case AVMEDIA_TYPE_SUBTITLE:
+          str->set_type(Stream::kSubtitle);
+          break;
+        case AVMEDIA_TYPE_ATTACHMENT:
+          str->set_type(Stream::kAttachment);
+          break;
+
+        // We should never realistically get here, but we make an "invalid" stream just in case
+        // We don't use a "default:" in case more AVMEDIA_TYPEs get introduced in later APIs that need handling
+        case AVMEDIA_TYPE_NB:
+        case AVMEDIA_TYPE_VIDEO:
+        case AVMEDIA_TYPE_AUDIO:
+          str->set_type(Stream::kUnknown);
+          break;
+        }
+
+      }
+
+      str->set_index(avstream_->index);
+      str->set_timebase(avstream_->time_base);
+
+      f->add_stream(str);
+    }
+  }
+
+  // Free all memory
+  Close();
+
+  return false;
 }
 
 void FFmpegDecoder::FFmpegErr(int error_code)

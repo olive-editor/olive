@@ -38,6 +38,33 @@ public:
   void set_stream(Stream* fs);
 
   /**
+   * @brief Probe a footage file and dump metadata about it
+   *
+   * When a Footage file is imported, we'll need to know whether Olive is equipped with a decoder for utilizing it
+   * and metadata should be retrieved about it if so. For this purpose, the Footage object is passed through all
+   * Probe() functions of available deocders until one returns TRUE. A FALSE return means the Decoder was unable to
+   * parse this file and the next should be tried.
+   *
+   * Probe() differs from Open() since it focuses on a file as a whole rather than one particular stream. Probe()
+   * should be able to be run directly without calling Open() or Close() and should free its memory before returning.
+   *
+   * Probe() will never be called on an object that is also used for decoding. In other words, it will never be called
+   * alongside Open() or Close() externally, so Probe() can use variables that would otherwise be used for decoding
+   * without conflict.
+   *
+   * @param f
+   *
+   * A Footage object to probe. The Footage object will have a valid filename and will be empty prior to being sent
+   * to this function (i.e. Footage::Clear() will not have to be called).
+   *
+   * @return
+   *
+   * TRUE if the Decoder was able to decode this file. FALSE if not. This function should have filled the Footage
+   * object with metadata if it returns TRUE. Otherwise, the Footage object should be untouched.
+   */
+  virtual bool Probe(Footage* f) = 0;
+
+  /**
    * @brief Open media/allocate memory
    *
    * Any file handles or memory allocation that needs to be done before this instance of a Decoder can return data

@@ -27,6 +27,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include "decoder/probeserver.h"
 #include "panel/panelfocusmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
@@ -151,6 +152,8 @@ void Core::ImportFiles(const QStringList &urls)
       f->set_filename(url);
       f->set_name(file_info.fileName());
       //file_info.lastModified();
+
+      olive::ProbeMedia(f);
 
       active_project->root()->add_child(f);
 

@@ -27,7 +27,8 @@ public:
    */
   virtual ~Stream();
 
-  virtual Type type();
+  const Type& type();
+  void set_type(const Type& type);
 
   Footage* footage();
   void set_footage(Footage* f);
@@ -44,6 +45,8 @@ private:
   rational timebase_;
 
   int index_;
+
+  Type type_;
 
 };
 

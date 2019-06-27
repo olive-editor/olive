@@ -25,6 +25,20 @@ Footage::Footage()
 
 }
 
+Footage::~Footage()
+{
+  ClearStreams();
+}
+
+void Footage::Clear()
+{
+  // Clear filename string
+  filename_.clear();
+
+  // Clear all streams
+  ClearStreams();
+}
+
 const QString &Footage::filename()
 {
   return filename_;
@@ -45,21 +59,32 @@ void Footage::set_timestamp(const QDateTime &t)
   timestamp_ = t;
 }
 
-void Footage::add_stream(const Stream &s)
+void Footage::add_stream(Stream *s)
 {
   // Add a copy of this stream to the list
   streams_.append(s);
 
   // Set its footage parent to this
-  streams_.last().set_footage(this);
+  streams_.last()->set_footage(this);
 }
 
 const Stream *Footage::stream(int index)
 {
-  return &streams_.at(index);
+  return streams_.at(index);
 }
 
 Item::Type Footage::type() const
 {
   return kFootage;
+}
+
+void Footage::ClearStreams()
+{
+  // Delete all streams
+  for (int i=0;i<streams_.size();i++) {
+    delete streams_.at(i);
+  }
+
+  // Empty array
+  streams_.clear();
 }

@@ -21,6 +21,10 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 #include "rational.h"
 #include "stream.h"
 
@@ -29,20 +33,18 @@ class AudioStream : public Stream
 public:
   AudioStream();
 
-  virtual Type type() override;
-
   const int& channels();
   void set_channels(const int& channels);
 
-  const int& layout();
-  void set_layout(const int& layout);
+  const uint64_t& layout();
+  void set_layout(const uint64_t& layout);
 
   const int& sample_rate();
   void set_sample_rate(const int& sample_rate);
 
 private:
   int channels_;
-  int layout_;
+  uint64_t layout_;
   int sample_rate_;
 };
 

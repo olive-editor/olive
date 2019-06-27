@@ -29,8 +29,6 @@ class VideoStream : public Stream
 public:
   VideoStream();
 
-  virtual Type type() override;
-
   const int& width();
   void set_width(const int& width);
 

@@ -10,7 +10,10 @@ class FFmpegDecoder : public Decoder
 public:
   FFmpegDecoder();
 
+  virtual bool Probe(Footage *f) override;
+
   virtual bool Open() override;
+  virtual FramePtr Retrieve(const rational &timecode, const rational &length = 0) override;
   virtual void Close() override;
 
 protected:

@@ -34,23 +34,49 @@ class Footage : public Item
 public:
   Footage();
 
+  virtual ~Footage() override;
+
+  /**
+   * @brief Deleted copy constructor
+   */
+  Footage(const Footage& other) = delete;
+
+  /**
+   * @brief Deleted move constructor
+   */
+  Footage(Footage&& other) = delete;
+
+  /**
+   * @brief Deleted copy assignment
+   */
+  Footage& operator=(const Footage& other) = delete;
+
+  /**
+   * @brief Deleted move assignment
+   */
+  Footage& operator=(Footage&& other) = delete;
+
+  void Clear();
+
   const QString& filename();
   void set_filename(const QString& s);
 
   const QDateTime& timestamp();
   void set_timestamp(const QDateTime& t);
 
-  void add_stream(const Stream& s);
+  void add_stream(Stream* s);
   const Stream* stream(int index);
 
   virtual Type type() const override;
 
 private:
+  void ClearStreams();
+
   QString filename_;
 
   QDateTime timestamp_;
 
-  QList<Stream> streams_;
+  QList<Stream*> streams_;
 };
 
 #endif // FOOTAGE_H
