@@ -20,5 +20,7 @@ set(OLIVE_SOURCES
   task/task.cpp
   task/taskmanager.h
   task/taskmanager.cpp
+  task/taskthread.h
+  task/taskthread.cpp
   PARENT_SCOPE
 )

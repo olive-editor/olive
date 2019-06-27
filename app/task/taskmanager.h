@@ -21,16 +21,25 @@
 #ifndef TASKMANAGER_H
 #define TASKMANAGER_H
 
+#include <QVector>
 
-class TaskManager
+#include "task/task.h"
+
+class TaskManager : public QObject
 {
+  Q_OBJECT
 public:
   TaskManager();
 
-  void AddTask();
+  void AddTask(Task *t);
 
 private:
+  QVector<Task*> tasks_;
+
   int maximum_task_count_;
+
+private slots:
+  void TaskCallback(Task::Status status);
 
 };
 

@@ -31,6 +31,7 @@
 #include "panel/panelfocusmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
+#include "task/taskmanager.h"
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
 #include "widget/menu/menushared.h"
@@ -151,9 +152,10 @@ void Core::ImportFiles(const QStringList &urls)
 
       f->set_filename(url);
       f->set_name(file_info.fileName());
-      //file_info.lastModified();
+      f->set_timestamp(file_info.lastModified());
 
-      olive::ProbeMedia(f);
+      //olive::ProbeMedia(f);
+      olive::task_manager.AddTask(new Task());
 
       active_project->root()->add_child(f);
 

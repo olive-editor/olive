@@ -21,11 +21,48 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <QObject>
 
-class Task
+#include "task/taskthread.h"
+
+class Task : public QObject
 {
+  Q_OBJECT
 public:
+  enum Status {
+    kWaiting,
+    kWorking,
+    kFinished,
+    kError
+  };
+
   Task();
+
+  void Start();
+
+  virtual bool Action();
+
+  const Status& status();
+
+  const QString& error();
+
+protected:
+  void SetError(const QString& s);
+
+signals:
+  void StatusChanged(Task::Status s);
+
+private:
+  void set_status(const Status& status);
+
+  Status status_;
+
+  TaskThread thread_;
+
+  QString error_;
+
+private slots:
+  void ThreadComplete();
 };
 
 #endif // TASK_H

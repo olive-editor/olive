@@ -20,7 +20,52 @@
 
 #include "task.h"
 
-Task::Task()
+Task::Task() :
+  status_(kWaiting),
+  thread_(this)
 {
+  connect(&thread_, SIGNAL(finished()), this, SLOT(ThreadComplete()));
+}
 
+void Task::Start()
+{
+  set_status(kWorking);
+
+  thread_.start();
+}
+
+bool Task::Action()
+{
+  return true;
+}
+
+const Task::Status &Task::status()
+{
+  return status_;
+}
+
+const QString &Task::error()
+{
+  return error_;
+}
+
+void Task::SetError(const QString &s)
+{
+  error_ = s;
+}
+
+void Task::set_status(const Task::Status &status)
+{
+  status_ = status;
+
+  emit StatusChanged(status_);
+}
+
+void Task::ThreadComplete()
+{
+  if (thread_.result()) {
+    set_status(kFinished);
+  } else {
+    set_status(kError);
+  }
 }

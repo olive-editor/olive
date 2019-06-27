@@ -20,6 +20,7 @@
 
 #include "taskmanager.h"
 
+#include <QDebug>
 #include <QThread>
 
 TaskManager olive::task_manager;
@@ -27,4 +28,33 @@ TaskManager olive::task_manager;
 TaskManager::TaskManager()
 {
   maximum_task_count_ = QThread::idealThreadCount();
+}
+
+void TaskManager::AddTask(Task* t)
+{
+  connect(t, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskCallback(Task::Status)));
+
+  tasks_.append(t);
+
+  if (tasks_.size() < maximum_task_count_) {
+    t->Start();
+  }
+}
+
+void TaskManager::TaskCallback(Task::Status status)
+{
+  switch (status) {
+  case Task::kWaiting:
+    qDebug() << sender() << "is waiting...";
+    break;
+  case Task::kWorking:
+    qDebug() << sender() << "is working...";
+    break;
+  case Task::kFinished:
+    qDebug() << sender() << "finished successfully.";
+    break;
+  case Task::kError:
+    qDebug() << sender() << "failed:" << static_cast<Task*>(sender())->error();
+    break;
+  }
 }
