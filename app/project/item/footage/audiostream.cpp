@@ -22,7 +22,6 @@
 
 AudioStream::AudioStream()
 {
-
 }
 
 Stream::Type AudioStream::type()
