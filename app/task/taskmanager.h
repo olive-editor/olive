@@ -25,22 +25,71 @@
 
 #include "task/task.h"
 
+/**
+ * @brief The TaskManager class
+ *
+ * TaskManager handles the life of a Task object. After a new Task is created, it should be sent to TaskManager through
+ * AddTask(). TaskManager will take ownership of the task and add it to a queue until it system resources are available
+ * for it to run. Currently, TaskManager will run no more Tasks than there are threads on the system (one task per
+ * thread). As Tasks finished, TaskManager will start the next in the queue.
+ */
 class TaskManager : public QObject
 {
   Q_OBJECT
 public:
+  /**
+   * @brief TaskManager Constructor
+   */
   TaskManager();
 
+  /**
+   * @brief Add a new Task
+   *
+   * Adds a new Task to the queue. If there are available threads to run it, it'll also run immediately. Otherwise,
+   * it'll be placed into the queue and run when resources are available.
+   *
+   * NOTE: This function is NOT thread-safe and is currently intended to only be used from the main/GUI thread.
+   *
+   * @param t
+   *
+   * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
+   */
   void AddTask(Task *t);
 
 private:
+  /**
+   * @brief Scan through the task queue and start any Tasks that are able to start
+   *
+   * This function is run whenever a Task is added and whenever a Task finishes. It determines how many Tasks are
+   * currently running and therefore how many Tasks can be started (if any). It will then start ones that can.
+   *
+   * Like AddTask, this function is NOT thread-safe and currently only intended to be run from the main thread.
+   */
   void StartNextWaiting();
 
+  /**
+   * @brief Internal task array
+   */
   QVector<Task*> tasks_;
 
+  /**
+   * @brief Constant set at run-time of how many Tasks can run concurrently
+   *
+   * Currently set in the Constructor to QThread::idealThreadCount()
+   */
   int maximum_task_count_;
 
 private slots:
+  /**
+   * @brief Callback when a Task's status changes
+   *
+   * When a Task is added, it's connected to this so TaskManager is alerted whenever a Task's status changes. It can
+   * therefore keep track of Tasks starting, completing, or failing.
+   *
+   * @param status
+   *
+   * The new status of the Task
+   */
   void TaskCallback(Task::Status status);
 
 };

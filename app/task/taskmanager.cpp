@@ -32,10 +32,13 @@ TaskManager::TaskManager()
 
 void TaskManager::AddTask(Task* t)
 {
+  // Connect Task's status signal to the Callback
   connect(t, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskCallback(Task::Status)));
 
+  // Add the Task to the queue
   tasks_.append(t);
 
+  // Scan through queue and start any Tasks that can (including this one)
   StartNextWaiting();
 }
 
