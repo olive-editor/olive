@@ -30,13 +30,23 @@ Footage::~Footage()
   ClearStreams();
 }
 
+bool Footage::ready()
+{
+  return ready_;
+}
+
+void Footage::set_ready(const bool &ready)
+{
+  ready_ = ready;
+}
+
 void Footage::Clear()
 {
-  // Clear filename string
-  filename_.clear();
-
   // Clear all streams
   ClearStreams();
+
+  // Reset ready state
+  set_ready(false);
 }
 
 const QString &Footage::filename()
@@ -73,6 +83,11 @@ const Stream *Footage::stream(int index)
   return streams_.at(index);
 }
 
+int Footage::stream_count()
+{
+  return streams_.size();
+}
+
 Item::Type Footage::type() const
 {
   return kFootage;
@@ -80,6 +95,10 @@ Item::Type Footage::type() const
 
 void Footage::ClearStreams()
 {
+  if (streams_.empty()) {
+    return;
+  }
+
   // Delete all streams
   for (int i=0;i<streams_.size();i++) {
     delete streams_.at(i);
