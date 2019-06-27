@@ -34,6 +34,8 @@ public:
   void AddTask(Task *t);
 
 private:
+  void StartNextWaiting();
+
   QVector<Task*> tasks_;
 
   int maximum_task_count_;

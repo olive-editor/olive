@@ -36,8 +36,30 @@ void TaskManager::AddTask(Task* t)
 
   tasks_.append(t);
 
-  if (tasks_.size() < maximum_task_count_) {
-    t->Start();
+  StartNextWaiting();
+}
+
+void TaskManager::StartNextWaiting()
+{
+  // Count the tasks that are currently active
+  int working_count = 0;
+
+  for (int i=0;i<tasks_.size();i++) {
+    Task* t = tasks_.at(i);
+
+    if (t->status() == Task::kWorking) {
+      // Task is active, add it to the count
+      working_count++;
+    } else if (t->status() == Task::kWaiting) {
+      // Task is waiting and we have available threads, start it and add it to the count
+      t->Start();
+      working_count++;
+    }
+
+    // Check if the count exceeds our maximum threads, if so stop here
+    if (working_count == maximum_task_count_) {
+      break;
+    }
   }
 }
 
@@ -52,9 +74,11 @@ void TaskManager::TaskCallback(Task::Status status)
     break;
   case Task::kFinished:
     qDebug() << sender() << "finished successfully.";
+    StartNextWaiting();
     break;
   case Task::kError:
     qDebug() << sender() << "failed:" << static_cast<Task*>(sender())->error();
+    StartNextWaiting();
     break;
   }
 }
