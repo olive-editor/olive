@@ -38,16 +38,22 @@ public:
 
   Task();
 
-  void Start();
+  bool Start();
 
   virtual bool Action();
 
   const Status& status();
 
+  const QString& text();
+
   const QString& error();
 
+  void AddDependency(Task* dependency);
+
 protected:
-  void SetError(const QString& s);
+  void set_error(const QString& s);
+
+  void set_text(const QString& s);
 
 signals:
   void StatusChanged(Task::Status s);
@@ -59,7 +65,11 @@ private:
 
   TaskThread thread_;
 
+  QString text_;
+
   QString error_;
+
+  QList<Task*> dependencies_;
 
 private slots:
   void ThreadComplete();

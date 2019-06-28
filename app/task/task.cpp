@@ -22,16 +22,39 @@
 
 Task::Task() :
   status_(kWaiting),
-  thread_(this)
+  thread_(this),
+  text_(tr("Task"))
 {
   connect(&thread_, SIGNAL(finished()), this, SLOT(ThreadComplete()));
 }
 
-void Task::Start()
+bool Task::Start()
 {
+  // Check if this task has any dependencies (tasks that should complete before this one starts)
+
+  for (int i=0;i<dependencies_.size();i++) {
+    Task* dependency = dependencies_.at(i);
+
+    if (dependency->status() == kWaiting || dependency->status() == kWorking) {
+
+      // We need this task to finish before this task can start, so keep waiting
+      return false;
+
+    } else if (dependency->status() == kError) {
+
+      // A dependency errored, so this task is likely invalid too
+      set_error(tr("A dependency task failed"));
+      set_status(kError);
+      return false;
+
+    }
+  }
+
   set_status(kWorking);
 
   thread_.start();
+
+  return true;
 }
 
 bool Task::Action()
@@ -44,14 +67,32 @@ const Task::Status &Task::status()
   return status_;
 }
 
+const QString &Task::text()
+{
+  return text_;
+}
+
 const QString &Task::error()
 {
   return error_;
 }
 
-void Task::SetError(const QString &s)
+void Task::AddDependency(Task *dependency)
+{
+  // Dependencies cannot be added if the Task is working or complete
+  Q_ASSERT(status_ == kWaiting);
+
+  dependencies_.append(dependency);
+}
+
+void Task::set_error(const QString &s)
 {
   error_ = s;
+}
+
+void Task::set_text(const QString &s)
+{
+  text_ = s;
 }
 
 void Task::set_status(const Task::Status &status)

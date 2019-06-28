@@ -54,9 +54,12 @@ void TaskManager::StartNextWaiting()
       // Task is active, add it to the count
       working_count++;
     } else if (t->status() == Task::kWaiting) {
-      // Task is waiting and we have available threads, start it and add it to the count
-      t->Start();
-      working_count++;
+
+      // Task is waiting and we have available threads, try to start it
+      if (t->Start()) {
+        // If it started correctly, add it to the working count
+        working_count++;
+      }
     }
 
     // Check if the count exceeds our maximum threads, if so stop here
