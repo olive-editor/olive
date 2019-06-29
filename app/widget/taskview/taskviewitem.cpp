@@ -52,6 +52,7 @@ void TaskViewItem::SetTask(Task *t)
   if (task_ != nullptr) {
     disconnect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
     disconnect(task_, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
+    disconnect(task_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
   }
 
   // Set task
@@ -61,8 +62,9 @@ void TaskViewItem::SetTask(Task *t)
   task_name_lbl_->setText(QString("<b>%1</b>").arg(task_->text()));
 
   // Connect to the task
-  connect(t, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
-  connect(t, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
+  connect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
+  connect(task_, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
+  connect(task_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 }
 
 void TaskViewItem::TaskStatusChange(Task::Status status)

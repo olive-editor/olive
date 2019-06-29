@@ -43,6 +43,33 @@ public:
   TaskManager();
 
   /**
+   * @brief TaskManager Destructor
+   *
+   * Ensures all Tasks are deleted
+   */
+  virtual ~TaskManager();
+
+  /**
+   * @brief Deleted copy constructor
+   */
+  TaskManager(const TaskManager& other) = delete;
+
+  /**
+   * @brief Deleted move constructor
+   */
+  TaskManager(TaskManager&& other) = delete;
+
+  /**
+   * @brief Deleted copy assignment
+   */
+  TaskManager& operator=(const TaskManager& other) = delete;
+
+  /**
+   * @brief Deleted move assignment
+   */
+  TaskManager& operator=(TaskManager&& other) = delete;
+
+  /**
    * @brief Add a new Task
    *
    * Adds a new Task to the queue. If there are available threads to run it, it'll also run immediately. Otherwise,
@@ -55,6 +82,11 @@ public:
    * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
    */
   void AddTask(Task *t);
+
+  /**
+   * @brief Forcibly
+   */
+  void Clear();
 
 signals:
   /**

@@ -30,6 +30,11 @@ TaskManager::TaskManager()
   maximum_task_count_ = QThread::idealThreadCount();
 }
 
+TaskManager::~TaskManager()
+{
+  Clear();
+}
+
 void TaskManager::AddTask(Task* t)
 {
   // Connect Task's status signal to the Callback
@@ -43,6 +48,17 @@ void TaskManager::AddTask(Task* t)
 
   // Scan through queue and start any Tasks that can (including this one)
   StartNextWaiting();
+}
+
+void TaskManager::Clear()
+{
+  // TODO Cancelling tasks
+
+  // Delete Tasks from memory
+  for (int i=0;i<tasks_.size();i++) {
+    delete tasks_.at(i);
+  }
+  tasks_.clear();
 }
 
 void TaskManager::StartNextWaiting()
