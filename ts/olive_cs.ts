@@ -128,7 +128,7 @@
     <name>CollapsibleWidget</name>
     <message>
         <source>&lt;untitled&gt;</source>
-        <translation>&lt;bez názvu&gt</translation>
+        <translation>&lt;bez názvu&gt;</translation>
     </message>
 </context>
 <context>
