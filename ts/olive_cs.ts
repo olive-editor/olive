@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation>Družstvo Olive se dává na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
+        <translation>Družstvo Olive dává na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
     </message>
 </context>
 <context>
@@ -31,7 +31,7 @@
     </message>
     <message>
         <source>Threads:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vlákna:</translation>
     </message>
 </context>
 <context>
@@ -60,7 +60,7 @@
     <name>AutoCutSilenceDialog</name>
     <message>
         <source>Cut Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Vyříznout ticho</translation>
     </message>
     <message>
         <source>Attack Threshold:</source>
@@ -83,7 +83,7 @@
     <name>Cacher</name>
     <message>
         <source>Could not open %1 - %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebylo možné otevřít %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -109,7 +109,7 @@
     </message>
     <message>
         <source>Multiple Clip Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vlastnosti více klipů</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -121,14 +121,14 @@
     </message>
     <message>
         <source>(multiple)</source>
-        <translation type="unfinished"></translation>
+        <translation>(více)</translation>
     </message>
 </context>
 <context>
     <name>CollapsibleWidget</name>
     <message>
         <source>&lt;untitled&gt;</source>
-        <translation></translation>
+        <translation>&lt;bez názvu&gt</translation>
     </message>
 </context>
 <context>
@@ -176,15 +176,15 @@
     </message>
     <message>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Tento program je v současnosti v Alfa verzi, což znamená, že je nestálý a velice pravděpodobně náchylný k pádům, má chyby a chybí mu funkce. Není poskytována žádná záruka, takže jej používejte na vlastní nebezpečí. Hlašte, prosím, jakékoli chyby nebo žádosti o funkce na %1</translation>
+        <translation>Tento program je v současnosti v Alfa verzi, což znamená, že je nestabilní a velice pravděpodobně náchylný k pádům, má chyby a chybí mu funkce. Není poskytována žádná záruka, takže jej používejte na vlastní nebezpečí. Hlašte, prosím, jakékoli chyby nebo žádosti o funkce na %1</translation>
     </message>
     <message>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation>Děkujeme vám za zkoušení Olive. Přejeme si, aby vám dělal radost!</translation>
+        <translation>Děkujeme vám za vyzkoušení Olive. Přejeme si, aby vám dělal radost!</translation>
     </message>
     <message>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation>Olive je editor obrazového záznamu s otevřeným zdrojovým kódem vydaný pod GNU GPL.</translation>
+        <translation>Olive je editor obrazového záznamu s otevřeným zdrojovým kódem vydaný pod licencí GNU GPL. Pokud jste za tento program zaplatili, byli jste podvedeni</translation>
     </message>
 </context>
 <context>
@@ -199,7 +199,7 @@
     </message>
     <message>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Žádný uchazeč pro efekt &apos;%1&apos;. Tento přechod může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
+        <translation>Žádný uchazeč pro efekt &apos;%1&apos;. Tento efekt může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
     </message>
     <message>
         <source>Invalid effect</source>
@@ -235,7 +235,7 @@
     </message>
     <message>
         <source>Load Settings Failed</source>
-        <translation>Nastavení se nepodařilo nahrát</translation>
+        <translation>Nastavení se nepodařilo načíst</translation>
     </message>
     <message>
         <source>This settings file doesn&apos;t match this effect.</source>
@@ -316,15 +316,15 @@
     <name>EffectUI</name>
     <message>
         <source>%1 (Opening)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Otevírám)</translation>
     </message>
     <message>
         <source>%1 (Closing)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">(Zavírám)</translation>
     </message>
     <message>
         <source>%1 (multiple)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 (násobek)</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
@@ -382,7 +382,7 @@
     </message>
     <message>
         <source>Export Media</source>
-        <translation>Vyvést záznam</translation>
+        <translation>Exportovat záznam</translation>
     </message>
     <message>
         <source>Invalid format</source>
@@ -432,7 +432,7 @@
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation>Snímková rychlost:</translation>
     </message>
     <message>
         <source>Entire Sequence</source>
@@ -444,7 +444,7 @@
     </message>
     <message>
         <source>Export Failed</source>
-        <translation>Nepodařilo se vyvést</translation>
+        <translation>Nepodařilo se exportovat</translation>
     </message>
     <message>
         <source>Unknown codec name %1</source>
@@ -464,11 +464,11 @@
     </message>
     <message>
         <source>Export &quot;%1&quot;</source>
-        <translation>Vyvést &quot;%1&quot;</translation>
+        <translation>Exportovat &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation>Šířka a výška pro vyvedení musí být sudá čísla dělitelná 2.</translation>
+        <translation>Šířka a výška pro export musí být sudá čísla (dělitelná 2).</translation>
     </message>
     <message>
         <source>Quality (CRF):</source>
@@ -480,7 +480,7 @@
     </message>
     <message>
         <source>Export failed - %1</source>
-        <translation>Nepodařilo se vyvést - %1</translation>
+        <translation>Export se nezdařil - %1</translation>
     </message>
     <message>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
@@ -492,15 +492,15 @@
     </message>
     <message>
         <source>Bitrate (Kbps/CBR):</source>
-        <translation>Datový tok (KB/s/stálý datový tok):</translation>
+        <translation>Datový tok (KB/s / stálý datový tok):</translation>
     </message>
     <message>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation>Nepodařilo se najít vhodný kodér pro tento kodek. Vyvedení pravděpodobně selže.</translation>
+        <translation>Nepodařilo se najít vhodný kodér pro tento kodek. Export pravděpodobně selže.</translation>
     </message>
     <message>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation>Nepodařilo se najít formát pixelu pro tento kodér. Vyvedení pravděpodobně selže.</translation>
+        <translation>Nepodařilo se najít formát pixelu pro tento kodér. Export pravděpodobně selže.</translation>
     </message>
     <message>
         <source>Format:</source>
@@ -512,11 +512,11 @@
     </message>
     <message>
         <source>%p% (Total: %1:%2:%3)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%p% (Celkem: %1:%2:%3)</translation>
     </message>
     <message>
         <source>%p% (ETA: %1:%2:%3)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%p% (Odhadovaný zbývající čas: %1:%2:%3)</translation>
     </message>
 </context>
 <context>
@@ -535,7 +535,7 @@
     </message>
     <message>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
-        <translation>Nepodařilo se kopírovat parametry kodéru zvuku do výstupního proudu (%1)</translation>
+        <translation>Nepodařilo se zkopírovat parametry kodéru zvuku do výstupního proudu (%1)</translation>
     </message>
     <message>
         <source>could not allocate audio encoding context</source>
@@ -543,11 +543,11 @@
     </message>
     <message>
         <source>could not copy video encoder parameters to output stream (%1)</source>
-        <translation>Nepodařilo se kopírovat parametry kodéru obrazu do výstupního proudu (%1)</translation>
+        <translation>Nepodařilo se zkopírovat parametry kodéru obrazu do výstupního proudu (%1)</translation>
     </message>
     <message>
         <source>failed to send frame to encoder (%1)</source>
-        <translation>Chyba při poslání snímku kodéru (%1)</translation>
+        <translation>Chyba při poslání snímku do kodéru (%1)</translation>
     </message>
     <message>
         <source>could not open output audio encoder (%1)</source>
@@ -613,7 +613,7 @@
     </message>
     <message>
         <source>Error loading Frei0r plugin</source>
-        <translation>Chyba při nahrávání přídavného modulu Frei0r</translation>
+        <translation>Chyba při načítání přídavného modulu Frei0r</translation>
     </message>
     <message>
         <source>NOTE: You can&apos;t load 64-bit Frei0r plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
@@ -715,7 +715,7 @@
     </message>
     <message>
         <source>&amp;Reset to Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Obnovit výchozí hodnoty</translation>
     </message>
 </context>
 <context>
@@ -726,11 +726,11 @@
     </message>
     <message>
         <source>Loading...</source>
-        <translation>Nahrává se...</translation>
+        <translation>Načítání...</translation>
     </message>
     <message>
         <source>Loading &apos;%1&apos;...</source>
-        <translation>Nahrává se &apos;%1&apos;...</translation>
+        <translation>Načítá se &apos;%1&apos;...</translation>
     </message>
 </context>
 <context>
@@ -745,11 +745,11 @@
     </message>
     <message>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
-        <translation>Tento projekt obsahuje neplatný odkaz na záběr. Tento může být poškozen. Chcete pokračovat v jeho nahrávání?</translation>
+        <translation>Tento projekt obsahuje neplatný odkaz na záběr. Může být poškozen. Chcete pokračovat v jeho načítání?</translation>
     </message>
     <message>
         <source>Project Load Error</source>
-        <translation>Chyba při nahrávání projektu</translation>
+        <translation>Chyba při načítání projektu</translation>
     </message>
     <message>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
@@ -761,15 +761,15 @@
     </message>
     <message>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
-        <translation>Tento projekt byl uložen v jiné verzi Olive a nemusí být plně slučitelný s touto verzí. Přesto se jej chcete pokusit nahrát?</translation>
+        <translation>Tento projekt byl uložen v jiné verzi Olive a nemusí být plně slučitelný s touto verzí. Přesto se jej chcete pokusit načíst?</translation>
     </message>
     <message>
         <source>Error loading project: %1</source>
-        <translation>Chyba při nahrávání projektu: %1</translation>
+        <translation>Chyba při načítání projektu: %1</translation>
     </message>
     <message>
         <source>User aborted loading</source>
-        <translation>Uživatelem přerušené nahrávání</translation>
+        <translation>Uživatel přerušil načítání</translation>
     </message>
     <message>
         <source>XML Parsing Error</source>
@@ -1140,7 +1140,7 @@
     </message>
     <message>
         <source>Track Lines</source>
-        <translation>Řádky stop</translation>
+        <translation>Sledovat řádky</translation>
     </message>
     <message>
         <source>Sequence Viewer</source>
@@ -1184,7 +1184,7 @@
     </message>
     <message>
         <source>Auto-Cut Silence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automaticky vyříznout ticho</translation>
     </message>
 </context>
 <context>
@@ -1230,7 +1230,7 @@
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation>Snímková rychlost:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
@@ -1260,7 +1260,7 @@ Audio Frequency: %5
 Audio Layout: %6</source>
         <translation>Název: %1
 Rozměry obrazu: %2x%3
-Snímkování: %4
+Snímková rychlost: %4
 Kmitočet zvuku: %5
 Rozložení zvuku: %6</translation>
     </message>
@@ -1301,11 +1301,11 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Auto (%1)</source>
-        <translation>Auto (%1)</translation>
+        <translation>Automaticky (%1)</translation>
     </message>
     <message>
         <source>Conform to Frame Rate:</source>
-        <translation>Odpovídá snímkování:</translation>
+        <translation>Odpovídá snímkové frekvenci:</translation>
     </message>
     <message>
         <source>Tracks:</source>
@@ -1435,7 +1435,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Editing &quot;%1&quot;</source>
-        <translation>Upravení &quot;%1&quot;</translation>
+        <translation>Upravuji &quot;%1&quot;</translation>
     </message>
     <message>
         <source>1080p</source>
@@ -1479,7 +1479,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation>Snímková frekvence:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
@@ -1526,7 +1526,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation>Olive nebyl zavřen řádně a byl zjištěn soubor pro automatické obnovení. Chcete jej otevřít?</translation>
+        <translation>Olive nebyl řádně zavřen a byl zjištěn soubor pro automatické obnovení. Chcete jej otevřít?</translation>
     </message>
     <message>
         <source>Missing recent project</source>
@@ -1570,15 +1570,15 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Please open the sequence to perform this action.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Prosím otevřete úryvek (sled záběrů), abyste mohli udělat tuto akci.</translation>
     </message>
     <message>
         <source>No clips selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nebyly vybrány žádné záběry</translation>
     </message>
     <message>
         <source>Select the clips you wish to auto-cut</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vyberte záběry, které chcete automaticky sestříhat</translation>
     </message>
 </context>
 <context>
@@ -1923,7 +1923,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Failed to find any valid video/audio streams</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nepodařilo se nalézt žádné platné obrazové/zvukové toky</translation>
     </message>
 </context>
 <context>
@@ -2006,15 +2006,15 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Otevřít projekt</translation>
     </message>
     <message>
         <source>Save Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Uložit projekt</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zpět</translation>
     </message>
     <message>
         <source>Redo</source>
@@ -2030,15 +2030,15 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>List View</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zobrazení seznamu</translation>
     </message>
     <message>
         <source>Import a Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importovat projekt</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is an Olive project file. It will merge with this project. Do you wish to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&quot;%1&quot; je soubor projektu Olive. Bude spojen s timto projektem. Přejete si pokračovat?</translation>
     </message>
 </context>
 <context>
@@ -2159,7 +2159,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Keep the same media in-points</source>
-        <translation>Zachovat stejné začáteční body záznamu</translation>
+        <translation>Zachovat stejné počáteční body záznamu</translation>
     </message>
     <message>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
@@ -2174,7 +2174,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Padding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Odsazení</translation>
     </message>
     <message>
         <source>Position</source>
@@ -2182,7 +2182,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Vertical Align:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vertikální zarovnání:</translation>
     </message>
     <message>
         <source>Top</source>
@@ -2198,7 +2198,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Auto-Scroll</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automaticky posouvat</translation>
     </message>
     <message>
         <source>Off</source>
@@ -2206,11 +2206,11 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nahoru</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dolu</translation>
     </message>
     <message>
         <source>Left</source>
@@ -2346,7 +2346,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Replace/Relink Media</source>
-        <translation>Nahradit/Znovuspojit záznamy</translation>
+        <translation>Nahradit/Znovu spojit záznamy</translation>
     </message>
     <message>
         <source>Icon View</source>
@@ -2354,7 +2354,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Delete All Clips Using This Media</source>
-        <translation>Smazat všechny záběry pomocí tohoto záznamu</translation>
+        <translation>Smazat všechny záběry používající tento záznam</translation>
     </message>
     <message>
         <source>Duplicate</source>
@@ -2421,7 +2421,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímkování:</translation>
+        <translation>Snímková rychlost:</translation>
     </message>
     <message>
         <source>Duration:</source>
@@ -2452,15 +2452,15 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Thin</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Úzký</translation>
     </message>
     <message>
         <source>Extra Light</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Velmi lehký</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lehký</translation>
     </message>
     <message>
         <source>Normal</source>
@@ -2468,23 +2468,23 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Střední</translation>
     </message>
     <message>
         <source>Demi Bold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Středně tlustý</translation>
     </message>
     <message>
         <source>Bold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tlustý</translation>
     </message>
     <message>
         <source>Extra Bold</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Velmi tlustý</translation>
     </message>
     <message>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Černý</translation>
     </message>
 </context>
 <context>
@@ -2594,7 +2594,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Padding</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Odsazení</translation>
     </message>
     <message>
         <source>Position</source>
@@ -2692,7 +2692,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
-        <translation>Klepněte na časovou osu, kde chcete začít s nahráváním (táhněte pro omezení nahrávky na určitý časový snímek)</translation>
+        <translation>Klepněte na časovou osu, kde chcete začít s nahráváním (táhněte pro omezení nahrávky na určitý časový úsek)</translation>
     </message>
     <message>
         <source>Noise...</source>
@@ -2712,7 +2712,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
-        <translation>Záběr &apos;%1&apos; již obsahuje &apos;%2&apos; efekt. Chcete jej nahradit vloženým nebo jej přidat jako samostatný efekt?</translation>
+        <translation>Záběr &apos;%1&apos; již obsahuje efekt &apos;%2&apos;. Chcete jej nahradit vloženým nebo jej přidat jako samostatný efekt?</translation>
     </message>
     <message>
         <source>Bars...</source>
@@ -2818,7 +2818,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>&amp;Reveal in Project</source>
-        <translation>&amp;Odkrýt v projektu</translation>
+        <translation>&amp;Zobrazit v projektu</translation>
     </message>
     <message>
         <source>Rename &apos;%1&apos;</source>
@@ -2876,15 +2876,15 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Auto-Cut Silence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automaticky vyříznout ticho</translation>
     </message>
     <message>
         <source>Auto-S&amp;cale</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automaticky změnit velikost</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Vlastnosti</translation>
     </message>
 </context>
 <context>
@@ -2907,7 +2907,7 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Sine</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sinus</translation>
     </message>
 </context>
 <context>
@@ -3006,7 +3006,7 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Hard Mix</source>
-        <translation type="vanished">Tvrdá směs</translation>
+        <translation type="vanished">Tvrdé smíšení</translation>
     </message>
     <message>
         <source>Reflect</source>
@@ -3048,7 +3048,7 @@ Doba trvání: %4</translation>
     <name>UpdateNotification</name>
     <message>
         <source>An update is available from the Olive website. Visit www.olivevideoeditor.org to download it.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Je možné stáhnout novou verzi editoru Olive na vebovéých stránkách. Navštivte www.olivevideoeditor.org pro její stažení.</translation>
     </message>
 </context>
 <context>
@@ -3118,11 +3118,11 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Drag video only</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Táhněte pouze video</translation>
     </message>
     <message>
         <source>Drag audio only</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Táhněte pouze zvuk</translation>
     </message>
 </context>
 <context>
