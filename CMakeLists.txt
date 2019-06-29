@@ -428,6 +428,9 @@ qt5_add_translation(OLIVE_QM_FILES
   ts/olive_ru.ts
   ts/olive_sr.ts
   ts/olive_id.ts
+  ts/olive_pt-BR.ts
+  ts/olive_zh-CN.ts
+  ts/olive_zh-TW.ts
 )
 
 set(OLIVE_TARGET "olive-editor")
