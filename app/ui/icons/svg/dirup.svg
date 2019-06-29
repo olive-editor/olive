@@ -11,7 +11,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="dirup.svg"
-   inkscape:version="0.91+devel+osxmenu r12922"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:version="0.32"
    id="svg2"
    height="64"
@@ -10929,17 +10929,17 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="23"
-     inkscape:window-x="47"
-     inkscape:window-height="927"
-     inkscape:window-width="1633"
+     inkscape:window-y="28"
+     inkscape:window-x="0"
+     inkscape:window-height="1386"
+     inkscape:window-width="2560"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
-     inkscape:current-layer="layer1"
-     inkscape:cy="32"
-     inkscape:cx="32"
+     inkscape:current-layer="layer2"
+     inkscape:cy="30.558334"
+     inkscape:cx="34.272468"
      inkscape:zoom="11.90625"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -10948,7 +10948,7 @@
      pagecolor="#000000"
      id="base"
      fill="#729fcf"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      borderlayer="true"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
@@ -10998,7 +10998,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -11021,11 +11021,24 @@
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
      id="layer1"
-     transform="translate(0,16)">
+     transform="translate(0,16)"
+     style="display:none">
     <path
-       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:none;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#ffffff;fill-opacity:0.86274511;fill-rule:nonzero;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
-       d="M 8 12 C 6.3432144 12.000166 5.0001657 13.343214 5 15 L 5 49 C 5.0001657 50.656786 6.3432144 51.999834 8 52 L 28 52 L 28 38.65625 L 21.828125 44.828125 A 4.0004 4.0004 0 1 1 16.171875 39.171875 L 32 23.34375 L 47.828125 39.171875 A 4.0004 4.0004 0 1 1 42.171875 44.828125 L 36 38.65625 L 36 52 L 56 52 C 57.656786 51.999834 58.999834 50.656786 59 49 L 59 23 C 58.999834 21.343214 57.656786 20.000166 56 20 L 35.242188 20 L 28.121094 12.878906 C 27.558559 12.316297 26.795597 12.000153 26 12 L 8 12 z "
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:none;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:nonzero;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       d="m 8,12 c -1.6567856,1.66e-4 -2.9998343,1.343214 -3,3 v 34 c 1.657e-4,1.656786 1.3432144,2.999834 3,3 H 28 V 38.65625 l -6.171875,6.171875 a 4.0004,4.0004 0 1 1 -5.65625,-5.65625 L 32,23.34375 47.828125,39.171875 a 4.0004,4.0004 0 1 1 -5.65625,5.65625 L 36,38.65625 V 52 h 20 c 1.656786,-1.66e-4 2.999834,-1.343214 3,-3 V 23 c -1.66e-4,-1.656786 -1.343214,-2.999834 -3,-3 H 35.242188 L 28.121094,12.878906 C 27.558559,12.316297 26.795597,12.000153 26,12 Z"
        transform="translate(0,-16)"
-       id="path10888" />
+       id="path10888"
+       inkscape:connector-curvature="0" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2">
+    <path
+       transform="translate(0,16)"
+       style="opacity:1;fill:#727272;fill-opacity:1;stroke:none;stroke-width:3.59159446;stroke-opacity:1"
+       d="m 10.341209,-3.2005297 c -2.9443724,0 -5.313865,2.37190798 -5.313865,5.3161945 v 6.1851435 c 0,0.3017948 0.040651,0.5927927 0.088525,0.8805964 C 5.0638951,9.5166208 5.027344,9.8562096 5.027344,10.206438 V 29.390865 C 5.027344,33.053046 7.9766282,36 11.638807,36 h 15.620109 v -9.726167 c -6.487585,-0.480859 -6.016228,-2.359909 -1.225381,-10.434372 2.874389,-4.844477 4.531907,-7.2621946 6.161847,-7.2427907 1.62994,0.019406 3.231209,2.4756937 5.989455,7.3872277 4.605821,8.201457 5.023273,10.083029 -1.511923,10.404086 V 36 H 52.390865 C 56.053044,36 59,33.053046 59,29.390865 V 10.206438 C 59,6.544259 56.053044,3.5973031 52.390865,3.5973031 H 29.74695 V 2.1156648 c 0,-2.94428652 -2.371822,-5.3161945 -5.316194,-5.3161945 z"
+       id="rect1070-4"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
