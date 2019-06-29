@@ -23,6 +23,7 @@
 
 #include <QLabel>
 #include <QProgressBar>
+#include <QPushButton>
 #include <QWidget>
 
 #include "task/task.h"
@@ -38,6 +39,7 @@ public:
 private:
   QLabel* task_name_lbl_;
   QProgressBar* progress_bar_;
+  QPushButton* cancel_btn_;
   QLabel* task_status_lbl_;
 
   Task* task_;

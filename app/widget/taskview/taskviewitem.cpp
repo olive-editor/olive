@@ -20,7 +20,6 @@
 
 #include "taskviewitem.h"
 
-#include <QPushButton>
 #include <QVBoxLayout>
 
 #include "ui/icons/icons.h"
@@ -49,9 +48,9 @@ TaskViewItem::TaskViewItem(QWidget *parent) :
   middle_layout->addWidget(progress_bar_);
 
   // Create cancel button
-  QPushButton* cancel_btn = new QPushButton(this);
-  cancel_btn->setIcon(olive::icon::Error);
-  middle_layout->addWidget(cancel_btn);
+  cancel_btn_ = new QPushButton(this);
+  cancel_btn_->setIcon(olive::icon::Error);
+  middle_layout->addWidget(cancel_btn_);
 
   // Create status label
   task_status_lbl_ = new QLabel(this);
@@ -85,20 +84,24 @@ void TaskViewItem::TaskStatusChange(Task::Status status)
   case Task::kWaiting:
     task_status_lbl_->setText(tr("Waiting..."));
     progress_bar_->setValue(0);
+    cancel_btn_->setEnabled(true);
     break;
   case Task::kWorking:
     task_status_lbl_->setText(tr("Working..."));
     progress_bar_->setValue(0);
+    cancel_btn_->setEnabled(true);
     break;
   case Task::kFinished:
     task_status_lbl_->setText(tr("Done"));
     progress_bar_->setValue(100);
+    cancel_btn_->setEnabled(false);
     break;
   case Task::kError:
     task_status_lbl_->setText(
         tr("Error: %1").arg(static_cast<Task*>(sender())->error())
     );
     progress_bar_->setValue(0);
+    cancel_btn_->setEnabled(false);
     break;
   }
 }
