@@ -11,7 +11,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="error.svg"
-   inkscape:version="0.91+devel+osxmenu r12922"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:version="0.32"
    id="svg2"
    height="64"
@@ -10929,18 +10929,18 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="23"
-     inkscape:window-x="47"
-     inkscape:window-height="927"
-     inkscape:window-width="1633"
+     inkscape:window-y="28"
+     inkscape:window-x="0"
+     inkscape:window-height="1386"
+     inkscape:window-width="2560"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
      inkscape:current-layer="layer1"
-     inkscape:cy="32"
-     inkscape:cx="32"
-     inkscape:zoom="11.90625"
+     inkscape:cy="10.947587"
+     inkscape:cx="63.457709"
+     inkscape:zoom="5.953125"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1"
@@ -10948,14 +10948,15 @@
      pagecolor="#000000"
      id="base"
      fill="#729fcf"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      borderlayer="true"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="false"
      inkscape:bbox-nodes="true"
      inkscape:snap-nodes="true"
-     inkscape:snap-smooth-nodes="true">
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-object-midpoints="true">
     <inkscape:grid
        type="xygrid"
        id="grid0001"
@@ -10998,7 +10999,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -11022,10 +11023,50 @@
      inkscape:label="Layer 1"
      id="layer1"
      transform="translate(0,16)">
+    <ellipse
+       ry="29"
+       rx="28.5"
+       cy="16"
+       cx="-39.328125"
+       id="ellipse1947"
+       style="opacity:1;fill:#ca1d1d;fill-opacity:1;stroke:none;stroke-width:18.06427765;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
-       style="opacity:1;fill:#c80000;fill-opacity:0.86274511;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.8627451"
-       d="M 31.5 3 A 28.5 29 0 0 0 3 32 A 28.5 29 0 0 0 31.5 61 A 28.5 29 0 0 0 60 32 A 28.5 29 0 0 0 31.5 3 z M 19.958984 15.958984 A 4.0004 4.0004 0 0 1 22.828125 17.171875 L 32 26.34375 L 41.171875 17.171875 A 4.0004 4.0004 0 0 1 43.921875 15.960938 A 4.0004 4.0004 0 0 1 46.828125 22.828125 L 37.65625 32 L 46.828125 41.171875 A 4.0004 4.0004 0 1 1 41.171875 46.828125 L 32 37.65625 L 22.828125 46.828125 A 4.0004 4.0004 0 1 1 17.171875 41.171875 L 26.34375 32 L 17.171875 22.828125 A 4.0004 4.0004 0 0 1 19.958984 15.958984 z "
-       transform="translate(0,-16)"
-       id="path16794" />
+       id="path1949"
+       d="m -39.328125,-13 a 28.5,29 0 0 0 -28.5,29 28.5,29 0 0 0 28.5,29 28.5,29 0 0 0 28.5,-29 28.5,29 0 0 0 -28.5,-29 z M -50.869141,-0.041016 A 4.0004,4.0004 0 0 1 -48,1.171875 l 9.171875,9.171875 9.171875,-9.171875 a 4.0004,4.0004 0 0 1 2.75,-1.210937 A 4.0004,4.0004 0 0 1 -24,6.828125 L -33.171875,16 -24,25.171875 a 4.0004,4.0004 0 1 1 -5.65625,5.65625 L -38.828125,21.65625 -48,30.828125 a 4.0004,4.0004 0 1 1 -5.65625,-5.65625 L -44.484375,16 -53.65625,6.828125 a 4.0004,4.0004 0 0 1 2.787109,-6.869141 z"
+       style="opacity:1;fill:#d5d5d5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.8627451"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g1987"
+       transform="translate(70.828125,70.828125)">
+      <ellipse
+         ry="29"
+         rx="28.5"
+         cy="-54.828125"
+         cx="-39.328125"
+         id="ellipse1951"
+         style="opacity:1;fill:#ca1d1d;fill-opacity:1;stroke:none;stroke-width:18.06427765;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <g
+         transform="matrix(0.46011608,0,0,0.46011608,-51.960168,-20.068196)"
+         id="g1969">
+        <rect
+           style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.87122154;stroke-opacity:1"
+           id="rect951"
+           width="24.90807"
+           height="24.908001"
+           x="15"
+           y="-56"
+           ry="10.488658"
+           rx="10.471271" />
+        <rect
+           rx="10.471271"
+           ry="10.488658"
+           y="-120"
+           x="15"
+           height="56.908005"
+           width="24.90807"
+           id="rect1965"
+           style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:1.31687891;stroke-opacity:1" />
+      </g>
+    </g>
   </g>
 </svg>
