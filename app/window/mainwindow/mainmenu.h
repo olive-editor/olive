@@ -33,6 +33,7 @@
  */
 class MainMenu : public QMenuBar
 {
+  Q_OBJECT
 public:
   MainMenu(QWidget* parent);
 
@@ -45,6 +46,15 @@ protected:
    * @param e
    */
   virtual void changeEvent(QEvent* e);
+
+private slots:
+  /**
+   * @brief A slot for the Tool selection items
+   *
+   * Assumes a QAction* sender() and its data() is a member of enum olive::tool:Tool. Uses the data() to signal a
+   * Tool change throughout the rest of the application.
+   */
+  void ToolItemTriggered();
 
 private:
   /**

@@ -22,8 +22,9 @@
 
 #include <QEvent>
 
-#include "widget/menu/menushared.h"
 #include "core.h"
+#include "tool/tool.h"
+#include "widget/menu/menushared.h"
 
 MainMenu::MainMenu(QWidget *parent) :
   QMenuBar(parent)
@@ -198,44 +199,44 @@ MainMenu::MainMenu(QWidget *parent) :
 
   QActionGroup* tools_group = new QActionGroup(this);
 
-  tools_pointer_item_ = tools_menu_->AddItem("pointertool", nullptr, nullptr, "V");
+  tools_pointer_item_ = tools_menu_->AddItem("pointertool", this, SLOT(ToolItemTriggered()), "V");
   tools_pointer_item_->setCheckable(true);
-  //tools_pointer_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolArrowButton));
+  tools_pointer_item_->setData(olive::tool::kPointer);
   tools_group->addAction(tools_pointer_item_);
 
-  tools_edit_item_ = tools_menu_->AddItem("edittool", nullptr, nullptr, "X");
+  tools_edit_item_ = tools_menu_->AddItem("edittool", this, SLOT(ToolItemTriggered()), "X");
   tools_edit_item_->setCheckable(true);
-  //tools_edit_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolEditButton));
+  tools_edit_item_->setData(olive::tool::kEdit);
   tools_group->addAction(tools_edit_item_);
 
-  tools_ripple_item_ = tools_menu_->AddItem("rippletool", nullptr, nullptr, "B");
+  tools_ripple_item_ = tools_menu_->AddItem("rippletool", this, SLOT(ToolItemTriggered()), "B");
   tools_ripple_item_->setCheckable(true);
-  //tools_ripple_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolRippleButton));
+  tools_ripple_item_->setData(olive::tool::kRipple);
   tools_group->addAction(tools_ripple_item_);
 
-  tools_razor_item_ = tools_menu_->AddItem("razortool", nullptr, nullptr, "C");
+  tools_razor_item_ = tools_menu_->AddItem("razortool", this, SLOT(ToolItemTriggered()), "C");
   tools_razor_item_->setCheckable(true);
-  //tools_razor_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolRazorButton));
+  tools_razor_item_->setData(olive::tool::kRazor);
   tools_group->addAction(tools_razor_item_);
 
-  tools_slip_item_ = tools_menu_->AddItem("sliptool", nullptr, nullptr, "Y");
+  tools_slip_item_ = tools_menu_->AddItem("sliptool", this, SLOT(ToolItemTriggered()), "Y");
   tools_slip_item_->setCheckable(true);
-  //tools_slip_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolSlipButton));
+  tools_slip_item_->setData(olive::tool::kSlip);
   tools_group->addAction(tools_slip_item_);
 
-  tools_slide_item_ = tools_menu_->AddItem("slidetool", nullptr, nullptr, "U");
+  tools_slide_item_ = tools_menu_->AddItem("slidetool", this, SLOT(ToolItemTriggered()), "U");
   tools_slide_item_->setCheckable(true);
-  //tools_slide_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolSlideButton));
+  tools_slide_item_->setData(olive::tool::kSlide);
   tools_group->addAction(tools_slide_item_);
 
-  tools_hand_item_ = tools_menu_->AddItem("handtool", nullptr, nullptr, "H");
+  tools_hand_item_ = tools_menu_->AddItem("handtool", this, SLOT(ToolItemTriggered()), "H");
   tools_hand_item_->setCheckable(true);
-  //tools_hand_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolHandButton));
+  tools_hand_item_->setData(olive::tool::kHand);
   tools_group->addAction(tools_hand_item_);
 
-  tools_transition_item_ = tools_menu_->AddItem("transitiontool", nullptr, nullptr, "T");
+  tools_transition_item_ = tools_menu_->AddItem("transitiontool", this, SLOT(ToolItemTriggered()), "T");
   tools_transition_item_->setCheckable(true);
-  //tools_transition_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->toolTransitionButton));
+  tools_transition_item_->setData(olive::tool::kTransition);
   tools_group->addAction(tools_transition_item_);
 
   tools_menu_->addSeparator();
@@ -290,6 +291,18 @@ void MainMenu::changeEvent(QEvent *e)
     Retranslate();
   }
   QMenuBar::changeEvent(e);
+}
+
+void MainMenu::ToolItemTriggered()
+{
+  // Assume the sender is a QAction
+  QAction* action = static_cast<QAction*>(sender());
+
+  // Assume its data() is a member of olive::tool::Tool
+  olive::tool::Tool tool = static_cast<olive::tool::Tool>(action->data().toInt());
+
+  // Set the Tool in Core
+  olive::core.SetTool(tool);
 }
 
 void MainMenu::Retranslate()
