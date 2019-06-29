@@ -56,6 +56,16 @@ public:
    */
   void AddTask(Task *t);
 
+signals:
+  /**
+   * @brief Signal emitted when a Task is added by AddTask()
+   *
+   * @param t
+   *
+   * Task that was added
+   */
+  void TaskAdded(Task* t);
+
 private:
   /**
    * @brief Scan through the task queue and start any Tasks that are able to start

@@ -18,63 +18,33 @@
 
 ***/
 
-#ifndef TASK_H
-#define TASK_H
+#ifndef TASKVIEWITEM_H
+#define TASKVIEWITEM_H
 
-#include <QObject>
+#include <QLabel>
+#include <QProgressBar>
+#include <QWidget>
 
-#include "task/taskthread.h"
+#include "task/task.h"
 
-class Task : public QObject
+class TaskViewItem : public QFrame
 {
   Q_OBJECT
 public:
-  enum Status {
-    kWaiting,
-    kWorking,
-    kFinished,
-    kError
-  };
+  TaskViewItem(QWidget* parent);
 
-  Task();
-
-  bool Start();
-
-  virtual bool Action();
-
-  const Status& status();
-
-  const QString& text();
-
-  const QString& error();
-
-  void AddDependency(Task* dependency);
-
-protected:
-  void set_error(const QString& s);
-
-  void set_text(const QString& s);
-
-signals:
-  void StatusChanged(Task::Status s);
-
-  void ProgressChanged(int p);
+  void SetTask(Task* t);
 
 private:
-  void set_status(const Status& status);
+  QLabel* task_name_lbl_;
+  QProgressBar* progress_bar_;
+  QLabel* task_status_lbl_;
 
-  Status status_;
-
-  TaskThread thread_;
-
-  QString text_;
-
-  QString error_;
-
-  QList<Task*> dependencies_;
+  Task* task_;
 
 private slots:
-  void ThreadComplete();
+  void TaskStatusChange(Task::Status status);
+
 };
 
-#endif // TASK_H
+#endif // TASKVIEWITEM_H

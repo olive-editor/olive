@@ -18,63 +18,25 @@
 
 ***/
 
-#ifndef TASK_H
-#define TASK_H
+#ifndef TASKMANAGER_PANEL_H
+#define TASKMANAGER_PANEL_H
 
-#include <QObject>
+#include "widget/taskview/taskview.h"
+#include "widget/panel/panel.h"
 
-#include "task/taskthread.h"
-
-class Task : public QObject
+class TaskManagerPanel : public PanelWidget
 {
   Q_OBJECT
 public:
-  enum Status {
-    kWaiting,
-    kWorking,
-    kFinished,
-    kError
-  };
-
-  Task();
-
-  bool Start();
-
-  virtual bool Action();
-
-  const Status& status();
-
-  const QString& text();
-
-  const QString& error();
-
-  void AddDependency(Task* dependency);
+  TaskManagerPanel(QWidget* parent);
 
 protected:
-  void set_error(const QString& s);
-
-  void set_text(const QString& s);
-
-signals:
-  void StatusChanged(Task::Status s);
-
-  void ProgressChanged(int p);
+  virtual void changeEvent(QEvent* e) override;
 
 private:
-  void set_status(const Status& status);
+  void Retranslate();
 
-  Status status_;
-
-  TaskThread thread_;
-
-  QString text_;
-
-  QString error_;
-
-  QList<Task*> dependencies_;
-
-private slots:
-  void ThreadComplete();
+  TaskView* view_;
 };
 
-#endif // TASK_H
+#endif // TASKMANAGER_H

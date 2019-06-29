@@ -38,6 +38,9 @@ void TaskManager::AddTask(Task* t)
   // Add the Task to the queue
   tasks_.append(t);
 
+  // Emit signal that a Task was added
+  emit TaskAdded(t);
+
   // Scan through queue and start any Tasks that can (including this one)
   StartNextWaiting();
 }

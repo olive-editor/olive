@@ -1,0 +1,90 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#include "taskviewitem.h"
+
+#include <QVBoxLayout>
+
+TaskViewItem::TaskViewItem(QWidget *parent) :
+  QFrame(parent),
+  task_(nullptr)
+{
+  // Draw border around this item
+  setFrameShape(QFrame::StyledPanel);
+
+  // Create layout
+  QVBoxLayout* layout = new QVBoxLayout(this);
+
+  // Create header label
+  task_name_lbl_ = new QLabel(this);
+  layout->addWidget(task_name_lbl_);
+
+  // Create progress bar
+  progress_bar_ = new QProgressBar(this);
+  progress_bar_->setRange(0, 100);
+  layout->addWidget(progress_bar_);
+
+  // Create status label
+  task_status_lbl_ = new QLabel(this);
+  layout->addWidget(task_status_lbl_);
+}
+
+void TaskViewItem::SetTask(Task *t)
+{
+  // Check if we already have a task and disconnect from it if so
+  if (task_ != nullptr) {
+    disconnect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
+    disconnect(task_, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
+  }
+
+  // Set task
+  task_ = t;
+
+  // Set name label to the name (bolded)
+  task_name_lbl_->setText(QString("<b>%1</b>").arg(task_->text()));
+
+  // Connect to the task
+  connect(t, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
+  connect(t, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
+}
+
+void TaskViewItem::TaskStatusChange(Task::Status status)
+{
+  switch (status) {
+  case Task::kWaiting:
+    task_status_lbl_->setText(tr("Waiting..."));
+    progress_bar_->setValue(0);
+    break;
+  case Task::kWorking:
+    task_status_lbl_->setText(tr("Working..."));
+    progress_bar_->setValue(0);
+    break;
+  case Task::kFinished:
+    task_status_lbl_->setText(tr("Done"));
+    progress_bar_->setValue(100);
+    break;
+  case Task::kError:
+    task_status_lbl_->setText(
+        tr("Error: %1").arg(static_cast<Task*>(sender())->error())
+    );
+    progress_bar_->setValue(0);
+    break;
+  }
+}

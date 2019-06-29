@@ -155,11 +155,6 @@ void Core::ImportFiles(const QStringList &urls)
       f->set_timestamp(file_info.lastModified());
 
       //olive::ProbeMedia(f);
-      // FIXME: Test code only
-      for (int i=0;i<8;i++) {
-        olive::task_manager.AddTask(new Task());
-      }
-      // End test code
 
       active_project->root()->add_child(f);
 

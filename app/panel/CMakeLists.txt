@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(project)
+add_subdirectory(taskmanager)
 add_subdirectory(timeline)
 add_subdirectory(tool)
 add_subdirectory(viewer)
