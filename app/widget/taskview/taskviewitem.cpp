@@ -20,7 +20,10 @@
 
 #include "taskviewitem.h"
 
+#include <QPushButton>
 #include <QVBoxLayout>
+
+#include "ui/icons/icons.h"
 
 TaskViewItem::TaskViewItem(QWidget *parent) :
   QFrame(parent),
@@ -36,10 +39,19 @@ TaskViewItem::TaskViewItem(QWidget *parent) :
   task_name_lbl_ = new QLabel(this);
   layout->addWidget(task_name_lbl_);
 
+  // Create center layout (combines progress bar and a cancel button)
+  QHBoxLayout* middle_layout = new QHBoxLayout();
+  layout->addLayout(middle_layout);
+
   // Create progress bar
   progress_bar_ = new QProgressBar(this);
   progress_bar_->setRange(0, 100);
-  layout->addWidget(progress_bar_);
+  middle_layout->addWidget(progress_bar_);
+
+  // Create cancel button
+  QPushButton* cancel_btn = new QPushButton(this);
+  cancel_btn->setIcon(olive::icon::Error);
+  middle_layout->addWidget(cancel_btn);
 
   // Create status label
   task_status_lbl_ = new QLabel(this);

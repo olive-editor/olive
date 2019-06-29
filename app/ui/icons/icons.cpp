@@ -57,6 +57,7 @@ QIcon olive::icon::ZoomIn;
 QIcon olive::icon::ZoomOut;
 QIcon olive::icon::Record;
 QIcon olive::icon::Add;
+QIcon olive::icon::Error;
 
 void olive::icon::LoadAll()
 {
@@ -90,6 +91,7 @@ void olive::icon::LoadAll()
   ZoomOut = Create("zoomout");
   Record = Create("record");
   Add = Create("add-button");
+  Error = Create("error");
 }
 
 QIcon olive::icon::Create(const QString &name)
