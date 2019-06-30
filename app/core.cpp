@@ -27,10 +27,10 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-#include "decoder/probeserver.h"
 #include "panel/panelfocusmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
+#include "task/import/import.h"
 #include "task/taskmanager.h"
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
@@ -143,25 +143,10 @@ void Core::ImportFiles(const QStringList &urls)
 
   } else {
 
-    for (int i=0;i<urls.size();i++) {
-      const QString& url = urls.at(i);
+    // FIXME: Send selected folder for importing into
 
-      Footage* f = new Footage();
+    olive::task_manager.AddTask(new ImportTask(active_project->root(), urls));
 
-      QFileInfo file_info(url);
-
-      f->set_filename(url);
-      f->set_name(file_info.fileName());
-      f->set_timestamp(file_info.lastModified());
-
-      //olive::ProbeMedia(f);
-
-      active_project->root()->add_child(f);
-
-    }
-
-    // FIXME: Dumb way of resetting the model to update for new information
-    active_project_panel->set_project(active_project);
   }
 }
 
