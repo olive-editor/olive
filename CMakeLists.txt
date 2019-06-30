@@ -86,7 +86,9 @@ else()
   message("Olive: No Git hash defined!")
 endif()
 
-find_package(Doxygen)
+if(BUILD_DOXYGEN)
+  find_package(Doxygen)
+endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
