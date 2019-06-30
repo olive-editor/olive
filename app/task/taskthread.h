@@ -25,6 +25,13 @@
 
 class Task;
 
+/**
+ * @brief The TaskThread class
+ *
+ * An internal class only used by Task. TaskThread is a simple QThread subclass designed to create a thread and run the
+ * Task's Action() function. It also stores the result of Action() which can be read using result() when the thread
+ * signals that it has finished().
+ */
 class TaskThread : public QThread
 {
 public:
