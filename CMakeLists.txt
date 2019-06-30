@@ -18,6 +18,7 @@ cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 project(olive-editor LANGUAGES CXX)
 
+option(UPDATE_TS "Update translations" OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 
 set(CMAKE_CXX_STANDARD 11)
