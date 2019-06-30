@@ -142,8 +142,7 @@ set(OLIVE_EFFECTS
   effects/shaders/wave.xml
 )
 
-qt5_create_translation(OLIVE_QM_FILES
-  ${CMAKE_SOURCE_DIR}
+set(OLIVE_TS_FILES
   ts/olive_ar.ts
   ts/olive_bs.ts
   ts/olive_cs.ts
@@ -155,6 +154,12 @@ qt5_create_translation(OLIVE_QM_FILES
   ts/olive_sr.ts
   ts/olive_id.ts
 )
+
+if(UPDATE_TS)
+  qt5_create_translation(OLIVE_QM_FILES ${CMAKE_SOURCE_DIR} ${OLIVE_TS_FILES})
+else()
+  qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
+endif()
 
 if(UNIX AND NOT APPLE)
   install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
