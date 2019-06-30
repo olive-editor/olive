@@ -77,6 +77,9 @@ public:
    *
    * NOTE: This function is NOT thread-safe and is currently intended to only be used from the main/GUI thread.
    *
+   * NOTE: A Task object should only be added once. Adding the same Task object more than once will result in undefined
+   * behavior.
+   *
    * @param t
    *
    * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
@@ -105,9 +108,23 @@ private:
    * This function is run whenever a Task is added and whenever a Task finishes. It determines how many Tasks are
    * currently running and therefore how many Tasks can be started (if any). It will then start ones that can.
    *
+   * This function is aware of "dependency Tasks" and if a Task is waiting but has a dependency that hasn't finished,
+   * it will skip to the next one.
+   *
    * Like AddTask, this function is NOT thread-safe and currently only intended to be run from the main thread.
    */
   void StartNextWaiting();
+
+  /**
+   * @brief Removes the Task from the queue and deletes it
+   *
+   * Recommended for use after a Task has completed or errorred.
+   *
+   * @param t
+   *
+   * Task to delete
+   */
+  void DeleteTask(Task* t);
 
   /**
    * @brief Internal task array

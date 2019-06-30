@@ -88,21 +88,38 @@ void TaskManager::StartNextWaiting()
   }
 }
 
+void TaskManager::DeleteTask(Task *t)
+{
+  // TODO Cancelling tasks?
+
+  // Remove instances of Task from queue
+  tasks_.removeAll(t);
+
+  // Destroy Task object
+  delete t;
+}
+
 void TaskManager::TaskCallback(Task::Status status)
 {
   switch (status) {
   case Task::kWaiting:
-    qDebug() << sender() << "is waiting...";
+    //qDebug() << sender() << "is waiting...";
     break;
   case Task::kWorking:
-    qDebug() << sender() << "is working...";
+    //qDebug() << sender() << "is working...";
     break;
   case Task::kFinished:
-    qDebug() << sender() << "finished successfully.";
+    //qDebug() << sender() << "finished successfully.";
+
+    // The Task has finished, we can start a new one
     StartNextWaiting();
+
+    DeleteTask(static_cast<Task*>(sender()));
     break;
   case Task::kError:
-    qDebug() << sender() << "failed:" << static_cast<Task*>(sender())->error();
+    //qDebug() << sender() << "failed:" << static_cast<Task*>(sender())->error();
+
+    // The Task has finished, we can start a new one
     StartNextWaiting();
     break;
   }

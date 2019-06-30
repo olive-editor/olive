@@ -134,6 +134,9 @@ public:
    *
    * Dependencies can only be added if the Task is kWaiting.
    *
+   * Naturally Tasks should never be dependent on each other. Circular dependencies will result in Tasks that never
+   * begin.
+   *
    * @param dependency
    */
   void AddDependency(Task* dependency);
