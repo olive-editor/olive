@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QPalette>
 #include <QStyleFactory>
+#include <QStyle>
 
 void olive::style::AppSetDefault()
 {

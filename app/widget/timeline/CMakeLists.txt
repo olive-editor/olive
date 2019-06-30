@@ -1,0 +1,14 @@
+set(OLIVE_SOURCES
+  ${OLIVE_SOURCES}
+  widget/timeline/timelinewidget.h
+  widget/timeline/timelinewidget.cpp
+  widget/timeline/sequencescrollview.h
+  widget/timeline/sequencescrollview.cpp
+  widget/timeline/sequenceview.h
+  widget/timeline/sequenceview.cpp
+  widget/timeline/trackview.h
+  widget/timeline/trackview.cpp
+  widget/timeline/clipview.h
+  widget/timeline/clipview.cpp
+  PARENT_SCOPE
+)

@@ -23,6 +23,7 @@ add_subdirectory(projecttoolbar)
 add_subdirectory(taskview)
 add_subdirectory(toolbar)
 add_subdirectory(viewer)
+add_subdirectory(timeline)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

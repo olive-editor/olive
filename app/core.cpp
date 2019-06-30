@@ -36,6 +36,8 @@
 #include "ui/style/style.h"
 #include "widget/menu/menushared.h"
 
+#include "platform/theme/themeservice-impl.h"
+
 Core olive::core;
 
 Core::Core() :
@@ -73,6 +75,9 @@ void Core::Start()
   if (!args.isEmpty()) {
     startup_project_ = args.first();
   }
+
+  // Initialize Services
+  olive::ThemeService::Initialize();
 
 
 

@@ -20,9 +20,30 @@
 
 #include "timeline.h"
 
+#include "platform/theme/themeservice-impl.h"
+#include "widget/timeline/timelinewidget.h"
+#include "project/sequence/sequence.h"
+#include "project/sequence/track.h"
+#include "project/sequence/clip.h"
+
+#include <iostream>
+
 TimelinePanel::TimelinePanel(QWidget *parent) :
   PanelWidget(parent)
 {
+  // Create Sequence mock data
+  auto sequence = new olive::Sequence();
+  sequence->addTrack();
+  auto track1 = sequence->addTrack();
+  auto track2 = sequence->addTrack();
+  track1->addClip(new olive::Clip(30, 150));
+  track2->addClip(new olive::Clip(120, 260));
+
+  auto widget = new olive::TimelineWidget(this, olive::ThemeService::instance());
+  widget->setSequence(sequence);
+
+  setWidget(widget);
+
   Retranslate();
 }
 

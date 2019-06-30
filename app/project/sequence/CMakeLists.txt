@@ -1,0 +1,10 @@
+set(OLIVE_SOURCES
+  ${OLIVE_SOURCES}
+  project/sequence/sequence.h
+  project/sequence/sequence.cpp
+  project/sequence/track.h
+  project/sequence/track.cpp
+  project/sequence/clip.h
+  project/sequence/clip.cpp
+  PARENT_SCOPE
+)
