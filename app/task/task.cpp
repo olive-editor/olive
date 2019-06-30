@@ -30,6 +30,11 @@ Task::Task() :
 
 bool Task::Start()
 {
+  // Tasks can only start if they're waiting
+  if (status_ != kWaiting) {
+    return false;
+  }
+
   // Check if this task has any dependencies (tasks that should complete before this one starts)
 
   for (int i=0;i<dependencies_.size();i++) {
@@ -104,6 +109,8 @@ void Task::set_status(const Task::Status &status)
 
 void Task::ThreadComplete()
 {
+  // thread_.result() will be set to the return value of Action()
+
   if (thread_.result()) {
     set_status(kFinished);
   } else {
