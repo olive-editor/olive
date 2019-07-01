@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QFile>
 #include <QPalette>
+#include <QStyle>
 #include <QStyleFactory>
 #include <QTextStream>
 
@@ -35,20 +36,11 @@ void olive::style::AppSetDefault()
   QFile css_file(":/css/olive-dark.css");
 
   if (css_file.open(QFile::ReadOnly | QFile::Text)) {
+    // Read in entire CSS from file and set as the application stylesheet
     QTextStream css_ts(&css_file);
 
     qApp->setStyleSheet(css_ts.readAll());
-  }
-}
 
-void olive::style::WidgetSetNative(QWidget *w)
-{
-#ifdef Q_OS_WIN
-  w->setStyleSheet("");
-  w->setPalette(w->style()->standardPalette());
-  w->setStyleSheet(QString());
-  w->setStyle(QStyleFactory::create("windowsvista"));
-#else
-  Q_UNUSED(w)
-#endif
+    css_file.close();
+  }
 }

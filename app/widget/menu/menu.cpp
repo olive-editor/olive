@@ -25,8 +25,6 @@
 Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
   QMenu(bar)
 {
-  SetStyling();
-
   bar->addMenu(this);
 
   if (receiver != nullptr) {
@@ -37,8 +35,6 @@ Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
 Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
   QMenu(menu)
 {
-  SetStyling();
-
   menu->addMenu(this);
 
   if (receiver != nullptr) {
@@ -84,11 +80,4 @@ void Menu::SetBooleanAction(QAction *a, bool* boolean)
   a->setCheckable(true);
   a->setChecked(*boolean);
   a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
-}
-
-void Menu::SetStyling()
-{
-  //if (olive::config.use_native_menu_styling) {
-    olive::style::WidgetSetNative(this);
-  //}
 }

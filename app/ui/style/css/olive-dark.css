@@ -81,7 +81,7 @@ QPushButton::checked {
   background: #191919;
 }
 
-/* Ensure QMenu separators are dark enough */
+/* Ensure QMenu separators stand out */
 QMenu::separator {
-  background: #191919;
+  background: #353535;
 }

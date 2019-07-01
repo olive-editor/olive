@@ -44,7 +44,7 @@ public:
   static void SetBooleanAction(QAction* a, bool *boolean);
 
 private:
-  void SetStyling();
+  
 };
 
 #endif // WIDGETMENU_H

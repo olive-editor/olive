@@ -24,6 +24,7 @@
 
 #include "core.h"
 #include "tool/tool.h"
+#include "ui/style/style.h"
 #include "widget/menu/menushared.h"
 
 MainMenu::MainMenu(QWidget *parent) :
