@@ -54,7 +54,8 @@ bool olive::ProbeMedia(Footage *f)
   for (int i=0;i<decoder_list.size();i++) {
     if (decoder_list.at(i)->Probe(f)) {
 
-      // TODO Some way of "attaching" the Footage to the Decoder without having to iterate through Decoders like this
+      // TODO Some way of "attaching" the Footage to the Decoder without having to iterate through Decoders again at
+      // render time?
 
       f->set_ready(true);
       return true;

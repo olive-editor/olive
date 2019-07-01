@@ -14,16 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(css)
-
 set(OLIVE_RESOURCES
   ${OLIVE_RESOURCES}
-  PARENT_SCOPE
-)
-
-set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  ui/style/style.h
-  ui/style/style.cpp
+  ui/style/css/stylesheets.qrc
   PARENT_SCOPE
 )

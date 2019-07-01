@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/css">
+    <file>olive-dark.css</file>
+  </qresource>
+</RCC>
