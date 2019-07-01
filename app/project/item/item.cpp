@@ -73,6 +73,16 @@ void Item::set_name(const QString &n)
   name_ = n;
 }
 
+const QIcon &Item::icon()
+{
+  return icon_;
+}
+
+void Item::set_icon(const QIcon &icon)
+{
+  icon_ = icon;
+}
+
 Item *Item::parent() const
 {
   return parent_;

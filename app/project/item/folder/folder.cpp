@@ -20,9 +20,11 @@
 
 #include "folder.h"
 
+#include "ui/icons/icons.h"
+
 Folder::Folder()
 {
-
+  set_icon(olive::icon::Folder);
 }
 
 Item::Type Folder::type() const

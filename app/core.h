@@ -132,6 +132,14 @@ private:
    * @brief Currently active tool
    */
   olive::tool::Tool tool_;
+
+  /**
+   * @brief Declare custom types/classes for Qt's signal/slot system
+   *
+   * Qt's signal/slot system requires types to be declared. In the interest of doing this only at startup, we contain
+   * them all in a function here.
+   */
+  void DeclareTypesForQt();
 };
 
 namespace olive {

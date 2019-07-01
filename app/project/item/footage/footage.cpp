@@ -20,9 +20,11 @@
 
 #include "footage.h"
 
-Footage::Footage()
-{
+#include "ui/icons/icons.h"
 
+Footage::Footage() :
+  status_(kUnprobed)
+{
 }
 
 Footage::~Footage()
@@ -30,14 +32,28 @@ Footage::~Footage()
   ClearStreams();
 }
 
-bool Footage::ready()
+const Footage::Status& Footage::status()
 {
-  return ready_;
+  return status_;
 }
 
-void Footage::set_ready(const bool &ready)
+void Footage::set_status(const Footage::Status &status)
 {
-  ready_ = ready;
+  status_ = status;
+
+  switch (status_) {
+  case kUnprobed:
+    // FIXME Set a waiting icon
+    set_icon(QIcon());
+    break;
+  case kReady:
+    // FIXME Set a ready icon
+    set_icon(QIcon());
+    break;
+  case kInvalid:
+    set_icon(olive::icon::Error);
+    break;
+  }
 }
 
 void Footage::Clear()
@@ -46,7 +62,7 @@ void Footage::Clear()
   ClearStreams();
 
   // Reset ready state
-  set_ready(false);
+  set_status(kUnprobed);
 }
 
 const QString &Footage::filename()

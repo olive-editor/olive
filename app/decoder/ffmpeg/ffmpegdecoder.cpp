@@ -150,7 +150,11 @@ void FFmpegDecoder::Close()
 
 bool FFmpegDecoder::Probe(Footage *f)
 {
+  // Variable for receiving errors from FFmpeg
   int error_code;
+
+  // Result to return
+  bool result = false;
 
   // Convert QString to a C strng
   QByteArray ba = f->filename().toUtf8();
@@ -229,12 +233,15 @@ bool FFmpegDecoder::Probe(Footage *f)
 
       f->add_stream(str);
     }
+
+    // As long as we can open the container and retrieve information, this was a successful probe
+    result = true;
   }
 
   // Free all memory
   Close();
 
-  return false;
+  return result;
 }
 
 void FFmpegDecoder::FFmpegErr(int error_code)

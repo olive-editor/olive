@@ -122,21 +122,33 @@ int ProjectViewModel::columnCount(const QModelIndex &parent) const
 
 QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
 {
-  if (role == Qt::DisplayRole) {
+  Item* internal_item = static_cast<Item*>(index.internalPointer());
 
+  switch (role) {
+  case Qt::DisplayRole:
+  {
+    // Standard text role
     ColumnType column_type = columns_.at(index.column());
 
     switch (column_type) {
     case kName:
-      return static_cast<Item*>(index.internalPointer())->name();
+      return internal_item->name();
     case kDuration:
+      // FIXME Return actual information
       return "00:00:00;00";
     case kRate:
+      // FIXME Return actual information
       return "29.97 FPS";
     }
   }
-
-  // TODO Add DecorationRole to column 1 for icons
+    break;
+  case Qt::DecorationRole:
+    // If this is the first column, return the Item's icon
+    if (index.column() == 0) {
+      return internal_item->icon();
+    }
+    break;
+  }
 
   return QVariant();
 }

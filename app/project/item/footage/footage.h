@@ -31,6 +31,12 @@
 class Footage : public Item
 {
 public:
+  enum Status {
+    kUnprobed,
+    kReady,
+    kInvalid
+  };
+
   /**
    * @brief Footage Constructor
    */
@@ -70,14 +76,14 @@ public:
    *
    * If the Footage has been successfully probed, this will return TRUE.
    */
-  bool ready();
+  const Status& status();
 
   /**
    * @brief Set ready state
    *
    * This should only be set by olive::ProbeMedia. Sets the ready state (see ready()).
    */
-  void set_ready(const bool& ready);
+  void set_status(const Status& status);
 
   /**
    * @brief Reset Footage state ready for running through Probe() again
@@ -190,7 +196,7 @@ private:
   /**
    * @brief Internal ready setting
    */
-  bool ready_;
+  Status status_;
 };
 
 #endif // FOOTAGE_H

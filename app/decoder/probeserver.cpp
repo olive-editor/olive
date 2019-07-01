@@ -57,10 +57,13 @@ bool olive::ProbeMedia(Footage *f)
       // TODO Some way of "attaching" the Footage to the Decoder without having to iterate through Decoders again at
       // render time?
 
-      f->set_ready(true);
+      f->set_status(Footage::kReady);
       return true;
     }
   }
+
+  // We aren't able to use this Footage
+  f->set_status(Footage::kInvalid);
 
   return false;
 }

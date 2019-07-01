@@ -74,6 +74,8 @@ void Core::Start()
     startup_project_ = args.first();
   }
 
+  // Declare custom types for Qt signal/slot syste
+  DeclareTypesForQt();
 
 
   //
@@ -173,4 +175,9 @@ void Core::AddOpenProject(ProjectPtr p)
 {
   open_projects_.append(p);
   emit ProjectOpened(p.get());
+}
+
+void Core::DeclareTypesForQt()
+{
+  qRegisterMetaType<Task::Status>("Task::Status");
 }

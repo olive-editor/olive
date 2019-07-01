@@ -180,7 +180,7 @@ private:
   /**
    * @brief Set the status of this Task (also emits StatusChanged())
    */
-  void set_status(const Status& status);
+  void set_status(const Task::Status& status);
 
   Status status_;
 

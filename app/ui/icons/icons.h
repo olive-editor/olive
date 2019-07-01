@@ -61,6 +61,7 @@ extern QIcon ZoomOut;
 extern QIcon Record;
 extern QIcon Add;
 extern QIcon Error;
+extern QIcon Folder;
 
 /**
  * @brief Create an icon object loaded from file

@@ -21,8 +21,9 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#include <QString>
+#include <QIcon>
 #include <QList>
+#include <QString>
 
 class Item
 {
@@ -73,6 +74,9 @@ public:
   const QString& name() const;
   void set_name(const QString& n);
 
+  const QIcon& icon();
+  void set_icon(const QIcon& icon);
+
   Item *parent() const;
   void set_parent(Item *p);
 
@@ -82,6 +86,9 @@ private:
   Item* parent_;
 
   QString name_;
+
+  QIcon icon_;
+
 };
 
 #endif // ITEM_H
