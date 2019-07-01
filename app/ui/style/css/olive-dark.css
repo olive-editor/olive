@@ -71,6 +71,11 @@ QMenu {
   background: #191919;
 }
 
+/* QProgressBar background is dark */
+QProgressBar {
+  background: #191919;
+}
+
 /* Ensure QPushButtons look dark when checked */
 QPushButton::checked {
   background: #191919;

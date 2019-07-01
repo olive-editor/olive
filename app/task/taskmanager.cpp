@@ -96,7 +96,7 @@ void TaskManager::DeleteTask(Task *t)
   tasks_.removeAll(t);
 
   // Destroy Task object
-  delete t;
+  t->deleteLater();
 }
 
 void TaskManager::TaskCallback(Task::Status status)
