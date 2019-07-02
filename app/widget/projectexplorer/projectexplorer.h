@@ -27,6 +27,8 @@
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "project/projectviewtype.h"
+#include "widget/projectexplorer/projectexplorericonview.h"
+#include "widget/projectexplorer/projectexplorerlistview.h"
 #include "widget/projectexplorer/projectexplorertreeview.h"
 
 /**
@@ -64,6 +66,19 @@ signals:
   void DoubleClickedItem(Item* item);
 
 private:
+  /**
+   * @brief Simple convenience function for adding a view to this stacked widget
+   *
+   * Mainly for use in the constructor. Adds the view, connects its signals/slots, and sets the model.
+   *
+   * @param view
+   *
+   * View to add to the stack
+   */
+  void AddView(QAbstractItemView* view);
+
+  ProjectExplorerIconView* icon_view_;
+  ProjectExplorerListView* list_view_;
   ProjectExplorerTreeView* tree_view_;
 
   olive::ProjectViewType view_type_;

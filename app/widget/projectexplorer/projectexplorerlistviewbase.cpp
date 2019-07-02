@@ -18,21 +18,30 @@
 
 ***/
 
-#include "projectexplorertreeview.h"
+#include "projectexplorerlistviewbase.h"
 
 #include <QMouseEvent>
 
-ProjectExplorerTreeView::ProjectExplorerTreeView(QWidget *parent) :
-  QTreeView(parent)
+ProjectExplorerListViewBase::ProjectExplorerListViewBase(QWidget *parent) :
+  QListView(parent)
 {
+  // FIXME Is this necessary?
+  setMovement(QListView::Free);
+
   // Set selection mode (allows multiple item selection)
   setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+  // Set resize mode
+  setResizeMode(QListView::Adjust);
+
+  // Set widget to emit a signal on right click
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void ProjectExplorerTreeView::mouseDoubleClickEvent(QMouseEvent *event)
+void ProjectExplorerListViewBase::mouseDoubleClickEvent(QMouseEvent *event)
 {
   // Perform default double click functions
-  QTreeView::mouseDoubleClickEvent(event);
+  QListView::mouseDoubleClickEvent(event);
 
   // Get the index at whatever position was double clicked
   QModelIndex index = indexAt(event->pos());

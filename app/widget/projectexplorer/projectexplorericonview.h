@@ -18,25 +18,16 @@
 
 ***/
 
-#include "projectexplorertreeview.h"
+#ifndef PROJECTEXPLORERICONVIEW_H
+#define PROJECTEXPLORERICONVIEW_H
 
-#include <QMouseEvent>
+#include "projectexplorerlistviewbase.h"
 
-ProjectExplorerTreeView::ProjectExplorerTreeView(QWidget *parent) :
-  QTreeView(parent)
+class ProjectExplorerIconView : public ProjectExplorerListViewBase
 {
-  // Set selection mode (allows multiple item selection)
-  setSelectionMode(QAbstractItemView::ExtendedSelection);
-}
+  Q_OBJECT
+public:
+  ProjectExplorerIconView(QWidget* parent);
+};
 
-void ProjectExplorerTreeView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-  // Perform default double click functions
-  QTreeView::mouseDoubleClickEvent(event);
-
-  // Get the index at whatever position was double clicked
-  QModelIndex index = indexAt(event->pos());
-
-  // Emit the signal with this index
-  emit DoubleClickedView(index);
-}
+#endif // PROJECTEXPLORERICONVIEW_H

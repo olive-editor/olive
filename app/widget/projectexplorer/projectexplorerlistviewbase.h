@@ -18,22 +18,16 @@
 
 ***/
 
-#ifndef PROJECTEXPLORERTREEVIEW_H
-#define PROJECTEXPLORERTREEVIEW_H
+#ifndef PROJECTEXPLORERLISTVIEWBASE_H
+#define PROJECTEXPLORERLISTVIEWBASE_H
 
-#include <QTreeView>
+#include <QListView>
 
-/**
- * @brief The ProjectExplorerTreeView class
- *
- * A fairly simple subclass of QTreeView that provides a double clicked signal whether the index is valid or not
- * (QAbstractItemView has a doubleClicked() signal but it's only emitted with a valid index).
- */
-class ProjectExplorerTreeView : public QTreeView
+class ProjectExplorerListViewBase : public QListView
 {
   Q_OBJECT
 public:
-  ProjectExplorerTreeView(QWidget* parent);
+  ProjectExplorerListViewBase(QWidget* parent);
 
 protected:
   /**
@@ -41,8 +35,8 @@ protected:
    *
    * Function that signals DoubleClickedView().
    *
-   * FIXME: This code is the same as the code in ProjectExplorerListViewBase. Is there a way to merge these two through
-   *
+   * FIXME: This code is the same as the code in ProjectExplorerTreeView. Is there a way to merge these two through
+   * subclassing?
    */
   virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
@@ -55,4 +49,4 @@ signals:
   void DoubleClickedView(const QModelIndex& index);
 };
 
-#endif // PROJECTEXPLORERTREEVIEW_H
+#endif // PROJECTEXPLORERLISTVIEWBASE_H

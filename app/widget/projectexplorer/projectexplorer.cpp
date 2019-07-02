@@ -28,9 +28,13 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   model_(this)
 {
   tree_view_ = new ProjectExplorerTreeView(this);
-  tree_view_->setModel(&model_);
-  connect(tree_view_, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
-  addWidget(tree_view_);
+  AddView(tree_view_);
+
+  list_view_ = new ProjectExplorerListView(this);
+  AddView(list_view_);
+
+  icon_view_ = new ProjectExplorerIconView(this);
+  AddView(icon_view_);
 }
 
 const olive::ProjectViewType &ProjectExplorer::view_type()
@@ -41,6 +45,16 @@ const olive::ProjectViewType &ProjectExplorer::view_type()
 void ProjectExplorer::set_view_type(olive::ProjectViewType type)
 {
   view_type_ = type;
+
+  // Enum values correspond to the index of the widget in this stacked widget
+  setCurrentIndex(view_type_);
+}
+
+void ProjectExplorer::AddView(QAbstractItemView *view)
+{
+  view->setModel(&model_);
+  connect(view, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
+  addWidget(view);
 }
 
 void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
