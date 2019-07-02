@@ -74,6 +74,9 @@ public:
   const QString& name() const;
   void set_name(const QString& n);
 
+  const QString& tooltip() const;
+  void set_tooltip(const QString& t);
+
   const QIcon& icon();
   void set_icon(const QIcon& icon);
 
@@ -88,6 +91,8 @@ private:
   QString name_;
 
   QIcon icon_;
+
+  QString tooltip_;
 
 };
 

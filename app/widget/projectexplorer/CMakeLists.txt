@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/projectexplorer/projectexplorer.h
   widget/projectexplorer/projectexplorer.cpp
+  widget/projectexplorer/projectexplorertreeview.h
+  widget/projectexplorer/projectexplorertreeview.cpp
   PARENT_SCOPE
 )

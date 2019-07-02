@@ -20,11 +20,13 @@
 
 #include "footage.h"
 
+#include <QCoreApplication>
+
 #include "ui/icons/icons.h"
 
-Footage::Footage() :
-  status_(kUnprobed)
+Footage::Footage()
 {
+  Clear();
 }
 
 Footage::~Footage()
@@ -41,19 +43,9 @@ void Footage::set_status(const Footage::Status &status)
 {
   status_ = status;
 
-  switch (status_) {
-  case kUnprobed:
-    // FIXME Set a waiting icon
-    set_icon(QIcon());
-    break;
-  case kReady:
-    // FIXME Set a ready icon
-    set_icon(QIcon());
-    break;
-  case kInvalid:
-    set_icon(olive::icon::Error);
-    break;
-  }
+  UpdateIcon();
+
+  UpdateTooltip();
 }
 
 void Footage::Clear()
@@ -122,4 +114,98 @@ void Footage::ClearStreams()
 
   // Empty array
   streams_.clear();
+}
+
+bool Footage::HasStreamsOfType(const Stream::Type type)
+{
+  // Return true if any streams are video streams
+  for (int i=0;i<streams_.size();i++) {
+    if (streams_.at(i)->type() == type) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void Footage::UpdateIcon()
+{
+  switch (status_) {
+  case kUnprobed:
+    // FIXME Set a waiting icon
+    set_icon(QIcon());
+    break;
+  case kReady:
+    if (HasStreamsOfType(Stream::kVideo)) {
+
+      // Prioritize the video icon
+      set_icon(olive::icon::Video);
+
+      // FIXME: When image sources can be reliably picked up, use image icon instead
+      //        Perhaps all image sources can be left to OpenImageIO meaning only video sources need to be here
+
+    } else if (HasStreamsOfType(Stream::kAudio)) {
+
+      // Otherwise assume it's audio only
+      set_icon(olive::icon::Audio);
+
+    } else {
+
+      // FIXME Icon/indicator for a media file with no video or audio streams?
+      //       The footage should probably be deemed kInvalid in this state
+
+    }
+    break;
+  case kInvalid:
+    set_icon(olive::icon::Error);
+    break;
+  }
+}
+
+void Footage::UpdateTooltip()
+{
+  switch (status_) {
+  case kUnprobed:
+    set_tooltip(QCoreApplication::translate("Footage", "Waiting for probe"));
+    break;
+  case kReady:
+  {
+    QString tip = QCoreApplication::translate("Footage", "Filename: %1");
+
+    if (!streams_.isEmpty()) {
+      tip.append("\n");
+
+      for (int i=0;i<streams_.size();i++) {
+
+        Stream* s = streams_.at(i);
+
+        if (s->type() == Stream::kVideo) {
+          VideoStream* vs = static_cast<VideoStream*>(s);
+
+          tip.append(
+                QCoreApplication::translate("Footage",
+                                            "\nVideo %1: %2x%3").arg(QString::number(i),
+                                                                     QString::number(vs->width()),
+                                                                     QString::number(vs->height()))
+                );
+        } else if (streams_.at(i)->type() == Stream::kAudio) {
+          AudioStream* as = static_cast<AudioStream*>(s);
+
+          tip.append(
+                QCoreApplication::translate("Footage",
+                                            "\nAudio %1: %2 channels %3 Hz").arg(QString::number(i),
+                                                                                 QString::number(as->channels()),
+                                                                                 QString::number(as->sample_rate()))
+                );
+        }
+      }
+    }
+
+    set_tooltip(tip);
+  }
+    break;
+  case kInvalid:
+    set_tooltip(QCoreApplication::translate("Footage", "An error occurred probing this footage"));
+    break;
+  }
 }

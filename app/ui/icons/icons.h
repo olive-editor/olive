@@ -54,6 +54,12 @@ extern QIcon ToolSlide;
 extern QIcon ToolHand;
 extern QIcon ToolTransition;
 
+// Project Icons
+extern QIcon Folder;
+extern QIcon Video;
+extern QIcon Audio;
+extern QIcon Image;
+
 // Miscellaneous Icons
 extern QIcon Snapping;
 extern QIcon ZoomIn;
@@ -61,7 +67,6 @@ extern QIcon ZoomOut;
 extern QIcon Record;
 extern QIcon Add;
 extern QIcon Error;
-extern QIcon Folder;
 
 /**
  * @brief Create an icon object loaded from file

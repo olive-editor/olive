@@ -20,13 +20,16 @@
 
 #include "projectexplorer.h"
 
+#include <QDebug>
+
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QStackedWidget(parent),
   view_type_(olive::TreeView),
   model_(this)
 {
-  tree_view_ = new QTreeView(this);
+  tree_view_ = new ProjectExplorerTreeView(this);
   tree_view_->setModel(&model_);
+  connect(tree_view_, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
   addWidget(tree_view_);
 }
 
@@ -38,6 +41,24 @@ const olive::ProjectViewType &ProjectExplorer::view_type()
 void ProjectExplorer::set_view_type(olive::ProjectViewType type)
 {
   view_type_ = type;
+}
+
+void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
+{
+  if (index.isValid()) {
+
+    // Retrieve source item from index
+    Item* i = static_cast<Item*>(index.internalPointer());
+
+    // Emit a signal
+    emit DoubleClickedItem(i);
+
+  } else {
+
+    // Emit nullptr since no item was actually clicked on
+    emit DoubleClickedItem(nullptr);
+
+  }
 }
 
 Project *ProjectExplorer::project()

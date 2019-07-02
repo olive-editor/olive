@@ -81,7 +81,11 @@ public:
   /**
    * @brief Set ready state
    *
-   * This should only be set by olive::ProbeMedia. Sets the ready state (see ready()).
+   * This should only be set by olive::ProbeMedia. Sets the Footage's current status to a member of enum
+   * Footage::Status.
+   *
+   * This function also runs UpdateIcon() and UpdateTooltip(). If you need to override the tooltip (e.g. for an error
+   * message), you must run set_tooltip() *after* running set_status();
    */
   void set_status(const Status& status);
 
@@ -177,6 +181,31 @@ private:
    * @brief Internal function to delete all Stream children and empty the array
    */
   void ClearStreams();
+
+  /**
+   * @brief Check if this footage has streams of a certain type
+   *
+   * @param type
+   *
+   * The stream type to check for
+   */
+  bool HasStreamsOfType(const Stream::Type type);
+
+  /**
+   * @brief Update the icon based on the Footage status
+   *
+   * For kUnprobed and kError an appropriate icon will be shown. For kReady, this function will determine what the
+   * dominant type of media in this Footage is (video/audio/image) and set the icon accordingly based on that.
+   */
+  void UpdateIcon();
+
+  /**
+   * @brief Update the tooltip based on the Footage status
+   *
+   * For kUnprobed and kError, this sets an appropriate generic message. For kReady, this function will set
+   * basic information about the Footage in the tooltip (based on the results of a previous probe).
+   */
+  void UpdateTooltip();
 
   /**
    * @brief Internal filename string

@@ -73,6 +73,16 @@ void Item::set_name(const QString &n)
   name_ = n;
 }
 
+const QString &Item::tooltip() const
+{
+  return tooltip_;
+}
+
+void Item::set_tooltip(const QString &t)
+{
+  tooltip_ = t;
+}
+
 const QIcon &Item::icon()
 {
   return icon_;

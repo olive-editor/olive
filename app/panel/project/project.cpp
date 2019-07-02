@@ -22,6 +22,7 @@
 
 #include <QVBoxLayout>
 
+#include "core.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
 ProjectPanel::ProjectPanel(QWidget *parent) :
@@ -41,6 +42,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   // Set up main explorer object
   explorer_ = new ProjectExplorer(this);
   layout->addWidget(explorer_);
+  connect(explorer_, SIGNAL(DoubleClickedItem(Item*)), this, SLOT(ItemDoubleClickSlot(Item*)));
 
   // Set toolbar's view to the explorer's view
   toolbar->SetView(explorer_->view_type());
@@ -83,5 +85,12 @@ void ProjectPanel::Retranslate()
     SetSubtitle(tr("(none)"));
   } else {
     SetSubtitle(project()->name());
+  }
+}
+
+void ProjectPanel::ItemDoubleClickSlot(Item *item)
+{
+  if (item == nullptr) {
+    olive::core.StartImportFootage();
   }
 }

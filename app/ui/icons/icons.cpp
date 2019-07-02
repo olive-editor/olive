@@ -52,13 +52,16 @@ QIcon olive::icon::ToolSlip;
 QIcon olive::icon::ToolSlide;
 QIcon olive::icon::ToolHand;
 QIcon olive::icon::ToolTransition;
+QIcon olive::icon::Folder;
+QIcon olive::icon::Video;
+QIcon olive::icon::Audio;
+QIcon olive::icon::Image;
 QIcon olive::icon::Snapping;
 QIcon olive::icon::ZoomIn;
 QIcon olive::icon::ZoomOut;
 QIcon olive::icon::Record;
 QIcon olive::icon::Add;
 QIcon olive::icon::Error;
-QIcon olive::icon::Folder;
 
 void olive::icon::LoadAll()
 {
@@ -87,13 +90,17 @@ void olive::icon::LoadAll()
   ToolHand = Create("hand");
   ToolTransition = Create("transition-tool");
 
+  Folder = Create("folder");
+  Video = Create("videosource");
+  Audio = Create("audiosource");
+  Image = Create("imagesource");
+
   Snapping = Create("magnet");
   ZoomIn = Create("zoomin");
   ZoomOut = Create("zoomout");
   Record = Create("record");
   Add = Create("add-button");
   Error = Create("error");
-  Folder = Create("folder");
 }
 
 QIcon olive::icon::Create(const QString &name)

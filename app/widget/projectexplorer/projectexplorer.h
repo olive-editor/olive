@@ -27,6 +27,7 @@
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "project/projectviewtype.h"
+#include "widget/projectexplorer/projectexplorertreeview.h"
 
 /**
  * @brief The ProjectExplorer class
@@ -52,12 +53,25 @@ public:
 public slots:
   void set_view_type(olive::ProjectViewType type);
 
+signals:
+  /**
+   * @brief Emitted when an Item is double clicked
+   *
+   * @param item
+   *
+   * The Item that was double clicked, or nullptr if empty area was double clicked
+   */
+  void DoubleClickedItem(Item* item);
+
 private:
-  QTreeView* tree_view_;
+  ProjectExplorerTreeView* tree_view_;
 
   olive::ProjectViewType view_type_;
 
   ProjectViewModel model_;
+
+private slots:
+  void DoubleClickViewSlot(const QModelIndex& index);
 };
 
 #endif // PROJECTEXPLORER_H

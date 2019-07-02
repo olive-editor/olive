@@ -85,3 +85,9 @@ QPushButton::checked {
 QMenu::separator {
   background: #d0d0d0;
 }
+
+/* ToolTips use dark */
+QToolTip {
+  background: #f0f0f0;;
+  color: #000000;
+}

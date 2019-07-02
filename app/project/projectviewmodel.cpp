@@ -148,6 +148,8 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
       return internal_item->icon();
     }
     break;
+  case Qt::ToolTipRole:
+    return internal_item->tooltip();
   }
 
   return QVariant();

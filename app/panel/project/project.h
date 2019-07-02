@@ -41,6 +41,9 @@ private:
   void Retranslate();
 
   ProjectExplorer* explorer_;
+
+private slots:
+  void ItemDoubleClickSlot(Item* item);
 };
 
 #endif // PROJECT_PANEL_H
