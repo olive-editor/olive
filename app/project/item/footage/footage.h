@@ -27,6 +27,7 @@
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"
 #include "project/item/footage/videostream.h"
+#include "rational.h"
 
 class Footage : public Item
 {
@@ -137,6 +138,10 @@ public:
    */
   void set_timestamp(const QDateTime& t);
 
+  const rational& duration();
+
+  void set_duration(const rational& duration);
+
   /**
    * @brief Add a stream metadata object to this footage
    *
@@ -226,6 +231,11 @@ private:
    * @brief Internal ready setting
    */
   Status status_;
+
+  /**
+   * @brief Media duration
+   */
+  rational duration_;
 };
 
 #endif // FOOTAGE_H

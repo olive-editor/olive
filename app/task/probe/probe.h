@@ -24,6 +24,16 @@
 #include "project/item/footage/footage.h"
 #include "task/task.h"
 
+/**
+ * @brief The ProbeTask class
+ *
+ * A background task for probing a certain Footage file for its metadata and determining if we have a viable decoder
+ * for it.
+ *
+ * Currently this function just calls olive::ProbeMedia() which will call Footage::Clear(), clearing the Footage of
+ * any previous metadata before passing it through the available decoders until it finds one that can parse it.
+ * The ProbeTask mostly functions as a background/multithreaded wrapper for this functionality.
+ */
 class ProbeTask : public Task
 {
   Q_OBJECT

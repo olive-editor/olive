@@ -77,6 +77,16 @@ void Footage::set_timestamp(const QDateTime &t)
   timestamp_ = t;
 }
 
+const rational &Footage::duration()
+{
+  return duration_;
+}
+
+void Footage::set_duration(const rational &duration)
+{
+  duration_ = duration;
+}
+
 void Footage::add_stream(Stream *s)
 {
   // Add a copy of this stream to the list
@@ -170,7 +180,7 @@ void Footage::UpdateTooltip()
     break;
   case kReady:
   {
-    QString tip = QCoreApplication::translate("Footage", "Filename: %1");
+    QString tip = QCoreApplication::translate("Footage", "Filename: %1").arg(filename());
 
     if (!streams_.isEmpty()) {
       tip.append("\n");

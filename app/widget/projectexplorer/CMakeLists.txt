@@ -24,7 +24,13 @@ set(OLIVE_SOURCES
   widget/projectexplorer/projectexplorerlistview.cpp
   widget/projectexplorer/projectexplorerlistviewbase.h
   widget/projectexplorer/projectexplorerlistviewbase.cpp
+  widget/projectexplorer/projectexplorerlistviewitemdelegate.h
+  widget/projectexplorer/projectexplorerlistviewitemdelegate.cpp
   widget/projectexplorer/projectexplorericonview.h
   widget/projectexplorer/projectexplorericonview.cpp
+  widget/projectexplorer/projectexplorericonviewitemdelegate.h
+  widget/projectexplorer/projectexplorericonviewitemdelegate.cpp
+  widget/projectexplorer/projectexplorernavigation.h
+  widget/projectexplorer/projectexplorernavigation.cpp
   PARENT_SCOPE
 )

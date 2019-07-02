@@ -24,6 +24,14 @@
 #include "project/item/folder/folder.h"
 #include "task/task.h"
 
+/**
+ * @brief The ImportTask class
+ *
+ * A background task to create Footage objects from a list of URLs, and then create ProbeTasks for each of them.
+ *
+ * Using this Task is the best way to import media into a project since it will run in the background/multithreaded
+ * without pausing the main thread.
+ */
 class ImportTask : public Task
 {
   Q_OBJECT

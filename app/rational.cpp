@@ -324,6 +324,16 @@ double rational::ToDouble() const
   }
 }
 
+const int64_t &rational::numerator()
+{
+  return numerator_;
+}
+
+const int64_t &rational::denominator()
+{
+  return denominator_;
+}
+
 void rational::FixSigns()
 {
   // Ensures denominator is always positive (while numerator can be positive or negative)

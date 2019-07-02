@@ -62,6 +62,7 @@ QIcon olive::icon::ZoomOut;
 QIcon olive::icon::Record;
 QIcon olive::icon::Add;
 QIcon olive::icon::Error;
+QIcon olive::icon::DirUp;
 
 void olive::icon::LoadAll()
 {
@@ -101,6 +102,7 @@ void olive::icon::LoadAll()
   Record = Create("record");
   Add = Create("add-button");
   Error = Create("error");
+  DirUp = Create("dirup");
 }
 
 QIcon olive::icon::Create(const QString &name)

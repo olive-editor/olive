@@ -46,8 +46,18 @@ void ProjectExplorer::set_view_type(olive::ProjectViewType type)
 {
   view_type_ = type;
 
-  // Enum values correspond to the index of the widget in this stacked widget
-  setCurrentIndex(view_type_);
+  // Set widget based on view type
+  switch (view_type_) {
+  case olive::TreeView:
+    setCurrentWidget(tree_view_);
+    break;
+  case olive::ListView:
+    setCurrentWidget(list_view_);
+    break;
+  case olive::IconView:
+    setCurrentWidget(icon_view_);
+    break;
+  }
 }
 
 void ProjectExplorer::AddView(QAbstractItemView *view)

@@ -22,12 +22,16 @@
 #define PROJECTEXPLORERLISTVIEW_H
 
 #include "projectexplorerlistviewbase.h"
+#include "projectexplorerlistviewitemdelegate.h"
 
 class ProjectExplorerListView : public ProjectExplorerListViewBase
 {
   Q_OBJECT
 public:
   ProjectExplorerListView(QWidget* parent);
+
+private:
+  ProjectExplorerListViewItemDelegate delegate_;
 };
 
 #endif // PROJECTEXPLORERLISTVIEW_H

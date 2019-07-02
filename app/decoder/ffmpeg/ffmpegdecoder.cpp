@@ -169,6 +169,10 @@ bool FFmpegDecoder::Probe(Footage *f)
     // Retrieve metadata about the media
     av_dump_format(fmt_ctx_, stream()->index(), filename, 0);
 
+    // Set duration
+    f->set_duration(rational(fmt_ctx_->duration, AV_TIME_BASE));
+    qDebug() << "Found duration:" << f->duration().ToDouble();
+
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
 

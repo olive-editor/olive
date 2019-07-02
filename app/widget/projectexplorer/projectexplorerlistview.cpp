@@ -24,4 +24,6 @@ ProjectExplorerListView::ProjectExplorerListView(QWidget *parent) :
   ProjectExplorerListViewBase(parent)
 {
   setViewMode(QListView::ListMode);
+
+  setItemDelegate(&delegate_);
 }

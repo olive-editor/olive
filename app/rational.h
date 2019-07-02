@@ -84,6 +84,10 @@ public:
 
   // Convert to double
   double ToDouble() const;
+
+  // Specific values
+  const int64_t& numerator();
+  const int64_t& denominator();
 private:
   int64_t numerator_;
   int64_t denominator_;

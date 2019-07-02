@@ -24,4 +24,6 @@ ProjectExplorerIconView::ProjectExplorerIconView(QWidget *parent) :
   ProjectExplorerListViewBase(parent)
 {
   setViewMode(QListView::IconMode);
+
+  setItemDelegate(&delegate_);
 }
