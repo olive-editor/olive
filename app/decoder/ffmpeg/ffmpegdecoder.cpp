@@ -167,11 +167,7 @@ bool FFmpegDecoder::Probe(Footage *f)
   if (error_code == 0) {
 
     // Retrieve metadata about the media
-    av_dump_format(fmt_ctx_, stream()->index(), filename, 0);
-
-    // Set duration
-    f->set_duration(rational(fmt_ctx_->duration, AV_TIME_BASE));
-    qDebug() << "Found duration:" << f->duration().ToDouble();
+    av_dump_format(fmt_ctx_, 0, filename, 0);
 
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
@@ -190,6 +186,8 @@ bool FFmpegDecoder::Probe(Footage *f)
 
         str = video_stream;
 
+        qDebug() << "Stream V" << i << "Len" << (rational(avstream_->duration) * rational(avstream_->time_base)).ToDouble();
+
       } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
         // Create an audio stream object
@@ -200,6 +198,8 @@ bool FFmpegDecoder::Probe(Footage *f)
         audio_stream->set_sample_rate(avstream_->codecpar->sample_rate);
 
         str = audio_stream;
+
+        qDebug() << "Stream A" << i << "Len" << (rational(avstream_->duration) * rational(avstream_->time_base)).ToDouble();
 
       } else {
 
@@ -234,6 +234,7 @@ bool FFmpegDecoder::Probe(Footage *f)
 
       str->set_index(avstream_->index);
       str->set_timebase(avstream_->time_base);
+      str->set_duration(avstream_->duration);
 
       f->add_stream(str);
     }

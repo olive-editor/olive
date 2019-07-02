@@ -34,6 +34,7 @@ class Footage : public Item
 public:
   enum Status {
     kUnprobed,
+    kUnindexed,
     kReady,
     kInvalid
   };
@@ -138,10 +139,6 @@ public:
    */
   void set_timestamp(const QDateTime& t);
 
-  const rational& duration();
-
-  void set_duration(const rational& duration);
-
   /**
    * @brief Add a stream metadata object to this footage
    *
@@ -232,10 +229,6 @@ private:
    */
   Status status_;
 
-  /**
-   * @brief Media duration
-   */
-  rational duration_;
 };
 
 #endif // FOOTAGE_H

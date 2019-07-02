@@ -21,20 +21,46 @@
 #include "projectexplorer.h"
 
 #include <QDebug>
+#include <QVBoxLayout>
+
+#include "projectexplorerdefines.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
-  QStackedWidget(parent),
+  QWidget(parent),
   view_type_(olive::TreeView),
   model_(this)
 {
-  tree_view_ = new ProjectExplorerTreeView(this);
+  // Create layout
+  QVBoxLayout* layout = new QVBoxLayout(this);
+  layout->setSpacing(0);
+  layout->setMargin(0);
+
+  // Set up navigation bar
+  nav_bar_ = new ProjectExplorerNavigation(this);
+  connect(nav_bar_, SIGNAL(SizeChanged(int)), this, SLOT(SizeChangedSlot(int)));
+  layout->addWidget(nav_bar_);
+
+  // Set up stacked widget
+  stacked_widget_ = new QStackedWidget(this);
+  layout->addWidget(stacked_widget_);
+
+  // Add tree view to stacked widget
+  tree_view_ = new ProjectExplorerTreeView(stacked_widget_);
   AddView(tree_view_);
 
-  list_view_ = new ProjectExplorerListView(this);
+  // Add list view to stacked widget
+  list_view_ = new ProjectExplorerListView(stacked_widget_);
   AddView(list_view_);
 
-  icon_view_ = new ProjectExplorerIconView(this);
+  // Add icon view to stacked widget
+  icon_view_ = new ProjectExplorerIconView(stacked_widget_);
   AddView(icon_view_);
+
+  // Set default view to tree view
+  set_view_type(olive::TreeView);
+
+  // Set default icon size
+  SizeChangedSlot(olive::kProjectIconSizeDefault);
 }
 
 const olive::ProjectViewType &ProjectExplorer::view_type()
@@ -49,13 +75,16 @@ void ProjectExplorer::set_view_type(olive::ProjectViewType type)
   // Set widget based on view type
   switch (view_type_) {
   case olive::TreeView:
-    setCurrentWidget(tree_view_);
+    stacked_widget_->setCurrentWidget(tree_view_);
+    nav_bar_->setVisible(false);
     break;
   case olive::ListView:
-    setCurrentWidget(list_view_);
+    stacked_widget_->setCurrentWidget(list_view_);
+    nav_bar_->setVisible(true);
     break;
   case olive::IconView:
-    setCurrentWidget(icon_view_);
+    stacked_widget_->setCurrentWidget(icon_view_);
+    nav_bar_->setVisible(true);
     break;
   }
 }
@@ -64,7 +93,7 @@ void ProjectExplorer::AddView(QAbstractItemView *view)
 {
   view->setModel(&model_);
   connect(view, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
-  addWidget(view);
+  stacked_widget_->addWidget(view);
 }
 
 void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
@@ -83,6 +112,13 @@ void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
     emit DoubleClickedItem(nullptr);
 
   }
+}
+
+void ProjectExplorer::SizeChangedSlot(int s)
+{
+  icon_view_->setGridSize(QSize(s, s));
+
+  list_view_->setIconSize(QSize(s, s));
 }
 
 Project *ProjectExplorer::project()

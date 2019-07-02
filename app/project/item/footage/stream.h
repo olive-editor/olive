@@ -68,10 +68,15 @@ public:
   const int& index();
   void set_index(const int& index);
 
+  const int64_t& duration();
+  void set_duration(const int64_t& duration);
+
 private:
   Footage* footage_;
 
   rational timebase_;
+
+  int64_t duration_;
 
   int index_;
 

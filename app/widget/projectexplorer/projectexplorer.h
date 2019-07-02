@@ -30,6 +30,7 @@
 #include "widget/projectexplorer/projectexplorericonview.h"
 #include "widget/projectexplorer/projectexplorerlistview.h"
 #include "widget/projectexplorer/projectexplorertreeview.h"
+#include "widget/projectexplorer/projectexplorernavigation.h"
 
 /**
  * @brief The ProjectExplorer class
@@ -41,7 +42,7 @@
  *
  * This widget contains three views, tree view, list view, and icon view. These can be switched at any time.
  */
-class ProjectExplorer : public QStackedWidget
+class ProjectExplorer : public QWidget
 {
   Q_OBJECT
 public:
@@ -77,6 +78,10 @@ private:
    */
   void AddView(QAbstractItemView* view);
 
+  QStackedWidget* stacked_widget_;
+
+  ProjectExplorerNavigation* nav_bar_;
+
   ProjectExplorerIconView* icon_view_;
   ProjectExplorerListView* list_view_;
   ProjectExplorerTreeView* tree_view_;
@@ -87,6 +92,8 @@ private:
 
 private slots:
   void DoubleClickViewSlot(const QModelIndex& index);
+
+  void SizeChangedSlot(int s);
 };
 
 #endif // PROJECTEXPLORER_H

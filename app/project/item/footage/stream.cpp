@@ -70,3 +70,13 @@ void Stream::set_index(const int &index)
 {
   index_ = index;
 }
+
+const int64_t &Stream::duration()
+{
+  return duration_;
+}
+
+void Stream::set_duration(const int64_t &duration)
+{
+  duration_ = duration;
+}

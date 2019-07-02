@@ -77,16 +77,6 @@ void Footage::set_timestamp(const QDateTime &t)
   timestamp_ = t;
 }
 
-const rational &Footage::duration()
-{
-  return duration_;
-}
-
-void Footage::set_duration(const rational &duration)
-{
-  duration_ = duration;
-}
-
 void Footage::add_stream(Stream *s)
 {
   // Add a copy of this stream to the list
@@ -142,6 +132,7 @@ void Footage::UpdateIcon()
 {
   switch (status_) {
   case kUnprobed:
+  case kUnindexed:
     // FIXME Set a waiting icon
     set_icon(QIcon());
     break;
@@ -177,6 +168,9 @@ void Footage::UpdateTooltip()
   switch (status_) {
   case kUnprobed:
     set_tooltip(QCoreApplication::translate("Footage", "Waiting for probe"));
+    break;
+  case kUnindexed:
+    set_tooltip(QCoreApplication::translate("Footage", "Waiting for index"));
     break;
   case kReady:
   {
