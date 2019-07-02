@@ -11,7 +11,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="audiosource.svg"
-   inkscape:version="0.91+devel+osxmenu r12922"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:version="0.32"
    id="svg2"
    height="64"
@@ -715,33 +715,34 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="23"
-     inkscape:window-x="47"
-     inkscape:window-height="927"
-     inkscape:window-width="1633"
+     inkscape:window-y="28"
+     inkscape:window-x="0"
+     inkscape:window-height="1386"
+     inkscape:window-width="2560"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
-     showgrid="true"
-     inkscape:current-layer="layer1"
-     inkscape:cy="28.180104"
-     inkscape:cx="36.452498"
-     inkscape:zoom="9.6633796"
+     showgrid="false"
+     inkscape:current-layer="layer2"
+     inkscape:cy="35.743278"
+     inkscape:cx="-5.6529756"
+     inkscape:zoom="4.8316898"
      inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      borderopacity="1"
      bordercolor="#ffffff"
-     pagecolor="#000000"
+     pagecolor="#888888"
      id="base"
      fill="#729fcf"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      borderlayer="true"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
      inkscape:snap-bbox-midpoints="false"
      inkscape:bbox-nodes="true"
      inkscape:snap-nodes="true"
-     inkscape:snap-smooth-nodes="true">
+     inkscape:snap-smooth-nodes="true"
+     showborder="false">
     <inkscape:grid
        type="xygrid"
        id="grid0001"
@@ -784,7 +785,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -807,12 +808,39 @@
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
      id="layer1"
-     transform="translate(0,16)">
+     transform="translate(0,16)"
+     style="display:none">
+    <rect
+       style="display:inline;opacity:1;fill:#454545;fill-opacity:0.97727272;stroke:none;stroke-width:7.04884672;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect2113"
+       width="80"
+       height="79.882416"
+       x="-8"
+       y="-23.937971"
+       rx="6.8031492"
+       ry="6.8031502" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2"
+     style="display:none">
     <path
-       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:none;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
-       d="m 47.882812,-11.998047 c -0.749459,0.02195 -1.477664,0.254083 -2.101562,0.669922 L 26.789062,4 16,4 c -2.209048,2.209e-4 -3.999779,1.7909525 -4,4 l 0,16 c 2.21e-4,2.209048 1.790952,3.999779 4,4 L 26.789062,28 45.78125,43.328125 C 48.439465,45.099493 51.999315,43.194347 52,40 l 0,-48 c -3.65e-4,-2.25486 -1.86329,-4.063876 -4.117188,-3.998047 z"
+       transform="translate(0,16)"
+       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:none;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate"
+       d="m 47.882812,-11.998047 c -0.749459,0.02195 -1.477664,0.254083 -2.101562,0.669922 L 26.789062,4 H 16 c -2.209048,2.209e-4 -3.999779,1.7909525 -4,4 v 16 c 2.21e-4,2.209048 1.790952,3.999779 4,4 H 26.789062 L 45.78125,43.328125 C 48.439465,45.099493 51.999315,43.194347 52,40 V -8 c -3.65e-4,-2.25486 -1.86329,-4.063876 -4.117188,-3.998047 z"
        id="path10324"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccccccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Layer 3">
+    <path
+       inkscape:connector-curvature="0"
+       style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:16.0588932;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 47.365403,12.703632 c -3.14688,0.270137 -7.992647,2.742655 -15.395641,6.90008 -3.380709,1.898513 -5.965529,3.458701 -8.190893,4.907348 H 12.723214 C 11.766478,24.51106 11,25.516631 11,26.76616 v 10.474243 c 0,1.24953 0.766478,2.255101 1.723214,2.255101 H 24.01306 c 0.105296,0 0.196067,-0.05446 0.297732,-0.07806 2.058344,1.371673 4.408247,2.853288 7.368137,4.609506 C 51.150955,55.580213 52.705333,54.703211 52.974744,32.0635 53.141764,17.913649 52.610567,12.253258 47.365403,12.703559 Z"
+       id="use1540" />
   </g>
 </svg>

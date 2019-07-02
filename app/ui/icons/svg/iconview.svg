@@ -11,7 +11,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="iconview.svg"
-   inkscape:version="0.91+devel+osxmenu r12922"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:version="0.32"
    id="svg2"
    height="64"
@@ -715,17 +715,17 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="23"
-     inkscape:window-x="47"
-     inkscape:window-height="927"
-     inkscape:window-width="1633"
+     inkscape:window-y="28"
+     inkscape:window-x="0"
+     inkscape:window-height="1386"
+     inkscape:window-width="2560"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      inkscape:cy="30.888147"
-     inkscape:cx="33.014148"
+     inkscape:cx="0.3376115"
      inkscape:zoom="10.726351"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -734,7 +734,7 @@
      pagecolor="#000000"
      id="base"
      fill="#729fcf"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      borderlayer="true"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
@@ -784,7 +784,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -807,41 +807,90 @@
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
      id="layer1"
-     transform="translate(0,16)">
-    <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:0.86274511;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect14587"
-       width="25"
-       height="25"
-       x="4"
-       y="-12"
-       rx="4" />
-    <rect
-       rx="4"
-       y="19"
-       x="35"
-       height="25"
-       width="25"
-       id="rect14589"
-       style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       ry="4" />
-    <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect14591"
-       width="25"
-       height="25"
-       x="4"
-       y="19"
-       rx="4"
-       ry="4" />
-    <rect
-       rx="4"
-       y="-12"
-       x="35"
-       height="25"
-       width="25"
-       id="rect14593"
-       style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       ry="4" />
+     transform="translate(0,16)"
+     style="display:none">
+    <g
+       id="g937">
+      <rect
+         rx="4"
+         y="-12"
+         x="4"
+         height="25"
+         width="25"
+         id="rect14587"
+         style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         ry="4"
+         style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect14589"
+         width="25"
+         height="25"
+         x="35"
+         y="19"
+         rx="4" />
+      <rect
+         ry="4"
+         rx="4"
+         y="19"
+         x="4"
+         height="25"
+         width="25"
+         id="rect14591"
+         style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         ry="4"
+         style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="rect14593"
+         width="25"
+         height="25"
+         x="35"
+         y="-12"
+         rx="4" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2">
+    <g
+       id="g963"
+       transform="matrix(16.034314,0,0,16.034314,-4815.3619,-3184.0655)">
+      <rect
+         rx="0.18195547"
+         ry="0.19495246"
+         y="198.99583"
+         x="300.56552"
+         height="1.2956814"
+         width="1.5534228"
+         id="rect951"
+         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.04962301;stroke-opacity:1" />
+      <rect
+         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.04962301;stroke-opacity:1"
+         id="rect953"
+         width="1.5534228"
+         height="1.2956814"
+         x="300.56552"
+         y="200.85638"
+         ry="0.19495246"
+         rx="0.18195547" />
+      <rect
+         rx="0.18195547"
+         ry="0.19495246"
+         y="200.85638"
+         x="302.50461"
+         height="1.2956814"
+         width="1.5534228"
+         id="rect955"
+         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.04962301;stroke-opacity:1" />
+      <rect
+         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.04962301;stroke-opacity:1"
+         id="rect957"
+         width="1.5534228"
+         height="1.2956814"
+         x="302.50461"
+         y="198.99582"
+         ry="0.19495246"
+         rx="0.18195547" />
+    </g>
   </g>
 </svg>
