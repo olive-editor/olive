@@ -10,8 +10,8 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   sodipodi:docname="iconview.svg"
-   inkscape:version="0.91+devel+osxmenu r12922"
+   sodipodi:docname="listview.svg"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:version="0.32"
    id="svg2"
    height="64"
@@ -715,17 +715,17 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="23"
-     inkscape:window-x="47"
-     inkscape:window-height="927"
-     inkscape:window-width="1633"
+     inkscape:window-y="28"
+     inkscape:window-x="0"
+     inkscape:window-height="1386"
+     inkscape:window-width="2560"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
-     inkscape:current-layer="layer1"
-     inkscape:cy="30.888147"
-     inkscape:cx="33.014148"
+     inkscape:current-layer="layer2"
+     inkscape:cy="31.291763"
+     inkscape:cx="-0.0094864884"
      inkscape:zoom="10.726351"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -734,7 +734,7 @@
      pagecolor="#000000"
      id="base"
      fill="#729fcf"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      borderlayer="true"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
@@ -784,7 +784,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -807,23 +807,54 @@
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
      id="layer1"
-     transform="translate(0,16)">
-    <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:0.86274511;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect14587"
-       width="56"
-       height="25"
-       x="4"
-       y="-12"
-       rx="4" />
-    <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect14591"
-       width="56"
-       height="25"
-       x="4"
-       y="19"
-       rx="4"
-       ry="4" />
+     transform="translate(0,16)"
+     style="display:none">
+    <g
+       id="g930">
+      <rect
+         rx="4"
+         y="-12"
+         x="4"
+         height="25"
+         width="56"
+         id="rect14587"
+         style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <rect
+         ry="4"
+         rx="4"
+         y="19"
+         x="4"
+         height="25"
+         width="56"
+         id="rect14591"
+         style="opacity:1;fill:#ffffff;fill-opacity:0.8627451;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2">
+    <g
+       id="g975"
+       transform="matrix(14.229699,0,0,14.229699,-4399.5831,-2822.7984)">
+      <rect
+         rx="0.27367809"
+         ry="0.27367809"
+         y="200.80026"
+         x="309.46423"
+         height="1.1564567"
+         width="3.935437"
+         id="rect969"
+         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.131089;stroke-opacity:1" />
+      <rect
+         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.131089;stroke-opacity:1"
+         id="rect971"
+         width="3.935437"
+         height="1.1564567"
+         x="309.46423"
+         y="199.28836"
+         ry="0.27367809"
+         rx="0.27367809" />
+    </g>
   </g>
 </svg>
