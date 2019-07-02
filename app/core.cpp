@@ -82,34 +82,7 @@ void Core::Start()
   // Start GUI (TODO CLI mode)
   //
 
-  // Load all icons
-  olive::icon::LoadAll();
-
-  // Set UI style
-  olive::style::AppSetDefault();
-
-  // Set up shared menus
-  olive::menu_shared.Initialize();
-
-  // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
-  olive::panel_focus_manager = new PanelFocusManager(this);
-
-  // Connect the PanelFocusManager to the application's focus change signal
-  connect(app,
-          SIGNAL(focusChanged(QWidget*, QWidget*)),
-          olive::panel_focus_manager,
-          SLOT(FocusChanged(QWidget*, QWidget*)));
-
-  // Create main window and open it
-  main_window_ = new olive::MainWindow();
-  if (parser.isSet(fullscreen_option)) {
-    main_window_->showFullScreen();
-  } else {
-    main_window_->showMaximized();
-  }
-
-  // When a new project is opened, update the mainwindow
-  connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
+  StartGUI(parser.isSet(fullscreen_option));
 
   // Create new project on startup
   // TODO: Load project from startup_project_ instead if not empty
@@ -180,4 +153,38 @@ void Core::AddOpenProject(ProjectPtr p)
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<Task::Status>("Task::Status");
+}
+
+void Core::StartGUI(bool full_screen)
+{
+  // Load all icons
+  olive::icon::LoadAll();
+
+  // Set UI style
+  olive::style::AppSetDefault();
+
+  // Set up shared menus
+  olive::menu_shared.Initialize();
+
+  // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
+  olive::panel_focus_manager = new PanelFocusManager(this);
+
+  // Connect the PanelFocusManager to the application's focus change signal
+  connect(qApp,
+          SIGNAL(focusChanged(QWidget*, QWidget*)),
+          olive::panel_focus_manager,
+          SLOT(FocusChanged(QWidget*, QWidget*)));
+
+  // Create main window and open it
+  main_window_ = new olive::MainWindow();
+  if (full_screen) {
+    main_window_->showFullScreen();
+  } else {
+    main_window_->showMaximized();
+  }
+
+  // When a new project is opened, update the mainwindow
+  connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
+
+
 }

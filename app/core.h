@@ -111,6 +111,22 @@ private:
   void AddOpenProject(ProjectPtr p);
 
   /**
+   * @brief Declare custom types/classes for Qt's signal/slot system
+   *
+   * Qt's signal/slot system requires types to be declared. In the interest of doing this only at startup, we contain
+   * them all in a function here.
+   */
+  void DeclareTypesForQt();
+
+  /**
+   * @brief Start GUI portion of Olive
+   *
+   * Starts services and objects required for the GUI of Olive. It's guaranteed that running without this function will
+   * create an application instance that is completely valid minus the UI (e.g. for CLI modes).
+   */
+  void StartGUI(bool full_screen);
+
+  /**
    * @brief Internal main window object
    */
   olive::MainWindow* main_window_;
@@ -133,13 +149,6 @@ private:
    */
   olive::tool::Tool tool_;
 
-  /**
-   * @brief Declare custom types/classes for Qt's signal/slot system
-   *
-   * Qt's signal/slot system requires types to be declared. In the interest of doing this only at startup, we contain
-   * them all in a function here.
-   */
-  void DeclareTypesForQt();
 };
 
 namespace olive {
