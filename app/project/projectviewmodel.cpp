@@ -20,6 +20,9 @@
 
 #include "projectviewmodel.h"
 
+#include <QDebug>
+#include <QMimeData>
+
 ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
   project_(nullptr)
@@ -192,4 +195,70 @@ bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
 
   // Otherwise, return default behavior
   return QAbstractItemModel::hasChildren(parent);
+}
+
+Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
+{
+  return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+}
+
+QStringList ProjectViewModel::mimeTypes() const
+{
+  return {"application/x-oliveprojectitemdata"};
+}
+
+QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
+{
+  QMimeData* data = new QMimeData();
+
+  QByteArray encoded_data;
+  QDataStream stream(&encoded_data, QIODevice::WriteOnly);
+
+  foreach (QModelIndex index, indexes) {
+    if (index.isValid()) {
+      stream << reinterpret_cast<quintptr>(index.internalPointer());
+    }
+  }
+
+  data->setData("application/x-oliveprojectitemdata", encoded_data);
+
+  return data;
+}
+
+bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+  // Default recommended checks from https://doc.qt.io/qt-5/model-view-programming.html#using-drag-and-drop-with-item-views
+  if (!canDropMimeData(data, action, row, column, parent)) {
+    return false;
+  }
+
+  if (action == Qt::IgnoreAction) {
+    return true;
+  }
+
+  // Probe mime data for its format
+  QStringList mime_formats = data->formats();
+
+  if (mime_formats.contains("application/x-oliveprojectitemdata")) {
+    // Data is drag/drop data from this model
+    QByteArray model_data = data->data("application/x-oliveprojectitemdata");
+
+    // Use stream to deserialize the data
+    QDataStream stream(&model_data, QIODevice::ReadOnly);
+
+    // Variables to deserialize into
+    quintptr item_ptr;
+
+    // Loop through all data
+    while (!stream.atEnd()) {
+      stream >> item_ptr;
+
+      Item* item = reinterpret_cast<Item*>(item_ptr);
+      qDebug() << "Dragged" << item->name();
+    }
+
+    return true;
+  }
+
+  return false;
 }

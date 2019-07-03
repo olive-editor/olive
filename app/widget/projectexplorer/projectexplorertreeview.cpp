@@ -27,6 +27,18 @@ ProjectExplorerTreeView::ProjectExplorerTreeView(QWidget *parent) :
 {
   // Set selection mode (allows multiple item selection)
   setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+  // Allow dragging and dropping
+  setDragDropMode(QAbstractItemView::DragDrop);
+
+  // Enable dragging
+  setDragEnabled(true);
+
+  // Allow dropping from external sources
+  setAcceptDrops(true);
+
+  // Set context menu to emit a signal
+  setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void ProjectExplorerTreeView::mouseDoubleClickEvent(QMouseEvent *event)

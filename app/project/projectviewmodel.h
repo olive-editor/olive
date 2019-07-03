@@ -83,6 +83,11 @@ public:
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
   virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 
+  /** Drag and drop support */
+  virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+  virtual QStringList mimeTypes() const override;
+  virtual QMimeData * mimeData(const QModelIndexList &indexes) const override;
+  virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 private:
   Project* project_;
 
