@@ -35,6 +35,7 @@ ProjectExplorerNavigation::ProjectExplorerNavigation(QWidget *parent) :
 
   // Create "directory up" button
   dir_up_btn_ = new QPushButton(this);
+  dir_up_btn_->setEnabled(false);
   dir_up_btn_->setIcon(olive::icon::DirUp);
   dir_up_btn_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
   layout->addWidget(dir_up_btn_);
@@ -61,6 +62,16 @@ ProjectExplorerNavigation::ProjectExplorerNavigation(QWidget *parent) :
 void ProjectExplorerNavigation::set_text(const QString &s)
 {
   dir_lbl_->setText(s);
+}
+
+void ProjectExplorerNavigation::set_dir_up_enabled(bool e)
+{
+  dir_up_btn_->setEnabled(e);
+}
+
+void ProjectExplorerNavigation::set_size_value(int s)
+{
+  size_slider_->setValue(s);
 }
 
 void ProjectExplorerNavigation::changeEvent(QEvent *e)

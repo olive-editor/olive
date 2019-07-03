@@ -33,7 +33,7 @@
 #include "widget/projectexplorer/projectexplorernavigation.h"
 
 /**
- * @brief The ProjectExplorer class
+ * @brief A widget for browsing through Project classes
  *
  * A widget for browsing through a Project structure.
  *
@@ -78,6 +78,17 @@ private:
    */
   void AddView(QAbstractItemView* view);
 
+  /**
+   * @brief Browse to a specific folder index in the model
+   *
+   * Only affects list_view_ and icon_view_.
+   *
+   * @param index
+   *
+   * Either an invalid index to return to the project root, or an index to a valid Folder object.
+   */
+  void BrowseToFolder(const QModelIndex& index);
+
   QStackedWidget* stacked_widget_;
 
   ProjectExplorerNavigation* nav_bar_;
@@ -94,6 +105,8 @@ private slots:
   void DoubleClickViewSlot(const QModelIndex& index);
 
   void SizeChangedSlot(int s);
+
+  void DirUpSlot();
 };
 
 #endif // PROJECTEXPLORER_H

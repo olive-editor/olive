@@ -38,6 +38,7 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   // Set up navigation bar
   nav_bar_ = new ProjectExplorerNavigation(this);
   connect(nav_bar_, SIGNAL(SizeChanged(int)), this, SLOT(SizeChangedSlot(int)));
+  connect(nav_bar_, SIGNAL(DirectoryUpClicked()), this, SLOT(DirUpSlot()));
   layout->addWidget(nav_bar_);
 
   // Set up stacked widget
@@ -96,12 +97,39 @@ void ProjectExplorer::AddView(QAbstractItemView *view)
   stacked_widget_->addWidget(view);
 }
 
+void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
+{
+  // Set appropriate views to this index
+  icon_view_->setRootIndex(index);
+  list_view_->setRootIndex(index);
+
+  // Set navbar text to folder's name
+  if (index.isValid()) {
+    Folder* f = static_cast<Folder*>(index.internalPointer());
+    nav_bar_->set_text(f->name());
+  } else {
+    // Or set it to an empty string if the index is valid (which means we're browsing to the root directory)
+    nav_bar_->set_text(QString());
+  }
+
+  // Set directory up enabled button based on whether we're in root or not
+  nav_bar_->set_dir_up_enabled(index.isValid());
+}
+
 void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
 {
   if (index.isValid()) {
 
     // Retrieve source item from index
     Item* i = static_cast<Item*>(index.internalPointer());
+
+    // If the item is a folder, browse to it
+    if (i->type() == Item::kFolder
+        && (view_type() == olive::ListView || view_type() == olive::IconView)) {
+
+      BrowseToFolder(index);
+
+    }
 
     // Emit a signal
     emit DoubleClickedItem(i);
@@ -119,6 +147,17 @@ void ProjectExplorer::SizeChangedSlot(int s)
   icon_view_->setGridSize(QSize(s, s));
 
   list_view_->setIconSize(QSize(s, s));
+}
+
+void ProjectExplorer::DirUpSlot()
+{
+  QModelIndex current_root = icon_view_->rootIndex();
+
+  if (current_root.isValid()) {
+    QModelIndex parent = current_root.parent();
+
+    BrowseToFolder(parent);
+  }
 }
 
 Project *ProjectExplorer::project()

@@ -23,6 +23,12 @@
 Project::Project()
 {
   name_ = tr("(untitled)");
+
+  // FIXME: Test code
+  Folder* f = new Folder();
+  f->set_name("Foldery Boy");
+  root()->add_child(f);
+  // END Test code
 }
 
 Folder *Project::root()
