@@ -118,11 +118,12 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
 {
   Item* internal_item = GetItemObjectFromIndex(index);
 
+  ColumnType column_type = columns_.at(index.column());
+
   switch (role) {
   case Qt::DisplayRole:
   {
     // Standard text role
-    ColumnType column_type = columns_.at(index.column());
 
     switch (column_type) {
     case kName:
@@ -138,7 +139,7 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
     break;
   case Qt::DecorationRole:
     // If this is the first column, return the Item's icon
-    if (index.column() == 0) {
+    if (column_type == kName) {
       return internal_item->icon();
     }
     break;
@@ -188,9 +189,36 @@ bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
   return QAbstractItemModel::hasChildren(parent);
 }
 
+bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+  // The name is editable
+  if (index.isValid() && columns_.at(index.column()) == kName && role == Qt::EditRole) {
+    Item* item = GetItemObjectFromIndex(index);
+
+    RenameItemCommand* ric = new RenameItemCommand(this, item, value.toString());
+
+    olive::undo_stack.push(ric);
+
+    return true;
+  }
+
+  return false;
+}
+
 Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 {
-  return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+  if (!index.isValid()) {
+    return Qt::NoItemFlags;
+  }
+
+  Qt::ItemFlags f = Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+
+  // If the column is the kName column, that means it's editable
+  if (columns_.at(index.column()) == kName) {
+    f |= Qt::ItemIsEditable;
+  }
+
+  return f;
 }
 
 QStringList ProjectViewModel::mimeTypes() const
@@ -356,9 +384,9 @@ void ProjectViewModel::MoveItemInternal(Item *item, Item *destination)
   endMoveRows();
 }
 
-QModelIndex ProjectViewModel::CreateIndexFromItem(Item *item)
+QModelIndex ProjectViewModel::CreateIndexFromItem(Item *item, int column)
 {
-  return createIndex(IndexOfChild(item), 0, item);
+  return createIndex(IndexOfChild(item), column, item);
 }
 
 ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
@@ -383,4 +411,32 @@ void ProjectViewModel::MoveItemCommand::redo()
 void ProjectViewModel::MoveItemCommand::undo()
 {
   model_->MoveItemInternal(item_, source_);
+}
+
+ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, Item *item, const QString &name, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  model_(model),
+  item_(item),
+  new_name_(name)
+{
+  old_name_ = item->name();
+}
+
+void ProjectViewModel::RenameItemCommand::redo()
+{
+  set_name(new_name_);
+}
+
+void ProjectViewModel::RenameItemCommand::undo()
+{
+  set_name(old_name_);
+}
+
+void ProjectViewModel::RenameItemCommand::set_name(const QString &n)
+{
+  item_->set_name(n);
+
+  QModelIndex index = model_->CreateIndexFromItem(item_, model_->columns_.indexOf(kName));
+
+  emit model_->dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
 }

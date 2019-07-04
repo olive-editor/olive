@@ -83,6 +83,7 @@ public:
   /** Optional Qt QAbstractItemModel overrides */
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
   virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+  virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
   /** Drag and drop support */
   virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -142,7 +143,7 @@ private:
   /**
    * @brief Convenience function for creating QModelIndexes from an Item object
    */
-  QModelIndex CreateIndexFromItem(Item* item);
+  QModelIndex CreateIndexFromItem(Item* item, int column = 0);
 
   Project* project_;
 
@@ -165,6 +166,26 @@ private:
     Folder* source_;
     Folder* destination_;
 
+  };
+
+  /**
+   * @brief A QUndoCommand for renaming an item
+   */
+  class RenameItemCommand : public QUndoCommand {
+  public:
+    RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    void set_name(const QString& n);
+
+    ProjectViewModel* model_;
+    Item* item_;
+    QString old_name_;
+    QString new_name_;
   };
 };
 
