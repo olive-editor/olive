@@ -89,6 +89,8 @@ public:
   virtual QMimeData * mimeData(const QModelIndexList &indexes) const override;
   virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 private:
+  int indexOfChild(Item* item) const;
+
   Project* project_;
 
   QVector<ColumnType> columns_;

@@ -32,6 +32,7 @@ add_subdirectory(tool)
 add_subdirectory(ui)
 add_subdirectory(widget)
 add_subdirectory(window)
+add_subdirectory(undo)
 
 set(OLIVE_TARGET "olive-editor")
 if(APPLE)

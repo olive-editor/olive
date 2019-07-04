@@ -67,32 +67,21 @@ QModelIndex ProjectViewModel::parent(const QModelIndex &child) const
   Item* item = static_cast<Item*>(child.internalPointer());
 
   // Get Item's parent object
-  Item* parent = item->parent();
+  Item* par = item->parent();
 
   // If the parent is the root, return an empty index
-  if (parent == project_->root()) {
+  if (par == project_->root()) {
     return QModelIndex();
   }
 
   // Otherwise return a true index to its parent
-
-  // Find parent's index within its own parent
-  // (TODO: this model should handle sorting, which means it'll have to "know" the indices)
-  int child_index = -1;
-
-  Item* double_parent = parent->parent();
-  for (int i=0;i<double_parent->child_count();i++) {
-    if (double_parent->child(i) == parent) {
-      child_index = i;
-      break;
-    }
-  }
+  int parent_index = indexOfChild(par);
 
   // Make sure the index is valid (there's no reason it shouldn't be)
-  Q_ASSERT(child_index > -1);
+  Q_ASSERT(parent_index > -1);
 
   // Return an index to the parent
-  return createIndex(child_index, 0, parent);
+  return createIndex(parent_index, 0, par);
 }
 
 int ProjectViewModel::rowCount(const QModelIndex &parent) const
@@ -209,26 +198,38 @@ QStringList ProjectViewModel::mimeTypes() const
 
 QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
 {
+  // Encode mime data for the rows/items that were dragged
   QMimeData* data = new QMimeData();
 
+  // Use QDataStream to stream the item data into a byte array
   QByteArray encoded_data;
   QDataStream stream(&encoded_data, QIODevice::WriteOnly);
 
+  // The indexes list includes indexes for each column which we don't use. To make sure each row only gets sent *once*,
+  // we keep a list of dragged items
+  QVector<void*> dragged_items;
+
   foreach (QModelIndex index, indexes) {
     if (index.isValid()) {
-      stream << reinterpret_cast<quintptr>(index.internalPointer());
+      // Check if we've dragged this item before
+      if (!dragged_items.contains(index.internalPointer())) {
+        // If not, add it to the stream (and also keep track of it in the vector)s
+        stream << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
+        dragged_items.append(index.internalPointer());
+      }
     }
   }
 
+  // Set byte array as the mime data and return the mime data
   data->setData("application/x-oliveprojectitemdata", encoded_data);
 
   return data;
 }
 
-bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &drop)
 {
   // Default recommended checks from https://doc.qt.io/qt-5/model-view-programming.html#using-drag-and-drop-with-item-views
-  if (!canDropMimeData(data, action, row, column, parent)) {
+  if (!canDropMimeData(data, action, row, column, drop)) {
     return false;
   }
 
@@ -243,22 +244,80 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     // Data is drag/drop data from this model
     QByteArray model_data = data->data("application/x-oliveprojectitemdata");
 
-    // Use stream to deserialize the data
+    // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);
+
+    // Get the Item object that the items were dropped on
+    Item* drop_location;
+
+    // If the index is valid, move them to the containing object
+    if (drop.isValid()) {
+      drop_location = static_cast<Item*>(drop.internalPointer());
+
+      // If this is not a folder, we cannot drop these items here
+      if (drop_location->type() != Item::kFolder) {
+        return false;
+      }
+    } else {
+      // If the index isn't valid, the items are moving to the root
+      drop_location = project_->root();
+    }
 
     // Variables to deserialize into
     quintptr item_ptr;
+    int r;
 
     // Loop through all data
     while (!stream.atEnd()) {
-      stream >> item_ptr;
+      stream >> r >> item_ptr;
 
+      // Get the Item pointer from the mime data
       Item* item = reinterpret_cast<Item*>(item_ptr);
-      qDebug() << "Dragged" << item->name();
+
+      // Get the Item's parent
+      Item* parent_item = item->parent();
+
+      // If the Drop Item is the Item or its parent already, this is a no-op
+      if (item != drop_location && parent_item != drop_location) {
+
+        // Get an index to the parent
+        QModelIndex parent_index;
+
+        // If the parent item is not the root, we'll need to actually create an index
+        if (parent_item != project()->root()) {
+          parent_index = createIndex(indexOfChild(parent_item), 0, parent_item);
+        }
+
+        // Signal to all views that we're about to move an object
+        beginMoveRows(parent_index, r, r, drop, drop_location->child_count());
+
+        // Move the object
+        item->set_parent(drop_location);
+
+        endMoveRows();
+      }
     }
 
     return true;
   }
 
   return false;
+}
+
+int ProjectViewModel::indexOfChild(Item *item) const
+{
+  // Find parent's index within its own parent
+  // (TODO: this model should handle sorting, which means it'll have to "know" the indices)
+
+  Item* parent = item->parent();
+
+  if (parent != nullptr) {
+    for (int i=0;i<parent->child_count();i++) {
+      if (parent->child(i) == item) {
+        return i;
+      }
+    }
+  }
+
+  return -1;
 }
