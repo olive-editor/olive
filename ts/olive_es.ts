@@ -1042,27 +1042,27 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="845"/>
         <source>Ripple to In Point</source>
-        <translation>Enrollar el clip desde el punto de entrada</translation>
+        <translation>Extraer desde el punto de inicio del clip</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="846"/>
         <source>Ripple to Out Point</source>
-        <translation>Enrollar el clip desde el punto de salida</translation>
+        <translation>Extraer desde el punto final del clip</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="847"/>
         <source>Edit to In Point</source>
-        <translation>Editar punto de entrada</translation>
+        <translation>Eliminar desde el punto de inicio del clip</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="848"/>
         <source>Edit to Out Point</source>
-        <translation>Editar punto de salida</translation>
+        <translation>Eliminar desde el punto final del clip</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="849"/>
         <source>Delete In/Out Point</source>
-        <translation>Sustraer lo comprendido entre los puntos de Entrada/Salida</translation>
+        <translation>Eliminar lo comprendido entre los puntos de Entrada/Salida</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="850"/>
@@ -1072,7 +1072,7 @@
     <message>
         <location filename="../ui/mainwindow.cpp" line="850"/>
         <source>Ripple Delete In/Out Point</source>
-        <translation>Eliminar lo comprendido entre los puntos de Entrada/Salida</translation>
+        <translation>Extraer lo comprendido entre los puntos de Entrada/Salida</translation>
     </message>
     <message>
         <location filename="../ui/mainwindow.cpp" line="851"/>
@@ -1636,7 +1636,7 @@ Audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="172"/>
         <source>Nest</source>
-        <translation>Anidar</translation>
+        <translation>Anidar selección en una secuencia</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="173"/>
@@ -1667,17 +1667,17 @@ Audio: %6</translation>
     <message>
         <location filename="../ui/menuhelper.cpp" line="178"/>
         <source>Delete</source>
-        <translation>Eliminar clip(s) seleccionado(s) Sin eliminar el hueco</translation>
+        <translation>Eliminar Selección (No elimina el hueco)</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="179"/>
         <source>Ripple Delete</source>
-        <translation>Eliminar clip(s) seleccionado(s) Eliminando el hueco</translation>
+        <translation>Extraer Selección (Elimina el hueco)</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="180"/>
         <source>Split</source>
-        <translation>Dividir clips en la posición de cursor</translation>
+        <translation>Dividir clips</translation>
     </message>
     <message>
         <location filename="../ui/menuhelper.cpp" line="223"/>
