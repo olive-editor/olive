@@ -22,6 +22,7 @@
 #define VIEWMODEL_H
 
 #include <QAbstractItemModel>
+#include <QUndoCommand>
 
 #include "project.h"
 
@@ -89,11 +90,82 @@ public:
   virtual QMimeData * mimeData(const QModelIndexList &indexes) const override;
   virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 private:
-  int indexOfChild(Item* item) const;
+  /**
+   * @brief Retrieve the index of `item` in its parent
+   *
+   * This function will return the index of a specified item in its parent according to whichever sorting algorithm
+   * is currently active.
+   *
+   * @return
+   *
+   * Index of the specified item, or -1 if the item is root (in which case it has no parent).
+   */
+  int IndexOfChild(Item* item) const;
+
+  /**
+   * @brief Get the child count of an index
+   *
+   * @param index
+   *
+   * @return
+   *
+   * Return number of children (immediate children only)
+   */
+  int ChildCount(const QModelIndex& index);
+
+  /**
+   * @brief Retrieves the Item object from a given index
+   *
+   * A convenience function for retrieving Item objects. If the index is not valid, this returns the root Item.
+   */
+  Item* GetItemObjectFromIndex(const QModelIndex& index) const;
+
+  /**
+   * @brief Check if an Item is a parent of a Child
+   *
+   * Checks entire "parent hierarchy" of `child` to see if `parent` is one of its parents.
+   */
+  bool ItemIsParentOfChild(Item* parent, Item* child) const;
+
+  /**
+   * @brief Moves an item to a new destination updating all views in the process
+   *
+   * This function will emit a signal indicating that rows are moving, set `destination` as the new parent of `item`,
+   * and then emit a signal that the row has finished moving.
+   *
+   * It's not recommended to use this function directly in most cases since it does not create a QUndoCommand allowing
+   * the user to undo the move. Instead this function should primarily be called from QUndoCommands belonging to this
+   * class (e.g. MoveItemCommand).
+   */
+  void MoveItemInternal(Item* item, Item* destination);
+
+  /**
+   * @brief Convenience function for creating QModelIndexes from an Item object
+   */
+  QModelIndex CreateIndexFromItem(Item* item);
 
   Project* project_;
 
   QVector<ColumnType> columns_;
+
+  /**
+   * @brief A QUndoCommand for moving an item from one folder to another folder
+   */
+  class MoveItemCommand : public QUndoCommand {
+  public:
+    MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    ProjectViewModel* model_;
+    Item* item_;
+    Folder* source_;
+    Folder* destination_;
+
+  };
 };
 
 #endif // VIEWMODEL_H

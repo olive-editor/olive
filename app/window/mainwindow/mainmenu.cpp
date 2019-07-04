@@ -25,6 +25,7 @@
 #include "core.h"
 #include "tool/tool.h"
 #include "ui/style/style.h"
+#include "undo/undostack.h"
 #include "widget/menu/menushared.h"
 
 MainMenu::MainMenu(QWidget *parent) :
@@ -52,8 +53,14 @@ MainMenu::MainMenu(QWidget *parent) :
   // EDIT MENU
   //
   edit_menu_ = new Menu(this);
-  edit_undo_item_ = edit_menu_->AddItem("undo", nullptr, nullptr, "Ctrl+Z");
-  edit_redo_item_ = edit_menu_->AddItem("redo", nullptr, nullptr, "Ctrl+Shift+Z");
+
+  edit_undo_item_ = olive::undo_stack.createUndoAction(this); //edit_menu_->AddItem("undo", nullptr, nullptr, "Ctrl+Z");
+  Menu::ConformItem(edit_undo_item_, "undo", nullptr, nullptr, "Ctrl+Z");
+  edit_menu_->addAction(edit_undo_item_);
+  edit_redo_item_ = olive::undo_stack.createRedoAction(this); //edit_menu_->AddItem("redo", nullptr, nullptr, "Ctrl+Shift+Z");
+  Menu::ConformItem(edit_redo_item_, "redo", nullptr, nullptr, "Ctrl+Shift+Z");
+  edit_menu_->addAction(edit_redo_item_);
+
   edit_menu_->addSeparator();
   olive::menu_shared.AddItemsForEditMenu(edit_menu_);
   edit_menu_->addSeparator();
@@ -325,8 +332,8 @@ void MainMenu::Retranslate()
 
   // Edit menu
   edit_menu_->setTitle(tr("&Edit"));
-  edit_undo_item_->setText(tr("&Undo"));
-  edit_redo_item_->setText(tr("Redo"));
+  //edit_undo_item_->setText(tr("&Undo")); FIXME: Does Qt translate these automatically?
+  //edit_redo_item_->setText(tr("Redo"));
   edit_select_all_item_->setText(tr("Select &All"));
   edit_deselect_all_item_->setText(tr("Deselect All"));
   edit_ripple_to_in_item_->setText(tr("Ripple to In Point"));

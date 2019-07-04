@@ -28,6 +28,7 @@
 
   Main:            #353535
   Text:            #ffffff
+  Disabled Text:   #808080
   Highlights:      #2a82da
   Highlight Text:  #ffffff
   Dark:            #191919
@@ -44,6 +45,11 @@ QWidget {
 QWidget::selected {
   background: #2a82da;
   color: #ffffff;
+}
+
+/* Default disabled colors */
+QWidget::disabled {
+  color: #808080;
 }
 
 /* Default link color */

@@ -41,6 +41,11 @@ public:
                              const char* member,
                              const QString& key = QString());
 
+  static void ConformItem(QAction *a, const QString& id,
+                          const QObject* receiver,
+                          const char* member,
+                          const QString& key = QString());
+
   static void SetBooleanAction(QAction* a, bool *boolean);
 
 private:

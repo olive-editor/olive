@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QMimeData>
 
+#include "undo/undostack.h"
+
 ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
   project_(nullptr)
@@ -55,7 +57,7 @@ QModelIndex ProjectViewModel::index(int row, int column, const QModelIndex &pare
   }
 
   // Get the parent object (project root if the index is invalid)
-  Item* item_parent = (parent.isValid()) ? static_cast<Item*>(parent.internalPointer()) : project_->root();
+  Item* item_parent = GetItemObjectFromIndex(parent);
 
   // Return an index to this object
   return createIndex(row, column, item_parent->child(row));
@@ -64,7 +66,7 @@ QModelIndex ProjectViewModel::index(int row, int column, const QModelIndex &pare
 QModelIndex ProjectViewModel::parent(const QModelIndex &child) const
 {
   // Get the Item object from the index
-  Item* item = static_cast<Item*>(child.internalPointer());
+  Item* item = GetItemObjectFromIndex(child);
 
   // Get Item's parent object
   Item* par = item->parent();
@@ -75,7 +77,7 @@ QModelIndex ProjectViewModel::parent(const QModelIndex &child) const
   }
 
   // Otherwise return a true index to its parent
-  int parent_index = indexOfChild(par);
+  int parent_index = IndexOfChild(par);
 
   // Make sure the index is valid (there's no reason it shouldn't be)
   Q_ASSERT(parent_index > -1);
@@ -97,7 +99,7 @@ int ProjectViewModel::rowCount(const QModelIndex &parent) const
   }
 
   // Otherwise, the index must contain a valid pointer, so we just return its child count
-  return static_cast<Item*>(parent.internalPointer())->child_count();
+  return GetItemObjectFromIndex(parent)->child_count();
 }
 
 int ProjectViewModel::columnCount(const QModelIndex &parent) const
@@ -114,7 +116,7 @@ int ProjectViewModel::columnCount(const QModelIndex &parent) const
 
 QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
 {
-  Item* internal_item = static_cast<Item*>(index.internalPointer());
+  Item* internal_item = GetItemObjectFromIndex(index);
 
   switch (role) {
   case Qt::DisplayRole:
@@ -172,7 +174,7 @@ bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
 {
   // Check if this is a valid index
   if (parent.isValid()) {
-    Item* item = static_cast<Item*>(parent.internalPointer());
+    Item* item = GetItemObjectFromIndex(parent);
 
     // Check if this item is a kFolder type
     // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
@@ -213,7 +215,7 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
     if (index.isValid()) {
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
-        // If not, add it to the stream (and also keep track of it in the vector)s
+        // If not, add it to the stream (and also keep track of it in the vector)
         stream << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
         dragged_items.append(index.internalPointer());
       }
@@ -248,19 +250,11 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     QDataStream stream(&model_data, QIODevice::ReadOnly);
 
     // Get the Item object that the items were dropped on
-    Item* drop_location;
+    Item* drop_location = GetItemObjectFromIndex(drop);
 
-    // If the index is valid, move them to the containing object
-    if (drop.isValid()) {
-      drop_location = static_cast<Item*>(drop.internalPointer());
-
-      // If this is not a folder, we cannot drop these items here
-      if (drop_location->type() != Item::kFolder) {
-        return false;
-      }
-    } else {
-      // If the index isn't valid, the items are moving to the root
-      drop_location = project_->root();
+    // If this is not a folder, we cannot drop these items here
+    if (drop_location->type() != Item::kFolder) {
+      return false;
     }
 
     // Variables to deserialize into
@@ -268,34 +262,27 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     int r;
 
     // Loop through all data
+    QUndoCommand* move_command = new QUndoCommand();
+
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;
 
-      // Get the Item pointer from the mime data
       Item* item = reinterpret_cast<Item*>(item_ptr);
 
-      // Get the Item's parent
-      Item* parent_item = item->parent();
+      // Check if Item is already the drop location or if its parent is the drop location, in which case this is a
+      // no-op
 
-      // If the Drop Item is the Item or its parent already, this is a no-op
-      if (item != drop_location && parent_item != drop_location) {
+      if (item != drop_location && item->parent() != drop_location && !ItemIsParentOfChild(item, drop_location)) {
+        MoveItemCommand* mic = new MoveItemCommand(this, item, static_cast<Folder*>(drop_location), move_command);
 
-        // Get an index to the parent
-        QModelIndex parent_index;
-
-        // If the parent item is not the root, we'll need to actually create an index
-        if (parent_item != project()->root()) {
-          parent_index = createIndex(indexOfChild(parent_item), 0, parent_item);
-        }
-
-        // Signal to all views that we're about to move an object
-        beginMoveRows(parent_index, r, r, drop, drop_location->child_count());
-
-        // Move the object
-        item->set_parent(drop_location);
-
-        endMoveRows();
+        Q_UNUSED(mic)
       }
+    }
+
+    if (move_command->childCount() > 0) {
+      olive::undo_stack.push(move_command);
+    } else {
+      delete move_command;
     }
 
     return true;
@@ -304,10 +291,14 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   return false;
 }
 
-int ProjectViewModel::indexOfChild(Item *item) const
+int ProjectViewModel::IndexOfChild(Item *item) const
 {
   // Find parent's index within its own parent
   // (TODO: this model should handle sorting, which means it'll have to "know" the indices)
+
+  if (item == project_->root()) {
+    return -1;
+  }
 
   Item* parent = item->parent();
 
@@ -320,4 +311,76 @@ int ProjectViewModel::indexOfChild(Item *item) const
   }
 
   return -1;
+}
+
+int ProjectViewModel::ChildCount(const QModelIndex &index)
+{
+  Item* item = GetItemObjectFromIndex(index);
+
+  return item->child_count();
+}
+
+Item *ProjectViewModel::GetItemObjectFromIndex(const QModelIndex &index) const
+{
+  if (index.isValid()) {
+    return static_cast<Item*>(index.internalPointer());
+  }
+
+  return project_->root();
+}
+
+bool ProjectViewModel::ItemIsParentOfChild(Item *parent, Item *child) const
+{
+  // Loop through parent hierarchy checking if `parent` is one of its parents
+  do {
+    child = child->parent();
+
+    if (parent == child) {
+      return true;
+    }
+  } while (child != nullptr);
+
+  return false;
+}
+
+void ProjectViewModel::MoveItemInternal(Item *item, Item *destination)
+{
+  QModelIndex item_index = CreateIndexFromItem(item);
+
+  QModelIndex destination_index = CreateIndexFromItem(destination);
+
+  beginMoveRows(item_index.parent(), item_index.row(), item_index.row(), destination_index, destination->child_count());
+
+  item->set_parent(destination);
+
+  endMoveRows();
+}
+
+QModelIndex ProjectViewModel::CreateIndexFromItem(Item *item)
+{
+  return createIndex(IndexOfChild(item), 0, item);
+}
+
+ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
+                                                   Item *item,
+                                                   Folder *destination,
+                                                   QUndoCommand *parent) :
+  QUndoCommand(parent),
+  model_(model),
+  item_(item),
+  destination_(destination)
+{
+  source_ = static_cast<Folder*>(item->parent());
+
+  setText(tr("Move Item"));
+}
+
+void ProjectViewModel::MoveItemCommand::redo()
+{
+  model_->MoveItemInternal(item_, destination_);
+}
+
+void ProjectViewModel::MoveItemCommand::undo()
+{
+  model_->MoveItemInternal(item_, source_);
 }

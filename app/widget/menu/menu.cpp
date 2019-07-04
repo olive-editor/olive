@@ -62,6 +62,17 @@ QAction *Menu::CreateItem(QObject* parent,
 {
   QAction* a = new QAction(parent);
 
+  ConformItem(a,
+              id,
+              receiver,
+              member,
+              key);
+
+  return a;
+}
+
+void Menu::ConformItem(QAction* a, const QString &id, const QObject *receiver, const char *member, const QString &key)
+{
   a->setProperty("id", id);
 
   if (!key.isEmpty()) {
@@ -69,9 +80,9 @@ QAction *Menu::CreateItem(QObject* parent,
     a->setProperty("keydefault", key);
   }
 
-  connect(a, SIGNAL(triggered(bool)), receiver, member);
-
-  return a;
+  if (receiver != nullptr) {
+    connect(a, SIGNAL(triggered(bool)), receiver, member);
+  }
 }
 
 void Menu::SetBooleanAction(QAction *a, bool* boolean)
