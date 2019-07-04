@@ -99,7 +99,7 @@ olive::MainWindow *Core::main_window()
   return main_window_;
 }
 
-void Core::ImportFiles(const QStringList &urls)
+void Core::ImportFiles(const QStringList &urls, Folder* parent)
 {
   QString error_capt = tr("Import error");
 
@@ -118,9 +118,12 @@ void Core::ImportFiles(const QStringList &urls)
 
   } else {
 
-    // FIXME: Send selected folder for importing into
+    // If no parent was supplied, assume we're importing to the root
+    if (parent == nullptr) {
+      parent = active_project->root();
+    }
 
-    olive::task_manager.AddTask(new ImportTask(active_project->root(), urls));
+    olive::task_manager.AddTask(new ImportTask(parent, urls));
 
   }
 }

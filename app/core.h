@@ -72,7 +72,7 @@ public:
    *
    * @param urls
    */
-  void ImportFiles(const QStringList& urls);
+  void ImportFiles(const QStringList& urls, Folder *parent = nullptr);
 
 public slots:
   /**

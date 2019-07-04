@@ -22,7 +22,9 @@
 
 #include <QDebug>
 #include <QMimeData>
+#include <QUrl>
 
+#include "core.h"
 #include "undo/undostack.h"
 
 ProjectViewModel::ProjectViewModel(QObject *parent) :
@@ -208,7 +210,8 @@ bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, 
 Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid()) {
-    return Qt::NoItemFlags;
+    // Allow dropping files from external sources
+    return Qt::ItemIsDropEnabled;
   }
 
   Qt::ItemFlags f = Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
@@ -223,11 +226,17 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 
 QStringList ProjectViewModel::mimeTypes() const
 {
-  return {"application/x-oliveprojectitemdata"};
+  // Allow data from this model and a file list from external sources
+  return {"application/x-oliveprojectitemdata", "text/uri-list"};
 }
 
 QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
 {
+  // Compliance with Qt standard
+  if (indexes.isEmpty()) {
+    return nullptr;
+  }
+
   // Encode mime data for the rows/items that were dragged
   QMimeData* data = new QMimeData();
 
@@ -292,6 +301,8 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     // Loop through all data
     QUndoCommand* move_command = new QUndoCommand();
 
+    move_command->setText(tr("Move Items"));
+
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;
 
@@ -314,6 +325,34 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     }
 
     return true;
+
+  } else if (mime_formats.contains("text/uri-list")) {
+    // We received a list of files
+    QByteArray file_data = data->data("text/uri-list");
+
+    // Use text stream to parse (just an easy way of sifting through line breaks
+    QTextStream stream(&file_data);
+
+    // Convert QByteArray to QStringList (which Core takes for importing)
+    QStringList urls;
+    while (!stream.atEnd()) {
+      QUrl url = stream.readLine();
+
+      if (!url.isEmpty()) {
+        urls.append(url.path());
+      }
+    }
+
+    // Get folder dropped onto
+    Item* drop_item = GetItemObjectFromIndex(drop);
+
+    // If we didn't drop onto an item, find the nearest parent folder (should eventually terminate at root either way)
+    while (drop_item->type() != Item::kFolder) {
+      drop_item = drop_item->parent();
+    }
+
+    // Trigger an import
+    olive::core.ImportFiles(urls, static_cast<Folder*>(drop_item));
   }
 
   return false;
@@ -420,6 +459,8 @@ ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, 
   new_name_(name)
 {
   old_name_ = item->name();
+
+  setText(tr("Rename Item"));
 }
 
 void ProjectViewModel::RenameItemCommand::redo()
