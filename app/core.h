@@ -74,6 +74,11 @@ public:
    */
   void ImportFiles(const QStringList& urls, Folder *parent);
 
+  /**
+   * @brief Get the currently active tool
+   */
+  const olive::tool::Tool& tool();
+
 public slots:
   /**
    * @brief Set the current application-wide tool

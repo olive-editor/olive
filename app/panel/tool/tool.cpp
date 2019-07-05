@@ -28,6 +28,8 @@ ToolPanel::ToolPanel(QWidget *parent) :
 {
   Toolbar* t = new Toolbar(this);
 
+  t->SetTool(olive::core.tool());
+
   setWidget(t);
 
   connect(t, SIGNAL(ToolChanged(const olive::tool::Tool&)), &olive::core, SLOT(SetTool(const olive::tool::Tool&)));

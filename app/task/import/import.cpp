@@ -22,6 +22,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
 
 // FIXME: Only used for test code
@@ -46,28 +47,67 @@ bool ImportTask::Action()
 
     const QString& url = urls_.at(i);
 
-    Footage* f = new Footage();
-
     QFileInfo file_info(url);
 
-    // FIXME: Is it possible for a file to go missing between the Import dialog and here?
-    //        And what is the behavior/result of that?
+    // Check if this file is a diretory
+    if (file_info.isDir()) {
 
-    f->set_filename(url);
-    f->set_name(file_info.fileName());
-    f->set_timestamp(file_info.lastModified());
+      // Use QDir to get a list of all the files in the directory
+      QDir dir(url);
 
-    parent_->add_child(f);
+      // QDir::entryList only returns filenames, we can use entryInfoList() to get full paths
+      QFileInfoList entry_list = dir.entryInfoList();
 
-    // Create ProbeTask to analyze this media
-    ProbeTask* pt = new ProbeTask(f);
+      // Only proceed if the empty actually has files in it
+      if (!entry_list.isEmpty()) {
+        // Create a folder corresponding to the directory
+        Folder* f = new Folder();
 
-    // The task won't work unless it's in the main thread and we're definitely not
-    // FIXME: Should Tasks check what thread they're in and move themselves to the main thread?
-    pt->moveToThread(qApp->thread());
+        f->set_name(file_info.fileName());
 
-    // Queue task in task manager
-    olive::task_manager.AddTask(pt);
+        parent_->add_child(f);
+
+        // Convert QFileInfoList into QStringList
+        QStringList full_urls;
+
+        foreach (QFileInfo info, entry_list) {
+          if (info.fileName() != ".." && info.fileName() != ".") {
+            full_urls.append(info.absoluteFilePath());
+          }
+        }
+
+        // Start a new import task for this folder too
+        ImportTask* it = new ImportTask(f, full_urls);
+
+        it->moveToThread(qApp->thread());
+
+        olive::task_manager.AddTask(it);
+      }
+
+    } else {
+
+      Footage* f = new Footage();
+
+      // FIXME: Is it possible for a file to go missing between the Import dialog and here?
+      //        And what is the behavior/result of that?
+
+      f->set_filename(url);
+      f->set_name(file_info.fileName());
+      f->set_timestamp(file_info.lastModified());
+
+      parent_->add_child(f);
+
+      // Create ProbeTask to analyze this media
+      ProbeTask* pt = new ProbeTask(f);
+
+      // The task won't work unless it's in the main thread and we're definitely not
+      // FIXME: Should Tasks check what thread they're in and move themselves to the main thread?
+      pt->moveToThread(qApp->thread());
+
+      // Queue task in task manager
+      olive::task_manager.AddTask(pt);
+
+    }
 
     emit ProgressChanged(i * 100 / urls_.size());
 

@@ -39,7 +39,8 @@
 Core olive::core;
 
 Core::Core() :
-  main_window_(nullptr)
+  main_window_(nullptr),
+  tool_(olive::tool::kPointer)
 {
 }
 
@@ -101,14 +102,17 @@ olive::MainWindow *Core::main_window()
 
 void Core::ImportFiles(const QStringList &urls, Folder* parent)
 {
-  QString error_capt = tr("Import error");
-
   if (urls.isEmpty()) {
-    QMessageBox::critical(main_window_, error_capt, tr("Nothing to import"));
+    QMessageBox::critical(main_window_, tr("Import error"), tr("Nothing to import"));
     return;
   }
 
   olive::task_manager.AddTask(new ImportTask(parent, urls));
+}
+
+const olive::tool::Tool &Core::tool()
+{
+  return tool_;
 }
 
 void Core::SetTool(const olive::tool::Tool &tool)
@@ -142,7 +146,7 @@ void Core::StartImportFootage()
     // Get the selected items from the panel
     QList<Item*> selected_items = active_project_panel->SelectedItems();
 
-    // Heuristic for finding the selected folder
+    // Heuristic for finding the selected folder:
     //
     // - If `folder` is nullptr, we set the first folder we find. Either the item itself if it's a folder, or the
     //   item's parent.
@@ -152,7 +156,7 @@ void Core::StartImportFootage()
     for (int i=0;i<selected_items.size();i++) {
       Item* sel_item = selected_items.at(i);
 
-      // If this item is not a folder, presumably its parent is
+      // If this item is not a folder, presumably it's parent is
       if (sel_item->type() != Item::kFolder) {
         sel_item = sel_item->parent();
 
