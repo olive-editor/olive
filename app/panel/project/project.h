@@ -34,6 +34,8 @@ public:
   Project* project();
   void set_project(Project* p);
 
+  QList<Item*> SelectedItems();
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 

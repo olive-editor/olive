@@ -108,24 +108,7 @@ void Core::ImportFiles(const QStringList &urls, Folder* parent)
     return;
   }
 
-  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
-  Project* active_project;
-
-  if (active_project_panel == nullptr // Check that we found a Project panel
-      || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
-
-    QMessageBox::critical(main_window_, error_capt, tr("Failed to find active Project panel"));
-
-  } else {
-
-    // If no parent was supplied, assume we're importing to the root
-    if (parent == nullptr) {
-      parent = active_project->root();
-    }
-
-    olive::task_manager.AddTask(new ImportTask(parent, urls));
-
-  }
+  olive::task_manager.AddTask(new ImportTask(parent, urls));
 }
 
 void Core::SetTool(const olive::tool::Tool &tool)
@@ -143,7 +126,56 @@ void Core::StartImportFootage()
 
   // Check if the user actually selected files to import
   if (!files.isEmpty()) {
-    ImportFiles(files);
+
+    // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
+    ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+    Project* active_project;
+
+    if (active_project_panel == nullptr // Check that we found a Project panel
+        || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
+      QMessageBox::critical(main_window_, tr("Import footage"), tr("Failed to find active Project panel"));
+      return;
+    }
+
+    Folder* folder = nullptr;
+
+    // Get the selected items from the panel
+    QList<Item*> selected_items = active_project_panel->SelectedItems();
+
+    // Heuristic for finding the selected folder
+    //
+    // - If `folder` is nullptr, we set the first folder we find. Either the item itself if it's a folder, or the
+    //   item's parent.
+    // - Otherwise, if all folders found are the same, we'll use that to import into.
+    // - If more than one folder is found, we play it safe and import into the root folder
+
+    for (int i=0;i<selected_items.size();i++) {
+      Item* sel_item = selected_items.at(i);
+
+      // If this item is not a folder, presumably its parent is
+      if (sel_item->type() != Item::kFolder) {
+        sel_item = sel_item->parent();
+
+        Q_ASSERT(sel_item->type() == Item::kFolder);
+      }
+
+      if (folder == nullptr) {
+        // If the folder is nullptr, cache it as this folder
+        folder = static_cast<Folder*>(sel_item);
+      } else if (folder != sel_item) {
+        // If not, we've already cached a folder so we check if it's the same
+        // If it isn't, we "play it safe" and use the root folder
+        folder = nullptr;
+        break;
+      }
+    }
+
+    // If we didn't pick up a folder from the heuristic above for whatever reason, use root
+    if (folder == nullptr) {
+      folder = active_project->root();
+    }
+
+    ImportFiles(files, folder);
   }
 }
 

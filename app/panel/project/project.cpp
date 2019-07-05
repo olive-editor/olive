@@ -69,6 +69,11 @@ void ProjectPanel::set_project(Project *p)
   Retranslate();
 }
 
+QList<Item *> ProjectPanel::SelectedItems()
+{
+  return explorer_->SelectedItems();
+}
+
 void ProjectPanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

@@ -169,3 +169,34 @@ void ProjectExplorer::set_project(Project *p)
 {
   model_.set_project(p);
 }
+
+QList<Item *> ProjectExplorer::SelectedItems()
+{
+  QModelIndexList index_list;
+
+  // Determine which view is active and get its selected indexes
+  switch (view_type_) {
+  case olive::TreeView:
+    index_list = tree_view_->selectionModel()->selectedRows();
+    break;
+  case olive::ListView:
+    index_list = list_view_->selectionModel()->selectedRows();
+    break;
+  case olive::IconView:
+    index_list = icon_view_->selectionModel()->selectedRows();
+    break;
+  }
+
+  // Convert indexes to item objects
+  QList<Item*> selected_items;
+
+  for (int i=0;i<index_list.size();i++) {
+    const QModelIndex& index = index_list.at(i);
+
+    Item* item = static_cast<Item*>(index.internalPointer());
+
+    selected_items.append(item);
+  }
+
+  return selected_items;
+}

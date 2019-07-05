@@ -53,6 +53,8 @@ public:
   Project* project();
   void set_project(Project* p);
 
+  QList<Item*> SelectedItems();
+
 public slots:
   void set_view_type(olive::ProjectViewType type);
 

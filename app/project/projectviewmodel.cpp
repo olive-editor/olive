@@ -207,6 +207,24 @@ bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, 
   return false;
 }
 
+bool ProjectViewModel::canFetchMore(const QModelIndex &parent) const
+{
+  // Check if this is a valid index
+  if (parent.isValid()) {
+    Item* item = GetItemObjectFromIndex(parent);
+
+    // Check if this item is a kFolder type
+    // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
+    // even when there are no "physical" children
+    if (item->type() == Item::kFolder) {
+      return true;
+    }
+  }
+
+  // Otherwise, return default behavior
+  return QAbstractItemModel::canFetchMore(parent);
+}
+
 Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid()) {
