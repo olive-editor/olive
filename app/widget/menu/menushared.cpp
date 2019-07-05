@@ -20,6 +20,8 @@
 
 #include "menushared.h"
 
+#include "core.h"
+
 MenuShared olive::menu_shared;
 
 MenuShared::MenuShared()
@@ -31,7 +33,7 @@ void MenuShared::Initialize()
   // "New" menu shared items
   new_project_item_ = Menu::CreateItem(this, "newproj", nullptr, nullptr, "Ctrl+N");
   new_sequence_item_ = Menu::CreateItem(this, "newseq", nullptr, nullptr, "Ctrl+Shift+N");
-  new_folder_item_ = Menu::CreateItem(this, "newfolder", nullptr, nullptr);
+  new_folder_item_ = Menu::CreateItem(this, "newfolder", &olive::core, SLOT(CreateNewFolder()));
 
   // "Edit" menu shared items
   edit_cut_item_ = Menu::CreateItem(this, "cut", nullptr, nullptr, "Ctrl+X");

@@ -137,55 +137,43 @@ void Core::StartImportFootage()
 
     if (active_project_panel == nullptr // Check that we found a Project panel
         || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
-      QMessageBox::critical(main_window_, tr("Import footage"), tr("Failed to find active Project panel"));
+      QMessageBox::critical(main_window_, tr("Failed to import footage"), tr("Failed to find active Project panel"));
       return;
     }
 
-    Folder* folder = nullptr;
-
-    // Get the selected items from the panel
-    QList<Item*> selected_items = active_project_panel->SelectedItems();
-
-    // Heuristic for finding the selected folder:
-    //
-    // - If `folder` is nullptr, we set the first folder we find. Either the item itself if it's a folder, or the
-    //   item's parent.
-    // - Otherwise, if all folders found are the same, we'll use that to import into.
-    // - If more than one folder is found, we play it safe and import into the root folder
-
-    for (int i=0;i<selected_items.size();i++) {
-      Item* sel_item = selected_items.at(i);
-
-      // If this item is not a folder, presumably it's parent is
-      if (sel_item->type() != Item::kFolder) {
-        sel_item = sel_item->parent();
-
-        Q_ASSERT(sel_item->type() == Item::kFolder);
-      }
-
-      if (folder == nullptr) {
-        // If the folder is nullptr, cache it as this folder
-        folder = static_cast<Folder*>(sel_item);
-      } else if (folder != sel_item) {
-        // If not, we've already cached a folder so we check if it's the same
-        // If it isn't, we "play it safe" and use the root folder
-        folder = nullptr;
-        break;
-      }
-    }
-
-    // If we didn't pick up a folder from the heuristic above for whatever reason, use root
-    if (folder == nullptr) {
-      folder = active_project->root();
-    }
+    // Get the selected folder in this panel
+    Folder* folder = active_project_panel->GetSelectedFolder();
 
     ImportFiles(files, folder);
   }
 }
 
+void Core::CreateNewFolder()
+{
+  // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
+  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+  Project* active_project;
+
+  if (active_project_panel == nullptr // Check that we found a Project panel
+      || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
+    QMessageBox::critical(main_window_, tr("Failed to create new folder"), tr("Failed to find active Project panel"));
+    return;
+  }
+
+  // Get the selected folder in this panel
+  Folder* folder = active_project_panel->GetSelectedFolder();
+
+  Folder* new_folder = new Folder();
+
+  new_folder->set_name(tr("New Folder"));
+
+  active_project_panel->model()->AddChild(folder, new_folder);
+}
+
 void Core::AddOpenProject(ProjectPtr p)
 {
   open_projects_.append(p);
+
   emit ProjectOpened(p.get());
 }
 
@@ -226,4 +214,18 @@ void Core::StartGUI(bool full_screen)
   connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
 
 
+}
+
+Project *Core::GetActiveProject()
+{
+  // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
+  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+
+  // If we couldn't find one, return nullptr
+  if (active_project_panel == nullptr) {
+    return nullptr;
+  }
+
+  // Otherwise, return the project panel's project (which may be nullptr but in most cases shouldn't be)
+  return active_project_panel->project();
 }

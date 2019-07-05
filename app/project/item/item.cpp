@@ -39,6 +39,10 @@ void Item::add_child(Item* c)
     return;
   }
 
+  if (c->parent_ != nullptr) {
+    c->parent_->remove_child(c);
+  }
+
   children_.append(c);
   c->parent_ = this;
 }

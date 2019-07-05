@@ -55,6 +55,25 @@ public:
 
   QList<Item*> SelectedItems();
 
+  /**
+   * @brief Use a heuristic to determine which (if any) folder is selected
+   *
+   * Generally for some import/adding processes, we assume that if a folder is selected, the user probably wants to
+   * create the new object in it rather than in the root. If, however, more than one folder is selected, we can't
+   * truly determine any folder from this and just return the root instead.
+   *
+   * @return
+   *
+   * A folder that's heuristically been determined as "selected", or the root directory if none, or nullptr if no
+   * project is open.
+   */
+  Folder* GetSelectedFolder();
+
+  /**
+   * @brief Access the ViewModel model of the project
+   */
+  ProjectViewModel* model();
+
 public slots:
   void set_view_type(olive::ProjectViewType type);
 

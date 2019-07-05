@@ -74,6 +74,16 @@ QList<Item *> ProjectPanel::SelectedItems()
   return explorer_->SelectedItems();
 }
 
+Folder *ProjectPanel::GetSelectedFolder()
+{
+  return explorer_->GetSelectedFolder();
+}
+
+ProjectViewModel *ProjectPanel::model()
+{
+  return explorer_->model();
+}
+
 void ProjectPanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

@@ -36,6 +36,10 @@ public:
 
   QList<Item*> SelectedItems();
 
+  Folder* GetSelectedFolder();
+
+  ProjectViewModel* model();
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 

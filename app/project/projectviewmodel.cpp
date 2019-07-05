@@ -376,6 +376,21 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   return false;
 }
 
+void ProjectViewModel::AddChild(Item *parent, Item *child)
+{
+  QModelIndex parent_index;
+
+  if (parent != project_->root()) {
+    parent_index = CreateIndexFromItem(parent);
+  }
+
+  beginInsertRows(parent_index, parent->child_count(), parent->child_count());
+
+  parent->add_child(child);
+
+  endInsertRows();
+}
+
 int ProjectViewModel::IndexOfChild(Item *item) const
 {
   // Find parent's index within its own parent

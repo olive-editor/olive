@@ -200,3 +200,55 @@ QList<Item *> ProjectExplorer::SelectedItems()
 
   return selected_items;
 }
+
+Folder *ProjectExplorer::GetSelectedFolder()
+{
+  if (project() == nullptr) {
+    return nullptr;
+  }
+
+  Folder* folder = nullptr;
+
+  // Get the selected items from the panel
+  QList<Item*> selected_items = SelectedItems();
+
+  // Heuristic for finding the selected folder:
+  //
+  // - If `folder` is nullptr, we set the first folder we find. Either the item itself if it's a folder, or the
+  //   item's parent.
+  // - Otherwise, if all folders found are the same, we'll use that to import into.
+  // - If more than one folder is found, we play it safe and import into the root folder
+
+  for (int i=0;i<selected_items.size();i++) {
+    Item* sel_item = selected_items.at(i);
+
+    // If this item is not a folder, presumably it's parent is
+    if (sel_item->type() != Item::kFolder) {
+      sel_item = sel_item->parent();
+
+      Q_ASSERT(sel_item->type() == Item::kFolder);
+    }
+
+    if (folder == nullptr) {
+      // If the folder is nullptr, cache it as this folder
+      folder = static_cast<Folder*>(sel_item);
+    } else if (folder != sel_item) {
+      // If not, we've already cached a folder so we check if it's the same
+      // If it isn't, we "play it safe" and use the root folder
+      folder = nullptr;
+      break;
+    }
+  }
+
+  // If we didn't pick up a folder from the heuristic above for whatever reason, use root
+  if (folder == nullptr) {
+    folder = project()->root();
+  }
+
+  return folder;
+}
+
+ProjectViewModel *ProjectExplorer::model()
+{
+  return &model_;
+}

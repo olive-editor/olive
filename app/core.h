@@ -32,6 +32,9 @@
  *
  * The main Olive application instance. This runs both in GUI and CLI modes (and handles what to init based on that).
  * It also contains various global functions/variables for use throughout Olive.
+ *
+ * The "public slots" are usually user-triggered actions and can be connected to UI elements (e.g. creating a folder,
+ * opening the import dialog, etc.)
  */
 class Core : public QObject
 {
@@ -92,6 +95,11 @@ public slots:
    */
   void StartImportFootage();
 
+  /**
+   * @brief Create a new folder in the currently active project
+   */
+  void CreateNewFolder();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -130,6 +138,18 @@ private:
    * create an application instance that is completely valid minus the UI (e.g. for CLI modes).
    */
   void StartGUI(bool full_screen);
+
+  /**
+   * @brief Get the currently active project
+   *
+   * Uses the UI/Panel system to determine which Project was the last focused on and assumes this is the active Project
+   * that the user wishes to work on.
+   *
+   * @return
+   *
+   * The active Project file, or nullptr if the heuristic couldn't find one.
+   */
+  Project* GetActiveProject();
 
   /**
    * @brief Internal main window object

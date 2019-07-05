@@ -91,6 +91,9 @@ public:
   virtual QStringList mimeTypes() const override;
   virtual QMimeData * mimeData(const QModelIndexList &indexes) const override;
   virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+
+  /** Other model functions */
+  void AddChild(Item* parent, Item* child);
 private:
   /**
    * @brief Retrieve the index of `item` in its parent
