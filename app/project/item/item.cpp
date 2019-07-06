@@ -27,20 +27,16 @@ Item::Item() :
 
 Item::~Item()
 {
-  // Delete all children
-  for (int i=0;i<children_.size();i++) {
-    delete children_.at(i);
-  }
 }
 
-void Item::add_child(Item* c)
+void Item::add_child(ItemPtr c)
 {
   if (c->parent_ == this) {
     return;
   }
 
   if (c->parent_ != nullptr) {
-    c->parent_->remove_child(c);
+    c->parent_->remove_child(c.get());
   }
 
   children_.append(c);
@@ -53,7 +49,14 @@ void Item::remove_child(Item *c)
     return;
   }
 
-  children_.removeAll(c);
+  // Remove all instances of this child in the list
+  for (int i=0;i<children_.size();i++) {
+    if (children_.at(i).get() == c) {
+      children_.removeAt(i);
+      i--;
+    }
+  }
+
   c->parent_ = nullptr;
 }
 
@@ -64,7 +67,18 @@ int Item::child_count()
 
 Item *Item::child(int i)
 {
-  return children_.at(i);
+  return children_.at(i).get();
+}
+
+ItemPtr Item::shared_ptr_from_raw(Item *item)
+{
+  for (int i=0;i<children_.size();i++) {
+    if (children_.at(i).get() == item) {
+      return children_.at(i);
+    }
+  }
+
+  return nullptr;
 }
 
 const QString &Item::name() const
@@ -100,13 +114,4 @@ void Item::set_icon(const QIcon &icon)
 Item *Item::parent() const
 {
   return parent_;
-}
-
-void Item::set_parent(Item *p)
-{
-  if (parent_ != nullptr) {
-    parent_->remove_child(this);
-  }
-
-  p->add_child(this);
 }

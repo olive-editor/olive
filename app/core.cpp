@@ -187,7 +187,7 @@ void Core::CreateNewFolder()
   Folder* folder = active_project_panel->GetSelectedFolder();
 
   // Create new folder
-  Folder* new_folder = new Folder();
+  ItemPtr new_folder = std::make_shared<Folder>();
 
   // Set a default name
   new_folder->set_name(tr("New Folder"));
@@ -200,7 +200,7 @@ void Core::CreateNewFolder()
   olive::undo_stack.push(aic);
 
   // Trigger an automatic rename so users can enter the folder name
-  active_project_panel->Edit(new_folder);
+  active_project_panel->Edit(new_folder.get());
 }
 
 void Core::AddOpenProject(ProjectPtr p)

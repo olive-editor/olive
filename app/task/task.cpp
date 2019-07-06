@@ -23,7 +23,8 @@
 Task::Task() :
   status_(kWaiting),
   thread_(this),
-  text_(tr("Task"))
+  text_(tr("Task")),
+  cancelled_(false)
 {
   connect(&thread_, SIGNAL(finished()), this, SLOT(ThreadComplete()));
 }
@@ -54,6 +55,8 @@ bool Task::Start()
 
     }
   }
+
+  cancelled_ = false;
 
   set_status(kWorking);
 
@@ -90,6 +93,18 @@ void Task::AddDependency(Task *dependency)
   dependencies_.append(dependency);
 }
 
+void Task::Cancel()
+{
+  if (status_ != kWorking) {
+    return;
+  }
+
+  cancelled_ = true;
+
+  // FIXME: Should we limit the wait time?
+  thread_.wait();
+}
+
 void Task::set_error(const QString &s)
 {
   error_ = s;
@@ -98,6 +113,11 @@ void Task::set_error(const QString &s)
 void Task::set_text(const QString &s)
 {
   text_ = s;
+}
+
+bool Task::cancelled()
+{
+  return cancelled_;
 }
 
 void Task::set_status(const Task::Status &status)

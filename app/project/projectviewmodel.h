@@ -93,7 +93,7 @@ public:
   virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
   /** Other model functions */
-  void AddChild(Item* parent, Item* child);
+  void AddChild(Item* parent, ItemPtr child);
   void RemoveChild(Item* parent, Item* child);
   void RenameChild(Item* item, const QString& name);
 
@@ -144,7 +144,7 @@ public:
    */
   class AddItemCommand : public QUndoCommand {
   public:
-    AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent = nullptr);
+    AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent = nullptr);
 
     virtual ~AddItemCommand() override;
 
@@ -155,7 +155,7 @@ public:
   private:
     ProjectViewModel* model_;
     Item* parent_;
-    Item* child_;
+    ItemPtr child_;
     bool done_;
   };
 private:

@@ -38,12 +38,12 @@ class ProbeTask : public Task
 {
   Q_OBJECT
 public:
-  ProbeTask(Footage* footage);
+  ProbeTask(FootagePtr footage);
 
   virtual bool Action() override;
 
 private:
-  Footage* footage_;
+  FootagePtr footage_;
 };
 
 #endif // PROBE_H

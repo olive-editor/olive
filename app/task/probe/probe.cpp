@@ -24,7 +24,7 @@
 
 #include "decoder/probeserver.h"
 
-ProbeTask::ProbeTask(Footage *footage) :
+ProbeTask::ProbeTask(FootagePtr footage) :
   footage_(footage)
 {
   QString base_filename = QFileInfo(footage_->filename()).fileName();
@@ -34,7 +34,7 @@ ProbeTask::ProbeTask(Footage *footage) :
 
 bool ProbeTask::Action()
 {
-  olive::ProbeMedia(footage_);
+  olive::ProbeMedia(footage_.get());
 
   return true;
 }

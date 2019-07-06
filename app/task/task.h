@@ -141,6 +141,18 @@ public:
    */
   void AddDependency(Task* dependency);
 
+public slots:
+  /**
+   * @brief Cancel the Task
+   *
+   * Sends a signal to the Task to stop and waits for the Task to finish before returning. Tasks must be responsive to
+   * cancelling so that the main thread doesn't halt for too long.
+   *
+   * Cancel()'s function is fairly simple, it sets cancelled_ to TRUE and waits for the thread to return. It's the
+   * responsibility of the code in Action() to be able to respond quickly to cancelled_ changing.
+   */
+  void Cancel();
+
 protected:
   /**
    * @brief Set the error message
@@ -158,6 +170,11 @@ protected:
    * set_error() instead.
    */
   void set_text(const QString& s);
+
+  /**
+   * @brief Returns whether the thread has been explicitly cancelled or not
+   */
+  bool cancelled();
 
 signals:
   /**
@@ -196,6 +213,8 @@ private:
   QString error_;
 
   QList<Task*> dependencies_;
+
+  bool cancelled_;
 
 private slots:
   /**

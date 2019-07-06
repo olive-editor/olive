@@ -21,9 +21,13 @@
 #ifndef ITEM_H
 #define ITEM_H
 
+#include <memory>
 #include <QIcon>
 #include <QList>
 #include <QString>
+
+class Item;
+using ItemPtr = std::shared_ptr<Item>;
 
 class Item
 {
@@ -40,7 +44,7 @@ public:
   Item();
 
   /**
-   * @brief Item destructor, deletes all children
+   * @brief Required virtual Item destructor
    */
   virtual ~Item();
 
@@ -66,10 +70,12 @@ public:
 
   virtual Type type() const = 0;
 
-  void add_child(Item *c);
+  void add_child(ItemPtr c);
   void remove_child(Item* c);
   int child_count();
   Item* child(int i);
+
+  ItemPtr shared_ptr_from_raw(Item* item);
 
   const QString& name() const;
   void set_name(const QString& n);
@@ -81,10 +87,9 @@ public:
   void set_icon(const QIcon& icon);
 
   Item *parent() const;
-  void set_parent(Item *p);
 
 private:
-  QList<Item*> children_;
+  QList<ItemPtr> children_;
 
   Item* parent_;
 

@@ -231,4 +231,6 @@ private:
 
 };
 
+using FootagePtr = std::shared_ptr<Footage>;
+
 #endif // FOOTAGE_H

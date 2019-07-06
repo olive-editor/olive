@@ -376,7 +376,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
   return false;
 }
 
-void ProjectViewModel::AddChild(Item *parent, Item *child)
+void ProjectViewModel::AddChild(Item *parent, ItemPtr child)
 {
   QModelIndex parent_index;
 
@@ -477,7 +477,9 @@ void ProjectViewModel::MoveItemInternal(Item *item, Item *destination)
 
   beginMoveRows(item_index.parent(), item_index.row(), item_index.row(), destination_index, destination->child_count());
 
-  item->set_parent(destination);
+  ItemPtr item_ptr = item->parent()->shared_ptr_from_raw(item);
+
+  destination->add_child(item_ptr);
 
   endMoveRows();
 }
@@ -532,7 +534,7 @@ void ProjectViewModel::RenameItemCommand::undo()
   model_->RenameChild(item_, old_name_);
 }
 
-ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent) :
+ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent) :
   QUndoCommand(parent),
   model_(model),
   parent_(folder),
@@ -543,10 +545,6 @@ ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* 
 
 ProjectViewModel::AddItemCommand::~AddItemCommand()
 {
-  // FIXME Use smart pointers. I hate having to do this.
-  if (!done_) {
-    delete child_;
-  }
 }
 
 void ProjectViewModel::AddItemCommand::redo()
@@ -558,7 +556,7 @@ void ProjectViewModel::AddItemCommand::redo()
 
 void ProjectViewModel::AddItemCommand::undo()
 {
-  model_->RemoveChild(parent_, child_);
+  model_->RemoveChild(parent_, child_.get());
 
   done_ = false;
 }

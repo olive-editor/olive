@@ -59,6 +59,11 @@ void ImportTask::Import(const QStringList &files, Folder *folder, QUndoCommand *
 {
   for (int i=0;i<files.size();i++) {
 
+    // Stop here if the Task has been cancelled
+    if (cancelled()) {
+      break;
+    }
+
     const QString& url = files.at(i);
 
     QFileInfo file_info(url);
@@ -75,7 +80,8 @@ void ImportTask::Import(const QStringList &files, Folder *folder, QUndoCommand *
       // Only proceed if the empty actually has files in it
       if (!entry_list.isEmpty()) {
         // Create a folder corresponding to the directory
-        Folder* f = new Folder();
+
+        ItemPtr f = std::make_shared<Folder>();
 
         f->set_name(file_info.fileName());
 
@@ -95,12 +101,12 @@ void ImportTask::Import(const QStringList &files, Folder *folder, QUndoCommand *
         }
 
         // Recursively follow this path
-        Import(full_urls, f, parent_command);
+        Import(full_urls, static_cast<Folder*>(f.get()), parent_command);
       }
 
     } else {
 
-      Footage* f = new Footage();
+      FootagePtr f = std::make_shared<Footage>();
 
       // FIXME: Is it possible for a file to go missing between the Import dialog and here?
       //        And what is the behavior/result of that?
