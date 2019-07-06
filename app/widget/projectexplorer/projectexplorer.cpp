@@ -62,6 +62,10 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Set default icon size
   SizeChangedSlot(olive::kProjectIconSizeDefault);
+
+  // Set rename timer timeout
+  rename_timer_.setInterval(500);
+  connect(&rename_timer_, SIGNAL(timeout()), this, SLOT(RenameTimerSlot()));
 }
 
 const olive::ProjectViewType &ProjectExplorer::view_type()
@@ -90,15 +94,25 @@ void ProjectExplorer::set_view_type(olive::ProjectViewType type)
   }
 }
 
+void ProjectExplorer::Edit(Item *item)
+{
+  CurrentView()->edit(model_.CreateIndexFromItem(item));
+}
+
 void ProjectExplorer::AddView(QAbstractItemView *view)
 {
   view->setModel(&model_);
+  view->setEditTriggers(QAbstractItemView::NoEditTriggers);
   connect(view, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
+  connect(view, SIGNAL(clicked(const QModelIndex&)), this, SLOT(ItemClickedSlot(const QModelIndex&)));
   stacked_widget_->addWidget(view);
 }
 
 void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 {
+  // Make sure any rename timers are stopped
+  rename_timer_.stop();
+
   // Set appropriate views to this index
   icon_view_->setRootIndex(index);
   list_view_->setRootIndex(index);
@@ -114,6 +128,30 @@ void ProjectExplorer::BrowseToFolder(const QModelIndex &index)
 
   // Set directory up enabled button based on whether we're in root or not
   nav_bar_->set_dir_up_enabled(index.isValid());
+}
+
+QAbstractItemView *ProjectExplorer::CurrentView()
+{
+  return static_cast<QAbstractItemView*>(stacked_widget_->currentWidget());
+}
+
+void ProjectExplorer::ItemClickedSlot(const QModelIndex &index)
+{
+  if (index.isValid()) {
+    if (clicked_index_ == index) {
+      // The item has been clicked more than once, start a timer for renaming
+      rename_timer_.start();
+    } else {
+      // Cache this index for the next click
+      clicked_index_ = index;
+
+      // If the rename timer had started, stop it now
+      rename_timer_.stop();
+    }
+  } else {
+    // Stop the rename timer
+    rename_timer_.stop();
+  }
 }
 
 void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
@@ -160,6 +198,18 @@ void ProjectExplorer::DirUpSlot()
   }
 }
 
+void ProjectExplorer::RenameTimerSlot()
+{
+  // Start editing this index
+  CurrentView()->edit(clicked_index_);
+
+  // Reset clicked index state
+  clicked_index_ = QModelIndex();
+
+  // Stop rename timer
+  rename_timer_.stop();
+}
+
 Project *ProjectExplorer::project()
 {
   return model_.project();
@@ -172,20 +222,8 @@ void ProjectExplorer::set_project(Project *p)
 
 QList<Item *> ProjectExplorer::SelectedItems()
 {
-  QModelIndexList index_list;
-
   // Determine which view is active and get its selected indexes
-  switch (view_type_) {
-  case olive::TreeView:
-    index_list = tree_view_->selectionModel()->selectedRows();
-    break;
-  case olive::ListView:
-    index_list = list_view_->selectionModel()->selectedRows();
-    break;
-  case olive::IconView:
-    index_list = icon_view_->selectionModel()->selectedRows();
-    break;
-  }
+  QModelIndexList index_list = CurrentView()->selectionModel()->selectedRows();
 
   // Convert indexes to item objects
   QList<Item*> selected_items;

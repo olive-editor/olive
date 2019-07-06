@@ -40,6 +40,9 @@ public:
 
   ProjectViewModel* model();
 
+public slots:
+  void Edit(Item *item);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 

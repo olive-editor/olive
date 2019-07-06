@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QHBoxLayout>
 
 #include "panel/panelfocusmanager.h"
 #include "panel/project/project.h"
@@ -34,7 +35,9 @@
 #include "task/taskmanager.h"
 #include "ui/icons/icons.h"
 #include "ui/style/style.h"
+#include "undo/undostack.h"
 #include "widget/menu/menushared.h"
+#include "widget/taskview/taskviewitem.h"
 
 Core olive::core;
 
@@ -100,19 +103,39 @@ olive::MainWindow *Core::main_window()
   return main_window_;
 }
 
-void Core::ImportFiles(const QStringList &urls, Folder* parent)
+void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder* parent)
 {
   if (urls.isEmpty()) {
     QMessageBox::critical(main_window_, tr("Import error"), tr("Nothing to import"));
     return;
   }
 
-  olive::task_manager.AddTask(new ImportTask(parent, urls));
+  olive::task_manager.AddTask(new ImportTask(model, parent, urls));
 }
 
 const olive::tool::Tool &Core::tool()
 {
   return tool_;
+}
+
+void Core::StartModalTask(Task *t)
+{
+  QDialog dialog(main_window_);
+
+  QHBoxLayout* layout = new QHBoxLayout(&dialog);
+  layout->setMargin(0);
+
+  TaskViewItem* task_view = new TaskViewItem(&dialog);
+  task_view->SetTask(t);
+  layout->addWidget(task_view);
+
+  connect(t, SIGNAL(Finished()), &dialog, SLOT(accept()));
+
+  // FIXME: Risk of task finishing before dialog execs?
+
+  if (t->Start()) {
+    dialog.exec();
+  }
 }
 
 void Core::SetTool(const olive::tool::Tool &tool)
@@ -144,7 +167,7 @@ void Core::StartImportFootage()
     // Get the selected folder in this panel
     Folder* folder = active_project_panel->GetSelectedFolder();
 
-    ImportFiles(files, folder);
+    ImportFiles(files, active_project_panel->model(), folder);
   }
 }
 
@@ -163,11 +186,21 @@ void Core::CreateNewFolder()
   // Get the selected folder in this panel
   Folder* folder = active_project_panel->GetSelectedFolder();
 
+  // Create new folder
   Folder* new_folder = new Folder();
 
+  // Set a default name
   new_folder->set_name(tr("New Folder"));
 
-  active_project_panel->model()->AddChild(folder, new_folder);
+  // Create an undoable command
+  ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(active_project_panel->model(),
+                                                                               folder,
+                                                                               new_folder);
+
+  olive::undo_stack.push(aic);
+
+  // Trigger an automatic rename so users can enter the folder name
+  active_project_panel->Edit(new_folder);
 }
 
 void Core::AddOpenProject(ProjectPtr p)

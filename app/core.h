@@ -24,7 +24,9 @@
 #include <QList>
 
 #include "project/project.h"
+#include "project/projectviewmodel.h"
 #include "window/mainwindow/mainwindow.h"
+#include "task/task.h"
 #include "tool/tool.h"
 
 /**
@@ -73,14 +75,26 @@ public:
   /**
    * @brief Import a list of files
    *
+   * FIXME: I kind of hate this, it needs a model to update correctly. Is there a way that Items can signal enough to
+   *        make passing references to the model unnecessary?
+   *
    * @param urls
    */
-  void ImportFiles(const QStringList& urls, Folder *parent);
+  void ImportFiles(const QStringList& urls, ProjectViewModel *model, Folder *parent);
 
   /**
    * @brief Get the currently active tool
    */
   const olive::tool::Tool& tool();
+
+  /**
+   * @brief Starts a modal task
+   *
+   * This function does NOT take ownership of the Task.
+   *
+   * @param t
+   */
+  void StartModalTask(Task* t);
 
 public slots:
   /**

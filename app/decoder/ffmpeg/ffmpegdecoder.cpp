@@ -186,8 +186,6 @@ bool FFmpegDecoder::Probe(Footage *f)
 
         str = video_stream;
 
-        qDebug() << "Stream V" << i << "Len" << (rational(avstream_->duration) * rational(avstream_->time_base)).ToDouble();
-
       } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
         // Create an audio stream object
@@ -198,8 +196,6 @@ bool FFmpegDecoder::Probe(Footage *f)
         audio_stream->set_sample_rate(avstream_->codecpar->sample_rate);
 
         str = audio_stream;
-
-        qDebug() << "Stream A" << i << "Len" << (rational(avstream_->duration) * rational(avstream_->time_base)).ToDouble();
 
       } else {
 

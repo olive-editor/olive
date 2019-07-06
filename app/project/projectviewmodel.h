@@ -94,6 +94,70 @@ public:
 
   /** Other model functions */
   void AddChild(Item* parent, Item* child);
+  void RemoveChild(Item* parent, Item* child);
+  void RenameChild(Item* item, const QString& name);
+
+  /**
+   * @brief Convenience function for creating QModelIndexes from an Item object
+   */
+  QModelIndex CreateIndexFromItem(Item* item, int column = 0);
+
+  /**
+   * @brief A QUndoCommand for moving an item from one folder to another folder
+   */
+  class MoveItemCommand : public QUndoCommand {
+  public:
+    MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    ProjectViewModel* model_;
+    Item* item_;
+    Folder* source_;
+    Folder* destination_;
+
+  };
+
+  /**
+   * @brief A QUndoCommand for renaming an item
+   */
+  class RenameItemCommand : public QUndoCommand {
+  public:
+    RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    ProjectViewModel* model_;
+    Item* item_;
+    QString old_name_;
+    QString new_name_;
+  };
+
+  /**
+   * @brief A QUndoCommand for adding an item
+   */
+  class AddItemCommand : public QUndoCommand {
+  public:
+    AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent = nullptr);
+
+    virtual ~AddItemCommand() override;
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    ProjectViewModel* model_;
+    Item* parent_;
+    Item* child_;
+    bool done_;
+  };
 private:
   /**
    * @brief Retrieve the index of `item` in its parent
@@ -144,53 +208,9 @@ private:
    */
   void MoveItemInternal(Item* item, Item* destination);
 
-  /**
-   * @brief Convenience function for creating QModelIndexes from an Item object
-   */
-  QModelIndex CreateIndexFromItem(Item* item, int column = 0);
-
   Project* project_;
 
   QVector<ColumnType> columns_;
-
-  /**
-   * @brief A QUndoCommand for moving an item from one folder to another folder
-   */
-  class MoveItemCommand : public QUndoCommand {
-  public:
-    MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
-
-    virtual void redo() override;
-
-    virtual void undo() override;
-
-  private:
-    ProjectViewModel* model_;
-    Item* item_;
-    Folder* source_;
-    Folder* destination_;
-
-  };
-
-  /**
-   * @brief A QUndoCommand for renaming an item
-   */
-  class RenameItemCommand : public QUndoCommand {
-  public:
-    RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
-
-    virtual void redo() override;
-
-    virtual void undo() override;
-
-  private:
-    void set_name(const QString& n);
-
-    ProjectViewModel* model_;
-    Item* item_;
-    QString old_name_;
-    QString new_name_;
-  };
 };
 
 #endif // VIEWMODEL_H

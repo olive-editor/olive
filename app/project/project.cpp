@@ -23,24 +23,6 @@
 Project::Project()
 {
   name_ = tr("(untitled)");
-
-  // FIXME: Test code
-  Folder* f1 = new Folder();
-  f1->set_name("F1");
-  f1->set_parent(&root_);
-  Folder* f2 = new Folder();
-  f2->set_name("F2");
-  f2->set_parent(f1);
-  Folder* f3 = new Folder();
-  f3->set_name("F3");
-  f3->set_parent(&root_);
-  Folder* f4 = new Folder();
-  f4->set_name("F4");
-  f4->set_parent(f1);
-  Folder* f5 = new Folder();
-  f5->set_name("F5");
-  f5->set_parent(f3);
-  // End Test code
 }
 
 Folder *Project::root()

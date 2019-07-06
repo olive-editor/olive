@@ -29,7 +29,7 @@ class ProjectExplorerListViewBase : public QListView
 public:
   ProjectExplorerListViewBase(QWidget* parent);
 
-protected:
+protected: 
   /**
    * @brief Double click event override
    *

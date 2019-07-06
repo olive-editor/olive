@@ -22,6 +22,7 @@
 #define PROJECTEXPLORER_H
 
 #include <QStackedWidget>
+#include <QTimer>
 #include <QTreeView>
 
 #include "project/project.h"
@@ -77,6 +78,8 @@ public:
 public slots:
   void set_view_type(olive::ProjectViewType type);
 
+  void Edit(Item* item);
+
 signals:
   /**
    * @brief Emitted when an Item is double clicked
@@ -110,6 +113,11 @@ private:
    */
   void BrowseToFolder(const QModelIndex& index);
 
+  /**
+   * @brief Get the currently active QAbstractItemView
+   */
+  QAbstractItemView* CurrentView();
+
   QStackedWidget* stacked_widget_;
 
   ProjectExplorerNavigation* nav_bar_;
@@ -122,12 +130,20 @@ private:
 
   ProjectViewModel model_;
 
+  QModelIndex clicked_index_;
+
+  QTimer rename_timer_;
+
 private slots:
+  void ItemClickedSlot(const QModelIndex& index);
+
   void DoubleClickViewSlot(const QModelIndex& index);
 
   void SizeChangedSlot(int s);
 
   void DirUpSlot();
+
+  void RenameTimerSlot();
 };
 
 #endif // PROJECTEXPLORER_H

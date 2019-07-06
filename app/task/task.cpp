@@ -116,4 +116,6 @@ void Task::ThreadComplete()
   } else {
     set_status(kError);
   }
+
+  emit Finished();
 }

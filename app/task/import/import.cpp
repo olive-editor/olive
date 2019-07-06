@@ -1,3 +1,4 @@
+
 /***
 
   Olive - Non-Linear Video Editor
@@ -33,8 +34,10 @@
 #include "project/item/footage/footage.h"
 #include "task/probe/probe.h"
 #include "task/taskmanager.h"
+#include "undo/undostack.h"
 
-ImportTask::ImportTask(Folder *parent, const QStringList &urls) :
+ImportTask::ImportTask(ProjectViewModel *model, Folder *parent, const QStringList &urls) :
+  model_(model),
   urls_(urls),
   parent_(parent)
 {
@@ -43,9 +46,20 @@ ImportTask::ImportTask(Folder *parent, const QStringList &urls) :
 
 bool ImportTask::Action()
 {
-  for (int i=0;i<urls_.size();i++) {
+  QUndoCommand* command = new QUndoCommand();
 
-    const QString& url = urls_.at(i);
+  Import(urls_, parent_, command);
+
+  olive::undo_stack.push(command);
+
+  return true;
+}
+
+void ImportTask::Import(const QStringList &files, Folder *folder, QUndoCommand *parent_command)
+{
+  for (int i=0;i<files.size();i++) {
+
+    const QString& url = files.at(i);
 
     QFileInfo file_info(url);
 
@@ -65,7 +79,11 @@ bool ImportTask::Action()
 
         f->set_name(file_info.fileName());
 
-        parent_->add_child(f);
+        // Create undoable command that adds the items to the model
+        new ProjectViewModel::AddItemCommand(model_,
+                                             folder,
+                                             f,
+                                             parent_command);
 
         // Convert QFileInfoList into QStringList
         QStringList full_urls;
@@ -76,12 +94,8 @@ bool ImportTask::Action()
           }
         }
 
-        // Start a new import task for this folder too
-        ImportTask* it = new ImportTask(f, full_urls);
-
-        it->moveToThread(qApp->thread());
-
-        olive::task_manager.AddTask(it);
+        // Recursively follow this path
+        Import(full_urls, f, parent_command);
       }
 
     } else {
@@ -95,7 +109,11 @@ bool ImportTask::Action()
       f->set_name(file_info.fileName());
       f->set_timestamp(file_info.lastModified());
 
-      parent_->add_child(f);
+      // Create undoable command that adds the items to the model
+      new ProjectViewModel::AddItemCommand(model_,
+                                           folder,
+                                           f,
+                                           parent_command);
 
       // Create ProbeTask to analyze this media
       ProbeTask* pt = new ProbeTask(f);
@@ -109,15 +127,7 @@ bool ImportTask::Action()
 
     }
 
-    emit ProgressChanged(i * 100 / urls_.size());
+    emit ProgressChanged(i * 100 / files.size());
 
   }
-
-  // FIXME: No good very bad test code to update the ProjectExplorer model/view
-  //        A better solution would be for the Project itself to signal that a new row was being added
-  ProjectPanel* p = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
-  p->set_project(p->project());
-  // End test code
-
-  return true;
 }

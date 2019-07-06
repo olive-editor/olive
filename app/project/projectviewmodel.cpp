@@ -370,7 +370,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     }
 
     // Trigger an import
-    olive::core.ImportFiles(urls, static_cast<Folder*>(drop_item));
+    olive::core.ImportFiles(urls, this, static_cast<Folder*>(drop_item));
   }
 
   return false;
@@ -389,6 +389,32 @@ void ProjectViewModel::AddChild(Item *parent, Item *child)
   parent->add_child(child);
 
   endInsertRows();
+}
+
+void ProjectViewModel::RemoveChild(Item *parent, Item *child)
+{
+  QModelIndex parent_index;
+
+  if (parent != project_->root()) {
+    parent_index = CreateIndexFromItem(parent);
+  }
+
+  int child_row = IndexOfChild(child);
+
+  beginRemoveRows(parent_index, child_row, child_row);
+
+  parent->remove_child(child);
+
+  endRemoveRows();
+}
+
+void ProjectViewModel::RenameChild(Item *item, const QString &name)
+{
+  item->set_name(name);
+
+  QModelIndex index = CreateIndexFromItem(item, columns_.indexOf(kName));
+
+  emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
 }
 
 int ProjectViewModel::IndexOfChild(Item *item) const
@@ -498,19 +524,41 @@ ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, 
 
 void ProjectViewModel::RenameItemCommand::redo()
 {
-  set_name(new_name_);
+  model_->RenameChild(item_, new_name_);
 }
 
 void ProjectViewModel::RenameItemCommand::undo()
 {
-  set_name(old_name_);
+  model_->RenameChild(item_, old_name_);
 }
 
-void ProjectViewModel::RenameItemCommand::set_name(const QString &n)
+ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, Item* child, QUndoCommand* parent) :
+  QUndoCommand(parent),
+  model_(model),
+  parent_(folder),
+  child_(child),
+  done_(false)
 {
-  item_->set_name(n);
+}
 
-  QModelIndex index = model_->CreateIndexFromItem(item_, model_->columns_.indexOf(kName));
+ProjectViewModel::AddItemCommand::~AddItemCommand()
+{
+  // FIXME Use smart pointers. I hate having to do this.
+  if (!done_) {
+    delete child_;
+  }
+}
 
-  emit model_->dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+void ProjectViewModel::AddItemCommand::redo()
+{
+  model_->AddChild(parent_, child_);
+
+  done_ = true;
+}
+
+void ProjectViewModel::AddItemCommand::undo()
+{
+  model_->RemoveChild(parent_, child_);
+
+  done_ = false;
 }

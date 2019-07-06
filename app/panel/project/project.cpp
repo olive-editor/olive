@@ -32,7 +32,7 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   QWidget* central_widget = new QWidget(this);
   QVBoxLayout* layout = new QVBoxLayout(central_widget);
   layout->setMargin(0);
-  layout->setSpacing(0);
+  //layout->setSpacing(0);
   setWidget(central_widget);
 
   // Set up project toolbar
@@ -82,6 +82,11 @@ Folder *ProjectPanel::GetSelectedFolder()
 ProjectViewModel *ProjectPanel::model()
 {
   return explorer_->model();
+}
+
+void ProjectPanel::Edit(Item* item)
+{
+  explorer_->Edit(item);
 }
 
 void ProjectPanel::changeEvent(QEvent *e)

@@ -176,6 +176,11 @@ signals:
    */
   void ProgressChanged(int p);
 
+  /**
+   * @brief Signal emitted when the Task finishes whether it succeeded or failed
+   */
+  void Finished();
+
 private:
   /**
    * @brief Set the status of this Task (also emits StatusChanged())
