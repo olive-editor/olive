@@ -35,16 +35,16 @@ TaskManager::~TaskManager()
   Clear();
 }
 
-void TaskManager::AddTask(Task* t)
-{
+void TaskManager::AddTask(TaskPtr t)
+{  
   // Connect Task's status signal to the Callback
-  connect(t, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskCallback(Task::Status)));
+  connect(t.get(), SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskCallback(Task::Status)));
 
   // Add the Task to the queue
   tasks_.append(t);
 
   // Emit signal that a Task was added
-  emit TaskAdded(t);
+  emit TaskAdded(t.get());
 
   // Scan through queue and start any Tasks that can (including this one)
   StartNextWaiting();
@@ -52,11 +52,9 @@ void TaskManager::AddTask(Task* t)
 
 void TaskManager::Clear()
 {
-  // TODO Cancelling tasks
-
   // Delete Tasks from memory
   for (int i=0;i<tasks_.size();i++) {
-    delete tasks_.at(i);
+    tasks_.at(i)->Cancel();
   }
   tasks_.clear();
 }
@@ -67,7 +65,7 @@ void TaskManager::StartNextWaiting()
   int working_count = 0;
 
   for (int i=0;i<tasks_.size();i++) {
-    Task* t = tasks_.at(i);
+    TaskPtr t = tasks_.at(i);
 
     if (t->status() == Task::kWorking) {
 
@@ -93,13 +91,17 @@ void TaskManager::StartNextWaiting()
 
 void TaskManager::DeleteTask(Task *t)
 {
-  // TODO Cancelling tasks?
+  // Cancel the task
+  t->Cancel();
 
   // Remove instances of Task from queue
-  tasks_.removeAll(t);
-
-  // Destroy Task object
-  t->deleteLater();
+  for (int i=0;i<tasks_.size();i++) {
+    if (tasks_.at(i).get() == t) {
+      t->EmitRemovedSignal();
+      tasks_.removeAt(i);
+      break;
+    }
+  }
 }
 
 void TaskManager::TaskCallback(Task::Status status)
@@ -126,4 +128,22 @@ void TaskManager::TaskCallback(Task::Status status)
     StartNextWaiting();
     break;
   }
+}
+
+TaskManager::AddTaskCommand::AddTaskCommand(TaskPtr t, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  task_(t)
+{
+}
+
+void TaskManager::AddTaskCommand::redo()
+{
+  olive::task_manager.AddTask(task_);
+}
+
+void TaskManager::AddTaskCommand::undo()
+{
+  olive::task_manager.DeleteTask(task_.get());
+
+  task_->ResetState();
 }

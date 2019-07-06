@@ -50,6 +50,14 @@ bool ImportTask::Action()
 
   Import(urls_, parent_, command);
 
+  // If this task was cancelled, we won't bother pushing an undo command (we don't end up with anything undoable since
+  // the undo command executes the final import anyway)
+  if (cancelled()) {
+    delete command;
+
+    return true;
+  }
+
   olive::undo_stack.push(command);
 
   return true;
@@ -122,14 +130,15 @@ void ImportTask::Import(const QStringList &files, Folder *folder, QUndoCommand *
                                            parent_command);
 
       // Create ProbeTask to analyze this media
-      ProbeTask* pt = new ProbeTask(f);
+      TaskPtr pt = std::make_shared<ProbeTask>(f);
 
       // The task won't work unless it's in the main thread and we're definitely not
       // FIXME: Should Tasks check what thread they're in and move themselves to the main thread?
       pt->moveToThread(qApp->thread());
 
       // Queue task in task manager
-      olive::task_manager.AddTask(pt);
+      new TaskManager::AddTaskCommand(pt, parent_command);
+      //olive::task_manager.AddTask(pt);
 
     }
 

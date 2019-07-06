@@ -93,8 +93,34 @@ void Task::AddDependency(Task *dependency)
   dependencies_.append(dependency);
 }
 
+void Task::EmitRemovedSignal()
+{
+  emit Removed();
+}
+
+void Task::ResetState()
+{
+  if (status_ == kWaiting) {
+    return;
+  }
+
+  if (status_ == kWorking) {
+    Cancel();
+  }
+
+  cancelled_ = false;
+
+  set_error(QString());
+
+  set_status(kWaiting);
+}
+
 void Task::Cancel()
 {
+  if (status_ == kWaiting) {
+    set_status(kFinished);
+  }
+
   if (status_ != kWorking) {
     return;
   }

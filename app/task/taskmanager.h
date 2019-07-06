@@ -22,6 +22,7 @@
 #define TASKMANAGER_H
 
 #include <QVector>
+#include <QUndoCommand>
 
 #include "task/task.h"
 
@@ -84,12 +85,24 @@ public:
    *
    * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
    */
-  void AddTask(Task *t);
+  void AddTask(TaskPtr t);
 
   /**
-   * @brief Forcibly
+   * @brief Forcibly cancel all commands and clear them
    */
   void Clear();
+
+  class AddTaskCommand : public QUndoCommand {
+  public:
+    AddTaskCommand(TaskPtr t, QUndoCommand* parent = nullptr);
+
+    virtual void redo() override;
+
+    virtual void undo() override;
+
+  private:
+    TaskPtr task_;
+  };
 
 signals:
   /**
@@ -129,7 +142,7 @@ private:
   /**
    * @brief Internal task array
    */
-  QVector<Task*> tasks_;
+  QVector<TaskPtr> tasks_;
 
   /**
    * @brief Constant set at run-time of how many Tasks can run concurrently

@@ -75,7 +75,7 @@ void TaskViewItem::SetTask(Task *t)
   // Connect to the task
   connect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
   connect(task_, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
-  connect(task_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
+  connect(task_, SIGNAL(Removed()), this, SLOT(deleteLater()));
   connect(cancel_btn_, SIGNAL(clicked(bool)), task_, SLOT(Cancel()));
 }
 

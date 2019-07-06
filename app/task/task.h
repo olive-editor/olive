@@ -21,6 +21,7 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <memory>
 #include <QObject>
 
 #include "task/taskthread.h"
@@ -141,6 +142,16 @@ public:
    */
   void AddDependency(Task* dependency);
 
+  /**
+   * @brief Emit the Removed() signal when this Task is about to get removed
+   */
+  void EmitRemovedSignal();
+
+  /**
+   * @brief Reset this Task back to the waiting state
+   */
+  void ResetState();
+
 public slots:
   /**
    * @brief Cancel the Task
@@ -198,6 +209,11 @@ signals:
    */
   void Finished();
 
+  /**
+   * @brief Signal emitted when this Task is removed from TaskManager
+   */
+  void Removed();
+
 private:
   /**
    * @brief Set the status of this Task (also emits StatusChanged())
@@ -222,5 +238,7 @@ private slots:
    */
   void ThreadComplete();
 };
+
+using TaskPtr = std::shared_ptr<Task>;
 
 #endif // TASK_H

@@ -110,7 +110,7 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  olive::task_manager.AddTask(new ImportTask(model, parent, urls));
+  olive::task_manager.AddTask(std::make_shared<ImportTask>(model, parent, urls));
 }
 
 const olive::tool::Tool &Core::tool()
