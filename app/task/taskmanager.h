@@ -92,6 +92,9 @@ public:
    */
   void Clear();
 
+  /**
+   * @brief Undoable command for adding a Task to the TaskManager
+   */
   class AddTaskCommand : public QUndoCommand {
   public:
     AddTaskCommand(TaskPtr t, QUndoCommand* parent = nullptr);

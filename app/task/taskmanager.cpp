@@ -106,27 +106,14 @@ void TaskManager::DeleteTask(Task *t)
 
 void TaskManager::TaskCallback(Task::Status status)
 {
-  switch (status) {
-  case Task::kWaiting:
-    //qDebug() << sender() << "is waiting...";
-    break;
-  case Task::kWorking:
-    //qDebug() << sender() << "is working...";
-    break;
-  case Task::kFinished:
-    //qDebug() << sender() << "finished successfully.";
-
+  if (status == Task::kFinished || status == Task::kError) {
     // The Task has finished, we can start a new one
     StartNextWaiting();
 
-    DeleteTask(static_cast<Task*>(sender()));
-    break;
-  case Task::kError:
-    //qDebug() << sender() << "failed:" << static_cast<Task*>(sender())->error();
-
-    // The Task has finished, we can start a new one
-    StartNextWaiting();
-    break;
+    if (status == Task::kFinished) {
+      // The Task was successful, remove this Task from the queue
+      DeleteTask(static_cast<Task*>(sender()));
+    }
   }
 }
 

@@ -56,7 +56,7 @@ target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 target_compile_options(
   ${OLIVE_TARGET}
   PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Werror -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
+  $<$<CXX_COMPILER_ID:GNU>:-Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
 
 target_link_libraries(${OLIVE_TARGET}
   PRIVATE

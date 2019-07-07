@@ -23,6 +23,11 @@
 
 #include "project/item/item.h"
 
+/**
+ * @brief The Folder class representing a directory in a project structure
+ *
+ *
+ */
 class Folder : public Item
 {
 public:
