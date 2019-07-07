@@ -24,6 +24,9 @@
 #include "projectexplorerlistviewbase.h"
 #include "projectexplorericonviewitemdelegate.h"
 
+/**
+ * @brief The view widget used when ProjectExplorer is in Icon View
+ */
 class ProjectExplorerIconView : public ProjectExplorerListViewBase
 {
   Q_OBJECT

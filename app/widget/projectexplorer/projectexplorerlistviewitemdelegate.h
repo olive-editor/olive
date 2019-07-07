@@ -23,6 +23,9 @@
 
 #include <QStyledItemDelegate>
 
+/**
+ * @brief The delegate that's used to draw items when ProjectExplorer is in List view
+ */
 class ProjectExplorerListViewItemDelegate : public QStyledItemDelegate
 {
 public:
