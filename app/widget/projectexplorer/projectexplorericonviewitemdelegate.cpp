@@ -61,7 +61,13 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
     painter->setPen(text_fgcolor);
 
     QString duration_str = index.data(Qt::UserRole).toString();
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
     int timecode_width = fm.width(duration_str);
+#else
+    int timecode_width = fm.horizontalAdvance(duration_str);
+#endif
+
     int max_name_width = option.rect.width();
 
     if (timecode_width < option.rect.width() / 2) {
