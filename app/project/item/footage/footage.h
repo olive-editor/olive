@@ -29,6 +29,13 @@
 #include "project/item/footage/videostream.h"
 #include "rational.h"
 
+/**
+ * @brief A reference to an external media file with metadata in a project structure
+ *
+ * Footage objects serve two purposes: storing metadata about external media and storing it as a project item.
+ * Footage objects store a list of Stream objects which store the majority of video/audio metadata. These streams
+ * are identical to the stream data in the files.
+ */
 class Footage : public Item
 {
 public:

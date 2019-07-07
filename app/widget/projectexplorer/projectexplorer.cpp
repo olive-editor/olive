@@ -162,7 +162,7 @@ void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
     Item* i = static_cast<Item*>(index.internalPointer());
 
     // If the item is a folder, browse to it
-    if (i->type() == Item::kFolder
+    if (i->CanHaveChildren()
         && (view_type() == olive::ListView || view_type() == olive::IconView)) {
 
       BrowseToFolder(index);
@@ -261,10 +261,10 @@ Folder *ProjectExplorer::GetSelectedFolder()
     Item* sel_item = selected_items.at(i);
 
     // If this item is not a folder, presumably it's parent is
-    if (sel_item->type() != Item::kFolder) {
+    if (!sel_item->CanHaveChildren()) {
       sel_item = sel_item->parent();
 
-      Q_ASSERT(sel_item->type() == Item::kFolder);
+      Q_ASSERT(sel_item->CanHaveChildren());
     }
 
     if (folder == nullptr) {

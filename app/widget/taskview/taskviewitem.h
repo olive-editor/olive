@@ -28,12 +28,28 @@
 
 #include "task/task.h"
 
+/**
+ * @brief A widget that visually represents the status of a Task
+ *
+ * The TaskViewItem widget shows a description of the Task (Task::text(), a progress bar (updated by
+ * Task::ProgressChanged), the Task's status (text generated from Task::status() or Task::error()), and provides
+ * a cancel button (triggering Task::Cancel()) for cancelling a Task before it finishes.
+ *
+ * The main entry point is SetTask() after a Task and TaskViewItem objects are created.
+ */
 class TaskViewItem : public QFrame
 {
   Q_OBJECT
 public:
   TaskViewItem(QWidget* parent);
 
+  /**
+   * @brief Connects a Task to this object
+   *
+   * If a Task has already been connected, this will disconnect this TaskViewItem from the previously connected
+   * Task before connecting to the next one - however there are very few circumstances where this would be necessary
+   * since TaskViewItem is designed to delete itself when a Task is complete.
+   */
   void SetTask(Task* t);
 
 private:

@@ -27,9 +27,12 @@
 #include "project.h"
 
 /**
- * @brief The ProjectViewModel class
+ * @brief An adapter that interprets the data in a Project into a Qt item model for usage in ViewModel Views.
  *
- * An adapter that interprets the data in a Project into a Qt item model for usage in ViewModel Views.
+ * Assuming a Project is currently "open" (i.e. the Project is connected to a ProjectExplorer/ProjectPanel through
+ * a ProjectViewModel), it may be better to make modifications (e.g. additions/removals/renames) through the
+ * ProjectViewModel so that the views can be efficiently and correctly updated. ProjectViewModel contains several
+ * "wrapper" functions for Project and Item functions that also signal any connected views to update accordingly.
  */
 class ProjectViewModel : public QAbstractItemModel
 {

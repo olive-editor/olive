@@ -30,9 +30,9 @@
 #include "tool/tool.h"
 
 /**
- * @brief The Core class
+ * @brief The main central Olive application instance
  *
- * The main Olive application instance. This runs both in GUI and CLI modes (and handles what to init based on that).
+ * This runs both in GUI and CLI modes (and handles what to init based on that).
  * It also contains various global functions/variables for use throughout Olive.
  *
  * The "public slots" are usually user-triggered actions and can be connected to UI elements (e.g. creating a folder,

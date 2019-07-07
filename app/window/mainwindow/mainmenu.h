@@ -26,10 +26,9 @@
 #include "widget/menu/menu.h"
 
 /**
- * @brief The MainMenu class
+ * @brief Olive's main menubar attached to its main window.
  *
- * Olive's menubar attached to its main window. Responsible for creating the menu, connecting signals/slots, and
- * retranslating the items on a language change.
+ * Responsible for creating the menu, connecting signals/slots, and retranslating the items on a language change.
  */
 class MainMenu : public QMenuBar
 {

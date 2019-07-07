@@ -25,6 +25,9 @@
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
+/**
+ * @brief A PanelWidget wrapper around a ProjectExplorer and a ProjectToolbar
+ */
 class ProjectPanel : public PanelWidget
 {
   Q_OBJECT

@@ -29,9 +29,7 @@
 #include "widget/playbackcontrols/playbackcontrols.h"
 
 /**
- * @brief The ViewerWidget class
- *
- * An OpenGL-based viewer widget with playback controls.
+ * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
 class ViewerWidget : public QWidget
 {

@@ -24,9 +24,7 @@
 #include "widget/panel/panel.h"
 
 /**
- * @brief The ViewerPanel class
- *
- * Dockable wrapper around a ViewerWidget
+ * @brief Dockable wrapper around a ViewerWidget
  */
 class ViewerPanel : public PanelWidget {
   Q_OBJECT

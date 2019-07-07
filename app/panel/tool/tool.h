@@ -23,6 +23,9 @@
 
 #include "widget/panel/panel.h"
 
+/**
+ * @brief A PanelWidget wrapper around a Toolbar
+ */
 class ToolPanel : public PanelWidget
 {
   Q_OBJECT

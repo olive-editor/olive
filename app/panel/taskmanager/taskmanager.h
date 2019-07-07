@@ -24,6 +24,9 @@
 #include "widget/taskview/taskview.h"
 #include "widget/panel/panel.h"
 
+/**
+ * @brief A PanelWidget wrapper around a TaskView widget
+ */
 class TaskManagerPanel : public PanelWidget
 {
   Q_OBJECT

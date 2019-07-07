@@ -30,9 +30,7 @@ extern "C" {
 #include "rational.h"
 
 /**
- * @brief The Frame class
- *
- * Abstraction from AVFrame. Currently a simple AVFrame wrapper.
+ * @brief Abstraction from AVFrame. Currently a simple AVFrame wrapper.
  *
  * This class does not support copying at this time.
  */

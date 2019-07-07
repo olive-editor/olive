@@ -33,9 +33,7 @@ extern "C" {
 }
 
 /**
- * @brief The Rational class
- *
- * A rational (numerator/denominator) class with C++ operations built in for ease of use.
+ * @brief A rational (numerator/denominator) class with C++ operations built in for ease of use.
  *
  * Rationals in Olive most frequently represent timing information to easily handle timing in various different
  * frame/sample rates without the inaccuracy/rounding errors of a floating point type.

@@ -23,6 +23,9 @@
 
 #include <QStyledItemDelegate>
 
+/**
+ * @brief The delegate that's used to draw items when ProjectExplorer is in Icon view
+ */
 class ProjectExplorerIconViewItemDelegate : public QStyledItemDelegate {
 public:
   ProjectExplorerIconViewItemDelegate(QObject *parent = nullptr);

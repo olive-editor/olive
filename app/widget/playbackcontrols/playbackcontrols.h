@@ -24,18 +24,45 @@
 #include <QWidget>
 #include <QLabel>
 
+/**
+ * @brief A playback controls widget providing buttons for navigating media
+ *
+ * This widget optionally features timecode displays for the current timecode and end timecode.
+ */
 class PlaybackControls : public QWidget
 {
 public:
   PlaybackControls(QWidget* parent);
 
+  /**
+   * @brief Set whether the timecodes should be shown or not
+   */
   void SetTimecodeEnabled(bool enabled);
 
 signals:
+  /**
+   * @brief Signal emitted when "Go to Start" is clicked
+   */
   void BeginClicked();
+
+  /**
+   * @brief Signal emitted when "Previous Frame" is clicked
+   */
   void PrevFrameClicked();
+
+  /**
+   * @brief Signal emitted when "Play/Pause" is clicked
+   */
   void PlayClicked();
+
+  /**
+   * @brief Signal emitted when "Next Frame" is clicked
+   */
   void NextFrameClicked();
+
+  /**
+   * @brief Signal emitted when "Go to End" is clicked
+   */
   void EndClicked();
 
 private:

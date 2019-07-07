@@ -28,9 +28,9 @@
 #include "tool/tool.h"
 
 /**
- * @brief The Toolbar class
+ * @brief A widget containing buttons for all of Olive's application-wide tools.
  *
- * A widget containing buttons for all of Olive's application-wide tools. Buttons are displayed in a FlowLayout that
+ * Buttons are displayed in a FlowLayout that
  * adjusts and wraps (like text) depending on the widget's size.
  *
  * By default, this Toolbar is not connected to anything. It's recommended to connect SLOT(SetTool()) and

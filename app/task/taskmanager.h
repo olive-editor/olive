@@ -27,7 +27,7 @@
 #include "task/task.h"
 
 /**
- * @brief The TaskManager class
+ * @brief An object that manages background Task objects, handling their start and end
  *
  * TaskManager handles the life of a Task object. After a new Task is created, it should be sent to TaskManager through
  * AddTask(). TaskManager will take ownership of the task and add it to a queue until it system resources are available
@@ -99,8 +99,19 @@ public:
   public:
     AddTaskCommand(TaskPtr t, QUndoCommand* parent = nullptr);
 
+    /**
+     * @brief Adds the Task to the TaskManager
+     *
+     * If there are available threads, TaskManager will start running it.
+     */
     virtual void redo() override;
 
+    /**
+     * @brief Undoes adding the Task
+     *
+     * If the Task is running, it is cancelled. Then the Task is removed from the TaskManager and the Task's state is
+     * reset.
+     */
     virtual void undo() override;
 
   private:

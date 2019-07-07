@@ -25,9 +25,7 @@ namespace olive {
 namespace tool {
 
 /**
- * @brief The Tool enum
- *
- * A list of tools that can be used throughout the application
+ * @brief A list of tools that can be used throughout the application
  */
 enum Tool {
   /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of

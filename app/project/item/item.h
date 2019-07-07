@@ -29,6 +29,12 @@
 class Item;
 using ItemPtr = std::shared_ptr<Item>;
 
+/**
+ * @brief A base-class representing any element in a Project
+ *
+ * Project objects implement a parent-child hierarchy of Items that can be used throughout the Project. The Item class
+ * itself is abstract and will need to be subclassed to be used in a Project.
+ */
 class Item
 {
 public:
@@ -87,6 +93,8 @@ public:
   void set_icon(const QIcon& icon);
 
   Item *parent() const;
+
+  virtual bool CanHaveChildren() const;
 
 private:
   QList<ItemPtr> children_;

@@ -28,9 +28,7 @@
 namespace olive {
 
 /**
- * @brief The MainWindow class
- *
- * Olive's main window responsible for docking widgets and the main menu bar.
+ * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
 class MainWindow : public QMainWindow {
   Q_OBJECT

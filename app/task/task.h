@@ -27,9 +27,7 @@
 #include "task/taskthread.h"
 
 /**
- * @brief The Task class
- *
- * A base class for background tasks running in Olive.
+ * @brief A base class for background tasks running in Olive.
  *
  * Tasks are multithreaded by design (i.e. they will always spawn
  * a new thread and run in it).

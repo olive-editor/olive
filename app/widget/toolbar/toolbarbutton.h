@@ -26,9 +26,7 @@
 #include "tool/tool.h"
 
 /**
- * @brief The ToolbarButton class
- *
- * Simple derived class of QPushButton to contain an Tool ID. Used as the main widget through Toolbar.
+ * @brief Simple derived class of QPushButton to contain an Tool ID. Used as the main widget through Toolbar.
  */
 class ToolbarButton : public QPushButton
 {

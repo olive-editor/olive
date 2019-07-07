@@ -182,7 +182,7 @@ bool ProjectViewModel::hasChildren(const QModelIndex &parent) const
     // Check if this item is a kFolder type
     // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
     // even when there are no "physical" children
-    if (item->type() == Item::kFolder) {
+    if (item->CanHaveChildren()) {
       return true;
     }
   }
@@ -216,7 +216,7 @@ bool ProjectViewModel::canFetchMore(const QModelIndex &parent) const
     // Check if this item is a kFolder type
     // If it's a folder, we always return TRUE in order to always show the "expand triangle" icon,
     // even when there are no "physical" children
-    if (item->type() == Item::kFolder) {
+    if (item->CanHaveChildren()) {
       return true;
     }
   }
@@ -232,7 +232,11 @@ Qt::ItemFlags ProjectViewModel::flags(const QModelIndex &index) const
     return Qt::ItemIsDropEnabled;
   }
 
-  Qt::ItemFlags f = Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+  Qt::ItemFlags f = Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
+
+  if (GetItemObjectFromIndex(index)->CanHaveChildren()) {
+    f |= Qt::ItemIsDropEnabled;
+  }
 
   // If the column is the kName column, that means it's editable
   if (columns_.at(index.column()) == kName) {
@@ -308,7 +312,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     Item* drop_location = GetItemObjectFromIndex(drop);
 
     // If this is not a folder, we cannot drop these items here
-    if (drop_location->type() != Item::kFolder) {
+    if (!drop_location->CanHaveChildren()) {
       return false;
     }
 
@@ -365,7 +369,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     Item* drop_item = GetItemObjectFromIndex(drop);
 
     // If we didn't drop onto an item, find the nearest parent folder (should eventually terminate at root either way)
-    while (drop_item->type() != Item::kFolder) {
+    while (!drop_item->CanHaveChildren()) {
       drop_item = drop_item->parent();
     }
 

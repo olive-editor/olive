@@ -24,6 +24,9 @@
 #include "rational.h"
 #include "stream.h"
 
+/**
+ * @brief A Stream derivative containing video-specific information
+ */
 class VideoStream : public Stream
 {
 public:

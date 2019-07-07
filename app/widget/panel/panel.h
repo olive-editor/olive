@@ -25,9 +25,7 @@
 #include <QEvent>
 
 /**
- * @brief The PanelWidget class
- *
- * A widget that is always dockable within the MainWindow.
+ * @brief A widget that is always dockable within the MainWindow.
  */
 class PanelWidget : public QDockWidget {
   Q_OBJECT

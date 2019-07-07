@@ -26,9 +26,9 @@
 class Footage;
 
 /**
- * @brief The Stream class
+ * @brief A base class for keeping metadata about a media stream.
  *
- * A base class for keeping metadata about a media stream. A Stream can contain video data, audio data, subtitle data,
+ * A Stream can contain video data, audio data, subtitle data,
  * etc. and a Stream object stores metadata about it.
  *
  * The Stream class is fairly simple and is intended to be subclassed for data that pertains specifically to one

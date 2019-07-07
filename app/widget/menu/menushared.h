@@ -23,6 +23,9 @@
 
 #include "widget/menu/menu.h"
 
+/**
+ * @brief A static object that provides various "stock" menus for use throughout the application
+ */
 class MenuShared : public QObject {
 public:
   MenuShared();

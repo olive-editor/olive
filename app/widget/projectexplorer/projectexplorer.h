@@ -34,9 +34,7 @@
 #include "widget/projectexplorer/projectexplorernavigation.h"
 
 /**
- * @brief A widget for browsing through Project classes
- *
- * A widget for browsing through a Project structure.
+ * @brief A widget for browsing through a Project structure.
  *
  * ProjectExplorer automatically handles the view<->model system using a ProjectViewModel. Therefore, all that needs to
  * be provided is the Project structure itself.

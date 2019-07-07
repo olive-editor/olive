@@ -115,3 +115,8 @@ Item *Item::parent() const
 {
   return parent_;
 }
+
+bool Item::CanHaveChildren() const
+{
+  return false;
+}

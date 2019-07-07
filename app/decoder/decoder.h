@@ -29,9 +29,9 @@
 #include "decoder/frame.h"
 
 /**
- * @brief The Decoder class
+ * @brief A decoder's is the main class for bringing external media into Olive
  *
- * A decoder's is the main class for bringing external media into Olive. Its responsibilities are to serve as
+ * Its responsibilities are to serve as
  * abstraction from codecs/decoders and provide complete frames. These frames can be video or audio data and are
  * provided as Frame objects in shared pointers to alleviate the responsibility of memory handling.
  *

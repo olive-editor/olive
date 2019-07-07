@@ -28,6 +28,9 @@ extern "C" {
 #include "rational.h"
 #include "stream.h"
 
+/**
+ * @brief A Stream derivative containing audio-specific information
+ */
 class AudioStream : public Stream
 {
 public:

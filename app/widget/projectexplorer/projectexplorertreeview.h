@@ -24,7 +24,7 @@
 #include <QTreeView>
 
 /**
- * @brief The ProjectExplorerTreeView class
+ * @brief The view widget used when ProjectExplorer is in Tree View
  *
  * A fairly simple subclass of QTreeView that provides a double clicked signal whether the index is valid or not
  * (QAbstractItemView has a doubleClicked() signal but it's only emitted with a valid index).

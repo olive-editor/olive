@@ -27,12 +27,13 @@
 #include "project/item/folder/folder.h"
 
 /**
- * @brief The Project class
+ * @brief A project instance containing all the data pertaining to the user's project
  *
- * A project instance containing all the data pertaining to the user's project, including:
+ * A project instance uses a parent-child hierarchy of Item objects. Projects will usually contain the following:
  *
  * * Footage
  * * Sequences
+ * * Folders
  * * Project Settings
  * * Window Layout
  */

@@ -26,10 +26,10 @@
 #include "render/gl/shaderptr.h"
 
 /**
- * @brief The ViewerGLWidget class
+ * @brief The inner display/rendering widget of a Viewer class.
  *
- * The inner display/rendering widget of a Viewer class. Actual rendering/composition occurs elsewhere offscreen and
- * multithreaded, so its main purpose is receiving an OpenGL texture to display it.
+ * Actual composition occurs elsewhere offscreen and
+ * multithreaded, so its main purpose is receiving a finalized OpenGL texture and displaying it.
  *
  * The main entry point is SetTexture() which will receive an OpenGL texture ID, store it, and then call update() to
  * draw it on screen. The drawing function is in paintGL() (called during the update() process by Qt) and is fairly

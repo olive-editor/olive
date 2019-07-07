@@ -31,3 +31,8 @@ Item::Type Folder::type() const
 {
   return kFolder;
 }
+
+bool Folder::CanHaveChildren() const
+{
+  return true;
+}

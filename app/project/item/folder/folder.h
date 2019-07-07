@@ -26,7 +26,8 @@
 /**
  * @brief The Folder class representing a directory in a project structure
  *
- *
+ * The Item base class already has support for children, but this functionality is disabled by default
+ * (see CanHaveChildren() override). The Folder is a specific type that enables this functionality.
  */
 class Folder : public Item
 {
@@ -34,6 +35,8 @@ public:
   Folder();
 
   virtual Type type() const override;
+
+  virtual bool CanHaveChildren() const override;
 
 private:
 

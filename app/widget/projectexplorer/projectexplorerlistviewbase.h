@@ -23,6 +23,10 @@
 
 #include <QListView>
 
+/**
+ * @brief A QListView derivative that contains functionality used by both List view and Icon view (which are both based
+ * on QListView)
+ */
 class ProjectExplorerListViewBase : public QListView
 {
   Q_OBJECT
