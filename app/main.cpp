@@ -18,6 +18,14 @@
 
 ***/
 
+/** \mainpage Olive Video Editor - Code Documentation
+ *
+ * This documentation is a primarily a developer resource. For information on using Olive, visit the website
+ * https://www.olivevideoeditor.org/
+ *
+ * Use the navigation above to find documentation on classes or source files.
+ */
+
 #include <QApplication>
 #include <QSurfaceFormat>
 
