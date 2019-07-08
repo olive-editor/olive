@@ -24,6 +24,7 @@
 #include <memory>
 #include <QIcon>
 #include <QList>
+#include <QMutex>
 #include <QString>
 
 class Item;
@@ -96,6 +97,9 @@ public:
 
   virtual bool CanHaveChildren() const;
 
+  void Lock();
+  void Unlock();
+
 private:
   QList<ItemPtr> children_;
 
@@ -106,6 +110,8 @@ private:
   QIcon icon_;
 
   QString tooltip_;
+
+  QMutex mutex_;
 
 };
 

@@ -34,7 +34,11 @@ ProbeTask::ProbeTask(FootagePtr footage) :
 
 bool ProbeTask::Action()
 {
+  footage_->Lock();
+
   olive::ProbeMedia(footage_.get());
+
+  footage_->Unlock();
 
   return true;
 }

@@ -120,3 +120,13 @@ bool Item::CanHaveChildren() const
 {
   return false;
 }
+
+void Item::Lock()
+{
+  mutex_.lock();
+}
+
+void Item::Unlock()
+{
+  mutex_.unlock();
+}
