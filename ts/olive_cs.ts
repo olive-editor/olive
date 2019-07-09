@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Olive Team is obliged to inform users that Olive source code is available for download from its website.</source>
-        <translation>Družstvo Olive dává na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
+        <translation>Družstvo Olive se dává na vědomí, že zdrojové kódy Olive jsou dostupné pro stažení na internetové stránce projektu.</translation>
     </message>
 </context>
 <context>
@@ -55,35 +55,43 @@
         <source>Amount</source>
         <translation>Množství</translation>
     </message>
+    <message>
+        <source>Noise</source>
+        <translation>Šum</translation>
+    </message>
+    <message>
+        <source>Generate audio noise that can be mixed with this clip.</source>
+        <translation>Vytvořit zvukový šum, který může být smíchán s tímto záběrem.</translation>
+    </message>
 </context>
 <context>
     <name>AutoCutSilenceDialog</name>
     <message>
         <source>Cut Silence</source>
-        <translation>Vyříznout ticho</translation>
+        <translation>Ořezat ticho</translation>
     </message>
     <message>
         <source>Attack Threshold:</source>
-        <translation type="unfinished"></translation>
+        <translation>Práh náběhu:</translation>
     </message>
     <message>
         <source>Attack Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Čas náběhu:</translation>
     </message>
     <message>
         <source>Release Threshold:</source>
-        <translation type="unfinished"></translation>
+        <translation>Práh uvolnění:</translation>
     </message>
     <message>
         <source>Release Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Čas uvolnění:</translation>
     </message>
 </context>
 <context>
     <name>Cacher</name>
     <message>
         <source>Could not open %1 - %2</source>
-        <translation>Nebylo možné otevřít %1 - %2</translation>
+        <translation>Nepodařilo se otevřít %1 - %2</translation>
     </message>
 </context>
 <context>
@@ -105,19 +113,19 @@
     <name>ClipPropertiesDialog</name>
     <message>
         <source>&quot;%1&quot; Properties</source>
-        <translation type="unfinished">&quot;%1&quot; Vlastnosti</translation>
+        <translation>&quot;%1&quot; Vlastnosti</translation>
     </message>
     <message>
         <source>Multiple Clip Properties</source>
-        <translation type="unfinished">Vlastnosti více klipů</translation>
+        <translation>Vlastnosti více záběrů</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Název:</translation>
+        <translation>Název:</translation>
     </message>
     <message>
         <source>Duration:</source>
-        <translation type="unfinished">Doba trvání:</translation>
+        <translation>Doba trvání:</translation>
     </message>
     <message>
         <source>(multiple)</source>
@@ -128,7 +136,7 @@
     <name>CollapsibleWidget</name>
     <message>
         <source>&lt;untitled&gt;</source>
-        <translation>&lt;bez názvu&gt;</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -160,6 +168,40 @@
         <source>Bottom Right</source>
         <translation>Dole vpravo</translation>
     </message>
+    <message>
+        <source>Corner Pin</source>
+        <translation>Rohový špendlík</translation>
+    </message>
+    <message>
+        <source>Distort</source>
+        <translation>Zprohýbat</translation>
+    </message>
+    <message>
+        <source>Distort/warp this clip by pinning each of its four corners.</source>
+        <translation>Pokřivit/Zkroutit tento záběr přišpendlením každého z jeho čtyř rohů.</translation>
+    </message>
+</context>
+<context>
+    <name>CrashDialog</name>
+    <message>
+        <source>We&apos;re very sorry, Olive has crashed. Please send the following data to developers:</source>
+        <translation>Je nám to velice líto. Olive spadl. Následující údaje, prosím, zašlete vývojářům:</translation>
+    </message>
+</context>
+<context>
+    <name>CrossDissolveTransition</name>
+    <message>
+        <source>Cross Dissolve</source>
+        <translation>Prolínat obraz křížem</translation>
+    </message>
+    <message>
+        <source>Dissolves</source>
+        <translation>Prolínání obrazu</translation>
+    </message>
+    <message>
+        <source>Dissolve clips evenly.</source>
+        <translation>Prolínat záběry rovnoměrně.</translation>
+    </message>
 </context>
 <context>
     <name>DebugDialog</name>
@@ -176,15 +218,15 @@
     </message>
     <message>
         <source>This software is currently in ALPHA which means it is unstable and very likely to crash, have bugs, and have missing features. We offer no warranty so use at your own risk. Please report any bugs or feature requests at %1</source>
-        <translation>Tento program je v současnosti v Alfa verzi, což znamená, že je nestabilní a velice pravděpodobně náchylný k pádům, má chyby a chybí mu funkce. Není poskytována žádná záruka, takže jej používejte na vlastní nebezpečí. Hlašte, prosím, jakékoli chyby nebo žádosti o funkce na %1</translation>
+        <translation>Tento program je v současnosti v Alfa verzi, což znamená, že je nestálý a velice pravděpodobně náchylný k pádům, má chyby a chybí mu funkce. Není poskytována žádná záruka, takže jej používejte na vlastní nebezpečí. Hlašte, prosím, jakékoli chyby nebo žádosti o funkce na %1</translation>
     </message>
     <message>
         <source>Thank you for trying Olive and we hope you enjoy it!</source>
-        <translation>Děkujeme vám za vyzkoušení Olive. Přejeme si, aby vám dělal radost!</translation>
+        <translation>Děkujeme vám za zkoušení Olive. Přejeme si, aby vám dělal radost!</translation>
     </message>
     <message>
         <source>Olive is a free open-source video editor released under the GNU GPL. If you have paid for this software, you have been scammed.</source>
-        <translation>Olive je editor obrazového záznamu s otevřeným zdrojovým kódem vydaný pod licencí GNU GPL. Pokud jste za tento program zaplatili, byli jste podvedeni</translation>
+        <translation>Olive je editor obrazového záznamu s otevřeným zdrojovým kódem vydaný pod GNU GPL.</translation>
     </message>
 </context>
 <context>
@@ -199,11 +241,11 @@
     </message>
     <message>
         <source>No candidate for effect &apos;%1&apos;. This effect may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Žádný uchazeč pro efekt &apos;%1&apos;. Tento efekt může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
+        <translation type="vanished">Žádný uchazeč pro efekt &apos;%1&apos;. Tento přechod může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
     </message>
     <message>
         <source>Invalid effect</source>
-        <translation>Neplatný efekt</translation>
+        <translation type="vanished">Neplatný efekt</translation>
     </message>
     <message>
         <source>Load Settings From File</source>
@@ -211,7 +253,7 @@
     </message>
     <message>
         <source>Load Effect Settings</source>
-        <translation>Nahrát nastavení efektu</translation>
+        <translation type="vanished">Nahrát nastavení efektu</translation>
     </message>
     <message>
         <source>Move &amp;Up</source>
@@ -227,27 +269,27 @@
     </message>
     <message>
         <source>Save Settings Failed</source>
-        <translation>Nastavení se nepodařilo uložit</translation>
+        <translation type="vanished">Nastavení se nepodařilo uložit</translation>
     </message>
     <message>
         <source>Save Effect Settings</source>
-        <translation>Uložit nastavení efektu</translation>
+        <translation type="vanished">Uložit nastavení efektu</translation>
     </message>
     <message>
         <source>Load Settings Failed</source>
-        <translation>Nastavení se nepodařilo načíst</translation>
+        <translation type="vanished">Nastavení se nepodařilo nahrát</translation>
     </message>
     <message>
         <source>This settings file doesn&apos;t match this effect.</source>
-        <translation>Tento soubor s nastavením neodpovídá tomuto efektu.</translation>
+        <translation type="vanished">Tento soubor s nastavením neodpovídá tomuto efektu.</translation>
     </message>
     <message>
         <source>Effect XML Settings %1</source>
-        <translation>Nastavení XML efektu %1</translation>
+        <translation type="vanished">Nastavení XML efektu %1</translation>
     </message>
     <message>
         <source>Failed to open &quot;%1&quot; for reading.</source>
-        <translation>Nepodařilo se otevřít &quot;%1&quot; pro čtení.</translation>
+        <translation type="vanished">Nepodařilo se otevřít &quot;%1&quot; pro čtení.</translation>
     </message>
     <message>
         <source>Save Settings to File</source>
@@ -255,7 +297,7 @@
     </message>
     <message>
         <source>Failed to open &quot;%1&quot; for writing.</source>
-        <translation>Nepodařilo se otevřít &quot;%1&quot; pro zápis.</translation>
+        <translation type="vanished">Nepodařilo se otevřít &quot;%1&quot; pro zápis.</translation>
     </message>
 </context>
 <context>
@@ -305,54 +347,54 @@
     <name>EffectRow</name>
     <message>
         <source>Disable Keyframes</source>
-        <translation>Zakázat klíčové snímky</translation>
+        <translation type="vanished">Zakázat klíčové snímky</translation>
     </message>
     <message>
         <source>Disabling keyframes will delete all current keyframes. Are you sure you want to do this?</source>
-        <translation>Zákázání klíčových snímků smaže všechny nynější klíčové snímky. Opravdu to chcete udělat?</translation>
+        <translation type="vanished">Zákázání klíčových snímků smaže všechny nynější klíčové snímky. Opravdu to chcete udělat?</translation>
     </message>
 </context>
 <context>
     <name>EffectUI</name>
     <message>
         <source>%1 (Opening)</source>
-        <translation type="unfinished">(Otevírám)</translation>
+        <translation>%1 (otevření)</translation>
     </message>
     <message>
         <source>%1 (Closing)</source>
-        <translation type="unfinished">(Zavírám)</translation>
+        <translation>%1 (zavření)</translation>
     </message>
     <message>
         <source>%1 (multiple)</source>
-        <translation type="unfinished">%1 (násobek)</translation>
+        <translation>%1 (více)</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">Vyjmou&amp;t</translation>
+        <translation>Vyjmou&amp;t</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopírovat</translation>
+        <translation>&amp;Kopírovat</translation>
     </message>
     <message>
         <source>Move &amp;Up</source>
-        <translation type="unfinished">Posunout &amp;nahoru</translation>
+        <translation>Posunout &amp;nahoru</translation>
     </message>
     <message>
         <source>Move &amp;Down</source>
-        <translation type="unfinished">Posunout &amp;dolů</translation>
+        <translation>Posunout &amp;dolů</translation>
     </message>
     <message>
         <source>D&amp;elete</source>
-        <translation type="unfinished">S&amp;mazat</translation>
+        <translation>S&amp;mazat</translation>
     </message>
     <message>
         <source>Load Settings From File</source>
-        <translation type="unfinished">Nahrát nastavení ze souboru</translation>
+        <translation>Nahrát nastavení ze souboru</translation>
     </message>
     <message>
         <source>Save Settings to File</source>
-        <translation type="unfinished">Uložit nastavení do souboru</translation>
+        <translation>Uložit nastavení do souboru</translation>
     </message>
 </context>
 <context>
@@ -360,6 +402,17 @@
     <message>
         <source>File:</source>
         <translation>Soubor:</translation>
+    </message>
+</context>
+<context>
+    <name>ExponentialFadeTransition</name>
+    <message>
+        <source>Exponential Fade</source>
+        <translation>Exponenciální prolínání</translation>
+    </message>
+    <message>
+        <source>An exponential audio fade that starts slow and ends fast.</source>
+        <translation>Exponenciální prolínání zvuku, které začíná pomalu a končí rychle.</translation>
     </message>
 </context>
 <context>
@@ -382,7 +435,7 @@
     </message>
     <message>
         <source>Export Media</source>
-        <translation>Exportovat záznam</translation>
+        <translation>Vyvést záznam</translation>
     </message>
     <message>
         <source>Invalid format</source>
@@ -432,7 +485,7 @@
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímková rychlost:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Entire Sequence</source>
@@ -444,7 +497,7 @@
     </message>
     <message>
         <source>Export Failed</source>
-        <translation>Nepodařilo se exportovat</translation>
+        <translation>Nepodařilo se vyvést</translation>
     </message>
     <message>
         <source>Unknown codec name %1</source>
@@ -464,11 +517,11 @@
     </message>
     <message>
         <source>Export &quot;%1&quot;</source>
-        <translation>Exportovat &quot;%1&quot;</translation>
+        <translation>Vyvést &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Export width and height must both be even numbers/divisible by 2.</source>
-        <translation>Šířka a výška pro export musí být sudá čísla (dělitelná 2).</translation>
+        <translation>Šířka a výška pro vyvedení musí být sudá čísla dělitelná 2.</translation>
     </message>
     <message>
         <source>Quality (CRF):</source>
@@ -480,7 +533,7 @@
     </message>
     <message>
         <source>Export failed - %1</source>
-        <translation>Export se nezdařil - %1</translation>
+        <translation>Nepodařilo se vyvést - %1</translation>
     </message>
     <message>
         <source>Couldn&apos;t determine output parameters for the selected codec. This is a bug, please contact the developers.</source>
@@ -492,15 +545,15 @@
     </message>
     <message>
         <source>Bitrate (Kbps/CBR):</source>
-        <translation>Datový tok (KB/s / stálý datový tok):</translation>
+        <translation>Datový tok (KB/s/stálý datový tok):</translation>
     </message>
     <message>
         <source>Failed to find a suitable encoder for this codec. Export will likely fail.</source>
-        <translation>Nepodařilo se najít vhodný kodér pro tento kodek. Export pravděpodobně selže.</translation>
+        <translation>Nepodařilo se najít vhodný kodér pro tento kodek. Vyvedení pravděpodobně selže.</translation>
     </message>
     <message>
         <source>Failed to find pixel format for this encoder. Export will likely fail.</source>
-        <translation>Nepodařilo se najít formát pixelu pro tento kodér. Export pravděpodobně selže.</translation>
+        <translation>Nepodařilo se najít formát pixelu pro tento kodér. Vyvedení pravděpodobně selže.</translation>
     </message>
     <message>
         <source>Format:</source>
@@ -512,11 +565,11 @@
     </message>
     <message>
         <source>%p% (Total: %1:%2:%3)</source>
-        <translation type="unfinished">%p% (Celkem: %1:%2:%3)</translation>
+        <translation>%p% (Celkem: %1:%2:%3)</translation>
     </message>
     <message>
         <source>%p% (ETA: %1:%2:%3)</source>
-        <translation type="unfinished">%p% (Odhadovaný zbývající čas: %1:%2:%3)</translation>
+        <translation>%p% (odhadovaný čas dokončení: %1:%2:%3)</translation>
     </message>
 </context>
 <context>
@@ -535,7 +588,7 @@
     </message>
     <message>
         <source>could not copy audio encoder parameters to output stream (%1)</source>
-        <translation>Nepodařilo se zkopírovat parametry kodéru zvuku do výstupního proudu (%1)</translation>
+        <translation>Nepodařilo se kopírovat parametry kodéru zvuku do výstupního proudu (%1)</translation>
     </message>
     <message>
         <source>could not allocate audio encoding context</source>
@@ -543,11 +596,11 @@
     </message>
     <message>
         <source>could not copy video encoder parameters to output stream (%1)</source>
-        <translation>Nepodařilo se zkopírovat parametry kodéru obrazu do výstupního proudu (%1)</translation>
+        <translation>Nepodařilo se kopírovat parametry kodéru obrazu do výstupního proudu (%1)</translation>
     </message>
     <message>
         <source>failed to send frame to encoder (%1)</source>
-        <translation>Chyba při poslání snímku do kodéru (%1)</translation>
+        <translation>Chyba při poslání snímku kodéru (%1)</translation>
     </message>
     <message>
         <source>could not open output audio encoder (%1)</source>
@@ -591,6 +644,21 @@
     </message>
 </context>
 <context>
+    <name>FFmpegDecoder</name>
+    <message>
+        <source>Failed to find appropriate decoder for this codec (%1 :: %2)</source>
+        <translation>Nepodařilo se najít vhodný dekodér pro tento kodek (%1 :: %2)</translation>
+    </message>
+    <message>
+        <source>Failed to allocate codec context (%1 :: %2)</source>
+        <translation>Nepodařilo se přiřadit kontext kódeku (%1 :: %2)</translation>
+    </message>
+    <message>
+        <source>Error decoding %1 - %2 %3</source>
+        <translation>Chyba při dekódování %1 - %2 %3</translation>
+    </message>
+</context>
+<context>
     <name>FillLeftRightEffect</name>
     <message>
         <source>Type</source>
@@ -604,6 +672,14 @@
         <source>Fill Right with Left</source>
         <translation>Vyplnit pravý levým</translation>
     </message>
+    <message>
+        <source>Fill Left/Right</source>
+        <translation>Vyplnit levý/pravý</translation>
+    </message>
+    <message>
+        <source>Replaces either the left or right channel with the other</source>
+        <translation>Nahradí buď levý nebo pravý kanál druhým</translation>
+    </message>
 </context>
 <context>
     <name>Frei0rEffect</name>
@@ -613,7 +689,7 @@
     </message>
     <message>
         <source>Error loading Frei0r plugin</source>
-        <translation>Chyba při načítání přídavného modulu Frei0r</translation>
+        <translation>Chyba při nahrávání přídavného modulu Frei0r</translation>
     </message>
     <message>
         <source>NOTE: You can&apos;t load 64-bit Frei0r plugins into a 32-bit build of Olive. Please find a 32-bit version of this plugin or switch to a 64-bit build of Olive.</source>
@@ -666,7 +742,7 @@
     </message>
     <message>
         <source>Top Field First</source>
-        <translation>Nejprve horní pole</translation>
+        <translation type="vanished">Nejprve horní pole</translation>
     </message>
     <message>
         <source>None (Progressive)</source>
@@ -674,6 +750,14 @@
     </message>
     <message>
         <source>Bottom Field First</source>
+        <translation type="vanished">Nejprve dolní pole</translation>
+    </message>
+    <message>
+        <source>Upper Field First</source>
+        <translation>Nejprve horní pole</translation>
+    </message>
+    <message>
+        <source>Lower Field First</source>
         <translation>Nejprve dolní pole</translation>
     </message>
 </context>
@@ -711,11 +795,22 @@
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">Úp&amp;ravy</translation>
+        <translation>Úp&amp;ravy</translation>
     </message>
     <message>
         <source>&amp;Reset to Default</source>
-        <translation>Obnovit výchozí hodnoty</translation>
+        <translation>&amp;Obnovit výchozí</translation>
+    </message>
+</context>
+<context>
+    <name>LinearFadeTransition</name>
+    <message>
+        <source>Linear Fade</source>
+        <translation>Lineární prolínání</translation>
+    </message>
+    <message>
+        <source>An linear audio fade that fades evenly at a constant rate.</source>
+        <translation>Lineární prolínání zvuku, které rovnoměrně při stálé rychlosti.</translation>
     </message>
 </context>
 <context>
@@ -726,18 +821,18 @@
     </message>
     <message>
         <source>Loading...</source>
-        <translation>Načítání...</translation>
+        <translation>Nahrává se...</translation>
     </message>
     <message>
         <source>Loading &apos;%1&apos;...</source>
-        <translation>Načítá se &apos;%1&apos;...</translation>
+        <translation>Nahrává se &apos;%1&apos;...</translation>
     </message>
 </context>
 <context>
     <name>LoadThread</name>
     <message>
         <source>Invalid Clip Link</source>
-        <translation>Neplatný odkaz na záběr</translation>
+        <translation type="vanished">Neplatný odkaz na záběr</translation>
     </message>
     <message>
         <source>%1 - Line: %2 Col: %3</source>
@@ -745,11 +840,11 @@
     </message>
     <message>
         <source>This project contains an invalid clip link. It may be corrupt. Would you like to continue loading it?</source>
-        <translation>Tento projekt obsahuje neplatný odkaz na záběr. Může být poškozen. Chcete pokračovat v jeho načítání?</translation>
+        <translation type="vanished">Tento projekt obsahuje neplatný odkaz na záběr. Tento může být poškozen. Chcete pokračovat v jeho nahrávání?</translation>
     </message>
     <message>
         <source>Project Load Error</source>
-        <translation>Chyba při načítání projektu</translation>
+        <translation>Chyba při nahrávání projektu</translation>
     </message>
     <message>
         <source>Couldn&apos;t load &apos;%1&apos;. %2</source>
@@ -761,19 +856,30 @@
     </message>
     <message>
         <source>This project was saved in a different version of Olive and may not be fully compatible with this version. Would you like to attempt loading it anyway?</source>
-        <translation>Tento projekt byl uložen v jiné verzi Olive a nemusí být plně slučitelný s touto verzí. Přesto se jej chcete pokusit načíst?</translation>
+        <translation>Tento projekt byl uložen v jiné verzi Olive a nemusí být plně slučitelný s touto verzí. Přesto se jej chcete pokusit nahrát?</translation>
     </message>
     <message>
         <source>Error loading project: %1</source>
-        <translation>Chyba při načítání projektu: %1</translation>
+        <translation>Chyba při nahrávání projektu: %1</translation>
     </message>
     <message>
         <source>User aborted loading</source>
-        <translation>Uživatel přerušil načítání</translation>
+        <translation>Uživatelem přerušené nahrávání</translation>
     </message>
     <message>
         <source>XML Parsing Error</source>
         <translation>Chyba při zpracování XML</translation>
+    </message>
+</context>
+<context>
+    <name>LogarithmicFadeTransition</name>
+    <message>
+        <source>Logarithmic Fade</source>
+        <translation>Logaritmické prolínání</translation>
+    </message>
+    <message>
+        <source>An logarithmic audio fade that starts fast and ends slow.</source>
+        <translation>Logaritmické prolínání zvuku, které začíná rychle a končí pomalu.</translation>
     </message>
 </context>
 <context>
@@ -1140,7 +1246,7 @@
     </message>
     <message>
         <source>Track Lines</source>
-        <translation>Sledovat řádky</translation>
+        <translation type="vanished">Řádky stop</translation>
     </message>
     <message>
         <source>Sequence Viewer</source>
@@ -1184,7 +1290,19 @@
     </message>
     <message>
         <source>Auto-Cut Silence</source>
-        <translation type="unfinished">Automaticky vyříznout ticho</translation>
+        <translation>Ořezat ticho automaticky</translation>
+    </message>
+    <message>
+        <source>OpenColorIO Config Error</source>
+        <translation>Chyba nastavení OpenColorIO</translation>
+    </message>
+    <message>
+        <source>Failed to set OpenColorIO configuration: %1</source>
+        <translation>Nepodařilo se nastavit nastavení OpenColorIO: %1</translation>
+    </message>
+    <message>
+        <source>Node Editor</source>
+        <translation>Editor uzlu</translation>
     </message>
 </context>
 <context>
@@ -1230,7 +1348,7 @@
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímková rychlost:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
@@ -1260,7 +1378,7 @@ Audio Frequency: %5
 Audio Layout: %6</source>
         <translation>Název: %1
 Rozměry obrazu: %2x%3
-Snímková rychlost: %4
+Snímkování: %4
 Kmitočet zvuku: %5
 Rozložení zvuku: %6</translation>
     </message>
@@ -1301,15 +1419,19 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Auto (%1)</source>
-        <translation>Automaticky (%1)</translation>
+        <translation>Auto (%1)</translation>
     </message>
     <message>
         <source>Conform to Frame Rate:</source>
-        <translation>Odpovídá snímkové frekvenci:</translation>
+        <translation>Odpovídá snímkování:</translation>
     </message>
     <message>
         <source>Tracks:</source>
         <translation>Stopy:</translation>
+    </message>
+    <message>
+        <source>Color Space:</source>
+        <translation>Barevný prostor:</translation>
     </message>
 </context>
 <context>
@@ -1435,7 +1557,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Editing &quot;%1&quot;</source>
-        <translation>Upravuji &quot;%1&quot;</translation>
+        <translation>Upravení &quot;%1&quot;</translation>
     </message>
     <message>
         <source>1080p</source>
@@ -1479,7 +1601,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímková frekvence:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Interlacing:</source>
@@ -1515,6 +1637,121 @@ Rozložení zvuku: %6</translation>
     </message>
 </context>
 <context>
+    <name>Node</name>
+    <message>
+        <source>Node</source>
+        <translation>Uzel</translation>
+    </message>
+</context>
+<context>
+    <name>NodeBlock</name>
+    <message>
+        <source>Previous</source>
+        <translation>Předchozí</translation>
+    </message>
+    <message>
+        <source>Next</source>
+        <translation>Další</translation>
+    </message>
+    <message>
+        <source>Block</source>
+        <translation>Blok</translation>
+    </message>
+</context>
+<context>
+    <name>NodeEditor</name>
+    <message>
+        <source>Node Editor</source>
+        <translation>Editor uzlu</translation>
+    </message>
+</context>
+<context>
+    <name>NodeIO</name>
+    <message>
+        <source>Disable Keyframes</source>
+        <translation>Zakázat klíčové snímky</translation>
+    </message>
+    <message>
+        <source>Disabling keyframes will delete all current keyframes. Are you sure you want to do this?</source>
+        <translation>Zákázání klíčových snímků smaže všechny nynější klíčové snímky. Opravdu to chcete udělat?</translation>
+    </message>
+</context>
+<context>
+    <name>NodeMedia</name>
+    <message>
+        <source>Matrix</source>
+        <translation>Matice</translation>
+    </message>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Media</source>
+        <translation>Záznam</translation>
+    </message>
+</context>
+<context>
+    <name>NodeTexturePassthru</name>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+    <message>
+        <source>Image Output</source>
+        <translation>Výstup obrázku</translation>
+    </message>
+</context>
+<context>
+    <name>NodeVideoClip</name>
+    <message>
+        <source>Texture</source>
+        <translation>Povrch</translation>
+    </message>
+</context>
+<context>
+    <name>NodeView</name>
+    <message>
+        <source>Node Editor</source>
+        <translation>Editor uzlu</translation>
+    </message>
+</context>
+<context>
+    <name>OldEffectNode</name>
+    <message>
+        <source>Save Effect Settings</source>
+        <translation>Uložit nastavení efektu</translation>
+    </message>
+    <message>
+        <source>Effect XML Settings %1</source>
+        <translation>Nastavení XML efektu %1</translation>
+    </message>
+    <message>
+        <source>Save Settings Failed</source>
+        <translation>Nastavení se nepodařilo uložit</translation>
+    </message>
+    <message>
+        <source>Failed to open &quot;%1&quot; for writing.</source>
+        <translation>Nepodařilo se otevřít &quot;%1&quot; pro zápis.</translation>
+    </message>
+    <message>
+        <source>Load Effect Settings</source>
+        <translation>Nahrát nastavení efektu</translation>
+    </message>
+    <message>
+        <source>Load Settings Failed</source>
+        <translation>Nastavení se nepodařilo nahrát</translation>
+    </message>
+    <message>
+        <source>Failed to open &quot;%1&quot; for reading.</source>
+        <translation>Nepodařilo se otevřít &quot;%1&quot; pro čtení.</translation>
+    </message>
+    <message>
+        <source>This settings file doesn&apos;t match this effect.</source>
+        <translation>Tento soubor s nastavením neodpovídá tomuto efektu.</translation>
+    </message>
+</context>
+<context>
     <name>OliveGlobal</name>
     <message>
         <source>Auto-recovery</source>
@@ -1526,7 +1763,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Olive didn&apos;t close properly and an autorecovery file was detected. Would you like to open it?</source>
-        <translation>Olive nebyl řádně zavřen a byl zjištěn soubor pro automatické obnovení. Chcete jej otevřít?</translation>
+        <translation>Olive nebyl zavřen řádně a byl zjištěn soubor pro automatické obnovení. Chcete jej otevřít?</translation>
     </message>
     <message>
         <source>Missing recent project</source>
@@ -1570,15 +1807,47 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>Please open the sequence to perform this action.</source>
-        <translation type="unfinished">Prosím otevřete úryvek (sled záběrů), abyste mohli udělat tuto akci.</translation>
+        <translation>Otevřete, prosím, úryvek (sled záběrů), pro provedení této činnosti.</translation>
     </message>
     <message>
         <source>No clips selected</source>
-        <translation>Nebyly vybrány žádné záběry</translation>
+        <translation>Nevybrány žádné záběry</translation>
     </message>
     <message>
         <source>Select the clips you wish to auto-cut</source>
-        <translation type="unfinished">Vyberte záběry, které chcete automaticky sestříhat</translation>
+        <translation>Vyberte záběry, které chcete automaticky ořezat</translation>
+    </message>
+    <message>
+        <source>Effect already exists</source>
+        <translation>Efekt již existuje</translation>
+    </message>
+    <message>
+        <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
+        <translation>Záběr &apos;%1&apos; již obsahuje &apos;%2&apos; efekt. Chcete jej nahradit vloženým nebo jej přidat jako samostatný efekt?</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Přidat</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Nahradit</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation>Přeskočit</translation>
+    </message>
+    <message>
+        <source>Do this for all conflicts found</source>
+        <translation>Použít na všechny nalezené střety</translation>
+    </message>
+    <message>
+        <source>Import media...</source>
+        <translation>Zavést záznam...</translation>
+    </message>
+    <message>
+        <source>All Files</source>
+        <translation>Všechny soubory</translation>
     </message>
 </context>
 <context>
@@ -1586,6 +1855,10 @@ Rozložení zvuku: %6</translation>
     <message>
         <source>Pan</source>
         <translation>Vyvážení</translation>
+    </message>
+    <message>
+        <source>Modifying the panning on a stereo audio clip.</source>
+        <translation>Změna vyvážení na stereo zvukovém záběru.</translation>
     </message>
 </context>
 <context>
@@ -1608,7 +1881,7 @@ Rozložení zvuku: %6</translation>
     </message>
     <message>
         <source>All previews deleted succesfully. You may have to re-open your current project for changes to take effect.</source>
-        <translation>Všechny náhledy byly úspěšně smazány. Možná budete muset nynější projekt otevřít znovu, aby se změny projevily.</translation>
+        <translation type="vanished">Všechny náhledy byly úspěšně smazány. Možná budete muset nynější projekt otevřít znovu, aby se změny projevily.</translation>
     </message>
     <message>
         <source>Thumbnail Resolution:</source>
@@ -1808,107 +2081,187 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Default Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Výchozí úryvek (sled záběrů)</translation>
     </message>
     <message>
         <source>Default Sequence Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavení pro výchozí úryvek (sled záběrů)</translation>
     </message>
     <message>
         <source>Add Default Effects to New Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Přidat výchozí efekty do nových záběrů</translation>
     </message>
     <message>
         <source>Automatically Seek to the Beginning When Playing at the End of a Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Přetočit automaticky na začátek při přehrávání na konci úryvku (sledu záběrů)</translation>
     </message>
     <message>
         <source>Selecting Also Seeks</source>
-        <translation type="unfinished">Výběr také vyhledává</translation>
+        <translation>Výběr také přetáčí</translation>
     </message>
     <message>
         <source>Edit Tool Also Seeks</source>
-        <translation type="unfinished">Nástroj pro úpravy také vyhledává</translation>
+        <translation>Nástroj pro úpravy také přetáčí</translation>
     </message>
     <message>
         <source>Edit Tool Selects Links</source>
-        <translation type="unfinished">Nástroj pro úpravy vybírá odkazy</translation>
+        <translation>Nástroj pro úpravy vybírá odkazy</translation>
     </message>
     <message>
         <source>Seek Also Selects</source>
-        <translation type="unfinished">Vyhledávání také vybírá</translation>
+        <translation>Přetáčení také vybírá</translation>
     </message>
     <message>
         <source>Seek to the End of Pastes</source>
-        <translation type="unfinished">Vyhledávat po konec vložení</translation>
+        <translation>Přetáčet po konec vložení</translation>
     </message>
     <message>
         <source>Scroll Wheel Zooms</source>
-        <translation type="unfinished">Kolečko myši přibližuje</translation>
+        <translation>Kolečko myši přibližuje</translation>
     </message>
     <message>
         <source>Hold CTRL to toggle this setting</source>
-        <translation type="unfinished"></translation>
+        <translation>Podržet Ctrl pro přepnutí tohoto nastavení</translation>
     </message>
     <message>
         <source>Invert Timeline Scroll Axes</source>
-        <translation type="unfinished"></translation>
+        <translation>Obrátit osy projíždění časovou osu</translation>
     </message>
     <message>
         <source>Enable Drag Files to Timeline</source>
-        <translation type="unfinished">Povolit tažení souborů na časovou osu</translation>
+        <translation>Povolit tažení souborů na časovou osu</translation>
     </message>
     <message>
         <source>Auto-Scale By Default</source>
-        <translation type="unfinished">Automaticky měnit velikost</translation>
+        <translation>Automaticky měnit velikost</translation>
     </message>
     <message>
         <source>Auto-Seek to Imported Clips</source>
-        <translation type="unfinished"></translation>
+        <translation>Přetáčet automaticky k zavedeným záběrům</translation>
     </message>
     <message>
         <source>Audio Scrubbing</source>
-        <translation type="unfinished">Přehrávání zvuku při tažení ukazatele</translation>
+        <translation>Přehrávání zvuku při tažení ukazatele</translation>
     </message>
     <message>
         <source>Drop Files on Media to Replace</source>
-        <translation type="unfinished"></translation>
+        <translation>Upustit soubory na záznam pro nahrazení</translation>
     </message>
     <message>
         <source>Enable Hover Focus</source>
-        <translation type="unfinished">Povolit zaměření při přejetí</translation>
+        <translation>Povolit zaměření při přejetí</translation>
     </message>
     <message>
         <source>Ask For Name When Setting Marker</source>
-        <translation type="unfinished">Požádat o název při nastavení značky</translation>
+        <translation>Požádat o název při nastavení značky</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished"></translation>
+        <translation>Vzhled</translation>
     </message>
     <message>
         <source>Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Motiv</translation>
     </message>
     <message>
         <source>Olive Dark (Default)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tmavá olivová (výchozí)</translation>
     </message>
     <message>
         <source>Olive Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Světlá olivová</translation>
     </message>
     <message>
         <source>Native</source>
-        <translation type="unfinished"></translation>
+        <translation>Původní</translation>
     </message>
     <message>
         <source>Native (Light Icons)</source>
-        <translation type="unfinished"></translation>
+        <translation>Původní (světlé ikony)</translation>
     </message>
     <message>
         <source>Use Native Menu Styling</source>
-        <translation type="unfinished"></translation>
+        <translation>Použít původní styl nabídky</translation>
+    </message>
+    <message>
+        <source>(None)</source>
+        <translation>(žádný)</translation>
+    </message>
+    <message>
+        <source>OpenColorIO Config Error</source>
+        <translation>Chyba nastavení OpenColorIO</translation>
+    </message>
+    <message>
+        <source>Failed to set OpenColorIO configuration: %1</source>
+        <translation>Nepodařilo se nastavit nastavení OpenColorIO: %1</translation>
+    </message>
+    <message>
+        <source>Invalid OpenColorIO Configuration File</source>
+        <translation>Neplatný soubor s nastavením OpenColorIO</translation>
+    </message>
+    <message>
+        <source>You must specify an OpenColorIO configuration file if color management is enabled.</source>
+        <translation>Musíte zadat soubor s nastavením OpenColorIO, pakliže je povolena správa barev.</translation>
+    </message>
+    <message>
+        <source>OpenColorIO configuration file &apos;%1&apos; does not exist.</source>
+        <translation>Soubor s nastavením OpenColorIO &apos;%1&apos; není.</translation>
+    </message>
+    <message>
+        <source>Browse for OpenColorIO configuration</source>
+        <translation>Procházet pro nastavení OpenColorIO</translation>
+    </message>
+    <message>
+        <source>All previews deleted successfully. You may have to re-open your current project for changes to take effect.</source>
+        <translation>Všechny náhledy byly úspěšně smazány. Možná budete muset nynější projekt otevřít znovu, aby se změny projevily.</translation>
+    </message>
+    <message>
+        <source>Don&apos;t Use Proxies When Exporting</source>
+        <translation>Nepoužívat při vyvádění náhrady</translation>
+    </message>
+    <message>
+        <source>Use originals instead of proxies when exporting</source>
+        <translation>Namísto náhrad při vyvádění používat originály</translation>
+    </message>
+    <message>
+        <source>Enable Color Management</source>
+        <translation>Povolit správu barev</translation>
+    </message>
+    <message>
+        <source>OpenColorIO Config File:</source>
+        <translation>Otevřít soubor s nastavením OpenColorIO:</translation>
+    </message>
+    <message>
+        <source>Default Input Color Space:</source>
+        <translation>Výchozí vstupní barevný prostor:</translation>
+    </message>
+    <message>
+        <source>Display:</source>
+        <translation>Zobrazení:</translation>
+    </message>
+    <message>
+        <source>View:</source>
+        <translation>Pohled:</translation>
+    </message>
+    <message>
+        <source>Look:</source>
+        <translation>Vzhled:</translation>
+    </message>
+    <message>
+        <source>Bit Depth</source>
+        <translation>Bitová hloubka</translation>
+    </message>
+    <message>
+        <source>Playback (Offline):</source>
+        <translation>Přehrávání (nepřipojeno):</translation>
+    </message>
+    <message>
+        <source>Export (Online):</source>
+        <translation>Vyvedení (připojeno):</translation>
+    </message>
+    <message>
+        <source>Color Management</source>
+        <translation>Správa barev</translation>
     </message>
 </context>
 <context>
@@ -1923,7 +2276,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Failed to find any valid video/audio streams</source>
-        <translation type="unfinished">Nepodařilo se nalézt žádné platné obrazové/zvukové toky</translation>
+        <translation>Nepodařilo se najít žádné platné obrazové/zvukové proudy</translation>
     </message>
 </context>
 <context>
@@ -1942,7 +2295,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Image sequence detected</source>
-        <translation>Zjištěn obrázkový úryvek (sled záběrů)</translation>
+        <translation type="vanished">Zjištěn obrázkový úryvek (sled záběrů)</translation>
     </message>
     <message>
         <source>Rename &apos;%1&apos;</source>
@@ -1966,7 +2319,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Sequence</source>
-        <translation>Úryvek</translation>
+        <translation type="vanished">Úryvek</translation>
     </message>
     <message>
         <source>You cannot insert a sequence into itself, so no clips of this media would be in this sequence.</source>
@@ -1974,7 +2327,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Import media...</source>
-        <translation>Zavést záznam...</translation>
+        <translation type="vanished">Zavést záznam...</translation>
     </message>
     <message>
         <source>No active sequence</source>
@@ -1986,11 +2339,11 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Replace &apos;%1&apos;</source>
-        <translation>Nahradit &apos;%1&apos;</translation>
+        <translation type="vanished">Nahradit &apos;%1&apos;</translation>
     </message>
     <message>
         <source>All Files</source>
-        <translation>Všechny soubory</translation>
+        <translation type="vanished">Všechny soubory</translation>
     </message>
     <message>
         <source>No sequence is active, please open the sequence you want to replace clips from.</source>
@@ -1998,47 +2351,62 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
-        <translation>Soubor &apos;%1&apos; se zdá být součástí obrázkového úryvku (sledu záběrů). Chcete jej zavést jako takový?</translation>
+        <translation type="vanished">Soubor &apos;%1&apos; se zdá být součástí obrázkového úryvku (sledu záběrů). Chcete jej zavést jako takový?</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Nový</translation>
+        <translation>Nový</translation>
     </message>
     <message>
         <source>Open Project</source>
-        <translation type="unfinished">Otevřít projekt</translation>
+        <translation>Otevřít projekt</translation>
     </message>
     <message>
         <source>Save Project</source>
-        <translation type="unfinished">Uložit projekt</translation>
+        <translation>Uložit projekt</translation>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished">Zpět</translation>
+        <translation>Zpět</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished">Znovu</translation>
+        <translation>Znovu</translation>
     </message>
     <message>
         <source>Tree View</source>
-        <translation type="unfinished">Stromový pohled</translation>
+        <translation>Stromový pohled</translation>
     </message>
     <message>
         <source>Icon View</source>
-        <translation type="unfinished">Pohled s ikonami</translation>
+        <translation>Pohled s ikonami</translation>
     </message>
     <message>
         <source>List View</source>
-        <translation type="unfinished">Zobrazení seznamu</translation>
+        <translation>Pohled se seznamem</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectModel</name>
+    <message>
+        <source>Sequence %1</source>
+        <translation>Úryvek %1</translation>
     </message>
     <message>
         <source>Import a Project</source>
-        <translation type="unfinished">Importovat projekt</translation>
+        <translation>Zavést projekt</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is an Olive project file. It will merge with this project. Do you wish to continue?</source>
-        <translation type="unfinished">&quot;%1&quot; je soubor projektu Olive. Bude spojen s timto projektem. Přejete si pokračovat?</translation>
+        <translation>&quot;%1&quot; je soubor s projektem Olive. Sloučí se s tímto projektem. Chcete pokračovat?</translation>
+    </message>
+    <message>
+        <source>Image sequence detected</source>
+        <translation>Zjištěn obrázkový úryvek (sled záběrů)</translation>
+    </message>
+    <message>
+        <source>The file &apos;%1&apos; appears to be part of an image sequence. Would you like to import it as such?</source>
+        <translation>Soubor &apos;%1&apos; se zdá být součástí obrázkového úryvku (sledu záběrů). Chcete jej zavést jako takový?</translation>
     </message>
 </context>
 <context>
@@ -2159,7 +2527,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Keep the same media in-points</source>
-        <translation>Zachovat stejné počáteční body záznamu</translation>
+        <translation>Zachovat stejné začáteční body záznamu</translation>
     </message>
     <message>
         <source>Select which media you want to replace this media&apos;s clips with:</source>
@@ -2170,79 +2538,91 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     <name>RichTextEffect</name>
     <message>
         <source>Text</source>
-        <translation type="unfinished">Text</translation>
+        <translation>Text</translation>
     </message>
     <message>
         <source>Padding</source>
-        <translation type="unfinished">Odsazení</translation>
+        <translation>Odstup</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Poloha</translation>
+        <translation>Poloha</translation>
     </message>
     <message>
         <source>Vertical Align:</source>
-        <translation type="unfinished">Vertikální zarovnání:</translation>
+        <translation>Svislé zarovnání:</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation type="unfinished">Nahoře</translation>
+        <translation>Nahoře</translation>
     </message>
     <message>
         <source>Center</source>
-        <translation type="unfinished">Na střed</translation>
+        <translation>Na střed</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation type="unfinished">Dole</translation>
+        <translation>Dole</translation>
     </message>
     <message>
         <source>Auto-Scroll</source>
-        <translation type="unfinished">Automaticky posouvat</translation>
+        <translation>Automatické projíždění</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Vypnuto</translation>
+        <translation>Vypnuto</translation>
     </message>
     <message>
         <source>Up</source>
-        <translation type="unfinished">Nahoru</translation>
+        <translation>Nahoru</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation type="unfinished">Dolu</translation>
+        <translation>Dolů</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation type="unfinished">Vlevo</translation>
+        <translation>Vlevo</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation type="unfinished">Vpravo</translation>
+        <translation>Vpravo</translation>
     </message>
     <message>
         <source>Shadow</source>
-        <translation type="unfinished">Stín</translation>
+        <translation>Stín</translation>
     </message>
     <message>
         <source>Shadow Color</source>
-        <translation type="unfinished">Barva stínu</translation>
+        <translation>Barva stínu</translation>
     </message>
     <message>
         <source>Shadow Angle</source>
-        <translation type="unfinished">Úhel stínu</translation>
+        <translation>Úhel stínu</translation>
     </message>
     <message>
         <source>Shadow Distance</source>
-        <translation type="unfinished">Vzdálenost stínu</translation>
+        <translation>Vzdálenost stínu</translation>
     </message>
     <message>
         <source>Shadow Softness</source>
-        <translation type="unfinished">Měkkost stínu</translation>
+        <translation>Měkkost stínu</translation>
     </message>
     <message>
         <source>Shadow Opacity</source>
-        <translation type="unfinished">Neprůhlednost stínu</translation>
+        <translation>Neprůhlednost stínu</translation>
+    </message>
+    <message>
+        <source>Rich Text</source>
+        <translation>Formátovaný text</translation>
+    </message>
+    <message>
+        <source>Render</source>
+        <translation>Vykreslit</translation>
+    </message>
+    <message>
+        <source>Render formatted rich text over a clip.</source>
+        <translation>Vykreslit formátovaný text nad záběrem.</translation>
     </message>
 </context>
 <context>
@@ -2264,7 +2644,19 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Frequency</source>
-        <translation>Kmitočet</translation>
+        <translation>Četnost</translation>
+    </message>
+    <message>
+        <source>Shake</source>
+        <translation>Zatřást</translation>
+    </message>
+    <message>
+        <source>Distort</source>
+        <translation>Zkřivit</translation>
+    </message>
+    <message>
+        <source>Simulate a camera shake movement.</source>
+        <translation>Napodobit pohyb při zatřesení kamerou.</translation>
     </message>
 </context>
 <context>
@@ -2296,6 +2688,18 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     <message>
         <source>Checkerboard Size</source>
         <translation>Velikost šachovnice</translation>
+    </message>
+    <message>
+        <source>Solid</source>
+        <translation>Plná</translation>
+    </message>
+    <message>
+        <source>Render</source>
+        <translation>Vykreslit</translation>
+    </message>
+    <message>
+        <source>Render a solid color over this clip.</source>
+        <translation>Vykreslit plnou barvu nad tímto záběrem.</translation>
     </message>
 </context>
 <context>
@@ -2346,7 +2750,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Replace/Relink Media</source>
-        <translation>Nahradit/Znovu spojit záznamy</translation>
+        <translation>Nahradit/Znovuspojit záznamy</translation>
     </message>
     <message>
         <source>Icon View</source>
@@ -2354,7 +2758,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Delete All Clips Using This Media</source>
-        <translation>Smazat všechny záběry používající tento záznam</translation>
+        <translation>Smazat všechny záběry pomocí tohoto záznamu</translation>
     </message>
     <message>
         <source>Duplicate</source>
@@ -2412,6 +2816,14 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
         <source>You dropped a file onto &apos;%1&apos;. Would you like to replace it with the dropped file?</source>
         <translation>Upustil jste soubor na &apos;%1&apos;. Chcete jej nahradit upuštěným souborem?</translation>
     </message>
+    <message>
+        <source>Replace &apos;%1&apos;</source>
+        <translation>Nahradit &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <source>All Files</source>
+        <translation>Všechny soubory</translation>
+    </message>
 </context>
 <context>
     <name>SpeedDialog</name>
@@ -2421,7 +2833,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Frame Rate:</source>
-        <translation>Snímková rychlost:</translation>
+        <translation>Snímkování:</translation>
     </message>
     <message>
         <source>Duration:</source>
@@ -2452,50 +2864,50 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Thin</source>
-        <translation type="unfinished">Úzký</translation>
+        <translation>Tenké</translation>
     </message>
     <message>
         <source>Extra Light</source>
-        <translation type="unfinished">Velmi lehký</translation>
+        <translation>Mimořádně lehké</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished">Lehký</translation>
+        <translation>Lehké</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normální</translation>
+        <translation>Normální</translation>
     </message>
     <message>
         <source>Medium</source>
-        <translation type="unfinished">Střední</translation>
+        <translation>Střední</translation>
     </message>
     <message>
         <source>Demi Bold</source>
-        <translation type="unfinished">Středně tlustý</translation>
+        <translation>Polotučné</translation>
     </message>
     <message>
         <source>Bold</source>
-        <translation type="unfinished">Tlustý</translation>
+        <translation>Tučné</translation>
     </message>
     <message>
         <source>Extra Bold</source>
-        <translation type="unfinished">Velmi tlustý</translation>
+        <translation>Mimořádně tučné</translation>
     </message>
     <message>
         <source>Black</source>
-        <translation type="unfinished">Černý</translation>
+        <translation>Černé</translation>
     </message>
 </context>
 <context>
     <name>TextEditEx</name>
     <message>
         <source>Edit Text</source>
-        <translation type="unfinished">Upravit text</translation>
+        <translation>Upravit text</translation>
     </message>
     <message>
         <source>&amp;Edit Text</source>
-        <translation type="unfinished">&amp;Upravit text</translation>
+        <translation>&amp;Upravit text</translation>
     </message>
 </context>
 <context>
@@ -2590,15 +3002,31 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Alignment</source>
-        <translation>Zarovnání</translation>
+        <translation type="vanished">Zarovnání</translation>
     </message>
     <message>
         <source>Padding</source>
-        <translation type="unfinished">Odsazení</translation>
+        <translation>Odstup</translation>
     </message>
     <message>
         <source>Position</source>
-        <translation type="unfinished">Poloha</translation>
+        <translation>Poloha</translation>
+    </message>
+    <message>
+        <source>Horizontal Alignment</source>
+        <translation>Vodorovné zarovnání</translation>
+    </message>
+    <message>
+        <source>Vertical Alignment</source>
+        <translation>Svislé zarovnání</translation>
+    </message>
+    <message>
+        <source>Render</source>
+        <translation>Vykreslit</translation>
+    </message>
+    <message>
+        <source>Generate simple text over this clip</source>
+        <translation>Vytvořit jednoduchý text nad tímto záběrem.</translation>
     </message>
 </context>
 <context>
@@ -2639,16 +3067,24 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
         <source>Sequence</source>
         <translation>Úryvek</translation>
     </message>
+    <message>
+        <source>Render</source>
+        <translation>Vykreslit</translation>
+    </message>
+    <message>
+        <source>Render the media or sequence timecode on this clip.</source>
+        <translation>Vykreslit časový kód záznamu nebo úryvku na tomto záběru.</translation>
+    </message>
 </context>
 <context>
     <name>Timeline</name>
     <message>
         <source>Add</source>
-        <translation>Přidat</translation>
+        <translation type="vanished">Přidat</translation>
     </message>
     <message>
         <source>Skip</source>
-        <translation>Přeskočit</translation>
+        <translation type="vanished">Přeskočit</translation>
     </message>
     <message>
         <source>Slip Tool</source>
@@ -2692,7 +3128,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Click on the timeline where you want to start recording (drag to limit the recording to a certain timeframe)</source>
-        <translation>Klepněte na časovou osu, kde chcete začít s nahráváním (táhněte pro omezení nahrávky na určitý časový úsek)</translation>
+        <translation>Klepněte na časovou osu, kde chcete začít s nahráváním (táhněte pro omezení nahrávky na určitý časový snímek)</translation>
     </message>
     <message>
         <source>Noise...</source>
@@ -2712,15 +3148,15 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Clip &apos;%1&apos; already contains a &apos;%2&apos; effect. Would you like to replace it with the pasted one or add it as a separate effect?</source>
-        <translation>Záběr &apos;%1&apos; již obsahuje efekt &apos;%2&apos;. Chcete jej nahradit vloženým nebo jej přidat jako samostatný efekt?</translation>
+        <translation type="vanished">Záběr &apos;%1&apos; již obsahuje &apos;%2&apos; efekt. Chcete jej nahradit vloženým nebo jej přidat jako samostatný efekt?</translation>
     </message>
     <message>
         <source>Bars...</source>
-        <translation>Zkušební tabulka...</translation>
+        <translation>Pruhy...</translation>
     </message>
     <message>
         <source>Replace</source>
-        <translation>Nahradit</translation>
+        <translation type="vanished">Nahradit</translation>
     </message>
     <message>
         <source>Pointer Tool</source>
@@ -2732,7 +3168,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Effect already exists</source>
-        <translation>Efekt již existuje</translation>
+        <translation type="vanished">Efekt již existuje</translation>
     </message>
     <message>
         <source>Slide Tool</source>
@@ -2740,7 +3176,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Add title, solid, bars, etc.</source>
-        <translation>Přidat název, plný, zkušební tabulky atd.</translation>
+        <translation>Přidat název, plnou barvu, pruhy atd.</translation>
     </message>
     <message>
         <source>Tone...</source>
@@ -2748,11 +3184,11 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Do this for all conflicts found</source>
-        <translation>Použít na všechny nalezené střety</translation>
+        <translation type="vanished">Použít na všechny nalezené střety</translation>
     </message>
     <message>
         <source>Timeline: </source>
-        <translation>Časová osa: </translation>
+        <translation type="vanished">Časová osa: </translation>
     </message>
     <message>
         <source>Unsaved Project</source>
@@ -2761,6 +3197,18 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     <message>
         <source>Transition Tool</source>
         <translation>Nástroj pro přechod</translation>
+    </message>
+    <message>
+        <source>Video Transitions</source>
+        <translation>Obrazové přechody</translation>
+    </message>
+    <message>
+        <source>Audio Transitions</source>
+        <translation>Zvukové přechody</translation>
+    </message>
+    <message>
+        <source>Timeline: %1</source>
+        <translation>Časová osa: %1</translation>
     </message>
 </context>
 <context>
@@ -2771,6 +3219,98 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
 </context>
 <context>
+    <name>TimelineLabel</name>
+    <message>
+        <source>Rename Track</source>
+        <translation>Přejmenovat stopu</translation>
+    </message>
+    <message>
+        <source>Enter the new name for this track</source>
+        <translation>Zadejte nový název pro tuto stopu</translation>
+    </message>
+</context>
+<context>
+    <name>TimelineView</name>
+    <message>
+        <source>&amp;Undo</source>
+        <translation>&amp;Zpět</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation>&amp;Znovu</translation>
+    </message>
+    <message>
+        <source>R&amp;ipple Delete Empty Space</source>
+        <translation>&amp;Vytáhnout (smazat a posunout) prázdný prostor</translation>
+    </message>
+    <message>
+        <source>Sequence Settings</source>
+        <translation>Nastavení úryvku (sledu záběrů)</translation>
+    </message>
+    <message>
+        <source>&amp;Speed/Duration</source>
+        <translation>&amp;Rychlost/Doba trvání</translation>
+    </message>
+    <message>
+        <source>Auto-Cut Silence</source>
+        <translation>Ořezat ticho automaticky</translation>
+    </message>
+    <message>
+        <source>Auto-S&amp;cale</source>
+        <translation>Automatická &amp;změna velikosti</translation>
+    </message>
+    <message>
+        <source>&amp;Reveal in Project</source>
+        <translation>&amp;Odkrýt v projektu</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Vlastnosti</translation>
+    </message>
+    <message>
+        <source>%1
+Start: %2
+End: %3
+Duration: %4</source>
+        <translation>%1
+Začátek: %2
+Konec: %3
+Doba trvání: %4</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Chyba</translation>
+    </message>
+    <message>
+        <source>Couldn&apos;t locate media wrapper for sequence.</source>
+        <translation>Nepodařilo se najít obal záznamu pro tento úryvek (sled záběrů).</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Název</translation>
+    </message>
+    <message>
+        <source>Solid Color</source>
+        <translation>Plná barva</translation>
+    </message>
+    <message>
+        <source>Bars</source>
+        <translation>Pruhy</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Tón</translation>
+    </message>
+    <message>
+        <source>Noise</source>
+        <translation>Šum</translation>
+    </message>
+    <message>
+        <source>Duration:</source>
+        <translation>Doba trvání:</translation>
+    </message>
+</context>
+<context>
     <name>TimelineWidget</name>
     <message>
         <source>C&amp;ut</source>
@@ -2778,7 +3318,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>Bars</source>
-        <translation>Zkušební tabulka</translation>
+        <translation>Pruhy</translation>
     </message>
     <message>
         <source>Tone</source>
@@ -2818,7 +3358,7 @@ Vždy ukazovat správný snímek (obraz se při získávání správného snímk
     </message>
     <message>
         <source>&amp;Reveal in Project</source>
-        <translation>&amp;Zobrazit v projektu</translation>
+        <translation>&amp;Odkrýt v projektu</translation>
     </message>
     <message>
         <source>Rename &apos;%1&apos;</source>
@@ -2872,19 +3412,19 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>R&amp;ipple Delete Empty Space</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vytáhnout (smazat a posunout) prázdný prostor</translation>
     </message>
     <message>
         <source>Auto-Cut Silence</source>
-        <translation type="unfinished">Automaticky vyříznout ticho</translation>
+        <translation>Ořezat ticho automaticky</translation>
     </message>
     <message>
         <source>Auto-S&amp;cale</source>
-        <translation type="unfinished">Automaticky změnit velikost</translation>
+        <translation>Automatická &amp;změna velikosti</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Vlastnosti</translation>
+        <translation>Vlastnosti</translation>
     </message>
 </context>
 <context>
@@ -2907,7 +3447,34 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Sine</source>
-        <translation type="unfinished">Sinus</translation>
+        <translation>Sinus</translation>
+    </message>
+    <message>
+        <source>Tone</source>
+        <translation>Tón</translation>
+    </message>
+    <message>
+        <source>Generate a sine wave tone to mix into this clip&apos;s audio.</source>
+        <translation>Vytvořit tón sinové vlny k zamíchání do zvuku tohoto záběru.</translation>
+    </message>
+</context>
+<context>
+    <name>Track</name>
+    <message>
+        <source>Video %1</source>
+        <translation>Obraz %1</translation>
+    </message>
+    <message>
+        <source>Audio %1</source>
+        <translation>Zvuk %1</translation>
+    </message>
+    <message>
+        <source>Subtitle %1</source>
+        <translation>Titulek %1</translation>
+    </message>
+    <message>
+        <source>Unknown %1</source>
+        <translation>Neznámý %1</translation>
     </message>
 </context>
 <context>
@@ -2946,7 +3513,7 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Blend Mode</source>
-        <translation>Režim mísení</translation>
+        <translation type="vanished">Režim mísení</translation>
     </message>
     <message>
         <source>Darken</source>
@@ -2954,7 +3521,7 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation>Normální</translation>
+        <translation type="vanished">Normální</translation>
     </message>
     <message>
         <source>Screen</source>
@@ -3006,7 +3573,7 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Hard Mix</source>
-        <translation type="vanished">Tvrdé smíšení</translation>
+        <translation type="vanished">Tvrdá směs</translation>
     </message>
     <message>
         <source>Reflect</source>
@@ -3036,6 +3603,18 @@ Doba trvání: %4</translation>
         <source>Difference</source>
         <translation type="vanished">Rozdíl</translation>
     </message>
+    <message>
+        <source>Transform</source>
+        <translation>Přeměnit</translation>
+    </message>
+    <message>
+        <source>Distort</source>
+        <translation>Zkřivit</translation>
+    </message>
+    <message>
+        <source>Transform the position, scale, and rotation of this clip.</source>
+        <translation>Přeměnit polohu, rozměry a otočení tohoto záběru.</translation>
+    </message>
 </context>
 <context>
     <name>Transition</name>
@@ -3048,7 +3627,7 @@ Doba trvání: %4</translation>
     <name>UpdateNotification</name>
     <message>
         <source>An update is available from the Olive website. Visit www.olivevideoeditor.org to download it.</source>
-        <translation type="unfinished">Je možné stáhnout novou verzi editoru Olive na vebovéých stránkách. Navštivte www.olivevideoeditor.org pro její stažení.</translation>
+        <translation>Na internetové stránce Olive je dostupná aktualizace. Pro její stažení navštivte www.olivevideoeditor.org.</translation>
     </message>
 </context>
 <context>
@@ -3101,12 +3680,20 @@ Doba trvání: %4</translation>
         <source>Failed to load VST plugin &quot;%1&quot;: %2</source>
         <translation>Nepodařilo se nahrát přídavný modul &quot;%1&quot;: %2</translation>
     </message>
+    <message>
+        <source>VST Plugin 2.x</source>
+        <translation>Přídavný modul VST 2.x</translation>
+    </message>
+    <message>
+        <source>Use a VST 2.x plugin on this clip&apos;s audio.</source>
+        <translation>Použít na zvuk tohoto záběru přídavný modul VST 2.x.</translation>
+    </message>
 </context>
 <context>
     <name>Viewer</name>
     <message>
         <source>Media Viewer</source>
-        <translation>Prohlížeč záznamu</translation>
+        <translation type="vanished">Prohlížeč záznamu</translation>
     </message>
     <message>
         <source>(none)</source>
@@ -3114,15 +3701,35 @@ Doba trvání: %4</translation>
     </message>
     <message>
         <source>Sequence Viewer</source>
-        <translation>Prohlížeč úryvku (sledu záběrů)</translation>
+        <translation type="vanished">Prohlížeč úryvku (sledu záběrů)</translation>
     </message>
     <message>
         <source>Drag video only</source>
-        <translation type="unfinished">Táhněte pouze video</translation>
+        <translation>Táhnout pouze obraz</translation>
     </message>
     <message>
         <source>Drag audio only</source>
-        <translation type="unfinished">Táhněte pouze zvuk</translation>
+        <translation>Táhnout pouze zvuk</translation>
+    </message>
+    <message>
+        <source>Viewer: %1</source>
+        <translation>Prohlížeč: %1</translation>
+    </message>
+    <message>
+        <source>Failed to import recorded file</source>
+        <translation>Nepodařilo se zavést nahraný soubor</translation>
+    </message>
+    <message>
+        <source>An error occurred trying to import the recorded audio</source>
+        <translation>Při pokusu o zavedení nahraného souboru se vyskytla chyba</translation>
+    </message>
+    <message>
+        <source>Sequence Viewer: %1</source>
+        <translation>Prohlížeč úryvku (sledu záběrů): %1</translation>
+    </message>
+    <message>
+        <source>Media Viewer: %1</source>
+        <translation>Prohlížeč záznamu: %1</translation>
     </message>
 </context>
 <context>
@@ -3196,16 +3803,39 @@ Doba trvání: %4</translation>
         <source>Volume</source>
         <translation>Hlasitost</translation>
     </message>
+    <message>
+        <source>Adjust the volume of this clip&apos;s audio</source>
+        <translation>Upravit hlasitost zvuku tohoto záběru</translation>
+    </message>
+</context>
+<context>
+    <name>bitdepths</name>
+    <message>
+        <source>8-bit</source>
+        <translation>8-bitů</translation>
+    </message>
+    <message>
+        <source>16-bit Integer</source>
+        <translation>16-bitů celé číslo</translation>
+    </message>
+    <message>
+        <source>Half-Float (16-bit)</source>
+        <translation>Poloviční plovoucí (16-bitů)</translation>
+    </message>
+    <message>
+        <source>Full-Float (32-bit)</source>
+        <translation>Celý plovoucí (32-bitů)</translation>
+    </message>
 </context>
 <context>
     <name>transition</name>
     <message>
         <source>Invalid transition</source>
-        <translation>Neplatný přechod</translation>
+        <translation type="vanished">Neplatný přechod</translation>
     </message>
     <message>
         <source>No candidate for transition &apos;%1&apos;. This transition may be corrupt. Try reinstalling it or Olive.</source>
-        <translation>Žádný uchazeč o přechod &apos;%1&apos;. Tento přechod může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
+        <translation type="vanished">Žádný uchazeč o přechod &apos;%1&apos;. Tento přechod může být poškozen. Pokuste se jej nebo Olive znovu nainstalovat.</translation>
     </message>
 </context>
 </TS>
