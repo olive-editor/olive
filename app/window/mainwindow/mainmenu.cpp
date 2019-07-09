@@ -222,6 +222,11 @@ MainMenu::MainMenu(QWidget *parent) :
   tools_ripple_item_->setData(olive::tool::kRipple);
   tools_group->addAction(tools_ripple_item_);
 
+  tools_rolling_item_ = tools_menu_->AddItem("rollingtool", this, SLOT(ToolItemTriggered()), "N");
+  tools_rolling_item_->setCheckable(true);
+  tools_rolling_item_->setData(olive::tool::kRolling);
+  tools_group->addAction(tools_rolling_item_);
+
   tools_razor_item_ = tools_menu_->AddItem("razortool", this, SLOT(ToolItemTriggered()), "C");
   tools_razor_item_->setCheckable(true);
   tools_razor_item_->setData(olive::tool::kRazor);

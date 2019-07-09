@@ -47,6 +47,7 @@ QIcon olive::icon::IconView;
 QIcon olive::icon::ToolPointer;
 QIcon olive::icon::ToolEdit;
 QIcon olive::icon::ToolRipple;
+QIcon olive::icon::ToolRolling;
 QIcon olive::icon::ToolRazor;
 QIcon olive::icon::ToolSlip;
 QIcon olive::icon::ToolSlide;
@@ -85,6 +86,7 @@ void olive::icon::LoadAll()
   ToolPointer = Create("arrow");
   ToolEdit = Create("beam");
   ToolRipple = Create("ripple");
+  ToolRolling = Create("rolling");
   ToolRazor = Create("razor");
   ToolSlip = Create("slip");
   ToolSlide = Create("slide");

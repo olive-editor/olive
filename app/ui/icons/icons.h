@@ -48,6 +48,7 @@ extern QIcon IconView;
 extern QIcon ToolPointer;
 extern QIcon ToolEdit;
 extern QIcon ToolRipple;
+extern QIcon ToolRolling;
 extern QIcon ToolRazor;
 extern QIcon ToolSlip;
 extern QIcon ToolSlide;

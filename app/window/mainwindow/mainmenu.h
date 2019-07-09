@@ -130,6 +130,7 @@ private:
   QAction* tools_pointer_item_;
   QAction* tools_edit_item_;
   QAction* tools_ripple_item_;
+  QAction* tools_rolling_item_;
   QAction* tools_razor_item_;
   QAction* tools_slip_item_;
   QAction* tools_slide_item_;

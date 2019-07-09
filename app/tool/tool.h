@@ -41,6 +41,9 @@ enum Tool {
   /// Ripple tool
   kRipple,
 
+  /// Rolling tool
+  kRolling,
+
   /// Razor tool
   kRazor,
 

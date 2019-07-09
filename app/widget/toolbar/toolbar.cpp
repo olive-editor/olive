@@ -37,6 +37,7 @@ Toolbar::Toolbar(QWidget *parent) :
   btn_pointer_tool_ = CreateToolButton(olive::icon::ToolPointer, olive::tool::kPointer);
   btn_edit_tool_ = CreateToolButton(olive::icon::ToolEdit, olive::tool::kEdit);
   btn_ripple_tool_ = CreateToolButton(olive::icon::ToolRipple, olive::tool::kRipple);
+  btn_rolling_tool_ = CreateToolButton(olive::icon::ToolRolling, olive::tool::kRolling);
   btn_razor_tool_ = CreateToolButton(olive::icon::ToolRazor, olive::tool::kRazor);
   btn_slip_tool_ = CreateToolButton(olive::icon::ToolSlip, olive::tool::kSlip);
   btn_slide_tool_ = CreateToolButton(olive::icon::ToolSlide, olive::tool::kSlide);
@@ -82,6 +83,7 @@ void Toolbar::Retranslate()
   btn_pointer_tool_->setToolTip(tr("Pointer Tool"));
   btn_edit_tool_->setToolTip(tr("Edit Tool"));
   btn_ripple_tool_->setToolTip(tr("Ripple Tool"));
+  btn_rolling_tool_->setToolTip(tr("Rolling Tool"));
   btn_razor_tool_->setToolTip(tr("Razor Tool"));
   btn_slip_tool_->setToolTip(tr("Slip Tool"));
   btn_slide_tool_->setToolTip(tr("Slide Tool"));

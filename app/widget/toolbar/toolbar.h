@@ -156,6 +156,7 @@ private:
   ToolbarButton* btn_pointer_tool_;
   ToolbarButton* btn_edit_tool_;
   ToolbarButton* btn_ripple_tool_;
+  ToolbarButton* btn_rolling_tool_;
   ToolbarButton* btn_razor_tool_;
   ToolbarButton* btn_slip_tool_;
   ToolbarButton* btn_slide_tool_;
