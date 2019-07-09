@@ -57,6 +57,7 @@ extern QIcon ToolTransition;
 
 // Project Icons
 extern QIcon Folder;
+extern QIcon Sequence;
 extern QIcon Video;
 extern QIcon Audio;
 extern QIcon Image;

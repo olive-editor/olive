@@ -54,6 +54,7 @@ QIcon olive::icon::ToolSlide;
 QIcon olive::icon::ToolHand;
 QIcon olive::icon::ToolTransition;
 QIcon olive::icon::Folder;
+QIcon olive::icon::Sequence;
 QIcon olive::icon::Video;
 QIcon olive::icon::Audio;
 QIcon olive::icon::Image;
@@ -94,6 +95,7 @@ void olive::icon::LoadAll()
   ToolTransition = Create("transition-tool");
 
   Folder = Create("folder");
+  Sequence = Create("sequence");
   Video = Create("videosource");
   Audio = Create("audiosource");
   Image = Create("imagesource");

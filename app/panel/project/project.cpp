@@ -112,7 +112,7 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
 {
   if (item == nullptr) {
     // If the user double clicks on empty space, show the import dialog
-    olive::core.StartImportFootage();
+    olive::core.DialogImportShow();
   }
 
   // FIXME: Double click Item should do something

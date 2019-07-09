@@ -145,7 +145,7 @@ void Core::SetTool(const olive::tool::Tool &tool)
   emit ToolChanged(tool_);
 }
 
-void Core::StartImportFootage()
+void Core::DialogImportShow()
 {
   // Open dialog for user to select files
   QStringList files = QFileDialog::getOpenFileNames(main_window_,

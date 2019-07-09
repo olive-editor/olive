@@ -107,7 +107,7 @@ public slots:
   /**
    * @brief Open the import footage dialog and import the files selected (runs ImportFiles())
    */
-  void StartImportFootage();
+  void DialogImportShow();
 
   /**
    * @brief Create a new folder in the currently active project
