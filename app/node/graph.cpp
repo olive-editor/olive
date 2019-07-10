@@ -18,18 +18,9 @@
 
 ***/
 
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#include "graph.h"
 
-#include "node/graph.h"
-#include "project/item/item.h"
-
-class Sequence : public Item, public NodeGraph
+NodeGraph::NodeGraph()
 {
-public:
-  Sequence();
 
-  virtual Type type() const override;
-};
-
-#endif // SEQUENCE_H
+}

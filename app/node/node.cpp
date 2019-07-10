@@ -18,18 +18,9 @@
 
 ***/
 
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#include "node.h"
 
-#include "node/graph.h"
-#include "project/item/item.h"
-
-class Sequence : public Item, public NodeGraph
+Node::Node(QObject *parent) :
+  QObject(parent)
 {
-public:
-  Sequence();
-
-  virtual Type type() const override;
-};
-
-#endif // SEQUENCE_H
+}

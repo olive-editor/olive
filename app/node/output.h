@@ -18,18 +18,23 @@
 
 ***/
 
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#ifndef NODEOUTPUT_H
+#define NODEOUTPUT_H
 
-#include "node/graph.h"
-#include "project/item/item.h"
+#include "param.h"
 
-class Sequence : public Item, public NodeGraph
+class NodeOutput : public NodeParam
 {
 public:
-  Sequence();
+  NodeOutput(Node* parent);
 
-  virtual Type type() const override;
+  virtual Type type() override;
+
+  const DataType& data_type();
+  void set_data_type(const DataType& type);
+
+private:
+  DataType data_type_;
 };
 
-#endif // SEQUENCE_H
+#endif // NODEOUTPUT_H

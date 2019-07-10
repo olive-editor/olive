@@ -18,18 +18,24 @@
 
 ***/
 
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#ifndef NODEINPUT_H
+#define NODEINPUT_H
 
-#include "node/graph.h"
-#include "project/item/item.h"
+#include "param.h"
 
-class Sequence : public Item, public NodeGraph
+class NodeInput : public NodeParam
 {
 public:
-  Sequence();
+  NodeInput(Node *parent);
 
-  virtual Type type() const override;
+  virtual Type type() override;
+
+  void add_data_input(const DataType& data_type);
+
+  bool can_accept_type(const DataType& data_type);
+
+private:
+  QList<DataType> inputs_;
 };
 
-#endif // SEQUENCE_H
+#endif // NODEINPUT_H

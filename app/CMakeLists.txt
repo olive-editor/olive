@@ -24,6 +24,7 @@ set(OLIVE_SOURCES
 )
 
 add_subdirectory(decoder)
+add_subdirectory(node)
 add_subdirectory(panel)
 add_subdirectory(project)
 add_subdirectory(render)

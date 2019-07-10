@@ -18,18 +18,46 @@
 
 ***/
 
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#ifndef NODEPARAM_H
+#define NODEPARAM_H
 
-#include "node/graph.h"
-#include "project/item/item.h"
+#include <QObject>
 
-class Sequence : public Item, public NodeGraph
+class Node;
+
+class NodeParam : public QObject
 {
 public:
-  Sequence();
+  enum Type {
+    kInput,
+    kOutput,
+    kPassthrough
+  };
 
-  virtual Type type() const override;
+  enum DataType {
+    kNone,
+    kInt,
+    kFloat,
+    kColor,
+    kString,
+    kBoolean,
+    kFont,
+    kFile,
+    kTexture,
+    kMatrix,
+    kBlock,
+    kAny
+  };
+
+  NodeParam(Node* parent);
+
+  virtual Type type() = 0;
+
+  static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);
+  static bool AreDataTypesCompatible(const DataType& output_type, const QList<DataType>& input_types);
+
+private:
+
 };
 
-#endif // SEQUENCE_H
+#endif // NODEPARAM_H

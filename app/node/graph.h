@@ -18,18 +18,17 @@
 
 ***/
 
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#ifndef NODEGRAPH_H
+#define NODEGRAPH_H
 
-#include "node/graph.h"
-#include "project/item/item.h"
+#include <QObject>
 
-class Sequence : public Item, public NodeGraph
+class NodeGraph : public QObject
 {
 public:
-  Sequence();
+  NodeGraph();
 
-  virtual Type type() const override;
+private:
 };
 
-#endif // SEQUENCE_H
+#endif // NODEGRAPH_H
