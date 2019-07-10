@@ -18,17 +18,20 @@
 
 ***/
 
-#ifndef NODE_H
-#define NODE_H
+#include "edge.h"
 
-#include <QObject>
-
-#include "node/param.h"
-
-class Node : public QObject
+NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input) :
+  output_(output),
+  input_(input)
 {
-public:
-  Node(QObject* parent = nullptr);
-};
+}
 
-#endif // NODE_H
+NodeOutput *NodeEdge::output()
+{
+  return output_;
+}
+
+NodeInput *NodeEdge::input()
+{
+  return input_;
+}

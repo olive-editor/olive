@@ -23,6 +23,8 @@
 
 #include <QObject>
 
+#include "node/edge.h"
+
 class Node;
 
 class NodeParam : public QObject
@@ -53,11 +55,21 @@ public:
 
   virtual Type type() = 0;
 
+  const QString& name();
+  void set_name(const QString& name);
+
   static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);
   static bool AreDataTypesCompatible(const DataType& output_type, const QList<DataType>& input_types);
 
-private:
+  static void ConnectEdge(NodeOutput *output, NodeInput *input);
+  static void DisconnectEdge(NodeEdgePtr edge);
 
+  static QString GetDefaultDataTypeName(const DataType &type);
+
+private:
+  QVector<NodeEdgePtr> edges_;
+
+  QString name_;
 };
 
 #endif // NODEPARAM_H

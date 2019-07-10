@@ -21,7 +21,8 @@
 #include "input.h"
 
 NodeInput::NodeInput(Node* parent) :
-  NodeParam(parent)
+  NodeParam(parent),
+  can_accept_multiple_inputs_(false)
 {
 }
 
@@ -38,4 +39,14 @@ void NodeInput::add_data_input(const NodeParam::DataType &data_type)
 bool NodeInput::can_accept_type(const NodeParam::DataType &data_type)
 {
   return AreDataTypesCompatible(data_type, inputs_);
+}
+
+bool NodeInput::can_accept_multiple_inputs()
+{
+  return can_accept_multiple_inputs_;
+}
+
+void NodeInput::set_can_accept_multiple_inputs(bool b)
+{
+  can_accept_multiple_inputs_ = b;
 }

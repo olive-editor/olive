@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/edge.h
+  node/edge.cpp
   node/node.h
   node/node.cpp
   node/graph.h

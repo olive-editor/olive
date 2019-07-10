@@ -34,8 +34,13 @@ public:
 
   bool can_accept_type(const DataType& data_type);
 
+  bool can_accept_multiple_inputs();
+  void set_can_accept_multiple_inputs(bool b);
+
 private:
   QList<DataType> inputs_;
+
+  bool can_accept_multiple_inputs_;
 };
 
 #endif // NODEINPUT_H

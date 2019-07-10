@@ -20,12 +20,24 @@
 
 #include "param.h"
 
-#include "node.h"
+#include "node/node.h"
+#include "node/input.h"
+#include "node/output.h"
 
 NodeParam::NodeParam(Node *parent) :
   QObject(parent)
 {
 
+}
+
+const QString &NodeParam::name()
+{
+  return name_;
+}
+
+void NodeParam::set_name(const QString &name)
+{
+  name_ = name;
 }
 
 bool NodeParam::AreDataTypesCompatible(const NodeParam::DataType &output_type, const NodeParam::DataType &input_type)
@@ -59,4 +71,44 @@ bool NodeParam::AreDataTypesCompatible(const DataType &output_type, const QList<
   }
 
   return false;
+}
+
+void NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
+{
+  // If the input can only accept one input (the default) and has one already, disconnect it
+  if (!input->edges_.isEmpty() && !input->can_accept_multiple_inputs()) {
+    DisconnectEdge(input->edges_.first());
+  }
+
+  NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
+
+  output->edges_.append(edge);
+  input->edges_.append(edge);
+}
+
+void NodeParam::DisconnectEdge(NodeEdgePtr edge)
+{
+  NodeOutput* output = edge->output();
+  NodeInput* input = edge->input();
+
+  output->edges_.removeAll(edge);
+  input->edges_.removeAll(edge);
+}
+
+QString NodeParam::GetDefaultDataTypeName(const DataType& type)
+{
+  switch (type) {
+  case kNone: return tr("None");
+  case kInt: return tr("Integer");
+  case kFloat: return tr("Float");
+  case kColor: return tr("Color");
+  case kString: return tr("String");
+  case kBoolean: return tr("Boolean");
+  case kFont: return tr("Font");
+  case kFile: return tr("File");
+  case kTexture: return tr("Texture");
+  case kMatrix: return tr("Matrix");
+  case kBlock: return tr("Block");
+  case kAny: return tr("Any");
+  }
 }

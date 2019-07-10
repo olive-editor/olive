@@ -18,17 +18,27 @@
 
 ***/
 
-#ifndef NODE_H
-#define NODE_H
+#ifndef EDGE_H
+#define EDGE_H
 
-#include <QObject>
+#include <memory>
 
-#include "node/param.h"
+class NodeOutput;
+class NodeInput;
 
-class Node : public QObject
+class NodeEdge
 {
 public:
-  Node(QObject* parent = nullptr);
+  NodeEdge(NodeOutput* output, NodeInput* input);
+
+  NodeOutput* output();
+  NodeInput* input();
+
+private:
+  NodeOutput* output_;
+  NodeInput* input_;
 };
 
-#endif // NODE_H
+using NodeEdgePtr = std::shared_ptr<NodeEdge>;
+
+#endif // EDGE_H
