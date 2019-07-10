@@ -111,4 +111,6 @@ QString NodeParam::GetDefaultDataTypeName(const DataType& type)
   case kBlock: return tr("Block");
   case kAny: return tr("Any");
   }
+
+  return QString();
 }

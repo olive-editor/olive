@@ -33,7 +33,7 @@ public:
   enum Type {
     kInput,
     kOutput,
-    kPassthrough
+    kBidirectional
   };
 
   enum DataType {
