@@ -76,17 +76,12 @@ target_link_libraries(${OLIVE_TARGET}
   OpenColorIO
 )
 
+set(OLIVE_EFFECTS
+  # FIXME: Empty variable
+)
+
 set(OLIVE_TS_FILES
-  ts/olive_ar.ts
-  ts/olive_bs.ts
-  ts/olive_cs.ts
-  ts/olive_de.ts
-  ts/olive_es.ts
-  ts/olive_fr.ts
-  ts/olive_it.ts
-  ts/olive_ru.ts
-  ts/olive_sr.ts
-  ts/olive_id.ts
+  # FIXME: Empty variable
 )
 
 if(UPDATE_TS)
