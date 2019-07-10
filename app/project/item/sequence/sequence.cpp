@@ -31,3 +31,53 @@ Item::Type Sequence::type() const
 {
   return kSequence;
 }
+
+const int &Sequence::video_width()
+{
+  return video_width_;
+}
+
+void Sequence::set_video_width(const int &width)
+{
+  video_width_ = width;
+}
+
+const int &Sequence::video_height() const
+{
+  return video_height_;
+}
+
+void Sequence::set_video_height(const int &video_height)
+{
+  video_height_ = video_height;
+}
+
+const rational &Sequence::video_time_base()
+{
+  return video_time_base_;
+}
+
+void Sequence::set_video_time_base(const rational &time_base)
+{
+  video_time_base_ = time_base;
+}
+
+const int &Sequence::audio_sampling_rate()
+{
+  return audio_sampling_rate_;
+}
+
+void Sequence::set_audio_sampling_rate(const int &sample_rate)
+{
+  audio_sampling_rate_ = sample_rate;
+}
+
+const rational &Sequence::audio_time_base()
+{
+  return audio_time_base_;
+}
+
+void Sequence::set_audio_time_base(const rational &time_base)
+{
+  audio_time_base_ = time_base;
+}
