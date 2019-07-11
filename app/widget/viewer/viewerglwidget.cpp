@@ -24,7 +24,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 
-#include "render/gl/glfunc.h"
+#include "render/gl/functions.h"
 #include "render/gl/shadergenerators.h"
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :

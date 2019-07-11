@@ -40,6 +40,11 @@ void NodeParam::set_name(const QString &name)
   name_ = name;
 }
 
+Node *NodeParam::parent()
+{
+  return static_cast<Node*>(QObject::parent());
+}
+
 bool NodeParam::AreDataTypesCompatible(const NodeParam::DataType &output_type, const NodeParam::DataType &input_type)
 {
   if (input_type == output_type) {

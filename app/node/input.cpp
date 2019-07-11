@@ -20,10 +20,14 @@
 
 #include "input.h"
 
+#include "output.h"
+
 NodeInput::NodeInput(Node* parent) :
   NodeParam(parent),
   can_accept_multiple_inputs_(false)
 {
+  // Have at least one keyframe/value active at any time
+  keyframes_.append(NodeKeyframe());
 }
 
 NodeParam::Type NodeInput::type()
@@ -49,4 +53,42 @@ bool NodeInput::can_accept_multiple_inputs()
 void NodeInput::set_can_accept_multiple_inputs(bool b)
 {
   can_accept_multiple_inputs_ = b;
+}
+
+QVariant NodeInput::get_value(const rational &time)
+{
+  /// Determine if this input has any connections to it
+  switch (edges_.size()) {
+
+  /// No connections - use the internal value
+  case 0:
+    // FIXME: Re-implement keyframing
+    return keyframes_.first().value();
+
+  /// One connection - use the output of the connected Node
+  case 1:
+    return edges_.first()->output()->get_value(time);
+
+  /// Multiple connections - rare, return a list of the outputs of the connected Nodes
+  default:
+  {
+    QList<QVariant> values;
+
+    for (int i=0;i<edges_.size();i++) {
+      values.append(edges_.at(i)->output()->get_value(time));
+    }
+
+    return values;
+  }
+  }
+}
+
+bool NodeInput::keyframing()
+{
+  return keyframing_;
+}
+
+void NodeInput::set_keyframing(bool k)
+{
+  keyframing_ = k;
 }

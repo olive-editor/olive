@@ -18,39 +18,42 @@
 
 ***/
 
-#ifndef NODEINPUT_H
-#define NODEINPUT_H
-
 #include "keyframe.h"
-#include "param.h"
 
-class NodeInput : public NodeParam
+NodeKeyframe::NodeKeyframe() :
+  time_(0),
+  value_(0),
+  type_(kLinear)
 {
-public:
-  NodeInput(Node *parent);
 
-  virtual Type type() override;
+}
 
-  void add_data_input(const DataType& data_type);
+const rational &NodeKeyframe::time()
+{
+  return time_;
+}
 
-  bool can_accept_type(const DataType& data_type);
+void NodeKeyframe::set_time(const rational &time)
+{
+  time_ = time;
+}
 
-  bool can_accept_multiple_inputs();
-  void set_can_accept_multiple_inputs(bool b);
+const QVariant &NodeKeyframe::value()
+{
+  return value_;
+}
 
-  QVariant get_value(const rational &time);
+void NodeKeyframe::set_value(const QVariant &value)
+{
+  value_ = value;
+}
 
-  bool keyframing();
-  void set_keyframing(bool k);
+const NodeKeyframe::Type &NodeKeyframe::type()
+{
+  return type_;
+}
 
-private:
-  QList<DataType> inputs_;
-
-  QList<NodeKeyframe> keyframes_;
-
-  bool keyframing_;
-
-  bool can_accept_multiple_inputs_;
-};
-
-#endif // NODEINPUT_H
+void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
+{
+  type_ = type;
+}

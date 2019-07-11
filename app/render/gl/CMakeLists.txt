@@ -16,8 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/gl/glfunc.h
-  render/gl/glfunc.cpp
+  render/gl/functions.h
+  render/gl/functions.cpp
   render/gl/shadergenerators.h
   render/gl/shadergenerators.cpp
   render/gl/shaderptr.h

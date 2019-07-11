@@ -122,6 +122,8 @@ bool FFmpegDecoder::Open()
 
 FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &length)
 {
+  // FIXME: Fill this out
+
   Q_UNUSED(timecode)
   Q_UNUSED(length)
 

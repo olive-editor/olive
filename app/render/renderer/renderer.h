@@ -18,39 +18,26 @@
 
 ***/
 
-#ifndef NODEINPUT_H
-#define NODEINPUT_H
+#ifndef RENDERER_H
+#define RENDERER_H
 
-#include "keyframe.h"
-#include "param.h"
+#include "render/renderer/rendererthread.h"
 
-class NodeInput : public NodeParam
+class Renderer
 {
 public:
-  NodeInput(Node *parent);
+  Renderer();
 
-  virtual Type type() override;
+  void Start();
 
-  void add_data_input(const DataType& data_type);
+  void Stop();
 
-  bool can_accept_type(const DataType& data_type);
-
-  bool can_accept_multiple_inputs();
-  void set_can_accept_multiple_inputs(bool b);
-
-  QVariant get_value(const rational &time);
-
-  bool keyframing();
-  void set_keyframing(bool k);
+  //RendererThread* CurrentThread();
 
 private:
-  QList<DataType> inputs_;
+  QVector<RendererThread*> threads_;
 
-  QList<NodeKeyframe> keyframes_;
-
-  bool keyframing_;
-
-  bool can_accept_multiple_inputs_;
+  bool started_;
 };
 
-#endif // NODEINPUT_H
+#endif // RENDERER_H

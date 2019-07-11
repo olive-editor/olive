@@ -18,39 +18,42 @@
 
 ***/
 
-#ifndef NODEINPUT_H
-#define NODEINPUT_H
+#include "memorybuffer.h"
 
-#include "keyframe.h"
-#include "param.h"
-
-class NodeInput : public NodeParam
+MemoryBuffer::MemoryBuffer()
 {
-public:
-  NodeInput(Node *parent);
+}
 
-  virtual Type type() override;
+void MemoryBuffer::Create(int width, int height, const olive::PixelFormat &format)
+{
+  width_ = width;
+  height_ = height;
+  format_ = format;
 
-  void add_data_input(const DataType& data_type);
+  data_.resize(PixelService::GetBufferSize(format, width, height));
+}
 
-  bool can_accept_type(const DataType& data_type);
+const int &MemoryBuffer::width() const
+{
+  return width_;
+}
 
-  bool can_accept_multiple_inputs();
-  void set_can_accept_multiple_inputs(bool b);
+const int &MemoryBuffer::height() const
+{
+  return height_;
+}
 
-  QVariant get_value(const rational &time);
+const olive::PixelFormat &MemoryBuffer::format() const
+{
+  return format_;
+}
 
-  bool keyframing();
-  void set_keyframing(bool k);
+uint8_t *MemoryBuffer::data()
+{
+  return data_.data();
+}
 
-private:
-  QList<DataType> inputs_;
-
-  QList<NodeKeyframe> keyframes_;
-
-  bool keyframing_;
-
-  bool can_accept_multiple_inputs_;
-};
-
-#endif // NODEINPUT_H
+const uint8_t *MemoryBuffer::const_data() const
+{
+  return data_.constData();
+}

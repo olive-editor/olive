@@ -20,6 +20,8 @@
 
 #include "output.h"
 
+#include "node/node.h"
+
 NodeOutput::NodeOutput(Node *parent) :
   NodeParam(parent)
 {
@@ -39,4 +41,18 @@ const NodeParam::DataType &NodeOutput::data_type()
 void NodeOutput::set_data_type(const NodeParam::DataType &type)
 {
   data_type_ = type;
+}
+
+const QVariant &NodeOutput::get_value(const rational& time)
+{
+  // Node::Process() should put the correct value in this output
+  parent()->Process(time);
+
+  // The value should be have been set by this point
+  return value_;
+}
+
+void NodeOutput::set_value(const QVariant &value)
+{
+  value_ = value;
 }

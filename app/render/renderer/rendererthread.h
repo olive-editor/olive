@@ -18,39 +18,51 @@
 
 ***/
 
-#ifndef NODEINPUT_H
-#define NODEINPUT_H
+#ifndef RENDERTHREAD_H
+#define RENDERTHREAD_H
 
-#include "keyframe.h"
-#include "param.h"
+#include <QMutex>
+#include <QOffscreenSurface>
+#include <QOpenGLContext>
+#include <QThread>
+#include <QWaitCondition>
 
-class NodeInput : public NodeParam
+#include "node/node.h"
+#include "render/texturebuffer.h"
+
+class RendererThread : public QThread
 {
 public:
-  NodeInput(Node *parent);
+  RendererThread();
 
-  virtual Type type() override;
+  QOpenGLContext* context();
 
-  void add_data_input(const DataType& data_type);
+  TextureBuffer* buffer();
 
-  bool can_accept_type(const DataType& data_type);
+  bool Queue(Node* n, const rational &time);
 
-  bool can_accept_multiple_inputs();
-  void set_can_accept_multiple_inputs(bool b);
+  void Cancel();
 
-  QVariant get_value(const rational &time);
-
-  bool keyframing();
-  void set_keyframing(bool k);
+  virtual void run() override;
 
 private:
-  QList<DataType> inputs_;
+  QOpenGLContext ctx_;
 
-  QList<NodeKeyframe> keyframes_;
+  QOffscreenSurface surface_;
 
-  bool keyframing_;
+  TextureBuffer buffer_;
 
-  bool can_accept_multiple_inputs_;
+  QWaitCondition wait_cond_;
+
+  QMutex mutex_;
+
+  QMutex caller_mutex_;
+
+  Node* node_;
+
+  rational time_;
+
+  bool cancelled_;
 };
 
-#endif // NODEINPUT_H
+#endif // RENDERTHREAD_H

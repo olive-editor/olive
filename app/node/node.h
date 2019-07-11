@@ -24,11 +24,14 @@
 #include <QObject>
 
 #include "node/param.h"
+#include "rational.h"
 
 class Node : public QObject
 {
 public:
   Node(QObject* parent = nullptr);
+
+  virtual void Process(const rational& time) = 0;
 };
 
 #endif // NODE_H

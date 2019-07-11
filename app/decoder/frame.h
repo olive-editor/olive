@@ -37,25 +37,30 @@ extern "C" {
 class Frame
 {
 public:
-  // Normal constructor
+  enum Type {
+    kNative,
+    kAVFrame
+  };
+
+  /// Normal constructor
   Frame();
 
-  // AVFrame constructor
+  /// AVFrame constructor
   Frame(AVFrame* f);
 
-  // Copy constructor
+  /// Copy constructor
   Frame(const Frame& f);
 
-  // Move constructor
+  /// Move constructor
   Frame(Frame&& f);
 
-  // Copy assignment operator
+  /// Copy assignment operator
   Frame& operator=(const Frame& f);
 
-  // Move assignment operator
+  /// Move assignment operator
   Frame& operator=(Frame&& f);
 
-  // Destructor
+  /// Destructor
   ~Frame();
 
   /**

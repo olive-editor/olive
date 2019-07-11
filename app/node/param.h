@@ -22,8 +22,10 @@
 #define NODEPARAM_H
 
 #include <QObject>
+#include <QVariant>
 
 #include "node/edge.h"
+#include "rational.h"
 
 class Node;
 
@@ -58,6 +60,8 @@ public:
   const QString& name();
   void set_name(const QString& name);
 
+  Node* parent();
+
   static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);
   static bool AreDataTypesCompatible(const DataType& output_type, const QList<DataType>& input_types);
 
@@ -66,10 +70,13 @@ public:
 
   static QString GetDefaultDataTypeName(const DataType &type);
 
-private:
+protected:
   QVector<NodeEdgePtr> edges_;
 
+private:
+
   QString name_;
+
 };
 
 #endif // NODEPARAM_H

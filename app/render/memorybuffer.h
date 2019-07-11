@@ -18,39 +18,31 @@
 
 ***/
 
-#ifndef NODEINPUT_H
-#define NODEINPUT_H
+#ifndef MEMORYBUFFER_H
+#define MEMORYBUFFER_H
 
-#include "keyframe.h"
-#include "param.h"
+#include <QVector>
 
-class NodeInput : public NodeParam
+#include "pixelformat.h"
+
+class MemoryBuffer
 {
 public:
-  NodeInput(Node *parent);
+  MemoryBuffer();
 
-  virtual Type type() override;
+  void Create(int width, int height, const olive::PixelFormat &format);
 
-  void add_data_input(const DataType& data_type);
-
-  bool can_accept_type(const DataType& data_type);
-
-  bool can_accept_multiple_inputs();
-  void set_can_accept_multiple_inputs(bool b);
-
-  QVariant get_value(const rational &time);
-
-  bool keyframing();
-  void set_keyframing(bool k);
+  const int& width() const;
+  const int& height() const;
+  const olive::PixelFormat& format() const;
+  uint8_t* data();
+  const uint8_t* const_data() const;
 
 private:
-  QList<DataType> inputs_;
-
-  QList<NodeKeyframe> keyframes_;
-
-  bool keyframing_;
-
-  bool can_accept_multiple_inputs_;
+  QVector<uint8_t> data_;
+  int width_;
+  int height_;
+  olive::PixelFormat format_;
 };
 
-#endif // NODEINPUT_H
+#endif // MEMORYBUFFER_H

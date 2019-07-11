@@ -18,39 +18,53 @@
 
 ***/
 
-#ifndef NODEINPUT_H
-#define NODEINPUT_H
+#include "renderer.h"
 
-#include "keyframe.h"
-#include "param.h"
-
-class NodeInput : public NodeParam
+Renderer::Renderer() :
+  started_(false)
 {
-public:
-  NodeInput(Node *parent);
 
-  virtual Type type() override;
+}
 
-  void add_data_input(const DataType& data_type);
+void Renderer::Start()
+{
+  if (started_) {
+    return;
+  }
 
-  bool can_accept_type(const DataType& data_type);
+  threads_.resize(QThread::idealThreadCount());
 
-  bool can_accept_multiple_inputs();
-  void set_can_accept_multiple_inputs(bool b);
+  for (int i=0;i<threads_.size();i++) {
+    threads_[i] = new RendererThread();
+    threads_[i]->run();
+  }
 
-  QVariant get_value(const rational &time);
+  started_ = true;
+}
 
-  bool keyframing();
-  void set_keyframing(bool k);
+void Renderer::Stop()
+{
+  if (!started_) {
+    return;
+  }
 
-private:
-  QList<DataType> inputs_;
+  started_ = false;
 
-  QList<NodeKeyframe> keyframes_;
+  for (int i=0;i<threads_.size();i++) {
+    threads_[i]->Cancel();
+    delete threads_[i];
+  }
 
-  bool keyframing_;
+  threads_.clear();
+}
 
-  bool can_accept_multiple_inputs_;
-};
+/*RendererThread *Renderer::CurrentThread()
+{
+  for (int i=0;i<threads_.size();i++) {
+    if (threads_.at(i) == QThread::currentThread()) {
+      return threads_.at(i);
+    }
+  }
 
-#endif // NODEINPUT_H
+  return nullptr;
+}*/

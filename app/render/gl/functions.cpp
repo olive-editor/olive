@@ -18,7 +18,7 @@
 
 ***/
 
-#include "glfunc.h"
+#include "functions.h"
 
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>

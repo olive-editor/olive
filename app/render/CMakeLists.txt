@@ -15,8 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(gl)
+add_subdirectory(renderer)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  #render/imagecache.h
+  #render/imagecache.cpp
+  #render/memorybuffer.h
+  #render/memorybuffer.cpp
+  render/pixelformat.h
+  render/pixelformat.cpp
+  render/texturebuffer.h
+  render/texturebuffer.cpp
   PARENT_SCOPE
 )

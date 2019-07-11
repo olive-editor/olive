@@ -33,8 +33,13 @@ public:
   const DataType& data_type();
   void set_data_type(const DataType& type);
 
+  virtual const QVariant& get_value(const rational &time);
+  virtual void set_value(const QVariant& value);
+
 private:
   DataType data_type_;
+
+  QVariant value_;
 };
 
 #endif // NODEOUTPUT_H
