@@ -10937,10 +10937,10 @@
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
-     inkscape:current-layer="layer2"
-     inkscape:cy="30.70034"
-     inkscape:cx="26.776744"
-     inkscape:zoom="8.4189901"
+     inkscape:current-layer="layer1"
+     inkscape:cy="10.947587"
+     inkscape:cx="63.457709"
+     inkscape:zoom="5.953125"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1"
@@ -10999,7 +10999,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -11022,8 +11022,19 @@
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
      id="layer1"
-     transform="translate(0,16)"
-     style="display:inline">
+     transform="translate(0,16)">
+    <ellipse
+       ry="29"
+       rx="28.5"
+       cy="16"
+       cx="-39.328125"
+       id="ellipse1947"
+       style="opacity:1;fill:#ca1d1d;fill-opacity:1;stroke:none;stroke-width:18.06427765;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       id="path1949"
+       d="m -39.328125,-13 a 28.5,29 0 0 0 -28.5,29 28.5,29 0 0 0 28.5,29 28.5,29 0 0 0 28.5,-29 28.5,29 0 0 0 -28.5,-29 z M -50.869141,-0.041016 A 4.0004,4.0004 0 0 1 -48,1.171875 l 9.171875,9.171875 9.171875,-9.171875 a 4.0004,4.0004 0 0 1 2.75,-1.210937 A 4.0004,4.0004 0 0 1 -24,6.828125 L -33.171875,16 -24,25.171875 a 4.0004,4.0004 0 1 1 -5.65625,5.65625 L -38.828125,21.65625 -48,30.828125 a 4.0004,4.0004 0 1 1 -5.65625,-5.65625 L -44.484375,16 -53.65625,6.828125 a 4.0004,4.0004 0 0 1 2.787109,-6.869141 z"
+       style="opacity:1;fill:#d5d5d5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.8627451"
+       inkscape:connector-curvature="0" />
     <g
        id="g1987"
        transform="translate(70.828125,70.828125)">
@@ -11056,29 +11067,6 @@
            id="rect1965"
            style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:1.31687891;stroke-opacity:1" />
       </g>
-    </g>
-  </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2">
-    <g
-       id="g1941"
-       transform="translate(70.828125)">
-      <ellipse
-         style="opacity:1;fill:#ca1d1d;fill-opacity:1;stroke:none;stroke-width:18.06427765;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse1947"
-         cx="-39.328125"
-         cy="16"
-         rx="28.5"
-         ry="29"
-         transform="translate(0,16)" />
-      <path
-         transform="translate(0,16)"
-         inkscape:connector-curvature="0"
-         style="opacity:1;fill:#d5d5d5;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.8627451"
-         d="m -39.328125,-13 a 28.5,29 0 0 0 -28.5,29 28.5,29 0 0 0 28.5,29 28.5,29 0 0 0 28.5,-29 28.5,29 0 0 0 -28.5,-29 z M -50.869141,-0.041016 A 4.0004,4.0004 0 0 1 -48,1.171875 l 9.171875,9.171875 9.171875,-9.171875 a 4.0004,4.0004 0 0 1 2.75,-1.210937 A 4.0004,4.0004 0 0 1 -24,6.828125 L -33.171875,16 -24,25.171875 a 4.0004,4.0004 0 1 1 -5.65625,5.65625 L -38.828125,21.65625 -48,30.828125 a 4.0004,4.0004 0 1 1 -5.65625,-5.65625 L -44.484375,16 -53.65625,6.828125 a 4.0004,4.0004 0 0 1 2.787109,-6.869141 z"
-         id="path1949" />
     </g>
   </g>
 </svg>
