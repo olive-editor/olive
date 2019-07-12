@@ -723,10 +723,10 @@
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="false"
-     inkscape:current-layer="layer1"
-     inkscape:cy="28.676414"
-     inkscape:cx="-72.661439"
-     inkscape:zoom="4.8316896"
+     inkscape:current-layer="layer3"
+     inkscape:cy="32.888156"
+     inkscape:cx="26.129658"
+     inkscape:zoom="9.6633792"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      borderopacity="1"
@@ -859,13 +859,13 @@
        id="use1742-8"
        style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.75301945;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
-       style="opacity:1;fill:#636363;fill-opacity:0.89803922;stroke:none;stroke-width:1.04834151;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:#636363;fill-opacity:1;stroke:none;stroke-width:0.94510549;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect1722-7"
-       width="26.731363"
-       height="38.266136"
-       x="18.634333"
-       y="12.808137"
-       ry="5.2030001"
-       rx="5.2030001" />
+       width="18.606171"
+       height="44.682114"
+       x="22.69693"
+       y="9.6001492"
+       ry="2.961787"
+       rx="3.0679429" />
   </g>
 </svg>

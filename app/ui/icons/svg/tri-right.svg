@@ -715,17 +715,17 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="28"
-     inkscape:window-x="0"
-     inkscape:window-height="1386"
-     inkscape:window-width="2560"
+     inkscape:window-y="192"
+     inkscape:window-x="2560"
+     inkscape:window-height="1054"
+     inkscape:window-width="1920"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
      inkscape:current-layer="layer1"
-     inkscape:cy="28.252129"
-     inkscape:cx="18.466511"
+     inkscape:cy="37.764731"
+     inkscape:cx="27.357135"
      inkscape:zoom="13.666082"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -784,7 +784,7 @@
         <dc:source>http://commons.wikimedia.org/wiki/Tango_icon</dc:source>
         <cc:license
            rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:License
          rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
@@ -809,8 +809,8 @@
      id="layer1"
      transform="translate(0,16)">
     <path
-       style="opacity:1;fill:none;fill-opacity:0.8627451;fill-rule:nonzero;stroke:#d5d5d5;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.8627451"
-       d="m 56,26.78766 -24,-24 -24,24"
+       style="opacity:1;fill:none;fill-opacity:0.8627451;fill-rule:nonzero;stroke:#d5d5d5;stroke-width:12;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 20,38.78766 24,-24 -24,-24"
        id="path10375"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccc" />

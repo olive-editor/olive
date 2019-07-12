@@ -715,18 +715,18 @@
   </defs>
   <sodipodi:namedview
      stroke="#3465a4"
-     inkscape:window-y="28"
-     inkscape:window-x="0"
-     inkscape:window-height="1386"
-     inkscape:window-width="2560"
+     inkscape:window-y="192"
+     inkscape:window-x="2560"
+     inkscape:window-height="1054"
+     inkscape:window-width="1920"
      inkscape:showpageshadow="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      showgrid="true"
      inkscape:current-layer="layer2"
-     inkscape:cy="31.291763"
-     inkscape:cx="-0.0094864884"
-     inkscape:zoom="10.726351"
+     inkscape:cy="36.920175"
+     inkscape:cx="-0.1109919"
+     inkscape:zoom="5.3631755"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1"
@@ -834,27 +834,23 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Layer 2">
-    <g
-       id="g975"
-       transform="matrix(14.229699,0,0,14.229699,-4399.5831,-2822.7984)">
-      <rect
-         rx="0.27367809"
-         ry="0.27367809"
-         y="200.80026"
-         x="309.46423"
-         height="1.1564567"
-         width="3.935437"
-         id="rect969"
-         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.131089;stroke-opacity:1" />
-      <rect
-         style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:0.131089;stroke-opacity:1"
-         id="rect971"
-         width="3.935437"
-         height="1.1564567"
-         x="309.46423"
-         y="199.28836"
-         ry="0.27367809"
-         rx="0.27367809" />
-    </g>
+    <rect
+       style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:1.86535704;stroke-opacity:1"
+       id="rect969"
+       width="56.000084"
+       height="16.456032"
+       x="3.9997926"
+       y="34.528893"
+       ry="3.894357"
+       rx="3.894357" />
+    <rect
+       rx="3.894357"
+       ry="3.894357"
+       y="13.014985"
+       x="3.9997926"
+       height="16.456032"
+       width="56.000084"
+       id="rect971"
+       style="opacity:1;fill:#d5d5d5;fill-opacity:1;stroke:none;stroke-width:1.86535704;stroke-opacity:1" />
   </g>
 </svg>
