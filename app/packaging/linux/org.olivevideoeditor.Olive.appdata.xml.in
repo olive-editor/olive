@@ -29,9 +29,8 @@
   <screenshots>
     <screenshot type="default"><image>https://olivevideoeditor.org/img/screenshot.1600.jpg</image></screenshot>
   </screenshots>
-  <content_rating type="oars-1.1" />
+  <content_rating type="oars-1.1"/>
   <releases>
-    <release version="20181223" date="2018-12-23"></release>
-    <release version="20181130" date="2018-11-30"></release>
+    <release version="@APPDATA_RELEASE_VERSION@" date="@APPDATA_RELEASE_DATE@"/>
   </releases>
 </component>
