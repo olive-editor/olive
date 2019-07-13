@@ -52,14 +52,16 @@ public:
    */
   ViewerGLWidget(QWidget* parent);
 
+public slots:
   /**
    * @brief Set the texture to draw and draw it
    *
-   * Use this function
+   * Use this function to update the viewer.
    *
    * @param tex
    */
   void SetTexture(GLuint tex);
+
 protected:
   /**
    * @brief Initialize function to set up the OpenGL context upon its construction

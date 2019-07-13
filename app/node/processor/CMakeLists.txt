@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+add_subdirectory(renderer)
+
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/renderer/renderer.h
-  render/renderer/renderer.cpp
-  render/renderer/rendererthread.h
-  render/renderer/rendererthread.cpp
   PARENT_SCOPE
 )

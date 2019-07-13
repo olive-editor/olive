@@ -32,6 +32,11 @@
 // Main menu bar
 #include "mainmenu.h"
 
+// FIXME: Test code
+#include "node/output/viewer/viewer.h"
+#include "node/generator/solid/solid.h"
+// End test code
+
 olive::MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
 {
@@ -73,4 +78,11 @@ void olive::MainWindow::ProjectOpen(Project* p)
 
   TimelinePanel* timeline_panel = new TimelinePanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
+
+  // FIXME: Test code
+  ViewerOutput* vo = new ViewerOutput(this);
+  vo->AttachViewer(viewer_panel2);
+  SolidGenerator* sg = new SolidGenerator(this);
+  NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
+  // End test code
 }

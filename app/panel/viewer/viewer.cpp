@@ -20,19 +20,23 @@
 
 #include "viewer.h"
 
-#include "widget/viewer/viewer.h"
-
 ViewerPanel::ViewerPanel(QWidget *parent) :
   PanelWidget(parent)
 {
   // QObject system handles deleting this
-  ViewerWidget* viewer = new ViewerWidget(this);
+  viewer_ = new ViewerWidget(this);
+  connect(viewer_, SIGNAL(TimeChanged(const rational&)), this, SIGNAL(TimeChanged(const rational&)));
 
   // Set ViewerWidget as the central widget
-  setWidget(viewer);
+  setWidget(viewer_);
 
   // Set strings
   Retranslate();
+}
+
+void ViewerPanel::SetTexture(GLuint tex)
+{
+  viewer_->SetTexture(tex);
 }
 
 void ViewerPanel::changeEvent(QEvent *e)

@@ -64,26 +64,31 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   QPushButton* go_to_start_btn = new QPushButton();
   go_to_start_btn->setIcon(olive::icon::GoToStart);
   lower_middle_layout->addWidget(go_to_start_btn);
+  connect(go_to_start_btn, SIGNAL(clicked(bool)), this, SIGNAL(BeginClicked()));
 
   // Prev Frame Button
   QPushButton* prev_frame_btn = new QPushButton();
   prev_frame_btn->setIcon(olive::icon::PrevFrame);
   lower_middle_layout->addWidget(prev_frame_btn);
+  connect(prev_frame_btn, SIGNAL(clicked(bool)), this, SIGNAL(PrevFrameClicked()));
 
   // Play/Pause Button
   QPushButton* play_btn = new QPushButton();
   play_btn->setIcon(olive::icon::Play);
   lower_middle_layout->addWidget(play_btn);
+  connect(play_btn, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
 
   // Next Frame Button
   QPushButton* next_frame_btn = new QPushButton();
   next_frame_btn->setIcon(olive::icon::NextFrame);
   lower_middle_layout->addWidget(next_frame_btn);
+  connect(next_frame_btn, SIGNAL(clicked(bool)), this, SIGNAL(NextFrameClicked()));
 
   // Go To End Button
   QPushButton* go_to_end_btn = new QPushButton();
   go_to_end_btn->setIcon(olive::icon::GoToEnd);
   lower_middle_layout->addWidget(go_to_end_btn);
+  connect(go_to_end_btn, SIGNAL(clicked(bool)), this, SIGNAL(EndClicked()));
 
   lower_middle_layout->addStretch();
 

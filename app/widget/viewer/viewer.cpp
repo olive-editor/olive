@@ -40,4 +40,18 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   controls_->SetTimecodeEnabled(true);
   controls_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   layout->addWidget(controls_);
+
+  // FIXME: Test code
+  connect(controls_, SIGNAL(PlayClicked()), this, SLOT(TemporaryTestFunction()));
+  // End test code
+}
+
+void ViewerWidget::SetTexture(GLuint tex)
+{
+  gl_widget_->SetTexture(tex);
+}
+
+void ViewerWidget::TemporaryTestFunction()
+{
+  emit TimeChanged(69);
 }

@@ -16,6 +16,7 @@
 
 add_subdirectory(generator)
 add_subdirectory(output)
+add_subdirectory(processor)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

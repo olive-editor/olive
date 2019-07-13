@@ -20,13 +20,29 @@
 
 #include "renderer.h"
 
-Renderer::Renderer() :
+RendererProcessor::RendererProcessor(QObject *parent) :
+  Node(parent),
   started_(false)
 {
 
 }
 
-void Renderer::Start()
+QString RendererProcessor::Name()
+{
+  return tr("Renderer");
+}
+
+QString RendererProcessor::Category()
+{
+  return tr("Processor");
+}
+
+QString RendererProcessor::Description()
+{
+  return tr("A multi-threaded OpenGL hardware-accelerated node compositor.");
+}
+
+void RendererProcessor::Start()
 {
   if (started_) {
     return;
@@ -42,7 +58,7 @@ void Renderer::Start()
   started_ = true;
 }
 
-void Renderer::Stop()
+void RendererProcessor::Stop()
 {
   if (!started_) {
     return;
@@ -58,13 +74,7 @@ void Renderer::Stop()
   threads_.clear();
 }
 
-/*RendererThread *Renderer::CurrentThread()
+RendererThread *RendererProcessor::CurrentThread()
 {
-  for (int i=0;i<threads_.size();i++) {
-    if (threads_.at(i) == QThread::currentThread()) {
-      return threads_.at(i);
-    }
-  }
-
-  return nullptr;
-}*/
+  return dynamic_cast<RendererThread*>(QThread::currentThread());
+}

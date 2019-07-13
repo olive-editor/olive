@@ -14,17 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(gl)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  #render/imagecache.h
-  #render/imagecache.cpp
-  #render/memorybuffer.h
-  #render/memorybuffer.cpp
-  render/pixelformat.h
-  render/pixelformat.cpp
-  render/texturebuffer.h
-  render/texturebuffer.cpp
+  node/processor/renderer/renderer.h
+  node/processor/renderer/renderer.cpp
+  node/processor/renderer/rendererthread.h
+  node/processor/renderer/rendererthread.cpp
   PARENT_SCOPE
 )

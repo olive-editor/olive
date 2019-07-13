@@ -23,14 +23,27 @@
 
 #include <QObject>
 
-#include "node/param.h"
+#include "node/input.h"
+#include "node/output.h"
 #include "rational.h"
 
 class Node : public QObject
 {
+  Q_OBJECT
 public:
   Node(QObject* parent = nullptr);
 
+  virtual QString Name() = 0;
+  virtual QString Category();
+  virtual QString Description();
+
+  virtual void InvalidateCache(const rational& start_range, const rational& end_range);
+
+  using ParamList = QList<NodeParam *>;
+
+  ParamList Parameters();
+
+public slots:
   virtual void Process(const rational& time) = 0;
 };
 

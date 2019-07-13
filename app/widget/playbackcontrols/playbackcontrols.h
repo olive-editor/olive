@@ -31,6 +31,7 @@
  */
 class PlaybackControls : public QWidget
 {
+  Q_OBJECT
 public:
   PlaybackControls(QWidget* parent);
 

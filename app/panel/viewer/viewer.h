@@ -21,7 +21,10 @@
 #ifndef VIEWER_PANEL_H
 #define VIEWER_PANEL_H
 
+#include <QOpenGLFunctions>
+
 #include "widget/panel/panel.h"
+#include "widget/viewer/viewer.h"
 
 /**
  * @brief Dockable wrapper around a ViewerWidget
@@ -31,11 +34,26 @@ class ViewerPanel : public PanelWidget {
 public:
   ViewerPanel(QWidget* parent);
 
+public slots:
+  /**
+   * @brief Set the texture to draw and draw it
+   *
+   * Wrapper function for Viewer::SetTexture().
+   *
+   * @param tex
+   */
+  void SetTexture(GLuint tex);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
+signals:
+  void TimeChanged(const rational&);
+
 private:
   void Retranslate();
+
+  ViewerWidget* viewer_;
 };
 
 #endif // VIEWER_PANEL_H

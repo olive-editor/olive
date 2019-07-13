@@ -25,6 +25,7 @@
 #include <QPushButton>
 #include <QLabel>
 
+#include "rational.h"
 #include "viewerglwidget.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 
@@ -39,10 +40,25 @@ public:
 
   void SetPlaybackControlsEnabled(bool enabled);
 
+public slots:
+  /**
+   * @brief Set the texture to draw and draw it
+   *
+   * Wrapper function for ViewerGLWidget::SetTexture().
+   *
+   * @param tex
+   */
+  void SetTexture(GLuint tex);
+
+signals:
+  void TimeChanged(const rational&);
+
 private:
   ViewerGLWidget* gl_widget_;
   PlaybackControls* controls_;
 
+private slots:
+  void TemporaryTestFunction();
 };
 
 #endif // VIEWER_WIDGET_H
