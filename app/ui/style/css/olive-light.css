@@ -36,9 +36,14 @@
 **/
 
 /* Default widget colors */
-QWidget {
+QWidget, QMenu::separator {
   background: #d0d0d0;
   color: #000000;
+}
+
+/* Default disabled colors */
+QWidget::disabled {
+  color: #808080;
 }
 
 /* Default highlight colors */
@@ -47,53 +52,17 @@ QWidget::selected {
   color: #ffffff;
 }
 
-/* Default disabled colors */
-QWidget::disabled {
-  color: #808080;
-}
-
 /* Default link color */
 a {
   color: #2a82da;
 }
 
-/* Item views use a darker background color */
-QAbstractItemView {
+/* PanelWidget focus border color */
+PanelWidget {
+  qproperty-border: #2a82da;
+}
+
+/* All of these widgets' backgrounds are dark */
+QTreeView, QListView, QLineEdit, QMenu, QProgressBar, QPushButton::checked, NodeView {
   background: #f0f0f0;
-}
-
-/* Other children of QAbstractItemView (e.g. headers) should use the original background however */
-QAbstractItemView * {
-  background: #d0d0d0;
-}
-
-/* QLineEdit background is dark */
-QLineEdit {
-  background: #f0f0f0;
-}
-
-/* QMenu background is dark */
-QMenu {
-  background: #f0f0f0;
-}
-
-/* QProgressBar background is dark */
-QProgressBar {
-  background: #f0f0f0;
-}
-
-/* Ensure QPushButtons look dark when checked */
-QPushButton::checked {
-  background: #f0f0f0;
-}
-
-/* Ensure QMenu separators stand out */
-QMenu::separator {
-  background: #d0d0d0;
-}
-
-/* ToolTips use dark */
-QToolTip {
-  background: #f0f0f0;;
-  color: #000000;
 }

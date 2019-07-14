@@ -27,6 +27,7 @@
 
 class NodeView : public QGraphicsView
 {
+  Q_OBJECT
 public:
   NodeView(QWidget* parent);
 

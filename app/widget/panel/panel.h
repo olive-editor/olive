@@ -29,6 +29,7 @@
  */
 class PanelWidget : public QDockWidget {
   Q_OBJECT
+  Q_PROPERTY(QColor border READ GetBorderColor WRITE SetBorderColor DESIGNABLE true)
 public:
   /**
    * @brief PanelWidget Constructor
@@ -87,6 +88,12 @@ private:
    * Should be called any time a change is made to title_ or subtitle_
    */
   void UpdateTitle();
+
+  QColor GetBorderColor();
+
+  void SetBorderColor(QColor c);
+
+  QColor border_color_;
 
   /**
    * @brief Internal title string

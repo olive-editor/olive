@@ -21,6 +21,9 @@
 #include "panel.h"
 
 #include <QPainter>
+#include <QStyle>
+#include <QStyleOption>
+#include <QVariant>
 
 PanelWidget::PanelWidget(QWidget *parent) :
   QDockWidget(parent),
@@ -32,6 +35,7 @@ PanelWidget::PanelWidget(QWidget *parent) :
 void PanelWidget::SetBorderVisible(bool enabled)
 {
   border_visible_ = enabled;
+
   update();
 }
 
@@ -63,7 +67,8 @@ void PanelWidget::paintEvent(QPaintEvent *event)
     highlight_border.adjust(0, 0, -1, -1);
 
     // Set the color to the palette's highlight color
-    p.setPen(QPen(palette().highlight().color()));
+
+    p.setPen(QPen(border_color_));
 
     // Draw the highlight border
     p.drawRect(highlight_border);
@@ -79,4 +84,14 @@ void PanelWidget::UpdateTitle()
   } else {
     setWindowTitle(tr("%1: %2").arg(title_, subtitle_));
   }
+}
+
+QColor PanelWidget::GetBorderColor()
+{
+  return border_color_;
+}
+
+void PanelWidget::SetBorderColor(QColor c)
+{
+  border_color_ = c;
 }

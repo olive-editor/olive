@@ -33,7 +33,7 @@ void olive::style::AppSetDefault()
   qApp->setStyle(QStyleFactory::create("Fusion"));
 
   // Set CSS style for this
-  QFile css_file(":/css/olive-dark.css");
+  QFile css_file(":/css/olive-light.css");
 
   if (css_file.open(QFile::ReadOnly | QFile::Text)) {
     // Read in entire CSS from file and set as the application stylesheet
