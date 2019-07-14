@@ -18,21 +18,9 @@
 
 ***/
 
-#ifndef NODEGRAPH_H
-#define NODEGRAPH_H
+#include "nodeviewitem.h"
 
-#include <QObject>
-
-class NodeGraph : public QObject
+NodeViewItem::NodeViewItem()
 {
-public:
-  NodeGraph();
 
-  const QString& name();
-  void set_name(const QString& name);
-
-private:
-  QString name_;
-};
-
-#endif // NODEGRAPH_H
+}

@@ -18,21 +18,25 @@
 
 ***/
 
-#ifndef NODEGRAPH_H
-#define NODEGRAPH_H
+#include "nodeview.h"
 
-#include <QObject>
+#include <QGraphicsRectItem>
 
-class NodeGraph : public QObject
+NodeView::NodeView(QWidget *parent) :
+  QGraphicsView(parent),
+  graph_(nullptr)
 {
-public:
-  NodeGraph();
+  setScene(&scene_);
 
-  const QString& name();
-  void set_name(const QString& name);
+  QGraphicsRectItem* rect = scene_.addRect(0, 0, 50, 50, QPen(Qt::red), Qt::blue);
 
-private:
-  QString name_;
-};
+  QGraphicsTextItem* text = scene_.addText("text");
 
-#endif // NODEGRAPH_H
+  QGraphicsItemGroup* group = scene_.createItemGroup({rect, text});
+  group->setFlag(QGraphicsItem::ItemIsMovable);
+}
+
+void NodeView::SetGraph(NodeGraph *graph)
+{
+  graph_ = graph;
+}

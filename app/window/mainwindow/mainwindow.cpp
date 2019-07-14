@@ -24,7 +24,7 @@
 
 // Panel objects
 #include "panel/project/project.h"
-#include "panel/taskmanager/taskmanager.h"
+#include "panel/node/node.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
 #include "panel/viewer/viewer.h"
@@ -73,16 +73,20 @@ void olive::MainWindow::ProjectOpen(Project* p)
   ToolPanel* tool_panel = new ToolPanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
 
-  TaskManagerPanel* task_panel = new TaskManagerPanel(this);
+  NodePanel* task_panel = new NodePanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, task_panel);
 
   TimelinePanel* timeline_panel = new TimelinePanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
 
   // FIXME: Test code
-  ViewerOutput* vo = new ViewerOutput(this);
+  NodeGraph* graph = new NodeGraph();
+  graph->setParent(this);
+  graph->set_name("New Graph");
+  ViewerOutput* vo = new ViewerOutput(graph);
   vo->AttachViewer(viewer_panel2);
-  SolidGenerator* sg = new SolidGenerator(this);
+  SolidGenerator* sg = new SolidGenerator(graph);
   NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
+  task_panel->SetGraph(graph);
   // End test code
 }

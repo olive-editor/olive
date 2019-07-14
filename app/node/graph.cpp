@@ -24,3 +24,13 @@ NodeGraph::NodeGraph()
 {
 
 }
+
+const QString &NodeGraph::name()
+{
+  return name_;
+}
+
+void NodeGraph::set_name(const QString &name)
+{
+  name_ = name;
+}

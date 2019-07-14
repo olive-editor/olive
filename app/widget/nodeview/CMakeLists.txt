@@ -14,18 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(flowlayout)
-add_subdirectory(menu)
-add_subdirectory(nodeview)
-add_subdirectory(panel)
-add_subdirectory(playbackcontrols)
-add_subdirectory(projectexplorer)
-add_subdirectory(projecttoolbar)
-add_subdirectory(taskview)
-add_subdirectory(toolbar)
-add_subdirectory(viewer)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/nodeview/nodeview.h
+  widget/nodeview/nodeview.cpp
+  widget/nodeview/nodeviewitem.h
+  widget/nodeview/nodeviewitem.cpp
   PARENT_SCOPE
 )

@@ -18,21 +18,38 @@
 
 ***/
 
-#ifndef NODEGRAPH_H
-#define NODEGRAPH_H
+#include "node.h"
 
-#include <QObject>
-
-class NodeGraph : public QObject
+NodePanel::NodePanel(QWidget *parent) :
+  PanelWidget(parent)
 {
-public:
-  NodeGraph();
+  // Create NodeView widget
+  node_view_ = new NodeView(this);
 
-  const QString& name();
-  void set_name(const QString& name);
+  // Set it as the main widget of this panel
+  setWidget(node_view_);
 
-private:
-  QString name_;
-};
+  // Set strings
+  Retranslate();
+}
 
-#endif // NODEGRAPH_H
+void NodePanel::SetGraph(NodeGraph *graph)
+{
+  SetSubtitle(graph->name());
+
+  node_view_->SetGraph(graph);
+}
+
+void NodePanel::changeEvent(QEvent *e)
+{
+  if (e->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+  QDockWidget::changeEvent(e);
+}
+
+void NodePanel::Retranslate()
+{
+  SetTitle(tr("Node Editor"));
+  SetSubtitle(tr("(none)"));
+}

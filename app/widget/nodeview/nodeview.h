@@ -18,21 +18,24 @@
 
 ***/
 
-#ifndef NODEGRAPH_H
-#define NODEGRAPH_H
+#ifndef NODEVIEW_H
+#define NODEVIEW_H
 
-#include <QObject>
+#include <QGraphicsView>
 
-class NodeGraph : public QObject
+#include "node/graph.h"
+
+class NodeView : public QGraphicsView
 {
 public:
-  NodeGraph();
+  NodeView(QWidget* parent);
 
-  const QString& name();
-  void set_name(const QString& name);
+  void SetGraph(NodeGraph* graph);
 
 private:
-  QString name_;
+  NodeGraph* graph_;
+
+  QGraphicsScene scene_;
 };
 
-#endif // NODEGRAPH_H
+#endif // NODEVIEW_H

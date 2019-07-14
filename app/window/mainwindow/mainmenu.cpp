@@ -402,6 +402,7 @@ void MainMenu::Retranslate()
   tools_pointer_item_->setText(tr("Pointer Tool"));
   tools_edit_item_->setText(tr("Edit Tool"));
   tools_ripple_item_->setText(tr("Ripple Tool"));
+  tools_rolling_item_->setText(tr("Rolling Tool"));
   tools_razor_item_->setText(tr("Razor Tool"));
   tools_slip_item_->setText(tr("Slip Tool"));
   tools_slide_item_->setText(tr("Slide Tool"));

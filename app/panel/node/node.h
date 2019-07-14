@@ -18,21 +18,30 @@
 
 ***/
 
-#ifndef NODEGRAPH_H
-#define NODEGRAPH_H
+#ifndef NODEPANEL_H
+#define NODEPANEL_H
 
-#include <QObject>
+#include "widget/nodeview/nodeview.h"
+#include "widget/panel/panel.h"
 
-class NodeGraph : public QObject
+/**
+ * @brief A PanelWidget wrapper around a NodeView
+ */
+class NodePanel : public PanelWidget
 {
+  Q_OBJECT
 public:
-  NodeGraph();
+  NodePanel(QWidget* parent);
 
-  const QString& name();
-  void set_name(const QString& name);
+  void SetGraph(NodeGraph* graph);
+
+protected:
+  virtual void changeEvent(QEvent* e) override;
 
 private:
-  QString name_;
+  void Retranslate();
+
+  NodeView* node_view_;
 };
 
-#endif // NODEGRAPH_H
+#endif // NODEPANEL_H
