@@ -16,11 +16,14 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  clamp.h
   core.h
   core.cpp
+  lerp.h
   main.cpp
   rational.h
   rational.cpp
+  qobjectlistcast.h
 )
 
 add_subdirectory(decoder)

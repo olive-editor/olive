@@ -23,6 +23,8 @@
 
 #include <QObject>
 
+#include "node/node.h"
+
 class NodeGraph : public QObject
 {
 public:
@@ -30,6 +32,8 @@ public:
 
   const QString& name();
   void set_name(const QString& name);
+
+  QList<Node*> nodes();
 
 private:
   QString name_;

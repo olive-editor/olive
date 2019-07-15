@@ -45,6 +45,11 @@ Node *NodeParam::parent()
   return static_cast<Node*>(QObject::parent());
 }
 
+const QVector<NodeEdgePtr> &NodeParam::edges()
+{
+  return edges_;
+}
+
 bool NodeParam::AreDataTypesCompatible(const NodeParam::DataType &output_type, const NodeParam::DataType &input_type)
 {
   if (input_type == output_type) {

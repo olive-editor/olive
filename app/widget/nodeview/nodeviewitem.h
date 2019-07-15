@@ -22,6 +22,7 @@
 #define NODEVIEWITEM_H
 
 #include <QGraphicsRectItem>
+#include <QLinearGradient>
 
 #include "node/node.h"
 
@@ -30,11 +31,20 @@ class NodeViewItem : public QGraphicsRectItem
 public:
   NodeViewItem(QGraphicsItem* parent = nullptr);
 
+  void SetColor(const QColor& color);
+
+  void SetNode(Node* n);
+  Node* node();
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
+  void UpdateGradient();
+
   Node* node_;
+
+  QColor color_;
 };
 
 #endif // NODEVIEWITEM_H

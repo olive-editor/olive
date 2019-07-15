@@ -58,6 +58,10 @@ QIcon olive::icon::Sequence;
 QIcon olive::icon::Video;
 QIcon olive::icon::Audio;
 QIcon olive::icon::Image;
+QIcon olive::icon::TriUp;
+QIcon olive::icon::TriLeft;
+QIcon olive::icon::TriDown;
+QIcon olive::icon::TriRight;
 QIcon olive::icon::Snapping;
 QIcon olive::icon::ZoomIn;
 QIcon olive::icon::ZoomOut;
@@ -99,6 +103,11 @@ void olive::icon::LoadAll(const QString& theme)
   Video = Create(theme, "videosource");
   Audio = Create(theme, "audiosource");
   Image = Create(theme, "imagesource");
+
+  TriUp = Create(theme, "tri-up");
+  TriLeft = Create(theme, "tri-left");
+  TriDown = Create(theme, "tri-down");
+  TriRight = Create(theme, "tri-right");
 
   Snapping = Create(theme, "magnet");
   ZoomIn = Create(theme, "zoomin");

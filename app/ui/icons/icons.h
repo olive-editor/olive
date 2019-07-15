@@ -62,6 +62,12 @@ extern QIcon Video;
 extern QIcon Audio;
 extern QIcon Image;
 
+// Triangle Arrows
+extern QIcon TriUp;
+extern QIcon TriLeft;
+extern QIcon TriDown;
+extern QIcon TriRight;
+
 // Miscellaneous Icons
 extern QIcon Snapping;
 extern QIcon ZoomIn;

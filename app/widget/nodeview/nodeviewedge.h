@@ -18,26 +18,24 @@
 
 ***/
 
-#include "graph.h"
+#ifndef NODEEDGEITEM_H
+#define NODEEDGEITEM_H
 
-#include "qobjectlistcast.h"
+#include <QGraphicsLineItem>
 
-NodeGraph::NodeGraph()
+#include "node/edge.h"
+
+class NodeViewEdge : public QGraphicsLineItem
 {
+public:
+  NodeViewEdge(QGraphicsItem* parent = nullptr);
 
-}
+  void SetEdge(NodeEdgePtr edge);
 
-const QString &NodeGraph::name()
-{
-  return name_;
-}
+  void Adjust();
 
-void NodeGraph::set_name(const QString &name)
-{
-  name_ = name;
-}
+private:
+  NodeEdgePtr edge_;
+};
 
-QList<Node *> NodeGraph::nodes()
-{
-  return static_qobjectlist_cast<Node>(children());
-}
+#endif // NODEEDGEITEM_H

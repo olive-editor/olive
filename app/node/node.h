@@ -37,11 +37,21 @@ public:
   virtual QString Category();
   virtual QString Description();
 
+  /**
+   * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
+   *        requires re-rendering
+   *
+   * Override this if your Node subclass keeps a cache, but call this base function at the end of the subclass function.
+   * Default behavior is to relay this signal to all connected outputs, which will need to be done as to not break
+   * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
+   * call this function with transformed time and relay the signal that way.
+   */
   virtual void InvalidateCache(const rational& start_range, const rational& end_range);
 
-  using ParamList = QList<NodeParam *>;
-
-  ParamList Parameters();
+  /**
+   * @brief Return a list of NodeParams
+   */
+  QList<NodeParam*> parameters();
 
 public slots:
   virtual void Process(const rational& time) = 0;

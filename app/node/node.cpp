@@ -20,6 +20,8 @@
 
 #include "node.h"
 
+#include "qobjectlistcast.h"
+
 Node::Node(QObject *parent) :
   QObject(parent)
 {
@@ -39,33 +41,22 @@ QString Node::Description()
 
 void Node::InvalidateCache(const rational &start_range, const rational &end_range)
 {
-  Q_UNUSED(start_range)
-  Q_UNUSED(end_range)
+  QList<NodeParam *> params = parameters();
 
-  /*
-  ParamList params = Parameters();
-
+  // Loop through all parameters (there should be no children that are not NodeParams)
   for (int i=0;i<params.size();i++) {
     NodeParam* param = params.at(i);
 
-    if (param->type() == NodeParam::kOutput
-        && param->) {
-
+    // If the Node is an output, relay the signal to any Nodes that are connected to it
+    if (param->type() == NodeParam::kOutput) {
+      for (int i=0;i<param->edges().size();i++) {
+        param->edges().at(i)->input()->parent()->InvalidateCache(start_range, end_range);
+      }
     }
   }
-  */
 }
 
-Node::ParamList Node::Parameters()
+QList<NodeParam *> Node::parameters()
 {
-  const QObjectList& child_list = children();
-
-  ParamList params;
-  params.reserve(child_list.size());
-
-  for (int i=0;i<child_list.size();i++) {
-    params[i] = static_cast<NodeParam*>(child_list.at(i));
-  }
-
-  return params;
+  return static_qobjectlist_cast<NodeParam>(children());
 }

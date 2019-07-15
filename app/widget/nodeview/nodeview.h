@@ -24,6 +24,8 @@
 #include <QGraphicsView>
 
 #include "node/graph.h"
+#include "widget/nodeview/nodeviewedge.h"
+#include "widget/nodeview/nodeviewitem.h"
 
 class NodeView : public QGraphicsView
 {
@@ -33,10 +35,18 @@ public:
 
   void SetGraph(NodeGraph* graph);
 
+  static NodeViewItem* NodeToUIObject(QGraphicsScene* scene, Node* n);
+
 private:
   NodeGraph* graph_;
 
   QGraphicsScene scene_;
+
+  QList<NodeViewEdge*> edges_;
+
+private slots:
+  void ItemsChanged();
+
 };
 
 #endif // NODEVIEW_H
