@@ -16,16 +16,12 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  clamp.h
   core.h
   core.cpp
-  lerp.h
   main.cpp
-  rational.h
-  rational.cpp
-  qobjectlistcast.h
 )
 
+add_subdirectory(common)
 add_subdirectory(decoder)
 add_subdirectory(node)
 add_subdirectory(panel)

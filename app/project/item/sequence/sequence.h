@@ -21,9 +21,9 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
+#include "common/rational.h"
 #include "node/graph.h"
 #include "project/item/item.h"
-#include "rational.h"
 
 class Sequence : public Item, public NodeGraph
 {

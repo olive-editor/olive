@@ -25,7 +25,7 @@
 #include <QPushButton>
 #include <QLabel>
 
-#include "rational.h"
+#include "common/rational.h"
 #include "viewerglwidget.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 

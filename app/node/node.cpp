@@ -20,7 +20,7 @@
 
 #include "node.h"
 
-#include "qobjectlistcast.h"
+#include "common/qobjectlistcast.h"
 
 Node::Node(QObject *parent) :
   QObject(parent)

@@ -23,9 +23,9 @@
 
 #include <QObject>
 
+#include "common/rational.h"
 #include "node/input.h"
 #include "node/output.h"
-#include "rational.h"
 
 class Node : public QObject
 {

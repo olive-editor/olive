@@ -24,8 +24,8 @@
 #include <QObject>
 #include <QVariant>
 
+#include "common/rational.h"
 #include "node/edge.h"
-#include "rational.h"
 
 class Node;
 

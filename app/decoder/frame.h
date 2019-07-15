@@ -27,7 +27,7 @@ extern "C" {
 
 #include <memory>
 
-#include "rational.h"
+#include "common/rational.h"
 
 /**
  * @brief Abstraction from AVFrame. Currently a simple AVFrame wrapper.

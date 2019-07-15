@@ -20,7 +20,7 @@
 
 #include "graph.h"
 
-#include "qobjectlistcast.h"
+#include "common/qobjectlistcast.h"
 
 NodeGraph::NodeGraph()
 {

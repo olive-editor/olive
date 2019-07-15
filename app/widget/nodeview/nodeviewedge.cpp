@@ -22,8 +22,8 @@
 
 #include <QDebug>
 
-#include "clamp.h"
-#include "lerp.h"
+#include "common/clamp.h"
+#include "common/lerp.h"
 #include "nodeview.h"
 #include "nodeviewitem.h"
 

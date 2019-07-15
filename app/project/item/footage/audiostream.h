@@ -25,7 +25,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
-#include "rational.h"
+#include "common/rational.h"
 #include "stream.h"
 
 /**

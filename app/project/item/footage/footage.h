@@ -24,10 +24,10 @@
 #include <QList>
 #include <QDateTime>
 
+#include "common/rational.h"
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"
 #include "project/item/footage/videostream.h"
-#include "rational.h"
 
 /**
  * @brief A reference to an external media file with metadata in a project structure

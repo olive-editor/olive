@@ -23,7 +23,7 @@
 
 #include <QVariant>
 
-#include "rational.h"
+#include "common/rational.h"
 
 class NodeKeyframe
 {

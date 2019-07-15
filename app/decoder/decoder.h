@@ -24,7 +24,7 @@
 #include <QObject>
 #include <stdint.h>
 
-#include "rational.h"
+#include "common/rational.h"
 #include "project/item/footage/footage.h"
 #include "decoder/frame.h"
 

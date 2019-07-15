@@ -21,7 +21,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#include "rational.h"
+#include "common/rational.h"
 
 class Footage;
 
