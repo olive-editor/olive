@@ -23,6 +23,7 @@ set(OLIVE_SOURCES
 
 set(OLIVE_RESOURCES
   ${OLIVE_RESOURCES}
-  ui/icons/icons.qrc
+  ui/icons/olive-dark/olive-dark.qrc
+  ui/icons/olive-light/olive-light.qrc
   PARENT_SCOPE
 )

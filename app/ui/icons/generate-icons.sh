@@ -29,35 +29,53 @@
 
 OUTPUT_SIZES=( 16 32 64 128 )
 
-if [ $# -ne 2 ]
+if [ $# -lt 1 ]
 then
-  echo Usage: $0 path-to-svgs qrc-file
+  echo "Usage: $0 icon-pack-name [options]"
   echo
-  echo Example: $0 svg icons.qrc
+  echo "Example: $0 olive-dark"
+  echo
+  echo "Options:"
+  echo "    -n    Only generate QRC file"
+  echo
   exit 1
 fi
 
-SVGDIR=$1
-QRCFILE=$2
+PACKNAME=$1
+SVGDIR=$1/svg
+PNGDIR=$1
+QRCFILE=$1/$1.qrc
+
+ONLYQRC=0
+
+if [ "$2" == "-n" ]
+then
+  ONLYQRC=1
+fi
 
 truncate -s 0 $QRCFILE
 
 echo "<RCC>" >> $QRCFILE
-echo "  <qresource prefix=\"/icons\">" >> $QRCFILE
+echo "  <qresource prefix=\"/icons/$PACKNAME\">" >> $QRCFILE
 
-for f in $1/*.svg
+OutputPng() {
+  echo Creating $2...
+
+  echo "    <file>$(basename $2)</file>" >> $QRCFILE
+
+  if [ $ONLYQRC -eq 0 ]
+  then
+    inkscape -z -e $(pwd)/$2 -w $s -h $s $1
+  fi
+}
+
+for f in $SVGDIR/*.svg
 do
   FNBASE=$(basename -s .svg $f)
 
   for s in "${OUTPUT_SIZES[@]}"
   do
-    OUTPUTFN=$FNBASE.$s.png
-
-    echo Creating $OUTPUTFN...
-
-    echo "    <file>$OUTPUTFN</file>" >> $QRCFILE
-    
-    inkscape -z -e $(pwd)/$OUTPUTFN -w $s -h $s $f
+    OutputPng $f $PNGDIR/$FNBASE.$s.png
   done
 done
 

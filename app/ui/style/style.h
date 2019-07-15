@@ -35,6 +35,8 @@ namespace style {
  */
 void AppSetDefault();
 
+void SetOliveStyle(const QString& style_name);
+
 }
 }
 

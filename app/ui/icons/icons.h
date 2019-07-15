@@ -88,6 +88,10 @@ extern QIcon DirUp;
  * There is not much reason to call this outside of LoadAll() (which stores icons globally in memory so they don't
  * have to be reloaded each time a new object needs an icon).
  *
+ * @param theme
+ *
+ * Name of the theme (used in the URL as the folder to load PNGs from)
+ *
  * @param name
  *
  * Name of the icon (will correspond to the original SVG's filename with no path or extension)
@@ -96,7 +100,7 @@ extern QIcon DirUp;
  *
  * A QIcon object containing the various icon sizes loaded from resource
  */
-QIcon Create(const QString& name);
+QIcon Create(const QString &theme, const QString& name);
 
 /**
  * @brief Methodically load all Olive icons into global variables that can be accessed throughout the application
@@ -104,7 +108,7 @@ QIcon Create(const QString& name);
  * It's recommended to load any UI icons here so they're ready at startup and don't need to be re-loaded upon each
  * use.
  */
-void LoadAll();
+void LoadAll(const QString &theme);
 
 }
 }

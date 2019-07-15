@@ -1,7 +1,6 @@
 <RCC>
   <qresource prefix="/css">
     <file>olive-dark.css</file>
-    <file>olive-mid.css</file>
     <file>olive-light.css</file>
   </qresource>
 </RCC>

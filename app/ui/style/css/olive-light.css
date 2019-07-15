@@ -29,40 +29,41 @@
   Main:            #d0d0d0
   Text:            #000000
   Disabled Text:   #808080
-  Highlights:      #2a82da
+  Highlight:       #2a82da
   Highlight Text:  #ffffff
-  Dark:            #f0f0f0
+  Dark:            #ffffff
 
 **/
 
 /* Default widget colors */
 QWidget, QMenu::separator {
+  /* Main */
   background: #d0d0d0;
+
+  /* Text */
   color: #000000;
+
+  /* Highlight */
+  selection-background-color: #2a82da;
+
+  /* Highlight Text */
+  selection-color: #ffffff;
 }
 
 /* Default disabled colors */
 QWidget::disabled {
+  /* Disabled Text */
   color: #808080;
-}
-
-/* Default highlight colors */
-QWidget::selected {
-  background: #2a82da;
-  color: #ffffff;
 }
 
 /* Default link color */
 a {
+  /* Highlight */
   color: #2a82da;
-}
-
-/* PanelWidget focus border color */
-PanelWidget {
-  qproperty-border: #2a82da;
 }
 
 /* All of these widgets' backgrounds are dark */
 QTreeView, QListView, QLineEdit, QMenu, QProgressBar, QPushButton::checked, NodeView {
-  background: #f0f0f0;
+  /* Dark */
+  background: #ffffff;
 }

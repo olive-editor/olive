@@ -21,10 +21,20 @@
 #ifndef NODEVIEWITEM_H
 #define NODEVIEWITEM_H
 
-class NodeViewItem
+#include <QGraphicsRectItem>
+
+#include "node/node.h"
+
+class NodeViewItem : public QGraphicsRectItem
 {
 public:
-  NodeViewItem();
+  NodeViewItem(QGraphicsItem* parent = nullptr);
+
+protected:
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+private:
+  Node* node_;
 };
 
 #endif // NODEVIEWITEM_H

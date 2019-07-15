@@ -20,7 +20,58 @@
 
 #include "nodeviewitem.h"
 
-NodeViewItem::NodeViewItem()
-{
+#include <QApplication>
+#include <QBrush>
+#include <QFontMetrics>
+#include <QPainter>
+#include <QPen>
+#include <QStyleOptionGraphicsItem>
 
+const int kNodeViewItemBorderWidth = 2;
+const int kNodeViewItemWidth = 250;
+const int kNodeViewItemPadding = 5;
+
+NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
+  QGraphicsRectItem(parent),
+  node_(nullptr)
+{
+  setFlag(QGraphicsItem::ItemIsMovable);
+  setFlag(QGraphicsItem::ItemIsSelectable);
+
+  QFont f;
+  QFontMetrics fm(f);
+
+  setRect(0, 0, kNodeViewItemWidth, fm.height() + kNodeViewItemPadding * 2);
+}
+
+void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  Q_UNUSED(widget)
+
+  // Set up border, which will change color if selected
+  QPen pen;
+
+  pen.setWidth(kNodeViewItemBorderWidth);
+
+  if (option->state & QStyle::State_Selected) {
+    pen.setColor(qApp->palette().highlight().color());
+  } else {
+    // FIXME: Not configurable?
+    pen.setColor(Qt::black);
+  }
+
+  // Draw rect
+  painter->setPen(pen);
+  painter->setBrush(qApp->palette().window());
+  painter->drawRect(rect());
+
+
+  // Draw text
+  if (node_ != nullptr) {
+    painter->setPen(qApp->palette().text().color());
+
+    QRectF text_rect = rect();
+    text_rect.adjust(kNodeViewItemPadding, kNodeViewItemPadding, -kNodeViewItemPadding, -kNodeViewItemPadding);
+    painter->drawText(text_rect, Qt::AlignTop | Qt::AlignLeft, node_->Name());
+  }
 }

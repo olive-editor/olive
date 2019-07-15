@@ -27,13 +27,17 @@
 #include <QStyleFactory>
 #include <QTextStream>
 
+#include "ui/icons/icons.h"
+
 void olive::style::AppSetDefault()
 {
-  // We always use Qt Fusion since it's extremely customizable and cross platform
-  qApp->setStyle(QStyleFactory::create("Fusion"));
+  SetOliveStyle("olive-light");
+}
 
+void olive::style::SetOliveStyle(const QString &style_name)
+{
   // Set CSS style for this
-  QFile css_file(":/css/olive-light.css");
+  QFile css_file(QString(":/css/%1.css").arg(style_name));
 
   if (css_file.open(QFile::ReadOnly | QFile::Text)) {
     // Read in entire CSS from file and set as the application stylesheet
@@ -43,4 +47,7 @@ void olive::style::AppSetDefault()
 
     css_file.close();
   }
+
+  // Load all icons for this style
+  olive::icon::LoadAll(style_name);
 }

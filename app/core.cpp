@@ -33,7 +33,6 @@
 #include "project/item/footage/footage.h"
 #include "task/import/import.h"
 #include "task/taskmanager.h"
-#include "ui/icons/icons.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
 #include "widget/menu/menushared.h"
@@ -217,9 +216,6 @@ void Core::DeclareTypesForQt()
 
 void Core::StartGUI(bool full_screen)
 {
-  // Load all icons
-  olive::icon::LoadAll();
-
   // Set UI style
   olive::style::AppSetDefault();
 

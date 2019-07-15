@@ -22,18 +22,17 @@
 
 #include <QGraphicsRectItem>
 
+#include "nodeviewitem.h"
+
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
   graph_(nullptr)
 {
   setScene(&scene_);
 
-  QGraphicsRectItem* rect = scene_.addRect(0, 0, 50, 50, QPen(Qt::red), Qt::blue);
+  NodeViewItem* item = new NodeViewItem();
 
-  QGraphicsTextItem* text = scene_.addText("text");
-
-  QGraphicsItemGroup* group = scene_.createItemGroup({rect, text});
-  group->setFlag(QGraphicsItem::ItemIsMovable);
+  scene_.addItem(item);
 }
 
 void NodeView::SetGraph(NodeGraph *graph)
