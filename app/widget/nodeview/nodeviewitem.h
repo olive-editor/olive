@@ -21,6 +21,7 @@
 #ifndef NODEVIEWITEM_H
 #define NODEVIEWITEM_H
 
+#include <QFontMetrics>
 #include <QGraphicsRectItem>
 #include <QLinearGradient>
 
@@ -39,7 +40,9 @@ public:
   bool IsExpanded();
   void SetExpanded(bool e);
 
-  const QRectF& GetParameterConnectorRect(int index);
+  QRectF GetParameterConnectorRect(int index);
+
+  QPointF GetParameterTextPoint(int index);
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -59,7 +62,9 @@ private:
 
   QRectF content_rect_;
 
-  QVector<QRectF> param_rect_;
+  QFont font;
+
+  QFontMetrics font_metrics;
 
   int node_connector_size_;
 

@@ -49,6 +49,11 @@ public:
   virtual void InvalidateCache(const rational& start_range, const rational& end_range);
 
   /**
+   * @brief Return the parameter at a given index
+   */
+  NodeParam* ParamAt(int index);
+
+  /**
    * @brief Return a list of NodeParams
    */
   QList<NodeParam*> parameters();

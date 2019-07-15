@@ -20,7 +20,7 @@
 
 #include "nodeviewitem.h"
 
-#include <QFontMetrics>
+#include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
@@ -35,6 +35,7 @@ const int kNodeViewItemIconPadding = 12;
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
+  font_metrics(font),
   expanded_(false)
 {
   // Set flags for this widget
@@ -42,15 +43,12 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   setFlag(QGraphicsItem::ItemIsSelectable);
 
   // Use the current default font height to size this widget
-  QFont f;
-  QFontMetrics fm(f);
-
   // Set default "collapsed" size
-  title_bar_rect_ = QRectF(0, 0, kNodeViewItemWidth, fm.height() + kNodeViewItemTextPadding * 2);
+  title_bar_rect_ = QRectF(0, 0, kNodeViewItemWidth, font_metrics.height() + kNodeViewItemTextPadding * 2);
   setRect(title_bar_rect_);
 
   // Set default node connector size
-  node_connector_size_ = fm.height() / 3;
+  node_connector_size_ = font_metrics.height() / 3;
 
   // FIXME: Magic "number"/magic "color" - allow this to be editable by the user
   SetColor(QColor(32, 32, 128));
@@ -69,8 +67,6 @@ void NodeViewItem::SetColor(const QColor &color)
 void NodeViewItem::SetNode(Node *n)
 {
   node_ = n;
-
-  param_rect_.resize(node_->ParameterCount());
 
   update();
 }
@@ -96,10 +92,7 @@ void NodeViewItem::SetExpanded(bool e)
 
     // If a node is connected, use its parameter count to set the height
     if (node_ != nullptr) {
-      QFont f;
-      QFontMetrics fm(f);
-
-      full_size_rect.adjust(0, 0, 0, kNodeViewItemTextPadding*2 + fm.height() * node_->ParameterCount());
+      full_size_rect.adjust(0, 0, 0, kNodeViewItemTextPadding*2 + font_metrics.height() * node_->ParameterCount());
     }
 
     // Store content_rect (the rect without the titlebar)
@@ -110,14 +103,48 @@ void NodeViewItem::SetExpanded(bool e)
     new_rect = title_bar_rect_;
   }
 
-  //update();
+  update();
 
   setRect(new_rect);
 }
 
-const QRectF &NodeViewItem::GetParameterConnectorRect(int index)
+QRectF NodeViewItem::GetParameterConnectorRect(int index)
 {
-  return param_rect_.at(index);
+  if (node_ == nullptr) {
+    return QRectF();
+  }
+
+  NodeParam* param = node_->ParamAt(index);
+
+  QRectF connector_rect(rect().x(),
+                        content_rect_.y() + kNodeViewItemTextPadding + font_metrics.height() / 2 - node_connector_size_ / 2,
+                        node_connector_size_,
+                        node_connector_size_);
+
+  // FIXME: I don't know how this will work with NodeParam::kBidirectional
+  if (param->type() == NodeParam::kOutput) {
+    connector_rect.translate(rect().width() - node_connector_size_, 0);
+  }
+
+  return connector_rect;
+}
+
+QPointF NodeViewItem::GetParameterTextPoint(int index)
+{
+  if (node_ == nullptr) {
+    return QPointF();
+  }
+
+  NodeParam* param = node_->ParamAt(index);
+
+  // FIXME: I don't know how this will work with NodeParam::kBidirectional
+  if (param->type() == NodeParam::kOutput) {
+    return content_rect_.topRight() + QPointF(-(node_connector_size_ + kNodeViewItemTextPadding),
+                                             kNodeViewItemTextPadding + font_metrics.ascent() + font_metrics.height()*index);
+  } else {
+    return content_rect_.topLeft() + QPointF(node_connector_size_ + kNodeViewItemTextPadding,
+                                             kNodeViewItemTextPadding + font_metrics.ascent() + font_metrics.height()*index);
+  }
 }
 
 void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -143,23 +170,13 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setBrush(content_brush);
     painter->drawRect(rect());
 
-    QRectF text_rect = content_rect_.adjusted(kNodeViewItemTextPadding + node_connector_size_,
-                                              kNodeViewItemTextPadding,
-                                              -kNodeViewItemTextPadding,
-                                              -(kNodeViewItemTextPadding + node_connector_size_));
-
     // Set pen to draw text
     painter->setPen(text_pen);
 
     // Draw text and a connector rectangle for each parameter
 
-    // Store the rectangles/points which will steadily increase sa we loop
-    QRectF input_connector_rect(rect().x(),
-                                text_rect.y() + painter->fontMetrics().height() / 2 - node_connector_size_ / 2,
-                                node_connector_size_,
-                                node_connector_size_);
-    QRectF output_connector_rect = input_connector_rect.translated(rect().width() - node_connector_size_, 0);
-    QPointF text_draw_point = text_rect.topLeft() + QPointF(0, painter->fontMetrics().ascent());
+    // Store the text points which will steadily increase sa we loop
+
 
     // Loop through all the parameters
     QList<NodeParam*> node_params = node_->parameters();
@@ -167,25 +184,21 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       NodeParam* param = node_params.at(i);
 
       // Draw connector square
-      if (param->type() == NodeParam::kInput || param->type() == NodeParam::kBidirectional) {
-        painter->fillRect(input_connector_rect, connector_brush);
-
-        // FIXME: I don't know how this will work with NodeParam::kBidirectional
-        param_rect_[i] = input_connector_rect;
-      }
-      if (param->type() == NodeParam::kOutput || param->type() == NodeParam::kBidirectional) {
-        painter->fillRect(output_connector_rect, connector_brush);
-
-        // FIXME: I don't know how this will work with NodeParam::kBidirectional
-        param_rect_[i] = output_connector_rect;
-      }
-
-      input_connector_rect.translate(0, painter->fontMetrics().height());
-      output_connector_rect.translate(0, painter->fontMetrics().height());
+      painter->fillRect(GetParameterConnectorRect(i), connector_brush);
 
       // Draw text
-      painter->drawText(text_draw_point, node_params.at(i)->name());
-      text_draw_point += QPointF(0, painter->fontMetrics().height());
+      QPointF text_pt = GetParameterTextPoint(i);
+
+      // FIXME: I don't know how this will work for kBidirectional
+      if (param->type() == NodeParam::kOutput) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
+        text_pt -= QPointF(font_metrics.width(param->name()), 0);
+#else
+        text_pt -= QPointF(font_metrics.horizontalAdvance(param->name()), 0);
+#endif
+      }
+
+      painter->drawText(text_pt, param->name());
     }
 
     painter->setPen(border_pen);
@@ -212,9 +225,9 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // Draw the expand icon
     expand_hitbox_ = title_bar_rect_.adjusted(kNodeViewItemIconPadding,
-                                            kNodeViewItemIconPadding,
-                                            -kNodeViewItemIconPadding,
-                                            -kNodeViewItemIconPadding);
+                                              kNodeViewItemIconPadding,
+                                              -kNodeViewItemIconPadding,
+                                              -kNodeViewItemIconPadding);
 
     // Make the icon rect a square
     expand_hitbox_.setWidth(expand_hitbox_.height());
@@ -224,9 +237,9 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
     // Draw the text in a rect (the rect is sized around text already in the constructor)
     QRectF text_rect = title_bar_rect_.adjusted(kNodeViewItemIconPadding + expand_hitbox_.width() + kNodeViewItemTextPadding,
-                                              kNodeViewItemTextPadding,
-                                              -kNodeViewItemTextPadding,
-                                              -kNodeViewItemTextPadding);
+                                                kNodeViewItemTextPadding,
+                                                -kNodeViewItemTextPadding,
+                                                -kNodeViewItemTextPadding);
     painter->drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, node_->Name());
   }
 }

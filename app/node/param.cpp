@@ -27,7 +27,7 @@
 NodeParam::NodeParam(Node *parent) :
   QObject(parent)
 {
-
+  name_ = "Banjo";
 }
 
 const QString &NodeParam::name()

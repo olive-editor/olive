@@ -56,6 +56,11 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
   }
 }
 
+NodeParam *Node::ParamAt(int index)
+{
+  return static_cast<NodeParam*>(children().at(index));
+}
+
 QList<NodeParam *> Node::parameters()
 {
   return static_qobjectlist_cast<NodeParam>(children());
