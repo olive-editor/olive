@@ -114,7 +114,7 @@ QIcon olive::icon::Create(const QString& theme, const QString &name)
   QIcon icon;
 
   for (int i=0;i<ICON_SIZE_COUNT;i++) {
-    icon.addFile(QString(":/icons/%1/%2.%3.png").arg(theme, name, QString::number(ICON_SIZES[i])),
+    icon.addFile(QString(":/style/%1/png/%2.%3.png").arg(theme, name, QString::number(ICON_SIZES[i])),
                  QSize(ICON_SIZES[i], ICON_SIZES[i]));
   }
 

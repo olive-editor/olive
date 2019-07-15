@@ -43,8 +43,10 @@ fi
 
 PACKNAME=$1
 SVGDIR=$1/svg
-PNGDIR=$1
+PNGDIR=$1/png
 QRCFILE=$1/$1.qrc
+
+mkdir -p $PNGDIR
 
 ONLYQRC=0
 
@@ -56,12 +58,13 @@ fi
 truncate -s 0 $QRCFILE
 
 echo "<RCC>" >> $QRCFILE
-echo "  <qresource prefix=\"/icons/$PACKNAME\">" >> $QRCFILE
+echo "  <qresource prefix=\"/style/$PACKNAME\">" >> $QRCFILE
+echo "    <file>style.css</file>" >> $QRCFILE
 
 OutputPng() {
   echo Creating $2...
 
-  echo "    <file>$(basename $2)</file>" >> $QRCFILE
+  echo "    <file>png/$(basename $2)</file>" >> $QRCFILE
 
   if [ $ONLYQRC -eq 0 ]
   then

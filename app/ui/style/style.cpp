@@ -31,13 +31,14 @@
 
 void olive::style::AppSetDefault()
 {
-  SetOliveStyle("olive-light");
+  // FIXME: Fixed theme, allow the user to set this in-app
+  SetOliveStyle("olive-dark");
 }
 
 void olive::style::SetOliveStyle(const QString &style_name)
 {
   // Set CSS style for this
-  QFile css_file(QString(":/css/%1.css").arg(style_name));
+  QFile css_file(QString(":/style/%1/style.css").arg(style_name));
 
   if (css_file.open(QFile::ReadOnly | QFile::Text)) {
     // Read in entire CSS from file and set as the application stylesheet
