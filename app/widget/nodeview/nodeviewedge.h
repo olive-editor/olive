@@ -24,6 +24,7 @@
 #include <QGraphicsLineItem>
 
 #include "node/edge.h"
+#include "nodeviewitem.h"
 
 class NodeViewEdge : public QGraphicsLineItem
 {
@@ -35,6 +36,8 @@ public:
   void Adjust();
 
 private:
+  qreal CalculateEdgeYPoint(NodeViewItem* item, int param_index, NodeViewItem* opposing);
+
   NodeEdgePtr edge_;
 };
 

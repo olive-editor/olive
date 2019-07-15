@@ -53,6 +53,17 @@ public:
    */
   QList<NodeParam*> parameters();
 
+  /**
+   * @brief Return the current number of parameters
+   */
+  int ParameterCount();
+
+  /**
+   * @brief Return the index of a parameter
+   * @return Parameter index or -1 if this parameter is not part of this Node
+   */
+  int IndexOfParameter(NodeParam* param);
+
 public slots:
   virtual void Process(const rational& time) = 0;
 };

@@ -25,7 +25,6 @@
 #include "common/clamp.h"
 #include "common/lerp.h"
 #include "nodeview.h"
-#include "nodeviewitem.h"
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsLineItem(parent),
@@ -57,16 +56,36 @@ void NodeViewEdge::Adjust()
   NodeViewItem* output = NodeView::NodeToUIObject(scene(), edge_->output()->parent());
   NodeViewItem* input = NodeView::NodeToUIObject(scene(), edge_->input()->parent());
 
-  // Calculate output/input points
-  qreal value = clamp(0.5 + (output->pos().y() - input->pos().y()) / (input->rect().height()) / 4, 0.0, 1.0);
+  // Create initial values
+  QPointF output_point = QPointF(output->pos().x() + output->rect().width(), 0);
+  QPointF input_point = QPointF(input->pos().x(), 0);
 
-  // Use a lerp function to draw the line between the two corners
-  qreal output_point = output->pos().y() + lerp(0.0, output->rect().height(), 1.0 - value);
-  qreal input_point = input->pos().y() + lerp(0.0, input->rect().height(), value);
+  // Calculate output/input points
+  output_point.setY(CalculateEdgeYPoint(output, edge_->output()->index(), input));
+  input_point.setY(CalculateEdgeYPoint(input, edge_->input()->index(), output));
 
   // Draw a line between the two
   setLine(QLineF(
-            QPointF(output->pos().x() + output->rect().width(), output_point),
-            QPointF(input->pos().x(), input_point)
+            output_point,
+            input_point
             ));
 }
+
+qreal NodeViewEdge::CalculateEdgeYPoint(NodeViewItem *item, int param_index, NodeViewItem *opposing)
+{
+  if (item->IsExpanded()) {
+    return item->pos().y() + item->GetParameterConnectorRect(param_index).center().y();
+  } else {
+    qreal max_height = qMax(opposing->rect().height(), item->rect().height());
+
+    // Calculate the Y distance between the two nodes and create a 0.0-1.0 range for lerping
+    qreal input_value = clamp(0.5 + (opposing->pos().y() - item->pos().y()) / max_height / 4, 0.0, 1.0);
+
+    // Use a lerp function to draw the line between the two corners
+    qreal input_y = item->pos().y() + lerp(0.0, item->rect().height(), input_value);
+
+    // Set Y values according to calculations
+    return input_y;
+  }
+}
+

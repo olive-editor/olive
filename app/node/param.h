@@ -62,6 +62,8 @@ public:
 
   Node* parent();
 
+  int index();
+
   const QVector<NodeEdgePtr>& edges();
 
   static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);

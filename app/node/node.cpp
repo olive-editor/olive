@@ -60,3 +60,13 @@ QList<NodeParam *> Node::parameters()
 {
   return static_qobjectlist_cast<NodeParam>(children());
 }
+
+int Node::ParameterCount()
+{
+  return children().size();
+}
+
+int Node::IndexOfParameter(NodeParam *param)
+{
+  return children().indexOf(param);
+}

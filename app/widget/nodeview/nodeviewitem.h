@@ -36,15 +36,34 @@ public:
   void SetNode(Node* n);
   Node* node();
 
+  bool IsExpanded();
+  void SetExpanded(bool e);
+
+  const QRectF& GetParameterConnectorRect(int index);
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
   void UpdateGradient();
 
+  QRectF expand_hitbox_;
+
   Node* node_;
 
   QColor color_;
+
+  QRectF title_bar_rect_;
+
+  QRectF content_rect_;
+
+  QVector<QRectF> param_rect_;
+
+  int node_connector_size_;
+
+  bool expanded_;
 };
 
 #endif // NODEVIEWITEM_H

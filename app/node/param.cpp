@@ -45,6 +45,11 @@ Node *NodeParam::parent()
   return static_cast<Node*>(QObject::parent());
 }
 
+int NodeParam::index()
+{
+  return parent()->IndexOfParameter(this);
+}
+
 const QVector<NodeEdgePtr> &NodeParam::edges()
 {
   return edges_;
