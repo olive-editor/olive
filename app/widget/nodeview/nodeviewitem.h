@@ -24,15 +24,26 @@
 #include <QFontMetrics>
 #include <QGraphicsRectItem>
 #include <QLinearGradient>
+#include <QWidget>
 
 #include "node/node.h"
+
+class NodeViewItemWidgetProxy : public QWidget {
+  Q_OBJECT
+  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+public:
+  NodeViewItemWidgetProxy();
+
+  QColor TitleBarColor();
+  void SetTitleBarColor(QColor color);
+private:
+  QColor title_bar_color_;
+};
 
 class NodeViewItem : public QGraphicsRectItem
 {
 public:
   NodeViewItem(QGraphicsItem* parent = nullptr);
-
-  void SetColor(const QColor& color);
 
   void SetNode(Node* n);
   Node* node();
@@ -52,13 +63,11 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-  void UpdateGradient();
-
   QRectF expand_hitbox_;
 
   Node* node_;
 
-  QColor color_;
+  NodeViewItemWidgetProxy obj_proxy_;
 
   QRectF title_bar_rect_;
 

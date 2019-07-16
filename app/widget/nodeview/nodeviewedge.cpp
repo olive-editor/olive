@@ -30,9 +30,6 @@ NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsLineItem(parent),
   edge_(nullptr)
 {
-  // FIXME: This should probably be set to the text color in order to work on light themes
-  setPen(QPen(Qt::white, 2));
-
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
 }
@@ -69,6 +66,13 @@ void NodeViewEdge::Adjust()
             output_point,
             input_point
             ));
+}
+
+void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  setPen(QPen(widget->palette().color(QPalette::Text), 2));
+
+  QGraphicsLineItem::paint(painter, option, widget);
 }
 
 qreal NodeViewEdge::CalculateEdgeYPoint(NodeViewItem *item, int param_index, NodeViewItem *opposing)

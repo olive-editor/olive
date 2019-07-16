@@ -25,7 +25,9 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+#include "core.h"
 #include "ui/icons/icons.h"
+#include "window/mainwindow/mainwindow.h"
 
 const int kNodeViewItemBorderWidth = 2;
 const int kNodeViewItemWidth = 250;
@@ -50,19 +52,6 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 
   // Set default node connector size
   node_connector_size_ = font_metrics.height() / 3;
-
-  // FIXME: Magic "number"/magic "color" - allow this to be editable by the user
-  SetColor(QColor(48, 48, 192));
-}
-
-void NodeViewItem::SetColor(const QColor &color)
-{
-  color_ = color;
-
-  // Create a light gradient based on this color
-  UpdateGradient();
-
-  update();
 }
 
 void NodeViewItem::SetNode(Node *n)
@@ -148,27 +137,28 @@ QPointF NodeViewItem::GetParameterTextPoint(int index)
   }
 }
 
-void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
+  // HACK for getting the main QWidget palette color (the `widget`'s palette uses the NodeView color instead which we
+  // don't want here)
+  QPalette app_pal = olive::core.main_window()->palette();
+
   // Set up border, which will change color if selected
   // FIXME: Color not configurable?
   QPen border_pen(Qt::black, kNodeViewItemBorderWidth);
 
-  // FIXME: The text is always drawn white assuming the color will be dark - the intention is to provide preset
-  //        colors that will always be dark for the user to choose, so this value can stay white.
-  QPen text_pen(Qt::white);
+  QPen text_pen(app_pal.color(QPalette::Text));
 
-  // FIXME: Same as text_pen
-  QBrush connector_brush(Qt::white);
-
-  // FIXME: Same as above
-  QBrush content_brush(QColor("#353535"));
+  QBrush connector_brush(app_pal.color(QPalette::Text));
 
   painter->setPen(border_pen);
 
   if (expanded_ && node_ != nullptr) {
+
+
+    painter->setBrush(app_pal.window());
+
     // Draw background rect
-    painter->setBrush(content_brush);
     painter->drawRect(rect());
 
     // Set pen to draw text
@@ -177,7 +167,6 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     // Draw text and a connector rectangle for each parameter
 
     // Store the text points which will steadily increase sa we loop
-
 
     // Loop through all the parameters
     QList<NodeParam*> node_params = node_->parameters();
@@ -206,13 +195,13 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   }
 
   // Draw rect
-  painter->setBrush(brush());
+  painter->setBrush(obj_proxy_.TitleBarColor());
   painter->drawRect(title_bar_rect_);
 
   // If selected, draw selection outline
   if (option->state & QStyle::State_Selected) {
     QPen pen = painter->pen();
-    pen.setColor(widget->palette().highlight().color());
+    pen.setColor(app_pal.color(QPalette::Highlight));
     painter->setPen(pen);
 
     painter->setBrush(Qt::transparent);
@@ -251,6 +240,9 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  // We override standard mouse behavior in some cases. In these cases, we don't want the standard "move" and "release"
+  // events to trigger if we haven't already triggered the "press" event. We use this variable to determine whether
+  // base class behavior is valid here.
   standard_click_ = false;
 
   // Don't initiate a drag if we clicked the expand hitbox
@@ -268,6 +260,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
   }
 
+  // We aren't using any override behaviors, switch back to standard click behavior
   standard_click_ = true;
   QGraphicsRectItem::mousePressEvent(event);
 }
@@ -291,11 +284,16 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   }
 }
 
-void NodeViewItem::UpdateGradient()
+NodeViewItemWidgetProxy::NodeViewItemWidgetProxy()
 {
-  /*QLinearGradient grad(QPointF(0, rect().top()), QPointF(0, rect().bottom()));
-  grad.setColorAt(0, color_.lighter(175));
-  grad.setColorAt(1, color_);
-  setBrush(grad);*/
-  setBrush(color_);
+}
+
+QColor NodeViewItemWidgetProxy::TitleBarColor()
+{
+  return title_bar_color_;
+}
+
+void NodeViewItemWidgetProxy::SetTitleBarColor(QColor color)
+{
+  title_bar_color_ = color;
 }

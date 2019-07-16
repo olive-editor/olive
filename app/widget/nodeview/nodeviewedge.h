@@ -35,6 +35,9 @@ public:
 
   void Adjust();
 
+protected:
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
 private:
   qreal CalculateEdgeYPoint(NodeViewItem* item, int param_index, NodeViewItem* opposing);
 
