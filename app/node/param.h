@@ -31,6 +31,7 @@ class Node;
 
 class NodeParam : public QObject
 {
+  Q_OBJECT
 public:
   enum Type {
     kInput,
@@ -52,7 +53,7 @@ public:
     kAny
   };
 
-  NodeParam(Node* parent);
+  NodeParam();
 
   virtual Type type() = 0;
 
@@ -65,6 +66,7 @@ public:
 
   const QVector<NodeEdgePtr>& edges();
 
+  static bool AreDataTypesCompatible(NodeParam* a, NodeParam* b);
   static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);
   static bool AreDataTypesCompatible(const DataType& output_type, const QList<DataType>& input_types);
 
@@ -72,6 +74,10 @@ public:
   static void DisconnectEdge(NodeEdgePtr edge);
 
   static QString GetDefaultDataTypeName(const DataType &type);
+
+signals:
+  void EdgeAdded(NodeEdgePtr edge);
+  void EdgeRemoved(NodeEdgePtr edge);
 
 protected:
   QVector<NodeEdgePtr> edges_;

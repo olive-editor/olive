@@ -34,7 +34,7 @@ public:
    * Constructing a Renderer object will not start any threads/backend on its own. Use Start() to do this and Stop()
    * when the Renderer is about to be destroyed.
    */
-  RendererProcessor(QObject* parent = nullptr);
+  RendererProcessor();
 
   virtual QString Name() override;
   virtual QString Category() override;

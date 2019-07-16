@@ -22,8 +22,7 @@
 
 #include "output.h"
 
-NodeInput::NodeInput(Node* parent) :
-  NodeParam(parent),
+NodeInput::NodeInput() :
   can_accept_multiple_inputs_(false)
 {
   // Have at least one keyframe/value active at any time
@@ -96,4 +95,9 @@ bool NodeInput::keyframing()
 void NodeInput::set_keyframing(bool k)
 {
   keyframing_ = k;
+}
+
+const QList<NodeParam::DataType> &NodeInput::inputs()
+{
+  return inputs_;
 }

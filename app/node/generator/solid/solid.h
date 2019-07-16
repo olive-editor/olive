@@ -9,7 +9,7 @@ class SolidGenerator : public Node
 {
   Q_OBJECT
 public:
-  SolidGenerator(QObject* parent = nullptr);
+  SolidGenerator();
 
   virtual QString Name() override;
   virtual QString Category() override;
@@ -21,6 +21,8 @@ public slots:
   virtual void Process(const rational &time) override;
 
 private:
+  NodeInput* color_input_;
+
   NodeOutput* texture_output_;
 
   QOpenGLTexture* texture_;

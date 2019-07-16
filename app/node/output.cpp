@@ -22,8 +22,7 @@
 
 #include "node/node.h"
 
-NodeOutput::NodeOutput(Node *parent) :
-  NodeParam(parent)
+NodeOutput::NodeOutput()
 {
 
 }

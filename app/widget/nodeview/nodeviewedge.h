@@ -35,7 +35,6 @@ public:
 
   void Adjust();
 
-  void SetMoving(bool m);
   void SetConnected(bool c);
 
 protected:
@@ -44,7 +43,8 @@ protected:
 private:
   NodeEdgePtr edge_;
 
-  bool moving_;
+  int edge_width_;
+
   bool connected_;
 };
 

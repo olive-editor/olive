@@ -27,7 +27,7 @@
 class NodeInput : public NodeParam
 {
 public:
-  NodeInput(Node *parent);
+  NodeInput();
 
   virtual Type type() override;
 
@@ -42,6 +42,8 @@ public:
 
   bool keyframing();
   void set_keyframing(bool k);
+
+  const QList<DataType>& inputs();
 
 private:
   QList<DataType> inputs_;

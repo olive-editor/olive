@@ -26,7 +26,7 @@
 class NodeOutput : public NodeParam
 {
 public:
-  NodeOutput(Node* parent);
+  NodeOutput();
 
   virtual Type type() override;
 

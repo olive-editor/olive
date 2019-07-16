@@ -22,8 +22,7 @@
 
 #include "common/qobjectlistcast.h"
 
-Node::Node(QObject *parent) :
-  QObject(parent)
+Node::Node()
 {
 }
 
@@ -37,6 +36,14 @@ QString Node::Description()
 {
   // Return an empty string by default
   return QString();
+}
+
+void Node::AddParameter(NodeParam *param)
+{
+  param->setParent(this);
+
+  connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
+  connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
 }
 
 void Node::InvalidateCache(const rational &start_range, const rational &end_range)

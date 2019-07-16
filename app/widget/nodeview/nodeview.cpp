@@ -33,6 +33,11 @@ NodeView::NodeView(QWidget *parent) :
 
 void NodeView::SetGraph(NodeGraph *graph)
 {
+  if (graph_ != nullptr) {
+    disconnect(graph_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(AddEdge(NodeEdgePtr)));
+    disconnect(graph_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(RemoveEdge(NodeEdgePtr)));
+  }
+
   // Clear the scene of all UI objects
   scene_.clear();
 
@@ -41,6 +46,9 @@ void NodeView::SetGraph(NodeGraph *graph)
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_ != nullptr) {
+    connect(graph_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(AddEdge(NodeEdgePtr)));
+    connect(graph_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(RemoveEdge(NodeEdgePtr)));
+
     QList<Node*> graph_nodes = graph_->nodes();
 
     foreach (Node* node, graph_nodes) {
@@ -61,11 +69,7 @@ void NodeView::SetGraph(NodeGraph *graph)
           const QVector<NodeEdgePtr>& edges = param->edges();
 
           foreach(NodeEdgePtr edge, edges) {
-            NodeViewEdge* edge_ui = new NodeViewEdge();
-
-            edge_ui->SetEdge(edge);
-
-            scene_.addItem(edge_ui);
+            AddEdge(edge);
           }
         }
       }
@@ -105,6 +109,22 @@ NodeViewEdge *NodeView::EdgeToUIObject(QGraphicsScene *scene, NodeEdgePtr n)
   }
 
   return nullptr;
+}
+
+void NodeView::AddEdge(NodeEdgePtr edge)
+{
+  NodeViewEdge* edge_ui = new NodeViewEdge();
+
+  edge_ui->SetEdge(edge);
+
+  scene_.addItem(edge_ui);
+}
+
+void NodeView::RemoveEdge(NodeEdgePtr edge)
+{
+  NodeViewEdge* edge_ui = EdgeToUIObject(scene(), edge);
+
+  scene_.removeItem(edge_ui);
 }
 
 void NodeView::ItemsChanged()

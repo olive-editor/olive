@@ -8,7 +8,7 @@ class ViewerOutput : public Node
 {
   Q_OBJECT
 public:
-  ViewerOutput(QObject* parent = nullptr);
+  ViewerOutput();
 
   virtual QString Name() override;
   virtual QString Category() override;

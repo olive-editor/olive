@@ -27,13 +27,20 @@
 
 class NodeGraph : public QObject
 {
+  Q_OBJECT
 public:
   NodeGraph();
+
+  void AddNode(Node* node);
 
   const QString& name();
   void set_name(const QString& name);
 
   QList<Node*> nodes();
+
+signals:
+  void EdgeAdded(NodeEdgePtr edge);
+  void EdgeRemoved(NodeEdgePtr edge);
 
 private:
   QString name_;

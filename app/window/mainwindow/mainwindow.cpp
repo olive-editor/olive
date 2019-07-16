@@ -83,10 +83,12 @@ void olive::MainWindow::ProjectOpen(Project* p)
   NodeGraph* graph = new NodeGraph();
   graph->setParent(this);
   graph->set_name("New Graph");
-  ViewerOutput* vo = new ViewerOutput(graph);
+  ViewerOutput* vo = new ViewerOutput();
   vo->AttachViewer(viewer_panel2);
-  SolidGenerator* sg = new SolidGenerator(graph);
+  graph->AddNode(vo);
+  SolidGenerator* sg = new SolidGenerator();
   NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
+  graph->AddNode(sg);
   task_panel->SetGraph(graph);
   // End test code
 }

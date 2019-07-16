@@ -20,8 +20,7 @@
 
 #include "renderer.h"
 
-RendererProcessor::RendererProcessor(QObject *parent) :
-  Node(parent),
+RendererProcessor::RendererProcessor() :
   started_(false)
 {
 

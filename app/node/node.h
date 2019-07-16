@@ -31,11 +31,13 @@ class Node : public QObject
 {
   Q_OBJECT
 public:
-  Node(QObject* parent = nullptr);
+  Node();
 
   virtual QString Name() = 0;
   virtual QString Category();
   virtual QString Description();
+
+  void AddParameter(NodeParam* param);
 
   /**
    * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
@@ -71,6 +73,10 @@ public:
 
 public slots:
   virtual void Process(const rational& time) = 0;
+
+signals:
+  void EdgeAdded(NodeEdgePtr edge);
+  void EdgeRemoved(NodeEdgePtr edge);
 };
 
 #endif // NODE_H

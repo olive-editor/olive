@@ -31,11 +31,6 @@
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
 
-const int kNodeViewItemBorderWidth = 2;
-const int kNodeViewItemWidth = 200;
-const int kNodeViewItemTextPadding = 4;
-const int kNodeViewItemIconPadding = 12;
-
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
@@ -48,13 +43,31 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
 
-  // Use the current default font height to size this widget
-  // Set default "collapsed" size
-  title_bar_rect_ = QRectF(0, 0, kNodeViewItemWidth, font_metrics.height() + kNodeViewItemTextPadding * 2);
-  setRect(title_bar_rect_);
+  //
+  // We use font metrics to set all the UI measurements for DPI-awareness
+  //
+
+  // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
+#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
+  int widget_width = font_metrics.width("HHHHHHHHHHHHHHHH");
+#else
+  int widget_width = font_metrics.horizontalAdvance("HHHHHHHHHHHHHHHH");
+#endif
+
+  // Set border width
+  node_border_width_ = font_metrics.height() / 12;
 
   // Set default node connector size
   node_connector_size_ = font_metrics.height() / 3;
+
+  // Set text and icon padding
+  node_text_padding_ = font_metrics.height() / 6;
+  node_icon_padding_ = node_text_padding_ * 3;
+
+  // Use the current default font height to size this widget
+  // Set default "collapsed" size
+  title_bar_rect_ = QRectF(0, 0, widget_width, font_metrics.height() + node_text_padding_ * 2);
+  setRect(title_bar_rect_);
 }
 
 void NodeViewItem::SetNode(Node *n)
@@ -85,7 +98,7 @@ void NodeViewItem::SetExpanded(bool e)
 
     // If a node is connected, use its parameter count to set the height
     if (node_ != nullptr) {
-      full_size_rect.adjust(0, 0, 0, kNodeViewItemTextPadding*2 + font_metrics.height() * node_->ParameterCount());
+      full_size_rect.adjust(0, 0, 0, node_text_padding_*2 + font_metrics.height() * node_->ParameterCount());
     }
 
     // Store content_rect (the rect without the titlebar)
@@ -110,9 +123,13 @@ QRectF NodeViewItem::GetParameterConnectorRect(int index)
   NodeParam* param = node_->ParamAt(index);
 
   QRectF connector_rect(rect().x(),
-                        content_rect_.y() + kNodeViewItemTextPadding + font_metrics.height() / 2 - node_connector_size_ / 2,
+                        content_rect_.y() + node_text_padding_ + font_metrics.height() / 2 - node_connector_size_ / 2,
                         node_connector_size_,
                         node_connector_size_);
+
+  if (index > 0) {
+    connector_rect.translate(0, font_metrics.height() * index);
+  }
 
   // FIXME: I don't know how this will work with NodeParam::kBidirectional
   if (param->type() == NodeParam::kOutput) {
@@ -132,11 +149,11 @@ QPointF NodeViewItem::GetParameterTextPoint(int index)
 
   // FIXME: I don't know how this will work with NodeParam::kBidirectional
   if (param->type() == NodeParam::kOutput) {
-    return content_rect_.topRight() + QPointF(-(node_connector_size_ + kNodeViewItemTextPadding),
-                                             kNodeViewItemTextPadding + font_metrics.ascent() + font_metrics.height()*index);
+    return content_rect_.topRight() + QPointF(-(node_connector_size_ + node_text_padding_),
+                                              node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
   } else {
-    return content_rect_.topLeft() + QPointF(node_connector_size_ + kNodeViewItemTextPadding,
-                                             kNodeViewItemTextPadding + font_metrics.ascent() + font_metrics.height()*index);
+    return content_rect_.topLeft() + QPointF(node_connector_size_ + node_text_padding_,
+                                             node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
   }
 }
 
@@ -147,7 +164,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   QPalette app_pal = olive::core.main_window()->palette();
 
   // Set up border, which will change color if selected
-  QPen border_pen(obj_proxy_.BorderColor(), kNodeViewItemBorderWidth);
+  QPen border_pen(css_proxy_.BorderColor(), node_border_width_);
 
   QPen text_pen(app_pal.color(QPalette::Text));
 
@@ -157,7 +174,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 
   if (expanded_ && node_ != nullptr) {
 
-
+    // Use main widget color for node contents
     painter->setBrush(app_pal.window());
 
     // Draw background rect
@@ -197,7 +214,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   }
 
   // Draw rect
-  painter->setBrush(obj_proxy_.TitleBarColor());
+  painter->setBrush(css_proxy_.TitleBarColor());
   painter->drawRect(title_bar_rect_);
 
   // If selected, draw selection outline
@@ -216,10 +233,10 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setPen(text_pen);
 
     // Draw the expand icon
-    expand_hitbox_ = title_bar_rect_.adjusted(kNodeViewItemIconPadding,
-                                              kNodeViewItemIconPadding,
-                                              -kNodeViewItemIconPadding,
-                                              -kNodeViewItemIconPadding);
+    expand_hitbox_ = title_bar_rect_.adjusted(node_icon_padding_,
+                                              node_icon_padding_,
+                                              -node_icon_padding_,
+                                              -node_icon_padding_);
 
     // Make the icon rect a square
     expand_hitbox_.setWidth(expand_hitbox_.height());
@@ -232,10 +249,10 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     }
 
     // Draw the text in a rect (the rect is sized around text already in the constructor)
-    QRectF text_rect = title_bar_rect_.adjusted(kNodeViewItemIconPadding + expand_hitbox_.width() + kNodeViewItemTextPadding,
-                                                kNodeViewItemTextPadding,
-                                                -kNodeViewItemTextPadding,
-                                                -kNodeViewItemTextPadding);
+    QRectF text_rect = title_bar_rect_.adjusted(node_icon_padding_ + expand_hitbox_.width() + node_text_padding_,
+                                                node_text_padding_,
+                                                -node_text_padding_,
+                                                -node_text_padding_);
     painter->drawText(text_rect, Qt::AlignVCenter | Qt::AlignLeft, node_->Name());
   }
 }
@@ -261,41 +278,42 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
         NodeParam* param = node_->ParamAt(i);
 
+        // Create draggable object
+        dragging_edge_ = new NodeViewEdge();
+
         if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
           // For an output param (or an input param with no connections), we default to creating a new edge
-
-          // Create new NodeViewEdge object for the user to create an edge
-          dragging_edge_ = new NodeViewEdge();
-          dragging_edge_->SetMoving(true);
-
           drag_source_ = this;
           drag_src_param_ = param;
 
           // Set the starting position to the current param's connector
-          dragging_edge_start_ = pos() + GetParameterConnectorRect(i).center();
-          dragging_edge_->setLine(QLineF(dragging_edge_start_, dragging_edge_start_));
-
-          // Add it to the scene
-          scene()->addItem(dragging_edge_);
+          dragging_edge_start_ = mapToScene(GetParameterConnectorRect(i).center());
 
         } else if (param->type() == NodeParam::kInput) {
           // For an input param, we default to moving an existing edge
           // (here we use the last one, which will usually also be the first)
           NodeEdgePtr edge = param->edges().last();
 
-          dragging_edge_ = NodeView::EdgeToUIObject(scene(), edge);
-          dragging_edge_->SetMoving(true);
+          // Remove old edge
+          NodeParam::DisconnectEdge(edge);
 
-          // The starting position will be the OPPOSING param's rect
-          NodeOutput* opposing_param = edge->output();
-          Node* opposing_node = opposing_param->parent();
-          NodeViewItem* opposing_node_view_item = NodeView::NodeToUIObject(scene(), opposing_node);
-          dragging_edge_start_ = opposing_node_view_item->pos() + opposing_node_view_item->GetParameterConnectorRect(opposing_param->index()).center();
+          // The starting position will be the OPPOSING parameter's rectangle
 
-          drag_source_ = opposing_node_view_item;
-          drag_src_param_ = opposing_param;
+          // Get the opposing parameter
+          drag_src_param_ = edge->output();
 
+          // Get its Node UI object
+          drag_source_ = NodeView::NodeToUIObject(scene(), drag_src_param_->parent());
+
+          // Get the opposing parameter's rect center
+          dragging_edge_start_ = drag_source_->mapToScene(drag_source_->GetParameterConnectorRect(drag_src_param_->index()).center());
         }
+
+        // Add it to the scene
+        scene()->addItem(dragging_edge_);
+
+        // Trigger initial line setting
+        mouseMoveEvent(event);
 
         return;
       }
@@ -324,15 +342,18 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
       // See if the mouse is currently inside a connector rect
       for (int i=0;i<drop_item->node()->ParameterCount();i++) {
-        QRectF comp_rect = drop_item->GetParameterConnectorRect(i).adjusted(-node_connector_size_,
-                                                                            -node_connector_size_,
-                                                                            node_connector_size_,
-                                                                            node_connector_size_);
 
+        // Make a larger "hitbox" rect to make it easier to drag into
+        QRectF param_hitbox = drop_item->GetParameterConnectorRect(i).adjusted(-node_connector_size_,
+                                                                               -node_connector_size_,
+                                                                               node_connector_size_,
+                                                                               node_connector_size_);
+
+        // Get the parameter we're dragging into
         NodeParam* comp_param = drop_item->node()->ParamAt(i);
 
-        // If so, we snap inside it
-        if (comp_rect.contains(drop_item->mapFromScene(event->scenePos()))) {
+        if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos())) // See if we're dragging inside the hitbox
+            && NodeParam::AreDataTypesCompatible(drag_src_param_, comp_param)) { // Make sure the types are compatible
 
           drag_dest_param_ = comp_param;
           end_point = drop_item->mapToScene(drop_item->GetParameterConnectorRect(i).center());
@@ -361,18 +382,11 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     // FIXME: Make this undoable
 
-    // If this edge had an edge, we should disconnect it now
-    if (dragging_edge_->edge() != nullptr) {
-      NodeParam::DisconnectEdge(dragging_edge_->edge());
+    scene()->removeItem(dragging_edge_);
 
-      dragging_edge_->SetEdge(nullptr);
-    }
+    if (drag_dest_param_ != nullptr) {
+      // We dragged to somewhere, so we'll make a new connection
 
-    if (drag_dest_param_ == nullptr) {
-      // If we didn't drag to anywhere, just get rid of this edge
-      scene()->removeItem(dragging_edge_);
-    } else {
-      // If we did, create a new edge now
       NodeEdgePtr new_edge;
 
       if (drag_dest_param_->type() == NodeParam::kOutput) {
@@ -380,8 +394,6 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       } else {
         new_edge = NodeParam::ConnectEdge(static_cast<NodeOutput*>(drag_src_param_), static_cast<NodeInput*>(drag_dest_param_));
       }
-
-      dragging_edge_->SetEdge(new_edge);
     }
 
     dragging_edge_ = nullptr;
@@ -396,28 +408,4 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   if (standard_click_) {
     QGraphicsRectItem::mouseReleaseEvent(event);
   }
-}
-
-NodeViewItemWidget::NodeViewItemWidget()
-{
-}
-
-QColor NodeViewItemWidget::TitleBarColor()
-{
-  return title_bar_color_;
-}
-
-void NodeViewItemWidget::SetTitleBarColor(QColor color)
-{
-  title_bar_color_ = color;
-}
-
-QColor NodeViewItemWidget::BorderColor()
-{
-  return border_color_;
-}
-
-void NodeViewItemWidget::SetBorderColor(QColor color)
-{
-  border_color_ = color;
 }

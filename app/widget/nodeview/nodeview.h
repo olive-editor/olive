@@ -44,6 +44,10 @@ private:
   QGraphicsScene scene_;
 
 private slots:
+  void AddEdge(NodeEdgePtr edge);
+
+  void RemoveEdge(NodeEdgePtr edge);
+
   void ItemsChanged();
 
 };

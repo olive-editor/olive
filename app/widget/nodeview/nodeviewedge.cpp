@@ -27,23 +27,20 @@
 #include "common/lerp.h"
 #include "nodeview.h"
 
-const int kNodeEdgeWidth = 2;
-
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsLineItem(parent),
   edge_(nullptr),
-  moving_(false),
   connected_(false)
 {
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
 
-  setAcceptHoverEvents(true);
+  // Use font metrics to set edge width for basic high DPI support
+  edge_width_ = QFontMetrics(QFont()).height() / 12;
 }
 
 void NodeViewEdge::SetEdge(NodeEdgePtr edge)
 {
-  SetMoving(false);
   SetConnected(true);
 
   // Set the new edge pointer
@@ -78,7 +75,7 @@ qreal CalculateEdgeYPoint(NodeViewItem *item, int param_index, NodeViewItem *opp
 
 void NodeViewEdge::Adjust()
 {
-  if (edge_ == nullptr || scene() == nullptr || moving_) {
+  if (edge_ == nullptr || scene() == nullptr) {
     return;
   }
 
@@ -101,11 +98,6 @@ void NodeViewEdge::Adjust()
             ));
 }
 
-void NodeViewEdge::SetMoving(bool m)
-{
-  moving_ = m;
-}
-
 void NodeViewEdge::SetConnected(bool c)
 {
   connected_ = c;
@@ -121,7 +113,7 @@ void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     color_mode = QPalette::Disabled;
   }
 
-  setPen(QPen(widget->palette().color(color_mode, QPalette::Text), kNodeEdgeWidth));
+  setPen(QPen(widget->palette().color(color_mode, QPalette::Text), edge_width_));
 
   QGraphicsLineItem::paint(painter, option, widget);
 }

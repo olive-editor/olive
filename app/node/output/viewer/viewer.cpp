@@ -2,12 +2,12 @@
 
 #include "panel/panelfocusmanager.h"
 
-ViewerOutput::ViewerOutput(QObject* parent) :
-  Node(parent),
+ViewerOutput::ViewerOutput() :
   attached_viewer_(nullptr)
 {
-  texture_input_ = new NodeInput(this);
+  texture_input_ = new NodeInput();
   texture_input_->add_data_input(NodeInput::kTexture);
+  AddParameter(texture_input_);
 }
 
 QString ViewerOutput::Name()

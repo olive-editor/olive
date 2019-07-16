@@ -1,11 +1,15 @@
 #include "solid.h"
 
-SolidGenerator::SolidGenerator(QObject *parent) :
-  Node(parent),
+SolidGenerator::SolidGenerator() :
   texture_(nullptr)
 {
-  texture_output_ = new NodeOutput(this);
+  color_input_ = new NodeInput();
+  color_input_->add_data_input(NodeParam::kColor);
+  AddParameter(color_input_);
+
+  texture_output_ = new NodeOutput();
   texture_output_->set_data_type(NodeOutput::kTexture);
+  AddParameter(texture_output_);
 }
 
 QString SolidGenerator::Name()

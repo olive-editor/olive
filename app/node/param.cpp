@@ -20,12 +20,13 @@
 
 #include "param.h"
 
+#include <QDebug>
+
 #include "node/node.h"
 #include "node/input.h"
 #include "node/output.h"
 
-NodeParam::NodeParam(Node *parent) :
-  QObject(parent)
+NodeParam::NodeParam()
 {
 }
 
@@ -52,6 +53,28 @@ int NodeParam::index()
 const QVector<NodeEdgePtr> &NodeParam::edges()
 {
   return edges_;
+}
+
+bool NodeParam::AreDataTypesCompatible(NodeParam *a, NodeParam *b)
+{
+  // Make sure one is an input and one is an output
+  if (a->type() == b->type()) {
+    return false;
+  }
+
+  NodeInput* input;
+  NodeOutput* output;
+
+  // Work out which parameter is which
+  if (a->type() == NodeParam::kInput) {
+    input = static_cast<NodeInput*>(a);
+    output = static_cast<NodeOutput*>(b);
+  } else {
+    input = static_cast<NodeInput*>(b);
+    output = static_cast<NodeOutput*>(a);
+  }
+
+  return AreDataTypesCompatible(output->data_type(), input->inputs());
 }
 
 bool NodeParam::AreDataTypesCompatible(const NodeParam::DataType &output_type, const NodeParam::DataType &input_type)
@@ -94,10 +117,20 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
     DisconnectEdge(input->edges_.first());
   }
 
+  // Make sure it's not a duplicate of an edge that already exists
+  foreach (NodeEdgePtr existing, input->edges()) {
+    if (existing->output() == output) {
+      return nullptr;
+    }
+  }
+
   NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
 
   output->edges_.append(edge);
   input->edges_.append(edge);
+
+  // Emit a signal than an edge was added (only one signal needs emitting)
+  emit output->EdgeAdded(edge);
 
   return edge;
 }
@@ -109,6 +142,8 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
 
   output->edges_.removeAll(edge);
   input->edges_.removeAll(edge);
+
+  emit output->EdgeRemoved(edge);
 }
 
 QString NodeParam::GetDefaultDataTypeName(const DataType& type)

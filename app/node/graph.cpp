@@ -27,6 +27,14 @@ NodeGraph::NodeGraph()
 
 }
 
+void NodeGraph::AddNode(Node *node)
+{
+  node->setParent(this);
+
+  connect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
+  connect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+}
+
 const QString &NodeGraph::name()
 {
   return name_;

@@ -28,26 +28,7 @@
 
 #include "node/node.h"
 #include "nodeviewedge.h"
-
-/**
- * @brief A proxy object to allow NodeViewItem access to CSS functions
- */
-class NodeViewItemWidget : public QWidget {
-  Q_OBJECT
-  Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
-  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
-public:
-  NodeViewItemWidget();
-
-  QColor TitleBarColor();
-  void SetTitleBarColor(QColor color);
-
-  QColor BorderColor();
-  void SetBorderColor(QColor color);
-private:
-  QColor title_bar_color_;
-  QColor border_color_;
-};
+#include "nodeviewitemwidgetproxy.h"
 
 class NodeViewItem : public QGraphicsRectItem
 {
@@ -76,7 +57,7 @@ private:
 
   Node* node_;
 
-  NodeViewItemWidget obj_proxy_;
+  NodeViewItemWidget css_proxy_;
 
   QRectF title_bar_rect_;
 
@@ -94,6 +75,9 @@ private:
   NodeViewItem* drag_source_;
 
   int node_connector_size_;
+  int node_text_padding_;
+  int node_icon_padding_;
+  int node_border_width_;
 
   bool expanded_;
 
