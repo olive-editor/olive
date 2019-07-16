@@ -21,16 +21,18 @@
 #include "nodeviewitem.h"
 
 #include <QDebug>
+#include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
 #include "core.h"
+#include "nodeview.h"
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
 
 const int kNodeViewItemBorderWidth = 2;
-const int kNodeViewItemWidth = 250;
+const int kNodeViewItemWidth = 200;
 const int kNodeViewItemTextPadding = 4;
 const int kNodeViewItemIconPadding = 12;
 
@@ -38,6 +40,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
   font_metrics(font),
+  dragging_edge_(nullptr),
   expanded_(false),
   standard_click_(false)
 {
@@ -144,8 +147,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   QPalette app_pal = olive::core.main_window()->palette();
 
   // Set up border, which will change color if selected
-  // FIXME: Color not configurable?
-  QPen border_pen(Qt::black, kNodeViewItemBorderWidth);
+  QPen border_pen(obj_proxy_.BorderColor(), kNodeViewItemBorderWidth);
 
   QPen text_pen(app_pal.color(QPalette::Text));
 
@@ -254,9 +256,50 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   if (IsExpanded() // This is only possible if the node is expanded
       && node_ != nullptr) { // We can only loop through a node's parameters if a valid node is attached
     for (int i=0;i<node_->ParameterCount();i++) {
-      if (GetParameterConnectorRect(i).contains(event->pos())) {
+
+      if (GetParameterConnectorRect(i).contains(event->pos())) { // See if the cursor is in the rect
+
+        NodeParam* param = node_->ParamAt(i);
+
+        if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
+          // For an output param (or an input param with no connections), we default to creating a new edge
+
+          // Create new NodeViewEdge object for the user to create an edge
+          dragging_edge_ = new NodeViewEdge();
+          dragging_edge_->SetMoving(true);
+
+          drag_source_ = this;
+          drag_src_param_ = param;
+
+          // Set the starting position to the current param's connector
+          dragging_edge_start_ = pos() + GetParameterConnectorRect(i).center();
+          dragging_edge_->setLine(QLineF(dragging_edge_start_, dragging_edge_start_));
+
+          // Add it to the scene
+          scene()->addItem(dragging_edge_);
+
+        } else if (param->type() == NodeParam::kInput) {
+          // For an input param, we default to moving an existing edge
+          // (here we use the last one, which will usually also be the first)
+          NodeEdgePtr edge = param->edges().last();
+
+          dragging_edge_ = NodeView::EdgeToUIObject(scene(), edge);
+          dragging_edge_->SetMoving(true);
+
+          // The starting position will be the OPPOSING param's rect
+          NodeOutput* opposing_param = edge->output();
+          Node* opposing_node = opposing_param->parent();
+          NodeViewItem* opposing_node_view_item = NodeView::NodeToUIObject(scene(), opposing_node);
+          dragging_edge_start_ = opposing_node_view_item->pos() + opposing_node_view_item->GetParameterConnectorRect(opposing_param->index()).center();
+
+          drag_source_ = opposing_node_view_item;
+          drag_src_param_ = opposing_param;
+
+        }
+
         return;
       }
+
     }
   }
 
@@ -267,6 +310,45 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+  // Check if an edge drag was initiated
+  if (dragging_edge_ != nullptr) {
+    QPointF end_point = event->scenePos();
+    drag_dest_param_ = nullptr;
+
+    // See if the mouse is currently inside a node
+    NodeViewItem* drop_item = dynamic_cast<NodeViewItem*>(scene()->itemAt(event->scenePos(), sceneTransform()));
+    if (drop_item != nullptr && drop_item != drag_source_) {
+      if (drop_item->IsExpanded()) {
+        drop_item->SetExpanded(true);
+      }
+
+      // See if the mouse is currently inside a connector rect
+      for (int i=0;i<drop_item->node()->ParameterCount();i++) {
+        QRectF comp_rect = drop_item->GetParameterConnectorRect(i).adjusted(-node_connector_size_,
+                                                                            -node_connector_size_,
+                                                                            node_connector_size_,
+                                                                            node_connector_size_);
+
+        NodeParam* comp_param = drop_item->node()->ParamAt(i);
+
+        // If so, we snap inside it
+        if (comp_rect.contains(drop_item->mapFromScene(event->scenePos()))) {
+
+          drag_dest_param_ = comp_param;
+          end_point = drop_item->mapToScene(drop_item->GetParameterConnectorRect(i).center());
+
+          break;
+        }
+      }
+    }
+
+    dragging_edge_->SetConnected(drag_dest_param_ != nullptr);
+
+    dragging_edge_->setLine(QLineF(dragging_edge_start_, end_point));
+
+    return;
+  }
+
   if (standard_click_) {
     QGraphicsRectItem::mouseMoveEvent(event);
   }
@@ -274,6 +356,38 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  // Check if an edge drag was initiated
+  if (dragging_edge_ != nullptr) {
+
+    // FIXME: Make this undoable
+
+    // If this edge had an edge, we should disconnect it now
+    if (dragging_edge_->edge() != nullptr) {
+      NodeParam::DisconnectEdge(dragging_edge_->edge());
+
+      dragging_edge_->SetEdge(nullptr);
+    }
+
+    if (drag_dest_param_ == nullptr) {
+      // If we didn't drag to anywhere, just get rid of this edge
+      scene()->removeItem(dragging_edge_);
+    } else {
+      // If we did, create a new edge now
+      NodeEdgePtr new_edge;
+
+      if (drag_dest_param_->type() == NodeParam::kOutput) {
+        new_edge = NodeParam::ConnectEdge(static_cast<NodeOutput*>(drag_dest_param_), static_cast<NodeInput*>(drag_src_param_));
+      } else {
+        new_edge = NodeParam::ConnectEdge(static_cast<NodeOutput*>(drag_src_param_), static_cast<NodeInput*>(drag_dest_param_));
+      }
+
+      dragging_edge_->SetEdge(new_edge);
+    }
+
+    dragging_edge_ = nullptr;
+    return;
+  }
+
   // Check if we clicked the Expand/Collapse icon
   if (expand_hitbox_.contains(event->pos())) {
     SetExpanded(!IsExpanded());
@@ -284,16 +398,26 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   }
 }
 
-NodeViewItemWidgetProxy::NodeViewItemWidgetProxy()
+NodeViewItemWidget::NodeViewItemWidget()
 {
 }
 
-QColor NodeViewItemWidgetProxy::TitleBarColor()
+QColor NodeViewItemWidget::TitleBarColor()
 {
   return title_bar_color_;
 }
 
-void NodeViewItemWidgetProxy::SetTitleBarColor(QColor color)
+void NodeViewItemWidget::SetTitleBarColor(QColor color)
 {
   title_bar_color_ = color;
+}
+
+QColor NodeViewItemWidget::BorderColor()
+{
+  return border_color_;
+}
+
+void NodeViewItemWidget::SetBorderColor(QColor color)
+{
+  border_color_ = color;
 }

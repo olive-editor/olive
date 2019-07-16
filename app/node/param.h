@@ -34,8 +34,7 @@ class NodeParam : public QObject
 public:
   enum Type {
     kInput,
-    kOutput,
-    kBidirectional
+    kOutput
   };
 
   enum DataType {
@@ -69,7 +68,7 @@ public:
   static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);
   static bool AreDataTypesCompatible(const DataType& output_type, const QList<DataType>& input_types);
 
-  static void ConnectEdge(NodeOutput *output, NodeInput *input);
+  static NodeEdgePtr ConnectEdge(NodeOutput *output, NodeInput *input);
   static void DisconnectEdge(NodeEdgePtr edge);
 
   static QString GetDefaultDataTypeName(const DataType &type);

@@ -87,7 +87,7 @@ bool NodeParam::AreDataTypesCompatible(const DataType &output_type, const QList<
   return false;
 }
 
-void NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
+NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
   if (!input->edges_.isEmpty() && !input->can_accept_multiple_inputs()) {
@@ -98,6 +98,8 @@ void NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 
   output->edges_.append(edge);
   input->edges_.append(edge);
+
+  return edge;
 }
 
 void NodeParam::DisconnectEdge(NodeEdgePtr edge)

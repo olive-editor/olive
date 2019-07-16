@@ -24,7 +24,6 @@
 #include <QGraphicsLineItem>
 
 #include "node/edge.h"
-#include "nodeviewitem.h"
 
 class NodeViewEdge : public QGraphicsLineItem
 {
@@ -32,16 +31,21 @@ public:
   NodeViewEdge(QGraphicsItem* parent = nullptr);
 
   void SetEdge(NodeEdgePtr edge);
+  NodeEdgePtr edge();
 
   void Adjust();
+
+  void SetMoving(bool m);
+  void SetConnected(bool c);
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  qreal CalculateEdgeYPoint(NodeViewItem* item, int param_index, NodeViewItem* opposing);
-
   NodeEdgePtr edge_;
+
+  bool moving_;
+  bool connected_;
 };
 
 #endif // NODEEDGEITEM_H

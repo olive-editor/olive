@@ -27,17 +27,26 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeviewedge.h"
 
-class NodeViewItemWidgetProxy : public QWidget {
+/**
+ * @brief A proxy object to allow NodeViewItem access to CSS functions
+ */
+class NodeViewItemWidget : public QWidget {
   Q_OBJECT
   Q_PROPERTY(QColor titlebarColor READ TitleBarColor WRITE SetTitleBarColor DESIGNABLE true)
+  Q_PROPERTY(QColor borderColor READ BorderColor WRITE SetBorderColor DESIGNABLE true)
 public:
-  NodeViewItemWidgetProxy();
+  NodeViewItemWidget();
 
   QColor TitleBarColor();
   void SetTitleBarColor(QColor color);
+
+  QColor BorderColor();
+  void SetBorderColor(QColor color);
 private:
   QColor title_bar_color_;
+  QColor border_color_;
 };
 
 class NodeViewItem : public QGraphicsRectItem
@@ -67,7 +76,7 @@ private:
 
   Node* node_;
 
-  NodeViewItemWidgetProxy obj_proxy_;
+  NodeViewItemWidget obj_proxy_;
 
   QRectF title_bar_rect_;
 
@@ -76,6 +85,13 @@ private:
   QFont font;
 
   QFontMetrics font_metrics;
+
+  // Edge dragging variables
+  NodeViewEdge* dragging_edge_;
+  QPointF dragging_edge_start_;
+  NodeParam* drag_src_param_;
+  NodeParam* drag_dest_param_;
+  NodeViewItem* drag_source_;
 
   int node_connector_size_;
 

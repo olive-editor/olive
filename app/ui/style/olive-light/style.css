@@ -68,6 +68,8 @@ QTreeView, QListView, QLineEdit, QMenu, QProgressBar, QPushButton::checked, Node
   background: #ffffff;
 }
 
-NodeViewItemWidgetProxy {
+/* Node styling */
+NodeViewItemWidget {
   qproperty-titlebarColor: #a0a0ff;
+  qproperty-borderColor: #000000;
 }

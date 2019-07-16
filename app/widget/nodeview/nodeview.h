@@ -36,13 +36,12 @@ public:
   void SetGraph(NodeGraph* graph);
 
   static NodeViewItem* NodeToUIObject(QGraphicsScene* scene, Node* n);
+  static NodeViewEdge* EdgeToUIObject(QGraphicsScene* scene, NodeEdgePtr n);
 
 private:
   NodeGraph* graph_;
 
   QGraphicsScene scene_;
-
-  QList<NodeViewEdge*> edges_;
 
 private slots:
   void ItemsChanged();

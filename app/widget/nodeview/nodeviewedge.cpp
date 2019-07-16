@@ -21,21 +21,31 @@
 #include "nodeviewedge.h"
 
 #include <QDebug>
+#include <QGraphicsSceneMouseEvent>
 
 #include "common/clamp.h"
 #include "common/lerp.h"
 #include "nodeview.h"
 
+const int kNodeEdgeWidth = 2;
+
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsLineItem(parent),
-  edge_(nullptr)
+  edge_(nullptr),
+  moving_(false),
+  connected_(false)
 {
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
+
+  setAcceptHoverEvents(true);
 }
 
 void NodeViewEdge::SetEdge(NodeEdgePtr edge)
 {
+  SetMoving(false);
+  SetConnected(true);
+
   // Set the new edge pointer
   edge_ = edge;
 
@@ -43,9 +53,32 @@ void NodeViewEdge::SetEdge(NodeEdgePtr edge)
   Adjust();
 }
 
+NodeEdgePtr NodeViewEdge::edge()
+{
+  return edge_;
+}
+
+qreal CalculateEdgeYPoint(NodeViewItem *item, int param_index, NodeViewItem *opposing)
+{
+  if (item->IsExpanded()) {
+    return item->pos().y() + item->GetParameterConnectorRect(param_index).center().y();
+  } else {
+    qreal max_height = qMax(opposing->rect().height(), item->rect().height());
+
+    // Calculate the Y distance between the two nodes and create a 0.0-1.0 range for lerping
+    qreal input_value = clamp(0.5 + (opposing->pos().y() - item->pos().y()) / max_height / 4, 0.0, 1.0);
+
+    // Use a lerp function to draw the line between the two corners
+    qreal input_y = item->pos().y() + lerp(0.0, item->rect().height(), input_value);
+
+    // Set Y values according to calculations
+    return input_y;
+  }
+}
+
 void NodeViewEdge::Adjust()
 {
-  if (edge_ == nullptr || scene() == nullptr) {
+  if (edge_ == nullptr || scene() == nullptr || moving_) {
     return;
   }
 
@@ -68,28 +101,28 @@ void NodeViewEdge::Adjust()
             ));
 }
 
-void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void NodeViewEdge::SetMoving(bool m)
 {
-  setPen(QPen(widget->palette().color(QPalette::Text), 2));
-
-  QGraphicsLineItem::paint(painter, option, widget);
+  moving_ = m;
 }
 
-qreal NodeViewEdge::CalculateEdgeYPoint(NodeViewItem *item, int param_index, NodeViewItem *opposing)
+void NodeViewEdge::SetConnected(bool c)
 {
-  if (item->IsExpanded()) {
-    return item->pos().y() + item->GetParameterConnectorRect(param_index).center().y();
+  connected_ = c;
+}
+
+void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPalette::ColorGroup color_mode;
+
+  if (connected_) {
+    color_mode = QPalette::Active;
   } else {
-    qreal max_height = qMax(opposing->rect().height(), item->rect().height());
-
-    // Calculate the Y distance between the two nodes and create a 0.0-1.0 range for lerping
-    qreal input_value = clamp(0.5 + (opposing->pos().y() - item->pos().y()) / max_height / 4, 0.0, 1.0);
-
-    // Use a lerp function to draw the line between the two corners
-    qreal input_y = item->pos().y() + lerp(0.0, item->rect().height(), input_value);
-
-    // Set Y values according to calculations
-    return input_y;
+    color_mode = QPalette::Disabled;
   }
+
+  setPen(QPen(widget->palette().color(color_mode, QPalette::Text), kNodeEdgeWidth));
+
+  QGraphicsLineItem::paint(painter, option, widget);
 }
 

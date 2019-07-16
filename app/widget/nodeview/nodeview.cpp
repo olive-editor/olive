@@ -26,6 +26,8 @@ NodeView::NodeView(QWidget *parent) :
 {
   setScene(&scene_);
 
+  setDragMode(RubberBandDrag);
+
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(ItemsChanged()));
 }
 
@@ -33,7 +35,6 @@ void NodeView::SetGraph(NodeGraph *graph)
 {
   // Clear the scene of all UI objects
   scene_.clear();
-  edges_.clear();
 
   // Set reference to the graph
   graph_ = graph;
@@ -65,9 +66,6 @@ void NodeView::SetGraph(NodeGraph *graph)
             edge_ui->SetEdge(edge);
 
             scene_.addItem(edge_ui);
-
-            // Keep track of edge widgets so they can be quickly updated whenever nodes move
-            edges_.append(edge_ui);
           }
         }
       }
@@ -92,9 +90,32 @@ NodeViewItem *NodeView::NodeToUIObject(QGraphicsScene *scene, Node *n)
   return nullptr;
 }
 
+NodeViewEdge *NodeView::EdgeToUIObject(QGraphicsScene *scene, NodeEdgePtr n)
+{
+  QList<QGraphicsItem*> graphics_items = scene->items();
+
+  for (int i=0;i<graphics_items.size();i++) {
+    NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(graphics_items.at(i));
+
+    if (edge != nullptr) {
+      if (edge->edge() == n) {
+        return edge;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 void NodeView::ItemsChanged()
 {
-  foreach (NodeViewEdge* edge, edges_) {
-    edge->Adjust();
+  QList<QGraphicsItem*> items = scene_.items();
+
+  foreach (QGraphicsItem* item, items) {
+    NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(item);
+
+    if (edge != nullptr) {
+      edge->Adjust();
+    }
   }
 }
