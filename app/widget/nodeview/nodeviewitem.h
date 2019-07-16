@@ -47,6 +47,8 @@ public:
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
@@ -69,6 +71,8 @@ private:
   int node_connector_size_;
 
   bool expanded_;
+
+  bool standard_click_;
 };
 
 #endif // NODEVIEWITEM_H

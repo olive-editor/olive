@@ -38,6 +38,11 @@ NodeParam::Type NodeInput::type()
 void NodeInput::add_data_input(const NodeParam::DataType &data_type)
 {
   inputs_.append(data_type);
+
+  // If no name has been set, use a default name
+  if (name().isEmpty()) {
+    set_name(GetDefaultDataTypeName(data_type));
+  }
 }
 
 bool NodeInput::can_accept_type(const NodeParam::DataType &data_type)

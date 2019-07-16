@@ -41,6 +41,11 @@ const NodeParam::DataType &NodeOutput::data_type()
 void NodeOutput::set_data_type(const NodeParam::DataType &type)
 {
   data_type_ = type;
+
+  // If no name has been set, use a default name
+  if (name().isEmpty()) {
+    set_name(GetDefaultDataTypeName(type));
+  }
 }
 
 const QVariant &NodeOutput::get_value(const rational& time)

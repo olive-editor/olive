@@ -36,7 +36,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
   font_metrics(font),
-  expanded_(false)
+  expanded_(false),
+  standard_click_(false)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -51,7 +52,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   node_connector_size_ = font_metrics.height() / 3;
 
   // FIXME: Magic "number"/magic "color" - allow this to be editable by the user
-  SetColor(QColor(32, 32, 128));
+  SetColor(QColor(48, 48, 192));
 }
 
 void NodeViewItem::SetColor(const QColor &color)
@@ -161,7 +162,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   QBrush connector_brush(Qt::white);
 
   // FIXME: Same as above
-  QBrush content_brush(QColor("#181818"));
+  QBrush content_brush(QColor("#353535"));
 
   painter->setPen(border_pen);
 
@@ -233,7 +234,11 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     expand_hitbox_.setWidth(expand_hitbox_.height());
 
     // Draw the icon
-    olive::icon::TriRight.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
+    if (IsExpanded()) {
+      olive::icon::TriDown.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
+    } else {
+      olive::icon::TriRight.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
+    }
 
     // Draw the text in a rect (the rect is sized around text already in the constructor)
     QRectF text_rect = title_bar_rect_.adjusted(kNodeViewItemIconPadding + expand_hitbox_.width() + kNodeViewItemTextPadding,
@@ -244,6 +249,36 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   }
 }
 
+void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  standard_click_ = false;
+
+  // Don't initiate a drag if we clicked the expand hitbox
+  if (expand_hitbox_.contains(event->pos())) {
+    return;
+  }
+
+  // See if the mouse click was on a parameter connector
+  if (IsExpanded() // This is only possible if the node is expanded
+      && node_ != nullptr) { // We can only loop through a node's parameters if a valid node is attached
+    for (int i=0;i<node_->ParameterCount();i++) {
+      if (GetParameterConnectorRect(i).contains(event->pos())) {
+        return;
+      }
+    }
+  }
+
+  standard_click_ = true;
+  QGraphicsRectItem::mousePressEvent(event);
+}
+
+void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  if (standard_click_) {
+    QGraphicsRectItem::mouseMoveEvent(event);
+  }
+}
+
 void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   // Check if we clicked the Expand/Collapse icon
@@ -251,7 +286,9 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     SetExpanded(!IsExpanded());
   }
 
-  QGraphicsRectItem::mouseReleaseEvent(event);
+  if (standard_click_) {
+    QGraphicsRectItem::mouseReleaseEvent(event);
+  }
 }
 
 void NodeViewItem::UpdateGradient()

@@ -202,61 +202,61 @@ MainMenu::MainMenu(QWidget *parent) :
   //
   // TOOLS MENU
   //
-  tools_menu_ = new Menu(this);
+  tools_menu_ = new Menu(this, this, SLOT(ToolsMenuAboutToShow()));
   tools_menu_->setToolTipsVisible(true);
 
-  QActionGroup* tools_group = new QActionGroup(this);
+  tools_group_ = new QActionGroup(this);
 
   tools_pointer_item_ = tools_menu_->AddItem("pointertool", this, SLOT(ToolItemTriggered()), "V");
   tools_pointer_item_->setCheckable(true);
   tools_pointer_item_->setData(olive::tool::kPointer);
-  tools_group->addAction(tools_pointer_item_);
+  tools_group_->addAction(tools_pointer_item_);
 
   tools_edit_item_ = tools_menu_->AddItem("edittool", this, SLOT(ToolItemTriggered()), "X");
   tools_edit_item_->setCheckable(true);
   tools_edit_item_->setData(olive::tool::kEdit);
-  tools_group->addAction(tools_edit_item_);
+  tools_group_->addAction(tools_edit_item_);
 
   tools_ripple_item_ = tools_menu_->AddItem("rippletool", this, SLOT(ToolItemTriggered()), "B");
   tools_ripple_item_->setCheckable(true);
   tools_ripple_item_->setData(olive::tool::kRipple);
-  tools_group->addAction(tools_ripple_item_);
+  tools_group_->addAction(tools_ripple_item_);
 
   tools_rolling_item_ = tools_menu_->AddItem("rollingtool", this, SLOT(ToolItemTriggered()), "N");
   tools_rolling_item_->setCheckable(true);
   tools_rolling_item_->setData(olive::tool::kRolling);
-  tools_group->addAction(tools_rolling_item_);
+  tools_group_->addAction(tools_rolling_item_);
 
   tools_razor_item_ = tools_menu_->AddItem("razortool", this, SLOT(ToolItemTriggered()), "C");
   tools_razor_item_->setCheckable(true);
   tools_razor_item_->setData(olive::tool::kRazor);
-  tools_group->addAction(tools_razor_item_);
+  tools_group_->addAction(tools_razor_item_);
 
   tools_slip_item_ = tools_menu_->AddItem("sliptool", this, SLOT(ToolItemTriggered()), "Y");
   tools_slip_item_->setCheckable(true);
   tools_slip_item_->setData(olive::tool::kSlip);
-  tools_group->addAction(tools_slip_item_);
+  tools_group_->addAction(tools_slip_item_);
 
   tools_slide_item_ = tools_menu_->AddItem("slidetool", this, SLOT(ToolItemTriggered()), "U");
   tools_slide_item_->setCheckable(true);
   tools_slide_item_->setData(olive::tool::kSlide);
-  tools_group->addAction(tools_slide_item_);
+  tools_group_->addAction(tools_slide_item_);
 
   tools_hand_item_ = tools_menu_->AddItem("handtool", this, SLOT(ToolItemTriggered()), "H");
   tools_hand_item_->setCheckable(true);
   tools_hand_item_->setData(olive::tool::kHand);
-  tools_group->addAction(tools_hand_item_);
+  tools_group_->addAction(tools_hand_item_);
 
   tools_transition_item_ = tools_menu_->AddItem("transitiontool", this, SLOT(ToolItemTriggered()), "T");
   tools_transition_item_->setCheckable(true);
   tools_transition_item_->setData(olive::tool::kTransition);
-  tools_group->addAction(tools_transition_item_);
+  tools_group_->addAction(tools_transition_item_);
 
   tools_menu_->addSeparator();
 
   tools_snapping_item_ = tools_menu_->AddItem("snapping", nullptr, nullptr, "S");
   tools_snapping_item_->setCheckable(true);
-  //tools_snapping_item_->setData(reinterpret_cast<quintptr>(panel_timeline.first()->snappingButton));
+  connect(tools_snapping_item_, SIGNAL(triggered(bool)), &olive::core, SLOT(SetSnapping(bool)));
 
   tools_menu_->addSeparator();
 
@@ -316,6 +316,21 @@ void MainMenu::ToolItemTriggered()
 
   // Set the Tool in Core
   olive::core.SetTool(tool);
+}
+
+void MainMenu::ToolsMenuAboutToShow()
+{
+  // Ensure checked Tool is correct
+  QList<QAction*> tool_actions = tools_group_->actions();
+  foreach (QAction* a, tool_actions) {
+    if (a->data() == olive::core.tool()) {
+      a->setChecked(true);
+      break;
+    }
+  }
+
+  // Ensure snapping value is correct
+  tools_snapping_item_->setChecked(olive::core.snapping());
 }
 
 void MainMenu::Retranslate()

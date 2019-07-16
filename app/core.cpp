@@ -42,7 +42,8 @@ Core olive::core;
 
 Core::Core() :
   main_window_(nullptr),
-  tool_(olive::tool::kPointer)
+  tool_(olive::tool::kPointer),
+  snapping_(true)
 {
 }
 
@@ -117,6 +118,11 @@ const olive::tool::Tool &Core::tool()
   return tool_;
 }
 
+const bool &Core::snapping()
+{
+  return snapping_;
+}
+
 void Core::StartModalTask(Task *t)
 {
   QDialog dialog(main_window_);
@@ -142,6 +148,13 @@ void Core::SetTool(const olive::tool::Tool &tool)
   tool_ = tool;
 
   emit ToolChanged(tool_);
+}
+
+void Core::SetSnapping(const bool &b)
+{
+  snapping_ = b;
+
+  emit SnappingChanged(snapping_);
 }
 
 void Core::DialogImportShow()

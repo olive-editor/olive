@@ -55,6 +55,11 @@ private slots:
    */
   void ToolItemTriggered();
 
+  /**
+   * @brief Slot triggered just before the Tools menu shows
+   */
+  void ToolsMenuAboutToShow();
+
 private:
   /**
    * @brief Set strings based on the current application language.
@@ -127,6 +132,7 @@ private:
   QAction* window_reset_layout_item_;
 
   Menu* tools_menu_;
+  QActionGroup* tools_group_;
   QAction* tools_pointer_item_;
   QAction* tools_edit_item_;
   QAction* tools_ripple_item_;

@@ -88,6 +88,11 @@ public:
   const olive::tool::Tool& tool();
 
   /**
+   * @brief Get current snapping value
+   */
+  const bool& snapping();
+
+  /**
    * @brief Starts a modal task
    *
    * This function does NOT take ownership of the Task.
@@ -103,6 +108,11 @@ public slots:
    * @param tool
    */
   void SetTool(const olive::tool::Tool& tool);
+
+  /**
+   * @brief Set the current snapping setting
+   */
+  void SetSnapping(const bool& b);
 
   /**
    * @brief Open the import footage dialog and import the files selected (runs ImportFiles())
@@ -126,10 +136,13 @@ signals:
 
   /**
    * @brief Signal emitted when the tool is changed from somewhere
-   *
-   * @param tool
    */
   void ToolChanged(const olive::tool::Tool& tool);
+
+  /**
+   * @brief Signal emitted when the snapping setting is changed
+   */
+  void SnappingChanged(const bool& b);
 
 private:
   /**
@@ -187,6 +200,11 @@ private:
    * @brief Currently active tool
    */
   olive::tool::Tool tool_;
+
+  /**
+   * @brief Current snapping toggle
+   */
+  bool snapping_;
 
 };
 
