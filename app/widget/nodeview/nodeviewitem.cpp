@@ -301,10 +301,6 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
           // (here we use the last one, which will usually also be the first)
           NodeEdgePtr edge = param->edges().last();
 
-          // Remove old edge
-          NodeEdgeRemoveCommand* remove_command = new NodeEdgeRemoveCommand(edge->output(), edge->input(), node_edge_change_command_);
-          remove_command->redo();
-
           // The starting position will be the OPPOSING parameter's rectangle
 
           // Get the opposing parameter
@@ -313,8 +309,24 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
           // Get its Node UI object
           drag_source_ = NodeView::NodeToUIObject(scene(), drag_src_param_->parent());
 
-          // Get the opposing parameter's rect center
-          dragging_edge_start_ = drag_source_->mapToScene(drag_source_->GetParameterConnectorRect(drag_src_param_->index()).center());
+          // Get the opposing parameter's rect center using the line's current coordinates
+          // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
+          //  node is collapsed, therefore it's easier to just retrieve it from line itself)
+          NodeViewEdge* existing_edge_ui = NodeView::EdgeToUIObject(scene(), edge);
+          QLineF existing_edge_line = existing_edge_ui->line();
+          if (existing_edge_ui->contains(existing_edge_line.p1())) {
+            dragging_edge_start_ = existing_edge_line.p1();
+          } else {
+            dragging_edge_start_ = existing_edge_line.p2();
+          }
+
+
+          // Remove old edge
+          NodeEdgeRemoveCommand* remove_command = new NodeEdgeRemoveCommand(edge->output(),
+                                                                            edge->input(),
+                                                                            node_edge_change_command_);
+          remove_command->redo();
+
         }
 
         // Add it to the scene
