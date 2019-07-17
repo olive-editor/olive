@@ -25,21 +25,50 @@
 
 #include "node/node.h"
 
+/**
+ * @brief A collection of nodes
+ */
 class NodeGraph : public QObject
 {
   Q_OBJECT
 public:
+  /**
+   * @brief NodeGraph Constructor
+   */
   NodeGraph();
 
+  /**
+   * @brief Add a node to this graph
+   *
+   * The node will get added to this graph. It is not automatically connected to anything, any connections will need to
+   * be made manually after the node is added. The graph takes ownership of the Node.
+   */
   void AddNode(Node* node);
 
+  /**
+   * @brief Return the name of this graph (user-defined)
+   */
   const QString& name();
+
+  /**
+   * @brief Set the name of this graph (user-defined)
+   */
   void set_name(const QString& name);
 
+  /**
+   * @brief Retrieve a complete list of the nodes belonging to this graph
+   */
   QList<Node*> nodes();
 
 signals:
+  /**
+   * @brief Signal emitted when a member node of this graph has been connected to another (creating an "edge")
+   */
   void EdgeAdded(NodeEdgePtr edge);
+
+  /**
+   * @brief Signal emitted when a member node of this graph has been disconnected from another (removing an "edge")
+   */
   void EdgeRemoved(NodeEdgePtr edge);
 
 private:

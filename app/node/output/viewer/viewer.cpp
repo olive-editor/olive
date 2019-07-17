@@ -15,6 +15,11 @@ QString ViewerOutput::Name()
   return tr("Viewer");
 }
 
+QString ViewerOutput::id()
+{
+  return "org.olivevideoeditor.Olive.vieweroutput";
+}
+
 QString ViewerOutput::Category()
 {
   return tr("Output");

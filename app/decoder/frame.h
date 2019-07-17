@@ -30,7 +30,9 @@ extern "C" {
 #include "common/rational.h"
 
 /**
- * @brief Abstraction from AVFrame. Currently a simple AVFrame wrapper.
+ * @brief Video frame data or audio sample data from a Decoder
+ *
+ * Abstraction from AVFrame. Currently a simple AVFrame wrapper.
  *
  * This class does not support copying at this time.
  */

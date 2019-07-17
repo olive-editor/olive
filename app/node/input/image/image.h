@@ -5,6 +5,12 @@
 
 #include "node/node.h"
 
+/**
+ * @brief A node that imports an image
+ *
+ * FIXME: This will likely be replaced by the Media node as the Media node will be set up to pull from various decoders
+ *        from the beginning.
+ */
 class ImageInput : public Node
 {
   Q_OBJECT
@@ -12,6 +18,7 @@ public:
   ImageInput();
 
   virtual QString Name() override;
+  virtual QString id() override;
   virtual QString Category() override;
   virtual QString Description() override;
 

@@ -15,7 +15,7 @@ void NodeEdgeAddCommand::redo()
     return;
   }
 
-  old_edge_ = NodeParam::FreeSpaceForEdgeFromInput(input_);
+  old_edge_ = NodeParam::DisconnectForNewOutput(input_);
 
   NodeParam::ConnectEdge(output_, input_);
 

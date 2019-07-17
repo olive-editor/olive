@@ -113,7 +113,7 @@ bool NodeParam::AreDataTypesCompatible(const DataType &output_type, const QList<
 NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
-  FreeSpaceForEdgeFromInput(input);
+  DisconnectForNewOutput(input);
 
   // Make sure it's not a duplicate of an edge that already exists
   foreach (NodeEdgePtr existing, input->edges()) {
@@ -155,7 +155,7 @@ void NodeParam::DisconnectEdge(NodeOutput *output, NodeInput *input)
   }
 }
 
-NodeEdgePtr NodeParam::FreeSpaceForEdgeFromInput(NodeInput *input)
+NodeEdgePtr NodeParam::DisconnectForNewOutput(NodeInput *input)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
   if (!input->edges_.isEmpty() && !input->can_accept_multiple_inputs()) {

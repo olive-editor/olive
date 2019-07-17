@@ -25,6 +25,9 @@
 
 #include "decoder/decoder.h"
 
+/**
+ * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
+ */
 class FFmpegDecoder : public Decoder
 {
 public:

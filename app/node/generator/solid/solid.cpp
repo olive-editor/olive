@@ -17,6 +17,11 @@ QString SolidGenerator::Name()
   return tr("Solid");
 }
 
+QString SolidGenerator::id()
+{
+  return "org.olivevideoeditor.Olive.solidgenerator";
+}
+
 QString SolidGenerator::Category()
 {
   return tr("Generator");

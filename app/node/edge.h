@@ -26,12 +26,28 @@
 class NodeOutput;
 class NodeInput;
 
+/**
+ * @brief A connection between two node parameters (a NodeOutput and a NodeInput)
+ *
+ * To simplify memory management, it's recommended to use NodeEdgePtr instead of raw pointers when working with
+ * NodeEdge.
+ */
 class NodeEdge
 {
 public:
+  /**
+   * @brief Create a node edge connecting an output to an input
+   */
   NodeEdge(NodeOutput* output, NodeInput* input);
 
+  /**
+   * @brief Return the output parameter this edge is connected to
+   */
   NodeOutput* output();
+
+  /**
+   * @brief Return the input parameter this edge is connected to
+   */
   NodeInput* input();
 
 private:

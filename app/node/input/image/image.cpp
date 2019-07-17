@@ -13,6 +13,11 @@ QString ImageInput::Name()
   return tr("Image");
 }
 
+QString ImageInput::id()
+{
+  return "org.olivevideoeditor.Olive.imageinput";
+}
+
 QString ImageInput::Category()
 {
   return tr("Input");

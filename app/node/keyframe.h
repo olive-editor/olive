@@ -25,24 +25,42 @@
 
 #include "common/rational.h"
 
+/**
+ * @brief A point of data to be used at a certain time and interpolated with other data
+ */
 class NodeKeyframe
 {
 public:
 
+  /**
+   * @brief Methods of interpolation to use with this keyframe
+   */
   enum Type {
     kLinear,
     kHold,
     kBezier
   };
 
+  /**
+   * @brief NodeKeyframe Constructor
+   */
   NodeKeyframe();
 
+  /**
+   * @brief The time this keyframe is set at
+   */
   const rational& time();
   void set_time(const rational& time);
 
+  /**
+   * @brief The value of this keyframe (i.e. the value to use at this keyframe's time)
+   */
   const QVariant& value();
   void set_value(const QVariant &value);
 
+  /**
+   * @brief The method of interpolation to use with this keyframe
+   */
   const Type& type();
   void set_type(const Type& type);
 

@@ -24,6 +24,9 @@
 #include "node/node.h"
 #include "rendererthread.h"
 
+/**
+ * @brief A multithreaded OpenGL based renderer for node systems
+ */
 class RendererProcessor : public Node
 {
   Q_OBJECT

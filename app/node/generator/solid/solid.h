@@ -5,6 +5,9 @@
 
 #include "node/node.h"
 
+/**
+ * @brief A node that generates a solid color
+ */
 class SolidGenerator : public Node
 {
   Q_OBJECT
@@ -12,6 +15,7 @@ public:
   SolidGenerator();
 
   virtual QString Name() override;
+  virtual QString id() override;
   virtual QString Category() override;
   virtual QString Description() override;
 
