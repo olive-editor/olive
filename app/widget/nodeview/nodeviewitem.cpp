@@ -93,6 +93,10 @@ bool NodeViewItem::IsExpanded()
 
 void NodeViewItem::SetExpanded(bool e)
 {
+  if (expanded_ = e) {
+    return;
+  }
+
   expanded_ = e;
 
   QRectF new_rect;

@@ -5,6 +5,11 @@
 
 #include "node/node.h"
 
+/**
+ * @brief An undoable commnd for connecting two NodeParams together
+ *
+ * Can be considered a QUndoCommand wrapper for NodeParam::ConnectEdge()/
+ */
 class NodeEdgeAddCommand : public QUndoCommand {
 public:
   NodeEdgeAddCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);
@@ -21,6 +26,11 @@ private:
   bool done_;
 };
 
+/**
+ * @brief An undoable commnd for disconnecting two NodeParams
+ *
+ * Can be considered a QUndoCommand wrapper for NodeParam::DisonnectEdge()/
+ */
 class NodeEdgeRemoveCommand : public QUndoCommand {
 public:
   NodeEdgeRemoveCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);

@@ -111,6 +111,16 @@ NodeViewEdge *NodeView::EdgeToUIObject(QGraphicsScene *scene, NodeEdgePtr n)
   return nullptr;
 }
 
+NodeViewItem *NodeView::NodeToUIObject(Node *n)
+{
+  return NodeToUIObject(&scene_, n);
+}
+
+NodeViewEdge *NodeView::EdgeToUIObject(NodeEdgePtr n)
+{
+  return EdgeToUIObject(&scene_, n);
+}
+
 void NodeView::AddEdge(NodeEdgePtr edge)
 {
   NodeViewEdge* edge_ui = new NodeViewEdge();

@@ -25,11 +25,17 @@
 #include "node/graph.h"
 #include "project/item/item.h"
 
+/**
+ * @brief The main timeline object, an graph of edited clips that forms a complete edit
+ */
 class Sequence : public Item, public NodeGraph
 {
 public:
   Sequence();
 
+  /**
+   * @brief Item::Type() override
+   */
   virtual Type type() const override;
 
   /* VIDEO GETTER/SETTER FUNCTIONS */
