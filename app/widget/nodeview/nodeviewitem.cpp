@@ -28,7 +28,9 @@
 
 #include "core.h"
 #include "nodeview.h"
+#include "nodeviewundo.h"
 #include "ui/icons/icons.h"
+#include "undo/undostack.h"
 #include "window/mainwindow/mainwindow.h"
 
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
@@ -36,8 +38,10 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   node_(nullptr),
   font_metrics(font),
   dragging_edge_(nullptr),
+  drag_expanded_item_(nullptr),
   expanded_(false),
-  standard_click_(false)
+  standard_click_(false),
+  node_edge_change_command_(nullptr)
 {
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
@@ -131,7 +135,6 @@ QRectF NodeViewItem::GetParameterConnectorRect(int index)
     connector_rect.translate(0, font_metrics.height() * index);
   }
 
-  // FIXME: I don't know how this will work with NodeParam::kBidirectional
   if (param->type() == NodeParam::kOutput) {
     connector_rect.translate(rect().width() - node_connector_size_, 0);
   }
@@ -147,7 +150,6 @@ QPointF NodeViewItem::GetParameterTextPoint(int index)
 
   NodeParam* param = node_->ParamAt(index);
 
-  // FIXME: I don't know how this will work with NodeParam::kBidirectional
   if (param->type() == NodeParam::kOutput) {
     return content_rect_.topRight() + QPointF(-(node_connector_size_ + node_text_padding_),
                                               node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
@@ -198,7 +200,6 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       // Draw text
       QPointF text_pt = GetParameterTextPoint(i);
 
-      // FIXME: I don't know how this will work for kBidirectional
       if (param->type() == NodeParam::kOutput) {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
         text_pt -= QPointF(font_metrics.width(param->name()), 0);
@@ -281,6 +282,12 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         // Create draggable object
         dragging_edge_ = new NodeViewEdge();
 
+        // Clear any existing node edge command
+        // FIXME: Is this ever necessary?
+        delete node_edge_change_command_;
+
+        node_edge_change_command_ = new QUndoCommand();
+
         if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
           // For an output param (or an input param with no connections), we default to creating a new edge
           drag_source_ = this;
@@ -295,7 +302,8 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
           NodeEdgePtr edge = param->edges().last();
 
           // Remove old edge
-          NodeParam::DisconnectEdge(edge);
+          NodeEdgeRemoveCommand* remove_command = new NodeEdgeRemoveCommand(edge->output(), edge->input(), node_edge_change_command_);
+          remove_command->redo();
 
           // The starting position will be the OPPOSING parameter's rectangle
 
@@ -335,8 +343,18 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     // See if the mouse is currently inside a node
     NodeViewItem* drop_item = dynamic_cast<NodeViewItem*>(scene()->itemAt(event->scenePos(), sceneTransform()));
+
+    // If we expanded an item below but are no longer dragging over it, re-collapse it
+    if (drag_expanded_item_ != nullptr && drop_item != drag_expanded_item_) {
+      drag_expanded_item_->SetExpanded(false);
+      drag_expanded_item_ = nullptr;
+    }
+
     if (drop_item != nullptr && drop_item != drag_source_) {
-      if (drop_item->IsExpanded()) {
+
+      // If the item we're dragging over is collapsed, expand it
+      if (!drop_item->IsExpanded()) {
+        drag_expanded_item_ = drop_item;
         drop_item->SetExpanded(true);
       }
 
@@ -382,21 +400,41 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     // FIXME: Make this undoable
 
+    // Remove the drag object
     scene()->removeItem(dragging_edge_);
+
+    // If we expanded an item in the drag, re-collapse it now
+    if (drag_expanded_item_ != nullptr) {
+      drag_expanded_item_->SetExpanded(false);
+      drag_expanded_item_ = nullptr;
+    }
 
     if (drag_dest_param_ != nullptr) {
       // We dragged to somewhere, so we'll make a new connection
 
       NodeEdgePtr new_edge;
 
+      // Connecting will automatically add an edge UI object through the signal/slot system
       if (drag_dest_param_->type() == NodeParam::kOutput) {
-        new_edge = NodeParam::ConnectEdge(static_cast<NodeOutput*>(drag_dest_param_), static_cast<NodeInput*>(drag_src_param_));
+        new NodeEdgeAddCommand(static_cast<NodeOutput*>(drag_dest_param_),
+                               static_cast<NodeInput*>(drag_src_param_),
+                               node_edge_change_command_);
+
       } else {
-        new_edge = NodeParam::ConnectEdge(static_cast<NodeOutput*>(drag_src_param_), static_cast<NodeInput*>(drag_dest_param_));
+        new NodeEdgeAddCommand(static_cast<NodeOutput*>(drag_src_param_),
+                               static_cast<NodeInput*>(drag_dest_param_),
+                               node_edge_change_command_);
       }
     }
 
     dragging_edge_ = nullptr;
+
+    if (node_edge_change_command_->childCount() > 0) {
+      olive::undo_stack.push(node_edge_change_command_);
+    } else {
+      delete node_edge_change_command_;
+    }
+    node_edge_change_command_ = nullptr;
     return;
   }
 

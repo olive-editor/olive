@@ -24,6 +24,7 @@
 #include <QFontMetrics>
 #include <QGraphicsRectItem>
 #include <QLinearGradient>
+#include <QUndoCommand>
 #include <QWidget>
 
 #include "node/node.h"
@@ -73,6 +74,7 @@ private:
   NodeParam* drag_src_param_;
   NodeParam* drag_dest_param_;
   NodeViewItem* drag_source_;
+  NodeViewItem* drag_expanded_item_;
 
   int node_connector_size_;
   int node_text_padding_;
@@ -82,6 +84,9 @@ private:
   bool expanded_;
 
   bool standard_click_;
+
+  QUndoCommand* node_edge_change_command_;
+
 };
 
 #endif // NODEVIEWITEM_H

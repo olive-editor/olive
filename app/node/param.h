@@ -72,6 +72,9 @@ public:
 
   static NodeEdgePtr ConnectEdge(NodeOutput *output, NodeInput *input);
   static void DisconnectEdge(NodeEdgePtr edge);
+  static void DisconnectEdge(NodeOutput* output, NodeInput* input);
+
+  static NodeEdgePtr FreeSpaceForEdgeFromInput(NodeInput* input);
 
   static QString GetDefaultDataTypeName(const DataType &type);
 

@@ -113,9 +113,7 @@ bool NodeParam::AreDataTypesCompatible(const DataType &output_type, const QList<
 NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
-  if (!input->edges_.isEmpty() && !input->can_accept_multiple_inputs()) {
-    DisconnectEdge(input->edges_.first());
-  }
+  FreeSpaceForEdgeFromInput(input);
 
   // Make sure it's not a duplicate of an edge that already exists
   foreach (NodeEdgePtr existing, input->edges()) {
@@ -144,6 +142,31 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
   input->edges_.removeAll(edge);
 
   emit output->EdgeRemoved(edge);
+}
+
+void NodeParam::DisconnectEdge(NodeOutput *output, NodeInput *input)
+{
+  for (int i=0;i<output->edges_.size();i++) {
+    NodeEdgePtr edge = output->edges_.at(i);
+    if (edge->input() == input) {
+      DisconnectEdge(edge);
+      break;
+    }
+  }
+}
+
+NodeEdgePtr NodeParam::FreeSpaceForEdgeFromInput(NodeInput *input)
+{
+  // If the input can only accept one input (the default) and has one already, disconnect it
+  if (!input->edges_.isEmpty() && !input->can_accept_multiple_inputs()) {
+    NodeEdgePtr edge = input->edges_.first();
+
+    DisconnectEdge(edge);
+
+    return edge;
+  }
+
+  return nullptr;
 }
 
 QString NodeParam::GetDefaultDataTypeName(const DataType& type)

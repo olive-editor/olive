@@ -33,6 +33,7 @@
 #include "mainmenu.h"
 
 // FIXME: Test code
+#include "node/input/image/image.h"
 #include "node/output/viewer/viewer.h"
 #include "node/generator/solid/solid.h"
 // End test code
@@ -89,6 +90,8 @@ void olive::MainWindow::ProjectOpen(Project* p)
   SolidGenerator* sg = new SolidGenerator();
   NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
   graph->AddNode(sg);
+  ImageInput* ii = new ImageInput();
+  graph->AddNode(ii);
   task_panel->SetGraph(graph);
   // End test code
 }

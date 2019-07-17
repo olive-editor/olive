@@ -45,6 +45,14 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
   QCoreApplication::setApplicationName("Olive");
 
+  QString app_version = "0.2.0";
+#ifdef GITHASH
+  app_version.append("-");
+  app_version.append(GITHASH);
+#endif
+
+  QCoreApplication::setApplicationVersion(app_version);
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 #endif
