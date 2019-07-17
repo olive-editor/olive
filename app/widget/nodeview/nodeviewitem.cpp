@@ -93,7 +93,7 @@ bool NodeViewItem::IsExpanded()
 
 void NodeViewItem::SetExpanded(bool e)
 {
-  if (expanded_ = e) {
+  if (expanded_ == e) {
     return;
   }
 
@@ -286,10 +286,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         // Create draggable object
         dragging_edge_ = new NodeViewEdge();
 
-        // Clear any existing node edge command
-        // FIXME: Is this ever necessary?
-        delete node_edge_change_command_;
-
+        // Set up a QUndoCommand to make this action undoable
         node_edge_change_command_ = new QUndoCommand();
 
         if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
