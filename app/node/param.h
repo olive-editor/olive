@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QVector>
 
 #include "common/rational.h"
 #include "node/edge.h"
