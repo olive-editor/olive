@@ -23,8 +23,9 @@
 #include <QDebug>
 
 // Panel objects
-#include "panel/project/project.h"
 #include "panel/node/node.h"
+#include "panel/param/param.h"
+#include "panel/project/project.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
 #include "panel/viewer/viewer.h"
@@ -74,11 +75,16 @@ void olive::MainWindow::ProjectOpen(Project* p)
   ToolPanel* tool_panel = new ToolPanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
 
-  NodePanel* task_panel = new NodePanel(this);
-  addDockWidget(Qt::BottomDockWidgetArea, task_panel);
+  NodePanel* node_panel = new NodePanel(this);
+  addDockWidget(Qt::BottomDockWidgetArea, node_panel);
+
+  ParamPanel* param_panel = new ParamPanel(this);
+  addDockWidget(Qt::BottomDockWidgetArea, param_panel);
 
   TimelinePanel* timeline_panel = new TimelinePanel(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
+
+  connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
 
   // FIXME: Test code
   NodeGraph* graph = new NodeGraph();
@@ -92,6 +98,6 @@ void olive::MainWindow::ProjectOpen(Project* p)
   graph->AddNode(sg);
   ImageInput* ii = new ImageInput();
   graph->AddNode(ii);
-  task_panel->SetGraph(graph);
+  node_panel->SetGraph(graph);
   // End test code
 }

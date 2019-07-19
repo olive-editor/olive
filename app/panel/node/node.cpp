@@ -26,6 +26,9 @@ NodePanel::NodePanel(QWidget *parent) :
   // Create NodeView widget
   node_view_ = new NodeView(this);
 
+  // Connect node view signals to this panel
+  connect(node_view_, SIGNAL(SelectionChanged(QList<Node*>)), this, SIGNAL(SelectionChanged(QList<Node*>)));
+
   // Set it as the main widget of this panel
   setWidget(node_view_);
 

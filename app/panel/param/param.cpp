@@ -18,36 +18,33 @@
 
 ***/
 
-#ifndef NODEPANEL_H
-#define NODEPANEL_H
+#include "param.h"
 
-#include "widget/nodeview/nodeview.h"
-#include "widget/panel/panel.h"
-
-/**
- * @brief A PanelWidget wrapper around a NodeView
- */
-class NodePanel : public PanelWidget
+ParamPanel::ParamPanel(QWidget* parent) :
+  PanelWidget(parent)
 {
-  Q_OBJECT
-public:
-  NodePanel(QWidget* parent);
+  view_ = new NodeParamView(this);
 
-  void SetGraph(NodeGraph* graph);
+  setWidget(view_);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
+  Retranslate();
+}
 
-signals:
-  /**
-   * @brief Wrapper for NodeView::SelectionChanged()
-   */
-  void SelectionChanged(QList<Node*> selected_nodes);
+void ParamPanel::SetNodes(QList<Node *> nodes)
+{
+  view_->SetNodes(nodes);
+}
 
-private:
-  void Retranslate();
+void ParamPanel::changeEvent(QEvent *e)
+{
+  if (e->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+  QDockWidget::changeEvent(e);
+}
 
-  NodeView* node_view_;
-};
-
-#endif // NODEPANEL_H
+void ParamPanel::Retranslate()
+{
+  SetTitle(tr("Parameter Editor"));
+  SetSubtitle(tr("(none)"));
+}

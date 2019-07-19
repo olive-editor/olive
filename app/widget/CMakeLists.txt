@@ -17,6 +17,7 @@
 add_subdirectory(flowlayout)
 add_subdirectory(menu)
 add_subdirectory(nodeview)
+add_subdirectory(nodeparamview)
 add_subdirectory(panel)
 add_subdirectory(playbackcontrols)
 add_subdirectory(projectexplorer)

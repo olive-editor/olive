@@ -74,6 +74,12 @@ public:
    */
   NodeViewEdge* EdgeToUIObject(NodeEdgePtr n);
 
+signals:
+  /**
+   * @brief Signal emitted when the selected nodes have changed
+   */
+  void SelectionChanged(QList<Node*> selected_nodes);
+
 private:
   NodeGraph* graph_;
 
@@ -102,6 +108,11 @@ private slots:
    * Current primary function is to inform all NodeViewEdges to re-adjust in case any Nodes have moved
    */
   void ItemsChanged();
+
+  /**
+   * @brief Receiver for when the scene's selected items change
+   */
+  void SceneSelectionChangedSlot();
 
 };
 

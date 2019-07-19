@@ -18,36 +18,28 @@
 
 ***/
 
-#ifndef NODEPANEL_H
-#define NODEPANEL_H
+#ifndef NODEPARAMVIEW_H
+#define NODEPARAMVIEW_H
 
-#include "widget/nodeview/nodeview.h"
-#include "widget/panel/panel.h"
+#include <QVBoxLayout>
+#include <QWidget>
 
-/**
- * @brief A PanelWidget wrapper around a NodeView
- */
-class NodePanel : public PanelWidget
+#include "node/node.h"
+#include "nodeparamviewitem.h"
+
+class NodeParamView : public QWidget
 {
-  Q_OBJECT
 public:
-  NodePanel(QWidget* parent);
+  NodeParamView(QWidget* parent);
 
-  void SetGraph(NodeGraph* graph);
-
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
-signals:
-  /**
-   * @brief Wrapper for NodeView::SelectionChanged()
-   */
-  void SelectionChanged(QList<Node*> selected_nodes);
+  void SetNodes(QList<Node*> nodes);
 
 private:
-  void Retranslate();
+  QVBoxLayout* layout_;
 
-  NodeView* node_view_;
+  QList<Node*> nodes_;
+
+  QList<NodeParamViewItem*> items_;
 };
 
-#endif // NODEPANEL_H
+#endif // NODEPARAMVIEW_H

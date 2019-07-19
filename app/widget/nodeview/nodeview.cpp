@@ -29,6 +29,7 @@ NodeView::NodeView(QWidget *parent) :
   setDragMode(RubberBandDrag);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(ItemsChanged()));
+  connect(&scene_, SIGNAL(selectionChanged()), this, SLOT(SceneSelectionChangedSlot()));
 }
 
 void NodeView::SetGraph(NodeGraph *graph)
@@ -148,4 +149,23 @@ void NodeView::ItemsChanged()
       edge->Adjust();
     }
   }
+}
+
+void NodeView::SceneSelectionChangedSlot()
+{
+  // Get the scene's selected items and convert it into a list of selected nodes
+  QList<QGraphicsItem*> selected_items = scene_.selectedItems();
+
+  QList<Node*> selected_nodes;
+
+  for (int i=0;i<selected_items.size();i++) {
+    // Try to dynamically cast to a widget holding a Node
+    NodeViewItem* item = dynamic_cast<NodeViewItem*>(selected_items.at(i));
+
+    if (item != nullptr) {
+      selected_nodes.append(item->node());
+    }
+  }
+
+  emit SelectionChanged(selected_nodes);
 }
