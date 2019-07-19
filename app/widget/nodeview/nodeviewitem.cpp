@@ -66,6 +66,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 
   // Set text and icon padding
   node_text_padding_ = font_metrics.height() / 6;
+
+  // FIXME: Revise icon sizing algorithm (share with NodeParamViewItem)
   node_icon_padding_ = node_text_padding_ * 3;
 
   // Use the current default font height to size this widget

@@ -43,6 +43,10 @@ NodeParamViewItem::NodeParamViewItem(QWidget *parent) :
   title_bar_collapse_btn_->setStyleSheet("border: none; background: none;");
   title_bar_collapse_btn_->setCheckable(true);
   title_bar_collapse_btn_->setChecked(true);
+
+  // FIXME: Revise icon sizing algorithm (share with NodeViewItem)
+  title_bar_collapse_btn_->setIconSize(QSize(fontMetrics().height()/2, fontMetrics().height()/2));
+
   connect(title_bar_collapse_btn_, SIGNAL(clicked(bool)), this, SLOT(SetExpanded(bool)));
   title_bar_layout->addWidget(title_bar_collapse_btn_);
 
