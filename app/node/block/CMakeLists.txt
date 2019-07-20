@@ -14,27 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(block)
-add_subdirectory(generator)
-add_subdirectory(input)
-add_subdirectory(output)
-add_subdirectory(processor)
+#add_subdirectory(image)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/edge.h
-  node/edge.cpp
-  node/graph.h
-  node/graph.cpp
-  node/input.h
-  node/input.cpp
-  node/keyframe.h
-  node/keyframe.cpp
-  node/node.h
-  node/node.cpp
-  node/output.h
-  node/output.cpp
-  node/param.h
-  node/param.cpp
+  node/block/block.h
+  node/block/block.cpp
   PARENT_SCOPE
 )

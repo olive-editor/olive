@@ -60,12 +60,12 @@ void Item::remove_child(Item *c)
   c->parent_ = nullptr;
 }
 
-int Item::child_count()
+int Item::child_count() const
 {
   return children_.size();
 }
 
-Item *Item::child(int i)
+Item *Item::child(int i) const
 {
   return children_.at(i).get();
 }
@@ -114,6 +114,17 @@ void Item::set_icon(const QIcon &icon)
 Item *Item::parent() const
 {
   return parent_;
+}
+
+const Item *Item::root() const
+{
+  const Item* item = this;
+
+  while (item->parent() != nullptr) {
+    item = item->parent();
+  }
+
+  return item;
 }
 
 bool Item::CanHaveChildren() const

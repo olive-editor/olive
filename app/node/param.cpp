@@ -183,6 +183,7 @@ QString NodeParam::GetDefaultDataTypeName(const DataType& type)
   case kTexture: return tr("Texture");
   case kMatrix: return tr("Matrix");
   case kBlock: return tr("Block");
+  case kFootage: return tr("Footage");
   case kAny: return tr("Any");
   }
 

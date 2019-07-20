@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/input/image/image.h
-  node/input/image/image.cpp
+  node/input/media/media.h
+  node/input/media/media.cpp
   PARENT_SCOPE
 )

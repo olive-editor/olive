@@ -79,8 +79,8 @@ public:
 
   void add_child(ItemPtr c);
   void remove_child(Item* c);
-  int child_count();
-  Item* child(int i);
+  int child_count() const;
+  Item* child(int i) const;
 
   ItemPtr shared_ptr_from_raw(Item* item);
 
@@ -94,6 +94,7 @@ public:
   void set_icon(const QIcon& icon);
 
   Item *parent() const;
+  const Item* root() const;
 
   virtual bool CanHaveChildren() const;
 

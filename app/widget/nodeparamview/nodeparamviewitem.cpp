@@ -20,10 +20,20 @@
 
 #include "nodeparamviewitem.h"
 
+#include <QCheckBox>
 #include <QDebug>
+#include <QFontComboBox>
+#include <QLineEdit>
 #include <QPainter>
 
+#include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
+#include "widget/footagecombobox/footagecombobox.h"
+
+// FIXME: Test code only
+#include "panel/panelfocusmanager.h"
+#include "panel/project/project.h"
+// End test code
 
 NodeParamViewItem::NodeParamViewItem(QWidget *parent) :
   QWidget(parent)
@@ -107,13 +117,88 @@ void NodeParamViewItem::SetupUI()
 
     // This widget only needs to show input parameters
     if (param->type() == NodeParam::kInput) {
+
+      // Add descriptor label
       QLabel* param_label = new QLabel(tr("%1:").arg(param->name()));
 
       content_layout_->addWidget(param_label, row_count, 0);
 
+      // Add widgets for this parameter
+      QList<QWidget*> widgets_for_param = CreateWidget(static_cast<NodeInput*>(param));
+      for (int i=0;i<widgets_for_param.size();i++) {
+        content_layout_->addWidget(widgets_for_param.at(i), row_count, i + 1);
+      }
+
       row_count++;
     }
   }
+}
+
+QList<QWidget*> NodeParamViewItem::CreateWidget(NodeInput* input)
+{
+  QList<QWidget*> widgets;
+
+  if (input->inputs().isEmpty()) {
+    return widgets;
+  }
+
+  switch (input->inputs().first()) {
+  case NodeParam::kNone:
+  case NodeParam::kAny:
+  case NodeParam::kBlock:
+  case NodeParam::kTexture:
+  case NodeParam::kMatrix:
+    break;
+  case NodeParam::kInt:
+    // FIXME: LabelSlider in INTEGER mode
+    break;
+  case NodeParam::kFloat:
+    // FIXME: LabelSlider in FLOAT mode
+    break;
+  case NodeParam::kFile:
+    // FIXME: File selector
+    break;
+  case NodeParam::kColor:
+    // FIXME: Color selector
+    break;
+  case NodeParam::kString:
+  {
+    QLineEdit* line_edit = new QLineEdit();
+    widgets.append(line_edit);
+  }
+    break;
+  case NodeParam::kBoolean:
+  {
+    QCheckBox* check_box = new QCheckBox();
+    widgets.append(check_box);
+  }
+    break;
+  case NodeParam::kFont:
+  {
+    QFontComboBox* font_combobox = new QFontComboBox();
+    widgets.append(font_combobox);
+  }
+    break;
+  case NodeParam::kFootage:
+  {
+    FootageComboBox* footage_combobox = new FootageComboBox();
+
+    // FIXME: Test code
+    ProjectPanel* pp = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+    footage_combobox->SetRoot(pp->project()->root());
+    // End test code
+
+
+    // Pretty hacky way of getting the root folder for this node's sequence
+    //const Folder* root_folder = static_cast<const Folder*>(static_cast<Sequence*>(input->parent()->parent())->root());
+    //footage_combobox->SetRoot(root_folder);
+
+    widgets.append(footage_combobox);
+  }
+    break;
+  }
+
+  return widgets;
 }
 
 void NodeParamViewItem::SetExpanded(bool e)

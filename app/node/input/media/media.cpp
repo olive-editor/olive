@@ -1,39 +1,43 @@
-#include "image.h"
+#include "media.h"
 
-ImageInput::ImageInput() :
+MediaInput::MediaInput() :
   texture_(nullptr)
 {
+  footage_input_ = new NodeInput();
+  footage_input_->add_data_input(NodeInput::kFootage);
+  AddParameter(footage_input_);
+
   texture_output_ = new NodeOutput();
   texture_output_->set_data_type(NodeOutput::kTexture);
   AddParameter(texture_output_);
 }
 
-QString ImageInput::Name()
+QString MediaInput::Name()
 {
-  return tr("Image");
+  return tr("Media");
 }
 
-QString ImageInput::id()
+QString MediaInput::id()
 {
-  return "org.olivevideoeditor.Olive.imageinput";
+  return "org.olivevideoeditor.Olive.mediainput";
 }
 
-QString ImageInput::Category()
+QString MediaInput::Category()
 {
   return tr("Input");
 }
 
-QString ImageInput::Description()
+QString MediaInput::Description()
 {
-  return tr("Import an image file.");
+  return tr("Import a footage stream.");
 }
 
-NodeOutput *ImageInput::texture_output()
+NodeOutput *MediaInput::texture_output()
 {
   return texture_output_;
 }
 
-void ImageInput::Process(const rational &time)
+void MediaInput::Process(const rational &time)
 {
   // FIXME: Use OIIO and OCIO here
 

@@ -65,6 +65,7 @@ public:
     kTexture,
     kMatrix,
     kBlock,
+    kFootage,
     kAny
   };
 

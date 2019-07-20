@@ -11,11 +11,11 @@
  * FIXME: This will likely be replaced by the Media node as the Media node will be set up to pull from various decoders
  *        from the beginning.
  */
-class ImageInput : public Node
+class MediaInput : public Node
 {
   Q_OBJECT
 public:
-  ImageInput();
+  MediaInput();
 
   virtual QString Name() override;
   virtual QString id() override;
@@ -28,6 +28,8 @@ public slots:
   virtual void Process(const rational &time) override;
 
 private:
+  NodeInput* footage_input_;
+
   NodeOutput* texture_output_;
 
   QOpenGLTexture* texture_;
