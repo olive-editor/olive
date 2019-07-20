@@ -33,6 +33,7 @@ public:
   NodeParamView(QWidget* parent);
 
   void SetNodes(QList<Node*> nodes);
+  const QList<Node*>& nodes();
 
 private:
   QVBoxLayout* layout_;

@@ -188,7 +188,6 @@ QList<QWidget*> NodeParamViewItem::CreateWidget(NodeInput* input)
     footage_combobox->SetRoot(pp->project()->root());
     // End test code
 
-
     // Pretty hacky way of getting the root folder for this node's sequence
     //const Folder* root_folder = static_cast<const Folder*>(static_cast<Sequence*>(input->parent()->parent())->root());
     //footage_combobox->SetRoot(root_folder);

@@ -71,3 +71,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     }
   }
 }
+
+const QList<Node *> &NodeParamView::nodes()
+{
+  return nodes_;
+}

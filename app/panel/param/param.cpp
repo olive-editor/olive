@@ -33,6 +33,8 @@ ParamPanel::ParamPanel(QWidget* parent) :
 void ParamPanel::SetNodes(QList<Node *> nodes)
 {
   view_->SetNodes(nodes);
+
+  Retranslate();
 }
 
 void ParamPanel::changeEvent(QEvent *e)
@@ -46,5 +48,12 @@ void ParamPanel::changeEvent(QEvent *e)
 void ParamPanel::Retranslate()
 {
   SetTitle(tr("Parameter Editor"));
-  SetSubtitle(tr("(none)"));
+
+  if (view_->nodes().isEmpty()) {
+    SetSubtitle(tr("(none)"));
+  } else if (view_->nodes().size() == 1) {
+    SetSubtitle(view_->nodes().first()->Name());
+  } else {
+    SetSubtitle(tr("(multiple)"));
+  }
 }

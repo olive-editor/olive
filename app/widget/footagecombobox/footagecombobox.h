@@ -17,6 +17,9 @@ public:
 
   void SetRoot(const Folder *p);
 
+public slots:
+  void SetFootage(Footage* f);
+
 signals:
   void FootageChanged(Footage* f);
 

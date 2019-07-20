@@ -12,7 +12,7 @@ FootageComboBox::FootageComboBox(QWidget *parent) :
 
 void FootageComboBox::showPopup()
 {
-  if (root_ == nullptr) {
+  if (root_ == nullptr || root_->child_count() == 0) {
     return;
   }
 
@@ -38,6 +38,13 @@ void FootageComboBox::SetRoot(const Folder *p)
   root_ = p;
 
   clear();
+}
+
+void FootageComboBox::SetFootage(Footage *f)
+{
+  clear();
+
+  addItem(f->name());
 }
 
 void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
