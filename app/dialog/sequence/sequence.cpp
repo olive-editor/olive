@@ -20,10 +20,6 @@
 
 #include "sequence.h"
 
-extern "C" {
-#include <libavformat/avformat.h>
-}
-
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QLabel>
@@ -31,6 +27,7 @@ extern "C" {
 #include <QMessageBox>
 #include <QVBoxLayout>
 
+#include "common/channellayout.h"
 #include "common/rational.h"
 #include "undo/undostack.h"
 

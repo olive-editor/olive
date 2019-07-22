@@ -20,10 +20,7 @@
 
 #include "sequence.h"
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-}
-
+#include "common/channellayout.h"
 #include "ui/icons/icons.h"
 
 Sequence::Sequence()

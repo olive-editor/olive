@@ -21,10 +21,6 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-}
-
 #include "common/rational.h"
 #include "stream.h"
 

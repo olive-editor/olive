@@ -16,6 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  common/channellayout.h
   common/clamp.h
   common/lerp.h
   common/rational.h
