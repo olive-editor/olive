@@ -132,6 +132,32 @@ bool Item::CanHaveChildren() const
   return false;
 }
 
+bool Item::ChildExistsWithName(const QString &name)
+{
+  return ChildExistsWithNameInternal(name, this);
+}
+
+bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)
+{
+  // Loop through all children
+  for (int i=0;i<folder->child_count();i++) {
+    Item* child = folder->child(i);
+
+    // If this child has the same name, return true
+    if (child->name() == name) {
+      return true;
+    } else if (child->CanHaveChildren()) {
+      // If the child has children, run function recursively on this item
+      if (ChildExistsWithNameInternal(name, child)) {
+        // If it returns true, we've found a child so we can return now
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 void Item::Lock()
 {
   mutex_.lock();

@@ -98,10 +98,14 @@ public:
 
   virtual bool CanHaveChildren() const;
 
+  bool ChildExistsWithName(const QString& name);
+
   void Lock();
   void Unlock();
 
 private:
+  bool ChildExistsWithNameInternal(const QString& name, Item* folder);
+
   QList<ItemPtr> children_;
 
   Item* parent_;

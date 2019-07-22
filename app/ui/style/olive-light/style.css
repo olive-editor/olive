@@ -63,7 +63,7 @@ a {
 }
 
 /* All of these widgets' backgrounds are dark */
-QTreeView, QListView, QLineEdit, QMenu, QProgressBar, QPushButton::checked, NodeView, QCheckBox {
+QTreeView, QListView, QLineEdit, QMenu, QProgressBar, QPushButton::checked, NodeView, QComboBox, QSpinBox {
   /* Dark */
   background: #ffffff;
 }

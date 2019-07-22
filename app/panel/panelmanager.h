@@ -41,17 +41,18 @@
  * PanelFocusManager's SLOT(FocusChanged()) connects to the QApplication instance's SIGNAL(focusChanged()) so that
  * it always knows when focus has changed within the application.
  */
-class PanelFocusManager : public QObject
+class PanelManager : public QObject
 {
   Q_OBJECT
 public:
-  PanelFocusManager(QObject* parent);
+  PanelManager(QObject* parent);
 
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused
    */
   PanelWidget* CurrentlyFocused() const;
 
+  template<class T>
   /**
    * @brief Get most recently focused panel of a certain type
    *
@@ -59,8 +60,15 @@ public:
    *
    * The most recently focused panel of the specified type, or nullptr if none exists
    */
-  template<class T>
   T* MostRecentlyFocused();
+
+  template<class T>
+  /**
+   * @brief Create a panel
+   * @param parent
+   * @return
+   */
+  T* CreatePanel(QWidget* parent);
 
 public slots:
   /**
@@ -78,7 +86,18 @@ private:
 };
 
 template<class T>
-T* PanelFocusManager::MostRecentlyFocused()
+T *PanelManager::CreatePanel(QWidget *parent)
+{
+  T* panel = new T(parent);
+
+  // Add panel to the bottom of the focus history
+  focus_history_.append(panel);
+
+  return panel;
+}
+
+template<class T>
+T* PanelManager::MostRecentlyFocused()
 {
   T* cast_test;
 
@@ -94,7 +113,7 @@ T* PanelFocusManager::MostRecentlyFocused()
 }
 
 namespace olive {
-extern PanelFocusManager* panel_focus_manager;
+extern PanelManager* panel_focus_manager;
 }
 
 #endif // PANELFOCUSMANAGER_H

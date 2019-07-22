@@ -23,6 +23,7 @@
 #include <QDebug>
 
 // Panel objects
+#include "panel/panelmanager.h"
 #include "panel/node/node.h"
 #include "panel/param/param.h"
 #include "panel/project/project.h"
@@ -32,12 +33,6 @@
 
 // Main menu bar
 #include "mainmenu.h"
-
-// FIXME: Test code
-#include "node/input/media/media.h"
-#include "node/output/viewer/viewer.h"
-#include "node/generator/solid/solid.h"
-// End test code
 
 olive::MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
@@ -62,42 +57,24 @@ olive::MainWindow::MainWindow(QWidget *parent) :
 void olive::MainWindow::ProjectOpen(Project* p)
 {
   // TODO Use settings data to create panels and restore state if they exist
-  ProjectPanel* project_panel = new ProjectPanel(this);
-  project_panel->set_project(p);
-  addDockWidget(Qt::TopDockWidgetArea, project_panel);
+  NodePanel* node_panel = olive::panel_focus_manager->CreatePanel<NodePanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, node_panel);
 
-  ViewerPanel* viewer_panel1 = new ViewerPanel(this);
-  addDockWidget(Qt::TopDockWidgetArea, viewer_panel1);
+  ParamPanel* param_panel = olive::panel_focus_manager->CreatePanel<ParamPanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, param_panel);
 
-  ViewerPanel* viewer_panel2 = new ViewerPanel(this);
+  ViewerPanel* viewer_panel2 = olive::panel_focus_manager->CreatePanel<ViewerPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
 
-  ToolPanel* tool_panel = new ToolPanel(this);
+  ProjectPanel* project_panel = olive::panel_focus_manager->CreatePanel<ProjectPanel>(this);
+  project_panel->set_project(p);
+  addDockWidget(Qt::BottomDockWidgetArea, project_panel);
+
+  ToolPanel* tool_panel = olive::panel_focus_manager->CreatePanel<ToolPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
 
-  NodePanel* node_panel = new NodePanel(this);
-  addDockWidget(Qt::BottomDockWidgetArea, node_panel);
-
-  ParamPanel* param_panel = new ParamPanel(this);
-  addDockWidget(Qt::BottomDockWidgetArea, param_panel);
-
-  TimelinePanel* timeline_panel = new TimelinePanel(this);
+  TimelinePanel* timeline_panel = olive::panel_focus_manager->CreatePanel<TimelinePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
 
   connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
-
-  // FIXME: Test code
-  NodeGraph* graph = new NodeGraph();
-  graph->setParent(this);
-  graph->set_name("New Graph");
-  ViewerOutput* vo = new ViewerOutput();
-  vo->AttachViewer(viewer_panel2);
-  graph->AddNode(vo);
-  SolidGenerator* sg = new SolidGenerator();
-  NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
-  graph->AddNode(sg);
-  MediaInput* ii = new MediaInput();
-  graph->AddNode(ii);
-  node_panel->SetGraph(graph);
-  // End test code
 }

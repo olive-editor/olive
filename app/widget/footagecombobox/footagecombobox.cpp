@@ -52,7 +52,7 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
   for (int i=0;i<f->child_count();i++) {
     Item* child = f->child(i);
 
-    if (child->type() == Item::kFolder) {
+    if (child->CanHaveChildren()) {
 
       TraverseFolder(static_cast<Folder*>(child), m->addMenu(child->name()));
 

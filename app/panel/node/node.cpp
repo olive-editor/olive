@@ -38,8 +38,6 @@ NodePanel::NodePanel(QWidget *parent) :
 
 void NodePanel::SetGraph(NodeGraph *graph)
 {
-  SetSubtitle(graph->name());
-
   node_view_->SetGraph(graph);
 }
 
@@ -54,5 +52,4 @@ void NodePanel::changeEvent(QEvent *e)
 void NodePanel::Retranslate()
 {
   SetTitle(tr("Node Editor"));
-  SetSubtitle(tr("(none)"));
 }

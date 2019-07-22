@@ -35,16 +35,6 @@ void NodeGraph::AddNode(Node *node)
   connect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
 }
 
-const QString &NodeGraph::name()
-{
-  return name_;
-}
-
-void NodeGraph::set_name(const QString &name)
-{
-  name_ = name;
-}
-
 QList<Node *> NodeGraph::nodes()
 {
   return static_qobjectlist_cast<Node>(children());

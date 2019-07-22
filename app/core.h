@@ -124,6 +124,11 @@ public slots:
    */
   void CreateNewFolder();
 
+  /**
+   * @brief Createa a new sequence in the currently active project
+   */
+  void CreateNewSequence();
+
 signals:
   /**
    * @brief Signal emitted when a project is opened

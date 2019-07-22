@@ -31,7 +31,7 @@
 #include "widget/footagecombobox/footagecombobox.h"
 
 // FIXME: Test code only
-#include "panel/panelfocusmanager.h"
+#include "panel/panelmanager.h"
 #include "panel/project/project.h"
 // End test code
 

@@ -20,6 +20,10 @@
 
 #include "sequence.h"
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
 #include "ui/icons/icons.h"
 
 Sequence::Sequence()
@@ -47,9 +51,9 @@ const int &Sequence::video_height() const
   return video_height_;
 }
 
-void Sequence::set_video_height(const int &video_height)
+void Sequence::set_video_height(const int &height)
 {
-  video_height_ = video_height;
+  video_height_ = height;
 }
 
 const rational &Sequence::video_time_base()
@@ -62,16 +66,6 @@ void Sequence::set_video_time_base(const rational &time_base)
   video_time_base_ = time_base;
 }
 
-const int &Sequence::audio_sampling_rate()
-{
-  return audio_sampling_rate_;
-}
-
-void Sequence::set_audio_sampling_rate(const int &sample_rate)
-{
-  audio_sampling_rate_ = sample_rate;
-}
-
 const rational &Sequence::audio_time_base()
 {
   return audio_time_base_;
@@ -80,4 +74,25 @@ const rational &Sequence::audio_time_base()
 void Sequence::set_audio_time_base(const rational &time_base)
 {
   audio_time_base_ = time_base;
+}
+
+const uint64_t &Sequence::audio_channel_layout()
+{
+  return audio_channel_layout_;
+}
+
+void Sequence::set_audio_channel_layout(const uint64_t &channel_layout)
+{
+  audio_channel_layout_ = channel_layout;
+}
+
+void Sequence::SetDefaultParameters()
+{
+  // FIXME: Make these configurable
+  set_video_width(1920);
+  set_video_height(1080);
+  set_video_time_base(rational(1001, 30000));
+
+  set_audio_time_base(rational(1, 48000));
+  set_audio_channel_layout(AV_CH_LAYOUT_STEREO);
 }

@@ -84,8 +84,10 @@ public:
   double ToDouble() const;
 
   // Specific values
-  const int64_t& numerator();
-  const int64_t& denominator();
+  const int64_t& numerator() const;
+  const int64_t& denominator() const;
+
+  rational flipped() const;
 private:
   int64_t numerator_;
   int64_t denominator_;

@@ -28,9 +28,11 @@
 #include <QMessageBox>
 #include <QHBoxLayout>
 
-#include "panel/panelfocusmanager.h"
+#include "dialog/sequence/sequence.h"
+#include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
+#include "project/item/sequence/sequence.h"
 #include "task/import/import.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
@@ -215,6 +217,75 @@ void Core::CreateNewFolder()
   active_project_panel->Edit(new_folder.get());
 }
 
+// FIXME: Test code
+#include "node/input/media/media.h"
+#include "node/output/viewer/viewer.h"
+#include "node/generator/solid/solid.h"
+#include "panel/panelmanager.h"
+#include "panel/node/node.h"
+#include "panel/viewer/viewer.h"
+// End test code
+
+void Core::CreateNewSequence()
+{
+  // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
+  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+  Project* active_project;
+
+  if (active_project_panel == nullptr // Check that we found a Project panel
+      || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
+    QMessageBox::critical(main_window_, tr("Failed to create new sequence"), tr("Failed to find active Project panel"));
+    return;
+  }
+
+  // Get the selected folder in this panel
+  Folder* folder = active_project_panel->GetSelectedFolder();
+
+  // Create new sequence
+  SequencePtr new_sequence = std::make_shared<Sequence>();
+
+  // Set all defaults for the sequence
+  new_sequence->SetDefaultParameters();
+
+  // Get default name for this sequence (in the format "Sequence N", the first that doesn't exist)
+  int sequence_number = 1;
+  QString sequence_name;
+  do {
+    sequence_name = tr("Sequence %1").arg(sequence_number);
+    sequence_number++;
+  } while (active_project->root()->ChildExistsWithName(sequence_name));
+  new_sequence->set_name(sequence_name);
+
+  SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, main_window_);
+
+  // Make sure SequenceDialog doesn't make an undo command for editing the sequence, since we make an undo command for
+  // adding it later on
+  sd.SetUndoable(false);
+
+  if (sd.exec() == QDialog::Accepted) {
+    // Create an undoable command
+    ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(active_project_panel->model(),
+                                                                                 folder,
+                                                                                 new_sequence);
+
+    // FIXME: Test code
+    NodeGraph* graph = new NodeGraph();
+    graph->setParent(this);
+    ViewerOutput* vo = new ViewerOutput();
+    vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
+    graph->AddNode(vo);
+    SolidGenerator* sg = new SolidGenerator();
+    NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
+    graph->AddNode(sg);
+    MediaInput* ii = new MediaInput();
+    graph->AddNode(ii);
+    olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(graph);
+    // End test code
+
+    olive::undo_stack.push(aic);
+  }
+}
+
 void Core::AddOpenProject(ProjectPtr p)
 {
   open_projects_.append(p);
@@ -236,7 +307,7 @@ void Core::StartGUI(bool full_screen)
   olive::menu_shared.Initialize();
 
   // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
-  olive::panel_focus_manager = new PanelFocusManager(this);
+  olive::panel_focus_manager = new PanelManager(this);
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,

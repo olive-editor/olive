@@ -324,14 +324,19 @@ double rational::ToDouble() const
   }
 }
 
-const int64_t &rational::numerator()
+const int64_t &rational::numerator() const
 {
   return numerator_;
 }
 
-const int64_t &rational::denominator()
+const int64_t &rational::denominator() const
 {
   return denominator_;
+}
+
+rational rational::flipped() const
+{
+  return rational(denominator_, numerator_);
 }
 
 void rational::FixSigns()

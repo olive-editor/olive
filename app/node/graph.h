@@ -46,16 +46,6 @@ public:
   void AddNode(Node* node);
 
   /**
-   * @brief Return the name of this graph (user-defined)
-   */
-  const QString& name();
-
-  /**
-   * @brief Set the name of this graph (user-defined)
-   */
-  void set_name(const QString& name);
-
-  /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
   QList<Node*> nodes();
@@ -72,7 +62,6 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 private:
-  QString name_;
 };
 
 #endif // NODEGRAPH_H

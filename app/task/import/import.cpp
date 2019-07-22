@@ -27,7 +27,7 @@
 #include <QFileInfo>
 
 // FIXME: Only used for test code
-#include "panel/panelfocusmanager.h"
+#include "panel/panelmanager.h"
 #include "panel/project/project.h"
 // End test code
 

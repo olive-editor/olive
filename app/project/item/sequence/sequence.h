@@ -44,26 +44,30 @@ public:
   void set_video_width(const int& width);
 
   const int& video_height() const;
-  void set_video_height(const int& video_height);
+  void set_video_height(const int& height);
 
   const rational& video_time_base();
   void set_video_time_base(const rational& time_base);
 
   /* AUDIO GETTER/SETTER FUNCTIONS */
 
-  const int& audio_sampling_rate();
-  void set_audio_sampling_rate(const int& sample_rate);
-
   const rational& audio_time_base();
   void set_audio_time_base(const rational& time_base);
+
+  const uint64_t& audio_channel_layout();
+  void set_audio_channel_layout(const uint64_t& channel_layout);
+
+  void SetDefaultParameters();
 
 private:
   int video_width_;
   int video_height_;
   rational video_time_base_;
 
-  int audio_sampling_rate_;
   rational audio_time_base_;
+  uint64_t audio_channel_layout_;
 };
+
+using SequencePtr = std::shared_ptr<Sequence>;
 
 #endif // SEQUENCE_H

@@ -18,17 +18,17 @@
 
 ***/
 
-#include "panelfocusmanager.h"
+#include "panelmanager.h"
 
-PanelFocusManager* olive::panel_focus_manager = nullptr;
+PanelManager* olive::panel_focus_manager = nullptr;
 
-PanelFocusManager::PanelFocusManager(QObject *parent) :
+PanelManager::PanelManager(QObject *parent) :
   QObject(parent)
 {
 
 }
 
-PanelWidget *PanelFocusManager::CurrentlyFocused() const
+PanelWidget *PanelManager::CurrentlyFocused() const
 {
   if (focus_history_.isEmpty()) {
     return nullptr;
@@ -37,7 +37,7 @@ PanelWidget *PanelFocusManager::CurrentlyFocused() const
   return focus_history_.first();
 }
 
-void PanelFocusManager::FocusChanged(QWidget *old, QWidget *now)
+void PanelManager::FocusChanged(QWidget *old, QWidget *now)
 {
   Q_UNUSED(old)
 

@@ -32,7 +32,7 @@ void MenuShared::Initialize()
 {
   // "New" menu shared items
   new_project_item_ = Menu::CreateItem(this, "newproj", nullptr, nullptr, "Ctrl+N");
-  new_sequence_item_ = Menu::CreateItem(this, "newseq", nullptr, nullptr, "Ctrl+Shift+N");
+  new_sequence_item_ = Menu::CreateItem(this, "newseq", &olive::core, SLOT(CreateNewSequence()), "Ctrl+Shift+N");
   new_folder_item_ = Menu::CreateItem(this, "newfolder", &olive::core, SLOT(CreateNewFolder()));
 
   // "Edit" menu shared items
