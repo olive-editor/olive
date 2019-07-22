@@ -20,9 +20,11 @@
 
 #include "project.h"
 
+#include <QMenu>
 #include <QVBoxLayout>
 
 #include "core.h"
+#include "widget/menu/menushared.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
 ProjectPanel::ProjectPanel(QWidget *parent) :
@@ -38,6 +40,9 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
   // Set up project toolbar
   ProjectToolbar* toolbar = new ProjectToolbar(this);
   layout->addWidget(toolbar);
+
+  // Make toolbar connections
+  connect(toolbar, SIGNAL(NewClicked()), this, SLOT(ShowNewMenu()));
 
   // Set up main explorer object
   explorer_ = new ProjectExplorer(this);
@@ -116,4 +121,13 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
   }
 
   // FIXME: Double click Item should do something
+}
+
+void ProjectPanel::ShowNewMenu()
+{
+  Menu new_menu(this);
+
+  olive::menu_shared.AddItemsForNewMenu(&new_menu);
+
+  new_menu.exec(QCursor::pos());
 }

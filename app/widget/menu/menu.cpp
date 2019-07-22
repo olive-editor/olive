@@ -42,6 +42,11 @@ Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
   }
 }
 
+Menu::Menu(QWidget *parent) :
+  QMenu(parent)
+{
+}
+
 QAction *Menu::AddItem(const QString &id,
                        const QObject *receiver,
                        const char *member,

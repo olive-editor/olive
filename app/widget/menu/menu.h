@@ -59,6 +59,11 @@ public:
   Menu(Menu* bar, const QObject* receiver = nullptr, const char* member = nullptr);
 
   /**
+   * @brief Construct a popup menu
+   */
+  Menu(QWidget* parent);
+
+  /**
    * @brief Create a menu item and add it to this menu
    *
    * @param id
