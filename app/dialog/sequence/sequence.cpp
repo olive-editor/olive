@@ -59,7 +59,6 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   video_layout->addWidget(video_height_field_, 1, 1);
   video_layout->addWidget(new QLabel(tr("Frame Rate:")), 2, 0);
   video_frame_rate_field_ = new QComboBox();
-  // FIXME: No frame rate made
   video_layout->addWidget(video_frame_rate_field_, 2, 1);
   layout->addWidget(video_group);
 

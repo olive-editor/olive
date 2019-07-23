@@ -56,7 +56,7 @@ olive::MainWindow::MainWindow(QWidget *parent) :
 
 void olive::MainWindow::ProjectOpen(Project* p)
 {
-  // TODO Use settings data to create panels and restore state if they exist
+  // FIXME Use settings data to create panels and restore state if they exist
   NodePanel* node_panel = olive::panel_focus_manager->CreatePanel<NodePanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, node_panel);
 

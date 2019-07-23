@@ -85,13 +85,13 @@ void Core::Start()
 
 
   //
-  // Start GUI (TODO CLI mode)
+  // Start GUI (FIXME CLI mode)
   //
 
   StartGUI(parser.isSet(fullscreen_option));
 
   // Create new project on startup
-  // TODO: Load project from startup_project_ instead if not empty
+  // FIXME: Load project from startup_project_ instead if not empty
   AddOpenProject(std::make_shared<Project>());
 }
 

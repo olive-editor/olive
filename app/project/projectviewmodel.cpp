@@ -31,7 +31,7 @@ ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
   project_(nullptr)
 {
-  // TODO make this configurable
+  // FIXME: make this configurable
   columns_.append(kName);
   columns_.append(kDuration);
   columns_.append(kRate);
@@ -424,7 +424,7 @@ void ProjectViewModel::RenameChild(Item *item, const QString &name)
 int ProjectViewModel::IndexOfChild(Item *item) const
 {
   // Find parent's index within its own parent
-  // (TODO: this model should handle sorting, which means it'll have to "know" the indices)
+  // (FIXME: this model should handle sorting, which means it'll have to "know" the indices)
 
   if (item == project_->root()) {
     return -1;
