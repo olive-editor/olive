@@ -24,6 +24,7 @@ add_subdirectory(playbackcontrols)
 add_subdirectory(projectexplorer)
 add_subdirectory(projecttoolbar)
 add_subdirectory(taskview)
+add_subdirectory(timeruler)
 add_subdirectory(toolbar)
 add_subdirectory(viewer)
 

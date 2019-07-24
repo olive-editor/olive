@@ -16,13 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  common/channellayout.h
-  common/clamp.h
-  common/lerp.h
-  common/rational.h
-  common/rational.cpp
-  common/qobjectlistcast.h
-  common/qtversionabstraction.h
-  common/qtversionabstraction.cpp
+  widget/timeruler/timeruler.h
+  widget/timeruler/timeruler.cpp
   PARENT_SCOPE
 )

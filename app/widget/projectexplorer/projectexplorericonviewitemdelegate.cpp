@@ -22,6 +22,8 @@
 
 #include <QPainter>
 
+#include "common/qtversionabstraction.h"
+
 ProjectExplorerIconViewItemDelegate::ProjectExplorerIconViewItemDelegate(QObject *parent) :
   QStyledItemDelegate (parent)
 {
@@ -62,11 +64,7 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
 
     QString duration_str = index.data(Qt::UserRole).toString();
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-    int timecode_width = fm.width(duration_str);
-#else
-    int timecode_width = fm.horizontalAdvance(duration_str);
-#endif
+    int timecode_width = QFontMetricsWidth(&fm, duration_str);
 
     int max_name_width = option.rect.width();
 

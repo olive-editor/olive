@@ -20,9 +20,24 @@
 
 #include "timeline.h"
 
+#include <QVBoxLayout>
+
+#include "widget/timeruler/timeruler.h"
+
 TimelinePanel::TimelinePanel(QWidget *parent) :
   PanelWidget(parent)
 {
+  // FIXME: Test code
+  QWidget* main = new QWidget(this);
+  setWidget(main);
+
+  QVBoxLayout* layout = new QVBoxLayout(main);
+
+  TimeRuler* tr = new TimeRuler(true, this);
+  layout->addWidget(tr);
+  layout->addStretch();
+  // End test code
+
   Retranslate();
 }
 

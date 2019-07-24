@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+#include "common/qtversionabstraction.h"
 #include "core.h"
 #include "nodeview.h"
 #include "nodeviewundo.h"
@@ -52,11 +53,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   //
 
   // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
-#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-  int widget_width = font_metrics.width("HHHHHHHHHHHHHHHH");
-#else
-  int widget_width = font_metrics.horizontalAdvance("HHHHHHHHHHHHHHHH");
-#endif
+  int widget_width = QFontMetricsWidth(&font_metrics, "HHHHHHHHHHHHHHHH");
 
   // Set border width
   node_border_width_ = font_metrics.height() / 12;
@@ -207,11 +204,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       QPointF text_pt = GetParameterTextPoint(i);
 
       if (param->type() == NodeParam::kOutput) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
-        text_pt -= QPointF(font_metrics.width(param->name()), 0);
-#else
-        text_pt -= QPointF(font_metrics.horizontalAdvance(param->name()), 0);
-#endif
+        text_pt -= QPointF(QFontMetricsWidth(&font_metrics, param->name()), 0);
       }
 
       painter->drawText(text_pt, param->name());
