@@ -45,7 +45,7 @@ public:
   void SetTimebase(const rational& r);
 
 public slots:
-  void SetTime(const rational& r);
+  void SetTime(const int64_t &r);
 
 signals:
   /**

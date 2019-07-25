@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "timecodefunctions.h"
 
 #include <QtMath>
@@ -6,13 +26,11 @@ QString padded(int arg, int padding) {
   return QString("%1").arg(arg, padding, 10, QChar('0'));
 }
 
-QString olive::timestamp_to_timecode(const rational& timestamp,
+QString olive::timestamp_to_timecode(const int64_t &timestamp,
                                      const rational& timebase,
                                      const TimecodeDisplay& display)
 {
-  double timestamp_dbl = timestamp.ToDouble();
-
-
+  double timestamp_dbl = (rational(timestamp) * timebase).ToDouble();
 
   switch (display) {
   case kTimecodeFrames:
@@ -43,9 +61,9 @@ QString olive::timestamp_to_timecode(const rational& timestamp,
     }
   }
   case kFrames:
-    return QString::number(timestamp.numerator() / timebase.numerator());
+    return QString::number(timestamp);
   case kMilliseconds:
-    return QString::number(qFloor(timestamp_dbl * 1000));
+    return QString::number(qRound(timestamp_dbl * 1000));
   }
 
   return QString();

@@ -73,9 +73,9 @@ void ViewerWidget::SetTexture(GLuint tex)
 
 void ViewerWidget::RulerTimeChange(int64_t i)
 {
-  rational time_set = rational(i, 1) * time_base_;
+  rational time_set = rational(i) * time_base_;
 
-  controls_->SetTime(time_set);
+  controls_->SetTime(i);
 
   emit TimeChanged(time_set);
 }

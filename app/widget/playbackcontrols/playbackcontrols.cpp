@@ -120,9 +120,9 @@ void PlaybackControls::SetTimebase(const rational &r)
   time_base_ = r;
 }
 
-void PlaybackControls::SetTime(const rational &r)
+void PlaybackControls::SetTime(const int64_t &r)
 {
   Q_ASSERT(time_base_.denominator() != 0);
 
-  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, olive::kTimecodeFrames));
+  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, olive::kMilliseconds));
 }
