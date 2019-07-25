@@ -1,6 +1,7 @@
 #ifndef TIMERULER_H
 #define TIMERULER_H
 
+#include <QTimer>
 #include <QWidget>
 
 #include "common/rational.h"
@@ -17,13 +18,22 @@ public:
 
   void SetTimebase(const rational& r);
 
+  void SetCenteredText(bool c);
+
+public slots:
+  void SetScroll(int s);
+
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
 
 private:
-  int text_height_;
+  void DrawPlayhead(QPainter* p, int x, int y);
 
-  int width_of_second_;
+  double UnitToScreen(const int& u);
+
+  int ScreenToUnit(const int& p);
+
+  int text_height_;
 
   int minimum_gap_between_lines_;
 
@@ -31,9 +41,18 @@ private:
 
   bool text_visible_;
 
+  bool centered_text_;
+
   double scale_;
 
   rational time_base_;
+
+// FIXME: Test code only
+  QTimer test_timer_;
+
+private slots:
+  void TimeOut();
+// End test code
 };
 
 #endif // TIMERULER_H

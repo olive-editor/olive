@@ -32,6 +32,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   setWidget(main);
 
   QVBoxLayout* layout = new QVBoxLayout(main);
+  layout->setSpacing(0);
+  layout->setMargin(0);
 
   TimeRuler* tr = new TimeRuler(true, this);
   layout->addWidget(tr);
