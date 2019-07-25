@@ -24,6 +24,8 @@
 #include <QWidget>
 #include <QLabel>
 
+#include "common/rational.h"
+
 /**
  * @brief A playback controls widget providing buttons for navigating media
  *
@@ -39,6 +41,11 @@ public:
    * @brief Set whether the timecodes should be shown or not
    */
   void SetTimecodeEnabled(bool enabled);
+
+  void SetTimebase(const rational& r);
+
+public slots:
+  void SetTime(const rational& r);
 
 signals:
   /**
@@ -72,6 +79,8 @@ private:
 
   QLabel* cur_tc_lbl_;
   QLabel* end_tc_lbl_;
+
+  rational time_base_;
 };
 
 #endif // PLAYBACKCONTROLS_H

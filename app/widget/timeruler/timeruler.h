@@ -47,6 +47,8 @@ private:
 
   int minimum_gap_between_lines_;
 
+  int playhead_width_;
+
   int scroll_;
 
   bool text_visible_;

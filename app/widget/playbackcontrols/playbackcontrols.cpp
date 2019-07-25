@@ -23,10 +23,12 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
+#include "common/timecodefunctions.h"
 #include "ui/icons/icons.h"
 
 PlaybackControls::PlaybackControls(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  time_base_(0)
 {
   // Create lower controls
   QHBoxLayout* lower_control_layout = new QHBoxLayout(this);
@@ -45,7 +47,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_left_layout->setSpacing(0);
   lower_left_layout->setMargin(0);
 
-  cur_tc_lbl_ = new QLabel("00:00:00;00");
+  cur_tc_lbl_ = new QLabel();
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();
 
@@ -111,4 +113,16 @@ void PlaybackControls::SetTimecodeEnabled(bool enabled)
 {
   lower_left_container_->setVisible(enabled);
   lower_right_container_->setVisible(enabled);
+}
+
+void PlaybackControls::SetTimebase(const rational &r)
+{
+  time_base_ = r;
+}
+
+void PlaybackControls::SetTime(const rational &r)
+{
+  Q_ASSERT(time_base_.denominator() != 0);
+
+  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, olive::kTimecodeFrames));
 }

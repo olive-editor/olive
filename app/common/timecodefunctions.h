@@ -7,7 +7,14 @@
 
 namespace olive {
 
-QString timestamp_to_timecode(const rational& timestamp);
+enum TimecodeDisplay {
+  kTimecodeFrames,
+  kTimecodeSeconds,
+  kFrames,
+  kMilliseconds
+};
+
+QString timestamp_to_timecode(const rational& timestamp, const rational& timebase, const TimecodeDisplay& display);
 
 }
 

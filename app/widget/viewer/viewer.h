@@ -21,9 +21,10 @@
 #ifndef VIEWER_WIDGET_H
 #define VIEWER_WIDGET_H
 
-#include <QWidget>
-#include <QPushButton>
 #include <QLabel>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QWidget>
 
 #include "common/rational.h"
 #include "viewerglwidget.h"
@@ -43,6 +44,8 @@ public:
 
   void SetTimeRulerEnabled(bool enabled);
 
+  void SetTimebase(const rational& r);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -56,6 +59,9 @@ public slots:
 signals:
   void TimeChanged(const rational&);
 
+protected:
+  virtual void resizeEvent(QResizeEvent *event) override;
+
 private:
   ViewerGLWidget* gl_widget_;
 
@@ -63,8 +69,12 @@ private:
 
   TimeRuler* ruler_;
 
+  QScrollBar* scrollbar_;
+
+  rational time_base_;
+
 private slots:
-  void TemporaryTestFunction();
+  void RulerTimeChange(int64_t i);
 };
 
 #endif // VIEWER_WIDGET_H

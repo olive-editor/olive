@@ -26,12 +26,11 @@ TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   // Mediocre but reliable way of scaling UI objects by font/DPI size
   minimum_gap_between_lines_ = QFontMetricsWidth(&fm, "H");
 
+  // Set width of playhead marker
+  playhead_width_ = minimum_gap_between_lines_;
+
   // Text visibility affects height, so we set that here
   SetTextVisible(text_visible);
-
-  // FIXME: TEST CODE
-  SetTimebase(rational(1001, 30000));
-  // END TEST CODE
 }
 
 void TimeRuler::SetTextVisible(bool e)
@@ -107,8 +106,10 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   qreal real_divider = qMax(1.0, time_base_.flipped().ToDouble() / reverse_divider);
 
   // Set where the loop ends (affected by text)
-  int loop_start = -1;
-  int loop_end = width();
+  int loop_start = - playhead_width_;
+  int loop_end = width() + playhead_width_;
+
+  olive::TimecodeDisplay display_type = olive::kTimecodeSeconds;
 
   // Determine where it can draw text
   int text_skip = 1;
@@ -117,7 +118,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
     double width_of_second = time_base_.flipped().ToDouble() * scale_;
-    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0));
+    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, time_base_, display_type));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
       text_skip++;
@@ -170,7 +171,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
         // Try to draw text here
         if (text_visible_ && sec%text_skip == 0) {
-          QString timecode_string = olive::timestamp_to_timecode(sec);
+          QString timecode_string = olive::timestamp_to_timecode(sec, time_base_, display_type);
 
           int text_x = i;
 
@@ -199,6 +200,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
     }
   }
 
+  // If we found the playhead along here, draw it last
   if (playhead_pos >= 0) {
     p.setPen(Qt::NoPen);
     p.setBrush(Qt::red);
@@ -223,14 +225,14 @@ void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
   p->setRenderHint(QPainter::Antialiasing);
 
   int half_text_height = text_height_ / 3;
-  int half_gap = minimum_gap_between_lines_ / 2;
+  int half_width = playhead_width_ / 2;
 
   QPoint points[] = {
     QPoint(x, y),
-    QPoint(x - half_gap, y - half_text_height),
-    QPoint(x - half_gap, y - text_height_),
-    QPoint(x + half_gap, y - text_height_),
-    QPoint(x + half_gap, y - half_text_height)
+    QPoint(x - half_width, y - half_text_height),
+    QPoint(x - half_width, y - text_height_),
+    QPoint(x + half_width, y - text_height_),
+    QPoint(x + half_width, y - half_text_height)
   };
 
   p->drawPolygon(points, 5);

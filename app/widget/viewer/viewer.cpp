@@ -20,8 +20,9 @@
 
 #include "viewer.h"
 
-#include <QVBoxLayout>
 #include <QLabel>
+#include <QResizeEvent>
+#include <QVBoxLayout>
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent)
@@ -38,6 +39,13 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Create time ruler
   ruler_ = new TimeRuler(false, this);
   layout->addWidget(ruler_);
+  connect(ruler_, SIGNAL(TimeChanged(int64_t)), this, SLOT(RulerTimeChange(int64_t)));
+
+  // Create scrollbar
+  scrollbar_ = new QScrollBar(Qt::Horizontal, this);
+  layout->addWidget(scrollbar_);
+  connect(scrollbar_, SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
+  scrollbar_->setPageStep(ruler_->width());
 
   // Create lower controls
   controls_ = new PlaybackControls(this);
@@ -46,8 +54,16 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   layout->addWidget(controls_);
 
   // FIXME: Test code
-  connect(controls_, SIGNAL(PlayClicked()), this, SLOT(TemporaryTestFunction()));
+  SetTimebase(rational(1001, 30000));
   // End test code
+}
+
+void ViewerWidget::SetTimebase(const rational &r)
+{
+  time_base_ = r;
+
+  ruler_->SetTimebase(r);
+  controls_->SetTimebase(r);
 }
 
 void ViewerWidget::SetTexture(GLuint tex)
@@ -55,7 +71,17 @@ void ViewerWidget::SetTexture(GLuint tex)
   gl_widget_->SetTexture(tex);
 }
 
-void ViewerWidget::TemporaryTestFunction()
+void ViewerWidget::RulerTimeChange(int64_t i)
 {
-  emit TimeChanged(69);
+  rational time_set = rational(i, 1) * time_base_;
+
+  controls_->SetTime(time_set);
+
+  emit TimeChanged(time_set);
+}
+
+void ViewerWidget::resizeEvent(QResizeEvent *event)
+{
+  // Set scrollbar page step to the width
+  scrollbar_->setPageStep(event->size().width());
 }
