@@ -7,12 +7,13 @@
 
 #include "common/timecodefunctions.h"
 #include "common/qtversionabstraction.h"
+#include "config/config.h"
 
 TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   QWidget(parent),
   scroll_(0),
   centered_text_(true),
-  scale_(16.0),
+  scale_(16.0), // FIXME: Temporary value
   time_(0)
 {
   QFontMetrics fm = fontMetrics();
@@ -109,8 +110,6 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   int loop_start = - playhead_width_;
   int loop_end = width() + playhead_width_;
 
-  olive::TimecodeDisplay display_type = olive::kTimecodeSeconds;
-
   // Determine where it can draw text
   int text_skip = 1;
   int half_average_text_width = 0;
@@ -118,7 +117,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
     double width_of_second = time_base_.flipped().ToDouble() * scale_;
-    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, time_base_, display_type));
+    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, time_base_, kTimecodeDisplay));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
       text_skip++;
@@ -171,7 +170,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
         // Try to draw text here
         if (text_visible_ && sec%text_skip == 0) {
-          QString timecode_string = olive::timestamp_to_timecode(sec, time_base_, display_type);
+          QString timecode_string = olive::timestamp_to_timecode(sec, time_base_, kTimecodeDisplay);
 
           int text_x = i;
 

@@ -24,6 +24,7 @@
 #include <QPushButton>
 
 #include "common/timecodefunctions.h"
+#include "config/config.h"
 #include "ui/icons/icons.h"
 
 PlaybackControls::PlaybackControls(QWidget *parent) :
@@ -124,5 +125,5 @@ void PlaybackControls::SetTime(const int64_t &r)
 {
   Q_ASSERT(time_base_.denominator() != 0);
 
-  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, olive::kMilliseconds));
+  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, kTimecodeDisplay));
 }

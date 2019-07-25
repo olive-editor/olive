@@ -22,6 +22,7 @@ set(OLIVE_SOURCES
 )
 
 add_subdirectory(common)
+add_subdirectory(config)
 add_subdirectory(decoder)
 add_subdirectory(dialog)
 add_subdirectory(node)
