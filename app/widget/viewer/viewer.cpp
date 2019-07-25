@@ -35,6 +35,10 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   gl_widget_ = new ViewerGLWidget(this);
   layout->addWidget(gl_widget_);
 
+  // Create time ruler
+  ruler_ = new TimeRuler(false, this);
+  layout->addWidget(ruler_);
+
   // Create lower controls
   controls_ = new PlaybackControls(this);
   controls_->SetTimecodeEnabled(true);

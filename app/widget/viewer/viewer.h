@@ -28,6 +28,7 @@
 #include "common/rational.h"
 #include "viewerglwidget.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
+#include "widget/timeruler/timeruler.h"
 
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
@@ -39,6 +40,8 @@ public:
   ViewerWidget(QWidget* parent);
 
   void SetPlaybackControlsEnabled(bool enabled);
+
+  void SetTimeRulerEnabled(bool enabled);
 
 public slots:
   /**
@@ -55,7 +58,10 @@ signals:
 
 private:
   ViewerGLWidget* gl_widget_;
+
   PlaybackControls* controls_;
+
+  TimeRuler* ruler_;
 
 private slots:
   void TemporaryTestFunction();

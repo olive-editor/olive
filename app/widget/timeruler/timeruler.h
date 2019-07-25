@@ -20,18 +20,28 @@ public:
 
   void SetCenteredText(bool c);
 
+  void SetTime(const int64_t &r);
+
 public slots:
   void SetScroll(int s);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
 
+  virtual void mousePressEvent(QMouseEvent *event) override;
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
+
+signals:
+  void TimeChanged(int64_t);
+
 private:
   void DrawPlayhead(QPainter* p, int x, int y);
 
-  double UnitToScreen(const int& u);
+  double ScreenToUnitFloat(int screen);
 
-  int ScreenToUnit(const int& p);
+  int64_t ScreenToUnit(int screen);
+
+  void SeekToScreenPoint(int screen);
 
   int text_height_;
 
@@ -47,12 +57,8 @@ private:
 
   rational time_base_;
 
-// FIXME: Test code only
-  QTimer test_timer_;
+  int64_t time_;
 
-private slots:
-  void TimeOut();
-// End test code
 };
 
 #endif // TIMERULER_H

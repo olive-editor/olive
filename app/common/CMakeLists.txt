@@ -24,5 +24,7 @@ set(OLIVE_SOURCES
   common/qobjectlistcast.h
   common/qtversionabstraction.h
   common/qtversionabstraction.cpp
+  common/timecodefunctions.h
+  common/timecodefunctions.cpp
   PARENT_SCOPE
 )

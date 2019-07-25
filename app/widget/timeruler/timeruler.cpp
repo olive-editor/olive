@@ -1,18 +1,23 @@
 #include "timeruler.h"
 
 #include <QDebug>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QtMath>
 
+#include "common/timecodefunctions.h"
 #include "common/qtversionabstraction.h"
 
 TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   QWidget(parent),
   scroll_(0),
   centered_text_(true),
-  scale_(16.0)
+  scale_(16.0),
+  time_(0)
 {
   QFontMetrics fm = fontMetrics();
+
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   // Text height is used to calculate widget height
   text_height_ = fm.height();
@@ -24,12 +29,9 @@ TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   // Text visibility affects height, so we set that here
   SetTextVisible(text_visible);
 
-  // FIXME: Test code
-  time_base_ = rational(1001, 30000);
-  connect(&test_timer_, SIGNAL(timeout()), this, SLOT(TimeOut()));
-  test_timer_.setInterval(20);
-  test_timer_.start();
-  // End test code
+  // FIXME: TEST CODE
+  SetTimebase(rational(1001, 30000));
+  // END TEST CODE
 }
 
 void TimeRuler::SetTextVisible(bool e)
@@ -61,6 +63,13 @@ void TimeRuler::SetTimebase(const rational &r)
   update();
 }
 
+void TimeRuler::SetTime(const int64_t &r)
+{
+  time_ = r;
+
+  update();
+}
+
 void TimeRuler::SetScroll(int s)
 {
   scroll_ = s;
@@ -79,31 +88,10 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
   QPainter p(this);
 
-  int last_unit = -1;
+  int64_t last_unit = -1;
   int last_sec = -1;
-  /*
-  // Test code that draws a line every single time unit
-  for (int i=0;i<width();i++) {
-    int unit = qFloor((i + scroll_) / scale_);
-    int sec = qFloor(unit * time_base_.ToDouble());
 
-    if (unit > last_unit) {
-
-      if (sec > last_sec) {
-        p.setPen(Qt::red);
-        last_sec = sec;
-      } else {
-        p.setPen(Qt::white);
-      }
-
-      p.drawLine(i, height()/2, i, height());
-
-      last_unit = unit;
-    }
-  }
-  */
-
-  // Depending on the scale,
+  // Depending on the scale, we don't need all the lines drawn or else they'll start to become unhelpful
   // Determine an even number to divide the frame count by
   int rough_frames_in_second = qRound(time_base_.flipped().ToDouble());
   int test_divider = 1;
@@ -129,7 +117,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
     double width_of_second = time_base_.flipped().ToDouble() * scale_;
-    int average_text_width = QFontMetricsWidth(&fm, "00:00:00;00"); // FIXME: Hardcoded string
+    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
       text_skip++;
@@ -146,6 +134,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   }
 
   // Set line color to main text color
+  p.setBrush(Qt::NoBrush);
   p.setPen(palette().text().color());
 
   // Calculate where each line starts
@@ -157,14 +146,21 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   int line_halfsec_bottom = line_top + line_length / 3 * 2;
   int line_frame_bottom = line_top + line_length / 3;
 
+  int playhead_pos = -1;
+
   for (int i=loop_start;i<loop_end;i++) {
-    int unit = qFloor((i + scroll_) / scale_);
+    int64_t unit = ScreenToUnit(i);
+
+    // Queue a playhead draw
+    if (unit == time_ && playhead_pos == -1) {
+      playhead_pos = i;
+    }
 
     // Check if enough space has passed since the last line drawn
-    if (qFloor(unit/real_divider) > qFloor(last_unit/real_divider)) {
+    if (qFloor(double(unit)/real_divider) > qFloor(double(last_unit)/real_divider)) {
 
       // Determine if this unit is a whole second or not
-      int sec = qFloor(unit * time_base_.ToDouble());
+      int sec = qFloor(double(unit) * time_base_.ToDouble());
 
       if (sec > last_sec) {
         // This line marks a second so we make it long
@@ -174,7 +170,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
         // Try to draw text here
         if (text_visible_ && sec%text_skip == 0) {
-          QString timecode_string = QString("00:00:%1;00").arg(sec, 2, 10, QChar('0'));
+          QString timecode_string = olive::timestamp_to_timecode(sec);
 
           int text_x = i;
 
@@ -203,9 +199,23 @@ void TimeRuler::paintEvent(QPaintEvent *e)
     }
   }
 
-  p.setPen(Qt::NoPen);
-  p.setBrush(Qt::red);
-  DrawPlayhead(&p, 100, height());
+  if (playhead_pos >= 0) {
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::red);
+    DrawPlayhead(&p, playhead_pos, height());
+  }
+}
+
+void TimeRuler::mousePressEvent(QMouseEvent *event)
+{
+  SeekToScreenPoint(event->pos().x());
+}
+
+void TimeRuler::mouseMoveEvent(QMouseEvent *event)
+{
+  if (event->buttons() & Qt::LeftButton) {
+    SeekToScreenPoint(event->pos().x());
+  }
 }
 
 void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
@@ -226,25 +236,21 @@ void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
   p->drawPolygon(points, 5);
 }
 
-double TimeRuler::UnitToScreen(const int &u)
+double TimeRuler::ScreenToUnitFloat(int screen)
 {
-  return u * scale_;
+  return (screen + scroll_) / scale_;
 }
 
-int TimeRuler::ScreenToUnit(const int &p)
+int64_t TimeRuler::ScreenToUnit(int screen)
 {
-  double uf = p / scale_;
-
-  int u = qRound(uf);
-
-  if (qFuzzyCompare(UnitToScreen(u), uf)) {
-    return u;
-  }
-
-  return -1;
+  return qFloor(ScreenToUnitFloat(screen));
 }
 
-void TimeRuler::TimeOut()
+void TimeRuler::SeekToScreenPoint(int screen)
 {
-  SetScroll(scroll_ + 2);
+  int64_t timestamp = qMax(0, qRound(ScreenToUnitFloat(screen)));
+
+  SetTime(timestamp);
+
+  emit TimeChanged(timestamp);
 }
