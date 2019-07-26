@@ -14,22 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(flowlayout)
-add_subdirectory(footagecombobox)
-add_subdirectory(menu)
-add_subdirectory(nodeview)
-add_subdirectory(nodeparamview)
-add_subdirectory(panel)
-add_subdirectory(playbackcontrols)
-add_subdirectory(projectexplorer)
-add_subdirectory(projecttoolbar)
-add_subdirectory(taskview)
-add_subdirectory(timelineview)
-add_subdirectory(timeruler)
-add_subdirectory(toolbar)
-add_subdirectory(viewer)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/timelineview/timelineview.h
+  widget/timelineview/timelineview.cpp
+  widget/timelineview/timelineviewclipitem.h
+  widget/timelineview/timelineviewclipitem.cpp
   PARENT_SCOPE
 )

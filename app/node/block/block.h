@@ -31,6 +31,11 @@ public:
 
   virtual QString Category() override;
 
+  virtual rational in();
+  virtual rational out();
+
+  virtual rational length() = 0;
+
 public slots:
 //  virtual void Process(const rational &time) override;
 

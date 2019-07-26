@@ -29,3 +29,8 @@ QString Block::Category()
 {
   return tr("Block");
 }
+
+rational Block::out()
+{
+  return in() + length();
+}

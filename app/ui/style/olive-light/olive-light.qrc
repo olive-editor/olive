@@ -37,6 +37,10 @@
     <file>png/beam.32.png</file>
     <file>png/beam.64.png</file>
     <file>png/beam.128.png</file>
+    <file>png/box.16.png</file>
+    <file>png/box.32.png</file>
+    <file>png/box.64.png</file>
+    <file>png/box.128.png</file>
     <file>png/clock.16.png</file>
     <file>png/clock.32.png</file>
     <file>png/clock.64.png</file>
