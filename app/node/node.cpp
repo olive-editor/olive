@@ -82,3 +82,8 @@ int Node::IndexOfParameter(NodeParam *param)
 {
   return children().indexOf(param);
 }
+
+QVariant Node::PtrToValue(void *ptr)
+{
+  return reinterpret_cast<quintptr>(ptr);
+}

@@ -36,10 +36,17 @@ public:
 
   virtual rational length() = 0;
 
+  virtual Block* previous();
+  virtual Block* next();
+
 public slots:
-//  virtual void Process(const rational &time) override;
+  virtual void Process(const rational &time) override;
 
-
+private:
+  NodeInput* previous_input_;
+  NodeInput* next_input_;
+  NodeOutput* previous_output_;
+  NodeOutput* next_output_;
 };
 
 #endif // BLOCK_H

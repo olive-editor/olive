@@ -123,6 +123,17 @@ public:
    */
   int IndexOfParameter(NodeParam* param);
 
+  /**
+   * @brief Convert a pointer to a value that can be sent between NodeParams
+   */
+  static QVariant PtrToValue(void* ptr);
+
+  template<class T>
+  /**
+   * @brief Convert a NodeParam value to a pointer of any kind
+   */
+  static T* ValueToPtr(const QVariant& ptr);
+
 public slots:
   /**
    * @brief The main processing function
@@ -158,5 +169,11 @@ signals:
    */
   void EdgeRemoved(NodeEdgePtr edge);
 };
+
+template<class T>
+T* Node::ValueToPtr(const QVariant &ptr)
+{
+  return reinterpret_cast<T*>(ptr.value<quintptr>());
+}
 
 #endif // NODE_H
