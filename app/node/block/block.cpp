@@ -48,24 +48,14 @@ QString Block::Category()
   return tr("Block");
 }
 
-rational Block::in()
+const rational &Block::in()
 {
-  rational in_point = 0;
-
-  Block* block = previous();
-
-  while (block != nullptr) {
-    in_point += block->length();
-
-    block = previous();
-  }
-
-  return in_point;
+  return in_point_;
 }
 
-rational Block::out()
+const rational &Block::out()
 {
-  return in() + length();
+  return out_point_;
 }
 
 Block *Block::previous()
@@ -85,6 +75,36 @@ void Block::Process(const rational &time)
   // Simply set both output values as a pointer to this object
   previous_output_->set_value(PtrToValue(this));
   next_output_->set_value(PtrToValue(this));
+}
+
+void Block::Refresh()
+{
+  // Set in point to the out point of the previous Node
+  if (previous() != nullptr) {
+    in_point_ = previous()->out();
+  } else {
+    in_point_ = 0;
+  }
+
+  // Update out point by adding this clip's length to the just calculated in point
+  out_point_ = in_point_ + length();
+}
+
+void Block::RefreshSurrounds()
+{
+  Block* acting_node = previous();
+
+  while (acting_node != nullptr) {
+    acting_node->Refresh();
+    acting_node = acting_node->previous();
+  }
+
+  acting_node = next();
+
+  while (acting_node != nullptr) {
+    acting_node->Refresh();
+    acting_node = acting_node->next();
+  }
 }
 
 NodeOutput *Block::texture_output()

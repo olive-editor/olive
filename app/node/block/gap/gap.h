@@ -26,18 +26,16 @@
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
  */
-class TimelineBlock : public Block
+class GapBlock : public Block
 {
 public:
-  TimelineBlock();
+  GapBlock();
 
   virtual rational length() override;
-
-public slots:
-  virtual void Process(const rational &time) override;
+  virtual void set_length(const rational &length) override;
 
 private:
-  Block* current_block_;
+  rational length_;
 };
 
 #endif // TIMELINEBLOCK_H

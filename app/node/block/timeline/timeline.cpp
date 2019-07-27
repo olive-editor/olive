@@ -5,6 +5,11 @@ TimelineBlock::TimelineBlock() :
 {
 }
 
+rational TimelineBlock::length()
+{
+  return 0;
+}
+
 void TimelineBlock::Process(const rational &time)
 {
   // Run default process function
@@ -28,10 +33,10 @@ void TimelineBlock::Process(const rational &time)
   }
 
   // If the time requested is in a later Block, traverse later
-  while (time > current_block_->out()) {
+  while (time >= current_block_->out()) {
     current_block_ = current_block_->next();
   }
 
   // At this point, we must have found the correct block so we use its texture output to produce the image
-  current_block_->texture_output()->get_value(time);
+  texture_output_->set_value(current_block_->texture_output()->get_value(time));
 }
