@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(timeline)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/block/block.h
-  node/block/block.cpp
+  node/block/timeline/timeline.h
+  node/block/timeline/timeline.cpp
   PARENT_SCOPE
 )

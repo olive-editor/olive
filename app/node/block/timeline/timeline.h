@@ -18,39 +18,26 @@
 
 ***/
 
-#ifndef BLOCK_H
-#define BLOCK_H
+#ifndef TIMELINEBLOCK_H
+#define TIMELINEBLOCK_H
 
-#include "node/node.h"
+#include "node/block/block.h"
 
-class Block : public Node
+/**
+ * @brief Node that represents the end of the Timeline as well as a time traversal Node
+ */
+class TimelineBlock : public Block
 {
-  Q_OBJECT
 public:
-  Block();
-
-  virtual QString Category() override;
-
-  virtual rational in();
-  virtual rational out();
-
-  virtual rational length() = 0;
-
-  virtual Block* previous();
-  virtual Block* next();
-
-  NodeOutput* texture_output();
+  TimelineBlock();
 
 public slots:
   virtual void Process(const rational &time) override;
 
 private:
-  NodeInput* previous_input_;
-  NodeInput* next_input_;
-  NodeOutput* previous_output_;
-  NodeOutput* next_output_;
-
   NodeOutput* texture_output_;
+
+  Block* current_block_;
 };
 
-#endif // BLOCK_H
+#endif // TIMELINEBLOCK_H
