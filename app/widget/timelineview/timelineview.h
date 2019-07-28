@@ -3,19 +3,23 @@
 
 #include <QGraphicsView>
 
-#include "project/item/sequence/sequence.h"
+#include "node/block/clip/clip.h"
 
 class TimelineView : public QGraphicsView
 {
 public:
   TimelineView(QWidget* parent);
 
-  void SetSequence(Sequence* s);
+  void AddClip(ClipBlock* clip);
+
+  void SetScale(const double& scale);
+
+  void Clear();
 
 private:
-  Sequence* sequence_;
-
   QGraphicsScene scene_;
+
+  double scale_;
 };
 
 #endif // TIMELINEVIEW_H

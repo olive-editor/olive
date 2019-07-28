@@ -33,6 +33,10 @@ class TimelineBlock : public Block
 public:
   TimelineBlock();
 
+  virtual QString Name() override;
+  virtual QString id() override;
+  virtual QString Description() override;
+
   virtual rational length() override;
 
   void AttachTimeline(TimelinePanel* timeline);

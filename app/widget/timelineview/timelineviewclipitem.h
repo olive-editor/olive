@@ -3,10 +3,17 @@
 
 #include <QGraphicsRectItem>
 
+#include "node/block/clip/clip.h"
+
 class TimelineViewClipItem : public QGraphicsRectItem
 {
 public:
   TimelineViewClipItem(QGraphicsItem* parent = nullptr);
+
+  void SetClip(ClipBlock* clip);
+
+private:
+  ClipBlock* clip_;
 };
 
 #endif // TIMELINEVIEWCLIPITEM_H

@@ -22,6 +22,7 @@
 #define TIMELINE_PANEL_H
 
 #include "widget/panel/panel.h"
+#include "widget/timelineview/timelineview.h"
 
 class TimelinePanel : public PanelWidget
 {
@@ -29,11 +30,17 @@ class TimelinePanel : public PanelWidget
 public:
   TimelinePanel(QWidget* parent);
 
+  void Clear();
+
+  void AddClip(ClipBlock* clip);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
 private:
   void Retranslate();
+
+  TimelineView* view_;
 };
 
 #endif // TIMELINE_PANEL_H

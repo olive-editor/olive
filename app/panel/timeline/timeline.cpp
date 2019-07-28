@@ -37,10 +37,22 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
   TimeRuler* tr = new TimeRuler(true, this);
   layout->addWidget(tr);
-  layout->addStretch();
+
+  view_ = new TimelineView(this);
+  layout->addWidget(view_);
   // End test code
 
   Retranslate();
+}
+
+void TimelinePanel::Clear()
+{
+  view_->Clear();
+}
+
+void TimelinePanel::AddClip(ClipBlock *clip)
+{
+  view_->AddClip(clip);
 }
 
 void TimelinePanel::changeEvent(QEvent *e)

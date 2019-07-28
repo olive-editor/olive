@@ -27,6 +27,31 @@ ClipBlock::ClipBlock()
   AddParameter(texture_input_);
 }
 
+QString ClipBlock::Name()
+{
+  return tr("Clip");
+}
+
+QString ClipBlock::id()
+{
+  return "org.olivevideoeditor.Olive.clip";
+}
+
+QString ClipBlock::Description()
+{
+  return tr("A time-based node that represents a media source.");
+}
+
+rational ClipBlock::length()
+{
+  return length_;
+}
+
+void ClipBlock::set_length(const rational &length)
+{
+  length_ = length;
+}
+
 NodeInput *ClipBlock::texture_input()
 {
   return texture_input_;

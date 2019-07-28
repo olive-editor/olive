@@ -26,9 +26,50 @@ TimelineBlock::TimelineBlock() :
 {
 }
 
+QString TimelineBlock::Name()
+{
+  return tr("Timeline");
+}
+
+QString TimelineBlock::id()
+{
+  return "org.olivevideoeditor.Olive.timeline";
+}
+
+QString TimelineBlock::Description()
+{
+  return tr("Node for communicating between a Timeline panel and the node graph. Also represents the end of a Sequence.");
+}
+
 rational TimelineBlock::length()
 {
   return 0;
+}
+
+void TimelineBlock::AttachTimeline(TimelinePanel *timeline)
+{
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->Clear();
+  }
+
+  attached_timeline_ = timeline;
+
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->Clear();
+
+    Block* previous_block = previous();
+    while (previous_block != nullptr) {
+
+      // FIXME: Dynamic cast is a dumb way of doing this
+      ClipBlock* clip_block = dynamic_cast<ClipBlock*>(previous_block);
+
+      if (clip_block != nullptr) {
+        attached_timeline_->AddClip(clip_block);
+      }
+
+      previous_block = previous_block->previous();
+    }
+  }
 }
 
 void TimelineBlock::Process(const rational &time)

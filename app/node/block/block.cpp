@@ -54,6 +54,11 @@ const rational &Block::out()
   return out_point_;
 }
 
+void Block::set_length(const rational &length)
+{
+  Q_UNUSED(length)
+}
+
 Block *Block::previous()
 {
   return ValueToPtr<Block>(previous_input_->get_value(0));
@@ -62,6 +67,16 @@ Block *Block::previous()
 Block *Block::next()
 {
   return ValueToPtr<Block>(next_input_->get_value(0));
+}
+
+NodeInput *Block::previous_input()
+{
+  return previous_input_;
+}
+
+NodeInput *Block::next_input()
+{
+  return next_input_;
 }
 
 void Block::Process(const rational &time)
@@ -105,4 +120,9 @@ void Block::RefreshSurrounds()
 NodeOutput *Block::texture_output()
 {
   return texture_output_;
+}
+
+NodeOutput *Block::block_output()
+{
+  return block_output_;
 }

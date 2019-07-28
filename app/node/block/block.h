@@ -41,12 +41,16 @@ public:
   const rational& out();
 
   virtual rational length() = 0;
-  virtual void set_length(const rational& length) = 0;
+  virtual void set_length(const rational& length);
 
   virtual Block* previous();
   virtual Block* next();
 
+  NodeInput* previous_input();
+  NodeInput* next_input();
+
   NodeOutput* texture_output();
+  NodeOutput* block_output();
 
 public slots:
   virtual void Process(const rational &time) override;

@@ -218,6 +218,8 @@ void Core::CreateNewFolder()
 }
 
 // FIXME: Test code
+#include "node/block/clip/clip.h"
+#include "node/block/timeline/timeline.h"
 #include "node/input/media/media.h"
 #include "node/output/viewer/viewer.h"
 #include "node/generator/solid/solid.h"
@@ -269,17 +271,41 @@ void Core::CreateNewSequence()
                                                                                  new_sequence);
 
     // FIXME: Test code
-    NodeGraph* graph = new NodeGraph();
-    graph->setParent(this);
+    SolidGenerator* sg = new SolidGenerator();
+    new_sequence->AddNode(sg);
+
+    MediaInput* ii = new MediaInput();
+    new_sequence->AddNode(ii);
+
+    ClipBlock* cb1 = new ClipBlock();
+    cb1->set_length(1);
+    new_sequence->AddNode(cb1);
+
+    ClipBlock* cb2 = new ClipBlock();
+    cb2->set_length(1);
+    new_sequence->AddNode(cb2);
+
+    TimelineBlock* tb = new TimelineBlock();
+    tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
+    new_sequence->AddNode(tb);
+
     ViewerOutput* vo = new ViewerOutput();
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
-    graph->AddNode(vo);
-    SolidGenerator* sg = new SolidGenerator();
-    NodeInput::ConnectEdge(sg->texture_output(), vo->texture_input());
-    graph->AddNode(sg);
-    MediaInput* ii = new MediaInput();
-    graph->AddNode(ii);
-    olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(graph);
+    new_sequence->AddNode(vo);
+
+    NodeParam::ConnectEdge(sg->texture_output(), cb1->texture_input());
+    NodeParam::ConnectEdge(ii->texture_output(), cb2->texture_input());
+    NodeParam::ConnectEdge(cb1->block_output(), cb2->previous_input());
+    NodeParam::ConnectEdge(cb2->block_output(), cb1->next_input());
+    NodeParam::ConnectEdge(cb2->block_output(), tb->previous_input());
+    NodeParam::ConnectEdge(tb->block_output(), cb2->next_input());
+    NodeParam::ConnectEdge(tb->texture_output(), vo->texture_input());
+
+    cb1->Refresh();
+    cb2->Refresh();
+    tb->Refresh();
+
+    olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
     // End test code
 
     olive::undo_stack.push(aic);
