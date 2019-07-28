@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/block/timeline/timeline.h
-  node/block/timeline/timeline.cpp
+  node/output/timeline/timeline.h
+  node/output/timeline/timeline.cpp
   PARENT_SCOPE
 )

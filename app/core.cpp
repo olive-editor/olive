@@ -219,8 +219,8 @@ void Core::CreateNewFolder()
 
 // FIXME: Test code
 #include "node/block/clip/clip.h"
-#include "node/block/timeline/timeline.h"
 #include "node/input/media/media.h"
+#include "node/output/timeline/timeline.h"
 #include "node/output/viewer/viewer.h"
 #include "node/generator/solid/solid.h"
 #include "panel/panelmanager.h"
@@ -285,7 +285,7 @@ void Core::CreateNewSequence()
     cb2->set_length(1);
     new_sequence->AddNode(cb2);
 
-    TimelineBlock* tb = new TimelineBlock();
+    TimelineOutput* tb = new TimelineOutput();
     tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
     new_sequence->AddNode(tb);
 
@@ -297,13 +297,11 @@ void Core::CreateNewSequence()
     NodeParam::ConnectEdge(ii->texture_output(), cb2->texture_input());
     NodeParam::ConnectEdge(cb1->block_output(), cb2->previous_input());
     NodeParam::ConnectEdge(cb2->block_output(), cb1->next_input());
-    NodeParam::ConnectEdge(cb2->block_output(), tb->previous_input());
-    NodeParam::ConnectEdge(tb->block_output(), cb2->next_input());
+    NodeParam::ConnectEdge(cb2->block_output(), tb->block_input());
     NodeParam::ConnectEdge(tb->texture_output(), vo->texture_input());
 
     cb1->Refresh();
     cb2->Refresh();
-    tb->Refresh();
 
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
     // End test code

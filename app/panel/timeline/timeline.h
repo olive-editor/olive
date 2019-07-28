@@ -23,6 +23,7 @@
 
 #include "widget/panel/panel.h"
 #include "widget/timelineview/timelineview.h"
+#include "widget/timeruler/timeruler.h"
 
 class TimelinePanel : public PanelWidget
 {
@@ -34,6 +35,8 @@ public:
 
   void AddClip(ClipBlock* clip);
 
+  void SetTimebase(const rational& timebase);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
@@ -41,6 +44,8 @@ private:
   void Retranslate();
 
   TimelineView* view_;
+
+  TimeRuler* ruler_;
 };
 
 #endif // TIMELINE_PANEL_H

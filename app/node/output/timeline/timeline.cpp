@@ -20,33 +20,43 @@
 
 #include "timeline.h"
 
-TimelineBlock::TimelineBlock() :
+TimelineOutput::TimelineOutput() :
   current_block_(nullptr),
   attached_timeline_(nullptr)
 {
+  block_input_ = new NodeInput();
+  block_input_->add_data_input(NodeInput::kBlock);
+  AddParameter(block_input_);
+
+  texture_output_ = new NodeOutput();
+  texture_output_->set_data_type(NodeOutput::kTexture);
+  AddParameter(texture_output_);
 }
 
-QString TimelineBlock::Name()
+QString TimelineOutput::Name()
 {
   return tr("Timeline");
 }
 
-QString TimelineBlock::id()
+QString TimelineOutput::id()
 {
   return "org.olivevideoeditor.Olive.timeline";
 }
 
-QString TimelineBlock::Description()
+QString TimelineOutput::Category()
 {
-  return tr("Node for communicating between a Timeline panel and the node graph. Also represents the end of a Sequence.");
+  return tr("Output");
 }
 
-rational TimelineBlock::length()
+QString TimelineOutput::Description()
 {
-  return 0;
+  return tr("Node for communicating between a Timeline panel and the node graph. Also represents the end of a"
+            "Sequence.");
 }
 
-void TimelineBlock::AttachTimeline(TimelinePanel *timeline)
+#include "project/item/sequence/sequence.h"
+
+void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 {
   if (attached_timeline_ != nullptr) {
     attached_timeline_->Clear();
@@ -57,7 +67,7 @@ void TimelineBlock::AttachTimeline(TimelinePanel *timeline)
   if (attached_timeline_ != nullptr) {
     attached_timeline_->Clear();
 
-    Block* previous_block = previous();
+    Block* previous_block = attached_block();
     while (previous_block != nullptr) {
 
       // FIXME: Dynamic cast is a dumb way of doing this
@@ -72,21 +82,29 @@ void TimelineBlock::AttachTimeline(TimelinePanel *timeline)
   }
 }
 
-void TimelineBlock::Process(const rational &time)
+NodeInput *TimelineOutput::block_input()
 {
-  // Run default process function
-  Block::Process(time);
+  return block_input_;
+}
 
-    // This node represents the end of the timeline, so if the time is beyond its start, there's no image to display
-  if (time >= in()) {
-    texture_output()->set_value(0);
+NodeOutput *TimelineOutput::texture_output()
+{
+  return texture_output_;
+}
+
+void TimelineOutput::Process(const rational &time)
+{
+  // This node is intended to connect to the end of the timeline, so being beyond its out point is considered the end
+  // of the sequence
+  if (attached_block() == nullptr || time >= attached_block()->out()) {
+    texture_output_->set_value(0);
     current_block_ = nullptr;
     return;
   }
 
   // If we're here, we need to find the current clip to display
   if (current_block_ == nullptr) {
-    current_block_ = this;
+    current_block_ = attached_block();
   }
 
   // If the time requested is an earlier Block, traverse earlier until we find it
@@ -100,5 +118,10 @@ void TimelineBlock::Process(const rational &time)
   }
 
   // At this point, we must have found the correct block so we use its texture output to produce the image
-  texture_output()->set_value(current_block_->texture_output()->get_value(time));
+  texture_output_->set_value(current_block_->texture_output()->get_value(time));
+}
+
+Block *TimelineOutput::attached_block()
+{
+  return ValueToPtr<Block>(block_input_->get_value(0));
 }

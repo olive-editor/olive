@@ -22,8 +22,6 @@
 
 #include <QVBoxLayout>
 
-#include "widget/timeruler/timeruler.h"
-
 TimelinePanel::TimelinePanel(QWidget *parent) :
   PanelWidget(parent)
 {
@@ -35,8 +33,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   layout->setSpacing(0);
   layout->setMargin(0);
 
-  TimeRuler* tr = new TimeRuler(true, this);
-  layout->addWidget(tr);
+  ruler_ = new TimeRuler(true, this);
+  layout->addWidget(ruler_);
 
   view_ = new TimelineView(this);
   layout->addWidget(view_);
@@ -47,12 +45,19 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
 void TimelinePanel::Clear()
 {
+  SetTimebase(0);
+
   view_->Clear();
 }
 
 void TimelinePanel::AddClip(ClipBlock *clip)
 {
   view_->AddClip(clip);
+}
+
+void TimelinePanel::SetTimebase(const rational &timebase)
+{
+  ruler_->SetTimebase(timebase);
 }
 
 void TimelinePanel::changeEvent(QEvent *e)

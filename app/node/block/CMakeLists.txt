@@ -16,7 +16,6 @@
 
 add_subdirectory(clip)
 add_subdirectory(gap)
-add_subdirectory(timeline)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
