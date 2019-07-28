@@ -22,22 +22,28 @@
 #define TIMELINEBLOCK_H
 
 #include "node/block/block.h"
+#include "panel/timeline/timeline.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
  */
 class TimelineBlock : public Block
 {
+  Q_OBJECT
 public:
   TimelineBlock();
 
   virtual rational length() override;
+
+  void AttachTimeline(TimelinePanel* timeline);
 
 public slots:
   virtual void Process(const rational &time) override;
 
 private:
   Block* current_block_;
+
+  TimelinePanel* attached_timeline_;
 };
 
 #endif // TIMELINEBLOCK_H

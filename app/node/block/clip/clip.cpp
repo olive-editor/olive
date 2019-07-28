@@ -18,25 +18,28 @@
 
 ***/
 
-#ifndef GAPBLOCK_H
-#define GAPBLOCK_H
+#include "clip.h"
 
-#include "node/block/block.h"
-
-/**
- * @brief Node that represents nothing in its respective track for a certain period of time
- */
-class GapBlock : public Block
+ClipBlock::ClipBlock()
 {
-  Q_OBJECT
-public:
-  GapBlock();
+  texture_input_ = new NodeInput();
+  texture_input_->add_data_input(NodeInput::kTexture);
+  AddParameter(texture_input_);
+}
 
-  virtual rational length() override;
-  virtual void set_length(const rational &length) override;
+NodeInput *ClipBlock::texture_input()
+{
+  return texture_input_;
+}
 
-private:
-  rational length_;
-};
+void ClipBlock::Process(const rational &time)
+{
+  // Run default node processing
+  Block::Process(time);
 
-#endif // TIMELINEBLOCK_H
+  // We convert the time given (timeline time) to media time
+  rational media_time = time - in() + media_in_;
+
+  // Retrieve texture
+  texture_output()->set_value(texture_input_->get_value(media_time));
+}

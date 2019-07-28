@@ -26,17 +26,13 @@ Block::Block()
   previous_input_->add_data_input(NodeParam::kBlock);
   AddParameter(previous_input_);
 
-  previous_output_ = new NodeOutput();
-  previous_output_->set_data_type(NodeParam::kBlock);
-  AddParameter(previous_output_);
+  block_output_ = new NodeOutput();
+  block_output_->set_data_type(NodeParam::kBlock);
+  AddParameter(block_output_);
 
   next_input_ = new NodeInput();
   next_input_->add_data_input(NodeParam::kBlock);
   AddParameter(next_input_);
-
-  next_output_ = new NodeOutput();
-  next_output_->set_data_type(NodeParam::kBlock);
-  AddParameter(next_output_);
 
   texture_output_ = new NodeOutput();
   texture_output_->set_data_type(NodeParam::kTexture);
@@ -73,8 +69,7 @@ void Block::Process(const rational &time)
   Q_UNUSED(time)
 
   // Simply set both output values as a pointer to this object
-  previous_output_->set_value(PtrToValue(this));
-  next_output_->set_value(PtrToValue(this));
+  block_output_->set_value(PtrToValue(this));
 }
 
 void Block::Refresh()

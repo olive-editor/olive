@@ -72,8 +72,7 @@ protected:
 private:
   NodeInput* previous_input_;
   NodeInput* next_input_;
-  NodeOutput* previous_output_;
-  NodeOutput* next_output_;
+  NodeOutput* block_output_;
 
   NodeOutput* texture_output_;
 

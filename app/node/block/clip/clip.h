@@ -18,25 +18,29 @@
 
 ***/
 
-#ifndef GAPBLOCK_H
-#define GAPBLOCK_H
+#ifndef CLIPBLOCK_H
+#define CLIPBLOCK_H
 
 #include "node/block/block.h"
 
 /**
- * @brief Node that represents nothing in its respective track for a certain period of time
+ * @brief Node that represents a block of Media
  */
-class GapBlock : public Block
+class ClipBlock : public Block
 {
   Q_OBJECT
 public:
-  GapBlock();
+  ClipBlock();
 
-  virtual rational length() override;
-  virtual void set_length(const rational &length) override;
+  NodeInput* texture_input();
+
+public slots:
+  virtual void Process(const rational &time) override;
 
 private:
-  rational length_;
+  NodeInput* texture_input_;
+
+  rational media_in_;
 };
 
 #endif // TIMELINEBLOCK_H
