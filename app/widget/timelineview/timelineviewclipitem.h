@@ -12,6 +12,9 @@ public:
 
   void SetClip(ClipBlock* clip);
 
+protected:
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
 private:
   ClipBlock* clip_;
 };

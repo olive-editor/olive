@@ -13,7 +13,7 @@ TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   QWidget(parent),
   scroll_(0),
   centered_text_(true),
-  scale_(16.0), // FIXME: Temporary value
+  scale_(1.0), // FIXME: Temporary value
   time_(0)
 {
   QFontMetrics fm = fontMetrics();

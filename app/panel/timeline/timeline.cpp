@@ -58,6 +58,7 @@ void TimelinePanel::AddClip(ClipBlock *clip)
 void TimelinePanel::SetTimebase(const rational &timebase)
 {
   ruler_->SetTimebase(timebase);
+  view_->SetTimebase(timebase);
 }
 
 void TimelinePanel::changeEvent(QEvent *e)

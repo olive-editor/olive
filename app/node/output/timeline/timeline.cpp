@@ -67,6 +67,10 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
   if (attached_timeline_ != nullptr) {
     attached_timeline_->Clear();
 
+    // FIXME: TEST CODE ONLY
+    attached_timeline_->SetTimebase(rational(1001, 30000));
+    // END TEST CODE
+
     Block* previous_block = attached_block();
     while (previous_block != nullptr) {
 

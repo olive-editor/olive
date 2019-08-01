@@ -14,12 +14,16 @@ public:
 
   void SetScale(const double& scale);
 
+  void SetTimebase(const rational& timebase);
+
   void Clear();
 
 private:
   QGraphicsScene scene_;
 
   double scale_;
+
+  rational timebase_;
 };
 
 #endif // TIMELINEVIEW_H
