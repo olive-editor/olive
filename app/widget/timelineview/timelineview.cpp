@@ -5,6 +5,7 @@
 TimelineView::TimelineView(QWidget *parent) :
   QGraphicsView(parent)
 {
+  setScene(&scene_);
 }
 
 void TimelineView::AddClip(ClipBlock *clip)

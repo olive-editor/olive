@@ -286,7 +286,6 @@ void Core::CreateNewSequence()
     new_sequence->AddNode(cb2);
 
     TimelineOutput* tb = new TimelineOutput();
-    tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
     new_sequence->AddNode(tb);
 
     ViewerOutput* vo = new ViewerOutput();
@@ -302,6 +301,8 @@ void Core::CreateNewSequence()
 
     cb1->Refresh();
     cb2->Refresh();
+
+    tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
 
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
     // End test code
