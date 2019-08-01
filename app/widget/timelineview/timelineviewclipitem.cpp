@@ -21,12 +21,15 @@
 #include "timelineviewclipitem.h"
 
 #include <QBrush>
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
 TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
   QGraphicsRectItem(parent),
-  clip_(nullptr)
+  clip_(nullptr),
+  ghost_(nullptr)
 {
   setBrush(Qt::white);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -60,4 +63,33 @@ void TimelineViewClipItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
   painter->setPen(QColor(64, 64, 64));
   painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));
   painter->drawLine(QPointF(rect().right(), rect().bottom() - 1), QPointF(rect().right(), rect().top()));
+}
+
+void TimelineViewClipItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsRectItem::mousePressEvent(event);
+
+  ghost_ = new TimelineViewGhostItem();
+  ghost_->setRect(rect());
+  scene()->addItem(ghost_);
+}
+
+void TimelineViewClipItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsRectItem::mouseMoveEvent(event);
+
+  if (ghost_ != nullptr) {
+    ghost_->setPos(event->scenePos());
+  }
+}
+
+void TimelineViewClipItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsRectItem::mouseReleaseEvent(event);
+
+  if (ghost_ != nullptr) {
+    scene()->removeItem(ghost_);
+    delete ghost_;
+    ghost_ = nullptr;
+  }
 }
