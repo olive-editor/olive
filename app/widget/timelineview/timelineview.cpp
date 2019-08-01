@@ -20,7 +20,8 @@
 
 #include "timelineview.h"
 
-#include "timelineviewclipitem.h"
+#include <QMouseEvent>
+#include <QtMath>
 
 TimelineView::TimelineView(QWidget *parent) :
   QGraphicsView(parent)
@@ -28,32 +29,95 @@ TimelineView::TimelineView(QWidget *parent) :
   setScene(&scene_);
   setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   setDragMode(RubberBandDrag);
+
+  // Set default scale
+  SetScale(1.0);
 }
 
 void TimelineView::AddClip(ClipBlock *clip)
 {
   TimelineViewClipItem* clip_item = new TimelineViewClipItem();
-  clip_item->SetClip(clip);
-  scene_.addItem(clip_item);
 
-  // FIXME: Test code only
-  double framerate = timebase_.ToDouble();
-  double clip_item_x = clip->in().ToDouble() / framerate;
-  clip_item->setRect(clip_item_x, 0, clip->out().ToDouble() / framerate - clip_item_x - 1, 100);
-  // End test code
+  // Set up clip with view parameters (clip item will automatically size its rect accordingly)
+  clip_item->SetClip(clip);
+  clip_item->SetTimebase(timebase_);
+  clip_item->SetScale(scale_);
+
+  // Add to list of clip items that can be iterated through
+  clip_items_.append(clip_item);
+
+  // Add item to graphics scene
+  scene_.addItem(clip_item);
 }
 
 void TimelineView::SetScale(const double &scale)
 {
   scale_ = scale;
+
+  foreach (TimelineViewClipItem* item, clip_items_) {
+    item->SetScale(scale_);
+  }
 }
 
 void TimelineView::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
+
+  foreach (TimelineViewClipItem* item, clip_items_) {
+    item->SetTimebase(timebase_);
+  }
 }
 
 void TimelineView::Clear()
 {
   scene_.clear();
+  clip_items_.clear();
+  // FIXME: Does QGraphicsScene take ownership of these items or do I have to delete them manually after the scene
+  //        clear?
+}
+
+void TimelineView::mousePressEvent(QMouseEvent *event)
+{
+  QGraphicsView::mousePressEvent(event);
+
+  if (itemAt(event->pos()) != nullptr) {
+    QList<QGraphicsItem*> selected_items = scene_.selectedItems();
+
+    foreach (QGraphicsItem* item, selected_items) {
+      TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+      TimelineViewClipItem* clip_item = static_cast<TimelineViewClipItem*>(item);
+
+      ghost->setRect(clip_item->rect());
+
+      ghost_items_.append(ghost);
+
+      scene_.addItem(ghost);
+    }
+  }
+}
+
+void TimelineView::mouseMoveEvent(QMouseEvent *event)
+{
+  QGraphicsView::mouseMoveEvent(event);
+
+  if (!ghost_items_.isEmpty()) {
+    foreach (TimelineViewGhostItem* ghost, ghost_items_) {
+      QPointF scene_pos = mapToScene(event->pos());
+
+      ghost->setX(qMax(0.0, scene_pos.x()));
+    }
+  }
+}
+
+void TimelineView::mouseReleaseEvent(QMouseEvent *event)
+{
+  QGraphicsView::mouseReleaseEvent(event);
+
+  if (!ghost_items_.isEmpty()) {
+    foreach (TimelineViewGhostItem* ghost, ghost_items_) {
+      delete ghost;
+    }
+
+    ghost_items_.clear();
+  }
 }

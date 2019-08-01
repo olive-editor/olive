@@ -222,7 +222,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   // If we found the playhead along here, draw it last
   if (playhead_pos >= 0) {
     p.setPen(Qt::NoPen);
-    p.setBrush(Qt::red);
+    p.setBrush(Qt::red); // FIXME: Make configurable in CSS
     DrawPlayhead(&p, playhead_pos, height());
   }
 }

@@ -33,17 +33,21 @@ public:
 
   void SetClip(ClipBlock* clip);
 
+  void SetTimebase(const rational& timebase);
+
+  void SetScale(const double& scale);
+
+  void UpdateRect();
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
   ClipBlock* clip_;
 
-  TimelineViewGhostItem* ghost_;
+  rational timebase_;
+
+  double scale_;
 };
 
 #endif // TIMELINEVIEWCLIPITEM_H

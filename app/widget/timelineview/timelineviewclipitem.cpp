@@ -29,7 +29,7 @@
 TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
   QGraphicsRectItem(parent),
   clip_(nullptr),
-  ghost_(nullptr)
+  scale_(1.0)
 {
   setBrush(Qt::white);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -38,6 +38,31 @@ TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
 void TimelineViewClipItem::SetClip(ClipBlock *clip)
 {
   clip_ = clip;
+  UpdateRect();
+}
+
+void TimelineViewClipItem::SetTimebase(const rational &timebase)
+{
+  timebase_ = timebase;
+  UpdateRect();
+}
+
+void TimelineViewClipItem::SetScale(const double &scale)
+{
+  scale_ = scale;
+  UpdateRect();
+}
+
+void TimelineViewClipItem::UpdateRect()
+{
+  if (clip_ == nullptr || timebase_.denominator() == 0) {
+    return;
+  }
+
+  double timebase_dbl = timebase_.ToDouble();
+  double item_left = clip_->in().ToDouble() / timebase_dbl * scale_;
+  double item_right = clip_->out().ToDouble() / timebase_dbl * scale_;
+  setRect(item_left, 0, item_right - item_left - 1, 100);
 }
 
 void TimelineViewClipItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -63,33 +88,4 @@ void TimelineViewClipItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
   painter->setPen(QColor(64, 64, 64));
   painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));
   painter->drawLine(QPointF(rect().right(), rect().bottom() - 1), QPointF(rect().right(), rect().top()));
-}
-
-void TimelineViewClipItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsRectItem::mousePressEvent(event);
-
-  ghost_ = new TimelineViewGhostItem();
-  ghost_->setRect(rect());
-  scene()->addItem(ghost_);
-}
-
-void TimelineViewClipItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsRectItem::mouseMoveEvent(event);
-
-  if (ghost_ != nullptr) {
-    ghost_->setPos(event->scenePos());
-  }
-}
-
-void TimelineViewClipItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-  QGraphicsRectItem::mouseReleaseEvent(event);
-
-  if (ghost_ != nullptr) {
-    scene()->removeItem(ghost_);
-    delete ghost_;
-    ghost_ = nullptr;
-  }
 }
