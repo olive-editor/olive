@@ -26,7 +26,10 @@
 class TimelineViewGhostItem : public QGraphicsRectItem
 {
 public:
-  TimelineViewGhostItem();
+  TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
+
+protected:
+//  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

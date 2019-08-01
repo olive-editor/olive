@@ -20,7 +20,11 @@
 
 #include "timelineviewghostitem.h"
 
-TimelineViewGhostItem::TimelineViewGhostItem()
-{
+#include <QPainter>
 
+TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
+  QGraphicsRectItem(parent)
+{
+  setBrush(Qt::NoBrush);
+  setPen(QPen(Qt::yellow, 2));
 }
