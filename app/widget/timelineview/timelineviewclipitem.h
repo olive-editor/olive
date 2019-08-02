@@ -21,33 +21,24 @@
 #ifndef TIMELINEVIEWCLIPITEM_H
 #define TIMELINEVIEWCLIPITEM_H
 
-#include <QGraphicsRectItem>
-
+#include "timelineviewrect.h"
 #include "node/block/clip/clip.h"
 #include "timelineviewghostitem.h"
 
-class TimelineViewClipItem : public QGraphicsRectItem
+class TimelineViewClipItem : public TimelineViewRect
 {
 public:
   TimelineViewClipItem(QGraphicsItem* parent = nullptr);
 
   void SetClip(ClipBlock* clip);
 
-  void SetTimebase(const rational& timebase);
-
-  void SetScale(const double& scale);
-
-  void UpdateRect();
-
 protected:
+  virtual void UpdateRect() override;
+
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
   ClipBlock* clip_;
-
-  rational timebase_;
-
-  double scale_;
 };
 
 #endif // TIMELINEVIEWCLIPITEM_H

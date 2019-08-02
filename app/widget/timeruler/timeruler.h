@@ -40,9 +40,9 @@ public:
 
   void SetCenteredText(bool c);
 
+public slots:
   void SetTime(const int64_t &r);
 
-public slots:
   void SetScroll(int s);
 
 protected:

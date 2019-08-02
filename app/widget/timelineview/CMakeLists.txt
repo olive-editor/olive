@@ -18,9 +18,13 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelineview/timelineview.h
   widget/timelineview/timelineview.cpp
+  widget/timelineview/timelineviewrect.h
+  widget/timelineview/timelineviewrect.cpp
   widget/timelineview/timelineviewclipitem.h
   widget/timelineview/timelineviewclipitem.cpp
   widget/timelineview/timelineviewghostitem.h
   widget/timelineview/timelineviewghostitem.cpp
+  widget/timelineview/timelineviewplayheaditem.h
+  widget/timelineview/timelineviewplayheaditem.cpp
   PARENT_SCOPE
 )

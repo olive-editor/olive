@@ -27,9 +27,8 @@
 #include <QStyleOptionGraphicsItem>
 
 TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
-  QGraphicsRectItem(parent),
-  clip_(nullptr),
-  scale_(1.0)
+  TimelineViewRect(parent),
+  clip_(nullptr)
 {
   setBrush(Qt::white);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -38,31 +37,18 @@ TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
 void TimelineViewClipItem::SetClip(ClipBlock *clip)
 {
   clip_ = clip;
-  UpdateRect();
-}
 
-void TimelineViewClipItem::SetTimebase(const rational &timebase)
-{
-  timebase_ = timebase;
-  UpdateRect();
-}
-
-void TimelineViewClipItem::SetScale(const double &scale)
-{
-  scale_ = scale;
   UpdateRect();
 }
 
 void TimelineViewClipItem::UpdateRect()
 {
-  if (clip_ == nullptr || timebase_.denominator() == 0) {
+  if (clip_ == nullptr || !TimebaseIsValid()) {
     return;
   }
 
-  double timebase_dbl = timebase_.ToDouble();
-
-  double item_left = clip_->in().ToDouble() / timebase_dbl * scale_;
-  double item_width = clip_->length().ToDouble() / timebase_dbl * scale_;
+  double item_left = TimeToScreenCoord(clip_->in());
+  double item_width = TimeToScreenCoord(clip_->length());
 
   setRect(0, 0, item_width - 1, 100);
   setPos(item_left, 0.0);

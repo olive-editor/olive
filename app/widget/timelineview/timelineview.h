@@ -26,6 +26,7 @@
 #include "node/block/clip/clip.h"
 #include "timelineviewclipitem.h"
 #include "timelineviewghostitem.h"
+#include "timelineviewplayheaditem.h"
 
 class TimelineView : public QGraphicsView
 {
@@ -50,8 +51,6 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-  void UpdatePlayheadPosition();
-
   QGraphicsScene scene_;
 
   double scale_;
@@ -64,7 +63,7 @@ private:
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
-  QGraphicsLineItem* playhead_line_;
+  TimelineViewPlayheadItem* playhead_line_;
 };
 
 #endif // TIMELINEVIEW_H

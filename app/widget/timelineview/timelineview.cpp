@@ -29,21 +29,18 @@ TimelineView::TimelineView(QWidget *parent) :
   playhead_(0)
 {
   setScene(&scene_);
-  setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+  setAlignment(Qt::AlignLeft | Qt::AlignTop);
   setDragMode(RubberBandDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-  // Set default scale
-  SetScale(1.0);
-
-  // FIXME: Make CSS configurable
-  playhead_line_ = new QGraphicsLineItem();
-  playhead_line_->setPen(QPen(Qt::red));
-
-  // Ensure playhead line is always on top
+  // Create playhead line and ensure it's always on top
+  playhead_line_ = new TimelineViewPlayheadItem();
   playhead_line_->setZValue(100);
 
   scene_.addItem(playhead_line_);
+
+  // Set default scale
+  SetScale(1.0);
 }
 
 void TimelineView::AddClip(ClipBlock *clip)
@@ -70,7 +67,7 @@ void TimelineView::SetScale(const double &scale)
     item->SetScale(scale_);
   }
 
-  UpdatePlayheadPosition();
+  playhead_line_->SetScale(scale_);
 }
 
 void TimelineView::SetTimebase(const rational &timebase)
@@ -81,7 +78,7 @@ void TimelineView::SetTimebase(const rational &timebase)
     item->SetTimebase(timebase_);
   }
 
-  UpdatePlayheadPosition();
+  playhead_line_->SetTimebase(timebase_);
 }
 
 void TimelineView::Clear()
@@ -98,7 +95,7 @@ void TimelineView::SetTime(const int64_t time)
 {
   playhead_ = time;
 
-  UpdatePlayheadPosition();
+  playhead_line_->SetPlayhead(playhead_);
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
@@ -145,16 +142,5 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     ghost_items_.clear();
-  }
-}
-
-void TimelineView::UpdatePlayheadPosition()
-{
-  if (timebase_.denominator() != 0) {
-    double timebase_dbl = timebase_.ToDouble();
-
-    double playhead_x = double(playhead_ * timebase_.numerator()) / double(timebase_.denominator()) / timebase_dbl * scale_;
-
-    playhead_line_->setLine(playhead_x, 0, playhead_x, height());
   }
 }
