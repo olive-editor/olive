@@ -20,6 +20,7 @@
 
 #include "timeline.h"
 
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 TimelinePanel::TimelinePanel(QWidget *parent) :
@@ -38,6 +39,9 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
   view_ = new TimelineView(this);
   layout->addWidget(view_);
+
+  connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
+  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
   // End test code
 
   Retranslate();

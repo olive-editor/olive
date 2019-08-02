@@ -60,9 +60,12 @@ void TimelineViewClipItem::UpdateRect()
   }
 
   double timebase_dbl = timebase_.ToDouble();
+
   double item_left = clip_->in().ToDouble() / timebase_dbl * scale_;
-  double item_right = clip_->out().ToDouble() / timebase_dbl * scale_;
-  setRect(item_left, 0, item_right - item_left - 1, 100);
+  double item_width = clip_->length().ToDouble() / timebase_dbl * scale_;
+
+  setRect(0, 0, item_width - 1, 100);
+  setPos(item_left, 0.0);
 }
 
 void TimelineViewClipItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

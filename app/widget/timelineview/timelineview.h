@@ -29,6 +29,7 @@
 
 class TimelineView : public QGraphicsView
 {
+  Q_OBJECT
 public:
   TimelineView(QWidget* parent);
 
@@ -40,23 +41,30 @@ public:
 
   void Clear();
 
+public slots:
+  void SetTime(const int64_t time);
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
+  void UpdatePlayheadPosition();
+
   QGraphicsScene scene_;
 
   double scale_;
 
   rational timebase_;
 
-  rational playhead_;
+  int64_t playhead_;
 
   QVector<TimelineViewClipItem*> clip_items_;
 
   QVector<TimelineViewGhostItem*> ghost_items_;
+
+  QGraphicsLineItem* playhead_line_;
 };
 
 #endif // TIMELINEVIEW_H

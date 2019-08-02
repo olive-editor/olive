@@ -22,16 +22,28 @@
 
 #include <QMouseEvent>
 #include <QtMath>
+#include <QPen>
 
 TimelineView::TimelineView(QWidget *parent) :
-  QGraphicsView(parent)
+  QGraphicsView(parent),
+  playhead_(0)
 {
   setScene(&scene_);
   setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   setDragMode(RubberBandDrag);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
   // Set default scale
   SetScale(1.0);
+
+  // FIXME: Make CSS configurable
+  playhead_line_ = new QGraphicsLineItem();
+  playhead_line_->setPen(QPen(Qt::red));
+
+  // Ensure playhead line is always on top
+  playhead_line_->setZValue(100);
+
+  scene_.addItem(playhead_line_);
 }
 
 void TimelineView::AddClip(ClipBlock *clip)
@@ -57,6 +69,8 @@ void TimelineView::SetScale(const double &scale)
   foreach (TimelineViewClipItem* item, clip_items_) {
     item->SetScale(scale_);
   }
+
+  UpdatePlayheadPosition();
 }
 
 void TimelineView::SetTimebase(const rational &timebase)
@@ -66,14 +80,25 @@ void TimelineView::SetTimebase(const rational &timebase)
   foreach (TimelineViewClipItem* item, clip_items_) {
     item->SetTimebase(timebase_);
   }
+
+  UpdatePlayheadPosition();
 }
 
 void TimelineView::Clear()
 {
+  scene_.removeItem(playhead_line_);
+
   scene_.clear();
   clip_items_.clear();
-  // FIXME: Does QGraphicsScene take ownership of these items or do I have to delete them manually after the scene
-  //        clear?
+
+  scene_.addItem(playhead_line_);
+}
+
+void TimelineView::SetTime(const int64_t time)
+{
+  playhead_ = time;
+
+  UpdatePlayheadPosition();
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
@@ -88,6 +113,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
       TimelineViewClipItem* clip_item = static_cast<TimelineViewClipItem*>(item);
 
       ghost->setRect(clip_item->rect());
+      ghost->setPos(clip_item->pos());
 
       ghost_items_.append(ghost);
 
@@ -119,5 +145,16 @@ void TimelineView::mouseReleaseEvent(QMouseEvent *event)
     }
 
     ghost_items_.clear();
+  }
+}
+
+void TimelineView::UpdatePlayheadPosition()
+{
+  if (timebase_.denominator() != 0) {
+    double timebase_dbl = timebase_.ToDouble();
+
+    double playhead_x = double(playhead_ * timebase_.numerator()) / double(timebase_.denominator()) / timebase_dbl * scale_;
+
+    playhead_line_->setLine(playhead_x, 0, playhead_x, height());
   }
 }
