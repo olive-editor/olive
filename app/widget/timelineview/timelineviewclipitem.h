@@ -30,6 +30,7 @@ class TimelineViewClipItem : public TimelineViewRect
 public:
   TimelineViewClipItem(QGraphicsItem* parent = nullptr);
 
+  ClipBlock* clip();
   void SetClip(ClipBlock* clip);
 
 protected:

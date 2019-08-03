@@ -21,15 +21,24 @@
 #ifndef TIMELINEVIEWGHOSTITEM_H
 #define TIMELINEVIEWGHOSTITEM_H
 
-#include <QGraphicsRectItem>
+#include "timelineviewrect.h"
 
-class TimelineViewGhostItem : public QGraphicsRectItem
+class TimelineViewGhostItem : public TimelineViewRect
 {
 public:
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
 
+  void SetIn(const rational& in);
+  void SetOut(const rational& out);
+
 protected:
+  virtual void UpdateRect() override;
+
 //  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+private:
+  rational in_;
+  rational out_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

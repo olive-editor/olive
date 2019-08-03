@@ -109,7 +109,12 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
       TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
       TimelineViewClipItem* clip_item = static_cast<TimelineViewClipItem*>(item);
 
-      ghost->setRect(clip_item->rect());
+      ClipBlock* clip = clip_item->clip();
+
+      ghost->SetIn(clip->in());
+      ghost->SetOut(clip->out());
+      ghost->SetTimebase(timebase_);
+
       ghost->setPos(clip_item->pos());
 
       ghost_items_.append(ghost);

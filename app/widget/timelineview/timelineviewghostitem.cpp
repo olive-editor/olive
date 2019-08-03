@@ -23,8 +23,31 @@
 #include <QPainter>
 
 TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
-  QGraphicsRectItem(parent)
+  TimelineViewRect(parent)
 {
   setBrush(Qt::NoBrush);
-  setPen(QPen(Qt::yellow, 2));
+  setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
+}
+
+void TimelineViewGhostItem::SetIn(const rational &in)
+{
+  in_ = in;
+
+  UpdateRect();
+}
+
+void TimelineViewGhostItem::SetOut(const rational &out)
+{
+  out_ = out;
+
+  UpdateRect();
+}
+
+void TimelineViewGhostItem::UpdateRect()
+{
+  rational length = out_ - in_;
+
+  setRect(0, 0, TimeToScreenCoord(length), 100);
+
+  setPos(TimeToScreenCoord(in_), 0);
 }

@@ -34,6 +34,11 @@ TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
   setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
+ClipBlock *TimelineViewClipItem::clip()
+{
+  return clip_;
+}
+
 void TimelineViewClipItem::SetClip(ClipBlock *clip)
 {
   clip_ = clip;
