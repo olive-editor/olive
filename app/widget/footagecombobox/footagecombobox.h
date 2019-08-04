@@ -17,6 +17,8 @@ public:
 
   void SetRoot(const Folder *p);
 
+  Footage* SelectedFootage();
+
 public slots:
   void SetFootage(Footage* f);
 
@@ -27,6 +29,8 @@ private:
   void TraverseFolder(const Folder *f, QMenu* m);
 
   const Folder* root_;
+
+  Footage* footage_;
 };
 
 #endif // FOOTAGECOMBOBOX_H

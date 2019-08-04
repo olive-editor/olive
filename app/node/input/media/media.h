@@ -23,6 +23,7 @@
 
 #include <QOpenGLTexture>
 
+#include "decoder/decoder.h"
 #include "node/node.h"
 
 /**
@@ -52,7 +53,9 @@ private:
 
   NodeOutput* texture_output_;
 
-  QOpenGLTexture* texture_;
+  GLuint texture_;
+
+  Decoder* decoder_;
 };
 
 #endif // IMAGE_H

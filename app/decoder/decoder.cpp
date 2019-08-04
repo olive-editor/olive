@@ -21,7 +21,8 @@
 #include "decoder.h"
 
 Decoder::Decoder() :
-  open_(false)
+  open_(false),
+  stream_(nullptr)
 {
 }
 
@@ -35,12 +36,12 @@ Decoder::~Decoder()
 {
 }
 
-Stream *Decoder::stream()
+const Stream *Decoder::stream()
 {
   return stream_;
 }
 
-void Decoder::set_stream(Stream *fs)
+void Decoder::set_stream(const Stream *fs)
 {
   Close();
 

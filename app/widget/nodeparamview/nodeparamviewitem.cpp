@@ -156,6 +156,7 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   QPainter p(this);
 
   // Draw bottom border using text color
+  int bottom = height() - 1;
   p.setPen(palette().text().color());
-  p.drawLine(0, height() - 1, width(), height() - 1);
+  p.drawLine(0, bottom, width(), bottom);
 }

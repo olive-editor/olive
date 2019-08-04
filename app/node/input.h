@@ -29,6 +29,7 @@
  */
 class NodeInput : public NodeParam
 {
+  Q_OBJECT
 public:
   NodeInput();
 
@@ -82,6 +83,13 @@ public:
   QVariant get_value(const rational &time);
 
   /**
+   * @brief Set the value at a given time
+   *
+   * This function will only work if there are no outputs connected.
+   */
+  void set_value(const rational& time, const QVariant& value);
+
+  /**
    * @brief Return whether keyframing is enabled on this input or not
    */
   bool keyframing();
@@ -95,6 +103,9 @@ public:
    * @brief A list of input data types accepted by this parameter
    */
   const QList<DataType>& inputs();
+
+signals:
+  void ValueChanged(const rational& start, const rational& end);
 
 private:
   /**

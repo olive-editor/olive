@@ -20,6 +20,8 @@ private:
 
   void CreateWidgets();
 
+  rational Now();
+
 private slots:
   void WidgetCallback();
 };

@@ -1,11 +1,13 @@
 #include "footagecombobox.h"
 
 #include <QAction>
+#include <QDebug>
 #include <QMenu>
 
 FootageComboBox::FootageComboBox(QWidget *parent) :
   QComboBox(parent),
-  root_(nullptr)
+  root_(nullptr),
+  footage_(nullptr)
 {
 
 }
@@ -25,11 +27,14 @@ void FootageComboBox::showPopup()
   QAction* selected = menu.exec(parentWidget()->mapToGlobal(pos()));
 
   if (selected != nullptr) {
+    // Use combobox functions to show the footage name
     clear();
 
     addItem(selected->text());
 
-    emit FootageChanged(reinterpret_cast<Footage*>(selected->data().value<quintptr>()));
+    footage_ = reinterpret_cast<Footage*>(selected->data().value<quintptr>());
+
+    emit FootageChanged(footage_);
   }
 }
 
@@ -40,11 +45,22 @@ void FootageComboBox::SetRoot(const Folder *p)
   clear();
 }
 
+Footage *FootageComboBox::SelectedFootage()
+{
+  return footage_;
+}
+
 void FootageComboBox::SetFootage(Footage *f)
 {
+  // Remove existing single item used to show the footage name
   clear();
 
-  addItem(f->name());
+  footage_ = f;
+
+  if (footage_ != nullptr) {
+    // Use combobox functions to show the footage name
+    addItem(footage_->name());
+  }
 }
 
 void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)

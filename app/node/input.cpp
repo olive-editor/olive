@@ -23,6 +23,7 @@
 #include "output.h"
 
 NodeInput::NodeInput() :
+  keyframing_(false),
   can_accept_multiple_inputs_(false)
 {
   // Have at least one keyframe/value active at any time
@@ -84,6 +85,19 @@ QVariant NodeInput::get_value(const rational &time)
 
     return values;
   }
+  }
+}
+
+void NodeInput::set_value(const rational &time, const QVariant &value)
+{
+  if (keyframing()) {
+    // FIXME: Keyframing code
+    Q_UNUSED(time)
+  } else {
+    keyframes_.first().set_value(value);
+
+    // FIXME: Put correct values here
+    emit ValueChanged(0, 0);
   }
 }
 

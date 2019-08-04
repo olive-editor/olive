@@ -59,16 +59,16 @@ public:
   const Type& type();
   void set_type(const Type& type);
 
-  Footage* footage();
+  Footage* footage() const;
   void set_footage(Footage* f);
 
-  const rational& timebase();
+  const rational& timebase() const;
   void set_timebase(const rational& timebase);
 
-  const int& index();
+  const int& index() const;
   void set_index(const int& index);
 
-  const int64_t& duration();
+  const int64_t& duration() const;
   void set_duration(const int64_t& duration);
 
 private:

@@ -4,6 +4,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 
+#include "node/node.h"
 #include "widget/footagecombobox/footagecombobox.h"
 
 // FIXME: Test code only
@@ -79,7 +80,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     // Pretty hacky way of getting the root folder for this node's sequence
     ProjectPanel* pp = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
     footage_combobox->SetRoot(pp->project()->root());
-
+    footage_combobox->SetFootage(Node::ValueToPtr<Footage>(input_->get_value(Now())));
+    connect(footage_combobox, SIGNAL(FootageChanged(Footage*)), this, SLOT(WidgetCallback()));
     // End test code
 
     widgets_.append(footage_combobox);
@@ -87,6 +89,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     break;
   }
   }
+}
+
+rational NodeParamViewWidgetBridge::Now()
+{
+  // FIXME: Actually implement this
+  return 0;
 }
 
 void NodeParamViewWidgetBridge::WidgetCallback()
@@ -132,8 +140,8 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kFootage:
   {
     // Widget is a FootageComboBox
-    //FootageComboBox* footage_combobox = static_cast<FootageComboBox*>(sender());
-
+    FootageComboBox* footage_combobox = static_cast<FootageComboBox*>(sender());
+    input_->set_value(Now(), Node::PtrToValue(footage_combobox->SelectedFootage()));
     break;
   }
   }

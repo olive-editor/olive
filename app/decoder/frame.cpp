@@ -20,6 +20,7 @@
 
 #include "frame.h"
 
+#include <QDebug>
 #include <QtGlobal>
 
 Frame::Frame() :
@@ -71,7 +72,7 @@ void Frame::SetAVFrame(AVFrame *f, AVRational timebase)
 {
   FreeChild();
 
-  f = frame_;
+  frame_ = f;
   timestamp_ = rational(timebase.num*f->pts, timebase.den);
 }
 

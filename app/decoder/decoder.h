@@ -54,8 +54,8 @@ public:
 
   virtual ~Decoder();
 
-  Stream* stream();
-  void set_stream(Stream* fs);
+  const Stream* stream();
+  void set_stream(const Stream *fs);
 
   /**
    * @brief Probe a footage file and dump metadata about it
@@ -148,7 +148,7 @@ protected:
   bool open_;
 
 private:
-  Stream* stream_;
+  const Stream* stream_;
 };
 
 using DecoderPtr = std::shared_ptr<Decoder>;

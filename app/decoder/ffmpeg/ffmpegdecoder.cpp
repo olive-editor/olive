@@ -122,12 +122,58 @@ bool FFmpegDecoder::Open()
 
 FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &length)
 {
-  // FIXME: Fill this out
+  if (!open_ && !Open()) {
+    return nullptr;
+  }
+
+//  avcodec_flush_buffers(codec_ctx_);
+//  av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
+
+  AVFrame* frame = av_frame_alloc();
+  AVPacket pkt;
+  av_init_packet(&pkt);
+
+  int ret = 69;
+  bool eof = false;
+
+  while ((ret = avcodec_receive_frame(codec_ctx_, frame)) == AVERROR(EAGAIN) && !eof) {
+    ret = av_read_frame(fmt_ctx_, &pkt);
+
+    if (ret == AVERROR_EOF) {
+      // Don't break so that receive gets called again, but don't try to read again
+      eof = true;
+
+      // Send a null packet to signal end of
+      avcodec_send_packet(codec_ctx_, nullptr);
+    } else if (ret < 0) {
+      // Handle other error
+      break;
+    } else {
+      // Successful read, send the packet
+      ret = avcodec_send_packet(codec_ctx_, &pkt);
+      av_packet_unref(&pkt);
+
+      if (ret < 0) {
+        break;
+      }
+    }
+  }
+
+  if (ret < 0) {
+    qWarning() << tr("Failed to retrieve frame from FFmpeg decoder: %1").arg(ret);
+    av_frame_free(&frame);
+    return nullptr;
+  }
+
+  FramePtr frame_container = std::make_shared<Frame>();
+  frame_container->SetAVFrame(frame, avstream_->time_base);
 
   Q_UNUSED(timecode)
   Q_UNUSED(length)
 
-  return nullptr;
+  // Close();
+
+  return frame_container;
 }
 
 void FFmpegDecoder::Close()
