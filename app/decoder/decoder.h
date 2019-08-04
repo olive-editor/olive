@@ -48,6 +48,7 @@ class Decoder : public QObject
 {
   Q_OBJECT
 public:
+
   Decoder();
 
   Decoder(Stream* fs);
@@ -141,8 +142,6 @@ public:
    * indexing, or transcoding to help make this media performant and reliable should be done here.
    */
   //virtual void Analyze();// = 0;
-
-
 
 protected:
   bool open_;

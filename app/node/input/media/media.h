@@ -26,6 +26,10 @@
 #include "decoder/decoder.h"
 #include "node/node.h"
 
+// FIXME: Test code only
+#include "render/texturebuffer.h"
+// End test code
+
 /**
  * @brief A node that imports an image
  *
@@ -53,9 +57,12 @@ private:
 
   NodeOutput* texture_output_;
 
-  GLuint texture_;
+  // FIXME: TEST CODE ONLY
+  TextureBuffer tex_buf_;
+  // END TEST CODE
 
   Decoder* decoder_;
+
 };
 
 #endif // IMAGE_H

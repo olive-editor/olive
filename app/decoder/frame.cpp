@@ -23,41 +23,40 @@
 #include <QDebug>
 #include <QtGlobal>
 
-Frame::Frame() :
-  frame_(nullptr)
-{
-}
+#include "render/pixelservice.h"
 
-Frame::Frame(AVFrame *f) :
-  frame_(f)
+Frame::Frame() :
+  width_(0),
+  height_(0),
+  data_(nullptr)
 {
 }
 
 Frame::Frame(const Frame &f) :
-  frame_(nullptr)
+  data_(nullptr)
 {
   Q_UNUSED(f)
 }
 
 Frame::Frame(Frame &&f) :
-  frame_(f.frame_)
+  data_(f.data_)
 {
-  f.frame_ = nullptr;
+  f.data_ = nullptr;
 }
 
 Frame &Frame::operator=(const Frame &f)
 {
   Q_UNUSED(f)
 
-  frame_ = nullptr;
+  data_ = nullptr;
   return *this;
 }
 
 Frame &Frame::operator=(Frame &&f)
 {
   if (&f != this) {
-    frame_ = f.frame_;
-    f.frame_ = nullptr;
+    data_ = f.data_;
+    f.data_ = nullptr;
   }
 
   return *this;
@@ -65,25 +64,27 @@ Frame &Frame::operator=(Frame &&f)
 
 Frame::~Frame()
 {
-  FreeChild();
-}
-
-void Frame::SetAVFrame(AVFrame *f, AVRational timebase)
-{
-  FreeChild();
-
-  frame_ = f;
-  timestamp_ = rational(timebase.num*f->pts, timebase.den);
+  destroy();
 }
 
 const int &Frame::width()
 {
-  return frame_->width;
+  return width_;
+}
+
+void Frame::set_width(const int &width)
+{
+  width_ = width;
 }
 
 const int &Frame::height()
 {
-  return frame_->height;
+  return height_;
+}
+
+void Frame::set_height(const int &height)
+{
+  height_ = height;
 }
 
 const rational &Frame::timestamp()
@@ -91,25 +92,47 @@ const rational &Frame::timestamp()
   return timestamp_;
 }
 
+void Frame::set_timestamp(const rational &timestamp)
+{
+  timestamp_ = timestamp;
+}
+
 const int &Frame::format()
 {
-  return frame_->format;
+  return format_;
 }
 
-uint8_t **Frame::data()
+void Frame::set_format(const int &format)
 {
-  return frame_->data;
+  format_ = format;
 }
 
-int *Frame::linesize()
+uint8_t *Frame::data()
 {
-  return frame_->linesize;
+  return data_;
 }
 
-void Frame::FreeChild()
+const uint8_t *Frame::const_data()
 {
-  if (frame_ != nullptr) {
-    av_frame_free(&frame_);
-    frame_ = nullptr;
+  return data_;
+}
+
+void Frame::allocate()
+{
+  if (data_ != nullptr) {
+    destroy();
   }
+
+  // Assume this frame is intended to be a video frame
+  if (width_ > 0 && height_ > 0) {
+    data_ = new uint8_t[PixelService::GetBufferSize(static_cast<olive::PixelFormat>(format_), width_, height_)];
+  }
+
+  // FIXME: Audio sample allocation
+}
+
+void Frame::destroy()
+{
+  delete [] data_;
+  data_ = nullptr;
 }

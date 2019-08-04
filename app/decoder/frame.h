@@ -21,13 +21,10 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-extern "C" {
-#include <libavformat/avformat.h>
-}
-
 #include <memory>
 
 #include "common/rational.h"
+#include "render/pixelformat.h"
 
 /**
  * @brief Video frame data or audio sample data from a Decoder
@@ -39,16 +36,8 @@ extern "C" {
 class Frame
 {
 public:
-  enum Type {
-    kNative,
-    kAVFrame
-  };
-
   /// Normal constructor
   Frame();
-
-  /// AVFrame constructor
-  Frame(AVFrame* f);
 
   /// Copy constructor
   Frame(const Frame& f);
@@ -66,25 +55,16 @@ public:
   ~Frame();
 
   /**
-   * @brief Set frame child
-   *
-   * This class currently primarily functions as a wrapper for AVFrame for use outside of the Decoder classes.
-   * The internal AVFrame is set here. This class will also take ownership of the AVFrame and automatically
-   * clear it when deconstructed.
-   *
-   * @param f
-   */
-  void SetAVFrame(AVFrame* f, AVRational timebase);
-
-  /**
    * @brief Get frame's width in pixels
    */
   const int& width();
+  void set_width(const int& width);
 
   /**
    * @brief Get frame's height in pixels
    */
   const int& height();
+  void set_height(const int& height);
 
   /**
    * @brief Get frame's timestamp.
@@ -92,32 +72,43 @@ public:
    * This timestamp is always a rational that will equate to the time in seconds.
    */
   const rational& timestamp();
+  void set_timestamp(const rational& timestamp);
 
   /**
    * @brief Get frame's format
    *
    * @return
    *
-   * Currently this will either be an AVPixelFormat (video) or an AVSampleFormat (audio).
+   * Currently this will either be an olive::PixelFormat (video) or an olive::SampleFormat (audio).
    */
   const int& format();
+  void set_format(const int& format);
 
   /**
    * @brief Get the data buffer of this frame
    */
-  uint8_t** data();
+  uint8_t* data();
 
   /**
-   * @brief Get the linesize information for this frame
+   * @brief Get the const data buffer of this frame
    */
-  int* linesize();
+  const uint8_t* const_data();
+
+  void allocate();
+
+  void destroy();
 
 private:
+  int width_;
 
-  void FreeChild();
+  int height_;
 
-  AVFrame* frame_;
+  int format_;
+
+  uint8_t* data_;
+
   rational timestamp_;
+
 };
 
 using FramePtr = std::shared_ptr<Frame>;

@@ -40,8 +40,10 @@ public:
   ~TextureBuffer();
 
   bool IsCreated();
-  void Create(QOpenGLContext* ctx, const olive::PixelFormat& format, int width, int height);
+  void Create(QOpenGLContext* ctx, const olive::PixelFormat& format, int width, int height, void *data = nullptr);
   void Destroy();
+
+  void Upload(void *data);
 
   const GLuint& buffer() const;
   const GLuint& texture() const;
@@ -55,6 +57,10 @@ private:
   QOpenGLContext* ctx_;
   GLuint buffer_;
   GLuint texture_;
+
+  int width_;
+  int height_;
+  olive::PixelFormat format_;
 };
 
 #endif // FRAMEBUFFEROBJECT_H

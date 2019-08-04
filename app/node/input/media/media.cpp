@@ -27,10 +27,10 @@
 
 // FIXME: Test code only
 #include "decoder/ffmpeg/ffmpegdecoder.h"
+#include "render/pixelservice.h"
 // End test code
 
-MediaInput::MediaInput() :
-  texture_(0)
+MediaInput::MediaInput()
 {
   footage_input_ = new NodeInput();
   footage_input_->add_data_input(NodeInput::kFootage);
@@ -103,30 +103,12 @@ void MediaInput::Process(const rational &time)
   }
 
   // FIXME: Test code
-  if (texture_ == 0) {
-    glGenTextures(1, &texture_);
-
-    glBindTexture(GL_TEXTURE_2D, texture_);
-
-    // Set texture filtering to bilinear
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Set texture wrapping to clamp
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGBA8,
-                 frame->width(),
-                 frame->height(),
-                 0,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 frame->data()[0]);
+  if (tex_buf_.IsCreated()) {
+    tex_buf_.Upload(frame->data());
+  } else {
+    tex_buf_.Create(QOpenGLContext::currentContext(), static_cast<olive::PixelFormat>(frame->format()), frame->width(), frame->height(), frame->data());
   }
 
-  texture_output_->set_value(texture_);
+  texture_output_->set_value(tex_buf_.texture());
   // End test code
 }

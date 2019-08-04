@@ -23,6 +23,8 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
 
+#include "render/pixelservice.h"
+
 TextureBuffer::TextureBuffer() :
   ctx_(nullptr),
   buffer_(0),
@@ -39,13 +41,18 @@ bool TextureBuffer::IsCreated()
   return (ctx_ != nullptr);
 }
 
-void TextureBuffer::Create(QOpenGLContext *ctx, const olive::PixelFormat &format, int width, int height)
+void TextureBuffer::Create(QOpenGLContext *ctx, const olive::PixelFormat &format, int width, int height, void* data)
 {
   // free any previous textures
   Destroy();
 
   // set context to new context provided
   ctx_ = ctx;
+
+  // Store frame metadata
+  width_ = width;
+  height_ = height;
+  format_ = format;
 
   QOpenGLFunctions* f = ctx->functions();
 
@@ -73,7 +80,7 @@ void TextureBuffer::Create(QOpenGLContext *ctx, const olive::PixelFormat &format
         0,
         bit_depth.pixel_format,
         bit_depth.pixel_type,
-        nullptr
+        data
         );
 
   // set texture filtering to bilinear
@@ -105,6 +112,29 @@ void TextureBuffer::Destroy()
 
     ctx_ = nullptr;
   }
+}
+
+void TextureBuffer::Upload(void *data)
+{
+  if (!IsCreated()) {
+    return;
+  }
+
+  BindTexture();
+
+  PixelFormatInfo info = PixelService::GetPixelFormatInfo(format_);
+
+  glTexSubImage2D(GL_TEXTURE_2D,
+                  0,
+                  0,
+                  0,
+                  width_,
+                  height_,
+                  info.pixel_format,
+                  info.pixel_type,
+                  data);
+
+  ReleaseTexture();
 }
 
 void TextureBuffer::BindBuffer() const

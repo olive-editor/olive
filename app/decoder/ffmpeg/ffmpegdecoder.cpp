@@ -30,10 +30,14 @@ extern "C" {
 #include <QtMath>
 #include <QDebug>
 
+#include "render/pixelservice.h"
+
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
-  opts_(nullptr)
+  opts_(nullptr),
+  scale_ctx_(nullptr),
+  resample_ctx_(nullptr)
 {
 }
 
@@ -115,6 +119,43 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
+  // Set up
+  if (codec_ctx_->codec_type == AVMEDIA_TYPE_VIDEO) {
+    // Set up pixel format conversion for video
+    AVPixelFormat pix_fmt = static_cast<AVPixelFormat>(avstream_->codecpar->format);
+
+    // Get an Olive compatible AVPixelFormat
+    AVPixelFormat ideal_pix_fmt = GetCompatiblePixelFormat(pix_fmt);
+
+    // Determine which Olive native pixel format we retrieved
+    // Note that FFmpeg doesn't support float formats
+    switch (ideal_pix_fmt) {
+    case AV_PIX_FMT_RGBA:
+      output_fmt_ = olive::PIX_FMT_RGBA8;
+      break;
+    case AV_PIX_FMT_RGBA64:
+      output_fmt_ = olive::PIX_FMT_RGBA16;
+      break;
+    default:
+      // We should never get here, but if we do there's nothing we can do with this format
+      return false;
+    }
+
+    scale_ctx_ = sws_getContext(avstream_->codecpar->width,
+                                avstream_->codecpar->height,
+                                pix_fmt,
+                                avstream_->codecpar->width,
+                                avstream_->codecpar->height,
+                                ideal_pix_fmt,
+                                0,
+                                nullptr,
+                                nullptr,
+                                nullptr);
+
+  } else if (codec_ctx_->codec_type == AVMEDIA_TYPE_AUDIO) {
+    // FIXME: Fill this in
+  }
+
   open_ = true;
 
   return true;
@@ -129,15 +170,31 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
 //  avcodec_flush_buffers(codec_ctx_);
 //  av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
 
-  AVFrame* frame = av_frame_alloc();
+  // Allocate and init a packet for reading encoded data
   AVPacket pkt;
   av_init_packet(&pkt);
 
-  int ret = 69;
+  // Allocate a new frame to place decoded data
+  AVFrame* dec_frame = av_frame_alloc();
+
+  // Cache FFmpeg error code returns
+  int ret;
+
+  // Variable set if FFmpeg signals file has finished
   bool eof = false;
 
-  while ((ret = avcodec_receive_frame(codec_ctx_, frame)) == AVERROR(EAGAIN) && !eof) {
-    ret = av_read_frame(fmt_ctx_, &pkt);
+  // FFmpeg frame retrieve loop
+  while ((ret = avcodec_receive_frame(codec_ctx_, dec_frame)) == AVERROR(EAGAIN) && !eof) {
+
+    // Find next packet in the correct stream index
+    do {
+      // Free buffer in packet if there is one
+      if (pkt.buf != nullptr) {
+        av_packet_unref(&pkt);
+      }
+
+      ret = av_read_frame(fmt_ctx_, &pkt);
+    } while (pkt.stream_index != avstream_->index && ret >= 0);
 
     if (ret == AVERROR_EOF) {
       // Don't break so that receive gets called again, but don't try to read again
@@ -151,6 +208,9 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     } else {
       // Successful read, send the packet
       ret = avcodec_send_packet(codec_ctx_, &pkt);
+
+      // We don't need the packet anymore, so free it
+      // FIXME: Is this true???
       av_packet_unref(&pkt);
 
       if (ret < 0) {
@@ -159,25 +219,57 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     }
   }
 
+  // Handle any errors received during the frame retrieve process
   if (ret < 0) {
     qWarning() << tr("Failed to retrieve frame from FFmpeg decoder: %1").arg(ret);
-    av_frame_free(&frame);
+    av_frame_free(&dec_frame);
     return nullptr;
   }
 
+  // Frame was valid, now we create an Olive frame to place the data into
   FramePtr frame_container = std::make_shared<Frame>();
-  frame_container->SetAVFrame(frame, avstream_->time_base);
+  frame_container->set_width(dec_frame->width);
+  frame_container->set_height(dec_frame->height);
+  frame_container->set_format(output_fmt_); // FIXME: Hardcoded value
+  frame_container->set_timestamp(rational(dec_frame->pts * avstream_->time_base.num, avstream_->time_base.den));
+  frame_container->allocate();
+
+  // Convert pixel format/linesize if necessary
+  uint8_t* dst_data = frame_container->data();
+  int dst_linesize = frame_container->width() * 4;
+
+  // Perform pixel conversion
+  sws_scale(scale_ctx_,
+            dec_frame->data,
+            dec_frame->linesize,
+            0,
+            dec_frame->height,
+            &dst_data,
+            &dst_linesize);
+
+  // Don't need AVFrame anymore
+  av_frame_free(&dec_frame);
 
   Q_UNUSED(timecode)
   Q_UNUSED(length)
 
-  // Close();
+//   Close();
 
   return frame_container;
 }
 
 void FFmpegDecoder::Close()
 {
+  if (scale_ctx_ != nullptr) {
+    sws_freeContext(scale_ctx_);
+    scale_ctx_ = nullptr;
+  }
+
+  if (resample_ctx_ != nullptr) {
+    swr_free(&resample_ctx_);
+    resample_ctx_ = nullptr;
+  }
+
   if (opts_ != nullptr) {
     av_dict_free(&opts_);
     opts_ = nullptr;
@@ -308,4 +400,18 @@ void FFmpegDecoder::Error(const QString &s)
   qWarning() << s;
 
   Close();
+}
+
+AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
+{
+  AVPixelFormat possible_pix_fmts[] = {
+    AV_PIX_FMT_RGBA,
+    AV_PIX_FMT_RGBA64,
+    AV_PIX_FMT_NONE
+  };
+
+  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
+                                           pix_fmt,
+                                           1,
+                                           nullptr);
 }

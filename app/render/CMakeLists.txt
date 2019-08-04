@@ -24,6 +24,9 @@ set(OLIVE_SOURCES
   #render/memorybuffer.cpp
   render/pixelformat.h
   render/pixelformat.cpp
+  render/pixelservice.h
+  render/pixelservice.cpp
+  render/sampleformat.h
   render/texturebuffer.h
   render/texturebuffer.cpp
   PARENT_SCOPE

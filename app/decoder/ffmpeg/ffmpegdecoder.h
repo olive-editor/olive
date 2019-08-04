@@ -21,6 +21,12 @@
 #ifndef FFMPEGDECODER_H
 #define FFMPEGDECODER_H
 
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+}
+
 #include <QVector>
 
 #include "decoder/decoder.h"
@@ -39,16 +45,20 @@ public:
   virtual FramePtr Retrieve(const rational &timecode, const rational &length = 0) override;
   virtual void Close() override;
 
-protected:
+private:
   void FFmpegErr(int error_code);
   void Error(const QString& s);
+
+  AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
-  AVPacket* pkt_;
-  AVFrame* frame_;
   AVDictionary* opts_;
+
+  SwsContext* scale_ctx_;
+  SwrContext* resample_ctx_;
+  int output_fmt_;
 
   QVector<int64_t> frame_index_;
 
