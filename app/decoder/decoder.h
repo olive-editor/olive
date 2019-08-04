@@ -84,8 +84,6 @@ public:
    */
   virtual bool Probe(Footage* f) = 0;
 
-
-
   /**
    * @brief Open media/allocate memory
    *

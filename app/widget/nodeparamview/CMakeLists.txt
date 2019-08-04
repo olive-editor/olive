@@ -20,5 +20,7 @@ set(OLIVE_SOURCES
   widget/nodeparamview/nodeparamview.cpp
   widget/nodeparamview/nodeparamviewitem.h
   widget/nodeparamview/nodeparamviewitem.cpp
+  widget/nodeparamview/nodeparamviewwidgetbridge.h
+  widget/nodeparamview/nodeparamviewwidgetbridge.cpp
   PARENT_SCOPE
 )

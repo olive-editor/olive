@@ -53,8 +53,6 @@ protected:
 private:
   void SetupUI();
 
-  QList<QWidget*> CreateWidget(NodeInput *input);
-
   bool expanded_;
 
   NodeParamViewItemTitleBar* title_bar_;

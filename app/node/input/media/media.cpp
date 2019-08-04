@@ -22,6 +22,8 @@
 
 #include <QDebug>
 
+#include "project/item/footage/footage.h"
+
 MediaInput::MediaInput() :
   texture_(nullptr)
 {
@@ -63,9 +65,23 @@ void MediaInput::Process(const rational &time)
 {
   // FIXME: Use OIIO and OCIO here
 
-  // FIXME: Test code
-  Q_UNUSED(time)
+  // Get currently selected Footage
+  Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(time));
 
+  // If no footage is selected, return nothing
+  if (footage == nullptr) {
+    texture_output_->set_value(0);
+
+    return;
+  }
+
+  // Otherwise try to get frame of footage from decoder
+
+  // Determine which decoder to use
+
+  // Grab frame from decoder
+
+  // FIXME: Test code
   if (texture_ == nullptr) {
     QImage img("/home/matt/Desktop/oof.png");
 
