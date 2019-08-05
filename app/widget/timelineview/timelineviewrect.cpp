@@ -10,7 +10,7 @@ TimelineViewRect::TimelineViewRect(QGraphicsItem* parent) :
 void TimelineViewRect::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
-  timebase_dbl_ = timebase_.ToDouble();
+  timebase_dbl_ = timebase_.toDouble();
 
   UpdateRect();
 }
@@ -28,5 +28,5 @@ bool TimelineViewRect::TimebaseIsValid()
 
 double TimelineViewRect::TimeToScreenCoord(const rational &time)
 {
-  return time.ToDouble() / timebase_dbl_ * scale_;
+  return time.toDouble() / timebase_dbl_ * scale_;
 }

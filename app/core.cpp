@@ -278,11 +278,11 @@ void Core::CreateNewSequence()
     new_sequence->AddNode(ii);
 
     ClipBlock* cb1 = new ClipBlock();
-    cb1->set_length(1);
+    cb1->set_length(2);
     new_sequence->AddNode(cb1);
 
     ClipBlock* cb2 = new ClipBlock();
-    cb2->set_length(1);
+    cb2->set_length(4);
     new_sequence->AddNode(cb2);
 
     TimelineOutput* tb = new TimelineOutput();

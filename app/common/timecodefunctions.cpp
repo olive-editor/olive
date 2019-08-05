@@ -30,7 +30,7 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
                                      const rational& timebase,
                                      const TimecodeDisplay& display)
 {
-  double timestamp_dbl = (rational(timestamp) * timebase).ToDouble();
+  double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
 
   switch (display) {
   case kTimecodeFrames:
@@ -52,7 +52,7 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
     } else {
       rational frame_rate = timebase.flipped();
 
-      int frames = qRound((timestamp_dbl - total_seconds) * frame_rate.ToDouble());
+      int frames = qRound((timestamp_dbl - total_seconds) * frame_rate.toDouble());
 
       return QString("%1:%2:%3;%4").arg(padded(hours, 2),
                                         padded(mins, 2),

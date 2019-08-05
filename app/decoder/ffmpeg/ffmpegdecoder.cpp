@@ -167,8 +167,8 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     return nullptr;
   }
 
-//  avcodec_flush_buffers(codec_ctx_);
-//  av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
+  //avcodec_flush_buffers(codec_ctx_);
+  //av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
 
   // Allocate and init a packet for reading encoded data
   AVPacket pkt;
@@ -218,6 +218,8 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
       }
     }
   }
+
+//  qDebug() << dec_frame->pts << ",";
 
   // Handle any errors received during the frame retrieve process
   if (ret < 0) {

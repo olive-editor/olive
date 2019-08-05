@@ -205,14 +205,14 @@ void SequenceDialog::AddFrameRate(const rational &r)
 {
   frame_rate_list_.append(r);
 
-  video_frame_rate_field_->addItem(tr("%1 FPS").arg(r.ToDouble()));
+  video_frame_rate_field_->addItem(tr("%1 FPS").arg(r.toDouble()));
 }
 
 void SequenceDialog::AddSampleRate(const rational &rate)
 {
   sample_rate_list_.append(rate);
 
-  audio_sample_rate_field_->addItem(tr("%1 Hz").arg(rate.ToDouble()));
+  audio_sample_rate_field_->addItem(tr("%1 Hz").arg(rate.toDouble()));
 }
 
 void SequenceDialog::AddChannelLayout(int layout)

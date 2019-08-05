@@ -113,7 +113,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
   // Depending on the scale, we don't need all the lines drawn or else they'll start to become unhelpful
   // Determine an even number to divide the frame count by
-  int rough_frames_in_second = qRound(time_base_.flipped().ToDouble());
+  int rough_frames_in_second = qRound(time_base_.flipped().toDouble());
   int test_divider = 1;
   while (!((rough_frames_in_second%test_divider == 0 || test_divider > rough_frames_in_second)
          && scale_ * test_divider >= minimum_gap_between_lines_)) {
@@ -124,7 +124,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
     }
   }
   double reverse_divider = double(rough_frames_in_second) / double(test_divider);
-  qreal real_divider = qMax(1.0, time_base_.flipped().ToDouble() / reverse_divider);
+  qreal real_divider = qMax(1.0, time_base_.flipped().toDouble() / reverse_divider);
 
   // Set where the loop ends (affected by text)
   int loop_start = - playhead_width_;
@@ -136,7 +136,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   int text_y = 0;
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
-    double width_of_second = time_base_.flipped().ToDouble() * scale_;
+    double width_of_second = time_base_.flipped().toDouble() * scale_;
     int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, time_base_, kTimecodeDisplay));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
@@ -180,7 +180,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
     if (qFloor(double(unit)/real_divider) > qFloor(double(last_unit)/real_divider)) {
 
       // Determine if this unit is a whole second or not
-      int sec = qFloor(double(unit) * time_base_.ToDouble());
+      int sec = qFloor(double(unit) * time_base_.toDouble());
 
       if (sec > last_sec) {
         // This line marks a second so we make it long
