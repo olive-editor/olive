@@ -49,12 +49,17 @@ private:
   void FFmpegErr(int error_code);
   void Error(const QString& s);
 
+  void Index();
+  int GetFrame();
+
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
   AVDictionary* opts_;
+  AVFrame* frame_;
+  AVPacket* pkt_;
 
   SwsContext* scale_ctx_;
   SwrContext* resample_ctx_;

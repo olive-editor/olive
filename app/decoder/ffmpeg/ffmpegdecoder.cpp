@@ -36,6 +36,8 @@ FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
   opts_(nullptr),
+  frame_(nullptr),
+  pkt_(nullptr),
   scale_ctx_(nullptr),
   resample_ctx_(nullptr)
 {
@@ -156,6 +158,25 @@ bool FFmpegDecoder::Open()
     // FIXME: Fill this in
   }
 
+  // Allocate a packet for reading
+  pkt_ = av_packet_alloc();
+
+  // Handle failure to create packet
+  if (pkt_ == nullptr) {
+    Error(tr("Failed to allocate AVPacket"));
+    return false;
+  }
+
+  // Allocate a frame for decoding
+  frame_ = av_frame_alloc();
+
+  // Handle failure to create frame
+  if (frame_ == nullptr) {
+    Error(tr("Failed to allocate AVFrame"));
+    return false;
+  }
+
+  // All allocation succeeded so we set the state to open
   open_ = true;
 
   return true;
@@ -170,6 +191,24 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   // Convert timecode to AVStream timebase
   int64_t target_ts = qFloor(timecode.toDouble() * rational(avstream_->time_base).flipped().toDouble());
 
+  // Index now if we haven't already
+  if (frame_index_.isEmpty()) {
+    qDebug() << "No index exists... starting index";
+    Index();
+  }
+
+  qDebug() << "Graph requested timecode:" << target_ts;
+
+  // Use index to find closest frame in file
+  for (int i=1;i<frame_index_.size();i++) {
+    if (frame_index_.at(i) > target_ts) {
+      target_ts = frame_index_.at(i - 1);
+      break;
+    }
+  }
+
+  qDebug() << "  The closest in stream is:" << target_ts;
+
   // Seek to it
   avcodec_flush_buffers(codec_ctx_);
   av_seek_frame(fmt_ctx_, avstream_->index, target_ts, AVSEEK_FLAG_BACKWARD);
@@ -178,68 +217,30 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   AVPacket pkt;
   av_init_packet(&pkt);
 
-  // Allocate a new frame to place decoded data
-  AVFrame* dec_frame = av_frame_alloc();
-
   // Cache FFmpeg error code returns
-  int ret;
-
-  // Variable set if FFmpeg signals file has finished
-  bool eof = false;
+  int ret = 0;
 
   // FFmpeg frame retrieve loop
-  while ((ret = avcodec_receive_frame(codec_ctx_, dec_frame)) == AVERROR(EAGAIN) && !eof) {
+  while (ret >= 0 && frame_->pts != target_ts) {
+    ret = GetFrame();
 
-    av_frame_unref(dec_frame);
-
-    // Find next packet in the correct stream index
-    do {
-      // Free buffer in packet if there is one
-      if (pkt.buf != nullptr) {
-        av_packet_unref(&pkt);
-      }
-
-      ret = av_read_frame(fmt_ctx_, &pkt);
-    } while (pkt.stream_index != avstream_->index && ret >= 0);
-
-    if (ret == AVERROR_EOF) {
-      // Don't break so that receive gets called again, but don't try to read again
-      eof = true;
-
-      // Send a null packet to signal end of
-      avcodec_send_packet(codec_ctx_, nullptr);
-    } else if (ret < 0) {
-      // Handle other error
-      break;
-    } else {
-      // Successful read, send the packet
-      ret = avcodec_send_packet(codec_ctx_, &pkt);
-
-      // We don't need the packet anymore, so free it
-      // FIXME: Is this true???
-      av_packet_unref(&pkt);
-
-      if (ret < 0) {
-        break;
-      }
-    }
+    qDebug() << "        Read frame" << frame_->pts;
   }
 
-  //qDebug() << dec_frame->pts << ",";
+  qDebug() << "    The frame we have is:" << frame_->pts;
 
   // Handle any errors received during the frame retrieve process
   if (ret < 0) {
     qWarning() << tr("Failed to retrieve frame from FFmpeg decoder: %1").arg(ret);
-    av_frame_free(&dec_frame);
     return nullptr;
   }
 
   // Frame was valid, now we create an Olive frame to place the data into
   FramePtr frame_container = std::make_shared<Frame>();
-  frame_container->set_width(dec_frame->width);
-  frame_container->set_height(dec_frame->height);
+  frame_container->set_width(frame_->width);
+  frame_container->set_height(frame_->height);
   frame_container->set_format(output_fmt_); // FIXME: Hardcoded value
-  frame_container->set_timestamp(rational(dec_frame->pts * avstream_->time_base.num, avstream_->time_base.den));
+  frame_container->set_timestamp(rational(frame_->pts * avstream_->time_base.num, avstream_->time_base.den));
   frame_container->allocate();
 
   // Convert pixel format/linesize if necessary
@@ -248,15 +249,12 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
 
   // Perform pixel conversion
   sws_scale(scale_ctx_,
-            dec_frame->data,
-            dec_frame->linesize,
+            frame_->data,
+            frame_->linesize,
             0,
-            dec_frame->height,
+            frame_->height,
             &dst_data,
             &dst_linesize);
-
-  // Don't need AVFrame anymore
-  av_frame_free(&dec_frame);
 
   Q_UNUSED(timecode)
   Q_UNUSED(length)
@@ -268,6 +266,8 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
 
 void FFmpegDecoder::Close()
 {
+  frame_index_.clear();
+
   if (scale_ctx_ != nullptr) {
     sws_freeContext(scale_ctx_);
     scale_ctx_ = nullptr;
@@ -276,6 +276,16 @@ void FFmpegDecoder::Close()
   if (resample_ctx_ != nullptr) {
     swr_free(&resample_ctx_);
     resample_ctx_ = nullptr;
+  }
+
+  if (pkt_ != nullptr) {
+    av_packet_free(&pkt_);
+    pkt_ = nullptr;
+  }
+
+  if (frame_ != nullptr) {
+    av_frame_free(&frame_);
+    frame_ = nullptr;
   }
 
   if (opts_ != nullptr) {
@@ -408,6 +418,73 @@ void FFmpegDecoder::Error(const QString &s)
   qWarning() << s;
 
   Close();
+}
+
+void FFmpegDecoder::Index()
+{
+  // This should be unnecessary, but just in case...
+  frame_index_.clear();
+
+  // Iterate through every single frame and get each timestamp
+  // NOTE: Expects no frames to have been read so far
+
+  int ret = 0;
+
+  while (true) {
+    ret = GetFrame();
+
+    if (ret < 0) {
+      break;
+    } else {
+      frame_index_.append(frame_->pts);
+      qDebug() << "  Indexed" << frame_->pts;
+    }
+  }
+}
+
+int FFmpegDecoder::GetFrame()
+{
+  bool eof = false;
+
+  int ret;
+
+  // Clear any previous frames
+  av_frame_unref(frame_);
+
+  while ((ret = avcodec_receive_frame(codec_ctx_, frame_)) == AVERROR(EAGAIN) && !eof) {
+
+    // Find next packet in the correct stream index
+    do {
+      // Free buffer in packet if there is one
+      av_packet_unref(pkt_);
+
+      // Read packet from file
+      ret = av_read_frame(fmt_ctx_, pkt_);
+    } while (pkt_->stream_index != avstream_->index && ret >= 0);
+
+    if (ret == AVERROR_EOF) {
+      // Don't break so that receive gets called again, but don't try to read again
+      eof = true;
+
+      // Send a null packet to signal end of
+      avcodec_send_packet(codec_ctx_, nullptr);
+    } else if (ret < 0) {
+      // Handle other error
+      break;
+    } else {
+      // Successful read, send the packet
+      ret = avcodec_send_packet(codec_ctx_, pkt_);
+
+      // We don't need the packet anymore, so free it
+      av_packet_unref(pkt_);
+
+      if (ret < 0) {
+        break;
+      }
+    }
+  }
+
+  return ret;
 }
 
 AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
