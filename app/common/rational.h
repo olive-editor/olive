@@ -1,72 +1,87 @@
-/***
+//Copyright 2015 Adam Quintero
+//This program is distributed under the terms of the GNU General Public License.
 
-  Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-***/
+// Adapted by MattKC for the Olive Video Editor (2019)
 
 #ifndef RATIONAL_H
 #define RATIONAL_H
-
-// Adapted from https://github.com/angularadam/Qt-Class-rational used in compliance with the GNU General Public License
-
 #include <iostream>
 
-/**
- * Including AVFormat to support converting from AVRational to Olive's rational class
- */
 extern "C" {
-  #include <libavformat/avformat.h>
+#include <libavformat/avformat.h>
 }
 
-/**
- * @brief A rational (numerator/denominator) class with C++ operations built in for ease of use.
- *
- * Rationals in Olive most frequently represent timing information to easily handle timing in various different
- * frame/sample rates without the inaccuracy/rounding errors of a floating point type.
- */
-class rational {
+using namespace std;
+
+typedef long intType;
+/*
+ * Zero Handling
+ * 0/0        = 0
+ * 0/non-zero = 0
+ * non-zero/0 = 0
+*/
+class rational
+{
 public:
-  // Constructors
-  rational(const int64_t& numerator = 0);
-  rational(const int64_t& numerator, const int64_t& denominator);
-  rational(const AVRational& r); // Auto-convert from an FFmpeg AVRational
-  rational(const rational& r);
+  //constructors
+  rational(const intType &numerator = 0)
+    :numer(numerator), denom(1)
+  {
+    activeInstances++;
+    if(numer == 0)
+      denom = 0;
+  }
+  
+  rational(const intType &numerator, const intType &denominator)
+    :numer(numerator), denom(denominator)
+  {
+    activeInstances++;
+    if(denom != intType(0))
+      {
+        if(numer != intType(0))
+          {
+            fixSigns();
+            reduce();
+          }
+        else
+          denom = intType(0);
+      }
+    else
+      numer = intType(0);
+  }
+  
+  rational(const rational &rhs)
+    :numer(rhs.numer), denom(rhs.denom)
+  {
+    activeInstances++;
+  }
 
-  // Assignment Operators
-  const rational& operator=(const rational& r);
-  const rational& operator+=(const rational& r);
-  const rational& operator-=(const rational& r);
-  const rational& operator/=(const rational& r);
-  const rational& operator*=(const rational& r);
+  rational(const AVRational& r);
+  
+  //destructor
+  ~rational();
+  
+  //Assignment Operators
+  const rational& operator=(const rational &rhs);
+  const rational& operator+=(const rational &rhs);
+  const rational& operator-=(const rational &rhs);
+  const rational& operator/=(const rational &rhs);
+  const rational& operator*=(const rational &rhs);
 
-  // Math Operators
-  rational operator+(const rational& r) const;
-  rational operator-(const rational& r) const;
-  rational operator/(const rational& r) const;
-  rational operator*(const rational& r) const;
-
-  // Relational and Equality Operators
-  bool operator<(const rational &r) const;
-  bool operator<=(const rational &r) const;
-  bool operator>(const rational &r) const;
-  bool operator>=(const rational &r) const;
-  bool operator==(const rational &r) const;
-  bool operator!=(const rational &r) const;
-
+  //Binary math operators
+  rational operator+(const rational &rhs) const;
+  rational operator-(const rational &rhs) const;
+  rational operator/(const rational &rhs) const;
+  rational operator*(const rational &rhs) const;
+  
+  //Relational and equality operators
+  bool operator<(const rational &rhs) const;
+  bool operator<=(const rational &rhs) const;
+  bool operator>(const rational &rhs) const;
+  bool operator>=(const rational &rhs) const;
+  bool operator==(const rational &rhs) const;
+  bool operator!=(const rational &rhs) const;
+  
   //Unary operators
   const rational& operator++(); //prefix
   rational operator++(int);     //postfix
@@ -76,25 +91,39 @@ public:
   rational operator-() const;
   bool operator!() const;
 
-  // IO
-  friend std::ostream& operator<<(std::ostream &out, const rational& value);
-  friend std::istream& operator>>(std::istream &in, rational& value);
+  //Function: convert to double
+  double toDouble() const;
 
-  // Convert to double
-  double ToDouble() const;
-
-  // Specific values
-  const int64_t& numerator() const;
-  const int64_t& denominator() const;
-
+  // Produce "flipped" version
   rational flipped() const;
-private:
-  int64_t numerator_;
-  int64_t denominator_;
+  
+  //Function: print number to cout
+  void print(ostream &out = cout) const;
 
-  void FixSigns();
-  void Reduce();
-  int64_t GreatestCommonDenominator(const int64_t &x, const int64_t &y);
+  //Function: get active instances
+  int getActiveInstances();
+
+  //IO
+  friend ostream& operator<<(ostream &out, const rational &value);
+  friend istream& operator>>(istream &in, rational &value);
+
+  const intType& numerator() const;
+  const intType& denominator() const;
+  
+private:
+  //number of active instances
+  static int activeInstances;
+
+  //numerator and denominator
+  intType numer;
+  intType denom;
+  
+  //Function: ensures denom >= 0
+  void fixSigns();
+  //Function: ensures lowest form
+  void reduce();
+  //Function: finds greatest common denominator
+  intType gcd(intType &x, intType &y);
 };
 
 #endif // RATIONAL_H

@@ -1,412 +1,408 @@
-/***
-
-  Olive - Non-Linear Video Editor
-  Copyright (C) 2019 Olive Team
-
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-***/
+//Copyright 2015 Adam Quintero
+//This program is distributed under the terms of the GNU General Public License.
 
 #include "rational.h"
 
-rational::rational(const int64_t &numerator) :
-  numerator_(numerator),
-  denominator_(1)
-{
-  if (numerator_ == 0) {
-    denominator_ = 0;
-  }
-}
-
-rational::rational(const int64_t &numerator, const int64_t &denominator) :
-  numerator_(numerator),
-  denominator_(denominator)
-{
-  if (denominator_ != 0) {
-
-    if (numerator_ != 0) {
-      FixSigns();
-      Reduce();
-    } else {
-      denominator_ = 0;
-    }
-
-  } else {
-    numerator_ = 0;
-  }
-}
+int rational::activeInstances = 0;
 
 rational::rational(const AVRational &r) :
-  numerator_(r.num),
-  denominator_(r.den)
+  numer(r.num),
+  denom(r.den)
 {
 }
 
-rational::rational(const rational &r) :
-  numerator_(r.numerator_),
-  denominator_(r.denominator_)
+rational::~rational()
 {
+  activeInstances--;
 }
 
-const rational &rational::operator=(const rational &r)
-{
-  if (this != &r) {
-    numerator_ = r.numerator_;
-    denominator_ = r.denominator_;
-  }
+//Function: print number to cout
 
+void rational::print(ostream &out) const
+{
+  out << this->numer << "/" << this->denom;
+}
+
+//Function: ensures denom >= 0
+
+void rational::fixSigns()
+{
+  if(denom < 0)
+    {
+      denom = -denom;
+      numer = -numer;
+    }
+  if(numer == intType(0) || denom == intType(0))
+    {
+      numer = intType(0);
+      denom = intType(0);
+    }
+}
+
+//Function: ensures lowest form
+
+void rational::reduce()
+{
+  intType d = 1;
+
+  if(denom != 0 && numer !=0)
+    d = gcd(numer, denom);
+
+  if(d > 1)
+    {
+      numer /= d;
+      denom /= d;
+    }
+}
+
+//Function: finds greatest common denominator
+
+intType rational::gcd(intType &x, intType &y)
+{
+  if(y == 0)
+    return x;
+  else
+    {
+      intType tmp = x % y;
+
+      return gcd(y, tmp);
+    }
+}
+
+//Function: convert to double
+
+double rational::toDouble() const
+{
+  if(denom != 0)
+    return static_cast<double>(numer) / static_cast<double>(denom);
+  else
+    return static_cast<double>(0);
+}
+
+rational rational::flipped() const
+{
+  return rational(denom, numer);
+}
+
+//Function: get active instances
+
+int rational::getActiveInstances()
+{
+  return activeInstances;
+}
+
+const intType &rational::numerator() const
+{
+  return numer;
+}
+
+const intType &rational::denominator() const
+{
+  return denom;
+}
+
+//Assignment Operators
+
+const rational& rational::operator=(const rational &rhs)
+{
+  if(this != &rhs)
+    {
+      numer = rhs.numer;
+      denom = rhs.denom;
+    }
   return *this;
 }
 
-const rational &rational::operator+=(const rational &r)
+const rational& rational::operator+=(const rational &rhs)
 {
-  if (numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ == 0) {
-    numerator_ = 0;
-    denominator_ = 0;
-  } else {
-    if(numerator_ * denominator_ != 0 && r.numerator_ * r.denominator_ == 0) {
-      // The other rational == 0, no addition needs to be done
-    } else {
-      if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ != 0)
+  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
+    {
+      numer = intType(0);
+      denom = intType(0);
+    }
+  else
+    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
       {
-        numerator_ = r.numerator_;
-        denominator_ = r.denominator_;
+
       }
+    else
+      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
+        {
+          numer = rhs.numer;
+          denom = rhs.denom;
+        }
       else
+        {
+          numer = (numer * rhs.denom) + (rhs.numer * denom);
+          denom = denom * rhs.denom;
+          fixSigns();
+          reduce();
+        }
+  return *this;
+}
+
+const rational& rational::operator-=(const rational &rhs)
+{
+  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
+    {
+      numer = intType(0);
+      denom = intType(0);
+    }
+  else
+    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
       {
-        numerator_ = (numerator_ * r.denominator_) + (r.numerator_ * denominator_);
-        denominator_ = denominator_ * r.denominator_;
-        FixSigns();
-        Reduce();
+
       }
-    }
-  }
-  return *this;
-}
-
-const rational &rational::operator-=(const rational &r)
-{
-  if(numerator_ * denominator_ == 0 && r.numerator_ * r.numerator_ == 0) {
-    numerator_ = 0;
-    denominator_ = 0;
-  } else {
-    if(numerator_ * denominator_ != 0 && r.numerator_ * r.denominator_ == 0) {
-
-    } else {
-      if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ != 0) {
-        numerator_ = -(r.numerator_);
-        denominator_ = r.denominator_;
-      } else {
-        numerator_ = (numerator_ * r.denominator_) - (r.numerator_ * denominator_);
-        numerator_ = denominator_ * r.denominator_;
-        FixSigns();
-        Reduce();
-      }
-    }
-  }
-  return *this;
-}
-
-const rational &rational::operator/=(const rational &r)
-{
-  numerator_ = numerator_ * r.denominator_;
-  denominator_ = denominator_ * r.numerator_;
-  FixSigns();
-  Reduce();
-  return *this;
-}
-
-const rational &rational::operator*=(const rational &r)
-{
-  numerator_ = numerator_ * r.numerator_;
-  denominator_ = denominator_ * r.denominator_;
-  FixSigns();
-  Reduce();
-  return *this;
-}
-
-rational rational::operator+(const rational &r) const
-{
-  rational result(*this);
-  result += r;
-  return result;
-}
-
-rational rational::operator-(const rational &r) const
-{
-  rational result(*this);
-  result -= r;
-  return result;
-}
-
-rational rational::operator/(const rational &r) const
-{
-  rational result(*this);
-  result /= r;
-  return result;
-}
-
-rational rational::operator*(const rational &r) const
-{
-  rational result(*this);
-  result *= r;
-  return result;
-}
-
-bool rational::operator<(const rational &r) const
-{
-  if (numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ == 0) {
-    return false;
-  } else {
-    if (numerator_ * denominator_ != 0 && r.numerator_ * r.denominator_ == 0) {
-      if(numerator_ * denominator_ < 0)
-        return true;
+    else
+      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
+        {
+          numer = -(rhs.numer);
+          denom = rhs.denom;
+        }
       else
-        return false;
-    }
-    else {
-      if (numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ != 0) {
-        if (r.numerator_ * r.denominator_ < 0) {
-          return false;
-        } else {
-          return true;
+        {
+          numer = (numer * rhs.denom) - (rhs.numer * denom);
+          denom = denom * rhs.denom;
+          fixSigns();
+          reduce();
         }
-      } else {
-        return ((numerator_ * r.denominator_) < (denominator_ * r.numerator_));
-      }
-    }
-  }
+  return *this;
 }
 
-bool rational::operator<=(const rational &r) const
+const rational& rational::operator/=(const rational &rhs)
 {
-  if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ == 0) {
-    return true;
-  } else {
-    if(numerator_ * denominator_ != 0 && r.numerator_ * r.denominator_ == 0) {
-      if(numerator_ * denominator_ < 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ != 0) {
-        if(r.numerator_ * r.denominator_ < 0) {
-          return false;
-        } else {
-          return true;
-        }
-      } else {
-        return ((numerator_ * r.denominator_) <= (denominator_ * r.numerator_));
-      }
-    }
-  }
+  numer = numer * rhs.denom;
+  denom = denom * rhs.numer;
+  fixSigns();
+  reduce();
+  return *this;
 }
 
-bool rational::operator>(const rational &r) const
+const rational& rational::operator*=(const rational &rhs)
 {
-  if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ == 0) {
+  numer = numer * rhs.numer;
+  denom = denom * rhs.denom;
+  fixSigns();
+  reduce();
+  return *this;
+}
+
+//Binary math operators
+
+rational rational::operator+(const rational &rhs) const
+{
+ rational answer(*this);
+ answer += rhs;
+ return answer;
+}
+
+rational rational::operator-(const rational &rhs) const
+{
+  rational answer(*this);
+  answer -= rhs;
+  return answer;
+}
+
+rational rational::operator/(const rational &rhs) const
+{
+  rational answer(*this);
+  answer /= rhs;
+  return answer;
+}
+
+rational rational::operator*(const rational &rhs) const
+{
+  rational answer(*this);
+  answer *= rhs;
+  return answer;
+}
+
+//Relational and equality operators
+
+bool rational::operator<(const rational &rhs) const
+{
+  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
     return false;
-  } else {
-    if(numerator_ * denominator_ != 0 && r.numerator_ * r.denominator_ == 0) {
-      if(numerator_ * denominator_ > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ != 0) {
-        if(r.numerator_ * r.denominator_ > 0) {
-          return false;
-        } else {
+  else
+    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
+      {
+        if(numer * denom < intType(0))
           return true;
-        }
-      } else {
-        return ((numerator_ * r.denominator_) > (denominator_ * r.numerator_));
+        else
+          return false;
       }
-    }
-  }
+    else
+      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
+        {
+          if(rhs.numer * rhs.denom < intType(0))
+            return false;
+          else
+            return true;
+        }
+      else
+        return ((numer * rhs.denom) < (denom * rhs.numer));
 }
 
-bool rational::operator>=(const rational &r) const
+bool rational::operator<=(const rational &rhs) const
 {
-  if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ == 0) {
+  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
     return true;
-  } else {
-    if(numerator_ * denominator_ != 0 && r.numerator_ * r.denominator_ == 0) {
-      if(numerator_ * denominator_ > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      if(numerator_ * denominator_ == 0 && r.numerator_ * r.denominator_ != 0) {
-        if(r.numerator_ * r.denominator_ > 0) {
-          return false;
-        } else {
+  else
+    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
+      {
+        if(numer * denom < intType(0))
           return true;
-        }
-      } else {
-        return ((numerator_ * r.denominator_) >= (denominator_ * r.numerator_));
+        else
+          return false;
       }
-    }
-  }
+    else
+      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
+        {
+          if(rhs.numer * rhs.denom < intType(0))
+            return false;
+          else
+            return true;
+        }
+      else
+        return ((numer * rhs.denom) <= (denom * rhs.numer));
 }
 
-bool rational::operator==(const rational &r) const
+bool rational::operator>(const rational &rhs) const
 {
-  return (numerator_ == r.numerator_ && denominator_ == r.denominator_);
+  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
+    return false;
+  else
+    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
+      {
+        if(numer * denom > intType(0))
+          return true;
+        else
+          return false;
+      }
+    else
+      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
+        {
+          if(rhs.numer * rhs.denom > intType(0))
+            return false;
+          else
+            return true;
+        }
+      else
+        return ((numer * rhs.denom) > (denom * rhs.numer));
 }
 
-bool rational::operator!=(const rational &r) const
+bool rational::operator>=(const rational &rhs) const
 {
-  return (numerator_ != r.numerator_) || (denominator_ != r.denominator_);
+  if(numer * denom == intType(0) && rhs.numer * rhs.denom == intType(0))
+    return true;
+  else
+    if(numer * denom != intType(0) && rhs.numer * rhs.denom == intType(0))
+      {
+        if(numer * denom > intType(0))
+          return true;
+        else
+          return false;
+      }
+    else
+      if(numer * denom == intType(0) && rhs.numer * rhs.denom != intType(0))
+        {
+          if(rhs.numer * rhs.denom > intType(0))
+            return false;
+          else
+            return true;
+        }
+      else
+
+  return ((numer * rhs.denom) >= (denom * rhs.numer));
 }
 
-const rational &rational::operator++()
+bool rational::operator==(const rational &rhs) const
 {
-  numerator_ += denominator_;
+  return (numer == rhs.numer && denom == rhs.denom);
+}
+
+bool rational::operator!=(const rational &rhs) const
+{
+  return (numer != rhs.numer) || (denom != rhs.denom);
+
+}
+
+//Unary operators
+
+const rational& rational::operator++()
+{
+  numer += denom;
   return *this;
 }
 
 rational rational::operator++(int)
 {
   rational tmp = *this;
-  numerator_ += denominator_;
+  numer += denom;
   return tmp;
 }
 
-const rational &rational::operator--()
+const rational& rational::operator--()
 {
-  numerator_ -= denominator_;
+  numer -= denom;
   return *this;
+
 }
 
 rational rational::operator--(int)
 {
   rational tmp;
-  numerator_ -= denominator_;
+  numer -= denom;
   return tmp;
 }
 
-const rational &rational::operator+() const
+const rational& rational::operator+() const
 {
   return *this;
 }
 
 rational rational::operator-() const
 {
-  return rational(numerator_, -denominator_);
+  return rational(numer, -denom);
 }
 
 bool rational::operator!() const
 {
-  return !numerator_;
+  return !numer;
 }
 
-double rational::ToDouble() const
+//IO
+
+ostream& operator<<(ostream &out, const rational &value)
 {
-  if (denominator_ == 0) {
-    return 0;
-  } else {
-    return static_cast<double>(numerator_)/static_cast<double>(denominator_);
-  }
-}
-
-const int64_t &rational::numerator() const
-{
-  return numerator_;
-}
-
-const int64_t &rational::denominator() const
-{
-  return denominator_;
-}
-
-rational rational::flipped() const
-{
-  return rational(denominator_, numerator_);
-}
-
-void rational::FixSigns()
-{
-  // Ensures denominator is always positive (while numerator can be positive or negative)
-  if(denominator_ < 0) {
-    denominator_ = -denominator_;
-    numerator_ = -numerator_;
-  }
-
-  // Ensures if either are zero, they're both zero
-  if(numerator_ == 0 || denominator_ == 0) {
-    numerator_ = 0;
-    denominator_ = 0;
-  }
-}
-
-void rational::Reduce()
-{
-  int64_t d = 1;
-
-  if(denominator_ != 0 && numerator_ != 0) {
-    d = GreatestCommonDenominator(numerator_, denominator_);
-  }
-
-  if(d > 1) {
-    numerator_ /= d;
-    denominator_ /= d;
-  }
-}
-
-int64_t rational::GreatestCommonDenominator(const int64_t& x, const int64_t& y)
-{
-  if (y == 0) {
-    return x;
-  } else {
-    int64_t tmp = x % y;
-    return GreatestCommonDenominator(y, tmp);
-  }
-}
-
-std::ostream &operator<<(std::ostream &out, const rational &value)
-{
-  out << value.numerator_;
-  if(value.denominator_ != 1)
-  {
-    out << '/' << value.denominator_;
-    return out;
-  }
+  out << value.numer;
+  if(value.denom != 1)
+    {
+      out << '/' << value.denom;
+      return out;
+    }
   return out;
 }
 
-std::istream &operator>>(std::istream &in, rational &value)
+istream& operator>>(istream &in, rational &value)
 {
-  in >> value.numerator_;
-  value.denominator_ = 1;
+  in >> value.numer;
+  value.denom = 1;
 
   char ch;
   in.get(ch);
 
   if(!in.eof())
-  {
-    if(ch == '/')
     {
-      in >> value.denominator_;
-      value.FixSigns();
-      value.Reduce();
+      if(ch == '/')
+        {
+          in >> value.denom;
+          value.fixSigns();
+          value.reduce();
+        }
+      else
+        in.putback(ch);
     }
-    else
-      in.putback(ch);
-  }
   return in;
 }
+
