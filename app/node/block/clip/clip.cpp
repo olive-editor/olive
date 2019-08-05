@@ -61,19 +61,15 @@ NodeInput *ClipBlock::texture_input()
 
 void ClipBlock::Process(const rational &time)
 {
-  qDebug() << "Clip received time" << time.numerator() << "/" << time.denominator();
-
   // Run default node processing
   Block::Process(time);
 
-  // We convert the time given (timeline time) to media time
-//  rational media_time = time - in() + media_in_;
-  rational media_time = time - in();
+  // If the time retrieved is within this block, get texture information
+  if (time >= in() && time < out()) {
+    // We convert the time given (timeline time) to media time
+    rational media_time = time - in() + media_in_;
 
-  qDebug() << "In time" << in().numerator() << "/" << in().denominator();
-  qDebug() << "Media In time" << media_in_.numerator() << "/" << media_in_.denominator();
-  qDebug() << "Media sent time" << media_time.numerator() << "/" << media_time.denominator();
-
-  // Retrieve texture
-  texture_output()->set_value(texture_input_->get_value(media_time));
+    // Retrieve texture
+    texture_output()->set_value(texture_input_->get_value(media_time));
+  }
 }

@@ -167,8 +167,12 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     return nullptr;
   }
 
-  //avcodec_flush_buffers(codec_ctx_);
-  //av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
+  // Convert timecode to AVStream timebase
+  int64_t target_ts = qFloor(timecode.toDouble() * rational(avstream_->time_base).flipped().toDouble());
+
+  // Seek to it
+  avcodec_flush_buffers(codec_ctx_);
+  av_seek_frame(fmt_ctx_, avstream_->index, target_ts, AVSEEK_FLAG_BACKWARD);
 
   // Allocate and init a packet for reading encoded data
   AVPacket pkt;
@@ -185,6 +189,8 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
 
   // FFmpeg frame retrieve loop
   while ((ret = avcodec_receive_frame(codec_ctx_, dec_frame)) == AVERROR(EAGAIN) && !eof) {
+
+    av_frame_unref(dec_frame);
 
     // Find next packet in the correct stream index
     do {
@@ -219,7 +225,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     }
   }
 
-//  qDebug() << dec_frame->pts << ",";
+  //qDebug() << dec_frame->pts << ",";
 
   // Handle any errors received during the frame retrieve process
   if (ret < 0) {
