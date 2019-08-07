@@ -32,7 +32,7 @@ QString GetMediaIndexLocation()
   QDir media_index_dir = local_appdata_dir.filePath("mediaindex");
 
   // Attempt to ensure this folder exists
-  media_index_dir.mkpath("mediaindex");
+  media_index_dir.mkpath(".");
 
   return media_index_dir.absolutePath();
 }
