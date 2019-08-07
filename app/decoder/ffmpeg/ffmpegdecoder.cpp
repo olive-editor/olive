@@ -25,11 +25,12 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
-#include <QStatusBar>
+#include <QDebug>
+#include <QFile>
 #include <QString>
 #include <QtMath>
-#include <QDebug>
 
+#include "common/filefunctions.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -192,12 +193,9 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   int64_t target_ts = qFloor(timecode.toDouble() * rational(avstream_->time_base).flipped().toDouble());
 
   // Index now if we haven't already
-  if (frame_index_.isEmpty()) {
-    qDebug() << "No index exists... starting index";
+  if (frame_index_.isEmpty() && !LoadIndex()) {
     Index();
   }
-
-  qDebug() << "Graph requested timecode:" << target_ts;
 
   // Use index to find closest frame in file
   for (int i=1;i<frame_index_.size();i++) {
@@ -207,27 +205,31 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     }
   }
 
-  qDebug() << "  The closest in stream is:" << target_ts;
-
-  // Seek to it
-  avcodec_flush_buffers(codec_ctx_);
-  av_seek_frame(fmt_ctx_, avstream_->index, target_ts, AVSEEK_FLAG_BACKWARD);
+  int ret = 0;
 
   // Allocate and init a packet for reading encoded data
   AVPacket pkt;
   av_init_packet(&pkt);
 
   // Cache FFmpeg error code returns
-  int ret = 0;
+  ret = 0;
+
+  // Set up seeking loop
+  int64_t seek_ts = target_ts;
+  int64_t second_ts = qRound(rational(avstream_->time_base).flipped().toDouble());
 
   // FFmpeg frame retrieve loop
   while (ret >= 0 && frame_->pts != target_ts) {
+
+    // If the frame timestamp is too large, we need to seek back a little
+    if (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE) {
+      avcodec_flush_buffers(codec_ctx_);
+      av_seek_frame(fmt_ctx_, avstream_->index, seek_ts, AVSEEK_FLAG_BACKWARD);
+      seek_ts -= second_ts;
+    }
+
     ret = GetFrame();
-
-    qDebug() << "        Read frame" << frame_->pts;
   }
-
-  qDebug() << "    The frame we have is:" << frame_->pts;
 
   // Handle any errors received during the frame retrieve process
   if (ret < 0) {
@@ -256,7 +258,6 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
             &dst_data,
             &dst_linesize);
 
-  Q_UNUSED(timecode)
   Q_UNUSED(length)
 
 //   Close();
@@ -422,6 +423,11 @@ void FFmpegDecoder::Error(const QString &s)
 
 void FFmpegDecoder::Index()
 {
+  if (!open_) {
+    qWarning() << tr("Indexing function tried to run while decoder was closed");
+    return;
+  }
+
   // This should be unnecessary, but just in case...
   frame_index_.clear();
 
@@ -437,8 +443,61 @@ void FFmpegDecoder::Index()
       break;
     } else {
       frame_index_.append(frame_->pts);
-      qDebug() << "  Indexed" << frame_->pts;
     }
+  }
+
+  // Save index to file
+  SaveIndex();
+}
+
+QString FFmpegDecoder::GetIndexFilename()
+{
+  if (!open_) {
+    qWarning() << tr("GetIndexFilename tried to run while decoder was closed");
+    return QString();
+  }
+
+  return GetMediaIndexFilename(GetUniqueFileIdentifier(stream()->footage()->filename()))
+      .append(QString::number(avstream_->index));
+}
+
+bool FFmpegDecoder::LoadIndex()
+{
+  // Load index from file
+  QFile index_file(GetIndexFilename());
+
+  if (!index_file.exists()) {
+    return false;
+  }
+
+  if (index_file.open(QFile::ReadOnly)) {
+    // Resize based on filesize
+    frame_index_.resize(static_cast<int>(static_cast<size_t>(index_file.size()) / sizeof(int64_t)));
+
+    // Read frame index into vector
+    index_file.read(reinterpret_cast<char*>(frame_index_.data()),
+                    index_file.size());
+
+    index_file.close();
+
+    return true;
+  }
+
+  return false;
+}
+
+void FFmpegDecoder::SaveIndex()
+{
+  // Save index to file
+  QFile index_file(GetIndexFilename());
+  if (index_file.open(QFile::WriteOnly)) {
+    // Write index in binary
+    index_file.write(reinterpret_cast<const char*>(frame_index_.constData()),
+                     frame_index_.size() * static_cast<int>(sizeof(int64_t)));
+
+    index_file.close();
+  } else {
+    qWarning() << tr("Failed to save index for %1").arg(stream()->footage()->filename());
   }
 }
 

@@ -49,8 +49,12 @@ private:
   void FFmpegErr(int error_code);
   void Error(const QString& s);
 
-  void Index();
   int GetFrame();
+
+  void Index();
+  QString GetIndexFilename();
+  bool LoadIndex();
+  void SaveIndex();
 
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 

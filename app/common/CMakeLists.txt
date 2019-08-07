@@ -18,6 +18,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   common/channellayout.h
   common/clamp.h
+  common/filefunctions.h
+  common/filefunctions.cpp
   common/lerp.h
   common/rational.h
   common/rational.cpp
