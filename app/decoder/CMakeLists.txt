@@ -22,7 +22,5 @@ set(OLIVE_SOURCES
   decoder/decoder.cpp
   decoder/frame.h
   decoder/frame.cpp
-  decoder/probeserver.h
-  decoder/probeserver.cpp
   PARENT_SCOPE
 )

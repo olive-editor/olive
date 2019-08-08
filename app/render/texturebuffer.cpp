@@ -92,9 +92,11 @@ void TextureBuffer::Create(QOpenGLContext *ctx, const olive::PixelFormat &format
         GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_, 0
         );
 
-  // clear new texture
-  ctx->functions()->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
+  // clear new texture (doesn't seem to be necessary)
+  /*if (data == nullptr) {
+    ctx->functions()->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    ctx->functions()->glClear(GL_COLOR_BUFFER_BIT);
+  }*/
 
   // release texture
   f->glBindTexture(GL_TEXTURE_2D, 0);

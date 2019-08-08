@@ -157,6 +157,36 @@ public:
    */
   virtual void Close() = 0;
 
+  /**
+   * @brief Try to probe a Footage file by passing it through all available Decoders
+   *
+   * This is a helper function designed to abstract the process of communicating with several Decoders from the rest of
+   * the application. This function will take a Footage file and manually pass it through the available Decoders' Probe()
+   * functions until one indicates that it can decode this file. That Decoder will then dump information about the file
+   * into the Footage object for use throughout the program.
+   *
+   * Probing may be a lengthy process and it's recommended to run this in a separate thread.
+   *
+   * @param f
+   *
+   * A Footage object with a valid filename. If the Footage does not have a valid filename (e.g. is empty or file doesn't
+   * exist), this function will return FALSE.
+   *
+   * @return
+   *
+   * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
+   */
+  static bool ProbeMedia(Footage* f);
+
+  /**
+   * @brief Create a Decoder instance using a Decoder ID
+   *
+   * @return
+   *
+   * A Decoder instance or nullptr if a Decoder with this ID does not exist
+   */
+  static Decoder* CreateFromID(const QString& id);
+
 protected:
   bool open_;
 

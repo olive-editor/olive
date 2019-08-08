@@ -27,7 +27,6 @@
 
 // FIXME: Test code only
 #include "decoder/ffmpeg/ffmpegdecoder.h"
-#include "decoder/probeserver.h"
 #include "render/pixelservice.h"
 // End test code
 
@@ -92,12 +91,8 @@ void MediaInput::Process(const rational &time)
   // Otherwise try to get frame of footage from decoder
 
   // Determine which decoder to use
-  if (decoder_ == nullptr) {
-    decoder_ = olive::CreateDecoderFromID(footage->decoder());
-
-    if (decoder_ == nullptr) {
-      return;
-    }
+  if (decoder_ == nullptr
+      && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
   }
 
   if (decoder_->stream() == nullptr) {

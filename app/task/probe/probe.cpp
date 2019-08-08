@@ -22,7 +22,7 @@
 
 #include <QFileInfo>
 
-#include "decoder/probeserver.h"
+#include "decoder/decoder.h"
 
 ProbeTask::ProbeTask(FootagePtr footage) :
   footage_(footage)
@@ -36,7 +36,7 @@ bool ProbeTask::Action()
 {
   footage_->Lock();
 
-  olive::ProbeMedia(footage_.get());
+  Decoder::ProbeMedia(footage_.get());
 
   footage_->Unlock();
 
