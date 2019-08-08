@@ -27,10 +27,12 @@
 
 // FIXME: Test code only
 #include "decoder/ffmpeg/ffmpegdecoder.h"
+#include "decoder/probeserver.h"
 #include "render/pixelservice.h"
 // End test code
 
-MediaInput::MediaInput()
+MediaInput::MediaInput() :
+  decoder_(nullptr)
 {
   footage_input_ = new NodeInput();
   footage_input_->add_data_input(NodeInput::kFootage);
@@ -39,10 +41,6 @@ MediaInput::MediaInput()
   texture_output_ = new NodeOutput();
   texture_output_->set_data_type(NodeOutput::kTexture);
   AddParameter(texture_output_);
-
-  // FIXME: Test code only
-  decoder_ = new FFmpegDecoder(); // FIXME: Doesn't ever get free'd
-  // End test code
 }
 
 QString MediaInput::Name()
@@ -65,6 +63,12 @@ QString MediaInput::Description()
   return tr("Import a footage stream.");
 }
 
+void MediaInput::Release()
+{
+  delete decoder_;
+  decoder_ = nullptr;
+}
+
 NodeOutput *MediaInput::texture_output()
 {
   return texture_output_;
@@ -72,23 +76,29 @@ NodeOutput *MediaInput::texture_output()
 
 void MediaInput::Process(const rational &time)
 {
-  // FIXME: Use OIIO and OCIO here
+  // FIXME: Use OCIO for color management
+
+  // Set default texture to no texture
+  texture_output_->set_value(0);
 
   // Get currently selected Footage
   Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(time));
 
   // If no footage is selected, return nothing
   if (footage == nullptr) {
-    texture_output_->set_value(0);
-
     return;
   }
 
   // Otherwise try to get frame of footage from decoder
 
   // Determine which decoder to use
+  if (decoder_ == nullptr) {
+    decoder_ = olive::CreateDecoderFromID(footage->decoder());
 
-  // Grab frame from decoder
+    if (decoder_ == nullptr) {
+      return;
+    }
+  }
 
   if (decoder_->stream() == nullptr) {
     decoder_->set_stream(footage->stream(0));
@@ -97,8 +107,6 @@ void MediaInput::Process(const rational &time)
   FramePtr frame = decoder_->Retrieve(time);
 
   if (frame == nullptr) {
-    texture_output_->set_value(0);
-
     return;
   }
 

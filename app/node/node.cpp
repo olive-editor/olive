@@ -38,6 +38,10 @@ QString Node::Description()
   return QString();
 }
 
+void Node::Release()
+{
+}
+
 void Node::AddParameter(NodeParam *param)
 {
   param->setParent(this);

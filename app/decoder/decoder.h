@@ -157,14 +157,6 @@ public:
    */
   virtual void Close() = 0;
 
-  /**
-   * @brief Prepare footage for use by a Decoder later
-   *
-   * Needs fleshing out. This functions purpose will be to perform initial analyses of a video file. Any caching,
-   * indexing, or transcoding to help make this media performant and reliable should be done here.
-   */
-  //virtual void Analyze();// = 0;
-
 protected:
   bool open_;
 

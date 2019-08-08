@@ -47,6 +47,8 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  virtual void Release() override;
+
   NodeOutput* texture_output();
 
 public slots:

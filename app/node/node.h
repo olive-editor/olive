@@ -83,6 +83,11 @@ public:
   virtual QString Description();
 
   /**
+   * @brief Signals the Node that it won't be used for a while and can deallocate some memory
+   */
+  virtual void Release();
+
+  /**
    * @brief Return the parameter at a given index
    */
   NodeParam* ParamAt(int index);
