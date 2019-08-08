@@ -46,17 +46,76 @@ public:
   virtual void Close() override;
 
 private:
-  void FFmpegErr(int error_code);
+  /**
+   * @brief Handle an error
+   *
+   * Immediately closes the Decoder (freeing memory resources) and sends the string provided to the warning stream.
+   * As this function closes the Decoder, no further Decoder functions should be performed after this is called
+   * (unless the Decoder is opened again first).
+   */
   void Error(const QString& s);
 
+  /**
+   * @brief Handle an FFmpeg error code
+   *
+   * Uses the FFmpeg API to retrieve a descriptive string for this error code and sends it to Error(). As such, this
+   * function also automatically closes the Decoder.
+   *
+   * @param error_code
+   */
+  void FFmpegError(int error_code);
+
+  /**
+   * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
+   *
+   * @return
+   *
+   * An FFmpeg error code, or >= 0 on success
+   */
   int GetFrame();
 
+  /**
+   * @brief Create an index for this media
+   *
+   * Indexes are used to improve speed and reliability of imported media. Calling Retrieve() will automatically check
+   * for an index and create one if it doesn't exist.
+   *
+   * Indexing is slow so it's recommended to do it in a background thread. Index() must be called while the Decoder is
+   * open, and does not automatically call Open() and Close() the Decoder. The caller must call thse manually.
+   *
+   * FIXME: This should perhaps become a common function for the base Decoder class
+   */
   void Index();
+
+  /**
+   * @brief Returns the filename for the index
+   *
+   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for this to work correctly.
+   *
+   * @return
+   */
   QString GetIndexFilename();
 
+  /**
+   * @brief Used internally to load a frame index into frame_index_ (video only)
+   *
+   * @return
+   *
+   * TRUE if a frame index was successfully loaded. FALSE usually means the file didn't exist and Index() should be
+   * run to create it.
+   */
   bool LoadFrameIndex();
+
+  /**
+   * @brief Used in Index() to save the just created frame index to a file that can be loaded later
+   */
   void SaveFrameIndex();
 
+  /**
+   * @brief Returns an AVPixelFormat that can be
+   * @param pix_fmt
+   * @return
+   */
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 
   AVFormatContext* fmt_ctx_;

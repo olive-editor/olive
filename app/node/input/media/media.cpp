@@ -106,7 +106,11 @@ void MediaInput::Process(const rational &time)
   if (tex_buf_.IsCreated()) {
     tex_buf_.Upload(frame->data());
   } else {
-    tex_buf_.Create(QOpenGLContext::currentContext(), static_cast<olive::PixelFormat>(frame->format()), frame->width(), frame->height(), frame->data());
+    tex_buf_.Create(QOpenGLContext::currentContext(),
+                    static_cast<olive::PixelFormat>(frame->format()),
+                    frame->width(),
+                    frame->height(),
+                    frame->data());
   }
 
   texture_output_->set_value(tex_buf_.texture());

@@ -61,7 +61,7 @@ bool FFmpegDecoder::Open()
 
   // Handle format context error
   if (error_code != 0) {
-    FFmpegErr(error_code);
+    FFmpegError(error_code);
     return false;
   }
 
@@ -70,7 +70,7 @@ bool FFmpegDecoder::Open()
 
   // Handle get stream information error
   if (error_code < 0) {
-    FFmpegErr(error_code);
+    FFmpegError(error_code);
     return false;
   }
 
@@ -102,7 +102,7 @@ bool FFmpegDecoder::Open()
 
   // Handle failure to copy parameters
   if (error_code < 0) {
-    FFmpegErr(error_code);
+    FFmpegError(error_code);
     return false;
   }
 
@@ -111,14 +111,14 @@ bool FFmpegDecoder::Open()
 
   // Handle failure to set multithreaded decoding
   if (error_code < 0) {
-    FFmpegErr(error_code);
+    FFmpegError(error_code);
     return false;
   }
 
   // Open codec
   error_code = avcodec_open2(codec_ctx_, codec, &opts_);
   if (error_code < 0) {
-    FFmpegErr(error_code);
+    FFmpegError(error_code);
     return false;
   }
 
@@ -233,7 +233,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
 
   // Handle any errors received during the frame retrieve process
   if (ret < 0) {
-    qWarning() << tr("Failed to retrieve frame from FFmpeg decoder: %1").arg(ret);
+    FFmpegError(ret);
     return nullptr;
   }
 
@@ -247,7 +247,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
 
   // Convert pixel format/linesize if necessary
   uint8_t* dst_data = frame_container->data();
-  int dst_linesize = frame_container->width() * 4;
+  int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<olive::PixelFormat>(output_fmt_));
 
   // Perform pixel conversion
   sws_scale(scale_ctx_,
@@ -309,6 +309,11 @@ void FFmpegDecoder::Close()
 
 bool FFmpegDecoder::Probe(Footage *f)
 {
+  if (open_) {
+    qWarning() << "Probe must be called while the Decoder is closed";
+    return false;
+  }
+
   // Variable for receiving errors from FFmpeg
   int error_code;
 
@@ -404,7 +409,7 @@ bool FFmpegDecoder::Probe(Footage *f)
   return result;
 }
 
-void FFmpegDecoder::FFmpegErr(int error_code)
+void FFmpegDecoder::FFmpegError(int error_code)
 {
   char err[1024];
   av_strerror(error_code, err, 1024);
