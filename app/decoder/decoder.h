@@ -28,6 +28,9 @@
 #include "project/item/footage/footage.h"
 #include "decoder/frame.h"
 
+class Decoder;
+using DecoderPtr = std::shared_ptr<Decoder>;
+
 /**
  * @brief A decoder's is the main class for bringing external media into Olive
  *
@@ -185,7 +188,7 @@ public:
    *
    * A Decoder instance or nullptr if a Decoder with this ID does not exist
    */
-  static Decoder* CreateFromID(const QString& id);
+  static DecoderPtr CreateFromID(const QString& id);
 
 protected:
   bool open_;
@@ -193,7 +196,5 @@ protected:
 private:
   const Stream* stream_;
 };
-
-using DecoderPtr = std::shared_ptr<Decoder>;
 
 #endif // DECODER_H

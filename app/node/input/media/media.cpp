@@ -64,7 +64,6 @@ QString MediaInput::Description()
 
 void MediaInput::Release()
 {
-  delete decoder_;
   decoder_ = nullptr;
 }
 
@@ -93,6 +92,7 @@ void MediaInput::Process(const rational &time)
   // Determine which decoder to use
   if (decoder_ == nullptr
       && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
+    return;
   }
 
   if (decoder_->stream() == nullptr) {

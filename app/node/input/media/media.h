@@ -63,7 +63,7 @@ private:
   TextureBuffer tex_buf_;
   // END TEST CODE
 
-  Decoder* decoder_;
+  DecoderPtr decoder_;
 
 };
 

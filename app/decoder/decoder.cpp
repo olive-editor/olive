@@ -58,20 +58,12 @@ void Decoder::set_stream(const Stream *fs)
  * DECODER STATIC PUBLIC MEMBERS
  */
 
-QVector<Decoder*> ReceiveListOfAllDecoders() {
-  QVector<Decoder*> decoders;
+QVector<DecoderPtr> ReceiveListOfAllDecoders() {
+  QVector<DecoderPtr> decoders;
 
-  decoders.append(new FFmpegDecoder());
+  decoders.append(std::make_shared<FFmpegDecoder>());
 
   return decoders;
-}
-
-void FreeListOfDecoders(const QVector<Decoder*>& decoders, Decoder* except = nullptr) {
-  foreach (Decoder* d, decoders) {
-    if (except == nullptr || except != d) {
-      delete d;
-    }
-  }
 }
 
 bool Decoder::ProbeMedia(Footage *f)
@@ -92,60 +84,48 @@ bool Decoder::ProbeMedia(Footage *f)
   f->Clear();
 
   // Create list to iterate through
-  QVector<Decoder*> decoder_list = ReceiveListOfAllDecoders();
-
-  Decoder* found_decoder = nullptr;
+  QVector<DecoderPtr> decoder_list = ReceiveListOfAllDecoders();
 
   // Pass Footage through each Decoder's probe function
   for (int i=0;i<decoder_list.size();i++) {
 
-    Decoder* decoder = decoder_list.at(i);
+    DecoderPtr decoder = decoder_list.at(i);
 
     if (decoder->Probe(f)) {
 
+      // We found a Decoder, so we can set this media as valid
+      f->set_status(Footage::kReady);
+
+      // Attach the successful Decoder to this Footage object
+      f->set_decoder(decoder->id());
+
       // FIXME: Cache the results so we don't have to probe if this media is added a second time
 
-      found_decoder = decoder;
-      break;
+      return true;
     }
   }
 
-  if (found_decoder == nullptr) {
-    // We aren't able to use this Footage
-    f->set_status(Footage::kInvalid);
-    f->set_decoder(QString());
-  } else {
-    // We found a Decoder, so we can set this media as valid
-    f->set_status(Footage::kReady);
+  // We aren't able to use this Footage
+  f->set_status(Footage::kInvalid);
+  f->set_decoder(QString());
 
-    // Attach the successful Decoder to this Footage object
-    f->set_decoder(found_decoder->id());
-  }
-
-  FreeListOfDecoders(decoder_list);
-
-  return (found_decoder != nullptr);
+  return false;
 }
 
-Decoder *Decoder::CreateFromID(const QString &id)
+DecoderPtr Decoder::CreateFromID(const QString &id)
 {
   if (id.isEmpty()) {
     return nullptr;
   }
 
   // Create list to iterate through
-  QVector<Decoder*> decoder_list = ReceiveListOfAllDecoders();
+  QVector<DecoderPtr> decoder_list = ReceiveListOfAllDecoders();
 
-  Decoder* found_decoder = nullptr;
-
-  foreach (Decoder* d, decoder_list) {
+  foreach (DecoderPtr d, decoder_list) {
     if (d->id() == id) {
-      found_decoder = d;
-      break;
+      return d;
     }
   }
 
-  FreeListOfDecoders(decoder_list, found_decoder);
-
-  return found_decoder;
+  return nullptr;
 }
