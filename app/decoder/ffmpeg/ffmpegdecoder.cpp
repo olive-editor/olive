@@ -193,7 +193,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   int64_t target_ts = qFloor(timecode.toDouble() * rational(avstream_->time_base).flipped().toDouble());
 
   // Index now if we haven't already
-  if (frame_index_.isEmpty() && !LoadIndex()) {
+  if (frame_index_.isEmpty() && !LoadFrameIndex()) {
     Index();
   }
 
@@ -447,7 +447,7 @@ void FFmpegDecoder::Index()
   }
 
   // Save index to file
-  SaveIndex();
+  SaveFrameIndex();
 }
 
 QString FFmpegDecoder::GetIndexFilename()
@@ -461,7 +461,7 @@ QString FFmpegDecoder::GetIndexFilename()
       .append(QString::number(avstream_->index));
 }
 
-bool FFmpegDecoder::LoadIndex()
+bool FFmpegDecoder::LoadFrameIndex()
 {
   // Load index from file
   QFile index_file(GetIndexFilename());
@@ -486,7 +486,7 @@ bool FFmpegDecoder::LoadIndex()
   return false;
 }
 
-void FFmpegDecoder::SaveIndex()
+void FFmpegDecoder::SaveFrameIndex()
 {
   // Save index to file
   QFile index_file(GetIndexFilename());

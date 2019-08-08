@@ -53,8 +53,9 @@ private:
 
   void Index();
   QString GetIndexFilename();
-  bool LoadIndex();
-  void SaveIndex();
+
+  bool LoadFrameIndex();
+  void SaveFrameIndex();
 
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 
