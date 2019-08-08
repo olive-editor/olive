@@ -50,7 +50,7 @@ void RendererProcessor::Start()
   threads_.resize(QThread::idealThreadCount());
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = new RendererThread();
+    threads_[i] = std::make_shared<RendererThread>();
     threads_[i]->run();
   }
 
@@ -67,13 +67,12 @@ void RendererProcessor::Stop()
 
   for (int i=0;i<threads_.size();i++) {
     threads_[i]->Cancel();
-    delete threads_[i];
   }
 
   threads_.clear();
 }
 
-RendererThread *RendererProcessor::CurrentThread()
+RendererThread* RendererProcessor::CurrentThread()
 {
   return dynamic_cast<RendererThread*>(QThread::currentThread());
 }

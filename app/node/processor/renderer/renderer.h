@@ -79,10 +79,10 @@ public:
    * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
    * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
    */
-  static RendererThread* CurrentThread();
+  static RendererThread *CurrentThread();
 
 private:
-  QVector<RendererThread*> threads_;
+  QVector<RendererThreadPtr> threads_;
 
   bool started_;
 };

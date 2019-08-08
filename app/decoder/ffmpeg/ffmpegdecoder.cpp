@@ -346,12 +346,12 @@ bool FFmpegDecoder::Probe(Footage *f)
 
       avstream_ = fmt_ctx_->streams[i];
 
-      Stream* str;
+      StreamPtr str;
 
       if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
 
         // Create a video stream object
-        VideoStream* video_stream = new VideoStream();
+        VideoStreamPtr video_stream = std::make_shared<VideoStream>();
 
         video_stream->set_width(avstream_->codecpar->width);
         video_stream->set_height(avstream_->codecpar->height);
@@ -361,7 +361,7 @@ bool FFmpegDecoder::Probe(Footage *f)
       } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
 
         // Create an audio stream object
-        AudioStream* audio_stream = new AudioStream();
+        AudioStreamPtr audio_stream = std::make_shared<AudioStream>();
 
         audio_stream->set_layout(avstream_->codecpar->channel_layout);
         audio_stream->set_channels(avstream_->codecpar->channels);
@@ -372,7 +372,7 @@ bool FFmpegDecoder::Probe(Footage *f)
       } else {
 
         // This is data we can't utilize at the moment, but we make a Stream object anyway to keep parity with the file
-        str = new Stream();
+        str = std::make_shared<Stream>();
 
         // Set the correct codec type based on FFmpeg's result
         switch (avstream_->codecpar->codec_type) {

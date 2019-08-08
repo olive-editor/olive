@@ -41,7 +41,7 @@ ImportTask::ImportTask(ProjectViewModel *model, Folder *parent, const QStringLis
   urls_(urls),
   parent_(parent)
 {
-  set_text(tr("Importing %1 files").arg(urls.size()));
+  set_text(tr("Importing %1 files").arg (urls.size()));
 }
 
 bool ImportTask::Action()

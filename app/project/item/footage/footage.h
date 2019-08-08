@@ -157,7 +157,7 @@ public:
    *
    * A pointer to a stream object. The Footage takes ownership of this object and will free it when it's deleted.
    */
-  void add_stream(Stream* s);
+  void add_stream(StreamPtr s);
 
   /**
    * @brief Retrieve a stream at the given index.
@@ -171,7 +171,7 @@ public:
    *
    * The stream at the index provided
    */
-  const Stream* stream(int index);
+  StreamPtr stream(int index);
 
   /**
    * @brief Retrieve total number of streams in this Footage file
@@ -243,7 +243,7 @@ private:
   /**
    * @brief Internal streams array
    */
-  QList<Stream*> streams_;
+  QList<StreamPtr> streams_;
 
   /**
    * @brief Internal ready setting

@@ -21,6 +21,7 @@
 #ifndef RENDERTHREAD_H
 #define RENDERTHREAD_H
 
+#include <memory>
 #include <QMutex>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
@@ -64,5 +65,7 @@ private:
 
   bool cancelled_;
 };
+
+using RendererThreadPtr = std::shared_ptr<RendererThread>;
 
 #endif // RENDERTHREAD_H

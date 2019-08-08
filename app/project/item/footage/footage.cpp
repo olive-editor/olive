@@ -77,7 +77,7 @@ void Footage::set_timestamp(const QDateTime &t)
   timestamp_ = t;
 }
 
-void Footage::add_stream(Stream *s)
+void Footage::add_stream(StreamPtr s)
 {
   // Add a copy of this stream to the list
   streams_.append(s);
@@ -86,7 +86,7 @@ void Footage::add_stream(Stream *s)
   streams_.last()->set_footage(this);
 }
 
-const Stream *Footage::stream(int index)
+StreamPtr Footage::stream(int index)
 {
   return streams_.at(index);
 }
@@ -118,11 +118,6 @@ void Footage::ClearStreams()
   }
 
   // Delete all streams
-  for (int i=0;i<streams_.size();i++) {
-    delete streams_.at(i);
-  }
-
-  // Empty array
   streams_.clear();
 }
 
@@ -191,10 +186,10 @@ void Footage::UpdateTooltip()
 
       for (int i=0;i<streams_.size();i++) {
 
-        Stream* s = streams_.at(i);
+        StreamPtr s = streams_.at(i);
 
         if (s->type() == Stream::kVideo) {
-          VideoStream* vs = static_cast<VideoStream*>(s);
+          VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(s);
 
           tip.append(
                 QCoreApplication::translate("Footage",
@@ -203,7 +198,7 @@ void Footage::UpdateTooltip()
                                                                      QString::number(vs->height()))
                 );
         } else if (streams_.at(i)->type() == Stream::kAudio) {
-          AudioStream* as = static_cast<AudioStream*>(s);
+          AudioStreamPtr as = std::static_pointer_cast<AudioStream>(s);
 
           tip.append(
                 QCoreApplication::translate("Footage",

@@ -47,4 +47,6 @@ private:
   int sample_rate_;
 };
 
+using AudioStreamPtr = std::shared_ptr<AudioStream>;
+
 #endif // AUDIOSTREAM_H

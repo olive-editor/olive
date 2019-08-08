@@ -43,4 +43,6 @@ private:
   int height_;
 };
 
+using VideoStreamPtr = std::shared_ptr<VideoStream>;
+
 #endif // VIDEOSTREAM_H

@@ -21,6 +21,8 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+#include <memory>
+
 #include "common/rational.h"
 
 class Footage;
@@ -83,5 +85,7 @@ private:
   Type type_;
 
 };
+
+using StreamPtr = std::shared_ptr<Stream>;
 
 #endif // STREAM_H

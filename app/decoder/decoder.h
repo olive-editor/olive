@@ -80,8 +80,8 @@ public:
 
   virtual QString id() = 0;
 
-  const Stream* stream();
-  void set_stream(const Stream *fs);
+  StreamPtr stream();
+  void set_stream(StreamPtr fs);
 
   /**
    * @brief Probe a footage file and dump metadata about it
@@ -194,7 +194,7 @@ protected:
   bool open_;
 
 private:
-  const Stream* stream_;
+  StreamPtr stream_;
 };
 
 #endif // DECODER_H

@@ -42,12 +42,12 @@ Decoder::~Decoder()
 {
 }
 
-const Stream *Decoder::stream()
+StreamPtr Decoder::stream()
 {
   return stream_;
 }
 
-void Decoder::set_stream(const Stream *fs)
+void Decoder::set_stream(StreamPtr fs)
 {
   Close();
 
