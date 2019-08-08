@@ -21,6 +21,7 @@
 #ifndef PROBESERVER_H
 #define PROBESERVER_H
 
+#include "decoder/decoder.h"
 #include "project/item/footage/footage.h"
 
 namespace olive {
@@ -45,6 +46,8 @@ namespace olive {
  * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
  */
 bool ProbeMedia(Footage* f);
+
+Decoder* CreateDecoderFromID(const QString& id);
 
 }
 

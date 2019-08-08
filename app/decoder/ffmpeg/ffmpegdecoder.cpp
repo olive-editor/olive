@@ -44,6 +44,11 @@ FFmpegDecoder::FFmpegDecoder() :
 {
 }
 
+FFmpegDecoder::~FFmpegDecoder()
+{
+  Close();
+}
+
 bool FFmpegDecoder::Open()
 {
   if (open_) {
@@ -192,27 +197,16 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   // Convert timecode to AVStream timebase
   int64_t target_ts = qFloor(timecode.toDouble() * rational(avstream_->time_base).flipped().toDouble());
 
-  // Index now if we haven't already
-  if (frame_index_.isEmpty() && !LoadFrameIndex()) {
-    Index();
+  // Find closest actual timebase in the file
+  target_ts = GetClosestTimestampInIndex(target_ts);
+
+  if (target_ts < 0) {
+    Error(tr("Index failed to produce a valid timestamp"));
+    return nullptr;
   }
-
-  // Use index to find closest frame in file
-  for (int i=1;i<frame_index_.size();i++) {
-    if (frame_index_.at(i) > target_ts) {
-      target_ts = frame_index_.at(i - 1);
-      break;
-    }
-  }
-
-  int ret = 0;
-
-  // Allocate and init a packet for reading encoded data
-  AVPacket pkt;
-  av_init_packet(&pkt);
 
   // Cache FFmpeg error code returns
-  ret = 0;
+  int ret = 0;
 
   // Set up seeking loop
   int64_t seek_ts = target_ts;
@@ -225,7 +219,16 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     if (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE) {
       avcodec_flush_buffers(codec_ctx_);
       av_seek_frame(fmt_ctx_, avstream_->index, seek_ts, AVSEEK_FLAG_BACKWARD);
-      seek_ts -= second_ts;
+
+      // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
+
+      // If we already tried seeking to 0 though, there's nothing we can do so we error here
+      if (seek_ts == 0) {
+        Error(tr("FFmpeg failed to seek to the correct location"));
+        return nullptr;
+      }
+
+      seek_ts = qMax(0L, seek_ts - second_ts);
     }
 
     ret = GetFrame();
@@ -305,6 +308,11 @@ void FFmpegDecoder::Close()
   }
 
   open_ = false;
+}
+
+QString FFmpegDecoder::id()
+{
+  return "ffmpeg";
 }
 
 bool FFmpegDecoder::Probe(Footage *f)
@@ -563,4 +571,23 @@ AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_f
                                            pix_fmt,
                                            1,
                                            nullptr);
+}
+
+int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
+{
+  // Index now if we haven't already
+  if (frame_index_.isEmpty() && !LoadFrameIndex()) {
+    Index();
+  }
+
+  // Use index to find closest frame in file
+  for (int i=1;i<frame_index_.size();i++) {
+    if (frame_index_.at(i) == ts) {
+      return ts;
+    } else if (frame_index_.at(i) > ts) {
+      return frame_index_.at(i - 1);
+    }
+  }
+
+  return -1;
 }

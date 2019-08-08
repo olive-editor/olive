@@ -101,6 +101,16 @@ Item::Type Footage::type() const
   return kFootage;
 }
 
+const QString &Footage::decoder()
+{
+  return decoder_;
+}
+
+void Footage::set_decoder(const QString &id)
+{
+  decoder_ = id;
+}
+
 void Footage::ClearStreams()
 {
   if (streams_.empty()) {

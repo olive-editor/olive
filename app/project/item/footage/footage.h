@@ -185,6 +185,20 @@ public:
    */
   virtual Type type() const override;
 
+  /**
+   * @brief Get the Decoder ID set when this Footage was probed
+   *
+   * @return
+   *
+   * A decoder ID
+   */
+  const QString& decoder();
+
+  /**
+   * @brief Used by decoders when they Probe to attach itself to this Footage
+   */
+  void set_decoder(const QString& id);
+
 private:
   /**
    * @brief Internal function to delete all Stream children and empty the array
@@ -235,6 +249,11 @@ private:
    * @brief Internal ready setting
    */
   Status status_;
+
+  /**
+   * @brief Internal attached decoder ID
+   */
+  QString decoder_;
 
 };
 

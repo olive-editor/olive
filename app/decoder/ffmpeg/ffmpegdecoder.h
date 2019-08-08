@@ -37,13 +37,19 @@ extern "C" {
 class FFmpegDecoder : public Decoder
 {
 public:
+  // Constructor
   FFmpegDecoder();
+
+  // Destructor
+  virtual ~FFmpegDecoder() override;
 
   virtual bool Probe(Footage *f) override;
 
   virtual bool Open() override;
   virtual FramePtr Retrieve(const rational &timecode, const rational &length = 0) override;
   virtual void Close() override;
+
+  virtual QString id() override;
 
 private:
   /**
@@ -117,6 +123,8 @@ private:
    * @return
    */
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
+
+  int64_t GetClosestTimestampInIndex(const int64_t& ts);
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;

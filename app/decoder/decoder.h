@@ -48,12 +48,34 @@ class Decoder : public QObject
 {
   Q_OBJECT
 public:
-
   Decoder();
 
   Decoder(Stream* fs);
 
+  // Necessary for subclassing, it's empty
   virtual ~Decoder();
+
+  /**
+   * @brief Deleted copy constructor
+   */
+  Decoder(const Decoder& other) = delete;
+
+  /**
+   * @brief Deleted move constructor
+   */
+  Decoder(Decoder&& other) = delete;
+
+  /**
+   * @brief Deleted copy assignment
+   */
+  Decoder& operator=(const Decoder& other) = delete;
+
+  /**
+   * @brief Deleted move assignment
+   */
+  Decoder& operator=(Decoder&& other) = delete;
+
+  virtual QString id() = 0;
 
   const Stream* stream();
   void set_stream(const Stream *fs);

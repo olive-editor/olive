@@ -83,26 +83,6 @@ public:
   virtual QString Description();
 
   /**
-   * @brief Add a parameter to this node
-   *
-   * The Node takes ownership of this parameter.
-   *
-   * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
-   */
-  void AddParameter(NodeParam* param);
-
-  /**
-   * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
-   *        requires re-rendering
-   *
-   * Override this if your Node subclass keeps a cache, but call this base function at the end of the subclass function.
-   * Default behavior is to relay this signal to all connected outputs, which will need to be done as to not break
-   * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
-   * call this function with transformed time and relay the signal that way.
-   */
-  virtual void InvalidateCache(const rational& start_range, const rational& end_range);
-
-  /**
    * @brief Return the parameter at a given index
    */
   NodeParam* ParamAt(int index);
@@ -133,6 +113,27 @@ public:
    * @brief Convert a NodeParam value to a pointer of any kind
    */
   static T* ValueToPtr(const QVariant& ptr);
+
+protected:
+  /**
+   * @brief Add a parameter to this node
+   *
+   * The Node takes ownership of this parameter.
+   *
+   * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
+   */
+  void AddParameter(NodeParam* param);
+
+  /**
+   * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
+   *        requires re-rendering
+   *
+   * Override this if your Node subclass keeps a cache, but call this base function at the end of the subclass function.
+   * Default behavior is to relay this signal to all connected outputs, which will need to be done as to not break
+   * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
+   * call this function with transformed time and relay the signal that way.
+   */
+  virtual void InvalidateCache(const rational& start_range, const rational& end_range);
 
 public slots:
   /**

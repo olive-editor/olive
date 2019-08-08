@@ -94,8 +94,18 @@ public:
    */
   const uint8_t* const_data();
 
+  /**
+   * @brief Allocate memory buffer to store data based on parameters
+   *
+   * For video frames, the width(), height(), and format() must be set for this function to work.
+   *
+   * If a memory buffer has been previously allocated without destroying, this function will destroy it.
+   */
   void allocate();
 
+  /**
+   * @brief Destroy a memory buffer allocated with allocate()
+   */
   void destroy();
 
 private:
