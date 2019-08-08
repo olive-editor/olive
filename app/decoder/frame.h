@@ -22,6 +22,7 @@
 #define FRAME_H
 
 #include <memory>
+#include <QVector>
 
 #include "common/rational.h"
 #include "render/pixelformat.h"
@@ -38,21 +39,6 @@ class Frame
 public:
   /// Normal constructor
   Frame();
-
-  /// Copy constructor
-  Frame(const Frame& f);
-
-  /// Move constructor
-  Frame(Frame&& f);
-
-  /// Copy assignment operator
-  Frame& operator=(const Frame& f);
-
-  /// Move assignment operator
-  Frame& operator=(Frame&& f);
-
-  /// Destructor
-  ~Frame();
 
   /**
    * @brief Get frame's width in pixels
@@ -115,7 +101,7 @@ private:
 
   int format_;
 
-  uint8_t* data_;
+  QVector<uint8_t> data_;
 
   rational timestamp_;
 

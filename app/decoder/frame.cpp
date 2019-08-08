@@ -27,44 +27,8 @@
 
 Frame::Frame() :
   width_(0),
-  height_(0),
-  data_(nullptr)
+  height_(0)
 {
-}
-
-Frame::Frame(const Frame &f) :
-  data_(nullptr)
-{
-  Q_UNUSED(f)
-}
-
-Frame::Frame(Frame &&f) :
-  data_(f.data_)
-{
-  f.data_ = nullptr;
-}
-
-Frame &Frame::operator=(const Frame &f)
-{
-  Q_UNUSED(f)
-
-  data_ = nullptr;
-  return *this;
-}
-
-Frame &Frame::operator=(Frame &&f)
-{
-  if (&f != this) {
-    data_ = f.data_;
-    f.data_ = nullptr;
-  }
-
-  return *this;
-}
-
-Frame::~Frame()
-{
-  destroy();
 }
 
 const int &Frame::width()
@@ -109,23 +73,19 @@ void Frame::set_format(const int &format)
 
 uint8_t *Frame::data()
 {
-  return data_;
+  return data_.data();
 }
 
 const uint8_t *Frame::const_data()
 {
-  return data_;
+  return data_.constData();
 }
 
 void Frame::allocate()
 {
-  if (data_ != nullptr) {
-    destroy();
-  }
-
   // Assume this frame is intended to be a video frame
   if (width_ > 0 && height_ > 0) {
-    data_ = new uint8_t[PixelService::GetBufferSize(static_cast<olive::PixelFormat>(format_), width_, height_)];
+    data_.resize(PixelService::GetBufferSize(static_cast<olive::PixelFormat>(format_), width_, height_));
   }
 
   // FIXME: Audio sample allocation
@@ -133,6 +93,5 @@ void Frame::allocate()
 
 void Frame::destroy()
 {
-  delete [] data_;
-  data_ = nullptr;
+  data_.clear();
 }
