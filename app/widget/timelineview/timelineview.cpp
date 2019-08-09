@@ -49,7 +49,6 @@ void TimelineView::AddClip(ClipBlock *clip)
 
   // Set up clip with view parameters (clip item will automatically size its rect accordingly)
   clip_item->SetClip(clip);
-  clip_item->SetTimebase(timebase_);
   clip_item->SetScale(scale_);
 
   // Add to list of clip items that can be iterated through
@@ -73,10 +72,6 @@ void TimelineView::SetScale(const double &scale)
 void TimelineView::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
-
-  foreach (TimelineViewClipItem* item, clip_items_) {
-    item->SetTimebase(timebase_);
-  }
 
   playhead_line_->SetTimebase(timebase_);
 }
@@ -113,7 +108,7 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 
       ghost->SetIn(clip->in());
       ghost->SetOut(clip->out());
-      ghost->SetTimebase(timebase_);
+      ghost->SetScale(scale_);
 
       ghost->setPos(clip_item->pos());
 

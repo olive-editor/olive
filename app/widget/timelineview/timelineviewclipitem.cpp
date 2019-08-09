@@ -48,7 +48,7 @@ void TimelineViewClipItem::SetClip(ClipBlock *clip)
 
 void TimelineViewClipItem::UpdateRect()
 {
-  if (clip_ == nullptr || !TimebaseIsValid()) {
+  if (clip_ == nullptr) {
     return;
   }
 

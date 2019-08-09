@@ -1,6 +1,7 @@
 #ifndef TIMELINEVIEWPLAYHEADITEM_H
 #define TIMELINEVIEWPLAYHEADITEM_H
 
+#include "timelineplayhead.h"
 #include "timelineviewrect.h"
 
 class TimelineViewPlayheadItem : public TimelineViewRect
@@ -10,6 +11,8 @@ public:
 
   void SetPlayhead(const int64_t& playhead);
 
+  void SetTimebase(const rational& timebase);
+
 protected:
   virtual void UpdateRect() override;
 
@@ -17,6 +20,10 @@ protected:
 
 private:
   int64_t playhead_;
+
+  rational timebase_;
+
+  TimelinePlayhead style_;
 };
 
 #endif // TIMELINEVIEWPLAYHEADITEM_H

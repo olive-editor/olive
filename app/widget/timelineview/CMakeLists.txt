@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/timelineview/timelineplayhead.h
+  widget/timelineview/timelineplayhead.cpp
   widget/timelineview/timelineview.h
   widget/timelineview/timelineview.cpp
   widget/timelineview/timelineviewrect.h

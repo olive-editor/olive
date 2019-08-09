@@ -78,7 +78,11 @@ void TimeRuler::SetScale(double d)
 
 void TimeRuler::SetTimebase(const rational &r)
 {
-  time_base_ = r;
+  timebase_ = r;
+
+  timebase_dbl_ = timebase_.toDouble();
+
+  timebase_flipped_dbl_ = timebase_.flipped().toDouble();
 
   update();
 }
@@ -97,12 +101,10 @@ void TimeRuler::SetScroll(int s)
   update();
 }
 
-void TimeRuler::paintEvent(QPaintEvent *e)
+void TimeRuler::paintEvent(QPaintEvent *)
 {
-  Q_UNUSED(e)
-
   // Nothing to paint if the timebase is invalid
-  if (time_base_.denominator() == 0) {
+  if (timebase_.denominator() == 0) {
     return;
   }
 
@@ -113,10 +115,10 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
   // Depending on the scale, we don't need all the lines drawn or else they'll start to become unhelpful
   // Determine an even number to divide the frame count by
-  int rough_frames_in_second = qRound(time_base_.flipped().toDouble());
+  int rough_frames_in_second = qRound(timebase_flipped_dbl_);
   int test_divider = 1;
   while (!((rough_frames_in_second%test_divider == 0 || test_divider > rough_frames_in_second)
-         && scale_ * test_divider >= minimum_gap_between_lines_)) {
+         && scale_ * test_divider * timebase_dbl_ >= minimum_gap_between_lines_)) {
     if (test_divider < rough_frames_in_second) {
       test_divider++;
     } else {
@@ -124,7 +126,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
     }
   }
   double reverse_divider = double(rough_frames_in_second) / double(test_divider);
-  qreal real_divider = qMax(1.0, time_base_.flipped().toDouble() / reverse_divider);
+  qreal real_divider = qMax(1.0, timebase_flipped_dbl_ / reverse_divider);
 
   // Set where the loop ends (affected by text)
   int loop_start = - playhead_width_;
@@ -136,8 +138,8 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   int text_y = 0;
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
-    double width_of_second = time_base_.flipped().toDouble() * scale_;
-    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, time_base_, kTimecodeDisplay));
+    double width_of_second = scale_;
+    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, timebase_, kTimecodeDisplay));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
       text_skip++;
@@ -166,21 +168,14 @@ void TimeRuler::paintEvent(QPaintEvent *e)
   int line_halfsec_bottom = line_top + line_length / 3 * 2;
   int line_frame_bottom = line_top + line_length / 3;
 
-  int playhead_pos = -1;
-
   for (int i=loop_start;i<loop_end;i++) {
     int64_t unit = ScreenToUnit(i);
-
-    // Queue a playhead draw
-    if (unit == time_ && playhead_pos == -1) {
-      playhead_pos = i;
-    }
 
     // Check if enough space has passed since the last line drawn
     if (qFloor(double(unit)/real_divider) > qFloor(double(last_unit)/real_divider)) {
 
       // Determine if this unit is a whole second or not
-      int sec = qFloor(double(unit) * time_base_.toDouble());
+      int sec = qFloor(double(unit) * timebase_dbl_);
 
       if (sec > last_sec) {
         // This line marks a second so we make it long
@@ -190,7 +185,7 @@ void TimeRuler::paintEvent(QPaintEvent *e)
 
         // Try to draw text here
         if (text_visible_ && sec%text_skip == 0) {
-          QString timecode_string = olive::timestamp_to_timecode(sec, time_base_, kTimecodeDisplay);
+          QString timecode_string = olive::timestamp_to_timecode(sec, timebase_, kTimecodeDisplay);
 
           int text_x = i;
 
@@ -219,10 +214,11 @@ void TimeRuler::paintEvent(QPaintEvent *e)
     }
   }
 
-  // If we found the playhead along here, draw it last
-  if (playhead_pos >= 0) {
+  // Draw the playhead if it's on screen at the moment
+  int playhead_pos = qFloor(static_cast<double>(time_) * timebase_dbl_);
+  if (playhead_pos + playhead_width_ >= 0 && playhead_pos - playhead_width_ < width()) {
     p.setPen(Qt::NoPen);
-    p.setBrush(Qt::red); // FIXME: Make configurable in CSS
+    p.setBrush(style_.PlayheadColor());
     DrawPlayhead(&p, playhead_pos, height());
   }
 }
@@ -250,16 +246,17 @@ void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
     QPoint(x, y),
     QPoint(x - half_width, y - half_text_height),
     QPoint(x - half_width, y - text_height_),
-    QPoint(x + half_width, y - text_height_),
-    QPoint(x + half_width, y - half_text_height)
+    QPoint(x + 1 + half_width, y - text_height_),
+    QPoint(x + 1 + half_width, y - half_text_height),
+    QPoint(x + 1, y),
   };
 
-  p->drawPolygon(points, 5);
+  p->drawPolygon(points, 6);
 }
 
 double TimeRuler::ScreenToUnitFloat(int screen)
 {
-  return (screen + scroll_) / scale_;
+  return (screen + scroll_) / scale_ / timebase_dbl_;
 }
 
 int64_t TimeRuler::ScreenToUnit(int screen)

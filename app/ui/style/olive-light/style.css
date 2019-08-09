@@ -73,3 +73,9 @@ NodeViewItemWidget {
   qproperty-titlebarColor: #a0a0ff;
   qproperty-borderColor: #000000;
 }
+
+/* Timeline playhead styling */
+TimelinePlayhead {
+  qproperty-playheadColor: #ff0000;
+  qproperty-playheadHighlightColor: rgba(0, 0, 0, 0.25);
+}

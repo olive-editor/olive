@@ -25,6 +25,7 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "widget/timelineview/timelineplayhead.h"
 
 class TimeRuler : public QWidget
 {
@@ -77,9 +78,15 @@ private:
 
   double scale_;
 
-  rational time_base_;
+  rational timebase_;
+
+  double timebase_dbl_;
+
+  double timebase_flipped_dbl_;
 
   int64_t time_;
+
+  TimelinePlayhead style_;
 
 };
 

@@ -1,11 +1,13 @@
 #include "timelineviewplayheaditem.h"
 
+#include <QDebug>
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QtMath>
 
 TimelineViewPlayheadItem::TimelineViewPlayheadItem(QGraphicsItem *parent) :
-  TimelineViewRect(parent)
+  TimelineViewRect(parent),
+  playhead_(0)
 {
 
 }
@@ -13,6 +15,13 @@ TimelineViewPlayheadItem::TimelineViewPlayheadItem(QGraphicsItem *parent) :
 void TimelineViewPlayheadItem::SetPlayhead(const int64_t &playhead)
 {
   playhead_ = playhead;
+
+  UpdateRect();
+}
+
+void TimelineViewPlayheadItem::SetTimebase(const rational &timebase)
+{
+  timebase_ = timebase;
 
   UpdateRect();
 }
@@ -33,10 +42,10 @@ void TimelineViewPlayheadItem::paint(QPainter *painter, const QStyleOptionGraphi
 
   // FIXME: Make adjustable through CSS
   painter->setPen(Qt::NoPen);
-  painter->setBrush(QColor(255, 255, 255, 128));
+  painter->setBrush(style_.PlayheadHighlightColor());
   painter->drawRect(rect());
 
-  painter->setPen(Qt::red);
+  painter->setPen(style_.PlayheadColor());
   painter->setBrush(Qt::NoBrush);
   painter->drawLine(QLineF(rect().topLeft(), rect().bottomLeft()));
 }

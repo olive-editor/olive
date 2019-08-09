@@ -45,6 +45,9 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   // End test code
 
   Retranslate();
+
+//  ruler_->SetScale(90.0);
+//  view_->SetScale(90.0);
 }
 
 void TimelinePanel::Clear()
