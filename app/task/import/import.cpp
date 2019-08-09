@@ -58,6 +58,7 @@ bool ImportTask::Action()
     return true;
   }
 
+  // FIXME: This should be run in the main thread somehow
   olive::undo_stack.push(command);
 
   return true;

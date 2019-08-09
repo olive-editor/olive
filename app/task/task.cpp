@@ -93,11 +93,6 @@ void Task::AddDependency(Task *dependency)
   dependencies_.append(dependency);
 }
 
-void Task::EmitRemovedSignal()
-{
-  emit Removed();
-}
-
 void Task::ResetState()
 {
   if (status_ == kWaiting) {

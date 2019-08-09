@@ -27,6 +27,7 @@
 #include "panel/node/node.h"
 #include "panel/param/param.h"
 #include "panel/project/project.h"
+#include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
 #include "panel/viewer/viewer.h"

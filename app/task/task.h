@@ -141,11 +141,6 @@ public:
   void AddDependency(Task* dependency);
 
   /**
-   * @brief Emit the Removed() signal when this Task is about to get removed
-   */
-  void EmitRemovedSignal();
-
-  /**
    * @brief Reset this Task back to the waiting state
    */
   void ResetState();

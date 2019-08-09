@@ -390,10 +390,7 @@ bool FFmpegDecoder::Probe(Footage *f)
           break;
 
         // We should never realistically get here, but we make an "invalid" stream just in case
-        // We don't use a "default:" in case more AVMEDIA_TYPEs get introduced in later APIs that need handling
-        case AVMEDIA_TYPE_NB:
-        case AVMEDIA_TYPE_VIDEO:
-        case AVMEDIA_TYPE_AUDIO:
+        default:
           str->set_type(Stream::kUnknown);
           break;
         }

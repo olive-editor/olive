@@ -97,7 +97,7 @@ void TaskManager::DeleteTask(Task *t)
   // Remove instances of Task from queue
   for (int i=0;i<tasks_.size();i++) {
     if (tasks_.at(i).get() == t) {
-      t->EmitRemovedSignal();
+      emit t->Removed();
       tasks_.removeAt(i);
       break;
     }
