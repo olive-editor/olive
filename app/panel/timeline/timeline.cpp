@@ -26,7 +26,6 @@
 TimelinePanel::TimelinePanel(QWidget *parent) :
   PanelWidget(parent)
 {
-  // FIXME: Test code
   QWidget* main = new QWidget(this);
   setWidget(main);
 
@@ -42,12 +41,13 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
 
   connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
+
+  // FIXME: Test code
+  ruler_->SetScale(90.0);
+  view_->SetScale(90.0);
   // End test code
 
   Retranslate();
-
-//  ruler_->SetScale(90.0);
-//  view_->SetScale(90.0);
 }
 
 void TimelinePanel::Clear()

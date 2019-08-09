@@ -55,6 +55,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // FIXME: Test code
   SetTimebase(rational(1001, 30000));
+  ruler_->SetScale(48.0);
   // End test code
 }
 

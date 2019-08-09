@@ -50,12 +50,23 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
+  virtual void dragEnterEvent(QDragEnterEvent *event) override;
+  virtual void dragMoveEvent(QDragMoveEvent *event) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
+  virtual void dropEvent(QDropEvent *event) override;
+
 private:
+  rational ScreenToTime(const int& x);
+
+  void ClearGhosts();
+
   QGraphicsScene scene_;
 
   double scale_;
 
   rational timebase_;
+
+  double timebase_dbl_;
 
   int64_t playhead_;
 
@@ -64,6 +75,10 @@ private:
   QVector<TimelineViewGhostItem*> ghost_items_;
 
   TimelineViewPlayheadItem* playhead_line_;
+
+  bool dragging_;
+
+  QPoint drag_start_;
 };
 
 #endif // TIMELINEVIEW_H

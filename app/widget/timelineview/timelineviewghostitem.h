@@ -21,6 +21,7 @@
 #ifndef TIMELINEVIEWGHOSTITEM_H
 #define TIMELINEVIEWGHOSTITEM_H
 
+#include "project/item/footage/footage.h"
 #include "timelineviewrect.h"
 
 class TimelineViewGhostItem : public TimelineViewRect
@@ -28,17 +29,32 @@ class TimelineViewGhostItem : public TimelineViewRect
 public:
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
 
+  const rational& In();
+  const rational& Out();
+
   void SetIn(const rational& in);
   void SetOut(const rational& out);
+
+  void SetInAdjustment(const rational& in_adj);
+  void SetOutAdjustment(const rational& out_adj);
+
+  rational GetAdjustedIn();
+  rational GetAdjustedOut();
+
+  StreamPtr stream();
+  void SetStream(StreamPtr f);
 
 protected:
   virtual void UpdateRect() override;
 
-//  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
 private:
   rational in_;
   rational out_;
+
+  rational in_adj_;
+  rational out_adj_;
+
+  StreamPtr stream_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

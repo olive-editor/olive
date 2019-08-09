@@ -72,6 +72,12 @@ NodeOutput *MediaInput::texture_output()
   return texture_output_;
 }
 
+void MediaInput::SetFootage(Footage *f)
+{
+  // FIXME: Need some protection for Time == 0
+  footage_input_->set_value(0, PtrToValue(f));
+}
+
 void MediaInput::Process(const rational &time)
 {
   // FIXME: Use OCIO for color management
@@ -96,6 +102,7 @@ void MediaInput::Process(const rational &time)
   }
 
   if (decoder_->stream() == nullptr) {
+    // FIXME: Hardcoded stream 0
     decoder_->set_stream(footage->stream(0));
   }
 

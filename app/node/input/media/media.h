@@ -51,6 +51,8 @@ public:
 
   NodeOutput* texture_output();
 
+  void SetFootage(Footage* f);
+
 public slots:
   virtual void Process(const rational &time) override;
 

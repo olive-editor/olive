@@ -23,10 +23,21 @@
 #include <QPainter>
 
 TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
-  TimelineViewRect(parent)
+  TimelineViewRect(parent),
+  stream_(nullptr)
 {
   setBrush(Qt::NoBrush);
   setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
+}
+
+const rational &TimelineViewGhostItem::In()
+{
+  return in_;
+}
+
+const rational &TimelineViewGhostItem::Out()
+{
+  return out_;
 }
 
 void TimelineViewGhostItem::SetIn(const rational &in)
@@ -43,11 +54,45 @@ void TimelineViewGhostItem::SetOut(const rational &out)
   UpdateRect();
 }
 
+void TimelineViewGhostItem::SetInAdjustment(const rational &in_adj)
+{
+  in_adj_ = in_adj;
+
+  UpdateRect();
+}
+
+void TimelineViewGhostItem::SetOutAdjustment(const rational &out_adj)
+{
+  out_adj_ = out_adj;
+
+  UpdateRect();
+}
+
+rational TimelineViewGhostItem::GetAdjustedIn()
+{
+  return in_ + in_adj_;
+}
+
+rational TimelineViewGhostItem::GetAdjustedOut()
+{
+  return out_ + out_adj_;
+}
+
+StreamPtr TimelineViewGhostItem::stream()
+{
+  return stream_;
+}
+
+void TimelineViewGhostItem::SetStream(StreamPtr f)
+{
+  stream_ = f;
+}
+
 void TimelineViewGhostItem::UpdateRect()
 {
-  rational length = out_ - in_;
+  rational length = GetAdjustedOut() - GetAdjustedIn();
 
   setRect(0, 0, TimeToScreenCoord(length), 100);
 
-  setPos(TimeToScreenCoord(in_), 0);
+  setPos(TimeToScreenCoord(GetAdjustedIn()), 0);
 }
