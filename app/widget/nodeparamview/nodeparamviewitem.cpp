@@ -25,7 +25,6 @@
 
 #include <QPainter>
 
-#include "nodeparamviewwidgetbridge.h"
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
@@ -80,6 +79,8 @@ void NodeParamViewItem::AttachNode(Node *n)
   // If the added node was the first node, set up the UI
   if (nodes_.size() == 1) {
     SetupUI();
+  } else {
+    AddAdditionalNode(n);
   }
 }
 
@@ -118,7 +119,9 @@ void NodeParamViewItem::SetupUI()
       content_layout_->addWidget(param_label, row_count, 0);
 
       // Create a widget/input bridge for this input
-      NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(this, static_cast<NodeInput*>(param));
+      NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(this);
+      bridge->AddInput(static_cast<NodeInput*>(param));
+      bridges_.append(bridge);
 
       // Add widgets for this parameter ot the layout
       const QList<QWidget*>& widgets_for_param = bridge->widgets();
@@ -127,6 +130,21 @@ void NodeParamViewItem::SetupUI()
       }
 
       row_count++;
+    }
+  }
+}
+
+void NodeParamViewItem::AddAdditionalNode(Node *n)
+{
+  int bridge_count = 0;
+
+  for (int i=0;i<n->ParameterCount();i++) {
+    NodeParam* param = n->ParamAt(i);
+
+    if (param->type() == NodeParam::kInput) {
+      bridges_.at(bridge_count)->AddInput(static_cast<NodeInput*>(param));
+
+      bridge_count++;
     }
   }
 }

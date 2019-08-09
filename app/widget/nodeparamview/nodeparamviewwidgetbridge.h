@@ -9,12 +9,14 @@ class NodeParamViewWidgetBridge : public QObject
 {
   Q_OBJECT
 public:
-  NodeParamViewWidgetBridge(QObject* parent, NodeInput* input);
+  NodeParamViewWidgetBridge(QObject* parent);
+
+  void AddInput(NodeInput* input);
 
   const QList<QWidget*>& widgets();
 
 private:
-  NodeInput* input_;
+  QList<NodeInput*> inputs_;
 
   QList<QWidget*> widgets_;
 

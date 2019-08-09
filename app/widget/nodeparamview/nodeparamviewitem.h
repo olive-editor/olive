@@ -28,6 +28,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewwidgetbridge.h"
 
 class NodeParamViewItemTitleBar : public QWidget {
 public:
@@ -53,6 +54,8 @@ protected:
 private:
   void SetupUI();
 
+  void AddAdditionalNode(Node* n);
+
   bool expanded_;
 
   NodeParamViewItemTitleBar* title_bar_;
@@ -66,6 +69,8 @@ private:
   QGridLayout* content_layout_;
 
   QList<Node*> nodes_;
+
+  QList<NodeParamViewWidgetBridge*> bridges_;
 
 private slots:
   void SetExpanded(bool e);
