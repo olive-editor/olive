@@ -89,10 +89,26 @@ public:
   bool Start();
 
   /**
-   * @brief The main Task function
+   * @brief Perform opening tasks before main Task thread begins
    *
-   * Action() is the function that gets called once another thread has been created. This function should be overridden
-   * in subclasses.
+   * If a Task needs to perform any actions in the main thread before starting the Task's thread, (e.g. copying or
+   * altering information) this function should be overridden and those actions should be performed here. It's
+   * guaranteed that Prologue() will run in the main thread, and as such, functions here should remain as minimal as
+   * possible as to not block the main thread for a noticeable amount of time. If your Task does not need any such
+   * actions, you don't need to override this.
+   *
+   * @return
+   *
+   * TRUE if the prologue was successful and we can start the Task now. If Prologue returns FALSE, the thread is never
+   * created and Action()/Epilogue() are never run.
+   */
+  virtual bool Prologue();
+
+  /**
+   * @brief The main Task function which is run in a separate thread
+   *
+   * Action() is the function that gets called once the separate thread has been created. This function should be
+   * overridden in subclasses.
    *
    * It's also recommended to emit ProgressChanged() throughout your Action() so that any attached ProgressBars can
    * show accurate progress information.
@@ -104,6 +120,24 @@ public:
    * FALSE, it's recommended to use set_error() to signal to the user what caused the failure.
    */
   virtual bool Action();
+
+  /**
+   * @brief Perform any closing Tasks in the main thread after the Task thread finishes
+   *
+   * It's likely your Task modifies data used throughout the program in some way, and to prevent race conditions, it's
+   * recommended to work with "copies" of that data in Action() (which is run in separate thread) and never
+   * access/modify any data used in other threads. Then, after the Action() thread is complete, that data can be used to
+   * "apply" that data in the main thread here.
+   *
+   * As this runs in the main thread, these functions shouldn't be kept fairly minimal to prevent blocking the main
+   * thread.
+   *
+   * @return
+   *
+   * TRUE if the Epilogue completed successfully. FALSE if not. A FALSE result here is considered a complete failure
+   * of the Task, even though the bulk of the processing has been performed in Action().
+   */
+  virtual bool Epilogue();
 
   /**
    * @brief Current status of the Task

@@ -58,6 +58,12 @@ bool Task::Start()
 
   cancelled_ = false;
 
+  // Run Prologue() function
+  if (!Prologue()) {
+    set_status(kError);
+    return false;
+  }
+
   set_status(kWorking);
 
   thread_.start();
@@ -65,7 +71,17 @@ bool Task::Start()
   return true;
 }
 
+bool Task::Prologue()
+{
+  return true;
+}
+
 bool Task::Action()
+{
+  return true;
+}
+
+bool Task::Epilogue()
 {
   return true;
 }
@@ -151,8 +167,16 @@ void Task::set_status(const Task::Status &status)
 void Task::ThreadComplete()
 {
   // thread_.result() will be set to the return value of Action()
+  bool succeeded = thread_.result();
 
-  if (thread_.result()) {
+  // Run the Prologue() function for any final tasks
+  // User cancelling is not considered an error, so we need to check it too
+  if (succeeded && !cancelled()) {
+    succeeded = Epilogue();
+  }
+
+  // If everything succeeded, we set the status accordingly
+  if (succeeded) {
     set_status(kFinished);
   } else {
     set_status(kError);

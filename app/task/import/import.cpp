@@ -41,11 +41,13 @@ ImportTask::ImportTask(ProjectViewModel *model, Folder *parent, const QStringLis
   urls_(urls),
   parent_(parent)
 {
-  set_text(tr("Importing %1 files").arg (urls.size()));
+  set_text(tr("Importing %1 files").arg(urls.size()));
 }
 
 bool ImportTask::Action()
 {
+  parent_->LockDeletes();
+
   QUndoCommand* command = new QUndoCommand();
 
   Import(urls_, parent_, command);
@@ -54,12 +56,11 @@ bool ImportTask::Action()
   // the undo command executes the final import anyway)
   if (cancelled()) {
     delete command;
-
-    return true;
+  } else {
+    olive::undo_stack.push(command);
   }
 
-  // FIXME: This should be run in the main thread somehow
-  olive::undo_stack.push(command);
+  parent_->UnlockDeletes();
 
   return true;
 }

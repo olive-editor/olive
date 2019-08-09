@@ -34,11 +34,11 @@ ProbeTask::ProbeTask(FootagePtr footage) :
 
 bool ProbeTask::Action()
 {
-  footage_->Lock();
+  footage_->LockDeletes();
 
   Decoder::ProbeMedia(footage_.get());
 
-  footage_->Unlock();
+  footage_->UnlockDeletes();
 
   return true;
 }

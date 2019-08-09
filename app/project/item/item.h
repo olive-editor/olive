@@ -27,6 +27,8 @@
 #include <QMutex>
 #include <QString>
 
+#include "common/threadedobject.h"
+
 class Item;
 using ItemPtr = std::shared_ptr<Item>;
 
@@ -36,7 +38,7 @@ using ItemPtr = std::shared_ptr<Item>;
  * Project objects implement a parent-child hierarchy of Items that can be used throughout the Project. The Item class
  * itself is abstract and will need to be subclassed to be used in a Project.
  */
-class Item
+class Item : public ThreadedObject
 {
 public:
   enum Type {
@@ -100,9 +102,6 @@ public:
 
   bool ChildExistsWithName(const QString& name);
 
-  void Lock();
-  void Unlock();
-
 private:
   bool ChildExistsWithNameInternal(const QString& name, Item* folder);
 
@@ -115,8 +114,6 @@ private:
   QIcon icon_;
 
   QString tooltip_;
-
-  QMutex mutex_;
 
 };
 

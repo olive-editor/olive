@@ -157,13 +157,3 @@ bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)
 
   return false;
 }
-
-void Item::Lock()
-{
-  mutex_.lock();
-}
-
-void Item::Unlock()
-{
-  mutex_.unlock();
-}
