@@ -7,7 +7,8 @@
 FootageComboBox::FootageComboBox(QWidget *parent) :
   QComboBox(parent),
   root_(nullptr),
-  footage_(nullptr)
+  footage_(nullptr),
+  only_show_ready_footage_(true)
 {
 
 }
@@ -45,6 +46,11 @@ void FootageComboBox::SetRoot(const Folder *p)
   clear();
 }
 
+void FootageComboBox::SetOnlyShowReadyFootage(bool e)
+{
+  only_show_ready_footage_ = e;
+}
+
 Footage *FootageComboBox::SelectedFootage()
 {
   return footage_;
@@ -74,9 +80,12 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
 
     } else if (child->type() == Item::kFootage) {
 
-      QAction* footage_action = m->addAction(child->name());
-      footage_action->setData(reinterpret_cast<quintptr>(child));
+      Footage* footage = static_cast<Footage*>(child);
 
+      if (!only_show_ready_footage_ || footage->status() == Footage::kReady) {
+        QAction* footage_action = m->addAction(child->name());
+        footage_action->setData(reinterpret_cast<quintptr>(child));
+      }
     }
   }
 }

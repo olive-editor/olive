@@ -17,6 +17,8 @@ public:
 
   void SetRoot(const Folder *p);
 
+  void SetOnlyShowReadyFootage(bool e);
+
   Footage* SelectedFootage();
 
 public slots:
@@ -31,6 +33,8 @@ private:
   const Folder* root_;
 
   Footage* footage_;
+
+  bool only_show_ready_footage_;
 };
 
 #endif // FOOTAGECOMBOBOX_H
