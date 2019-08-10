@@ -22,6 +22,10 @@
 #define TIMELINEVIEW_H
 
 #include <QGraphicsView>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDragLeaveEvent>
+#include <QDropEvent>
 
 #include "node/block/clip/clip.h"
 #include "timelineviewclipitem.h"
@@ -56,6 +60,56 @@ protected:
   virtual void dropEvent(QDropEvent *event) override;
 
 private:
+
+  class Tool
+  {
+  public:
+    Tool(TimelineView* parent);
+    virtual ~Tool();
+
+    virtual void MousePress(QMouseEvent *event);
+    virtual void MouseMove(QMouseEvent *event);
+    virtual void MouseRelease(QMouseEvent *event);
+
+    virtual void DragEnter(QDragEnterEvent *event);
+    virtual void DragMove(QDragMoveEvent *event);
+    virtual void DragLeave(QDragLeaveEvent *event);
+    virtual void DragDrop(QDropEvent *event);
+
+    TimelineView* parent();
+
+  private:
+    TimelineView* parent_;
+  };
+
+  class PointerTool : public Tool
+  {
+  public:
+    PointerTool(TimelineView* parent);
+
+    virtual void MousePress(QMouseEvent *event);
+    virtual void MouseMove(QMouseEvent *event);
+    virtual void MouseRelease(QMouseEvent *event);
+  };
+
+  class ImportTool : public Tool
+  {
+  public:
+    ImportTool(TimelineView* parent);
+
+    virtual void DragEnter(QDragEnterEvent *event) override;
+    virtual void DragMove(QDragMoveEvent *event) override;
+    virtual void DragLeave(QDragLeaveEvent *event) override;
+    virtual void DragDrop(QDropEvent *event) override;
+  };
+
+  PointerTool pointer_tool_;
+  ImportTool import_tool_;
+
+  void AddGhost(TimelineViewGhostItem* ghost);
+
+  bool HasGhosts();
+
   rational ScreenToTime(const int& x);
 
   void ClearGhosts();
