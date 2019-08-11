@@ -271,34 +271,14 @@ void Core::CreateNewSequence()
                                                                                  new_sequence);
 
     // FIXME: Test code
-    SolidGenerator* sg = new SolidGenerator();
-    new_sequence->AddNode(sg);
-
-    MediaInput* ii = new MediaInput();
-    new_sequence->AddNode(ii);
-
-    ClipBlock* cb1 = new ClipBlock();
-    cb1->set_length(2);
-    new_sequence->AddNode(cb1);
-
-    ClipBlock* cb2 = new ClipBlock();
-    cb2->set_length(4);
-    new_sequence->AddNode(cb2);
-
     TimelineOutput* tb = new TimelineOutput();
     new_sequence->AddNode(tb);
 
     ViewerOutput* vo = new ViewerOutput();
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
     new_sequence->AddNode(vo);
-
-    NodeParam::ConnectEdge(sg->texture_output(), cb1->texture_input());
-    NodeParam::ConnectEdge(ii->texture_output(), cb2->texture_input());
-    Block::ConnectBlocks(cb1, cb2);
-    Block::ConnectBlocks(cb2, tb);
     NodeParam::ConnectEdge(tb->texture_output(), vo->texture_input());
 
-    //tb->Refresh();
     tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
 
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
