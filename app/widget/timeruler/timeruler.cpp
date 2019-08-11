@@ -215,7 +215,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   }
 
   // Draw the playhead if it's on screen at the moment
-  int playhead_pos = qFloor(static_cast<double>(time_) * scale_ * timebase_dbl_);
+  int playhead_pos = qFloor(static_cast<double>(time_) * scale_ * timebase_dbl_) - scroll_;
   if (playhead_pos + playhead_width_ >= 0 && playhead_pos - playhead_width_ < width()) {
     p.setPen(Qt::NoPen);
     p.setBrush(style_.PlayheadColor());
