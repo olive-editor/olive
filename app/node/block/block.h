@@ -37,7 +37,8 @@ public:
 
   enum Type {
     kClip,
-    kGap
+    kGap,
+    kEnd
   };
 
   virtual Type type() = 0;
@@ -78,16 +79,24 @@ public slots:
    * Blocks before it are accurate and up to date. You may need to traverse through the Block list (using previous())
    * and run Refresh() on all Blocks sequentially.
    */
-  void Refresh();
+  virtual void Refresh();
 
+  /**
+   * @brief Calls Refresh() on this block and all blocks connected after it (but not before it)
+   */
   void RefreshFollowing();
 
 signals:
+  /**
+   * @brief Signal emitted when this Block is refreshed
+   *
+   * Can be used as essentially a "changed" signal for UI widgets to know when to update their views
+   */
   void Refreshed();
 
 protected:
 
-private:
+private:  
   NodeInput* previous_input_;
   NodeInput* next_input_;
   NodeOutput* block_output_;
@@ -96,6 +105,10 @@ private:
 
   rational in_point_;
   rational out_point_;
+
+private slots:
+  void BlockOrderChanged(NodeEdgePtr edge);
+
 };
 
 #endif // BLOCK_H

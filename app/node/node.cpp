@@ -87,6 +87,17 @@ int Node::IndexOfParameter(NodeParam *param)
   return children().indexOf(param);
 }
 
+QList<Node *> Node::GetDependencies()
+{
+  QList<NodeParam*> params = parameters();
+
+  foreach (NodeParam* p, params) {
+    if (p->type() == NodeParam::kInput) {
+
+    }
+  }
+}
+
 QVariant Node::PtrToValue(void *ptr)
 {
   return reinterpret_cast<quintptr>(ptr);

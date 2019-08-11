@@ -109,6 +109,11 @@ public:
   int IndexOfParameter(NodeParam* param);
 
   /**
+   * @brief Return a list of all Nodes that this Node's inputs are connected to
+   */
+  QList<Node*> GetDependencies();
+
+  /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
    */
   static QVariant PtrToValue(void* ptr);

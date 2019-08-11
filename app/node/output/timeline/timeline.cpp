@@ -20,20 +20,17 @@
 
 #include "timeline.h"
 
-#include <QDebug>
 
 TimelineOutput::TimelineOutput() :
   first_block_(nullptr),
-  current_block_(nullptr),
+  current_block_(this),
   attached_timeline_(nullptr)
 {
-  block_input_ = new NodeInput();
-  block_input_->add_data_input(NodeInput::kBlock);
-  AddParameter(block_input_);
+}
 
-  texture_output_ = new NodeOutput();
-  texture_output_->set_data_type(NodeOutput::kTexture);
-  AddParameter(texture_output_);
+Block::Type TimelineOutput::type()
+{
+  return kEnd;
 }
 
 QString TimelineOutput::Name()
@@ -93,50 +90,55 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
   }
 }
 
-NodeInput *TimelineOutput::block_input()
+rational TimelineOutput::length()
 {
-  return block_input_;
-}
-
-NodeOutput *TimelineOutput::texture_output()
-{
-  return texture_output_;
+  return 0;
 }
 
 void TimelineOutput::Refresh()
 {
+  QVector<Block*> detect_attached_blocks;
+
   Block* previous = attached_block();
-
-  first_block_ = nullptr;
-
-  // Find first block
   while (previous != nullptr) {
+    detect_attached_blocks.prepend(previous);
 
-    // Cache block in "first", if this is indeed the first, its previous will be nullptr thus breaking the loop
-    first_block_ = previous;
+    if (attached_timeline_ != nullptr && !block_cache_.contains(previous)) {
+      // FIXME: Remove the need to cast this
+      attached_timeline_->AddClip(static_cast<ClipBlock*>(previous));
+    }
 
     previous = previous->previous();
   }
 
-  if (first_block_ != nullptr) {
-    first_block_->RefreshFollowing();
+  if (attached_timeline_ != nullptr) {
+    foreach (Block* b, block_cache_) {
+      if (!detect_attached_blocks.contains(b)) {
+        attached_timeline_->RemoveClip(static_cast<ClipBlock*>(b));
+      }
+    }
   }
+
+  block_cache_ = detect_attached_blocks;
+
+  Block::Refresh();
 }
 
 void TimelineOutput::Process(const rational &time)
 {
-  // This node is intended to connect to the end of the timeline, so being beyond its out point is considered the end
-  // of the sequence
-  if (attached_block() == nullptr || time >= attached_block()->out()) {
-    texture_output_->set_value(0);
-    current_block_ = nullptr;
+  // Run default node processing
+  Block::Process(time);
+
+  // This node representso the end of the timeline, so being beyond its in point is considered the end of the sequence
+  if (time >= in()) {
+    texture_output()->set_value(0);
+    current_block_ = this;
     return;
   }
 
   // If we're here, we need to find the current clip to display
-  if (current_block_ == nullptr) {
-    current_block_ = attached_block();
-  }
+  // attached_block() is guaranteed to not be nullptr if we didn't return before
+  current_block_ = attached_block();
 
   // If the time requested is an earlier Block, traverse earlier until we find it
   while (time < current_block_->in()) {
@@ -149,12 +151,21 @@ void TimelineOutput::Process(const rational &time)
   }
 
   // At this point, we must have found the correct block so we use its texture output to produce the image
-  texture_output_->set_value(current_block_->texture_output()->get_value(time));
+  texture_output()->set_value(current_block_->texture_output()->get_value(time));
+}
+
+Block *TimelineOutput::first_block()
+{
+  if (block_cache_.isEmpty()) {
+    return nullptr;
+  }
+
+  return block_cache_.first();
 }
 
 Block *TimelineOutput::attached_block()
 {
-  return ValueToPtr<Block>(block_input_->get_value(0));
+  return ValueToPtr<Block>(previous_input()->get_value(0));
 }
 
 void TimelineOutput::InsertBlock(Block *block, int index)
@@ -165,48 +176,32 @@ void TimelineOutput::InsertBlock(Block *block, int index)
 
   // FIXME: We'll probably want to add more nodes than this?
 
-  Block* block_before = nullptr;
-  Block* block_after = first_block_;
+  if (block_cache_.isEmpty()) {
 
-  for (int i=0;i<index;i++) {
-    block_before = block_after;
+    Block::ConnectBlocks(block, this);
 
-    block_after = block_after->next();
+  } else if (index == 0) {
 
-    if (block_after == nullptr) {
-      break;
-    }
-  }
+    // Prepend block before all others
+    Block::ConnectBlocks(block, block_cache_.first());
 
-  if (block_before != nullptr && block_after != nullptr) {
-    // If neither blocks are null, we're inserting this block between them
-
-    // Disconnect existing blocks
-    Block::DisconnectBlocks(block_before, block_after);
-    Block::ConnectBlocks(block_before, block);
-    Block::ConnectBlocks(block, block_after);
-  } else if (block_before != nullptr) {
-    // We're at the end of the Sequence
-
-    // Disconnect previous ending clip from this one
-    NodeParam::DisconnectEdge(block_before->block_output(), block_input_);
-    NodeParam::ConnectEdge(block->block_output(), block_input_);
-
-    // Connect both blocks together
-    Block::ConnectBlocks(block_before, block);
-  } else if (block_after != nullptr) {
-    // We're at the start of the Sequence
-
-    // Connect both blocks together
-    Block::ConnectBlocks(block, block_after);
   } else {
-    // Sequence is empty
-    NodeParam::ConnectEdge(block->block_output(), block_input_);
-  }
 
-  if (attached_timeline_ != nullptr) {
-    attached_timeline_->AddClip(static_cast<ClipBlock*>(block));
-  }
+    // Insert block between
+    Block* before;
+    Block* after;
 
-  Refresh();
+    if (index < block_cache_.size()) {
+      before = block_cache_.at(index - 1);
+      after = block_cache_.at(index);
+    } else {
+      before = block_cache_.last();
+      after = this;
+    }
+
+    Block::DisconnectBlocks(before, after);
+    Block::ConnectBlocks(before, block);
+    Block::ConnectBlocks(block, after);
+
+  }
 }

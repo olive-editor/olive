@@ -67,6 +67,11 @@ void TimelineView::AddClip(ClipBlock *clip)
   connect(clip, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
 }
 
+void TimelineView::RemoveClip(ClipBlock *clip)
+{
+  delete clip_items_[clip];
+}
+
 void TimelineView::SetScale(const double &scale)
 {
   scale_ = scale;

@@ -257,6 +257,8 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   }
 }
 
+#include "node/block/block.h"
+
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   // We override standard mouse behavior in some cases. In these cases, we don't want the standard "move" and "release"

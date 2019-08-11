@@ -21,17 +21,19 @@
 #ifndef TIMELINEOUTPUT_H
 #define TIMELINEOUTPUT_H
 
-#include "node/node.h"
+#include "node/block/block.h"
 #include "panel/timeline/timeline.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
  */
-class TimelineOutput : public Node
+class TimelineOutput : public Block
 {
   Q_OBJECT
 public:
   TimelineOutput();
+
+  virtual Type type() override;
 
   virtual QString Name() override;
   virtual QString id() override;
@@ -40,22 +42,22 @@ public:
 
   void AttachTimeline(TimelinePanel* timeline);
 
-  NodeInput* block_input();
-  NodeOutput* texture_output();
+  virtual rational length() override;
+
+  virtual void Refresh() override;
 
 public slots:
-  void Refresh();
-
   virtual void Process(const rational &time) override;
 
 private:
+  QVector<Block*> block_cache_;
+
+  Block* first_block();
+
   Block* attached_block();
 
   Block* first_block_;
   Block* current_block_;
-
-  NodeInput* block_input_;
-  NodeOutput* texture_output_;
 
   TimelinePanel* attached_timeline_;
 

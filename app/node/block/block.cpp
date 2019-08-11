@@ -20,6 +20,8 @@
 
 #include "block.h"
 
+#include <QDebug>
+
 Block::Block()
 {
   previous_input_ = new NodeInput();
@@ -37,6 +39,9 @@ Block::Block()
   texture_output_ = new NodeOutput();
   texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
+
+  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockOrderChanged(NodeEdgePtr)));
+  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockOrderChanged(NodeEdgePtr)));
 }
 
 QString Block::Category()
@@ -112,6 +117,14 @@ void Block::RefreshFollowing()
     next_block->Refresh();
 
     next_block = next_block->next();
+  }
+}
+
+void Block::BlockOrderChanged(NodeEdgePtr edge)
+{
+  if (edge->input() == previous_input() || edge->input() == next_input()) {
+    // The blocks surrounding this one have changed, we need to Refresh()
+    RefreshFollowing();
   }
 }
 

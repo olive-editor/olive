@@ -35,6 +35,8 @@ public:
 
   void AddClip(ClipBlock* clip);
 
+  void RemoveClip(ClipBlock* clip);
+
   void SetTimebase(const rational& timebase);
 
 protected:

@@ -63,6 +63,11 @@ void TimelinePanel::AddClip(ClipBlock *clip)
   view_->AddClip(clip);
 }
 
+void TimelinePanel::RemoveClip(ClipBlock *clip)
+{
+  view_->RemoveClip(clip);
+}
+
 void TimelinePanel::SetTimebase(const rational &timebase)
 {
   ruler_->SetTimebase(timebase);

@@ -128,7 +128,7 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
   input->edges_.append(edge);
 
   // Emit a signal than an edge was added (only one signal needs emitting)
-  emit output->EdgeAdded(edge);
+  emit input->EdgeAdded(edge);
 
   return edge;
 }
@@ -141,7 +141,7 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
   output->edges_.removeAll(edge);
   input->edges_.removeAll(edge);
 
-  emit output->EdgeRemoved(edge);
+  emit input->EdgeRemoved(edge);
 }
 
 void NodeParam::DisconnectEdge(NodeOutput *output, NodeInput *input)
