@@ -174,31 +174,39 @@ void TimelineOutput::InsertBlock(Block *block, int index)
   NodeGraph* graph = static_cast<NodeGraph*>(parent());
   graph->AddNode(block);
 
-  // FIXME: We'll probably want to add more nodes than this?
+  // Add all of Block's dependencies
+  QList<Node*> block_dependencies = block->GetDependencies();
+  foreach (Node* dep, block_dependencies) {
+    graph->AddNode(dep);
+  }
 
   if (block_cache_.isEmpty()) {
 
+    // If there are no blocks connected, the index doesn't matter. Just connect it.
     Block::ConnectBlocks(block, this);
 
   } else if (index == 0) {
 
-    // Prepend block before all others
+    // If the index is 0, it goes at the very beginning
     Block::ConnectBlocks(block, block_cache_.first());
 
   } else {
 
-    // Insert block between
+    // Otherwise, the block goes between two other blocks somehow
     Block* before;
     Block* after;
 
     if (index < block_cache_.size()) {
+      // The block goes somewhere in between some set of two blocks
       before = block_cache_.at(index - 1);
       after = block_cache_.at(index);
     } else {
+      // The block goes at the very end
       before = block_cache_.last();
       after = this;
     }
 
+    // Connect blocks correctly
     Block::DisconnectBlocks(before, after);
     Block::ConnectBlocks(before, block);
     Block::ConnectBlocks(block, after);

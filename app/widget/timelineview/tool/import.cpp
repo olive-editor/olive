@@ -22,6 +22,8 @@
 
 #include <QMimeData>
 
+#include "node/input/media/media.h"
+
 TimelineView::ImportTool::ImportTool(TimelineView *parent) :
   Tool(parent)
 {
@@ -103,9 +105,15 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
   if (parent()->HasGhosts()) {
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
       ClipBlock* clip = new ClipBlock();
+      MediaInput* media = new MediaInput();
 
       clip->set_length(ghost->Out() - ghost->In());
+      media->SetFootage(ghost->stream()->footage());
 
+      NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
+
+      // FIXME: If this doesn't have a TimelineOutput node attached, this is a memory leak. Maybe switching nodes to
+      //        shared ptrs would be a better idea.
       emit parent()->RequestInsertBlock(clip, 0);
     }
 

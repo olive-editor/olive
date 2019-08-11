@@ -109,7 +109,7 @@ public:
   int IndexOfParameter(NodeParam* param);
 
   /**
-   * @brief Return a list of all Nodes that this Node's inputs are connected to
+   * @brief Return a list of all Nodes that this Node's inputs are connected to (does not include this Node)
    */
   QList<Node*> GetDependencies();
 

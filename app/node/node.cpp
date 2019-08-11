@@ -87,15 +87,33 @@ int Node::IndexOfParameter(NodeParam *param)
   return children().indexOf(param);
 }
 
-QList<Node *> Node::GetDependencies()
-{
-  QList<NodeParam*> params = parameters();
+/**
+ * @brief Recursively collects dependencies of Node `n` and appends them to QList `list`
+ */
+void GetDependenciesInternal(Node* n, QList<Node*>& list) {
+  QList<NodeParam*> params = n->parameters();
 
   foreach (NodeParam* p, params) {
     if (p->type() == NodeParam::kInput) {
+      QVector<NodeEdgePtr> param_edges = p->edges();
 
+      foreach (NodeEdgePtr edge, param_edges) {
+        Node* connected_node = edge->output()->parent();
+
+        list.append(connected_node);
+        GetDependenciesInternal(connected_node, list);
+      }
     }
   }
+}
+
+QList<Node *> Node::GetDependencies()
+{
+  QList<Node *> node_list;
+
+  GetDependenciesInternal(this, node_list);
+
+  return node_list;
 }
 
 QVariant Node::PtrToValue(void *ptr)
