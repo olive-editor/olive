@@ -87,6 +87,22 @@ private:
 
 private slots:
   /**
+   * @brief Slot when a Node is added to a graph (SetGraph() connects this)
+   *
+   * This should NEVER be called directly, only connected to a NodeGraph. To add a Node to the NodeGraph
+   * use NodeGraph::AddNode().
+   */
+  void AddNode(Node* node);
+
+  /**
+   * @brief Slot when a Node is removed from a graph (SetGraph() connects this)
+   *
+   * This should NEVER be called directly, only connected to a NodeGraph. To remove a Node from the NodeGraph
+   * use NodeGraph::RemoveNode().
+   */
+  void RemoveNode(Node* node);
+
+  /**
    * @brief Slot when an edge is added to a graph (SetGraph() connects this)
    *
    * This should NEVER be called directly, only connected to a NodeGraph. To add an edge (i.e. connect two node

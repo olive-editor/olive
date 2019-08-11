@@ -40,6 +40,9 @@ public:
 protected:
   virtual void changeEvent(QEvent* e) override;
 
+signals:
+  void RequestInsertBlock(Block*, int);
+
 private:
   void Retranslate();
 

@@ -44,16 +44,23 @@ public:
   NodeOutput* texture_output();
 
 public slots:
+  void Refresh();
+
   virtual void Process(const rational &time) override;
 
 private:
   Block* attached_block();
+
+  Block* first_block_;
   Block* current_block_;
 
   NodeInput* block_input_;
   NodeOutput* texture_output_;
 
   TimelinePanel* attached_timeline_;
+
+private slots:
+  void InsertBlock(Block* block, int index);
 };
 
 #endif // TIMELINEOUTPUT_H

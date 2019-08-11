@@ -35,6 +35,13 @@ class Block : public Node
 public:
   Block();
 
+  enum Type {
+    kClip,
+    kGap
+  };
+
+  virtual Type type() = 0;
+
   virtual QString Category() override;
 
   const rational& in();
@@ -51,6 +58,9 @@ public:
 
   NodeOutput* texture_output();
   NodeOutput* block_output();
+
+  static void ConnectBlocks(Block* previous, Block* next);
+  static void DisconnectBlocks(Block* previous, Block* next);
 
 public slots:
   virtual void Process(const rational &time) override;
@@ -70,8 +80,12 @@ public slots:
    */
   void Refresh();
 
+  void RefreshFollowing();
+
+signals:
+  void Refreshed();
+
 protected:
-  void RefreshSurrounds();
 
 private:
   NodeInput* previous_input_;

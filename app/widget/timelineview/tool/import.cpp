@@ -101,6 +101,14 @@ void TimelineView::ImportTool::DragLeave(QDragLeaveEvent *event)
 void TimelineView::ImportTool::DragDrop(QDropEvent *event)
 {
   if (parent()->HasGhosts()) {
+    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+      ClipBlock* clip = new ClipBlock();
+
+      clip->set_length(ghost->Out() - ghost->In());
+
+      emit parent()->RequestInsertBlock(clip, 0);
+    }
+
     parent()->ClearGhosts();
 
     event->accept();

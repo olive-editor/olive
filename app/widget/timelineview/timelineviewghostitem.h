@@ -24,6 +24,9 @@
 #include "project/item/footage/footage.h"
 #include "timelineviewrect.h"
 
+/**
+ * @brief A graphical representation of changes the user is making before they apply it
+ */
 class TimelineViewGhostItem : public TimelineViewRect
 {
 public:
@@ -44,8 +47,9 @@ public:
   StreamPtr stream();
   void SetStream(StreamPtr f);
 
-protected:
   virtual void UpdateRect() override;
+
+protected:
 
 private:
   rational in_;

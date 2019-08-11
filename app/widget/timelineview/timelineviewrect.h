@@ -25,6 +25,9 @@
 
 #include "common/rational.h"
 
+/**
+ * @brief A base class for graphical representations of Block nodes
+ */
 class TimelineViewRect : public QGraphicsRectItem
 {
 public:
@@ -32,9 +35,9 @@ public:
 
   void SetScale(const double& scale);
 
-protected:
   virtual void UpdateRect() = 0;
 
+protected:
   double TimeToScreenCoord(const rational& time);
 
   double scale_;

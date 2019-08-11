@@ -20,7 +20,10 @@
 
 #include "timeline.h"
 
+#include <QDebug>
+
 TimelineOutput::TimelineOutput() :
+  first_block_(nullptr),
   current_block_(nullptr),
   attached_timeline_(nullptr)
 {
@@ -59,6 +62,8 @@ QString TimelineOutput::Description()
 void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 {
   if (attached_timeline_ != nullptr) {
+    disconnect(attached_timeline_, SIGNAL(RequestInsertBlock(Block*, int)), this, SLOT(InsertBlock(Block*, int)));
+
     attached_timeline_->Clear();
   }
 
@@ -83,6 +88,8 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 
       previous_block = previous_block->previous();
     }
+
+    connect(attached_timeline_, SIGNAL(RequestInsertBlock(Block*, int)), this, SLOT(InsertBlock(Block*, int)));
   }
 }
 
@@ -94,6 +101,26 @@ NodeInput *TimelineOutput::block_input()
 NodeOutput *TimelineOutput::texture_output()
 {
   return texture_output_;
+}
+
+void TimelineOutput::Refresh()
+{
+  Block* previous = attached_block();
+
+  first_block_ = nullptr;
+
+  // Find first block
+  while (previous != nullptr) {
+
+    // Cache block in "first", if this is indeed the first, its previous will be nullptr thus breaking the loop
+    first_block_ = previous;
+
+    previous = previous->previous();
+  }
+
+  if (first_block_ != nullptr) {
+    first_block_->RefreshFollowing();
+  }
 }
 
 void TimelineOutput::Process(const rational &time)
@@ -128,4 +155,58 @@ void TimelineOutput::Process(const rational &time)
 Block *TimelineOutput::attached_block()
 {
   return ValueToPtr<Block>(block_input_->get_value(0));
+}
+
+void TimelineOutput::InsertBlock(Block *block, int index)
+{
+  // Add node and its connected nodes to graph
+  NodeGraph* graph = static_cast<NodeGraph*>(parent());
+  graph->AddNode(block);
+
+  // FIXME: We'll probably want to add more nodes than this?
+
+  Block* block_before = nullptr;
+  Block* block_after = first_block_;
+
+  for (int i=0;i<index;i++) {
+    block_before = block_after;
+
+    block_after = block_after->next();
+
+    if (block_after == nullptr) {
+      break;
+    }
+  }
+
+  if (block_before != nullptr && block_after != nullptr) {
+    // If neither blocks are null, we're inserting this block between them
+
+    // Disconnect existing blocks
+    Block::DisconnectBlocks(block_before, block_after);
+    Block::ConnectBlocks(block_before, block);
+    Block::ConnectBlocks(block, block_after);
+  } else if (block_before != nullptr) {
+    // We're at the end of the Sequence
+
+    // Disconnect previous ending clip from this one
+    NodeParam::DisconnectEdge(block_before->block_output(), block_input_);
+    NodeParam::ConnectEdge(block->block_output(), block_input_);
+
+    // Connect both blocks together
+    Block::ConnectBlocks(block_before, block);
+  } else if (block_after != nullptr) {
+    // We're at the start of the Sequence
+
+    // Connect both blocks together
+    Block::ConnectBlocks(block, block_after);
+  } else {
+    // Sequence is empty
+    NodeParam::ConnectEdge(block->block_output(), block_input_);
+  }
+
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->AddClip(static_cast<ClipBlock*>(block));
+  }
+
+  Refresh();
 }

@@ -32,6 +32,8 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
+  virtual Type type() override;
+
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Description() override;

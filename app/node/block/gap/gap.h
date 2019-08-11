@@ -32,6 +32,8 @@ class GapBlock : public Block
 public:
   GapBlock();
 
+  virtual Type type() override;
+
   virtual rational length() override;
   virtual void set_length(const rational &length) override;
 

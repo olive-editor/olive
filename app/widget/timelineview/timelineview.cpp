@@ -33,8 +33,7 @@ TimelineView::TimelineView(QWidget *parent) :
   QGraphicsView(parent),
   pointer_tool_(this),
   import_tool_(this),
-  playhead_(0),
-  dragging_(false)
+  playhead_(0)
 {
   setScene(&scene_);
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
@@ -60,18 +59,22 @@ void TimelineView::AddClip(ClipBlock *clip)
   clip_item->SetScale(scale_);
 
   // Add to list of clip items that can be iterated through
-  clip_items_.append(clip_item);
+  clip_items_.insert(clip, clip_item);
 
   // Add item to graphics scene
   scene_.addItem(clip_item);
+
+  connect(clip, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
 }
 
 void TimelineView::SetScale(const double &scale)
 {
   scale_ = scale;
 
-  foreach (TimelineViewClipItem* item, clip_items_) {
-    item->SetScale(scale_);
+  QMapIterator<Block*, TimelineViewRect*> iterator(clip_items_);
+
+  while (iterator.hasNext()) {
+    iterator.value()->SetScale(scale_);
   }
 
   playhead_line_->SetScale(scale_);
@@ -169,7 +172,13 @@ void TimelineView::ClearGhosts()
   }
 }
 
+void TimelineView::BlockChanged()
+{
+  clip_items_[static_cast<Block*>(sender())]->UpdateRect();
+}
+
 TimelineView::Tool::Tool(TimelineView *parent) :
+  dragging_(false),
   parent_(parent)
 {
 }

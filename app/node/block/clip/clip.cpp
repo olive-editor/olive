@@ -29,6 +29,11 @@ ClipBlock::ClipBlock()
   AddParameter(texture_input_);
 }
 
+Block::Type ClipBlock::type()
+{
+  return kClip;
+}
+
 QString ClipBlock::Name()
 {
   return tr("Clip");
@@ -52,6 +57,8 @@ rational ClipBlock::length()
 void ClipBlock::set_length(const rational &length)
 {
   length_ = length;
+
+  RefreshFollowing();
 }
 
 NodeInput *ClipBlock::texture_input()

@@ -24,6 +24,11 @@ GapBlock::GapBlock()
 {
 }
 
+Block::Type GapBlock::type()
+{
+  return kGap;
+}
+
 rational GapBlock::length()
 {
   return length_;
@@ -33,5 +38,5 @@ void GapBlock::set_length(const rational &length)
 {
   length_ = length;
 
-  RefreshSurrounds();
+  RefreshFollowing();
 }

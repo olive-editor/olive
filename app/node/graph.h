@@ -52,6 +52,16 @@ public:
 
 signals:
   /**
+   * @brief Signal emitted when a Node is added to the graph
+   */
+  void NodeAdded(Node* node);
+
+  /**
+   * @brief Signal emitted when a Node is removed from the graph
+   */
+  void NodeRemoved(Node* node);
+
+  /**
    * @brief Signal emitted when a member node of this graph has been connected to another (creating an "edge")
    */
   void EdgeAdded(NodeEdgePtr edge);

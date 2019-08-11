@@ -294,14 +294,11 @@ void Core::CreateNewSequence()
 
     NodeParam::ConnectEdge(sg->texture_output(), cb1->texture_input());
     NodeParam::ConnectEdge(ii->texture_output(), cb2->texture_input());
-    NodeParam::ConnectEdge(cb1->block_output(), cb2->previous_input());
-    NodeParam::ConnectEdge(cb2->block_output(), cb1->next_input());
+    Block::ConnectBlocks(cb1, cb2);
     NodeParam::ConnectEdge(cb2->block_output(), tb->block_input());
     NodeParam::ConnectEdge(tb->texture_output(), vo->texture_input());
 
-    cb1->Refresh();
-    cb2->Refresh();
-
+    tb->Refresh();
     tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
 
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());

@@ -33,6 +33,8 @@ void NodeGraph::AddNode(Node *node)
 
   connect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   connect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+
+  emit NodeAdded(node);
 }
 
 QList<Node *> NodeGraph::nodes()

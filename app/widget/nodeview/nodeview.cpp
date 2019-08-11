@@ -47,33 +47,15 @@ void NodeView::SetGraph(NodeGraph *graph)
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_ != nullptr) {
+    connect(graph_, SIGNAL(NodeAdded(Node*)), this, SLOT(AddNode(Node*)));
+    connect(graph_, SIGNAL(NodeRemoved(Node*)), this, SLOT(RemoveNode(Node*)));
     connect(graph_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(AddEdge(NodeEdgePtr)));
     connect(graph_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(RemoveEdge(NodeEdgePtr)));
 
     QList<Node*> graph_nodes = graph_->nodes();
 
     foreach (Node* node, graph_nodes) {
-      NodeViewItem* item = new NodeViewItem();
-
-      item->SetNode(node);
-
-      scene_.addItem(item);
-
-      // Add a NodeViewEdge for each connection
-      QList<NodeParam*> node_params = node->parameters();
-
-      foreach (NodeParam* param, node_params) {
-
-        // We only bother working with outputs since eventually this will cover all inputs too
-        // (covering both would lead to duplicates since every edge connects to one input and one output)
-        if (param->type() == NodeParam::kOutput) {
-          const QVector<NodeEdgePtr>& edges = param->edges();
-
-          foreach(NodeEdgePtr edge, edges) {
-            AddEdge(edge);
-          }
-        }
-      }
+      AddNode(node);
     }
   }
 }
@@ -122,6 +104,38 @@ NodeViewEdge *NodeView::EdgeToUIObject(NodeEdgePtr n)
   return EdgeToUIObject(&scene_, n);
 }
 
+void NodeView::AddNode(Node* node)
+{
+  NodeViewItem* item = new NodeViewItem();
+
+  item->SetNode(node);
+
+  scene_.addItem(item);
+
+  // Add a NodeViewEdge for each connection
+  QList<NodeParam*> node_params = node->parameters();
+
+  foreach (NodeParam* param, node_params) {
+
+    // We only bother working with outputs since eventually this will cover all inputs too
+    // (covering both would lead to duplicates since every edge connects to one input and one output)
+    if (param->type() == NodeParam::kOutput) {
+      const QVector<NodeEdgePtr>& edges = param->edges();
+
+      foreach(NodeEdgePtr edge, edges) {
+        AddEdge(edge);
+      }
+    }
+  }
+}
+
+void NodeView::RemoveNode(Node *node)
+{
+  NodeViewItem* item = NodeToUIObject(scene(), node);
+
+  delete item;
+}
+
 void NodeView::AddEdge(NodeEdgePtr edge)
 {
   NodeViewEdge* edge_ui = new NodeViewEdge();
@@ -135,7 +149,7 @@ void NodeView::RemoveEdge(NodeEdgePtr edge)
 {
   NodeViewEdge* edge_ui = EdgeToUIObject(scene(), edge);
 
-  scene_.removeItem(edge_ui);
+  delete edge_ui;
 }
 
 void NodeView::ItemsChanged()

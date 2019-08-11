@@ -50,7 +50,7 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
   parent()->QGraphicsView::mouseMoveEvent(event);
 
-  if (!parent()->dragging_) {
+  if (!dragging_) {
     // Let's see if there's anything selected to drag
     if (parent()->itemAt(event->pos()) != nullptr) {
       QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
@@ -72,12 +72,12 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         parent()->scene_.addItem(ghost);
       }
 
-      parent()->drag_start_ = event->pos();
+      drag_start_ = event->pos();
     }
 
-    parent()->dragging_ = true;
+    dragging_ = true;
   } else if (!parent()->ghost_items_.isEmpty()) {
-    QPoint movement = event->pos() - parent()->drag_start_;
+    QPoint movement = event->pos() - drag_start_;
 
     rational time_movement = parent()->ScreenToTime(movement.x());
 
@@ -105,5 +105,5 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 
   parent()->ClearGhosts();
 
-  parent()->dragging_ = false;
+  dragging_ = false;
 }

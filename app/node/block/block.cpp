@@ -88,7 +88,7 @@ void Block::Process(const rational &time)
 }
 
 void Block::Refresh()
-{
+{  
   // Set in point to the out point of the previous Node
   if (previous() != nullptr) {
     in_point_ = previous()->out();
@@ -98,22 +98,20 @@ void Block::Refresh()
 
   // Update out point by adding this clip's length to the just calculated in point
   out_point_ = in_point_ + length();
+
+  emit Refreshed();
 }
 
-void Block::RefreshSurrounds()
+void Block::RefreshFollowing()
 {
-  Block* acting_node = previous();
+  Refresh();
 
-  while (acting_node != nullptr) {
-    acting_node->Refresh();
-    acting_node = acting_node->previous();
-  }
+  Block* next_block = next();
 
-  acting_node = next();
+  while (next_block != nullptr) {
+    next_block->Refresh();
 
-  while (acting_node != nullptr) {
-    acting_node->Refresh();
-    acting_node = acting_node->next();
+    next_block = next_block->next();
   }
 }
 
@@ -125,4 +123,16 @@ NodeOutput *Block::texture_output()
 NodeOutput *Block::block_output()
 {
   return block_output_;
+}
+
+void Block::ConnectBlocks(Block *previous, Block *next)
+{
+  NodeParam::ConnectEdge(previous->block_output(), next->previous_input());
+  NodeParam::ConnectEdge(next->block_output(), previous->next_input());
+}
+
+void Block::DisconnectBlocks(Block *previous, Block *next)
+{
+  NodeParam::DisconnectEdge(previous->block_output(), next->previous_input());
+  NodeParam::DisconnectEdge(next->block_output(), previous->next_input());
 }

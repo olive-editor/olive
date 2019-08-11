@@ -32,6 +32,11 @@
 #include "timelineviewghostitem.h"
 #include "timelineviewplayheaditem.h"
 
+/**
+ * @brief A widget for viewing and interacting Sequences
+ *
+ * This widget primarily exposes users to viewing and modifying Block nodes, usually through a TimelineOutput node.
+ */
 class TimelineView : public QGraphicsView
 {
   Q_OBJECT
@@ -39,6 +44,8 @@ public:
   TimelineView(QWidget* parent);
 
   void AddClip(ClipBlock* clip);
+
+  void RemoveClip(ClipBlock* clip);
 
   void SetScale(const double& scale);
 
@@ -48,6 +55,9 @@ public:
 
 public slots:
   void SetTime(const int64_t time);
+
+signals:
+  void RequestInsertBlock(Block* block, int index);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -77,6 +87,11 @@ private:
     virtual void DragDrop(QDropEvent *event);
 
     TimelineView* parent();
+
+  protected:
+    bool dragging_;
+
+    QPoint drag_start_;
 
   private:
     TimelineView* parent_;
@@ -124,15 +139,20 @@ private:
 
   int64_t playhead_;
 
-  QVector<TimelineViewClipItem*> clip_items_;
+  QMap<Block*, TimelineViewRect*> clip_items_;
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
   TimelineViewPlayheadItem* playhead_line_;
 
-  bool dragging_;
-
-  QPoint drag_start_;
+private slots:
+  /**
+   * @brief Slot for when a Block node changes its parameters and the graphics need to update
+   *
+   * This slot does a static_cast on sender() to Block*, meaning all objects triggering this slot must be Blocks or
+   * derivatives.
+   */
+  void BlockChanged();
 };
 
 #endif // TIMELINEVIEW_H

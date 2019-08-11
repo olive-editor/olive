@@ -24,6 +24,9 @@
 #include "timelineplayhead.h"
 #include "timelineviewrect.h"
 
+/**
+ * @brief A graphical representation of the playhead on the Timeline
+ */
 class TimelineViewPlayheadItem : public TimelineViewRect
 {
 public:
@@ -33,9 +36,9 @@ public:
 
   void SetTimebase(const rational& timebase);
 
-protected:
   virtual void UpdateRect() override;
 
+protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:

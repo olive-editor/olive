@@ -23,6 +23,11 @@
 
 #include <QWidget>
 
+/**
+ * @brief A QWidget proxy for TimeRuler and TimelinePlayheadItem to allow them to share CSS values
+ *
+ * To allow Qt CSS customization (which is only available to QWidgets) to be accessed by TimeRuler
+ */
 class TimelinePlayhead : public QWidget
 {
   Q_OBJECT

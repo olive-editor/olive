@@ -25,6 +25,9 @@
 #include "node/block/clip/clip.h"
 #include "timelineviewghostitem.h"
 
+/**
+ * @brief A graphical representation of a ClipBlock
+ */
 class TimelineViewClipItem : public TimelineViewRect
 {
 public:
@@ -33,9 +36,9 @@ public:
   ClipBlock* clip();
   void SetClip(ClipBlock* clip);
 
-protected:
   virtual void UpdateRect() override;
 
+protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
