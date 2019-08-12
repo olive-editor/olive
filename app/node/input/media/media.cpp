@@ -27,6 +27,7 @@
 
 // FIXME: Test code only
 #include "decoder/ffmpeg/ffmpegdecoder.h"
+#include "render/colorservice.h"
 #include "render/pixelservice.h"
 // End test code
 
@@ -111,6 +112,10 @@ void MediaInput::Process(const rational &time)
   if (frame == nullptr) {
     return;
   }
+
+  // Use OCIO
+  frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
+  ColorService::ConvertFrame(frame);
 
   // FIXME: Test code
   if (tex_buf_.IsCreated()) {

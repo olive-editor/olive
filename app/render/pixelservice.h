@@ -24,6 +24,7 @@
 #include <QString>
 #include <QOpenGLExtraFunctions>
 
+#include "decoder/frame.h"
 #include "pixelformat.h"
 
 /**
@@ -87,7 +88,13 @@ public:
    */
   static int BytesPerChannel(const olive::PixelFormat& format);
 
-private:
+  /**
+   * @brief Convert a frame to a pixel format
+   *
+   * If the frame's pixel format == the destination format, this just returns `frame`.
+   */
+  static FramePtr ConvertPixelFormat(FramePtr frame, const olive::PixelFormat &dest_format);
+
 };
 
 #endif // PIXELSERVICE_H
