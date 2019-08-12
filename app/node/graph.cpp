@@ -29,6 +29,10 @@ NodeGraph::NodeGraph()
 
 void NodeGraph::AddNode(Node *node)
 {
+  if (ContainsNode(node)) {
+    return;
+  }
+
   node->setParent(this);
 
   connect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
@@ -37,7 +41,24 @@ void NodeGraph::AddNode(Node *node)
   emit NodeAdded(node);
 }
 
+void NodeGraph::AddNodeWithDependencies(Node *node)
+{
+  // Add node and its connected nodes to graph
+  AddNode(node);
+
+  // Add all of Block's dependencies
+  QList<Node*> node_dependencies = node->GetDependencies();
+  foreach (Node* dep, node_dependencies) {
+    AddNode(dep);
+  }
+}
+
 QList<Node *> NodeGraph::nodes()
 {
   return static_qobjectlist_cast<Node>(children());
+}
+
+bool NodeGraph::ContainsNode(Node *n)
+{
+  return (n->parent() == this);
 }

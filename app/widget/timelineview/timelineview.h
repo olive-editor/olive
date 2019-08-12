@@ -43,9 +43,9 @@ class TimelineView : public QGraphicsView
 public:
   TimelineView(QWidget* parent);
 
-  void AddClip(ClipBlock* clip);
+  void AddBlock(Block* block);
 
-  void RemoveClip(ClipBlock* clip);
+  void RemoveBlock(Block* block);
 
   void SetScale(const double& scale);
 
@@ -57,7 +57,9 @@ public slots:
   void SetTime(const int64_t time);
 
 signals:
-  void RequestInsertBlock(Block* block, int index);
+  void RequestInsertBlockAtIndex(Block* block, int index);
+
+  void RequestPlaceBlock(Block* block, rational start);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;

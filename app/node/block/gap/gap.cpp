@@ -29,6 +29,21 @@ Block::Type GapBlock::type()
   return kGap;
 }
 
+QString GapBlock::Name()
+{
+  return tr("Gap");
+}
+
+QString GapBlock::id()
+{
+  return "org.olivevideoeditor.Olive.gap";
+}
+
+QString GapBlock::Description()
+{
+  return tr("A time-based node that represents an empty space.");
+}
+
 rational GapBlock::length()
 {
   return length_;

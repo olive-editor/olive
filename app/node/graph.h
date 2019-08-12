@@ -46,9 +46,22 @@ public:
   void AddNode(Node* node);
 
   /**
+   * @brief Adds a node to this graph and all nodes connected to its inputs
+   *
+   * Adds the Node to the graph and runs through its inputs adding all of its dependencies (and all of their
+   * dependencies and so forth).
+   */
+  void AddNodeWithDependencies(Node* node);
+
+  /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
   QList<Node*> nodes();
+
+  /**
+   * @brief Returns whether a certain Node is in the graph or not
+   */
+  bool ContainsNode(Node* n);
 
 signals:
   /**

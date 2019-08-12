@@ -43,7 +43,9 @@ protected:
   virtual void changeEvent(QEvent* e) override;
 
 signals:
-  void RequestInsertBlock(Block*, int);
+  void RequestInsertBlockAtIndex(Block*, int);
+
+  void RequestPlaceBlock(Block* block, rational start);
 
 private:
   void Retranslate();

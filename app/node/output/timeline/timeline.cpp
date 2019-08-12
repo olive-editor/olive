@@ -20,6 +20,10 @@
 
 #include "timeline.h"
 
+#include <QDebug>
+
+#include "node/block/gap/gap.h"
+#include "node/graph.h"
 
 TimelineOutput::TimelineOutput() :
   first_block_(nullptr),
@@ -54,12 +58,11 @@ QString TimelineOutput::Description()
             "Sequence.");
 }
 
-#include "project/item/sequence/sequence.h"
-
 void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 {
   if (attached_timeline_ != nullptr) {
-    disconnect(attached_timeline_, SIGNAL(RequestInsertBlock(Block*, int)), this, SLOT(InsertBlock(Block*, int)));
+    disconnect(attached_timeline_, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
+    disconnect(attached_timeline_, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
 
     attached_timeline_->Clear();
   }
@@ -86,7 +89,8 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
       previous_block = previous_block->previous();
     }
 
-    connect(attached_timeline_, SIGNAL(RequestInsertBlock(Block*, int)), this, SLOT(InsertBlock(Block*, int)));
+    connect(attached_timeline_, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
+    connect(attached_timeline_, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
   }
 }
 
@@ -154,6 +158,15 @@ void TimelineOutput::Process(const rational &time)
   texture_output()->set_value(current_block_->texture_output()->get_value(time));
 }
 
+void TimelineOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)
+{
+  AddBlockToGraph(block);
+
+  Block::DisconnectBlocks(before, after);
+  Block::ConnectBlocks(before, block);
+  Block::ConnectBlocks(block, after);
+}
+
 Block *TimelineOutput::first_block()
 {
   if (block_cache_.isEmpty()) {
@@ -168,48 +181,106 @@ Block *TimelineOutput::attached_block()
   return ValueToPtr<Block>(previous_input()->get_value(0));
 }
 
-void TimelineOutput::InsertBlock(Block *block, int index)
+void TimelineOutput::PrependBlock(Block *block)
 {
-  // Add node and its connected nodes to graph
-  NodeGraph* graph = static_cast<NodeGraph*>(parent());
-  graph->AddNode(block);
+  AddBlockToGraph(block);
 
-  // Add all of Block's dependencies
-  QList<Node*> block_dependencies = block->GetDependencies();
-  foreach (Node* dep, block_dependencies) {
-    graph->AddNode(dep);
+  if (block_cache_.isEmpty()) {
+    ConnectBlockInternal(block);
+  } else {
+    Block::ConnectBlocks(block, block_cache_.first());
   }
+}
+
+void TimelineOutput::InsertBlockAtIndex(Block *block, int index)
+{
+  AddBlockToGraph(block);
 
   if (block_cache_.isEmpty()) {
 
     // If there are no blocks connected, the index doesn't matter. Just connect it.
-    Block::ConnectBlocks(block, this);
+    ConnectBlockInternal(block);
 
   } else if (index == 0) {
 
     // If the index is 0, it goes at the very beginning
-    Block::ConnectBlocks(block, block_cache_.first());
+    PrependBlock(block);
+
+  } else if (index >= block_cache_.size()) {
+
+    // Append Block at the end
+    AppendBlock(block);
 
   } else {
 
-    // Otherwise, the block goes between two other blocks somehow
-    Block* before;
-    Block* after;
+    // Insert Block just before the Block currently at that index so that it becomes the new Block at that index
+    InsertBlockBetweenBlocks(block, block_cache_.at(index - 1), block_cache_.at(index));
 
-    if (index < block_cache_.size()) {
-      // The block goes somewhere in between some set of two blocks
-      before = block_cache_.at(index - 1);
-      after = block_cache_.at(index);
-    } else {
-      // The block goes at the very end
-      before = block_cache_.last();
-      after = this;
+  }
+}
+
+void TimelineOutput::AppendBlock(Block *block)
+{
+  AddBlockToGraph(block);
+
+  if (block_cache_.isEmpty()) {
+    ConnectBlockInternal(block);
+  } else {
+    InsertBlockBetweenBlocks(block, block_cache_.last(), this);
+  }
+}
+
+void TimelineOutput::ConnectBlockInternal(Block *block)
+{
+  AddBlockToGraph(block);
+
+  Block::ConnectBlocks(block, this);
+}
+
+void TimelineOutput::AddBlockToGraph(Block *block)
+{
+  // Find the parent graph
+  NodeGraph* graph = static_cast<NodeGraph*>(parent());
+  graph->AddNodeWithDependencies(block);
+}
+
+void TimelineOutput::PlaceBlock(Block *block, rational start)
+{
+  AddBlockToGraph(block);
+
+  if (start == 0) {
+    // FIXME: Remove existing
+
+    PrependBlock(block);
+    return;
+  }
+
+  // Check if the placement location is past the end of the timeline
+  if (start > in()) {
+    // FIXME: Remove existing
+
+    // If so, insert a gap here
+    GapBlock* gap = new GapBlock();
+    gap->set_length(start - in());
+
+    // Then append them
+    AppendBlock(gap);
+    AppendBlock(block);
+
+    return;
+  }
+
+  // Check if the Block is placed at the in point of an existing Block, in which case a simple insert between will
+  // suffice
+  for (int i=1;i<block_cache_.size();i++) {
+    Block* comparison = block_cache_.at(i);
+
+    if (comparison->in() == start) {
+      Block* previous = block_cache_.at(i-1);
+
+      // InsertBlockAtIndex() could work here, but this function is faster since we've already found the Blocks
+      InsertBlockBetweenBlocks(block, previous, comparison);
+      return;
     }
-
-    // Connect blocks correctly
-    Block::DisconnectBlocks(before, after);
-    Block::ConnectBlocks(before, block);
-    Block::ConnectBlocks(block, after);
-
   }
 }

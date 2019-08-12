@@ -9,7 +9,9 @@ ColorService::ColorService()
 
 void ColorService::ConvertFrame(FramePtr f)
 {
-  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+  OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("/run/media/matt/Home/OpenColorIO/ocio.configs.0.7v4/nuke-default/config.ocio");
+
+//  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
 
   OCIO::ConstProcessorRcPtr processor = config->getProcessor("srgb",
                                                              OCIO::ROLE_SCENE_LINEAR);

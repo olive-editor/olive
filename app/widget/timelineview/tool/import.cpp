@@ -83,6 +83,14 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
 void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
 {
   if (parent()->HasGhosts()) {
+    // Move ghosts to the mouse cursor
+    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+      rational time = parent()->ScreenToTime(event->pos().x());
+
+      ghost->SetOut(ghost->Out() - ghost->In() + time);
+      ghost->SetIn(time);
+    }
+
     event->accept();
   } else {
     event->ignore();
@@ -114,7 +122,7 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
 
       // FIXME: If this doesn't have a TimelineOutput node attached, this is a memory leak. Maybe switching nodes to
       //        shared ptrs would be a better idea.
-      emit parent()->RequestInsertBlock(clip, 0);
+      emit parent()->RequestPlaceBlock(clip, ghost->In());
     }
 
     parent()->ClearGhosts();

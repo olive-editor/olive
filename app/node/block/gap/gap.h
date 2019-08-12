@@ -34,6 +34,10 @@ public:
 
   virtual Type type() override;
 
+  virtual QString Name() override;
+  virtual QString id() override;
+  virtual QString Description() override;
+
   virtual rational length() override;
   virtual void set_length(const rational &length) override;
 

@@ -50,26 +50,45 @@ TimelineView::TimelineView(QWidget *parent) :
   SetScale(1.0);
 }
 
-void TimelineView::AddClip(ClipBlock *clip)
+void TimelineView::AddBlock(Block *block)
 {
-  TimelineViewClipItem* clip_item = new TimelineViewClipItem();
+  switch (block->type()) {
+  case Block::kClip:
+  {
+    TimelineViewClipItem* clip_item = new TimelineViewClipItem();
+    ClipBlock* clip = static_cast<ClipBlock*>(block);
 
-  // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-  clip_item->SetClip(clip);
-  clip_item->SetScale(scale_);
+    // Set up clip with view parameters (clip item will automatically size its rect accordingly)
+    clip_item->SetClip(clip);
+    clip_item->SetScale(scale_);
 
-  // Add to list of clip items that can be iterated through
-  clip_items_.insert(clip, clip_item);
+    // Add to list of clip items that can be iterated through
+    clip_items_.insert(clip, clip_item);
 
-  // Add item to graphics scene
-  scene_.addItem(clip_item);
+    // Add item to graphics scene
+    scene_.addItem(clip_item);
 
-  connect(clip, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
+    connect(clip, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
+    break;
+  }
+  case Block::kGap:
+  {
+    clip_items_.insert(block, nullptr);
+    break;
+  }
+  case Block::kEnd:
+    // Do nothing
+    break;
+  }
+
+
 }
 
-void TimelineView::RemoveClip(ClipBlock *clip)
+void TimelineView::RemoveBlock(Block *block)
 {
-  delete clip_items_[clip];
+  delete clip_items_[block];
+
+  clip_items_.remove(block);
 }
 
 void TimelineView::SetScale(const double &scale)

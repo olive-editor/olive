@@ -107,15 +107,18 @@ void MediaInput::Process(const rational &time)
     decoder_->set_stream(footage->stream(0));
   }
 
+  // Get frame from Decoder
   FramePtr frame = decoder_->Retrieve(time);
 
   if (frame == nullptr) {
     return;
   }
 
-  // Use OCIO
-  frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
-  ColorService::ConvertFrame(frame);
+  // Convert the frame to the Renderer format
+  //frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA16F);
+
+  // Convert the frame to the Renderer color space
+  //ColorService::ConvertFrame(frame);
 
   // FIXME: Test code
   if (tex_buf_.IsCreated()) {

@@ -26,8 +26,6 @@
 
 const int kRGBAChannels = 4;
 
-PixelService olive::pixel_service;
-
 PixelService::PixelService()
 {
 }
@@ -97,6 +95,8 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
   if (frame->format() == dest_format) {
     return frame;
   }
+
+  // FIXME: It'd be nice if this was multithreaded soon
 
   FramePtr converted = std::make_shared<Frame>();
 

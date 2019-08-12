@@ -37,7 +37,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   layout->addWidget(ruler_);
 
   view_ = new TimelineView(this);
-  connect(view_, SIGNAL(RequestInsertBlock(Block*, int)), this, SIGNAL(RequestInsertBlock(Block*, int)));
+  connect(view_, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SIGNAL(RequestInsertBlockAtIndex(Block*, int)));
+  connect(view_, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SIGNAL(RequestPlaceBlock(Block*, rational)));
   layout->addWidget(view_);
 
   connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
@@ -60,12 +61,12 @@ void TimelinePanel::Clear()
 
 void TimelinePanel::AddClip(ClipBlock *clip)
 {
-  view_->AddClip(clip);
+  view_->AddBlock(clip);
 }
 
 void TimelinePanel::RemoveClip(ClipBlock *clip)
 {
-  view_->RemoveClip(clip);
+  view_->RemoveBlock(clip);
 }
 
 void TimelinePanel::SetTimebase(const rational &timebase)

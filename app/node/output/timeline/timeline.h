@@ -50,6 +50,18 @@ public slots:
   virtual void Process(const rational &time) override;
 
 private:
+  /**
+   * @brief Sets this Block as the only block in the Timeline (creating essentially a one clip sequence)
+   */
+  void ConnectBlockInternal(Block* block);
+
+  /**
+   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
+   *
+   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
+   */
+  void AddBlockToGraph(Block* block);
+
   QVector<Block*> block_cache_;
 
   Block* first_block();
@@ -62,7 +74,39 @@ private:
   TimelinePanel* attached_timeline_;
 
 private slots:
-  void InsertBlock(Block* block, int index);
+  /**
+   * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
+   */
+  void PrependBlock(Block* block);
+
+  /**
+   * @brief Inserts Block `block` at a specific index (0 is the start of the timeline)
+   *
+   * If the index == 0, this function does the same as PrependBlock(). If the index >= the current number of blocks,
+   * this function is the same as AppendBlock().
+   */
+  void InsertBlockAtIndex(Block* block, int index);
+
+  /**
+   * @brief Inserts a Block between two other Blocks
+   *
+   * Disconnects `before` and `after`, and connects them to `block` with `block` in between.
+   */
+  void InsertBlockBetweenBlocks(Block* block, Block* before, Block* after);
+
+  /**
+   * @brief Adds Block `block` at the very end of the Sequence after all other clips
+   */
+  void AppendBlock(Block* block);
+
+  /**
+   * @brief Destructively places `block` at the in point `start`
+   *
+   * The Block is guaranteed to be placed at the starting point specified. If there are Blocks in this area, they are
+   * either trimmed or removed to make space for this Block. Additionally, if the Block is placed beyond the end of
+   * the Sequence, a GapBlock is inserted to compensate.
+   */
+  void PlaceBlock(Block* block, rational start);
 };
 
 #endif // TIMELINEOUTPUT_H
