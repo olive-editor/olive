@@ -54,9 +54,9 @@ public:
   void AddNodeWithDependencies(Node* node);
 
   /**
-   * @brief Removes a Node from the graph and destroys it
+   * @brief Removes a Node from the graph BUT doesn't destroy it. Ownership is returned to the caller.
    */
-  void RemoveNode(Node* node);
+  void TakeNode(Node* node);
 
   /**
    * @brief Retrieve a complete list of the nodes belonging to this graph

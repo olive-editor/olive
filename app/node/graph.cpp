@@ -53,6 +53,20 @@ void NodeGraph::AddNodeWithDependencies(Node *node)
   }
 }
 
+void NodeGraph::RemoveNode(Node *node)
+{
+  if (!ContainsNode(node)) {
+    return;
+  }
+
+  node->setParent(nullptr);
+
+  disconnect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
+  disconnect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+
+  emit NodeRemoved(node);
+}
+
 QList<Node *> NodeGraph::nodes()
 {
   return static_qobjectlist_cast<Node>(children());
