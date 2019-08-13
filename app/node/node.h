@@ -114,6 +114,14 @@ public:
   QList<Node*> GetDependencies();
 
   /**
+   * @brief Returns a list of Nodes that this Node is dependent on, provided no other Nodes are dependent on them
+   * outside of this hierarchy.
+   *
+   * Similar to GetDependencies(), but excludes any Nodes that are used outside the dependency graph of this Node.
+   */
+  QList<Node*> GetExclusiveDependencies();
+
+  /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
    */
   static QVariant PtrToValue(void* ptr);

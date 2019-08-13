@@ -59,9 +59,16 @@ const rational &Block::out()
   return out_point_;
 }
 
+const rational& Block::length()
+{
+  return length_;
+}
+
 void Block::set_length(const rational &length)
 {
-  Q_UNUSED(length)
+  length_ = length;
+
+  RefreshFollowing();
 }
 
 Block *Block::previous()

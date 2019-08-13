@@ -32,17 +32,16 @@ class GapBlock : public Block
 public:
   GapBlock();
 
+  virtual Block * copy() override;
+
   virtual Type type() override;
 
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Description() override;
 
-  virtual rational length() override;
-  virtual void set_length(const rational &length) override;
-
 private:
-  rational length_;
+
 };
 
 #endif // TIMELINEBLOCK_H

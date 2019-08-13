@@ -53,18 +53,33 @@ void NodeGraph::AddNodeWithDependencies(Node *node)
   }
 }
 
-void NodeGraph::RemoveNode(Node *node)
+void NodeGraph::TakeNode(Node *node, QObject* new_parent)
 {
   if (!ContainsNode(node)) {
     return;
   }
 
-  node->setParent(nullptr);
+  node->setParent(new_parent);
 
   disconnect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   disconnect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
 
   emit NodeRemoved(node);
+}
+
+QList<Node *> NodeGraph::TakeNodeWithItsDependencies(Node *node, QObject *new_parent)
+{
+  if (!ContainsNode(node)) {
+    return QList<Node*>();
+  }
+
+  QList<Node*> deps = node->GetExclusiveDependencies();
+
+  foreach (Node* d, deps) {
+    TakeNode(d, new_parent);
+  }
+
+  return deps;
 }
 
 QList<Node *> NodeGraph::nodes()

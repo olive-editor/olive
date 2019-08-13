@@ -29,6 +29,19 @@ ClipBlock::ClipBlock()
   AddParameter(texture_input_);
 }
 
+Block *ClipBlock::copy()
+{
+  ClipBlock* c = new ClipBlock();
+
+  // Duplicate connection
+  // FIXME: This behavior should probably be configurable
+  if (texture_input()->IsConnected()) {
+    NodeParam::ConnectEdge(texture_input()->edges().first()->output(), c->texture_input());
+  }
+
+  return new ClipBlock();
+}
+
 Block::Type ClipBlock::type()
 {
   return kClip;
@@ -47,18 +60,6 @@ QString ClipBlock::id()
 QString ClipBlock::Description()
 {
   return tr("A time-based node that represents a media source.");
-}
-
-rational ClipBlock::length()
-{
-  return length_;
-}
-
-void ClipBlock::set_length(const rational &length)
-{
-  length_ = length;
-
-  RefreshFollowing();
 }
 
 NodeInput *ClipBlock::texture_input()

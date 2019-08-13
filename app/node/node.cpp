@@ -119,6 +119,41 @@ QList<Node *> Node::GetDependencies()
   return node_list;
 }
 
+QList<Node *> Node::GetExclusiveDependencies()
+{
+  QList<Node*> deps = GetDependencies();
+
+  // Filter out any dependencies that are used elsewhere
+  for (int i=0;i<deps.size();i++) {
+    QList<NodeParam*> params = deps.at(i)->parameters();
+
+    // See if any of this Node's outputs are used outside of this dep list
+    for (int j=0;j<params.size();j++) {
+      NodeParam* p = params.at(j);
+
+      if (p->type() == NodeParam::kOutput) {
+        QVector<NodeEdgePtr> edges = p->edges();
+
+        for (int k=0;k<edges.size();k++) {
+          NodeEdgePtr edge = edges.at(k);
+
+          // If any edge goes to from an output here to an input of a Node that isn't in this dep list, it's NOT an
+          // exclusive dependency
+          if (deps.contains(edge->input()->parent())) {
+            deps.removeAt(i);
+
+            i--;                // -1 since we just removed a Node here
+            j = params.size();  // No need to keep looking at this Node's params
+            break;              // Or this param's edges
+          }
+        }
+      }
+    }
+  }
+
+  return deps;
+}
+
 QVariant Node::PtrToValue(void *ptr)
 {
   return reinterpret_cast<quintptr>(ptr);

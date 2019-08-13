@@ -41,6 +41,8 @@ public:
     kEnd
   };
 
+  virtual Block* copy() = 0;
+
   virtual Type type() = 0;
 
   virtual QString Category() override;
@@ -48,8 +50,8 @@ public:
   const rational& in();
   const rational& out();
 
-  virtual rational length() = 0;
-  virtual void set_length(const rational& length);
+  virtual const rational &length();
+  virtual void set_length(const rational &length);
 
   virtual Block* previous();
   virtual Block* next();
@@ -105,6 +107,8 @@ private:
 
   rational in_point_;
   rational out_point_;
+
+  rational length_;
 
 private slots:
   void BlockOrderChanged(NodeEdgePtr edge);

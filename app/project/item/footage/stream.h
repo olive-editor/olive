@@ -88,4 +88,7 @@ private:
 
 using StreamPtr = std::shared_ptr<Stream>;
 
+#include <QMetaType>
+Q_DECLARE_METATYPE(StreamPtr)
+
 #endif // STREAM_H

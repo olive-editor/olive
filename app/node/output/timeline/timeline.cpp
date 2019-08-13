@@ -26,7 +26,6 @@
 #include "node/graph.h"
 
 TimelineOutput::TimelineOutput() :
-  first_block_(nullptr),
   current_block_(this),
   attached_timeline_(nullptr)
 {
@@ -35,6 +34,11 @@ TimelineOutput::TimelineOutput() :
 Block::Type TimelineOutput::type()
 {
   return kEnd;
+}
+
+Block *TimelineOutput::copy()
+{
+  return new TimelineOutput();
 }
 
 QString TimelineOutput::Name()
@@ -89,14 +93,16 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
       previous_block = previous_block->previous();
     }
 
-    connect(attached_timeline_, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    connect(attached_timeline_, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
+    TimelineView* view = attached_timeline_->view();
+
+    connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
+    connect(view, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
   }
 }
 
-rational TimelineOutput::length()
+void TimelineOutput::set_length(const rational &)
 {
-  return 0;
+  // Prevent length changing on this Block
 }
 
 void TimelineOutput::Refresh()
@@ -167,13 +173,9 @@ void TimelineOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block
   Block::ConnectBlocks(block, after);
 }
 
-Block *TimelineOutput::first_block()
+void TimelineOutput::InsertBlockAfter(Block *block, Block *before)
 {
-  if (block_cache_.isEmpty()) {
-    return nullptr;
-  }
-
-  return block_cache_.first();
+  InsertBlockBetweenBlocks(block, before, before->next());
 }
 
 Block *TimelineOutput::attached_block()
@@ -248,6 +250,7 @@ void TimelineOutput::PlaceBlock(Block *block, rational start)
 {
   AddBlockToGraph(block);
 
+  // Place block at the beginning
   if (start == 0) {
     // FIXME: Remove existing
 
@@ -256,15 +259,16 @@ void TimelineOutput::PlaceBlock(Block *block, rational start)
   }
 
   // Check if the placement location is past the end of the timeline
-  if (start > in()) {
-    // FIXME: Remove existing
+  if (start >= in()) {
+    if (start > in()) {
+      // If so, insert a gap here
+      GapBlock* gap = new GapBlock();
+      gap->set_length(start - in());
 
-    // If so, insert a gap here
-    GapBlock* gap = new GapBlock();
-    gap->set_length(start - in());
+      // Then append them
+      AppendBlock(gap);
+    }
 
-    // Then append them
-    AppendBlock(gap);
     AppendBlock(block);
 
     return;
@@ -283,4 +287,75 @@ void TimelineOutput::PlaceBlock(Block *block, rational start)
       return;
     }
   }
+}
+
+void TimelineOutput::RemoveBlock(Block *block)
+{
+  GapBlock* gap = new GapBlock();
+  gap->set_length(block->length());
+
+  Block* previous = block->previous();
+  Block* next = block->next();
+
+  // Remove block
+  RippleRemoveBlock(block);
+
+  if (previous == nullptr) {
+    // Block must be at the beginning
+    PrependBlock(gap);
+  } else {
+    InsertBlockBetweenBlocks(gap, previous, next);
+  }
+}
+
+void TimelineOutput::RippleRemoveBlock(Block *block)
+{
+  Block* previous = block->previous();
+  Block* next = block->next();
+
+  if (previous != nullptr) {
+    Block::DisconnectBlocks(previous, block);
+  }
+
+  if (next != nullptr) {
+    Block::DisconnectBlocks(block, next);
+  }
+
+  if (previous != nullptr && next != nullptr) {
+    Block::ConnectBlocks(previous, next);
+  }
+}
+
+void TimelineOutput::SplitBlock(Block *block, rational time)
+{
+  if (time < block->in() || time >= block->out()) {
+    return;
+  }
+
+  rational original_length = block->length();
+
+  block->set_length(time - block->in());
+
+  Block* copy = block->copy();
+  copy->set_length(original_length - block->length());
+  InsertBlockAfter(copy, block);
+}
+
+void TimelineOutput::SpliceBlock(Block *inner, Block *outer, rational inner_in)
+{
+  Q_ASSERT(inner_in >= outer->in() && inner_in < outer->out());
+
+  // Cache original length
+  rational original_length = outer->length();
+
+  // Set outer clip to the clip that PRECEDES the inner clip
+  outer->set_length(inner_in - outer->in());
+
+  // Insert inner clip between BEFORE clip and its next clip
+  InsertBlockAfter(inner, outer);
+
+  // Create the AFTER clip
+  Block* copy = outer->copy();
+  copy->set_length(original_length - outer->length() - inner->length());
+  InsertBlockAfter(copy, inner);
 }

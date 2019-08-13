@@ -107,6 +107,11 @@ public:
   int index();
 
   /**
+   * @brief Returns whether anything is connected to this parameter or not
+   */
+  bool IsConnected();
+
+  /**
    * @brief Return a list of edges (aka connections to other nodes)
    *
    * This list can't be modified directly. Use ConnectEdge() and DisconnectEdge() instead for that.

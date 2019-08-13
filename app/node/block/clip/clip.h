@@ -32,14 +32,13 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
+  virtual Block* copy() override;
+
   virtual Type type() override;
 
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Description() override;
-
-  virtual rational length() override;
-  virtual void set_length(const rational &length) override;
 
   NodeInput* texture_input();
 
@@ -51,7 +50,6 @@ private:
 
   rational media_in_;
 
-  rational length_;
 };
 
 #endif // TIMELINEBLOCK_H

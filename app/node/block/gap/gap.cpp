@@ -24,6 +24,11 @@ GapBlock::GapBlock()
 {
 }
 
+Block *GapBlock::copy()
+{
+  return new GapBlock();
+}
+
 Block::Type GapBlock::type()
 {
   return kGap;
@@ -42,16 +47,4 @@ QString GapBlock::id()
 QString GapBlock::Description()
 {
   return tr("A time-based node that represents an empty space.");
-}
-
-rational GapBlock::length()
-{
-  return length_;
-}
-
-void GapBlock::set_length(const rational &length)
-{
-  length_ = length;
-
-  RefreshFollowing();
 }

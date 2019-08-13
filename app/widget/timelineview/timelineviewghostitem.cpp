@@ -40,6 +40,16 @@ const rational &TimelineViewGhostItem::Out()
   return out_;
 }
 
+rational TimelineViewGhostItem::Length()
+{
+  return out_ - in_;
+}
+
+rational TimelineViewGhostItem::AdjustedLength()
+{
+  return GetAdjustedOut() - GetAdjustedIn();
+}
+
 void TimelineViewGhostItem::SetIn(const rational &in)
 {
   in_ = in;
@@ -78,14 +88,14 @@ rational TimelineViewGhostItem::GetAdjustedOut()
   return out_ + out_adj_;
 }
 
-StreamPtr TimelineViewGhostItem::stream()
+const QVariant &TimelineViewGhostItem::data()
 {
-  return stream_;
+  return data_;
 }
 
-void TimelineViewGhostItem::SetStream(StreamPtr f)
+void TimelineViewGhostItem::SetData(const QVariant &data)
 {
-  stream_ = f;
+  data_ = data;
 }
 
 void TimelineViewGhostItem::UpdateRect()

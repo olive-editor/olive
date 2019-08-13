@@ -35,6 +35,8 @@ public:
 
   virtual Type type() override;
 
+  virtual Block* copy() override;
+
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Category() override;
@@ -42,7 +44,7 @@ public:
 
   void AttachTimeline(TimelinePanel* timeline);
 
-  virtual rational length() override;
+  virtual void set_length(const rational &length) override;
 
   virtual void Refresh() override;
 
@@ -67,13 +69,10 @@ private:
    */
   void AddBlockToGraph(Block* block);
 
-  QVector<Block*> block_cache_;
-
-  Block* first_block();
-
   Block* attached_block();
 
-  Block* first_block_;
+  QVector<Block*> block_cache_;
+
   Block* current_block_;
 
   TimelinePanel* attached_timeline_;
@@ -100,6 +99,13 @@ private slots:
   void InsertBlockBetweenBlocks(Block* block, Block* before, Block* after);
 
   /**
+   * @brief Inserts Block after another Block
+   *
+   * Equivalent to calling InsertBlockBetweenBlocks(block, before, before->next())
+   */
+  void InsertBlockAfter(Block* block, Block* before);
+
+  /**
    * @brief Adds Block `block` at the very end of the Sequence after all other clips
    */
   void AppendBlock(Block* block);
@@ -124,14 +130,15 @@ private slots:
   void RippleRemoveBlock(Block* block);
 
   /**
-   * @brief Removes the Block at the given index pushing all subsequent Blocks earlier to take up the space
+   * @brief Splits `block` into two Blocks at the Sequence point `time`
    */
-  void RippleRemoveBlockAtIndex(int index);
+  void SplitBlock(Block* block, rational time);
 
   /**
-   * @brief Removes the last Block of the Sequence at the given index
+   * @brief Inserts Block `inner` between Block `outer`, splitting and shortening it to fit without changing the overall
+   *        length
    */
-  void RippleRemoveLast();
+  void SpliceBlock(Block* inner, Block* outer, rational inner_in);
 };
 
 #endif // TIMELINEOUTPUT_H

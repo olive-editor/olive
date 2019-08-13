@@ -57,6 +57,11 @@ int NodeParam::index()
   return parent()->IndexOfParameter(this);
 }
 
+bool NodeParam::IsConnected()
+{
+  return !edges_.isEmpty();
+}
+
 const QVector<NodeEdgePtr> &NodeParam::edges()
 {
   return edges_;

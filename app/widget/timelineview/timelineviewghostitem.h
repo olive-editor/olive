@@ -21,6 +21,8 @@
 #ifndef TIMELINEVIEWGHOSTITEM_H
 #define TIMELINEVIEWGHOSTITEM_H
 
+#include <QVariant>
+
 #include "project/item/footage/footage.h"
 #include "timelineviewrect.h"
 
@@ -35,6 +37,9 @@ public:
   const rational& In();
   const rational& Out();
 
+  rational Length();
+  rational AdjustedLength();
+
   void SetIn(const rational& in);
   void SetOut(const rational& out);
 
@@ -44,8 +49,8 @@ public:
   rational GetAdjustedIn();
   rational GetAdjustedOut();
 
-  StreamPtr stream();
-  void SetStream(StreamPtr f);
+  const QVariant& data();
+  void SetData(const QVariant& data);
 
   virtual void UpdateRect() override;
 
@@ -59,6 +64,8 @@ private:
   rational out_adj_;
 
   StreamPtr stream_;
+
+  QVariant data_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

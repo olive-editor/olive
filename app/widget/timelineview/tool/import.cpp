@@ -47,6 +47,9 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
     quintptr item_ptr;
     int r;
 
+    // Set ghosts to start where the cursor entered
+    rational ghost_start = parent()->ScreenToTime(event->pos().x());
+
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;
 
@@ -65,13 +68,18 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
         rational footage_duration(stream->timebase().numerator() * stream->duration(),
                                   stream->timebase().denominator());
 
-        ghost->SetIn(0);
-        ghost->SetOut(footage_duration);
-        ghost->SetStream(stream);
+        ghost->SetIn(ghost_start);
+        ghost->SetOut(ghost_start + footage_duration);
+        ghost->SetData(QVariant::fromValue(stream));
 
         parent()->AddGhost(ghost);
+
+        // Stack each ghost one after the other
+        ghost_start += footage_duration;
       }
     }
+
+    drag_start_ = event->pos();
 
     event->accept();
   } else {
@@ -85,10 +93,12 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
   if (parent()->HasGhosts()) {
     // Move ghosts to the mouse cursor
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      rational time = parent()->ScreenToTime(event->pos().x());
+      QPoint movement = event->pos() - drag_start_;
 
-      ghost->SetOut(ghost->Out() - ghost->In() + time);
-      ghost->SetIn(time);
+      rational time_movement = parent()->ScreenToTime(movement.x());
+
+      ghost->SetInAdjustment(time_movement);
+      ghost->SetOutAdjustment(time_movement);
     }
 
     event->accept();
@@ -125,15 +135,15 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       clip->setParent(&node_memory_manager);
       media->setParent(&node_memory_manager);
 
-      clip->set_length(ghost->Out() - ghost->In());
-      media->SetFootage(ghost->stream()->footage());
+      clip->set_length(ghost->Length());
+      media->SetFootage(ghost->data().value<StreamPtr>()->footage());
 
       NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
 
       if (event->keyboardModifiers() & Qt::ControlModifier) {
-        emit parent()->RequestPlaceBlock(clip, ghost->In());
+        emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        emit parent()->RequestInsertBlockAtTime(clip, ghost->In());
+        emit parent()->RequestPlaceBlock(clip, ghost->GetAdjustedIn());
       }
     }
 

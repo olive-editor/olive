@@ -198,7 +198,11 @@ void TimelineView::ClearGhosts()
 
 void TimelineView::BlockChanged()
 {
-  clip_items_[static_cast<Block*>(sender())]->UpdateRect();
+  TimelineViewRect* rect = clip_items_[static_cast<Block*>(sender())];
+
+  if (rect != nullptr) {
+    rect->UpdateRect();
+  }
 }
 
 TimelineView::Tool::Tool(TimelineView *parent) :

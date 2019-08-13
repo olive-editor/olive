@@ -51,6 +51,7 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
   parent()->QGraphicsView::mouseMoveEvent(event);
 
   if (!dragging_) {
+
     // Let's see if there's anything selected to drag
     if (parent()->itemAt(event->pos()) != nullptr) {
       QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
@@ -76,6 +77,7 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
     }
 
     dragging_ = true;
+
   } else if (!parent()->ghost_items_.isEmpty()) {
     QPoint movement = event->pos() - drag_start_;
 
@@ -102,6 +104,12 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
   FlipControlAndShiftModifiers(event);
 
   parent()->QGraphicsView::mouseReleaseEvent(event);
+
+  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    Block* b = Node::ValueToPtr<Block>(ghost->data());
+
+    emit parent()->RequestPlaceBlock(b, ghost->In());
+  }
 
   parent()->ClearGhosts();
 
