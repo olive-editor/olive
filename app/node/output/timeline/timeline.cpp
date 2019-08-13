@@ -250,6 +250,10 @@ void TimelineOutput::PlaceBlock(Block *block, rational start)
 {
   AddBlockToGraph(block);
 
+  if (block->in() == start) {
+    return;
+  }
+
   // Place block at the beginning
   if (start == 0) {
     // FIXME: Remove existing

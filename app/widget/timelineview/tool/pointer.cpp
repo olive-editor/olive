@@ -65,6 +65,7 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         ghost->SetIn(clip->in());
         ghost->SetOut(clip->out());
         ghost->SetScale(parent()->scale_);
+        ghost->SetData(Node::PtrToValue(clip));
 
         ghost->setPos(clip_item->pos());
 
@@ -105,11 +106,13 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 
   parent()->QGraphicsView::mouseReleaseEvent(event);
 
+  /*
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data());
 
     emit parent()->RequestPlaceBlock(b, ghost->In());
   }
+  */
 
   parent()->ClearGhosts();
 
