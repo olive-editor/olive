@@ -56,6 +56,11 @@ private:
   void ConnectBlockInternal(Block* block);
 
   /**
+   * @brief Disconnects t
+   */
+  void RemoveBlockInternal();
+
+  /**
    * @brief Adds a Block to the parent graph so it can be connected to other Nodes
    *
    * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
@@ -107,6 +112,26 @@ private slots:
    * the Sequence, a GapBlock is inserted to compensate.
    */
   void PlaceBlock(Block* block, rational start);
+
+  /**
+   * @brief Removes a Block and places a Gap in its place
+   */
+  void RemoveBlock(Block* block);
+
+  /**
+   * @brief Removes a Block pushing all subsequent Blocks earlier to take up the space
+   */
+  void RippleRemoveBlock(Block* block);
+
+  /**
+   * @brief Removes the Block at the given index pushing all subsequent Blocks earlier to take up the space
+   */
+  void RippleRemoveBlockAtIndex(int index);
+
+  /**
+   * @brief Removes the last Block of the Sequence at the given index
+   */
+  void RippleRemoveLast();
 };
 
 #endif // TIMELINEOUTPUT_H

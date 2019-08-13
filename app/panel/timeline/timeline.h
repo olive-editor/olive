@@ -39,13 +39,12 @@ public:
 
   void SetTimebase(const rational& timebase);
 
+  TimelineView* view();
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
 signals:
-  void RequestInsertBlockAtIndex(Block*, int);
-
-  void RequestPlaceBlock(Block* block, rational start);
 
 private:
   void Retranslate();

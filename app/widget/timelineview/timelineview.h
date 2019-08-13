@@ -61,6 +61,8 @@ signals:
 
   void RequestPlaceBlock(Block* block, rational start);
 
+  void RequestInsertBlockAtTime(Block* block, rational time);
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

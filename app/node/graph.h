@@ -54,6 +54,11 @@ public:
   void AddNodeWithDependencies(Node* node);
 
   /**
+   * @brief Removes a Node from the graph and destroys it
+   */
+  void RemoveNode(Node* node);
+
+  /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
   QList<Node*> nodes();

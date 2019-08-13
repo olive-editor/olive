@@ -75,6 +75,11 @@ void TimelinePanel::SetTimebase(const rational &timebase)
   view_->SetTimebase(timebase);
 }
 
+TimelineView *TimelinePanel::view()
+{
+  return view_;
+}
+
 void TimelinePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

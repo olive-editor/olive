@@ -111,18 +111,30 @@ void TimelineView::ImportTool::DragLeave(QDragLeaveEvent *event)
 void TimelineView::ImportTool::DragDrop(QDropEvent *event)
 {
   if (parent()->HasGhosts()) {
+    // We use QObject as the parent for the nodes we create. If there is no TimelineOutput node, this object going out
+    // of scope will delete the nodes. If there is, they'll become parents of the NodeGraph instead
+    QObject node_memory_manager;
+
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
       ClipBlock* clip = new ClipBlock();
       MediaInput* media = new MediaInput();
+
+      // Set parents to node_memory_manager in case no TimelineOutput receives this signal
+      // FIXME: Moving nodes to shared_ptrs might be a better idea, except they all use the QObject system for hierarchy
+      //        already...
+      clip->setParent(&node_memory_manager);
+      media->setParent(&node_memory_manager);
 
       clip->set_length(ghost->Out() - ghost->In());
       media->SetFootage(ghost->stream()->footage());
 
       NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
 
-      // FIXME: If this doesn't have a TimelineOutput node attached, this is a memory leak. Maybe switching nodes to
-      //        shared ptrs would be a better idea.
-      emit parent()->RequestPlaceBlock(clip, ghost->In());
+      if (event->keyboardModifiers() & Qt::ControlModifier) {
+        emit parent()->RequestPlaceBlock(clip, ghost->In());
+      } else {
+        emit parent()->RequestInsertBlockAtTime(clip, ghost->In());
+      }
     }
 
     parent()->ClearGhosts();
