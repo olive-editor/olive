@@ -32,7 +32,7 @@ public:
   /**
    * @brief NodeOutput Constructor
    */
-  NodeOutput();
+  NodeOutput(const QString& id);
 
   /**
    * @brief Returns kOutput

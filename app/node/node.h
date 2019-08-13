@@ -179,6 +179,12 @@ signals:
    * The edge that was removed
    */
   void EdgeRemoved(NodeEdgePtr edge);
+
+private:
+  /**
+   * @brief Return whether a parameter with ID `id` has already been added to this Node
+   */
+  bool HasParamWithID(const QString& id);
 };
 
 template<class T>

@@ -22,9 +22,9 @@
 
 #include "node/node.h"
 
-NodeOutput::NodeOutput()
+NodeOutput::NodeOutput(const QString &id) :
+  NodeParam(id)
 {
-
 }
 
 NodeParam::Type NodeOutput::type()

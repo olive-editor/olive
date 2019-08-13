@@ -24,19 +24,19 @@
 
 Block::Block()
 {
-  previous_input_ = new NodeInput();
+  previous_input_ = new NodeInput("prev_block");
   previous_input_->add_data_input(NodeParam::kBlock);
   AddParameter(previous_input_);
 
-  block_output_ = new NodeOutput();
+  block_output_ = new NodeOutput("block_out");
   block_output_->set_data_type(NodeParam::kBlock);
   AddParameter(block_output_);
 
-  next_input_ = new NodeInput();
+  next_input_ = new NodeInput("next_block");
   next_input_->add_data_input(NodeParam::kBlock);
   AddParameter(next_input_);
 
-  texture_output_ = new NodeOutput();
+  texture_output_ = new NodeOutput("tex_out");
   texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
 

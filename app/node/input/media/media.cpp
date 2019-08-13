@@ -34,11 +34,11 @@
 MediaInput::MediaInput() :
   decoder_(nullptr)
 {
-  footage_input_ = new NodeInput();
+  footage_input_ = new NodeInput("footage_in");
   footage_input_->add_data_input(NodeInput::kFootage);
   AddParameter(footage_input_);
 
-  texture_output_ = new NodeOutput();
+  texture_output_ = new NodeOutput("tex_out");
   texture_output_->set_data_type(NodeOutput::kTexture);
   AddParameter(texture_output_);
 }

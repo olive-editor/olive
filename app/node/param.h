@@ -72,7 +72,12 @@ public:
   /**
    * @brief NodeParam Constructor
    */
-  NodeParam();
+  NodeParam(const QString& id);
+
+  /**
+   * @brief Return ID of this parameter
+   */
+  const QString id();
 
   /**
    * @brief The type of node paramter this is
@@ -219,6 +224,11 @@ private:
    * @brief Internal name string
    */
   QString name_;
+
+  /**
+   * @brief Internal ID string
+   */
+  QString id_;
 
 };
 

@@ -24,7 +24,7 @@
 
 ClipBlock::ClipBlock()
 {
-  texture_input_ = new NodeInput();
+  texture_input_ = new NodeInput("tex_in");
   texture_input_->add_data_input(NodeInput::kTexture);
   AddParameter(texture_input_);
 }

@@ -31,7 +31,7 @@ class NodeInput : public NodeParam
 {
   Q_OBJECT
 public:
-  NodeInput();
+  NodeInput(const QString &id);
 
   /**
    * @brief Returns kInput

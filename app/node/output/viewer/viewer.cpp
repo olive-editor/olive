@@ -25,7 +25,7 @@
 ViewerOutput::ViewerOutput() :
   attached_viewer_(nullptr)
 {
-  texture_input_ = new NodeInput();
+  texture_input_ = new NodeInput("tex_out");
   texture_input_->add_data_input(NodeInput::kTexture);
   AddParameter(texture_input_);
 }

@@ -26,8 +26,15 @@
 #include "node/input.h"
 #include "node/output.h"
 
-NodeParam::NodeParam()
+NodeParam::NodeParam(const QString &id) :
+  id_(id)
 {
+  Q_ASSERT(!id_.isEmpty());
+}
+
+const QString NodeParam::id()
+{
+  return id_;
 }
 
 const QString &NodeParam::name()

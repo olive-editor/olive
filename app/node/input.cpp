@@ -22,7 +22,8 @@
 
 #include "output.h"
 
-NodeInput::NodeInput() :
+NodeInput::NodeInput(const QString& id) :
+  NodeParam(id),
   keyframing_(false),
   can_accept_multiple_inputs_(false)
 {

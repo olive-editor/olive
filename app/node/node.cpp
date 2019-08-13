@@ -44,6 +44,9 @@ void Node::Release()
 
 void Node::AddParameter(NodeParam *param)
 {
+  // Ensure no other param with this ID has been added to this Node (since that defeats the purpose)
+  Q_ASSERT(!HasParamWithID(param->id()));
+
   param->setParent(this);
 
   connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
@@ -119,4 +122,19 @@ QList<Node *> Node::GetDependencies()
 QVariant Node::PtrToValue(void *ptr)
 {
   return reinterpret_cast<quintptr>(ptr);
+}
+
+bool Node::HasParamWithID(const QString &id)
+{
+  QList<NodeParam*> params = parameters();
+
+  foreach (NodeParam* p, params)
+  {
+    if (p->id() == id)
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
