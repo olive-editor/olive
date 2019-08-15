@@ -161,7 +161,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA16F: // 16-bit Integer -> 16-bit Integer
+    case olive::PIX_FMT_RGBA16F: // 16-bit Integer -> 16-bit Float
     {
       qfloat16* destination = reinterpret_cast<qfloat16*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -169,7 +169,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA32F: // 16-bit Integer -> 16-bit Integer
+    case olive::PIX_FMT_RGBA32F: // 16-bit Integer -> 32-bit Float
     {
       float* destination = reinterpret_cast<float*>(converted->data());
       for (int i=0;i<pix_count;i++) {

@@ -33,10 +33,6 @@ public:
 
   void Clear();
 
-  void AddClip(ClipBlock* clip);
-
-  void RemoveClip(ClipBlock* clip);
-
   void SetTimebase(const rational& timebase);
 
   TimelineView* view();

@@ -49,6 +49,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kBlock:
   case NodeParam::kTexture:
   case NodeParam::kMatrix:
+  case NodeParam::kTrack:
     break;
   case NodeParam::kInt:
     // FIXME: LabelSlider in INTEGER mode
@@ -118,6 +119,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     case NodeParam::kBlock:
     case NodeParam::kTexture:
     case NodeParam::kMatrix:
+    case NodeParam::kTrack:
       break;
     case NodeParam::kInt:
       // FIXME: LabelSlider in INTEGER mode

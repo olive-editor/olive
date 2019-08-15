@@ -122,6 +122,11 @@ public:
   QList<Node*> GetExclusiveDependencies();
 
   /**
+   * @brief Returns whether this Node outputs data to the Node `n` in any way
+   */
+  bool OutputsTo(Node* n);
+
+  /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
    */
   static QVariant PtrToValue(void* ptr);
@@ -141,6 +146,13 @@ protected:
    * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
    */
   void AddParameter(NodeParam* param);
+
+  /**
+   * @brief Deletes the parameter from this Node
+   *
+   * The NodeParam object is destroyed in the process.
+   */
+  void RemoveParameter(NodeParam* param);
 
   /**
    * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and

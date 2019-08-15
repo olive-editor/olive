@@ -66,6 +66,7 @@ public:
     kMatrix,
     kBlock,
     kFootage,
+    kTrack,
     kAny
   };
 

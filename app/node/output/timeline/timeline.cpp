@@ -26,19 +26,14 @@
 #include "node/graph.h"
 
 TimelineOutput::TimelineOutput() :
-  current_block_(this),
   attached_timeline_(nullptr)
 {
-}
+  track_input_ = new NodeInput("track_in");
+  track_input_->add_data_input(NodeParam::kTrack);
+  AddParameter(track_input_);
 
-Block::Type TimelineOutput::type()
-{
-  return kEnd;
-}
-
-Block *TimelineOutput::copy()
-{
-  return new TimelineOutput();
+  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnectionAdded(NodeEdgePtr)));
+  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackConnectionRemoved(NodeEdgePtr)));
 }
 
 QString TimelineOutput::Name()
@@ -58,308 +53,110 @@ QString TimelineOutput::Category()
 
 QString TimelineOutput::Description()
 {
-  return tr("Node for communicating between a Timeline panel and the node graph. Also represents the end of a"
-            "Sequence.");
+  return tr("Node for communicating between a Timeline panel and the node graph.");
 }
 
 void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 {
   if (attached_timeline_ != nullptr) {
-    disconnect(attached_timeline_, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    disconnect(attached_timeline_, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
+    //TimelineView* view = attached_timeline_->view();
 
+    //disconnect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
+    //disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
+
+    // Remove existing UI objects from TimelinePanel
     attached_timeline_->Clear();
   }
 
   attached_timeline_ = timeline;
 
   if (attached_timeline_ != nullptr) {
-    attached_timeline_->Clear();
-
     // FIXME: TEST CODE ONLY
     attached_timeline_->SetTimebase(rational(1001, 30000));
     // END TEST CODE
 
-    Block* previous_block = attached_block();
-    while (previous_block != nullptr) {
-
-      // FIXME: Dynamic cast is a dumb way of doing this
-      ClipBlock* clip_block = dynamic_cast<ClipBlock*>(previous_block);
-
-      if (clip_block != nullptr) {
-        attached_timeline_->AddClip(clip_block);
-      }
-
-      previous_block = previous_block->previous();
+    if (attached_track() != nullptr) {
+      // Defer to the track to make all the block UI items necessary
+      attached_track()->GenerateBlockWidgets();
     }
 
-    TimelineView* view = attached_timeline_->view();
+    //TimelineView* view = attached_timeline_->view();
 
-    connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    connect(view, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
+    //connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
+    //connect(view, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
   }
 }
 
-void TimelineOutput::set_length(const rational &)
+NodeInput *TimelineOutput::track_input()
 {
-  // Prevent length changing on this Block
-}
-
-void TimelineOutput::Refresh()
-{
-  QVector<Block*> detect_attached_blocks;
-
-  Block* previous = attached_block();
-  while (previous != nullptr) {
-    detect_attached_blocks.prepend(previous);
-
-    if (attached_timeline_ != nullptr && !block_cache_.contains(previous)) {
-      // FIXME: Remove the need to cast this
-      attached_timeline_->AddClip(static_cast<ClipBlock*>(previous));
-    }
-
-    previous = previous->previous();
-  }
-
-  if (attached_timeline_ != nullptr) {
-    foreach (Block* b, block_cache_) {
-      if (!detect_attached_blocks.contains(b)) {
-        attached_timeline_->RemoveClip(static_cast<ClipBlock*>(b));
-      }
-    }
-  }
-
-  block_cache_ = detect_attached_blocks;
-
-  Block::Refresh();
+  return track_input_;
 }
 
 void TimelineOutput::Process(const rational &time)
 {
-  // Run default node processing
-  Block::Process(time);
+  Q_UNUSED(time)
+}
 
-  // This node representso the end of the timeline, so being beyond its in point is considered the end of the sequence
-  if (time >= in()) {
-    texture_output()->set_value(0);
-    current_block_ = this;
+TrackOutput *TimelineOutput::attached_track()
+{
+  return ValueToPtr<TrackOutput>(track_input_->get_value(0));
+}
+
+void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
+{
+  if (edge->input() != track_input()) {
     return;
   }
 
-  // If we're here, we need to find the current clip to display
-  // attached_block() is guaranteed to not be nullptr if we didn't return before
-  current_block_ = attached_block();
+  TrackOutput* track = attached_track();
 
-  // If the time requested is an earlier Block, traverse earlier until we find it
-  while (time < current_block_->in()) {
-    current_block_ = current_block_->previous();
+  // Traverse through Tracks caching and connecting them
+  while (track != nullptr) {
+    track_cache_.append(track);
+
+    connect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
+    connect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+
+    track->GenerateBlockWidgets();
+
+    track = track->next_track();
   }
 
-  // If the time requested is in a later Block, traverse later
-  while (time >= current_block_->out()) {
-    current_block_ = current_block_->next();
+  // FIXME: TEST CODE ONLY
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->SetTimebase(rational(1001, 30000));
   }
-
-  // At this point, we must have found the correct block so we use its texture output to produce the image
-  texture_output()->set_value(current_block_->texture_output()->get_value(time));
+  // END TEST CODE
 }
 
-void TimelineOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)
+void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
 {
-  AddBlockToGraph(block);
-
-  Block::DisconnectBlocks(before, after);
-  Block::ConnectBlocks(before, block);
-  Block::ConnectBlocks(block, after);
-}
-
-void TimelineOutput::InsertBlockAfter(Block *block, Block *before)
-{
-  InsertBlockBetweenBlocks(block, before, before->next());
-}
-
-Block *TimelineOutput::attached_block()
-{
-  return ValueToPtr<Block>(previous_input()->get_value(0));
-}
-
-void TimelineOutput::PrependBlock(Block *block)
-{
-  AddBlockToGraph(block);
-
-  if (block_cache_.isEmpty()) {
-    ConnectBlockInternal(block);
-  } else {
-    Block::ConnectBlocks(block, block_cache_.first());
-  }
-}
-
-void TimelineOutput::InsertBlockAtIndex(Block *block, int index)
-{
-  AddBlockToGraph(block);
-
-  if (block_cache_.isEmpty()) {
-
-    // If there are no blocks connected, the index doesn't matter. Just connect it.
-    ConnectBlockInternal(block);
-
-  } else if (index == 0) {
-
-    // If the index is 0, it goes at the very beginning
-    PrependBlock(block);
-
-  } else if (index >= block_cache_.size()) {
-
-    // Append Block at the end
-    AppendBlock(block);
-
-  } else {
-
-    // Insert Block just before the Block currently at that index so that it becomes the new Block at that index
-    InsertBlockBetweenBlocks(block, block_cache_.at(index - 1), block_cache_.at(index));
-
-  }
-}
-
-void TimelineOutput::AppendBlock(Block *block)
-{
-  AddBlockToGraph(block);
-
-  if (block_cache_.isEmpty()) {
-    ConnectBlockInternal(block);
-  } else {
-    InsertBlockBetweenBlocks(block, block_cache_.last(), this);
-  }
-}
-
-void TimelineOutput::ConnectBlockInternal(Block *block)
-{
-  AddBlockToGraph(block);
-
-  Block::ConnectBlocks(block, this);
-}
-
-void TimelineOutput::AddBlockToGraph(Block *block)
-{
-  // Find the parent graph
-  NodeGraph* graph = static_cast<NodeGraph*>(parent());
-  graph->AddNodeWithDependencies(block);
-}
-
-void TimelineOutput::PlaceBlock(Block *block, rational start)
-{
-  AddBlockToGraph(block);
-
-  if (block->in() == start) {
+  if (edge->input() != track_input()) {
     return;
   }
 
-  // Place block at the beginning
-  if (start == 0) {
-    // FIXME: Remove existing
-
-    PrependBlock(block);
-    return;
+  foreach (TrackOutput* track, track_cache_) {
+    disconnect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
+    disconnect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
   }
 
-  // Check if the placement location is past the end of the timeline
-  if (start >= in()) {
-    if (start > in()) {
-      // If so, insert a gap here
-      GapBlock* gap = new GapBlock();
-      gap->set_length(start - in());
+  track_cache_.clear();
 
-      // Then append them
-      AppendBlock(gap);
-    }
-
-    AppendBlock(block);
-
-    return;
-  }
-
-  // Check if the Block is placed at the in point of an existing Block, in which case a simple insert between will
-  // suffice
-  for (int i=1;i<block_cache_.size();i++) {
-    Block* comparison = block_cache_.at(i);
-
-    if (comparison->in() == start) {
-      Block* previous = block_cache_.at(i-1);
-
-      // InsertBlockAtIndex() could work here, but this function is faster since we've already found the Blocks
-      InsertBlockBetweenBlocks(block, previous, comparison);
-      return;
-    }
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->Clear();
   }
 }
 
-void TimelineOutput::RemoveBlock(Block *block)
+void TimelineOutput::TrackAddedBlock(Block *block)
 {
-  GapBlock* gap = new GapBlock();
-  gap->set_length(block->length());
-
-  Block* previous = block->previous();
-  Block* next = block->next();
-
-  // Remove block
-  RippleRemoveBlock(block);
-
-  if (previous == nullptr) {
-    // Block must be at the beginning
-    PrependBlock(gap);
-  } else {
-    InsertBlockBetweenBlocks(gap, previous, next);
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->view()->AddBlock(block);
   }
 }
 
-void TimelineOutput::RippleRemoveBlock(Block *block)
+void TimelineOutput::TrackRemovedBlock(Block *block)
 {
-  Block* previous = block->previous();
-  Block* next = block->next();
-
-  if (previous != nullptr) {
-    Block::DisconnectBlocks(previous, block);
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->view()->RemoveBlock(block);
   }
-
-  if (next != nullptr) {
-    Block::DisconnectBlocks(block, next);
-  }
-
-  if (previous != nullptr && next != nullptr) {
-    Block::ConnectBlocks(previous, next);
-  }
-}
-
-void TimelineOutput::SplitBlock(Block *block, rational time)
-{
-  if (time < block->in() || time >= block->out()) {
-    return;
-  }
-
-  rational original_length = block->length();
-
-  block->set_length(time - block->in());
-
-  Block* copy = block->copy();
-  copy->set_length(original_length - block->length());
-  InsertBlockAfter(copy, block);
-}
-
-void TimelineOutput::SpliceBlock(Block *inner, Block *outer, rational inner_in)
-{
-  Q_ASSERT(inner_in >= outer->in() && inner_in < outer->out());
-
-  // Cache original length
-  rational original_length = outer->length();
-
-  // Set outer clip to the clip that PRECEDES the inner clip
-  outer->set_length(inner_in - outer->in());
-
-  // Insert inner clip between BEFORE clip and its next clip
-  InsertBlockAfter(inner, outer);
-
-  // Create the AFTER clip
-  Block* copy = outer->copy();
-  copy->set_length(original_length - outer->length() - inner->length());
-  InsertBlockAfter(copy, inner);
 }

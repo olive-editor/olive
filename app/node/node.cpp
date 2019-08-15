@@ -53,6 +53,11 @@ void Node::AddParameter(NodeParam *param)
   connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
 }
 
+void Node::RemoveParameter(NodeParam *param)
+{
+  delete param;
+}
+
 void Node::InvalidateCache(const rational &start_range, const rational &end_range)
 {
   QList<NodeParam *> params = parameters();
@@ -152,6 +157,25 @@ QList<Node *> Node::GetExclusiveDependencies()
   }
 
   return deps;
+}
+
+bool Node::OutputsTo(Node *n)
+{
+  QList<NodeParam*> params = parameters();
+
+  foreach (NodeParam* param, params) {
+    if (param->type() == NodeParam::kOutput) {
+      QVector<NodeEdgePtr> edges = param->edges();
+
+      foreach (NodeEdgePtr edge, edges) {
+        if (edge->input()->parent() == n) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 QVariant Node::PtrToValue(void *ptr)

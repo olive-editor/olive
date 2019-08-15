@@ -134,6 +134,18 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
     }
   }
 
+  // Refuse to make a connection that is incompatible
+  if (!input->can_accept_type(output->data_type())) {
+    qWarning() << tr("Tried to make an invalid Node connection");
+    return nullptr;
+  }
+
+  // Ensure both nodes are in the same graph
+  if (output->parent()->parent() != input->parent()->parent()) {
+    qWarning() << tr("Tried to connect two nodes that aren't part of the same graph");
+    return nullptr;
+  }
+
   NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
 
   output->edges_.append(edge);
@@ -196,6 +208,7 @@ QString NodeParam::GetDefaultDataTypeName(const DataType& type)
   case kMatrix: return tr("Matrix");
   case kBlock: return tr("Block");
   case kFootage: return tr("Footage");
+  case kTrack: return tr("Track");
   case kAny: return tr("Any");
   }
 

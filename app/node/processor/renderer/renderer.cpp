@@ -25,7 +25,6 @@
 RendererProcessor::RendererProcessor() :
   started_(false)
 {
-
 }
 
 QString RendererProcessor::Name()
@@ -45,6 +44,8 @@ QString RendererProcessor::Description()
 
 void RendererProcessor::Process(const rational &time)
 {
+  Q_UNUSED(time)
+  /*
   // Ensure we have started
   Start();
 
@@ -52,6 +53,8 @@ void RendererProcessor::Process(const rational &time)
     qWarning() << tr("An error occurred starting the Renderer node");
     return;
   }
+
+  */
 }
 
 void RendererProcessor::Release()

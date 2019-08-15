@@ -55,16 +55,6 @@ void TimelinePanel::Clear()
   view_->Clear();
 }
 
-void TimelinePanel::AddClip(ClipBlock *clip)
-{
-  view_->AddBlock(clip);
-}
-
-void TimelinePanel::RemoveClip(ClipBlock *clip)
-{
-  view_->RemoveBlock(clip);
-}
-
 void TimelinePanel::SetTimebase(const rational &timebase)
 {
   ruler_->SetTimebase(timebase);

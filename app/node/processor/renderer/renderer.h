@@ -68,6 +68,15 @@ public:
   void SetParameters(const int& width, const int& height, const olive::PixelFormat& format);
 
   /**
+   * @brief Return current instance of a RenderThread (or nullptr if there is none)
+   *
+   * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
+   * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
+   */
+  static RendererThread *CurrentThread();
+
+private:
+  /**
    * @brief Allocate and start the multithreaded backend
    */
   void Start();
@@ -77,15 +86,6 @@ public:
    */
   void Stop();
 
-  /**
-   * @brief Return current instance of a RenderThread (or nullptr if there is none)
-   *
-   * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
-   * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
-   */
-  static RendererThread *CurrentThread();
-
-private:
   QVector<RendererThreadPtr> threads_;
 
   bool started_;

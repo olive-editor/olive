@@ -22,20 +22,17 @@
 #define TIMELINEOUTPUT_H
 
 #include "node/block/block.h"
+#include "node/output/track/track.h"
 #include "panel/timeline/timeline.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
  */
-class TimelineOutput : public Block
+class TimelineOutput : public Node
 {
   Q_OBJECT
 public:
   TimelineOutput();
-
-  virtual Type type() override;
-
-  virtual Block* copy() override;
 
   virtual QString Name() override;
   virtual QString id() override;
@@ -44,101 +41,44 @@ public:
 
   void AttachTimeline(TimelinePanel* timeline);
 
-  virtual void set_length(const rational &length) override;
-
-  virtual void Refresh() override;
+  NodeInput* track_input();
 
 public slots:
   virtual void Process(const rational &time) override;
 
 private:
-  /**
-   * @brief Sets this Block as the only block in the Timeline (creating essentially a one clip sequence)
-   */
-  void ConnectBlockInternal(Block* block);
-
-  /**
-   * @brief Disconnects t
-   */
-  void RemoveBlockInternal();
-
-  /**
-   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
-   *
-   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
-   */
-  void AddBlockToGraph(Block* block);
-
-  Block* attached_block();
-
-  QVector<Block*> block_cache_;
-
-  Block* current_block_;
+  TrackOutput* attached_track();
 
   TimelinePanel* attached_timeline_;
 
+  NodeInput* track_input_;
+
+  /**
+   * @brief A cache of connected Tracks
+   */
+  QVector<TrackOutput*> track_cache_;
+
 private slots:
   /**
-   * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
+   * @brief Slot for when the track connection is added
    */
-  void PrependBlock(Block* block);
+  void TrackConnectionAdded(NodeEdgePtr edge);
 
   /**
-   * @brief Inserts Block `block` at a specific index (0 is the start of the timeline)
-   *
-   * If the index == 0, this function does the same as PrependBlock(). If the index >= the current number of blocks,
-   * this function is the same as AppendBlock().
+   * @brief Slot for when the track connection is removed
    */
-  void InsertBlockAtIndex(Block* block, int index);
+  void TrackConnectionRemoved(NodeEdgePtr edge);
 
   /**
-   * @brief Inserts a Block between two other Blocks
-   *
-   * Disconnects `before` and `after`, and connects them to `block` with `block` in between.
+   * @brief Slot for when a connected Track has added a Block so we can update the UI
    */
-  void InsertBlockBetweenBlocks(Block* block, Block* before, Block* after);
+  void TrackAddedBlock(Block* block);
 
   /**
-   * @brief Inserts Block after another Block
-   *
-   * Equivalent to calling InsertBlockBetweenBlocks(block, before, before->next())
+   * @brief Slot for when a connected Track has added a Block so we can update the UI
    */
-  void InsertBlockAfter(Block* block, Block* before);
+  void TrackRemovedBlock(Block* block);
 
-  /**
-   * @brief Adds Block `block` at the very end of the Sequence after all other clips
-   */
-  void AppendBlock(Block* block);
-
-  /**
-   * @brief Destructively places `block` at the in point `start`
-   *
-   * The Block is guaranteed to be placed at the starting point specified. If there are Blocks in this area, they are
-   * either trimmed or removed to make space for this Block. Additionally, if the Block is placed beyond the end of
-   * the Sequence, a GapBlock is inserted to compensate.
-   */
-  void PlaceBlock(Block* block, rational start);
-
-  /**
-   * @brief Removes a Block and places a Gap in its place
-   */
-  void RemoveBlock(Block* block);
-
-  /**
-   * @brief Removes a Block pushing all subsequent Blocks earlier to take up the space
-   */
-  void RippleRemoveBlock(Block* block);
-
-  /**
-   * @brief Splits `block` into two Blocks at the Sequence point `time`
-   */
-  void SplitBlock(Block* block, rational time);
-
-  /**
-   * @brief Inserts Block `inner` between Block `outer`, splitting and shortening it to fit without changing the overall
-   *        length
-   */
-  void SpliceBlock(Block* inner, Block* outer, rational inner_in);
 };
 
 #endif // TIMELINEOUTPUT_H
