@@ -46,6 +46,10 @@ public:
 
   void SetTimebase(const rational& r);
 
+  const double& scale();
+
+  void SetScale(const double& scale_);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it

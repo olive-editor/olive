@@ -69,7 +69,12 @@ void TimeRuler::SetTextVisible(bool e)
   update();
 }
 
-void TimeRuler::SetScale(double d)
+const double &TimeRuler::scale()
+{
+  return scale_;
+}
+
+void TimeRuler::SetScale(const double &d)
 {
   scale_ = d;
 

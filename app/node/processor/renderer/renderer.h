@@ -43,6 +43,10 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  virtual void Process(const rational &time) override;
+
+  virtual void Release() override;
+
   /**
    * @brief Set parameters of the Renderer
    *

@@ -20,6 +20,8 @@
 
 #include "renderer.h"
 
+#include <QDebug>
+
 RendererProcessor::RendererProcessor() :
   started_(false)
 {
@@ -39,6 +41,22 @@ QString RendererProcessor::Category()
 QString RendererProcessor::Description()
 {
   return tr("A multi-threaded OpenGL hardware-accelerated node compositor.");
+}
+
+void RendererProcessor::Process(const rational &time)
+{
+  // Ensure we have started
+  Start();
+
+  if (!started_) {
+    qWarning() << tr("An error occurred starting the Renderer node");
+    return;
+  }
+}
+
+void RendererProcessor::Release()
+{
+  Stop();
 }
 
 void RendererProcessor::Start()

@@ -39,6 +39,14 @@ void PanelWidget::SetBorderVisible(bool enabled)
   update();
 }
 
+void PanelWidget::ZoomIn()
+{
+}
+
+void PanelWidget::ZoomOut()
+{
+}
+
 void PanelWidget::SetTitle(const QString &t)
 {
   title_ = t;

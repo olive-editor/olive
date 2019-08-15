@@ -23,6 +23,7 @@
 #include <QEvent>
 
 #include "core.h"
+#include "panel/panelmanager.h"
 #include "tool/tool.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -84,8 +85,8 @@ MainMenu::MainMenu(QWidget *parent) :
   // VIEW MENU
   //
   view_menu_ = new Menu(this);
-  view_zoom_in_item_ = view_menu_->AddItem("zoomin", nullptr, nullptr, "=");
-  view_zoom_out_item_ = view_menu_->AddItem("zoomout", nullptr, nullptr, "-");
+  view_zoom_in_item_ = view_menu_->AddItem("zoomin", this, SLOT(ZoomInTriggered()), "=");
+  view_zoom_out_item_ = view_menu_->AddItem("zoomout", this, SLOT(ZoomOutTriggered()), "-");
   view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", nullptr, nullptr, "Ctrl+=");
   view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", nullptr, nullptr, "Ctrl+-");
   view_show_all_item_ = view_menu_->AddItem("showall", nullptr, nullptr, "\\");
@@ -331,6 +332,16 @@ void MainMenu::ToolsMenuAboutToShow()
 
   // Ensure snapping value is correct
   tools_snapping_item_->setChecked(olive::core.snapping());
+}
+
+void MainMenu::ZoomInTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->ZoomIn();
+}
+
+void MainMenu::ZoomOutTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->ZoomOut();
 }
 
 void MainMenu::Retranslate()

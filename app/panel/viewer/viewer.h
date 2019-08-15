@@ -34,6 +34,10 @@ class ViewerPanel : public PanelWidget {
 public:
   ViewerPanel(QWidget* parent);
 
+  virtual void ZoomIn() override;
+
+  virtual void ZoomOut() override;
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it

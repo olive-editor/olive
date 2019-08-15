@@ -42,10 +42,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
 
-  // FIXME: Test code
-  ruler_->SetScale(90.0);
-  view_->SetScale(90.0);
-  // End test code
+  // FIXME Magic number
+  SetScale(90.0);
 
   Retranslate();
 }
@@ -78,6 +76,16 @@ TimelineView *TimelinePanel::view()
   return view_;
 }
 
+void TimelinePanel::ZoomIn()
+{
+  SetScale(scale_ * 2);
+}
+
+void TimelinePanel::ZoomOut()
+{
+  SetScale(scale_ * 0.5);
+}
+
 void TimelinePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
@@ -90,4 +98,12 @@ void TimelinePanel::Retranslate()
 {
   SetTitle(tr("Timeline"));
   SetSubtitle(tr("(none)"));
+}
+
+void TimelinePanel::SetScale(double scale)
+{
+  scale_ = scale;
+
+  ruler_->SetScale(scale_);
+  view_->SetScale(scale_);
 }

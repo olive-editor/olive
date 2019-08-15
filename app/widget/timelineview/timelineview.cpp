@@ -98,7 +98,11 @@ void TimelineView::SetScale(const double &scale)
   QMapIterator<Block*, TimelineViewRect*> iterator(clip_items_);
 
   while (iterator.hasNext()) {
-    iterator.value()->SetScale(scale_);
+    iterator.next();
+
+    if (iterator.value() != nullptr) {
+      iterator.value()->SetScale(scale_);
+    }
   }
 
   playhead_line_->SetScale(scale_);

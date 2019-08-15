@@ -41,6 +41,10 @@ public:
 
   TimelineView* view();
 
+  virtual void ZoomIn() override;
+
+  virtual void ZoomOut() override;
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
@@ -49,9 +53,13 @@ signals:
 private:
   void Retranslate();
 
+  void SetScale(double scale);
+
   TimelineView* view_;
 
   TimeRuler* ruler_;
+
+  double scale_;
 };
 
 #endif // TIMELINE_PANEL_H

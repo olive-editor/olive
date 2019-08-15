@@ -34,6 +34,16 @@ ViewerPanel::ViewerPanel(QWidget *parent) :
   Retranslate();
 }
 
+void ViewerPanel::ZoomIn()
+{
+  viewer_->SetScale(viewer_->scale() * 2);
+}
+
+void ViewerPanel::ZoomOut()
+{
+  viewer_->SetScale(viewer_->scale() * 0.5);
+}
+
 void ViewerPanel::SetTexture(GLuint tex)
 {
   viewer_->SetTexture(tex);

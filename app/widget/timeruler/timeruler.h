@@ -35,7 +35,8 @@ public:
 
   void SetTextVisible(bool e);
 
-  void SetScale(double d);
+  const double& scale();
+  void SetScale(const double& d);
 
   void SetTimebase(const rational& r);
 

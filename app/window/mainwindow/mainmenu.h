@@ -60,6 +60,20 @@ private slots:
    */
   void ToolsMenuAboutToShow();
 
+  /**
+   * @brief Slot for zooming in
+   *
+   * Finds the currently focused panel and sends it a "zoom in" signal
+   */
+  void ZoomInTriggered();
+
+  /**
+   * @brief Slot for zooming out
+   *
+   * Finds the currently focused panel and sends it a "zoom out" signal
+   */
+  void ZoomOutTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.

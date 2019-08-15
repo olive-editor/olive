@@ -67,6 +67,16 @@ void ViewerWidget::SetTimebase(const rational &r)
   controls_->SetTimebase(r);
 }
 
+const double &ViewerWidget::scale()
+{
+  return ruler_->scale();
+}
+
+void ViewerWidget::SetScale(const double &scale_)
+{
+  ruler_->SetScale(scale_);
+}
+
 void ViewerWidget::SetTexture(GLuint tex)
 {
   gl_widget_->SetTexture(tex);
