@@ -300,6 +300,7 @@ void Core::CreateNewSequence()
     Block::ConnectBlocks(gb, cb);
     Block::ConnectBlocks(cb, to);
     Block::ConnectBlocks(cb2, to2);
+    NodeParam::ConnectEdge(to2->track_output(), to->track_input());
     NodeParam::ConnectEdge(to->texture_output(), vo->texture_input());
     NodeParam::ConnectEdge(to->track_output(), tb->track_input());
 

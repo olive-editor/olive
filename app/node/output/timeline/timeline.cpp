@@ -75,9 +75,9 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
     attached_timeline_->SetTimebase(rational(1001, 30000));
     // END TEST CODE
 
-    if (attached_track() != nullptr) {
+    foreach (TrackOutput* track, track_cache_) {
       // Defer to the track to make all the block UI items necessary
-      attached_track()->GenerateBlockWidgets();
+      track->GenerateBlockWidgets();
     }
 
     //TimelineView* view = attached_timeline_->view();
@@ -95,6 +95,22 @@ NodeInput *TimelineOutput::track_input()
 void TimelineOutput::Process(const rational &time)
 {
   Q_UNUSED(time)
+}
+
+int TimelineOutput::GetTrackIndex(TrackOutput *track)
+{
+  return track_cache_.indexOf(track);
+}
+
+rational TimelineOutput::GetSequenceLength()
+{
+  rational length = 0;
+
+  foreach (TrackOutput* track, track_cache_) {
+    length = qMax(length, track->in());
+  }
+
+  return length;
 }
 
 TrackOutput *TimelineOutput::attached_track()
@@ -150,6 +166,8 @@ void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
 void TimelineOutput::TrackAddedBlock(Block *block)
 {
   if (attached_timeline_ != nullptr) {
+    qDebug() << "track index lmao:" << GetTrackIndex(static_cast<TrackOutput*>(sender()));
+
     attached_timeline_->view()->AddBlock(block);
   }
 }

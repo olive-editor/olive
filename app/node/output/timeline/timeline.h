@@ -47,6 +47,10 @@ public slots:
   virtual void Process(const rational &time) override;
 
 private:
+  int GetTrackIndex(TrackOutput* track);
+
+  rational GetSequenceLength();
+
   TrackOutput* attached_track();
 
   TimelinePanel* attached_timeline_;

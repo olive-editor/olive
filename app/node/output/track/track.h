@@ -50,7 +50,9 @@ public:
 
   TrackOutput* next_track();
 
-  NodeOutput *track_output();
+  NodeInput* track_input();
+
+  NodeOutput* track_output();
 
 signals:
   /**

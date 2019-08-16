@@ -111,6 +111,11 @@ TrackOutput *TrackOutput::next_track()
   return ValueToPtr<TrackOutput>(track_input_->get_value(0));
 }
 
+NodeInput *TrackOutput::track_input()
+{
+  return track_input_;
+}
+
 NodeOutput* TrackOutput::track_output()
 {
   return track_output_;
