@@ -48,6 +48,8 @@ public:
 
   void GenerateBlockWidgets();
 
+  void DestroyBlockWidgets();
+
   TrackOutput* next_track();
 
   NodeInput* track_input();

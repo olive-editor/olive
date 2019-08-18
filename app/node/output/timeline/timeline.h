@@ -53,6 +53,10 @@ private:
 
   TrackOutput* attached_track();
 
+  void AttachTrack(TrackOutput *track);
+
+  void DetachTrack(TrackOutput* track);
+
   TimelinePanel* attached_timeline_;
 
   NodeInput* track_input_;
@@ -82,6 +86,16 @@ private slots:
    * @brief Slot for when a connected Track has added a Block so we can update the UI
    */
   void TrackRemovedBlock(Block* block);
+
+  /**
+   * @brief Slot for when an attached Track has an edge added
+   */
+  void TrackEdgeAdded(NodeEdgePtr edge);
+
+  /**
+   * @brief Slot for when an attached Track has an edge added
+   */
+  void TrackEdgeRemoved(NodeEdgePtr edge);
 
 };
 

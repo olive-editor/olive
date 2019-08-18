@@ -47,6 +47,8 @@ public:
 
   void RemoveBlock(Block* block);
 
+  void RemoveBlocksOfTrack(Block* block);
+
   void SetScale(const double& scale);
 
   void SetTimebase(const rational& timebase);

@@ -106,6 +106,13 @@ void TrackOutput::GenerateBlockWidgets()
   }
 }
 
+void TrackOutput::DestroyBlockWidgets()
+{
+  foreach (Block* block, block_cache_) {
+    emit BlockRemoved(block);
+  }
+}
+
 TrackOutput *TrackOutput::next_track()
 {
   return ValueToPtr<TrackOutput>(track_input_->get_value(0));

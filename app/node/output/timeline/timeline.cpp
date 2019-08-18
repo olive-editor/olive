@@ -118,25 +118,53 @@ TrackOutput *TimelineOutput::attached_track()
   return ValueToPtr<TrackOutput>(track_input_->get_value(0));
 }
 
+void TimelineOutput::AttachTrack(TrackOutput *track)
+{
+  TrackOutput* current_track = track;
+
+  // Traverse through Tracks caching and connecting them
+  while (current_track != nullptr) {
+    connect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
+    connect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
+    connect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
+    connect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+
+    track_cache_.append(current_track);
+
+    // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
+    // the track's index
+    current_track->GenerateBlockWidgets();
+
+    current_track = current_track->next_track();
+  }
+}
+
+void TimelineOutput::DetachTrack(TrackOutput *track)
+{
+  TrackOutput* current_track = track;
+
+  // Traverse through Tracks uncaching and disconnecting them
+  while (current_track != nullptr) {
+    current_track->DestroyBlockWidgets();
+
+    disconnect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
+    disconnect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
+    disconnect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
+    disconnect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+
+    track_cache_.removeAll(current_track);
+
+    current_track = current_track->next_track();
+  }
+}
+
 void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
 {
   if (edge->input() != track_input()) {
     return;
   }
 
-  TrackOutput* track = attached_track();
-
-  // Traverse through Tracks caching and connecting them
-  while (track != nullptr) {
-    track_cache_.append(track);
-
-    connect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    connect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-
-    track->GenerateBlockWidgets();
-
-    track = track->next_track();
-  }
+  AttachTrack(attached_track());
 
   // FIXME: TEST CODE ONLY
   if (attached_timeline_ != nullptr) {
@@ -151,12 +179,7 @@ void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
     return;
   }
 
-  foreach (TrackOutput* track, track_cache_) {
-    disconnect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    disconnect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-  }
-
-  track_cache_.clear();
+  DetachTrack(ValueToPtr<TrackOutput>(edge->output()->get_value(0)));
 
   if (attached_timeline_ != nullptr) {
     attached_timeline_->Clear();
@@ -176,5 +199,31 @@ void TimelineOutput::TrackRemovedBlock(Block *block)
 {
   if (attached_timeline_ != nullptr) {
     attached_timeline_->view()->RemoveBlock(block);
+  }
+}
+
+void TimelineOutput::TrackEdgeAdded(NodeEdgePtr edge)
+{
+  // Assume this signal was sent from a TrackOutput
+  TrackOutput* track = static_cast<TrackOutput*>(sender());
+
+  // If this edge pertains to the track's track input, all the tracks just added need attaching
+  if (edge->input() == track->track_input()) {
+    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
+
+    AttachTrack(added_track);
+  }
+}
+
+void TimelineOutput::TrackEdgeRemoved(NodeEdgePtr edge)
+{
+  // Assume this signal was sent from a TrackOutput
+  TrackOutput* track = static_cast<TrackOutput*>(sender());
+
+  // If this edge pertains to the track's track input, all the tracks just added need attaching
+  if (edge->input() == track->track_input()) {
+    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
+
+    DetachTrack(added_track);
   }
 }
