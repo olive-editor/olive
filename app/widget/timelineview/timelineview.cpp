@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QScrollBar>
 #include <QtMath>
 #include <QPen>
 
@@ -166,6 +167,17 @@ void TimelineView::dragLeaveEvent(QDragLeaveEvent *event)
 void TimelineView::dropEvent(QDropEvent *event)
 {
   import_tool_.DragDrop(event);
+}
+
+void TimelineView::resizeEvent(QResizeEvent *event)
+{
+  QGraphicsView::resizeEvent(event);
+
+  if (scene_.height() < height()) {
+    QRectF rect = scene_.sceneRect();
+    rect.setHeight(height() - horizontalScrollBar()->height() - 2);
+    scene_.setSceneRect(rect);
+  }
 }
 
 void TimelineView::AddGhost(TimelineViewGhostItem *ghost)

@@ -51,7 +51,7 @@ void TimelineViewPlayheadItem::UpdateRect()
   double x = TimeToScreenCoord(rational(playhead_ * timebase_.numerator(), timebase_.denominator()));
   double width = TimeToScreenCoord(timebase_);
 
-  setRect(0, 0, width, scene()->height());
+  setRect(0, 0, width, scene()->height()-1);
   setPos(x, 0);
 }
 

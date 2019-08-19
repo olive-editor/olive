@@ -75,6 +75,8 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
   virtual void dropEvent(QDropEvent *event) override;
 
+  virtual void resizeEvent(QResizeEvent *event) override;
+
 private:
 
   class Tool
