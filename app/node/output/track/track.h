@@ -118,6 +118,15 @@ public:
    */
   void SpliceBlock(Block* inner, Block* outer, rational inner_in);
 
+  /**
+   * @brief Clears the area between in and out
+   *
+   * The area between `in` and `out` is guaranteed to be freed. BLocks are trimmed and removed to free this space.
+   * By default, nothing takes this area meaning all subsequent clips are pushed backward, however you can specify
+   * a block to insert at the `in` point. No checking is done to ensure `insert` is the same length as `in` to `out`.
+   */
+  void RippleRemoveArea(rational in, rational out, Block* insert = nullptr);
+
 signals:
   /**
    * @brief Signal emitted when a Block is added to this Track

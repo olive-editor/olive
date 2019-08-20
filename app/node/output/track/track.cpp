@@ -251,14 +251,6 @@ void TrackOutput::PlaceBlock(Block *block, rational start)
     return;
   }
 
-  // Place block at the beginning
-  if (start == 0) {
-    // FIXME: Remove existing
-
-    PrependBlock(block);
-    return;
-  }
-
   // Check if the placement location is past the end of the timeline
   if (start >= in()) {
     if (start > in()) {
@@ -275,19 +267,8 @@ void TrackOutput::PlaceBlock(Block *block, rational start)
     return;
   }
 
-  // Check if the Block is placed at the in point of an existing Block, in which case a simple insert between will
-  // suffice
-  for (int i=1;i<block_cache_.size();i++) {
-    Block* comparison = block_cache_.at(i);
-
-    if (comparison->in() == start) {
-      Block* previous = block_cache_.at(i-1);
-
-      // InsertBlockAtIndex() could work here, but this function is faster since we've already found the Blocks
-      InsertBlockBetweenBlocks(block, previous, comparison);
-      return;
-    }
-  }
+  // Place the Block at this point
+  RippleRemoveArea(start, start + block->length(), block);
 }
 
 void TrackOutput::RemoveBlock(Block *block)
@@ -325,6 +306,8 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   if (previous != nullptr && next != nullptr) {
     Block::ConnectBlocks(previous, next);
   }
+
+  // FIXME: Should there be removing the Blocks from the graph?
 }
 
 void TrackOutput::SplitBlock(Block *block, rational time)
@@ -359,4 +342,66 @@ void TrackOutput::SpliceBlock(Block *inner, Block *outer, rational inner_in)
   Block* copy = outer->copy();
   copy->set_length(original_length - outer->length() - inner->length());
   InsertBlockAfter(copy, inner);
+}
+
+void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
+{
+  // Block whose out point exceeds `in` and needs to be trimmed
+  Block* trim_out_to_in = nullptr;
+
+  // Block whose in point exceeds `out` and needs to be trimmed
+  Block* trim_in_to_out = nullptr;
+
+  // Blocks that are entirely within the area and need removing
+  QList<Block*> remove;
+
+  // Iterate through blocks determining which need trimming/removing/splitting
+  foreach (Block* block, block_cache_) {
+    if (block->in() < in && block->out() > out) {
+      // The area entirely within this Block
+      // FIXME: Implement splitting a block in half when necessary
+
+      // We don't need to do anything else here
+      break;
+    } else if (block->in() >= in && block->out() <= out) {
+      // This Block's is entirely within the area
+      remove.append(block);
+    } else if (block->in() < in && block->out() >= in) {
+      // This Block's out point exceeds `in`
+      trim_out_to_in = block;
+    } else if (block->in() <= out && block->out() > out) {
+      // This Block's in point exceeds `out`
+      trim_in_to_out = block;
+    }
+  }
+
+  // If we picked up a block to trim the in point of
+  if (trim_in_to_out != nullptr && trim_in_to_out->in() < out) {
+    // FIXME: Set media_in point
+    trim_in_to_out->set_length(trim_in_to_out->out() - out);
+  }
+
+  // Remove all blocks that are flagged for removal
+  foreach (Block* remove_block, remove) {
+    RippleRemoveBlock(remove_block);
+  }
+
+  // If we picked up a block to trim the out point of
+  if (trim_out_to_in != nullptr && trim_out_to_in->out() > in) {
+    trim_out_to_in->set_length(in - trim_out_to_in->in());
+  }
+
+  // If we were given a block to insert, insert it here
+  if (insert != nullptr) {
+    if (trim_out_to_in == nullptr) {
+      // This is the start of the Sequence
+      PrependBlock(insert);
+    } else if (trim_in_to_out == nullptr) {
+      // This is the end of the Sequence
+      AppendBlock(insert);
+    } else {
+      // This is somewhere in the middle of the Sequence
+      InsertBlockBetweenBlocks(insert, trim_out_to_in, trim_in_to_out);
+    }
+  }
 }
