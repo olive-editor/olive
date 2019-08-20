@@ -36,7 +36,7 @@ public:
   const QList<Node*>& nodes();
 
 private:
-  QVBoxLayout* layout_;
+  QVBoxLayout* param_layout_;
 
   QList<Node*> nodes_;
 

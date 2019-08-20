@@ -20,16 +20,32 @@
 
 #include "nodeparamview.h"
 
+#include <QScrollArea>
+
 NodeParamView::NodeParamView(QWidget *parent) :
   QWidget(parent)
 {
-  // Set new layout
-  layout_ = new QVBoxLayout(this);
-  layout_->setSpacing(0);
-  layout_->setMargin(0);
+  // Create horizontal layout to place scroll area in (and keyframe editing eventually)
+  QHBoxLayout* widget_layout = new QHBoxLayout(this);
+  widget_layout->setSpacing(0);
+  widget_layout->setMargin(0);
+
+  // Set up scroll area for params
+  QScrollArea* scroll_area = new QScrollArea();
+  scroll_area->setWidgetResizable(true);
+  widget_layout->addWidget(scroll_area);
+
+  // Param widget
+  QWidget* param_widget_area = new QWidget();
+  scroll_area->setWidget(param_widget_area);
+
+  // Set up scroll area layout
+  param_layout_ = new QVBoxLayout(param_widget_area);
+  param_layout_->setSpacing(0);
+  param_layout_->setMargin(0);
 
   // Add a stretch to allow empty space at the bottom of the layout
-  layout_->addStretch();
+  param_layout_->addStretch();
 }
 
 void NodeParamView::SetNodes(QList<Node *> nodes)
@@ -65,7 +81,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       item->AttachNode(node);
 
       // Insert the widget before the stretch
-      layout_->insertWidget(layout_->count() - 1, item);
+      param_layout_->insertWidget(param_layout_->count() - 1, item);
 
       items_.append(item);
     }
