@@ -109,14 +109,12 @@ public:
 
   /**
    * @brief Splits `block` into two Blocks at the Sequence point `time`
+   *
+   * @return
+   *
+   * The second block created as a result of this split
    */
-  void SplitBlock(Block* block, rational time);
-
-  /**
-   * @brief Inserts Block `inner` between Block `outer`, splitting and shortening it to fit without changing the overall
-   *        length
-   */
-  void SpliceBlock(Block* inner, Block* outer, rational inner_in);
+  Block *SplitBlock(Block* block, rational time);
 
   /**
    * @brief Clears the area between in and out

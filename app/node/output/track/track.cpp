@@ -310,10 +310,10 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   // FIXME: Should there be removing the Blocks from the graph?
 }
 
-void TrackOutput::SplitBlock(Block *block, rational time)
+Block* TrackOutput::SplitBlock(Block *block, rational time)
 {
-  if (time < block->in() || time >= block->out()) {
-    return;
+  if (time <= block->in() || time >= block->out()) {
+    return nullptr;
   }
 
   rational original_length = block->length();
@@ -323,29 +323,15 @@ void TrackOutput::SplitBlock(Block *block, rational time)
   Block* copy = block->copy();
   copy->set_length(original_length - block->length());
   InsertBlockAfter(copy, block);
-}
 
-void TrackOutput::SpliceBlock(Block *inner, Block *outer, rational inner_in)
-{
-  Q_ASSERT(inner_in >= outer->in() && inner_in < outer->out());
-
-  // Cache original length
-  rational original_length = outer->length();
-
-  // Set outer clip to the clip that PRECEDES the inner clip
-  outer->set_length(inner_in - outer->in());
-
-  // Insert inner clip between BEFORE clip and its next clip
-  InsertBlockAfter(inner, outer);
-
-  // Create the AFTER clip
-  Block* copy = outer->copy();
-  copy->set_length(original_length - outer->length() - inner->length());
-  InsertBlockAfter(copy, inner);
+  return copy;
 }
 
 void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
 {
+  // Block that needs to be split to remove this area
+  Block* splice = nullptr;
+
   // Block whose out point exceeds `in` and needs to be trimmed
   Block* trim_out_to_in = nullptr;
 
@@ -359,7 +345,7 @@ void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
   foreach (Block* block, block_cache_) {
     if (block->in() < in && block->out() > out) {
       // The area entirely within this Block
-      // FIXME: Implement splitting a block in half when necessary
+      splice = block;
 
       // We don't need to do anything else here
       break;
@@ -375,10 +361,27 @@ void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
     }
   }
 
+  // If we picked up a block to splice
+  if (splice != nullptr) {
+
+    // Split the block here
+    Block* copy = SplitBlock(splice, in);
+
+    // Perform all further actions as if we were just trimming these clips
+    trim_out_to_in = splice;
+    trim_in_to_out = copy;
+
+  }
+
   // If we picked up a block to trim the in point of
   if (trim_in_to_out != nullptr && trim_in_to_out->in() < out) {
-    // FIXME: Set media_in point
-    trim_in_to_out->set_length(trim_in_to_out->out() - out);
+    rational new_length = trim_in_to_out->out() - out;
+
+    // Push media_in forward to compensate
+    rational length_diff = trim_in_to_out->length() - new_length;
+    trim_in_to_out->set_media_in(trim_in_to_out->media_in() - length_diff);
+
+    trim_in_to_out->set_length(new_length);
   }
 
   // Remove all blocks that are flagged for removal

@@ -48,8 +48,6 @@ public slots:
 private:
   NodeInput* texture_input_;
 
-  rational media_in_;
-
 };
 
 #endif // TIMELINEBLOCK_H

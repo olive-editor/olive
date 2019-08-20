@@ -65,6 +65,9 @@ public:
   static void ConnectBlocks(Block* previous, Block* next);
   static void DisconnectBlocks(Block* previous, Block* next);
 
+  const rational& media_in();
+  void set_media_in(const rational& media_in);
+
 public slots:
   virtual void Process(const rational &time) override;
 
@@ -109,6 +112,8 @@ private:
   rational out_point_;
 
   rational length_;
+
+  rational media_in_;
 
 private slots:
   void BlockOrderChanged(NodeEdgePtr edge);

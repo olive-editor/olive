@@ -75,7 +75,7 @@ void ClipBlock::Process(const rational &time)
   // If the time retrieved is within this block, get texture information
   if (time >= in() && time < out()) {
     // We convert the time given (timeline time) to media time
-    rational media_time = time - in() + media_in_;
+    rational media_time = time - in() + media_in();
 
     // Retrieve texture
     texture_output()->set_value(texture_input_->get_value(media_time));

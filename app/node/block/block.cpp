@@ -156,3 +156,18 @@ void Block::DisconnectBlocks(Block *previous, Block *next)
   NodeParam::DisconnectEdge(previous->block_output(), next->previous_input());
   NodeParam::DisconnectEdge(next->block_output(), previous->next_input());
 }
+
+const rational &Block::media_in()
+{
+  return media_in_;
+}
+
+void Block::set_media_in(const rational &media_in)
+{
+  if (media_in_ != media_in) {
+    media_in_ = media_in;
+
+    // Signal that this clips contents have changed
+    //InvalidateCache(in(), out());
+  }
+}
