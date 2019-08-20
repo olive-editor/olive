@@ -57,6 +57,8 @@ private:
 
   void DetachTrack(TrackOutput* track);
 
+  void AddTrack();
+
   TimelinePanel* attached_timeline_;
 
   NodeInput* track_input_;
@@ -96,6 +98,11 @@ private slots:
    * @brief Slot for when an attached Track has an edge added
    */
   void TrackEdgeRemoved(NodeEdgePtr edge);
+
+  /**
+   * @brief Forwards a PlaceBlock signal to the requested track
+   */
+  void PlaceBlock(Block* block, rational start, int track);
 
 };
 

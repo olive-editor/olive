@@ -47,8 +47,11 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
     quintptr item_ptr;
     int r;
 
+    // Set drag start position
+    drag_start_ = GetScenePos(event->pos());
+
     // Set ghosts to start where the cursor entered
-    rational ghost_start = parent()->ScreenToTime(event->pos().x());
+    rational ghost_start = parent()->SceneToTime(drag_start_.x());
 
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;
@@ -79,8 +82,6 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
       }
     }
 
-    drag_start_ = event->pos();
-
     event->accept();
   } else {
     // FIXME: Implement dropping from file
@@ -93,12 +94,22 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
   if (parent()->HasGhosts()) {
     // Move ghosts to the mouse cursor
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      QPoint movement = event->pos() - drag_start_;
+      QPointF pos = GetScenePos(event->pos());
+      QPointF movement = pos - drag_start_;
 
-      rational time_movement = parent()->ScreenToTime(movement.x());
+      rational time_movement = parent()->SceneToTime(movement.x());
 
       ghost->SetInAdjustment(time_movement);
       ghost->SetOutAdjustment(time_movement);
+
+      int ghost_track = parent()->SceneToTrack(pos.y());
+      ghost->SetTrack(ghost_track);
+
+      int ghost_y = parent()->GetTrackY(ghost_track);
+      int ghost_height = parent()->GetTrackHeight(ghost_track);
+
+      ghost->SetY(ghost_y);
+      ghost->SetHeight(ghost_height);
     }
 
     event->accept();
@@ -130,8 +141,6 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       MediaInput* media = new MediaInput();
 
       // Set parents to node_memory_manager in case no TimelineOutput receives this signal
-      // FIXME: Moving nodes to shared_ptrs might be a better idea, except they all use the QObject system for hierarchy
-      //        already...
       clip->setParent(&node_memory_manager);
       media->setParent(&node_memory_manager);
 
@@ -141,9 +150,9 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
 
       if (event->keyboardModifiers() & Qt::ControlModifier) {
-        emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
+        //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        emit parent()->RequestPlaceBlock(clip, ghost->GetAdjustedIn());
+        emit parent()->RequestPlaceBlock(clip, ghost->GetAdjustedIn(), ghost->Track());
       }
     }
 

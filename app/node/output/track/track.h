@@ -56,49 +56,6 @@ public:
 
   NodeOutput* track_output();
 
-signals:
-  /**
-   * @brief Signal emitted when a Block is added to this Track
-   */
-  void BlockAdded(Block* block);
-
-  /**
-   * @brief Signal emitted when a Block is removed from this Track
-   */
-  void BlockRemoved(Block* block);
-
-public slots:
-  virtual void Process(const rational &time) override;
-
-private:
-  /**
-   * @brief Sets this Block as the only block in the Timeline (creating essentially a one clip sequence)
-   */
-  void ConnectBlockInternal(Block* block);
-
-  /**
-   * @brief Disconnects t
-   */
-  void RemoveBlockInternal();
-
-  /**
-   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
-   *
-   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
-   */
-  void AddBlockToGraph(Block* block);
-
-  Block* attached_block();
-
-  QVector<Block*> block_cache_;
-
-  Block* current_block_;
-
-  NodeInput* track_input_;
-
-  NodeOutput* track_output_;
-
-private slots:
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
    */
@@ -160,6 +117,51 @@ private slots:
    *        length
    */
   void SpliceBlock(Block* inner, Block* outer, rational inner_in);
+
+signals:
+  /**
+   * @brief Signal emitted when a Block is added to this Track
+   */
+  void BlockAdded(Block* block);
+
+  /**
+   * @brief Signal emitted when a Block is removed from this Track
+   */
+  void BlockRemoved(Block* block);
+
+public slots:
+  virtual void Process(const rational &time) override;
+
+private:
+  /**
+   * @brief Sets this Block as the only block in the Timeline (creating essentially a one clip sequence)
+   */
+  void ConnectBlockInternal(Block* block);
+
+  /**
+   * @brief Disconnects t
+   */
+  void RemoveBlockInternal();
+
+  /**
+   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
+   *
+   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
+   */
+  void AddBlockToGraph(Block* block);
+
+  Block* attached_block();
+
+  QVector<Block*> block_cache_;
+
+  Block* current_block_;
+
+  NodeInput* track_input_;
+
+  NodeOutput* track_output_;
+
+private slots:
+
 };
 
 #endif // TRACKOUTPUT_H

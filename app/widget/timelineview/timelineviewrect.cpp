@@ -22,9 +22,45 @@
 
 TimelineViewRect::TimelineViewRect(QGraphicsItem* parent) :
   QGraphicsRectItem(parent),
-  scale_(1.0)
+  scale_(1.0),
+  y_(0),
+  height_(0)
 {
 
+}
+
+const int &TimelineViewRect::Y()
+{
+  return y_;
+}
+
+void TimelineViewRect::SetY(const int &y)
+{
+  y_ = y;
+
+  UpdateRect();
+}
+
+const int &TimelineViewRect::Height()
+{
+  return height_;
+}
+
+void TimelineViewRect::SetHeight(const int &height)
+{
+  height_ = height;
+
+  UpdateRect();
+}
+
+const int &TimelineViewRect::Track()
+{
+  return track_;
+}
+
+void TimelineViewRect::SetTrack(const int &track)
+{
+  track_ = track;
 }
 
 void TimelineViewRect::SetScale(const double &scale)

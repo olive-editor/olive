@@ -33,6 +33,15 @@ class TimelineViewRect : public QGraphicsRectItem
 public:
   TimelineViewRect(QGraphicsItem* parent = nullptr);
 
+  const int& Y();
+  void SetY(const int& y);
+
+  const int& Height();
+  void SetHeight(const int& height);
+
+  const int& Track();
+  void SetTrack(const int& track);
+
   void SetScale(const double& scale);
 
   virtual void UpdateRect() = 0;
@@ -41,6 +50,12 @@ protected:
   double TimeToScreenCoord(const rational& time);
 
   double scale_;
+
+  int y_;
+
+  int height_;
+
+  int track_;
 };
 
 #endif // TIMELINEVIEWRECT_H

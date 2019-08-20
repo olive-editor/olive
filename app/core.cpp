@@ -218,13 +218,9 @@ void Core::CreateNewFolder()
 }
 
 // FIXME: Test code
-#include "node/block/clip/clip.h"
-#include "node/block/gap/gap.h"
-#include "node/input/media/media.h"
 #include "node/output/timeline/timeline.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
-#include "node/generator/solid/solid.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
 #include "panel/viewer/viewer.h"
@@ -272,42 +268,21 @@ void Core::CreateNewSequence()
                                                                                  folder,
                                                                                  new_sequence);
 
-    // FIXME: Test code
-    GapBlock* gb = new GapBlock();
-    gb->set_length(1);
-    new_sequence->AddNode(gb);
-
-    ClipBlock* cb = new ClipBlock();
-    cb->set_length(2);
-    new_sequence->AddNode(cb);
-
-    TrackOutput* to = new TrackOutput();
-    new_sequence->AddNode(to);
-
-    ClipBlock* cb2 = new ClipBlock();
-    cb2->set_length(2);
-    new_sequence->AddNode(cb2);
-
-    TrackOutput* to2 = new TrackOutput();
-    new_sequence->AddNode(to2);
-
     TimelineOutput* tb = new TimelineOutput();
     new_sequence->AddNode(tb);
 
     ViewerOutput* vo = new ViewerOutput();
     new_sequence->AddNode(vo);
 
-    Block::ConnectBlocks(gb, cb);
-    Block::ConnectBlocks(cb, to);
-    Block::ConnectBlocks(cb2, to2);
-    NodeParam::ConnectEdge(to2->track_output(), to->track_input());
+    TrackOutput* to = new TrackOutput();
+    new_sequence->AddNode(to);
+
     NodeParam::ConnectEdge(to->texture_output(), vo->texture_input());
     NodeParam::ConnectEdge(to->track_output(), tb->track_input());
 
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
     tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
-    // End test code
 
     olive::undo_stack.push(aic);
   }

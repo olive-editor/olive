@@ -59,10 +59,10 @@ QString TimelineOutput::Description()
 void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 {
   if (attached_timeline_ != nullptr) {
-    //TimelineView* view = attached_timeline_->view();
+    TimelineView* view = attached_timeline_->view();
 
     //disconnect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    //disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
+    disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
 
     // Remove existing UI objects from TimelinePanel
     attached_timeline_->Clear();
@@ -80,10 +80,10 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
       track->GenerateBlockWidgets();
     }
 
-    //TimelineView* view = attached_timeline_->view();
+    TimelineView* view = attached_timeline_->view();
 
     //connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    //connect(view, SIGNAL(RequestPlaceBlock(Block*, rational)), this, SLOT(PlaceBlock(Block*, rational)));
+    connect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
   }
 }
 
@@ -158,6 +158,18 @@ void TimelineOutput::DetachTrack(TrackOutput *track)
   }
 }
 
+void TimelineOutput::AddTrack()
+{
+  TrackOutput* track = new TrackOutput();
+  static_cast<NodeGraph*>(parent())->AddNode(track);
+
+  if (track_cache_.isEmpty()) {
+    NodeParam::ConnectEdge(track->track_output(), track_input());
+  } else {
+    NodeParam::ConnectEdge(track->track_output(), track_cache_.last()->track_input());
+  }
+}
+
 void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
 {
   if (edge->input() != track_input()) {
@@ -189,9 +201,7 @@ void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
 void TimelineOutput::TrackAddedBlock(Block *block)
 {
   if (attached_timeline_ != nullptr) {
-    qDebug() << "track index lmao:" << GetTrackIndex(static_cast<TrackOutput*>(sender()));
-
-    attached_timeline_->view()->AddBlock(block);
+    attached_timeline_->view()->AddBlock(block, GetTrackIndex(static_cast<TrackOutput*>(sender())));
   }
 }
 
@@ -226,4 +236,13 @@ void TimelineOutput::TrackEdgeRemoved(NodeEdgePtr edge)
 
     DetachTrack(added_track);
   }
+}
+
+void TimelineOutput::PlaceBlock(Block *block, rational start, int track)
+{
+  while (track >= track_cache_.size()) {
+    AddTrack();
+  }
+
+  track_cache_.at(track)->PlaceBlock(block, start);
 }

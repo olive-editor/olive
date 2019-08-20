@@ -41,6 +41,8 @@ TimelineView::TimelineView(QWidget *parent) :
   setDragMode(RubberBandDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
+  connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
+
   // Create playhead line and ensure it's always on top
   playhead_line_ = new TimelineViewPlayheadItem();
   playhead_line_->setZValue(100);
@@ -51,7 +53,7 @@ TimelineView::TimelineView(QWidget *parent) :
   SetScale(1.0);
 }
 
-void TimelineView::AddBlock(Block *block)
+void TimelineView::AddBlock(Block *block, int track)
 {
   switch (block->type()) {
   case Block::kClip:
@@ -61,7 +63,10 @@ void TimelineView::AddBlock(Block *block)
 
     // Set up clip with view parameters (clip item will automatically size its rect accordingly)
     clip_item->SetClip(clip);
+    clip_item->SetY(GetTrackY(track));
+    clip_item->SetHeight(GetTrackHeight(track));
     clip_item->SetScale(scale_);
+    clip_item->SetTrack(track);
 
     // Add to list of clip items that can be iterated through
     clip_items_.insert(clip, clip_item);
@@ -119,12 +124,17 @@ void TimelineView::SetTimebase(const rational &timebase)
 
 void TimelineView::Clear()
 {
-  scene_.removeItem(playhead_line_);
+  QMapIterator<Block*, TimelineViewRect*> iterator(clip_items_);
 
-  scene_.clear();
+  while (iterator.hasNext()) {
+    iterator.next();
+
+    if (iterator.value() != nullptr) {
+      delete iterator.value();
+    }
+  }
+
   clip_items_.clear();
-
-  scene_.addItem(playhead_line_);
 }
 
 void TimelineView::SetTime(const int64_t time)
@@ -173,11 +183,26 @@ void TimelineView::resizeEvent(QResizeEvent *event)
 {
   QGraphicsView::resizeEvent(event);
 
-  if (scene_.height() < height()) {
-    QRectF rect = scene_.sceneRect();
-    rect.setHeight(height() - horizontalScrollBar()->height() - 2);
-    scene_.setSceneRect(rect);
+  UpdateSceneRect();
+}
+
+int TimelineView::GetTrackY(int track_index)
+{
+  int y = 0;
+
+  for (int i=0;i<track_index;i++) {
+    y += GetTrackHeight(i);
   }
+
+  return y;
+}
+
+int TimelineView::GetTrackHeight(int track_index)
+{
+  // FIXME: Make this adjustable
+  Q_UNUSED(track_index)
+
+  return fontMetrics().height() * 3;
 }
 
 void TimelineView::AddGhost(TimelineViewGhostItem *ghost)
@@ -192,13 +217,26 @@ bool TimelineView::HasGhosts()
   return !ghost_items_.isEmpty();
 }
 
-rational TimelineView::ScreenToTime(const int &x)
+rational TimelineView::SceneToTime(const double &x)
 {
   // Adjust screen point by scale and timebase
   int scaled_x_mvmt = qRound(x / scale_ / timebase_dbl_);
 
   // Return a time in the timebase
   return rational(scaled_x_mvmt * timebase_.numerator(), timebase_.denominator());
+}
+
+int TimelineView::SceneToTrack(const double &y)
+{
+  int track = -1;
+  int heights = 0;
+
+  do {
+    track++;
+    heights += GetTrackHeight(track);
+  } while (y > heights);
+
+  return track;
 }
 
 void TimelineView::ClearGhosts()
@@ -219,6 +257,30 @@ void TimelineView::BlockChanged()
   if (rect != nullptr) {
     rect->UpdateRect();
   }
+}
+
+void TimelineView::UpdateSceneRect()
+{
+  QRectF bounding_rect = scene_.itemsBoundingRect();
+
+  // Ensure the scene left and top are always 0
+  bounding_rect.setTopLeft(QPointF(0, 0));
+
+  // Ensure the scene height is always AT LEAST the height of the view
+  int minimum_height = height() - horizontalScrollBar()->height() - 2;
+  if (bounding_rect.height() < minimum_height) {
+    bounding_rect.setHeight(minimum_height);
+  }
+
+  // Ensure playhead is the correct height
+  playhead_line_->UpdateRect();
+
+  // If the scene is already this rect, do nothing
+  if (scene_.sceneRect() == bounding_rect) {
+    return;
+  }
+
+  scene_.setSceneRect(bounding_rect);
 }
 
 TimelineView::Tool::Tool(TimelineView *parent) :
@@ -246,4 +308,14 @@ void TimelineView::Tool::DragDrop(QDropEvent *){}
 TimelineView *TimelineView::Tool::parent()
 {
   return parent_;
+}
+
+QPointF TimelineView::Tool::GetScenePos(const QPoint &screen_pos)
+{
+  return parent()->mapToScene(screen_pos);
+}
+
+QGraphicsItem *TimelineView::Tool::GetItemAtScenePos(const QPointF &scene_pos)
+{
+  return parent()->scene_.itemAt(scene_pos, parent()->transform());
 }

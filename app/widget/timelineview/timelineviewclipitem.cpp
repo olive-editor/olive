@@ -55,7 +55,7 @@ void TimelineViewClipItem::UpdateRect()
   double item_left = TimeToScreenCoord(clip_->in());
   double item_width = TimeToScreenCoord(clip_->length());
 
-  setRect(0, 0, item_width - 1, 64);
+  setRect(0, y_, item_width - 1, height_ - 1);
   setPos(item_left, 0.0);
 }
 
@@ -63,13 +63,13 @@ void TimelineViewClipItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 {
   Q_UNUSED(widget)
 
-  /*QLinearGradient grad;
-  grad.setStart(0, 0);
-  grad.setFinalStop(0, rect().height());
-  grad.setColorAt(0.0, QColor(192, 192, 255));
+  QLinearGradient grad;
+  grad.setStart(0, rect().top());
+  grad.setFinalStop(0, rect().bottom());
+  grad.setColorAt(0.0, QColor(160, 160, 240));
   grad.setColorAt(1.0, QColor(128, 128, 192));
-  painter->fillRect(rect(), grad);*/
-  painter->fillRect(rect(), QColor(128, 128, 192));
+  painter->fillRect(rect(), grad);
+//  painter->fillRect(rect(), QColor(128, 128, 192));
 
   if (option->state & QStyle::State_Selected) {
     painter->fillRect(rect(), QColor(0, 0, 0, 64));

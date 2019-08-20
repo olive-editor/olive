@@ -43,7 +43,7 @@ class TimelineView : public QGraphicsView
 public:
   TimelineView(QWidget* parent);
 
-  void AddBlock(Block* block);
+  void AddBlock(Block* block, int track);
 
   void RemoveBlock(Block* block);
 
@@ -59,11 +59,7 @@ public slots:
   void SetTime(const int64_t time);
 
 signals:
-  void RequestInsertBlockAtIndex(Block* block, int index);
-
-  void RequestPlaceBlock(Block* block, rational start);
-
-  void RequestInsertBlockAtTime(Block* block, rational time);
+  void RequestPlaceBlock(Block* block, rational start, int track);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -97,12 +93,17 @@ private:
     TimelineView* parent();
 
   protected:
+    QPointF GetScenePos(const QPoint& screen_pos);
+
+    QGraphicsItem* GetItemAtScenePos(const QPointF& scene_pos);
+
     bool dragging_;
 
-    QPoint drag_start_;
+    QPointF drag_start_;
 
   private:
     TimelineView* parent_;
+
   };
 
   class PointerTool : public Tool
@@ -126,6 +127,9 @@ private:
     virtual void DragDrop(QDropEvent *event) override;
   };
 
+  int GetTrackY(int track_index);
+  int GetTrackHeight(int track_index);
+
   PointerTool pointer_tool_;
   ImportTool import_tool_;
 
@@ -133,7 +137,8 @@ private:
 
   bool HasGhosts();
 
-  rational ScreenToTime(const int& x);
+  rational SceneToTime(const double &x);
+  int SceneToTrack(const double &y);
 
   void ClearGhosts();
 
@@ -151,6 +156,8 @@ private:
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 
+  QVector<int> track_heights_;
+
   TimelineViewPlayheadItem* playhead_line_;
 
 private slots:
@@ -161,6 +168,11 @@ private slots:
    * derivatives.
    */
   void BlockChanged();
+
+  /**
+   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
+   */
+  void UpdateSceneRect();
 };
 
 #endif // TIMELINEVIEW_H

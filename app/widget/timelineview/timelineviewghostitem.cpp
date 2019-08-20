@@ -102,7 +102,7 @@ void TimelineViewGhostItem::UpdateRect()
 {
   rational length = GetAdjustedOut() - GetAdjustedIn();
 
-  setRect(0, 0, TimeToScreenCoord(length), 64);
+  setRect(0, y_, TimeToScreenCoord(length), height_ - 1);
 
   setPos(TimeToScreenCoord(GetAdjustedIn()), 0);
 }
