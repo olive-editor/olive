@@ -43,9 +43,8 @@ TimelineView::TimelineView(QWidget *parent) :
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
 
-  // Create playhead line and ensure it's always on top
+  // Create playhead line
   playhead_line_ = new TimelineViewPlayheadItem();
-  playhead_line_->setZValue(100);
 
   scene_.addItem(playhead_line_);
 
@@ -267,6 +266,7 @@ void TimelineView::UpdateSceneRect()
   bounding_rect.setTopLeft(QPointF(0, 0));
 
   // Ensure the scene height is always AT LEAST the height of the view
+  // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
   int minimum_height = height() - horizontalScrollBar()->height() - 2;
   if (bounding_rect.height() < minimum_height) {
     bounding_rect.setHeight(minimum_height);
@@ -283,39 +283,3 @@ void TimelineView::UpdateSceneRect()
   scene_.setSceneRect(bounding_rect);
 }
 
-TimelineView::Tool::Tool(TimelineView *parent) :
-  dragging_(false),
-  parent_(parent)
-{
-}
-
-TimelineView::Tool::~Tool(){}
-
-void TimelineView::Tool::MousePress(QMouseEvent *){}
-
-void TimelineView::Tool::MouseMove(QMouseEvent *){}
-
-void TimelineView::Tool::MouseRelease(QMouseEvent *){}
-
-void TimelineView::Tool::DragEnter(QDragEnterEvent *){}
-
-void TimelineView::Tool::DragMove(QDragMoveEvent *){}
-
-void TimelineView::Tool::DragLeave(QDragLeaveEvent *){}
-
-void TimelineView::Tool::DragDrop(QDropEvent *){}
-
-TimelineView *TimelineView::Tool::parent()
-{
-  return parent_;
-}
-
-QPointF TimelineView::Tool::GetScenePos(const QPoint &screen_pos)
-{
-  return parent()->mapToScene(screen_pos);
-}
-
-QGraphicsItem *TimelineView::Tool::GetItemAtScenePos(const QPointF &scene_pos)
-{
-  return parent()->scene_.itemAt(scene_pos, parent()->transform());
-}

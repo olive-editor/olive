@@ -96,6 +96,9 @@ public:
 
   // Produce "flipped" version
   rational flipped() const;
+
+  // Returns whether the rational is null or not
+  bool isNull() const;
   
   //Function: print number to cout
   void print(ostream &out = cout) const;

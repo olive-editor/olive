@@ -245,11 +245,11 @@ void TrackOutput::AddBlockToGraph(Block *block)
 
 void TrackOutput::PlaceBlock(Block *block, rational start)
 {
-  AddBlockToGraph(block);
-
-  if (block->in() == start) {
+  if (block_cache_.contains(block) && block->in() == start) {
     return;
   }
+
+  AddBlockToGraph(block);
 
   // Check if the placement location is past the end of the timeline
   if (start >= in()) {
@@ -406,5 +406,24 @@ void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
       // This is somewhere in the middle of the Sequence
       InsertBlockBetweenBlocks(insert, trim_out_to_in, trim_in_to_out);
     }
+  }
+}
+
+void TrackOutput::ReplaceBlock(Block *old, Block *replace)
+{
+  Block* previous = old->previous();
+  Block* next = old->next();
+
+  AddBlockToGraph(replace);
+
+  // Disconnect old block from its surroundings
+  if (previous != nullptr) {
+    Block::DisconnectBlocks(previous, old);
+    Block::ConnectBlocks(previous, replace);
+  }
+
+  if (next != nullptr) {
+    Block::DisconnectBlocks(old, next);
+    Block::ConnectBlocks(replace, next);
   }
 }

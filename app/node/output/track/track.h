@@ -125,6 +125,13 @@ public:
    */
   void RippleRemoveArea(rational in, rational out, Block* insert = nullptr);
 
+  /**
+   * @brief Replaces Block `old` with Block `replace`
+   *
+   * Makes no modification to the lengths of either Blocks
+   */
+  void ReplaceBlock(Block* old, Block* replace);
+
 signals:
   /**
    * @brief Signal emitted when a Block is added to this Track

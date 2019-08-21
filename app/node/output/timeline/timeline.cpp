@@ -63,6 +63,7 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 
     //disconnect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
     disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
+    disconnect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
 
     // Remove existing UI objects from TimelinePanel
     attached_timeline_->Clear();
@@ -84,6 +85,7 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
 
     //connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
     connect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
+    connect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
   }
 }
 
@@ -240,9 +242,16 @@ void TimelineOutput::TrackEdgeRemoved(NodeEdgePtr edge)
 
 void TimelineOutput::PlaceBlock(Block *block, rational start, int track)
 {
+  Q_ASSERT(track >= 0);
+
   while (track >= track_cache_.size()) {
     AddTrack();
   }
 
   track_cache_.at(track)->PlaceBlock(block, start);
+}
+
+void TimelineOutput::ReplaceBlock(Block *old, Block *replace, int track)
+{
+  track_cache_.at(track)->ReplaceBlock(old, replace);
 }

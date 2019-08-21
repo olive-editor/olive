@@ -60,6 +60,7 @@ public slots:
 
 signals:
   void RequestPlaceBlock(Block* block, rational start, int track);
+  void RequestReplaceBlock(Block* old, Block* replace, int track);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -96,6 +97,8 @@ private:
     QPointF GetScenePos(const QPoint& screen_pos);
 
     QGraphicsItem* GetItemAtScenePos(const QPointF& scene_pos);
+
+    rational ValidateMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
 
     bool dragging_;
 

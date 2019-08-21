@@ -29,7 +29,8 @@ TimelineViewPlayheadItem::TimelineViewPlayheadItem(QGraphicsItem *parent) :
   TimelineViewRect(parent),
   playhead_(0)
 {
-
+  // Ensure this item is always on top
+  setZValue(100);
 }
 
 void TimelineViewPlayheadItem::SetPlayhead(const int64_t &playhead)

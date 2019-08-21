@@ -84,6 +84,11 @@ rational rational::flipped() const
   return rational(denom, numer);
 }
 
+bool rational::isNull() const
+{
+  return denominator() == 0;
+}
+
 //Function: get active instances
 
 int rational::getActiveInstances()

@@ -20,6 +20,8 @@
 
 #include "widget/timelineview/timelineview.h"
 
+#include "node/block/gap/gap.h"
+
 TimelineView::PointerTool::PointerTool(TimelineView *parent) :
   Tool(parent)
 {
@@ -71,6 +73,9 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         ghost->SetScale(parent()->scale_);
         ghost->SetData(Node::PtrToValue(clip));
 
+        // FIXME: Very bad. Change immediately.
+        ghost->SetTrack(parent()->SceneToTrack(drag_start_.y()));
+
         ghost->setPos(clip_item->pos());
 
         parent()->ghost_items_.append(ghost);
@@ -89,12 +94,7 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
     rational time_movement = parent()->SceneToTime(movement.x());
 
     // Validate movement
-    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      rational validator = ghost->In() + time_movement;
-      if (validator < 0) {
-        time_movement = rational(0) - ghost->In();
-      }
-    }
+    time_movement = ValidateMovement(time_movement, parent()->ghost_items_);
 
     // Perform movement
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
@@ -110,13 +110,24 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 
   parent()->QGraphicsView::mouseReleaseEvent(event);
 
-  /*
+  QObject block_memory_manager;
+
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data());
 
-    emit parent()->RequestPlaceBlock(b, ghost->In());
+    // Replace old Block with a new Gap
+    GapBlock* gap = new GapBlock();
+    gap->setParent(&block_memory_manager);
+    gap->set_length(b->length());
+
+    emit parent()->RequestReplaceBlock(b, gap, ghost->Track());
   }
-  */
+
+  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    Block* b = Node::ValueToPtr<Block>(ghost->data());
+
+    emit parent()->RequestPlaceBlock(b, ghost->GetAdjustedIn(), ghost->Track());
+  }
 
   parent()->ClearGhosts();
 

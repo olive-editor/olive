@@ -101,8 +101,16 @@ private slots:
 
   /**
    * @brief Forwards a PlaceBlock signal to the requested track
+   *
+   * If the track index doesn't exist, tracks are automatically created until a track at that index does exist
+   * (provided the track index is positive). A negative track index fails immediately.
    */
   void PlaceBlock(Block* block, rational start, int track);
+
+  /**
+   * @brief Forwards a ReplaceBlock signal to the appropriate track
+   */
+  void ReplaceBlock(Block* old, Block* replace, int track);
 
 };
 

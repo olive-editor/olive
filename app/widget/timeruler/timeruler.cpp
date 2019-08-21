@@ -109,7 +109,7 @@ void TimeRuler::SetScroll(int s)
 void TimeRuler::paintEvent(QPaintEvent *)
 {
   // Nothing to paint if the timebase is invalid
-  if (timebase_.denominator() == 0) {
+  if (timebase_.isNull()) {
     return;
   }
 

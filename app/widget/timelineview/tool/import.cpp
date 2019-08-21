@@ -51,7 +51,8 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
     drag_start_ = GetScenePos(event->pos());
 
     // Set ghosts to start where the cursor entered
-    rational ghost_start = parent()->SceneToTime(drag_start_.x());
+    // FIXME: 100 = magic number so that imported clips are not right on the cursor when dragged in
+    rational ghost_start = parent()->SceneToTime(drag_start_.x() - 100);
 
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;
@@ -92,21 +93,23 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
 void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
 {
   if (parent()->HasGhosts()) {
+    QPointF pos = GetScenePos(event->pos());
+    QPointF movement = pos - drag_start_;
+
+    rational time_movement = parent()->SceneToTime(movement.x());
+
+    int ghost_track = parent()->SceneToTrack(pos.y());
+    int ghost_y = parent()->GetTrackY(ghost_track);
+    int ghost_height = parent()->GetTrackHeight(ghost_track);
+
+    time_movement = ValidateMovement(time_movement, parent()->ghost_items_);
+
     // Move ghosts to the mouse cursor
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      QPointF pos = GetScenePos(event->pos());
-      QPointF movement = pos - drag_start_;
-
-      rational time_movement = parent()->SceneToTime(movement.x());
-
       ghost->SetInAdjustment(time_movement);
       ghost->SetOutAdjustment(time_movement);
 
-      int ghost_track = parent()->SceneToTrack(pos.y());
       ghost->SetTrack(ghost_track);
-
-      int ghost_y = parent()->GetTrackY(ghost_track);
-      int ghost_height = parent()->GetTrackHeight(ghost_track);
 
       ghost->SetY(ghost_y);
       ghost->SetHeight(ghost_height);
