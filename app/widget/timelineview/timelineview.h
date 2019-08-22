@@ -98,7 +98,8 @@ private:
 
     QGraphicsItem* GetItemAtScenePos(const QPointF& scene_pos);
 
-    rational ValidateMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
+    rational ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
+    int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*> ghosts);
 
     bool dragging_;
 
@@ -117,6 +118,8 @@ private:
     virtual void MousePress(QMouseEvent *event);
     virtual void MouseMove(QMouseEvent *event);
     virtual void MouseRelease(QMouseEvent *event);
+  private:
+    int track_start_;
   };
 
   class ImportTool : public Tool

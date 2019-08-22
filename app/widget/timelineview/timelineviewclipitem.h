@@ -23,7 +23,6 @@
 
 #include "timelineviewrect.h"
 #include "node/block/clip/clip.h"
-#include "timelineviewghostitem.h"
 
 /**
  * @brief A graphical representation of a ClipBlock

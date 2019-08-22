@@ -147,7 +147,7 @@ QList<Node *> Node::GetExclusiveDependencies()
           if (deps.contains(edge->input()->parent())) {
             deps.removeAt(i);
 
-            i--;                // -1 since we just removed a Node here
+            i--;                // -1 since we just removed a Node in this list
             j = params.size();  // No need to keep looking at this Node's params
             break;              // Or this param's edges
           }

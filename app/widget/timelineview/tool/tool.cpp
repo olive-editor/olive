@@ -57,12 +57,26 @@ QGraphicsItem *TimelineView::Tool::GetItemAtScenePos(const QPointF &scene_pos)
   return parent()->scene_.itemAt(scene_pos, parent()->transform());
 }
 
-rational TimelineView::Tool::ValidateMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+rational TimelineView::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
+    // Prevents any ghosts from going below 0:00:00 time
     rational validator = ghost->In() + movement;
     if (validator < 0) {
-      movement = rational(0) - ghost->In();
+      movement = -ghost->In();
+    }
+  }
+
+  return movement;
+}
+
+int TimelineView::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> ghosts)
+{
+  foreach (TimelineViewGhostItem* ghost, ghosts) {
+    // Prevents any ghosts from going to a non-existent negative track
+    int validator = ghost->Track() + movement;
+    if (validator < 0) {
+      movement = -ghost->Track();
     }
   }
 

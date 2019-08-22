@@ -30,6 +30,24 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
 }
 
+TimelineViewGhostItem *TimelineViewGhostItem::FromClip(TimelineViewClipItem *clip_item)
+{
+  TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
+  ghost->SetY(clip_item->Y());
+  ghost->SetHeight(clip_item->Height());
+  ghost->SetTrack(clip_item->Track());
+  ghost->setPos(clip_item->pos());
+
+  ClipBlock* clip = clip_item->clip();
+
+  ghost->SetIn(clip->in());
+  ghost->SetOut(clip->out());
+  ghost->SetData(Node::PtrToValue(clip));
+
+  return ghost;
+}
+
 const rational &TimelineViewGhostItem::In()
 {
   return in_;
@@ -78,6 +96,11 @@ void TimelineViewGhostItem::SetOutAdjustment(const rational &out_adj)
   UpdateRect();
 }
 
+void TimelineViewGhostItem::SetTrackAdjustment(const int &track_adj)
+{
+  track_adj_ = track_adj;
+}
+
 rational TimelineViewGhostItem::GetAdjustedIn()
 {
   return in_ + in_adj_;
@@ -86,6 +109,11 @@ rational TimelineViewGhostItem::GetAdjustedIn()
 rational TimelineViewGhostItem::GetAdjustedOut()
 {
   return out_ + out_adj_;
+}
+
+int TimelineViewGhostItem::GetAdjustedTrack()
+{
+  return track_ + track_adj_;
 }
 
 const QVariant &TimelineViewGhostItem::data()

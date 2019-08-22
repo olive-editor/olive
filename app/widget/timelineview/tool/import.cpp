@@ -102,7 +102,7 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
     int ghost_y = parent()->GetTrackY(ghost_track);
     int ghost_height = parent()->GetTrackHeight(ghost_track);
 
-    time_movement = ValidateMovement(time_movement, parent()->ghost_items_);
+    time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
 
     // Move ghosts to the mouse cursor
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {

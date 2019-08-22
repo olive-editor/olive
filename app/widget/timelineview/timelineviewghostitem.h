@@ -24,6 +24,7 @@
 #include <QVariant>
 
 #include "project/item/footage/footage.h"
+#include "timelineviewclipitem.h"
 #include "timelineviewrect.h"
 
 /**
@@ -33,6 +34,8 @@ class TimelineViewGhostItem : public TimelineViewRect
 {
 public:
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
+
+  static TimelineViewGhostItem* FromClip(TimelineViewClipItem* clip_item);
 
   const rational& In();
   const rational& Out();
@@ -45,9 +48,11 @@ public:
 
   void SetInAdjustment(const rational& in_adj);
   void SetOutAdjustment(const rational& out_adj);
+  void SetTrackAdjustment(const int& track_adj);
 
   rational GetAdjustedIn();
   rational GetAdjustedOut();
+  int GetAdjustedTrack();
 
   const QVariant& data();
   void SetData(const QVariant& data);
@@ -62,6 +67,8 @@ private:
 
   rational in_adj_;
   rational out_adj_;
+
+  int track_adj_;
 
   StreamPtr stream_;
 

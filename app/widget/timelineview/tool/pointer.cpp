@@ -55,31 +55,19 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
   if (!dragging_) {
 
     drag_start_ = GetScenePos(event->pos());
+    track_start_ = parent()->SceneToTrack(drag_start_.y());
 
     // Let's see if there's anything selected to drag
     if (GetItemAtScenePos(drag_start_) != nullptr) {
       QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
 
       foreach (QGraphicsItem* item, selected_items) {
-        TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
         TimelineViewClipItem* clip_item = static_cast<TimelineViewClipItem*>(item);
+        TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromClip(clip_item);
 
-        ClipBlock* clip = clip_item->clip();
-
-        ghost->SetY(clip_item->Y());
-        ghost->SetHeight(clip_item->Height());
-        ghost->SetIn(clip->in());
-        ghost->SetOut(clip->out());
         ghost->SetScale(parent()->scale_);
-        ghost->SetData(Node::PtrToValue(clip));
-
-        // FIXME: Very bad. Change immediately.
-        ghost->SetTrack(parent()->SceneToTrack(drag_start_.y()));
-
-        ghost->setPos(clip_item->pos());
 
         parent()->ghost_items_.append(ghost);
-
         parent()->scene_.addItem(ghost);
       }
     }
@@ -89,17 +77,26 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
   } else if (!parent()->ghost_items_.isEmpty()) {
     QPointF scene_pos = GetScenePos(event->pos());
 
+    int cursor_track = parent()->SceneToTrack(scene_pos.y());
+    int track_movement = cursor_track - track_start_;
+
     QPointF movement = scene_pos - drag_start_;
 
     rational time_movement = parent()->SceneToTime(movement.x());
 
     // Validate movement
-    time_movement = ValidateMovement(time_movement, parent()->ghost_items_);
+    time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
+    track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
 
     // Perform movement
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
       ghost->SetInAdjustment(time_movement);
       ghost->SetOutAdjustment(time_movement);
+
+      ghost->SetTrackAdjustment(track_movement);
+      int track = ghost->GetAdjustedTrack();
+      ghost->SetY(parent()->GetTrackY(track));
+      ghost->SetHeight(parent()->GetTrackHeight(track));
     }
   }
 }
@@ -126,7 +123,7 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data());
 
-    emit parent()->RequestPlaceBlock(b, ghost->GetAdjustedIn(), ghost->Track());
+    emit parent()->RequestPlaceBlock(b, ghost->GetAdjustedIn(), ghost->GetAdjustedTrack());
   }
 
   parent()->ClearGhosts();
