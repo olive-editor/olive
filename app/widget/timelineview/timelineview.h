@@ -131,6 +131,8 @@ private:
     virtual void DragMove(QDragMoveEvent *event) override;
     virtual void DragLeave(QDragLeaveEvent *event) override;
     virtual void DragDrop(QDropEvent *event) override;
+  private:
+    int import_pre_buffer_;
   };
 
   int GetTrackY(int track_index);

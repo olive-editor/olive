@@ -42,6 +42,7 @@ protected:
 
 private:
   ClipBlock* clip_;
+
 };
 
 #endif // TIMELINEVIEWCLIPITEM_H

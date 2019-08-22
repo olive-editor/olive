@@ -22,11 +22,15 @@
 
 #include <QMimeData>
 
+#include "common/qtversionabstraction.h"
 #include "node/input/media/media.h"
 
 TimelineView::ImportTool::ImportTool(TimelineView *parent) :
   Tool(parent)
 {
+  // Calculate width used for importing to give ghosts a slight lead-in so the ghosts aren't right on the cursor
+  QFontMetrics fm = parent->fontMetrics();
+  import_pre_buffer_ = QFontMetricsWidth(&fm, "HHHHHHHH");
 }
 
 void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
@@ -51,8 +55,7 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
     drag_start_ = GetScenePos(event->pos());
 
     // Set ghosts to start where the cursor entered
-    // FIXME: 100 = magic number so that imported clips are not right on the cursor when dragged in
-    rational ghost_start = parent()->SceneToTime(drag_start_.x() - 100);
+    rational ghost_start = parent()->SceneToTime(drag_start_.x() - import_pre_buffer_);
 
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;

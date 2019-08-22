@@ -48,22 +48,22 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromClip(TimelineViewClipItem *cli
   return ghost;
 }
 
-const rational &TimelineViewGhostItem::In()
+const rational &TimelineViewGhostItem::In() const
 {
   return in_;
 }
 
-const rational &TimelineViewGhostItem::Out()
+const rational &TimelineViewGhostItem::Out() const
 {
   return out_;
 }
 
-rational TimelineViewGhostItem::Length()
+rational TimelineViewGhostItem::Length() const
 {
   return out_ - in_;
 }
 
-rational TimelineViewGhostItem::AdjustedLength()
+rational TimelineViewGhostItem::AdjustedLength() const
 {
   return GetAdjustedOut() - GetAdjustedIn();
 }
@@ -101,22 +101,47 @@ void TimelineViewGhostItem::SetTrackAdjustment(const int &track_adj)
   track_adj_ = track_adj;
 }
 
-rational TimelineViewGhostItem::GetAdjustedIn()
+const rational &TimelineViewGhostItem::InAdjustment() const
+{
+  return in_adj_;
+}
+
+const rational &TimelineViewGhostItem::OutAdjustment() const
+{
+  return out_adj_;
+}
+
+const int &TimelineViewGhostItem::TrackAdjustment() const
+{
+  return track_adj_;
+}
+
+rational TimelineViewGhostItem::GetAdjustedIn() const
 {
   return in_ + in_adj_;
 }
 
-rational TimelineViewGhostItem::GetAdjustedOut()
+rational TimelineViewGhostItem::GetAdjustedOut() const
 {
   return out_ + out_adj_;
 }
 
-int TimelineViewGhostItem::GetAdjustedTrack()
+int TimelineViewGhostItem::GetAdjustedTrack() const
 {
   return track_ + track_adj_;
 }
 
-const QVariant &TimelineViewGhostItem::data()
+const TimelineViewGhostItem::Mode &TimelineViewGhostItem::mode() const
+{
+  return mode_;
+}
+
+void TimelineViewGhostItem::SetMode(const TimelineViewGhostItem::Mode &mode)
+{
+  mode_ = mode;
+}
+
+const QVariant &TimelineViewGhostItem::data() const
 {
   return data_;
 }

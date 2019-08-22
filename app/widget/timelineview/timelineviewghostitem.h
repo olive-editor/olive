@@ -33,15 +33,22 @@
 class TimelineViewGhostItem : public TimelineViewRect
 {
 public:
+  enum Mode {
+    kNone,
+    kMove,
+    kTrimIn,
+    kTrimOut
+  };
+
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
 
   static TimelineViewGhostItem* FromClip(TimelineViewClipItem* clip_item);
 
-  const rational& In();
-  const rational& Out();
+  const rational& In() const;
+  const rational& Out() const;
 
-  rational Length();
-  rational AdjustedLength();
+  rational Length() const;
+  rational AdjustedLength() const;
 
   void SetIn(const rational& in);
   void SetOut(const rational& out);
@@ -50,11 +57,18 @@ public:
   void SetOutAdjustment(const rational& out_adj);
   void SetTrackAdjustment(const int& track_adj);
 
-  rational GetAdjustedIn();
-  rational GetAdjustedOut();
-  int GetAdjustedTrack();
+  const rational& InAdjustment() const;
+  const rational& OutAdjustment() const;
+  const int& TrackAdjustment() const;
 
-  const QVariant& data();
+  rational GetAdjustedIn() const;
+  rational GetAdjustedOut() const;
+  int GetAdjustedTrack() const;
+
+  const Mode& mode() const;
+  void SetMode(const Mode& mode);
+
+  const QVariant& data() const;
   void SetData(const QVariant& data);
 
   virtual void UpdateRect() override;
@@ -73,6 +87,8 @@ private:
   StreamPtr stream_;
 
   QVariant data_;
+
+  Mode mode_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

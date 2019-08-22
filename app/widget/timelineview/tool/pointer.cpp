@@ -20,6 +20,8 @@
 
 #include "widget/timelineview/timelineview.h"
 
+#include <QDebug>
+
 #include "node/block/gap/gap.h"
 
 TimelineView::PointerTool::PointerTool(TimelineView *parent) :
@@ -57,8 +59,20 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
     drag_start_ = GetScenePos(event->pos());
     track_start_ = parent()->SceneToTrack(drag_start_.y());
 
+    TimelineViewRect* clicked_item = static_cast<TimelineViewRect*>(GetItemAtScenePos(drag_start_));
+
     // Let's see if there's anything selected to drag
-    if (GetItemAtScenePos(drag_start_) != nullptr) {
+    if (clicked_item != nullptr) {
+
+      TimelineViewGhostItem::Mode trim_mode;
+      if (drag_start_.x() < clicked_item->x() + clicked_item->rect().left() + 20) {
+        trim_mode = TimelineViewGhostItem::kTrimIn;
+      } else if (drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - 20) {
+        trim_mode = TimelineViewGhostItem::kTrimOut;
+      } else {
+        trim_mode = TimelineViewGhostItem::kMove;
+      }
+
       QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
 
       foreach (QGraphicsItem* item, selected_items) {
@@ -66,6 +80,18 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromClip(clip_item);
 
         ghost->SetScale(parent()->scale_);
+
+        /*
+        // Determine correct mode for ghost
+        if (trim_mode == TimelineViewGhostItem::kMove) {
+          // Movement is indiscriminate, all the ghosts can be set to this
+          ghost->SetMode(TimelineViewGhostItem::kMove);
+        } else {
+
+        }
+        */
+        // FIXME: Determine correct modes
+        ghost->SetMode(trim_mode);
 
         parent()->ghost_items_.append(ghost);
         parent()->scene_.addItem(ghost);
@@ -90,8 +116,20 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
     // Perform movement
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      ghost->SetInAdjustment(time_movement);
-      ghost->SetOutAdjustment(time_movement);
+      switch (ghost->mode()) {
+      case TimelineViewGhostItem::kNone:
+        break;
+      case TimelineViewGhostItem::kTrimIn:
+        ghost->SetInAdjustment(time_movement);
+        break;
+      case TimelineViewGhostItem::kTrimOut:
+        ghost->SetOutAdjustment(time_movement);
+        break;
+      case TimelineViewGhostItem::kMove:
+        ghost->SetInAdjustment(time_movement);
+        ghost->SetOutAdjustment(time_movement);
+        break;
+      }
 
       ghost->SetTrackAdjustment(track_movement);
       int track = ghost->GetAdjustedTrack();
@@ -122,6 +160,17 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data());
+
+    if (ghost->mode() == TimelineViewGhostItem::kTrimIn || ghost->mode() == TimelineViewGhostItem::kTrimOut) {
+      // If we were trimming, we'll need to change the length
+
+      // If we were trimming the in point, we'll need to adjust the media in too
+      if (ghost->mode() == TimelineViewGhostItem::kTrimIn) {
+        b->set_media_in(b->media_in() + ghost->InAdjustment());
+      }
+
+      b->set_length(ghost->AdjustedLength());
+    }
 
     emit parent()->RequestPlaceBlock(b, ghost->GetAdjustedIn(), ghost->GetAdjustedTrack());
   }

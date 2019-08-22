@@ -55,6 +55,7 @@ void TimelineViewClipItem::UpdateRect()
   double item_left = TimeToScreenCoord(clip_->in());
   double item_width = TimeToScreenCoord(clip_->length());
 
+  // -1 on width and height so we don't overlap any adjacent clips
   setRect(0, y_, item_width - 1, height_ - 1);
   setPos(item_left, 0.0);
 }
