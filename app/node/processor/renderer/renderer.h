@@ -42,10 +42,11 @@ public:
   virtual QString Name() override;
   virtual QString Category() override;
   virtual QString Description() override;
-
-  virtual void Process(const rational &time) override;
+  virtual QString id() override;
 
   virtual void Release() override;
+
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
   /**
    * @brief Set parameters of the Renderer
@@ -75,6 +76,13 @@ public:
    */
   static RendererThread *CurrentThread();
 
+  NodeInput* texture_input();
+
+  NodeOutput* texture_output();
+
+public slots:
+  virtual void Process(const rational &time) override;
+
 private:
   /**
    * @brief Allocate and start the multithreaded backend
@@ -89,6 +97,10 @@ private:
   QVector<RendererThreadPtr> threads_;
 
   bool started_;
+
+  NodeInput* texture_input_;
+
+  NodeOutput* texture_output_;
 };
 
 #endif // RENDERER_H

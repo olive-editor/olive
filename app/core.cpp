@@ -221,6 +221,7 @@ void Core::CreateNewFolder()
 #include "node/output/timeline/timeline.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
+#include "node/processor/renderer/renderer.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
 #include "panel/viewer/viewer.h"
@@ -271,13 +272,22 @@ void Core::CreateNewSequence()
     TimelineOutput* tb = new TimelineOutput();
     new_sequence->AddNode(tb);
 
+    RendererProcessor* rp = new RendererProcessor();
+    new_sequence->AddNode(rp);
+
     ViewerOutput* vo = new ViewerOutput();
     new_sequence->AddNode(vo);
 
     TrackOutput* to = new TrackOutput();
     new_sequence->AddNode(to);
 
-    NodeParam::ConnectEdge(to->texture_output(), vo->texture_input());
+    // Connect track to renderer
+    NodeParam::ConnectEdge(to->texture_output(), rp->texture_input());
+
+    // Connect renderer to viewer
+    NodeParam::ConnectEdge(rp->texture_output(), vo->texture_input());
+
+    // Connect track to timeline
     NodeParam::ConnectEdge(to->track_output(), tb->track_input());
 
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());

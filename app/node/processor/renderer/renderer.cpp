@@ -25,6 +25,13 @@
 RendererProcessor::RendererProcessor() :
   started_(false)
 {
+  texture_input_ = new NodeInput("tex_in");
+  texture_input_->add_data_input(NodeInput::kTexture);
+  AddParameter(texture_input_);
+
+  texture_output_ = new NodeOutput("tex_out");
+  texture_output_->set_data_type(NodeInput::kTexture);
+  AddParameter(texture_output_);
 }
 
 QString RendererProcessor::Name()
@@ -42,9 +49,23 @@ QString RendererProcessor::Description()
   return tr("A multi-threaded OpenGL hardware-accelerated node compositor.");
 }
 
+QString RendererProcessor::id()
+{
+  return "org.olivevideoeditor.Olive.renderervenus";
+}
+
 void RendererProcessor::Process(const rational &time)
 {
   Q_UNUSED(time)
+
+  // FIXME: Test code only
+  GLuint tex = texture_input_->get_value(time).value<GLuint>();
+
+  //glReadPixels()
+
+  texture_output_->set_value(tex);
+  // End test code
+
   /*
   // Ensure we have started
   Start();
@@ -60,6 +81,12 @@ void RendererProcessor::Process(const rational &time)
 void RendererProcessor::Release()
 {
   Stop();
+}
+
+void RendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range)
+{
+  Q_UNUSED(start_range)
+  Q_UNUSED(end_range)
 }
 
 void RendererProcessor::Start()
@@ -96,4 +123,14 @@ void RendererProcessor::Stop()
 RendererThread* RendererProcessor::CurrentThread()
 {
   return dynamic_cast<RendererThread*>(QThread::currentThread());
+}
+
+NodeInput *RendererProcessor::texture_input()
+{
+  return texture_input_;
+}
+
+NodeOutput *RendererProcessor::texture_output()
+{
+  return texture_output_;
 }
