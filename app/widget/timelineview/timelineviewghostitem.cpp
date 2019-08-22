@@ -24,7 +24,11 @@
 
 TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   TimelineViewRect(parent),
-  stream_(nullptr)
+  in_adj_(0),
+  out_adj_(0),
+  track_adj_(0),
+  stream_(nullptr),
+  mode_(kNone)
 {
   setBrush(Qt::NoBrush);
   setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
@@ -43,7 +47,7 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromClip(TimelineViewClipItem *cli
 
   ghost->SetIn(clip->in());
   ghost->SetOut(clip->out());
-  ghost->SetData(Node::PtrToValue(clip));
+  ghost->setData(0, Node::PtrToValue(clip));
 
   return ghost;
 }
@@ -139,16 +143,6 @@ const TimelineViewGhostItem::Mode &TimelineViewGhostItem::mode() const
 void TimelineViewGhostItem::SetMode(const TimelineViewGhostItem::Mode &mode)
 {
   mode_ = mode;
-}
-
-const QVariant &TimelineViewGhostItem::data() const
-{
-  return data_;
-}
-
-void TimelineViewGhostItem::SetData(const QVariant &data)
-{
-  data_ = data;
 }
 
 void TimelineViewGhostItem::UpdateRect()

@@ -68,9 +68,6 @@ public:
   const Mode& mode() const;
   void SetMode(const Mode& mode);
 
-  const QVariant& data() const;
-  void SetData(const QVariant& data);
-
   virtual void UpdateRect() override;
 
 protected:
@@ -85,8 +82,6 @@ private:
   int track_adj_;
 
   StreamPtr stream_;
-
-  QVariant data_;
 
   Mode mode_;
 };

@@ -60,9 +60,12 @@ QGraphicsItem *TimelineView::Tool::GetItemAtScenePos(const QPointF &scene_pos)
 rational TimelineView::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
+    if (ghost->mode() != TimelineViewGhostItem::kMove) {
+      continue;
+    }
+
     // Prevents any ghosts from going below 0:00:00 time
-    rational validator = ghost->In() + movement;
-    if (validator < 0) {
+    if (ghost->In() + movement < 0) {
       movement = -ghost->In();
     }
   }
@@ -74,9 +77,55 @@ int TimelineView::Tool::ValidateTrackMovement(int movement, const QVector<Timeli
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     // Prevents any ghosts from going to a non-existent negative track
-    int validator = ghost->Track() + movement;
-    if (validator < 0) {
+    if (ghost->Track() + movement < 0) {
+      if (ghost->mode() != TimelineViewGhostItem::kMove) {
+        continue;
+      }
+
       movement = -ghost->Track();
+    }
+  }
+
+  return movement;
+}
+
+rational TimelineView::Tool::ValidateInTrimming(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+{
+  foreach (TimelineViewGhostItem* ghost, ghosts) {
+    if (ghost->mode() != TimelineViewGhostItem::kTrimIn) {
+      continue;
+    }
+
+    Block* block = Node::ValueToPtr<Block>(ghost->data(0));
+
+    // Prevents any media_in points from becoming negative
+    if (block->media_in() + movement < 0) {
+      movement = -block->media_in();
+    }
+
+    // Prevents any clip length's becoming infinitely small (or negative length)
+    if (ghost->In() + movement >= ghost->Out()) {
+      // Since the timebase is considered more or less the "minimum unit", we adjust the movement to make the proposed
+      // length precisely one timebase unit in size
+      movement = ghost->Out() - parent()->timebase_ - ghost->In();
+    }
+  }
+
+  return movement;
+}
+
+rational TimelineView::Tool::ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+{
+  foreach (TimelineViewGhostItem* ghost, ghosts) {
+    if (ghost->mode() != TimelineViewGhostItem::kTrimOut) {
+      continue;
+    }
+
+    // Prevents any clip length's becoming infinitely small (or negative length)
+    if (ghost->Out() + movement <= ghost->In()) {
+      // Since the timebase is considered more or less the "minimum unit", we adjust the movement to make the proposed
+      // length precisely one timebase unit in size
+      movement = ghost->In() + parent()->timebase_ - ghost->Out();
     }
   }
 

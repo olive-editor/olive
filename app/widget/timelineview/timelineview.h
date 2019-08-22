@@ -94,12 +94,52 @@ private:
     TimelineView* parent();
 
   protected:
+    /**
+     * @brief Convert a integer screen point to a float scene point
+     *
+     * Useful for converting a mouse coordinate provided by a QMouseEvent to a inner-timeline scene position (the
+     * coordinates that the graphics items use)
+     */
     QPointF GetScenePos(const QPoint& screen_pos);
 
+    /**
+     * @brief Retrieve the QGraphicsItem at a particular scene position
+     *
+     * Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a
+     * scene position
+     */
     QGraphicsItem* GetItemAtScenePos(const QPointF& scene_pos);
 
+    /**
+     * @brief Validates Ghosts that are moving horizontally (time-based)
+     *
+     * Validation is the process of ensuring that whatever movements the user is making are "valid" and "legal". This
+     * function's validation ensures that no Ghost's in point ends up in a negative timecode.
+     */
     rational ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
+
+    /**
+     * @brief Validates Ghosts that are moving vertically (track-based)
+     *
+     * This function's validation ensures that no Ghost's track ends up in a negative (non-existent) track.
+     */
     int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*> ghosts);
+
+    /**
+     * @brief Validates Ghosts that are getting their in points trimmed
+     *
+     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
+     * Ghost's length becomes 0 or negative.
+     */
+    rational ValidateInTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
+
+    /**
+     * @brief Validates Ghosts that are getting their out points trimmed
+     *
+     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
+     * Ghost's length becomes 0 or negative.
+     */
+    rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
 
     bool dragging_;
 

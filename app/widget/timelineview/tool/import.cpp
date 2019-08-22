@@ -77,7 +77,8 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
 
         ghost->SetIn(ghost_start);
         ghost->SetOut(ghost_start + footage_duration);
-        ghost->SetData(QVariant::fromValue(stream));
+        ghost->setData(0, QVariant::fromValue(stream));
+        ghost->SetMode(TimelineViewGhostItem::kMove);
 
         parent()->AddGhost(ghost);
 
@@ -151,7 +152,7 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       media->setParent(&node_memory_manager);
 
       clip->set_length(ghost->Length());
-      media->SetFootage(ghost->data().value<StreamPtr>()->footage());
+      media->SetFootage(ghost->data(0).value<StreamPtr>()->footage());
 
       NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
 

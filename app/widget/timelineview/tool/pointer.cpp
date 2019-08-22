@@ -112,6 +112,8 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
     // Validate movement
     time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
+    time_movement = ValidateInTrimming(time_movement, parent()->ghost_items_);
+    time_movement = ValidateOutTrimming(time_movement, parent()->ghost_items_);
     track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
 
     // Perform movement
@@ -126,15 +128,17 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         ghost->SetOutAdjustment(time_movement);
         break;
       case TimelineViewGhostItem::kMove:
+      {
         ghost->SetInAdjustment(time_movement);
         ghost->SetOutAdjustment(time_movement);
+
+        ghost->SetTrackAdjustment(track_movement);
+        int track = ghost->GetAdjustedTrack();
+        ghost->SetY(parent()->GetTrackY(track));
+        ghost->SetHeight(parent()->GetTrackHeight(track));
         break;
       }
-
-      ghost->SetTrackAdjustment(track_movement);
-      int track = ghost->GetAdjustedTrack();
-      ghost->SetY(parent()->GetTrackY(track));
-      ghost->SetHeight(parent()->GetTrackHeight(track));
+      }
     }
   }
 }
@@ -148,7 +152,7 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
   QObject block_memory_manager;
 
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data());
+    Block* b = Node::ValueToPtr<Block>(ghost->data(0));
 
     // Replace old Block with a new Gap
     GapBlock* gap = new GapBlock();
@@ -159,7 +163,7 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
   }
 
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data());
+    Block* b = Node::ValueToPtr<Block>(ghost->data(0));
 
     if (ghost->mode() == TimelineViewGhostItem::kTrimIn || ghost->mode() == TimelineViewGhostItem::kTrimOut) {
       // If we were trimming, we'll need to change the length
