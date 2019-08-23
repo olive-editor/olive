@@ -112,6 +112,16 @@ private slots:
    */
   void ReplaceBlock(Block* old, Block* replace, int track);
 
+  /**
+   * @brief Forwards a SplitAtTime signal to the appropriate track
+   */
+  void SplitAtTime(rational time, int track);
+
+  /**
+   * @brief Resizes a Block
+   */
+  void ResizeBlock(Block* block, rational new_length);
+
 };
 
 #endif // TIMELINEOUTPUT_H

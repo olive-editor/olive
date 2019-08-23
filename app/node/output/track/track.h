@@ -117,6 +117,13 @@ public:
   Block *SplitBlock(Block* block, rational time);
 
   /**
+   * @brief Attempt to split at a certain time
+   *
+   * Finds the Block that surrounds this time and splits it. If there is no Block there, this is a no-op.
+   */
+  void SplitAtTime(rational time);
+
+  /**
    * @brief Clears the area between in and out
    *
    * The area between `in` and `out` is guaranteed to be freed. BLocks are trimmed and removed to free this space.

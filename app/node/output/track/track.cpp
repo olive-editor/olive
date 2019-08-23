@@ -327,6 +327,23 @@ Block* TrackOutput::SplitBlock(Block *block, rational time)
   return copy;
 }
 
+void TrackOutput::SplitAtTime(rational time)
+{
+  // Find Block that contains this time
+  for (int i=0;i<block_cache_.size();i++) {
+    Block* b = block_cache_.at(i);
+
+    if (b->out() == time) {
+      // This time is between blocks, no split needs to occur
+      return;
+    } else if (b->in() < time && b->out() > time) {
+      // We found the Block, split it
+      SplitBlock(b, time);
+      return;
+    }
+  }
+}
+
 void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
 {
   // Block that needs to be split to remove this area

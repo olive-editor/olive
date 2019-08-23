@@ -61,6 +61,7 @@ public slots:
 signals:
   void RequestPlaceBlock(Block* block, rational start, int track);
   void RequestReplaceBlock(Block* old, Block* replace, int track);
+  void RequestSplitAtTime(rational time, int track);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -175,11 +176,24 @@ private:
     int import_pre_buffer_;
   };
 
+  class RazorTool : public Tool
+  {
+  public:
+    RazorTool(TimelineView* parent);
+
+    virtual void MousePress(QMouseEvent *event);
+    virtual void MouseMove(QMouseEvent *event);
+    virtual void MouseRelease(QMouseEvent *event);
+  };
+
+  Tool* GetActiveTool();
+
   int GetTrackY(int track_index);
   int GetTrackHeight(int track_index);
 
   PointerTool pointer_tool_;
   ImportTool import_tool_;
+  RazorTool razor_tool_;
 
   void AddGhost(TimelineViewGhostItem* ghost);
 
@@ -207,6 +221,8 @@ private:
   QVector<int> track_heights_;
 
   TimelineViewPlayheadItem* playhead_line_;
+
+  Tool* active_tool_;
 
 private slots:
   /**

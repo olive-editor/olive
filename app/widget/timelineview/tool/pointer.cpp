@@ -81,17 +81,13 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
         ghost->SetScale(parent()->scale_);
 
-        /*
         // Determine correct mode for ghost
-        if (trim_mode == TimelineViewGhostItem::kMove) {
-          // Movement is indiscriminate, all the ghosts can be set to this
-          ghost->SetMode(TimelineViewGhostItem::kMove);
+        if (trim_mode == TimelineViewGhostItem::kMove // Movement is indiscriminate, all the ghosts can be set to this
+            || clip_item == clicked_item) { // Trimming should only be the currently clicked Block
+          ghost->SetMode(trim_mode);
         } else {
-
+          ghost->SetMode(TimelineViewGhostItem::kNone);
         }
-        */
-        // FIXME: Determine correct modes
-        ghost->SetMode(trim_mode);
 
         parent()->ghost_items_.append(ghost);
         parent()->scene_.addItem(ghost);

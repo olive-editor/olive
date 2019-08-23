@@ -64,6 +64,7 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
     //disconnect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
     disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
     disconnect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
+    disconnect(view, SIGNAL(RequestSplitAtTime(rational, int)), this, SLOT(SplitAtTime(rational, int)));
 
     // Remove existing UI objects from TimelinePanel
     attached_timeline_->Clear();
@@ -86,6 +87,7 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
     //connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
     connect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
     connect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
+    connect(view, SIGNAL(RequestSplitAtTime(rational, int)), this, SLOT(SplitAtTime(rational, int)));
   }
 }
 
@@ -254,4 +256,18 @@ void TimelineOutput::PlaceBlock(Block *block, rational start, int track)
 void TimelineOutput::ReplaceBlock(Block *old, Block *replace, int track)
 {
   track_cache_.at(track)->ReplaceBlock(old, replace);
+}
+
+void TimelineOutput::SplitAtTime(rational time, int track)
+{
+  if (track >= track_cache_.size()) {
+    return;
+  }
+
+  track_cache_.at(track)->SplitAtTime(time);
+}
+
+void TimelineOutput::ResizeBlock(Block *block, rational new_length)
+{
+  block->set_length(new_length);
 }

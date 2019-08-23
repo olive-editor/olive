@@ -27,13 +27,16 @@
 #include <QtMath>
 #include <QPen>
 
+#include "core.h"
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
+#include "tool/tool.h"
 
 TimelineView::TimelineView(QWidget *parent) :
   QGraphicsView(parent),
   pointer_tool_(this),
   import_tool_(this),
+  razor_tool_(this),
   playhead_(0)
 {
   setScene(&scene_);
@@ -145,17 +148,25 @@ void TimelineView::SetTime(const int64_t time)
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
-  pointer_tool_.MousePress(event);
+  active_tool_ = GetActiveTool();
+
+  if (active_tool_ != nullptr) {
+    active_tool_->MousePress(event);
+  }
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
-  pointer_tool_.MouseMove(event);
+  if (active_tool_ != nullptr) {
+    active_tool_->MouseMove(event);
+  }
 }
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 {
-  pointer_tool_.MouseRelease(event);
+  if (active_tool_ != nullptr) {
+    active_tool_->MouseRelease(event);
+  }
 }
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)
@@ -183,6 +194,40 @@ void TimelineView::resizeEvent(QResizeEvent *event)
   QGraphicsView::resizeEvent(event);
 
   UpdateSceneRect();
+}
+
+TimelineView::Tool *TimelineView::GetActiveTool()
+{
+  switch (olive::core.tool()) {
+  case olive::tool::kNone:
+    return nullptr;
+  case olive::tool::kPointer:
+    return &pointer_tool_;
+  case olive::tool::kEdit:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kRipple:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kRolling:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kRazor:
+    return &razor_tool_;
+  case olive::tool::kSlip:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kSlide:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kHand:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kZoom:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kTransition:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kRecord:
+    return nullptr; // FIXME: Implement
+  case olive::tool::kAdd:
+    return nullptr; // FIXME: Implement
+  }
+
+  return nullptr;
 }
 
 int TimelineView::GetTrackY(int track_index)
