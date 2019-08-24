@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Olive
 Comment=Professional open-source non-linear video editor
+Comment[fr]=Éditeur vidéo non-linéaire open-source professionnel
 Comment[it]=Programma di montaggio video professionale open-source
 Comment[id]=Aplikasi edit video yang non-linier, profesional serta sumbernya terbuka.
 Exec=olive-editor
