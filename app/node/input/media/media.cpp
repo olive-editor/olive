@@ -27,16 +27,23 @@
 
 // FIXME: Test code only
 #include "decoder/ffmpeg/ffmpegdecoder.h"
-#include "render/colorservice.h"
+#include "node/processor/renderer/renderer.h"
 #include "render/pixelservice.h"
+#include "render/gl/shadergenerators.h"
+#include "render/gl/functions.h"
 // End test code
 
 MediaInput::MediaInput() :
+  //ocio_shader_(nullptr),
   decoder_(nullptr)
 {
   footage_input_ = new NodeInput("footage_in");
   footage_input_->add_data_input(NodeInput::kFootage);
   AddParameter(footage_input_);
+
+  matrix_input_ = new NodeInput("matrix_in");
+  matrix_input_->add_data_input(NodeInput::kMatrix);
+  AddParameter(matrix_input_);
 
   texture_output_ = new NodeOutput("tex_out");
   texture_output_->set_data_type(NodeOutput::kTexture);
@@ -65,6 +72,8 @@ QString MediaInput::Description()
 
 void MediaInput::Release()
 {
+  buffer_.Destroy();
+
   decoder_ = nullptr;
 }
 
@@ -81,10 +90,16 @@ void MediaInput::SetFootage(Footage *f)
 
 void MediaInput::Process(const rational &time)
 {
-  // FIXME: Use OCIO for color management
-
   // Set default texture to no texture
   texture_output_->set_value(0);
+
+  // Find the current Renderer instance
+  RenderInstance* renderer = RendererProcessor::CurrentInstance();
+
+  // If nothing is available, don't return a texture
+  if (renderer == nullptr) {
+    return;
+  }
 
   // Get currently selected Footage
   Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(time));
@@ -114,23 +129,30 @@ void MediaInput::Process(const rational &time)
     return;
   }
 
+  /*renderer->buffer()->Upload(frame->data());
+
+  texture_output_->set_value(renderer->buffer()->texture());*/
+
   // Convert the frame to the Renderer format
-  //frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA16F);
+//  frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA16F);
 
   // Convert the frame to the Renderer color space
-  //ColorService::ConvertFrame(frame);
+  //color_service_.ConvertFrame(frame);
 
-  // FIXME: Test code
-  if (tex_buf_.IsCreated()) {
-    tex_buf_.Upload(frame->data());
+  // Upload this frame to the GPU
+  /*if (buffer_.IsCreated()) {
+    buffer_.Upload(frame->data());
   } else {
-    tex_buf_.Create(QOpenGLContext::currentContext(),
+    buffer_.Create(QOpenGLContext::currentContext(),
                     static_cast<olive::PixelFormat>(frame->format()),
                     frame->width(),
                     frame->height(),
                     frame->data());
-  }
+  }*/
 
-  texture_output_->set_value(tex_buf_.texture());
+  // Draw according to matrix
+  // BLIT
+
+  //texture_output_->set_value(tex_buf_.texture());
   // End test code
 }

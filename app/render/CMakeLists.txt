@@ -20,14 +20,14 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/colorservice.h
   render/colorservice.cpp
-  #render/imagecache.h
-  #render/imagecache.cpp
-  #render/memorybuffer.h
-  #render/memorybuffer.cpp
   render/pixelformat.h
   render/pixelformat.cpp
   render/pixelservice.h
   render/pixelservice.cpp
+  render/renderinstance.h
+  render/renderinstance.cpp
+  render/rendermodes.h
+  render/rendertypes.h
   render/sampleformat.h
   render/texturebuffer.h
   render/texturebuffer.cpp

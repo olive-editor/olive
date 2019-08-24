@@ -50,6 +50,15 @@ QString ViewerOutput::Description()
   return tr("Interface between a Viewer panel and the node system.");
 }
 
+void ViewerOutput::SetTimebase(const rational &timebase)
+{
+  timebase_ = timebase;
+
+  if (attached_viewer_ != nullptr) {
+    attached_viewer_->SetTimebase(timebase_);
+  }
+}
+
 NodeInput *ViewerOutput::texture_input()
 {
   return texture_input_;
@@ -70,13 +79,14 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
 {
   // Disconnect old viewer if there's one attached
   if (attached_viewer_ != nullptr) {
-    disconnect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(Process(const rational&)));
+    disconnect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(Run(const rational&)));
   }
 
   // FIXME: Currently this attaches to ViewerPanels, but should it attached to Viewers instead?
   attached_viewer_ = viewer;
 
   if (attached_viewer_ != nullptr) {
-    connect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(Process(const rational&)));
+    connect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(Run(const rational&)));
+    SetTimebase(timebase_);
   }
 }

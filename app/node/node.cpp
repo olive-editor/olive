@@ -20,9 +20,12 @@
 
 #include "node.h"
 
+#include <QDebug>
+
 #include "common/qobjectlistcast.h"
 
-Node::Node()
+Node::Node() :
+  last_time_(-1)
 {
 }
 
@@ -63,16 +66,43 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
   QList<NodeParam *> params = parameters();
 
   // Loop through all parameters (there should be no children that are not NodeParams)
-  for (int i=0;i<params.size();i++) {
-    NodeParam* param = params.at(i);
+  foreach (NodeParam* param, params) {
 
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
-      for (int i=0;i<param->edges().size();i++) {
-        param->edges().at(i)->input()->parent()->InvalidateCache(start_range, end_range);
+
+      foreach (NodeEdgePtr edge, param->edges()) {
+
+        NodeInput* connected_input = edge->input();
+        Node* connected_node = connected_input->parent();
+
+        // Only send this signal if the Node isn't ignoring invalidate cache signals from this input
+        if (!connected_node->ignore_invalid_cache_inputs_.contains(connected_input)) {
+          connected_node->InvalidateCache(start_range, end_range);
+        }
       }
     }
   }
+}
+
+void Node::IgnoreCacheInvalidationFrom(NodeInput *input)
+{
+  ignore_invalid_cache_inputs_.append(input);
+}
+
+void Node::Run(const rational &time)
+{
+  lock_.lock();
+
+  if (last_time_ != time) {
+    // The results will be the same, so return here
+    Process(time);
+
+    last_time_ = time;
+  }
+
+
+  lock_.unlock();
 }
 
 NodeParam *Node::ParamAt(int index)
@@ -97,8 +127,13 @@ int Node::IndexOfParameter(NodeParam *param)
 
 /**
  * @brief Recursively collects dependencies of Node `n` and appends them to QList `list`
+ *
+ * @param traverse
+ *
+ * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
+ * dependencies.
  */
-void GetDependenciesInternal(Node* n, QList<Node*>& list) {
+void GetDependenciesInternal(Node* n, QList<Node*>& list, bool traverse) {
   QList<NodeParam*> params = n->parameters();
 
   foreach (NodeParam* p, params) {
@@ -109,7 +144,10 @@ void GetDependenciesInternal(Node* n, QList<Node*>& list) {
         Node* connected_node = edge->output()->parent();
 
         list.append(connected_node);
-        GetDependenciesInternal(connected_node, list);
+
+        if (traverse) {
+          GetDependenciesInternal(connected_node, list, traverse);
+        }
       }
     }
   }
@@ -119,7 +157,7 @@ QList<Node *> Node::GetDependencies()
 {
   QList<Node *> node_list;
 
-  GetDependenciesInternal(this, node_list);
+  GetDependenciesInternal(this, node_list, true);
 
   return node_list;
 }
@@ -157,6 +195,22 @@ QList<Node *> Node::GetExclusiveDependencies()
   }
 
   return deps;
+}
+
+QList<Node *> Node::GetImmediateDependencies()
+{
+  QList<Node *> node_list;
+
+  GetDependenciesInternal(this, node_list, false);
+
+  return node_list;
+}
+
+QList<Node *> Node::GetImmediateDependenciesAt(const rational &time)
+{
+  Q_UNUSED(time)
+
+  return GetImmediateDependencies();
 }
 
 bool Node::OutputsTo(Node *n)

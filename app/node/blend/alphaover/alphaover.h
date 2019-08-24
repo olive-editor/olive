@@ -8,7 +8,7 @@ class AlphaOverBlend : public BlendNode
 public:
   AlphaOverBlend();
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 };
 

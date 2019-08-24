@@ -99,6 +99,21 @@ void TrackOutput::Refresh()
   Block::Refresh();
 }
 
+QList<Node *> TrackOutput::GetImmediateDependenciesAt(const rational &time)
+{
+  QList<Node *> nodes = Node::GetImmediateDependencies();
+
+  ValidateCurrentBlock(time);
+
+  // Swap attached block for current block at this time
+  nodes.removeAll(attached_block());
+  if (current_block_ != this) {
+    nodes.append(current_block_);
+  }
+
+  return nodes;
+}
+
 void TrackOutput::GenerateBlockWidgets()
 {
   foreach (Block* block, block_cache_) {
@@ -136,29 +151,15 @@ void TrackOutput::Process(const rational &time)
   // Set track output correctly
   track_output_->set_value(PtrToValue(this));
 
-  // This node representso the end of the timeline, so being beyond its in point is considered the end of the sequence
-  if (time >= in()) {
+  ValidateCurrentBlock(time);
+
+  if (current_block_ == this) {
+    // No texture is valid
     texture_output()->set_value(0);
-    current_block_ = this;
-    return;
+  } else {
+    // At this point, we must have found the correct block so we use its texture output to produce the image
+    texture_output()->set_value(current_block_->texture_output()->get_value(time));
   }
-
-  // If we're here, we need to find the current clip to display
-  // attached_block() is guaranteed to not be nullptr if we didn't return before
-  current_block_ = attached_block();
-
-  // If the time requested is an earlier Block, traverse earlier until we find it
-  while (time < current_block_->in()) {
-    current_block_ = current_block_->previous();
-  }
-
-  // If the time requested is in a later Block, traverse later
-  while (time >= current_block_->out()) {
-    current_block_ = current_block_->next();
-  }
-
-  // At this point, we must have found the correct block so we use its texture output to produce the image
-  texture_output()->set_value(current_block_->texture_output()->get_value(time));
 }
 
 void TrackOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)
@@ -243,6 +244,27 @@ void TrackOutput::AddBlockToGraph(Block *block)
   graph->AddNodeWithDependencies(block);
 }
 
+void TrackOutput::ValidateCurrentBlock(const rational &time)
+{
+  // This node representso the end of the timeline, so being beyond its in point is considered the end of the sequence
+  if (time >= in()) {
+    current_block_ = this;
+    return;
+  }
+
+  // If we're here, we need to find the current clip to display
+
+  // If the time requested is an earlier Block, traverse earlier until we find it
+  while (time < current_block_->in()) {
+    current_block_ = current_block_->previous();
+  }
+
+  // If the time requested is in a later Block, traverse later
+  while (time >= current_block_->out()) {
+    current_block_ = current_block_->next();
+  }
+}
+
 void TrackOutput::PlaceBlock(Block *block, rational start)
 {
   if (block_cache_.contains(block) && block->in() == start) {
@@ -263,7 +285,6 @@ void TrackOutput::PlaceBlock(Block *block, rational start)
     }
 
     AppendBlock(block);
-
     return;
   }
 

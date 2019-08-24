@@ -45,7 +45,7 @@ void ViewerGLWidget::SetTexture(GLuint tex)
 void ViewerGLWidget::initializeGL()
 {
   // Re-retrieve pipeline pertaining to this context
-  pipeline_ = olive::gl::GetDefaultPipeline();
+  pipeline_ = olive::ShaderGenerator::DefaultPipeline();
 }
 
 void ViewerGLWidget::paintGL()

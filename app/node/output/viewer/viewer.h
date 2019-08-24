@@ -40,17 +40,21 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  void SetTimebase(const rational& timebase);
+
   NodeInput* texture_input();
 
   void AttachViewer(ViewerPanel* viewer);
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:
   NodeInput* texture_input_;
 
   ViewerPanel* attached_viewer_;
+
+  rational timebase_;
 };
 
 #endif // VIEWER_H

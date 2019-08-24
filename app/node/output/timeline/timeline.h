@@ -41,9 +41,11 @@ public:
 
   void AttachTimeline(TimelinePanel* timeline);
 
+  void SetTimebase(const rational& timebase);
+
   NodeInput* track_input();
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:
@@ -67,6 +69,8 @@ private:
    * @brief A cache of connected Tracks
    */
   QVector<TrackOutput*> track_cache_;
+
+  rational timebase_;
 
 private slots:
   /**

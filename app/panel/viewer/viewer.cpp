@@ -44,6 +44,11 @@ void ViewerPanel::ZoomOut()
   viewer_->SetScale(viewer_->scale() * 0.5);
 }
 
+void ViewerPanel::SetTimebase(const rational &timebase)
+{
+  viewer_->SetTimebase(timebase);
+}
+
 void ViewerPanel::SetTexture(GLuint tex)
 {
   viewer_->SetTexture(tex);

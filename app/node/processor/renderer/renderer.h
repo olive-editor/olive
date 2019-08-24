@@ -21,7 +21,11 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <QOpenGLTexture>
+
 #include "node/node.h"
+#include "render/pixelformat.h"
+#include "render/rendermodes.h"
 #include "rendererthread.h"
 
 /**
@@ -44,9 +48,13 @@ public:
   virtual QString Description() override;
   virtual QString id() override;
 
+  void SetCacheName(const QString& s);
+
   virtual void Release() override;
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
+
+  void SetTimebase(const rational& timebase);
 
   /**
    * @brief Set parameters of the Renderer
@@ -66,7 +74,10 @@ public:
    *
    * Buffer pixel format
    */
-  void SetParameters(const int& width, const int& height, const olive::PixelFormat& format);
+  void SetParameters(const int& width,
+                     const int& height,
+                     const olive::PixelFormat& format,
+                     const olive::RenderMode& mode);
 
   /**
    * @brief Return current instance of a RenderThread (or nullptr if there is none)
@@ -74,13 +85,15 @@ public:
    * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
    * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
    */
-  static RendererThread *CurrentThread();
+  static RendererThread* CurrentThread();
+
+  static RenderInstance* CurrentInstance();
 
   NodeInput* texture_input();
 
   NodeOutput* texture_output();
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:
@@ -94,13 +107,48 @@ private:
    */
   void Stop();
 
+  /**
+   * @brief Internal function for generating the cache ID
+   */
+  void GenerateCacheIDInternal();
+
+  /**
+   * @brief Function called when there are frames in the queue to cache
+   *
+   * This function is NOT thread-safe and should only be called in the main thread.
+   */
+  void CacheCallback();
+
+  /**
+   * @brief Internal list of RenderThreads
+   */
   QVector<RendererThreadPtr> threads_;
 
+  /**
+   * @brief Internal variable that contains whether the Renderer has started or not
+   */
   bool started_;
 
   NodeInput* texture_input_;
 
   NodeOutput* texture_output_;
+
+  int width_;
+
+  int height_;
+
+  olive::PixelFormat format_;
+
+  olive::RenderMode mode_;
+
+  rational timebase_;
+  double timebase_dbl_;
+
+  QVector<rational> cache_queue_;
+  QString cache_name_;
+  qint64 cache_time_;
+  QString cache_id_;
+
 };
 
 #endif // RENDERER_H

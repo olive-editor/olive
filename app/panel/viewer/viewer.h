@@ -38,6 +38,8 @@ public:
 
   virtual void ZoomOut() override;
 
+  void SetTimebase(const rational& timebase);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it

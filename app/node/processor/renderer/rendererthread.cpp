@@ -22,8 +22,13 @@
 
 #include <QDebug>
 
-RendererThread::RendererThread() :
-  cancelled_(false)
+RendererThread::RendererThread(const int &width, const int &height, const olive::PixelFormat &format, const olive::RenderMode &mode) :
+  cancelled_(false),
+  width_(width),
+  height_(height),
+  format_(format),
+  mode_(mode),
+  render_instance_(nullptr)
 {
 }
 
@@ -32,16 +37,22 @@ bool RendererThread::Queue(Node *n, const rational& time)
   // If the thread is inactive, tryLock() will succeed
   if (mutex_.tryLock()) {
 
+    qDebug() << "[RendererThread Main] tryLock succeeded";
+
     // The mutex is locked in the calling thread now, so we can change the active Node
     node_ = n;
     time_ = time;
 
     // We can now wake up our main thread
+    qDebug() << "[RendererThread Main] Waking thread";
     wait_cond_.wakeAll();
+    qDebug() << "[RendererThread Main] Unlocking mutex";
     mutex_.unlock();
 
     // Wait for thread to start before returning
+    qDebug() << "[RendererThread Main] Waiting for caller mutex";
     caller_mutex_.lock();
+    qDebug() << "[RendererThread Main] Caller mutex arrived";
     caller_mutex_.unlock();
 
     return true;
@@ -59,48 +70,50 @@ void RendererThread::Cancel()
   wait();
 }
 
+RenderInstance *RendererThread::render_instance()
+{
+  return render_instance_;
+}
+
 void RendererThread::run()
 {
-  // Create OpenGL context (automatically destroys any existing if there is one)
-  if (!ctx_.create()) {
-    qWarning() << tr("Failed to create OpenGL context in thread %1").arg(reinterpret_cast<quintptr>(this));
-    return;
-  }
-
-  // Create offscreen surface
-  surface_.create();
-
-  // Make context current on that surface
-  if (!ctx_.makeCurrent(&surface_)) {
-    qWarning() << tr("Failed to makeCurrent() on offscreen surface in thread %1").arg(reinterpret_cast<quintptr>(this));
-    surface_.destroy();
-    return;
-  }
-
   // Lock mutex for main loop
   mutex_.lock();
 
-  // Main loop (use Cancel() to exit it)
-  while (!cancelled_) {
-    // Lock the caller mutex (used in Queue() for thread synchronization)
-    caller_mutex_.lock();
+  RenderInstance instance(width_, height_, format_, mode_);
+  render_instance_ = &instance;
 
-    // Main waiting condition
-    wait_cond_.wait(&mutex_);
+  // Allocate and create resources
+  if (instance.Start()) {
 
-    // Unlock the caller mutex
-    caller_mutex_.unlock();
+    // Main loop (use Cancel() to exit it)
+    while (!cancelled_) {
+      // Lock the caller mutex (used in Queue() for thread synchronization)
+      caller_mutex_.lock();
 
-    // Process the Node
-    node_->Process(time_);
+      // Main waiting condition
+      wait_cond_.wait(&mutex_);
+
+      // Unlock the caller mutex
+      caller_mutex_.unlock();
+
+      // Process the Node
+      node_->Run(time_);
+    }
   }
 
-  // Release OpenGL context
-  ctx_.doneCurrent();
-
-  // Destroy offscreen surface
-  surface_.destroy();
+  // Free all resources
+  render_instance_ = nullptr;
+  instance.Stop();
 
   // Unlock mutex before exiting
   mutex_.unlock();
+}
+
+void RendererThread::StartThread(QThread::Priority priority)
+{
+  queue_.clear();
+
+  // Start the thread (the thread will unlock caller_mutex_)
+  QThread::start(priority);
 }

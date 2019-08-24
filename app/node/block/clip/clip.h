@@ -42,7 +42,7 @@ public:
 
   NodeInput* texture_input();
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:

@@ -211,24 +211,30 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   // Set up seeking loop
   int64_t seek_ts = target_ts;
   int64_t second_ts = qRound(rational(avstream_->time_base).flipped().toDouble());
+  bool last_backtrack = false;
 
   // FFmpeg frame retrieve loop
   while (ret >= 0 && frame_->pts != target_ts) {
 
     // If the frame timestamp is too large, we need to seek back a little
     if (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE) {
-      avcodec_flush_buffers(codec_ctx_);
-      av_seek_frame(fmt_ctx_, avstream_->index, seek_ts, AVSEEK_FLAG_BACKWARD);
-
-      // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
-
       // If we already tried seeking to 0 though, there's nothing we can do so we error here
-      if (seek_ts == 0) {
+      if (last_backtrack) {
         Error(tr("FFmpeg failed to seek to the correct location"));
         return nullptr;
       }
 
-      seek_ts = qMax(0L, seek_ts - second_ts);
+      // We can't seek earlier than 0, so if this is a 0-seek, don't try any more times after this attempt
+      if (seek_ts <= 0) {
+        seek_ts = 0;
+        last_backtrack = true;
+      }
+
+      avcodec_flush_buffers(codec_ctx_);
+      av_seek_frame(fmt_ctx_, avstream_->index, seek_ts, AVSEEK_FLAG_BACKWARD);
+
+      // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
+      seek_ts -= second_ts;
     }
 
     ret = GetFrame();

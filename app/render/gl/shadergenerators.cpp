@@ -22,7 +22,9 @@
 
 #include <QOpenGLExtraFunctions>
 
-ShaderPtr olive::gl::GetDefaultPipeline(const QString& function_name, const QString& shader_code)
+namespace olive {
+
+ShaderPtr ShaderGenerator::DefaultPipeline(const QString& function_name, const QString& shader_code)
 {
   ShaderPtr program = std::make_shared<QOpenGLShaderProgram>();
 
@@ -88,10 +90,10 @@ ShaderPtr olive::gl::GetDefaultPipeline(const QString& function_name, const QStr
     frag_shader.append(shader_code);
 
     frag_shader.append(QString("\n"
-                       "void main() {\n"
-                       "  vec4 color = %1(texture2D(texture, v_texcoord))*opacity;\n"
-                       "  gl_FragColor = color;\n"
-                       "}\n").arg(function_name));
+                               "void main() {\n"
+                               "  vec4 color = %1(texture2D(texture, v_texcoord))*opacity;\n"
+                               "  gl_FragColor = color;\n"
+                               "}\n").arg(function_name));
 
   }
 
@@ -111,7 +113,7 @@ ShaderPtr olive::gl::GetDefaultPipeline(const QString& function_name, const QStr
   return program;
 }
 
-QString olive::gl::GetAlphaDisassociateFunction(const QString &function_name)
+QString ShaderGenerator::AlphaDisassociateFunction(const QString &function_name)
 {
   return QString("vec4 %1(vec4 col) {\n"
                  "  if (col.a > 0.0) {\n"
@@ -121,7 +123,7 @@ QString olive::gl::GetAlphaDisassociateFunction(const QString &function_name)
                  "}\n").arg(function_name);
 }
 
-QString olive::gl::GetAlphaReassociateFunction(const QString &function_name)
+QString ShaderGenerator::AlphaReassociateFunction(const QString &function_name)
 {
   return QString("vec4 %1(vec4 col) {\n"
                  "  if (col.a > 0.0) {\n"
@@ -131,7 +133,7 @@ QString olive::gl::GetAlphaReassociateFunction(const QString &function_name)
                  "}\n").arg(function_name);
 }
 
-QString olive::gl::GetAlphaAssociateFunction(const QString &function_name)
+QString ShaderGenerator::AlphaAssociateFunction(const QString &function_name)
 {
   return QString("vec4 %1(vec4 col) {\n"
                  "  return vec4(col.rgb * col.a, col.a);\n"
@@ -144,10 +146,10 @@ const int OCIO_LUT3D_EDGE_SIZE = 32;
 // copied from source code to OCIODisplay, expanded from 3*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE*LUT3D_EDGE_SIZE
 const int OCIO_NUM_3D_ENTRIES = 98304;
 
-ShaderPtr olive::gl::GetOCIOPipeline(QOpenGLContext* ctx,
-                                                 GLuint& lut_texture,
-                                                 OCIO::ConstProcessorRcPtr processor,
-                                                 bool alpha_is_associated)
+ShaderPtr ShaderGenerator::OCIOPipeline(QOpenGLContext* ctx,
+                                     GLuint& lut_texture,
+                                     OCIO::ConstProcessorRcPtr processor,
+                                     bool alpha_is_associated)
 {
 
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
@@ -207,10 +209,10 @@ ShaderPtr olive::gl::GetOCIOPipeline(QOpenGLContext* ctx,
     shader_text.append("\n");
 
     QString disassociate_func_name = "disassoc";
-    shader_text.append(GetAlphaDisassociateFunction(disassociate_func_name));
+    shader_text.append(AlphaDisassociateFunction(disassociate_func_name));
 
     QString reassociate_func_name = "reassoc";
-    shader_text.append(GetAlphaReassociateFunction(reassociate_func_name));
+    shader_text.append(AlphaReassociateFunction(reassociate_func_name));
 
     // Make OCIO call pass through disassociate and reassociate function
     shader_call = QString("%3(%1(%2(col), tex2));").arg(ocio_func_name,
@@ -223,7 +225,7 @@ ShaderPtr olive::gl::GetOCIOPipeline(QOpenGLContext* ctx,
 
     // Add associate function
     QString associate_func_name = "assoc";
-    shader_text.append(GetAlphaAssociateFunction(associate_func_name));
+    shader_text.append(AlphaAssociateFunction(associate_func_name));
 
     // Make OCIO call pass through associate function
     shader_call = QString("%2(%1(col, tex2));").arg(ocio_func_name, associate_func_name);
@@ -241,10 +243,12 @@ ShaderPtr olive::gl::GetOCIOPipeline(QOpenGLContext* ctx,
 
 
   // Get pipeline-based shader to inject OCIO shader into
-  ShaderPtr shader = olive::gl::GetDefaultPipeline(process_function_name, shader_text);
+  ShaderPtr shader = ShaderGenerator::DefaultPipeline(process_function_name, shader_text);
 
   // Release LUT
   xf->glBindTexture(GL_TEXTURE_3D, 0);
 
   return shader;
+}
+
 }

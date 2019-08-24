@@ -53,11 +53,10 @@ public:
   virtual const rational &length();
   virtual void set_length(const rational &length);
 
-  virtual Block* previous();
-  virtual Block* next();
+  Block* previous();
+  Block* next();
 
   NodeInput* previous_input();
-  NodeInput* next_input();
 
   NodeOutput* texture_output();
   NodeOutput* block_output();
@@ -68,9 +67,12 @@ public:
   const rational& media_in();
   void set_media_in(const rational& media_in);
 
-public slots:
-  virtual void Process(const rational &time) override;
+  /**
+   * @brief Override removes previous input as that is not a direct dependency
+   */
+  virtual QList<Node *> GetImmediateDependenciesAt(const rational &time) override;
 
+public slots:
   /**
    * @brief Refreshes internal cache of in/out points up to date
    *
@@ -100,10 +102,10 @@ signals:
   void Refreshed();
 
 protected:
+  virtual void Process(const rational &time) override;
 
 private:  
   NodeInput* previous_input_;
-  NodeInput* next_input_;
   NodeOutput* block_output_;
 
   NodeOutput* texture_output_;
@@ -115,8 +117,12 @@ private:
 
   rational media_in_;
 
+  Block* next_;
+
 private slots:
-  void BlockOrderChanged(NodeEdgePtr edge);
+  void EdgeAddedSlot(NodeEdgePtr edge);
+
+  void EdgeRemovedSlot(NodeEdgePtr edge);
 
 };
 

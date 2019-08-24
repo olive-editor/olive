@@ -41,7 +41,7 @@ public:
 
   NodeOutput* texture_output();
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:

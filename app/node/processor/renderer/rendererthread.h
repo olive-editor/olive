@@ -23,36 +23,36 @@
 
 #include <memory>
 #include <QMutex>
-#include <QOffscreenSurface>
-#include <QOpenGLContext>
 #include <QThread>
 #include <QWaitCondition>
 
 #include "node/node.h"
-#include "render/texturebuffer.h"
+#include "render/renderinstance.h"
+
+struct RenderQueueEntry {
+  Node* node;
+  rational time;
+};
 
 class RendererThread : public QThread
 {
 public:
-  RendererThread();
-
-  QOpenGLContext* context();
-
-  TextureBuffer* buffer();
+  RendererThread(const int& width,
+                 const int& height,
+                 const olive::PixelFormat& format,
+                 const olive::RenderMode& mode);
 
   bool Queue(Node* n, const rational &time);
 
   void Cancel();
 
+  RenderInstance* render_instance();
+
   virtual void run() override;
 
+  void StartThread(Priority priority = InheritPriority);
+
 private:
-  QOpenGLContext ctx_;
-
-  QOffscreenSurface surface_;
-
-  TextureBuffer buffer_;
-
   QWaitCondition wait_cond_;
 
   QMutex mutex_;
@@ -64,6 +64,19 @@ private:
   rational time_;
 
   bool cancelled_;
+
+  const int& width_;
+
+  const int& height_;
+
+  const olive::PixelFormat& format_;
+
+  const olive::RenderMode& mode_;
+
+  RenderInstance* render_instance_;
+
+  QVector<RenderQueueEntry> queue_;
+
 };
 
 using RendererThreadPtr = std::shared_ptr<RendererThread>;

@@ -35,20 +35,21 @@ namespace OCIO = OCIO_NAMESPACE::v1;
  */
 
 namespace olive {
-namespace gl {
 
-ShaderPtr GetDefaultPipeline(const QString &function_name = QString(), const QString &shader_code = QString());
+class ShaderGenerator {
+public:
+  static ShaderPtr DefaultPipeline(const QString &function_name = QString(), const QString &shader_code = QString());
 
-ShaderPtr GetOCIOPipeline(QOpenGLContext *ctx,
-                          GLuint &lut_texture,
-                          OCIO::ConstProcessorRcPtr processor,
-                          bool alpha_is_associated);
+  static ShaderPtr OCIOPipeline(QOpenGLContext *ctx,
+                                   GLuint &lut_texture,
+                                   OCIO::ConstProcessorRcPtr processor,
+                                   bool alpha_is_associated);
 
-QString GetAlphaDisassociateFunction(const QString& function_name);
-QString GetAlphaReassociateFunction(const QString& function_name);
-QString GetAlphaAssociateFunction(const QString& function_name);
+  static QString AlphaDisassociateFunction(const QString& function_name);
+  static QString AlphaReassociateFunction(const QString& function_name);
+  static QString AlphaAssociateFunction(const QString& function_name);
+};
 
-}
 }
 
 #endif // SHADERGENERATORS_H

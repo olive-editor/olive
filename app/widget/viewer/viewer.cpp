@@ -53,10 +53,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   controls_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   layout->addWidget(controls_);
 
-  // FIXME: Test code
-  SetTimebase(rational(1001, 30000));
+  // FIXME: Magic number
   ruler_->SetScale(48.0);
-  // End test code
 }
 
 void ViewerWidget::SetTimebase(const rational &r)

@@ -22,15 +22,12 @@
 
 #include <QDebug>
 
-Block::Block()
+Block::Block() :
+  next_(nullptr)
 {
   previous_input_ = new NodeInput("prev_block");
   previous_input_->add_data_input(NodeParam::kBlock);
   AddParameter(previous_input_);
-
-  next_input_ = new NodeInput("next_block");
-  next_input_->add_data_input(NodeParam::kBlock);
-  AddParameter(next_input_);
 
   block_output_ = new NodeOutput("block_out");
   block_output_->set_data_type(NodeParam::kBlock);
@@ -40,8 +37,8 @@ Block::Block()
   texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
 
-  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockOrderChanged(NodeEdgePtr)));
-  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockOrderChanged(NodeEdgePtr)));
+  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(EdgeAddedSlot(NodeEdgePtr)));
+  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(EdgeRemovedSlot(NodeEdgePtr)));
 }
 
 QString Block::Category()
@@ -78,17 +75,12 @@ Block *Block::previous()
 
 Block *Block::next()
 {
-  return ValueToPtr<Block>(next_input_->get_value(0));
+  return next_;
 }
 
 NodeInput *Block::previous_input()
 {
   return previous_input_;
-}
-
-NodeInput *Block::next_input()
-{
-  return next_input_;
 }
 
 void Block::Process(const rational &time)
@@ -97,6 +89,26 @@ void Block::Process(const rational &time)
 
   // Simply set both output values as a pointer to this object
   block_output_->set_value(PtrToValue(this));
+}
+
+void Block::EdgeAddedSlot(NodeEdgePtr edge)
+{
+  if (edge->input() == previous_input()) {
+    static_cast<Block*>(edge->output()->parent())->next_ = this;
+
+    // The blocks surrounding this one have changed, we need to Refresh()
+    RefreshFollowing();
+  }
+}
+
+void Block::EdgeRemovedSlot(NodeEdgePtr edge)
+{
+  if (edge->input() == previous_input()) {
+    static_cast<Block*>(edge->output()->parent())->next_ = nullptr;
+
+    // The blocks surrounding this one have changed, we need to Refresh()
+    RefreshFollowing();
+  }
 }
 
 void Block::Refresh()
@@ -110,6 +122,8 @@ void Block::Refresh()
 
   // Update out point by adding this clip's length to the just calculated in point
   out_point_ = in_point_ + length();
+
+  InvalidateCache(in_point_, out_point_);
 
   emit Refreshed();
 }
@@ -127,14 +141,6 @@ void Block::RefreshFollowing()
   }
 }
 
-void Block::BlockOrderChanged(NodeEdgePtr edge)
-{
-  if (edge->input() == previous_input() || edge->input() == next_input()) {
-    // The blocks surrounding this one have changed, we need to Refresh()
-    RefreshFollowing();
-  }
-}
-
 NodeOutput *Block::texture_output()
 {
   return texture_output_;
@@ -148,13 +154,11 @@ NodeOutput *Block::block_output()
 void Block::ConnectBlocks(Block *previous, Block *next)
 {
   NodeParam::ConnectEdge(previous->block_output(), next->previous_input());
-  NodeParam::ConnectEdge(next->block_output(), previous->next_input());
 }
 
 void Block::DisconnectBlocks(Block *previous, Block *next)
 {
   NodeParam::DisconnectEdge(previous->block_output(), next->previous_input());
-  NodeParam::DisconnectEdge(next->block_output(), previous->next_input());
 }
 
 const rational &Block::media_in()
@@ -168,6 +172,18 @@ void Block::set_media_in(const rational &media_in)
     media_in_ = media_in;
 
     // Signal that this clips contents have changed
-    //InvalidateCache(in(), out());
+    InvalidateCache(in(), out());
   }
+}
+
+QList<Node *> Block::GetImmediateDependenciesAt(const rational &time)
+{
+  Q_UNUSED(time)
+
+  QList<Node *> nodes = Node::GetImmediateDependencies();
+
+  // Swap attached block for current block at this time
+  nodes.removeAll(previous());
+
+  return nodes;
 }

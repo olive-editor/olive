@@ -270,12 +270,25 @@ void Core::CreateNewSequence()
                                                                                  new_sequence);
 
     TimelineOutput* tb = new TimelineOutput();
+    tb->SetTimebase(new_sequence->video_time_base());
     new_sequence->AddNode(tb);
 
     RendererProcessor* rp = new RendererProcessor();
+
+    // Set renderer's parameters based on sequence's parameters
+    rp->SetParameters(new_sequence->video_width(),
+                      new_sequence->video_height(),
+                      olive::PIX_FMT_RGBA16F, // FIXME: Make this configurable
+                      olive::RenderMode::kOffline);
+
+    // Set the "cache name" only here to aid the cache ID's uniqueness
+    rp->SetCacheName(new_sequence->name());
+    rp->SetTimebase(new_sequence->video_time_base());
+
     new_sequence->AddNode(rp);
 
     ViewerOutput* vo = new ViewerOutput();
+    vo->SetTimebase(new_sequence->video_time_base());
     new_sequence->AddNode(vo);
 
     TrackOutput* to = new TrackOutput();

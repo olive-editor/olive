@@ -21,6 +21,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <QMutex>
 #include <QObject>
 
 #include "common/rational.h"
@@ -122,6 +123,18 @@ public:
   QList<Node*> GetExclusiveDependencies();
 
   /**
+   * @brief Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one)
+   */
+  QList<Node*> GetImmediateDependencies();
+
+  /**
+   * @brief For nodes that have different dependencies at different times, this function can be used for that purpose
+   *
+   * Only retrieves immmediate dependencies, meaning only nodes that are directly
+   */
+  virtual QList<Node*> GetImmediateDependenciesAt(const rational& time);
+
+  /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
    */
   bool OutputsTo(Node* n);
@@ -165,7 +178,11 @@ protected:
    */
   virtual void InvalidateCache(const rational& start_range, const rational& end_range);
 
-public slots:
+  /**
+   * @brief If we receive a signal from NodeInput `input`, don't propagate it.
+   */
+  void IgnoreCacheInvalidationFrom(NodeInput* input);
+
   /**
    * @brief The main processing function
    *
@@ -180,6 +197,11 @@ public slots:
    * of the NodeParam objects will handle everything related to it automatically.
    */
   virtual void Process(const rational& time) = 0;
+
+public slots:
+
+
+  void Run(const rational& time);
 
 signals:
   /**
@@ -205,6 +227,15 @@ private:
    * @brief Return whether a parameter with ID `id` has already been added to this Node
    */
   bool HasParamWithID(const QString& id);
+
+  /**
+   * @brief Internal list of inputs to ignore InvalidateCache() signals from
+   */
+  QList<NodeInput*> ignore_invalid_cache_inputs_;
+
+  rational last_time_;
+
+  QMutex lock_;
 };
 
 template<class T>

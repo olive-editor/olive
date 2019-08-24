@@ -25,9 +25,11 @@
 
 #include "decoder/decoder.h"
 #include "node/node.h"
+#include "render/colorservice.h"
 
 // FIXME: Test code only
 #include "render/texturebuffer.h"
+#include "render/gl/shaderptr.h"
 // End test code
 
 /**
@@ -53,19 +55,21 @@ public:
 
   void SetFootage(Footage* f);
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:
   NodeInput* footage_input_;
 
+  NodeInput* matrix_input_;
+
   NodeOutput* texture_output_;
 
-  // FIXME: TEST CODE ONLY
-  TextureBuffer tex_buf_;
-  // END TEST CODE
+  TextureBuffer buffer_;
 
   DecoderPtr decoder_;
+
+  ColorService color_service_;
 
 };
 

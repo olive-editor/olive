@@ -46,6 +46,11 @@ public:
 
   virtual void Refresh() override;
 
+  /**
+   * @brief Override swaps "attached block" with "current block"
+   */
+  virtual QList<Node*> GetImmediateDependenciesAt(const rational& time) override;
+
   void GenerateBlockWidgets();
 
   void DestroyBlockWidgets();
@@ -150,7 +155,7 @@ signals:
    */
   void BlockRemoved(Block* block);
 
-public slots:
+protected:
   virtual void Process(const rational &time) override;
 
 private:
@@ -170,6 +175,11 @@ private:
    * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
    */
   void AddBlockToGraph(Block* block);
+
+  /**
+   * @brief Sets current_block_ to the correct attached Block based on `time`
+   */
+  void ValidateCurrentBlock(const rational& time);
 
   Block* attached_block();
 

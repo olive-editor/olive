@@ -162,6 +162,15 @@ void TimelineOutput::DetachTrack(TrackOutput *track)
   }
 }
 
+void TimelineOutput::SetTimebase(const rational &timebase)
+{
+  timebase_ = timebase;
+
+  if (attached_timeline_ != nullptr) {
+    attached_timeline_->SetTimebase(timebase_);
+  }
+}
+
 void TimelineOutput::AddTrack()
 {
   TrackOutput* track = new TrackOutput();
@@ -182,11 +191,9 @@ void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
 
   AttachTrack(attached_track());
 
-  // FIXME: TEST CODE ONLY
   if (attached_timeline_ != nullptr) {
-    attached_timeline_->SetTimebase(rational(1001, 30000));
+    attached_timeline_->SetTimebase(timebase_);
   }
-  // END TEST CODE
 }
 
 void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)

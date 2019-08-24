@@ -383,8 +383,24 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos())) // See if we're dragging inside the hitbox
             && NodeParam::AreDataTypesCompatible(drag_src_param_, comp_param)) { // Make sure the types are compatible
 
-          drag_dest_param_ = comp_param;
-          end_point = drop_item->mapToScene(drop_item->GetParameterConnectorRect(i).center());
+          // Prevent circular dependency - check if the Node we'll be outputting to already outputs to this Node
+          Node* outputting_node;
+          Node* receiving_node;
+
+          // Determine which Node will be "submitting output" and which node will be "receiving input"
+          if (drag_src_param_->type() == NodeParam::kInput) {
+            receiving_node = drag_src_param_->parent();
+            outputting_node = drop_item->node();
+          } else {
+            receiving_node = drop_item->node();
+            outputting_node = drag_src_param_->parent();
+          }
+
+          // Ensure the receiving node doesn't output to the outputting node
+          if (!receiving_node->OutputsTo(outputting_node)) {
+            drag_dest_param_ = comp_param;
+            end_point = drop_item->mapToScene(drop_item->GetParameterConnectorRect(i).center());
+          }
 
           break;
         }
@@ -408,8 +424,6 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   // Check if an edge drag was initiated
   if (dragging_edge_ != nullptr) {
 
-    // FIXME: Make this undoable
-
     // Remove the drag object
     scene()->removeItem(dragging_edge_);
 
@@ -424,17 +438,22 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
       NodeEdgePtr new_edge;
 
+      NodeOutput* output;
+      NodeInput* input;
+
       // Connecting will automatically add an edge UI object through the signal/slot system
       if (drag_dest_param_->type() == NodeParam::kOutput) {
-        new NodeEdgeAddCommand(static_cast<NodeOutput*>(drag_dest_param_),
-                               static_cast<NodeInput*>(drag_src_param_),
-                               node_edge_change_command_);
-
+        output = static_cast<NodeOutput*>(drag_dest_param_);
+        input = static_cast<NodeInput*>(drag_src_param_);
       } else {
-        new NodeEdgeAddCommand(static_cast<NodeOutput*>(drag_src_param_),
-                               static_cast<NodeInput*>(drag_dest_param_),
-                               node_edge_change_command_);
+        output = static_cast<NodeOutput*>(drag_src_param_);
+        input = static_cast<NodeInput*>(drag_dest_param_);
       }
+
+      // Use a command to make Node connecting undoable
+      new NodeEdgeAddCommand(output,
+                             input,
+                             node_edge_change_command_);
     }
 
     dragging_edge_ = nullptr;
