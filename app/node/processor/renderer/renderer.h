@@ -117,7 +117,7 @@ private:
    *
    * This function is NOT thread-safe and should only be called in the main thread.
    */
-  void CacheCallback();
+  void CacheNext();
 
   /**
    * @brief Internal list of RenderThreads
@@ -148,6 +148,11 @@ private:
   QString cache_name_;
   qint64 cache_time_;
   QString cache_id_;
+  bool caching_;
+  int cache_return_count_;
+
+private slots:
+  void ThreadCallback();
 
 };
 

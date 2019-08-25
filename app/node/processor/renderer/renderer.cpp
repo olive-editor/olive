@@ -27,12 +27,14 @@
 #include <QtMath>
 
 #include "render/rendertypes.h"
+#include "renderpath.h"
 #include "rendererprobe.h"
 
 RendererProcessor::RendererProcessor() :
   started_(false),
   width_(0),
-  height_(0)
+  height_(0),
+  caching_(false)
 {
   texture_input_ = new NodeInput("tex_in");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -145,13 +147,15 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
            << "and"
            << end_range.toDouble();
 
+  // FIXME: Snap start_range to timebase
+
   for (rational r=start_range;r<=end_range;r+=timebase_) {
     if (!cache_queue_.contains(r)) {
       cache_queue_.append(r);
     }
   }
 
-  CacheCallback();
+  CacheNext();
 
   Node::InvalidateCache(start_range, end_range);
 }
@@ -192,6 +196,10 @@ void RendererProcessor::Start()
   for (int i=0;i<threads_.size();i++) {
     threads_[i] = std::make_shared<RendererThread>(width_, height_, format_, mode_);
     threads_[i]->StartThread(QThread::HighPriority);
+
+    // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
+    // other threads
+    connect(threads_[i].get(), SIGNAL(FinishedPath()), this, SLOT(ThreadCallback()), Qt::QueuedConnection);
   }
 
   started_ = true;
@@ -230,21 +238,33 @@ void RendererProcessor::GenerateCacheIDInternal()
   cache_id_ = bytes.toHex();
 }
 
-void RendererProcessor::CacheCallback()
+void RendererProcessor::CacheNext()
 {
-  if (cache_queue_.isEmpty() || !texture_input_->IsConnected()) {
+  if (cache_queue_.isEmpty() || !texture_input_->IsConnected() || caching_) {
     return;
   }
 
-  rational time_to_cache = cache_queue_.first();
+  // Make sure cache has started
+  Start();
+
+  rational time_to_cache = cache_queue_.takeFirst();
 
   Node* node_to_cache = texture_input_->edges().first()->output()->parent();
 
-  RendererProbe::ProbeNode(node_to_cache, QThread::idealThreadCount(), time_to_cache);
+  // Run this probe in another thread
+  RenderPath path = RendererProbe::ProbeNode(node_to_cache, threads_.size(), time_to_cache);
+
+  cache_return_count_ = 0;
+
+  for (int i=0;i<threads_.size();i++) {
+    qDebug() << "Queued thread" << threads_.at(i).get();
+    threads_.at(i)->Queue(path.GetThreadPath(i), time_to_cache);
+  }
+
+  caching_ = true;
 
   /*
-  // Make sure cache has started
-  Start();
+
 
   bool caching = false;
 
@@ -265,6 +285,18 @@ void RendererProcessor::CacheCallback()
     qDebug() << "[RendererProcessor] Ready to cache" << time_to_cache.numerator() << "/" << time_to_cache.denominator();
   }
   */
+}
+
+void RendererProcessor::ThreadCallback()
+{
+  cache_return_count_++;
+
+  if (cache_return_count_ == threads_.size()) {
+    // Threads are all done now, time to proceed
+    caching_ = false;
+
+    CacheNext();
+  }
 }
 
 RendererThread* RendererProcessor::CurrentThread()

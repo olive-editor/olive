@@ -111,6 +111,9 @@ QList<Node *> TrackOutput::GetImmediateDependenciesAt(const rational &time)
     nodes.append(current_block_);
   }
 
+  // The next track is not a direct dependency (it would only become so through a merge node)
+  nodes.removeAll(next_track());
+
   return nodes;
 }
 

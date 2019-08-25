@@ -218,6 +218,7 @@ void Core::CreateNewFolder()
 }
 
 // FIXME: Test code
+#include "node/blend/alphaover/alphaover.h"
 #include "node/output/timeline/timeline.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
@@ -302,6 +303,11 @@ void Core::CreateNewSequence()
 
     // Connect track to timeline
     NodeParam::ConnectEdge(to->track_output(), tb->track_input());
+
+    // FIXME: Test code
+    AlphaOverBlend* blend = new AlphaOverBlend();
+    new_sequence->AddNode(blend);
+    // End test code
 
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
     tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());

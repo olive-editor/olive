@@ -32,33 +32,25 @@ RendererThread::RendererThread(const int &width, const int &height, const olive:
 {
 }
 
-bool RendererThread::Queue(Node *n, const rational& time)
+void RendererThread::Queue(const RenderThreadPath &path, const rational& time)
 {
-  // If the thread is inactive, tryLock() will succeed
-  if (mutex_.tryLock()) {
+  // Wait for thread to be available
+  mutex_.lock();
 
-    qDebug() << "[RendererThread Main] tryLock succeeded";
+  // We can now change params without the other thread using them
+  path_ = path;
+  time_ = time;
 
-    // The mutex is locked in the calling thread now, so we can change the active Node
-    node_ = n;
-    time_ = time;
+  // Prepare to wait for thread to respond
+  caller_mutex_.lock();
 
-    // We can now wake up our main thread
-    qDebug() << "[RendererThread Main] Waking thread";
-    wait_cond_.wakeAll();
-    qDebug() << "[RendererThread Main] Unlocking mutex";
-    mutex_.unlock();
+  // Wake up our main thread
+  wait_cond_.wakeAll();
+  mutex_.unlock();
 
-    // Wait for thread to start before returning
-    qDebug() << "[RendererThread Main] Waiting for caller mutex";
-    caller_mutex_.lock();
-    qDebug() << "[RendererThread Main] Caller mutex arrived";
-    caller_mutex_.unlock();
-
-    return true;
-  }
-
-  return false;
+  // Wait for thread to start before returning
+  wait_cond_.wait(&caller_mutex_);
+  caller_mutex_.unlock();
 }
 
 void RendererThread::Cancel()
@@ -80,6 +72,11 @@ void RendererThread::run()
   // Lock mutex for main loop
   mutex_.lock();
 
+  // Signal that main thread can continue now
+  caller_mutex_.lock();
+  wait_cond_.wakeAll();
+  caller_mutex_.unlock();
+
   RenderInstance instance(width_, height_, format_, mode_);
   render_instance_ = &instance;
 
@@ -88,17 +85,20 @@ void RendererThread::run()
 
     // Main loop (use Cancel() to exit it)
     while (!cancelled_) {
-      // Lock the caller mutex (used in Queue() for thread synchronization)
-      caller_mutex_.lock();
-
       // Main waiting condition
       wait_cond_.wait(&mutex_);
 
-      // Unlock the caller mutex
+      // Wake up main thread
+      caller_mutex_.lock();
+      wait_cond_.wakeAll();
       caller_mutex_.unlock();
 
       // Process the Node
-      node_->Run(time_);
+      for (int i=path_.size()-1;i>=0;i--) {
+        path_.at(i)->Run(time_);
+      }
+
+      emit FinishedPath();
     }
   }
 
@@ -112,8 +112,15 @@ void RendererThread::run()
 
 void RendererThread::StartThread(QThread::Priority priority)
 {
-  queue_.clear();
+  path_.clear();
 
-  // Start the thread (the thread will unlock caller_mutex_)
+  caller_mutex_.lock();
+
+  // Start the thread
   QThread::start(priority);
+
+  // Wait for thread to finish completion
+  wait_cond_.wait(&caller_mutex_);
+
+  caller_mutex_.unlock();
 }

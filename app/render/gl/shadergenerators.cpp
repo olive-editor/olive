@@ -84,8 +84,8 @@ ShaderPtr ShaderGenerator::DefaultPipeline(const QString& function_name, const Q
 
     // If additional code was passed, add it and reference it in main().
     //
-    // The function in the additional code is expected to be `vec4 function_name(vec4 color)`. The texture coordinate can be
-    // acquired through `v_texcoord`.
+    // The function in the additional code is expected to be `vec4 function_name(vec4 color)`. The texture coordinate
+    // can be acquired through `v_texcoord`.
 
     frag_shader.append(shader_code);
 

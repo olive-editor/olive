@@ -28,21 +28,18 @@
 
 #include "node/node.h"
 #include "render/renderinstance.h"
-
-struct RenderQueueEntry {
-  Node* node;
-  rational time;
-};
+#include "renderpath.h"
 
 class RendererThread : public QThread
 {
+  Q_OBJECT
 public:
   RendererThread(const int& width,
                  const int& height,
                  const olive::PixelFormat& format,
                  const olive::RenderMode& mode);
 
-  bool Queue(Node* n, const rational &time);
+  void Queue(const RenderThreadPath& path, const rational &time);
 
   void Cancel();
 
@@ -52,6 +49,9 @@ public:
 
   void StartThread(Priority priority = InheritPriority);
 
+signals:
+  void FinishedPath();
+
 private:
   QWaitCondition wait_cond_;
 
@@ -59,7 +59,7 @@ private:
 
   QMutex caller_mutex_;
 
-  Node* node_;
+  RenderThreadPath path_;
 
   rational time_;
 
@@ -74,8 +74,6 @@ private:
   const olive::RenderMode& mode_;
 
   RenderInstance* render_instance_;
-
-  QVector<RenderQueueEntry> queue_;
 
 };
 
