@@ -249,6 +249,8 @@ void RendererProcessor::CacheNext()
 
   rational time_to_cache = cache_queue_.takeFirst();
 
+  qDebug() << "Caching" << time_to_cache.toDouble();
+
   Node* node_to_cache = texture_input_->edges().first()->output()->parent();
 
   // Run this probe in another thread
@@ -257,7 +259,6 @@ void RendererProcessor::CacheNext()
   cache_return_count_ = 0;
 
   for (int i=0;i<threads_.size();i++) {
-    qDebug() << "Queued thread" << threads_.at(i).get();
     threads_.at(i)->Queue(path.GetThreadPath(i), time_to_cache);
   }
 
