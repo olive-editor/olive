@@ -22,16 +22,10 @@ QString AlphaOverBlend::Description()
   return tr("A blending node that composites one texture over another using its alpha channel.");
 }
 
-void AlphaOverBlend::Process()
+QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
 {
-  // FIXME: Write Alpha Over Formula
+  Q_UNUSED(param)
+  Q_UNUSED(time)
 
-  // Note that alpha will always be premultiplied by this point
-
-
-
-  //GLuint base_tex = base_input_->get_value(time).value<GLuint>();
-
-  // FIXME: Does nothing
-  texture_output()->set_value(QVariant::fromValue(blend_input()->get_value().value<RenderTexturePtr>()));
+  return 0;
 }

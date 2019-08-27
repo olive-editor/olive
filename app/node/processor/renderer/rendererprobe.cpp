@@ -42,7 +42,12 @@ RenderPath RendererProbe::ProbeNode(Node *node, int thread_count, const rational
 
 void RendererProbe::TraverseNode(RenderPath& path, Node *node, const rational& time, int thread, int index)
 {
-  bool can_take_node = true;
+  Q_UNUSED(path)
+  Q_UNUSED(node)
+  Q_UNUSED(time)
+  Q_UNUSED(thread)
+  Q_UNUSED(index)
+  /*bool can_take_node = true;
 
   if (path.ContainsNode(node) >= 0) {
     if (path.NodeIndex(node) < index) {
@@ -61,7 +66,7 @@ void RendererProbe::TraverseNode(RenderPath& path, Node *node, const rational& t
     path.AddEntry(node, thread, index);
   }
 
-  QList<Node*> deps = node->GetImmediateDependenciesAt(time);
+  QList<Node*> deps = node->RunDependencies(nullptr, time);
 
   // Print debugging information
   foreach (Node* dep, deps) {
@@ -77,5 +82,5 @@ void RendererProbe::TraverseNode(RenderPath& path, Node *node, const rational& t
     int run_thread = (ideal_thread == -1) ? thread : ideal_thread;
 
     TraverseNode(path, dep, time, run_thread, next_index);
-  }
+  }*/
 }

@@ -67,31 +67,26 @@ NodeInput *ClipBlock::texture_input()
   return texture_input_;
 }
 
-void ClipBlock::set_time(const rational &time)
+rational ClipBlock::SequenceToMediaTime(const rational &sequence_time)
 {
-  Node::set_time(time);
-
-  if (texture_input_->IsConnected()) {
-    // We convert the time given (timeline time) to media time
-    rational media_time = time - in() + media_in();
-
-    texture_input_->edges().first()->output()->parent()->set_time(media_time);
-  }
+  return sequence_time - in() + media_in();
 }
 
-void ClipBlock::Process()
+QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
 {
-  // Run default node processing
-  Block::Process();
+  QVariant value = Block::Value(param, time);
 
-  // Check if we have a renderer instance
-  if (RendererProcessor::CurrentInstance() != nullptr) {
+  if (param == texture_output()) {
     // If the time retrieved is within this block, get texture information
-    if (time() >= in() && time() < out()) {
+    if (time >= in() && time < out()) {
+      // We convert the time given (timeline time) to media time
+      rational media_time = SequenceToMediaTime(time - in() + media_in());
+
       // Retrieve texture
-      texture_output()->set_value(texture_input_->get_value());
-    } else {
-      texture_output()->set_value(0);
+      return texture_input_->get_value(media_time);
     }
+    return 0;
   }
+
+  return Block::Value(param, time);
 }

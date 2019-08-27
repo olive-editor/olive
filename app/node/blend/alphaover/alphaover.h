@@ -13,7 +13,7 @@ public:
   virtual QString Description() override;
 
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* param, const rational& time) override;
 };
 
 #endif // ALPHAOVER_H

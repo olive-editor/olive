@@ -49,7 +49,7 @@ public:
   /**
    * @brief Override swaps "attached block" with "current block"
    */
-  virtual QList<Node*> GetImmediateDependenciesAt(const rational& time) override;
+  virtual QList<NodeDependency> RunDependencies(NodeOutput* param, const rational& time) override;
 
   void GenerateBlockWidgets();
 
@@ -156,7 +156,7 @@ signals:
   void BlockRemoved(Block* block);
 
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
   /**

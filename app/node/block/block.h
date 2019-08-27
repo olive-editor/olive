@@ -70,7 +70,7 @@ public:
   /**
    * @brief Override removes previous input as that is not a direct dependency
    */
-  virtual QList<Node *> GetImmediateDependenciesAt(const rational &time) override;
+  virtual QList<NodeDependency> RunDependencies(NodeOutput* output, const rational &time) override;
 
 public slots:
   /**
@@ -102,7 +102,7 @@ signals:
   void Refreshed();
 
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:  
   NodeInput* previous_input_;

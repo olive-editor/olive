@@ -61,20 +61,14 @@ public:
    * In many cases for efficiency, the Node can also ignore this request if it knows the output data will not change
    * (i.e. if the time has not changed from the last Process()).
    */
-  virtual const QVariant& get_value();
-
-  /**
-   * @brief Set the current value of this output
-   *
-   * Intended to only be set by parent Node objects in their Node::Process() function. Whatever result data is intended
-   * for use later in the pipeline should be set here (\see get_value()).
-   */
-  virtual void set_value(const QVariant& value);
+  virtual const QVariant& get_value(const rational &time);
 
 private:
   DataType data_type_;
 
   QVariant value_;
+
+  rational time_;
 };
 
 #endif // NODEOUTPUT_H

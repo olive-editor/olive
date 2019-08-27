@@ -23,7 +23,8 @@
 #include "node/node.h"
 
 NodeOutput::NodeOutput(const QString &id) :
-  NodeParam(id)
+  NodeParam(id),
+  time_(-1)
 {
 }
 
@@ -47,16 +48,15 @@ void NodeOutput::set_data_type(const NodeParam::DataType &type)
   }
 }
 
-const QVariant &NodeOutput::get_value()
+const QVariant &NodeOutput::get_value(const rational& time)
 {
-  // Node::Process() should put the correct value in this output
-  parent()->Run();
+  if (time_ != time) {
+    // Update the value
+    value_ = parent()->Run(this, time);
+
+    time_ = time;
+  }
 
   // The value should be have been set by this point
   return value_;
-}
-
-void NodeOutput::set_value(const QVariant &value)
-{
-  value_ = value;
 }

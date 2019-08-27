@@ -55,20 +55,6 @@ public:
   bool can_accept_type(const DataType& data_type);
 
   /**
-   * @brief Return whether this parameter accepts multiple inputs (false by default)
-   *
-   * While an input will usually only accept one connection from an output at any given time, NodeInput does support
-   * more than one. By default this is false, but can be set to true on any input object. If this is true, get_value()
-   * returns QList<QVariant> rather than just a QVariant (but casted to QVariant).
-   */
-  bool can_accept_multiple_inputs();
-
-  /**
-   * @brief \see can_accept_multiple_inputs().
-   */
-  void set_can_accept_multiple_inputs(bool b);
-
-  /**
    * @brief Get the value at a given time
    *
    * This function will automatically retrieve the correct value for this input at the given time.
@@ -80,7 +66,7 @@ public:
    * If no output is connected, this will return a user-defined value, either a static value if this input is not
    * keyframed, or an interpolated value between the keyframes at this time.
    */
-  QVariant get_value();
+  QVariant get_value(const rational &time);
 
   /**
    * @brief Set the value at a given time
@@ -124,14 +110,20 @@ private:
   QList<NodeKeyframe> keyframes_;
 
   /**
+   * @brief Currently cached value
+   */
+  QVariant value_;
+
+  /**
+   * @brief Last timecode that a value was requested with
+   */
+  rational time_;
+
+  /**
    * @brief Internal keyframing enabled setting
    */
   bool keyframing_;
 
-  /**
-   * @brief Internal multiple inputs accepted setting
-   */
-  bool can_accept_multiple_inputs_;
 };
 
 #endif // NODEINPUT_H

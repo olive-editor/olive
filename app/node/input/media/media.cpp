@@ -87,71 +87,82 @@ void MediaInput::SetFootage(Footage *f)
   footage_input_->set_value(PtrToValue(f));
 }
 
-void MediaInput::Process()
+QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 {
-  // Set default texture to no texture
-  texture_output_->set_value(0);
+  if (output == texture_output_) {
+    // Find the current Renderer instance
+    RenderInstance* renderer = RendererProcessor::CurrentInstance();
 
-  // Find the current Renderer instance
-  RenderInstance* renderer = RendererProcessor::CurrentInstance();
+    // If nothing is available, don't return a texture
+    if (renderer == nullptr) {
+      return 0;
+    }
 
-  // If nothing is available, don't return a texture
-  if (renderer == nullptr) {
-    return;
-  }
+    // Get currently selected Footage
+    Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(time));
 
-  // Get currently selected Footage
-  Footage* footage = ValueToPtr<Footage>(footage_input_->get_value());
+    // If no footage is selected, return nothing
+    if (footage == nullptr) {
+      return 0;
+    }
 
-  // If no footage is selected, return nothing
-  if (footage == nullptr) {
-    return;
-  }
+    // Otherwise try to get frame of footage from decoder
 
-  // Otherwise try to get frame of footage from decoder
+    // Determine which decoder to use
+    if (decoder_ == nullptr
+        && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
+      return 0;
+    }
 
-  // Determine which decoder to use
-  if (decoder_ == nullptr
-      && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
-    return;
-  }
+    if (decoder_->stream() == nullptr) {
+      // FIXME: Hardcoded stream 0
+      decoder_->set_stream(footage->stream(0));
+    }
 
-  if (decoder_->stream() == nullptr) {
-    // FIXME: Hardcoded stream 0
-    decoder_->set_stream(footage->stream(0));
-  }
+    // Get frame from Decoder
+    FramePtr frame = decoder_->Retrieve(time);
 
-  // Get frame from Decoder
-  FramePtr frame = decoder_->Retrieve(time());
+    if (frame == nullptr) {
+      return 0;
+    }
 
-  if (frame == nullptr) {
-    return;
-  }
+    RenderTexturePtr texture = std::make_shared<RenderTexture>();
 
-  /*renderer->buffer()->Upload(frame->data());
-
-  texture_output_->set_value(renderer->buffer()->texture());*/
-
-  // Convert the frame to the Renderer format
-//  frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA16F);
-
-  // Convert the frame to the Renderer color space
-  //color_service_.ConvertFrame(frame);
-
-  // Upload this frame to the GPU
-  /*if (buffer_.IsCreated()) {
-    buffer_.Upload(frame->data());
-  } else {
-    buffer_.Create(QOpenGLContext::currentContext(),
+    texture->Create(renderer->context(),
+                    renderer->width(),
+                    renderer->height(),
                     static_cast<olive::PixelFormat>(frame->format()),
-                    frame->width(),
-                    frame->height(),
                     frame->data());
-  }*/
 
-  // Draw according to matrix
-  // BLIT
+    return QVariant::fromValue(texture);
 
-  //texture_output_->set_value(tex_buf_.texture());
-  // End test code
+    /*renderer->buffer()->Upload(frame->data());
+
+    texture_output_->set_value(renderer->buffer()->texture());*/
+
+    // Convert the frame to the Renderer format
+  //  frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA16F);
+
+    // Convert the frame to the Renderer color space
+    //color_service_.ConvertFrame(frame);
+
+    // Upload this frame to the GPU
+    /*if (buffer_.IsCreated()) {
+      buffer_.Upload(frame->data());
+    } else {
+      buffer_.Create(QOpenGLContext::currentContext(),
+                      static_cast<olive::PixelFormat>(frame->format()),
+                      frame->width(),
+                      frame->height(),
+                      frame->data());
+    }*/
+
+    // Draw according to matrix
+    // BLIT
+
+    //texture_output_->set_value(tex_buf_.texture());
+    // End test code
+  }
+
+  return 0;
 }

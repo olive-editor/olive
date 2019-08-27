@@ -47,16 +47,20 @@ public:
   void AttachViewer(ViewerPanel* viewer);
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
-protected:
 
-  virtual void Process() override;
+protected:
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
+  void UpdateViewer();
+
   NodeInput* texture_input_;
 
   ViewerPanel* attached_viewer_;
 
   rational timebase_;
+
+  rational current_time_;
 
 private slots:
   void ViewerTimeChanged(const rational& t);

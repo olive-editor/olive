@@ -94,7 +94,7 @@ public:
   NodeOutput* texture_output();
 
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
   /**

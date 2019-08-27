@@ -182,7 +182,7 @@ void NodeParam::DisconnectEdge(NodeOutput *output, NodeInput *input)
 NodeEdgePtr NodeParam::DisconnectForNewOutput(NodeInput *input)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
-  if (!input->edges_.isEmpty() && !input->can_accept_multiple_inputs()) {
+  if (!input->edges_.isEmpty()) {
     NodeEdgePtr edge = input->edges_.first();
 
     DisconnectEdge(edge);

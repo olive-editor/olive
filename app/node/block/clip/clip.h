@@ -42,12 +42,12 @@ public:
 
   NodeInput* texture_input();
 
-  virtual void set_time(const rational& time) override;
-
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
+  rational SequenceToMediaTime(const rational& sequence_time);
+
   NodeInput* texture_input_;
 
 };

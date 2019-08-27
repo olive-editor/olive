@@ -53,7 +53,7 @@ public:
   void SetFootage(Footage* f);
 
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
   NodeInput* footage_input_;

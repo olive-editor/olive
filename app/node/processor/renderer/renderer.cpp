@@ -73,24 +73,34 @@ void RendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
-void RendererProcessor::Process()
+QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 {
-  texture_output_->set_value(0);
+  if (output == texture_output_) {
+    if (!texture_input_->IsConnected()) {
+      // Nothing is connected - nothing to show or render
+      return 0;
+    }
 
-  if (!texture_input_->IsConnected()) {
-    // Nothing is connected - nothing to show or render
-    return;
+    if (cache_id_.isEmpty()) {
+      qWarning() << "RendererProcessor has no cache ID";
+      return 0;
+    }
+
+    if (timebase_.isNull()) {
+      qWarning() << "RendererProcessor has no timebase";
+      return 0;
+    }
+
+    // FIXME: Test code only
+    return texture_input_->get_value(time);
+    // End test code
   }
 
-  if (cache_id_.isEmpty()) {
-    qWarning() << "RendererProcessor has no cache ID";
-    return;
-  }
+  return 0;
 
-  if (timebase_.isNull()) {
-    qWarning() << "RendererProcessor has no timebase";
-    return;
-  }
+
+
+
 
   // This Renderer node relies on a disk cache so this Process() function should be quite fast. Either it returns the
   // cached frame or it returns nothing.
@@ -252,7 +262,7 @@ void RendererProcessor::CacheNext()
   Node* node_to_cache = texture_input_->edges().first()->output()->parent();
 
   // Set graph time
-  node_to_cache->set_time(time_to_cache);
+  //node_to_cache->set_time(time_to_cache);
 
   // Run this probe in another thread
   RenderPath path = RendererProbe::ProbeNode(node_to_cache, threads_.size(), time_to_cache);

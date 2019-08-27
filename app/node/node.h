@@ -28,6 +28,18 @@
 #include "node/input.h"
 #include "node/output.h"
 
+class NodeDependency {
+public:
+  NodeDependency(Node* node, const rational& time);
+
+  Node* node();
+  rational time();
+
+private:
+  Node* node_;
+  rational time_;
+};
+
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
  *
@@ -128,14 +140,18 @@ public:
   QList<Node*> GetImmediateDependencies();
 
   /**
+   * @brief Thread-safe wrapper for Process()
+   *
+   * It's recommended to call this directly over Process(), yet in derivatives of Node, override Process().
+   */
+  QVariant Run(NodeOutput* output, const rational& time);
+
+  /**
    * @brief For nodes that have different dependencies at different times, this function can be used for that purpose
    *
    * Only retrieves immmediate dependencies, meaning only nodes that are directly
    */
-  virtual QList<Node*> GetImmediateDependenciesAt(const rational& time);
-
-  const rational& time();
-  virtual void set_time(const rational& t);
+  virtual QList<NodeDependency> RunDependencies(NodeOutput* output, const rational& time);
 
   /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
@@ -199,12 +215,19 @@ protected:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual void Process() = 0;
+  virtual QVariant Value(NodeOutput* output, const rational& time) = 0;
+
+  /**
+   * @brief Retrieve the last timecode Process() was called with
+   */
+  rational LastProcessedTime();
+
+  /**
+   * @brief Retrieve the last parameter Process() was called from
+   */
+  NodeOutput* LastProcessedOutput();
 
 public slots:
-
-
-  void Run();
 
 signals:
   /**
@@ -225,11 +248,6 @@ signals:
    */
   void EdgeRemoved(NodeEdgePtr edge);
 
-  /**
-   * @brief Signal emitted when the time is set through set_time()
-   */
-  void TimeChanged(const rational& t);
-
 private:
   /**
    * @brief Return whether a parameter with ID `id` has already been added to this Node
@@ -241,9 +259,19 @@ private:
    */
   QList<NodeInput*> ignore_invalid_cache_inputs_;
 
-  rational last_process_time_;
-  rational time_;
+  /**
+   * @brief The last timecode Process() was called with
+   */
+  rational last_processed_time_;
 
+  /**
+   * @brief The last parameter Process() was called from
+   */
+  NodeOutput* last_processed_parameter_;
+
+  /**
+   * @brief Used for thread safety in Run()
+   */
   QMutex lock_;
 };
 

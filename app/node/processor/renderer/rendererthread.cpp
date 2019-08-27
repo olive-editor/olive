@@ -97,9 +97,9 @@ void RendererThread::run()
       caller_mutex_.unlock();
 
       // Process the Node
-      for (int i=path_.size()-1;i>=0;i--) {
+      /*for (int i=path_.size()-1;i>=0;i--) {
         path_.at(i)->Run();
-      }
+      }*/
 
       emit FinishedPath();
     }

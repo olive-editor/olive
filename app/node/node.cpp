@@ -25,7 +25,7 @@
 #include "common/qobjectlistcast.h"
 
 Node::Node() :
-  last_process_time_(-1)
+  last_processed_time_(-1)
 {
 }
 
@@ -90,18 +90,41 @@ void Node::IgnoreCacheInvalidationFrom(NodeInput *input)
   ignore_invalid_cache_inputs_.append(input);
 }
 
-void Node::Run()
+rational Node::LastProcessedTime()
+{
+  rational t;
+
+  lock_.lock();
+
+  t = last_processed_time_;
+
+  lock_.unlock();
+
+  return t;
+}
+
+NodeOutput *Node::LastProcessedOutput()
+{
+  NodeOutput* o;
+
+  lock_.lock();
+
+  o = last_processed_parameter_;
+
+  lock_.unlock();
+
+  return o;
+}
+
+QVariant Node::Run(NodeOutput* output, const rational& time)
 {
   lock_.lock();
 
-  if (last_process_time_ != time_) {
-    // The results will be the same, so return here
-    Process();
-
-    last_process_time_ = time_;
-  }
+  QVariant v = Value(output, time);
 
   lock_.unlock();
+
+  return v;
 }
 
 NodeParam *Node::ParamAt(int index)
@@ -205,28 +228,18 @@ QList<Node *> Node::GetImmediateDependencies()
   return node_list;
 }
 
-QList<Node *> Node::GetImmediateDependenciesAt(const rational &time)
+QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &time)
 {
-  Q_UNUSED(time)
+  Q_UNUSED(output)
 
-  return GetImmediateDependencies();
-}
+  QList<Node*> immediate_deps = GetImmediateDependencies();
+  QList<NodeDependency> run_deps;
 
-const rational &Node::time()
-{
-  return time_;
-}
-
-void Node::set_time(const rational &t)
-{
-  time_ = t;
-
-  QList<Node*> deps = GetImmediateDependencies();
-  foreach (Node* d, deps) {
-    d->set_time(time_);
+  foreach (Node* dep, immediate_deps) {
+    run_deps.append(NodeDependency(dep, time));
   }
 
-  emit TimeChanged(time_);
+  return run_deps;
 }
 
 bool Node::OutputsTo(Node *n)
@@ -266,4 +279,20 @@ bool Node::HasParamWithID(const QString &id)
   }
 
   return false;
+}
+
+NodeDependency::NodeDependency(Node *node, const rational &time) :
+  node_(node),
+  time_(time)
+{
+}
+
+Node *NodeDependency::node()
+{
+  return node_;
+}
+
+rational NodeDependency::time()
+{
+  return time_;
 }

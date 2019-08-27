@@ -70,7 +70,7 @@ void Block::set_length(const rational &length)
 
 Block *Block::previous()
 {
-  return ValueToPtr<Block>(previous_input_->get_value());
+  return ValueToPtr<Block>(previous_input_->get_value(0));
 }
 
 Block *Block::next()
@@ -83,10 +83,16 @@ NodeInput *Block::previous_input()
   return previous_input_;
 }
 
-void Block::Process()
+QVariant Block::Value(NodeOutput *output, const rational &time)
 {
-  // Simply set both output values as a pointer to this object
-  block_output_->set_value(PtrToValue(this));
+  Q_UNUSED(time)
+
+  if (output == block_output_) {
+    // Simply set the output value to a pointer to this Block
+    return PtrToValue(this);
+  }
+
+  return 0;
 }
 
 void Block::EdgeAddedSlot(NodeEdgePtr edge)
@@ -174,14 +180,12 @@ void Block::set_media_in(const rational &media_in)
   }
 }
 
-QList<Node *> Block::GetImmediateDependenciesAt(const rational &time)
+QList<NodeDependency> Block::RunDependencies(NodeOutput* param, const rational &time)
 {
+  // Base Blocks have no direct dependencies
+
+  Q_UNUSED(param)
   Q_UNUSED(time)
 
-  QList<Node *> nodes = Node::GetImmediateDependencies();
-
-  // Swap attached block for current block at this time
-  nodes.removeAll(previous());
-
-  return nodes;
+  return QList<NodeDependency>();
 }

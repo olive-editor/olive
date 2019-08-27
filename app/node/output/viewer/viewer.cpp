@@ -20,7 +20,7 @@
 
 #include "viewer.h"
 
-#include "panel/panelmanager.h"
+#include "render/rendertexture.h"
 
 ViewerOutput::ViewerOutput() :
   attached_viewer_(nullptr)
@@ -64,17 +64,6 @@ NodeInput *ViewerOutput::texture_input()
   return texture_input_;
 }
 
-void ViewerOutput::Process()
-{
-  if (attached_viewer_ != nullptr) {
-    // Get the texture from whatever Node is currently connected (usually a Renderer of some kind)
-    GLuint current_texture = texture_input_->get_value().value<GLuint>();
-
-    // Send the texture to the Viewer
-    attached_viewer_->SetTexture(current_texture);
-  }
-}
-
 void ViewerOutput::AttachViewer(ViewerPanel *viewer)
 {
   // Disconnect old viewer if there's one attached
@@ -94,14 +83,28 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range)
 {
   // Update any attached viewer
-  Process();
+  ViewerTimeChanged(current_time_);
 
   Node::InvalidateCache(start_range, end_range);
 }
 
+QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)
+{
+  Q_UNUSED(output)
+  Q_UNUSED(time)
+
+  return 0;
+}
+
 void ViewerOutput::ViewerTimeChanged(const rational &t)
 {
-  set_time(t);
+  // Get the texture from whatever Node is currently connected (usually a Renderer of some kind)
+  RenderTexturePtr current_texture = texture_input_->get_value(t).value<RenderTexturePtr>();
 
-  Run();
+  // Send the texture to the Viewer
+  if (current_texture != nullptr) {
+    attached_viewer_->SetTexture(current_texture->texture());
+  }
+
+  current_time_ = t;
 }

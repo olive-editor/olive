@@ -99,22 +99,19 @@ void TrackOutput::Refresh()
   Block::Refresh();
 }
 
-QList<Node *> TrackOutput::GetImmediateDependenciesAt(const rational &time)
+QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rational &time)
 {
-  QList<Node *> nodes = Node::GetImmediateDependencies();
+  QList<NodeDependency> deps;
 
-  ValidateCurrentBlock(time);
+  if (output == texture_output()) {
+    ValidateCurrentBlock(time);
 
-  // Swap attached block for current block at this time
-  nodes.removeAll(attached_block());
-  if (current_block_ != this) {
-    nodes.append(current_block_);
+    if (current_block_ != this) {
+      deps.append(NodeDependency(current_block_, time));
+    }
   }
 
-  // The next track is not a direct dependency (it would only become so through a merge node)
-  nodes.removeAll(next_track());
-
-  return nodes;
+  return deps;
 }
 
 void TrackOutput::GenerateBlockWidgets()
@@ -133,7 +130,7 @@ void TrackOutput::DestroyBlockWidgets()
 
 TrackOutput *TrackOutput::next_track()
 {
-  return ValueToPtr<TrackOutput>(track_input_->get_value());
+  return ValueToPtr<TrackOutput>(track_input_->get_value(0));
 }
 
 NodeInput *TrackOutput::track_input()
@@ -146,23 +143,27 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
-void TrackOutput::Process()
+#include "render/rendertexture.h"
+
+QVariant TrackOutput::Value(NodeOutput *output, const rational &time)
 {
-  // Run default node processing
-  Block::Process();
+  if (output == track_output_) {
+    // Set track output correctly
+    return PtrToValue(this);
+  } else if (output == texture_output()) {
+    ValidateCurrentBlock(time);
 
-  // Set track output correctly
-  track_output_->set_value(PtrToValue(this));
+    if (current_block_ != this) {
+      // At this point, we must have found the correct block so we use its texture output to produce the image
+      return current_block_->texture_output()->get_value(time);
+    }
 
-  ValidateCurrentBlock(time());
-
-  if (current_block_ == this) {
     // No texture is valid
-    texture_output()->set_value(0);
-  } else {
-    // At this point, we must have found the correct block so we use its texture output to produce the image
-    texture_output()->set_value(current_block_->texture_output()->get_value());
+    return 0;
   }
+
+  // Run default node processing
+  return Block::Value(output, time);
 }
 
 void TrackOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)
@@ -181,7 +182,7 @@ void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 
 Block *TrackOutput::attached_block()
 {
-  return ValueToPtr<Block>(previous_input()->get_value());
+  return ValueToPtr<Block>(previous_input()->get_value(0));
 }
 
 void TrackOutput::PrependBlock(Block *block)

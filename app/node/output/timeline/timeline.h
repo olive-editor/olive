@@ -46,7 +46,7 @@ public:
   NodeInput* track_input();
 
 protected:
-  virtual void Process() override;
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
   int GetTrackIndex(TrackOutput* track);
