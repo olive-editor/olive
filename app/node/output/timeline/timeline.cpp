@@ -96,9 +96,8 @@ NodeInput *TimelineOutput::track_input()
   return track_input_;
 }
 
-void TimelineOutput::Process(const rational &time)
+void TimelineOutput::Process()
 {
-  Q_UNUSED(time)
 }
 
 int TimelineOutput::GetTrackIndex(TrackOutput *track)
@@ -119,7 +118,7 @@ rational TimelineOutput::GetSequenceLength()
 
 TrackOutput *TimelineOutput::attached_track()
 {
-  return ValueToPtr<TrackOutput>(track_input_->get_value(0));
+  return ValueToPtr<TrackOutput>(track_input_->get_value());
 }
 
 void TimelineOutput::AttachTrack(TrackOutput *track)
@@ -202,7 +201,7 @@ void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
     return;
   }
 
-  DetachTrack(ValueToPtr<TrackOutput>(edge->output()->get_value(0)));
+  DetachTrack(ValueToPtr<TrackOutput>(edge->output()->get_value()));
 
   if (attached_timeline_ != nullptr) {
     attached_timeline_->Clear();
@@ -230,7 +229,7 @@ void TimelineOutput::TrackEdgeAdded(NodeEdgePtr edge)
 
   // If this edge pertains to the track's track input, all the tracks just added need attaching
   if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
+    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value());
 
     AttachTrack(added_track);
   }
@@ -243,7 +242,7 @@ void TimelineOutput::TrackEdgeRemoved(NodeEdgePtr edge)
 
   // If this edge pertains to the track's track input, all the tracks just added need attaching
   if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
+    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value());
 
     DetachTrack(added_track);
   }

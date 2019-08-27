@@ -13,7 +13,7 @@ public:
   virtual QString Description() override;
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 };
 
 #endif // ALPHAOVER_H

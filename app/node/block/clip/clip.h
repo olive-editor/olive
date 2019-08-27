@@ -42,8 +42,10 @@ public:
 
   NodeInput* texture_input();
 
+  virtual void set_time(const rational& time) override;
+
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:
   NodeInput* texture_input_;

@@ -102,7 +102,7 @@ signals:
   void Refreshed();
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:  
   NodeInput* previous_input_;

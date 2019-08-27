@@ -64,11 +64,11 @@ NodeInput *ViewerOutput::texture_input()
   return texture_input_;
 }
 
-void ViewerOutput::Process(const rational &time)
+void ViewerOutput::Process()
 {
   if (attached_viewer_ != nullptr) {
     // Get the texture from whatever Node is currently connected (usually a Renderer of some kind)
-    GLuint current_texture = texture_input_->get_value(time).value<GLuint>();
+    GLuint current_texture = texture_input_->get_value().value<GLuint>();
 
     // Send the texture to the Viewer
     attached_viewer_->SetTexture(current_texture);
@@ -79,14 +79,29 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
 {
   // Disconnect old viewer if there's one attached
   if (attached_viewer_ != nullptr) {
-    disconnect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(Run(const rational&)));
+    disconnect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(ViewerTimeChanged(const rational&)));
   }
 
   // FIXME: Currently this attaches to ViewerPanels, but should it attached to Viewers instead?
   attached_viewer_ = viewer;
 
   if (attached_viewer_ != nullptr) {
-    connect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(Run(const rational&)));
+    connect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(ViewerTimeChanged(const rational&)));
     SetTimebase(timebase_);
   }
+}
+
+void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range)
+{
+  // Update any attached viewer
+  Process();
+
+  Node::InvalidateCache(start_range, end_range);
+}
+
+void ViewerOutput::ViewerTimeChanged(const rational &t)
+{
+  set_time(t);
+
+  Run();
 }

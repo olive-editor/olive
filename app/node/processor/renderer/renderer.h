@@ -94,7 +94,7 @@ public:
   NodeOutput* texture_output();
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:
   /**

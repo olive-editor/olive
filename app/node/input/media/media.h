@@ -34,9 +34,6 @@
 
 /**
  * @brief A node that imports an image
- *
- * FIXME: This will likely be replaced by the Media node as the Media node will be set up to pull from various decoders
- *        from the beginning.
  */
 class MediaInput : public Node
 {
@@ -56,7 +53,7 @@ public:
   void SetFootage(Footage* f);
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:
   NodeInput* footage_input_;

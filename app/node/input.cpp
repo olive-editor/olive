@@ -61,39 +61,22 @@ void NodeInput::set_can_accept_multiple_inputs(bool b)
   can_accept_multiple_inputs_ = b;
 }
 
-QVariant NodeInput::get_value(const rational &time)
+QVariant NodeInput::get_value()
 {
-  /// Determine if this input has any connections to it
-  switch (edges_.size()) {
-
-  /// No connections - use the internal value
-  case 0:
-    // FIXME: Re-implement keyframing
-    return keyframes_.first().value();
-
-  /// One connection - use the output of the connected Node
-  case 1:
-    return edges_.first()->output()->get_value(time);
-
-  /// Multiple connections - rare, return a list of the outputs of the connected Nodes
-  default:
-  {
-    QList<QVariant> values;
-
-    for (int i=0;i<edges_.size();i++) {
-      values.append(edges_.at(i)->output()->get_value(time));
-    }
-
-    return values;
+  if (!edges_.isEmpty()) {
+    // One connection - use the output of the connected Node
+    return edges_.first()->output()->get_value();
   }
-  }
+
+  // No connections - use the internal value
+  // FIXME: Re-implement keyframing
+  return keyframes_.first().value();
 }
 
-void NodeInput::set_value(const rational &time, const QVariant &value)
+void NodeInput::set_value(const QVariant &value)
 {
   if (keyframing()) {
-    // FIXME: Keyframing code
-    Q_UNUSED(time)
+    // FIXME: Keyframing code using time()
   } else {
     keyframes_.first().set_value(value);
 

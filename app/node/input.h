@@ -80,14 +80,14 @@ public:
    * If no output is connected, this will return a user-defined value, either a static value if this input is not
    * keyframed, or an interpolated value between the keyframes at this time.
    */
-  QVariant get_value(const rational &time);
+  QVariant get_value();
 
   /**
    * @brief Set the value at a given time
    *
    * This function will only work if there are no outputs connected.
    */
-  void set_value(const rational& time, const QVariant& value);
+  void set_value(const QVariant& value);
 
   /**
    * @brief Return whether keyframing is enabled on this input or not

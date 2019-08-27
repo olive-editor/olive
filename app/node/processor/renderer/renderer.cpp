@@ -20,6 +20,7 @@
 
 #include "renderer.h"
 
+#include <QApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDebug>
@@ -72,10 +73,8 @@ void RendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
-void RendererProcessor::Process(const rational &time)
+void RendererProcessor::Process()
 {
-  Q_UNUSED(time)
-
   texture_output_->set_value(0);
 
   if (!texture_input_->IsConnected()) {
@@ -252,6 +251,9 @@ void RendererProcessor::CacheNext()
 
   Node* node_to_cache = texture_input_->edges().first()->output()->parent();
 
+  // Set graph time
+  node_to_cache->set_time(time_to_cache);
+
   // Run this probe in another thread
   RenderPath path = RendererProbe::ProbeNode(node_to_cache, threads_.size(), time_to_cache);
 
@@ -287,6 +289,10 @@ void RendererProcessor::CacheNext()
   */
 }
 
+// FIXME: Test code only
+#include "node/output/viewer/viewer.h"
+// End test code
+
 void RendererProcessor::ThreadCallback()
 {
   cache_return_count_++;
@@ -294,6 +300,11 @@ void RendererProcessor::ThreadCallback()
   if (cache_return_count_ == threads_.size()) {
     // Threads are all done now, time to proceed
     caching_ = false;
+
+    // FIXME: Test code only
+    // Signal update to viewer
+    static_cast<ViewerOutput*>(texture_output()->edges().first()->input()->parent())->InvalidateCache(0, 0);
+    // End test code
 
     CacheNext();
   }

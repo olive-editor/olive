@@ -47,10 +47,10 @@ void NodeOutput::set_data_type(const NodeParam::DataType &type)
   }
 }
 
-const QVariant &NodeOutput::get_value(const rational& time)
+const QVariant &NodeOutput::get_value()
 {
   // Node::Process() should put the correct value in this output
-  parent()->Run(time);
+  parent()->Run();
 
   // The value should be have been set by this point
   return value_;

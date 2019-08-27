@@ -156,7 +156,7 @@ signals:
   void BlockRemoved(Block* block);
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:
   /**

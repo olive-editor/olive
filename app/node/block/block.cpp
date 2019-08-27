@@ -70,7 +70,7 @@ void Block::set_length(const rational &length)
 
 Block *Block::previous()
 {
-  return ValueToPtr<Block>(previous_input_->get_value(0));
+  return ValueToPtr<Block>(previous_input_->get_value());
 }
 
 Block *Block::next()
@@ -83,10 +83,8 @@ NodeInput *Block::previous_input()
   return previous_input_;
 }
 
-void Block::Process(const rational &time)
+void Block::Process()
 {
-  Q_UNUSED(time)
-
   // Simply set both output values as a pointer to this object
   block_output_->set_value(PtrToValue(this));
 }

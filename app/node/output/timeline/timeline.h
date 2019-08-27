@@ -46,7 +46,7 @@ public:
   NodeInput* track_input();
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:
   int GetTrackIndex(TrackOutput* track);

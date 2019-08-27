@@ -133,7 +133,7 @@ void TrackOutput::DestroyBlockWidgets()
 
 TrackOutput *TrackOutput::next_track()
 {
-  return ValueToPtr<TrackOutput>(track_input_->get_value(0));
+  return ValueToPtr<TrackOutput>(track_input_->get_value());
 }
 
 NodeInput *TrackOutput::track_input()
@@ -146,22 +146,22 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
-void TrackOutput::Process(const rational &time)
+void TrackOutput::Process()
 {
   // Run default node processing
-  Block::Process(time);
+  Block::Process();
 
   // Set track output correctly
   track_output_->set_value(PtrToValue(this));
 
-  ValidateCurrentBlock(time);
+  ValidateCurrentBlock(time());
 
   if (current_block_ == this) {
     // No texture is valid
     texture_output()->set_value(0);
   } else {
     // At this point, we must have found the correct block so we use its texture output to produce the image
-    texture_output()->set_value(current_block_->texture_output()->get_value(time));
+    texture_output()->set_value(current_block_->texture_output()->get_value());
   }
 }
 
@@ -181,7 +181,7 @@ void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 
 Block *TrackOutput::attached_block()
 {
-  return ValueToPtr<Block>(previous_input()->get_value(0));
+  return ValueToPtr<Block>(previous_input()->get_value());
 }
 
 void TrackOutput::PrependBlock(Block *block)

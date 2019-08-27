@@ -61,7 +61,7 @@ public:
    * In many cases for efficiency, the Node can also ignore this request if it knows the output data will not change
    * (i.e. if the time has not changed from the last Process()).
    */
-  virtual const QVariant& get_value(const rational &time);
+  virtual const QVariant& get_value();
 
   /**
    * @brief Set the current value of this output

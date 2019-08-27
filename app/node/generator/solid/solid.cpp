@@ -57,11 +57,9 @@ NodeOutput *SolidGenerator::texture_output()
   return texture_output_;
 }
 
-void SolidGenerator::Process(const rational &time)
+void SolidGenerator::Process()
 {
   // FIXME: Test code
-  Q_UNUSED(time)
-
   if (texture_ == nullptr) {
     QImage img(1920, 1080, QImage::Format_RGBA8888_Premultiplied);
     img.fill(Qt::red);

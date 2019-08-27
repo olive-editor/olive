@@ -49,7 +49,7 @@ public:
 
   void Detach();
 
-  const GLuint buffer() const;
+  const GLuint& buffer() const;
 
 private:
   QOpenGLContext* context_;

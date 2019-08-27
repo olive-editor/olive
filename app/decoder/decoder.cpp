@@ -93,8 +93,6 @@ bool Decoder::ProbeMedia(Footage *f)
 
     if (decoder->Probe(f)) {
 
-
-
       // We found a Decoder, so we can set this media as valid
       f->set_status(Footage::kReady);
 

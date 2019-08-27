@@ -25,7 +25,7 @@
 #include "common/qobjectlistcast.h"
 
 Node::Node() :
-  last_time_(-1)
+  last_process_time_(-1)
 {
 }
 
@@ -90,17 +90,16 @@ void Node::IgnoreCacheInvalidationFrom(NodeInput *input)
   ignore_invalid_cache_inputs_.append(input);
 }
 
-void Node::Run(const rational &time)
+void Node::Run()
 {
   lock_.lock();
 
-  if (last_time_ != time) {
+  if (last_process_time_ != time_) {
     // The results will be the same, so return here
-    Process(time);
+    Process();
 
-    last_time_ = time;
+    last_process_time_ = time_;
   }
-
 
   lock_.unlock();
 }
@@ -211,6 +210,23 @@ QList<Node *> Node::GetImmediateDependenciesAt(const rational &time)
   Q_UNUSED(time)
 
   return GetImmediateDependencies();
+}
+
+const rational &Node::time()
+{
+  return time_;
+}
+
+void Node::set_time(const rational &t)
+{
+  time_ = t;
+
+  QList<Node*> deps = GetImmediateDependencies();
+  foreach (Node* d, deps) {
+    d->set_time(time_);
+  }
+
+  emit TimeChanged(time_);
 }
 
 bool Node::OutputsTo(Node *n)

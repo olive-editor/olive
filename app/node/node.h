@@ -134,6 +134,9 @@ public:
    */
   virtual QList<Node*> GetImmediateDependenciesAt(const rational& time);
 
+  const rational& time();
+  virtual void set_time(const rational& t);
+
   /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
    */
@@ -196,12 +199,12 @@ protected:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual void Process(const rational& time) = 0;
+  virtual void Process() = 0;
 
 public slots:
 
 
-  void Run(const rational& time);
+  void Run();
 
 signals:
   /**
@@ -222,6 +225,11 @@ signals:
    */
   void EdgeRemoved(NodeEdgePtr edge);
 
+  /**
+   * @brief Signal emitted when the time is set through set_time()
+   */
+  void TimeChanged(const rational& t);
+
 private:
   /**
    * @brief Return whether a parameter with ID `id` has already been added to this Node
@@ -233,7 +241,8 @@ private:
    */
   QList<NodeInput*> ignore_invalid_cache_inputs_;
 
-  rational last_time_;
+  rational last_process_time_;
+  rational time_;
 
   QMutex lock_;
 };

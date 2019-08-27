@@ -42,7 +42,7 @@ public:
   NodeOutput* texture_output();
 
 protected:
-  virtual void Process(const rational &time) override;
+  virtual void Process() override;
 
 private:
   NodeInput* color_input_;

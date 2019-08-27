@@ -84,11 +84,10 @@ NodeOutput *MediaInput::texture_output()
 
 void MediaInput::SetFootage(Footage *f)
 {
-  // FIXME: Need some protection for Time == 0
-  footage_input_->set_value(0, PtrToValue(f));
+  footage_input_->set_value(PtrToValue(f));
 }
 
-void MediaInput::Process(const rational &time)
+void MediaInput::Process()
 {
   // Set default texture to no texture
   texture_output_->set_value(0);
@@ -102,7 +101,7 @@ void MediaInput::Process(const rational &time)
   }
 
   // Get currently selected Footage
-  Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(time));
+  Footage* footage = ValueToPtr<Footage>(footage_input_->get_value());
 
   // If no footage is selected, return nothing
   if (footage == nullptr) {
@@ -123,7 +122,7 @@ void MediaInput::Process(const rational &time)
   }
 
   // Get frame from Decoder
-  FramePtr frame = decoder_->Retrieve(time);
+  FramePtr frame = decoder_->Retrieve(time());
 
   if (frame == nullptr) {
     return;

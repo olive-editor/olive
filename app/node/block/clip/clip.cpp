@@ -20,6 +20,8 @@
 
 #include "clip.h"
 
+#include "node/processor/renderer/renderer.h"
+
 ClipBlock::ClipBlock()
 {
   texture_input_ = new NodeInput("tex_in");
@@ -65,17 +67,31 @@ NodeInput *ClipBlock::texture_input()
   return texture_input_;
 }
 
-void ClipBlock::Process(const rational &time)
+void ClipBlock::set_time(const rational &time)
 {
-  // Run default node processing
-  Block::Process(time);
+  Node::set_time(time);
 
-  // If the time retrieved is within this block, get texture information
-  if (time >= in() && time < out()) {
+  if (texture_input_->IsConnected()) {
     // We convert the time given (timeline time) to media time
     rational media_time = time - in() + media_in();
 
-    // Retrieve texture
-    texture_output()->set_value(texture_input_->get_value(media_time));
+    texture_input_->edges().first()->output()->parent()->set_time(media_time);
+  }
+}
+
+void ClipBlock::Process()
+{
+  // Run default node processing
+  Block::Process();
+
+  // Check if we have a renderer instance
+  if (RendererProcessor::CurrentInstance() != nullptr) {
+    // If the time retrieved is within this block, get texture information
+    if (time() >= in() && time() < out()) {
+      // Retrieve texture
+      texture_output()->set_value(texture_input_->get_value());
+    } else {
+      texture_output()->set_value(0);
+    }
   }
 }
