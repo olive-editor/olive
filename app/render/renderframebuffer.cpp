@@ -125,3 +125,8 @@ void RenderFramebuffer::Detach()
 
   texture_ = nullptr;
 }
+
+const GLuint &RenderFramebuffer::buffer() const
+{
+  return buffer_;
+}
