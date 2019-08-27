@@ -43,6 +43,8 @@ public:
                  const olive::PixelFormat& format,
                  const olive::RenderMode& mode);
 
+  void SetShareContext(QOpenGLContext* share);
+
   bool Start();
 
   void Stop();
@@ -53,6 +55,8 @@ public:
 
 private:
   QOpenGLContext ctx_;
+
+  QOpenGLContext* share_ctx_;
 
   QOffscreenSurface surface_;
 

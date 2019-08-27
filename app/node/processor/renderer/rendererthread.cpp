@@ -22,7 +22,8 @@
 
 #include <QDebug>
 
-RendererThread::RendererThread(const int &width, const int &height, const olive::PixelFormat &format, const olive::RenderMode &mode) :
+RendererThread::RendererThread(QOpenGLContext *share_ctx, const int &width, const int &height, const olive::PixelFormat &format, const olive::RenderMode &mode) :
+  share_ctx_(share_ctx),
   cancelled_(false),
   width_(width),
   height_(height),
@@ -79,6 +80,8 @@ void RendererThread::run()
 
   RenderInstance instance(width_, height_, format_, mode_);
   render_instance_ = &instance;
+
+  instance.SetShareContext(share_ctx_);
 
   // Allocate and create resources
   if (instance.Start()) {

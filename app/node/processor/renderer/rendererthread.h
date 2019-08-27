@@ -34,7 +34,8 @@ class RendererThread : public QThread
 {
   Q_OBJECT
 public:
-  RendererThread(const int& width,
+  RendererThread(QOpenGLContext* share_ctx,
+                 const int& width,
                  const int& height,
                  const olive::PixelFormat& format,
                  const olive::RenderMode& mode);
@@ -53,6 +54,8 @@ signals:
   void FinishedPath();
 
 private:
+  QOpenGLContext* share_ctx_;
+
   QWaitCondition wait_cond_;
 
   QMutex mutex_;

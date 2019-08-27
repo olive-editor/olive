@@ -26,6 +26,7 @@ RenderInstance::RenderInstance(const int& width,
                                const int& height,
                                const olive::PixelFormat& format,
                                const olive::RenderMode& mode) :
+  share_ctx_(nullptr),
   width_(width),
   height_(height),
   format_(format),
@@ -33,8 +34,20 @@ RenderInstance::RenderInstance(const int& width,
 {
 }
 
+void RenderInstance::SetShareContext(QOpenGLContext *share)
+{
+  Q_ASSERT(!IsStarted());
+
+  share_ctx_ = share;
+}
+
 bool RenderInstance::Start()
 {
+  // If we're sharing resources, set this up now
+  if (share_ctx_ != nullptr) {
+    ctx_.setShareContext(share_ctx_);
+  }
+
   // Create OpenGL context (automatically destroys any existing if there is one)
   if (!ctx_.create()) {
     qWarning() << tr("Failed to create OpenGL context in thread %1").arg(reinterpret_cast<quintptr>(this));

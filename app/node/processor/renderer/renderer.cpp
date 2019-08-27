@@ -192,7 +192,7 @@ void RendererProcessor::Start()
   threads_.resize(QThread::idealThreadCount());
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererThread>(width_, height_, format_, mode_);
+    threads_[i] = std::make_shared<RendererThread>(QOpenGLContext::currentContext(), width_, height_, format_, mode_);
     threads_[i]->StartThread(QThread::HighPriority);
 
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
