@@ -47,11 +47,15 @@ public:
 
   void Attach(RenderTexturePtr texture);
 
+  void AttachBackBuffer(RenderTexturePtr texture);
+
   void Detach();
 
   const GLuint& buffer() const;
 
 private:
+  void AttachInternal(GLuint tex);
+
   QOpenGLContext* context_;
 
   GLuint buffer_;

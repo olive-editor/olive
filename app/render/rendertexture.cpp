@@ -43,6 +43,11 @@ bool RenderTexture::IsCreated() const
 
 void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, void* data)
 {
+  Create(ctx, width, height, format, kSingleBuffer, data);
+}
+
+void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const RenderTexture::Type &type, void *data)
+{
   if (ctx == nullptr) {
     qWarning() << tr("RenderTexture::Create was passed an invalid context");
     return;
@@ -51,48 +56,27 @@ void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
   Destroy();
 
   context_ = ctx;
+  width_ = width;
+  height_ = height;
+  format_ = format;
 
-  QOpenGLFunctions* f = context_->functions();
+  // Create main texture
+  CreateInternal(data);
 
-  // Create texture
-  f->glGenTextures(1, &texture_);
-
-  // Verify texture
-  if (texture_ == 0) {
-    qWarning() << tr("OpenGL texture creation failed");
-    return;
+  if (type == kDoubleBuffer) {
+    // Create back texture
+    CreateInternal(nullptr);
   }
-
-  // Bind texture
-  f->glBindTexture(GL_TEXTURE_2D, texture_);
-
-  // Allocate storage for texture
-  const PixelFormatInfo& bit_depth = PixelService::GetPixelFormatInfo(format);
-
-  f->glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        bit_depth.internal_format,
-        width,
-        height,
-        0,
-        bit_depth.pixel_format,
-        bit_depth.pixel_type,
-        data
-        );
-
-  // Set texture filtering to bilinear
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // Release texture
-  f->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void RenderTexture::Destroy()
 {
   if (context_ != nullptr) {
     context_->functions()->glDeleteTextures(1, &texture_);
+    texture_ = 0;
+
+    context_->functions()->glDeleteTextures(1, &back_texture_);
+    back_texture_ = 0;
 
     context_ = nullptr;
   }
@@ -143,6 +127,18 @@ const GLuint &RenderTexture::texture() const
   return texture_;
 }
 
+const GLuint &RenderTexture::back_texture() const
+{
+  return back_texture_;
+}
+
+void RenderTexture::SwapFrontAndBack()
+{
+  GLuint temp = texture_;
+  texture_ = back_texture_;
+  back_texture_ = temp;
+}
+
 void RenderTexture::Upload(void *data)
 {
   if (!IsCreated()) {
@@ -177,4 +173,43 @@ void *RenderTexture::Download() const
   // FIXME: Implement this
 
   return nullptr;
+}
+
+void RenderTexture::CreateInternal(void *data)
+{
+  QOpenGLFunctions* f = context_->functions();
+
+  // Create texture
+  f->glGenTextures(1, &texture_);
+
+  // Verify texture
+  if (texture_ == 0) {
+    qWarning() << tr("OpenGL texture creation failed");
+    return;
+  }
+
+  // Bind texture
+  f->glBindTexture(GL_TEXTURE_2D, texture_);
+
+  // Allocate storage for texture
+  const PixelFormatInfo& bit_depth = PixelService::GetPixelFormatInfo(format_);
+
+  f->glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        bit_depth.internal_format,
+        width_,
+        height_,
+        0,
+        bit_depth.pixel_format,
+        bit_depth.pixel_type,
+        data
+        );
+
+  // Set texture filtering to bilinear
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Release texture
+  f->glBindTexture(GL_TEXTURE_2D, 0);
 }

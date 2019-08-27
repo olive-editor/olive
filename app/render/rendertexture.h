@@ -1,4 +1,4 @@
-/***
+﻿/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -29,6 +29,11 @@
 class RenderTexture : public QObject
 {
 public:
+  enum Type {
+    kSingleBuffer,
+    kDoubleBuffer
+  };
+
   RenderTexture();
   ~RenderTexture();
   RenderTexture(const RenderTexture& other) = delete;
@@ -37,6 +42,7 @@ public:
   RenderTexture& operator=(RenderTexture&& other) = delete;
 
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, void *data = nullptr);
+  void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const Type& type, void *data = nullptr);
 
   bool IsCreated() const;
 
@@ -55,15 +61,21 @@ public:
   QOpenGLContext* context() const;
 
   const GLuint& texture() const;
+  const GLuint& back_texture() const;
+  void SwapFrontAndBack();
 
   void Upload(void* data);
 
   void* Download() const;
 
 private:
+  void CreateInternal(void *data = nullptr);
+
   QOpenGLContext* context_;
 
   GLuint texture_;
+
+  GLuint back_texture_;
 
   int width_;
 
