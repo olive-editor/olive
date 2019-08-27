@@ -18,52 +18,25 @@
 
 ***/
 
-#include "output.h"
+#include "dependency.h"
 
-#include "node/node.h"
-
-NodeOutput::NodeOutput(const QString &id) :
-  NodeParam(id)
+NodeDependency::NodeDependency() :
+  node_(nullptr)
 {
 }
 
-NodeParam::Type NodeOutput::type()
+NodeDependency::NodeDependency(NodeOutput *node, const rational &time) :
+  node_(node),
+  time_(time)
 {
-  return kOutput;
 }
 
-const NodeParam::DataType &NodeOutput::data_type()
+NodeOutput *NodeDependency::node() const
 {
-  return data_type_;
+  return node_;
 }
 
-void NodeOutput::set_data_type(const NodeParam::DataType &type)
+const rational& NodeDependency::time() const
 {
-  data_type_ = type;
-
-  // If no name has been set, use a default name
-  if (name().isEmpty()) {
-    set_name(GetDefaultDataTypeName(type));
-  }
+  return time_;
 }
-
-QVariant NodeOutput::get_value(const rational& time)
-{
-  QVariant v;
-
-  lock_.lock();
-
-  if (time_ != time) {
-    // Update the value
-    value_ = parent()->Run(this, time);
-
-    time_ = time;
-  }
-
-  v = value_;
-
-  lock_.unlock();
-
-  return v;
-}
-

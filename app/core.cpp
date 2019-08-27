@@ -327,6 +327,7 @@ void Core::AddOpenProject(ProjectPtr p)
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<Task::Status>("Task::Status");
+  qRegisterMetaType<NodeDependency>();
 }
 
 void Core::StartGUI(bool full_screen)

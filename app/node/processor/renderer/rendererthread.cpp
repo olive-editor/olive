@@ -33,14 +33,17 @@ RendererThread::RendererThread(QOpenGLContext *share_ctx, const int &width, cons
 {
 }
 
-void RendererThread::Queue(const RenderThreadPath &path, const rational& time)
+bool RendererThread::Queue(const NodeDependency& dep, bool wait)
 {
-  // Wait for thread to be available
-  mutex_.lock();
+  if (wait) {
+    // Wait for thread to be available
+    mutex_.lock();
+  } else if (!mutex_.tryLock()) {
+    return false;
+  }
 
   // We can now change params without the other thread using them
-  path_ = path;
-  time_ = time;
+  path_ = dep;
 
   // Prepare to wait for thread to respond
   caller_mutex_.lock();
@@ -52,6 +55,8 @@ void RendererThread::Queue(const RenderThreadPath &path, const rational& time)
   // Wait for thread to start before returning
   wait_cond_.wait(&caller_mutex_);
   caller_mutex_.unlock();
+
+  return true;
 }
 
 void RendererThread::Cancel()
@@ -97,9 +102,20 @@ void RendererThread::run()
       caller_mutex_.unlock();
 
       // Process the Node
-      /*for (int i=path_.size()-1;i>=0;i--) {
-        path_.at(i)->Run();
-      }*/
+      NodeOutput* output_to_process = path_.node();
+      Node* node_to_process = output_to_process->parent();
+
+      QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
+
+      // Ask for other threads to run these deps while we're here
+      if (!deps.isEmpty()) {
+        for (int i=1;i<deps.size();i++) {
+          emit RequestSibling(deps.at(i));
+        }
+      }
+
+      // Get the requested value
+      output_to_process->get_value(path_.time());
 
       emit FinishedPath();
     }
@@ -115,8 +131,6 @@ void RendererThread::run()
 
 void RendererThread::StartThread(QThread::Priority priority)
 {
-  path_.clear();
-
   caller_mutex_.lock();
 
   // Start the thread

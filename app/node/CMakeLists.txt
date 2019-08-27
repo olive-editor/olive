@@ -23,6 +23,8 @@ add_subdirectory(processor)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/dependency.h
+  node/dependency.cpp
   node/edge.h
   node/edge.cpp
   node/graph.h

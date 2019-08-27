@@ -107,7 +107,7 @@ QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rat
     ValidateCurrentBlock(time);
 
     if (current_block_ != this) {
-      deps.append(NodeDependency(current_block_, time));
+      deps.append(NodeDependency(current_block_->texture_output(), time));
     }
   }
 

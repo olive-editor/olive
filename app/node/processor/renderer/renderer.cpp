@@ -27,9 +27,6 @@
 #include <QImage>
 #include <QtMath>
 
-#include "renderpath.h"
-#include "rendererprobe.h"
-
 RendererProcessor::RendererProcessor() :
   started_(false),
   width_(0),
@@ -208,6 +205,7 @@ void RendererProcessor::Start()
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
     // other threads
     connect(threads_[i].get(), SIGNAL(FinishedPath()), this, SLOT(ThreadCallback()), Qt::QueuedConnection);
+    connect(threads_[i].get(), SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestSibling(NodeDependency)), Qt::QueuedConnection);
   }
 
   started_ = true;
@@ -259,44 +257,11 @@ void RendererProcessor::CacheNext()
 
   qDebug() << "Caching" << time_to_cache.toDouble();
 
-  Node* node_to_cache = texture_input_->edges().first()->output()->parent();
-
-  // Set graph time
-  //node_to_cache->set_time(time_to_cache);
-
   // Run this probe in another thread
-  RenderPath path = RendererProbe::ProbeNode(node_to_cache, threads_.size(), time_to_cache);
-
-  cache_return_count_ = 0;
-
-  for (int i=0;i<threads_.size();i++) {
-    threads_.at(i)->Queue(path.GetThreadPath(i), time_to_cache);
-  }
+  master_thread_ = threads_.at(0).get();
+  master_thread_->Queue(NodeDependency(texture_input_->get_connected_output(), time_to_cache), true);
 
   caching_ = true;
-
-  /*
-
-
-  bool caching = false;
-
-  // Look for a thread that's available
-  for (int i=0;i<threads_.size();i++) {
-    RendererThreadPtr thread = threads_.at(i);
-
-    if (thread->Queue(node_to_cache, time_to_cache)) {
-      // This thread is free and we've just taken control of it
-      caching = true;
-      break;
-    }
-  }
-
-  if (caching) {
-    cache_queue_.removeFirst();
-
-    qDebug() << "[RendererProcessor] Ready to cache" << time_to_cache.numerator() << "/" << time_to_cache.denominator();
-  }
-  */
 }
 
 // FIXME: Test code only
@@ -305,18 +270,23 @@ void RendererProcessor::CacheNext()
 
 void RendererProcessor::ThreadCallback()
 {
-  cache_return_count_++;
-
-  if (cache_return_count_ == threads_.size()) {
+  if (sender() == master_thread_) {
     // Threads are all done now, time to proceed
     caching_ = false;
 
-    // FIXME: Test code only
-    // Signal update to viewer
-    static_cast<ViewerOutput*>(texture_output()->edges().first()->input()->parent())->InvalidateCache(0, 0);
-    // End test code
+    // FIXME: Save the texture results here
 
     CacheNext();
+  }
+}
+
+void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
+{
+  // Try to queue another thread to run this dep in advance
+  for (int i=0;i<threads_.size();i++) {
+    if (threads_.at(i)->Queue(dep, false)) {
+      return;
+    }
   }
 }
 

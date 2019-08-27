@@ -25,20 +25,9 @@
 #include <QObject>
 
 #include "common/rational.h"
+#include "node/dependency.h"
 #include "node/input.h"
 #include "node/output.h"
-
-class NodeDependency {
-public:
-  NodeDependency(Node* node, const rational& time);
-
-  Node* node();
-  rational time();
-
-private:
-  Node* node_;
-  rational time_;
-};
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems

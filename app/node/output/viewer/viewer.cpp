@@ -20,8 +20,6 @@
 
 #include "viewer.h"
 
-#include "render/rendertexture.h"
-
 ViewerOutput::ViewerOutput() :
   attached_viewer_(nullptr)
 {
@@ -83,9 +81,15 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range)
 {
   // Update any attached viewer
-  ViewerTimeChanged(current_time_);
+  UpdateViewer();
 
   Node::InvalidateCache(start_range, end_range);
+}
+
+void ViewerOutput::UpdateViewer()
+{
+  texture_input_->ClearCachedValue();
+  ViewerTimeChanged(current_time_);
 }
 
 QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)

@@ -90,3 +90,28 @@ RenderFramebuffer *RenderInstance::buffer()
 {
   return &buffer_;
 }
+
+QOpenGLContext *RenderInstance::context()
+{
+  return &ctx_;
+}
+
+const int &RenderInstance::width() const
+{
+  return width_;
+}
+
+const int &RenderInstance::height() const
+{
+  return height_;
+}
+
+const olive::PixelFormat &RenderInstance::format() const
+{
+  return format_;
+}
+
+const olive::RenderMode &RenderInstance::mode() const
+{
+  return mode_;
+}

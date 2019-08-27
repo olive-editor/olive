@@ -16,12 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/processor/renderer/renderpath.h
-  node/processor/renderer/renderpath.cpp
   node/processor/renderer/renderer.h
   node/processor/renderer/renderer.cpp
-  node/processor/renderer/rendererprobe.h
-  node/processor/renderer/rendererprobe.cpp
   node/processor/renderer/rendererthread.h
   node/processor/renderer/rendererthread.cpp
   PARENT_SCOPE

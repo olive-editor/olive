@@ -149,10 +149,12 @@ private:
   qint64 cache_time_;
   QString cache_id_;
   bool caching_;
-  int cache_return_count_;
+  RendererThread* master_thread_;
 
 private slots:
   void ThreadCallback();
+
+  void ThreadRequestSibling(NodeDependency dep);
 
 };
 

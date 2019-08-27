@@ -53,6 +53,16 @@ public:
 
   RenderFramebuffer* buffer();
 
+  QOpenGLContext* context();
+
+  const int& width() const;
+
+  const int& height() const;
+
+  const olive::PixelFormat& format() const;
+
+  const olive::RenderMode& mode() const;
+
 private:
   QOpenGLContext ctx_;
 

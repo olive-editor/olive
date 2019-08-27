@@ -28,7 +28,6 @@
 
 #include "node/node.h"
 #include "render/renderinstance.h"
-#include "renderpath.h"
 
 class RendererThread : public QThread
 {
@@ -40,7 +39,7 @@ public:
                  const olive::PixelFormat& format,
                  const olive::RenderMode& mode);
 
-  void Queue(const RenderThreadPath& path, const rational &time);
+  bool Queue(const NodeDependency &dep, bool wait);
 
   void Cancel();
 
@@ -51,6 +50,8 @@ public:
   void StartThread(Priority priority = InheritPriority);
 
 signals:
+  void RequestSibling(NodeDependency dep);
+
   void FinishedPath();
 
 private:
@@ -62,7 +63,7 @@ private:
 
   QMutex caller_mutex_;
 
-  RenderThreadPath path_;
+  NodeDependency path_;
 
   rational time_;
 

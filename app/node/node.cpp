@@ -232,11 +232,18 @@ QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &
 {
   Q_UNUSED(output)
 
-  QList<Node*> immediate_deps = GetImmediateDependencies();
+  QList<NodeParam*> params = parameters();
   QList<NodeDependency> run_deps;
 
-  foreach (Node* dep, immediate_deps) {
-    run_deps.append(NodeDependency(dep, time));
+  foreach (NodeParam* p, params) {
+    if (p->type() == NodeParam::kInput) {
+      NodeOutput* potential_dep = static_cast<NodeInput*>(p)->get_connected_output();
+
+      if (potential_dep != nullptr) {
+        run_deps.append(NodeDependency(potential_dep, time));
+      }
+    }
+
   }
 
   return run_deps;
@@ -279,20 +286,4 @@ bool Node::HasParamWithID(const QString &id)
   }
 
   return false;
-}
-
-NodeDependency::NodeDependency(Node *node, const rational &time) :
-  node_(node),
-  time_(time)
-{
-}
-
-Node *NodeDependency::node()
-{
-  return node_;
-}
-
-rational NodeDependency::time()
-{
-  return time_;
 }

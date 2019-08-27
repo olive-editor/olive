@@ -21,6 +21,7 @@
 #ifndef NODEPARAM_H
 #define NODEPARAM_H
 
+#include <QMutex>
 #include <QObject>
 #include <QVariant>
 #include <QVector>
@@ -202,6 +203,11 @@ public:
    */
   static QString GetDefaultDataTypeName(const DataType &type);
 
+  /**
+   * @brief Clear the cached value
+   */
+  void ClearCachedValue();
+
 signals:
   /**
    * @brief Signal emitted when an edge is added to this parameter
@@ -224,6 +230,21 @@ protected:
    * @brief Internal list of edges
    */
   QVector<NodeEdgePtr> edges_;
+
+  /**
+   * @brief Used for thread safety
+   */
+  QMutex lock_;
+
+  /**
+   * @brief Currently cached value
+   */
+  QVariant value_;
+
+  /**
+   * @brief Last timecode that a value was requested with
+   */
+  rational time_;
 
 private:
   /**

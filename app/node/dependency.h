@@ -18,22 +18,27 @@
 
 ***/
 
-#ifndef RENDERERPROBE_H
-#define RENDERERPROBE_H
+#ifndef NODEDEPENDENCY_H
+#define NODEDEPENDENCY_H
 
-#include "node/node.h"
-#include "renderpath.h"
+#include <QMetaType>
 
-class RendererProbe
-{
+#include "common/rational.h"
+#include "node/output.h"
+
+class NodeDependency {
 public:
-  RendererProbe();
+  NodeDependency();
+  NodeDependency(NodeOutput* node, const rational& time);
 
-  static RenderPath ProbeNode(Node* node, int thread_count, const rational &time);
+  NodeOutput* node() const;
+  const rational& time() const;
 
 private:
-  static void TraverseNode(RenderPath& path, Node* node, const rational& time, int thread, int index);
-
+  NodeOutput* node_;
+  rational time_;
 };
 
-#endif // RENDERERPROBE_H
+Q_DECLARE_METATYPE(NodeDependency)
+
+#endif // NODEDEPENDENCY_H

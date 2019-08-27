@@ -27,6 +27,7 @@
 #include "node/output.h"
 
 NodeParam::NodeParam(const QString &id) :
+  time_(-1),
   id_(id)
 {
   Q_ASSERT(!id_.isEmpty());
@@ -151,6 +152,8 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
   output->edges_.append(edge);
   input->edges_.append(edge);
 
+  input->ClearCachedValue();
+
   // Emit a signal than an edge was added (only one signal needs emitting)
   emit input->EdgeAdded(edge);
 
@@ -164,6 +167,8 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
 
   output->edges_.removeAll(edge);
   input->edges_.removeAll(edge);
+
+  input->ClearCachedValue();
 
   emit input->EdgeRemoved(edge);
 }
@@ -213,4 +218,11 @@ QString NodeParam::GetDefaultDataTypeName(const DataType& type)
   }
 
   return QString();
+}
+
+void NodeParam::ClearCachedValue()
+{
+  // Since get_value() will (read: should) never receive a negative number, this will effectively invalidate any value
+  // currently cached
+  time_ = -1;
 }

@@ -23,6 +23,7 @@
 
 #include "node/node.h"
 #include "panel/viewer/viewer.h"
+#include "render/rendertexture.h"
 
 /**
  * @brief A bridge between a node system and a ViewerPanel

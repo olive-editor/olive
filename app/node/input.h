@@ -55,6 +55,24 @@ public:
   bool can_accept_type(const DataType& data_type);
 
   /**
+   * @brief If this input is connected to an output, retrieve the output parameter
+   *
+   * @return
+   *
+   * The output parameter if connected or nullptr if not
+   */
+  NodeOutput* get_connected_output();
+
+  /**
+   * @brief If this input is connected to an output, retrieve the Node whose output is connected
+   *
+   * @return
+   *
+   * The connected Node if connected or nullptr if not
+   */
+  Node* get_connected_node();
+
+  /**
    * @brief Get the value at a given time
    *
    * This function will automatically retrieve the correct value for this input at the given time.
@@ -108,16 +126,6 @@ private:
    * one entry which will be used, and its time value will be ignored.
    */
   QList<NodeKeyframe> keyframes_;
-
-  /**
-   * @brief Currently cached value
-   */
-  QVariant value_;
-
-  /**
-   * @brief Last timecode that a value was requested with
-   */
-  rational time_;
 
   /**
    * @brief Internal keyframing enabled setting

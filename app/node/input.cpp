@@ -24,7 +24,6 @@
 
 NodeInput::NodeInput(const QString& id) :
   NodeParam(id),
-  time_(-1),
   keyframing_(false)
 {
   // Have at least one keyframe/value active at any time
@@ -51,23 +50,51 @@ bool NodeInput::can_accept_type(const NodeParam::DataType &data_type)
   return AreDataTypesCompatible(data_type, inputs_);
 }
 
+NodeOutput *NodeInput::get_connected_output()
+{
+  if (!edges_.isEmpty()) {
+    return edges_.first()->output();
+  }
+
+  return nullptr;
+}
+
+Node *NodeInput::get_connected_node()
+{
+  NodeOutput* output = get_connected_output();
+
+  if (output != nullptr) {
+    return output->parent();
+  }
+
+  return nullptr;
+}
+
 QVariant NodeInput::get_value(const rational& time)
 {
+  QVariant v;
+
+  lock_.lock();
+
   if (time_ != time) {
     // Retrieve the value
     if (!edges_.isEmpty()) {
-      // One connection - use the output of the connected Node
+      // A connection - use the output of the connected Node
       value_ = edges_.first()->output()->get_value(time);
+    } else {
+      // No connections - use the internal value
+      // FIXME: Re-implement keyframing
+      value_ = keyframes_.first().value();
     }
-
-    // No connections - use the internal value
-    // FIXME: Re-implement keyframing
-    value_ = keyframes_.first().value();
 
     time_ = time;
   }
 
-  return value_;
+  v = value_;
+
+  lock_.unlock();
+
+  return v;
 }
 
 void NodeInput::set_value(const QVariant &value)
