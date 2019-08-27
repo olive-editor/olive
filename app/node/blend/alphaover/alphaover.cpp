@@ -1,6 +1,6 @@
 #include "alphaover.h"
 
-#include "render/rendertypes.h"
+#include "render/rendertexture.h"
 
 AlphaOverBlend::AlphaOverBlend()
 {
@@ -35,5 +35,5 @@ void AlphaOverBlend::Process(const rational &time)
   //GLuint base_tex = base_input_->get_value(time).value<GLuint>();
 
   // FIXME: Does nothing
-  texture_output()->set_value(blend_input()->get_value(time).value<RenderTexture>());
+  texture_output()->set_value(QVariant::fromValue(blend_input()->get_value(time).value<RenderTexturePtr>()));
 }

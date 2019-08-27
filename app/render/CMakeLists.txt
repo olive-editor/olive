@@ -27,9 +27,10 @@ set(OLIVE_SOURCES
   render/renderinstance.h
   render/renderinstance.cpp
   render/rendermodes.h
-  render/rendertypes.h
+  render/renderframebuffer.h
+  render/renderframebuffer.cpp
+  render/rendertexture.h
+  render/rendertexture.cpp
   render/sampleformat.h
-  render/texturebuffer.h
-  render/texturebuffer.cpp
   PARENT_SCOPE
 )

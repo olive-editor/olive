@@ -72,7 +72,7 @@ QString MediaInput::Description()
 
 void MediaInput::Release()
 {
-  buffer_.Destroy();
+  texture_.Destroy();
 
   decoder_ = nullptr;
 }

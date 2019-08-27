@@ -25,9 +25,8 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
+#include "render/renderframebuffer.h"
 #include "render/rendermodes.h"
-#include "render/rendertypes.h"
-#include "render/texturebuffer.h"
 
 /**
  * @brief An object containing all resources necessary for each thread to support hardware accelerated rendering
@@ -50,14 +49,14 @@ public:
 
   bool IsStarted();
 
-  TextureBuffer* buffer();
+  RenderFramebuffer* buffer();
 
 private:
   QOpenGLContext ctx_;
 
   QOffscreenSurface surface_;
 
-  TextureBuffer buffer_;
+  RenderFramebuffer buffer_;
 
   int width_;
 

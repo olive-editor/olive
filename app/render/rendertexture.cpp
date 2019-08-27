@@ -1,0 +1,180 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
+#include "rendertexture.h"
+
+#include <QDebug>
+
+#include "render/pixelservice.h"
+
+RenderTexture::RenderTexture() :
+  context_(nullptr),
+  texture_(0)
+{
+
+}
+
+RenderTexture::~RenderTexture()
+{
+  Destroy();
+}
+
+bool RenderTexture::IsCreated() const
+{
+  return (texture_ != 0);
+}
+
+void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, void* data)
+{
+  if (ctx == nullptr) {
+    qWarning() << tr("RenderTexture::Create was passed an invalid context");
+    return;
+  }
+
+  Destroy();
+
+  context_ = ctx;
+
+  QOpenGLFunctions* f = context_->functions();
+
+  // Create texture
+  f->glGenTextures(1, &texture_);
+
+  // Verify texture
+  if (texture_ == 0) {
+    qWarning() << tr("OpenGL texture creation failed");
+    return;
+  }
+
+  // Bind texture
+  f->glBindTexture(GL_TEXTURE_2D, texture_);
+
+  // Allocate storage for texture
+  const PixelFormatInfo& bit_depth = PixelService::GetPixelFormatInfo(format);
+
+  f->glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        bit_depth.internal_format,
+        width,
+        height,
+        0,
+        bit_depth.pixel_format,
+        bit_depth.pixel_type,
+        data
+        );
+
+  // Set texture filtering to bilinear
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Release texture
+  f->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void RenderTexture::Destroy()
+{
+  if (context_ != nullptr) {
+    context_->functions()->glDeleteTextures(1, &texture_);
+
+    context_ = nullptr;
+  }
+}
+
+void RenderTexture::Bind()
+{
+  if (context_ == nullptr) {
+    qWarning() << "RenderTexture::Bind() called with an invalid context";
+    return;
+  }
+
+  context_->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
+}
+
+void RenderTexture::Release()
+{
+  if (context_ == nullptr) {
+    qWarning() << "RenderTexture::Release() called with an invalid context";
+    return;
+  }
+
+  context_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+const int &RenderTexture::width() const
+{
+  return width_;
+}
+
+const int &RenderTexture::height() const
+{
+  return height_;
+}
+
+const olive::PixelFormat &RenderTexture::format() const
+{
+  return format_;
+}
+
+QOpenGLContext *RenderTexture::context() const
+{
+  return context_;
+}
+
+const GLuint &RenderTexture::texture() const
+{
+  return texture_;
+}
+
+void RenderTexture::Upload(void *data)
+{
+  if (!IsCreated()) {
+    qWarning() << tr("RenderTexture::Upload() called while it wasn't created");
+    return;
+  }
+
+  Bind();
+
+  PixelFormatInfo info = PixelService::GetPixelFormatInfo(format_);
+
+  context_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
+                                         0,
+                                         0,
+                                         0,
+                                         width_,
+                                         height_,
+                                         info.pixel_format,
+                                         info.pixel_type,
+                                         data);
+
+  Release();
+}
+
+void *RenderTexture::Download() const
+{
+  if (!IsCreated()) {
+    qWarning() << tr("RenderTexture::Download() called while it wasn't created");
+    return nullptr;
+  }
+
+  // FIXME: Implement this
+
+  return nullptr;
+}

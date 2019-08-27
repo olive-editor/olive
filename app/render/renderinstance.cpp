@@ -51,7 +51,7 @@ bool RenderInstance::Start()
     return false;
   }
 
-  buffer_.Create(&ctx_, format_, width_, height_);
+  buffer_.Create(&ctx_);
 
   return true;
 }
@@ -73,7 +73,7 @@ bool RenderInstance::IsStarted()
   return buffer_.IsCreated();
 }
 
-TextureBuffer *RenderInstance::buffer()
+RenderFramebuffer *RenderInstance::buffer()
 {
   return &buffer_;
 }

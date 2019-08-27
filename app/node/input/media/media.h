@@ -28,7 +28,7 @@
 #include "render/colorservice.h"
 
 // FIXME: Test code only
-#include "render/texturebuffer.h"
+#include "render/rendertexture.h"
 #include "render/gl/shaderptr.h"
 // End test code
 
@@ -65,7 +65,7 @@ private:
 
   NodeOutput* texture_output_;
 
-  TextureBuffer buffer_;
+  RenderTexture texture_;
 
   DecoderPtr decoder_;
 

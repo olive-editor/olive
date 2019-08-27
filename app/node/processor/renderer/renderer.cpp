@@ -26,7 +26,6 @@
 #include <QImage>
 #include <QtMath>
 
-#include "render/rendertypes.h"
 #include "renderpath.h"
 #include "rendererprobe.h"
 
