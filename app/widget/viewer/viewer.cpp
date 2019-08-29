@@ -24,17 +24,24 @@
 #include <QResizeEvent>
 #include <QVBoxLayout>
 
+#include "viewersizer.h"
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setSpacing(0);
   layout->setMargin(0);
 
   // Create main OpenGL-based view
+  ViewerSizer* sizer = new ViewerSizer(this);
+  layout->addWidget(sizer);
+
   gl_widget_ = new ViewerGLWidget(this);
-  layout->addWidget(gl_widget_);
+  sizer->SetWidget(gl_widget_);
+
+  // FIXME: Hardcoded values
+  sizer->SetSize(1920, 1080);
 
   // Create time ruler
   ruler_ = new TimeRuler(false, this);

@@ -23,6 +23,15 @@
 
 #include <QWidget>
 
+/**
+ * @brief A container widget that enforces the aspect ratio of a child widget
+ *
+ * Using a provided width and height, this widget calculates the aspect ratio and forces the child widget to stay
+ * confined to that aspect ratio and centered within the widget.
+ *
+ * The aspect ratio is calculated width divided by height. If the aspect ratio is zero (either width or height == 0),
+ * the widget is hidden until a valid size is provided.
+ */
 class ViewerSizer : public QWidget
 {
   Q_OBJECT
@@ -32,22 +41,40 @@ public:
   /**
    * @brief Set the widget to be adjusted by this widget
    *
-   * ViewerSizer takes ownership of this widget
+   * ViewerSizer takes ownership of this widget. If a widget was previously set, it is destroyed.
    */
   void SetWidget(QWidget* widget);
 
+  /**
+   * @brief Set resolution to use
+   *
+   * This is not the actual resolution of the viewer, it's used to calculate the aspect ratio
+   */
+  void SetChildSize(int width, int height);
+
 protected:
+  /**
+   * @brief Listen for resize events to ensure the child widget remains correctly sized
+   */
   virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
+  /**
+   * @brief Main sizing function, resizes widget_ to fit aspect_ratio_ (or hides if aspect ratio is 0)
+   */
   void UpdateSize();
 
+  /**
+   * @brief Reference to widget
+   *
+   * If this is nullptr, all sizing operations are no-ops
+   */
   QWidget* widget_;
 
+  /**
+   * @brief Aspect ratio calculated from the size provided by SetChildSize()
+   */
   double aspect_ratio_;
-
-private slots:
-  void SizeChangedSlot(int width, int height);
 
 };
 
