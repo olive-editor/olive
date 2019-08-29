@@ -21,6 +21,7 @@
 #include "functions.h"
 
 #include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
@@ -113,4 +114,29 @@ void olive::gl::Blit(ShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   func->glDrawArrays(GL_TRIANGLES, 0, 6);
 
   pipeline->release();
+}
+
+void olive::gl::OCIOBlit(ShaderPtr pipeline,
+                         GLuint lut,
+                         bool flipped,
+                         QMatrix4x4 matrix)
+{
+  QOpenGLContext* ctx = QOpenGLContext::currentContext();
+  QOpenGLExtraFunctions* xf = ctx->extraFunctions();
+
+  xf->glActiveTexture(GL_TEXTURE2);
+  xf->glBindTexture(GL_TEXTURE_3D, lut);
+  xf->glActiveTexture(GL_TEXTURE0);
+
+  pipeline->bind();
+
+  pipeline->setUniformValue("tex2", 2);
+
+  olive::gl::Blit(pipeline, flipped, matrix);
+
+  pipeline->release();
+
+  xf->glActiveTexture(GL_TEXTURE2);
+  xf->glBindTexture(GL_TEXTURE_3D, 0);
+  xf->glActiveTexture(GL_TEXTURE0);
 }

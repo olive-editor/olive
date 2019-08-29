@@ -45,6 +45,8 @@ namespace gl {
  */
 void Blit(ShaderPtr pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
+void OCIOBlit(ShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+
 }
 }
 

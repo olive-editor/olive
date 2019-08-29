@@ -206,15 +206,13 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 
       // Use an OCIO pipeline shader (which wraps in a default pipeline and will also handle alpha association)
       if (pipeline_ == nullptr) {
-        /*pipeline_ = olive::ShaderGenerator::OCIOPipeline(renderer->context(),
+        pipeline_ = olive::ShaderGenerator::OCIOPipeline(renderer->context(),
                                                          ocio_texture_, // FIXME: A raw GLuint texture, should wrap this up
                                                          color_service_->GetProcessor(),
                                                          alpha_is_associated);
 
         // Used for cleanup later
-        ocio_ctx_ = renderer->context();*/
-
-        pipeline_ = olive::ShaderGenerator::DefaultPipeline();
+        ocio_ctx_ = renderer->context();
       }
     } else if (pipeline_ == nullptr) {
       // In online, the color transformation was performed on the CPU (see above), so we only need to blit
@@ -232,8 +230,12 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     internal_tex_.Bind();
 
     // Use pipeline to blit using transformation matrix from input
-    QMatrix4x4 m;
-    olive::gl::Blit(pipeline_, false);
+    QMatrix4x4 transform;
+    if (renderer->mode() == olive::RenderMode::kOffline) {
+      olive::gl::OCIOBlit(pipeline_, ocio_texture_, false, transform);
+    } else {
+      olive::gl::Blit(pipeline_, false, transform);
+    }
 
     // Release everything
     internal_tex_.Release();
