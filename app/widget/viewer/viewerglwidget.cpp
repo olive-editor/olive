@@ -29,8 +29,11 @@
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
-  texture_(0)
+  texture_(0),
+  ocio_lut_(0)
 {
+  // FIXME: Hardcoded values for testing
+  color_service_ = ColorService::Create(OCIO::ROLE_SCENE_LINEAR, "srgb");
 }
 
 void ViewerGLWidget::SetTexture(GLuint tex)
@@ -45,7 +48,12 @@ void ViewerGLWidget::SetTexture(GLuint tex)
 void ViewerGLWidget::initializeGL()
 {
   // Re-retrieve pipeline pertaining to this context
-  pipeline_ = olive::ShaderGenerator::DefaultPipeline();
+  pipeline_ = olive::ShaderGenerator::OCIOPipeline(context(),
+                                                   ocio_lut_,
+                                                   color_service_->GetProcessor(),
+                                                   true);
+
+  connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(ContextCleanup()), Qt::DirectConnection);
 }
 
 void ViewerGLWidget::paintGL()
@@ -63,9 +71,23 @@ void ViewerGLWidget::paintGL()
     f->glBindTexture(GL_TEXTURE_2D, texture_);
 
     // Blit using the pipeline retrieved in initializeGL()
-    olive::gl::Blit(pipeline_, true);
+    olive::gl::OCIOBlit(pipeline_, ocio_lut_, true);
 
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);
   }
+}
+
+void ViewerGLWidget::ContextCleanup()
+{
+  makeCurrent();
+
+  if (ocio_lut_ != 0) {
+    context()->functions()->glDeleteTextures(1, &ocio_lut_);
+    ocio_lut_ = 0;
+  }
+
+  pipeline_ = nullptr;
+
+  doneCurrent();
 }

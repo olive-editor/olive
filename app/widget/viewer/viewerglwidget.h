@@ -23,6 +23,7 @@
 
 #include <QOpenGLWidget>
 
+#include "render/colorservice.h"
 #include "render/gl/shaderptr.h"
 
 /**
@@ -42,6 +43,7 @@
  */
 class ViewerGLWidget : public QOpenGLWidget
 {
+  Q_OBJECT
 public:
   /**
    * @brief ViewerGLWidget Constructor
@@ -88,6 +90,19 @@ private:
    * Retrieved every initializeGL() in order to stay up to date when new contexts are generated.
    */
   ShaderPtr pipeline_;
+
+  /**
+   * @brief OCIO LUT texture used for conversions
+   */
+  GLuint ocio_lut_;
+
+  /**
+   * @brief Color management service
+   */
+  ColorServicePtr color_service_;
+
+private slots:
+  void ContextCleanup();
 };
 
 #endif // VIEWERGLWIDGET_H

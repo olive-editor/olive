@@ -33,6 +33,7 @@
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
+#include "render/colorservice.h"
 #include "task/import/import.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
@@ -359,7 +360,8 @@ void Core::StartGUI(bool full_screen)
   // When a new project is opened, update the mainwindow
   connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
 
-
+  // Initialize color service
+  ColorService::Init();
 }
 
 Project *Core::GetActiveProject()
