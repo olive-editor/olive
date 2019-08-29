@@ -20,5 +20,7 @@ set(OLIVE_SOURCES
   widget/viewer/viewer.cpp
   widget/viewer/viewerglwidget.h
   widget/viewer/viewerglwidget.cpp
+  widget/viewer/viewersizer.h
+  widget/viewer/viewersizer.cpp
   PARENT_SCOPE
 )
