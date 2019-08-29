@@ -43,6 +43,10 @@ void RenderInstance::SetShareContext(QOpenGLContext *share)
 
 bool RenderInstance::Start()
 {
+  if (IsStarted()) {
+    return true;
+  }
+
   // If we're sharing resources, set this up now
   if (share_ctx_ != nullptr) {
     ctx_.setShareContext(share_ctx_);

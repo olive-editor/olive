@@ -26,6 +26,11 @@
 
 #include "pixelformat.h"
 
+// FIXME: Test code
+#include <QMutex>
+extern QMutex m;
+// End test code
+
 class RenderTexture : public QObject
 {
 public:
@@ -69,7 +74,7 @@ public:
   uchar *Download() const;
 
 private:
-  void CreateInternal(void *data = nullptr);
+  void CreateInternal(GLuint *tex, void *data = nullptr);
 
   QOpenGLContext* context_;
 

@@ -26,7 +26,6 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QDir>
-#include <QImage>
 #include <QtMath>
 
 #include "common/filefunctions.h"
@@ -76,7 +75,6 @@ void RendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
-#include <QFileInfo>
 QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 {
   if (output == texture_output_) {
@@ -199,7 +197,7 @@ void RendererProcessor::Start()
 
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
 
-  int background_thread_count = qMax(1, QThread::idealThreadCount() - 1);
+  int background_thread_count = QThread::idealThreadCount();
 
   threads_.resize(background_thread_count);
 
@@ -240,15 +238,15 @@ void RendererProcessor::Stop()
 
   started_ = false;
 
-  foreach (RendererProcessThreadPtr process_thread, threads_) {
-    process_thread->Cancel();
-  }
-  threads_.clear();
-
   foreach (RendererDownloadThreadPtr download_thread_, download_threads_) {
     download_thread_->Cancel();
   }
   download_threads_.clear();
+
+  foreach (RendererProcessThreadPtr process_thread, threads_) {
+    process_thread->Cancel();
+  }
+  threads_.clear();
 
   master_texture_ = nullptr;
 
@@ -265,9 +263,10 @@ void RendererProcessor::GenerateCacheIDInternal()
   QCryptographicHash hash(QCryptographicHash::Sha1);
   hash.addData(cache_name_.toUtf8());
   hash.addData(QString::number(cache_time_).toUtf8());
-  hash.addData(QString::number(effective_width_).toUtf8());
-  hash.addData(QString::number(effective_height_).toUtf8());
+  hash.addData(QString::number(width_).toUtf8());
+  hash.addData(QString::number(height_).toUtf8());
   hash.addData(QString::number(format_).toUtf8());
+  hash.addData(QString::number(divider_).toUtf8());
 
   QByteArray bytes = hash.result();
   cache_id_ = bytes.toHex();
@@ -286,7 +285,6 @@ void RendererProcessor::CacheNext()
 
   qDebug() << "[RendererProcessor] Caching" << cache_frame_.toDouble();
 
-  // Run this probe in another thread
   master_thread_ = threads_.at(0).get();
   master_thread_->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame_), true);
 
@@ -315,15 +313,14 @@ void RendererProcessor::ThreadCallback()
     // Threads are all done now, time to proceed
     caching_ = false;
 
-    // FIXME: Save the texture results here
     RenderTexturePtr texture = texture_input_->get_value(cache_frame_).value<RenderTexturePtr>();
 
-
     QString fn = CachePathName(cache_frame_);
-    if (texture == nullptr && QFileInfo::exists(fn)) {
-      QFile(fn).remove();
+    if (texture == nullptr) {
+      if (QFileInfo::exists(fn)) {
+        QFile(fn).remove();
+      }
     } else {
-      // Choose download thread with the smallest queue
       download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture, fn);
       last_download_thread_++;
     }

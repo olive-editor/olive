@@ -41,12 +41,16 @@ public:
 
   virtual bool Action() override;
 
+  virtual bool Epilogue() override;
+
 private:
   void Import(const QStringList& files, Folder* folder, QUndoCommand* parent_command);
 
   ProjectViewModel* model_;
   QStringList urls_;
   Folder* parent_;
+
+  QUndoCommand* command_;
 };
 
 #endif // IMPORT_H

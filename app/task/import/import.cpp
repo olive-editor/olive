@@ -39,7 +39,8 @@
 ImportTask::ImportTask(ProjectViewModel *model, Folder *parent, const QStringList &urls) :
   model_(model),
   urls_(urls),
-  parent_(parent)
+  parent_(parent),
+  command_(nullptr)
 {
   set_text(tr("Importing %1 files").arg(urls.size()));
 }
@@ -48,16 +49,25 @@ bool ImportTask::Action()
 {
   parent_->LockDeletes();
 
-  QUndoCommand* command = new QUndoCommand();
+  command_ = new QUndoCommand();
 
-  Import(urls_, parent_, command);
+  Import(urls_, parent_, command_);
 
   // If this task was cancelled, we won't bother pushing an undo command (we don't end up with anything undoable since
   // the undo command executes the final import anyway)
   if (cancelled()) {
-    delete command;
-  } else {
-    olive::undo_stack.push(command);
+    delete command_;
+    command_ = nullptr;
+    parent_->UnlockDeletes();
+  }
+
+  return true;
+}
+
+bool ImportTask::Epilogue()
+{
+  if (command_ != nullptr) {
+    olive::undo_stack.push(command_);
   }
 
   parent_->UnlockDeletes();

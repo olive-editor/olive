@@ -25,11 +25,14 @@
 
 #include "render/pixelservice.h"
 
+// FIXME: Test code
+QMutex m;
+// End test code
+
 RenderTexture::RenderTexture() :
   context_(nullptr),
   texture_(0)
 {
-
 }
 
 RenderTexture::~RenderTexture()
@@ -62,11 +65,11 @@ void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
   format_ = format;
 
   // Create main texture
-  CreateInternal(data);
+  CreateInternal(&texture_, data);
 
   if (type == kDoubleBuffer) {
     // Create back texture
-    CreateInternal(nullptr);
+    CreateInternal(&back_texture_, nullptr);
   }
 }
 
@@ -196,12 +199,12 @@ uchar *RenderTexture::Download() const
   return data;
 }
 
-void RenderTexture::CreateInternal(void *data)
+void RenderTexture::CreateInternal(GLuint* tex, void *data)
 {
   QOpenGLFunctions* f = context_->functions();
 
   // Create texture
-  f->glGenTextures(1, &texture_);
+  f->glGenTextures(1, tex);
 
   // Verify texture
   if (texture_ == 0) {
@@ -210,7 +213,7 @@ void RenderTexture::CreateInternal(void *data)
   }
 
   // Bind texture
-  f->glBindTexture(GL_TEXTURE_2D, texture_);
+  f->glBindTexture(GL_TEXTURE_2D, *tex);
 
   // Allocate storage for texture
   const PixelFormatInfo& bit_depth = PixelService::GetPixelFormatInfo(format_);
