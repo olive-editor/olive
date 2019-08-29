@@ -29,33 +29,28 @@
 #include "node/node.h"
 #include "render/renderinstance.h"
 
-class RendererThread : public QThread
+class RendererThreadBase : public QThread
 {
   Q_OBJECT
 public:
-  RendererThread(QOpenGLContext* share_ctx,
-                 const int& width,
-                 const int& height,
-                 const olive::PixelFormat& format,
-                 const olive::RenderMode& mode);
-
-  bool Queue(const NodeDependency &dep, bool wait);
+  RendererThreadBase(QOpenGLContext* share_ctx,
+                     const int& width,
+                     const int& height,
+                     const olive::PixelFormat& format,
+                     const olive::RenderMode& mode);
 
   void Cancel();
 
   RenderInstance* render_instance();
 
-  virtual void run() override;
-
   void StartThread(Priority priority = InheritPriority);
 
-signals:
-  void RequestSibling(NodeDependency dep);
+  virtual void run() override;
 
-  void FinishedPath();
+protected:
+  virtual void ProcessLoop() = 0;
 
-private:
-  QOpenGLContext* share_ctx_;
+  bool Cancelled();
 
   QWaitCondition wait_cond_;
 
@@ -63,9 +58,8 @@ private:
 
   QMutex caller_mutex_;
 
-  NodeDependency path_;
-
-  rational time_;
+private:
+  QOpenGLContext* share_ctx_;
 
   bool cancelled_;
 
@@ -81,6 +75,6 @@ private:
 
 };
 
-using RendererThreadPtr = std::shared_ptr<RendererThread>;
+using RendererThreadPtr = std::shared_ptr<RendererThreadBase>;
 
 #endif // RENDERTHREAD_H

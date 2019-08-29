@@ -26,7 +26,8 @@
 #include "node/node.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
-#include "rendererthread.h"
+#include "rendererdownloadthread.h"
+#include "rendererprocessthread.h"
 
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
@@ -85,7 +86,7 @@ public:
    * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
    * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
    */
-  static RendererThread* CurrentThread();
+  static RendererThreadBase* CurrentThread();
 
   static RenderInstance* CurrentInstance();
 
@@ -120,9 +121,14 @@ private:
   void CacheNext();
 
   /**
-   * @brief Internal list of RenderThreads
+   * @brief Return the path of the cached image at this time
    */
-  QVector<RendererThreadPtr> threads_;
+  QString CachePathName(const rational& time);
+
+  /**
+   * @brief Internal list of RenderProcessThreads
+   */
+  QVector<RendererProcessThreadPtr> threads_;
 
   /**
    * @brief Internal variable that contains whether the Renderer has started or not
@@ -148,8 +154,14 @@ private:
   QString cache_name_;
   qint64 cache_time_;
   QString cache_id_;
+
   bool caching_;
-  RendererThread* master_thread_;
+  RendererProcessThread* master_thread_;
+  rational cache_frame_;
+
+  RendererDownloadThreadPtr download_thread_;
+
+  RenderTexturePtr master_texture_;
 
 private slots:
   void ThreadCallback();

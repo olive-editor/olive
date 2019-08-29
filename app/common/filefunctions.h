@@ -29,4 +29,6 @@ QString GetMediaIndexLocation();
 
 QString GetMediaIndexFilename(const QString& filename);
 
+QString GetMediaCacheLocation();
+
 #endif // FILEFUNCTIONS_H

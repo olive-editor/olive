@@ -18,7 +18,11 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   node/processor/renderer/renderer.h
   node/processor/renderer/renderer.cpp
-  node/processor/renderer/rendererthread.h
-  node/processor/renderer/rendererthread.cpp
+  node/processor/renderer/rendererthreadbase.h
+  node/processor/renderer/rendererthreadbase.cpp
+  node/processor/renderer/rendererdownloadthread.h
+  node/processor/renderer/rendererdownloadthread.cpp
+  node/processor/renderer/rendererprocessthread.h
+  node/processor/renderer/rendererprocessthread.cpp
   PARENT_SCOPE
 )

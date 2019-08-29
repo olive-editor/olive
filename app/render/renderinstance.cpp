@@ -66,6 +66,8 @@ bool RenderInstance::Start()
 
   buffer_.Create(&ctx_);
 
+  ctx_.functions()->glViewport(0, 0, width_, height_);
+
   return true;
 }
 

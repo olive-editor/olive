@@ -61,3 +61,15 @@ QString GetMediaIndexFilename(const QString &filename)
 {
   return QDir(GetMediaIndexLocation()).filePath(filename);
 }
+
+QString GetMediaCacheLocation()
+{
+  QDir local_appdata_dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+
+  QDir media_cache_dir = local_appdata_dir.filePath("mediacache");
+
+  // Attempt to ensure this folder exists
+  media_cache_dir.mkpath(".");
+
+  return media_cache_dir.absolutePath();
+}

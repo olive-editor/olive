@@ -64,9 +64,9 @@ public:
   const GLuint& back_texture() const;
   void SwapFrontAndBack();
 
-  void Upload(void* data);
+  void Upload(const void *data);
 
-  void* Download() const;
+  uchar *Download() const;
 
 private:
   void CreateInternal(void *data = nullptr);

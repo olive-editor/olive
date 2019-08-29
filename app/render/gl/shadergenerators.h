@@ -41,9 +41,9 @@ public:
   static ShaderPtr DefaultPipeline(const QString &function_name = QString(), const QString &shader_code = QString());
 
   static ShaderPtr OCIOPipeline(QOpenGLContext *ctx,
-                                   GLuint &lut_texture,
-                                   OCIO::ConstProcessorRcPtr processor,
-                                   bool alpha_is_associated);
+                                GLuint &lut_texture,
+                                OCIO::ConstProcessorRcPtr processor,
+                                bool alpha_is_associated);
 
   static QString AlphaDisassociateFunction(const QString& function_name);
   static QString AlphaReassociateFunction(const QString& function_name);

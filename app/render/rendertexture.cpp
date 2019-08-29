@@ -20,6 +20,7 @@
 
 #include "rendertexture.h"
 
+#include <QDateTime>
 #include <QDebug>
 
 #include "render/pixelservice.h"
@@ -139,7 +140,7 @@ void RenderTexture::SwapFrontAndBack()
   back_texture_ = temp;
 }
 
-void RenderTexture::Upload(void *data)
+void RenderTexture::Upload(const void *data)
 {
   if (!IsCreated()) {
     qWarning() << tr("RenderTexture::Upload() called while it wasn't created");
@@ -163,16 +164,36 @@ void RenderTexture::Upload(void *data)
   Release();
 }
 
-void *RenderTexture::Download() const
+uchar *RenderTexture::Download() const
 {
   if (!IsCreated()) {
     qWarning() << tr("RenderTexture::Download() called while it wasn't created");
     return nullptr;
   }
 
-  // FIXME: Implement this
+  QOpenGLFunctions* f = context_->functions();
 
-  return nullptr;
+  GLuint read_fbo;
+
+  f->glGenFramebuffers(1, &read_fbo);
+
+  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
+
+  context_->extraFunctions()->glFramebufferTexture2D(
+        GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_, 0
+        );
+
+  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(format_);
+
+  uchar* data = new uchar[PixelService::GetBufferSize(format_, width_, height_)];
+
+  f->glReadPixels(0, 0, width_, height_, format_info.pixel_format, format_info.pixel_type, data);
+
+  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+  f->glDeleteFramebuffers(1, &read_fbo);
+
+  return data;
 }
 
 void RenderTexture::CreateInternal(void *data)

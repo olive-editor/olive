@@ -34,8 +34,10 @@
 // End test code
 
 MediaInput::MediaInput() :
-  //ocio_shader_(nullptr),
-  decoder_(nullptr)
+  decoder_(nullptr),
+  color_service_(nullptr),
+  pipeline_(nullptr),
+  ocio_texture_(0)
 {
   footage_input_ = new NodeInput("footage_in");
   footage_input_->add_data_input(NodeInput::kFootage);
@@ -72,9 +74,20 @@ QString MediaInput::Description()
 
 void MediaInput::Release()
 {
-  texture_.Destroy();
+  internal_tex_.Destroy();
 
   decoder_ = nullptr;
+  color_service_ = nullptr;
+  pipeline_ = nullptr;
+
+  if (ocio_texture_ != 0) {
+    ocio_ctx_->functions()->glDeleteTextures(1, &ocio_texture_);
+  }
+}
+
+NodeInput *MediaInput::matrix_input()
+{
+  return matrix_input_;
 }
 
 NodeOutput *MediaInput::texture_output()
@@ -89,6 +102,8 @@ void MediaInput::SetFootage(Footage *f)
 
 QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 {
+  bool alpha_is_associated = false;
+
   if (output == texture_output_) {
     // Find the current Renderer instance
     RenderInstance* renderer = RendererProcessor::CurrentInstance();
@@ -126,42 +141,106 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
       return 0;
     }
 
-    RenderTexturePtr texture = std::make_shared<RenderTexture>();
+    if (color_service_ == nullptr) {
+      // FIXME: Hardcoded values for texting
+      color_service_ = std::make_shared<ColorService>("srgb", OCIO::ROLE_SCENE_LINEAR);
+    }
 
-    texture->Create(renderer->context(),
+    // OpenColorIO v1's color transforms can be done on GPU, which improves performance but reduces accuracy. When
+    // online, we prefer accuracy over performance so we use the CPU path instead:
+    // NOTE: OCIO v2 boasts 1:1 results with the CPU and GPU path so this won't be necessary forever
+    if (renderer->mode() == olive::RenderMode::kOnline) {
+      // Convert to 32F, which is required for OpenColorIO's color transformation
+      frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
+
+      if (alpha_is_associated) {
+        // FIXME: Unassociate alpha here if associated
+      }
+
+      // Transform color to reference space
+      color_service_->ConvertFrame(frame);
+
+      if (alpha_is_associated) {
+        // FIXME: Reassociate alpha here
+      } else {
+        // FIXME: Associate alpha here
+      }
+    }
+
+    // We use an internal texture to bring the texture into GPU space before performing transformations
+
+    // Ensure the texture is the accurate to the frame
+    if (internal_tex_.width() != frame->width()
+        || internal_tex_.height() != frame->height()
+        || internal_tex_.format() != frame->format()) {
+      internal_tex_.Destroy();
+    }
+
+    // Create or upload the new data to the texture
+    if (!internal_tex_.IsCreated()) {
+      internal_tex_.Create(renderer->context(),
+                           frame->width(),
+                           frame->height(),
+                           static_cast<olive::PixelFormat>(frame->format()),
+                           frame->data());
+    } else {
+      internal_tex_.Upload(frame->data());
+    }
+
+    // Create new texture in reference space to send throughout the rest of the graph
+
+    RenderTexturePtr output_texture = std::make_shared<RenderTexture>();
+
+    output_texture->Create(renderer->context(),
                     renderer->width(),
                     renderer->height(),
-                    static_cast<olive::PixelFormat>(frame->format()),
-                    frame->data());
+                    renderer->format(),
+                    RenderTexture::kDoubleBuffer);
 
-    return QVariant::fromValue(texture);
+    // Using the transformation matrix, blit our internal texture (in frame format) to our output texture (in
+    // reference format)
 
-    /*renderer->buffer()->Upload(frame->data());
+    if (renderer->mode() == olive::RenderMode::kOffline) {
+      // For offline rendering, OCIO's GPU path is acceptable:
+      // NOTE: OCIO v2 boasts 1:1 results with the CPU and GPU path so this won't be necessary forever
 
-    texture_output_->set_value(renderer->buffer()->texture());*/
+      // Use an OCIO pipeline shader (which wraps in a default pipeline and will also handle alpha association)
+      if (pipeline_ == nullptr) {
+        /*pipeline_ = olive::ShaderGenerator::OCIOPipeline(renderer->context(),
+                                                         ocio_texture_, // FIXME: A raw GLuint texture, should wrap this up
+                                                         color_service_->GetProcessor(),
+                                                         alpha_is_associated);
 
-    // Convert the frame to the Renderer format
-  //  frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA16F);
+        // Used for cleanup later
+        ocio_ctx_ = renderer->context();*/
 
-    // Convert the frame to the Renderer color space
-    //color_service_.ConvertFrame(frame);
+        pipeline_ = olive::ShaderGenerator::DefaultPipeline();
+      }
+    } else if (pipeline_ == nullptr) {
+      // In online, the color transformation was performed on the CPU (see above), so we only need to blit
+      pipeline_ = olive::ShaderGenerator::DefaultPipeline();
+    }
 
-    // Upload this frame to the GPU
-    /*if (buffer_.IsCreated()) {
-      buffer_.Upload(frame->data());
-    } else {
-      buffer_.Create(QOpenGLContext::currentContext(),
-                      static_cast<olive::PixelFormat>(frame->format()),
-                      frame->width(),
-                      frame->height(),
-                      frame->data());
-    }*/
+    // Draw onto the output texture using the renderer's framebuffer
+    renderer->buffer()->Attach(output_texture);
+    renderer->buffer()->Bind();
 
-    // Draw according to matrix
-    // BLIT
+    glClearColor(1.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    //texture_output_->set_value(tex_buf_.texture());
-    // End test code
+    // Draw with the internal texture
+    internal_tex_.Bind();
+
+    // Use pipeline to blit using transformation matrix from input
+    QMatrix4x4 m;
+    olive::gl::Blit(pipeline_, false);
+
+    // Release everything
+    internal_tex_.Release();
+    renderer->buffer()->Detach();
+    renderer->buffer()->Release();
+
+    return QVariant::fromValue(output_texture);
   }
 
   return 0;

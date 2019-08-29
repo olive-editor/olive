@@ -26,11 +26,8 @@
 #include "decoder/decoder.h"
 #include "node/node.h"
 #include "render/colorservice.h"
-
-// FIXME: Test code only
 #include "render/rendertexture.h"
-#include "render/gl/shaderptr.h"
-// End test code
+#include "render/gl/shadergenerators.h"
 
 /**
  * @brief A node that imports an image
@@ -48,6 +45,8 @@ public:
 
   virtual void Release() override;
 
+  NodeInput* matrix_input();
+
   NodeOutput* texture_output();
 
   void SetFootage(Footage* f);
@@ -62,11 +61,16 @@ private:
 
   NodeOutput* texture_output_;
 
-  RenderTexture texture_;
+  RenderTexture internal_tex_;
 
   DecoderPtr decoder_;
 
-  ColorService color_service_;
+  ColorServicePtr color_service_;
+
+  ShaderPtr pipeline_;
+
+  QOpenGLContext* ocio_ctx_;
+  GLuint ocio_texture_;
 
 };
 

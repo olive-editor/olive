@@ -108,6 +108,8 @@ void ViewerOutput::ViewerTimeChanged(const rational &t)
   // Send the texture to the Viewer
   if (current_texture != nullptr) {
     attached_viewer_->SetTexture(current_texture->texture());
+  } else {
+    attached_viewer_->SetTexture(0);
   }
 
   current_time_ = t;

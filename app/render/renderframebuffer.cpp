@@ -127,15 +127,9 @@ void RenderFramebuffer::AttachInternal(GLuint tex)
   // bind framebuffer for attaching
   f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
 
-  // bind texture
-  f->glBindTexture(GL_TEXTURE_2D, tex);
-
   context_->extraFunctions()->glFramebufferTexture2D(
         GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0
         );
-
-  // release texture
-  f->glBindTexture(GL_TEXTURE_2D, 0);
 
   // release framebuffer
   f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

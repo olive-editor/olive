@@ -24,8 +24,11 @@
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDebug>
+#include <QDir>
 #include <QImage>
 #include <QtMath>
+
+#include "common/filefunctions.h"
 
 RendererProcessor::RendererProcessor() :
   started_(false),
@@ -70,6 +73,7 @@ void RendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
+#include <QFileInfo>
 QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 {
   if (output == texture_output_) {
@@ -89,55 +93,25 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
     }
 
     // FIXME: Test code only
-    return texture_input_->get_value(time);
+    QString fn = CachePathName(time);
+    if (QFileInfo::exists(fn)) {
+      QFile cache_img(fn);
+
+      if (cache_img.open(QFile::ReadOnly)) {
+
+        QByteArray bytes = cache_img.readAll();
+
+        master_texture_->Upload(bytes.constData());
+
+        cache_img.close();
+
+        return QVariant::fromValue(master_texture_);
+      }
+    }
     // End test code
   }
 
   return 0;
-
-
-
-
-
-  // This Renderer node relies on a disk cache so this Process() function should be quite fast. Either it returns the
-  // cached frame or it returns nothing.
-
-  // Perhaps it should lookahead to load textures into VRAM in advance?
-
-  // Should it cache the final result or the result in an 8-bit image or a 16-bit intermediate image?
-
-  /*qDebug() << QString("Requesting %1/%2").arg(QString::number(time.numerator()), QString::number(time.denominator()));
-
-  if (cache_map_.contains(time)) {
-    qDebug() << "  We have this frame!";
-  } else {
-    qDebug() << "  No frame at this address";
-    cache_map_.insert(time, true);
-  }*/
-
-
-
-
-
-  // FIXME: Test code only
-  //GLuint tex = texture_input_->get_value(time).value<GLuint>();
-
-  //glReadPixels()
-
-  //texture_output_->set_value(tex);
-  // End test code
-
-  /*
-  // Ensure we have started
-  if (!started_) {
-    Start();
-
-    if (!started_) {
-      qWarning() << tr("An error occurred starting the Renderer node");
-      return;
-    }
-  }
-  */
 }
 
 void RendererProcessor::Release()
@@ -152,9 +126,13 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
            << "and"
            << end_range.toDouble();
 
-  // FIXME: Snap start_range to timebase
+  // Snap start_range to timebase
+  double start_range_dbl = start_range.toDouble();
+  double start_range_numf = start_range_dbl * static_cast<double>(timebase_.denominator());
+  int64_t start_range_numround = qFloor(start_range_numf/static_cast<double>(timebase_.numerator())) * timebase_.numerator();
+  rational true_start_range(start_range_numround, timebase_.denominator());
 
-  for (rational r=start_range;r<=end_range;r+=timebase_) {
+  for (rational r=true_start_range;r<=end_range;r+=timebase_) {
     if (!cache_queue_.contains(r)) {
       cache_queue_.append(r);
     }
@@ -196,10 +174,12 @@ void RendererProcessor::Start()
     return;
   }
 
+  QOpenGLContext* ctx = QOpenGLContext::currentContext();
+
   threads_.resize(QThread::idealThreadCount());
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererThread>(QOpenGLContext::currentContext(), width_, height_, format_, mode_);
+    threads_[i] = std::make_shared<RendererProcessThread>(ctx, width_, height_, format_, mode_);
     threads_[i]->StartThread(QThread::HighPriority);
 
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
@@ -207,6 +187,14 @@ void RendererProcessor::Start()
     connect(threads_[i].get(), SIGNAL(FinishedPath()), this, SLOT(ThreadCallback()), Qt::QueuedConnection);
     connect(threads_[i].get(), SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestSibling(NodeDependency)), Qt::QueuedConnection);
   }
+
+  // Create download thread
+  download_thread_ = std::make_shared<RendererDownloadThread>(ctx, width_, height_, format_, mode_);
+  download_thread_->StartThread(QThread::HighPriority);
+
+  // Create master texture (the one sent to the viewer)
+  master_texture_ = std::make_shared<RenderTexture>();
+  master_texture_->Create(ctx, width_, height_, format_);
 
   started_ = true;
 }
@@ -219,11 +207,15 @@ void RendererProcessor::Stop()
 
   started_ = false;
 
-  for (int i=0;i<threads_.size();i++) {
-    threads_[i]->Cancel();
+  foreach (RendererProcessThreadPtr process_thread, threads_) {
+    process_thread->Cancel();
   }
-
   threads_.clear();
+
+  download_thread_->Cancel();
+  download_thread_ = nullptr;
+
+  master_texture_ = nullptr;
 }
 
 void RendererProcessor::GenerateCacheIDInternal()
@@ -253,20 +245,26 @@ void RendererProcessor::CacheNext()
   // Make sure cache has started
   Start();
 
-  rational time_to_cache = cache_queue_.takeFirst();
+  cache_frame_ = cache_queue_.takeFirst();
 
-  qDebug() << "Caching" << time_to_cache.toDouble();
+  qDebug() << "[RendererProcessor] Caching" << cache_frame_.toDouble();
 
   // Run this probe in another thread
   master_thread_ = threads_.at(0).get();
-  master_thread_->Queue(NodeDependency(texture_input_->get_connected_output(), time_to_cache), true);
+  master_thread_->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame_), true);
 
   caching_ = true;
 }
 
-// FIXME: Test code only
-#include "node/output/viewer/viewer.h"
-// End test code
+QString RendererProcessor::CachePathName(const rational &time)
+{
+  QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
+  this_cache_dir.mkpath(".");
+
+  QString filename = QString("%1.%2.jpg").arg(QString::number(time.numerator()), QString::number(time.denominator()));
+
+  return this_cache_dir.filePath(filename);
+}
 
 void RendererProcessor::ThreadCallback()
 {
@@ -275,6 +273,15 @@ void RendererProcessor::ThreadCallback()
     caching_ = false;
 
     // FIXME: Save the texture results here
+    RenderTexturePtr texture = texture_input_->get_value(cache_frame_).value<RenderTexturePtr>();
+
+
+    QString fn = CachePathName(cache_frame_);
+    if (texture == nullptr && QFileInfo::exists(fn)) {
+      QFile(fn).remove();
+    } else {
+      download_thread_->Queue(texture, fn);
+    }
 
     CacheNext();
   }
@@ -290,14 +297,14 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
   }
 }
 
-RendererThread* RendererProcessor::CurrentThread()
+RendererThreadBase* RendererProcessor::CurrentThread()
 {
-  return dynamic_cast<RendererThread*>(QThread::currentThread());
+  return dynamic_cast<RendererThreadBase*>(QThread::currentThread());
 }
 
 RenderInstance *RendererProcessor::CurrentInstance()
 {
-  RendererThread* thread = CurrentThread();
+  RendererThreadBase* thread = CurrentThread();
 
   if (thread != nullptr) {
     return thread->render_instance();
