@@ -67,9 +67,9 @@ void RendererDownloadThread::ProcessLoop()
 
     // Download the texture
 
-    f->glBindFramebuffer(GL_FRAMEBUFFER, read_buffer_);
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, read_buffer_);
 
-    xf->glFramebufferTexture2D(GL_FRAMEBUFFER,
+    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
                                GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D,
                                working_texture->texture(),
@@ -83,13 +83,13 @@ void RendererDownloadThread::ProcessLoop()
                     format_info.pixel_type,
                     data_buffer.data());
 
-    xf->glFramebufferTexture2D(GL_FRAMEBUFFER,
+    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
                                GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D,
                                0,
                                0);
 
-    f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
     std::string working_fn_std = working_filename.toStdString();
 

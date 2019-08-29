@@ -106,7 +106,6 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 
         return QVariant::fromValue(master_texture_);
       }
-
     }
   }
 

@@ -83,6 +83,8 @@ void RendererProcessThread::ProcessLoop()
     // Get the requested value
     output_to_process->get_value(path_.time());
 
+    render_instance()->context()->functions()->glFinish();
+
     emit FinishedPath();
   }
 }
