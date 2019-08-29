@@ -280,7 +280,8 @@ void Core::CreateNewSequence()
     rp->SetParameters(new_sequence->video_width(),
                       new_sequence->video_height(),
                       olive::PIX_FMT_RGBA16F, // FIXME: Make this configurable
-                      olive::RenderMode::kOffline);
+                      olive::RenderMode::kOffline,
+                      2);
 
     // Set the "cache name" only here to aid the cache ID's uniqueness
     rp->SetCacheName(new_sequence->name());

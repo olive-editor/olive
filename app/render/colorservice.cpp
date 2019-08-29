@@ -1,6 +1,6 @@
 #include "colorservice.h"
 
-const int kRGBAChannels = 4;
+#include "common/define.h"
 
 ColorService::ColorService(const char* source_space, const char* dest_space)
 {

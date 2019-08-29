@@ -24,7 +24,7 @@
 #include <QDebug>
 #include <QFloat16>
 
-const int kRGBAChannels = 4;
+#include "common/define.h"
 
 PixelService::PixelService()
 {
@@ -39,21 +39,25 @@ PixelFormatInfo PixelService::GetPixelFormatInfo(const olive::PixelFormat &forma
     info.name = tr("8-bit");
     info.internal_format = GL_RGBA8;
     info.pixel_type = GL_UNSIGNED_BYTE;
+    info.oiio_desc = OIIO::TypeDesc::UINT8;
     break;
   case olive::PIX_FMT_RGBA16:
     info.name = tr("16-bit Integer");
     info.internal_format = GL_RGBA16;
     info.pixel_type = GL_UNSIGNED_SHORT;
+    info.oiio_desc = OIIO::TypeDesc::UINT16;
     break;
   case olive::PIX_FMT_RGBA16F:
     info.name = tr("Half-Float (16-bit)");
     info.internal_format = GL_RGBA16F;
     info.pixel_type = GL_HALF_FLOAT;
+    info.oiio_desc = OIIO::TypeDesc::HALF;
     break;
   case olive::PIX_FMT_RGBA32F:
     info.name = tr("Full-Float (32-bit)");
     info.internal_format = GL_RGBA32F;
     info.pixel_type = GL_FLOAT;
+    info.oiio_desc = OIIO::TypeDesc::FLOAT;
     break;
   default:
     qFatal("Invalid pixel format requested");

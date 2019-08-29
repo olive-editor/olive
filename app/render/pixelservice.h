@@ -23,6 +23,7 @@
 
 #include <QString>
 #include <QOpenGLExtraFunctions>
+#include <OpenImageIO/imageio.h>
 
 #include "decoder/frame.h"
 #include "pixelformat.h"
@@ -43,6 +44,7 @@ struct PixelFormatInfo {
   GLenum pixel_format;
   GLenum pixel_type;
   int bytes_per_pixel;
+  OIIO::TypeDesc oiio_desc;
 };
 
 class PixelService : public QObject {

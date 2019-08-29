@@ -78,7 +78,10 @@ public:
   void SetParameters(const int& width,
                      const int& height,
                      const olive::PixelFormat& format,
-                     const olive::RenderMode& mode);
+                     const olive::RenderMode& mode,
+                     const int &divider = 0);
+
+  void SetDivider(const int& divider);
 
   /**
    * @brief Return current instance of a RenderThread (or nullptr if there is none)
@@ -140,8 +143,13 @@ private:
   NodeOutput* texture_output_;
 
   int width_;
-
   int height_;
+
+  void CalculateEffectiveDimensions();
+
+  int divider_;
+  int effective_width_;
+  int effective_height_;
 
   olive::PixelFormat format_;
 
@@ -158,8 +166,10 @@ private:
   bool caching_;
   RendererProcessThread* master_thread_;
   rational cache_frame_;
+  QVector<uchar*> cache_frame_load_buffer_;
 
-  RendererDownloadThreadPtr download_thread_;
+  QVector<RendererDownloadThreadPtr> download_threads_;
+  int last_download_thread_;
 
   RenderTexturePtr master_texture_;
 

@@ -1,7 +1,9 @@
 #include "rendererdownloadthread.h"
 
 #include <QFile>
+#include <OpenImageIO/imageio.h>
 
+#include "common/define.h"
 #include "render/pixelservice.h"
 
 RendererDownloadThread::RendererDownloadThread(QOpenGLContext *share_ctx,
@@ -81,21 +83,31 @@ void RendererDownloadThread::ProcessLoop()
                     format_info.pixel_type,
                     data_buffer);
 
-    render_instance()->context()->extraFunctions()->glFramebufferTexture2D(
-          GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0
-          );
+    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
+                               GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D,
+                               0,
+                               0);
 
     f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-    QFile data_dump(working_filename);
+    std::string working_fn_std = working_filename.toStdString();
 
-    if (data_dump.open(QFile::WriteOnly)) {
-      data_dump.write(reinterpret_cast<char*>(data_buffer), buffer_size);
+    std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
 
-      data_dump.close();
+    if (out) {
+      OIIO::ImageSpec spec(working_texture->width(), working_texture->height(), kRGBAChannels, format_info.oiio_desc);
+
+      spec.attribute("compression", "dwaa:200");
+
+      out->open(working_fn_std, spec);
+
+      out->write_image(format_info.oiio_desc, data_buffer);
+
+      out->close();
     }
 
-    qDebug() << "Saved" << working_filename;
+    qDebug() << this << "saved" << working_filename;
 
   }
 

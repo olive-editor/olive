@@ -79,6 +79,8 @@ private:
   olive::PixelFormat format_;
 
   olive::RenderMode mode_;
+
+  int divider_;
 };
 
 #endif // GLINSTANCE_H

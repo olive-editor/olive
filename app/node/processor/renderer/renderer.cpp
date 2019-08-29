@@ -20,6 +20,7 @@
 
 #include "renderer.h"
 
+#include <OpenImageIO/imageio.h>
 #include <QApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
@@ -29,11 +30,13 @@
 #include <QtMath>
 
 #include "common/filefunctions.h"
+#include "render/pixelservice.h"
 
 RendererProcessor::RendererProcessor() :
   started_(false),
   width_(0),
   height_(0),
+  divider_(1),
   caching_(false)
 {
   texture_input_ = new NodeInput("tex_in");
@@ -92,23 +95,21 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
       return 0;
     }
 
-    // FIXME: Test code only
     QString fn = CachePathName(time);
     if (QFileInfo::exists(fn)) {
-      QFile cache_img(fn);
+      auto in = OIIO::ImageInput::open(fn.toStdString());
 
-      if (cache_img.open(QFile::ReadOnly)) {
+      if (in) {
+        in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
 
-        QByteArray bytes = cache_img.readAll();
+        in->close();
 
-        master_texture_->Upload(bytes.constData());
-
-        cache_img.close();
+        master_texture_->Upload(cache_frame_load_buffer_.data());
 
         return QVariant::fromValue(master_texture_);
       }
+
     }
-    // End test code
   }
 
   return 0;
@@ -152,7 +153,8 @@ void RendererProcessor::SetTimebase(const rational &timebase)
 void RendererProcessor::SetParameters(const int &width,
                                       const int &height,
                                       const olive::PixelFormat &format,
-                                      const olive::RenderMode &mode)
+                                      const olive::RenderMode &mode,
+                                      const int& divider)
 {
   // Since we're changing parameters, all the existing threads are invalid and must be removed. They will start again
   // next time this Node has to process anything.
@@ -163,6 +165,27 @@ void RendererProcessor::SetParameters(const int &width,
   height_ = height;
   format_ = format;
   mode_ = mode;
+
+  // divider's default value is 0, so we can assume if it's 0 a divider wasn't specified
+  if (divider > 0) {
+    divider_ = divider;
+  }
+
+  CalculateEffectiveDimensions();
+
+  // Regenerate the cache ID
+  GenerateCacheIDInternal();
+}
+
+void RendererProcessor::SetDivider(const int &divider)
+{
+  Q_ASSERT(divider_ > 0);
+
+  Stop();
+
+  divider_ = divider;
+
+  CalculateEffectiveDimensions();
 
   // Regenerate the cache ID
   GenerateCacheIDInternal();
@@ -176,11 +199,13 @@ void RendererProcessor::Start()
 
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
 
-  threads_.resize(QThread::idealThreadCount());
+  int background_thread_count = qMax(1, QThread::idealThreadCount() - 1);
+
+  threads_.resize(background_thread_count);
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererProcessThread>(ctx, width_, height_, format_, mode_);
-    threads_[i]->StartThread(QThread::HighPriority);
+    threads_[i] = std::make_shared<RendererProcessThread>(ctx, effective_width_, effective_height_, format_, mode_);
+    threads_[i]->StartThread(QThread::LowPriority);
 
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
     // other threads
@@ -188,13 +213,21 @@ void RendererProcessor::Start()
     connect(threads_[i].get(), SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestSibling(NodeDependency)), Qt::QueuedConnection);
   }
 
-  // Create download thread
-  download_thread_ = std::make_shared<RendererDownloadThread>(ctx, width_, height_, format_, mode_);
-  download_thread_->StartThread(QThread::HighPriority);
+  download_threads_.resize(background_thread_count);
+
+  for (int i=0;i<download_threads_.size();i++) {
+    // Create download thread
+    download_threads_[i] = std::make_shared<RendererDownloadThread>(ctx, effective_width_, effective_height_, format_, mode_);
+    download_threads_[i]->StartThread(QThread::LowPriority);
+  }
+
+  last_download_thread_ = 0;
 
   // Create master texture (the one sent to the viewer)
   master_texture_ = std::make_shared<RenderTexture>();
-  master_texture_->Create(ctx, width_, height_, format_);
+  master_texture_->Create(ctx, effective_width_, effective_height_, format_);
+
+  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(format_, effective_width_, effective_height_));
 
   started_ = true;
 }
@@ -212,15 +245,19 @@ void RendererProcessor::Stop()
   }
   threads_.clear();
 
-  download_thread_->Cancel();
-  download_thread_ = nullptr;
+  foreach (RendererDownloadThreadPtr download_thread_, download_threads_) {
+    download_thread_->Cancel();
+  }
+  download_threads_.clear();
 
   master_texture_ = nullptr;
+
+  cache_frame_load_buffer_.clear();
 }
 
 void RendererProcessor::GenerateCacheIDInternal()
 {
-  if (cache_name_.isEmpty() || width_ == 0 || height_ == 0) {
+  if (cache_name_.isEmpty() || effective_width_ == 0 || effective_height_ == 0) {
     return;
   }
 
@@ -228,8 +265,8 @@ void RendererProcessor::GenerateCacheIDInternal()
   QCryptographicHash hash(QCryptographicHash::Sha1);
   hash.addData(cache_name_.toUtf8());
   hash.addData(QString::number(cache_time_).toUtf8());
-  hash.addData(QString::number(width_).toUtf8());
-  hash.addData(QString::number(height_).toUtf8());
+  hash.addData(QString::number(effective_width_).toUtf8());
+  hash.addData(QString::number(effective_height_).toUtf8());
   hash.addData(QString::number(format_).toUtf8());
 
   QByteArray bytes = hash.result();
@@ -261,9 +298,15 @@ QString RendererProcessor::CachePathName(const rational &time)
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
   this_cache_dir.mkpath(".");
 
-  QString filename = QString("%1.%2.jpg").arg(QString::number(time.numerator()), QString::number(time.denominator()));
+  QString filename = QString("%1.%2.exr").arg(QString::number(time.numerator()), QString::number(time.denominator()));
 
   return this_cache_dir.filePath(filename);
+}
+
+void RendererProcessor::CalculateEffectiveDimensions()
+{
+  effective_width_ = width_ / divider_;
+  effective_height_ = height_ / divider_;
 }
 
 void RendererProcessor::ThreadCallback()
@@ -280,7 +323,9 @@ void RendererProcessor::ThreadCallback()
     if (texture == nullptr && QFileInfo::exists(fn)) {
       QFile(fn).remove();
     } else {
-      download_thread_->Queue(texture, fn);
+      // Choose download thread with the smallest queue
+      download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture, fn);
+      last_download_thread_++;
     }
 
     CacheNext();

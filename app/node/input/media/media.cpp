@@ -223,9 +223,6 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     renderer->buffer()->Attach(output_texture);
     renderer->buffer()->Bind();
 
-    glClearColor(1.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
     // Draw with the internal texture
     internal_tex_.Bind();
 

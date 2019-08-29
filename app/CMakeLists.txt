@@ -76,6 +76,7 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swscale
   FFMPEG::swresample
   OpenColorIO
+  OpenImageIO
 )
 
 set(OLIVE_EFFECTS
