@@ -23,15 +23,12 @@
 #include <QDebug>
 #include <QOpenGLPixelTransferOptions>
 
-#include "project/item/footage/footage.h"
-
-// FIXME: Test code only
 #include "decoder/ffmpeg/ffmpegdecoder.h"
 #include "node/processor/renderer/renderer.h"
+#include "project/item/footage/footage.h"
 #include "render/pixelservice.h"
 #include "render/gl/shadergenerators.h"
 #include "render/gl/functions.h"
-// End test code
 
 MediaInput::MediaInput() :
   decoder_(nullptr),
@@ -102,6 +99,7 @@ void MediaInput::SetFootage(Footage *f)
 
 QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 {
+  // FIXME: Hardcoded value
   bool alpha_is_associated = false;
 
   if (output == texture_output_) {
@@ -142,7 +140,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     }
 
     if (color_service_ == nullptr) {
-      // FIXME: Hardcoded values for texting
+      // FIXME: Hardcoded values for testing
       color_service_ = std::make_shared<ColorService>("srgb", OCIO::ROLE_SCENE_LINEAR);
     }
 
@@ -154,16 +152,19 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
       frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
 
       if (alpha_is_associated) {
-        // FIXME: Unassociate alpha here if associated
+        // Unassociate alpha here if associated
+        ColorService::DisassociateAlpha(frame);
       }
 
       // Transform color to reference space
       color_service_->ConvertFrame(frame);
 
       if (alpha_is_associated) {
-        // FIXME: Reassociate alpha here
+        // If alpha was associated, reassociate here
+        ColorService::ReassociateAlpha(frame);
       } else {
-        // FIXME: Associate alpha here
+        // If alpha was not associated, associate here
+        ColorService::AssociateAlpha(frame);
       }
     }
 

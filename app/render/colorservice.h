@@ -22,10 +22,27 @@ public:
 
   void ConvertFrame(FramePtr f);
 
+  static void DisassociateAlpha(FramePtr f);
+
+  static void AssociateAlpha(FramePtr f);
+
+  static void ReassociateAlpha(FramePtr f);
+
   OCIO::ConstProcessorRcPtr GetProcessor();
 
 private:
   OCIO::ConstProcessorRcPtr processor;
+
+  enum AlphaAction {
+    kAssociate,
+    kDisassociate,
+    kReassociate
+  };
+
+  static void AssociateAlphaPixFmtFilter(AlphaAction action, FramePtr f);
+
+  template<typename T>
+  static void AssociateAlphaInternal(AlphaAction action, T* data, int pix_count);
 };
 
 #endif // COLORSERVICE_H

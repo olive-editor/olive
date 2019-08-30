@@ -41,7 +41,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer->SetWidget(gl_widget_);
 
   // FIXME: Hardcoded values
-  sizer->SetSize(1920, 1080);
+  sizer->SetChildSize(1920, 1080);
 
   // Create time ruler
   ruler_ = new TimeRuler(false, this);
