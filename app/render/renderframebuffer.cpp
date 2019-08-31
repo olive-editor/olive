@@ -86,18 +86,33 @@ void RenderFramebuffer::Release()
 
 void RenderFramebuffer::Attach(RenderTexturePtr texture)
 {
+  if (context_ == nullptr) {
+    return;
+  }
+
   texture_ = texture;
   AttachInternal(texture_->texture());
 }
 
 void RenderFramebuffer::AttachBackBuffer(RenderTexturePtr texture)
 {
+  if (context_ == nullptr) {
+    return;
+  }
+
   texture_ = texture;
   AttachInternal(texture_->back_texture());
+
+  context_->functions()->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  context_->functions()->glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void RenderFramebuffer::Detach()
 {
+  if (context_ == nullptr) {
+    return;
+  }
+
   QOpenGLFunctions* f = context_->functions();
 
   // bind framebuffer for attaching
