@@ -220,6 +220,7 @@ void Core::CreateNewFolder()
 
 // FIXME: Test code
 #include "node/blend/alphaover/alphaover.h"
+#include "node/color/opacity/opacity.h"
 #include "node/output/timeline/timeline.h"
 #include "node/output/track/track.h"
 #include "node/output/viewer/viewer.h"
@@ -309,6 +310,8 @@ void Core::CreateNewSequence()
     // FIXME: Test code
     AlphaOverBlend* blend = new AlphaOverBlend();
     new_sequence->AddNode(blend);
+    OpacityNode* opac = new OpacityNode();
+    new_sequence->AddNode(opac);
     // End test code
 
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());

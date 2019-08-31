@@ -26,9 +26,9 @@
 #include "decoder/ffmpeg/ffmpegdecoder.h"
 #include "node/processor/renderer/renderer.h"
 #include "project/item/footage/footage.h"
-#include "render/pixelservice.h"
 #include "render/gl/shadergenerators.h"
 #include "render/gl/functions.h"
+#include "render/pixelservice.h"
 
 MediaInput::MediaInput() :
   decoder_(nullptr),
@@ -219,6 +219,8 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
       // In online, the color transformation was performed on the CPU (see above), so we only need to blit
       pipeline_ = olive::ShaderGenerator::DefaultPipeline();
     }
+
+    renderer->context()->functions()->glBlendFunc(GL_ONE, GL_ZERO);
 
     // Draw onto the output texture using the renderer's framebuffer
     renderer->buffer()->Attach(output_texture);

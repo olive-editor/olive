@@ -18,28 +18,33 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#ifndef OPACITYNODE_H
+#define OPACITYNODE_H
 
-#include "node/blend/blend.h"
+#include "node/node.h"
 #include "render/gl/shaderptr.h"
 
-class AlphaOverBlend : public BlendNode
+class OpacityNode : public Node
 {
+  Q_OBJECT
 public:
-  AlphaOverBlend();
+  OpacityNode();
 
   virtual QString Name() override;
-  virtual QString id() override;
+  virtual QString Category() override;
   virtual QString Description() override;
 
-  virtual void Release() override;
+  virtual QString id() override;
 
-protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+  virtual QVariant Value(NodeOutput *output, const rational &time) override;
 
 private:
-  ShaderPtr shader_;
+  NodeInput* opacity_input_;
+
+  NodeInput* texture_input_;
+
+  NodeOutput* texture_output_;
+
 };
 
-#endif // ALPHAOVER_H
+#endif // OPACITYNODE_H

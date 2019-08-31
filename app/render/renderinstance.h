@@ -25,6 +25,7 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
+#include "render/gl/shaderptr.h"
 #include "render/renderframebuffer.h"
 #include "render/rendermodes.h"
 
@@ -63,6 +64,8 @@ public:
 
   const olive::RenderMode& mode() const;
 
+  ShaderPtr default_pipeline() const;
+
 private:
   QOpenGLContext ctx_;
 
@@ -81,6 +84,8 @@ private:
   olive::RenderMode mode_;
 
   int divider_;
+
+  ShaderPtr default_pipeline_;
 };
 
 #endif // GLINSTANCE_H

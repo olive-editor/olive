@@ -22,6 +22,8 @@
 
 #include <QDebug>
 
+#include "render/gl/shadergenerators.h"
+
 RenderInstance::RenderInstance(const int& width,
                                const int& height,
                                const olive::PixelFormat& format,
@@ -70,13 +72,20 @@ bool RenderInstance::Start()
 
   buffer_.Create(&ctx_);
 
+  // Set viewport to the compositing dimensions
   ctx_.functions()->glViewport(0, 0, width_, height_);
+
+  // Set up default pipeline
+  default_pipeline_ = olive::ShaderGenerator::DefaultPipeline();
 
   return true;
 }
 
 void RenderInstance::Stop()
 {
+  // Destroy pipeline
+  default_pipeline_ = nullptr;
+
   // Destroy buffer
   buffer_.Destroy();
 
@@ -120,4 +129,9 @@ const olive::PixelFormat &RenderInstance::format() const
 const olive::RenderMode &RenderInstance::mode() const
 {
   return mode_;
+}
+
+ShaderPtr RenderInstance::default_pipeline() const
+{
+  return default_pipeline_;
 }
