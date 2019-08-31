@@ -18,27 +18,34 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#ifndef SLIDERLABEL_H
+#define SLIDERLABEL_H
 
-#include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
+#include <QLabel>
 
-class AlphaOverBlend : public BlendNode
+class SliderLabel : public QLabel
 {
+  Q_OBJECT
 public:
-  AlphaOverBlend();
-
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
-
-  virtual void Release() override;
+  SliderLabel(QWidget* parent);
 
 protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+  void mousePressEvent(QMouseEvent *ev) override;
+
+  void mouseMoveEvent(QMouseEvent *ev) override;
+
+  void mouseReleaseEvent(QMouseEvent *ev) override;
+
+signals:
+  void dragged(int x);
+
+  void drag_start();
+
+  void drag_stop();
 
 private:
+  QPoint drag_start_;
+
 };
 
-#endif // ALPHAOVER_H
+#endif // SLIDERLABEL_H

@@ -25,8 +25,7 @@
 #include "render/rendertexture.h"
 #include "render/gl/shadergenerators.h"
 
-AlphaOverBlend::AlphaOverBlend() :
-  shader_(nullptr)
+AlphaOverBlend::AlphaOverBlend()
 {
 
 }
@@ -48,7 +47,6 @@ QString AlphaOverBlend::Description()
 
 void AlphaOverBlend::Release()
 {
-  shader_ = nullptr;
 }
 
 QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
@@ -76,14 +74,8 @@ QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
     // Bind blend
     blend->Bind();
 
-    // Get default pipeline shader
-    // FIXME: Come up with a good way to share pipeline shaders since a lot of nodes will just use the default
-    if (shader_ == nullptr) {
-      shader_ = olive::ShaderGenerator::DefaultPipeline();
-    }
-
     // Draw blend on base
-    olive::gl::Blit(shader_);
+    olive::gl::Blit(renderer->default_pipeline());
 
     // Release all
     blend->Release();

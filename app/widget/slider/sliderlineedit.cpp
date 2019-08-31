@@ -18,27 +18,34 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#include "sliderlineedit.h"
 
-#include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
+#include <QKeyEvent>
 
-class AlphaOverBlend : public BlendNode
+SliderLineEdit::SliderLineEdit(QWidget *parent) :
+  QLineEdit(parent)
 {
-public:
-  AlphaOverBlend();
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+}
 
-  virtual void Release() override;
+void SliderLineEdit::keyPressEvent(QKeyEvent *e)
+{
+  switch (e->key()) {
+  case Qt::Key_Return:
+  case Qt::Key_Enter:
+    emit Confirmed();
+    break;
+  case Qt::Key_Escape:
+    emit Cancelled();
+    break;
+  default:
+    QLineEdit::keyPressEvent(e);
+  }
+}
 
-protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+void SliderLineEdit::focusOutEvent(QFocusEvent *e)
+{
+  QLineEdit::focusOutEvent(e);
 
-private:
-};
-
-#endif // ALPHAOVER_H
+  emit Confirmed();
+}

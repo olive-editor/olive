@@ -28,6 +28,7 @@ OpacityNode::OpacityNode()
 {
   opacity_input_ = new NodeInput("opacity_in");
   opacity_input_->add_data_input(NodeParam::kFloat);
+  opacity_input_->set_value(100);
   AddParameter(opacity_input_);
 
   texture_input_ = new NodeInput("tex_in");

@@ -6,6 +6,8 @@
 
 #include "node/node.h"
 #include "widget/footagecombobox/footagecombobox.h"
+#include "widget/slider/floatslider.h"
+#include "widget/slider/integerslider.h"
 
 // FIXME: Test code only
 #include "panel/panelmanager.h"
@@ -52,11 +54,19 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kTrack:
     break;
   case NodeParam::kInt:
-    // FIXME: LabelSlider in INTEGER mode
+  {
+    IntegerSlider* slider = new IntegerSlider();
+    widgets_.append(slider);
+    connect(slider, SIGNAL(ValueChanged(int)), this, SLOT(WidgetCallback()));
     break;
+  }
   case NodeParam::kFloat:
-    // FIXME: LabelSlider in FLOAT mode
+  {
+    FloatSlider* slider = new FloatSlider();
+    widgets_.append(slider);
+    connect(slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
     break;
+  }
   case NodeParam::kFile:
     // FIXME: File selector
     break;
@@ -67,6 +77,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   {
     QLineEdit* line_edit = new QLineEdit();
     widgets_.append(line_edit);
+    connect(line_edit, SIGNAL(textEdited(const QString &text)), this, SLOT(WidgetCallback()));
     break;
   }
   case NodeParam::kBoolean:
@@ -116,11 +127,19 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     case NodeParam::kTrack:
       break;
     case NodeParam::kInt:
-      // FIXME: LabelSlider in INTEGER mode
+    {
+      // Widget is a IntegerSlider
+      IntegerSlider* int_slider = static_cast<IntegerSlider*>(sender());
+      input->set_value(int_slider->GetValue());
       break;
+    }
     case NodeParam::kFloat:
-      // FIXME: LabelSlider in FLOAT mode
+    {
+      // Widget is a FloatSlider
+      FloatSlider* float_slider = static_cast<FloatSlider*>(sender());
+      input->set_value(float_slider->GetValue());
       break;
+    }
     case NodeParam::kFile:
       // FIXME: File selector
       break;
@@ -130,19 +149,22 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     case NodeParam::kString:
     {
       // Sender is a QLineEdit
-      //QLineEdit* line_edit = static_cast<QLineEdit*>(sender());
+      QLineEdit* line_edit = static_cast<QLineEdit*>(sender());
+      input->set_value(line_edit->text());
       break;
     }
     case NodeParam::kBoolean:
     {
       // Widget is a QCheckBox
-      //QCheckBox* check_box = static_cast<QCheckBox*>(sender());
+      QCheckBox* check_box = static_cast<QCheckBox*>(sender());
+      input->set_value(check_box->isChecked());
       break;
     }
     case NodeParam::kFont:
     {
       // Widget is a QFontComboBox
-      //QFontComboBox* font_combobox = static_cast<QFontComboBox*>(sender());
+      QFontComboBox* font_combobox = static_cast<QFontComboBox*>(sender());
+      input->set_value(font_combobox->currentFont());
       break;
     }
     case NodeParam::kFootage:

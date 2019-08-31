@@ -88,8 +88,7 @@ void ColorService::AssociateAlphaInternal(ColorService::AlphaAction action, T *d
   for (int i=0;i<pix_count;i+=kRGBAChannels) {
     T alpha = data[i+kRGBChannels];
 
-    // FIXME: Is qIsNull the correct approach here or should it literally be an != 0?
-    if (action == kAssociate || !qIsNull(alpha)) {
+    if (action == kAssociate || alpha > 0) {
       for (int j=0;j<kRGBChannels;j++) {
         if (action == kDisassociate) {
           data[i+j] /= alpha;

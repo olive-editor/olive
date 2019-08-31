@@ -18,27 +18,25 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#include "stringslider.h"
 
-#include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
-
-class AlphaOverBlend : public BlendNode
+StringSlider::StringSlider(QWidget* parent) :
+  SliderBase(kString, parent)
 {
-public:
-  AlphaOverBlend();
+  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
+}
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+QString StringSlider::GetValue()
+{
+  return Value().toString();
+}
 
-  virtual void Release() override;
+void StringSlider::SetValue(const QString &v)
+{
+  SliderBase::SetValue(v);
+}
 
-protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
-
-private:
-};
-
-#endif // ALPHAOVER_H
+void StringSlider::ConvertValue(QVariant v)
+{
+  emit ValueChanged(v.toString());
+}

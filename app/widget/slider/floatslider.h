@@ -18,27 +18,28 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#ifndef FLOATSLIDER_H
+#define FLOATSLIDER_H
 
-#include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
+#include "sliderbase.h"
 
-class AlphaOverBlend : public BlendNode
+class FloatSlider : public SliderBase
 {
+  Q_OBJECT
 public:
-  AlphaOverBlend();
+  FloatSlider(QWidget* parent = nullptr);
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+  double GetValue();
 
-  virtual void Release() override;
+  void SetValue(const double& d);
 
-protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+  void SetDecimalPlaces(int i);
 
-private:
+signals:
+  void ValueChanged(double);
+
+private slots:
+  void ConvertValue(QVariant v);
 };
 
-#endif // ALPHAOVER_H
+#endif // FLOATSLIDER_H

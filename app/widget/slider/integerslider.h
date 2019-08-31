@@ -18,27 +18,26 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#ifndef INTEGERSLIDER_H
+#define INTEGERSLIDER_H
 
-#include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
+#include "sliderbase.h"
 
-class AlphaOverBlend : public BlendNode
+class IntegerSlider : public SliderBase
 {
+  Q_OBJECT
 public:
-  AlphaOverBlend();
+  IntegerSlider(QWidget* parent = nullptr);
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+  int GetValue();
 
-  virtual void Release() override;
+  void SetValue(const int& v);
 
-protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+signals:
+  void ValueChanged(int);
 
-private:
+private slots:
+  void ConvertValue(QVariant v);
 };
 
-#endif // ALPHAOVER_H
+#endif // INTEGERSLIDER_H

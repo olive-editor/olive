@@ -18,27 +18,32 @@
 
 ***/
 
-#ifndef ALPHAOVER_H
-#define ALPHAOVER_H
+#include "floatslider.h"
 
-#include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
-
-class AlphaOverBlend : public BlendNode
+FloatSlider::FloatSlider(QWidget *parent) :
+  SliderBase(kFloat, parent)
 {
-public:
-  AlphaOverBlend();
+  connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
+}
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+double FloatSlider::GetValue()
+{
+  return Value().toDouble();
+}
 
-  virtual void Release() override;
+void FloatSlider::SetValue(const double &d)
+{
+  SliderBase::SetValue(d);
+}
 
-protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+void FloatSlider::SetDecimalPlaces(int i)
+{
+  decimal_places_ = i;
 
-private:
-};
+  UpdateLabel(Value());
+}
 
-#endif // ALPHAOVER_H
+void FloatSlider::ConvertValue(QVariant v)
+{
+  emit ValueChanged(v.toDouble());
+}
