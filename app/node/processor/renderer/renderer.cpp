@@ -124,7 +124,7 @@ void RendererProcessor::Release()
   Stop();
 }
 
-void RendererProcessor::InvalidateCache(NodeInput* from, const rational &start_range, const rational &end_range)
+void RendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Q_UNUSED(from)
 
@@ -362,9 +362,9 @@ void RendererProcessor::DownloadThreadFinished(const rational& time)
     texture_output_->ClearCachedValue();
 
     foreach (NodeEdgePtr edge, edges) {
-      edge->input()->parent()->InvalidateCache(edge->input(),
+      edge->input()->parent()->InvalidateCache(time,
                                                time,
-                                               time);
+                                               edge->input());
     }
   }
 }

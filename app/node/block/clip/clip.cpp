@@ -86,7 +86,7 @@ QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
   return Block::Value(param, time);
 }
 
-void ClipBlock::InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range)
+void ClipBlock::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   // If signal is from texture input, transform all times from media time to sequence time
   if (from == texture_input_) {
@@ -97,10 +97,10 @@ void ClipBlock::InvalidateCache(NodeInput *from, const rational &start_range, co
     start = qMax(start, in());
     end = qMin(end, out());
 
-    Node::InvalidateCache(from, start, end);
+    Node::InvalidateCache(start, end, from);
   } else {
     // Otherwise, pass signal along normally
-    Node::InvalidateCache(from, start_range, end_range);
+    Node::InvalidateCache(start_range, end_range, from);
   }
 }
 

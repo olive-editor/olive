@@ -42,7 +42,7 @@ public:
 
   NodeInput* texture_input();
 
-  virtual void InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range) override;
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
   virtual QList<NodeDependency> RunDependencies(NodeOutput *output, const rational &time) override;
 

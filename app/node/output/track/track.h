@@ -61,6 +61,8 @@ public:
 
   NodeOutput* track_output();
 
+  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
+
   /**
    * @brief Adds Block `block` at the very beginning of the Sequence before all other clips
    */
@@ -145,7 +147,7 @@ public:
   /**
    * @brief Replaces Block `old` with Block `replace`
    *
-   * Makes no modification to the lengths of either Blocks
+   * Both blocks must have equal lengths.
    */
   void ReplaceBlock(Block* old, Block* replace);
 
@@ -186,6 +188,9 @@ private:
    */
   void ValidateCurrentBlock(const rational& time);
 
+  void BlockInvalidateCache();
+  void UnblockInvalidateCache();
+
   Block* attached_block();
 
   QVector<Block*> block_cache_;
@@ -195,6 +200,8 @@ private:
   NodeInput* track_input_;
 
   NodeOutput* track_output_;
+
+  int block_invalidate_cache_stack_;
 
 private slots:
 

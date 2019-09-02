@@ -65,7 +65,7 @@ void Node::RemoveParameter(NodeParam *param)
   delete param;
 }
 
-void Node::InvalidateCache(NodeInput* from, const rational &start_range, const rational &end_range)
+void Node::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Q_UNUSED(from)
 
@@ -91,7 +91,7 @@ void Node::InvalidateCache(NodeInput* from, const rational &start_range, const r
           edge->output()->ClearCachedValue();
 
           // Send clear cache signal to the Node
-          connected_node->InvalidateCache(connected_input, start_range, end_range);
+          connected_node->InvalidateCache(start_range, end_range, connected_input);
         }
       }
     }
@@ -326,5 +326,5 @@ bool Node::HasParamWithID(const QString &id)
 
 void Node::InputChanged(rational start, rational end)
 {
-  InvalidateCache(static_cast<NodeInput*>(sender()), start, end);
+  InvalidateCache(start, end, static_cast<NodeInput*>(sender()));
 }

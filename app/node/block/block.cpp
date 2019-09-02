@@ -102,6 +102,9 @@ void Block::EdgeAddedSlot(NodeEdgePtr edge)
 
     // The blocks surrounding this one have changed, we need to Refresh()
     RefreshFollowing();
+
+    // Entire track will have shifted, so the whole cache needs to be re-validated
+    InvalidateCache(0, RATIONAL_MAX);
   }
 }
 
@@ -126,8 +129,6 @@ void Block::Refresh()
 
   // Update out point by adding this clip's length to the just calculated in point
   out_point_ = in_point_ + length();
-
-  InvalidateCache(nullptr, in_point_, out_point_);
 
   emit Refreshed();
 }
@@ -176,7 +177,7 @@ void Block::set_media_in(const rational &media_in)
     media_in_ = media_in;
 
     // Signal that this clips contents have changed
-    InvalidateCache(nullptr, in(), out());
+    InvalidateCache(in(), out());
   }
 }
 

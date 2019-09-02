@@ -26,7 +26,8 @@
 #include "node/graph.h"
 
 TrackOutput::TrackOutput() :
-  current_block_(this)
+  current_block_(this),
+  block_invalidate_cache_stack_(0)
 {
   track_input_ = new NodeInput("track_in");
   track_input_->add_data_input(NodeParam::kTrack);
@@ -148,7 +149,13 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
-#include "render/rendertexture.h"
+void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+{
+  // We intercept IC signals from Blocks since we may be performing several options and they may over-signal
+  if (!block_invalidate_cache_stack_) {
+    Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, in()), from);
+  }
+}
 
 QVariant TrackOutput::Value(NodeOutput *output, const rational &time)
 {
@@ -247,11 +254,18 @@ void TrackOutput::AppendBlock(Block *block)
 {
   AddBlockToGraph(block);
 
+  BlockInvalidateCache();
+
   if (block_cache_.isEmpty()) {
     ConnectBlockInternal(block);
   } else {
     InsertBlockBetweenBlocks(block, block_cache_.last(), this);
   }
+
+  UnblockInvalidateCache();
+
+  // Invalidate area that block was added to
+  InvalidateCache(block->in(), in());
 }
 
 void TrackOutput::ConnectBlockInternal(Block *block)
@@ -289,6 +303,16 @@ void TrackOutput::ValidateCurrentBlock(const rational &time)
   }
 }
 
+void TrackOutput::BlockInvalidateCache()
+{
+  block_invalidate_cache_stack_++;
+}
+
+void TrackOutput::UnblockInvalidateCache()
+{
+  block_invalidate_cache_stack_--;
+}
+
 void TrackOutput::PlaceBlock(Block *block, rational start)
 {
   if (block_cache_.contains(block) && block->in() == start) {
@@ -299,20 +323,14 @@ void TrackOutput::PlaceBlock(Block *block, rational start)
 
   // Check if the placement location is past the end of the timeline
   if (start >= in()) {
-    GapBlock* gap = nullptr;
-
     if (start > in()) {
       // If so, insert a gap here
-      gap = new GapBlock();
+      GapBlock* gap = new GapBlock();
       gap->set_length(start - in());
+      AppendBlock(gap);
     }
 
-    InsertBlockBefore(block, this);
-
-    if (gap != nullptr) {
-      // Insert gap if we made one before
-      InsertBlockBefore(gap, block);
-    }
+    AppendBlock(block);
     return;
   }
 
@@ -365,6 +383,8 @@ Block* TrackOutput::SplitBlock(Block *block, rational time)
     return nullptr;
   }
 
+  BlockInvalidateCache();
+
   rational original_length = block->length();
 
   block->set_length(time - block->in());
@@ -372,6 +392,8 @@ Block* TrackOutput::SplitBlock(Block *block, rational time)
   Block* copy = block->copy();
   copy->set_length(original_length - block->length());
   InsertBlockAfter(copy, block);
+
+  UnblockInvalidateCache();
 
   return copy;
 }
@@ -477,8 +499,12 @@ void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 {
+  Q_ASSERT(old->length() == replace->length());
+
   Block* previous = old->previous();
   Block* next = old->next();
+
+  BlockInvalidateCache();
 
   AddBlockToGraph(replace);
 
@@ -492,4 +518,8 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
     Block::DisconnectBlocks(old, next);
     Block::ConnectBlocks(replace, next);
   }
+
+  UnblockInvalidateCache();
+
+  InvalidateCache(replace->in(), replace->out());
 }

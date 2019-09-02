@@ -53,7 +53,7 @@ public:
 
   virtual void Release() override;
 
-  virtual void InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range) override;
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
   void SetTimebase(const rational& timebase);
 

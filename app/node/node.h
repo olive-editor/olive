@@ -173,7 +173,7 @@ public:
    * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
    * call this function with transformed time and relay the signal that way.
    */
-  virtual void InvalidateCache(NodeInput* from, const rational& start_range, const rational& end_range);
+  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr);
 
 protected:
   /**
