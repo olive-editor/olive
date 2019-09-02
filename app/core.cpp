@@ -333,6 +333,7 @@ void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<Task::Status>("Task::Status");
   qRegisterMetaType<NodeDependency>();
+  qRegisterMetaType<rational>();
 }
 
 void Core::StartGUI(bool full_screen)

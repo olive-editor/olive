@@ -102,10 +102,10 @@ void NodeInput::set_value(const QVariant &value)
   if (keyframing()) {
     // FIXME: Keyframing code using time()
   } else {
+    // Not keyframing, so invalidate entire time length
     keyframes_.first().set_value(value);
 
-    // FIXME: Put correct values here
-    emit ValueChanged(0, 0);
+    emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
   }
 }
 

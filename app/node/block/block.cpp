@@ -127,8 +127,6 @@ void Block::Refresh()
   // Update out point by adding this clip's length to the just calculated in point
   out_point_ = in_point_ + length();
 
-  InvalidateCache(in_point_, out_point_);
-
   emit Refreshed();
 }
 
@@ -176,7 +174,7 @@ void Block::set_media_in(const rational &media_in)
     media_in_ = media_in;
 
     // Signal that this clips contents have changed
-    InvalidateCache(in(), out());
+    InvalidateCache(nullptr, in(), out());
   }
 }
 
@@ -188,4 +186,24 @@ QList<NodeDependency> Block::RunDependencies(NodeOutput* param, const rational &
   Q_UNUSED(time)
 
   return QList<NodeDependency>();
+}
+
+rational Block::SequenceToMediaTime(const rational &sequence_time)
+{
+  // These constants are not considered "values" per se, so we don't modify them
+  if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
+    return sequence_time;
+  }
+
+  return sequence_time - in() + media_in();
+}
+
+rational Block::MediaToSequenceTime(const rational &media_time)
+{
+  // These constants are not considered "values" per se, so we don't modify them
+  if (media_time == RATIONAL_MIN || media_time == RATIONAL_MAX) {
+    return media_time;
+  }
+
+  return media_time - media_in() + in();
 }

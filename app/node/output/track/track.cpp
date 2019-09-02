@@ -175,6 +175,21 @@ void TrackOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *a
   Block::ConnectBlocks(block, after);
 }
 
+void TrackOutput::InsertBlockBefore(Block* block, Block* after)
+{
+  Block* before = after->previous();
+
+  // If a block precedes this one, just insert between them
+  if (before != nullptr) {
+    InsertBlockBetweenBlocks(block, before, after);
+  } else {
+    AddBlockToGraph(block);
+
+    // Otherwise, just connect the block since there's no before clip to insert between
+    Block::ConnectBlocks(block, after);
+  }
+}
+
 void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 {
   InsertBlockBetweenBlocks(block, before, before->next());
@@ -279,16 +294,20 @@ void TrackOutput::PlaceBlock(Block *block, rational start)
 
   // Check if the placement location is past the end of the timeline
   if (start >= in()) {
+    GapBlock* gap = nullptr;
+
     if (start > in()) {
       // If so, insert a gap here
-      GapBlock* gap = new GapBlock();
+      gap = new GapBlock();
       gap->set_length(start - in());
-
-      // Then append them
-      AppendBlock(gap);
     }
 
-    AppendBlock(block);
+    InsertBlockBefore(block, this);
+
+    if (gap != nullptr) {
+      // Insert gap if we made one before
+      InsertBlockBefore(gap, block);
+    }
     return;
   }
 

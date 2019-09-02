@@ -104,6 +104,10 @@ signals:
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
+  rational SequenceToMediaTime(const rational& sequence_time);
+
+  rational MediaToSequenceTime(const rational& media_time);
+
 private:  
   NodeInput* previous_input_;
   NodeOutput* block_output_;

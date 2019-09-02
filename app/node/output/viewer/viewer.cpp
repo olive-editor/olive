@@ -78,12 +78,12 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
   }
 }
 
-void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range)
+void ViewerOutput::InvalidateCache(NodeInput* from, const rational &start_range, const rational &end_range)
 {
   // Update any attached viewer
   UpdateViewer();
 
-  Node::InvalidateCache(start_range, end_range);
+  Node::InvalidateCache(from, start_range, end_range);
 }
 
 void ViewerOutput::UpdateViewer()

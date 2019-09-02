@@ -53,7 +53,7 @@ public:
 
   virtual void Release() override;
 
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
+  virtual void InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range) override;
 
   void SetTimebase(const rational& timebase);
 
@@ -171,12 +171,16 @@ private:
   QVector<RendererDownloadThreadPtr> download_threads_;
   int last_download_thread_;
 
+  rational last_requested_time_;
+
   RenderTexturePtr master_texture_;
 
 private slots:
   void ThreadCallback();
 
   void ThreadRequestSibling(NodeDependency dep);
+
+  void DownloadThreadFinished(const rational &time);
 
 };
 

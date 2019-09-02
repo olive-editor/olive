@@ -89,6 +89,11 @@ public:
   void InsertBlockAfter(Block* block, Block* before);
 
   /**
+   * @brief Inserts Block before another Block
+   */
+  void InsertBlockBefore(Block* block, Block* after);
+
+  /**
    * @brief Adds Block `block` at the very end of the Sequence after all other clips
    */
   void AppendBlock(Block* block);

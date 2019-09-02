@@ -13,7 +13,10 @@ public:
                          const olive::PixelFormat& format,
                          const olive::RenderMode& mode);
 
-  void Queue(RenderTexturePtr texture, const QString &fn);
+  void Queue(RenderTexturePtr texture, const QString &fn, const rational &time);
+
+signals:
+  void Downloaded(const rational& time);
 
 protected:
   virtual void ProcessLoop() override;
@@ -24,6 +27,8 @@ private:
   QVector<RenderTexturePtr> texture_queue_;
 
   QVector<QString> download_filenames_;
+
+  QVector<rational> texture_times_;
 
   QMutex texture_queue_lock_;
 

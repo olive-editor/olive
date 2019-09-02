@@ -16,12 +16,13 @@ RendererDownloadThread::RendererDownloadThread(QOpenGLContext *share_ctx,
 {
 }
 
-void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn)
+void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const rational& time)
 {
   texture_queue_lock_.lock();
 
   texture_queue_.append(texture);
   download_filenames_.append(fn);
+  texture_times_.append(time);
 
   wait_cond_.wakeAll();
 
@@ -37,6 +38,7 @@ void RendererDownloadThread::ProcessLoop()
 
   RenderTexturePtr working_texture;
   QString working_filename;
+  rational working_time;
 
   int buffer_size = PixelService::GetBufferSize(render_instance()->format(),
                                                 render_instance()->width(),
@@ -62,6 +64,7 @@ void RendererDownloadThread::ProcessLoop()
 
     working_texture = texture_queue_.takeFirst();
     working_filename = download_filenames_.takeFirst();
+    working_time = texture_times_.takeFirst();
 
     texture_queue_lock_.unlock();
 
@@ -101,7 +104,7 @@ void RendererDownloadThread::ProcessLoop()
       out->close();
     }
 
-    qDebug() << this << "saved" << working_filename;
+    emit Downloaded(working_time);
 
   }
 

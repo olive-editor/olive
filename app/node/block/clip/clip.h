@@ -42,12 +42,12 @@ public:
 
   NodeInput* texture_input();
 
+  virtual void InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range) override;
+
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
-  rational SequenceToMediaTime(const rational& sequence_time);
-
   NodeInput* texture_input_;
 
 };

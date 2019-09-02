@@ -31,6 +31,8 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   mode_(mode),
   dragged_(false)
 {
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+
   label_ = new SliderLabel(this);
   addWidget(label_);
 

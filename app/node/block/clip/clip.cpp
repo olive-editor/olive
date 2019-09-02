@@ -67,11 +67,6 @@ NodeInput *ClipBlock::texture_input()
   return texture_input_;
 }
 
-rational ClipBlock::SequenceToMediaTime(const rational &sequence_time)
-{
-  return sequence_time - in() + media_in();
-}
-
 QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
 {
   QVariant value = Block::Value(param, time);
@@ -80,7 +75,7 @@ QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
     // If the time retrieved is within this block, get texture information
     if (time >= in() && time < out()) {
       // We convert the time given (timeline time) to media time
-      rational media_time = SequenceToMediaTime(time - in() + media_in());
+      rational media_time = SequenceToMediaTime(time);
 
       // Retrieve texture
       return texture_input_->get_value(media_time);
@@ -89,4 +84,22 @@ QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
   }
 
   return Block::Value(param, time);
+}
+
+void ClipBlock::InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range)
+{
+  // If signal is from texture input, transform all times from media time to sequence time
+  if (from == texture_input_) {
+    rational start = MediaToSequenceTime(start_range);
+    rational end = MediaToSequenceTime(end_range);
+
+    // Limit cache invalidation to clip lengths
+    start = qMax(start, in());
+    end = qMin(end, out());
+
+    Node::InvalidateCache(from, start, end);
+  } else {
+    // Otherwise, pass signal along normally
+    Node::InvalidateCache(from, start_range, end_range);
+  }
 }

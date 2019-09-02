@@ -7,6 +7,8 @@
 #define RATIONAL_H
 #include <iostream>
 
+#include <QMetaType>
+
 extern "C" {
 #include <libavformat/avformat.h>
 }
@@ -131,5 +133,7 @@ private:
 
 #define RATIONAL_MIN rational(LONG_MIN, 1)
 #define RATIONAL_MAX rational(LONG_MAX, 1)
+
+Q_DECLARE_METATYPE(rational)
 
 #endif // RATIONAL_H

@@ -54,6 +54,10 @@ void Node::AddParameter(NodeParam *param)
 
   connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+
+  if (param->type() == NodeParam::kInput) {
+    connect(param, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
+  }
 }
 
 void Node::RemoveParameter(NodeParam *param)
@@ -61,8 +65,10 @@ void Node::RemoveParameter(NodeParam *param)
   delete param;
 }
 
-void Node::InvalidateCache(const rational &start_range, const rational &end_range)
+void Node::InvalidateCache(NodeInput* from, const rational &start_range, const rational &end_range)
 {
+  Q_UNUSED(from)
+
   QList<NodeParam *> params = parameters();
 
   // Loop through all parameters (there should be no children that are not NodeParams)
@@ -78,7 +84,12 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 
         // Only send this signal if the Node isn't ignoring invalidate cache signals from this input
         if (!connected_node->ignore_invalid_cache_inputs_.contains(connected_input)) {
-          connected_node->InvalidateCache(start_range, end_range);
+          // Clear values cached in the parameters
+          connected_input->ClearCachedValue();
+          edge->output()->ClearCachedValue();
+
+          // Send clear cache signal to the Node
+          connected_node->InvalidateCache(connected_input, start_range, end_range);
         }
       }
     }
@@ -286,4 +297,9 @@ bool Node::HasParamWithID(const QString &id)
   }
 
   return false;
+}
+
+void Node::InputChanged(rational start, rational end)
+{
+  InvalidateCache(static_cast<NodeInput*>(sender()), start, end);
 }

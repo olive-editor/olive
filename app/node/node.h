@@ -158,6 +158,17 @@ public:
    */
   static T* ValueToPtr(const QVariant& ptr);
 
+  /**
+   * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
+   *        requires re-rendering
+   *
+   * Override this if your Node subclass keeps a cache, but call this base function at the end of the subclass function.
+   * Default behavior is to relay this signal to all connected outputs, which will need to be done as to not break
+   * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
+   * call this function with transformed time and relay the signal that way.
+   */
+  virtual void InvalidateCache(NodeInput* from, const rational& start_range, const rational& end_range);
+
 protected:
   /**
    * @brief Add a parameter to this node
@@ -174,17 +185,6 @@ protected:
    * The NodeParam object is destroyed in the process.
    */
   void RemoveParameter(NodeParam* param);
-
-  /**
-   * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
-   *        requires re-rendering
-   *
-   * Override this if your Node subclass keeps a cache, but call this base function at the end of the subclass function.
-   * Default behavior is to relay this signal to all connected outputs, which will need to be done as to not break
-   * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
-   * call this function with transformed time and relay the signal that way.
-   */
-  virtual void InvalidateCache(const rational& start_range, const rational& end_range);
 
   /**
    * @brief If we receive a signal from NodeInput `input`, don't propagate it.
@@ -262,6 +262,9 @@ private:
    * @brief Used for thread safety in Run()
    */
   QMutex lock_;
+
+private slots:
+  void InputChanged(rational start, rational end);
 };
 
 template<class T>

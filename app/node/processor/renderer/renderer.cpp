@@ -36,7 +36,8 @@ RendererProcessor::RendererProcessor() :
   width_(0),
   height_(0),
   divider_(1),
-  caching_(false)
+  caching_(false),
+  last_requested_time_(-1)
 {
   texture_input_ = new NodeInput("tex_in");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -78,6 +79,8 @@ void RendererProcessor::SetCacheName(const QString &s)
 QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 {
   if (output == texture_output_) {
+    last_requested_time_ = time;
+
     if (!texture_input_->IsConnected()) {
       // Nothing is connected - nothing to show or render
       return 0;
@@ -117,7 +120,7 @@ void RendererProcessor::Release()
   Stop();
 }
 
-void RendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range)
+void RendererProcessor::InvalidateCache(NodeInput* from, const rational &start_range, const rational &end_range)
 {
   qDebug() << "[RendererProcessor] Cache invalidated between"
            << start_range.toDouble()
@@ -133,12 +136,17 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
   for (rational r=true_start_range;r<=end_range;r+=timebase_) {
     if (!cache_queue_.contains(r)) {
       cache_queue_.append(r);
+
+      QString fn = CachePathName(r);
+      if (QFileInfo::exists(fn)) {
+        QFile(fn).remove();
+      }
     }
   }
 
   CacheNext();
 
-  Node::InvalidateCache(start_range, end_range);
+  Node::InvalidateCache(from, start_range, end_range);
 }
 
 void RendererProcessor::SetTimebase(const rational &timebase)
@@ -216,6 +224,8 @@ void RendererProcessor::Start()
     // Create download thread
     download_threads_[i] = std::make_shared<RendererDownloadThread>(ctx, effective_width_, effective_height_, format_, mode_);
     download_threads_[i]->StartThread(QThread::LowPriority);
+
+    connect(download_threads_[i].get(), SIGNAL(Downloaded(const rational&)), this, SLOT(DownloadThreadFinished(const rational&)));
   }
 
   last_download_thread_ = 0;
@@ -314,13 +324,9 @@ void RendererProcessor::ThreadCallback()
 
     RenderTexturePtr texture = texture_input_->get_value(cache_frame_).value<RenderTexturePtr>();
 
-    QString fn = CachePathName(cache_frame_);
-    if (texture == nullptr) {
-      if (QFileInfo::exists(fn)) {
-        QFile(fn).remove();
-      }
-    } else {
-      download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture, fn);
+    if (texture != nullptr) {
+      QString fn = CachePathName(cache_frame_);
+      download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture, fn, cache_frame_);
       last_download_thread_++;
     }
 
@@ -334,6 +340,23 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
   for (int i=0;i<threads_.size();i++) {
     if (threads_.at(i)->Queue(dep, false)) {
       return;
+    }
+  }
+}
+
+void RendererProcessor::DownloadThreadFinished(const rational& time)
+{
+  // Check if we just downloaded (akak finished caching) the frame we're currently on
+  if (time == last_requested_time_ && texture_output_->IsConnected()) {
+    // Send invalidate cache signal to all nodes connected to the texture output
+    QVector<NodeEdgePtr> edges = texture_output()->edges();
+
+    texture_output_->ClearCachedValue();
+
+    foreach (NodeEdgePtr edge, edges) {
+      edge->input()->parent()->InvalidateCache(edge->input(),
+                                               time,
+                                               time);
     }
   }
 }
