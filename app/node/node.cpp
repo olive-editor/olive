@@ -279,6 +279,29 @@ bool Node::OutputsTo(Node *n)
   return false;
 }
 
+void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time)
+{
+  // Add this Node's ID
+  hash->addData(id().toUtf8());
+
+  // Add each value
+  QList<NodeParam*> params = parameters();
+  foreach (NodeParam* param, params) {
+    if (param->type() == NodeParam::kInput && !param->IsConnected()) {
+      // Get the value at this time
+      QVariant v = static_cast<NodeInput*>(param)->get_value(time);
+      hash->addData(v.toByteArray()); // FIXME: Does this work on all value types?
+    }
+  }
+
+  // Add each dependency node
+  QList<NodeDependency> deps = RunDependencies(from, time);
+  foreach (const NodeDependency& dep, deps) {
+    // Hash the connected node
+    dep.node()->parent()->Hash(hash, dep.node(), time);
+  }
+}
+
 QVariant Node::PtrToValue(void *ptr)
 {
   return reinterpret_cast<quintptr>(ptr);

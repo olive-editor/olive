@@ -195,10 +195,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   }
 
   // Convert timecode to AVStream timebase
-  int64_t target_ts = qFloor(timecode.toDouble() * rational(avstream_->time_base).flipped().toDouble());
-
-  // Find closest actual timebase in the file
-  target_ts = GetClosestTimestampInIndex(target_ts);
+  int64_t target_ts = GetTimestampFromTime(timecode);
 
   if (target_ts < 0) {
     Error(tr("Index failed to produce a valid timestamp"));
@@ -321,6 +318,21 @@ void FFmpegDecoder::Close()
 QString FFmpegDecoder::id()
 {
   return "ffmpeg";
+}
+
+int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
+{
+  if (!open_ && !Open()) {
+    return -1;
+  }
+
+  // Convert timecode to AVStream timebase
+  int64_t target_ts = qFloor(time.toDouble() * rational(avstream_->time_base).flipped().toDouble());
+
+  // Find closest actual timebase in the file
+  target_ts = GetClosestTimestampInIndex(target_ts);
+
+  return target_ts;
 }
 
 bool FFmpegDecoder::Probe(Footage *f)

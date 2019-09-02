@@ -161,6 +161,13 @@ public:
   virtual void Close() = 0;
 
   /**
+   * @brief Get a media file's internal timestamp
+   *
+   * Used to determine which frame will be served at a given time, useful for caching.
+   */
+  virtual int64_t GetTimestampFromTime(const rational& time) = 0;
+
+  /**
    * @brief Try to probe a Footage file by passing it through all available Decoders
    *
    * This is a helper function designed to abstract the process of communicating with several Decoders from the rest of

@@ -21,6 +21,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <QCryptographicHash>
 #include <QMutex>
 #include <QObject>
 
@@ -146,6 +147,11 @@ public:
    * @brief Returns whether this Node outputs data to the Node `n` in any way
    */
   bool OutputsTo(Node* n);
+
+  /**
+   * @brief Add's unique information about this Node at the given time to a QCryptographicHash
+   */
+  virtual void Hash(QCryptographicHash* hash, NodeOutput *from, const rational& time);
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams

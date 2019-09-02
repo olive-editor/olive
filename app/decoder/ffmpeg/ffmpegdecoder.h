@@ -51,6 +51,8 @@ public:
 
   virtual QString id() override;
 
+  virtual int64_t GetTimestampFromTime(const rational& time) override;
+
 private:
   /**
    * @brief Handle an error
@@ -117,14 +119,14 @@ private:
    */
   void SaveFrameIndex();
 
+  int64_t GetClosestTimestampInIndex(const int64_t& ts);
+
   /**
    * @brief Returns an AVPixelFormat that can be
    * @param pix_fmt
    * @return
    */
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
-
-  int64_t GetClosestTimestampInIndex(const int64_t& ts);
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;

@@ -97,6 +97,18 @@ void MediaInput::SetFootage(Footage *f)
   footage_input_->set_value(PtrToValue(f));
 }
 
+void MediaInput::Hash(QCryptographicHash *hash, const rational &time)
+{
+  Node::Hash(hash, time);
+
+  // Use frame value from Decoder
+  if (SetupDecoder()) {
+    hash->addData(QString::number(decoder_->GetTimestampFromTime(time)).toUtf8());
+    // FIXME: Add OCIO data
+    // FIXME: Add alpha association value
+  }
+}
+
 QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 {
   // FIXME: Hardcoded value
@@ -111,25 +123,9 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
       return 0;
     }
 
-    // Get currently selected Footage
-    Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(time));
-
-    // If no footage is selected, return nothing
-    if (footage == nullptr) {
+    // Make sure decoder is set up
+    if (!SetupDecoder()) {
       return 0;
-    }
-
-    // Otherwise try to get frame of footage from decoder
-
-    // Determine which decoder to use
-    if (decoder_ == nullptr
-        && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
-      return 0;
-    }
-
-    if (decoder_->stream() == nullptr) {
-      // FIXME: Hardcoded stream 0
-      decoder_->set_stream(footage->stream(0));
     }
 
     // Get frame from Decoder
@@ -246,4 +242,34 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
   }
 
   return 0;
+}
+
+bool MediaInput::SetupDecoder()
+{
+  if (decoder_ != nullptr) {
+    return true;
+  }
+
+  // Get currently selected Footage
+  Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(0));
+
+  // If no footage is selected, return nothing
+  if (footage == nullptr) {
+    return false;
+  }
+
+  // Otherwise try to get frame of footage from decoder
+
+  // Determine which decoder to use
+  if (decoder_ == nullptr
+      && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
+    return false;
+  }
+
+  if (decoder_->stream() == nullptr) {
+    // FIXME: Hardcoded stream 0
+    decoder_->set_stream(footage->stream(0));
+  }
+
+  return true;
 }

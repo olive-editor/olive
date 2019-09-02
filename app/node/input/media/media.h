@@ -51,10 +51,16 @@ public:
 
   void SetFootage(Footage* f);
 
+  virtual void Hash(QCryptographicHash *hash, const rational &time) override;
+
+
+
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
+  bool SetupDecoder();
+
   NodeInput* footage_input_;
 
   NodeInput* matrix_input_;
