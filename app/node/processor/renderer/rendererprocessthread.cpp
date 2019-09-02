@@ -20,12 +20,16 @@
 
 #include "rendererprocessthread.h"
 
-RendererProcessThread::RendererProcessThread(QOpenGLContext *share_ctx,
+#include "renderer.h"
+
+RendererProcessThread::RendererProcessThread(RendererProcessor* parent,
+                                             QOpenGLContext *share_ctx,
                                              const int &width,
                                              const int &height,
                                              const olive::PixelFormat &format,
                                              const olive::RenderMode &mode) :
-  RendererThreadBase(share_ctx, width, height, format, mode)
+  RendererThreadBase(share_ctx, width, height, format, mode),
+  parent_(parent)
 {
 
 }
@@ -56,6 +60,16 @@ bool RendererProcessThread::Queue(const NodeDependency& dep, bool wait)
   return true;
 }
 
+const QByteArray &RendererProcessThread::hash()
+{
+  return hash_;
+}
+
+RenderTexturePtr RendererProcessThread::texture()
+{
+  return texture_;
+}
+
 void RendererProcessThread::ProcessLoop()
 {
   while (!Cancelled()) {
@@ -71,19 +85,26 @@ void RendererProcessThread::ProcessLoop()
     NodeOutput* output_to_process = path_.node();
     Node* node_to_process = output_to_process->parent();
 
-    QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
+    // Check hash
+    QCryptographicHash hasher(QCryptographicHash::Sha1);
+    node_to_process->Hash(&hasher, output_to_process, path_.time());
+    hash_ = hasher.result();
 
-    // Ask for other threads to run these deps while we're here
-    if (!deps.isEmpty()) {
-      for (int i=1;i<deps.size();i++) {
-        emit RequestSibling(deps.at(i));
+    if (!parent_->HasHash(hash_)) {
+      QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
+
+      // Ask for other threads to run these deps while we're here
+      if (!deps.isEmpty()) {
+        for (int i=1;i<deps.size();i++) {
+          emit RequestSibling(deps.at(i));
+        }
       }
+
+      // Get the requested value
+      texture_ = output_to_process->get_value(path_.time()).value<RenderTexturePtr>();
+
+      render_instance()->context()->functions()->glFinish();
     }
-
-    // Get the requested value
-    output_to_process->get_value(path_.time());
-
-    render_instance()->context()->functions()->glFinish();
 
     emit FinishedPath();
   }

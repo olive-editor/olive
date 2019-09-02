@@ -103,3 +103,14 @@ void ClipBlock::InvalidateCache(NodeInput *from, const rational &start_range, co
     Node::InvalidateCache(from, start_range, end_range);
   }
 }
+
+QList<NodeDependency> ClipBlock::RunDependencies(NodeOutput *output, const rational &time)
+{
+  QList<NodeDependency> deps;
+
+  if (output == texture_output() && texture_input_->IsConnected()) {
+    deps.append(NodeDependency(texture_input_->get_connected_output(), SequenceToMediaTime(time)));
+  }
+
+  return deps;
+}

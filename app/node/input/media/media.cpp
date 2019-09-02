@@ -97,12 +97,13 @@ void MediaInput::SetFootage(Footage *f)
   footage_input_->set_value(PtrToValue(f));
 }
 
-void MediaInput::Hash(QCryptographicHash *hash, const rational &time)
+void MediaInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational &time)
 {
-  Node::Hash(hash, time);
+  Node::Hash(hash, from, time);
 
   // Use frame value from Decoder
-  if (SetupDecoder()) {
+  if (from == texture_output_ && SetupDecoder()) {
+    qDebug() << "[MediaInput] Hashing pts" << decoder_->GetTimestampFromTime(time);
     hash->addData(QString::number(decoder_->GetTimestampFromTime(time)).toUtf8());
     // FIXME: Add OCIO data
     // FIXME: Add alpha association value

@@ -96,18 +96,22 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
       return 0;
     }
 
-    QString fn = CachePathName(time);
-    if (QFileInfo::exists(fn)) {
-      auto in = OIIO::ImageInput::open(fn.toStdString());
+    // Find frame in map
+    if (time_hash_map_.contains(time)) {
+      QString fn = CachePathName(time_hash_map_[time]);
 
-      if (in) {
-        in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
+      if (QFileInfo::exists(fn)) {
+        auto in = OIIO::ImageInput::open(fn.toStdString());
 
-        in->close();
+        if (in) {
+          in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
 
-        master_texture_->Upload(cache_frame_load_buffer_.data());
+          in->close();
 
-        return QVariant::fromValue(master_texture_);
+          master_texture_->Upload(cache_frame_load_buffer_.data());
+
+          return QVariant::fromValue(master_texture_);
+        }
       }
     }
   }
@@ -122,6 +126,8 @@ void RendererProcessor::Release()
 
 void RendererProcessor::InvalidateCache(NodeInput* from, const rational &start_range, const rational &end_range)
 {
+  Q_UNUSED(from)
+
   qDebug() << "[RendererProcessor] Cache invalidated between"
            << start_range.toDouble()
            << "and"
@@ -136,17 +142,12 @@ void RendererProcessor::InvalidateCache(NodeInput* from, const rational &start_r
   for (rational r=true_start_range;r<=end_range;r+=timebase_) {
     if (!cache_queue_.contains(r)) {
       cache_queue_.append(r);
-
-      QString fn = CachePathName(r);
-      if (QFileInfo::exists(fn)) {
-        QFile(fn).remove();
-      }
     }
+
+    time_hash_map_.remove(r);
   }
 
   CacheNext();
-
-  Node::InvalidateCache(from, start_range, end_range);
 }
 
 void RendererProcessor::SetTimebase(const rational &timebase)
@@ -209,7 +210,7 @@ void RendererProcessor::Start()
   threads_.resize(background_thread_count);
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererProcessThread>(ctx, effective_width_, effective_height_, format_, mode_);
+    threads_[i] = std::make_shared<RendererProcessThread>(this, ctx, effective_width_, effective_height_, format_, mode_);
     threads_[i]->StartThread(QThread::LowPriority);
 
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
@@ -300,14 +301,19 @@ void RendererProcessor::CacheNext()
   caching_ = true;
 }
 
-QString RendererProcessor::CachePathName(const rational &time)
+QString RendererProcessor::CachePathName(const QByteArray &hash)
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
   this_cache_dir.mkpath(".");
 
-  QString filename = QString("%1.%2.exr").arg(QString::number(time.numerator()), QString::number(time.denominator()));
+  QString filename = QString("%1.exr").arg(QString(hash.toHex()));
 
   return this_cache_dir.filePath(filename);
+}
+
+bool RendererProcessor::HasHash(const QByteArray &hash)
+{
+  return QFileInfo::exists(CachePathName(hash));
 }
 
 void RendererProcessor::CalculateEffectiveDimensions()
@@ -322,13 +328,15 @@ void RendererProcessor::ThreadCallback()
     // Threads are all done now, time to proceed
     caching_ = false;
 
-    RenderTexturePtr texture = texture_input_->get_value(cache_frame_).value<RenderTexturePtr>();
+    RenderTexturePtr texture = master_thread_->texture();
 
     if (texture != nullptr) {
-      QString fn = CachePathName(cache_frame_);
+      QString fn = CachePathName(master_thread_->hash());
       download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture, fn, cache_frame_);
       last_download_thread_++;
     }
+
+    time_hash_map_.insert(cache_frame_, master_thread_->hash());
 
     CacheNext();
   }
@@ -347,7 +355,7 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
 void RendererProcessor::DownloadThreadFinished(const rational& time)
 {
   // Check if we just downloaded (akak finished caching) the frame we're currently on
-  if (time == last_requested_time_ && texture_output_->IsConnected()) {
+  if (texture_output_->IsConnected() && time == last_requested_time_) {
     // Send invalidate cache signal to all nodes connected to the texture output
     QVector<NodeEdgePtr> edges = texture_output()->edges();
 

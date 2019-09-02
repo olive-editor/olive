@@ -218,8 +218,8 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     if (got_frame && (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE)) {
       // If we already tried seeking to 0 though, there's nothing we can do so we error here
       if (last_backtrack) {
-        Error(tr("FFmpeg failed to seek to the correct location"));
-        return nullptr;
+        // Must be the earliest frame in the file
+        break;
       }
 
       // We can't seek earlier than 0, so if this is a 0-seek, don't try any more times after this attempt
@@ -597,6 +597,14 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
     Index();
   }
 
+  if (frame_index_.isEmpty()) {
+    return -1;
+  }
+
+  if (ts <= 0) {
+    return 0;
+  }
+
   // Use index to find closest frame in file
   for (int i=1;i<frame_index_.size();i++) {
     if (frame_index_.at(i) == ts) {
@@ -606,5 +614,5 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
     }
   }
 
-  return -1;
+  return frame_index_.last();
 }

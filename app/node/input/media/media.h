@@ -51,7 +51,7 @@ public:
 
   void SetFootage(Footage* f);
 
-  virtual void Hash(QCryptographicHash *hash, const rational &time) override;
+  virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
 
 
 

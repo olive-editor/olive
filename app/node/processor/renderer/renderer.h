@@ -84,6 +84,11 @@ public:
   void SetDivider(const int& divider);
 
   /**
+   * @brief Return whether a frame with this hash already exists
+   */
+  bool HasHash(const QByteArray& hash);
+
+  /**
    * @brief Return current instance of a RenderThread (or nullptr if there is none)
    *
    * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
@@ -126,7 +131,7 @@ private:
   /**
    * @brief Return the path of the cached image at this time
    */
-  QString CachePathName(const rational& time);
+  QString CachePathName(const QByteArray &hash);
 
   /**
    * @brief Internal list of RenderProcessThreads
@@ -174,6 +179,8 @@ private:
   rational last_requested_time_;
 
   RenderTexturePtr master_texture_;
+
+  QMap<rational, QByteArray> time_hash_map_;
 
 private slots:
   void ThreadCallback();

@@ -90,6 +90,11 @@ void TrackOutput::Refresh()
 
   foreach (Block* b, block_cache_) {
     if (!detect_attached_blocks.contains(b)) {
+      // If the current block was removed, stop referencing it
+      if (current_block_ == b) {
+        current_block_ = this;
+      }
+
       emit BlockRemoved(b);
     }
   }

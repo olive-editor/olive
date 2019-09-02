@@ -23,17 +23,24 @@
 
 #include "rendererthreadbase.h"
 
+class RendererProcessor;
+
 class RendererProcessThread : public RendererThreadBase
 {
   Q_OBJECT
 public:
-  RendererProcessThread(QOpenGLContext* share_ctx,
+  RendererProcessThread(RendererProcessor* parent,
+                        QOpenGLContext* share_ctx,
                         const int& width,
                         const int& height,
                         const olive::PixelFormat& format,
                         const olive::RenderMode& mode);
 
   bool Queue(const NodeDependency &dep, bool wait);
+
+  const QByteArray& hash();
+
+  RenderTexturePtr texture();
 
 protected:
   virtual void ProcessLoop() override;
@@ -44,9 +51,15 @@ signals:
   void FinishedPath();
 
 private:
+  RendererProcessor* parent_;
+
   NodeDependency path_;
 
   rational time_;
+
+  QByteArray hash_;
+
+  RenderTexturePtr texture_;
 
 };
 

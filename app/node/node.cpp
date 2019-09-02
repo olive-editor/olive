@@ -77,7 +77,9 @@ void Node::InvalidateCache(NodeInput* from, const rational &start_range, const r
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
 
-      foreach (NodeEdgePtr edge, param->edges()) {
+      QVector<NodeEdgePtr> edges = param->edges();
+
+      foreach (NodeEdgePtr edge, edges) {
 
         NodeInput* connected_input = edge->input();
         Node* connected_node = connected_input->parent();
@@ -298,7 +300,7 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
   QList<NodeDependency> deps = RunDependencies(from, time);
   foreach (const NodeDependency& dep, deps) {
     // Hash the connected node
-    dep.node()->parent()->Hash(hash, dep.node(), time);
+    dep.node()->parent()->Hash(hash, dep.node(), dep.time());
   }
 }
 

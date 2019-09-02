@@ -44,6 +44,8 @@ public:
 
   virtual void InvalidateCache(NodeInput *from, const rational &start_range, const rational &end_range) override;
 
+  virtual QList<NodeDependency> RunDependencies(NodeOutput *output, const rational &time) override;
+
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 

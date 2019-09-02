@@ -127,6 +127,8 @@ void Block::Refresh()
   // Update out point by adding this clip's length to the just calculated in point
   out_point_ = in_point_ + length();
 
+  InvalidateCache(nullptr, in_point_, out_point_);
+
   emit Refreshed();
 }
 
