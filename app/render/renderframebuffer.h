@@ -27,6 +27,7 @@
 
 class RenderFramebuffer : public QObject
 {
+  Q_OBJECT
 public:
   RenderFramebuffer();
   ~RenderFramebuffer();
@@ -36,8 +37,6 @@ public:
   RenderFramebuffer& operator=(RenderFramebuffer&& other) = delete;
 
   void Create(QOpenGLContext *ctx);
-
-  void Destroy();
 
   bool IsCreated() const;
 
@@ -52,6 +51,9 @@ public:
   void Detach();
 
   const GLuint& buffer() const;
+
+public slots:
+  void Destroy();
 
 private:
   void AttachInternal(GLuint tex);

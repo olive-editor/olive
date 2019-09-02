@@ -98,6 +98,8 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 
     // Find frame in map
     if (time_hash_map_.contains(time)) {
+      qDebug() << "Showed:" << time_hash_map_[time].toHex();
+
       QString fn = CachePathName(time_hash_map_[time]);
 
       if (QFileInfo::exists(fn)) {
@@ -362,6 +364,8 @@ void RendererProcessor::DownloadThreadFinished(const rational& time)
     texture_output_->ClearCachedValue();
 
     foreach (NodeEdgePtr edge, edges) {
+      edge->input()->ClearCachedValue();
+
       edge->input()->parent()->InvalidateCache(time,
                                                time,
                                                edge->input());

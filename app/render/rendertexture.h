@@ -26,13 +26,9 @@
 
 #include "pixelformat.h"
 
-// FIXME: Test code
-#include <QMutex>
-extern QMutex m;
-// End test code
-
 class RenderTexture : public QObject
 {
+  Q_OBJECT
 public:
   enum Type {
     kSingleBuffer,
@@ -50,8 +46,6 @@ public:
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const Type& type, void *data = nullptr);
 
   bool IsCreated() const;
-
-  void Destroy();
 
   void Bind();
 
@@ -72,6 +66,9 @@ public:
   void Upload(const void *data);
 
   uchar *Download() const;
+
+public slots:
+  void Destroy();
 
 private:
   void CreateInternal(GLuint *tex, void *data = nullptr);

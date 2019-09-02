@@ -67,11 +67,6 @@ public:
   const rational& media_in();
   void set_media_in(const rational& media_in);
 
-  /**
-   * @brief Override removes previous input as that is not a direct dependency
-   */
-  virtual QList<NodeDependency> RunDependencies(NodeOutput* output, const rational &time) override;
-
 public slots:
   /**
    * @brief Refreshes internal cache of in/out points up to date

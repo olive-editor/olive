@@ -48,6 +48,8 @@ void RenderFramebuffer::Create(QOpenGLContext *ctx)
 
   context_ = ctx;
 
+  connect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+
   // Create framebuffer object
   context_->functions()->glGenFramebuffers(1, &buffer_);
 }
@@ -55,6 +57,8 @@ void RenderFramebuffer::Create(QOpenGLContext *ctx)
 void RenderFramebuffer::Destroy()
 {
   if (context_ != nullptr) {
+    disconnect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+
     context_->functions()->glDeleteFramebuffers(1, &buffer_);
 
     buffer_ = 0;

@@ -31,6 +31,7 @@ TrackOutput::TrackOutput() :
 {
   track_input_ = new NodeInput("track_in");
   track_input_->add_data_input(NodeParam::kTrack);
+  track_input_->set_dependent(false);
   AddParameter(track_input_);
 
   track_output_ = new NodeOutput("track_out");
@@ -359,6 +360,10 @@ void TrackOutput::RemoveBlock(Block *block)
 
 void TrackOutput::RippleRemoveBlock(Block *block)
 {
+  BlockInvalidateCache();
+
+  rational remove_in = block->in();
+
   Block* previous = block->previous();
   Block* next = block->next();
 
@@ -373,6 +378,10 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   if (previous != nullptr && next != nullptr) {
     Block::ConnectBlocks(previous, next);
   }
+
+  UnblockInvalidateCache();
+
+  InvalidateCache(remove_in, in());
 
   // FIXME: Should there be removing the Blocks from the graph?
 }
@@ -391,7 +400,11 @@ Block* TrackOutput::SplitBlock(Block *block, rational time)
 
   Block* copy = block->copy();
   copy->set_length(original_length - block->length());
+  copy->set_media_in(block->media_in() + block->length());
+
   InsertBlockAfter(copy, block);
+
+  Node::CopyInputs(block, copy);
 
   UnblockInvalidateCache();
 
@@ -449,6 +462,8 @@ void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
     }
   }
 
+  BlockInvalidateCache();
+
   // If we picked up a block to splice
   if (splice != nullptr) {
 
@@ -495,6 +510,10 @@ void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
       InsertBlockBetweenBlocks(insert, trim_out_to_in, trim_in_to_out);
     }
   }
+
+  UnblockInvalidateCache();
+
+  InvalidateCache(in, out);
 }
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)

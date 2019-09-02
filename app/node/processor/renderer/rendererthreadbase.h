@@ -39,13 +39,14 @@ public:
                      const olive::PixelFormat& format,
                      const olive::RenderMode& mode);
 
-  void Cancel();
-
   RenderInstance* render_instance();
 
   void StartThread(Priority priority = InheritPriority);
 
   virtual void run() override;
+
+public slots:
+  void Cancel();
 
 protected:
   virtual void ProcessLoop() = 0;

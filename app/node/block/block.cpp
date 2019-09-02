@@ -27,6 +27,7 @@ Block::Block() :
 {
   previous_input_ = new NodeInput("prev_block");
   previous_input_->add_data_input(NodeParam::kBlock);
+  previous_input_->set_dependent(false);
   AddParameter(previous_input_);
 
   block_output_ = new NodeOutput("block_out");
@@ -63,7 +64,11 @@ const rational& Block::length()
 
 void Block::set_length(const rational &length)
 {
+  Lock();
+
   length_ = length;
+
+  Unlock();
 
   RefreshFollowing();
 }
@@ -179,16 +184,6 @@ void Block::set_media_in(const rational &media_in)
     // Signal that this clips contents have changed
     InvalidateCache(in(), out());
   }
-}
-
-QList<NodeDependency> Block::RunDependencies(NodeOutput* param, const rational &time)
-{
-  // Base Blocks have no direct dependencies
-
-  Q_UNUSED(param)
-  Q_UNUSED(time)
-
-  return QList<NodeDependency>();
 }
 
 rational Block::SequenceToMediaTime(const rational &sequence_time)

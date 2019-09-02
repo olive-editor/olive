@@ -232,11 +232,6 @@ protected:
   QVector<NodeEdgePtr> edges_;
 
   /**
-   * @brief Used for thread safety
-   */
-  QMutex lock_;
-
-  /**
    * @brief Currently cached value
    */
   QVariant value_;

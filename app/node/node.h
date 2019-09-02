@@ -130,9 +130,9 @@ public:
   QList<Node*> GetImmediateDependencies();
 
   /**
-   * @brief Thread-safe wrapper for Process()
+   * @brief Wrapper for Process()
    *
-   * It's recommended to call this directly over Process(), yet in derivatives of Node, override Process().
+   * It's recommended to call this directly over Value(), yet in derivatives of Node, override Value().
    */
   QVariant Run(NodeOutput* output, const rational& time);
 
@@ -174,6 +174,23 @@ public:
    * call this function with transformed time and relay the signal that way.
    */
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr);
+
+  /**
+   * @brief Lock mutex (for thread safety)
+   */
+  void Lock();
+
+  /**
+   * @brief Unock mutex (for thread safety)
+   */
+  void Unlock();
+
+  /**
+   * @brief Copies inputs from from Node to another including connections
+   *
+   * Nodes must be of the same types (i.e. have the same ID)
+   */
+  static void CopyInputs(Node* source, Node* destination);
 
 protected:
   /**
@@ -265,7 +282,7 @@ private:
   NodeOutput* last_processed_parameter_;
 
   /**
-   * @brief Used for thread safety in Run()
+   * @brief Used for thread safety
    */
   QMutex lock_;
 

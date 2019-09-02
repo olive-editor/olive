@@ -98,6 +98,36 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
   }
 }
 
+void Node::Lock()
+{
+  lock_.lock();
+}
+
+void Node::Unlock()
+{
+  lock_.unlock();
+}
+
+void Node::CopyInputs(Node *source, Node *destination)
+{
+  Q_ASSERT(source->id() == destination->id());
+
+  QList<NodeParam*> src_param = source->parameters();
+  QList<NodeParam*> dst_param = destination->parameters();
+
+  for (int i=0;i<src_param.size();i++) {
+    if (src_param.at(i)->type() == NodeParam::kInput) {
+      NodeInput* src = static_cast<NodeInput*>(src_param.at(i));
+
+      if (src->dependent()) {
+        NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
+
+        NodeInput::CopyValues(src, dst);
+      }
+    }
+  }
+}
+
 void Node::IgnoreCacheInvalidationFrom(NodeInput *input)
 {
   ignore_invalid_cache_inputs_.append(input);
@@ -131,13 +161,7 @@ NodeOutput *Node::LastProcessedOutput()
 
 QVariant Node::Run(NodeOutput* output, const rational& time)
 {
-  lock_.lock();
-
-  QVariant v = Value(output, time);
-
-  lock_.unlock();
-
-  return v;
+  return Value(output, time);
 }
 
 NodeParam *Node::ParamAt(int index)
@@ -178,7 +202,9 @@ void GetDependenciesInternal(Node* n, QList<Node*>& list, bool traverse) {
       foreach (NodeEdgePtr edge, param_edges) {
         Node* connected_node = edge->output()->parent();
 
-        list.append(connected_node);
+        if (!list.contains(connected_node)) {
+          list.append(connected_node);
+        }
 
         if (traverse) {
           GetDependenciesInternal(connected_node, list, traverse);
@@ -250,13 +276,17 @@ QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &
 
   foreach (NodeParam* p, params) {
     if (p->type() == NodeParam::kInput) {
-      NodeOutput* potential_dep = static_cast<NodeInput*>(p)->get_connected_output();
+      NodeInput* input = static_cast<NodeInput*>(p);
 
-      if (potential_dep != nullptr) {
-        run_deps.append(NodeDependency(potential_dep, time));
+      // Check if Node is dependent on this input or not
+      if (input->dependent()) {
+        NodeOutput* potential_dep = input->get_connected_output();
+
+        if (potential_dep != nullptr) {
+          run_deps.append(NodeDependency(potential_dep, time));
+        }
       }
     }
-
   }
 
   return run_deps;
@@ -285,11 +315,14 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
 {
   // Add this Node's ID
   hash->addData(id().toUtf8());
+  qDebug() << "Hashing" << id();
 
   // Add each value
   QList<NodeParam*> params = parameters();
   foreach (NodeParam* param, params) {
-    if (param->type() == NodeParam::kInput && !param->IsConnected()) {
+    if (param->type() == NodeParam::kInput
+        && !param->IsConnected()
+        && static_cast<NodeInput*>(param)->dependent()) {
       // Get the value at this time
       QVariant v = static_cast<NodeInput*>(param)->get_value(time);
       hash->addData(v.toByteArray()); // FIXME: Does this work on all value types?

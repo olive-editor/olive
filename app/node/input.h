@@ -104,9 +104,26 @@ public:
   void set_keyframing(bool k);
 
   /**
+   * @brief Return whether the Node is dependent on this input or not
+   *
+   * \see set_dependent()
+   */
+  bool dependent();
+
+  /**
+   * @brief Set whether the Node is dependent on this input
+   */
+  void set_dependent(bool d);
+
+  /**
    * @brief A list of input data types accepted by this parameter
    */
   const QList<DataType>& inputs();
+
+  /**
+   * @brief Copy all values including keyframe information and connections from another NodeInput
+   */
+  static void CopyValues(NodeInput* source, NodeInput* dest);
 
 signals:
   void ValueChanged(const rational& start, const rational& end);
@@ -131,6 +148,11 @@ private:
    * @brief Internal keyframing enabled setting
    */
   bool keyframing_;
+
+  /**
+   * @brief Internal dependent setting
+   */
+  bool dependent_;
 
 };
 

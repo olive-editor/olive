@@ -85,10 +85,19 @@ void RendererProcessThread::ProcessLoop()
     NodeOutput* output_to_process = path_.node();
     Node* node_to_process = output_to_process->parent();
 
+    node_to_process->Lock();
+
+    QList<Node*> all_deps = node_to_process->GetDependencies();
+    foreach (Node* dep, all_deps) {
+      dep->Lock();
+    }
+
     // Check hash
     QCryptographicHash hasher(QCryptographicHash::Sha1);
     node_to_process->Hash(&hasher, output_to_process, path_.time());
     hash_ = hasher.result();
+
+    texture_ = nullptr;
 
     if (!parent_->HasHash(hash_)) {
       QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
@@ -105,6 +114,12 @@ void RendererProcessThread::ProcessLoop()
 
       render_instance()->context()->functions()->glFinish();
     }
+
+    foreach (Node* dep, all_deps) {
+      dep->Unlock();
+    }
+
+    node_to_process->Unlock();
 
     emit FinishedPath();
   }

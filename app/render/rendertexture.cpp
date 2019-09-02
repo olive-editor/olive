@@ -25,10 +25,6 @@
 
 #include "render/pixelservice.h"
 
-// FIXME: Test code
-QMutex m;
-// End test code
-
 RenderTexture::RenderTexture() :
   context_(nullptr),
   texture_(0)
@@ -64,6 +60,8 @@ void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
   height_ = height;
   format_ = format;
 
+  connect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+
   // Create main texture
   CreateInternal(&texture_, data);
 
@@ -76,6 +74,8 @@ void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
 void RenderTexture::Destroy()
 {
   if (context_ != nullptr) {
+    disconnect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+
     context_->functions()->glDeleteTextures(1, &texture_);
     texture_ = 0;
 

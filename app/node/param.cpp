@@ -149,10 +149,16 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 
   NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
 
+  output->parent()->Lock();
+  input->parent()->Lock();
+
   output->edges_.append(edge);
   input->edges_.append(edge);
 
   input->ClearCachedValue();
+
+  output->parent()->Unlock();
+  input->parent()->Unlock();
 
   // Emit a signal than an edge was added (only one signal needs emitting)
   emit input->EdgeAdded(edge);
@@ -165,10 +171,16 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
   NodeOutput* output = edge->output();
   NodeInput* input = edge->input();
 
+  output->parent()->Lock();
+  input->parent()->Lock();
+
   output->edges_.removeAll(edge);
   input->edges_.removeAll(edge);
 
   input->ClearCachedValue();
+
+  output->parent()->Unlock();
+  input->parent()->Unlock();
 
   emit input->EdgeRemoved(edge);
 }

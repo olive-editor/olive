@@ -31,6 +31,7 @@ RendererThreadBase::RendererThreadBase(QOpenGLContext *share_ctx, const int &wid
   mode_(mode),
   render_instance_(nullptr)
 {
+  connect(share_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Cancel()));
 }
 
 void RendererThreadBase::Cancel()

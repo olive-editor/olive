@@ -20,11 +20,13 @@
 
 #include "input.h"
 
+#include "node.h"
 #include "output.h"
 
 NodeInput::NodeInput(const QString& id) :
   NodeParam(id),
-  keyframing_(false)
+  keyframing_(false),
+  dependent_(true)
 {
   // Have at least one keyframe/value active at any time
   keyframes_.append(NodeKeyframe());
@@ -74,8 +76,6 @@ QVariant NodeInput::get_value(const rational& time)
 {
   QVariant v;
 
-  lock_.lock();
-
   if (time_ != time) {
     // Retrieve the value
     if (!edges_.isEmpty()) {
@@ -92,13 +92,15 @@ QVariant NodeInput::get_value(const rational& time)
 
   v = value_;
 
-  lock_.unlock();
-
   return v;
 }
 
 void NodeInput::set_value(const QVariant &value)
 {
+  bool lock_mutex = (parent() != nullptr);
+
+  if (lock_mutex) parent()->Lock();
+
   if (keyframing()) {
     // FIXME: Keyframing code using time()
   } else {
@@ -107,6 +109,8 @@ void NodeInput::set_value(const QVariant &value)
 
     emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
   }
+
+  if (lock_mutex) parent()->Unlock();
 }
 
 bool NodeInput::keyframing()
@@ -119,7 +123,31 @@ void NodeInput::set_keyframing(bool k)
   keyframing_ = k;
 }
 
+bool NodeInput::dependent()
+{
+  return dependent_;
+}
+
+void NodeInput::set_dependent(bool d)
+{
+  dependent_ = d;
+}
+
 const QList<NodeParam::DataType> &NodeInput::inputs()
 {
   return inputs_;
+}
+
+void NodeInput::CopyValues(NodeInput *source, NodeInput *dest)
+{
+  // Copy values
+  dest->keyframes_ = source->keyframes_;
+
+  // Copy keyframing state
+  dest->set_keyframing(source->keyframing());
+
+  // Copy connections
+  if (source->get_connected_output() != nullptr) {
+    ConnectEdge(source->get_connected_output(), dest);
+  }
 }

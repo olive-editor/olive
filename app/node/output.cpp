@@ -51,8 +51,6 @@ QVariant NodeOutput::get_value(const rational& time)
 {
   QVariant v;
 
-  lock_.lock();
-
   if (time_ != time) {
     // Update the value
     value_ = parent()->Run(this, time);
@@ -61,8 +59,6 @@ QVariant NodeOutput::get_value(const rational& time)
   }
 
   v = value_;
-
-  lock_.unlock();
 
   return v;
 }
