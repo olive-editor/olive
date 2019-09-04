@@ -15,6 +15,9 @@ public:
 
   void Queue(RenderTexturePtr texture, const QString &fn, const rational &time);
 
+public slots:
+  virtual void Cancel() override;
+
 signals:
   void Downloaded(const rational& time);
 
@@ -31,6 +34,8 @@ private:
   QVector<rational> texture_times_;
 
   QMutex texture_queue_lock_;
+
+  QAtomicInt cancelled_;
 
 };
 

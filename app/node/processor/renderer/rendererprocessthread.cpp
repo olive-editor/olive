@@ -29,7 +29,8 @@ RendererProcessThread::RendererProcessThread(RendererProcessor* parent,
                                              const olive::PixelFormat &format,
                                              const olive::RenderMode &mode) :
   RendererThreadBase(share_ctx, width, height, format, mode),
-  parent_(parent)
+  parent_(parent),
+  cancelled_(false)
 {
 
 }
@@ -70,11 +71,26 @@ RenderTexturePtr RendererProcessThread::texture()
   return texture_;
 }
 
+void RendererProcessThread::Cancel()
+{
+  cancelled_ = true;
+
+  mutex_.lock();
+  wait_cond_.wakeAll();
+  mutex_.unlock();
+
+  wait();
+}
+
 void RendererProcessThread::ProcessLoop()
 {
-  while (!Cancelled()) {
+  while (!cancelled_) {
     // Main waiting condition
     wait_cond_.wait(&mutex_);
+
+    if (cancelled_) {
+      break;
+    }
 
     // Wake up main thread
     caller_mutex_.lock();

@@ -315,7 +315,6 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
 {
   // Add this Node's ID
   hash->addData(id().toUtf8());
-  qDebug() << "Hashing" << id();
 
   // Add each value
   QList<NodeParam*> params = parameters();

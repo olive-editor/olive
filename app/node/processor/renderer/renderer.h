@@ -176,8 +176,6 @@ private:
   QVector<RendererDownloadThreadPtr> download_threads_;
   int last_download_thread_;
 
-  rational last_requested_time_;
-
   RenderTexturePtr master_texture_;
 
   QMap<rational, QByteArray> time_hash_map_;

@@ -91,3 +91,12 @@ bool NodeGraph::ContainsNode(Node *n)
 {
   return (n->parent() == this);
 }
+
+void NodeGraph::Release()
+{
+  QList<Node*> all_nodes = nodes();
+
+  foreach (Node* n, all_nodes) {
+    n->Release();
+  }
+}

@@ -208,6 +208,11 @@ public:
    */
   void ClearCachedValue();
 
+  /**
+   * @brief Retrieve the last time this parameter had a value requested from
+   */
+  const rational& LastRequestedTime();
+
 signals:
   /**
    * @brief Signal emitted when an edge is added to this parameter

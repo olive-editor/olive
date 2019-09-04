@@ -25,7 +25,14 @@ PanelManager* olive::panel_focus_manager = nullptr;
 PanelManager::PanelManager(QObject *parent) :
   QObject(parent)
 {
+}
 
+void PanelManager::DeleteAllPanels()
+{
+  foreach (PanelWidget* panel, focus_history_) {
+    delete panel;
+  }
+  focus_history_.clear();
 }
 
 PanelWidget *PanelManager::CurrentlyFocused() const

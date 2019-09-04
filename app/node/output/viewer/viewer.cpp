@@ -80,8 +80,10 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
 
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
-  // Update any attached viewer
-  UpdateViewer();
+  if (start_range == current_time_ || end_range == current_time_) {
+    // Update any attached viewer
+    UpdateViewer();
+  }
 
   Node::InvalidateCache(start_range, end_range, from);
 }
@@ -89,6 +91,7 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
 void ViewerOutput::UpdateViewer()
 {
   texture_input_->ClearCachedValue();
+
   ViewerTimeChanged(current_time_);
 }
 

@@ -38,6 +38,9 @@ public:
 public slots:
   void ProjectOpen(Project *p);
 
+protected:
+  virtual void closeEvent(QCloseEvent* e) override;
+
 private:
 
 

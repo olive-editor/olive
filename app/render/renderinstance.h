@@ -67,7 +67,7 @@ public:
   ShaderPtr default_pipeline() const;
 
 private:
-  QOpenGLContext ctx_;
+  QOpenGLContext* ctx_;
 
   QOpenGLContext* share_ctx_;
 

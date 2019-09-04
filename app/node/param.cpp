@@ -238,3 +238,8 @@ void NodeParam::ClearCachedValue()
   // currently cached
   time_ = -1;
 }
+
+const rational &NodeParam::LastRequestedTime()
+{
+  return time_;
+}

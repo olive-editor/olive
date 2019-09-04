@@ -39,6 +39,8 @@ class NodeView : public QGraphicsView
 public:
   NodeView(QWidget* parent);
 
+  virtual ~NodeView() override;
+
   /**
    * @brief Sets the graph to view
    */

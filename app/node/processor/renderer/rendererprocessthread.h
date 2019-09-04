@@ -42,6 +42,9 @@ public:
 
   RenderTexturePtr texture();
 
+public slots:
+  virtual void Cancel() override;
+
 protected:
   virtual void ProcessLoop() override;
 
@@ -60,6 +63,8 @@ private:
   QByteArray hash_;
 
   RenderTexturePtr texture_;
+
+  QAtomicInt cancelled_;
 
 };
 

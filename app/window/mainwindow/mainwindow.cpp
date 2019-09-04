@@ -79,3 +79,20 @@ void olive::MainWindow::ProjectOpen(Project* p)
 
   connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
 }
+
+// FIXME: Test code
+#include <QDir>
+#include "common/filefunctions.h"
+// End test code
+
+void olive::MainWindow::closeEvent(QCloseEvent *e)
+{
+  olive::panel_focus_manager->DeleteAllPanels();
+
+  // FIXME: Test code - We have no cache management and the cache is very much testing only, so we delete it on close
+  //                    as to not clog up HDD space
+  QDir(GetMediaCacheLocation()).removeRecursively();
+  // End test code
+
+  QMainWindow::closeEvent(e);
+}

@@ -36,8 +36,7 @@ RendererProcessor::RendererProcessor() :
   width_(0),
   height_(0),
   divider_(1),
-  caching_(false),
-  last_requested_time_(-1)
+  caching_(false)
 {
   texture_input_ = new NodeInput("tex_in");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -79,8 +78,6 @@ void RendererProcessor::SetCacheName(const QString &s)
 QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 {
   if (output == texture_output_) {
-    last_requested_time_ = time;
-
     if (!texture_input_->IsConnected()) {
       // Nothing is connected - nothing to show or render
       return 0;
@@ -98,7 +95,6 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
 
     // Find frame in map
     if (time_hash_map_.contains(time)) {
-      qDebug() << "Showed:" << time_hash_map_[time].toHex();
 
       QString fn = CachePathName(time_hash_map_[time]);
 
@@ -340,6 +336,11 @@ void RendererProcessor::ThreadCallback()
 
     time_hash_map_.insert(cache_frame_, master_thread_->hash());
 
+    // We didn't receive a texture to download, but the viewer may still need updating
+    if (texture == nullptr) {
+      DownloadThreadFinished(cache_frame_);
+    }
+
     CacheNext();
   }
 }
@@ -357,15 +358,15 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
 void RendererProcessor::DownloadThreadFinished(const rational& time)
 {
   // Check if we just downloaded (akak finished caching) the frame we're currently on
-  if (texture_output_->IsConnected() && time == last_requested_time_) {
+  if (texture_output_->IsConnected()) {
+    if (texture_output_->LastRequestedTime() == time) {
+      texture_output_->ClearCachedValue();
+    }
+
     // Send invalidate cache signal to all nodes connected to the texture output
     QVector<NodeEdgePtr> edges = texture_output()->edges();
 
-    texture_output_->ClearCachedValue();
-
     foreach (NodeEdgePtr edge, edges) {
-      edge->input()->ClearCachedValue();
-
       edge->input()->parent()->InvalidateCache(time,
                                                time,
                                                edge->input());

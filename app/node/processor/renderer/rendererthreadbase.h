@@ -46,12 +46,10 @@ public:
   virtual void run() override;
 
 public slots:
-  void Cancel();
+  virtual void Cancel() = 0;
 
 protected:
   virtual void ProcessLoop() = 0;
-
-  bool Cancelled();
 
   QWaitCondition wait_cond_;
 
@@ -61,8 +59,6 @@ protected:
 
 private:
   QOpenGLContext* share_ctx_;
-
-  bool cancelled_;
 
   const int& width_;
 

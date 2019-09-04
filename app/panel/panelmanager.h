@@ -47,6 +47,8 @@ class PanelManager : public QObject
 public:
   PanelManager(QObject* parent);
 
+  void DeleteAllPanels();
+
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused
    */

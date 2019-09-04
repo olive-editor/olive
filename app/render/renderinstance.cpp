@@ -49,13 +49,16 @@ bool RenderInstance::Start()
     return true;
   }
 
+  // Create context object
+  ctx_ = new QOpenGLContext();
+
   // If we're sharing resources, set this up now
   if (share_ctx_ != nullptr) {
-    ctx_.setShareContext(share_ctx_);
+    ctx_->setShareContext(share_ctx_);
   }
 
   // Create OpenGL context (automatically destroys any existing if there is one)
-  if (!ctx_.create()) {
+  if (!ctx_->create()) {
     qWarning() << tr("Failed to create OpenGL context in thread %1").arg(reinterpret_cast<quintptr>(this));
     return false;
   }
@@ -64,16 +67,16 @@ bool RenderInstance::Start()
   surface_.create();
 
   // Make context current on that surface
-  if (!ctx_.makeCurrent(&surface_)) {
+  if (!ctx_->makeCurrent(&surface_)) {
     qWarning() << tr("Failed to makeCurrent() on offscreen surface in thread %1").arg(reinterpret_cast<quintptr>(this));
     surface_.destroy();
     return false;
   }
 
-  buffer_.Create(&ctx_);
+  buffer_.Create(ctx_);
 
   // Set viewport to the compositing dimensions
-  ctx_.functions()->glViewport(0, 0, width_, height_);
+  ctx_->functions()->glViewport(0, 0, width_, height_);
 
   // Set up default pipeline
   default_pipeline_ = olive::ShaderGenerator::DefaultPipeline();
@@ -83,14 +86,18 @@ bool RenderInstance::Start()
 
 void RenderInstance::Stop()
 {
+  if (IsStarted()) {
+    return;
+  }
+
   // Destroy pipeline
   default_pipeline_ = nullptr;
 
   // Destroy buffer
   buffer_.Destroy();
 
-  // Release OpenGL context
-  ctx_.doneCurrent();
+  // Destroy context
+  delete ctx_;
 
   // Destroy offscreen surface
   surface_.destroy();
@@ -108,7 +115,7 @@ RenderFramebuffer *RenderInstance::buffer()
 
 QOpenGLContext *RenderInstance::context()
 {
-  return &ctx_;
+  return ctx_;
 }
 
 const int &RenderInstance::width() const

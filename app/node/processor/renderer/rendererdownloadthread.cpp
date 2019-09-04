@@ -12,7 +12,8 @@ RendererDownloadThread::RendererDownloadThread(QOpenGLContext *share_ctx,
                                                const int &height,
                                                const olive::PixelFormat &format,
                                                const olive::RenderMode &mode) :
-  RendererThreadBase(share_ctx, width, height, format, mode)
+  RendererThreadBase(share_ctx, width, height, format, mode),
+  cancelled_(false)
 {
 }
 
@@ -27,6 +28,17 @@ void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, 
   wait_cond_.wakeAll();
 
   texture_queue_lock_.unlock();
+}
+
+void RendererDownloadThread::Cancel()
+{
+  cancelled_ = true;
+
+  texture_queue_lock_.lock();
+  wait_cond_.wakeAll();
+  texture_queue_lock_.unlock();
+
+  wait();
 }
 
 void RendererDownloadThread::ProcessLoop()
@@ -53,13 +65,21 @@ void RendererDownloadThread::ProcessLoop()
   OIIO::ImageSpec spec(render_instance()->width(), render_instance()->height(), kRGBAChannels, format_info.oiio_desc);
   spec.attribute("compression", "dwaa:200");
 
-  while (!Cancelled()) {
+  while (!cancelled_) {
     // Check queue for textures to download (use mutex to prevent collisions)
     texture_queue_lock_.lock();
 
     while (texture_queue_.isEmpty()) {
       // Main waiting condition
       wait_cond_.wait(&texture_queue_lock_);
+
+      if (cancelled_) {
+        break;
+      }
+    }
+    if (cancelled_) {
+      texture_queue_lock_.unlock();
+      break;
     }
 
     working_texture = texture_queue_.takeFirst();

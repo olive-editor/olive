@@ -24,7 +24,6 @@
 
 RendererThreadBase::RendererThreadBase(QOpenGLContext *share_ctx, const int &width, const int &height, const olive::PixelFormat &format, const olive::RenderMode &mode) :
   share_ctx_(share_ctx),
-  cancelled_(false),
   width_(width),
   height_(height),
   format_(format),
@@ -32,15 +31,6 @@ RendererThreadBase::RendererThreadBase(QOpenGLContext *share_ctx, const int &wid
   render_instance_(nullptr)
 {
   connect(share_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Cancel()));
-}
-
-void RendererThreadBase::Cancel()
-{
-  // Escape main loop
-  cancelled_ = true;
-
-  // Wait until thread is finished before returning
-  wait();
 }
 
 RenderInstance *RendererThreadBase::render_instance()
@@ -77,11 +67,6 @@ void RendererThreadBase::run()
 
   // Unlock mutex before exiting
   mutex_.unlock();
-}
-
-bool RendererThreadBase::Cancelled()
-{
-  return cancelled_;
 }
 
 void RendererThreadBase::StartThread(QThread::Priority priority)
