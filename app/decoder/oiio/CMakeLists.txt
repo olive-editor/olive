@@ -14,14 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(ffmpeg)
-add_subdirectory(oiio)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  decoder/decoder.h
-  decoder/decoder.cpp
-  decoder/frame.h
-  decoder/frame.cpp
+  decoder/oiio/oiiodecoder.h
+  decoder/oiio/oiiodecoder.cpp
   PARENT_SCOPE
 )

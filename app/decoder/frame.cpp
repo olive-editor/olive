@@ -31,6 +31,11 @@ Frame::Frame() :
 {
 }
 
+FramePtr Frame::Create()
+{
+  return std::make_shared<Frame>();
+}
+
 const int &Frame::width()
 {
   return width_;

@@ -25,6 +25,7 @@
 #include <QFileInfo>
 
 #include "decoder/ffmpeg/ffmpegdecoder.h"
+#include "decoder/oiio/oiiodecoder.h"
 
 Decoder::Decoder() :
   open_(false),
@@ -61,6 +62,7 @@ void Decoder::set_stream(StreamPtr fs)
 QVector<DecoderPtr> ReceiveListOfAllDecoders() {
   QVector<DecoderPtr> decoders;
 
+  decoders.append(std::make_shared<OIIODecoder>());
   decoders.append(std::make_shared<FFmpegDecoder>());
 
   return decoders;

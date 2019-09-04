@@ -246,10 +246,10 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   }
 
   // Frame was valid, now we create an Olive frame to place the data into
-  FramePtr frame_container = std::make_shared<Frame>();
+  FramePtr frame_container = Frame::Create();
   frame_container->set_width(frame_->width);
   frame_container->set_height(frame_->height);
-  frame_container->set_format(output_fmt_); // FIXME: Hardcoded value
+  frame_container->set_format(output_fmt_);
   frame_container->set_timestamp(rational(frame_->pts * avstream_->time_base.num, avstream_->time_base.den));
   frame_container->allocate();
 
@@ -266,9 +266,8 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
             &dst_data,
             &dst_linesize);
 
+  // Audio decoding will use a length value eventually
   Q_UNUSED(length)
-
-//   Close();
 
   return frame_container;
 }

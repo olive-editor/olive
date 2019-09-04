@@ -18,17 +18,42 @@
 
 ***/
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef OIIODECODER_H
+#define OIIODECODER_H
 
-#include "imagestream.h"
+#include <OpenImageIO/imageio.h>
 
-class VideoStream : public ImageStream
+#include "decoder/decoder.h"
+#include "render/pixelservice.h"
+
+class OIIODecoder : public Decoder
 {
 public:
-  VideoStream();
+  OIIODecoder();
+
+  virtual QString id() override;
+
+  virtual bool Probe(Footage *f) override;
+
+  virtual bool Open() override;
+
+  virtual FramePtr Retrieve(const rational &timecode, const rational &length = 0) override;
+
+  virtual void Close() override;
+
+  virtual int64_t GetTimestampFromTime(const rational &time) override;
+
+private:
+  std::unique_ptr<OIIO::ImageInput> image_;
+
+  int width_;
+
+  int height_;
+
+  olive::PixelFormat pix_fmt_;
+
+  PixelFormatInfo pix_fmt_info_;
+
 };
 
-using VideoStreamPtr = std::shared_ptr<VideoStream>;
-
-#endif // VIDEOSTREAM_H
+#endif // OIIODECODER_H

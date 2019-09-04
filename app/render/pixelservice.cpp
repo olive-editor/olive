@@ -102,7 +102,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
 
   // FIXME: It'd be nice if this was multithreaded soon
 
-  FramePtr converted = std::make_shared<Frame>();
+  FramePtr converted = Frame::Create();
 
   // Copy parameters
   converted->set_width(frame->width());

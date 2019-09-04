@@ -18,17 +18,30 @@
 
 ***/
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef IMAGESTREAM_H
+#define IMAGESTREAM_H
 
-#include "imagestream.h"
+#include "stream.h"
 
-class VideoStream : public ImageStream
+/**
+ * @brief A Stream derivative containing video-specific information
+ */
+class ImageStream : public Stream
 {
 public:
-  VideoStream();
+  ImageStream();
+
+  const int& width();
+  void set_width(const int& width);
+
+  const int& height();
+  void set_height(const int& height);
+
+private:
+  int width_;
+  int height_;
 };
 
-using VideoStreamPtr = std::shared_ptr<VideoStream>;
+using ImageStreamPtr = std::shared_ptr<ImageStream>;
 
-#endif // VIDEOSTREAM_H
+#endif // IMAGESTREAM_H

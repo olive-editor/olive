@@ -24,23 +24,3 @@ VideoStream::VideoStream()
 {
   set_type(kVideo);
 }
-
-const int &VideoStream::width()
-{
-  return width_;
-}
-
-void VideoStream::set_width(const int &width)
-{
-  width_ = width;
-}
-
-const int &VideoStream::height()
-{
-  return height_;
-}
-
-void VideoStream::set_height(const int &height)
-{
-  height_ = height;
-}

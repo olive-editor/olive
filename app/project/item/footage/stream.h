@@ -45,7 +45,8 @@ public:
     kAudio,
     kData,
     kSubtitle,
-    kAttachment
+    kAttachment,
+    kImage = 100
   };
 
   /**

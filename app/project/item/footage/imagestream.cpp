@@ -18,17 +18,29 @@
 
 ***/
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
-
 #include "imagestream.h"
 
-class VideoStream : public ImageStream
+ImageStream::ImageStream()
 {
-public:
-  VideoStream();
-};
+  set_type(kImage);
+}
 
-using VideoStreamPtr = std::shared_ptr<VideoStream>;
+const int &ImageStream::width()
+{
+  return width_;
+}
 
-#endif // VIDEOSTREAM_H
+void ImageStream::set_width(const int &width)
+{
+  width_ = width;
+}
+
+const int &ImageStream::height()
+{
+  return height_;
+}
+
+void ImageStream::set_height(const int &height)
+{
+  height_ = height;
+}

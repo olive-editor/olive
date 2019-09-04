@@ -27,6 +27,7 @@
 #include "common/rational.h"
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"
+#include "project/item/footage/imagestream.h"
 #include "project/item/footage/videostream.h"
 
 /**

@@ -188,8 +188,11 @@ void Footage::UpdateTooltip()
 
         StreamPtr s = streams_.at(i);
 
-        if (s->type() == Stream::kVideo) {
-          VideoStreamPtr vs = std::static_pointer_cast<VideoStream>(s);
+        switch (s->type()) {
+        case Stream::kVideo:
+        case Stream::kImage:
+        {
+          ImageStreamPtr vs = std::static_pointer_cast<ImageStream>(s);
 
           tip.append(
                 QCoreApplication::translate("Footage",
@@ -197,7 +200,10 @@ void Footage::UpdateTooltip()
                                                                      QString::number(vs->width()),
                                                                      QString::number(vs->height()))
                 );
-        } else if (streams_.at(i)->type() == Stream::kAudio) {
+          break;
+        }
+        case Stream::kAudio:
+        {
           AudioStreamPtr as = std::static_pointer_cast<AudioStream>(s);
 
           tip.append(
@@ -206,6 +212,10 @@ void Footage::UpdateTooltip()
                                                                                  QString::number(as->channels()),
                                                                                  QString::number(as->sample_rate()))
                 );
+          break;
+        }
+        default:
+          break;
         }
       }
     }

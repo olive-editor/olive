@@ -27,6 +27,9 @@
 #include "common/rational.h"
 #include "render/pixelformat.h"
 
+class Frame;
+using FramePtr = std::shared_ptr<Frame>;
+
 /**
  * @brief Video frame data or audio sample data from a Decoder
  *
@@ -39,6 +42,8 @@ class Frame
 public:
   /// Normal constructor
   Frame();
+
+  static FramePtr Create();
 
   /**
    * @brief Get frame's width in pixels
@@ -106,7 +111,5 @@ private:
   rational timestamp_;
 
 };
-
-using FramePtr = std::shared_ptr<Frame>;
 
 #endif // FRAME_H
