@@ -22,7 +22,11 @@
 
 #include <QDebug>
 
-OIIODecoder::OIIODecoder()
+#include "common/define.h"
+
+OIIODecoder::OIIODecoder() :
+  image_(nullptr),
+  frame_(nullptr)
 {
 }
 
@@ -67,24 +71,23 @@ bool OIIODecoder::Open()
   width_ = spec.width;
   height_ = spec.height;
 
-  // Weirdly, compiler complains this is a boolean value without casting to int
-  switch (static_cast<int>(spec.format)) {
-  case OIIO::TypeDesc::UINT8:
+  // Weirdly, switch statement doesn't work correctly here
+  if (spec.format == OIIO::TypeDesc::UINT8) {
     pix_fmt_ = olive::PIX_FMT_RGBA8;
-    break;
-  case OIIO::TypeDesc::UINT16:
-    pix_fmt_ = olive::PIX_FMT_RGBA16;
-    break;
-  case OIIO::TypeDesc::HALF:
+  } else if (spec.format == OIIO::TypeDesc::UINT16) {
+    pix_fmt_ = olive::PIX_FMT_RGBA16U;
+  } else if (spec.format == OIIO::TypeDesc::HALF) {
     pix_fmt_ = olive::PIX_FMT_RGBA16F;
-    break;
-  case OIIO::TypeDesc::FLOAT:
+  } else if (spec.format == OIIO::TypeDesc::FLOAT) {
     pix_fmt_ = olive::PIX_FMT_RGBA32F;
-    break;
-  default:
+  } else {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
     return false;
   }
+
+  // FIXME: Many OIIO pixel formats are not handled here
+
+  is_rgba_ = (spec.nchannels == kRGBAChannels);
 
   pix_fmt_info_ = PixelService::GetPixelFormatInfo(static_cast<olive::PixelFormat>(pix_fmt_));
 
@@ -93,27 +96,41 @@ bool OIIODecoder::Open()
 
 FramePtr OIIODecoder::Retrieve(const rational &timecode, const rational &length)
 {
+  if (!open_ && !Open()) {
+    return nullptr;
+  }
+
   Q_UNUSED(timecode)
   Q_UNUSED(length)
 
-  FramePtr f = Frame::Create();
+  if (frame_ == nullptr) {
+    frame_ = Frame::Create();
 
-  f->set_width(width_);
-  f->set_height(height_);
-  f->set_format(pix_fmt_);
-  f->allocate();
+    frame_->set_width(width_);
+    frame_->set_height(height_);
+    frame_->set_format(pix_fmt_);
+    frame_->allocate();
 
-  // Use the native format to determine what format OIIO should return
-  // FIXME: Behavior of RGB images as opposed to RGBA?
-  image_->read_image(pix_fmt_info_.oiio_desc, f->data());
+    // Use the native format to determine what format OIIO should return
+    // FIXME: Behavior of RGB images as opposed to RGBA?
+    image_->read_image(pix_fmt_info_.oiio_desc, frame_->data());
 
-  return f;
+    if (!is_rgba_) {
+      PixelService::ConvertRGBtoRGBA(frame_);
+    }
+  }
+
+  return frame_;
 }
 
 void OIIODecoder::Close()
 {
-  image_->close();
-  image_ = nullptr;
+  if (image_ != nullptr) {
+    image_->close();
+    image_ = nullptr;
+  }
+
+  frame_ = nullptr;
 }
 
 int64_t OIIODecoder::GetTimestampFromTime(const rational &time)

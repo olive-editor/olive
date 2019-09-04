@@ -146,23 +146,22 @@ void Footage::UpdateIcon()
 
       // Prioritize the video icon
       set_icon(olive::icon::Video);
-
-      // FIXME: When image sources can be reliably picked up, use image icon instead
-      //        Perhaps all image sources can be left to OpenImageIO meaning only video sources need to be here
+      break;
 
     } else if (HasStreamsOfType(Stream::kAudio)) {
 
       // Otherwise assume it's audio only
       set_icon(olive::icon::Audio);
+      break;
 
-    } else {
+    } else if (HasStreamsOfType(Stream::kImage)) {
 
-      // FIXME Icon/indicator for a media file with no video or audio streams?
-      //       The footage should probably be deemed kInvalid in this state
+      // Otherwise assume it's an image
+      set_icon(olive::icon::Image);
+      break;
 
     }
-    break;
-  case kInvalid:
+  [[clang::fallthrough]]; case kInvalid:
     set_icon(olive::icon::Error);
     break;
   }

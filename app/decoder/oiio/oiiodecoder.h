@@ -54,6 +54,10 @@ private:
 
   PixelFormatInfo pix_fmt_info_;
 
+  bool is_rgba_;
+
+  FramePtr frame_;
+
 };
 
 #endif // OIIODECODER_H

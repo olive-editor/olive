@@ -28,10 +28,12 @@ namespace olive {
  */
 enum PixelFormat {
   PIX_FMT_INVALID = -1,
+
   PIX_FMT_RGBA8,
-  PIX_FMT_RGBA16,
+  PIX_FMT_RGBA16U,
   PIX_FMT_RGBA16F,
   PIX_FMT_RGBA32F,
+
   PIX_FMT_COUNT
 };
 

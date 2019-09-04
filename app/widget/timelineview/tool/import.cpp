@@ -22,6 +22,7 @@
 
 #include <QMimeData>
 
+#include "config/config.h"
 #include "common/qtversionabstraction.h"
 #include "node/input/media/media.h"
 
@@ -72,8 +73,16 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
 
         TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
-        rational footage_duration(stream->timebase().numerator() * stream->duration(),
-                                  stream->timebase().denominator());
+        rational footage_duration;
+
+        if (stream->type() == Stream::kImage) {
+          // Stream is essentially length-less - use config's default image length
+          footage_duration = kDefaultImageLength;
+        } else {
+          // Use duration from file
+          footage_duration = rational(stream->timebase().numerator() * stream->duration(),
+                                      stream->timebase().denominator());
+        }
 
         ghost->SetIn(ghost_start);
         ghost->SetOut(ghost_start + footage_duration);

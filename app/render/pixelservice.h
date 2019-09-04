@@ -97,6 +97,11 @@ public:
    */
   static FramePtr ConvertPixelFormat(FramePtr frame, const olive::PixelFormat &dest_format);
 
+  /**
+   * @brief Convert an RGB image to an RGBA image
+   */
+  static void ConvertRGBtoRGBA(FramePtr frame);
+
 };
 
 #endif // PIXELSERVICE_H

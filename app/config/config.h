@@ -29,4 +29,6 @@
 
 const olive::TimecodeDisplay kTimecodeDisplay = olive::kTimecodeFrames;
 
+const rational kDefaultImageLength = 2;
+
 #endif // CONFIG_H

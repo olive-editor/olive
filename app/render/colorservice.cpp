@@ -66,7 +66,7 @@ void ColorService::AssociateAlphaPixFmtFilter(ColorService::AlphaAction action, 
     qWarning() << "Alpha association functions received an invalid pixel format";
     break;
   case olive::PIX_FMT_RGBA8:
-  case olive::PIX_FMT_RGBA16:
+  case olive::PIX_FMT_RGBA16U:
     qWarning() << "Alpha association functions only works on float-based pixel formats at this time";
     break;
   case olive::PIX_FMT_RGBA16F:

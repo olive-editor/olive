@@ -142,7 +142,7 @@ bool FFmpegDecoder::Open()
       output_fmt_ = olive::PIX_FMT_RGBA8;
       break;
     case AV_PIX_FMT_RGBA64:
-      output_fmt_ = olive::PIX_FMT_RGBA16;
+      output_fmt_ = olive::PIX_FMT_RGBA16U;
       break;
     default:
       // We should never get here, but if we do there's nothing we can do with this format
