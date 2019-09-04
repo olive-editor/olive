@@ -10,6 +10,8 @@ Please consider supporting Olive:
 
 [![Become a Patron](https://olivevideoeditor.org/img/become_a_patron_button.png)](https://www.patreon.com/olivevideoeditor)
 
+**NOTE: It is strongly discouraged to use or compile the `master` branch in its current state as it's under heavy restructuring. Please use the 0.1.x code from the "Releases" tab instead.**
+
 Compiling instructions for Windows, macOS, and Linux can be found [on the main site](https://olivevideoeditor.org/compile.php).
 
 Olive has Doxygen-compatible documentation hosted at http://olivevideoeditor.org/doxygen/. You can also run `doxygen` in the source root directory to generate a local copy.
