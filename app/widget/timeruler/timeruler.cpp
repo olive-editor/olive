@@ -92,6 +92,11 @@ void TimeRuler::SetTimebase(const rational &r)
   update();
 }
 
+const int64_t &TimeRuler::Time()
+{
+  return time_;
+}
+
 void TimeRuler::SetTime(const int64_t &r)
 {
   time_ = r;

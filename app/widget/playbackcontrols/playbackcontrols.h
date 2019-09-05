@@ -23,6 +23,8 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QPushButton>
+#include <QStackedWidget>
 
 #include "common/rational.h"
 
@@ -59,9 +61,14 @@ signals:
   void PrevFrameClicked();
 
   /**
-   * @brief Signal emitted when "Play/Pause" is clicked
+   * @brief Signal emitted when "Play" is clicked
    */
   void PlayClicked();
+
+  /**
+   * @brief Signal emitted when "Pause" is clicked
+   */
+  void PauseClicked();
 
   /**
    * @brief Signal emitted when "Next Frame" is clicked
@@ -81,6 +88,15 @@ private:
   QLabel* end_tc_lbl_;
 
   rational time_base_;
+
+  QPushButton* play_btn_;
+  QPushButton* pause_btn_;
+
+  QStackedWidget* playpause_stack_;
+
+private slots:
+  void PlayPauseClickedInternal();
+
 };
 
 #endif // PLAYBACKCONTROLS_H

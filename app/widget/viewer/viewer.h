@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollBar>
+#include <QTimer>
 #include <QWidget>
 
 #include "common/rational.h"
@@ -49,6 +50,8 @@ public:
   const double& scale();
 
   void SetScale(const double& scale_);
+
+  void SetTime(const int64_t& time);
 
 public slots:
   /**
@@ -77,8 +80,30 @@ private:
 
   rational time_base_;
 
+  double time_base_dbl_;
+
+  QTimer playback_timer_;
+
+  qint64 start_msec_;
+  int64_t start_timestamp_;
+
 private slots:
   void RulerTimeChange(int64_t i);
+
+  void Play();
+
+  void Pause();
+
+  void GoToStart();
+
+  void PrevFrame();
+
+  void NextFrame();
+
+  void GoToEnd();
+
+  void PlaybackTimerUpdate();
+
 };
 
 #endif // VIEWER_WIDGET_H

@@ -42,6 +42,8 @@ public:
 
   void SetCenteredText(bool c);
 
+  const int64_t& Time();
+
 public slots:
   void SetTime(const int64_t &r);
 

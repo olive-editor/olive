@@ -20,8 +20,10 @@
 
 #include "viewer.h"
 
+#include <QDateTime>
 #include <QLabel>
 #include <QResizeEvent>
+#include <QtMath>
 #include <QVBoxLayout>
 
 #include "viewersizer.h"
@@ -58,7 +60,16 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   controls_ = new PlaybackControls(this);
   controls_->SetTimecodeEnabled(true);
   controls_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+  connect(controls_, SIGNAL(PlayClicked()), this, SLOT(Play()));
+  connect(controls_, SIGNAL(PauseClicked()), this, SLOT(Pause()));
+  connect(controls_, SIGNAL(PrevFrameClicked()), this, SLOT(PrevFrame()));
+  connect(controls_, SIGNAL(NextFrameClicked()), this, SLOT(NextFrame()));
+  connect(controls_, SIGNAL(BeginClicked()), this, SLOT(GoToStart()));
+  connect(controls_, SIGNAL(EndClicked()), this, SLOT(GoToEnd()));
   layout->addWidget(controls_);
+
+  // Connect timer
+  connect(&playback_timer_, SIGNAL(timeout()), this, SLOT(PlaybackTimerUpdate()));
 
   // FIXME: Magic number
   ruler_->SetScale(48.0);
@@ -67,9 +78,12 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 void ViewerWidget::SetTimebase(const rational &r)
 {
   time_base_ = r;
+  time_base_dbl_ = r.toDouble();
 
   ruler_->SetTimebase(r);
   controls_->SetTimebase(r);
+
+  playback_timer_.setInterval(qFloor(r.toDouble()));
 }
 
 const double &ViewerWidget::scale()
@@ -80,6 +94,12 @@ const double &ViewerWidget::scale()
 void ViewerWidget::SetScale(const double &scale_)
 {
   ruler_->SetScale(scale_);
+}
+
+void ViewerWidget::SetTime(const int64_t &time)
+{
+  ruler_->SetTime(time);
+  RulerTimeChange(time);
 }
 
 void ViewerWidget::SetTexture(GLuint tex)
@@ -94,6 +114,61 @@ void ViewerWidget::RulerTimeChange(int64_t i)
   controls_->SetTime(i);
 
   emit TimeChanged(time_set);
+}
+
+void ViewerWidget::Play()
+{
+  if (time_base_.isNull()) {
+    qWarning() << "ViewerWidget can't play with an invalid timebase";
+    return;
+  }
+
+  start_msec_ = QDateTime::currentMSecsSinceEpoch();
+  start_timestamp_ = ruler_->Time();
+
+  playback_timer_.start();
+}
+
+void ViewerWidget::Pause()
+{
+  playback_timer_.stop();
+}
+
+void ViewerWidget::GoToStart()
+{
+  Pause();
+
+  SetTime(0);
+}
+
+void ViewerWidget::PrevFrame()
+{
+  Pause();
+
+  SetTime(ruler_->Time() - 1);
+}
+
+void ViewerWidget::NextFrame()
+{
+  Pause();
+
+  SetTime(ruler_->Time() + 1);
+}
+
+void ViewerWidget::GoToEnd()
+{
+  Pause();
+
+  qWarning() << "No end frame support yet";
+}
+
+void ViewerWidget::PlaybackTimerUpdate()
+{
+  int64_t real_time = QDateTime::currentMSecsSinceEpoch() - start_msec_;
+
+  int64_t frames_since_start = qRound(static_cast<double>(real_time) / (time_base_dbl_ * 1000));
+
+  SetTime(start_timestamp_ + frames_since_start);
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

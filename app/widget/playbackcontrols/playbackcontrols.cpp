@@ -21,7 +21,6 @@
 #include "playbackcontrols.h"
 
 #include <QHBoxLayout>
-#include <QPushButton>
 
 #include "common/timecodefunctions.h"
 #include "config/config.h"
@@ -76,10 +75,24 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   connect(prev_frame_btn, SIGNAL(clicked(bool)), this, SIGNAL(PrevFrameClicked()));
 
   // Play/Pause Button
-  QPushButton* play_btn = new QPushButton();
-  play_btn->setIcon(olive::icon::Play);
-  lower_middle_layout->addWidget(play_btn);
-  connect(play_btn, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
+  playpause_stack_ = new QStackedWidget();
+  lower_middle_layout->addWidget(playpause_stack_);
+
+  play_btn_ = new QPushButton();
+  play_btn_->setIcon(olive::icon::Play);
+  playpause_stack_->addWidget(play_btn_);
+  connect(play_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
+  connect(play_btn_, SIGNAL(clicked(bool)), this, SLOT(PlayPauseClickedInternal()));
+
+  pause_btn_ = new QPushButton();
+  pause_btn_->setIcon(olive::icon::Pause);
+  playpause_stack_->addWidget(pause_btn_);
+  connect(pause_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PauseClicked()));
+  connect(pause_btn_, SIGNAL(clicked(bool)), this, SLOT(PlayPauseClickedInternal()));
+
+  // Default to showing play button
+  playpause_stack_->setCurrentWidget(play_btn_);
+  playpause_stack_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 
   // Next Frame Button
   QPushButton* next_frame_btn = new QPushButton();
@@ -126,4 +139,14 @@ void PlaybackControls::SetTime(const int64_t &r)
   Q_ASSERT(time_base_.denominator() != 0);
 
   cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, kTimecodeDisplay));
+}
+
+void PlaybackControls::PlayPauseClickedInternal()
+{
+  if (sender() == play_btn_) {
+    // Play was clicked, toggle to pause
+    playpause_stack_->setCurrentWidget(pause_btn_);
+  } else {
+    playpause_stack_->setCurrentWidget(play_btn_);
+  }
 }
