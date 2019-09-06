@@ -73,6 +73,10 @@ QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
   if (output == texture_output_) {
     RenderTexturePtr input_tex = texture_input_->get_value(time).value<RenderTexturePtr>();
 
+    if (input_tex == nullptr) {
+      return 0;
+    }
+
     // Attach texture's back buffer as frame buffer
     renderer->buffer()->AttachBackBuffer(input_tex);
     renderer->buffer()->Bind();
@@ -82,17 +86,27 @@ QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
 
     // Set opacity to value
     ShaderPtr pipeline = renderer->default_pipeline();
+    pipeline->bind();
     pipeline->setUniformValue("opacity", opacity_input_->get_value(time).toFloat()*0.01f);
+    pipeline->release();
+
+    renderer->context()->functions()->glBlendFunc(GL_ONE, GL_ZERO);
 
     // Blit
-    olive::gl::Blit(renderer->default_pipeline());
+    olive::gl::Blit(pipeline);
 
     // Reset to full opacity
+    pipeline->bind();
     pipeline->setUniformValue("opacity", 1.0f);
+    pipeline->release();
 
     input_tex->Release();
     renderer->buffer()->Release();
     renderer->buffer()->Detach();
+
+    input_tex->SwapFrontAndBack();
+
+    return QVariant::fromValue(input_tex);
   }
 
   return 0;

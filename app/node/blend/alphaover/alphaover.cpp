@@ -64,8 +64,13 @@ QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
     RenderTexturePtr base = base_input()->get_value(time).value<RenderTexturePtr>();
     RenderTexturePtr blend = blend_input()->get_value(time).value<RenderTexturePtr>();
 
-    // Set compositing strategy to alpha over
-    renderer->context()->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    if (base == nullptr && blend == nullptr) {
+      return 0;
+    } else if (base == nullptr) {
+      return QVariant::fromValue(blend);
+    } else if (blend == nullptr) {
+      return QVariant::fromValue(base);
+    }
 
     // Attach framebuffer to the backbuffer of base
     renderer->buffer()->Attach(base);
@@ -74,13 +79,16 @@ QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
     // Bind blend
     blend->Bind();
 
+    // Set compositing strategy to alpha over
+    renderer->context()->functions()->glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
     // Draw blend on base
     olive::gl::Blit(renderer->default_pipeline());
 
     // Release all
     blend->Release();
-    renderer->buffer()->Detach();
     renderer->buffer()->Release();
+    renderer->buffer()->Detach();
 
     // Return base texture which now has blend composited on top
     // NOTE: Blend texture will be implicitly deleted here (if it's not used anywhere else)

@@ -77,6 +77,7 @@ bool RenderInstance::Start()
 
   // Set viewport to the compositing dimensions
   ctx_->functions()->glViewport(0, 0, width_, height_);
+  ctx_->functions()->glEnable(GL_BLEND);
 
   // Set up default pipeline
   default_pipeline_ = olive::ShaderGenerator::DefaultPipeline();

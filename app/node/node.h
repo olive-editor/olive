@@ -288,6 +288,9 @@ private:
 
 private slots:
   void InputChanged(rational start, rational end);
+
+  void InputConnectionChanged(NodeEdgePtr edge);
+
 };
 
 template<class T>

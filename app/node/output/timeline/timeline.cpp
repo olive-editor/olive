@@ -32,6 +32,10 @@ TimelineOutput::TimelineOutput() :
   track_input_->add_data_input(NodeParam::kTrack);
   AddParameter(track_input_);
 
+  length_output_ = new NodeOutput("length_out");
+  length_output_->set_data_type(NodeParam::kRational);
+  AddParameter(length_output_);
+
   connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnectionAdded(NodeEdgePtr)));
   connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackConnectionRemoved(NodeEdgePtr)));
 }
@@ -96,10 +100,25 @@ NodeInput *TimelineOutput::track_input()
   return track_input_;
 }
 
+NodeOutput *TimelineOutput::length_output()
+{
+  return length_output_;
+}
+
 QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
 {
-  Q_UNUSED(output)
-  Q_UNUSED(time)
+  if (output == length_output_) {
+    Q_UNUSED(time)
+
+    rational length;
+
+    // Retrieve each track's end point and return the longest of the tracks
+    foreach (TrackOutput* track, track_cache_) {
+      length = qMax(track->in(), length);
+    }
+
+    return QVariant::fromValue(length);
+  }
 
   return 0;
 }

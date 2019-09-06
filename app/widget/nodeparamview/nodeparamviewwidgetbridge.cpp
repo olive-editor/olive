@@ -52,6 +52,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kTexture:
   case NodeParam::kMatrix:
   case NodeParam::kTrack:
+  case NodeParam::kRational:
     break;
   case NodeParam::kInt:
   {
@@ -63,6 +64,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kFloat:
   {
     FloatSlider* slider = new FloatSlider();
+    slider->SetValue(base_input->get_value(0).toDouble());
     widgets_.append(slider);
     connect(slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
     break;
@@ -125,6 +127,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     case NodeParam::kTexture:
     case NodeParam::kMatrix:
     case NodeParam::kTrack:
+    case NodeParam::kRational:
       break;
     case NodeParam::kInt:
     {

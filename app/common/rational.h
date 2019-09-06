@@ -131,8 +131,8 @@ private:
   intType gcd(intType &x, intType &y);
 };
 
-#define RATIONAL_MIN rational(LONG_MIN, 1)
-#define RATIONAL_MAX rational(LONG_MAX, 1)
+#define RATIONAL_MIN rational(INT32_MIN, 1)
+#define RATIONAL_MAX rational(INT32_MAX, 1)
 
 Q_DECLARE_METATYPE(rational)
 

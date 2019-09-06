@@ -95,7 +95,7 @@ void RenderFramebuffer::Attach(RenderTexturePtr texture)
   }
 
   texture_ = texture;
-  AttachInternal(texture_->texture());
+  AttachInternal(texture_->texture(), false);
 }
 
 void RenderFramebuffer::AttachBackBuffer(RenderTexturePtr texture)
@@ -105,10 +105,7 @@ void RenderFramebuffer::AttachBackBuffer(RenderTexturePtr texture)
   }
 
   texture_ = texture;
-  AttachInternal(texture_->back_texture());
-
-  context_->functions()->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-  context_->functions()->glClear(GL_COLOR_BUFFER_BIT);
+  AttachInternal(texture_->back_texture(), true);
 }
 
 void RenderFramebuffer::Detach()
@@ -137,7 +134,7 @@ const GLuint &RenderFramebuffer::buffer() const
   return buffer_;
 }
 
-void RenderFramebuffer::AttachInternal(GLuint tex)
+void RenderFramebuffer::AttachInternal(GLuint tex, bool clear)
 {
   Detach();
 
@@ -149,6 +146,11 @@ void RenderFramebuffer::AttachInternal(GLuint tex)
   context_->extraFunctions()->glFramebufferTexture2D(
         GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0
         );
+
+  if (clear) {
+    context_->functions()->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    context_->functions()->glClear(GL_COLOR_BUFFER_BIT);
+  }
 
   // release framebuffer
   f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);

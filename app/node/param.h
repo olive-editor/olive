@@ -68,6 +68,7 @@ public:
     kBlock,
     kFootage,
     kTrack,
+    kRational,
     kAny
   };
 

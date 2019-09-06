@@ -42,6 +42,10 @@ RendererProcessor::RendererProcessor() :
   texture_input_->add_data_input(NodeInput::kTexture);
   AddParameter(texture_input_);
 
+  length_input_ = new NodeInput("length_in");
+  length_input_->add_data_input(NodeInput::kRational);
+  AddParameter(length_input_);
+
   texture_output_ = new NodeOutput("tex_out");
   texture_output_->set_data_type(NodeInput::kTexture);
   AddParameter(texture_output_);
@@ -126,18 +130,22 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
 {
   Q_UNUSED(from)
 
+  // Adjust range to min/max values
+  rational start_range_adj = qMax(rational(0), start_range);
+  rational end_range_adj = qMin(length_input()->get_value(0).value<rational>(), end_range);
+
   qDebug() << "[RendererProcessor] Cache invalidated between"
-           << start_range.toDouble()
+           << start_range_adj.toDouble()
            << "and"
-           << end_range.toDouble();
+           << end_range_adj.toDouble();
 
   // Snap start_range to timebase
-  double start_range_dbl = start_range.toDouble();
+  double start_range_dbl = start_range_adj.toDouble();
   double start_range_numf = start_range_dbl * static_cast<double>(timebase_.denominator());
   int64_t start_range_numround = qFloor(start_range_numf/static_cast<double>(timebase_.numerator())) * timebase_.numerator();
   rational true_start_range(start_range_numround, timebase_.denominator());
 
-  for (rational r=true_start_range;r<=end_range;r+=timebase_) {
+  for (rational r=true_start_range;r<=end_range_adj;r+=timebase_) {
     if (!cache_queue_.contains(r)) {
       cache_queue_.append(r);
     }
@@ -393,6 +401,11 @@ RenderInstance *RendererProcessor::CurrentInstance()
 NodeInput *RendererProcessor::texture_input()
 {
   return texture_input_;
+}
+
+NodeInput *RendererProcessor::length_input()
+{
+  return length_input_;
 }
 
 NodeOutput *RendererProcessor::texture_output()

@@ -45,6 +45,8 @@ public:
 
   NodeInput* track_input();
 
+  NodeOutput* length_output();
+
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
@@ -64,6 +66,8 @@ private:
   TimelinePanel* attached_timeline_;
 
   NodeInput* track_input_;
+
+  NodeOutput* length_output_;
 
   /**
    * @brief A cache of connected Tracks

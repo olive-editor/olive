@@ -100,6 +100,8 @@ public:
 
   NodeInput* texture_input();
 
+  NodeInput* length_input();
+
   NodeOutput* texture_output();
 
 protected:
@@ -144,6 +146,8 @@ private:
   bool started_;
 
   NodeInput* texture_input_;
+
+  NodeInput* length_input_;
 
   NodeOutput* texture_output_;
 

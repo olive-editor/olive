@@ -226,6 +226,7 @@ QString NodeParam::GetDefaultDataTypeName(const DataType& type)
   case kBlock: return tr("Block");
   case kFootage: return tr("Footage");
   case kTrack: return tr("Track");
+  case kRational: return tr("Rational");
   case kAny: return tr("Any");
   }
 

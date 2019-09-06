@@ -57,6 +57,8 @@ void Node::AddParameter(NodeParam *param)
 
   if (param->type() == NodeParam::kInput) {
     connect(param, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
+    connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+    connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
   }
 }
 
@@ -359,4 +361,11 @@ bool Node::HasParamWithID(const QString &id)
 void Node::InputChanged(rational start, rational end)
 {
   InvalidateCache(start, end, static_cast<NodeInput*>(sender()));
+}
+
+void Node::InputConnectionChanged(NodeEdgePtr edge)
+{
+  Q_UNUSED(edge)
+
+  InvalidateCache(RATIONAL_MIN, RATIONAL_MAX, static_cast<NodeInput*>(sender()));
 }

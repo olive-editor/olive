@@ -307,6 +307,9 @@ void Core::CreateNewSequence()
     // Connect track to timeline
     NodeParam::ConnectEdge(to->track_output(), tb->track_input());
 
+    // Connect timeline end point to renderer
+    NodeParam::ConnectEdge(tb->length_output(), rp->length_input());
+
     // FIXME: Test code
     AlphaOverBlend* blend = new AlphaOverBlend();
     new_sequence->AddNode(blend);
