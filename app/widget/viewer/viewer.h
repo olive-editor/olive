@@ -53,6 +53,10 @@ public:
 
   void SetTime(const int64_t& time);
 
+  void TogglePlayPause();
+
+  bool IsPlaying();
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -63,6 +67,18 @@ public slots:
    */
   void SetTexture(GLuint tex);
 
+  void GoToStart();
+
+  void PrevFrame();
+
+  void Play();
+
+  void Pause();
+
+  void NextFrame();
+
+  void GoToEnd();
+
 signals:
   void TimeChanged(const rational&);
 
@@ -70,6 +86,8 @@ protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
+  void UpdateTimeInternal(int64_t i);
+
   ViewerGLWidget* gl_widget_;
 
   PlaybackControls* controls_;
@@ -88,19 +106,7 @@ private:
   int64_t start_timestamp_;
 
 private slots:
-  void RulerTimeChange(int64_t i);
-
-  void Play();
-
-  void Pause();
-
-  void GoToStart();
-
-  void PrevFrame();
-
-  void NextFrame();
-
-  void GoToEnd();
+  void RulerTimeChange(int64_t);
 
   void PlaybackTimerUpdate();
 

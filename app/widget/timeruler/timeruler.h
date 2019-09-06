@@ -56,6 +56,9 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
 
 signals:
+  /**
+   * @brief Signal emitted whenever the time changes on this ruler, either by user or programatically
+   */
   void TimeChanged(int64_t);
 
 private:

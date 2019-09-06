@@ -49,6 +49,10 @@ public:
 public slots:
   void SetTime(const int64_t &r);
 
+  void ShowPauseButton();
+
+  void ShowPlayButton();
+
 signals:
   /**
    * @brief Signal emitted when "Go to Start" is clicked
@@ -95,7 +99,7 @@ private:
   QStackedWidget* playpause_stack_;
 
 private slots:
-  void PlayPauseClickedInternal();
+
 
 };
 

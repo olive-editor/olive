@@ -47,6 +47,26 @@ void PanelWidget::ZoomOut()
 {
 }
 
+void PanelWidget::GoToStart()
+{
+}
+
+void PanelWidget::PrevFrame()
+{
+}
+
+void PanelWidget::PlayPause()
+{
+}
+
+void PanelWidget::NextFrame()
+{
+}
+
+void PanelWidget::GoToEnd()
+{
+}
+
 void PanelWidget::SetTitle(const QString &t)
 {
   title_ = t;

@@ -62,6 +62,23 @@ public:
    * no-op.
    */
   virtual void ZoomOut();
+
+  virtual void GoToStart();
+
+  virtual void PrevFrame();
+
+  /**
+   * @brief Called whenever this panel is focused and user uses "Play/Pause" (either in menus or as a keyboard shortcut)
+   *
+   * This function is up to the Panel's interpretation of what the user intends to zoom out of. Default behavior is a
+   * no-op.
+   */
+  virtual void PlayPause();
+
+  virtual void NextFrame();
+
+  virtual void GoToEnd();
+
 protected:
   /**
    * @brief Set panel's title

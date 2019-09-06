@@ -160,12 +160,12 @@ MainMenu::MainMenu(QWidget *parent) :
   // PLAYBACK MENU
   //
   playback_menu_ = new Menu(this);
-  playback_gotostart_item_ = playback_menu_->AddItem("gotostart", nullptr, nullptr, "Home");
-  playback_prevframe_item_ = playback_menu_->AddItem("prevframe", nullptr, nullptr, "Left");
-  playback_playpause_item_ = playback_menu_->AddItem("playpause", nullptr, nullptr, "Space");
+  playback_gotostart_item_ = playback_menu_->AddItem("gotostart", this, SLOT(GoToStartTriggered()), "Home");
+  playback_prevframe_item_ = playback_menu_->AddItem("prevframe", this, SLOT(PrevFrameTriggered()), "Left");
+  playback_playpause_item_ = playback_menu_->AddItem("playpause", this, SLOT(PlayPauseTriggered()), "Space");
   playback_playinout_item_ = playback_menu_->AddItem("playintoout", nullptr, nullptr, "Shift+Space");
-  playback_nextframe_item_ = playback_menu_->AddItem("nextframe", nullptr, nullptr, "Right");
-  playback_gotoend_item_ = playback_menu_->AddItem("gotoend", nullptr, nullptr, "End");
+  playback_nextframe_item_ = playback_menu_->AddItem("nextframe", this, SLOT(NextFrameTriggered()), "Right");
+  playback_gotoend_item_ = playback_menu_->AddItem("gotoend", this, SLOT(GoToEndTriggered()), "End");
 
   playback_menu_->addSeparator();
 
@@ -342,6 +342,31 @@ void MainMenu::ZoomInTriggered()
 void MainMenu::ZoomOutTriggered()
 {
   olive::panel_focus_manager->CurrentlyFocused()->ZoomOut();
+}
+
+void MainMenu::GoToStartTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->GoToStart();
+}
+
+void MainMenu::PrevFrameTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->PrevFrame();
+}
+
+void MainMenu::PlayPauseTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->PlayPause();
+}
+
+void MainMenu::NextFrameTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->NextFrame();
+}
+
+void MainMenu::GoToEndTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->GoToEnd();
 }
 
 void MainMenu::Retranslate()

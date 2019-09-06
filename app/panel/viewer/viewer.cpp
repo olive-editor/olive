@@ -44,6 +44,31 @@ void ViewerPanel::ZoomOut()
   viewer_->SetScale(viewer_->scale() * 0.5);
 }
 
+void ViewerPanel::GoToStart()
+{
+  viewer_->GoToStart();
+}
+
+void ViewerPanel::PrevFrame()
+{
+  viewer_->PrevFrame();
+}
+
+void ViewerPanel::PlayPause()
+{
+  viewer_->TogglePlayPause();
+}
+
+void ViewerPanel::NextFrame()
+{
+  viewer_->NextFrame();
+}
+
+void ViewerPanel::GoToEnd()
+{
+  viewer_->GoToEnd();
+}
+
 void ViewerPanel::SetTimebase(const rational &timebase)
 {
   viewer_->SetTimebase(timebase);

@@ -82,13 +82,11 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   play_btn_->setIcon(olive::icon::Play);
   playpause_stack_->addWidget(play_btn_);
   connect(play_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
-  connect(play_btn_, SIGNAL(clicked(bool)), this, SLOT(PlayPauseClickedInternal()));
 
   pause_btn_ = new QPushButton();
   pause_btn_->setIcon(olive::icon::Pause);
   playpause_stack_->addWidget(pause_btn_);
   connect(pause_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PauseClicked()));
-  connect(pause_btn_, SIGNAL(clicked(bool)), this, SLOT(PlayPauseClickedInternal()));
 
   // Default to showing play button
   playpause_stack_->setCurrentWidget(play_btn_);
@@ -141,12 +139,13 @@ void PlaybackControls::SetTime(const int64_t &r)
   cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, kTimecodeDisplay));
 }
 
-void PlaybackControls::PlayPauseClickedInternal()
+void PlaybackControls::ShowPauseButton()
 {
-  if (sender() == play_btn_) {
-    // Play was clicked, toggle to pause
-    playpause_stack_->setCurrentWidget(pause_btn_);
-  } else {
-    playpause_stack_->setCurrentWidget(play_btn_);
-  }
+  // Play was clicked, toggle to pause
+  playpause_stack_->setCurrentWidget(pause_btn_);
+}
+
+void PlaybackControls::ShowPlayButton()
+{
+  playpause_stack_->setCurrentWidget(play_btn_);
 }

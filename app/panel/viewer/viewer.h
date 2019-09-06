@@ -38,6 +38,16 @@ public:
 
   virtual void ZoomOut() override;
 
+  virtual void GoToStart() override;
+
+  virtual void PrevFrame() override;
+
+  virtual void PlayPause() override;
+
+  virtual void NextFrame() override;
+
+  virtual void GoToEnd() override;
+
   void SetTimebase(const rational& timebase);
 
 public slots:

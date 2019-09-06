@@ -99,7 +99,21 @@ void ViewerWidget::SetScale(const double &scale_)
 void ViewerWidget::SetTime(const int64_t &time)
 {
   ruler_->SetTime(time);
-  RulerTimeChange(time);
+  UpdateTimeInternal(time);
+}
+
+void ViewerWidget::TogglePlayPause()
+{
+  if (IsPlaying()) {
+    Pause();
+  } else {
+    Play();
+  }
+}
+
+bool ViewerWidget::IsPlaying()
+{
+  return playback_timer_.isActive();
 }
 
 void ViewerWidget::SetTexture(GLuint tex)
@@ -107,13 +121,20 @@ void ViewerWidget::SetTexture(GLuint tex)
   gl_widget_->SetTexture(tex);
 }
 
-void ViewerWidget::RulerTimeChange(int64_t i)
+void ViewerWidget::UpdateTimeInternal(int64_t i)
 {
   rational time_set = rational(i) * time_base_;
 
   controls_->SetTime(i);
 
   emit TimeChanged(time_set);
+}
+
+void ViewerWidget::RulerTimeChange(int64_t i)
+{
+  Pause();
+
+  UpdateTimeInternal(i);
 }
 
 void ViewerWidget::Play()
@@ -127,11 +148,15 @@ void ViewerWidget::Play()
   start_timestamp_ = ruler_->Time();
 
   playback_timer_.start();
+
+  controls_->ShowPauseButton();
 }
 
 void ViewerWidget::Pause()
 {
   playback_timer_.stop();
+
+  controls_->ShowPlayButton();
 }
 
 void ViewerWidget::GoToStart()

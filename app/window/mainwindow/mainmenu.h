@@ -74,6 +74,19 @@ private slots:
    */
   void ZoomOutTriggered();
 
+  void GoToStartTriggered();
+  void PrevFrameTriggered();
+
+  /**
+   * @brief Slot for play/pause
+   *
+   * Finds the currently focused panel and sends it a "play/pause" signal
+   */
+  void PlayPauseTriggered();
+
+  void NextFrameTriggered();
+  void GoToEndTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.
