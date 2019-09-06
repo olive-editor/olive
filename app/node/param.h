@@ -56,19 +56,55 @@ public:
    */
   enum DataType {
     kNone,
+
+    /// Resolves to `int`
     kInt,
+
+    /// Resolves to `double`
     kFloat,
+
+    /// Resolves to TBA
     kColor,
+
+    /// Resolves to `QString`
     kString,
+
+    /// Resolves to `bool`
     kBoolean,
+
+    /// Resolves to TBA
     kFont,
+
+    /// Resolves to `QString` filename
     kFile,
+
+    /// Resolves to `RenderTexturePtr`
     kTexture,
+
+    /// Resolves to `QMatrix4x4`
     kMatrix,
+
+    /// Resolves to `Block*`
     kBlock,
+
+    /// Resolves to `Footage*`
     kFootage,
+
+    /// Resolves to `TrackOutput*`
     kTrack,
+
+    /// Resolves to `rational`
     kRational,
+
+    /// Resolves to `QVector2D`
+    kVec2,
+
+    /// Resolves to `QVector3D`
+    kVec3,
+
+    /// Resolves to `QVector4D`
+    kVec4,
+
     kAny
   };
 

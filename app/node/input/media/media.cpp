@@ -226,7 +226,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     internal_tex_.Bind();
 
     // Use pipeline to blit using transformation matrix from input
-    QMatrix4x4 transform;
+    QMatrix4x4 transform = matrix_input_->get_value(time).value<QMatrix4x4>();
     if (renderer->mode() == olive::RenderMode::kOffline) {
       olive::gl::OCIOBlit(pipeline_, ocio_texture_, false, transform);
     } else {

@@ -69,6 +69,66 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     connect(slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
     break;
   }
+  case NodeParam::kVec2:
+  {
+    QVector2D vec2 = base_input->get_value(0).value<QVector2D>();
+
+    FloatSlider* x_slider = new FloatSlider();
+    x_slider->SetValue(static_cast<double>(vec2.x()));
+    widgets_.append(x_slider);
+    connect(x_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    FloatSlider* y_slider = new FloatSlider();
+    y_slider->SetValue(static_cast<double>(vec2.y()));
+    widgets_.append(y_slider);
+    connect(y_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    break;
+  }
+  case NodeParam::kVec3:
+  {
+    QVector3D vec3 = base_input->get_value(0).value<QVector3D>();
+
+    FloatSlider* x_slider = new FloatSlider();
+    x_slider->SetValue(static_cast<double>(vec3.x()));
+    widgets_.append(x_slider);
+    connect(x_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    FloatSlider* y_slider = new FloatSlider();
+    y_slider->SetValue(static_cast<double>(vec3.y()));
+    widgets_.append(y_slider);
+    connect(y_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    FloatSlider* z_slider = new FloatSlider();
+    z_slider->SetValue(static_cast<double>(vec3.z()));
+    widgets_.append(z_slider);
+    connect(z_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    break;
+  }
+  case NodeParam::kVec4:
+  {
+    QVector4D vec4 = base_input->get_value(0).value<QVector4D>();
+
+    FloatSlider* x_slider = new FloatSlider();
+    x_slider->SetValue(static_cast<double>(vec4.x()));
+    widgets_.append(x_slider);
+    connect(x_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    FloatSlider* y_slider = new FloatSlider();
+    y_slider->SetValue(static_cast<double>(vec4.y()));
+    widgets_.append(y_slider);
+    connect(y_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    FloatSlider* z_slider = new FloatSlider();
+    z_slider->SetValue(static_cast<double>(vec4.z()));
+    widgets_.append(z_slider);
+    connect(z_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    FloatSlider* w_slider = new FloatSlider();
+    w_slider->SetValue(static_cast<double>(vec4.w()));
+    widgets_.append(w_slider);
+    connect(w_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    break;
+  }
   case NodeParam::kFile:
     // FIXME: File selector
     break;
@@ -141,6 +201,69 @@ void NodeParamViewWidgetBridge::WidgetCallback()
       // Widget is a FloatSlider
       FloatSlider* float_slider = static_cast<FloatSlider*>(sender());
       input->set_value(float_slider->GetValue());
+      break;
+    }
+    case NodeParam::kVec2:
+    {
+      // Widgets are two FloatSliders
+      FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+      QVector2D val = input->get_value(0).value<QVector2D>();
+
+      if (slider == widgets_.at(0)) {
+        // Slider is X slider
+        val.setX(static_cast<float>(slider->GetValue()));
+      } else {
+        // Slider is Y slider
+        val.setY(static_cast<float>(slider->GetValue()));
+      }
+
+      input->set_value(val);
+      break;
+    }
+    case NodeParam::kVec3:
+    {
+      // Widgets are three FloatSliders
+      FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+      QVector3D val = input->get_value(0).value<QVector3D>();
+
+      if (slider == widgets_.at(0)) {
+        // Slider is X slider
+        val.setX(static_cast<float>(slider->GetValue()));
+      } else if (slider == widgets_.at(1)) {
+        // Slider is Y slider
+        val.setY(static_cast<float>(slider->GetValue()));
+      } else {
+        // Slider is Z slider
+        val.setZ(static_cast<float>(slider->GetValue()));
+      }
+
+      input->set_value(val);
+      break;
+    }
+    case NodeParam::kVec4:
+    {
+      // Widgets are three FloatSliders
+      FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+      QVector4D val = input->get_value(0).value<QVector4D>();
+
+      if (slider == widgets_.at(0)) {
+        // Slider is X slider
+        val.setX(static_cast<float>(slider->GetValue()));
+      } else if (slider == widgets_.at(1)) {
+        // Slider is Y slider
+        val.setY(static_cast<float>(slider->GetValue()));
+      } else if (slider == widgets_.at(2)) {
+        // Slider is Z slider
+        val.setZ(static_cast<float>(slider->GetValue()));
+      } else {
+        // Slider is W slider
+        val.setW(static_cast<float>(slider->GetValue()));
+      }
+
+      input->set_value(val);
       break;
     }
     case NodeParam::kFile:

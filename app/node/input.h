@@ -31,6 +31,15 @@ class NodeInput : public NodeParam
 {
   Q_OBJECT
 public:
+  /**
+   * @brief NodeInput Constructor
+   *
+   * @param id
+   *
+   * Unique ID associated with this parameter for this Node. This ID only has to be unique within this Node. Used for
+   * saving/loading data from this Node so that parameter order can be changed without issues loading data saved by an
+   * older version. This of course assumes that parameters don't change their ID.
+   */
   NodeInput(const QString &id);
 
   /**
