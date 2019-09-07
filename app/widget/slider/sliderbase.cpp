@@ -164,11 +164,17 @@ void SliderBase::LabelDragged(int i)
 
     temp_drag_value_ += real_drag;
 
+    // Update temporary value for
+    QVariant temp_val;
+
     if (mode_ == kInteger) {
-      UpdateLabel(qRound(temp_drag_value_));
+      temp_val = qRound(temp_drag_value_);
     } else {
-      UpdateLabel(temp_drag_value_);
+      temp_val = temp_drag_value_;
     }
+
+    UpdateLabel(temp_val);
+    emit ValueChanged(temp_val);
     break;
   }
   }
