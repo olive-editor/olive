@@ -91,6 +91,11 @@ const double &ViewerWidget::scale()
   return ruler_->scale();
 }
 
+rational ViewerWidget::GetTime()
+{
+  return rational(ruler_->GetTime()) * time_base_;
+}
+
 void ViewerWidget::SetScale(const double &scale_)
 {
   ruler_->SetScale(scale_);
@@ -145,7 +150,7 @@ void ViewerWidget::Play()
   }
 
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
-  start_timestamp_ = ruler_->Time();
+  start_timestamp_ = ruler_->GetTime();
 
   playback_timer_.start();
 
@@ -170,14 +175,14 @@ void ViewerWidget::PrevFrame()
 {
   Pause();
 
-  SetTime(ruler_->Time() - 1);
+  SetTime(qMax(static_cast<int64_t>(0), ruler_->GetTime() - 1));
 }
 
 void ViewerWidget::NextFrame()
 {
   Pause();
 
-  SetTime(ruler_->Time() + 1);
+  SetTime(ruler_->GetTime() + 1);
 }
 
 void ViewerWidget::GoToEnd()

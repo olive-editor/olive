@@ -250,6 +250,8 @@ public:
    */
   const rational& LastRequestedTime();
 
+  void SetValueCachingEnabled(bool enabled);
+
   virtual DataType data_type() = 0;
 
 signals:
@@ -284,6 +286,11 @@ protected:
    * @brief Last timecode that a value was requested with
    */
   rational time_;
+
+  /**
+   * @brief Internal value for whether value caching is enabled
+   */
+  bool value_caching_;
 
 private:
   /**

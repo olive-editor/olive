@@ -36,6 +36,16 @@ void IntegerSlider::SetValue(const int &v)
   SliderBase::SetValue(v);
 }
 
+void IntegerSlider::SetMinimum(const int &d)
+{
+  SetMinimumInternal(d);
+}
+
+void IntegerSlider::SetMaximum(const int &d)
+{
+  SetMaximumInternal(d);
+}
+
 void IntegerSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.toInt());

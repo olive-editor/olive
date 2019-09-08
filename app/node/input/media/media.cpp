@@ -34,7 +34,8 @@ MediaInput::MediaInput() :
   decoder_(nullptr),
   color_service_(nullptr),
   pipeline_(nullptr),
-  ocio_texture_(0)
+  ocio_texture_(0),
+  frame_(nullptr)
 {
   footage_input_ = new NodeInput("footage_in");
   footage_input_->add_data_input(NodeInput::kFootage);
@@ -46,6 +47,7 @@ MediaInput::MediaInput() :
 
   texture_output_ = new NodeOutput("tex_out");
   texture_output_->set_data_type(NodeOutput::kTexture);
+  texture_output_->SetValueCachingEnabled(false);
   AddParameter(texture_output_);
 }
 
@@ -73,6 +75,7 @@ void MediaInput::Release()
 {
   internal_tex_.Destroy();
 
+  frame_ = nullptr;
   decoder_ = nullptr;
   color_service_ = nullptr;
   pipeline_ = nullptr;
@@ -128,60 +131,65 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
       return 0;
     }
 
-    // Get frame from Decoder
-    FramePtr frame = decoder_->Retrieve(time);
+    // Check if we need to get a frame or not
+    if (frame_ == nullptr || frame_native_ts_ != decoder_->GetTimestampFromTime(time)) {
+      // Get frame from Decoder
+      frame_ = decoder_->Retrieve(time);
 
-    if (frame == nullptr) {
-      return 0;
-    }
-
-    if (color_service_ == nullptr) {
-      // FIXME: Hardcoded values for testing
-      color_service_ = std::make_shared<ColorService>("srgb", OCIO::ROLE_SCENE_LINEAR);
-    }
-
-    // OpenColorIO v1's color transforms can be done on GPU, which improves performance but reduces accuracy. When
-    // online, we prefer accuracy over performance so we use the CPU path instead:
-    // NOTE: OCIO v2 boasts 1:1 results with the CPU and GPU path so this won't be necessary forever
-    if (renderer->mode() == olive::RenderMode::kOnline) {
-      // Convert to 32F, which is required for OpenColorIO's color transformation
-      frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
-
-      if (alpha_is_associated) {
-        // Unassociate alpha here if associated
-        ColorService::DisassociateAlpha(frame);
+      if (frame_ == nullptr) {
+        return 0;
       }
 
-      // Transform color to reference space
-      color_service_->ConvertFrame(frame);
+      frame_native_ts_ = frame_->native_timestamp();
 
-      if (alpha_is_associated) {
-        // If alpha was associated, reassociate here
-        ColorService::ReassociateAlpha(frame);
+      if (color_service_ == nullptr) {
+        // FIXME: Hardcoded values for testing
+        color_service_ = std::make_shared<ColorService>("srgb", OCIO::ROLE_SCENE_LINEAR);
+      }
+
+      // OpenColorIO v1's color transforms can be done on GPU, which improves performance but reduces accuracy. When
+      // online, we prefer accuracy over performance so we use the CPU path instead:
+      // NOTE: OCIO v2 boasts 1:1 results with the CPU and GPU path so this won't be necessary forever
+      if (renderer->mode() == olive::RenderMode::kOnline) {
+        // Convert to 32F, which is required for OpenColorIO's color transformation
+        frame_ = PixelService::ConvertPixelFormat(frame_, olive::PIX_FMT_RGBA32F);
+
+        if (alpha_is_associated) {
+          // Unassociate alpha here if associated
+          ColorService::DisassociateAlpha(frame_);
+        }
+
+        // Transform color to reference space
+        color_service_->ConvertFrame(frame_);
+
+        if (alpha_is_associated) {
+          // If alpha was associated, reassociate here
+          ColorService::ReassociateAlpha(frame_);
+        } else {
+          // If alpha was not associated, associate here
+          ColorService::AssociateAlpha(frame_);
+        }
+      }
+
+      // We use an internal texture to bring the texture into GPU space before performing transformations
+
+      // Ensure the texture is the accurate to the frame
+      if (internal_tex_.width() != frame_->width()
+          || internal_tex_.height() != frame_->height()
+          || internal_tex_.format() != frame_->format()) {
+        internal_tex_.Destroy();
+      }
+
+      // Create or upload the new data to the texture
+      if (!internal_tex_.IsCreated()) {
+        internal_tex_.Create(renderer->context(),
+                             frame_->width(),
+                             frame_->height(),
+                             static_cast<olive::PixelFormat>(frame_->format()),
+                             frame_->data());
       } else {
-        // If alpha was not associated, associate here
-        ColorService::AssociateAlpha(frame);
+        internal_tex_.Upload(frame_->data());
       }
-    }
-
-    // We use an internal texture to bring the texture into GPU space before performing transformations
-
-    // Ensure the texture is the accurate to the frame
-    if (internal_tex_.width() != frame->width()
-        || internal_tex_.height() != frame->height()
-        || internal_tex_.format() != frame->format()) {
-      internal_tex_.Destroy();
-    }
-
-    // Create or upload the new data to the texture
-    if (!internal_tex_.IsCreated()) {
-      internal_tex_.Create(renderer->context(),
-                           frame->width(),
-                           frame->height(),
-                           static_cast<olive::PixelFormat>(frame->format()),
-                           frame->data());
-    } else {
-      internal_tex_.Upload(frame->data());
     }
 
     // Create new texture in reference space to send throughout the rest of the graph

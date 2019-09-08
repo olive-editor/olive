@@ -36,6 +36,16 @@ void FloatSlider::SetValue(const double &d)
   SliderBase::SetValue(d);
 }
 
+void FloatSlider::SetMinimum(const double &d)
+{
+  SetMinimumInternal(d);
+}
+
+void FloatSlider::SetMaximum(const double &d)
+{
+  SetMaximumInternal(d);
+}
+
 void FloatSlider::SetDecimalPlaces(int i)
 {
   decimal_places_ = i;

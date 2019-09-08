@@ -64,9 +64,20 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kFloat:
   {
     FloatSlider* slider = new FloatSlider();
+
     slider->SetValue(base_input->get_value(0).toDouble());
-    widgets_.append(slider);
+
+    if (base_input->has_minimum()) {
+      slider->SetMinimum(base_input->minimum().toDouble());
+    }
+
+    if (base_input->has_maximum()) {
+      slider->SetMaximum(base_input->maximum().toDouble());
+    }
+
     connect(slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+
+    widgets_.append(slider);
     break;
   }
   case NodeParam::kVec2:

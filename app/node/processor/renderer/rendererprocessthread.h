@@ -38,10 +38,6 @@ public:
 
   bool Queue(const NodeDependency &dep, bool wait);
 
-  const QByteArray& hash();
-
-  RenderTexturePtr texture();
-
 public slots:
   virtual void Cancel() override;
 
@@ -51,14 +47,16 @@ protected:
 signals:
   void RequestSibling(NodeDependency dep);
 
-  void FinishedPath();
+  void CachedFrame(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
+
+  void FrameExists(const rational& time, const QByteArray& hash);
+
+  void FrameIgnored();
 
 private:
   RendererProcessor* parent_;
 
   NodeDependency path_;
-
-  rational time_;
 
   QByteArray hash_;
 

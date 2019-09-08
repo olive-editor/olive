@@ -113,11 +113,9 @@ void RendererDownloadThread::ProcessLoop()
     std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
 
     if (out) {
-      qDebug() << "Writing" << entry.filename;
       out->open(working_fn_std, spec);
       out->write_image(format_info.oiio_desc, data_buffer.data());
       out->close();
-      qDebug() << "Stopped writing" << entry.filename;
 
       emit Downloaded(entry.time, entry.hash);
     } else {

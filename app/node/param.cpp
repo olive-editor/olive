@@ -28,6 +28,7 @@
 
 NodeParam::NodeParam(const QString &id) :
   time_(-1),
+  value_caching_(true),
   id_(id)
 {
   Q_ASSERT(!id_.isEmpty());
@@ -250,4 +251,9 @@ void NodeParam::ClearCachedValue()
 const rational &NodeParam::LastRequestedTime()
 {
   return time_;
+}
+
+void NodeParam::SetValueCachingEnabled(bool enabled)
+{
+  value_caching_ = enabled;
 }

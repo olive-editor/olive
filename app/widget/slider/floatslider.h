@@ -33,6 +33,10 @@ public:
 
   void SetValue(const double& d);
 
+  void SetMinimum(const double& d);
+
+  void SetMaximum(const double& d);
+
   void SetDecimalPlaces(int i);
 
 signals:

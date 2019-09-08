@@ -69,11 +69,9 @@ NodeInput *ClipBlock::texture_input()
 
 QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
 {
-  QVariant value = Block::Value(param, time);
-
   if (param == texture_output()) {
     // If the time retrieved is within this block, get texture information
-    if (time >= in() && time < out()) {
+    if (texture_input()->IsConnected() && time >= in() && time < out()) {
       // We convert the time given (timeline time) to media time
       rational media_time = SequenceToMediaTime(time);
 

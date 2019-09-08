@@ -337,6 +337,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<Task::Status>("Task::Status");
   qRegisterMetaType<NodeDependency>();
   qRegisterMetaType<rational>();
+  qRegisterMetaType<RenderTexturePtr>();
 }
 
 void Core::StartGUI(bool full_screen)

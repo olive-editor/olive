@@ -50,6 +50,8 @@ public:
 
   void SetTimebase(const rational& timebase);
 
+  rational GetTime();
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it

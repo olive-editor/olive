@@ -109,7 +109,7 @@ void Block::EdgeAddedSlot(NodeEdgePtr edge)
     RefreshFollowing();
 
     // Entire track will have shifted, so the whole cache needs to be re-validated
-    InvalidateCache(0, RATIONAL_MAX);
+    SendInvalidateCache(0, RATIONAL_MAX);
   }
 }
 
@@ -182,7 +182,7 @@ void Block::set_media_in(const rational &media_in)
     media_in_ = media_in;
 
     // Signal that this clips contents have changed
-    InvalidateCache(in(), out());
+    SendInvalidateCache(in(), out());
   }
 }
 

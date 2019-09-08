@@ -71,30 +71,28 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 {
   Q_UNUSED(from)
 
+  ClearCachedValuesInParameters(start_range, end_range);
+
+  SendInvalidateCache(start_range, end_range);
+}
+
+void Node::SendInvalidateCache(const rational &start_range, const rational &end_range)
+{
   QList<NodeParam *> params = parameters();
 
   // Loop through all parameters (there should be no children that are not NodeParams)
   foreach (NodeParam* param, params) {
-
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
 
       QVector<NodeEdgePtr> edges = param->edges();
 
       foreach (NodeEdgePtr edge, edges) {
-
         NodeInput* connected_input = edge->input();
         Node* connected_node = connected_input->parent();
 
-        // Only send this signal if the Node isn't ignoring invalidate cache signals from this input
-        if (!connected_node->ignore_invalid_cache_inputs_.contains(connected_input)) {
-          // Clear values cached in the parameters
-          connected_input->ClearCachedValue();
-          edge->output()->ClearCachedValue();
-
-          // Send clear cache signal to the Node
-          connected_node->InvalidateCache(start_range, end_range, connected_input);
-        }
+        // Send clear cache signal to the Node
+        connected_node->InvalidateCache(start_range, end_range, connected_input);
       }
     }
   }
@@ -130,11 +128,6 @@ void Node::CopyInputs(Node *source, Node *destination)
   }
 }
 
-void Node::IgnoreCacheInvalidationFrom(NodeInput *input)
-{
-  ignore_invalid_cache_inputs_.append(input);
-}
-
 rational Node::LastProcessedTime()
 {
   rational t;
@@ -159,6 +152,21 @@ NodeOutput *Node::LastProcessedOutput()
   lock_.unlock();
 
   return o;
+}
+
+void Node::ClearCachedValuesInParameters(const rational &start_range, const rational &end_range)
+{
+  Q_UNUSED(start_range)
+  Q_UNUSED(end_range)
+
+  QList<NodeParam *> params = parameters();
+
+  // Loop through all parameters and clear cached values
+  foreach (NodeParam* param, params) {
+    //if (param->LastRequestedTime() >= start_range && param->LastRequestedTime() <= end_range) {
+      param->ClearCachedValue();
+    //}
+  }
 }
 
 QVariant Node::Run(NodeOutput* output, const rational& time)

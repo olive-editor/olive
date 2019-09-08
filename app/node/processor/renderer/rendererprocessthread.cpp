@@ -61,16 +61,6 @@ bool RendererProcessThread::Queue(const NodeDependency& dep, bool wait)
   return true;
 }
 
-const QByteArray &RendererProcessThread::hash()
-{
-  return hash_;
-}
-
-RenderTexturePtr RendererProcessThread::texture()
-{
-  return texture_;
-}
-
 void RendererProcessThread::Cancel()
 {
   cancelled_ = true;
@@ -115,20 +105,27 @@ void RendererProcessThread::ProcessLoop()
 
     texture_ = nullptr;
 
-    if (!parent_->HasHash(hash_)) {
-      QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
+    bool has_hash = parent_->HasHash(hash_);
+    bool can_cache = false;
 
-      // Ask for other threads to run these deps while we're here
-      if (!deps.isEmpty()) {
-        for (int i=1;i<deps.size();i++) {
-          emit RequestSibling(deps.at(i));
+    if (!has_hash){
+
+      if ((can_cache = parent_->TryCache(hash_))) {
+
+        QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
+
+        // Ask for other threads to run these deps while we're here
+        if (!deps.isEmpty()) {
+          for (int i=1;i<deps.size();i++) {
+            emit RequestSibling(deps.at(i));
+          }
         }
+
+        // Get the requested value
+        texture_ = output_to_process->get_value(path_.time()).value<RenderTexturePtr>();
+
+        render_instance()->context()->functions()->glFinish();
       }
-
-      // Get the requested value
-      texture_ = output_to_process->get_value(path_.time()).value<RenderTexturePtr>();
-
-      render_instance()->context()->functions()->glFinish();
     }
 
     foreach (Node* dep, all_deps) {
@@ -137,6 +134,15 @@ void RendererProcessThread::ProcessLoop()
 
     node_to_process->Unlock();
 
-    emit FinishedPath();
+    if (has_hash && !parent_->IsCaching(hash_)) {
+      // This hash already exists, no need to cache, just record it
+      emit FrameExists(path_.time(), hash_);
+    } else if (can_cache) {
+      // We cached this frame, signal that it will need to be downloaded to disk
+      emit CachedFrame(texture_, path_.time(), hash_);
+    } else {
+      // Some other dork is caching this frame, skip it
+      emit FrameIgnored();
+    }
   }
 }

@@ -53,15 +53,13 @@ protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
-  void UpdateViewer();
+  void ForceUpdateViewer();
 
   NodeInput* texture_input_;
 
   ViewerPanel* attached_viewer_;
 
   rational timebase_;
-
-  rational current_time_;
 
 private slots:
   void ViewerTimeChanged(const rational& t);

@@ -210,11 +210,6 @@ protected:
   void RemoveParameter(NodeParam* param);
 
   /**
-   * @brief If we receive a signal from NodeInput `input`, don't propagate it.
-   */
-  void IgnoreCacheInvalidationFrom(NodeInput* input);
-
-  /**
    * @brief The main processing function
    *
    * The node's main purpose is to take values from inputs to set values in outputs. For whatever subclass node you
@@ -238,6 +233,10 @@ protected:
    * @brief Retrieve the last parameter Process() was called from
    */
   NodeOutput* LastProcessedOutput();
+
+  void ClearCachedValuesInParameters(const rational& start_range, const rational& end_range);
+
+  void SendInvalidateCache(const rational& start_range, const rational& end_range);
 
 public slots:
 
@@ -265,11 +264,6 @@ private:
    * @brief Return whether a parameter with ID `id` has already been added to this Node
    */
   bool HasParamWithID(const QString& id);
-
-  /**
-   * @brief Internal list of inputs to ignore InvalidateCache() signals from
-   */
-  QList<NodeInput*> ignore_invalid_cache_inputs_;
 
   /**
    * @brief The last timecode Process() was called with

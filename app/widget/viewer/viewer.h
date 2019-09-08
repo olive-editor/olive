@@ -49,6 +49,8 @@ public:
 
   const double& scale();
 
+  rational GetTime();
+
   void SetScale(const double& scale_);
 
   void SetTime(const int64_t& time);

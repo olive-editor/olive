@@ -26,7 +26,9 @@
 NodeInput::NodeInput(const QString& id) :
   NodeParam(id),
   keyframing_(false),
-  dependent_(true)
+  dependent_(true),
+  has_minimum_(false),
+  has_maximum_(false)
 {
   // Have at least one keyframe/value active at any time
   keyframes_.append(NodeKeyframe());
@@ -71,7 +73,7 @@ QVariant NodeInput::get_value(const rational& time)
 {
   QVariant v;
 
-  if (time_ != time) {
+  if (time_ != time || !value_caching_) {
     // Retrieve the value
     if (!edges_.isEmpty()) {
       // A connection - use the output of the connected Node
@@ -126,6 +128,38 @@ bool NodeInput::dependent()
 void NodeInput::set_dependent(bool d)
 {
   dependent_ = d;
+}
+
+const QVariant &NodeInput::minimum()
+{
+  return minimum_;
+}
+
+bool NodeInput::has_minimum()
+{
+  return has_minimum_;
+}
+
+void NodeInput::set_minimum(const QVariant &min)
+{
+  minimum_ = min;
+  has_minimum_ = true;
+}
+
+const QVariant &NodeInput::maximum()
+{
+  return maximum_;
+}
+
+bool NodeInput::has_maximum()
+{
+  return has_maximum_;
+}
+
+void NodeInput::set_maximum(const QVariant &max)
+{
+  maximum_ = max;
+  has_maximum_ = true;
 }
 
 NodeParam::DataType NodeInput::data_type()

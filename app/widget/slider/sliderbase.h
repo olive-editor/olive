@@ -48,6 +48,10 @@ protected:
 
   void SetValue(const QVariant& v);
 
+  void SetMinimumInternal(const QVariant& v);
+
+  void SetMaximumInternal(const QVariant& v);
+
   void UpdateLabel(const QVariant& v);
 
   virtual void changeEvent(QEvent* e) override;
@@ -57,11 +61,19 @@ protected:
   double drag_multiplier_;
 
 private:
+  const QVariant& ClampValue(const QVariant& v);
+
   SliderLabel* label_;
 
   SliderLineEdit* editor_;
 
   QVariant value_;
+
+  bool has_min_;
+  QVariant min_value_;
+
+  bool has_max_;
+  QVariant max_value_;
 
   Mode mode_;
 

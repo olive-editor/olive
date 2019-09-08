@@ -33,6 +33,10 @@ public:
 
   void SetValue(const int& v);
 
+  void SetMinimum(const int& d);
+
+  void SetMaximum(const int& d);
+
 signals:
   void ValueChanged(int);
 

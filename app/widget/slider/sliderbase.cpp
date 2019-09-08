@@ -28,6 +28,8 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   QStackedWidget(parent),
   decimal_places_(1),
   drag_multiplier_(1.0),
+  has_min_(false),
+  has_max_(false),
   mode_(mode),
   dragged_(false)
 {
@@ -49,16 +51,14 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   switch (mode_) {
   case kString:
     setCursor(Qt::PointingHandCursor);
-    value_ = "";
+    SetValue("");
     break;
   case kInteger:
   case kFloat:
     setCursor(Qt::SizeHorCursor);
-    value_ = 0;
+    SetValue(0);
     break;
   }
-
-  UpdateLabel(value_);
 }
 
 void SliderBase::SetDragMultiplier(const double &d)
@@ -77,9 +77,31 @@ const QVariant &SliderBase::Value()
 
 void SliderBase::SetValue(const QVariant &v)
 {
-  value_ = v;
+  value_ = ClampValue(v);
 
   UpdateLabel(value_);
+}
+
+void SliderBase::SetMinimumInternal(const QVariant &v)
+{
+  min_value_ = v;
+  has_min_ = true;
+
+  // Limit value by this new minimum value
+  if (value_ < min_value_) {
+    SetValue(min_value_);
+  }
+}
+
+void SliderBase::SetMaximumInternal(const QVariant &v)
+{
+  max_value_ = v;
+  has_max_ = true;
+
+  // Limit value by this new maximum value
+  if (value_ > max_value_) {
+    SetValue(max_value_);
+  }
 }
 
 void SliderBase::changeEvent(QEvent *e)
@@ -88,6 +110,19 @@ void SliderBase::changeEvent(QEvent *e)
     UpdateLabel(value_);
   }
   QStackedWidget::changeEvent(e);
+}
+
+const QVariant &SliderBase::ClampValue(const QVariant &v)
+{
+  if (has_min_ && v < min_value_) {
+    return min_value_;
+  }
+
+  if (has_max_ && v > max_value_) {
+    return max_value_;
+  }
+
+  return v;
 }
 
 void SliderBase::UpdateLabel(const QVariant &v)
@@ -132,14 +167,12 @@ void SliderBase::LabelClicked()
       // No-op
       break;
     case kInteger:
-      value_ = qRound(dragged_diff_);
+      SetValue(qRound(dragged_diff_));
       break;
     case kFloat:
-      value_ = dragged_diff_;
+      SetValue(dragged_diff_);
       break;
     }
-
-    UpdateLabel(value_);
   } else {
     // This was a simple click
 
@@ -177,6 +210,8 @@ void SliderBase::LabelDragged(int i)
       temp_dragged_value_ = dragged_diff_;
     }
 
+    temp_dragged_value_ = ClampValue(temp_dragged_value_);
+
     UpdateLabel(temp_dragged_value_);
     emit ValueChanged(temp_dragged_value_);
     break;
@@ -210,9 +245,7 @@ void SliderBase::LineEditConfirmed()
   }
 
   if (is_valid) {
-    value_ = test_val;
-
-    UpdateLabel(value_);
+    SetValue(test_val);
 
     emit ValueChanged(value_);
 

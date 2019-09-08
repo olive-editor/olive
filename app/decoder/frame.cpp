@@ -27,7 +27,10 @@
 
 Frame::Frame() :
   width_(0),
-  height_(0)
+  height_(0),
+  format_(-1),
+  timestamp_(0),
+  native_timestamp_(0)
 {
 }
 
@@ -64,6 +67,16 @@ const rational &Frame::timestamp()
 void Frame::set_timestamp(const rational &timestamp)
 {
   timestamp_ = timestamp;
+}
+
+const int64_t &Frame::native_timestamp()
+{
+  return native_timestamp_;
+}
+
+void Frame::set_native_timestamp(const int64_t &timestamp)
+{
+  native_timestamp_ = timestamp;
 }
 
 const int &Frame::format()

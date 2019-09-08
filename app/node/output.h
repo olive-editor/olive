@@ -63,6 +63,8 @@ public:
    */
   virtual QVariant get_value(const rational &time);
 
+  void push_value(const QVariant& v, const rational& time);
+
 private:
   DataType data_type_;
 

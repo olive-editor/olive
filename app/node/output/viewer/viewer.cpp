@@ -21,8 +21,7 @@
 #include "viewer.h"
 
 ViewerOutput::ViewerOutput() :
-  attached_viewer_(nullptr),
-  current_time_(0)
+  attached_viewer_(nullptr)
 {
   texture_input_ = new NodeInput("tex_out");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -68,6 +67,9 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
   // Disconnect old viewer if there's one attached
   if (attached_viewer_ != nullptr) {
     disconnect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(ViewerTimeChanged(const rational&)));
+
+    // Clear any existing texture
+    attached_viewer_->SetTexture(0);
   }
 
   // FIXME: Currently this attaches to ViewerPanels, but should it attached to Viewers instead?
@@ -76,24 +78,28 @@ void ViewerOutput::AttachViewer(ViewerPanel *viewer)
   if (attached_viewer_ != nullptr) {
     connect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(ViewerTimeChanged(const rational&)));
     SetTimebase(timebase_);
+
+    // Update the texture
+    ViewerTimeChanged(attached_viewer_->GetTime());
   }
 }
 
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
-  if (start_range == current_time_ || end_range == current_time_) {
+  Node::InvalidateCache(start_range, end_range, from);
+
+  if (attached_viewer_ != nullptr
+      && (start_range == attached_viewer_->GetTime() || end_range == attached_viewer_->GetTime())) {
     // Update any attached viewer
-    UpdateViewer();
+    ForceUpdateViewer();
   }
 
-  Node::InvalidateCache(start_range, end_range, from);
+  SendInvalidateCache(start_range, end_range);
 }
 
-void ViewerOutput::UpdateViewer()
+void ViewerOutput::ForceUpdateViewer()
 {
-  texture_input_->ClearCachedValue();
-
-  ViewerTimeChanged(current_time_);
+  ViewerTimeChanged(attached_viewer_->GetTime());
 }
 
 QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)
@@ -115,6 +121,4 @@ void ViewerOutput::ViewerTimeChanged(const rational &t)
   } else {
     attached_viewer_->SetTexture(0);
   }
-
-  current_time_ = t;
 }

@@ -124,6 +124,14 @@ public:
    */
   void set_dependent(bool d);
 
+  const QVariant& minimum();
+  bool has_minimum();
+  void set_minimum(const QVariant& min);
+
+  const QVariant& maximum();
+  bool has_maximum();
+  void set_maximum(const QVariant& max);
+
   virtual DataType data_type() override;
 
   /**
@@ -164,6 +172,26 @@ private:
    * @brief Internal dependent setting
    */
   bool dependent_;
+
+  /**
+   * @brief Sets whether this param has a minimum value or not
+   */
+  bool has_minimum_;
+
+  /**
+   * @brief Internal minimum value
+   */
+  QVariant minimum_;
+
+  /**
+   * @brief Sets whether this param has a maximum value or not
+   */
+  bool has_maximum_;
+
+  /**
+   * @brief Internal maximum value
+   */
+  QVariant maximum_;
 
 };
 

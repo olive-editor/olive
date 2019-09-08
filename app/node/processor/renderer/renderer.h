@@ -90,6 +90,16 @@ public:
   bool HasHash(const QByteArray& hash);
 
   /**
+   * @brief Return whether a frame is currently being cached
+   */
+  bool IsCaching(const QByteArray& hash);
+
+  /**
+   * @brief Check if a frame is currently being cached, and if not reserve it
+   */
+  bool TryCache(const QByteArray& hash);
+
+  /**
    * @brief Return current instance of a RenderThread (or nullptr if there is none)
    *
    * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
@@ -130,6 +140,8 @@ private:
    * This function is NOT thread-safe and should only be called in the main thread.
    */
   void CacheNext();
+
+  bool ShouldPushTexture(const rational &time);
 
   /**
    * @brief Return the path of the cached image at this time
@@ -174,8 +186,6 @@ private:
   QString cache_id_;
 
   bool caching_;
-  RendererProcessThread* master_thread_;
-  rational cache_frame_;
   QVector<uchar*> cache_frame_load_buffer_;
 
   QVector<RendererDownloadThreadPtr> download_threads_;
@@ -185,15 +195,19 @@ private:
 
   QMap<rational, QByteArray> time_hash_map_;
 
-  QMutex download_list_mutex_;
-  QVector<QByteArray> download_list_;
+  QMutex cache_hash_list_mutex_;
+  QVector<QByteArray> cache_hash_list_;
 
 private slots:
-  void ThreadCallback();
+  void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
 
   void ThreadRequestSibling(NodeDependency dep);
 
-  void DownloadThreadFinished(const rational &time, const QByteArray &hash);
+  void ThreadFrameAlreadyExists(const rational &time, const QByteArray &hash);
+
+  void MapHashToTimecode(const rational &time, const QByteArray &hash);
+
+  void ThreadIgnoredFrame();
 
 };
 

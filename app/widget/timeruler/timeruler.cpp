@@ -92,7 +92,7 @@ void TimeRuler::SetTimebase(const rational &r)
   update();
 }
 
-const int64_t &TimeRuler::Time()
+const int64_t &TimeRuler::GetTime()
 {
   return time_;
 }

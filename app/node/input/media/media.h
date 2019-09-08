@@ -53,8 +53,6 @@ public:
 
   virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
 
-
-
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
@@ -77,6 +75,9 @@ private:
 
   QOpenGLContext* ocio_ctx_;
   GLuint ocio_texture_;
+
+  FramePtr frame_;
+  int64_t frame_native_ts_;
 
 };
 
