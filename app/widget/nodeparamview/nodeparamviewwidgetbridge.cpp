@@ -44,7 +44,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   }
 
   // We assume the first data type is the "primary" type
-  switch (base_input->inputs().first()) {
+  switch (base_input->data_type()) {
   // None of these inputs have applicable UI widgets
   case NodeParam::kNone:
   case NodeParam::kAny:
@@ -179,7 +179,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 void NodeParamViewWidgetBridge::WidgetCallback()
 {
   foreach (NodeInput* input, inputs_) {
-    switch (input->inputs().first()) {
+    switch (input->data_type()) {
     // None of these inputs have applicable UI widgets
     case NodeParam::kNone:
     case NodeParam::kAny:
