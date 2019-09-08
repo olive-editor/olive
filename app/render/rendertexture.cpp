@@ -27,7 +27,11 @@
 
 RenderTexture::RenderTexture() :
   context_(nullptr),
-  texture_(0)
+  texture_(0),
+  back_texture_(0),
+  width_(0),
+  height_(0),
+  format_(olive::PIX_FMT_INVALID)
 {
 }
 
