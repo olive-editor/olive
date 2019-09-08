@@ -25,6 +25,7 @@
 #include "config/config.h"
 #include "common/qtversionabstraction.h"
 #include "node/distort/transform/transform.h"
+#include "node/color/opacity/opacity.h"
 #include "node/input/media/media.h"
 
 TimelineView::ImportTool::ImportTool(TimelineView *parent) :
@@ -157,16 +158,19 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       ClipBlock* clip = new ClipBlock();
       MediaInput* media = new MediaInput();
       TransformDistort* transform = new TransformDistort();
+      OpacityNode* opacity = new OpacityNode();
 
       // Set parents to node_memory_manager in case no TimelineOutput receives this signal
       clip->setParent(&node_memory_manager);
       media->setParent(&node_memory_manager);
       transform->setParent(&node_memory_manager);
+      opacity->setParent(&node_memory_manager);
 
       clip->set_length(ghost->Length());
       media->SetFootage(ghost->data(0).value<StreamPtr>()->footage());
 
-      NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
+      NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
+      NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
       NodeParam::ConnectEdge(transform->matrix_output(), media->matrix_input());
 
       if (event->keyboardModifiers() & Qt::ControlModifier) {

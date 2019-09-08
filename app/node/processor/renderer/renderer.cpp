@@ -103,18 +103,26 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
       QString fn = CachePathName(time_hash_map_[time]);
 
       if (QFileInfo::exists(fn)) {
+        qDebug() << "Reading" << fn;
         auto in = OIIO::ImageInput::open(fn.toStdString());
 
         if (in) {
           in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
 
           in->close();
+          qDebug() << "Stopped reading" << fn;
 
           master_texture_->Upload(cache_frame_load_buffer_.data());
 
           return QVariant::fromValue(master_texture_);
+        } else {
+          qDebug() << "OIIO failed to read EXR:" << OIIO::geterror().c_str();
         }
+      } else {
+        qDebug() << "Texture did NOT exist";
       }
+    } else {
+      qDebug() << "Hash map did NOT have this time";
     }
   }
 
@@ -187,8 +195,6 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
         cache_queue_.append(r);
       }
     }
-
-    time_hash_map_.remove(r);
   }
 
   CacheNext();
@@ -270,7 +276,10 @@ void RendererProcessor::Start()
     download_threads_[i] = std::make_shared<RendererDownloadThread>(ctx, effective_width_, effective_height_, format_, mode_);
     download_threads_[i]->StartThread(QThread::LowPriority);
 
-    connect(download_threads_[i].get(), SIGNAL(Downloaded(const rational&)), this, SLOT(DownloadThreadFinished(const rational&)));
+    connect(download_threads_[i].get(),
+            SIGNAL(Downloaded(const rational&, const QByteArray&)),
+            this,
+            SLOT(DownloadThreadFinished(const rational&, const QByteArray&)));
   }
 
   last_download_thread_ = 0;
@@ -357,7 +366,13 @@ QString RendererProcessor::CachePathName(const QByteArray &hash)
 
 bool RendererProcessor::HasHash(const QByteArray &hash)
 {
-  return QFileInfo::exists(CachePathName(hash));
+  download_list_mutex_.lock();
+
+  bool dl_list_contains = download_list_.contains(hash);
+
+  download_list_mutex_.unlock();
+
+  return QFileInfo::exists(CachePathName(hash)) || dl_list_contains;
 }
 
 void RendererProcessor::CalculateEffectiveDimensions()
@@ -374,17 +389,27 @@ void RendererProcessor::ThreadCallback()
 
     RenderTexturePtr texture = master_thread_->texture();
 
-    if (texture != nullptr) {
-      QString fn = CachePathName(master_thread_->hash());
-      download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture, fn, cache_frame_);
-      last_download_thread_++;
-    }
+    bool hash_exists = HasHash(master_thread_->hash());
 
-    time_hash_map_.insert(cache_frame_, master_thread_->hash());
+    if (!hash_exists) {
+      if (texture == nullptr) {
+        // We didn't receive a texture to download, but the viewer may still need updating
+        DownloadThreadFinished(cache_frame_, master_thread_->hash());
+      } else {
+        // We received a texture, time to start downloading it
+        download_list_mutex_.lock();
+        download_list_.append(master_thread_->hash());
+        download_list_mutex_.unlock();
 
-    // We didn't receive a texture to download, but the viewer may still need updating
-    if (texture == nullptr) {
-      DownloadThreadFinished(cache_frame_);
+        QString fn = CachePathName(master_thread_->hash());
+
+        download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
+                                                                                 fn,
+                                                                                 cache_frame_,
+                                                                                 master_thread_->hash());
+
+        last_download_thread_++;
+      }
     }
 
     CacheNext();
@@ -395,16 +420,25 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
 {
   // Try to queue another thread to run this dep in advance
   for (int i=0;i<threads_.size();i++) {
-    if (threads_.at(i)->Queue(dep, false)) {
+    if (threads_.at(i).get() != master_thread_
+        && threads_.at(i)->Queue(dep, false)) {
       return;
     }
   }
 }
 
-void RendererProcessor::DownloadThreadFinished(const rational& time)
+void RendererProcessor::DownloadThreadFinished(const rational& time, const QByteArray& hash)
 {
-  // Check if we just downloaded (akak finished caching) the frame we're currently on
-  if (texture_output_->IsConnected() && texture_output_->LastRequestedTime() == time) {
+  // Insert into hash map
+  time_hash_map_.insert(time, hash);
+
+  download_list_mutex_.lock();
+  download_list_.removeAll(hash);
+  download_list_mutex_.unlock();
+
+  // Check if we just downloaded (aka finished caching) the frame we're currently on
+  if (texture_output_->IsConnected()
+      && texture_output_->LastRequestedTime() == time) {
     texture_output_->ClearCachedValue();
 
     Node::InvalidateCache(time, time, nullptr);

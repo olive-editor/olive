@@ -13,29 +13,34 @@ public:
                          const olive::PixelFormat& format,
                          const olive::RenderMode& mode);
 
-  void Queue(RenderTexturePtr texture, const QString &fn, const rational &time);
+  void Queue(RenderTexturePtr texture, const QString &fn, const rational &time, const QByteArray &hash);
 
 public slots:
   virtual void Cancel() override;
 
 signals:
-  void Downloaded(const rational& time);
+  void Downloaded(const rational& time, const QByteArray& hash);
 
 protected:
   virtual void ProcessLoop() override;
 
 private:
+  struct DownloadQueueEntry {
+    RenderTexturePtr texture;
+    QString filename;
+    rational time;
+    QByteArray hash;
+  };
+
   GLuint read_buffer_;
 
-  QVector<RenderTexturePtr> texture_queue_;
-
-  QVector<QString> download_filenames_;
-
-  QVector<rational> texture_times_;
+  QVector<DownloadQueueEntry> texture_queue_;
 
   QMutex texture_queue_lock_;
 
   QAtomicInt cancelled_;
+
+  QByteArray hash_;
 
 };
 

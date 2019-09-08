@@ -111,3 +111,13 @@ QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
 
   return 0;
 }
+
+NodeInput *OpacityNode::texture_input()
+{
+  return texture_input_;
+}
+
+NodeOutput *OpacityNode::texture_output()
+{
+  return texture_output_;
+}

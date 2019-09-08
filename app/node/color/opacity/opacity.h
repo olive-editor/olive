@@ -38,6 +38,10 @@ public:
 
   virtual QVariant Value(NodeOutput *output, const rational &time) override;
 
+  NodeInput* texture_input();
+
+  NodeOutput* texture_output();
+
 private:
   NodeInput* opacity_input_;
 

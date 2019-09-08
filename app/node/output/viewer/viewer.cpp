@@ -21,7 +21,8 @@
 #include "viewer.h"
 
 ViewerOutput::ViewerOutput() :
-  attached_viewer_(nullptr)
+  attached_viewer_(nullptr),
+  current_time_(0)
 {
   texture_input_ = new NodeInput("tex_out");
   texture_input_->add_data_input(NodeInput::kTexture);

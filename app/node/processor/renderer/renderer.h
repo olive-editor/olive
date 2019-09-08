@@ -185,12 +185,15 @@ private:
 
   QMap<rational, QByteArray> time_hash_map_;
 
+  QMutex download_list_mutex_;
+  QVector<QByteArray> download_list_;
+
 private slots:
   void ThreadCallback();
 
   void ThreadRequestSibling(NodeDependency dep);
 
-  void DownloadThreadFinished(const rational &time);
+  void DownloadThreadFinished(const rational &time, const QByteArray &hash);
 
 };
 

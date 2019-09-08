@@ -17,13 +17,11 @@ RendererDownloadThread::RendererDownloadThread(QOpenGLContext *share_ctx,
 {
 }
 
-void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const rational& time)
+void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const rational& time, const QByteArray &hash)
 {
   texture_queue_lock_.lock();
 
-  texture_queue_.append(texture);
-  download_filenames_.append(fn);
-  texture_times_.append(time);
+  texture_queue_.append({texture, fn, time, hash});
 
   wait_cond_.wakeAll();
 
@@ -48,9 +46,7 @@ void RendererDownloadThread::ProcessLoop()
 
   f->glGenFramebuffers(1, &read_buffer_);
 
-  RenderTexturePtr working_texture;
-  QString working_filename;
-  rational working_time;
+  DownloadQueueEntry entry;
 
   int buffer_size = PixelService::GetBufferSize(render_instance()->format(),
                                                 render_instance()->width(),
@@ -82,9 +78,7 @@ void RendererDownloadThread::ProcessLoop()
       break;
     }
 
-    working_texture = texture_queue_.takeFirst();
-    working_filename = download_filenames_.takeFirst();
-    working_time = texture_times_.takeFirst();
+    entry = texture_queue_.takeFirst();
 
     texture_queue_lock_.unlock();
 
@@ -95,13 +89,13 @@ void RendererDownloadThread::ProcessLoop()
     xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
                                GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D,
-                               working_texture->texture(),
+                               entry.texture->texture(),
                                0);
 
     f->glReadPixels(0,
                     0,
-                    working_texture->width(),
-                    working_texture->height(),
+                    entry.texture->width(),
+                    entry.texture->height(),
                     format_info.pixel_format,
                     format_info.pixel_type,
                     data_buffer.data());
@@ -114,18 +108,21 @@ void RendererDownloadThread::ProcessLoop()
 
     f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-    std::string working_fn_std = working_filename.toStdString();
+    std::string working_fn_std = entry.filename.toStdString();
 
     std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
 
     if (out) {
+      qDebug() << "Writing" << entry.filename;
       out->open(working_fn_std, spec);
       out->write_image(format_info.oiio_desc, data_buffer.data());
       out->close();
+      qDebug() << "Stopped writing" << entry.filename;
+
+      emit Downloaded(entry.time, entry.hash);
+    } else {
+      qWarning() << tr("Failed to open output file \"%1\"").arg(entry.filename);
     }
-
-    emit Downloaded(working_time);
-
   }
 
   f->glDeleteFramebuffers(1, &read_buffer_);
