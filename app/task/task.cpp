@@ -161,6 +161,10 @@ void Task::set_status(const Task::Status &status)
 {
   status_ = status;
 
+  if (status_ == kFinished || status_ == kError) {
+    emit Finished();
+  }
+
   emit StatusChanged(status_);
 }
 
@@ -181,6 +185,4 @@ void Task::ThreadComplete()
   } else {
     set_status(kError);
   }
-
-  emit Finished();
 }
