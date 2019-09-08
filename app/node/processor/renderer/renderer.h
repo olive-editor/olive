@@ -21,6 +21,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <QLinkedList>
 #include <QOpenGLTexture>
 
 #include "node/node.h"
@@ -167,7 +168,7 @@ private:
   rational timebase_;
   double timebase_dbl_;
 
-  QVector<rational> cache_queue_;
+  QLinkedList<rational> cache_queue_;
   QString cache_name_;
   qint64 cache_time_;
   QString cache_id_;

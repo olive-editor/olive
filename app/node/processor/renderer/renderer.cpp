@@ -146,8 +146,46 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
   rational true_start_range(start_range_numround, timebase_.denominator());
 
   for (rational r=true_start_range;r<=end_range_adj;r+=timebase_) {
-    if (!cache_queue_.contains(r)) {
-      cache_queue_.append(r);
+    // Try to order the queue from closest to the playhead to furthest
+    rational last_time = texture_output()->LastRequestedTime();
+
+    rational diff = r - last_time;
+
+    if (diff < 0) {
+      // FIXME: Hardcoded number
+      // If the number is before the playhead, we still prioritize its closeness but not nearly as much (5:1 in this
+      // example)
+      diff = qAbs(diff) * 5;
+    }
+
+    bool contains = false;
+    bool added = false;
+    QLinkedList<rational>::iterator insert_iterator;
+
+    for (QLinkedList<rational>::iterator i = cache_queue_.begin();i != cache_queue_.end();i++) {
+      rational compare = *i;
+
+      if (!added) {
+        rational compare_diff = compare - last_time;
+
+        if (compare_diff > diff) {
+          insert_iterator = i;
+          added = true;
+        }
+      }
+
+      if (compare == r) {
+        contains = true;
+        break;
+      }
+    }
+
+    if (!contains) {
+      if (added) {
+        cache_queue_.insert(insert_iterator, r);
+      } else {
+        cache_queue_.append(r);
+      }
     }
 
     time_hash_map_.remove(r);
@@ -366,19 +404,10 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
 void RendererProcessor::DownloadThreadFinished(const rational& time)
 {
   // Check if we just downloaded (akak finished caching) the frame we're currently on
-  if (texture_output_->IsConnected()) {
-    if (texture_output_->LastRequestedTime() == time) {
-      texture_output_->ClearCachedValue();
-    }
+  if (texture_output_->IsConnected() && texture_output_->LastRequestedTime() == time) {
+    texture_output_->ClearCachedValue();
 
-    // Send invalidate cache signal to all nodes connected to the texture output
-    QVector<NodeEdgePtr> edges = texture_output()->edges();
-
-    foreach (NodeEdgePtr edge, edges) {
-      edge->input()->parent()->InvalidateCache(time,
-                                               time,
-                                               edge->input());
-    }
+    Node::InvalidateCache(time, time, nullptr);
   }
 }
 
