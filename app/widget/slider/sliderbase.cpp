@@ -68,6 +68,10 @@ void SliderBase::SetDragMultiplier(const double &d)
 
 const QVariant &SliderBase::Value()
 {
+  if (dragged_) {
+    return temp_dragged_value_;
+  }
+
   return value_;
 }
 
@@ -115,7 +119,7 @@ void SliderBase::LabelPressed()
   dragged_ = false;
 
   if (mode_ != kString) {
-    temp_drag_value_ = value_.toDouble();
+    dragged_diff_ = value_.toDouble();
   }
 }
 
@@ -128,10 +132,10 @@ void SliderBase::LabelClicked()
       // No-op
       break;
     case kInteger:
-      value_ = qRound(temp_drag_value_);
+      value_ = qRound(dragged_diff_);
       break;
     case kFloat:
-      value_ = temp_drag_value_;
+      value_ = dragged_diff_;
       break;
     }
 
@@ -149,6 +153,8 @@ void SliderBase::LabelClicked()
     editor_->setFocus();
     editor_->selectAll();
   }
+
+  dragged_ = false;
 }
 
 void SliderBase::LabelDragged(int i)
@@ -162,19 +168,17 @@ void SliderBase::LabelDragged(int i)
   {
     double real_drag = static_cast<double>(i) * drag_multiplier_;
 
-    temp_drag_value_ += real_drag;
+    dragged_diff_ += real_drag;
 
-    // Update temporary value for
-    QVariant temp_val;
-
+    // Update temporary value
     if (mode_ == kInteger) {
-      temp_val = qRound(temp_drag_value_);
+      temp_dragged_value_ = qRound(dragged_diff_);
     } else {
-      temp_val = temp_drag_value_;
+      temp_dragged_value_ = dragged_diff_;
     }
 
-    UpdateLabel(temp_val);
-    emit ValueChanged(temp_val);
+    UpdateLabel(temp_dragged_value_);
+    emit ValueChanged(temp_dragged_value_);
     break;
   }
   }

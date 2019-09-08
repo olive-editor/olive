@@ -67,7 +67,9 @@ private:
 
   bool dragged_;
 
-  double temp_drag_value_;
+  double dragged_diff_;
+
+  QVariant temp_dragged_value_;
 
 private slots:
   void LabelPressed();
