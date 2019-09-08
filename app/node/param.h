@@ -129,7 +129,7 @@ public:
   /**
    * @brief Name of this parameter to be shown to the user
    */
-  const QString& name();
+  QString name();
   void set_name(const QString& name);
 
   /**
@@ -249,6 +249,8 @@ public:
    * @brief Retrieve the last time this parameter had a value requested from
    */
   const rational& LastRequestedTime();
+
+  virtual DataType data_type() = 0;
 
 signals:
   /**

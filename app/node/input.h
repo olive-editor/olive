@@ -124,6 +124,8 @@ public:
    */
   void set_dependent(bool d);
 
+  virtual DataType data_type() override;
+
   /**
    * @brief A list of input data types accepted by this parameter
    */

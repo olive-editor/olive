@@ -38,8 +38,12 @@ const QString NodeParam::id()
   return id_;
 }
 
-const QString &NodeParam::name()
+QString NodeParam::name()
 {
+  if (name_.isEmpty()) {
+    return GetDefaultDataTypeName(data_type());
+  }
+
   return name_;
 }
 

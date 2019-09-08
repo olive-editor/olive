@@ -45,7 +45,7 @@ public:
    * This can be used in conjunction with NodeInput::can_accept_type() to determine whether this parameter can be
    * connected to it.
    */
-  const DataType& data_type();
+  virtual DataType data_type() override;
   void set_data_type(const DataType& type);
 
   /**
