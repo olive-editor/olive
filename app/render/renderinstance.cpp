@@ -98,6 +98,7 @@ void RenderInstance::Stop()
   buffer_.Destroy();
 
   // Destroy context
+
   delete ctx_;
 
   // Destroy offscreen surface

@@ -114,6 +114,11 @@ void olive::gl::Blit(ShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   func->glDrawArrays(GL_TRIANGLES, 0, 6);
 
   pipeline->release();
+
+  m_vbo2.destroy();
+  m_vbo.destroy();
+  m_vao.release();
+  m_vao.destroy();
 }
 
 void olive::gl::OCIOBlit(ShaderPtr pipeline,
