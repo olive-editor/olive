@@ -35,6 +35,7 @@ TransformDistort::TransformDistort()
 
   scale_input_ = new NodeInput("scale_in");
   scale_input_->add_data_input(NodeParam::kVec2);
+  scale_input_->set_value(QVector2D(100.0f, 100.0f));
   AddParameter(scale_input_);
 
   anchor_input_ = new NodeInput("anchor_in");
@@ -71,14 +72,28 @@ NodeOutput *TransformDistort::matrix_output()
   return matrix_output_;
 }
 
+void TransformDistort::Retranslate()
+{
+  position_input_->set_name(tr("Position"));
+  rotation_input_->set_name(tr("Rotation"));
+  scale_input_->set_name(tr("Scale"));
+  anchor_input_->set_name(tr("Anchor Point"));
+}
+
 QVariant TransformDistort::Value(NodeOutput *output, const rational &time)
 {
   if (output == matrix_output_) {
     QMatrix4x4 mat;
 
-    mat.translate(position_input_->get_value(time).value<QVector2D>());
-    //mat.rotate(0)
-    //mat.scale()
+    // Position translate
+    QVector2D pos = position_input_->get_value(time).value<QVector2D>() * 0.01f;
+    mat.translate(pos);
+
+    // Rotation
+    mat.rotate(rotation_input_->get_value(time).toFloat(), 0, 0, 1);
+
+    // Scale
+    mat.scale(scale_input_->get_value(time).value<QVector2D>()*0.01f);
 
     return mat;
   }

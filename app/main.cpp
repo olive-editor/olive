@@ -36,7 +36,7 @@ extern "C" {
 
 #include "core.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {  
   // Create application instance
   QApplication a(argc, argv);
 

@@ -91,6 +91,11 @@ public:
   virtual void Release();
 
   /**
+   * @brief Function called to retranslate parameter names (should be overridden in derivatives)
+   */
+  virtual void Retranslate();
+
+  /**
    * @brief Return the parameter at a given index
    */
   NodeParam* ParamAt(int index);

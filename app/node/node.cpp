@@ -45,6 +45,10 @@ void Node::Release()
 {
 }
 
+void Node::Retranslate()
+{
+}
+
 void Node::AddParameter(NodeParam *param)
 {
   // Ensure no other param with this ID has been added to this Node (since that defeats the purpose)
@@ -334,7 +338,8 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
         && static_cast<NodeInput*>(param)->dependent()) {
       // Get the value at this time
       QVariant v = static_cast<NodeInput*>(param)->get_value(time);
-      hash->addData(v.toByteArray()); // FIXME: Does this work on all value types?
+
+      hash->addData(NodeParam::ValueToBytes(param->data_type(), v));
     }
   }
 

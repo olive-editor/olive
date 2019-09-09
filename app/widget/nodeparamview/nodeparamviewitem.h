@@ -56,11 +56,15 @@ private:
 
   void AddAdditionalNode(Node* n);
 
+  void Retranslate();
+
   bool expanded_;
 
   NodeParamViewItemTitleBar* title_bar_;
 
   QLabel* title_bar_lbl_;
+
+  QVector<QLabel*> param_lbls_;
 
   QPushButton* title_bar_collapse_btn_;
 

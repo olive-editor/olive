@@ -241,6 +241,11 @@ public:
   static QString GetDefaultDataTypeName(const DataType &type);
 
   /**
+   * @brief Convert a value from a NodeParam into bytes
+   */
+  static QByteArray ValueToBytes(const DataType &type, const QVariant& value);
+
+  /**
    * @brief Clear the cached value
    */
   void ClearCachedValue();
@@ -293,6 +298,12 @@ protected:
   bool value_caching_;
 
 private:
+  /**
+   * @brief Internal function for returning a value in the form of bytes
+   */
+  template<typename T>
+  static QByteArray ValueToBytesInternal(const QVariant& v);
+
   /**
    * @brief Internal name string
    */

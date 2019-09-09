@@ -39,7 +39,22 @@ NodeParam::DataType NodeOutput::data_type()
 
 void NodeOutput::set_data_type(const NodeParam::DataType &type)
 {
+  if (data_type_ == type) {
+    return;
+  }
+
   data_type_ = type;
+
+  // If this output is connected to other inputs, check if they're compatible with this new data type
+  if (IsConnected()) {
+    foreach (NodeEdgePtr edge, edges_) {
+      if (!AreDataTypesCompatible(this, edge->input())) {
+        // FIXME: Possible array out of bounds since this function removes edges while we're iterating through them?
+        //        I'm not sure how Qt's `foreach` works.
+        DisconnectEdge(edge);
+      }
+    }
+  }
 }
 
 QVariant NodeOutput::get_value(const rational& time)

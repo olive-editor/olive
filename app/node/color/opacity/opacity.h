@@ -38,6 +38,8 @@ public:
 
   virtual QVariant Value(NodeOutput *output, const rational &time) override;
 
+  virtual void Retranslate() override;
+
   NodeInput* texture_input();
 
   NodeOutput* texture_output();

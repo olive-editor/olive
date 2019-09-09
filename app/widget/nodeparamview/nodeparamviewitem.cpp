@@ -22,7 +22,7 @@
 
 #include <QCheckBox>
 #include <QDebug>
-
+#include <QEvent>
 #include <QPainter>
 
 #include "project/item/sequence/sequence.h"
@@ -92,7 +92,9 @@ bool NodeParamViewItem::CanAddNode(Node* n)
 
 void NodeParamViewItem::changeEvent(QEvent *e)
 {
-  // FIXME: Retranslate all UI elements
+  if (e->type() == QEvent::LanguageChange && !nodes_.isEmpty()) {
+    Retranslate();
+  }
 
   QWidget::changeEvent(e);
 }
@@ -103,8 +105,6 @@ void NodeParamViewItem::SetupUI()
 
   Node* first_node = nodes_.first();
 
-  title_bar_lbl_->setText(first_node->Name());
-
   int row_count = 0;
 
   for (int i=0;i<first_node->ParameterCount();i++) {
@@ -114,7 +114,8 @@ void NodeParamViewItem::SetupUI()
     if (param->type() == NodeParam::kInput) {
 
       // Add descriptor label
-      QLabel* param_label = new QLabel(tr("%1:").arg(param->name()));
+      QLabel* param_label = new QLabel();
+      param_lbls_.append(param_label);
 
       content_layout_->addWidget(param_label, row_count, 0);
 
@@ -132,6 +133,8 @@ void NodeParamViewItem::SetupUI()
       row_count++;
     }
   }
+
+  Retranslate();
 }
 
 void NodeParamViewItem::AddAdditionalNode(Node *n)
@@ -145,6 +148,28 @@ void NodeParamViewItem::AddAdditionalNode(Node *n)
       bridges_.at(bridge_count)->AddInput(static_cast<NodeInput*>(param));
 
       bridge_count++;
+    }
+  }
+}
+
+void NodeParamViewItem::Retranslate()
+{
+  Node* first_node = nodes_.first();
+
+  first_node->Retranslate();
+
+  title_bar_lbl_->setText(first_node->Name());
+
+  int row_count = 0;
+
+  for (int i=0;i<first_node->ParameterCount();i++) {
+    NodeParam* param = first_node->ParamAt(i);
+
+    // This widget only needs to show input parameters
+    if (param->type() == NodeParam::kInput) {
+      param_lbls_.at(row_count)->setText(tr("%1:").arg(param->name()));
+
+      row_count++;
     }
   }
 }

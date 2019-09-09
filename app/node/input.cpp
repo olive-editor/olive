@@ -164,10 +164,17 @@ void NodeInput::set_maximum(const QVariant &max)
 
 NodeParam::DataType NodeInput::data_type()
 {
+  if (IsConnected()) {
+    // Return the connected output's data type
+    return edges_.first()->output()->data_type();
+  }
+
   if (inputs_.isEmpty()) {
+    // Safety if no inputs have been added
     return kNone;
   }
 
+  // Return first
   return inputs_.first();
 }
 

@@ -36,6 +36,8 @@ public:
 
   NodeOutput* matrix_output();
 
+  virtual void Retranslate() override;
+
 protected:
   virtual QVariant Value(NodeOutput *output, const rational &time) override;
 

@@ -364,7 +364,7 @@ void RendererProcessor::CacheNext()
 
   rational cache_frame = cache_queue_.takeFirst();
 
-  //qDebug() << "[RendererProcessor] Caching" << cache_frame.toDouble();
+  qDebug() << "[RendererProcessor] Caching" << cache_frame.toDouble();
 
   threads_.first()->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame), true);
 
