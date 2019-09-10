@@ -77,7 +77,6 @@ private:
   GLuint ocio_texture_;
 
   FramePtr frame_;
-  int64_t frame_native_ts_;
 
 };
 

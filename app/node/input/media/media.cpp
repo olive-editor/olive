@@ -132,15 +132,14 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     }
 
     // Check if we need to get a frame or not
-    if (frame_ == nullptr || frame_native_ts_ != decoder_->GetTimestampFromTime(time)) {
+    if (frame_ == nullptr || frame_->native_timestamp() != decoder_->GetTimestampFromTime(time)) {
       // Get frame from Decoder
       frame_ = decoder_->Retrieve(time);
 
       if (frame_ == nullptr) {
+        qDebug() << "Received a null frame while time was" << time.toDouble();
         return 0;
       }
-
-      frame_native_ts_ = frame_->native_timestamp();
 
       if (color_service_ == nullptr) {
         // FIXME: Hardcoded values for testing

@@ -478,6 +478,10 @@ void FFmpegDecoder::Index()
 
   // Save index to file
   SaveFrameIndex();
+
+  // Reset state
+  avcodec_flush_buffers(codec_ctx_);
+  av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
 }
 
 QString FFmpegDecoder::GetIndexFilename()

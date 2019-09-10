@@ -255,6 +255,7 @@ public:
    */
   const rational& LastRequestedTime();
 
+  bool ValueCachingEnabled();
   void SetValueCachingEnabled(bool enabled);
 
   virtual DataType data_type() = 0;

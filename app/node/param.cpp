@@ -287,6 +287,11 @@ const rational &NodeParam::LastRequestedTime()
   return time_;
 }
 
+bool NodeParam::ValueCachingEnabled()
+{
+  return value_caching_;
+}
+
 void NodeParam::SetValueCachingEnabled(bool enabled)
 {
   value_caching_ = enabled;

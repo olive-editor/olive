@@ -77,7 +77,7 @@ QVariant NodeInput::get_value(const rational& time)
     // Retrieve the value
     if (!edges_.isEmpty()) {
       // A connection - use the output of the connected Node
-      value_ = edges_.first()->output()->get_value(time);
+      value_ = get_connected_output()->get_value(time);
     } else {
       // No connections - use the internal value
       // FIXME: Re-implement keyframing
