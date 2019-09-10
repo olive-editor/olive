@@ -5,12 +5,13 @@ call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_
 REM Install FFmpeg
 curl -L -o ffmpeg-shared.zip https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip
 curl -L -o ffmpeg-dev.zip https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-dev.zip
-7z e ffmpeg-shared.zip
-7z e ffmpeg-dev.zip
+7z x ffmpeg-shared.zip
+7z x ffmpeg-dev.zip
 
 REM Install OpenColorIO
-curl -L -o ocio.zip https://github.com/olive-editor/OpenColorIO-Win32/releases/download/v1.1.1/ocio-v1.1.1-win64-shared.zip
-7z e ocio.zip
+curl -L -o ocio-v1.1.1-win64-shared.zip https://github.com/olive-editor/OpenColorIO-Win32/releases/download/v1.1.1/ocio-v1.1.1-win64-shared.zip
+7z x ocio-v1.1.1-win64-shared.zip
+set OPENCOLORIO_ROOT_DIR=ocio-v1.1.1-win64-shared
 
 REM Install OpenImageIO
 REM vcpkg install openimageio
