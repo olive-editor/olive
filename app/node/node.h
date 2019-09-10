@@ -281,9 +281,14 @@ private:
   NodeOutput* last_processed_parameter_;
 
   /**
-   * @brief Used for thread safety
+   * @brief Used for thread safety from main thread
    */
   QMutex lock_;
+
+  /**
+   * @brief Used for thread safety between multiple threads
+   */
+  QMutex run_lock_;
 
 private slots:
   void InputChanged(rational start, rational end);

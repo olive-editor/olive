@@ -175,7 +175,13 @@ void Node::ClearCachedValuesInParameters(const rational &start_range, const rati
 
 QVariant Node::Run(NodeOutput* output, const rational& time)
 {
-  return Value(output, time);
+  run_lock_.lock();
+
+  QVariant v = Value(output, time);
+
+  run_lock_.unlock();
+
+  return v;
 }
 
 NodeParam *Node::ParamAt(int index)
