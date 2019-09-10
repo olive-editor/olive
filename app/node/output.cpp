@@ -59,6 +59,8 @@ void NodeOutput::set_data_type(const NodeParam::DataType &type)
 
 QVariant NodeOutput::get_value(const rational& time)
 {
+  mutex_.lock();
+
   QVariant v;
 
   if (time_ != time || !value_caching_) {
@@ -69,6 +71,8 @@ QVariant NodeOutput::get_value(const rational& time)
   }
 
   v = value_;
+
+  mutex_.unlock();
 
   return v;
 }

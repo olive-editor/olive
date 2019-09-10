@@ -68,6 +68,8 @@ public:
 private:
   DataType data_type_;
 
+  QMutex mutex_;
+
 };
 
 #endif // NODEOUTPUT_H

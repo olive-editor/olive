@@ -35,6 +35,7 @@ extern "C" {
 #include <QSurfaceFormat>
 
 #include "core.h"
+#include "common/debug.h"
 
 int main(int argc, char *argv[]) {  
   // Create application instance
@@ -56,6 +57,9 @@ int main(int argc, char *argv[]) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
   QGuiApplication::setDesktopFileName("org.olivevideoeditor.Olive");
 #endif
+
+  // Set up debug handler
+  qInstallMessageHandler(DebugHandler);
 
   // Set OpenGL display profile (3.2 Core)
   QSurfaceFormat format;

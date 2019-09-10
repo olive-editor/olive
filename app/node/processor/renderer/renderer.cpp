@@ -139,7 +139,7 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
   rational start_range_adj = qMax(rational(0), start_range);
   rational end_range_adj = qMin(length_input()->get_value(0).value<rational>(), end_range);
 
-  qDebug() << "[RendererProcessor] Cache invalidated between"
+  qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()
            << "and"
            << end_range_adj.toDouble();
@@ -359,7 +359,7 @@ void RendererProcessor::CacheNext()
 
   rational cache_frame = cache_queue_.takeFirst();
 
-  qDebug() << "[RendererProcessor] Caching" << cache_frame.toDouble();
+  qDebug() << "Caching" << cache_frame.toDouble();
 
   threads_.first()->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame), true);
 
