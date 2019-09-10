@@ -106,7 +106,15 @@ void MediaInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational
 
   // Use frame value from Decoder
   if (from == texture_output_ && SetupDecoder()) {
-    hash->addData(QString::number(decoder_->GetTimestampFromTime(time)).toUtf8());
+    int64_t timestamp = decoder_->GetTimestampFromTime(time);
+
+    qDebug() << "Hashed timestamp" << timestamp;
+
+    QByteArray pts_bytes;
+    pts_bytes.resize(sizeof(int64_t));
+    memcpy(pts_bytes.data(), &timestamp, sizeof(int64_t));
+
+    hash->addData(pts_bytes);
     // FIXME: Add OCIO data
     // FIXME: Add alpha association value
   }
