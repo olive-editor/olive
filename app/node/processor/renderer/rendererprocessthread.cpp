@@ -26,9 +26,10 @@ RendererProcessThread::RendererProcessThread(RendererProcessor* parent,
                                              QOpenGLContext *share_ctx,
                                              const int &width,
                                              const int &height,
+                                             const int &divider,
                                              const olive::PixelFormat &format,
                                              const olive::RenderMode &mode) :
-  RendererThreadBase(share_ctx, width, height, format, mode),
+  RendererThreadBase(share_ctx, width, height, divider, format, mode),
   parent_(parent),
   cancelled_(false)
 {

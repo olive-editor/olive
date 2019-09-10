@@ -257,7 +257,7 @@ void RendererProcessor::Start()
   threads_.resize(background_thread_count);
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererProcessThread>(this, ctx, effective_width_, effective_height_, format_, mode_);
+    threads_[i] = std::make_shared<RendererProcessThread>(this, ctx, effective_width_, effective_height_, divider_, format_, mode_);
     threads_[i]->StartThread(QThread::LowPriority);
 
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
@@ -290,7 +290,7 @@ void RendererProcessor::Start()
 
   for (int i=0;i<download_threads_.size();i++) {
     // Create download thread
-    download_threads_[i] = std::make_shared<RendererDownloadThread>(ctx, effective_width_, effective_height_, format_, mode_);
+    download_threads_[i] = std::make_shared<RendererDownloadThread>(ctx, effective_width_, effective_height_, divider_, format_, mode_);
     download_threads_[i]->StartThread(QThread::LowPriority);
 
     connect(download_threads_[i].get(),

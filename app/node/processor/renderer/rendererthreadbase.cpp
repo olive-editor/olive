@@ -22,10 +22,11 @@
 
 #include <QDebug>
 
-RendererThreadBase::RendererThreadBase(QOpenGLContext *share_ctx, const int &width, const int &height, const olive::PixelFormat &format, const olive::RenderMode &mode) :
+RendererThreadBase::RendererThreadBase(QOpenGLContext *share_ctx, const int &width, const int &height, const int &divider, const olive::PixelFormat &format, const olive::RenderMode &mode) :
   share_ctx_(share_ctx),
   width_(width),
   height_(height),
+  divider_(divider),
   format_(format),
   mode_(mode),
   render_instance_(nullptr)
@@ -48,7 +49,7 @@ void RendererThreadBase::run()
   wait_cond_.wakeAll();
   caller_mutex_.unlock();
 
-  RenderInstance instance(width_, height_, format_, mode_);
+  RenderInstance instance(width_, height_, divider_, format_, mode_);
   render_instance_ = &instance;
 
   instance.SetShareContext(share_ctx_);

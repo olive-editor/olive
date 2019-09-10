@@ -36,6 +36,7 @@ public:
   RendererThreadBase(QOpenGLContext* share_ctx,
                      const int& width,
                      const int& height,
+                     const int& divider,
                      const olive::PixelFormat& format,
                      const olive::RenderMode& mode);
 
@@ -63,6 +64,8 @@ private:
   const int& width_;
 
   const int& height_;
+
+  const int& divider_;
 
   const olive::PixelFormat& format_;
 

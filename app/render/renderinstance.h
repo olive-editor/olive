@@ -41,6 +41,7 @@ class RenderInstance : public QObject
 public:
   RenderInstance(const int& width,
                  const int& height,
+                 const int& divider,
                  const olive::PixelFormat& format,
                  const olive::RenderMode& mode);
 
@@ -59,6 +60,8 @@ public:
   const int& width() const;
 
   const int& height() const;
+
+  const int& divider() const;
 
   const olive::PixelFormat& format() const;
 

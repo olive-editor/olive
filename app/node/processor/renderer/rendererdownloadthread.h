@@ -9,7 +9,7 @@ class RendererDownloadThread : public RendererThreadBase
 public:
   RendererDownloadThread(QOpenGLContext* share_ctx,
                          const int& width,
-                         const int& height,
+                         const int& height, const int &divider,
                          const olive::PixelFormat& format,
                          const olive::RenderMode& mode);
 

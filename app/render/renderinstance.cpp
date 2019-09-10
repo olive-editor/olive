@@ -26,13 +26,15 @@
 
 RenderInstance::RenderInstance(const int& width,
                                const int& height,
+                               const int &divider,
                                const olive::PixelFormat& format,
                                const olive::RenderMode& mode) :
   share_ctx_(nullptr),
   width_(width),
   height_(height),
   format_(format),
-  mode_(mode)
+  mode_(mode),
+  divider_(divider)
 {
 }
 
@@ -128,6 +130,11 @@ const int &RenderInstance::width() const
 const int &RenderInstance::height() const
 {
   return height_;
+}
+
+const int &RenderInstance::divider() const
+{
+  return divider_;
 }
 
 const olive::PixelFormat &RenderInstance::format() const
