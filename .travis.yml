@@ -7,11 +7,6 @@ matrix:
     compiler: gcc
     sudo: require
     dist: trusty
-  - os: linux
-    env: ARCH=i386
-    compiler: gcc
-    sudo: require
-    dist: trusty
   - os: osx
   # Can't build on Windows - affected by https://travis-ci.community/t/current-known-issues-please-read-this-before-posting-a-new-topic/264/10
   # - os: windows
@@ -31,4 +26,4 @@ after_success:
 branches:
   except:
     - # Do not build tags that we create when we upload to GitHub Releases
-    - /^(?i:continuous)/
+    - /^(?i:continuous)/    
