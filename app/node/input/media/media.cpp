@@ -105,7 +105,12 @@ void MediaInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational
   Node::Hash(hash, from, time);
 
   // Use frame value from Decoder
-  if (from == texture_output_ && SetupDecoder()) {
+  if (from == texture_output_) {
+    if (!SetupDecoder()) {
+      qDebug() << "Failed to setup decoder for hashing";
+      return;
+    }
+
     int64_t timestamp = decoder_->GetTimestampFromTime(time);
 
     qDebug() << "Hashed timestamp" << timestamp;

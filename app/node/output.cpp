@@ -47,11 +47,12 @@ void NodeOutput::set_data_type(const NodeParam::DataType &type)
 
   // If this output is connected to other inputs, check if they're compatible with this new data type
   if (IsConnected()) {
-    foreach (NodeEdgePtr edge, edges_) {
+    for (int i=0;i<edges_.size();i++) {
+      NodeEdgePtr edge = edges_.at(i);
+
       if (!AreDataTypesCompatible(this, edge->input())) {
-        // FIXME: Possible array out of bounds since this function removes edges while we're iterating through them?
-        //        I'm not sure how Qt's `foreach` works.
         DisconnectEdge(edge);
+        i--;
       }
     }
   }
