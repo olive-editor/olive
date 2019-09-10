@@ -41,6 +41,8 @@ find_package(OpenGL REQUIRED)
 
 find_package(OpenColorIO REQUIRED)
 
+find_package(OpenImageIO REQUIRED)
+
 find_package(Qt5 5.6 REQUIRED
   COMPONENTS
   Core
