@@ -21,21 +21,21 @@ then
     echo "[INFO] Still current. Uploading..."
 
     # retrieve upload tool
-    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+    #wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
 
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-
-        # upload final package
-        bash upload.sh Olive*.zip
-
-    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-
-        find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+    #if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
         # upload final package
-        bash upload.sh Olive*.AppImage*
+        #bash upload.sh Olive*.zip
+
+    #elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+
+        #find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+
+        # upload final package
+        #bash upload.sh Olive*.AppImage*
         
-    fi
+    #fi
 
 else
     

@@ -3,12 +3,17 @@ call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
 call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_amd64
 
 REM Install FFmpeg
-vcpkg install ffmpeg
+curl -L -o ffmpeg-shared.zip https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip
+curl -L -o ffmpeg-dev.zip https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-dev.zip
+7z e ffmpeg-shared.zip
+7z e ffmpeg-dev.zip
 
 REM Install OpenColorIO
+curl -L -o ocio.zip https://github.com/olive-editor/OpenColorIO-Win32/releases/download/v1.1.1/ocio-v1.1.1-win64-shared.zip
+7z e ocio.zip
 
 REM Install OpenImageIO
-vcpkg install openimageio
+REM vcpkg install openimageio
 
 REM Run cmake
 cmake . -G "NMake Makefiles"

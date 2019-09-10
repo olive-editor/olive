@@ -16,7 +16,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     python2 macdeployqtfix.py Olive.app/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
 
     # Distribute in zip
-    zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip Olive.app
+    zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip app/Olive.app
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
