@@ -119,6 +119,11 @@ protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
+  struct HashTimeMapping {
+    rational time;
+    QByteArray hash;
+  };
+
   /**
    * @brief Allocate and start the multithreaded backend
    */
@@ -147,6 +152,8 @@ private:
    * @brief Return the path of the cached image at this time
    */
   QString CachePathName(const QByteArray &hash);
+
+  void DeferMap(const rational &time, const QByteArray &hash);
 
   /**
    * @brief Internal list of RenderProcessThreads
@@ -198,16 +205,16 @@ private:
   QMutex cache_hash_list_mutex_;
   QVector<QByteArray> cache_hash_list_;
 
+  QList<HashTimeMapping> deferred_maps_;
+
 private slots:
   void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
 
   void ThreadRequestSibling(NodeDependency dep);
 
-  void ThreadFrameAlreadyExists(const rational &time, const QByteArray &hash);
+  void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
 
-  void MapHashToTimecode(const rational &time, const QByteArray &hash);
-
-  void ThreadIgnoredFrame();
+  void DownloadThreadComplete(const QByteArray &hash);
 
 };
 

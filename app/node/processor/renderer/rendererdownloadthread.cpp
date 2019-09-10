@@ -18,11 +18,11 @@ RendererDownloadThread::RendererDownloadThread(QOpenGLContext *share_ctx,
 {
 }
 
-void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const rational& time, const QByteArray &hash)
+void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const QByteArray &hash)
 {
   texture_queue_lock_.lock();
 
-  texture_queue_.append({texture, fn, time, hash});
+  texture_queue_.append({texture, fn, hash});
 
   wait_cond_.wakeAll();
 
@@ -118,7 +118,7 @@ void RendererDownloadThread::ProcessLoop()
       out->write_image(format_info.oiio_desc, data_buffer.data());
       out->close();
 
-      emit Downloaded(entry.time, entry.hash);
+      emit Downloaded(entry.hash);
     } else {
       qWarning() << tr("Failed to open output file \"%1\"").arg(entry.filename);
     }

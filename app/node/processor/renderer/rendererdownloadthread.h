@@ -9,17 +9,18 @@ class RendererDownloadThread : public RendererThreadBase
 public:
   RendererDownloadThread(QOpenGLContext* share_ctx,
                          const int& width,
-                         const int& height, const int &divider,
+                         const int& height,
+                         const int &divider,
                          const olive::PixelFormat& format,
                          const olive::RenderMode& mode);
 
-  void Queue(RenderTexturePtr texture, const QString &fn, const rational &time, const QByteArray &hash);
+  void Queue(RenderTexturePtr texture, const QString &fn, const QByteArray &hash);
 
 public slots:
   virtual void Cancel() override;
 
 signals:
-  void Downloaded(const rational& time, const QByteArray& hash);
+  void Downloaded(const QByteArray& hash);
 
 protected:
   virtual void ProcessLoop() override;
@@ -28,7 +29,6 @@ private:
   struct DownloadQueueEntry {
     RenderTexturePtr texture;
     QString filename;
-    rational time;
     QByteArray hash;
   };
 

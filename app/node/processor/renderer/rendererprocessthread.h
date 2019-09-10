@@ -49,9 +49,7 @@ signals:
 
   void CachedFrame(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
 
-  void FrameExists(const rational& time, const QByteArray& hash);
-
-  void FrameIgnored();
+  void FrameSkipped(const rational& time, const QByteArray& hash);
 
 private:
   RendererProcessor* parent_;

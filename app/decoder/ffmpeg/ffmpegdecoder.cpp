@@ -327,7 +327,7 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
   }
 
   // Convert timecode to AVStream timebase
-  int64_t target_ts = qFloor(time.toDouble() * rational(avstream_->time_base).flipped().toDouble());
+  int64_t target_ts = qRound64(time.toDouble() * rational(avstream_->time_base).flipped().toDouble());
 
   // Find closest actual timebase in the file
   target_ts = GetClosestTimestampInIndex(target_ts);

@@ -79,8 +79,6 @@ void RendererProcessThread::ProcessLoop()
     // Main waiting condition
     wait_cond_.wait(&mutex_);
 
-    qDebug() << this << "woke for a queued frame";
-
     if (cancelled_) {
       break;
     }
@@ -111,8 +109,6 @@ void RendererProcessThread::ProcessLoop()
     bool has_hash = parent_->HasHash(hash_);
     bool can_cache = false;
 
-    qDebug() << this << "starting background cache of frame" << path_.time().toDouble();
-
     if (!has_hash){
 
       if ((can_cache = parent_->TryCache(hash_))) {
@@ -127,17 +123,10 @@ void RendererProcessThread::ProcessLoop()
         }
 
         // Get the requested value
-        qDebug() << this << "starting cache of" << hash_.toHex();
         texture_ = output_to_process->get_value(path_.time()).value<RenderTexturePtr>();
 
         render_instance()->context()->functions()->glFinish();
-
-        qDebug() << this << "completed cache of" << hash_.toHex();
-      } else {
-        qDebug() << this << "hash is in use";
       }
-    } else {
-      qDebug() << this << "hash" << hash_.toHex() << "exists";
     }
 
     foreach (Node* dep, all_deps) {
@@ -146,15 +135,12 @@ void RendererProcessThread::ProcessLoop()
 
     node_to_process->Unlock();
 
-    if (has_hash && !parent_->IsCaching(hash_)) {
-      // This hash already exists, no need to cache, just record it
-      emit FrameExists(path_.time(), hash_);
-    } else if (can_cache) {
+    if (can_cache) {
       // We cached this frame, signal that it will need to be downloaded to disk
       emit CachedFrame(texture_, path_.time(), hash_);
     } else {
-      // Some other dork is caching this frame, skip it
-      emit FrameIgnored();
+      // This hash already exists, no need to cache, just map it
+      emit FrameSkipped(path_.time(), hash_);
     }
   }
 }

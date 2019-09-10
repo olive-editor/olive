@@ -276,14 +276,9 @@ void RendererProcessor::Start()
           SLOT(ThreadCallback(RenderTexturePtr, const rational&, const QByteArray&)),
           Qt::QueuedConnection);
   connect(threads_.first().get(),
-          SIGNAL(FrameExists(const rational&, const QByteArray&)),
+          SIGNAL(FrameSkipped(const rational&, const QByteArray&)),
           this,
-          SLOT(ThreadFrameAlreadyExists(const rational&, const QByteArray&)),
-          Qt::QueuedConnection);
-  connect(threads_.first().get(),
-          SIGNAL(FrameIgnored()),
-          this,
-          SLOT(ThreadIgnoredFrame()),
+          SLOT(ThreadSkippedFrame(const rational&, const QByteArray&)),
           Qt::QueuedConnection);
 
   download_threads_.resize(background_thread_count);
@@ -294,9 +289,9 @@ void RendererProcessor::Start()
     download_threads_[i]->StartThread(QThread::LowPriority);
 
     connect(download_threads_[i].get(),
-            SIGNAL(Downloaded(const rational&, const QByteArray&)),
+            SIGNAL(Downloaded(const QByteArray&)),
             this,
-            SLOT(MapHashToTimecode(const rational&, const QByteArray&)),
+            SLOT(DownloadThreadComplete(const QByteArray&)),
             Qt::QueuedConnection);
   }
 
@@ -364,7 +359,7 @@ void RendererProcessor::CacheNext()
 
   rational cache_frame = cache_queue_.takeFirst();
 
-  qDebug() << "[RendererProcessor] Caching" << cache_frame.toDouble();
+  //qDebug() << "[RendererProcessor] Caching" << cache_frame.toDouble();
 
   threads_.first()->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame), true);
 
@@ -379,6 +374,11 @@ QString RendererProcessor::CachePathName(const QByteArray &hash)
   QString filename = QString("%1.exr").arg(QString(hash.toHex()));
 
   return this_cache_dir.filePath(filename);
+}
+
+void RendererProcessor::DeferMap(const rational &time, const QByteArray &hash)
+{
+  deferred_maps_.append({time, hash});
 }
 
 bool RendererProcessor::HasHash(const QByteArray &hash)
@@ -423,19 +423,20 @@ void RendererProcessor::ThreadCallback(RenderTexturePtr texture, const rational&
   // Threads are all done now, time to proceed
   caching_ = false;
 
+  DeferMap(time, hash);
+
   if (texture != nullptr) {
     // We received a texture, time to start downloading it
     QString fn = CachePathName(hash);
 
     download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
                                                                              fn,
-                                                                             time,
                                                                              hash);
 
     last_download_thread_++;
   } else {
     // There was no texture here, we must update the viewer
-    MapHashToTimecode(time, hash);
+    DownloadThreadComplete(hash);
   }
 
   // If the connected output is using this time, signal it to update
@@ -458,39 +459,43 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
   }
 }
 
-void RendererProcessor::ThreadFrameAlreadyExists(const rational &time, const QByteArray &hash)
+void RendererProcessor::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
 {
   caching_ = false;
 
-  // Update hash map with new hash
-  MapHashToTimecode(time, hash);
+  DeferMap(time, hash);
 
-  // Signal output to update value
-  if (texture_output_->IsConnected()
-      && texture_output_->LastRequestedTime() == time) {
-    texture_output_->ClearCachedValue();
-    SendInvalidateCache(time, time);
+  if (!IsCaching(hash)) {
+    DownloadThreadComplete(hash);
+
+    // Signal output to update value
+    if (texture_output_->IsConnected()
+        && texture_output_->LastRequestedTime() == time) {
+      texture_output_->ClearCachedValue();
+      SendInvalidateCache(time, time);
+    }
   }
 
-  // Start caching the next frame
   CacheNext();
 }
 
-void RendererProcessor::MapHashToTimecode(const rational& time, const QByteArray& hash)
+void RendererProcessor::DownloadThreadComplete(const QByteArray &hash)
 {
-  // Insert into hash map
-  time_hash_map_.insert(time, hash);
-
   cache_hash_list_mutex_.lock();
   cache_hash_list_.removeAll(hash);
   cache_hash_list_mutex_.unlock();
-}
 
-void RendererProcessor::ThreadIgnoredFrame()
-{
-  caching_ = false;
+  for (int i=0;i<deferred_maps_.size();i++) {
+    const HashTimeMapping& deferred = deferred_maps_.at(i);
 
-  CacheNext();
+    if (deferred_maps_.at(i).hash == hash) {
+      // Insert into hash map
+      time_hash_map_.insert(deferred.time, deferred.hash);
+
+      deferred_maps_.removeAt(i);
+      i--;
+    }
+  }
 }
 
 RendererThreadBase* RendererProcessor::CurrentThread()
