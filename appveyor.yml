@@ -1,0 +1,24 @@
+version: {build}
+branches:
+  only:
+  - master
+image: Visual Studio 2015
+environment:
+  TRAVIS_REPO_SLUG: olive-editor/olive
+  matrix:
+  - MSYSTEM: MINGW64
+    QTDIR: 5.12\mingw73_64
+    ARCH: x86_64
+    QTTOOLS: Tools\mingw730_64
+    NSISDEF: /DX64
+#  - MSYSTEM: MINGW32
+#    QTDIR: 5.12\mingw73_32
+#    ARCH: i686
+#    QTTOOLS: Tools\mingw730_32
+build_script:
+- cmd: appveyor-build.bat
+artifacts:
+- path: Olive*.zip
+  name: Olive Portable
+- path: Olive*.exe
+  name: Olive Installer
