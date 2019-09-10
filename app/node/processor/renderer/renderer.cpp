@@ -139,10 +139,10 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
   rational start_range_adj = qMax(rational(0), start_range);
   rational end_range_adj = qMin(length_input()->get_value(0).value<rational>(), end_range);
 
-  /*qDebug() << "[RendererProcessor] Cache invalidated between"
+  qDebug() << "[RendererProcessor] Cache invalidated between"
            << start_range_adj.toDouble()
            << "and"
-           << end_range_adj.toDouble();*/
+           << end_range_adj.toDouble();
 
   // Snap start_range to timebase
   double start_range_dbl = start_range_adj.toDouble();

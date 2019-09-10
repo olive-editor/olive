@@ -54,8 +54,12 @@ void RendererThreadBase::run()
 
   instance.SetShareContext(share_ctx_);
 
+  qDebug() << this << "is starting its OpenGL context";
+
   // Allocate and create resources
   if (instance.Start()) {
+
+    qDebug() << this << "OpenGL context creation succeeded";
 
     // Main loop (use Cancel() to exit it)
     ProcessLoop();
