@@ -14,14 +14,15 @@ ColorService::ColorService(const char* source_space, const char* dest_space)
 
 void ColorService::Init()
 {
-  try {
+  // FIXME: Load configured config file for this session
+  /*try {
     // FIXME: Hardcoded values for testing purposes
     OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile("/run/media/matt/Home/OpenColorIO/ocio.configs.0.7v4/nuke-default/config.ocio");
 
     OCIO::SetCurrentConfig(config);
   } catch (OCIO::Exception& exception) {
     qWarning() << "OpenColorIO Error:" << exception.what();
-  }
+  }*/
 }
 
 ColorServicePtr ColorService::Create(const char *source_space, const char *dest_space)
