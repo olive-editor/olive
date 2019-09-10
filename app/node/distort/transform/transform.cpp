@@ -95,6 +95,9 @@ QVariant TransformDistort::Value(NodeOutput *output, const rational &time)
     // Scale
     mat.scale(scale_input_->get_value(time).value<QVector2D>()*0.01f);
 
+    // Anchor Point
+    mat.translate(anchor_input_->get_value(time).value<QVector2D>() * 0.01f);
+
     return mat;
   }
 

@@ -233,8 +233,21 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     // Draw with the internal texture
     internal_tex_.Bind();
 
+    QMatrix4x4 transform;
+
+    float sequence_aspect_ratio = static_cast<float>(renderer->width()) / static_cast<float>(renderer->height());
+    float media_aspect_ratio = static_cast<float>(frame_->width()) / static_cast<float>(frame_->height());
+
+    transform.scale(1.0f / sequence_aspect_ratio, 1.0f);
+
+    // Input transform
+    transform *= matrix_input_->get_value(time).value<QMatrix4x4>();
+
+    transform.scale(media_aspect_ratio, 1.0f);
+    /*transform.scale(static_cast<float>(frame_->width()) / static_cast<float>(renderer->width()),
+                    static_cast<float>(frame_->height()) / static_cast<float>(renderer->height()));*/
+
     // Use pipeline to blit using transformation matrix from input
-    QMatrix4x4 transform = matrix_input_->get_value(time).value<QMatrix4x4>();
     if (renderer->mode() == olive::RenderMode::kOffline) {
       olive::gl::OCIOBlit(pipeline_, ocio_texture_, false, transform);
     } else {
