@@ -62,10 +62,11 @@ endif()
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
-target_compile_options(
-  ${OLIVE_TARGET}
-  PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
+if(MSVC)
+  target_compile_options(${OLIVE_TARGET} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${OLIVE_TARGET} PRIVATE -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
+endif()
 
 target_include_directories(
   ${OLIVE_TARGET}
