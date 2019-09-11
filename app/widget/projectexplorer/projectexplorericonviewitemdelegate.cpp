@@ -69,7 +69,7 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
     int max_name_width = option.rect.width();
 
     if (timecode_width < option.rect.width() / 2) {
-      painter->drawText(text_rect, Qt::AlignBottom | Qt::AlignRight, index.data(Qt::UserRole).toString());
+      painter->drawText(text_rect, static_cast<int>(Qt::AlignBottom | Qt::AlignRight), index.data(Qt::UserRole).toString());
       max_name_width -= timecode_width;
     }
 
