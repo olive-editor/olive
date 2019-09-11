@@ -38,8 +38,8 @@ Block::Block() :
   texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
 
-  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(EdgeAddedSlot(NodeEdgePtr)));
-  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(EdgeRemovedSlot(NodeEdgePtr)));
+  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(EdgeAddedSlot(NodeEdgePtr)), Qt::DirectConnection);
+  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(EdgeRemovedSlot(NodeEdgePtr)), Qt::DirectConnection);
 }
 
 QString Block::Category()

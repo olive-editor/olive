@@ -23,7 +23,8 @@
 #include "node/node.h"
 
 NodeOutput::NodeOutput(const QString &id) :
-  NodeParam(id)
+  NodeParam(id),
+  data_type_(kNone)
 {
 }
 

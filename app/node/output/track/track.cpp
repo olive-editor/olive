@@ -153,7 +153,10 @@ NodeOutput* TrackOutput::track_output()
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   // We intercept IC signals from Blocks since we may be performing several options and they may over-signal
-  if (!block_invalidate_cache_stack_) {
+  if (block_invalidate_cache_stack_ == 0) {
+    qDebug() << "Received IC Signal:" << start_range.toDouble() << "to" << end_range.toDouble();
+    qDebug() << "Limiting IC Signal To:" << qMax(start_range, rational(0)).toDouble() << "to" << qMin(end_range, in()).toDouble();
+
     Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, in()), from);
   }
 }

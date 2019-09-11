@@ -52,6 +52,8 @@ int main(int argc, char *argv[]) {
   app_version.append(GITHASH);
 #endif
 
+  qInfo() << "Using Qt version:" << qVersion();
+
   QCoreApplication::setApplicationVersion(app_version);
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 7, 0))
