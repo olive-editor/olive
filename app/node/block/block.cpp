@@ -70,7 +70,7 @@ void Block::set_length(const rational &length)
 
   Unlock();
 
-  RefreshFollowing();
+  Refresh();
 }
 
 Block *Block::previous()
@@ -106,7 +106,7 @@ void Block::EdgeAddedSlot(NodeEdgePtr edge)
     static_cast<Block*>(edge->output()->parent())->next_ = this;
 
     // The blocks surrounding this one have changed, we need to Refresh()
-    RefreshFollowing();
+    Refresh();
 
     // Entire track will have shifted, so the whole cache needs to be re-validated
     SendInvalidateCache(0, RATIONAL_MAX);
@@ -119,7 +119,7 @@ void Block::EdgeRemovedSlot(NodeEdgePtr edge)
     static_cast<Block*>(edge->output()->parent())->next_ = nullptr;
 
     // The blocks surrounding this one have changed, we need to Refresh()
-    RefreshFollowing();
+    Refresh();
   }
 }
 
@@ -136,18 +136,9 @@ void Block::Refresh()
   out_point_ = in_point_ + length();
 
   emit Refreshed();
-}
 
-void Block::RefreshFollowing()
-{
-  Refresh();
-
-  Block* next_block = next();
-
-  while (next_block != nullptr) {
-    next_block->Refresh();
-
-    next_block = next_block->next();
+  if (next() != nullptr) {
+    next()->Refresh();
   }
 }
 

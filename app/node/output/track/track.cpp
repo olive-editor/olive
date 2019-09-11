@@ -104,6 +104,7 @@ void TrackOutput::Refresh()
   block_cache_ = detect_attached_blocks;
 
   Block::Refresh();
+  qDebug() << "Refreshed with in point" << in().toDouble() << "(from connected block" << previous << ")";
 }
 
 QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rational &time)

@@ -9,14 +9,17 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     make -j$(sysctl -n hw.ncpu)
 
     # Move Qt deps into bundle
-    macdeployqt app/Olive.app
+    cd app/CMakeFiles/Olive.dir
+
+    macdeployqt Olive.app
 
     # Fix other deps that macdeployqt missed
     wget -c -nv https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-    python2 macdeployqtfix.py app/Olive.app/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+    python2 macdeployqtfix.py Olive.app/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
 
     # Distribute in zip
-    zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip app/Olive.app
+    zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip Olive.app
+    mv *.zip ../../..
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 

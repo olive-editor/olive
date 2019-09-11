@@ -83,11 +83,6 @@ public slots:
    */
   virtual void Refresh();
 
-  /**
-   * @brief Calls Refresh() on this block and all blocks connected after it (but not before it)
-   */
-  void RefreshFollowing();
-
 signals:
   /**
    * @brief Signal emitted when this Block is refreshed

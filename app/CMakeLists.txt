@@ -60,6 +60,14 @@ target_compile_options(
   PRIVATE
   $<$<CXX_COMPILER_ID:GNU>:-Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
 
+target_include_directories(
+  ${OLIVE_TARGET}
+  PRIVATE
+  ${OPENCOLORIO_INCLUDE_DIR}
+  ${OIIO_INCLUDE_DIRS}
+  ${FFMPEG_INCLUDE_DIRS}
+)
+
 target_link_libraries(${OLIVE_TARGET}
   PRIVATE
   OpenGL::GL
