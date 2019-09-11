@@ -253,7 +253,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
                                                 node_text_padding_,
                                                 -node_text_padding_,
                                                 -node_text_padding_);
-    painter->drawText(text_rect, static_cast<unsigned int>(Qt::AlignVCenter | Qt::AlignLeft), node_->Name());
+    painter->drawText(text_rect, static_cast<int>(Qt::AlignVCenter | Qt::AlignLeft), node_->Name());
   }
 }
 
