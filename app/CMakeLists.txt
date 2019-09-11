@@ -65,7 +65,7 @@ target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 if(MSVC)
   target_compile_options(${OLIVE_TARGET} PRIVATE /W4 /WX)
 else()
-  target_compile_options(${OLIVE_TARGET} PRIVATE -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion>)
+  target_compile_options(${OLIVE_TARGET} PRIVATE -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion)
 endif()
 
 target_include_directories(

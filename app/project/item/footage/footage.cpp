@@ -161,7 +161,7 @@ void Footage::UpdateIcon()
       break;
 
     }
-  [[clang::fallthrough]];
+    /* fall through */
   case kInvalid:
     set_icon(olive::icon::Error);
     break;
