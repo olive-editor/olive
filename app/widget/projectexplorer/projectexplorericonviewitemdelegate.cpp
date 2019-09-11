@@ -74,7 +74,7 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
     }
 
     painter->drawText(text_rect,
-                      Qt::AlignBottom | Qt::AlignLeft,
+                      static_cast<int>(Qt::AlignBottom | Qt::AlignLeft),
                       fm.elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideRight, max_name_width));
 
   }
