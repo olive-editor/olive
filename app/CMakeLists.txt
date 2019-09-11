@@ -39,10 +39,6 @@ add_subdirectory(window)
 set(OLIVE_TARGET "olive-editor")
 if(APPLE)
   set(OLIVE_TARGET "Olive")
-  SET_TARGET_PROPERTIES(${OLIVE_TARGET} PROPERTIES
-    MACOSX_BUNDLE TRUE
-    MACOSX_FRAMEWORK_IDENTIFIER org.olivevideoeditor.Olive
-  )
 endif()
 
 set(OLIVE_RESOURCES
@@ -56,6 +52,13 @@ add_executable(${OLIVE_TARGET}
   ${OLIVE_EFFECTS}
   ${OLIVE_QM_FILES}
 )
+
+if(APPLE)
+  SET_TARGET_PROPERTIES(${OLIVE_TARGET} PROPERTIES
+    MACOSX_BUNDLE TRUE
+    MACOSX_FRAMEWORK_IDENTIFIER org.olivevideoeditor.Olive
+  )
+endif()
 
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
