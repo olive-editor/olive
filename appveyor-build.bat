@@ -4,7 +4,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_
 
 REM Install FFmpeg
 curl -L -o ffmpeg-4.2-win64-shared.zip https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-shared.zip
-curl -L -o ffmpeg-4.2-win64-dev.zip https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-4.2-win64-dev.zip
+curl -L -o ffmpeg-4.2-win64-dev.zip https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-4.2-win64-dev.zip
 7z x ffmpeg-4.2-win64-shared.zip
 7z x ffmpeg-4.2-win64-dev.zip
 
@@ -17,7 +17,7 @@ curl -L -o oiio-v2.3.0-win64-shared.zip https://github.com/olive-editor/OpenImag
 7z x oiio-v2.3.0-win64-shared.zip
 
 REM Run cmake
-cmake . -G "NMake Makefiles" -DOPENCOLORIO_ROOT_DIR=ocio-v1.1.1-win64-shared -DFFMPEG_ROOT=ffmpeg-4.2-win64-dev -DOIIO_BASE_DIR=oiio-v2.3.0-win64-shared -DQt5_DIR=C:\Qt\5.13.0\msvc2015_64
+cmake . -G "NMake Makefiles" -DOPENCOLORIO_ROOT_DIR=ocio-v1.1.1-win64-shared -DFFMPEG_ROOT=ffmpeg-4.2-win64-dev -DOIIO_BASE_DIR=oiio-v2.3.0-win64-shared -DQt5_DIR=C:\Qt\5.13.0\msvc2015_64\lib\cmake\Qt5
 
 REM Build Olive
 nmake
