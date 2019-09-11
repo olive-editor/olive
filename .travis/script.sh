@@ -8,7 +8,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     # Make
     make -j$(sysctl -n hw.ncpu)
 
-    BUNDLE_PATH=$(find . -name "Olive.app")
+    BUNDLE_PATH=$(find . -name "*.app")
 
     # Move Qt deps into bundle
     macdeployqt $BUNDLE_PATH

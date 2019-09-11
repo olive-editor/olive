@@ -32,6 +32,11 @@ cd olive
 C:\Qt\5.13.0\msvc2015_64\bin\windeployqt olive-editor.exe
 cd ..
 
+REM Copy FFmpeg/OCIO/OIIO libraries in
+copy ffmpeg-4.2-win64-shared\bin\*.dll olive\
+copy ocio-v1.1.1-win64-shared\bin\*.dll olive\
+copy oiio-v2.3.0-win64-shared\bin\*.dll olive\
+
 REM Store the Git hash as a variable
 git rev-parse --short=7 HEAD > shorthash.txt
 set /p HASH= < shorthash.txt
