@@ -75,5 +75,5 @@ void ProjectExplorerListViewItemDelegate::paint(QPainter *painter, const QStyleO
   painter->setPen(option.state & QStyle::State_Selected ?
                     option.palette.highlightedText().color() : option.palette.text().color());
 
-  painter->drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, text);
+  painter->drawText(text_rect, static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter), text);
 }
