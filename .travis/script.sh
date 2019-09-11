@@ -23,7 +23,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
     # Generate Makefile
-    cmake .
+    cmake . -DQt5LinguistTools_DIR=/usr/lib/x86_64-linux-gnu/cmake/Qt5LinguistTools
 
     # Make
     make -j$(nproc)

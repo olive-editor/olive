@@ -22,10 +22,7 @@ cmake . -G "NMake Makefiles" -DOPENCOLORIO_ROOT_DIR=ocio-v1.1.1-win64-shared -DF
 REM Build Olive
 nmake
 
-REM For temporary testing, open remote connection
-powershell $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
-REM Dependencies are installed, time to set up packages
+REM Build finished, time to package
 mkdir olive
 copy app\olive-editor.exe olive
 cd olive
