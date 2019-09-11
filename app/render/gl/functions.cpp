@@ -85,13 +85,13 @@ void olive::gl::Blit(ShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   QOpenGLBuffer m_vbo;
   m_vbo.create();
   m_vbo.bind();
-  m_vbo.allocate(blit_vertices, 18 * sizeof(GLfloat));
+  m_vbo.allocate(blit_vertices, 18 * static_cast<int>(sizeof(GLfloat)));
   m_vbo.release();
 
   QOpenGLBuffer m_vbo2;
   m_vbo2.create();
   m_vbo2.bind();
-  m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * sizeof(GLfloat));
+  m_vbo2.allocate(flipped ? flipped_blit_texcoords : blit_texcoords, 12 * static_cast<int>(sizeof(GLfloat)));
   m_vbo2.release();
 
   pipeline->bind();
