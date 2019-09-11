@@ -18,9 +18,11 @@ curl -L -o oiio-v2.3.0-win64-shared.zip https://github.com/olive-editor/OpenImag
 
 REM Run cmake
 cmake . -G "NMake Makefiles" -DOPENCOLORIO_ROOT_DIR=ocio-v1.1.1-win64-shared -DFFMPEG_ROOT=ffmpeg-4.2-win64-dev -DOIIO_BASE_DIR=oiio-v2.3.0-win64-shared -DQt5_DIR=C:\Qt\5.13.0\msvc2015_64\lib\cmake\Qt5
+if %ERRORLEVEL% == 0 exit 1
 
 REM Build Olive
 nmake
+if %ERRORLEVEL% == 0 exit 1
 
 REM Build finished, time to package
 mkdir olive
