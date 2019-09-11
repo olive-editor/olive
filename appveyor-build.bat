@@ -27,9 +27,9 @@ powershell $blockRdp = $true; iex ((new-object net.webclient).DownloadString('ht
 
 REM Dependencies are installed, time to set up packages
 mkdir olive
-copy app/olive-editor.exe olive
+copy app\olive-editor.exe olive
 cd olive
-windeployqt olive-editor.exe
+C:\Qt\5.13.0\msvc2015_64\bin\windeployqt olive-editor.exe
 cd ..
 
 REM Store the Git hash as a variable
@@ -39,7 +39,7 @@ git rev-parse HEAD > longhash.txt
 set /p TRAVIS_COMMIT= < longhash.txt
 
 REM First, we create the installer
-copy packaging\windows\nsis\* .
+copy app\packaging\windows\nsis\* .
 "C:\Program Files (x86)\NSIS\makensis.exe" /V4 /DX64 "/XOutFile Olive-%HASH%-Win64.exe" olive.nsi
 
 REM Next we create the portable version, which we'll need a "portable" file for
