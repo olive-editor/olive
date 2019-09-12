@@ -59,19 +59,11 @@ protected:
   QMutex caller_mutex_;
 
 private:
+  void WakeCaller();
+
   QOpenGLContext* share_ctx_;
 
-  const int& width_;
-
-  const int& height_;
-
-  const int& divider_;
-
-  const olive::PixelFormat& format_;
-
-  const olive::RenderMode& mode_;
-
-  RenderInstance* render_instance_;
+  RenderInstance render_instance_;
 
 };
 

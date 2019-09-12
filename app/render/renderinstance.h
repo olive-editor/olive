@@ -34,7 +34,8 @@
  *
  * RenderInstance contains everything that Nodes will need to draw with on a per-thread basis.
  *
- * In OpenGL,
+ * Due to its usage of QOffscreenSurface, a RenderInstance instance must be constructed in the main (GUI) thread. From
+ * there it is safe to call Start() on in another thread.
  */
 class RenderInstance : public QObject
 {
@@ -44,6 +45,28 @@ public:
                  const int& divider,
                  const olive::PixelFormat& format,
                  const olive::RenderMode& mode);
+
+  virtual ~RenderInstance() override;
+
+  /**
+   * @brief Deleted copy constructor
+   */
+  RenderInstance(const RenderInstance& other) = delete;
+
+  /**
+   * @brief Deleted move constructor
+   */
+  RenderInstance(RenderInstance&& other) = delete;
+
+  /**
+   * @brief Deleted copy assignment
+   */
+  RenderInstance& operator=(const RenderInstance& other) = delete;
+
+  /**
+   * @brief Deleted move assignment
+   */
+  RenderInstance& operator=(RenderInstance&& other) = delete;
 
   void SetShareContext(QOpenGLContext* share);
 

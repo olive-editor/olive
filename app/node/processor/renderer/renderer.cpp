@@ -254,6 +254,10 @@ void RendererProcessor::Start()
 
   int background_thread_count = QThread::idealThreadCount();
 
+  // Some OpenGL implementations (notably wgl) require the context not to be current before sharing
+  QSurface* old_surface = ctx->surface();
+  ctx->doneCurrent();
+
   threads_.resize(background_thread_count);
 
   for (int i=0;i<threads_.size();i++) {
@@ -296,6 +300,9 @@ void RendererProcessor::Start()
   }
 
   last_download_thread_ = 0;
+
+  // Restore context now that thread creation is complete
+  ctx->makeCurrent(old_surface);
 
   // Create master texture (the one sent to the viewer)
   master_texture_ = std::make_shared<RenderTexture>();

@@ -37,7 +37,16 @@ extern "C" {
 #include "core.h"
 #include "common/debug.h"
 
-int main(int argc, char *argv[]) {  
+int main(int argc, char *argv[]) {
+  QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
+  // Set OpenGL display profile (3.2 Core)
+  QSurfaceFormat format;
+  format.setVersion(3, 2);
+  format.setDepthBufferSize(24);
+  format.setProfile(QSurfaceFormat::CoreProfile);
+  QSurfaceFormat::setDefaultFormat(format);
+
   // Create application instance
   QApplication a(argc, argv);
 
@@ -62,13 +71,6 @@ int main(int argc, char *argv[]) {
 
   // Set up debug handler
   qInstallMessageHandler(DebugHandler);
-
-  // Set OpenGL display profile (3.2 Core)
-  QSurfaceFormat format;
-  format.setVersion(3, 2);
-  format.setDepthBufferSize(24);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  QSurfaceFormat::setDefaultFormat(format);
 
   // Register FFmpeg codecs and filters (deprecated in 4.0+)
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
