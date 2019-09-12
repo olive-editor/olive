@@ -43,6 +43,6 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     export VERSION=$(git rev-parse --short HEAD)
 
     # Use linuxdeployqt to set up dependencies
-    ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/share/applications/*.desktop -extra-plugins=imageformats/libqsvg.so -appimage
+    ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/local/share/applications/*.desktop -extra-plugins=imageformats/libqsvg.so -appimage
 
 fi
