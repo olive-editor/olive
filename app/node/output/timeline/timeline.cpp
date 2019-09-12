@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "node/blend/alphaover/alphaover.h"
 #include "node/block/gap/gap.h"
 #include "node/graph.h"
 
@@ -199,9 +200,22 @@ void TimelineOutput::AddTrack()
   static_cast<NodeGraph*>(parent())->AddNode(track);
 
   if (track_cache_.isEmpty()) {
+    // Connect this track directly to this output
     NodeParam::ConnectEdge(track->track_output(), track_input());
   } else {
-    NodeParam::ConnectEdge(track->track_output(), track_cache_.last()->track_input());
+    TrackOutput* current_last_track = track_cache_.last();
+
+    // Connect this track to the current last track
+    NodeParam::ConnectEdge(track->track_output(), current_last_track->track_input());
+
+    // FIXME: Test code only
+    AlphaOverBlend* blend = new AlphaOverBlend();
+    static_cast<NodeGraph*>(parent())->AddNode(blend);
+
+    NodeParam::ConnectEdge(track->texture_output(), blend->blend_input());
+    NodeParam::ConnectEdge(current_last_track->texture_output(), blend->base_input());
+    NodeParam::ConnectEdge(blend->texture_output(), current_last_track->texture_output()->edges().first()->input());
+    // End test code
   }
 }
 

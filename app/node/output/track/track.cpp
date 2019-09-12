@@ -79,15 +79,15 @@ void TrackOutput::Refresh()
 {
   QVector<Block*> detect_attached_blocks;
 
-  Block* previous = attached_block();
-  while (previous != nullptr) {
-    detect_attached_blocks.prepend(previous);
+  Block* prev = previous();
+  while (prev != nullptr) {
+    detect_attached_blocks.prepend(prev);
 
-    if (!block_cache_.contains(previous)) {
-      emit BlockAdded(previous);
+    if (!block_cache_.contains(prev)) {
+      emit BlockAdded(prev);
     }
 
-    previous = previous->previous();
+    prev = prev->previous();
   }
 
   foreach (Block* b, block_cache_) {
@@ -104,7 +104,7 @@ void TrackOutput::Refresh()
   block_cache_ = detect_attached_blocks;
 
   Block::Refresh();
-  qDebug() << "Refreshed with in point" << in().toDouble() << "(from connected block" << previous << ")";
+  qDebug() << "Refreshed with in point" << in().toDouble() << "(from connected block" << previous() << ")";
 }
 
 QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rational &time)
@@ -154,11 +154,13 @@ NodeOutput* TrackOutput::track_output()
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   // We intercept IC signals from Blocks since we may be performing several options and they may over-signal
-  if (block_invalidate_cache_stack_ == 0) {
+  if (from == previous_input() && block_invalidate_cache_stack_ == 0) {
     qDebug() << "Received IC Signal:" << start_range.toDouble() << "to" << end_range.toDouble();
     qDebug() << "Limiting IC Signal To:" << qMax(start_range, rational(0)).toDouble() << "to" << qMin(end_range, in()).toDouble();
 
     Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, in()), from);
+  } else {
+    Node::InvalidateCache(start_range, end_range, from);
   }
 }
 
@@ -210,11 +212,6 @@ void TrackOutput::InsertBlockBefore(Block* block, Block* after)
 void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 {
   InsertBlockBetweenBlocks(block, before, before->next());
-}
-
-Block *TrackOutput::attached_block()
-{
-  return ValueToPtr<Block>(previous_input()->get_value(0));
 }
 
 void TrackOutput::PrependBlock(Block *block)

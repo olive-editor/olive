@@ -191,8 +191,6 @@ private:
   void BlockInvalidateCache();
   void UnblockInvalidateCache();
 
-  Block* attached_block();
-
   QVector<Block*> block_cache_;
 
   Block* current_block_;
