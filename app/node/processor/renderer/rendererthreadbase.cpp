@@ -24,19 +24,14 @@
 
 RendererThreadBase::RendererThreadBase(QOpenGLContext *share_ctx, const int &width, const int &height, const int &divider, const olive::PixelFormat &format, const olive::RenderMode &mode) :
   share_ctx_(share_ctx),
-  width_(width),
-  height_(height),
-  divider_(divider),
-  format_(format),
-  mode_(mode),
-  render_instance_(nullptr)
+  render_instance_(width, height, divider, format, mode)
 {
   connect(share_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Cancel()));
 }
 
 RenderInstance *RendererThreadBase::render_instance()
 {
-  return render_instance_;
+  return &render_instance_;
 }
 
 void RendererThreadBase::run()
@@ -44,18 +39,15 @@ void RendererThreadBase::run()
   // Lock mutex for main loop
   mutex_.lock();
 
-  // Signal that main thread can continue now
-  caller_mutex_.lock();
-  wait_cond_.wakeAll();
-  caller_mutex_.unlock();
-
-  RenderInstance instance(width_, height_, divider_, format_, mode_);
-  render_instance_ = &instance;
-
-  instance.SetShareContext(share_ctx_);
+  render_instance_.SetShareContext(share_ctx_);
 
   // Allocate and create resources
-  if (instance.Start()) {
+  bool started = render_instance_.Start();
+
+  // Signal that main thread can continue now
+  WakeCaller();
+
+  if (started) {
 
     // Main loop (use Cancel() to exit it)
     ProcessLoop();
@@ -63,11 +55,18 @@ void RendererThreadBase::run()
   }
 
   // Free all resources
-  render_instance_ = nullptr;
-  instance.Stop();
+  render_instance_.Stop();
 
   // Unlock mutex before exiting
   mutex_.unlock();
+}
+
+void RendererThreadBase::WakeCaller()
+{
+  // Signal that main thread can continue now
+  caller_mutex_.lock();
+  wait_cond_.wakeAll();
+  caller_mutex_.unlock();
 }
 
 void RendererThreadBase::StartThread(QThread::Priority priority)

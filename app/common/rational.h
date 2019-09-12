@@ -15,7 +15,7 @@ extern "C" {
 
 using namespace std;
 
-typedef long intType;
+typedef int64_t intType;
 /*
  * Zero Handling
  * 0/0        = 0
@@ -33,7 +33,7 @@ public:
     if(numer == 0)
       denom = 0;
   }
-  
+
   rational(const intType &numerator, const intType &denominator)
     :numer(numerator), denom(denominator)
   {
@@ -51,7 +51,7 @@ public:
     else
       numer = intType(0);
   }
-  
+
   rational(const rational &rhs)
     :numer(rhs.numer), denom(rhs.denom)
   {
@@ -59,10 +59,10 @@ public:
   }
 
   rational(const AVRational& r);
-  
+
   //destructor
   ~rational();
-  
+
   //Assignment Operators
   const rational& operator=(const rational &rhs);
   const rational& operator+=(const rational &rhs);
@@ -75,7 +75,7 @@ public:
   rational operator-(const rational &rhs) const;
   rational operator/(const rational &rhs) const;
   rational operator*(const rational &rhs) const;
-  
+
   //Relational and equality operators
   bool operator<(const rational &rhs) const;
   bool operator<=(const rational &rhs) const;
@@ -83,7 +83,7 @@ public:
   bool operator>=(const rational &rhs) const;
   bool operator==(const rational &rhs) const;
   bool operator!=(const rational &rhs) const;
-  
+
   //Unary operators
   const rational& operator++(); //prefix
   rational operator++(int);     //postfix
@@ -101,7 +101,7 @@ public:
 
   // Returns whether the rational is null or not
   bool isNull() const;
-  
+
   //Function: print number to cout
   void print(ostream &out = cout) const;
 
@@ -114,7 +114,7 @@ public:
 
   const intType& numerator() const;
   const intType& denominator() const;
-  
+
 private:
   //number of active instances
   static int activeInstances;
@@ -122,7 +122,7 @@ private:
   //numerator and denominator
   intType numer;
   intType denom;
-  
+
   //Function: ensures denom >= 0
   void fixSigns();
   //Function: ensures lowest form

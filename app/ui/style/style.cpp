@@ -37,6 +37,8 @@ void olive::style::AppSetDefault()
 
 void olive::style::SetOliveStyle(const QString &style_name)
 {
+  qApp->setStyle(QStyleFactory::create("Fusion"));
+
   // Set CSS style for this
   QFile css_file(QString(":/style/%1/style.css").arg(style_name));
 

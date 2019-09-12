@@ -26,7 +26,7 @@
 
 RenderInstance::RenderInstance(const int& width,
                                const int& height,
-                               const int &divider,
+                               const int& divider,
                                const olive::PixelFormat& format,
                                const olive::RenderMode& mode) :
   share_ctx_(nullptr),
@@ -36,6 +36,14 @@ RenderInstance::RenderInstance(const int& width,
   mode_(mode),
   divider_(divider)
 {
+  // Create offscreen surface
+  surface_.create();
+}
+
+RenderInstance::~RenderInstance()
+{
+  // Destroy offscreen surface
+  surface_.destroy();
 }
 
 void RenderInstance::SetShareContext(QOpenGLContext *share)
@@ -65,13 +73,9 @@ bool RenderInstance::Start()
     return false;
   }
 
-  // Create offscreen surface
-  surface_.create();
-
   // Make context current on that surface
   if (!ctx_->makeCurrent(&surface_)) {
     qWarning() << tr("Failed to makeCurrent() on offscreen surface in thread %1").arg(reinterpret_cast<quintptr>(this));
-    surface_.destroy();
     return false;
   }
 
@@ -100,11 +104,7 @@ void RenderInstance::Stop()
   buffer_.Destroy();
 
   // Destroy context
-
   delete ctx_;
-
-  // Destroy offscreen surface
-  surface_.destroy();
 }
 
 bool RenderInstance::IsStarted()
