@@ -31,7 +31,7 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     make -j$(nproc)
 
     # Use `make install` on `appdir` to place files in the correct place
-    make DESTDIR=appdir -j$(nproc) install ; find appdir/
+    make DESTDIR=appdir -j$(nproc) install
 
     # Download linuxdeployqt
     wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
