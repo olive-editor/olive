@@ -43,12 +43,18 @@ bool OIIODecoder::Probe(Footage *f)
     return false;
   }
 
+  if (!strcmp(in->format_name(), "FFmpeg movie")) {
+    // If this is FFmpeg via OIIO, fall-through to our native FFmpeg decoder
+    return false;
+  }
+
   // Get stats for this image and dump them into the Footage file
   const OIIO::ImageSpec& spec = in->spec();
 
   ImageStreamPtr image_stream = std::make_shared<ImageStream>();
   image_stream->set_width(spec.width);
   image_stream->set_height(spec.height);
+
   f->add_stream(image_stream);
 
   // If we're here, we have a successful image open
