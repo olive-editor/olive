@@ -36,7 +36,7 @@ public:
                         const olive::PixelFormat& format,
                         const olive::RenderMode& mode);
 
-  bool Queue(const NodeDependency &dep, bool wait);
+  bool Queue(const NodeDependency &dep, bool wait, bool sibling);
 
 public slots:
   virtual void Cancel() override;
@@ -61,6 +61,8 @@ private:
   RenderTexturePtr texture_;
 
   QAtomicInt cancelled_;
+
+  bool sibling_;
 
 };
 

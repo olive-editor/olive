@@ -113,8 +113,6 @@ void MediaInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational
 
     int64_t timestamp = decoder_->GetTimestampFromTime(time);
 
-    qDebug() << "Hashed timestamp" << timestamp;
-
     QByteArray pts_bytes;
     pts_bytes.resize(sizeof(int64_t));
     memcpy(pts_bytes.data(), &timestamp, sizeof(int64_t));

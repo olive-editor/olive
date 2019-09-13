@@ -36,7 +36,7 @@ RendererProcessThread::RendererProcessThread(RendererProcessor* parent,
 
 }
 
-bool RendererProcessThread::Queue(const NodeDependency& dep, bool wait)
+bool RendererProcessThread::Queue(const NodeDependency& dep, bool wait, bool sibling)
 {
   if (wait) {
     // Wait for thread to be available
@@ -47,6 +47,7 @@ bool RendererProcessThread::Queue(const NodeDependency& dep, bool wait)
 
   // We can now change params without the other thread using them
   path_ = dep;
+  sibling_ = sibling;
 
   // Prepare to wait for thread to respond
   caller_mutex_.lock();
@@ -92,22 +93,28 @@ void RendererProcessThread::ProcessLoop()
     NodeOutput* output_to_process = path_.node();
     Node* node_to_process = output_to_process->parent();
 
-    node_to_process->Lock();
-
-    QList<Node*> all_deps = node_to_process->GetDependencies();
-    foreach (Node* dep, all_deps) {
-      dep->Lock();
-    }
-
-    // Check hash
-    QCryptographicHash hasher(QCryptographicHash::Sha1);
-    node_to_process->Hash(&hasher, output_to_process, path_.time());
-    hash_ = hasher.result();
-
     texture_ = nullptr;
 
-    bool has_hash = parent_->HasHash(hash_);
-    bool can_cache = false;
+    QList<Node*> all_deps;
+    bool has_hash = false;
+    bool can_cache = true;
+
+    if (!sibling_) {
+      node_to_process->Lock();
+
+      all_deps = node_to_process->GetDependencies();
+      foreach (Node* dep, all_deps) {
+        dep->Lock();
+      }
+
+      // Check hash
+      QCryptographicHash hasher(QCryptographicHash::Sha1);
+      node_to_process->Hash(&hasher, output_to_process, path_.time());
+      hash_ = hasher.result();
+
+      has_hash = parent_->HasHash(hash_);
+      can_cache = false;
+    }
 
     if (!has_hash){
 
@@ -129,11 +136,13 @@ void RendererProcessThread::ProcessLoop()
       }
     }
 
-    foreach (Node* dep, all_deps) {
-      dep->Unlock();
-    }
+    if (!sibling_) {
+      foreach (Node* dep, all_deps) {
+        dep->Unlock();
+      }
 
-    node_to_process->Unlock();
+      node_to_process->Unlock();
+    }
 
     if (can_cache) {
       // We cached this frame, signal that it will need to be downloaded to disk

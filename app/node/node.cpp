@@ -136,11 +136,11 @@ rational Node::LastProcessedTime()
 {
   rational t;
 
-  lock_.lock();
+  Lock();
 
   t = last_processed_time_;
 
-  lock_.unlock();
+  Unlock();
 
   return t;
 }
@@ -149,11 +149,11 @@ NodeOutput *Node::LastProcessedOutput()
 {
   NodeOutput* o;
 
-  lock_.lock();
+  Lock();
 
   o = last_processed_parameter_;
 
-  lock_.unlock();
+  Unlock();
 
   return o;
 }
@@ -217,17 +217,13 @@ void GetDependenciesInternal(Node* n, QList<Node*>& list, bool traverse) {
 
   foreach (NodeParam* p, params) {
     if (p->type() == NodeParam::kInput) {
-      QVector<NodeEdgePtr> param_edges = p->edges();
+      Node* connected = static_cast<NodeInput*>(p)->get_connected_node();
 
-      foreach (NodeEdgePtr edge, param_edges) {
-        Node* connected_node = edge->output()->parent();
-
-        if (!list.contains(connected_node)) {
-          list.append(connected_node);
-        }
+      if (connected != nullptr && !list.contains(connected)) {
+        list.append(connected);
 
         if (traverse) {
-          GetDependenciesInternal(connected_node, list, traverse);
+          GetDependenciesInternal(connected, list, traverse);
         }
       }
     }

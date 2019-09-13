@@ -368,7 +368,7 @@ void RendererProcessor::CacheNext()
 
   qDebug() << "Caching" << cache_frame.toDouble();
 
-  threads_.first()->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame), true);
+  threads_.first()->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame), true, false);
 
   caching_ = true;
 }
@@ -460,7 +460,7 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
 {
   // Try to queue another thread to run this dep in advance
   for (int i=1;i<threads_.size();i++) {
-    if (threads_.at(i)->Queue(dep, false)) {
+    if (threads_.at(i)->Queue(dep, false, true)) {
       return;
     }
   }
