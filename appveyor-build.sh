@@ -8,7 +8,7 @@ pacman -Syu --noconfirm
 pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-openimageio mingw-w64-x86_64-opencolorio 
 
 # Generate Ninja Makefiles
-cmake . -G "Ninja"
+cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
 
 # Compile
 ninja
@@ -27,9 +27,19 @@ cd olive
 cp ../app/olive-editor.exe .
 
 # Inject Qt libraries
-windeployqt olive-editor.exe
+windeployqt --debug olive-editor.exe
 
-echo "FIXME: Doesn't inject FFmpeg/OCIO/OIIO libraries"
+# Inject all other libraries
+cp /mingw64/bin/libgcc_s_seh*.dll .
+cp /mingw64/bin/libstdc++*.dll .
+cp /mingw64/bin/av*.dll .
+cp /mingw64/bin/sw*.dll .
+cp /mingw64/bin/postproc*.dll .
+cp /mingw64/bin/libOpenColorIO*.dll .
+cp /mingw64/bin/libOpenImageIO*.dll .
+cp /mingw64/bin/libwinpthread*.dll .
+cp /mingw64/bin/libcelt*.dll .
+cp /mingw64/bin/libgsm*.dll .
 
 # Package installer
 cd ..
