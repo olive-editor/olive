@@ -29,22 +29,24 @@ cp ../app/olive-editor.exe .
 # Inject Qt libraries
 windeployqt --debug olive-editor.exe
 
-# Inject all other libraries
-cp /mingw64/bin/libgcc_s_seh*.dll .
-cp /mingw64/bin/libstdc++*.dll .
-cp /mingw64/bin/av*.dll .
-cp /mingw64/bin/sw*.dll .
-cp /mingw64/bin/postproc*.dll .
-cp /mingw64/bin/libOpenColorIO*.dll .
-cp /mingw64/bin/libOpenImageIO*.dll .
-cp /mingw64/bin/libwinpthread*.dll .
-cp /mingw64/bin/libcelt*.dll .
-cp /mingw64/bin/libgsm*.dll .
+# Inject all other libraries (loops over dependency output from ldd)
+ldd olive-editor.exe | while read -r dep
+do
+	# Acquire full path to dependency
+	dep_output=( $dep )
+	dep_path=${dep_output[2]}
+
+	# If this is a mingw dependency, copy it into the deploy folder
+	if [[ $dep_path == /mingw64* ]]
+	then
+		cp $dep_path .
+	fi
+done
 
 # Package installer
 cd ..
 cp app/packaging/windows/nsis/* .
-"/c/Program Files (x86)/NSIS/makensis.exe" /V4 /DX64 "/XOutFile $BUILDNAME.exe" olive.nsi
+"/c/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile $BUILDNAME.exe" olive.nsi
 
 # Package portable
 touch olive/portable
