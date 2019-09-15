@@ -1,3 +1,8 @@
+# Set architecture
+ARCH=x86_64
+MINGW_PATH=mingw64
+NSISDEF=-DX64
+
 # Update packages
 pacman -Syu --noconfirm
 
@@ -31,7 +36,7 @@ do
 	dep_path=${dep_output[2]}
 
 	# If this is a mingw dependency, copy it into the deploy folder
-	if [[ $dep_path == /mingw64* ]]
+	if [[ $dep_path == /$MINGW_PATH* ]]
 	then
 		cp $dep_path .
 	fi
