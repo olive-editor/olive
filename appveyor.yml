@@ -5,20 +5,14 @@ branches:
 image: Visual Studio 2015
 environment:
   TRAVIS_REPO_SLUG: olive-editor/olive
-#  matrix:
-#  - MSYSTEM: MINGW64
-#    QTDIR: 5.12\mingw73_64
-#    ARCH: x86_64
-#    QTTOOLS: Tools\mingw730_64
-#    NSISDEF: /DX64
-#  - MSYSTEM: MINGW32
-#    QTDIR: 5.12\mingw73_32
-#    ARCH: i686
-#    QTTOOLS: Tools\mingw730_32
+matrix:
+- MSYSTEM: MINGW64
+ ARCH: x86_64
+ NSISDEF: -DX64
+- MSYSTEM: MINGW32
+ ARCH: i686
 build_script:
 - cmd: appveyor-build.bat
-on_finish:
-- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 artifacts:
 - path: Olive*.zip
   name: Olive Portable

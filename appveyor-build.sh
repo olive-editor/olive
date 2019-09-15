@@ -1,11 +1,8 @@
-# Set env variable for the build architecture
-ARCH=Win64
-
 # Update packages
 pacman -Syu --noconfirm
 
 # Install necessary packages
-pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-qt5 mingw-w64-x86_64-ffmpeg mingw-w64-x86_64-openimageio mingw-w64-x86_64-opencolorio 
+pacman -S --noconfirm --needed mingw-w64-$ARCH-toolchain mingw-w64-$ARCH-cmake mingw-w64-$ARCH-ninja mingw-w64-$ARCH-qt5 mingw-w64-$ARCH-ffmpeg mingw-w64-$ARCH-openimageio mingw-w64-$ARCH-opencolorio 
 
 # Generate Ninja Makefiles
 cmake . -G "Ninja" -DCMAKE_BUILD_TYPE=Debug
@@ -15,9 +12,6 @@ ninja
 
 # Get Git hash
 GITHASH=$(git rev-parse --short=7 HEAD)
-
-# Create build name
-BUILDNAME="Olive-$GITHASH-$ARCH"
 
 # Build finished, time to package
 mkdir olive
@@ -43,11 +37,14 @@ do
 	fi
 done
 
+# Create package name
+PKGNAME=Olive-$GITHASH-Windows-$ARCH
+
 # Package installer
 cd ..
 cp app/packaging/windows/nsis/* .
-"/c/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile $BUILDNAME.exe" olive.nsi
+"/c/Program Files (x86)/NSIS/makensis.exe" -V4 $NSISDEF "-XOutFile $PKGNAME.exe" olive.nsi
 
 # Package portable
 touch olive/portable
-7z a $BUILDNAME.zip olive
+7z a $PKGNAME.zip olive
