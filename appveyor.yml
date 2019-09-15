@@ -16,7 +16,10 @@ environment:
 #    ARCH: i686
 #    QTTOOLS: Tools\mingw730_32
 build_script:
-- cmd: appveyor-build.bat
+- cmd: >-
+  - \msys64\msys2_shell.cmd -mingw64 -where "." -c ./appveyor-build.sh
+on_finish:
+- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 artifacts:
 - path: Olive*.zip
   name: Olive Portable
