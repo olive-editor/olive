@@ -246,16 +246,18 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     QMatrix4x4 transform;
 
     // Scale texture to a square for incoming matrix transformation
-    transform.scale(static_cast<float>(renderer->height()) / static_cast<float>(renderer->width()), 1.0f);
+    transform.scale(2.0f / static_cast<float>(renderer->width() * renderer->divider()),
+                    2.0f / static_cast<float>(renderer->height() * renderer->divider()));
 
     // Multiply by input transformation
     transform *= matrix_input_->get_value(time).value<QMatrix4x4>();
 
-    // Scale texture to the media's aspect ratio
-    transform.scale(static_cast<float>(frame_->width()) / static_cast<float>(frame_->height()), 1.0f);
+    // Scale texture to the media size
+    transform.scale(static_cast<float>(frame_->width()), static_cast<float>(frame_->height()));
+    transform.scale(0.5f, 0.5f);
 
-    float media_size = static_cast<float>(frame_->height()) / static_cast<float>(renderer->height() * renderer->divider());
-    transform.scale(media_size, media_size);
+    //float media_size = static_cast<float>(frame_->height()) / static_cast<float>(renderer->height() * renderer->divider());
+    //transform.scale(media_size, media_size);
 
     // Use pipeline to blit using transformation matrix from input
     if (renderer->mode() == olive::RenderMode::kOffline) {
