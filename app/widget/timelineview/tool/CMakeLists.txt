@@ -16,9 +16,11 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/timelineview/tool/hand.cpp
   widget/timelineview/tool/import.cpp
   widget/timelineview/tool/pointer.cpp
   widget/timelineview/tool/razor.cpp
+  widget/timelineview/tool/ripple.cpp
   widget/timelineview/tool/tool.cpp
   PARENT_SCOPE
 )

@@ -36,7 +36,9 @@ TimelineView::TimelineView(QWidget *parent) :
   QGraphicsView(parent),
   pointer_tool_(this),
   import_tool_(this),
+  ripple_tool_(this),
   razor_tool_(this),
+  hand_tool_(this),
   playhead_(0)
 {
   setScene(&scene_);
@@ -206,7 +208,7 @@ TimelineView::Tool *TimelineView::GetActiveTool()
   case olive::tool::kEdit:
     return nullptr; // FIXME: Implement
   case olive::tool::kRipple:
-    return nullptr; // FIXME: Implement
+    return &ripple_tool_;
   case olive::tool::kRolling:
     return nullptr; // FIXME: Implement
   case olive::tool::kRazor:
@@ -216,7 +218,7 @@ TimelineView::Tool *TimelineView::GetActiveTool()
   case olive::tool::kSlide:
     return nullptr; // FIXME: Implement
   case olive::tool::kHand:
-    return nullptr; // FIXME: Implement
+    return &hand_tool_;
   case olive::tool::kZoom:
     return nullptr; // FIXME: Implement
   case olive::tool::kTransition:

@@ -27,7 +27,8 @@
 #include "node/block/gap/gap.h"
 
 TimelineView::PointerTool::PointerTool(TimelineView *parent) :
-  Tool(parent)
+  Tool(parent),
+  movement_allowed_(true)
 {
 }
 
@@ -45,94 +46,125 @@ void FlipControlAndShiftModifiers(QMouseEvent* e) {
 
 void TimelineView::PointerTool::MousePress(QMouseEvent *event)
 {
+  // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
   FlipControlAndShiftModifiers(event);
 
+  // Default QGraphicsView behavior (item selection)
   parent()->QGraphicsView::mousePressEvent(event);
+
+  // We don't initiate dragging here since clicking could easily be just for selecting
 }
 
 void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 {
+  // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
   FlipControlAndShiftModifiers(event);
 
+  // Default QGraphicsView behavior (item selection)
   parent()->QGraphicsView::mouseMoveEvent(event);
 
+  // Now that the cursor has moved, we will assume the intention is to drag
   if (!dragging_) {
 
-    drag_start_ = GetScenePos(event->pos());
-    track_start_ = parent()->SceneToTrack(drag_start_.y());
+    // If we haven't started dragging yet, we'll initiate a drag here
 
-    TimelineViewRect* clicked_item = static_cast<TimelineViewRect*>(GetItemAtScenePos(drag_start_));
+    // Get the item that was clicked
+    TimelineViewRect* clicked_item = dynamic_cast<TimelineViewRect*>(GetItemAtScenePos(drag_start_));
 
-    snap_points_.clear();
+    // We only initiate a pointer drag if the user actually dragged an item, otherwise if they dragged on empty space
+    // QGraphicsView default behavior would initiate a rubberband drag
 
-    // Let's see if there's anything selected to drag
     if (clicked_item != nullptr) {
 
-      TimelineViewGhostItem::Mode trim_mode;
+      // Clear snap points
+      snap_points_.clear();
 
-      if (drag_start_.x() < clicked_item->x() + clicked_item->rect().left() + 20) {
+      // Record where the drag started in timeline coordinates
+      drag_start_ = GetScenePos(event->pos());
+      track_start_ = parent()->SceneToTrack(drag_start_.y());
+
+      // Determine whether we're trimming or moving based on the position of the cursor
+      TimelineViewGhostItem::Mode trim_mode = TimelineViewGhostItem::kNone;
+
+      // FIXME: Hardcoded number
+      const int kTrimHandle = 20;
+
+      if (drag_start_.x() < clicked_item->x() + kTrimHandle) {
         trim_mode = TimelineViewGhostItem::kTrimIn;
-      } else if (drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - 20) {
+      } else if (drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
         trim_mode = TimelineViewGhostItem::kTrimOut;
-      } else {
+      } else if (movement_allowed_) {
+        // Some derived classes don't allow movement
         trim_mode = TimelineViewGhostItem::kMove;
       }
 
-      QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
+      // Make sure we can actually perform an action here
+      if (trim_mode != TimelineViewGhostItem::kNone) {
+        QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
 
-      foreach (QGraphicsItem* item, selected_items) {
-        TimelineViewClipItem* clip_item = static_cast<TimelineViewClipItem*>(item);
-        TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromClip(clip_item);
+        // For each selected item, create a "ghost", a visual representation of the action before it gets performed
+        foreach (QGraphicsItem* item, selected_items) {
+          TimelineViewClipItem* clip_item = dynamic_cast<TimelineViewClipItem*>(item);
+          TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromClip(clip_item);
 
-        ghost->SetScale(parent()->scale_);
+          ghost->SetScale(parent()->scale_);
 
-        // Determine correct mode for ghost
-        if (trim_mode == TimelineViewGhostItem::kMove // Movement is indiscriminate, all the ghosts can be set to this
-            || clip_item == clicked_item) { // Trimming should only be the currently clicked Block
-          ghost->SetMode(trim_mode);
+          // Determine correct mode for ghost
+          // Movement is indiscriminate, all the ghosts can be set to do this, however trimming should be limited to
+          // the currently clicked Block since multiple clips trimming at once could get ugly
+          if (trim_mode == TimelineViewGhostItem::kMove
+              || clip_item == clicked_item) {
+            ghost->SetMode(trim_mode);
 
-          switch (trim_mode) {
-          case TimelineViewGhostItem::kMove:
-            snap_points_.append(ghost->In());
-            snap_points_.append(ghost->Out());
-            break;
-          case TimelineViewGhostItem::kTrimIn:
-            snap_points_.append(ghost->In());
-            break;
-          case TimelineViewGhostItem::kTrimOut:
-            snap_points_.append(ghost->Out());
-            break;
-          default:
-            break;
+            // Prepare snap points (optimizes snapping for later)
+            switch (trim_mode) {
+            case TimelineViewGhostItem::kMove:
+              snap_points_.append(ghost->In());
+              snap_points_.append(ghost->Out());
+              break;
+            case TimelineViewGhostItem::kTrimIn:
+              snap_points_.append(ghost->In());
+              break;
+            case TimelineViewGhostItem::kTrimOut:
+              snap_points_.append(ghost->Out());
+              break;
+            default:
+              break;
+            }
+          } else {
+            ghost->SetMode(TimelineViewGhostItem::kNone);
           }
-        } else {
-          ghost->SetMode(TimelineViewGhostItem::kNone);
+
+          parent()->ghost_items_.append(ghost);
+          parent()->scene_.addItem(ghost);
         }
 
-        parent()->ghost_items_.append(ghost);
-        parent()->scene_.addItem(ghost);
       }
     }
 
+    // Set dragging to true here so no matter what, the drag isn't re-initiated until it's completed
     dragging_ = true;
 
   } else if (!parent()->ghost_items_.isEmpty()) {
-    QPointF scene_pos = GetScenePos(event->pos());
 
+    // We're already dragging AND we have ghosts to work with
+
+    // Retrieve cursor position difference
+    QPointF scene_pos = GetScenePos(event->pos());
+    QPointF movement = scene_pos - drag_start_;
+
+    // Determine track movement
     int cursor_track = parent()->SceneToTrack(scene_pos.y());
     int track_movement = cursor_track - track_start_;
 
-    QPointF movement = scene_pos - drag_start_;
-
+    // Determine frame movement
     rational time_movement = parent()->SceneToTime(movement.x());
 
-    // Validate movement
-    time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
-    time_movement = ValidateInTrimming(time_movement, parent()->ghost_items_);
-    time_movement = ValidateOutTrimming(time_movement, parent()->ghost_items_);
+    // Validate movement (enforce all ghosts moving in legal ways)
+    time_movement = FrameValidateInternal(time_movement, parent()->ghost_items_);
     track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
 
-    // Perform snapping if enabled
+    // Perform snapping if enabled (adjusts time_movement if it's close to any potential snap points)
     if (olive::core.snapping()) {
       SnapPoint(snap_points_, &time_movement);
     }
@@ -153,6 +185,7 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         ghost->SetInAdjustment(time_movement);
         ghost->SetOutAdjustment(time_movement);
 
+        // Track movement is only legal for moving, not for trimming
         ghost->SetTrackAdjustment(track_movement);
         int track = ghost->GetAdjustedTrack();
         ghost->SetY(parent()->GetTrackY(track));
@@ -166,12 +199,37 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
 void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 {
+  // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
   FlipControlAndShiftModifiers(event);
 
+  // Default QGraphicsView behavior (item selection)
   parent()->QGraphicsView::mouseReleaseEvent(event);
 
+  MouseReleaseInternal(event);
+
+  if (dragging_) {
+    parent()->ClearGhosts();
+    snap_points_.clear();
+  }
+
+  dragging_ = false;
+}
+
+void TimelineView::PointerTool::SetMovementAllowed(bool allowed)
+{
+  movement_allowed_ = allowed;
+}
+
+void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
+{
+  Q_UNUSED(event)
+
+  // We create a QObject on the stack so that when we allocate objects on the heap, they aren't parent-less and will
+  // get cleaned up if they aren't re-parented by the attached NodeGraph
   QObject block_memory_manager;
 
+  // Since all the ghosts will be leaving their old position in some way, we replace all of them with gaps here so the
+  // entire timeline isn't disrupted in the process
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data(0));
 
@@ -183,6 +241,8 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
     emit parent()->RequestReplaceBlock(b, gap, ghost->Track());
   }
 
+  // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
+  // all of the gaps we inserted earlier
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data(0));
 
@@ -199,8 +259,14 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 
     emit parent()->RequestPlaceBlock(b, ghost->GetAdjustedIn(), ghost->GetAdjustedTrack());
   }
+}
 
-  parent()->ClearGhosts();
+rational TimelineView::PointerTool::FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem *>)
+{
+  // Default behavior is to validate all movement and trimming
+  time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
+  time_movement = ValidateInTrimming(time_movement, parent()->ghost_items_);
+  time_movement = ValidateOutTrimming(time_movement, parent()->ghost_items_);
 
-  dragging_ = false;
+  return time_movement;
 }

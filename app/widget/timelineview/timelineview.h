@@ -169,11 +169,16 @@ private:
   public:
     PointerTool(TimelineView* parent);
 
-    virtual void MousePress(QMouseEvent *event);
-    virtual void MouseMove(QMouseEvent *event);
-    virtual void MouseRelease(QMouseEvent *event);
+    virtual void MousePress(QMouseEvent *event) override;
+    virtual void MouseMove(QMouseEvent *event) override;
+    virtual void MouseRelease(QMouseEvent *event) override;
+  protected:
+    void SetMovementAllowed(bool allowed);
+    virtual void MouseReleaseInternal(QMouseEvent *event);
+    virtual rational FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem*>);
   private:
     int track_start_;
+    bool movement_allowed_;
   };
 
   class ImportTool : public Tool
@@ -199,6 +204,29 @@ private:
     virtual void MouseRelease(QMouseEvent *event);
   };
 
+  class RippleTool : public PointerTool
+  {
+  public:
+    RippleTool(TimelineView* parent);
+  protected:
+    virtual void MouseReleaseInternal(QMouseEvent *event);
+    virtual rational FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem*> ghosts);
+  };
+
+  class HandTool : public Tool
+  {
+  public:
+    HandTool(TimelineView* parent);
+
+    virtual void MousePress(QMouseEvent *event);
+    virtual void MouseMove(QMouseEvent *event);
+    virtual void MouseRelease(QMouseEvent *event);
+
+  private:
+    QPoint screen_drag_start_;
+    QPoint scrollbar_start_;
+  };
+
   Tool* GetActiveTool();
 
   int GetTrackY(int track_index);
@@ -206,7 +234,9 @@ private:
 
   PointerTool pointer_tool_;
   ImportTool import_tool_;
+  RippleTool ripple_tool_;
   RazorTool razor_tool_;
+  HandTool hand_tool_;
 
   void AddGhost(TimelineViewGhostItem* ghost);
 
