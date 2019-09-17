@@ -20,6 +20,10 @@
 
 #include "widget/timelineview/timelineview.h"
 
+#include <float.h>
+
+#include "common/range.h"
+
 TimelineView::Tool::Tool(TimelineView *parent) :
   dragging_(false),
   parent_(parent)
@@ -130,4 +134,61 @@ rational TimelineView::Tool::ValidateOutTrimming(rational movement, const QVecto
   }
 
   return movement;
+}
+
+void AttemptSnap(double proposed_point,
+                 double compare_point,
+                 rational start_time,
+                 rational compare_time,
+                 rational* movement,
+                 double* diff) {
+  const qreal kSnapRange = 10; // FIXME: Hardcoded number
+
+  // Attempt snapping to clip out point
+  if (InRange(proposed_point, compare_point, kSnapRange)) {
+    double this_diff = qAbs(compare_point - proposed_point);
+
+    if (this_diff < *diff) {
+      *movement = compare_time - start_time;
+      *diff = this_diff;
+    }
+  }
+}
+
+bool TimelineView::Tool::SnapPoint(rational start_point, rational* movement, int snap_points)
+{
+  QList<QGraphicsItem*> items = parent()->scene_.items();
+
+  double diff = DBL_MAX;
+
+  double proposed_point = (start_point + *movement).toDouble() * parent()->scale_;
+
+  if (snap_points & kSnapToPlayhead) {
+    qreal playhead_pos = parent()->playhead_line_->x();
+
+    rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase_.numerator(),
+                                          parent()->timebase_.denominator());
+
+    AttemptSnap(proposed_point, playhead_pos, start_point, playhead_abs_time, movement, &diff);
+  }
+
+  if (snap_points & kSnapToClips) {
+    foreach (QGraphicsItem* it, items) {
+      TimelineViewClipItem* timeline_rect = dynamic_cast<TimelineViewClipItem*>(it);
+
+      if (timeline_rect != nullptr) {
+        qreal rect_left = timeline_rect->x();
+        qreal rect_right = rect_left + timeline_rect->rect().width();
+
+        // Attempt snapping to clip in point
+        AttemptSnap(proposed_point, rect_left, start_point, timeline_rect->clip()->in(), movement, &diff);
+
+        // Attempt snapping to clip out point
+        AttemptSnap(proposed_point, rect_right, start_point, timeline_rect->clip()->out(), movement, &diff);
+      }
+    }
+  }
+
+
+  return (diff < DBL_MAX);
 }

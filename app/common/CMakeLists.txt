@@ -23,6 +23,7 @@ set(OLIVE_SOURCES
   common/filefunctions.h
   common/filefunctions.cpp
   common/lerp.h
+  common/range.h
   common/rational.h
   common/rational.cpp
   common/qobjectlistcast.h

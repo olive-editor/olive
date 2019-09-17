@@ -24,6 +24,7 @@
 
 #include "config/config.h"
 #include "common/qtversionabstraction.h"
+#include "core.h"
 #include "node/distort/transform/transform.h"
 #include "node/color/opacity/opacity.h"
 #include "node/input/media/media.h"
@@ -118,6 +119,16 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
     int ghost_height = parent()->GetTrackHeight(ghost_track);
 
     time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
+
+    // If snapping is enabled, check for snap points
+    if (olive::core.snapping()) {
+      foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+        if (SnapPoint(ghost->In(), &time_movement)
+            || SnapPoint(ghost->Out(), &time_movement)) {
+          break;
+        }
+      }
+    }
 
     // Move ghosts to the mouse cursor
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {

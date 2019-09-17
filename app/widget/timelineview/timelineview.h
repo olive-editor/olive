@@ -142,6 +142,17 @@ private:
      */
     rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
 
+    enum SnapPoints {
+      kSnapToClips = 0x1,
+      kSnapToPlayhead = 0x2,
+      kSnapAll = 0xFF
+    };
+
+    /**
+     * @brief Snaps point `start_point` that is moving by `movement` to currently existing clips
+     */
+    bool SnapPoint(rational start_point, rational *movement, int snap_points = kSnapAll);
+
     bool dragging_;
 
     QPointF drag_start_;
