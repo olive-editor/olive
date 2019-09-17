@@ -310,13 +310,6 @@ void Core::CreateNewSequence()
     // Connect timeline end point to renderer
     NodeParam::ConnectEdge(tb->length_output(), rp->length_input());
 
-    // FIXME: Test code
-    AlphaOverBlend* blend = new AlphaOverBlend();
-    new_sequence->AddNode(blend);
-    OpacityNode* opac = new OpacityNode();
-    new_sequence->AddNode(opac);
-    // End test code
-
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
     tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());

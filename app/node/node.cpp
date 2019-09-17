@@ -327,6 +327,26 @@ bool Node::OutputsTo(Node *n)
   return false;
 }
 
+bool Node::HasInputs()
+{
+  return HasParamOfType(NodeParam::kInput, false);
+}
+
+bool Node::HasOutputs()
+{
+  return HasParamOfType(NodeParam::kOutput, false);
+}
+
+bool Node::HasConnectedInputs()
+{
+  return HasParamOfType(NodeParam::kInput, true);
+}
+
+bool Node::HasConnectedOutputs()
+{
+  return HasParamOfType(NodeParam::kOutput, true);
+}
+
 void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time)
 {
   // Add this Node's ID
@@ -366,6 +386,20 @@ bool Node::HasParamWithID(const QString &id)
   {
     if (p->id() == id)
     {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected)
+{
+  QList<NodeParam*> params = parameters();
+
+  foreach (NodeParam* p, params) {
+    if (p->type() == type
+        && (p->IsConnected() || !must_be_connected)) {
       return true;
     }
   }

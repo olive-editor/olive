@@ -154,6 +154,26 @@ public:
   bool OutputsTo(Node* n);
 
   /**
+   * @brief Return whether this Node has input parameters
+   */
+  bool HasInputs();
+
+  /**
+   * @brief Return whether this Node has output parameters
+   */
+  bool HasOutputs();
+
+  /**
+   * @brief Return whether this Node has input parameters and at least one of them is connected
+   */
+  bool HasConnectedInputs();
+
+  /**
+   * @brief Return whether this Node has output parameters and at least one of them is connected
+   */
+  bool HasConnectedOutputs();
+
+  /**
    * @brief Add's unique information about this Node at the given time to a QCryptographicHash
    */
   virtual void Hash(QCryptographicHash* hash, NodeOutput *from, const rational& time);
@@ -269,6 +289,8 @@ private:
    * @brief Return whether a parameter with ID `id` has already been added to this Node
    */
   bool HasParamWithID(const QString& id);
+
+  bool HasParamOfType(NodeParam::Type type, bool must_be_connected);
 
   /**
    * @brief The last timecode Process() was called with
