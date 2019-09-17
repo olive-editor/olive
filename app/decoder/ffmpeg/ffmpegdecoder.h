@@ -121,6 +121,8 @@ private:
 
   int64_t GetClosestTimestampInIndex(const int64_t& ts);
 
+  void Seek(int64_t timestamp);
+
   /**
    * @brief Returns an AVPixelFormat that can be
    * @param pix_fmt

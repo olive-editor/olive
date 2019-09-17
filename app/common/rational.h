@@ -96,6 +96,8 @@ public:
   //Function: convert to double
   double toDouble() const;
 
+  AVRational toAVRational() const;
+
   // Produce "flipped" version
   rational flipped() const;
 

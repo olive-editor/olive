@@ -1,4 +1,4 @@
-/***
+﻿/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -228,8 +228,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
         last_backtrack = true;
       }
 
-      avcodec_flush_buffers(codec_ctx_);
-      av_seek_frame(fmt_ctx_, avstream_->index, seek_ts, AVSEEK_FLAG_BACKWARD);
+      Seek(seek_ts);
 
       // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
       seek_ts -= second_ts;
@@ -355,11 +354,15 @@ bool FFmpegDecoder::Probe(Footage *f)
   // Open file in a format context
   error_code = avformat_open_input(&fmt_ctx_, filename, nullptr, nullptr);
 
+  bool need_manual_duration = false;
+
   // Handle format context error
   if (error_code == 0) {
 
     // Retrieve metadata about the media
     av_dump_format(fmt_ctx_, 0, filename, 0);
+
+    qDebug() << "Format duration:" << fmt_ctx_->duration;
 
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
@@ -421,6 +424,11 @@ bool FFmpegDecoder::Probe(Footage *f)
       str->set_timebase(avstream_->time_base);
       str->set_duration(avstream_->duration);
 
+      // The container/stream info may not contain a duration, so we'll need to manually retrieve it
+      if (avstream_->duration == AV_NOPTS_VALUE) {
+        need_manual_duration = true;
+      }
+
       f->add_stream(str);
     }
 
@@ -430,6 +438,38 @@ bool FFmpegDecoder::Probe(Footage *f)
 
   // Free all memory
   Close();
+
+  // If the metadata did not contain a duration, we'll need to loop through the file to retrieve it
+  if (need_manual_duration) {
+    // Index the first stream to retrieve the duration
+
+    set_stream(f->stream(0));
+
+    Open();
+
+    // Use index to find duration
+    // FIXME: Does nothing for sound
+    if (!LoadFrameIndex()) {
+      Index();
+    }
+
+    // Use last frame index as the duration
+    // FIXME: Does this skip the last frame?
+    int64_t duration = frame_index_.last();
+
+    f->stream(0)->set_duration(duration);
+
+    // Assume all durations are the same and set for each
+    for (int i=1;i<f->stream_count();i++) {
+      int64_t new_dur = av_rescale_q(duration,
+                                     f->stream(0)->timebase().toAVRational(),
+                                     f->stream(i)->timebase().toAVRational());
+
+      f->stream(i)->set_duration(new_dur);
+    }
+
+    Close();
+  }
 
   return result;
 }
@@ -458,6 +498,9 @@ void FFmpegDecoder::Index()
     return;
   }
 
+  // Reset state
+  Seek(0);
+
   // This should be unnecessary, but just in case...
   frame_index_.clear();
 
@@ -480,8 +523,7 @@ void FFmpegDecoder::Index()
   SaveFrameIndex();
 
   // Reset state
-  avcodec_flush_buffers(codec_ctx_);
-  av_seek_frame(fmt_ctx_, avstream_->index, 0, AVSEEK_FLAG_BACKWARD);
+  Seek(0);
 }
 
 QString FFmpegDecoder::GetIndexFilename()
@@ -619,4 +661,10 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
   }
 
   return frame_index_.last();
+}
+
+void FFmpegDecoder::Seek(int64_t timestamp)
+{
+  avcodec_flush_buffers(codec_ctx_);
+  av_seek_frame(fmt_ctx_, avstream_->index, timestamp, AVSEEK_FLAG_BACKWARD);
 }

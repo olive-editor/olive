@@ -79,6 +79,16 @@ double rational::toDouble() const
     return static_cast<double>(0);
 }
 
+AVRational rational::toAVRational() const
+{
+  AVRational r;
+
+  r.num = static_cast<int>(numer);
+  r.den = static_cast<int>(denom);
+
+  return r;
+}
+
 rational rational::flipped() const
 {
   return rational(denom, numer);
