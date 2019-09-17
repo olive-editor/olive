@@ -136,32 +136,39 @@ rational TimelineView::Tool::ValidateOutTrimming(rational movement, const QVecto
   return movement;
 }
 
-void AttemptSnap(double proposed_point,
+void AttemptSnap(const QList<double>& proposed_pts,
                  double compare_point,
-                 rational start_time,
+                 const QList<rational>& start_times,
                  rational compare_time,
                  rational* movement,
                  double* diff) {
   const qreal kSnapRange = 10; // FIXME: Hardcoded number
 
-  // Attempt snapping to clip out point
-  if (InRange(proposed_point, compare_point, kSnapRange)) {
-    double this_diff = qAbs(compare_point - proposed_point);
+  for (int i=0;i<proposed_pts.size();i++) {
+    // Attempt snapping to clip out point
+    if (InRange(proposed_pts.at(i), compare_point, kSnapRange)) {
+      double this_diff = qAbs(compare_point - proposed_pts.at(i));
 
-    if (this_diff < *diff) {
-      *movement = compare_time - start_time;
-      *diff = this_diff;
+      if (this_diff < *diff
+          && start_times.at(i) + *movement >= 0) {
+        *movement = compare_time - start_times.at(i);
+        *diff = this_diff;
+      }
     }
   }
 }
 
-bool TimelineView::Tool::SnapPoint(rational start_point, rational* movement, int snap_points)
+bool TimelineView::Tool::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
 {
   QList<QGraphicsItem*> items = parent()->scene_.items();
 
   double diff = DBL_MAX;
 
-  double proposed_point = (start_point + *movement).toDouble() * parent()->scale_;
+  QList<double> proposed_pts;
+
+  foreach (rational s, start_times) {
+    proposed_pts.append((s + *movement).toDouble() * parent()->scale_);
+  }
 
   if (snap_points & kSnapToPlayhead) {
     qreal playhead_pos = parent()->playhead_line_->x();
@@ -169,7 +176,7 @@ bool TimelineView::Tool::SnapPoint(rational start_point, rational* movement, int
     rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase_.numerator(),
                                           parent()->timebase_.denominator());
 
-    AttemptSnap(proposed_point, playhead_pos, start_point, playhead_abs_time, movement, &diff);
+    AttemptSnap(proposed_pts, playhead_pos, start_times, playhead_abs_time, movement, &diff);
   }
 
   if (snap_points & kSnapToClips) {
@@ -181,10 +188,10 @@ bool TimelineView::Tool::SnapPoint(rational start_point, rational* movement, int
         qreal rect_right = rect_left + timeline_rect->rect().width();
 
         // Attempt snapping to clip in point
-        AttemptSnap(proposed_point, rect_left, start_point, timeline_rect->clip()->in(), movement, &diff);
+        AttemptSnap(proposed_pts, rect_left, start_times, timeline_rect->clip()->in(), movement, &diff);
 
         // Attempt snapping to clip out point
-        AttemptSnap(proposed_point, rect_right, start_point, timeline_rect->clip()->out(), movement, &diff);
+        AttemptSnap(proposed_pts, rect_right, start_times, timeline_rect->clip()->out(), movement, &diff);
       }
     }
   }

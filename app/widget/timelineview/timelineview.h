@@ -151,7 +151,9 @@ private:
     /**
      * @brief Snaps point `start_point` that is moving by `movement` to currently existing clips
      */
-    bool SnapPoint(rational start_point, rational *movement, int snap_points = kSnapAll);
+    bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll);
+
+    QList<rational> snap_points_;
 
     bool dragging_;
 

@@ -61,6 +61,8 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
     // Set ghosts to start where the cursor entered
     rational ghost_start = parent()->SceneToTime(drag_start_.x() - import_pre_buffer_);
 
+    snap_points_.clear();
+
     while (!stream.atEnd()) {
       stream >> r >> item_ptr;
 
@@ -89,6 +91,10 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
 
         ghost->SetIn(ghost_start);
         ghost->SetOut(ghost_start + footage_duration);
+
+        snap_points_.append(ghost->In());
+        snap_points_.append(ghost->Out());
+
         ghost->setData(0, QVariant::fromValue(stream));
         ghost->SetMode(TimelineViewGhostItem::kMove);
 
@@ -122,12 +128,7 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
 
     // If snapping is enabled, check for snap points
     if (olive::core.snapping()) {
-      foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-        if (SnapPoint(ghost->In(), &time_movement)
-            || SnapPoint(ghost->Out(), &time_movement)) {
-          break;
-        }
-      }
+      SnapPoint(snap_points_, &time_movement);
     }
 
     // Move ghosts to the mouse cursor

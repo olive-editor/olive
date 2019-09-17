@@ -22,6 +22,8 @@
 
 #include <QDebug>
 
+#include "common/range.h"
+#include "core.h"
 #include "node/block/gap/gap.h"
 
 TimelineView::PointerTool::PointerTool(TimelineView *parent) :
@@ -61,10 +63,13 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
     TimelineViewRect* clicked_item = static_cast<TimelineViewRect*>(GetItemAtScenePos(drag_start_));
 
+    snap_points_.clear();
+
     // Let's see if there's anything selected to drag
     if (clicked_item != nullptr) {
 
       TimelineViewGhostItem::Mode trim_mode;
+
       if (drag_start_.x() < clicked_item->x() + clicked_item->rect().left() + 20) {
         trim_mode = TimelineViewGhostItem::kTrimIn;
       } else if (drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - 20) {
@@ -85,6 +90,21 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
         if (trim_mode == TimelineViewGhostItem::kMove // Movement is indiscriminate, all the ghosts can be set to this
             || clip_item == clicked_item) { // Trimming should only be the currently clicked Block
           ghost->SetMode(trim_mode);
+
+          switch (trim_mode) {
+          case TimelineViewGhostItem::kMove:
+            snap_points_.append(ghost->In());
+            snap_points_.append(ghost->Out());
+            break;
+          case TimelineViewGhostItem::kTrimIn:
+            snap_points_.append(ghost->In());
+            break;
+          case TimelineViewGhostItem::kTrimOut:
+            snap_points_.append(ghost->Out());
+            break;
+          default:
+            break;
+          }
         } else {
           ghost->SetMode(TimelineViewGhostItem::kNone);
         }
@@ -111,6 +131,11 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
     time_movement = ValidateInTrimming(time_movement, parent()->ghost_items_);
     time_movement = ValidateOutTrimming(time_movement, parent()->ghost_items_);
     track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+
+    // Perform snapping if enabled
+    if (olive::core.snapping()) {
+      SnapPoint(snap_points_, &time_movement);
+    }
 
     // Perform movement
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
