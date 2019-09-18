@@ -175,6 +175,11 @@ public:
   StreamPtr stream(int index);
 
   /**
+   * @brief Returns a list of the streams in this Footage
+   */
+  const QList<StreamPtr>& streams();
+
+  /**
    * @brief Retrieve total number of streams in this Footage file
    */
   int stream_count();

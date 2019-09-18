@@ -31,6 +31,8 @@ class ImageStream : public Stream
 public:
   ImageStream();
 
+  virtual QString description() override;
+
   const int& width();
   void set_width(const int& width);
 

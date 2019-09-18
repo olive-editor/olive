@@ -25,6 +25,13 @@ ImageStream::ImageStream()
   set_type(kImage);
 }
 
+QString ImageStream::description()
+{
+  return QCoreApplication::translate("Stream", "%1: Image - %2x%3").arg(QString::number(index()),
+                                                                        QString::number(width()),
+                                                                        QString::number(height()));
+}
+
 const int &ImageStream::width()
 {
   return width_;

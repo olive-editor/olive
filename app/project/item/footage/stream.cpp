@@ -20,6 +20,8 @@
 
 #include "stream.h"
 
+#include "ui/icons/icons.h"
+
 Stream::Stream() :
   footage_(nullptr),
   type_(kUnknown)
@@ -29,6 +31,11 @@ Stream::Stream() :
 
 Stream::~Stream()
 {
+}
+
+QString Stream::description()
+{
+  return QCoreApplication::translate("Stream", "%1: Unknown").arg(index());
 }
 
 const Stream::Type &Stream::type()
@@ -79,4 +86,20 @@ const int64_t &Stream::duration() const
 void Stream::set_duration(const int64_t &duration)
 {
   duration_ = duration;
+}
+
+QIcon Stream::IconFromType(const Stream::Type &type)
+{
+  switch (type) {
+  case Stream::kVideo:
+    return olive::icon::Video;
+  case Stream::kImage:
+    return olive::icon::Image;
+  case Stream::kAudio:
+    return olive::icon::Audio;
+  default:
+    break;
+  }
+
+  return QIcon();
 }

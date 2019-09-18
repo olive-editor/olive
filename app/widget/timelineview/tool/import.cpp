@@ -179,7 +179,7 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       opacity->setParent(&node_memory_manager);
 
       clip->set_length(ghost->Length());
-      media->SetFootage(ghost->data(0).value<StreamPtr>()->footage());
+      media->SetFootage(ghost->data(0).value<StreamPtr>());
 
       NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
       NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());

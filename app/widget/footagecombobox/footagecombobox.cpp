@@ -4,13 +4,14 @@
 #include <QDebug>
 #include <QMenu>
 
+#include "ui/icons/icons.h"
+
 FootageComboBox::FootageComboBox(QWidget *parent) :
   QComboBox(parent),
   root_(nullptr),
   footage_(nullptr),
   only_show_ready_footage_(true)
 {
-
 }
 
 void FootageComboBox::showPopup()
@@ -33,7 +34,7 @@ void FootageComboBox::showPopup()
 
     addItem(selected->text());
 
-    footage_ = reinterpret_cast<Footage*>(selected->data().value<quintptr>());
+    footage_ = selected->data().value<StreamPtr>();
 
     emit FootageChanged(footage_);
   }
@@ -51,12 +52,12 @@ void FootageComboBox::SetOnlyShowReadyFootage(bool e)
   only_show_ready_footage_ = e;
 }
 
-Footage *FootageComboBox::SelectedFootage()
+StreamPtr FootageComboBox::SelectedFootage()
 {
   return footage_;
 }
 
-void FootageComboBox::SetFootage(Footage *f)
+void FootageComboBox::SetFootage(StreamPtr f)
 {
   // Remove existing single item used to show the footage name
   clear();
@@ -65,7 +66,7 @@ void FootageComboBox::SetFootage(Footage *f)
 
   if (footage_ != nullptr) {
     // Use combobox functions to show the footage name
-    addItem(footage_->name());
+    addItem(footage_->footage()->name());
   }
 }
 
@@ -83,8 +84,13 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
       Footage* footage = static_cast<Footage*>(child);
 
       if (!only_show_ready_footage_ || footage->status() == Footage::kReady) {
-        QAction* footage_action = m->addAction(child->name());
-        footage_action->setData(reinterpret_cast<quintptr>(child));
+        QMenu* stream_menu = m->addMenu(footage->name());
+
+        foreach (StreamPtr stream, footage->streams()) {
+          QAction* stream_action = stream_menu->addAction(stream->description());
+          stream_action->setData(QVariant::fromValue(stream));
+          stream_action->setIcon(Stream::IconFromType(stream->type()));
+        }
       }
     }
   }

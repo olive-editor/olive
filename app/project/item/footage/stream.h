@@ -22,6 +22,8 @@
 #define STREAM_H
 
 #include <memory>
+#include <QCoreApplication>
+#include <QString>
 
 #include "common/rational.h"
 
@@ -59,6 +61,8 @@ public:
    */
   virtual ~Stream();
 
+  virtual QString description();
+
   const Type& type();
   void set_type(const Type& type);
 
@@ -73,6 +77,8 @@ public:
 
   const int64_t& duration() const;
   void set_duration(const int64_t& duration);
+
+  static QIcon IconFromType(const Type& type);
 
 private:
   Footage* footage_;

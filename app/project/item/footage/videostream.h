@@ -27,6 +27,8 @@ class VideoStream : public ImageStream
 {
 public:
   VideoStream();
+
+  virtual QString description() override;
 };
 
 using VideoStreamPtr = std::shared_ptr<VideoStream>;

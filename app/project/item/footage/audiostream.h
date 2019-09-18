@@ -32,6 +32,8 @@ class AudioStream : public Stream
 public:
   AudioStream();
 
+  virtual QString description() override;
+
   const int& channels();
   void set_channels(const int& channels);
 

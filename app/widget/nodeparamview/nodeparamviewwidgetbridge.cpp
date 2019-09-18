@@ -175,9 +175,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     footage_combobox->SetRoot(pp->project()->root());
 
     // Use multiple values
-    footage_combobox->SetFootage(Node::ValueToPtr<Footage>(base_input->get_value(0)));
+    footage_combobox->SetFootage(base_input->get_value(0).value<StreamPtr>());
 
-    connect(footage_combobox, SIGNAL(FootageChanged(Footage*)), this, SLOT(WidgetCallback()));
+    connect(footage_combobox, SIGNAL(FootageChanged(StreamPtr)), this, SLOT(WidgetCallback()));
     // End test code
 
     widgets_.append(footage_combobox);
@@ -308,7 +308,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     {
       // Widget is a FootageComboBox
       FootageComboBox* footage_combobox = static_cast<FootageComboBox*>(sender());
-      input->set_value(Node::PtrToValue(footage_combobox->SelectedFootage()));
+      input->set_value(QVariant::fromValue(footage_combobox->SelectedFootage()));
       break;
     }
     }

@@ -91,6 +91,11 @@ StreamPtr Footage::stream(int index)
   return streams_.at(index);
 }
 
+const QList<StreamPtr> &Footage::streams()
+{
+  return streams_;
+}
+
 int Footage::stream_count()
 {
   return streams_.size();

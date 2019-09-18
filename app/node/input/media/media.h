@@ -49,7 +49,7 @@ public:
 
   NodeOutput* texture_output();
 
-  void SetFootage(Footage* f);
+  void SetFootage(StreamPtr f);
 
   virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
 

@@ -95,9 +95,9 @@ NodeOutput *MediaInput::texture_output()
   return texture_output_;
 }
 
-void MediaInput::SetFootage(Footage *f)
+void MediaInput::SetFootage(StreamPtr f)
 {
-  footage_input_->set_value(PtrToValue(f));
+  footage_input_->set_value(QVariant::fromValue(f));
 }
 
 void MediaInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational &time)
@@ -284,10 +284,10 @@ bool MediaInput::SetupDecoder()
   }
 
   // Get currently selected Footage
-  Footage* footage = ValueToPtr<Footage>(footage_input_->get_value(0));
+  StreamPtr stream = footage_input_->get_value(0).value<StreamPtr>();
 
   // If no footage is selected, return nothing
-  if (footage == nullptr) {
+  if (stream == nullptr) {
     return false;
   }
 
@@ -295,13 +295,12 @@ bool MediaInput::SetupDecoder()
 
   // Determine which decoder to use
   if (decoder_ == nullptr
-      && (decoder_ = Decoder::CreateFromID(footage->decoder())) == nullptr) {
+      && (decoder_ = Decoder::CreateFromID(stream->footage()->decoder())) == nullptr) {
     return false;
   }
 
   if (decoder_->stream() == nullptr) {
-    // FIXME: Hardcoded stream 0
-    decoder_->set_stream(footage->stream(0));
+    decoder_->set_stream(stream);
   }
 
   return true;

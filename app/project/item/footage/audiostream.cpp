@@ -25,6 +25,13 @@ AudioStream::AudioStream()
   set_type(kAudio);
 }
 
+QString AudioStream::description()
+{
+  return QCoreApplication::translate("Stream", "%1: Audio - %2 Channels, %3Hz").arg(QString::number(index()),
+                                                                                    QString::number(channels()),
+                                                                                    QString::number(sample_rate()));
+}
+
 const int &AudioStream::channels()
 {
   return channels_;
