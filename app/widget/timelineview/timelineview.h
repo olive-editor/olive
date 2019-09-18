@@ -63,6 +63,8 @@ signals:
   void RequestReplaceBlock(Block* old, Block* replace, int track);
   void RequestSplitAtTime(rational time, int track);
 
+  void UserSetScale(double scale);
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

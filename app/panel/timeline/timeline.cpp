@@ -40,6 +40,7 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   layout->addWidget(view_);
 
   connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
+  connect(view_, SIGNAL(UserSetScale(double)), this, SLOT(SetScale(double)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
 
   // FIXME: Magic number

@@ -49,13 +49,14 @@ signals:
 private:
   void Retranslate();
 
-  void SetScale(double scale);
-
   TimelineView* view_;
 
   TimeRuler* ruler_;
 
   double scale_;
+
+private slots:
+  void SetScale(double scale);
 };
 
 #endif // TIMELINE_PANEL_H
