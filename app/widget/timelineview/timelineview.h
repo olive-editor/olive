@@ -227,6 +227,16 @@ private:
     QPoint scrollbar_start_;
   };
 
+  class ZoomTool : public Tool
+  {
+  public:
+    ZoomTool(TimelineView* parent);
+
+    virtual void MousePress(QMouseEvent *event);
+    virtual void MouseMove(QMouseEvent *event);
+    virtual void MouseRelease(QMouseEvent *event);
+  };
+
   Tool* GetActiveTool();
 
   int GetTrackY(int track_index);
@@ -237,6 +247,7 @@ private:
   RippleTool ripple_tool_;
   RazorTool razor_tool_;
   HandTool hand_tool_;
+  ZoomTool zoom_tool_;
 
   void AddGhost(TimelineViewGhostItem* ghost);
 

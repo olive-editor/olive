@@ -39,6 +39,7 @@ TimelineView::TimelineView(QWidget *parent) :
   ripple_tool_(this),
   razor_tool_(this),
   hand_tool_(this),
+  zoom_tool_(this),
   playhead_(0)
 {
   setScene(&scene_);
@@ -220,7 +221,7 @@ TimelineView::Tool *TimelineView::GetActiveTool()
   case olive::tool::kHand:
     return &hand_tool_;
   case olive::tool::kZoom:
-    return nullptr; // FIXME: Implement
+    return &zoom_tool_;
   case olive::tool::kTransition:
     return nullptr; // FIXME: Implement
   case olive::tool::kRecord:
