@@ -248,6 +248,11 @@ MainMenu::MainMenu(QWidget *parent) :
   tools_hand_item_->setData(olive::tool::kHand);
   tools_group_->addAction(tools_hand_item_);
 
+  tools_zoom_item_ = tools_menu_->AddItem("zoomtool", this, SLOT(ToolItemTriggered()), "Z");
+  tools_zoom_item_->setCheckable(true);
+  tools_zoom_item_->setData(olive::tool::kZoom);
+  tools_group_->addAction(tools_zoom_item_);
+
   tools_transition_item_ = tools_menu_->AddItem("transitiontool", this, SLOT(ToolItemTriggered()), "T");
   tools_transition_item_->setCheckable(true);
   tools_transition_item_->setData(olive::tool::kTransition);
@@ -458,6 +463,7 @@ void MainMenu::Retranslate()
   tools_slip_item_->setText(tr("Slip Tool"));
   tools_slide_item_->setText(tr("Slide Tool"));
   tools_hand_item_->setText(tr("Hand Tool"));
+  tools_zoom_item_->setText(tr("Zoom Tool"));
   tools_transition_item_->setText(tr("Transition Tool"));
   tools_snapping_item_->setText(tr("Enable Snapping"));
   tools_autocut_silence_item_->setText(tr("Auto-Cut Silence"));

@@ -168,6 +168,7 @@ private:
   QAction* tools_slip_item_;
   QAction* tools_slide_item_;
   QAction* tools_hand_item_;
+  QAction* tools_zoom_item_;
   QAction* tools_transition_item_;
   QAction* tools_snapping_item_;
   QAction* tools_autocut_silence_item_;
