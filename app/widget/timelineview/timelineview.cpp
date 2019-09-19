@@ -174,12 +174,8 @@ void TimelineView::ConnectTimelineNode(TimelineOutput *node)
   timeline_node_ = node;
 
   if (timeline_node_ != nullptr) {
-    qDebug() << "Connecting to" << node;
-
-    // FIXME: TEST CODE ONLY
-    SetTimebase(rational(1001, 30000));
-    emit TimebaseChanged(rational(1001, 30000));
-    // END TEST CODE
+    SetTimebase(timeline_node_->Timebase());
+    emit TimebaseChanged(timebase_);
 
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));

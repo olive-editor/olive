@@ -39,6 +39,7 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  const rational& Timebase();
   void SetTimebase(const rational& timebase);
 
   NodeInput* track_input();

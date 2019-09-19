@@ -61,6 +61,11 @@ QString TimelineOutput::Description()
   return tr("Node for communicating between a Timeline panel and the node graph.");
 }
 
+const rational &TimelineOutput::Timebase()
+{
+  return timebase_;
+}
+
 NodeInput *TimelineOutput::track_input()
 {
   return track_input_;

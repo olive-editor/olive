@@ -105,7 +105,6 @@ void TrackOutput::Refresh()
   block_cache_ = detect_attached_blocks;
 
   Block::Refresh();
-  qDebug() << "Refreshed with in point" << in().toDouble() << "(from connected block" << previous() << ")";
 }
 
 const int &TrackOutput::Index()
@@ -169,9 +168,6 @@ void TrackOutput::InvalidateCache(const rational &start_range, const rational &e
 {
   // We intercept IC signals from Blocks since we may be performing several options and they may over-signal
   if (from == previous_input() && block_invalidate_cache_stack_ == 0) {
-    qDebug() << "Received IC Signal:" << start_range.toDouble() << "to" << end_range.toDouble();
-    qDebug() << "Limiting IC Signal To:" << qMax(start_range, rational(0)).toDouble() << "to" << qMin(end_range, in()).toDouble();
-
     Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, in()), from);
   } else {
     Node::InvalidateCache(start_range, end_range, from);
