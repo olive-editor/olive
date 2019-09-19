@@ -29,7 +29,8 @@
 #include "viewersizer.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  viewer_node_(nullptr)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -121,9 +122,40 @@ bool ViewerWidget::IsPlaying()
   return playback_timer_.isActive();
 }
 
-void ViewerWidget::SetTexture(GLuint tex)
+void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 {
-  gl_widget_->SetTexture(tex);
+  if (viewer_node_ != nullptr) {
+    SetTimebase(0);
+
+    disconnect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(ViewerNodeChangedBetween(const rational&, const rational&)));
+  }
+
+  viewer_node_ = node;
+
+  // Set texture to new texture (or null if no viewer node is available)
+  UpdateTextureFromNode(GetTime());
+
+  if (viewer_node_ != nullptr) {
+    SetTimebase(viewer_node_->Timebase());
+
+    connect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(ViewerNodeChangedBetween(const rational&, const rational&)));
+  }
+}
+
+void ViewerWidget::DisconnectViewerNode()
+{
+  ConnectViewerNode(nullptr);
+}
+
+void ViewerWidget::SetTexture(RenderTexturePtr tex)
+{
+  if (tex == nullptr) {
+    gl_widget_->SetTexture(0);
+  } else {
+    gl_widget_->SetTexture(tex->texture());
+  }
 }
 
 void ViewerWidget::UpdateTimeInternal(int64_t i)
@@ -132,7 +164,20 @@ void ViewerWidget::UpdateTimeInternal(int64_t i)
 
   controls_->SetTime(i);
 
+  if (viewer_node_ != nullptr) {
+    UpdateTextureFromNode(time_set);
+  }
+
   emit TimeChanged(time_set);
+}
+
+void ViewerWidget::UpdateTextureFromNode(const rational& time)
+{
+  if (viewer_node_ == nullptr) {
+    SetTexture(nullptr);
+  } else {
+    SetTexture(viewer_node_->GetTexture(time));
+  }
 }
 
 void ViewerWidget::RulerTimeChange(int64_t i)
@@ -199,6 +244,13 @@ void ViewerWidget::PlaybackTimerUpdate()
   int64_t frames_since_start = qRound(static_cast<double>(real_time) / (time_base_dbl_ * 1000));
 
   SetTime(start_timestamp_ + frames_since_start);
+}
+
+void ViewerWidget::ViewerNodeChangedBetween(const rational &start, const rational &end)
+{
+  if (GetTime() >= start && GetTime() <= end) {
+    UpdateTextureFromNode(GetTime());
+  }
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

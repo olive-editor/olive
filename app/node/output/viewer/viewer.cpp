@@ -20,8 +20,7 @@
 
 #include "viewer.h"
 
-ViewerOutput::ViewerOutput() :
-  attached_viewer_(nullptr)
+ViewerOutput::ViewerOutput()
 {
   texture_input_ = new NodeInput("tex_out");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -48,13 +47,16 @@ QString ViewerOutput::Description()
   return tr("Interface between a Viewer panel and the node system.");
 }
 
+const rational &ViewerOutput::Timebase()
+{
+  return timebase_;
+}
+
 void ViewerOutput::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
 
-  if (attached_viewer_ != nullptr) {
-    attached_viewer_->SetTimebase(timebase_);
-  }
+  emit TimebaseChanged(timebase_);
 }
 
 NodeInput *ViewerOutput::texture_input()
@@ -62,44 +64,18 @@ NodeInput *ViewerOutput::texture_input()
   return texture_input_;
 }
 
-void ViewerOutput::AttachViewer(ViewerPanel *viewer)
+RenderTexturePtr ViewerOutput::GetTexture(const rational &time)
 {
-  // Disconnect old viewer if there's one attached
-  if (attached_viewer_ != nullptr) {
-    disconnect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(ViewerTimeChanged(const rational&)));
-
-    // Clear any existing texture
-    attached_viewer_->SetTexture(0);
-  }
-
-  // FIXME: Currently this attaches to ViewerPanels, but should it attached to Viewers instead?
-  attached_viewer_ = viewer;
-
-  if (attached_viewer_ != nullptr) {
-    connect(attached_viewer_, SIGNAL(TimeChanged(const rational&)), this, SLOT(ViewerTimeChanged(const rational&)));
-    SetTimebase(timebase_);
-
-    // Update the texture
-    ViewerTimeChanged(attached_viewer_->GetTime());
-  }
+  return texture_input_->get_value(time).value<RenderTexturePtr>();
 }
 
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Node::InvalidateCache(start_range, end_range, from);
 
-  if (attached_viewer_ != nullptr
-      && (start_range == attached_viewer_->GetTime() || end_range == attached_viewer_->GetTime())) {
-    // Update any attached viewer
-    ForceUpdateViewer();
-  }
+  emit TextureChangedBetween(start_range, end_range);
 
   SendInvalidateCache(start_range, end_range);
-}
-
-void ViewerOutput::ForceUpdateViewer()
-{
-  ViewerTimeChanged(attached_viewer_->GetTime());
 }
 
 QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)
@@ -108,17 +84,4 @@ QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)
   Q_UNUSED(time)
 
   return 0;
-}
-
-void ViewerOutput::ViewerTimeChanged(const rational &t)
-{
-  // Get the texture from whatever Node is currently connected (usually a Renderer of some kind)
-  RenderTexturePtr current_texture = texture_input_->get_value(t).value<RenderTexturePtr>();
-
-  // Send the texture to the Viewer
-  if (current_texture != nullptr) {
-    attached_viewer_->SetTexture(current_texture->texture());
-  } else {
-    attached_viewer_->SetTexture(0);
-  }
 }

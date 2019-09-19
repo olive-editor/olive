@@ -28,6 +28,7 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "node/output/viewer/viewer.h"
 #include "viewerglwidget.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timeruler/timeruler.h"
@@ -45,8 +46,6 @@ public:
 
   void SetTimeRulerEnabled(bool enabled);
 
-  void SetTimebase(const rational& r);
-
   const double& scale();
 
   rational GetTime();
@@ -59,6 +58,10 @@ public:
 
   bool IsPlaying();
 
+  void ConnectViewerNode(ViewerOutput* node);
+
+  void DisconnectViewerNode();
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -67,7 +70,9 @@ public slots:
    *
    * @param tex
    */
-  void SetTexture(GLuint tex);
+  void SetTexture(RenderTexturePtr tex);
+
+  void SetTimebase(const rational& r);
 
   void GoToStart();
 
@@ -90,6 +95,8 @@ protected:
 private:
   void UpdateTimeInternal(int64_t i);
 
+  void UpdateTextureFromNode(const rational &time);
+
   ViewerGLWidget* gl_widget_;
 
   PlaybackControls* controls_;
@@ -107,10 +114,14 @@ private:
   qint64 start_msec_;
   int64_t start_timestamp_;
 
+  ViewerOutput* viewer_node_;
+
 private slots:
   void RulerTimeChange(int64_t);
 
   void PlaybackTimerUpdate();
+
+  void ViewerNodeChangedBetween(const rational& start, const rational& end);
 
 };
 

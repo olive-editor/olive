@@ -311,7 +311,7 @@ void Core::CreateNewSequence()
     // Connect timeline end point to renderer
     NodeParam::ConnectEdge(tb->length_output(), rp->length_input());
 
-    vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
+    olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>()->ConnectViewerNode(vo);
     olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>()->ConnectTimelineNode(tb);
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
 

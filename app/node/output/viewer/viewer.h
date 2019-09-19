@@ -22,7 +22,6 @@
 #define VIEWER_H
 
 #include "node/node.h"
-#include "panel/viewer/viewer.h"
 #include "render/rendertexture.h"
 
 /**
@@ -41,28 +40,27 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  const rational& Timebase();
   void SetTimebase(const rational& timebase);
 
   NodeInput* texture_input();
 
-  void AttachViewer(ViewerPanel* viewer);
+  RenderTexturePtr GetTexture(const rational& time);
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
+
+signals:
+  void TimebaseChanged(const rational&);
+
+  void TextureChangedBetween(const rational&, const rational&);
 
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
-  void ForceUpdateViewer();
-
   NodeInput* texture_input_;
 
-  ViewerPanel* attached_viewer_;
-
   rational timebase_;
-
-private slots:
-  void ViewerTimeChanged(const rational& t);
 
 };
 

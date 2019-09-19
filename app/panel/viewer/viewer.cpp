@@ -74,12 +74,22 @@ void ViewerPanel::SetTimebase(const rational &timebase)
   viewer_->SetTimebase(timebase);
 }
 
+void ViewerPanel::ConnectViewerNode(ViewerOutput *node)
+{
+  viewer_->ConnectViewerNode(node);
+}
+
+void ViewerPanel::DisconnectViewerNode()
+{
+  viewer_->DisconnectViewerNode();
+}
+
 rational ViewerPanel::GetTime()
 {
   return viewer_->GetTime();
 }
 
-void ViewerPanel::SetTexture(GLuint tex)
+void ViewerPanel::SetTexture(RenderTexturePtr tex)
 {
   viewer_->SetTexture(tex);
 }

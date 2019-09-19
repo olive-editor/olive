@@ -50,6 +50,10 @@ public:
 
   void SetTimebase(const rational& timebase);
 
+  void ConnectViewerNode(ViewerOutput* node);
+
+  void DisconnectViewerNode();
+
   rational GetTime();
 
 public slots:
@@ -60,7 +64,7 @@ public slots:
    *
    * @param tex
    */
-  void SetTexture(GLuint tex);
+  void SetTexture(RenderTexturePtr tex);
 
 protected:
   virtual void changeEvent(QEvent* e) override;
