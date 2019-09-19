@@ -62,6 +62,7 @@ signals:
   void RequestPlaceBlock(Block* block, rational start, int track);
   void RequestReplaceBlock(Block* old, Block* replace, int track);
   void RequestSplitAtTime(rational time, int track);
+  void RequestRippleBlocks(QList<Block*> blocks, rational length, olive::timeline::MovementMode mode);
 
   void UserSetScale(double scale);
 
@@ -179,6 +180,15 @@ private:
     virtual void MouseReleaseInternal(QMouseEvent *event);
     virtual rational FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem*>);
   private:
+    void InitiateDrag(const QPoint &mouse_pos);
+    void ProcessDrag(const QPoint &mouse_pos);
+
+    QList<TimelineViewClipItem*> GetSelectedClips();
+
+    bool IsClipTrimmable(TimelineViewClipItem* clip,
+                         const QList<TimelineViewClipItem*>& items,
+                         const olive::timeline::MovementMode& mode);
+
     int track_start_;
     bool movement_allowed_;
   };

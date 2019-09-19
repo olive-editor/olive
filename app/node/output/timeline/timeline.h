@@ -63,6 +63,8 @@ private:
 
   void AddTrack();
 
+  static TrackOutput* TrackFromBlock(Block* block);
+
   TimelinePanel* attached_timeline_;
 
   NodeInput* track_input_;
@@ -129,6 +131,8 @@ private slots:
    * @brief Resizes a Block
    */
   void ResizeBlock(Block* block, rational new_length);
+
+  void RippleBlocks(QList<Block*> blocks, rational ripple_length, olive::timeline::MovementMode mode);
 
 };
 

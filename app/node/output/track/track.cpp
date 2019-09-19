@@ -151,6 +151,18 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
+Block *TrackOutput::NearestBlockAfter(const rational &time)
+{
+  foreach (Block* block, block_cache_) {
+    // Blocks are sorted by time, so the first Block after this time is the correct Block
+    if (block->in() >= time) {
+      return block;
+    }
+  }
+
+  return nullptr;
+}
+
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   // We intercept IC signals from Blocks since we may be performing several options and they may over-signal

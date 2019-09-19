@@ -64,7 +64,7 @@ QGraphicsItem *TimelineView::Tool::GetItemAtScenePos(const QPointF &scene_pos)
 rational TimelineView::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != TimelineViewGhostItem::kMove) {
+    if (ghost->mode() != olive::timeline::kMove) {
       continue;
     }
 
@@ -82,7 +82,7 @@ int TimelineView::Tool::ValidateTrackMovement(int movement, const QVector<Timeli
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     // Prevents any ghosts from going to a non-existent negative track
     if (ghost->Track() + movement < 0) {
-      if (ghost->mode() != TimelineViewGhostItem::kMove) {
+      if (ghost->mode() != olive::timeline::kMove) {
         continue;
       }
 
@@ -96,7 +96,7 @@ int TimelineView::Tool::ValidateTrackMovement(int movement, const QVector<Timeli
 rational TimelineView::Tool::ValidateInTrimming(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != TimelineViewGhostItem::kTrimIn) {
+    if (ghost->mode() != olive::timeline::kTrimIn) {
       continue;
     }
 
@@ -121,7 +121,7 @@ rational TimelineView::Tool::ValidateInTrimming(rational movement, const QVector
 rational TimelineView::Tool::ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != TimelineViewGhostItem::kTrimOut) {
+    if (ghost->mode() != olive::timeline::kTrimOut) {
       continue;
     }
 

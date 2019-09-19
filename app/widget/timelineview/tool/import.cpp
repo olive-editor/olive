@@ -96,7 +96,7 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
         snap_points_.append(ghost->Out());
 
         ghost->setData(0, QVariant::fromValue(stream));
-        ghost->SetMode(TimelineViewGhostItem::kMove);
+        ghost->SetMode(olive::timeline::kMove);
 
         parent()->AddGhost(ghost);
 

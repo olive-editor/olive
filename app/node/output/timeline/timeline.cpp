@@ -70,6 +70,7 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
     disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
     disconnect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
     disconnect(view, SIGNAL(RequestSplitAtTime(rational, int)), this, SLOT(SplitAtTime(rational, int)));
+    disconnect(view, SIGNAL(RequestRippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)), this, SLOT(RippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)));
 
     // Remove existing UI objects from TimelinePanel
     attached_timeline_->Clear();
@@ -93,6 +94,7 @@ void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
     connect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
     connect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
     connect(view, SIGNAL(RequestSplitAtTime(rational, int)), this, SLOT(SplitAtTime(rational, int)));
+    connect(view, SIGNAL(RequestRippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)), this, SLOT(RippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)));
   }
 }
 
@@ -219,6 +221,20 @@ void TimelineOutput::AddTrack()
   }
 }
 
+TrackOutput *TimelineOutput::TrackFromBlock(Block *block)
+{
+  Block* n = block;
+
+  // Find last valid block in Sequence and assume its a track
+  while (n->next() != nullptr) {
+    n = n->next();
+  }
+
+  // Downside of this approach is the usage of dynamic_cast, alternative would be looping through all known tracks and
+  // seeing if the contain the Block, but this seems slower
+  return dynamic_cast<TrackOutput*>(n);
+}
+
 void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
 {
   if (edge->input() != track_input()) {
@@ -313,4 +329,54 @@ void TimelineOutput::SplitAtTime(rational time, int track)
 void TimelineOutput::ResizeBlock(Block *block, rational new_length)
 {
   block->set_length(new_length);
+}
+
+void TimelineOutput::RippleBlocks(QList<Block *> blocks, rational ripple_length, olive::timeline::MovementMode mode)
+{
+  if (blocks.isEmpty()
+      || ripple_length == 0
+      || (mode != olive::timeline::kTrimIn && mode != olive::timeline::kTrimOut)) {
+    return;
+  }
+
+  if (mode == olive::timeline::kTrimIn) {
+    // Flip the ripple length if we're trimming the in point
+    ripple_length = -ripple_length;
+  }
+
+  QVector<TrackOutput*> rippled_tracks;
+
+  rational ripple_point = RATIONAL_MAX;
+
+  // Ripple each Block as requested
+  foreach (Block* b, blocks) {
+    if (mode == olive::timeline::kTrimIn) {
+      ripple_point = qMin(ripple_point, b->in());
+
+      // Extend media in point
+      b->set_media_in(b->media_in() - ripple_length);
+    } else {
+      ripple_point = qMin(ripple_point, b->out());
+    }
+
+    b->set_length(b->length() + ripple_length);
+
+    rippled_tracks.append(TrackFromBlock(b));
+  }
+
+  // For each track that did not have a rippled clip, insert a Gap to keep all tracks synchronized
+  // FIXME: Assumes rippling out point further out
+  foreach (TrackOutput* track, track_cache_) {
+
+    if (!rippled_tracks.contains(track)) {
+      Block* block_after_time = track->NearestBlockAfter(ripple_point);
+
+      if (block_after_time != nullptr) {
+        // Insert Gap block before this Block
+        GapBlock* gap = new GapBlock();
+        gap->set_length(ripple_length);
+        track->InsertBlockBefore(gap, block_after_time);
+      }
+    }
+  }
 }

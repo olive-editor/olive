@@ -28,7 +28,7 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   out_adj_(0),
   track_adj_(0),
   stream_(nullptr),
-  mode_(kNone)
+  mode_(olive::timeline::kNone)
 {
   setBrush(Qt::NoBrush);
   setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
@@ -135,12 +135,12 @@ int TimelineViewGhostItem::GetAdjustedTrack() const
   return track_ + track_adj_;
 }
 
-const TimelineViewGhostItem::Mode &TimelineViewGhostItem::mode() const
+const olive::timeline::MovementMode &TimelineViewGhostItem::mode() const
 {
   return mode_;
 }
 
-void TimelineViewGhostItem::SetMode(const TimelineViewGhostItem::Mode &mode)
+void TimelineViewGhostItem::SetMode(const olive::timeline::MovementMode &mode)
 {
   mode_ = mode;
 }

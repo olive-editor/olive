@@ -23,6 +23,7 @@
 
 #include <QVariant>
 
+#include "common/timelinecommon.h"
 #include "project/item/footage/footage.h"
 #include "timelineviewclipitem.h"
 #include "timelineviewrect.h"
@@ -33,12 +34,7 @@
 class TimelineViewGhostItem : public TimelineViewRect
 {
 public:
-  enum Mode {
-    kNone,
-    kMove,
-    kTrimIn,
-    kTrimOut
-  };
+
 
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
 
@@ -65,8 +61,8 @@ public:
   rational GetAdjustedOut() const;
   int GetAdjustedTrack() const;
 
-  const Mode& mode() const;
-  void SetMode(const Mode& mode);
+  const olive::timeline::MovementMode& mode() const;
+  void SetMode(const olive::timeline::MovementMode& mode);
 
   virtual void UpdateRect() override;
 
@@ -83,7 +79,7 @@ private:
 
   StreamPtr stream_;
 
-  Mode mode_;
+  olive::timeline::MovementMode mode_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

@@ -61,6 +61,8 @@ public:
 
   NodeOutput* track_output();
 
+  Block* NearestBlockAfter(const rational& time);
+
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
 
   /**

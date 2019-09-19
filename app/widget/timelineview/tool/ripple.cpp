@@ -30,26 +30,30 @@ void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
+  if (parent()->ghost_items_.isEmpty()) {
+    return;
+  }
+
   // Retrieve cursor position difference
   QPointF scene_pos = GetScenePos(event->pos());
   QPointF movement = scene_pos - drag_start_;
 
-  // The point to ripple all clips after (we use the earliest point possible)
-  rational ripple_point = RATIONAL_MAX;
+  // For ripple operations, all ghosts will be moving the same way
+  olive::timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
 
   // The amount to ripple by
   rational ripple_length = parent()->SceneToTime(movement.x());
 
+  QList<Block *> blocks_to_ripple;
+
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    if (ghost->mode() == TimelineViewGhostItem::kTrimIn) {
-      ripple_point = qMin(ripple_point, ghost->In());
-    } else if (ghost->mode() == TimelineViewGhostItem::kTrimOut) {
-      ripple_point = qMin(ripple_point, ghost->Out());
-    }
+    Block* b = Node::ValueToPtr<Block>(ghost->data(0));
+
+    blocks_to_ripple.append(b);
   }
 
-
+  emit parent()->RequestRippleBlocks(blocks_to_ripple, ripple_length, movement_mode);
 }
 
 rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem *> ghosts)
