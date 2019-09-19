@@ -68,6 +68,9 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
     // If we haven't started dragging yet, we'll initiate a drag here
 
+    // Record where the drag started in timeline coordinates
+    drag_start_ = GetScenePos(event->pos());
+
     // Get the item that was clicked
     TimelineViewRect* clicked_item = dynamic_cast<TimelineViewRect*>(GetItemAtScenePos(drag_start_));
 
@@ -80,7 +83,6 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
       snap_points_.clear();
 
       // Record where the drag started in timeline coordinates
-      drag_start_ = GetScenePos(event->pos());
       track_start_ = parent()->SceneToTrack(drag_start_.y());
 
       // Determine whether we're trimming or moving based on the position of the cursor
@@ -88,6 +90,8 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
 
       // FIXME: Hardcoded number
       const int kTrimHandle = 20;
+
+
 
       if (drag_start_.x() < clicked_item->x() + kTrimHandle) {
         trim_mode = TimelineViewGhostItem::kTrimIn;
@@ -102,18 +106,63 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
       if (trim_mode != TimelineViewGhostItem::kNone) {
         QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
 
+        // If trimming multiple clips, we only trim the earliest in each track (trimming in) or the latest in each track
+        // (trimming out). If the current clip is NOT one of these, we only trim it.
+        bool multitrim_enabled = true;
+
+        // Determine if the clicked item is the earliest/latest in the track for in/out trimming respectively
+        if (trim_mode == TimelineViewGhostItem::kTrimIn || trim_mode == TimelineViewGhostItem::kTrimOut) {
+          TimelineViewClipItem* clicked_clip = static_cast<TimelineViewClipItem*>(clicked_item);
+
+          foreach (QGraphicsItem* item, selected_items) {
+            TimelineViewClipItem* clip_item = static_cast<TimelineViewClipItem*>(item);
+
+            if (clip_item != clicked_item
+                && clip_item->Track() == clicked_item->Track()
+                && ((trim_mode == TimelineViewGhostItem::kTrimIn && clip_item->clip()->in() < clicked_clip->clip()->in())
+                    || (trim_mode == TimelineViewGhostItem::kTrimOut && clip_item->clip()->out() > clicked_clip->clip()->out()))) {
+              multitrim_enabled = false;
+              break;
+            }
+          }
+        }
+
         // For each selected item, create a "ghost", a visual representation of the action before it gets performed
         foreach (QGraphicsItem* item, selected_items) {
           TimelineViewClipItem* clip_item = dynamic_cast<TimelineViewClipItem*>(item);
-          TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromClip(clip_item);
 
-          ghost->SetScale(parent()->scale_);
 
           // Determine correct mode for ghost
-          // Movement is indiscriminate, all the ghosts can be set to do this, however trimming should be limited to
-          // the currently clicked Block since multiple clips trimming at once could get ugly
-          if (trim_mode == TimelineViewGhostItem::kMove
-              || clip_item == clicked_item) {
+          //
+          // Movement is indiscriminate, all the ghosts can be set to do this, however trimming is limited to one block
+          // PER TRACK
+
+          bool include_this_clip = true;
+
+          if (clip_item != clicked_item
+              && (trim_mode == TimelineViewGhostItem::kTrimIn || trim_mode == TimelineViewGhostItem::kTrimOut)) {
+            if (multitrim_enabled) {
+              // Determine if this clip is the earliest/latest in its track
+              foreach (QGraphicsItem* item, selected_items) {
+                TimelineViewClipItem* test_clip = static_cast<TimelineViewClipItem*>(item);
+
+                if (clip_item != test_clip
+                    && clip_item->Track() == test_clip->Track()
+                    && ((trim_mode == TimelineViewGhostItem::kTrimIn && test_clip->clip()->in() < clip_item->clip()->in())
+                        || (trim_mode == TimelineViewGhostItem::kTrimOut && test_clip->clip()->out() > clip_item->clip()->out()))) {
+                  include_this_clip = false;
+                  break;
+                }
+              }
+            } else {
+              include_this_clip = false;
+            }
+          }
+
+          if (include_this_clip) {
+            TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromClip(clip_item);
+
+            ghost->SetScale(parent()->scale_);
             ghost->SetMode(trim_mode);
 
             // Prepare snap points (optimizes snapping for later)
@@ -131,14 +180,11 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
             default:
               break;
             }
-          } else {
-            ghost->SetMode(TimelineViewGhostItem::kNone);
+
+            parent()->ghost_items_.append(ghost);
+            parent()->scene_.addItem(ghost);
           }
-
-          parent()->ghost_items_.append(ghost);
-          parent()->scene_.addItem(ghost);
         }
-
       }
     }
 
