@@ -37,11 +37,16 @@ void TimelineView::ZoomTool::MouseMove(QMouseEvent *event)
 
 void TimelineView::ZoomTool::MouseRelease(QMouseEvent *event)
 {
+  double scale = parent()->scale_;
+
   if (event->modifiers() & Qt::AltModifier) {
     // Zoom out if the user clicks while holding Alt
-    emit parent()->UserSetScale(parent()->scale_ * 0.5);
+    scale *= 0.5;
   } else {
     // Otherwise zoom in
-    emit parent()->UserSetScale(parent()->scale_ * 2);
+    scale *= 2;
   }
+
+  parent()->SetScale(scale);
+  emit parent()->ScaleChanged(scale);
 }

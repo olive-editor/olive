@@ -27,7 +27,8 @@
 
 TrackOutput::TrackOutput() :
   current_block_(this),
-  block_invalidate_cache_stack_(0)
+  block_invalidate_cache_stack_(0),
+  index_(-1)
 {
   track_input_ = new NodeInput("track_in");
   track_input_->add_data_input(NodeParam::kTrack);
@@ -107,6 +108,16 @@ void TrackOutput::Refresh()
   qDebug() << "Refreshed with in point" << in().toDouble() << "(from connected block" << previous() << ")";
 }
 
+const int &TrackOutput::Index()
+{
+  return index_;
+}
+
+void TrackOutput::SetIndex(const int &index)
+{
+  index_ = index;
+}
+
 QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rational &time)
 {
   QList<NodeDependency> deps;
@@ -120,20 +131,6 @@ QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rat
   }
 
   return deps;
-}
-
-void TrackOutput::GenerateBlockWidgets()
-{
-  foreach (Block* block, block_cache_) {
-    emit BlockAdded(block);
-  }
-}
-
-void TrackOutput::DestroyBlockWidgets()
-{
-  foreach (Block* block, block_cache_) {
-    emit BlockRemoved(block);
-  }
 }
 
 TrackOutput *TrackOutput::next_track()
@@ -161,6 +158,11 @@ Block *TrackOutput::NearestBlockAfter(const rational &time)
   }
 
   return nullptr;
+}
+
+const QVector<Block *> &TrackOutput::Blocks()
+{
+  return block_cache_;
 }
 
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)

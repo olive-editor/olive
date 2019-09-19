@@ -21,9 +21,9 @@
 #ifndef TIMELINEOUTPUT_H
 #define TIMELINEOUTPUT_H
 
+#include "common/timelinecommon.h"
 #include "node/block/block.h"
 #include "node/output/track/track.h"
-#include "panel/timeline/timeline.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
@@ -39,46 +39,15 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
-  void AttachTimeline(TimelinePanel* timeline);
-
   void SetTimebase(const rational& timebase);
 
   NodeInput* track_input();
 
   NodeOutput* length_output();
 
-protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+  const QVector<TrackOutput*>& Tracks();
 
-private:
-  int GetTrackIndex(TrackOutput* track);
-
-  rational GetSequenceLength();
-
-  TrackOutput* attached_track();
-
-  void AttachTrack(TrackOutput *track);
-
-  void DetachTrack(TrackOutput* track);
-
-  void AddTrack();
-
-  static TrackOutput* TrackFromBlock(Block* block);
-
-  TimelinePanel* attached_timeline_;
-
-  NodeInput* track_input_;
-
-  NodeOutput* length_output_;
-
-  /**
-   * @brief A cache of connected Tracks
-   */
-  QVector<TrackOutput*> track_cache_;
-
-  rational timebase_;
-
-private slots:
+public slots:
   /**
    * @brief Slot for when the track connection is added
    */
@@ -133,6 +102,46 @@ private slots:
   void ResizeBlock(Block* block, rational new_length);
 
   void RippleBlocks(QList<Block*> blocks, rational ripple_length, olive::timeline::MovementMode mode);
+
+signals:
+  void TimebaseChanged(const rational &timebase);
+
+  void TimelineCleared();
+  
+  void BlockAdded(Block* block, int index);
+  
+  void BlockRemoved(Block* block);
+
+  void TrackAdded(TrackOutput* track);
+
+  void TrackRemoved(TrackOutput* track);
+
+protected:
+  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+
+private:
+  rational GetSequenceLength();
+
+  TrackOutput* attached_track();
+
+  void AttachTrack(TrackOutput *track);
+
+  void DetachTrack(TrackOutput* track);
+
+  void AddTrack();
+
+  static TrackOutput* TrackFromBlock(Block* block);
+
+  NodeInput* track_input_;
+
+  NodeOutput* length_output_;
+
+  /**
+   * @brief A cache of connected Tracks
+   */
+  QVector<TrackOutput*> track_cache_;
+
+  rational timebase_;
 
 };
 

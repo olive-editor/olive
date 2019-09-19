@@ -227,6 +227,7 @@ void Core::CreateNewFolder()
 #include "node/processor/renderer/renderer.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
+#include "panel/timeline/timeline.h"
 #include "panel/viewer/viewer.h"
 // End test code
 
@@ -311,7 +312,7 @@ void Core::CreateNewSequence()
     NodeParam::ConnectEdge(tb->length_output(), rp->length_input());
 
     vo->AttachViewer(olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>());
-    tb->AttachTimeline(olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>());
+    olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>()->ConnectTimelineNode(tb);
     olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
 
     olive::undo_stack.push(aic);

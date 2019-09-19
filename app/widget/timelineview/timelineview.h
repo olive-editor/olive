@@ -28,6 +28,7 @@
 #include <QDropEvent>
 
 #include "node/block/clip/clip.h"
+#include "node/output/timeline/timeline.h"
 #include "timelineviewclipitem.h"
 #include "timelineviewghostitem.h"
 #include "timelineviewplayheaditem.h"
@@ -43,28 +44,31 @@ class TimelineView : public QGraphicsView
 public:
   TimelineView(QWidget* parent);
 
+  void SetScale(const double& scale);
+
+  void ConnectTimelineNode(TimelineOutput* node);
+
+  void DisconnectTimelineNode();
+
+public slots:
+  void SetTimebase(const rational& timebase);
+
+  void SetTime(const int64_t time);
+
+  void Clear();
+
   void AddBlock(Block* block, int track);
 
   void RemoveBlock(Block* block);
 
-  void RemoveBlocksOfTrack(Block* block);
+  void AddTrack(TrackOutput* track);
 
-  void SetScale(const double& scale);
-
-  void SetTimebase(const rational& timebase);
-
-  void Clear();
-
-public slots:
-  void SetTime(const int64_t time);
+  void RemoveTrack(TrackOutput* track);
 
 signals:
-  void RequestPlaceBlock(Block* block, rational start, int track);
-  void RequestReplaceBlock(Block* old, Block* replace, int track);
-  void RequestSplitAtTime(rational time, int track);
-  void RequestRippleBlocks(QList<Block*> blocks, rational length, olive::timeline::MovementMode mode);
+  void ScaleChanged(double scale);
 
-  void UserSetScale(double scale);
+  void TimebaseChanged(const rational& timebase);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -260,6 +264,8 @@ private:
   RazorTool razor_tool_;
   HandTool hand_tool_;
   ZoomTool zoom_tool_;
+
+  TimelineOutput* timeline_node_;
 
   void AddGhost(TimelineViewGhostItem* ghost);
 

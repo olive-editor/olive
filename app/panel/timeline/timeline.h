@@ -33,13 +33,18 @@ public:
 
   void Clear();
 
-  void SetTimebase(const rational& timebase);
-
   TimelineView* view();
+
+  void ConnectTimelineNode(TimelineOutput* node);
+
+  void DisconnectTimelineNode();
 
   virtual void ZoomIn() override;
 
   virtual void ZoomOut() override;
+
+public slots:
+  void SetTimebase(const rational& timebase);
 
 protected:
   virtual void changeEvent(QEvent* e) override;

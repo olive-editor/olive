@@ -25,9 +25,9 @@
 #include "node/blend/alphaover/alphaover.h"
 #include "node/block/gap/gap.h"
 #include "node/graph.h"
+#include "panel/timeline/timeline.h"
 
-TimelineOutput::TimelineOutput() :
-  attached_timeline_(nullptr)
+TimelineOutput::TimelineOutput()
 {
   track_input_ = new NodeInput("track_in");
   track_input_->add_data_input(NodeParam::kTrack);
@@ -61,43 +61,6 @@ QString TimelineOutput::Description()
   return tr("Node for communicating between a Timeline panel and the node graph.");
 }
 
-void TimelineOutput::AttachTimeline(TimelinePanel *timeline)
-{
-  if (attached_timeline_ != nullptr) {
-    TimelineView* view = attached_timeline_->view();
-
-    //disconnect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    disconnect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
-    disconnect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
-    disconnect(view, SIGNAL(RequestSplitAtTime(rational, int)), this, SLOT(SplitAtTime(rational, int)));
-    disconnect(view, SIGNAL(RequestRippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)), this, SLOT(RippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)));
-
-    // Remove existing UI objects from TimelinePanel
-    attached_timeline_->Clear();
-  }
-
-  attached_timeline_ = timeline;
-
-  if (attached_timeline_ != nullptr) {
-    // FIXME: TEST CODE ONLY
-    attached_timeline_->SetTimebase(rational(1001, 30000));
-    // END TEST CODE
-
-    foreach (TrackOutput* track, track_cache_) {
-      // Defer to the track to make all the block UI items necessary
-      track->GenerateBlockWidgets();
-    }
-
-    TimelineView* view = attached_timeline_->view();
-
-    //connect(view, SIGNAL(RequestInsertBlockAtIndex(Block*, int)), this, SLOT(InsertBlockAtIndex(Block*, int)));
-    connect(view, SIGNAL(RequestPlaceBlock(Block*, rational, int)), this, SLOT(PlaceBlock(Block*, rational, int)));
-    connect(view, SIGNAL(RequestReplaceBlock(Block*, Block*, int)), this, SLOT(ReplaceBlock(Block*, Block*, int)));
-    connect(view, SIGNAL(RequestSplitAtTime(rational, int)), this, SLOT(SplitAtTime(rational, int)));
-    connect(view, SIGNAL(RequestRippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)), this, SLOT(RippleBlocks(QList<Block*>, rational, olive::timeline::MovementMode)));
-  }
-}
-
 NodeInput *TimelineOutput::track_input()
 {
   return track_input_;
@@ -106,6 +69,11 @@ NodeInput *TimelineOutput::track_input()
 NodeOutput *TimelineOutput::length_output()
 {
   return length_output_;
+}
+
+const QVector<TrackOutput *> &TimelineOutput::Tracks()
+{
+  return track_cache_;
 }
 
 QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
@@ -124,11 +92,6 @@ QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
   }
 
   return 0;
-}
-
-int TimelineOutput::GetTrackIndex(TrackOutput *track)
-{
-  return track_cache_.indexOf(track);
 }
 
 rational TimelineOutput::GetSequenceLength()
@@ -158,11 +121,13 @@ void TimelineOutput::AttachTrack(TrackOutput *track)
     connect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     connect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
 
+    current_track->SetIndex(track_cache_.size());
+
     track_cache_.append(current_track);
 
     // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
     // the track's index
-    current_track->GenerateBlockWidgets();
+    emit TrackAdded(current_track);
 
     current_track = current_track->next_track();
   }
@@ -174,7 +139,9 @@ void TimelineOutput::DetachTrack(TrackOutput *track)
 
   // Traverse through Tracks uncaching and disconnecting them
   while (current_track != nullptr) {
-    current_track->DestroyBlockWidgets();
+    emit TrackRemoved(current_track);
+
+    current_track->SetIndex(-1);
 
     disconnect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
     disconnect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
@@ -191,9 +158,7 @@ void TimelineOutput::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
 
-  if (attached_timeline_ != nullptr) {
-    attached_timeline_->SetTimebase(timebase_);
-  }
+  emit TimebaseChanged(timebase_);
 }
 
 void TimelineOutput::AddTrack()
@@ -243,9 +208,8 @@ void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
 
   AttachTrack(attached_track());
 
-  if (attached_timeline_ != nullptr) {
-    attached_timeline_->SetTimebase(timebase_);
-  }
+  // FIXME: Is this necessary?
+  emit TimebaseChanged(timebase_);
 }
 
 void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
@@ -256,23 +220,17 @@ void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
 
   DetachTrack(ValueToPtr<TrackOutput>(edge->output()->get_value(0)));
 
-  if (attached_timeline_ != nullptr) {
-    attached_timeline_->Clear();
-  }
+  emit TimelineCleared();
 }
 
 void TimelineOutput::TrackAddedBlock(Block *block)
 {
-  if (attached_timeline_ != nullptr) {
-    attached_timeline_->view()->AddBlock(block, GetTrackIndex(static_cast<TrackOutput*>(sender())));
-  }
+  emit BlockAdded(block, static_cast<TrackOutput*>(sender())->Index());
 }
 
 void TimelineOutput::TrackRemovedBlock(Block *block)
 {
-  if (attached_timeline_ != nullptr) {
-    attached_timeline_->view()->RemoveBlock(block);
-  }
+  emit BlockRemoved(block);
 }
 
 void TimelineOutput::TrackEdgeAdded(NodeEdgePtr edge)

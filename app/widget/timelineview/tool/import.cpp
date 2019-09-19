@@ -188,7 +188,7 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       if (event->keyboardModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        emit parent()->RequestPlaceBlock(clip, ghost->GetAdjustedIn(), ghost->Track());
+        parent()->timeline_node_->PlaceBlock(clip, ghost->GetAdjustedIn(), ghost->Track());
       }
     }
 

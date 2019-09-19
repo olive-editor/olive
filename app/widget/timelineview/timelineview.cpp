@@ -40,6 +40,7 @@ TimelineView::TimelineView(QWidget *parent) :
   razor_tool_(this),
   hand_tool_(this),
   zoom_tool_(this),
+  timeline_node_(nullptr),
   playhead_(0)
 {
   setScene(&scene_);
@@ -102,6 +103,20 @@ void TimelineView::RemoveBlock(Block *block)
   clip_items_.remove(block);
 }
 
+void TimelineView::AddTrack(TrackOutput *track)
+{
+  foreach (Block* b, track->Blocks()) {
+    AddBlock(b, track->Index());
+  }
+}
+
+void TimelineView::RemoveTrack(TrackOutput *track)
+{
+  foreach (Block* b, track->Blocks()) {
+    RemoveBlock(b);
+  }
+}
+
 void TimelineView::SetScale(const double &scale)
 {
   scale_ = scale;
@@ -140,6 +155,50 @@ void TimelineView::Clear()
   }
 
   clip_items_.clear();
+}
+
+void TimelineView::ConnectTimelineNode(TimelineOutput *node)
+{
+  if (timeline_node_ != nullptr) {
+    disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
+    disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    disconnect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
+    disconnect(timeline_node_, SIGNAL(BlockAdded(Block*, int)), this, SLOT(AddBlock(Block*, int)));
+    disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
+    disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
+    disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+
+    Clear();
+  }
+
+  timeline_node_ = node;
+
+  if (timeline_node_ != nullptr) {
+    qDebug() << "Connecting to" << node;
+
+    // FIXME: TEST CODE ONLY
+    SetTimebase(rational(1001, 30000));
+    emit TimebaseChanged(rational(1001, 30000));
+    // END TEST CODE
+
+    connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
+    connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    connect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
+    connect(timeline_node_, SIGNAL(BlockAdded(Block*, int)), this, SLOT(AddBlock(Block*, int)));
+    connect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
+    connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
+    connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+
+    foreach (TrackOutput* track, timeline_node_->Tracks()) {
+      // Defer to the track to make all the block UI items necessary
+      AddTrack(track);
+    }
+  }
+}
+
+void TimelineView::DisconnectTimelineNode()
+{
+  ConnectTimelineNode(nullptr);
 }
 
 void TimelineView::SetTime(const int64_t time)

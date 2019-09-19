@@ -53,7 +53,7 @@ void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
     blocks_to_ripple.append(b);
   }
 
-  emit parent()->RequestRippleBlocks(blocks_to_ripple, ripple_length, movement_mode);
+  parent()->timeline_node_->RippleBlocks(blocks_to_ripple, ripple_length, movement_mode);
 }
 
 rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem *> ghosts)

@@ -22,7 +22,6 @@
 #define TRACKOUTPUT_H
 
 #include "node/block/block.h"
-#include "panel/timeline/timeline.h"
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
@@ -46,14 +45,13 @@ public:
 
   virtual void Refresh() override;
 
+  const int& Index();
+  void SetIndex(const int& index);
+
   /**
    * @brief Override swaps "attached block" with "current block"
    */
   virtual QList<NodeDependency> RunDependencies(NodeOutput* param, const rational& time) override;
-
-  void GenerateBlockWidgets();
-
-  void DestroyBlockWidgets();
 
   TrackOutput* next_track();
 
@@ -62,6 +60,8 @@ public:
   NodeOutput* track_output();
 
   Block* NearestBlockAfter(const rational& time);
+
+  const QVector<Block*>& Blocks();
 
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
 
@@ -202,6 +202,8 @@ private:
   NodeOutput* track_output_;
 
   int block_invalidate_cache_stack_;
+
+  int index_;
 
 private slots:
 

@@ -45,7 +45,7 @@ void TimelineView::RazorTool::MouseMove(QMouseEvent *event)
   // Split at the current cursor track
   int split_track = parent()->SceneToTrack(current_scene_pos.y());
 
-  emit parent()->RequestSplitAtTime(split_time, split_track);
+  parent()->timeline_node_->SplitAtTime(split_time, split_track);
 }
 
 void TimelineView::RazorTool::MouseRelease(QMouseEvent *event)

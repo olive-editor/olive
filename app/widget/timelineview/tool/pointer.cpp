@@ -121,7 +121,7 @@ void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
     gap->setParent(&block_memory_manager);
     gap->set_length(b->length());
 
-    emit parent()->RequestReplaceBlock(b, gap, ghost->Track());
+    parent()->timeline_node_->ReplaceBlock(b, gap, ghost->Track());
   }
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
@@ -140,7 +140,7 @@ void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
       b->set_length(ghost->AdjustedLength());
     }
 
-    emit parent()->RequestPlaceBlock(b, ghost->GetAdjustedIn(), ghost->GetAdjustedTrack());
+    parent()->timeline_node_->PlaceBlock(b, ghost->GetAdjustedIn(), ghost->GetAdjustedTrack());
   }
 }
 
