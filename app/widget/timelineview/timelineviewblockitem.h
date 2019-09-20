@@ -27,13 +27,13 @@
 /**
  * @brief A graphical representation of a ClipBlock
  */
-class TimelineViewClipItem : public TimelineViewRect
+class TimelineViewBlockItem : public TimelineViewRect
 {
 public:
-  TimelineViewClipItem(QGraphicsItem* parent = nullptr);
+  TimelineViewBlockItem(QGraphicsItem* parent = nullptr);
 
-  ClipBlock* clip();
-  void SetClip(ClipBlock* clip);
+  Block* block();
+  void SetBlock(Block *block);
 
   virtual void UpdateRect() override;
 
@@ -41,7 +41,7 @@ protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  ClipBlock* clip_;
+  Block* block_;
 
 };
 

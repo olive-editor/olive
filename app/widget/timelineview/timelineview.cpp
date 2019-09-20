@@ -63,29 +63,24 @@ void TimelineView::AddBlock(Block *block, int track)
 {
   switch (block->type()) {
   case Block::kClip:
+  case Block::kGap:
   {
-    TimelineViewClipItem* clip_item = new TimelineViewClipItem();
-    ClipBlock* clip = static_cast<ClipBlock*>(block);
+    TimelineViewBlockItem* clip_item = new TimelineViewBlockItem();
 
     // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-    clip_item->SetClip(clip);
+    clip_item->SetBlock(block);
     clip_item->SetY(GetTrackY(track));
     clip_item->SetHeight(GetTrackHeight(track));
     clip_item->SetScale(scale_);
     clip_item->SetTrack(track);
 
     // Add to list of clip items that can be iterated through
-    clip_items_.insert(clip, clip_item);
+    clip_items_.insert(block, clip_item);
 
     // Add item to graphics scene
     scene_.addItem(clip_item);
 
-    connect(clip, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
-    break;
-  }
-  case Block::kGap:
-  {
-    clip_items_.insert(block, nullptr);
+    connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
     break;
   }
   case Block::kEnd:
@@ -129,6 +124,10 @@ void TimelineView::SetScale(const double &scale)
     if (iterator.value() != nullptr) {
       iterator.value()->SetScale(scale_);
     }
+  }
+
+  foreach (TimelineViewGhostItem* ghost, ghost_items_) {
+    ghost->SetScale(scale_);
   }
 
   playhead_line_->SetScale(scale_);

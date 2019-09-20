@@ -20,6 +20,8 @@
 
 #include "widget/timelineview/timelineview.h"
 
+#include "node/block/gap/gap.h"
+
 TimelineView::RippleTool::RippleTool(TimelineView* parent) :
   PointerTool(parent)
 {
@@ -44,21 +46,108 @@ void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
   // The amount to ripple by
   rational ripple_length = parent()->SceneToTime(movement.x());
 
-  QList<Block *> blocks_to_ripple;
-
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-    Block* b = Node::ValueToPtr<Block>(ghost->data(0));
+    Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    blocks_to_ripple.append(b);
+    if (b == nullptr) {
+      // This is a gap we are creating
+
+      // Make sure there's actually a gap being created
+      if (ghost->AdjustedLength() > 0) {
+        GapBlock* gap = new GapBlock();
+        gap->set_length(ghost->AdjustedLength());
+
+        Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
+
+        parent()->timeline_node_->Tracks().at(ghost->Track())->InsertBlockAfter(gap,
+                                                                                block_to_append_gap_to);
+      }
+    } else {
+      // This was a Block that already existed
+      if (ghost->AdjustedLength() > 0) {
+        b->set_length(ghost->AdjustedLength());
+
+        if (movement_mode == olive::timeline::kTrimIn) {
+          // We'll need to shift the media in point too
+          b->set_media_in(b->media_in() + ghost->InAdjustment());
+        }
+      } else {
+        // Assumed the Block was a Gap and it was reduced to zero length, remove it here
+        parent()->timeline_node_->Tracks().at(ghost->Track())->RippleRemoveBlock(b);
+      }
+    }
   }
-
-  parent()->timeline_node_->RippleBlocks(blocks_to_ripple, ripple_length, movement_mode);
 }
 
-rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem *> ghosts)
+rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
 {
-  // FIXME: Validate rippling
+  // Only validate trimming, and we don't care about "overwriting" since the ripple tool is nondestructive
+  time_movement = ValidateInTrimming(time_movement, ghosts, false);
+  time_movement = ValidateOutTrimming(time_movement, ghosts, false);
 
-  return PointerTool::FrameValidateInternal(time_movement, ghosts);
+  return time_movement;
+}
+
+void TimelineView::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
+                                              olive::timeline::MovementMode trim_mode,
+                                              bool allow_gap_trimming)
+{
+  Q_UNUSED(allow_gap_trimming)
+
+  PointerTool::InitiateGhosts(clicked_item, trim_mode, true);
+
+  if (parent()->ghost_items_.isEmpty()) {
+    return;
+  }
+
+  // Find the earliest ripple
+  rational earliest_ripple = RATIONAL_MAX;
+
+  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    rational ghost_ripple_point;
+
+    if (trim_mode == olive::timeline::kTrimIn) {
+      ghost_ripple_point = ghost->In();
+    } else {
+      ghost_ripple_point = ghost->Out();
+    }
+
+    earliest_ripple = qMin(earliest_ripple, ghost_ripple_point);
+  }
+
+  // For each track that does NOT have a ghost, we need to make one for Gaps
+  foreach (TrackOutput* track, parent()->timeline_node_->Tracks()) {
+    // Determine if we've already created a ghost on this track
+    bool ghost_on_this_track_exists = false;
+
+    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+      if (ghost->Track() == track->Index()) {
+        ghost_on_this_track_exists = true;
+        break;
+      }
+    }
+
+    // If there's no ghost on this track, create one
+    if (!ghost_on_this_track_exists) {
+      // Find the block that starts just before the ripple point, and ends either on or just after it
+      Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
+
+      // If block is null, there will be no blocks after to ripple
+      if (block_before_ripple != nullptr && block_before_ripple->type() != Block::kEnd) {
+        TimelineViewGhostItem* ghost;
+
+        if (block_before_ripple->type() == Block::kGap) {
+          // If this Block is already a Gap, ghost it now
+          ghost = AddGhostFromBlock(block_before_ripple, track->Index(), trim_mode);
+        } else {
+          // If there's no gap here, we'll need to create one
+          ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track->Index(), trim_mode);
+          ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
+        }
+
+//        ghost->SetInvisible(true);
+      }
+    }
+  }
 }

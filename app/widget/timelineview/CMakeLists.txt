@@ -24,8 +24,8 @@ set(OLIVE_SOURCES
   widget/timelineview/timelineview.cpp
   widget/timelineview/timelineviewrect.h
   widget/timelineview/timelineviewrect.cpp
-  widget/timelineview/timelineviewclipitem.h
-  widget/timelineview/timelineviewclipitem.cpp
+  widget/timelineview/timelineviewblockitem.h
+  widget/timelineview/timelineviewblockitem.cpp
   widget/timelineview/timelineviewghostitem.h
   widget/timelineview/timelineviewghostitem.cpp
   widget/timelineview/timelineviewplayheaditem.h

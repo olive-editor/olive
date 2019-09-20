@@ -18,7 +18,7 @@
 
 ***/
 
-#include "timelineviewclipitem.h"
+#include "timelineviewblockitem.h"
 
 #include <QBrush>
 #include <QGraphicsScene>
@@ -26,43 +26,47 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-TimelineViewClipItem::TimelineViewClipItem(QGraphicsItem* parent) :
+TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
   TimelineViewRect(parent),
-  clip_(nullptr)
+  block_(nullptr)
 {
   setBrush(Qt::white);
   setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
-ClipBlock *TimelineViewClipItem::clip()
+Block *TimelineViewBlockItem::block()
 {
-  return clip_;
+  return block_;
 }
 
-void TimelineViewClipItem::SetClip(ClipBlock *clip)
+void TimelineViewBlockItem::SetBlock(Block *block)
 {
-  clip_ = clip;
+  block_ = block;
 
   UpdateRect();
 }
 
-void TimelineViewClipItem::UpdateRect()
+void TimelineViewBlockItem::UpdateRect()
 {
-  if (clip_ == nullptr) {
+  if (block_ == nullptr) {
     return;
   }
 
-  double item_left = TimeToScreenCoord(clip_->in());
-  double item_width = TimeToScreenCoord(clip_->length());
+  double item_left = TimeToScreenCoord(block_->in());
+  double item_width = TimeToScreenCoord(block_->length());
 
   // -1 on width and height so we don't overlap any adjacent clips
   setRect(0, y_, item_width - 1, height_ - 1);
   setPos(item_left, 0.0);
 }
 
-void TimelineViewClipItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
   Q_UNUSED(widget)
+
+  if (block_ == nullptr || block_->type() == Block::kGap) {
+    return;
+  }
 
   QLinearGradient grad;
   grad.setStart(0, rect().top());

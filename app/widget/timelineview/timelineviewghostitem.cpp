@@ -28,28 +28,44 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   out_adj_(0),
   track_adj_(0),
   stream_(nullptr),
-  mode_(olive::timeline::kNone)
+  mode_(olive::timeline::kNone),
+  can_have_zero_length_(false)
 {
-  setBrush(Qt::NoBrush);
-  setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
+  SetInvisible(false);
 }
 
-TimelineViewGhostItem *TimelineViewGhostItem::FromClip(TimelineViewClipItem *clip_item)
+TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, int track, int y, int height)
 {
   TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
-  ghost->SetY(clip_item->Y());
-  ghost->SetHeight(clip_item->Height());
-  ghost->SetTrack(clip_item->Track());
-  ghost->setPos(clip_item->pos());
+  ghost->SetIn(block->in());
+  ghost->SetOut(block->out());
+  ghost->SetTrack(track);
+  ghost->SetY(y);
+  ghost->SetHeight(height);
+  ghost->setData(kAttachedBlock, Node::PtrToValue(block));
 
-  ClipBlock* clip = clip_item->clip();
-
-  ghost->SetIn(clip->in());
-  ghost->SetOut(clip->out());
-  ghost->setData(0, Node::PtrToValue(clip));
+  if (block->type() == Block::kGap) {
+    ghost->can_have_zero_length_ = true;
+  }
 
   return ghost;
+}
+
+bool TimelineViewGhostItem::CanHaveZeroLength()
+{
+  return can_have_zero_length_;
+}
+
+void TimelineViewGhostItem::SetInvisible(bool invisible)
+{
+  setBrush(Qt::NoBrush);
+
+  if (invisible) {
+    setPen(Qt::NoPen);
+  } else {
+    setPen(QPen(Qt::yellow, 2)); // FIXME: Make customizable via CSS
+  }
 }
 
 const rational &TimelineViewGhostItem::In() const

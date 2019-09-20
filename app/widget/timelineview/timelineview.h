@@ -29,7 +29,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/output/timeline/timeline.h"
-#include "timelineviewclipitem.h"
+#include "timelineviewblockitem.h"
 #include "timelineviewghostitem.h"
 #include "timelineviewplayheaditem.h"
 
@@ -101,6 +101,8 @@ private:
 
     TimelineView* parent();
 
+    static olive::timeline::MovementMode FlipTrimMode(const olive::timeline::MovementMode& trim_mode);
+
   protected:
     /**
      * @brief Convert a integer screen point to a float scene point
@@ -132,22 +134,6 @@ private:
      * This function's validation ensures that no Ghost's track ends up in a negative (non-existent) track.
      */
     int ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem*> ghosts);
-
-    /**
-     * @brief Validates Ghosts that are getting their in points trimmed
-     *
-     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
-     * Ghost's length becomes 0 or negative.
-     */
-    rational ValidateInTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
-
-    /**
-     * @brief Validates Ghosts that are getting their out points trimmed
-     *
-     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
-     * Ghost's length becomes 0 or negative.
-     */
-    rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts);
 
     enum SnapPoints {
       kSnapToClips = 0x1,
@@ -182,15 +168,41 @@ private:
   protected:
     void SetMovementAllowed(bool allowed);
     virtual void MouseReleaseInternal(QMouseEvent *event);
-    virtual rational FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem*>);
+    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts);
+
+    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
+                                olive::timeline::MovementMode trim_mode,
+                                bool allow_gap_trimming);
+
+    TimelineViewGhostItem* AddGhostFromBlock(Block *block, int track, olive::timeline::MovementMode mode);
+
+    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, int track, olive::timeline::MovementMode mode);
+
+    /**
+     * @brief Validates Ghosts that are getting their in points trimmed
+     *
+     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
+     * Ghost's length becomes 0 or negative.
+     */
+    rational ValidateInTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
+
+    /**
+     * @brief Validates Ghosts that are getting their out points trimmed
+     *
+     * Assumes ghost->data() is a Block. Ensures no Ghost's in point becomes a negative timecode. Also ensures no
+     * Ghost's length becomes 0 or negative.
+     */
+    rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
   private:
     void InitiateDrag(const QPoint &mouse_pos);
     void ProcessDrag(const QPoint &mouse_pos);
 
-    QList<TimelineViewClipItem*> GetSelectedClips();
+    void AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode);
 
-    bool IsClipTrimmable(TimelineViewClipItem* clip,
-                         const QList<TimelineViewClipItem*>& items,
+    QList<TimelineViewBlockItem*> GetSelectedClips();
+
+    bool IsClipTrimmable(TimelineViewBlockItem* clip,
+                         const QList<TimelineViewBlockItem*>& items,
                          const olive::timeline::MovementMode& mode);
 
     int track_start_;
@@ -225,8 +237,12 @@ private:
   public:
     RippleTool(TimelineView* parent);
   protected:
-    virtual void MouseReleaseInternal(QMouseEvent *event);
-    virtual rational FrameValidateInternal(rational time_movement, QVector<TimelineViewGhostItem*> ghosts);
+    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
+
+    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
+                                olive::timeline::MovementMode trim_mode,
+                                bool allow_gap_trimming) override;
   };
 
   class HandTool : public Tool

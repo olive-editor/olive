@@ -25,7 +25,7 @@
 
 #include "common/timelinecommon.h"
 #include "project/item/footage/footage.h"
-#include "timelineviewclipitem.h"
+#include "timelineviewblockitem.h"
 #include "timelineviewrect.h"
 
 /**
@@ -34,11 +34,19 @@
 class TimelineViewGhostItem : public TimelineViewRect
 {
 public:
-
+  enum DataType {
+    kAttachedBlock,
+    kReferenceBlock,
+    kAttachedFootage
+  };
 
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
 
-  static TimelineViewGhostItem* FromClip(TimelineViewClipItem* clip_item);
+  static TimelineViewGhostItem* FromBlock(Block *block, int track, int y, int height);
+
+  bool CanHaveZeroLength();
+
+  void SetInvisible(bool invisible);
 
   const rational& In() const;
   const rational& Out() const;
@@ -80,6 +88,8 @@ private:
   StreamPtr stream_;
 
   olive::timeline::MovementMode mode_;
+
+  bool can_have_zero_length_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

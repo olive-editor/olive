@@ -95,7 +95,7 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
         snap_points_.append(ghost->In());
         snap_points_.append(ghost->Out());
 
-        ghost->setData(0, QVariant::fromValue(stream));
+        ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
         ghost->SetMode(olive::timeline::kMove);
 
         parent()->AddGhost(ghost);
@@ -179,7 +179,7 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       opacity->setParent(&node_memory_manager);
 
       clip->set_length(ghost->Length());
-      media->SetFootage(ghost->data(0).value<StreamPtr>());
+      media->SetFootage(ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>());
 
       NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
       NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
