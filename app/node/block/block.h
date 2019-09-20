@@ -67,6 +67,9 @@ public:
   const rational& media_in();
   void set_media_in(const rational& media_in);
 
+  const QString& block_name();
+  void set_block_name(const QString& name);
+
 public slots:
   /**
    * @brief Refreshes internal cache of in/out points up to date
@@ -112,6 +115,8 @@ private:
   rational media_in_;
 
   Block* next_;
+
+  QString block_name_;
 
 private slots:
   void EdgeAddedSlot(NodeEdgePtr edge);

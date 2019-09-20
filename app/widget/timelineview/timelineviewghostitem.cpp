@@ -29,7 +29,7 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   track_adj_(0),
   stream_(nullptr),
   mode_(olive::timeline::kNone),
-  can_have_zero_length_(false)
+  can_have_zero_length_(true)
 {
   SetInvisible(false);
 }
@@ -45,8 +45,8 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, int track,
   ghost->SetHeight(height);
   ghost->setData(kAttachedBlock, Node::PtrToValue(block));
 
-  if (block->type() == Block::kGap) {
-    ghost->can_have_zero_length_ = true;
+  if (block->type() == Block::kClip) {
+    ghost->can_have_zero_length_ = false;
   }
 
   return ghost;

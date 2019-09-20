@@ -147,6 +147,18 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
+Block *TrackOutput::NearestBlockBefore(const rational &time)
+{
+  foreach (Block* block, block_cache_) {
+    // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
+    if (block->out() >= time) {
+      return block;
+    }
+  }
+
+  return nullptr;
+}
+
 Block *TrackOutput::NearestBlockAfter(const rational &time)
 {
   foreach (Block* block, block_cache_) {

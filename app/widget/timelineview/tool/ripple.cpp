@@ -134,7 +134,9 @@ void TimelineView::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_ite
       Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
 
       // If block is null, there will be no blocks after to ripple
-      if (block_before_ripple != nullptr && block_before_ripple->type() != Block::kEnd) {
+      if (block_before_ripple != nullptr
+          && block_before_ripple->type() != Block::kEnd
+          && block_before_ripple->next()->type() != Block::kEnd) {
         TimelineViewGhostItem* ghost;
 
         if (block_before_ripple->type() == Block::kGap) {
@@ -146,7 +148,7 @@ void TimelineView::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_ite
           ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
         }
 
-//        ghost->SetInvisible(true);
+        ghost->SetInvisible(true);
       }
     }
   }

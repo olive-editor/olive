@@ -58,6 +58,8 @@ void TimelineViewBlockItem::UpdateRect()
   // -1 on width and height so we don't overlap any adjacent clips
   setRect(0, y_, item_width - 1, height_ - 1);
   setPos(item_left, 0.0);
+
+  update();
 }
 
 void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -83,6 +85,8 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
   painter->setPen(Qt::white);
   painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));
   painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
+
+  painter->drawText(rect(), Qt::AlignLeft | Qt::AlignTop, block_->block_name());
 
   painter->setPen(QColor(64, 64, 64));
   painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));

@@ -64,6 +64,8 @@ const rational& Block::length()
 
 void Block::set_length(const rational &length)
 {
+  Q_ASSERT(length > 0);
+
   Lock();
 
   length_ = length;
@@ -175,6 +177,16 @@ void Block::set_media_in(const rational &media_in)
     // Signal that this clips contents have changed
     SendInvalidateCache(in(), out());
   }
+}
+
+const QString &Block::block_name()
+{
+  return block_name_;
+}
+
+void Block::set_block_name(const QString &name)
+{
+  block_name_ = name;
 }
 
 rational Block::SequenceToMediaTime(const rational &sequence_time)

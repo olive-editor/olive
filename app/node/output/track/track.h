@@ -59,6 +59,8 @@ public:
 
   NodeOutput* track_output();
 
+  Block* NearestBlockBefore(const rational& time);
+
   Block* NearestBlockAfter(const rational& time);
 
   const QVector<Block*>& Blocks();

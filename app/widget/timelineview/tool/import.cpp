@@ -179,7 +179,9 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       opacity->setParent(&node_memory_manager);
 
       clip->set_length(ghost->Length());
-      media->SetFootage(ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>());
+      StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+      media->SetFootage(footage_stream);
+      clip->set_block_name(footage_stream->footage()->name());
 
       NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
       NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
