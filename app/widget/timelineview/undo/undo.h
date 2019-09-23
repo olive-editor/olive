@@ -83,6 +83,18 @@ private:
   Block* after_;
 };
 
+class TrackPrependBlockCommand : public QUndoCommand {
+public:
+  TrackPrependBlockCommand(TrackOutput* track, Block* block, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  TrackOutput* track_;
+  Block* block_;
+};
+
 class TrackInsertBlockBetweenBlocksCommand : public QUndoCommand {
 public:
   TrackInsertBlockBetweenBlocksCommand(TrackOutput* track, Block* block, Block* before, Block* after, QUndoCommand* parent = nullptr);

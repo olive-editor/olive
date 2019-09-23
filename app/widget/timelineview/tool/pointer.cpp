@@ -32,7 +32,9 @@
 
 TimelineView::PointerTool::PointerTool(TimelineView *parent) :
   Tool(parent),
-  movement_allowed_(true)
+  movement_allowed_(true),
+  trimming_allowed_(true),
+  track_movement_allowed_(true)
 {
 }
 
@@ -105,6 +107,16 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
 void TimelineView::PointerTool::SetMovementAllowed(bool allowed)
 {
   movement_allowed_ = allowed;
+}
+
+void TimelineView::PointerTool::SetTrackMovementAllowed(bool allowed)
+{
+  track_movement_allowed_ = allowed;
+}
+
+void TimelineView::PointerTool::SetTrimmingAllowed(bool allowed)
+{
+  trimming_allowed_ = allowed;
 }
 
 void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
@@ -187,9 +199,9 @@ void TimelineView::PointerTool::InitiateDrag(const QPoint& mouse_pos)
     // FIXME: Hardcoded number
     const int kTrimHandle = 20;
 
-    if (drag_start_.x() < clicked_item->x() + kTrimHandle) {
+    if (trimming_allowed_ && drag_start_.x() < clicked_item->x() + kTrimHandle) {
       trim_mode = olive::timeline::kTrimIn;
-    } else if (drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
+    } else if (trimming_allowed_ && drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
       trim_mode = olive::timeline::kTrimOut;
     } else if (movement_allowed_) {
       // Some derived classes don't allow movement
@@ -216,7 +228,11 @@ void TimelineView::PointerTool::ProcessDrag(const QPoint &mouse_pos)
 
   // Determine track movement
   int cursor_track = parent()->SceneToTrack(scene_pos.y());
-  int track_movement = cursor_track - track_start_;
+  int track_movement = 0;
+
+  if (track_movement_allowed_) {
+    track_movement = cursor_track - track_start_;
+  }
 
   // Determine frame movement
   rational time_movement = parent()->SceneToTime(movement.x());

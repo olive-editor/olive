@@ -414,3 +414,20 @@ void TrackReplaceBlockCommand::undo()
 {
   track_->ReplaceBlock(replace_, old_);
 }
+
+TrackPrependBlockCommand::TrackPrependBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  track_(track),
+  block_(block)
+{
+}
+
+void TrackPrependBlockCommand::redo()
+{
+  track_->PrependBlock(block_);
+}
+
+void TrackPrependBlockCommand::undo()
+{
+  track_->RippleRemoveBlock(block_);
+}

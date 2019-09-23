@@ -22,6 +22,7 @@ set(OLIVE_SOURCES
   widget/timelineview/tool/razor.cpp
   widget/timelineview/tool/ripple.cpp
   widget/timelineview/tool/rolling.cpp
+  widget/timelineview/tool/slide.cpp
   widget/timelineview/tool/tool.cpp
   widget/timelineview/tool/zoom.cpp
   PARENT_SCOPE

@@ -39,6 +39,7 @@ TimelineView::TimelineView(QWidget *parent) :
   ripple_tool_(this),
   rolling_tool_(this),
   razor_tool_(this),
+  slide_tool_(this),
   hand_tool_(this),
   zoom_tool_(this),
   timeline_node_(nullptr),
@@ -272,7 +273,7 @@ TimelineView::Tool *TimelineView::GetActiveTool()
   case olive::tool::kSlip:
     return nullptr; // FIXME: Implement
   case olive::tool::kSlide:
-    return nullptr; // FIXME: Implement
+    return &slide_tool_;
   case olive::tool::kHand:
     return &hand_tool_;
   case olive::tool::kZoom:

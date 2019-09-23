@@ -169,6 +169,8 @@ private:
     virtual void MouseRelease(QMouseEvent *event) override;
   protected:
     void SetMovementAllowed(bool allowed);
+    void SetTrackMovementAllowed(bool allowed);
+    void SetTrimmingAllowed(bool allowed);
     virtual void MouseReleaseInternal(QMouseEvent *event);
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts);
 
@@ -209,6 +211,8 @@ private:
 
     int track_start_;
     bool movement_allowed_;
+    bool trimming_allowed_;
+    bool track_movement_allowed_;
   };
 
   class ImportTool : public Tool
@@ -264,6 +268,19 @@ private:
                                 bool allow_gap_trimming) override;
   };
 
+  class SlideTool : public PointerTool
+  {
+  public:
+    SlideTool(TimelineView* parent);
+
+  protected:
+    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
+    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
+                                olive::timeline::MovementMode trim_mode,
+                                bool allow_gap_trimming) override;
+  };
+
   class HandTool : public Tool
   {
   public:
@@ -298,6 +315,7 @@ private:
   RippleTool ripple_tool_;
   RollingTool rolling_tool_;
   RazorTool razor_tool_;
+  SlideTool slide_tool_;
   HandTool hand_tool_;
   ZoomTool zoom_tool_;
 
