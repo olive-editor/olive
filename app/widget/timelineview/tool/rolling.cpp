@@ -32,10 +32,6 @@ void TimelineView::RollingTool::MouseReleaseInternal(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  if (parent()->ghost_items_.isEmpty()) {
-    return;
-  }
-
   QUndoCommand* command = new QUndoCommand();
 
   // Find earliest point to ripple around

@@ -24,8 +24,6 @@
 
 TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   TimelineViewRect(parent),
-  in_adj_(0),
-  out_adj_(0),
   track_adj_(0),
   stream_(nullptr),
   mode_(olive::timeline::kNone),
@@ -40,6 +38,7 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, int track,
 
   ghost->SetIn(block->in());
   ghost->SetOut(block->out());
+  ghost->SetMediaIn(block->media_in());
   ghost->SetTrack(track);
   ghost->SetY(y);
   ghost->SetHeight(height);
@@ -78,6 +77,11 @@ const rational &TimelineViewGhostItem::Out() const
   return out_;
 }
 
+const rational &TimelineViewGhostItem::MediaIn() const
+{
+  return media_in_;
+}
+
 rational TimelineViewGhostItem::Length() const
 {
   return out_ - in_;
@@ -102,6 +106,11 @@ void TimelineViewGhostItem::SetOut(const rational &out)
   UpdateRect();
 }
 
+void TimelineViewGhostItem::SetMediaIn(const rational &media_in)
+{
+  media_in_ = media_in;
+}
+
 void TimelineViewGhostItem::SetInAdjustment(const rational &in_adj)
 {
   in_adj_ = in_adj;
@@ -121,6 +130,11 @@ void TimelineViewGhostItem::SetTrackAdjustment(const int &track_adj)
   track_adj_ = track_adj;
 }
 
+void TimelineViewGhostItem::SetMediaInAdjustment(const rational &media_in_adj)
+{
+  media_in_adj_ = media_in_adj;
+}
+
 const rational &TimelineViewGhostItem::InAdjustment() const
 {
   return in_adj_;
@@ -129,6 +143,11 @@ const rational &TimelineViewGhostItem::InAdjustment() const
 const rational &TimelineViewGhostItem::OutAdjustment() const
 {
   return out_adj_;
+}
+
+const rational &TimelineViewGhostItem::MediaInAdjustment() const
+{
+  return media_in_adj_;
 }
 
 const int &TimelineViewGhostItem::TrackAdjustment() const
@@ -144,6 +163,11 @@ rational TimelineViewGhostItem::GetAdjustedIn() const
 rational TimelineViewGhostItem::GetAdjustedOut() const
 {
   return out_ + out_adj_;
+}
+
+rational TimelineViewGhostItem::GetAdjustedMediaIn() const
+{
+  return media_in_ + media_in_adj_;
 }
 
 int TimelineViewGhostItem::GetAdjustedTrack() const

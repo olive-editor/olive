@@ -50,23 +50,28 @@ public:
 
   const rational& In() const;
   const rational& Out() const;
+  const rational& MediaIn() const;
 
   rational Length() const;
   rational AdjustedLength() const;
 
   void SetIn(const rational& in);
   void SetOut(const rational& out);
+  void SetMediaIn(const rational& media_in);
 
   void SetInAdjustment(const rational& in_adj);
   void SetOutAdjustment(const rational& out_adj);
   void SetTrackAdjustment(const int& track_adj);
+  void SetMediaInAdjustment(const rational& media_in_adj);
 
   const rational& InAdjustment() const;
   const rational& OutAdjustment() const;
+  const rational& MediaInAdjustment() const;
   const int& TrackAdjustment() const;
 
   rational GetAdjustedIn() const;
   rational GetAdjustedOut() const;
+  rational GetAdjustedMediaIn() const;
   int GetAdjustedTrack() const;
 
   const olive::timeline::MovementMode& mode() const;
@@ -79,9 +84,11 @@ protected:
 private:
   rational in_;
   rational out_;
+  rational media_in_;
 
   rational in_adj_;
   rational out_adj_;
+  rational media_in_adj_;
 
   int track_adj_;
 

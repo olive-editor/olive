@@ -94,7 +94,9 @@ void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
   // Default QGraphicsView behavior (item selection)
   parent()->QGraphicsView::mouseReleaseEvent(event);
 
-  MouseReleaseInternal(event);
+  if (!parent()->ghost_items_.isEmpty()) {
+    MouseReleaseInternal(event);
+  }
 
   if (dragging_) {
     parent()->ClearGhosts();

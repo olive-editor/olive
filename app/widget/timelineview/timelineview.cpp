@@ -40,6 +40,7 @@ TimelineView::TimelineView(QWidget *parent) :
   rolling_tool_(this),
   razor_tool_(this),
   slide_tool_(this),
+  slip_tool_(this),
   hand_tool_(this),
   zoom_tool_(this),
   timeline_node_(nullptr),
@@ -271,7 +272,7 @@ TimelineView::Tool *TimelineView::GetActiveTool()
   case olive::tool::kRazor:
     return &razor_tool_;
   case olive::tool::kSlip:
-    return nullptr; // FIXME: Implement
+    return &slip_tool_;
   case olive::tool::kSlide:
     return &slide_tool_;
   case olive::tool::kHand:
@@ -386,4 +387,3 @@ void TimelineView::UpdateSceneRect()
 
   scene_.setSceneRect(bounding_rect);
 }
-

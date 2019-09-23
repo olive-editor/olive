@@ -32,10 +32,6 @@ void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
 {
   Q_UNUSED(event)
 
-  if (parent()->ghost_items_.isEmpty()) {
-    return;
-  }
-
   // For ripple operations, all ghosts will be moving the same way
   olive::timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
 

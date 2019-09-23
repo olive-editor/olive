@@ -197,9 +197,10 @@ private:
      * Ghost's length becomes 0 or negative.
      */
     rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
+
+    virtual void ProcessDrag(const QPoint &mouse_pos);
   private:
     void InitiateDrag(const QPoint &mouse_pos);
-    void ProcessDrag(const QPoint &mouse_pos);
 
     void AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode);
 
@@ -281,6 +282,16 @@ private:
                                 bool allow_gap_trimming) override;
   };
 
+  class SlipTool : public PointerTool
+  {
+  public:
+    SlipTool(TimelineView* parent);
+
+  protected:
+    virtual void ProcessDrag(const QPoint &mouse_pos) override;
+    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+  };
+
   class HandTool : public Tool
   {
   public:
@@ -316,6 +327,7 @@ private:
   RollingTool rolling_tool_;
   RazorTool razor_tool_;
   SlideTool slide_tool_;
+  SlipTool slip_tool_;
   HandTool hand_tool_;
   ZoomTool zoom_tool_;
 
