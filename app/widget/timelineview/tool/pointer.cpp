@@ -21,9 +21,12 @@
 #include "widget/timelineview/timelineview.h"
 
 #include <QDebug>
+#include <QToolTip>
 
 #include "common/clamp.h"
 #include "common/range.h"
+#include "common/timecodefunctions.h"
+#include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"
 
@@ -112,6 +115,8 @@ void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
   // get cleaned up if they aren't re-parented by the attached NodeGraph
   QObject block_memory_manager;
 
+  QUndoCommand* command = new QUndoCommand();
+
   // Since all the ghosts will be leaving their old position in some way, we replace all of them with gaps here so the
   // entire timeline isn't disrupted in the process
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
@@ -122,7 +127,7 @@ void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
     gap->setParent(&block_memory_manager);
     gap->set_length(b->length());
 
-    parent()->timeline_node_->ReplaceBlock(b, gap, ghost->Track());
+    new TrackReplaceBlockCommand(parent()->timeline_node_->TrackAt(ghost->Track()), b, gap, command);
   }
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
@@ -136,14 +141,16 @@ void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
 
       // If we were trimming the in point, we'll need to adjust the media in too
       if (ghost->mode() == olive::timeline::kTrimIn) {
-        b->set_media_in(b->media_in() + ghost->InAdjustment());
+        new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
+      } else {
+        new BlockResizeCommand(b, ghost->AdjustedLength(), command);
       }
-
-      b->set_length(ghost->AdjustedLength());
     }
 
-    parent()->timeline_node_->PlaceBlock(b, ghost->GetAdjustedIn(), ghost->GetAdjustedTrack());
+    new TrackPlaceBlockCommand(parent()->timeline_node_, ghost->GetAdjustedTrack(), b, ghost->GetAdjustedIn(), command);
   }
+
+  olive::undo_stack.pushIfHasChildren(command);
 }
 
 rational TimelineView::PointerTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *>& ghosts)
@@ -248,6 +255,17 @@ void TimelineView::PointerTool::ProcessDrag(const QPoint &mouse_pos)
     }
     }
   }
+
+  // Show tooltip
+  // Generate tooltip (showing earliest in point of imported clip)
+  int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase_);
+  QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
+                                                      parent()->timebase_,
+                                                      kTimecodeDisplay,
+                                                      true);
+  QToolTip::showText(QCursor::pos(),
+                     tooltip_text,
+                     parent());
 }
 
 void TimelineView::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_item,

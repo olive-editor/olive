@@ -27,6 +27,8 @@ TimelineView::RazorTool::RazorTool(TimelineView* parent) :
 
 void TimelineView::RazorTool::MousePress(QMouseEvent *event)
 {
+  split_tracks_.clear();
+
   MouseMove(event);
 }
 
@@ -39,18 +41,30 @@ void TimelineView::RazorTool::MouseMove(QMouseEvent *event)
 
   QPointF current_scene_pos = GetScenePos(event->pos());
 
-  // Always split at the same time
-  rational split_time = parent()->SceneToTime(drag_start_.x());
-
   // Split at the current cursor track
   int split_track = parent()->SceneToTrack(current_scene_pos.y());
 
-  parent()->timeline_node_->SplitAtTime(split_time, split_track);
+  if (!split_tracks_.contains(split_track)) {
+    split_tracks_.append(split_track);
+  }
 }
 
 void TimelineView::RazorTool::MouseRelease(QMouseEvent *event)
 {
   Q_UNUSED(event)
+
+  // Always split at the same time
+  rational split_time = parent()->SceneToTime(drag_start_.x());
+
+  QUndoCommand* command = new QUndoCommand();
+
+  foreach (int track, split_tracks_) {
+    new TrackSplitAtTimeCommand(parent()->timeline_node_->TrackAt(track), split_time, command);
+  }
+
+  split_tracks_.clear();
+
+  olive::undo_stack.pushIfHasChildren(command);
 
   dragging_ = false;
 }

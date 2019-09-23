@@ -340,11 +340,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
       }
     }
 
-    if (move_command->childCount() > 0) {
-      olive::undo_stack.push(move_command);
-    } else {
-      delete move_command;
-    }
+    olive::undo_stack.pushIfHasChildren(move_command);
 
     return true;
 

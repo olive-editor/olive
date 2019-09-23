@@ -37,6 +37,7 @@ TimelineView::TimelineView(QWidget *parent) :
   pointer_tool_(this),
   import_tool_(this),
   ripple_tool_(this),
+  rolling_tool_(this),
   razor_tool_(this),
   hand_tool_(this),
   zoom_tool_(this),
@@ -65,20 +66,20 @@ void TimelineView::AddBlock(Block *block, int track)
   case Block::kClip:
   case Block::kGap:
   {
-    TimelineViewBlockItem* clip_item = new TimelineViewBlockItem();
+    TimelineViewBlockItem* item = new TimelineViewBlockItem();
 
     // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-    clip_item->SetBlock(block);
-    clip_item->SetY(GetTrackY(track));
-    clip_item->SetHeight(GetTrackHeight(track));
-    clip_item->SetScale(scale_);
-    clip_item->SetTrack(track);
+    item->SetBlock(block);
+    item->SetY(GetTrackY(track));
+    item->SetHeight(GetTrackHeight(track));
+    item->SetScale(scale_);
+    item->SetTrack(track);
 
     // Add to list of clip items that can be iterated through
-    clip_items_.insert(block, clip_item);
+    block_items_.insert(block, item);
 
     // Add item to graphics scene
-    scene_.addItem(clip_item);
+    scene_.addItem(item);
 
     connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
     break;
@@ -93,9 +94,9 @@ void TimelineView::AddBlock(Block *block, int track)
 
 void TimelineView::RemoveBlock(Block *block)
 {
-  delete clip_items_[block];
+  delete block_items_[block];
 
-  clip_items_.remove(block);
+  block_items_.remove(block);
 }
 
 void TimelineView::AddTrack(TrackOutput *track)
@@ -116,7 +117,7 @@ void TimelineView::SetScale(const double &scale)
 {
   scale_ = scale;
 
-  QMapIterator<Block*, TimelineViewRect*> iterator(clip_items_);
+  QMapIterator<Block*, TimelineViewRect*> iterator(block_items_);
 
   while (iterator.hasNext()) {
     iterator.next();
@@ -143,7 +144,7 @@ void TimelineView::SetTimebase(const rational &timebase)
 
 void TimelineView::Clear()
 {
-  QMapIterator<Block*, TimelineViewRect*> iterator(clip_items_);
+  QMapIterator<Block*, TimelineViewRect*> iterator(block_items_);
 
   while (iterator.hasNext()) {
     iterator.next();
@@ -153,7 +154,7 @@ void TimelineView::Clear()
     }
   }
 
-  clip_items_.clear();
+  block_items_.clear();
 }
 
 void TimelineView::ConnectTimelineNode(TimelineOutput *node)
@@ -265,7 +266,7 @@ TimelineView::Tool *TimelineView::GetActiveTool()
   case olive::tool::kRipple:
     return &ripple_tool_;
   case olive::tool::kRolling:
-    return nullptr; // FIXME: Implement
+    return &rolling_tool_;
   case olive::tool::kRazor:
     return &razor_tool_;
   case olive::tool::kSlip:
@@ -353,7 +354,7 @@ void TimelineView::ClearGhosts()
 
 void TimelineView::BlockChanged()
 {
-  TimelineViewRect* rect = clip_items_[static_cast<Block*>(sender())];
+  TimelineViewRect* rect = block_items_[static_cast<Block*>(sender())];
 
   if (rect != nullptr) {
     rect->UpdateRect();

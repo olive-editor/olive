@@ -158,6 +158,11 @@ public:
   const QVector<NodeEdgePtr>& edges();
 
   /**
+   * @brief Disconnect any edges connecting this parameter to other parameters
+   */
+  void DisconnectAll();
+
+  /**
    * @brief Determine whether two DataTypes are compatible and therefore whether two NodeParams can be connected
    *
    * Obviously a data type is compatible with itself, but sometimes fundamentally separate data types may still be

@@ -32,6 +32,8 @@
 #include "timelineviewblockitem.h"
 #include "timelineviewghostitem.h"
 #include "timelineviewplayheaditem.h"
+#include "widget/timelineview/undo/undo.h"
+#include "undo/undostack.h"
 
 /**
  * @brief A widget for viewing and interacting Sequences
@@ -230,12 +232,29 @@ private:
     virtual void MousePress(QMouseEvent *event);
     virtual void MouseMove(QMouseEvent *event);
     virtual void MouseRelease(QMouseEvent *event);
+
+  private:
+    QVector<int> split_tracks_;
   };
 
   class RippleTool : public PointerTool
   {
   public:
     RippleTool(TimelineView* parent);
+  protected:
+    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
+
+    virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
+                                olive::timeline::MovementMode trim_mode,
+                                bool allow_gap_trimming) override;
+  };
+
+  class RollingTool : public PointerTool
+  {
+  public:
+    RollingTool(TimelineView* parent);
+
   protected:
     virtual void MouseReleaseInternal(QMouseEvent *event) override;
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
@@ -277,6 +296,7 @@ private:
   PointerTool pointer_tool_;
   ImportTool import_tool_;
   RippleTool ripple_tool_;
+  RollingTool rolling_tool_;
   RazorTool razor_tool_;
   HandTool hand_tool_;
   ZoomTool zoom_tool_;
@@ -302,7 +322,7 @@ private:
 
   int64_t playhead_;
 
-  QMap<Block*, TimelineViewRect*> clip_items_;
+  QMap<Block*, TimelineViewRect*> block_items_;
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 

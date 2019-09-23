@@ -75,6 +75,15 @@ void Block::set_length(const rational &length)
   Refresh();
 }
 
+void Block::set_length_and_media_in(const rational &length)
+{
+  // Calculate media_in adjustment
+  set_media_in(media_in_ + (length_ - length));
+
+  // Set the length
+  set_length(length);
+}
+
 Block *Block::previous()
 {
   return ValueToPtr<Block>(previous_input_->get_value(0));
@@ -171,12 +180,16 @@ const rational &Block::media_in()
 
 void Block::set_media_in(const rational &media_in)
 {
+  Lock();
+
   if (media_in_ != media_in) {
     media_in_ = media_in;
 
     // Signal that this clips contents have changed
     SendInvalidateCache(in(), out());
   }
+
+  Unlock();
 }
 
 const QString &Block::block_name()

@@ -50,8 +50,9 @@ public:
   const rational& in();
   const rational& out();
 
-  virtual const rational &length();
-  virtual void set_length(const rational &length);
+  const rational &length();
+  void set_length(const rational &length);
+  void set_length_and_media_in(const rational &length);
 
   Block* previous();
   Block* next();

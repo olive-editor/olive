@@ -31,6 +31,7 @@ extern "C" {
 #include <QtMath>
 
 #include "common/filefunctions.h"
+#include "common/timecodefunctions.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -326,7 +327,7 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
   }
 
   // Convert timecode to AVStream timebase
-  int64_t target_ts = qRound64(time.toDouble() * rational(avstream_->time_base).flipped().toDouble());
+  int64_t target_ts = olive::time_to_timestamp(time, avstream_->time_base);
 
   // Find closest actual timebase in the file
   target_ts = GetClosestTimestampInIndex(target_ts);

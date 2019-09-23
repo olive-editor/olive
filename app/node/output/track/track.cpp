@@ -71,11 +71,6 @@ QString TrackOutput::Description()
             "a Sequence.");
 }
 
-void TrackOutput::set_length(const rational &)
-{
-  // Prevent length changing on this Block
-}
-
 void TrackOutput::Refresh()
 {
   QVector<Block*> detect_attached_blocks;
@@ -337,31 +332,6 @@ void TrackOutput::UnblockInvalidateCache()
   block_invalidate_cache_stack_--;
 }
 
-void TrackOutput::PlaceBlock(Block *block, rational start)
-{
-  if (block_cache_.contains(block) && block->in() == start) {
-    return;
-  }
-
-  AddBlockToGraph(block);
-
-  // Check if the placement location is past the end of the timeline
-  if (start >= in()) {
-    if (start > in()) {
-      // If so, insert a gap here
-      GapBlock* gap = new GapBlock();
-      gap->set_length(start - in());
-      AppendBlock(gap);
-    }
-
-    AppendBlock(block);
-    return;
-  }
-
-  // Place the Block at this point
-  RippleRemoveArea(start, start + block->length(), block);
-}
-
 void TrackOutput::RemoveBlock(Block *block)
 {
   GapBlock* gap = new GapBlock();
@@ -407,136 +377,6 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   InvalidateCache(remove_in, in());
 
   // FIXME: Should there be removing the Blocks from the graph?
-}
-
-Block* TrackOutput::SplitBlock(Block *block, rational time)
-{
-  if (time <= block->in() || time >= block->out()) {
-    return nullptr;
-  }
-
-  BlockInvalidateCache();
-
-  rational original_length = block->length();
-
-  block->set_length(time - block->in());
-
-  Block* copy = block->copy();
-  copy->set_length(original_length - block->length());
-  copy->set_media_in(block->media_in() + block->length());
-
-  InsertBlockAfter(copy, block);
-
-  Node::CopyInputs(block, copy);
-
-  UnblockInvalidateCache();
-
-  return copy;
-}
-
-void TrackOutput::SplitAtTime(rational time)
-{
-  // Find Block that contains this time
-  for (int i=0;i<block_cache_.size();i++) {
-    Block* b = block_cache_.at(i);
-
-    if (b->out() == time) {
-      // This time is between blocks, no split needs to occur
-      return;
-    } else if (b->in() < time && b->out() > time) {
-      // We found the Block, split it
-      SplitBlock(b, time);
-      return;
-    }
-  }
-}
-
-void TrackOutput::RippleRemoveArea(rational in, rational out, Block *insert)
-{
-  // Block that needs to be split to remove this area
-  Block* splice = nullptr;
-
-  // Block whose out point exceeds `in` and needs to be trimmed
-  Block* trim_out_to_in = nullptr;
-
-  // Block whose in point exceeds `out` and needs to be trimmed
-  Block* trim_in_to_out = nullptr;
-
-  // Blocks that are entirely within the area and need removing
-  QList<Block*> remove;
-
-  // Iterate through blocks determining which need trimming/removing/splitting
-  foreach (Block* block, block_cache_) {
-    if (block->in() < in && block->out() > out) {
-      // The area entirely within this Block
-      splice = block;
-
-      // We don't need to do anything else here
-      break;
-    } else if (block->in() >= in && block->out() <= out) {
-      // This Block's is entirely within the area
-      remove.append(block);
-    } else if (block->in() < in && block->out() >= in) {
-      // This Block's out point exceeds `in`
-      trim_out_to_in = block;
-    } else if (block->in() <= out && block->out() > out) {
-      // This Block's in point exceeds `out`
-      trim_in_to_out = block;
-    }
-  }
-
-  BlockInvalidateCache();
-
-  // If we picked up a block to splice
-  if (splice != nullptr) {
-
-    // Split the block here
-    Block* copy = SplitBlock(splice, in);
-
-    // Perform all further actions as if we were just trimming these clips
-    trim_out_to_in = splice;
-    trim_in_to_out = copy;
-
-  }
-
-  // If we picked up a block to trim the in point of
-  if (trim_in_to_out != nullptr && trim_in_to_out->in() < out) {
-    rational new_length = trim_in_to_out->out() - out;
-
-    // Push media_in forward to compensate
-    rational length_diff = trim_in_to_out->length() - new_length;
-    trim_in_to_out->set_media_in(trim_in_to_out->media_in() - length_diff);
-
-    trim_in_to_out->set_length(new_length);
-  }
-
-  // Remove all blocks that are flagged for removal
-  foreach (Block* remove_block, remove) {
-    RippleRemoveBlock(remove_block);
-  }
-
-  // If we picked up a block to trim the out point of
-  if (trim_out_to_in != nullptr && trim_out_to_in->out() > in) {
-    trim_out_to_in->set_length(in - trim_out_to_in->in());
-  }
-
-  // If we were given a block to insert, insert it here
-  if (insert != nullptr) {
-    if (trim_out_to_in == nullptr) {
-      // This is the start of the Sequence
-      PrependBlock(insert);
-    } else if (trim_in_to_out == nullptr) {
-      // This is the end of the Sequence
-      AppendBlock(insert);
-    } else {
-      // This is somewhere in the middle of the Sequence
-      InsertBlockBetweenBlocks(insert, trim_out_to_in, trim_in_to_out);
-    }
-  }
-
-  UnblockInvalidateCache();
-
-  InvalidateCache(in, out);
 }
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)

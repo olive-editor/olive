@@ -174,6 +174,11 @@ public:
   bool HasConnectedOutputs();
 
   /**
+   * @brief Severs all input and output connections
+   */
+  void DisconnectAll();
+
+  /**
    * @brief Add's unique information about this Node at the given time to a QCryptographicHash
    */
   virtual void Hash(QCryptographicHash* hash, NodeOutput *from, const rational& time);

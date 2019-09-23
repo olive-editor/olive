@@ -458,11 +458,7 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     dragging_edge_ = nullptr;
 
-    if (node_edge_change_command_->childCount() > 0) {
-      olive::undo_stack.push(node_edge_change_command_);
-    } else {
-      delete node_edge_change_command_;
-    }
+    olive::undo_stack.pushIfHasChildren(node_edge_change_command_);
     node_edge_change_command_ = nullptr;
     return;
   }

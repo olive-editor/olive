@@ -78,6 +78,13 @@ const QVector<NodeEdgePtr> &NodeParam::edges()
   return edges_;
 }
 
+void NodeParam::DisconnectAll()
+{
+  while (!edges_.isEmpty()) {
+    DisconnectEdge(edges_.first());
+  }
+}
+
 bool NodeParam::AreDataTypesCompatible(NodeParam *a, NodeParam *b)
 {
   // Make sure one is an input and one is an output
@@ -158,6 +165,10 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
   }
 
   NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
+
+  // The nodes should never be the same, and since we lock both nodes here, this can lead to a entire program freeze
+  // that's difficult to diagnose. This makes that issue very clear.
+  Q_ASSERT(output->parent() != input->parent());
 
   output->parent()->Lock();
   input->parent()->Lock();

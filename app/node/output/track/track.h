@@ -41,8 +41,6 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
-  virtual void set_length(const rational &length) override;
-
   virtual void Refresh() override;
 
   const int& Index();
@@ -105,15 +103,6 @@ public:
   void AppendBlock(Block* block);
 
   /**
-   * @brief Destructively places `block` at the in point `start`
-   *
-   * The Block is guaranteed to be placed at the starting point specified. If there are Blocks in this area, they are
-   * either trimmed or removed to make space for this Block. Additionally, if the Block is placed beyond the end of
-   * the Sequence, a GapBlock is inserted to compensate.
-   */
-  void PlaceBlock(Block* block, rational start);
-
-  /**
    * @brief Removes a Block and places a Gap in its place
    */
   void RemoveBlock(Block* block);
@@ -124,36 +113,22 @@ public:
   void RippleRemoveBlock(Block* block);
 
   /**
-   * @brief Splits `block` into two Blocks at the Sequence point `time`
-   *
-   * @return
-   *
-   * The second block created as a result of this split
-   */
-  Block *SplitBlock(Block* block, rational time);
-
-  /**
-   * @brief Attempt to split at a certain time
-   *
-   * Finds the Block that surrounds this time and splits it. If there is no Block there, this is a no-op.
-   */
-  void SplitAtTime(rational time);
-
-  /**
-   * @brief Clears the area between in and out
-   *
-   * The area between `in` and `out` is guaranteed to be freed. BLocks are trimmed and removed to free this space.
-   * By default, nothing takes this area meaning all subsequent clips are pushed backward, however you can specify
-   * a block to insert at the `in` point. No checking is done to ensure `insert` is the same length as `in` to `out`.
-   */
-  void RippleRemoveArea(rational in, rational out, Block* insert = nullptr);
-
-  /**
    * @brief Replaces Block `old` with Block `replace`
    *
    * Both blocks must have equal lengths.
    */
   void ReplaceBlock(Block* old, Block* replace);
+
+  void BlockInvalidateCache();
+
+  void UnblockInvalidateCache();
+
+  /**
+   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
+   *
+   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
+   */
+  void AddBlockToGraph(Block* block);
 
 signals:
   /**
@@ -181,19 +156,9 @@ private:
   void RemoveBlockInternal();
 
   /**
-   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
-   *
-   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
-   */
-  void AddBlockToGraph(Block* block);
-
-  /**
    * @brief Sets current_block_ to the correct attached Block based on `time`
    */
   void ValidateCurrentBlock(const rational& time);
-
-  void BlockInvalidateCache();
-  void UnblockInvalidateCache();
 
   QVector<Block*> block_cache_;
 

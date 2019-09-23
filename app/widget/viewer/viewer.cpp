@@ -26,6 +26,7 @@
 #include <QtMath>
 #include <QVBoxLayout>
 
+#include "common/timecodefunctions.h"
 #include "viewersizer.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
@@ -94,7 +95,7 @@ const double &ViewerWidget::scale()
 
 rational ViewerWidget::GetTime()
 {
-  return rational(ruler_->GetTime()) * time_base_;
+  return olive::timestamp_to_time(ruler_->GetTime(), time_base_);
 }
 
 void ViewerWidget::SetScale(const double &scale_)

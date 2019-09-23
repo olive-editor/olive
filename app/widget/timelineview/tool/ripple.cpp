@@ -36,15 +36,10 @@ void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
     return;
   }
 
-  // Retrieve cursor position difference
-  QPointF scene_pos = GetScenePos(event->pos());
-  QPointF movement = scene_pos - drag_start_;
-
   // For ripple operations, all ghosts will be moving the same way
   olive::timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
 
-  // The amount to ripple by
-  rational ripple_length = parent()->SceneToTime(movement.x());
+  QUndoCommand* command = new QUndoCommand();
 
   // Find earliest point to ripple around
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
@@ -60,24 +55,28 @@ void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
 
         Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
 
-        parent()->timeline_node_->Tracks().at(ghost->Track())->InsertBlockAfter(gap,
-                                                                                block_to_append_gap_to);
+        new TrackInsertBlockBetweenBlocksCommand(parent()->timeline_node_->Tracks().at(ghost->Track()),
+                                                 gap,
+                                                 block_to_append_gap_to,
+                                                 block_to_append_gap_to->next());
       }
     } else {
       // This was a Block that already existed
       if (ghost->AdjustedLength() > 0) {
-        b->set_length(ghost->AdjustedLength());
-
         if (movement_mode == olive::timeline::kTrimIn) {
           // We'll need to shift the media in point too
-          b->set_media_in(b->media_in() + ghost->InAdjustment());
+          new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
+        } else {
+          new BlockResizeCommand(b, ghost->AdjustedLength(), command);
         }
       } else {
         // Assumed the Block was a Gap and it was reduced to zero length, remove it here
-        parent()->timeline_node_->Tracks().at(ghost->Track())->RippleRemoveBlock(b);
+        new TrackRippleRemoveBlockCommand(parent()->timeline_node_->Tracks().at(ghost->Track()), b, command);
       }
     }
   }
+
+  olive::undo_stack.pushIfHasChildren(command);
 }
 
 rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)

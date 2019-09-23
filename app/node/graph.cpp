@@ -59,10 +59,12 @@ void NodeGraph::TakeNode(Node *node, QObject* new_parent)
     return;
   }
 
-  node->setParent(new_parent);
+  node->DisconnectAll();
 
   disconnect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   disconnect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+
+  node->setParent(new_parent);
 
   emit NodeRemoved(node);
 }

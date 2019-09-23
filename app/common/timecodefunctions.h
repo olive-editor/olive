@@ -37,7 +37,11 @@ enum TimecodeDisplay {
 /**
  * @brief Convert a timestamp (according to a rational timebase) to a user-friendly string representation
  */
-QString timestamp_to_timecode(const int64_t &timestamp, const rational& timebase, const TimecodeDisplay& display);
+QString timestamp_to_timecode(const int64_t &timestamp, const rational& timebase, const TimecodeDisplay& display, bool show_plus_if_positive = false);
+
+int64_t time_to_timestamp(const rational& time, const rational& timebase);
+
+rational timestamp_to_time(const int64_t& timestamp, const rational& timebase);
 
 }
 

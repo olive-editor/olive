@@ -48,6 +48,12 @@ public:
 
   const QVector<TrackOutput*>& Tracks();
 
+  TrackOutput* TrackAt(int index);
+
+  void AddTrack();
+
+  void RemoveTrack();
+
 public slots:
   /**
    * @brief Slot for when the track connection is added
@@ -79,31 +85,6 @@ public slots:
    */
   void TrackEdgeRemoved(NodeEdgePtr edge);
 
-  /**
-   * @brief Forwards a PlaceBlock signal to the requested track
-   *
-   * If the track index doesn't exist, tracks are automatically created until a track at that index does exist
-   * (provided the track index is positive). A negative track index fails immediately.
-   */
-  void PlaceBlock(Block* block, rational start, int track);
-
-  /**
-   * @brief Forwards a ReplaceBlock signal to the appropriate track
-   */
-  void ReplaceBlock(Block* old, Block* replace, int track);
-
-  /**
-   * @brief Forwards a SplitAtTime signal to the appropriate track
-   */
-  void SplitAtTime(rational time, int track);
-
-  /**
-   * @brief Resizes a Block
-   */
-  void ResizeBlock(Block* block, rational new_length);
-
-  void RippleBlocks(QList<Block*> blocks, rational ripple_length, olive::timeline::MovementMode mode);
-
 signals:
   void TimebaseChanged(const rational &timebase);
 
@@ -128,8 +109,6 @@ private:
   void AttachTrack(TrackOutput *track);
 
   void DetachTrack(TrackOutput* track);
-
-  void AddTrack();
 
   static TrackOutput* TrackFromBlock(Block* block);
 

@@ -81,6 +81,11 @@ const QVector<TrackOutput *> &TimelineOutput::Tracks()
   return track_cache_;
 }
 
+TrackOutput *TimelineOutput::TrackAt(int index)
+{
+  return track_cache_.at(index);
+}
+
 QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
 {
   if (output == length_output_) {
@@ -191,6 +196,19 @@ void TimelineOutput::AddTrack()
   }
 }
 
+void TimelineOutput::RemoveTrack()
+{
+  if (track_cache_.isEmpty()) {
+    return;
+  }
+
+  TrackOutput* track = track_cache_.last();
+
+  static_cast<NodeGraph*>(parent())->TakeNode(track);
+
+  delete track;
+}
+
 TrackOutput *TimelineOutput::TrackFromBlock(Block *block)
 {
   Block* n = block;
@@ -261,85 +279,5 @@ void TimelineOutput::TrackEdgeRemoved(NodeEdgePtr edge)
     TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
 
     DetachTrack(added_track);
-  }
-}
-
-void TimelineOutput::PlaceBlock(Block *block, rational start, int track)
-{
-  Q_ASSERT(track >= 0);
-
-  while (track >= track_cache_.size()) {
-    AddTrack();
-  }
-
-  track_cache_.at(track)->PlaceBlock(block, start);
-}
-
-void TimelineOutput::ReplaceBlock(Block *old, Block *replace, int track)
-{
-  track_cache_.at(track)->ReplaceBlock(old, replace);
-}
-
-void TimelineOutput::SplitAtTime(rational time, int track)
-{
-  if (track >= track_cache_.size()) {
-    return;
-  }
-
-  track_cache_.at(track)->SplitAtTime(time);
-}
-
-void TimelineOutput::ResizeBlock(Block *block, rational new_length)
-{
-  block->set_length(new_length);
-}
-
-void TimelineOutput::RippleBlocks(QList<Block *> blocks, rational ripple_length, olive::timeline::MovementMode mode)
-{
-  if (blocks.isEmpty()
-      || ripple_length == 0
-      || (mode != olive::timeline::kTrimIn && mode != olive::timeline::kTrimOut)) {
-    return;
-  }
-
-  if (mode == olive::timeline::kTrimIn) {
-    // Flip the ripple length if we're trimming the in point
-    ripple_length = -ripple_length;
-  }
-
-  QVector<TrackOutput*> rippled_tracks;
-
-  rational ripple_point = RATIONAL_MAX;
-
-  // Ripple each Block as requested
-  foreach (Block* b, blocks) {
-    if (mode == olive::timeline::kTrimIn) {
-      ripple_point = qMin(ripple_point, b->in());
-
-      // Extend media in point
-      b->set_media_in(b->media_in() - ripple_length);
-    } else {
-      ripple_point = qMin(ripple_point, b->out());
-    }
-
-    b->set_length(b->length() + ripple_length);
-
-    rippled_tracks.append(TrackFromBlock(b));
-  }
-
-  // For each track that did not have a rippled clip, insert a Gap to keep all tracks synchronized
-  // FIXME: Assumes rippling out point further out
-  foreach (TrackOutput* track, track_cache_) {
-
-    if (!rippled_tracks.contains(track)) {
-      Block* block_after_time = track->NearestBlockAfter(ripple_point);
-
-      if (block_after_time != nullptr) {
-        // Insert Gap block before this Block
-        GapBlock* gap = new GapBlock();
-        gap->set_length(ripple_length);
-        track->InsertBlockBefore(gap, block_after_time);
-      }
-    }
   }
 }

@@ -21,6 +21,7 @@
 #include "widget/timelineview/timelineview.h"
 
 #include <QMimeData>
+#include <QToolTip>
 
 #include "config/config.h"
 #include "common/qtversionabstraction.h"
@@ -131,6 +132,8 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
       SnapPoint(snap_points_, &time_movement);
     }
 
+    rational earliest_ghost = RATIONAL_MAX;
+
     // Move ghosts to the mouse cursor
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
       ghost->SetInAdjustment(time_movement);
@@ -140,7 +143,18 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
 
       ghost->SetY(ghost_y);
       ghost->SetHeight(ghost_height);
+
+      earliest_ghost = qMin(earliest_ghost, ghost->GetAdjustedIn());
     }
+
+    // Generate tooltip (showing earliest in point of imported clip)
+    int64_t earliest_timestamp = olive::time_to_timestamp(earliest_ghost, parent()->timebase_);
+    QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
+                                                        parent()->timebase_,
+                                                        kTimecodeDisplay);
+    QToolTip::showText(QCursor::pos(),
+                       tooltip_text,
+                       parent());
 
     event->accept();
   } else {
@@ -166,6 +180,8 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
     // of scope will delete the nodes. If there is, they'll become parents of the NodeGraph instead
     QObject node_memory_manager;
 
+    QUndoCommand* command = new QUndoCommand();
+
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
       ClipBlock* clip = new ClipBlock();
       MediaInput* media = new MediaInput();
@@ -187,12 +203,15 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
       NodeParam::ConnectEdge(transform->matrix_output(), media->matrix_input());
 
+
       if (event->keyboardModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        parent()->timeline_node_->PlaceBlock(clip, ghost->GetAdjustedIn(), ghost->Track());
+        new TrackPlaceBlockCommand(parent()->timeline_node_, ghost->Track(), clip, ghost->GetAdjustedIn(), command);
       }
     }
+
+    olive::undo_stack.pushIfHasChildren(command);
 
     parent()->ClearGhosts();
 

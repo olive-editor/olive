@@ -347,6 +347,15 @@ bool Node::HasConnectedOutputs()
   return HasParamOfType(NodeParam::kOutput, true);
 }
 
+void Node::DisconnectAll()
+{
+  QList<NodeParam*> param = parameters();
+
+  for (int i=0;i<param.size();i++) {
+    param.at(i)->DisconnectAll();
+  }
+}
+
 void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time)
 {
   // Add this Node's ID

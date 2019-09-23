@@ -28,7 +28,8 @@ QString padded(int arg, int padding) {
 
 QString olive::timestamp_to_timecode(const int64_t &timestamp,
                                      const rational& timebase,
-                                     const TimecodeDisplay& display)
+                                     const TimecodeDisplay& display,
+                                     bool show_plus_if_positive)
 {
   double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
 
@@ -36,6 +37,16 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
   case kTimecodeFrames:
   case kTimecodeSeconds:
   {
+    QString prefix;
+
+    if (timestamp_dbl < 0) {
+      prefix = "-";
+    } else if (show_plus_if_positive) {
+      prefix = "+";
+    }
+
+    timestamp_dbl = qAbs(timestamp_dbl);
+
     int total_seconds = qFloor(timestamp_dbl);
 
     int hours = total_seconds / 3600;
@@ -45,19 +56,21 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
     if (display == kTimecodeSeconds) {
       int fraction = qRound((timestamp_dbl - total_seconds) * 1000);
 
-      return QString("%1:%2:%3.%4").arg(padded(hours, 2),
-                                        padded(mins, 2),
-                                        padded(secs, 2),
-                                        padded(fraction, 3));
+      return QString("%1%2:%3:%4.%5").arg(prefix,
+                                          padded(hours, 2),
+                                          padded(mins, 2),
+                                          padded(secs, 2),
+                                          padded(fraction, 3));
     } else {
       rational frame_rate = timebase.flipped();
 
       int frames = qRound((timestamp_dbl - total_seconds) * frame_rate.toDouble());
 
-      return QString("%1:%2:%3;%4").arg(padded(hours, 2),
-                                        padded(mins, 2),
-                                        padded(secs, 2),
-                                        padded(frames, 2));
+      return QString("%1%2:%3:%4;%5").arg(prefix,
+                                          padded(hours, 2),
+                                          padded(mins, 2),
+                                          padded(secs, 2),
+                                          padded(frames, 2));
     }
   }
   case kFrames:
@@ -67,4 +80,14 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
   }
 
   return QString();
+}
+
+rational olive::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
+{
+  return rational(timestamp) * timebase;
+}
+
+int64_t olive::time_to_timestamp(const rational &time, const rational &timebase)
+{
+  return qRound64(time.toDouble() * timebase.flipped().toDouble());
 }
