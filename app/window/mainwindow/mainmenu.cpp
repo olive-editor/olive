@@ -55,10 +55,10 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   edit_menu_ = new Menu(this);
 
-  edit_undo_item_ = olive::undo_stack.createUndoAction(this); //edit_menu_->AddItem("undo", nullptr, nullptr, "Ctrl+Z");
+  edit_undo_item_ = olive::undo_stack.createUndoAction(this);
   Menu::ConformItem(edit_undo_item_, "undo", nullptr, nullptr, "Ctrl+Z");
   edit_menu_->addAction(edit_undo_item_);
-  edit_redo_item_ = olive::undo_stack.createRedoAction(this); //edit_menu_->AddItem("redo", nullptr, nullptr, "Ctrl+Shift+Z");
+  edit_redo_item_ = olive::undo_stack.createRedoAction(this);
   Menu::ConformItem(edit_redo_item_, "redo", nullptr, nullptr, "Ctrl+Shift+Z");
   edit_menu_->addAction(edit_redo_item_);
 
@@ -70,10 +70,10 @@ MainMenu::MainMenu(QMainWindow *parent) :
   edit_menu_->addSeparator();
   olive::menu_shared.AddItemsForClipEditMenu(edit_menu_);
   edit_menu_->addSeparator();
-  edit_ripple_to_in_item_ = edit_menu_->AddItem("rippletoin", nullptr, nullptr, "Q");
-  edit_ripple_to_out_item_ = edit_menu_->AddItem("rippletoout", nullptr, nullptr, "W");
-  edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", nullptr, nullptr, "Ctrl+Alt+Q");
-  edit_edit_to_out_item_ = edit_menu_->AddItem("edittoout", nullptr, nullptr, "Ctrl+Alt+W");
+  edit_ripple_to_in_item_ = edit_menu_->AddItem("rippletoin", this, SLOT(RippleToInTriggered()), "Q");
+  edit_ripple_to_out_item_ = edit_menu_->AddItem("rippletoout", this, SLOT(RippleToOutTriggered()), "W");
+  edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", this, SLOT(EditToInTriggered()), "Ctrl+Alt+Q");
+  edit_edit_to_out_item_ = edit_menu_->AddItem("edittoout", this, SLOT(EditToOutTriggered()), "Ctrl+Alt+W");
   edit_menu_->addSeparator();
   olive::menu_shared.AddItemsForInOutMenu(edit_menu_);
   edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", nullptr, nullptr, ";");
@@ -405,6 +405,26 @@ void MainMenu::SelectAllTriggered()
 void MainMenu::DeselectAllTriggered()
 {
   olive::panel_manager->CurrentlyFocused()->DeselectAll();
+}
+
+void MainMenu::RippleToInTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->RippleToIn();
+}
+
+void MainMenu::RippleToOutTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->RippleToOut();
+}
+
+void MainMenu::EditToInTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->EditToIn();
+}
+
+void MainMenu::EditToOutTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->EditToOut();
 }
 
 void MainMenu::Retranslate()

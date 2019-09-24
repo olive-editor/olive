@@ -101,6 +101,11 @@ private slots:
   void SelectAllTriggered();
   void DeselectAllTriggered();
 
+  void RippleToInTriggered();
+  void RippleToOutTriggered();
+  void EditToInTriggered();
+  void EditToOutTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.

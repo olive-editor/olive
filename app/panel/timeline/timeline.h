@@ -47,6 +47,14 @@ public:
 
   virtual void DeselectAll() override;
 
+  virtual void RippleToIn() override;
+
+  virtual void RippleToOut() override;
+
+  virtual void EditToIn() override;
+
+  virtual void EditToOut() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

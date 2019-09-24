@@ -102,6 +102,8 @@ protected:
 
   rational MediaToSequenceTime(const rational& media_time);
 
+  static void CopyParameters(Block* source, Block* dest);
+
 private:  
   NodeInput* previous_input_;
   NodeOutput* block_output_;

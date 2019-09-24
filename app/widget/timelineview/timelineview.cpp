@@ -27,6 +27,7 @@
 #include <QtMath>
 #include <QPen>
 
+#include "common/timecodefunctions.h"
 #include "core.h"
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
@@ -217,6 +218,26 @@ void TimelineView::DeselectAll()
   }
 }
 
+void TimelineView::RippleToIn()
+{
+  RippleEditTo(olive::timeline::kTrimIn, false);
+}
+
+void TimelineView::RippleToOut()
+{
+  RippleEditTo(olive::timeline::kTrimOut, false);
+}
+
+void TimelineView::EditToIn()
+{
+  RippleEditTo(olive::timeline::kTrimIn, true);
+}
+
+void TimelineView::EditToOut()
+{
+  RippleEditTo(olive::timeline::kTrimOut, true);
+}
+
 void TimelineView::SetTime(const int64_t time)
 {
   playhead_ = time;
@@ -228,43 +249,51 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 {
   active_tool_ = GetActiveTool();
 
-  if (active_tool_ != nullptr) {
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
     active_tool_->MousePress(event);
   }
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
-  if (active_tool_ != nullptr) {
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
     active_tool_->MouseMove(event);
   }
 }
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (active_tool_ != nullptr) {
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
     active_tool_->MouseRelease(event);
   }
 }
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)
 {
-  import_tool_.DragEnter(event);
+  if (timeline_node_ != nullptr) {
+    import_tool_.DragEnter(event);
+  }
 }
 
 void TimelineView::dragMoveEvent(QDragMoveEvent *event)
 {
-  import_tool_.DragMove(event);
+  if (timeline_node_ != nullptr) {
+    import_tool_.DragMove(event);
+  }
 }
 
 void TimelineView::dragLeaveEvent(QDragLeaveEvent *event)
 {
-  import_tool_.DragLeave(event);
+  if (timeline_node_ != nullptr) {
+    import_tool_.DragLeave(event);
+  }
 }
 
 void TimelineView::dropEvent(QDropEvent *event)
 {
-  import_tool_.DragDrop(event);
+  if (timeline_node_ != nullptr) {
+    import_tool_.DragDrop(event);
+  }
 }
 
 void TimelineView::resizeEvent(QResizeEvent *event)
@@ -369,6 +398,56 @@ void TimelineView::ClearGhosts()
     }
 
     ghost_items_.clear();
+  }
+}
+
+void TimelineView::RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps)
+{
+  rational playhead_time = olive::timestamp_to_time(playhead_, timebase_);
+
+  rational closest_point_to_playhead;
+  if (mode == olive::timeline::kTrimIn) {
+    closest_point_to_playhead = 0;
+  } else {
+    closest_point_to_playhead = RATIONAL_MAX;
+  }
+
+  foreach (TrackOutput* track, timeline_node_->Tracks()) {
+    Block* b = track->NearestBlockBefore(playhead_time);
+
+    if (b != nullptr) {
+      if (mode == olive::timeline::kTrimIn) {
+        closest_point_to_playhead = qMax(b->in(), closest_point_to_playhead);
+      } else {
+        closest_point_to_playhead = qMin(b->out(), closest_point_to_playhead);
+      }
+    }
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  if (closest_point_to_playhead == playhead_time) {
+    // Remove one frame only
+    if (mode == olive::timeline::kTrimIn) {
+      playhead_time += timebase_;
+    } else {
+      playhead_time -= timebase_;
+    }
+  }
+
+  foreach (TrackOutput* track, timeline_node_->Tracks()) {
+    new TrackRippleRemoveAreaCommand(track,
+                                     qMin(closest_point_to_playhead, playhead_time),
+                                     qMax(closest_point_to_playhead, playhead_time),
+                                     command);
+  }
+
+  olive::undo_stack.pushIfHasChildren(command);
+
+  if (mode == olive::timeline::kTrimIn && !insert_gaps) {
+    int64_t new_time = olive::time_to_timestamp(closest_point_to_playhead, timebase_);
+    SetTime(new_time);
+    emit TimeChanged(new_time);
   }
 }
 

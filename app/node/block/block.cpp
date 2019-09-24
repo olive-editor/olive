@@ -221,3 +221,10 @@ rational Block::MediaToSequenceTime(const rational &media_time)
 
   return media_time - media_in() + in();
 }
+
+void Block::CopyParameters(Block *source, Block *dest)
+{
+  dest->set_block_name(source->block_name());
+  dest->set_length(source->length());
+  dest->set_media_in(source->media_in());
+}

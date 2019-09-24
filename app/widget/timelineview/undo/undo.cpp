@@ -29,7 +29,6 @@ Block* CreateSplitBlock(Block* block, rational point, QObject* parent = nullptr)
   copy->set_length_and_media_in(block->length() - (point - block->in()));
   copy->setParent(parent);
 
-
   return copy;
 }
 
@@ -142,7 +141,8 @@ TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, r
   out_(out),
   splice_(nullptr),
   trim_out_(nullptr),
-  trim_in_(nullptr)
+  trim_in_(nullptr),
+  insert_(nullptr)
 {
 }
 
@@ -168,38 +168,37 @@ void TrackRippleRemoveAreaCommand::redo()
     }
   }
 
+  track_->BlockInvalidateCache();
+
   // If we picked up a block to splice
   if (splice_ != nullptr) {
 
     // Split the block here
-    Block* copy = CreateSplitBlock(splice_, in_);
+    Block* copy = CreateSplitBlock(splice_, out_);
+
+    splice_original_length_ = splice_->length();
+    splice_->set_length(out_ - splice_->in());
+
+    track_->AddBlockToGraph(copy);
+    Node::CopyInputs(splice_, copy);
+
+    track_->InsertBlockAfter(copy, splice_);
 
     // Perform all further actions as if we were just trimming these clips
     trim_out_ = splice_;
     trim_in_ = copy;
-
   }
 
   // If we picked up a block to trim the in point of
-  if (trim_in_ != nullptr && trim_in_->in() < out_) {
+  if (trim_in_ != nullptr) {
     trim_in_old_length_ = trim_in_->length();
     trim_in_new_length_ = trim_in_->out() - out_;
   }
 
   // If we picked up a block to trim the out point of
-  if (trim_out_ != nullptr && trim_out_->out() > in_) {
+  if (trim_out_ != nullptr) {
     trim_out_old_length_ = trim_out_->length();
     trim_out_new_length_ = in_ - trim_out_->in();
-  }
-
-  track_->BlockInvalidateCache();
-
-  // If we're splicing, trim_in_ is a copy
-  if (splice_ != nullptr) {
-    track_->AddBlockToGraph(trim_in_);
-    Node::CopyInputs(splice_, trim_in_);
-
-    track_->InsertBlockAfter(trim_in_, splice_);
   }
 
   // If we picked up a block to trim the in point of
@@ -272,6 +271,8 @@ void TrackRippleRemoveAreaCommand::undo()
 
     // Remove node
     TakeNodeFromParentGraph(trim_in_, &memory_manager_);
+
+    splice_->set_length(splice_original_length_);
   }
 
   track_->UnblockInvalidateCache();

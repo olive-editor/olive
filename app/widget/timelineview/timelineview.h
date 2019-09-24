@@ -56,6 +56,14 @@ public:
 
   void DeselectAll();
 
+  void RippleToIn();
+
+  void RippleToOut();
+
+  void EditToIn();
+
+  void EditToOut();
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -75,6 +83,8 @@ signals:
   void ScaleChanged(double scale);
 
   void TimebaseChanged(const rational& timebase);
+
+  void TimeChanged(const int64_t& time);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
@@ -345,6 +355,8 @@ private:
   int SceneToTrack(const double &y);
 
   void ClearGhosts();
+
+  void RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps);
 
   QGraphicsScene scene_;
 

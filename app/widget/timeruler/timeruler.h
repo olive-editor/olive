@@ -42,6 +42,8 @@ public:
 
   void SetCenteredText(bool c);
 
+  void SetSnapping(bool snapping);
+
   const int64_t& GetTime();
 
 public slots:
@@ -93,6 +95,8 @@ private:
   int64_t time_;
 
   TimelinePlayhead style_;
+
+  bool snapping_;
 
 };
 

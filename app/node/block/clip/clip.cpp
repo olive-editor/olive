@@ -33,8 +33,7 @@ Block *ClipBlock::copy()
 {
   ClipBlock* c = new ClipBlock();
 
-  c->set_block_name(block_name());
-  c->set_length(length());
+  CopyParameters(this, c);
 
   return c;
 }

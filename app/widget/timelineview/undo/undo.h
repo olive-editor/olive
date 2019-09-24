@@ -131,6 +131,7 @@ protected:
   rational out_;
 
   Block* splice_;
+  rational splice_original_length_;
 
   Block* trim_out_;
   QVector<Block*> removed_blocks_;

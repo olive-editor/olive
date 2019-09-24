@@ -28,13 +28,15 @@
 #include "common/timecodefunctions.h"
 #include "common/qtversionabstraction.h"
 #include "config/config.h"
+#include "core.h"
 
 TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   QWidget(parent),
   scroll_(0),
   centered_text_(true),
-  scale_(1.0), // FIXME: Temporary value
-  time_(0)
+  scale_(1.0),
+  time_(0),
+  snapping_(false)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -90,6 +92,11 @@ void TimeRuler::SetTimebase(const rational &r)
   timebase_flipped_dbl_ = timebase_.flipped().toDouble();
 
   update();
+}
+
+void TimeRuler::SetSnapping(bool snapping)
+{
+  snapping_ = snapping;
 }
 
 const int64_t &TimeRuler::GetTime()

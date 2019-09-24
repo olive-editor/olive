@@ -43,6 +43,7 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   connect(view_, SIGNAL(ScaleChanged(double)), this, SLOT(SetScale(double)));
   connect(view_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
+  connect(view_, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
 
   // FIXME: Magic number
   SetScale(90.0);
@@ -96,6 +97,26 @@ void TimelinePanel::SelectAll()
 void TimelinePanel::DeselectAll()
 {
   view_->DeselectAll();
+}
+
+void TimelinePanel::RippleToIn()
+{
+  view_->RippleToIn();
+}
+
+void TimelinePanel::RippleToOut()
+{
+  view_->RippleToOut();
+}
+
+void TimelinePanel::EditToIn()
+{
+  view_->EditToIn();
+}
+
+void TimelinePanel::EditToOut()
+{
+  view_->EditToOut();
 }
 
 void TimelinePanel::changeEvent(QEvent *e)

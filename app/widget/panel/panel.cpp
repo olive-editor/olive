@@ -56,42 +56,6 @@ void PanelWidget::SetBorderVisible(bool enabled)
   update();
 }
 
-void PanelWidget::ZoomIn()
-{
-}
-
-void PanelWidget::ZoomOut()
-{
-}
-
-void PanelWidget::GoToStart()
-{
-}
-
-void PanelWidget::PrevFrame()
-{
-}
-
-void PanelWidget::PlayPause()
-{
-}
-
-void PanelWidget::NextFrame()
-{
-}
-
-void PanelWidget::GoToEnd()
-{
-}
-
-void PanelWidget::SelectAll()
-{
-}
-
-void PanelWidget::DeselectAll()
-{
-}
-
 void PanelWidget::SetTitle(const QString &t)
 {
   title_ = t;

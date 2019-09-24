@@ -151,7 +151,7 @@ Block *TrackOutput::NearestBlockBefore(const rational &time)
     }
   }
 
-  return nullptr;
+  return this;
 }
 
 Block *TrackOutput::NearestBlockAfter(const rational &time)
@@ -163,7 +163,7 @@ Block *TrackOutput::NearestBlockAfter(const rational &time)
     }
   }
 
-  return nullptr;
+  return this;
 }
 
 const QVector<Block *> &TrackOutput::Blocks()

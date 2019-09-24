@@ -28,8 +28,7 @@ Block *GapBlock::copy()
 {
   GapBlock* c = new GapBlock();
 
-  c->set_block_name(block_name());
-  c->set_length(length());
+  CopyParameters(this, c);
 
   return c;
 }
