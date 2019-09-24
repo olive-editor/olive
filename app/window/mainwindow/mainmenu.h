@@ -67,6 +67,11 @@ private slots:
   void ToolsMenuAboutToShow();
 
   /**
+   * @brief Slot triggered just before the Window menu shows
+   */
+  void WindowMenuAboutToShow();
+
+  /**
    * @brief Slot for zooming in
    *
    * Finds the currently focused panel and sends it a "zoom in" signal
@@ -163,6 +168,7 @@ private:
   QAction* playback_loop_item_;
 
   Menu* window_menu_;
+  QAction* window_menu_separator_;
   QAction* window_maximize_panel_item_;
   QAction* window_lock_layout_item_;
   QAction* window_reset_layout_item_;

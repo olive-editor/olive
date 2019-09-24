@@ -171,7 +171,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
     // FIXME: Test code
     // Pretty hacky way of getting the root folder for this node's sequence
-    ProjectPanel* pp = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+    ProjectPanel* pp = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
     footage_combobox->SetRoot(pp->project()->root());
 
     // Use multiple values

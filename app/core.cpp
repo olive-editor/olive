@@ -170,7 +170,7 @@ void Core::DialogImportShow()
   if (!files.isEmpty()) {
 
     // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-    ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+    ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
     Project* active_project;
 
     if (active_project_panel == nullptr // Check that we found a Project panel
@@ -189,7 +189,7 @@ void Core::DialogImportShow()
 void Core::CreateNewFolder()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+  ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
   Project* active_project;
 
   if (active_project_panel == nullptr // Check that we found a Project panel
@@ -234,7 +234,7 @@ void Core::CreateNewFolder()
 void Core::CreateNewSequence()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+  ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
   Project* active_project;
 
   if (active_project_panel == nullptr // Check that we found a Project panel
@@ -311,9 +311,9 @@ void Core::CreateNewSequence()
     // Connect timeline end point to renderer
     NodeParam::ConnectEdge(tb->length_output(), rp->length_input());
 
-    olive::panel_focus_manager->MostRecentlyFocused<ViewerPanel>()->ConnectViewerNode(vo);
-    olive::panel_focus_manager->MostRecentlyFocused<TimelinePanel>()->ConnectTimelineNode(tb);
-    olive::panel_focus_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
+    olive::panel_manager->MostRecentlyFocused<ViewerPanel>()->ConnectViewerNode(vo);
+    olive::panel_manager->MostRecentlyFocused<TimelinePanel>()->ConnectTimelineNode(tb);
+    olive::panel_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
 
     olive::undo_stack.push(aic);
   }
@@ -343,12 +343,12 @@ void Core::StartGUI(bool full_screen)
   olive::menu_shared.Initialize();
 
   // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
-  olive::panel_focus_manager = new PanelManager(this);
+  olive::panel_manager = new PanelManager(this);
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
           SIGNAL(focusChanged(QWidget*, QWidget*)),
-          olive::panel_focus_manager,
+          olive::panel_manager,
           SLOT(FocusChanged(QWidget*, QWidget*)));
 
   // Create main window and open it
@@ -369,7 +369,7 @@ void Core::StartGUI(bool full_screen)
 Project *Core::GetActiveProject()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = olive::panel_focus_manager->MostRecentlyFocused<ProjectPanel>();
+  ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
 
   // If we couldn't find one, return nullptr
   if (active_project_panel == nullptr) {

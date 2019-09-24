@@ -191,11 +191,10 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   // WINDOW MENU
   //
-  window_menu_ = new Menu(this);
-  window_menu_->addAction("No window support");
-  window_menu_->addSeparator();
+  window_menu_ = new Menu(this, this, SLOT(WindowMenuAboutToShow()));
+  window_menu_separator_ = window_menu_->addSeparator();
   window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", nullptr, nullptr, "`");
-  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", nullptr, nullptr);
+  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", olive::panel_manager, SLOT(SetPanelsLocked(bool)));
   window_lock_layout_item_->setCheckable(true);
   window_menu_->addSeparator();
   window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", nullptr, nullptr);
@@ -345,49 +344,67 @@ void MainMenu::ToolsMenuAboutToShow()
   tools_snapping_item_->setChecked(olive::core.snapping());
 }
 
+void MainMenu::WindowMenuAboutToShow()
+{
+  // QMainWindow generates a perfectly usable menu for this purpose, we just need to copy it to the window menu
+  QMenu* panel_menu = static_cast<QMainWindow*>(parentWidget())->createPopupMenu();
+  QList<QAction*> panel_menu_actions = panel_menu->actions();
+
+  // Make sure when we delete the panel_menu, it doesn't delete the actions
+  foreach (QAction* panel_action, panel_menu_actions) {
+    panel_action->setParent(window_menu_);
+  }
+
+  delete panel_menu;
+
+  window_menu_->insertActions(window_menu_separator_, panel_menu_actions);
+
+  window_lock_layout_item_->setChecked(olive::panel_manager->ArePanelsLocked());
+}
+
 void MainMenu::ZoomInTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->ZoomIn();
+  olive::panel_manager->CurrentlyFocused()->ZoomIn();
 }
 
 void MainMenu::ZoomOutTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->ZoomOut();
+  olive::panel_manager->CurrentlyFocused()->ZoomOut();
 }
 
 void MainMenu::GoToStartTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->GoToStart();
+  olive::panel_manager->CurrentlyFocused()->GoToStart();
 }
 
 void MainMenu::PrevFrameTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->PrevFrame();
+  olive::panel_manager->CurrentlyFocused()->PrevFrame();
 }
 
 void MainMenu::PlayPauseTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->PlayPause();
+  olive::panel_manager->CurrentlyFocused()->PlayPause();
 }
 
 void MainMenu::NextFrameTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->NextFrame();
+  olive::panel_manager->CurrentlyFocused()->NextFrame();
 }
 
 void MainMenu::GoToEndTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->GoToEnd();
+  olive::panel_manager->CurrentlyFocused()->GoToEnd();
 }
 
 void MainMenu::SelectAllTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->SelectAll();
+  olive::panel_manager->CurrentlyFocused()->SelectAll();
 }
 
 void MainMenu::DeselectAllTriggered()
 {
-  olive::panel_focus_manager->CurrentlyFocused()->DeselectAll();
+  olive::panel_manager->CurrentlyFocused()->DeselectAll();
 }
 
 void MainMenu::Retranslate()

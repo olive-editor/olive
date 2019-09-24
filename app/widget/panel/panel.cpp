@@ -32,6 +32,23 @@ PanelWidget::PanelWidget(QWidget *parent) :
   setFocusPolicy(Qt::ClickFocus);
 }
 
+void PanelWidget::SetMovementLocked(bool locked)
+{
+  if (locked) {
+    // Disable moving on QDockWidget
+    setFeatures(features() & ~QDockWidget::DockWidgetMovable);
+
+    // Hide the title bar (only real way to do this is to replace it with an empty QWidget)
+    setTitleBarWidget(new QWidget(this));
+  } else {
+    // Re-enable moving on QDockWidget
+    setFeatures(features() | QDockWidget::DockWidgetMovable);
+
+    // Set the "custom" titlebar to null so the default gets restored
+    setTitleBarWidget(nullptr);
+  }
+}
+
 void PanelWidget::SetBorderVisible(bool enabled)
 {
   border_visible_ = enabled;

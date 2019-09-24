@@ -72,6 +72,11 @@ public:
    */
   T* CreatePanel(QWidget* parent);
 
+  /**
+   * @brief Get whether panels are currently prevented from moving
+   */
+  bool ArePanelsLocked();
+
 public slots:
   /**
    * @brief Connect this to a QApplication's SIGNAL(focusChanged())
@@ -80,17 +85,29 @@ public slots:
    */
   void FocusChanged(QWidget* old, QWidget* now);
 
+  /**
+   * @brief Sets whether panels should be prevented from moving
+   */
+  void SetPanelsLocked(bool locked);
+
 private:
   /**
    * @brief History array for traversing through (see MostRecentlyFocused())
    */
   QList<PanelWidget*> focus_history_;
+
+  /**
+   * @brief Internal panel movement is locked value
+   */
+  bool locked_;
 };
 
 template<class T>
 T *PanelManager::CreatePanel(QWidget *parent)
 {
   T* panel = new T(parent);
+
+  panel->SetMovementLocked(locked_);
 
   // Add panel to the bottom of the focus history
   focus_history_.append(panel);
@@ -115,7 +132,7 @@ T* PanelManager::MostRecentlyFocused()
 }
 
 namespace olive {
-extern PanelManager* panel_focus_manager;
+extern PanelManager* panel_manager;
 }
 
 #endif // PANELFOCUSMANAGER_H

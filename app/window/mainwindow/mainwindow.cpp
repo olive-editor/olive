@@ -67,23 +67,23 @@ void olive::MainWindow::SetFullscreen(bool fullscreen)
 void olive::MainWindow::ProjectOpen(Project* p)
 {
   // FIXME Use settings data to create panels and restore state if they exist
-  NodePanel* node_panel = olive::panel_focus_manager->CreatePanel<NodePanel>(this);
+  NodePanel* node_panel = olive::panel_manager->CreatePanel<NodePanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, node_panel);
 
-  ParamPanel* param_panel = olive::panel_focus_manager->CreatePanel<ParamPanel>(this);
+  ParamPanel* param_panel = olive::panel_manager->CreatePanel<ParamPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, param_panel);
 
-  ViewerPanel* viewer_panel2 = olive::panel_focus_manager->CreatePanel<ViewerPanel>(this);
+  ViewerPanel* viewer_panel2 = olive::panel_manager->CreatePanel<ViewerPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
 
-  ProjectPanel* project_panel = olive::panel_focus_manager->CreatePanel<ProjectPanel>(this);
+  ProjectPanel* project_panel = olive::panel_manager->CreatePanel<ProjectPanel>(this);
   project_panel->set_project(p);
   addDockWidget(Qt::BottomDockWidgetArea, project_panel);
 
-  ToolPanel* tool_panel = olive::panel_focus_manager->CreatePanel<ToolPanel>(this);
+  ToolPanel* tool_panel = olive::panel_manager->CreatePanel<ToolPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
 
-  TimelinePanel* timeline_panel = olive::panel_focus_manager->CreatePanel<TimelinePanel>(this);
+  TimelinePanel* timeline_panel = olive::panel_manager->CreatePanel<TimelinePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
 
   connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
@@ -96,7 +96,7 @@ void olive::MainWindow::ProjectOpen(Project* p)
 
 void olive::MainWindow::closeEvent(QCloseEvent *e)
 {
-  olive::panel_focus_manager->DeleteAllPanels();
+  olive::panel_manager->DeleteAllPanels();
 
   // FIXME: Test code - We have no cache management and the cache is very much testing only, so we delete it on close
   //                    as to not clog up HDD space

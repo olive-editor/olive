@@ -20,10 +20,11 @@
 
 #include "panelmanager.h"
 
-PanelManager* olive::panel_focus_manager = nullptr;
+PanelManager* olive::panel_manager = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  locked_(false)
 {
 }
 
@@ -42,6 +43,11 @@ PanelWidget *PanelManager::CurrentlyFocused() const
   }
 
   return focus_history_.first();
+}
+
+bool PanelManager::ArePanelsLocked()
+{
+  return locked_;
 }
 
 void PanelManager::FocusChanged(QWidget *old, QWidget *now)
@@ -82,4 +88,13 @@ void PanelManager::FocusChanged(QWidget *old, QWidget *now)
 
     parent = parent->parent();
   }
+}
+
+void PanelManager::SetPanelsLocked(bool locked)
+{
+  foreach (PanelWidget* panel, focus_history_) {
+    panel->SetMovementLocked(locked);
+  }
+
+  locked_ = locked;
 }

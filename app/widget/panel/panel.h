@@ -41,6 +41,11 @@ public:
   PanelWidget(QWidget* parent);
 
   /**
+   * @brief Set whether panel movement is locked or not
+   */
+  void SetMovementLocked(bool locked);
+
+  /**
    * @brief Set visibility of panel's highlighted border, mostly used for showing panel focus
    *
    * @param enabled
