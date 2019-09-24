@@ -88,6 +88,16 @@ void TimelinePanel::ZoomOut()
   SetScale(scale_ * 0.5);
 }
 
+void TimelinePanel::SelectAll()
+{
+  view_->SelectAll();
+}
+
+void TimelinePanel::DeselectAll()
+{
+  view_->DeselectAll();
+}
+
 void TimelinePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

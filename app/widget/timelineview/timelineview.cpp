@@ -199,6 +199,24 @@ void TimelineView::DisconnectTimelineNode()
   ConnectTimelineNode(nullptr);
 }
 
+void TimelineView::SelectAll()
+{
+  QList<QGraphicsItem*> all_items = items();
+
+  foreach (QGraphicsItem* i, all_items) {
+    i->setSelected(true);
+  }
+}
+
+void TimelineView::DeselectAll()
+{
+  QList<QGraphicsItem*> all_items = items();
+
+  foreach (QGraphicsItem* i, all_items) {
+    i->setSelected(false);
+  }
+}
+
 void TimelineView::SetTime(const int64_t time)
 {
   playhead_ = time;

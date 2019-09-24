@@ -52,6 +52,10 @@ public:
 
   void DisconnectTimelineNode();
 
+  void SelectAll();
+
+  void DeselectAll();
+
 public slots:
   void SetTimebase(const rational& timebase);
 

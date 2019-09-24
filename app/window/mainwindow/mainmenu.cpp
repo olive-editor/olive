@@ -65,8 +65,8 @@ MainMenu::MainMenu(QWidget *parent) :
   edit_menu_->addSeparator();
   olive::menu_shared.AddItemsForEditMenu(edit_menu_);
   edit_menu_->addSeparator();
-  edit_select_all_item_ = edit_menu_->AddItem("selectall", nullptr, nullptr, "Ctrl+A");
-  edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", nullptr, nullptr, "Ctrl+Shift+A");
+  edit_select_all_item_ = edit_menu_->AddItem("selectall", this, SLOT(SelectAllTriggered()), "Ctrl+A");
+  edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", this, SLOT(DeselectAllTriggered()), "Ctrl+Shift+A");
   edit_menu_->addSeparator();
   olive::menu_shared.AddItemsForClipEditMenu(edit_menu_);
   edit_menu_->addSeparator();
@@ -372,6 +372,16 @@ void MainMenu::NextFrameTriggered()
 void MainMenu::GoToEndTriggered()
 {
   olive::panel_focus_manager->CurrentlyFocused()->GoToEnd();
+}
+
+void MainMenu::SelectAllTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->SelectAll();
+}
+
+void MainMenu::DeselectAllTriggered()
+{
+  olive::panel_focus_manager->CurrentlyFocused()->DeselectAll();
 }
 
 void MainMenu::Retranslate()

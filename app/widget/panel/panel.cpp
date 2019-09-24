@@ -67,6 +67,14 @@ void PanelWidget::GoToEnd()
 {
 }
 
+void PanelWidget::SelectAll()
+{
+}
+
+void PanelWidget::DeselectAll()
+{
+}
+
 void PanelWidget::SetTitle(const QString &t)
 {
   title_ = t;

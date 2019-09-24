@@ -87,6 +87,9 @@ private slots:
   void NextFrameTriggered();
   void GoToEndTriggered();
 
+  void SelectAllTriggered();
+  void DeselectAllTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.

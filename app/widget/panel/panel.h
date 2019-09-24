@@ -79,6 +79,10 @@ public:
 
   virtual void GoToEnd();
 
+  virtual void SelectAll();
+
+  virtual void DeselectAll();
+
 protected:
   /**
    * @brief Set panel's title

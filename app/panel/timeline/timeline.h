@@ -43,6 +43,10 @@ public:
 
   virtual void ZoomOut() override;
 
+  virtual void SelectAll() override;
+
+  virtual void DeselectAll() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 
