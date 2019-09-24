@@ -59,7 +59,11 @@ void TimelineViewBlockItem::UpdateRect()
   setRect(0, y_, item_width - 1, height_ - 1);
   setPos(item_left, 0.0);
 
-  update();
+  // FIXME: Untranslated
+  setToolTip(QString("%1\n\nIn: %2\nOut: %3\nMedia In: %4").arg(block_->Name(),
+                                                                QString::number(block_->in().toDouble()),
+                                                                QString::number(block_->out().toDouble()),
+                                                                QString::number(block_->media_in().toDouble())));
 }
 
 void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

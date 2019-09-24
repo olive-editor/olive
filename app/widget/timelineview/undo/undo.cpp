@@ -22,11 +22,13 @@
 
 #include "node/graph.h"
 
+#include <QDebug>
 Block* CreateSplitBlock(Block* block, rational point, QObject* parent = nullptr)
 {
   Block* copy = block->copy();
   copy->set_length_and_media_in(block->length() - (point - block->in()));
   copy->setParent(parent);
+
 
   return copy;
 }

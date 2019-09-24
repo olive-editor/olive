@@ -26,7 +26,12 @@ GapBlock::GapBlock()
 
 Block *GapBlock::copy()
 {
-  return new GapBlock();
+  GapBlock* c = new GapBlock();
+
+  c->set_block_name(block_name());
+  c->set_length(length());
+
+  return c;
 }
 
 Block::Type GapBlock::type()

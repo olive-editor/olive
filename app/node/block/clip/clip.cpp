@@ -33,13 +33,10 @@ Block *ClipBlock::copy()
 {
   ClipBlock* c = new ClipBlock();
 
-  // Duplicate connection
-  // FIXME: This behavior should probably be configurable
-  if (texture_input()->IsConnected()) {
-    NodeParam::ConnectEdge(texture_input()->edges().first()->output(), c->texture_input());
-  }
+  c->set_block_name(block_name());
+  c->set_length(length());
 
-  return new ClipBlock();
+  return c;
 }
 
 Block::Type ClipBlock::type()
