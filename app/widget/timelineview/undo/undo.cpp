@@ -146,6 +146,11 @@ TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, r
 {
 }
 
+void TrackRippleRemoveAreaCommand::SetInsert(Block *insert)
+{
+  insert_ = insert;
+}
+
 void TrackRippleRemoveAreaCommand::redo()
 {
   // Iterate through blocks determining which need trimming/removing/splitting

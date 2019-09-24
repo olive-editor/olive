@@ -435,11 +435,21 @@ void TimelineView::RippleEditTo(olive::timeline::MovementMode mode, bool insert_
     }
   }
 
+  rational in_ripple = qMin(closest_point_to_playhead, playhead_time);
+  rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
+  rational ripple_length = out_ripple - in_ripple;
+
   foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    new TrackRippleRemoveAreaCommand(track,
-                                     qMin(closest_point_to_playhead, playhead_time),
-                                     qMax(closest_point_to_playhead, playhead_time),
-                                     command);
+    TrackRippleRemoveAreaCommand* ripple_command = new TrackRippleRemoveAreaCommand(track,
+                                                                                    in_ripple,
+                                                                                    out_ripple,
+                                                                                    command);
+
+    if (insert_gaps) {
+      GapBlock* gap = new GapBlock();
+      gap->set_length(ripple_length);
+      ripple_command->SetInsert(gap);
+    }
   }
 
   olive::undo_stack.pushIfHasChildren(command);

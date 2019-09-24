@@ -122,6 +122,8 @@ class TrackRippleRemoveAreaCommand : public QUndoCommand {
 public:
   TrackRippleRemoveAreaCommand(TrackOutput* track, rational in, rational out, QUndoCommand* parent = nullptr);
 
+  void SetInsert(Block* insert);
+
   virtual void redo() override;
   virtual void undo() override;
 
