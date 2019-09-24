@@ -21,6 +21,7 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
+#include <QMainWindow>
 #include <QMenuBar>
 
 #include "widget/menu/menu.h"
@@ -34,7 +35,7 @@ class MainMenu : public QMenuBar
 {
   Q_OBJECT
 public:
-  MainMenu(QWidget* parent);
+  MainMenu(QMainWindow* parent);
 
 protected:
   /**
@@ -54,6 +55,11 @@ private slots:
    * Tool change throughout the rest of the application.
    */
   void ToolItemTriggered();
+
+  /**
+   * @brief Slot triggered just before the View menu shows
+   */
+  void ViewMenuAboutToShow();
 
   /**
    * @brief Slot triggered just before the Tools menu shows

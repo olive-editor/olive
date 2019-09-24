@@ -55,6 +55,15 @@ olive::MainWindow::MainWindow(QWidget *parent) :
   setMenuBar(main_menu);
 }
 
+void olive::MainWindow::SetFullscreen(bool fullscreen)
+{
+  if (fullscreen) {
+    setWindowState(windowState() | Qt::WindowFullScreen);
+  } else {
+    setWindowState(windowState() & ~Qt::WindowFullScreen);
+  }
+}
+
 void olive::MainWindow::ProjectOpen(Project* p)
 {
   // FIXME Use settings data to create panels and restore state if they exist

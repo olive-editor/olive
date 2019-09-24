@@ -29,7 +29,7 @@
 #include "undo/undostack.h"
 #include "widget/menu/menushared.h"
 
-MainMenu::MainMenu(QWidget *parent) :
+MainMenu::MainMenu(QMainWindow *parent) :
   QMenuBar(parent)
 {
   //
@@ -84,7 +84,7 @@ MainMenu::MainMenu(QWidget *parent) :
   //
   // VIEW MENU
   //
-  view_menu_ = new Menu(this);
+  view_menu_ = new Menu(this, this, SLOT(ViewMenuAboutToShow()));
   view_zoom_in_item_ = view_menu_->AddItem("zoomin", this, SLOT(ZoomInTriggered()), "=");
   view_zoom_out_item_ = view_menu_->AddItem("zoomout", this, SLOT(ZoomOutTriggered()), "-");
   view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", nullptr, nullptr, "Ctrl+=");
@@ -151,7 +151,7 @@ MainMenu::MainMenu(QWidget *parent) :
 
   view_menu_->addSeparator();
 
-  view_full_screen_item_ = view_menu_->AddItem("fullscreen", nullptr, nullptr, "F11");
+  view_full_screen_item_ = view_menu_->AddItem("fullscreen", parent, SLOT(SetFullscreen(bool)), "F11");
   view_full_screen_item_->setCheckable(true);
 
   view_full_screen_viewer_item_ = view_menu_->AddItem("fullscreenviewer", nullptr, nullptr);
@@ -322,6 +322,12 @@ void MainMenu::ToolItemTriggered()
 
   // Set the Tool in Core
   olive::core.SetTool(tool);
+}
+
+void MainMenu::ViewMenuAboutToShow()
+{
+  // Parent is QMainWindow
+  view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
 }
 
 void MainMenu::ToolsMenuAboutToShow()

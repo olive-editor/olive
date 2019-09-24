@@ -37,12 +37,13 @@ public:
 
 public slots:
   void ProjectOpen(Project *p);
+  void SetFullscreen(bool fullscreen);
 
 protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
-
+  Qt::WindowStates old_window_state_;
 
 };
 
