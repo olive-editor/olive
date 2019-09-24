@@ -69,6 +69,21 @@ void ViewerPanel::GoToEnd()
   viewer_->GoToEnd();
 }
 
+void ViewerPanel::ShuttleLeft()
+{
+  viewer_->ShuttleLeft();
+}
+
+void ViewerPanel::ShuttleStop()
+{
+  viewer_->ShuttleStop();
+}
+
+void ViewerPanel::ShuttleRight()
+{
+  viewer_->ShuttleRight();
+}
+
 void ViewerPanel::SetTimebase(const rational &timebase)
 {
   viewer_->SetTimebase(timebase);

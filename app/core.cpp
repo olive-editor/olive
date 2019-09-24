@@ -28,6 +28,7 @@
 #include <QMessageBox>
 #include <QHBoxLayout>
 
+#include "dialog/about/about.h"
 #include "dialog/sequence/sequence.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
@@ -158,6 +159,12 @@ void Core::SetSnapping(const bool &b)
   snapping_ = b;
 
   emit SnappingChanged(snapping_);
+}
+
+void Core::DialogAboutShow()
+{
+  AboutDialog a(main_window_);
+  a.exec();
 }
 
 void Core::DialogImportShow()

@@ -36,6 +36,11 @@ void PanelManager::DeleteAllPanels()
   focus_history_.clear();
 }
 
+const QList<PanelWidget *> &PanelManager::panels()
+{
+  return focus_history_;
+}
+
 PanelWidget *PanelManager::CurrentlyFocused() const
 {
   if (focus_history_.isEmpty()) {

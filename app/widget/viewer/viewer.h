@@ -86,6 +86,12 @@ public slots:
 
   void GoToEnd();
 
+  void ShuttleLeft();
+
+  void ShuttleStop();
+
+  void ShuttleRight();
+
 signals:
   void TimeChanged(const rational&);
 
@@ -96,6 +102,8 @@ private:
   void UpdateTimeInternal(int64_t i);
 
   void UpdateTextureFromNode(const rational &time);
+
+  void PlayInternal(int speed);
 
   ViewerGLWidget* gl_widget_;
 
@@ -115,6 +123,8 @@ private:
   int64_t start_timestamp_;
 
   ViewerOutput* viewer_node_;
+
+  int playback_speed_;
 
 private slots:
   void RulerTimeChange(int64_t);

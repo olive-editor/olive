@@ -14,11 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(about)
-add_subdirectory(actionsearch)
-add_subdirectory(sequence)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  dialog/actionsearch/actionsearch.h
+  dialog/actionsearch/actionsearch.cpp
   PARENT_SCOPE
 )

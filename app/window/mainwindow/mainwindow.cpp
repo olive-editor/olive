@@ -64,6 +64,37 @@ void olive::MainWindow::SetFullscreen(bool fullscreen)
   }
 }
 
+void olive::MainWindow::ToggleMaximizedPanel()
+{
+  qDebug() << "Hello!";
+
+  if (premaximized_state_.isEmpty()) {
+    // Assume nothing is maximized at the moment
+
+    // Find the currently focused panel
+    PanelWidget* currently_focused = olive::panel_manager->CurrentlyFocused();
+
+    // If this panel is not actually on the main window, this is a no-op
+    if (currently_focused->isFloating()) {
+      return;
+    }
+
+    // Save the current state so it can be restored later
+    premaximized_state_ = saveState();
+
+    // For every other panel that is on the main window, hide it
+    foreach (PanelWidget* panel, olive::panel_manager->panels()) {
+      if (!panel->isFloating() && panel != currently_focused) {
+        panel->setVisible(false);
+      }
+    }
+  } else {
+    // Assume we are currently maximized, restore the state
+    restoreState(premaximized_state_);
+    premaximized_state_.clear();
+  }
+}
+
 void olive::MainWindow::ProjectOpen(Project* p)
 {
   // FIXME Use settings data to create panels and restore state if they exist

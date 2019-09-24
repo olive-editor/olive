@@ -31,7 +31,8 @@
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
-  viewer_node_(nullptr)
+  viewer_node_(nullptr),
+  playback_speed_(0)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -181,6 +182,24 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   }
 }
 
+void ViewerWidget::PlayInternal(int speed)
+{
+  Q_ASSERT(speed != 0);
+
+  if (time_base_.isNull()) {
+    qWarning() << "ViewerWidget can't play with an invalid timebase";
+    return;
+  }
+
+  start_msec_ = QDateTime::currentMSecsSinceEpoch();
+  start_timestamp_ = ruler_->GetTime();
+  playback_speed_ = speed;
+
+  playback_timer_.start();
+
+  controls_->ShowPauseButton();
+}
+
 void ViewerWidget::RulerTimeChange(int64_t i)
 {
   Pause();
@@ -190,17 +209,7 @@ void ViewerWidget::RulerTimeChange(int64_t i)
 
 void ViewerWidget::Play()
 {
-  if (time_base_.isNull()) {
-    qWarning() << "ViewerWidget can't play with an invalid timebase";
-    return;
-  }
-
-  start_msec_ = QDateTime::currentMSecsSinceEpoch();
-  start_timestamp_ = ruler_->GetTime();
-
-  playback_timer_.start();
-
-  controls_->ShowPauseButton();
+  PlayInternal(1);
 }
 
 void ViewerWidget::Pause()
@@ -208,6 +217,8 @@ void ViewerWidget::Pause()
   playback_timer_.stop();
 
   controls_->ShowPlayButton();
+
+  playback_speed_ = 0;
 }
 
 void ViewerWidget::GoToStart()
@@ -238,13 +249,55 @@ void ViewerWidget::GoToEnd()
   qWarning() << "No end frame support yet";
 }
 
+void ViewerWidget::ShuttleLeft()
+{
+  int current_speed = playback_speed_;
+
+  if (current_speed != 0) {
+    Pause();
+  }
+
+  current_speed--;
+
+  if (current_speed != 0) {
+    PlayInternal(current_speed);
+  }
+}
+
+void ViewerWidget::ShuttleStop()
+{
+  Pause();
+}
+
+void ViewerWidget::ShuttleRight()
+{
+  int current_speed = playback_speed_;
+
+  if (current_speed != 0) {
+    Pause();
+  }
+
+  current_speed++;
+
+  if (current_speed != 0) {
+    PlayInternal(current_speed);
+  }
+}
+
 void ViewerWidget::PlaybackTimerUpdate()
 {
   int64_t real_time = QDateTime::currentMSecsSinceEpoch() - start_msec_;
 
   int64_t frames_since_start = qRound(static_cast<double>(real_time) / (time_base_dbl_ * 1000));
 
-  SetTime(start_timestamp_ + frames_since_start);
+  int64_t current_time = start_timestamp_ + frames_since_start * playback_speed_;
+
+  if (current_time < 0) {
+    current_time = 0;
+    Pause();
+  }
+
+  SetTime(current_time);
 }
 
 void ViewerWidget::ViewerNodeChangedBetween(const rational &start, const rational &end)

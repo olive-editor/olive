@@ -18,36 +18,31 @@
 
 ***/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ABOUTDIALOG_H
+#define ABOUTDIALOG_H
 
-#include <QMainWindow>
-
-#include "project/project.h"
-
-namespace olive {
+#include <QDialog>
 
 /**
- * @brief Olive's main window responsible for docking widgets and the main menu bar.
+ * @brief The AboutDialog class
+ *
+ * The About dialog (accessible through Help > About). Contains license and version information. This can be run from
+ * anywhere
  */
-class MainWindow : public QMainWindow {
+class AboutDialog : public QDialog
+{
   Q_OBJECT
 public:
-  MainWindow(QWidget *parent = nullptr);
-
-public slots:
-  void ProjectOpen(Project *p);
-  void SetFullscreen(bool fullscreen);
-  void ToggleMaximizedPanel();
-
-protected:
-  virtual void closeEvent(QCloseEvent* e) override;
-
-private:
-  QByteArray premaximized_state_;
-
+  /**
+   * @brief AboutDialog Constructor
+   *
+   * Creates About dialog.
+   *
+   * @param parent
+   *
+   * QWidget parent object. Usually this will be MainWindow.
+   */
+  explicit AboutDialog(QWidget *parent = nullptr);
 };
 
-}
-
-#endif
+#endif // ABOUTDIALOG_H

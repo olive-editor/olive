@@ -23,6 +23,7 @@
 #include <QEvent>
 
 #include "core.h"
+#include "dialog/actionsearch/actionsearch.h"
 #include "panel/panelmanager.h"
 #include "tool/tool.h"
 #include "ui/style/style.h"
@@ -169,8 +170,8 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   playback_menu_->addSeparator();
 
-  playback_prevcut_item_ = playback_menu_->AddItem("prevcut", nullptr, nullptr, "Up");
-  playback_nextcut_item_ = playback_menu_->AddItem("nextcut", nullptr, nullptr, "Down");
+  playback_prevcut_item_ = playback_menu_->AddItem("prevcut", this, SLOT(GoToPrevCutTriggered()), "Up");
+  playback_nextcut_item_ = playback_menu_->AddItem("nextcut", this, SLOT(GoToNextCutTriggered()), "Down");
 
   playback_menu_->addSeparator();
 
@@ -179,9 +180,9 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   playback_menu_->addSeparator();
 
-  playback_shuttleleft_item_ = playback_menu_->AddItem("decspeed", nullptr, nullptr, "J");
-  playback_shuttlestop_item_ = playback_menu_->AddItem("pause", nullptr, nullptr, "K");
-  playback_shuttleright_item_ = playback_menu_->AddItem("incspeed", nullptr, nullptr, "L");
+  playback_shuttleleft_item_ = playback_menu_->AddItem("decspeed", this, SLOT(ShuttleLeftTriggered()), "J");
+  playback_shuttlestop_item_ = playback_menu_->AddItem("pause", this, SLOT(ShuttleStopTriggered()), "K");
+  playback_shuttleright_item_ = playback_menu_->AddItem("incspeed", this, SLOT(ShuttleRightTriggered()), "L");
 
   playback_menu_->addSeparator();
 
@@ -193,7 +194,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   window_menu_ = new Menu(this, this, SLOT(WindowMenuAboutToShow()));
   window_menu_separator_ = window_menu_->addSeparator();
-  window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", nullptr, nullptr, "`");
+  window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, SLOT(ToggleMaximizedPanel()), "`");
   window_lock_layout_item_ = window_menu_->AddItem("lockpanels", olive::panel_manager, SLOT(SetPanelsLocked(bool)));
   window_lock_layout_item_->setCheckable(true);
   window_menu_->addSeparator();
@@ -294,11 +295,11 @@ MainMenu::MainMenu(QMainWindow *parent) :
   // HELP MENU
   //
   help_menu_ = new Menu(this);
-  help_action_search_item_ = help_menu_->AddItem("actionsearch", nullptr, nullptr, "/");
+  help_action_search_item_ = help_menu_->AddItem("actionsearch", this, SLOT(ActionSearchTriggered()), "/");
   help_menu_->addSeparator();
   help_debug_log_item_ = help_menu_->AddItem("debuglog", nullptr, nullptr);
   help_menu_->addSeparator();
-  help_about_item_ = help_menu_->AddItem("about", nullptr, nullptr);
+  help_about_item_ = help_menu_->AddItem("about", &olive::core, SLOT(DialogAboutShow()));
 
   Retranslate();
 }
@@ -425,6 +426,38 @@ void MainMenu::EditToInTriggered()
 void MainMenu::EditToOutTriggered()
 {
   olive::panel_manager->CurrentlyFocused()->EditToOut();
+}
+
+void MainMenu::ActionSearchTriggered()
+{
+  ActionSearch as(parentWidget());
+  as.SetMenuBar(this);
+  as.exec();
+}
+
+void MainMenu::ShuttleLeftTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->ShuttleLeft();
+}
+
+void MainMenu::ShuttleStopTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->ShuttleStop();
+}
+
+void MainMenu::ShuttleRightTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->ShuttleRight();
+}
+
+void MainMenu::GoToPrevCutTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->GoToPrevCut();
+}
+
+void MainMenu::GoToNextCutTriggered()
+{
+  olive::panel_manager->CurrentlyFocused()->GoToNextCut();
 }
 
 void MainMenu::Retranslate()

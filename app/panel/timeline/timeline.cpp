@@ -119,6 +119,16 @@ void TimelinePanel::EditToOut()
   view_->EditToOut();
 }
 
+void TimelinePanel::GoToPrevCut()
+{
+  view_->GoToPrevCut();
+}
+
+void TimelinePanel::GoToNextCut()
+{
+  view_->GoToNextCut();
+}
+
 void TimelinePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

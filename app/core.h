@@ -115,6 +115,11 @@ public slots:
   void SetSnapping(const bool& b);
 
   /**
+   * @brief Show an About dialog
+   */
+  void DialogAboutShow();
+
+  /**
    * @brief Open the import footage dialog and import the files selected (runs ImportFiles())
    */
   void DialogImportShow();

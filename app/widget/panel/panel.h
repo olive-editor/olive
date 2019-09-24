@@ -96,6 +96,16 @@ public:
 
   virtual void EditToOut(){}
 
+  virtual void ShuttleLeft(){}
+
+  virtual void ShuttleStop(){}
+
+  virtual void ShuttleRight(){}
+
+  virtual void GoToPrevCut(){}
+
+  virtual void GoToNextCut(){}
+
 protected:
   /**
    * @brief Set panel's title

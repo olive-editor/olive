@@ -64,6 +64,10 @@ public:
 
   void EditToOut();
 
+  void GoToPrevCut();
+
+  void GoToNextCut();
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -357,6 +361,8 @@ private:
   void ClearGhosts();
 
   void RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps);
+
+  void UserSetTime(const int64_t& time);
 
   QGraphicsScene scene_;
 

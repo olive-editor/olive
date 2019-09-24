@@ -24,6 +24,7 @@
 #include <QMainWindow>
 #include <QMenuBar>
 
+#include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
 /**
@@ -105,6 +106,15 @@ private slots:
   void RippleToOutTriggered();
   void EditToInTriggered();
   void EditToOutTriggered();
+
+  void ActionSearchTriggered();
+
+  void ShuttleLeftTriggered();
+  void ShuttleStopTriggered();
+  void ShuttleRightTriggered();
+
+  void GoToPrevCutTriggered();
+  void GoToNextCutTriggered();
 
 private:
   /**
@@ -201,6 +211,7 @@ private:
   QAction* help_action_search_item_;
   QAction* help_debug_log_item_;
   QAction* help_about_item_;
+
 };
 
 #endif // MAINMENU_H

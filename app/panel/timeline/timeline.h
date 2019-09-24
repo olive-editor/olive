@@ -55,6 +55,10 @@ public:
 
   virtual void EditToOut() override;
 
+  virtual void GoToPrevCut() override;
+
+  virtual void GoToNextCut() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

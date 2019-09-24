@@ -47,7 +47,19 @@ class PanelManager : public QObject
 public:
   PanelManager(QObject* parent);
 
+  /**
+   * @brief Destroy all panels
+   *
+   * Should only be used on application exit to cleanly free all panels.
+   */
   void DeleteAllPanels();
+
+  /**
+   * @brief Get a list of all existing panels
+   *
+   * Panels are ordered from most recently focused to least recently focused.
+   */
+  const QList<PanelWidget*>& panels();
 
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused

@@ -238,6 +238,69 @@ void TimelineView::EditToOut()
   RippleEditTo(olive::timeline::kTrimOut, true);
 }
 
+void TimelineView::GoToPrevCut()
+{
+  if (timeline_node_ == nullptr) {
+    return;
+  }
+
+  if (playhead_ == 0) {
+    return;
+  }
+
+  int64_t closest_cut = 0;
+
+  foreach (TrackOutput* track, timeline_node_->Tracks()) {
+    int64_t this_track_closest_cut = 0;
+
+    foreach (Block* block, track->Blocks()) {
+      int64_t block_out_ts = olive::time_to_timestamp(block->out(), timebase_);
+
+      if (block_out_ts < playhead_) {
+        this_track_closest_cut = block_out_ts;
+      } else {
+        break;
+      }
+    }
+
+    closest_cut = qMax(closest_cut, this_track_closest_cut);
+  }
+
+  UserSetTime(closest_cut);
+}
+
+void TimelineView::GoToNextCut()
+{
+  if (timeline_node_ == nullptr) {
+    return;
+  }
+
+  int64_t closest_cut = INT64_MAX;
+
+  foreach (TrackOutput* track, timeline_node_->Tracks()) {
+    int64_t this_track_closest_cut = olive::time_to_timestamp(track->in(), timebase_);
+
+    if (this_track_closest_cut <= playhead_) {
+      this_track_closest_cut = INT64_MAX;
+    }
+
+    foreach (Block* block, track->Blocks()) {
+      int64_t block_in_ts = olive::time_to_timestamp(block->in(), timebase_);
+
+      if (block_in_ts > playhead_) {
+        this_track_closest_cut = block_in_ts;
+        break;
+      }
+    }
+
+    closest_cut = qMin(closest_cut, this_track_closest_cut);
+  }
+
+  if (closest_cut < INT64_MAX) {
+    UserSetTime(closest_cut);
+  }
+}
+
 void TimelineView::SetTime(const int64_t time)
 {
   playhead_ = time;
@@ -456,9 +519,14 @@ void TimelineView::RippleEditTo(olive::timeline::MovementMode mode, bool insert_
 
   if (mode == olive::timeline::kTrimIn && !insert_gaps) {
     int64_t new_time = olive::time_to_timestamp(closest_point_to_playhead, timebase_);
-    SetTime(new_time);
-    emit TimeChanged(new_time);
+    UserSetTime(new_time);
   }
+}
+
+void TimelineView::UserSetTime(const int64_t &time)
+{
+  SetTime(time);
+  emit TimeChanged(time);
 }
 
 void TimelineView::BlockChanged()

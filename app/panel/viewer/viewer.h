@@ -48,6 +48,12 @@ public:
 
   virtual void GoToEnd() override;
 
+  virtual void ShuttleLeft() override;
+
+  virtual void ShuttleStop() override;
+
+  virtual void ShuttleRight() override;
+
   void SetTimebase(const rational& timebase);
 
   void ConnectViewerNode(ViewerOutput* node);
