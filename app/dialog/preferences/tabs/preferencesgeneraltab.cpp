@@ -81,6 +81,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   // General -> Default Sequence Settings
   QPushButton* default_sequence_settings = new QPushButton(tr("Default Sequence Settings"));
+  default_sequence_settings->setEnabled(false);
   connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
   misc_general->addWidget(default_sequence_settings);
 

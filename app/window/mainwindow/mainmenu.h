@@ -73,6 +73,11 @@ private slots:
   void WindowMenuAboutToShow();
 
   /**
+   * @brief Slot triggered just before the Window menu hides
+   */
+  void WindowMenuAboutToHide();
+
+  /**
    * @brief Slot for zooming in
    *
    * Finds the currently focused panel and sends it a "zoom in" signal

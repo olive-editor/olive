@@ -193,6 +193,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   // WINDOW MENU
   //
   window_menu_ = new Menu(this, this, SLOT(WindowMenuAboutToShow()));
+  connect(window_menu_, SIGNAL(aboutToHide()), this, SLOT(WindowMenuAboutToHide()));
   window_menu_separator_ = window_menu_->addSeparator();
   window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, SLOT(ToggleMaximizedPanel()), "`");
   window_lock_layout_item_ = window_menu_->AddItem("lockpanels", olive::panel_manager, SLOT(SetPanelsLocked(bool)));
@@ -361,6 +362,13 @@ void MainMenu::WindowMenuAboutToShow()
   window_menu_->insertActions(window_menu_separator_, panel_menu_actions);
 
   window_lock_layout_item_->setChecked(olive::panel_manager->ArePanelsLocked());
+}
+
+void MainMenu::WindowMenuAboutToHide()
+{
+  while (window_menu_->actions().first() != window_menu_separator_) {
+    window_menu_->removeAction(window_menu_->actions().first());
+  }
 }
 
 void MainMenu::ZoomInTriggered()

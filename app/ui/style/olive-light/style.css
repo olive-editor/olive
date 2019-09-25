@@ -18,6 +18,9 @@
 
 ***/
 
+/* Hack that forces checked QPushButtons to use dark color */
+
+
 /* Node styling */
 NodeViewItemWidget {
   qproperty-titlebarColor: #a0a0ff;

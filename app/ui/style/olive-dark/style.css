@@ -18,6 +18,11 @@
 
 ***/
 
+/* Hack that forces checked QPushButtons to use dark color */
+QPushButton:checked {
+  background: #191919;
+}
+
 /* Node styling */
 NodeViewItemWidget {
   qproperty-titlebarColor: #4040a0;
