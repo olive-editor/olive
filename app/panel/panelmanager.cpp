@@ -20,6 +20,8 @@
 
 #include "panelmanager.h"
 
+#include "config/config.h"
+
 PanelManager* olive::panel_manager = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
@@ -43,6 +45,16 @@ const QList<PanelWidget *> &PanelManager::panels()
 
 PanelWidget *PanelManager::CurrentlyFocused() const
 {
+  // If hover focus is enabled, find the currently hovered panel and return it (if no panel is hovered, resort to
+  // default behavior)
+  if (Config::Current()["HoverFocus"].toBool()) {
+    PanelWidget* hovered = CurrentlyHovered();
+
+    if (hovered != nullptr) {
+      return hovered;
+    }
+  }
+
   if (focus_history_.isEmpty()) {
     return nullptr;
   }

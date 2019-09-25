@@ -91,25 +91,25 @@ private:
   /**
    * @brief UI widget for editing keyboard shortcuts
    */
-  QTreeWidget* keyboard_tree;
+  QTreeWidget* keyboard_tree_;
 
   /**
    * @brief List of keyboard shortcut actions that can be triggered (links with key_shortcut_items and
    * key_shortcut_fields)
    */
-  QVector<QAction*> key_shortcut_actions;
+  QVector<QAction*> key_shortcut_actions_;
 
   /**
    * @brief List of keyboard shortcut items in keyboard_tree corresponding to existing actions (links with
    * key_shortcut_actions and key_shortcut_fields)
    */
-  QVector<QTreeWidgetItem*> key_shortcut_items;
+  QVector<QTreeWidgetItem*> key_shortcut_items_;
 
   /**
    * @brief List of keyboard shortcut editing fields in keyboard_tree corresponding to existing actions (links with
    * key_shortcut_actions and key_shortcut_fields)
    */
-  QVector<KeySequenceEditor*> key_shortcut_fields;
+  QVector<KeySequenceEditor*> key_shortcut_fields_;
 };
 
 #endif // PREFERENCESKEYBOARDTAB_H

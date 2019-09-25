@@ -32,7 +32,7 @@ void KeySequenceEditor::set_action_shortcut() {
 }
 
 void KeySequenceEditor::reset_to_default() {
-  setKeySequence(action->property("default").toString());
+  setKeySequence(action->property("keydefault").toString());
 }
 
 QString KeySequenceEditor::action_name() {
@@ -41,7 +41,7 @@ QString KeySequenceEditor::action_name() {
 
 QString KeySequenceEditor::export_shortcut() {
   QString ks = keySequence().toString();
-  if (ks != action->property("default")) {
+  if (ks != action->property("keydefault")) {
     return action->property("id").toString() + "\t" + ks;
   }
   return nullptr;

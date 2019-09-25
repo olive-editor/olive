@@ -281,10 +281,7 @@ void PreferencesDialog::accept()
     delete_previews(delete_type);
   }
 
-  // Save keyboard shortcuts
-  for (int i=0;i<key_shortcut_fields.size();i++) {
-    key_shortcut_fields.at(i)->set_action_shortcut();
-  }
+
 
   QDialog::accept();
 

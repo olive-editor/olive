@@ -8,7 +8,10 @@
 
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
-  QGridLayout* general_layout = new QGridLayout(this);
+  QVBoxLayout* layout = new QVBoxLayout(this);
+
+  QGridLayout* general_layout = new QGridLayout();
+  layout->addLayout(general_layout);
 
   int row = 0;
 
@@ -76,17 +79,6 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   QHBoxLayout* misc_general = new QHBoxLayout();
 
-  // General -> Use Software Fallbacks When Possible
-  QCheckBox* use_software_fallbacks_checkbox = new QCheckBox(tr("Use Software Fallbacks When Possible"));
-  //AddBoolPair(use_software_fallbacks_checkbox, &olive::config.use_software_fallback, true);
-  misc_general->addWidget(use_software_fallbacks_checkbox);
-
-  // General -> Don't Use Proxies When Exporting
-  QCheckBox* dont_use_proxies_when_exporting = new QCheckBox(tr("Don't Use Proxies When Exporting"));
-  dont_use_proxies_when_exporting->setToolTip(tr("Use originals instead of proxies when exporting"));
-  //AddBoolPair(dont_use_proxies_when_exporting, &olive::config.dont_use_proxies_on_export);
-  misc_general->addWidget(dont_use_proxies_when_exporting);
-
   // General -> Default Sequence Settings
   QPushButton* default_sequence_settings = new QPushButton(tr("Default Sequence Settings"));
   connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
@@ -94,7 +86,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   general_layout->addLayout(misc_general, row, 0, 1, 5);
 
-  row++;
+  layout->addStretch();
 }
 
 void PreferencesGeneralTab::Accept()
