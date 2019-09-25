@@ -84,7 +84,12 @@ signals:
    */
   void EndClicked();
 
+protected:
+  virtual void changeEvent(QEvent *) override;
+
 private:
+  void UpdateIcons();
+
   QWidget* lower_left_container_;
   QWidget* lower_right_container_;
 
@@ -93,8 +98,12 @@ private:
 
   rational time_base_;
 
+  QPushButton* go_to_start_btn_;
+  QPushButton* prev_frame_btn_;
   QPushButton* play_btn_;
   QPushButton* pause_btn_;
+  QPushButton* next_frame_btn_;
+  QPushButton* go_to_end_btn_;
 
   QStackedWidget* playpause_stack_;
 

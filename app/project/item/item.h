@@ -92,8 +92,7 @@ public:
   const QString& tooltip() const;
   void set_tooltip(const QString& t);
 
-  const QIcon& icon();
-  void set_icon(const QIcon& icon);
+  virtual QIcon icon() = 0;
 
   Item *parent() const;
   const Item* root() const;
@@ -110,8 +109,6 @@ private:
   Item* parent_;
 
   QString name_;
-
-  QIcon icon_;
 
   QString tooltip_;
 

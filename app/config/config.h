@@ -21,14 +21,34 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <QMap>
+#include <QString>
+#include <QVariant>
+
 #include "common/timecodefunctions.h"
 
-/**
- * @brief Temporary variables that will definitely be configurable but aren't yet
- */
+class Config {
+public:
+  static Config& Current();
 
-const olive::TimecodeDisplay kTimecodeDisplay = olive::kTimecodeFrames;
+  void SetDefaults();
 
-const rational kDefaultImageLength = 2;
+  static void Load();
+
+  static void Save();
+
+  QVariant operator[](const QString&) const;
+
+  QVariant& operator[](const QString&);
+
+private:
+  Config();
+
+  QMap<QString, QVariant> config_map_;
+
+  static Config current_config_;
+
+  static QString GetConfigFilePath();
+};
 
 #endif // CONFIG_H

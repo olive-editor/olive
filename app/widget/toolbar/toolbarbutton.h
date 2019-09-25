@@ -38,15 +38,11 @@ public:
    *
    * QWidget parent. Almost always an instance of Toolbar.
    *
-   * @param icon
-   *
-   * Icon to set this QWidget to.
-   *
    * @param tool
    *
    * Tool object. Must be a member of enum olive::tool::Tool, including kNone if this button does not represent a tool.
    */
-  ToolbarButton(QWidget* parent, const QIcon& icon, const olive::tool::Tool& tool);
+  ToolbarButton(QWidget* parent, const olive::tool::Tool& tool);
 
   /**
    * @brief Retrieve tool ID that this button represents

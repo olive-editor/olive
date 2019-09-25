@@ -21,23 +21,39 @@
 #ifndef STYLEMANAGER_H
 #define STYLEMANAGER_H
 
+#include <QSettings>
 #include <QWidget>
 
-namespace olive {
-namespace style {
+class StyleDescriptor {
+public:
+  StyleDescriptor(const QString& name, const QString& path);
 
-/**
- * @brief Sets the application style to "Olive Default"
- *
- * This function should probably be replaced (or at least renamed) later as alternative styles are reimplemented.
- * At the moment, this is a convenience function for setting to "Olive Default" which is a cross-platform default
- * style used in Olive.
- */
-void AppSetDefault();
+  const QString& name() const;
+  const QString& path() const;
 
-void SetOliveStyle(const QString& style_name);
+private:
+  QString name_;
+  QString path_;
+};
 
-}
-}
+class StyleManager : public QObject {
+public:
+  StyleManager();
+
+  static StyleDescriptor DefaultStyle();
+
+  static void SetStyle(const StyleDescriptor& style);
+
+  static void SetStyle(const QString& style_path);
+
+  static QList<StyleDescriptor> ListInternal();
+
+private:
+  static QPalette ParsePalette(const QString& ini_path);
+
+  static void ParsePaletteGroup(QSettings* ini, QPalette* palette, QPalette::ColorGroup group);
+
+  static void ParsePaletteColor(QSettings* ini, QPalette* palette, QPalette::ColorGroup group, const QString& role_name);
+};
 
 #endif // STYLEMANAGER_H

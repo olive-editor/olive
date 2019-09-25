@@ -279,7 +279,7 @@ void TimelineView::PointerTool::ProcessDrag(const QPoint &mouse_pos)
   int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase_);
   QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
                                                       parent()->timebase_,
-                                                      kTimecodeDisplay,
+                                                      olive::CurrentTimecodeDisplay(),
                                                       true);
   QToolTip::showText(QCursor::pos(),
                      tooltip_text,

@@ -34,24 +34,25 @@ Toolbar::Toolbar(QWidget *parent) :
   layout_->setMargin(0);
 
   // Create standard tool buttons
-  btn_pointer_tool_ = CreateToolButton(olive::icon::ToolPointer, olive::tool::kPointer);
-  btn_edit_tool_ = CreateToolButton(olive::icon::ToolEdit, olive::tool::kEdit);
-  btn_ripple_tool_ = CreateToolButton(olive::icon::ToolRipple, olive::tool::kRipple);
-  btn_rolling_tool_ = CreateToolButton(olive::icon::ToolRolling, olive::tool::kRolling);
-  btn_razor_tool_ = CreateToolButton(olive::icon::ToolRazor, olive::tool::kRazor);
-  btn_slip_tool_ = CreateToolButton(olive::icon::ToolSlip, olive::tool::kSlip);
-  btn_slide_tool_ = CreateToolButton(olive::icon::ToolSlide, olive::tool::kSlide);
-  btn_hand_tool_ = CreateToolButton(olive::icon::ToolHand, olive::tool::kHand);
-  btn_zoom_tool_ = CreateToolButton(olive::icon::ZoomIn, olive::tool::kZoom);
-  btn_record_ = CreateToolButton(olive::icon::Record, olive::tool::kRecord);
-  btn_transition_tool_ = CreateToolButton(olive::icon::ToolTransition, olive::tool::kTransition);
-  btn_add_ = CreateToolButton(olive::icon::Add, olive::tool::kAdd);
+  btn_pointer_tool_ = CreateToolButton(olive::tool::kPointer);
+  btn_edit_tool_ = CreateToolButton(olive::tool::kEdit);
+  btn_ripple_tool_ = CreateToolButton(olive::tool::kRipple);
+  btn_rolling_tool_ = CreateToolButton(olive::tool::kRolling);
+  btn_razor_tool_ = CreateToolButton(olive::tool::kRazor);
+  btn_slip_tool_ = CreateToolButton(olive::tool::kSlip);
+  btn_slide_tool_ = CreateToolButton(olive::tool::kSlide);
+  btn_hand_tool_ = CreateToolButton(olive::tool::kHand);
+  btn_zoom_tool_ = CreateToolButton(olive::tool::kZoom);
+  btn_record_ = CreateToolButton(olive::tool::kRecord);
+  btn_transition_tool_ = CreateToolButton(olive::tool::kTransition);
+  btn_add_ = CreateToolButton(olive::tool::kAdd);
 
   // Create snapping button, which is not actually a tool, it's a toggle option
-  btn_snapping_toggle_ = CreateNonToolButton(olive::icon::Snapping);
+  btn_snapping_toggle_ = CreateNonToolButton();
   connect(btn_snapping_toggle_, SIGNAL(clicked(bool)), this, SLOT(SnappingButtonClicked(bool)));
 
   Retranslate();
+  UpdateIcons();
 }
 
 void Toolbar::SetTool(const olive::tool::Tool& tool)
@@ -74,6 +75,8 @@ void Toolbar::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
     Retranslate();
+  } else if (e->type() == QEvent::StyleChange) {
+    UpdateIcons();
   }
   QWidget::changeEvent(e);
 }
@@ -95,10 +98,27 @@ void Toolbar::Retranslate()
   btn_snapping_toggle_->setToolTip(tr("Toggle Snapping"));
 }
 
-ToolbarButton* Toolbar::CreateToolButton(const QIcon &icon, const olive::tool::Tool& tool)
+void Toolbar::UpdateIcons()
+{
+  btn_pointer_tool_->setIcon(olive::icon::ToolPointer);
+  btn_edit_tool_->setIcon(olive::icon::ToolEdit);
+  btn_ripple_tool_->setIcon(olive::icon::ToolRipple);
+  btn_rolling_tool_->setIcon(olive::icon::ToolRolling);
+  btn_razor_tool_->setIcon(olive::icon::ToolRazor);
+  btn_slip_tool_->setIcon(olive::icon::ToolSlip);
+  btn_slide_tool_->setIcon(olive::icon::ToolSlide);
+  btn_hand_tool_->setIcon(olive::icon::ToolHand);
+  btn_zoom_tool_->setIcon(olive::icon::ZoomIn);
+  btn_record_->setIcon(olive::icon::Record);
+  btn_transition_tool_->setIcon(olive::icon::ToolTransition);
+  btn_add_->setIcon(olive::icon::Add);
+  btn_snapping_toggle_->setIcon(olive::icon::Snapping);
+}
+
+ToolbarButton* Toolbar::CreateToolButton(const olive::tool::Tool& tool)
 {
   // Create a ToolbarButton object
-  ToolbarButton* b = new ToolbarButton(this, icon, tool);
+  ToolbarButton* b = new ToolbarButton(this, tool);
 
   // Add it to the layout
   layout_->addWidget(b);
@@ -112,10 +132,10 @@ ToolbarButton* Toolbar::CreateToolButton(const QIcon &icon, const olive::tool::T
   return b;
 }
 
-ToolbarButton *Toolbar::CreateNonToolButton(const QIcon &icon)
+ToolbarButton *Toolbar::CreateNonToolButton()
 {
   // Create a ToolbarButton object
-  ToolbarButton* b = new ToolbarButton(this, icon, olive::tool::kNone);
+  ToolbarButton* b = new ToolbarButton(this, olive::tool::kNone);
 
   // Add it to the layout
   layout_->addWidget(b);

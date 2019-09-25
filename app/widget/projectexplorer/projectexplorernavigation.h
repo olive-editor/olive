@@ -99,6 +99,8 @@ protected:
 private:
   void Retranslate();
 
+  void UpdateIcons();
+
   QPushButton* dir_up_btn_;
 
   QLabel* dir_lbl_;

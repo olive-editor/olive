@@ -1,0 +1,214 @@
+#include "preferenceskeyboardtab.h"
+
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QVBoxLayout>
+
+PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
+{
+  QVBoxLayout* shortcut_layout = new QVBoxLayout(this);
+
+  QLineEdit* key_search_line = new QLineEdit();
+  key_search_line->setPlaceholderText(tr("Search for action or shortcut"));
+  connect(key_search_line, SIGNAL(textChanged(const QString &)), this, SLOT(refine_shortcut_list(const QString &)));
+
+  shortcut_layout->addWidget(key_search_line);
+
+  keyboard_tree = new QTreeWidget();
+  QTreeWidgetItem* tree_header = keyboard_tree->headerItem();
+  tree_header->setText(0, tr("Action"));
+  tree_header->setText(1, tr("Shortcut"));
+  shortcut_layout->addWidget(keyboard_tree);
+
+  QHBoxLayout* reset_shortcut_layout = new QHBoxLayout();
+
+  QPushButton* import_shortcut_button = new QPushButton(tr("Import"));
+  reset_shortcut_layout->addWidget(import_shortcut_button);
+  connect(import_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(load_shortcut_file()));
+
+  QPushButton* export_shortcut_button = new QPushButton(tr("Export"));
+  reset_shortcut_layout->addWidget(export_shortcut_button);
+  connect(export_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(save_shortcut_file()));
+
+  reset_shortcut_layout->addStretch();
+
+  QPushButton* reset_selected_shortcut_button = new QPushButton(tr("Reset Selected"));
+  reset_shortcut_layout->addWidget(reset_selected_shortcut_button);
+  connect(reset_selected_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_default_shortcut()));
+
+  QPushButton* reset_all_shortcut_button = new QPushButton(tr("Reset All"));
+  reset_shortcut_layout->addWidget(reset_all_shortcut_button);
+  connect(reset_all_shortcut_button, SIGNAL(clicked(bool)), this, SLOT(reset_all_shortcuts()));
+
+  shortcut_layout->addLayout(reset_shortcut_layout);
+
+  setup_kbd_shortcuts(menubar);
+}
+
+void PreferencesKeyboardTab::Accept()
+{
+
+}
+
+void PreferencesKeyboardTab::setup_kbd_shortcuts(QMenuBar* menubar) {
+  QList<QAction*> menus = menubar->actions();
+
+  for (int i=0;i<menus.size();i++) {
+    QMenu* menu = menus.at(i)->menu();
+
+    QTreeWidgetItem* item = new QTreeWidgetItem(keyboard_tree);
+    item->setText(0, menu->title().replace("&", ""));
+
+    keyboard_tree->addTopLevelItem(item);
+
+    setup_kbd_shortcut_worker(menu, item);
+  }
+
+  for (int i=0;i<key_shortcut_items.size();i++) {
+    if (!key_shortcut_actions.at(i)->property("id").isNull()) {
+      KeySequenceEditor* editor = new KeySequenceEditor(keyboard_tree, key_shortcut_actions.at(i));
+      keyboard_tree->setItemWidget(key_shortcut_items.at(i), 1, editor);
+      key_shortcut_fields.append(editor);
+    }
+  }
+}
+
+void PreferencesKeyboardTab::setup_kbd_shortcut_worker(QMenu* menu, QTreeWidgetItem* parent) {
+  QList<QAction*> actions = menu->actions();
+  for (int i=0;i<actions.size();i++) {
+    QAction* a = actions.at(i);
+
+    if (!a->isSeparator() && a->property("keyignore").isNull()) {
+      QTreeWidgetItem* item = new QTreeWidgetItem(parent);
+      item->setText(0, a->text().replace("&", ""));
+
+      parent->addChild(item);
+
+      if (a->menu() != nullptr) {
+        item->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
+        setup_kbd_shortcut_worker(a->menu(), item);
+      } else {
+        key_shortcut_items.append(item);
+        key_shortcut_actions.append(a);
+      }
+    }
+  }
+}
+
+void PreferencesKeyboardTab::reset_default_shortcut() {
+  QList<QTreeWidgetItem*> items = keyboard_tree->selectedItems();
+  for (int i=0;i<items.size();i++) {
+    QTreeWidgetItem* item = keyboard_tree->selectedItems().at(i);
+    static_cast<KeySequenceEditor*>(keyboard_tree->itemWidget(item, 1))->reset_to_default();
+  }
+}
+
+void PreferencesKeyboardTab::reset_all_shortcuts() {
+  if (QMessageBox::question(
+        this,
+        tr("Confirm Reset All Shortcuts"),
+        tr("Are you sure you wish to reset all keyboard shortcuts to their defaults?"),
+        QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    for (int i=0;i<key_shortcut_fields.size();i++) {
+      key_shortcut_fields.at(i)->reset_to_default();
+    }
+  }
+}
+
+bool PreferencesKeyboardTab::refine_shortcut_list(const QString &s, QTreeWidgetItem* parent) {
+  if (parent == nullptr) {
+    for (int i=0;i<keyboard_tree->topLevelItemCount();i++) {
+      refine_shortcut_list(s, keyboard_tree->topLevelItem(i));
+    }
+  } else {
+    parent->setExpanded(!s.isEmpty());
+
+    bool all_children_are_hidden = !s.isEmpty();
+
+    for (int i=0;i<parent->childCount();i++) {
+      QTreeWidgetItem* item = parent->child(i);
+      if (item->childCount() > 0) {
+        all_children_are_hidden = refine_shortcut_list(s, item);
+      } else {
+        item->setHidden(false);
+        if (s.isEmpty()) {
+          all_children_are_hidden = false;
+        } else {
+          QString shortcut;
+          if (keyboard_tree->itemWidget(item, 1) != nullptr) {
+            shortcut = static_cast<QKeySequenceEdit*>(keyboard_tree->itemWidget(item, 1))->keySequence().toString();
+          }
+          if (item->text(0).contains(s, Qt::CaseInsensitive) || shortcut.contains(s, Qt::CaseInsensitive)) {
+            all_children_are_hidden = false;
+          } else {
+            item->setHidden(true);
+          }
+        }
+      }
+    }
+
+    if (parent->text(0).contains(s, Qt::CaseInsensitive)) all_children_are_hidden = false;
+
+    parent->setHidden(all_children_are_hidden);
+
+    return all_children_are_hidden;
+  }
+  return true;
+}
+
+void PreferencesKeyboardTab::load_shortcut_file() {
+  QString fn = QFileDialog::getOpenFileName(this, tr("Import Keyboard Shortcuts"));
+  if (!fn.isEmpty()) {
+    QFile f(fn);
+    if (f.exists() && f.open(QFile::ReadOnly)) {
+      QByteArray ba = f.readAll();
+      f.close();
+      for (int i=0;i<key_shortcut_fields.size();i++) {
+        int index = ba.indexOf(key_shortcut_fields.at(i)->action_name());
+        if (index == 0 || (index > 0 && ba.at(index-1) == '\n')) {
+          while (index < ba.size() && ba.at(index) != '\t') index++;
+          QString ks;
+          index++;
+          while (index < ba.size() && ba.at(index) != '\n') {
+            ks.append(ba.at(index));
+            index++;
+          }
+          key_shortcut_fields.at(i)->setKeySequence(ks);
+        } else {
+          key_shortcut_fields.at(i)->reset_to_default();
+        }
+      }
+    } else {
+      QMessageBox::critical(
+            this,
+            tr("Error saving shortcuts"),
+            tr("Failed to open file for reading")
+            );
+    }
+  }
+}
+
+void PreferencesKeyboardTab::save_shortcut_file() {
+  QString fn = QFileDialog::getSaveFileName(this, tr("Export Keyboard Shortcuts"));
+  if (!fn.isEmpty()) {
+    QFile f(fn);
+    if (f.open(QFile::WriteOnly)) {
+      bool start = true;
+      for (int i=0;i<key_shortcut_fields.size();i++) {
+        QString s = key_shortcut_fields.at(i)->export_shortcut();
+        if (!s.isEmpty()) {
+          if (!start) f.write("\n");
+          f.write(s.toUtf8());
+          start = false;
+        }
+      }
+      f.close();
+      QMessageBox::information(this, tr("Export Shortcuts"), tr("Shortcuts exported successfully"));
+    } else {
+      QMessageBox::critical(this, tr("Error saving shortcuts"), tr("Failed to open file for writing"));
+    }
+  }
+}

@@ -83,7 +83,7 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
 
         if (stream->type() == Stream::kImage) {
           // Stream is essentially length-less - use config's default image length
-          footage_duration = kDefaultImageLength;
+          footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
         } else {
           // Use duration from file
           footage_duration = rational(stream->timebase().numerator() * stream->duration(),
@@ -151,7 +151,7 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
     int64_t earliest_timestamp = olive::time_to_timestamp(earliest_ghost, parent()->timebase_);
     QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
                                                         parent()->timebase_,
-                                                        kTimecodeDisplay);
+                                                        olive::CurrentTimecodeDisplay());
     QToolTip::showText(QCursor::pos(),
                        tooltip_text,
                        parent());

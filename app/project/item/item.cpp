@@ -101,16 +101,6 @@ void Item::set_tooltip(const QString &t)
   tooltip_ = t;
 }
 
-const QIcon &Item::icon()
-{
-  return icon_;
-}
-
-void Item::set_icon(const QIcon &icon)
-{
-  icon_ = icon;
-}
-
 Item *Item::parent() const
 {
   return parent_;

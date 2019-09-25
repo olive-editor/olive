@@ -57,6 +57,8 @@ int main(int argc, char *argv[]) {
 
   QString app_version = "0.2.0";
 #ifdef GITHASH
+  // Anything after the hyphen is considered "unimportant" information. Text BEFORE the hyphen is used in version
+  // checking project files and config files
   app_version.append("-");
   app_version.append(GITHASH);
 #endif

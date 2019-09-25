@@ -125,6 +125,11 @@ public slots:
   void DialogImportShow();
 
   /**
+   * @brief Show Preferences dialog
+   */
+  void DialogPreferencesShow();
+
+  /**
    * @brief Create a new folder in the currently active project
    */
   void CreateNewFolder();

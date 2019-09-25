@@ -18,56 +18,6 @@
 
 ***/
 
-/***
-
-  Olive Dark - Qt CSS Theme
-
-  A fairly basic CSS style for the Olive Video Editor/Qt Fusion.
-
-  The primary colors are:
-
-  Main:            #353535
-  Text:            #ffffff
-  Disabled Text:   #808080
-  Highlight:       #2a82da
-  Highlight Text:  #ffffff
-  Dark:            #191919
-
-**/
-
-/* Default widget colors */
-QWidget, QMenu::separator {
-  /* Main */
-  background: #353535;
-
-  /* Text */
-  color: #ffffff;
-
-  /* Highlight */
-  selection-background-color: #2a82da;
-
-  /* Highlight Text */
-  selection-color: #ffffff;
-}
-
-/* Default disabled colors */
-QWidget::disabled {
-  /* Disabled Text */
-  color: #808080;
-}
-
-/* Default link color */
-a {
-  /* Highlight */
-  color: #2a82da;
-}
-
-/* All of these widgets' backgrounds are dark */
-QTreeView, QListView, QLineEdit, QMenu, QProgressBar, QPushButton::checked, NodeView, QComboBox, QSpinBox {
-  /* Dark */
-  background: #191919;
-}
-
 /* Node styling */
 NodeViewItemWidget {
   qproperty-titlebarColor: #4040a0;

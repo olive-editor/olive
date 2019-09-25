@@ -20,6 +20,8 @@
 
 #include "playbackcontrols.h"
 
+#include <QDebug>
+#include <QEvent>
 #include <QHBoxLayout>
 
 #include "common/timecodefunctions.h"
@@ -63,28 +65,24 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_middle_layout->addStretch();
 
   // Go To Start Button
-  QPushButton* go_to_start_btn = new QPushButton();
-  go_to_start_btn->setIcon(olive::icon::GoToStart);
-  lower_middle_layout->addWidget(go_to_start_btn);
-  connect(go_to_start_btn, SIGNAL(clicked(bool)), this, SIGNAL(BeginClicked()));
+  go_to_start_btn_ = new QPushButton();
+  lower_middle_layout->addWidget(go_to_start_btn_);
+  connect(go_to_start_btn_, SIGNAL(clicked(bool)), this, SIGNAL(BeginClicked()));
 
   // Prev Frame Button
-  QPushButton* prev_frame_btn = new QPushButton();
-  prev_frame_btn->setIcon(olive::icon::PrevFrame);
-  lower_middle_layout->addWidget(prev_frame_btn);
-  connect(prev_frame_btn, SIGNAL(clicked(bool)), this, SIGNAL(PrevFrameClicked()));
+  prev_frame_btn_ = new QPushButton();
+  lower_middle_layout->addWidget(prev_frame_btn_);
+  connect(prev_frame_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PrevFrameClicked()));
 
   // Play/Pause Button
   playpause_stack_ = new QStackedWidget();
   lower_middle_layout->addWidget(playpause_stack_);
 
   play_btn_ = new QPushButton();
-  play_btn_->setIcon(olive::icon::Play);
   playpause_stack_->addWidget(play_btn_);
   connect(play_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
 
   pause_btn_ = new QPushButton();
-  pause_btn_->setIcon(olive::icon::Pause);
   playpause_stack_->addWidget(pause_btn_);
   connect(pause_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PauseClicked()));
 
@@ -93,16 +91,14 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   playpause_stack_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 
   // Next Frame Button
-  QPushButton* next_frame_btn = new QPushButton();
-  next_frame_btn->setIcon(olive::icon::NextFrame);
-  lower_middle_layout->addWidget(next_frame_btn);
-  connect(next_frame_btn, SIGNAL(clicked(bool)), this, SIGNAL(NextFrameClicked()));
+  next_frame_btn_ = new QPushButton();
+  lower_middle_layout->addWidget(next_frame_btn_);
+  connect(next_frame_btn_, SIGNAL(clicked(bool)), this, SIGNAL(NextFrameClicked()));
 
   // Go To End Button
-  QPushButton* go_to_end_btn = new QPushButton();
-  go_to_end_btn->setIcon(olive::icon::GoToEnd);
-  lower_middle_layout->addWidget(go_to_end_btn);
-  connect(go_to_end_btn, SIGNAL(clicked(bool)), this, SIGNAL(EndClicked()));
+  go_to_end_btn_ = new QPushButton();
+  lower_middle_layout->addWidget(go_to_end_btn_);
+  connect(go_to_end_btn_, SIGNAL(clicked(bool)), this, SIGNAL(EndClicked()));
 
   lower_middle_layout->addStretch();
 
@@ -119,6 +115,8 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_right_layout->addStretch();
   end_tc_lbl_ = new QLabel("00:00:00;00");
   lower_right_layout->addWidget(end_tc_lbl_);
+
+  UpdateIcons();
 }
 
 void PlaybackControls::SetTimecodeEnabled(bool enabled)
@@ -136,7 +134,9 @@ void PlaybackControls::SetTime(const int64_t &r)
 {
   Q_ASSERT(time_base_.denominator() != 0);
 
-  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r, time_base_, kTimecodeDisplay));
+  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r,
+                                                    time_base_,
+                                                    olive::CurrentTimecodeDisplay()));
 }
 
 void PlaybackControls::ShowPauseButton()
@@ -148,4 +148,23 @@ void PlaybackControls::ShowPauseButton()
 void PlaybackControls::ShowPlayButton()
 {
   playpause_stack_->setCurrentWidget(play_btn_);
+}
+
+void PlaybackControls::changeEvent(QEvent *e)
+{
+  QWidget::changeEvent(e);
+
+  if (e->type() == QEvent::StyleChange) {
+    UpdateIcons();
+  }
+}
+
+void PlaybackControls::UpdateIcons()
+{
+  go_to_start_btn_->setIcon(olive::icon::GoToStart);
+  prev_frame_btn_->setIcon(olive::icon::PrevFrame);
+  play_btn_->setIcon(olive::icon::Play);
+  pause_btn_->setIcon(olive::icon::Pause);
+  next_frame_btn_->setIcon(olive::icon::NextFrame);
+  go_to_end_btn_->setIcon(olive::icon::GoToEnd);
 }

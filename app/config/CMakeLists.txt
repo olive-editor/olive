@@ -17,5 +17,6 @@
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   config/config.h
+  config/config.cpp
   PARENT_SCOPE
 )

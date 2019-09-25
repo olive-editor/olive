@@ -25,11 +25,14 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QHBoxLayout>
+#include <QMessageBox>
+#include <QStyleFactory>
 
+#include "config/config.h"
 #include "dialog/about/about.h"
 #include "dialog/sequence/sequence.h"
+#include "dialog/preferences/preferences.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
@@ -84,6 +87,9 @@ void Core::Start()
 
   // Declare custom types for Qt signal/slot syste
   DeclareTypesForQt();
+
+  // Load application config
+  Config::Load();
 
 
   //
@@ -191,6 +197,12 @@ void Core::DialogImportShow()
 
     ImportFiles(files, active_project_panel->model(), folder);
   }
+}
+
+void Core::DialogPreferencesShow()
+{
+  PreferencesDialog pd(main_window_, main_window_->menuBar());
+  pd.exec();
 }
 
 void Core::CreateNewFolder()
@@ -344,7 +356,8 @@ void Core::DeclareTypesForQt()
 void Core::StartGUI(bool full_screen)
 {
   // Set UI style
-  olive::style::AppSetDefault();
+  qApp->setStyle(QStyleFactory::create("Fusion"));
+  StyleManager::SetStyle(StyleManager::DefaultStyle());
 
   // Set up shared menus
   olive::menu_shared.Initialize();

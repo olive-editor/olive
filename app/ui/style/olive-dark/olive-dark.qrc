@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/style/olive-dark">
+    <file>palette.ini</file>
     <file>style.css</file>
     <file>png/add-button.16.png</file>
     <file>png/add-button.32.png</file>

@@ -23,6 +23,8 @@
 
 #include <QString>
 
+bool IsPortable();
+
 QString GetUniqueFileIdentifier(const QString& filename);
 
 QString GetMediaIndexLocation();
@@ -30,5 +32,9 @@ QString GetMediaIndexLocation();
 QString GetMediaIndexFilename(const QString& filename);
 
 QString GetMediaCacheLocation();
+
+QString GetConfigurationLocation();
+
+QString GetApplicationPath();
 
 #endif // FILEFUNCTIONS_H

@@ -34,6 +34,8 @@ enum TimecodeDisplay {
   kMilliseconds
 };
 
+TimecodeDisplay CurrentTimecodeDisplay();
+
 /**
  * @brief Convert a timestamp (according to a rational timebase) to a user-friendly string representation
  */

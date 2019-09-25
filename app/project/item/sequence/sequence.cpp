@@ -25,12 +25,16 @@
 
 Sequence::Sequence()
 {
-  set_icon(olive::icon::Sequence);
 }
 
 Item::Type Sequence::type() const
 {
   return kSequence;
+}
+
+QIcon Sequence::icon()
+{
+  return olive::icon::Sequence;
 }
 
 const int &Sequence::video_width()

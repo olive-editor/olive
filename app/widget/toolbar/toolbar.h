@@ -113,6 +113,11 @@ private:
   void Retranslate();
 
   /**
+   * @brief Update icons after a style change
+   */
+  void UpdateIcons();
+
+  /**
    * @brief Internal convenience function for creating tool buttons quickly
    *
    * This function will create a ToolbarButton object, set the icon to `icon`, set its tool value to `tool`, add it to
@@ -125,7 +130,7 @@ private:
    *
    * The created ToolbarButton. The button parent is automatically set to `this`.
    */
-  ToolbarButton* CreateToolButton(const QIcon &icon, const olive::tool::Tool& tool);
+  ToolbarButton* CreateToolButton(const olive::tool::Tool& tool);
 
   /**
    * @brief Internal convenience function for creating buttons quickly
@@ -138,7 +143,7 @@ private:
    *
    * The created ToolbarButton. The button parent is automatically set to `this`.
    */
-  ToolbarButton* CreateNonToolButton(const QIcon &icon);
+  ToolbarButton* CreateNonToolButton();
 
   /**
    * @brief Internal layout used for buttons

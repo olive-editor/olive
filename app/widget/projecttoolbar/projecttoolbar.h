@@ -61,6 +61,7 @@ signals:
 
 private:
   void Retranslate();
+  void UpdateIcons();
 
   QPushButton* new_button_;
   QPushButton* open_button_;

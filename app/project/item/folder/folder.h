@@ -38,6 +38,8 @@ public:
 
   virtual bool CanHaveChildren() const override;
 
+  virtual QIcon icon() override;
+
 private:
 
 };

@@ -22,6 +22,8 @@
 
 #include <QtMath>
 
+#include "config/config.h"
+
 QString padded(int arg, int padding) {
   return QString("%1").arg(arg, padding, 10, QChar('0'));
 }
@@ -90,4 +92,9 @@ rational olive::timestamp_to_time(const int64_t &timestamp, const rational &time
 int64_t olive::time_to_timestamp(const rational &time, const rational &timebase)
 {
   return qRound64(time.toDouble() * timebase.flipped().toDouble());
+}
+
+olive::TimecodeDisplay olive::CurrentTimecodeDisplay()
+{
+  return static_cast<olive::TimecodeDisplay>(Config::Current()["TimecodeDisplay"].toInt());
 }

@@ -24,7 +24,6 @@
 
 Folder::Folder()
 {
-  set_icon(olive::icon::Folder);
 }
 
 Item::Type Folder::type() const
@@ -35,4 +34,9 @@ Item::Type Folder::type() const
 bool Folder::CanHaveChildren() const
 {
   return true;
+}
+
+QIcon Folder::icon()
+{
+  return olive::icon::Folder;
 }

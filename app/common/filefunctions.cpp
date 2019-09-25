@@ -20,6 +20,7 @@
 
 #include "filefunctions.h"
 
+#include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDateTime>
 #include <QDir>
@@ -72,4 +73,23 @@ QString GetMediaCacheLocation()
   media_cache_dir.mkpath(".");
 
   return media_cache_dir.absolutePath();
+}
+
+QString GetConfigurationLocation()
+{
+  if (IsPortable()) {
+    return GetApplicationPath();
+  } else {
+    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+  }
+}
+
+bool IsPortable()
+{
+  return QFileInfo::exists(QDir(GetApplicationPath()).filePath("portable"));
+}
+
+QString GetApplicationPath()
+{
+  return QCoreApplication::applicationDirPath();
 }

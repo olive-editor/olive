@@ -38,6 +38,8 @@ public:
    */
   virtual Type type() const override;
 
+  virtual QIcon icon() override;
+
   /* VIDEO GETTER/SETTER FUNCTIONS */
 
   const int& video_width();

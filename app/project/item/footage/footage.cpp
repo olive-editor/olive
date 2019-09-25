@@ -43,8 +43,6 @@ void Footage::set_status(const Footage::Status &status)
 {
   status_ = status;
 
-  UpdateIcon();
-
   UpdateTooltip();
 }
 
@@ -116,6 +114,38 @@ void Footage::set_decoder(const QString &id)
   decoder_ = id;
 }
 
+QIcon Footage::icon()
+{
+  switch (status_) {
+  case kUnprobed:
+  case kUnindexed:
+    // FIXME Set a waiting icon
+    return QIcon();
+  case kReady:
+    if (HasStreamsOfType(Stream::kVideo)) {
+
+      // Prioritize the video icon
+      return olive::icon::Video;
+
+    } else if (HasStreamsOfType(Stream::kAudio)) {
+
+      // Otherwise assume it's audio only
+      return olive::icon::Audio;
+
+    } else if (HasStreamsOfType(Stream::kImage)) {
+
+      // Otherwise assume it's an image
+      return olive::icon::Image;
+
+    }
+    /* fall through */
+  case kInvalid:
+    return olive::icon::Error;
+  }
+
+  return QIcon();
+}
+
 void Footage::ClearStreams()
 {
   if (streams_.empty()) {
@@ -136,41 +166,6 @@ bool Footage::HasStreamsOfType(const Stream::Type type)
   }
 
   return false;
-}
-
-void Footage::UpdateIcon()
-{
-  switch (status_) {
-  case kUnprobed:
-  case kUnindexed:
-    // FIXME Set a waiting icon
-    set_icon(QIcon());
-    break;
-  case kReady:
-    if (HasStreamsOfType(Stream::kVideo)) {
-
-      // Prioritize the video icon
-      set_icon(olive::icon::Video);
-      break;
-
-    } else if (HasStreamsOfType(Stream::kAudio)) {
-
-      // Otherwise assume it's audio only
-      set_icon(olive::icon::Audio);
-      break;
-
-    } else if (HasStreamsOfType(Stream::kImage)) {
-
-      // Otherwise assume it's an image
-      set_icon(olive::icon::Image);
-      break;
-
-    }
-    /* fall through */
-  case kInvalid:
-    set_icon(olive::icon::Error);
-    break;
-  }
 }
 
 void Footage::UpdateTooltip()

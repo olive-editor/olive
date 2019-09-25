@@ -16,6 +16,7 @@
 
 add_subdirectory(about)
 add_subdirectory(actionsearch)
+add_subdirectory(preferences)
 add_subdirectory(sequence)
 
 set(OLIVE_SOURCES

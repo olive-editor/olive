@@ -205,6 +205,8 @@ public:
    */
   void set_decoder(const QString& id);
 
+  virtual QIcon icon() override;
+
 private:
   /**
    * @brief Internal function to delete all Stream children and empty the array

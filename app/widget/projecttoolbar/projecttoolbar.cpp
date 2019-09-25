@@ -34,27 +34,22 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   layout->setMargin(0);
 
   new_button_ = new QPushButton();
-  new_button_->setIcon(olive::icon::New);
   connect(new_button_, SIGNAL(clicked(bool)), this, SIGNAL(NewClicked()));
   layout->addWidget(new_button_);
 
   open_button_ = new QPushButton();
-  open_button_->setIcon(olive::icon::Open);
   connect(open_button_, SIGNAL(clicked(bool)), this, SIGNAL(OpenClicked()));
   layout->addWidget(open_button_);
 
   save_button_ = new QPushButton();
-  save_button_->setIcon(olive::icon::Save);
   connect(save_button_, SIGNAL(clicked(bool)), this, SIGNAL(SaveClicked()));
   layout->addWidget(save_button_);
 
   undo_button_ = new QPushButton();
-  undo_button_->setIcon(olive::icon::Undo);
   connect(undo_button_, SIGNAL(clicked(bool)), this, SIGNAL(UndoClicked()));
   layout->addWidget(undo_button_);
 
   redo_button_ = new QPushButton();
-  redo_button_->setIcon(olive::icon::Redo);
   connect(redo_button_, SIGNAL(clicked(bool)), this, SIGNAL(RedoClicked()));
   layout->addWidget(redo_button_);
 
@@ -64,19 +59,16 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   layout->addWidget(search_field_);
 
   tree_button_ = new QPushButton();
-  tree_button_->setIcon(olive::icon::TreeView);
   tree_button_->setCheckable(true);
   connect(tree_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
   layout->addWidget(tree_button_);
 
   list_button_ = new QPushButton();
-  list_button_->setIcon(olive::icon::ListView);
   list_button_->setCheckable(true);
   connect(list_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
   layout->addWidget(list_button_);
 
   icon_button_ = new QPushButton();
-  icon_button_->setIcon(olive::icon::IconView);
   icon_button_->setCheckable(true);
   connect(icon_button_, SIGNAL(clicked(bool)), this, SLOT(ViewButtonClicked()));
   layout->addWidget(icon_button_);
@@ -89,6 +81,7 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   view_button_group->addButton(icon_button_);
 
   Retranslate();
+  UpdateIcons();
 }
 
 void ProjectToolbar::SetView(olive::ProjectViewType type)
@@ -110,6 +103,8 @@ void ProjectToolbar::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
     Retranslate();
+  } else if (e->type() == QEvent::StyleChange) {
+    UpdateIcons();
   }
   QWidget::changeEvent(e);
 }
@@ -127,6 +122,18 @@ void ProjectToolbar::Retranslate()
   tree_button_->setToolTip(tr("Switch to Tree View"));
   list_button_->setToolTip(tr("Switch to List View"));
   icon_button_->setToolTip(tr("Switch to Icon View"));
+}
+
+void ProjectToolbar::UpdateIcons()
+{
+  new_button_->setIcon(olive::icon::New);
+  open_button_->setIcon(olive::icon::Open);
+  save_button_->setIcon(olive::icon::Save);
+  undo_button_->setIcon(olive::icon::Undo);
+  redo_button_->setIcon(olive::icon::Redo);
+  tree_button_->setIcon(olive::icon::TreeView);
+  list_button_->setIcon(olive::icon::ListView);
+  icon_button_->setIcon(olive::icon::IconView);
 }
 
 void ProjectToolbar::ViewButtonClicked()

@@ -51,6 +51,7 @@ TimelineView::TimelineView(QWidget *parent) :
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
   setDragMode(RubberBandDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+  setBackgroundRole(QPalette::Window);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
 

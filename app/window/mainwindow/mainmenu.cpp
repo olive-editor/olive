@@ -49,7 +49,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   file_menu_->addSeparator();
   file_export_item_ = file_menu_->AddItem("export", nullptr, nullptr, "Ctrl+M");
   file_menu_->addSeparator();
-  file_exit_item_ = file_menu_->AddItem("exit", nullptr, nullptr);
+  file_exit_item_ = file_menu_->AddItem("exit", parent, SLOT(close()), "Ctrl+Q");
 
   //
   // EDIT MENU
@@ -289,7 +289,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   tools_menu_->addSeparator();
 
-  tools_preferences_item_ = tools_menu_->AddItem("prefs", nullptr, nullptr, "Ctrl+,");
+  tools_preferences_item_ = tools_menu_->AddItem("prefs", &olive::core, SLOT(DialogPreferencesShow()), "Ctrl+,");
 
   //
   // HELP MENU
