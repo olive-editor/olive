@@ -26,6 +26,9 @@
 ToolPanel::ToolPanel(QWidget *parent) :
   PanelWidget(parent)
 {
+  // FIXME: This won't work if there's ever more than one of this panel
+  setObjectName("ToolPanel");
+
   Toolbar* t = new Toolbar(this);
 
   t->SetTool(olive::core.tool());

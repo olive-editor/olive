@@ -63,8 +63,17 @@ public:
 
   /**
    * @brief Return the currently focused widget, or nullptr if nothing is focused
+   *
+   * This result == CurrentlyFocused() if HoverFocus is true
    */
   PanelWidget* CurrentlyFocused() const;
+
+  /**
+   * @brief Return the widget that the mouse is currently hovering over, or nullptr if nothing is hovered over
+   *
+   * This result == CurrentlyFocused() if HoverFocus is true
+   */
+  PanelWidget* CurrentlyHovered() const;
 
   template<class T>
   /**

@@ -23,6 +23,9 @@
 NodePanel::NodePanel(QWidget *parent) :
   PanelWidget(parent)
 {
+  // FIXME: This won't work if there's ever more than one of this panel
+  setObjectName("NodePanel");
+
   // Create NodeView widget
   node_view_ = new NodeView(this);
 

@@ -25,6 +25,9 @@
 TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   PanelWidget(parent)
 {
+  // FIXME: This won't work if there's ever more than one of this panel
+  setObjectName("TaskManagerPanel");
+
   // Create task view
   view_ = new TaskView(this);
 

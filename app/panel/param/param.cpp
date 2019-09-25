@@ -23,6 +23,9 @@
 ParamPanel::ParamPanel(QWidget* parent) :
   PanelWidget(parent)
 {
+  // FIXME: This won't work if there's ever more than one of this panel
+  setObjectName("ParamPanel");
+
   view_ = new NodeParamView(this);
 
   setWidget(view_);

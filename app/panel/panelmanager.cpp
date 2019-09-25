@@ -50,6 +50,17 @@ PanelWidget *PanelManager::CurrentlyFocused() const
   return focus_history_.first();
 }
 
+PanelWidget *PanelManager::CurrentlyHovered() const
+{
+  foreach (PanelWidget* panel, focus_history_) {
+    if (panel->underMouse()) {
+      return panel;
+    }
+  }
+
+  return nullptr;
+}
+
 bool PanelManager::ArePanelsLocked()
 {
   return locked_;

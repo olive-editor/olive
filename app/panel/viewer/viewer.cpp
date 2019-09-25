@@ -23,6 +23,9 @@
 ViewerPanel::ViewerPanel(QWidget *parent) :
   PanelWidget(parent)
 {
+  // FIXME: This won't work if there's ever more than one of this panel
+  setObjectName("ViewerPanel");
+
   // QObject system handles deleting this
   viewer_ = new ViewerWidget(this);
   connect(viewer_, SIGNAL(TimeChanged(const rational&)), this, SIGNAL(TimeChanged(const rational&)));
