@@ -23,7 +23,9 @@
 
 #include <QCheckBox>
 #include <QDialog>
+#include <QListWidget>
 #include <QMenuBar>
+#include <QStackedWidget>
 #include <QTabWidget>
 
 #include "tabs/preferencestab.h"
@@ -57,7 +59,9 @@ private slots:
 private:
   void AddTab(PreferencesTab* tab, const QString& title);
 
-  QTabWidget* tab_widget_;
+  QListWidget* list_widget_;
+
+  QStackedWidget* preference_pane_stack_;
 
   QList<PreferencesTab*> tabs_;
 

@@ -9,6 +9,7 @@
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
+  layout->setMargin(0);
 
   QGridLayout* general_layout = new QGridLayout();
   layout->addLayout(general_layout);

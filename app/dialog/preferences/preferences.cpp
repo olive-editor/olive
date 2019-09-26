@@ -21,6 +21,8 @@
 #include "preferences.h"
 
 #include <QDialogButtonBox>
+#include <QListWidget>
+#include <QSplitter>
 #include <QVBoxLayout>
 
 #include "config/config.h"
@@ -37,8 +39,14 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
 {
   setWindowTitle(tr("Preferences"));
 
-  QVBoxLayout* verticalLayout = new QVBoxLayout(this);
-  tab_widget_ = new QTabWidget(this);
+  QVBoxLayout* layout = new QVBoxLayout(this);
+
+  QSplitter* splitter = new QSplitter();
+  layout->addWidget(splitter);
+
+  list_widget_ = new QListWidget();
+
+  preference_pane_stack_ = new QStackedWidget(this);
 
   AddTab(new PreferencesGeneralTab(), tr("General"));
   AddTab(new PreferencesAppearanceTab(), tr("Appearance"));
@@ -48,16 +56,19 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesAudioTab(), tr("Audio"));
   AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));
 
-  verticalLayout->addWidget(tab_widget_);
+  splitter->addWidget(list_widget_);
+  splitter->addWidget(preference_pane_stack_);
 
   QDialogButtonBox* buttonBox = new QDialogButtonBox(this);
   buttonBox->setOrientation(Qt::Horizontal);
   buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-  verticalLayout->addWidget(buttonBox);
+  layout->addWidget(buttonBox);
 
   connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
   connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+  connect(list_widget_, SIGNAL(currentRowChanged(int)), preference_pane_stack_, SLOT(setCurrentIndex(int)));
 
   // set up default sequence
   /*default_sequence.set_name(tr("Default Sequence"));
@@ -329,7 +340,8 @@ void PreferencesDialog::accept()
 
 void PreferencesDialog::AddTab(PreferencesTab *tab, const QString &title)
 {
-  tab_widget_->addTab(tab, title);
+  list_widget_->addItem(title);
+  preference_pane_stack_->addWidget(tab);
 
   tabs_.append(tab);
 }

@@ -11,6 +11,7 @@
 PreferencesColorManagementTab::PreferencesColorManagementTab()
 {
   QGridLayout* color_management_layout = new QGridLayout(this);
+  color_management_layout->setMargin(0);
 
   int row = 0;
 

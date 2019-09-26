@@ -9,6 +9,7 @@
 PreferencesAudioTab::PreferencesAudioTab()
 {
   QGridLayout* audio_tab_layout = new QGridLayout(this);
+  audio_tab_layout->setMargin(0);
 
   int row = 0;
 

@@ -10,6 +10,7 @@
 PreferencesKeyboardTab::PreferencesKeyboardTab(QMenuBar *menubar)
 {
   QVBoxLayout* shortcut_layout = new QVBoxLayout(this);
+  shortcut_layout->setMargin(0);
 
   QLineEdit* key_search_line = new QLineEdit();
   key_search_line->setPlaceholderText(tr("Search for action or shortcut"));
