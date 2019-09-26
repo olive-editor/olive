@@ -20,6 +20,8 @@
 
 #include "audiomanager.h"
 
+#include "config/config.h"
+
 AudioManager* AudioManager::audio_ = nullptr;
 
 void AudioManager::CreateInstance()
@@ -59,6 +61,51 @@ bool AudioManager::IsRefreshing()
   return refreshing_devices_;
 }
 
+#include <QDebug>
+void AudioManager::StartOutput(QIODevice *device)
+{
+  if (output_ == nullptr) {
+    return;
+  }
+
+  output_file_ = device;
+
+  output_->start(output_file_);
+}
+
+void AudioManager::StopOutput()
+{
+  if (output_ == nullptr) {
+    return;
+  }
+
+  output_->stop();
+
+  output_file_->close();
+  delete output_file_;
+  output_file_ = nullptr;
+}
+
+void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
+{
+  QAudioFormat format;
+  format.setSampleRate(44100);
+  format.setChannelCount(2);
+  format.setSampleSize(32);
+  format.setCodec("audio/pcm");
+  format.setByteOrder(QAudioFormat::LittleEndian);
+  format.setSampleType(QAudioFormat::Float);
+
+  output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
+  output_device_info_ = info;
+}
+
+void AudioManager::SetInputDevice(const QAudioDeviceInfo &info)
+{
+  input_ = std::unique_ptr<QAudioInput>(new QAudioInput(info, QAudioFormat(), this));
+  input_device_info_ = info;
+}
+
 const QList<QAudioDeviceInfo> &AudioManager::ListInputDevices()
 {
   return input_devices_;
@@ -71,6 +118,9 @@ const QList<QAudioDeviceInfo> &AudioManager::ListOutputDevices()
 
 AudioManager::AudioManager() :
   output_(nullptr),
+  output_file_(nullptr),
+  input_(nullptr),
+  input_file_(nullptr),
   refreshing_devices_(false)
 {
   RefreshDevices();
@@ -84,6 +134,38 @@ void AudioManager::RefreshThreadDone()
   input_devices_ = refresh_thread_.input_devices();
 
   refreshing_devices_ = false;
+
+  QString preferred_audio_output = Config::Current()["PreferredAudioOutput"].toString();
+
+  if (output_ == nullptr
+      || (!preferred_audio_output.isEmpty() && output_device_info_.deviceName() != preferred_audio_output)) {
+    if (preferred_audio_output.isEmpty()) {
+      SetOutputDevice(QAudioDeviceInfo::defaultOutputDevice());
+    } else {
+      foreach (const QAudioDeviceInfo& info, output_devices_) {
+        if (info.deviceName() == preferred_audio_output) {
+          SetOutputDevice(info);
+          break;
+        }
+      }
+    }
+  }
+
+  QString preferred_audio_input = Config::Current()["PreferredAudioInput"].toString();
+
+  if (input_ == nullptr
+      || (!preferred_audio_input.isEmpty() && input_device_info_.deviceName() != preferred_audio_input)) {
+    if (preferred_audio_input.isEmpty()) {
+      SetInputDevice(QAudioDeviceInfo::defaultInputDevice());
+    } else {
+      foreach (const QAudioDeviceInfo& info, input_devices_) {
+        if (info.deviceName() == preferred_audio_input) {
+          SetInputDevice(info);
+          break;
+        }
+      }
+    }
+  }
 
   emit DeviceListReady();
 }

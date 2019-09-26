@@ -7,6 +7,7 @@
 #define RATIONAL_H
 #include <iostream>
 
+#include <QDebug>
 #include <QMetaType>
 
 extern "C" {
@@ -113,6 +114,8 @@ public:
   //IO
   friend ostream& operator<<(ostream &out, const rational &value);
   friend istream& operator>>(istream &in, rational &value);
+
+  operator QString() const;
 
   const intType& numerator() const;
   const intType& denominator() const;

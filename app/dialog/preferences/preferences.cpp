@@ -42,6 +42,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   QVBoxLayout* layout = new QVBoxLayout(this);
 
   QSplitter* splitter = new QSplitter();
+  splitter->setChildrenCollapsible(false);
   layout->addWidget(splitter);
 
   list_widget_ = new QListWidget();

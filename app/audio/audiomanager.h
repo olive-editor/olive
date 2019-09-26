@@ -22,6 +22,7 @@
 #define AUDIOMANAGER_H
 
 #include <memory>
+#include <QAudioInput>
 #include <QAudioOutput>
 #include <QThread>
 
@@ -61,6 +62,22 @@ public:
 
   bool IsRefreshing();
 
+  /**
+   * @brief Start playing audio from QIODevice
+   *
+   * This takes ownership of the QIODevice and will delete it when StopOutput() is called
+   */
+  void StartOutput(QIODevice* device);
+
+  /**
+   * @brief Stop audio output
+   */
+  void StopOutput();
+
+  void SetOutputDevice(const QAudioDeviceInfo& info);
+
+  void SetInputDevice(const QAudioDeviceInfo& info);
+
   const QList<QAudioDeviceInfo>& ListInputDevices();
   const QList<QAudioDeviceInfo>& ListOutputDevices();
 
@@ -77,6 +94,12 @@ private:
   static AudioManager* audio_;
 
   std::unique_ptr<QAudioOutput> output_;
+  QAudioDeviceInfo output_device_info_;
+  QIODevice* output_file_;
+
+  std::unique_ptr<QAudioInput> input_;
+  QAudioDeviceInfo input_device_info_;
+  QIODevice* input_file_;
 
   bool refreshing_devices_;
 

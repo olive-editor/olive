@@ -120,6 +120,11 @@ void olive::MainWindow::ProjectOpen(Project* p)
   TimelinePanel* timeline_panel = olive::panel_manager->CreatePanel<TimelinePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
 
+  TaskManagerPanel* task_man_panel = olive::panel_manager->CreatePanel<TaskManagerPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, task_man_panel);
+  task_man_panel->setFloating(true);
+  task_man_panel->setVisible(false);
+
   connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
 }
 

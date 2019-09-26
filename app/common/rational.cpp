@@ -106,6 +106,12 @@ int rational::getActiveInstances()
   return activeInstances;
 }
 
+rational::operator QString() const
+{
+  return QString("%1/%2").arg(QString::number(numer),
+                              QString::number(denom));
+}
+
 const intType &rational::numerator() const
 {
   return numer;

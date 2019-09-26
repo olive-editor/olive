@@ -106,6 +106,8 @@ void Core::Start()
 
 void Core::Stop()
 {
+  AudioManager::DestroyInstance();
+
   delete main_window_;
 }
 

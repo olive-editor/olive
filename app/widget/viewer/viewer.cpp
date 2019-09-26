@@ -26,6 +26,7 @@
 #include <QtMath>
 #include <QVBoxLayout>
 
+#include "audio/audiomanager.h"
 #include "common/timecodefunctions.h"
 #include "viewersizer.h"
 
@@ -195,6 +196,11 @@ void ViewerWidget::PlayInternal(int speed)
   start_timestamp_ = ruler_->GetTime();
   playback_speed_ = speed;
 
+  /*QFile* file = new QFile("path-to-cache-audio");
+  if (file->open(QFile::ReadOnly)) {
+    AudioManager::instance()->StartOutput(file);
+  }*/
+
   playback_timer_.start();
 
   controls_->ShowPauseButton();
@@ -219,6 +225,8 @@ void ViewerWidget::Pause()
   controls_->ShowPlayButton();
 
   playback_speed_ = 0;
+
+  AudioManager::instance()->StopOutput();
 }
 
 void ViewerWidget::GoToStart()

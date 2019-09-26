@@ -51,7 +51,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     }
     */
 
-  general_layout->addWidget(language_combobox, row, 1, 1, 4);
+  general_layout->addWidget(language_combobox, row, 1);
 
   row++;
 
@@ -61,19 +61,21 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   thumbnail_res_spinbox = new QSpinBox(this);
   thumbnail_res_spinbox->setMinimum(0);
   thumbnail_res_spinbox->setMaximum(INT_MAX);
-  //thumbnail_res_spinbox->setValue(olive::config.thumbnail_resolution);
   general_layout->addWidget(thumbnail_res_spinbox, row, 1);
 
-  general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 2);
+  row++;
+
+  general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 0);
 
   waveform_res_spinbox = new QSpinBox(this);
   waveform_res_spinbox->setMinimum(0);
   waveform_res_spinbox->setMaximum(INT_MAX);
-  //waveform_res_spinbox->setValue(olive::config.waveform_resolution);
-  general_layout->addWidget(waveform_res_spinbox, row, 3);
+  general_layout->addWidget(waveform_res_spinbox, row, 1);
+
+  row++;
 
   QPushButton* delete_preview_btn = new QPushButton(tr("Delete Previews"));
-  general_layout->addWidget(delete_preview_btn, row, 4);
+  general_layout->addWidget(delete_preview_btn, row, 1);
   //connect(delete_preview_btn, SIGNAL(clicked(bool)), this, SLOT(delete_all_previews()));
 
   row++;
@@ -86,7 +88,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
   misc_general->addWidget(default_sequence_settings);
 
-  general_layout->addLayout(misc_general, row, 0, 1, 5);
+  general_layout->addLayout(misc_general, row, 0);
 
   layout->addStretch();
 }
