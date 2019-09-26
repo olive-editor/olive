@@ -5,7 +5,7 @@ void DebugHandler(QtMsgType type, const QMessageLogContext &context, const QStri
 {
   QByteArray localMsg = msg.toLocal8Bit();
 
-  const char* msg_type;
+  const char* msg_type = "UNKNOWN";
   switch (type) {
   case QtDebugMsg:
     msg_type = "DEBUG";
