@@ -28,7 +28,6 @@
 
 #include "audio/audiomanager.h"
 #include "common/timecodefunctions.h"
-#include "viewersizer.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
@@ -40,14 +39,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   layout->setMargin(0);
 
   // Create main OpenGL-based view
-  ViewerSizer* sizer = new ViewerSizer(this);
-  layout->addWidget(sizer);
+  sizer_ = new ViewerSizer(this);
+  layout->addWidget(sizer_);
 
   gl_widget_ = new ViewerGLWidget(this);
-  sizer->SetWidget(gl_widget_);
-
-  // FIXME: Hardcoded values
-  sizer->SetChildSize(1920, 1080);
+  sizer_->SetWidget(gl_widget_);
 
   // Create time ruler
   ruler_ = new TimeRuler(false, this);
@@ -132,6 +128,10 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 
     disconnect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(ViewerNodeChangedBetween(const rational&, const rational&)));
+    disconnect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
+
+    // Effectively disables the viewer and clears the state
+    SizeChangedSlot(0, 0);
   }
 
   viewer_node_ = node;
@@ -144,6 +144,9 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 
     connect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(ViewerNodeChangedBetween(const rational&, const rational&)));
+    connect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
+
+    SizeChangedSlot(viewer_node_->ViewerWidth(), viewer_node_->ViewerHeight());
   }
 }
 
@@ -315,6 +318,11 @@ void ViewerWidget::ViewerNodeChangedBetween(const rational &start, const rationa
   if (GetTime() >= start && GetTime() <= end) {
     UpdateTextureFromNode(GetTime());
   }
+}
+
+void ViewerWidget::SizeChangedSlot(int width, int height)
+{
+  sizer_->SetChildSize(width, height);
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

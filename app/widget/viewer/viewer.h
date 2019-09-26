@@ -30,6 +30,7 @@
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "viewerglwidget.h"
+#include "viewersizer.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -105,6 +106,8 @@ private:
 
   void PlayInternal(int speed);
 
+  ViewerSizer* sizer_;
+
   ViewerGLWidget* gl_widget_;
 
   PlaybackControls* controls_;
@@ -132,6 +135,8 @@ private slots:
   void PlaybackTimerUpdate();
 
   void ViewerNodeChangedBetween(const rational& start, const rational& end);
+
+  void SizeChangedSlot(int width, int height);
 
 };
 

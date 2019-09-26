@@ -49,10 +49,17 @@ public:
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
+  void SetViewerSize(const int& width, const int& height);
+
+  const int& ViewerWidth();
+  const int& ViewerHeight();
+
 signals:
   void TimebaseChanged(const rational&);
 
   void TextureChangedBetween(const rational&, const rational&);
+
+  void SizeChanged(int width, int height);
 
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
@@ -61,6 +68,10 @@ private:
   NodeInput* texture_input_;
 
   rational timebase_;
+
+  int viewer_width_;
+
+  int viewer_height_;
 
 };
 

@@ -75,7 +75,7 @@ public:
   void SetDefaultParameters();
 
 private:
-  void update_parameters();
+  void update_video_parameters();
 
   TimelineOutput* timeline_output_;
   RendererProcessor* renderer_processor_;

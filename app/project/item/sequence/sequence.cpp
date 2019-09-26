@@ -77,7 +77,7 @@ void Sequence::AddDefaultNodes()
 
   // Update the timebase on these nodes
   set_video_time_base(video_time_base_);
-  update_parameters();
+  update_video_parameters();
 }
 
 Item::Type Sequence::type() const
@@ -117,7 +117,7 @@ void Sequence::set_video_width(const int &width)
 {
   video_width_ = width;
 
-  update_parameters();
+  update_video_parameters();
 }
 
 const int &Sequence::video_height() const
@@ -129,7 +129,7 @@ void Sequence::set_video_height(const int &height)
 {
   video_height_ = height;
 
-  update_parameters();
+  update_video_parameters();
 }
 
 const rational &Sequence::video_time_base()
@@ -182,7 +182,7 @@ void Sequence::SetDefaultParameters()
   set_audio_channel_layout(AV_CH_LAYOUT_STEREO);
 }
 
-void Sequence::update_parameters()
+void Sequence::update_video_parameters()
 {
   if (renderer_processor_ != nullptr) {
     // Set renderer's parameters based on sequence's parameters
@@ -194,5 +194,9 @@ void Sequence::update_parameters()
 
     // Set the "cache name" only here to aid the cache ID's uniqueness
     renderer_processor_->SetCacheName(name());
+  }
+
+  if (viewer_output_ != nullptr) {
+    viewer_output_->SetViewerSize(video_width_, video_height_);
   }
 }

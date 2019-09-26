@@ -20,7 +20,9 @@
 
 #include "viewer.h"
 
-ViewerOutput::ViewerOutput()
+ViewerOutput::ViewerOutput() :
+  viewer_width_(0),
+  viewer_height_(0)
 {
   texture_input_ = new NodeInput("tex_out");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -76,6 +78,24 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
   emit TextureChangedBetween(start_range, end_range);
 
   SendInvalidateCache(start_range, end_range);
+}
+
+void ViewerOutput::SetViewerSize(const int &width, const int &height)
+{
+  viewer_width_ = width;
+  viewer_height_ = height;
+
+  emit SizeChanged(viewer_width_, viewer_height_);
+}
+
+const int &ViewerOutput::ViewerWidth()
+{
+  return viewer_width_;
+}
+
+const int &ViewerOutput::ViewerHeight()
+{
+  return viewer_height_;
 }
 
 QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)
