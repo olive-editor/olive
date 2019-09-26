@@ -90,7 +90,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
   painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));
   painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
 
-  painter->drawText(rect(), Qt::AlignLeft | Qt::AlignTop, block_->block_name());
+  painter->drawText(rect(), static_cast<int>(Qt::AlignLeft | Qt::AlignTop), block_->block_name());
 
   painter->setPen(QColor(64, 64, 64));
   painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));
