@@ -61,7 +61,6 @@ bool AudioManager::IsRefreshing()
   return refreshing_devices_;
 }
 
-#include <QDebug>
 void AudioManager::StartOutput(QIODevice *device)
 {
   if (output_ == nullptr) {
@@ -75,7 +74,7 @@ void AudioManager::StartOutput(QIODevice *device)
 
 void AudioManager::StopOutput()
 {
-  if (output_ == nullptr) {
+  if (output_ == nullptr || output_file_ == nullptr) {
     return;
   }
 
