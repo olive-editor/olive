@@ -34,6 +34,14 @@ private:
    */
   QComboBox* recordingComboBox;
 
+private slots:
+  void RefreshDevices();
+
+  void RetrieveDeviceLists();
+
+private:
+  bool has_devices_;
+
 };
 
 #endif // PREFERENCESAUDIOTAB_H

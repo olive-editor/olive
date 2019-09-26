@@ -21,6 +21,7 @@ set(OLIVE_SOURCES
   main.cpp
 )
 
+add_subdirectory(audio)
 add_subdirectory(common)
 add_subdirectory(config)
 add_subdirectory(decoder)

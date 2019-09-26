@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 
+#include "audio/audiomanager.h"
 #include "config/config.h"
 #include "dialog/about/about.h"
 #include "dialog/sequence/sequence.h"
@@ -384,6 +385,10 @@ void Core::StartGUI(bool full_screen)
 
   // Initialize color service
   ColorService::Init();
+
+  // Initialize audio service
+  AudioManager::CreateInstance();
+
 }
 
 Project *Core::GetActiveProject()
