@@ -31,3 +31,13 @@ QString VideoStream::description()
                                                                         QString::number(width()),
                                                                         QString::number(height()));
 }
+
+const rational &VideoStream::frame_rate()
+{
+  return frame_rate_;
+}
+
+void VideoStream::set_frame_rate(const rational &frame_rate)
+{
+  frame_rate_ = frame_rate;
+}

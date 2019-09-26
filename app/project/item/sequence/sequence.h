@@ -40,6 +40,8 @@ public:
 
   virtual QIcon icon() override;
 
+  virtual QString rate() override;
+
   /* VIDEO GETTER/SETTER FUNCTIONS */
 
   const int& video_width();

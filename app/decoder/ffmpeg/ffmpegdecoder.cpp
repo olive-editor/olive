@@ -363,8 +363,6 @@ bool FFmpegDecoder::Probe(Footage *f)
     // Retrieve metadata about the media
     av_dump_format(fmt_ctx_, 0, filename, 0);
 
-    qDebug() << "Format duration:" << fmt_ctx_->duration;
-
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {
 
@@ -379,6 +377,7 @@ bool FFmpegDecoder::Probe(Footage *f)
 
         video_stream->set_width(avstream_->codecpar->width);
         video_stream->set_height(avstream_->codecpar->height);
+        video_stream->set_frame_rate(av_guess_frame_rate(fmt_ctx_, avstream_, nullptr));
 
         str = video_stream;
 

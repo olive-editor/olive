@@ -131,11 +131,9 @@ QVariant ProjectViewModel::data(const QModelIndex &index, int role) const
     case kName:
       return internal_item->name();
     case kDuration:
-      // FIXME Return actual information
-      return "00:00:00;00";
+      return internal_item->duration();
     case kRate:
-      // FIXME Return actual information
-      return "29.97 FPS";
+      return internal_item->rate();
     }
   }
     break;

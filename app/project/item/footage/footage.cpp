@@ -22,6 +22,7 @@
 
 #include <QCoreApplication>
 
+#include "common/timecodefunctions.h"
 #include "ui/icons/icons.h"
 
 Footage::Footage()
@@ -144,6 +145,60 @@ QIcon Footage::icon()
   }
 
   return QIcon();
+}
+
+#include <QDebug>
+QString Footage::duration()
+{
+  if (streams_.isEmpty()) {
+    return QString();
+  }
+
+  if (streams_.first()->type() == Stream::kVideo) {
+    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(streams_.first());
+
+    int64_t duration = video_stream->duration();
+    rational frame_rate_timebase = video_stream->frame_rate().flipped();
+
+    if (video_stream->timebase() != frame_rate_timebase) {
+      // Convert from timebase to frame rate
+      rational duration_time = olive::timestamp_to_time(duration, video_stream->timebase());
+      duration = olive::time_to_timestamp(duration_time, frame_rate_timebase);
+    }
+
+    return olive::timestamp_to_timecode(duration,
+                                        frame_rate_timebase,
+                                        olive::CurrentTimecodeDisplay());
+  } else if (streams_.first()->type() == Stream::kAudio) {
+    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
+
+    return olive::timestamp_to_timecode(streams_.first()->duration(),
+                                        streams_.first()->timebase(),
+                                        olive::CurrentTimecodeDisplay());
+  }
+
+  return QString();
+}
+
+QString Footage::rate()
+{
+  if (streams_.isEmpty()) {
+    return QString();
+  }
+
+  if (streams_.first()->type() == Stream::kVideo) {
+    // Return the timebase as a frame rate
+    VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(streams_.first());
+
+    return QCoreApplication::translate("Footage", "%1 FPS").arg(video_stream->frame_rate().toDouble());
+  } else if (streams_.first()->type() == Stream::kAudio) {
+    // Return the sample rate
+    AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
+
+    return QCoreApplication::translate("Footage", "%1 Hz").arg(audio_stream->sample_rate());
+  }
+
+  return olive::timestamp_to_timecode(streams_.first()->duration(), streams_.first()->timebase(), olive::CurrentTimecodeDisplay());
 }
 
 void Footage::ClearStreams()

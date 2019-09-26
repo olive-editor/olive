@@ -101,6 +101,16 @@ void Item::set_tooltip(const QString &t)
   tooltip_ = t;
 }
 
+QString Item::duration()
+{
+  return QString();
+}
+
+QString Item::rate()
+{
+  return QString();
+}
+
 Item *Item::parent() const
 {
   return parent_;

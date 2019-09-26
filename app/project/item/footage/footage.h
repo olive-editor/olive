@@ -207,6 +207,10 @@ public:
 
   virtual QIcon icon() override;
 
+  virtual QString duration() override;
+
+  virtual QString rate() override;
+
 private:
   /**
    * @brief Internal function to delete all Stream children and empty the array

@@ -20,6 +20,8 @@
 
 #include "sequence.h"
 
+#include <QCoreApplication>
+
 #include "common/channellayout.h"
 #include "ui/icons/icons.h"
 
@@ -35,6 +37,11 @@ Item::Type Sequence::type() const
 QIcon Sequence::icon()
 {
   return olive::icon::Sequence;
+}
+
+QString Sequence::rate()
+{
+  return QCoreApplication::translate("Sequence", "%1 FPS").arg(video_time_base_.flipped().toDouble());
 }
 
 const int &Sequence::video_width()

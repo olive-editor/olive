@@ -94,6 +94,10 @@ public:
 
   virtual QIcon icon() = 0;
 
+  virtual QString duration();
+
+  virtual QString rate();
+
   Item *parent() const;
   const Item* root() const;
 

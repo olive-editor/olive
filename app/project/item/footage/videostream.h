@@ -29,6 +29,17 @@ public:
   VideoStream();
 
   virtual QString description() override;
+
+  /**
+   * @brief Get this video stream's frame rate
+   *
+   * Used purely for metadata, rendering uses the timebase instead.
+   */
+  const rational& frame_rate();
+  void set_frame_rate(const rational& frame_rate);
+
+private:
+  rational frame_rate_;
 };
 
 using VideoStreamPtr = std::shared_ptr<VideoStream>;
