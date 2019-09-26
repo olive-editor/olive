@@ -59,6 +59,11 @@ void NodeGraph::TakeNode(Node *node, QObject* new_parent)
     return;
   }
 
+  if (!node->CanBeDeleted()) {
+    qWarning() << "Tried to delete a Node that's been flagged as not deletable";
+    return;
+  }
+
   node->DisconnectAll();
 
   disconnect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));

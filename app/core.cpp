@@ -240,19 +240,6 @@ void Core::CreateNewFolder()
   active_project_panel->Edit(new_folder.get());
 }
 
-// FIXME: Test code
-#include "node/blend/alphaover/alphaover.h"
-#include "node/color/opacity/opacity.h"
-#include "node/output/timeline/timeline.h"
-#include "node/output/track/track.h"
-#include "node/output/viewer/viewer.h"
-#include "node/processor/renderer/renderer.h"
-#include "panel/panelmanager.h"
-#include "panel/node/node.h"
-#include "panel/timeline/timeline.h"
-#include "panel/viewer/viewer.h"
-// End test code
-
 void Core::CreateNewSequence()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
@@ -295,49 +282,11 @@ void Core::CreateNewSequence()
                                                                                  folder,
                                                                                  new_sequence);
 
-    TimelineOutput* tb = new TimelineOutput();
-    tb->SetTimebase(new_sequence->video_time_base());
-    new_sequence->AddNode(tb);
-
-    RendererProcessor* rp = new RendererProcessor();
-
-    // Set renderer's parameters based on sequence's parameters
-    rp->SetParameters(new_sequence->video_width(),
-                      new_sequence->video_height(),
-                      olive::PIX_FMT_RGBA16F, // FIXME: Make this configurable
-                      olive::RenderMode::kOffline,
-                      2);
-
-    // Set the "cache name" only here to aid the cache ID's uniqueness
-    rp->SetCacheName(new_sequence->name());
-    rp->SetTimebase(new_sequence->video_time_base());
-
-    new_sequence->AddNode(rp);
-
-    ViewerOutput* vo = new ViewerOutput();
-    vo->SetTimebase(new_sequence->video_time_base());
-    new_sequence->AddNode(vo);
-
-    TrackOutput* to = new TrackOutput();
-    new_sequence->AddNode(to);
-
-    // Connect track to renderer
-    NodeParam::ConnectEdge(to->texture_output(), rp->texture_input());
-
-    // Connect renderer to viewer
-    NodeParam::ConnectEdge(rp->texture_output(), vo->texture_input());
-
-    // Connect track to timeline
-    NodeParam::ConnectEdge(to->track_output(), tb->track_input());
-
-    // Connect timeline end point to renderer
-    NodeParam::ConnectEdge(tb->length_output(), rp->length_input());
-
-    olive::panel_manager->MostRecentlyFocused<ViewerPanel>()->ConnectViewerNode(vo);
-    olive::panel_manager->MostRecentlyFocused<TimelinePanel>()->ConnectTimelineNode(tb);
-    olive::panel_manager->MostRecentlyFocused<NodePanel>()->SetGraph(new_sequence.get());
+    new_sequence->AddDefaultNodes();
 
     olive::undo_stack.push(aic);
+
+    Sequence::Open(new_sequence);
   }
 }
 

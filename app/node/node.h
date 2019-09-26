@@ -222,6 +222,16 @@ public:
    */
   static void CopyInputs(Node* source, Node* destination);
 
+  /**
+   * @brief Return whether this Node can be deleted or not
+   */
+  bool CanBeDeleted();
+
+  /**
+   * @brief Set whether
+   */
+  void SetCanBeDeleted(bool s);
+
 protected:
   /**
    * @brief Add a parameter to this node
@@ -316,6 +326,11 @@ private:
    * @brief Used for thread safety between multiple threads
    */
   QMutex run_lock_;
+
+  /**
+   * @brief Internal variable for whether this Node can be deleted or not
+   */
+  bool can_be_deleted_;
 
 private slots:
   void InputChanged(rational start, rational end);

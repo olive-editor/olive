@@ -25,7 +25,8 @@
 #include "common/qobjectlistcast.h"
 
 Node::Node() :
-  last_processed_time_(-1)
+  last_processed_time_(-1),
+  can_be_deleted_(true)
 {
 }
 
@@ -130,6 +131,16 @@ void Node::CopyInputs(Node *source, Node *destination)
       }
     }
   }
+}
+
+bool Node::CanBeDeleted()
+{
+  return can_be_deleted_;
+}
+
+void Node::SetCanBeDeleted(bool s)
+{
+  can_be_deleted_ = s;
 }
 
 rational Node::LastProcessedTime()

@@ -23,7 +23,13 @@
 
 #include "common/rational.h"
 #include "node/graph.h"
+#include "node/output/timeline/timeline.h"
+#include "node/output/viewer/viewer.h"
+#include "node/processor/renderer/renderer.h"
 #include "project/item/item.h"
+
+class Sequence;
+using SequencePtr = std::shared_ptr<Sequence>;
 
 /**
  * @brief The main timeline object, an graph of edited clips that forms a complete edit
@@ -33,6 +39,10 @@ class Sequence : public Item, public NodeGraph
 public:
   Sequence();
 
+  static void Open(SequencePtr sequence);
+
+  void AddDefaultNodes();
+
   /**
    * @brief Item::Type() override
    */
@@ -40,6 +50,7 @@ public:
 
   virtual QIcon icon() override;
 
+  virtual QString duration() override;
   virtual QString rate() override;
 
   /* VIDEO GETTER/SETTER FUNCTIONS */
@@ -64,6 +75,13 @@ public:
   void SetDefaultParameters();
 
 private:
+  void update_parameters();
+
+  TimelineOutput* timeline_output_;
+  RendererProcessor* renderer_processor_;
+  ViewerOutput* viewer_output_;
+  TrackOutput* track_output_;
+
   int video_width_;
   int video_height_;
   rational video_time_base_;
@@ -71,7 +89,5 @@ private:
   rational audio_time_base_;
   uint64_t audio_channel_layout_;
 };
-
-using SequencePtr = std::shared_ptr<Sequence>;
 
 #endif // SEQUENCE_H

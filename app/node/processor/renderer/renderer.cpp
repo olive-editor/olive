@@ -131,6 +131,10 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
 {
   Q_UNUSED(from)
 
+  if (timebase_.isNull()) {
+    return;
+  }
+
   //ClearCachedValuesInParameters(start_range, end_range);
   texture_input_->ClearCachedValue();
   length_input_->ClearCachedValue();
