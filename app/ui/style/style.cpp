@@ -100,8 +100,10 @@ void StyleManager::ParsePaletteColor(QSettings *ini, QPalette *palette, QPalette
     role = QPalette::ToolTipBase;
   } else if (!QString::compare(role_name, "ToolTipText", Qt::CaseInsensitive)) {
     role = QPalette::ToolTipText;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
   } else if (!QString::compare(role_name, "PlaceholderText", Qt::CaseInsensitive)) {
     role = QPalette::PlaceholderText;
+#endif
   } else if (!QString::compare(role_name, "Text", Qt::CaseInsensitive)) {
     role = QPalette::Text;
   } else if (!QString::compare(role_name, "Button", Qt::CaseInsensitive)) {
