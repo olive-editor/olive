@@ -113,7 +113,7 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_right_layout->setMargin(0);
 
   lower_right_layout->addStretch();
-  end_tc_lbl_ = new QLabel("00:00:00;00");
+  end_tc_lbl_ = new QLabel();
   lower_right_layout->addWidget(end_tc_lbl_);
 
   UpdateIcons();
@@ -132,7 +132,9 @@ void PlaybackControls::SetTimebase(const rational &r)
 
 void PlaybackControls::SetTime(const int64_t &r)
 {
-  Q_ASSERT(time_base_.denominator() != 0);
+  if (time_base_.isNull()) {
+    return;
+  }
 
   cur_tc_lbl_->setText(olive::timestamp_to_timecode(r,
                                                     time_base_,

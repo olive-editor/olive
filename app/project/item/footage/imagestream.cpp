@@ -20,9 +20,14 @@
 
 #include "imagestream.h"
 
-ImageStream::ImageStream()
+#include "render/colormanager.h"
+
+ImageStream::ImageStream() :
+  premultiplied_alpha_(false)
 {
   set_type(kImage);
+
+  connect(ColorManager::instance(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChangedSlot()));
 }
 
 QString ImageStream::description()
@@ -50,4 +55,32 @@ const int &ImageStream::height()
 void ImageStream::set_height(const int &height)
 {
   height_ = height;
+}
+
+bool ImageStream::premultiplied_alpha()
+{
+  return premultiplied_alpha_;
+}
+
+void ImageStream::set_premultiplied_alpha(bool e)
+{
+  premultiplied_alpha_ = e;
+}
+
+const QString &ImageStream::colorspace()
+{
+  return colorspace_;
+}
+
+void ImageStream::set_colorspace(const QString &color)
+{
+  colorspace_ = color;
+
+  emit ColorSpaceChanged();
+}
+
+void ImageStream::ColorConfigChangedSlot()
+{
+  // FIXME: Update colorspace correctly
+  colorspace_.clear();
 }

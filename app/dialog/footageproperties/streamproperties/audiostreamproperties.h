@@ -18,31 +18,21 @@
 
 ***/
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef AUDIOSTREAMPROPERTIES_H
+#define AUDIOSTREAMPROPERTIES_H
 
-#include "imagestream.h"
+#include "project/item/footage/audiostream.h"
+#include "streamproperties.h"
 
-class VideoStream : public ImageStream
+class AudioStreamProperties : public StreamProperties
 {
 public:
-  VideoStream();
+  AudioStreamProperties(AudioStreamPtr stream);
 
-  virtual QString description() override;
-
-  /**
-   * @brief Get this video stream's frame rate
-   *
-   * Used purely for metadata, rendering uses the timebase instead.
-   */
-  const rational& frame_rate();
-  void set_frame_rate(const rational& frame_rate);
+  virtual void Accept(QUndoCommand* parent) override;
 
 private:
-  rational frame_rate_;
-
+  AudioStreamPtr stream_;
 };
 
-using VideoStreamPtr = std::shared_ptr<VideoStream>;
-
-#endif // VIDEOSTREAM_H
+#endif // AUDIOSTREAMPROPERTIES_H

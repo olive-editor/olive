@@ -30,12 +30,12 @@
 #include <QListWidget>
 #include <QCheckBox>
 #include <QSpinBox>
-#include <OpenColorIO/OpenColorIO.h>
-namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "streamproperties/audiostreamproperties.h"
+#include "streamproperties/videostreamproperties.h"
 #include "undo/undostack.h"
 
-FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, FootagePtr footage) :
+FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *footage) :
   QDialog(parent),
   footage_(footage)
 {
@@ -46,19 +46,41 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, FootagePtr foo
 
   int row = 0;
 
-  layout->addWidget(new QLabel(tr("Tracks:"), this), row, 0, 1, 2);
+  layout->addWidget(new QLabel(tr("Name:")), row, 0);
+
+  footage_name_field_ = new QLineEdit(footage_->name());
+  layout->addWidget(footage_name_field_, row, 1);
   row++;
 
-  track_list = new QListWidget(this);
+  layout->addWidget(new QLabel(tr("Tracks:")), row, 0, 1, 2);
+  row++;
+
+  track_list = new QListWidget();
+  layout->addWidget(track_list, row, 0, 1, 2);
+
+  row++;
+
+  stacked_widget_ = new QStackedWidget();
+  layout->addWidget(stacked_widget_, row, 0, 1, 2);
 
   foreach (StreamPtr stream, footage_->streams()) {
     QListWidgetItem* item = new QListWidgetItem(stream->description(), track_list);
     item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(stream->enabled() ? Qt::Checked : Qt::Unchecked);
     track_list->addItem(item);
+
+    switch (stream->type()) {
+    case Stream::kVideo:
+      stacked_widget_->addWidget(new VideoStreamProperties(std::static_pointer_cast<VideoStream>(stream)));
+      break;
+    case Stream::kAudio:
+      stacked_widget_->addWidget(new AudioStreamProperties(std::static_pointer_cast<AudioStream>(stream)));
+      break;
+    default:
+      stacked_widget_->addWidget(new StreamProperties());
+    }
   }
 
-  layout->addWidget(track_list, row, 0, 1, 2);
   row++;
 
   /*if (f->video_tracks.size() > 0) {
@@ -125,10 +147,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, FootagePtr foo
   }
   */
 
-  name_box = new QLineEdit(footage_->name(), this);
-  layout->addWidget(new QLabel(tr("Name:"), this), row, 0);
-  layout->addWidget(name_box, row, 1);
-  row++;
+  connect(track_list, SIGNAL(currentRowChanged(int)), stacked_widget_, SLOT(setCurrentIndex(int)));
 
   QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
   buttons->setCenterButtons(true);
@@ -205,5 +224,67 @@ void FootagePropertiesDialog::accept() {
 
   olive::undo_stack.push(ca);*/
 
+  QUndoCommand* command = new QUndoCommand();
+
+  if (footage_->name() != footage_name_field_->text()) {
+    new FootageChangeCommand(footage_,
+                             footage_name_field_->text(),
+                             command);
+  }
+
+  for (int i=0;i<footage_->streams().size();i++) {
+    bool stream_enabled = (track_list->item(i)->checkState() == Qt::Checked);
+
+    if (footage_->stream(i)->enabled() == stream_enabled) {
+      new StreamEnableChangeCommand(footage_->stream(i),
+                                    stream_enabled,
+                                    command);
+    }
+  }
+
+  for (int i=0;i<stacked_widget_->count();i++) {
+    static_cast<StreamProperties*>(stacked_widget_->widget(i))->Accept(command);
+  }
+
+  olive::undo_stack.pushIfHasChildren(command);
+
   QDialog::accept();
+}
+
+FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *footage, const QString &name, QUndoCommand* command) :
+  QUndoCommand(command),
+  footage_(footage),
+  new_name_(name)
+{
+}
+
+void FootagePropertiesDialog::FootageChangeCommand::redo()
+{
+  old_name_ = footage_->name();
+
+  footage_->set_name(new_name_);
+}
+
+void FootagePropertiesDialog::FootageChangeCommand::undo()
+{
+  footage_->set_name(old_name_);
+}
+
+FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(StreamPtr stream, bool enabled, QUndoCommand *command) :
+  QUndoCommand(command),
+  stream_(stream),
+  new_enabled_(enabled)
+{
+}
+
+void FootagePropertiesDialog::StreamEnableChangeCommand::redo()
+{
+  old_enabled_ = stream_->enabled();
+
+  stream_->set_enabled(new_enabled_);
+}
+
+void FootagePropertiesDialog::StreamEnableChangeCommand::undo()
+{
+  stream_->set_enabled(old_enabled_);
 }

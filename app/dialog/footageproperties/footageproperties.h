@@ -21,12 +21,14 @@
 #ifndef MEDIAPROPERTIESDIALOG_H
 #define MEDIAPROPERTIESDIALOG_H
 
-#include <QDialog>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QDialog>
+#include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QDoubleSpinBox>
-#include <QCheckBox>
+#include <QStackedWidget>
+#include <QUndoCommand>
 
 #include "project/item/footage/footage.h"
 
@@ -50,8 +52,45 @@ public:
    *
    * Media object to set properties for.
    */
-  FootagePropertiesDialog(QWidget *parent, FootagePtr footage);
+  FootagePropertiesDialog(QWidget *parent, Footage* footage);
 private:
+  class FootageChangeCommand : public QUndoCommand {
+  public:
+    FootageChangeCommand(Footage* footage,
+                         const QString& name,
+                         QUndoCommand *command = nullptr);
+
+    virtual void redo() override;
+    virtual void undo() override;
+
+  private:
+    Footage* footage_;
+
+    QString new_name_;
+    QString old_name_;
+  };
+
+  class StreamEnableChangeCommand : public QUndoCommand {
+  public:
+    StreamEnableChangeCommand(StreamPtr stream,
+                              bool enabled,
+                              QUndoCommand* command = nullptr);
+
+    virtual void redo() override;
+    virtual void undo() override;
+
+  private:
+    StreamPtr stream_;
+
+    bool old_enabled_;
+    bool new_enabled_;
+  };
+
+  /**
+   * @brief Stack of widgets that changes based on whether the stream is a video or audio stream
+   */
+  QStackedWidget* stacked_widget_;
+
   /**
    * @brief ComboBox for interlacing setting
    */
@@ -60,12 +99,12 @@ private:
   /**
    * @brief Media name text field
    */
-  QLineEdit* name_box;
+  QLineEdit* footage_name_field_;
 
   /**
    * @brief Internal pointer to Media object (set in constructor)
    */
-  FootagePtr footage_;
+  Footage* footage_;
 
   /**
    * @brief A list widget for listing the tracks in Media
@@ -77,20 +116,12 @@ private:
    */
   QDoubleSpinBox* conform_fr;
 
-  /**
-   * @brief Setting for associated/premultiplied alpha
-   */
-  QCheckBox* premultiply_alpha_setting;
-
-  /**
-   * @brief Setting for this media's color space
-   */
-  QComboBox* input_color_space;
 private slots:
   /**
    * @brief Overridden accept function for saving the properties back to the Media class
    */
   void accept();
+
 };
 
 #endif // MEDIAPROPERTIESDIALOG_H

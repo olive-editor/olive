@@ -16,19 +16,11 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/preferences/tabs/preferencesgeneraltab.h
-  dialog/preferences/tabs/preferencesgeneraltab.cpp
-  dialog/preferences/tabs/preferencesbehaviortab.h
-  dialog/preferences/tabs/preferencesbehaviortab.cpp
-  dialog/preferences/tabs/preferencesappearancetab.h
-  dialog/preferences/tabs/preferencesappearancetab.cpp
-  dialog/preferences/tabs/preferencesplaybacktab.h
-  dialog/preferences/tabs/preferencesplaybacktab.cpp
-  dialog/preferences/tabs/preferencesaudiotab.h
-  dialog/preferences/tabs/preferencesaudiotab.cpp
-  dialog/preferences/tabs/preferenceskeyboardtab.h
-  dialog/preferences/tabs/preferenceskeyboardtab.cpp
-  dialog/preferences/tabs/preferencestab.h
-  dialog/preferences/tabs/preferencestab.cpp
+  dialog/footageproperties/streamproperties/streamproperties.h
+  dialog/footageproperties/streamproperties/streamproperties.cpp
+  dialog/footageproperties/streamproperties/audiostreamproperties.h
+  dialog/footageproperties/streamproperties/audiostreamproperties.cpp
+  dialog/footageproperties/streamproperties/videostreamproperties.h
+  dialog/footageproperties/streamproperties/videostreamproperties.cpp
   PARENT_SCOPE
 )

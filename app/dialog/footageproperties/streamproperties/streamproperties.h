@@ -18,31 +18,18 @@
 
 ***/
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef STREAMPROPERTIES_H
+#define STREAMPROPERTIES_H
 
-#include "imagestream.h"
+#include <QUndoCommand>
+#include <QWidget>
 
-class VideoStream : public ImageStream
+class StreamProperties : public QWidget
 {
 public:
-  VideoStream();
+  StreamProperties(QWidget* parent = nullptr);
 
-  virtual QString description() override;
-
-  /**
-   * @brief Get this video stream's frame rate
-   *
-   * Used purely for metadata, rendering uses the timebase instead.
-   */
-  const rational& frame_rate();
-  void set_frame_rate(const rational& frame_rate);
-
-private:
-  rational frame_rate_;
-
+  virtual void Accept(QUndoCommand*){}
 };
 
-using VideoStreamPtr = std::shared_ptr<VideoStream>;
-
-#endif // VIDEOSTREAM_H
+#endif // STREAMPROPERTIES_H

@@ -142,6 +142,10 @@ private slots:
   void DirUpSlot();
 
   void RenameTimerSlot();
+
+  void ShowContextMenu();
+
+  void ShowFootagePropertiesDialog();
 };
 
 #endif // PROJECTEXPLORER_H

@@ -31,7 +31,6 @@
 #include "tabs/preferencesappearancetab.h"
 #include "tabs/preferencesplaybacktab.h"
 #include "tabs/preferencesaudiotab.h"
-#include "tabs/preferencescolormanagementtab.h"
 #include "tabs/preferenceskeyboardtab.h"
 
 PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
@@ -52,7 +51,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesGeneralTab(), tr("General"));
   AddTab(new PreferencesAppearanceTab(), tr("Appearance"));
   AddTab(new PreferencesBehaviorTab(), tr("Behavior"));
-  AddTab(new PreferencesColorManagementTab(), tr("Color Management"));
   AddTab(new PreferencesPlaybackTab(), tr("Playback"));
   AddTab(new PreferencesAudioTab(), tr("Audio"));
   AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));

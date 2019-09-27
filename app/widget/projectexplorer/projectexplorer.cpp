@@ -21,8 +21,10 @@
 #include "projectexplorer.h"
 
 #include <QDebug>
+#include <QMenu>
 #include <QVBoxLayout>
 
+#include "dialog/footageproperties/footageproperties.h"
 #include "projectexplorerdefines.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
@@ -47,14 +49,17 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Add tree view to stacked widget
   tree_view_ = new ProjectExplorerTreeView(stacked_widget_);
+  tree_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(tree_view_);
 
   // Add list view to stacked widget
   list_view_ = new ProjectExplorerListView(stacked_widget_);
+  list_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(list_view_);
 
   // Add icon view to stacked widget
   icon_view_ = new ProjectExplorerIconView(stacked_widget_);
+  icon_view_->setContextMenuPolicy(Qt::CustomContextMenu);
   AddView(icon_view_);
 
   // Set default view to tree view
@@ -66,6 +71,10 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   // Set rename timer timeout
   rename_timer_.setInterval(500);
   connect(&rename_timer_, SIGNAL(timeout()), this, SLOT(RenameTimerSlot()));
+
+  connect(tree_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
+  connect(list_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
+  connect(icon_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
 }
 
 const olive::ProjectViewType &ProjectExplorer::view_type()
@@ -208,6 +217,29 @@ void ProjectExplorer::RenameTimerSlot()
 
   // Stop rename timer
   rename_timer_.stop();
+}
+
+void ProjectExplorer::ShowContextMenu()
+{
+  QMenu menu;
+
+  // FIXME: Support for multiple items and items other than Footage
+  QList<Item*> selected_items = SelectedItems();
+
+  QAction* properties_action = menu.addAction(tr("P&roperties"));
+
+  if (selected_items.first()->type() == Item::kFootage) {
+    connect(properties_action, SIGNAL(triggered(bool)), this, SLOT(ShowFootagePropertiesDialog()));
+  }
+
+  menu.exec(QCursor::pos());
+}
+
+void ProjectExplorer::ShowFootagePropertiesDialog()
+{
+  // FIXME: Support for multiple items and items other than Footage
+  FootagePropertiesDialog fpd(this, static_cast<Footage*>(SelectedItems().first()));
+  fpd.exec();
 }
 
 Project *ProjectExplorer::project()

@@ -26,7 +26,7 @@
 /**
  * @brief A Stream derivative containing video-specific information
  */
-class ImageStream : public Stream
+class ImageStream : public Stream, public QObject
 {
 public:
   ImageStream();
@@ -39,9 +39,23 @@ public:
   const int& height();
   void set_height(const int& height);
 
+  bool premultiplied_alpha();
+  void set_premultiplied_alpha(bool e);
+
+  const QString& colorspace();
+  void set_colorspace(const QString& color);
+
+signals:
+  void ColorSpaceChanged();
+
 private:
   int width_;
   int height_;
+  bool premultiplied_alpha_;
+  QString colorspace_;
+
+private slots:
+  void ColorConfigChangedSlot();
 };
 
 using ImageStreamPtr = std::shared_ptr<ImageStream>;
