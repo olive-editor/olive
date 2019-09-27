@@ -23,7 +23,7 @@
 
 #include <QOpenGLWidget>
 
-#include "render/colorservice.h"
+#include "render/colormanager.h"
 #include "render/gl/shaderptr.h"
 
 /**
@@ -54,6 +54,28 @@ public:
    */
   ViewerGLWidget(QWidget* parent);
 
+  virtual ~ViewerGLWidget() override;
+
+  /**
+   * @brief Deleted copy constructor
+   */
+  ViewerGLWidget(const ViewerGLWidget& other) = delete;
+
+  /**
+   * @brief Deleted move constructor
+   */
+  ViewerGLWidget(ViewerGLWidget&& other) = delete;
+
+  /**
+   * @brief Deleted copy assignment
+   */
+  ViewerGLWidget& operator=(const ViewerGLWidget& other) = delete;
+
+  /**
+   * @brief Deleted move assignment
+   */
+  ViewerGLWidget& operator=(ViewerGLWidget&& other) = delete;
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -80,6 +102,38 @@ protected:
   virtual void paintGL() override;
 private:
   /**
+   * @brief Creates the render pipeline shader
+   *
+   * If it already exists, it will be deleted.
+   */
+  void SetupPipeline();
+
+  /**
+   * @brief Sets all color settings to the defaults pertaining to this configuration
+   */
+  void RefreshColorSettings();
+
+  /**
+   * @brief Call this if this user has selected a different display/view/look to recreate the processor
+   */
+  void SetupColorProcessor();
+
+  /**
+   * @brief Internal variable to set color space to
+   */
+  QString ocio_display_;
+
+  /**
+   * @brief Internal variable to set color space to
+   */
+  QString ocio_view_;
+
+  /**
+   * @brief Internal variable to set color space to
+   */
+  QString ocio_look_;
+
+  /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
   GLuint texture_;
@@ -99,10 +153,23 @@ private:
   /**
    * @brief Color management service
    */
-  ColorServicePtr color_service_;
+  ColorProcessorPtr color_service_;
 
 private slots:
+  /**
+   * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
+   */
   void ContextCleanup();
+
+  /**
+   * @brief Show context menu
+   */
+  void ShowContextMenu(const QPoint& pos);
+
+  /**
+   * @brief Slot called whenever the color configuration changes
+   */
+  void ColorConfigChangedSlot();
 };
 
 #endif // VIEWERGLWIDGET_H

@@ -154,7 +154,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 
       if (color_service_ == nullptr) {
         // FIXME: Hardcoded values for testing
-        color_service_ = std::make_shared<ColorService>("srgb", OCIO::ROLE_SCENE_LINEAR);
+        color_service_ = ColorProcessor::Create("srgb", OCIO::ROLE_SCENE_LINEAR);
       }
 
       // OpenColorIO v1's color transforms can be done on GPU, which improves performance but reduces accuracy. When
@@ -166,7 +166,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 
         if (alpha_is_associated) {
           // Unassociate alpha here if associated
-          ColorService::DisassociateAlpha(frame_);
+          ColorManager::DisassociateAlpha(frame_);
         }
 
         // Transform color to reference space
@@ -174,10 +174,10 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 
         if (alpha_is_associated) {
           // If alpha was associated, reassociate here
-          ColorService::ReassociateAlpha(frame_);
+          ColorManager::ReassociateAlpha(frame_);
         } else {
           // If alpha was not associated, associate here
-          ColorService::AssociateAlpha(frame_);
+          ColorManager::AssociateAlpha(frame_);
         }
       }
 

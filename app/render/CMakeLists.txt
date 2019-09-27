@@ -18,8 +18,10 @@ add_subdirectory(gl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/colorservice.h
-  render/colorservice.cpp
+  render/colormanager.h
+  render/colormanager.cpp
+  render/colorprocessor.h
+  render/colorprocessor.cpp
   render/pixelformat.h
   render/pixelformat.cpp
   render/pixelservice.h

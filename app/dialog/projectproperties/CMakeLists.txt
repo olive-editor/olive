@@ -14,14 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(about)
-add_subdirectory(actionsearch)
-add_subdirectory(footageproperties)
-add_subdirectory(preferences)
-add_subdirectory(projectproperties)
-add_subdirectory(sequence)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  dialog/projectproperties/projectproperties.h
+  dialog/projectproperties/projectproperties.cpp
   PARENT_SCOPE
 )

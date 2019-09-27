@@ -49,6 +49,8 @@ MainMenu::MainMenu(QMainWindow *parent) :
   file_menu_->addSeparator();
   file_export_item_ = file_menu_->AddItem("export", nullptr, nullptr, "Ctrl+M");
   file_menu_->addSeparator();
+  file_project_properties_item_ = file_menu_->AddItem("projectproperties", &olive::core, SLOT(DialogProjectPropertiesShow()));
+  file_menu_->addSeparator();
   file_exit_item_ = file_menu_->AddItem("exit", parent, SLOT(close()), "Ctrl+Q");
 
   //
@@ -477,12 +479,13 @@ void MainMenu::Retranslate()
   file_menu_->setTitle(tr("&File"));
   file_new_menu_->setTitle(tr("&New"));
   file_open_item_->setText(tr("&Open Project"));
-  file_open_recent_menu_->setTitle(tr("Open Recent"));
-  file_open_recent_clear_item_->setText(tr("Clear Recent List"));
+  file_open_recent_menu_->setTitle(tr("Open &Recent"));
+  file_open_recent_clear_item_->setText(tr("&Clear Recent List"));
   file_save_item_->setText(tr("&Save Project"));
   file_save_as_item_->setText(tr("Save Project &As"));
   file_import_item_->setText(tr("&Import..."));
   file_export_item_->setText(tr("&Export..."));
+  file_project_properties_item_->setText(tr("&Project Properties..."));
   file_exit_item_->setText(tr("E&xit"));
 
   // Edit menu

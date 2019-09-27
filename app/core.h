@@ -130,6 +130,11 @@ public slots:
   void DialogPreferencesShow();
 
   /**
+   * @brief Show Project Properties dialog
+   */
+  void DialogProjectPropertiesShow();
+
+  /**
    * @brief Create a new folder in the currently active project
    */
   void CreateNewFolder();

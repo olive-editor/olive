@@ -34,11 +34,12 @@
 #include "dialog/about/about.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/preferences/preferences.h"
+#include "dialog/projectproperties/projectproperties.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
-#include "render/colorservice.h"
+#include "render/colormanager.h"
 #include "task/import/import.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
@@ -92,6 +93,9 @@ void Core::Start()
   // Load application config
   Config::Load();
 
+  // Set up color manager
+  ColorManager::CreateInstance();
+
 
   //
   // Start GUI (FIXME CLI mode)
@@ -107,6 +111,8 @@ void Core::Start()
 void Core::Stop()
 {
   AudioManager::DestroyInstance();
+
+  ColorManager::DestroyInstance();
 
   delete main_window_;
 }
@@ -206,6 +212,12 @@ void Core::DialogPreferencesShow()
 {
   PreferencesDialog pd(main_window_, main_window_->menuBar());
   pd.exec();
+}
+
+void Core::DialogProjectPropertiesShow()
+{
+  ProjectPropertiesDialog ppd(main_window_);
+  ppd.exec();
 }
 
 void Core::CreateNewFolder()
@@ -334,12 +346,8 @@ void Core::StartGUI(bool full_screen)
   // When a new project is opened, update the mainwindow
   connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
 
-  // Initialize color service
-  ColorService::Init();
-
   // Initialize audio service
   AudioManager::CreateInstance();
-
 }
 
 Project *Core::GetActiveProject()

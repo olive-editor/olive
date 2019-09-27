@@ -24,7 +24,8 @@
 
 Stream::Stream() :
   footage_(nullptr),
-  type_(kUnknown)
+  type_(kUnknown),
+  enabled_(true)
 {
 
 }
@@ -86,6 +87,16 @@ const int64_t &Stream::duration() const
 void Stream::set_duration(const int64_t &duration)
 {
   duration_ = duration;
+}
+
+bool Stream::enabled()
+{
+  return enabled_;
+}
+
+void Stream::set_enabled(bool e)
+{
+  enabled_ = e;
 }
 
 QIcon Stream::IconFromType(const Stream::Type &type)

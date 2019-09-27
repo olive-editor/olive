@@ -25,7 +25,7 @@
 
 #include "decoder/decoder.h"
 #include "node/node.h"
-#include "render/colorservice.h"
+#include "render/colormanager.h"
 #include "render/rendertexture.h"
 #include "render/gl/shadergenerators.h"
 
@@ -69,7 +69,7 @@ private:
 
   DecoderPtr decoder_;
 
-  ColorServicePtr color_service_;
+  ColorProcessorPtr color_service_;
 
   ShaderPtr pipeline_;
 

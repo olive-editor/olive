@@ -78,6 +78,9 @@ public:
   const int64_t& duration() const;
   void set_duration(const int64_t& duration);
 
+  bool enabled();
+  void set_enabled(bool e);
+
   static QIcon IconFromType(const Type& type);
 
 private:
@@ -90,6 +93,8 @@ private:
   int index_;
 
   Type type_;
+
+  bool enabled_;
 
 };
 
