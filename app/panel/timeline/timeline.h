@@ -62,10 +62,13 @@ public:
 public slots:
   void SetTimebase(const rational& timebase);
 
+  void SetTime(const int64_t& timestamp);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
 signals:
+  void TimeChanged(const int64_t& time);
 
 private:
   void Retranslate();

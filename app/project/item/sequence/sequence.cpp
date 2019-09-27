@@ -40,9 +40,18 @@ Sequence::Sequence() :
 
 void Sequence::Open(SequencePtr sequence)
 {
-  olive::panel_manager->MostRecentlyFocused<ViewerPanel>()->ConnectViewerNode(sequence->viewer_output_);
-  olive::panel_manager->MostRecentlyFocused<TimelinePanel>()->ConnectTimelineNode(sequence->timeline_output_);
-  olive::panel_manager->MostRecentlyFocused<NodePanel>()->SetGraph(sequence.get());
+  // FIXME: This is fairly "hardcoded" behavior
+
+  ViewerPanel* viewer_panel = olive::panel_manager->MostRecentlyFocused<ViewerPanel>();
+  TimelinePanel* timeline_panel = olive::panel_manager->MostRecentlyFocused<TimelinePanel>();
+  NodePanel* node_panel = olive::panel_manager->MostRecentlyFocused<NodePanel>();
+
+  viewer_panel->ConnectViewerNode(sequence->viewer_output_);
+  timeline_panel->ConnectTimelineNode(sequence->timeline_output_);
+  node_panel->SetGraph(sequence.get());
+
+  connect(timeline_panel, SIGNAL(TimeChanged(const int64_t&)), viewer_panel, SLOT(SetTime(const int64_t&)));
+  connect(viewer_panel, SIGNAL(TimeChanged(const int64_t&)), timeline_panel, SLOT(SetTime(const int64_t&)));
 }
 
 void Sequence::AddDefaultNodes()
@@ -76,6 +85,7 @@ void Sequence::AddDefaultNodes()
   NodeParam::ConnectEdge(timeline_output_->length_output(), renderer_processor_->length_input());
 
   // Update the timebase on these nodes
+  renderer_processor_->SetCacheName(name());
   set_video_time_base(video_time_base_);
   update_video_parameters();
 }

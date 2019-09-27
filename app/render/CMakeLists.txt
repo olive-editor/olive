@@ -29,8 +29,6 @@ set(OLIVE_SOURCES
   render/rendermodes.h
   render/renderframebuffer.h
   render/renderframebuffer.cpp
-  render/renderservice.h
-  render/renderservice.cpp
   render/rendertexture.h
   render/rendertexture.cpp
   render/sampleformat.h

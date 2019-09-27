@@ -94,7 +94,7 @@ public slots:
   void ShuttleRight();
 
 signals:
-  void TimeChanged(const rational&);
+  void TimeChanged(const int64_t&);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;

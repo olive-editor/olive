@@ -72,11 +72,13 @@ public slots:
    */
   void SetTexture(RenderTexturePtr tex);
 
+  void SetTime(const int64_t& timestamp);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 
 signals:
-  void TimeChanged(const rational&);
+  void TimeChanged(const int64_t&);
 
 private:
   void Retranslate();

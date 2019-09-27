@@ -47,6 +47,8 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   connect(view_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
   connect(view_, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
+  connect(view_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
+  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
 
   // FIXME: Magic number
   SetScale(90.0);
@@ -65,6 +67,12 @@ void TimelinePanel::SetTimebase(const rational &timebase)
 {
   ruler_->SetTimebase(timebase);
   view_->SetTimebase(timebase);
+}
+
+void TimelinePanel::SetTime(const int64_t &timestamp)
+{
+  ruler_->SetTime(timestamp);
+  view_->SetTime(timestamp);
 }
 
 TimelineView *TimelinePanel::view()

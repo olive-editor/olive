@@ -28,7 +28,7 @@ ViewerPanel::ViewerPanel(QWidget *parent) :
 
   // QObject system handles deleting this
   viewer_ = new ViewerWidget(this);
-  connect(viewer_, SIGNAL(TimeChanged(const rational&)), this, SIGNAL(TimeChanged(const rational&)));
+  connect(viewer_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
 
   // Set ViewerWidget as the central widget
   setWidget(viewer_);
@@ -105,6 +105,11 @@ void ViewerPanel::DisconnectViewerNode()
 rational ViewerPanel::GetTime()
 {
   return viewer_->GetTime();
+}
+
+void ViewerPanel::SetTime(const int64_t &timestamp)
+{
+  viewer_->SetTime(timestamp);
 }
 
 void ViewerPanel::SetTexture(RenderTexturePtr tex)

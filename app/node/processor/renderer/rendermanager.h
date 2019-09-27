@@ -18,8 +18,8 @@
 
 ***/
 
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef RENDERMANAGER_H
+#define RENDERMANAGER_H
 
 #include <QLinkedList>
 #include <QOpenGLTexture>
@@ -33,7 +33,7 @@
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
  */
-class RendererProcessor : public Node
+class RenderManager : public QObject
 {
   Q_OBJECT
 public:
@@ -43,20 +43,19 @@ public:
    * Constructing a Renderer object will not start any threads/backend on its own. Use Start() to do this and Stop()
    * when the Renderer is about to be destroyed.
    */
-  RendererProcessor();
+  RenderManager();
 
-  virtual QString Name() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
-  virtual QString id() override;
+  static void CreateInstance();
+
+  static void DestroyInstance();
+
+  static RenderManager* instance();
 
   void SetCacheName(const QString& s);
 
-  virtual void Release() override;
-
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
-
   void SetTimebase(const rational& timebase);
+
+  void InvalidateCache(const rational &start_range, const rational &end_range, const rational &last_requested_time);
 
   /**
    * @brief Set parameters of the Renderer
@@ -80,6 +79,7 @@ public:
                      const int& height,
                      const olive::PixelFormat& format,
                      const olive::RenderMode& mode,
+                     NodeInput *input,
                      const int &divider = 0);
 
   void SetDivider(const int& divider);
@@ -100,29 +100,9 @@ public:
   bool TryCache(const QByteArray& hash);
 
   /**
-   * @brief Return current instance of a RenderThread (or nullptr if there is none)
-   *
-   * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
-   * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
+   * @brief Retrieve the cached frame at `time` and upload it to `destination_texture`
    */
-  static RendererThreadBase* CurrentThread();
-
-  static RenderInstance* CurrentInstance();
-
-  NodeInput* texture_input();
-
-  NodeInput* length_input();
-
-  NodeOutput* texture_output();
-
-protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
-
-private:
-  struct HashTimeMapping {
-    rational time;
-    QByteArray hash;
-  };
+  void RetrieveImage(RenderTexturePtr destination_texture, const rational& time);
 
   /**
    * @brief Allocate and start the multithreaded backend
@@ -133,6 +113,29 @@ private:
    * @brief Terminate and deallocate the multithreaded backend
    */
   void Stop();
+
+  /**
+   * @brief Return current instance of a RenderThread (or nullptr if there is none)
+   *
+   * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
+   * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
+   */
+  static RendererThreadBase* CurrentThread();
+
+  static RenderInstance* CurrentInstance();
+
+signals:
+  void FrameReady(rational time);
+
+  void FrameReadyWithTexture(rational time, RenderTexturePtr texture);
+
+private:
+  static RenderManager* instance_;
+
+  struct HashTimeMapping {
+    rational time;
+    QByteArray hash;
+  };
 
   /**
    * @brief Internal function for generating the cache ID
@@ -165,12 +168,6 @@ private:
    */
   bool started_;
 
-  NodeInput* texture_input_;
-
-  NodeInput* length_input_;
-
-  NodeOutput* texture_output_;
-
   int width_;
   int height_;
 
@@ -198,8 +195,6 @@ private:
   QVector<RendererDownloadThreadPtr> download_threads_;
   int last_download_thread_;
 
-  RenderTexturePtr master_texture_;
-
   QMap<rational, QByteArray> time_hash_map_;
 
   QMutex cache_hash_list_mutex_;
@@ -207,7 +202,7 @@ private:
 
   QList<HashTimeMapping> deferred_maps_;
 
-  bool starting_;
+  NodeInput* texture_input_;
 
 private slots:
   void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
@@ -220,4 +215,4 @@ private slots:
 
 };
 
-#endif // RENDERER_H
+#endif // RENDERMANAGER_H

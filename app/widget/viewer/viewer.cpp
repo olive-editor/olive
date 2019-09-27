@@ -174,7 +174,7 @@ void ViewerWidget::UpdateTimeInternal(int64_t i)
     UpdateTextureFromNode(time_set);
   }
 
-  emit TimeChanged(time_set);
+  emit TimeChanged(i);
 }
 
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
