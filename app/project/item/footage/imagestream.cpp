@@ -84,3 +84,8 @@ void ImageStream::ColorConfigChangedSlot()
   // FIXME: Update colorspace correctly
   colorspace_.clear();
 }
+
+void ImageStream::ColorSpaceChanged()
+{
+
+}
