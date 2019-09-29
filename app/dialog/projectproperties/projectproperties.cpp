@@ -23,34 +23,68 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "config/config.h"
+#include "core.h"
 #include "render/colormanager.h"
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
-  QDialog(parent)
+  QDialog(parent),
+  working_project_(olive::core.GetActiveProject())
 {
-  QGridLayout* layout = new QGridLayout(this);
+  QVBoxLayout* layout = new QVBoxLayout(this);
 
   setWindowTitle(tr("Project Properties"));
 
-  layout->addWidget(new QLabel(tr("OpenColorIO Configuration:")), 0, 0);
+  QGroupBox* color_group = new QGroupBox();
+  color_group->setTitle(tr("Color Management"));
+
+  QGridLayout* color_layout = new QGridLayout(color_group);
+
+  int row = 0;
+
+  color_layout->addWidget(new QLabel(tr("OpenColorIO Configuration:")), row, 0);
 
   ocio_filename_ = new QLineEdit();
-  layout->addWidget(ocio_filename_, 0, 1);
+  color_layout->addWidget(ocio_filename_, row, 1);
+
+  row++;
+
+  color_layout->addWidget(new QLabel(tr("Default Input Color Space:")), row, 0);
+
+  default_input_colorspace_ = new QComboBox();
+  color_layout->addWidget(default_input_colorspace_, row, 1, 1, 2);
+
+  row++;
 
   QPushButton* browse_btn = new QPushButton(tr("Browse"));
-  layout->addWidget(browse_btn, 0, 2);
+  color_layout->addWidget(browse_btn, 0, 2);
   connect(browse_btn, SIGNAL(clicked(bool)), this, SLOT(BrowseForOCIOConfig()));
 
+  layout->addWidget(color_group);
+
   QDialogButtonBox* dialog_btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
-  layout->addWidget(dialog_btns, 1, 0, 1, 3);
+  layout->addWidget(dialog_btns);
   connect(dialog_btns, SIGNAL(accepted()), this, SLOT(accept()));
   connect(dialog_btns, SIGNAL(rejected()), this, SLOT(reject()));
+
+  if (working_project_ == nullptr) {
+    QMessageBox::critical(this,
+                          tr("No Active Project"),
+                          tr("No project is currently open to set the properties for"),
+                          QMessageBox::Ok);
+    reject();
+    return;
+  }
+
+  ocio_filename_->setText(working_project_->ocio_config());
+  ListPossibleInputSpaces(working_project_->ocio_config());
 }
 
 void ProjectPropertiesDialog::accept()
@@ -58,6 +92,11 @@ void ProjectPropertiesDialog::accept()
   try {
     OCIO::ConstConfigRcPtr config = OCIO::Config::CreateFromFile(ocio_filename_->text().toUtf8());
 
+    working_project_->set_default_input_colorspace(default_input_colorspace_->currentText());
+
+    working_project_->set_ocio_config(ocio_filename_->text());
+
+    // This should ripple changes throughout the program that the color config has changed, therefore must be done last
     ColorManager::instance()->SetConfig(config);
 
     QDialog::accept();
@@ -69,10 +108,48 @@ void ProjectPropertiesDialog::accept()
   }
 }
 
+bool ProjectPropertiesDialog::VerifyOCIOConfig(const QString &fn)
+{
+  try {
+    OCIO::Config::CreateFromFile(fn.toUtf8());
+
+    return true;
+  } catch (OCIO::Exception& e) {
+    QMessageBox::critical(this,
+                          tr("OpenColorIO Config Error"),
+                          tr("Failed to set OpenColorIO configuration: %1").arg(e.what()),
+                          QMessageBox::Ok);
+
+    return false;
+  }
+}
+
+void ProjectPropertiesDialog::ListPossibleInputSpaces(const QString& fn)
+{
+  try {
+    default_input_colorspace_->clear();
+
+    QStringList input_cs = ColorManager::ListAvailableInputColorspaces(OCIO::Config::CreateFromFile(fn.toUtf8()));
+
+    foreach (QString cs, input_cs) {
+      default_input_colorspace_->addItem(cs);
+
+      if (cs == working_project_->default_input_colorspace()) {
+        default_input_colorspace_->setCurrentIndex(default_input_colorspace_->count()-1);
+      }
+    }
+  } catch (OCIO::Exception&) {
+  }
+}
+
 void ProjectPropertiesDialog::BrowseForOCIOConfig()
 {
   QString fn = QFileDialog::getOpenFileName(this, tr("Browse for OpenColorIO configuration"));
   if (!fn.isEmpty()) {
-    ocio_filename_->setText(fn);
+    if (VerifyOCIOConfig(fn)) {
+      ocio_filename_->setText(fn);
+
+      ListPossibleInputSpaces(fn);
+    }
   }
 }

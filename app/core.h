@@ -101,6 +101,18 @@ public:
    */
   void StartModalTask(Task* t);
 
+  /**
+   * @brief Get the currently active project
+   *
+   * Uses the UI/Panel system to determine which Project was the last focused on and assumes this is the active Project
+   * that the user wishes to work on.
+   *
+   * @return
+   *
+   * The active Project file, or nullptr if the heuristic couldn't find one.
+   */
+  Project* GetActiveProject();
+
 public slots:
   /**
    * @brief Set the current application-wide tool
@@ -185,18 +197,6 @@ private:
    * create an application instance that is completely valid minus the UI (e.g. for CLI modes).
    */
   void StartGUI(bool full_screen);
-
-  /**
-   * @brief Get the currently active project
-   *
-   * Uses the UI/Panel system to determine which Project was the last focused on and assumes this is the active Project
-   * that the user wishes to work on.
-   *
-   * @return
-   *
-   * The active Project file, or nullptr if the heuristic couldn't find one.
-   */
-  Project* GetActiveProject();
 
   /**
    * @brief Internal main window object

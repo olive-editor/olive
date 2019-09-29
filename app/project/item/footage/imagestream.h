@@ -26,8 +26,9 @@
 /**
  * @brief A Stream derivative containing video-specific information
  */
-class ImageStream : public Stream, public QObject
+class ImageStream : public Stream
 {
+  Q_OBJECT
 public:
   ImageStream();
 

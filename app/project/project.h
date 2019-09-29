@@ -48,10 +48,19 @@ public:
   const QString& name();
   void set_name(const QString& s);
 
+  const QString& ocio_config();
+  void set_ocio_config(const QString& ocio_config);
+
+  const QString& default_input_colorspace();
+  void set_default_input_colorspace(const QString& colorspace);
+
 private:
   Folder root_;
 
   QString name_;
+
+  QString ocio_config_;
+  QString default_input_colorspace_;
 };
 
 using ProjectPtr = std::shared_ptr<Project>;

@@ -36,7 +36,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   // FILE MENU
   //
-  file_menu_ = new Menu(this);
+  file_menu_ = new Menu(this, this, SLOT(FileMenuAboutToShow()));
   file_new_menu_ = new Menu(file_menu_);
   olive::menu_shared.AddItemsForNewMenu(file_new_menu_);
   file_open_item_ = file_menu_->AddItem("openproj", nullptr, nullptr, "Ctrl+O");
@@ -325,6 +325,11 @@ void MainMenu::ToolItemTriggered()
 
   // Set the Tool in Core
   olive::core.SetTool(tool);
+}
+
+void MainMenu::FileMenuAboutToShow()
+{
+  file_project_properties_item_->setEnabled(olive::core.GetActiveProject() != nullptr);
 }
 
 void MainMenu::ViewMenuAboutToShow()

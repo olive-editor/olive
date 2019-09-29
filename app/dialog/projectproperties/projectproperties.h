@@ -21,8 +21,11 @@
 #ifndef PROJECTPROPERTIESDIALOG_H
 #define PROJECTPROPERTIESDIALOG_H
 
+#include <QComboBox>
 #include <QDialog>
 #include <QLineEdit>
+
+#include "project/project.h"
 
 class ProjectPropertiesDialog : public QDialog
 {
@@ -34,7 +37,15 @@ public slots:
   virtual void accept() override;
 
 private:
+  bool VerifyOCIOConfig(const QString& fn);
+
+  void ListPossibleInputSpaces(const QString &fn);
+
+  Project* working_project_;
+
   QLineEdit* ocio_filename_;
+
+  QComboBox* default_input_colorspace_;
 
 private slots:
   void BrowseForOCIOConfig();

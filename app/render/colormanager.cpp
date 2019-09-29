@@ -3,6 +3,7 @@
 #include <QFloat16>
 
 #include "common/define.h"
+#include "config/config.h"
 
 ColorManager* ColorManager::instance_ = nullptr;
 
@@ -104,6 +105,19 @@ QStringList ColorManager::ListAvailableLooks()
   }
 
   return looks;
+}
+
+QStringList ColorManager::ListAvailableInputColorspaces(OpenColorIO::v1::ConstConfigRcPtr config)
+{
+  QStringList spaces;
+
+  int number_of_colorspaces = config->getNumColorSpaces();
+
+  for (int i=0;i<number_of_colorspaces;i++) {
+    spaces.append(config->getColorSpaceNameByIndex(i));
+  }
+
+  return spaces;
 }
 
 ColorManager::ColorManager()

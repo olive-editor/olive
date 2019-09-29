@@ -58,6 +58,11 @@ private slots:
   void ToolItemTriggered();
 
   /**
+   * @brief Slot triggered just before the File menu shows
+   */
+  void FileMenuAboutToShow();
+
+  /**
    * @brief Slot triggered just before the View menu shows
    */
   void ViewMenuAboutToShow();

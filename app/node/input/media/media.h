@@ -49,6 +49,7 @@ public:
 
   NodeOutput* texture_output();
 
+  StreamPtr Footage();
   void SetFootage(StreamPtr f);
 
   virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
@@ -69,7 +70,7 @@ private:
 
   DecoderPtr decoder_;
 
-  ColorProcessorPtr color_service_;
+  ColorProcessorPtr color_processor_;
 
   ShaderPtr pipeline_;
 

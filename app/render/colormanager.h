@@ -37,6 +37,8 @@ public:
 
   static QStringList ListAvailableLooks();
 
+  static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
+
 signals:
   void ConfigChanged();
 

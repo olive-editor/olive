@@ -38,8 +38,9 @@ class Footage;
  * The Stream class is fairly simple and is intended to be subclassed for data that pertains specifically to one
  * Stream::Type. \see VideoStream and \see AudioStream.
  */
-class Stream
+class Stream : public QObject
 {
+  Q_OBJECT
 public:
   enum Type {
     kUnknown,

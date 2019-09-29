@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QOpenGLPixelTransferOptions>
 
+#include "core.h"
 #include "decoder/ffmpeg/ffmpegdecoder.h"
 #include "node/processor/renderer/renderer.h"
 #include "project/item/footage/footage.h"
@@ -32,7 +33,7 @@
 
 MediaInput::MediaInput() :
   decoder_(nullptr),
-  color_service_(nullptr),
+  color_processor_(nullptr),
   pipeline_(nullptr),
   ocio_texture_(0),
   frame_(nullptr)
@@ -77,7 +78,7 @@ void MediaInput::Release()
 
   frame_ = nullptr;
   decoder_ = nullptr;
-  color_service_ = nullptr;
+  color_processor_ = nullptr;
   pipeline_ = nullptr;
 
   if (ocio_texture_ != 0) {
@@ -93,6 +94,11 @@ NodeInput *MediaInput::matrix_input()
 NodeOutput *MediaInput::texture_output()
 {
   return texture_output_;
+}
+
+StreamPtr MediaInput::Footage()
+{
+  return footage_input_->get_value(0).value<StreamPtr>();
 }
 
 void MediaInput::SetFootage(StreamPtr f)
@@ -152,9 +158,14 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
         return 0;
       }
 
-      if (color_service_ == nullptr) {
-        // FIXME: Hardcoded values for testing
-        color_service_ = ColorProcessor::Create("srgb", OCIO::ROLE_SCENE_LINEAR);
+      if (color_processor_ == nullptr) {
+        QString colorspace = std::static_pointer_cast<VideoStream>(Footage())->colorspace();
+        if (colorspace.isEmpty()) {
+          // FIXME: Should use Footage() to find the Project* it belongs to instead of this
+          colorspace = olive::core.GetActiveProject()->default_input_colorspace();
+        }
+
+        color_processor_ = ColorProcessor::Create(colorspace, OCIO::ROLE_SCENE_LINEAR);
       }
 
       // OpenColorIO v1's color transforms can be done on GPU, which improves performance but reduces accuracy. When
@@ -170,7 +181,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
         }
 
         // Transform color to reference space
-        color_service_->ConvertFrame(frame_);
+        color_processor_->ConvertFrame(frame_);
 
         if (alpha_is_associated) {
           // If alpha was associated, reassociate here
@@ -223,7 +234,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
       if (pipeline_ == nullptr) {
         pipeline_ = olive::ShaderGenerator::OCIOPipeline(renderer->context(),
                                                          ocio_texture_, // FIXME: A raw GLuint texture, should wrap this up
-                                                         color_service_->GetProcessor(),
+                                                         color_processor_->GetProcessor(),
                                                          alpha_is_associated);
 
         // Used for cleanup later
@@ -284,7 +295,7 @@ bool MediaInput::SetupDecoder()
   }
 
   // Get currently selected Footage
-  StreamPtr stream = footage_input_->get_value(0).value<StreamPtr>();
+  StreamPtr stream = Footage();
 
   // If no footage is selected, return nothing
   if (stream == nullptr) {

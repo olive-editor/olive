@@ -39,3 +39,23 @@ void Project::set_name(const QString &s)
 {
   name_ = s;
 }
+
+const QString &Project::ocio_config()
+{
+  return ocio_config_;
+}
+
+void Project::set_ocio_config(const QString &ocio_config)
+{
+  ocio_config_ = ocio_config;
+}
+
+const QString &Project::default_input_colorspace()
+{
+  return default_input_colorspace_;
+}
+
+void Project::set_default_input_colorspace(const QString &colorspace)
+{
+  default_input_colorspace_ = colorspace;
+}
