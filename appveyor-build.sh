@@ -43,7 +43,7 @@ do
 done
 
 # For some reason, this dep doesn't get listed by ldd but is necessary regardless
-cp /$MINGW_PATH/libcrypto*.dll .
+cp /$MINGW_PATH/bin/libcrypto*.dll .
 
 # Create package name
 PKGNAME=Olive-$GITHASH-Windows-$ARCH
