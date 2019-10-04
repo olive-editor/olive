@@ -14,11 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/output/timeline/timeline.h
-  node/output/timeline/timeline.cpp
-  node/output/timeline/tracklist.h
-  node/output/timeline/tracklist.cpp
+  widget/timelinewidget/timelinewidget.h
+  widget/timelinewidget/timelinewidget.cpp
   PARENT_SCOPE
 )

@@ -80,7 +80,8 @@ private:
   TimelineOutput* timeline_output_;
   RendererProcessor* renderer_processor_;
   ViewerOutput* viewer_output_;
-  TrackOutput* track_output_;
+  TrackOutput* video_track_output_;
+  TrackOutput* audio_track_output_;
 
   int video_width_;
   int video_height_;

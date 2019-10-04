@@ -163,7 +163,7 @@ void TimelineView::Clear()
   block_items_.clear();
 }
 
-void TimelineView::ConnectTimelineNode(TimelineOutput *node)
+void TimelineView::ConnectTimelineNode(TrackList *node)
 {
   if (timeline_node_ != nullptr) {
     disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));

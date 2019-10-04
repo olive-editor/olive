@@ -96,19 +96,9 @@ public:
   virtual void Retranslate();
 
   /**
-   * @brief Return the parameter at a given index
-   */
-  NodeParam* ParamAt(int index);
-
-  /**
    * @brief Return a list of NodeParams
    */
-  QList<NodeParam*> parameters();
-
-  /**
-   * @brief Return the current number of parameters
-   */
-  int ParameterCount();
+  const QList<NodeParam*>& parameters();
 
   /**
    * @brief Return the index of a parameter
@@ -306,6 +296,8 @@ private:
   bool HasParamWithID(const QString& id);
 
   bool HasParamOfType(NodeParam::Type type, bool must_be_connected);
+
+  QList<NodeParam *> params_;
 
   /**
    * @brief The last timecode Process() was called with

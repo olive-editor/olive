@@ -22,8 +22,6 @@
 
 #include <QDebug>
 
-#include "common/qobjectlistcast.h"
-
 Node::Node() :
   last_processed_time_(-1),
   can_be_deleted_(true)
@@ -56,6 +54,7 @@ void Node::AddParameter(NodeParam *param)
   Q_ASSERT(!HasParamWithID(param->id()));
 
   param->setParent(this);
+  params_.append(param);
 
   connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
@@ -69,6 +68,7 @@ void Node::AddParameter(NodeParam *param)
 
 void Node::RemoveParameter(NodeParam *param)
 {
+  params_.removeAll(param);
   delete param;
 }
 
@@ -83,10 +83,8 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 
 void Node::SendInvalidateCache(const rational &start_range, const rational &end_range)
 {
-  QList<NodeParam *> params = parameters();
-
   // Loop through all parameters (there should be no children that are not NodeParams)
-  foreach (NodeParam* param, params) {
+  foreach (NodeParam* param, params_) {
     // If the Node is an output, relay the signal to any Nodes that are connected to it
     if (param->type() == NodeParam::kOutput) {
 
@@ -117,8 +115,8 @@ void Node::CopyInputs(Node *source, Node *destination)
 {
   Q_ASSERT(source->id() == destination->id());
 
-  QList<NodeParam*> src_param = source->parameters();
-  QList<NodeParam*> dst_param = destination->parameters();
+  const QList<NodeParam*>& src_param = source->params_;
+  const QList<NodeParam*>& dst_param = destination->params_;
 
   for (int i=0;i<src_param.size();i++) {
     if (src_param.at(i)->type() == NodeParam::kInput) {
@@ -174,10 +172,8 @@ void Node::ClearCachedValuesInParameters(const rational &start_range, const rati
   Q_UNUSED(start_range)
   Q_UNUSED(end_range)
 
-  QList<NodeParam *> params = parameters();
-
   // Loop through all parameters and clear cached values
-  foreach (NodeParam* param, params) {
+  foreach (NodeParam* param, params_) {
     //if (param->LastRequestedTime() >= start_range && param->LastRequestedTime() <= end_range) {
       param->ClearCachedValue();
     //}
@@ -195,19 +191,9 @@ QVariant Node::Run(NodeOutput* output, const rational& time)
   return v;
 }
 
-NodeParam *Node::ParamAt(int index)
+const QList<NodeParam *>& Node::parameters()
 {
-  return static_cast<NodeParam*>(children().at(index));
-}
-
-QList<NodeParam *> Node::parameters()
-{
-  return static_qobjectlist_cast<NodeParam>(children());
-}
-
-int Node::ParameterCount()
-{
-  return children().size();
+  return params_;
 }
 
 int Node::IndexOfParameter(NodeParam *param)
@@ -224,9 +210,7 @@ int Node::IndexOfParameter(NodeParam *param)
  * dependencies.
  */
 void GetDependenciesInternal(Node* n, QList<Node*>& list, bool traverse) {
-  QList<NodeParam*> params = n->parameters();
-
-  foreach (NodeParam* p, params) {
+  foreach (NodeParam* p, n->parameters()) {
     if (p->type() == NodeParam::kInput) {
       Node* connected = static_cast<NodeInput*>(p)->get_connected_node();
 
@@ -256,7 +240,7 @@ QList<Node *> Node::GetExclusiveDependencies()
 
   // Filter out any dependencies that are used elsewhere
   for (int i=0;i<deps.size();i++) {
-    QList<NodeParam*> params = deps.at(i)->parameters();
+    QList<NodeParam*> params = deps.at(i)->params_;
 
     // See if any of this Node's outputs are used outside of this dep list
     for (int j=0;j<params.size();j++) {
@@ -298,10 +282,9 @@ QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &
 {
   Q_UNUSED(output)
 
-  QList<NodeParam*> params = parameters();
   QList<NodeDependency> run_deps;
 
-  foreach (NodeParam* p, params) {
+  foreach (NodeParam* p, params_) {
     if (p->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(p);
 
@@ -321,9 +304,7 @@ QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &
 
 bool Node::OutputsTo(Node *n)
 {
-  QList<NodeParam*> params = parameters();
-
-  foreach (NodeParam* param, params) {
+  foreach (NodeParam* param, params_) {
     if (param->type() == NodeParam::kOutput) {
       QVector<NodeEdgePtr> edges = param->edges();
 
@@ -360,10 +341,8 @@ bool Node::HasConnectedOutputs()
 
 void Node::DisconnectAll()
 {
-  QList<NodeParam*> param = parameters();
-
-  for (int i=0;i<param.size();i++) {
-    param.at(i)->DisconnectAll();
+  foreach (NodeParam* param, params_) {
+    param->DisconnectAll();
   }
 }
 
@@ -373,8 +352,7 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
   hash->addData(id().toUtf8());
 
   // Add each value
-  QList<NodeParam*> params = parameters();
-  foreach (NodeParam* param, params) {
+  foreach (NodeParam* param, params_) {
     if (param->type() == NodeParam::kInput
         && !param->IsConnected()
         && static_cast<NodeInput*>(param)->dependent()) {
@@ -400,9 +378,7 @@ QVariant Node::PtrToValue(void *ptr)
 
 bool Node::HasParamWithID(const QString &id)
 {
-  QList<NodeParam*> params = parameters();
-
-  foreach (NodeParam* p, params)
+  foreach (NodeParam* p, params_)
   {
     if (p->id() == id)
     {
@@ -415,9 +391,7 @@ bool Node::HasParamWithID(const QString &id)
 
 bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected)
 {
-  QList<NodeParam*> params = parameters();
-
-  foreach (NodeParam* p, params) {
+  foreach (NodeParam* p, params_) {
     if (p->type() == type
         && (p->IsConnected() || !must_be_connected)) {
       return true;

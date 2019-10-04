@@ -160,6 +160,8 @@ private:
    */
   void ValidateCurrentBlock(const rational& time);
 
+  static TrackOutput* TrackFromBlock(Block* block);
+
   QVector<Block*> block_cache_;
 
   Block* current_block_;

@@ -107,6 +107,7 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 private:
+  QList<Node*> node_children_;
 };
 
 #endif // NODEGRAPH_H

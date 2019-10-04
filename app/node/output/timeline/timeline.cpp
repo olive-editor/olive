@@ -22,27 +22,31 @@
 
 #include <QDebug>
 
-#include "node/blend/alphaover/alphaover.h"
 #include "node/block/gap/gap.h"
 #include "node/graph.h"
 #include "panel/timeline/timeline.h"
 
 TimelineOutput::TimelineOutput()
 {
-  video_track_input_ = new NodeInput("video_track_in");
-  video_track_input_->add_data_input(NodeParam::kTrack);
-  AddParameter(video_track_input_);
+  // Create TrackList instances
+  track_inputs_.resize(kTrackTypeCount);
+  track_lists_.resize(kTrackTypeCount);
 
-  audio_track_input_ = new NodeInput("audio_track_in");
-  audio_track_input_->add_data_input(NodeParam::kTrack);
-  AddParameter(audio_track_input_);
+  for (int i=0;i<kTrackTypeCount;i++) {
+    // Create track input
+    NodeInput* track_input = new NodeInput(QString("track_in_%1").arg(i));
+    track_input->add_data_input(NodeParam::kTrack);
+    AddParameter(track_input);
+    track_inputs_[i] = track_input;
+
+    TrackList* list = new TrackList(this, track_input);
+    track_lists_[i] = list;
+    connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
+  }
 
   length_output_ = new NodeOutput("length_out");
   length_output_->set_data_type(NodeParam::kRational);
   AddParameter(length_output_);
-
-  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnectionAdded(NodeEdgePtr)));
-  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackConnectionRemoved(NodeEdgePtr)));
 }
 
 QString TimelineOutput::Name()
@@ -65,14 +69,9 @@ QString TimelineOutput::Description()
   return tr("Node for communicating between a Timeline panel and the node graph.");
 }
 
-const rational &TimelineOutput::Timebase()
+QVector<TrackOutput *> TimelineOutput::Tracks()
 {
-  return timebase_;
-}
-
-NodeInput *TimelineOutput::track_input()
-{
-  return video_track_input_;
+  return track_cache_;
 }
 
 NodeOutput *TimelineOutput::length_output()
@@ -80,201 +79,50 @@ NodeOutput *TimelineOutput::length_output()
   return length_output_;
 }
 
-const QVector<TrackOutput *> &TimelineOutput::Tracks()
-{
-  return track_cache_;
-}
-
-TrackOutput *TimelineOutput::TrackAt(int index)
-{
-  return track_cache_.at(index);
-}
-
 QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
 {
   if (output == length_output_) {
     Q_UNUSED(time)
 
-    return QVariant::fromValue(TimelineLength());
+    return QVariant::fromValue(timeline_length());
   }
 
   return 0;
 }
 
-rational TimelineOutput::TimelineLength()
+void TimelineOutput::UpdateTrackCache()
+{
+  track_cache_.clear();
+
+  foreach (TrackList* list, track_lists_) {
+    track_cache_.append(list->Tracks());
+  }
+}
+
+rational TimelineOutput::timeline_length()
 {
   rational length = 0;
 
-  foreach (TrackOutput* track, track_cache_) {
-    length = qMax(length, track->in());
+  foreach (TrackList* list, track_lists_) {
+    length = qMax(list->TrackListLength(), length);
   }
 
   return length;
 }
 
-TrackOutput *TimelineOutput::attached_track()
-{
-  return ValueToPtr<TrackOutput>(video_track_input_->get_value(0));
-}
-
-void TimelineOutput::AttachTrack(TrackOutput *track)
-{
-  TrackOutput* current_track = track;
-
-  // Traverse through Tracks caching and connecting them
-  while (current_track != nullptr) {
-    connect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
-    connect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
-    connect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    connect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-
-    current_track->SetIndex(track_cache_.size());
-
-    track_cache_.append(current_track);
-
-    // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
-    // the track's index
-    emit TrackAdded(current_track);
-
-    current_track = current_track->next_track();
-  }
-}
-
-void TimelineOutput::DetachTrack(TrackOutput *track)
-{
-  TrackOutput* current_track = track;
-
-  // Traverse through Tracks uncaching and disconnecting them
-  while (current_track != nullptr) {
-    emit TrackRemoved(current_track);
-
-    current_track->SetIndex(-1);
-
-    disconnect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
-    disconnect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
-    disconnect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    disconnect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-
-    track_cache_.removeAll(current_track);
-
-    current_track = current_track->next_track();
-  }
-}
-
 void TimelineOutput::SetTimebase(const rational &timebase)
 {
-  timebase_ = timebase;
-
-  emit TimebaseChanged(timebase_);
-}
-
-void TimelineOutput::AddTrack()
-{
-  TrackOutput* track = new TrackOutput();
-  static_cast<NodeGraph*>(parent())->AddNode(track);
-
-  if (track_cache_.isEmpty()) {
-    // Connect this track directly to this output
-    NodeParam::ConnectEdge(track->track_output(), track_input());
-  } else {
-    TrackOutput* current_last_track = track_cache_.last();
-
-    // Connect this track to the current last track
-    NodeParam::ConnectEdge(track->track_output(), current_last_track->track_input());
-
-    // FIXME: Test code only
-    AlphaOverBlend* blend = new AlphaOverBlend();
-    static_cast<NodeGraph*>(parent())->AddNode(blend);
-
-    NodeParam::ConnectEdge(track->texture_output(), blend->blend_input());
-    NodeParam::ConnectEdge(current_last_track->texture_output(), blend->base_input());
-    NodeParam::ConnectEdge(blend->texture_output(), current_last_track->texture_output()->edges().first()->input());
-    // End test code
+  foreach (TrackList* list, track_lists_) {
+    list->SetTimebase(timebase);
   }
 }
 
-void TimelineOutput::RemoveTrack()
+NodeInput *TimelineOutput::track_input(TimelineOutput::TrackType type)
 {
-  if (track_cache_.isEmpty()) {
-    return;
-  }
-
-  TrackOutput* track = track_cache_.last();
-
-  static_cast<NodeGraph*>(parent())->TakeNode(track);
-
-  delete track;
+  return track_inputs_.at(type);
 }
 
-TrackOutput *TimelineOutput::TrackFromBlock(Block *block)
+TrackList *TimelineOutput::track_list(TimelineOutput::TrackType type)
 {
-  Block* n = block;
-
-  // Find last valid block in Sequence and assume its a track
-  while (n->next() != nullptr) {
-    n = n->next();
-  }
-
-  // Downside of this approach is the usage of dynamic_cast, alternative would be looping through all known tracks and
-  // seeing if the contain the Block, but this seems slower
-  return dynamic_cast<TrackOutput*>(n);
-}
-
-void TimelineOutput::TrackConnectionAdded(NodeEdgePtr edge)
-{
-  if (edge->input() != track_input()) {
-    return;
-  }
-
-  AttachTrack(attached_track());
-
-  // FIXME: Is this necessary?
-  emit TimebaseChanged(timebase_);
-}
-
-void TimelineOutput::TrackConnectionRemoved(NodeEdgePtr edge)
-{
-  if (edge->input() != track_input()) {
-    return;
-  }
-
-  DetachTrack(ValueToPtr<TrackOutput>(edge->output()->get_value(0)));
-
-  emit TimelineCleared();
-}
-
-void TimelineOutput::TrackAddedBlock(Block *block)
-{
-  emit BlockAdded(block, static_cast<TrackOutput*>(sender())->Index());
-}
-
-void TimelineOutput::TrackRemovedBlock(Block *block)
-{
-  emit BlockRemoved(block);
-}
-
-void TimelineOutput::TrackEdgeAdded(NodeEdgePtr edge)
-{
-  // Assume this signal was sent from a TrackOutput
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
-
-  // If this edge pertains to the track's track input, all the tracks just added need attaching
-  if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
-
-    AttachTrack(added_track);
-  }
-}
-
-void TimelineOutput::TrackEdgeRemoved(NodeEdgePtr edge)
-{
-  // Assume this signal was sent from a TrackOutput
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
-
-  // If this edge pertains to the track's track input, all the tracks just added need attaching
-  if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = ValueToPtr<TrackOutput>(edge->output()->get_value(0));
-
-    DetachTrack(added_track);
-  }
+  return track_lists_.at(type);
 }

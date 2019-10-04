@@ -49,7 +49,7 @@ public:
 
   void SetScale(const double& scale);
 
-  void ConnectTimelineNode(TimelineOutput* node);
+  void ConnectTimelineNode(TrackList* node);
 
   void DisconnectTimelineNode();
 
@@ -338,7 +338,7 @@ private:
   HandTool hand_tool_;
   ZoomTool zoom_tool_;
 
-  TimelineOutput* timeline_node_;
+  TrackList* timeline_node_;
 
   void AddGhost(TimelineViewGhostItem* ghost);
 

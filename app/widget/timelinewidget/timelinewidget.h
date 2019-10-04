@@ -56,13 +56,6 @@ signals:
   void TimeChanged(const int64_t& time);
 
 private:
-  enum ViewType {
-    kVideo,
-    kAudio
-  };
-
-  TimelineView* GetView(const ViewType& view_type);
-
   void RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps);
 
   void SetTimeAndSignal(const int64_t& t);

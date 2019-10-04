@@ -159,13 +159,13 @@ protected:
  */
 class TrackPlaceBlockCommand : public TrackRippleRemoveAreaCommand {
 public:
-  TrackPlaceBlockCommand(TimelineOutput *timeline, int track, Block* block, rational in, QUndoCommand* parent = nullptr);
+  TrackPlaceBlockCommand(TrackList *timeline, int track, Block* block, rational in, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
 
 private:
-  TimelineOutput* timeline_;
+  TrackList* timeline_;
   int track_index_;
   bool append_;
   GapBlock* gap_;

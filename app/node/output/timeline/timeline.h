@@ -24,6 +24,7 @@
 #include "common/timelinecommon.h"
 #include "node/block/block.h"
 #include "node/output/track/track.h"
+#include "tracklist.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
@@ -33,9 +34,11 @@ class TimelineOutput : public Node
   Q_OBJECT
 public:
   enum TrackType {
-    kVideo,
-    kAudio,
-    kSubtitle
+    kTrackTypeNone = -1,
+    kTrackTypeVideo,
+    kTrackTypeAudio,
+    kTrackTypeSubtitle,
+    kTrackTypeCount
   };
 
   TimelineOutput();
@@ -45,91 +48,34 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
-  const rational& Timebase();
-  void SetTimebase(const rational& timebase);
+  QVector<TrackOutput*> Tracks();
 
-  NodeInput* track_input();
+  NodeInput* track_input(TrackType type);
+
+  TrackList* track_list(TrackType type);
 
   NodeOutput* length_output();
 
-  const QVector<TrackOutput*>& Tracks();
+  rational timeline_length();
 
-  TrackOutput* TrackAt(int index);
-
-  void AddTrack();
-
-  void RemoveTrack();
-
-  rational TimelineLength();
-
-public slots:
-  /**
-   * @brief Slot for when the track connection is added
-   */
-  void TrackConnectionAdded(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when the track connection is removed
-   */
-  void TrackConnectionRemoved(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackAddedBlock(Block* block);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackRemovedBlock(Block* block);
-
-  /**
-   * @brief Slot for when an attached Track has an edge added
-   */
-  void TrackEdgeAdded(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when an attached Track has an edge added
-   */
-  void TrackEdgeRemoved(NodeEdgePtr edge);
+  void SetTimebase(const rational &timebase);
 
 signals:
-  void TimebaseChanged(const rational &timebase);
-
-  void TimelineCleared();
-  
-  void BlockAdded(Block* block, int index);
-  
-  void BlockRemoved(Block* block);
-
-  void TrackAdded(TrackOutput* track);
-
-  void TrackRemoved(TrackOutput* track);
 
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
-  TrackOutput* attached_track();
+  QVector<NodeInput*> track_inputs_;
 
-  void AttachTrack(TrackOutput *track);
+  QVector<TrackList*> track_lists_;
 
-  void DetachTrack(TrackOutput* track);
-
-  static TrackOutput* TrackFromBlock(Block* block);
-
-  NodeInput* video_track_input_;
-
-  NodeInput* audio_track_input_;
+  QVector<TrackOutput*> track_cache_;
 
   NodeOutput* length_output_;
 
-  /**
-   * @brief A cache of connected Tracks
-   */
-  QVector<TrackOutput*> track_cache_;
-
-  rational timebase_;
+private slots:
+  void UpdateTrackCache();
 
 };
 

@@ -107,9 +107,7 @@ void NodeParamViewItem::SetupUI()
 
   int row_count = 0;
 
-  for (int i=0;i<first_node->ParameterCount();i++) {
-    NodeParam* param = first_node->ParamAt(i);
-
+  foreach (NodeParam* param, first_node->parameters()) {
     // This widget only needs to show input parameters
     if (param->type() == NodeParam::kInput) {
 
@@ -141,9 +139,7 @@ void NodeParamViewItem::AddAdditionalNode(Node *n)
 {
   int bridge_count = 0;
 
-  for (int i=0;i<n->ParameterCount();i++) {
-    NodeParam* param = n->ParamAt(i);
-
+  foreach (NodeParam* param, n->parameters()) {
     if (param->type() == NodeParam::kInput) {
       bridges_.at(bridge_count)->AddInput(static_cast<NodeInput*>(param));
 
@@ -162,9 +158,7 @@ void NodeParamViewItem::Retranslate()
 
   int row_count = 0;
 
-  for (int i=0;i<first_node->ParameterCount();i++) {
-    NodeParam* param = first_node->ParamAt(i);
-
+  foreach (NodeParam* param, first_node->parameters()) {
     // This widget only needs to show input parameters
     if (param->type() == NodeParam::kInput) {
       param_lbls_.at(row_count)->setText(tr("%1:").arg(param->name()));

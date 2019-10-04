@@ -127,9 +127,7 @@ void NodeView::AddNode(Node* node)
   scene_.addItem(item);
 
   // Add a NodeViewEdge for each connection
-  QList<NodeParam*> node_params = node->parameters();
-
-  foreach (NodeParam* param, node_params) {
+  foreach (NodeParam* param, node->parameters()) {
 
     // We only bother working with outputs since eventually this will cover all inputs too
     // (covering both would lead to duplicates since every edge connects to one input and one output)

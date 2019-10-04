@@ -34,7 +34,8 @@ Sequence::Sequence() :
   timeline_output_(nullptr),
   renderer_processor_(nullptr),
   viewer_output_(nullptr),
-  track_output_(nullptr)
+  video_track_output_(nullptr),
+  audio_track_output_(nullptr)
 {
 }
 
@@ -68,18 +69,23 @@ void Sequence::AddDefaultNodes()
   viewer_output_->SetCanBeDeleted(false);
   AddNode(viewer_output_);
 
-  track_output_ = new TrackOutput();
-  track_output_->SetCanBeDeleted(false);
-  AddNode(track_output_);
+  video_track_output_ = new TrackOutput();
+  video_track_output_->SetCanBeDeleted(false);
+  AddNode(video_track_output_);
+
+  audio_track_output_ = new TrackOutput();
+  audio_track_output_->SetCanBeDeleted(false);
+  AddNode(audio_track_output_);
 
   // Connect track to renderer
-  NodeParam::ConnectEdge(track_output_->texture_output(), renderer_processor_->texture_input());
+  NodeParam::ConnectEdge(video_track_output_->texture_output(), renderer_processor_->texture_input());
 
   // Connect renderer to viewer
   NodeParam::ConnectEdge(renderer_processor_->texture_output(), viewer_output_->texture_input());
 
   // Connect track to timeline
-  NodeParam::ConnectEdge(track_output_->track_output(), timeline_output_->track_input());
+  NodeParam::ConnectEdge(video_track_output_->track_output(), timeline_output_->track_input(TimelineOutput::kTrackTypeVideo));
+  NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(TimelineOutput::kTrackTypeAudio));
 
   // Connect timeline end point to renderer
   NodeParam::ConnectEdge(timeline_output_->length_output(), renderer_processor_->length_input());

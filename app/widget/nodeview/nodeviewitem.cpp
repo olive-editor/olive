@@ -105,7 +105,7 @@ void NodeViewItem::SetExpanded(bool e)
 
     // If a node is connected, use its parameter count to set the height
     if (node_ != nullptr) {
-      full_size_rect.adjust(0, 0, 0, node_text_padding_*2 + font_metrics.height() * node_->ParameterCount());
+      full_size_rect.adjust(0, 0, 0, node_text_padding_*2 + font_metrics.height() * node_->parameters().size());
     }
 
     // Store content_rect (the rect without the titlebar)
@@ -127,7 +127,7 @@ QRectF NodeViewItem::GetParameterConnectorRect(int index)
     return QRectF();
   }
 
-  NodeParam* param = node_->ParamAt(index);
+  NodeParam* param = node_->parameters().at(index);
 
   QRectF connector_rect(rect().x(),
                         content_rect_.y() + node_text_padding_ + font_metrics.height() / 2 - node_connector_size_ / 2,
@@ -151,7 +151,7 @@ QPointF NodeViewItem::GetParameterTextPoint(int index)
     return QPointF();
   }
 
-  NodeParam* param = node_->ParamAt(index);
+  NodeParam* param = node_->parameters().at(index);
 
   if (param->type() == NodeParam::kOutput) {
     return content_rect_.topRight() + QPointF(-(node_connector_size_ + node_text_padding_),
@@ -193,9 +193,8 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     // Store the text points which will steadily increase sa we loop
 
     // Loop through all the parameters
-    QList<NodeParam*> node_params = node_->parameters();
-    for (int i=0;i<node_params.size();i++) {
-      NodeParam* param = node_params.at(i);
+    for (int i=0;i<node_->parameters().size();i++) {
+      NodeParam* param = node_->parameters().at(i);
 
       // Draw connector square
       painter->fillRect(GetParameterConnectorRect(i), connector_brush);
@@ -274,11 +273,11 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   // See if the mouse click was on a parameter connector
   if (IsExpanded() // This is only possible if the node is expanded
       && node_ != nullptr) { // We can only loop through a node's parameters if a valid node is attached
-    for (int i=0;i<node_->ParameterCount();i++) {
+    for (int i=0;i<node_->parameters().size();i++) {
 
       if (GetParameterConnectorRect(i).contains(event->pos())) { // See if the cursor is in the rect
 
-        NodeParam* param = node_->ParamAt(i);
+        NodeParam* param = node_->parameters().at(i);
 
         // Create draggable object
         dragging_edge_ = new NodeViewEdge();
@@ -369,7 +368,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
       }
 
       // See if the mouse is currently inside a connector rect
-      for (int i=0;i<drop_item->node()->ParameterCount();i++) {
+      for (int i=0;i<drop_item->node()->parameters().size();i++) {
 
         // Make a larger "hitbox" rect to make it easier to drag into
         QRectF param_hitbox = drop_item->GetParameterConnectorRect(i).adjusted(-node_connector_size_,
@@ -378,7 +377,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                                                                                node_connector_size_);
 
         // Get the parameter we're dragging into
-        NodeParam* comp_param = drop_item->node()->ParamAt(i);
+        NodeParam* comp_param = drop_item->node()->parameters().at(i);
 
         if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos())) // See if we're dragging inside the hitbox
             && NodeParam::AreDataTypesCompatible(drag_src_param_, comp_param)) { // Make sure the types are compatible

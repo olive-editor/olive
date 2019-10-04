@@ -285,7 +285,7 @@ void TrackRippleRemoveAreaCommand::undo()
   track_->InvalidateCache(in_, out_);
 }
 
-TrackPlaceBlockCommand::TrackPlaceBlockCommand(TimelineOutput* timeline, int track, Block *block, rational in, QUndoCommand *parent) :
+TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :
   TrackRippleRemoveAreaCommand(nullptr, in, 0, parent), // Out gets set correctly in redo()
   timeline_(timeline),
   track_index_(track),

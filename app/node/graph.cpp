@@ -20,8 +20,6 @@
 
 #include "graph.h"
 
-#include "common/qobjectlistcast.h"
-
 NodeGraph::NodeGraph()
 {
 
@@ -37,6 +35,8 @@ void NodeGraph::AddNode(Node *node)
 
   connect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   connect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+
+  node_children_.append(node);
 
   emit NodeAdded(node);
 }
@@ -71,6 +71,8 @@ void NodeGraph::TakeNode(Node *node, QObject* new_parent)
 
   node->setParent(new_parent);
 
+  node_children_.removeAll(node);
+
   emit NodeRemoved(node);
 }
 
@@ -91,7 +93,7 @@ QList<Node *> NodeGraph::TakeNodeWithItsDependencies(Node *node, QObject *new_pa
 
 QList<Node *> NodeGraph::nodes()
 {
-  return static_qobjectlist_cast<Node>(children());
+  return node_children_;
 }
 
 bool NodeGraph::ContainsNode(Node *n)

@@ -405,3 +405,17 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 
   InvalidateCache(replace->in(), replace->out());
 }
+
+TrackOutput *TrackOutput::TrackFromBlock(Block *block)
+{
+  Block* n = block;
+
+  // Find last valid block in Sequence and assume its a track
+  while (n->next() != nullptr) {
+    n = n->next();
+  }
+
+  // Downside of this approach is the usage of dynamic_cast, alternative would be looping through all known tracks and
+  // seeing if the contain the Block, but this seems slower
+  return dynamic_cast<TrackOutput*>(n);
+}
