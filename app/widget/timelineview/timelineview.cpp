@@ -57,8 +57,11 @@ TimelineView::TimelineView(QWidget *parent) :
 
   // Create playhead line
   playhead_line_ = new TimelineViewPlayheadItem();
-
   scene_.addItem(playhead_line_);
+
+  // Create end item
+  end_item_ = new TimelineViewEndItem();
+  scene_.addItem(end_item_);
 
   // Set default scale
   SetScale(1.0);
@@ -92,8 +95,6 @@ void TimelineView::AddBlock(Block *block, int track)
     // Do nothing
     break;
   }
-
-
 }
 
 void TimelineView::RemoveBlock(Block *block)
@@ -136,6 +137,7 @@ void TimelineView::SetScale(const double &scale)
   }
 
   playhead_line_->SetScale(scale_);
+  end_item_->SetScale(scale_);
 }
 
 void TimelineView::SetTimebase(const rational &timebase)
@@ -216,89 +218,6 @@ void TimelineView::DeselectAll()
 
   foreach (QGraphicsItem* i, all_items) {
     i->setSelected(false);
-  }
-}
-
-void TimelineView::RippleToIn()
-{
-  RippleEditTo(olive::timeline::kTrimIn, false);
-}
-
-void TimelineView::RippleToOut()
-{
-  RippleEditTo(olive::timeline::kTrimOut, false);
-}
-
-void TimelineView::EditToIn()
-{
-  RippleEditTo(olive::timeline::kTrimIn, true);
-}
-
-void TimelineView::EditToOut()
-{
-  RippleEditTo(olive::timeline::kTrimOut, true);
-}
-
-void TimelineView::GoToPrevCut()
-{
-  if (timeline_node_ == nullptr) {
-    return;
-  }
-
-  if (playhead_ == 0) {
-    return;
-  }
-
-  int64_t closest_cut = 0;
-
-  foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    int64_t this_track_closest_cut = 0;
-
-    foreach (Block* block, track->Blocks()) {
-      int64_t block_out_ts = olive::time_to_timestamp(block->out(), timebase_);
-
-      if (block_out_ts < playhead_) {
-        this_track_closest_cut = block_out_ts;
-      } else {
-        break;
-      }
-    }
-
-    closest_cut = qMax(closest_cut, this_track_closest_cut);
-  }
-
-  UserSetTime(closest_cut);
-}
-
-void TimelineView::GoToNextCut()
-{
-  if (timeline_node_ == nullptr) {
-    return;
-  }
-
-  int64_t closest_cut = INT64_MAX;
-
-  foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    int64_t this_track_closest_cut = olive::time_to_timestamp(track->in(), timebase_);
-
-    if (this_track_closest_cut <= playhead_) {
-      this_track_closest_cut = INT64_MAX;
-    }
-
-    foreach (Block* block, track->Blocks()) {
-      int64_t block_in_ts = olive::time_to_timestamp(block->in(), timebase_);
-
-      if (block_in_ts > playhead_) {
-        this_track_closest_cut = block_in_ts;
-        break;
-      }
-    }
-
-    closest_cut = qMin(closest_cut, this_track_closest_cut);
-  }
-
-  if (closest_cut < INT64_MAX) {
-    UserSetTime(closest_cut);
   }
 }
 
@@ -465,65 +384,6 @@ void TimelineView::ClearGhosts()
   }
 }
 
-void TimelineView::RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps)
-{
-  rational playhead_time = olive::timestamp_to_time(playhead_, timebase_);
-
-  rational closest_point_to_playhead;
-  if (mode == olive::timeline::kTrimIn) {
-    closest_point_to_playhead = 0;
-  } else {
-    closest_point_to_playhead = RATIONAL_MAX;
-  }
-
-  foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    Block* b = track->NearestBlockBefore(playhead_time);
-
-    if (b != nullptr) {
-      if (mode == olive::timeline::kTrimIn) {
-        closest_point_to_playhead = qMax(b->in(), closest_point_to_playhead);
-      } else {
-        closest_point_to_playhead = qMin(b->out(), closest_point_to_playhead);
-      }
-    }
-  }
-
-  QUndoCommand* command = new QUndoCommand();
-
-  if (closest_point_to_playhead == playhead_time) {
-    // Remove one frame only
-    if (mode == olive::timeline::kTrimIn) {
-      playhead_time += timebase_;
-    } else {
-      playhead_time -= timebase_;
-    }
-  }
-
-  rational in_ripple = qMin(closest_point_to_playhead, playhead_time);
-  rational out_ripple = qMax(closest_point_to_playhead, playhead_time);
-  rational ripple_length = out_ripple - in_ripple;
-
-  foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    TrackRippleRemoveAreaCommand* ripple_command = new TrackRippleRemoveAreaCommand(track,
-                                                                                    in_ripple,
-                                                                                    out_ripple,
-                                                                                    command);
-
-    if (insert_gaps) {
-      GapBlock* gap = new GapBlock();
-      gap->set_length(ripple_length);
-      ripple_command->SetInsert(gap);
-    }
-  }
-
-  olive::undo_stack.pushIfHasChildren(command);
-
-  if (mode == olive::timeline::kTrimIn && !insert_gaps) {
-    int64_t new_time = olive::time_to_timestamp(closest_point_to_playhead, timebase_);
-    UserSetTime(new_time);
-  }
-}
-
 void TimelineView::UserSetTime(const int64_t &time)
 {
   SetTime(time);
@@ -553,8 +413,14 @@ void TimelineView::UpdateSceneRect()
     bounding_rect.setHeight(minimum_height);
   }
 
+  // Ensure the scene is always the full length of the timeline with a gap at the end to work with
+  if (timeline_node_ != nullptr) {
+    end_item_->SetEndTime(timeline_node_->TimelineLength());
+    end_item_->SetEndPadding(width()/4);
+  }
+
   // Ensure playhead is the correct height
-  playhead_line_->UpdateRect();
+  playhead_line_->SetHeight(viewport()->height()-1);
 
   // If the scene is already this rect, do nothing
   if (scene_.sceneRect() == bounding_rect) {

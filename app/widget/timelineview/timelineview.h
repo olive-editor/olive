@@ -30,6 +30,7 @@
 #include "node/block/clip/clip.h"
 #include "node/output/timeline/timeline.h"
 #include "timelineviewblockitem.h"
+#include "timelineviewenditem.h"
 #include "timelineviewghostitem.h"
 #include "timelineviewplayheaditem.h"
 #include "widget/timelineview/undo/undo.h"
@@ -44,7 +45,7 @@ class TimelineView : public QGraphicsView
 {
   Q_OBJECT
 public:
-  TimelineView(QWidget* parent);
+  TimelineView(QWidget* parent = nullptr);
 
   void SetScale(const double& scale);
 
@@ -55,18 +56,6 @@ public:
   void SelectAll();
 
   void DeselectAll();
-
-  void RippleToIn();
-
-  void RippleToOut();
-
-  void EditToIn();
-
-  void EditToOut();
-
-  void GoToPrevCut();
-
-  void GoToNextCut();
 
 public slots:
   void SetTimebase(const rational& timebase);
@@ -360,8 +349,6 @@ private:
 
   void ClearGhosts();
 
-  void RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps);
-
   void UserSetTime(const int64_t& time);
 
   QGraphicsScene scene_;
@@ -381,6 +368,8 @@ private:
   QVector<int> track_heights_;
 
   TimelineViewPlayheadItem* playhead_line_;
+
+  TimelineViewEndItem* end_item_;
 
   Tool* active_tool_;
 

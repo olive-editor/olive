@@ -20,124 +20,93 @@
 
 #include "timeline.h"
 
-#include <QScrollBar>
-#include <QVBoxLayout>
-
 TimelinePanel::TimelinePanel(QWidget *parent) :
   PanelWidget(parent)
 {
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("TimelinePanel");
 
-  QWidget* main = new QWidget(this);
-  setWidget(main);
+  timeline_widget_ = new TimelineWidget();
+  setWidget(timeline_widget_);
 
-  QVBoxLayout* layout = new QVBoxLayout(main);
-  layout->setSpacing(0);
-  layout->setMargin(0);
-
-  ruler_ = new TimeRuler(true, this);
-  layout->addWidget(ruler_);
-
-  view_ = new TimelineView(this);
-  layout->addWidget(view_);
-
-  connect(view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
-  connect(view_, SIGNAL(ScaleChanged(double)), this, SLOT(SetScale(double)));
-  connect(view_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view_, SLOT(SetTime(const int64_t&)));
-  connect(view_, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
-  connect(view_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
-  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
-
-  // FIXME: Magic number
-  SetScale(90.0);
+  connect(timeline_widget_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
 
   Retranslate();
 }
 
 void TimelinePanel::Clear()
 {
-  SetTimebase(0);
-
-  view_->Clear();
+  timeline_widget_->Clear();
 }
 
 void TimelinePanel::SetTimebase(const rational &timebase)
 {
-  ruler_->SetTimebase(timebase);
-  view_->SetTimebase(timebase);
+  timeline_widget_->SetTimebase(timebase);
 }
 
 void TimelinePanel::SetTime(const int64_t &timestamp)
 {
-  ruler_->SetTime(timestamp);
-  view_->SetTime(timestamp);
-}
-
-TimelineView *TimelinePanel::view()
-{
-  return view_;
+  timeline_widget_->SetTime(timestamp);
 }
 
 void TimelinePanel::ConnectTimelineNode(TimelineOutput *node)
 {
-  view_->ConnectTimelineNode(node);
+  timeline_widget_->ConnectTimelineNode(node);
 }
 
 void TimelinePanel::DisconnectTimelineNode()
 {
-  view_->DisconnectTimelineNode();
+  timeline_widget_->DisconnectTimelineNode();
 }
 
 void TimelinePanel::ZoomIn()
 {
-  SetScale(scale_ * 2);
+  timeline_widget_->ZoomIn();
 }
 
 void TimelinePanel::ZoomOut()
 {
-  SetScale(scale_ * 0.5);
+  timeline_widget_->ZoomOut();
 }
 
 void TimelinePanel::SelectAll()
 {
-  view_->SelectAll();
+  timeline_widget_->SelectAll();
 }
 
 void TimelinePanel::DeselectAll()
 {
-  view_->DeselectAll();
+  timeline_widget_->DeselectAll();
 }
 
 void TimelinePanel::RippleToIn()
 {
-  view_->RippleToIn();
+  timeline_widget_->RippleToIn();
 }
 
 void TimelinePanel::RippleToOut()
 {
-  view_->RippleToOut();
+  timeline_widget_->RippleToOut();
 }
 
 void TimelinePanel::EditToIn()
 {
-  view_->EditToIn();
+  timeline_widget_->EditToIn();
 }
 
 void TimelinePanel::EditToOut()
 {
-  view_->EditToOut();
+  timeline_widget_->EditToOut();
 }
 
 void TimelinePanel::GoToPrevCut()
 {
-  view_->GoToPrevCut();
+  timeline_widget_->GoToPrevCut();
 }
 
 void TimelinePanel::GoToNextCut()
 {
-  view_->GoToNextCut();
+  timeline_widget_->GoToNextCut();
 }
 
 void TimelinePanel::changeEvent(QEvent *e)
@@ -152,12 +121,4 @@ void TimelinePanel::Retranslate()
 {
   SetTitle(tr("Timeline"));
   SetSubtitle(tr("(none)"));
-}
-
-void TimelinePanel::SetScale(double scale)
-{
-  scale_ = scale;
-
-  ruler_->SetScale(scale_);
-  view_->SetScale(scale_);
 }

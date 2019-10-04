@@ -32,6 +32,12 @@ class TimelineOutput : public Node
 {
   Q_OBJECT
 public:
+  enum TrackType {
+    kVideo,
+    kAudio,
+    kSubtitle
+  };
+
   TimelineOutput();
 
   virtual QString Name() override;
@@ -53,6 +59,8 @@ public:
   void AddTrack();
 
   void RemoveTrack();
+
+  rational TimelineLength();
 
 public slots:
   /**
@@ -102,8 +110,6 @@ protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
 private:
-  rational GetSequenceLength();
-
   TrackOutput* attached_track();
 
   void AttachTrack(TrackOutput *track);
@@ -112,7 +118,9 @@ private:
 
   static TrackOutput* TrackFromBlock(Block* block);
 
-  NodeInput* track_input_;
+  NodeInput* video_track_input_;
+
+  NodeInput* audio_track_input_;
 
   NodeOutput* length_output_;
 

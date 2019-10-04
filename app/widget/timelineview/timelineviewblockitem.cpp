@@ -74,13 +74,13 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     return;
   }
 
-  QLinearGradient grad;
+  /*QLinearGradient grad;
   grad.setStart(0, rect().top());
   grad.setFinalStop(0, rect().bottom());
   grad.setColorAt(0.0, QColor(160, 160, 240));
   grad.setColorAt(1.0, QColor(128, 128, 192));
-  painter->fillRect(rect(), grad);
-//  painter->fillRect(rect(), QColor(128, 128, 192));
+  painter->fillRect(rect(), grad);*/
+  painter->fillRect(rect(), QColor(128, 128, 192));
 
   if (option->state & QStyle::State_Selected) {
     painter->fillRect(rect(), QColor(0, 0, 0, 64));

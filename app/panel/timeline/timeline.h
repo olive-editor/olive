@@ -22,9 +22,12 @@
 #define TIMELINE_PANEL_H
 
 #include "widget/panel/panel.h"
-#include "widget/timelineview/timelineview.h"
-#include "widget/timeruler/timeruler.h"
 
+#include "widget/timelinewidget/timelinewidget.h"
+
+/**
+ * @brief Panel container for a TimelineWidget
+ */
 class TimelinePanel : public PanelWidget
 {
   Q_OBJECT
@@ -32,8 +35,6 @@ public:
   TimelinePanel(QWidget* parent);
 
   void Clear();
-
-  TimelineView* view();
 
   void ConnectTimelineNode(TimelineOutput* node);
 
@@ -73,14 +74,8 @@ signals:
 private:
   void Retranslate();
 
-  TimelineView* view_;
+  TimelineWidget* timeline_widget_;
 
-  TimeRuler* ruler_;
-
-  double scale_;
-
-private slots:
-  void SetScale(double scale);
 };
 
 #endif // TIMELINE_PANEL_H

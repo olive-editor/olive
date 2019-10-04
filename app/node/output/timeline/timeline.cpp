@@ -29,9 +29,13 @@
 
 TimelineOutput::TimelineOutput()
 {
-  track_input_ = new NodeInput("track_in");
-  track_input_->add_data_input(NodeParam::kTrack);
-  AddParameter(track_input_);
+  video_track_input_ = new NodeInput("video_track_in");
+  video_track_input_->add_data_input(NodeParam::kTrack);
+  AddParameter(video_track_input_);
+
+  audio_track_input_ = new NodeInput("audio_track_in");
+  audio_track_input_->add_data_input(NodeParam::kTrack);
+  AddParameter(audio_track_input_);
 
   length_output_ = new NodeOutput("length_out");
   length_output_->set_data_type(NodeParam::kRational);
@@ -68,7 +72,7 @@ const rational &TimelineOutput::Timebase()
 
 NodeInput *TimelineOutput::track_input()
 {
-  return track_input_;
+  return video_track_input_;
 }
 
 NodeOutput *TimelineOutput::length_output()
@@ -91,20 +95,13 @@ QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
   if (output == length_output_) {
     Q_UNUSED(time)
 
-    rational length;
-
-    // Retrieve each track's end point and return the longest of the tracks
-    foreach (TrackOutput* track, track_cache_) {
-      length = qMax(track->in(), length);
-    }
-
-    return QVariant::fromValue(length);
+    return QVariant::fromValue(TimelineLength());
   }
 
   return 0;
 }
 
-rational TimelineOutput::GetSequenceLength()
+rational TimelineOutput::TimelineLength()
 {
   rational length = 0;
 
@@ -117,7 +114,7 @@ rational TimelineOutput::GetSequenceLength()
 
 TrackOutput *TimelineOutput::attached_track()
 {
-  return ValueToPtr<TrackOutput>(track_input_->get_value(0));
+  return ValueToPtr<TrackOutput>(video_track_input_->get_value(0));
 }
 
 void TimelineOutput::AttachTrack(TrackOutput *track)
