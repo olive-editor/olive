@@ -45,7 +45,7 @@ class TimelineView : public QGraphicsView
 {
   Q_OBJECT
 public:
-  TimelineView(QWidget* parent = nullptr);
+  TimelineView(Qt::Alignment vertical_alignment = Qt::AlignTop, QWidget* parent = nullptr);
 
   void SetScale(const double& scale);
 
@@ -345,7 +345,7 @@ private:
   bool HasGhosts();
 
   rational SceneToTime(const double &x);
-  int SceneToTrack(const double &y);
+  int SceneToTrack(double y);
 
   void ClearGhosts();
 

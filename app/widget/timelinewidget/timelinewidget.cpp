@@ -27,7 +27,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   layout->addWidget(view_splitter);
 
   // Video view
-  views_.append(new TimelineView());
+  views_.append(new TimelineView(Qt::AlignBottom));
 
   // Audio view
   views_.append(new TimelineView());

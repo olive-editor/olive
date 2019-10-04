@@ -53,7 +53,7 @@ void TimelineViewPlayheadItem::UpdateRect()
   double width = TimeToScreenCoord(timebase_);
 
   setRect(0, 0, width, height_);
-  setPos(x, 0);
+  setPos(x, y_);
 }
 
 void TimelineViewPlayheadItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

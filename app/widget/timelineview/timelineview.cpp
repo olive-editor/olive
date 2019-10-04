@@ -33,7 +33,7 @@
 #include "project/item/footage/footage.h"
 #include "tool/tool.h"
 
-TimelineView::TimelineView(QWidget *parent) :
+TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QGraphicsView(parent),
   pointer_tool_(this),
   import_tool_(this),
@@ -47,8 +47,10 @@ TimelineView::TimelineView(QWidget *parent) :
   timeline_node_(nullptr),
   playhead_(0)
 {
+  Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
+  setAlignment(Qt::AlignLeft | vertical_alignment);
+
   setScene(&scene_);
-  setAlignment(Qt::AlignLeft | Qt::AlignTop);
   setDragMode(RubberBandDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
@@ -328,6 +330,10 @@ int TimelineView::GetTrackY(int track_index)
     y += GetTrackHeight(i);
   }
 
+  if (alignment() & Qt::AlignBottom) {
+    y = -y - GetTrackHeight(0);
+  }
+
   return y;
 }
 
@@ -360,10 +366,14 @@ rational TimelineView::SceneToTime(const double &x)
   return rational(scaled_x_mvmt * timebase_.numerator(), timebase_.denominator());
 }
 
-int TimelineView::SceneToTrack(const double &y)
+int TimelineView::SceneToTrack(double y)
 {
   int track = -1;
   int heights = 0;
+
+  if (alignment() & Qt::AlignBottom) {
+    y = -y;
+  }
 
   do {
     track++;
@@ -403,14 +413,24 @@ void TimelineView::UpdateSceneRect()
 {
   QRectF bounding_rect = scene_.itemsBoundingRect();
 
-  // Ensure the scene left and top are always 0
-  bounding_rect.setTopLeft(QPointF(0, 0));
-
   // Ensure the scene height is always AT LEAST the height of the view
   // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
   int minimum_height = height() - horizontalScrollBar()->height() - 2;
-  if (bounding_rect.height() < minimum_height) {
-    bounding_rect.setHeight(minimum_height);
+
+  if (alignment() & Qt::AlignBottom) {
+    // Ensure the scene left and bottom are always 0
+    bounding_rect.setBottomLeft(QPointF(0, 0));
+
+    if (bounding_rect.top() > minimum_height) {
+      bounding_rect.setTop(-minimum_height);
+    }
+  } else {
+    // Ensure the scene left and top are always 0
+    bounding_rect.setTopLeft(QPointF(0, 0));
+
+    if (bounding_rect.height() < minimum_height) {
+      bounding_rect.setHeight(minimum_height);
+    }
   }
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
