@@ -21,7 +21,6 @@
 #include "tracklist.h"
 
 #include "node/blend/alphaover/alphaover.h"
-#include "node/graph.h"
 #include "timeline.h"
 
 TrackList::TrackList(TimelineOutput* parent, NodeInput *track_input) :
@@ -134,7 +133,7 @@ void TrackList::SetTimebase(const rational &timebase)
 void TrackList::AddTrack()
 {
   TrackOutput* track = new TrackOutput();
-  static_cast<NodeGraph*>(parent())->AddNode(track);
+  GetParentGraph()->AddNode(track);
 
   if (track_cache_.isEmpty()) {
     // Connect this track directly to this output
@@ -147,7 +146,7 @@ void TrackList::AddTrack()
 
     // FIXME: Test code only
     AlphaOverBlend* blend = new AlphaOverBlend();
-    static_cast<NodeGraph*>(parent())->AddNode(blend);
+    GetParentGraph()->AddNode(blend);
 
     NodeParam::ConnectEdge(track->texture_output(), blend->blend_input());
     NodeParam::ConnectEdge(current_last_track->texture_output(), blend->base_input());
@@ -164,7 +163,7 @@ void TrackList::RemoveTrack()
 
   TrackOutput* track = track_cache_.last();
 
-  static_cast<NodeGraph*>(parent())->TakeNode(track);
+  GetParentGraph()->TakeNode(track);
 
   delete track;
 }
@@ -216,4 +215,9 @@ void TrackList::TrackEdgeRemoved(NodeEdgePtr edge)
 
     DetachTrack(added_track);
   }
+}
+
+NodeGraph *TrackList::GetParentGraph()
+{
+  return static_cast<NodeGraph*>(parent()->parent());
 }

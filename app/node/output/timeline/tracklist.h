@@ -23,6 +23,7 @@
 
 #include <QObject>
 
+#include "node/graph.h"
 #include "node/output/track/track.h"
 
 class TimelineOutput;
@@ -100,6 +101,8 @@ signals:
   void TimebaseChanged(const rational &timebase);
 
 private:
+  NodeGraph* GetParentGraph();
+
   /**
    * @brief A cache of connected Tracks
    */
