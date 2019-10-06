@@ -106,12 +106,6 @@ int rational::getActiveInstances()
   return activeInstances;
 }
 
-rational::operator QString() const
-{
-  return QString("%1/%2").arg(QString::number(numer),
-                              QString::number(denom));
-}
-
 const intType &rational::numerator() const
 {
   return numer;
@@ -427,3 +421,8 @@ istream& operator>>(istream &in, rational &value)
   return in;
 }
 
+QDebug operator<<(QDebug debug, const rational &r)
+{
+  debug.nospace() << r.numerator() << "/" << r.denominator();
+  return debug.maybeSpace();
+}

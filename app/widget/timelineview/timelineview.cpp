@@ -483,3 +483,24 @@ void TimelineView::SetEndTime(const rational &length)
 {
   end_item_->SetEndTime(length);
 }
+
+void TimelineView::SetSiblings(TimelineView *a, TimelineView *b)
+{
+  if (a == b)
+    return;
+
+  if (!a->siblings_.contains(b))
+    a->siblings_.append(b);
+
+  if (!b->siblings_.contains(a))
+    b->siblings_.append(a);
+}
+
+void TimelineView::SetSiblings(const QList<TimelineView *> &siblings)
+{
+  foreach (TimelineView* view, siblings) {
+    foreach (TimelineView* sibling, siblings) {
+      SetSiblings(view, sibling);
+    }
+  }
+}

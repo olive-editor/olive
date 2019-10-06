@@ -30,7 +30,10 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   views_.append(new TimelineView(Qt::AlignBottom));
 
   // Audio view
-  views_.append(new TimelineView());
+  views_.append(new TimelineView(Qt::AlignTop));
+
+  // Set both views as siblings
+  TimelineView::SetSiblings(views_);
 
   // Global scrollbar
   horizontal_scroll_ = new QScrollBar(Qt::Horizontal);

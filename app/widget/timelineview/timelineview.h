@@ -61,6 +61,10 @@ public:
 
   void SetEndTime(const rational& length);
 
+  static void SetSiblings(TimelineView* a, TimelineView* b);
+
+  static void SetSiblings(const QList<TimelineView*>& siblings);
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -384,6 +388,8 @@ private:
   QRect playhead_rect_;
 
   bool use_tracklist_length_directly_;
+
+  QVector<TimelineView*> siblings_;
 
 private slots:
   /**

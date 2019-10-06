@@ -60,7 +60,7 @@ private:
 
   void SetTimeAndSignal(const int64_t& t);
 
-  QVector<TimelineView*> views_;
+  QList<TimelineView*> views_;
 
   TimeRuler* ruler_;
 

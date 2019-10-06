@@ -115,8 +115,6 @@ public:
   friend ostream& operator<<(ostream &out, const rational &value);
   friend istream& operator>>(istream &in, rational &value);
 
-  operator QString() const;
-
   const intType& numerator() const;
   const intType& denominator() const;
 
@@ -135,6 +133,8 @@ private:
   //Function: finds greatest common denominator
   intType gcd(intType &x, intType &y);
 };
+
+QDebug operator<<(QDebug debug, const rational& r);
 
 #define RATIONAL_MIN rational(INT32_MIN, 1)
 #define RATIONAL_MAX rational(INT32_MAX, 1)
