@@ -42,6 +42,7 @@ TimelineOutput::TimelineOutput()
     TrackList* list = new TrackList(this, track_input);
     track_lists_[i] = list;
     connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
+    connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
   }
 
   length_output_ = new NodeOutput("length_out");
@@ -79,12 +80,17 @@ NodeOutput *TimelineOutput::length_output()
   return length_output_;
 }
 
+const rational &TimelineOutput::timeline_length()
+{
+  return length_;
+}
+
 QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
 {
   if (output == length_output_) {
     Q_UNUSED(time)
 
-    return QVariant::fromValue(timeline_length());
+    return QVariant::fromValue(length_);
   }
 
   return 0;
@@ -99,15 +105,33 @@ void TimelineOutput::UpdateTrackCache()
   }
 }
 
-rational TimelineOutput::timeline_length()
+void TimelineOutput::UpdateLength(const rational &length)
 {
-  rational length = 0;
+  qDebug() << "Updating length! Received value:" << length;
 
-  foreach (TrackList* list, track_lists_) {
-    length = qMax(list->TrackListLength(), length);
+  // If this length is equal, no-op
+  if (length == length_) {
+    return;
   }
 
-  return length;
+  // If this length is greater, this must be the new total length
+  if (length > length_) {
+    length_ = length;
+    emit LengthChanged(length_);
+    return;
+  }
+
+  // Otherwise, the new length is shorter and we'll have to manually determine what the new max length is
+  rational new_length = 0;
+
+  foreach (TrackList* list, track_lists_) {
+    new_length = qMax(new_length, list->TrackLength());
+  }
+
+  if (new_length != length_) {
+    length_ = new_length;
+    emit LengthChanged(length_);
+  }
 }
 
 void TimelineOutput::SetTimebase(const rational &timebase)

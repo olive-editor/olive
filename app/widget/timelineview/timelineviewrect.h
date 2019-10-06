@@ -23,12 +23,12 @@
 
 #include <QGraphicsRectItem>
 
-#include "common/rational.h"
+#include "timelinescaledobject.h"
 
 /**
  * @brief A base class for graphical representations of Block nodes
  */
-class TimelineViewRect : public QGraphicsRectItem
+class TimelineViewRect : public QGraphicsRectItem, public TimelineScaledObject
 {
 public:
   TimelineViewRect(QGraphicsItem* parent = nullptr);
@@ -47,10 +47,6 @@ public:
   virtual void UpdateRect() = 0;
 
 protected:
-  double TimeToScreenCoord(const rational& time);
-
-  double scale_;
-
   int y_;
 
   int height_;

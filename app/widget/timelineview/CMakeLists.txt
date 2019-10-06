@@ -21,6 +21,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelineview/timelineplayhead.h
   widget/timelineview/timelineplayhead.cpp
+  widget/timelineview/timelinescaledobject.h
+  widget/timelineview/timelinescaledobject.cpp
   widget/timelineview/timelineview.h
   widget/timelineview/timelineview.cpp
   widget/timelineview/timelineviewrect.h
@@ -31,7 +33,5 @@ set(OLIVE_SOURCES
   widget/timelineview/timelineviewenditem.cpp
   widget/timelineview/timelineviewghostitem.h
   widget/timelineview/timelineviewghostitem.cpp
-  widget/timelineview/timelineviewplayheaditem.h
-  widget/timelineview/timelineviewplayheaditem.cpp
   PARENT_SCOPE
 )

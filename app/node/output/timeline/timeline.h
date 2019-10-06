@@ -56,11 +56,12 @@ public:
 
   NodeOutput* length_output();
 
-  rational timeline_length();
+  const rational& timeline_length();
 
   void SetTimebase(const rational &timebase);
 
 signals:
+  void LengthChanged(const rational& length);
 
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
@@ -74,8 +75,12 @@ private:
 
   NodeOutput* length_output_;
 
+  rational length_;
+
 private slots:
   void UpdateTrackCache();
+
+  void UpdateLength(const rational &length);
 
 };
 

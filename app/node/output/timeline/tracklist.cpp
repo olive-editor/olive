@@ -46,6 +46,7 @@ void TrackList::AttachTrack(TrackOutput *track)
     connect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
     connect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     connect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+    connect(current_track, SIGNAL(Refreshed()), this, SLOT(UpdateTotalLength()));
 
     current_track->SetIndex(track_cache_.size());
 
@@ -58,6 +59,8 @@ void TrackList::AttachTrack(TrackOutput *track)
 
     current_track = current_track->next_track();
   }
+
+  UpdateTotalLength();
 }
 
 void TrackList::DetachTrack(TrackOutput *track)
@@ -74,12 +77,15 @@ void TrackList::DetachTrack(TrackOutput *track)
     disconnect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
     disconnect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     disconnect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+    disconnect(current_track, SIGNAL(Refreshed()), this, SLOT(UpdateTotalLength()));
 
     track_cache_.removeAll(current_track);
     emit TrackListChanged();
 
     current_track = current_track->next_track();
   }
+
+  UpdateTotalLength();
 }
 
 void TrackList::TrackAddedBlock(Block *block)
@@ -102,22 +108,6 @@ TrackOutput *TrackList::TrackAt(int index)
   return track_cache_.at(index);
 }
 
-rational TrackList::TrackListLength()
-{
-  rational length = 0;
-
-  foreach (TrackOutput* track, track_cache_) {
-    length = qMax(length, track->in());
-  }
-
-  return length;
-}
-
-rational TrackList::TimelineLength()
-{
-  return static_cast<TimelineOutput*>(parent())->timeline_length();
-}
-
 const rational &TrackList::Timebase()
 {
   return timebase_;
@@ -128,6 +118,11 @@ void TrackList::SetTimebase(const rational &timebase)
   timebase_ = timebase;
 
   emit TimebaseChanged(timebase_);
+}
+
+const rational &TrackList::TrackLength()
+{
+  return total_length_;
 }
 
 void TrackList::AddTrack()
@@ -222,4 +217,15 @@ void TrackList::TrackEdgeRemoved(NodeEdgePtr edge)
 NodeGraph *TrackList::GetParentGraph()
 {
   return static_cast<NodeGraph*>(parent()->parent());
+}
+
+void TrackList::UpdateTotalLength()
+{
+  total_length_ = 0;
+
+  foreach (TrackOutput* track, track_cache_) {
+    total_length_ = qMax(total_length_, track->in());
+  }
+
+  emit LengthChanged(total_length_);
 }

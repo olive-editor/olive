@@ -29,10 +29,10 @@
 
 #include "node/block/clip/clip.h"
 #include "node/output/timeline/timeline.h"
+#include "timelineplayhead.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewenditem.h"
 #include "timelineviewghostitem.h"
-#include "timelineviewplayheaditem.h"
 #include "widget/timelineview/undo/undo.h"
 #include "undo/undostack.h"
 
@@ -41,7 +41,7 @@
  *
  * This widget primarily exposes users to viewing and modifying Block nodes, usually through a TimelineOutput node.
  */
-class TimelineView : public QGraphicsView
+class TimelineView : public QGraphicsView, public TimelineScaledObject
 {
   Q_OBJECT
 public:
@@ -56,6 +56,10 @@ public:
   void SelectAll();
 
   void DeselectAll();
+
+  void SetUseTrackListLengthDirectly(bool use);
+
+  void SetEndTime(const rational& length);
 
 public slots:
   void SetTimebase(const rational& timebase);
@@ -90,6 +94,8 @@ protected:
   virtual void dropEvent(QDropEvent *event) override;
 
   virtual void resizeEvent(QResizeEvent *event) override;
+
+  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
 private:
 
@@ -353,8 +359,6 @@ private:
 
   QGraphicsScene scene_;
 
-  double scale_;
-
   rational timebase_;
 
   double timebase_dbl_;
@@ -367,11 +371,19 @@ private:
 
   QVector<int> track_heights_;
 
-  TimelineViewPlayheadItem* playhead_line_;
-
   TimelineViewEndItem* end_item_;
 
   Tool* active_tool_;
+
+  TimelinePlayhead playhead_style_;
+
+  rational GetPlayheadTime();
+
+  void UpdatePlayheadRect();
+
+  QRect playhead_rect_;
+
+  bool use_tracklist_length_directly_;
 
 private slots:
   /**
@@ -386,6 +398,12 @@ private slots:
    * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
    */
   void UpdateSceneRect();
+
+  /**
+   * @brief When the attached track list's end frame changes, update the graphical representation here
+   */
+  void UpdateEndTimeFromTrackList(const rational& length);
+
 };
 
 #endif // TIMELINEVIEW_H

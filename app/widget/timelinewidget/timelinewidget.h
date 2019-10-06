@@ -79,6 +79,8 @@ private slots:
 
   void UpdateInternalTime(const int64_t& timestamp);
 
+  void UpdateTimelineLength(const rational& length);
+
 };
 
 #endif // TIMELINEWIDGET_H

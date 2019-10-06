@@ -39,6 +39,11 @@ void TimelineView::ZoomTool::MouseRelease(QMouseEvent *event)
 {
   double scale = parent()->scale_;
 
+  QPointF center_location = parent()->mapToScene(event->pos());
+
+  // Normalize zoom location for 1.0 scale
+  double scaled_x = center_location.x() / scale;
+
   if (event->modifiers() & Qt::AltModifier) {
     // Zoom out if the user clicks while holding Alt
     scale *= 0.5;
@@ -49,4 +54,10 @@ void TimelineView::ZoomTool::MouseRelease(QMouseEvent *event)
 
   parent()->SetScale(scale);
   emit parent()->ScaleChanged(scale);
+
+  // Adjust zoom location for new scale
+  scaled_x *= scale;
+  center_location.setX(scaled_x);
+
+  parent()->centerOn(center_location);
 }

@@ -47,13 +47,11 @@ public:
 
   void RemoveTrack();
 
-  rational TrackListLength();
-
-  rational TimelineLength();
-
   const rational& Timebase();
 
   void SetTimebase(const rational& timebase);
+
+  const rational& TrackLength();
 
 public slots:/**
    * @brief Slot for when the track connection is added
@@ -100,6 +98,8 @@ signals:
 
   void TimebaseChanged(const rational &timebase);
 
+  void LengthChanged(const rational &length);
+
 private:
   NodeGraph* GetParentGraph();
 
@@ -111,6 +111,11 @@ private:
   rational timebase_;
 
   NodeInput* track_input_;
+
+  rational total_length_;
+
+private slots:
+  void UpdateTotalLength();
 };
 
 #endif // TRACKLIST_H

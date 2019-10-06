@@ -141,10 +141,12 @@ bool TimelineView::Tool::SnapPoint(QList<rational> start_times, rational* moveme
   }
 
   if (snap_points & kSnapToPlayhead) {
-    qreal playhead_pos = parent()->playhead_line_->x();
+
 
     rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase_.numerator(),
                                           parent()->timebase_.denominator());
+
+    qreal playhead_pos = playhead_abs_time.toDouble() * parent()->scale_;
 
     AttemptSnap(proposed_pts, playhead_pos, start_times, playhead_abs_time, movement, &diff);
   }

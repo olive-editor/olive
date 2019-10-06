@@ -61,6 +61,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     }
   }
 
+  // Split viewer 50/50
+  view_splitter->setSizes({INT_MAX, INT_MAX});
+
   // FIXME: Magic number
   SetScale(90.0);
 }
@@ -105,6 +108,10 @@ void TimelineWidget::SetTime(const int64_t &timestamp)
 
 void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
 {
+  if (timeline_node_ != nullptr) {
+    disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
+  }
+
   timeline_node_ = node;
 
   int track_type = 0;
@@ -113,6 +120,14 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     view->ConnectTimelineNode(node->track_list(static_cast<TimelineOutput::TrackType>(track_type)));
 
     track_type++;
+  }
+
+  if (timeline_node_ != nullptr) {
+    connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
+
+    foreach (TimelineView* view, views_) {
+      view->SetEndTime(timeline_node_->timeline_length());
+    }
   }
 }
 
@@ -312,4 +327,11 @@ void TimelineWidget::SetScale(double scale)
 void TimelineWidget::UpdateInternalTime(const int64_t &timestamp)
 {
   playhead_ = timestamp;
+}
+
+void TimelineWidget::UpdateTimelineLength(const rational &length)
+{
+  foreach (TimelineView* view, views_) {
+    view->SetEndTime(length);
+  }
 }

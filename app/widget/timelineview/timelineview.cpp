@@ -45,7 +45,8 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   hand_tool_(this),
   zoom_tool_(this),
   timeline_node_(nullptr),
-  playhead_(0)
+  playhead_(0),
+  use_tracklist_length_directly_(true)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
@@ -56,10 +57,6 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setBackgroundRole(QPalette::Window);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
-
-  // Create playhead line
-  playhead_line_ = new TimelineViewPlayheadItem();
-  scene_.addItem(playhead_line_);
 
   // Create end item
   end_item_ = new TimelineViewEndItem();
@@ -138,7 +135,9 @@ void TimelineView::SetScale(const double &scale)
     ghost->SetScale(scale_);
   }
 
-  playhead_line_->SetScale(scale_);
+  // Force redraw for playhead
+  viewport()->update();
+
   end_item_->SetScale(scale_);
 }
 
@@ -146,8 +145,6 @@ void TimelineView::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
   timebase_dbl_ = timebase_.toDouble();
-
-  playhead_line_->SetTimebase(timebase_);
 }
 
 void TimelineView::Clear()
@@ -175,6 +172,7 @@ void TimelineView::ConnectTimelineNode(TrackList *node)
     disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
     disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
     disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+    disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateEndTimeFromTrackList(const rational&)));
 
     Clear();
   }
@@ -192,6 +190,7 @@ void TimelineView::ConnectTimelineNode(TrackList *node)
     connect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
     connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
     connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+    connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateEndTimeFromTrackList(const rational&)));
 
     foreach (TrackOutput* track, timeline_node_->Tracks()) {
       // Defer to the track to make all the block UI items necessary
@@ -223,11 +222,17 @@ void TimelineView::DeselectAll()
   }
 }
 
+void TimelineView::SetUseTrackListLengthDirectly(bool use)
+{
+  use_tracklist_length_directly_ = use;
+}
+
 void TimelineView::SetTime(const int64_t time)
 {
   playhead_ = time;
 
-  playhead_line_->SetPlayhead(playhead_);
+  // Force redraw for playhead
+  viewport()->update();
 }
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
@@ -286,6 +291,24 @@ void TimelineView::resizeEvent(QResizeEvent *event)
   QGraphicsView::resizeEvent(event);
 
   UpdateSceneRect();
+}
+
+void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
+{
+  QGraphicsView::drawForeground(painter, rect);
+
+  double x = TimeToScreenCoord(rational(playhead_ * timebase_.numerator(), timebase_.denominator()));
+  double width = TimeToScreenCoord(timebase_);
+
+  QRectF playhead_rect(x, rect.top(), width, rect.height());
+
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(playhead_style_.PlayheadHighlightColor());
+  painter->drawRect(playhead_rect);
+
+  painter->setPen(playhead_style_.PlayheadColor());
+  painter->setBrush(Qt::NoBrush);
+  painter->drawLine(QLineF(playhead_rect.topLeft(), playhead_rect.bottomLeft()));
 }
 
 TimelineView::Tool *TimelineView::GetActiveTool()
@@ -400,6 +423,11 @@ void TimelineView::UserSetTime(const int64_t &time)
   emit TimeChanged(time);
 }
 
+rational TimelineView::GetPlayheadTime()
+{
+  return rational(playhead_ * timebase_.numerator(), timebase_.denominator());
+}
+
 void TimelineView::BlockChanged()
 {
   TimelineViewRect* rect = block_items_[static_cast<Block*>(sender())];
@@ -434,13 +462,7 @@ void TimelineView::UpdateSceneRect()
   }
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  if (timeline_node_ != nullptr) {
-    end_item_->SetEndTime(timeline_node_->TimelineLength());
-    end_item_->SetEndPadding(width()/4);
-  }
-
-  // Ensure playhead is the correct height
-  playhead_line_->SetHeight(viewport()->height()-1);
+  end_item_->SetEndPadding(width()/4);
 
   // If the scene is already this rect, do nothing
   if (scene_.sceneRect() == bounding_rect) {
@@ -448,4 +470,16 @@ void TimelineView::UpdateSceneRect()
   }
 
   scene_.setSceneRect(bounding_rect);
+}
+
+void TimelineView::UpdateEndTimeFromTrackList(const rational &length)
+{
+  if (use_tracklist_length_directly_) {
+    SetEndTime(length);
+  }
+}
+
+void TimelineView::SetEndTime(const rational &length)
+{
+  end_item_->SetEndTime(length);
 }
