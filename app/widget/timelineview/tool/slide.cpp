@@ -29,7 +29,7 @@ TimelineView::SlideTool::SlideTool(TimelineView* parent) :
   SetTrackMovementAllowed(false);
 }
 
-void TimelineView::SlideTool::MouseReleaseInternal(QMouseEvent *event)
+void TimelineView::SlideTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 

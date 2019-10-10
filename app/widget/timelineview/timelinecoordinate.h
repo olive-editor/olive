@@ -18,60 +18,28 @@
 
 ***/
 
-#ifndef TOOL_H
-#define TOOL_H
+#ifndef TIMELINECOORDINATE_H
+#define TIMELINECOORDINATE_H
 
-namespace olive {
-namespace tool {
+#include "common/rational.h"
 
-/**
- * @brief A list of tools that can be used throughout the application
- */
-enum Tool {
-  /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
-  /// a tool somewhere.
-  kNone,
+class TimelineCoordinate
+{
+public:
+  TimelineCoordinate();
+  TimelineCoordinate(const rational& frame, const int& track);
 
-  /// Pointer tool
-  kPointer,
+  const rational& GetFrame() const;
+  const int& GetTrack() const;
 
-  /// Edit tool
-  kEdit,
+  void SetFrame(const rational& frame);
+  void SetTrack(const int& track);
 
-  /// Ripple tool
-  kRipple,
+private:
+  rational frame_;
 
-  /// Rolling tool
-  kRolling,
+  int track_;
 
-  /// Razor tool
-  kRazor,
-
-  /// Slip tool
-  kSlip,
-
-  /// Slide tool
-  kSlide,
-
-  /// Hand tool
-  kHand,
-
-  /// Zoom tool
-  kZoom,
-
-  /// Transition tool
-  kTransition,
-
-  /// Record tool
-  kRecord,
-
-  /// Add tool
-  kAdd,
-
-  kCount
 };
 
-}
-}
-
-#endif // TOOL_H
+#endif // TIMELINECOORDINATE_H

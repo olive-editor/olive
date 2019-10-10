@@ -19,12 +19,16 @@ add_subdirectory(undo)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/timelineview/timelinecoordinate.h
+  widget/timelineview/timelinecoordinate.cpp
   widget/timelineview/timelineplayhead.h
   widget/timelineview/timelineplayhead.cpp
   widget/timelineview/timelinescaledobject.h
   widget/timelineview/timelinescaledobject.cpp
   widget/timelineview/timelineview.h
   widget/timelineview/timelineview.cpp
+  widget/timelineview/timelineviewmouseevent.h
+  widget/timelineview/timelineviewmouseevent.cpp
   widget/timelineview/timelineviewrect.h
   widget/timelineview/timelineviewrect.cpp
   widget/timelineview/timelineviewblockitem.h

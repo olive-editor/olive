@@ -18,60 +18,11 @@
 
 ***/
 
-#ifndef TOOL_H
-#define TOOL_H
+#ifndef FLIPMODIFIERS_H
+#define FLIPMODIFIERS_H
 
-namespace olive {
-namespace tool {
+#include <QtCore>
 
-/**
- * @brief A list of tools that can be used throughout the application
- */
-enum Tool {
-  /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
-  /// a tool somewhere.
-  kNone,
+Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
 
-  /// Pointer tool
-  kPointer,
-
-  /// Edit tool
-  kEdit,
-
-  /// Ripple tool
-  kRipple,
-
-  /// Rolling tool
-  kRolling,
-
-  /// Razor tool
-  kRazor,
-
-  /// Slip tool
-  kSlip,
-
-  /// Slide tool
-  kSlide,
-
-  /// Hand tool
-  kHand,
-
-  /// Zoom tool
-  kZoom,
-
-  /// Transition tool
-  kTransition,
-
-  /// Record tool
-  kRecord,
-
-  /// Add tool
-  kAdd,
-
-  kCount
-};
-
-}
-}
-
-#endif // TOOL_H
+#endif // FLIPMODIFIERS_H

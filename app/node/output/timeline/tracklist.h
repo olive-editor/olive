@@ -25,13 +25,14 @@
 
 #include "node/graph.h"
 #include "node/output/track/track.h"
+#include "tracktypes.h"
 
 class TimelineOutput;
 
 class TrackList : public QObject {
   Q_OBJECT
 public:
-  TrackList(TimelineOutput *parent, NodeInput* track_input);
+  TrackList(TimelineOutput *parent, const enum TrackType& type, NodeInput* track_input);
 
   TrackOutput* attached_track();
 
@@ -52,6 +53,8 @@ public:
   void SetTimebase(const rational& timebase);
 
   const rational& TrackLength();
+
+  const enum TrackType& TrackType();
 
 public slots:/**
    * @brief Slot for when the track connection is added
@@ -113,6 +116,8 @@ private:
   NodeInput* track_input_;
 
   rational total_length_;
+
+  enum TrackType type_;
 
 private slots:
   void UpdateTotalLength();

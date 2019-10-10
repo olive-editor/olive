@@ -26,25 +26,15 @@
 
 TimelineView::Tool::Tool(TimelineView *parent) :
   dragging_(false),
-  parent_(parent)
+  parent_(parent),
+  drag_mode_(NoDrag),
+  enable_default_behavior_(false)
 {
 }
 
-TimelineView::Tool::~Tool(){}
-
-void TimelineView::Tool::MousePress(QMouseEvent *){}
-
-void TimelineView::Tool::MouseMove(QMouseEvent *){}
-
-void TimelineView::Tool::MouseRelease(QMouseEvent *){}
-
-void TimelineView::Tool::DragEnter(QDragEnterEvent *){}
-
-void TimelineView::Tool::DragMove(QDragMoveEvent *){}
-
-void TimelineView::Tool::DragLeave(QDragLeaveEvent *){}
-
-void TimelineView::Tool::DragDrop(QDropEvent *){}
+TimelineView::Tool::~Tool()
+{
+}
 
 TimelineView *TimelineView::Tool::parent()
 {
@@ -64,14 +54,44 @@ olive::timeline::MovementMode TimelineView::Tool::FlipTrimMode(const olive::time
   return trim_mode;
 }
 
-QPointF TimelineView::Tool::GetScenePos(const QPoint &screen_pos)
+const QGraphicsView::DragMode &TimelineView::Tool::drag_mode()
 {
-  return parent()->mapToScene(screen_pos);
+  return drag_mode_;
 }
 
-QGraphicsItem *TimelineView::Tool::GetItemAtScenePos(const QPointF &scene_pos)
+bool TimelineView::Tool::enable_default_behavior()
 {
-  return parent()->scene_.itemAt(scene_pos, parent()->transform());
+  return enable_default_behavior_;
+}
+
+void TimelineView::Tool::set_drag_mode(const QGraphicsView::DragMode &mode)
+{
+  drag_mode_ = mode;
+}
+
+void TimelineView::Tool::set_enable_default_behavior(bool enable)
+{
+  enable_default_behavior_ = enable;
+}
+
+TimelineViewBlockItem *TimelineView::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)
+{
+  QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
+
+  while (iterator.hasNext()) {
+    iterator.next();
+
+    Block* b = iterator.key();
+    TimelineViewBlockItem* item = iterator.value();
+
+    if (b->in() <= coord.GetFrame()
+        && b->out() > coord.GetFrame()
+        && item->Track() == coord.GetTrack()) {
+      return item;
+    }
+  }
+
+  return nullptr;
 }
 
 void AttemptSnap(const QList<double>& proposed_pts,

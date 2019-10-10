@@ -25,36 +25,34 @@ TimelineView::RazorTool::RazorTool(TimelineView* parent) :
 {
 }
 
-void TimelineView::RazorTool::MousePress(QMouseEvent *event)
+void TimelineView::RazorTool::MousePress(TimelineViewMouseEvent *event)
 {
   split_tracks_.clear();
 
   MouseMove(event);
 }
 
-void TimelineView::RazorTool::MouseMove(QMouseEvent *event)
+void TimelineView::RazorTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!dragging_) {
-    drag_start_ = GetScenePos(event->pos());
+    drag_start_ = event->GetCoordinates();
     dragging_ = true;
   }
 
-  QPointF current_scene_pos = GetScenePos(event->pos());
-
   // Split at the current cursor track
-  int split_track = parent()->SceneToTrack(current_scene_pos.y());
+  int split_track = event->GetCoordinates().GetTrack();
 
   if (!split_tracks_.contains(split_track)) {
     split_tracks_.append(split_track);
   }
 }
 
-void TimelineView::RazorTool::MouseRelease(QMouseEvent *event)
+void TimelineView::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
   // Always split at the same time
-  rational split_time = parent()->SceneToTime(drag_start_.x());
+  rational split_time = drag_start_.GetFrame();
 
   QUndoCommand* command = new QUndoCommand();
 

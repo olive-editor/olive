@@ -84,8 +84,8 @@ void Sequence::AddDefaultNodes()
   NodeParam::ConnectEdge(renderer_processor_->texture_output(), viewer_output_->texture_input());
 
   // Connect track to timeline
-  NodeParam::ConnectEdge(video_track_output_->track_output(), timeline_output_->track_input(TimelineOutput::kTrackTypeVideo));
-  NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(TimelineOutput::kTrackTypeAudio));
+  NodeParam::ConnectEdge(video_track_output_->track_output(), timeline_output_->track_input(kTrackTypeVideo));
+  NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(kTrackTypeAudio));
 
   // Connect timeline end point to renderer
   NodeParam::ConnectEdge(timeline_output_->length_output(), renderer_processor_->length_input());

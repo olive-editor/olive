@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   common/debug.cpp
   common/filefunctions.h
   common/filefunctions.cpp
+  common/flipmodifiers.h
+  common/flipmodifiers.cpp
   common/lerp.h
   common/range.h
   common/rational.h

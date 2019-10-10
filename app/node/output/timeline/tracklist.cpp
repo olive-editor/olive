@@ -23,9 +23,10 @@
 #include "node/blend/alphaover/alphaover.h"
 #include "timeline.h"
 
-TrackList::TrackList(TimelineOutput* parent, NodeInput *track_input) :
+TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInput *track_input) :
   QObject(parent),
-  track_input_(track_input)
+  track_input_(track_input),
+  type_(type)
 {
   connect(parent, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnectionAdded(NodeEdgePtr)));
   connect(parent, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackConnectionRemoved(NodeEdgePtr)));
@@ -123,6 +124,11 @@ void TrackList::SetTimebase(const rational &timebase)
 const rational &TrackList::TrackLength()
 {
   return total_length_;
+}
+
+const enum TrackType &TrackList::TrackType()
+{
+  return type_;
 }
 
 void TrackList::AddTrack()

@@ -25,26 +25,31 @@ TimelineView::ZoomTool::ZoomTool(TimelineView* parent) :
 {
 }
 
-void TimelineView::ZoomTool::MousePress(QMouseEvent *event)
+void TimelineView::ZoomTool::MousePress(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 }
 
-void TimelineView::ZoomTool::MouseMove(QMouseEvent *event)
+void TimelineView::ZoomTool::MouseMove(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 }
 
-void TimelineView::ZoomTool::MouseRelease(QMouseEvent *event)
+void TimelineView::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   double scale = parent()->scale_;
 
-  QPointF center_location = parent()->mapToScene(event->pos());
+  // Get center of viewport
+  QPoint viewport_center = parent()->viewport()->rect().center();
+  QPointF scene_center = parent()->mapToScene(viewport_center);
+
+  // Set X to time
+  scene_center.setX(parent()->TimeToScreenCoord(event->GetCoordinates().GetFrame()));
 
   // Normalize zoom location for 1.0 scale
-  double scaled_x = center_location.x() / scale;
+  double scaled_x = scene_center.x() / scale;
 
-  if (event->modifiers() & Qt::AltModifier) {
+  if (event->GetModifiers() & Qt::AltModifier) {
     // Zoom out if the user clicks while holding Alt
     scale *= 0.5;
   } else {
@@ -57,7 +62,7 @@ void TimelineView::ZoomTool::MouseRelease(QMouseEvent *event)
 
   // Adjust zoom location for new scale
   scaled_x *= scale;
-  center_location.setX(scaled_x);
+  scene_center.setX(scaled_x);
 
-  parent()->centerOn(center_location);
+  parent()->centerOn(scene_center);
 }

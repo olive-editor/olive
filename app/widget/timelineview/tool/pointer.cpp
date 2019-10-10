@@ -24,6 +24,7 @@
 #include <QToolTip>
 
 #include "common/clamp.h"
+#include "common/flipmodifiers.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
@@ -36,44 +37,25 @@ TimelineView::PointerTool::PointerTool(TimelineView *parent) :
   trimming_allowed_(true),
   track_movement_allowed_(true)
 {
+  set_drag_mode(RubberBandDrag);
+  set_enable_default_behavior(true);
 }
 
-void FlipControlAndShiftModifiers(QMouseEvent* e) {
-  if (e->modifiers() & Qt::ControlModifier & Qt::ShiftModifier) {
-    return;
-  }
-
-  if (e->modifiers() & Qt::ShiftModifier) {
-    e->setModifiers((e->modifiers() | Qt::ControlModifier) & ~Qt::ShiftModifier);
-  } else if (e->modifiers() & Qt::ControlModifier) {
-    e->setModifiers((e->modifiers() | Qt::ShiftModifier) & ~Qt::ControlModifier);
-  }
-}
-
-void TimelineView::PointerTool::MousePress(QMouseEvent *event)
+void TimelineView::PointerTool::MousePress(TimelineViewMouseEvent *event)
 {
-  // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-  FlipControlAndShiftModifiers(event);
-
-  // Default QGraphicsView behavior (item selection)
-  parent()->QGraphicsView::mousePressEvent(event);
-
   // We don't initiate dragging here since clicking could easily be just for selecting
+  Q_UNUSED(event)
 }
 
-void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
+void TimelineView::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 {
-  // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-  FlipControlAndShiftModifiers(event);
-
-  // Default QGraphicsView behavior (item selection)
-  parent()->QGraphicsView::mouseMoveEvent(event);
+  qDebug() << dragging_ << parent()->ghost_items_.isEmpty();
 
   // Now that the cursor has moved, we will assume the intention is to drag
   if (!dragging_) {
 
     // If we haven't started dragging yet, we'll initiate a drag here
-    InitiateDrag(event->pos());
+    InitiateDrag(event->GetCoordinates());
 
     // Set dragging to true here so no matter what, the drag isn't re-initiated until it's completed
     dragging_ = true;
@@ -81,19 +63,13 @@ void TimelineView::PointerTool::MouseMove(QMouseEvent *event)
   } else if (!parent()->ghost_items_.isEmpty()) {
 
     // We're already dragging AND we have ghosts to work with
-    ProcessDrag(event->pos());
+    ProcessDrag(event->GetCoordinates());
 
   }
 }
 
-void TimelineView::PointerTool::MouseRelease(QMouseEvent *event)
+void TimelineView::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
-  // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-  FlipControlAndShiftModifiers(event);
-
-  // Default QGraphicsView behavior (item selection)
-  parent()->QGraphicsView::mouseReleaseEvent(event);
-
   if (!parent()->ghost_items_.isEmpty()) {
     MouseReleaseInternal(event);
   }
@@ -121,7 +97,7 @@ void TimelineView::PointerTool::SetTrimmingAllowed(bool allowed)
   trimming_allowed_ = allowed;
 }
 
-void TimelineView::PointerTool::MouseReleaseInternal(QMouseEvent *event)
+void TimelineView::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -177,13 +153,13 @@ rational TimelineView::PointerTool::FrameValidateInternal(rational time_movement
   return time_movement;
 }
 
-void TimelineView::PointerTool::InitiateDrag(const QPoint& mouse_pos)
+void TimelineView::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_pos)
 {
   // Record where the drag started in timeline coordinates
-  drag_start_ = GetScenePos(mouse_pos);
+  drag_start_ = mouse_pos;
 
   // Get the item that was clicked
-  TimelineViewBlockItem* clicked_item = dynamic_cast<TimelineViewBlockItem*>(GetItemAtScenePos(drag_start_));
+  TimelineViewBlockItem* clicked_item = GetItemAtScenePos(drag_start_);
 
   // We only initiate a pointer drag if the user actually dragged an item, otherwise if they dragged on empty space
   // QGraphicsView default behavior would initiate a rubberband drag
@@ -193,7 +169,7 @@ void TimelineView::PointerTool::InitiateDrag(const QPoint& mouse_pos)
     snap_points_.clear();
 
     // Record where the drag started in timeline coordinates
-    track_start_ = parent()->SceneToTrack(drag_start_.y());
+    track_start_ = mouse_pos.GetTrack();
 
     // Determine whether we're trimming or moving based on the position of the cursor
     olive::timeline::MovementMode trim_mode = olive::timeline::kNone;
@@ -201,9 +177,11 @@ void TimelineView::PointerTool::InitiateDrag(const QPoint& mouse_pos)
     // FIXME: Hardcoded number
     const int kTrimHandle = 20;
 
-    if (trimming_allowed_ && drag_start_.x() < clicked_item->x() + kTrimHandle) {
+    qreal mouse_x = parent()->TimeToScreenCoord(mouse_pos.GetFrame());
+
+    if (trimming_allowed_ && mouse_x < clicked_item->x() + kTrimHandle) {
       trim_mode = olive::timeline::kTrimIn;
-    } else if (trimming_allowed_ && drag_start_.x() > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
+    } else if (trimming_allowed_ && mouse_x > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
       trim_mode = olive::timeline::kTrimOut;
     } else if (movement_allowed_) {
       // Some derived classes don't allow movement
@@ -222,14 +200,10 @@ void TimelineView::PointerTool::InitiateDrag(const QPoint& mouse_pos)
   }
 }
 
-void TimelineView::PointerTool::ProcessDrag(const QPoint &mouse_pos)
+void TimelineView::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
-  // Retrieve cursor position difference
-  QPointF scene_pos = GetScenePos(mouse_pos);
-  QPointF movement = scene_pos - drag_start_;
-
   // Determine track movement
-  int cursor_track = parent()->SceneToTrack(scene_pos.y());
+  int cursor_track = mouse_pos.GetTrack();
   int track_movement = 0;
 
   if (track_movement_allowed_) {
@@ -237,7 +211,7 @@ void TimelineView::PointerTool::ProcessDrag(const QPoint &mouse_pos)
   }
 
   // Determine frame movement
-  rational time_movement = parent()->SceneToTime(movement.x());
+  rational time_movement = mouse_pos.GetFrame() - drag_start_.GetFrame();
 
   // Perform snapping if enabled (adjusts time_movement if it's close to any potential snap points)
   if (olive::core.snapping()) {

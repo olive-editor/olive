@@ -38,16 +38,16 @@ TimelineView::ImportTool::ImportTool(TimelineView *parent) :
   import_pre_buffer_ = QFontMetricsWidth(&fm, "HHHHHHHH");
 }
 
-void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
+void TimelineView::ImportTool::DragEnter(TimelineViewMouseEvent *event)
 {
-  QStringList mime_formats = event->mimeData()->formats();
+  QStringList mime_formats = event->GetMimeData()->formats();
 
   // Listen for MIME data from a ProjectViewModel
   if (mime_formats.contains("application/x-oliveprojectitemdata")) {
     // FIXME: Implement audio insertion
 
     // Data is drag/drop data from a ProjectViewModel
-    QByteArray model_data = event->mimeData()->data("application/x-oliveprojectitemdata");
+    QByteArray model_data = event->GetMimeData()->data("application/x-oliveprojectitemdata");
 
     // Use QDataStream to deserialize the data
     QDataStream stream(&model_data, QIODevice::ReadOnly);
@@ -57,10 +57,11 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
     int r;
 
     // Set drag start position
-    drag_start_ = GetScenePos(event->pos());
+    drag_start_ = event->GetCoordinates();
 
     // Set ghosts to start where the cursor entered
-    rational ghost_start = parent()->SceneToTime(drag_start_.x() - import_pre_buffer_);
+
+    rational ghost_start = drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_);
 
     snap_points_.clear();
 
@@ -75,31 +76,35 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
         // If the Item is Footage, we can create a Ghost from it
         Footage* footage = static_cast<Footage*>(item);
 
-        StreamPtr stream = footage->stream(0);
-
-        TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
-
         rational footage_duration;
 
-        if (stream->type() == Stream::kImage) {
-          // Stream is essentially length-less - use config's default image length
-          footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
-        } else {
-          // Use duration from file
-          footage_duration = rational(stream->timebase().numerator() * stream->duration(),
-                                      stream->timebase().denominator());
+        // Loop through all streams in footage
+        foreach (StreamPtr stream, footage->streams()) {
+          // Check if this stream is compatible with this TrackList
+          if (stream->type() == parent()->TrackTypeToStreamType(parent()->ConnectedTrackType())) {
+            TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
+            if (stream->type() == Stream::kImage) {
+              // Stream is essentially length-less - use config's default image length
+              footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
+            } else {
+              // Use duration from file
+              footage_duration = rational(stream->timebase().numerator() * stream->duration(),
+                                          stream->timebase().denominator());
+            }
+
+            ghost->SetIn(ghost_start);
+            ghost->SetOut(ghost_start + footage_duration);
+
+            snap_points_.append(ghost->In());
+            snap_points_.append(ghost->Out());
+
+            ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
+            ghost->SetMode(olive::timeline::kMove);
+
+            parent()->AddGhost(ghost);
+          }
         }
-
-        ghost->SetIn(ghost_start);
-        ghost->SetOut(ghost_start + footage_duration);
-
-        snap_points_.append(ghost->In());
-        snap_points_.append(ghost->Out());
-
-        ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
-        ghost->SetMode(olive::timeline::kMove);
-
-        parent()->AddGhost(ghost);
 
         // Stack each ghost one after the other
         ghost_start += footage_duration;
@@ -113,24 +118,21 @@ void TimelineView::ImportTool::DragEnter(QDragEnterEvent *event)
   }
 }
 
-void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
+void TimelineView::ImportTool::DragMove(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
-    QPointF pos = GetScenePos(event->pos());
-    QPointF movement = pos - drag_start_;
+    rational time_movement = event->GetCoordinates().GetFrame() - drag_start_.GetFrame();
 
-    rational time_movement = parent()->SceneToTime(movement.x());
-
-    int ghost_track = parent()->SceneToTrack(pos.y());
+    int ghost_track = event->GetCoordinates().GetTrack();
     int ghost_y = parent()->GetTrackY(ghost_track);
     int ghost_height = parent()->GetTrackHeight(ghost_track);
-
-    time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
 
     // If snapping is enabled, check for snap points
     if (olive::core.snapping()) {
       SnapPoint(snap_points_, &time_movement);
     }
+
+    time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
 
     rational earliest_ghost = RATIONAL_MAX;
 
@@ -162,7 +164,7 @@ void TimelineView::ImportTool::DragMove(QDragMoveEvent *event)
   }
 }
 
-void TimelineView::ImportTool::DragLeave(QDragLeaveEvent *event)
+void TimelineView::ImportTool::DragLeave(QDragLeaveEvent* event)
 {
   if (parent()->HasGhosts()) {
     parent()->ClearGhosts();
@@ -173,7 +175,7 @@ void TimelineView::ImportTool::DragLeave(QDragLeaveEvent *event)
   }
 }
 
-void TimelineView::ImportTool::DragDrop(QDropEvent *event)
+void TimelineView::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
     // We use QObject as the parent for the nodes we create. If there is no TimelineOutput node, this object going out
@@ -204,7 +206,7 @@ void TimelineView::ImportTool::DragDrop(QDropEvent *event)
       NodeParam::ConnectEdge(transform->matrix_output(), media->matrix_input());
 
 
-      if (event->keyboardModifiers() & Qt::ControlModifier) {
+      if (event->GetModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
         new TrackPlaceBlockCommand(parent()->timeline_node_, ghost->Track(), clip, ghost->GetAdjustedIn(), command);

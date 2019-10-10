@@ -39,7 +39,7 @@ TimelineOutput::TimelineOutput()
     AddParameter(track_input);
     track_inputs_[i] = track_input;
 
-    TrackList* list = new TrackList(this, track_input);
+    TrackList* list = new TrackList(this, static_cast<TrackType>(i), track_input);
     track_lists_[i] = list;
     connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
     connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
@@ -141,12 +141,12 @@ void TimelineOutput::SetTimebase(const rational &timebase)
   }
 }
 
-NodeInput *TimelineOutput::track_input(TimelineOutput::TrackType type)
+NodeInput *TimelineOutput::track_input(TrackType type)
 {
   return track_inputs_.at(type);
 }
 
-TrackList *TimelineOutput::track_list(TimelineOutput::TrackType type)
+TrackList *TimelineOutput::track_list(TrackType type)
 {
   return track_lists_.at(type);
 }

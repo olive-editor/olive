@@ -31,6 +31,7 @@
 #include "node/output/timeline/timeline.h"
 #include "timelineplayhead.h"
 #include "timelineviewblockitem.h"
+#include "timelineviewmouseevent.h"
 #include "timelineviewenditem.h"
 #include "timelineviewghostitem.h"
 #include "widget/timelineview/undo/undo.h"
@@ -91,6 +92,7 @@ protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
   virtual void dragEnterEvent(QDragEnterEvent *event) override;
   virtual void dragMoveEvent(QDragMoveEvent *event) override;
@@ -109,27 +111,28 @@ private:
     Tool(TimelineView* parent);
     virtual ~Tool();
 
-    virtual void MousePress(QMouseEvent *event);
-    virtual void MouseMove(QMouseEvent *event);
-    virtual void MouseRelease(QMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *){}
+    virtual void MouseMove(TimelineViewMouseEvent *){}
+    virtual void MouseRelease(TimelineViewMouseEvent *){}
+    virtual void MouseDoubleClick(TimelineViewMouseEvent *){}
 
-    virtual void DragEnter(QDragEnterEvent *event);
-    virtual void DragMove(QDragMoveEvent *event);
-    virtual void DragLeave(QDragLeaveEvent *event);
-    virtual void DragDrop(QDropEvent *event);
+    virtual void DragEnter(TimelineViewMouseEvent *){}
+    virtual void DragMove(TimelineViewMouseEvent *){}
+    virtual void DragLeave(QDragLeaveEvent *){}
+    virtual void DragDrop(TimelineViewMouseEvent *){}
 
     TimelineView* parent();
 
     static olive::timeline::MovementMode FlipTrimMode(const olive::timeline::MovementMode& trim_mode);
 
+    const DragMode& drag_mode();
+
+    bool enable_default_behavior();
+
   protected:
-    /**
-     * @brief Convert a integer screen point to a float scene point
-     *
-     * Useful for converting a mouse coordinate provided by a QMouseEvent to a inner-timeline scene position (the
-     * coordinates that the graphics items use)
-     */
-    QPointF GetScenePos(const QPoint& screen_pos);
+    void set_drag_mode(const DragMode& mode);
+
+    void set_enable_default_behavior(bool enable);
 
     /**
      * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -137,7 +140,7 @@ private:
      * Requires a float-based scene position. If you have a screen position, use GetScenePos() first to convert it to a
      * scene position
      */
-    QGraphicsItem* GetItemAtScenePos(const QPointF& scene_pos);
+    TimelineViewBlockItem* GetItemAtScenePos(const TimelineCoordinate &coord);
 
     /**
      * @brief Validates Ghosts that are moving horizontally (time-based)
@@ -169,10 +172,14 @@ private:
 
     bool dragging_;
 
-    QPointF drag_start_;
+    TimelineCoordinate drag_start_;
 
   private:
     TimelineView* parent_;
+
+    DragMode drag_mode_;
+
+    bool enable_default_behavior_;
 
   };
 
@@ -181,14 +188,14 @@ private:
   public:
     PointerTool(TimelineView* parent);
 
-    virtual void MousePress(QMouseEvent *event) override;
-    virtual void MouseMove(QMouseEvent *event) override;
-    virtual void MouseRelease(QMouseEvent *event) override;
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
   protected:
     void SetMovementAllowed(bool allowed);
     void SetTrackMovementAllowed(bool allowed);
     void SetTrimmingAllowed(bool allowed);
-    virtual void MouseReleaseInternal(QMouseEvent *event);
+    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event);
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts);
 
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
@@ -215,9 +222,9 @@ private:
      */
     rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
 
-    virtual void ProcessDrag(const QPoint &mouse_pos);
+    virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
   private:
-    void InitiateDrag(const QPoint &mouse_pos);
+    void InitiateDrag(const TimelineCoordinate &mouse_pos);
 
     void AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode);
 
@@ -238,10 +245,10 @@ private:
   public:
     ImportTool(TimelineView* parent);
 
-    virtual void DragEnter(QDragEnterEvent *event) override;
-    virtual void DragMove(QDragMoveEvent *event) override;
+    virtual void DragEnter(TimelineViewMouseEvent *event) override;
+    virtual void DragMove(TimelineViewMouseEvent *event) override;
     virtual void DragLeave(QDragLeaveEvent *event) override;
-    virtual void DragDrop(QDropEvent *event) override;
+    virtual void DragDrop(TimelineViewMouseEvent *event) override;
   private:
     int import_pre_buffer_;
   };
@@ -251,9 +258,9 @@ private:
   public:
     RazorTool(TimelineView* parent);
 
-    virtual void MousePress(QMouseEvent *event);
-    virtual void MouseMove(QMouseEvent *event);
-    virtual void MouseRelease(QMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *event);
+    virtual void MouseMove(TimelineViewMouseEvent *event);
+    virtual void MouseRelease(TimelineViewMouseEvent *event);
 
   private:
     QVector<int> split_tracks_;
@@ -264,7 +271,7 @@ private:
   public:
     RippleTool(TimelineView* parent);
   protected:
-    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
 
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
@@ -278,7 +285,7 @@ private:
     RollingTool(TimelineView* parent);
 
   protected:
-    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
 
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
@@ -292,7 +299,7 @@ private:
     SlideTool(TimelineView* parent);
 
   protected:
-    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
                                 olive::timeline::MovementMode trim_mode,
@@ -305,18 +312,14 @@ private:
     SlipTool(TimelineView* parent);
 
   protected:
-    virtual void ProcessDrag(const QPoint &mouse_pos) override;
-    virtual void MouseReleaseInternal(QMouseEvent *event) override;
+    virtual void ProcessDrag(const TimelineCoordinate &mouse_pos) override;
+    virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
   };
 
   class HandTool : public Tool
   {
   public:
     HandTool(TimelineView* parent);
-
-    virtual void MousePress(QMouseEvent *event);
-    virtual void MouseMove(QMouseEvent *event);
-    virtual void MouseRelease(QMouseEvent *event);
 
   private:
     QPoint screen_drag_start_;
@@ -328,25 +331,25 @@ private:
   public:
     ZoomTool(TimelineView* parent);
 
-    virtual void MousePress(QMouseEvent *event);
-    virtual void MouseMove(QMouseEvent *event);
-    virtual void MouseRelease(QMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *event);
+    virtual void MouseMove(TimelineViewMouseEvent *event);
+    virtual void MouseRelease(TimelineViewMouseEvent *event);
   };
+
+  TrackType ConnectedTrackType();
+  Stream::Type TrackTypeToStreamType(TrackType track_type);
+
+  TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
+  TimelineCoordinate SceneToCoordinate(const QPointF& pt);
 
   Tool* GetActiveTool();
 
   int GetTrackY(int track_index);
   int GetTrackHeight(int track_index);
 
-  PointerTool pointer_tool_;
-  ImportTool import_tool_;
-  RippleTool ripple_tool_;
-  RollingTool rolling_tool_;
-  RazorTool razor_tool_;
-  SlideTool slide_tool_;
-  SlipTool slip_tool_;
-  HandTool hand_tool_;
-  ZoomTool zoom_tool_;
+  QVector< std::shared_ptr<Tool> > tools_;
+
+  std::shared_ptr<ImportTool> import_tool_;
 
   TrackList* timeline_node_;
 
@@ -369,7 +372,7 @@ private:
 
   int64_t playhead_;
 
-  QMap<Block*, TimelineViewRect*> block_items_;
+  QMap<Block*, TimelineViewBlockItem*> block_items_;
 
   QVector<TimelineViewGhostItem*> ghost_items_;
 

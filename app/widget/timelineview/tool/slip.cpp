@@ -32,14 +32,10 @@ TimelineView::SlipTool::SlipTool(TimelineView *parent) :
   SetTrackMovementAllowed(false);
 }
 
-void TimelineView::SlipTool::ProcessDrag(const QPoint &mouse_pos)
+void TimelineView::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
-  // Retrieve cursor position difference
-  QPointF scene_pos = GetScenePos(mouse_pos);
-  QPointF movement = scene_pos - drag_start_;
-
   // Determine frame movement
-  rational time_movement = -parent()->SceneToTime(movement.x());
+  rational time_movement = drag_start_.GetFrame() - mouse_pos.GetFrame();
 
   // Validate slip (enforce all ghosts moving in legal ways)
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
@@ -65,7 +61,7 @@ void TimelineView::SlipTool::ProcessDrag(const QPoint &mouse_pos)
                      parent());
 }
 
-void TimelineView::SlipTool::MouseReleaseInternal(QMouseEvent *event)
+void TimelineView::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 

@@ -28,7 +28,7 @@ TimelineView::RippleTool::RippleTool(TimelineView* parent) :
   SetMovementAllowed(false);
 }
 
-void TimelineView::RippleTool::MouseReleaseInternal(QMouseEvent *event)
+void TimelineView::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 

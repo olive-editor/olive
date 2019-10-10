@@ -70,29 +70,41 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 {
   Q_UNUSED(widget)
 
-  if (block_ == nullptr || block_->type() == Block::kGap) {
+  if (block_ == nullptr) {
     return;
   }
 
-  /*QLinearGradient grad;
-  grad.setStart(0, rect().top());
-  grad.setFinalStop(0, rect().bottom());
-  grad.setColorAt(0.0, QColor(160, 160, 240));
-  grad.setColorAt(1.0, QColor(128, 128, 192));
-  painter->fillRect(rect(), grad);*/
-  painter->fillRect(rect(), QColor(128, 128, 192));
+  switch (block_->type()) {
+  case Block::kClip:
+    /*QLinearGradient grad;
+    grad.setStart(0, rect().top());
+    grad.setFinalStop(0, rect().bottom());
+    grad.setColorAt(0.0, QColor(160, 160, 240));
+    grad.setColorAt(1.0, QColor(128, 128, 192));
+    painter->fillRect(rect(), grad);*/
+    painter->fillRect(rect(), QColor(128, 128, 192));
 
-  if (option->state & QStyle::State_Selected) {
-    painter->fillRect(rect(), QColor(0, 0, 0, 64));
+    if (option->state & QStyle::State_Selected) {
+      painter->fillRect(rect(), QColor(0, 0, 0, 64));
+    }
+
+    painter->setPen(Qt::white);
+    painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));
+    painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
+
+    painter->drawText(rect(), static_cast<int>(Qt::AlignLeft | Qt::AlignTop), block_->block_name());
+
+    painter->setPen(QColor(64, 64, 64));
+    painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));
+    painter->drawLine(QPointF(rect().right(), rect().bottom() - 1), QPointF(rect().right(), rect().top()));
+    break;
+  case Block::kGap:
+    if (option->state & QStyle::State_Selected) {
+      // FIXME: Make this palette or CSS
+      painter->fillRect(rect(), Qt::white);
+    }
+    break;
+  case Block::kEnd:
+    break;
   }
-
-  painter->setPen(Qt::white);
-  painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));
-  painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
-
-  painter->drawText(rect(), static_cast<int>(Qt::AlignLeft | Qt::AlignTop), block_->block_name());
-
-  painter->setPen(QColor(64, 64, 64));
-  painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));
-  painter->drawLine(QPointF(rect().right(), rect().bottom() - 1), QPointF(rect().right(), rect().top()));
 }

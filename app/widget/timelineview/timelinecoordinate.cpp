@@ -18,60 +18,35 @@
 
 ***/
 
-#ifndef TOOL_H
-#define TOOL_H
+#include "timelinecoordinate.h"
 
-namespace olive {
-namespace tool {
-
-/**
- * @brief A list of tools that can be used throughout the application
- */
-enum Tool {
-  /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
-  /// a tool somewhere.
-  kNone,
-
-  /// Pointer tool
-  kPointer,
-
-  /// Edit tool
-  kEdit,
-
-  /// Ripple tool
-  kRipple,
-
-  /// Rolling tool
-  kRolling,
-
-  /// Razor tool
-  kRazor,
-
-  /// Slip tool
-  kSlip,
-
-  /// Slide tool
-  kSlide,
-
-  /// Hand tool
-  kHand,
-
-  /// Zoom tool
-  kZoom,
-
-  /// Transition tool
-  kTransition,
-
-  /// Record tool
-  kRecord,
-
-  /// Add tool
-  kAdd,
-
-  kCount
-};
-
-}
+TimelineCoordinate::TimelineCoordinate() :
+  track_(0)
+{
 }
 
-#endif // TOOL_H
+TimelineCoordinate::TimelineCoordinate(const rational &frame, const int &track) :
+  frame_(frame),
+  track_(track)
+{
+}
+
+const rational &TimelineCoordinate::GetFrame() const
+{
+  return frame_;
+}
+
+const int &TimelineCoordinate::GetTrack() const
+{
+  return track_;
+}
+
+void TimelineCoordinate::SetFrame(const rational &frame)
+{
+  frame_ = frame;
+}
+
+void TimelineCoordinate::SetTrack(const int &track)
+{
+  track_ = track;
+}

@@ -120,7 +120,7 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
   int track_type = 0;
 
   foreach (TimelineView* view, views_) {
-    view->ConnectTimelineNode(node->track_list(static_cast<TimelineOutput::TrackType>(track_type)));
+    view->ConnectTimelineNode(node->track_list(static_cast<TrackType>(track_type)));
 
     track_type++;
   }

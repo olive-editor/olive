@@ -25,6 +25,7 @@
 #include "node/block/block.h"
 #include "node/output/track/track.h"
 #include "tracklist.h"
+#include "tracktypes.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
@@ -33,14 +34,6 @@ class TimelineOutput : public Node
 {
   Q_OBJECT
 public:
-  enum TrackType {
-    kTrackTypeNone = -1,
-    kTrackTypeVideo,
-    kTrackTypeAudio,
-    kTrackTypeSubtitle,
-    kTrackTypeCount
-  };
-
   TimelineOutput();
 
   virtual QString Name() override;

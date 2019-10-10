@@ -28,7 +28,7 @@ TimelineView::RollingTool::RollingTool(TimelineView* parent) :
   SetMovementAllowed(false);
 }
 
-void TimelineView::RollingTool::MouseReleaseInternal(QMouseEvent *event)
+void TimelineView::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
