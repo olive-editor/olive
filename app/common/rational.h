@@ -30,7 +30,6 @@ public:
   rational(const intType &numerator = 0)
     :numer(numerator), denom(1)
   {
-    activeInstances++;
     if(numer == 0)
       denom = 0;
   }
@@ -38,7 +37,6 @@ public:
   rational(const intType &numerator, const intType &denominator)
     :numer(numerator), denom(denominator)
   {
-    activeInstances++;
     if(denom != intType(0))
       {
         if(numer != intType(0))
@@ -56,13 +54,9 @@ public:
   rational(const rational &rhs)
     :numer(rhs.numer), denom(rhs.denom)
   {
-    activeInstances++;
   }
 
   rational(const AVRational& r);
-
-  //destructor
-  ~rational();
 
   //Assignment Operators
   const rational& operator=(const rational &rhs);
@@ -108,9 +102,6 @@ public:
   //Function: print number to cout
   void print(ostream &out = cout) const;
 
-  //Function: get active instances
-  int getActiveInstances();
-
   //IO
   friend ostream& operator<<(ostream &out, const rational &value);
   friend istream& operator>>(istream &in, rational &value);
@@ -119,9 +110,6 @@ public:
   const intType& denominator() const;
 
 private:
-  //number of active instances
-  static int activeInstances;
-
   //numerator and denominator
   intType numer;
   intType denom;

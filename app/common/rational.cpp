@@ -3,17 +3,10 @@
 
 #include "rational.h"
 
-int rational::activeInstances = 0;
-
 rational::rational(const AVRational &r) :
   numer(r.num),
   denom(r.den)
 {
-}
-
-rational::~rational()
-{
-  activeInstances--;
 }
 
 //Function: print number to cout
@@ -106,13 +99,6 @@ rational rational::flipped() const
 bool rational::isNull() const
 {
   return denominator() == 0;
-}
-
-//Function: get active instances
-
-int rational::getActiveInstances()
-{
-  return activeInstances;
 }
 
 const intType &rational::numerator() const
