@@ -43,6 +43,11 @@ void rational::fixSigns()
 
 void rational::reduce()
 {
+  // Euclidean often fails if numbers are negative, we abs it and re-neg it later if necessary
+  bool neg = numer < 0;
+
+  numer = qAbs(numer);
+
   intType d = 1;
 
   if(denom != 0 && numer !=0)
@@ -53,6 +58,10 @@ void rational::reduce()
       numer /= d;
       denom /= d;
     }
+
+  if (neg) {
+    numer = -numer;
+  }
 }
 
 //Function: finds greatest common denominator
@@ -424,5 +433,5 @@ istream& operator>>(istream &in, rational &value)
 QDebug operator<<(QDebug debug, const rational &r)
 {
   debug.nospace() << r.numerator() << "/" << r.denominator();
-  return debug.maybeSpace();
+  return debug.space();
 }
