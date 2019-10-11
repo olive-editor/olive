@@ -172,8 +172,7 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
       ghost->SetTrackAdjustment(track_movement);
 
       TrackReference adjusted_track = ghost->GetAdjustedTrack();
-      ghost->SetY(parent()->GetTrackY(adjusted_track));
-      ghost->SetHeight(parent()->GetTrackHeight(adjusted_track));
+      ghost->SetYCoords(parent()->GetTrackY(adjusted_track), parent()->GetTrackHeight(adjusted_track));
 
       earliest_ghost = qMin(earliest_ghost, ghost->GetAdjustedIn());
     }

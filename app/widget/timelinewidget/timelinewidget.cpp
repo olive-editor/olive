@@ -529,8 +529,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 
     // Set up clip with view parameters (clip item will automatically size its rect accordingly)
     item->SetBlock(block);
-    item->SetY(GetTrackY(track));
-    item->SetHeight(GetTrackHeight(track));
+    item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
     item->SetScale(scale_);
     item->SetTrack(track);
 

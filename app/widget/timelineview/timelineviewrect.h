@@ -34,11 +34,7 @@ class TimelineViewRect : public QGraphicsRectItem, public TimelineScaledObject
 public:
   TimelineViewRect(QGraphicsItem* parent = nullptr);
 
-  const int& Y();
-  void SetY(const int& y);
-
-  const int& Height();
-  void SetHeight(const int& height);
+  void SetYCoords(int y, int height);
 
   const TrackReference& Track();
   void SetTrack(const TrackReference& track);

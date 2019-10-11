@@ -28,25 +28,9 @@ TimelineViewRect::TimelineViewRect(QGraphicsItem* parent) :
 
 }
 
-const int &TimelineViewRect::Y()
-{
-  return y_;
-}
-
-void TimelineViewRect::SetY(const int &y)
+void TimelineViewRect::SetYCoords(int y, int height)
 {
   y_ = y;
-
-  UpdateRect();
-}
-
-const int &TimelineViewRect::Height()
-{
-  return height_;
-}
-
-void TimelineViewRect::SetHeight(const int &height)
-{
   height_ = height;
 
   UpdateRect();

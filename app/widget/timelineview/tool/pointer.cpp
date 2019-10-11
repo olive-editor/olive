@@ -249,9 +249,9 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
 
       // Track movement is only legal for moving, not for trimming
       ghost->SetTrackAdjustment(track_movement);
+
       const TrackReference& track = ghost->GetAdjustedTrack();
-      ghost->SetY(parent()->GetTrackY(track));
-      ghost->SetHeight(parent()->GetTrackHeight(track));
+      ghost->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
       break;
     }
     }
@@ -341,8 +341,7 @@ TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const ratio
   ghost->SetIn(in);
   ghost->SetOut(out);
   ghost->SetTrack(track);
-  ghost->SetY(parent()->GetTrackY(track));
-  ghost->SetHeight(parent()->GetTrackHeight(track));
+  ghost->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
 
   AddGhostInternal(ghost, mode);
 

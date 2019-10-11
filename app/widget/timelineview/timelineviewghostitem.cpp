@@ -40,8 +40,7 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const Trac
   ghost->SetOut(block->out());
   ghost->SetMediaIn(block->media_in());
   ghost->SetTrack(track);
-  ghost->SetY(y);
-  ghost->SetHeight(height);
+  ghost->SetYCoords(y, height);
   ghost->setData(kAttachedBlock, Node::PtrToValue(block));
 
   if (block->type() == Block::kClip) {
