@@ -24,7 +24,7 @@
 #include <QGraphicsRectItem>
 
 #include "timeline/timelinecoordinate.h"
-#include "timelinescaledobject.h"
+#include "../timelinescaledobject.h"
 
 /**
  * @brief A base class for graphical representations of Block nodes

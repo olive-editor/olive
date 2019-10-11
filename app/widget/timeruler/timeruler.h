@@ -25,7 +25,7 @@
 #include <QWidget>
 
 #include "common/rational.h"
-#include "widget/timelineview/timelineplayhead.h"
+#include "widget/timelinewidget/view/timelineplayhead.h"
 
 class TimeRuler : public QWidget
 {

@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelineview/undo/undo.h
-  widget/timelineview/undo/undo.cpp
+  widget/timelinewidget/undo/undo.h
+  widget/timelinewidget/undo/undo.cpp
   PARENT_SCOPE
 )

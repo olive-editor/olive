@@ -35,24 +35,58 @@ TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
   Tool(parent),
   movement_allowed_(true),
   trimming_allowed_(true),
-  track_movement_allowed_(true)
+  track_movement_allowed_(true),
+  rubberband_selecting_(false)
 {
   set_drag_mode(QGraphicsView::RubberBandDrag);
-  set_enable_default_behavior(true);
 }
 
 void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
 {
-  // We don't initiate dragging here since clicking could easily be just for selecting
-  Q_UNUSED(event)
+  // Main selection code
+
+  TimelineViewBlockItem* item = GetItemAtScenePos(event->GetCoordinates());
+
+  bool selectable_item = (item != nullptr && item->flags() & QGraphicsItem::ItemIsSelectable);
+
+  // If this item is already selected
+  if (selectable_item
+      && item->isSelected()) {
+
+    // If shift is held, deselect it
+    if (event->GetModifiers() & Qt::ShiftModifier) {
+      item->setSelected(false);
+    }
+
+    // Otherwise do nothing
+    return;
+  }
+
+  // If not holding shift, deselect all clips
+  if (!(event->GetModifiers() & Qt::ShiftModifier)) {
+    parent()->DeselectAll();
+  }
+
+  if (selectable_item) {
+    // Select this item
+    item->setSelected(true);
+  } else {
+    // Start rubberband drag
+    parent()->StartRubberBandSelect(!(event->GetModifiers() & Qt::ShiftModifier));
+
+    rubberband_selecting_ = true;
+  }
 }
 
 void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 {
-  qDebug() << dragging_ << parent()->ghost_items_.isEmpty();
+  if (rubberband_selecting_) {
 
-  // Now that the cursor has moved, we will assume the intention is to drag
-  if (!dragging_) {
+    // Process rubberband select
+    parent()->MoveRubberBandSelect();
+
+  } else if (!dragging_) {
+    // Now that the cursor has moved, we will assume the intention is to drag
 
     // If we haven't started dragging yet, we'll initiate a drag here
     InitiateDrag(event->GetCoordinates());
@@ -70,6 +104,13 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 
 void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
+  if (rubberband_selecting_) {
+    parent()->EndRubberBandSelect();
+
+    rubberband_selecting_ = false;
+    return;
+  }
+
   if (!parent()->ghost_items_.isEmpty()) {
     MouseReleaseInternal(event);
   }

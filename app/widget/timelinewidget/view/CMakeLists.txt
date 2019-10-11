@@ -16,15 +16,19 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelineview/tool/hand.cpp
-  widget/timelineview/tool/import.cpp
-  widget/timelineview/tool/pointer.cpp
-  widget/timelineview/tool/razor.cpp
-  widget/timelineview/tool/ripple.cpp
-  widget/timelineview/tool/rolling.cpp
-  widget/timelineview/tool/slide.cpp
-  widget/timelineview/tool/slip.cpp
-  widget/timelineview/tool/tool.cpp
-  widget/timelineview/tool/zoom.cpp
+  widget/timelinewidget/view/timelineplayhead.h
+  widget/timelinewidget/view/timelineplayhead.cpp
+  widget/timelinewidget/view/timelineview.h
+  widget/timelinewidget/view/timelineview.cpp
+  widget/timelinewidget/view/timelineviewmouseevent.h
+  widget/timelinewidget/view/timelineviewmouseevent.cpp
+  widget/timelinewidget/view/timelineviewrect.h
+  widget/timelinewidget/view/timelineviewrect.cpp
+  widget/timelinewidget/view/timelineviewblockitem.h
+  widget/timelinewidget/view/timelineviewblockitem.cpp
+  widget/timelinewidget/view/timelineviewenditem.h
+  widget/timelinewidget/view/timelineviewenditem.cpp
+  widget/timelinewidget/view/timelineviewghostitem.h
+  widget/timelinewidget/view/timelineviewghostitem.cpp
   PARENT_SCOPE
 )

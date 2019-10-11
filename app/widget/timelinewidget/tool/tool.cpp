@@ -27,8 +27,7 @@
 TimelineWidget::Tool::Tool(TimelineWidget *parent) :
   dragging_(false),
   parent_(parent),
-  drag_mode_(QGraphicsView::NoDrag),
-  enable_default_behavior_(false)
+  drag_mode_(QGraphicsView::NoDrag)
 {
 }
 
@@ -59,19 +58,9 @@ const QGraphicsView::DragMode &TimelineWidget::Tool::drag_mode()
   return drag_mode_;
 }
 
-bool TimelineWidget::Tool::enable_default_behavior()
-{
-  return enable_default_behavior_;
-}
-
 void TimelineWidget::Tool::set_drag_mode(const QGraphicsView::DragMode &mode)
 {
   drag_mode_ = mode;
-}
-
-void TimelineWidget::Tool::set_enable_default_behavior(bool enable)
-{
-  enable_default_behavior_ = enable;
 }
 
 TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)

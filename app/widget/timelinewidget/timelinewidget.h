@@ -2,10 +2,11 @@
 #define TIMELINEWIDGET_H
 
 #include <QScrollBar>
+#include <QRubberBand>
 #include <QWidget>
 
-#include "widget/timelineview/timelinescaledobject.h"
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
 /**
@@ -81,12 +82,8 @@ private:
 
     const QGraphicsView::DragMode& drag_mode();
 
-    bool enable_default_behavior();
-
   protected:
     void set_drag_mode(const QGraphicsView::DragMode& mode);
-
-    void set_enable_default_behavior(bool enable);
 
     /**
      * @brief Retrieve the QGraphicsItem at a particular scene position
@@ -132,8 +129,6 @@ private:
     TimelineWidget* parent_;
 
     QGraphicsView::DragMode drag_mode_;
-
-    bool enable_default_behavior_;
 
   };
 
@@ -190,6 +185,7 @@ private:
     bool movement_allowed_;
     bool trimming_allowed_;
     bool track_movement_allowed_;
+    bool rubberband_selecting_;
   };
 
   class ImportTool : public Tool
@@ -287,6 +283,13 @@ private:
     virtual void MouseMove(TimelineViewMouseEvent *event);
     virtual void MouseRelease(TimelineViewMouseEvent *event);
   };
+
+  void StartRubberBandSelect(bool clear_current_selection);
+  void MoveRubberBandSelect();
+  void EndRubberBandSelect();
+  QRubberBand rubberband_;
+  QPoint rubberband_origin_;
+  QList<QGraphicsItem*> rubberband_already_selected_;
 
   Tool* GetActiveTool();
 

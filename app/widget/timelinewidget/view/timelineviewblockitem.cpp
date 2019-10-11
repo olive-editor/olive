@@ -31,7 +31,6 @@ TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
   block_(nullptr)
 {
   setBrush(Qt::white);
-  setFlag(QGraphicsItem::ItemIsSelectable, true);
 }
 
 Block *TimelineViewBlockItem::block()
@@ -42,6 +41,8 @@ Block *TimelineViewBlockItem::block()
 void TimelineViewBlockItem::SetBlock(Block *block)
 {
   block_ = block;
+
+  setFlag(QGraphicsItem::ItemIsSelectable, block_->type() == Block::kClip);
 
   UpdateRect();
 }

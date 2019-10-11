@@ -10,6 +10,7 @@
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
+  rubberband_(QRubberBand::Rectangle, this),
   timeline_node_(nullptr),
   playhead_(0)
 {
@@ -583,4 +584,53 @@ void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
   ghost->SetScale(scale_);
   ghost_items_.append(ghost);
   views_.at(ghost->Track().type())->scene()->addItem(ghost);
+}
+
+void TimelineWidget::StartRubberBandSelect(bool clear_current_selection)
+{
+  rubberband_origin_ = QCursor::pos();
+  rubberband_.show();
+
+  if (!clear_current_selection) {
+    foreach (TimelineView* view, views_) {
+      rubberband_already_selected_.append(view->scene()->selectedItems());
+    }
+  }
+
+  MoveRubberBandSelect();
+}
+
+void TimelineWidget::MoveRubberBandSelect()
+{
+  QPoint rubberband_now = QCursor::pos();
+
+  rubberband_.setGeometry(QRect(mapFromGlobal(rubberband_origin_), mapFromGlobal(rubberband_now)).normalized());
+
+  foreach (TimelineView* view, views_) {
+    view->DeselectAll();
+
+    // Map global mouse coordinates to viewport
+
+    QRect mapped_rect(view->viewport()->mapFromGlobal(rubberband_origin_),
+                      view->viewport()->mapFromGlobal(rubberband_now));
+
+    // Normalize and get items in rect
+    QList<QGraphicsItem*> rubberband_items = view->items(mapped_rect.normalized());
+
+    // Select them all
+    foreach (QGraphicsItem* item, rubberband_items) {
+      item->setSelected(true);
+    }
+  }
+
+  foreach (QGraphicsItem* item, rubberband_already_selected_) {
+    item->setSelected(true);
+  }
+}
+
+void TimelineWidget::EndRubberBandSelect()
+{
+  MoveRubberBandSelect();
+  rubberband_.hide();
+  rubberband_already_selected_.clear();
 }

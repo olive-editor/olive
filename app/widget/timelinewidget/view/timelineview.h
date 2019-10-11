@@ -34,7 +34,7 @@
 #include "timelineviewmouseevent.h"
 #include "timelineviewenditem.h"
 #include "timelineviewghostitem.h"
-#include "widget/timelineview/undo/undo.h"
+#include "widget/timelinewidget/undo/undo.h"
 #include "undo/undostack.h"
 
 /**
