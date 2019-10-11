@@ -95,6 +95,10 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
         // If the Item is Footage, we can create a Ghost from it
         Footage* footage = static_cast<Footage*>(item);
 
+        // Each stream is offset by one track per track "type", we keep track of them in this vector
+        QVector<int> track_offsets(kTrackTypeCount);
+        track_offsets.fill(drag_start_.GetTrack().index());
+
         rational footage_duration;
 
         // Loop through all streams in footage
@@ -119,6 +123,10 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
 
           ghost->SetIn(ghost_start);
           ghost->SetOut(ghost_start + footage_duration);
+          ghost->SetTrack(TrackReference(track_type, track_offsets.at(track_type)));
+
+          // Increment track count for this track type
+          track_offsets[track_type]++;
 
           snap_points_.append(ghost->In());
           snap_points_.append(ghost->Out());
@@ -145,10 +153,7 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
     rational time_movement = event->GetCoordinates().GetFrame() - drag_start_.GetFrame();
-
-    const TrackReference& ghost_track = event->GetCoordinates().GetTrack();
-    int ghost_y = parent()->GetTrackY(ghost_track);
-    int ghost_height = parent()->GetTrackHeight(ghost_track);
+    int track_movement = event->GetCoordinates().GetTrack().index() - drag_start_.GetTrack().index();
 
     // If snapping is enabled, check for snap points
     if (olive::core.snapping()) {
@@ -156,6 +161,7 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
     }
 
     time_movement = ValidateFrameMovement(time_movement, parent()->ghost_items_);
+    track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
 
     rational earliest_ghost = RATIONAL_MAX;
 
@@ -163,11 +169,11 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
       ghost->SetInAdjustment(time_movement);
       ghost->SetOutAdjustment(time_movement);
+      ghost->SetTrackAdjustment(track_movement);
 
-      ghost->SetTrack(ghost_track);
-
-      ghost->SetY(ghost_y);
-      ghost->SetHeight(ghost_height);
+      TrackReference adjusted_track = ghost->GetAdjustedTrack();
+      ghost->SetY(parent()->GetTrackY(adjusted_track));
+      ghost->SetHeight(parent()->GetTrackHeight(adjusted_track));
 
       earliest_ghost = qMin(earliest_ghost, ghost->GetAdjustedIn());
     }

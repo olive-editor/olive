@@ -274,7 +274,7 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
                                                bool allow_gap_trimming)
 {
   // Convert selected items list to clips list
-  QList<TimelineViewBlockItem*> clips = GetSelectedClips();
+  QList<TimelineViewBlockItem*> clips = parent()->GetSelectedBlocks();
 
   // If trimming multiple clips, we only trim the earliest in each track (trimming in) or the latest in each track
   // (trimming out). If the current clip is NOT one of these, we only trim it.
@@ -351,7 +351,6 @@ TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const ratio
 
 void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode)
 {
-  ghost->SetScale(parent()->scale_);
   ghost->SetMode(mode);
 
   // Prepare snap points (optimizes snapping for later)
@@ -370,25 +369,7 @@ void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost,
     break;
   }
 
-  parent()->ghost_items_.append(ghost);
-  parent()->scene_.addItem(ghost);
-}
-
-QList<TimelineViewBlockItem *> TimelineWidget::PointerTool::GetSelectedClips()
-{
-  QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
-
-  // Convert selected items list to clips list
-  QList<TimelineViewBlockItem*> clips;
-  foreach (QGraphicsItem* item, selected_items) {
-    TimelineViewBlockItem* clip_cast = dynamic_cast<TimelineViewBlockItem*>(item);
-
-    if (clip_cast != nullptr) {
-      clips.append(clip_cast);
-    }
-  }
-
-  return clips;
+  parent()->AddGhost(ghost);
 }
 
 bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,

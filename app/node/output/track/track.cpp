@@ -27,6 +27,7 @@
 
 TrackOutput::TrackOutput() :
   current_block_(this),
+  track_type_(kTrackTypeNone),
   block_invalidate_cache_stack_(0),
   index_(-1)
 {
@@ -38,6 +39,16 @@ TrackOutput::TrackOutput() :
   track_output_ = new NodeOutput("track_out");
   track_output_->set_data_type(NodeParam::kTrack);
   AddParameter(track_output_);
+}
+
+void TrackOutput::set_track_type(const TrackType &track_type)
+{
+  track_type_ = track_type;
+}
+
+const TrackType& TrackOutput::track_type()
+{
+  return track_type_;
 }
 
 Block::Type TrackOutput::type()

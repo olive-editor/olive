@@ -21,7 +21,7 @@
 #ifndef TRACKREFERENCE_H
 #define TRACKREFERENCE_H
 
-#include "node/output/timeline/tracktypes.h"
+#include "timeline/tracktypes.h"
 
 class TrackReference
 {

@@ -46,19 +46,15 @@ class TimelineView : public QGraphicsView, public TimelineScaledObject
 {
   Q_OBJECT
 public:
-  TimelineView(Qt::Alignment vertical_alignment = Qt::AlignTop, QWidget* parent = nullptr);
+  TimelineView(const TrackType& type,
+               Qt::Alignment vertical_alignment = Qt::AlignTop,
+               QWidget* parent = nullptr);
 
   void SetScale(const double& scale);
-
-  void ConnectTimelineNode(TrackList* node);
-
-  void DisconnectTimelineNode();
 
   void SelectAll();
 
   void DeselectAll();
-
-  void SetUseTrackListLengthDirectly(bool use);
 
   void SetEndTime(const rational& length);
 
@@ -70,14 +66,8 @@ public slots:
 
   void SetTime(const int64_t time);
 
-  void AddTrack(TrackOutput* track);
-
-  void RemoveTrack(TrackOutput* track);
-
 signals:
   void ScaleChanged(double scale);
-
-  void TimebaseChanged(const rational& timebase);
 
   void TimeChanged(const int64_t& time);
 
@@ -113,10 +103,6 @@ private:
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
 
-  TrackList* timeline_node_;
-
-  void AddGhost(TimelineViewGhostItem* ghost);
-
   int SceneToTrack(double y);
 
   void UserSetTime(const int64_t& time);
@@ -137,26 +123,13 @@ private:
 
   QRect playhead_rect_;
 
-  bool use_tracklist_length_directly_;
+  TrackType type_;
 
 private slots:
-  /**
-   * @brief Slot for when a Block node changes its parameters and the graphics need to update
-   *
-   * This slot does a static_cast on sender() to Block*, meaning all objects triggering this slot must be Blocks or
-   * derivatives.
-   */
-  void BlockChanged();
-
   /**
    * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
    */
   void UpdateSceneRect();
-
-  /**
-   * @brief When the attached track list's end frame changes, update the graphical representation here
-   */
-  void UpdateEndTimeFromTrackList(const rational& length);
 
 };
 

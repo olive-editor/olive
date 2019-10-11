@@ -45,6 +45,8 @@ TimelineOutput::TimelineOutput()
     connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
     connect(list, SIGNAL(BlockAdded(Block*, int)), this, SLOT(TrackListAddedBlock(Block*, int)));
     connect(list, SIGNAL(BlockRemoved(Block*)), this, SIGNAL(BlockRemoved(Block*)));
+    connect(list, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(TrackListAddedTrack(TrackOutput*)));
+    connect(list, SIGNAL(TrackRemoved(TrackOutput*)), this, SIGNAL(TrackRemoved(TrackOutput*)));
   }
 
   length_output_ = new NodeOutput("length_out");
@@ -85,6 +87,11 @@ NodeOutput *TimelineOutput::length_output()
 const rational &TimelineOutput::timeline_length()
 {
   return length_;
+}
+
+const rational &TimelineOutput::Timebase()
+{
+  return timebase_;
 }
 
 QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
@@ -136,9 +143,9 @@ void TimelineOutput::UpdateLength(const rational &length)
 
 void TimelineOutput::SetTimebase(const rational &timebase)
 {
-  foreach (TrackList* list, track_lists_) {
-    list->SetTimebase(timebase);
-  }
+  timebase_ = timebase;
+
+  emit TimebaseChanged(timebase_);
 }
 
 NodeInput *TimelineOutput::track_input(TrackType type)
@@ -155,4 +162,10 @@ void TimelineOutput::TrackListAddedBlock(Block *block, int index)
 {
   TrackType type = static_cast<TrackList*>(sender())->TrackType();
   emit BlockAdded(block, TrackReference(type, index));
+}
+
+void TimelineOutput::TrackListAddedTrack(TrackOutput *track)
+{
+  TrackType type = static_cast<TrackList*>(sender())->TrackType();
+  emit TrackAdded(track, type);
 }

@@ -20,6 +20,5 @@ set(OLIVE_SOURCES
   node/output/timeline/timeline.cpp
   node/output/timeline/tracklist.h
   node/output/timeline/tracklist.cpp
-  node/output/timeline/tracktypes.h
   PARENT_SCOPE
 )

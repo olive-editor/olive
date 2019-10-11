@@ -25,7 +25,7 @@
 
 #include "node/graph.h"
 #include "node/output/track/track.h"
-#include "tracktypes.h"
+#include "timeline/tracktypes.h"
 
 class TimelineOutput;
 
@@ -47,10 +47,6 @@ public:
   void AddTrack();
 
   void RemoveTrack();
-
-  const rational& Timebase();
-
-  void SetTimebase(const rational& timebase);
 
   const rational& TrackLength();
 
@@ -97,10 +93,6 @@ signals:
 
   void TrackListChanged();
 
-  void TimelineCleared();
-
-  void TimebaseChanged(const rational &timebase);
-
   void LengthChanged(const rational &length);
 
 private:
@@ -110,8 +102,6 @@ private:
    * @brief A cache of connected Tracks
    */
   QVector<TrackOutput*> track_cache_;
-
-  rational timebase_;
 
   NodeInput* track_input_;
 

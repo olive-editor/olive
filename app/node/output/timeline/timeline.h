@@ -25,8 +25,8 @@
 #include "node/block/block.h"
 #include "node/output/track/track.h"
 #include "timeline/trackreference.h"
+#include "timeline/tracktypes.h"
 #include "tracklist.h"
-#include "tracktypes.h"
 
 /**
  * @brief Node that represents the end of the Timeline as well as a time traversal Node
@@ -52,14 +52,19 @@ public:
 
   const rational& timeline_length();
 
+  const rational& Timebase();
+
   void SetTimebase(const rational &timebase);
 
 signals:
   void LengthChanged(const rational& length);
+  void TimebaseChanged(const rational &timebase);
 
   void BlockAdded(Block* block, TrackReference track);
-
   void BlockRemoved(Block* block);
+
+  void TrackAdded(TrackOutput* track, TrackType type);
+  void TrackRemoved(TrackOutput* track);
 
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
@@ -75,12 +80,16 @@ private:
 
   rational length_;
 
+  rational timebase_;
+
 private slots:
   void UpdateTrackCache();
 
   void UpdateLength(const rational &length);
 
   void TrackListAddedBlock(Block* block, int index);
+
+  void TrackListAddedTrack(TrackOutput* track);
 
 };
 

@@ -22,6 +22,7 @@
 #define TRACKOUTPUT_H
 
 #include "node/block/block.h"
+#include "timeline/tracktypes.h"
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
@@ -31,6 +32,9 @@ class TrackOutput : public Block
   Q_OBJECT
 public:
   TrackOutput();
+
+  const TrackType& track_type();
+  void set_track_type(const TrackType& track_type);
 
   virtual Type type() override;
 
@@ -169,6 +173,8 @@ private:
   NodeInput* track_input_;
 
   NodeOutput* track_output_;
+
+  TrackType track_type_;
 
   int block_invalidate_cache_stack_;
 

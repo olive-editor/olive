@@ -33,11 +33,10 @@
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 
-TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
+TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignment, QWidget *parent) :
   QGraphicsView(parent),
-  timeline_node_(nullptr),
   playhead_(0),
-  use_tracklist_length_directly_(true)
+  type_(type)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
@@ -55,20 +54,6 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
   // Set default scale
   SetScale(1.0);
-}
-
-void TimelineView::AddTrack(TrackOutput *track)
-{
-  foreach (Block* b, track->Blocks()) {
-    AddBlock(b, track->Index());
-  }
-}
-
-void TimelineView::RemoveTrack(TrackOutput *track)
-{
-  foreach (Block* b, track->Blocks()) {
-    RemoveBlock(b);
-  }
 }
 
 void TimelineView::SetScale(const double &scale)
@@ -89,44 +74,6 @@ void TimelineView::SetTimebase(const rational &timebase)
   viewport()->update();
 }
 
-void TimelineView::ConnectTimelineNode(TrackList *node)
-{
-  if (timeline_node_ != nullptr) {
-    disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
-    disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    disconnect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
-    disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
-    disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
-    disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateEndTimeFromTrackList(const rational&)));
-
-    Clear();
-  }
-
-  timeline_node_ = node;
-
-  if (timeline_node_ != nullptr) {
-    SetTimebase(timeline_node_->Timebase());
-    emit TimebaseChanged(timeline_node_->Timebase());
-
-    connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
-    connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    connect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
-    connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
-    connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
-    connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateEndTimeFromTrackList(const rational&)));
-
-    foreach (TrackOutput* track, timeline_node_->Tracks()) {
-      // Defer to the track to make all the block UI items necessary
-      AddTrack(track);
-    }
-  }
-}
-
-void TimelineView::DisconnectTimelineNode()
-{
-  ConnectTimelineNode(nullptr);
-}
-
 void TimelineView::SelectAll()
 {
   QList<QGraphicsItem*> all_items = items();
@@ -143,11 +90,6 @@ void TimelineView::DeselectAll()
   foreach (QGraphicsItem* i, all_items) {
     i->setSelected(false);
   }
-}
-
-void TimelineView::SetUseTrackListLengthDirectly(bool use)
-{
-  use_tracklist_length_directly_ = use;
 }
 
 void TimelineView::SetTime(const int64_t time)
@@ -257,15 +199,6 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
   }
 }
 
-TrackType TimelineView::ConnectedTrackType()
-{
-  if (timeline_node_ != nullptr) {
-    return timeline_node_->TrackType();
-  }
-
-  return kTrackTypeNone;
-}
-
 Stream::Type TimelineView::TrackTypeToStreamType(TrackType track_type)
 {
   switch (track_type) {
@@ -290,7 +223,7 @@ TimelineCoordinate TimelineView::ScreenToCoordinate(const QPoint& pt)
 
 TimelineCoordinate TimelineView::SceneToCoordinate(const QPointF& pt)
 {
-  return TimelineCoordinate(SceneToTime(pt.x()), SceneToTrack(pt.y()));
+  return TimelineCoordinate(SceneToTime(pt.x()), TrackReference(type_, SceneToTrack(pt.y())));
 }
 
 int TimelineView::GetTrackY(int track_index)
@@ -314,13 +247,6 @@ int TimelineView::GetTrackHeight(int track_index)
   Q_UNUSED(track_index)
 
   return fontMetrics().height() * 3;
-}
-
-void TimelineView::AddGhost(TimelineViewGhostItem *ghost)
-{
-  ghost->SetScale(scale_);
-  ghost_items_.append(ghost);
-  scene_.addItem(ghost);
 }
 
 int TimelineView::SceneToTrack(double y)
@@ -349,15 +275,6 @@ void TimelineView::UserSetTime(const int64_t &time)
 rational TimelineView::GetPlayheadTime()
 {
   return rational(playhead_ * timebase().numerator(), timebase().denominator());
-}
-
-void TimelineView::BlockChanged()
-{
-  TimelineViewRect* rect = block_items_[static_cast<Block*>(sender())];
-
-  if (rect != nullptr) {
-    rect->UpdateRect();
-  }
 }
 
 void TimelineView::UpdateSceneRect()
@@ -393,13 +310,6 @@ void TimelineView::UpdateSceneRect()
   }
 
   scene_.setSceneRect(bounding_rect);
-}
-
-void TimelineView::UpdateEndTimeFromTrackList(const rational &length)
-{
-  if (use_tracklist_length_directly_) {
-    SetEndTime(length);
-  }
 }
 
 void TimelineView::SetEndTime(const rational &length)

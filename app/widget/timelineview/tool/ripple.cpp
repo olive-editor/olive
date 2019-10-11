@@ -85,8 +85,8 @@ rational TimelineWidget::RippleTool::FrameValidateInternal(rational time_movemen
 }
 
 void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
-                                              olive::timeline::MovementMode trim_mode,
-                                              bool allow_gap_trimming)
+                                                olive::timeline::MovementMode trim_mode,
+                                                bool allow_gap_trimming)
 {
   Q_UNUSED(allow_gap_trimming)
 
@@ -134,12 +134,14 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
           && block_before_ripple->next()->type() != Block::kEnd) {
         TimelineViewGhostItem* ghost;
 
+        TrackReference track_ref(track->track_type(), track->Index());
+
         if (block_before_ripple->type() == Block::kGap) {
           // If this Block is already a Gap, ghost it now
-          ghost = AddGhostFromBlock(block_before_ripple, track->Index(), trim_mode);
+          ghost = AddGhostFromBlock(block_before_ripple, track_ref, trim_mode);
         } else {
           // If there's no gap here, we'll need to create one
-          ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track->Index(), trim_mode);
+          ghost = AddGhostFromNull(block_before_ripple->out(), block_before_ripple->out(), track_ref, trim_mode);
           ghost->setData(TimelineViewGhostItem::kReferenceBlock, Node::PtrToValue(block_before_ripple));
         }
 

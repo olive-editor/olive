@@ -29,10 +29,10 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   layout->addWidget(view_splitter);
 
   // Video view
-  views_.append(new TimelineView(Qt::AlignBottom));
+  views_.append(new TimelineView(kTrackTypeVideo, Qt::AlignBottom));
 
   // Audio view
-  views_.append(new TimelineView(Qt::AlignTop));
+  views_.append(new TimelineView(kTrackTypeAudio, Qt::AlignTop));
 
   // Create tools
   tools_.resize(olive::tool::kCount);
@@ -67,12 +67,20 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
     connect(view, SIGNAL(ScaleChanged(double)), this, SLOT(SetScale(double)));
-    connect(view, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view, SLOT(SetTime(const int64_t&)));
     connect(view, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
     connect(view, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
     connect(horizontal_scroll_, SIGNAL(valueChanged(int)), view->horizontalScrollBar(), SLOT(setValue(int)));
     connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), horizontal_scroll_, SLOT(setValue(int)));
+
+    connect(view, SIGNAL(MousePressed(TimelineViewMouseEvent*)), this, SLOT(ViewMousePressed(TimelineViewMouseEvent*)));
+    connect(view, SIGNAL(MouseMoved(TimelineViewMouseEvent*)), this, SLOT(ViewMouseMoved(TimelineViewMouseEvent*)));
+    connect(view, SIGNAL(MouseReleased(TimelineViewMouseEvent*)), this, SLOT(ViewMouseReleased(TimelineViewMouseEvent*)));
+    connect(view, SIGNAL(MouseDoubleClicked(TimelineViewMouseEvent*)), this, SLOT(ViewMouseDoubleClicked(TimelineViewMouseEvent*)));
+    connect(view, SIGNAL(DragEntered(TimelineViewMouseEvent*)), this, SLOT(ViewDragEntered(TimelineViewMouseEvent*)));
+    connect(view, SIGNAL(DragMoved(TimelineViewMouseEvent*)), this, SLOT(ViewDragMoved(TimelineViewMouseEvent*)));
+    connect(view, SIGNAL(DragLeft(QDragLeaveEvent*)), this, SLOT(ViewDragLeft(QDragLeaveEvent*)));
+    connect(view, SIGNAL(DragDropped(TimelineViewMouseEvent*)), this, SLOT(ViewDragDropped(TimelineViewMouseEvent*)));
 
     // Connect each view's scroll to each other
     foreach (TimelineView* other_view, views_) {
@@ -141,32 +149,46 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
     disconnect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
     disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
+    disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
+    disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+    disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    disconnect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
+
+    SetTimebase(0);
+
+    Clear();
   }
 
   timeline_node_ = node;
-
-  for (int track_type=0;track_type<views_.size();track_type++) {
-    views_.at(track_type)->ConnectTimelineNode(node->track_list(static_cast<TrackType>(track_type)));
-  }
 
   if (timeline_node_ != nullptr) {
     connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
     connect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
     connect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
+    connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*, TrackType)), this, SLOT(AddTrack(TrackOutput*, TrackType)));
+    connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+    connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
 
-    foreach (TimelineView* view, views_) {
+    SetTimebase(timeline_node_->Timebase());
+
+    for (int i=0;i<views_.size();i++) {
+      TrackType track_type = static_cast<TrackType>(i);
+
+      TimelineView* view = views_.at(i);
+
       view->SetEndTime(timeline_node_->timeline_length());
+
+      // Defer to the track to make all the block UI items necessary
+      foreach (TrackOutput* track, timeline_node_->track_list(track_type)->Tracks()) {
+        AddTrack(track, track_type);
+      }
     }
   }
 }
 
 void TimelineWidget::DisconnectTimelineNode()
 {
-  timeline_node_ = nullptr;
-
-  foreach (TimelineView* view, views_) {
-    view->DisconnectTimelineNode();
-  }
+  ConnectTimelineNode(nullptr);
 }
 
 void TimelineWidget::ZoomIn()
@@ -274,6 +296,25 @@ void TimelineWidget::GoToNextCut()
   if (closest_cut < INT64_MAX) {
     SetTimeAndSignal(closest_cut);
   }
+}
+
+QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
+{
+  QList<TimelineViewBlockItem *> list;
+
+  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
+
+  while (iterator.hasNext()) {
+    iterator.next();
+
+    TimelineViewBlockItem* item = iterator.value();
+
+    if (item != nullptr && item->isSelected()) {
+      list.append(item);
+    }
+  }
+
+  return list;
 }
 
 void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps)
@@ -513,4 +554,34 @@ void TimelineWidget::RemoveBlock(Block *block)
   delete block_items_[block];
 
   block_items_.remove(block);
+}
+
+void TimelineWidget::AddTrack(TrackOutput *track, TrackType type)
+{
+  foreach (Block* b, track->Blocks()) {
+    AddBlock(b, TrackReference(type, track->Index()));
+  }
+}
+
+void TimelineWidget::RemoveTrack(TrackOutput *track)
+{
+  foreach (Block* b, track->Blocks()) {
+    RemoveBlock(b);
+  }
+}
+
+void TimelineWidget::BlockChanged()
+{
+  TimelineViewRect* rect = block_items_[static_cast<Block*>(sender())];
+
+  if (rect != nullptr) {
+    rect->UpdateRect();
+  }
+}
+
+void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
+{
+  ghost->SetScale(scale_);
+  ghost_items_.append(ghost);
+  views_.at(ghost->Track().type())->scene()->addItem(ghost);
 }

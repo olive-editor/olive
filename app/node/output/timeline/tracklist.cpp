@@ -50,6 +50,7 @@ void TrackList::AttachTrack(TrackOutput *track)
     connect(current_track, SIGNAL(Refreshed()), this, SLOT(UpdateTotalLength()));
 
     current_track->SetIndex(track_cache_.size());
+    current_track->set_track_type(type_);
 
     track_cache_.append(current_track);
     emit TrackListChanged();
@@ -73,6 +74,7 @@ void TrackList::DetachTrack(TrackOutput *track)
     emit TrackRemoved(current_track);
 
     current_track->SetIndex(-1);
+    current_track->set_track_type(kTrackTypeNone);
 
     disconnect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
     disconnect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
@@ -107,18 +109,6 @@ const QVector<TrackOutput *> &TrackList::Tracks()
 TrackOutput *TrackList::TrackAt(int index)
 {
   return track_cache_.at(index);
-}
-
-const rational &TrackList::Timebase()
-{
-  return timebase_;
-}
-
-void TrackList::SetTimebase(const rational &timebase)
-{
-  timebase_ = timebase;
-
-  emit TimebaseChanged(timebase_);
 }
 
 const rational &TrackList::TrackLength()
@@ -178,9 +168,6 @@ void TrackList::TrackConnectionAdded(NodeEdgePtr edge)
   }
 
   AttachTrack(attached_track());
-
-  // FIXME: Is this necessary?
-  emit TimebaseChanged(timebase_);
 }
 
 void TrackList::TrackConnectionRemoved(NodeEdgePtr edge)
@@ -190,8 +177,6 @@ void TrackList::TrackConnectionRemoved(NodeEdgePtr edge)
   }
 
   DetachTrack(Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0)));
-
-  emit TimelineCleared();
 }
 
 void TrackList::TrackEdgeAdded(NodeEdgePtr edge)

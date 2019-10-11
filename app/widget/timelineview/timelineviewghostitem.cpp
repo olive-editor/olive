@@ -172,7 +172,7 @@ rational TimelineViewGhostItem::GetAdjustedMediaIn() const
 
 TrackReference TimelineViewGhostItem::GetAdjustedTrack() const
 {
-  return track_ + track_adj_;
+  return TrackReference(track_.type(), track_.index() + track_adj_);
 }
 
 const olive::timeline::MovementMode &TimelineViewGhostItem::mode() const

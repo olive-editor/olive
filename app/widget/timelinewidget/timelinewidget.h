@@ -47,6 +47,8 @@ public:
 
   void GoToNextCut();
 
+  QList<TimelineViewBlockItem*> GetSelectedBlocks();
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -179,8 +181,6 @@ private:
     void InitiateDrag(const TimelineCoordinate &mouse_pos);
 
     void AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode);
-
-    QList<TimelineViewBlockItem*> GetSelectedClips();
 
     bool IsClipTrimmable(TimelineViewBlockItem* clip,
                          const QList<TimelineViewBlockItem*>& items,
@@ -325,6 +325,8 @@ private:
 
   void CenterOn(qreal scene_pos);
 
+  void AddGhost(TimelineViewGhostItem* ghost);
+
 private slots:
   void SetScale(double scale);
 
@@ -344,6 +346,17 @@ private slots:
 
   void AddBlock(Block* block, TrackReference track);
   void RemoveBlock(Block* block);
+
+  void AddTrack(TrackOutput* track, TrackType type);
+  void RemoveTrack(TrackOutput* track);
+
+  /**
+   * @brief Slot for when a Block node changes its parameters and the graphics need to update
+   *
+   * This slot does a static_cast on sender() to Block*, meaning all objects triggering this slot must be Blocks or
+   * derivatives.
+   */
+  void BlockChanged();
 
 };
 
