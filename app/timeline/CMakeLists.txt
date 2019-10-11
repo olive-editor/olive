@@ -14,26 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(tool)
-add_subdirectory(undo)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/timelineview/timelineplayhead.h
-  widget/timelineview/timelineplayhead.cpp
-  widget/timelineview/timelinescaledobject.h
-  widget/timelineview/timelinescaledobject.cpp
-  widget/timelineview/timelineview.h
-  widget/timelineview/timelineview.cpp
-  widget/timelineview/timelineviewmouseevent.h
-  widget/timelineview/timelineviewmouseevent.cpp
-  widget/timelineview/timelineviewrect.h
-  widget/timelineview/timelineviewrect.cpp
-  widget/timelineview/timelineviewblockitem.h
-  widget/timelineview/timelineviewblockitem.cpp
-  widget/timelineview/timelineviewenditem.h
-  widget/timelineview/timelineviewenditem.cpp
-  widget/timelineview/timelineviewghostitem.h
-  widget/timelineview/timelineviewghostitem.cpp
+  timeline/timelinecoordinate.h
+  timeline/timelinecoordinate.cpp
+  timeline/trackreference.h
+  timeline/trackreference.cpp
   PARENT_SCOPE
 )

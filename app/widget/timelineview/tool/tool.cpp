@@ -18,30 +18,30 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include <float.h>
 
 #include "common/range.h"
 
-TimelineView::Tool::Tool(TimelineView *parent) :
+TimelineWidget::Tool::Tool(TimelineWidget *parent) :
   dragging_(false),
   parent_(parent),
-  drag_mode_(NoDrag),
+  drag_mode_(QGraphicsView::NoDrag),
   enable_default_behavior_(false)
 {
 }
 
-TimelineView::Tool::~Tool()
+TimelineWidget::Tool::~Tool()
 {
 }
 
-TimelineView *TimelineView::Tool::parent()
+TimelineWidget *TimelineWidget::Tool::parent()
 {
   return parent_;
 }
 
-olive::timeline::MovementMode TimelineView::Tool::FlipTrimMode(const olive::timeline::MovementMode &trim_mode)
+olive::timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const olive::timeline::MovementMode &trim_mode)
 {
   if (trim_mode == olive::timeline::kTrimIn) {
     return olive::timeline::kTrimOut;
@@ -54,27 +54,27 @@ olive::timeline::MovementMode TimelineView::Tool::FlipTrimMode(const olive::time
   return trim_mode;
 }
 
-const QGraphicsView::DragMode &TimelineView::Tool::drag_mode()
+const QGraphicsView::DragMode &TimelineWidget::Tool::drag_mode()
 {
   return drag_mode_;
 }
 
-bool TimelineView::Tool::enable_default_behavior()
+bool TimelineWidget::Tool::enable_default_behavior()
 {
   return enable_default_behavior_;
 }
 
-void TimelineView::Tool::set_drag_mode(const QGraphicsView::DragMode &mode)
+void TimelineWidget::Tool::set_drag_mode(const QGraphicsView::DragMode &mode)
 {
   drag_mode_ = mode;
 }
 
-void TimelineView::Tool::set_enable_default_behavior(bool enable)
+void TimelineWidget::Tool::set_enable_default_behavior(bool enable)
 {
   enable_default_behavior_ = enable;
 }
 
-TimelineViewBlockItem *TimelineView::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)
+TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)
 {
   QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
 
@@ -116,7 +116,7 @@ void AttemptSnap(const QList<double>& proposed_pts,
   }
 }
 
-rational TimelineView::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
+rational TimelineWidget::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     if (ghost->mode() != olive::timeline::kMove) {
@@ -132,26 +132,24 @@ rational TimelineView::Tool::ValidateFrameMovement(rational movement, const QVec
   return movement;
 }
 
-int TimelineView::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> ghosts)
+int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     // Prevents any ghosts from going to a non-existent negative track
-    if (ghost->Track() + movement < 0) {
+    if (ghost->Track().index() + movement < 0) {
       if (ghost->mode() != olive::timeline::kMove) {
         continue;
       }
 
-      movement = -ghost->Track();
+      movement = -ghost->Track().index();
     }
   }
 
   return movement;
 }
 
-bool TimelineView::Tool::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
+bool TimelineWidget::Tool::SnapPoint(QList<rational> start_times, rational* movement, int snap_points)
 {
-  QList<QGraphicsItem*> items = parent()->scene_.items();
-
   double diff = DBL_MAX;
 
   QList<double> proposed_pts;
@@ -163,8 +161,8 @@ bool TimelineView::Tool::SnapPoint(QList<rational> start_times, rational* moveme
   if (snap_points & kSnapToPlayhead) {
 
 
-    rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase_.numerator(),
-                                          parent()->timebase_.denominator());
+    rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase().numerator(),
+                                          parent()->timebase().denominator());
 
     qreal playhead_pos = playhead_abs_time.toDouble() * parent()->scale_;
 
@@ -172,18 +170,22 @@ bool TimelineView::Tool::SnapPoint(QList<rational> start_times, rational* moveme
   }
 
   if (snap_points & kSnapToClips) {
-    foreach (QGraphicsItem* it, items) {
-      TimelineViewBlockItem* timeline_rect = dynamic_cast<TimelineViewBlockItem*>(it);
+    QMapIterator<Block*, TimelineViewBlockItem*> iterator(parent()->block_items_);
 
-      if (timeline_rect != nullptr) {
-        qreal rect_left = timeline_rect->x();
-        qreal rect_right = rect_left + timeline_rect->rect().width();
+    while (iterator.hasNext()) {
+      iterator.next();
+
+      TimelineViewBlockItem* item = iterator.value();
+
+      if (item != nullptr) {
+        qreal rect_left = item->x();
+        qreal rect_right = rect_left + item->rect().width();
 
         // Attempt snapping to clip in point
-        AttemptSnap(proposed_pts, rect_left, start_times, timeline_rect->block()->in(), movement, &diff);
+        AttemptSnap(proposed_pts, rect_left, start_times, item->block()->in(), movement, &diff);
 
         // Attempt snapping to clip out point
-        AttemptSnap(proposed_pts, rect_right, start_times, timeline_rect->block()->out(), movement, &diff);
+        AttemptSnap(proposed_pts, rect_right, start_times, item->block()->out(), movement, &diff);
       }
     }
   }

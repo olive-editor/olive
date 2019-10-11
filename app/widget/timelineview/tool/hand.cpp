@@ -18,12 +18,12 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include <QScrollBar>
 
-TimelineView::HandTool::HandTool(TimelineView* parent) :
+TimelineWidget::HandTool::HandTool(TimelineWidget* parent) :
   Tool(parent)
 {
-  set_drag_mode(ScrollHandDrag);
+  set_drag_mode(QGraphicsView::ScrollHandDrag);
 }

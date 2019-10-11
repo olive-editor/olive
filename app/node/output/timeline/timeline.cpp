@@ -37,12 +37,14 @@ TimelineOutput::TimelineOutput()
     NodeInput* track_input = new NodeInput(QString("track_in_%1").arg(i));
     track_input->add_data_input(NodeParam::kTrack);
     AddParameter(track_input);
-    track_inputs_[i] = track_input;
+    track_inputs_.replace(i, track_input);
 
     TrackList* list = new TrackList(this, static_cast<TrackType>(i), track_input);
-    track_lists_[i] = list;
+    track_lists_.replace(i, list);
     connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
     connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
+    connect(list, SIGNAL(BlockAdded(Block*, int)), this, SLOT(TrackListAddedBlock(Block*, int)));
+    connect(list, SIGNAL(BlockRemoved(Block*)), this, SIGNAL(BlockRemoved(Block*)));
   }
 
   length_output_ = new NodeOutput("length_out");
@@ -107,8 +109,6 @@ void TimelineOutput::UpdateTrackCache()
 
 void TimelineOutput::UpdateLength(const rational &length)
 {
-  qDebug() << "Updating length! Received value:" << length;
-
   // If this length is equal, no-op
   if (length == length_) {
     return;
@@ -149,4 +149,10 @@ NodeInput *TimelineOutput::track_input(TrackType type)
 TrackList *TimelineOutput::track_list(TrackType type)
 {
   return track_lists_.at(type);
+}
+
+void TimelineOutput::TrackListAddedBlock(Block *block, int index)
+{
+  TrackType type = static_cast<TrackList*>(sender())->TrackType();
+  emit BlockAdded(block, TrackReference(type, index));
 }

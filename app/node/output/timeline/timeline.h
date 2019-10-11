@@ -24,6 +24,7 @@
 #include "common/timelinecommon.h"
 #include "node/block/block.h"
 #include "node/output/track/track.h"
+#include "timeline/trackreference.h"
 #include "tracklist.h"
 #include "tracktypes.h"
 
@@ -56,6 +57,10 @@ public:
 signals:
   void LengthChanged(const rational& length);
 
+  void BlockAdded(Block* block, TrackReference track);
+
+  void BlockRemoved(Block* block);
+
 protected:
   virtual QVariant Value(NodeOutput* output, const rational& time) override;
 
@@ -74,6 +79,8 @@ private slots:
   void UpdateTrackCache();
 
   void UpdateLength(const rational &length);
+
+  void TrackListAddedBlock(Block* block, int index);
 
 };
 

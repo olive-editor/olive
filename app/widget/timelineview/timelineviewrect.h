@@ -23,6 +23,7 @@
 
 #include <QGraphicsRectItem>
 
+#include "timeline/timelinecoordinate.h"
 #include "timelinescaledobject.h"
 
 /**
@@ -39,8 +40,8 @@ public:
   const int& Height();
   void SetHeight(const int& height);
 
-  const int& Track();
-  void SetTrack(const int& track);
+  const TrackReference& Track();
+  void SetTrack(const TrackReference& track);
 
   void SetScale(const double& scale);
 
@@ -51,7 +52,7 @@ protected:
 
   int height_;
 
-  int track_;
+  TrackReference track_;
 };
 
 #endif // TIMELINEVIEWRECT_H

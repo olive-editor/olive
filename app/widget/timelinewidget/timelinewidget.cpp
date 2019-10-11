@@ -4,7 +4,9 @@
 #include <QVBoxLayout>
 #include <QtMath>
 
+#include "core.h"
 #include "common/timecodefunctions.h"
+#include "tool/tool.h"
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
@@ -32,8 +34,24 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   // Audio view
   views_.append(new TimelineView(Qt::AlignTop));
 
-  // Set both views as siblings
-  TimelineView::SetSiblings(views_);
+  // Create tools
+  tools_.resize(olive::tool::kCount);
+  tools_.fill(nullptr);
+
+  tools_.replace(olive::tool::kPointer, std::make_shared<PointerTool>(this));
+  // tools_.replace(olive::tool::kEdit, new PointerTool(this)); FIXME: Implement
+  tools_.replace(olive::tool::kRipple, std::make_shared<RippleTool>(this));
+  tools_.replace(olive::tool::kRolling, std::make_shared<RollingTool>(this));
+  tools_.replace(olive::tool::kRazor, std::make_shared<RazorTool>(this));
+  tools_.replace(olive::tool::kSlip, std::make_shared<SlipTool>(this));
+  tools_.replace(olive::tool::kSlide, std::make_shared<SlideTool>(this));
+  tools_.replace(olive::tool::kHand, std::make_shared<HandTool>(this));
+  tools_.replace(olive::tool::kZoom, std::make_shared<ZoomTool>(this));
+  //tools_.replace(olive::tool::kTransition, new (this)); FIXME: Implement
+  //tools_.replace(olive::tool::kRecord, new PointerTool(this)); FIXME: Implement
+  //tools_.replace(olive::tool::kAdd, new PointerTool(this)); FIXME: Implement
+
+  import_tool_ = std::make_shared<ImportTool>(this);
 
   // Global scrollbar
   horizontal_scroll_ = new QScrollBar(Qt::Horizontal);
@@ -75,14 +93,22 @@ void TimelineWidget::Clear()
 {
   SetTimebase(0);
 
-  foreach (TimelineView* view, views_) {
-    view->Clear();
+  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
+
+  while (iterator.hasNext()) {
+    iterator.next();
+
+    if (iterator.value() != nullptr) {
+      delete iterator.value();
+    }
   }
+
+  block_items_.clear();
 }
 
 void TimelineWidget::SetTimebase(const rational &timebase)
 {
-  timebase_ = timebase;
+  SetTimebaseInternal(timebase);
 
   ruler_->SetTimebase(timebase);
 
@@ -113,20 +139,20 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
 {
   if (timeline_node_ != nullptr) {
     disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
+    disconnect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
+    disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
   }
 
   timeline_node_ = node;
 
-  int track_type = 0;
-
-  foreach (TimelineView* view, views_) {
-    view->ConnectTimelineNode(node->track_list(static_cast<TrackType>(track_type)));
-
-    track_type++;
+  for (int track_type=0;track_type<views_.size();track_type++) {
+    views_.at(track_type)->ConnectTimelineNode(node->track_list(static_cast<TrackType>(track_type)));
   }
 
   if (timeline_node_ != nullptr) {
     connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
+    connect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
+    connect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
 
     foreach (TimelineView* view, views_) {
       view->SetEndTime(timeline_node_->timeline_length());
@@ -203,7 +229,7 @@ void TimelineWidget::GoToPrevCut()
     int64_t this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
-      int64_t block_out_ts = olive::time_to_timestamp(block->out(), timebase_);
+      int64_t block_out_ts = olive::time_to_timestamp(block->out(), timebase());
 
       if (block_out_ts < playhead_) {
         this_track_closest_cut = block_out_ts;
@@ -227,14 +253,14 @@ void TimelineWidget::GoToNextCut()
   int64_t closest_cut = INT64_MAX;
 
   foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    int64_t this_track_closest_cut = olive::time_to_timestamp(track->in(), timebase_);
+    int64_t this_track_closest_cut = olive::time_to_timestamp(track->in(), timebase());
 
     if (this_track_closest_cut <= playhead_) {
       this_track_closest_cut = INT64_MAX;
     }
 
     foreach (Block* block, track->Blocks()) {
-      int64_t block_in_ts = olive::time_to_timestamp(block->in(), timebase_);
+      int64_t block_in_ts = olive::time_to_timestamp(block->in(), timebase());
 
       if (block_in_ts > playhead_) {
         this_track_closest_cut = block_in_ts;
@@ -252,7 +278,7 @@ void TimelineWidget::GoToNextCut()
 
 void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps)
 {
-  rational playhead_time = olive::timestamp_to_time(playhead_, timebase_);
+  rational playhead_time = olive::timestamp_to_time(playhead_, timebase());
 
   rational closest_point_to_playhead;
   if (mode == olive::timeline::kTrimIn) {
@@ -278,9 +304,9 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
   if (closest_point_to_playhead == playhead_time) {
     // Remove one frame only
     if (mode == olive::timeline::kTrimIn) {
-      playhead_time += timebase_;
+      playhead_time += timebase();
     } else {
-      playhead_time -= timebase_;
+      playhead_time -= timebase();
     }
   }
 
@@ -304,7 +330,7 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
   olive::undo_stack.pushIfHasChildren(command);
 
   if (mode == olive::timeline::kTrimIn && !insert_gaps) {
-    int64_t new_time = olive::time_to_timestamp(closest_point_to_playhead, timebase_);
+    int64_t new_time = olive::time_to_timestamp(closest_point_to_playhead, timebase());
 
     SetTimeAndSignal(new_time);
   }
@@ -316,15 +342,65 @@ void TimelineWidget::SetTimeAndSignal(const int64_t &t)
   emit TimeChanged(t);
 }
 
+TrackOutput *TimelineWidget::GetTrackFromReference(const TrackReference &ref)
+{
+  return timeline_node_->track_list(ref.type())->TrackAt(ref.index());
+}
+
+int TimelineWidget::GetTrackY(const TrackReference &ref)
+{
+  return views_.at(ref.type())->GetTrackY(ref.index());
+}
+
+int TimelineWidget::GetTrackHeight(const TrackReference &ref)
+{
+  return views_.at(ref.type())->GetTrackHeight(ref.index());
+}
+
+void TimelineWidget::CenterOn(qreal scene_pos)
+{
+  horizontal_scroll_->setValue(qRound(scene_pos - horizontal_scroll_->width()/2));
+}
+
 void TimelineWidget::SetScale(double scale)
 {
   scale_ = scale;
 
   ruler_->SetScale(scale_);
 
+  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
+
+  while (iterator.hasNext()) {
+    iterator.next();
+
+    if (iterator.value() != nullptr) {
+      iterator.value()->SetScale(scale_);
+    }
+  }
+
+  foreach (TimelineViewGhostItem* ghost, ghost_items_) {
+    ghost->SetScale(scale_);
+  }
+
   foreach (TimelineView* view, views_) {
     view->SetScale(scale_);
   }
+}
+
+void TimelineWidget::ClearGhosts()
+{
+  if (!ghost_items_.isEmpty()) {
+    foreach (TimelineViewGhostItem* ghost, ghost_items_) {
+      delete ghost;
+    }
+
+    ghost_items_.clear();
+  }
+}
+
+bool TimelineWidget::HasGhosts()
+{
+  return !ghost_items_.isEmpty();
 }
 
 void TimelineWidget::UpdateInternalTime(const int64_t &timestamp)
@@ -337,4 +413,104 @@ void TimelineWidget::UpdateTimelineLength(const rational &length)
   foreach (TimelineView* view, views_) {
     view->SetEndTime(length);
   }
+}
+
+TimelineWidget::Tool *TimelineWidget::GetActiveTool()
+{
+  return tools_.at(olive::core.tool()).get();
+}
+
+void TimelineWidget::ViewMousePressed(TimelineViewMouseEvent *event)
+{
+  active_tool_ = GetActiveTool();
+
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
+    active_tool_->MousePress(event);
+  }
+}
+
+void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
+{
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
+    active_tool_->MouseMove(event);
+  }
+}
+
+void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
+{
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
+    active_tool_->MouseRelease(event);
+  }
+}
+
+void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
+{
+  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
+    active_tool_->MouseDoubleClick(event);
+  }
+}
+
+void TimelineWidget::ViewDragEntered(TimelineViewMouseEvent *event)
+{
+  if (timeline_node_ != nullptr) {
+    import_tool_->DragEnter(event);
+  }
+}
+
+void TimelineWidget::ViewDragMoved(TimelineViewMouseEvent *event)
+{
+  if (timeline_node_ != nullptr) {
+    import_tool_->DragMove(event);
+  }
+}
+
+void TimelineWidget::ViewDragLeft(QDragLeaveEvent *event)
+{
+  if (timeline_node_ != nullptr) {
+    import_tool_->DragLeave(event);
+  }
+}
+
+void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
+{
+  if (timeline_node_ != nullptr) {
+    import_tool_->DragDrop(event);
+  }
+}
+
+void TimelineWidget::AddBlock(Block *block, TrackReference track)
+{
+  switch (block->type()) {
+  case Block::kClip:
+  case Block::kGap:
+  {
+    TimelineViewBlockItem* item = new TimelineViewBlockItem();
+
+    // Set up clip with view parameters (clip item will automatically size its rect accordingly)
+    item->SetBlock(block);
+    item->SetY(GetTrackY(track));
+    item->SetHeight(GetTrackHeight(track));
+    item->SetScale(scale_);
+    item->SetTrack(track);
+
+    // Add to list of clip items that can be iterated through
+    block_items_.insert(block, item);
+
+    // Add item to graphics scene
+    views_.at(track.type())->scene()->addItem(item);
+
+    connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
+    break;
+  }
+  case Block::kEnd:
+    // Do nothing
+    break;
+  }
+}
+
+void TimelineWidget::RemoveBlock(Block *block)
+{
+  delete block_items_[block];
+
+  block_items_.remove(block);
 }

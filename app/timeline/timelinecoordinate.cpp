@@ -18,53 +18,41 @@
 
 ***/
 
-#include "timelineviewrect.h"
+#include "timelinecoordinate.h"
 
-TimelineViewRect::TimelineViewRect(QGraphicsItem* parent) :
-  QGraphicsRectItem(parent),
-  y_(0),
-  height_(0)
+TimelineCoordinate::TimelineCoordinate() :
+  track_(kTrackTypeNone, 0)
 {
-
 }
 
-const int &TimelineViewRect::Y()
+TimelineCoordinate::TimelineCoordinate(const rational &frame, const TrackReference &track) :
+  frame_(frame),
+  track_(track)
 {
-  return y_;
 }
 
-void TimelineViewRect::SetY(const int &y)
+TimelineCoordinate::TimelineCoordinate(const rational &frame, const TrackType &track_type, const int &track_index) :
+  frame_(frame),
+  track_(track_type, track_index)
 {
-  y_ = y;
-
-  UpdateRect();
 }
 
-const int &TimelineViewRect::Height()
+const rational &TimelineCoordinate::GetFrame() const
 {
-  return height_;
+  return frame_;
 }
 
-void TimelineViewRect::SetHeight(const int &height)
-{
-  height_ = height;
-
-  UpdateRect();
-}
-
-const TrackReference &TimelineViewRect::Track()
+const TrackReference &TimelineCoordinate::GetTrack() const
 {
   return track_;
 }
 
-void TimelineViewRect::SetTrack(const TrackReference &track)
+void TimelineCoordinate::SetFrame(const rational &frame)
 {
-  track_ = track;
+  frame_ = frame;
 }
 
-void TimelineViewRect::SetScale(const double &scale)
+void TimelineCoordinate::SetTrack(const TrackReference &track)
 {
-  scale_ = scale;
-
-  UpdateRect();
+  track_ = track;
 }

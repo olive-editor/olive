@@ -18,21 +18,21 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include <QToolTip>
 
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
-TimelineView::SlipTool::SlipTool(TimelineView *parent) :
+TimelineWidget::SlipTool::SlipTool(TimelineWidget *parent) :
   PointerTool(parent)
 {
   SetTrimmingAllowed(false);
   SetTrackMovementAllowed(false);
 }
 
-void TimelineView::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
+void TimelineWidget::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
   // Determine frame movement
   rational time_movement = drag_start_.GetFrame() - mouse_pos.GetFrame();
@@ -51,9 +51,9 @@ void TimelineView::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 
   // Show tooltip
   // Generate tooltip (showing earliest in point of imported clip)
-  int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase_);
+  int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase());
   QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
-                                                      parent()->timebase_,
+                                                      parent()->timebase(),
                                                       olive::CurrentTimecodeDisplay(),
                                                       true);
   QToolTip::showText(QCursor::pos(),
@@ -61,7 +61,7 @@ void TimelineView::SlipTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
                      parent());
 }
 
-void TimelineView::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 

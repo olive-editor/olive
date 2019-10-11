@@ -18,17 +18,17 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
 
-TimelineView::RippleTool::RippleTool(TimelineView* parent) :
+TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
 }
 
-void TimelineView::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -51,7 +51,7 @@ void TimelineView::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *even
 
         Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
 
-        new TrackInsertBlockBetweenBlocksCommand(parent()->timeline_node_->Tracks().at(ghost->Track()),
+        new TrackInsertBlockBetweenBlocksCommand(parent()->GetTrackFromReference(ghost->Track()),
                                                  gap,
                                                  block_to_append_gap_to,
                                                  block_to_append_gap_to->next());
@@ -67,7 +67,7 @@ void TimelineView::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *even
         }
       } else {
         // Assumed the Block was a Gap and it was reduced to zero length, remove it here
-        new TrackRippleRemoveBlockCommand(parent()->timeline_node_->Tracks().at(ghost->Track()), b, command);
+        new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
       }
     }
   }
@@ -75,7 +75,7 @@ void TimelineView::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *even
   olive::undo_stack.pushIfHasChildren(command);
 }
 
-rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
+rational TimelineWidget::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
 {
   // Only validate trimming, and we don't care about "overwriting" since the ripple tool is nondestructive
   time_movement = ValidateInTrimming(time_movement, ghosts, false);
@@ -84,7 +84,7 @@ rational TimelineView::RippleTool::FrameValidateInternal(rational time_movement,
   return time_movement;
 }
 
-void TimelineView::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
+void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
                                               olive::timeline::MovementMode trim_mode,
                                               bool allow_gap_trimming)
 {
@@ -117,7 +117,7 @@ void TimelineView::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_ite
     bool ghost_on_this_track_exists = false;
 
     foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-      if (ghost->Track() == track->Index()) {
+      if (parent()->GetTrackFromReference(ghost->Track()) == track) {
         ghost_on_this_track_exists = true;
         break;
       }

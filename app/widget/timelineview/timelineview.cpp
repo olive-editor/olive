@@ -32,7 +32,6 @@
 #include "core.h"
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
-#include "tool/tool.h"
 
 TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QGraphicsView(parent),
@@ -48,25 +47,6 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
 
-  // Create tools
-  tools_.resize(olive::tool::kCount);
-  tools_.fill(nullptr);
-
-  tools_.replace(olive::tool::kPointer, std::make_shared<PointerTool>(this));
-  // tools_.replace(olive::tool::kEdit, new PointerTool(this)); FIXME: Implement
-  tools_.replace(olive::tool::kRipple, std::make_shared<RippleTool>(this));
-  tools_.replace(olive::tool::kRolling, std::make_shared<RollingTool>(this));
-  tools_.replace(olive::tool::kRazor, std::make_shared<RazorTool>(this));
-  tools_.replace(olive::tool::kSlip, std::make_shared<SlipTool>(this));
-  tools_.replace(olive::tool::kSlide, std::make_shared<SlideTool>(this));
-  tools_.replace(olive::tool::kHand, std::make_shared<HandTool>(this));
-  tools_.replace(olive::tool::kZoom, std::make_shared<ZoomTool>(this));
-  //tools_.replace(olive::tool::kTransition, new (this)); FIXME: Implement
-  //tools_.replace(olive::tool::kRecord, new PointerTool(this)); FIXME: Implement
-  //tools_.replace(olive::tool::kAdd, new PointerTool(this)); FIXME: Implement
-
-  import_tool_ = std::make_shared<ImportTool>(this);
-
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
 
   // Create end item
@@ -75,43 +55,6 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
 
   // Set default scale
   SetScale(1.0);
-}
-
-void TimelineView::AddBlock(Block *block, int track)
-{
-  switch (block->type()) {
-  case Block::kClip:
-  case Block::kGap:
-  {
-    TimelineViewBlockItem* item = new TimelineViewBlockItem();
-
-    // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-    item->SetBlock(block);
-    item->SetY(GetTrackY(track));
-    item->SetHeight(GetTrackHeight(track));
-    item->SetScale(scale_);
-    item->SetTrack(track);
-
-    // Add to list of clip items that can be iterated through
-    block_items_.insert(block, item);
-
-    // Add item to graphics scene
-    scene_.addItem(item);
-
-    connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
-    break;
-  }
-  case Block::kEnd:
-    // Do nothing
-    break;
-  }
-}
-
-void TimelineView::RemoveBlock(Block *block)
-{
-  delete block_items_[block];
-
-  block_items_.remove(block);
 }
 
 void TimelineView::AddTrack(TrackOutput *track)
@@ -132,20 +75,6 @@ void TimelineView::SetScale(const double &scale)
 {
   scale_ = scale;
 
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
-
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    if (iterator.value() != nullptr) {
-      iterator.value()->SetScale(scale_);
-    }
-  }
-
-  foreach (TimelineViewGhostItem* ghost, ghost_items_) {
-    ghost->SetScale(scale_);
-  }
-
   // Force redraw for playhead
   viewport()->update();
 
@@ -154,26 +83,10 @@ void TimelineView::SetScale(const double &scale)
 
 void TimelineView::SetTimebase(const rational &timebase)
 {
-  timebase_ = timebase;
-  timebase_dbl_ = timebase_.toDouble();
+  SetTimebaseInternal(timebase);
 
   // Timebase influences position/visibility of playhead
   viewport()->update();
-}
-
-void TimelineView::Clear()
-{
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
-
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    if (iterator.value() != nullptr) {
-      delete iterator.value();
-    }
-  }
-
-  block_items_.clear();
 }
 
 void TimelineView::ConnectTimelineNode(TrackList *node)
@@ -182,8 +95,6 @@ void TimelineView::ConnectTimelineNode(TrackList *node)
     disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
     disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     disconnect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
-    disconnect(timeline_node_, SIGNAL(BlockAdded(Block*, int)), this, SLOT(AddBlock(Block*, int)));
-    disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
     disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
     disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
     disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateEndTimeFromTrackList(const rational&)));
@@ -195,13 +106,11 @@ void TimelineView::ConnectTimelineNode(TrackList *node)
 
   if (timeline_node_ != nullptr) {
     SetTimebase(timeline_node_->Timebase());
-    emit TimebaseChanged(timebase_);
+    emit TimebaseChanged(timeline_node_->Timebase());
 
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SIGNAL(TimebaseChanged(const rational&)));
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     connect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
-    connect(timeline_node_, SIGNAL(BlockAdded(Block*, int)), this, SLOT(AddBlock(Block*, int)));
-    connect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
     connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
     connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
     connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateEndTimeFromTrackList(const rational&)));
@@ -251,134 +160,74 @@ void TimelineView::SetTime(const int64_t time)
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
-  active_tool_ = GetActiveTool();
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->modifiers());
 
-  // Cache these since we modify the event's later on
-  Qt::KeyboardModifiers mods = event->modifiers();
+  emit MousePressed(&timeline_event);
 
-  if (active_tool_ != nullptr) {
-    setDragMode(active_tool_->drag_mode());
-  }
 
-  if (active_tool_ == nullptr || active_tool_->enable_default_behavior()) {
-    // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
-
-    QGraphicsView::mousePressEvent(event);
-  }
-
-  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          mods);
-
-    active_tool_->MousePress(&timeline_event);
-  }
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
-  // Cache these since we modify the event's later on
-  Qt::KeyboardModifiers mods = event->modifiers();
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->modifiers());
 
-  if (active_tool_ == nullptr || active_tool_->enable_default_behavior()) {
-    // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
-
-    QGraphicsView::mouseMoveEvent(event);
-  }
-
-  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          mods);
-
-    active_tool_->MouseMove(&timeline_event);
-  }
+  emit MouseMoved(&timeline_event);
 }
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 {
-  // Cache these since we modify the event's later on
-  Qt::KeyboardModifiers mods = event->modifiers();
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->modifiers());
 
-  if (active_tool_ == nullptr || active_tool_->enable_default_behavior()) {
-    // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
-
-    QGraphicsView::mouseReleaseEvent(event);
-  }
-
-  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          mods);
-
-    active_tool_->MouseRelease(&timeline_event);
-  }
+  emit MouseReleased(&timeline_event);
 }
 
 void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  // Cache these since we modify the event's later on
-  Qt::KeyboardModifiers mods = event->modifiers();
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->modifiers());
 
-  if (active_tool_ == nullptr || active_tool_->enable_default_behavior()) {
-    // We use Shift for multiple selection while Qt uses Ctrl, we flip those modifiers here to compensate
-    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
-
-    QGraphicsView::mouseDoubleClickEvent(event);
-  }
-
-  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          mods);
-
-    active_tool_->MouseDoubleClick(&timeline_event);
-  }
+  emit MouseDoubleClicked(&timeline_event);
 }
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)
 {
-  if (timeline_node_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          event->keyboardModifiers());
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->keyboardModifiers());
 
-    timeline_event.SetMimeData(event->mimeData());
-    timeline_event.SetEvent(event);
+  timeline_event.SetMimeData(event->mimeData());
+  timeline_event.SetEvent(event);
 
-    import_tool_->DragEnter(&timeline_event);
-  }
+  emit DragEntered(&timeline_event);
 }
 
 void TimelineView::dragMoveEvent(QDragMoveEvent *event)
 {
-  if (timeline_node_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          event->keyboardModifiers());
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->keyboardModifiers());
 
-    timeline_event.SetMimeData(event->mimeData());
-    timeline_event.SetEvent(event);
+  timeline_event.SetMimeData(event->mimeData());
+  timeline_event.SetEvent(event);
 
-    import_tool_->DragMove(&timeline_event);
-  }
+  emit DragMoved(&timeline_event);
 }
 
 void TimelineView::dragLeaveEvent(QDragLeaveEvent *event)
 {
-  if (timeline_node_ != nullptr) {
-    import_tool_->DragLeave(event);
-  }
+  emit DragLeft(event);
 }
 
 void TimelineView::dropEvent(QDropEvent *event)
 {
-  if (timeline_node_ != nullptr) {
-    TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
-                                          event->keyboardModifiers());
+  TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
+                                        event->keyboardModifiers());
 
-    timeline_event.SetMimeData(event->mimeData());
-    timeline_event.SetEvent(event);
+  timeline_event.SetMimeData(event->mimeData());
+  timeline_event.SetEvent(event);
 
-    import_tool_->DragDrop(&timeline_event);
-  }
+  emit DragDropped(&timeline_event);
 }
 
 void TimelineView::resizeEvent(QResizeEvent *event)
@@ -392,9 +241,9 @@ void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
 {
   QGraphicsView::drawForeground(painter, rect);
 
-  if (!timebase_.isNull()) {
-    double x = TimeToScreenCoord(rational(playhead_ * timebase_.numerator(), timebase_.denominator()));
-    double width = TimeToScreenCoord(timebase_);
+  if (!timebase().isNull()) {
+    double x = TimeToScene(rational(playhead_ * timebase().numerator(), timebase().denominator()));
+    double width = TimeToScene(timebase());
 
     QRectF playhead_rect(x, rect.top(), width, rect.height());
 
@@ -444,11 +293,6 @@ TimelineCoordinate TimelineView::SceneToCoordinate(const QPointF& pt)
   return TimelineCoordinate(SceneToTime(pt.x()), SceneToTrack(pt.y()));
 }
 
-TimelineView::Tool *TimelineView::GetActiveTool()
-{
-  return tools_.at(olive::core.tool()).get();
-}
-
 int TimelineView::GetTrackY(int track_index)
 {
   int y = 0;
@@ -479,20 +323,6 @@ void TimelineView::AddGhost(TimelineViewGhostItem *ghost)
   scene_.addItem(ghost);
 }
 
-bool TimelineView::HasGhosts()
-{
-  return !ghost_items_.isEmpty();
-}
-
-rational TimelineView::SceneToTime(const double &x)
-{
-  // Adjust screen point by scale and timebase
-  qint64 scaled_x_mvmt = qRound64(x / scale_ / timebase_dbl_);
-
-  // Return a time in the timebase
-  return rational(scaled_x_mvmt * timebase_.numerator(), timebase_.denominator());
-}
-
 int TimelineView::SceneToTrack(double y)
 {
   int track = -1;
@@ -510,17 +340,6 @@ int TimelineView::SceneToTrack(double y)
   return track;
 }
 
-void TimelineView::ClearGhosts()
-{
-  if (!ghost_items_.isEmpty()) {
-    foreach (TimelineViewGhostItem* ghost, ghost_items_) {
-      delete ghost;
-    }
-
-    ghost_items_.clear();
-  }
-}
-
 void TimelineView::UserSetTime(const int64_t &time)
 {
   SetTime(time);
@@ -529,7 +348,7 @@ void TimelineView::UserSetTime(const int64_t &time)
 
 rational TimelineView::GetPlayheadTime()
 {
-  return rational(playhead_ * timebase_.numerator(), timebase_.denominator());
+  return rational(playhead_ * timebase().numerator(), timebase().denominator());
 }
 
 void TimelineView::BlockChanged()
@@ -586,25 +405,4 @@ void TimelineView::UpdateEndTimeFromTrackList(const rational &length)
 void TimelineView::SetEndTime(const rational &length)
 {
   end_item_->SetEndTime(length);
-}
-
-void TimelineView::SetSiblings(TimelineView *a, TimelineView *b)
-{
-  if (a == b)
-    return;
-
-  if (!a->siblings_.contains(b))
-    a->siblings_.append(b);
-
-  if (!b->siblings_.contains(a))
-    b->siblings_.append(a);
-}
-
-void TimelineView::SetSiblings(const QList<TimelineView *> &siblings)
-{
-  foreach (TimelineView* view, siblings) {
-    foreach (TimelineView* sibling, siblings) {
-      SetSiblings(view, sibling);
-    }
-  }
 }

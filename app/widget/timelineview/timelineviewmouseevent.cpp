@@ -32,7 +32,7 @@ TimelineViewMouseEvent::TimelineViewMouseEvent(const TimelineCoordinate &coord,
 }
 
 TimelineViewMouseEvent::TimelineViewMouseEvent(const rational &frame,
-                                               const int &track,
+                                               const TrackReference &track,
                                                const Qt::KeyboardModifiers &modifiers) :
   coord_(frame, track),
   modifiers_(modifiers),

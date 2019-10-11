@@ -22,23 +22,25 @@
 #define TIMELINECOORDINATE_H
 
 #include "common/rational.h"
+#include "trackreference.h"
 
 class TimelineCoordinate
 {
 public:
   TimelineCoordinate();
-  TimelineCoordinate(const rational& frame, const int& track);
+  TimelineCoordinate(const rational& frame, const TrackReference& track);
+  TimelineCoordinate(const rational& frame, const TrackType& track_type, const int& track_index);
 
   const rational& GetFrame() const;
-  const int& GetTrack() const;
+  const TrackReference& GetTrack() const;
 
   void SetFrame(const rational& frame);
-  void SetTrack(const int& track);
+  void SetTrack(const TrackReference& track);
 
 private:
   rational frame_;
 
-  int track_;
+  TrackReference track_;
 
 };
 

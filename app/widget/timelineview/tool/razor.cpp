@@ -18,21 +18,21 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
-TimelineView::RazorTool::RazorTool(TimelineView* parent) :
+TimelineWidget::RazorTool::RazorTool(TimelineWidget* parent) :
   Tool(parent)
 {
 }
 
-void TimelineView::RazorTool::MousePress(TimelineViewMouseEvent *event)
+void TimelineWidget::RazorTool::MousePress(TimelineViewMouseEvent *event)
 {
   split_tracks_.clear();
 
   MouseMove(event);
 }
 
-void TimelineView::RazorTool::MouseMove(TimelineViewMouseEvent *event)
+void TimelineWidget::RazorTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!dragging_) {
     drag_start_ = event->GetCoordinates();
@@ -40,14 +40,14 @@ void TimelineView::RazorTool::MouseMove(TimelineViewMouseEvent *event)
   }
 
   // Split at the current cursor track
-  int split_track = event->GetCoordinates().GetTrack();
+  TrackReference split_track = event->GetCoordinates().GetTrack();
 
   if (!split_tracks_.contains(split_track)) {
     split_tracks_.append(split_track);
   }
 }
 
-void TimelineView::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
+void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -56,8 +56,8 @@ void TimelineView::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
   QUndoCommand* command = new QUndoCommand();
 
-  foreach (int track, split_tracks_) {
-    new TrackSplitAtTimeCommand(parent()->timeline_node_->TrackAt(track), split_time, command);
+  foreach (const TrackReference& track, split_tracks_) {
+    new TrackSplitAtTimeCommand(parent()->GetTrackFromReference(track), split_time, command);
   }
 
   split_tracks_.clear();

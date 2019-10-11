@@ -52,8 +52,8 @@ void TimelineViewBlockItem::UpdateRect()
     return;
   }
 
-  double item_left = TimeToScreenCoord(block_->in());
-  double item_width = TimeToScreenCoord(block_->length());
+  double item_left = TimeToScene(block_->in());
+  double item_width = TimeToScene(block_->length());
 
   // -1 on width and height so we don't overlap any adjacent clips
   setRect(0, y_, item_width - 1, height_ - 1);

@@ -18,53 +18,28 @@
 
 ***/
 
-#include "timelineviewrect.h"
+#ifndef TRACKREFERENCE_H
+#define TRACKREFERENCE_H
 
-TimelineViewRect::TimelineViewRect(QGraphicsItem* parent) :
-  QGraphicsRectItem(parent),
-  y_(0),
-  height_(0)
+#include "node/output/timeline/tracktypes.h"
+
+class TrackReference
 {
+public:
+  TrackReference();
 
-}
+  TrackReference(const TrackType& type, const int& index);
 
-const int &TimelineViewRect::Y()
-{
-  return y_;
-}
+  const TrackType& type() const;
 
-void TimelineViewRect::SetY(const int &y)
-{
-  y_ = y;
+  const int& index() const;
 
-  UpdateRect();
-}
+  bool operator==(const TrackReference& ref) const;
 
-const int &TimelineViewRect::Height()
-{
-  return height_;
-}
+private:
+  TrackType type_;
 
-void TimelineViewRect::SetHeight(const int &height)
-{
-  height_ = height;
+  int index_;
+};
 
-  UpdateRect();
-}
-
-const TrackReference &TimelineViewRect::Track()
-{
-  return track_;
-}
-
-void TimelineViewRect::SetTrack(const TrackReference &track)
-{
-  track_ = track;
-}
-
-void TimelineViewRect::SetScale(const double &scale)
-{
-  scale_ = scale;
-
-  UpdateRect();
-}
+#endif // TRACKREFERENCE_H

@@ -25,7 +25,7 @@
 #include <QPointF>
 #include <QPoint>
 
-#include "timelinecoordinate.h"
+#include "timeline/timelinecoordinate.h"
 
 class TimelineViewMouseEvent
 {
@@ -34,7 +34,7 @@ public:
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
 
   TimelineViewMouseEvent(const rational& frame,
-                         const int& track,
+                         const TrackReference &track,
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
 
   const TimelineCoordinate& GetCoordinates();

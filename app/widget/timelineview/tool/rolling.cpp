@@ -18,17 +18,17 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
 
-TimelineView::RollingTool::RollingTool(TimelineView* parent) :
+TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetMovementAllowed(false);
 }
 
-void TimelineView::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -44,13 +44,19 @@ void TimelineView::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *eve
         GapBlock* gap = new GapBlock();
         gap->set_length(ghost->Length());
 
-        new TrackReplaceBlockCommand(parent()->timeline_node_->TrackAt(ghost->Track()), b, gap, command);
+        new TrackReplaceBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, gap, command);
       }
 
       new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
 
       if (b->previous() == nullptr) {
-        new TrackPlaceBlockCommand(parent()->timeline_node_, ghost->Track(), b, ghost->GetAdjustedIn(), command);
+        const TrackReference& track_ref = ghost->Track();
+
+        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
+                                   track_ref.index(),
+                                   b,
+                                   ghost->GetAdjustedIn(),
+                                   command);
       }
     } else if (ghost->mode() == olive::timeline::kTrimOut) {
       new BlockResizeCommand(b, ghost->AdjustedLength(), command);
@@ -60,7 +66,7 @@ void TimelineView::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *eve
   olive::undo_stack.pushIfHasChildren(command);
 }
 
-rational TimelineView::RollingTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
+rational TimelineWidget::RollingTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
 {
   // Only validate trimming, and we don't care about "overwriting" since the rolling tool is designed to trim at collisions
   time_movement = ValidateInTrimming(time_movement, ghosts, false);
@@ -69,7 +75,7 @@ rational TimelineView::RollingTool::FrameValidateInternal(rational time_movement
   return time_movement;
 }
 
-void TimelineView::RollingTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
+void TimelineWidget::RollingTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
                                                olive::timeline::MovementMode trim_mode,
                                                bool allow_gap_trimming)
 {

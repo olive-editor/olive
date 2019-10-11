@@ -42,7 +42,7 @@ public:
 
   TimelineViewGhostItem(QGraphicsItem* parent = nullptr);
 
-  static TimelineViewGhostItem* FromBlock(Block *block, int track, int y, int height);
+  static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track, int y, int height);
 
   bool CanHaveZeroLength();
 
@@ -72,7 +72,7 @@ public:
   rational GetAdjustedIn() const;
   rational GetAdjustedOut() const;
   rational GetAdjustedMediaIn() const;
-  int GetAdjustedTrack() const;
+  TrackReference GetAdjustedTrack() const;
 
   const olive::timeline::MovementMode& mode() const;
   void SetMode(const olive::timeline::MovementMode& mode);

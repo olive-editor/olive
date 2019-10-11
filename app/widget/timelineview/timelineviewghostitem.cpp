@@ -32,7 +32,7 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   SetInvisible(false);
 }
 
-TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, int track, int y, int height)
+TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const TrackReference& track, int y, int height)
 {
   TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
@@ -170,7 +170,7 @@ rational TimelineViewGhostItem::GetAdjustedMediaIn() const
   return media_in_ + media_in_adj_;
 }
 
-int TimelineViewGhostItem::GetAdjustedTrack() const
+TrackReference TimelineViewGhostItem::GetAdjustedTrack() const
 {
   return track_ + track_adj_;
 }
@@ -189,7 +189,7 @@ void TimelineViewGhostItem::UpdateRect()
 {
   rational length = GetAdjustedOut() - GetAdjustedIn();
 
-  setRect(0, y_, TimeToScreenCoord(length), height_ - 1);
+  setRect(0, y_, TimeToScene(length), height_ - 1);
 
-  setPos(TimeToScreenCoord(GetAdjustedIn()), 0);
+  setPos(TimeToScene(GetAdjustedIn()), 0);
 }

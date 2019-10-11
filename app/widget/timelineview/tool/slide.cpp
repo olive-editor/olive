@@ -18,18 +18,18 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
 
-TimelineView::SlideTool::SlideTool(TimelineView* parent) :
+TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
   SetTrimmingAllowed(false);
   SetTrackMovementAllowed(false);
 }
 
-void TimelineView::SlideTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::SlideTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -46,14 +46,14 @@ void TimelineView::SlideTool::MouseReleaseInternal(TimelineViewMouseEvent *event
     } else if (ghost->mode() == olive::timeline::kMove && b->previous() == nullptr) {
       GapBlock* gap = new GapBlock();
       gap->set_length(ghost->InAdjustment());
-      new TrackPrependBlockCommand(parent()->timeline_node_->TrackAt(ghost->Track()), gap, command);
+      new TrackPrependBlockCommand(parent()->GetTrackFromReference(ghost->Track()), gap, command);
     }
   }
 
   olive::undo_stack.pushIfHasChildren(command);
 }
 
-rational TimelineView::SlideTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
+rational TimelineWidget::SlideTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
 {
   // Only validate trimming, and we don't care about "overwriting" since the rolling tool is designed to trim at collisions
   time_movement = ValidateInTrimming(time_movement, ghosts, false);
@@ -62,7 +62,7 @@ rational TimelineView::SlideTool::FrameValidateInternal(rational time_movement, 
   return time_movement;
 }
 
-void TimelineView::SlideTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
+void TimelineWidget::SlideTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
                                                olive::timeline::MovementMode trim_mode,
                                                bool allow_gap_trimming)
 {

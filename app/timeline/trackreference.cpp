@@ -18,35 +18,31 @@
 
 ***/
 
-#include "timelinecoordinate.h"
+#include "trackreference.h"
 
-TimelineCoordinate::TimelineCoordinate() :
-  track_(0)
+TrackReference::TrackReference() :
+  type_(kTrackTypeNone),
+  index_(0)
 {
 }
 
-TimelineCoordinate::TimelineCoordinate(const rational &frame, const int &track) :
-  frame_(frame),
-  track_(track)
+TrackReference::TrackReference(const TrackType &type, const int &index) :
+  type_(type),
+  index_(index)
 {
 }
 
-const rational &TimelineCoordinate::GetFrame() const
+const TrackType &TrackReference::type() const
 {
-  return frame_;
+  return type_;
 }
 
-const int &TimelineCoordinate::GetTrack() const
+const int &TrackReference::index() const
 {
-  return track_;
+  return index_;
 }
 
-void TimelineCoordinate::SetFrame(const rational &frame)
+bool TrackReference::operator==(const TrackReference &ref) const
 {
-  frame_ = frame;
-}
-
-void TimelineCoordinate::SetTrack(const int &track)
-{
-  track_ = track;
+  return type_ == ref.type_ && index_ == ref.index_;
 }

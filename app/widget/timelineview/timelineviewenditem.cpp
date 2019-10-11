@@ -25,7 +25,7 @@ void TimelineViewEndItem::UpdateRect()
   // Doesn't need to be more than one pixel
   setRect(0, 0, 1, 1);
 
-  setPos(TimeToScreenCoord(end_time_) + end_padding_, 0);
+  setPos(TimeToScene(end_time_) + end_padding_, 0);
 }
 
 void TimelineViewEndItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)

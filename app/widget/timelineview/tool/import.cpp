@@ -18,7 +18,7 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include <QMimeData>
 #include <QToolTip>
@@ -30,7 +30,26 @@
 #include "node/color/opacity/opacity.h"
 #include "node/input/media/media.h"
 
-TimelineView::ImportTool::ImportTool(TimelineView *parent) :
+TrackType TrackTypeFromStreamType(Stream::Type stream_type)
+{
+  switch (stream_type) {
+  case Stream::kVideo:
+  case Stream::kImage:
+    return kTrackTypeVideo;
+  case Stream::kAudio:
+    return kTrackTypeAudio;
+  case Stream::kSubtitle:
+    return kTrackTypeSubtitle;
+  case Stream::kUnknown:
+  case Stream::kData:
+  case Stream::kAttachment:
+    break;
+  }
+
+  return kTrackTypeNone;
+}
+
+TimelineWidget::ImportTool::ImportTool(TimelineWidget *parent) :
   Tool(parent)
 {
   // Calculate width used for importing to give ghosts a slight lead-in so the ghosts aren't right on the cursor
@@ -38,7 +57,7 @@ TimelineView::ImportTool::ImportTool(TimelineView *parent) :
   import_pre_buffer_ = QFontMetricsWidth(&fm, "HHHHHHHH");
 }
 
-void TimelineView::ImportTool::DragEnter(TimelineViewMouseEvent *event)
+void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
 {
   QStringList mime_formats = event->GetMimeData()->formats();
 
@@ -80,30 +99,34 @@ void TimelineView::ImportTool::DragEnter(TimelineViewMouseEvent *event)
 
         // Loop through all streams in footage
         foreach (StreamPtr stream, footage->streams()) {
-          // Check if this stream is compatible with this TrackList
-          if (stream->type() == parent()->TrackTypeToStreamType(parent()->ConnectedTrackType())) {
-            TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+          TrackType track_type = TrackTypeFromStreamType(stream->type());
 
-            if (stream->type() == Stream::kImage) {
-              // Stream is essentially length-less - use config's default image length
-              footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
-            } else {
-              // Use duration from file
-              footage_duration = rational(stream->timebase().numerator() * stream->duration(),
-                                          stream->timebase().denominator());
-            }
-
-            ghost->SetIn(ghost_start);
-            ghost->SetOut(ghost_start + footage_duration);
-
-            snap_points_.append(ghost->In());
-            snap_points_.append(ghost->Out());
-
-            ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
-            ghost->SetMode(olive::timeline::kMove);
-
-            parent()->AddGhost(ghost);
+          // Check if this stream has a compatible TrackList
+          if (track_type == kTrackTypeNone) {
+            continue;
           }
+
+          TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
+
+          if (stream->type() == Stream::kImage) {
+            // Stream is essentially length-less - use config's default image length
+            footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
+          } else {
+            // Use duration from file
+            footage_duration = rational(stream->timebase().numerator() * stream->duration(),
+                                        stream->timebase().denominator());
+          }
+
+          ghost->SetIn(ghost_start);
+          ghost->SetOut(ghost_start + footage_duration);
+
+          snap_points_.append(ghost->In());
+          snap_points_.append(ghost->Out());
+
+          ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
+          ghost->SetMode(olive::timeline::kMove);
+
+          parent()->AddGhost(ghost);
         }
 
         // Stack each ghost one after the other
@@ -118,12 +141,12 @@ void TimelineView::ImportTool::DragEnter(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineView::ImportTool::DragMove(TimelineViewMouseEvent *event)
+void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
     rational time_movement = event->GetCoordinates().GetFrame() - drag_start_.GetFrame();
 
-    int ghost_track = event->GetCoordinates().GetTrack();
+    const TrackReference& ghost_track = event->GetCoordinates().GetTrack();
     int ghost_y = parent()->GetTrackY(ghost_track);
     int ghost_height = parent()->GetTrackHeight(ghost_track);
 
@@ -150,9 +173,9 @@ void TimelineView::ImportTool::DragMove(TimelineViewMouseEvent *event)
     }
 
     // Generate tooltip (showing earliest in point of imported clip)
-    int64_t earliest_timestamp = olive::time_to_timestamp(earliest_ghost, parent()->timebase_);
+    int64_t earliest_timestamp = olive::time_to_timestamp(earliest_ghost, parent()->timebase());
     QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
-                                                        parent()->timebase_,
+                                                        parent()->timebase(),
                                                         olive::CurrentTimecodeDisplay());
     QToolTip::showText(QCursor::pos(),
                        tooltip_text,
@@ -164,7 +187,7 @@ void TimelineView::ImportTool::DragMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineView::ImportTool::DragLeave(QDragLeaveEvent* event)
+void TimelineWidget::ImportTool::DragLeave(QDragLeaveEvent* event)
 {
   if (parent()->HasGhosts()) {
     parent()->ClearGhosts();
@@ -175,7 +198,7 @@ void TimelineView::ImportTool::DragLeave(QDragLeaveEvent* event)
   }
 }
 
-void TimelineView::ImportTool::DragDrop(TimelineViewMouseEvent *event)
+void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
     // We use QObject as the parent for the nodes we create. If there is no TimelineOutput node, this object going out
@@ -209,7 +232,11 @@ void TimelineView::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       if (event->GetModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        new TrackPlaceBlockCommand(parent()->timeline_node_, ghost->Track(), clip, ghost->GetAdjustedIn(), command);
+        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(ghost->Track().type()),
+                                   ghost->Track().index(),
+                                   clip,
+                                   ghost->GetAdjustedIn(),
+                                   command);
       }
     }
 

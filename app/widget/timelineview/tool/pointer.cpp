@@ -18,7 +18,7 @@
 
 ***/
 
-#include "widget/timelineview/timelineview.h"
+#include "widget/timelinewidget/timelinewidget.h"
 
 #include <QDebug>
 #include <QToolTip>
@@ -31,23 +31,23 @@
 #include "core.h"
 #include "node/block/gap/gap.h"
 
-TimelineView::PointerTool::PointerTool(TimelineView *parent) :
+TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
   Tool(parent),
   movement_allowed_(true),
   trimming_allowed_(true),
   track_movement_allowed_(true)
 {
-  set_drag_mode(RubberBandDrag);
+  set_drag_mode(QGraphicsView::RubberBandDrag);
   set_enable_default_behavior(true);
 }
 
-void TimelineView::PointerTool::MousePress(TimelineViewMouseEvent *event)
+void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
 {
   // We don't initiate dragging here since clicking could easily be just for selecting
   Q_UNUSED(event)
 }
 
-void TimelineView::PointerTool::MouseMove(TimelineViewMouseEvent *event)
+void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 {
   qDebug() << dragging_ << parent()->ghost_items_.isEmpty();
 
@@ -68,7 +68,7 @@ void TimelineView::PointerTool::MouseMove(TimelineViewMouseEvent *event)
   }
 }
 
-void TimelineView::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
+void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   if (!parent()->ghost_items_.isEmpty()) {
     MouseReleaseInternal(event);
@@ -82,22 +82,22 @@ void TimelineView::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
   dragging_ = false;
 }
 
-void TimelineView::PointerTool::SetMovementAllowed(bool allowed)
+void TimelineWidget::PointerTool::SetMovementAllowed(bool allowed)
 {
   movement_allowed_ = allowed;
 }
 
-void TimelineView::PointerTool::SetTrackMovementAllowed(bool allowed)
+void TimelineWidget::PointerTool::SetTrackMovementAllowed(bool allowed)
 {
   track_movement_allowed_ = allowed;
 }
 
-void TimelineView::PointerTool::SetTrimmingAllowed(bool allowed)
+void TimelineWidget::PointerTool::SetTrimmingAllowed(bool allowed)
 {
   trimming_allowed_ = allowed;
 }
 
-void TimelineView::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
+void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
   Q_UNUSED(event)
 
@@ -117,7 +117,10 @@ void TimelineView::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *eve
     gap->setParent(&block_memory_manager);
     gap->set_length(b->length());
 
-    new TrackReplaceBlockCommand(parent()->timeline_node_->TrackAt(ghost->Track()), b, gap, command);
+    new TrackReplaceBlockCommand(parent()->GetTrackFromReference(ghost->Track()),
+                                 b,
+                                 gap,
+                                 command);
   }
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
@@ -137,13 +140,19 @@ void TimelineView::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *eve
       }
     }
 
-    new TrackPlaceBlockCommand(parent()->timeline_node_, ghost->GetAdjustedTrack(), b, ghost->GetAdjustedIn(), command);
+    const TrackReference& track_ref = ghost->GetAdjustedTrack();
+
+    new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
+                               track_ref.index(),
+                               b,
+                               ghost->GetAdjustedIn(),
+                               command);
   }
 
   olive::undo_stack.pushIfHasChildren(command);
 }
 
-rational TimelineView::PointerTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *>& ghosts)
+rational TimelineWidget::PointerTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *>& ghosts)
 {
   // Default behavior is to validate all movement and trimming
   time_movement = ValidateFrameMovement(time_movement, ghosts);
@@ -153,7 +162,7 @@ rational TimelineView::PointerTool::FrameValidateInternal(rational time_movement
   return time_movement;
 }
 
-void TimelineView::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_pos)
+void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_pos)
 {
   // Record where the drag started in timeline coordinates
   drag_start_ = mouse_pos;
@@ -177,7 +186,7 @@ void TimelineView::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_pos
     // FIXME: Hardcoded number
     const int kTrimHandle = 20;
 
-    qreal mouse_x = parent()->TimeToScreenCoord(mouse_pos.GetFrame());
+    qreal mouse_x = parent()->TimeToScene(mouse_pos.GetFrame());
 
     if (trimming_allowed_ && mouse_x < clicked_item->x() + kTrimHandle) {
       trim_mode = olive::timeline::kTrimIn;
@@ -200,14 +209,14 @@ void TimelineView::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_pos
   }
 }
 
-void TimelineView::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
+void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 {
   // Determine track movement
-  int cursor_track = mouse_pos.GetTrack();
+  const TrackReference& cursor_track = mouse_pos.GetTrack();
   int track_movement = 0;
 
   if (track_movement_allowed_) {
-    track_movement = cursor_track - track_start_;
+    track_movement = cursor_track.index() - track_start_.index();
   }
 
   // Determine frame movement
@@ -240,7 +249,7 @@ void TimelineView::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 
       // Track movement is only legal for moving, not for trimming
       ghost->SetTrackAdjustment(track_movement);
-      int track = ghost->GetAdjustedTrack();
+      const TrackReference& track = ghost->GetAdjustedTrack();
       ghost->SetY(parent()->GetTrackY(track));
       ghost->SetHeight(parent()->GetTrackHeight(track));
       break;
@@ -250,9 +259,9 @@ void TimelineView::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
 
   // Show tooltip
   // Generate tooltip (showing earliest in point of imported clip)
-  int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase_);
+  int64_t earliest_timestamp = olive::time_to_timestamp(time_movement, parent()->timebase());
   QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
-                                                      parent()->timebase_,
+                                                      parent()->timebase(),
                                                       olive::CurrentTimecodeDisplay(),
                                                       true);
   QToolTip::showText(QCursor::pos(),
@@ -260,7 +269,7 @@ void TimelineView::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_pos)
                      parent());
 }
 
-void TimelineView::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_item,
+void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_item,
                                                olive::timeline::MovementMode trim_mode,
                                                bool allow_gap_trimming)
 {
@@ -313,7 +322,7 @@ void TimelineView::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_it
   }
 }
 
-TimelineViewGhostItem* TimelineView::PointerTool::AddGhostFromBlock(Block* block, int track, olive::timeline::MovementMode mode)
+TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromBlock(Block* block, const TrackReference& track, olive::timeline::MovementMode mode)
 {
   TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromBlock(block,
                                                                   track,
@@ -325,7 +334,7 @@ TimelineViewGhostItem* TimelineView::PointerTool::AddGhostFromBlock(Block* block
   return ghost;
 }
 
-TimelineViewGhostItem* TimelineView::PointerTool::AddGhostFromNull(const rational &in, const rational &out, int track, olive::timeline::MovementMode mode)
+TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const rational &in, const rational &out, const TrackReference& track, olive::timeline::MovementMode mode)
 {
   TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
@@ -340,7 +349,7 @@ TimelineViewGhostItem* TimelineView::PointerTool::AddGhostFromNull(const rationa
   return ghost;
 }
 
-void TimelineView::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode)
+void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode)
 {
   ghost->SetScale(parent()->scale_);
   ghost->SetMode(mode);
@@ -365,7 +374,7 @@ void TimelineView::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, o
   parent()->scene_.addItem(ghost);
 }
 
-QList<TimelineViewBlockItem *> TimelineView::PointerTool::GetSelectedClips()
+QList<TimelineViewBlockItem *> TimelineWidget::PointerTool::GetSelectedClips()
 {
   QList<QGraphicsItem*> selected_items = parent()->scene_.selectedItems();
 
@@ -382,7 +391,7 @@ QList<TimelineViewBlockItem *> TimelineView::PointerTool::GetSelectedClips()
   return clips;
 }
 
-bool TimelineView::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
+bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
                                                 const QList<TimelineViewBlockItem*>& items,
                                                 const olive::timeline::MovementMode& mode)
 {
@@ -398,7 +407,7 @@ bool TimelineView::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
   return true;
 }
 
-rational TimelineView::PointerTool::ValidateInTrimming(rational movement,
+rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
                                                        const QVector<TimelineViewGhostItem *> ghosts,
                                                        bool prevent_overwriting)
 {
@@ -428,7 +437,7 @@ rational TimelineView::PointerTool::ValidateInTrimming(rational movement,
     rational latest_in = ghost->Out();
 
     if (!ghost->CanHaveZeroLength()) {
-      latest_in -= parent()->timebase_;
+      latest_in -= parent()->timebase();
     }
 
     // Clamp adjusted value between the earliest and latest values
@@ -443,7 +452,7 @@ rational TimelineView::PointerTool::ValidateInTrimming(rational movement,
   return movement;
 }
 
-rational TimelineView::PointerTool::ValidateOutTrimming(rational movement,
+rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
                                                         const QVector<TimelineViewGhostItem *> ghosts,
                                                         bool prevent_overwriting)
 {
@@ -458,7 +467,7 @@ rational TimelineView::PointerTool::ValidateOutTrimming(rational movement,
     rational earliest_out = ghost->In();
 
     if (!ghost->CanHaveZeroLength()) {
-      earliest_out += parent()->timebase_;
+      earliest_out += parent()->timebase();
     }
 
     rational latest_out = RATIONAL_MAX;

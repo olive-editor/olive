@@ -8,13 +8,22 @@ class TimelineScaledObject
 public:
   TimelineScaledObject();
 
+  const rational& timebase();
+  const double& timebase_dbl();
+
 protected:
-  double TimeToScreenCoord(const rational& time);
+  double TimeToScene(const rational& time);
+  rational SceneToTime(const double &x);
+
+  void SetTimebaseInternal(const rational& timebase);
 
   double scale_;
 
 private:
 
+  rational timebase_;
+
+  double timebase_dbl_;
 };
 
 #endif // TIMELINESCALEDOBJECT_H
