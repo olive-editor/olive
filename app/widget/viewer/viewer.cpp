@@ -199,12 +199,12 @@ void ViewerWidget::PlayInternal(int speed)
   start_timestamp_ = ruler_->GetTime();
   playback_speed_ = speed;
 
-  /*QFile* file = new QFile("path-to-file");
+  QFile* file = new QFile("/home/matt/Desktop/11 - Santa Monica.raw");
   if (file->open(QFile::ReadOnly)) {
-    file->seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 44100 * 2)) * static_cast<qint64>(sizeof(float)));
+    file->seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
 
     AudioManager::instance()->StartOutput(file);
-  }*/
+  }
 
   playback_timer_.start();
 
