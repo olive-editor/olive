@@ -61,6 +61,9 @@ public:
   int GetTrackY(int track_index);
   int GetTrackHeight(int track_index);
 
+  QPoint GetScrollCoordinates();
+  void SetScrollCoordinates(const QPoint& pt);
+
 public slots:
   void SetTimebase(const rational& timebase);
 

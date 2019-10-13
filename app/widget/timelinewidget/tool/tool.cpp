@@ -26,8 +26,7 @@
 
 TimelineWidget::Tool::Tool(TimelineWidget *parent) :
   dragging_(false),
-  parent_(parent),
-  drag_mode_(QGraphicsView::NoDrag)
+  parent_(parent)
 {
 }
 
@@ -51,16 +50,6 @@ olive::timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const olive::ti
   }
 
   return trim_mode;
-}
-
-const QGraphicsView::DragMode &TimelineWidget::Tool::drag_mode()
-{
-  return drag_mode_;
-}
-
-void TimelineWidget::Tool::set_drag_mode(const QGraphicsView::DragMode &mode)
-{
-  drag_mode_ = mode;
 }
 
 TimelineViewBlockItem *TimelineWidget::Tool::GetItemAtScenePos(const TimelineCoordinate& coord)

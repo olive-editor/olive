@@ -38,7 +38,6 @@ TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
   track_movement_allowed_(true),
   rubberband_selecting_(false)
 {
-  set_drag_mode(QGraphicsView::RubberBandDrag);
 }
 
 void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)

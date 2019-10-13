@@ -80,11 +80,7 @@ private:
 
     static olive::timeline::MovementMode FlipTrimMode(const olive::timeline::MovementMode& trim_mode);
 
-    const QGraphicsView::DragMode& drag_mode();
-
   protected:
-    void set_drag_mode(const QGraphicsView::DragMode& mode);
-
     /**
      * @brief Retrieve the QGraphicsItem at a particular scene position
      *
@@ -127,8 +123,6 @@ private:
 
   private:
     TimelineWidget* parent_;
-
-    QGraphicsView::DragMode drag_mode_;
 
   };
 
@@ -269,6 +263,9 @@ private:
   public:
     HandTool(TimelineWidget* parent);
 
+    virtual void MousePress(TimelineViewMouseEvent *event);
+    virtual void MouseMove(TimelineViewMouseEvent *event);
+    virtual void MouseRelease(TimelineViewMouseEvent *event);
   private:
     QPoint screen_drag_start_;
     QPoint scrollbar_start_;
@@ -284,12 +281,19 @@ private:
     virtual void MouseRelease(TimelineViewMouseEvent *event);
   };
 
+  QPoint drag_origin_;
+
   void StartRubberBandSelect(bool clear_current_selection);
   void MoveRubberBandSelect();
   void EndRubberBandSelect();
   QRubberBand rubberband_;
-  QPoint rubberband_origin_;
   QList<QGraphicsItem*> rubberband_already_selected_;
+
+  void StartHandDrag();
+  void MoveHandDrag();
+  void EndHandDrag();
+  TimelineView* hand_drag_view_;
+  QPoint hand_drag_view_origin_;
 
   Tool* GetActiveTool();
 

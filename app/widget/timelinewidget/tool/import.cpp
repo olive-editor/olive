@@ -237,8 +237,8 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       if (event->GetModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(ghost->Track().type()),
-                                   ghost->Track().index(),
+        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(ghost->GetAdjustedTrack().type()),
+                                   ghost->GetAdjustedTrack().index(),
                                    clip,
                                    ghost->GetAdjustedIn(),
                                    command);

@@ -42,7 +42,7 @@ TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignme
   setAlignment(Qt::AlignLeft | vertical_alignment);
 
   setScene(&scene_);
-  setDragMode(RubberBandDrag);
+  setDragMode(NoDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
 
@@ -247,6 +247,17 @@ int TimelineView::GetTrackHeight(int track_index)
   Q_UNUSED(track_index)
 
   return fontMetrics().height() * 3;
+}
+
+QPoint TimelineView::GetScrollCoordinates()
+{
+  return QPoint(horizontalScrollBar()->value(), verticalScrollBar()->value());
+}
+
+void TimelineView::SetScrollCoordinates(const QPoint &pt)
+{
+  horizontalScrollBar()->setValue(pt.x());
+  verticalScrollBar()->setValue(pt.y());
 }
 
 int TimelineView::SceneToTrack(double y)

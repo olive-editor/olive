@@ -25,5 +25,19 @@
 TimelineWidget::HandTool::HandTool(TimelineWidget* parent) :
   Tool(parent)
 {
-  set_drag_mode(QGraphicsView::ScrollHandDrag);
+}
+
+void TimelineWidget::HandTool::MousePress(TimelineViewMouseEvent *)
+{
+  parent()->StartHandDrag();
+}
+
+void TimelineWidget::HandTool::MouseMove(TimelineViewMouseEvent *)
+{
+  parent()->MoveHandDrag();
+}
+
+void TimelineWidget::HandTool::MouseRelease(TimelineViewMouseEvent *)
+{
+  parent()->EndHandDrag();
 }

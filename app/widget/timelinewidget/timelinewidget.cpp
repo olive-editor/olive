@@ -11,6 +11,7 @@
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
   rubberband_(QRubberBand::Rectangle, this),
+  hand_drag_view_(nullptr),
   timeline_node_(nullptr),
   playhead_(0)
 {
@@ -588,7 +589,7 @@ void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 
 void TimelineWidget::StartRubberBandSelect(bool clear_current_selection)
 {
-  rubberband_origin_ = QCursor::pos();
+  drag_origin_ = QCursor::pos();
   rubberband_.show();
 
   if (!clear_current_selection) {
@@ -604,14 +605,14 @@ void TimelineWidget::MoveRubberBandSelect()
 {
   QPoint rubberband_now = QCursor::pos();
 
-  rubberband_.setGeometry(QRect(mapFromGlobal(rubberband_origin_), mapFromGlobal(rubberband_now)).normalized());
+  rubberband_.setGeometry(QRect(mapFromGlobal(drag_origin_), mapFromGlobal(rubberband_now)).normalized());
 
   foreach (TimelineView* view, views_) {
     view->DeselectAll();
 
     // Map global mouse coordinates to viewport
 
-    QRect mapped_rect(view->viewport()->mapFromGlobal(rubberband_origin_),
+    QRect mapped_rect(view->viewport()->mapFromGlobal(drag_origin_),
                       view->viewport()->mapFromGlobal(rubberband_now));
 
     // Normalize and get items in rect
@@ -633,4 +634,32 @@ void TimelineWidget::EndRubberBandSelect()
   MoveRubberBandSelect();
   rubberband_.hide();
   rubberband_already_selected_.clear();
+}
+
+void TimelineWidget::StartHandDrag()
+{
+  // Determine which view to hand drag by which is under the cursor now
+  foreach (TimelineView* view, views_) {
+    if (view->underMouse()) {
+      hand_drag_view_ = view;
+      hand_drag_view_origin_ = view->GetScrollCoordinates();
+      drag_origin_ = QCursor::pos();
+      break;
+    }
+  }
+}
+
+void TimelineWidget::MoveHandDrag()
+{
+  if (hand_drag_view_ == nullptr) {
+    return;
+  }
+
+  // Drag the view if we found one in StartHandDrag()
+  hand_drag_view_->SetScrollCoordinates(hand_drag_view_origin_ + (drag_origin_ - QCursor::pos()));
+}
+
+void TimelineWidget::EndHandDrag()
+{
+  hand_drag_view_ = nullptr;
 }
