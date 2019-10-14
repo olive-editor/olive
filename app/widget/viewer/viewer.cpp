@@ -32,8 +32,15 @@
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
   viewer_node_(nullptr),
-  playback_speed_(0)
+  playback_speed_(0),
+  // FIXME: Test code
+  test_file_("/home/matt/Desktop/11 - Santa Monica.raw")
+  // End test code
 {
+  // FIXME: Test code
+  test_file_.open(QFile::ReadOnly);
+  // End test code
+
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -172,6 +179,8 @@ void ViewerWidget::UpdateTimeInternal(int64_t i)
 
   if (viewer_node_ != nullptr) {
     UpdateTextureFromNode(time_set);
+
+    PushScrubbedAudio();
   }
 
   emit TimeChanged(i);
@@ -199,16 +208,26 @@ void ViewerWidget::PlayInternal(int speed)
   start_timestamp_ = ruler_->GetTime();
   playback_speed_ = speed;
 
-  QFile* file = new QFile("/home/matt/Desktop/11 - Santa Monica.raw");
-  if (file->open(QFile::ReadOnly)) {
-    file->seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
-
-    AudioManager::instance()->StartOutput(file);
-  }
+  // FIXME: Test code
+  test_file_.seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
+  AudioManager::instance()->StartOutput(&test_file_);
+  // End test code
 
   playback_timer_.start();
 
   controls_->ShowPauseButton();
+}
+
+void ViewerWidget::PushScrubbedAudio()
+{
+  // FIXME: Test code
+  if (!IsPlaying()) {
+    int size_of_sample = qFloor(2 * 48000 * time_base_dbl_) * static_cast<int>(sizeof(float));
+    test_file_.seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
+    QByteArray frame_audio = test_file_.read(size_of_sample);
+    AudioManager::instance()->PushToOutput(frame_audio);
+  }
+  // End test code
 }
 
 void ViewerWidget::RulerTimeChange(int64_t i)

@@ -21,6 +21,7 @@
 #ifndef VIEWER_WIDGET_H
 #define VIEWER_WIDGET_H
 
+#include <QFile>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollBar>
@@ -106,6 +107,8 @@ private:
 
   void PlayInternal(int speed);
 
+  void PushScrubbedAudio();
+
   ViewerSizer* sizer_;
 
   ViewerGLWidget* gl_widget_;
@@ -128,6 +131,10 @@ private:
   ViewerOutput* viewer_node_;
 
   int playback_speed_;
+
+  // FIXME: Test code
+  QFile test_file_;
+  // End test code
 
 private slots:
   void RulerTimeChange(int64_t);

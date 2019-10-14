@@ -26,6 +26,8 @@
 #include <QAudioOutput>
 #include <QThread>
 
+#include "audiohybriddevice.h"
+
 /**
  * @brief A thread for refreshing the total list of devices on the system
  *
@@ -62,6 +64,8 @@ public:
 
   bool IsRefreshing();
 
+  void PushToOutput(const QByteArray& samples);
+
   /**
    * @brief Start playing audio from QIODevice
    *
@@ -93,9 +97,10 @@ private:
 
   static AudioManager* audio_;
 
+  AudioHybridDevice output_manager_;
+
   std::unique_ptr<QAudioOutput> output_;
   QAudioDeviceInfo output_device_info_;
-  QIODevice* output_file_;
 
   std::unique_ptr<QAudioInput> input_;
   QAudioDeviceInfo input_device_info_;
@@ -107,6 +112,12 @@ private:
 
 private slots:
   void RefreshThreadDone();
+
+  void OutputManagerHasSamples();
+
+  void OutputStateChanged(QAudio::State state);
+
+  void OutputNotified();
 
 };
 

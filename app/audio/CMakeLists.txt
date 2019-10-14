@@ -16,6 +16,10 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  audio/audiohybriddevice.h
+  audio/audiohybriddevice.cpp
+  audio/audiolayouts.h
+  audio/audiolayouts.cpp
   audio/audiomanager.h
   audio/audiomanager.cpp
   PARENT_SCOPE
