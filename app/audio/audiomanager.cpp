@@ -86,7 +86,7 @@ void AudioManager::StopOutput()
 
 void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
 {
-  qInfo() << "Output audio device to" << info.deviceName();
+  qInfo() << "Setting output audio device to" << info.deviceName();
 
   StopOutput();
 
