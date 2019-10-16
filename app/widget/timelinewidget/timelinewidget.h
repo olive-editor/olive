@@ -166,6 +166,7 @@ private:
     rational ValidateOutTrimming(rational movement, const QVector<TimelineViewGhostItem*> ghosts, bool prevent_overwriting);
 
     virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
+
   private:
     void InitiateDrag(const TimelineCoordinate &mouse_pos);
 
@@ -180,6 +181,8 @@ private:
     bool trimming_allowed_;
     bool track_movement_allowed_;
     bool rubberband_selecting_;
+
+    TrackType drag_track_type_;
   };
 
   class ImportTool : public Tool
@@ -281,13 +284,15 @@ private:
     virtual void MouseRelease(TimelineViewMouseEvent *event);
   };
 
+  void SetBlockLinksSelected(Block *block, bool selected);
+
   QPoint drag_origin_;
 
-  void StartRubberBandSelect(bool clear_current_selection);
-  void MoveRubberBandSelect();
-  void EndRubberBandSelect();
+  void StartRubberBandSelect(bool select_links);
+  void MoveRubberBandSelect(bool select_links);
+  void EndRubberBandSelect(bool select_links);
   QRubberBand rubberband_;
-  QList<QGraphicsItem*> rubberband_already_selected_;
+  QList<QGraphicsItem*> rubberband_now_selected_;
 
   void StartHandDrag();
   void MoveHandDrag();

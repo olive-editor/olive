@@ -587,29 +587,34 @@ void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
   views_.at(ghost->Track().type())->scene()->addItem(ghost);
 }
 
-void TimelineWidget::StartRubberBandSelect(bool clear_current_selection)
+void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
+{
+  TimelineViewBlockItem* link_item;
+
+  foreach (Block* link, block->linked_clips()) {
+    if ((link_item = block_items_[link]) != nullptr) {
+      link_item->setSelected(selected);
+    }
+  }
+}
+
+void TimelineWidget::StartRubberBandSelect(bool select_links)
 {
   drag_origin_ = QCursor::pos();
   rubberband_.show();
 
-  if (!clear_current_selection) {
-    foreach (TimelineView* view, views_) {
-      rubberband_already_selected_.append(view->scene()->selectedItems());
-    }
-  }
-
-  MoveRubberBandSelect();
+  MoveRubberBandSelect(select_links);
 }
 
-void TimelineWidget::MoveRubberBandSelect()
+void TimelineWidget::MoveRubberBandSelect(bool select_links)
 {
   QPoint rubberband_now = QCursor::pos();
 
   rubberband_.setGeometry(QRect(mapFromGlobal(drag_origin_), mapFromGlobal(rubberband_now)).normalized());
 
-  foreach (TimelineView* view, views_) {
-    view->DeselectAll();
+  QList<QGraphicsItem*> new_selected_list;
 
+  foreach (TimelineView* view, views_) {
     // Map global mouse coordinates to viewport
 
     QRect mapped_rect(view->viewport()->mapFromGlobal(drag_origin_),
@@ -618,22 +623,41 @@ void TimelineWidget::MoveRubberBandSelect()
     // Normalize and get items in rect
     QList<QGraphicsItem*> rubberband_items = view->items(mapped_rect.normalized());
 
-    // Select them all
-    foreach (QGraphicsItem* item, rubberband_items) {
-      item->setSelected(true);
+    new_selected_list.append(rubberband_items);
+  }
+
+  foreach (QGraphicsItem* item, rubberband_now_selected_) {
+    item->setSelected(false);
+  }
+
+  foreach (QGraphicsItem* item, new_selected_list) {
+    item->setSelected(true);
+
+    if (select_links) {
+      // Select the block's links
+      Block* b = static_cast<TimelineViewBlockItem*>(item)->block();
+      SetBlockLinksSelected(b, true);
+
+      // Add its links to the list
+      TimelineViewBlockItem* link_item;
+      foreach (Block* link, b->linked_clips()) {
+        if ((link_item = block_items_[link]) != nullptr) {
+          if (!new_selected_list.contains(link_item)) {
+            new_selected_list.append(link_item);
+          }
+        }
+      }
     }
   }
 
-  foreach (QGraphicsItem* item, rubberband_already_selected_) {
-    item->setSelected(true);
-  }
+  rubberband_now_selected_ = new_selected_list;
 }
 
-void TimelineWidget::EndRubberBandSelect()
+void TimelineWidget::EndRubberBandSelect(bool select_links)
 {
-  MoveRubberBandSelect();
+  MoveRubberBandSelect(select_links);
   rubberband_.hide();
-  rubberband_already_selected_.clear();
+  rubberband_now_selected_.clear();
 }
 
 void TimelineWidget::StartHandDrag()

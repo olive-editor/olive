@@ -48,6 +48,11 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
 
   bool selectable_item = (item != nullptr && item->flags() & QGraphicsItem::ItemIsSelectable);
 
+  if (selectable_item) {
+    // Cache the clip's type for use later
+    drag_track_type_ = item->Track().type();
+  }
+
   // If this item is already selected
   if (selectable_item
       && item->isSelected()) {
@@ -55,6 +60,11 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
     // If shift is held, deselect it
     if (event->GetModifiers() & Qt::ShiftModifier) {
       item->setSelected(false);
+
+      // If not holding alt, deselect all links as well
+      if (!(event->GetModifiers() & Qt::AltModifier)) {
+        parent()->SetBlockLinksSelected(item->block(), false);
+      }
     }
 
     // Otherwise do nothing
@@ -69,9 +79,14 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
   if (selectable_item) {
     // Select this item
     item->setSelected(true);
+
+    // If not holding alt, select all links as well
+    if (!(event->GetModifiers() & Qt::AltModifier)) {
+      parent()->SetBlockLinksSelected(item->block(), true);
+    }
   } else {
     // Start rubberband drag
-    parent()->StartRubberBandSelect(!(event->GetModifiers() & Qt::ShiftModifier));
+    parent()->StartRubberBandSelect(!(event->GetModifiers() & Qt::AltModifier));
 
     rubberband_selecting_ = true;
   }
@@ -82,7 +97,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
   if (rubberband_selecting_) {
 
     // Process rubberband select
-    parent()->MoveRubberBandSelect();
+    parent()->MoveRubberBandSelect(!(event->GetModifiers() & Qt::AltModifier));
 
   } else if (!dragging_) {
     // Now that the cursor has moved, we will assume the intention is to drag
@@ -104,7 +119,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
-    parent()->EndRubberBandSelect();
+    parent()->EndRubberBandSelect(!(event->GetModifiers() & Qt::AltModifier));
 
     rubberband_selecting_ = false;
     return;
@@ -288,7 +303,10 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
       ghost->SetOutAdjustment(time_movement);
 
       // Track movement is only legal for moving, not for trimming
-      ghost->SetTrackAdjustment(track_movement);
+      // Also, we only move the clips on the same track type that the drag started from
+      if (ghost->Track().type() == drag_track_type_) {
+        ghost->SetTrackAdjustment(track_movement);
+      }
 
       const TrackReference& track = ghost->GetAdjustedTrack();
       ghost->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));

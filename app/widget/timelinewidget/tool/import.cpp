@@ -212,7 +212,11 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
     QUndoCommand* command = new QUndoCommand();
 
-    foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+    QVector<Block*> block_items(parent()->ghost_items_.size());
+
+    for (int i=0;i<parent()->ghost_items_.size();i++) {
+      TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
+
       ClipBlock* clip = new ClipBlock();
       MediaInput* media = new MediaInput();
       TransformDistort* transform = new TransformDistort();
@@ -224,9 +228,10 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       transform->setParent(&node_memory_manager);
       opacity->setParent(&node_memory_manager);
 
-      clip->set_length(ghost->Length());
       StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
       media->SetFootage(footage_stream);
+
+      clip->set_length(ghost->Length());
       clip->set_block_name(footage_stream->footage()->name());
 
       NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
@@ -242,6 +247,17 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
                                    clip,
                                    ghost->GetAdjustedIn(),
                                    command);
+      }
+
+      block_items.replace(i, clip);
+
+      // Link any clips so far that share the same Footage with this one
+      for (int j=0;j<i;j++) {
+        StreamPtr footage_compare = parent()->ghost_items_.at(j)->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+
+        if (footage_compare->footage() == footage_stream->footage()) {
+          Block::Link(block_items.at(j), clip);
+        }
       }
     }
 
