@@ -71,6 +71,11 @@ public:
   const QString& block_name();
   void set_block_name(const QString& name);
 
+  static void Link(Block* a, Block* b);
+  static void Link(QList<Block*> blocks);
+  static void Unlink(Block* a, Block* b);
+  const QVector<Block*>& linked_clips();
+
 public slots:
   /**
    * @brief Refreshes internal cache of in/out points up to date
@@ -104,7 +109,7 @@ protected:
 
   static void CopyParameters(Block* source, Block* dest);
 
-private:  
+private:
   NodeInput* previous_input_;
   NodeOutput* block_output_;
 
@@ -120,6 +125,8 @@ private:
   Block* next_;
 
   QString block_name_;
+
+  QVector<Block*> linked_clips_;
 
 private slots:
   void EdgeAddedSlot(NodeEdgePtr edge);

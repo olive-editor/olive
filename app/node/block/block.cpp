@@ -135,7 +135,7 @@ void Block::EdgeRemovedSlot(NodeEdgePtr edge)
 }
 
 void Block::Refresh()
-{  
+{
   // Set in point to the out point of the previous Node
   if (previous() != nullptr) {
     in_point_ = previous()->out();
@@ -228,3 +228,39 @@ void Block::CopyParameters(Block *source, Block *dest)
   dest->set_length(source->length());
   dest->set_media_in(source->media_in());
 }
+
+void Block::Link(Block *a, Block *b)
+{
+  if (a == b) {
+    return;
+  }
+
+  // Assume both clips are already linked since Link() and Unlink() should be the only entry points to this array
+  if (a->linked_clips_.contains(b)) {
+    return;
+  }
+
+  a->linked_clips_.append(b);
+  b->linked_clips_.append(a);
+}
+
+void Block::Link(QList<Block *> blocks)
+{
+  foreach (Block* a, blocks) {
+    foreach (Block* b, blocks) {
+      Link(a, b);
+    }
+  }
+}
+
+void Block::Unlink(Block *a, Block *b)
+{
+  a->linked_clips_.removeOne(b);
+  b->linked_clips_.removeOne(a);
+}
+
+const QVector<Block*> &Block::linked_clips()
+{
+  return linked_clips_;
+}
+
