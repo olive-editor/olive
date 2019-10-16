@@ -185,7 +185,6 @@ void AudioManager::OutputStateChanged(QAudio::State state)
 
 void AudioManager::OutputNotified()
 {
-  qDebug() << "Notified";
   if (output_manager_.IsIdle()) {
     static_cast<QAudioOutput*>(sender())->stop();
   }
