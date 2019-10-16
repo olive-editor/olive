@@ -110,6 +110,9 @@ void Core::Start()
 
 void Core::Stop()
 {
+  // Save Config
+  //Config::Save();
+
   AudioManager::DestroyInstance();
 
   ColorManager::DestroyInstance();

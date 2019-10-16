@@ -52,6 +52,7 @@ void Config::SetDefaults()
   config_map_["TimecodeDisplay"] = olive::kTimecodeFrames;
   config_map_["DefaultStillLength"] = QVariant::fromValue(rational(2));
   config_map_["HoverFocus"] = false;
+  config_map_["AudioScrubbing"] = true;
 }
 
 void Config::Load()
