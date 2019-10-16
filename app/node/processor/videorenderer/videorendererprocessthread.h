@@ -21,15 +21,15 @@
 #ifndef RENDERERPROCESSTHREAD_H
 #define RENDERERPROCESSTHREAD_H
 
-#include "rendererthreadbase.h"
+#include "videorendererthreadbase.h"
 
-class RendererProcessor;
+class VideoRendererProcessor;
 
-class RendererProcessThread : public RendererThreadBase
+class RendererProcessThread : public VideoRendererThreadBase
 {
   Q_OBJECT
 public:
-  RendererProcessThread(RendererProcessor* parent,
+  RendererProcessThread(VideoRendererProcessor* parent,
                         QOpenGLContext* share_ctx,
                         const int& width,
                         const int& height, const int &divider,
@@ -52,7 +52,7 @@ signals:
   void FrameSkipped(const rational& time, const QByteArray& hash);
 
 private:
-  RendererProcessor* parent_;
+  VideoRendererProcessor* parent_;
 
   NodeDependency path_;
 

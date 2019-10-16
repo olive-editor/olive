@@ -233,7 +233,7 @@ void SequenceDialog::AddChannelLayout(int layout)
     layout_name = tr("7.1");
     break;
   default:
-    layout_name = tr("Unknown (%1)").arg(layout);
+    layout_name = tr("Unknown (0x%1)").arg(layout, 1, 16);
   }
 
   audio_channels_field_->addItem(layout_name, layout);

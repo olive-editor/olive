@@ -20,7 +20,7 @@
 
 #include "clip.h"
 
-#include "node/processor/renderer/renderer.h"
+#include "node/processor/videorenderer/videorenderer.h"
 
 ClipBlock::ClipBlock()
 {

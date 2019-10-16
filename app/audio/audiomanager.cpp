@@ -22,24 +22,24 @@
 
 #include "config/config.h"
 
-AudioManager* AudioManager::audio_ = nullptr;
+AudioManager* AudioManager::instance_ = nullptr;
 
 void AudioManager::CreateInstance()
 {
-  if (audio_ == nullptr) {
-    audio_ = new AudioManager();
+  if (instance_ == nullptr) {
+    instance_ = new AudioManager();
   }
 }
 
 void AudioManager::DestroyInstance()
 {
-  delete audio_;
-  audio_ = nullptr;
+  delete instance_;
+  instance_ = nullptr;
 }
 
 AudioManager *AudioManager::instance()
 {
-  return audio_;
+  return instance_;
 }
 
 void AudioManager::RefreshDevices()

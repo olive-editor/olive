@@ -29,11 +29,11 @@
 #include "node/node.h"
 #include "render/renderinstance.h"
 
-class RendererThreadBase : public QThread
+class VideoRendererThreadBase : public QThread
 {
   Q_OBJECT
 public:
-  RendererThreadBase(QOpenGLContext* share_ctx,
+  VideoRendererThreadBase(QOpenGLContext* share_ctx,
                      const int& width,
                      const int& height,
                      const int& divider,
@@ -67,6 +67,6 @@ private:
 
 };
 
-using RendererThreadPtr = std::shared_ptr<RendererThreadBase>;
+using RendererThreadPtr = std::shared_ptr<VideoRendererThreadBase>;
 
 #endif // RENDERTHREAD_H

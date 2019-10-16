@@ -14,24 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(gl)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/colormanager.h
-  render/colormanager.cpp
-  render/colorprocessor.h
-  render/colorprocessor.cpp
-  render/pixelformat.h
-  render/pixelformat.cpp
-  render/pixelservice.h
-  render/pixelservice.cpp
-  render/renderinstance.h
-  render/renderinstance.cpp
-  render/rendermodes.h
-  render/renderframebuffer.h
-  render/renderframebuffer.cpp
-  render/rendertexture.h
-  render/rendertexture.cpp
+  node/processor/audiorenderer/audiorenderer.h
+  node/processor/audiorenderer/audiorenderer.cpp
+  node/processor/audiorenderer/audiorendererparams.h
+  node/processor/audiorenderer/audiorendererparams.cpp
+  node/processor/audiorenderer/audiorendererthread.h
+  node/processor/audiorenderer/audiorendererthread.cpp
+  node/processor/audiorenderer/audiorendererthreadbase.h
+  node/processor/audiorenderer/audiorendererthreadbase.cpp
   PARENT_SCOPE
 )

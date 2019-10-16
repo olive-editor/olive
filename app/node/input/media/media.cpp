@@ -25,7 +25,7 @@
 
 #include "core.h"
 #include "decoder/ffmpeg/ffmpegdecoder.h"
-#include "node/processor/renderer/renderer.h"
+#include "node/processor/videorenderer/videorenderer.h"
 #include "project/item/footage/footage.h"
 #include "render/gl/shadergenerators.h"
 #include "render/gl/functions.h"
@@ -136,7 +136,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
 
   if (output == texture_output_) {
     // Find the current Renderer instance
-    RenderInstance* renderer = RendererProcessor::CurrentInstance();
+    RenderInstance* renderer = VideoRendererProcessor::CurrentInstance();
 
     // If nothing is available, don't return a texture
     if (renderer == nullptr) {

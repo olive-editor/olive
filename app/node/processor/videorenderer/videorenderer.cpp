@@ -18,7 +18,7 @@
 
 ***/
 
-#include "renderer.h"
+#include "videorenderer.h"
 
 #include <OpenImageIO/imageio.h>
 #include <QApplication>
@@ -31,7 +31,7 @@
 #include "common/filefunctions.h"
 #include "render/pixelservice.h"
 
-RendererProcessor::RendererProcessor() :
+VideoRendererProcessor::VideoRendererProcessor() :
   started_(false),
   width_(0),
   height_(0),
@@ -52,27 +52,27 @@ RendererProcessor::RendererProcessor() :
   AddParameter(texture_output_);
 }
 
-QString RendererProcessor::Name()
+QString VideoRendererProcessor::Name()
 {
-  return tr("Renderer");
+  return tr("Video Renderer");
 }
 
-QString RendererProcessor::Category()
+QString VideoRendererProcessor::Category()
 {
   return tr("Processor");
 }
 
-QString RendererProcessor::Description()
+QString VideoRendererProcessor::Description()
 {
   return tr("A multi-threaded OpenGL hardware-accelerated node compositor.");
 }
 
-QString RendererProcessor::id()
+QString VideoRendererProcessor::id()
 {
   return "org.olivevideoeditor.Olive.renderervenus";
 }
 
-void RendererProcessor::SetCacheName(const QString &s)
+void VideoRendererProcessor::SetCacheName(const QString &s)
 {
   cache_name_ = s;
   cache_time_ = QDateTime::currentMSecsSinceEpoch();
@@ -80,7 +80,7 @@ void RendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
-QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
+QVariant VideoRendererProcessor::Value(NodeOutput* output, const rational& time)
 {
   if (output == texture_output_) {
     if (!texture_input_->IsConnected()) {
@@ -123,12 +123,12 @@ QVariant RendererProcessor::Value(NodeOutput* output, const rational& time)
   return 0;
 }
 
-void RendererProcessor::Release()
+void VideoRendererProcessor::Release()
 {
   Stop();
 }
 
-void RendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+void VideoRendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Q_UNUSED(from)
 
@@ -202,13 +202,13 @@ void RendererProcessor::InvalidateCache(const rational &start_range, const ratio
   CacheNext();
 }
 
-void RendererProcessor::SetTimebase(const rational &timebase)
+void VideoRendererProcessor::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
   timebase_dbl_ = timebase_.toDouble();
 }
 
-void RendererProcessor::SetParameters(const int &width,
+void VideoRendererProcessor::SetParameters(const int &width,
                                       const int &height,
                                       const olive::PixelFormat &format,
                                       const olive::RenderMode &mode,
@@ -235,7 +235,7 @@ void RendererProcessor::SetParameters(const int &width,
   GenerateCacheIDInternal();
 }
 
-void RendererProcessor::SetDivider(const int &divider)
+void VideoRendererProcessor::SetDivider(const int &divider)
 {
   Q_ASSERT(divider_ > 0);
 
@@ -249,7 +249,7 @@ void RendererProcessor::SetDivider(const int &divider)
   GenerateCacheIDInternal();
 }
 
-void RendererProcessor::Start()
+void VideoRendererProcessor::Start()
 {
   if (started_) {
     return;
@@ -294,7 +294,7 @@ void RendererProcessor::Start()
 
   for (int i=0;i<download_threads_.size();i++) {
     // Create download thread
-    download_threads_[i] = std::make_shared<RendererDownloadThread>(ctx, effective_width_, effective_height_, divider_, format_, mode_);
+    download_threads_[i] = std::make_shared<VideoRendererDownloadThread>(ctx, effective_width_, effective_height_, divider_, format_, mode_);
     download_threads_[i]->StartThread(QThread::LowPriority);
 
     connect(download_threads_[i].get(),
@@ -318,7 +318,7 @@ void RendererProcessor::Start()
   started_ = true;
 }
 
-void RendererProcessor::Stop()
+void VideoRendererProcessor::Stop()
 {
   if (!started_) {
     return;
@@ -341,7 +341,7 @@ void RendererProcessor::Stop()
   cache_frame_load_buffer_.clear();
 }
 
-void RendererProcessor::GenerateCacheIDInternal()
+void VideoRendererProcessor::GenerateCacheIDInternal()
 {
   if (cache_name_.isEmpty() || effective_width_ == 0 || effective_height_ == 0) {
     return;
@@ -360,7 +360,7 @@ void RendererProcessor::GenerateCacheIDInternal()
   cache_id_ = bytes.toHex();
 }
 
-void RendererProcessor::CacheNext()
+void VideoRendererProcessor::CacheNext()
 {
   if (cache_queue_.isEmpty() || !texture_input_->IsConnected() || caching_) {
     return;
@@ -378,7 +378,7 @@ void RendererProcessor::CacheNext()
   caching_ = true;
 }
 
-QString RendererProcessor::CachePathName(const QByteArray &hash)
+QString VideoRendererProcessor::CachePathName(const QByteArray &hash)
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
   this_cache_dir.mkpath(".");
@@ -388,17 +388,17 @@ QString RendererProcessor::CachePathName(const QByteArray &hash)
   return this_cache_dir.filePath(filename);
 }
 
-void RendererProcessor::DeferMap(const rational &time, const QByteArray &hash)
+void VideoRendererProcessor::DeferMap(const rational &time, const QByteArray &hash)
 {
   deferred_maps_.append({time, hash});
 }
 
-bool RendererProcessor::HasHash(const QByteArray &hash)
+bool VideoRendererProcessor::HasHash(const QByteArray &hash)
 {
   return QFileInfo::exists(CachePathName(hash));
 }
 
-bool RendererProcessor::IsCaching(const QByteArray &hash)
+bool VideoRendererProcessor::IsCaching(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
 
@@ -409,7 +409,7 @@ bool RendererProcessor::IsCaching(const QByteArray &hash)
   return is_caching;
 }
 
-bool RendererProcessor::TryCache(const QByteArray &hash)
+bool VideoRendererProcessor::TryCache(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
 
@@ -424,13 +424,13 @@ bool RendererProcessor::TryCache(const QByteArray &hash)
   return !is_caching;
 }
 
-void RendererProcessor::CalculateEffectiveDimensions()
+void VideoRendererProcessor::CalculateEffectiveDimensions()
 {
   effective_width_ = width_ / divider_;
   effective_height_ = height_ / divider_;
 }
 
-void RendererProcessor::ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash)
+void VideoRendererProcessor::ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash)
 {
   // Threads are all done now, time to proceed
   caching_ = false;
@@ -461,7 +461,7 @@ void RendererProcessor::ThreadCallback(RenderTexturePtr texture, const rational&
   CacheNext();
 }
 
-void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
+void VideoRendererProcessor::ThreadRequestSibling(NodeDependency dep)
 {
   // Try to queue another thread to run this dep in advance
   for (int i=1;i<threads_.size();i++) {
@@ -471,7 +471,7 @@ void RendererProcessor::ThreadRequestSibling(NodeDependency dep)
   }
 }
 
-void RendererProcessor::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
+void VideoRendererProcessor::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
 {
   caching_ = false;
 
@@ -491,7 +491,7 @@ void RendererProcessor::ThreadSkippedFrame(const rational& time, const QByteArra
   CacheNext();
 }
 
-void RendererProcessor::DownloadThreadComplete(const QByteArray &hash)
+void VideoRendererProcessor::DownloadThreadComplete(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
   cache_hash_list_.removeAll(hash);
@@ -510,14 +510,14 @@ void RendererProcessor::DownloadThreadComplete(const QByteArray &hash)
   }
 }
 
-RendererThreadBase* RendererProcessor::CurrentThread()
+VideoRendererThreadBase* VideoRendererProcessor::CurrentThread()
 {
-  return dynamic_cast<RendererThreadBase*>(QThread::currentThread());
+  return dynamic_cast<VideoRendererThreadBase*>(QThread::currentThread());
 }
 
-RenderInstance *RendererProcessor::CurrentInstance()
+RenderInstance *VideoRendererProcessor::CurrentInstance()
 {
-  RendererThreadBase* thread = CurrentThread();
+  VideoRendererThreadBase* thread = CurrentThread();
 
   if (thread != nullptr) {
     return thread->render_instance();
@@ -526,17 +526,17 @@ RenderInstance *RendererProcessor::CurrentInstance()
   return nullptr;
 }
 
-NodeInput *RendererProcessor::texture_input()
+NodeInput *VideoRendererProcessor::texture_input()
 {
   return texture_input_;
 }
 
-NodeInput *RendererProcessor::length_input()
+NodeInput *VideoRendererProcessor::length_input()
 {
   return length_input_;
 }
 
-NodeOutput *RendererProcessor::texture_output()
+NodeOutput *VideoRendererProcessor::texture_output()
 {
   return texture_output_;
 }

@@ -20,7 +20,7 @@
 
 #include "alphaover.h"
 
-#include "node/processor/renderer/renderer.h"
+#include "node/processor/videorenderer/videorenderer.h"
 #include "render/gl/functions.h"
 #include "render/rendertexture.h"
 #include "render/gl/shadergenerators.h"
@@ -52,7 +52,7 @@ void AlphaOverBlend::Release()
 QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
 {
   // Find the current Renderer instance
-  RenderInstance* renderer = RendererProcessor::CurrentInstance();
+  RenderInstance* renderer = VideoRendererProcessor::CurrentInstance();
 
   // If nothing is available, don't return a texture
   if (renderer == nullptr) {

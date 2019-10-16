@@ -95,7 +95,7 @@ private:
 
   QList<QAudioDeviceInfo> output_devices_;
 
-  static AudioManager* audio_;
+  static AudioManager* instance_;
 
   AudioHybridDevice output_manager_;
 

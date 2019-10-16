@@ -25,7 +25,7 @@
 #include "node/graph.h"
 #include "node/output/timeline/timeline.h"
 #include "node/output/viewer/viewer.h"
-#include "node/processor/renderer/renderer.h"
+#include "node/processor/videorenderer/videorenderer.h"
 #include "project/item/item.h"
 
 class Sequence;
@@ -78,7 +78,7 @@ private:
   void update_video_parameters();
 
   TimelineOutput* timeline_output_;
-  RendererProcessor* renderer_processor_;
+  VideoRendererProcessor* video_renderer_processor_;
   ViewerOutput* viewer_output_;
   TrackOutput* video_track_output_;
   TrackOutput* audio_track_output_;

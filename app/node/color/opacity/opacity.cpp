@@ -20,7 +20,7 @@
 
 #include "opacity.h"
 
-#include "node/processor/renderer/renderer.h"
+#include "node/processor/videorenderer/videorenderer.h"
 #include "render/gl/functions.h"
 #include "render/rendertexture.h"
 
@@ -65,7 +65,7 @@ QString OpacityNode::id()
 QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
 {
   // Find the current Renderer instance
-  RenderInstance* renderer = RendererProcessor::CurrentInstance();
+  RenderInstance* renderer = VideoRendererProcessor::CurrentInstance();
 
   // If nothing is available, don't return a texture
   if (renderer == nullptr) {

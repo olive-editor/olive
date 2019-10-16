@@ -18,18 +18,18 @@
 
 ***/
 
-#include "rendererprocessthread.h"
+#include "videorendererprocessthread.h"
 
-#include "renderer.h"
+#include "videorenderer.h"
 
-RendererProcessThread::RendererProcessThread(RendererProcessor* parent,
+RendererProcessThread::RendererProcessThread(VideoRendererProcessor* parent,
                                              QOpenGLContext *share_ctx,
                                              const int &width,
                                              const int &height,
                                              const int &divider,
                                              const olive::PixelFormat &format,
                                              const olive::RenderMode &mode) :
-  RendererThreadBase(share_ctx, width, height, divider, format, mode),
+  VideoRendererThreadBase(share_ctx, width, height, divider, format, mode),
   parent_(parent),
   cancelled_(false)
 {

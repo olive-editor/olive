@@ -1,4 +1,4 @@
-#include "rendererdownloadthread.h"
+#include "videorendererdownloadthread.h"
 
 #include <QFile>
 #include <QFloat16>
@@ -7,18 +7,18 @@
 #include "common/define.h"
 #include "render/pixelservice.h"
 
-RendererDownloadThread::RendererDownloadThread(QOpenGLContext *share_ctx,
-                                               const int &width,
-                                               const int &height,
-                                               const int &divider,
-                                               const olive::PixelFormat &format,
-                                               const olive::RenderMode &mode) :
-  RendererThreadBase(share_ctx, width, height, divider, format, mode),
+VideoRendererDownloadThread::VideoRendererDownloadThread(QOpenGLContext *share_ctx,
+                                                         const int &width,
+                                                         const int &height,
+                                                         const int &divider,
+                                                         const olive::PixelFormat &format,
+                                                         const olive::RenderMode &mode) :
+  VideoRendererThreadBase(share_ctx, width, height, divider, format, mode),
   cancelled_(false)
 {
 }
 
-void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const QByteArray &hash)
+void VideoRendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, const QByteArray &hash)
 {
   texture_queue_lock_.lock();
 
@@ -29,7 +29,7 @@ void RendererDownloadThread::Queue(RenderTexturePtr texture, const QString& fn, 
   texture_queue_lock_.unlock();
 }
 
-void RendererDownloadThread::Cancel()
+void VideoRendererDownloadThread::Cancel()
 {
   cancelled_ = true;
 
@@ -40,7 +40,7 @@ void RendererDownloadThread::Cancel()
   wait();
 }
 
-void RendererDownloadThread::ProcessLoop()
+void VideoRendererDownloadThread::ProcessLoop()
 {
   QOpenGLFunctions* f = render_instance()->context()->functions();
   QOpenGLExtraFunctions* xf = render_instance()->context()->extraFunctions();

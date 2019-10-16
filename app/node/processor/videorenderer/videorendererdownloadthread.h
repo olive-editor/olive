@@ -1,13 +1,13 @@
 #ifndef RENDERERDOWNLOADTHREAD_H
 #define RENDERERDOWNLOADTHREAD_H
 
-#include "rendererthreadbase.h"
+#include "videorendererthreadbase.h"
 
-class RendererDownloadThread : public RendererThreadBase
+class VideoRendererDownloadThread : public VideoRendererThreadBase
 {
   Q_OBJECT
 public:
-  RendererDownloadThread(QOpenGLContext* share_ctx,
+  VideoRendererDownloadThread(QOpenGLContext* share_ctx,
                          const int& width,
                          const int& height,
                          const int &divider,
@@ -44,6 +44,6 @@ private:
 
 };
 
-using RendererDownloadThreadPtr = std::shared_ptr<RendererDownloadThread>;
+using RendererDownloadThreadPtr = std::shared_ptr<VideoRendererDownloadThread>;
 
 #endif // RENDERERDOWNLOADTHREAD_H
