@@ -179,6 +179,8 @@ public:
   virtual void redo() override;
   virtual void undo() override;
 
+  Block* new_block();
+
 private:
   TrackOutput* track_;
   Block* block_;
@@ -194,6 +196,16 @@ private:
 class TrackSplitAtTimeCommand : public QUndoCommand {
 public:
   TrackSplitAtTimeCommand(TrackOutput* track, rational point, QUndoCommand* parent = nullptr);
+};
+
+class BlockSplitPreservingLinksCommand : public QUndoCommand {
+public:
+  BlockSplitPreservingLinksCommand(const QVector<Block *> &blocks, const QList<rational>& times, QUndoCommand* parent = nullptr);
+
+private:
+  QVector<Block *> blocks_;
+
+  QList<rational> times_;
 };
 
 /**

@@ -235,6 +235,10 @@ void Block::Link(Block *a, Block *b)
     return;
   }
 
+  if (a == nullptr || b == nullptr) {
+    return;
+  }
+
   // Assume both clips are already linked since Link() and Unlink() should be the only entry points to this array
   if (a->linked_clips_.contains(b)) {
     return;
@@ -257,6 +261,11 @@ void Block::Unlink(Block *a, Block *b)
 {
   a->linked_clips_.removeOne(b);
   b->linked_clips_.removeOne(a);
+}
+
+bool Block::AreLinked(Block *a, Block *b)
+{
+  return a->linked_clips_.contains(b);
 }
 
 const QVector<Block*> &Block::linked_clips()

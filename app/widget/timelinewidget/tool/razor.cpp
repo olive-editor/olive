@@ -54,15 +54,31 @@ void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
   // Always split at the same time
   rational split_time = drag_start_.GetFrame();
 
-  QUndoCommand* command = new QUndoCommand();
+  QVector<Block*> blocks_to_split;
 
-  foreach (const TrackReference& track, split_tracks_) {
-    new TrackSplitAtTimeCommand(parent()->GetTrackFromReference(track), split_time, command);
+  foreach (const TrackReference& track_ref, split_tracks_) {
+    TrackOutput* track = parent()->GetTrackFromReference(track_ref);
+    Block* block_at_time = track->NearestBlockBefore(split_time);
+
+    // Ensure there's a valid block here
+    if (block_at_time != track
+        && !blocks_to_split.contains(block_at_time)) {
+      blocks_to_split.append(block_at_time);
+
+      // Add links if no alt is held
+      if (!(event->GetModifiers() & Qt::AltModifier)) {
+        foreach (Block* link, block_at_time->linked_clips()) {
+          if (!blocks_to_split.contains(link)) {
+            blocks_to_split.append(link);
+          }
+        }
+      }
+    }
   }
 
   split_tracks_.clear();
 
-  olive::undo_stack.pushIfHasChildren(command);
+  olive::undo_stack.push(new BlockSplitPreservingLinksCommand(blocks_to_split, {split_time}));
 
   dragging_ = false;
 }

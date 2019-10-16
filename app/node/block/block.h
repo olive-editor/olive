@@ -74,6 +74,7 @@ public:
   static void Link(Block* a, Block* b);
   static void Link(QList<Block*> blocks);
   static void Unlink(Block* a, Block* b);
+  static bool AreLinked(Block* a, Block* b);
   const QVector<Block*>& linked_clips();
 
 public slots:

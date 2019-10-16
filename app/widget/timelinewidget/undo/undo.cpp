@@ -32,10 +32,23 @@ Block* CreateSplitBlock(Block* block, rational point, QObject* parent = nullptr)
   return copy;
 }
 
-Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr) {
+Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
+{
   static_cast<NodeGraph*>(n->parent())->TakeNode(n, new_parent);
 
   return n;
+}
+
+TrackOutput* TrackFromBlock(Block* b)
+{
+  Block* next = b->next();
+
+  do {
+    next = b->next();
+  } while (next != nullptr && next->type() != Block::kEnd);
+
+  // A little hacky, but this should either be a TrackOutput* or nullptr
+  return static_cast<TrackOutput*>(next);
 }
 
 BlockResizeCommand::BlockResizeCommand(Block *block, rational new_length, QUndoCommand* parent) :
@@ -387,13 +400,16 @@ void BlockSplitCommand::undo()
   track_->UnblockInvalidateCache();
 }
 
+Block *BlockSplitCommand::new_block()
+{
+  return new_block_;
+}
+
 TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(TrackOutput *track, rational point, QUndoCommand *parent) :
   QUndoCommand(parent)
 {
   // Find Block that contains this time
-  for (int i=0;i<track->Blocks().size();i++) {
-    Block* b = track->Blocks().at(i);
-
+  foreach (Block* b, track->Blocks()) {
     if (b->out() == point) {
       // This time is between blocks, no split needs to occur
       return;
@@ -438,4 +454,52 @@ void TrackPrependBlockCommand::redo()
 void TrackPrependBlockCommand::undo()
 {
   track_->RippleRemoveBlock(block_);
+}
+
+BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector<Block *> &blocks, const QList<rational> &times, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  blocks_(blocks),
+  times_(times)
+{
+  QVector< QVector<Block*> > split_blocks(times.size());
+
+  for (int i=0;i<times.size();i++) {
+    const rational& time = times.at(i);
+
+    QVector<Block*> splits(blocks.size());
+
+    for (int j=0;j<blocks.size();j++) {
+      Block* b = blocks.at(j);
+
+      if (b->in() < time && b->out() > time) {
+        BlockSplitCommand* split_command = new BlockSplitCommand(TrackFromBlock(b), b, time, this);
+        splits.replace(j, split_command->new_block());
+      } else {
+        splits.replace(j, nullptr);
+      }
+    }
+
+    split_blocks.replace(i, splits);
+  }
+
+  // Now that we've determined all the splits, we can relink everything
+  for (int i=0;i<blocks_.size();i++) {
+    Block* a = blocks.at(i);
+
+    for (int j=0;j<blocks.size();j++) {
+      if (i == j) {
+        continue;
+      }
+
+      Block* b = blocks.at(j);
+
+      if (Block::AreLinked(a, b)) {
+        // These blocks are linked, ensure all the splits are linked too
+
+        foreach (const QVector<Block*>& split_list, split_blocks) {
+          Block::Link(split_list.at(i), split_list.at(j));
+        }
+      }
+    }
+  }
 }
