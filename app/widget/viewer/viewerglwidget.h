@@ -52,7 +52,7 @@ public:
    *
    * QWidget parent.
    */
-  ViewerGLWidget(QWidget* parent);
+  ViewerGLWidget(QWidget* parent = nullptr);
 
   virtual ~ViewerGLWidget() override;
 

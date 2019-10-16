@@ -37,7 +37,7 @@ class PlaybackControls : public QWidget
 {
   Q_OBJECT
 public:
-  PlaybackControls(QWidget* parent);
+  PlaybackControls(QWidget* parent = nullptr);
 
   /**
    * @brief Set whether the timecodes should be shown or not
