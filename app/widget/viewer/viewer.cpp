@@ -28,6 +28,7 @@
 
 #include "audio/audiomanager.h"
 #include "common/timecodefunctions.h"
+#include "config/config.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
@@ -222,7 +223,7 @@ void ViewerWidget::PlayInternal(int speed)
 void ViewerWidget::PushScrubbedAudio()
 {
   // FIXME: Test code
-  if (!IsPlaying()) {
+  if (Config::Current()["AudioScrubbing"].toBool() && !IsPlaying()) {
     int size_of_sample = qFloor(2 * 48000 * time_base_dbl_) * static_cast<int>(sizeof(float));
     test_file_.seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
     QByteArray frame_audio = test_file_.read(size_of_sample);
@@ -245,13 +246,12 @@ void ViewerWidget::Play()
 
 void ViewerWidget::Pause()
 {
-  playback_timer_.stop();
-
-  controls_->ShowPlayButton();
-
-  playback_speed_ = 0;
-
-  AudioManager::instance()->StopOutput();
+  if (IsPlaying()) {
+    AudioManager::instance()->StopOutput();
+    playback_speed_ = 0;
+    controls_->ShowPlayButton();
+    playback_timer_.stop();
+  }
 }
 
 void ViewerWidget::GoToStart()

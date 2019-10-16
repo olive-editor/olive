@@ -51,6 +51,12 @@ private:
   QList<QAudioDeviceInfo> output_devices_;
 };
 
+/**
+ * @brief Audio input and output management class
+ *
+ * Wraps around a QAudioOutput and AudioHybridDevice, connecting them together and exposing audio functionality to
+ * the rest of the system.
+ */
 class AudioManager : public QObject
 {
   Q_OBJECT
@@ -74,7 +80,7 @@ public:
   void StartOutput(QIODevice* device);
 
   /**
-   * @brief Stop audio output
+   * @brief Stop audio output immediately
    */
   void StopOutput();
 

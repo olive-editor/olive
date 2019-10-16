@@ -78,10 +78,16 @@ void AudioManager::StartOutput(QIODevice *device)
 void AudioManager::StopOutput()
 {
   output_manager_.Stop();
+
+  if (output_ != nullptr) {
+    output_->stop();
+  }
 }
 
 void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
 {
+  qInfo() << "Output audio device to" << info.deviceName();
+
   StopOutput();
 
   QAudioFormat format;
@@ -93,9 +99,11 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
   format.setSampleType(QAudioFormat::Float);
 
   output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
-  connect(output_.get(), SIGNAL(stateChanged(QAudio::State)), this, SLOT(OutputStateChanged(QAudio::State)));
   connect(output_.get(), SIGNAL(notify()), this, SLOT(OutputNotified()));
   output_device_info_ = info;
+
+  // Un-comment this to get debug information about what the audio output is doing
+  //connect(output_.get(), SIGNAL(stateChanged(QAudio::State)), this, SLOT(OutputStateChanged(QAudio::State)));
 }
 
 void AudioManager::SetInputDevice(const QAudioDeviceInfo &info)
