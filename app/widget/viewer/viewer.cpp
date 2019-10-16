@@ -32,13 +32,14 @@
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
   viewer_node_(nullptr),
-  playback_speed_(0),
-  // FIXME: Test code
-  test_file_("/home/matt/Desktop/11 - Santa Monica.raw")
-  // End test code
+  playback_speed_(0)
 {
   // FIXME: Test code
-  test_file_.open(QFile::ReadOnly);
+  QByteArray test_audio = qgetenv("TESTAUDIO");
+  if (!test_audio.isEmpty()) {
+    test_file_.setFileName(QString(test_audio));
+    test_file_.open(QFile::ReadOnly);
+  }
   // End test code
 
   // Set up main layout
@@ -46,25 +47,25 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   layout->setMargin(0);
 
   // Create main OpenGL-based view
-  sizer_ = new ViewerSizer(this);
+  sizer_ = new ViewerSizer();
   layout->addWidget(sizer_);
 
-  gl_widget_ = new ViewerGLWidget(this);
+  gl_widget_ = new ViewerGLWidget();
   sizer_->SetWidget(gl_widget_);
 
   // Create time ruler
-  ruler_ = new TimeRuler(false, this);
+  ruler_ = new TimeRuler(false);
   layout->addWidget(ruler_);
   connect(ruler_, SIGNAL(TimeChanged(int64_t)), this, SLOT(RulerTimeChange(int64_t)));
 
   // Create scrollbar
-  scrollbar_ = new QScrollBar(Qt::Horizontal, this);
+  scrollbar_ = new QScrollBar(Qt::Horizontal);
   layout->addWidget(scrollbar_);
   connect(scrollbar_, SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
   scrollbar_->setPageStep(ruler_->width());
 
   // Create lower controls
-  controls_ = new PlaybackControls(this);
+  controls_ = new PlaybackControls();
   controls_->SetTimecodeEnabled(true);
   controls_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   connect(controls_, SIGNAL(PlayClicked()), this, SLOT(Play()));
