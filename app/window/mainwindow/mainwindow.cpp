@@ -20,7 +20,9 @@
 
 #include "mainwindow.h"
 
+#include <QApplication>
 #include <QDebug>
+#include <QDesktopWidget>
 
 // Panel objects
 #include "panel/panelmanager.h"
@@ -38,6 +40,12 @@
 olive::MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
 {
+#ifdef Q_OS_WINDOWS
+  // Qt on Windows has a bug that "de-maximizes" the window when widgets are added, resizing the window beforehand
+  // works around that issue and we just set it to whatever size is available
+  resize(qApp->desktop()->availableGeometry(this).size());
+#endif
+
   // Create empty central widget - we don't actually want a central widget but some of Qt's docking/undocking fails
   // without it
   QWidget* centralWidget = new QWidget(this);
