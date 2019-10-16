@@ -77,6 +77,40 @@ void PreferencesAudioTab::Accept()
   if (!has_devices_) {
     return;
   }
+
+  // Get device info
+  QAudioDeviceInfo selected_output;
+  QAudioDeviceInfo selected_input;
+
+  QString selected_output_name;
+  QString selected_input_name;
+
+  // Index 0 is always the default device
+  if (audio_output_devices->currentIndex() == 0) {
+    selected_output = QAudioDeviceInfo::defaultOutputDevice();
+  } else {
+    selected_output = AudioManager::instance()->ListOutputDevices().at(audio_output_devices->currentData().toInt());
+    selected_output_name = selected_output.deviceName();
+  }
+
+  // Index 0 is always the default device
+  if (audio_input_devices->currentIndex() == 0) {
+    selected_input = QAudioDeviceInfo::defaultInputDevice();
+  } else {
+    selected_input = AudioManager::instance()->ListInputDevices().at(audio_input_devices->currentData().toInt());
+    selected_input_name = selected_input.deviceName();
+  }
+
+  // Save it in the global application preferences
+  // FIXME: Qt documentation states that QAudioDeviceInfo::deviceName() is a "unique identifiers", which would make them
+  //        ideal for saving in preferences, but in practice they don't actually appear to be unique.
+  //        See: https://bugreports.qt.io/browse/QTBUG-16841
+  Config::Current()["AudioOutput"] = selected_output_name;
+  Config::Current()["AudioInput"] = selected_input_name;
+
+  // Finally, set these as the current device
+  AudioManager::instance()->SetOutputDevice(selected_output);
+  AudioManager::instance()->SetInputDevice(selected_input);
 }
 
 void PreferencesAudioTab::RefreshDevices()
@@ -109,7 +143,7 @@ void PreferencesAudioTab::RetrieveDeviceLists()
   audio_output_devices->addItem(tr("Default"), "");
   for (int i=0;i<AudioManager::instance()->ListOutputDevices().size();i++) {
     audio_output_devices->addItem(AudioManager::instance()->ListOutputDevices().at(i).deviceName(),
-                                  AudioManager::instance()->ListOutputDevices().at(i).deviceName());
+                                  i);
     if (!found_preferred_device
         && AudioManager::instance()->ListOutputDevices().at(i).deviceName() == Config::Current()["AudioOutput"]) {
       audio_output_devices->setCurrentIndex(audio_output_devices->count()-1);
@@ -122,7 +156,7 @@ void PreferencesAudioTab::RetrieveDeviceLists()
   audio_input_devices->addItem(tr("Default"), "");
   for (int i=0;i<AudioManager::instance()->ListInputDevices().size();i++) {
     audio_input_devices->addItem(AudioManager::instance()->ListInputDevices().at(i).deviceName(),
-                                 AudioManager::instance()->ListInputDevices().at(i).deviceName());
+                                 i);
     if (!found_preferred_device
         && AudioManager::instance()->ListInputDevices().at(i).deviceName() == Config::Current()["AudioInput"]) {
       audio_input_devices->setCurrentIndex(audio_input_devices->count()-1);
