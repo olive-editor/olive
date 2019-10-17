@@ -53,7 +53,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   //
 
   // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
-  int widget_width = QFontMetricsWidth(&font_metrics, "HHHHHHHHHHHHHHHH");
+  int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHHHH");
 
   // Set border width
   node_border_width_ = font_metrics.height() / 12;
@@ -203,7 +203,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
       QPointF text_pt = GetParameterTextPoint(i);
 
       if (param->type() == NodeParam::kOutput) {
-        text_pt -= QPointF(QFontMetricsWidth(&font_metrics, param->name()), 0);
+        text_pt -= QPointF(QFontMetricsWidth(font_metrics, param->name()), 0);
       }
 
       painter->drawText(text_pt, param->name());

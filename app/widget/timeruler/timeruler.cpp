@@ -47,7 +47,7 @@ TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
 
   // Get the "minimum" space allowed between two line markers on the ruler (in screen pixels)
   // Mediocre but reliable way of scaling UI objects by font/DPI size
-  minimum_gap_between_lines_ = QFontMetricsWidth(&fm, "H");
+  minimum_gap_between_lines_ = QFontMetricsWidth(fm, "H");
 
   // Set width of playhead marker
   playhead_width_ = minimum_gap_between_lines_;
@@ -156,7 +156,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
     double width_of_second = scale_;
-    int average_text_width = QFontMetricsWidth(&fm, olive::timestamp_to_timecode(0, timebase_, olive::CurrentTimecodeDisplay()));
+    int average_text_width = QFontMetricsWidth(fm, olive::timestamp_to_timecode(0, timebase_, olive::CurrentTimecodeDisplay()));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
       text_skip++;

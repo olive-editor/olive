@@ -26,6 +26,8 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+#include "common/qtversionabstraction.h"
+
 TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
   TimelineViewRect(parent),
   block_(nullptr)
@@ -94,6 +96,17 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
 
     painter->drawText(rect(), static_cast<int>(Qt::AlignLeft | Qt::AlignTop), block_->block_name());
+
+    // Linked clips are underlined
+    if (block_->HasLinks()) {
+      QFontMetrics fm = painter->fontMetrics();
+      int text_width = QFontMetricsWidth(fm, block_->block_name());
+
+      QPointF underline_start = rect().topLeft() + QPointF(0, fm.height());
+      QPointF underline_end = underline_start + QPointF(text_width, 0);
+
+      painter->drawLine(underline_start, underline_end);
+    }
 
     painter->setPen(QColor(64, 64, 64));
     painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));

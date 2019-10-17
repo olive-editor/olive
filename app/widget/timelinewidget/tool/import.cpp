@@ -53,8 +53,7 @@ TimelineWidget::ImportTool::ImportTool(TimelineWidget *parent) :
   Tool(parent)
 {
   // Calculate width used for importing to give ghosts a slight lead-in so the ghosts aren't right on the cursor
-  QFontMetrics fm = parent->fontMetrics();
-  import_pre_buffer_ = QFontMetricsWidth(&fm, "HHHHHHHH");
+  import_pre_buffer_ = QFontMetricsWidth(parent->fontMetrics(), "HHHHHHHH");
 }
 
 void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)

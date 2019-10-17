@@ -76,6 +76,7 @@ public:
   static void Unlink(Block* a, Block* b);
   static bool AreLinked(Block* a, Block* b);
   const QVector<Block*>& linked_clips();
+  bool HasLinks();
 
 public slots:
   /**

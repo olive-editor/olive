@@ -35,6 +35,6 @@
  * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the latter was only
  * introduced in 5.11+. This function wraps the latter for 5.11+ and the former for earlier.
  */
-int QFontMetricsWidth(const QFontMetrics* fm, const QString& s);
+int QFontMetricsWidth(QFontMetrics fm, const QString& s);
 
 #endif // QTVERSIONABSTRACTION_H

@@ -273,3 +273,8 @@ const QVector<Block*> &Block::linked_clips()
   return linked_clips_;
 }
 
+bool Block::HasLinks()
+{
+  return !linked_clips_.isEmpty();
+}
+
