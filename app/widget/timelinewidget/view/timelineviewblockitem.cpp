@@ -100,7 +100,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     // Linked clips are underlined
     if (block_->HasLinks()) {
       QFontMetrics fm = painter->fontMetrics();
-      int text_width = QFontMetricsWidth(fm, block_->block_name());
+      int text_width = qMin(qRound(rect().width()), QFontMetricsWidth(fm, block_->block_name()));
 
       QPointF underline_start = rect().topLeft() + QPointF(0, fm.height());
       QPointF underline_end = underline_start + QPointF(text_width, 0);
