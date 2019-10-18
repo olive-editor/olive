@@ -41,7 +41,7 @@ public:
 
   static void Open(SequencePtr sequence);
 
-  void AddDefaultNodes();
+  void add_default_nodes();
 
   /**
    * @brief Item::Type() override

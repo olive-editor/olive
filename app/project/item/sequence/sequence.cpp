@@ -55,7 +55,7 @@ void Sequence::Open(SequencePtr sequence)
   connect(viewer_panel, SIGNAL(TimeChanged(const int64_t&)), timeline_panel, SLOT(SetTime(const int64_t&)));
 }
 
-void Sequence::AddDefaultNodes()
+void Sequence::add_default_nodes()
 {
   timeline_output_ = new TimelineOutput();
   timeline_output_->SetCanBeDeleted(false);
