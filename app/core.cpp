@@ -297,7 +297,7 @@ void Core::CreateNewSequence()
                                                                                  folder,
                                                                                  new_sequence);
 
-    new_sequence->AddDefaultNodes();
+    new_sequence->add_default_nodes();
 
     olive::undo_stack.push(aic);
 

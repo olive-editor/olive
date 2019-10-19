@@ -20,8 +20,6 @@
 
 #include "clip.h"
 
-#include "node/processor/videorenderer/videorenderer.h"
-
 ClipBlock::ClipBlock()
 {
   texture_input_ = new NodeInput("tex_in");

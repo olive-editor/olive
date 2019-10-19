@@ -20,9 +20,9 @@
 
 #include "opacity.h"
 
-#include "node/processor/videorenderer/videorenderer.h"
 #include "render/gl/functions.h"
 #include "render/rendertexture.h"
+#include "render/video/videorenderer.h"
 
 OpacityNode::OpacityNode()
 {

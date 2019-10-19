@@ -25,11 +25,11 @@
 
 #include "core.h"
 #include "decoder/ffmpeg/ffmpegdecoder.h"
-#include "node/processor/videorenderer/videorenderer.h"
 #include "project/item/footage/footage.h"
 #include "render/gl/shadergenerators.h"
 #include "render/gl/functions.h"
 #include "render/pixelservice.h"
+#include "render/video/videorenderer.h"
 
 MediaInput::MediaInput() :
   decoder_(nullptr),

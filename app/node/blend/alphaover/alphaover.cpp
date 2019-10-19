@@ -20,10 +20,10 @@
 
 #include "alphaover.h"
 
-#include "node/processor/videorenderer/videorenderer.h"
 #include "render/gl/functions.h"
-#include "render/rendertexture.h"
 #include "render/gl/shadergenerators.h"
+#include "render/rendertexture.h"
+#include "render/video/videorenderer.h"
 
 AlphaOverBlend::AlphaOverBlend()
 {

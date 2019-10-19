@@ -16,13 +16,13 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/processor/videorenderer/videorenderer.h
-  node/processor/videorenderer/videorenderer.cpp
-  node/processor/videorenderer/videorendererthreadbase.h
-  node/processor/videorenderer/videorendererthreadbase.cpp
-  node/processor/videorenderer/videorendererdownloadthread.h
-  node/processor/videorenderer/videorendererdownloadthread.cpp
-  node/processor/videorenderer/videorendererprocessthread.h
-  node/processor/videorenderer/videorendererprocessthread.cpp
+  render/audio/audiorenderer.h
+  render/audio/audiorenderer.cpp
+  render/audio/audiorendererparams.h
+  render/audio/audiorendererparams.cpp
+  render/audio/audiorendererthread.h
+  render/audio/audiorendererthread.cpp
+  render/audio/audiorendererthreadbase.h
+  render/audio/audiorendererthreadbase.cpp
   PARENT_SCOPE
 )
