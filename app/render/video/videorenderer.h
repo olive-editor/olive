@@ -24,7 +24,7 @@
 #include <QLinkedList>
 #include <QOpenGLTexture>
 
-#include "node/node.h"
+#include "node/output/viewer/viewer.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
 #include "videorendererdownloadthread.h"
@@ -33,7 +33,7 @@
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
  */
-class VideoRendererProcessor : public Node
+class VideoRendererProcessor : public QObject
 {
   Q_OBJECT
 public:
@@ -43,18 +43,11 @@ public:
    * Constructing a Renderer object will not start any threads/backend on its own. Use Start() to do this and Stop()
    * when the Renderer is about to be destroyed.
    */
-  VideoRendererProcessor();
+  VideoRendererProcessor(QObject* parent);
 
-  virtual QString Name() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
-  virtual QString id() override;
+  virtual ~VideoRendererProcessor() override;
 
   void SetCacheName(const QString& s);
-
-  virtual void Release() override;
-
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
   void SetTimebase(const rational& timebase);
 
@@ -109,14 +102,12 @@ public:
 
   static RenderInstance* CurrentInstance();
 
-  NodeInput* texture_input();
+  RenderTexturePtr GetCachedFrame(const rational& time);
 
-  NodeInput* length_input();
+  void SetViewerNode(ViewerOutput* viewer);
 
-  NodeOutput* texture_output();
-
-protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+signals:
+  void CachedFrameReady(const rational& time);
 
 private:
   struct HashTimeMapping {
@@ -165,12 +156,6 @@ private:
    */
   bool started_;
 
-  NodeInput* texture_input_;
-
-  NodeInput* length_input_;
-
-  NodeOutput* texture_output_;
-
   int width_;
   int height_;
 
@@ -183,6 +168,8 @@ private:
   olive::PixelFormat format_;
 
   olive::RenderMode mode_;
+
+  rational last_time_requested_;
 
   rational timebase_;
   double timebase_dbl_;
@@ -199,6 +186,10 @@ private:
   int last_download_thread_;
 
   RenderTexturePtr master_texture_;
+  rational push_time_;
+
+  RenderFramebuffer copy_buffer_;
+  ShaderPtr copy_pipeline_;
 
   QMap<rational, QByteArray> time_hash_map_;
 
@@ -209,7 +200,11 @@ private:
 
   bool starting_;
 
+  ViewerOutput* viewer_node_;
+
 private slots:
+  void InvalidateCache(const rational &start_range, const rational &end_range);
+
   void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
 
   void ThreadRequestSibling(NodeDependency dep);

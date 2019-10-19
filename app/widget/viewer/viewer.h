@@ -30,6 +30,7 @@
 
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
+#include "render/video/videorenderer.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -109,6 +110,8 @@ private:
 
   void PushScrubbedAudio();
 
+  VideoRendererProcessor* video_renderer_;
+
   ViewerSizer* sizer_;
 
   ViewerGLWidget* gl_widget_;
@@ -141,7 +144,7 @@ private slots:
 
   void PlaybackTimerUpdate();
 
-  void ViewerNodeChangedBetween(const rational& start, const rational& end);
+  void RendererCachedFrame(const rational& time);
 
   void SizeChangedSlot(int width, int height);
 

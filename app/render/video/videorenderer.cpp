@@ -29,47 +29,28 @@
 #include <QtMath>
 
 #include "common/filefunctions.h"
+#include "render/gl/functions.h"
+#include "render/gl/shadergenerators.h"
 #include "render/pixelservice.h"
 
-VideoRendererProcessor::VideoRendererProcessor() :
+VideoRendererProcessor::VideoRendererProcessor(QObject *parent) :
+  QObject(parent),
   started_(false),
   width_(0),
   height_(0),
   divider_(1),
   caching_(false),
-  starting_(false)
+  push_time_(-1),
+  starting_(false),
+  viewer_node_(nullptr)
 {
-  texture_input_ = new NodeInput("tex_in");
-  texture_input_->add_data_input(NodeInput::kTexture);
-  AddParameter(texture_input_);
-
-  length_input_ = new NodeInput("length_in");
-  length_input_->add_data_input(NodeInput::kRational);
-  AddParameter(length_input_);
-
-  texture_output_ = new NodeOutput("tex_out");
-  texture_output_->set_data_type(NodeInput::kTexture);
-  AddParameter(texture_output_);
+  // FIXME: Cache name should actually be the name of the sequence
+  SetCacheName("Test");
 }
 
-QString VideoRendererProcessor::Name()
+VideoRendererProcessor::~VideoRendererProcessor()
 {
-  return tr("Video Renderer");
-}
-
-QString VideoRendererProcessor::Category()
-{
-  return tr("Processor");
-}
-
-QString VideoRendererProcessor::Description()
-{
-  return tr("A multi-threaded OpenGL hardware-accelerated node compositor.");
-}
-
-QString VideoRendererProcessor::id()
-{
-  return "org.olivevideoeditor.Olive.renderervenus";
+  Stop();
 }
 
 void VideoRendererProcessor::SetCacheName(const QString &s)
@@ -80,69 +61,18 @@ void VideoRendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
-QVariant VideoRendererProcessor::Value(NodeOutput* output, const rational& time)
+void VideoRendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range)
 {
-  if (output == texture_output_) {
-    if (!texture_input_->IsConnected()) {
-      // Nothing is connected - nothing to show or render
-      return 0;
-    }
-
-    if (cache_id_.isEmpty()) {
-      qWarning() << "RendererProcessor has no cache ID";
-      return 0;
-    }
-
-    if (timebase_.isNull()) {
-      qWarning() << "RendererProcessor has no timebase";
-      return 0;
-    }
-
-    // Find frame in map
-    if (time_hash_map_.contains(time)) {
-      QString fn = CachePathName(time_hash_map_[time]);
-
-      if (QFileInfo::exists(fn)) {
-        auto in = OIIO::ImageInput::open(fn.toStdString());
-
-        if (in) {
-          in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
-
-          in->close();
-
-          master_texture_->Upload(cache_frame_load_buffer_.data());
-
-          return QVariant::fromValue(master_texture_);
-        } else {
-          qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
-        }
-      }
-    }
-  }
-
-  return 0;
-}
-
-void VideoRendererProcessor::Release()
-{
-  Stop();
-}
-
-void VideoRendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
-{
-  Q_UNUSED(from)
-
   if (timebase_.isNull()) {
     return;
   }
 
-  //ClearCachedValuesInParameters(start_range, end_range);
-  texture_input_->ClearCachedValue();
-  length_input_->ClearCachedValue();
-
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(length_input()->get_value(0).value<rational>(), end_range);
+
+  // FIXME: Needs real length value
+  //rational end_range_adj = qMin(length_input()->get_value(0).value<rational>(), end_range);
+  rational end_range_adj = qMin(rational(60), end_range);
 
   qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()
@@ -157,7 +87,7 @@ void VideoRendererProcessor::InvalidateCache(const rational &start_range, const 
 
   for (rational r=true_start_range;r<=end_range_adj;r+=timebase_) {
     // Try to order the queue from closest to the playhead to furthest
-    rational last_time = texture_output()->LastRequestedTime();
+    rational last_time = last_time_requested_;
 
     rational diff = r - last_time;
 
@@ -313,6 +243,11 @@ void VideoRendererProcessor::Start()
   master_texture_ = std::make_shared<RenderTexture>();
   master_texture_->Create(ctx, effective_width_, effective_height_, format_);
 
+  // Create internal FBO for copying textures
+  copy_buffer_.Create(ctx);
+  copy_buffer_.Attach(master_texture_);
+  copy_pipeline_ = olive::ShaderGenerator::DefaultPipeline();
+
   cache_frame_load_buffer_.resize(PixelService::GetBufferSize(format_, effective_width_, effective_height_));
 
   started_ = true;
@@ -336,7 +271,9 @@ void VideoRendererProcessor::Stop()
   }
   threads_.clear();
 
+  copy_buffer_.Destroy();
   master_texture_ = nullptr;
+  copy_pipeline_ = nullptr;
 
   cache_frame_load_buffer_.clear();
 }
@@ -362,7 +299,7 @@ void VideoRendererProcessor::GenerateCacheIDInternal()
 
 void VideoRendererProcessor::CacheNext()
 {
-  if (cache_queue_.isEmpty() || !texture_input_->IsConnected() || caching_) {
+  if (cache_queue_.isEmpty() || viewer_node_ == nullptr || caching_) {
     return;
   }
 
@@ -373,7 +310,7 @@ void VideoRendererProcessor::CacheNext()
 
   qDebug() << "Caching" << cache_frame.toDouble();
 
-  threads_.first()->Queue(NodeDependency(texture_input_->get_connected_output(), cache_frame), true, false);
+  threads_.first()->Queue(NodeDependency(viewer_node_->texture_input()->get_connected_output(), cache_frame), true, false);
 
   caching_ = true;
 }
@@ -452,10 +389,20 @@ void VideoRendererProcessor::ThreadCallback(RenderTexturePtr texture, const rati
   }
 
   // If the connected output is using this time, signal it to update
-  if (texture_output_->IsConnected()
-      && texture_output_->LastRequestedTime() == time) {
-    texture_output_->push_value(QVariant::fromValue(texture), time);
-    SendInvalidateCache(time, time);
+  if (last_time_requested_ == time) {
+    copy_buffer_.Bind();
+    texture->Bind();
+
+    QOpenGLContext::currentContext()->functions()->glViewport(0, 0, master_texture_->width(), master_texture_->height());
+
+    olive::gl::Blit(copy_pipeline_);
+
+    texture->Release();
+    copy_buffer_.Release();
+
+    push_time_ = time;
+
+    emit CachedFrameReady(time);
   }
 
   CacheNext();
@@ -481,11 +428,7 @@ void VideoRendererProcessor::ThreadSkippedFrame(const rational& time, const QByt
     DownloadThreadComplete(hash);
 
     // Signal output to update value
-    if (texture_output_->IsConnected()
-        && texture_output_->LastRequestedTime() == time) {
-      texture_output_->ClearCachedValue();
-      SendInvalidateCache(time, time);
-    }
+    emit CachedFrameReady(time);
   }
 
   CacheNext();
@@ -526,17 +469,73 @@ RenderInstance *VideoRendererProcessor::CurrentInstance()
   return nullptr;
 }
 
-NodeInput *VideoRendererProcessor::texture_input()
+RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)
 {
-  return texture_input_;
+  last_time_requested_ = time;
+
+  if (push_time_ >= 0) {
+    rational temp_push_time = push_time_;
+    push_time_ = -1;
+
+    if (time == temp_push_time) {
+      return master_texture_;
+    }
+  }
+
+  if (viewer_node_ == nullptr) {
+    // Nothing is connected - nothing to show or render
+    return nullptr;
+  }
+
+  if (cache_id_.isEmpty()) {
+    qWarning() << "RendererProcessor has no cache ID";
+    return nullptr;
+  }
+
+  if (timebase_.isNull()) {
+    qWarning() << "RendererProcessor has no timebase";
+    return nullptr;
+  }
+
+  // Find frame in map
+  if (time_hash_map_.contains(time)) {
+    QString fn = CachePathName(time_hash_map_[time]);
+
+    if (QFileInfo::exists(fn)) {
+      auto in = OIIO::ImageInput::open(fn.toStdString());
+
+      if (in) {
+        in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
+
+        in->close();
+
+        master_texture_->Upload(cache_frame_load_buffer_.data());
+
+        return master_texture_;
+      } else {
+        qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+      }
+    }
+  }
+
+  return nullptr;
 }
 
-NodeInput *VideoRendererProcessor::length_input()
+void VideoRendererProcessor::SetViewerNode(ViewerOutput *viewer)
 {
-  return length_input_;
-}
+  if (viewer_node_ != nullptr) {
+    disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+  }
 
-NodeOutput *VideoRendererProcessor::texture_output()
-{
-  return texture_output_;
+  viewer_node_ = viewer;
+
+  if (viewer_node_ != nullptr) {
+    connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+
+    // FIXME: Hardcoded format and mode
+    SetParameters(viewer_node_->ViewerWidth(),
+                  viewer_node_->ViewerHeight(),
+                  olive::PIX_FMT_RGBA16F,
+                  olive::kOffline);
+  }
 }

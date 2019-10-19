@@ -78,7 +78,6 @@ private:
   void update_video_parameters();
 
   TimelineOutput* timeline_output_;
-  VideoRendererProcessor* video_renderer_processor_;
   ViewerOutput* viewer_output_;
   TrackOutput* video_track_output_;
   TrackOutput* audio_track_output_;

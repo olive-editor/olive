@@ -82,6 +82,10 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // FIXME: Magic number
   ruler_->SetScale(48.0);
+
+  // Start background renderers
+  video_renderer_ = new VideoRendererProcessor(this);
+  connect(video_renderer_, SIGNAL(CachedFrameReady(const rational&)), this, SLOT(RendererCachedFrame(const rational&)));
 }
 
 void ViewerWidget::SetTimebase(const rational &r)
@@ -93,6 +97,8 @@ void ViewerWidget::SetTimebase(const rational &r)
   controls_->SetTimebase(r);
 
   playback_timer_.setInterval(qFloor(r.toDouble()));
+
+  video_renderer_->SetTimebase(r);
 }
 
 const double &ViewerWidget::scale()
@@ -136,7 +142,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
     SetTimebase(0);
 
     disconnect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(ViewerNodeChangedBetween(const rational&, const rational&)));
     disconnect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
 
     // Effectively disables the viewer and clears the state
@@ -152,11 +157,12 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
     SetTimebase(viewer_node_->Timebase());
 
     connect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(ViewerNodeChangedBetween(const rational&, const rational&)));
     connect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
 
     SizeChangedSlot(viewer_node_->ViewerWidth(), viewer_node_->ViewerHeight());
   }
+
+  video_renderer_->SetViewerNode(viewer_node_);
 }
 
 void ViewerWidget::DisconnectViewerNode()
@@ -193,7 +199,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   if (viewer_node_ == nullptr) {
     SetTexture(nullptr);
   } else {
-    SetTexture(viewer_node_->GetTexture(time));
+    SetTexture(video_renderer_->GetCachedFrame(time));
   }
 }
 
@@ -222,14 +228,14 @@ void ViewerWidget::PlayInternal(int speed)
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  // FIXME: Test code
   if (Config::Current()["AudioScrubbing"].toBool() && !IsPlaying()) {
+    // FIXME: Test code
     int size_of_sample = qFloor(2 * 48000 * time_base_dbl_) * static_cast<int>(sizeof(float));
     test_file_.seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
     QByteArray frame_audio = test_file_.read(size_of_sample);
     AudioManager::instance()->PushToOutput(frame_audio);
+    // End test code
   }
-  // End test code
 }
 
 void ViewerWidget::RulerTimeChange(int64_t i)
@@ -333,9 +339,9 @@ void ViewerWidget::PlaybackTimerUpdate()
   SetTime(current_time);
 }
 
-void ViewerWidget::ViewerNodeChangedBetween(const rational &start, const rational &end)
+void ViewerWidget::RendererCachedFrame(const rational &time)
 {
-  if (GetTime() >= start && GetTime() <= end) {
+  if (GetTime() == time) {
     UpdateTextureFromNode(GetTime());
   }
 }

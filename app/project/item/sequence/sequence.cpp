@@ -32,7 +32,6 @@
 
 Sequence::Sequence() :
   timeline_output_(nullptr),
-  video_renderer_processor_(nullptr),
   viewer_output_(nullptr),
   video_track_output_(nullptr),
   audio_track_output_(nullptr)
@@ -61,10 +60,6 @@ void Sequence::add_default_nodes()
   timeline_output_->SetCanBeDeleted(false);
   AddNode(timeline_output_);
 
-  video_renderer_processor_ = new VideoRendererProcessor();
-  video_renderer_processor_->SetCanBeDeleted(false);
-  AddNode(video_renderer_processor_);
-
   viewer_output_ = new ViewerOutput();
   viewer_output_->SetCanBeDeleted(false);
   AddNode(viewer_output_);
@@ -77,21 +72,15 @@ void Sequence::add_default_nodes()
   audio_track_output_->SetCanBeDeleted(false);
   AddNode(audio_track_output_);
 
-  // Connect track to renderer
-  NodeParam::ConnectEdge(video_track_output_->texture_output(), video_renderer_processor_->texture_input());
-
-  // Connect renderer to viewer
-  NodeParam::ConnectEdge(video_renderer_processor_->texture_output(), viewer_output_->texture_input());
+  // Connect track to viewer
+  NodeParam::ConnectEdge(video_track_output_->texture_output(), viewer_output_->texture_input());
 
   // Connect track to timeline
   NodeParam::ConnectEdge(video_track_output_->track_output(), timeline_output_->track_input(kTrackTypeVideo));
   NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(kTrackTypeAudio));
 
-  // Connect timeline end point to renderer
-  NodeParam::ConnectEdge(timeline_output_->length_output(), video_renderer_processor_->length_input());
-
   // Update the timebase on these nodes
-  video_renderer_processor_->SetCacheName(name());
+  //video_renderer_processor_->SetCacheName(name());
   set_video_time_base(video_time_base_);
   update_video_parameters();
 }
@@ -162,9 +151,6 @@ void Sequence::set_video_time_base(const rational &time_base)
 
   if (viewer_output_ != nullptr)
     viewer_output_->SetTimebase(video_time_base_);
-
-  if (video_renderer_processor_ != nullptr)
-    video_renderer_processor_->SetTimebase(video_time_base_);
 }
 
 const rational &Sequence::audio_time_base()
@@ -200,7 +186,7 @@ void Sequence::SetDefaultParameters()
 
 void Sequence::update_video_parameters()
 {
-  if (video_renderer_processor_ != nullptr) {
+  /*if (video_renderer_processor_ != nullptr) {
     // Set renderer's parameters based on sequence's parameters
     video_renderer_processor_->SetParameters(video_width_,
                                        video_height_,
@@ -210,7 +196,7 @@ void Sequence::update_video_parameters()
 
     // Set the "cache name" only here to aid the cache ID's uniqueness
     video_renderer_processor_->SetCacheName(name());
-  }
+  }*/
 
   if (viewer_output_ != nullptr) {
     viewer_output_->SetViewerSize(video_width_, video_height_);
