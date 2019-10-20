@@ -24,9 +24,13 @@ ViewerOutput::ViewerOutput() :
   viewer_width_(0),
   viewer_height_(0)
 {
-  texture_input_ = new NodeInput("tex_out");
+  texture_input_ = new NodeInput("tex_in");
   texture_input_->add_data_input(NodeInput::kTexture);
   AddParameter(texture_input_);
+
+  length_input_ = new NodeInput("length_in");
+  length_input_->add_data_input(NodeInput::kRational);
+  AddParameter(length_input_);
 }
 
 QString ViewerOutput::Name()
@@ -66,6 +70,11 @@ NodeInput *ViewerOutput::texture_input()
   return texture_input_;
 }
 
+NodeInput *ViewerOutput::length_input()
+{
+  return length_input_;
+}
+
 RenderTexturePtr ViewerOutput::GetTexture(const rational &time)
 {
   return texture_input_->get_value(time).value<RenderTexturePtr>();
@@ -96,6 +105,11 @@ const int &ViewerOutput::ViewerWidth()
 const int &ViewerOutput::ViewerHeight()
 {
   return viewer_height_;
+}
+
+rational ViewerOutput::Length()
+{
+  return length_input_->get_value(0).value<rational>();
 }
 
 QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)

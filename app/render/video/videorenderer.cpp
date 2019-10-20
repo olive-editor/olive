@@ -69,10 +69,7 @@ void VideoRendererProcessor::InvalidateCache(const rational &start_range, const 
 
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
-
-  // FIXME: Needs real length value
-  //rational end_range_adj = qMin(length_input()->get_value(0).value<rational>(), end_range);
-  rational end_range_adj = qMin(rational(60), end_range);
+  rational end_range_adj = qMin(viewer_node_->Length(), end_range);
 
   qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()

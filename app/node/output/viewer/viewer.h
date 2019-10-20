@@ -44,6 +44,7 @@ public:
   void SetTimebase(const rational& timebase);
 
   NodeInput* texture_input();
+  NodeInput* length_input();
 
   RenderTexturePtr GetTexture(const rational& time);
 
@@ -53,6 +54,8 @@ public:
 
   const int& ViewerWidth();
   const int& ViewerHeight();
+
+  rational Length();
 
 signals:
   void TimebaseChanged(const rational&);
@@ -66,6 +69,8 @@ protected:
 
 private:
   NodeInput* texture_input_;
+
+  NodeInput* length_input_;
 
   rational timebase_;
 

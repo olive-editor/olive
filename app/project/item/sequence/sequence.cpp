@@ -75,6 +75,9 @@ void Sequence::add_default_nodes()
   // Connect track to viewer
   NodeParam::ConnectEdge(video_track_output_->texture_output(), viewer_output_->texture_input());
 
+  // Connect timeline length to viewer
+  NodeParam::ConnectEdge(timeline_output_->length_output(), viewer_output_->length_input());
+
   // Connect track to timeline
   NodeParam::ConnectEdge(video_track_output_->track_output(), timeline_output_->track_input(kTrackTypeVideo));
   NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(kTrackTypeAudio));
