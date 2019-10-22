@@ -293,7 +293,7 @@ QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &
         NodeOutput* potential_dep = input->get_connected_output();
 
         if (potential_dep != nullptr) {
-          run_deps.append(NodeDependency(potential_dep, time));
+          run_deps.append(NodeDependency(potential_dep, time, time));
         }
       }
     }
@@ -367,7 +367,7 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
   QList<NodeDependency> deps = RunDependencies(from, time);
   foreach (const NodeDependency& dep, deps) {
     // Hash the connected node
-    dep.node()->parent()->Hash(hash, dep.node(), dep.time());
+    dep.node()->parent()->Hash(hash, dep.node(), dep.in());
   }
 }
 

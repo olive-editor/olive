@@ -25,6 +25,7 @@
 #include "node/graph.h"
 #include "node/output/timeline/timeline.h"
 #include "node/output/viewer/viewer.h"
+#include "render/videoparams.h"
 #include "render/video/videorenderer.h"
 #include "project/item/item.h"
 
@@ -53,41 +54,23 @@ public:
   virtual QString duration() override;
   virtual QString rate() override;
 
-  /* VIDEO GETTER/SETTER FUNCTIONS */
+  const VideoParams& video_params();
+  void set_video_params(const VideoParams& vparam);
 
-  const int& video_width();
-  void set_video_width(const int& width);
+  const AudioParams& audio_params();
+  void set_audio_params(const AudioParams& params);
 
-  const int& video_height() const;
-  void set_video_height(const int& height);
-
-  const rational& video_time_base();
-  void set_video_time_base(const rational& time_base);
-
-  /* AUDIO GETTER/SETTER FUNCTIONS */
-
-  const rational& audio_time_base();
-  void set_audio_time_base(const rational& time_base);
-
-  const uint64_t& audio_channel_layout();
-  void set_audio_channel_layout(const uint64_t& channel_layout);
-
-  void SetDefaultParameters();
+  void set_default_parameters();
 
 private:
-  void update_video_parameters();
-
   TimelineOutput* timeline_output_;
   ViewerOutput* viewer_output_;
   TrackOutput* video_track_output_;
   TrackOutput* audio_track_output_;
 
-  int video_width_;
-  int video_height_;
-  rational video_time_base_;
+  VideoParams video_params_;
 
-  rational audio_time_base_;
-  uint64_t audio_channel_layout_;
+  AudioParams audio_params_;
 };
 
 #endif // SEQUENCE_H

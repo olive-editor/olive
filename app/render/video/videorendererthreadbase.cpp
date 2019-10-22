@@ -22,9 +22,9 @@
 
 #include <QDebug>
 
-VideoRendererThreadBase::VideoRendererThreadBase(QOpenGLContext *share_ctx, const int &width, const int &height, const int &divider, const olive::PixelFormat &format, const olive::RenderMode &mode) :
+VideoRendererThreadBase::VideoRendererThreadBase(QOpenGLContext *share_ctx, const VideoRenderingParams &params) :
   share_ctx_(share_ctx),
-  render_instance_(width, height, divider, format, mode)
+  render_instance_(params)
 {
   connect(share_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Cancel()));
 }

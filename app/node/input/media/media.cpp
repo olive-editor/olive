@@ -173,7 +173,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
       // OpenColorIO v1's color transforms can be done on GPU, which improves performance but reduces accuracy. When
       // online, we prefer accuracy over performance so we use the CPU path instead:
       // NOTE: OCIO v2 boasts 1:1 results with the CPU and GPU path so this won't be necessary forever
-      if (renderer->mode() == olive::RenderMode::kOnline) {
+      if (renderer->params().mode() == olive::RenderMode::kOnline) {
         // Convert to 32F, which is required for OpenColorIO's color transformation
         frame_ = PixelService::ConvertPixelFormat(frame_, olive::PIX_FMT_RGBA32F);
 
@@ -220,15 +220,15 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
     RenderTexturePtr output_texture = std::make_shared<RenderTexture>();
 
     output_texture->Create(renderer->context(),
-                    renderer->width(),
-                    renderer->height(),
-                    renderer->format(),
-                    RenderTexture::kDoubleBuffer);
+                           renderer->params().width(),
+                           renderer->params().height(),
+                           renderer->params().format(),
+                           RenderTexture::kDoubleBuffer);
 
     // Using the transformation matrix, blit our internal texture (in frame format) to our output texture (in
     // reference format)
 
-    if (renderer->mode() == olive::RenderMode::kOffline) {
+    if (renderer->params().mode() == olive::RenderMode::kOffline) {
       // For offline rendering, OCIO's GPU path is acceptable:
       // NOTE: OCIO v2 boasts 1:1 results with the CPU and GPU path so this won't be necessary forever
 
@@ -259,8 +259,8 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
     QMatrix4x4 transform;
 
     // Scale texture to a square for incoming matrix transformation
-    transform.scale(2.0f / static_cast<float>(renderer->width() * renderer->divider()),
-                    2.0f / static_cast<float>(renderer->height() * renderer->divider()));
+    transform.scale(2.0f / static_cast<float>(renderer->params().width() * renderer->params().divider()),
+                    2.0f / static_cast<float>(renderer->params().height() * renderer->params().divider()));
 
     // Multiply by input transformation
     transform *= matrix_input_->get_value(in).value<QMatrix4x4>();
@@ -273,7 +273,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
     //transform.scale(media_size, media_size);
 
     // Use pipeline to blit using transformation matrix from input
-    if (renderer->mode() == olive::RenderMode::kOffline) {
+    if (renderer->params().mode() == olive::RenderMode::kOffline) {
       olive::gl::OCIOBlit(pipeline_, ocio_texture_, false, transform);
     } else {
       olive::gl::Blit(pipeline_, false, transform);

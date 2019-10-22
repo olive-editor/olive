@@ -99,7 +99,7 @@ QList<NodeDependency> ClipBlock::RunDependencies(NodeOutput *output, const ratio
   QList<NodeDependency> deps;
 
   if (output == texture_output() && texture_input_->IsConnected()) {
-    deps.append(NodeDependency(texture_input_->get_connected_output(), SequenceToMediaTime(time)));
+    deps.append(NodeDependency(texture_input_->get_connected_output(), SequenceToMediaTime(time), SequenceToMediaTime(time)));
   }
 
   return deps;

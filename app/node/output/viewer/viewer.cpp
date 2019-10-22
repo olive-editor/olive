@@ -20,9 +20,7 @@
 
 #include "viewer.h"
 
-ViewerOutput::ViewerOutput() :
-  viewer_width_(0),
-  viewer_height_(0)
+ViewerOutput::ViewerOutput()
 {
   texture_input_ = new NodeInput("tex_in");
   texture_input_->add_data_input(NodeInput::kTexture);
@@ -55,18 +53,6 @@ QString ViewerOutput::Category()
 QString ViewerOutput::Description()
 {
   return tr("Interface between a Viewer panel and the node system.");
-}
-
-const rational &ViewerOutput::Timebase()
-{
-  return timebase_;
-}
-
-void ViewerOutput::SetTimebase(const rational &timebase)
-{
-  timebase_ = timebase;
-
-  emit TimebaseChanged(timebase_);
 }
 
 NodeInput *ViewerOutput::texture_input()
@@ -103,22 +89,27 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
   SendInvalidateCache(start_range, end_range);
 }
 
-void ViewerOutput::SetViewerSize(const int &width, const int &height)
+const VideoParams &ViewerOutput::video_params()
 {
-  viewer_width_ = width;
-  viewer_height_ = height;
-
-  emit SizeChanged(viewer_width_, viewer_height_);
+  return video_params_;
 }
 
-const int &ViewerOutput::ViewerWidth()
+const AudioParams &ViewerOutput::audio_params()
 {
-  return viewer_width_;
+  return audio_params_;
 }
 
-const int &ViewerOutput::ViewerHeight()
+void ViewerOutput::set_video_params(const VideoParams &video)
 {
-  return viewer_height_;
+  video_params_ = video;
+
+  emit SizeChanged(video_params_.width(), video_params_.height());
+  emit TimebaseChanged(video_params_.time_base());
+}
+
+void ViewerOutput::set_audio_params(const AudioParams &audio)
+{
+  audio_params_ = audio;
 }
 
 rational ViewerOutput::Length()

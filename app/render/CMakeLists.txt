@@ -35,5 +35,7 @@ set(OLIVE_SOURCES
   render/renderframebuffer.cpp
   render/rendertexture.h
   render/rendertexture.cpp
+  render/videoparams.h
+  render/videoparams.cpp
   PARENT_SCOPE
 )

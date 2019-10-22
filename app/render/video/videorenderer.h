@@ -49,8 +49,6 @@ public:
 
   void SetCacheName(const QString& s);
 
-  void SetTimebase(const rational& timebase);
-
   /**
    * @brief Set parameters of the Renderer
    *
@@ -69,13 +67,7 @@ public:
    *
    * Buffer pixel format
    */
-  void SetParameters(const int& width,
-                     const int& height,
-                     const olive::PixelFormat& format,
-                     const olive::RenderMode& mode,
-                     const int &divider = 0);
-
-  void SetDivider(const int& divider);
+  void SetParameters(const VideoRenderingParams &params);
 
   /**
    * @brief Return whether a frame with this hash already exists
@@ -156,23 +148,9 @@ private:
    */
   bool started_;
 
-  int width_;
-  int height_;
-
-  void CalculateEffectiveDimensions();
-
-  int divider_;
-  int effective_width_;
-  int effective_height_;
-
-  olive::PixelFormat format_;
-
-  olive::RenderMode mode_;
+  VideoRenderingParams params_;
 
   rational last_time_requested_;
-
-  rational timebase_;
-  double timebase_dbl_;
 
   QLinkedList<rational> cache_queue_;
   QString cache_name_;

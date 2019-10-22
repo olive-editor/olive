@@ -30,11 +30,7 @@ class AudioRendererProcessThread : public AudioRendererThreadBase
   Q_OBJECT
 public:
   AudioRendererProcessThread(AudioRendererProcessor* parent,
-                        QOpenGLContext* share_ctx,
-                        const int& width,
-                        const int& height, const int &divider,
-                        const olive::PixelFormat& format,
-                        const olive::RenderMode& mode);
+                             const AudioRenderingParams &params);
 
   bool Queue(const NodeDependency &dep, bool wait, bool sibling);
 
@@ -47,18 +43,12 @@ protected:
 signals:
   void RequestSibling(NodeDependency dep);
 
-  void CachedFrame(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
-
-  void FrameSkipped(const rational& time, const QByteArray& hash);
+  void CachedSamples(const QByteArray& samples, const rational& in, const rational& out);
 
 private:
   AudioRendererProcessor* parent_;
 
   NodeDependency path_;
-
-  QByteArray hash_;
-
-  RenderTexturePtr texture_;
 
   QAtomicInt cancelled_;
 

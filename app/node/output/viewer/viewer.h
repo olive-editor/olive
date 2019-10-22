@@ -22,6 +22,8 @@
 #define VIEWER_H
 
 #include "node/node.h"
+#include "render/videoparams.h"
+#include "render/audio/audioparams.h"
 #include "render/rendertexture.h"
 
 /**
@@ -40,9 +42,6 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
-  const rational& Timebase();
-  void SetTimebase(const rational& timebase);
-
   NodeInput* texture_input();
   NodeInput* samples_input();
   NodeInput* length_input();
@@ -52,10 +51,11 @@ public:
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
-  void SetViewerSize(const int& width, const int& height);
+  const VideoParams& video_params();
+  const AudioParams& audio_params();
 
-  const int& ViewerWidth();
-  const int& ViewerHeight();
+  void set_video_params(const VideoParams& video);
+  void set_audio_params(const AudioParams& audio);
 
   rational Length();
 
@@ -78,9 +78,9 @@ private:
 
   rational timebase_;
 
-  int viewer_width_;
+  VideoParams video_params_;
 
-  int viewer_height_;
+  AudioParams audio_params_;
 
 };
 

@@ -24,17 +24,9 @@
 
 #include "render/gl/shadergenerators.h"
 
-RenderInstance::RenderInstance(const int& width,
-                               const int& height,
-                               const int& divider,
-                               const olive::PixelFormat& format,
-                               const olive::RenderMode& mode) :
+RenderInstance::RenderInstance(const VideoRenderingParams& params) :
   share_ctx_(nullptr),
-  width_(width),
-  height_(height),
-  format_(format),
-  mode_(mode),
-  divider_(divider)
+  params_(params)
 {
   // Create offscreen surface
   surface_.create();
@@ -82,7 +74,7 @@ bool RenderInstance::Start()
   buffer_.Create(ctx_);
 
   // Set viewport to the compositing dimensions
-  ctx_->functions()->glViewport(0, 0, width_, height_);
+  ctx_->functions()->glViewport(0, 0, params_.width(), params_.height());
   ctx_->functions()->glEnable(GL_BLEND);
 
   // Set up default pipeline
@@ -122,29 +114,9 @@ QOpenGLContext *RenderInstance::context()
   return ctx_;
 }
 
-const int &RenderInstance::width() const
+const VideoRenderingParams &RenderInstance::params() const
 {
-  return width_;
-}
-
-const int &RenderInstance::height() const
-{
-  return height_;
-}
-
-const int &RenderInstance::divider() const
-{
-  return divider_;
-}
-
-const olive::PixelFormat &RenderInstance::format() const
-{
-  return format_;
-}
-
-const olive::RenderMode &RenderInstance::mode() const
-{
-  return mode_;
+  return params_;
 }
 
 ShaderPtr RenderInstance::default_pipeline() const

@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  render/audio/audioparams.h
+  render/audio/audioparams.cpp
   render/audio/audiorenderer.h
   render/audio/audiorenderer.cpp
   render/audio/audiorendererdownloadthread.h

@@ -84,9 +84,7 @@ void Sequence::add_default_nodes()
   NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(kTrackTypeAudio));
 
   // Update the timebase on these nodes
-  //video_renderer_processor_->SetCacheName(name());
-  set_video_time_base(video_time_base_);
-  update_video_parameters();
+  set_video_params(video_params_);
 }
 
 Item::Type Sequence::type() const
@@ -107,102 +105,48 @@ QString Sequence::duration()
 
   rational timeline_length = timeline_output_->length_output()->get_value(0, 0).value<rational>();
 
-  int64_t timestamp = olive::time_to_timestamp(timeline_length, video_time_base_);
+  int64_t timestamp = olive::time_to_timestamp(timeline_length, video_params_.time_base());
 
-  return olive::timestamp_to_timecode(timestamp, video_time_base_, olive::CurrentTimecodeDisplay());
+  return olive::timestamp_to_timecode(timestamp, video_params_.time_base(), olive::CurrentTimecodeDisplay());
 }
 
 QString Sequence::rate()
 {
-  return QCoreApplication::translate("Sequence", "%1 FPS").arg(video_time_base_.flipped().toDouble());
+  return QCoreApplication::translate("Sequence", "%1 FPS").arg(video_params_.time_base().flipped().toDouble());
 }
 
-const int &Sequence::video_width()
+const VideoParams &Sequence::video_params()
 {
-  return video_width_;
+  return video_params_;
 }
 
-void Sequence::set_video_width(const int &width)
+void Sequence::set_video_params(const VideoParams &vparam)
 {
-  video_width_ = width;
-
-  update_video_parameters();
-}
-
-const int &Sequence::video_height() const
-{
-  return video_height_;
-}
-
-void Sequence::set_video_height(const int &height)
-{
-  video_height_ = height;
-
-  update_video_parameters();
-}
-
-const rational &Sequence::video_time_base()
-{
-  return video_time_base_;
-}
-
-void Sequence::set_video_time_base(const rational &time_base)
-{
-  video_time_base_ = time_base;
-
-  if (timeline_output_ != nullptr)
-    timeline_output_->SetTimebase(video_time_base_);
+  video_params_ = vparam;
 
   if (viewer_output_ != nullptr)
-    viewer_output_->SetTimebase(video_time_base_);
+    viewer_output_->set_video_params(video_params_);
+
+  if (timeline_output_ != nullptr)
+    timeline_output_->SetTimebase(video_params_.time_base());
 }
 
-const rational &Sequence::audio_time_base()
+const AudioParams &Sequence::audio_params()
 {
-  return audio_time_base_;
+  return audio_params_;
 }
 
-void Sequence::set_audio_time_base(const rational &time_base)
+void Sequence::set_audio_params(const AudioParams &params)
 {
-  audio_time_base_ = time_base;
+  audio_params_ = params;
+
+  if (viewer_output_ != nullptr)
+    viewer_output_->set_audio_params(audio_params_);
 }
 
-const uint64_t &Sequence::audio_channel_layout()
+void Sequence::set_default_parameters()
 {
-  return audio_channel_layout_;
-}
-
-void Sequence::set_audio_channel_layout(const uint64_t &channel_layout)
-{
-  audio_channel_layout_ = channel_layout;
-}
-
-void Sequence::SetDefaultParameters()
-{
-  // FIXME: Make these configurable
-  set_video_width(1920);
-  set_video_height(1080);
-  set_video_time_base(rational(1001, 30000));
-
-  set_audio_time_base(rational(1, 48000));
-  set_audio_channel_layout(AV_CH_LAYOUT_STEREO);
-}
-
-void Sequence::update_video_parameters()
-{
-  /*if (video_renderer_processor_ != nullptr) {
-    // Set renderer's parameters based on sequence's parameters
-    video_renderer_processor_->SetParameters(video_width_,
-                                       video_height_,
-                                       olive::PIX_FMT_RGBA16F, // FIXME: Make this configurable
-                                       olive::RenderMode::kOffline,
-                                       2);
-
-    // Set the "cache name" only here to aid the cache ID's uniqueness
-    video_renderer_processor_->SetCacheName(name());
-  }*/
-
-  if (viewer_output_ != nullptr) {
-    viewer_output_->SetViewerSize(video_width_, video_height_);
-  }
+  // FIXME: Make these configurable (hardcoded)
+  set_video_params(VideoParams(1920, 1080, rational(1001, 30000)));
+  set_audio_params(AudioParams(48000, AV_CH_LAYOUT_STEREO));
 }

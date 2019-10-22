@@ -25,9 +25,15 @@ NodeDependency::NodeDependency() :
 {
 }
 
-NodeDependency::NodeDependency(NodeOutput *node, const rational &time) :
+NodeDependency::NodeDependency(NodeOutput *node, const TimeRange &range) :
   node_(node),
-  time_(time)
+  range_(range)
+{
+}
+
+NodeDependency::NodeDependency(NodeOutput *node, const rational &in, const rational &out) :
+  node_(node),
+  range_(in, out)
 {
 }
 
@@ -36,7 +42,17 @@ NodeOutput *NodeDependency::node() const
   return node_;
 }
 
-const rational& NodeDependency::time() const
+const rational& NodeDependency::in() const
 {
-  return time_;
+  return range_.in();
+}
+
+const rational &NodeDependency::out() const
+{
+  return range_.out();
+}
+
+const TimeRange &NodeDependency::range() const
+{
+  return range_;
 }

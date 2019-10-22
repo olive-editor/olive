@@ -115,16 +115,16 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   AddFrameRate(rational(60, 1));            // 60 FPS
 
   // Set up available sample rates
-  AddSampleRate(rational(8000, 1));         // 8000 Hz
-  AddSampleRate(rational(11025, 1));        // 11025 Hz
-  AddSampleRate(rational(16000, 1));        // 16000 Hz
-  AddSampleRate(rational(22050, 1));        // 22050 Hz
-  AddSampleRate(rational(24000, 1));        // 24000 Hz
-  AddSampleRate(rational(32000, 1));        // 32000 Hz
-  AddSampleRate(rational(44100, 1));        // 44100 Hz
-  AddSampleRate(rational(48000, 1));        // 48000 Hz
-  AddSampleRate(rational(88200, 1));        // 88200 Hz
-  AddSampleRate(rational(96000, 1));        // 96000 Hz
+  AddSampleRate(8000);         // 8000 Hz
+  AddSampleRate(11025);        // 11025 Hz
+  AddSampleRate(16000);        // 16000 Hz
+  AddSampleRate(22050);        // 22050 Hz
+  AddSampleRate(24000);        // 24000 Hz
+  AddSampleRate(32000);        // 32000 Hz
+  AddSampleRate(44100);        // 44100 Hz
+  AddSampleRate(48000);        // 48000 Hz
+  AddSampleRate(88200);        // 88200 Hz
+  AddSampleRate(96000);        // 96000 Hz
 
   // Set up available channel layouts
   AddChannelLayout(AV_CH_LAYOUT_MONO);
@@ -133,17 +133,17 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   AddChannelLayout(AV_CH_LAYOUT_7POINT1);
 
   // Set values based on input sequence
-  video_width_field_->setValue(sequence_->video_width());
-  video_height_field_->setValue(sequence_->video_height());
+  video_width_field_->setValue(sequence_->video_params().width());
+  video_height_field_->setValue(sequence_->video_params().height());
 
-  int frame_rate_index = frame_rate_list_.indexOf(sequence_->video_time_base().flipped());
+  int frame_rate_index = frame_rate_list_.indexOf(sequence_->video_params().time_base().flipped());
   video_frame_rate_field_->setCurrentIndex(frame_rate_index);
 
-  int sample_rate_index = sample_rate_list_.indexOf(sequence_->audio_time_base().flipped());
+  int sample_rate_index = sample_rate_list_.indexOf(sequence_->audio_params().sample_rate());
   audio_sample_rate_field_->setCurrentIndex(sample_rate_index);
 
   for (int i=0;i<audio_channels_field_->count();i++) {
-    if (audio_channels_field_->itemData(i).toULongLong() == sequence_->audio_channel_layout()) {
+    if (audio_channels_field_->itemData(i).toULongLong() == sequence_->audio_params().channel_layout()) {
       audio_channels_field_->setCurrentIndex(i);
       break;
     }
@@ -169,32 +169,33 @@ void SequenceDialog::accept()
 
 
   // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
-  rational audio_time_base = sample_rate_list_.at(audio_sample_rate_field_->currentIndex()).flipped();
+  int audio_sample_rate = sample_rate_list_.at(audio_sample_rate_field_->currentIndex());
 
   // Get the audio channel layout value
   uint64_t channels = audio_channels_field_->currentData().toULongLong();
+
+  // Generate video and audio parameter structs from data
+  VideoParams video_params = VideoParams(video_width_field_->value(),
+                                         video_height_field_->value(),
+                                         video_time_base);
+
+  AudioParams audio_params = AudioParams(audio_sample_rate,
+                                         channels);
 
   if (make_undoable_) {
 
     // Make undoable command to change the parameters
     SequenceParamCommand* param_command = new SequenceParamCommand(sequence_,
-                                                                   video_width_field_->value(),
-                                                                   video_height_field_->value(),
-                                                                   video_time_base,
-                                                                   audio_time_base,
-                                                                   channels);
+                                                                   video_params,
+                                                                   audio_params,
+                                                                   name_field_->text());
 
     olive::undo_stack.push(param_command);
 
   } else {
     // Set sequence values directly with no undo command
-    sequence_->set_video_width(video_width_field_->value());
-    sequence_->set_video_height(video_height_field_->value());
-    sequence_->set_video_time_base(video_time_base);
-
-    sequence_->set_audio_time_base(audio_time_base);
-    sequence_->set_audio_channel_layout(channels);
-
+    sequence_->set_video_params(video_params);
+    sequence_->set_audio_params(audio_params);
     sequence_->set_name(name_field_->text());
   }
 
@@ -208,11 +209,11 @@ void SequenceDialog::AddFrameRate(const rational &r)
   video_frame_rate_field_->addItem(tr("%1 FPS").arg(r.toDouble()));
 }
 
-void SequenceDialog::AddSampleRate(const rational &rate)
+void SequenceDialog::AddSampleRate(const int &rate)
 {
   sample_rate_list_.append(rate);
 
-  audio_sample_rate_field_->addItem(tr("%1 Hz").arg(rate.toDouble()));
+  audio_sample_rate_field_->addItem(tr("%1 Hz").arg(rate));
 }
 
 void SequenceDialog::AddChannelLayout(int layout)
@@ -239,42 +240,32 @@ void SequenceDialog::AddChannelLayout(int layout)
   audio_channels_field_->addItem(layout_name, layout);
 }
 
-SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence *s,
-                                                           const int &width,
-                                                           const int &height,
-                                                           const rational &v_timebase,
-                                                           const rational &a_timebase,
-                                                           const uint64_t &channels,
-                                                           QUndoCommand *parent):
+SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
+                                                           const VideoParams& video_params,
+                                                           const AudioParams& audio_params,
+                                                           const QString& name,
+                                                           QUndoCommand* parent) :
   QUndoCommand(parent),
   sequence_(s),
-  width_(width),
-  height_(height),
-  v_timebase_(v_timebase),
-  a_timebase_(a_timebase),
-  channels_(channels),
-  old_width_(s->video_width()),
-  old_height_(s->video_height()),
-  old_v_timebase_(s->video_time_base()),
-  old_a_timebase_(s->audio_time_base()),
-  old_channels_(s->audio_channel_layout())
+  new_video_params_(video_params),
+  new_audio_params_(audio_params),
+  new_name_(name),
+  old_video_params_(s->video_params()),
+  old_audio_params_(s->audio_params()),
+  old_name_(s->name())
 {
 }
 
 void SequenceDialog::SequenceParamCommand::redo()
 {
-  sequence_->set_video_width(width_);
-  sequence_->set_video_height(height_);
-  sequence_->set_video_time_base(v_timebase_);
-  sequence_->set_audio_time_base(a_timebase_);
-  sequence_->set_audio_channel_layout(channels_);
+  sequence_->set_video_params(new_video_params_);
+  sequence_->set_audio_params(new_audio_params_);
+  sequence_->set_name(new_name_);
 }
 
 void SequenceDialog::SequenceParamCommand::undo()
 {
-  sequence_->set_video_width(old_width_);
-  sequence_->set_video_height(old_height_);
-  sequence_->set_video_time_base(old_v_timebase_);
-  sequence_->set_audio_time_base(old_a_timebase_);
-  sequence_->set_audio_channel_layout(old_channels_);
+  sequence_->set_video_params(old_video_params_);
+  sequence_->set_audio_params(old_audio_params_);
+  sequence_->set_name(old_name_);
 }

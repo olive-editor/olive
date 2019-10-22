@@ -3,7 +3,7 @@
 
 #include "audiorendererthreadbase.h"
 
-class AudioRendererDownloadThread : public AudioRendererThreadBase
+/*class AudioRendererDownloadThread : public AudioRendererThreadBase
 {
   Q_OBJECT
 public:
@@ -44,6 +44,6 @@ private:
 
 };
 
-using AudioRendererDownloadThreadPtr = std::shared_ptr<AudioRendererDownloadThread>;
+using AudioRendererDownloadThreadPtr = std::shared_ptr<AudioRendererDownloadThread>;*/
 
 #endif // AUDIORENDERERDOWNLOADTHREAD_H

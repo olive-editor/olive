@@ -274,7 +274,7 @@ void Core::CreateNewSequence()
   SequencePtr new_sequence = std::make_shared<Sequence>();
 
   // Set all defaults for the sequence
-  new_sequence->SetDefaultParameters();
+  new_sequence->set_default_parameters();
 
   // Get default name for this sequence (in the format "Sequence N", the first that doesn't exist)
   int sequence_number = 1;

@@ -36,9 +36,6 @@
 VideoRendererProcessor::VideoRendererProcessor(QObject *parent) :
   QObject(parent),
   started_(false),
-  width_(0),
-  height_(0),
-  divider_(1),
   caching_(false),
   push_time_(-1),
   starting_(false),
@@ -63,7 +60,7 @@ void VideoRendererProcessor::SetCacheName(const QString &s)
 
 void VideoRendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range)
 {
-  if (timebase_.isNull()) {
+  if (!params_.is_valid()) {
     return;
   }
 
@@ -78,11 +75,11 @@ void VideoRendererProcessor::InvalidateCache(const rational &start_range, const 
 
   // Snap start_range to timebase
   double start_range_dbl = start_range_adj.toDouble();
-  double start_range_numf = start_range_dbl * static_cast<double>(timebase_.denominator());
-  int64_t start_range_numround = qFloor(start_range_numf/static_cast<double>(timebase_.numerator())) * timebase_.numerator();
-  rational true_start_range(start_range_numround, timebase_.denominator());
+  double start_range_numf = start_range_dbl * static_cast<double>(params_.time_base().denominator());
+  int64_t start_range_numround = qFloor(start_range_numf/static_cast<double>(params_.time_base().numerator())) * params_.time_base().numerator();
+  rational true_start_range(start_range_numround, params_.time_base().denominator());
 
-  for (rational r=true_start_range;r<=end_range_adj;r+=timebase_) {
+  for (rational r=true_start_range;r<=end_range_adj;r+=params_.time_base()) {
     // Try to order the queue from closest to the playhead to furthest
     rational last_time = last_time_requested_;
 
@@ -129,48 +126,14 @@ void VideoRendererProcessor::InvalidateCache(const rational &start_range, const 
   CacheNext();
 }
 
-void VideoRendererProcessor::SetTimebase(const rational &timebase)
-{
-  timebase_ = timebase;
-  timebase_dbl_ = timebase_.toDouble();
-}
-
-void VideoRendererProcessor::SetParameters(const int &width,
-                                      const int &height,
-                                      const olive::PixelFormat &format,
-                                      const olive::RenderMode &mode,
-                                      const int& divider)
+void VideoRendererProcessor::SetParameters(const VideoRenderingParams& params)
 {
   // Since we're changing parameters, all the existing threads are invalid and must be removed. They will start again
   // next time this Node has to process anything.
   Stop();
 
   // Set new parameters
-  width_ = width;
-  height_ = height;
-  format_ = format;
-  mode_ = mode;
-
-  // divider's default value is 0, so we can assume if it's 0 a divider wasn't specified
-  if (divider > 0) {
-    divider_ = divider;
-  }
-
-  CalculateEffectiveDimensions();
-
-  // Regenerate the cache ID
-  GenerateCacheIDInternal();
-}
-
-void VideoRendererProcessor::SetDivider(const int &divider)
-{
-  Q_ASSERT(divider_ > 0);
-
-  Stop();
-
-  divider_ = divider;
-
-  CalculateEffectiveDimensions();
+  params_ = params;
 
   // Regenerate the cache ID
   GenerateCacheIDInternal();
@@ -193,7 +156,7 @@ void VideoRendererProcessor::Start()
   threads_.resize(background_thread_count);
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererProcessThread>(this, ctx, effective_width_, effective_height_, divider_, format_, mode_);
+    threads_[i] = std::make_shared<RendererProcessThread>(this, ctx, params_);
     threads_[i]->StartThread(QThread::LowPriority);
 
     // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
@@ -221,7 +184,7 @@ void VideoRendererProcessor::Start()
 
   for (int i=0;i<download_threads_.size();i++) {
     // Create download thread
-    download_threads_[i] = std::make_shared<VideoRendererDownloadThread>(ctx, effective_width_, effective_height_, divider_, format_, mode_);
+    download_threads_[i] = std::make_shared<VideoRendererDownloadThread>(ctx, params_);
     download_threads_[i]->StartThread(QThread::LowPriority);
 
     connect(download_threads_[i].get(),
@@ -238,14 +201,14 @@ void VideoRendererProcessor::Start()
 
   // Create master texture (the one sent to the viewer)
   master_texture_ = std::make_shared<RenderTexture>();
-  master_texture_->Create(ctx, effective_width_, effective_height_, format_);
+  master_texture_->Create(ctx, params_.effective_width(), params_.effective_height(), params_.format());
 
   // Create internal FBO for copying textures
   copy_buffer_.Create(ctx);
   copy_buffer_.Attach(master_texture_);
   copy_pipeline_ = olive::ShaderGenerator::DefaultPipeline();
 
-  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(format_, effective_width_, effective_height_));
+  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
 
   started_ = true;
 }
@@ -277,7 +240,7 @@ void VideoRendererProcessor::Stop()
 
 void VideoRendererProcessor::GenerateCacheIDInternal()
 {
-  if (cache_name_.isEmpty() || effective_width_ == 0 || effective_height_ == 0) {
+  if (cache_name_.isEmpty() || !params_.is_valid()) {
     return;
   }
 
@@ -285,10 +248,10 @@ void VideoRendererProcessor::GenerateCacheIDInternal()
   QCryptographicHash hash(QCryptographicHash::Sha1);
   hash.addData(cache_name_.toUtf8());
   hash.addData(QString::number(cache_time_).toUtf8());
-  hash.addData(QString::number(width_).toUtf8());
-  hash.addData(QString::number(height_).toUtf8());
-  hash.addData(QString::number(format_).toUtf8());
-  hash.addData(QString::number(divider_).toUtf8());
+  hash.addData(QString::number(params_.width()).toUtf8());
+  hash.addData(QString::number(params_.height()).toUtf8());
+  hash.addData(QString::number(params_.format()).toUtf8());
+  hash.addData(QString::number(params_.divider()).toUtf8());
 
   QByteArray bytes = hash.result();
   cache_id_ = bytes.toHex();
@@ -307,7 +270,7 @@ void VideoRendererProcessor::CacheNext()
 
   qDebug() << "Caching" << cache_frame.toDouble();
 
-  threads_.first()->Queue(NodeDependency(viewer_node_->texture_input()->get_connected_output(), cache_frame), true, false);
+  threads_.first()->Queue(NodeDependency(viewer_node_->texture_input()->get_connected_output(), cache_frame, cache_frame), true, false);
 
   caching_ = true;
 }
@@ -356,12 +319,6 @@ bool VideoRendererProcessor::TryCache(const QByteArray &hash)
   cache_hash_list_mutex_.unlock();
 
   return !is_caching;
-}
-
-void VideoRendererProcessor::CalculateEffectiveDimensions()
-{
-  effective_width_ = width_ / divider_;
-  effective_height_ = height_ / divider_;
 }
 
 void VideoRendererProcessor::ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash)
@@ -485,12 +442,12 @@ RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)
   }
 
   if (cache_id_.isEmpty()) {
-    qWarning() << "RendererProcessor has no cache ID";
+    qWarning() << "No cache ID";
     return nullptr;
   }
 
-  if (timebase_.isNull()) {
-    qWarning() << "RendererProcessor has no timebase";
+  if (!params_.is_valid()) {
+    qWarning() << "Invalid parameters";
     return nullptr;
   }
 
@@ -502,7 +459,7 @@ RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)
       auto in = OIIO::ImageInput::open(fn.toStdString());
 
       if (in) {
-        in->read_image(PixelService::GetPixelFormatInfo(format_).oiio_desc, cache_frame_load_buffer_.data());
+        in->read_image(PixelService::GetPixelFormatInfo(params_.format()).oiio_desc, cache_frame_load_buffer_.data());
 
         in->close();
 
@@ -529,10 +486,7 @@ void VideoRendererProcessor::SetViewerNode(ViewerOutput *viewer)
   if (viewer_node_ != nullptr) {
     connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
 
-    // FIXME: Hardcoded format and mode
-    SetParameters(viewer_node_->ViewerWidth(),
-                  viewer_node_->ViewerHeight(),
-                  olive::PIX_FMT_RGBA16F,
-                  olive::kOffline);
+    // FIXME: Hardcoded format, mode, and divider
+    SetParameters(VideoRenderingParams(viewer_node_->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
   }
 }

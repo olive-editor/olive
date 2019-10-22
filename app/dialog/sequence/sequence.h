@@ -90,7 +90,7 @@ private:
   /**
    * @brief Internal function for adding a selectable sample rate
    */
-  void AddSampleRate(const rational &rate);
+  void AddSampleRate(const int &rate);
 
   /**
    * @brief Internal function for adding a selectable channel layout
@@ -115,7 +115,7 @@ private:
 
   QVector<rational> frame_rate_list_;
 
-  QVector<rational> sample_rate_list_;
+  QVector<int> sample_rate_list_;
 
   /**
    * @brief A QUndoCommand for setting the parameters on a sequence
@@ -123,11 +123,9 @@ private:
   class SequenceParamCommand : public QUndoCommand {
   public:
     SequenceParamCommand(Sequence* s,
-                         const int& width,
-                         const int& height,
-                         const rational& v_timebase,
-                         const rational& a_timebase,
-                         const uint64_t &channels,
+                         const VideoParams& video_params,
+                         const AudioParams& audio_params,
+                         const QString& name,
                          QUndoCommand* parent = nullptr);
 
     virtual void redo() override;
@@ -135,17 +133,13 @@ private:
   private:
     Sequence* sequence_;
 
-    int width_;
-    int height_;
-    rational v_timebase_;
-    rational a_timebase_;
-    uint64_t channels_;
+    VideoParams new_video_params_;
+    AudioParams new_audio_params_;
+    QString new_name_;
 
-    int old_width_;
-    int old_height_;
-    rational old_v_timebase_;
-    rational old_a_timebase_;
-    uint64_t old_channels_;
+    VideoParams old_video_params_;
+    AudioParams old_audio_params_;
+    QString old_name_;
   };
 };
 

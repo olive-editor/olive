@@ -31,10 +31,7 @@ class RendererProcessThread : public VideoRendererThreadBase
 public:
   RendererProcessThread(VideoRendererProcessor* parent,
                         QOpenGLContext* share_ctx,
-                        const int& width,
-                        const int& height, const int &divider,
-                        const olive::PixelFormat& format,
-                        const olive::RenderMode& mode);
+                        const VideoRenderingParams &params);
 
   bool Queue(const NodeDependency &dep, bool wait, bool sibling);
 

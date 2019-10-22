@@ -26,21 +26,16 @@
 #include <QThread>
 #include <QWaitCondition>
 
+#include "audioparams.h"
 #include "node/node.h"
-#include "render/renderinstance.h"
 
 class AudioRendererThreadBase : public QThread
 {
   Q_OBJECT
 public:
-  AudioRendererThreadBase(QOpenGLContext* share_ctx,
-                     const int& width,
-                     const int& height,
-                     const int& divider,
-                     const olive::PixelFormat& format,
-                     const olive::RenderMode& mode);
+  AudioRendererThreadBase(const AudioRenderingParams &params);
 
-  RenderInstance* render_instance();
+  AudioParams* params();
 
   void StartThread(Priority priority = InheritPriority);
 
@@ -61,9 +56,7 @@ protected:
 private:
   void WakeCaller();
 
-  QOpenGLContext* share_ctx_;
-
-  RenderInstance render_instance_;
+  AudioRenderingParams params_;
 
 };
 

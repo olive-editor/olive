@@ -22,16 +22,14 @@
 
 #include <QDebug>
 
-AudioRendererThreadBase::AudioRendererThreadBase(QOpenGLContext *share_ctx, const int &width, const int &height, const int &divider, const olive::PixelFormat &format, const olive::RenderMode &mode) :
-  share_ctx_(share_ctx),
-  render_instance_(width, height, divider, format, mode)
+AudioRendererThreadBase::AudioRendererThreadBase(const AudioRenderingParams &params) :
+  params_(params)
 {
-  connect(share_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Cancel()));
 }
 
-RenderInstance *AudioRendererThreadBase::render_instance()
+AudioParams *AudioRendererThreadBase::params()
 {
-  return &render_instance_;
+  return &params_;
 }
 
 void AudioRendererThreadBase::run()
@@ -39,23 +37,11 @@ void AudioRendererThreadBase::run()
   // Lock mutex for main loop
   mutex_.lock();
 
-  render_instance_.SetShareContext(share_ctx_);
-
-  // Allocate and create resources
-  bool started = render_instance_.Start();
-
   // Signal that main thread can continue now
   WakeCaller();
 
-  if (started) {
-
-    // Main loop (use Cancel() to exit it)
-    ProcessLoop();
-
-  }
-
-  // Free all resources
-  render_instance_.Stop();
+  // Main loop (use Cancel() to exit it)
+  ProcessLoop();
 
   // Unlock mutex before exiting
   mutex_.unlock();

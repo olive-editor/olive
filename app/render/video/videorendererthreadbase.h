@@ -33,12 +33,7 @@ class VideoRendererThreadBase : public QThread
 {
   Q_OBJECT
 public:
-  VideoRendererThreadBase(QOpenGLContext* share_ctx,
-                     const int& width,
-                     const int& height,
-                     const int& divider,
-                     const olive::PixelFormat& format,
-                     const olive::RenderMode& mode);
+  VideoRendererThreadBase(QOpenGLContext* share_ctx, const VideoRenderingParams& params);
 
   RenderInstance* render_instance();
 

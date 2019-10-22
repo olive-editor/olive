@@ -28,6 +28,7 @@
 #include "render/gl/shaderptr.h"
 #include "render/renderframebuffer.h"
 #include "render/rendermodes.h"
+#include "render/videoparams.h"
 
 /**
  * @brief An object containing all resources necessary for each thread to support hardware accelerated rendering
@@ -40,11 +41,7 @@
 class RenderInstance : public QObject
 {
 public:
-  RenderInstance(const int& width,
-                 const int& height,
-                 const int& divider,
-                 const olive::PixelFormat& format,
-                 const olive::RenderMode& mode);
+  RenderInstance(const VideoRenderingParams &params);
 
   virtual ~RenderInstance() override;
 
@@ -80,15 +77,7 @@ public:
 
   QOpenGLContext* context();
 
-  const int& width() const;
-
-  const int& height() const;
-
-  const int& divider() const;
-
-  const olive::PixelFormat& format() const;
-
-  const olive::RenderMode& mode() const;
+  const VideoRenderingParams& params() const;
 
   ShaderPtr default_pipeline() const;
 
@@ -101,15 +90,7 @@ private:
 
   RenderFramebuffer buffer_;
 
-  int width_;
-
-  int height_;
-
-  olive::PixelFormat format_;
-
-  olive::RenderMode mode_;
-
-  int divider_;
+  VideoRenderingParams params_;
 
   ShaderPtr default_pipeline_;
 };

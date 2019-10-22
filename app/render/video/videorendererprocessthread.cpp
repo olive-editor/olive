@@ -24,12 +24,8 @@
 
 RendererProcessThread::RendererProcessThread(VideoRendererProcessor* parent,
                                              QOpenGLContext *share_ctx,
-                                             const int &width,
-                                             const int &height,
-                                             const int &divider,
-                                             const olive::PixelFormat &format,
-                                             const olive::RenderMode &mode) :
-  VideoRendererThreadBase(share_ctx, width, height, divider, format, mode),
+                                             const VideoRenderingParams &params) :
+  VideoRendererThreadBase(share_ctx, params),
   parent_(parent),
   cancelled_(false)
 {
@@ -109,7 +105,7 @@ void RendererProcessThread::ProcessLoop()
 
       // Check hash
       QCryptographicHash hasher(QCryptographicHash::Sha1);
-      node_to_process->Hash(&hasher, output_to_process, path_.time());
+      node_to_process->Hash(&hasher, output_to_process, path_.in());
       hash_ = hasher.result();
 
       has_hash = parent_->HasHash(hash_);
@@ -120,7 +116,7 @@ void RendererProcessThread::ProcessLoop()
 
       if ((can_cache = parent_->TryCache(hash_))) {
 
-        QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.time());
+        QList<NodeDependency> deps = node_to_process->RunDependencies(output_to_process, path_.in());
 
         // Ask for other threads to run these deps while we're here
         if (!deps.isEmpty()) {
@@ -130,7 +126,7 @@ void RendererProcessThread::ProcessLoop()
         }
 
         // Get the requested value
-        texture_ = output_to_process->get_value(path_.time(), path_.time()).value<RenderTexturePtr>();
+        texture_ = output_to_process->get_value(path_.in(), path_.in()).value<RenderTexturePtr>();
 
         render_instance()->context()->functions()->glFinish();
       }
@@ -146,10 +142,10 @@ void RendererProcessThread::ProcessLoop()
 
     if (can_cache) {
       // We cached this frame, signal that it will need to be downloaded to disk
-      emit CachedFrame(texture_, path_.time(), hash_);
+      emit CachedFrame(texture_, path_.in(), hash_);
     } else {
       // This hash already exists, no need to cache, just map it
-      emit FrameSkipped(path_.time(), hash_);
+      emit FrameSkipped(path_.in(), hash_);
     }
   }
 }

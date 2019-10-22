@@ -97,8 +97,6 @@ void ViewerWidget::SetTimebase(const rational &r)
   controls_->SetTimebase(r);
 
   playback_timer_.setInterval(qFloor(r.toDouble()));
-
-  video_renderer_->SetTimebase(r);
 }
 
 const double &ViewerWidget::scale()
@@ -154,12 +152,12 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   UpdateTextureFromNode(GetTime());
 
   if (viewer_node_ != nullptr) {
-    SetTimebase(viewer_node_->Timebase());
+    SetTimebase(viewer_node_->video_params().time_base());
 
     connect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     connect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
 
-    SizeChangedSlot(viewer_node_->ViewerWidth(), viewer_node_->ViewerHeight());
+    SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
   }
 
   video_renderer_->SetViewerNode(viewer_node_);

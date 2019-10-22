@@ -30,6 +30,7 @@
 
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
+#include "render/audio/audiorenderer.h"
 #include "render/video/videorenderer.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
@@ -111,6 +112,8 @@ private:
   void PushScrubbedAudio();
 
   VideoRendererProcessor* video_renderer_;
+
+  AudioRendererProcessor* audio_renderer_;
 
   ViewerSizer* sizer_;
 

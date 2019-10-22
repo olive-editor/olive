@@ -7,7 +7,7 @@
 #include "common/define.h"
 #include "render/pixelservice.h"
 
-AudioRendererDownloadThread::AudioRendererDownloadThread(QOpenGLContext *share_ctx,
+/*AudioRendererDownloadThread::AudioRendererDownloadThread(QOpenGLContext *share_ctx,
                                                          const int &width,
                                                          const int &height,
                                                          const int &divider,
@@ -125,4 +125,4 @@ void AudioRendererDownloadThread::ProcessLoop()
   }
 
   f->glDeleteFramebuffers(1, &read_buffer_);
-}
+}*/

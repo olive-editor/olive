@@ -8,11 +8,7 @@ class VideoRendererDownloadThread : public VideoRendererThreadBase
   Q_OBJECT
 public:
   VideoRendererDownloadThread(QOpenGLContext* share_ctx,
-                         const int& width,
-                         const int& height,
-                         const int &divider,
-                         const olive::PixelFormat& format,
-                         const olive::RenderMode& mode);
+                         const VideoRenderingParams &params);
 
   void Queue(RenderTexturePtr texture, const QString &fn, const QByteArray &hash);
 

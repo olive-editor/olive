@@ -23,20 +23,23 @@
 
 #include <QMetaType>
 
-#include "common/rational.h"
+#include "common/timerange.h"
 #include "node/output.h"
 
 class NodeDependency {
 public:
   NodeDependency();
-  NodeDependency(NodeOutput* node, const rational& time);
+  NodeDependency(NodeOutput* node, const TimeRange& range);
+  NodeDependency(NodeOutput* node, const rational& in, const rational &out);
 
   NodeOutput* node() const;
-  const rational& time() const;
+  const rational& in() const;
+  const rational& out() const;
+  const TimeRange& range() const;
 
 private:
   NodeOutput* node_;
-  rational time_;
+  TimeRange range_;
 };
 
 Q_DECLARE_METATYPE(NodeDependency)

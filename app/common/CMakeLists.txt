@@ -35,5 +35,7 @@ set(OLIVE_SOURCES
   common/threadedobject.cpp
   common/timecodefunctions.h
   common/timecodefunctions.cpp
+  common/timerange.h
+  common/timerange.cpp
   PARENT_SCOPE
 )

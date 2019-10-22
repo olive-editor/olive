@@ -8,12 +8,8 @@
 #include "render/pixelservice.h"
 
 VideoRendererDownloadThread::VideoRendererDownloadThread(QOpenGLContext *share_ctx,
-                                                         const int &width,
-                                                         const int &height,
-                                                         const int &divider,
-                                                         const olive::PixelFormat &format,
-                                                         const olive::RenderMode &mode) :
-  VideoRendererThreadBase(share_ctx, width, height, divider, format, mode),
+                                                         const VideoRenderingParams& params) :
+  VideoRendererThreadBase(share_ctx, params),
   cancelled_(false)
 {
 }
@@ -49,17 +45,17 @@ void VideoRendererDownloadThread::ProcessLoop()
 
   DownloadQueueEntry entry;
 
-  int buffer_size = PixelService::GetBufferSize(render_instance()->format(),
-                                                render_instance()->width(),
-                                                render_instance()->height());
+  int buffer_size = PixelService::GetBufferSize(render_instance()->params().format(),
+                                                render_instance()->params().width(),
+                                                render_instance()->params().height());
 
   QVector<uchar> data_buffer;
   data_buffer.resize(buffer_size);
 
-  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(render_instance()->format());
+  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(render_instance()->params().format());
 
   // Set up OIIO::ImageSpec for compressing cached images on disk
-  OIIO::ImageSpec spec(render_instance()->width(), render_instance()->height(), kRGBAChannels, format_info.oiio_desc);
+  OIIO::ImageSpec spec(render_instance()->params().width(), render_instance()->params().height(), kRGBAChannels, format_info.oiio_desc);
   spec.attribute("compression", "dwaa:200");
 
   while (!cancelled_) {
