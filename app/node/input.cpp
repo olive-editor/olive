@@ -69,22 +69,23 @@ Node *NodeInput::get_connected_node()
   return nullptr;
 }
 
-QVariant NodeInput::get_value(const rational& time)
+QVariant NodeInput::get_value(const rational& in, const rational& out)
 {
   QVariant v;
 
-  if (time_ != time || !value_caching_) {
+  if (in_ != in || out_ != out || !value_caching_) {
     // Retrieve the value
     if (!edges_.isEmpty()) {
       // A connection - use the output of the connected Node
-      value_ = get_connected_output()->get_value(time);
+      value_ = get_connected_output()->get_value(in, out);
     } else {
       // No connections - use the internal value
       // FIXME: Re-implement keyframing
       value_ = keyframes_.first().value();
     }
 
-    time_ = time;
+    in_ = in;
+    out_ = out;
   }
 
   v = value_;

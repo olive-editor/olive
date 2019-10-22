@@ -55,7 +55,7 @@ public:
   virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+  virtual QVariant Value(NodeOutput* output, const rational& in, const rational& out) override;
 
 private:
   bool SetupDecoder();

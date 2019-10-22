@@ -36,7 +36,7 @@ public:
   virtual void Release() override;
 
 protected:
-  virtual QVariant Value(NodeOutput* param, const rational& time) override;
+  virtual QVariant Value(NodeOutput* param, const rational &in, const rational &out) override;
 
 private:
 };

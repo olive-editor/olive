@@ -42,7 +42,7 @@ public:
   NodeOutput* texture_output();
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) override;
 
 private:
   NodeInput* color_input_;

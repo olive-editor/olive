@@ -192,25 +192,32 @@ void TrackOutput::InvalidateCache(const rational &start_range, const rational &e
   }
 }
 
-QVariant TrackOutput::Value(NodeOutput *output, const rational &time)
+QVariant TrackOutput::Value(NodeOutput *output, const rational &in, const rational &out)
 {
   if (output == track_output_) {
     // Set track output correctly
     return PtrToValue(this);
   } else if (output == texture_output()) {
-    ValidateCurrentBlock(time);
+    ValidateCurrentBlock(in);
 
     if (current_block_ != this) {
       // At this point, we must have found the correct block so we use its texture output to produce the image
-      return current_block_->texture_output()->get_value(time);
+      return current_block_->texture_output()->get_value(in, out);
     }
 
     // No texture is valid
     return 0;
+  } else if (output == samples_output()) {
+    ValidateCurrentBlock(in);
+
+    if (current_block_ != this) {
+      // FIXME: String together samples from blocks in this range
+      qDebug() << "FIXME: Implement this";
+    }
   }
 
   // Run default node processing
-  return Block::Value(output, time);
+  return Block::Value(output, in, out);
 }
 
 void TrackOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)

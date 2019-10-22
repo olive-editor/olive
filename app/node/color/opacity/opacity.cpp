@@ -62,8 +62,10 @@ QString OpacityNode::id()
   return "org.olivevideoeditor.Olive.opacity";
 }
 
-QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
+QVariant OpacityNode::Value(NodeOutput *output, const rational &in, const rational &out)
 {
+  Q_UNUSED(out)
+
   // Find the current Renderer instance
   RenderInstance* renderer = VideoRendererProcessor::CurrentInstance();
 
@@ -73,7 +75,7 @@ QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
   }
 
   if (output == texture_output_) {
-    RenderTexturePtr input_tex = texture_input_->get_value(time).value<RenderTexturePtr>();
+    RenderTexturePtr input_tex = texture_input_->get_value(in).value<RenderTexturePtr>();
 
     if (input_tex == nullptr) {
       return 0;
@@ -89,7 +91,7 @@ QVariant OpacityNode::Value(NodeOutput *output, const rational &time)
     // Set opacity to value
     ShaderPtr pipeline = renderer->default_pipeline();
     pipeline->bind();
-    pipeline->setUniformValue("opacity", opacity_input_->get_value(time).toFloat()*0.01f);
+    pipeline->setUniformValue("opacity", opacity_input_->get_value(in).toFloat()*0.01f);
     pipeline->release();
 
     renderer->context()->functions()->glBlendFunc(GL_ONE, GL_ZERO);

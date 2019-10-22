@@ -49,7 +49,7 @@ void AlphaOverBlend::Release()
 {
 }
 
-QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
+QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &in, const rational &out)
 {
   // Find the current Renderer instance
   RenderInstance* renderer = VideoRendererProcessor::CurrentInstance();
@@ -61,8 +61,8 @@ QVariant AlphaOverBlend::Value(NodeOutput *param, const rational &time)
 
   // The only parameter should be texture output, but for future proofing we put this here
   if (param == texture_output()) {
-    RenderTexturePtr base = base_input()->get_value(time).value<RenderTexturePtr>();
-    RenderTexturePtr blend = blend_input()->get_value(time).value<RenderTexturePtr>();
+    RenderTexturePtr base = base_input()->get_value(in, out).value<RenderTexturePtr>();
+    RenderTexturePtr blend = blend_input()->get_value(in, out).value<RenderTexturePtr>();
 
     if (base == nullptr && blend == nullptr) {
       return 0;

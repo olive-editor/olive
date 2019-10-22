@@ -60,6 +60,7 @@ public:
   NodeInput* previous_input();
 
   NodeOutput* texture_output();
+  NodeOutput* samples_output();
   NodeOutput* block_output();
 
   static void ConnectBlocks(Block* previous, Block* next);
@@ -103,7 +104,7 @@ signals:
   void Refreshed();
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) override;
 
   rational SequenceToMediaTime(const rational& sequence_time);
 
@@ -116,6 +117,7 @@ private:
   NodeOutput* block_output_;
 
   NodeOutput* texture_output_;
+  NodeOutput* samples_output_;
 
   rational in_point_;
   rational out_point_;

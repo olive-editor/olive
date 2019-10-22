@@ -176,7 +176,7 @@ void TrackList::TrackConnectionRemoved(NodeEdgePtr edge)
     return;
   }
 
-  DetachTrack(Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0)));
+  DetachTrack(Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0, 0)));
 }
 
 void TrackList::TrackEdgeAdded(NodeEdgePtr edge)
@@ -186,7 +186,7 @@ void TrackList::TrackEdgeAdded(NodeEdgePtr edge)
 
   // If this edge pertains to the track's track input, all the tracks just added need attaching
   if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0));
+    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0, 0));
 
     AttachTrack(added_track);
   }
@@ -199,7 +199,7 @@ void TrackList::TrackEdgeRemoved(NodeEdgePtr edge)
 
   // If this edge pertains to the track's track input, all the tracks just added need attaching
   if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0));
+    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0, 0));
 
     DetachTrack(added_track);
   }

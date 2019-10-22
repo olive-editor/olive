@@ -180,11 +180,11 @@ void Node::ClearCachedValuesInParameters(const rational &start_range, const rati
   }
 }
 
-QVariant Node::Run(NodeOutput* output, const rational& time)
+QVariant Node::Run(NodeOutput* output, const rational& in, const rational &out)
 {
   run_lock_.lock();
 
-  QVariant v = Value(output, time);
+  QVariant v = Value(output, in, out);
 
   run_lock_.unlock();
 

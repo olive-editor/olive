@@ -93,7 +93,7 @@ public:
    * If no output is connected, this will return a user-defined value, either a static value if this input is not
    * keyframed, or an interpolated value between the keyframes at this time.
    */
-  QVariant get_value(const rational &time);
+  QVariant get_value(const rational &in, const rational &out = -1);
 
   /**
    * @brief Set the value at a given time

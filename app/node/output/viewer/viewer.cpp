@@ -126,10 +126,11 @@ rational ViewerOutput::Length()
   return length_input_->get_value(0).value<rational>();
 }
 
-QVariant ViewerOutput::Value(NodeOutput *output, const rational &time)
+QVariant ViewerOutput::Value(NodeOutput *output, const rational &in, const rational &out)
 {
   Q_UNUSED(output)
-  Q_UNUSED(time)
+  Q_UNUSED(in)
+  Q_UNUSED(out)
 
   return 0;
 }

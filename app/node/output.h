@@ -61,9 +61,9 @@ public:
    * In many cases for efficiency, the Node can also ignore this request if it knows the output data will not change
    * (i.e. if the time has not changed from the last Process()).
    */
-  virtual QVariant get_value(const rational &time);
+  virtual QVariant get_value(const rational &in, const rational &out);
 
-  void push_value(const QVariant& v, const rational& time);
+  void push_value(const QVariant& v, const rational& in, const rational &out);
 
 private:
   DataType data_type_;

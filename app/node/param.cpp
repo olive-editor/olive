@@ -32,7 +32,8 @@
 #include "node/output.h"
 
 NodeParam::NodeParam(const QString &id) :
-  time_(-1),
+  in_(-1),
+  out_(-1),
   value_caching_(true),
   id_(id)
 {
@@ -292,12 +293,13 @@ void NodeParam::ClearCachedValue()
 {
   // Since get_value() will (read: should) never receive a negative number, this will effectively invalidate any value
   // currently cached
-  time_ = -1;
+  in_ = -1;
+  out_ = -1;
 }
 
-const rational &NodeParam::LastRequestedTime()
+const rational &NodeParam::LastRequestedIn()
 {
-  return time_;
+  return in_;
 }
 
 bool NodeParam::ValueCachingEnabled()

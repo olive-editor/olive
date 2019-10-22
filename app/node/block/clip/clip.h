@@ -47,7 +47,7 @@ public:
   virtual QList<NodeDependency> RunDependencies(NodeOutput *output, const rational &time) override;
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+  virtual QVariant Value(NodeOutput* output, const rational &v_in, const rational &v_out) override;
 
 private:
   NodeInput* texture_input_;

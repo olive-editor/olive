@@ -61,21 +61,19 @@ NodeInput *ClipBlock::texture_input()
   return texture_input_;
 }
 
-QVariant ClipBlock::Value(NodeOutput* param, const rational& time)
+QVariant ClipBlock::Value(NodeOutput* param, const rational& v_in, const rational &v_out)
 {
   if (param == texture_output()) {
     // If the time retrieved is within this block, get texture information
-    if (texture_input()->IsConnected() && time >= in() && time < out()) {
-      // We convert the time given (timeline time) to media time
-      rational media_time = SequenceToMediaTime(time);
-
+    if (texture_input()->IsConnected() && v_in >= in() && v_out < out()) {
       // Retrieve texture
-      return texture_input_->get_value(media_time);
+      // We convert the time given (timeline time) to media time
+      return texture_input_->get_value(SequenceToMediaTime(v_in), SequenceToMediaTime(v_out));
     }
     return 0;
   }
 
-  return Block::Value(param, time);
+  return Block::Value(param, v_in, v_out);
 }
 
 void ClipBlock::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)

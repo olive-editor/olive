@@ -59,17 +59,18 @@ void NodeOutput::set_data_type(const NodeParam::DataType &type)
   }
 }
 
-QVariant NodeOutput::get_value(const rational& time)
+QVariant NodeOutput::get_value(const rational& in, const rational& out)
 {
   mutex_.lock();
 
   QVariant v;
 
-  if (time_ != time || !value_caching_) {
+  if (in_ != in || out_ != out || !value_caching_) {
     // Update the value
-    value_ = parent()->Run(this, time);
+    value_ = parent()->Run(this, in_, out_);
 
-    time_ = time;
+    in_ = in;
+    out_ = out;
   }
 
   v = value_;
@@ -79,9 +80,10 @@ QVariant NodeOutput::get_value(const rational& time)
   return v;
 }
 
-void NodeOutput::push_value(const QVariant &v, const rational &time)
+void NodeOutput::push_value(const QVariant &v, const rational &in, const rational &out)
 {
   value_ = v;
-  time_ = time;
+  in_ = in;
+  out_ = out;
 }
 

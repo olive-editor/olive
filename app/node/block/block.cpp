@@ -38,6 +38,10 @@ Block::Block() :
   texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
 
+  samples_output_ = new NodeOutput("samples_out");
+  samples_output_->set_data_type(NodeParam::kSamples);
+  AddParameter(samples_output_);
+
   connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(EdgeAddedSlot(NodeEdgePtr)), Qt::DirectConnection);
   connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(EdgeRemovedSlot(NodeEdgePtr)), Qt::DirectConnection);
 }
@@ -99,9 +103,10 @@ NodeInput *Block::previous_input()
   return previous_input_;
 }
 
-QVariant Block::Value(NodeOutput *output, const rational &time)
+QVariant Block::Value(NodeOutput *output, const rational &in, const rational &out)
 {
-  Q_UNUSED(time)
+  Q_UNUSED(in)
+  Q_UNUSED(out)
 
   if (output == block_output_) {
     // Simply set the output value to a pointer to this Block
@@ -156,6 +161,11 @@ void Block::Refresh()
 NodeOutput *Block::texture_output()
 {
   return texture_output_;
+}
+
+NodeOutput *Block::samples_output()
+{
+  return samples_output_;
 }
 
 NodeOutput *Block::block_output()

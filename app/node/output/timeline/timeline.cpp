@@ -94,11 +94,12 @@ const rational &TimelineOutput::Timebase()
   return timebase_;
 }
 
-QVariant TimelineOutput::Value(NodeOutput *output, const rational &time)
+QVariant TimelineOutput::Value(NodeOutput *output, const rational &in, const rational &out)
 {
-  if (output == length_output_) {
-    Q_UNUSED(time)
+  Q_UNUSED(in)
+  Q_UNUSED(out)
 
+  if (output == length_output_) {
     return QVariant::fromValue(length_);
   }
 

@@ -129,8 +129,10 @@ void MediaInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational
   }
 }
 
-QVariant MediaInput::Value(NodeOutput *output, const rational &time)
+QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rational &out)
 {
+  Q_UNUSED(out)
+
   // FIXME: Hardcoded value
   bool alpha_is_associated = false;
 
@@ -149,12 +151,12 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
     }
 
     // Check if we need to get a frame or not
-    if (frame_ == nullptr || frame_->native_timestamp() != decoder_->GetTimestampFromTime(time)) {
+    if (frame_ == nullptr || frame_->native_timestamp() != decoder_->GetTimestampFromTime(in)) {
       // Get frame from Decoder
-      frame_ = decoder_->Retrieve(time);
+      frame_ = decoder_->Retrieve(in);
 
       if (frame_ == nullptr) {
-        qDebug() << "Received a null frame while time was" << time.toDouble();
+        qDebug() << "Received a null frame while time was" << in.toDouble();
         return 0;
       }
 
@@ -261,7 +263,7 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &time)
                     2.0f / static_cast<float>(renderer->height() * renderer->divider()));
 
     // Multiply by input transformation
-    transform *= matrix_input_->get_value(time).value<QMatrix4x4>();
+    transform *= matrix_input_->get_value(in).value<QMatrix4x4>();
 
     // Scale texture to the media size
     transform.scale(static_cast<float>(frame_->width()), static_cast<float>(frame_->height()));

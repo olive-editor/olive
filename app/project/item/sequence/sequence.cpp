@@ -72,8 +72,9 @@ void Sequence::add_default_nodes()
   audio_track_output_->SetCanBeDeleted(false);
   AddNode(audio_track_output_);
 
-  // Connect track to viewer
+  // Connect tracks to viewer
   NodeParam::ConnectEdge(video_track_output_->texture_output(), viewer_output_->texture_input());
+  NodeParam::ConnectEdge(audio_track_output_->samples_output(), viewer_output_->samples_input());
 
   // Connect timeline length to viewer
   NodeParam::ConnectEdge(timeline_output_->length_output(), viewer_output_->length_input());
@@ -104,7 +105,7 @@ QString Sequence::duration()
     return QString();
   }
 
-  rational timeline_length = timeline_output_->length_output()->get_value(0).value<rational>();
+  rational timeline_length = timeline_output_->length_output()->get_value(0, 0).value<rational>();
 
   int64_t timestamp = olive::time_to_timestamp(timeline_length, video_time_base_);
 

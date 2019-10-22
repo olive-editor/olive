@@ -129,7 +129,7 @@ public:
    *
    * It's recommended to call this directly over Value(), yet in derivatives of Node, override Value().
    */
-  QVariant Run(NodeOutput* output, const rational& time);
+  QVariant Run(NodeOutput* output, const rational &in, const rational &out);
 
   /**
    * @brief For nodes that have different dependencies at different times, this function can be used for that purpose
@@ -252,7 +252,7 @@ protected:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual QVariant Value(NodeOutput* output, const rational& time) = 0;
+  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) = 0;
 
   /**
    * @brief Retrieve the last timecode Process() was called with

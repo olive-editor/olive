@@ -36,7 +36,7 @@ public:
 
   virtual QString id() override;
 
-  virtual QVariant Value(NodeOutput *output, const rational &time) override;
+  virtual QVariant Value(NodeOutput *output, const rational &in, const rational &out) override;
 
   virtual void Retranslate() override;
 

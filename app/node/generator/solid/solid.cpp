@@ -57,10 +57,11 @@ NodeOutput *SolidGenerator::texture_output()
   return texture_output_;
 }
 
-QVariant SolidGenerator::Value(NodeOutput *output, const rational &time)
+QVariant SolidGenerator::Value(NodeOutput *output, const rational &in, const rational &out)
 {
   Q_UNUSED(output)
-  Q_UNUSED(time)
+  Q_UNUSED(in)
+  Q_UNUSED(out)
 
   /*
   // FIXME: Test code

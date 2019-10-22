@@ -261,7 +261,7 @@ public:
   /**
    * @brief Retrieve the last time this parameter had a value requested from
    */
-  const rational& LastRequestedTime();
+  const rational& LastRequestedIn();
 
   bool ValueCachingEnabled();
   void SetValueCachingEnabled(bool enabled);
@@ -297,9 +297,10 @@ protected:
   QVariant value_;
 
   /**
-   * @brief Last timecode that a value was requested with
+   * @brief Last timecodes that a value was requested with
    */
-  rational time_;
+  rational in_;
+  rational out_;
 
   /**
    * @brief Internal value for whether value caching is enabled

@@ -80,23 +80,25 @@ void TransformDistort::Retranslate()
   anchor_input_->set_name(tr("Anchor Point"));
 }
 
-QVariant TransformDistort::Value(NodeOutput *output, const rational &time)
+QVariant TransformDistort::Value(NodeOutput *output, const rational &in, const rational &out)
 {
+  Q_UNUSED(out)
+
   if (output == matrix_output_) {
     QMatrix4x4 mat;
 
     // Position translate
-    QVector2D pos = position_input_->get_value(time).value<QVector2D>();
+    QVector2D pos = position_input_->get_value(in).value<QVector2D>();
     mat.translate(pos);
 
     // Rotation
-    mat.rotate(rotation_input_->get_value(time).toFloat(), 0, 0, 1);
+    mat.rotate(rotation_input_->get_value(in).toFloat(), 0, 0, 1);
 
     // Scale
-    mat.scale(scale_input_->get_value(time).value<QVector2D>()*0.01f);
+    mat.scale(scale_input_->get_value(in).value<QVector2D>()*0.01f);
 
     // Anchor Point
-    mat.translate(-anchor_input_->get_value(time).value<QVector2D>());
+    mat.translate(-anchor_input_->get_value(in).value<QVector2D>());
 
     return mat;
   }

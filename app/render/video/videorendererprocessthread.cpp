@@ -130,7 +130,7 @@ void RendererProcessThread::ProcessLoop()
         }
 
         // Get the requested value
-        texture_ = output_to_process->get_value(path_.time()).value<RenderTexturePtr>();
+        texture_ = output_to_process->get_value(path_.time(), path_.time()).value<RenderTexturePtr>();
 
         render_instance()->context()->functions()->glFinish();
       }
