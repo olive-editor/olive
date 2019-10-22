@@ -94,6 +94,8 @@ public:
 signals:
   void DeviceListReady();
 
+  void SentSamples(QVector<double> averages);
+
 private:
   AudioManager();
 

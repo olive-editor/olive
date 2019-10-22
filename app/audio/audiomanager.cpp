@@ -133,7 +133,9 @@ AudioManager::AudioManager() :
   RefreshDevices();
 
   connect(&output_manager_, SIGNAL(HasSamples()), this, SLOT(OutputManagerHasSamples()));
+  connect(&output_manager_, SIGNAL(SentSamples(QVector<double>)), this, SIGNAL(SentSamples(QVector<double>)));
 
+  output_manager_.SetEnableSendingSamples(true);
   output_manager_.open(AudioHybridDevice::ReadOnly);
 }
 

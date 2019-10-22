@@ -81,11 +81,26 @@ public:
    */
   bool IsIdle();
 
+  /**
+   * @brief If enabled, this will emit the SentSamples() signal whenever samples are sent to the output device
+   */
+  void SetEnableSendingSamples(bool e);
+
 signals:
   /**
    * @brief Signal emitted when this leaves "idle" state and has valid audio data that is ready to be sent
    */
   void HasSamples();
+
+  /**
+   * @brief Signal emitted when samples are sent to the output device
+   *
+   * This sends an array of values corresponding to the channel count. Each value is an average of all the samples just
+   * sent to that channel. Useful for connecting to AudioMonitor.
+   *
+   * Can be disabled with SetEnableSendingSamples() to save CPU usage.
+   */
+  void SentSamples(QVector<double> averages);
 
 protected:
   /**
@@ -115,10 +130,14 @@ protected:
   virtual qint64 writeData(const char *data, qint64 maxSize) override;
 
 private:
+  qint64 read_internal(char *data, qint64 maxSize);
+
   QIODevice* device_;
 
   QByteArray pushed_samples_;
   qint64 sample_index_;
+
+  bool enable_sending_samples_;
 
 };
 

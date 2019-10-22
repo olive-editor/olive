@@ -26,6 +26,7 @@
 
 // Panel objects
 #include "panel/panelmanager.h"
+#include "panel/audiomonitor/audiomonitor.h"
 #include "panel/node/node.h"
 #include "panel/param/param.h"
 #include "panel/project/project.h"
@@ -127,6 +128,9 @@ void olive::MainWindow::ProjectOpen(Project* p)
 
   TimelinePanel* timeline_panel = olive::panel_manager->CreatePanel<TimelinePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
+
+  AudioMonitorPanel* audio_monitor_panel = olive::panel_manager->CreatePanel<AudioMonitorPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel);
 
   TaskManagerPanel* task_man_panel = olive::panel_manager->CreatePanel<TaskManagerPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, task_man_panel);

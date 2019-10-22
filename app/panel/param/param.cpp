@@ -45,7 +45,7 @@ void ParamPanel::changeEvent(QEvent *e)
   if (e->type() == QEvent::LanguageChange) {
     Retranslate();
   }
-  QDockWidget::changeEvent(e);
+  PanelWidget::changeEvent(e);
 }
 
 void ParamPanel::Retranslate()

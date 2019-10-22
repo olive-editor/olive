@@ -26,7 +26,8 @@
 AudioHybridDevice::AudioHybridDevice(QObject *parent) :
   QIODevice(parent),
   device_(nullptr),
-  sample_index_(0)
+  sample_index_(0),
+  enable_sending_samples_(false)
 {
 
 }
@@ -67,7 +68,47 @@ bool AudioHybridDevice::IsIdle()
   return device_ == nullptr && pushed_samples_.isEmpty();
 }
 
+void AudioHybridDevice::SetEnableSendingSamples(bool e)
+{
+  enable_sending_samples_ = e;
+}
+
 qint64 AudioHybridDevice::readData(char *data, qint64 maxSize)
+{
+  qint64 read_size = read_internal(data, maxSize);
+
+  if (enable_sending_samples_ && read_size > 0) {
+    // FIXME: Assumes float and stereo
+    float* samples = reinterpret_cast<float*>(data);
+    int sample_count = static_cast<int>(read_size / static_cast<int>(sizeof(float)));
+    int channels = 2;
+
+    // Create array of samples to send
+    QVector<double> averages(channels);
+    averages.fill(0);
+
+    // Add all samples together
+    for (int i=0;i<sample_count;i++) {
+      averages[i%channels] = qMax(averages[i%channels], static_cast<double>(qAbs(samples[i])));
+    }
+
+    emit SentSamples(averages);
+  }
+
+  return read_size;
+}
+
+qint64 AudioHybridDevice::writeData(const char *data, qint64 maxSize)
+{
+  Q_UNUSED(data)
+  Q_UNUSED(maxSize)
+
+  // This device doesn't support writing
+
+  return -1;
+}
+
+qint64 AudioHybridDevice::read_internal(char *data, qint64 maxSize)
 {
   // If a device is connected, passthrough to it
   if (device_ != nullptr) {
@@ -102,14 +143,4 @@ qint64 AudioHybridDevice::readData(char *data, qint64 maxSize)
 
   memset(data, 0, static_cast<size_t>(maxSize));
   return maxSize;
-}
-
-qint64 AudioHybridDevice::writeData(const char *data, qint64 maxSize)
-{
-  Q_UNUSED(data)
-  Q_UNUSED(maxSize)
-
-  // This device doesn't support writing
-
-  return -1;
 }
