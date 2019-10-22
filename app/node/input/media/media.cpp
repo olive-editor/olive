@@ -220,8 +220,8 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
     RenderTexturePtr output_texture = std::make_shared<RenderTexture>();
 
     output_texture->Create(renderer->context(),
-                           renderer->params().width(),
-                           renderer->params().height(),
+                           renderer->params().effective_width(),
+                           renderer->params().effective_height(),
                            renderer->params().format(),
                            RenderTexture::kDoubleBuffer);
 
@@ -259,8 +259,8 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
     QMatrix4x4 transform;
 
     // Scale texture to a square for incoming matrix transformation
-    transform.scale(2.0f / static_cast<float>(renderer->params().width() * renderer->params().divider()),
-                    2.0f / static_cast<float>(renderer->params().height() * renderer->params().divider()));
+    transform.scale(2.0f / static_cast<float>(renderer->params().width()),
+                    2.0f / static_cast<float>(renderer->params().height()));
 
     // Multiply by input transformation
     transform *= matrix_input_->get_value(in).value<QMatrix4x4>();

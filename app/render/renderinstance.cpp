@@ -74,7 +74,7 @@ bool RenderInstance::Start()
   buffer_.Create(ctx_);
 
   // Set viewport to the compositing dimensions
-  ctx_->functions()->glViewport(0, 0, params_.width(), params_.height());
+  ctx_->functions()->glViewport(0, 0, params_.effective_width(), params_.effective_height());
   ctx_->functions()->glEnable(GL_BLEND);
 
   // Set up default pipeline
