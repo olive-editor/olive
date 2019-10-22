@@ -105,6 +105,9 @@ public:
     /// Resolves to `QVector4D`
     kVec4,
 
+    /// Resolves to `QByteArray`
+    kSamples,
+
     kAny
   };
 

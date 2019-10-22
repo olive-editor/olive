@@ -251,6 +251,7 @@ QString NodeParam::GetDefaultDataTypeName(const DataType& type)
   case kVec2: return tr("Vector2D");
   case kVec3: return tr("Vector3D");
   case kVec4: return tr("Vector4D");
+  case kSamples: return tr("Samples");
   case kAny: return tr("Any");
   }
 
@@ -279,6 +280,7 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kTexture:
   case kBlock:
   case kTrack:
+  case kSamples:
   case kAny:
     break;
   }

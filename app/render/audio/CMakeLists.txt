@@ -18,10 +18,10 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/audio/audiorenderer.h
   render/audio/audiorenderer.cpp
-  render/audio/audiorendererparams.h
-  render/audio/audiorendererparams.cpp
-  render/audio/audiorendererthread.h
-  render/audio/audiorendererthread.cpp
+  render/audio/audiorendererdownloadthread.h
+  render/audio/audiorendererdownloadthread.cpp
+  render/audio/audiorendererprocessthread.h
+  render/audio/audiorendererprocessthread.cpp
   render/audio/audiorendererthreadbase.h
   render/audio/audiorendererthreadbase.cpp
   PARENT_SCOPE

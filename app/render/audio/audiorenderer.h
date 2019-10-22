@@ -24,15 +24,16 @@
 #include <QLinkedList>
 #include <QOpenGLTexture>
 
-#include "node/node.h"
+#include "node/output/viewer/viewer.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
-#include "audiorendererthread.h"
+#include "audiorendererdownloadthread.h"
+#include "audiorendererprocessthread.h"
 
 /**
- * @brief A multithreaded PCM audio renderer
+ * @brief A multithreaded OpenGL based renderer for node systems
  */
-class AudioRendererProcessor : public Node
+class AudioRendererProcessor : public QObject
 {
   Q_OBJECT
 public:
@@ -42,18 +43,11 @@ public:
    * Constructing a Renderer object will not start any threads/backend on its own. Use Start() to do this and Stop()
    * when the Renderer is about to be destroyed.
    */
-  AudioRendererProcessor();
+  AudioRendererProcessor(QObject* parent);
 
-  virtual QString Name() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
-  virtual QString id() override;
+  virtual ~AudioRendererProcessor() override;
 
   void SetCacheName(const QString& s);
-
-  virtual void Release() override;
-
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
   void SetTimebase(const rational& timebase);
 
@@ -75,9 +69,18 @@ public:
    *
    * Buffer pixel format
    */
-  void SetParameters(const int& sample_rate,
-                     const uint64_t& channel_layout,
-                     const olive::SampleFormat& format);
+  void SetParameters(const int& width,
+                     const int& height,
+                     const olive::PixelFormat& format,
+                     const olive::RenderMode& mode,
+                     const int &divider = 0);
+
+  void SetDivider(const int& divider);
+
+  /**
+   * @brief Return whether a frame with this hash already exists
+   */
+  bool HasHash(const QByteArray& hash);
 
   /**
    * @brief Return whether a frame is currently being cached
@@ -97,16 +100,14 @@ public:
    */
   static AudioRendererThreadBase* CurrentThread();
 
-  static AudioRendererParams* CurrentInstance();
+  static RenderInstance* CurrentInstance();
 
-  NodeInput* texture_input();
+  RenderTexturePtr GetCachedFrame(const rational& time);
 
-  NodeInput* length_input();
+  void SetViewerNode(ViewerOutput* viewer);
 
-  NodeOutput* texture_output();
-
-protected:
-  virtual QVariant Value(NodeOutput* output, const rational& time) override;
+signals:
+  void CachedFrameReady(const rational& time);
 
 private:
   struct HashTimeMapping {
@@ -139,27 +140,39 @@ private:
   bool ShouldPushTexture(const rational &time);
 
   /**
+   * @brief Return the path of the cached image at this time
+   */
+  QString CachePathName(const QByteArray &hash);
+
+  void DeferMap(const rational &time, const QByteArray &hash);
+
+  /**
    * @brief Internal list of RenderProcessThreads
    */
-  QVector<AudioRendererThreadPtr> threads_;
+  QVector<AudioRendererProcessThreadPtr> threads_;
 
   /**
    * @brief Internal variable that contains whether the Renderer has started or not
    */
   bool started_;
 
-  NodeInput* texture_input_;
+  int width_;
+  int height_;
 
-  NodeInput* length_input_;
+  void CalculateEffectiveDimensions();
 
-  NodeOutput* texture_output_;
+  int divider_;
+  int effective_width_;
+  int effective_height_;
+
+  olive::PixelFormat format_;
+
+  olive::RenderMode mode_;
+
+  rational last_time_requested_;
 
   rational timebase_;
   double timebase_dbl_;
-
-  int sample_rate_;
-  uint64_t channel_layout_;
-  olive::SampleFormat format_;
 
   QLinkedList<rational> cache_queue_;
   QString cache_name_;
@@ -167,10 +180,38 @@ private:
   QString cache_id_;
 
   bool caching_;
+  QVector<uchar*> cache_frame_load_buffer_;
+
+  QVector<AudioRendererDownloadThreadPtr> download_threads_;
+  int last_download_thread_;
+
+  RenderTexturePtr master_texture_;
+  rational push_time_;
+
+  RenderFramebuffer copy_buffer_;
+  ShaderPtr copy_pipeline_;
+
+  QMap<rational, QByteArray> time_hash_map_;
+
+  QMutex cache_hash_list_mutex_;
+  QVector<QByteArray> cache_hash_list_;
+
+  QList<HashTimeMapping> deferred_maps_;
 
   bool starting_;
 
+  ViewerOutput* viewer_node_;
+
 private slots:
+  void InvalidateCache(const rational &start_range, const rational &end_range);
+
+  void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
+
+  void ThreadRequestSibling(NodeDependency dep);
+
+  void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
+
+  void DownloadThreadComplete(const QByteArray &hash);
 
 };
 

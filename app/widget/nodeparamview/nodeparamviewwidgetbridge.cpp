@@ -53,6 +53,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kMatrix:
   case NodeParam::kTrack:
   case NodeParam::kRational:
+  case NodeParam::kSamples:
     break;
   case NodeParam::kInt:
   {
@@ -198,6 +199,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     case NodeParam::kTexture:
     case NodeParam::kMatrix:
     case NodeParam::kTrack:
+    case NodeParam::kSamples:
     case NodeParam::kRational:
       break;
     case NodeParam::kInt:

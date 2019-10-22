@@ -44,9 +44,11 @@ public:
   void SetTimebase(const rational& timebase);
 
   NodeInput* texture_input();
+  NodeInput* samples_input();
   NodeInput* length_input();
 
   RenderTexturePtr GetTexture(const rational& time);
+  QByteArray GetSamples(const rational& in, const rational& out);
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
@@ -69,6 +71,8 @@ protected:
 
 private:
   NodeInput* texture_input_;
+
+  NodeInput* samples_input_;
 
   NodeInput* length_input_;
 

@@ -28,6 +28,10 @@ ViewerOutput::ViewerOutput() :
   texture_input_->add_data_input(NodeInput::kTexture);
   AddParameter(texture_input_);
 
+  samples_input_ = new NodeInput("samples_in");
+  samples_input_->add_data_input(NodeInput::kSamples);
+  AddParameter(samples_input_);
+
   length_input_ = new NodeInput("length_in");
   length_input_->add_data_input(NodeInput::kRational);
   AddParameter(length_input_);
@@ -68,6 +72,11 @@ void ViewerOutput::SetTimebase(const rational &timebase)
 NodeInput *ViewerOutput::texture_input()
 {
   return texture_input_;
+}
+
+NodeInput *ViewerOutput::samples_input()
+{
+  return samples_input_;
 }
 
 NodeInput *ViewerOutput::length_input()

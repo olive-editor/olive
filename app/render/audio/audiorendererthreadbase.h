@@ -18,26 +18,29 @@
 
 ***/
 
-#ifndef AUDIORENDERTHREADBASE_H
-#define AUDIORENDERTHREADBASE_H
+#ifndef AUDIORENDERTHREAD_H
+#define AUDIORENDERTHREAD_H
 
 #include <memory>
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
 
-#include "audiorendererparams.h"
 #include "node/node.h"
+#include "render/renderinstance.h"
 
 class AudioRendererThreadBase : public QThread
 {
   Q_OBJECT
 public:
-  AudioRendererThreadBase(const int& sample_rate,
-                          const uint64_t& channel_layout,
-                          const olive::SampleFormat& format);
+  AudioRendererThreadBase(QOpenGLContext* share_ctx,
+                     const int& width,
+                     const int& height,
+                     const int& divider,
+                     const olive::PixelFormat& format,
+                     const olive::RenderMode& mode);
 
-  AudioRendererParams* params();
+  RenderInstance* render_instance();
 
   void StartThread(Priority priority = InheritPriority);
 
@@ -58,8 +61,12 @@ protected:
 private:
   void WakeCaller();
 
-  AudioRendererParams audio_params_;
+  QOpenGLContext* share_ctx_;
+
+  RenderInstance render_instance_;
 
 };
 
-#endif // RENDERTHREAD_H
+using AudioRendererThreadPtr = std::shared_ptr<AudioRendererThreadBase>;
+
+#endif // AUDIORENDERTHREAD_H
