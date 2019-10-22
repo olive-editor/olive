@@ -67,7 +67,7 @@ QVariant NodeOutput::get_value(const rational& in, const rational& out)
 
   if (in_ != in || out_ != out || !value_caching_) {
     // Update the value
-    value_ = parent()->Run(this, in_, out_);
+    value_ = parent()->Run(this, in, out);
 
     in_ = in;
     out_ = out;
