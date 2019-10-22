@@ -219,6 +219,9 @@ void ProjectExplorer::RenameTimerSlot()
   rename_timer_.stop();
 }
 
+// FIXME: This is down here because of the code in ShowContextMenu() which may be unnecessary allowing this to be removed
+#include "core.h"
+
 void ProjectExplorer::ShowContextMenu()
 {
   QMenu menu;
@@ -226,10 +229,21 @@ void ProjectExplorer::ShowContextMenu()
   // FIXME: Support for multiple items and items other than Footage
   QList<Item*> selected_items = SelectedItems();
 
-  QAction* properties_action = menu.addAction(tr("P&roperties"));
+  if (selected_items.isEmpty()) {
+    // FIXME: These are both duplicates of items from MainMenu, is there any way to re-use the code?
+    QAction* import_action = menu.addAction(tr("&Import..."));
+    connect(import_action, SIGNAL(triggered(bool)), &olive::core, SLOT(DialogImportShow()));
 
-  if (selected_items.first()->type() == Item::kFootage) {
-    connect(properties_action, SIGNAL(triggered(bool)), this, SLOT(ShowFootagePropertiesDialog()));
+    menu.addSeparator();
+
+    QAction* project_properties = menu.addAction(tr("&Project Properties..."));
+    connect(project_properties, SIGNAL(triggered(bool)), &olive::core, SLOT(DialogProjectPropertiesShow()));
+  } else {
+    QAction* properties_action = menu.addAction(tr("P&roperties"));
+
+    if (selected_items.first()->type() == Item::kFootage) {
+      connect(properties_action, SIGNAL(triggered(bool)), this, SLOT(ShowFootagePropertiesDialog()));
+    }
   }
 
   menu.exec(QCursor::pos());
