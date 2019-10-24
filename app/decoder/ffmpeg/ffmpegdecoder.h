@@ -30,6 +30,7 @@ extern "C" {
 #include <QVector>
 
 #include "decoder/decoder.h"
+#include "audio/sampleformat.h"
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -129,6 +130,8 @@ private:
    * @return
    */
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
+
+  olive::SampleFormat GetNativeSampleRate(const AVSampleFormat& smp_fmt);
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;

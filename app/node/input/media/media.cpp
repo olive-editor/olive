@@ -269,9 +269,6 @@ QVariant MediaInput::Value(NodeOutput *output, const rational &in, const rationa
     transform.scale(static_cast<float>(frame_->width()), static_cast<float>(frame_->height()));
     transform.scale(0.5f, 0.5f);
 
-    //float media_size = static_cast<float>(frame_->height()) / static_cast<float>(renderer->height() * renderer->divider());
-    //transform.scale(media_size, media_size);
-
     // Use pipeline to blit using transformation matrix from input
     if (renderer->params().mode() == olive::RenderMode::kOffline) {
       olive::gl::OCIOBlit(pipeline_, ocio_texture_, false, transform);

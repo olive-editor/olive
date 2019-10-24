@@ -28,7 +28,8 @@
 namespace olive {
 
 enum TimecodeDisplay {
-  kTimecodeFrames,
+  kTimecodeDropFrame,
+  kTimecodeNonDropFrame,
   kTimecodeSeconds,
   kFrames,
   kMilliseconds

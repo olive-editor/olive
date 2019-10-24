@@ -23,5 +23,7 @@ set(OLIVE_SOURCES
   decoder/decoder.cpp
   decoder/frame.h
   decoder/frame.cpp
+  decoder/wave.h
+  decoder/wave.cpp
   PARENT_SCOPE
 )

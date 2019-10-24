@@ -32,6 +32,7 @@ extern "C" {
 
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
+#include "decoder/wave.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -412,7 +413,7 @@ bool FFmpegDecoder::Probe(Footage *f)
           str->set_type(Stream::kAttachment);
           break;
 
-        // We should never realistically get here, but we make an "invalid" stream just in case
+          // We should never realistically get here, but we make an "invalid" stream just in case
         default:
           str->set_type(Stream::kUnknown);
           break;
@@ -501,26 +502,103 @@ void FFmpegDecoder::Index()
   // Reset state
   Seek(0);
 
-  // This should be unnecessary, but just in case...
-  frame_index_.clear();
-
-  // Iterate through every single frame and get each timestamp
-  // NOTE: Expects no frames to have been read so far
-
   int ret = 0;
 
-  while (true) {
-    ret = GetFrame();
+  if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+    // This should be unnecessary, but just in case...
+    frame_index_.clear();
 
-    if (ret < 0) {
-      break;
+    // Iterate through every single frame and get each timestamp
+    // NOTE: Expects no frames to have been read so far
+
+    while (true) {
+      ret = GetFrame();
+
+      if (ret < 0) {
+        break;
+      } else {
+        frame_index_.append(frame_->pts);
+      }
+    }
+
+    // Save index to file
+    SaveFrameIndex();
+  } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+    // Iterate through each audio frame and extract the PCM data
+
+    WaveOutput wave_out("C:\\Users\\Matt\\AppData\\Local\\Temp\\temporary.wav", // FIXME: Hardcoded path
+                        AudioRenderingParams(avstream_->codecpar->sample_rate,
+                                             avstream_->codecpar->channel_layout,
+                                             GetNativeSampleRate(static_cast<AVSampleFormat>(avstream_->codecpar->format))));
+
+    SwrContext* resampler = nullptr;
+    AVSampleFormat src_sample_fmt = static_cast<AVSampleFormat>(avstream_->codecpar->format);
+    AVSampleFormat dst_sample_fmt;
+
+    // We don't use planar types internally, so if this is a planar format convert it now
+    if (av_sample_fmt_is_planar(src_sample_fmt)) {
+      dst_sample_fmt = av_get_packed_sample_fmt(src_sample_fmt);
+
+      // Bizarrely, swr_alloc_set_opts() uses a signed int64 while most of FFmpeg uses unsigned. We cast here.
+      int64_t channel_layout = static_cast<int64_t>(avstream_->codecpar->channel_layout);
+
+      resampler = swr_alloc_set_opts(nullptr,
+                                     channel_layout,
+                                     dst_sample_fmt,
+                                     avstream_->codecpar->sample_rate,
+                                     channel_layout,
+                                     src_sample_fmt,
+                                     avstream_->codecpar->sample_rate,
+                                     0,
+                                     nullptr);
     } else {
-      frame_index_.append(frame_->pts);
+      dst_sample_fmt = src_sample_fmt;
+    }
+
+    if (wave_out.open()) {
+      while (true) {
+        ret = GetFrame();
+
+        if (ret < 0) {
+          break;
+        } else {
+          // Calculate the byte size for this audio buffer
+          int buffer_size = av_samples_get_buffer_size(nullptr,
+                                                       avstream_->codecpar->channels,
+                                                       frame_->nb_samples,
+                                                       dst_sample_fmt,
+                                                       0); // FIXME: Documentation unclear - should this be 0 or 1?
+
+          uint8_t* resampler_output;
+
+          if (resampler != nullptr) {
+            // We must need to resample this (mainly just convert from planar to packed if necessary)
+            resampler_output = new uint8_t[buffer_size];
+            swr_convert(resampler, &resampler_output, frame_->nb_samples, frame_->data, frame_->nb_samples);
+          } else {
+            // No resampling required, we can write directly from te frame buffer
+            resampler_output = frame_->data[0];
+          }
+
+          // Write packed WAV data to the disk cache
+          wave_out.write(resampler_output, buffer_size);
+
+          // If we allocated an output for the resampler, delete it here
+          if (resampler_output != frame_->data[0]) {
+            delete [] resampler_output;
+          }
+        }
+      }
+
+      wave_out.close();
+    } else {
+      qWarning() << "Failed to open WAVE output for indexing";
+    }
+
+    if (resampler != nullptr) {
+      swr_free(&resampler);
     }
   }
-
-  // Save index to file
-  SaveFrameIndex();
 
   // Reset state
   Seek(0);
@@ -529,7 +607,7 @@ void FFmpegDecoder::Index()
 QString FFmpegDecoder::GetIndexFilename()
 {
   if (!open_) {
-    qWarning() << tr("GetIndexFilename tried to run while decoder was closed");
+    qWarning() << "GetIndexFilename tried to run while decoder was closed";
     return QString();
   }
 
@@ -634,6 +712,35 @@ AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_f
                                            pix_fmt,
                                            1,
                                            nullptr);
+}
+
+olive::SampleFormat FFmpegDecoder::GetNativeSampleRate(const AVSampleFormat &smp_fmt)
+{
+  switch (smp_fmt) {
+  case AV_SAMPLE_FMT_U8:
+    return olive::SAMPLE_FMT_U8;
+  case AV_SAMPLE_FMT_S16:
+    return olive::SAMPLE_FMT_S16;
+  case AV_SAMPLE_FMT_S32:
+    return olive::SAMPLE_FMT_S32;
+  case AV_SAMPLE_FMT_S64:
+    return olive::SAMPLE_FMT_S64;
+  case AV_SAMPLE_FMT_FLT:
+    return olive::SAMPLE_FMT_FLT;
+  case AV_SAMPLE_FMT_DBL:
+    return olive::SAMPLE_FMT_DBL;
+  case AV_SAMPLE_FMT_U8P :
+  case AV_SAMPLE_FMT_S16P:
+  case AV_SAMPLE_FMT_S32P:
+  case AV_SAMPLE_FMT_S64P:
+  case AV_SAMPLE_FMT_FLTP:
+  case AV_SAMPLE_FMT_DBLP:
+  case AV_SAMPLE_FMT_NONE:
+  case AV_SAMPLE_FMT_NB:
+    break;
+  }
+
+  return olive::SAMPLE_FMT_INVALID;
 }
 
 int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)

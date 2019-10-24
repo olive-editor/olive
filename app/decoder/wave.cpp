@@ -1,0 +1,143 @@
+#include "wave.h"
+
+const int16_t kWAVIntegerFormat = 1;
+const int16_t kWAVFloatFormat = 3;
+
+WaveOutput::WaveOutput(const QString &f,
+                       const AudioRenderingParams& params) :
+  file_(f),
+  params_(params)
+{
+}
+
+WaveOutput::~WaveOutput()
+{
+  close();
+}
+
+bool WaveOutput::open()
+{
+  data_length_ = 0;
+
+  if (file_.open(QFile::WriteOnly)) {
+    // RIFF header
+    file_.write("RIFF");
+
+    // Total file size minus RIFF and this integer (minus 8 bytes, filled in later)
+    write_int<int32_t>(&file_, 0);
+
+    // File type header
+    file_.write("WAVE");
+
+    // Begin format descriptor chunk
+    file_.write("fmt ");
+
+    // Format chunk size
+    write_int<int32_t>(&file_, 16);
+
+    // Type of format
+    switch (params_.format()) {
+    case olive::SAMPLE_FMT_U8:
+    case olive::SAMPLE_FMT_S16:
+    case olive::SAMPLE_FMT_S32:
+    case olive::SAMPLE_FMT_S64:
+      write_int<int16_t>(&file_, kWAVIntegerFormat);
+      break;
+    case olive::SAMPLE_FMT_FLT:
+    case olive::SAMPLE_FMT_DBL:
+      write_int<int16_t>(&file_, kWAVFloatFormat);
+      break;
+    case olive::SAMPLE_FMT_INVALID:
+    case olive::SAMPLE_FMT_COUNT:
+      qWarning() << "Invalid sample format for WAVE audio";
+      file_.close();
+      return false;
+    }
+
+    // Number of channels
+    write_int<int16_t>(&file_, static_cast<int16_t>(params_.channel_count()));
+
+    // Sample rate
+    write_int<int32_t>(&file_, params_.sample_rate());
+
+    // Bytes per second
+    write_int<int32_t>(&file_, (params_.sample_rate() * params_.bits_per_sample() * params_.channel_count())/8);
+
+    // Bytes per sample
+    write_int<int16_t>(&file_, static_cast<int16_t>((params_.bits_per_sample() * params_.channel_count())/8));
+
+    // Bits per sample
+    write_int<int16_t>(&file_, static_cast<int16_t>(params_.bits_per_sample()));
+
+    // Data chunk header
+    file_.write("data");
+
+    // Size of data chunk (filled in later)
+    write_int<int32_t>(&file_, 0);
+
+    return true;
+  }
+
+  return false;
+}
+
+void WaveOutput::write(const QByteArray &bytes)
+{
+  if (file_.isOpen()) {
+    file_.write(bytes);
+
+    data_length_ += bytes.size();
+  }
+}
+
+void WaveOutput::write(const char *bytes, int length)
+{
+  if (file_.isOpen()) {
+    file_.write(bytes, length);
+
+    data_length_ += length;
+  }
+}
+
+void WaveOutput::close()
+{
+  if (file_.isOpen()) {
+
+    // Write file sizes
+    file_.seek(4);
+    write_int<int32_t>(&file_, data_length_ + 36);
+
+    file_.seek(40);
+    write_int<int32_t>(&file_, data_length_);
+
+    file_.close();
+  }
+}
+
+void WaveOutput::switch_endianness(QByteArray& array)
+{
+  int half_sz = array.size()/2;
+
+  for (int i=0;i<half_sz;i++) {
+    int oppose_index = array.size() - i - 1;
+
+    char temp = array[i];
+    array[i] = array[oppose_index];
+    array[oppose_index] = temp;
+  }
+}
+
+template<typename T>
+void WaveOutput::write_int(QFile *file, T integer)
+{
+  QByteArray bytes;
+  bytes.resize(sizeof(T));
+  memcpy(bytes.data(), &integer, static_cast<size_t>(bytes.size()));
+
+  // WAV expects little-endian, so if the integer is big endian we need to switch
+  if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+    switch_endianness(bytes);
+  }
+
+  file->write(bytes);
+}

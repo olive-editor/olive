@@ -52,7 +52,7 @@ int AudioRenderingParams::time_to_bytes(const rational &time) const
 {
   Q_ASSERT(is_valid());
 
-  return qFloor(time.toDouble() * sample_rate()) * channel_count() * sample_size();
+  return qFloor(time.toDouble() * sample_rate()) * channel_count() * bytes_per_sample();
 }
 
 int AudioRenderingParams::channel_count() const
@@ -60,7 +60,7 @@ int AudioRenderingParams::channel_count() const
   return av_get_channel_layout_nb_channels(channel_layout());
 }
 
-int AudioRenderingParams::sample_size() const
+int AudioRenderingParams::bytes_per_sample() const
 {
   switch (format_) {
   case olive::SAMPLE_FMT_U8:
@@ -71,6 +71,7 @@ int AudioRenderingParams::sample_size() const
   case olive::SAMPLE_FMT_FLT:
     return 4;
   case olive::SAMPLE_FMT_DBL:
+  case olive::SAMPLE_FMT_S64:
     return 8;
   case olive::SAMPLE_FMT_INVALID:
   case olive::SAMPLE_FMT_COUNT:
@@ -78,6 +79,11 @@ int AudioRenderingParams::sample_size() const
   }
 
   return 0;
+}
+
+int AudioRenderingParams::bits_per_sample() const
+{
+  return bytes_per_sample() * 8;
 }
 
 bool AudioRenderingParams::is_valid() const

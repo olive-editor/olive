@@ -30,7 +30,8 @@ public:
 
   int time_to_bytes(const rational& time) const;
   int channel_count() const;
-  int sample_size() const;
+  int bytes_per_sample() const;
+  int bits_per_sample() const;
   bool is_valid() const;
 
   const olive::SampleFormat& format() const;

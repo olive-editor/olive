@@ -281,9 +281,11 @@ void ViewerWidget::NextFrame()
 
 void ViewerWidget::GoToEnd()
 {
-  Pause();
+  if (viewer_node_ != nullptr) {
+    Pause();
 
-  qWarning() << "No end frame support yet";
+    SetTime(olive::time_to_timestamp(viewer_node_->Length(), time_base_));
+  }
 }
 
 void ViewerWidget::ShuttleLeft()

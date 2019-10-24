@@ -344,14 +344,27 @@ void VideoRendererProcessor::ThreadCallback(RenderTexturePtr texture, const rati
 
   // If the connected output is using this time, signal it to update
   if (last_time_requested_ == time) {
+
     copy_buffer_.Bind();
-    texture->Bind();
 
-    QOpenGLContext::currentContext()->functions()->glViewport(0, 0, master_texture_->width(), master_texture_->height());
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
 
-    olive::gl::Blit(copy_pipeline_);
+    if (texture == nullptr) {
 
-    texture->Release();
+      // No texture, clear the master and push it
+      f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+      f->glClear(GL_COLOR_BUFFER_BIT);
+
+    } else {
+      texture->Bind();
+
+      f->glViewport(0, 0, master_texture_->width(), master_texture_->height());
+
+      olive::gl::Blit(copy_pipeline_);
+
+      texture->Release();
+    }
+
     copy_buffer_.Release();
 
     push_time_ = time;

@@ -35,8 +35,24 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
 {
   double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
 
+  // Determine what symbol to separate frames (";" is used for drop frame, ":" is non-drop frame)
+  QString frame_token = ";";
+
   switch (display) {
-  case kTimecodeFrames:
+  case kTimecodeNonDropFrame:
+    frame_token = ":";
+
+    // Convert timestamp from drop frame to non-drop frame
+    // FIXME: There's probably a better way to do this
+    if (timebase == rational(1001, 30000)) {
+      timestamp_dbl = timestamp_dbl / (30000.0/1001.0) * 30.0;
+    } else if (timebase == rational(1001, 60000)) {
+      timestamp_dbl = timestamp_dbl / (60000.0/1001.0) * 60.0;
+    } else if (timebase == rational(1001, 24000)) {
+      timestamp_dbl = timestamp_dbl / (24000.0/1001.0) * 24.0;
+    }
+    /* fall-through */
+  case kTimecodeDropFrame:
   case kTimecodeSeconds:
   {
     QString prefix;
@@ -68,11 +84,12 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
 
       int frames = qRound((timestamp_dbl - total_seconds) * frame_rate.toDouble());
 
-      return QString("%1%2:%3:%4;%5").arg(prefix,
-                                          padded(hours, 2),
-                                          padded(mins, 2),
-                                          padded(secs, 2),
-                                          padded(frames, 2));
+      return QString("%1%2:%3:%4%5%6").arg(prefix,
+                                           padded(hours, 2),
+                                           padded(mins, 2),
+                                           padded(secs, 2),
+                                           frame_token,
+                                           padded(frames, 2));
     }
   }
   case kFrames:

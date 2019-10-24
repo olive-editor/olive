@@ -28,11 +28,14 @@ namespace olive {
  */
 enum SampleFormat {
   SAMPLE_FMT_INVALID = -1,
+
   SAMPLE_FMT_U8,
   SAMPLE_FMT_S16,
   SAMPLE_FMT_S32,
+  SAMPLE_FMT_S64,
   SAMPLE_FMT_FLT,
   SAMPLE_FMT_DBL,
+
   SAMPLE_FMT_COUNT
 };
 
