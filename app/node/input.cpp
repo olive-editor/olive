@@ -39,14 +39,23 @@ NodeParam::Type NodeInput::type()
   return kInput;
 }
 
-void NodeInput::add_data_input(const NodeParam::DataType &data_type)
+QString NodeInput::name()
 {
-  inputs_.append(data_type);
+  if (name_.isEmpty()) {
+    return GetDefaultDataTypeName(data_type());
+  }
+
+  return NodeParam::name();
 }
 
-bool NodeInput::can_accept_type(const NodeParam::DataType &data_type)
+const NodeParam::DataType &NodeInput::data_type()
 {
-  return AreDataTypesCompatible(data_type, inputs_);
+  return data_type_;
+}
+
+void NodeInput::set_data_type(const NodeParam::DataType &type)
+{
+  data_type_ = type;
 }
 
 NodeOutput *NodeInput::get_connected_output()
@@ -161,27 +170,6 @@ void NodeInput::set_maximum(const QVariant &max)
 {
   maximum_ = max;
   has_maximum_ = true;
-}
-
-NodeParam::DataType NodeInput::data_type()
-{
-  if (IsConnected()) {
-    // Return the connected output's data type
-    return edges_.first()->output()->data_type();
-  }
-
-  if (inputs_.isEmpty()) {
-    // Safety if no inputs have been added
-    return kNone;
-  }
-
-  // Return first
-  return inputs_.first();
-}
-
-const QList<NodeParam::DataType> &NodeInput::inputs()
-{
-  return inputs_;
 }
 
 void NodeInput::CopyValues(NodeInput *source, NodeInput *dest)

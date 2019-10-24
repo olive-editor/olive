@@ -40,15 +40,6 @@ public:
   virtual Type type() override;
 
   /**
-   * @brief The data type this parameter outputs
-   *
-   * This can be used in conjunction with NodeInput::can_accept_type() to determine whether this parameter can be
-   * connected to it.
-   */
-  virtual DataType data_type() override;
-  void set_data_type(const DataType& type);
-
-  /**
    * @brief Get the value of this output at a given tie
    *
    * This function is intended to primarily be called by any connected NodeInputs.
@@ -65,10 +56,13 @@ public:
 
   void push_value(const QVariant& v, const rational& in, const rational &out);
 
-private:
-  DataType data_type_;
+  NodeInput* linked_input();
+  void set_linked_input(NodeInput* link);
 
+private:
   QMutex mutex_;
+
+  NodeInput* linked_input_;
 
 };
 

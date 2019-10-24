@@ -48,7 +48,7 @@ const QString NodeParam::id()
 QString NodeParam::name()
 {
   if (name_.isEmpty()) {
-    return GetDefaultDataTypeName(data_type());
+    return tr("Value");
   }
 
   return name_;
@@ -86,61 +86,6 @@ void NodeParam::DisconnectAll()
   }
 }
 
-bool NodeParam::AreDataTypesCompatible(NodeParam *a, NodeParam *b)
-{
-  // Make sure one is an input and one is an output
-  if (a->type() == b->type()) {
-    return false;
-  }
-
-  NodeInput* input;
-  NodeOutput* output;
-
-  // Work out which parameter is which
-  if (a->type() == NodeParam::kInput) {
-    input = static_cast<NodeInput*>(a);
-    output = static_cast<NodeOutput*>(b);
-  } else {
-    input = static_cast<NodeInput*>(b);
-    output = static_cast<NodeOutput*>(a);
-  }
-
-  return AreDataTypesCompatible(output->data_type(), input->inputs());
-}
-
-bool NodeParam::AreDataTypesCompatible(const NodeParam::DataType &output_type, const NodeParam::DataType &input_type)
-{
-  if (input_type == output_type) {
-    return true;
-  }
-
-  if (input_type == kNone) {
-    return false;
-  }
-
-  if (input_type == kAny) {
-    return true;
-  }
-
-  // Allow for up-converting integers to floats (but not the other way around)
-  if (output_type == kInt && input_type == kFloat) {
-    return true;
-  }
-
-  return false;
-}
-
-bool NodeParam::AreDataTypesCompatible(const DataType &output_type, const QList<DataType>& input_types)
-{
-  for (int i=0;i<input_types.size();i++) {
-    if (AreDataTypesCompatible(output_type, input_types.at(i))) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
@@ -151,12 +96,6 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
     if (existing->output() == output) {
       return nullptr;
     }
-  }
-
-  // Refuse to make a connection that is incompatible
-  if (!input->can_accept_type(output->data_type())) {
-    qWarning() << tr("Tried to make an invalid Node connection");
-    return nullptr;
   }
 
   // Ensure both nodes are in the same graph

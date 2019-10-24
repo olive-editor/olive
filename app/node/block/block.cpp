@@ -26,21 +26,15 @@ Block::Block() :
   next_(nullptr)
 {
   previous_input_ = new NodeInput("prev_block");
-  previous_input_->add_data_input(NodeParam::kBlock);
+  previous_input_->set_data_type(NodeParam::kBlock);
   previous_input_->set_dependent(false);
   AddParameter(previous_input_);
 
   block_output_ = new NodeOutput("block_out");
-  block_output_->set_data_type(NodeParam::kBlock);
   AddParameter(block_output_);
 
-  texture_output_ = new NodeOutput("tex_out");
-  texture_output_->set_data_type(NodeParam::kTexture);
-  AddParameter(texture_output_);
-
-  samples_output_ = new NodeOutput("samples_out");
-  samples_output_->set_data_type(NodeParam::kSamples);
-  AddParameter(samples_output_);
+  buffer_output_ = new NodeOutput("buffer_out");
+  AddParameter(buffer_output_);
 
   connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(EdgeAddedSlot(NodeEdgePtr)), Qt::DirectConnection);
   connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(EdgeRemovedSlot(NodeEdgePtr)), Qt::DirectConnection);
@@ -158,14 +152,9 @@ void Block::Refresh()
   }
 }
 
-NodeOutput *Block::texture_output()
+NodeOutput *Block::buffer_output()
 {
-  return texture_output_;
-}
-
-NodeOutput *Block::samples_output()
-{
-  return samples_output_;
+  return buffer_output_;
 }
 
 NodeOutput *Block::block_output()

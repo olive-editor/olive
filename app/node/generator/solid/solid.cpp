@@ -24,11 +24,10 @@ SolidGenerator::SolidGenerator() :
   texture_(nullptr)
 {
   color_input_ = new NodeInput("color_in");
-  color_input_->add_data_input(NodeParam::kColor);
+  color_input_->set_data_type(NodeParam::kColor);
   AddParameter(color_input_);
 
   texture_output_ = new NodeOutput("tex_out");
-  texture_output_->set_data_type(NodeOutput::kTexture);
   AddParameter(texture_output_);
 }
 

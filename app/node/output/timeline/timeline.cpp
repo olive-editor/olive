@@ -35,7 +35,7 @@ TimelineOutput::TimelineOutput()
   for (int i=0;i<kTrackTypeCount;i++) {
     // Create track input
     NodeInput* track_input = new NodeInput(QString("track_in_%1").arg(i));
-    track_input->add_data_input(NodeParam::kTrack);
+    track_input->set_data_type(NodeParam::kTrack);
     AddParameter(track_input);
     track_inputs_.replace(i, track_input);
 
@@ -50,7 +50,6 @@ TimelineOutput::TimelineOutput()
   }
 
   length_output_ = new NodeOutput("length_out");
-  length_output_->set_data_type(NodeParam::kRational);
   AddParameter(length_output_);
 }
 

@@ -25,7 +25,7 @@ MediaInput::MediaInput() :
   frame_(nullptr)
 {
   footage_input_ = new NodeInput("footage_in");
-  footage_input_->add_data_input(NodeInput::kFootage);
+  footage_input_->set_data_type(NodeInput::kFootage);
   AddParameter(footage_input_);
 }
 

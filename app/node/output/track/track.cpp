@@ -32,12 +32,11 @@ TrackOutput::TrackOutput() :
   index_(-1)
 {
   track_input_ = new NodeInput("track_in");
-  track_input_->add_data_input(NodeParam::kTrack);
+  track_input_->set_data_type(NodeParam::kTrack);
   track_input_->set_dependent(false);
   AddParameter(track_input_);
 
   track_output_ = new NodeOutput("track_out");
-  track_output_->set_data_type(NodeParam::kTrack);
   AddParameter(track_output_);
 }
 
@@ -127,11 +126,11 @@ QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rat
 {
   QList<NodeDependency> deps;
 
-  if (output == texture_output()) {
+  if (output == buffer_output()) {
     ValidateCurrentBlock(time);
 
     if (current_block_ != this) {
-      deps.append(NodeDependency(current_block_->texture_output(), time, time));
+      deps.append(NodeDependency(current_block_->buffer_output(), time, time));
     }
   }
 
@@ -197,23 +196,16 @@ QVariant TrackOutput::Value(NodeOutput *output, const rational &in, const ration
   if (output == track_output_) {
     // Set track output correctly
     return PtrToValue(this);
-  } else if (output == texture_output()) {
+  } else if (output == buffer_output()) {
     ValidateCurrentBlock(in);
 
     if (current_block_ != this) {
       // At this point, we must have found the correct block so we use its texture output to produce the image
-      return current_block_->texture_output()->get_value(in, out);
+      return current_block_->buffer_output()->get_value(in, out);
     }
 
     // No texture is valid
     return 0;
-  } else if (output == samples_output()) {
-    ValidateCurrentBlock(in);
-
-    if (current_block_ != this) {
-      // FIXME: String together samples from blocks in this range
-      qDebug() << "FIXME: Implement this";
-    }
   }
 
   // Run default node processing

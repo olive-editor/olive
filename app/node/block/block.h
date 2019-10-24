@@ -59,8 +59,7 @@ public:
 
   NodeInput* previous_input();
 
-  NodeOutput* texture_output();
-  NodeOutput* samples_output();
+  NodeOutput* buffer_output();
   NodeOutput* block_output();
 
   static void ConnectBlocks(Block* previous, Block* next);
@@ -116,8 +115,7 @@ private:
   NodeInput* previous_input_;
   NodeOutput* block_output_;
 
-  NodeOutput* texture_output_;
-  NodeOutput* samples_output_;
+  NodeOutput* buffer_output_;
 
   rational in_point_;
   rational out_point_;

@@ -24,39 +24,13 @@
 
 NodeOutput::NodeOutput(const QString &id) :
   NodeParam(id),
-  data_type_(kNone)
+  linked_input_(nullptr)
 {
 }
 
 NodeParam::Type NodeOutput::type()
 {
   return kOutput;
-}
-
-NodeParam::DataType NodeOutput::data_type()
-{
-  return data_type_;
-}
-
-void NodeOutput::set_data_type(const NodeParam::DataType &type)
-{
-  if (data_type_ == type) {
-    return;
-  }
-
-  data_type_ = type;
-
-  // If this output is connected to other inputs, check if they're compatible with this new data type
-  if (IsConnected()) {
-    for (int i=0;i<edges_.size();i++) {
-      NodeEdgePtr edge = edges_.at(i);
-
-      if (!AreDataTypesCompatible(this, edge->input())) {
-        DisconnectEdge(edge);
-        i--;
-      }
-    }
-  }
 }
 
 QVariant NodeOutput::get_value(const rational& in, const rational& out)
@@ -87,3 +61,12 @@ void NodeOutput::push_value(const QVariant &v, const rational &in, const rationa
   out_ = out;
 }
 
+NodeInput *NodeOutput::linked_input()
+{
+  return linked_input_;
+}
+
+void NodeOutput::set_linked_input(NodeInput *link)
+{
+  linked_input_ = link;
+}

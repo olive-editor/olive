@@ -73,8 +73,8 @@ void Sequence::add_default_nodes()
   AddNode(audio_track_output_);
 
   // Connect tracks to viewer
-  NodeParam::ConnectEdge(video_track_output_->texture_output(), viewer_output_->texture_input());
-  NodeParam::ConnectEdge(audio_track_output_->samples_output(), viewer_output_->samples_input());
+  NodeParam::ConnectEdge(video_track_output_->buffer_output(), viewer_output_->texture_input());
+  NodeParam::ConnectEdge(audio_track_output_->buffer_output(), viewer_output_->samples_input());
 
   // Connect timeline length to viewer
   NodeParam::ConnectEdge(timeline_output_->length_output(), viewer_output_->length_input());

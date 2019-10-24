@@ -23,15 +23,15 @@
 ViewerOutput::ViewerOutput()
 {
   texture_input_ = new NodeInput("tex_in");
-  texture_input_->add_data_input(NodeInput::kTexture);
+  texture_input_->set_data_type(NodeInput::kTexture);
   AddParameter(texture_input_);
 
   samples_input_ = new NodeInput("samples_in");
-  samples_input_->add_data_input(NodeInput::kSamples);
+  samples_input_->set_data_type(NodeInput::kSamples);
   AddParameter(samples_input_);
 
   length_input_ = new NodeInput("length_in");
-  length_input_->add_data_input(NodeInput::kRational);
+  length_input_->set_data_type(NodeInput::kRational);
   AddParameter(length_input_);
 }
 

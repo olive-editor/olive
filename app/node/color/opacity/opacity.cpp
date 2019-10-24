@@ -27,18 +27,17 @@
 OpacityNode::OpacityNode()
 {
   opacity_input_ = new NodeInput("opacity_in");
-  opacity_input_->add_data_input(NodeParam::kFloat);
+  opacity_input_->set_data_type(NodeParam::kFloat);
   opacity_input_->set_value(100);
   opacity_input_->set_minimum(0);
   opacity_input_->set_maximum(100);
   AddParameter(opacity_input_);
 
   texture_input_ = new NodeInput("tex_in");
-  texture_input_->add_data_input(NodeParam::kTexture);
+  texture_input_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_input_);
 
   texture_output_ = new NodeOutput("tex_out");
-  texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
 }
 

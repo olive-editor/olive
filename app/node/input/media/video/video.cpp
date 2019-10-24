@@ -17,11 +17,10 @@ VideoInput::VideoInput() :
   ocio_texture_(0)
 {
   matrix_input_ = new NodeInput("matrix_in");
-  matrix_input_->add_data_input(NodeInput::kMatrix);
+  matrix_input_->set_data_type(NodeInput::kMatrix);
   AddParameter(matrix_input_);
 
   texture_output_ = new NodeOutput("tex_out");
-  texture_output_->set_data_type(NodeOutput::kTexture);
   texture_output_->SetValueCachingEnabled(false);
   AddParameter(texture_output_);
 }

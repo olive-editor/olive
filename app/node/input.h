@@ -47,21 +47,16 @@ public:
    */
   virtual Type type() override;
 
-  /**
-   * @brief Add a data type that this input accepts
-   *
-   * While an input will usually only accept one data type, NodeInput supports several. Use this to add a data type that
-   * this input can accept.
-   */
-  void add_data_input(const DataType& data_type);
+  virtual QString name() override;
 
   /**
-   * @brief Return whether an input can accept a certain type based on its list of data types
+   * @brief The data type this parameter outputs
    *
-   * The input checks its list of acceptable data types (added by add_data_input()) to determine whether a certain
-   * data type can be connected to this input.
+   * This can be used in conjunction with NodeInput::can_accept_type() to determine whether this parameter can be
+   * connected to it.
    */
-  bool can_accept_type(const DataType& data_type);
+  const DataType& data_type();
+  void set_data_type(const DataType& type);
 
   /**
    * @brief If this input is connected to an output, retrieve the output parameter
@@ -132,13 +127,6 @@ public:
   bool has_maximum();
   void set_maximum(const QVariant& max);
 
-  virtual DataType data_type() override;
-
-  /**
-   * @brief A list of input data types accepted by this parameter
-   */
-  const QList<DataType>& inputs();
-
   /**
    * @brief Copy all values including keyframe information and connections from another NodeInput
    */
@@ -153,7 +141,7 @@ private:
    *
    * Use can_accept_type() to check if a type is in this list
    */
-  QList<DataType> inputs_;
+  DataType data_type_;
 
   /**
    * @brief Internal keyframe array

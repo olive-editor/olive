@@ -379,8 +379,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         // Get the parameter we're dragging into
         NodeParam* comp_param = drop_item->node()->parameters().at(i);
 
-        if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos())) // See if we're dragging inside the hitbox
-            && NodeParam::AreDataTypesCompatible(drag_src_param_, comp_param)) { // Make sure the types are compatible
+        if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
 
           // Prevent circular dependency - check if the Node we'll be outputting to already outputs to this Node
           Node* outputting_node;

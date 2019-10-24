@@ -23,7 +23,7 @@
 ClipBlock::ClipBlock()
 {
   texture_input_ = new NodeInput("tex_in");
-  texture_input_->add_data_input(NodeInput::kTexture);
+  texture_input_->set_data_type(NodeInput::kTexture);
   AddParameter(texture_input_);
 }
 
@@ -63,7 +63,7 @@ NodeInput *ClipBlock::texture_input()
 
 QVariant ClipBlock::Value(NodeOutput* param, const rational& v_in, const rational &v_out)
 {
-  if (param == texture_output()) {
+  if (param == buffer_output()) {
     // If the time retrieved is within this block, get texture information
     if (texture_input()->IsConnected() && v_in >= in() && v_out < out()) {
       // Retrieve texture
@@ -98,7 +98,7 @@ QList<NodeDependency> ClipBlock::RunDependencies(NodeOutput *output, const ratio
 {
   QList<NodeDependency> deps;
 
-  if (output == texture_output() && texture_input_->IsConnected()) {
+  if (output == buffer_output() && texture_input_->IsConnected()) {
     deps.append(NodeDependency(texture_input_->get_connected_output(), SequenceToMediaTime(time), SequenceToMediaTime(time)));
   }
 

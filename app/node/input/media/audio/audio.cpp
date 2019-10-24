@@ -3,7 +3,6 @@
 AudioInput::AudioInput()
 {
   samples_output_ = new NodeOutput("samples_out");
-  samples_output_->set_data_type(NodeInput::kSamples);
   AddParameter(samples_output_);
 }
 

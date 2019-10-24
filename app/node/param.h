@@ -132,7 +132,7 @@ public:
   /**
    * @brief Name of this parameter to be shown to the user
    */
-  QString name();
+  virtual QString name();
   void set_name(const QString& name);
 
   /**
@@ -164,30 +164,6 @@ public:
    * @brief Disconnect any edges connecting this parameter to other parameters
    */
   void DisconnectAll();
-
-  /**
-   * @brief Determine whether two DataTypes are compatible and therefore whether two NodeParams can be connected
-   *
-   * Obviously a data type is compatible with itself, but sometimes fundamentally separate data types may still be
-   * allowed to connect (e.g. an integer output to a float input). This static function should be used to determine
-   * whether a data type is compatible with another.
-   */
-  static bool AreDataTypesCompatible(const DataType& output_type, const DataType& input_type);
-
-  /**
-   * @brief Overload of AreDataTypesCompatible(const DataType& output_type, const DataType& input_type)
-   *
-   * Use this for a list of input data types (which NodeInput uses as it's possible for it to accept multiple types).
-   */
-  static bool AreDataTypesCompatible(const DataType& output_type, const QList<DataType>& input_types);
-
-  /**
-   * @brief Overload of AreDataTypesCompatible(const DataType& output_type, const DataType& input_type)
-   *
-   * Convenience function for two NodeParams. Determines which is the input/output and determines whether their types
-   * are compatible.
-   */
-  static bool AreDataTypesCompatible(NodeParam* a, NodeParam* b);
 
   /**
    * @brief Connect an output parameter to an input parameter
@@ -266,8 +242,6 @@ public:
   bool ValueCachingEnabled();
   void SetValueCachingEnabled(bool enabled);
 
-  virtual DataType data_type() = 0;
-
 signals:
   /**
    * @brief Signal emitted when an edge is added to this parameter
@@ -307,17 +281,17 @@ protected:
    */
   bool value_caching_;
 
+  /**
+   * @brief Internal name string
+   */
+  QString name_;
+
 private:
   /**
    * @brief Internal function for returning a value in the form of bytes
    */
   template<typename T>
   static QByteArray ValueToBytesInternal(const QVariant& v);
-
-  /**
-   * @brief Internal name string
-   */
-  QString name_;
 
   /**
    * @brief Internal ID string

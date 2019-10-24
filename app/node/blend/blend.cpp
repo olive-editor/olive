@@ -23,15 +23,14 @@
 BlendNode::BlendNode()
 {
   base_input_ = new NodeInput("base_in");
-  base_input_->add_data_input(NodeParam::kTexture);
+  base_input_->set_data_type(NodeParam::kTexture);
   AddParameter(base_input_);
 
   blend_input_ = new NodeInput("blend_in");
-  blend_input_->add_data_input(NodeParam::kTexture);
+  blend_input_->set_data_type(NodeParam::kTexture);
   AddParameter(blend_input_);
 
   texture_output_ = new NodeOutput("tex_out");
-  texture_output_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_output_);
 }
 

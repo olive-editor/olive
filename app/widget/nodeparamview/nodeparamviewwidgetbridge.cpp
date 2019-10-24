@@ -38,11 +38,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 {
   NodeInput* base_input = inputs_.first();
 
-  // Return empty list if the NodeInput has no actual input data types
-  if (base_input->inputs().isEmpty()) {
-    return;
-  }
-
   // We assume the first data type is the "primary" type
   switch (base_input->data_type()) {
   // None of these inputs have applicable UI widgets

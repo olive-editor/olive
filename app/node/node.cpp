@@ -357,9 +357,11 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
         && !param->IsConnected()
         && static_cast<NodeInput*>(param)->dependent()) {
       // Get the value at this time
-      QVariant v = static_cast<NodeInput*>(param)->get_value(time);
+      NodeInput* input = static_cast<NodeInput*>(param);
 
-      hash->addData(NodeParam::ValueToBytes(param->data_type(), v));
+      QVariant v = input->get_value(time);
+
+      hash->addData(NodeParam::ValueToBytes(input->data_type(), v));
     }
   }
 
