@@ -25,6 +25,7 @@
 #include <QVector>
 
 #include "common/rational.h"
+#include "render/audio/audioparams.h"
 #include "render/pixelformat.h"
 
 class Frame;
@@ -57,6 +58,12 @@ public:
   const int& height();
   void set_height(const int& height);
 
+  const AudioRenderingParams& audio_params();
+  void set_audio_params(const AudioRenderingParams& params);
+
+  const int &sample_count();
+  void set_sample_count(const int &sample_count);
+
   /**
    * @brief Get frame's timestamp.
    *
@@ -75,8 +82,8 @@ public:
    *
    * Currently this will either be an olive::PixelFormat (video) or an olive::SampleFormat (audio).
    */
-  const int& format();
-  void set_format(const int& format);
+  const olive::PixelFormat& format();
+  void set_format(const olive::PixelFormat& format);
 
   /**
    * @brief Get the data buffer of this frame
@@ -107,7 +114,11 @@ private:
 
   int height_;
 
-  int format_;
+  olive::PixelFormat format_;
+
+  AudioRenderingParams audio_params_;
+
+  int sample_count_;
 
   QVector<uint8_t> data_;
 

@@ -58,25 +58,7 @@ public:
   // Necessary for subclassing, it's empty
   virtual ~Decoder();
 
-  /**
-   * @brief Deleted copy constructor
-   */
-  Decoder(const Decoder& other) = delete;
-
-  /**
-   * @brief Deleted move constructor
-   */
-  Decoder(Decoder&& other) = delete;
-
-  /**
-   * @brief Deleted copy assignment
-   */
-  Decoder& operator=(const Decoder& other) = delete;
-
-  /**
-   * @brief Deleted move assignment
-   */
-  Decoder& operator=(Decoder&& other) = delete;
+  Q_DISABLE_COPY_MOVE(Decoder)
 
   virtual QString id() = 0;
 

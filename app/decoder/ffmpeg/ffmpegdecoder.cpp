@@ -249,7 +249,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   FramePtr frame_container = Frame::Create();
   frame_container->set_width(frame_->width);
   frame_container->set_height(frame_->height);
-  frame_container->set_format(output_fmt_);
+  frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
   frame_container->set_timestamp(rational(frame_->pts * avstream_->time_base.num, avstream_->time_base.den));
   frame_container->set_native_timestamp(frame_->pts);
   frame_container->allocate();

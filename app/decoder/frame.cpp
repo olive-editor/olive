@@ -28,7 +28,8 @@
 Frame::Frame() :
   width_(0),
   height_(0),
-  format_(-1),
+  format_(olive::PIX_FMT_INVALID),
+  sample_count_(0),
   timestamp_(0),
   native_timestamp_(0)
 {
@@ -59,6 +60,16 @@ void Frame::set_height(const int &height)
   height_ = height;
 }
 
+const AudioRenderingParams &Frame::audio_params()
+{
+  return audio_params_;
+}
+
+void Frame::set_audio_params(const AudioRenderingParams &params)
+{
+  audio_params_ = params;
+}
+
 const rational &Frame::timestamp()
 {
   return timestamp_;
@@ -79,14 +90,24 @@ void Frame::set_native_timestamp(const int64_t &timestamp)
   native_timestamp_ = timestamp;
 }
 
-const int &Frame::format()
+const olive::PixelFormat &Frame::format()
 {
   return format_;
 }
 
-void Frame::set_format(const int &format)
+void Frame::set_format(const olive::PixelFormat &format)
 {
   format_ = format;
+}
+
+const int &Frame::sample_count()
+{
+  return sample_count_;
+}
+
+void Frame::set_sample_count(const int &audio_sample_count)
+{
+  sample_count_ = audio_sample_count;
 }
 
 uint8_t *Frame::data()
@@ -104,9 +125,9 @@ void Frame::allocate()
   // Assume this frame is intended to be a video frame
   if (width_ > 0 && height_ > 0) {
     data_.resize(PixelService::GetBufferSize(static_cast<olive::PixelFormat>(format_), width_, height_));
+  } else if (sample_count_ > 0) {
+    data_.resize(audio_params_.samples_to_bytes(sample_count_));
   }
-
-  // FIXME: Audio sample allocation
 }
 
 void Frame::destroy()

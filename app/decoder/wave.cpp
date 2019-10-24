@@ -61,12 +61,12 @@ bool WaveOutput::open()
     write_int<int32_t>(&file_, params_.sample_rate());
 
     // Bytes per second
-    write_int<int32_t>(&file_, (params_.sample_rate() * params_.bits_per_sample() * params_.channel_count())/8);
+    write_int<int32_t>(&file_, params_.samples_to_bytes(params_.sample_rate()));
 
     // Bytes per sample
-    write_int<int16_t>(&file_, static_cast<int16_t>((params_.bits_per_sample() * params_.channel_count())/8));
+    write_int<int16_t>(&file_, static_cast<int16_t>(params_.samples_to_bytes(1)));
 
-    // Bits per sample
+    // Bits per sample per channel
     write_int<int16_t>(&file_, static_cast<int16_t>(params_.bits_per_sample()));
 
     // Data chunk header

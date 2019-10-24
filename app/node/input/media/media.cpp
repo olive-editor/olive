@@ -35,7 +35,7 @@ void MediaInput::Release()
   decoder_ = nullptr;
 }
 
-StreamPtr MediaInput::Footage()
+StreamPtr MediaInput::footage()
 {
   return footage_input_->get_value(0).value<StreamPtr>();
 }
@@ -52,7 +52,7 @@ bool MediaInput::SetupDecoder()
   }
 
   // Get currently selected Footage
-  StreamPtr stream = Footage();
+  StreamPtr stream = footage();
 
   // If no footage is selected, return nothing
   if (stream == nullptr) {

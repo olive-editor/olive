@@ -96,10 +96,15 @@ QVariant VideoInput::Value(NodeOutput *output, const rational &in, const rationa
 {
   Q_UNUSED(out)
 
-  // FIXME: Hardcoded value
-  bool alpha_is_associated = false;
-
   if (output == texture_output_) {
+    if (footage() == nullptr
+        || (footage()->type() != Stream::kVideo && footage()->type() != Stream::kImage)) {
+      return 0;
+    }
+
+    // FIXME: Hardcoded value
+    bool alpha_is_associated = false;
+
     // Find the current Renderer instance
     RenderInstance* renderer = VideoRendererProcessor::CurrentInstance();
 
@@ -124,7 +129,7 @@ QVariant VideoInput::Value(NodeOutput *output, const rational &in, const rationa
       }
 
       if (color_processor_ == nullptr) {
-        QString colorspace = std::static_pointer_cast<VideoStream>(Footage())->colorspace();
+        QString colorspace = std::static_pointer_cast<VideoStream>(footage())->colorspace();
         if (colorspace.isEmpty()) {
           // FIXME: Should use Footage() to find the Project* it belongs to instead of this
           colorspace = olive::core.GetActiveProject()->default_input_colorspace();

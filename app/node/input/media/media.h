@@ -35,7 +35,7 @@ public:
 
   virtual void Release() override;
 
-  StreamPtr Footage();
+  StreamPtr footage();
   void SetFootage(StreamPtr f);
 
 protected:

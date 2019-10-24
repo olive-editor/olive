@@ -29,8 +29,9 @@ public:
   AudioRenderingParams(const AudioParams& params, const olive::SampleFormat& format);
 
   int time_to_bytes(const rational& time) const;
+  int samples_to_bytes(const int& samples) const;
   int channel_count() const;
-  int bytes_per_sample() const;
+  int bytes_per_sample_per_channel() const;
   int bits_per_sample() const;
   bool is_valid() const;
 
