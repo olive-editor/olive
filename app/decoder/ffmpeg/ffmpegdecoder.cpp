@@ -41,8 +41,7 @@ FFmpegDecoder::FFmpegDecoder() :
   opts_(nullptr),
   frame_(nullptr),
   pkt_(nullptr),
-  scale_ctx_(nullptr),
-  resample_ctx_(nullptr)
+  scale_ctx_(nullptr)
 {
 }
 
@@ -281,11 +280,6 @@ void FFmpegDecoder::Close()
   if (scale_ctx_ != nullptr) {
     sws_freeContext(scale_ctx_);
     scale_ctx_ = nullptr;
-  }
-
-  if (resample_ctx_ != nullptr) {
-    swr_free(&resample_ctx_);
-    resample_ctx_ = nullptr;
   }
 
   if (pkt_ != nullptr) {
@@ -574,14 +568,18 @@ void FFmpegDecoder::Index()
           if (resampler != nullptr) {
             // We must need to resample this (mainly just convert from planar to packed if necessary)
             resampler_output = new uint8_t[buffer_size];
-            swr_convert(resampler, &resampler_output, frame_->nb_samples, frame_->data, frame_->nb_samples);
+            swr_convert(resampler,
+                        &resampler_output,
+                        frame_->nb_samples,
+                        const_cast<const uint8_t **>(frame_->data),
+                        frame_->nb_samples);
           } else {
             // No resampling required, we can write directly from te frame buffer
             resampler_output = frame_->data[0];
           }
 
           // Write packed WAV data to the disk cache
-          wave_out.write(resampler_output, buffer_size);
+          wave_out.write(reinterpret_cast<char*>(resampler_output), buffer_size);
 
           // If we allocated an output for the resampler, delete it here
           if (resampler_output != frame_->data[0]) {

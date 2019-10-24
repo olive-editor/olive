@@ -141,7 +141,6 @@ private:
   AVPacket* pkt_;
 
   SwsContext* scale_ctx_;
-  SwrContext* resample_ctx_;
   int output_fmt_;
 
   QVector<int64_t> frame_index_;

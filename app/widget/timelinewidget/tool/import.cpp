@@ -28,7 +28,7 @@
 #include "core.h"
 #include "node/distort/transform/transform.h"
 #include "node/color/opacity/opacity.h"
-#include "node/input/media/media.h"
+#include "node/input/media/video/video.h"
 
 TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
@@ -217,7 +217,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
 
       ClipBlock* clip = new ClipBlock();
-      MediaInput* media = new MediaInput();
+      VideoInput* media = new VideoInput();
       TransformDistort* transform = new TransformDistort();
       OpacityNode* opacity = new OpacityNode();
 

@@ -14,12 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audio)
-add_subdirectory(video)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/input/media/media.h
-  node/input/media/media.cpp
+  node/input/media/video/video.h
+  node/input/media/video/video.cpp
   PARENT_SCOPE
 )

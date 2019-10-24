@@ -18,16 +18,11 @@
 
 ***/
 
-#ifndef IMAGE_H
-#define IMAGE_H
-
-#include <QOpenGLTexture>
+#ifndef MEDIAINPUT_H
+#define MEDIAINPUT_H
 
 #include "decoder/decoder.h"
 #include "node/node.h"
-#include "render/colormanager.h"
-#include "render/rendertexture.h"
-#include "render/gl/shadergenerators.h"
 
 /**
  * @brief A node that imports an image
@@ -38,47 +33,20 @@ class MediaInput : public Node
 public:
   MediaInput();
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
-
   virtual void Release() override;
-
-  NodeInput* matrix_input();
-
-  NodeOutput* texture_output();
 
   StreamPtr Footage();
   void SetFootage(StreamPtr f);
 
-  virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
-
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& in, const rational& out) override;
-
-private:
   bool SetupDecoder();
 
   NodeInput* footage_input_;
 
-  NodeInput* matrix_input_;
-
-  NodeOutput* texture_output_;
-
-  RenderTexture internal_tex_;
-
   DecoderPtr decoder_;
-
-  ColorProcessorPtr color_processor_;
-
-  ShaderPtr pipeline_;
-
-  QOpenGLContext* ocio_ctx_;
-  GLuint ocio_texture_;
 
   FramePtr frame_;
 
 };
 
-#endif // IMAGE_H
+#endif // MEDIAINPUT_H
