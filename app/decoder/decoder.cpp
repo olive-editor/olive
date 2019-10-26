@@ -75,13 +75,13 @@ bool Decoder::ProbeMedia(Footage *f)
 {
   // Check for a valid filename
   if (f->filename().isEmpty()) {
-    qWarning() << QCoreApplication::translate("ProbeMedia", "Tried to probe media with an empty filename");
+    qWarning() << "Tried to probe media with an empty filename";
     return false;
   }
 
   // Check file exists
   if (!QFileInfo::exists(f->filename())) {
-    qWarning() << QCoreApplication::translate("ProbeMedia", "Tried to probe file that doesn't exist");
+    qWarning() << "Tried to probe file that doesn't exist:" << f->filename();
     return false;
   }
 
