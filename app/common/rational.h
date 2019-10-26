@@ -51,10 +51,7 @@ public:
       numer = intType(0);
   }
 
-  rational(const rational &rhs)
-    :numer(rhs.numer), denom(rhs.denom)
-  {
-  }
+  rational(const rational &rhs) = default;
 
   rational(const AVRational& r);
 
