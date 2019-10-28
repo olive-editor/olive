@@ -174,8 +174,6 @@ private:
 
   NodeOutput* track_output_;
 
-  NodeOutput* block_list_output_;
-
   TrackType track_type_;
 
   int block_invalidate_cache_stack_;
