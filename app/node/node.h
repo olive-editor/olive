@@ -26,6 +26,7 @@
 #include <QObject>
 
 #include "common/rational.h"
+#include "node/code.h"
 #include "node/dependency.h"
 #include "node/input.h"
 #include "node/output.h"
@@ -123,6 +124,11 @@ public:
    * @brief Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one)
    */
   QList<Node*> GetImmediateDependencies();
+
+  /**
+   * @brief Generate OpenCL hardware accelerated code for this Node
+   */
+  virtual NodeCode Code(NodeOutput* output);
 
   /**
    * @brief Wrapper for Process()

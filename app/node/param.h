@@ -87,6 +87,9 @@ public:
     /// Resolves to `Block*`
     kBlock,
 
+    /// Resolves to `QList<Block*>`
+    kBlockList,
+
     /// Resolves to `Footage*`
     kFootage,
 

@@ -33,6 +33,8 @@ public:
   virtual QString id() override;
   virtual QString Description() override;
 
+  virtual NodeCode Code(NodeOutput* output) override;
+
   virtual void Release() override;
 
 protected:

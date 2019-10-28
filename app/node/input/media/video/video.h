@@ -18,6 +18,8 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  virtual QString Code() override;
+
   virtual void Release() override;
 
   NodeInput* matrix_input();

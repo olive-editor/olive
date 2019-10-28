@@ -278,6 +278,13 @@ QList<Node *> Node::GetImmediateDependencies()
   return node_list;
 }
 
+NodeCode Node::Code(NodeOutput *output)
+{
+  Q_UNUSED(output)
+
+  return NodeCode();
+}
+
 QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &time)
 {
   Q_UNUSED(output)

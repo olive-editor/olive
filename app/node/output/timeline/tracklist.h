@@ -111,6 +111,7 @@ private:
 
 private slots:
   void UpdateTotalLength();
+
 };
 
 #endif // TRACKLIST_H

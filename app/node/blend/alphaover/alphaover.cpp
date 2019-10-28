@@ -45,6 +45,22 @@ QString AlphaOverBlend::Description()
   return tr("A blending node that composites one texture over another using its alpha channel.");
 }
 
+NodeCode AlphaOverBlend::Code(NodeOutput *output)
+{
+  if (output == texture_output()) {
+    return NodeCode("AlphaOver",
+                    "void AlphaOver(const pixel *base_in, const pixel *blend_in, pixel *tex_out) {"
+                    "  int i = get_global_id(0);"
+                    "  tex_out[i].r = base_in.r - blend_in.a + blend_in.r;"
+                    "  tex_out[i].g = base_in.g - blend_in.a + blend_in.g;"
+                    "  tex_out[i].b = base_in.b - blend_in.a + blend_in.b;"
+                    "  tex_out[i].a = base_in.a - blend_in.a + blend_in.a;"
+                    "}");
+  }
+
+  return Node::Code(output);
+}
+
 void AlphaOverBlend::Release()
 {
 }
