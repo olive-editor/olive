@@ -3,28 +3,33 @@
 
 #include "node/output/viewer/viewer.h"
 
-class RenderBackend : QObject
+class RenderBackend : public QObject
 {
   Q_OBJECT
 public:
   RenderBackend();
-  virtual ~RenderBackend();
+  virtual ~RenderBackend() override;
+
+  Q_DISABLE_COPY_MOVE(RenderBackend)
 
   virtual bool Init() = 0;
 
   virtual void GenerateFrame(const rational& time) = 0;
 
-  virtual void GenerateSamples(const rational& time, const rational& length) = 0;
-
   virtual void Close() = 0;
 
   const QString& GetError();
 
-  void set_viewer_node(ViewerOutput* viewer_node);
+  void SetViewerNode(ViewerOutput* viewer_node);
 
-protected:
+public slots:
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range) = 0;
+
+  virtual bool Compile() = 0;
+
   virtual void Decompile() = 0;
 
+protected:
   void SetError(const QString& error);
 
   ViewerOutput* viewer_node() const;

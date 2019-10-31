@@ -24,7 +24,7 @@
 #include <QOpenGLWidget>
 
 #include "render/colormanager.h"
-#include "render/gl/shaderptr.h"
+#include "render/backend/opengl/openglshader.h"
 
 /**
  * @brief The inner display/rendering widget of a Viewer class.
@@ -143,7 +143,7 @@ private:
    *
    * Retrieved every initializeGL() in order to stay up to date when new contexts are generated.
    */
-  ShaderPtr pipeline_;
+  OpenGLShaderPtr pipeline_;
 
   /**
    * @brief OCIO LUT texture used for conversions

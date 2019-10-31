@@ -26,7 +26,6 @@
 #include <QObject>
 
 #include "common/rational.h"
-#include "node/code.h"
 #include "node/dependency.h"
 #include "node/input.h"
 #include "node/output.h"
@@ -128,7 +127,7 @@ public:
   /**
    * @brief Generate OpenCL hardware accelerated code for this Node
    */
-  virtual NodeCode Code(NodeOutput* output);
+  virtual QString Code(NodeOutput* output);
 
   /**
    * @brief Wrapper for Process()
@@ -224,9 +223,17 @@ public:
   bool CanBeDeleted();
 
   /**
-   * @brief Set whether
+   * @brief Set whether this Node can be deleted in the UI or not
    */
   void SetCanBeDeleted(bool s);
+
+  /**
+   * @brief Returns whether this Node is a "Block" type or not
+   *
+   * You shouldn't ever need to override this since all derivatives of Block will automatically have this set to true.
+   * It's just a more convenient way of checking than dynamic_casting.
+   */
+  virtual bool IsBlock();
 
 protected:
   /**
@@ -258,7 +265,7 @@ protected:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) = 0;
+  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out);
 
   /**
    * @brief Retrieve the last timecode Process() was called with

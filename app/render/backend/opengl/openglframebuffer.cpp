@@ -18,12 +18,12 @@
 
 ***/
 
-#include "renderframebuffer.h"
+#include "openglframebuffer.h"
 
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
 
-RenderFramebuffer::RenderFramebuffer() :
+OpenGLFramebuffer::OpenGLFramebuffer() :
   context_(nullptr),
   buffer_(0),
   texture_(nullptr)
@@ -31,12 +31,12 @@ RenderFramebuffer::RenderFramebuffer() :
 
 }
 
-RenderFramebuffer::~RenderFramebuffer()
+OpenGLFramebuffer::~OpenGLFramebuffer()
 {
   Destroy();
 }
 
-void RenderFramebuffer::Create(QOpenGLContext *ctx)
+void OpenGLFramebuffer::Create(QOpenGLContext *ctx)
 {
   if (ctx == nullptr) {
     qWarning() << tr("RenderTexture::Create was passed an invalid context");
@@ -54,7 +54,7 @@ void RenderFramebuffer::Create(QOpenGLContext *ctx)
   context_->functions()->glGenFramebuffers(1, &buffer_);
 }
 
-void RenderFramebuffer::Destroy()
+void OpenGLFramebuffer::Destroy()
 {
   if (context_ != nullptr) {
     disconnect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
@@ -67,12 +67,12 @@ void RenderFramebuffer::Destroy()
   }
 }
 
-bool RenderFramebuffer::IsCreated() const
+bool OpenGLFramebuffer::IsCreated() const
 {
   return (buffer_ > 0);
 }
 
-void RenderFramebuffer::Bind()
+void OpenGLFramebuffer::Bind()
 {
   if (context_ == nullptr) {
     return;
@@ -80,7 +80,7 @@ void RenderFramebuffer::Bind()
   context_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
 }
 
-void RenderFramebuffer::Release()
+void OpenGLFramebuffer::Release()
 {
   if (context_ == nullptr) {
     return;
@@ -88,7 +88,7 @@ void RenderFramebuffer::Release()
   context_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void RenderFramebuffer::Attach(RenderTexturePtr texture)
+void OpenGLFramebuffer::Attach(RenderTexturePtr texture)
 {
   if (context_ == nullptr) {
     return;
@@ -98,7 +98,7 @@ void RenderFramebuffer::Attach(RenderTexturePtr texture)
   AttachInternal(texture_->texture(), false);
 }
 
-void RenderFramebuffer::AttachBackBuffer(RenderTexturePtr texture)
+void OpenGLFramebuffer::AttachBackBuffer(RenderTexturePtr texture)
 {
   if (context_ == nullptr) {
     return;
@@ -108,7 +108,7 @@ void RenderFramebuffer::AttachBackBuffer(RenderTexturePtr texture)
   AttachInternal(texture_->back_texture(), true);
 }
 
-void RenderFramebuffer::Detach()
+void OpenGLFramebuffer::Detach()
 {
   if (context_ == nullptr) {
     return;
@@ -129,12 +129,12 @@ void RenderFramebuffer::Detach()
   texture_ = nullptr;
 }
 
-const GLuint &RenderFramebuffer::buffer() const
+const GLuint &OpenGLFramebuffer::buffer() const
 {
   return buffer_;
 }
 
-void RenderFramebuffer::AttachInternal(GLuint tex, bool clear)
+void OpenGLFramebuffer::AttachInternal(GLuint tex, bool clear)
 {
   Detach();
 

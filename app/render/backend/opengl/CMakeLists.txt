@@ -16,15 +16,15 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/audio/audioparams.h
-  render/audio/audioparams.cpp
-  render/audio/audiorenderer.h
-  render/audio/audiorenderer.cpp
-  render/audio/audiorendererdownloadthread.h
-  render/audio/audiorendererdownloadthread.cpp
-  render/audio/audiorendererprocessthread.h
-  render/audio/audiorendererprocessthread.cpp
-  render/audio/audiorendererthreadbase.h
-  render/audio/audiorendererthreadbase.cpp
+  render/backend/opengl/functions.h
+  render/backend/opengl/functions.cpp
+  render/backend/opengl/openglbackend.h
+  render/backend/opengl/openglbackend.cpp
+  render/backend/opengl/openglframebuffer.h
+  render/backend/opengl/openglframebuffer.cpp
+  render/backend/opengl/openglshader.h
+  render/backend/opengl/openglshader.cpp
+  render/backend/opengl/opengltexture.h
+  render/backend/opengl/opengltexture.cpp
   PARENT_SCOPE
 )

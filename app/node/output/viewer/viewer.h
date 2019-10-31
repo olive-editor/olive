@@ -23,8 +23,7 @@
 
 #include "node/node.h"
 #include "render/videoparams.h"
-#include "render/audio/audioparams.h"
-#include "render/rendertexture.h"
+#include "render/audioparams.h"
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -45,9 +44,6 @@ public:
   NodeInput* texture_input();
   NodeInput* samples_input();
   NodeInput* length_input();
-
-  RenderTexturePtr GetTexture(const rational& time);
-  QByteArray GetSamples(const rational& in, const rational& out);
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 

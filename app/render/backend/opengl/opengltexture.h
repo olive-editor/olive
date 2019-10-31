@@ -18,15 +18,15 @@
 
 ***/
 
-#ifndef RENDERTEXTURE_H
-#define RENDERTEXTURE_H
+#ifndef OPENGLTEXTURE_H
+#define OPENGLTEXTURE_H
 
 #include <memory>
 #include <QOpenGLFunctions>
 
-#include "pixelformat.h"
+#include "render/pixelformat.h"
 
-class RenderTexture : public QObject
+class OpenGLTexture : public QObject
 {
   Q_OBJECT
 public:
@@ -35,12 +35,10 @@ public:
     kDoubleBuffer
   };
 
-  RenderTexture();
-  ~RenderTexture();
-  RenderTexture(const RenderTexture& other) = delete;
-  RenderTexture(RenderTexture&& other) = delete;
-  RenderTexture& operator=(const RenderTexture& other) = delete;
-  RenderTexture& operator=(RenderTexture&& other) = delete;
+  OpenGLTexture();
+  virtual ~OpenGLTexture() override;
+
+  Q_DISABLE_COPY_MOVE(OpenGLTexture)
 
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, void *data = nullptr);
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const Type& type, void *data = nullptr);
@@ -86,7 +84,7 @@ private:
   olive::PixelFormat format_;
 };
 
-using RenderTexturePtr = std::shared_ptr<RenderTexture>;
+using RenderTexturePtr = std::shared_ptr<OpenGLTexture>;
 Q_DECLARE_METATYPE(RenderTexturePtr)
 
-#endif // RENDERTEXTURE_H
+#endif // OPENGLTEXTURE_H

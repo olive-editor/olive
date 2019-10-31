@@ -16,13 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/video/videorenderer.h
-  render/video/videorenderer.cpp
-  render/video/videorendererthreadbase.h
-  render/video/videorendererthreadbase.cpp
-  render/video/videorendererdownloadthread.h
-  render/video/videorendererdownloadthread.cpp
-  render/video/videorendererprocessthread.h
-  render/video/videorendererprocessthread.cpp
+  render/backend/vulkan/vulkanbackend.h
+  render/backend/vulkan/vulkanbackend.cpp
   PARENT_SCOPE
 )

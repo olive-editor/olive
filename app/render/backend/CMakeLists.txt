@@ -14,15 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+add_subdirectory(opengl)
+add_subdirectory(vulkan)
+
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/backend/cudabackend.h
-  render/backend/cudabackend.cpp
-  render/backend/metalbackend.h
-  render/backend/metalbackend.cpp
-  render/backend/openclbackend.h
-  render/backend/openclbackend.cpp
   render/backend/renderbackend.h
   render/backend/renderbackend.cpp
+  render/backend/audiorenderbackend.h
+  render/backend/audiorenderbackend.cpp
+  render/backend/videorenderbackend.h
+  render/backend/videorenderbackend.cpp
+
+  # FIXME: Remove these
+  render/backend/videorendererdownloadthread.h
+  render/backend/videorendererdownloadthread.cpp
+  render/backend/videorendererprocessthread.h
+  render/backend/videorendererprocessthread.cpp
   PARENT_SCOPE
 )

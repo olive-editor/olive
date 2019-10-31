@@ -5,7 +5,6 @@
 
 #include "colorprocessor.h"
 #include "decoder/frame.h"
-#include "render/gl/shadergenerators.h"
 
 class ColorManager : public QObject
 {

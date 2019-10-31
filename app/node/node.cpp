@@ -72,6 +72,15 @@ void Node::RemoveParameter(NodeParam *param)
   delete param;
 }
 
+QVariant Node::Value(NodeOutput *output, const rational &in, const rational &out)
+{
+  Q_UNUSED(output)
+  Q_UNUSED(in)
+  Q_UNUSED(out)
+
+  return QVariant();
+}
+
 void Node::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Q_UNUSED(from)
@@ -139,6 +148,11 @@ bool Node::CanBeDeleted()
 void Node::SetCanBeDeleted(bool s)
 {
   can_be_deleted_ = s;
+}
+
+bool Node::IsBlock()
+{
+  return false;
 }
 
 rational Node::LastProcessedTime()
@@ -278,11 +292,11 @@ QList<Node *> Node::GetImmediateDependencies()
   return node_list;
 }
 
-NodeCode Node::Code(NodeOutput *output)
+QString Node::Code(NodeOutput *output)
 {
   Q_UNUSED(output)
 
-  return NodeCode();
+  return QString();
 }
 
 QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &time)

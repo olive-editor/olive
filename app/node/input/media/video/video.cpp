@@ -6,10 +6,7 @@
 #include "core.h"
 #include "decoder/ffmpeg/ffmpegdecoder.h"
 #include "project/item/footage/footage.h"
-#include "render/gl/shadergenerators.h"
-#include "render/gl/functions.h"
 #include "render/pixelservice.h"
-#include "render/video/videorenderer.h"
 
 VideoInput::VideoInput() :
   color_processor_(nullptr),
@@ -68,6 +65,25 @@ NodeOutput *VideoInput::texture_output()
   return texture_output_;
 }
 
+QString VideoInput::Code(NodeOutput *output)
+{
+  if (output == texture_output()) {
+    return "#version 110\n"
+           "\n"
+           "varying vec2 olive_tex_coord;\n"
+           "\n"
+           "uniform sampler2D footage_in;\n"
+           "uniform mat4 matrix_in;\n"
+           "\n"
+           "void main(void) {\n"
+           "  gl_FragColor = texture2D(olive_tex, vec2(vec4(olive_tex_coord, 0.0, 1.0) * matrix_in));\n"
+           "}\n";
+  }
+
+  return Node::Code(output);
+}
+
+/*
 void VideoInput::Hash(QCryptographicHash *hash, NodeOutput *from, const rational &time)
 {
   Node::Hash(hash, from, time);
@@ -253,3 +269,4 @@ QVariant VideoInput::Value(NodeOutput *output, const rational &in, const rationa
 
   return 0;
 }
+*/

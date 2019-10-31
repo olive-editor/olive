@@ -70,16 +70,6 @@ NodeInput *ViewerOutput::length_input()
   return length_input_;
 }
 
-RenderTexturePtr ViewerOutput::GetTexture(const rational &time)
-{
-  return texture_input_->get_value(time).value<RenderTexturePtr>();
-}
-
-QByteArray ViewerOutput::GetSamples(const rational &in, const rational &out)
-{
-  return samples_input_->get_value(in, out).toByteArray();
-}
-
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Node::InvalidateCache(start_range, end_range, from);

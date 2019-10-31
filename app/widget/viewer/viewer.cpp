@@ -161,6 +161,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   video_renderer_->SetViewerNode(viewer_node_);
+  opengl_backend_.SetViewerNode(viewer_node_);
 }
 
 void ViewerWidget::DisconnectViewerNode()

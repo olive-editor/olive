@@ -18,48 +18,49 @@
 
 ***/
 
-#ifndef AUDIORENDERTHREAD_H
-#define AUDIORENDERTHREAD_H
+#ifndef OPENGLFRAMEBUFFER_H
+#define OPENGLFRAMEBUFFER_H
 
-#include <memory>
-#include <QMutex>
-#include <QThread>
-#include <QWaitCondition>
+#include <QOpenGLContext>
 
-#include "audioparams.h"
-#include "node/node.h"
+#include "opengltexture.h"
 
-class AudioRendererThreadBase : public QThread
+class OpenGLFramebuffer : public QObject
 {
   Q_OBJECT
 public:
-  AudioRendererThreadBase(const AudioRenderingParams &params);
+  OpenGLFramebuffer();
+  virtual ~OpenGLFramebuffer() override;
 
-  AudioParams* params();
+  Q_DISABLE_COPY_MOVE(OpenGLFramebuffer)
 
-  void StartThread(Priority priority = InheritPriority);
+  void Create(QOpenGLContext *ctx);
 
-  virtual void run() override;
+  bool IsCreated() const;
+
+  void Bind();
+
+  void Release();
+
+  void Attach(RenderTexturePtr texture);
+
+  void AttachBackBuffer(RenderTexturePtr texture);
+
+  void Detach();
+
+  const GLuint& buffer() const;
 
 public slots:
-  virtual void Cancel() = 0;
-
-protected:
-  virtual void ProcessLoop() = 0;
-
-  QWaitCondition wait_cond_;
-
-  QMutex mutex_;
-
-  QMutex caller_mutex_;
+  void Destroy();
 
 private:
-  void WakeCaller();
+  void AttachInternal(GLuint tex, bool clear);
 
-  AudioRenderingParams params_;
+  QOpenGLContext* context_;
 
+  GLuint buffer_;
+
+  RenderTexturePtr texture_;
 };
 
-using AudioRendererThreadPtr = std::shared_ptr<AudioRendererThreadBase>;
-
-#endif // AUDIORENDERTHREAD_H
+#endif // OPENGLFRAMEBUFFER_H

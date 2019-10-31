@@ -40,7 +40,7 @@ Sequence::Sequence() :
 
 void Sequence::Open(SequencePtr sequence)
 {
-  // FIXME: This is fairly "hardcoded" behavior
+  // FIXME: This is fairly "hardcoded" behavior and doesn't support infinite panels
 
   ViewerPanel* viewer_panel = olive::panel_manager->MostRecentlyFocused<ViewerPanel>();
   TimelinePanel* timeline_panel = olive::panel_manager->MostRecentlyFocused<TimelinePanel>();

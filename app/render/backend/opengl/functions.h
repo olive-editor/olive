@@ -18,15 +18,36 @@
 
 ***/
 
-#ifndef QOPENGLSHADERPROGRAMPTR_H
-#define QOPENGLSHADERPROGRAMPTR_H
+#ifndef GLFUNC_H
+#define GLFUNC_H
 
-#include <QOpenGLShaderProgram>
-#include <memory>
+#include <QMatrix4x4>
+
+#include "openglshader.h"
+
+namespace olive {
+namespace gl {
 
 /**
- * @brief A simple shared_ptr around QOpenGLShaderProgram to simplify shader creation/destruction
+ * @brief Draw texture on screen
+ *
+ * @param pipeline
+ *
+ * Shader to use for the texture drawing
+ *
+ * @param flipped
+ *
+ * Draw the texture vertically flipped (defaults to FALSE)
+ *
+ * @param matrix
+ *
+ * Transformation matrix to use when drawing (defaults to no transform)
  */
-using ShaderPtr = std::shared_ptr<QOpenGLShaderProgram>;
+void Blit(OpenGLShaderPtr pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
-#endif // QOPENGLSHADERPROGRAMPTR_H
+void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+
+}
+}
+
+#endif // GLFUNC_H

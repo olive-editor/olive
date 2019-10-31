@@ -5,7 +5,7 @@
 #include <QFile>
 
 #include "audio/sampleformat.h"
-#include "render/audio/audioparams.h"
+#include "render/audioparams.h"
 
 class WaveOutput
 {

@@ -72,7 +72,7 @@ void PrepareToDraw(QOpenGLFunctions* f) {
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 }
 
-void olive::gl::Blit(ShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
+void olive::gl::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   // FIXME: is currentContext() reliable here?
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
@@ -121,7 +121,7 @@ void olive::gl::Blit(ShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   m_vao.destroy();
 }
 
-void olive::gl::OCIOBlit(ShaderPtr pipeline,
+void olive::gl::OCIOBlit(OpenGLShaderPtr pipeline,
                          GLuint lut,
                          bool flipped,
                          QMatrix4x4 matrix)

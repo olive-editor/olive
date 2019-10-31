@@ -24,8 +24,6 @@ add_subdirectory(output)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/code.h
-  node/code.cpp
   node/dependency.h
   node/dependency.cpp
   node/edge.h

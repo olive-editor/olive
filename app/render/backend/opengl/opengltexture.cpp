@@ -18,14 +18,14 @@
 
 ***/
 
-#include "rendertexture.h"
+#include "opengltexture.h"
 
 #include <QDateTime>
 #include <QDebug>
 
 #include "render/pixelservice.h"
 
-RenderTexture::RenderTexture() :
+OpenGLTexture::OpenGLTexture() :
   context_(nullptr),
   texture_(0),
   back_texture_(0),
@@ -35,22 +35,22 @@ RenderTexture::RenderTexture() :
 {
 }
 
-RenderTexture::~RenderTexture()
+OpenGLTexture::~OpenGLTexture()
 {
   Destroy();
 }
 
-bool RenderTexture::IsCreated() const
+bool OpenGLTexture::IsCreated() const
 {
   return (texture_ != 0);
 }
 
-void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, void* data)
+void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, void* data)
 {
   Create(ctx, width, height, format, kSingleBuffer, data);
 }
 
-void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const RenderTexture::Type &type, void *data)
+void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const OpenGLTexture::Type &type, void *data)
 {
   if (ctx == nullptr) {
     qWarning() << tr("RenderTexture::Create was passed an invalid context");
@@ -75,7 +75,7 @@ void RenderTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
   }
 }
 
-void RenderTexture::Destroy()
+void OpenGLTexture::Destroy()
 {
   if (context_ != nullptr) {
     disconnect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
@@ -90,7 +90,7 @@ void RenderTexture::Destroy()
   }
 }
 
-void RenderTexture::Bind()
+void OpenGLTexture::Bind()
 {
   if (context_ == nullptr) {
     qWarning() << "RenderTexture::Bind() called with an invalid context";
@@ -100,7 +100,7 @@ void RenderTexture::Bind()
   context_->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 }
 
-void RenderTexture::Release()
+void OpenGLTexture::Release()
 {
   if (context_ == nullptr) {
     qWarning() << "RenderTexture::Release() called with an invalid context";
@@ -110,44 +110,44 @@ void RenderTexture::Release()
   context_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-const int &RenderTexture::width() const
+const int &OpenGLTexture::width() const
 {
   return width_;
 }
 
-const int &RenderTexture::height() const
+const int &OpenGLTexture::height() const
 {
   return height_;
 }
 
-const olive::PixelFormat &RenderTexture::format() const
+const olive::PixelFormat &OpenGLTexture::format() const
 {
   return format_;
 }
 
-QOpenGLContext *RenderTexture::context() const
+QOpenGLContext *OpenGLTexture::context() const
 {
   return context_;
 }
 
-const GLuint &RenderTexture::texture() const
+const GLuint &OpenGLTexture::texture() const
 {
   return texture_;
 }
 
-const GLuint &RenderTexture::back_texture() const
+const GLuint &OpenGLTexture::back_texture() const
 {
   return back_texture_;
 }
 
-void RenderTexture::SwapFrontAndBack()
+void OpenGLTexture::SwapFrontAndBack()
 {
   GLuint temp = texture_;
   texture_ = back_texture_;
   back_texture_ = temp;
 }
 
-void RenderTexture::Upload(const void *data)
+void OpenGLTexture::Upload(const void *data)
 {
   if (!IsCreated()) {
     qWarning() << tr("RenderTexture::Upload() called while it wasn't created");
@@ -171,7 +171,7 @@ void RenderTexture::Upload(const void *data)
   Release();
 }
 
-uchar *RenderTexture::Download() const
+uchar *OpenGLTexture::Download() const
 {
   if (!IsCreated()) {
     qWarning() << tr("RenderTexture::Download() called while it wasn't created");
@@ -203,7 +203,7 @@ uchar *RenderTexture::Download() const
   return data;
 }
 
-void RenderTexture::CreateInternal(GLuint* tex, void *data)
+void OpenGLTexture::CreateInternal(GLuint* tex, void *data)
 {
   QOpenGLFunctions* f = context_->functions();
 

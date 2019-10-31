@@ -25,12 +25,12 @@
 Block::Block() :
   next_(nullptr)
 {
-  previous_input_ = new NodeInput("prev_block");
+  previous_input_ = new NodeInput("prev_in");
   previous_input_->set_data_type(NodeParam::kBlock);
   previous_input_->set_dependent(false);
   AddParameter(previous_input_);
 
-  block_output_ = new NodeOutput("block_out");
+  block_output_ = new NodeOutput("this_out");
   AddParameter(block_output_);
 
   buffer_output_ = new NodeOutput("buffer_out");
@@ -275,5 +275,10 @@ const QVector<Block*> &Block::linked_clips()
 bool Block::HasLinks()
 {
   return !linked_clips_.isEmpty();
+}
+
+bool Block::IsBlock()
+{
+  return true;
 }
 

@@ -18,8 +18,8 @@
 
 ***/
 
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef VIDEORENDERERBACKEND_H
+#define VIDEORENDERERBACKEND_H
 
 #include <QLinkedList>
 #include <QOpenGLTexture>
@@ -166,8 +166,8 @@ private:
   RenderTexturePtr master_texture_;
   rational push_time_;
 
-  RenderFramebuffer copy_buffer_;
-  ShaderPtr copy_pipeline_;
+  OpenGLFramebuffer copy_buffer_;
+  OpenGLShaderPtr copy_pipeline_;
 
   QMap<rational, QByteArray> time_hash_map_;
 
@@ -193,4 +193,4 @@ private slots:
 
 };
 
-#endif // RENDERER_H
+#endif // VIDEORENDERERBACKEND_H

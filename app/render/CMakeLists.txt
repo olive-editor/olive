@@ -14,13 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audio)
 add_subdirectory(backend)
-add_subdirectory(gl)
-add_subdirectory(video)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  render/audioparams.h
+  render/audioparams.cpp
   render/colormanager.h
   render/colormanager.cpp
   render/colorprocessor.h
@@ -29,13 +28,7 @@ set(OLIVE_SOURCES
   render/pixelformat.cpp
   render/pixelservice.h
   render/pixelservice.cpp
-  render/renderinstance.h
-  render/renderinstance.cpp
   render/rendermodes.h
-  render/renderframebuffer.h
-  render/renderframebuffer.cpp
-  render/rendertexture.h
-  render/rendertexture.cpp
   render/videoparams.h
   render/videoparams.cpp
   PARENT_SCOPE

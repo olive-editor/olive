@@ -78,6 +78,8 @@ public:
   const QVector<Block*>& linked_clips();
   bool HasLinks();
 
+  virtual bool IsBlock() override;
+
 public slots:
   /**
    * @brief Refreshes internal cache of in/out points up to date

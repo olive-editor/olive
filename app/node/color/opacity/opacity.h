@@ -22,7 +22,6 @@
 #define OPACITYNODE_H
 
 #include "node/node.h"
-#include "render/gl/shaderptr.h"
 
 class OpacityNode : public Node
 {
@@ -36,9 +35,9 @@ public:
 
   virtual QString id() override;
 
-  virtual QVariant Value(NodeOutput *output, const rational &in, const rational &out) override;
-
   virtual void Retranslate() override;
+
+  virtual QString Code(NodeOutput* output) override;
 
   NodeInput* texture_input();
 

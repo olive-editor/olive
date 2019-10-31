@@ -25,7 +25,7 @@
 #include <QVector>
 
 #include "common/rational.h"
-#include "render/audio/audioparams.h"
+#include "render/audioparams.h"
 #include "render/pixelformat.h"
 
 class Frame;

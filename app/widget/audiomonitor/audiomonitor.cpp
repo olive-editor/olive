@@ -78,7 +78,7 @@ void AudioMonitor::paintEvent(QPaintEvent *)
     qreal log_val = QAudio::convertVolume(i, QAudio::DecibelVolumeScale, QAudio::LogarithmicVolumeScale);
 
     QRect db_marking_rect = db_labels_rect;
-    db_marking_rect.adjust(0, db_labels_rect.y() + db_labels_rect.height() - qRound(log_val * db_labels_rect.height()), 0, 0);
+    db_marking_rect.adjust(0, db_labels_rect.height() - qRound(log_val * db_labels_rect.height()), 0, 0);
     db_marking_rect.setHeight(fm.height());
 
     // Prevent any dB markings overlapping

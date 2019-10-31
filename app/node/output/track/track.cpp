@@ -196,6 +196,16 @@ QVariant TrackOutput::Value(NodeOutput *output, const rational &in, const ration
   if (output == track_output_) {
     // Set track output correctly
     return PtrToValue(this);
+  } else if (output == buffer_output()) {
+    ValidateCurrentBlock(in);
+
+    if (current_block_ != this) {
+      // At this point, we must have found the correct block so we use its texture output to produce the image
+      return current_block_->buffer_output()->get_value(in, out);
+    }
+
+    // No texture is valid
+    return 0;
   }
 
   // Run default node processing

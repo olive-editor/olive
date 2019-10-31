@@ -26,7 +26,6 @@
 #include "node/output/timeline/timeline.h"
 #include "node/output/viewer/viewer.h"
 #include "render/videoparams.h"
-#include "render/video/videorenderer.h"
 #include "project/item/item.h"
 
 class Sequence;

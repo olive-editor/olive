@@ -22,7 +22,6 @@
 #define ALPHAOVER_H
 
 #include "node/blend/blend.h"
-#include "render/gl/shaderptr.h"
 
 class AlphaOverBlend : public BlendNode
 {
@@ -33,12 +32,9 @@ public:
   virtual QString id() override;
   virtual QString Description() override;
 
-  virtual NodeCode Code(NodeOutput* output) override;
-
-  virtual void Release() override;
+  virtual QString Code(NodeOutput* output) override;
 
 protected:
-  virtual QVariant Value(NodeOutput* param, const rational &in, const rational &out) override;
 
 private:
 };
