@@ -84,7 +84,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   ruler_->SetScale(48.0);
 
   // Start background renderers
-  video_renderer_ = new VideoRendererProcessor(this);
+  video_renderer_ = new VideoRenderBackend(this);
   connect(video_renderer_, SIGNAL(CachedFrameReady(const rational&)), this, SLOT(RendererCachedFrame(const rational&)));
 }
 

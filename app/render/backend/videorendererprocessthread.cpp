@@ -22,7 +22,7 @@
 
 #include "videorenderbackend.h"
 
-RendererProcessThread::RendererProcessThread(VideoRendererProcessor* parent,
+RendererProcessThread::RendererProcessThread(VideoRenderBackend* parent,
                                              QOpenGLContext *share_ctx,
                                              const VideoRenderingParams &params) :
   VideoRendererThreadBase(share_ctx, params),

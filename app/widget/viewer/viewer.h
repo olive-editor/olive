@@ -110,7 +110,7 @@ private:
 
   void PushScrubbedAudio();
 
-  VideoRendererProcessor* video_renderer_;
+  VideoRenderBackend* video_renderer_;
 
   ViewerSizer* sizer_;
 

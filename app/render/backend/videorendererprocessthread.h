@@ -23,13 +23,13 @@
 
 #include "videorendererthreadbase.h"
 
-class VideoRendererProcessor;
+class VideoRenderBackend;
 
 class RendererProcessThread : public VideoRendererThreadBase
 {
   Q_OBJECT
 public:
-  RendererProcessThread(VideoRendererProcessor* parent,
+  RendererProcessThread(VideoRenderBackend* parent,
                         QOpenGLContext* share_ctx,
                         const VideoRenderingParams &params);
 
@@ -49,7 +49,7 @@ signals:
   void FrameSkipped(const rational& time, const QByteArray& hash);
 
 private:
-  VideoRendererProcessor* parent_;
+  VideoRenderBackend* parent_;
 
   NodeDependency path_;
 

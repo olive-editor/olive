@@ -25,6 +25,7 @@
 #include <QOpenGLTexture>
 
 #include "node/output/viewer/viewer.h"
+#include "renderbackend.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
 #include "opengl/openglframebuffer.h"
@@ -36,7 +37,7 @@
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
  */
-class VideoRendererProcessor : public QObject
+class VideoRenderBackend : public RenderBackend
 {
   Q_OBJECT
 public:
@@ -46,11 +47,21 @@ public:
    * Constructing a Renderer object will not start any threads/backend on its own. Use Start() to do this and Stop()
    * when the Renderer is about to be destroyed.
    */
-  VideoRendererProcessor(QObject* parent);
+  VideoRenderBackend(QObject* parent);
 
-  virtual ~VideoRendererProcessor() override;
+  virtual ~VideoRenderBackend() override;
 
   void SetCacheName(const QString& s);
+
+  /**
+   * @brief Allocate and start the multithreaded backend
+   */
+  virtual bool Init() override;
+
+  /**
+   * @brief Terminate and deallocate the multithreaded backend
+   */
+  virtual void Close() override;
 
   /**
    * @brief Set parameters of the Renderer
@@ -89,7 +100,17 @@ public:
 
   RenderTexturePtr GetCachedFrame(const rational& time);
 
-  void SetViewerNode(ViewerOutput* viewer);
+  virtual void GenerateFrame(const rational&) override {}
+
+public slots:
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
+
+  virtual bool Compile() override {return true;}
+
+  virtual void Decompile() override {}
+
+protected:
+  virtual void ViewerNodeChangedEvent(ViewerOutput* node) override;
 
 signals:
   void CachedFrameReady(const rational& time);
@@ -99,16 +120,6 @@ private:
     rational time;
     QByteArray hash;
   };
-
-  /**
-   * @brief Allocate and start the multithreaded backend
-   */
-  void Start();
-
-  /**
-   * @brief Terminate and deallocate the multithreaded backend
-   */
-  void Stop();
 
   /**
    * @brief Internal function for generating the cache ID
@@ -171,11 +182,7 @@ private:
 
   bool starting_;
 
-  ViewerOutput* viewer_node_;
-
 private slots:
-  void InvalidateCache(const rational &start_range, const rational &end_range);
-
   void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
 
   void ThreadRequestSibling(NodeDependency dep);

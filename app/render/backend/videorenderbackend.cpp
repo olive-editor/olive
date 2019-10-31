@@ -32,24 +32,23 @@
 #include "opengl/functions.h"
 #include "render/pixelservice.h"
 
-VideoRendererProcessor::VideoRendererProcessor(QObject *parent) :
-  QObject(parent),
+VideoRenderBackend::VideoRenderBackend(QObject *parent) :
+  RenderBackend(parent),
   started_(false),
   caching_(false),
   push_time_(-1),
-  starting_(false),
-  viewer_node_(nullptr)
+  starting_(false)
 {
   // FIXME: Cache name should actually be the name of the sequence
   SetCacheName("Test");
 }
 
-VideoRendererProcessor::~VideoRendererProcessor()
+VideoRenderBackend::~VideoRenderBackend()
 {
-  Stop();
+  Close();
 }
 
-void VideoRendererProcessor::SetCacheName(const QString &s)
+void VideoRenderBackend::SetCacheName(const QString &s)
 {
   cache_name_ = s;
   cache_time_ = QDateTime::currentMSecsSinceEpoch();
@@ -57,7 +56,7 @@ void VideoRendererProcessor::SetCacheName(const QString &s)
   GenerateCacheIDInternal();
 }
 
-void VideoRendererProcessor::InvalidateCache(const rational &start_range, const rational &end_range)
+void VideoRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
 {
   if (!params_.is_valid()) {
     return;
@@ -65,7 +64,7 @@ void VideoRendererProcessor::InvalidateCache(const rational &start_range, const 
 
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(viewer_node_->Length(), end_range);
+  rational end_range_adj = qMin(viewer_node()->Length(), end_range);
 
   qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()
@@ -125,11 +124,19 @@ void VideoRendererProcessor::InvalidateCache(const rational &start_range, const 
   CacheNext();
 }
 
-void VideoRendererProcessor::SetParameters(const VideoRenderingParams& params)
+void VideoRenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
+{
+  if (node != nullptr) {
+    // FIXME: Hardcoded format, mode, and divider
+    SetParameters(VideoRenderingParams(node->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
+  }
+}
+
+void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 {
   // Since we're changing parameters, all the existing threads are invalid and must be removed. They will start again
   // next time this Node has to process anything.
-  Stop();
+  Close();
 
   // Set new parameters
   params_ = params;
@@ -138,10 +145,10 @@ void VideoRendererProcessor::SetParameters(const VideoRenderingParams& params)
   GenerateCacheIDInternal();
 }
 
-void VideoRendererProcessor::Start()
+bool VideoRenderBackend::Init()
 {
   if (started_) {
-    return;
+    return true;
   }
 
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
@@ -210,9 +217,11 @@ void VideoRendererProcessor::Start()
   cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
 
   started_ = true;
+
+  return true;
 }
 
-void VideoRendererProcessor::Stop()
+void VideoRenderBackend::Close()
 {
   if (!started_) {
     return;
@@ -237,7 +246,7 @@ void VideoRendererProcessor::Stop()
   cache_frame_load_buffer_.clear();
 }
 
-void VideoRendererProcessor::GenerateCacheIDInternal()
+void VideoRenderBackend::GenerateCacheIDInternal()
 {
   if (cache_name_.isEmpty() || !params_.is_valid()) {
     return;
@@ -256,25 +265,25 @@ void VideoRendererProcessor::GenerateCacheIDInternal()
   cache_id_ = bytes.toHex();
 }
 
-void VideoRendererProcessor::CacheNext()
+void VideoRenderBackend::CacheNext()
 {
-  if (cache_queue_.isEmpty() || viewer_node_ == nullptr || caching_) {
+  if (cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
     return;
   }
 
   // Make sure cache has started
-  Start();
+  Init();
 
   rational cache_frame = cache_queue_.takeFirst();
 
   qDebug() << "Caching" << cache_frame.toDouble();
 
-  threads_.first()->Queue(NodeDependency(viewer_node_->texture_input()->get_connected_output(), cache_frame, cache_frame), true, false);
+  threads_.first()->Queue(NodeDependency(viewer_node()->texture_input()->get_connected_output(), cache_frame, cache_frame), true, false);
 
   caching_ = true;
 }
 
-QString VideoRendererProcessor::CachePathName(const QByteArray &hash)
+QString VideoRenderBackend::CachePathName(const QByteArray &hash)
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
   this_cache_dir.mkpath(".");
@@ -284,17 +293,17 @@ QString VideoRendererProcessor::CachePathName(const QByteArray &hash)
   return this_cache_dir.filePath(filename);
 }
 
-void VideoRendererProcessor::DeferMap(const rational &time, const QByteArray &hash)
+void VideoRenderBackend::DeferMap(const rational &time, const QByteArray &hash)
 {
   deferred_maps_.append({time, hash});
 }
 
-bool VideoRendererProcessor::HasHash(const QByteArray &hash)
+bool VideoRenderBackend::HasHash(const QByteArray &hash)
 {
   return QFileInfo::exists(CachePathName(hash));
 }
 
-bool VideoRendererProcessor::IsCaching(const QByteArray &hash)
+bool VideoRenderBackend::IsCaching(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
 
@@ -305,7 +314,7 @@ bool VideoRendererProcessor::IsCaching(const QByteArray &hash)
   return is_caching;
 }
 
-bool VideoRendererProcessor::TryCache(const QByteArray &hash)
+bool VideoRenderBackend::TryCache(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
 
@@ -320,7 +329,7 @@ bool VideoRendererProcessor::TryCache(const QByteArray &hash)
   return !is_caching;
 }
 
-void VideoRendererProcessor::ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash)
+void VideoRenderBackend::ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash)
 {
   // Threads are all done now, time to proceed
   caching_ = false;
@@ -374,7 +383,7 @@ void VideoRendererProcessor::ThreadCallback(RenderTexturePtr texture, const rati
   CacheNext();
 }
 
-void VideoRendererProcessor::ThreadRequestSibling(NodeDependency dep)
+void VideoRenderBackend::ThreadRequestSibling(NodeDependency dep)
 {
   // Try to queue another thread to run this dep in advance
   for (int i=1;i<threads_.size();i++) {
@@ -384,7 +393,7 @@ void VideoRendererProcessor::ThreadRequestSibling(NodeDependency dep)
   }
 }
 
-void VideoRendererProcessor::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
+void VideoRenderBackend::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
 {
   caching_ = false;
 
@@ -400,7 +409,7 @@ void VideoRendererProcessor::ThreadSkippedFrame(const rational& time, const QByt
   CacheNext();
 }
 
-void VideoRendererProcessor::DownloadThreadComplete(const QByteArray &hash)
+void VideoRenderBackend::DownloadThreadComplete(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
   cache_hash_list_.removeAll(hash);
@@ -419,7 +428,7 @@ void VideoRendererProcessor::DownloadThreadComplete(const QByteArray &hash)
   }
 }
 
-RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)
+RenderTexturePtr VideoRenderBackend::GetCachedFrame(const rational &time)
 {
   last_time_requested_ = time;
 
@@ -432,7 +441,7 @@ RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)
     }
   }
 
-  if (viewer_node_ == nullptr) {
+  if (viewer_node() == nullptr) {
     // Nothing is connected - nothing to show or render
     return nullptr;
   }
@@ -469,20 +478,4 @@ RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)
   }
 
   return nullptr;
-}
-
-void VideoRendererProcessor::SetViewerNode(ViewerOutput *viewer)
-{
-  if (viewer_node_ != nullptr) {
-    disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
-  }
-
-  viewer_node_ = viewer;
-
-  if (viewer_node_ != nullptr) {
-    connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
-
-    // FIXME: Hardcoded format, mode, and divider
-    SetParameters(VideoRenderingParams(viewer_node_->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
-  }
 }

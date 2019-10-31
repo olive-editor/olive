@@ -7,7 +7,7 @@ class RenderBackend : public QObject
 {
   Q_OBJECT
 public:
-  RenderBackend();
+  RenderBackend(QObject* parent = nullptr);
   virtual ~RenderBackend() override;
 
   Q_DISABLE_COPY_MOVE(RenderBackend)
@@ -18,7 +18,7 @@ public:
 
   virtual void Close() = 0;
 
-  const QString& GetError();
+  const QString& GetError() const;
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
@@ -31,6 +31,8 @@ public slots:
 
 protected:
   void SetError(const QString& error);
+
+  virtual void ViewerNodeChangedEvent(ViewerOutput* node);
 
   ViewerOutput* viewer_node() const;
 
