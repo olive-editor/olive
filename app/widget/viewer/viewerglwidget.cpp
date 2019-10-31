@@ -88,9 +88,9 @@ void ViewerGLWidget::SetupPipeline()
 {
   // Re-retrieve pipeline pertaining to this context
   pipeline_ = OpenGLShader::CreateOCIO(context(),
-                                                   ocio_lut_,
-                                                   color_service_->GetProcessor(),
-                                                   true);
+                                       ocio_lut_,
+                                       color_service_->GetProcessor(),
+                                       true);
 }
 
 void ViewerGLWidget::RefreshColorSettings()

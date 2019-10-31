@@ -32,7 +32,6 @@
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
-  video_renderer_(nullptr),
   viewer_node_(nullptr),
   playback_speed_(0)
 {

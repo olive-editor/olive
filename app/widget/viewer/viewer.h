@@ -110,9 +110,7 @@ private:
 
   void PushScrubbedAudio();
 
-  // FIXME: Test code only
   VideoRendererProcessor* video_renderer_;
-  // End test code
 
   ViewerSizer* sizer_;
 
