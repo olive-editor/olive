@@ -8,10 +8,7 @@
 #include "project/item/footage/footage.h"
 #include "render/pixelservice.h"
 
-VideoInput::VideoInput() :
-  color_processor_(nullptr),
-  pipeline_(nullptr),
-  ocio_texture_(0)
+VideoInput::VideoInput()
 {
   matrix_input_ = new NodeInput("matrix_in");
   matrix_input_->set_data_type(NodeInput::kMatrix);
@@ -45,14 +42,6 @@ QString VideoInput::Description()
 void VideoInput::Release()
 {
   MediaInput::Release();
-
-  internal_tex_.Destroy();
-  color_processor_ = nullptr;
-  pipeline_ = nullptr;
-
-  if (ocio_texture_ != 0) {
-    ocio_ctx_->functions()->glDeleteTextures(1, &ocio_texture_);
-  }
 }
 
 NodeInput *VideoInput::matrix_input()

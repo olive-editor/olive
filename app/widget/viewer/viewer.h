@@ -30,7 +30,7 @@
 
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
-#include "render/backend/opengl/openglbackend.h"
+#include "render/backend/videorenderbackend.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -111,7 +111,7 @@ private:
   void PushScrubbedAudio();
 
   // FIXME: Test code only
-  OpenGLBackend opengl_backend_;
+  VideoRendererProcessor* video_renderer_;
   // End test code
 
   ViewerSizer* sizer_;

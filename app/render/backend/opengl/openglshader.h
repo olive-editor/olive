@@ -4,6 +4,9 @@
 #include <memory>
 #include <QOpenGLShaderProgram>
 
+#include <OpenColorIO/OpenColorIO.h>
+namespace OCIO = OCIO_NAMESPACE::v1;
+
 class OpenGLShader;
 using OpenGLShaderPtr = std::shared_ptr<OpenGLShader>;
 
@@ -13,6 +16,11 @@ public:
 
   static OpenGLShaderPtr CreateDefault(const QString &function_name = QString(),
                                        const QString &shader_code = QString());
+
+  static OpenGLShaderPtr CreateOCIO(QOpenGLContext* ctx,
+                                    GLuint& lut_texture,
+                                    OCIO::ConstProcessorRcPtr processor,
+                                    bool alpha_is_associated);
 
   static QString CodeDefaultFragment(const QString &function_name = QString(),
                                      const QString &shader_code = QString());

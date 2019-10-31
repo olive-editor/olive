@@ -27,6 +27,9 @@
 #include "node/output/viewer/viewer.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
+#include "opengl/openglframebuffer.h"
+#include "opengl/openglshader.h"
+#include "opengl/opengltexture.h"
 #include "videorendererdownloadthread.h"
 #include "videorendererprocessthread.h"
 
@@ -83,16 +86,6 @@ public:
    * @brief Check if a frame is currently being cached, and if not reserve it
    */
   bool TryCache(const QByteArray& hash);
-
-  /**
-   * @brief Return current instance of a RenderThread (or nullptr if there is none)
-   *
-   * This function attempts a dynamic_cast on QThread::currentThread() to RendererThread, which will return nullptr if
-   * the cast fails (e.g. if this function is called from the main thread rather than a RendererThread).
-   */
-  static VideoRendererThreadBase* CurrentThread();
-
-  static RenderInstance* CurrentInstance();
 
   RenderTexturePtr GetCachedFrame(const rational& time);
 

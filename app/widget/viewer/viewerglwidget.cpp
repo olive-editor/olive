@@ -25,8 +25,8 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 
-#include "render/gl/functions.h"
-#include "render/gl/shadergenerators.h"
+#include "render/backend/opengl/functions.h"
+#include "render/backend/opengl/openglshader.h"
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
@@ -87,7 +87,7 @@ void ViewerGLWidget::paintGL()
 void ViewerGLWidget::SetupPipeline()
 {
   // Re-retrieve pipeline pertaining to this context
-  pipeline_ = olive::ShaderGenerator::OCIOPipeline(context(),
+  pipeline_ = OpenGLShader::CreateOCIO(context(),
                                                    ocio_lut_,
                                                    color_service_->GetProcessor(),
                                                    true);

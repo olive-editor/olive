@@ -18,7 +18,7 @@
 
 ***/
 
-#include "videorenderer.h"
+#include "videorenderbackend.h"
 
 #include <OpenImageIO/imageio.h>
 #include <QApplication>
@@ -29,8 +29,7 @@
 #include <QtMath>
 
 #include "common/filefunctions.h"
-#include "render/gl/functions.h"
-#include "render/gl/shadergenerators.h"
+#include "opengl/functions.h"
 #include "render/pixelservice.h"
 
 VideoRendererProcessor::VideoRendererProcessor(QObject *parent) :
@@ -200,13 +199,13 @@ void VideoRendererProcessor::Start()
   ctx->makeCurrent(old_surface);
 
   // Create master texture (the one sent to the viewer)
-  master_texture_ = std::make_shared<RenderTexture>();
+  master_texture_ = std::make_shared<OpenGLTexture>();
   master_texture_->Create(ctx, params_.effective_width(), params_.effective_height(), params_.format());
 
   // Create internal FBO for copying textures
   copy_buffer_.Create(ctx);
   copy_buffer_.Attach(master_texture_);
-  copy_pipeline_ = olive::ShaderGenerator::DefaultPipeline();
+  copy_pipeline_ = OpenGLShader::CreateDefault();
 
   cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
 
@@ -418,22 +417,6 @@ void VideoRendererProcessor::DownloadThreadComplete(const QByteArray &hash)
       i--;
     }
   }
-}
-
-VideoRendererThreadBase* VideoRendererProcessor::CurrentThread()
-{
-  return dynamic_cast<VideoRendererThreadBase*>(QThread::currentThread());
-}
-
-RenderInstance *VideoRendererProcessor::CurrentInstance()
-{
-  VideoRendererThreadBase* thread = CurrentThread();
-
-  if (thread != nullptr) {
-    return thread->render_instance();
-  }
-
-  return nullptr;
 }
 
 RenderTexturePtr VideoRendererProcessor::GetCachedFrame(const rational &time)

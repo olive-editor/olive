@@ -32,6 +32,7 @@
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
+  video_renderer_(nullptr),
   viewer_node_(nullptr),
   playback_speed_(0)
 {
@@ -161,7 +162,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   video_renderer_->SetViewerNode(viewer_node_);
-  opengl_backend_.SetViewerNode(viewer_node_);
 }
 
 void ViewerWidget::DisconnectViewerNode()

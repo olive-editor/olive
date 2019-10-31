@@ -20,7 +20,7 @@
 
 #include "videorendererprocessthread.h"
 
-#include "videorenderer.h"
+#include "videorenderbackend.h"
 
 RendererProcessThread::RendererProcessThread(VideoRendererProcessor* parent,
                                              QOpenGLContext *share_ctx,
