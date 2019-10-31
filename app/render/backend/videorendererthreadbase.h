@@ -22,44 +22,61 @@
 #define RENDERTHREAD_H
 
 #include <memory>
-#include <QMutex>
-#include <QThread>
-#include <QWaitCondition>
+#include <OpenImageIO/imageio.h>
 
 #include "node/node.h"
 #include "render/videoparams.h"
 #include "renderinstance.h"
+#include "render/pixelservice.h"
 
-class VideoRendererThreadBase : public QThread
+class VideoRenderBackend;
+
+class VideoRendererThreadBase : public QObject
 {
   Q_OBJECT
 public:
-  VideoRendererThreadBase(QOpenGLContext* share_ctx, const VideoRenderingParams& params);
+  VideoRendererThreadBase(VideoRenderBackend* parent, QOpenGLContext* share_ctx, const VideoRenderingParams& params);
 
   RenderInstance* render_instance();
 
-  void StartThread(Priority priority = InheritPriority);
-
-  virtual void run() override;
-
 public slots:
-  virtual void Cancel() = 0;
+  void Start();
 
-protected:
-  virtual void ProcessLoop() = 0;
+  void Stop();
 
-  QWaitCondition wait_cond_;
+  void Process(const NodeDependency &dep, bool sibling);
 
-  QMutex mutex_;
+  void Download(RenderTexturePtr texture, const QString &fn, const QByteArray &hash);
 
-  QMutex caller_mutex_;
+signals:
+  void RequestSibling(NodeDependency dep);
+
+  void CachedFrame(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
+
+  void FrameSkipped(const rational& time, const QByteArray& hash);
+
+  void Downloaded(const QByteArray& hash);
 
 private:
   void WakeCaller();
 
+  VideoRenderBackend* parent_;
+
   QOpenGLContext* share_ctx_;
 
   RenderInstance render_instance_;
+
+  RenderTexturePtr texture_;
+
+  GLuint read_buffer_;
+
+  QOpenGLFunctions* f;
+  QOpenGLExtraFunctions* xf;
+
+  PixelFormatInfo format_info_;
+  OIIO::ImageSpec spec_;
+
+  QVector<uchar> data_buffer_;
 
 };
 

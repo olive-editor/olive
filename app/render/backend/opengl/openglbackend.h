@@ -20,10 +20,15 @@ public:
 
   void SetParameters(const VideoRenderingParams& video_params);
 
+
+
 public slots:
   void Init();
 
   void Close();
+
+signals:
+
 
 private:
   void UpdateViewportFromParams();
