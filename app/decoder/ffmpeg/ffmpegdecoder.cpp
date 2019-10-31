@@ -91,7 +91,7 @@ bool FFmpegDecoder::Open()
 
   // Handle failure to find decoder
   if (codec == nullptr) {
-    Error(tr("Failed to find appropriate decoder for this codec (%1 :: %2)")
+    Error(QStringLiteral("Failed to find appropriate decoder for this codec (%1 :: %2)")
           .arg(stream()->footage()->filename(), avstream_->codecpar->codec_id));
     return false;
   }
@@ -99,7 +99,7 @@ bool FFmpegDecoder::Open()
   // Allocate context for the decoder
   codec_ctx_ = avcodec_alloc_context3(codec);
   if (codec_ctx_ == nullptr) {
-    Error(tr("Failed to allocate codec context (%1 :: %2)").arg(stream()->footage()->filename(), stream()->index()));
+    Error(QStringLiteral("Failed to allocate codec context (%1 :: %2)").arg(stream()->footage()->filename(), stream()->index()));
     return false;
   }
 
@@ -170,7 +170,7 @@ bool FFmpegDecoder::Open()
 
   // Handle failure to create packet
   if (pkt_ == nullptr) {
-    Error(tr("Failed to allocate AVPacket"));
+    Error(QStringLiteral("Failed to allocate AVPacket"));
     return false;
   }
 
@@ -179,7 +179,7 @@ bool FFmpegDecoder::Open()
 
   // Handle failure to create frame
   if (frame_ == nullptr) {
-    Error(tr("Failed to allocate AVFrame"));
+    Error(QStringLiteral("Failed to allocate AVFrame"));
     return false;
   }
 
@@ -199,7 +199,7 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
   int64_t target_ts = GetTimestampFromTime(timecode);
 
   if (target_ts < 0) {
-    Error(tr("Index failed to produce a valid timestamp"));
+    Error(QStringLiteral("Index failed to produce a valid timestamp"));
     return nullptr;
   }
 
@@ -474,7 +474,7 @@ void FFmpegDecoder::FFmpegError(int error_code)
   char err[1024];
   av_strerror(error_code, err, 1024);
 
-  Error(tr("Error decoding %1 - %2 %3").arg(stream()->footage()->filename(),
+  Error(QStringLiteral("Error decoding %1 - %2 %3").arg(stream()->footage()->filename(),
                                             QString::number(error_code),
                                             err));
 }
@@ -489,7 +489,7 @@ void FFmpegDecoder::Error(const QString &s)
 void FFmpegDecoder::Index()
 {
   if (!open_) {
-    qWarning() << tr("Indexing function tried to run while decoder was closed");
+    qWarning() << "Indexing function tried to run while decoder was closed";
     return;
   }
 
@@ -649,7 +649,7 @@ void FFmpegDecoder::SaveFrameIndex()
 
     index_file.close();
   } else {
-    qWarning() << tr("Failed to save index for %1").arg(stream()->footage()->filename());
+    qWarning() << QStringLiteral("Failed to save index for %1").arg(stream()->footage()->filename());
   }
 }
 

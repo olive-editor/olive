@@ -39,7 +39,7 @@ OpenGLFramebuffer::~OpenGLFramebuffer()
 void OpenGLFramebuffer::Create(QOpenGLContext *ctx)
 {
   if (ctx == nullptr) {
-    qWarning() << tr("RenderTexture::Create was passed an invalid context");
+    qWarning() << "RenderTexture::Create was passed an invalid context";
     return;
   }
 

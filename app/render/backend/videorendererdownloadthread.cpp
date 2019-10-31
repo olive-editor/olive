@@ -94,7 +94,7 @@ void VideoRendererDownloadThread::ProcessLoop()
                     entry.texture->width(),
                     entry.texture->height(),
                     format_info.pixel_format,
-                    format_info.pixel_type,
+                    format_info.gl_pixel_type,
                     data_buffer.data());
 
     xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
@@ -116,7 +116,7 @@ void VideoRendererDownloadThread::ProcessLoop()
 
       emit Downloaded(entry.hash);
     } else {
-      qWarning() << tr("Failed to open output file \"%1\"").arg(entry.filename);
+      qWarning() << QStringLiteral("Failed to open output file \"%1\"").arg(entry.filename);
     }
   }
 

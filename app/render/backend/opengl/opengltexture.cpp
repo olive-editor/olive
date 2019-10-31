@@ -53,7 +53,7 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
 void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const OpenGLTexture::Type &type, void *data)
 {
   if (ctx == nullptr) {
-    qWarning() << tr("RenderTexture::Create was passed an invalid context");
+    qWarning() << "RenderTexture::Create was passed an invalid context";
     return;
   }
 
@@ -150,7 +150,7 @@ void OpenGLTexture::SwapFrontAndBack()
 void OpenGLTexture::Upload(const void *data)
 {
   if (!IsCreated()) {
-    qWarning() << tr("RenderTexture::Upload() called while it wasn't created");
+    qWarning() << "RenderTexture::Upload() called while it wasn't created";
     return;
   }
 
@@ -165,7 +165,7 @@ void OpenGLTexture::Upload(const void *data)
                                          width_,
                                          height_,
                                          info.pixel_format,
-                                         info.pixel_type,
+                                         info.gl_pixel_type,
                                          data);
 
   Release();
@@ -174,7 +174,7 @@ void OpenGLTexture::Upload(const void *data)
 uchar *OpenGLTexture::Download() const
 {
   if (!IsCreated()) {
-    qWarning() << tr("RenderTexture::Download() called while it wasn't created");
+    qWarning() << "RenderTexture::Download() called while it wasn't created";
     return nullptr;
   }
 
@@ -194,7 +194,7 @@ uchar *OpenGLTexture::Download() const
 
   uchar* data = new uchar[PixelService::GetBufferSize(format_, width_, height_)];
 
-  f->glReadPixels(0, 0, width_, height_, format_info.pixel_format, format_info.pixel_type, data);
+  f->glReadPixels(0, 0, width_, height_, format_info.pixel_format, format_info.gl_pixel_type, data);
 
   f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
@@ -212,7 +212,7 @@ void OpenGLTexture::CreateInternal(GLuint* tex, void *data)
 
   // Verify texture
   if (texture_ == 0) {
-    qWarning() << tr("OpenGL texture creation failed");
+    qWarning() << "OpenGL texture creation failed";
     return;
   }
 
@@ -230,7 +230,7 @@ void OpenGLTexture::CreateInternal(GLuint* tex, void *data)
         height_,
         0,
         bit_depth.pixel_format,
-        bit_depth.pixel_type,
+        bit_depth.gl_pixel_type,
         data
         );
 

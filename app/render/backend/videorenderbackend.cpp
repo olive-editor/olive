@@ -279,7 +279,7 @@ QString VideoRendererProcessor::CachePathName(const QByteArray &hash)
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
   this_cache_dir.mkpath(".");
 
-  QString filename = QString("%1.exr").arg(QString(hash.toHex()));
+  QString filename = QStringLiteral("%1.exr").arg(QString(hash.toHex()));
 
   return this_cache_dir.filePath(filename);
 }

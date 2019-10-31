@@ -35,5 +35,6 @@ set(OLIVE_SOURCES
   render/backend/videorendererthreadbase.cpp
   render/backend/renderinstance.h
   render/backend/renderinstance.cpp
+  
   PARENT_SCOPE
 )

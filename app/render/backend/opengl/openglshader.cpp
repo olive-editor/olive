@@ -171,11 +171,11 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
 
     frag_code.append(shader_code);
 
-    frag_code.append(QString(QStringLiteral("\n"
-                                            "void main() {\n"
-                                            "  vec4 color = %1(texture2D(texture, v_texcoord));\n"
-                                            "  gl_FragColor = color;\n"
-                                            "}\n")).arg(function_name));
+    frag_code.append(QStringLiteral("\n"
+                                    "void main() {\n"
+                                    "  vec4 color = %1(texture2D(texture, v_texcoord));\n"
+                                    "  gl_FragColor = color;\n"
+                                    "}\n").arg(function_name));
 
   }
 
@@ -207,27 +207,27 @@ QString OpenGLShader::CodeDefaultVertex()
 
 QString OpenGLShader::CodeAlphaDisassociate(const QString &function_name)
 {
-  return QString(QStringLiteral("vec4 %1(vec4 col) {\n"
-                                "  if (col.a > 0.0) {\n"
-                                "    return vec4(col.rgb / col.a, col.a);"
-                                "  }\n"
-                                "  return col;\n"
-                                "}\n")).arg(function_name);
+  return QStringLiteral("vec4 %1(vec4 col) {\n"
+                        "  if (col.a > 0.0) {\n"
+                        "    return vec4(col.rgb / col.a, col.a);"
+                        "  }\n"
+                        "  return col;\n"
+                        "}\n").arg(function_name);
 }
 
 QString OpenGLShader::CodeAlphaReassociate(const QString &function_name)
 {
-  return QString(QStringLiteral("vec4 %1(vec4 col) {\n"
-                                "  if (col.a > 0.0) {\n"
-                                "    return vec4(col.rgb * col.a, col.a);"
-                                "  }\n"
-                                "  return col;\n"
-                                "}\n")).arg(function_name);
+  return QStringLiteral("vec4 %1(vec4 col) {\n"
+                        "  if (col.a > 0.0) {\n"
+                        "    return vec4(col.rgb * col.a, col.a);"
+                        "  }\n"
+                        "  return col;\n"
+                        "}\n").arg(function_name);
 }
 
 QString OpenGLShader::CodeAlphaAssociate(const QString &function_name)
 {
-  return QString(QStringLiteral("vec4 %1(vec4 col) {\n"
-                                "  return vec4(col.rgb * col.a, col.a);\n"
-                                "}\n")).arg(function_name);
+  return QStringLiteral("vec4 %1(vec4 col) {\n"
+                        "  return vec4(col.rgb * col.a, col.a);\n"
+                        "}\n").arg(function_name);
 }

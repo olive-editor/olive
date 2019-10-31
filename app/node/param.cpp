@@ -100,7 +100,7 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 
   // Ensure both nodes are in the same graph
   if (output->parent()->parent() != input->parent()->parent()) {
-    qWarning() << tr("Tried to connect two nodes that aren't part of the same graph");
+    qWarning() << "Tried to connect two nodes that aren't part of the same graph";
     return nullptr;
   }
 

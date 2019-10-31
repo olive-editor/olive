@@ -38,25 +38,25 @@ PixelFormatInfo PixelService::GetPixelFormatInfo(const olive::PixelFormat &forma
   case olive::PIX_FMT_RGBA8:
     info.name = tr("8-bit");
     info.internal_format = GL_RGBA8;
-    info.pixel_type = GL_UNSIGNED_BYTE;
+    info.gl_pixel_type = GL_UNSIGNED_BYTE;
     info.oiio_desc = OIIO::TypeDesc::UINT8;
     break;
   case olive::PIX_FMT_RGBA16U:
     info.name = tr("16-bit Integer");
     info.internal_format = GL_RGBA16;
-    info.pixel_type = GL_UNSIGNED_SHORT;
+    info.gl_pixel_type = GL_UNSIGNED_SHORT;
     info.oiio_desc = OIIO::TypeDesc::UINT16;
     break;
   case olive::PIX_FMT_RGBA16F:
     info.name = tr("Half-Float (16-bit)");
     info.internal_format = GL_RGBA16F;
-    info.pixel_type = GL_HALF_FLOAT;
+    info.gl_pixel_type = GL_HALF_FLOAT;
     info.oiio_desc = OIIO::TypeDesc::HALF;
     break;
   case olive::PIX_FMT_RGBA32F:
     info.name = tr("Full-Float (32-bit)");
     info.internal_format = GL_RGBA32F;
-    info.pixel_type = GL_FLOAT;
+    info.gl_pixel_type = GL_FLOAT;
     info.oiio_desc = OIIO::TypeDesc::FLOAT;
     break;
   case olive::PIX_FMT_INVALID:
@@ -273,7 +273,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
     return converted;
   }
 
-  qWarning() << tr("Invalid parameters called for pixel format conversion");
+  qWarning() << "Invalid parameters called for pixel format conversion";
   return nullptr;
 }
 

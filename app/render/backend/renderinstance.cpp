@@ -61,13 +61,13 @@ bool RenderInstance::Start()
 
   // Create OpenGL context (automatically destroys any existing if there is one)
   if (!ctx_->create()) {
-    qWarning() << tr("Failed to create OpenGL context in thread %1").arg(reinterpret_cast<quintptr>(this));
+    qWarning() << QStringLiteral("Failed to create OpenGL context in thread %1").arg(reinterpret_cast<quintptr>(this));
     return false;
   }
 
   // Make context current on that surface
   if (!ctx_->makeCurrent(&surface_)) {
-    qWarning() << tr("Failed to makeCurrent() on offscreen surface in thread %1").arg(reinterpret_cast<quintptr>(this));
+    qWarning() << QStringLiteral("Failed to makeCurrent() on offscreen surface in thread %1").arg(reinterpret_cast<quintptr>(this));
     return false;
   }
 
