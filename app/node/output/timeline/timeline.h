@@ -67,7 +67,7 @@ signals:
   void TrackRemoved(TrackOutput* track);
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) override;
+  virtual QVariant Value(NodeOutput* output) override;
 
 private:
   QVector<NodeInput*> track_inputs_;

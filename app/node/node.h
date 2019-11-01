@@ -130,13 +130,6 @@ public:
   virtual QString Code(NodeOutput* output);
 
   /**
-   * @brief Wrapper for Process()
-   *
-   * It's recommended to call this directly over Value(), yet in derivatives of Node, override Value().
-   */
-  QVariant Run(NodeOutput* output, const rational &in, const rational &out);
-
-  /**
    * @brief For nodes that have different dependencies at different times, this function can be used for that purpose
    *
    * Only retrieves immmediate dependencies, meaning only nodes that are directly
@@ -176,7 +169,7 @@ public:
   /**
    * @brief Add's unique information about this Node at the given time to a QCryptographicHash
    */
-  virtual void Hash(QCryptographicHash* hash, NodeOutput *from, const rational& time);
+  //virtual void Hash(QCryptographicHash* hash, NodeOutput *from, const rational& time);
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -200,15 +193,19 @@ public:
    */
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr);
 
-  /**
-   * @brief Lock mutex (for thread safety)
-   */
-  void Lock();
+  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time);
 
   /**
-   * @brief Unock mutex (for thread safety)
+   * @brief User input lock prevents any user changes while a graph is being rendered
    */
-  void Unlock();
+  void LockUserInput();
+  void UnlockUserInput();
+
+  /**
+   * @brief Processing lock prevents more than one thread trying to process a Node at once
+   */
+  void LockProcessing();
+  void UnlockProcessing();
 
   /**
    * @brief Copies inputs from from Node to another including connections
@@ -235,6 +232,21 @@ public:
    */
   virtual bool IsBlock();
 
+  /**
+   * @brief The main processing function
+   *
+   * The node's main purpose is to take values from inputs to set values in outputs. For whatever subclass node you
+   * create, this is where the code for that goes.
+   *
+   * Note that as a video editor, the node graph has to work across time. Depending on the purpose of your node, it may
+   * output different values depending on the time, and even if not, it will likely be receiving different input
+   * depending on the time. Most of the difficult work here is handled by NodeInput::get_value() which you should pass
+   * the `time` parameter to. It will return its value (at that time, if it's keyframed), or pass the time to a
+   * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
+   * of the NodeParam objects will handle everything related to it automatically.
+   */
+  virtual QVariant Value(NodeOutput* output);
+
 protected:
   /**
    * @brief Add a parameter to this node
@@ -251,21 +263,6 @@ protected:
    * The NodeParam object is destroyed in the process.
    */
   void RemoveParameter(NodeParam* param);
-
-  /**
-   * @brief The main processing function
-   *
-   * The node's main purpose is to take values from inputs to set values in outputs. For whatever subclass node you
-   * create, this is where the code for that goes.
-   *
-   * Note that as a video editor, the node graph has to work across time. Depending on the purpose of your node, it may
-   * output different values depending on the time, and even if not, it will likely be receiving different input
-   * depending on the time. Most of the difficult work here is handled by NodeInput::get_value() which you should pass
-   * the `time` parameter to. It will return its value (at that time, if it's keyframed), or pass the time to a
-   * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
-   * of the NodeParam objects will handle everything related to it automatically.
-   */
-  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out);
 
   /**
    * @brief Retrieve the last timecode Process() was called with
@@ -325,12 +322,12 @@ private:
   /**
    * @brief Used for thread safety from main thread
    */
-  QMutex lock_;
+  QMutex user_input_lock_;
 
   /**
    * @brief Used for thread safety between multiple threads
    */
-  QMutex run_lock_;
+  QMutex processing_lock_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not

@@ -62,9 +62,6 @@ signals:
 
   void SizeChanged(int width, int height);
 
-protected:
-  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) override;
-
 private:
   NodeInput* texture_input_;
 

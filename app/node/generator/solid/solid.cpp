@@ -56,24 +56,18 @@ NodeOutput *SolidGenerator::texture_output()
   return texture_output_;
 }
 
-QVariant SolidGenerator::Value(NodeOutput *output, const rational &in, const rational &out)
+QString SolidGenerator::Code(NodeOutput *output)
 {
-  Q_UNUSED(output)
-  Q_UNUSED(in)
-  Q_UNUSED(out)
-
-  /*
-  // FIXME: Test code
-  if (texture_ == nullptr) {
-    QImage img(1920, 1080, QImage::Format_RGBA8888_Premultiplied);
-    img.fill(Qt::red);
-
-    texture_ = new QOpenGLTexture(img);
+  if (output == texture_output()) {
+    // FIXME: Not color managed
+    return "#version 110\n"
+           "\n"
+           "uniform vec4 color_in;\n"
+           "\n"
+           "void main(void) {\n"
+           "  gl_FragColor = color_in;\n"
+           "}\n";
   }
 
-  texture_output_->set_value(texture_->textureId());
-  // End test code
-  */
-
-  return 0;
+  return Node::Code(output);
 }

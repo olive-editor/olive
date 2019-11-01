@@ -66,9 +66,9 @@ void OpenGLWorker::Render(const NodeDependency &path)
 
   // Lock all Nodes to prevent UI changes during this render
   foreach (Node* dep, all_deps) {
-    dep->Lock();
+    dep->LockUserInput();
   }
-  node->Lock();
+  node->LockUserInput();
 
   // FIXME: Write traversal code
 
@@ -77,9 +77,9 @@ void OpenGLWorker::Render(const NodeDependency &path)
 
   // Unlock all Nodes so changes can be made again
   foreach (Node* dep, all_deps) {
-    dep->Unlock();
+    dep->UnlockUserInput();
   }
-  node->Unlock();
+  node->UnlockUserInput();
 
   // Now we need the texture done so we call glFinish()
   functions_->glFinish();
@@ -110,4 +110,8 @@ void OpenGLWorker::FinishInit()
   buffer_.Create(ctx_);
 
   qDebug() << "Context in" << ctx_->thread() << "successfully finished";
+}
+
+void OpenGLWorker::RenderAsSibling(const NodeDependency &)
+{
 }

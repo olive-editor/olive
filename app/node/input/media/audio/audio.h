@@ -14,7 +14,7 @@ public:
   virtual QString Description() override;
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& in, const rational& out) override;
+  virtual QVariant Value(NodeOutput* output) override;
 
 private:
   NodeOutput* samples_output_;

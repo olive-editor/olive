@@ -146,7 +146,7 @@ signals:
   void BlockRemoved(Block* block);
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational& in, const rational &out) override;
+  virtual QVariant Value(NodeOutput* output) override;
 
 private:
   /**

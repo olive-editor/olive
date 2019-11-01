@@ -21,6 +21,11 @@ const rational &TimeRange::out() const
   return out_;
 }
 
+const rational &TimeRange::length() const
+{
+  return length_;
+}
+
 void TimeRange::set_in(const rational &in)
 {
   in_ = in;
@@ -40,6 +45,36 @@ void TimeRange::set_range(const rational &in, const rational &out)
   normalize();
 }
 
+bool TimeRange::operator<(const TimeRange &r) const
+{
+  return length() < r.length();
+}
+
+bool TimeRange::operator<=(const TimeRange &r) const
+{
+  return length() <= r.length();
+}
+
+bool TimeRange::operator>(const TimeRange &r) const
+{
+  return length() > r.length();
+}
+
+bool TimeRange::operator>=(const TimeRange &r) const
+{
+  return length() >= r.length();
+}
+
+bool TimeRange::operator==(const TimeRange &r) const
+{
+  return length() == r.length();
+}
+
+bool TimeRange::operator!=(const TimeRange &r) const
+{
+  return length() != r.length();
+}
+
 void TimeRange::normalize()
 {
   // If `out` is earlier than `in`, swap them
@@ -48,4 +83,7 @@ void TimeRange::normalize()
     in_ = out_;
     out_ = temp;
   }
+
+  // Calculate length
+  length_ = out_ - in_;
 }

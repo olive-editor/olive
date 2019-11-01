@@ -37,12 +37,12 @@ void MediaInput::Release()
 
 StreamPtr MediaInput::footage()
 {
-  return footage_input_->get_value(0).value<StreamPtr>();
+  return footage_input_->get_value_at_time(0).value<StreamPtr>();
 }
 
 void MediaInput::SetFootage(StreamPtr f)
 {
-  footage_input_->set_value(QVariant::fromValue(f));
+  footage_input_->set_value_at_time(0, QVariant::fromValue(f));
 }
 
 bool MediaInput::SetupDecoder()

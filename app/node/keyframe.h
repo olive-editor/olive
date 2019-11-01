@@ -41,27 +41,34 @@ public:
     kBezier
   };
 
+  static const Type kDefaultType = kLinear;
+
   /**
    * @brief NodeKeyframe Constructor
    */
   NodeKeyframe();
 
   /**
+   * @brief NodeKeyframe Constructor
+   */
+  NodeKeyframe(const rational& time, const QVariant& value, const Type& type);
+
+  /**
    * @brief The time this keyframe is set at
    */
-  const rational& time();
+  const rational& time() const;
   void set_time(const rational& time);
 
   /**
    * @brief The value of this keyframe (i.e. the value to use at this keyframe's time)
    */
-  const QVariant& value();
+  const QVariant& value() const;
   void set_value(const QVariant &value);
 
   /**
    * @brief The method of interpolation to use with this keyframe
    */
-  const Type& type();
+  const Type& type() const;
   void set_type(const Type& type);
 
 private:

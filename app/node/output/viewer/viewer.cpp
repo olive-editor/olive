@@ -104,14 +104,5 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
 
 rational ViewerOutput::Length()
 {
-  return length_input_->get_value(0).value<rational>();
-}
-
-QVariant ViewerOutput::Value(NodeOutput *output, const rational &in, const rational &out)
-{
-  Q_UNUSED(output)
-  Q_UNUSED(in)
-  Q_UNUSED(out)
-
-  return 0;
+  return length_input_->get_realtime_value_of_connected_output().value<rational>();
 }

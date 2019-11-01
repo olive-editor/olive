@@ -20,6 +20,7 @@
 
 #include "input.h"
 
+#include "common/lerp.h"
 #include "node.h"
 #include "output.h"
 
@@ -78,54 +79,161 @@ Node *NodeInput::get_connected_node()
   return nullptr;
 }
 
-QVariant NodeInput::get_value(const rational& in, const rational& out)
+QVariant NodeInput::get_value_at_time(const rational &time)
 {
-  QVariant v;
-
-  if (in_ != in || out_ != out || !value_caching_) {
-    // Retrieve the value
-    if (!edges_.isEmpty()) {
-      // A connection - use the output of the connected Node
-      value_ = get_connected_output()->get_value(in, out);
-    } else {
-      // No connections - use the internal value
-      // FIXME: Re-implement keyframing
-      value_ = keyframes_.first().value();
+  if (is_keyframing()) {
+    if (keyframes_.first().time() >= time) {
+      // This time precedes any keyframe, so we just return the first value
+      return keyframes_.first().value();
     }
 
-    in_ = in;
-    out_ = out;
+    if (keyframes_.last().time() <= time) {
+      // This time is after any keyframes so we return the last value
+      return keyframes_.last().value();
+    }
+
+    // If we're here, the time must be somewhere in between the keyframes
+    for (int i=0;i<keyframes_.size()-1;i++) {
+      const NodeKeyframe& before = keyframes_.at(i);
+      const NodeKeyframe& after = keyframes_.at(i+1);
+
+      if (before.time() == time
+          || data_type() != kFloat // FIXME: Expand this to other types that can be interpolated
+          || (before.time() < time && before.type() == NodeKeyframe::kHold)) {
+
+        // Time == keyframe time, so value is precise
+        return before.value();
+
+      } else if (before.time() < time && after.time() > time) {
+        // We must interpolate between these keyframes
+
+        if (before.type() == NodeKeyframe::kBezier && after.type() == NodeKeyframe::kBezier) {
+          // FIXME: Perform a cubic bezier interpolation
+        } else if (before.type() == NodeKeyframe::kLinear && after.type() == NodeKeyframe::kBezier) {
+          // FIXME: Perform a quadratic bezier interpolation with anchors from the AFTER keyframe
+        } else if (before.type() == NodeKeyframe::kLinear && after.type() == NodeKeyframe::kBezier) {
+          // FIXME: Perform a quadratic bezier interpolation with anchors from the BEFORE keyframe
+        } else {
+          // To have arrived here, the keyframes must both be linear
+          qreal period_progress = (time.toDouble() - before.time().toDouble()) / (after.time().toDouble() - before.time().toDouble());
+          qreal interpolated_value = lerp(before.value().toDouble(), after.value().toDouble(), period_progress);
+
+          return interpolated_value;
+        }
+      }
+    }
   }
 
-  v = value_;
-
-  return v;
+  return keyframes_.first().value();
 }
 
-void NodeInput::set_value(const QVariant &value)
+void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
 {
-  bool lock_mutex = (parent() != nullptr);
+  if (parent() != nullptr)
+    parent()->LockUserInput();
 
-  if (lock_mutex) parent()->Lock();
+  if (is_keyframing()) {
+    // Insert value into the keyframe list chronologically
 
-  if (keyframing()) {
-    // FIXME: Keyframing code using time()
+    if (keyframes_.first().time() > time) {
+
+      // Store this away for the ValueChanged signal we emit later
+      rational existing_first_key = keyframes_.first().time();
+
+      // Insert at the beginning
+      keyframes_.prepend(NodeKeyframe(time, value, keyframes_.first().type()));
+
+      // Value has changed since the earliest point up until the ex-first keyframe (since the frames
+      // interpolating between the key we're adding and the key that existed are changing too)
+      emit ValueChanged(RATIONAL_MIN, existing_first_key);
+
+    } else if (keyframes_.first().time() == time) {
+
+      // Replace first value
+      keyframes_.first().set_value(value);
+
+      // Value has changed since the earliest point up until the keyframe we just changed
+      emit ValueChanged(RATIONAL_MIN, time);
+
+    } else if (keyframes_.last().time() < time) {
+
+      // Store this away for the ValueChanged signal we emit later
+      rational existing_last_key = keyframes_.last().time();
+
+      // Append at the end
+      keyframes_.append(NodeKeyframe(time, value, keyframes_.last().type()));
+
+      // Value has changed since the ex-last point up until the latest possible point (since the frames
+      // interpolating between the key we're adding and the key that existed are changing too)
+      emit ValueChanged(existing_last_key, RATIONAL_MAX);
+
+    } else if (keyframes_.last().time() == time) {
+
+      // Replace last value
+      keyframes_.last().set_value(value);
+
+      // Value has changed from this point until the latest possible point
+      emit ValueChanged(time, RATIONAL_MAX);
+
+    } else {
+      for (int i=0;i<keyframes_.size()-1;i++) {
+        NodeKeyframe& before = keyframes_[i];
+        NodeKeyframe& after = keyframes_[i+1];
+
+        if (before.time() == time) {
+          // Found exact match, replace it
+          before.set_value(value);
+
+          // Values have changed since the last keyframe and the next one
+          emit ValueChanged(keyframes_.at(i-1).time(), keyframes_.at(i+1).time());
+          break;
+        } else if (before.time() < time && after.time() > time) {
+          // Insert value in between these two keyframes
+          keyframes_.insert(i+1, NodeKeyframe(time, value, before.type()));
+
+          // Values have changed since the last keyframe and the next one
+          emit ValueChanged(before.time(), after.time());
+          break;
+        }
+      }
+    }
+
   } else {
-    // Not keyframing, so invalidate entire time length
     keyframes_.first().set_value(value);
 
+    // Values have changed for all times since the value is static
     emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
   }
 
-  if (lock_mutex) parent()->Unlock();
+  if (parent() != nullptr)
+    parent()->UnlockUserInput();
 }
 
-bool NodeInput::keyframing()
+const QVariant &NodeInput::value()
+{
+  return stored_value_;
+}
+
+void NodeInput::set_stored_value(const QVariant &value)
+{
+  stored_value_ = value;
+}
+
+QVariant NodeInput::get_realtime_value_of_connected_output()
+{
+  if (get_connected_output() == nullptr) {
+    return 0;
+  }
+
+  return get_connected_output()->get_realtime_value();
+}
+
+bool NodeInput::is_keyframing()
 {
   return keyframing_;
 }
 
-void NodeInput::set_keyframing(bool k)
+void NodeInput::set_is_keyframing(bool k)
 {
   keyframing_ = k;
 }
@@ -178,7 +286,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest)
   dest->keyframes_ = source->keyframes_;
 
   // Copy keyframing state
-  dest->set_keyframing(source->keyframing());
+  dest->set_is_keyframing(source->is_keyframing());
 
   // Copy connections
   if (source->get_connected_output() != nullptr) {

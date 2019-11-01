@@ -34,7 +34,7 @@ TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInp
 
 TrackOutput *TrackList::attached_track()
 {
-  return Node::ValueToPtr<TrackOutput>(track_input_->get_value(0));
+  return Node::ValueToPtr<TrackOutput>(track_input_->get_realtime_value_of_connected_output());
 }
 
 void TrackList::AttachTrack(TrackOutput *track)
@@ -176,7 +176,7 @@ void TrackList::TrackConnectionRemoved(NodeEdgePtr edge)
     return;
   }
 
-  DetachTrack(Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0, 0)));
+  DetachTrack(Node::ValueToPtr<TrackOutput>(edge->output()->get_realtime_value()));
 }
 
 void TrackList::TrackEdgeAdded(NodeEdgePtr edge)
@@ -186,7 +186,7 @@ void TrackList::TrackEdgeAdded(NodeEdgePtr edge)
 
   // If this edge pertains to the track's track input, all the tracks just added need attaching
   if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0, 0));
+    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_realtime_value());
 
     AttachTrack(added_track);
   }
@@ -199,7 +199,7 @@ void TrackList::TrackEdgeRemoved(NodeEdgePtr edge)
 
   // If this edge pertains to the track's track input, all the tracks just added need attaching
   if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_value(0, 0));
+    TrackOutput* added_track = Node::ValueToPtr<TrackOutput>(edge->output()->get_realtime_value());
 
     DetachTrack(added_track);
   }

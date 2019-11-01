@@ -24,7 +24,7 @@ OpacityNode::OpacityNode()
 {
   opacity_input_ = new NodeInput("opacity_in");
   opacity_input_->set_data_type(NodeParam::kFloat);
-  opacity_input_->set_value(100);
+  opacity_input_->set_value_at_time(0, 100);
   opacity_input_->set_minimum(0);
   opacity_input_->set_maximum(100);
   AddParameter(opacity_input_);

@@ -72,11 +72,9 @@ void Node::RemoveParameter(NodeParam *param)
   delete param;
 }
 
-QVariant Node::Value(NodeOutput *output, const rational &in, const rational &out)
+QVariant Node::Value(NodeOutput *output)
 {
   Q_UNUSED(output)
-  Q_UNUSED(in)
-  Q_UNUSED(out)
 
   return QVariant();
 }
@@ -85,9 +83,16 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 {
   Q_UNUSED(from)
 
-  ClearCachedValuesInParameters(start_range, end_range);
-
   SendInvalidateCache(start_range, end_range);
+}
+
+TimeRange Node::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time)
+{
+  Q_UNUSED(input)
+
+  // Default behavior is no time adjustment at all
+
+  return input_time;
 }
 
 void Node::SendInvalidateCache(const rational &start_range, const rational &end_range)
@@ -110,14 +115,24 @@ void Node::SendInvalidateCache(const rational &start_range, const rational &end_
   }
 }
 
-void Node::Lock()
+void Node::LockUserInput()
 {
-  lock_.lock();
+  user_input_lock_.lock();
 }
 
-void Node::Unlock()
+void Node::UnlockUserInput()
 {
-  lock_.unlock();
+  user_input_lock_.unlock();
+}
+
+void Node::LockProcessing()
+{
+  processing_lock_.lock();
+}
+
+void Node::UnlockProcessing()
+{
+  processing_lock_.unlock();
 }
 
 void Node::CopyInputs(Node *source, Node *destination)
@@ -159,11 +174,11 @@ rational Node::LastProcessedTime()
 {
   rational t;
 
-  Lock();
+  LockUserInput();
 
   t = last_processed_time_;
 
-  Unlock();
+  UnlockUserInput();
 
   return t;
 }
@@ -172,37 +187,13 @@ NodeOutput *Node::LastProcessedOutput()
 {
   NodeOutput* o;
 
-  Lock();
+  LockUserInput();
 
   o = last_processed_parameter_;
 
-  Unlock();
+  UnlockUserInput();
 
   return o;
-}
-
-void Node::ClearCachedValuesInParameters(const rational &start_range, const rational &end_range)
-{
-  Q_UNUSED(start_range)
-  Q_UNUSED(end_range)
-
-  // Loop through all parameters and clear cached values
-  foreach (NodeParam* param, params_) {
-    //if (param->LastRequestedTime() >= start_range && param->LastRequestedTime() <= end_range) {
-      param->ClearCachedValue();
-    //}
-  }
-}
-
-QVariant Node::Run(NodeOutput* output, const rational& in, const rational &out)
-{
-  run_lock_.lock();
-
-  QVariant v = Value(output, in, out);
-
-  run_lock_.unlock();
-
-  return v;
 }
 
 const QList<NodeParam *>& Node::parameters()
@@ -367,7 +358,7 @@ void Node::DisconnectAll()
   }
 }
 
-void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time)
+/*void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time)
 {
   // Add this Node's ID
   hash->addData(id().toUtf8());
@@ -380,7 +371,7 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
       // Get the value at this time
       NodeInput* input = static_cast<NodeInput*>(param);
 
-      QVariant v = input->get_value(time);
+      QVariant v = input->value(time);
 
       hash->addData(NodeParam::ValueToBytes(input->data_type(), v));
     }
@@ -392,7 +383,7 @@ void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time
     // Hash the connected node
     dep.node()->parent()->Hash(hash, dep.node(), dep.in());
   }
-}
+}*/
 
 QVariant Node::PtrToValue(void *ptr)
 {

@@ -15,7 +15,6 @@ VideoInput::VideoInput()
   AddParameter(matrix_input_);
 
   texture_output_ = new NodeOutput("tex_out");
-  texture_output_->SetValueCachingEnabled(false);
   AddParameter(texture_output_);
 }
 

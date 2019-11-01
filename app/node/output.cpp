@@ -23,8 +23,7 @@
 #include "node/node.h"
 
 NodeOutput::NodeOutput(const QString &id) :
-  NodeParam(id),
-  linked_input_(nullptr)
+  NodeParam(id)
 {
 }
 
@@ -33,40 +32,33 @@ NodeParam::Type NodeOutput::type()
   return kOutput;
 }
 
-QVariant NodeOutput::get_value(const rational& in, const rational& out)
+QVariant NodeOutput::get_realtime_value()
 {
-  mutex_.lock();
+  parent()->LockProcessing();
 
-  QVariant v;
+  QVariant v = parent()->Value(this);
 
-  if (in_ != in || out_ != out || !value_caching_) {
-    // Update the value
-    value_ = parent()->Run(this, in, out);
-
-    in_ = in;
-    out_ = out;
-  }
-
-  v = value_;
-
-  mutex_.unlock();
+  parent()->UnlockProcessing();
 
   return v;
 }
 
-void NodeOutput::push_value(const QVariant &v, const rational &in, const rational &out)
+bool NodeOutput::has_cached_value(const TimeRange &time)
 {
-  value_ = v;
-  in_ = in;
-  out_ = out;
+  return cached_values_.contains(time);
 }
 
-NodeInput *NodeOutput::linked_input()
+QVariant NodeOutput::get_cached_value(const TimeRange &time)
 {
-  return linked_input_;
+  return cached_values_.value(time);
 }
 
-void NodeOutput::set_linked_input(NodeInput *link)
+void NodeOutput::cache_value(const TimeRange &time, const QVariant &value)
 {
-  linked_input_ = link;
+  cached_values_.insert(time, value);
+}
+
+void NodeOutput::drop_cached_values()
+{
+  cached_values_.clear();
 }

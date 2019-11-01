@@ -28,7 +28,14 @@ NodeKeyframe::NodeKeyframe() :
 
 }
 
-const rational &NodeKeyframe::time()
+NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type) :
+  time_(time),
+  value_(value),
+  type_(type)
+{
+}
+
+const rational &NodeKeyframe::time() const
 {
   return time_;
 }
@@ -38,7 +45,7 @@ void NodeKeyframe::set_time(const rational &time)
   time_ = time;
 }
 
-const QVariant &NodeKeyframe::value()
+const QVariant &NodeKeyframe::value() const
 {
   return value_;
 }
@@ -48,7 +55,7 @@ void NodeKeyframe::set_value(const QVariant &value)
   value_ = value;
 }
 
-const NodeKeyframe::Type &NodeKeyframe::type()
+const NodeKeyframe::Type &NodeKeyframe::type() const
 {
   return type_;
 }

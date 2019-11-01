@@ -77,35 +77,36 @@ public:
   Node* get_connected_node();
 
   /**
-   * @brief Get the value at a given time
-   *
-   * This function will automatically retrieve the correct value for this input at the given time.
-   *
-   * If an output is connected to this input, a request is made to that output for its value at this time. If multiple
-   * outputs are connected (\see can_accept_multiple_inputs()), a QList<QVariant> (casted to a QVariant) is returned
-   * instead, listing all the outputs' values currently connected.
-   *
-   * If no output is connected, this will return a user-defined value, either a static value if this input is not
-   * keyframed, or an interpolated value between the keyframes at this time.
+   * @brief Get currently stored value
    */
-  QVariant get_value(const rational &in, const rational &out = -1);
+  const QVariant& value();
+
+  /**
+   * @brief Calculate what the stored value should be at a certain time
+   */
+  QVariant get_value_at_time(const rational& time);
+
+  /**
+   * @brief Sets what value should be seen at a specific time
+   */
+  void set_value_at_time(const rational& time, const QVariant& value);
 
   /**
    * @brief Set the value at a given time
-   *
-   * This function will only work if there are no outputs connected.
    */
-  void set_value(const QVariant& value);
+  void set_stored_value(const QVariant& value);
+
+  QVariant get_realtime_value_of_connected_output();
 
   /**
    * @brief Return whether keyframing is enabled on this input or not
    */
-  bool keyframing();
+  bool is_keyframing();
 
   /**
    * @brief Set whether keyframing is enabled on this input or not
    */
-  void set_keyframing(bool k);
+  void set_is_keyframing(bool k);
 
   /**
    * @brief Return whether the Node is dependent on this input or not
@@ -180,6 +181,11 @@ private:
    * @brief Internal maximum value
    */
   QVariant maximum_;
+
+  /**
+   * @brief Internal stored value
+   */
+  QVariant stored_value_;
 
 };
 

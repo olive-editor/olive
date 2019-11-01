@@ -26,9 +26,9 @@ QString AudioInput::Description()
   return tr("Import an audio footage stream.");
 }
 
-QVariant AudioInput::Value(NodeOutput *output, const rational &in, const rational &out)
+QVariant AudioInput::Value(NodeOutput *)
 {
-  if (output == samples_output_) {
+  /*if (output == samples_output_) {
     // Make sure decoder is set up
     if (!SetupDecoder()) {
       return 0;
@@ -41,7 +41,7 @@ QVariant AudioInput::Value(NodeOutput *output, const rational &in, const rationa
     samples.resize(frame_->audio_params().samples_to_bytes(frame_->sample_count()));
     memcpy(samples.data(), frame_->data(), static_cast<size_t>(samples.size()));
     return samples;
-  }
+  }*/
 
   return 0;
 }

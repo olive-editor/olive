@@ -61,21 +61,6 @@ NodeInput *ClipBlock::texture_input()
   return texture_input_;
 }
 
-QVariant ClipBlock::Value(NodeOutput* param, const rational& v_in, const rational &v_out)
-{
-  if (param == buffer_output()) {
-    // If the time retrieved is within this block, get texture information
-    if (texture_input()->IsConnected() && v_in >= in() && v_out < out()) {
-      // Retrieve texture
-      // We convert the time given (timeline time) to media time
-      return texture_input_->get_value(SequenceToMediaTime(v_in), SequenceToMediaTime(v_out));
-    }
-    return 0;
-  }
-
-  return Block::Value(param, v_in, v_out);
-}
-
 void ClipBlock::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   // If signal is from texture input, transform all times from media time to sequence time
@@ -103,4 +88,13 @@ QList<NodeDependency> ClipBlock::RunDependencies(NodeOutput *output, const ratio
   }
 
   return deps;
+}
+
+TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time)
+{
+  if (input == texture_input_) {
+    return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
+  }
+
+  return Block::InputTimeAdjustment(input, input_time);
 }

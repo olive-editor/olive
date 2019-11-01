@@ -139,7 +139,7 @@ QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rat
 
 TrackOutput *TrackOutput::next_track()
 {
-  return ValueToPtr<TrackOutput>(track_input_->get_value(0));
+  return ValueToPtr<TrackOutput>(track_input_->get_realtime_value_of_connected_output());
 }
 
 NodeInput *TrackOutput::track_input()
@@ -191,12 +191,12 @@ void TrackOutput::InvalidateCache(const rational &start_range, const rational &e
   }
 }
 
-QVariant TrackOutput::Value(NodeOutput *output, const rational &in, const rational &out)
+QVariant TrackOutput::Value(NodeOutput *output)
 {
   if (output == track_output_) {
     // Set track output correctly
     return PtrToValue(this);
-  } else if (output == buffer_output()) {
+  /*} else if (output == buffer_output()) {
     ValidateCurrentBlock(in);
 
     if (current_block_ != this) {
@@ -205,11 +205,11 @@ QVariant TrackOutput::Value(NodeOutput *output, const rational &in, const ration
     }
 
     // No texture is valid
-    return 0;
+    return 0;*/
   }
 
   // Run default node processing
-  return Block::Value(output, in, out);
+  return Block::Value(output);
 }
 
 void TrackOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)

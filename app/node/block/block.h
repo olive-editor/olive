@@ -80,6 +80,8 @@ public:
 
   virtual bool IsBlock() override;
 
+  virtual QVariant Value(NodeOutput* output) override;
+
 public slots:
   /**
    * @brief Refreshes internal cache of in/out points up to date
@@ -105,8 +107,6 @@ signals:
   void Refreshed();
 
 protected:
-  virtual QVariant Value(NodeOutput* output, const rational &in, const rational &out) override;
-
   rational SequenceToMediaTime(const rational& sequence_time);
 
   rational MediaToSequenceTime(const rational& media_time);

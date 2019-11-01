@@ -64,11 +64,11 @@ void Block::set_length(const rational &length)
 {
   Q_ASSERT(length > 0);
 
-  Lock();
+  LockUserInput();
 
   length_ = length;
 
-  Unlock();
+  UnlockUserInput();
 
   Refresh();
 }
@@ -84,7 +84,7 @@ void Block::set_length_and_media_in(const rational &length)
 
 Block *Block::previous()
 {
-  return ValueToPtr<Block>(previous_input_->get_value(0));
+  return ValueToPtr<Block>(previous_input_->get_realtime_value_of_connected_output());
 }
 
 Block *Block::next()
@@ -97,11 +97,8 @@ NodeInput *Block::previous_input()
   return previous_input_;
 }
 
-QVariant Block::Value(NodeOutput *output, const rational &in, const rational &out)
+QVariant Block::Value(NodeOutput *output)
 {
-  Q_UNUSED(in)
-  Q_UNUSED(out)
-
   if (output == block_output_) {
     // Simply set the output value to a pointer to this Block
     return PtrToValue(this);
@@ -179,7 +176,7 @@ const rational &Block::media_in()
 
 void Block::set_media_in(const rational &media_in)
 {
-  Lock();
+  LockUserInput();
 
   if (media_in_ != media_in) {
     media_in_ = media_in;
@@ -188,7 +185,7 @@ void Block::set_media_in(const rational &media_in)
     SendInvalidateCache(in(), out());
   }
 
-  Unlock();
+  UnlockUserInput();
 }
 
 const QString &Block::block_name()

@@ -229,19 +229,6 @@ public:
    */
   static QByteArray ValueToBytes(const DataType &type, const QVariant& value);
 
-  /**
-   * @brief Clear the cached value
-   */
-  void ClearCachedValue();
-
-  /**
-   * @brief Retrieve the last time this parameter had a value requested from
-   */
-  const rational& LastRequestedIn();
-
-  bool ValueCachingEnabled();
-  void SetValueCachingEnabled(bool enabled);
-
 signals:
   /**
    * @brief Signal emitted when an edge is added to this parameter
@@ -264,22 +251,6 @@ protected:
    * @brief Internal list of edges
    */
   QVector<NodeEdgePtr> edges_;
-
-  /**
-   * @brief Currently cached value
-   */
-  QVariant value_;
-
-  /**
-   * @brief Last timecodes that a value was requested with
-   */
-  rational in_;
-  rational out_;
-
-  /**
-   * @brief Internal value for whether value caching is enabled
-   */
-  bool value_caching_;
 
   /**
    * @brief Internal name string

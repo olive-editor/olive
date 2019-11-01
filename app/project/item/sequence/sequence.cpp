@@ -103,7 +103,7 @@ QString Sequence::duration()
     return QString();
   }
 
-  rational timeline_length = timeline_output_->length_output()->get_value(0, 0).value<rational>();
+  rational timeline_length = timeline_output_->length_output()->get_realtime_value().value<rational>();
 
   int64_t timestamp = olive::time_to_timestamp(timeline_length, video_params_.time_base());
 

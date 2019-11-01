@@ -32,9 +32,6 @@
 #include "node/output.h"
 
 NodeParam::NodeParam(const QString &id) :
-  in_(-1),
-  out_(-1),
-  value_caching_(true),
   id_(id)
 {
   Q_ASSERT(!id_.isEmpty());
@@ -110,16 +107,14 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
   // that's difficult to diagnose. This makes that issue very clear.
   Q_ASSERT(output->parent() != input->parent());
 
-  output->parent()->Lock();
-  input->parent()->Lock();
+  output->parent()->LockUserInput();
+  input->parent()->LockUserInput();
 
   output->edges_.append(edge);
   input->edges_.append(edge);
 
-  input->ClearCachedValue();
-
-  output->parent()->Unlock();
-  input->parent()->Unlock();
+  output->parent()->UnlockUserInput();
+  input->parent()->UnlockUserInput();
 
   // Emit a signal than an edge was added (only one signal needs emitting)
   emit input->EdgeAdded(edge);
@@ -132,16 +127,14 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
   NodeOutput* output = edge->output();
   NodeInput* input = edge->input();
 
-  output->parent()->Lock();
-  input->parent()->Lock();
+  output->parent()->LockUserInput();
+  input->parent()->LockUserInput();
 
   output->edges_.removeAll(edge);
   input->edges_.removeAll(edge);
 
-  input->ClearCachedValue();
-
-  output->parent()->Unlock();
-  input->parent()->Unlock();
+  output->parent()->UnlockUserInput();
+  input->parent()->UnlockUserInput();
 
   emit input->EdgeRemoved(edge);
 }
@@ -226,29 +219,6 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   }
 
   return QByteArray();
-}
-
-void NodeParam::ClearCachedValue()
-{
-  // Since get_value() will (read: should) never receive a negative number, this will effectively invalidate any value
-  // currently cached
-  in_ = -1;
-  out_ = -1;
-}
-
-const rational &NodeParam::LastRequestedIn()
-{
-  return in_;
-}
-
-bool NodeParam::ValueCachingEnabled()
-{
-  return value_caching_;
-}
-
-void NodeParam::SetValueCachingEnabled(bool enabled)
-{
-  value_caching_ = enabled;
 }
 
 template<typename T>

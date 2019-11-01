@@ -38,8 +38,7 @@ public:
 
   virtual void Retranslate() override;
 
-protected:
-  virtual QVariant Value(NodeOutput *output, const rational &in, const rational &out) override;
+  virtual QVariant Value(NodeOutput *output) override;
 
 private:
   NodeInput* position_input_;

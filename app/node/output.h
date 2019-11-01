@@ -21,6 +21,7 @@
 #ifndef NODEOUTPUT_H
 #define NODEOUTPUT_H
 
+#include "common/timerange.h"
 #include "param.h"
 
 /**
@@ -39,30 +40,15 @@ public:
    */
   virtual Type type() override;
 
-  /**
-   * @brief Get the value of this output at a given tie
-   *
-   * This function is intended to primarily be called by any connected NodeInputs.
-   *
-   * The first thing this function does is request the parent Node object to Process() at this time. The Node should
-   * then perform whatever actions necessary (usually taking data from inputs and creating output data) to set the
-   * correct value that this output should have at this time (the Node should use set_value() for this). This function
-   * will then return the value that was set after Process() returned.
-   *
-   * In many cases for efficiency, the Node can also ignore this request if it knows the output data will not change
-   * (i.e. if the time has not changed from the last Process()).
-   */
-  virtual QVariant get_value(const rational &in, const rational &out);
+  QVariant get_realtime_value();
 
-  void push_value(const QVariant& v, const rational& in, const rational &out);
-
-  NodeInput* linked_input();
-  void set_linked_input(NodeInput* link);
+  bool has_cached_value(const TimeRange& time);
+  QVariant get_cached_value(const TimeRange& time);
+  void cache_value(const TimeRange& time, const QVariant& value);
+  void drop_cached_values();
 
 private:
-  QMutex mutex_;
-
-  NodeInput* linked_input_;
+  QMap<TimeRange, QVariant> cached_values_;
 
 };
 
