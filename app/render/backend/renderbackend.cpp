@@ -19,14 +19,12 @@ const QString &RenderBackend::GetError() const
 void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 {
   if (viewer_node_ != nullptr) {
-    disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(Compile()));
     disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
   }
 
   viewer_node_ = viewer_node;
 
   if (viewer_node_ != nullptr) {
-    connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(Compile()));
     connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
   }
 

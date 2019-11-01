@@ -26,6 +26,9 @@
 
 #include "render/pixelformat.h"
 
+/**
+ * @brief A class wrapper around an OpenGL texture
+ */
 class OpenGLTexture : public QObject
 {
   Q_OBJECT

@@ -18,8 +18,8 @@
 
 ***/
 
-#ifndef GLFUNC_H
-#define GLFUNC_H
+#ifndef OPENGLFUNCTIONS_H
+#define OPENGLFUNCTIONS_H
 
 #include <QMatrix4x4>
 
@@ -50,4 +50,4 @@ void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatri
 }
 }
 
-#endif // GLFUNC_H
+#endif // OPENGLFUNCTIONS_H

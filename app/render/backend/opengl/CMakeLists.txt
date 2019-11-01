@@ -26,5 +26,7 @@ set(OLIVE_SOURCES
   render/backend/opengl/openglshader.cpp
   render/backend/opengl/opengltexture.h
   render/backend/opengl/opengltexture.cpp
+  render/backend/opengl/openglworker.h
+  render/backend/opengl/openglworker.cpp
   PARENT_SCOPE
 )

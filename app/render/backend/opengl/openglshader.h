@@ -10,6 +10,9 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 class OpenGLShader;
 using OpenGLShaderPtr = std::shared_ptr<OpenGLShader>;
 
+/**
+ * @brief A simple QOpenGLShaderProgram derivative with static functions for creating
+ */
 class OpenGLShader : public QOpenGLShaderProgram {
 public:
   OpenGLShader();

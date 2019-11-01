@@ -100,6 +100,7 @@ protected:
    * Simple OpenGL drawing function for painting the texture on screen. Standardized around OpenGL ES 3.2 Core.
    */
   virtual void paintGL() override;
+
 private:
   /**
    * @brief Creates the render pipeline shader

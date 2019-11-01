@@ -1,12 +1,12 @@
 #include "openglbackend.h"
 
+#include <QEventLoop>
 #include <QThread>
 
 #include "functions.h"
 
-OpenGLBackend::OpenGLBackend(QOpenGLContext *share_ctx, QObject *parent) :
+OpenGLBackend::OpenGLBackend(QObject *parent) :
   VideoRenderBackend(parent),
-  share_ctx_(share_ctx),
   push_time_(-1)
 {
 }
@@ -18,38 +18,41 @@ OpenGLBackend::~OpenGLBackend()
 
 bool OpenGLBackend::Init()
 {
-  if (!OpenGLBackend::Init()) {
+  if (!VideoRenderBackend::Init()) {
     return false;
   }
 
-  // Some OpenGL implementations (notably wgl) require the context not to be current before sharing. We block the main
-  // thread here to prevent QOpenGLWidget trying to reclaim the context before we're done
-  QSurface* old_surface = share_ctx_->surface();
-  share_ctx_->doneCurrent();
+  QOpenGLContext* share_ctx = QOpenGLContext::currentContext();
+
+  if (share_ctx == nullptr) {
+    qCritical() << "No active OpenGL context to connect to";
+    return false;
+  }
 
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     QThread* thread = threads().at(i);
 
     // Create one processor object for each thread
-    OpenGLProcessor* processor = new OpenGLProcessor(share_ctx_, thread);
-
-    // FIXME: Hardcoded values
+    OpenGLWorker* processor = new OpenGLWorker(share_ctx);
     processor->SetParameters(params());
 
     // Finally, we can move it to its own thread
     processor->moveToThread(thread);
-  }
 
-  // We've finished creating shared contexts, we can now restore the context to its previous current state
-  share_ctx_->makeCurrent(old_surface);
+    // Add processor to list
+    processors_.append(processor);
+
+    // This function blocks the main thread intentionally. See the documentation for this function to see why.
+    processor->Init();
+  }
 
   // Create master texture (the one sent to the viewer)
   master_texture_ = std::make_shared<OpenGLTexture>();
-  master_texture_->Create(share_ctx_, params().effective_width(), params().effective_height(), params().format());
+  master_texture_->Create(share_ctx, params().effective_width(), params().effective_height(), params().format());
 
   // Create internal FBO for copying textures
-  copy_buffer_.Create(share_ctx_);
+  copy_buffer_.Create(share_ctx);
   copy_buffer_.Attach(master_texture_);
   copy_pipeline_ = OpenGLShader::CreateDefault();
 
@@ -77,7 +80,7 @@ void OpenGLBackend::Close()
   master_texture_ = nullptr;
   copy_pipeline_ = nullptr;
 
-  OpenGLBackend::Close();
+  VideoRenderBackend::Close();
 }
 
 OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
@@ -127,9 +130,6 @@ bool OpenGLBackend::Compile()
 
 void OpenGLBackend::Decompile()
 {
-  foreach (const CompiledNode& info, compiled_nodes_) {
-    delete info.program;
-  }
   compiled_nodes_.clear();
 }
 
@@ -153,7 +153,7 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
           CompiledNode compiled_info;
           compiled_info.id = output_id;
 
-          if (!(compiled_info.program = new QOpenGLShaderProgram())) {
+          if (!(compiled_info.program = std::make_shared<OpenGLShader>())) {
             SetError("Failed to create OpenGL shader object");
             return false;
           }
@@ -188,7 +188,7 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
   return true;
 }
 
-QOpenGLShaderProgram* OpenGLBackend::GetShaderFromID(const QString &id)
+OpenGLShaderPtr OpenGLBackend::GetShaderFromID(const QString &id)
 {
   foreach (const CompiledNode& info, compiled_nodes_) {
     if (info.id == id) {
@@ -305,76 +305,5 @@ void OpenGLBackend::DownloadThreadComplete(const QByteArray &hash)
       deferred_maps_.removeAt(i);
       i--;
     }
-  }
-}
-
-OpenGLProcessor::OpenGLProcessor(QOpenGLContext *share_ctx, QObject *parent) :
-  QObject(parent),
-  share_ctx_(share_ctx),
-  ctx_(nullptr),
-  functions_(nullptr)
-{
-  surface_.create();
-}
-
-OpenGLProcessor::~OpenGLProcessor()
-{
-  surface_.destroy();
-}
-
-bool OpenGLProcessor::IsStarted()
-{
-  return ctx_ != nullptr;
-}
-
-void OpenGLProcessor::SetParameters(const VideoRenderingParams &video_params)
-{
-  video_params_ = video_params;
-}
-
-void OpenGLProcessor::Init()
-{
-  // Create context object
-  ctx_ = new QOpenGLContext();
-
-  // Set share context
-  ctx_->setShareContext(share_ctx_);
-
-  // Create OpenGL context (automatically destroys any existing if there is one)
-  if (!ctx_->create()) {
-    qWarning() << "Failed to create OpenGL context in thread" << thread();
-    Close();
-    return;
-  }
-
-  // Make context current on that surface
-  if (!ctx_->makeCurrent(&surface_)) {
-    qWarning() << "Failed to makeCurrent() on offscreen surface in thread" << thread();
-    Close();
-    return;
-  }
-
-  // Store OpenGL functions instance
-  functions_ = ctx_->functions();
-
-  // Set up OpenGL parameters as necessary
-  functions_->glEnable(GL_BLEND);
-  UpdateViewportFromParams();
-
-  buffer_.Create(ctx_);
-}
-
-void OpenGLProcessor::Close()
-{
-  buffer_.Destroy();
-
-  functions_ = nullptr;
-  delete ctx_;
-}
-
-void OpenGLProcessor::UpdateViewportFromParams()
-{
-  if (functions_ != nullptr && video_params_.is_valid()) {
-    functions_->glViewport(0, 0, video_params_.effective_width(), video_params_.effective_height());
   }
 }
