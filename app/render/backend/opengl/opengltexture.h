@@ -84,7 +84,7 @@ private:
   olive::PixelFormat format_;
 };
 
-using RenderTexturePtr = std::shared_ptr<OpenGLTexture>;
-Q_DECLARE_METATYPE(RenderTexturePtr)
+using OpenGLTexturePtr = std::shared_ptr<OpenGLTexture>;
+Q_DECLARE_METATYPE(OpenGLTexturePtr)
 
 #endif // OPENGLTEXTURE_H

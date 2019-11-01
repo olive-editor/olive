@@ -14,8 +14,6 @@ public:
 
   virtual bool Init() = 0;
 
-  virtual void GenerateFrame(const rational& time) = 0;
-
   virtual void Close() = 0;
 
   const QString& GetError() const;

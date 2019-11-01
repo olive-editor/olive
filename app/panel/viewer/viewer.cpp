@@ -112,11 +112,6 @@ void ViewerPanel::SetTime(const int64_t &timestamp)
   viewer_->SetTime(timestamp);
 }
 
-void ViewerPanel::SetTexture(RenderTexturePtr tex)
-{
-  viewer_->SetTexture(tex);
-}
-
 void ViewerPanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

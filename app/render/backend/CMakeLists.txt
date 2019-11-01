@@ -25,12 +25,5 @@ set(OLIVE_SOURCES
   render/backend/audiorenderbackend.cpp
   render/backend/videorenderbackend.h
   render/backend/videorenderbackend.cpp
-
-  # FIXME: Remove these
-  render/backend/videorendererthreadbase.h
-  render/backend/videorendererthreadbase.cpp
-  render/backend/renderinstance.h
-  render/backend/renderinstance.cpp
-
   PARENT_SCOPE
 )

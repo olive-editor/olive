@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QtMath>
+#include <QThread>
 
 #include "common/filefunctions.h"
 #include "opengl/functions.h"
@@ -34,10 +35,8 @@
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
-  started_(false),
   caching_(false),
-  push_time_(-1),
-  starting_(false)
+  started_(false)
 {
   // FIXME: Cache name should actually be the name of the sequence
   SetCacheName("Test");
@@ -132,6 +131,16 @@ void VideoRenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
   }
 }
 
+const QVector<QThread *> &VideoRenderBackend::threads()
+{
+  return threads_;
+}
+
+const VideoRenderingParams &VideoRenderBackend::params() const
+{
+  return params_;
+}
+
 void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 {
   // Since we're changing parameters, all the existing threads are invalid and must be removed. They will start again
@@ -151,68 +160,15 @@ bool VideoRenderBackend::Init()
     return true;
   }
 
-  QOpenGLContext* ctx = QOpenGLContext::currentContext();
-
-  int background_thread_count = QThread::idealThreadCount();
-
-  // Some OpenGL implementations (notably wgl) require the context not to be current before sharing
-  QSurface* old_surface = ctx->surface();
-  ctx->doneCurrent();
-
-  threads_.resize(background_thread_count);
+  threads_.resize(QThread::idealThreadCount());
 
   for (int i=0;i<threads_.size();i++) {
-    threads_[i] = std::make_shared<RendererProcessThread>(this, ctx, params_);
-    threads_[i]->StartThread(QThread::LowPriority);
+    QThread* thread = new QThread(this);
+    threads_.replace(i, thread);
 
-    // Ensure this connection is "Queued" so that it always runs in this object's threaded rather than any of the
-    // other threads
-    connect(threads_.at(i).get(),
-            SIGNAL(RequestSibling(NodeDependency)),
-            this,
-            SLOT(ThreadRequestSibling(NodeDependency)),
-            Qt::QueuedConnection);
+    // We use low priority to keep the app responsive at all times (GUI thread should always prioritize over this one)
+    thread->start(QThread::LowPriority);
   }
-
-  // Connect first thread (master thread) to the callback
-  connect(threads_.first().get(),
-          SIGNAL(CachedFrame(RenderTexturePtr, const rational&, const QByteArray&)),
-          this,
-          SLOT(ThreadCallback(RenderTexturePtr, const rational&, const QByteArray&)),
-          Qt::QueuedConnection);
-  connect(threads_.first().get(),
-          SIGNAL(FrameSkipped(const rational&, const QByteArray&)),
-          this,
-          SLOT(ThreadSkippedFrame(const rational&, const QByteArray&)),
-          Qt::QueuedConnection);
-
-  download_threads_.resize(background_thread_count);
-
-  for (int i=0;i<download_threads_.size();i++) {
-    // Create download thread
-    download_threads_[i] = std::make_shared<VideoRendererDownloadThread>(ctx, params_);
-    download_threads_[i]->StartThread(QThread::LowPriority);
-
-    connect(download_threads_[i].get(),
-            SIGNAL(Downloaded(const QByteArray&)),
-            this,
-            SLOT(DownloadThreadComplete(const QByteArray&)),
-            Qt::QueuedConnection);
-  }
-
-  last_download_thread_ = 0;
-
-  // Restore context now that thread creation is complete
-  ctx->makeCurrent(old_surface);
-
-  // Create master texture (the one sent to the viewer)
-  master_texture_ = std::make_shared<OpenGLTexture>();
-  master_texture_->Create(ctx, params_.effective_width(), params_.effective_height(), params_.format());
-
-  // Create internal FBO for copying textures
-  copy_buffer_.Create(ctx);
-  copy_buffer_.Attach(master_texture_);
-  copy_pipeline_ = OpenGLShader::CreateDefault();
 
   cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
 
@@ -229,19 +185,10 @@ void VideoRenderBackend::Close()
 
   started_ = false;
 
-  foreach (RendererDownloadThreadPtr download_thread_, download_threads_) {
-    download_thread_->Cancel();
-  }
-  download_threads_.clear();
-
-  foreach (RendererProcessThreadPtr process_thread, threads_) {
-    process_thread->Cancel();
+  foreach (QThread* thread, threads_) {
+    thread->quit();
   }
   threads_.clear();
-
-  copy_buffer_.Destroy();
-  master_texture_ = nullptr;
-  copy_pipeline_ = nullptr;
 
   cache_frame_load_buffer_.clear();
 }
@@ -278,7 +225,7 @@ void VideoRenderBackend::CacheNext()
 
   qDebug() << "Caching" << cache_frame.toDouble();
 
-  threads_.first()->Queue(NodeDependency(viewer_node()->texture_input()->get_connected_output(), cache_frame, cache_frame), true, false);
+  GenerateFrame(cache_frame);
 
   caching_ = true;
 }
@@ -329,117 +276,9 @@ bool VideoRenderBackend::TryCache(const QByteArray &hash)
   return !is_caching;
 }
 
-void VideoRenderBackend::ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash)
-{
-  // Threads are all done now, time to proceed
-  caching_ = false;
-
-  DeferMap(time, hash);
-
-  if (texture != nullptr) {
-    // We received a texture, time to start downloading it
-    QString fn = CachePathName(hash);
-
-    download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
-                                                                             fn,
-                                                                             hash);
-
-    last_download_thread_++;
-  } else {
-    // There was no texture here, we must update the viewer
-    DownloadThreadComplete(hash);
-  }
-
-  // If the connected output is using this time, signal it to update
-  if (last_time_requested_ == time) {
-
-    copy_buffer_.Bind();
-
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-
-    if (texture == nullptr) {
-
-      // No texture, clear the master and push it
-      f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-      f->glClear(GL_COLOR_BUFFER_BIT);
-
-    } else {
-      texture->Bind();
-
-      f->glViewport(0, 0, master_texture_->width(), master_texture_->height());
-
-      olive::gl::Blit(copy_pipeline_);
-
-      texture->Release();
-    }
-
-    copy_buffer_.Release();
-
-    push_time_ = time;
-
-    emit CachedFrameReady(time);
-  }
-
-  CacheNext();
-}
-
-void VideoRenderBackend::ThreadRequestSibling(NodeDependency dep)
-{
-  // Try to queue another thread to run this dep in advance
-  for (int i=1;i<threads_.size();i++) {
-    if (threads_.at(i)->Queue(dep, false, true)) {
-      return;
-    }
-  }
-}
-
-void VideoRenderBackend::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
-{
-  caching_ = false;
-
-  DeferMap(time, hash);
-
-  if (!IsCaching(hash)) {
-    DownloadThreadComplete(hash);
-
-    // Signal output to update value
-    emit CachedFrameReady(time);
-  }
-
-  CacheNext();
-}
-
-void VideoRenderBackend::DownloadThreadComplete(const QByteArray &hash)
-{
-  cache_hash_list_mutex_.lock();
-  cache_hash_list_.removeAll(hash);
-  cache_hash_list_mutex_.unlock();
-
-  for (int i=0;i<deferred_maps_.size();i++) {
-    const HashTimeMapping& deferred = deferred_maps_.at(i);
-
-    if (deferred_maps_.at(i).hash == hash) {
-      // Insert into hash map
-      time_hash_map_.insert(deferred.time, deferred.hash);
-
-      deferred_maps_.removeAt(i);
-      i--;
-    }
-  }
-}
-
-RenderTexturePtr VideoRenderBackend::GetCachedFrame(const rational &time)
+const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 {
   last_time_requested_ = time;
-
-  if (push_time_ >= 0) {
-    rational temp_push_time = push_time_;
-    push_time_ = -1;
-
-    if (time == temp_push_time) {
-      return master_texture_;
-    }
-  }
 
   if (viewer_node() == nullptr) {
     // Nothing is connected - nothing to show or render
@@ -468,9 +307,7 @@ RenderTexturePtr VideoRenderBackend::GetCachedFrame(const rational &time)
 
         in->close();
 
-        master_texture_->Upload(cache_frame_load_buffer_.data());
-
-        return master_texture_;
+        return cache_frame_load_buffer_.constData();
       } else {
         qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
       }
@@ -478,4 +315,9 @@ RenderTexturePtr VideoRenderBackend::GetCachedFrame(const rational &time)
   }
 
   return nullptr;
+}
+
+bool VideoRenderBackend::IsStarted()
+{
+  return started_;
 }

@@ -63,15 +63,6 @@ public:
   rational GetTime();
 
 public slots:
-  /**
-   * @brief Set the texture to draw and draw it
-   *
-   * Wrapper function for Viewer::SetTexture().
-   *
-   * @param tex
-   */
-  void SetTexture(RenderTexturePtr tex);
-
   void SetTime(const int64_t& timestamp);
 
 protected:

@@ -5,8 +5,10 @@
 #include <QOffscreenSurface>
 #include <QOpenGLShaderProgram>
 
-#include "../renderbackend.h"
+#include "../videorenderbackend.h"
 #include "openglframebuffer.h"
+#include "opengltexture.h"
+#include "openglshader.h"
 
 class OpenGLProcessor : public QObject {
 public:
@@ -45,23 +47,26 @@ private:
   VideoRenderingParams video_params_;
 };
 
-class OpenGLBackend : public RenderBackend
+class OpenGLBackend : public VideoRenderBackend
 {
 public:
-  OpenGLBackend(QOpenGLContext* share_ctx);
+  OpenGLBackend(QOpenGLContext* share_ctx, QObject* parent = nullptr);
 
   virtual ~OpenGLBackend() override;
 
   virtual bool Init() override;
 
-  virtual void GenerateFrame(const rational& time) override;
-
   virtual void Close() override;
+
+  OpenGLTexturePtr GetCachedFrameAsTexture(const rational& time);
 
 public slots:
   virtual bool Compile() override;
 
   virtual void Decompile() override;
+
+protected:
+  virtual void GenerateFrame(const rational& time) override;
 
 private:
   QOpenGLContext* share_ctx_;
@@ -79,8 +84,22 @@ private:
 
   QList<CompiledNode> compiled_nodes_;
 
-  QVector<QThread*> threads_;
   QVector<OpenGLProcessor*> processors_;
+
+  OpenGLTexturePtr master_texture_;
+  rational push_time_;
+
+  OpenGLFramebuffer copy_buffer_;
+  OpenGLShaderPtr copy_pipeline_;
+
+private slots:
+  void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);
+
+  void ThreadRequestSibling(NodeDependency dep);
+
+  void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
+
+  void DownloadThreadComplete(const QByteArray &hash);
 };
 
 #endif // OPENGLBACKEND_H

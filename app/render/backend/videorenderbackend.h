@@ -22,17 +22,11 @@
 #define VIDEORENDERERBACKEND_H
 
 #include <QLinkedList>
-#include <QOpenGLTexture>
 
 #include "node/output/viewer/viewer.h"
 #include "renderbackend.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
-#include "opengl/openglframebuffer.h"
-#include "opengl/openglshader.h"
-#include "opengl/opengltexture.h"
-#include "videorendererdownloadthread.h"
-#include "videorendererprocessthread.h"
 
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
@@ -47,7 +41,7 @@ public:
    * Constructing a Renderer object will not start any threads/backend on its own. Use Start() to do this and Stop()
    * when the Renderer is about to be destroyed.
    */
-  VideoRenderBackend(QObject* parent);
+  VideoRenderBackend(QObject* parent = nullptr);
 
   virtual ~VideoRenderBackend() override;
 
@@ -98,42 +92,22 @@ public:
    */
   bool TryCache(const QByteArray& hash);
 
-  RenderTexturePtr GetCachedFrame(const rational& time);
-
-  virtual void GenerateFrame(const rational&) override {}
+  bool IsStarted();
 
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
-  virtual bool Compile() override {return true;}
-
-  virtual void Decompile() override {}
-
 protected:
-  virtual void ViewerNodeChangedEvent(ViewerOutput* node) override;
-
-signals:
-  void CachedFrameReady(const rational& time);
-
-private:
   struct HashTimeMapping {
     rational time;
     QByteArray hash;
   };
 
-  /**
-   * @brief Internal function for generating the cache ID
-   */
-  void GenerateCacheIDInternal();
+  virtual void ViewerNodeChangedEvent(ViewerOutput* node) override;
 
-  /**
-   * @brief Function called when there are frames in the queue to cache
-   *
-   * This function is NOT thread-safe and should only be called in the main thread.
-   */
-  void CacheNext();
+  virtual void GenerateFrame(const rational&) = 0;
 
-  bool ShouldPushTexture(const rational &time);
+  const char *GetCachedFrame(const rational& time);
 
   /**
    * @brief Return the path of the cached image at this time
@@ -143,9 +117,40 @@ private:
   void DeferMap(const rational &time, const QByteArray &hash);
 
   /**
+   * @brief Function called when there are frames in the queue to cache
+   *
+   * This function is NOT thread-safe and should only be called in the main thread.
+   */
+  void CacheNext();
+
+  const QVector<QThread*>& threads();
+
+  const VideoRenderingParams& params() const;
+
+  QMap<rational, QByteArray> time_hash_map_;
+
+  QList<HashTimeMapping> deferred_maps_;
+
+  QMutex cache_hash_list_mutex_;
+  QVector<QByteArray> cache_hash_list_;
+
+  rational last_time_requested_;
+
+  bool caching_;
+
+signals:
+  void CachedFrameReady(const rational& time);
+
+private:
+  /**
+   * @brief Internal function for generating the cache ID
+   */
+  void GenerateCacheIDInternal();
+
+  /**
    * @brief Internal list of RenderProcessThreads
    */
-  QVector<RendererProcessThreadPtr> threads_;
+  QVector<QThread*> threads_;
 
   /**
    * @brief Internal variable that contains whether the Renderer has started or not
@@ -154,42 +159,18 @@ private:
 
   VideoRenderingParams params_;
 
-  rational last_time_requested_;
-
   QLinkedList<rational> cache_queue_;
   QString cache_name_;
   qint64 cache_time_;
   QString cache_id_;
 
-  bool caching_;
-  QVector<uchar*> cache_frame_load_buffer_;
+  QByteArray cache_frame_load_buffer_;
 
-  QVector<RendererDownloadThreadPtr> download_threads_;
-  int last_download_thread_;
-
-  RenderTexturePtr master_texture_;
-  rational push_time_;
-
-  OpenGLFramebuffer copy_buffer_;
-  OpenGLShaderPtr copy_pipeline_;
-
-  QMap<rational, QByteArray> time_hash_map_;
-
-  QMutex cache_hash_list_mutex_;
-  QVector<QByteArray> cache_hash_list_;
-
-  QList<HashTimeMapping> deferred_maps_;
-
-  bool starting_;
+  /*QVector<RendererDownloadThreadPtr> download_threads_;
+  int last_download_thread_;*/
 
 private slots:
-  void ThreadCallback(RenderTexturePtr texture, const rational& time, const QByteArray& hash);
 
-  void ThreadRequestSibling(NodeDependency dep);
-
-  void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
-
-  void DownloadThreadComplete(const QByteArray &hash);
 
 };
 

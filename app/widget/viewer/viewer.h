@@ -30,7 +30,8 @@
 
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
-#include "render/backend/videorenderbackend.h"
+#include "render/backend/opengl/openglbackend.h"
+#include "render/backend/opengl/opengltexture.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -73,7 +74,7 @@ public slots:
    *
    * @param tex
    */
-  void SetTexture(RenderTexturePtr tex);
+  void SetTexture(OpenGLTexturePtr tex);
 
   void SetTimebase(const rational& r);
 
@@ -110,7 +111,7 @@ private:
 
   void PushScrubbedAudio();
 
-  VideoRenderBackend* video_renderer_;
+  OpenGLBackend* video_renderer_;
 
   ViewerSizer* sizer_;
 
