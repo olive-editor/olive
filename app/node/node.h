@@ -130,6 +130,11 @@ public:
   virtual QString Code(NodeOutput* output);
 
   /**
+   * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)
+   */
+  NodeParam* GetParameterWithID(const QString& id);
+
+  /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
    */
   bool OutputsTo(Node* n);
@@ -199,6 +204,7 @@ public:
    */
   void LockProcessing();
   void UnlockProcessing();
+  bool IsProcessingLocked();
 
   /**
    * @brief Copies inputs from from Node to another including connections

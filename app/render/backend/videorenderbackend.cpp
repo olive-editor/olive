@@ -187,6 +187,7 @@ void VideoRenderBackend::Close()
 
   foreach (QThread* thread, threads_) {
     thread->quit();
+    thread->wait(); // FIXME: Maximum time in case a thread is stuck?
   }
   threads_.clear();
 

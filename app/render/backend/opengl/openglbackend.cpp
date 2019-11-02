@@ -34,7 +34,7 @@ bool OpenGLBackend::Init()
     QThread* thread = threads().at(i);
 
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(share_ctx);
+    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, &decoder_cache_);
     processor->SetParameters(params());
 
     // Finally, we can move it to its own thread
@@ -130,12 +130,12 @@ bool OpenGLBackend::Compile()
 
 void OpenGLBackend::Decompile()
 {
-  compiled_nodes_.clear();
+  shader_cache_.Clear();
 }
 
-bool OpenGLBackend::TraverseCompiling(Node *n)
+bool OpenGLBackend::TraverseCompiling(Node *)
 {
-  foreach (NodeParam* param, n->parameters()) {
+  /*foreach (NodeParam* param, n->parameters()) {
     if (param->type() == NodeParam::kInput && param->IsConnected()) {
       NodeOutput* connected_output = static_cast<NodeInput*>(param)->get_connected_output();
 
@@ -183,26 +183,9 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
         return false;
       }
     }
-  }
+  }*/
 
   return true;
-}
-
-OpenGLShaderPtr OpenGLBackend::GetShaderFromID(const QString &id)
-{
-  foreach (const CompiledNode& info, compiled_nodes_) {
-    if (info.id == id) {
-      return info.program;
-    }
-  }
-
-  return nullptr;
-}
-
-QString OpenGLBackend::GenerateShaderID(NodeOutput *output)
-{
-  // Creates a unique identifier for this specific node and this specific output
-  return QString("%1:%2").arg(output->parent()->id(), output->id());
 }
 
 void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash)

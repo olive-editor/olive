@@ -47,32 +47,12 @@ void TimeRange::set_range(const rational &in, const rational &out)
 
 bool TimeRange::operator<(const TimeRange &r) const
 {
-  return length() < r.length();
-}
-
-bool TimeRange::operator<=(const TimeRange &r) const
-{
-  return length() <= r.length();
+  return (in() + out()) < (r.in() + r.out());
 }
 
 bool TimeRange::operator>(const TimeRange &r) const
 {
-  return length() > r.length();
-}
-
-bool TimeRange::operator>=(const TimeRange &r) const
-{
-  return length() >= r.length();
-}
-
-bool TimeRange::operator==(const TimeRange &r) const
-{
-  return length() == r.length();
-}
-
-bool TimeRange::operator!=(const TimeRange &r) const
-{
-  return length() != r.length();
+  return (in() + out()) > (r.in() + r.out());
 }
 
 void TimeRange::normalize()

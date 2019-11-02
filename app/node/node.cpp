@@ -135,6 +135,16 @@ void Node::UnlockProcessing()
   processing_lock_.unlock();
 }
 
+bool Node::IsProcessingLocked()
+{
+  if (processing_lock_.tryLock()) {
+    processing_lock_.unlock();
+    return false;
+  } else {
+    return true;
+  }
+}
+
 void Node::CopyInputs(Node *source, Node *destination)
 {
   Q_ASSERT(source->id() == destination->id());
@@ -288,6 +298,17 @@ QString Node::Code(NodeOutput *output)
   Q_UNUSED(output)
 
   return QString();
+}
+
+NodeParam *Node::GetParameterWithID(const QString &id)
+{
+  foreach (NodeParam* param, params_) {
+    if (param->id() == id) {
+      return param;
+    }
+  }
+
+  return nullptr;
 }
 
 bool Node::OutputsTo(Node *n)

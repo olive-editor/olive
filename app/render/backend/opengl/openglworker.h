@@ -5,14 +5,16 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
+#include "decodercache.h"
 #include "node/dependency.h"
 #include "openglframebuffer.h"
+#include "openglshadercache.h"
 #include "render/videoparams.h"
 
 class OpenGLWorker : public QObject {
   Q_OBJECT
 public:
-  OpenGLWorker(QOpenGLContext* share_ctx, QObject* parent = nullptr);
+  OpenGLWorker(QOpenGLContext* share_ctx, OpenGLShaderCache* shader_cache, DecoderCache* decoder_cache, QObject* parent = nullptr);
 
   virtual ~OpenGLWorker() override;
 
@@ -51,11 +53,18 @@ public slots:
   void Render(const NodeDependency& path);
 
 signals:
+  void RequestSibling(const NodeDependency& path);
 
 private:
   void ProcessNode();
 
   void UpdateViewportFromParams();
+
+  Node* ValidateBlock(Node* n, const rational& time);
+
+  QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
+
+  void RunNodeAsShader(Node *node, OpenGLShaderPtr shader);
 
   QOpenGLContext* share_ctx_;
 
@@ -67,6 +76,10 @@ private:
   OpenGLFramebuffer buffer_;
 
   VideoRenderingParams video_params_;
+
+  OpenGLShaderCache* shader_cache_;
+
+  DecoderCache* decoder_cache_;
 
 private slots:
   void FinishInit();

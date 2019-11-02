@@ -75,6 +75,16 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
   }
 }
 
+void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame, const Type &type)
+{
+  Create(ctx, frame->width(), frame->height(), frame->format(), type, frame->data());
+}
+
+void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
+{
+  Create(ctx, frame, kSingleBuffer);
+}
+
 void OpenGLTexture::Destroy()
 {
   if (context_ != nullptr) {

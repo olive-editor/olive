@@ -2,10 +2,12 @@
 #define OPENGLBACKEND_H
 
 #include "../videorenderbackend.h"
+#include "decodercache.h"
 #include "openglframebuffer.h"
 #include "openglworker.h"
 #include "opengltexture.h"
 #include "openglshader.h"
+#include "openglshadercache.h"
 
 class OpenGLBackend : public VideoRenderBackend
 {
@@ -30,18 +32,7 @@ protected:
   virtual void GenerateFrame(const rational& time) override;
 
 private:
-  struct CompiledNode {
-    QString id;
-    OpenGLShaderPtr program;
-  };
-
   bool TraverseCompiling(Node* n);
-
-  OpenGLShaderPtr GetShaderFromID(const QString& id);
-
-  QString GenerateShaderID(NodeOutput* output);
-
-  QList<CompiledNode> compiled_nodes_;
 
   QVector<OpenGLWorker*> processors_;
 
@@ -50,6 +41,9 @@ private:
 
   OpenGLFramebuffer copy_buffer_;
   OpenGLShaderPtr copy_pipeline_;
+
+  OpenGLShaderCache shader_cache_;
+  DecoderCache decoder_cache_;
 
 private slots:
   void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);

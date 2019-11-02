@@ -17,11 +17,7 @@ public:
   void set_range(const rational& in, const rational& out);
 
   bool operator<(const TimeRange &r) const;
-  bool operator<=(const TimeRange &r) const;
   bool operator>(const TimeRange &r) const;
-  bool operator>=(const TimeRange &r) const;
-  bool operator==(const TimeRange &r) const;
-  bool operator!=(const TimeRange &r) const;
 
 private:
   void normalize();
