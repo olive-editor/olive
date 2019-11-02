@@ -290,30 +290,6 @@ QString Node::Code(NodeOutput *output)
   return QString();
 }
 
-QList<NodeDependency> Node::RunDependencies(NodeOutput *output, const rational &time)
-{
-  Q_UNUSED(output)
-
-  QList<NodeDependency> run_deps;
-
-  foreach (NodeParam* p, params_) {
-    if (p->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(p);
-
-      // Check if Node is dependent on this input or not
-      if (input->dependent()) {
-        NodeOutput* potential_dep = input->get_connected_output();
-
-        if (potential_dep != nullptr) {
-          run_deps.append(NodeDependency(potential_dep, time, time));
-        }
-      }
-    }
-  }
-
-  return run_deps;
-}
-
 bool Node::OutputsTo(Node *n)
 {
   foreach (NodeParam* param, params_) {

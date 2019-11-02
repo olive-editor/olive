@@ -71,7 +71,7 @@ private:
 private slots:
   void FinishInit();
 
-  void RenderAsSibling(const NodeDependency& path);
+  void RenderAsSibling(const NodeDependency& dep);
 };
 
 #endif // OPENGLPROCESSOR_H

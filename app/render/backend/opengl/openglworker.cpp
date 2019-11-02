@@ -62,24 +62,25 @@ void OpenGLWorker::Render(const NodeDependency &path)
   NodeOutput* output = path.node();
   Node* node = output->parent();
 
-  QList<Node*> all_deps = node->GetDependencies();
+  QList<Node*> all_nodes_in_graph;
+  all_nodes_in_graph.append(node);
+  all_nodes_in_graph.append(node->GetDependencies());
 
   // Lock all Nodes to prevent UI changes during this render
-  foreach (Node* dep, all_deps) {
+  foreach (Node* dep, all_nodes_in_graph) {
     dep->LockUserInput();
   }
-  node->LockUserInput();
 
-  // FIXME: Write traversal code
+  // Start traversing graph
+  RenderAsSibling(path);
 
   // Start OpenGL flushing now while we do clean up work on the CPU
   functions_->glFlush();
 
   // Unlock all Nodes so changes can be made again
-  foreach (Node* dep, all_deps) {
+  foreach (Node* dep, all_nodes_in_graph) {
     dep->UnlockUserInput();
   }
-  node->UnlockUserInput();
 
   // Now we need the texture done so we call glFinish()
   functions_->glFinish();
@@ -112,6 +113,24 @@ void OpenGLWorker::FinishInit()
   qDebug() << "Context in" << ctx_->thread() << "successfully finished";
 }
 
-void OpenGLWorker::RenderAsSibling(const NodeDependency &)
+void OpenGLWorker::RenderAsSibling(const NodeDependency &dep)
 {
+  NodeOutput* output = dep.node();
+  Node* node = output->parent();
+
+  node->LockProcessing();
+
+  // Check if block
+  //   If yes, traverse previous and next until we find the right block
+  // Check all inputs for ones that are dependents
+  //   If input is NOT connected, set stored value to keyframe at time
+  //     Some inputs we handle ourselves such as FOOTAGE
+  //   If input IS connected, we need to traverse down it
+  //   If more than one input is connected, signal out for a sibling to handle it
+  //   Keep iterating inputs until all are up to date
+  // Finally get value from output
+  //   If we have shader code, the output is a texture and we handle the I/O
+  //   If we don't, the output is some other value and the Node will produce the output
+
+  node->UnlockProcessing();
 }

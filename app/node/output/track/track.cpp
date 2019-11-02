@@ -122,21 +122,6 @@ void TrackOutput::SetIndex(const int &index)
   index_ = index;
 }
 
-QList<NodeDependency> TrackOutput::RunDependencies(NodeOutput* output, const rational &time)
-{
-  QList<NodeDependency> deps;
-
-  if (output == buffer_output()) {
-    ValidateCurrentBlock(time);
-
-    if (current_block_ != this) {
-      deps.append(NodeDependency(current_block_->buffer_output(), time, time));
-    }
-  }
-
-  return deps;
-}
-
 TrackOutput *TrackOutput::next_track()
 {
   return ValueToPtr<TrackOutput>(track_input_->get_realtime_value_of_connected_output());

@@ -130,13 +130,6 @@ public:
   virtual QString Code(NodeOutput* output);
 
   /**
-   * @brief For nodes that have different dependencies at different times, this function can be used for that purpose
-   *
-   * Only retrieves immmediate dependencies, meaning only nodes that are directly
-   */
-  virtual QList<NodeDependency> RunDependencies(NodeOutput* output, const rational& time);
-
-  /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
    */
   bool OutputsTo(Node* n);

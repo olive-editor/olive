@@ -79,17 +79,6 @@ void ClipBlock::InvalidateCache(const rational &start_range, const rational &end
   }
 }
 
-QList<NodeDependency> ClipBlock::RunDependencies(NodeOutput *output, const rational &time)
-{
-  QList<NodeDependency> deps;
-
-  if (output == buffer_output() && texture_input_->IsConnected()) {
-    deps.append(NodeDependency(texture_input_->get_connected_output(), SequenceToMediaTime(time), SequenceToMediaTime(time)));
-  }
-
-  return deps;
-}
-
 TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time)
 {
   if (input == texture_input_) {

@@ -50,11 +50,6 @@ public:
   const int& Index();
   void SetIndex(const int& index);
 
-  /**
-   * @brief Override swaps "attached block" with "current block"
-   */
-  virtual QList<NodeDependency> RunDependencies(NodeOutput* param, const rational& time) override;
-
   TrackOutput* next_track();
 
   NodeInput* track_input();
