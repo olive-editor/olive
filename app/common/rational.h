@@ -14,8 +14,6 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-using namespace std;
-
 typedef int64_t intType;
 /*
  * Zero Handling
@@ -27,6 +25,7 @@ class rational
 {
 public:
   //constructors
+<<<<<<< HEAD
   rational(const intType &numerator = 0)
     :numer(numerator), denom(1)
   {
@@ -53,14 +52,20 @@ public:
 
   rational(const rational &rhs) = default;
 
+=======
+  rational() = default;
+  rational(const intType &numerator);
+  rational(const intType &numerator, const intType &denominator);
+  rational(const rational &rhs) = default;
+>>>>>>> common/rational general refactoring
   rational(const AVRational& r);
 
   //Assignment Operators
-  const rational& operator=(const rational &rhs);
-  const rational& operator+=(const rational &rhs);
-  const rational& operator-=(const rational &rhs);
-  const rational& operator/=(const rational &rhs);
-  const rational& operator*=(const rational &rhs);
+  rational& operator=(const rational &rhs);
+  rational& operator+=(const rational &rhs);
+  rational& operator-=(const rational &rhs);
+  rational& operator/=(const rational &rhs);
+  rational& operator*=(const rational &rhs);
 
   //Binary math operators
   rational operator+(const rational &rhs) const;
@@ -97,26 +102,26 @@ public:
   bool isNull() const;
 
   //Function: print number to cout
-  void print(ostream &out = cout) const;
+  void print(std::ostream &out = std::cout) const;
 
   //IO
-  friend ostream& operator<<(ostream &out, const rational &value);
-  friend istream& operator>>(istream &in, rational &value);
+  friend std::ostream& operator<<(std::ostream &out, const rational &value);
+  friend std::istream& operator>>(std::istream &in, rational &value);
 
   const intType& numerator() const;
   const intType& denominator() const;
 
 private:
   //numerator and denominator
-  intType numer;
-  intType denom;
+  intType numer = 0;
+  intType denom = 0;
 
   //Function: ensures denom >= 0
   void fixSigns();
   //Function: ensures lowest form
   void reduce();
   //Function: finds greatest common denominator
-  intType gcd(intType &x, intType &y);
+  static intType gcd(const intType &x, const intType &y);
 };
 
 QDebug operator<<(QDebug debug, const rational& r);
