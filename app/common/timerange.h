@@ -5,7 +5,7 @@
 
 class TimeRange {
 public:
-  TimeRange();
+  TimeRange() = default;
   TimeRange(const rational& in, const rational& out);
 
   const rational& in() const;

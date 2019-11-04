@@ -1,9 +1,5 @@
 #include "threadedobject.h"
 
-ThreadedObject::ThreadedObject()
-{
-}
-
 void ThreadedObject::LockDeletes()
 {
   threadobj_delete_lock_++;
