@@ -34,11 +34,7 @@ NodeParam::Type NodeOutput::type()
 
 QVariant NodeOutput::get_realtime_value()
 {
-  parent()->LockProcessing();
-
   QVariant v = parent()->Value(this);
-
-  parent()->UnlockProcessing();
 
   return v;
 }

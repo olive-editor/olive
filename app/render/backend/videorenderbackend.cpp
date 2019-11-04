@@ -23,11 +23,9 @@
 #include <OpenImageIO/imageio.h>
 #include <QApplication>
 #include <QCryptographicHash>
-#include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QtMath>
-#include <QThread>
 
 #include "common/filefunctions.h"
 #include "opengl/functions.h"
@@ -35,8 +33,7 @@
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
-  caching_(false),
-  started_(false)
+  caching_(false)
 {
   // FIXME: Cache name should actually be the name of the sequence
   SetCacheName("Test");
@@ -45,14 +42,6 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
 VideoRenderBackend::~VideoRenderBackend()
 {
   Close();
-}
-
-void VideoRenderBackend::SetCacheName(const QString &s)
-{
-  cache_name_ = s;
-  cache_time_ = QDateTime::currentMSecsSinceEpoch();
-
-  GenerateCacheIDInternal();
 }
 
 void VideoRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
@@ -123,17 +112,23 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
   CacheNext();
 }
 
+bool VideoRenderBackend::InitInternal()
+{
+  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
+  return true;
+}
+
+void VideoRenderBackend::CloseInternal()
+{
+  cache_frame_load_buffer_.clear();
+}
+
 void VideoRenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
 {
   if (node != nullptr) {
     // FIXME: Hardcoded format, mode, and divider
     SetParameters(VideoRenderingParams(node->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
   }
-}
-
-const QVector<QThread *> &VideoRenderBackend::threads()
-{
-  return threads_;
 }
 
 const VideoRenderingParams &VideoRenderBackend::params() const
@@ -151,76 +146,29 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
   params_ = params;
 
   // Regenerate the cache ID
-  GenerateCacheIDInternal();
+  RegenerateCacheID();
 }
 
-bool VideoRenderBackend::Init()
-{
-  if (started_) {
-    return true;
-  }
-
-  threads_.resize(QThread::idealThreadCount());
-
-  for (int i=0;i<threads_.size();i++) {
-    QThread* thread = new QThread(this);
-    threads_.replace(i, thread);
-
-    // We use low priority to keep the app responsive at all times (GUI thread should always prioritize over this one)
-    thread->start(QThread::LowPriority);
-  }
-
-  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
-
-  started_ = true;
-
-  return true;
-}
-
-void VideoRenderBackend::Close()
-{
-  if (!started_) {
-    return;
-  }
-
-  started_ = false;
-
-  foreach (QThread* thread, threads_) {
-    thread->quit();
-    thread->wait(); // FIXME: Maximum time in case a thread is stuck?
-  }
-  threads_.clear();
-
-  cache_frame_load_buffer_.clear();
-}
-
-void VideoRenderBackend::GenerateCacheIDInternal()
+bool VideoRenderBackend::GenerateCacheIDInternal(QCryptographicHash& hash)
 {
   if (cache_name_.isEmpty() || !params_.is_valid()) {
-    return;
+    return false;
   }
 
   // Generate an ID that is more or less guaranteed to be unique to this Sequence
-  QCryptographicHash hash(QCryptographicHash::Sha1);
-  hash.addData(cache_name_.toUtf8());
-  hash.addData(QString::number(cache_time_).toUtf8());
   hash.addData(QString::number(params_.width()).toUtf8());
   hash.addData(QString::number(params_.height()).toUtf8());
   hash.addData(QString::number(params_.format()).toUtf8());
   hash.addData(QString::number(params_.divider()).toUtf8());
 
-  QByteArray bytes = hash.result();
-  cache_id_ = bytes.toHex();
+  return true;
 }
 
 void VideoRenderBackend::CacheNext()
 {
-  if (cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
+  if (!Init() || cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
     return;
   }
-
-  // Make sure cache has started
-  Init();
 
   rational cache_frame = cache_queue_.takeFirst();
 
@@ -316,9 +264,4 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
   }
 
   return nullptr;
-}
-
-bool VideoRenderBackend::IsStarted()
-{
-  return started_;
 }

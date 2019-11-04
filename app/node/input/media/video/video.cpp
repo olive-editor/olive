@@ -64,7 +64,7 @@ QString VideoInput::Code(NodeOutput *output)
            "uniform mat4 matrix_in;\n"
            "\n"
            "void main(void) {\n"
-           "  gl_FragColor = texture2D(olive_tex, vec2(vec4(olive_tex_coord, 0.0, 1.0) * matrix_in));\n"
+           "  gl_FragColor = texture2D(footage_in, vec2(vec4(olive_tex_coord, 0.0, 1.0) * matrix_in));\n"
            "}\n";
   }
 

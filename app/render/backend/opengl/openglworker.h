@@ -5,7 +5,7 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
-#include "decodercache.h"
+#include "../decodercache.h"
 #include "node/dependency.h"
 #include "openglframebuffer.h"
 #include "openglshadercache.h"
@@ -47,13 +47,21 @@ public:
    */
   void Init();
 
+  bool IsAvailable();
+
 public slots:
   void Close();
 
-  void Render(const NodeDependency& path);
+  void Render(NodeDependency path);
+
+  void RenderAsSibling(NodeDependency dep);
+
+  //void Download();
 
 signals:
-  void RequestSibling(const NodeDependency& path);
+  void RequestSibling(NodeDependency path);
+
+  void CompletedFrame(NodeDependency path);
 
 private:
   void ProcessNode();
@@ -64,7 +72,7 @@ private:
 
   QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
 
-  void RunNodeAsShader(Node *node, OpenGLShaderPtr shader);
+  OpenGLTexturePtr RunNodeAsShader(Node *node, OpenGLShaderPtr shader);
 
   QOpenGLContext* share_ctx_;
 
@@ -81,10 +89,11 @@ private:
 
   DecoderCache* decoder_cache_;
 
+  QAtomicInt working_;
+
 private slots:
   void FinishInit();
 
-  void RenderAsSibling(const NodeDependency& dep);
 };
 
 #endif // OPENGLPROCESSOR_H

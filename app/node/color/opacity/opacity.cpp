@@ -73,7 +73,7 @@ QString OpacityNode::Code(NodeOutput *output)
            "uniform float opacity_in;\n"
            "\n"
            "void main(void) {\n"
-           "  gl_FragColor = tex_in * (opacity_in * 0.01);\n"
+           "  gl_FragColor = texture2D(tex_in, olive_tex_coord) * (opacity_in * 0.01);\n"
            "}\n";
   }
 

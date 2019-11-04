@@ -7,18 +7,19 @@
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
   VideoRenderBackend(parent),
-  push_time_(-1)
+  push_time_(-1),
+  compiled_(false)
 {
 }
 
 OpenGLBackend::~OpenGLBackend()
 {
-  Close();
+  CloseInternal();
 }
 
-bool OpenGLBackend::Init()
+bool OpenGLBackend::InitInternal()
 {
-  if (!VideoRenderBackend::Init()) {
+  if (!VideoRenderBackend::InitInternal()) {
     return false;
   }
 
@@ -36,6 +37,10 @@ bool OpenGLBackend::Init()
     // Create one processor object for each thread
     OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, &decoder_cache_);
     processor->SetParameters(params());
+
+    // Connect to it
+    connect(processor, SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestedSibling(NodeDependency)));
+    connect(processor, SIGNAL(CompletedFrame(NodeDependency)), this, SLOT(CompletedFrame(NodeDependency)));
 
     // Finally, we can move it to its own thread
     processor->moveToThread(thread);
@@ -61,19 +66,20 @@ bool OpenGLBackend::Init()
 
 void OpenGLBackend::GenerateFrame(const rational &time)
 {
-  Q_UNUSED(time)
-
-  /*threads().first()->Queue(NodeDependency(viewer_node()->texture_input()->get_connected_output(), time, time),
-                           true,
-                           false);*/
-}
-
-void OpenGLBackend::Close()
-{
-  if (!IsStarted()) {
-    return;
+  if (!compiled_) {
+    Compile();
   }
 
+  NodeDependency dep = NodeDependency(viewer_node()->texture_input()->get_connected_output(), time, time);
+
+  QMetaObject::invokeMethod(processors_.first(),
+                            "Render",
+                            Qt::QueuedConnection,
+                            Q_ARG(NodeDependency, dep));
+}
+
+void OpenGLBackend::CloseInternal()
+{
   Decompile();
 
   copy_buffer_.Destroy();
@@ -107,10 +113,8 @@ OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
   return nullptr;
 }
 
-bool OpenGLBackend::Compile()
+bool OpenGLBackend::CompileInternal()
 {
-  Decompile();
-
   if (viewer_node() == nullptr || !viewer_node()->texture_input()->IsConnected()) {
     // Nothing to be done, nothing to compile
     return true;
@@ -121,61 +125,65 @@ bool OpenGLBackend::Compile()
 
   if (ret) {
     qDebug() << "Compiled successfully!";
+    compiled_ = true;
   } else {
     qDebug() << "Compile failed:" << GetError();
+    Decompile();
   }
 
   return ret;
 }
 
-void OpenGLBackend::Decompile()
+void OpenGLBackend::DecompileInternal()
 {
   shader_cache_.Clear();
+  compiled_ = false;
 }
 
-bool OpenGLBackend::TraverseCompiling(Node *)
+bool OpenGLBackend::TraverseCompiling(Node *n)
 {
-  /*foreach (NodeParam* param, n->parameters()) {
+  foreach (NodeParam* param, n->parameters()) {
     if (param->type() == NodeParam::kInput && param->IsConnected()) {
       NodeOutput* connected_output = static_cast<NodeInput*>(param)->get_connected_output();
 
-      // Generate the ID we'd use for this shader
-      QString output_id = GenerateShaderID(connected_output);
-
       // Check if we have a shader or not
-      if (GetShaderFromID(output_id) == nullptr) {
+      if (shader_cache_.GetShader(connected_output) == nullptr)  {
         // Since we don't have a shader, compile one now
         QString node_code = connected_output->parent()->Code(connected_output);
 
         // If the node has no code, it mustn't be GPU accelerated
         if (!node_code.isEmpty()) {
           // Since we have shader code, compile it now
-          CompiledNode compiled_info;
-          compiled_info.id = output_id;
+          OpenGLShaderPtr program;
 
-          if (!(compiled_info.program = std::make_shared<OpenGLShader>())) {
-            SetError("Failed to create OpenGL shader object");
+          if (!(program = std::make_shared<OpenGLShader>())) {
+            SetError(QStringLiteral("Failed to create OpenGL shader object"));
             return false;
           }
 
-          if (!compiled_info.program->create()) {
-            SetError("Failed to create OpenGL shader on device");
+          if (!program->create()) {
+            SetError(QStringLiteral("Failed to create OpenGL shader on device"));
             return false;
           }
 
-          if (!compiled_info.program->addShaderFromSourceCode(QOpenGLShader::Fragment, node_code)) {
-            SetError("Failed to add OpenGL shader code");
+          if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, node_code)) {
+            SetError(QStringLiteral("Failed to add OpenGL fragment shader code"));
             return false;
           }
 
-          if (compiled_info.program->link()) {
-            SetError("Failed to compile OpenGL shader");
+          if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex())) {
+            SetError(QStringLiteral("Failed to add OpenGL vertex shader code"));
             return false;
           }
 
-          compiled_nodes_.append(compiled_info);
+          if (!program->link()) {
+            SetError(QStringLiteral("Failed to compile OpenGL shader: %1").arg(program->log()));
+            return false;
+          }
 
-          qDebug() << "Compiled" << compiled_info.id;
+          shader_cache_.AddShader(connected_output, program);
+
+          qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
         }
       }
 
@@ -183,9 +191,75 @@ bool OpenGLBackend::TraverseCompiling(Node *)
         return false;
       }
     }
-  }*/
+  }
 
   return true;
+}
+
+#include <QOpenGLExtraFunctions>
+#include <OpenImageIO/imageio.h>
+#include "common/define.h"
+#include "render/pixelservice.h"
+void OpenGLBackend::CompletedFrame(NodeDependency path)
+{
+  caching_ = false;
+
+  OpenGLTexturePtr texture = path.node()->get_cached_value(path.range()).value<OpenGLTexturePtr>();
+  qDebug() << "Retrieved texture for time" << path.in();
+
+  qDebug() << "Texture is" << texture.get();
+
+  if (texture == nullptr) {
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    QOpenGLExtraFunctions* xf = QOpenGLContext::currentContext()->extraFunctions();
+
+    PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params().format());
+    QVector<char> data_buffer(PixelService::GetBufferSize(params().format(), params().width(), params().height()));
+    qDebug() << "Created buffer of size" << data_buffer.size();
+
+    // Set up OIIO::ImageSpec for compressing cached images on disk
+    OIIO::ImageSpec spec(params().width(), params().height(), kRGBAChannels, format_info.oiio_desc);
+    spec.attribute("compression", "dwaa:200");
+
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, copy_buffer_.buffer());
+
+    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
+                               GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D,
+                               texture->texture(),
+                               0);
+
+    f->glReadPixels(0,
+                    0,
+                    texture->width(),
+                    texture->height(),
+                    format_info.pixel_format,
+                    format_info.gl_pixel_type,
+                    data_buffer.data());
+
+    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
+                               GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D,
+                               0,
+                               0);
+
+    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+    QString cache_fn = CachePathName(QStringLiteral("%1-%2").arg(QString::number(path.in().numerator()), QString::number(path.in().denominator())).toLatin1());
+    std::string working_fn_std = cache_fn.toStdString();
+
+    std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
+
+    if (out) {
+      out->open(working_fn_std, spec);
+      out->write_image(format_info.oiio_desc, data_buffer.data());
+      out->close();
+    } else {
+      qWarning() << "Failed to open output file:" << cache_fn;
+    }
+  }
+
+  CacheNext();
 }
 
 void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash)
@@ -199,13 +273,10 @@ void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& tim
     // We received a texture, time to start downloading it
     QString fn = CachePathName(hash);
 
-    /*
-    download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
+    qDebug() << "INSERT DOWNLOAD CODE!";
+    /*download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
                                                                              fn,
-                                                                             hash);
-
-    last_download_thread_++;
-    */
+                                                                             hash);*/
   } else {
     // There was no texture here, we must update the viewer
     DownloadThreadComplete(hash);
@@ -244,15 +315,19 @@ void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& tim
   CacheNext();
 }
 
-void OpenGLBackend::ThreadRequestSibling(NodeDependency dep)
+void OpenGLBackend::ThreadRequestedSibling(NodeDependency dep)
 {
   Q_UNUSED(dep)
 
   // Try to queue another thread to run this dep in advance
-  for (int i=1;i<threads().size();i++) {
-    /*if (threads().at(i)->Queue(dep, false, true)) {
+  for (int i=1;i<processors_.size();i++) {
+    if (processors_.at(i)->IsAvailable()) {
+      QMetaObject::invokeMethod(processors_.at(i),
+                                "RenderAsSibling",
+                                Qt::QueuedConnection,
+                                Q_ARG(NodeDependency, dep));
       return;
-    }*/
+    }
   }
 }
 

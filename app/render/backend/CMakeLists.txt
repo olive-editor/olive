@@ -27,6 +27,9 @@ set(OLIVE_SOURCES
   render/backend/audiorenderbackend.cpp
   render/backend/videorenderbackend.h
   render/backend/videorenderbackend.cpp
+
+  render/backend/decodercache.h
+  render/backend/decodercache.cpp
   
   PARENT_SCOPE
 )

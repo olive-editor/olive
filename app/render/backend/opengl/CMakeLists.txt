@@ -16,8 +16,6 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/backend/opengl/decodercache.h
-  render/backend/opengl/decodercache.cpp
   render/backend/opengl/functions.h
   render/backend/opengl/functions.cpp
   render/backend/opengl/openglbackend.h

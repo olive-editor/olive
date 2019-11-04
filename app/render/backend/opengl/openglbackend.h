@@ -2,7 +2,6 @@
 #define OPENGLBACKEND_H
 
 #include "../videorenderbackend.h"
-#include "decodercache.h"
 #include "openglframebuffer.h"
 #include "openglworker.h"
 #include "opengltexture.h"
@@ -17,19 +16,18 @@ public:
 
   virtual ~OpenGLBackend() override;
 
-  virtual bool Init() override;
-
-  virtual void Close() override;
-
   OpenGLTexturePtr GetCachedFrameAsTexture(const rational& time);
 
-public slots:
-  virtual bool Compile() override;
-
-  virtual void Decompile() override;
-
 protected:
+  virtual bool InitInternal() override;
+
+  virtual void CloseInternal() override;
+
   virtual void GenerateFrame(const rational& time) override;
+
+  virtual bool CompileInternal() override;
+
+  virtual void DecompileInternal() override;
 
 private:
   bool TraverseCompiling(Node* n);
@@ -43,12 +41,17 @@ private:
   OpenGLShaderPtr copy_pipeline_;
 
   OpenGLShaderCache shader_cache_;
-  DecoderCache decoder_cache_;
+
+  bool compiled_;
 
 private slots:
+  void CompletedFrame(NodeDependency path);
+
+
+
   void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);
 
-  void ThreadRequestSibling(NodeDependency dep);
+  void ThreadRequestedSibling(NodeDependency dep);
 
   void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
 

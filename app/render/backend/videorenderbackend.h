@@ -45,18 +45,6 @@ public:
 
   virtual ~VideoRenderBackend() override;
 
-  void SetCacheName(const QString& s);
-
-  /**
-   * @brief Allocate and start the multithreaded backend
-   */
-  virtual bool Init() override;
-
-  /**
-   * @brief Terminate and deallocate the multithreaded backend
-   */
-  virtual void Close() override;
-
   /**
    * @brief Set parameters of the Renderer
    *
@@ -92,12 +80,20 @@ public:
    */
   bool TryCache(const QByteArray& hash);
 
-  bool IsStarted();
-
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
 protected:
+  /**
+   * @brief Allocate and start the multithreaded backend
+   */
+  virtual bool InitInternal() override;
+
+  /**
+   * @brief Terminate and deallocate the multithreaded backend
+   */
+  virtual void CloseInternal() override;
+
   struct HashTimeMapping {
     rational time;
     QByteArray hash;
@@ -123,8 +119,6 @@ protected:
    */
   void CacheNext();
 
-  const QVector<QThread*>& threads();
-
   const VideoRenderingParams& params() const;
 
   QMap<rational, QByteArray> time_hash_map_;
@@ -141,28 +135,16 @@ protected:
 signals:
   void CachedFrameReady(const rational& time);
 
-private:
+protected:
   /**
    * @brief Internal function for generating the cache ID
    */
-  void GenerateCacheIDInternal();
+  virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) override;
 
-  /**
-   * @brief Internal list of RenderProcessThreads
-   */
-  QVector<QThread*> threads_;
-
-  /**
-   * @brief Internal variable that contains whether the Renderer has started or not
-   */
-  bool started_;
-
+private:
   VideoRenderingParams params_;
 
   QLinkedList<rational> cache_queue_;
-  QString cache_name_;
-  qint64 cache_time_;
-  QString cache_id_;
 
   QByteArray cache_frame_load_buffer_;
 

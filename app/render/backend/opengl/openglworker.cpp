@@ -2,6 +2,7 @@
 
 #include <QThread>
 
+#include "functions.h"
 #include "node/block/block.h"
 #include "node/node.h"
 
@@ -11,7 +12,8 @@ OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_
   ctx_(nullptr),
   functions_(nullptr),
   shader_cache_(shader_cache),
-  decoder_cache_(decoder_cache)
+  decoder_cache_(decoder_cache),
+  working_(0)
 {
   surface_.create();
 }
@@ -48,10 +50,15 @@ void OpenGLWorker::Init()
 
   ctx_->moveToThread(this->thread());
 
-  qDebug() << "Processor initialized in thread" << thread() << "- context is in" << ctx_->thread();
+  //qDebug() << "Processor initialized in thread" << thread() << "- context is in" << ctx_->thread();
 
   // The rest of the initialization needs to occur in the other thread, so we signal for it to start
   QMetaObject::invokeMethod(this, "FinishInit", Qt::QueuedConnection);
+}
+
+bool OpenGLWorker::IsAvailable()
+{
+  return (working_ == 0);
 }
 
 void OpenGLWorker::Close()
@@ -62,7 +69,7 @@ void OpenGLWorker::Close()
   delete ctx_;
 }
 
-void OpenGLWorker::Render(const NodeDependency &path)
+void OpenGLWorker::Render(NodeDependency path)
 {
   NodeOutput* output = path.node();
   Node* node = output->parent();
@@ -89,6 +96,8 @@ void OpenGLWorker::Render(const NodeDependency &path)
 
   // Now we need the texture done so we call glFinish()
   functions_->glFinish();
+
+  emit CompletedFrame(path);
 }
 
 void OpenGLWorker::UpdateViewportFromParams()
@@ -176,7 +185,7 @@ QList<NodeInput*> OpenGLWorker::ProcessNodeInputsForTime(Node *n, const TimeRang
   return connected_inputs;
 }
 
-void OpenGLWorker::RunNodeAsShader(Node* node, OpenGLShaderPtr shader)
+OpenGLTexturePtr OpenGLWorker::RunNodeAsShader(Node* node, OpenGLShaderPtr shader)
 {
   shader->bind();
 
@@ -244,10 +253,19 @@ void OpenGLWorker::RunNodeAsShader(Node* node, OpenGLShaderPtr shader)
     }
   }
 
-  // Attach texture to framebuffer
-  // Bind framebuffer
-  // Release framebuffer
-  // Detach texture
+  // Create the output texture
+  OpenGLTexturePtr output = std::make_shared<OpenGLTexture>();
+  output->Create(ctx_, video_params_.width(), video_params_.height(), video_params_.format());
+
+  buffer_.Attach(output);
+
+  buffer_.Bind();
+
+  olive::gl::Blit(shader);
+
+  buffer_.Release();
+
+  buffer_.Detach();
 
   // Release any textures we bound before
   while (input_texture_count > 0) {
@@ -259,6 +277,8 @@ void OpenGLWorker::RunNodeAsShader(Node* node, OpenGLShaderPtr shader)
   }
 
   shader->release();
+
+  return output;
 }
 
 void OpenGLWorker::FinishInit()
@@ -278,40 +298,54 @@ void OpenGLWorker::FinishInit()
 
   buffer_.Create(ctx_);
 
-  qDebug() << "Context in" << ctx_->thread() << "successfully finished";
+  //qDebug() << "Context in" << ctx_->thread() << "successfully finished";
 }
 
-void OpenGLWorker::RenderAsSibling(const NodeDependency &dep)
+void OpenGLWorker::RenderAsSibling(NodeDependency dep)
 {
   NodeOutput* output = dep.node();
-  Node* node = output->parent();
+  Node* original_node = output->parent();
+  Node* node;
   rational time = dep.in();
+  QList<NodeInput*> connected_inputs;
+  OpenGLShaderPtr shader;
 
-  node->LockProcessing();
+  // Set working state
+  working_++;
+
+  original_node->LockProcessing();
 
   // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
   // nodes based on time and we might need to locate which Block to attach to
-  if ((node = ValidateBlock(node, time)) == nullptr) {
+  if ((node = ValidateBlock(original_node, time)) == nullptr) {
     // ValidateBlock() may have returned nullptr if there was no Block found at this time so no texture to return
-    dep.node()->cache_value(dep.range(), 0);
-    node->UnlockProcessing();
-    return;
+    output->cache_value(dep.range(), 0);
+
+    original_node->UnlockProcessing();
+    goto end_render;
   }
 
-  // Ensure output is the output matching the node as it may have changed
-  output = static_cast<NodeOutput*>(node->GetParameterWithID(output->id()));
+  if (original_node != node) {
+    // Ensure output is the output matching the node as it may have changed
+    output = static_cast<NodeOutput*>(node->GetParameterWithID(output->id()));
+
+    // Switch locks
+    original_node->UnlockProcessing();
+    node->LockProcessing();
+  }
 
   // Check if the output already has a value for this time
   if (output->has_cached_value(dep.range())) {
     // If so, we don't need to do anything, we can just send this value and exit here
     dep.node()->cache_value(dep.range(), output->get_cached_value(dep.range()));
+
     node->UnlockProcessing();
-    return;
+    goto end_render;
   }
 
   // We need to run the Node's code to get the correct value for this time
 
-  QList<NodeInput*> connected_inputs = ProcessNodeInputsForTime(node, dep.range());
+  connected_inputs = ProcessNodeInputsForTime(node, dep.range());
 
   // For each connected input, we need to acquire the value from another node
   while (!connected_inputs.isEmpty()) {
@@ -368,11 +402,13 @@ void OpenGLWorker::RenderAsSibling(const NodeDependency &dep)
   // By this point, the node should have all the inputs it needs to render correctly
 
   // Check if we have a shader for this output
-  OpenGLShaderPtr shader = shader_cache_->GetShader(output);
+  shader = shader_cache_->GetShader(output);
 
   if (shader != nullptr) {
     // Run code
-    RunNodeAsShader(node, shader);
+    OpenGLTexturePtr texture = RunNodeAsShader(node, shader);
+
+    output->cache_value(dep.range(), QVariant::fromValue(texture));
   } else {
     // Generate the value as expected
     QVariant value = node->Value(output);
@@ -382,6 +418,9 @@ void OpenGLWorker::RenderAsSibling(const NodeDependency &dep)
   }
 
   // We're done!
-
   node->UnlockProcessing();
+
+end_render:
+  // End this working state
+  working_--;
 }
