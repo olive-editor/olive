@@ -10,11 +10,11 @@ uniform int channel;
 uniform float factorIn;
 uniform float balanceIn;
 
-const vec2 renderScale = vec2(1,1);
+const vec2 renderScale = vec2(1.0, 1.0);
 
 float average(float a, float b, float balance)
 {
-    return ( ( (a * ( 1 + balance)) + (b * (1 - balance)) ) * 0.5 );
+    return float ( ( (a * ( 1.0 + balance)) + (b * (1.0 - balance)) ) * 0.5 );
 }
 
 float composite(float a, float b, float factor)
