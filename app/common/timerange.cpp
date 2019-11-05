@@ -1,9 +1,5 @@
 #include "timerange.h"
 
-TimeRange::TimeRange()
-{
-}
-
 TimeRange::TimeRange(const rational &in, const rational &out) :
   in_(in),
   out_(out)

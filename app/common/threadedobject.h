@@ -6,7 +6,6 @@
 class ThreadedObject
 {
 public:
-  ThreadedObject();
 
   void LockMutex();
   void UnlockMutex();
