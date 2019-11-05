@@ -202,7 +202,6 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kFont: return ValueToBytesInternal<QString>(value); // FIXME: This should probably be a QFont?
   case kFile: return ValueToBytesInternal<QString>(value);
   case kMatrix: return ValueToBytesInternal<QMatrix4x4>(value);
-  case kFootage: return ValueToBytesInternal<float>(value); // FIXME: Unsustainble, find some other way to match Footage
   case kRational: return ValueToBytesInternal<rational>(value);
   case kVec2: return ValueToBytesInternal<QVector2D>(value);
   case kVec3: return ValueToBytesInternal<QVector3D>(value);
@@ -210,6 +209,7 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
 
   // These types have no persistent input
   case kNone:
+  case kFootage:
   case kTexture:
   case kBlock:
   case kTrack:

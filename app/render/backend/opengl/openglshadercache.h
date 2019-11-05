@@ -20,6 +20,8 @@ public:
 
   OpenGLShaderPtr GetShader(NodeOutput* output);
 
+  bool HasShader(NodeOutput* output);
+
 private:
   QString GenerateShaderID(NodeOutput* output);
 

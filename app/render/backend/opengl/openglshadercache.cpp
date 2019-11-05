@@ -27,3 +27,8 @@ OpenGLShaderPtr OpenGLShaderCache::GetShader(NodeOutput *output)
 {
   return compiled_nodes_.value(GenerateShaderID(output));
 }
+
+bool OpenGLShaderCache::HasShader(NodeOutput *output)
+{
+  return compiled_nodes_.contains(GenerateShaderID(output));
+}

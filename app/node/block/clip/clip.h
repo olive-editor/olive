@@ -46,6 +46,8 @@ public:
 
   virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) override;
 
+  virtual QVariant Value(NodeOutput* output) override;
+
 private:
   NodeInput* texture_input_;
 

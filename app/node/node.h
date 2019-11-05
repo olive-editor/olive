@@ -165,11 +165,6 @@ public:
   void DisconnectAll();
 
   /**
-   * @brief Add's unique information about this Node at the given time to a QCryptographicHash
-   */
-  //virtual void Hash(QCryptographicHash* hash, NodeOutput *from, const rational& time);
-
-  /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
    */
   static QVariant PtrToValue(void* ptr);

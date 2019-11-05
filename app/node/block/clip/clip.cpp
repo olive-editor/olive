@@ -87,3 +87,12 @@ TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &inpu
 
   return Block::InputTimeAdjustment(input, input_time);
 }
+
+QVariant ClipBlock::Value(NodeOutput *output)
+{
+  if (output == buffer_output()) {
+    // We just pass through the texture here, the renderer should have gotten the correct time from InputTimeAdjustment
+    return texture_input()->value();
+  }
+  return Block::Value(output);
+}

@@ -40,7 +40,7 @@ bool OpenGLBackend::InitInternal()
 
     // Connect to it
     connect(processor, SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestedSibling(NodeDependency)));
-    connect(processor, SIGNAL(CompletedFrame(NodeDependency)), this, SLOT(CompletedFrame(NodeDependency)));
+    connect(processor, SIGNAL(CompletedFrame(NodeDependency)), this, SLOT(ThreadCompletedFrame(NodeDependency)));
 
     // Finally, we can move it to its own thread
     processor->moveToThread(thread);
@@ -66,16 +66,21 @@ bool OpenGLBackend::InitInternal()
 
 void OpenGLBackend::GenerateFrame(const rational &time)
 {
+  qDebug() << "Compiled state:" << compiled_;
   if (!compiled_) {
     Compile();
   }
 
   NodeDependency dep = NodeDependency(viewer_node()->texture_input()->get_connected_output(), time, time);
 
-  QMetaObject::invokeMethod(processors_.first(),
-                            "Render",
-                            Qt::QueuedConnection,
-                            Q_ARG(NodeDependency, dep));
+  foreach (OpenGLWorker* worker, processors_) {
+    if (worker->IsAvailable() || worker == processors_.last()) {
+      QMetaObject::invokeMethod(worker,
+                                "Render",
+                                Qt::QueuedConnection,
+                                Q_ARG(NodeDependency, dep));
+    }
+  }
 }
 
 void OpenGLBackend::CloseInternal()
@@ -196,66 +201,28 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
   return true;
 }
 
-#include <QOpenGLExtraFunctions>
-#include <OpenImageIO/imageio.h>
-#include "common/define.h"
-#include "render/pixelservice.h"
-void OpenGLBackend::CompletedFrame(NodeDependency path)
+void OpenGLBackend::ThreadCompletedFrame(NodeDependency path)
 {
   caching_ = false;
 
   OpenGLTexturePtr texture = path.node()->get_cached_value(path.range()).value<OpenGLTexturePtr>();
   qDebug() << "Retrieved texture for time" << path.in();
 
-  qDebug() << "Texture is" << texture.get();
-
-  if (texture == nullptr) {
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-    QOpenGLExtraFunctions* xf = QOpenGLContext::currentContext()->extraFunctions();
-
-    PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params().format());
-    QVector<char> data_buffer(PixelService::GetBufferSize(params().format(), params().width(), params().height()));
-    qDebug() << "Created buffer of size" << data_buffer.size();
-
-    // Set up OIIO::ImageSpec for compressing cached images on disk
-    OIIO::ImageSpec spec(params().width(), params().height(), kRGBAChannels, format_info.oiio_desc);
-    spec.attribute("compression", "dwaa:200");
-
-    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, copy_buffer_.buffer());
-
-    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
-                               GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D,
-                               texture->texture(),
-                               0);
-
-    f->glReadPixels(0,
-                    0,
-                    texture->width(),
-                    texture->height(),
-                    format_info.pixel_format,
-                    format_info.gl_pixel_type,
-                    data_buffer.data());
-
-    xf->glFramebufferTexture2D(GL_READ_FRAMEBUFFER,
-                               GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_2D,
-                               0,
-                               0);
-
-    f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
+  if (texture != nullptr) {
     QString cache_fn = CachePathName(QStringLiteral("%1-%2").arg(QString::number(path.in().numerator()), QString::number(path.in().denominator())).toLatin1());
-    std::string working_fn_std = cache_fn.toStdString();
 
-    std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
-
-    if (out) {
-      out->open(working_fn_std, spec);
-      out->write_image(format_info.oiio_desc, data_buffer.data());
-      out->close();
-    } else {
-      qWarning() << "Failed to open output file:" << cache_fn;
+    // Find an available worker to download this texture
+    foreach (OpenGLWorker* worker, processors_) {
+      // Check if one is available, but worst case if none of them are available, just queue it on the last worker since
+      // it's the least likely to get work
+      if (worker->IsAvailable() || worker == processors_.last()) {
+        QMetaObject::invokeMethod(worker,
+                                  "Download",
+                                  Q_ARG(NodeDependency, path),
+                                  Q_ARG(QVariant, QVariant::fromValue(texture)),
+                                  Q_ARG(QString, cache_fn));
+        break;
+      }
     }
   }
 
@@ -273,7 +240,6 @@ void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& tim
     // We received a texture, time to start downloading it
     QString fn = CachePathName(hash);
 
-    qDebug() << "INSERT DOWNLOAD CODE!";
     /*download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
                                                                              fn,
                                                                              hash);*/
@@ -317,12 +283,10 @@ void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& tim
 
 void OpenGLBackend::ThreadRequestedSibling(NodeDependency dep)
 {
-  Q_UNUSED(dep)
-
   // Try to queue another thread to run this dep in advance
-  for (int i=1;i<processors_.size();i++) {
-    if (processors_.at(i)->IsAvailable()) {
-      QMetaObject::invokeMethod(processors_.at(i),
+  foreach (OpenGLWorker* worker, processors_) {
+    if (worker->IsAvailable()) {
+      QMetaObject::invokeMethod(worker,
                                 "RenderAsSibling",
                                 Qt::QueuedConnection,
                                 Q_ARG(NodeDependency, dep));

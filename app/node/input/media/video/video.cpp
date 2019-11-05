@@ -58,13 +58,13 @@ QString VideoInput::Code(NodeOutput *output)
   if (output == texture_output()) {
     return "#version 110\n"
            "\n"
-           "varying vec2 olive_tex_coord;\n"
+           "varying vec2 v_texcoord;\n"
            "\n"
            "uniform sampler2D footage_in;\n"
            "uniform mat4 matrix_in;\n"
            "\n"
            "void main(void) {\n"
-           "  gl_FragColor = texture2D(footage_in, vec2(vec4(olive_tex_coord, 0.0, 1.0) * matrix_in));\n"
+           "  gl_FragColor = texture2D(footage_in, vec2(vec4(v_texcoord, 0.0, 1.0) * matrix_in));\n"
            "}\n";
   }
 

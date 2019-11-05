@@ -1,29 +1,21 @@
 #ifndef OPENGLPROCESSOR_H
 #define OPENGLPROCESSOR_H
 
-#include <QObject>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 
-#include "../decodercache.h"
-#include "node/dependency.h"
+#include "../videorenderworker.h"
 #include "openglframebuffer.h"
 #include "openglshadercache.h"
-#include "render/videoparams.h"
 
-class OpenGLWorker : public QObject {
+class OpenGLWorker : public VideoRenderWorker {
   Q_OBJECT
 public:
   OpenGLWorker(QOpenGLContext* share_ctx, OpenGLShaderCache* shader_cache, DecoderCache* decoder_cache, QObject* parent = nullptr);
 
   virtual ~OpenGLWorker() override;
 
-  Q_DISABLE_COPY_MOVE(OpenGLWorker)
-
-  bool IsStarted();
-
-  void SetParameters(const VideoRenderingParams& video_params);
-
+protected:
   /**
    * @brief Initialize OpenGL instance in whatever thread this object is a part of
    *
@@ -45,35 +37,21 @@ public:
    * the main thread from using the context during initialization and preventing more than one shared context being made
    * at the same time (which may or may not actually make a difference).
    */
-  void Init();
+  virtual bool InitInternal() override;
 
-  bool IsAvailable();
+  virtual void CloseInternal() override;
 
-public slots:
-  void Close();
+  virtual QVariant FrameToTexture(FramePtr frame) override;
 
-  void Render(NodeDependency path);
+  virtual bool OutputIsShader(NodeOutput *output) override;
 
-  void RenderAsSibling(NodeDependency dep);
+  virtual QVariant RunNodeAsShader(NodeOutput *output) override;
 
-  //void Download();
+  virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) override;
 
-signals:
-  void RequestSibling(NodeDependency path);
-
-  void CompletedFrame(NodeDependency path);
+  virtual void ParametersChangedEvent() override;
 
 private:
-  void ProcessNode();
-
-  void UpdateViewportFromParams();
-
-  Node* ValidateBlock(Node* n, const rational& time);
-
-  QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
-
-  OpenGLTexturePtr RunNodeAsShader(Node *node, OpenGLShaderPtr shader);
-
   QOpenGLContext* share_ctx_;
 
   QOpenGLContext* ctx_;
@@ -83,13 +61,7 @@ private:
 
   OpenGLFramebuffer buffer_;
 
-  VideoRenderingParams video_params_;
-
   OpenGLShaderCache* shader_cache_;
-
-  DecoderCache* decoder_cache_;
-
-  QAtomicInt working_;
 
 private slots:
   void FinishInit();

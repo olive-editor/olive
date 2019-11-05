@@ -218,14 +218,14 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       VideoInput* media = new VideoInput();
-      TransformDistort* transform = new TransformDistort();
-      OpacityNode* opacity = new OpacityNode();
+      //TransformDistort* transform = new TransformDistort();
+      //OpacityNode* opacity = new OpacityNode();
 
       // Set parents to node_memory_manager in case no TimelineOutput receives this signal
       clip->setParent(&node_memory_manager);
       media->setParent(&node_memory_manager);
-      transform->setParent(&node_memory_manager);
-      opacity->setParent(&node_memory_manager);
+      //transform->setParent(&node_memory_manager);
+      //opacity->setParent(&node_memory_manager);
 
       StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
       media->SetFootage(footage_stream);
@@ -233,10 +233,10 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       clip->set_length(ghost->Length());
       clip->set_block_name(footage_stream->footage()->name());
 
-      NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
-      NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
-      NodeParam::ConnectEdge(transform->matrix_output(), media->matrix_input());
-
+      //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
+      //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
+      //NodeParam::ConnectEdge(transform->matrix_output(), media->matrix_input());
+      NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
 
       if (event->GetModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());

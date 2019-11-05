@@ -148,9 +148,6 @@ private:
 
   QByteArray cache_frame_load_buffer_;
 
-  /*QVector<RendererDownloadThreadPtr> download_threads_;
-  int last_download_thread_;*/
-
 private slots:
 
 

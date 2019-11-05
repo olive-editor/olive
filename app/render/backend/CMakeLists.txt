@@ -27,6 +27,8 @@ set(OLIVE_SOURCES
   render/backend/audiorenderbackend.cpp
   render/backend/videorenderbackend.h
   render/backend/videorenderbackend.cpp
+  render/backend/videorenderworker.h
+  render/backend/videorenderworker.cpp
 
   render/backend/decodercache.h
   render/backend/decodercache.cpp

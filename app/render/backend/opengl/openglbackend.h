@@ -45,13 +45,13 @@ private:
   bool compiled_;
 
 private slots:
-  void CompletedFrame(NodeDependency path);
+  void ThreadCompletedFrame(NodeDependency path);
+  void ThreadRequestedSibling(NodeDependency dep);
 
 
 
   void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);
 
-  void ThreadRequestedSibling(NodeDependency dep);
 
   void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
 
