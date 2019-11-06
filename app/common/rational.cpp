@@ -45,6 +45,10 @@ void rational::fixSigns()
 void rational::reduce()
 {
     intType d = gcd(std::abs(numer), denom);
+    if (d == 0)
+    {
+        return;
+    }
     numer /= d;
     denom /= d;
 }
