@@ -27,6 +27,7 @@
 #include "renderbackend.h"
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
+#include "videorenderframecache.h"
 
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
@@ -65,21 +66,6 @@ public:
    */
   void SetParameters(const VideoRenderingParams &params);
 
-  /**
-   * @brief Return whether a frame with this hash already exists
-   */
-  bool HasHash(const QByteArray& hash);
-
-  /**
-   * @brief Return whether a frame is currently being cached
-   */
-  bool IsCaching(const QByteArray& hash);
-
-  /**
-   * @brief Check if a frame is currently being cached, and if not reserve it
-   */
-  bool TryCache(const QByteArray& hash);
-
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
@@ -105,12 +91,7 @@ protected:
 
   const char *GetCachedFrame(const rational& time);
 
-  /**
-   * @brief Return the path of the cached image at this time
-   */
-  QString CachePathName(const QByteArray &hash);
-
-  void DeferMap(const rational &time, const QByteArray &hash);
+  VideoRenderFrameCache* frame_cache();
 
   /**
    * @brief Function called when there are frames in the queue to cache
@@ -121,25 +102,19 @@ protected:
 
   const VideoRenderingParams& params() const;
 
-  QMap<rational, QByteArray> time_hash_map_;
-
-  QList<HashTimeMapping> deferred_maps_;
-
-  QMutex cache_hash_list_mutex_;
-  QVector<QByteArray> cache_hash_list_;
-
   rational last_time_requested_;
 
   bool caching_;
 
-signals:
-  void CachedFrameReady(const rational& time);
-
-protected:
   /**
    * @brief Internal function for generating the cache ID
    */
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) override;
+
+  virtual void CacheIDChangedEvent(const QString& id) override;
+
+signals:
+  void CachedFrameReady(const rational& time);
 
 private:
   VideoRenderingParams params_;
@@ -147,6 +122,8 @@ private:
   QLinkedList<rational> cache_queue_;
 
   QByteArray cache_frame_load_buffer_;
+
+  VideoRenderFrameCache frame_cache_;
 
 private slots:
 

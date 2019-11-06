@@ -20,18 +20,21 @@ add_subdirectory(vulkan)
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
 
+  render/backend/decodercache.h
+  render/backend/decodercache.cpp
+
   render/backend/renderbackend.h
   render/backend/renderbackend.cpp
 
   render/backend/audiorenderbackend.h
   render/backend/audiorenderbackend.cpp
+  
   render/backend/videorenderbackend.h
   render/backend/videorenderbackend.cpp
+  render/backend/videorenderframecache.h
+  render/backend/videorenderframecache.cpp
   render/backend/videorenderworker.h
   render/backend/videorenderworker.cpp
-
-  render/backend/decodercache.h
-  render/backend/decodercache.cpp
   
   PARENT_SCOPE
 )

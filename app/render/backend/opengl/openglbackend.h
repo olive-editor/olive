@@ -50,12 +50,12 @@ private slots:
 
 
 
-  void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);
+  //void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);
 
 
-  void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
+  //void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
 
-  void DownloadThreadComplete(const QByteArray &hash);
+  //void DownloadThreadComplete(const QByteArray &hash);
 };
 
 #endif // OPENGLBACKEND_H

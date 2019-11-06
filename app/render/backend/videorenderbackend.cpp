@@ -27,7 +27,6 @@
 #include <QDir>
 #include <QtMath>
 
-#include "common/filefunctions.h"
 #include "opengl/functions.h"
 #include "render/pixelservice.h"
 
@@ -164,6 +163,16 @@ bool VideoRenderBackend::GenerateCacheIDInternal(QCryptographicHash& hash)
   return true;
 }
 
+void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
+{
+  frame_cache_.SetCacheID(id);
+}
+
+VideoRenderFrameCache *VideoRenderBackend::frame_cache()
+{
+  return &frame_cache_;
+}
+
 void VideoRenderBackend::CacheNext()
 {
   if (!Init() || cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
@@ -177,52 +186,6 @@ void VideoRenderBackend::CacheNext()
   GenerateFrame(cache_frame);
 
   caching_ = true;
-}
-
-QString VideoRenderBackend::CachePathName(const QByteArray &hash)
-{
-  QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
-  this_cache_dir.mkpath(".");
-
-  QString filename = QStringLiteral("%1.exr").arg(QString(hash.toHex()));
-
-  return this_cache_dir.filePath(filename);
-}
-
-void VideoRenderBackend::DeferMap(const rational &time, const QByteArray &hash)
-{
-  deferred_maps_.append({time, hash});
-}
-
-bool VideoRenderBackend::HasHash(const QByteArray &hash)
-{
-  return QFileInfo::exists(CachePathName(hash));
-}
-
-bool VideoRenderBackend::IsCaching(const QByteArray &hash)
-{
-  cache_hash_list_mutex_.lock();
-
-  bool is_caching = cache_hash_list_.contains(hash);
-
-  cache_hash_list_mutex_.unlock();
-
-  return is_caching;
-}
-
-bool VideoRenderBackend::TryCache(const QByteArray &hash)
-{
-  cache_hash_list_mutex_.lock();
-
-  bool is_caching = cache_hash_list_.contains(hash);
-
-  if (!is_caching) {
-    cache_hash_list_.append(hash);
-  }
-
-  cache_hash_list_mutex_.unlock();
-
-  return !is_caching;
 }
 
 const char *VideoRenderBackend::GetCachedFrame(const rational &time)
@@ -245,8 +208,10 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
   }
 
   // Find frame in map
-  if (time_hash_map_.contains(time)) {
-    QString fn = CachePathName(time_hash_map_[time]);
+  QByteArray frame_hash = frame_cache_.TimeToHash(time);
+
+  if (!frame_hash.isEmpty()) {
+    QString fn = frame_cache_.CachePathName(frame_hash);
 
     if (QFileInfo::exists(fn)) {
       auto in = OIIO::ImageInput::open(fn.toStdString());

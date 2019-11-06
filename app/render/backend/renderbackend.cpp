@@ -126,6 +126,7 @@ void RenderBackend::RegenerateCacheID()
       || !cache_time_
       || !GenerateCacheIDInternal(hash)) {
     cache_id_.clear();
+    CacheIDChangedEvent(QString());
     return;
   }
 
@@ -134,6 +135,7 @@ void RenderBackend::RegenerateCacheID()
 
   QByteArray bytes = hash.result();
   cache_id_ = bytes.toHex();
+  CacheIDChangedEvent(cache_id_);
 }
 
 void RenderBackend::SetError(const QString &error)
@@ -154,4 +156,9 @@ ViewerOutput *RenderBackend::viewer_node() const
 const QVector<QThread *> &RenderBackend::threads()
 {
   return threads_;
+}
+
+void RenderBackend::CacheIDChangedEvent(const QString &id)
+{
+  Q_UNUSED(id)
 }

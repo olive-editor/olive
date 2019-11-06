@@ -206,10 +206,9 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path)
   caching_ = false;
 
   OpenGLTexturePtr texture = path.node()->get_cached_value(path.range()).value<OpenGLTexturePtr>();
-  qDebug() << "Retrieved texture for time" << path.in();
 
   if (texture != nullptr) {
-    QString cache_fn = CachePathName(QStringLiteral("%1-%2").arg(QString::number(path.in().numerator()), QString::number(path.in().denominator())).toLatin1());
+    QString cache_fn = frame_cache()->CachePathName(QStringLiteral("%1-%2").arg(QString::number(path.in().numerator()), QString::number(path.in().denominator())).toLatin1());
 
     // Find an available worker to download this texture
     foreach (OpenGLWorker* worker, processors_) {
@@ -229,7 +228,7 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path)
   CacheNext();
 }
 
-void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash)
+/*void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash)
 {
   // Threads are all done now, time to proceed
   caching_ = false;
@@ -239,10 +238,6 @@ void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& tim
   if (texture != nullptr) {
     // We received a texture, time to start downloading it
     QString fn = CachePathName(hash);
-
-    /*download_threads_[last_download_thread_%download_threads_.size()]->Queue(texture,
-                                                                             fn,
-                                                                             hash);*/
   } else {
     // There was no texture here, we must update the viewer
     DownloadThreadComplete(hash);
@@ -279,7 +274,7 @@ void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& tim
   }
 
   CacheNext();
-}
+}*/
 
 void OpenGLBackend::ThreadRequestedSibling(NodeDependency dep)
 {
@@ -295,7 +290,7 @@ void OpenGLBackend::ThreadRequestedSibling(NodeDependency dep)
   }
 }
 
-void OpenGLBackend::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
+/*void OpenGLBackend::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
 {
   caching_ = false;
 
@@ -309,9 +304,9 @@ void OpenGLBackend::ThreadSkippedFrame(const rational& time, const QByteArray& h
   }
 
   CacheNext();
-}
+}*/
 
-void OpenGLBackend::DownloadThreadComplete(const QByteArray &hash)
+/*void OpenGLBackend::DownloadThreadComplete(const QByteArray &hash)
 {
   cache_hash_list_mutex_.lock();
   cache_hash_list_.removeAll(hash);
@@ -328,4 +323,4 @@ void OpenGLBackend::DownloadThreadComplete(const QByteArray &hash)
       i--;
     }
   }
-}
+}*/

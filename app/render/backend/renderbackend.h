@@ -52,6 +52,8 @@ protected:
    */
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) = 0;
 
+  virtual void CacheIDChangedEvent(const QString& id);
+
   void SetError(const QString& error);
 
   virtual void ViewerNodeChangedEvent(ViewerOutput* node);
