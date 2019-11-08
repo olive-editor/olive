@@ -44,7 +44,7 @@ public:
 private:
   Task* parent_;
 
-  bool result_;
+  bool result_ = false;
 };
 
 #endif // TASKTHREAD_H

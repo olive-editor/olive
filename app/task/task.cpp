@@ -37,16 +37,14 @@ bool Task::Start()
   }
 
   // Check if this task has any dependencies (tasks that should complete before this one starts)
-
-  for (int i=0;i<dependencies_.size();i++) {
-    Task* dependency = dependencies_.at(i);
-
+  for (Task *dependency : dependencies_) {
     if (dependency->status() == kWaiting || dependency->status() == kWorking) {
 
       // We need this task to finish before this task can start, so keep waiting
       return false;
 
-    } else if (dependency->status() == kError) {
+    } 
+    if (dependency->status() == kError) {
 
       // A dependency errored, so this task is likely invalid too
       set_error(tr("A dependency task failed"));
@@ -173,7 +171,7 @@ void Task::ThreadComplete()
   // thread_.result() will be set to the return value of Action()
   bool succeeded = thread_.result();
 
-  // Run the Prologue() function for any final tasks
+  // Run the Epilogue() function for any final tasks
   // User cancelling is not considered an error, so we need to check it too
   if (succeeded && !cancelled()) {
     succeeded = Epilogue();

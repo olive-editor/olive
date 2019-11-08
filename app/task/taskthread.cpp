@@ -23,8 +23,7 @@
 #include "task/task.h"
 
 TaskThread::TaskThread(Task *parent) :
-  parent_(parent),
-  result_(false)
+  parent_(parent)
 {
 }
 
