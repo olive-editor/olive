@@ -520,17 +520,49 @@ void insert_clips(ComboAction* ca) {
 
 void TimelineWidget::dropEvent(QDropEvent* event) {
   if (panel_timeline->importing && panel_timeline->ghosts.size() > 0) {
-    event->acceptProposedAction();
-
     ComboAction* ca = new ComboAction();
 
     Sequence* s = olive::ActiveSequence.get();
 
     // if we're dropping into nothing, create a new sequences based on the clip being dragged
     if (s == nullptr) {
+      QMessageBox mbox(this);
+
+      mbox.setWindowTitle(tr("New Sequence"));
+      mbox.setText(tr("No sequence has been created yet. Would you like to make one based on this footage or set "
+                      "custom parameters?"));
+      mbox.addButton(tr("Use Footage Parameters"), QMessageBox::YesRole);
+      QAbstractButton* custom_param_btn = mbox.addButton(tr("Custom Parameters"), QMessageBox::NoRole);
+      QAbstractButton* cancel_btn = mbox.addButton(QMessageBox::Cancel);
+
+      mbox.exec();
+
       s = self_created_sequence.get();
+      double old_fr = s->frame_rate;
+
+      if (mbox.clickedButton() == cancel_btn
+          || (mbox.clickedButton() == custom_param_btn && NewSequenceDialog(this, nullptr, s).exec() == QDialog::Rejected)) {
+        delete ca;
+        self_created_sequence = nullptr;
+        event->ignore();
+        return;
+      }
+
+      if (mbox.clickedButton() == custom_param_btn
+          && !qFuzzyCompare(old_fr, s->frame_rate)) {
+        // If we're here, the user changed the frame rate so all the ghosts will need adjustment
+        for (int i=0;i<panel_timeline->ghosts.size();i++) {
+          Ghost& g = panel_timeline->ghosts[i];
+
+          g.in = rescale_frame_number(g.in, old_fr, s->frame_rate);
+          g.out = rescale_frame_number(g.out, old_fr, s->frame_rate);
+          g.clip_in = rescale_frame_number(g.clip_in, old_fr, s->frame_rate);
+        }
+      }
+
       panel_project->create_sequence_internal(ca, self_created_sequence, true, nullptr);
       self_created_sequence = nullptr;
+
     } else if (event->keyboardModifiers() & Qt::ControlModifier) {
       insert_clips(ca);
     } else {
@@ -544,6 +576,8 @@ void TimelineWidget::dropEvent(QDropEvent* event) {
     setFocus();
 
     update_ui(true);
+
+    event->acceptProposedAction();
   }
 }
 
