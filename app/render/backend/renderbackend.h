@@ -1,8 +1,11 @@
 #ifndef RENDERBACKEND_H
 #define RENDERBACKEND_H
 
+#include <QLinkedList>
+
 #include "decodercache.h"
 #include "node/output/viewer/viewer.h"
+#include "renderworker.h"
 
 class RenderBackend : public QObject
 {
@@ -43,8 +46,6 @@ protected:
 
   virtual void DecompileInternal() = 0;
 
-  DecoderCache decoder_cache_;
-
   const QVector<QThread*>& threads();
 
   /**
@@ -58,11 +59,28 @@ protected:
 
   virtual void ViewerNodeChangedEvent(ViewerOutput* node);
 
+  /**
+   * @brief Function called when there are frames in the queue to cache
+   *
+   * This function is NOT thread-safe and should only be called in the main thread.
+   */
+  void CacheNext();
+
+  bool GenerateData(const TimeRange& range);
+
   ViewerOutput* viewer_node() const;
 
-  QString cache_name_;
-  qint64 cache_time_;
-  QString cache_id_;
+  DecoderCache* decoder_cache();
+
+  const QString& cache_id() const;
+
+  QList<TimeRange> cache_queue_;
+
+  QVector<RenderWorker*> processors_;
+
+  bool compiled_;
+
+  bool caching_;
 
 private:
   /**
@@ -85,7 +103,12 @@ private:
    */
   QString error_;
 
-  bool compiled_;
+  DecoderCache decoder_cache_;
+
+  QString cache_name_;
+  qint64 cache_time_;
+  QString cache_id_;
+
 };
 
 #endif // RENDERBACKEND_H

@@ -5,6 +5,8 @@
 
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
+  compiled_(false),
+  caching_(false),
   started_(false),
   viewer_node_(nullptr)
 {
@@ -57,6 +59,11 @@ void RenderBackend::Close()
     thread->wait(); // FIXME: Maximum time in case a thread is stuck?
   }
   threads_.clear();
+
+  foreach (RenderWorker* processor, processors_) {
+    delete processor;
+  }
+  processors_.clear();
 }
 
 const QString &RenderBackend::GetError() const
@@ -148,9 +155,54 @@ void RenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
   Q_UNUSED(node)
 }
 
+void RenderBackend::CacheNext()
+{
+  if (!Init() || cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
+    return;
+  }
+
+  TimeRange cache_frame = cache_queue_.takeFirst();
+
+  qDebug() << "Caching FRAME" << cache_frame.in() << "to" << cache_frame.out();
+
+  caching_ = GenerateData(cache_frame);
+}
+
+bool RenderBackend::GenerateData(const TimeRange &range)
+{
+  if (!Compile()) {
+    qDebug() << "Graph remains uncompiled, nothing to be done";
+    return false;
+  }
+
+  NodeDependency dep = NodeDependency(viewer_node()->texture_input()->get_connected_output(), range.in(), range.out());
+
+  foreach (RenderWorker* worker, processors_) {
+    if (worker->IsAvailable() || worker == processors_.last()) {
+      QMetaObject::invokeMethod(worker,
+                                "Render",
+                                Qt::QueuedConnection,
+                                Q_ARG(NodeDependency, dep));
+      return true;
+    }
+  }
+
+  return false;
+}
+
 ViewerOutput *RenderBackend::viewer_node() const
 {
   return viewer_node_;
+}
+
+DecoderCache *RenderBackend::decoder_cache()
+{
+  return &decoder_cache_;
+}
+
+const QString &RenderBackend::cache_id() const
+{
+  return cache_id_;
 }
 
 const QVector<QThread *> &RenderBackend::threads()

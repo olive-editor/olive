@@ -3,28 +3,14 @@
 #include <QThread>
 
 #include "common/define.h"
-#include "node/block/block.h"
 #include "node/node.h"
 #include "render/pixelservice.h"
 
-VideoRenderWorker::VideoRenderWorker(DecoderCache *decoder_cache, QObject *parent) :
-  QObject(parent),
-  decoder_cache_(decoder_cache),
-  started_(false)
+VideoRenderWorker::VideoRenderWorker(DecoderCache *decoder_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
+  RenderWorker(decoder_cache, parent),
+  frame_cache_(frame_cache)
 {
 
-}
-
-bool VideoRenderWorker::IsAvailable()
-{
-  return (working_ == 0);
-}
-
-void VideoRenderWorker::Close()
-{
-  CloseInternal();
-
-  started_ = false;
 }
 
 const VideoRenderingParams &VideoRenderWorker::video_params()
@@ -32,9 +18,26 @@ const VideoRenderingParams &VideoRenderWorker::video_params()
   return video_params_;
 }
 
-DecoderCache *VideoRenderWorker::decoder_cache()
+void VideoRenderWorker::RenderInternal(const NodeDependency& path)
 {
-  return decoder_cache_;
+  // Get hash of node graph
+  // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
+  QCryptographicHash hasher(QCryptographicHash::Sha1);
+  HashNodeRecursively(&hasher, path.node()->parent(), path.in());
+  QByteArray hash = hasher.result();
+
+  if (frame_cache_->HasHash(hash)) {
+    // We've already cached this hash, no need to continue
+    emit HashAlreadyExists(path, hash);
+  } else if (frame_cache_->TryCache(hash)) {
+    // This hash is available for us to cache, start traversing graph
+    RenderAsSibling(path);
+
+    emit CompletedFrame(path, hash);
+  } else {
+    // Another thread must be caching this already, nothing to be done
+    emit HashAlreadyBeingCached();
+  }
 }
 
 void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, const rational& time)
@@ -94,49 +97,6 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, c
   }
 }
 
-StreamPtr VideoRenderWorker::ResolveStreamFromInput(NodeInput *input)
-{
-  return input->get_value_at_time(0).value<StreamPtr>();
-}
-
-DecoderPtr VideoRenderWorker::ResolveDecoderFromInput(NodeInput *input)
-{
-  // Access a map of Node inputs and decoder instances and retrieve a frame!
-  StreamPtr stream = ResolveStreamFromInput(input);
-  DecoderPtr decoder = decoder_cache()->GetDecoder(stream.get());
-
-  if (decoder == nullptr && stream != nullptr) {
-    // Init decoder
-    decoder = Decoder::CreateFromID(stream->footage()->decoder());
-    decoder->set_stream(stream);
-    decoder_cache()->AddDecoder(stream.get(), decoder);
-  }
-
-  return decoder;
-}
-
-Node *VideoRenderWorker::ValidateBlock(Node *n, const rational& time)
-{
-  if (n->IsBlock()) {
-    Block* block = static_cast<Block*>(n);
-
-    while (block != nullptr && block->in() > time) {
-      // This Block is too late, find an earlier one
-      block = block->previous();
-    }
-
-    while (block != nullptr && block->out() <= time) {
-      // This block is too early, find a later one
-      block = block->next();
-    }
-
-    // By this point, we should have the correct Block or nullptr if there's no Block here
-    return block;
-  }
-
-  return n;
-}
-
 void VideoRenderWorker::SetParameters(const VideoRenderingParams &video_params)
 {
   video_params_ = video_params;
@@ -144,51 +104,15 @@ void VideoRenderWorker::SetParameters(const VideoRenderingParams &video_params)
   ParametersChangedEvent();
 }
 
-bool VideoRenderWorker::Init()
+bool VideoRenderWorker::InitInternal()
 {
-  if (started_) {
-    return true;
-  }
-
-  started_ = InitInternal();
-
-  if (started_) {
-    download_buffer_.resize(PixelService::GetBufferSize(video_params().format(), video_params().effective_width(), video_params().effective_height()));
-  } else {
-    Close();
-  }
-
-  return started_;
+  download_buffer_.resize(PixelService::GetBufferSize(video_params().format(), video_params().effective_width(), video_params().effective_height()));
+  return true;
 }
 
-bool VideoRenderWorker::IsStarted()
+void VideoRenderWorker::CloseInternal()
 {
-  return started_;
-}
-
-void VideoRenderWorker::Render(NodeDependency path)
-{
-  NodeOutput* output = path.node();
-  Node* node = output->parent();
-
-  QList<Node*> all_nodes_in_graph;
-  all_nodes_in_graph.append(node);
-  all_nodes_in_graph.append(node->GetDependencies());
-
-  // Lock all Nodes to prevent UI changes during this render
-  foreach (Node* dep, all_nodes_in_graph) {
-    dep->LockUserInput();
-  }
-
-  // Start traversing graph
-  RenderAsSibling(path);
-
-  // Unlock all Nodes so changes can be made again
-  foreach (Node* dep, all_nodes_in_graph) {
-    dep->UnlockUserInput();
-  }
-
-  emit CompletedFrame(path);
+  download_buffer_.clear();
 }
 
 QList<NodeInput*> VideoRenderWorker::ProcessNodeInputsForTime(Node *n, const TimeRange &time)
@@ -225,8 +149,6 @@ QList<NodeInput*> VideoRenderWorker::ProcessNodeInputsForTime(Node *n, const Tim
               QVariant value = FrameToTexture(frame);
 
               input->set_stored_value(value);
-
-              qDebug() << "Placing texture" << value << "into input" << input;
             }
           }
         }
@@ -366,7 +288,7 @@ end_render:
 
 
 
-void VideoRenderWorker::Download(NodeDependency dep, QVariant texture, QString filename)
+void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)
 {
   working_++;
 
@@ -388,7 +310,7 @@ void VideoRenderWorker::Download(NodeDependency dep, QVariant texture, QString f
     out->write_image(format_info.oiio_desc, download_buffer_.data());
     out->close();
 
-    emit CompletedDownload(dep);
+    emit CompletedDownload(dep, hash);
   } else {
     qWarning() << "Failed to open output file:" << filename;
   }

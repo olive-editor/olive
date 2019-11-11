@@ -51,18 +51,6 @@ public:
    *
    * The Renderer owns the buffers that are used in the rendering process and this function sets the kind of buffers
    * to use. The Renderer must be stopped when calling this function.
-   *
-   * @param width
-   *
-   * Buffer width
-   *
-   * @param height
-   *
-   * Buffer height
-   *
-   * @param format
-   *
-   * Buffer pixel format
    */
   void SetParameters(const VideoRenderingParams &params);
 
@@ -87,24 +75,11 @@ protected:
 
   virtual void ViewerNodeChangedEvent(ViewerOutput* node) override;
 
-  virtual void GenerateFrame(const rational&) = 0;
-
   const char *GetCachedFrame(const rational& time);
 
   VideoRenderFrameCache* frame_cache();
 
-  /**
-   * @brief Function called when there are frames in the queue to cache
-   *
-   * This function is NOT thread-safe and should only be called in the main thread.
-   */
-  void CacheNext();
-
   const VideoRenderingParams& params() const;
-
-  rational last_time_requested_;
-
-  bool caching_;
 
   /**
    * @brief Internal function for generating the cache ID
@@ -119,11 +94,11 @@ signals:
 private:
   VideoRenderingParams params_;
 
-  QLinkedList<rational> cache_queue_;
-
   QByteArray cache_frame_load_buffer_;
 
   VideoRenderFrameCache frame_cache_;
+
+  rational last_time_requested_;
 
 private slots:
 

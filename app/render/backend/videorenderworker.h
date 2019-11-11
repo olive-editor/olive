@@ -2,55 +2,43 @@
 #define VIDEORENDERWORKER_H
 
 #include <QCryptographicHash>
-#include <QObject>
 
-#include "decodercache.h"
 #include "node/dependency.h"
 #include "render/videoparams.h"
+#include "renderworker.h"
+#include "videorenderframecache.h"
 
-class VideoRenderWorker : public QObject {
+class VideoRenderWorker : public RenderWorker {
   Q_OBJECT
 public:
-  VideoRenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
-
-  Q_DISABLE_COPY_MOVE(VideoRenderWorker)
-
-  bool IsStarted();
+  VideoRenderWorker(DecoderCache* decoder_cache, VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
 
   void SetParameters(const VideoRenderingParams& video_params);
 
-  virtual bool Init();
-
-  bool IsAvailable();
-
 public slots:
-  void Close();
+  virtual void RenderAsSibling(NodeDependency dep) override;
 
-  void Render(NodeDependency path);
-
-  void RenderAsSibling(NodeDependency dep);
-
-  void Download(NodeDependency dep, QVariant texture, QString filename);
+  void Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename);
 
 signals:
   void RequestSibling(NodeDependency path);
 
-  void CompletedFrame(NodeDependency path);
+  void CompletedFrame(NodeDependency path, QByteArray hash);
 
-  void CompletedDownload(NodeDependency path);
+  void CompletedDownload(NodeDependency path, QByteArray hash);
+
+  void HashAlreadyBeingCached();
+
+  void HashAlreadyExists(NodeDependency path, QByteArray hash);
 
 protected:
-  virtual bool InitInternal() = 0;
+  virtual bool InitInternal() override;
 
-  virtual void CloseInternal() = 0;
+  virtual void CloseInternal() override;
 
   virtual QVariant FrameToTexture(FramePtr frame) = 0;
 
   const VideoRenderingParams& video_params();
-
-  DecoderCache* decoder_cache();
-
-  Node* ValidateBlock(Node* n, const rational& time);
 
   virtual void ParametersChangedEvent(){}
 
@@ -60,11 +48,10 @@ protected:
 
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) = 0;
 
+  virtual void RenderInternal(const NodeDependency& path) override;
+
 private:
   void ProcessNode();
-
-  StreamPtr ResolveStreamFromInput(NodeInput* input);
-  DecoderPtr ResolveDecoderFromInput(NodeInput* input);
 
   QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
 
@@ -72,13 +59,9 @@ private:
 
   VideoRenderingParams video_params_;
 
-  DecoderCache* decoder_cache_;
-
-  QAtomicInt working_;
+  VideoRenderFrameCache* frame_cache_;
 
   QByteArray download_buffer_;
-
-  bool started_;
 
 private slots:
 

@@ -34,11 +34,16 @@ public:
 
   QByteArray TimeToHash(const rational& time);
 
+  void SetHash(const rational& time, const QByteArray& hash);
+  void RemoveHash(const rational& time);
+
 private:
+  void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
+
   QMap<rational, QByteArray> time_hash_map_;
 
-  QMutex cache_hash_list_mutex_;
-  QVector<QByteArray> cache_hash_list_;
+  QMutex currently_caching_lock_;
+  QVector<QByteArray> currently_caching_list_;
 
   QString cache_id_;
 };

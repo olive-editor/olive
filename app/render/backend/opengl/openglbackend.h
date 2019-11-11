@@ -23,8 +23,6 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual void GenerateFrame(const rational& time) override;
-
   virtual bool CompileInternal() override;
 
   virtual void DecompileInternal() override;
@@ -32,30 +30,22 @@ protected:
 private:
   bool TraverseCompiling(Node* n);
 
-  QVector<OpenGLWorker*> processors_;
-
   OpenGLTexturePtr master_texture_;
+  OpenGLTexturePtr push_texture_;
   rational push_time_;
 
-  OpenGLFramebuffer copy_buffer_;
-  OpenGLShaderPtr copy_pipeline_;
+  /*OpenGLFramebuffer copy_buffer_;
+  OpenGLShaderPtr copy_pipeline_;*/
 
   OpenGLShaderCache shader_cache_;
 
-  bool compiled_;
-
 private slots:
-  void ThreadCompletedFrame(NodeDependency path);
+  void ThreadCompletedFrame(NodeDependency path, QByteArray hash);
   void ThreadRequestedSibling(NodeDependency dep);
+  void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
+  void ThreadSkippedFrame();
+  void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);
 
-
-
-  //void ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash);
-
-
-  //void ThreadSkippedFrame(const rational &time, const QByteArray &hash);
-
-  //void DownloadThreadComplete(const QByteArray &hash);
 };
 
 #endif // OPENGLBACKEND_H

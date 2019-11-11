@@ -27,12 +27,10 @@
 #include <QDir>
 #include <QtMath>
 
-#include "opengl/functions.h"
 #include "render/pixelservice.h"
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
-  RenderBackend(parent),
-  caching_(false)
+  RenderBackend(parent)
 {
   // FIXME: Cache name should actually be the name of the sequence
   SetCacheName("Test");
@@ -77,34 +75,28 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
       diff = qAbs(diff) * 5;
     }
 
-    bool contains = false;
     bool added = false;
-    QLinkedList<rational>::iterator insert_iterator;
 
-    for (QLinkedList<rational>::iterator i = cache_queue_.begin();i != cache_queue_.end();i++) {
-      rational compare = *i;
+    TimeRange new_range(r, r);
 
-      if (!added) {
-        rational compare_diff = compare - last_time;
+    for (int i=0;i<cache_queue_.size();i++) {
+      rational compare = cache_queue_.at(i).in();
+      rational compare_diff = compare - last_time;
 
-        if (compare_diff > diff) {
-          insert_iterator = i;
-          added = true;
-        }
+      if (compare_diff > diff) {
+        cache_queue_.insert(i, new_range);
+        added = true;
+        break;
       }
 
       if (compare == r) {
-        contains = true;
+        added = true;
         break;
       }
     }
 
-    if (!contains) {
-      if (added) {
-        cache_queue_.insert(insert_iterator, r);
-      } else {
-        cache_queue_.append(r);
-      }
+    if (!added) {
+      cache_queue_.append(new_range);
     }
   }
 
@@ -150,7 +142,7 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 
 bool VideoRenderBackend::GenerateCacheIDInternal(QCryptographicHash& hash)
 {
-  if (cache_name_.isEmpty() || !params_.is_valid()) {
+  if (!params_.is_valid()) {
     return false;
   }
 
@@ -173,21 +165,6 @@ VideoRenderFrameCache *VideoRenderBackend::frame_cache()
   return &frame_cache_;
 }
 
-void VideoRenderBackend::CacheNext()
-{
-  if (!Init() || cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
-    return;
-  }
-
-  rational cache_frame = cache_queue_.takeFirst();
-
-  qDebug() << "Caching" << cache_frame.toDouble();
-
-  GenerateFrame(cache_frame);
-
-  caching_ = true;
-}
-
 const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 {
   last_time_requested_ = time;
@@ -197,7 +174,7 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
     return nullptr;
   }
 
-  if (cache_id_.isEmpty()) {
+  if (cache_id().isEmpty()) {
     qWarning() << "No cache ID";
     return nullptr;
   }

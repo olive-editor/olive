@@ -32,6 +32,7 @@
 #include "node/output/viewer/viewer.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/backend/opengl/opengltexture.h"
+#include "render/backend/audio/audiobackend.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
@@ -112,6 +113,7 @@ private:
   void PushScrubbedAudio();
 
   OpenGLBackend* video_renderer_;
+  AudioBackend* audio_renderer_;
 
   ViewerSizer* sizer_;
 

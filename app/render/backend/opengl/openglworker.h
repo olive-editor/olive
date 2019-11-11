@@ -11,7 +11,11 @@
 class OpenGLWorker : public VideoRenderWorker {
   Q_OBJECT
 public:
-  OpenGLWorker(QOpenGLContext* share_ctx, OpenGLShaderCache* shader_cache, DecoderCache* decoder_cache, QObject* parent = nullptr);
+  OpenGLWorker(QOpenGLContext* share_ctx,
+               OpenGLShaderCache* shader_cache,
+               DecoderCache* decoder_cache,
+               VideoRenderFrameCache* frame_cache,
+               QObject* parent = nullptr);
 
   virtual ~OpenGLWorker() override;
 

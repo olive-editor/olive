@@ -86,6 +86,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Start background renderers
   video_renderer_ = new OpenGLBackend(this);
   connect(video_renderer_, SIGNAL(CachedFrameReady(const rational&)), this, SLOT(RendererCachedFrame(const rational&)));
+  audio_renderer_ = new AudioBackend(this);
 }
 
 void ViewerWidget::SetTimebase(const rational &r)

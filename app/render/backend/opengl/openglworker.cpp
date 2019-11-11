@@ -4,8 +4,8 @@
 #include "node/node.h"
 #include "render/pixelservice.h"
 
-OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, DecoderCache *decoder_cache, QObject *parent) :
-  VideoRenderWorker(decoder_cache, parent),
+OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, DecoderCache *decoder_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
+  VideoRenderWorker(decoder_cache, frame_cache, parent),
   share_ctx_(share_ctx),
   ctx_(nullptr),
   functions_(nullptr),
@@ -21,6 +21,10 @@ OpenGLWorker::~OpenGLWorker()
 
 bool OpenGLWorker::InitInternal()
 {
+  if (!VideoRenderWorker::InitInternal()) {
+    return false;
+  }
+
   // Create context object
   ctx_ = new QOpenGLContext();
 
@@ -47,6 +51,12 @@ QVariant OpenGLWorker::FrameToTexture(FramePtr frame)
 {
   OpenGLTexturePtr footage_tex = std::make_shared<OpenGLTexture>();
   footage_tex->Create(ctx_, frame);
+
+  // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
+  //if (video_params().mode() == olive::kOnline) {
+    // Convert frame to float for
+    //frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
+  //}
 
   // FIXME: Alpha association and color management
 
