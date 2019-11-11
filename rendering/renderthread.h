@@ -57,7 +57,8 @@ public:
                     const QString &save = nullptr,
                     GLvoid *pixels = nullptr,
                     int pixel_linesize = 0,
-                    int idivider = 0);
+                    int idivider = 0,
+                    bool wait = false);
   bool did_texture_fail();
   void cancel();
   void wait_until_paused();
@@ -107,7 +108,7 @@ private:
   int divider;
   int tex_width;
   int tex_height;
-  bool queued;
+  QAtomicInt queued;
   bool texture_failed;
   bool running;
   QString save_fn;

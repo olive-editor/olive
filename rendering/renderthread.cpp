@@ -35,6 +35,7 @@ namespace OCIO = OCIO_NAMESPACE;
 
 RenderThread::RenderThread() :
   gizmos(nullptr),
+  front_buffer_switcher(false),
   share_ctx(nullptr),
   ctx(nullptr),
   blend_mode_program(nullptr),
@@ -44,8 +45,7 @@ RenderThread::RenderThread() :
   tex_height(-1),
   queued(false),
   texture_failed(false),
-  running(true),
-  front_buffer_switcher(false)
+  running(true)
 {
   surface.create();
 }
@@ -234,8 +234,9 @@ void RenderThread::start_render(QOpenGLContext *share,
                                 const QString& save,
                                 GLvoid* pixels,
                                 int pixel_linesize,
-                                int idivider) {
-  Q_UNUSED(idivider);
+                                int idivider,
+                                bool wait) {
+  Q_UNUSED(idivider)
 
   seq = s;
 
@@ -260,7 +261,15 @@ void RenderThread::start_render(QOpenGLContext *share,
 
   queued = true;
 
+  if (wait) {
+    wait_lock_.lock();
+  }
+
   wait_cond_.wakeAll();
+
+  if (wait) {
+    wait_lock_.unlock();
+  }
 }
 
 bool RenderThread::did_texture_fail() {

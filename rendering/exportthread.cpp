@@ -431,7 +431,7 @@ void ExportThread::Export()
     if (params_.video_enabled) {
       do {
         // TODO optimize by rendering the next frame while encoding the last
-        renderer->start_render(nullptr, olive::ActiveSequence.get(), 1, nullptr, video_frame->data[0], video_frame->linesize[0]/4);
+        renderer->start_render(nullptr, olive::ActiveSequence.get(), 1, nullptr, video_frame->data[0], video_frame->linesize[0]/4, 0, true);
 
         // Wait for RenderThread to return
         waitCond.wait(&mutex);
