@@ -1,5 +1,7 @@
 #include "timerange.h"
 
+#include <utility>
+
 TimeRange::TimeRange(const rational &in, const rational &out) :
   in_(in),
   out_(out)
@@ -54,10 +56,9 @@ bool TimeRange::operator>(const TimeRange &r) const
 void TimeRange::normalize()
 {
   // If `out` is earlier than `in`, swap them
-  if (out_ < in_) {
-    rational temp = in_;
-    in_ = out_;
-    out_ = temp;
+  if (out_ < in_)
+  {
+    std::swap(out_, in_);
   }
 
   // Calculate length
