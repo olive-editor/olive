@@ -21,11 +21,6 @@
 #ifndef SAMPLEFORMAT_H
 #define SAMPLEFORMAT_H
 
-namespace olive {
-
-/**
- * @brief Olive's internal supported sample formats
- */
 enum SampleFormat {
   SAMPLE_FMT_INVALID = -1,
 
@@ -38,7 +33,5 @@ enum SampleFormat {
 
   SAMPLE_FMT_COUNT
 };
-
-}
 
 #endif // SAMPLEFORMAT_H

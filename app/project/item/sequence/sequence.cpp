@@ -85,6 +85,7 @@ void Sequence::add_default_nodes()
 
   // Update the timebase on these nodes
   set_video_params(video_params_);
+  set_audio_params(audio_params_);
 }
 
 Item::Type Sequence::type() const

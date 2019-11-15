@@ -13,6 +13,8 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
+  NodeOutput* samples_output();
+
 protected:
   virtual QVariant Value(NodeOutput* output) override;
 

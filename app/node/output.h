@@ -48,7 +48,7 @@ public:
   void drop_cached_values();
 
 private:
-  QMap<TimeRange, QVariant> cached_values_;
+  QHash<TimeRange, QVariant> cached_values_;
 
 };
 

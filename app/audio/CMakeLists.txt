@@ -21,5 +21,6 @@ set(OLIVE_SOURCES
   audio/audiomanager.h
   audio/audiomanager.cpp
   audio/sampleformat.h
+  audio/sampleformat.cpp
   PARENT_SCOPE
 )

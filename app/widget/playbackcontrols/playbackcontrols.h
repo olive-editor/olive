@@ -49,6 +49,8 @@ public:
 public slots:
   void SetTime(const int64_t &r);
 
+  void SetEndTime(const int64_t &r);
+
   void ShowPauseButton();
 
   void ShowPlayButton();
@@ -89,6 +91,8 @@ protected:
 
 private:
   void UpdateIcons();
+
+  void SetTimeLabelInternal(QLabel *label, const int64_t &time);
 
   QWidget* lower_left_container_;
   QWidget* lower_right_container_;

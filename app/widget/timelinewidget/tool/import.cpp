@@ -28,6 +28,7 @@
 #include "core.h"
 #include "node/distort/transform/transform.h"
 #include "node/color/opacity/opacity.h"
+#include "node/input/media/audio/audio.h"
 #include "node/input/media/video/video.h"
 
 TrackType TrackTypeFromStreamType(Stream::Type stream_type)
@@ -205,10 +206,6 @@ void TimelineWidget::ImportTool::DragLeave(QDragLeaveEvent* event)
 void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
-    // We use QObject as the parent for the nodes we create. If there is no TimelineOutput node, this object going out
-    // of scope will delete the nodes. If there is, they'll become parents of the NodeGraph instead
-    QObject node_memory_manager;
-
     QUndoCommand* command = new QUndoCommand();
 
     QVector<Block*> block_items(parent()->ghost_items_.size());
@@ -216,27 +213,37 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
     for (int i=0;i<parent()->ghost_items_.size();i++) {
       TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
 
-      ClipBlock* clip = new ClipBlock();
-      VideoInput* media = new VideoInput();
-      //TransformDistort* transform = new TransformDistort();
-      //OpacityNode* opacity = new OpacityNode();
-
-      // Set parents to node_memory_manager in case no TimelineOutput receives this signal
-      clip->setParent(&node_memory_manager);
-      media->setParent(&node_memory_manager);
-      //transform->setParent(&node_memory_manager);
-      //opacity->setParent(&node_memory_manager);
-
       StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
-      media->SetFootage(footage_stream);
 
+      ClipBlock* clip = new ClipBlock();
       clip->set_length(ghost->Length());
       clip->set_block_name(footage_stream->footage()->name());
 
-      //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
-      //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
-      //NodeParam::ConnectEdge(transform->matrix_output(), media->matrix_input());
-      NodeParam::ConnectEdge(media->texture_output(), clip->texture_input());
+      switch (footage_stream->type()) {
+      case Stream::kVideo:
+      {
+        VideoInput* video_input = new VideoInput();
+        video_input->SetFootage(footage_stream);
+        NodeParam::ConnectEdge(video_input->texture_output(), clip->texture_input());
+
+        TransformDistort* transform = new TransformDistort();
+        NodeParam::ConnectEdge(transform->matrix_output(), video_input->matrix_input());
+
+        //OpacityNode* opacity = new OpacityNode();
+        //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
+        //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
+        break;
+      }
+      case Stream::kAudio:
+      {
+        AudioInput* audio_input = new AudioInput();
+        audio_input->SetFootage(footage_stream);
+        NodeParam::ConnectEdge(audio_input->samples_output(), clip->texture_input());
+        break;
+      }
+      default:
+        break;
+      }
 
       if (event->GetModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());

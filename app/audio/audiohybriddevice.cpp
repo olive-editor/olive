@@ -48,7 +48,11 @@ void AudioHybridDevice::Stop()
 {
   // Whatever is happening, stop it
   pushed_samples_.clear();
-  device_ = nullptr;
+
+  if (device_ != nullptr) {
+    device_->close();
+    device_ = nullptr;
+  }
 }
 
 void AudioHybridDevice::ConnectDevice(QIODevice *device)

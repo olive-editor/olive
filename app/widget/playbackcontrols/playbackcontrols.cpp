@@ -132,13 +132,12 @@ void PlaybackControls::SetTimebase(const rational &r)
 
 void PlaybackControls::SetTime(const int64_t &r)
 {
-  if (time_base_.isNull()) {
-    return;
-  }
+  SetTimeLabelInternal(cur_tc_lbl_, r);
+}
 
-  cur_tc_lbl_->setText(olive::timestamp_to_timecode(r,
-                                                    time_base_,
-                                                    olive::CurrentTimecodeDisplay()));
+void PlaybackControls::SetEndTime(const int64_t &r)
+{
+  SetTimeLabelInternal(end_tc_lbl_, r);
 }
 
 void PlaybackControls::ShowPauseButton()
@@ -169,4 +168,15 @@ void PlaybackControls::UpdateIcons()
   pause_btn_->setIcon(olive::icon::Pause);
   next_frame_btn_->setIcon(olive::icon::NextFrame);
   go_to_end_btn_->setIcon(olive::icon::GoToEnd);
+}
+
+void PlaybackControls::SetTimeLabelInternal(QLabel* label, const int64_t& time)
+{
+  if (time_base_.isNull()) {
+    return;
+  }
+
+  label->setText(olive::timestamp_to_timecode(time,
+                                              time_base_,
+                                              olive::CurrentTimecodeDisplay()));
 }
