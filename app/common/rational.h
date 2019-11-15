@@ -126,4 +126,6 @@ QDebug operator<<(QDebug debug, const rational& r);
 
 Q_DECLARE_METATYPE(rational)
 
+uint qHash(const rational& r, uint seed);
+
 #endif // RATIONAL_H

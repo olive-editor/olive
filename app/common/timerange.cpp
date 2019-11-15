@@ -41,14 +41,9 @@ void TimeRange::set_range(const rational &in, const rational &out)
   normalize();
 }
 
-bool TimeRange::operator<(const TimeRange &r) const
+bool TimeRange::operator==(const TimeRange &r) const
 {
-  return (in() + out()) < (r.in() + r.out());
-}
-
-bool TimeRange::operator>(const TimeRange &r) const
-{
-  return (in() + out()) > (r.in() + r.out());
+  return in() == r.in() && out() == r.out();
 }
 
 void TimeRange::normalize()
@@ -62,4 +57,9 @@ void TimeRange::normalize()
 
   // Calculate length
   length_ = out_ - in_;
+}
+
+uint qHash(const TimeRange &r, uint seed)
+{
+  return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }

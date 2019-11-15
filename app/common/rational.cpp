@@ -421,3 +421,8 @@ QDebug operator<<(QDebug debug, const rational &r)
   debug.nospace() << r.numerator() << "/" << r.denominator();
   return debug.space();
 }
+
+uint qHash(const rational &r, uint seed)
+{
+  return qHash(r.toDouble(), seed);
+}
