@@ -138,10 +138,6 @@ private:
 
   int playback_speed_;
 
-  // FIXME: Test code
-  QFile test_file_;
-  // End test code
-
 private slots:
   void RulerTimeChange(int64_t);
 

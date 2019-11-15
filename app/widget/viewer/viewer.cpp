@@ -35,14 +35,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   viewer_node_(nullptr),
   playback_speed_(0)
 {
-  // FIXME: Test code
-  QByteArray test_audio = qgetenv("TESTAUDIO");
-  if (!test_audio.isEmpty()) {
-    test_file_.setFileName(QString(test_audio));
-    test_file_.open(QFile::ReadOnly);
-  }
-  // End test code
-
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
@@ -162,6 +154,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   video_renderer_->SetViewerNode(viewer_node_);
+  audio_renderer_->SetViewerNode(viewer_node_);
 }
 
 void ViewerWidget::DisconnectViewerNode()
@@ -185,6 +178,9 @@ void ViewerWidget::UpdateTimeInternal(int64_t i)
   controls_->SetTime(i);
 
   if (viewer_node_ != nullptr) {
+    // FIXME: Implement some sort of signalling to update this when the sequence length actually changes
+    controls_->SetEndTime(olive::time_to_timestamp(viewer_node_->Length(), time_base_));
+
     UpdateTextureFromNode(time_set);
 
     PushScrubbedAudio();
@@ -211,14 +207,15 @@ void ViewerWidget::PlayInternal(int speed)
     return;
   }
 
+  QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
+  if (audio_src != nullptr && audio_src->open(QIODevice::ReadOnly)) {
+    audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
+    AudioManager::instance()->StartOutput(audio_src);
+  }
+
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
   start_timestamp_ = ruler_->GetTime();
   playback_speed_ = speed;
-
-  // FIXME: Test code
-  test_file_.seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
-  AudioManager::instance()->StartOutput(&test_file_);
-  // End test code
 
   playback_timer_.start();
 
@@ -228,12 +225,20 @@ void ViewerWidget::PlayInternal(int speed)
 void ViewerWidget::PushScrubbedAudio()
 {
   if (Config::Current()["AudioScrubbing"].toBool() && !IsPlaying()) {
-    // FIXME: Test code
-    int size_of_sample = qFloor(2 * 48000 * time_base_dbl_) * static_cast<int>(sizeof(float));
-    test_file_.seek(static_cast<qint64>(qFloor(GetTime().toDouble() * 48000 * 2)) * static_cast<qint64>(sizeof(float)));
-    QByteArray frame_audio = test_file_.read(size_of_sample);
-    AudioManager::instance()->PushToOutput(frame_audio);
-    // End test code
+    // Get audio src device from renderer
+    QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
+
+    if (audio_src != nullptr && audio_src->open(QFile::ReadOnly)) {
+      // Try to get one "frame" of audio
+      int size_of_sample = audio_renderer_->params().time_to_bytes(time_base_);
+
+      // Push audio
+      audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
+      QByteArray frame_audio = audio_src->read(size_of_sample);
+      AudioManager::instance()->PushToOutput(frame_audio);
+
+      audio_src->close();
+    }
   }
 }
 
