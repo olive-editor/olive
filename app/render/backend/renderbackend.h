@@ -12,7 +12,6 @@ class RenderBackend : public QObject
   Q_OBJECT
 public:
   RenderBackend(QObject* parent = nullptr);
-  virtual ~RenderBackend() override;
 
   Q_DISABLE_COPY_MOVE(RenderBackend)
 
@@ -68,6 +67,12 @@ protected:
 
   bool GenerateData(const TimeRange& range);
 
+  void InitWorkers();
+
+  virtual NodeInput* GetDependentInput() = 0;
+
+  virtual void ConnectWorkerToThis(RenderWorker* worker) = 0;
+
   ViewerOutput* viewer_node() const;
 
   DecoderCache* decoder_cache();
@@ -108,6 +113,9 @@ private:
   QString cache_name_;
   qint64 cache_time_;
   QString cache_id_;
+
+private slots:
+  void ThreadRequestedSibling(NodeDependency dep);
 
 };
 

@@ -122,7 +122,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
   switch (static_cast<olive::PixelFormat>(frame->format())) {
   case olive::PIX_FMT_RGBA8:
   {
-    uint8_t* source = frame->data();
+    uint8_t* source = reinterpret_cast<uint8_t*>(frame->data());
 
     switch (dest_format) {
     case olive::PIX_FMT_RGBA16U: // 8-bit Integer -> 16-bit Integer
@@ -163,7 +163,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
     switch (dest_format) {
     case olive::PIX_FMT_RGBA8: // 16-bit Integer -> 8-bit Integer
     {
-      uint8_t* destination = converted->data();
+      uint8_t* destination = reinterpret_cast<uint8_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
         destination[i] = static_cast<uint8_t>(source[i] / 257);
       }
@@ -199,7 +199,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
     switch (dest_format) {
     case olive::PIX_FMT_RGBA8: // 16-bit Float -> 8-bit Integer
     {
-      uint8_t* destination = converted->data();
+      uint8_t* destination = reinterpret_cast<uint8_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
         destination[i] = static_cast<uint8_t>(source[i] * 255.0f);
       }
@@ -235,7 +235,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
     switch (dest_format) {
     case olive::PIX_FMT_RGBA8: // 32-bit Float -> 8-bit Integer
     {
-      uint8_t* destination = converted->data();
+      uint8_t* destination = reinterpret_cast<uint8_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
         destination[i] = static_cast<uint8_t>(source[i] * 255.0f);
       }
@@ -293,7 +293,7 @@ void PixelService::ConvertRGBtoRGBA(FramePtr frame)
   while (rgb_iter >= 0) {
     memcpy(&frame->data()[rgba_iter], &frame->data()[rgb_iter], static_cast<size_t>(rgb_pixel_size));
 
-    uint8_t* alpha_ptr = &frame->data()[rgba_iter + rgb_pixel_size];
+    uint8_t* alpha_ptr = reinterpret_cast<uint8_t*>(frame->data()) + rgba_iter + rgb_pixel_size;
 
     // Write a full alpha value according to the format
     switch (dest_format) {

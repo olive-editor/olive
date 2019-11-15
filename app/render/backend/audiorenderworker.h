@@ -9,6 +9,8 @@ class AudioRenderWorker : public RenderWorker
 public:
   AudioRenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
 
+  void SetParameters(const AudioRenderingParams& audio_params);
+
 public slots:
   virtual void RenderAsSibling(NodeDependency dep) override;
 
@@ -17,7 +19,10 @@ protected:
 
   virtual void CloseInternal() override;
 
+  QVariant RenderBlock(NodeOutput *output, const TimeRange& range);
 
+private:
+  AudioRenderingParams audio_params_;
 
 };
 

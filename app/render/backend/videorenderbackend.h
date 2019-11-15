@@ -44,8 +44,6 @@ public:
    */
   VideoRenderBackend(QObject* parent = nullptr);
 
-  virtual ~VideoRenderBackend() override;
-
   /**
    * @brief Set parameters of the Renderer
    *
@@ -77,6 +75,8 @@ protected:
 
   const char *GetCachedFrame(const rational& time);
 
+  virtual NodeInput* GetDependentInput() override;
+
   VideoRenderFrameCache* frame_cache();
 
   const VideoRenderingParams& params() const;
@@ -87,6 +87,8 @@ protected:
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) override;
 
   virtual void CacheIDChangedEvent(const QString& id) override;
+
+  virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
 signals:
   void CachedFrameReady(const rational& time);

@@ -27,23 +27,23 @@ const uint64_t &AudioParams::channel_layout() const
 }
 
 AudioRenderingParams::AudioRenderingParams() :
-  format_(olive::SAMPLE_FMT_INVALID)
+  format_(SAMPLE_FMT_INVALID)
 {
 }
 
-AudioRenderingParams::AudioRenderingParams(const int &sample_rate, const uint64_t &channel_layout, const olive::SampleFormat &format) :
+AudioRenderingParams::AudioRenderingParams(const int &sample_rate, const uint64_t &channel_layout, const SampleFormat &format) :
   AudioParams(sample_rate, channel_layout),
   format_(format)
 {
 }
 
-AudioRenderingParams::AudioRenderingParams(const AudioParams &params, const olive::SampleFormat &format) :
+AudioRenderingParams::AudioRenderingParams(const AudioParams &params, const SampleFormat &format) :
   AudioParams(params),
   format_(format)
 {
 }
 
-const olive::SampleFormat &AudioRenderingParams::format() const
+const SampleFormat &AudioRenderingParams::format() const
 {
   return format_;
 }
@@ -52,7 +52,14 @@ int AudioRenderingParams::time_to_bytes(const rational &time) const
 {
   Q_ASSERT(is_valid());
 
-  return qFloor(time.toDouble() * sample_rate()) * channel_count() * bytes_per_sample_per_channel();
+  return time_to_samples(time) * channel_count() * bytes_per_sample_per_channel();
+}
+
+int AudioRenderingParams::time_to_samples(const rational &time) const
+{
+  Q_ASSERT(is_valid());
+
+  return qFloor(time.toDouble() * sample_rate());
 }
 
 int AudioRenderingParams::samples_to_bytes(const int &samples) const
@@ -70,18 +77,18 @@ int AudioRenderingParams::channel_count() const
 int AudioRenderingParams::bytes_per_sample_per_channel() const
 {
   switch (format_) {
-  case olive::SAMPLE_FMT_U8:
+  case SAMPLE_FMT_U8:
     return 1;
-  case olive::SAMPLE_FMT_S16:
+  case SAMPLE_FMT_S16:
     return 2;
-  case olive::SAMPLE_FMT_S32:
-  case olive::SAMPLE_FMT_FLT:
+  case SAMPLE_FMT_S32:
+  case SAMPLE_FMT_FLT:
     return 4;
-  case olive::SAMPLE_FMT_DBL:
-  case olive::SAMPLE_FMT_S64:
+  case SAMPLE_FMT_DBL:
+  case SAMPLE_FMT_S64:
     return 8;
-  case olive::SAMPLE_FMT_INVALID:
-  case olive::SAMPLE_FMT_COUNT:
+  case SAMPLE_FMT_INVALID:
+  case SAMPLE_FMT_COUNT:
     break;
   }
 
@@ -95,8 +102,14 @@ int AudioRenderingParams::bits_per_sample() const
 
 bool AudioRenderingParams::is_valid() const
 {
-  return (sample_rate() > 0
-          && channel_layout() > 0
-          && format_ != olive::SAMPLE_FMT_INVALID
-          && format_ != olive::SAMPLE_FMT_COUNT);
+  bool valid = (sample_rate() > 0
+                && channel_layout() > 0
+                && format_ != SAMPLE_FMT_INVALID
+                && format_ != SAMPLE_FMT_COUNT);
+
+  if (!valid) {
+    qWarning() << "Invalid params found:" << sample_rate() << channel_layout() << format();
+  }
+
+  return valid;
 }

@@ -21,8 +21,6 @@ public slots:
   void Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename);
 
 signals:
-  void RequestSibling(NodeDependency path);
-
   void CompletedFrame(NodeDependency path, QByteArray hash);
 
   void CompletedDownload(NodeDependency path, QByteArray hash);
@@ -36,15 +34,9 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual QVariant FrameToTexture(FramePtr frame) = 0;
-
   const VideoRenderingParams& video_params();
 
   virtual void ParametersChangedEvent(){}
-
-  virtual bool OutputIsShader(NodeOutput *output) = 0;
-
-  virtual QVariant RunNodeAsShader(NodeOutput *output) = 0;
 
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) = 0;
 
@@ -52,8 +44,6 @@ protected:
 
 private:
   void ProcessNode();
-
-  QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
 
   void HashNodeRecursively(QCryptographicHash* hash, Node *n, const rational &time);
 

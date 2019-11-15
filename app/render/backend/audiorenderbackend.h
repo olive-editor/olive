@@ -18,6 +18,10 @@ public:
    */
   void SetParameters(const AudioRenderingParams &params);
 
+  virtual QIODevice* GetAudioPullDevice() = 0;
+
+  const AudioRenderingParams& params();
+
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
@@ -29,7 +33,11 @@ protected:
    */
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) override;
 
-  //virtual void CacheIDChangedEvent(const QString& id) override;
+  virtual NodeInput* GetDependentInput() override;
+
+  QString CachePathName();
+
+  QByteArray pcm_data_;
 
 private:
   void ValidateRanges();
@@ -39,8 +47,6 @@ private:
   bool RangesOverlap(const TimeRange& a, const TimeRange& b);
 
   AudioRenderingParams params_;
-
-  QByteArray pcm_data_;
 
 };
 

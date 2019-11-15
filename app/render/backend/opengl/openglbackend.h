@@ -41,7 +41,6 @@ private:
 
 private slots:
   void ThreadCompletedFrame(NodeDependency path, QByteArray hash);
-  void ThreadRequestedSibling(NodeDependency dep);
   void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
   void ThreadSkippedFrame();
   void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);

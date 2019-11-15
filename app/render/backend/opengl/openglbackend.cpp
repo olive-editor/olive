@@ -14,7 +14,7 @@ OpenGLBackend::OpenGLBackend(QObject *parent) :
 
 OpenGLBackend::~OpenGLBackend()
 {
-  CloseInternal();
+  Close();
 }
 
 bool OpenGLBackend::InitInternal()
@@ -32,27 +32,10 @@ bool OpenGLBackend::InitInternal()
 
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
-    QThread* thread = threads().at(i);
-
     // Create one processor object for each thread
     OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, decoder_cache(), frame_cache());
     processor->SetParameters(params());
-
-    // Connect to it
-    connect(processor, SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestedSibling(NodeDependency)));
-    connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray)));
-    connect(processor, SIGNAL(HashAlreadyBeingCached()), this, SLOT(ThreadSkippedFrame()));
-    connect(processor, SIGNAL(CompletedDownload(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedDownload(NodeDependency, QByteArray)));
-    connect(processor, SIGNAL(HashAlreadyExists(NodeDependency, QByteArray)), this, SLOT(ThreadHashAlreadyExists(NodeDependency, QByteArray)));
-
-    // Finally, we can move it to its own thread
-    processor->moveToThread(thread);
-
-    // Add processor to list
     processors_.append(processor);
-
-    // This function blocks the main thread intentionally. See the documentation for this function to see why.
-    processor->Init();
   }
 
   // Create master texture (the one sent to the viewer)
@@ -77,8 +60,6 @@ void OpenGLBackend::CloseInternal()
   master_texture_ = nullptr;
   push_texture_ = nullptr;
   //copy_pipeline_ = nullptr;
-
-  VideoRenderBackend::Close();
 }
 
 OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
@@ -114,7 +95,7 @@ bool OpenGLBackend::CompileInternal()
   bool ret = TraverseCompiling(viewer_node());
 
   if (ret) {
-    qDebug() << "Compiled successfully!";
+    //qDebug() << "Compiled successfully!";
     compiled_ = true;
   } else {
     qDebug() << "Compile failed:" << GetError();
@@ -173,7 +154,7 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
 
           shader_cache_.AddShader(connected_output, program);
 
-          qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
+          //qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
         }
       }
 
@@ -270,20 +251,6 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash)
 
   CacheNext();
 }*/
-
-void OpenGLBackend::ThreadRequestedSibling(NodeDependency dep)
-{
-  // Try to queue another thread to run this dep in advance
-  foreach (RenderWorker* worker, processors_) {
-    if (worker->IsAvailable()) {
-      QMetaObject::invokeMethod(worker,
-                                "RenderAsSibling",
-                                Qt::QueuedConnection,
-                                Q_ARG(NodeDependency, dep));
-      return;
-    }
-  }
-}
 
 void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 {

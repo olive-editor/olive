@@ -37,6 +37,8 @@ public:
   void SetHash(const rational& time, const QByteArray& hash);
   void RemoveHash(const rational& time);
 
+  void Truncate(const rational& time);
+
 private:
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
 

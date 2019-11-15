@@ -36,11 +36,6 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   SetCacheName("Test");
 }
 
-VideoRenderBackend::~VideoRenderBackend()
-{
-  Close();
-}
-
 void VideoRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
 {
   if (!params_.is_valid()) {
@@ -51,10 +46,10 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
   rational start_range_adj = qMax(rational(0), start_range);
   rational end_range_adj = qMin(viewer_node()->Length(), end_range);
 
-  qDebug() << "Cache invalidated between"
+  /*qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()
            << "and"
-           << end_range_adj.toDouble();
+           << end_range_adj.toDouble();*/
 
   // Snap start_range to timebase
   double start_range_dbl = start_range_adj.toDouble();
@@ -99,6 +94,9 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
       cache_queue_.append(new_range);
     }
   }
+
+  // Remove frames after this time code if it's changed
+  frame_cache_.Truncate(viewer_node()->Length());
 
   CacheNext();
 }
@@ -160,6 +158,14 @@ void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
   frame_cache_.SetCacheID(id);
 }
 
+void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
+{
+  connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray)));
+  connect(processor, SIGNAL(HashAlreadyBeingCached()), this, SLOT(ThreadSkippedFrame()));
+  connect(processor, SIGNAL(CompletedDownload(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedDownload(NodeDependency, QByteArray)));
+  connect(processor, SIGNAL(HashAlreadyExists(NodeDependency, QByteArray)), this, SLOT(ThreadHashAlreadyExists(NodeDependency, QByteArray)));
+}
+
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
 {
   return &frame_cache_;
@@ -206,4 +212,9 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
   }
 
   return nullptr;
+}
+
+NodeInput *VideoRenderBackend::GetDependentInput()
+{
+  return viewer_node()->texture_input();
 }

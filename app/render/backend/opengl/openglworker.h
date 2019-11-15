@@ -45,11 +45,11 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual QVariant FrameToTexture(FramePtr frame) override;
+  virtual QVariant FrameToValue(FramePtr frame) override;
 
-  virtual bool OutputIsShader(NodeOutput *output) override;
+  virtual bool OutputIsAccelerated(NodeOutput *output) override;
 
-  virtual QVariant RunNodeAsShader(NodeOutput *output) override;
+  virtual QVariant RunNodeAccelerated(NodeOutput *output) override;
 
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) override;
 

@@ -67,6 +67,19 @@ void VideoRenderFrameCache::RemoveHash(const rational &time)
   time_hash_map_.remove(time);
 }
 
+void VideoRenderFrameCache::Truncate(const rational &time)
+{
+  QMap<rational, QByteArray>::iterator i = time_hash_map_.begin();
+
+  while (i != time_hash_map_.end()) {
+    if (i.key() >= time) {
+      i = time_hash_map_.erase(i);
+    } else {
+      i++;
+    }
+  }
+}
+
 void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &hash)
 {
   currently_caching_lock_.lock();

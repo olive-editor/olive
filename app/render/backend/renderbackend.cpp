@@ -10,11 +10,6 @@ RenderBackend::RenderBackend(QObject *parent) :
   started_(false),
   viewer_node_(nullptr)
 {
-
-}
-
-RenderBackend::~RenderBackend()
-{
 }
 
 bool RenderBackend::Init()
@@ -34,6 +29,9 @@ bool RenderBackend::Init()
   }
 
   started_ = InitInternal();
+
+  // Connects workers and moves them to their respective threads
+  InitWorkers();
 
   if (!started_) {
     Close();
@@ -163,7 +161,7 @@ void RenderBackend::CacheNext()
 
   TimeRange cache_frame = cache_queue_.takeFirst();
 
-  qDebug() << "Caching FRAME" << cache_frame.in() << "to" << cache_frame.out();
+  //qDebug() << "Caching FRAME" << cache_frame.in() << "to" << cache_frame.out();
 
   caching_ = GenerateData(cache_frame);
 }
@@ -175,7 +173,7 @@ bool RenderBackend::GenerateData(const TimeRange &range)
     return false;
   }
 
-  NodeDependency dep = NodeDependency(viewer_node()->texture_input()->get_connected_output(), range.in(), range.out());
+  NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_output(), range.in(), range.out());
 
   foreach (RenderWorker* worker, processors_) {
     if (worker->IsAvailable() || worker == processors_.last()) {
@@ -213,4 +211,36 @@ const QVector<QThread *> &RenderBackend::threads()
 void RenderBackend::CacheIDChangedEvent(const QString &id)
 {
   Q_UNUSED(id)
+}
+
+void RenderBackend::InitWorkers()
+{
+  for (int i=0;i<processors_.size();i++) {
+    RenderWorker* processor = processors_.at(i);
+    QThread* thread = threads().at(i);
+
+    // Connect to it
+    connect(processor, SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestedSibling(NodeDependency)));
+    ConnectWorkerToThis(processor);
+
+    // Finally, we can move it to its own thread
+    processor->moveToThread(thread);
+
+    // This function blocks the main thread intentionally. See the documentation for this function to see why.
+    processor->Init();
+  }
+}
+
+void RenderBackend::ThreadRequestedSibling(NodeDependency dep)
+{
+  // Try to queue another thread to run this dep in advance
+  foreach (RenderWorker* worker, processors_) {
+    if (worker->IsAvailable()) {
+      QMetaObject::invokeMethod(worker,
+                                "RenderAsSibling",
+                                Qt::QueuedConnection,
+                                Q_ARG(NodeDependency, dep));
+      return;
+    }
+  }
 }

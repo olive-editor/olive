@@ -47,7 +47,7 @@ bool OpenGLWorker::InitInternal()
   return true;
 }
 
-QVariant OpenGLWorker::FrameToTexture(FramePtr frame)
+QVariant OpenGLWorker::FrameToValue(FramePtr frame)
 {
   OpenGLTexturePtr footage_tex = std::make_shared<OpenGLTexture>();
   footage_tex->Create(ctx_, frame);
@@ -63,7 +63,7 @@ QVariant OpenGLWorker::FrameToTexture(FramePtr frame)
   return QVariant::fromValue(footage_tex);
 }
 
-bool OpenGLWorker::OutputIsShader(NodeOutput* output)
+bool OpenGLWorker::OutputIsAccelerated(NodeOutput* output)
 {
   return shader_cache_->HasShader(output);
 }
@@ -83,7 +83,7 @@ void OpenGLWorker::ParametersChangedEvent()
   }
 }
 
-QVariant OpenGLWorker::RunNodeAsShader(NodeOutput *out)
+QVariant OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
 {
   OpenGLShaderPtr shader = shader_cache_->GetShader(out);
   Node* node = out->parent();
@@ -126,6 +126,7 @@ QVariant OpenGLWorker::RunNodeAsShader(NodeOutput *out)
           shader->setUniformValue(variable_location, input->value().value<QVector4D>());
           break;
         case NodeInput::kMatrix:
+          qDebug() << "Setting uniform value to matrix" << input->value().value<QMatrix4x4>();
           shader->setUniformValue(variable_location, input->value().value<QMatrix4x4>());
           break;
         case NodeInput::kColor:
@@ -138,14 +139,14 @@ QVariant OpenGLWorker::RunNodeAsShader(NodeOutput *out)
         case NodeInput::kFootage:
         {
           OpenGLTexturePtr texture = input->value().value<OpenGLTexturePtr>();
-          qDebug() << "      Binding" << texture->texture() << "from" << input << "to GL_TEXTURE" << input_texture_count;
+          //qDebug() << "      Binding" << texture->texture() << "from" << input << "to GL_TEXTURE" << input_texture_count;
 
           functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
           functions_->glBindTexture(GL_TEXTURE_2D, texture->texture());
 
           // Set value to bound texture
           shader->setUniformValue(variable_location, input_texture_count);
-          qDebug() << "      Setting" << input->id() << "to" << input_texture_count;
+          //qDebug() << "      Setting" << input->id() << "to" << input_texture_count;
 
           input_texture_count++;
           break;
@@ -165,7 +166,7 @@ QVariant OpenGLWorker::RunNodeAsShader(NodeOutput *out)
     }
   }
 
-  qDebug() << "    Blitting with shader!";
+  //qDebug() << "    Blitting with shader!";
   olive::gl::Blit(shader);
 
   // Release any textures we bound before

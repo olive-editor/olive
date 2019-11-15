@@ -1,11 +1,13 @@
 #include "audiorenderbackend.h"
 
+#include <QDir>
 #include <QtMath>
+
+#include "common/filefunctions.h"
 
 AudioRenderBackend::AudioRenderBackend(QObject *parent) :
   RenderBackend(parent)
 {
-
 }
 
 void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
@@ -23,8 +25,17 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 
 void AudioRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
 {
+  rational start_range_adj = qMax(rational(0), start_range);
+  rational end_range_adj = qMin(viewer_node()->Length(), end_range);
+
+  // Truncate to length if necessary
+  int max_length_in_bytes = params().time_to_bytes(viewer_node()->Length());
+  if (pcm_data_.size() > max_length_in_bytes) {
+    pcm_data_.resize(max_length_in_bytes);
+  }
+
   // Add the range to the list
-  cache_queue_.append(TimeRange(start_range, end_range));
+  cache_queue_.append(TimeRange(start_range_adj, end_range_adj));
 
   // Remove any overlaps so we don't render the same thing twice
   ValidateRanges();
@@ -37,7 +48,7 @@ void AudioRenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
 {
   if (node != nullptr) {
     // FIXME: Hardcoded format
-    SetParameters(AudioRenderingParams(node->audio_params(), olive::SAMPLE_FMT_FLT));
+    SetParameters(AudioRenderingParams(node->audio_params(), SAMPLE_FMT_FLT));
   }
 }
 
@@ -53,6 +64,16 @@ bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)
   hash.addData(QString::number(params_.format()).toUtf8());
 
   return true;
+}
+
+const AudioRenderingParams &AudioRenderBackend::params()
+{
+  return params_;
+}
+
+NodeInput *AudioRenderBackend::GetDependentInput()
+{
+  return viewer_node()->samples_input();
 }
 
 void AudioRenderBackend::ValidateRanges()
@@ -75,6 +96,14 @@ void AudioRenderBackend::ValidateRanges()
   }
 }
 
+QString AudioRenderBackend::CachePathName()
+{
+  QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id());
+  this_cache_dir.mkpath(".");
+
+  return this_cache_dir.filePath(QStringLiteral("pcm"));
+}
+
 TimeRange AudioRenderBackend::CombineRange(const TimeRange &a, const TimeRange &b)
 {
   return TimeRange(qMin(a.in(), b.in()),
@@ -83,5 +112,5 @@ TimeRange AudioRenderBackend::CombineRange(const TimeRange &a, const TimeRange &
 
 bool AudioRenderBackend::RangesOverlap(const TimeRange &a, const TimeRange &b)
 {
-  return (a.out() < b.in() && a.in() > b.out());
+  return !(a.out() < b.in() || a.in() > b.out());
 }

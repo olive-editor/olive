@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/backend/audio/audiobackend.h
   render/backend/audio/audiobackend.cpp
+  render/backend/audio/audioworker.h
+  render/backend/audio/audioworker.cpp
   PARENT_SCOPE
 )

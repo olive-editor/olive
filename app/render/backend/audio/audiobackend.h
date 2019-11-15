@@ -1,6 +1,8 @@
 #ifndef AUDIOBACKEND_H
 #define AUDIOBACKEND_H
 
+#include <QFile>
+
 #include "../audiorenderbackend.h"
 
 class AudioBackend : public AudioRenderBackend
@@ -8,6 +10,10 @@ class AudioBackend : public AudioRenderBackend
   Q_OBJECT
 public:
   AudioBackend(QObject* parent = nullptr);
+
+  virtual ~AudioBackend() override;
+
+  virtual QIODevice* GetAudioPullDevice() override;
 
 protected:
   virtual bool InitInternal() override;
@@ -18,7 +24,13 @@ protected:
 
   virtual void DecompileInternal() override;
 
+  virtual void ConnectWorkerToThis(RenderWorker* worker) override;
 
+private slots:
+  void ThreadCompletedCache(NodeDependency dep);
+
+private:
+  QFile pull_device_;
 
 };
 
