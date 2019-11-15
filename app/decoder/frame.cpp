@@ -100,6 +100,11 @@ void Frame::set_format(const olive::PixelFormat &format)
   format_ = format;
 }
 
+QByteArray Frame::ToByteArray()
+{
+  return data_;
+}
+
 const int &Frame::sample_count()
 {
   return sample_count_;
@@ -110,12 +115,12 @@ void Frame::set_sample_count(const int &audio_sample_count)
   sample_count_ = audio_sample_count;
 }
 
-uint8_t *Frame::data()
+char *Frame::data()
 {
   return data_.data();
 }
 
-const uint8_t *Frame::const_data()
+const char *Frame::const_data()
 {
   return data_.constData();
 }
@@ -133,4 +138,9 @@ void Frame::allocate()
 void Frame::destroy()
 {
   data_.clear();
+}
+
+int Frame::allocated_size() const
+{
+  return data_.size();
 }

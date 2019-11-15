@@ -86,14 +86,21 @@ public:
   void set_format(const olive::PixelFormat& format);
 
   /**
+   * @brief Returns a copy of the data in this frame as a QByteArray
+   *
+   * Will always do a deep copy. If you want to affect the data directly, use data() instead.
+   */
+  QByteArray ToByteArray();
+
+  /**
    * @brief Get the data buffer of this frame
    */
-  uint8_t* data();
+  char* data();
 
   /**
    * @brief Get the const data buffer of this frame
    */
-  const uint8_t* const_data();
+  const char* const_data();
 
   /**
    * @brief Allocate memory buffer to store data based on parameters
@@ -109,6 +116,13 @@ public:
    */
   void destroy();
 
+  /**
+   * @brief Returns the size of the array returned in data() in bytes
+   *
+   * Returns 0 if nothing is allocated.
+   */
+  int allocated_size() const;
+
 private:
   int width_;
 
@@ -120,7 +134,7 @@ private:
 
   int sample_count_;
 
-  QVector<uint8_t> data_;
+  QByteArray data_;
 
   rational timestamp_;
 

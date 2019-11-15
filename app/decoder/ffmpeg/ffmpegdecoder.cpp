@@ -27,12 +27,14 @@ extern "C" {
 
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QString>
 #include <QtMath>
 
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
-#include "decoder/wave.h"
+#include "decoder/waveinput.h"
+#include "decoder/waveoutput.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -195,85 +197,118 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
     return nullptr;
   }
 
-  // Convert timecode to AVStream timebase
-  int64_t target_ts = GetTimestampFromTime(timecode);
+  switch (avstream_->codecpar->codec_type) {
+  case AVMEDIA_TYPE_VIDEO:
+  {
+    // Convert timecode to AVStream timebase
+    int64_t target_ts = GetTimestampFromTime(timecode);
 
-  if (target_ts < 0) {
-    Error(QStringLiteral("Index failed to produce a valid timestamp"));
-    return nullptr;
-  }
-
-  // Check if this is already the frame we have cached
-  if (frame_->pts != target_ts) {
-    // Cache FFmpeg error code returns
-    int ret = 0;
-
-    // Set up seeking loop
-    int64_t seek_ts = target_ts;
-    int64_t second_ts = qRound(rational(avstream_->time_base).flipped().toDouble());
-    bool got_frame = false;
-    bool last_backtrack = false;
-
-    // FFmpeg frame retrieve loop
-    while (ret >= 0 && frame_->pts != target_ts) {
-
-      // If the frame timestamp is too large, we need to seek back a little
-      if (got_frame && (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE)) {
-        // If we already tried seeking to 0 though, there's nothing we can do so we error here
-        if (last_backtrack) {
-          // Must be the earliest frame in the file
-          break;
-        }
-
-        // We can't seek earlier than 0, so if this is a 0-seek, don't try any more times after this attempt
-        if (seek_ts <= 0) {
-          seek_ts = 0;
-          last_backtrack = true;
-        }
-
-        Seek(seek_ts);
-
-        // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
-        seek_ts -= second_ts;
-      }
-
-      ret = GetFrame();
-      got_frame = true;
-    }
-
-    // Handle any errors received during the frame retrieve process
-    if (ret < 0) {
-      FFmpegError(ret);
+    if (target_ts < 0) {
+      Error(QStringLiteral("Index failed to produce a valid timestamp"));
       return nullptr;
     }
+
+    // Check if this is already the frame we have cached
+    if (frame_->pts != target_ts) {
+      // Cache FFmpeg error code returns
+      int ret = 0;
+
+      // Set up seeking loop
+      int64_t seek_ts = target_ts;
+      int64_t second_ts = qRound(rational(avstream_->time_base).flipped().toDouble());
+      bool got_frame = false;
+      bool last_backtrack = false;
+
+      // FFmpeg frame retrieve loop
+      while (ret >= 0 && frame_->pts != target_ts) {
+
+        // If the frame timestamp is too large, we need to seek back a little
+        if (got_frame && (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE)) {
+          // If we already tried seeking to 0 though, there's nothing we can do so we error here
+          if (last_backtrack) {
+            // Must be the earliest frame in the file
+            break;
+          }
+
+          // We can't seek earlier than 0, so if this is a 0-seek, don't try any more times after this attempt
+          if (seek_ts <= 0) {
+            seek_ts = 0;
+            last_backtrack = true;
+          }
+
+          Seek(seek_ts);
+
+          // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
+          seek_ts -= second_ts;
+        }
+
+        ret = GetFrame();
+        got_frame = true;
+      }
+
+      // Handle any errors received during the frame retrieve process
+      if (ret < 0) {
+        FFmpegError(ret);
+        return nullptr;
+      }
+    }
+
+    // Frame was valid, now we convert it to a native Olive frame
+    FramePtr frame_container = Frame::Create();
+    frame_container->set_width(frame_->width);
+    frame_container->set_height(frame_->height);
+    frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
+    frame_container->set_timestamp(rational(frame_->pts * avstream_->time_base.num, avstream_->time_base.den));
+    frame_container->set_native_timestamp(frame_->pts);
+    frame_container->allocate();
+
+    // Convert pixel format/linesize if necessary
+    uint8_t* dst_data = reinterpret_cast<uint8_t*>(frame_container->data());
+    int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<olive::PixelFormat>(output_fmt_));
+
+    // Perform pixel conversion
+    sws_scale(scale_ctx_,
+              frame_->data,
+              frame_->linesize,
+              0,
+              frame_->height,
+              &dst_data,
+              &dst_linesize);
+
+    return frame_container;
+  }
+  case AVMEDIA_TYPE_AUDIO:
+  {
+    if (!LoadFrameIndex()) {
+      Index();
+    }
+
+    WaveInput input(GetIndexFilename());
+
+    if (input.open()) {
+      const AudioRenderingParams& params = input.params();
+
+      FramePtr audio_frame = Frame::Create();
+      audio_frame->set_audio_params(params);
+      audio_frame->set_sample_count(params.time_to_samples(length));
+      audio_frame->allocate();
+
+      input.read(params.time_to_bytes(timecode),
+                 audio_frame->data(),
+                 audio_frame->allocated_size());
+
+      input.close();
+
+      return audio_frame;
+    }
+
+    break;
+  }
+  default:
+    break;
   }
 
-  // Frame was valid, now we convert it to a native Olive frame
-  FramePtr frame_container = Frame::Create();
-  frame_container->set_width(frame_->width);
-  frame_container->set_height(frame_->height);
-  frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
-  frame_container->set_timestamp(rational(frame_->pts * avstream_->time_base.num, avstream_->time_base.den));
-  frame_container->set_native_timestamp(frame_->pts);
-  frame_container->allocate();
-
-  // Convert pixel format/linesize if necessary
-  uint8_t* dst_data = frame_container->data();
-  int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<olive::PixelFormat>(output_fmt_));
-
-  // Perform pixel conversion
-  sws_scale(scale_ctx_,
-            frame_->data,
-            frame_->linesize,
-            0,
-            frame_->height,
-            &dst_data,
-            &dst_linesize);
-
-  // Audio decoding will use a length value eventually
-  Q_UNUSED(length)
-
-  return frame_container;
+  return nullptr;
 }
 
 void FFmpegDecoder::Close()
@@ -409,9 +444,8 @@ bool FFmpegDecoder::Probe(Footage *f)
         case AVMEDIA_TYPE_ATTACHMENT:
           str->set_type(Stream::kAttachment);
           break;
-
-          // We should never realistically get here, but we make an "invalid" stream just in case
         default:
+          // We should never realistically get here, but we make an "invalid" stream just in case
           str->set_type(Stream::kUnknown);
           break;
         }
@@ -478,8 +512,8 @@ void FFmpegDecoder::FFmpegError(int error_code)
   av_strerror(error_code, err, 1024);
 
   Error(QStringLiteral("Error decoding %1 - %2 %3").arg(stream()->footage()->filename(),
-                                            QString::number(error_code),
-                                            err));
+                                                        QString::number(error_code),
+                                                        err));
 }
 
 void FFmpegDecoder::Error(const QString &s)
@@ -523,10 +557,17 @@ void FFmpegDecoder::Index()
   } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
     // Iterate through each audio frame and extract the PCM data
 
-    WaveOutput wave_out("C:\\Users\\Matt\\AppData\\Local\\Temp\\temporary.wav", // FIXME: Hardcoded path
-                        AudioRenderingParams(avstream_->codecpar->sample_rate,
-                                             avstream_->codecpar->channel_layout,
-                                             GetNativeSampleRate(static_cast<AVSampleFormat>(avstream_->codecpar->format))));
+    uint64_t channel_layout = avstream_->codecpar->channel_layout;
+    if (!channel_layout) {
+      if (!avstream_->codecpar->channels) {
+        // No channel data - we can't do anything with this
+        return;
+      }
+
+      channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(avstream_->codecpar->channels));
+    }
+
+    qDebug() << "Decoder outputting wave to" << GetIndexFilename();
 
     SwrContext* resampler = nullptr;
     AVSampleFormat src_sample_fmt = static_cast<AVSampleFormat>(avstream_->codecpar->format);
@@ -536,14 +577,11 @@ void FFmpegDecoder::Index()
     if (av_sample_fmt_is_planar(src_sample_fmt)) {
       dst_sample_fmt = av_get_packed_sample_fmt(src_sample_fmt);
 
-      // Bizarrely, swr_alloc_set_opts() uses a signed int64 while most of FFmpeg uses unsigned. We cast here.
-      int64_t channel_layout = static_cast<int64_t>(avstream_->codecpar->channel_layout);
-
       resampler = swr_alloc_set_opts(nullptr,
-                                     channel_layout,
+                                     static_cast<int64_t>(avstream_->codecpar->channel_layout),
                                      dst_sample_fmt,
                                      avstream_->codecpar->sample_rate,
-                                     channel_layout,
+                                     static_cast<int64_t>(avstream_->codecpar->channel_layout),
                                      src_sample_fmt,
                                      avstream_->codecpar->sample_rate,
                                      0,
@@ -552,6 +590,11 @@ void FFmpegDecoder::Index()
       dst_sample_fmt = src_sample_fmt;
     }
 
+    WaveOutput wave_out(GetIndexFilename(),
+                        AudioRenderingParams(avstream_->codecpar->sample_rate,
+                                             channel_layout,
+                                             GetNativeSampleRate(dst_sample_fmt)));
+
     if (wave_out.open()) {
       while (true) {
         ret = GetFrame();
@@ -559,34 +602,41 @@ void FFmpegDecoder::Index()
         if (ret < 0) {
           break;
         } else {
-          // Calculate the byte size for this audio buffer
-          int buffer_size = av_samples_get_buffer_size(nullptr,
-                                                       avstream_->codecpar->channels,
-                                                       frame_->nb_samples,
-                                                       dst_sample_fmt,
-                                                       0); // FIXME: Documentation unclear - should this be 0 or 1?
-
-          uint8_t* resampler_output;
+          AVFrame* data_frame;
 
           if (resampler != nullptr) {
             // We must need to resample this (mainly just convert from planar to packed if necessary)
-            resampler_output = new uint8_t[buffer_size];
-            swr_convert(resampler,
-                        &resampler_output,
-                        frame_->nb_samples,
-                        const_cast<const uint8_t **>(frame_->data),
-                        frame_->nb_samples);
+            data_frame = av_frame_alloc();
+            data_frame->sample_rate = frame_->sample_rate;
+            data_frame->channel_layout = frame_->channel_layout;
+            data_frame->channels = frame_->channels;
+            data_frame->format = dst_sample_fmt;
+            av_frame_make_writable(data_frame);
+
+            int ret = swr_convert_frame(resampler, data_frame, frame_);
+
+            if (ret != 0) {
+              char err_str[50];
+              av_strerror(ret, err_str, 50);
+              qWarning() << "libswresample failed with error:" << ret << err_str;
+            }
           } else {
             // No resampling required, we can write directly from te frame buffer
-            resampler_output = frame_->data[0];
+            data_frame = frame_;
           }
 
+          int buffer_sz = av_samples_get_buffer_size(nullptr,
+                                                     avstream_->codecpar->channels,
+                                                     data_frame->nb_samples,
+                                                     dst_sample_fmt,
+                                                     0); // FIXME: Documentation unclear - should this be 0 or 1?
+
           // Write packed WAV data to the disk cache
-          wave_out.write(reinterpret_cast<char*>(resampler_output), buffer_size);
+          wave_out.write(reinterpret_cast<char*>(data_frame->data[0]), buffer_sz);
 
           // If we allocated an output for the resampler, delete it here
-          if (resampler_output != frame_->data[0]) {
-            delete [] resampler_output;
+          if (data_frame != frame_) {
+            av_frame_free(&data_frame);
           }
         }
       }
@@ -618,24 +668,36 @@ QString FFmpegDecoder::GetIndexFilename()
 
 bool FFmpegDecoder::LoadFrameIndex()
 {
-  // Load index from file
-  QFile index_file(GetIndexFilename());
+  switch (avstream_->codecpar->codec_type) {
+  case AVMEDIA_TYPE_VIDEO:
+  {
+    // Load index from file
+    QFile index_file(GetIndexFilename());
 
-  if (!index_file.exists()) {
-    return false;
+    if (!index_file.exists()) {
+      return false;
+    }
+
+    if (index_file.open(QFile::ReadOnly)) {
+      // Resize based on filesize
+      frame_index_.resize(static_cast<int>(static_cast<size_t>(index_file.size()) / sizeof(int64_t)));
+
+      // Read frame index into vector
+      index_file.read(reinterpret_cast<char*>(frame_index_.data()),
+                      index_file.size());
+
+      index_file.close();
+
+      return true;
+    }
+    break;
   }
-
-  if (index_file.open(QFile::ReadOnly)) {
-    // Resize based on filesize
-    frame_index_.resize(static_cast<int>(static_cast<size_t>(index_file.size()) / sizeof(int64_t)));
-
-    // Read frame index into vector
-    index_file.read(reinterpret_cast<char*>(frame_index_.data()),
-                    index_file.size());
-
-    index_file.close();
-
-    return true;
+  case AVMEDIA_TYPE_AUDIO:
+  {
+    return QFileInfo::exists(GetIndexFilename());
+  }
+  default:
+    break;
   }
 
   return false;
@@ -715,21 +777,21 @@ AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_f
                                            nullptr);
 }
 
-olive::SampleFormat FFmpegDecoder::GetNativeSampleRate(const AVSampleFormat &smp_fmt)
+SampleFormat FFmpegDecoder::GetNativeSampleRate(const AVSampleFormat &smp_fmt)
 {
   switch (smp_fmt) {
   case AV_SAMPLE_FMT_U8:
-    return olive::SAMPLE_FMT_U8;
+    return SAMPLE_FMT_U8;
   case AV_SAMPLE_FMT_S16:
-    return olive::SAMPLE_FMT_S16;
+    return SAMPLE_FMT_S16;
   case AV_SAMPLE_FMT_S32:
-    return olive::SAMPLE_FMT_S32;
+    return SAMPLE_FMT_S32;
   case AV_SAMPLE_FMT_S64:
-    return olive::SAMPLE_FMT_S64;
+    return SAMPLE_FMT_S64;
   case AV_SAMPLE_FMT_FLT:
-    return olive::SAMPLE_FMT_FLT;
+    return SAMPLE_FMT_FLT;
   case AV_SAMPLE_FMT_DBL:
-    return olive::SAMPLE_FMT_DBL;
+    return SAMPLE_FMT_DBL;
   case AV_SAMPLE_FMT_U8P :
   case AV_SAMPLE_FMT_S16P:
   case AV_SAMPLE_FMT_S32P:
@@ -741,7 +803,7 @@ olive::SampleFormat FFmpegDecoder::GetNativeSampleRate(const AVSampleFormat &smp
     break;
   }
 
-  return olive::SAMPLE_FMT_INVALID;
+  return SAMPLE_FMT_INVALID;
 }
 
 int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)

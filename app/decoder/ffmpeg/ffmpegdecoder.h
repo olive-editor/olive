@@ -106,7 +106,7 @@ private:
   QString GetIndexFilename();
 
   /**
-   * @brief Used internally to load a frame index into frame_index_ (video only)
+   * @brief Used internally to load a frame index into frame_index_
    *
    * @return
    *
@@ -125,13 +125,11 @@ private:
   void Seek(int64_t timestamp);
 
   /**
-   * @brief Returns an AVPixelFormat that can be
-   * @param pix_fmt
-   * @return
+   * @brief Returns an AVPixelFormat that can be used in Olive and causes minimal data loss
    */
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 
-  olive::SampleFormat GetNativeSampleRate(const AVSampleFormat& smp_fmt);
+  SampleFormat GetNativeSampleRate(const AVSampleFormat& smp_fmt);
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
