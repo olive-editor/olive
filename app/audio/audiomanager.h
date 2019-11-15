@@ -27,6 +27,7 @@
 #include <QThread>
 
 #include "audiohybriddevice.h"
+#include "render/audioparams.h"
 
 /**
  * @brief A thread for refreshing the total list of devices on the system
@@ -86,6 +87,8 @@ public:
 
   void SetOutputDevice(const QAudioDeviceInfo& info);
 
+  void SetOutputParams(const AudioRenderingParams& params);
+
   void SetInputDevice(const QAudioDeviceInfo& info);
 
   const QList<QAudioDeviceInfo>& ListInputDevices();
@@ -109,6 +112,7 @@ private:
 
   std::unique_ptr<QAudioOutput> output_;
   QAudioDeviceInfo output_device_info_;
+  AudioRenderingParams output_params_;
 
   std::unique_ptr<QAudioInput> input_;
   QAudioDeviceInfo input_device_info_;

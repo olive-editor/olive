@@ -90,20 +90,61 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
 
   StopOutput();
 
-  QAudioFormat format;
-  format.setSampleRate(48000);
-  format.setChannelCount(2);
-  format.setSampleSize(32);
-  format.setCodec("audio/pcm");
-  format.setByteOrder(QAudioFormat::LittleEndian);
-  format.setSampleType(QAudioFormat::Float);
-
-  output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
-  connect(output_.get(), SIGNAL(notify()), this, SLOT(OutputNotified()));
   output_device_info_ = info;
+
+  if (output_params_.is_valid()) {
+    QAudioFormat format;
+    format.setSampleRate(output_params_.sample_rate());
+    format.setChannelCount(output_params_.channel_count());
+    format.setCodec("audio/pcm");
+    format.setByteOrder(QAudioFormat::LittleEndian);
+
+    switch (output_params_.format()) {
+    case SAMPLE_FMT_U8:
+      format.setSampleSize(8);
+      format.setSampleType(QAudioFormat::UnSignedInt);
+      break;
+    case SAMPLE_FMT_S16:
+      format.setSampleSize(16);
+      format.setSampleType(QAudioFormat::SignedInt);
+      break;
+    case SAMPLE_FMT_S32:
+      format.setSampleSize(32);
+      format.setSampleType(QAudioFormat::SignedInt);
+      break;
+    case SAMPLE_FMT_S64:
+      format.setSampleSize(64);
+      format.setSampleType(QAudioFormat::SignedInt);
+      break;
+    case SAMPLE_FMT_FLT:
+      format.setSampleSize(32);
+      format.setSampleType(QAudioFormat::Float);
+      break;
+    case SAMPLE_FMT_DBL:
+      format.setSampleSize(64);
+      format.setSampleType(QAudioFormat::Float);
+      break;
+    case SAMPLE_FMT_COUNT:
+    case SAMPLE_FMT_INVALID:
+      Q_ASSERT(false);
+    }
+
+    output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
+    connect(output_.get(), SIGNAL(notify()), this, SLOT(OutputNotified()));
+  }
 
   // Un-comment this to get debug information about what the audio output is doing
   //connect(output_.get(), SIGNAL(stateChanged(QAudio::State)), this, SLOT(OutputStateChanged(QAudio::State)));
+}
+
+void AudioManager::SetOutputParams(const AudioRenderingParams &params)
+{
+  if (output_params_ != params) {
+    output_params_ = params;
+
+    // Refresh output device
+    SetOutputDevice(output_device_info_);
+  }
 }
 
 void AudioManager::SetInputDevice(const QAudioDeviceInfo &info)

@@ -48,6 +48,20 @@ const SampleFormat &AudioRenderingParams::format() const
   return format_;
 }
 
+bool AudioRenderingParams::operator==(const AudioRenderingParams &other)
+{
+  return (format() == other.format()
+          && sample_rate() == other.sample_rate()
+          && channel_layout() == other.channel_layout());
+}
+
+bool AudioRenderingParams::operator!=(const AudioRenderingParams &other)
+{
+  return (format() != other.format()
+          || sample_rate() != other.sample_rate()
+          || channel_layout() != other.channel_layout());
+}
+
 int AudioRenderingParams::time_to_bytes(const rational &time) const
 {
   Q_ASSERT(is_valid());

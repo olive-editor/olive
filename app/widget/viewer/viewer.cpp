@@ -210,6 +210,7 @@ void ViewerWidget::PlayInternal(int speed)
   QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
   if (audio_src != nullptr && audio_src->open(QIODevice::ReadOnly)) {
     audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
+    AudioManager::instance()->SetOutputParams(audio_renderer_->params());
     AudioManager::instance()->StartOutput(audio_src);
   }
 
@@ -235,6 +236,7 @@ void ViewerWidget::PushScrubbedAudio()
       // Push audio
       audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
       QByteArray frame_audio = audio_src->read(size_of_sample);
+      AudioManager::instance()->SetOutputParams(audio_renderer_->params());
       AudioManager::instance()->PushToOutput(frame_audio);
 
       audio_src->close();
