@@ -84,9 +84,9 @@ void AudioRenderBackend::ValidateRanges()
     for (int j=0;j<cache_queue_.size();j++) {
       const TimeRange& range2 = cache_queue_.at(j);
 
-      if (RangesOverlap(range1, range2) && i != j) {
+      if (TimeRange::Overlap(range1, range2) && i != j) {
         // Combine with the first range
-        cache_queue_[i] = CombineRange(range1, range2);
+        cache_queue_[i] = TimeRange::Combine(range1, range2);
 
         // Remove the second range
         cache_queue_.removeAt(j);
@@ -102,15 +102,4 @@ QString AudioRenderBackend::CachePathName()
   this_cache_dir.mkpath(".");
 
   return this_cache_dir.filePath(QStringLiteral("pcm"));
-}
-
-TimeRange AudioRenderBackend::CombineRange(const TimeRange &a, const TimeRange &b)
-{
-  return TimeRange(qMin(a.in(), b.in()),
-                   qMax(a.out(), b.out()));
-}
-
-bool AudioRenderBackend::RangesOverlap(const TimeRange &a, const TimeRange &b)
-{
-  return !(a.out() < b.in() || a.in() > b.out());
 }

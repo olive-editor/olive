@@ -42,10 +42,6 @@ protected:
 private:
   void ValidateRanges();
 
-  TimeRange CombineRange(const TimeRange& a, const TimeRange& b);
-
-  bool RangesOverlap(const TimeRange& a, const TimeRange& b);
-
   AudioRenderingParams params_;
 
 };
