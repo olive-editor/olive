@@ -175,7 +175,7 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash)
 
   if (texture == nullptr) {
     // No frame received, we set hash to an empty
-    frame_cache()->RemoveHash(path.in());
+    frame_cache()->RemoveHash(path.in(), hash);
   } else {
     // Received a texture, let's download it
     QString cache_fn = frame_cache()->CachePathName(hash);

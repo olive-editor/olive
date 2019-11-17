@@ -60,9 +60,9 @@ void VideoRenderFrameCache::SetHash(const rational &time, const QByteArray &hash
   time_hash_map_.insert(time, hash);
 }
 
-void VideoRenderFrameCache::RemoveHash(const rational &time)
+void VideoRenderFrameCache::RemoveHash(const rational &time, const QByteArray &hash)
 {
-  RemoveHashFromCurrentlyCaching(time_hash_map_.value(time));
+  RemoveHashFromCurrentlyCaching(hash);
 
   time_hash_map_.remove(time);
 }

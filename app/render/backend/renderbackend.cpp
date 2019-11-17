@@ -164,8 +164,6 @@ void RenderBackend::CacheNext()
 
   TimeRange cache_frame = cache_queue_.takeFirst();
 
-  //qDebug() << "Caching FRAME" << cache_frame.in() << "to" << cache_frame.out();
-
   caching_ = GenerateData(cache_frame);
 }
 

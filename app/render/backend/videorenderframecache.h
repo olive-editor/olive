@@ -35,7 +35,7 @@ public:
   QByteArray TimeToHash(const rational& time);
 
   void SetHash(const rational& time, const QByteArray& hash);
-  void RemoveHash(const rational& time);
+  void RemoveHash(const rational& time, const QByteArray &hash);
 
   void Truncate(const rational& time);
 
