@@ -46,6 +46,7 @@ public:
   QVariant get_cached_value(const TimeRange& time);
   void cache_value(const TimeRange& time, const QVariant& value);
   void drop_cached_values();
+  void drop_cached_values_overlapping(const TimeRange& time);
 
 private:
   QHash<TimeRange, QVariant> cached_values_;

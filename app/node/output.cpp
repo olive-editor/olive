@@ -58,3 +58,16 @@ void NodeOutput::drop_cached_values()
 {
   cached_values_.clear();
 }
+
+void NodeOutput::drop_cached_values_overlapping(const TimeRange &time)
+{
+  QHash<TimeRange, QVariant>::iterator i = cached_values_.begin();
+
+  while (i != cached_values_.end()) {
+    if (i.key().OverlapsWith(time)) {
+      i = cached_values_.erase(i);
+    } else {
+      i++;
+    }
+  }
+}

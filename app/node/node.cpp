@@ -83,6 +83,13 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 {
   Q_UNUSED(from)
 
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kOutput) {
+      NodeOutput* output = static_cast<NodeOutput*>(param);
+      output->drop_cached_values_overlapping(TimeRange(start_range, end_range));
+    }
+  }
+
   SendInvalidateCache(start_range, end_range);
 }
 
