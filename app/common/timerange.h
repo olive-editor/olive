@@ -18,6 +18,12 @@ public:
 
   bool operator==(const TimeRange& r) const;
 
+  bool OverlapsWith(const TimeRange& a) const;
+  TimeRange CombineWith(const TimeRange& a) const;
+
+  static bool Overlap(const TimeRange& a, const TimeRange& b);
+  static TimeRange Combine(const TimeRange &a, const TimeRange &b);
+
 private:
   void normalize();
 

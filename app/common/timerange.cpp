@@ -48,6 +48,27 @@ bool TimeRange::operator==(const TimeRange &r) const
   return in() == r.in() && out() == r.out();
 }
 
+bool TimeRange::OverlapsWith(const TimeRange &a) const
+{
+  return Overlap(a, *this);
+}
+
+TimeRange TimeRange::CombineWith(const TimeRange &a) const
+{
+  return Combine(a, *this);
+}
+
+bool TimeRange::Overlap(const TimeRange &a, const TimeRange &b)
+{
+  return !(a.out() < b.in() || a.in() > b.out());
+}
+
+TimeRange TimeRange::Combine(const TimeRange &a, const TimeRange &b)
+{
+  return TimeRange(qMin(a.in(), b.in()),
+                   qMax(a.out(), b.out()));
+}
+
 void TimeRange::normalize()
 {
   // If `out` is earlier than `in`, swap them
