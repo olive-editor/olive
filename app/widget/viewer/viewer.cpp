@@ -134,6 +134,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 
     disconnect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     disconnect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
+    disconnect(viewer_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(LengthChangedSlot(const rational&)));
 
     // Effectively disables the viewer and clears the state
     SizeChangedSlot(0, 0);
@@ -149,8 +150,10 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 
     connect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     connect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
+    connect(viewer_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(LengthChangedSlot(const rational&)));
 
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
+    LengthChangedSlot(viewer_node_->Length());
   }
 
   video_renderer_->SetViewerNode(viewer_node_);
@@ -178,9 +181,6 @@ void ViewerWidget::UpdateTimeInternal(int64_t i)
   controls_->SetTime(i);
 
   if (viewer_node_ != nullptr) {
-    // FIXME: Implement some sort of signalling to update this when the sequence length actually changes
-    controls_->SetEndTime(olive::time_to_timestamp(viewer_node_->Length(), time_base_));
-
     UpdateTextureFromNode(time_set);
 
     PushScrubbedAudio();
@@ -357,6 +357,11 @@ void ViewerWidget::RendererCachedFrame(const rational &time)
 void ViewerWidget::SizeChangedSlot(int width, int height)
 {
   sizer_->SetChildSize(width, height);
+}
+
+void ViewerWidget::LengthChangedSlot(const rational &length)
+{
+  controls_->SetEndTime(olive::time_to_timestamp(length, time_base_));
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

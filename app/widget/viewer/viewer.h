@@ -147,6 +147,8 @@ private slots:
 
   void SizeChangedSlot(int width, int height);
 
+  void LengthChangedSlot(const rational& length);
+
 };
 
 #endif // VIEWER_WIDGET_H
