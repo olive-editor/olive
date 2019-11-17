@@ -204,54 +204,6 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash)
   CacheNext();
 }
 
-/*void OpenGLBackend::ThreadCallback(OpenGLTexturePtr texture, const rational& time, const QByteArray& hash)
-{
-  // Threads are all done now, time to proceed
-  caching_ = false;
-
-  DeferMap(time, hash);
-
-  if (texture != nullptr) {
-    // We received a texture, time to start downloading it
-    QString fn = CachePathName(hash);
-  } else {
-    // There was no texture here, we must update the viewer
-    DownloadThreadComplete(hash);
-  }
-
-  // If the connected output is using this time, signal it to update
-  if (last_time_requested_ == time) {
-
-    copy_buffer_.Bind();
-
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-
-    if (texture == nullptr) {
-
-      // No texture, clear the master and push it
-      f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-      f->glClear(GL_COLOR_BUFFER_BIT);
-
-    } else {
-      texture->Bind();
-
-      f->glViewport(0, 0, master_texture_->width(), master_texture_->height());
-
-      olive::gl::Blit(copy_pipeline_);
-
-      texture->Release();
-    }
-
-    copy_buffer_.Release();
-
-    push_time_ = time;
-
-    emit CachedFrameReady(time);
-  }
-
-  CacheNext();
-}*/
-
 void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 {
   frame_cache()->SetHash(dep.in(), hash);
@@ -271,38 +223,3 @@ void OpenGLBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
 
   ThreadSkippedFrame();
 }
-
-/*void OpenGLBackend::ThreadSkippedFrame(const rational& time, const QByteArray& hash)
-{
-  caching_ = false;
-
-  DeferMap(time, hash);
-
-  if (!IsCaching(hash)) {
-    DownloadThreadComplete(hash);
-
-    // Signal output to update value
-    emit CachedFrameReady(time);
-  }
-
-  CacheNext();
-}*/
-
-/*void OpenGLBackend::DownloadThreadComplete(const QByteArray &hash)
-{
-  cache_hash_list_mutex_.lock();
-  cache_hash_list_.removeAll(hash);
-  cache_hash_list_mutex_.unlock();
-
-  for (int i=0;i<deferred_maps_.size();i++) {
-    const HashTimeMapping& deferred = deferred_maps_.at(i);
-
-    if (deferred_maps_.at(i).hash == hash) {
-      // Insert into hash map
-      time_hash_map_.insert(deferred.time, deferred.hash);
-
-      deferred_maps_.removeAt(i);
-      i--;
-    }
-  }
-}*/

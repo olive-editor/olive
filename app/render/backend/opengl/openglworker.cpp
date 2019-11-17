@@ -126,7 +126,6 @@ QVariant OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
           shader->setUniformValue(variable_location, input->value().value<QVector4D>());
           break;
         case NodeInput::kMatrix:
-          qDebug() << "Setting uniform value to matrix" << input->value().value<QMatrix4x4>();
           shader->setUniformValue(variable_location, input->value().value<QMatrix4x4>());
           break;
         case NodeInput::kColor:
@@ -139,14 +138,17 @@ QVariant OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
         case NodeInput::kFootage:
         {
           OpenGLTexturePtr texture = input->value().value<OpenGLTexturePtr>();
-          //qDebug() << "      Binding" << texture->texture() << "from" << input << "to GL_TEXTURE" << input_texture_count;
 
           functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
-          functions_->glBindTexture(GL_TEXTURE_2D, texture->texture());
+
+          if (texture == nullptr) {
+            functions_->glBindTexture(GL_TEXTURE_2D, 0);
+          } else {
+            functions_->glBindTexture(GL_TEXTURE_2D, texture->texture());
+          }
 
           // Set value to bound texture
           shader->setUniformValue(variable_location, input_texture_count);
-          //qDebug() << "      Setting" << input->id() << "to" << input_texture_count;
 
           input_texture_count++;
           break;
