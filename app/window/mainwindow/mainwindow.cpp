@@ -152,6 +152,7 @@ void olive::MainWindow::closeEvent(QCloseEvent *e)
   // FIXME: Test code - We have no cache management and the cache is very much testing only, so we delete it on close
   //                    as to not clog up HDD space
   QDir(GetMediaCacheLocation()).removeRecursively();
+  QDir(GetMediaIndexLocation()).removeRecursively();
   // End test code
 
   QMainWindow::closeEvent(e);
