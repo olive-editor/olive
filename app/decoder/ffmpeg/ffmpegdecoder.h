@@ -81,7 +81,7 @@ private:
    *
    * An FFmpeg error code, or >= 0 on success
    */
-  int GetFrame();
+  int GetFrame(AVPacket* pkt, AVFrame* frame);
 
   /**
    * @brief Create an index for this media
@@ -113,12 +113,15 @@ private:
    * TRUE if a frame index was successfully loaded. FALSE usually means the file didn't exist and Index() should be
    * run to create it.
    */
-  bool LoadFrameIndex();
+  bool LoadIndex();
 
   /**
    * @brief Used in Index() to save the just created frame index to a file that can be loaded later
    */
-  void SaveFrameIndex();
+  void SaveIndex();
+
+  void IndexAudio(AVPacket* pkt, AVFrame* frame);
+  void IndexVideo(AVPacket* pkt, AVFrame* frame);
 
   int64_t GetClosestTimestampInIndex(const int64_t& ts);
 
@@ -131,12 +134,12 @@ private:
 
   SampleFormat GetNativeSampleRate(const AVSampleFormat& smp_fmt);
 
+  int CalculatePlaneHeight(int frame_height, const AVPixelFormat& format, int plane);
+
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
   AVDictionary* opts_;
-  AVFrame* frame_;
-  AVPacket* pkt_;
 
   SwsContext* scale_ctx_;
   int output_fmt_;

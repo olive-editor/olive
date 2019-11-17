@@ -72,8 +72,8 @@ public:
   const rational& timestamp();
   void set_timestamp(const rational& timestamp);
 
-  const int64_t& native_timestamp();
-  void set_native_timestamp(const int64_t& timestamp);
+  /*const int64_t& native_timestamp();
+  void set_native_timestamp(const int64_t& timestamp);*/
 
   /**
    * @brief Get frame's format

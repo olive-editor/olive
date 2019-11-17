@@ -80,7 +80,7 @@ void Frame::set_timestamp(const rational &timestamp)
   timestamp_ = timestamp;
 }
 
-const int64_t &Frame::native_timestamp()
+/*const int64_t &Frame::native_timestamp()
 {
   return native_timestamp_;
 }
@@ -88,7 +88,7 @@ const int64_t &Frame::native_timestamp()
 void Frame::set_native_timestamp(const int64_t &timestamp)
 {
   native_timestamp_ = timestamp;
-}
+}*/
 
 const olive::PixelFormat &Frame::format()
 {
