@@ -29,9 +29,9 @@ void VideoRenderWorker::RenderInternal(const NodeDependency& path)
     emit HashAlreadyExists(path, hash);
   } else if (frame_cache_->TryCache(hash)) {
     // This hash is available for us to cache, start traversing graph
-    RenderAsSibling(path);
+    QVariant value = RenderAsSibling(path);
 
-    emit CompletedFrame(path, hash);
+    emit CompletedFrame(path, hash, value);
   } else {
     // Another thread must be caching this already, nothing to be done
     emit HashAlreadyBeingCached();
@@ -115,7 +115,7 @@ void VideoRenderWorker::CloseInternal()
   download_buffer_.clear();
 }
 
-void VideoRenderWorker::RenderAsSibling(NodeDependency dep)
+QVariant VideoRenderWorker::RenderAsSibling(NodeDependency dep)
 {
   NodeOutput* output = dep.node();
   Node* original_node = output->parent();
@@ -158,6 +158,8 @@ void VideoRenderWorker::RenderAsSibling(NodeDependency dep)
 
   // End this working state
   working_--;
+
+  return value;
 }
 
 void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)

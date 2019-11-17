@@ -93,7 +93,8 @@ protected:
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
 signals:
-  void CachedFrameReady(const rational& time);
+  void CachedFrameReady(const rational& time, QVariant value);
+  void CachedTimeReady(const rational& time);
 
 private:
   VideoRenderingParams params_;

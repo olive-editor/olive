@@ -12,7 +12,7 @@ void AudioRenderWorker::SetParameters(const AudioRenderingParams &audio_params)
   audio_params_ = audio_params;
 }
 
-void AudioRenderWorker::RenderAsSibling(NodeDependency dep)
+QVariant AudioRenderWorker::RenderAsSibling(NodeDependency dep)
 {
   NodeOutput* output = dep.node();
   Node* node = output->parent();
@@ -49,6 +49,8 @@ void AudioRenderWorker::RenderAsSibling(NodeDependency dep)
 
   // End this working state
   working_--;
+
+  return value;
 }
 
 bool AudioRenderWorker::InitInternal()

@@ -6,9 +6,7 @@
 #include "functions.h"
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
-  VideoRenderBackend(parent),
-  push_texture_(nullptr),
-  push_time_(-1)
+  VideoRenderBackend(parent)
 {
 }
 
@@ -58,21 +56,11 @@ void OpenGLBackend::CloseInternal()
 
   //copy_buffer_.Destroy();
   master_texture_ = nullptr;
-  push_texture_ = nullptr;
   //copy_pipeline_ = nullptr;
 }
 
 OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
 {
-  if (push_time_ >= 0) {
-    rational temp_push_time = push_time_;
-    push_time_ = -1;
-
-    if (time == temp_push_time) {
-      return push_texture_;
-    }
-  }
-
   const char* cached_frame = GetCachedFrame(time);
 
   if (cached_frame != nullptr) {
@@ -167,11 +155,16 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
   return true;
 }
 
-void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash)
+bool OpenGLBackend::TimeIsCached(const TimeRange &time)
+{
+  return cache_queue_.contains(time);
+}
+
+void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, QVariant value)
 {
   caching_ = false;
 
-  OpenGLTexturePtr texture = path.node()->get_cached_value(path.range()).value<OpenGLTexturePtr>();
+  OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
   if (texture == nullptr) {
     // No frame received, we set hash to an empty
@@ -197,9 +190,9 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash)
   }
 
   // Set as push texture
-  push_time_ = path.in();
-  push_texture_ = texture;
-  emit CachedFrameReady(push_time_);
+  if (!TimeIsCached(TimeRange(path.in(), path.in()))) {
+    emit CachedFrameReady(path.in(), value);
+  }
 
   CacheNext();
 }
@@ -208,7 +201,7 @@ void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 {
   frame_cache()->SetHash(dep.in(), hash);
 
-  emit CachedFrameReady(dep.in());
+  emit CachedTimeReady(dep.in());
 }
 
 void OpenGLBackend::ThreadSkippedFrame()

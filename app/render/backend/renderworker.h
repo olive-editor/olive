@@ -26,7 +26,7 @@ public slots:
 
   void Render(NodeDependency path);
 
-  virtual void RenderAsSibling(NodeDependency dep) = 0;
+  virtual QVariant RenderAsSibling(NodeDependency dep) = 0;
 
 signals:
   void RequestSibling(NodeDependency path);

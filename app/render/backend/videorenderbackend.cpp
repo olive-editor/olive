@@ -165,7 +165,7 @@ void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
 
 void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 {
-  connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray)));
+  connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray, QVariant)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray, QVariant)));
   connect(processor, SIGNAL(HashAlreadyBeingCached()), this, SLOT(ThreadSkippedFrame()));
   connect(processor, SIGNAL(CompletedDownload(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedDownload(NodeDependency, QByteArray)));
   connect(processor, SIGNAL(HashAlreadyExists(NodeDependency, QByteArray)), this, SLOT(ThreadHashAlreadyExists(NodeDependency, QByteArray)));

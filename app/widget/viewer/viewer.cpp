@@ -77,7 +77,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Start background renderers
   video_renderer_ = new OpenGLBackend(this);
-  connect(video_renderer_, SIGNAL(CachedFrameReady(const rational&)), this, SLOT(RendererCachedFrame(const rational&)));
+  connect(video_renderer_, SIGNAL(CachedFrameReady(const rational&, QVariant)), this, SLOT(RendererCachedFrame(const rational&, QVariant)));
+  connect(video_renderer_, SIGNAL(CachedTimeReady(const rational&)), this, SLOT(RendererCachedTime(const rational&)));
   audio_renderer_ = new AudioBackend(this);
 }
 
@@ -347,7 +348,14 @@ void ViewerWidget::PlaybackTimerUpdate()
   SetTime(current_time);
 }
 
-void ViewerWidget::RendererCachedFrame(const rational &time)
+void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value)
+{
+  if (GetTime() == time) {
+    SetTexture(value.value<OpenGLTexturePtr>());
+  }
+}
+
+void ViewerWidget::RendererCachedTime(const rational &time)
 {
   if (GetTime() == time) {
     UpdateTextureFromNode(GetTime());

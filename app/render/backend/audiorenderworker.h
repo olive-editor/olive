@@ -12,7 +12,7 @@ public:
   void SetParameters(const AudioRenderingParams& audio_params);
 
 public slots:
-  virtual void RenderAsSibling(NodeDependency dep) override;
+  virtual QVariant RenderAsSibling(NodeDependency dep) override;
 
 protected:
   virtual bool InitInternal() override;

@@ -30,9 +30,9 @@ protected:
 private:
   bool TraverseCompiling(Node* n);
 
+  bool TimeIsCached(const TimeRange &time);
+
   OpenGLTexturePtr master_texture_;
-  OpenGLTexturePtr push_texture_;
-  rational push_time_;
 
   /*OpenGLFramebuffer copy_buffer_;
   OpenGLShaderPtr copy_pipeline_;*/
@@ -40,7 +40,7 @@ private:
   OpenGLShaderCache shader_cache_;
 
 private slots:
-  void ThreadCompletedFrame(NodeDependency path, QByteArray hash);
+  void ThreadCompletedFrame(NodeDependency path, QByteArray hash, QVariant value);
   void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
   void ThreadSkippedFrame();
   void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);

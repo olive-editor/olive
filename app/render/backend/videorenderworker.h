@@ -16,12 +16,12 @@ public:
   void SetParameters(const VideoRenderingParams& video_params);
 
 public slots:
-  virtual void RenderAsSibling(NodeDependency dep) override;
+  virtual QVariant RenderAsSibling(NodeDependency dep) override;
 
   void Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename);
 
 signals:
-  void CompletedFrame(NodeDependency path, QByteArray hash);
+  void CompletedFrame(NodeDependency path, QByteArray hash, QVariant value);
 
   void CompletedDownload(NodeDependency path, QByteArray hash);
 

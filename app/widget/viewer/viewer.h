@@ -143,7 +143,8 @@ private slots:
 
   void PlaybackTimerUpdate();
 
-  void RendererCachedFrame(const rational& time);
+  void RendererCachedFrame(const rational& time, QVariant value);
+  void RendererCachedTime(const rational& time);
 
   void SizeChangedSlot(int width, int height);
 
