@@ -74,7 +74,13 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
 {
   Node::InvalidateCache(start_range, end_range, from);
 
-  emit TextureChangedBetween(start_range, end_range);
+  if (from == texture_input()) {
+    emit VideoChangedBetween(start_range, end_range);
+  } else if (from == samples_input()) {
+    emit AudioChangedBetween(start_range, end_range);
+  } else if (from == length_input()) {
+    emit LengthChanged(Length());
+  }
 
   SendInvalidateCache(start_range, end_range);
 }

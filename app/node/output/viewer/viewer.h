@@ -58,7 +58,11 @@ public:
 signals:
   void TimebaseChanged(const rational&);
 
-  void TextureChangedBetween(const rational&, const rational&);
+  void VideoChangedBetween(const rational&, const rational&);
+
+  void AudioChangedBetween(const rational&, const rational&);
+
+  void LengthChanged(const rational& length);
 
   void SizeChanged(int width, int height);
 

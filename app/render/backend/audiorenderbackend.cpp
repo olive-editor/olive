@@ -44,12 +44,17 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
   CacheNext();
 }
 
-void AudioRenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
+void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
-  if (node != nullptr) {
-    // FIXME: Hardcoded format
-    SetParameters(AudioRenderingParams(node->audio_params(), SAMPLE_FMT_FLT));
-  }
+  connect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+
+  // FIXME: Hardcoded format
+  SetParameters(AudioRenderingParams(node->audio_params(), SAMPLE_FMT_FLT));
+}
+
+void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
+{
+  disconnect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
 }
 
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)

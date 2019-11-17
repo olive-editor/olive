@@ -72,7 +72,7 @@ const QString &RenderBackend::GetError() const
 void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 {
   if (viewer_node_ != nullptr) {
-    disconnect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+    DisconnectViewer(viewer_node_);
 
     Decompile();
   }
@@ -80,10 +80,8 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
   viewer_node_ = viewer_node;
 
   if (viewer_node_ != nullptr) {
-    connect(viewer_node_, SIGNAL(TextureChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+    ConnectViewer(viewer_node_);
   }
-
-  ViewerNodeChangedEvent(viewer_node_);
 }
 
 void RenderBackend::SetCacheName(const QString &s)
@@ -148,7 +146,12 @@ void RenderBackend::SetError(const QString &error)
   error_ = error;
 }
 
-void RenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
+void RenderBackend::ConnectViewer(ViewerOutput *node)
+{
+  Q_UNUSED(node)
+}
+
+void RenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   Q_UNUSED(node)
 }

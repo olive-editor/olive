@@ -112,12 +112,17 @@ void VideoRenderBackend::CloseInternal()
   cache_frame_load_buffer_.clear();
 }
 
-void VideoRenderBackend::ViewerNodeChangedEvent(ViewerOutput *node)
+void VideoRenderBackend::ConnectViewer(ViewerOutput *node)
 {
-  if (node != nullptr) {
-    // FIXME: Hardcoded format, mode, and divider
-    SetParameters(VideoRenderingParams(node->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
-  }
+  connect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+
+  // FIXME: Hardcoded format, mode, and divider
+  SetParameters(VideoRenderingParams(node->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
+}
+
+void VideoRenderBackend::DisconnectViewer(ViewerOutput *node)
+{
+  disconnect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
 }
 
 const VideoRenderingParams &VideoRenderBackend::params() const

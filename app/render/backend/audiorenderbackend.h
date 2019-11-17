@@ -26,7 +26,9 @@ public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
 protected:
-  virtual void ViewerNodeChangedEvent(ViewerOutput* node) override;
+  virtual void ConnectViewer(ViewerOutput* node) override;
+
+  virtual void DisconnectViewer(ViewerOutput* node) override;
 
   /**
    * @brief Internal function for generating the cache ID

@@ -56,7 +56,8 @@ protected:
 
   void SetError(const QString& error);
 
-  virtual void ViewerNodeChangedEvent(ViewerOutput* node);
+  virtual void ConnectViewer(ViewerOutput* node);
+  virtual void DisconnectViewer(ViewerOutput* node);
 
   /**
    * @brief Function called when there are frames in the queue to cache

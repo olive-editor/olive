@@ -71,7 +71,9 @@ protected:
     QByteArray hash;
   };
 
-  virtual void ViewerNodeChangedEvent(ViewerOutput* node) override;
+  virtual void ConnectViewer(ViewerOutput* node) override;
+
+  virtual void DisconnectViewer(ViewerOutput* node) override;
 
   const char *GetCachedFrame(const rational& time);
 
