@@ -244,16 +244,16 @@ void SliderBase::LineEditConfirmed()
     break;
   }
 
+  // Ensure editor doesn't signal that the focus is lost
+  editor_->blockSignals(true);
+
   if (is_valid) {
     SetValue(test_val);
 
-    emit ValueChanged(value_);
-
     setCurrentWidget(label_);
-  } else {
-    // Ensure the editor focusing out when the messagebox appears does not cause another messagebox
-    editor_->blockSignals(true);
 
+    emit ValueChanged(value_);
+  } else {
     QMessageBox::critical(this,
                           tr("Invalid Value"),
                           tr("The entered value is not valid for this field."),
@@ -261,9 +261,9 @@ void SliderBase::LineEditConfirmed()
 
     // Refocus editor
     editor_->setFocus();
-
-    editor_->blockSignals(false);
   }
+
+  editor_->blockSignals(false);
 }
 
 void SliderBase::LineEditCancelled()
