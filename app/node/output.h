@@ -51,6 +51,8 @@ public:
 private:
   QHash<TimeRange, QVariant> cached_values_;
 
+  QMutex cache_lock_;
+
 };
 
 #endif // NODEOUTPUT_H
