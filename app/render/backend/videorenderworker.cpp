@@ -177,7 +177,6 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
   std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
 
   if (out) {
-    //qDebug() << "Saving to" << filename;
     out->open(working_fn_std, spec);
     out->write_image(format_info.oiio_desc, download_buffer_.data());
     out->close();
