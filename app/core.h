@@ -22,6 +22,7 @@
 #define CORE_H
 
 #include <QList>
+#include <QTimer>
 
 #include "project/project.h"
 #include "project/projectviewmodel.h"
@@ -112,6 +113,19 @@ public:
    * The active Project file, or nullptr if the heuristic couldn't find one.
    */
   Project* GetActiveProject();
+
+  /**
+   * @brief Sets state to "modified" so that the GUI will prompt the user to save before closing
+   *
+   * Call this function whenever a change is made to a currently active project. Saving the project will automatically
+   * unset this.
+   */
+  void SetProjectModified();
+
+  /**
+   * @brief Set how frequently an autorecovery should be saved (if the project has changed, see SetProjectModified())
+   */
+  void SetAutorecoveryInterval(int minutes);
 
 public slots:
   /**
@@ -225,6 +239,22 @@ private:
    * @brief Current snapping toggle
    */
   bool snapping_;
+
+  /**
+   * @brief Internal value for whether to make an autorecovery next interval
+   *
+   * True if the project has changed since the last autorecovery and we should save next time. False if the project has
+   * not changed and saving another autorecovery would be a waste.
+   */
+  bool queue_autorecovery_;
+
+  /**
+   * @brief Internal timer for saving autorecovery files
+   */
+  QTimer autorecovery_timer_;
+
+private slots:
+  void SaveAutorecovery();
 
 };
 

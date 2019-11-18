@@ -52,7 +52,8 @@ Core olive::core;
 Core::Core() :
   main_window_(nullptr),
   tool_(olive::tool::kPointer),
-  snapping_(true)
+  snapping_(true),
+  queue_autorecovery_(false)
 {
 }
 
@@ -351,6 +352,19 @@ void Core::StartGUI(bool full_screen)
 
   // Initialize audio service
   AudioManager::CreateInstance();
+
+  // Start autorecovery timer using the config value as its interval
+  SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
+  autorecovery_timer_.start();
+}
+
+void Core::SaveAutorecovery()
+{
+  if (queue_autorecovery_) {
+    // FIXME: Save autorecovery of projects open
+
+    queue_autorecovery_ = false;
+  }
 }
 
 Project *Core::GetActiveProject()
@@ -365,4 +379,16 @@ Project *Core::GetActiveProject()
 
   // Otherwise, return the project panel's project (which may be nullptr but in most cases shouldn't be)
   return active_project_panel->project();
+}
+
+void Core::SetProjectModified()
+{
+  main_window()->setWindowModified(true);
+  queue_autorecovery_ = true;
+}
+
+void Core::SetAutorecoveryInterval(int minutes)
+{
+  // Convert minutes to milliseconds
+  autorecovery_timer_.setInterval(minutes * 60000);
 }

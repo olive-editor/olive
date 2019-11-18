@@ -53,6 +53,7 @@ void Config::SetDefaults()
   config_map_["DefaultStillLength"] = QVariant::fromValue(rational(2));
   config_map_["HoverFocus"] = false;
   config_map_["AudioScrubbing"] = true;
+  config_map_["AutorecoveryInterval"] = 1;
 }
 
 void Config::Load()
