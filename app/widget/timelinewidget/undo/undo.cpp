@@ -41,10 +41,10 @@ Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 
 TrackOutput* TrackFromBlock(Block* b)
 {
-  Block* next = b->next();
+  Block* next = b;
 
   do {
-    next = b->next();
+    next = next->next();
   } while (next != nullptr && next->type() != Block::kEnd);
 
   // A little hacky, but this should either be a TrackOutput* or nullptr
