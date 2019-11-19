@@ -21,6 +21,8 @@
 #include "menushared.h"
 
 #include "core.h"
+#include "panel/panelmanager.h"
+#include "panel/timeline/timeline.h"
 
 MenuShared olive::menu_shared;
 
@@ -43,7 +45,7 @@ void MenuShared::Initialize()
   edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
   edit_delete_item_ = Menu::CreateItem(this, "delete", nullptr, nullptr, "Del");
   edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", nullptr, nullptr, "Shift+Del");
-  edit_split_item_ = Menu::CreateItem(this, "split", nullptr, nullptr, "Ctrl+K");
+  edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayhead()), "Ctrl+K");
 
   // "In/Out" menu shared items
   inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", nullptr, nullptr, "I");
@@ -97,6 +99,15 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
   m->addAction(clip_link_unlink_item_);
   m->addAction(clip_enable_disable_item_);
   m->addAction(clip_nest_item_);
+}
+
+void MenuShared::SplitAtPlayhead()
+{
+  TimelinePanel* timeline = olive::panel_manager->MostRecentlyFocused<TimelinePanel>();
+
+  if (timeline != nullptr) {
+    timeline->SplitAtPlayhead();
+  }
 }
 
 void MenuShared::Retranslate()

@@ -40,6 +40,8 @@ public:
 
   void DisconnectTimelineNode();
 
+  void SplitAtPlayhead();
+
   virtual void ZoomIn() override;
 
   virtual void ZoomOut() override;

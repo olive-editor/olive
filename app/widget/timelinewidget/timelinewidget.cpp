@@ -300,6 +300,55 @@ void TimelineWidget::GoToNextCut()
   }
 }
 
+void TimelineWidget::SplitAtPlayhead()
+{
+  rational playhead_time = olive::timestamp_to_time(playhead_, timebase());
+
+  QList<TimelineViewBlockItem *> selected_blocks = GetSelectedBlocks();
+
+  // Prioritize blocks that are selected and overlap the playhead
+  QVector<Block*> blocks_to_split;
+  QVector<bool> block_is_selected;
+
+  bool some_blocks_are_selected = false;
+
+  // Get all blocks at the playhead
+  foreach (TrackOutput* track, timeline_node_->Tracks()) {
+    Block* b = track->BlockContainingTime(playhead_time);
+
+    if (b != nullptr) {
+      bool selected = false;
+
+      // See if this block is selected
+      foreach (TimelineViewBlockItem* item, selected_blocks) {
+        if (item->block() == b) {
+          some_blocks_are_selected = true;
+          selected = true;
+          break;
+        }
+      }
+
+      blocks_to_split.append(b);
+      block_is_selected.append(selected);
+    }
+  }
+
+  // If some blocks are selected, we prioritize those and don't split the blocks that aren't
+  if (some_blocks_are_selected) {
+    for (int i=0;i<block_is_selected.size();i++) {
+      if (!block_is_selected.at(i)) {
+        blocks_to_split.removeAt(i);
+        block_is_selected.removeAt(i);
+        i--;
+      }
+    }
+  }
+
+  if (!blocks_to_split.isEmpty()) {
+    olive::undo_stack.push(new BlockSplitPreservingLinksCommand(blocks_to_split, {playhead_time}));
+  }
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;

@@ -48,6 +48,8 @@ public:
 
   void GoToNextCut();
 
+  void SplitAtPlayhead();
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 public slots:
@@ -317,8 +319,6 @@ private:
   QMap<Block*, TimelineViewBlockItem*> block_items_;
 
   void RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps);
-
-  void SplitBlocksPreservingLinks(const QVector<Block*>& blocks, const QList<rational> &times);
 
   void SetTimeAndSignal(const int64_t& t);
 

@@ -27,6 +27,7 @@
  * @brief A static object that provides various "stock" menus for use throughout the application
  */
 class MenuShared : public QObject {
+  Q_OBJECT
 public:
   MenuShared();
 
@@ -66,6 +67,10 @@ private:
   QAction* clip_link_unlink_item_;
   QAction* clip_enable_disable_item_;
   QAction* clip_nest_item_;
+
+private slots:
+  void SplitAtPlayhead();
+
 };
 
 namespace olive {

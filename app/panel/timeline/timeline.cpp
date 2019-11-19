@@ -59,6 +59,11 @@ void TimelinePanel::DisconnectTimelineNode()
   timeline_widget_->DisconnectTimelineNode();
 }
 
+void TimelinePanel::SplitAtPlayhead()
+{
+  timeline_widget_->SplitAtPlayhead();
+}
+
 void TimelinePanel::ZoomIn()
 {
   timeline_widget_->ZoomIn();
