@@ -58,6 +58,11 @@ void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
   foreach (const TrackReference& track_ref, split_tracks_) {
     TrackOutput* track = parent()->GetTrackFromReference(track_ref);
+
+    if (track == nullptr) {
+      continue;
+    }
+
     Block* block_at_time = track->NearestBlockBefore(split_time);
 
     // Ensure there's a valid block here
