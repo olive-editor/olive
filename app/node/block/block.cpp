@@ -110,7 +110,7 @@ QVariant Block::Value(NodeOutput *output)
 void Block::EdgeAddedSlot(NodeEdgePtr edge)
 {
   if (edge->input() == previous_input()) {
-    // FIXME: No protection for if this connection is not a node
+    // FIXME: No protection for if this connection is not a block
     static_cast<Block*>(edge->output()->parent())->next_ = this;
 
     // The blocks surrounding this one have changed, we need to Refresh()
@@ -124,7 +124,7 @@ void Block::EdgeAddedSlot(NodeEdgePtr edge)
 void Block::EdgeRemovedSlot(NodeEdgePtr edge)
 {
   if (edge->input() == previous_input()) {
-    // FIXME: No protection for if this connection is not a node
+    // FIXME: No protection for if this connection is not a block
     static_cast<Block*>(edge->output()->parent())->next_ = nullptr;
 
     // The blocks surrounding this one have changed, we need to Refresh()
