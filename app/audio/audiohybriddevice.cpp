@@ -50,6 +50,7 @@ void AudioHybridDevice::Stop()
   pushed_samples_.clear();
 
   if (device_ != nullptr) {
+    qDebug() << "Closed device";
     device_->close();
     device_ = nullptr;
   }
@@ -120,6 +121,7 @@ qint64 AudioHybridDevice::read_internal(char *data, qint64 maxSize)
 
     // Stop reading this device
     if (device_->atEnd()) {
+      device_->close();
       device_ = nullptr;
     }
 
