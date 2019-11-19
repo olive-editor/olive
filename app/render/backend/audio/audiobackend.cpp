@@ -68,7 +68,14 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep)
   }
 
   // Replace data with this data
-  memcpy(pcm_data_.data() + offset, cached_samples.data(), static_cast<size_t>(length));
+  int copy_length = qMin(length, cached_samples.size());
+
+  memcpy(pcm_data_.data() + offset, cached_samples.data(), static_cast<size_t>(copy_length));
+
+  if (copy_length < length) {
+    // Fill in remainder with silence
+    memset(pcm_data_.data() + offset + copy_length, 0, static_cast<size_t>(length - copy_length));
+  }
 
   QFile f(CachePathName());
   if (f.open(QFile::WriteOnly)) {
