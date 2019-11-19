@@ -137,6 +137,19 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
+Block *TrackOutput::BlockContainingTime(const rational &time)
+{
+  foreach (Block* block, block_cache_) {
+    if (block->in() < time && block->out() > time) {
+      return block;
+    } else if (block->out() == time) {
+      break;
+    }
+  }
+
+  return nullptr;
+}
+
 Block *TrackOutput::NearestBlockBefore(const rational &time)
 {
   foreach (Block* block, block_cache_) {

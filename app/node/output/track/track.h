@@ -56,6 +56,8 @@ public:
 
   NodeOutput* track_output();
 
+  Block* BlockContainingTime(const rational& time);
+
   Block* NearestBlockBefore(const rational& time);
 
   Block* NearestBlockAfter(const rational& time);
