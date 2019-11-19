@@ -108,6 +108,10 @@ const QVector<TrackOutput *> &TrackList::Tracks()
 
 TrackOutput *TrackList::TrackAt(int index)
 {
+  if (index < 0 || index >= track_cache_.size()) {
+    return nullptr;
+  }
+
   return track_cache_.at(index);
 }
 
