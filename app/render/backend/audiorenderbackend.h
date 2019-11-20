@@ -39,8 +39,6 @@ protected:
 
   QString CachePathName();
 
-  QByteArray pcm_data_;
-
 private:
   void ValidateRanges();
 

@@ -15,6 +15,9 @@ public:
 
   virtual QIODevice* GetAudioPullDevice() override;
 
+public slots:
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
+
 protected:
   virtual bool InitInternal() override;
 

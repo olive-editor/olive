@@ -19,6 +19,19 @@ QIODevice *AudioBackend::GetAudioPullDevice()
   return &pull_device_;
 }
 
+void AudioBackend::InvalidateCache(const rational &start_range, const rational &end_range)
+{
+  /*
+  // Truncate to length if necessary
+  int max_length_in_bytes = params().time_to_bytes(viewer_node()->Length());
+  if (pcm_data_.size() > max_length_in_bytes) {
+    pcm_data_.resize(max_length_in_bytes);
+  }
+  */
+
+  AudioRenderBackend::InvalidateCache(start_range, end_range);
+}
+
 bool AudioBackend::InitInternal()
 {
   // Initiate one thread per CPU core
@@ -34,7 +47,6 @@ bool AudioBackend::InitInternal()
 
 void AudioBackend::CloseInternal()
 {
-  // This backend doesn't init anything yet
 }
 
 bool AudioBackend::CompileInternal()
@@ -63,23 +75,26 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep)
   int length = params().time_to_bytes(dep.range().length());
   int out_point = offset + length;
 
-  if (pcm_data_.size() < out_point) {
-    pcm_data_.resize(out_point);
-  }
-
-  // Replace data with this data
-  int copy_length = qMin(length, cached_samples.size());
-
-  memcpy(pcm_data_.data() + offset, cached_samples.data(), static_cast<size_t>(copy_length));
-
-  if (copy_length < length) {
-    // Fill in remainder with silence
-    memset(pcm_data_.data() + offset + copy_length, 0, static_cast<size_t>(length - copy_length));
-  }
-
   QFile f(CachePathName());
-  if (f.open(QFile::WriteOnly)) {
-    f.write(pcm_data_);
+  if (f.open(QFile::WriteOnly | QFile::Append)) {
+
+    if (f.size() < out_point) {
+      f.resize(out_point);
+    }
+
+    f.seek(offset);
+
+    // Replace data with this data
+    int copy_length = qMin(length, cached_samples.size());
+
+    f.write(cached_samples.data(), copy_length);
+
+    if (copy_length < length) {
+      // Fill in remainder with silence
+      QByteArray empty_space(length - copy_length, 0);
+      f.write(empty_space);
+    }
+
     f.close();
   }
 

@@ -28,12 +28,6 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
   rational start_range_adj = qMax(rational(0), start_range);
   rational end_range_adj = qMin(viewer_node()->Length(), end_range);
 
-  // Truncate to length if necessary
-  int max_length_in_bytes = params().time_to_bytes(viewer_node()->Length());
-  if (pcm_data_.size() > max_length_in_bytes) {
-    pcm_data_.resize(max_length_in_bytes);
-  }
-
   // Add the range to the list
   cache_queue_.append(TimeRange(start_range_adj, end_range_adj));
 
