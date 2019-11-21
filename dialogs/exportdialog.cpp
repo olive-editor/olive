@@ -348,6 +348,10 @@ void ExportDialog::export_thread_finished() {
           );
   }
 
+  // exit if program was invoked for batch export
+  if(olive::Global->get_batch_export())
+    quick_exit(0);
+
   // Clear audio buffer
   clear_audio_ibuffer();
 
