@@ -386,7 +386,6 @@ void ExportDialog::StartExport() {
 }
 
 void ExportDialog::StartExport(QString filename) {
-  qCritical() << "StartExport called";
   if (widthSpinbox->value()%2 == 1 || heightSpinbox->value()%2 == 1) {
     QMessageBox::critical(
           this,
