@@ -785,4 +785,9 @@ void LoadThread::success_func() {
   if (open_seq != nullptr) {
     olive::Global->set_sequence(open_seq);
   }
+
+  //check if invoked for batch export
+  if(olive::Global->get_batch_export())
+    olive::Global->open_export_dialog();
+
 }

@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
                  "\t-v, --version\t\tShow version information\n"
                  "\t-h, --help\t\tShow this help\n"
                  "\t-f, --fullscreen\tStart in full screen mode\n"
+                 "\t-e, --export\t\tStart the program for batch export\n"
                  "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
                  "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
                  "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
@@ -71,6 +72,8 @@ int main(int argc, char *argv[]) {
           launch_fullscreen = true;
         } else if (!strcmp(argv[i], "--disable-shaders")) {
           olive::CurrentRuntimeConfig.shaders_are_enabled = false;
+        } else if (!strcmp(argv[i], "--export") || !strcmp(argv[i], "-e")) {
+          olive::Global->set_batch_export();
         } else if (!strcmp(argv[i], "--no-debug")) {
           use_internal_logger = false;
         } else if (!strcmp(argv[i], "--disable-blend-modes")) {

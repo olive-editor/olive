@@ -58,3 +58,8 @@ compile_commands.json
 
 # QtCreator local machine specific files for imported projects
 *creator.user*
+CMake*
+olive*qm
+olive-editor_autogen
+*.cmake
+olive-editor

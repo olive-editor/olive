@@ -326,6 +326,16 @@ public slots:
      */
     void set_sequence(SequencePtr s);
 
+    /**
+     * @brief set batch exporting flag
+     */
+    void set_batch_export();
+
+    /**
+     * @brief get batch exporting flag
+     */
+    bool get_batch_export();
+
 private:
     /**
      * @brief Internal function to handle loading a project from file
@@ -422,6 +432,8 @@ private:
      * autorecovery, but still hasn't been saved into the original file yet.
      */
     bool changed_since_last_autorecovery;
+
+    bool batch_export = false;
 
 private slots:
 

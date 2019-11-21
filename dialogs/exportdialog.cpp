@@ -116,6 +116,10 @@ ExportDialog::ExportDialog(QWidget *parent) :
 
   // set some advanced defaults
   vcodec_params.threads = 0;
+
+  //check if invoked for batch export
+  if(olive::Global->get_batch_export())
+    this->StartExport(olive::ActiveProjectFilename + ".mp4");
 }
 
 void ExportDialog::add_codec_to_combobox(QComboBox* box, enum AVCodecID codec) {
@@ -378,6 +382,11 @@ void ExportDialog::prep_ui_for_render(bool r) {
 }
 
 void ExportDialog::StartExport() {
+  this->StartExport("");
+}
+
+void ExportDialog::StartExport(QString filename) {
+  qCritical() << "StartExport called";
   if (widthSpinbox->value()%2 == 1 || heightSpinbox->value()%2 == 1) {
     QMessageBox::critical(
           this,
@@ -514,12 +523,14 @@ void ExportDialog::StartExport() {
           );
     return;
   }
-  QString filename = QFileDialog::getSaveFileName(
-        this,
-        tr("Export Media"),
-        "",
-        format_strings[formatCombobox->currentIndex()] + " (*." + ext + ")"
-      );
+  if(filename.isEmpty()){
+    filename = QFileDialog::getSaveFileName(
+          this,
+          tr("Export Media"),
+          "",
+          format_strings[formatCombobox->currentIndex()] + " (*." + ext + ")"
+        );
+  }
   if (!filename.isEmpty()) {
     if (!filename.endsWith("." + ext, Qt::CaseInsensitive)) {
       filename += "." + ext;

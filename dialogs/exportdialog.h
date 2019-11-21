@@ -72,6 +72,11 @@ private slots:
   void StartExport();
 
   /**
+   * @brief Batch exporing option
+   */
+  void StartExport(QString filename);
+
+  /**
    * @brief Slot for the export thread to update the progress bar's value
    *
    * @param value

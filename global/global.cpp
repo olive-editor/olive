@@ -464,3 +464,11 @@ void OliveGlobal::open_action_search() {
   ActionSearch as(olive::MainWindow);
   as.exec();
 }
+
+void OliveGlobal::set_batch_export() {
+  batch_export = true;  
+}
+
+bool OliveGlobal::get_batch_export() {
+  return batch_export;
+}
