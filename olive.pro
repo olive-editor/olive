@@ -307,17 +307,19 @@ HEADERS += \
 FORMS +=
 
 TRANSLATIONS += \
+    ts/olive_ar.ts \
+    ts/olive_bs.ts \
+    ts/olive_cs.ts \
     ts/olive_de.ts \
     ts/olive_es.ts \
     ts/olive_fr.ts \
+    ts/olive_id.ts \
     ts/olive_it.ts \
-    ts/olive_cs.ts \
-    ts/olive_ar.ts \
     ts/olive_ru.ts \
-    ts/olive_uk.ts \
-    ts/olive_bs.ts \
     ts/olive_sr.ts \
-    ts/olive_id.ts
+    ts/olive_uk.ts \
+    ts/olive_zh-CN.ts \
+    ts/olive_zh-TW.ts
 
 win32 {
     CONFIG(debug, debug|release) {
