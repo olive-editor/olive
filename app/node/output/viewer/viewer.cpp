@@ -117,3 +117,16 @@ rational ViewerOutput::Length()
 {
   return length_input_->get_realtime_value_of_connected_output().value<rational>();
 }
+
+void ViewerOutput::DependentEdgeChanged(NodeInput *from)
+{
+  if (from == texture_input_) {
+    emit VideoGraphChanged();
+  } else if (from == samples_input_) {
+    emit AudioGraphChanged();
+  }
+
+  // NOTE: This node technically has no outputs so default behavior is unnecessary, but if this node gets outputs some
+  //       day this should be uncommented
+  //Node::DependentEdgeChanged(from);
+}

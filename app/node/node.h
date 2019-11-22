@@ -285,6 +285,8 @@ protected:
 
   void SendInvalidateCache(const rational& start_range, const rational& end_range);
 
+  virtual void DependentEdgeChanged(NodeInput* from);
+
 public slots:
 
 signals:

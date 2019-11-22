@@ -122,6 +122,24 @@ void Node::SendInvalidateCache(const rational &start_range, const rational &end_
   }
 }
 
+void Node::DependentEdgeChanged(NodeInput *from)
+{
+  Q_UNUSED(from)
+
+  foreach (NodeParam* p, params_) {
+    if (p->type() == NodeParam::kOutput && p->IsConnected()) {
+      NodeOutput* out = static_cast<NodeOutput*>(p);
+
+      foreach (NodeEdgePtr edge, out->edges()) {
+        NodeInput* connected_input = edge->input();
+        Node* connected_node = connected_input->parent();
+
+        connected_node->DependentEdgeChanged(connected_input);
+      }
+    }
+  }
+}
+
 void Node::LockUserInput()
 {
   user_input_lock_.lock();
@@ -177,26 +195,28 @@ void Node::DuplicateConnectionsBetweenLists(const QList<Node *> &source, const Q
   Q_ASSERT(source.size() == destination.size());
 
   for (int i=0;i<source.size();i++) {
-    Node* source_node = source.at(i);
-    Node* dest_node = destination.at(i);
+    Node* source_input_node = source.at(i);
+    Node* dest_input_node = destination.at(i);
 
-    for (int j=0;j<source_node->params_.size();j++) {
-      NodeParam* source_param = source_node->params_.at(j);
+    Q_ASSERT(source_input_node->id() == dest_input_node->id());
+
+    for (int j=0;j<source_input_node->params_.size();j++) {
+      NodeParam* source_param = source_input_node->params_.at(j);
 
       if (source_param->type() == NodeInput::kInput && source_param->IsConnected()) {
         NodeInput* source_input = static_cast<NodeInput*>(source_param);
-        NodeInput* dest_input = static_cast<NodeInput*>(dest_node->params_.at(j));
+        NodeInput* dest_input = static_cast<NodeInput*>(dest_input_node->params_.at(j));
 
         // Get this input's connected outputs
-        NodeOutput* connected_output = source_input->get_connected_output();
-        Node* connected_node = connected_output->parent();
-
-        // Find index of connected output in source list
-        int connection_index = source.indexOf(connected_node);
+        NodeOutput* source_output = source_input->get_connected_output();
+        Node* source_output_node = source_output->parent();
 
         // Find equivalent in destination list
-        Node* dest_output_node = destination.at(connection_index);
-        NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->params_.at(connected_output->index()));
+        Node* dest_output_node = destination.at(source.indexOf(source_output_node));
+
+        Q_ASSERT(dest_output_node->id() == source_output_node->id());
+
+        NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->params_.at(source_output->index()));
 
         NodeParam::ConnectEdge(dest_output, dest_input);
       }
@@ -252,7 +272,7 @@ const QList<NodeParam *>& Node::parameters()
 
 int Node::IndexOfParameter(NodeParam *param)
 {
-  return children().indexOf(param);
+  return params_.indexOf(param);
 }
 
 /**
@@ -458,7 +478,7 @@ void Node::InputChanged(rational start, rational end)
 
 void Node::InputConnectionChanged(NodeEdgePtr edge)
 {
-  Q_UNUSED(edge)
+  DependentEdgeChanged(edge->input());
 
   InvalidateCache(RATIONAL_MIN, RATIONAL_MAX, static_cast<NodeInput*>(sender()));
 }

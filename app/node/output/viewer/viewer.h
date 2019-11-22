@@ -57,12 +57,19 @@ public:
 
   rational Length();
 
+protected:
+  virtual void DependentEdgeChanged(NodeInput* from) override;
+
 signals:
   void TimebaseChanged(const rational&);
 
   void VideoChangedBetween(const rational&, const rational&);
 
   void AudioChangedBetween(const rational&, const rational&);
+
+  void VideoGraphChanged();
+
+  void AudioGraphChanged();
 
   void LengthChanged(const rational& length);
 
