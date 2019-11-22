@@ -6,6 +6,11 @@ AudioInput::AudioInput()
   AddParameter(samples_output_);
 }
 
+Node *AudioInput::copy()
+{
+  return new AudioInput();
+}
+
 QString AudioInput::Name()
 {
   return tr("Audio Input");

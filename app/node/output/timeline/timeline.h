@@ -37,6 +37,8 @@ class TimelineOutput : public Node
 public:
   TimelineOutput();
 
+  virtual Node* copy() override;
+
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Category() override;

@@ -51,6 +51,14 @@ public:
   Node();
 
   /**
+   * @brief Creates a clone of the Node
+   *
+   * By default, the clone will NOT have the values and connections of the original node. The caller is responsible for
+   * copying that data with functions like CopyInputs() as copies may be done for different reasons.
+   */
+  virtual Node* copy() = 0;
+
+  /**
    * @brief Return the name of the node
    *
    * This is the node's name shown to the user. This must be overridden by subclasses, and preferably run through the

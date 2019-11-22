@@ -32,7 +32,7 @@ class GapBlock : public Block
 public:
   GapBlock();
 
-  virtual Block * copy() override;
+  virtual Node * copy() override;
 
   virtual Type type() override;
 

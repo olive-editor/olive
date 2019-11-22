@@ -27,7 +27,7 @@ ClipBlock::ClipBlock()
   AddParameter(texture_input_);
 }
 
-Block *ClipBlock::copy()
+Node *ClipBlock::copy()
 {
   ClipBlock* c = new ClipBlock();
 

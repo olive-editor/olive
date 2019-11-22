@@ -41,8 +41,6 @@ public:
     kEnd
   };
 
-  virtual Block* copy() = 0;
-
   virtual Type type() = 0;
 
   virtual QString Category() override;

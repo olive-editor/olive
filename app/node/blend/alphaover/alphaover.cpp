@@ -25,6 +25,11 @@ AlphaOverBlend::AlphaOverBlend()
 
 }
 
+Node *AlphaOverBlend::copy()
+{
+  return new AlphaOverBlend();
+}
+
 QString AlphaOverBlend::Name()
 {
   return tr("Alpha Over");

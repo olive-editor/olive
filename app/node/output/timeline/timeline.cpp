@@ -53,6 +53,11 @@ TimelineOutput::TimelineOutput()
   AddParameter(length_output_);
 }
 
+Node *TimelineOutput::copy()
+{
+  return new TimelineOutput();
+}
+
 QString TimelineOutput::Name()
 {
   return tr("Timeline");

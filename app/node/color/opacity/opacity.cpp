@@ -37,6 +37,11 @@ OpacityNode::OpacityNode()
   AddParameter(texture_output_);
 }
 
+Node *OpacityNode::copy()
+{
+  return new OpacityNode();
+}
+
 QString OpacityNode::Name()
 {
   return tr("Opacity");

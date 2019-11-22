@@ -46,6 +46,11 @@ TransformDistort::TransformDistort()
   AddParameter(matrix_output_);
 }
 
+Node *TransformDistort::copy()
+{
+  return new TransformDistort();
+}
+
 QString TransformDistort::Name()
 {
   return tr("Transform");

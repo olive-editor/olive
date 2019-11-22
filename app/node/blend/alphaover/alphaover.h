@@ -28,6 +28,8 @@ class AlphaOverBlend : public BlendNode
 public:
   AlphaOverBlend();
 
+  virtual Node* copy() override;
+
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Description() override;

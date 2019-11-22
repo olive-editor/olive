@@ -35,6 +35,11 @@ ViewerOutput::ViewerOutput()
   AddParameter(length_input_);
 }
 
+Node *ViewerOutput::copy()
+{
+  return new ViewerOutput();
+}
+
 QString ViewerOutput::Name()
 {
   return tr("Viewer");

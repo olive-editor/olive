@@ -31,6 +31,11 @@ SolidGenerator::SolidGenerator() :
   AddParameter(texture_output_);
 }
 
+Node *SolidGenerator::copy()
+{
+  return new SolidGenerator();
+}
+
 QString SolidGenerator::Name()
 {
   return tr("Solid");

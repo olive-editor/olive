@@ -18,6 +18,11 @@ VideoInput::VideoInput()
   AddParameter(texture_output_);
 }
 
+Node *VideoInput::copy()
+{
+  return new VideoInput();
+}
+
 QString VideoInput::Name()
 {
   return tr("Video Input");

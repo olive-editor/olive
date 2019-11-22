@@ -29,6 +29,8 @@ class OpacityNode : public Node
 public:
   OpacityNode();
 
+  virtual Node* copy() override;
+
   virtual QString Name() override;
   virtual QString Category() override;
   virtual QString Description() override;

@@ -32,7 +32,7 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
-  virtual Block* copy() override;
+  virtual Node* copy() override;
 
   virtual Type type() override;
 

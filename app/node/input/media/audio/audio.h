@@ -8,6 +8,8 @@ class AudioInput : public MediaInput
 public:
   AudioInput();
 
+  virtual Node* copy() override;
+
   virtual QString Name() override;
   virtual QString id() override;
   virtual QString Category() override;

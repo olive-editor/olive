@@ -24,7 +24,7 @@ GapBlock::GapBlock()
 {
 }
 
-Block *GapBlock::copy()
+Node *GapBlock::copy()
 {
   GapBlock* c = new GapBlock();
 
