@@ -229,11 +229,7 @@ void Block::CopyParameters(Block *source, Block *dest)
 
 void Block::Link(Block *a, Block *b)
 {
-  if (a == b) {
-    return;
-  }
-
-  if (a == nullptr || b == nullptr) {
+  if (a == b || a == nullptr || b == nullptr) {
     return;
   }
 
