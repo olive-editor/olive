@@ -280,7 +280,7 @@ void NodeInput::set_maximum(const QVariant &max)
   has_maximum_ = true;
 }
 
-void NodeInput::CopyValues(NodeInput *source, NodeInput *dest)
+void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
 {
   // Copy values
   dest->keyframes_ = source->keyframes_;
@@ -289,7 +289,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest)
   dest->set_is_keyframing(source->is_keyframing());
 
   // Copy connections
-  if (source->get_connected_output() != nullptr) {
+  if (include_connections && source->get_connected_output() != nullptr) {
     ConnectEdge(source->get_connected_output(), dest);
   }
 }

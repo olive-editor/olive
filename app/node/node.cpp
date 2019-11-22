@@ -152,7 +152,7 @@ bool Node::IsProcessingLocked()
   }
 }
 
-void Node::CopyInputs(Node *source, Node *destination)
+void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
@@ -166,7 +166,39 @@ void Node::CopyInputs(Node *source, Node *destination)
       if (src->dependent()) {
         NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
 
-        NodeInput::CopyValues(src, dst);
+        NodeInput::CopyValues(src, dst, include_connections);
+      }
+    }
+  }
+}
+
+void Node::DuplicateConnectionsBetweenLists(const QList<Node *> &source, const QList<Node *> &destination)
+{
+  Q_ASSERT(source.size() == destination.size());
+
+  for (int i=0;i<source.size();i++) {
+    Node* source_node = source.at(i);
+    Node* dest_node = destination.at(i);
+
+    for (int j=0;j<source_node->params_.size();j++) {
+      NodeParam* source_param = source_node->params_.at(j);
+
+      if (source_param->type() == NodeInput::kInput && source_param->IsConnected()) {
+        NodeInput* source_input = static_cast<NodeInput*>(source_param);
+        NodeInput* dest_input = static_cast<NodeInput*>(dest_node->params_.at(j));
+
+        // Get this input's connected outputs
+        NodeOutput* connected_output = source_input->get_connected_output();
+        Node* connected_node = connected_output->parent();
+
+        // Find index of connected output in source list
+        int connection_index = source.indexOf(connected_node);
+
+        // Find equivalent in destination list
+        Node* dest_output_node = destination.at(connection_index);
+        NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->params_.at(connected_output->index()));
+
+        NodeParam::ConnectEdge(dest_output, dest_input);
       }
     }
   }

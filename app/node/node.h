@@ -214,7 +214,12 @@ public:
    *
    * Nodes must be of the same types (i.e. have the same ID)
    */
-  static void CopyInputs(Node* source, Node* destination);
+  static void CopyInputs(Node* source, Node* destination, bool include_connections = true);
+
+  /**
+   * @brief For a list of copies nodes, this function will duplicate all the connections in the source list to the destination list
+   */
+  static void DuplicateConnectionsBetweenLists(const QList<Node*>& source, const QList<Node *> &destination);
 
   /**
    * @brief Return whether this Node can be deleted or not

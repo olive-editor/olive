@@ -131,7 +131,7 @@ public:
   /**
    * @brief Copy all values including keyframe information and connections from another NodeInput
    */
-  static void CopyValues(NodeInput* source, NodeInput* dest);
+  static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true);
 
 signals:
   void ValueChanged(const rational& start, const rational& end);
