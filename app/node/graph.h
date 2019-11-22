@@ -38,6 +38,11 @@ public:
   NodeGraph();
 
   /**
+   * @brief Destructively destroys all nodes in the graph
+   */
+  void Clear();
+
+  /**
    * @brief Add a node to this graph
    *
    * The node will get added to this graph. It is not automatically connected to anything, any connections will need to
@@ -73,7 +78,7 @@ public:
   /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
-  QList<Node*> nodes();
+  const QList<Node*>& nodes();
 
   /**
    * @brief Returns whether a certain Node is in the graph or not

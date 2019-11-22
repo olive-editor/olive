@@ -25,6 +25,14 @@ NodeGraph::NodeGraph()
 
 }
 
+void NodeGraph::Clear()
+{
+  foreach (Node* node, node_children_) {
+    delete node;
+  }
+  node_children_.clear();
+}
+
 void NodeGraph::AddNode(Node *node)
 {
   if (ContainsNode(node)) {
@@ -91,7 +99,7 @@ QList<Node *> NodeGraph::TakeNodeWithItsDependencies(Node *node, QObject *new_pa
   return deps;
 }
 
-QList<Node *> NodeGraph::nodes()
+const QList<Node *> &NodeGraph::nodes()
 {
   return node_children_;
 }
