@@ -8,7 +8,9 @@ RenderBackend::RenderBackend(QObject *parent) :
   compiled_(false),
   caching_(false),
   started_(false),
-  viewer_node_(nullptr)
+  viewer_node_(nullptr),
+  copied_viewer_node_(nullptr),
+  recompile_queued_(false)
 {
 }
 
@@ -99,9 +101,33 @@ bool RenderBackend::IsInitiated()
 
 bool RenderBackend::Compile()
 {
-  if (compiled_) {
+  if (recompile_queued_) {
+    Decompile();
+    recompile_queued_ = false;
+  } else if (compiled_) {
     return true;
   }
+
+  // Get dependencies of viewer node
+  QList<Node*> nodes;
+  nodes.append(viewer_node_);
+  nodes.append(viewer_node_->GetDependencies());
+
+  // Copy all dependencies into graph
+  foreach (Node* n, nodes) {
+    Node* copy = n->copy();
+
+    // Copy values (but not connections yet)
+    Node::CopyInputs(n, copy, false);
+
+    copied_graph_.AddNode(copy);
+  }
+
+  // We know that the first node will be the viewer node since we appended that first in the copy
+  copied_viewer_node_ = static_cast<ViewerOutput*>(copied_graph_.nodes().first());
+
+  // Copy connections
+  Node::DuplicateConnectionsBetweenLists(nodes, copied_graph_.nodes());
 
   compiled_ = CompileInternal();
 
@@ -119,6 +145,12 @@ void RenderBackend::Decompile()
   }
 
   DecompileInternal();
+
+  copied_graph_.Clear();
+
+  copied_viewer_node_ = nullptr;
+
+  compiled_ = false;
 }
 
 void RenderBackend::RegenerateCacheID()
@@ -141,6 +173,15 @@ void RenderBackend::RegenerateCacheID()
   CacheIDChangedEvent(cache_id_);
 }
 
+rational RenderBackend::SequenceLength()
+{
+  if (viewer_node_ == nullptr) {
+    return 0;
+  }
+
+  return viewer_node_->Length();
+}
+
 void RenderBackend::SetError(const QString &error)
 {
   error_ = error;
@@ -158,7 +199,7 @@ void RenderBackend::DisconnectViewer(ViewerOutput *node)
 
 void RenderBackend::CacheNext()
 {
-  if (!Init() || cache_queue_.isEmpty() || viewer_node() == nullptr || caching_) {
+  if (!Init() || cache_queue_.isEmpty() || !ViewerIsConnected() || caching_) {
     return;
   }
 
@@ -191,7 +232,12 @@ bool RenderBackend::GenerateData(const TimeRange &range)
 
 ViewerOutput *RenderBackend::viewer_node() const
 {
-  return viewer_node_;
+  return copied_viewer_node_;
+}
+
+bool RenderBackend::ViewerIsConnected() const
+{
+  return viewer_node_ != nullptr;
 }
 
 DecoderCache *RenderBackend::decoder_cache()
@@ -244,4 +290,9 @@ void RenderBackend::ThreadRequestedSibling(NodeDependency dep)
       return;
     }
   }
+}
+
+void RenderBackend::QueueRecompile()
+{
+  recompile_queued_ = true;
 }

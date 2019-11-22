@@ -26,7 +26,7 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 void AudioRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
 {
   rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(viewer_node()->Length(), end_range);
+  rational end_range_adj = qMin(SequenceLength(), end_range);
 
   // Add the range to the list
   cache_queue_.append(TimeRange(start_range_adj, end_range_adj));
@@ -41,6 +41,7 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
 void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+  connect(node, SIGNAL(AudioGraphChanged()), this, SLOT(QueueRecompile()));
 
   // FIXME: Hardcoded format
   SetParameters(AudioRenderingParams(node->audio_params(), SAMPLE_FMT_FLT));
@@ -49,6 +50,7 @@ void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   disconnect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+  disconnect(node, SIGNAL(AudioGraphChanged()), this, SLOT(QueueRecompile()));
 }
 
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)

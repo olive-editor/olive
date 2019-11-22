@@ -80,23 +80,12 @@ bool OpenGLBackend::CompileInternal()
   }
 
   // Traverse node graph compiling where necessary
-  bool ret = TraverseCompiling(viewer_node());
-
-  if (ret) {
-    //qDebug() << "Compiled successfully!";
-    compiled_ = true;
-  } else {
-    qDebug() << "Compile failed:" << GetError();
-    Decompile();
-  }
-
-  return ret;
+  return TraverseCompiling(viewer_node());
 }
 
 void OpenGLBackend::DecompileInternal()
 {
   shader_cache_.Clear();
-  compiled_ = false;
 }
 
 bool OpenGLBackend::TraverseCompiling(Node *n)

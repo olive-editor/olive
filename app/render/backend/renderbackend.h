@@ -4,6 +4,7 @@
 #include <QLinkedList>
 
 #include "decodercache.h"
+#include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "renderworker.h"
 
@@ -45,6 +46,8 @@ protected:
 
   virtual void DecompileInternal() = 0;
 
+  rational SequenceLength();
+
   const QVector<QThread*>& threads();
 
   /**
@@ -76,6 +79,8 @@ protected:
 
   ViewerOutput* viewer_node() const;
 
+  bool ViewerIsConnected() const;
+
   DecoderCache* decoder_cache();
 
   const QString& cache_id() const;
@@ -105,6 +110,11 @@ private:
   ViewerOutput* viewer_node_;
 
   /**
+   * @brief Internal reference to the copied viewer node we made in the compilation process
+   */
+  ViewerOutput* copied_viewer_node_;
+
+  /**
    * @brief Error string that can be set in SetError() to handle failures
    */
   QString error_;
@@ -115,8 +125,14 @@ private:
   qint64 cache_time_;
   QString cache_id_;
 
+  NodeGraph copied_graph_;
+
+  bool recompile_queued_;
+
 private slots:
   void ThreadRequestedSibling(NodeDependency dep);
+
+  void QueueRecompile();
 
 };
 

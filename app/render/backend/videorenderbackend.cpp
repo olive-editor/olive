@@ -44,12 +44,12 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
 
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(viewer_node()->Length(), end_range);
+  rational end_range_adj = qMin(SequenceLength(), end_range);
 
-  /*qDebug() << "Cache invalidated between"
+  qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()
            << "and"
-           << end_range_adj.toDouble();*/
+           << end_range_adj.toDouble();
 
   // Snap start_range to timebase
   double start_range_dbl = start_range_adj.toDouble();
@@ -96,7 +96,7 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
   }
 
   // Remove frames after this time code if it's changed
-  frame_cache_.Truncate(viewer_node()->Length());
+  frame_cache_.Truncate(SequenceLength());
 
   CacheNext();
 }
@@ -115,6 +115,7 @@ void VideoRenderBackend::CloseInternal()
 void VideoRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+  connect(node, SIGNAL(VideoGraphChanged()), this, SLOT(QueueRecompile()));
 
   // FIXME: Hardcoded format, mode, and divider
   SetParameters(VideoRenderingParams(node->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
@@ -123,6 +124,7 @@ void VideoRenderBackend::ConnectViewer(ViewerOutput *node)
 void VideoRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   disconnect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
+  disconnect(node, SIGNAL(VideoGraphChanged()), this, SLOT(QueueRecompile()));
 }
 
 const VideoRenderingParams &VideoRenderBackend::params() const

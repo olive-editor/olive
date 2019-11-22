@@ -130,8 +130,8 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
   output->parent()->LockUserInput();
   input->parent()->LockUserInput();
 
-  output->edges_.removeAll(edge);
-  input->edges_.removeAll(edge);
+  output->edges_.removeOne(edge);
+  input->edges_.removeOne(edge);
 
   output->parent()->UnlockUserInput();
   input->parent()->UnlockUserInput();
