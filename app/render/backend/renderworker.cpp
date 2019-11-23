@@ -119,16 +119,6 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(NodeInput *input)
   return decoder;
 }
 
-QList<Node *> RenderWorker::ListNodeAndAllDependencies(Node *n)
-{
-  QList<Node*> node_list;
-
-  node_list.append(n);
-  node_list.append(n->GetDependencies());
-
-  return node_list;
-}
-
 bool RenderWorker::IsStarted()
 {
   return started_;
