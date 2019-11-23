@@ -151,10 +151,9 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
     disconnect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
     disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
-    disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(AddTrack(TrackOutput*)));
+    disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*, TrackType)), this, SLOT(AddTrack(TrackOutput*, TrackType)));
     disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
     disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    disconnect(timeline_node_, SIGNAL(TimelineCleared()), this, SLOT(Clear()));
 
     SetTimebase(0);
 
