@@ -132,6 +132,10 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
   if (parent() != nullptr)
     parent()->LockUserInput();
 
+  // We set up these variables in advance (see end of function)
+  bool signal_vc = false;
+  TimeRange signal_vc_range;
+
   if (is_keyframing()) {
     // Insert value into the keyframe list chronologically
 
@@ -145,7 +149,8 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
 
       // Value has changed since the earliest point up until the ex-first keyframe (since the frames
       // interpolating between the key we're adding and the key that existed are changing too)
-      emit ValueChanged(RATIONAL_MIN, existing_first_key);
+      signal_vc = true;
+      signal_vc_range = TimeRange(RATIONAL_MIN, existing_first_key);
 
     } else if (keyframes_.first().time() == time) {
 
@@ -153,7 +158,8 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
       keyframes_.first().set_value(value);
 
       // Value has changed since the earliest point up until the keyframe we just changed
-      emit ValueChanged(RATIONAL_MIN, time);
+      signal_vc = true;
+      signal_vc_range = TimeRange(RATIONAL_MIN, time);
 
     } else if (keyframes_.last().time() < time) {
 
@@ -165,7 +171,8 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
 
       // Value has changed since the ex-last point up until the latest possible point (since the frames
       // interpolating between the key we're adding and the key that existed are changing too)
-      emit ValueChanged(existing_last_key, RATIONAL_MAX);
+      signal_vc = true;
+      signal_vc_range = TimeRange(existing_last_key, RATIONAL_MAX);
 
     } else if (keyframes_.last().time() == time) {
 
@@ -173,7 +180,8 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
       keyframes_.last().set_value(value);
 
       // Value has changed from this point until the latest possible point
-      emit ValueChanged(time, RATIONAL_MAX);
+      signal_vc = true;
+      signal_vc_range = TimeRange(time, RATIONAL_MAX);
 
     } else {
       for (int i=0;i<keyframes_.size()-1;i++) {
@@ -185,14 +193,16 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
           before.set_value(value);
 
           // Values have changed since the last keyframe and the next one
-          emit ValueChanged(keyframes_.at(i-1).time(), keyframes_.at(i+1).time());
+          signal_vc = true;
+          signal_vc_range = TimeRange(keyframes_.at(i-1).time(), keyframes_.at(i+1).time());
           break;
         } else if (before.time() < time && after.time() > time) {
           // Insert value in between these two keyframes
           keyframes_.insert(i+1, NodeKeyframe(time, value, before.type()));
 
           // Values have changed since the last keyframe and the next one
-          emit ValueChanged(before.time(), after.time());
+          signal_vc = true;
+          signal_vc_range = TimeRange(before.time(), after.time());
           break;
         }
       }
@@ -202,11 +212,17 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
     keyframes_.first().set_value(value);
 
     // Values have changed for all times since the value is static
-    emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+    signal_vc = true;
+    signal_vc_range = TimeRange(RATIONAL_MIN, RATIONAL_MAX);
   }
 
   if (parent() != nullptr)
     parent()->UnlockUserInput();
+
+  // We make sure this signal is emitted AFTER we've unlocked the node in case this leads to a tangent where something
+  // tries to relock this node before it's unlocked here
+  if (signal_vc)
+    emit ValueChanged(signal_vc_range.in(), signal_vc_range.out());
 }
 
 const QVariant &NodeInput::value()
@@ -282,11 +298,17 @@ void NodeInput::set_maximum(const QVariant &max)
 
 void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
 {
+  source->parent()->LockUserInput();
+  dest->parent()->LockUserInput();
+
   // Copy values
   dest->keyframes_ = source->keyframes_;
 
   // Copy keyframing state
   dest->set_is_keyframing(source->is_keyframing());
+
+  source->parent()->UnlockUserInput();
+  dest->parent()->UnlockUserInput();
 
   // Copy connections
   if (include_connections && source->get_connected_output() != nullptr) {

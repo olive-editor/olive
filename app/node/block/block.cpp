@@ -178,16 +178,19 @@ const rational &Block::media_in()
 
 void Block::set_media_in(const rational &media_in)
 {
-  LockUserInput();
+  bool changed = false;
 
+  LockUserInput();
   if (media_in_ != media_in) {
     media_in_ = media_in;
+    changed = true;
+  }
+  UnlockUserInput();
 
+  if (changed) {
     // Signal that this clips contents have changed
     SendInvalidateCache(in(), out());
   }
-
-  UnlockUserInput();
 }
 
 const QString &Block::block_name()
