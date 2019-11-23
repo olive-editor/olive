@@ -189,53 +189,6 @@ FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &lengt
       return nullptr;
     }
 
-    /*
-    // Check if this is already the frame we have cached
-    if (frame_->pts != target_ts) {
-      // Cache FFmpeg error code returns
-      int ret = 0;
-
-      // Set up seeking loop
-      int64_t seek_ts = target_ts;
-      int64_t second_ts = qRound(rational(avstream_->time_base).flipped().toDouble());
-      bool got_frame = false;
-      bool last_backtrack = false;
-
-      // FFmpeg frame retrieve loop
-      while ((ret >= 0 || ret == AVERROR_EOF) && frame_->pts != target_ts) {
-
-        // If the frame timestamp is too large, we need to seek back a little
-        if (got_frame && (frame_->pts > target_ts || frame_->pts == AV_NOPTS_VALUE)) {
-          // If we already tried seeking to 0 though, there's nothing we can do so we error here
-          if (last_backtrack) {
-            // Must be the earliest frame in the file
-            break;
-          }
-
-          // We can't seek earlier than 0, so if this is a 0-seek, don't try any more times after this attempt
-          if (seek_ts <= 0) {
-            seek_ts = 0;
-            last_backtrack = true;
-          }
-
-          Seek(seek_ts);
-
-          // FFmpeg doesn't always seek correctly, if we have to seek again we wrangle it into seeking back far enough
-          seek_ts -= second_ts;
-        }
-
-        ret = GetFrame();
-        got_frame = true;
-      }
-
-      // Handle any errors received during the frame retrieve process
-      if (ret < 0) {
-        FFmpegError(ret);
-        return nullptr;
-      }
-    }
-    */
-
     QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
     if (compressed_frame.open(QFile::ReadOnly)) {
       QByteArray frame_loader = qUncompress(compressed_frame.readAll());
