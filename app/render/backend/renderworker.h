@@ -72,8 +72,6 @@ protected:
   StreamPtr ResolveStreamFromInput(NodeInput* input);
   DecoderPtr ResolveDecoderFromInput(NodeInput* input);
 
-  QList<Node*> ListNodeAndAllDependencies(Node* n);
-
   QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
 
   virtual QVariant FrameToValue(FramePtr frame) = 0;
