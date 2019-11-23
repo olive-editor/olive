@@ -28,6 +28,7 @@
 #include <QtMath>
 
 #include "render/pixelservice.h"
+#include "videorenderworker.h"
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent)
@@ -137,12 +138,15 @@ const VideoRenderingParams &VideoRenderBackend::params() const
 
 void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 {
-  // Since we're changing parameters, all the existing threads are invalid and must be removed. They will start again
-  // next time this Node has to process anything.
-  Close();
-
   // Set new parameters
   params_ = params;
+
+  // Set params on all processors
+  // FIXME: Undefined behavior if the processors are currently working, this may need to be delayed like the
+  //        recompile signal
+  foreach (RenderWorker* worker, processors_) {
+    static_cast<VideoRenderWorker*>(worker)->SetParameters(params_);
+  }
 
   // Regenerate the cache ID
   RegenerateCacheID();

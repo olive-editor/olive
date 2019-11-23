@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QtMath>
 
+#include "audiorenderworker.h"
 #include "common/filefunctions.h"
 
 AudioRenderBackend::AudioRenderBackend(QObject *parent) :
@@ -12,12 +13,15 @@ AudioRenderBackend::AudioRenderBackend(QObject *parent) :
 
 void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 {
-  // Since we're changing parameters, all the existing threads are invalid and must be removed. They will start again
-  // next time this Node has to process anything.
-  Close();
-
   // Set new parameters
   params_ = params;
+
+  // Set params on all processors
+  // FIXME: Undefined behavior if the processors are currently working, this may need to be delayed like the
+  //        recompile signal
+  foreach (RenderWorker* worker, processors_) {
+    static_cast<AudioRenderWorker*>(worker)->SetParameters(params_);
+  }
 
   // Regenerate the cache ID
   RegenerateCacheID();
