@@ -198,7 +198,7 @@ QString Footage::rate()
     return QCoreApplication::translate("Footage", "%1 Hz").arg(audio_stream->sample_rate());
   }
 
-  return olive::timestamp_to_timecode(streams_.first()->duration(), streams_.first()->timebase(), olive::CurrentTimecodeDisplay());
+  return QString();
 }
 
 void Footage::ClearStreams()
