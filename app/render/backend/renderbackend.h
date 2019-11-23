@@ -85,6 +85,10 @@ protected:
 
   const QString& cache_id() const;
 
+  void QueueValueUpdate(const TimeRange& range);
+
+  void UpdateNodeInputs();
+
   QList<TimeRange> cache_queue_;
 
   QVector<RenderWorker*> processors_;
@@ -125,7 +129,11 @@ private:
   qint64 cache_time_;
   QString cache_id_;
 
+  QList<Node*> source_node_list_;
   NodeGraph copied_graph_;
+
+  bool value_update_queued_;
+  TimeRange value_update_range_;
 
   bool recompile_queued_;
 

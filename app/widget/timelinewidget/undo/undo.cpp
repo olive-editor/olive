@@ -22,7 +22,6 @@
 
 #include "node/graph.h"
 
-#include <QDebug>
 Block* CreateSplitBlock(Block* block, rational point, QObject* parent = nullptr)
 {
   Block* copy = static_cast<Block*>(block->copy());

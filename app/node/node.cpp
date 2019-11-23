@@ -83,13 +83,6 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 {
   Q_UNUSED(from)
 
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kOutput) {
-      NodeOutput* output = static_cast<NodeOutput*>(param);
-      output->drop_cached_values_overlapping(TimeRange(start_range, end_range));
-    }
-  }
-
   SendInvalidateCache(start_range, end_range);
 }
 
@@ -178,8 +171,10 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
   const QList<NodeParam*>& dst_param = destination->params_;
 
   for (int i=0;i<src_param.size();i++) {
-    if (src_param.at(i)->type() == NodeParam::kInput) {
-      NodeInput* src = static_cast<NodeInput*>(src_param.at(i));
+    NodeParam* p = src_param.at(i);
+
+    if (p->type() == NodeParam::kInput) {
+      NodeInput* src = static_cast<NodeInput*>(p);
 
       if (src->dependent()) {
         NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));

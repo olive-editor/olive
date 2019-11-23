@@ -10,6 +10,7 @@ RenderBackend::RenderBackend(QObject *parent) :
   started_(false),
   viewer_node_(nullptr),
   copied_viewer_node_(nullptr),
+  value_update_queued_(false),
   recompile_queued_(false)
 {
 }
@@ -109,12 +110,11 @@ bool RenderBackend::Compile()
   }
 
   // Get dependencies of viewer node
-  QList<Node*> nodes;
-  nodes.append(viewer_node_);
-  nodes.append(viewer_node_->GetDependencies());
+  source_node_list_.append(viewer_node_);
+  source_node_list_.append(viewer_node_->GetDependencies());
 
   // Copy all dependencies into graph
-  foreach (Node* n, nodes) {
+  foreach (Node* n, source_node_list_) {
     Node* copy = n->copy();
 
     // Copy values (but not connections yet)
@@ -127,7 +127,7 @@ bool RenderBackend::Compile()
   copied_viewer_node_ = static_cast<ViewerOutput*>(copied_graph_.nodes().first());
 
   // Copy connections
-  Node::DuplicateConnectionsBetweenLists(nodes, copied_graph_.nodes());
+  Node::DuplicateConnectionsBetweenLists(source_node_list_, copied_graph_.nodes());
 
   compiled_ = CompileInternal();
 
@@ -147,8 +147,8 @@ void RenderBackend::Decompile()
   DecompileInternal();
 
   copied_graph_.Clear();
-
   copied_viewer_node_ = nullptr;
+  source_node_list_.clear();
 
   compiled_ = false;
 }
@@ -203,6 +203,8 @@ void RenderBackend::CacheNext()
     return;
   }
 
+  UpdateNodeInputs();
+
   TimeRange cache_frame = cache_queue_.takeFirst();
 
   caching_ = GenerateData(cache_frame);
@@ -248,6 +250,33 @@ DecoderCache *RenderBackend::decoder_cache()
 const QString &RenderBackend::cache_id() const
 {
   return cache_id_;
+}
+
+void RenderBackend::QueueValueUpdate(const TimeRange &range)
+{
+  value_update_queued_ = true;
+  value_update_range_ = range;
+}
+
+void RenderBackend::UpdateNodeInputs()
+{
+  if (value_update_queued_) {
+    for (int i=0;i<source_node_list_.size();i++) {
+      Node* src = source_node_list_.at(i);
+      Node* dst = copied_graph_.nodes().at(i);
+
+      Node::CopyInputs(src, dst, false);
+
+      // Drop values in range
+      foreach (NodeParam* p, dst->parameters()) {
+        if (p->type() == NodeParam::kOutput) {
+          static_cast<NodeOutput*>(p)->drop_cached_values_overlapping(value_update_range_);
+        }
+      }
+    }
+
+    value_update_queued_ = false;
+  }
 }
 
 const QVector<QThread *> &RenderBackend::threads()

@@ -40,24 +40,9 @@ void RenderWorker::Close()
 
 void RenderWorker::Render(NodeDependency path)
 {
-  NodeOutput* output = path.node();
-  Node* node = output->parent();
-
-  QList<Node*> all_nodes_in_graph = ListNodeAndAllDependencies(node);
-
-  // Lock all Nodes to prevent UI changes during this render
-  foreach (Node* dep, all_nodes_in_graph) {
-    dep->LockUserInput();
-  }
-
   RenderInternal(path);
 
   emit CompletedCache(path);
-
-  // Unlock all Nodes so changes can be made again
-  foreach (Node* dep, all_nodes_in_graph) {
-    dep->UnlockUserInput();
-  }
 }
 
 DecoderCache *RenderWorker::decoder_cache()

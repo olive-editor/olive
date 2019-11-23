@@ -34,6 +34,9 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
   // Remove any overlaps so we don't render the same thing twice
   ValidateRanges();
 
+  // Queue value update
+  QueueValueUpdate(TimeRange(start_range, end_range));
+
   // Start caching cycle if it hasn't started already
   CacheNext();
 }
