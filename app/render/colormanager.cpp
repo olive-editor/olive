@@ -12,7 +12,7 @@ void ColorManager::SetConfig(const QString &filename)
   SetConfig(OCIO::Config::CreateFromFile(filename.toUtf8()));
 }
 
-void ColorManager::SetConfig(OpenColorIO::v1::ConstConfigRcPtr config)
+void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
 {
   OCIO::SetCurrentConfig(config);
 
