@@ -50,7 +50,6 @@ void AudioHybridDevice::Stop()
   pushed_samples_.clear();
 
   if (device_ != nullptr) {
-    qDebug() << "Closed device";
     device_->close();
     device_ = nullptr;
   }
