@@ -221,6 +221,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
       switch (footage_stream->type()) {
       case Stream::kVideo:
+      case Stream::kImage:
       {
         VideoInput* video_input = new VideoInput();
         video_input->SetFootage(footage_stream);
