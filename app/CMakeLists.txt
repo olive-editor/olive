@@ -96,7 +96,6 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swresample
   ${OPENCOLORIO_LIBRARIES}
   ${OIIO_LIBRARIES}
-  OpenCL
 )
 
 set(OLIVE_EFFECTS
