@@ -22,6 +22,7 @@
 #define DECODER_H
 
 #include <QObject>
+#include <QtGlobal>
 #include <stdint.h>
 
 #include "common/rational.h"
