@@ -24,6 +24,7 @@
 #include <memory>
 #include <QOpenGLFunctions>
 
+#include "common/constructors.h"
 #include "decoder/frame.h"
 #include "render/pixelformat.h"
 
@@ -42,7 +43,7 @@ public:
   OpenGLTexture();
   virtual ~OpenGLTexture() override;
 
-  Q_DISABLE_COPY_MOVE(OpenGLTexture)
+  DISABLE_COPY_MOVE(OpenGLTexture)
 
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, void *data = nullptr);
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const Type& type, void *data = nullptr);

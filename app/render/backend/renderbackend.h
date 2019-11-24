@@ -3,6 +3,7 @@
 
 #include <QLinkedList>
 
+#include "common/constructors.h"
 #include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
@@ -14,7 +15,7 @@ class RenderBackend : public QObject
 public:
   RenderBackend(QObject* parent = nullptr);
 
-  Q_DISABLE_COPY_MOVE(RenderBackend)
+  DISABLE_COPY_MOVE(RenderBackend)
 
   bool Init();
 

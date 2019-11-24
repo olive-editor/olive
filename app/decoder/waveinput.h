@@ -3,6 +3,7 @@
 
 #include <QFile>
 
+#include "common/constructors.h"
 #include "render/audioparams.h"
 
 class WaveInput
@@ -12,7 +13,7 @@ public:
 
   ~WaveInput();
 
-  Q_DISABLE_COPY_MOVE(WaveInput)
+  DISABLE_COPY_MOVE(WaveInput)
 
   bool open();
 

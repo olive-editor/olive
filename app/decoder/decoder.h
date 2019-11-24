@@ -22,9 +22,9 @@
 #define DECODER_H
 
 #include <QObject>
-#include <QtGlobal>
 #include <stdint.h>
 
+#include "common/constructors.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 #include "decoder/frame.h"
@@ -59,7 +59,7 @@ public:
   // Necessary for subclassing, it's empty
   virtual ~Decoder();
 
-  Q_DISABLE_COPY_MOVE(Decoder)
+  DISABLE_COPY_MOVE(Decoder)
 
   virtual QString id() = 0;
 

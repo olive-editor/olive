@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "common/constructors.h"
 #include "node/block/block.h"
 #include "node/node.h"
 #include "decodercache.h"
@@ -13,7 +14,7 @@ class RenderWorker : public QObject
 public:
   RenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
 
-  Q_DISABLE_COPY_MOVE(RenderWorker)
+  DISABLE_COPY_MOVE(RenderWorker)
 
   bool Init();
 

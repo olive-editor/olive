@@ -23,6 +23,7 @@
 
 #include <QOpenGLContext>
 
+#include "common/constructors.h"
 #include "opengltexture.h"
 
 class OpenGLFramebuffer : public QObject
@@ -32,7 +33,7 @@ public:
   OpenGLFramebuffer();
   virtual ~OpenGLFramebuffer() override;
 
-  Q_DISABLE_COPY_MOVE(OpenGLFramebuffer)
+  DISABLE_COPY_MOVE(OpenGLFramebuffer)
 
   void Create(QOpenGLContext *ctx);
 

@@ -5,6 +5,7 @@
 #include <QFile>
 
 #include "audio/sampleformat.h"
+#include "common/constructors.h"
 #include "render/audioparams.h"
 
 class WaveOutput
@@ -15,7 +16,7 @@ public:
 
   ~WaveOutput();
 
-  Q_DISABLE_COPY_MOVE(WaveOutput)
+  DISABLE_COPY_MOVE(WaveOutput)
 
   bool open();
 
