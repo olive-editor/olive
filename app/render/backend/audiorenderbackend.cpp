@@ -50,7 +50,7 @@ void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
   connect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
   connect(node, SIGNAL(AudioGraphChanged()), this, SLOT(QueueRecompile()));
 
-  // FIXME: Hardcoded format
+  // FIXME: Hardcoded format, though I doubt this will change any time soon (maybe we'll shift to DBL at some point)
   SetParameters(AudioRenderingParams(node->audio_params(), SAMPLE_FMT_FLT));
 }
 
