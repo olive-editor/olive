@@ -2,7 +2,7 @@
 Version=1.0
 Name=Olive
 Comment=Professional open-source NLE video editor
-Exec=olive-editor
+Exec=olive-editor %F
 Icon=${SNAP}/meta/gui/olive-editor.png
 Terminal=false
 Type=Application
