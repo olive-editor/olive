@@ -40,13 +40,6 @@ bool OpenGLBackend::InitInternal()
   master_texture_ = std::make_shared<OpenGLTexture>();
   master_texture_->Create(share_ctx, params().effective_width(), params().effective_height(), params().format());
 
-  /*
-  // Create internal FBO for copying textures
-  copy_buffer_.Create(share_ctx);
-  copy_buffer_.Attach(master_texture_);
-  copy_pipeline_ = OpenGLShader::CreateDefault();
-  */
-
   return true;
 }
 
@@ -54,9 +47,7 @@ void OpenGLBackend::CloseInternal()
 {
   Decompile();
 
-  //copy_buffer_.Destroy();
   master_texture_ = nullptr;
-  //copy_pipeline_ = nullptr;
 }
 
 OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
