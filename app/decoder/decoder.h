@@ -180,6 +180,19 @@ public:
    */
   static DecoderPtr CreateFromID(const QString& id);
 
+  /**
+   * @brief Conform an audio stream to match certain parameters (audio only)
+   *
+   * Resamples and converts the currently open audio to match the params. If the audio doesn't need conforming (e.g.
+   * audio params already match or a conformed match already exists), this function will return immediately. Otherwise
+   * it will block the calling thread until the conform is complete. This function should therefore only be called
+   * from a background render thread.
+   *
+   * All audio decoders must override this. It's not pure since video decoders don't need to use this, but default
+   * behavior will abort since it should never be called.
+   */
+  virtual void Conform(const AudioRenderingParams& params);
+
 protected:
   bool open_;
 

@@ -83,6 +83,13 @@ int AudioRenderingParams::samples_to_bytes(const int &samples) const
   return samples * channel_count() * bytes_per_sample_per_channel();
 }
 
+int AudioRenderingParams::bytes_to_samples(const int &bytes) const
+{
+  Q_ASSERT(is_valid());
+
+  return bytes / (channel_count() * bytes_per_sample_per_channel());
+}
+
 int AudioRenderingParams::channel_count() const
 {
   return av_get_channel_layout_nb_channels(channel_layout());

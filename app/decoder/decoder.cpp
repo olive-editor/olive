@@ -134,3 +134,10 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
 
   return nullptr;
 }
+
+void Decoder::Conform(const AudioRenderingParams &params)
+{
+  Q_UNUSED(params)
+  qCritical() << "Conform called on an audio decoder that does not have a handler for it:" << id();
+  abort();
+}

@@ -124,7 +124,8 @@ bool WaveInput::open()
     return false;
   }
 
-  data_position_ = file_.pos() + 4;
+  data_stream >> data_size_;
+  data_position_ = file_.pos();
 
   return true;
 }
@@ -164,6 +165,11 @@ void WaveInput::close()
   if (file_.isOpen()) {
     file_.close();
   }
+}
+
+int WaveInput::sample_count()
+{
+  return params_.bytes_to_samples(static_cast<int>(data_size_));
 }
 
 bool WaveInput::find_str(QFile *f, const char *str)

@@ -26,6 +26,8 @@ public:
 
   void close();
 
+  int sample_count();
+
 private:
   bool find_str(QFile* f, const char* str);
 
@@ -34,6 +36,8 @@ private:
   QFile file_;
 
   qint64 data_position_;
+
+  quint32 data_size_;
 };
 
 #endif // WAVEINPUT_H

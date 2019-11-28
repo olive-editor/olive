@@ -328,6 +328,68 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
   return target_ts;
 }
 
+void FFmpegDecoder::Conform(const AudioRenderingParams &params)
+{
+  if (avstream_->codecpar->codec_type != AVMEDIA_TYPE_AUDIO) {
+    // Nothing to be done
+    return;
+  }
+
+  if (!LoadIndex()) {
+    Index();
+  }
+
+  // Get indexed WAV file
+  WaveInput input(GetIndexFilename());
+
+  if (input.open()) {
+    // If the parameters are equal, nothing to be done
+    if (input.params() == params) {
+      input.close();
+      return;
+    }
+
+    // Otherwise, let's start converting the format
+
+    // Generate destination filename for this conversion to see if it exists
+    QString conformed_fn = GetConformedFilename(params);
+
+    if (QFileInfo::exists(conformed_fn)) {
+      // We must have already conformed this format
+      input.close();
+      return;
+    }
+
+    // Set up resampler
+    SwrContext* resampler = swr_alloc_set_opts(nullptr,
+                                               static_cast<int64_t>(params.channel_layout()),
+                                               GetFFmpegSampleFormat(params.format()),
+                                               params.sample_rate(),
+                                               static_cast<int64_t>(input.params().channel_layout()),
+                                               GetFFmpegSampleFormat(input.params().format()),
+                                               input.params().sample_rate(),
+                                               0,
+                                               nullptr);
+
+    WaveOutput conformed_output(conformed_fn, params);
+    if (!conformed_output.open()) {
+      qWarning() << "Failed to open conformed output:" << conformed_fn;
+      input.close();
+      return;
+    }
+
+    //
+    //swr_convert(resampler, input.)
+
+    // Clean up
+    swr_free(&resampler);
+    conformed_output.close();
+    input.close();
+  } else {
+    qWarning() << "Failed to conform file:" << stream()->footage()->filename();
+  }
+}
+
 bool FFmpegDecoder::Probe(Footage *f)
 {
   if (open_) {
@@ -530,6 +592,20 @@ QString FFmpegDecoder::GetIndexFilename()
       .append(QString::number(avstream_->index));
 }
 
+QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
+{
+  QString index_fn = GetIndexFilename();
+
+  index_fn.append('.');
+  index_fn.append(QString::number(params.sample_rate()));
+  index_fn.append('.');
+  index_fn.append(QString::number(params.format()));
+  index_fn.append('.');
+  index_fn.append(QString::number(params.channel_layout()));
+
+  return index_fn;
+}
+
 bool FFmpegDecoder::LoadIndex()
 {
   switch (avstream_->codecpar->codec_type) {
@@ -620,7 +696,7 @@ void FFmpegDecoder::IndexAudio(AVPacket *pkt, AVFrame *frame)
   WaveOutput wave_out(GetIndexFilename(),
                       AudioRenderingParams(avstream_->codecpar->sample_rate,
                                            channel_layout,
-                                           GetNativeSampleRate(dst_sample_fmt)));
+                                           GetNativeSampleFormat(dst_sample_fmt)));
 
   int ret;
 
@@ -782,7 +858,7 @@ AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_f
                                            nullptr);
 }
 
-SampleFormat FFmpegDecoder::GetNativeSampleRate(const AVSampleFormat &smp_fmt)
+SampleFormat FFmpegDecoder::GetNativeSampleFormat(const AVSampleFormat &smp_fmt)
 {
   switch (smp_fmt) {
   case AV_SAMPLE_FMT_U8:
@@ -809,6 +885,29 @@ SampleFormat FFmpegDecoder::GetNativeSampleRate(const AVSampleFormat &smp_fmt)
   }
 
   return SAMPLE_FMT_INVALID;
+}
+
+AVSampleFormat FFmpegDecoder::GetFFmpegSampleFormat(const SampleFormat &smp_fmt)
+{
+  switch (smp_fmt) {
+  case SAMPLE_FMT_U8:
+    return AV_SAMPLE_FMT_U8;
+  case SAMPLE_FMT_S16:
+    return AV_SAMPLE_FMT_S16;
+  case SAMPLE_FMT_S32:
+    return AV_SAMPLE_FMT_S32;
+  case SAMPLE_FMT_S64:
+    return AV_SAMPLE_FMT_S64;
+  case SAMPLE_FMT_FLT:
+    return AV_SAMPLE_FMT_FLT;
+  case SAMPLE_FMT_DBL:
+    return AV_SAMPLE_FMT_DBL;
+  case SAMPLE_FMT_INVALID:
+  case SAMPLE_FMT_COUNT:
+    break;
+  }
+
+  return AV_SAMPLE_FMT_NONE;
 }
 
 int FFmpegDecoder::CalculatePlaneHeight(int frame_height, const AVPixelFormat &format, int plane)

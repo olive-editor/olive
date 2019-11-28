@@ -54,6 +54,8 @@ public:
 
   virtual int64_t GetTimestampFromTime(const rational& time) override;
 
+  virtual void Conform(const AudioRenderingParams& params) override;
+
 private:
   /**
    * @brief Handle an error
@@ -100,10 +102,13 @@ private:
    * @brief Returns the filename for the index
    *
    * Retrieves the absolute filename of the index file for this stream. Decoder must be open for this to work correctly.
-   *
-   * @return
    */
   QString GetIndexFilename();
+
+  /**
+   * @brief Get the destination filename of an audio stream conformed to a set of parameters
+   */
+  QString GetConformedFilename(const AudioRenderingParams &params);
 
   /**
    * @brief Used internally to load a frame index into frame_index_
@@ -132,7 +137,9 @@ private:
    */
   AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
 
-  SampleFormat GetNativeSampleRate(const AVSampleFormat& smp_fmt);
+  SampleFormat GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
+
+  AVSampleFormat GetFFmpegSampleFormat(const SampleFormat& smp_fmt);
 
   int CalculatePlaneHeight(int frame_height, const AVPixelFormat& format, int plane);
 
