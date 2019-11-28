@@ -834,14 +834,16 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
   }
 
   if (ts <= 0) {
-    return 0;
+    return frame_index_.first();
   }
 
   // Use index to find closest frame in file
   for (int i=1;i<frame_index_.size();i++) {
-    if (frame_index_.at(i) == ts) {
+    int64_t this_ts = frame_index_.at(i);
+
+    if (this_ts == ts) {
       return ts;
-    } else if (frame_index_.at(i) > ts) {
+    } else if (this_ts > ts) {
       return frame_index_.at(i - 1);
     }
   }
