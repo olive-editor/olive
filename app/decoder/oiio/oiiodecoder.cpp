@@ -100,14 +100,13 @@ bool OIIODecoder::Open()
   return true;
 }
 
-FramePtr OIIODecoder::Retrieve(const rational &timecode, const rational &length)
+FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 {
   if (!open_ && !Open()) {
     return nullptr;
   }
 
   Q_UNUSED(timecode)
-  Q_UNUSED(length)
 
   if (frame_ == nullptr) {
     frame_ = Frame::Create();
@@ -146,4 +145,9 @@ int64_t OIIODecoder::GetTimestampFromTime(const rational &time)
   // A still image will always return the same frame
 
   return 0;
+}
+
+bool OIIODecoder::SupportsVideo()
+{
+  return true;
 }

@@ -37,11 +37,13 @@ public:
 
   virtual bool Open() override;
 
-  virtual FramePtr Retrieve(const rational &timecode, const rational &length = 0) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode) override;
 
   virtual void Close() override;
 
   virtual int64_t GetTimestampFromTime(const rational &time) override;
+
+  virtual bool SupportsVideo() override;
 
 private:
   std::unique_ptr<OIIO::ImageInput> image_;
