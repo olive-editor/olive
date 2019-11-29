@@ -35,7 +35,6 @@ extern "C" {
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
 #include "decoder/waveinput.h"
-#include "decoder/waveoutput.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -172,110 +171,116 @@ bool FFmpegDecoder::Open()
   return true;
 }
 
-FramePtr FFmpegDecoder::Retrieve(const rational &timecode, const rational &length)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 {
   if (!open_ && !Open()) {
     return nullptr;
   }
 
-  switch (avstream_->codecpar->codec_type) {
-  case AVMEDIA_TYPE_VIDEO:
-  {
-    // Convert timecode to AVStream timebase
-    int64_t target_ts = GetTimestampFromTime(timecode);
+  if (avstream_->codecpar->codec_type != AVMEDIA_TYPE_VIDEO) {
+    return nullptr;
+  }
 
-    if (target_ts < 0) {
-      Error(QStringLiteral("Index failed to produce a valid timestamp"));
+  // Convert timecode to AVStream timebase
+  int64_t target_ts = GetTimestampFromTime(timecode);
+
+  if (target_ts < 0) {
+    Error(QStringLiteral("Index failed to produce a valid timestamp"));
+    return nullptr;
+  }
+
+  QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
+  if (compressed_frame.open(QFile::ReadOnly)) {
+    QByteArray frame_loader = qUncompress(compressed_frame.readAll());
+    AVFrame* frame = av_frame_alloc();
+
+    if (frame == nullptr) {
+      qWarning() << "Failed to create AVFrame for swscale";
       return nullptr;
     }
 
-    QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
-    if (compressed_frame.open(QFile::ReadOnly)) {
-      QByteArray frame_loader = qUncompress(compressed_frame.readAll());
-      AVFrame* frame = av_frame_alloc();
+    frame->width = avstream_->codecpar->width;
+    frame->height = avstream_->codecpar->height;
 
-      if (frame == nullptr) {
-        qWarning() << "Failed to create AVFrame for swscale";
-        return nullptr;
-      }
+    QDataStream ds(&frame_loader, QIODevice::ReadOnly);
+    ds >> frame->format;
 
-      frame->width = avstream_->codecpar->width;
-      frame->height = avstream_->codecpar->height;
-
-      QDataStream ds(&frame_loader, QIODevice::ReadOnly);
-      ds >> frame->format;
-
-      if (av_frame_get_buffer(frame, 0) != 0) {
-        qWarning() << "Failed to get AVFrame buffer";
-        av_frame_free(&frame);
-        return nullptr;
-      }
-
-      // Read data
-      size_t pos = sizeof(int);
-      for (int i=0;i<AV_NUM_DATA_POINTERS;i++) {
-        size_t plane_size = static_cast<size_t>(frame->linesize[i] * CalculatePlaneHeight(frame->height, static_cast<AVPixelFormat>(frame->format), i));
-        memcpy(frame->data[i], frame_loader.data() + pos, plane_size);
-        pos += plane_size;
-      }
-
-      // Frame was valid, now we convert it to a native Olive frame
-      FramePtr frame_container = Frame::Create();
-      frame_container->set_width(frame->width);
-      frame_container->set_height(frame->height);
-      frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
-      frame_container->set_timestamp(olive::timestamp_to_time(frame->pts, avstream_->time_base));
-      frame_container->allocate();
-
-      // Convert pixel format/linesize if necessary
-      uint8_t* dst_data = reinterpret_cast<uint8_t*>(frame_container->data());
-      int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<olive::PixelFormat>(output_fmt_));
-
-      // Perform pixel conversion
-      sws_scale(scale_ctx_,
-                frame->data,
-                frame->linesize,
-                0,
-                frame->height,
-                &dst_data,
-                &dst_linesize);
-
+    if (av_frame_get_buffer(frame, 0) != 0) {
+      qWarning() << "Failed to get AVFrame buffer";
       av_frame_free(&frame);
-
-      return frame_container;
+      return nullptr;
     }
 
-    break;
+    // Read data
+    size_t pos = sizeof(int);
+    for (int i=0;i<AV_NUM_DATA_POINTERS;i++) {
+      size_t plane_size = static_cast<size_t>(frame->linesize[i] * CalculatePlaneHeight(frame->height, static_cast<AVPixelFormat>(frame->format), i));
+      memcpy(frame->data[i], frame_loader.data() + pos, plane_size);
+      pos += plane_size;
+    }
+
+    // Frame was valid, now we convert it to a native Olive frame
+    FramePtr frame_container = Frame::Create();
+    frame_container->set_width(frame->width);
+    frame_container->set_height(frame->height);
+    frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
+    frame_container->set_timestamp(olive::timestamp_to_time(frame->pts, avstream_->time_base));
+    frame_container->allocate();
+
+    // Convert pixel format/linesize if necessary
+    uint8_t* dst_data = reinterpret_cast<uint8_t*>(frame_container->data());
+    int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<olive::PixelFormat>(output_fmt_));
+
+    // Perform pixel conversion
+    sws_scale(scale_ctx_,
+              frame->data,
+              frame->linesize,
+              0,
+              frame->height,
+              &dst_data,
+              &dst_linesize);
+
+    av_frame_free(&frame);
+
+    return frame_container;
   }
-  case AVMEDIA_TYPE_AUDIO:
-  {
-    if (!LoadIndex()) {
-      Index();
-    }
 
-    WaveInput input(GetIndexFilename());
+  return nullptr;
+}
 
-    if (input.open()) {
-      const AudioRenderingParams& params = input.params();
-
-      FramePtr audio_frame = Frame::Create();
-      audio_frame->set_audio_params(params);
-      audio_frame->set_sample_count(params.time_to_samples(length));
-      audio_frame->allocate();
-
-      input.read(params.time_to_bytes(timecode),
-                 audio_frame->data(),
-                 audio_frame->allocated_size());
-
-      input.close();
-
-      return audio_frame;
-    }
-
-    break;
+FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params)
+{
+  if (!open_ && !Open()) {
+    return nullptr;
   }
-  default:
-    break;
+
+  if (avstream_->codecpar->codec_type != AVMEDIA_TYPE_AUDIO) {
+    return nullptr;
+  }
+
+  if (!LoadIndex()) {
+    Index();
+  }
+
+  Conform(params);
+
+  WaveInput input(GetConformedFilename(params));
+
+  if (input.open()) {
+    const AudioRenderingParams& params = input.params();
+
+    FramePtr audio_frame = Frame::Create();
+    audio_frame->set_audio_params(params);
+    audio_frame->set_sample_count(params.time_to_samples(length));
+    audio_frame->allocate();
+
+    input.read(params.time_to_bytes(timecode),
+               audio_frame->data(),
+               audio_frame->allocated_size());
+
+    input.close();
+
+    return audio_frame;
   }
 
   return nullptr;
@@ -344,10 +349,15 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
 
   if (input.open()) {
     // If the parameters are equal, nothing to be done
+    // FIXME: Technically we only need to conform if the SAMPLE RATE is not equal. Format and channel layout conversion
+    //        could be done on the fly so we could perhaps conform less often at some point.
     if (input.params() == params) {
       input.close();
       return;
     }
+
+    qDebug() << "Converting" << input.params().sample_rate() << input.params().format() << input.params().channel_layout()
+             << "to" << params.sample_rate() << params.format() << params.channel_layout();
 
     // Otherwise, let's start converting the format
 
@@ -371,6 +381,8 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
                                                0,
                                                nullptr);
 
+    swr_init(resampler);
+
     WaveOutput conformed_output(conformed_fn, params);
     if (!conformed_output.open()) {
       qWarning() << "Failed to open conformed output:" << conformed_fn;
@@ -378,8 +390,21 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
       return;
     }
 
-    //
-    //swr_convert(resampler, input.)
+    // Convert one second of audio at a time
+    int input_buffer_sz = input.params().time_to_bytes(1);
+
+    while (!input.at_end()) {
+      // Read up to one second of audio from WAV file
+      QByteArray read_samples = input.read(input_buffer_sz);
+
+      // Determine how many samples this is
+      int in_sample_count = input.params().bytes_to_samples(read_samples.size());
+
+      ConformInternal(resampler, &conformed_output, read_samples.data(), in_sample_count);
+    }
+
+    // Flush resampler
+    ConformInternal(resampler, &conformed_output, nullptr, 0);
 
     // Clean up
     swr_free(&resampler);
@@ -388,6 +413,41 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
   } else {
     qWarning() << "Failed to conform file:" << stream()->footage()->filename();
   }
+}
+
+bool FFmpegDecoder::SupportsVideo()
+{
+  return true;
+}
+
+bool FFmpegDecoder::SupportsAudio()
+{
+  return true;
+}
+
+void FFmpegDecoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const char* in_data, int in_sample_count)
+{
+  // Determine how many samples the output will be
+  int out_sample_count = swr_get_out_samples(resampler, in_sample_count);
+
+  // Allocate array for the amount of samples we'll need
+  QByteArray out_samples;
+  out_samples.resize(output->params().samples_to_bytes(out_sample_count));
+
+  char* out_data = out_samples.data();
+
+  // Convert samples
+  int convert_count = swr_convert(resampler,
+                                  reinterpret_cast<uint8_t**>(&out_data),
+                                  out_sample_count,
+                                  reinterpret_cast<const uint8_t**>(&in_data),
+                                  in_sample_count);
+
+  if (convert_count != out_sample_count) {
+    out_samples.resize(output->params().samples_to_bytes(convert_count));
+  }
+
+  output->write(out_samples);
 }
 
 bool FFmpegDecoder::Probe(Footage *f)
@@ -595,6 +655,18 @@ QString FFmpegDecoder::GetIndexFilename()
 QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
 {
   QString index_fn = GetIndexFilename();
+  WaveInput input(GetIndexFilename());
+
+  if (input.open()) {
+    // If the parameters are equal, nothing to be done
+    AudioRenderingParams index_params = input.params();
+    input.close();
+
+    if (index_params == params) {
+      // Source file matches perfectly, no conform required
+      return index_fn;
+    }
+  }
 
   index_fn.append('.');
   index_fn.append(QString::number(params.sample_rate()));

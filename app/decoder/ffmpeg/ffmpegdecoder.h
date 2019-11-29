@@ -29,8 +29,9 @@ extern "C" {
 
 #include <QVector>
 
-#include "decoder/decoder.h"
 #include "audio/sampleformat.h"
+#include "decoder/decoder.h"
+#include "decoder/waveoutput.h"
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -47,7 +48,8 @@ public:
   virtual bool Probe(Footage *f) override;
 
   virtual bool Open() override;
-  virtual FramePtr Retrieve(const rational &timecode, const rational &length = 0) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode) override;
+  virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
   virtual void Close() override;
 
   virtual QString id() override;
@@ -56,7 +58,12 @@ public:
 
   virtual void Conform(const AudioRenderingParams& params) override;
 
+  virtual bool SupportsVideo() override;
+  virtual bool SupportsAudio() override;
+
 private:
+  void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
+
   /**
    * @brief Handle an error
    *
