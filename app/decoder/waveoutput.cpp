@@ -115,6 +115,11 @@ void WaveOutput::close()
   }
 }
 
+const AudioRenderingParams &WaveOutput::params() const
+{
+  return params_;
+}
+
 void WaveOutput::switch_endianness(QByteArray& array)
 {
   int half_sz = array.size()/2;

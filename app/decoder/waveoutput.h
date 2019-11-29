@@ -25,6 +25,8 @@ public:
 
   void close();
 
+  const AudioRenderingParams& params() const;
+
 private:
   template<typename T>
   void write_int(QFile* file, T integer);
