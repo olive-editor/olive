@@ -147,6 +147,6 @@ void ProjectToolbar::ViewButtonClicked()
     emit ViewChanged(olive::ListView);
   } else {
     // Assert that it was one of the above buttons
-    Q_ASSERT(false);
+    abort();
   }
 }

@@ -126,7 +126,7 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
       break;
     case SAMPLE_FMT_COUNT:
     case SAMPLE_FMT_INVALID:
-      Q_ASSERT(false);
+      abort();
     }
 
     output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
