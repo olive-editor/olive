@@ -48,14 +48,14 @@ const SampleFormat &AudioRenderingParams::format() const
   return format_;
 }
 
-bool AudioRenderingParams::operator==(const AudioRenderingParams &other)
+bool AudioRenderingParams::operator==(const AudioRenderingParams &other) const
 {
   return (format() == other.format()
           && sample_rate() == other.sample_rate()
           && channel_layout() == other.channel_layout());
 }
 
-bool AudioRenderingParams::operator!=(const AudioRenderingParams &other)
+bool AudioRenderingParams::operator!=(const AudioRenderingParams &other) const
 {
   return (format() != other.format()
           || sample_rate() != other.sample_rate()

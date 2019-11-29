@@ -39,8 +39,8 @@ public:
 
   const SampleFormat& format() const;
 
-  bool operator==(const AudioRenderingParams& other);
-  bool operator!=(const AudioRenderingParams& other);
+  bool operator==(const AudioRenderingParams& other) const;
+  bool operator!=(const AudioRenderingParams& other) const;
 
 private:
   SampleFormat format_;
