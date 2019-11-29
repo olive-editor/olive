@@ -21,6 +21,8 @@ protected:
 
   QVariant RenderBlock(NodeOutput *output, const TimeRange& range);
 
+  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
+
 private:
   AudioRenderingParams audio_params_;
 

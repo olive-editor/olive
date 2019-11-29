@@ -110,8 +110,8 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(NodeInput *input)
   DecoderPtr decoder = decoder_cache()->GetDecoder(stream.get());
 
   if (decoder == nullptr && stream != nullptr) {
-    // Init decoder
-    decoder = Decoder::CreateFromID(stream->footage()->decoder());
+    // Create a new Decoder here
+    DecoderPtr decoder = Decoder::CreateFromID(stream->footage()->decoder());
     decoder->set_stream(stream);
     decoder_cache()->AddDecoder(stream.get(), decoder);
   }
@@ -152,7 +152,7 @@ QList<NodeInput*> RenderWorker::ProcessNodeInputsForTime(Node *n, const TimeRang
 
           // By this point we should definitely have a decoder, and if we don't something's gone terribly wrong
           if (decoder != nullptr) {
-            FramePtr frame = decoder->Retrieve(time.in(), time.out() - time.in());
+            FramePtr frame = RetrieveFromDecoder(decoder, time);
 
             if (frame != nullptr) {
               QVariant value = FrameToValue(frame);

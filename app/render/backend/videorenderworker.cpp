@@ -38,6 +38,11 @@ void VideoRenderWorker::RenderInternal(const NodeDependency& path)
   }
 }
 
+FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
+{
+  return decoder->RetrieveVideo(range.in());
+}
+
 void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, const rational& time)
 {
   // Resolve BlockList

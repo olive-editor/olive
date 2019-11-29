@@ -119,3 +119,8 @@ QVariant AudioRenderWorker::RenderBlock(NodeOutput* output, const TimeRange &ran
 
   return block_range_buffer;
 }
+
+FramePtr AudioRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
+{
+  return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_);
+}

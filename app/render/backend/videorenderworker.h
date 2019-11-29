@@ -42,6 +42,8 @@ protected:
 
   virtual void RenderInternal(const NodeDependency& path) override;
 
+  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
+
 private:
   void ProcessNode();
 
