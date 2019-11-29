@@ -118,8 +118,9 @@ ExportDialog::ExportDialog(QWidget *parent) :
   vcodec_params.threads = 0;
 
   //check if invoked for batch export
-  if(olive::Global->get_batch_export())
+  if(olive::Global->get_batch_export()){
     this->StartExport(olive::ActiveProjectFilename + ".mp4");
+  }
 }
 
 void ExportDialog::add_codec_to_combobox(QComboBox* box, enum AVCodecID codec) {
@@ -349,8 +350,9 @@ void ExportDialog::export_thread_finished() {
   }
 
   // exit if program was invoked for batch export
-  if(olive::Global->get_batch_export())
+  if(olive::Global->get_batch_export()){
     quick_exit(0);
+  }
 
   // Clear audio buffer
   clear_audio_ibuffer();
@@ -573,6 +575,18 @@ void ExportDialog::StartExport(QString filename) {
     if (rangeCombobox->currentIndex() == 1) {
       params.start_frame = qMax(olive::ActiveSequence->workarea_in, params.start_frame);
       params.end_frame = qMin(olive::ActiveSequence->workarea_out, params.end_frame);
+    }
+
+    //check if invoked for batch export
+    if(olive::Global->get_batch_export()){
+      long int s=olive::Global->get_export_start();
+      long int e=olive::Global->get_export_end();
+      if(s != -1){
+        params.start_frame = s;        
+      }
+      if(e != -1){
+        params.end_frame = e;        
+      }
     }
 
     // Create export thread

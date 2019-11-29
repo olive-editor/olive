@@ -472,3 +472,19 @@ void OliveGlobal::set_batch_export() {
 bool OliveGlobal::get_batch_export() {
   return batch_export;
 }
+
+void OliveGlobal::set_export_start(long int n) {
+  export_start = n;  
+}
+
+long int OliveGlobal::get_export_start() {
+  return export_start;
+}
+
+void OliveGlobal::set_export_end(long int n) {
+  export_end = n;  
+}
+
+long int OliveGlobal::get_export_end() {
+  return export_end;
+}

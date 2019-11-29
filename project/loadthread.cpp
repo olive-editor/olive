@@ -787,7 +787,7 @@ void LoadThread::success_func() {
   }
 
   //check if invoked for batch export
-  if(olive::Global->get_batch_export())
+  if(olive::Global->get_batch_export()){
     olive::Global->open_export_dialog();
-
+  }
 }

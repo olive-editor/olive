@@ -57,6 +57,8 @@ int main(int argc, char *argv[]) {
                  "\t-h, --help\t\tShow this help\n"
                  "\t-f, --fullscreen\tStart in full screen mode\n"
                  "\t-e, --export\t\tStart the program for batch export\n"
+                 "\t--export-start\t\tStarting frame for batch export\n"
+                 "\t--export-ending\t\tEnding frame for batch export\n"
                  "\t--disable-shaders\tDisable OpenGL shaders (for debugging)\n"
                  "\t--no-debug\t\tDisable internal debug log and output directly to console\n"
                  "\t--disable-blend-modes\tDisable shader-based blending for older GPUs\n"
@@ -74,6 +76,22 @@ int main(int argc, char *argv[]) {
           olive::CurrentRuntimeConfig.shaders_are_enabled = false;
         } else if (!strcmp(argv[i], "--export") || !strcmp(argv[i], "-e")) {
           olive::Global->set_batch_export();
+        } else if (!strcmp(argv[i], "--export-start")) {
+          if (i + 1 < argc && argv[i + 1][0] != '-') {
+            olive::Global->set_export_start(std::stoi(argv[i + 1]));
+            i++;
+          } else {
+            printf("[ERROR] No start point specified specified\n");
+            return 1;
+          }
+        } else if (!strcmp(argv[i], "--export-end")) {
+          if (i + 1 < argc && argv[i + 1][0] != '-') {
+            olive::Global->set_export_end(std::stoi(argv[i + 1]));
+            i++;
+          } else {
+            printf("[ERROR] No start point specified specified\n");
+            return 1;
+          }
         } else if (!strcmp(argv[i], "--no-debug")) {
           use_internal_logger = false;
         } else if (!strcmp(argv[i], "--disable-blend-modes")) {

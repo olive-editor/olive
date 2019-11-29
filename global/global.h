@@ -336,6 +336,26 @@ public slots:
      */
     bool get_batch_export();
 
+    /**
+     * @brief set the starting frame for batch export
+     */
+    void set_export_start(long int n);
+
+    /**
+     * @brief get the starting frame for batch export
+     */
+    long int get_export_start();
+
+    /**
+     * @brief set the ending frame for batch export
+     */
+    void set_export_end(long int n);
+
+    /**
+     * @brief get the ending frame for batch export
+     */
+    long int get_export_end();
+
 private:
     /**
      * @brief Internal function to handle loading a project from file
@@ -434,6 +454,12 @@ private:
     bool changed_since_last_autorecovery;
 
     bool batch_export = false;
+
+    /**
+     * @brief start and end frames for batch export 
+     */
+    long int export_start = -1;
+    long int export_end = -1;
 
 private slots:
 
