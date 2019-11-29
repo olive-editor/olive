@@ -356,9 +356,6 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
       return;
     }
 
-    qDebug() << "Converting" << input.params().sample_rate() << input.params().format() << input.params().channel_layout()
-             << "to" << params.sample_rate() << params.format() << params.channel_layout();
-
     // Otherwise, let's start converting the format
 
     // Generate destination filename for this conversion to see if it exists
