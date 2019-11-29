@@ -55,6 +55,26 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/)
+{
+  return nullptr;
+}
+
+FramePtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
+{
+  return nullptr;
+}
+
+bool Decoder::SupportsVideo()
+{
+  return false;
+}
+
+bool Decoder::SupportsAudio()
+{
+  return false;
+}
+
 /*
  * DECODER STATIC PUBLIC MEMBERS
  */

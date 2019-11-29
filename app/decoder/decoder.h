@@ -107,10 +107,33 @@ public:
   virtual bool Open() = 0;
 
   /**
-   * @brief Retrieve frame/data
+   * @brief Retrieve video frame
    *
-   * The main function for retrieving data from the Decoder. This function should always provide complete frame data
-   * (i.e. no partial frames or missing samples) at the timecode provided. The Decoder should perform any steps
+   * The main function for retrieving video data from the Decoder. This function should always provide complete frame
+   * data (i.e. no partial frames) at the timecode provided. The Decoder should perform any steps required to retrieve
+   * a complete frame separate from the rest of the program, using any form of caching/indexing to keep this as
+   * performant as possible.
+   *
+   * It's acceptable for this function to check whether the Decoder is open, and call Open() if not. If Open() returns
+   * false, this function should return nullptr.
+   *
+   * @param timecode
+   *
+   * The timecode (a rational in seconds) to retrieve the frame at. If there is not a frame at this precise location
+   * this should be corrected internally to the closest fit for the timecode.
+   *
+   * @return
+   *
+   * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
+   * the media could not be opened.
+   */
+  virtual FramePtr RetrieveVideo(const rational& timecode);
+
+  /**
+   * @brief Retrieve video frame
+   *
+   * The main function for retrieving audio data from the Decoder. This function should always provide complete frame
+   * data (i.e. no missing samples) at the timecode and length requested. The Decoder should perform any steps
    * required to retrieve a complete frame separate from the rest of the program, using any form of caching/indexing
    * to keep this as performant as possible.
    *
@@ -119,18 +142,21 @@ public:
    *
    * @param timecode
    *
-   * The timecode (a rational in seconds) to retrieve the data at.
+   * The starting timecode (a rational in seconds) to retrieve the data at.
    *
    * @param length
    *
-   * Audio only - ignored for video decoders. The total length of audio data to retrieve (a rational in seconds).
+   * The total length of audio data to retrieve (a rational in seconds).
    *
    * @return
    *
-   * A FramePtr of valid data at this timecode (of the requested length if this is audio media), or nullptr if there
-   * was nothing to retrieve at the provided timecode or the media could not be opened.
+   * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
+   * the provided timecode or the media could not be opened.
    */
-  virtual FramePtr Retrieve(const rational& timecode, const rational& length = 0) = 0;
+  virtual FramePtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
+
+  virtual bool SupportsVideo();
+  virtual bool SupportsAudio();
 
   /**
    * @brief Close media/deallocate memory
