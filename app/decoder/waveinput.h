@@ -17,16 +17,19 @@ public:
 
   bool open();
 
-  bool is_open();
+  bool is_open() const;
 
+  QByteArray read(int length);
   QByteArray read(int offset, int length);
   void read(int offset, char *buffer, int length);
 
-  AudioRenderingParams params();
+  bool at_end() const;
+
+  const AudioRenderingParams& params() const;
 
   void close();
 
-  int sample_count();
+  int sample_count() const;
 
 private:
   bool find_str(QFile* f, const char* str);

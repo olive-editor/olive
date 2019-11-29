@@ -96,16 +96,16 @@ bool WaveInput::open()
     break;
   case 32:
     if (data_is_float) {
-      format = SAMPLE_FMT_S32;
-    } else {
       format = SAMPLE_FMT_FLT;
+    } else {
+      format = SAMPLE_FMT_S32;
     }
     break;
   case 64:
     if (data_is_float) {
-      format = SAMPLE_FMT_S64;
-    } else {
       format = SAMPLE_FMT_DBL;
+    } else {
+      format = SAMPLE_FMT_S64;
     }
     break;
   default:
@@ -130,9 +130,18 @@ bool WaveInput::open()
   return true;
 }
 
-bool WaveInput::is_open()
+bool WaveInput::is_open() const
 {
   return file_.isOpen();
+}
+
+QByteArray WaveInput::read(int length)
+{
+  if (!is_open()) {
+    return QByteArray();
+  }
+
+  return file_.read(length);
 }
 
 QByteArray WaveInput::read(int offset, int length)
@@ -155,7 +164,12 @@ void WaveInput::read(int offset, char *buffer, int length)
   file_.read(buffer, length);
 }
 
-AudioRenderingParams WaveInput::params()
+bool WaveInput::at_end() const
+{
+  return file_.atEnd();
+}
+
+const AudioRenderingParams &WaveInput::params() const
 {
   return params_;
 }
@@ -167,7 +181,7 @@ void WaveInput::close()
   }
 }
 
-int WaveInput::sample_count()
+int WaveInput::sample_count() const
 {
   return params_.bytes_to_samples(static_cast<int>(data_size_));
 }
