@@ -50,13 +50,16 @@ QString AlphaOverBlend::Code(NodeOutput *output)
   if (output == texture_output()) {
     return "#version 110"
            "\n"
-           "varying vec2 olive_tex_coord;\n"
+           "varying vec2 v_texcoord;\n"
            "\n"
            "uniform sampler2D base_in;\n"
            "uniform sampler2D blend_in;\n"
            "\n"
            "void main(void) {\n"
-           "  gl_FragColor = base_in - blend_in.a + blend_in;\n"
+           "  vec4 base_col = texture2D(base_in, v_texcoord);\n"
+           "  vec4 blend_col = texture2D(blend_in, v_texcoord);\n"
+           "  \n"
+           "  gl_FragColor = base_col - blend_col.a + blend_col;\n"
            "}\n";
   }
 
