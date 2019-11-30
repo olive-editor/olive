@@ -26,11 +26,13 @@
 #include "node/graph.h"
 
 TrackOutput::TrackOutput() :
-  current_block_(this),
   track_type_(kTrackTypeNone),
   block_invalidate_cache_stack_(0),
   index_(-1)
 {
+  block_input_ = new NodeInputArray("block_in");
+  AddParameter(block_input_);
+
   track_input_ = new NodeInput("track_in");
   track_input_->set_data_type(NodeParam::kTrack);
   track_input_->set_dependent(false);
@@ -99,10 +101,6 @@ void TrackOutput::Refresh()
   foreach (Block* b, block_cache_) {
     if (!detect_attached_blocks.contains(b)) {
       // If the current block was removed, stop referencing it
-      if (current_block_ == b) {
-        current_block_ = this;
-      }
-
       emit BlockRemoved(b);
     }
   }
@@ -307,27 +305,6 @@ void TrackOutput::AddBlockToGraph(Block *block)
   // Find the parent graph
   NodeGraph* graph = static_cast<NodeGraph*>(parent());
   graph->AddNodeWithDependencies(block);
-}
-
-void TrackOutput::ValidateCurrentBlock(const rational &time)
-{
-  // This node representso the end of the timeline, so being beyond its in point is considered the end of the sequence
-  if (time >= in()) {
-    current_block_ = this;
-    return;
-  }
-
-  // If we're here, we need to find the current clip to display
-
-  // If the time requested is an earlier Block, traverse earlier until we find it
-  while (time < current_block_->in()) {
-    current_block_ = current_block_->previous();
-  }
-
-  // If the time requested is in a later Block, traverse later
-  while (time >= current_block_->out()) {
-    current_block_ = current_block_->next();
-  }
 }
 
 void TrackOutput::BlockInvalidateCache()

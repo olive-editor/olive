@@ -156,16 +156,11 @@ private:
    */
   void RemoveBlockInternal();
 
-  /**
-   * @brief Sets current_block_ to the correct attached Block based on `time`
-   */
-  void ValidateCurrentBlock(const rational& time);
-
   static TrackOutput* TrackFromBlock(Block* block);
 
   QVector<Block*> block_cache_;
 
-  Block* current_block_;
+  NodeInputArray* block_input_;
 
   NodeInput* track_input_;
 
