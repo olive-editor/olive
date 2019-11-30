@@ -8,6 +8,15 @@ matrix:
     sudo: require
     dist: trusty
   - os: osx
+    addons:
+      homebrew:
+        packages:
+        - ffmpeg
+        - qt5
+        - grep
+        - opencolorio
+        - openimageio
+        update: true
   # Can't build on Windows - affected by https://travis-ci.community/t/current-known-issues-please-read-this-before-posting-a-new-topic/264/10
   # - os: windows
 

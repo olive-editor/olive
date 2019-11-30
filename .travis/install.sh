@@ -2,8 +2,7 @@
 
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
-    brew install ffmpeg qt5 grep opencolorio openimageio
-    export PATH="/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
+    #export PATH="/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
