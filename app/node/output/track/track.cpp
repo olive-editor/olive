@@ -181,12 +181,12 @@ const QVector<Block *> &TrackOutput::Blocks()
 
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
-  // We intercept IC signals from Blocks since we may be performing several options and they may over-signal
+  /*// We intercept IC signals from Blocks since we may be performing several options and they may over-signal
   if (from == previous_input() && block_invalidate_cache_stack_ == 0) {
     Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, in()), from);
   } else {
-    Node::InvalidateCache(start_range, end_range, from);
-  }
+  }*/
+  Node::InvalidateCache(start_range, end_range, from);
 }
 
 QVariant TrackOutput::Value(NodeOutput *output)

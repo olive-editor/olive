@@ -23,13 +23,9 @@
 #include <QDebug>
 
 Block::Block() :
+  previous_(nullptr),
   next_(nullptr)
 {
-  previous_input_ = new NodeInput("prev_in");
-  previous_input_->set_data_type(NodeParam::kBlock);
-  previous_input_->set_dependent(false);
-  AddParameter(previous_input_);
-
   block_output_ = new NodeOutput("this_out");
   AddParameter(block_output_);
 
@@ -84,17 +80,12 @@ void Block::set_length_and_media_in(const rational &length)
 
 Block *Block::previous()
 {
-  return ValueToPtr<Block>(previous_input_->get_realtime_value_of_connected_output());
+  return previous_;
 }
 
 Block *Block::next()
 {
   return next_;
-}
-
-NodeInput *Block::previous_input()
-{
-  return previous_input_;
 }
 
 QVariant Block::Value(NodeOutput *output)
@@ -105,31 +96,6 @@ QVariant Block::Value(NodeOutput *output)
   }
 
   return 0;
-}
-
-void Block::EdgeAddedSlot(NodeEdgePtr edge)
-{
-  if (edge->input() == previous_input()) {
-    // FIXME: No protection for if this connection is not a block
-    static_cast<Block*>(edge->output()->parent())->next_ = this;
-
-    // The blocks surrounding this one have changed, we need to Refresh()
-    Refresh();
-
-    // Entire track will have shifted, so the whole cache needs to be re-validated
-    SendInvalidateCache(0, RATIONAL_MAX);
-  }
-}
-
-void Block::EdgeRemovedSlot(NodeEdgePtr edge)
-{
-  if (edge->input() == previous_input()) {
-    // FIXME: No protection for if this connection is not a block
-    static_cast<Block*>(edge->output()->parent())->next_ = nullptr;
-
-    // The blocks surrounding this one have changed, we need to Refresh()
-    Refresh();
-  }
 }
 
 void Block::Refresh()
@@ -161,14 +127,14 @@ NodeOutput *Block::block_output()
   return block_output_;
 }
 
-void Block::ConnectBlocks(Block *previous, Block *next)
+void Block::ConnectBlocks(Block *, Block *)
 {
-  NodeParam::ConnectEdge(previous->block_output(), next->previous_input());
+  //NodeParam::ConnectEdge(previous->block_output(), next->previous_input());
 }
 
-void Block::DisconnectBlocks(Block *previous, Block *next)
+void Block::DisconnectBlocks(Block *, Block *)
 {
-  NodeParam::DisconnectEdge(previous->block_output(), next->previous_input());
+  //NodeParam::DisconnectEdge(previous->block_output(), next->previous_input());
 }
 
 const rational &Block::media_in()

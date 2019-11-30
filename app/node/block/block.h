@@ -59,8 +59,6 @@ public:
   Block* previous();
   Block* next();
 
-  NodeInput* previous_input();
-
   NodeOutput* buffer_output();
   NodeOutput* block_output();
 
@@ -116,28 +114,21 @@ protected:
   static void CopyParameters(Block* source, Block* dest);
 
 private:
-  NodeInput* previous_input_;
   NodeOutput* block_output_;
-
   NodeOutput* buffer_output_;
 
   rational in_point_;
   rational out_point_;
 
   rational length_;
-
   rational media_in_;
 
+  Block* previous_;
   Block* next_;
 
   QString block_name_;
 
   QVector<Block*> linked_clips_;
-
-private slots:
-  void EdgeAddedSlot(NodeEdgePtr edge);
-
-  void EdgeRemovedSlot(NodeEdgePtr edge);
 
 };
 
