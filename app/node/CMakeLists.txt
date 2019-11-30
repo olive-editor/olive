@@ -32,6 +32,8 @@ set(OLIVE_SOURCES
   node/graph.cpp
   node/input.h
   node/input.cpp
+  node/inputarray.h
+  node/inputarray.cpp
   node/keyframe.h
   node/keyframe.cpp
   node/menu.h

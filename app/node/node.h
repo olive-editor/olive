@@ -28,6 +28,7 @@
 #include "common/rational.h"
 #include "node/dependency.h"
 #include "node/input.h"
+#include "node/inputarray.h"
 #include "node/output.h"
 
 /**
@@ -254,6 +255,11 @@ public:
    */
   virtual QVariant Value(NodeOutput* output);
 
+  /**
+   * @brief Return whether a parameter with ID `id` has already been added to this Node
+   */
+  bool HasParamWithID(const QString& id);
+
 protected:
   /**
    * @brief Add a parameter to this node
@@ -309,11 +315,6 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 private:
-  /**
-   * @brief Return whether a parameter with ID `id` has already been added to this Node
-   */
-  bool HasParamWithID(const QString& id);
-
   bool HasParamOfType(NodeParam::Type type, bool must_be_connected);
 
   QList<NodeParam *> params_;
