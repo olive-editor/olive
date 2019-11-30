@@ -119,7 +119,13 @@ ExportDialog::ExportDialog(QWidget *parent) :
 
   //check if invoked for batch export
   if(olive::Global->get_batch_export()){
-    this->StartExport(olive::ActiveProjectFilename + ".mp4");
+    QString export_name;
+    if((export_name = olive::Global->get_export_name()) != ""){
+      export_name += ".mp4";
+    }else{
+      export_name = olive::ActiveProjectFilename + ".mp4";
+    }
+    this->StartExport(export_name);
   }
 }
 

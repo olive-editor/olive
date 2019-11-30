@@ -488,3 +488,11 @@ void OliveGlobal::set_export_end(long int n) {
 long int OliveGlobal::get_export_end() {
   return export_end;
 }
+
+void OliveGlobal::set_export_name(QString name) {
+  export_name = name;  
+}
+
+QString OliveGlobal::get_export_name() {
+  return export_name;
+}

@@ -355,6 +355,16 @@ public slots:
      * @brief get the ending frame for batch export
      */
     long int get_export_end();
+    
+    /**
+     * @brief set the export name for batch export
+     */
+    void set_export_name(QString name);
+    
+    /**
+     * @brief get the export name for batch export
+     */
+    QString get_export_name();
 
 private:
     /**
@@ -460,6 +470,8 @@ private:
      */
     long int export_start = -1;
     long int export_end = -1;
+
+    QString export_name = "";
 
 private slots:
 
