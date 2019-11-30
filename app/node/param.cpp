@@ -56,14 +56,26 @@ void NodeParam::set_name(const QString &name)
   name_ = name;
 }
 
-Node *NodeParam::parent()
+Node *NodeParam::parentNode()
 {
-  return static_cast<Node*>(QObject::parent());
+  QObject* p = parent();
+
+  while (p != nullptr) {
+    // Determine if this object is a Node or not
+    Node* cast_test = dynamic_cast<Node*>(p);
+    if (cast_test != nullptr) {
+      return cast_test;
+    }
+
+    p = p->parent();
+  }
+
+  return nullptr;
 }
 
 int NodeParam::index()
 {
-  return parent()->IndexOfParameter(this);
+  return parentNode()->IndexOfParameter(this);
 }
 
 bool NodeParam::IsConnected()
@@ -96,7 +108,7 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
   }
 
   // Ensure both nodes are in the same graph
-  if (output->parent()->parent() != input->parent()->parent()) {
+  if (output->parentNode()->parent() != input->parentNode()->parent()) {
     qWarning() << "Tried to connect two nodes that aren't part of the same graph";
     return nullptr;
   }
@@ -105,16 +117,16 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 
   // The nodes should never be the same, and since we lock both nodes here, this can lead to a entire program freeze
   // that's difficult to diagnose. This makes that issue very clear.
-  Q_ASSERT(output->parent() != input->parent());
+  Q_ASSERT(output->parentNode() != input->parentNode());
 
-  output->parent()->LockUserInput();
-  input->parent()->LockUserInput();
+  output->parentNode()->LockUserInput();
+  input->parentNode()->LockUserInput();
 
   output->edges_.append(edge);
   input->edges_.append(edge);
 
-  output->parent()->UnlockUserInput();
-  input->parent()->UnlockUserInput();
+  output->parentNode()->UnlockUserInput();
+  input->parentNode()->UnlockUserInput();
 
   // Emit a signal than an edge was added (only one signal needs emitting)
   emit input->EdgeAdded(edge);
@@ -127,14 +139,14 @@ void NodeParam::DisconnectEdge(NodeEdgePtr edge)
   NodeOutput* output = edge->output();
   NodeInput* input = edge->input();
 
-  output->parent()->LockUserInput();
-  input->parent()->LockUserInput();
+  output->parentNode()->LockUserInput();
+  input->parentNode()->LockUserInput();
 
   output->edges_.removeOne(edge);
   input->edges_.removeOne(edge);
 
-  output->parent()->UnlockUserInput();
-  input->parent()->UnlockUserInput();
+  output->parentNode()->UnlockUserInput();
+  input->parentNode()->UnlockUserInput();
 
   emit input->EdgeRemoved(edge);
 }

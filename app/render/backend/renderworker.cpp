@@ -171,7 +171,7 @@ QList<NodeInput*> RenderWorker::ProcessNodeInputsForTime(Node *n, const TimeRang
 QVariant RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 {
   NodeOutput* output = dep.node();
-  Node* node = dep.node()->parent();
+  Node* node = dep.node()->parentNode();
 
   //qDebug() << "Processing" << node->id();
 

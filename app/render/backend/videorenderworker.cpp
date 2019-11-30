@@ -21,7 +21,7 @@ void VideoRenderWorker::RenderInternal(const NodeDependency& path)
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
   QCryptographicHash hasher(QCryptographicHash::Sha1);
-  HashNodeRecursively(&hasher, path.node()->parent(), path.in());
+  HashNodeRecursively(&hasher, path.node()->parentNode(), path.in());
   QByteArray hash = hasher.result();
 
   if (frame_cache_->HasHash(hash)) {
@@ -123,7 +123,7 @@ void VideoRenderWorker::CloseInternal()
 QVariant VideoRenderWorker::RenderAsSibling(NodeDependency dep)
 {
   NodeOutput* output = dep.node();
-  Node* original_node = output->parent();
+  Node* original_node = output->parentNode();
   Node* node;
   rational time = dep.in();
   QVariant value;

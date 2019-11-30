@@ -86,7 +86,7 @@ void OpenGLWorker::ParametersChangedEvent()
 QVariant OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
 {
   OpenGLShaderPtr shader = shader_cache_->GetShader(out);
-  Node* node = out->parent();
+  Node* node = out->parentNode();
 
   // Create the output texture
   OpenGLTexturePtr output = std::make_shared<OpenGLTexture>();

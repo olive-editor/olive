@@ -141,7 +141,7 @@ public:
    * Nodes and NodeParams use the QObject parent-child system. This function is a convenience function for
    * static_cast<Node*>(QObject::parent())
    */
-  Node* parent();
+  Node* parentNode();
 
   /**
    * @brief Return the row index of this parameter in the parent node (primarily used for UI drawing functions)

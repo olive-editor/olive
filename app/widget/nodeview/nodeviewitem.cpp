@@ -304,7 +304,7 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
           drag_src_param_ = edge->output();
 
           // Get its Node UI object
-          drag_source_ = NodeView::NodeToUIObject(scene(), drag_src_param_->parent());
+          drag_source_ = NodeView::NodeToUIObject(scene(), drag_src_param_->parentNode());
 
           // Get the opposing parameter's rect center using the line's current coordinates
           // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
@@ -387,11 +387,11 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
           // Determine which Node will be "submitting output" and which node will be "receiving input"
           if (drag_src_param_->type() == NodeParam::kInput) {
-            receiving_node = drag_src_param_->parent();
+            receiving_node = drag_src_param_->parentNode();
             outputting_node = drop_item->node();
           } else {
             receiving_node = drop_item->node();
-            outputting_node = drag_src_param_->parent();
+            outputting_node = drag_src_param_->parentNode();
           }
 
           // Ensure the receiving node doesn't output to the outputting node

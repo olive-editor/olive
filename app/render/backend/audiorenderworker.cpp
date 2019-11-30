@@ -15,7 +15,7 @@ void AudioRenderWorker::SetParameters(const AudioRenderingParams &audio_params)
 QVariant AudioRenderWorker::RenderAsSibling(NodeDependency dep)
 {
   NodeOutput* output = dep.node();
-  Node* node = output->parent();
+  Node* node = output->parentNode();
   QList<NodeInput*> connected_inputs;
   QVariant value;
 
@@ -66,7 +66,7 @@ void AudioRenderWorker::CloseInternal()
 
 QVariant AudioRenderWorker::RenderBlock(NodeOutput* output, const TimeRange &range)
 {
-  QList<Block*> active_blocks = ValidateBlockRange(static_cast<Block*>(output->parent()), range);
+  QList<Block*> active_blocks = ValidateBlockRange(static_cast<Block*>(output->parentNode()), range);
 
   // All these blocks will need to output to a buffer so we create one here
   QByteArray block_range_buffer(audio_params_.time_to_bytes(range.length()), 0);

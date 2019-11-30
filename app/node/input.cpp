@@ -73,7 +73,7 @@ Node *NodeInput::get_connected_node()
   NodeOutput* output = get_connected_output();
 
   if (output != nullptr) {
-    return output->parent();
+    return output->parentNode();
   }
 
   return nullptr;
@@ -129,8 +129,8 @@ QVariant NodeInput::get_value_at_time(const rational &time)
 
 void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
 {
-  if (parent() != nullptr)
-    parent()->LockUserInput();
+  if (parentNode() != nullptr)
+    parentNode()->LockUserInput();
 
   // We set up these variables in advance (see end of function)
   bool signal_vc = false;
@@ -216,8 +216,8 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
     signal_vc_range = TimeRange(RATIONAL_MIN, RATIONAL_MAX);
   }
 
-  if (parent() != nullptr)
-    parent()->UnlockUserInput();
+  if (parentNode() != nullptr)
+    parentNode()->UnlockUserInput();
 
   // We make sure this signal is emitted AFTER we've unlocked the node in case this leads to a tangent where something
   // tries to relock this node before it's unlocked here
@@ -298,8 +298,8 @@ void NodeInput::set_maximum(const QVariant &max)
 
 void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
 {
-  source->parent()->LockUserInput();
-  dest->parent()->LockUserInput();
+  source->parentNode()->LockUserInput();
+  dest->parentNode()->LockUserInput();
 
   // Copy values
   dest->keyframes_ = source->keyframes_;
@@ -307,8 +307,8 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   // Copy keyframing state
   dest->set_is_keyframing(source->is_keyframing());
 
-  source->parent()->UnlockUserInput();
-  dest->parent()->UnlockUserInput();
+  source->parentNode()->UnlockUserInput();
+  dest->parentNode()->UnlockUserInput();
 
   // Copy connections
   if (include_connections && source->get_connected_output() != nullptr) {

@@ -88,7 +88,7 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
       // Check if we have a shader or not
       if (shader_cache_.GetShader(connected_output) == nullptr)  {
         // Since we don't have a shader, compile one now
-        QString node_code = connected_output->parent()->Code(connected_output);
+        QString node_code = connected_output->parentNode()->Code(connected_output);
 
         // If the node has no code, it mustn't be GPU accelerated
         if (!node_code.isEmpty()) {
@@ -126,7 +126,7 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
         }
       }
 
-      if (!TraverseCompiling(connected_output->parent())) {
+      if (!TraverseCompiling(connected_output->parentNode())) {
         return false;
       }
     }

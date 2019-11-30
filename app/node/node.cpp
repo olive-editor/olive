@@ -106,7 +106,7 @@ void Node::SendInvalidateCache(const rational &start_range, const rational &end_
 
       foreach (NodeEdgePtr edge, edges) {
         NodeInput* connected_input = edge->input();
-        Node* connected_node = connected_input->parent();
+        Node* connected_node = connected_input->parentNode();
 
         // Send clear cache signal to the Node
         connected_node->InvalidateCache(start_range, end_range, connected_input);
@@ -125,7 +125,7 @@ void Node::DependentEdgeChanged(NodeInput *from)
 
       foreach (NodeEdgePtr edge, out->edges()) {
         NodeInput* connected_input = edge->input();
-        Node* connected_node = connected_input->parent();
+        Node* connected_node = connected_input->parentNode();
 
         connected_node->DependentEdgeChanged(connected_input);
       }
@@ -204,14 +204,14 @@ void Node::DuplicateConnectionsBetweenLists(const QList<Node *> &source, const Q
 
         // Get this input's connected outputs
         NodeOutput* source_output = source_input->get_connected_output();
-        Node* source_output_node = source_output->parent();
+        Node* source_output_node = source_output->parentNode();
 
         // Find equivalent in destination list
         Node* dest_output_node = destination.at(source.indexOf(source_output_node));
 
         Q_ASSERT(dest_output_node->id() == source_output_node->id());
 
-        NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->params_.at(source_output->index()));
+        NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->GetParameterWithID(source_output->id()));
 
         NodeParam::ConnectEdge(dest_output, dest_input);
       }
@@ -323,7 +323,7 @@ QList<Node *> Node::GetExclusiveDependencies()
 
           // If any edge goes to from an output here to an input of a Node that isn't in this dep list, it's NOT an
           // exclusive dependency
-          if (deps.contains(edge->input()->parent())) {
+          if (deps.contains(edge->input()->parentNode())) {
             deps.removeAt(i);
 
             i--;                // -1 since we just removed a Node in this list

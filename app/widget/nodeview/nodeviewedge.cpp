@@ -80,8 +80,8 @@ void NodeViewEdge::Adjust()
   }
 
   // Get the UI objects of both nodes that this edge connects
-  NodeViewItem* output = NodeView::NodeToUIObject(scene(), edge_->output()->parent());
-  NodeViewItem* input = NodeView::NodeToUIObject(scene(), edge_->input()->parent());
+  NodeViewItem* output = NodeView::NodeToUIObject(scene(), edge_->output()->parentNode());
+  NodeViewItem* input = NodeView::NodeToUIObject(scene(), edge_->input()->parentNode());
 
   // Create initial values
   QPointF output_point = QPointF(output->pos().x() + output->rect().width(), 0);

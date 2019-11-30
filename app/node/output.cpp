@@ -34,7 +34,7 @@ NodeParam::Type NodeOutput::type()
 
 QVariant NodeOutput::get_realtime_value()
 {
-  QVariant v = parent()->Value(this);
+  QVariant v = parentNode()->Value(this);
 
   return v;
 }
