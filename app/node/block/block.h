@@ -62,9 +62,6 @@ public:
   NodeOutput* buffer_output();
   NodeOutput* block_output();
 
-  static void ConnectBlocks(Block* previous, Block* next);
-  static void DisconnectBlocks(Block* previous, Block* next);
-
   const rational& media_in();
   void set_media_in(const rational& media_in);
 

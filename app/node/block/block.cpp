@@ -127,16 +127,6 @@ NodeOutput *Block::block_output()
   return block_output_;
 }
 
-void Block::ConnectBlocks(Block *, Block *)
-{
-  //NodeParam::ConnectEdge(previous->block_output(), next->previous_input());
-}
-
-void Block::DisconnectBlocks(Block *, Block *)
-{
-  //NodeParam::DisconnectEdge(previous->block_output(), next->previous_input());
-}
-
 const rational &Block::media_in()
 {
   return media_in_;
