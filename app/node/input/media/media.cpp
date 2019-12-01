@@ -20,19 +20,11 @@
 
 #include "media.h"
 
-MediaInput::MediaInput() :
-  decoder_(nullptr),
-  frame_(nullptr)
+MediaInput::MediaInput()
 {
   footage_input_ = new NodeInput("footage_in");
   footage_input_->set_data_type(NodeInput::kFootage);
   AddParameter(footage_input_);
-}
-
-void MediaInput::Release()
-{
-  frame_ = nullptr;
-  decoder_ = nullptr;
 }
 
 StreamPtr MediaInput::footage()
@@ -43,33 +35,4 @@ StreamPtr MediaInput::footage()
 void MediaInput::SetFootage(StreamPtr f)
 {
   footage_input_->set_value_at_time(0, QVariant::fromValue(f));
-}
-
-bool MediaInput::SetupDecoder()
-{
-  if (decoder_ != nullptr) {
-    return true;
-  }
-
-  // Get currently selected Footage
-  StreamPtr stream = footage();
-
-  // If no footage is selected, return nothing
-  if (stream == nullptr) {
-    return false;
-  }
-
-  // Otherwise try to get frame of footage from decoder
-
-  // Determine which decoder to use
-  if (decoder_ == nullptr
-      && (decoder_ = Decoder::CreateFromID(stream->footage()->decoder())) == nullptr) {
-    return false;
-  }
-
-  if (decoder_->stream() == nullptr) {
-    decoder_->set_stream(stream);
-  }
-
-  return true;
 }

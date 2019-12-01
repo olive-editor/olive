@@ -33,19 +33,11 @@ class MediaInput : public Node
 public:
   MediaInput();
 
-  virtual void Release() override;
-
   StreamPtr footage();
   void SetFootage(StreamPtr f);
 
 protected:
-  bool SetupDecoder();
-
   NodeInput* footage_input_;
-
-  DecoderPtr decoder_;
-
-  FramePtr frame_;
 
 };
 
