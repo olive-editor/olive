@@ -291,10 +291,10 @@ TrackOutput *TrackOutput::TrackFromBlock(Block *block)
   NodeOutput* output = block->block_output();
 
   foreach (NodeEdgePtr edge, output->edges()) {
-    TrackOutput* track_test = dynamic_cast<TrackOutput*>(edge->input()->parentNode());
+    Node* n = edge->input()->parentNode();
 
-    if (track_test) {
-      return track_test;
+    if (n->IsTrack()) {
+      return static_cast<TrackOutput*>(n);
     }
   }
 
