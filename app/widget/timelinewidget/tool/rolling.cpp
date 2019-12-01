@@ -90,7 +90,7 @@ void TimelineWidget::RollingTool::InitiateGhosts(TimelineViewBlockItem *clicked_
     if (ghost->mode() == olive::timeline::kTrimIn && ghost_block->previous() != nullptr) {
       // Add an extra Ghost for the previous block
       AddGhostFromBlock(ghost_block->previous(), ghost->Track(), olive::timeline::kTrimOut);
-    } else if (ghost->mode() == olive::timeline::kTrimOut && ghost_block->next() != nullptr && ghost_block->next()->type() != Block::kEnd) {
+    } else if (ghost->mode() == olive::timeline::kTrimOut && ghost_block->next() != nullptr) {
       AddGhostFromBlock(ghost_block->next(), ghost->Track(), olive::timeline::kTrimIn);
     }
   }

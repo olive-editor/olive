@@ -47,7 +47,7 @@ void TrackList::AttachTrack(TrackOutput *track)
     connect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
     connect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     connect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-    connect(current_track, SIGNAL(Refreshed()), this, SLOT(UpdateTotalLength()));
+    connect(current_track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
 
     current_track->SetIndex(track_cache_.size());
     current_track->set_track_type(type_);
@@ -219,7 +219,7 @@ void TrackList::UpdateTotalLength()
   total_length_ = 0;
 
   foreach (TrackOutput* track, track_cache_) {
-    total_length_ = qMax(total_length_, track->in());
+    total_length_ = qMax(total_length_, track->track_length());
   }
 
   emit LengthChanged(total_length_);

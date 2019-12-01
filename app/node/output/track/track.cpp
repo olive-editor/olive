@@ -32,6 +32,9 @@ TrackOutput::TrackOutput() :
 {
   block_input_ = new NodeInputArray("block_in");
   AddParameter(block_input_);
+  connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
+  connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
+  connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
 
   track_input_ = new NodeInput("track_in");
   track_input_->set_data_type(NodeParam::kTrack);
@@ -54,7 +57,7 @@ const TrackType& TrackOutput::track_type()
 
 Block::Type TrackOutput::type()
 {
-  return kEnd;
+  return kTrack;
 }
 
 Block *TrackOutput::copy()
@@ -81,33 +84,6 @@ QString TrackOutput::Description()
 {
   return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of "
             "a Sequence.");
-}
-
-void TrackOutput::Refresh()
-{
-  QVector<Block*> detect_attached_blocks;
-
-  Block* prev = previous();
-  while (prev != nullptr) {
-    detect_attached_blocks.prepend(prev);
-
-    if (!block_cache_.contains(prev)) {
-      emit BlockAdded(prev);
-    }
-
-    prev = prev->previous();
-  }
-
-  foreach (Block* b, block_cache_) {
-    if (!detect_attached_blocks.contains(b)) {
-      // If the current block was removed, stop referencing it
-      emit BlockRemoved(b);
-    }
-  }
-
-  block_cache_ = detect_attached_blocks;
-
-  Block::Refresh();
 }
 
 const int &TrackOutput::Index()
@@ -192,87 +168,42 @@ QVariant TrackOutput::Value(NodeOutput *output)
   if (output == track_output_) {
     // Set track output correctly
     return PtrToValue(this);
-  /*} else if (output == buffer_output()) {
-    ValidateCurrentBlock(in);
-
-    if (current_block_ != this) {
-      // At this point, we must have found the correct block so we use its texture output to produce the image
-      return current_block_->buffer_output()->get_value(in, out);
-    }
-
-    // No texture is valid
-    return 0;*/
   }
 
   // Run default node processing
   return Block::Value(output);
 }
 
-void TrackOutput::InsertBlockBetweenBlocks(Block *block, Block *before, Block *after)
-{
-  AddBlockToGraph(block);
-
-  Block::DisconnectBlocks(before, after);
-  Block::ConnectBlocks(before, block);
-  Block::ConnectBlocks(block, after);
-}
-
 void TrackOutput::InsertBlockBefore(Block* block, Block* after)
 {
-  Block* before = after->previous();
-
-  // If a block precedes this one, just insert between them
-  if (before != nullptr) {
-    InsertBlockBetweenBlocks(block, before, after);
-  } else {
-    AddBlockToGraph(block);
-
-    // Otherwise, just connect the block since there's no before clip to insert between
-    Block::ConnectBlocks(block, after);
-  }
+  InsertBlockAtIndex(block, block_cache_.indexOf(after));
 }
 
 void TrackOutput::InsertBlockAfter(Block *block, Block *before)
 {
-  InsertBlockBetweenBlocks(block, before, before->next());
+  int before_index = block_cache_.indexOf(before);
+
+  Q_ASSERT(before_index >= 0);
+
+  if (before_index == block_cache_.size() - 1) {
+    AppendBlock(block);
+  } else {
+    InsertBlockAtIndex(block, before_index + 1);
+  }
 }
 
 void TrackOutput::PrependBlock(Block *block)
 {
-  AddBlockToGraph(block);
-
-  if (block_cache_.isEmpty()) {
-    ConnectBlockInternal(block);
-  } else {
-    Block::ConnectBlocks(block, block_cache_.first());
-  }
+  InsertBlockAtIndex(block, 0);
 }
 
 void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 {
   AddBlockToGraph(block);
 
-  if (block_cache_.isEmpty()) {
-
-    // If there are no blocks connected, the index doesn't matter. Just connect it.
-    ConnectBlockInternal(block);
-
-  } else if (index == 0) {
-
-    // If the index is 0, it goes at the very beginning
-    PrependBlock(block);
-
-  } else if (index >= block_cache_.size()) {
-
-    // Append Block at the end
-    AppendBlock(block);
-
-  } else {
-
-    // Insert Block just before the Block currently at that index so that it becomes the new Block at that index
-    InsertBlockBetweenBlocks(block, block_cache_.at(index - 1), block_cache_.at(index));
-
-  }
+  block_input_->InsertAt(index);
+  NodeParam::ConnectEdge(block->block_output(),
+                         block_input_->ParamAt(index));
 }
 
 void TrackOutput::AppendBlock(Block *block)
@@ -281,23 +212,15 @@ void TrackOutput::AppendBlock(Block *block)
 
   BlockInvalidateCache();
 
-  if (block_cache_.isEmpty()) {
-    ConnectBlockInternal(block);
-  } else {
-    InsertBlockBetweenBlocks(block, block_cache_.last(), this);
-  }
+  int last_index = block_input_->GetSize();
+  block_input_->Append();
+  NodeParam::ConnectEdge(block->block_output(),
+                         block_input_->ParamAt(last_index));
 
   UnblockInvalidateCache();
 
   // Invalidate area that block was added to
-  InvalidateCache(block->in(), in());
-}
-
-void TrackOutput::ConnectBlockInternal(Block *block)
-{
-  AddBlockToGraph(block);
-
-  Block::ConnectBlocks(block, this);
+  InvalidateCache(block->in(), track_length());
 }
 
 void TrackOutput::AddBlockToGraph(Block *block)
@@ -322,18 +245,7 @@ void TrackOutput::RemoveBlock(Block *block)
   GapBlock* gap = new GapBlock();
   gap->set_length(block->length());
 
-  Block* previous = block->previous();
-  Block* next = block->next();
-
-  // Remove block
-  RippleRemoveBlock(block);
-
-  if (previous == nullptr) {
-    // Block must be at the beginning
-    PrependBlock(gap);
-  } else {
-    InsertBlockBetweenBlocks(gap, previous, next);
-  }
+  ReplaceBlock(block, gap);
 }
 
 void TrackOutput::RippleRemoveBlock(Block *block)
@@ -342,24 +254,13 @@ void TrackOutput::RippleRemoveBlock(Block *block)
 
   rational remove_in = block->in();
 
-  Block* previous = block->previous();
-  Block* next = block->next();
+  int index_of_block_to_remove = block_cache_.indexOf(block);
 
-  if (previous != nullptr) {
-    Block::DisconnectBlocks(previous, block);
-  }
-
-  if (next != nullptr) {
-    Block::DisconnectBlocks(block, next);
-  }
-
-  if (previous != nullptr && next != nullptr) {
-    Block::ConnectBlocks(previous, next);
-  }
+  block_input_->RemoveAt(index_of_block_to_remove);
 
   UnblockInvalidateCache();
 
-  InvalidateCache(remove_in, in());
+  InvalidateCache(remove_in, track_length());
 
   // FIXME: Should there be removing the Blocks from the graph?
 }
@@ -368,23 +269,17 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 {
   Q_ASSERT(old->length() == replace->length());
 
-  Block* previous = old->previous();
-  Block* next = old->next();
-
   BlockInvalidateCache();
 
   AddBlockToGraph(replace);
 
-  // Disconnect old block from its surroundings
-  if (previous != nullptr) {
-    Block::DisconnectBlocks(previous, old);
-    Block::ConnectBlocks(previous, replace);
-  }
+  int index_of_old_block = block_cache_.indexOf(old);
 
-  if (next != nullptr) {
-    Block::DisconnectBlocks(old, next);
-    Block::ConnectBlocks(replace, next);
-  }
+  NodeParam::DisconnectEdge(old->block_output(),
+                            block_input_->ParamAt(index_of_old_block));
+
+  NodeParam::ConnectEdge(replace->block_output(),
+                         block_input_->ParamAt(index_of_old_block));
 
   UnblockInvalidateCache();
 
@@ -393,14 +288,173 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 
 TrackOutput *TrackOutput::TrackFromBlock(Block *block)
 {
-  Block* n = block;
+  NodeOutput* output = block->block_output();
 
-  // Find last valid block in Sequence and assume its a track
-  while (n->next() != nullptr) {
-    n = n->next();
+  foreach (NodeEdgePtr edge, output->edges()) {
+    TrackOutput* track_test = dynamic_cast<TrackOutput*>(edge->input()->parentNode());
+
+    if (track_test) {
+      return track_test;
+    }
   }
 
-  // Downside of this approach is the usage of dynamic_cast, alternative would be looping through all known tracks and
-  // seeing if the contain the Block, but this seems slower
-  return dynamic_cast<TrackOutput*>(n);
+  return nullptr;
+}
+
+const rational &TrackOutput::track_length()
+{
+  return track_length_;
+}
+
+bool TrackOutput::IsTrack()
+{
+  return true;
+}
+
+void TrackOutput::UpdateInOutFrom(int index)
+{
+  Q_ASSERT(index >= 0);
+  Q_ASSERT(index < block_cache_.size());
+
+  rational new_track_length;
+
+  for (int i=index;i<block_cache_.size();i++) {
+    Block* b = block_cache_.at(i);
+
+    if (b) {
+      rational prev_out;
+
+      // Find previous block and retrieve its out point (if there isn't one, this in will be set to 0)
+      for (int j=i-1;j>=0;j--) {
+        Block* previous = block_cache_.at(j);
+        if (previous) {
+          prev_out = previous->out();
+          break;
+        }
+      }
+
+      rational new_out = prev_out + b->length();
+
+      b->set_in(prev_out);
+      b->set_out(new_out);
+
+      new_track_length = new_out;
+
+      emit b->Refreshed();
+    }
+  }
+
+  // Update track length
+  if (new_track_length != track_length_) {
+    track_length_ = new_track_length;
+    emit TrackLengthChanged();
+  }
+}
+
+void TrackOutput::UpdatePreviousAndNextOfIndex(int index)
+{
+  Block* ref = block_cache_.at(index);
+
+  Block* previous = nullptr;
+  Block* next = nullptr;
+
+  // Find previous
+  for (int i=index-1;i>=0;i--) {
+    previous = block_cache_.at(i);
+
+    if (previous) {
+      break;
+    }
+  }
+
+  // Find next
+  for (int i=index+1;i<block_cache_.size();i++) {
+    next = block_cache_.at(i);
+
+    if (next) {
+      break;
+    }
+  }
+
+  if (ref) {
+    // Link blocks together
+    ref->set_previous(previous);
+    ref->set_next(next);
+
+    if (previous)
+      previous->set_next(ref);
+
+    if (next)
+      next->set_previous(ref);
+  } else {
+    // Link previous and next together
+    if (previous)
+      previous->set_next(next);
+
+    if (next)
+      next->set_previous(previous);
+  }
+}
+
+void TrackOutput::BlockConnected(NodeEdgePtr edge)
+{
+  int block_index = block_input_->IndexOfSubParameter(edge->input());
+
+  Q_ASSERT(block_index >= 0);
+
+  Block* connected_block = dynamic_cast<Block*>(edge->output()->parentNode());
+  block_cache_.replace(block_index, connected_block);
+  UpdatePreviousAndNextOfIndex(block_index);
+  UpdateInOutFrom(block_index);
+
+  if (connected_block) {
+    connect(connected_block, SIGNAL(LengthChanged(const rational&)), this, SLOT(BlockLengthChanged()));
+
+    emit BlockAdded(connected_block);
+  }
+}
+
+void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
+{
+  int block_index = block_input_->IndexOfSubParameter(edge->input());
+
+  Q_ASSERT(block_index >= 0);
+
+  block_cache_.replace(block_index, nullptr);
+  UpdatePreviousAndNextOfIndex(block_index);
+  UpdateInOutFrom(block_index);
+
+  Block* connected_block = dynamic_cast<Block*>(edge->output()->parentNode());
+  if (connected_block) {
+    disconnect(connected_block, SIGNAL(LengthChanged(const rational&)), this, SLOT(BlockLengthChanged()));
+
+    // Update previous and next references
+    emit BlockRemoved(connected_block);
+  }
+}
+
+void TrackOutput::BlockListSizeChanged(int size)
+{
+  int old_size = block_cache_.size();
+
+  block_cache_.resize(size);
+
+  if (size > old_size) {
+    // Fill new slots with nullptr
+    for (int i=old_size;i<size;i++) {
+      block_cache_.replace(i, nullptr);
+    }
+  }
+}
+
+void TrackOutput::BlockLengthChanged()
+{
+  // Assumes sender is a Block
+  Block* b = static_cast<Block*>(sender());
+
+  int index = block_cache_.indexOf(b);
+
+  Q_ASSERT(index >= 0);
+
+  UpdateInOutFrom(index);
 }

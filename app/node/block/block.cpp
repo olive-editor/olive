@@ -31,9 +31,6 @@ Block::Block() :
 
   buffer_output_ = new NodeOutput("buffer_out");
   AddParameter(buffer_output_);
-
-  connect(this, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(EdgeAddedSlot(NodeEdgePtr)), Qt::DirectConnection);
-  connect(this, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(EdgeRemovedSlot(NodeEdgePtr)), Qt::DirectConnection);
 }
 
 QString Block::Category()
@@ -51,6 +48,16 @@ const rational &Block::out()
   return out_point_;
 }
 
+void Block::set_in(const rational &in)
+{
+  in_point_ = in;
+}
+
+void Block::set_out(const rational &out)
+{
+  out_point_ = out;
+}
+
 const rational& Block::length()
 {
   return length_;
@@ -60,13 +67,17 @@ void Block::set_length(const rational &length)
 {
   Q_ASSERT(length > 0);
 
+  if (length == length_) {
+    return;
+  }
+
   LockUserInput();
 
   length_ = length;
 
   UnlockUserInput();
 
-  Refresh();
+  emit LengthChanged(length_);
 }
 
 void Block::set_length_and_media_in(const rational &length)
@@ -88,6 +99,16 @@ Block *Block::next()
   return next_;
 }
 
+void Block::set_previous(Block *previous)
+{
+  previous_ = previous;
+}
+
+void Block::set_next(Block *next)
+{
+  next_ = next;
+}
+
 QVariant Block::Value(NodeOutput *output)
 {
   if (output == block_output_) {
@@ -96,25 +117,6 @@ QVariant Block::Value(NodeOutput *output)
   }
 
   return 0;
-}
-
-void Block::Refresh()
-{
-  // Set in point to the out point of the previous Node
-  if (previous() != nullptr) {
-    in_point_ = previous()->out();
-  } else {
-    in_point_ = 0;
-  }
-
-  // Update out point by adding this clip's length to the just calculated in point
-  out_point_ = in_point_ + length();
-
-  emit Refreshed();
-
-  if (next() != nullptr) {
-    next()->Refresh();
-  }
 }
 
 NodeOutput *Block::buffer_output()

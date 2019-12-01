@@ -38,18 +38,6 @@ Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
   return n;
 }
 
-TrackOutput* TrackFromBlock(Block* b)
-{
-  Block* next = b;
-
-  do {
-    next = next->next();
-  } while (next != nullptr && next->type() != Block::kEnd);
-
-  // A little hacky, but this should either be a TrackOutput* or nullptr
-  return static_cast<TrackOutput*>(next);
-}
-
 BlockResizeCommand::BlockResizeCommand(Block *block, rational new_length, QUndoCommand* parent) :
   QUndoCommand(parent),
   block_(block),
@@ -108,8 +96,7 @@ TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track,
   QUndoCommand(parent),
   track_(track),
   block_(block),
-  before_(block->previous()),
-  after_(block->next())
+  before_(block->previous())
 {
 }
 
@@ -120,7 +107,7 @@ void TrackRippleRemoveBlockCommand::redo()
 
 void TrackRippleRemoveBlockCommand::undo()
 {
-  track_->InsertBlockBetweenBlocks(block_, before_, after_);
+  track_->InsertBlockAfter(block_, before_);
 }
 
 TrackInsertBlockBetweenBlocksCommand::TrackInsertBlockBetweenBlocksCommand(TrackOutput *track,
@@ -138,7 +125,7 @@ TrackInsertBlockBetweenBlocksCommand::TrackInsertBlockBetweenBlocksCommand(Track
 
 void TrackInsertBlockBetweenBlocksCommand::redo()
 {
-  track_->InsertBlockBetweenBlocks(block_, before_, after_);
+  track_->InsertBlockAfter(block_, before_);
 }
 
 void TrackInsertBlockBetweenBlocksCommand::undo()
@@ -245,7 +232,7 @@ void TrackRippleRemoveAreaCommand::redo()
       track_->AppendBlock(insert_);
     } else {
       // This is somewhere in the middle of the Sequence
-      track_->InsertBlockBetweenBlocks(insert_, trim_out_, trim_in_);
+      track_->InsertBlockAfter(insert_, trim_out_);
     }
   }
 
@@ -320,14 +307,14 @@ void TrackPlaceBlockCommand::redo()
 
   track_ = timeline_->TrackAt(track_index_);
 
-  append_ = (in_ >= track_->in());
+  append_ = (in_ >= track_->track_length());
 
   // Check if the placement location is past the end of the timeline
   if (append_) {
-    if (in_ > track_->in()) {
+    if (in_ > track_->track_length()) {
       // If so, insert a gap here
       gap_ = new GapBlock();
-      gap_->set_length(in_ - track_->in());
+      gap_->set_length(in_ - track_->track_length());
       track_->AppendBlock(gap_);
     }
 
@@ -471,7 +458,11 @@ BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector
       Block* b = blocks.at(j);
 
       if (b->in() < time && b->out() > time) {
-        BlockSplitCommand* split_command = new BlockSplitCommand(TrackFromBlock(b), b, time, this);
+        TrackOutput* track = TrackOutput::TrackFromBlock(b);
+
+        Q_ASSERT(track);
+
+        BlockSplitCommand* split_command = new BlockSplitCommand(track, b, time, this);
         splits.replace(j, split_command->new_block());
       } else {
         splits.replace(j, nullptr);

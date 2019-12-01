@@ -42,7 +42,7 @@ public:
   enum Type {
     kClip,
     kGap,
-    kEnd
+    kTrack
   };
 
   virtual Type type() = 0;
@@ -51,6 +51,8 @@ public:
 
   const rational& in();
   const rational& out();
+  void set_in(const rational& in);
+  void set_out(const rational& out);
 
   const rational &length();
   void set_length(const rational &length);
@@ -58,6 +60,8 @@ public:
 
   Block* previous();
   Block* next();
+  void set_previous(Block* previous);
+  void set_next(Block* next);
 
   NodeOutput* buffer_output();
   NodeOutput* block_output();
@@ -80,20 +84,6 @@ public:
   virtual QVariant Value(NodeOutput* output) override;
 
 public slots:
-  /**
-   * @brief Refreshes internal cache of in/out points up to date
-   *
-   * A block can only know truly know its in point by adding all the lengths of the clips before it. Since this can
-   * become timeconsuming, blocks cache their in and out points for easy access, however this does mean their caches
-   * need to stay up to date to provide accurate results. Whenever this or any surrounding Block is changed, it's
-   * recommended to call Refresh().
-   *
-   * This function specifically sets the in point to the out point of the previous clip and sets its out point to the
-   * in point + this block's length. Therefore, before calling Refresh() on a Block, it's necessary that all the
-   * Blocks before it are accurate and up to date. You may need to traverse through the Block list (using previous())
-   * and run Refresh() on all Blocks sequentially.
-   */
-  virtual void Refresh();
 
 signals:
   /**
@@ -103,6 +93,8 @@ signals:
    */
   void Refreshed();
 
+  void LengthChanged(const rational& length);
+
 protected:
   rational SequenceToMediaTime(const rational& sequence_time);
 
@@ -110,18 +102,18 @@ protected:
 
   static void CopyParameters(Block* source, Block* dest);
 
+  Block* previous_;
+  Block* next_;
+
 private:
   NodeOutput* block_output_;
   NodeOutput* buffer_output_;
 
-  rational in_point_;
-  rational out_point_;
-
   rational length_;
   rational media_in_;
 
-  Block* previous_;
-  Block* next_;
+  rational in_point_;
+  rational out_point_;
 
   QString block_name_;
 

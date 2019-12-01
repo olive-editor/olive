@@ -118,7 +118,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
       painter->fillRect(rect(), Qt::white);
     }
     break;
-  case Block::kEnd:
+  case Block::kTrack:
     break;
   }
 }

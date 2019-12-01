@@ -276,7 +276,7 @@ void TimelineWidget::GoToNextCut()
   int64_t closest_cut = INT64_MAX;
 
   foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    int64_t this_track_closest_cut = olive::time_to_timestamp(track->in(), timebase());
+    int64_t this_track_closest_cut = olive::time_to_timestamp(track->track_length(), timebase());
 
     if (this_track_closest_cut <= playhead_) {
       this_track_closest_cut = INT64_MAX;
@@ -592,7 +592,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
     break;
   }
-  case Block::kEnd:
+  case Block::kTrack:
     // Do nothing
     break;
   }

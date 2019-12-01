@@ -80,7 +80,6 @@ private:
   Block* block_;
 
   Block* before_;
-  Block* after_;
 };
 
 class TrackPrependBlockCommand : public QUndoCommand {

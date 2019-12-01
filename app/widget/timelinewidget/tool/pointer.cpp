@@ -513,7 +513,7 @@ rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
     if (prevent_overwriting) {
       // Determine if there's a block in the way
       Block* next = block->next();
-      while (next != nullptr && next->type() != Block::kEnd) {
+      while (next != nullptr) {
         if (next->type() == Block::kClip) {
           latest_out = qMin(latest_out, next->in());
           break;

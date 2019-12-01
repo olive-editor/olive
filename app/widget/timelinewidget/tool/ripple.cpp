@@ -129,9 +129,7 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
       Block* block_before_ripple = track->NearestBlockBefore(earliest_ripple);
 
       // If block is null, there will be no blocks after to ripple
-      if (block_before_ripple != nullptr
-          && block_before_ripple->type() != Block::kEnd
-          && block_before_ripple->next()->type() != Block::kEnd) {
+      if (block_before_ripple != nullptr) {
         TimelineViewGhostItem* ghost;
 
         TrackReference track_ref(track->track_type(), track->Index());

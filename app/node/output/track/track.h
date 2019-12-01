@@ -45,8 +45,6 @@ public:
   virtual QString Category() override;
   virtual QString Description() override;
 
-  virtual void Refresh() override;
-
   const int& Index();
   void SetIndex(const int& index);
 
@@ -78,13 +76,6 @@ public:
    * this function is the same as AppendBlock().
    */
   void InsertBlockAtIndex(Block* block, int index);
-
-  /**
-   * @brief Inserts a Block between two other Blocks
-   *
-   * Disconnects `before` and `after`, and connects them to `block` with `block` in between.
-   */
-  void InsertBlockBetweenBlocks(Block* block, Block* before, Block* after);
 
   /**
    * @brief Inserts Block after another Block
@@ -131,6 +122,12 @@ public:
    */
   void AddBlockToGraph(Block* block);
 
+  static TrackOutput* TrackFromBlock(Block* block);
+
+  const rational& track_length();
+
+  virtual bool IsTrack() override;
+
 signals:
   /**
    * @brief Signal emitted when a Block is added to this Track
@@ -142,21 +139,18 @@ signals:
    */
   void BlockRemoved(Block* block);
 
+  /**
+   * @brief Signal emitted when the length of the track has changed
+   */
+  void TrackLengthChanged();
+
 protected:
   virtual QVariant Value(NodeOutput* output) override;
 
 private:
-  /**
-   * @brief Sets this Block as the only block in the Timeline (creating essentially a one clip sequence)
-   */
-  void ConnectBlockInternal(Block* block);
+  void UpdateInOutFrom(int index);
 
-  /**
-   * @brief Disconnects t
-   */
-  void RemoveBlockInternal();
-
-  static TrackOutput* TrackFromBlock(Block* block);
+  void UpdatePreviousAndNextOfIndex(int index);
 
   QVector<Block*> block_cache_;
 
@@ -168,11 +162,20 @@ private:
 
   TrackType track_type_;
 
+  rational track_length_;
+
   int block_invalidate_cache_stack_;
 
   int index_;
 
 private slots:
+  void BlockConnected(NodeEdgePtr edge);
+
+  void BlockDisconnected(NodeEdgePtr edge);
+
+  void BlockListSizeChanged(int size);
+
+  void BlockLengthChanged();
 
 };
 

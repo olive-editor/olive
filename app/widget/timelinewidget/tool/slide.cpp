@@ -81,7 +81,7 @@ void TimelineWidget::SlideTool::InitiateGhosts(TimelineViewBlockItem *clicked_it
       AddGhostFromBlock(ghost_block->previous(), ghost->Track(), olive::timeline::kTrimOut);
     }
 
-    if (ghost_block->next() != nullptr && ghost_block->next()->type() != Block::kEnd) {
+    if (ghost_block->next() != nullptr) {
       AddGhostFromBlock(ghost_block->next(), ghost->Track(), olive::timeline::kTrimIn);
     }
   }
