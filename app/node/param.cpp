@@ -37,6 +37,14 @@ NodeParam::NodeParam(const QString &id) :
   Q_ASSERT(!id_.isEmpty());
 }
 
+NodeParam::~NodeParam()
+{
+  // Clear all connected edges
+  while (!edges_.isEmpty()) {
+    DisconnectEdge(edges_.last());
+  }
+}
+
 const QString NodeParam::id()
 {
   return id_;

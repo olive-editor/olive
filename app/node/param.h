@@ -116,6 +116,8 @@ public:
    */
   NodeParam(const QString& id);
 
+  virtual ~NodeParam() override;
+
   /**
    * @brief Return ID of this parameter
    */
