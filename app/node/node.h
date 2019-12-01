@@ -281,13 +281,6 @@ protected:
   void AddParameter(NodeParam* param);
 
   /**
-   * @brief Deletes the parameter from this Node
-   *
-   * The NodeParam object is destroyed in the process.
-   */
-  void RemoveParameter(NodeParam* param);
-
-  /**
    * @brief Retrieve the last timecode Process() was called with
    */
   rational LastProcessedTime();
@@ -326,6 +319,10 @@ signals:
 
 private:
   bool HasParamOfType(NodeParam::Type type, bool must_be_connected);
+
+  void ConnectInput(NodeInput* input);
+
+  void DisconnectInput(NodeInput* input);
 
   QList<NodeParam *> params_;
 

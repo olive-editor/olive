@@ -33,6 +33,14 @@ Node::~Node()
   // We delete in the Node destructor rather than relying on the QObject system because the parameter may need to
   // perform actions on this Node object and we want them to be done before the Node object is fully destroyed
   foreach (NodeParam* param, params_) {
+
+    // We disconnect input signals because these will try to send invalidate cache signals that may involve the derived
+    // class (which is now destroyed). Any node that this is connected to will handle cache invalidation so it's a waste
+    // of time anyway.
+    if (param->type() == NodeParam::kInput) {
+      DisconnectInput(static_cast<NodeInput*>(param));
+    }
+
     delete param;
   }
 }
@@ -62,6 +70,10 @@ void Node::AddParameter(NodeParam *param)
   // Ensure no other param with this ID has been added to this Node (since that defeats the purpose)
   Q_ASSERT(!HasParamWithID(param->id()));
 
+  if (params_.contains(param)) {
+    return;
+  }
+
   param->setParent(this);
   params_.append(param);
 
@@ -69,16 +81,8 @@ void Node::AddParameter(NodeParam *param)
   connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
 
   if (param->type() == NodeParam::kInput) {
-    connect(param, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
-    connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
-    connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+    ConnectInput(static_cast<NodeInput*>(param));
   }
-}
-
-void Node::RemoveParameter(NodeParam *param)
-{
-  params_.removeAll(param);
-  delete param;
 }
 
 QVariant Node::Value(NodeOutput *output)
@@ -423,33 +427,6 @@ void Node::DisconnectAll()
   }
 }
 
-/*void Node::Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time)
-{
-  // Add this Node's ID
-  hash->addData(id().toUtf8());
-
-  // Add each value
-  foreach (NodeParam* param, params_) {
-    if (param->type() == NodeParam::kInput
-        && !param->IsConnected()
-        && static_cast<NodeInput*>(param)->dependent()) {
-      // Get the value at this time
-      NodeInput* input = static_cast<NodeInput*>(param);
-
-      QVariant v = input->value(time);
-
-      hash->addData(NodeParam::ValueToBytes(input->data_type(), v));
-    }
-  }
-
-  // Add each dependency node
-  QList<NodeDependency> deps = RunDependencies(from, time);
-  foreach (const NodeDependency& dep, deps) {
-    // Hash the connected node
-    dep.node()->parent()->Hash(hash, dep.node(), dep.in());
-  }
-}*/
-
 QVariant Node::PtrToValue(void *ptr)
 {
   return reinterpret_cast<quintptr>(ptr);
@@ -478,6 +455,20 @@ bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected)
   }
 
   return false;
+}
+
+void Node::ConnectInput(NodeInput *input)
+{
+  connect(input, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
+  connect(input, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+  connect(input, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+}
+
+void Node::DisconnectInput(NodeInput *input)
+{
+  disconnect(input, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
+  disconnect(input, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+  disconnect(input, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
 }
 
 void Node::InputChanged(rational start, rational end)
