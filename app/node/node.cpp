@@ -28,6 +28,15 @@ Node::Node() :
 {
 }
 
+Node::~Node()
+{
+  // We delete in the Node destructor rather than relying on the QObject system because the parameter may need to
+  // perform actions on this Node object and we want them to be done before the Node object is fully destroyed
+  foreach (NodeParam* param, params_) {
+    delete param;
+  }
+}
+
 QString Node::Category()
 {
   // Return an empty category for any nodes that don't use one
@@ -230,6 +239,11 @@ void Node::SetCanBeDeleted(bool s)
 }
 
 bool Node::IsBlock()
+{
+  return false;
+}
+
+bool Node::IsTrack()
 {
   return false;
 }

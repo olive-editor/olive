@@ -51,6 +51,8 @@ class Node : public QObject
 public:
   Node();
 
+  virtual ~Node() override;
+
   /**
    * @brief Creates a clone of the Node
    *
@@ -239,6 +241,14 @@ public:
    * It's just a more convenient way of checking than dynamic_casting.
    */
   virtual bool IsBlock();
+
+  /**
+   * @brief Returns whether this Node is a "Track" type or not
+   *
+   * You shouldn't ever need to override this since all derivatives of Track will automatically have this set to true.
+   * It's just a more convenient way of checking than dynamic_casting.
+   */
+  virtual bool IsTrack();
 
   /**
    * @brief The main processing function
