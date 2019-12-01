@@ -402,7 +402,8 @@ void TrackOutput::BlockConnected(NodeEdgePtr edge)
 
   Q_ASSERT(block_index >= 0);
 
-  Block* connected_block = dynamic_cast<Block*>(edge->output()->parentNode());
+  Node* connected_node = edge->output()->parentNode();
+  Block* connected_block = connected_node->IsBlock() ? static_cast<Block*>(connected_node) : nullptr;
   block_cache_.replace(block_index, connected_block);
   UpdatePreviousAndNextOfIndex(block_index);
   UpdateInOutFrom(block_index);
@@ -424,7 +425,8 @@ void TrackOutput::BlockDisconnected(NodeEdgePtr edge)
   UpdatePreviousAndNextOfIndex(block_index);
   UpdateInOutFrom(block_index);
 
-  Block* connected_block = dynamic_cast<Block*>(edge->output()->parentNode());
+  Node* connected_node = edge->output()->parentNode();
+  Block* connected_block = connected_node->IsBlock() ? static_cast<Block*>(connected_node) : nullptr;
   if (connected_block) {
     disconnect(connected_block, SIGNAL(LengthChanged(const rational&)), this, SLOT(BlockLengthChanged()));
 
