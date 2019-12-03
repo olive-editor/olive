@@ -28,7 +28,6 @@ set(OLIVE_SOURCES
   common/range.h
   common/rational.h
   common/rational.cpp
-  common/qobjectlistcast.h
   common/qtversionabstraction.h
   common/qtversionabstraction.cpp
   common/threadedobject.h
