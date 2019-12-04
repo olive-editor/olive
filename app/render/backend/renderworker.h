@@ -27,12 +27,12 @@ public slots:
 
   void Render(NodeDependency path);
 
-  virtual QVariant RenderAsSibling(NodeDependency dep) = 0;
+  NodeValueTable RenderAsSibling(NodeDependency dep);
 
 signals:
   void RequestSibling(NodeDependency path);
 
-  void CompletedCache(NodeDependency dep);
+  void CompletedCache(NodeDependency dep, NodeValueTable data);
 
 protected:
   /**
@@ -64,22 +64,22 @@ protected:
 
   virtual void CloseInternal() = 0;
 
-  virtual void RenderInternal(const NodeDependency& path);
+  virtual NodeValueTable RenderInternal(const NodeDependency& path);
 
   virtual bool OutputIsAccelerated(NodeOutput *output) = 0;
 
-  virtual QVariant RunNodeAccelerated(NodeOutput *output) = 0;
+  virtual NodeValueTable RunNodeAccelerated(NodeOutput *output) = 0;
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
   DecoderPtr ResolveDecoderFromInput(NodeInput* input);
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) = 0;
 
-  QList<NodeInput*> ProcessNodeInputsForTime(Node* n, const TimeRange& time);
-
   virtual QVariant FrameToValue(FramePtr frame) = 0;
 
-  QVariant ProcessNodeNormally(const NodeDependency &dep);
+  NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
+
+  virtual NodeValueTable RenderBlock(NodeOutput *output, const TimeRange& range) = 0;
 
   DecoderCache* decoder_cache();
 

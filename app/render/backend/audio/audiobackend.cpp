@@ -62,14 +62,14 @@ void AudioBackend::DecompileInternal()
 
 void AudioBackend::ConnectWorkerToThis(RenderWorker *worker)
 {
-  connect(worker, SIGNAL(CompletedCache(NodeDependency)), this, SLOT(ThreadCompletedCache(NodeDependency)));
+  connect(worker, SIGNAL(CompletedCache(NodeDependency, QVariant)), this, SLOT(ThreadCompletedCache(NodeDependency, QVariant)));
 }
 
-void AudioBackend::ThreadCompletedCache(NodeDependency dep)
+void AudioBackend::ThreadCompletedCache(NodeDependency dep, QVariant data)
 {
   caching_ = false;
 
-  QByteArray cached_samples = dep.node()->get_cached_value(dep.range()).toByteArray();
+  QByteArray cached_samples = data.toByteArray();
 
   int offset = params().time_to_bytes(dep.in());
   int length = params().time_to_bytes(dep.range().length());

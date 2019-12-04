@@ -27,31 +27,7 @@ void NodeValueDatabase::Insert(const NodeInput *key, const NodeValueTable &value
 
 NodeValueTable NodeValueDatabase::Merge() const
 {
-  if (tables_.size() == 1) {
-    return tables_.begin().value();
-  }
-
-  int row = 0;
-
-  NodeValueTable merged_table;
-
-  QHash<QString, NodeValueTable>::const_iterator iterator;
-
-  // Slipstreams all tables together
-  // FIXME: I don't actually know if this is the right approach...
-  for (iterator = tables_.begin();iterator != tables_.end();iterator++) {
-    const NodeValueTable& table = iterator.value();
-
-    if (row >= table.Count()) {
-      continue;
-    }
-
-    int row_index = table.Count() - 1 - row;
-
-    merged_table.Prepend(table.At(row_index));
-  }
-
-  return merged_table;
+  return NodeValueTable::Merge(tables_.values());
 }
 
 NodeValue::NodeValue(const NodeParam::DataType &type, const QVariant &data, const QString &tag) :
@@ -123,6 +99,35 @@ int NodeValueTable::Count() const
 bool NodeValueTable::isEmpty() const
 {
   return values_.isEmpty();
+}
+
+NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
+{
+
+
+  if (tables.size() == 1) {
+    return tables.first();
+  }
+
+  int row = 0;
+
+  NodeValueTable merged_table;
+
+  QHash<QString, NodeValueTable>::const_iterator iterator;
+
+  // Slipstreams all tables together
+  // FIXME: I don't actually know if this is the right approach...
+  foreach (const NodeValueTable& t, tables) {
+    if (row >= t.Count()) {
+      continue;
+    }
+
+    int row_index = t.Count() - 1 - row;
+
+    merged_table.Prepend(t.At(row_index));
+  }
+
+  return merged_table;
 }
 
 QVariant NodeValueTable::GetInternal(const NodeParam::DataType &type, const QString &tag, bool remove)

@@ -16,8 +16,8 @@ bool AudioWorker::OutputIsAccelerated(NodeOutput *output)
   return false;
 }
 
-QVariant AudioWorker::RunNodeAccelerated(NodeOutput *output)
+NodeValueTable AudioWorker::RunNodeAccelerated(NodeOutput *output)
 {
   Q_UNUSED(output)
-  return QVariant();
+  return NodeValueTable();
 }

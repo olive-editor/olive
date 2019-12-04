@@ -16,7 +16,7 @@ const VideoRenderingParams &VideoRenderWorker::video_params()
   return video_params_;
 }
 
-void VideoRenderWorker::RenderInternal(const NodeDependency& path)
+NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
 {
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
@@ -24,18 +24,22 @@ void VideoRenderWorker::RenderInternal(const NodeDependency& path)
   HashNodeRecursively(&hasher, path.node()->parentNode(), path.in());
   QByteArray hash = hasher.result();
 
+  NodeValueTable value;
+
   if (frame_cache_->HasHash(hash)) {
     // We've already cached this hash, no need to continue
     emit HashAlreadyExists(path, hash);
   } else if (frame_cache_->TryCache(hash)) {
     // This hash is available for us to cache, start traversing graph
-    QVariant value = RenderAsSibling(path);
+    value = RenderAsSibling(path);
 
     emit CompletedFrame(path, hash, value);
   } else {
     // Another thread must be caching this already, nothing to be done
     emit HashAlreadyBeingCached();
   }
+
+  return value;
 }
 
 FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
@@ -120,42 +124,6 @@ void VideoRenderWorker::CloseInternal()
   download_buffer_.clear();
 }
 
-QVariant VideoRenderWorker::RenderAsSibling(NodeDependency dep)
-{
-  NodeOutput* output = dep.node();
-  Node* original_node = output->parentNode();
-  Node* node;
-  rational time = dep.in();
-  QVariant value;
-
-  // Set working state
-  working_++;
-
-  //qDebug() << "Processing" << original_node->id() << original_node;
-
-  // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
-  // nodes based on time and we might need to locate which Block to attach to
-  if (original_node->IsBlock()) {
-    node = ValidateBlock(static_cast<Block*>(original_node), time);
-
-    if (original_node != node) {
-      // Ensure output is the output matching the node as it may have changed
-      output = static_cast<NodeOutput*>(node->GetParameterWithID(output->id()));
-    }
-  } else {
-    node = original_node;
-  }
-
-  value = ProcessNodeNormally(NodeDependency(output, dep.range()));
-
-  // We're done!
-
-  // End this working state
-  working_--;
-
-  return value;
-}
-
 void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)
 {
   working_++;
@@ -183,4 +151,19 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
   }
 
   working_--;
+}
+
+NodeValueTable VideoRenderWorker::RenderBlock(NodeOutput* output, const TimeRange &range)
+{
+  // A frame can only have one active block so we just validate the in point of the range
+  Block* active_block = ValidateBlock(static_cast<Block*>(output->parentNode()), range.in());
+
+  NodeValueTable table;
+
+  if (active_block) {
+    table = RenderAsSibling(NodeDependency(active_block->block_output(),
+                                           range));
+  }
+
+  return table;
 }

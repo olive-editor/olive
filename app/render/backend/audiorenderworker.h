@@ -11,17 +11,14 @@ public:
 
   void SetParameters(const AudioRenderingParams& audio_params);
 
-public slots:
-  virtual QVariant RenderAsSibling(NodeDependency dep) override;
-
 protected:
   virtual bool InitInternal() override;
 
   virtual void CloseInternal() override;
 
-  QVariant RenderBlock(NodeOutput *output, const TimeRange& range);
-
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
+
+  virtual NodeValueTable RenderBlock(NodeOutput *output, const TimeRange& range) override;
 
 private:
   AudioRenderingParams audio_params_;

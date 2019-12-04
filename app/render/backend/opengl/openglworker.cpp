@@ -83,7 +83,7 @@ void OpenGLWorker::ParametersChangedEvent()
   }
 }
 
-QVariant OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
+NodeValueTable OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
 {
   OpenGLShaderPtr shader = shader_cache_->GetShader(out);
   Node* node = out->parentNode();

@@ -13,7 +13,7 @@ protected:
 
   virtual bool OutputIsAccelerated(NodeOutput *output) override;
 
-  virtual QVariant RunNodeAccelerated(NodeOutput *output) override;
+  virtual NodeValueTable RunNodeAccelerated(NodeOutput *output) override;
 
 private:
 

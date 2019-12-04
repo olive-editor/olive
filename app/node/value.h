@@ -37,6 +37,8 @@ public:
 
   bool isEmpty() const;
 
+  static NodeValueTable Merge(QList<NodeValueTable> tables);
+
 private:
   QVariant GetInternal(const NodeParam::DataType& type, const QString& tag, bool remove);
 
