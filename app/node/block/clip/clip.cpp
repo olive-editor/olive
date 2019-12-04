@@ -27,7 +27,7 @@ ClipBlock::ClipBlock()
   AddParameter(texture_input_);
 }
 
-Node *ClipBlock::copy()
+Node *ClipBlock::copy() const
 {
   ClipBlock* c = new ClipBlock();
 
@@ -36,27 +36,27 @@ Node *ClipBlock::copy()
   return c;
 }
 
-Block::Type ClipBlock::type()
+Block::Type ClipBlock::type() const
 {
   return kClip;
 }
 
-QString ClipBlock::Name()
+QString ClipBlock::Name() const
 {
   return tr("Clip");
 }
 
-QString ClipBlock::id()
+QString ClipBlock::id() const
 {
   return "org.olivevideoeditor.Olive.clip";
 }
 
-QString ClipBlock::Description()
+QString ClipBlock::Description() const
 {
   return tr("A time-based node that represents a media source.");
 }
 
-NodeInput *ClipBlock::texture_input()
+NodeInput *ClipBlock::texture_input() const
 {
   return texture_input_;
 }
@@ -79,7 +79,7 @@ void ClipBlock::InvalidateCache(const rational &start_range, const rational &end
   }
 }
 
-TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time)
+TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
 {
   if (input == texture_input_) {
     return TimeRange(SequenceToMediaTime(input_time.in()), SequenceToMediaTime(input_time.out()));
@@ -88,11 +88,8 @@ TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &inpu
   return Block::InputTimeAdjustment(input, input_time);
 }
 
-QVariant ClipBlock::Value(NodeOutput *output)
+NodeValueTable ClipBlock::Value(const NodeValueDatabase &value) const
 {
-  if (output == buffer_output()) {
-    // We just pass through the texture here, the renderer should have gotten the correct time from InputTimeAdjustment
-    return texture_input()->value();
-  }
-  return Block::Value(output);
+  // We just pass through the data here, the renderer should have gotten the correct time from InputTimeAdjustment
+  return value.Merge();
 }

@@ -45,16 +45,16 @@ public:
     kTrack
   };
 
-  virtual Type type() = 0;
+  virtual Type type() const = 0;
 
-  virtual QString Category() override;
+  virtual QString Category() const override;
 
-  const rational& in();
-  const rational& out();
+  const rational& in() const;
+  const rational& out() const;
   void set_in(const rational& in);
   void set_out(const rational& out);
 
-  const rational &length();
+  const rational &length() const;
   void set_length(const rational &length);
   void set_length_and_media_in(const rational &length);
 
@@ -63,13 +63,13 @@ public:
   void set_previous(Block* previous);
   void set_next(Block* next);
 
-  NodeOutput* buffer_output();
-  NodeOutput* block_output();
+  NodeOutput* buffer_output() const;
+  NodeOutput* block_output() const;
 
-  const rational& media_in();
+  const rational& media_in() const;
   void set_media_in(const rational& media_in);
 
-  const QString& block_name();
+  const QString& block_name() const;
   void set_block_name(const QString& name);
 
   static void Link(Block* a, Block* b);
@@ -79,9 +79,7 @@ public:
   const QVector<Block*>& linked_clips();
   bool HasLinks();
 
-  virtual bool IsBlock() override;
-
-  virtual QVariant Value(NodeOutput* output) override;
+  virtual bool IsBlock() const override;
 
 public slots:
 
@@ -96,11 +94,11 @@ signals:
   void LengthChanged(const rational& length);
 
 protected:
-  rational SequenceToMediaTime(const rational& sequence_time);
+  rational SequenceToMediaTime(const rational& sequence_time) const;
 
-  rational MediaToSequenceTime(const rational& media_time);
+  rational MediaToSequenceTime(const rational& media_time) const;
 
-  static void CopyParameters(Block* source, Block* dest);
+  static void CopyParameters(const Block *source, Block* dest);
 
   Block* previous_;
   Block* next_;

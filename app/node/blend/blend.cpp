@@ -34,22 +34,22 @@ BlendNode::BlendNode()
   AddParameter(texture_output_);
 }
 
-QString BlendNode::Category()
+QString BlendNode::Category() const
 {
   return tr("Blend");
 }
 
-NodeInput *BlendNode::base_input()
+NodeInput *BlendNode::base_input() const
 {
   return base_input_;
 }
 
-NodeInput *BlendNode::blend_input()
+NodeInput *BlendNode::blend_input() const
 {
   return blend_input_;
 }
 
-NodeOutput *BlendNode::texture_output()
+NodeOutput *BlendNode::texture_output() const
 {
   return texture_output_;
 }

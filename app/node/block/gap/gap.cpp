@@ -24,7 +24,7 @@ GapBlock::GapBlock()
 {
 }
 
-Node *GapBlock::copy()
+Node *GapBlock::copy() const
 {
   GapBlock* c = new GapBlock();
 
@@ -33,22 +33,22 @@ Node *GapBlock::copy()
   return c;
 }
 
-Block::Type GapBlock::type()
+Block::Type GapBlock::type() const
 {
   return kGap;
 }
 
-QString GapBlock::Name()
+QString GapBlock::Name() const
 {
   return tr("Gap");
 }
 
-QString GapBlock::id()
+QString GapBlock::id() const
 {
   return "org.olivevideoeditor.Olive.gap";
 }
 
-QString GapBlock::Description()
+QString GapBlock::Description() const
 {
   return tr("A time-based node that represents an empty space.");
 }

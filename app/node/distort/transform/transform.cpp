@@ -46,27 +46,27 @@ TransformDistort::TransformDistort()
   AddParameter(matrix_output_);
 }
 
-Node *TransformDistort::copy()
+Node *TransformDistort::copy() const
 {
   return new TransformDistort();
 }
 
-QString TransformDistort::Name()
+QString TransformDistort::Name() const
 {
   return tr("Transform");
 }
 
-QString TransformDistort::id()
+QString TransformDistort::id() const
 {
   return "org.olivevideoeditor.Olive.transform";
 }
 
-QString TransformDistort::Category()
+QString TransformDistort::Category() const
 {
   return tr("Distort");
 }
 
-QString TransformDistort::Description()
+QString TransformDistort::Description() const
 {
   return tr("Apply transformations to position, rotation, and scale.");
 }
@@ -84,26 +84,25 @@ void TransformDistort::Retranslate()
   anchor_input_->set_name(tr("Anchor Point"));
 }
 
-QVariant TransformDistort::Value(NodeOutput *output)
+NodeValueTable TransformDistort::Value(const NodeValueDatabase &value) const
 {
-  if (output == matrix_output_) {
-    QMatrix4x4 mat;
+  QMatrix4x4 mat;
 
-    // Position translate
-    QVector2D pos = position_input_->value().value<QVector2D>();
-    mat.translate(pos);
+  // Position translate
+  QVector2D pos = value[position_input_].Get(NodeParam::kVec2).value<QVector2D>();
+  mat.translate(pos);
 
-    // Rotation
-    mat.rotate(rotation_input_->value().toFloat(), 0, 0, 1);
+  // Rotation
+  mat.rotate(value[rotation_input_].Get(NodeParam::kFloat).toFloat(), 0, 0, 1);
 
-    // Scale
-    mat.scale(scale_input_->value().value<QVector2D>()*0.01f);
+  // Scale
+  mat.scale(value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>()*0.01f);
 
-    // Anchor Point
-    mat.translate(-anchor_input_->value().value<QVector2D>());
+  // Anchor Point
+  mat.translate(-value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>());
 
-    return mat;
-  }
-
-  return 0;
+  // Push matrix output
+  NodeValueTable output = value.Merge();
+  output.Push(NodeParam::kMatrix, mat);
+  return output;
 }

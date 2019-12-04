@@ -6,27 +6,27 @@ AudioInput::AudioInput()
   AddParameter(samples_output_);
 }
 
-Node *AudioInput::copy()
+Node *AudioInput::copy() const
 {
   return new AudioInput();
 }
 
-QString AudioInput::Name()
+QString AudioInput::Name() const
 {
   return tr("Audio Input");
 }
 
-QString AudioInput::id()
+QString AudioInput::id() const
 {
   return "org.olivevideoeditor.Olive.audioinput";
 }
 
-QString AudioInput::Category()
+QString AudioInput::Category() const
 {
   return tr("Input");
 }
 
-QString AudioInput::Description()
+QString AudioInput::Description() const
 {
   return tr("Import an audio footage stream.");
 }
@@ -36,12 +36,7 @@ NodeOutput *AudioInput::samples_output()
   return samples_output_;
 }
 
-QVariant AudioInput::Value(NodeOutput *output)
+NodeValueTable AudioInput::Value(const NodeValueDatabase &value) const
 {
-  if (output == samples_output_) {
-    // Simple passthrough from footage input
-    return footage_input_->value();
-  }
-
-  return MediaInput::Value(output);
+  return value[footage_input_];
 }

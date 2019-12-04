@@ -30,6 +30,7 @@
 #include "node/input.h"
 #include "node/inputarray.h"
 #include "node/output.h"
+#include "node/value.h"
 
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
@@ -59,7 +60,7 @@ public:
    * By default, the clone will NOT have the values and connections of the original node. The caller is responsible for
    * copying that data with functions like CopyInputs() as copies may be done for different reasons.
    */
-  virtual Node* copy() = 0;
+  virtual Node* copy() const = 0;
 
   /**
    * @brief Return the name of the node
@@ -67,7 +68,7 @@ public:
    * This is the node's name shown to the user. This must be overridden by subclasses, and preferably run through the
    * translator.
    */
-  virtual QString Name() = 0;
+  virtual QString Name() const = 0;
 
   /**
    * @brief Return the unique identifier of the node
@@ -76,7 +77,7 @@ public:
    * completely unique to this node, and preferably in bundle identifier format (e.g. "org.company.Name"). This string
    * should NOT be translated.
    */
-  virtual QString id() = 0;
+  virtual QString id() const = 0;
 
   /**
    * @brief Return the category this node is in (optional for subclassing, but recommended)
@@ -86,7 +87,7 @@ public:
    * interpreted as an empty string category. This value should be run through a translator as its largely user
    * oriented.
    */
-  virtual QString Category();
+  virtual QString Category() const;
 
   /**
    * @brief Return a description of this node's purpose (optional for subclassing, but recommended)
@@ -94,7 +95,7 @@ public:
    * A short (1-2 sentence) description of what this node should do to help the user understand its purpose. This should
    * be run through a translator.
    */
-  virtual QString Description();
+  virtual QString Description() const;
 
   /**
    * @brief Signals the Node that it won't be used for a while and can deallocate some memory
@@ -109,18 +110,18 @@ public:
   /**
    * @brief Return a list of NodeParams
    */
-  const QList<NodeParam*>& parameters();
+  const QList<NodeParam*>& parameters() const;
 
   /**
    * @brief Return the index of a parameter
    * @return Parameter index or -1 if this parameter is not part of this Node
    */
-  int IndexOfParameter(NodeParam* param);
+  int IndexOfParameter(NodeParam* param) const;
 
   /**
    * @brief Return a list of all Nodes that this Node's inputs are connected to (does not include this Node)
    */
-  QList<Node*> GetDependencies();
+  QList<Node*> GetDependencies() const;
 
   /**
    * @brief Returns a list of Nodes that this Node is dependent on, provided no other Nodes are dependent on them
@@ -128,47 +129,47 @@ public:
    *
    * Similar to GetDependencies(), but excludes any Nodes that are used outside the dependency graph of this Node.
    */
-  QList<Node*> GetExclusiveDependencies();
+  QList<Node*> GetExclusiveDependencies() const;
 
   /**
    * @brief Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one)
    */
-  QList<Node*> GetImmediateDependencies();
+  QList<Node*> GetImmediateDependencies() const;
 
   /**
    * @brief Generate OpenCL hardware accelerated code for this Node
    */
-  virtual QString Code(NodeOutput* output);
+  virtual QString Code(NodeOutput* output) const;
 
   /**
    * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)
    */
-  NodeParam* GetParameterWithID(const QString& id);
+  NodeParam* GetParameterWithID(const QString& id) const;
 
   /**
    * @brief Returns whether this Node outputs data to the Node `n` in any way
    */
-  bool OutputsTo(Node* n);
+  bool OutputsTo(Node* n) const;
 
   /**
    * @brief Return whether this Node has input parameters
    */
-  bool HasInputs();
+  bool HasInputs() const;
 
   /**
    * @brief Return whether this Node has output parameters
    */
-  bool HasOutputs();
+  bool HasOutputs() const;
 
   /**
    * @brief Return whether this Node has input parameters and at least one of them is connected
    */
-  bool HasConnectedInputs();
+  bool HasConnectedInputs() const;
 
   /**
    * @brief Return whether this Node has output parameters and at least one of them is connected
    */
-  bool HasConnectedOutputs();
+  bool HasConnectedOutputs() const;
 
   /**
    * @brief Severs all input and output connections
@@ -197,20 +198,13 @@ public:
    */
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr);
 
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time);
+  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
 
   /**
    * @brief User input lock prevents any user changes while a graph is being rendered
    */
   void LockUserInput();
   void UnlockUserInput();
-
-  /**
-   * @brief Processing lock prevents more than one thread trying to process a Node at once
-   */
-  void LockProcessing();
-  void UnlockProcessing();
-  bool IsProcessingLocked();
 
   /**
    * @brief Copies inputs from from Node to another including connections
@@ -227,7 +221,7 @@ public:
   /**
    * @brief Return whether this Node can be deleted or not
    */
-  bool CanBeDeleted();
+  bool CanBeDeleted() const;
 
   /**
    * @brief Set whether this Node can be deleted in the UI or not
@@ -240,7 +234,7 @@ public:
    * You shouldn't ever need to override this since all derivatives of Block will automatically have this set to true.
    * It's just a more convenient way of checking than dynamic_casting.
    */
-  virtual bool IsBlock();
+  virtual bool IsBlock() const;
 
   /**
    * @brief Returns whether this Node is a "Track" type or not
@@ -248,7 +242,7 @@ public:
    * You shouldn't ever need to override this since all derivatives of Track will automatically have this set to true.
    * It's just a more convenient way of checking than dynamic_casting.
    */
-  virtual bool IsTrack();
+  virtual bool IsTrack() const;
 
   /**
    * @brief The main processing function
@@ -263,12 +257,12 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual QVariant Value(NodeOutput* output);
+  virtual NodeValueTable Value(const NodeValueDatabase& value) const;
 
   /**
    * @brief Return whether a parameter with ID `id` has already been added to this Node
    */
-  bool HasParamWithID(const QString& id);
+  bool HasParamWithID(const QString& id) const;
 
 protected:
   /**
@@ -318,7 +312,7 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 private:
-  bool HasParamOfType(NodeParam::Type type, bool must_be_connected);
+  bool HasParamOfType(NodeParam::Type type, bool must_be_connected) const;
 
   void ConnectInput(NodeInput* input);
 
@@ -340,11 +334,6 @@ private:
    * @brief Used for thread safety from main thread
    */
   QMutex user_input_lock_;
-
-  /**
-   * @brief Used for thread safety between multiple threads
-   */
-  QMutex processing_lock_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not

@@ -28,13 +28,13 @@ class BlendNode : public Node
 public:
   BlendNode();
 
-  virtual QString Category() override;
+  virtual QString Category() const override;
 
-  NodeInput* base_input();
+  NodeInput* base_input() const;
 
-  NodeInput* blend_input();
+  NodeInput* blend_input() const;
 
-  NodeOutput* texture_output();
+  NodeOutput* texture_output() const;
 
 private:
   NodeInput* base_input_;

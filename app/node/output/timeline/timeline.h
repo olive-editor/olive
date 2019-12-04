@@ -37,24 +37,26 @@ class TimelineOutput : public Node
 public:
   TimelineOutput();
 
-  virtual Node* copy() override;
+  virtual Node* copy() const override;
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Category() const override;
+  virtual QString Description() const override;
 
-  QVector<TrackOutput*> Tracks();
+  const rational& length() const;
 
-  NodeInput* track_input(TrackType type);
+  const QVector<TrackOutput *> &Tracks() const;
 
-  TrackList* track_list(TrackType type);
+  NodeInput* track_input(TrackType type) const;
 
-  NodeOutput* length_output();
+  TrackList* track_list(TrackType type) const;
 
-  const rational& timeline_length();
+  NodeOutput* length_output() const;
 
-  const rational& Timebase();
+  const rational& timeline_length() const;
+
+  const rational& timebase() const;
 
   void SetTimebase(const rational &timebase);
 
@@ -69,7 +71,7 @@ signals:
   void TrackRemoved(TrackOutput* track);
 
 protected:
-  virtual QVariant Value(NodeOutput* output) override;
+  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
 private:
   QVector<NodeInput*> track_inputs_;

@@ -36,14 +36,14 @@ public:
   const TrackType& track_type();
   void set_track_type(const TrackType& track_type);
 
-  virtual Type type() override;
+  virtual Type type() const override;
 
-  virtual Block* copy() override;
+  virtual Block* copy() const override;
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Category() const override;
+  virtual QString Description() const override;
 
   const int& Index();
   void SetIndex(const int& index);
@@ -54,13 +54,13 @@ public:
 
   NodeOutput* track_output();
 
-  Block* BlockContainingTime(const rational& time);
+  Block* BlockContainingTime(const rational& time) const;
 
-  Block* NearestBlockBefore(const rational& time);
+  Block* NearestBlockBefore(const rational& time) const;
 
-  Block* NearestBlockAfter(const rational& time);
+  Block* NearestBlockAfter(const rational& time) const;
 
-  const QVector<Block*>& Blocks();
+  const QVector<Block*>& Blocks() const;
 
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
 
@@ -124,9 +124,9 @@ public:
 
   static TrackOutput* TrackFromBlock(Block* block);
 
-  const rational& track_length();
+  const rational& track_length() const;
 
-  virtual bool IsTrack() override;
+  virtual bool IsTrack() const override;
 
 signals:
   /**
@@ -145,7 +145,6 @@ signals:
   void TrackLengthChanged();
 
 protected:
-  virtual QVariant Value(NodeOutput* output) override;
 
 private:
   void UpdateInOutFrom(int index);

@@ -37,27 +37,27 @@ OpacityNode::OpacityNode()
   AddParameter(texture_output_);
 }
 
-Node *OpacityNode::copy()
+Node *OpacityNode::copy() const
 {
   return new OpacityNode();
 }
 
-QString OpacityNode::Name()
+QString OpacityNode::Name() const
 {
   return tr("Opacity");
 }
 
-QString OpacityNode::Category()
+QString OpacityNode::Category() const
 {
   return tr("Color");
 }
 
-QString OpacityNode::Description()
+QString OpacityNode::Description() const
 {
   return tr("Adjust an image's opacity.");
 }
 
-QString OpacityNode::id()
+QString OpacityNode::id() const
 {
   return "org.olivevideoeditor.Olive.opacity";
 }
@@ -67,7 +67,7 @@ void OpacityNode::Retranslate()
   opacity_input_->set_name(tr("Opacity"));
 }
 
-QString OpacityNode::Code(NodeOutput *output)
+QString OpacityNode::Code(NodeOutput *output) const
 {
   if (output == texture_output()) {
     return "#version 110"
@@ -85,12 +85,12 @@ QString OpacityNode::Code(NodeOutput *output)
   return Node::Code(output);
 }
 
-NodeInput *OpacityNode::texture_input()
+NodeInput *OpacityNode::texture_input() const
 {
   return texture_input_;
 }
 
-NodeOutput *OpacityNode::texture_output()
+NodeOutput *OpacityNode::texture_output() const
 {
   return texture_output_;
 }

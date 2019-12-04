@@ -33,17 +33,17 @@ Block::Block() :
   AddParameter(buffer_output_);
 }
 
-QString Block::Category()
+QString Block::Category() const
 {
   return tr("Block");
 }
 
-const rational &Block::in()
+const rational &Block::in() const
 {
   return in_point_;
 }
 
-const rational &Block::out()
+const rational &Block::out() const
 {
   return out_point_;
 }
@@ -58,7 +58,7 @@ void Block::set_out(const rational &out)
   out_point_ = out;
 }
 
-const rational& Block::length()
+const rational& Block::length() const
 {
   return length_;
 }
@@ -109,27 +109,17 @@ void Block::set_next(Block *next)
   next_ = next;
 }
 
-QVariant Block::Value(NodeOutput *output)
-{
-  if (output == block_output_) {
-    // Simply set the output value to a pointer to this Block
-    return PtrToValue(this);
-  }
-
-  return 0;
-}
-
-NodeOutput *Block::buffer_output()
+NodeOutput *Block::buffer_output() const
 {
   return buffer_output_;
 }
 
-NodeOutput *Block::block_output()
+NodeOutput *Block::block_output() const
 {
   return block_output_;
 }
 
-const rational &Block::media_in()
+const rational &Block::media_in() const
 {
   return media_in_;
 }
@@ -151,7 +141,7 @@ void Block::set_media_in(const rational &media_in)
   }
 }
 
-const QString &Block::block_name()
+const QString &Block::block_name() const
 {
   return block_name_;
 }
@@ -161,7 +151,7 @@ void Block::set_block_name(const QString &name)
   block_name_ = name;
 }
 
-rational Block::SequenceToMediaTime(const rational &sequence_time)
+rational Block::SequenceToMediaTime(const rational &sequence_time) const
 {
   // These constants are not considered "values" per se, so we don't modify them
   if (sequence_time == RATIONAL_MIN || sequence_time == RATIONAL_MAX) {
@@ -171,7 +161,7 @@ rational Block::SequenceToMediaTime(const rational &sequence_time)
   return sequence_time - in() + media_in();
 }
 
-rational Block::MediaToSequenceTime(const rational &media_time)
+rational Block::MediaToSequenceTime(const rational &media_time) const
 {
   // These constants are not considered "values" per se, so we don't modify them
   if (media_time == RATIONAL_MIN || media_time == RATIONAL_MAX) {
@@ -181,7 +171,7 @@ rational Block::MediaToSequenceTime(const rational &media_time)
   return media_time - media_in() + in();
 }
 
-void Block::CopyParameters(Block *source, Block *dest)
+void Block::CopyParameters(const Block *source, Block *dest)
 {
   dest->set_block_name(source->block_name());
   dest->set_length(source->length());
@@ -233,7 +223,7 @@ bool Block::HasLinks()
   return !linked_clips_.isEmpty();
 }
 
-bool Block::IsBlock()
+bool Block::IsBlock() const
 {
   return true;
 }

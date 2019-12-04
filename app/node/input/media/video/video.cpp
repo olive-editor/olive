@@ -18,27 +18,27 @@ VideoInput::VideoInput()
   AddParameter(texture_output_);
 }
 
-Node *VideoInput::copy()
+Node *VideoInput::copy() const
 {
   return new VideoInput();
 }
 
-QString VideoInput::Name()
+QString VideoInput::Name() const
 {
   return tr("Video Input");
 }
 
-QString VideoInput::id()
+QString VideoInput::id() const
 {
   return "org.olivevideoeditor.Olive.videoinput";
 }
 
-QString VideoInput::Category()
+QString VideoInput::Category() const
 {
   return tr("Input");
 }
 
-QString VideoInput::Description()
+QString VideoInput::Description() const
 {
   return tr("Import a video footage stream.");
 }
@@ -48,17 +48,17 @@ void VideoInput::Release()
   MediaInput::Release();
 }
 
-NodeInput *VideoInput::matrix_input()
+NodeInput *VideoInput::matrix_input() const
 {
   return matrix_input_;
 }
 
-NodeOutput *VideoInput::texture_output()
+NodeOutput *VideoInput::texture_output() const
 {
   return texture_output_;
 }
 
-QString VideoInput::Code(NodeOutput *output)
+QString VideoInput::Code(NodeOutput *output) const
 {
   if (output == texture_output()) {
     return "#version 110\n"

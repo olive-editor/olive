@@ -35,27 +35,27 @@ ViewerOutput::ViewerOutput()
   AddParameter(length_input_);
 }
 
-Node *ViewerOutput::copy()
+Node *ViewerOutput::copy() const
 {
   return new ViewerOutput();
 }
 
-QString ViewerOutput::Name()
+QString ViewerOutput::Name() const
 {
   return tr("Viewer");
 }
 
-QString ViewerOutput::id()
+QString ViewerOutput::id() const
 {
   return "org.olivevideoeditor.Olive.vieweroutput";
 }
 
-QString ViewerOutput::Category()
+QString ViewerOutput::Category() const
 {
   return tr("Output");
 }
 
-QString ViewerOutput::Description()
+QString ViewerOutput::Description() const
 {
   return tr("Interface between a Viewer panel and the node system.");
 }
@@ -115,7 +115,8 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
 
 rational ViewerOutput::Length()
 {
-  return length_input_->get_realtime_value_of_connected_output().value<rational>();
+  // FIXME: This is pretty messy, there's probably a better way...
+  return length_input_->get_connected_node()->Value(NodeValueDatabase()).Get(NodeParam::kRational).value<rational>();
 }
 
 void ViewerOutput::DependentEdgeChanged(NodeInput *from)

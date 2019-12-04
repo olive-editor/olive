@@ -32,13 +32,13 @@ class GapBlock : public Block
 public:
   GapBlock();
 
-  virtual Node * copy() override;
+  virtual Node * copy() const override;
 
-  virtual Type type() override;
+  virtual Type type() const override;
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Description() const override;
 
 private:
 

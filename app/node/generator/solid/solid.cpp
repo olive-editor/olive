@@ -31,37 +31,37 @@ SolidGenerator::SolidGenerator() :
   AddParameter(texture_output_);
 }
 
-Node *SolidGenerator::copy()
+Node *SolidGenerator::copy() const
 {
   return new SolidGenerator();
 }
 
-QString SolidGenerator::Name()
+QString SolidGenerator::Name() const
 {
   return tr("Solid");
 }
 
-QString SolidGenerator::id()
+QString SolidGenerator::id() const
 {
   return "org.olivevideoeditor.Olive.solidgenerator";
 }
 
-QString SolidGenerator::Category()
+QString SolidGenerator::Category() const
 {
   return tr("Generator");
 }
 
-QString SolidGenerator::Description()
+QString SolidGenerator::Description() const
 {
   return tr("Generate a solid color.");
 }
 
-NodeOutput *SolidGenerator::texture_output()
+NodeOutput *SolidGenerator::texture_output() const
 {
   return texture_output_;
 }
 
-QString SolidGenerator::Code(NodeOutput *output)
+QString SolidGenerator::Code(NodeOutput *output) const
 {
   if (output == texture_output()) {
     // FIXME: Not color managed

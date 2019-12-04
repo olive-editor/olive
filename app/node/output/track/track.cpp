@@ -37,7 +37,6 @@ TrackOutput::TrackOutput() :
   connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
 
   track_input_ = new NodeInput("track_in");
-  track_input_->set_data_type(NodeParam::kTrack);
   track_input_->set_dependent(false);
   AddParameter(track_input_);
 
@@ -55,32 +54,32 @@ const TrackType& TrackOutput::track_type()
   return track_type_;
 }
 
-Block::Type TrackOutput::type()
+Block::Type TrackOutput::type() const
 {
   return kTrack;
 }
 
-Block *TrackOutput::copy()
+Block *TrackOutput::copy() const
 {
   return new TrackOutput();
 }
 
-QString TrackOutput::Name()
+QString TrackOutput::Name() const
 {
   return tr("Track");
 }
 
-QString TrackOutput::id()
+QString TrackOutput::id() const
 {
   return "org.olivevideoeditor.Olive.track";
 }
 
-QString TrackOutput::Category()
+QString TrackOutput::Category() const
 {
   return tr("Output");
 }
 
-QString TrackOutput::Description()
+QString TrackOutput::Description() const
 {
   return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of "
             "a Sequence.");
@@ -98,7 +97,8 @@ void TrackOutput::SetIndex(const int &index)
 
 TrackOutput *TrackOutput::next_track()
 {
-  return ValueToPtr<TrackOutput>(track_input_->get_realtime_value_of_connected_output());
+  // FIXME: Re-do this without dynamic_cast at some point
+  return dynamic_cast<TrackOutput*>(track_input_->get_connected_node());
 }
 
 NodeInput *TrackOutput::track_input()
@@ -111,7 +111,7 @@ NodeOutput* TrackOutput::track_output()
   return track_output_;
 }
 
-Block *TrackOutput::BlockContainingTime(const rational &time)
+Block *TrackOutput::BlockContainingTime(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     if (block->in() < time && block->out() > time) {
@@ -124,7 +124,7 @@ Block *TrackOutput::BlockContainingTime(const rational &time)
   return nullptr;
 }
 
-Block *TrackOutput::NearestBlockBefore(const rational &time)
+Block *TrackOutput::NearestBlockBefore(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
@@ -133,10 +133,10 @@ Block *TrackOutput::NearestBlockBefore(const rational &time)
     }
   }
 
-  return this;
+  return nullptr;
 }
 
-Block *TrackOutput::NearestBlockAfter(const rational &time)
+Block *TrackOutput::NearestBlockAfter(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block after this time is the correct Block
@@ -145,10 +145,10 @@ Block *TrackOutput::NearestBlockAfter(const rational &time)
     }
   }
 
-  return this;
+  return nullptr;
 }
 
-const QVector<Block *> &TrackOutput::Blocks()
+const QVector<Block *> &TrackOutput::Blocks() const
 {
   return block_cache_;
 }
@@ -161,17 +161,6 @@ void TrackOutput::InvalidateCache(const rational &start_range, const rational &e
   } else {
   }*/
   Node::InvalidateCache(start_range, end_range, from);
-}
-
-QVariant TrackOutput::Value(NodeOutput *output)
-{
-  if (output == track_output_) {
-    // Set track output correctly
-    return PtrToValue(this);
-  }
-
-  // Run default node processing
-  return Block::Value(output);
 }
 
 void TrackOutput::InsertBlockBefore(Block* block, Block* after)
@@ -301,12 +290,12 @@ TrackOutput *TrackOutput::TrackFromBlock(Block *block)
   return nullptr;
 }
 
-const rational &TrackOutput::track_length()
+const rational &TrackOutput::track_length() const
 {
   return track_length_;
 }
 
-bool TrackOutput::IsTrack()
+bool TrackOutput::IsTrack() const
 {
   return true;
 }

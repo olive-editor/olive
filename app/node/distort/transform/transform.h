@@ -29,18 +29,18 @@ class TransformDistort : public Node
 public:
   TransformDistort();
 
-  virtual Node* copy() override;
+  virtual Node* copy() const override;
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Category() override;
-  virtual QString Description() override;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Category() const override;
+  virtual QString Description() const override;
 
   NodeOutput* matrix_output();
 
   virtual void Retranslate() override;
 
-  virtual QVariant Value(NodeOutput *output) override;
+  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
 private:
   NodeInput* position_input_;

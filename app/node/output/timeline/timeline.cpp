@@ -35,7 +35,6 @@ TimelineOutput::TimelineOutput()
   for (int i=0;i<kTrackTypeCount;i++) {
     // Create track input
     NodeInput* track_input = new NodeInput(QString("track_in_%1").arg(i));
-    track_input->set_data_type(NodeParam::kTrack);
     AddParameter(track_input);
     track_inputs_.replace(i, track_input);
 
@@ -53,58 +52,61 @@ TimelineOutput::TimelineOutput()
   AddParameter(length_output_);
 }
 
-Node *TimelineOutput::copy()
+Node *TimelineOutput::copy() const
 {
   return new TimelineOutput();
 }
 
-QString TimelineOutput::Name()
+QString TimelineOutput::Name() const
 {
   return tr("Timeline");
 }
 
-QString TimelineOutput::id()
+QString TimelineOutput::id() const
 {
   return "org.olivevideoeditor.Olive.timeline";
 }
 
-QString TimelineOutput::Category()
+QString TimelineOutput::Category() const
 {
   return tr("Output");
 }
 
-QString TimelineOutput::Description()
+QString TimelineOutput::Description() const
 {
   return tr("Node for communicating between a Timeline panel and the node graph.");
 }
 
-QVector<TrackOutput *> TimelineOutput::Tracks()
-{
-  return track_cache_;
-}
-
-NodeOutput *TimelineOutput::length_output()
-{
-  return length_output_;
-}
-
-const rational &TimelineOutput::timeline_length()
+const rational &TimelineOutput::length() const
 {
   return length_;
 }
 
-const rational &TimelineOutput::Timebase()
+const QVector<TrackOutput *>& TimelineOutput::Tracks() const
+{
+  return track_cache_;
+}
+
+NodeOutput *TimelineOutput::length_output() const
+{
+  return length_output_;
+}
+
+const rational &TimelineOutput::timeline_length() const
+{
+  return length_;
+}
+
+const rational &TimelineOutput::timebase() const
 {
   return timebase_;
 }
 
-QVariant TimelineOutput::Value(NodeOutput *output)
+NodeValueTable TimelineOutput::Value(const NodeValueDatabase &value) const
 {
-  if (output == length_output_) {
-    return QVariant::fromValue(length_);
-  }
-
-  return 0;
+  NodeValueTable table = value.Merge();
+  table.Push(NodeParam::kRational, QVariant::fromValue(length()));
+  return table;
 }
 
 void TimelineOutput::UpdateTrackCache()
@@ -150,12 +152,12 @@ void TimelineOutput::SetTimebase(const rational &timebase)
   emit TimebaseChanged(timebase_);
 }
 
-NodeInput *TimelineOutput::track_input(TrackType type)
+NodeInput *TimelineOutput::track_input(TrackType type) const
 {
   return track_inputs_.at(type);
 }
 
-TrackList *TimelineOutput::track_list(TrackType type)
+TrackList *TimelineOutput::track_list(TrackType type) const
 {
   return track_lists_.at(type);
 }

@@ -25,27 +25,27 @@ AlphaOverBlend::AlphaOverBlend()
 
 }
 
-Node *AlphaOverBlend::copy()
+Node *AlphaOverBlend::copy() const
 {
   return new AlphaOverBlend();
 }
 
-QString AlphaOverBlend::Name()
+QString AlphaOverBlend::Name() const
 {
   return tr("Alpha Over");
 }
 
-QString AlphaOverBlend::id()
+QString AlphaOverBlend::id() const
 {
   return "org.olivevideoeditor.Olive.alphaoverblend";
 }
 
-QString AlphaOverBlend::Description()
+QString AlphaOverBlend::Description() const
 {
   return tr("A blending node that composites one texture over another using its alpha channel.");
 }
 
-QString AlphaOverBlend::Code(NodeOutput *output)
+QString AlphaOverBlend::Code(NodeOutput *output) const
 {
   if (output == texture_output()) {
     return "#version 110"

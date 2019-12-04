@@ -45,13 +45,13 @@ Node::~Node()
   }
 }
 
-QString Node::Category()
+QString Node::Category() const
 {
   // Return an empty category for any nodes that don't use one
   return QString();
 }
 
-QString Node::Description()
+QString Node::Description() const
 {
   // Return an empty string by default
   return QString();
@@ -85,11 +85,11 @@ void Node::AddParameter(NodeParam *param)
   }
 }
 
-QVariant Node::Value(NodeOutput *output)
+NodeValueTable Node::Value(const NodeValueDatabase &value) const
 {
-  Q_UNUSED(output)
+  Q_UNUSED(value)
 
-  return QVariant();
+  return NodeValueTable();
 }
 
 void Node::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
@@ -99,7 +99,7 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
   SendInvalidateCache(start_range, end_range);
 }
 
-TimeRange Node::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time)
+TimeRange Node::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
 {
   Q_UNUSED(input)
 
@@ -154,26 +154,6 @@ void Node::LockUserInput()
 void Node::UnlockUserInput()
 {
   user_input_lock_.unlock();
-}
-
-void Node::LockProcessing()
-{
-  processing_lock_.lock();
-}
-
-void Node::UnlockProcessing()
-{
-  processing_lock_.unlock();
-}
-
-bool Node::IsProcessingLocked()
-{
-  if (processing_lock_.tryLock()) {
-    processing_lock_.unlock();
-    return false;
-  } else {
-    return true;
-  }
 }
 
 void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
@@ -232,7 +212,7 @@ void Node::DuplicateConnectionsBetweenLists(const QList<Node *> &source, const Q
   }
 }
 
-bool Node::CanBeDeleted()
+bool Node::CanBeDeleted() const
 {
   return can_be_deleted_;
 }
@@ -242,12 +222,12 @@ void Node::SetCanBeDeleted(bool s)
   can_be_deleted_ = s;
 }
 
-bool Node::IsBlock()
+bool Node::IsBlock() const
 {
   return false;
 }
 
-bool Node::IsTrack()
+bool Node::IsTrack() const
 {
   return false;
 }
@@ -278,12 +258,12 @@ NodeOutput *Node::LastProcessedOutput()
   return o;
 }
 
-const QList<NodeParam *>& Node::parameters()
+const QList<NodeParam *>& Node::parameters() const
 {
   return params_;
 }
 
-int Node::IndexOfParameter(NodeParam *param)
+int Node::IndexOfParameter(NodeParam *param) const
 {
   return params_.indexOf(param);
 }
@@ -296,7 +276,7 @@ int Node::IndexOfParameter(NodeParam *param)
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-void GetDependenciesInternal(Node* n, QList<Node*>& list, bool traverse) {
+void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse) {
   foreach (NodeParam* p, n->parameters()) {
     if (p->type() == NodeParam::kInput) {
       Node* connected = static_cast<NodeInput*>(p)->get_connected_node();
@@ -312,7 +292,7 @@ void GetDependenciesInternal(Node* n, QList<Node*>& list, bool traverse) {
   }
 }
 
-QList<Node *> Node::GetDependencies()
+QList<Node *> Node::GetDependencies() const
 {
   QList<Node *> node_list;
 
@@ -321,7 +301,7 @@ QList<Node *> Node::GetDependencies()
   return node_list;
 }
 
-QList<Node *> Node::GetExclusiveDependencies()
+QList<Node *> Node::GetExclusiveDependencies() const
 {
   QList<Node*> deps = GetDependencies();
 
@@ -356,7 +336,7 @@ QList<Node *> Node::GetExclusiveDependencies()
   return deps;
 }
 
-QList<Node *> Node::GetImmediateDependencies()
+QList<Node *> Node::GetImmediateDependencies() const
 {
   QList<Node *> node_list;
 
@@ -365,14 +345,14 @@ QList<Node *> Node::GetImmediateDependencies()
   return node_list;
 }
 
-QString Node::Code(NodeOutput *output)
+QString Node::Code(NodeOutput *output) const
 {
   Q_UNUSED(output)
 
   return QString();
 }
 
-NodeParam *Node::GetParameterWithID(const QString &id)
+NodeParam *Node::GetParameterWithID(const QString &id) const
 {
   foreach (NodeParam* param, params_) {
     if (param->id() == id) {
@@ -383,7 +363,7 @@ NodeParam *Node::GetParameterWithID(const QString &id)
   return nullptr;
 }
 
-bool Node::OutputsTo(Node *n)
+bool Node::OutputsTo(Node *n) const
 {
   foreach (NodeParam* param, params_) {
     if (param->type() == NodeParam::kOutput) {
@@ -400,22 +380,22 @@ bool Node::OutputsTo(Node *n)
   return false;
 }
 
-bool Node::HasInputs()
+bool Node::HasInputs() const
 {
   return HasParamOfType(NodeParam::kInput, false);
 }
 
-bool Node::HasOutputs()
+bool Node::HasOutputs() const
 {
   return HasParamOfType(NodeParam::kOutput, false);
 }
 
-bool Node::HasConnectedInputs()
+bool Node::HasConnectedInputs() const
 {
   return HasParamOfType(NodeParam::kInput, true);
 }
 
-bool Node::HasConnectedOutputs()
+bool Node::HasConnectedOutputs() const
 {
   return HasParamOfType(NodeParam::kOutput, true);
 }
@@ -432,7 +412,7 @@ QVariant Node::PtrToValue(void *ptr)
   return reinterpret_cast<quintptr>(ptr);
 }
 
-bool Node::HasParamWithID(const QString &id)
+bool Node::HasParamWithID(const QString &id) const
 {
   foreach (NodeParam* p, params_)
   {
@@ -445,7 +425,7 @@ bool Node::HasParamWithID(const QString &id)
   return false;
 }
 
-bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected)
+bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
 {
   foreach (NodeParam* p, params_) {
     if (p->type() == type

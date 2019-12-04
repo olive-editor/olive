@@ -32,21 +32,21 @@ class ClipBlock : public Block
 public:
   ClipBlock();
 
-  virtual Node* copy() override;
+  virtual Node* copy() const override;
 
-  virtual Type type() override;
+  virtual Type type() const override;
 
-  virtual QString Name() override;
-  virtual QString id() override;
-  virtual QString Description() override;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Description() const override;
 
-  NodeInput* texture_input();
+  NodeInput* texture_input() const;
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
-  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) override;
+  virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
 
-  virtual QVariant Value(NodeOutput* output) override;
+  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
 private:
   NodeInput* texture_input_;
