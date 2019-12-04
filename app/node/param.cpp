@@ -45,7 +45,7 @@ NodeParam::~NodeParam()
   }
 }
 
-const QString NodeParam::id()
+const QString NodeParam::id() const
 {
   return id_;
 }
@@ -184,40 +184,13 @@ NodeEdgePtr NodeParam::DisconnectForNewOutput(NodeInput *input)
   return nullptr;
 }
 
-QString NodeParam::GetDefaultDataTypeName(const DataType& type)
-{
-  switch (type) {
-  case kNone: return tr("None");
-  case kInt: return tr("Integer");
-  case kFloat: return tr("Float");
-  case kColor: return tr("Color");
-  case kString: return tr("String");
-  case kBoolean: return tr("Boolean");
-  case kFont: return tr("Font");
-  case kFile: return tr("File");
-  case kTexture: return tr("Texture");
-  case kMatrix: return tr("Matrix");
-  case kBlock: return tr("Block");
-  case kFootage: return tr("Footage");
-  case kTrack: return tr("Track");
-  case kRational: return tr("Rational");
-  case kVec2: return tr("Vector2D");
-  case kVec3: return tr("Vector3D");
-  case kVec4: return tr("Vector4D");
-  case kSamples: return tr("Samples");
-  case kAny: return tr("Any");
-  }
-
-  return QString();
-}
-
 QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVariant &value)
 {
   switch (type) {
   case kInt: return ValueToBytesInternal<int>(value);
   case kFloat: return ValueToBytesInternal<float>(value);
   case kColor: return ValueToBytesInternal<QColor>(value);
-  case kString: return ValueToBytesInternal<QString>(value);
+  case kText: return ValueToBytesInternal<QString>(value);
   case kBoolean: return ValueToBytesInternal<bool>(value);
   case kFont: return ValueToBytesInternal<QString>(value); // FIXME: This should probably be a QFont?
   case kFile: return ValueToBytesInternal<QString>(value);
@@ -231,9 +204,13 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kNone:
   case kFootage:
   case kTexture:
-  case kBlock:
-  case kTrack:
   case kSamples:
+  case kDecimal:
+  case kWholeNumber:
+  case kNumber:
+  case kString:
+  case kBuffer:
+  case kVector:
   case kAny:
     break;
   }

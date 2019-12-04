@@ -43,12 +43,16 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   // None of these inputs have applicable UI widgets
   case NodeParam::kNone:
   case NodeParam::kAny:
-  case NodeParam::kBlock:
   case NodeParam::kTexture:
   case NodeParam::kMatrix:
-  case NodeParam::kTrack:
   case NodeParam::kRational:
   case NodeParam::kSamples:
+  case NodeParam::kDecimal:
+  case NodeParam::kWholeNumber:
+  case NodeParam::kNumber:
+  case NodeParam::kString:
+  case NodeParam::kBuffer:
+  case NodeParam::kVector:
     break;
   case NodeParam::kInt:
   {
@@ -142,7 +146,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kColor:
     // FIXME: Color selector
     break;
-  case NodeParam::kString:
+  case NodeParam::kText:
   {
     QLineEdit* line_edit = new QLineEdit();
     widgets_.append(line_edit);
@@ -190,12 +194,16 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // None of these inputs have applicable UI widgets
     case NodeParam::kNone:
     case NodeParam::kAny:
-    case NodeParam::kBlock:
     case NodeParam::kTexture:
     case NodeParam::kMatrix:
-    case NodeParam::kTrack:
     case NodeParam::kSamples:
     case NodeParam::kRational:
+    case NodeParam::kDecimal:
+    case NodeParam::kWholeNumber:
+    case NodeParam::kNumber:
+    case NodeParam::kString:
+    case NodeParam::kVector:
+    case NodeParam::kBuffer:
       break;
     case NodeParam::kInt:
     {
@@ -280,7 +288,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     case NodeParam::kColor:
       // FIXME: Color selector
       break;
-    case NodeParam::kString:
+    case NodeParam::kText:
     {
       // Sender is a QLineEdit
       QLineEdit* line_edit = static_cast<QLineEdit*>(sender());

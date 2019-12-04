@@ -22,8 +22,6 @@ QVariant AudioRenderWorker::RenderAsSibling(NodeDependency dep)
   // Set working state
   working_++;
 
-  bool locked = false;
-
   // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
   // nodes based on time and we might need to locate which Block to attach to
   if (node->IsBlock()
@@ -32,20 +30,10 @@ QVariant AudioRenderWorker::RenderAsSibling(NodeDependency dep)
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
     value = RenderBlock(output, dep.range());
   } else {
-    node->LockProcessing();
     value = ProcessNodeNormally(NodeDependency(output, dep.range()));
-    locked = true;
   }
-
-  if (!locked) {
-    node->LockProcessing();
-  }
-
-  // Place the value into the output
-  output->cache_value(dep.range(), value);
 
   // We're done!
-  node->UnlockProcessing();
 
   // End this working state
   working_--;

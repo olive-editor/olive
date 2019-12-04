@@ -133,8 +133,6 @@ QVariant VideoRenderWorker::RenderAsSibling(NodeDependency dep)
 
   //qDebug() << "Processing" << original_node->id() << original_node;
 
-  original_node->LockProcessing();
-
   // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
   // nodes based on time and we might need to locate which Block to attach to
   if (original_node->IsBlock()) {
@@ -143,10 +141,6 @@ QVariant VideoRenderWorker::RenderAsSibling(NodeDependency dep)
     if (original_node != node) {
       // Ensure output is the output matching the node as it may have changed
       output = static_cast<NodeOutput*>(node->GetParameterWithID(output->id()));
-
-      // Switch locks
-      original_node->UnlockProcessing();
-      node->LockProcessing();
     }
   } else {
     node = original_node;
@@ -154,12 +148,7 @@ QVariant VideoRenderWorker::RenderAsSibling(NodeDependency dep)
 
   value = ProcessNodeNormally(NodeDependency(output, dep.range()));
 
-  // Place the value into the output
-  output->cache_value(dep.range(), value);
-  dep.node()->cache_value(dep.range(), value);
-
   // We're done!
-  node->UnlockProcessing();
 
   // End this working state
   working_--;

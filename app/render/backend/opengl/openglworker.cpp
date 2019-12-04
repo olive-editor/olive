@@ -153,15 +153,19 @@ QVariant OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
           input_texture_count++;
           break;
         }
-        case NodeInput::kAny:
         case NodeInput::kSamples:
-        case NodeInput::kTrack:
-        case NodeInput::kString:
+        case NodeInput::kText:
         case NodeInput::kRational:
-        case NodeInput::kBlock:
         case NodeInput::kFont:
         case NodeInput::kFile:
+        case NodeInput::kDecimal:
+        case NodeInput::kWholeNumber:
+        case NodeInput::kNumber:
+        case NodeInput::kString:
+        case NodeInput::kBuffer:
+        case NodeInput::kVector:
         case NodeInput::kNone:
+        case NodeInput::kAny:
           break;
         }
       }

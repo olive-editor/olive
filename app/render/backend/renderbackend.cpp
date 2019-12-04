@@ -266,13 +266,6 @@ void RenderBackend::UpdateNodeInputs()
       Node* dst = copied_graph_.nodes().at(i);
 
       Node::CopyInputs(src, dst, false);
-
-      // Drop values in range
-      foreach (NodeParam* p, dst->parameters()) {
-        if (p->type() == NodeParam::kOutput) {
-          static_cast<NodeOutput*>(p)->drop_cached_values_overlapping(value_update_range_);
-        }
-      }
     }
 
     value_update_queued_ = false;

@@ -55,60 +55,171 @@ public:
    * @brief The types of data that can be passed between Nodes
    */
   enum DataType {
-    kNone,
+    kNone = 0x0,
 
-    /// Resolves to `int`
-    kInt,
+    /**
+     ****************************** SPECIFIC IDENTIFIERS ******************************
+     */
 
-    /// Resolves to `double`
-    kFloat,
+    /**
+     * Integer type
+     *
+     * Resolves to `int` (may resolve to `long` in the future).
+     */
+    kInt = 0x1,
 
-    /// Resolves to TBA
-    kColor,
+    /**
+     * Decimal (floating-point) type
+     *
+     * Resolves to `double`.
+     */
+    kFloat = 0x2,
 
-    /// Resolves to `QString`
-    kString,
+    /**
+     * Decimal (rational) type
+     *
+     * Resolves to `double`.
+     */
+    kRational = 0x4,
 
-    /// Resolves to `bool`
-    kBoolean,
+    /**
+     * Boolean type
+     *
+     * Resolves to `bool`.
+     */
+    kBoolean = 0x8,
 
-    /// Resolves to TBA
-    kFont,
+    /**
+     * Floating-point type
+     *
+     * Resolves to `QRgba64`.
+     *
+     * Colors passed around the nodes should always be in reference space and preferably use
+     */
+    kColor = 0x10,
 
-    /// Resolves to `QString` filename
-    kFile,
+    /**
+     * Matrix type
+     *
+     * Resolves to `QMatrix4x4`.
+     */
+    kMatrix = 0x20,
 
-    /// Resolves to `RenderTexturePtr`
-    kTexture,
+    /**
+     * Text type
+     *
+     * Resolves to `QString`.
+     */
+    kText = 0x40,
 
-    /// Resolves to `QMatrix4x4`
-    kMatrix,
+    /**
+     * Font type
+     *
+     * Resolves to `QFont`.
+     */
+    kFont = 0x80,
 
-    /// Resolves to `Block*`
-    kBlock,
+    /**
+     * File type
+     *
+     * Resolves to a `QString` containing an absolute file path.
+     */
+    kFile = 0x100,
 
-    /// Resolves to `Footage*`
-    kFootage,
+    /**
+     * Image buffer type
+     *
+     * True value type depends on the render engine used.
+     */
+    kTexture = 0x200,
 
-    /// Resolves to `TrackOutput*`
-    kTrack,
+    /**
+     * Audio samples type
+     *
+     * Resolves to `QVector4D`.
+     */
+    kSamples = 0x400,
 
-    /// Resolves to `rational`
-    kRational,
+    /**
+     * Footage stream identifier type
+     *
+     * Resolves to `StreamPtr`.
+     */
+    kFootage = 0x800,
 
-    /// Resolves to `QVector2D`
-    kVec2,
+    /**
+     * Two-dimensional vector (XY) type
+     *
+     * Resolves to `QVector2D`.
+     */
+    kVec2 = 0x1000,
 
-    /// Resolves to `QVector3D`
-    kVec3,
+    /**
+     * Three-dimensional vector (XYZ) type
+     *
+     * Resolves to `QVector3D`.
+     */
+    kVec3 = 0x2000,
 
-    /// Resolves to `QVector4D`
-    kVec4,
+    /**
+     * Four-dimensional vector (XYZW) type
+     *
+     * Resolves to `QVector4D`.
+     */
+    kVec4 = 0x4000,
 
-    /// Resolves to `QByteArray`
-    kSamples,
+    /**
+     ****************************** BROAD IDENTIFIERS ******************************
+     */
 
-    kAny
+    /**
+     * Identifier for type that contains a decimal number
+     *
+     * Includes kFloat and kRational.
+     */
+    kDecimal = 0x6,
+
+    /**
+     * Identifier for type that contains a whole number
+     *
+     * Includes kInt and kBoolean.
+     */
+    kWholeNumber = 0x9,
+
+    /**
+     * Identifier for type that contains a number of any kind (whole or decimal)
+     *
+     * Includes kInt, kFloat, kRational, and kBoolean.
+     */
+    kNumber = 0xF,
+
+    /**
+     * Identifier for type that contains a text string of any kind.
+     *
+     * Includes kText and kFile.
+     */
+    kString = 0x140,
+
+    /**
+     * Identifier for type that contains a either an image or audio buffer
+     *
+     * Includes kTexture and kSamples.
+     */
+    kBuffer = 0x600,
+
+    /**
+     * Identifier for type that contains a vector (two- to four-dimensional)
+     *
+     * Includes kVec2, kVec3, kVec4, and kColor.
+     */
+    kVector = 0x7010,
+
+    /**
+     * Identifier for any type
+     *
+     * Matches with all types except for kNone
+     */
+    kAny = 0xFFFFFFFF
   };
 
   /**
@@ -121,7 +232,7 @@ public:
   /**
    * @brief Return ID of this parameter
    */
-  const QString id();
+  const QString id() const;
 
   /**
    * @brief The type of node paramter this is

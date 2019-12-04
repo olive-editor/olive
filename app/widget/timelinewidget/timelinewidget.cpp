@@ -170,7 +170,7 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
 
-    SetTimebase(timeline_node_->Timebase());
+    SetTimebase(timeline_node_->timebase());
 
     for (int i=0;i<views_.size();i++) {
       TrackType track_type = static_cast<TrackType>(i);
