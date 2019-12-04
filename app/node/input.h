@@ -77,11 +77,6 @@ public:
   Node* get_connected_node();
 
   /**
-   * @brief Get currently stored value
-   */
-  const QVariant& value();
-
-  /**
    * @brief Calculate what the stored value should be at a certain time
    */
   QVariant get_value_at_time(const rational& time);
@@ -90,13 +85,6 @@ public:
    * @brief Sets what value should be seen at a specific time
    */
   void set_value_at_time(const rational& time, const QVariant& value);
-
-  /**
-   * @brief Set the value at a given time
-   */
-  void set_stored_value(const QVariant& value);
-
-  QVariant get_realtime_value_of_connected_output();
 
   /**
    * @brief Return whether keyframing is enabled on this input or not
@@ -181,11 +169,6 @@ private:
    * @brief Internal maximum value
    */
   QVariant maximum_;
-
-  /**
-   * @brief Internal stored value
-   */
-  QVariant stored_value_;
 
 };
 

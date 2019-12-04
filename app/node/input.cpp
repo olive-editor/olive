@@ -225,25 +225,6 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
     emit ValueChanged(signal_vc_range.in(), signal_vc_range.out());
 }
 
-const QVariant &NodeInput::value()
-{
-  return stored_value_;
-}
-
-void NodeInput::set_stored_value(const QVariant &value)
-{
-  stored_value_ = value;
-}
-
-QVariant NodeInput::get_realtime_value_of_connected_output()
-{
-  if (get_connected_output() == nullptr) {
-    return 0;
-  }
-
-  return get_connected_output()->get_realtime_value();
-}
-
 bool NodeInput::is_keyframing()
 {
   return keyframing_;
