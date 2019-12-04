@@ -44,5 +44,7 @@ set(OLIVE_SOURCES
   node/output.cpp
   node/param.h
   node/param.cpp
+  node/value.h
+  node/value.cpp
   PARENT_SCOPE
 )
