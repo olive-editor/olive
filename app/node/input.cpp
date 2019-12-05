@@ -23,6 +23,7 @@
 #include "common/lerp.h"
 #include "node.h"
 #include "output.h"
+#include "inputarray.h"
 
 NodeInput::NodeInput(const QString& id) :
   NodeParam(id),
@@ -33,6 +34,11 @@ NodeInput::NodeInput(const QString& id) :
 {
   // Have at least one keyframe/value active at any time
   keyframes_.append(NodeKeyframe());
+}
+
+bool NodeInput::IsArray()
+{
+  return false;
 }
 
 NodeParam::Type NodeInput::type()
@@ -279,8 +285,7 @@ void NodeInput::set_maximum(const QVariant &max)
 
 void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
 {
-  source->parentNode()->LockUserInput();
-  dest->parentNode()->LockUserInput();
+  Q_ASSERT(source->id() == dest->id());
 
   // Copy values
   dest->keyframes_ = source->keyframes_;
@@ -288,11 +293,20 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   // Copy keyframing state
   dest->set_is_keyframing(source->is_keyframing());
 
-  source->parentNode()->UnlockUserInput();
-  dest->parentNode()->UnlockUserInput();
-
   // Copy connections
   if (include_connections && source->get_connected_output() != nullptr) {
     ConnectEdge(source->get_connected_output(), dest);
+  }
+
+  // If these inputs are an array, copy the subparams too
+  if (dest->IsArray()) {
+    NodeInputArray* src_array = static_cast<NodeInputArray*>(source);
+    NodeInputArray* dst_array = static_cast<NodeInputArray*>(dest);
+
+    dst_array->SetSize(src_array->GetSize());
+
+    for (int i=0;i<dst_array->GetSize();i++) {
+      CopyValues(src_array->ParamAt(i), dst_array->ParamAt(i), include_connections);
+    }
   }
 }

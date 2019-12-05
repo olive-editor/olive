@@ -5,7 +5,11 @@
 NodeInputArray::NodeInputArray(const QString &id) :
   NodeInput(id)
 {
+}
 
+bool NodeInputArray::IsArray()
+{
+  return true;
 }
 
 int NodeInputArray::GetSize() const
@@ -66,10 +70,13 @@ NodeInput *NodeInputArray::ParamAt(int index) const
   return sub_params_.at(index);
 }
 
+const QVector<NodeInput *> &NodeInputArray::sub_params()
+{
+  return sub_params_;
+}
+
 void NodeInputArray::InsertAt(int index)
 {
-  qDebug() << "Inserted at";
-
   // Add another input at the end
   Append();
 
@@ -99,22 +106,16 @@ void NodeInputArray::InsertAt(int index)
 
 void NodeInputArray::Append()
 {
-  qDebug() << "Appended";
-
   SetSize(GetSize() + 1);
 }
 
 void NodeInputArray::RemoveLast()
 {
-  qDebug() << "Removed last";
-
   SetSize(GetSize() - 1);
 }
 
 void NodeInputArray::RemoveAt(int index)
 {
-  qDebug() << "Removed at";
-
   int limit = sub_params_.size() - 1;
 
   // Shift all connections from index down

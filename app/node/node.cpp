@@ -167,6 +167,9 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
+  source->LockUserInput();
+  destination->LockUserInput();
+
   const QList<NodeParam*>& src_param = source->params_;
   const QList<NodeParam*>& dst_param = destination->params_;
 
@@ -181,6 +184,37 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 
         NodeInput::CopyValues(src, dst, include_connections);
       }
+    }
+  }
+
+  source->UnlockUserInput();
+  destination->UnlockUserInput();
+}
+
+void DuplicateConnectionsBetweenListsInternal(const QList<Node *> &source, const QList<Node *> &destination, NodeInput* source_input, NodeInput* dest_input)
+{
+  if (source_input->IsConnected()) {
+    // Get this input's connected outputs
+    NodeOutput* source_output = source_input->get_connected_output();
+    Node* source_output_node = source_output->parentNode();
+
+    // Find equivalent in destination list
+    Node* dest_output_node = destination.at(source.indexOf(source_output_node));
+
+    Q_ASSERT(dest_output_node->id() == source_output_node->id());
+
+    NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->GetParameterWithID(source_output->id()));
+
+    NodeParam::ConnectEdge(dest_output, dest_input);
+  }
+
+  // If inputs are arrays, duplicate their connections too
+  if (source_input->IsArray()) {
+    NodeInputArray* source_array = static_cast<NodeInputArray*>(source_input);
+    NodeInputArray* dest_array = static_cast<NodeInputArray*>(dest_input);
+
+    for (int i=0;i<source_array->GetSize();i++) {
+      DuplicateConnectionsBetweenListsInternal(source, destination, source_array->ParamAt(i), dest_array->ParamAt(i));
     }
   }
 }
@@ -198,22 +232,11 @@ void Node::DuplicateConnectionsBetweenLists(const QList<Node *> &source, const Q
     for (int j=0;j<source_input_node->params_.size();j++) {
       NodeParam* source_param = source_input_node->params_.at(j);
 
-      if (source_param->type() == NodeInput::kInput && source_param->IsConnected()) {
+      if (source_param->type() == NodeInput::kInput) {
         NodeInput* source_input = static_cast<NodeInput*>(source_param);
         NodeInput* dest_input = static_cast<NodeInput*>(dest_input_node->params_.at(j));
 
-        // Get this input's connected outputs
-        NodeOutput* source_output = source_input->get_connected_output();
-        Node* source_output_node = source_output->parentNode();
-
-        // Find equivalent in destination list
-        Node* dest_output_node = destination.at(source.indexOf(source_output_node));
-
-        Q_ASSERT(dest_output_node->id() == source_output_node->id());
-
-        NodeOutput* dest_output = static_cast<NodeOutput*>(dest_output_node->GetParameterWithID(source_output->id()));
-
-        NodeParam::ConnectEdge(dest_output, dest_input);
+        DuplicateConnectionsBetweenListsInternal(source, destination, source_input, dest_input);
       }
     }
   }
@@ -249,6 +272,26 @@ int Node::IndexOfParameter(NodeParam *param) const
   return params_.indexOf(param);
 }
 
+void Node::TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse) {
+  Node* connected = input->get_connected_node();
+
+  if (connected != nullptr && !list.contains(connected)) {
+    list.append(connected);
+
+    if (traverse) {
+      GetDependenciesInternal(connected, list, traverse);
+    }
+  }
+
+  if (input->IsArray()) {
+    NodeInputArray* input_array = static_cast<NodeInputArray*>(input);
+
+    for (int i=0;i<input_array->GetSize();i++) {
+      TraverseInputInternal(list, input_array->ParamAt(i), traverse);
+    }
+  }
+}
+
 /**
  * @brief Recursively collects dependencies of Node `n` and appends them to QList `list`
  *
@@ -257,18 +300,12 @@ int Node::IndexOfParameter(NodeParam *param) const
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse) {
+void Node::GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse) {
   foreach (NodeParam* p, n->parameters()) {
     if (p->type() == NodeParam::kInput) {
-      Node* connected = static_cast<NodeInput*>(p)->get_connected_node();
+      NodeInput* input = static_cast<NodeInput*>(p);
 
-      if (connected != nullptr && !list.contains(connected)) {
-        list.append(connected);
-
-        if (traverse) {
-          GetDependenciesInternal(connected, list, traverse);
-        }
-      }
+      TraverseInputInternal(list, input, traverse);
     }
   }
 }
@@ -295,11 +332,7 @@ QList<Node *> Node::GetExclusiveDependencies() const
       NodeParam* p = params.at(j);
 
       if (p->type() == NodeParam::kOutput) {
-        QVector<NodeEdgePtr> edges = p->edges();
-
-        for (int k=0;k<edges.size();k++) {
-          NodeEdgePtr edge = edges.at(k);
-
+        foreach (NodeEdgePtr edge, p->edges()) {
           // If any edge goes to from an output here to an input of a Node that isn't in this dep list, it's NOT an
           // exclusive dependency
           if (deps.contains(edge->input()->parentNode())) {

@@ -310,6 +310,10 @@ private:
 
   void DisconnectInput(NodeInput* input);
 
+  static void TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse);
+
+  static void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse);
+
   QList<NodeParam *> params_;
 
   /**

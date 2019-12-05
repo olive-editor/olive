@@ -9,6 +9,8 @@ class NodeInputArray : public NodeInput
 public:
   NodeInputArray(const QString &id);
 
+  virtual bool IsArray() override;
+
   int GetSize() const;
 
   void Prepend();
@@ -21,6 +23,8 @@ public:
   int IndexOfSubParameter(NodeInput* input) const;
 
   NodeInput* ParamAt(int index) const;
+
+  const QVector<NodeInput*>& sub_params();
 
 signals:
   void SizeChanged(int size);

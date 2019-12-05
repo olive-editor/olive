@@ -42,6 +42,8 @@ public:
    */
   NodeInput(const QString &id);
 
+  virtual bool IsArray();
+
   /**
    * @brief Returns kInput
    */
