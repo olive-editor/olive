@@ -47,7 +47,7 @@ bool OpenGLWorker::InitInternal()
   return true;
 }
 
-QVariant OpenGLWorker::FrameToValue(FramePtr frame)
+void OpenGLWorker::FrameToValue(FramePtr frame, NodeValueTable *table)
 {
   OpenGLTexturePtr footage_tex = std::make_shared<OpenGLTexture>();
   footage_tex->Create(ctx_, frame);
@@ -60,7 +60,7 @@ QVariant OpenGLWorker::FrameToValue(FramePtr frame)
 
   // FIXME: Alpha association and color management
 
-  return QVariant::fromValue(footage_tex);
+  table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex));
 }
 
 void OpenGLWorker::CloseInternal()

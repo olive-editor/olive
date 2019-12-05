@@ -30,7 +30,7 @@ protected:
   virtual void ConnectWorkerToThis(RenderWorker* worker) override;
 
 private slots:
-  void ThreadCompletedCache(NodeDependency dep, QVariant data);
+  void ThreadCompletedCache(NodeDependency dep, NodeValueTable data);
 
 private:
   QFile pull_device_;

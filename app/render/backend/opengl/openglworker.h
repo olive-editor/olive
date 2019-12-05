@@ -45,7 +45,7 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual QVariant FrameToValue(FramePtr frame) override;
+  virtual void FrameToValue(FramePtr frame, NodeValueTable* table) override;
 
   virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params) override;
 

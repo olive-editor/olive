@@ -319,6 +319,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeDependency>();
   qRegisterMetaType<rational>();
   qRegisterMetaType<OpenGLTexturePtr>();
+  qRegisterMetaType<NodeValueTable>();
 }
 
 void Core::StartGUI(bool full_screen)

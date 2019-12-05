@@ -50,7 +50,7 @@ protected:
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) = 0;
 
-  virtual QVariant FrameToValue(FramePtr frame) = 0;
+  virtual void FrameToValue(FramePtr frame, NodeValueTable* table) = 0;
 
   NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
 

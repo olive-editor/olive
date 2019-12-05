@@ -144,6 +144,19 @@ NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
         table.Push(input->data_type(), input_value);
       }
 
+      // Exception for Footage types where we actually retrieve some Footage data from a decoder
+      if (input->data_type() == NodeParam::kFootage) {
+        DecoderPtr decoder = ResolveDecoderFromInput(input);
+
+        if (decoder) {
+          FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+
+          if (frame) {
+            FrameToValue(frame, &table);
+          }
+        }
+      }
+
       database.Insert(input, table);
     }
   }

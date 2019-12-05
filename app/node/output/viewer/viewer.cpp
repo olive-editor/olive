@@ -116,7 +116,13 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
 rational ViewerOutput::Length()
 {
   // FIXME: This is pretty messy, there's probably a better way...
-  return length_input_->get_connected_node()->Value(NodeValueDatabase()).Get(NodeParam::kRational).value<rational>();
+  Node* connected_node = length_input_->get_connected_node();
+
+  if (connected_node) {
+    return connected_node->Value(NodeValueDatabase()).Get(NodeParam::kNumber).value<rational>();
+  }
+
+  return 0;
 }
 
 void ViewerOutput::DependentEdgeChanged(NodeInput *from)
@@ -127,7 +133,5 @@ void ViewerOutput::DependentEdgeChanged(NodeInput *from)
     emit AudioGraphChanged();
   }
 
-  // NOTE: This node technically has no outputs so default behavior is unnecessary, but if this node gets outputs some
-  //       day this should be uncommented
-  //Node::DependentEdgeChanged(from);
+  Node::DependentEdgeChanged(from);
 }

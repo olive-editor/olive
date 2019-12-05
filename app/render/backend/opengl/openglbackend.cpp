@@ -140,13 +140,14 @@ bool OpenGLBackend::TimeIsCached(const TimeRange &time)
   return cache_queue_.contains(time);
 }
 
-void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, QVariant value)
+void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table)
 {
   caching_ = false;
 
+  QVariant value = table.Get(NodeParam::kTexture);
   OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
-  if (texture == nullptr) {
+  if (!texture) {
     // No frame received, we set hash to an empty
     frame_cache()->RemoveHash(path.in(), hash);
   } else {

@@ -40,7 +40,7 @@ private:
   OpenGLShaderCache shader_cache_;
 
 private slots:
-  void ThreadCompletedFrame(NodeDependency path, QByteArray hash, QVariant value);
+  void ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table);
   void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
   void ThreadSkippedFrame();
   void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);

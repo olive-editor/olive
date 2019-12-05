@@ -64,4 +64,6 @@ private:
 
 };
 
+Q_DECLARE_METATYPE(NodeValueTable)
+
 #endif // VALUE_H

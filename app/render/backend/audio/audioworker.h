@@ -9,7 +9,7 @@ public:
   AudioWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
 
 protected:
-  virtual QVariant FrameToValue(FramePtr frame) override;
+  virtual void FrameToValue(FramePtr frame, NodeValueTable* table) override;
 
 private:
 
