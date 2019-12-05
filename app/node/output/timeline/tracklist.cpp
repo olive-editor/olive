@@ -132,12 +132,12 @@ void TrackList::AddTrack()
 
   if (track_cache_.isEmpty()) {
     // Connect this track directly to this output
-    NodeParam::ConnectEdge(track->track_output(), track_input_);
+    NodeParam::ConnectEdge(track->output(), track_input_);
   } else {
     TrackOutput* current_last_track = track_cache_.last();
 
     // Connect this track to the current last track
-    NodeParam::ConnectEdge(track->track_output(), current_last_track->track_input());
+    NodeParam::ConnectEdge(track->output(), current_last_track->track_input());
 
     // FIXME: Test code only
     if (current_last_track->output()->IsConnected()) {

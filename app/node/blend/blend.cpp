@@ -24,11 +24,11 @@ BlendNode::BlendNode()
 {
   base_input_ = new NodeInput("base_in");
   base_input_->set_data_type(NodeParam::kTexture);
-  AddParameter(base_input_);
+  AddInput(base_input_);
 
   blend_input_ = new NodeInput("blend_in");
   blend_input_->set_data_type(NodeParam::kTexture);
-  AddParameter(blend_input_);
+  AddInput(blend_input_);
 }
 
 QString BlendNode::Category() const

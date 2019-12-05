@@ -27,20 +27,20 @@ TransformDistort::TransformDistort()
 {
   position_input_ = new NodeInput("pos_in");
   position_input_->set_data_type(NodeParam::kVec2);
-  AddParameter(position_input_);
+  AddInput(position_input_);
 
   rotation_input_ = new NodeInput("rot_in");
   rotation_input_->set_data_type(NodeParam::kFloat);
-  AddParameter(rotation_input_);
+  AddInput(rotation_input_);
 
   scale_input_ = new NodeInput("scale_in");
   scale_input_->set_data_type(NodeParam::kVec2);
   scale_input_->set_value_at_time(0, QVector2D(100.0f, 100.0f));
-  AddParameter(scale_input_);
+  AddInput(scale_input_);
 
   anchor_input_ = new NodeInput("anchor_in");
   anchor_input_->set_data_type(NodeParam::kVec2);
-  AddParameter(anchor_input_);
+  AddInput(anchor_input_);
 }
 
 Node *TransformDistort::copy() const

@@ -24,7 +24,7 @@ MediaInput::MediaInput()
 {
   footage_input_ = new NodeInput("footage_in");
   footage_input_->set_data_type(NodeInput::kFootage);
-  AddParameter(footage_input_);
+  AddInput(footage_input_);
 }
 
 StreamPtr MediaInput::footage()
@@ -35,4 +35,9 @@ StreamPtr MediaInput::footage()
 void MediaInput::SetFootage(StreamPtr f)
 {
   footage_input_->set_value_at_time(0, QVariant::fromValue(f));
+}
+
+void MediaInput::Retranslate()
+{
+  footage_input_->set_name(tr("Footage"));
 }

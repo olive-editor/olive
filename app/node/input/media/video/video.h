@@ -24,7 +24,7 @@ public:
 
   virtual QString Code() const override;
 
-  //virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
+  virtual void Retranslate() override;
 
 protected:
 

@@ -27,11 +27,11 @@ OpacityNode::OpacityNode()
   opacity_input_->set_value_at_time(0, 100);
   opacity_input_->set_minimum(0);
   opacity_input_->set_maximum(100);
-  AddParameter(opacity_input_);
+  AddInput(opacity_input_);
 
   texture_input_ = new NodeInput("tex_in");
   texture_input_->set_data_type(NodeParam::kTexture);
-  AddParameter(texture_input_);
+  AddInput(texture_input_);
 }
 
 Node *OpacityNode::copy() const
@@ -62,6 +62,7 @@ QString OpacityNode::id() const
 void OpacityNode::Retranslate()
 {
   opacity_input_->set_name(tr("Opacity"));
+  texture_input_->set_name(tr("Texture"));
 }
 
 QString OpacityNode::Code() const

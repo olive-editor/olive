@@ -52,13 +52,13 @@ public:
 
   TrackList* track_list(TrackType type) const;
 
-  NodeOutput* length_output() const;
-
   const rational& timeline_length() const;
 
   const rational& timebase() const;
 
   void SetTimebase(const rational &timebase);
+
+  virtual void Retranslate() override;
 
 signals:
   void LengthChanged(const rational& length);
@@ -79,8 +79,6 @@ private:
   QVector<TrackList*> track_lists_;
 
   QVector<TrackOutput*> track_cache_;
-
-  NodeOutput* length_output_;
 
   rational length_;
 

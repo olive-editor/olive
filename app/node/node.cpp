@@ -442,6 +442,11 @@ NodeOutput *Node::output() const
   return output_;
 }
 
+void Node::AddInput(NodeInput *input)
+{
+  AddParameter(input);
+}
+
 bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
 {
   foreach (NodeParam* p, params_) {

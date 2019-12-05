@@ -43,6 +43,8 @@ public:
 
   virtual QString Code() const override;
 
+  virtual void Retranslate() override;
+
 private:
   NodeInput* color_input_;
 

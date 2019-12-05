@@ -22,9 +22,9 @@
 
 ClipBlock::ClipBlock()
 {
-  texture_input_ = new NodeInput("tex_in");
-  texture_input_->set_data_type(NodeInput::kTexture);
-  AddParameter(texture_input_);
+  texture_input_ = new NodeInput("buffer_in");
+  texture_input_->set_data_type(NodeInput::kBuffer);
+  AddInput(texture_input_);
 }
 
 Node *ClipBlock::copy() const

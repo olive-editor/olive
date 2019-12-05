@@ -25,7 +25,7 @@ SolidGenerator::SolidGenerator() :
 {
   color_input_ = new NodeInput("color_in");
   color_input_->set_data_type(NodeParam::kColor);
-  AddParameter(color_input_);
+  AddInput(color_input_);
 }
 
 Node *SolidGenerator::copy() const
@@ -55,7 +55,6 @@ QString SolidGenerator::Description() const
 
 QString SolidGenerator::Code() const
 {
-  // FIXME: Not color managed
   return "#version 110\n"
          "\n"
          "uniform vec4 color_in;\n"
@@ -63,4 +62,9 @@ QString SolidGenerator::Code() const
          "void main(void) {\n"
          "  gl_FragColor = color_in;\n"
          "}\n";
+}
+
+void SolidGenerator::Retranslate()
+{
+  color_input_->set_name(tr("Color"));
 }

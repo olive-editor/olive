@@ -35,7 +35,7 @@ TimelineOutput::TimelineOutput()
   for (int i=0;i<kTrackTypeCount;i++) {
     // Create track input
     NodeInput* track_input = new NodeInput(QString("track_in_%1").arg(i));
-    AddParameter(track_input);
+    AddInput(track_input);
     track_inputs_.replace(i, track_input);
 
     TrackList* list = new TrackList(this, static_cast<TrackType>(i), track_input);
@@ -47,9 +47,6 @@ TimelineOutput::TimelineOutput()
     connect(list, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(TrackListAddedTrack(TrackOutput*)));
     connect(list, SIGNAL(TrackRemoved(TrackOutput*)), this, SIGNAL(TrackRemoved(TrackOutput*)));
   }
-
-  length_output_ = new NodeOutput("length_out");
-  AddParameter(length_output_);
 }
 
 Node *TimelineOutput::copy() const
@@ -85,11 +82,6 @@ const rational &TimelineOutput::length() const
 const QVector<TrackOutput *>& TimelineOutput::Tracks() const
 {
   return track_cache_;
-}
-
-NodeOutput *TimelineOutput::length_output() const
-{
-  return length_output_;
 }
 
 const rational &TimelineOutput::timeline_length() const
@@ -150,6 +142,31 @@ void TimelineOutput::SetTimebase(const rational &timebase)
   timebase_ = timebase;
 
   emit TimebaseChanged(timebase_);
+}
+
+void TimelineOutput::Retranslate()
+{
+  for (int i=0;i<track_inputs_.size();i++) {
+    QString input_name;
+
+    switch (static_cast<TrackType>(i)) {
+    case kTrackTypeVideo:
+      input_name = tr("Video Tracks");
+      break;
+    case kTrackTypeAudio:
+      input_name = tr("Audio Tracks");
+      break;
+    case kTrackTypeSubtitle:
+      input_name = tr("Subtitle Tracks");
+      break;
+    case kTrackTypeNone:
+    case kTrackTypeCount:
+      break;
+    }
+
+    if (!input_name.isEmpty())
+      track_inputs_.at(i)->set_name(input_name);
+  }
 }
 
 NodeInput *TimelineOutput::track_input(TrackType type) const

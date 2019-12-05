@@ -52,8 +52,6 @@ public:
 
   NodeInput* track_input();
 
-  NodeOutput* track_output();
-
   Block* BlockContainingTime(const rational& time) const;
 
   Block* NearestBlockBefore(const rational& time) const;
@@ -159,8 +157,6 @@ private:
   NodeInputArray* block_input_;
 
   NodeInput* track_input_;
-
-  NodeOutput* track_output_;
 
   TrackType track_type_;
 

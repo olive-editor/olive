@@ -31,17 +31,14 @@ TrackOutput::TrackOutput() :
   index_(-1)
 {
   block_input_ = new NodeInputArray("block_in");
-  AddParameter(block_input_);
+  AddInput(block_input_);
   connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
 
   track_input_ = new NodeInput("track_in");
   track_input_->set_dependent(false);
-  AddParameter(track_input_);
-
-  track_output_ = new NodeOutput("track_out");
-  AddParameter(track_output_);
+  AddInput(track_input_);
 }
 
 void TrackOutput::set_track_type(const TrackType &track_type)
@@ -104,11 +101,6 @@ TrackOutput *TrackOutput::next_track()
 NodeInput *TrackOutput::track_input()
 {
   return track_input_;
-}
-
-NodeOutput* TrackOutput::track_output()
-{
-  return track_output_;
 }
 
 Block *TrackOutput::BlockContainingTime(const rational &time) const

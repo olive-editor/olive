@@ -267,14 +267,7 @@ public:
   NodeOutput* output() const;
 
 protected:
-  /**
-   * @brief Add a parameter to this node
-   *
-   * The Node takes ownership of this parameter.
-   *
-   * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
-   */
-  void AddParameter(NodeParam* param);
+  void AddInput(NodeInput* input);
 
   void ClearCachedValuesInParameters(const rational& start_range, const rational& end_range);
 
@@ -304,6 +297,15 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 private:
+  /**
+   * @brief Add a parameter to this node
+   *
+   * The Node takes ownership of this parameter.
+   *
+   * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
+   */
+  void AddParameter(NodeParam* param);
+
   bool HasParamOfType(NodeParam::Type type, bool must_be_connected) const;
 
   void ConnectInput(NodeInput* input);

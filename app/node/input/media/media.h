@@ -36,6 +36,8 @@ public:
   StreamPtr footage();
   void SetFootage(StreamPtr f);
 
+  virtual void Retranslate() override;
+
 protected:
   NodeInput* footage_input_;
 
