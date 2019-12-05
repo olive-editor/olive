@@ -27,6 +27,8 @@
 
 TrackOutput::TrackOutput() :
   track_type_(kTrackTypeNone),
+  previous_track_(nullptr),
+  next_track_(nullptr),
   block_invalidate_cache_stack_(0),
   index_(-1)
 {
@@ -35,10 +37,6 @@ TrackOutput::TrackOutput() :
   connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
-
-  track_input_ = new NodeInput("track_in");
-  track_input_->set_dependent(false);
-  AddInput(track_input_);
 }
 
 void TrackOutput::set_track_type(const TrackType &track_type)
@@ -82,6 +80,11 @@ QString TrackOutput::Description() const
             "a Sequence.");
 }
 
+void TrackOutput::Retranslate()
+{
+  block_input_->set_name(tr("Blocks"));
+}
+
 const int &TrackOutput::Index()
 {
   return index_;
@@ -92,15 +95,24 @@ void TrackOutput::SetIndex(const int &index)
   index_ = index;
 }
 
-TrackOutput *TrackOutput::next_track()
+void TrackOutput::set_previous_track(TrackOutput *previous)
 {
-  // FIXME: Re-do this without dynamic_cast at some point
-  return dynamic_cast<TrackOutput*>(track_input_->get_connected_node());
+  previous_track_ = previous;
 }
 
-NodeInput *TrackOutput::track_input()
+void TrackOutput::set_next_track(TrackOutput *next)
 {
-  return track_input_;
+  next_track_ = next;
+}
+
+TrackOutput *TrackOutput::previous_track() const
+{
+  return previous_track_;
+}
+
+TrackOutput *TrackOutput::next_track() const
+{
+  return next_track_;
 }
 
 Block *TrackOutput::BlockContainingTime(const rational &time) const

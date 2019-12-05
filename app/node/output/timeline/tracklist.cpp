@@ -23,7 +23,7 @@
 #include "node/blend/alphaover/alphaover.h"
 #include "timeline.h"
 
-TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInput *track_input) :
+TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInputArray *track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)
@@ -130,16 +130,15 @@ void TrackList::AddTrack()
   TrackOutput* track = new TrackOutput();
   GetParentGraph()->AddNode(track);
 
-  if (track_cache_.isEmpty()) {
-    // Connect this track directly to this output
-    NodeParam::ConnectEdge(track->output(), track_input_);
-  } else {
-    TrackOutput* current_last_track = track_cache_.last();
+  track_input_->Append();
 
-    // Connect this track to the current last track
-    NodeParam::ConnectEdge(track->output(), current_last_track->track_input());
+  NodeInput* assoc_input = track_input_->ParamAt(track_input_->GetSize() - 1);
 
-    // FIXME: Test code only
+  // Connect this track directly to this output
+  NodeParam::ConnectEdge(track->output(), assoc_input);
+
+  // FIXME: Test code only
+  if (track_input_->GetSize() > 1) {
     if (current_last_track->output()->IsConnected()) {
       AlphaOverBlend* blend = new AlphaOverBlend();
       GetParentGraph()->AddNode(blend);
@@ -148,7 +147,18 @@ void TrackList::AddTrack()
       NodeParam::ConnectEdge(current_last_track->output(), blend->base_input());
       NodeParam::ConnectEdge(blend->output(), current_last_track->output()->edges().first()->input());
     }
-    // End test code
+  }
+  // End test code
+
+  if (track_cache_.isEmpty()) {
+
+  } else {
+    TrackOutput* current_last_track = track_cache_.last();
+
+    // Connect this track to the current last track
+    NodeParam::ConnectEdge(track->output(), current_last_track->track_input());
+
+
   }
 }
 

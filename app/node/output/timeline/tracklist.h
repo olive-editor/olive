@@ -32,7 +32,7 @@ class TimelineOutput;
 class TrackList : public QObject {
   Q_OBJECT
 public:
-  TrackList(TimelineOutput *parent, const enum TrackType& type, NodeInput* track_input);
+  TrackList(TimelineOutput *parent, const enum TrackType& type, NodeInputArray* track_input);
 
   TrackOutput* attached_track();
 
@@ -103,7 +103,7 @@ private:
    */
   QVector<TrackOutput*> track_cache_;
 
-  NodeInput* track_input_;
+  NodeInputArray* track_input_;
 
   rational total_length_;
 
