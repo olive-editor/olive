@@ -82,7 +82,7 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
 {
   OpenGLShaderPtr shader = shader_cache_->GetShader(node);
 
-  if (shader == nullptr) {
+  if (!shader) {
     return;
   }
 
@@ -111,8 +111,15 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
         // Get value from database at this input
         const NodeValueTable& input_data = (*input_params)[input];
 
+        NodeParam::DataType find_data_type = input->data_type();
+
+        // Exception for Footage types (try to get a Texture instead)
+        if (find_data_type == NodeParam::kFootage) {
+          find_data_type = NodeParam::kTexture;
+        }
+
         // Try to get a value from it
-        QVariant value = input_data.Get(input->data_type());
+        QVariant value = input_data.Get(find_data_type);
 
         switch (input->data_type()) {
         case NodeInput::kInt:
@@ -139,17 +146,17 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
         case NodeInput::kBoolean:
           shader->setUniformValue(variable_location, value.toBool());
           break;
-        case NodeInput::kTexture:
         case NodeInput::kFootage:
+        case NodeInput::kTexture:
         {
           OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
           functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
 
-          if (texture == nullptr) {
-            functions_->glBindTexture(GL_TEXTURE_2D, 0);
-          } else {
+          if (texture) {
             functions_->glBindTexture(GL_TEXTURE_2D, texture->texture());
+          } else {
+            functions_->glBindTexture(GL_TEXTURE_2D, 0);
           }
 
           // Set value to bound texture

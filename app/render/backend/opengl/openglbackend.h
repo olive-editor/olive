@@ -28,14 +28,9 @@ protected:
   virtual void DecompileInternal() override;
 
 private:
-  bool TraverseCompiling(Node* n);
-
   bool TimeIsCached(const TimeRange &time);
 
   OpenGLTexturePtr master_texture_;
-
-  /*OpenGLFramebuffer copy_buffer_;
-  OpenGLShaderPtr copy_pipeline_;*/
 
   OpenGLShaderCache shader_cache_;
 

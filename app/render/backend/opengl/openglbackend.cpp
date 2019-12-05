@@ -71,68 +71,61 @@ bool OpenGLBackend::CompileInternal()
   }
 
   // Traverse node graph compiling where necessary
-  return TraverseCompiling(viewer_node());
-}
 
-void OpenGLBackend::DecompileInternal()
-{
-  shader_cache_.Clear();
-}
+  QList<Node*> nodes = viewer_node()->GetDependencies();
 
-bool OpenGLBackend::TraverseCompiling(Node *n)
-{
-  foreach (NodeParam* param, n->parameters()) {
-    if (param->type() == NodeParam::kInput && param->IsConnected()) {
-      Node* connected_output = static_cast<NodeInput*>(param)->get_connected_node();
+  foreach (Node* n, nodes) {
+    // Check if we have a shader or not
+    if (!shader_cache_.HasShader(n))  {
+      // Since we don't have a shader, compile one now
+      QString node_code = n->Code();
 
-      // Check if we have a shader or not
-      if (shader_cache_.GetShader(connected_output) == nullptr)  {
-        // Since we don't have a shader, compile one now
-        QString node_code = connected_output->Code();
+      // If the node has no code, it mustn't be GPU accelerated
+      if (node_code.isEmpty()) {
+        // We enter a null shader so we don't try to compile this again
+        shader_cache_.AddShader(n, nullptr);
+      } else {
+        // Since we have shader code, compile it now
+        OpenGLShaderPtr program;
 
-        // If the node has no code, it mustn't be GPU accelerated
-        if (!node_code.isEmpty()) {
-          // Since we have shader code, compile it now
-          OpenGLShaderPtr program;
-
-          if (!(program = std::make_shared<OpenGLShader>())) {
-            SetError(QStringLiteral("Failed to create OpenGL shader object"));
-            return false;
-          }
-
-          if (!program->create()) {
-            SetError(QStringLiteral("Failed to create OpenGL shader on device"));
-            return false;
-          }
-
-          if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, node_code)) {
-            SetError(QStringLiteral("Failed to add OpenGL fragment shader code"));
-            return false;
-          }
-
-          if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex())) {
-            SetError(QStringLiteral("Failed to add OpenGL vertex shader code"));
-            return false;
-          }
-
-          if (!program->link()) {
-            SetError(QStringLiteral("Failed to compile OpenGL shader: %1").arg(program->log()));
-            return false;
-          }
-
-          shader_cache_.AddShader(connected_output, program);
-
-          //qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
+        if (!(program = std::make_shared<OpenGLShader>())) {
+          SetError(QStringLiteral("Failed to create OpenGL shader object"));
+          return false;
         }
-      }
 
-      if (!TraverseCompiling(connected_output)) {
-        return false;
+        if (!program->create()) {
+          SetError(QStringLiteral("Failed to create OpenGL shader on device"));
+          return false;
+        }
+
+        if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, node_code)) {
+          SetError(QStringLiteral("Failed to add OpenGL fragment shader code"));
+          return false;
+        }
+
+        if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex())) {
+          SetError(QStringLiteral("Failed to add OpenGL vertex shader code"));
+          return false;
+        }
+
+        if (!program->link()) {
+          SetError(QStringLiteral("Failed to compile OpenGL shader: %1").arg(program->log()));
+          return false;
+        }
+
+        shader_cache_.AddShader(n, program);
+
+        //qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
       }
     }
   }
 
   return true;
+}
+
+void OpenGLBackend::DecompileInternal()
+{
+  shader_cache_.Clear();
 }
 
 bool OpenGLBackend::TimeIsCached(const TimeRange &time)

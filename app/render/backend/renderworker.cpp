@@ -48,6 +48,8 @@ NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
   QList<NodeInput*> connected_inputs;
   NodeValueTable value;
 
+  //qDebug() << "Processing" << node->id();
+
   // Set working state
   working_++;
 
@@ -120,8 +122,6 @@ bool RenderWorker::IsStarted()
 NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 {
   Node* node = dep.node();
-
-  //qDebug() << "Processing" << node->id();
 
   // FIXME: Cache certain values here if we've already processed them before
 
