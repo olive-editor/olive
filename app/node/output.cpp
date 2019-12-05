@@ -31,3 +31,12 @@ NodeParam::Type NodeOutput::type()
 {
   return kOutput;
 }
+
+QString NodeOutput::name()
+{
+  if (name_.isEmpty()) {
+    return tr("Output");
+  }
+
+  return NodeParam::name();
+}

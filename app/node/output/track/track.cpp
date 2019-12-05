@@ -148,6 +148,34 @@ Block *TrackOutput::NearestBlockAfter(const rational &time) const
   return nullptr;
 }
 
+Block *TrackOutput::BlockAtTime(const rational &time) const
+{
+  foreach (Block* block, block_cache_) {
+    if (block
+        && block->in() <= time
+        && block->out() > time) {
+      return block;
+    }
+  }
+
+  return nullptr;
+}
+
+QList<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
+{
+  QList<Block*> list;
+
+  foreach (Block* block, block_cache_) {
+    if (block
+        && block->out() > range.in()
+        && block->in() < range.out()) {
+      list.append(block);
+    }
+  }
+
+  return list;
+}
+
 const QVector<Block *> &TrackOutput::Blocks() const
 {
   return block_cache_;
@@ -191,7 +219,7 @@ void TrackOutput::InsertBlockAtIndex(Block *block, int index)
   AddBlockToGraph(block);
 
   block_input_->InsertAt(index);
-  NodeParam::ConnectEdge(block->block_output(),
+  NodeParam::ConnectEdge(block->output(),
                          block_input_->ParamAt(index));
 }
 
@@ -203,7 +231,7 @@ void TrackOutput::AppendBlock(Block *block)
 
   int last_index = block_input_->GetSize();
   block_input_->Append();
-  NodeParam::ConnectEdge(block->block_output(),
+  NodeParam::ConnectEdge(block->output(),
                          block_input_->ParamAt(last_index));
 
   UnblockInvalidateCache();
@@ -264,10 +292,10 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 
   int index_of_old_block = block_cache_.indexOf(old);
 
-  NodeParam::DisconnectEdge(old->block_output(),
+  NodeParam::DisconnectEdge(old->output(),
                             block_input_->ParamAt(index_of_old_block));
 
-  NodeParam::ConnectEdge(replace->block_output(),
+  NodeParam::ConnectEdge(replace->output(),
                          block_input_->ParamAt(index_of_old_block));
 
   UnblockInvalidateCache();
@@ -277,7 +305,7 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 
 TrackOutput *TrackOutput::TrackFromBlock(Block *block)
 {
-  NodeOutput* output = block->block_output();
+  NodeOutput* output = block->output();
 
   foreach (NodeEdgePtr edge, output->edges()) {
     Node* n = edge->input()->parentNode();

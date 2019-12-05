@@ -60,6 +60,9 @@ public:
 
   Block* NearestBlockAfter(const rational& time) const;
 
+  Block* BlockAtTime(const rational& time) const;
+  QList<Block*> BlocksAtTimeRange(const TimeRange& range) const;
+
   const QVector<Block*>& Blocks() const;
 
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;

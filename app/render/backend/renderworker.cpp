@@ -44,8 +44,7 @@ void RenderWorker::Render(NodeDependency path)
 
 NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
 {
-  NodeOutput* output = dep.node();
-  Node* node = output->parentNode();
+  Node* node = dep.node();
   QList<NodeInput*> connected_inputs;
   NodeValueTable value;
 
@@ -54,13 +53,11 @@ NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
 
   // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
   // nodes based on time and we might need to locate which Block to attach to
-  if (node->IsBlock()
-      && (dep.range().in() < static_cast<Block*>(node)->in()
-          || dep.range().out() > static_cast<Block*>(node)->out())) {
+  if (node->IsTrack()) {
     // If the range is not wholly contained in this Block, we'll need to do some extra processing
-    value = RenderBlock(output, dep.range());
+    value = RenderBlock(static_cast<TrackOutput*>(node), dep.range());
   } else {
-    value = ProcessNodeNormally(NodeDependency(output, dep.range()));
+    value = ProcessNodeNormally(NodeDependency(node, dep.range()));
   }
 
   // We're done!
@@ -76,52 +73,22 @@ DecoderCache *RenderWorker::decoder_cache()
   return decoder_cache_;
 }
 
-Block *RenderWorker::ValidateBlock(Block *block, const rational& time)
-{
-  Q_ASSERT(block != nullptr && time >= 0);
-
-  while (block->in() > time) {
-    // This Block is too late, find an earlier one
-    block = block->previous();
-  }
-
-  while (block->out() <= time) {
-    // This block is too early, find a later one
-    if (block->next() == nullptr) {
-      break;
-    }
-
-    block = block->next();
-  }
-
-  // By this point, we should have the correct Block or nullptr if there's no Block here
-  return block;
-}
-
-QList<Block *> RenderWorker::ValidateBlockRange(Block *n, const TimeRange &range)
-{
-  QList<Block*> list;
-  Block* block_at_start = ValidateBlock(n, range.in());
-  Block* block_at_end = ValidateBlock(n, range.out());
-
-  list.append(block_at_start);
-
-  // If more than one block is active for this range
-  if (block_at_start != block_at_end) {
-
-    // Collect all blocks between the start and the end
-    do {
-      block_at_start = block_at_start->next();
-      list.append(block_at_start);
-    } while (block_at_start != block_at_end);
-  }
-
-  return list;
-}
-
 NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path)
 {
   return RenderAsSibling(path);
+}
+
+bool RenderWorker::OutputIsAccelerated(Node *output)
+{
+  Q_UNUSED(output)
+  return false;
+}
+
+void RenderWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params)
+{
+  Q_UNUSED(node)
+  Q_UNUSED(input_params)
+  Q_UNUSED(output_params)
 }
 
 StreamPtr RenderWorker::ResolveStreamFromInput(NodeInput *input)
@@ -152,8 +119,7 @@ bool RenderWorker::IsStarted()
 
 NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 {
-  NodeOutput* output = dep.node();
-  Node* node = dep.node()->parentNode();
+  Node* node = dep.node();
 
   //qDebug() << "Processing" << node->id();
 
@@ -170,7 +136,7 @@ NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 
       if (input->IsConnected()) {
         // Value will equal something from the connected node, follow it
-        table = ProcessNodeNormally(NodeDependency(input->get_connected_output(),
+        table = ProcessNodeNormally(NodeDependency(input->get_connected_node(),
                                                    input_time));
       } else {
         // Push onto the table the value at this time from the input
@@ -184,12 +150,10 @@ NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 
   // By this point, the node should have all the inputs it needs to render correctly
 
+  NodeValueTable table = node->Value(database);
+
   // Check if we have a shader for this output
-  if (OutputIsAccelerated(output)) {
-    // Run code
-    return RunNodeAccelerated(output);
-  } else {
-    // Generate the value as expected
-    return node->Value(database);
-  }
+  RunNodeAccelerated(node, &database, &table);
+
+  return table;
 }

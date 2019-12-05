@@ -24,21 +24,22 @@
 #include <QMetaType>
 
 #include "common/timerange.h"
-#include "node/output.h"
+
+class Node;
 
 class NodeDependency {
 public:
   NodeDependency();
-  NodeDependency(NodeOutput* node, const TimeRange& range);
-  NodeDependency(NodeOutput* node, const rational& in, const rational &out);
+  NodeDependency(Node* node, const TimeRange& range);
+  NodeDependency(Node* node, const rational& in, const rational &out);
 
-  NodeOutput* node() const;
+  Node* node() const;
   const rational& in() const;
   const rational& out() const;
   const TimeRange& range() const;
 
 private:
-  NodeOutput* node_;
+  Node* node_;
   TimeRange range_;
 };
 

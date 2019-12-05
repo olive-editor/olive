@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "common/constructors.h"
-#include "node/block/block.h"
+#include "node/output/track/track.h"
 #include "node/node.h"
 #include "decodercache.h"
 
@@ -35,40 +35,15 @@ signals:
   void CompletedCache(NodeDependency dep, NodeValueTable data);
 
 protected:
-  /**
-   * @brief Returns the block in a sequence that is active at a given time
-   *
-   * Blocks are connected to each other previous/next to create a BlockList or a sequence of blocks. The block that
-   * is currently "active" depends on the time and only one block in a track can be active at any given time.
-   *
-   * Calling this function with a block and a time will traverse the provided block's track to find the block that will
-   * be active at that time. The block must be valid (non-null) and the time must be valid (>= 0).
-   *
-   * This function may return the same block that it was called with. It will never return nullptr.
-   */
-  Block *ValidateBlock(Block* block, const rational& time);
-
-  /**
-   * @brief Returns all the blocks that could be active within a range of time
-   *
-   * Similar to ValidateBlock() but rather than returning one block for a single time, this function returns a list of
-   * blocks that could be active within a range of time.
-   *
-   * The block must be valid (non-null) and the time must be valid (>= 0).
-   *
-   * The list will always contain at least one entry.
-   */
-  QList<Block*> ValidateBlockRange(Block* n, const TimeRange& range);
-
   virtual bool InitInternal() = 0;
 
   virtual void CloseInternal() = 0;
 
   virtual NodeValueTable RenderInternal(const NodeDependency& path);
 
-  virtual bool OutputIsAccelerated(NodeOutput *output) = 0;
+  virtual bool OutputIsAccelerated(Node *output);
 
-  virtual NodeValueTable RunNodeAccelerated(NodeOutput *output) = 0;
+  virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params);
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
   DecoderPtr ResolveDecoderFromInput(NodeInput* input);
@@ -79,7 +54,7 @@ protected:
 
   NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
 
-  virtual NodeValueTable RenderBlock(NodeOutput *output, const TimeRange& range) = 0;
+  virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) = 0;
 
   DecoderCache* decoder_cache();
 

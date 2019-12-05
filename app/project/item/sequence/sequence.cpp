@@ -73,15 +73,15 @@ void Sequence::add_default_nodes()
   AddNode(audio_track_output_);
 
   // Connect tracks to viewer
-  NodeParam::ConnectEdge(video_track_output_->buffer_output(), viewer_output_->texture_input());
-  NodeParam::ConnectEdge(audio_track_output_->buffer_output(), viewer_output_->samples_input());
+  NodeParam::ConnectEdge(video_track_output_->output(), viewer_output_->texture_input());
+  NodeParam::ConnectEdge(audio_track_output_->output(), viewer_output_->samples_input());
 
   // Connect timeline length to viewer
-  NodeParam::ConnectEdge(timeline_output_->length_output(), viewer_output_->length_input());
+  NodeParam::ConnectEdge(timeline_output_->output(), viewer_output_->length_input());
 
   // Connect track to timeline
-  NodeParam::ConnectEdge(video_track_output_->track_output(), timeline_output_->track_input(kTrackTypeVideo));
-  NodeParam::ConnectEdge(audio_track_output_->track_output(), timeline_output_->track_input(kTrackTypeAudio));
+  NodeParam::ConnectEdge(video_track_output_->output(), timeline_output_->track_input(kTrackTypeVideo));
+  NodeParam::ConnectEdge(audio_track_output_->output(), timeline_output_->track_input(kTrackTypeAudio));
 
   // Update the timebase on these nodes
   set_video_params(video_params_);

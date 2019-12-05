@@ -13,9 +13,6 @@ VideoInput::VideoInput()
   matrix_input_ = new NodeInput("matrix_in");
   matrix_input_->set_data_type(NodeInput::kMatrix);
   AddParameter(matrix_input_);
-
-  texture_output_ = new NodeOutput("tex_out");
-  AddParameter(texture_output_);
 }
 
 Node *VideoInput::copy() const
@@ -53,27 +50,18 @@ NodeInput *VideoInput::matrix_input() const
   return matrix_input_;
 }
 
-NodeOutput *VideoInput::texture_output() const
+QString VideoInput::Code() const
 {
-  return texture_output_;
-}
-
-QString VideoInput::Code(NodeOutput *output) const
-{
-  if (output == texture_output()) {
-    return "#version 110\n"
-           "\n"
-           "varying vec2 v_texcoord;\n"
-           "\n"
-           "uniform sampler2D footage_in;\n"
-           "uniform mat4 matrix_in;\n"
-           "\n"
-           "void main(void) {\n"
-           "  gl_FragColor = texture2D(footage_in, vec2(vec4(v_texcoord, 0.0, 1.0) * matrix_in));\n"
-           "}\n";
-  }
-
-  return Node::Code(output);
+  return "#version 110\n"
+         "\n"
+         "varying vec2 v_texcoord;\n"
+         "\n"
+         "uniform sampler2D footage_in;\n"
+         "uniform mat4 matrix_in;\n"
+         "\n"
+         "void main(void) {\n"
+         "  gl_FragColor = texture2D(footage_in, vec2(vec4(v_texcoord, 0.0, 1.0) * matrix_in));\n"
+         "}\n";
 }
 
 /*

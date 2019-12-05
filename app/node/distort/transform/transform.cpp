@@ -41,9 +41,6 @@ TransformDistort::TransformDistort()
   anchor_input_ = new NodeInput("anchor_in");
   anchor_input_->set_data_type(NodeParam::kVec2);
   AddParameter(anchor_input_);
-
-  matrix_output_ = new NodeOutput("matrix_out");
-  AddParameter(matrix_output_);
 }
 
 Node *TransformDistort::copy() const
@@ -69,11 +66,6 @@ QString TransformDistort::Category() const
 QString TransformDistort::Description() const
 {
   return tr("Apply transformations to position, rotation, and scale.");
-}
-
-NodeOutput *TransformDistort::matrix_output()
-{
-  return matrix_output_;
 }
 
 void TransformDistort::Retranslate()

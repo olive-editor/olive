@@ -21,7 +21,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
   QCryptographicHash hasher(QCryptographicHash::Sha1);
-  HashNodeRecursively(&hasher, path.node()->parentNode(), path.in());
+  HashNodeRecursively(&hasher, path.node(), path.in());
   QByteArray hash = hasher.result();
 
   NodeValueTable value;
@@ -50,8 +50,12 @@ FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRa
 void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, const rational& time)
 {
   // Resolve BlockList
-  if (n->IsBlock()) {
-    n = ValidateBlock(static_cast<Block*>(n), time);
+  if (n->IsTrack()) {
+    n = static_cast<TrackOutput*>(n)->BlockAtTime(time);
+
+    if (!n) {
+      return;
+    }
   }
 
   // Add this Node's ID
@@ -153,15 +157,15 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
   working_--;
 }
 
-NodeValueTable VideoRenderWorker::RenderBlock(NodeOutput* output, const TimeRange &range)
+NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRange &range)
 {
   // A frame can only have one active block so we just validate the in point of the range
-  Block* active_block = ValidateBlock(static_cast<Block*>(output->parentNode()), range.in());
+  Block* active_block = track->BlockAtTime(range.in());
 
   NodeValueTable table;
 
   if (active_block) {
-    table = RenderAsSibling(NodeDependency(active_block->block_output(),
+    table = RenderAsSibling(NodeDependency(active_block,
                                            range));
   }
 

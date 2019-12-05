@@ -12,18 +12,18 @@
 class OpenGLShaderCache
 {
 public:
-  OpenGLShaderCache();
+  OpenGLShaderCache() = default;
 
   void Clear();
 
-  void AddShader(NodeOutput* output, OpenGLShaderPtr shader);
+  void AddShader(Node* output, OpenGLShaderPtr shader);
 
-  OpenGLShaderPtr GetShader(NodeOutput* output);
+  OpenGLShaderPtr GetShader(Node* output);
 
-  bool HasShader(NodeOutput* output);
+  bool HasShader(Node* output);
 
 private:
-  QString GenerateShaderID(NodeOutput* output);
+  QString GenerateShaderID(Node *output);
 
   QMap<QString, OpenGLShaderPtr> compiled_nodes_;
 

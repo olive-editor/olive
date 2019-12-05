@@ -34,7 +34,7 @@ public:
   virtual QString id() const override;
   virtual QString Description() const override;
 
-  virtual QString Code(NodeOutput* output) const override;
+  virtual QString Code() const override;
 
 protected:
 

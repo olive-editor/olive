@@ -225,10 +225,10 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       {
         VideoInput* video_input = new VideoInput();
         video_input->SetFootage(footage_stream);
-        NodeParam::ConnectEdge(video_input->texture_output(), clip->texture_input());
+        NodeParam::ConnectEdge(video_input->output(), clip->texture_input());
 
         TransformDistort* transform = new TransformDistort();
-        NodeParam::ConnectEdge(transform->matrix_output(), video_input->matrix_input());
+        NodeParam::ConnectEdge(transform->output(), video_input->matrix_input());
 
         //OpacityNode* opacity = new OpacityNode();
         //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
@@ -239,7 +239,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       {
         AudioInput* audio_input = new AudioInput();
         audio_input->SetFootage(footage_stream);
-        NodeParam::ConnectEdge(audio_input->samples_output(), clip->texture_input());
+        NodeParam::ConnectEdge(audio_input->output(), clip->texture_input());
         break;
       }
       default:

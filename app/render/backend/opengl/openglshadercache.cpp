@@ -2,33 +2,27 @@
 
 #include "node/node.h"
 
-OpenGLShaderCache::OpenGLShaderCache()
-{
-
-}
-
-QString OpenGLShaderCache::GenerateShaderID(NodeOutput *output)
-{
-  // Creates a unique identifier for this specific node and this specific output
-  return QString("%1:%2").arg(output->parentNode()->id(), output->id());
-}
-
 void OpenGLShaderCache::Clear()
 {
   compiled_nodes_.clear();
 }
 
-void OpenGLShaderCache::AddShader(NodeOutput *output, OpenGLShaderPtr shader)
+void OpenGLShaderCache::AddShader(Node *output, OpenGLShaderPtr shader)
 {
   compiled_nodes_.insert(GenerateShaderID(output), shader);
 }
 
-OpenGLShaderPtr OpenGLShaderCache::GetShader(NodeOutput *output)
+OpenGLShaderPtr OpenGLShaderCache::GetShader(Node *output)
 {
   return compiled_nodes_.value(GenerateShaderID(output));
 }
 
-bool OpenGLShaderCache::HasShader(NodeOutput *output)
+QString OpenGLShaderCache::GenerateShaderID(Node *output)
+{
+  return output->id();
+}
+
+bool OpenGLShaderCache::HasShader(Node *output)
 {
   return compiled_nodes_.contains(GenerateShaderID(output));
 }

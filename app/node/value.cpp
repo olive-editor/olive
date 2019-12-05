@@ -56,14 +56,28 @@ NodeValueTable::NodeValueTable()
 {
 }
 
-QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag)
+QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag) const
 {
-  return GetInternal(type, tag, false);
+  int value_index = GetInternal(type, tag);
+
+  if (value_index >= 0) {
+    return values_.at(value_index).data();
+  }
+
+  return QVariant();
 }
 
 QVariant NodeValueTable::Take(const NodeParam::DataType &type, const QString &tag)
 {
-  return GetInternal(type, tag, true);
+  int value_index = GetInternal(type, tag);
+
+  if (value_index >= 0) {
+    QVariant val = values_.at(value_index).data();
+    values_.removeAt(value_index);
+    return val;
+  }
+
+  return QVariant();
 }
 
 void NodeValueTable::Push(const NodeValue &value)
@@ -113,8 +127,6 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
 
   NodeValueTable merged_table;
 
-  QHash<QString, NodeValueTable>::const_iterator iterator;
-
   // Slipstreams all tables together
   // FIXME: I don't actually know if this is the right approach...
   foreach (const NodeValueTable& t, tables) {
@@ -130,7 +142,7 @@ NodeValueTable NodeValueTable::Merge(QList<NodeValueTable> tables)
   return merged_table;
 }
 
-QVariant NodeValueTable::GetInternal(const NodeParam::DataType &type, const QString &tag, bool remove)
+int NodeValueTable::GetInternal(const NodeParam::DataType &type, const QString &tag) const
 {
   int index = -1;
 
@@ -146,13 +158,5 @@ QVariant NodeValueTable::GetInternal(const NodeParam::DataType &type, const QStr
     }
   }
 
-  if (index >= 0) {
-    if (remove) {
-      values_.removeAt(index);
-    }
-
-    return values_.at(index).data();
-  }
-
-  return QVariant();
+  return index;
 }

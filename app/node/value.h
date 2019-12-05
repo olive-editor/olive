@@ -26,7 +26,7 @@ class NodeValueTable
 public:
   NodeValueTable();
 
-  QVariant Get(const NodeParam::DataType& type, const QString& tag = QString());
+  QVariant Get(const NodeParam::DataType& type, const QString& tag = QString()) const;
   QVariant Take(const NodeParam::DataType& type, const QString& tag = QString());
   void Push(const NodeValue& value);
   void Push(const NodeParam::DataType& type, const QVariant& data, const QString& tag = QString());
@@ -40,7 +40,7 @@ public:
   static NodeValueTable Merge(QList<NodeValueTable> tables);
 
 private:
-  QVariant GetInternal(const NodeParam::DataType& type, const QString& tag, bool remove);
+  int GetInternal(const NodeParam::DataType& type, const QString& tag) const;
 
   QList<NodeValue> values_;
 

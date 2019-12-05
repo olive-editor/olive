@@ -23,9 +23,10 @@
 #include <QDebug>
 
 Node::Node() :
-  last_processed_time_(-1),
   can_be_deleted_(true)
 {
+  output_ = new NodeOutput("node_out");
+  AddParameter(output_);
 }
 
 Node::~Node()
@@ -75,7 +76,13 @@ void Node::AddParameter(NodeParam *param)
   }
 
   param->setParent(this);
-  params_.append(param);
+
+  // Keep main output as the last parameter, assume if there are no parameters that this is the output parameter
+  if (params_.isEmpty()) {
+    params_.append(param);
+  } else {
+    params_.insert(params_.size()-1, param);
+  }
 
   connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
   connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
@@ -232,32 +239,6 @@ bool Node::IsTrack() const
   return false;
 }
 
-rational Node::LastProcessedTime()
-{
-  rational t;
-
-  LockUserInput();
-
-  t = last_processed_time_;
-
-  UnlockUserInput();
-
-  return t;
-}
-
-NodeOutput *Node::LastProcessedOutput()
-{
-  NodeOutput* o;
-
-  LockUserInput();
-
-  o = last_processed_parameter_;
-
-  UnlockUserInput();
-
-  return o;
-}
-
 const QList<NodeParam *>& Node::parameters() const
 {
   return params_;
@@ -345,10 +326,8 @@ QList<Node *> Node::GetImmediateDependencies() const
   return node_list;
 }
 
-QString Node::Code(NodeOutput *output) const
+QString Node::Code() const
 {
-  Q_UNUSED(output)
-
   return QString();
 }
 
@@ -423,6 +402,11 @@ bool Node::HasParamWithID(const QString &id) const
   }
 
   return false;
+}
+
+NodeOutput *Node::output() const
+{
+  return output_;
 }
 
 bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const

@@ -139,7 +139,7 @@ public:
   /**
    * @brief Generate OpenCL hardware accelerated code for this Node
    */
-  virtual QString Code(NodeOutput* output) const;
+  virtual QString Code() const;
 
   /**
    * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)
@@ -264,6 +264,8 @@ public:
    */
   bool HasParamWithID(const QString& id) const;
 
+  NodeOutput* output() const;
+
 protected:
   /**
    * @brief Add a parameter to this node
@@ -273,16 +275,6 @@ protected:
    * This can be either an output or an input at any time. Parameters will always appear in the order they're added.
    */
   void AddParameter(NodeParam* param);
-
-  /**
-   * @brief Retrieve the last timecode Process() was called with
-   */
-  rational LastProcessedTime();
-
-  /**
-   * @brief Retrieve the last parameter Process() was called from
-   */
-  NodeOutput* LastProcessedOutput();
 
   void ClearCachedValuesInParameters(const rational& start_range, const rational& end_range);
 
@@ -321,16 +313,6 @@ private:
   QList<NodeParam *> params_;
 
   /**
-   * @brief The last timecode Process() was called with
-   */
-  rational last_processed_time_;
-
-  /**
-   * @brief The last parameter Process() was called from
-   */
-  NodeOutput* last_processed_parameter_;
-
-  /**
    * @brief Used for thread safety from main thread
    */
   QMutex user_input_lock_;
@@ -339,6 +321,11 @@ private:
    * @brief Internal variable for whether this Node can be deleted or not
    */
   bool can_be_deleted_;
+
+  /**
+   * @brief Primary node output
+   */
+  NodeOutput* output_;
 
 private slots:
   void InputChanged(rational start, rational end);

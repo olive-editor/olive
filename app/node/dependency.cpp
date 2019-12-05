@@ -20,24 +20,26 @@
 
 #include "dependency.h"
 
+#include "node.h"
+
 NodeDependency::NodeDependency() :
   node_(nullptr)
 {
 }
 
-NodeDependency::NodeDependency(NodeOutput *node, const TimeRange &range) :
+NodeDependency::NodeDependency(Node *node, const TimeRange &range) :
   node_(node),
   range_(range)
 {
 }
 
-NodeDependency::NodeDependency(NodeOutput *node, const rational &in, const rational &out) :
+NodeDependency::NodeDependency(Node *node, const rational &in, const rational &out) :
   node_(node),
   range_(in, out)
 {
 }
 
-NodeOutput *NodeDependency::node() const
+Node *NodeDependency::node() const
 {
   return node_;
 }

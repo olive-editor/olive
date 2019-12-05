@@ -41,14 +41,10 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  NodeOutput* texture_output() const;
-
-  virtual QString Code(NodeOutput* output) const override;
+  virtual QString Code() const override;
 
 private:
   NodeInput* color_input_;
-
-  NodeOutput* texture_output_;
 
   QOpenGLTexture* texture_;
 };

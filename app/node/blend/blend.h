@@ -34,14 +34,13 @@ public:
 
   NodeInput* blend_input() const;
 
-  NodeOutput* texture_output() const;
+  virtual void Retranslate() override;
 
 private:
   NodeInput* base_input_;
 
   NodeInput* blend_input_;
 
-  NodeOutput* texture_output_;
 };
 
 #endif // BLEND_H

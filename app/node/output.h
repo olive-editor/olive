@@ -40,6 +40,8 @@ public:
    */
   virtual Type type() override;
 
+  virtual QString name() override;
+
 private:
 
 };

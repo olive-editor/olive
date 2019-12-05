@@ -26,11 +26,6 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
-  block_output_ = new NodeOutput("this_out");
-  AddParameter(block_output_);
-
-  buffer_output_ = new NodeOutput("buffer_out");
-  AddParameter(buffer_output_);
 }
 
 QString Block::Category() const
@@ -107,16 +102,6 @@ void Block::set_previous(Block *previous)
 void Block::set_next(Block *next)
 {
   next_ = next;
-}
-
-NodeOutput *Block::buffer_output() const
-{
-  return buffer_output_;
-}
-
-NodeOutput *Block::block_output() const
-{
-  return block_output_;
 }
 
 const rational &Block::media_in() const

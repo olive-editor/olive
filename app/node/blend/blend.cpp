@@ -29,9 +29,6 @@ BlendNode::BlendNode()
   blend_input_ = new NodeInput("blend_in");
   blend_input_->set_data_type(NodeParam::kTexture);
   AddParameter(blend_input_);
-
-  texture_output_ = new NodeOutput("tex_out");
-  AddParameter(texture_output_);
 }
 
 QString BlendNode::Category() const
@@ -49,7 +46,8 @@ NodeInput *BlendNode::blend_input() const
   return blend_input_;
 }
 
-NodeOutput *BlendNode::texture_output() const
+void BlendNode::Retranslate()
 {
-  return texture_output_;
+  base_input_->set_name(tr("Base"));
+  blend_input_->set_name(tr("Blend"));
 }

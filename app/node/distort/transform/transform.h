@@ -36,8 +36,6 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  NodeOutput* matrix_output();
-
   virtual void Retranslate() override;
 
   virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
@@ -50,8 +48,6 @@ private:
   NodeInput* scale_input_;
 
   NodeInput* anchor_input_;
-
-  NodeOutput* matrix_output_;
 
 };
 

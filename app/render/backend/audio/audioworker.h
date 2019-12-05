@@ -11,10 +11,6 @@ public:
 protected:
   virtual QVariant FrameToValue(FramePtr frame) override;
 
-  virtual bool OutputIsAccelerated(NodeOutput *output) override;
-
-  virtual NodeValueTable RunNodeAccelerated(NodeOutput *output) override;
-
 private:
 
 };

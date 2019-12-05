@@ -26,9 +26,6 @@ SolidGenerator::SolidGenerator() :
   color_input_ = new NodeInput("color_in");
   color_input_->set_data_type(NodeParam::kColor);
   AddParameter(color_input_);
-
-  texture_output_ = new NodeOutput("tex_out");
-  AddParameter(texture_output_);
 }
 
 Node *SolidGenerator::copy() const
@@ -56,23 +53,14 @@ QString SolidGenerator::Description() const
   return tr("Generate a solid color.");
 }
 
-NodeOutput *SolidGenerator::texture_output() const
+QString SolidGenerator::Code() const
 {
-  return texture_output_;
-}
-
-QString SolidGenerator::Code(NodeOutput *output) const
-{
-  if (output == texture_output()) {
-    // FIXME: Not color managed
-    return "#version 110\n"
-           "\n"
-           "uniform vec4 color_in;\n"
-           "\n"
-           "void main(void) {\n"
-           "  gl_FragColor = color_in;\n"
-           "}\n";
-  }
-
-  return Node::Code(output);
+  // FIXME: Not color managed
+  return "#version 110\n"
+         "\n"
+         "uniform vec4 color_in;\n"
+         "\n"
+         "void main(void) {\n"
+         "  gl_FragColor = color_in;\n"
+         "}\n";
 }

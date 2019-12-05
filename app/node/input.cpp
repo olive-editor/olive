@@ -43,7 +43,7 @@ NodeParam::Type NodeInput::type()
 QString NodeInput::name()
 {
   if (name_.isEmpty()) {
-    return GetDefaultDataTypeName(data_type());
+    return tr("Input");
   }
 
   return NodeParam::name();

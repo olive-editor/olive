@@ -63,11 +63,6 @@ QVariant OpenGLWorker::FrameToValue(FramePtr frame)
   return QVariant::fromValue(footage_tex);
 }
 
-bool OpenGLWorker::OutputIsAccelerated(NodeOutput* output)
-{
-  return shader_cache_->HasShader(output);
-}
-
 void OpenGLWorker::CloseInternal()
 {
   buffer_.Destroy();
@@ -83,10 +78,13 @@ void OpenGLWorker::ParametersChangedEvent()
   }
 }
 
-NodeValueTable OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
+void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable *output_params)
 {
-  OpenGLShaderPtr shader = shader_cache_->GetShader(out);
-  Node* node = out->parentNode();
+  OpenGLShaderPtr shader = shader_cache_->GetShader(node);
+
+  if (shader == nullptr) {
+    return;
+  }
 
   // Create the output texture
   OpenGLTexturePtr output = std::make_shared<OpenGLTexture>();
@@ -109,35 +107,42 @@ NodeValueTable OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
         // This variable is used in the shader, let's set it to our value
 
         NodeInput* input = static_cast<NodeInput*>(param);
+
+        // Get value from database at this input
+        const NodeValueTable& input_data = (*input_params)[input];
+
+        // Try to get a value from it
+        QVariant value = input_data.Get(input->data_type());
+
         switch (input->data_type()) {
         case NodeInput::kInt:
-          shader->setUniformValue(variable_location, input->value().toInt());
+          shader->setUniformValue(variable_location, value.toInt());
           break;
         case NodeInput::kFloat:
-          shader->setUniformValue(variable_location, input->value().toFloat());
+          shader->setUniformValue(variable_location, value.toFloat());
           break;
         case NodeInput::kVec2:
-          shader->setUniformValue(variable_location, input->value().value<QVector2D>());
+          shader->setUniformValue(variable_location, value.value<QVector2D>());
           break;
         case NodeInput::kVec3:
-          shader->setUniformValue(variable_location, input->value().value<QVector3D>());
+          shader->setUniformValue(variable_location, value.value<QVector3D>());
           break;
         case NodeInput::kVec4:
-          shader->setUniformValue(variable_location, input->value().value<QVector4D>());
+          shader->setUniformValue(variable_location, value.value<QVector4D>());
           break;
         case NodeInput::kMatrix:
-          shader->setUniformValue(variable_location, input->value().value<QMatrix4x4>());
+          shader->setUniformValue(variable_location, value.value<QMatrix4x4>());
           break;
         case NodeInput::kColor:
-          shader->setUniformValue(variable_location, input->value().value<QColor>());
+          shader->setUniformValue(variable_location, value.value<QColor>());
           break;
         case NodeInput::kBoolean:
-          shader->setUniformValue(variable_location, input->value().toBool());
+          shader->setUniformValue(variable_location, value.toBool());
           break;
         case NodeInput::kTexture:
         case NodeInput::kFootage:
         {
-          OpenGLTexturePtr texture = input->value().value<OpenGLTexturePtr>();
+          OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
           functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
 
@@ -192,7 +197,7 @@ NodeValueTable OpenGLWorker::RunNodeAccelerated(NodeOutput *out)
 
   functions_->glFinish();
 
-  return QVariant::fromValue(output);
+  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output));
 }
 
 void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)

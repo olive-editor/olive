@@ -2,8 +2,6 @@
 
 AudioInput::AudioInput()
 {
-  samples_output_ = new NodeOutput("samples_out");
-  AddParameter(samples_output_);
 }
 
 Node *AudioInput::copy() const
@@ -29,11 +27,6 @@ QString AudioInput::Category() const
 QString AudioInput::Description() const
 {
   return tr("Import an audio footage stream.");
-}
-
-NodeOutput *AudioInput::samples_output()
-{
-  return samples_output_;
 }
 
 NodeValueTable AudioInput::Value(const NodeValueDatabase &value) const

@@ -32,9 +32,6 @@ OpacityNode::OpacityNode()
   texture_input_ = new NodeInput("tex_in");
   texture_input_->set_data_type(NodeParam::kTexture);
   AddParameter(texture_input_);
-
-  texture_output_ = new NodeOutput("tex_out");
-  AddParameter(texture_output_);
 }
 
 Node *OpacityNode::copy() const
@@ -67,30 +64,21 @@ void OpacityNode::Retranslate()
   opacity_input_->set_name(tr("Opacity"));
 }
 
-QString OpacityNode::Code(NodeOutput *output) const
+QString OpacityNode::Code() const
 {
-  if (output == texture_output()) {
-    return "#version 110"
-           "\n"
-           "varying vec2 olive_tex_coord;\n"
-           "\n"
-           "uniform sampler2D tex_in;\n"
-           "uniform float opacity_in;\n"
-           "\n"
-           "void main(void) {\n"
-           "  gl_FragColor = texture2D(tex_in, olive_tex_coord) * (opacity_in * 0.01);\n"
-           "}\n";
-  }
-
-  return Node::Code(output);
+  return "#version 110"
+         "\n"
+         "varying vec2 olive_tex_coord;\n"
+         "\n"
+         "uniform sampler2D tex_in;\n"
+         "uniform float opacity_in;\n"
+         "\n"
+         "void main(void) {\n"
+         "  gl_FragColor = texture2D(tex_in, olive_tex_coord) * (opacity_in * 0.01);\n"
+         "}\n";
 }
 
 NodeInput *OpacityNode::texture_input() const
 {
   return texture_input_;
-}
-
-NodeOutput *OpacityNode::texture_output() const
-{
-  return texture_output_;
 }

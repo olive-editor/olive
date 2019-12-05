@@ -15,13 +15,10 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  NodeOutput* samples_output();
-
 protected:
   virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
 private:
-  NodeOutput* samples_output_;
 };
 
 #endif // AUDIOINPUT_H

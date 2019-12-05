@@ -83,12 +83,12 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
 {
   foreach (NodeParam* param, n->parameters()) {
     if (param->type() == NodeParam::kInput && param->IsConnected()) {
-      NodeOutput* connected_output = static_cast<NodeInput*>(param)->get_connected_output();
+      Node* connected_output = static_cast<NodeInput*>(param)->get_connected_node();
 
       // Check if we have a shader or not
       if (shader_cache_.GetShader(connected_output) == nullptr)  {
         // Since we don't have a shader, compile one now
-        QString node_code = connected_output->parentNode()->Code(connected_output);
+        QString node_code = connected_output->Code();
 
         // If the node has no code, it mustn't be GPU accelerated
         if (!node_code.isEmpty()) {
@@ -126,7 +126,7 @@ bool OpenGLBackend::TraverseCompiling(Node *n)
         }
       }
 
-      if (!TraverseCompiling(connected_output->parentNode())) {
+      if (!TraverseCompiling(connected_output)) {
         return false;
       }
     }

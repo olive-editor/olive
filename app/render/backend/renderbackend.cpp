@@ -217,7 +217,7 @@ bool RenderBackend::GenerateData(const TimeRange &range)
     return false;
   }
 
-  NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_output(), range.in(), range.out());
+  NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_node(), range.in(), range.out());
 
   foreach (RenderWorker* worker, processors_) {
     if (worker->IsAvailable() || worker == processors_.last()) {

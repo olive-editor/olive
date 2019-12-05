@@ -45,23 +45,19 @@ QString AlphaOverBlend::Description() const
   return tr("A blending node that composites one texture over another using its alpha channel.");
 }
 
-QString AlphaOverBlend::Code(NodeOutput *output) const
+QString AlphaOverBlend::Code() const
 {
-  if (output == texture_output()) {
-    return "#version 110"
-           "\n"
-           "varying vec2 v_texcoord;\n"
-           "\n"
-           "uniform sampler2D base_in;\n"
-           "uniform sampler2D blend_in;\n"
-           "\n"
-           "void main(void) {\n"
-           "  vec4 base_col = texture2D(base_in, v_texcoord);\n"
-           "  vec4 blend_col = texture2D(blend_in, v_texcoord);\n"
-           "  \n"
-           "  gl_FragColor = base_col - blend_col.a + blend_col;\n"
-           "}\n";
-  }
-
-  return Node::Code(output);
+  return "#version 110"
+         "\n"
+         "varying vec2 v_texcoord;\n"
+         "\n"
+         "uniform sampler2D base_in;\n"
+         "uniform sampler2D blend_in;\n"
+         "\n"
+         "void main(void) {\n"
+         "  vec4 base_col = texture2D(base_in, v_texcoord);\n"
+         "  vec4 blend_col = texture2D(blend_in, v_texcoord);\n"
+         "  \n"
+         "  gl_FragColor = base_col - blend_col.a + blend_col;\n"
+         "}\n";
 }

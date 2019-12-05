@@ -63,9 +63,6 @@ public:
   void set_previous(Block* previous);
   void set_next(Block* next);
 
-  NodeOutput* buffer_output() const;
-  NodeOutput* block_output() const;
-
   const rational& media_in() const;
   void set_media_in(const rational& media_in);
 
@@ -104,9 +101,6 @@ protected:
   Block* next_;
 
 private:
-  NodeOutput* block_output_;
-  NodeOutput* buffer_output_;
-
   rational length_;
   rational media_in_;
 

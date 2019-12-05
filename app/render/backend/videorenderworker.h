@@ -42,7 +42,7 @@ protected:
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
 
-  virtual NodeValueTable RenderBlock(NodeOutput *output, const TimeRange& range) override;
+  virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) override;
 
 private:
   void ProcessNode();

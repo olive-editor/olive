@@ -22,9 +22,7 @@ public:
 
   NodeInput* matrix_input() const;
 
-  NodeOutput* texture_output() const;
-
-  virtual QString Code(NodeOutput* output) const override;
+  virtual QString Code() const override;
 
   //virtual void Hash(QCryptographicHash *hash, NodeOutput* from, const rational &time) override;
 
@@ -32,8 +30,6 @@ protected:
 
 private:
   NodeInput* matrix_input_;
-
-  NodeOutput* texture_output_;
 
 };
 

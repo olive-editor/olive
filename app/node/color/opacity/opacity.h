@@ -39,18 +39,14 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual QString Code(NodeOutput* output) const override;
+  virtual QString Code() const override;
 
   NodeInput* texture_input() const;
-
-  NodeOutput* texture_output() const;
 
 private:
   NodeInput* opacity_input_;
 
   NodeInput* texture_input_;
-
-  NodeOutput* texture_output_;
 
 };
 

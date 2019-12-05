@@ -140,13 +140,13 @@ void TrackList::AddTrack()
     NodeParam::ConnectEdge(track->track_output(), current_last_track->track_input());
 
     // FIXME: Test code only
-    if (current_last_track->buffer_output()->IsConnected()) {
+    if (current_last_track->output()->IsConnected()) {
       AlphaOverBlend* blend = new AlphaOverBlend();
       GetParentGraph()->AddNode(blend);
 
-      NodeParam::ConnectEdge(track->buffer_output(), blend->blend_input());
-      NodeParam::ConnectEdge(current_last_track->buffer_output(), blend->base_input());
-      NodeParam::ConnectEdge(blend->texture_output(), current_last_track->buffer_output()->edges().first()->input());
+      NodeParam::ConnectEdge(track->output(), blend->blend_input());
+      NodeParam::ConnectEdge(current_last_track->output(), blend->base_input());
+      NodeParam::ConnectEdge(blend->output(), current_last_track->output()->edges().first()->input());
     }
     // End test code
   }

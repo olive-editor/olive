@@ -47,9 +47,7 @@ protected:
 
   virtual QVariant FrameToValue(FramePtr frame) override;
 
-  virtual bool OutputIsAccelerated(NodeOutput *output) override;
-
-  virtual NodeValueTable RunNodeAccelerated(NodeOutput *output) override;
+  virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params) override;
 
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) override;
 

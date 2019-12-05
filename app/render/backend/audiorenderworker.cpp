@@ -28,9 +28,9 @@ FramePtr AudioRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRa
   return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_);
 }
 
-NodeValueTable AudioRenderWorker::RenderBlock(NodeOutput* output, const TimeRange &range)
+NodeValueTable AudioRenderWorker::RenderBlock(TrackOutput *track, const TimeRange &range)
 {
-  QList<Block*> active_blocks = ValidateBlockRange(static_cast<Block*>(output->parentNode()), range);
+  QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
   // All these blocks will need to output to a buffer so we create one here
   QByteArray block_range_buffer(audio_params_.time_to_bytes(range.length()), 0);
@@ -42,7 +42,7 @@ NodeValueTable AudioRenderWorker::RenderBlock(NodeOutput* output, const TimeRang
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
 
-    NodeValueTable table = RenderAsSibling(NodeDependency(b->block_output(),
+    NodeValueTable table = RenderAsSibling(NodeDependency(b,
                                                           range_for_block));
 
     QByteArray samples_from_this_block = table.Take(NodeParam::kSamples).toByteArray();
