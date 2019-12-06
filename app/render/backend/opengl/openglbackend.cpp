@@ -6,7 +6,8 @@
 #include "functions.h"
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
-  VideoRenderBackend(parent)
+  VideoRenderBackend(parent),
+  last_download_thread_(0)
 {
 }
 
@@ -135,6 +136,8 @@ bool OpenGLBackend::TimeIsCached(const TimeRange &time)
 
 void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table)
 {
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
   QVariant value = table.Get(NodeParam::kTexture);
   OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
@@ -146,19 +149,14 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
     QString cache_fn = frame_cache()->CachePathName(hash);
 
     // Find an available worker to download this texture
-    foreach (RenderWorker* worker, processors_) {
-      // Check if one is available, but worst case if none of them are available, just queue it on the last worker since
-      // it's the least likely to get work
-      if (worker->IsAvailable() || worker == processors_.last()) {
-        QMetaObject::invokeMethod(worker,
-                                  "Download",
-                                  Q_ARG(NodeDependency, path),
-                                  Q_ARG(QByteArray, hash),
-                                  Q_ARG(QVariant, QVariant::fromValue(texture)),
-                                  Q_ARG(QString, cache_fn));
-        break;
-      }
-    }
+    QMetaObject::invokeMethod(processors_.at(last_download_thread_%processors_.size()),
+                              "Download",
+                              Q_ARG(NodeDependency, path),
+                              Q_ARG(QByteArray, hash),
+                              Q_ARG(QVariant, QVariant::fromValue(texture)),
+                              Q_ARG(QString, cache_fn));
+
+    last_download_thread_++;
   }
 
   // Set as push texture
@@ -184,6 +182,7 @@ void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 void OpenGLBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
 {
   frame_cache()->SetHash(dep.in(), hash);
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   // Queue up a new frame for this worker
   CacheNext();
@@ -192,6 +191,7 @@ void OpenGLBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
 void OpenGLBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
 {
   ThreadCompletedDownload(dep, hash);
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   // Queue up a new frame for this worker
   CacheNext();

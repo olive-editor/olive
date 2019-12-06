@@ -86,6 +86,9 @@ protected:
 
   void UpdateNodeInputs();
 
+  bool WorkerIsBusy(RenderWorker* worker) const;
+  void SetWorkerBusyState(RenderWorker* worker, bool busy);
+
   QList<TimeRange> cache_queue_;
 
   QVector<RenderWorker*> processors_;
@@ -133,9 +136,9 @@ private:
   bool recompile_queued_;
   bool input_update_queued_;
 
-private slots:
-  void ThreadRequestedSibling(NodeDependency dep);
+  QVector<bool> processor_busy_state_;
 
+private slots:
   void QueueRecompile();
 
 };

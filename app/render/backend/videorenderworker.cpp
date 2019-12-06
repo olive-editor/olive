@@ -18,8 +18,6 @@ const VideoRenderingParams &VideoRenderWorker::video_params()
 
 NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
 {
-  qDebug() << "Rendering" << path.in().toDouble() << "on" << this;
-
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
   QCryptographicHash hasher(QCryptographicHash::Sha1);
@@ -141,8 +139,6 @@ void VideoRenderWorker::CloseInternal()
 
 void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)
 {
-  working_++;
-
   PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
   // Set up OIIO::ImageSpec for compressing cached images on disk
@@ -164,8 +160,6 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
   } else {
     qWarning() << "Failed to open output file:" << filename;
   }
-
-  working_--;
 }
 
 NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRange &range)

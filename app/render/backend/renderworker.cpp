@@ -6,14 +6,8 @@
 
 RenderWorker::RenderWorker(QObject *parent) :
   QObject(parent),
-  working_(0),
   started_(false)
 {
-}
-
-bool RenderWorker::IsAvailable()
-{
-  return !working_;
 }
 
 bool RenderWorker::Init()
@@ -51,9 +45,6 @@ NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
 
   //qDebug() << "Processing" << node->id();
 
-  // Set working state
-  working_++;
-
   // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
   // nodes based on time and we might need to locate which Block to attach to
   if (node->IsTrack()) {
@@ -64,9 +55,6 @@ NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
   }
 
   // We're done!
-
-  // End this working state
-  working_--;
 
   return value;
 }

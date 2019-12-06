@@ -20,8 +20,6 @@ public:
 
   bool IsStarted();
 
-  bool IsAvailable();
-
 public slots:
   void Close();
 
@@ -30,8 +28,6 @@ public slots:
   NodeValueTable RenderAsSibling(NodeDependency dep);
 
 signals:
-  void RequestSibling(NodeDependency path);
-
   void CompletedCache(NodeDependency dep, NodeValueTable data);
 
 protected:
@@ -55,8 +51,6 @@ protected:
   NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
 
   virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) = 0;
-
-  QAtomicInt working_;
 
 private:
   bool started_;

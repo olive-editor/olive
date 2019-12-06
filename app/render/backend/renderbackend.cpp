@@ -240,7 +240,7 @@ void RenderBackend::CacheNext()
       break;
     }
 
-    if (worker->IsAvailable()) {
+    if (!WorkerIsBusy(worker)) {
       TimeRange cache_frame = cache_queue_.takeFirst();
 
       NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_node(), cache_frame.in(), cache_frame.out());
@@ -249,6 +249,8 @@ void RenderBackend::CacheNext()
                                 "Render",
                                 Qt::QueuedConnection,
                                 Q_ARG(NodeDependency, dep));
+
+      SetWorkerBusyState(worker, true);
     }
   }
 }
@@ -288,10 +290,20 @@ void RenderBackend::UpdateNodeInputs()
   }
 }
 
+bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const
+{
+  return processor_busy_state_.at(processors_.indexOf(worker));
+}
+
+void RenderBackend::SetWorkerBusyState(RenderWorker *worker, bool busy)
+{
+  processor_busy_state_.replace(processors_.indexOf(worker), busy);
+}
+
 bool RenderBackend::AllProcessorsAreAvailable() const
 {
-  foreach (RenderWorker* worker, processors_) {
-    if (!worker->IsAvailable()) {
+  foreach (bool busy, processor_busy_state_) {
+    if (busy) {
       return false;
     }
   }
@@ -316,7 +328,6 @@ void RenderBackend::InitWorkers()
     QThread* thread = threads().at(i);
 
     // Connect to it
-    connect(processor, SIGNAL(RequestSibling(NodeDependency)), this, SLOT(ThreadRequestedSibling(NodeDependency)));
     ConnectWorkerToThis(processor);
 
     // Finally, we can move it to its own thread
@@ -325,20 +336,9 @@ void RenderBackend::InitWorkers()
     // This function blocks the main thread intentionally. See the documentation for this function to see why.
     processor->Init();
   }
-}
 
-void RenderBackend::ThreadRequestedSibling(NodeDependency dep)
-{
-  // Try to queue another thread to run this dep in advance
-  foreach (RenderWorker* worker, processors_) {
-    if (worker->IsAvailable()) {
-      QMetaObject::invokeMethod(worker,
-                                "RenderAsSibling",
-                                Qt::QueuedConnection,
-                                Q_ARG(NodeDependency, dep));
-      return;
-    }
-  }
+  processor_busy_state_.resize(processors_.size());
+  processor_busy_state_.fill(false);
 }
 
 void RenderBackend::QueueRecompile()

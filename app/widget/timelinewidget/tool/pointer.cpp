@@ -239,7 +239,7 @@ void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_p
     olive::timeline::MovementMode trim_mode = olive::timeline::kNone;
 
     // FIXME: Hardcoded number
-    const int kTrimHandle = 20;
+    const int kTrimHandle = 10;
 
     qreal mouse_x = parent()->TimeToScene(mouse_pos.GetFrame());
 

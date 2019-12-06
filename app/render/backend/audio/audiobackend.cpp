@@ -67,6 +67,8 @@ void AudioBackend::ConnectWorkerToThis(RenderWorker *worker)
 
 void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data)
 {
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
   QByteArray cached_samples = data.Get(NodeParam::kSamples).toByteArray();
 
   int offset = params().time_to_bytes(dep.in());
