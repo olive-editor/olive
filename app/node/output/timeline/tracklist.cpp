@@ -160,7 +160,8 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
 
   Q_ASSERT(track_index >= 0);
 
-  TrackOutput* track = track_cache_.at(track_index);
+  Node* connected_node = edge->output()->parentNode();
+  TrackOutput* track = connected_node->IsTrack() ? static_cast<TrackOutput*>(connected_node) : nullptr;
 
   if (track) {
     track_cache_.replace(track_index, nullptr);
