@@ -43,6 +43,8 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
     return;
   }
 
+  RenderBackend::InvalidateCache(start_range, end_range);
+
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
   rational end_range_adj = qMin(SequenceLength(), end_range);
@@ -185,11 +187,6 @@ VideoRenderFrameCache *VideoRenderBackend::frame_cache()
   return &frame_cache_;
 }
 
-ColorProcessorCache *VideoRenderBackend::color_cache()
-{
-  return &color_cache_;
-}
-
 const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 {
   last_time_requested_ = time;
@@ -236,10 +233,4 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 NodeInput *VideoRenderBackend::GetDependentInput()
 {
   return viewer_node()->texture_input();
-}
-
-void VideoRenderBackend::CompletedFrame()
-{
-  caching_ = false;
-  CacheNext();
 }

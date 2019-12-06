@@ -31,7 +31,7 @@ bool OpenGLBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, decoder_cache(), color_cache(), frame_cache());
+    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, frame_cache());
     processor->SetParameters(params());
     processors_.append(processor);
   }
@@ -76,14 +76,14 @@ bool OpenGLBackend::CompileInternal()
 
   foreach (Node* n, nodes) {
     // Check if we have a shader or not
-    if (!shader_cache_.HasShader(n))  {
+    if (!shader_cache_.Has(n->id()))  {
       // Since we don't have a shader, compile one now
       QString node_code = n->Code();
 
       // If the node has no code, it mustn't be GPU accelerated
       if (node_code.isEmpty()) {
         // We enter a null shader so we don't try to compile this again
-        shader_cache_.AddShader(n, nullptr);
+        shader_cache_.Add(n->id(), nullptr);
       } else {
         // Since we have shader code, compile it now
         OpenGLShaderPtr program;
@@ -113,7 +113,7 @@ bool OpenGLBackend::CompileInternal()
           return false;
         }
 
-        shader_cache_.AddShader(n, program);
+        shader_cache_.Add(n->id(), program);
 
         //qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
       }
@@ -166,26 +166,33 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
     emit CachedFrameReady(path.in(), value);
   }
 
-  CompletedFrame();
+  // Queue up a new frame for this worker
+  CacheNext();
 }
 
 void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 {
   frame_cache()->SetHash(dep.in(), hash);
 
-  emit CachedTimeReady(dep.in());
+  // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
+  QList<rational> times_with_this_hash = frame_cache()->TimesWithHash(hash);
+  foreach (const rational& t, times_with_this_hash) {
+    emit CachedTimeReady(t);
+  }
 }
 
 void OpenGLBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
 {
   frame_cache()->SetHash(dep.in(), hash);
 
-  CompletedFrame();
+  // Queue up a new frame for this worker
+  CacheNext();
 }
 
 void OpenGLBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
 {
   ThreadCompletedDownload(dep, hash);
 
-  CompletedFrame();
+  // Queue up a new frame for this worker
+  CacheNext();
 }

@@ -7,8 +7,8 @@
 #include "render/colormanager.h"
 #include "render/pixelservice.h"
 
-OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, DecoderCache *decoder_cache, ColorProcessorCache *color_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
-  VideoRenderWorker(decoder_cache, color_cache, frame_cache, parent),
+OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
+  VideoRenderWorker(frame_cache, parent),
   share_ctx_(share_ctx),
   ctx_(nullptr),
   functions_(nullptr),
@@ -143,7 +143,7 @@ void OpenGLWorker::ParametersChangedEvent()
 
 void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable *output_params)
 {
-  OpenGLShaderPtr shader = shader_cache_->GetShader(node);
+  OpenGLShaderPtr shader = shader_cache_->Get(node->id());
 
   if (!shader) {
     return;

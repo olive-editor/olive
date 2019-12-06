@@ -4,10 +4,9 @@
 #include "node/node.h"
 #include "render/pixelservice.h"
 
-VideoRenderWorker::VideoRenderWorker(DecoderCache *decoder_cache, ColorProcessorCache *color_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
-  RenderWorker(decoder_cache, parent),
-  frame_cache_(frame_cache),
-  color_cache_(color_cache)
+VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
+  RenderWorker(parent),
+  frame_cache_(frame_cache)
 {
 
 }
@@ -19,6 +18,8 @@ const VideoRenderingParams &VideoRenderWorker::video_params()
 
 NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
 {
+  qDebug() << "Rendering" << path.in().toDouble() << "on" << this;
+
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
   QCryptographicHash hasher(QCryptographicHash::Sha1);
@@ -182,7 +183,7 @@ NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRang
   return table;
 }
 
-ColorProcessorCache *VideoRenderWorker::color_cache() const
+ColorProcessorCache *VideoRenderWorker::color_cache()
 {
-  return color_cache_;
+  return &color_cache_;
 }

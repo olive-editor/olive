@@ -12,7 +12,7 @@ class RenderWorker : public QObject
 {
   Q_OBJECT
 public:
-  RenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
+  RenderWorker(QObject* parent = nullptr);
 
   DISABLE_COPY_MOVE(RenderWorker)
 
@@ -56,14 +56,12 @@ protected:
 
   virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) = 0;
 
-  DecoderCache* decoder_cache();
-
   QAtomicInt working_;
 
 private:
   bool started_;
 
-  DecoderCache* decoder_cache_;
+  DecoderCache decoder_cache_;
 
 };
 

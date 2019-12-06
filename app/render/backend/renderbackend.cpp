@@ -6,12 +6,12 @@
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   compiled_(false),
-  caching_(false),
   started_(false),
   viewer_node_(nullptr),
   copied_viewer_node_(nullptr),
   value_update_queued_(false),
-  recompile_queued_(false)
+  recompile_queued_(false),
+  input_update_queued_(false)
 {
 }
 
@@ -53,17 +53,22 @@ void RenderBackend::Close()
 
   CloseInternal();
 
-  decoder_cache_.Clear();
+  for (int i=0;i<processors_.size();i++) {
+    // Invoke close and quit signals on processor and thred
+    QMetaObject::invokeMethod(processors_.at(i),
+                              "Close",
+                              Qt::QueuedConnection);
 
-  foreach (QThread* thread, threads_) {
-    thread->quit();
-    thread->wait(); // FIXME: Maximum time in case a thread is stuck?
+    threads_.at(i)->quit();
   }
+
+  for (int i=0;i<processors_.size();i++) {
+    threads_.at(i)->wait(); // FIXME: Maximum time in case a thread is stuck?
+    delete threads_.at(i);
+    delete processors_.at(i);
+  }
+
   threads_.clear();
-
-  foreach (RenderWorker* processor, processors_) {
-    delete processor;
-  }
   processors_.clear();
 }
 
@@ -100,12 +105,17 @@ bool RenderBackend::IsInitiated()
   return started_;
 }
 
+void RenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
+{
+  Q_UNUSED(start_range)
+  Q_UNUSED(end_range)
+
+  input_update_queued_ = true;
+}
+
 bool RenderBackend::Compile()
 {
-  if (recompile_queued_) {
-    Decompile();
-    recompile_queued_ = false;
-  } else if (compiled_) {
+  if (compiled_) {
     return true;
   }
 
@@ -199,39 +209,48 @@ void RenderBackend::DisconnectViewer(ViewerOutput *node)
 
 void RenderBackend::CacheNext()
 {
-  if (!Init() || cache_queue_.isEmpty() || !ViewerIsConnected() || caching_) {
+  if (!Init()
+      || cache_queue_.isEmpty()
+      || !ViewerIsConnected()) {
     return;
   }
 
-  UpdateNodeInputs();
-
-  TimeRange cache_frame = cache_queue_.takeFirst();
-
-  //qDebug() << "Caching" << cache_frame.in();
-
-  caching_ = GenerateData(cache_frame);
-}
-
-bool RenderBackend::GenerateData(const TimeRange &range)
-{
-  if (!Compile()) {
-    qDebug() << "Graph remains uncompiled, nothing to be done";
-    return false;
+  if ((input_update_queued_ || recompile_queued_) && !AllProcessorsAreAvailable()) {
+    qDebug() << "Blocking render while we wait for all workers to finish...";
+    return;
   }
 
-  NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_node(), range.in(), range.out());
+  if (input_update_queued_) {
+    UpdateNodeInputs();
+    input_update_queued_ = false;
+  }
+
+  if (recompile_queued_) {
+    Decompile();
+    recompile_queued_ = false;
+  }
+
+  if (!compiled_ && !Compile()) {
+    qDebug() << "Graph remains uncompiled, nothing to be done";
+    return;
+  }
 
   foreach (RenderWorker* worker, processors_) {
-    if (worker->IsAvailable() || worker == processors_.last()) {
+    if (cache_queue_.isEmpty()) {
+      break;
+    }
+
+    if (worker->IsAvailable()) {
+      TimeRange cache_frame = cache_queue_.takeFirst();
+
+      NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_node(), cache_frame.in(), cache_frame.out());
+
       QMetaObject::invokeMethod(worker,
                                 "Render",
                                 Qt::QueuedConnection,
                                 Q_ARG(NodeDependency, dep));
-      return true;
     }
   }
-
-  return false;
 }
 
 ViewerOutput *RenderBackend::viewer_node() const
@@ -242,11 +261,6 @@ ViewerOutput *RenderBackend::viewer_node() const
 bool RenderBackend::ViewerIsConnected() const
 {
   return viewer_node_ != nullptr;
-}
-
-DecoderCache *RenderBackend::decoder_cache()
-{
-  return &decoder_cache_;
 }
 
 const QString &RenderBackend::cache_id() const
@@ -272,6 +286,17 @@ void RenderBackend::UpdateNodeInputs()
 
     value_update_queued_ = false;
   }
+}
+
+bool RenderBackend::AllProcessorsAreAvailable() const
+{
+  foreach (RenderWorker* worker, processors_) {
+    if (!worker->IsAvailable()) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 const QVector<QThread *> &RenderBackend::threads()

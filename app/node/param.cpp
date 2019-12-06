@@ -103,7 +103,7 @@ void NodeParam::DisconnectAll()
   }
 }
 
-NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
+NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lock)
 {
   // If the input can only accept one input (the default) and has one already, disconnect it
   DisconnectForNewOutput(input);
@@ -127,14 +127,18 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
   // that's difficult to diagnose. This makes that issue very clear.
   Q_ASSERT(output->parentNode() != input->parentNode());
 
-  output->parentNode()->LockUserInput();
-  input->parentNode()->LockUserInput();
+  if (lock) {
+    output->parentNode()->LockUserInput();
+    input->parentNode()->LockUserInput();
+  }
 
   output->edges_.append(edge);
   input->edges_.append(edge);
 
-  output->parentNode()->UnlockUserInput();
-  input->parentNode()->UnlockUserInput();
+  if (lock) {
+    output->parentNode()->UnlockUserInput();
+    input->parentNode()->UnlockUserInput();
+  }
 
   // Emit a signal than an edge was added (only one signal needs emitting)
   emit input->EdgeAdded(edge);

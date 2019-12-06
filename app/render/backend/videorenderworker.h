@@ -12,7 +12,7 @@
 class VideoRenderWorker : public RenderWorker {
   Q_OBJECT
 public:
-  VideoRenderWorker(DecoderCache* decoder_cache, ColorProcessorCache* color_cache, VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
+  VideoRenderWorker(VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
 
   void SetParameters(const VideoRenderingParams& video_params);
 
@@ -45,7 +45,7 @@ protected:
 
   virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) override;
 
-  ColorProcessorCache* color_cache() const;
+  ColorProcessorCache* color_cache();
 
 private:
   void ProcessNode();
@@ -56,7 +56,7 @@ private:
 
   VideoRenderFrameCache* frame_cache_;
 
-  ColorProcessorCache* color_cache_;
+  ColorProcessorCache color_cache_;
 
   QByteArray download_buffer_;
 

@@ -5,6 +5,6 @@
 #include "project/item/footage/stream.h"
 #include "rendercache.h"
 
-using DecoderCache = RenderCache<Stream*, DecoderPtr>;
+using DecoderCache = ThreadSafeRenderCache<Stream*, DecoderPtr>;
 
 #endif // DECODERCACHE_H

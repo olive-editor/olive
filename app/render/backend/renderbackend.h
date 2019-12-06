@@ -30,7 +30,7 @@ public:
   bool IsInitiated();
 
 public slots:
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range) = 0;
+  virtual void InvalidateCache(const rational &start_range, const rational &end_range);
 
   bool Compile();
 
@@ -70,8 +70,6 @@ protected:
    */
   void CacheNext();
 
-  bool GenerateData(const TimeRange& range);
-
   void InitWorkers();
 
   virtual NodeInput* GetDependentInput() = 0;
@@ -81,8 +79,6 @@ protected:
   ViewerOutput* viewer_node() const;
 
   bool ViewerIsConnected() const;
-
-  DecoderCache* decoder_cache();
 
   const QString& cache_id() const;
 
@@ -96,9 +92,9 @@ protected:
 
   bool compiled_;
 
-  bool caching_;
-
 private:
+  bool AllProcessorsAreAvailable() const;
+
   /**
    * @brief Internal list of RenderProcessThreads
    */
@@ -124,8 +120,6 @@ private:
    */
   QString error_;
 
-  DecoderCache decoder_cache_;
-
   QString cache_name_;
   qint64 cache_time_;
   QString cache_id_;
@@ -137,6 +131,7 @@ private:
   TimeRange value_update_range_;
 
   bool recompile_queued_;
+  bool input_update_queued_;
 
 private slots:
   void ThreadRequestedSibling(NodeDependency dep);

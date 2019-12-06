@@ -82,8 +82,6 @@ protected:
 
   VideoRenderFrameCache* frame_cache();
 
-  ColorProcessorCache* color_cache();
-
   const VideoRenderingParams& params() const;
 
   /**
@@ -95,8 +93,6 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  void CompletedFrame();
-
 signals:
   void CachedFrameReady(const rational& time, QVariant value);
   void CachedTimeReady(const rational& time);
@@ -107,8 +103,6 @@ private:
   QByteArray cache_frame_load_buffer_;
 
   VideoRenderFrameCache frame_cache_;
-
-  ColorProcessorCache color_cache_;
 
   rational last_time_requested_;
 

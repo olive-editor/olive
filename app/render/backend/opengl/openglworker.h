@@ -13,8 +13,6 @@ class OpenGLWorker : public VideoRenderWorker {
 public:
   OpenGLWorker(QOpenGLContext* share_ctx,
                OpenGLShaderCache* shader_cache,
-               DecoderCache* decoder_cache,
-               ColorProcessorCache *color_cache,
                VideoRenderFrameCache* frame_cache,
                QObject* parent = nullptr);
 

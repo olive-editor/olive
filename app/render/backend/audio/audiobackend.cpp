@@ -37,7 +37,7 @@ bool AudioBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    AudioWorker* processor = new AudioWorker(decoder_cache());
+    AudioWorker* processor = new AudioWorker();
     processor->SetParameters(params());
     processors_.append(processor);
   }
@@ -67,8 +67,6 @@ void AudioBackend::ConnectWorkerToThis(RenderWorker *worker)
 
 void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data)
 {
-  caching_ = false;
-
   QByteArray cached_samples = data.Get(NodeParam::kSamples).toByteArray();
 
   int offset = params().time_to_bytes(dep.in());
