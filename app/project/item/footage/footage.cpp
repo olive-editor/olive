@@ -35,7 +35,7 @@ Footage::~Footage()
   ClearStreams();
 }
 
-const Footage::Status& Footage::status()
+const Footage::Status& Footage::status() const
 {
   return status_;
 }
@@ -56,7 +56,7 @@ void Footage::Clear()
   set_status(kUnprobed);
 }
 
-const QString &Footage::filename()
+const QString &Footage::filename() const
 {
   return filename_;
 }
@@ -66,7 +66,7 @@ void Footage::set_filename(const QString &s)
   filename_ = s;
 }
 
-const QDateTime &Footage::timestamp()
+const QDateTime &Footage::timestamp() const
 {
   return timestamp_;
 }
@@ -85,17 +85,17 @@ void Footage::add_stream(StreamPtr s)
   streams_.last()->set_footage(this);
 }
 
-StreamPtr Footage::stream(int index)
+StreamPtr Footage::stream(int index) const
 {
   return streams_.at(index);
 }
 
-const QList<StreamPtr> &Footage::streams()
+const QList<StreamPtr> &Footage::streams() const
 {
   return streams_;
 }
 
-int Footage::stream_count()
+int Footage::stream_count() const
 {
   return streams_.size();
 }
@@ -105,7 +105,7 @@ Item::Type Footage::type() const
   return kFootage;
 }
 
-const QString &Footage::decoder()
+const QString &Footage::decoder() const
 {
   return decoder_;
 }
@@ -139,7 +139,7 @@ QIcon Footage::icon()
       return olive::icon::Image;
 
     }
-    /* fall through */
+    /* fall-through */
   case kInvalid:
     return olive::icon::Error;
   }

@@ -12,15 +12,13 @@ class RenderWorker : public QObject
 {
   Q_OBJECT
 public:
-  RenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
+  RenderWorker(QObject* parent = nullptr);
 
   DISABLE_COPY_MOVE(RenderWorker)
 
   bool Init();
 
   bool IsStarted();
-
-  bool IsAvailable();
 
 public slots:
   void Close();
@@ -30,8 +28,6 @@ public slots:
   NodeValueTable RenderAsSibling(NodeDependency dep);
 
 signals:
-  void RequestSibling(NodeDependency path);
-
   void CompletedCache(NodeDependency dep, NodeValueTable data);
 
 protected:
@@ -46,24 +42,20 @@ protected:
   virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params);
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
-  DecoderPtr ResolveDecoderFromInput(NodeInput* input);
+  DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) = 0;
 
-  virtual void FrameToValue(FramePtr frame, NodeValueTable* table) = 0;
+  virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) = 0;
 
   NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
 
   virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) = 0;
 
-  DecoderCache* decoder_cache();
-
-  QAtomicInt working_;
-
 private:
   bool started_;
 
-  DecoderCache* decoder_cache_;
+  DecoderCache decoder_cache_;
 
 };
 

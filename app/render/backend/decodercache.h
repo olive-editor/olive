@@ -3,24 +3,8 @@
 
 #include "decoder/decoder.h"
 #include "project/item/footage/stream.h"
+#include "rendercache.h"
 
-/**
- * @brief Thread-safe cache of decoders
- */
-class DecoderCache
-{
-public:
-  DecoderCache();
-
-  void Clear();
-
-  void AddDecoder(Stream* stream, DecoderPtr shader);
-
-  DecoderPtr GetDecoder(Stream* stream);
-
-private:
-  QMap<Stream*, DecoderPtr> decoders_;
-
-};
+using DecoderCache = ThreadSafeRenderCache<Stream*, DecoderPtr>;
 
 #endif // DECODERCACHE_H

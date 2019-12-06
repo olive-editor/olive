@@ -24,6 +24,7 @@
 #include <QList>
 #include <QDateTime>
 
+#include "common/constructors.h"
 #include "common/rational.h"
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"
@@ -59,25 +60,7 @@ public:
    */
   virtual ~Footage() override;
 
-  /**
-   * @brief Deleted copy constructor
-   */
-  Footage(const Footage& other) = delete;
-
-  /**
-   * @brief Deleted move constructor
-   */
-  Footage(Footage&& other) = delete;
-
-  /**
-   * @brief Deleted copy assignment
-   */
-  Footage& operator=(const Footage& other) = delete;
-
-  /**
-   * @brief Deleted move assignment
-   */
-  Footage& operator=(Footage&& other) = delete;
+  DISABLE_COPY_MOVE(Footage)
 
   /**
    * @brief Check the ready state of this Footage object
@@ -86,7 +69,7 @@ public:
    *
    * If the Footage has been successfully probed, this will return TRUE.
    */
-  const Status& status();
+  const Status& status() const;
 
   /**
    * @brief Set ready state
@@ -114,7 +97,7 @@ public:
   /**
    * @brief Return the current filename of this Footage object
    */
-  const QString& filename();
+  const QString& filename() const;
 
   /**
    * @brief Set the filename
@@ -134,7 +117,7 @@ public:
    * The file's last modified timestamp is stored for potential organization in the ProjectExplorer. It can be
    * retrieved here.
    */
-  const QDateTime& timestamp();
+  const QDateTime& timestamp() const;
 
   /**
    * @brief Set the last modified time/date
@@ -172,17 +155,17 @@ public:
    *
    * The stream at the index provided
    */
-  StreamPtr stream(int index);
+  StreamPtr stream(int index) const;
 
   /**
    * @brief Returns a list of the streams in this Footage
    */
-  const QList<StreamPtr>& streams();
+  const QList<StreamPtr>& streams() const;
 
   /**
    * @brief Retrieve total number of streams in this Footage file
    */
-  int stream_count();
+  int stream_count() const;
 
   /**
    * @brief Item::Type() override
@@ -198,7 +181,7 @@ public:
    *
    * A decoder ID
    */
-  const QString& decoder();
+  const QString& decoder() const;
 
   /**
    * @brief Used by decoders when they Probe to attach itself to this Footage

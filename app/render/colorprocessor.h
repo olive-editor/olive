@@ -4,7 +4,9 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "common/constructors.h"
 #include "decoder/frame.h"
+
 
 class ColorProcessor;
 using ColorProcessorPtr = std::shared_ptr<ColorProcessor>;
@@ -18,6 +20,8 @@ public:
                  QString display,
                  QString view,
                  const QString& look);
+
+  DISABLE_COPY_MOVE(ColorProcessor)
 
   static ColorProcessorPtr Create(const QString& source_space, const QString& dest_space);
 

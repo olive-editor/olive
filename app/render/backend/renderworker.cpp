@@ -4,17 +4,10 @@
 
 #include "node/block/block.h"
 
-RenderWorker::RenderWorker(DecoderCache *decoder_cache, QObject *parent) :
+RenderWorker::RenderWorker(QObject *parent) :
   QObject(parent),
-  working_(0),
-  started_(false),
-  decoder_cache_(decoder_cache)
+  started_(false)
 {
-}
-
-bool RenderWorker::IsAvailable()
-{
-  return (working_ == 0);
 }
 
 bool RenderWorker::Init()
@@ -34,6 +27,8 @@ void RenderWorker::Close()
 {
   CloseInternal();
 
+  decoder_cache_.Clear();
+
   started_ = false;
 }
 
@@ -50,9 +45,6 @@ NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
 
   //qDebug() << "Processing" << node->id();
 
-  // Set working state
-  working_++;
-
   // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
   // nodes based on time and we might need to locate which Block to attach to
   if (node->IsTrack()) {
@@ -64,15 +56,7 @@ NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
 
   // We're done!
 
-  // End this working state
-  working_--;
-
   return value;
-}
-
-DecoderCache *RenderWorker::decoder_cache()
-{
-  return decoder_cache_;
 }
 
 NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path)
@@ -98,17 +82,16 @@ StreamPtr RenderWorker::ResolveStreamFromInput(NodeInput *input)
   return input->get_value_at_time(0).value<StreamPtr>();
 }
 
-DecoderPtr RenderWorker::ResolveDecoderFromInput(NodeInput *input)
+DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
   // Access a map of Node inputs and decoder instances and retrieve a frame!
-  StreamPtr stream = ResolveStreamFromInput(input);
-  DecoderPtr decoder = decoder_cache()->GetDecoder(stream.get());
+  DecoderPtr decoder = decoder_cache_.Get(stream.get());
 
   if (decoder == nullptr && stream != nullptr) {
     // Create a new Decoder here
-    DecoderPtr decoder = Decoder::CreateFromID(stream->footage()->decoder());
+    decoder = Decoder::CreateFromID(stream->footage()->decoder());
     decoder->set_stream(stream);
-    decoder_cache()->AddDecoder(stream.get(), decoder);
+    decoder_cache_.Add(stream.get(), decoder);
   }
 
   return decoder;
@@ -146,13 +129,17 @@ NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 
       // Exception for Footage types where we actually retrieve some Footage data from a decoder
       if (input->data_type() == NodeParam::kFootage) {
-        DecoderPtr decoder = ResolveDecoderFromInput(input);
+        StreamPtr stream = ResolveStreamFromInput(input);
 
-        if (decoder) {
-          FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+        if (stream) {
+          DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
-          if (frame) {
-            FrameToValue(frame, &table);
+          if (decoder) {
+            FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+
+            if (frame) {
+              FrameToValue(stream, frame, &table);
+            }
           }
         }
       }

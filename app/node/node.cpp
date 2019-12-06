@@ -182,7 +182,7 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
       if (src->dependent()) {
         NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
 
-        NodeInput::CopyValues(src, dst, include_connections);
+        NodeInput::CopyValues(src, dst, include_connections, false);
       }
     }
   }

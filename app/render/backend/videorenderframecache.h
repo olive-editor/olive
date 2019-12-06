@@ -28,16 +28,18 @@ public:
   /**
    * @brief Return the path of the cached image at this time
    */
-  QString CachePathName(const QByteArray &hash);
+  QString CachePathName(const QByteArray &hash) const;
 
   void SetCacheID(const QString& id);
 
-  QByteArray TimeToHash(const rational& time);
+  QByteArray TimeToHash(const rational& time) const;
 
   void SetHash(const rational& time, const QByteArray& hash);
   void RemoveHash(const rational& time, const QByteArray &hash);
 
   void Truncate(const rational& time);
+
+  QList<rational> TimesWithHash(const QByteArray& hash);
 
 private:
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);

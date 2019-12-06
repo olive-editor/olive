@@ -43,6 +43,8 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
     return;
   }
 
+  RenderBackend::InvalidateCache(start_range, end_range);
+
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
   rational end_range_adj = qMin(SequenceLength(), end_range);
@@ -175,7 +177,7 @@ void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
 void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 {
   connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray, NodeValueTable)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray, NodeValueTable)));
-  connect(processor, SIGNAL(HashAlreadyBeingCached()), this, SLOT(ThreadSkippedFrame()));
+  connect(processor, SIGNAL(HashAlreadyBeingCached(NodeDependency, QByteArray)), this, SLOT(ThreadSkippedFrame(NodeDependency, QByteArray)));
   connect(processor, SIGNAL(CompletedDownload(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedDownload(NodeDependency, QByteArray)));
   connect(processor, SIGNAL(HashAlreadyExists(NodeDependency, QByteArray)), this, SLOT(ThreadHashAlreadyExists(NodeDependency, QByteArray)));
 }

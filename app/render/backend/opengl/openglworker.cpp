@@ -1,11 +1,14 @@
 #include "openglworker.h"
 
+#include "core.h"
 #include "functions.h"
 #include "node/node.h"
+#include "openglcolorprocessor.h"
+#include "render/colormanager.h"
 #include "render/pixelservice.h"
 
-OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, DecoderCache *decoder_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
-  VideoRenderWorker(decoder_cache, frame_cache, parent),
+OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
+  VideoRenderWorker(frame_cache, parent),
   share_ctx_(share_ctx),
   ctx_(nullptr),
   functions_(nullptr),
@@ -47,18 +50,79 @@ bool OpenGLWorker::InitInternal()
   return true;
 }
 
-void OpenGLWorker::FrameToValue(FramePtr frame, NodeValueTable *table)
+void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *table)
 {
+  // Set up OCIO context
+  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache()->Get(stream.get()));
+
+  // Ensure stream is video or image type
+  if (stream->type() != Stream::kVideo && stream->type() != Stream::kImage) {
+    return;
+  }
+
+  ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+
+  if (!color_processor) {
+    QString input_colorspace = video_stream->colorspace();
+    if (input_colorspace.isEmpty()) {
+      // FIXME: Should use Stream->Footage to find the Project* since that's a direct chain
+      input_colorspace = olive::core.GetActiveProject()->default_input_colorspace();
+    }
+
+    color_processor = OpenGLColorProcessor::CreateOpenGL(input_colorspace,
+                                                         OCIO::ROLE_SCENE_LINEAR);
+    color_cache()->Add(stream.get(), color_processor);
+  }
+
+  // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
+  if (video_params().mode() == olive::kOnline) {
+    // If alpha is associated, disassociate for the color transform
+    if (video_stream->premultiplied_alpha()) {
+      ColorManager::DisassociateAlpha(frame);
+    }
+
+    // Convert frame to float for OCIO
+    frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
+
+    // Perform color transform
+    color_processor->ConvertFrame(frame);
+
+    // Associate alpha
+    if (video_stream->premultiplied_alpha()) {
+      ColorManager::ReassociateAlpha(frame);
+    } else {
+      ColorManager::AssociateAlpha(frame);
+    }
+  }
+
   OpenGLTexturePtr footage_tex = std::make_shared<OpenGLTexture>();
   footage_tex->Create(ctx_, frame);
 
-  // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
-  //if (video_params().mode() == olive::kOnline) {
-    // Convert frame to float for
-    //frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
-  //}
+  if (video_params().mode() == olive::kOffline) {
+    if (!color_processor->IsEnabled()) {
+      color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
+    }
 
-  // FIXME: Alpha association and color management
+    // Create destination texture
+    OpenGLTexturePtr associated_tex = std::make_shared<OpenGLTexture>();
+    associated_tex->Create(ctx_, footage_tex->width(), footage_tex->height(), footage_tex->format());
+
+    // Set viewport for texture size
+    functions_->glViewport(0, 0, footage_tex->width(), footage_tex->height());
+
+    buffer_.Attach(associated_tex);
+    buffer_.Bind();
+    footage_tex->Bind();
+
+    // Blit old texture to new texture through OCIO shader
+    color_processor->ProcessOpenGL();
+
+    footage_tex->Release();
+    buffer_.Release();
+    buffer_.Detach();
+
+    footage_tex = associated_tex;
+  }
 
   table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex));
 }
@@ -66,7 +130,6 @@ void OpenGLWorker::FrameToValue(FramePtr frame, NodeValueTable *table)
 void OpenGLWorker::CloseInternal()
 {
   buffer_.Destroy();
-
   functions_ = nullptr;
   delete ctx_;
 }
@@ -80,7 +143,7 @@ void OpenGLWorker::ParametersChangedEvent()
 
 void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable *output_params)
 {
-  OpenGLShaderPtr shader = shader_cache_->GetShader(node);
+  OpenGLShaderPtr shader = shader_cache_->Get(node->id());
 
   if (!shader) {
     return;
@@ -184,7 +247,10 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
     }
   }
 
-  //qDebug() << "    Blitting with shader!";
+  // Ensure viewport is correct
+  functions_->glViewport(0, 0, video_params().effective_width(), video_params().effective_height());
+
+  // Blit this texture through this shader
   olive::gl::Blit(shader);
 
   // Release any textures we bound before

@@ -2,8 +2,8 @@
 
 #include "audio/audiomanager.h"
 
-AudioRenderWorker::AudioRenderWorker(DecoderCache *decoder_cache, QObject *parent) :
-  RenderWorker(decoder_cache, parent)
+AudioRenderWorker::AudioRenderWorker(QObject *parent) :
+  RenderWorker(parent)
 {
 }
 

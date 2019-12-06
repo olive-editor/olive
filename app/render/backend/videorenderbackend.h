@@ -23,6 +23,7 @@
 
 #include <QLinkedList>
 
+#include "colorprocessorcache.h"
 #include "node/output/viewer/viewer.h"
 #include "renderbackend.h"
 #include "render/pixelformat.h"

@@ -292,7 +292,7 @@ public:
    *
    * This function emits EdgeAdded().
    */
-  static NodeEdgePtr ConnectEdge(NodeOutput *output, NodeInput *input);
+  static NodeEdgePtr ConnectEdge(NodeOutput *output, NodeInput *input, bool lock = true);
 
   /**
    * @brief Disconnect an edge

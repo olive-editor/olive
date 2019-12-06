@@ -46,7 +46,7 @@ void VideoRenderFrameCache::SetCacheID(const QString &id)
   cache_id_ = id;
 }
 
-QByteArray VideoRenderFrameCache::TimeToHash(const rational &time)
+QByteArray VideoRenderFrameCache::TimeToHash(const rational &time) const
 {
   return time_hash_map_.value(time);
 }
@@ -80,6 +80,21 @@ void VideoRenderFrameCache::Truncate(const rational &time)
   }
 }
 
+QList<rational> VideoRenderFrameCache::TimesWithHash(const QByteArray &hash)
+{
+  QList<rational> list;
+
+  QMap<rational, QByteArray>::const_iterator iterator;
+
+  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+    if (iterator.value() == hash) {
+      list.append(iterator.key());
+    }
+  }
+
+  return list;
+}
+
 void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &hash)
 {
   currently_caching_lock_.lock();
@@ -87,7 +102,7 @@ void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &has
   currently_caching_lock_.unlock();
 }
 
-QString VideoRenderFrameCache::CachePathName(const QByteArray &hash)
+QString VideoRenderFrameCache::CachePathName(const QByteArray &hash) const
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
   this_cache_dir.mkpath(".");

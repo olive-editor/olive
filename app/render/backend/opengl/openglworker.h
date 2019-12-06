@@ -13,7 +13,6 @@ class OpenGLWorker : public VideoRenderWorker {
 public:
   OpenGLWorker(QOpenGLContext* share_ctx,
                OpenGLShaderCache* shader_cache,
-               DecoderCache* decoder_cache,
                VideoRenderFrameCache* frame_cache,
                QObject* parent = nullptr);
 
@@ -45,7 +44,7 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual void FrameToValue(FramePtr frame, NodeValueTable* table) override;
+  virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) override;
 
   virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params) override;
 

@@ -4,8 +4,8 @@
 #include "node/node.h"
 #include "render/pixelservice.h"
 
-VideoRenderWorker::VideoRenderWorker(DecoderCache *decoder_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
-  RenderWorker(decoder_cache, parent),
+VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
+  RenderWorker(parent),
   frame_cache_(frame_cache)
 {
 
@@ -36,7 +36,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
     emit CompletedFrame(path, hash, value);
   } else {
     // Another thread must be caching this already, nothing to be done
-    emit HashAlreadyBeingCached();
+    emit HashAlreadyBeingCached(path, hash);
   }
 
   return value;
@@ -85,7 +85,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, c
         // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
         if (input->data_type() == NodeParam::kFootage) {
           StreamPtr stream = ResolveStreamFromInput(input);
-          DecoderPtr decoder = ResolveDecoderFromInput(input);
+          DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
           if (decoder != nullptr) {
             // Add footage details to hash
@@ -99,10 +99,19 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, c
             // Footage stream
             hash->addData(QString::number(stream->index()).toUtf8());
 
-            // Footage timestamp
-            hash->addData(QString::number(decoder->GetTimestampFromTime(time)).toUtf8());
+            if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
+              ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
-            // FIXME: Add colorspace and alpha assoc
+              // Footage timestamp
+              hash->addData(QString::number(decoder->GetTimestampFromTime(time)).toUtf8());
+
+              // Current colorspace
+              // FIXME: Handle empty colorspace...
+              hash->addData(video_stream->colorspace().toUtf8());
+
+              // Alpha associated setting
+              hash->addData(QString::number(video_stream->premultiplied_alpha()).toUtf8());
+            }
           }
         }
       }
@@ -130,8 +139,6 @@ void VideoRenderWorker::CloseInternal()
 
 void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)
 {
-  working_++;
-
   PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
   // Set up OIIO::ImageSpec for compressing cached images on disk
@@ -153,8 +160,6 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
   } else {
     qWarning() << "Failed to open output file:" << filename;
   }
-
-  working_--;
 }
 
 NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRange &range)
@@ -170,4 +175,9 @@ NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRang
   }
 
   return table;
+}
+
+ColorProcessorCache *VideoRenderWorker::color_cache()
+{
+  return &color_cache_;
 }

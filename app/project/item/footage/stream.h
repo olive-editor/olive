@@ -29,6 +29,17 @@
 
 class Footage;
 
+class StreamID {
+public:
+  StreamID(const QString& filename, const int& stream_index);
+
+private:
+  QString filename_;
+
+  int stream_index_;
+
+};
+
 /**
  * @brief A base class for keeping metadata about a media stream.
  *
@@ -83,6 +94,8 @@ public:
   void set_enabled(bool e);
 
   static QIcon IconFromType(const Type& type);
+
+  StreamID ToID() const;
 
 private:
   Footage* footage_;

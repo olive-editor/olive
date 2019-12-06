@@ -20,12 +20,13 @@ set(OLIVE_SOURCES
   render/backend/opengl/functions.cpp
   render/backend/opengl/openglbackend.h
   render/backend/opengl/openglbackend.cpp
+  render/backend/opengl/openglcolorprocessor.h
+  render/backend/opengl/openglcolorprocessor.cpp
   render/backend/opengl/openglframebuffer.h
   render/backend/opengl/openglframebuffer.cpp
   render/backend/opengl/openglshader.h
   render/backend/opengl/openglshader.cpp
   render/backend/opengl/openglshadercache.h
-  render/backend/opengl/openglshadercache.cpp
   render/backend/opengl/opengltexture.h
   render/backend/opengl/opengltexture.cpp
   render/backend/opengl/openglworker.h

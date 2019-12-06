@@ -3,6 +3,7 @@
 
 #include <QCryptographicHash>
 
+#include "colorprocessorcache.h"
 #include "node/dependency.h"
 #include "render/videoparams.h"
 #include "renderworker.h"
@@ -11,7 +12,7 @@
 class VideoRenderWorker : public RenderWorker {
   Q_OBJECT
 public:
-  VideoRenderWorker(DecoderCache* decoder_cache, VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
+  VideoRenderWorker(VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
 
   void SetParameters(const VideoRenderingParams& video_params);
 
@@ -23,7 +24,7 @@ signals:
 
   void CompletedDownload(NodeDependency path, QByteArray hash);
 
-  void HashAlreadyBeingCached();
+  void HashAlreadyBeingCached(NodeDependency path, QByteArray hash);
 
   void HashAlreadyExists(NodeDependency path, QByteArray hash);
 
@@ -44,6 +45,8 @@ protected:
 
   virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) override;
 
+  ColorProcessorCache* color_cache();
+
 private:
   void ProcessNode();
 
@@ -52,6 +55,8 @@ private:
   VideoRenderingParams video_params_;
 
   VideoRenderFrameCache* frame_cache_;
+
+  ColorProcessorCache color_cache_;
 
   QByteArray download_buffer_;
 
