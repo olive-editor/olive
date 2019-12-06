@@ -34,7 +34,7 @@ TimelineOutput::TimelineOutput()
 
   for (int i=0;i<kTrackTypeCount;i++) {
     // Create track input
-    NodeInput* track_input = new NodeInput(QString("track_in_%1").arg(i));
+    NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i));
     AddInput(track_input);
     track_inputs_.replace(i, track_input);
 
@@ -106,7 +106,13 @@ void TimelineOutput::UpdateTrackCache()
   track_cache_.clear();
 
   foreach (TrackList* list, track_lists_) {
-    track_cache_.append(list->Tracks());
+    QVector<TrackOutput*> track_list = list->Tracks();
+
+    foreach (TrackOutput* track, track_list) {
+      if (track) {
+        track_cache_.append(list->Tracks());
+      }
+    }
   }
 }
 

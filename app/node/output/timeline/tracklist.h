@@ -34,53 +34,17 @@ class TrackList : public QObject {
 public:
   TrackList(TimelineOutput *parent, const enum TrackType& type, NodeInputArray* track_input);
 
-  TrackOutput* attached_track();
-
-  void AttachTrack(TrackOutput *track);
-
-  void DetachTrack(TrackOutput* track);
-
   const QVector<TrackOutput*>& Tracks();
 
   TrackOutput* TrackAt(int index);
 
-  void AddTrack();
+  TrackOutput *AddTrack();
 
   void RemoveTrack();
 
   const rational& TrackLength();
 
   const enum TrackType& TrackType();
-
-public slots:/**
-   * @brief Slot for when the track connection is added
-   */
-  void TrackConnectionAdded(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when the track connection is removed
-   */
-  void TrackConnectionRemoved(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackAddedBlock(Block* block);
-
-  /**
-   * @brief Slot for when a connected Track has added a Block so we can update the UI
-   */
-  void TrackRemovedBlock(Block* block);
-
-  /**
-   * @brief Slot for when an attached Track has an edge added
-   */
-  void TrackEdgeAdded(NodeEdgePtr edge);
-
-  /**
-   * @brief Slot for when an attached Track has an edge added
-   */
-  void TrackEdgeRemoved(NodeEdgePtr edge);
 
 signals:
   void BlockAdded(Block* block, int index);
@@ -110,6 +74,34 @@ private:
   enum TrackType type_;
 
 private slots:
+  /**
+   * @brief Slot for when the track connection is added
+   */
+  void TrackConnected(NodeEdgePtr edge);
+
+  /**
+   * @brief Slot for when the track connection is removed
+   */
+  void TrackDisconnected(NodeEdgePtr edge);
+
+  /**
+   * @brief Slot for when a connected Track has added a Block so we can update the UI
+   */
+  void TrackAddedBlock(Block* block);
+
+  /**
+   * @brief Slot for when a connected Track has added a Block so we can update the UI
+   */
+  void TrackRemovedBlock(Block* block);
+
+  /**
+   * @brief Slot for when the count of tracks in the track input changes
+   */
+  void TrackListSizeChanged(int size);
+
+  /**
+   * @brief Slot for when any of the track's length changes so we can update the length of the tracklist
+   */
   void UpdateTotalLength();
 
 };

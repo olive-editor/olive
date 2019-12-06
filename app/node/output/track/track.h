@@ -50,11 +50,6 @@ public:
   const int& Index();
   void SetIndex(const int& index);
 
-  void set_previous_track(TrackOutput* previous);
-  void set_next_track(TrackOutput* next);
-  TrackOutput* previous_track() const;
-  TrackOutput* next_track() const;
-
   Block* BlockContainingTime(const rational& time) const;
 
   Block* NearestBlockBefore(const rational& time) const;
@@ -162,10 +157,6 @@ private:
   TrackType track_type_;
 
   rational track_length_;
-
-  TrackOutput* previous_track_;
-
-  TrackOutput* next_track_;
 
   int block_invalidate_cache_stack_;
 

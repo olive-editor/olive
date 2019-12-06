@@ -64,8 +64,6 @@ public:
 private:
   TimelineOutput* timeline_output_;
   ViewerOutput* viewer_output_;
-  TrackOutput* video_track_output_;
-  TrackOutput* audio_track_output_;
 
   VideoParams video_params_;
 

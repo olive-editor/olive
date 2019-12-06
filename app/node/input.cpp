@@ -306,7 +306,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
     dst_array->SetSize(src_array->GetSize());
 
     for (int i=0;i<dst_array->GetSize();i++) {
-      CopyValues(src_array->ParamAt(i), dst_array->ParamAt(i), include_connections);
+      CopyValues(src_array->At(i), dst_array->At(i), include_connections);
     }
   }
 }

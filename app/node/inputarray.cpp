@@ -65,9 +65,19 @@ int NodeInputArray::IndexOfSubParameter(NodeInput *input) const
   return sub_params_.indexOf(input);
 }
 
-NodeInput *NodeInputArray::ParamAt(int index) const
+NodeInput *NodeInputArray::At(int index) const
 {
   return sub_params_.at(index);
+}
+
+NodeInput *NodeInputArray::First() const
+{
+  return sub_params_.first();
+}
+
+NodeInput *NodeInputArray::Last() const
+{
+  return sub_params_.last();
 }
 
 const QVector<NodeInput *> &NodeInputArray::sub_params()

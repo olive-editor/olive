@@ -28,67 +28,9 @@ TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInp
   track_input_(track_input),
   type_(type)
 {
-  connect(parent, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnectionAdded(NodeEdgePtr)));
-  connect(parent, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackConnectionRemoved(NodeEdgePtr)));
-}
-
-TrackOutput *TrackList::attached_track()
-{
-  return dynamic_cast<TrackOutput*>(track_input_->get_connected_node());
-}
-
-void TrackList::AttachTrack(TrackOutput *track)
-{
-  TrackOutput* current_track = track;
-
-  // Traverse through Tracks caching and connecting them
-  while (current_track != nullptr) {
-    connect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
-    connect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
-    connect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    connect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-    connect(current_track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
-
-    current_track->SetIndex(track_cache_.size());
-    current_track->set_track_type(type_);
-
-    track_cache_.append(current_track);
-    emit TrackListChanged();
-
-    // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
-    // the track's index
-    emit TrackAdded(current_track);
-
-    current_track = current_track->next_track();
-  }
-
-  UpdateTotalLength();
-}
-
-void TrackList::DetachTrack(TrackOutput *track)
-{
-  TrackOutput* current_track = track;
-
-  // Traverse through Tracks uncaching and disconnecting them
-  while (current_track != nullptr) {
-    emit TrackRemoved(current_track);
-
-    current_track->SetIndex(-1);
-    current_track->set_track_type(kTrackTypeNone);
-
-    disconnect(current_track, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackEdgeAdded(NodeEdgePtr)));
-    disconnect(current_track, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackEdgeRemoved(NodeEdgePtr)));
-    disconnect(current_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    disconnect(current_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-    disconnect(current_track, SIGNAL(Refreshed()), this, SLOT(UpdateTotalLength()));
-
-    track_cache_.removeAll(current_track);
-    emit TrackListChanged();
-
-    current_track = current_track->next_track();
-  }
-
-  UpdateTotalLength();
+  connect(track_input, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnected(NodeEdgePtr)));
+  connect(track_input, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackDisconnected(NodeEdgePtr)));
+  connect(track_input, SIGNAL(SizeChanged(int)), this, SLOT(TrackListSizeChanged(int)));
 }
 
 void TrackList::TrackAddedBlock(Block *block)
@@ -99,6 +41,18 @@ void TrackList::TrackAddedBlock(Block *block)
 void TrackList::TrackRemovedBlock(Block *block)
 {
   emit BlockRemoved(block);
+}
+
+void TrackList::TrackListSizeChanged(int size)
+{
+  int old_size = track_cache_.size();
+
+  track_cache_.resize(size);
+
+  // Fill new slots with nullptr
+  for (int i=old_size;i<size;i++) {
+    track_cache_.replace(i, nullptr);
+  }
 }
 
 const QVector<TrackOutput *> &TrackList::Tracks()
@@ -125,20 +79,20 @@ const enum TrackType &TrackList::TrackType()
   return type_;
 }
 
-void TrackList::AddTrack()
+TrackOutput* TrackList::AddTrack()
 {
   TrackOutput* track = new TrackOutput();
   GetParentGraph()->AddNode(track);
 
   track_input_->Append();
 
-  NodeInput* assoc_input = track_input_->ParamAt(track_input_->GetSize() - 1);
+  NodeInput* assoc_input = track_input_->At(track_input_->GetSize() - 1);
 
   // Connect this track directly to this output
   NodeParam::ConnectEdge(track->output(), assoc_input);
 
   // FIXME: Test code only
-  if (track_input_->GetSize() > 1) {
+  /*if (track_input_->GetSize() > 1) {
     if (current_last_track->output()->IsConnected()) {
       AlphaOverBlend* blend = new AlphaOverBlend();
       GetParentGraph()->AddNode(blend);
@@ -147,19 +101,13 @@ void TrackList::AddTrack()
       NodeParam::ConnectEdge(current_last_track->output(), blend->base_input());
       NodeParam::ConnectEdge(blend->output(), current_last_track->output()->edges().first()->input());
     }
-  }
+  }*/
   // End test code
 
-  if (track_cache_.isEmpty()) {
+  // Connect this track to the current last track
+  NodeParam::ConnectEdge(track->output(), assoc_input);
 
-  } else {
-    TrackOutput* current_last_track = track_cache_.last();
-
-    // Connect this track to the current last track
-    NodeParam::ConnectEdge(track->output(), current_last_track->track_input());
-
-
-  }
+  return track;
 }
 
 void TrackList::RemoveTrack()
@@ -175,52 +123,61 @@ void TrackList::RemoveTrack()
   delete track;
 }
 
-void TrackList::TrackConnectionAdded(NodeEdgePtr edge)
+void TrackList::TrackConnected(NodeEdgePtr edge)
 {
-  if (edge->input() != track_input_) {
-    return;
-  }
+  int track_index = track_input_->IndexOfSubParameter(edge->input());
 
-  AttachTrack(attached_track());
-}
+  Q_ASSERT(track_index >= 0);
 
-void TrackList::TrackConnectionRemoved(NodeEdgePtr edge)
-{
-  if (edge->input() != track_input_) {
-    return;
-  }
+  Node* connected_node = edge->output()->parentNode();
 
-  TrackOutput* track = dynamic_cast<TrackOutput*>(edge->output()->parentNode());
+  if (connected_node->IsTrack()) {
+    TrackOutput* connected_track = static_cast<TrackOutput*>(connected_node);// Traverse through Tracks caching and connecting them
 
-  if (track)
-    DetachTrack(track);
-}
+    track_cache_.replace(track_index, connected_track);
 
-void TrackList::TrackEdgeAdded(NodeEdgePtr edge)
-{
-  // Assume this signal was sent from a TrackOutput
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
+    connect(connected_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
+    connect(connected_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+    connect(connected_track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
 
-  // If this edge pertains to the track's track input, all the tracks just added need attaching
-  if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = dynamic_cast<TrackOutput*>(edge->output()->parentNode());
+    connected_track->SetIndex(track_index);
+    connected_track->set_track_type(type_);
 
-    if (added_track)
-      AttachTrack(added_track);
+    emit TrackListChanged();
+
+    // This function must be called after the track is added to track_cache_, since it uses track_cache_ to determine
+    // the track's index
+    emit TrackAdded(connected_track);
+
+    UpdateTotalLength();
+
   }
 }
 
-void TrackList::TrackEdgeRemoved(NodeEdgePtr edge)
+void TrackList::TrackDisconnected(NodeEdgePtr edge)
 {
-  // Assume this signal was sent from a TrackOutput
-  TrackOutput* track = static_cast<TrackOutput*>(sender());
+  int track_index = track_input_->IndexOfSubParameter(edge->input());
 
-  // If this edge pertains to the track's track input, all the tracks just added need attaching
-  if (edge->input() == track->track_input()) {
-    TrackOutput* added_track = dynamic_cast<TrackOutput*>(edge->output()->parentNode());
+  Q_ASSERT(track_index >= 0);
 
-    if (added_track)
-      DetachTrack(added_track);
+  TrackOutput* track = track_cache_.at(track_index);
+
+  if (track) {
+    track_cache_.replace(track_index, nullptr);
+
+    // Traverse through Tracks uncaching and disconnecting them
+    emit TrackRemoved(track);
+
+    track->SetIndex(-1);
+    track->set_track_type(kTrackTypeNone);
+
+    disconnect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
+    disconnect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
+    disconnect(track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
+
+    emit TrackListChanged();
+
+    UpdateTotalLength();
   }
 }
 
@@ -234,7 +191,9 @@ void TrackList::UpdateTotalLength()
   total_length_ = 0;
 
   foreach (TrackOutput* track, track_cache_) {
-    total_length_ = qMax(total_length_, track->track_length());
+    if (track) {
+      total_length_ = qMax(total_length_, track->track_length());
+    }
   }
 
   emit LengthChanged(total_length_);

@@ -22,7 +22,9 @@ public:
 
   int IndexOfSubParameter(NodeInput* input) const;
 
-  NodeInput* ParamAt(int index) const;
+  NodeInput* First() const;
+  NodeInput* Last() const;
+  NodeInput* At(int index) const;
 
   const QVector<NodeInput*>& sub_params();
 

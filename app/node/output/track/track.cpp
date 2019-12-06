@@ -27,8 +27,6 @@
 
 TrackOutput::TrackOutput() :
   track_type_(kTrackTypeNone),
-  previous_track_(nullptr),
-  next_track_(nullptr),
   block_invalidate_cache_stack_(0),
   index_(-1)
 {
@@ -93,26 +91,6 @@ const int &TrackOutput::Index()
 void TrackOutput::SetIndex(const int &index)
 {
   index_ = index;
-}
-
-void TrackOutput::set_previous_track(TrackOutput *previous)
-{
-  previous_track_ = previous;
-}
-
-void TrackOutput::set_next_track(TrackOutput *next)
-{
-  next_track_ = next;
-}
-
-TrackOutput *TrackOutput::previous_track() const
-{
-  return previous_track_;
-}
-
-TrackOutput *TrackOutput::next_track() const
-{
-  return next_track_;
 }
 
 Block *TrackOutput::BlockContainingTime(const rational &time) const
@@ -224,7 +202,7 @@ void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 
   block_input_->InsertAt(index);
   NodeParam::ConnectEdge(block->output(),
-                         block_input_->ParamAt(index));
+                         block_input_->At(index));
 }
 
 void TrackOutput::AppendBlock(Block *block)
@@ -236,7 +214,7 @@ void TrackOutput::AppendBlock(Block *block)
   int last_index = block_input_->GetSize();
   block_input_->Append();
   NodeParam::ConnectEdge(block->output(),
-                         block_input_->ParamAt(last_index));
+                         block_input_->At(last_index));
 
   UnblockInvalidateCache();
 
@@ -297,10 +275,10 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   int index_of_old_block = block_cache_.indexOf(old);
 
   NodeParam::DisconnectEdge(old->output(),
-                            block_input_->ParamAt(index_of_old_block));
+                            block_input_->At(index_of_old_block));
 
   NodeParam::ConnectEdge(replace->output(),
-                         block_input_->ParamAt(index_of_old_block));
+                         block_input_->At(index_of_old_block));
 
   UnblockInvalidateCache();
 
@@ -462,11 +440,9 @@ void TrackOutput::BlockListSizeChanged(int size)
 
   block_cache_.resize(size);
 
-  if (size > old_size) {
-    // Fill new slots with nullptr
-    for (int i=old_size;i<size;i++) {
-      block_cache_.replace(i, nullptr);
-    }
+  // Fill new slots with nullptr
+  for (int i=old_size;i<size;i++) {
+    block_cache_.replace(i, nullptr);
   }
 }
 

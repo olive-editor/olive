@@ -32,9 +32,7 @@
 
 Sequence::Sequence() :
   timeline_output_(nullptr),
-  viewer_output_(nullptr),
-  video_track_output_(nullptr),
-  audio_track_output_(nullptr)
+  viewer_output_(nullptr)
 {
 }
 
@@ -64,24 +62,14 @@ void Sequence::add_default_nodes()
   viewer_output_->SetCanBeDeleted(false);
   AddNode(viewer_output_);
 
-  video_track_output_ = new TrackOutput();
-  video_track_output_->SetCanBeDeleted(false);
-  AddNode(video_track_output_);
-
-  audio_track_output_ = new TrackOutput();
-  audio_track_output_->SetCanBeDeleted(false);
-  AddNode(audio_track_output_);
-
-  // Connect tracks to viewer
-  NodeParam::ConnectEdge(video_track_output_->output(), viewer_output_->texture_input());
-  NodeParam::ConnectEdge(audio_track_output_->output(), viewer_output_->samples_input());
-
   // Connect timeline length to viewer
   NodeParam::ConnectEdge(timeline_output_->output(), viewer_output_->length_input());
 
-  // Connect track to timeline
-  NodeParam::ConnectEdge(video_track_output_->output(), timeline_output_->track_input(kTrackTypeVideo));
-  NodeParam::ConnectEdge(audio_track_output_->output(), timeline_output_->track_input(kTrackTypeAudio));
+  // Create tracks and connect them to the viewer
+  Node* video_track_output = timeline_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
+  Node* audio_track_output = timeline_output_->track_list(TrackType::kTrackTypeAudio)->AddTrack();
+  NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
+  NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
 
   // Update the timebase on these nodes
   set_video_params(video_params_);

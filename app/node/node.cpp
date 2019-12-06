@@ -214,7 +214,7 @@ void DuplicateConnectionsBetweenListsInternal(const QList<Node *> &source, const
     NodeInputArray* dest_array = static_cast<NodeInputArray*>(dest_input);
 
     for (int i=0;i<source_array->GetSize();i++) {
-      DuplicateConnectionsBetweenListsInternal(source, destination, source_array->ParamAt(i), dest_array->ParamAt(i));
+      DuplicateConnectionsBetweenListsInternal(source, destination, source_array->At(i), dest_array->At(i));
     }
   }
 }
@@ -287,7 +287,7 @@ void Node::TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool trav
     NodeInputArray* input_array = static_cast<NodeInputArray*>(input);
 
     for (int i=0;i<input_array->GetSize();i++) {
-      TraverseInputInternal(list, input_array->ParamAt(i), traverse);
+      TraverseInputInternal(list, input_array->At(i), traverse);
     }
   }
 }
