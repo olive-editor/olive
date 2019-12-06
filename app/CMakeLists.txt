@@ -68,7 +68,7 @@ if(MSVC)
   # Enabling this threw warnings from FFmpeg headers that broke compilation. See if this is fixable.
   #target_compile_options(${OLIVE_TARGET} PRIVATE /W4 /WX)
 else()
-  target_compile_options(${OLIVE_TARGET} PRIVATE -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion)
+  target_compile_options(${OLIVE_TARGET} PRIVATE -O3 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion)
 endif()
 
 target_include_directories(
