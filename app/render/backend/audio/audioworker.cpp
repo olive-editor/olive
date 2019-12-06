@@ -5,7 +5,8 @@ AudioWorker::AudioWorker(DecoderCache *decoder_cache, QObject *parent) :
 {
 }
 
-void AudioWorker::FrameToValue(FramePtr frame, NodeValueTable *table)
+void AudioWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *table)
 {
+  Q_UNUSED(stream)
   table->Push(NodeParam::kSamples, frame->ToByteArray());
 }

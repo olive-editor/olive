@@ -175,7 +175,7 @@ void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
 void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 {
   connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray, NodeValueTable)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray, NodeValueTable)));
-  connect(processor, SIGNAL(HashAlreadyBeingCached()), this, SLOT(ThreadSkippedFrame()));
+  connect(processor, SIGNAL(HashAlreadyBeingCached(NodeDependency, QByteArray)), this, SLOT(ThreadSkippedFrame(NodeDependency, QByteArray)));
   connect(processor, SIGNAL(CompletedDownload(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedDownload(NodeDependency, QByteArray)));
   connect(processor, SIGNAL(HashAlreadyExists(NodeDependency, QByteArray)), this, SLOT(ThreadHashAlreadyExists(NodeDependency, QByteArray)));
 }
@@ -183,6 +183,11 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
 {
   return &frame_cache_;
+}
+
+ColorProcessorCache *VideoRenderBackend::color_cache()
+{
+  return &color_cache_;
 }
 
 const char *VideoRenderBackend::GetCachedFrame(const rational &time)
@@ -231,4 +236,10 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 NodeInput *VideoRenderBackend::GetDependentInput()
 {
   return viewer_node()->texture_input();
+}
+
+void VideoRenderBackend::CompletedFrame()
+{
+  caching_ = false;
+  CacheNext();
 }

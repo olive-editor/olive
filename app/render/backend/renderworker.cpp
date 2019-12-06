@@ -98,17 +98,16 @@ StreamPtr RenderWorker::ResolveStreamFromInput(NodeInput *input)
   return input->get_value_at_time(0).value<StreamPtr>();
 }
 
-DecoderPtr RenderWorker::ResolveDecoderFromInput(NodeInput *input)
+DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
   // Access a map of Node inputs and decoder instances and retrieve a frame!
-  StreamPtr stream = ResolveStreamFromInput(input);
-  DecoderPtr decoder = decoder_cache()->GetDecoder(stream.get());
+  DecoderPtr decoder = decoder_cache()->Get(stream.get());
 
   if (decoder == nullptr && stream != nullptr) {
     // Create a new Decoder here
     DecoderPtr decoder = Decoder::CreateFromID(stream->footage()->decoder());
     decoder->set_stream(stream);
-    decoder_cache()->AddDecoder(stream.get(), decoder);
+    decoder_cache()->Add(stream.get(), decoder);
   }
 
   return decoder;
@@ -146,13 +145,17 @@ NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 
       // Exception for Footage types where we actually retrieve some Footage data from a decoder
       if (input->data_type() == NodeParam::kFootage) {
-        DecoderPtr decoder = ResolveDecoderFromInput(input);
+        StreamPtr stream = ResolveStreamFromInput(input);
 
-        if (decoder) {
-          FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+        if (stream) {
+          DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
-          if (frame) {
-            FrameToValue(frame, &table);
+          if (decoder) {
+            FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+
+            if (frame) {
+              FrameToValue(stream, frame, &table);
+            }
           }
         }
       }

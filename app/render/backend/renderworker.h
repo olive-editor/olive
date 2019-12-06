@@ -46,11 +46,11 @@ protected:
   virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params);
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
-  DecoderPtr ResolveDecoderFromInput(NodeInput* input);
+  DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) = 0;
 
-  virtual void FrameToValue(FramePtr frame, NodeValueTable* table) = 0;
+  virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) = 0;
 
   NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
 
