@@ -573,6 +573,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
 {
   switch (block->type()) {
   case Block::kClip:
+  case Block::kTransition:
   case Block::kGap:
   {
     TimelineViewBlockItem* item = new TimelineViewBlockItem();

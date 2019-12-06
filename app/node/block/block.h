@@ -42,7 +42,8 @@ public:
   enum Type {
     kClip,
     kGap,
-    kTrack
+    kTrack,
+    kTransition
   };
 
   virtual Type type() const = 0;
@@ -54,9 +55,9 @@ public:
   void set_in(const rational& in);
   void set_out(const rational& out);
 
-  const rational &length() const;
-  void set_length(const rational &length);
-  void set_length_and_media_in(const rational &length);
+  const rational& length() const;
+  virtual void set_length(const rational &length);
+  virtual void set_length_and_media_in(const rational &length);
 
   Block* previous();
   Block* next();

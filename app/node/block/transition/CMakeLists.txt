@@ -14,13 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(clip)
-add_subdirectory(gap)
-add_subdirectory(transition)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/block/block.h
-  node/block/block.cpp
+  node/block/transition/transition.h
+  node/block/transition/transition.cpp
   PARENT_SCOPE
 )

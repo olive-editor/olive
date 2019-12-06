@@ -79,6 +79,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
   switch (block_->type()) {
   case Block::kClip:
+  case Block::kTransition: // FIXME: Temporary, the transition should have its own UI representation at some point
     /*QLinearGradient grad;
     grad.setStart(0, rect().top());
     grad.setFinalStop(0, rect().bottom());
