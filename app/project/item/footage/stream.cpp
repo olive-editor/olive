@@ -20,6 +20,7 @@
 
 #include "stream.h"
 
+#include "footage.h"
 #include "ui/icons/icons.h"
 
 Stream::Stream() :
@@ -113,4 +114,15 @@ QIcon Stream::IconFromType(const Stream::Type &type)
   }
 
   return QIcon();
+}
+
+StreamID Stream::ToID() const
+{
+  return StreamID(footage_->filename(), index_);
+}
+
+StreamID::StreamID(const QString &filename, const int &stream_index) :
+  filename_(filename),
+  stream_index_(stream_index)
+{
 }
