@@ -31,7 +31,7 @@ bool OpenGLBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, decoder_cache(), frame_cache());
+    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, decoder_cache(), color_cache(), frame_cache());
     processor->SetParameters(params());
     processors_.append(processor);
   }
@@ -135,8 +135,6 @@ bool OpenGLBackend::TimeIsCached(const TimeRange &time)
 
 void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table)
 {
-  caching_ = false;
-
   QVariant value = table.Get(NodeParam::kTexture);
   OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
@@ -168,7 +166,7 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
     emit CachedFrameReady(path.in(), value);
   }
 
-  CacheNext();
+  CompletedFrame();
 }
 
 void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
@@ -178,15 +176,16 @@ void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
   emit CachedTimeReady(dep.in());
 }
 
-void OpenGLBackend::ThreadSkippedFrame()
+void OpenGLBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
 {
-  caching_ = false;
-  CacheNext();
+  frame_cache()->SetHash(dep.in(), hash);
+
+  CompletedFrame();
 }
 
 void OpenGLBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
 {
   ThreadCompletedDownload(dep, hash);
 
-  ThreadSkippedFrame();
+  CompletedFrame();
 }
