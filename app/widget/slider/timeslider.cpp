@@ -11,6 +11,9 @@ TimeSlider::TimeSlider(QWidget *parent) :
 void TimeSlider::SetTimebase(const rational &timebase)
 {
   timebase_ = timebase;
+
+  // Refresh label since we have a new timebase to generate a timecode with
+  UpdateLabel(Value());
 }
 
 QString TimeSlider::ValueToString(const QVariant &v)
