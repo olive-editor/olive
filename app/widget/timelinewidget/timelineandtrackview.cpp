@@ -13,7 +13,7 @@ TimelineAndTrackView::TimelineAndTrackView(const TrackType &type, Qt::Alignment 
   splitter_->setChildrenCollapsible(false);
   layout->addWidget(splitter_);
 
-  track_view_ = new TrackView();
+  track_view_ = new TrackView(vertical_alignment);
   splitter_->addWidget(track_view_);
 
   view_ = new TimelineView(type, vertical_alignment);

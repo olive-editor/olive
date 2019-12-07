@@ -18,5 +18,9 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelinewidget/trackview/trackview.h
   widget/timelinewidget/trackview/trackview.cpp
+  widget/timelinewidget/trackview/trackviewitem.h
+  widget/timelinewidget/trackview/trackviewitem.cpp
+  widget/timelinewidget/trackview/trackviewsplitter.h
+  widget/timelinewidget/trackview/trackviewsplitter.cpp
   PARENT_SCOPE
 )

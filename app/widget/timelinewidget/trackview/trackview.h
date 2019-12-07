@@ -1,14 +1,32 @@
 #ifndef TRACKVIEW_H
 #define TRACKVIEW_H
 
-#include <QWidget>
+#include <QScrollArea>
+#include <QSplitter>
 
-class TrackView : public QWidget
+#include "trackviewsplitter.h"
+
+class TrackView : public QScrollArea
 {
+  Q_OBJECT
 public:
-  TrackView(QWidget* parent = nullptr);
+  TrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
+            QWidget* parent = nullptr);
+
+protected:
+  virtual void resizeEvent(QResizeEvent* event) override;
 
 private:
+  TrackViewSplitter* splitter_;
+
+  Qt::Alignment alignment_;
+
+  int last_scrollbar_max_;
+
+  QWidget* top_spacer_;
+
+private slots:
+  void ScrollbarRangeChanged(int min, int max);
 
 };
 

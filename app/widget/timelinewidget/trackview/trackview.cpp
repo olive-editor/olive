@@ -1,29 +1,52 @@
 #include "trackview.h"
 
+#include <QDebug>
+#include <QResizeEvent>
+#include <QScrollBar>
 #include <QSplitter>
 #include <QVBoxLayout>
 
-TrackView::TrackView(QWidget *parent) :
-  QWidget(parent)
+#include "trackviewitem.h"
+
+TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
+  QScrollArea(parent),
+  alignment_(vertical_alignment)
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setSpacing(0);
+  QWidget* central = new QWidget();
+  setWidget(central);
+  setWidgetResizable(true);
+
+  QVBoxLayout* layout = new QVBoxLayout(central);
   layout->setMargin(0);
+  layout->setSpacing(0);
 
-  QSplitter* splitter = new QSplitter(Qt::Vertical);
-  splitter->setChildrenCollapsible(false);
-  splitter->setHandleWidth(1);
-  layout->addWidget(splitter);
+  if (alignment_ == Qt::AlignBottom) {
+    layout->addStretch();
 
-  QWidget* test1 = new QWidget();
-  test1->setStyleSheet("background: red;");
-  splitter->addWidget(test1);
+    connect(verticalScrollBar(), SIGNAL(rangeChanged(int, int)), this, SLOT(ScrollbarRangeChanged(int, int)));
+    last_scrollbar_max_ = verticalScrollBar()->maximum();
+  }
 
-  QWidget* test3 = new QWidget();
-  test3->setStyleSheet("background: yellow;");
-  splitter->addWidget(test3);
+  splitter_ = new TrackViewSplitter(alignment_);
+  splitter_->setChildrenCollapsible(false);
+  layout->addWidget(splitter_);
+}
 
-  QWidget* test2 = new QWidget();
-  test2->setStyleSheet("background: blue;");
-  splitter->addWidget(test2);
+void TrackView::resizeEvent(QResizeEvent *event)
+{
+  QScrollArea::resizeEvent(event);
+
+  //splitter_->setFixedWidth(viewport()->width());
+}
+
+void TrackView::ScrollbarRangeChanged(int, int max)
+{
+  if (max != last_scrollbar_max_) {
+    int ba_val = last_scrollbar_max_ - verticalScrollBar()->value();
+    int new_val = max - ba_val;
+
+    verticalScrollBar()->setValue(new_val);
+
+    last_scrollbar_max_ = max;
+  }
 }
