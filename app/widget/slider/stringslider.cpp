@@ -36,6 +36,12 @@ void StringSlider::SetValue(const QString &v)
   SliderBase::SetValue(v);
 }
 
+QString StringSlider::ValueToString(const QVariant &v)
+{
+  QString vstr = v.toString();
+  return (vstr.isEmpty()) ? tr("(none)") : vstr;
+}
+
 void StringSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.toString());

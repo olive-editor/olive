@@ -40,6 +40,8 @@ public:
 
   void SetDragMultiplier(const double& d);
 
+  void SetRequireValidInput(bool e);
+
 signals:
   void ValueChanged(QVariant v);
 
@@ -53,6 +55,10 @@ protected:
   void SetMaximumInternal(const QVariant& v);
 
   void UpdateLabel(const QVariant& v);
+
+  virtual QString ValueToString(const QVariant &v);
+
+  virtual QVariant StringToValue(const QString& s, bool* ok);
 
   virtual void changeEvent(QEvent* e) override;
 
@@ -82,6 +88,8 @@ private:
   double dragged_diff_;
 
   QVariant temp_dragged_value_;
+
+  bool require_valid_input_;
 
 private slots:
   void LabelPressed();

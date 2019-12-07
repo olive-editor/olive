@@ -28,5 +28,7 @@ set(OLIVE_SOURCES
   widget/slider/sliderlineedit.cpp
   widget/slider/stringslider.h
   widget/slider/stringslider.cpp
+  widget/slider/timeslider.h
+  widget/slider/timeslider.cpp
   PARENT_SCOPE
 )

@@ -39,6 +39,11 @@ public:
 
   void SetDecimalPlaces(int i);
 
+protected:
+  virtual QString ValueToString(const QVariant& v) override;
+
+  virtual QVariant StringToValue(const QString& s, bool* ok) override;
+
 signals:
   void ValueChanged(double);
 

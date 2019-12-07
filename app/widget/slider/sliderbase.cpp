@@ -31,7 +31,8 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   has_min_(false),
   has_max_(false),
   mode_(mode),
-  dragged_(false)
+  dragged_(false),
+  require_valid_input_(true)
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
@@ -64,6 +65,11 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
 void SliderBase::SetDragMultiplier(const double &d)
 {
   drag_multiplier_ = d;
+}
+
+void SliderBase::SetRequireValidInput(bool e)
+{
+  require_valid_input_ = e;
 }
 
 const QVariant &SliderBase::Value()
@@ -127,26 +133,18 @@ const QVariant &SliderBase::ClampValue(const QVariant &v)
 
 void SliderBase::UpdateLabel(const QVariant &v)
 {
-  switch (mode_) {
-  case kString:
-  {
-    QString vstr = v.toString();
+  label_->setText(ValueToString(v));
+}
 
-    if (vstr.isEmpty()) {
-      label_->setText(tr("(none)"));
-    } else {
-      label_->setText(vstr);
-    }
-    break;
-  }
-  case kInteger:
-    label_->setText(v.toString());
-    break;
-  case kFloat:
-    // For floats, we show a limited number of decimal places
-    label_->setText(QString::number(v.toDouble(), 'f', decimal_places_));
-    break;
-  }
+QString SliderBase::ValueToString(const QVariant &v)
+{
+  return v.toString();
+}
+
+QVariant SliderBase::StringToValue(const QString &s, bool *ok)
+{
+  *ok = true;
+  return s;
 }
 
 void SliderBase::LabelPressed()
@@ -224,25 +222,7 @@ void SliderBase::LabelDragged(int i)
 void SliderBase::LineEditConfirmed()
 {
   bool is_valid = true;
-  QVariant test_val;
-
-  // Check whether the entered value is valid for this mode
-  switch (mode_) {
-  case kString:
-    // Anything goes for a string
-    test_val = editor_->text();
-    break;
-  case kInteger:
-  case kFloat:
-    // Allow both floats and integers for either modes
-    test_val = editor_->text().toDouble(&is_valid);
-
-    if (is_valid && mode_ == kInteger) {
-      // But for an integer, we round it
-      test_val = qRound(test_val.toDouble());
-    }
-    break;
-  }
+  QVariant test_val = StringToValue(editor_->text(), &is_valid);
 
   // Ensure editor doesn't signal that the focus is lost
   editor_->blockSignals(true);
@@ -253,7 +233,7 @@ void SliderBase::LineEditConfirmed()
     setCurrentWidget(label_);
 
     emit ValueChanged(value_);
-  } else {
+  } else if (require_valid_input_) {
     QMessageBox::critical(this,
                           tr("Invalid Value"),
                           tr("The entered value is not valid for this field."),
