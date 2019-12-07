@@ -37,6 +37,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   label_ = new SliderLabel(this);
+
   addWidget(label_);
 
   editor_ = new SliderLineEdit(this);
@@ -70,6 +71,11 @@ void SliderBase::SetDragMultiplier(const double &d)
 void SliderBase::SetRequireValidInput(bool e)
 {
   require_valid_input_ = e;
+}
+
+void SliderBase::SetAlignment(Qt::Alignment alignment)
+{
+  label_->setAlignment(alignment);
 }
 
 const QVariant &SliderBase::Value()

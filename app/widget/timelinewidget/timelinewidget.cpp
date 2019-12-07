@@ -24,6 +24,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   vert_layout->addLayout(ruler_and_time_layout);
 
   timecode_label_ = new TimeSlider();
+  timecode_label_->SetAlignment(Qt::AlignCenter);
+  timecode_label_->setVisible(false);
   connect(timecode_label_, SIGNAL(ValueChanged(int64_t)), this, SIGNAL(TimeChanged(const int64_t&)));
   connect(timecode_label_, SIGNAL(ValueChanged(int64_t)), this, SLOT(UpdateInternalTime(const int64_t&)));
   ruler_and_time_layout->addWidget(timecode_label_);
@@ -137,6 +139,8 @@ void TimelineWidget::SetTimebase(const rational &timebase)
 
   ruler_->SetTimebase(timebase);
   timecode_label_->SetTimebase(timebase);
+
+  timecode_label_->setVisible(!timebase.isNull());
 
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetTimebase(timebase);

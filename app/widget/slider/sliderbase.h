@@ -42,6 +42,8 @@ public:
 
   void SetRequireValidInput(bool e);
 
+  void SetAlignment(Qt::Alignment alignment);
+
 signals:
   void ValueChanged(QVariant v);
 
