@@ -24,7 +24,7 @@
 
 #include "config/config.h"
 
-QString padded(int arg, int padding) {
+QString padded(int64_t arg, int padding) {
   return QString("%1").arg(arg, padding, 10, QChar('0'));
 }
 
@@ -35,21 +35,11 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
 {
   double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
 
-  // Determine what symbol to separate frames (";" is used for drop frame, ":" is non-drop frame)
-  QString frame_token = ";";
-
   switch (display) {
   case kTimecodeNonDropFrame:
-    frame_token = ":";
-
     // Convert timestamp from drop frame to non-drop frame
-    // FIXME: There's probably a better way to do this
-    if (timebase == rational(1001, 30000)) {
-      timestamp_dbl = timestamp_dbl / (30000.0/1001.0) * 30.0;
-    } else if (timebase == rational(1001, 60000)) {
-      timestamp_dbl = timestamp_dbl / (60000.0/1001.0) * 60.0;
-    } else if (timebase == rational(1001, 24000)) {
-      timestamp_dbl = timestamp_dbl / (24000.0/1001.0) * 24.0;
+    if (timebase.numerator() == 1001) {
+      timestamp_dbl = timestamp_dbl / timebase.flipped().toDouble() * (static_cast<double>(timebase.denominator())/1000.0);
     }
     /* fall-through */
   case kTimecodeDropFrame:
@@ -63,16 +53,15 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
       prefix = "+";
     }
 
-    timestamp_dbl = qAbs(timestamp_dbl);
-
-    int total_seconds = qFloor(timestamp_dbl);
-
-    int hours = total_seconds / 3600;
-    int mins = total_seconds / 60 - hours * 60;
-    int secs = total_seconds - mins * 60;
-
     if (display == kTimecodeSeconds) {
-      int fraction = qRound((timestamp_dbl - total_seconds) * 1000);
+      timestamp_dbl = qAbs(timestamp_dbl);
+
+      int64_t total_seconds = qFloor(timestamp_dbl);
+
+      int64_t hours = total_seconds / 3600;
+      int64_t mins = total_seconds / 60 - hours * 60;
+      int64_t secs = total_seconds - mins * 60;
+      int64_t fraction = qRound64((timestamp_dbl - static_cast<double>(total_seconds)) * 1000);
 
       return QString("%1%2:%3:%4.%5").arg(prefix,
                                           padded(hours, 2),
@@ -80,9 +69,49 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
                                           padded(secs, 2),
                                           padded(fraction, 3));
     } else {
-      rational frame_rate = timebase.flipped();
+      // Determine what symbol to separate frames (";" is used for drop frame, ":" is non-drop frame)
+      QString frame_token;
+      double frame_rate = timebase.flipped().toDouble();
+      int rounded_frame_rate = qRound(frame_rate);
+      int64_t frames, secs, mins, hours;
+      int64_t f = timestamp;
 
-      int frames = qRound((timestamp_dbl - total_seconds) * frame_rate.toDouble());
+      if (display == kTimecodeDropFrame && timebase.numerator() == 1001) {
+        frame_token = ";";
+
+        /**
+         * CONVERT A FRAME NUMBER TO DROP FRAME TIMECODE
+         *
+         * Code by David Heidelberger, adapted from Andrew Duncan, further adapted for Olive by Olive Team
+         * Given an int called framenumber and a double called framerate
+         * Framerate should be 29.97, 59.94, or 23.976, otherwise the calculations will be off.
+         */
+
+        // If frame number is greater than 24 hrs, next operation will rollover clock
+        f %= (qRound(frame_rate*3600)*24);
+
+        // Number of frames per ten minutes
+        int64_t framesPer10Minutes = qRound(frame_rate * 600);
+        int64_t d = f / framesPer10Minutes;
+        int64_t m = f % framesPer10Minutes;
+
+        // Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
+        int64_t dropFrames = qRound(frame_rate * (2.0/30.0));
+
+        // Number of frames per minute is the round of the framerate * 60 minus the number of dropped frames
+        f += dropFrames*9*d;
+        if (m > dropFrames) {
+          f += dropFrames * ((m - dropFrames) / (qRound(frame_rate)*60 - dropFrames));
+        }
+      } else {
+        frame_token = ":";
+      }
+
+      // non-drop timecode
+      hours = f / (3600*rounded_frame_rate);
+      mins = f / (60*rounded_frame_rate) % 60;
+      secs = f / rounded_frame_rate % 60;
+      frames = f % rounded_frame_rate;
 
       return QString("%1%2:%3:%4%5%6").arg(prefix,
                                            padded(hours, 2),
@@ -101,6 +130,108 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
   return QString();
 }
 
+int64_t olive::timecode_to_timestamp(const QString &timecode, const rational &timebase, const olive::TimecodeDisplay &display, bool* ok)
+{
+  double timebase_dbl = timebase.toDouble();
+
+  if (timecode.isEmpty()) {
+    goto err_fatal;
+  }
+
+  switch (display) {
+  case kTimecodeNonDropFrame:
+  case kTimecodeDropFrame:
+  case kTimecodeSeconds:
+  {
+    const int kTimecodeElementCount = 4;
+    QStringList timecode_split = timecode.split(QRegExp("(:)|(;)|(\\.)"));
+
+    bool valid;
+
+    // We only deal with HH, MM, SS, and FF. Any values after that are ignored.
+    while (timecode_split.size() > kTimecodeElementCount) {
+      timecode_split.removeLast();
+    }
+
+    // Convert values to integers
+    QList<int64_t> timecode_numbers;
+
+    foreach (const QString& element, timecode_split) {
+      valid = true;
+
+      timecode_numbers.append((element.isEmpty()) ? 0 : element.toLong(&valid));
+
+      // If element cannot be converted to a number,
+      if (!valid) {
+        goto err_fatal;
+      }
+    }
+
+    // Ensure value size is always 4
+    while (timecode_numbers.size() < 4) {
+      timecode_numbers.prepend(0);
+    }
+
+    double frame_rate = timebase.flipped().toDouble();
+    int rounded_frame_rate = qRound(frame_rate);
+
+    int64_t hours = timecode_numbers.at(0);
+    int64_t mins = timecode_numbers.at(1);
+    int64_t secs = timecode_numbers.at(2);
+    int64_t frames = timecode_numbers.at(3);
+
+    int64_t sec_count = (hours*3600 + mins*60 + secs);
+    int64_t timestamp = sec_count*rounded_frame_rate + frames;
+
+    if (display == kTimecodeDropFrame && timebase.numerator() == 1001) {
+
+      // Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
+      int64_t dropFrames = qRound64(frame_rate * (2.0/30.0));
+
+      // d and m need to be calculated from
+      int64_t real_fr_ts = qRound64(static_cast<double>(sec_count)*frame_rate) + frames;
+
+      int64_t framesPer10Minutes = qRound(frame_rate * 600);
+      int64_t d = real_fr_ts / framesPer10Minutes;
+      int64_t m = real_fr_ts % framesPer10Minutes;
+
+      if (m > dropFrames) {
+        timestamp -= dropFrames * ((m - dropFrames) / (qRound(frame_rate)*60 - dropFrames));
+      }
+      timestamp -= dropFrames*9*d;
+    }
+
+    if (ok) *ok = true;
+    return timestamp;
+  }
+  case kMilliseconds:
+  {
+    bool valid;
+    double timecode_secs = timecode.toDouble(&valid);
+
+    if (valid) {
+      // Convert milliseconds to seconds
+      timecode_secs *= 0.001;
+
+      // Convert seconds to frames
+      timecode_secs /= timebase_dbl;
+
+      if (ok) *ok = true;
+      return qRound(timecode_secs);
+    } else {
+      goto err_fatal;
+    }
+  }
+  case kFrames:
+    if (ok) *ok = true;
+    return timecode.toLong(ok);
+  }
+
+err_fatal:
+  if (ok) *ok = false;
+  return 0;
+}
+
 rational olive::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
 {
   return rational(timestamp) * timebase;
@@ -108,7 +239,12 @@ rational olive::timestamp_to_time(const int64_t &timestamp, const rational &time
 
 int64_t olive::time_to_timestamp(const rational &time, const rational &timebase)
 {
-  return qRound64(time.toDouble() * timebase.flipped().toDouble());
+  return time_to_timestamp(time.toDouble(), timebase);
+}
+
+int64_t olive::time_to_timestamp(const double &time, const rational &timebase)
+{
+  return qRound64(time * timebase.flipped().toDouble());
 }
 
 olive::TimecodeDisplay olive::CurrentTimecodeDisplay()
