@@ -7,6 +7,7 @@
 #include "core.h"
 #include "common/timecodefunctions.h"
 #include "tool/tool.h"
+#include "trackview/trackview.h"
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
@@ -15,26 +16,34 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   timeline_node_(nullptr),
   playhead_(0)
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setSpacing(0);
-  layout->setMargin(0);
+  QVBoxLayout* vert_layout = new QVBoxLayout(this);
+  vert_layout->setSpacing(0);
+  vert_layout->setMargin(0);
+
+  QHBoxLayout* ruler_and_time_layout = new QHBoxLayout();
+  vert_layout->addLayout(ruler_and_time_layout);
+
+  timecode_label_ = new TimeSlider();
+  connect(timecode_label_, SIGNAL(ValueChanged(int64_t)), this, SIGNAL(TimeChanged(const int64_t&)));
+  connect(timecode_label_, SIGNAL(ValueChanged(int64_t)), this, SLOT(UpdateInternalTime(const int64_t&)));
+  ruler_and_time_layout->addWidget(timecode_label_);
 
   ruler_ = new TimeRuler(true);
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SLOT(UpdateInternalTime(const int64_t&)));
-  layout->addWidget(ruler_);
+  ruler_and_time_layout->addWidget(ruler_);
 
   // Create list of TimelineViews - these MUST correspond to the ViewType enum
 
   QSplitter* view_splitter = new QSplitter(Qt::Vertical);
   view_splitter->setChildrenCollapsible(false);
-  layout->addWidget(view_splitter);
+  vert_layout->addWidget(view_splitter);
 
   // Video view
-  views_.append(new TimelineView(kTrackTypeVideo, Qt::AlignBottom));
+  views_.append(new TimelineAndTrackView(kTrackTypeVideo, Qt::AlignBottom));
 
   // Audio view
-  views_.append(new TimelineView(kTrackTypeAudio, Qt::AlignTop));
+  views_.append(new TimelineAndTrackView(kTrackTypeAudio, Qt::AlignTop));
 
   // Create tools
   tools_.resize(olive::tool::kCount);
@@ -58,14 +67,16 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   // Global scrollbar
   horizontal_scroll_ = new QScrollBar(Qt::Horizontal);
   connect(horizontal_scroll_, SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
-  connect(views_.first()->horizontalScrollBar(), SIGNAL(rangeChanged(int, int)), horizontal_scroll_, SLOT(setRange(int, int)));
-  layout->addWidget(horizontal_scroll_);
+  connect(views_.first()->view()->horizontalScrollBar(), SIGNAL(rangeChanged(int, int)), horizontal_scroll_, SLOT(setRange(int, int)));
+  vert_layout->addWidget(horizontal_scroll_);
 
-  foreach (TimelineView* view, views_) {
+  foreach (TimelineAndTrackView* tview, views_) {
+    TimelineView* view = tview->view();
+
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-    view_splitter->addWidget(view);
+    view_splitter->addWidget(tview);
 
     connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
     connect(view, SIGNAL(ScaleChanged(double)), this, SLOT(SetScale(double)));
@@ -84,8 +95,12 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, SIGNAL(DragLeft(QDragLeaveEvent*)), this, SLOT(ViewDragLeft(QDragLeaveEvent*)));
     connect(view, SIGNAL(DragDropped(TimelineViewMouseEvent*)), this, SLOT(ViewDragDropped(TimelineViewMouseEvent*)));
 
+    connect(tview->splitter(), SIGNAL(splitterMoved(int, int)), this, SLOT(UpdateHorizontalSplitters()));
+
     // Connect each view's scroll to each other
-    foreach (TimelineView* other_view, views_) {
+    foreach (TimelineAndTrackView* other_tview, views_) {
+      TimelineView* other_view = other_tview->view();
+
       if (view != other_view) {
         connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), other_view->horizontalScrollBar(), SLOT(setValue(int)));
       }
@@ -121,9 +136,10 @@ void TimelineWidget::SetTimebase(const rational &timebase)
   SetTimebaseInternal(timebase);
 
   ruler_->SetTimebase(timebase);
+  timecode_label_->SetTimebase(timebase);
 
-  foreach (TimelineView* view, views_) {
-    view->SetTimebase(timebase);
+  foreach (TimelineAndTrackView* view, views_) {
+    view->view()->SetTimebase(timebase);
   }
 }
 
@@ -131,15 +147,19 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 {
   QWidget::resizeEvent(event);
 
+  // Update horizontal scrollbar's page step to the width of the panel
   horizontal_scroll_->setPageStep(horizontal_scroll_->width());
+
+  // Update timecode label size
+  UpdateTimecodeWidthFromSplitters(views_.first()->splitter());
 }
 
-void TimelineWidget::SetTime(const int64_t &timestamp)
+void TimelineWidget::SetTime(int64_t timestamp)
 {
   ruler_->SetTime(timestamp);
 
-  foreach (TimelineView* view, views_) {
-    view->SetTime(timestamp);
+  foreach (TimelineAndTrackView* view, views_) {
+    view->view()->SetTime(timestamp);
   }
 
   UpdateInternalTime(timestamp);
@@ -175,7 +195,7 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     for (int i=0;i<views_.size();i++) {
       TrackType track_type = static_cast<TrackType>(i);
 
-      TimelineView* view = views_.at(i);
+      TimelineView* view = views_.at(i)->view();
 
       view->SetEndTime(timeline_node_->timeline_length());
 
@@ -204,15 +224,15 @@ void TimelineWidget::ZoomOut()
 
 void TimelineWidget::SelectAll()
 {
-  foreach (TimelineView* view, views_) {
-    view->SelectAll();
+  foreach (TimelineAndTrackView* view, views_) {
+    view->view()->SelectAll();
   }
 }
 
 void TimelineWidget::DeselectAll()
 {
-  foreach (TimelineView* view, views_) {
-    view->DeselectAll();
+  foreach (TimelineAndTrackView* view, views_) {
+    view->view()->DeselectAll();
   }
 }
 
@@ -440,12 +460,12 @@ TrackOutput *TimelineWidget::GetTrackFromReference(const TrackReference &ref)
 
 int TimelineWidget::GetTrackY(const TrackReference &ref)
 {
-  return views_.at(ref.type())->GetTrackY(ref.index());
+  return views_.at(ref.type())->view()->GetTrackY(ref.index());
 }
 
 int TimelineWidget::GetTrackHeight(const TrackReference &ref)
 {
-  return views_.at(ref.type())->GetTrackHeight(ref.index());
+  return views_.at(ref.type())->view()->GetTrackHeight(ref.index());
 }
 
 void TimelineWidget::CenterOn(qreal scene_pos)
@@ -473,8 +493,8 @@ void TimelineWidget::SetScale(double scale)
     ghost->SetScale(scale_);
   }
 
-  foreach (TimelineView* view, views_) {
-    view->SetScale(scale_);
+  foreach (TimelineAndTrackView* view, views_) {
+    view->view()->SetScale(scale_);
   }
 }
 
@@ -497,12 +517,13 @@ bool TimelineWidget::HasGhosts()
 void TimelineWidget::UpdateInternalTime(const int64_t &timestamp)
 {
   playhead_ = timestamp;
+  timecode_label_->SetValue(timestamp);
 }
 
 void TimelineWidget::UpdateTimelineLength(const rational &length)
 {
-  foreach (TimelineView* view, views_) {
-    view->SetEndTime(length);
+  foreach (TimelineAndTrackView* view, views_) {
+    view->view()->SetEndTime(length);
   }
 }
 
@@ -587,7 +608,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     block_items_.insert(block, item);
 
     // Add item to graphics scene
-    views_.at(track.type())->scene()->addItem(item);
+    views_.at(track.type())->view()->scene()->addItem(item);
 
     connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
     break;
@@ -628,11 +649,33 @@ void TimelineWidget::BlockChanged()
   }
 }
 
+void TimelineWidget::UpdateHorizontalSplitters()
+{
+  QSplitter* sender_splitter = static_cast<QSplitter*>(sender());
+
+  foreach (TimelineAndTrackView* tview, views_) {
+    QSplitter* recv_splitter = tview->splitter();
+
+    if (recv_splitter != sender_splitter) {
+      recv_splitter->blockSignals(true);
+      recv_splitter->setSizes(sender_splitter->sizes());
+      recv_splitter->blockSignals(false);
+    }
+  }
+
+  UpdateTimecodeWidthFromSplitters(sender_splitter);
+}
+
+void TimelineWidget::UpdateTimecodeWidthFromSplitters(QSplitter* s)
+{
+  timecode_label_->setFixedWidth(s->sizes().first() + s->handleWidth());
+}
+
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
   ghost->SetScale(scale_);
   ghost_items_.append(ghost);
-  views_.at(ghost->Track().type())->scene()->addItem(ghost);
+  views_.at(ghost->Track().type())->view()->scene()->addItem(ghost);
 }
 
 void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
@@ -662,8 +705,9 @@ void TimelineWidget::MoveRubberBandSelect(bool select_links)
 
   QList<QGraphicsItem*> new_selected_list;
 
-  foreach (TimelineView* view, views_) {
+  foreach (TimelineAndTrackView* tview, views_) {
     // Map global mouse coordinates to viewport
+    TimelineView* view = tview->view();
 
     QRect mapped_rect(view->viewport()->mapFromGlobal(drag_origin_),
                       view->viewport()->mapFromGlobal(rubberband_now));
@@ -711,7 +755,9 @@ void TimelineWidget::EndRubberBandSelect(bool select_links)
 void TimelineWidget::StartHandDrag()
 {
   // Determine which view to hand drag by which is under the cursor now
-  foreach (TimelineView* view, views_) {
+  foreach (TimelineAndTrackView* tview, views_) {
+    TimelineView* view = tview->view();
+
     if (view->underMouse()) {
       hand_drag_view_ = view;
       hand_drag_view_origin_ = view->GetScrollCoordinates();

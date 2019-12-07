@@ -5,8 +5,9 @@
 #include <QRubberBand>
 #include <QWidget>
 
+#include "timelineandtrackview.h"
+#include "widget/slider/timeslider.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
-#include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
 /**
@@ -22,7 +23,7 @@ public:
 
   void Clear();
 
-  void SetTime(const int64_t& timestamp);
+  void SetTime(int64_t timestamp);
 
   void ConnectTimelineNode(TimelineOutput* node);
 
@@ -324,7 +325,7 @@ private:
 
   TrackOutput* GetTrackFromReference(const TrackReference& ref);
 
-  QList<TimelineView*> views_;
+  QList<TimelineAndTrackView*> views_;
 
   TimeRuler* ruler_;
 
@@ -333,6 +334,8 @@ private:
   int64_t playhead_;
 
   QScrollBar* horizontal_scroll_;
+
+  TimeSlider* timecode_label_;
 
   int GetTrackY(const TrackReference& ref);
   int GetTrackHeight(const TrackReference& ref);
@@ -371,6 +374,10 @@ private slots:
    * derivatives.
    */
   void BlockChanged();
+
+  void UpdateHorizontalSplitters();
+
+  void UpdateTimecodeWidthFromSplitters(QSplitter *s);
 
 };
 
