@@ -58,7 +58,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   {
     IntegerSlider* slider = new IntegerSlider();
     widgets_.append(slider);
-    connect(slider, SIGNAL(ValueChanged(int)), this, SLOT(WidgetCallback()));
+    connect(slider, SIGNAL(ValueChanged(int64_t)), this, SLOT(WidgetCallback()));
     break;
   }
   case NodeParam::kFloat:

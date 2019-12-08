@@ -34,17 +34,21 @@ class TrackList : public QObject {
 public:
   TrackList(TimelineOutput *parent, const enum TrackType& type, NodeInputArray* track_input);
 
-  const QVector<TrackOutput*>& Tracks();
+  const enum TrackType& type() const;
 
-  TrackOutput* TrackAt(int index);
+  const QVector<TrackOutput*>& Tracks() const;
+
+  TrackOutput* TrackAt(int index) const;
 
   TrackOutput *AddTrack();
 
   void RemoveTrack();
 
-  const rational& TrackLength();
+  const rational& TrackLength() const;
 
-  const enum TrackType& TrackType();
+  const enum TrackType& TrackType() const;
+
+  int TrackCount() const;
 
 signals:
   void BlockAdded(Block* block, int index);
@@ -59,8 +63,10 @@ signals:
 
   void LengthChanged(const rational &length);
 
+  void TrackHeightChanged(int index, int height);
+
 private:
-  NodeGraph* GetParentGraph();
+  NodeGraph* GetParentGraph() const;
 
   /**
    * @brief A cache of connected Tracks
@@ -103,6 +109,11 @@ private slots:
    * @brief Slot for when any of the track's length changes so we can update the length of the tracklist
    */
   void UpdateTotalLength();
+
+  /**
+   * @brief Slot when a track height changes, transforms to the TrackHeightChanged signal which includes a track index
+   */
+  void TrackHeightChangedSlot(int height);
 
 };
 

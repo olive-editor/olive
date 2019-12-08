@@ -53,6 +53,17 @@ void FloatSlider::SetDecimalPlaces(int i)
   UpdateLabel(Value());
 }
 
+QString FloatSlider::ValueToString(const QVariant &v)
+{
+  return QString::number(v.toDouble(), 'f', decimal_places_);
+}
+
+QVariant FloatSlider::StringToValue(const QString &s, bool *ok)
+{
+  // Allow both floats and integers for either modes
+  return s.toDouble(ok);
+}
+
 void FloatSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.toDouble());

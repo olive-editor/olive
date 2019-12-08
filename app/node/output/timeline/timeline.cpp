@@ -46,6 +46,7 @@ TimelineOutput::TimelineOutput()
     connect(list, SIGNAL(BlockRemoved(Block*)), this, SIGNAL(BlockRemoved(Block*)));
     connect(list, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(TrackListAddedTrack(TrackOutput*)));
     connect(list, SIGNAL(TrackRemoved(TrackOutput*)), this, SIGNAL(TrackRemoved(TrackOutput*)));
+    connect(list, SIGNAL(TrackHeightChanged(int, int)), this, SLOT(TrackHeightChangedSlot(int, int)));
   }
 }
 
@@ -195,4 +196,9 @@ void TimelineOutput::TrackListAddedTrack(TrackOutput *track)
 {
   TrackType type = static_cast<TrackList*>(sender())->TrackType();
   emit TrackAdded(track, type);
+}
+
+void TimelineOutput::TrackHeightChangedSlot(int index, int height)
+{
+  emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }

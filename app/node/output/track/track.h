@@ -45,6 +45,11 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
+  QString GetTrackName();
+
+  const int& GetTrackHeight() const;
+  void SetTrackHeight(const int& height);
+
   virtual void Retranslate() override;
 
   const int& Index();
@@ -127,6 +132,13 @@ public:
 
   virtual bool IsTrack() const override;
 
+  static int GetDefaultTrackHeight();
+
+  static QString GetDefaultTrackName(TrackType type, int index);
+
+public slots:
+  void SetTrackName(const QString& name);
+
 signals:
   /**
    * @brief Signal emitted when a Block is added to this Track
@@ -143,6 +155,11 @@ signals:
    */
   void TrackLengthChanged();
 
+  /**
+   * @brief Signal emitted when the height of the track has changed
+   */
+  void TrackHeightChanged(int height);
+
 protected:
 
 private:
@@ -157,6 +174,10 @@ private:
   TrackType track_type_;
 
   rational track_length_;
+
+  int track_height_;
+
+  QString track_name_;
 
   int block_invalidate_cache_stack_;
 

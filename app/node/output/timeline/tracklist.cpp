@@ -33,6 +33,11 @@ TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInp
   connect(track_input, SIGNAL(SizeChanged(int)), this, SLOT(TrackListSizeChanged(int)));
 }
 
+const TrackType &TrackList::type() const
+{
+  return type_;
+}
+
 void TrackList::TrackAddedBlock(Block *block)
 {
   emit BlockAdded(block, static_cast<TrackOutput*>(sender())->Index());
@@ -55,12 +60,12 @@ void TrackList::TrackListSizeChanged(int size)
   }
 }
 
-const QVector<TrackOutput *> &TrackList::Tracks()
+const QVector<TrackOutput *> &TrackList::Tracks() const
 {
   return track_cache_;
 }
 
-TrackOutput *TrackList::TrackAt(int index)
+TrackOutput *TrackList::TrackAt(int index) const
 {
   if (index < 0 || index >= track_cache_.size()) {
     return nullptr;
@@ -69,14 +74,19 @@ TrackOutput *TrackList::TrackAt(int index)
   return track_cache_.at(index);
 }
 
-const rational &TrackList::TrackLength()
+const rational &TrackList::TrackLength() const
 {
   return total_length_;
 }
 
-const enum TrackType &TrackList::TrackType()
+const enum TrackType &TrackList::TrackType() const
 {
   return type_;
+}
+
+int TrackList::TrackCount() const
+{
+  return track_cache_.size();
 }
 
 TrackOutput* TrackList::AddTrack()
@@ -104,9 +114,6 @@ TrackOutput* TrackList::AddTrack()
   }*/
   // End test code
 
-  // Connect this track to the current last track
-  NodeParam::ConnectEdge(track->output(), assoc_input);
-
   return track;
 }
 
@@ -132,13 +139,14 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
   Node* connected_node = edge->output()->parentNode();
 
   if (connected_node->IsTrack()) {
-    TrackOutput* connected_track = static_cast<TrackOutput*>(connected_node);// Traverse through Tracks caching and connecting them
+    TrackOutput* connected_track = static_cast<TrackOutput*>(connected_node);
 
     track_cache_.replace(track_index, connected_track);
 
     connect(connected_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     connect(connected_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
     connect(connected_track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
+    connect(connected_track, SIGNAL(TrackHeightChanged(int)), this, SLOT(TrackHeightChangedSlot(int)));
 
     connected_track->SetIndex(track_index);
     connected_track->set_track_type(type_);
@@ -175,6 +183,7 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     disconnect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     disconnect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
     disconnect(track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
+    disconnect(track, SIGNAL(TrackHeightChanged(int)), this, SLOT(TrackHeightChangedSlot(int)));
 
     emit TrackListChanged();
 
@@ -182,7 +191,7 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
   }
 }
 
-NodeGraph *TrackList::GetParentGraph()
+NodeGraph *TrackList::GetParentGraph() const
 {
   return static_cast<NodeGraph*>(parent()->parent());
 }
@@ -198,4 +207,9 @@ void TrackList::UpdateTotalLength()
   }
 
   emit LengthChanged(total_length_);
+}
+
+void TrackList::TrackHeightChangedSlot(int height)
+{
+  emit TrackHeightChanged(static_cast<TrackOutput*>(sender())->Index(), height);
 }

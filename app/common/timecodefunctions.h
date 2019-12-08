@@ -42,7 +42,10 @@ TimecodeDisplay CurrentTimecodeDisplay();
  */
 QString timestamp_to_timecode(const int64_t &timestamp, const rational& timebase, const TimecodeDisplay& display, bool show_plus_if_positive = false);
 
+int64_t timecode_to_timestamp(const QString& timecode, const rational& timebase, const TimecodeDisplay& display, bool *ok = nullptr);
+
 int64_t time_to_timestamp(const rational& time, const rational& timebase);
+int64_t time_to_timestamp(const double& time, const rational& timebase);
 
 rational timestamp_to_time(const int64_t& timestamp, const rational& timebase);
 

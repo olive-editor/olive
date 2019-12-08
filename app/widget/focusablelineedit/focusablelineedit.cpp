@@ -18,28 +18,34 @@
 
 ***/
 
-#ifndef SLIDERLINEEDIT_H
-#define SLIDERLINEEDIT_H
+#include "focusablelineedit.h"
 
-#include <QLineEdit>
+#include <QKeyEvent>
 
-class SliderLineEdit : public QLineEdit
+FocusableLineEdit::FocusableLineEdit(QWidget *parent) :
+  QLineEdit(parent)
 {
-  Q_OBJECT
-public:
-  SliderLineEdit(QWidget* parent);
 
-signals:
-  void Confirmed();
+}
 
-  void Cancelled();
+void FocusableLineEdit::keyPressEvent(QKeyEvent *e)
+{
+  switch (e->key()) {
+  case Qt::Key_Return:
+  case Qt::Key_Enter:
+    emit Confirmed();
+    break;
+  case Qt::Key_Escape:
+    emit Cancelled();
+    break;
+  default:
+    QLineEdit::keyPressEvent(e);
+  }
+}
 
-protected:
-  void keyPressEvent(QKeyEvent *) override;
+void FocusableLineEdit::focusOutEvent(QFocusEvent *e)
+{
+  QLineEdit::focusOutEvent(e);
 
-  void focusOutEvent(QFocusEvent *) override;
-
-
-};
-
-#endif // SLIDERLINEEDIT_H
+  emit Confirmed();
+}

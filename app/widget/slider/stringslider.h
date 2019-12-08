@@ -35,6 +35,9 @@ public:
 
   void SetValue(const QString& v);
 
+protected:
+  virtual QString ValueToString(const QVariant& value) override;
+
 signals:
   void ValueChanged(QString);
 

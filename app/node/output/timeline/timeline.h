@@ -70,6 +70,8 @@ signals:
   void TrackAdded(TrackOutput* track, TrackType type);
   void TrackRemoved(TrackOutput* track);
 
+  void TrackHeightChanged(TrackType type, int index, int height);
+
 protected:
   virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
@@ -92,6 +94,8 @@ private slots:
   void TrackListAddedBlock(Block* block, int index);
 
   void TrackListAddedTrack(TrackOutput* track);
+
+  void TrackHeightChangedSlot(int index, int height);
 
 };
 

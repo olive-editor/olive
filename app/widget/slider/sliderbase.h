@@ -24,7 +24,7 @@
 #include <QStackedWidget>
 
 #include "sliderlabel.h"
-#include "sliderlineedit.h"
+#include "widget/focusablelineedit/focusablelineedit.h"
 
 class SliderBase : public QStackedWidget
 {
@@ -40,6 +40,10 @@ public:
 
   void SetDragMultiplier(const double& d);
 
+  void SetRequireValidInput(bool e);
+
+  void SetAlignment(Qt::Alignment alignment);
+
 signals:
   void ValueChanged(QVariant v);
 
@@ -54,6 +58,10 @@ protected:
 
   void UpdateLabel(const QVariant& v);
 
+  virtual QString ValueToString(const QVariant &v);
+
+  virtual QVariant StringToValue(const QString& s, bool* ok);
+
   virtual void changeEvent(QEvent* e) override;
 
   int decimal_places_;
@@ -65,7 +73,7 @@ private:
 
   SliderLabel* label_;
 
-  SliderLineEdit* editor_;
+  FocusableLineEdit* editor_;
 
   QVariant value_;
 
@@ -82,6 +90,8 @@ private:
   double dragged_diff_;
 
   QVariant temp_dragged_value_;
+
+  bool require_valid_input_;
 
 private slots:
   void LabelPressed();
