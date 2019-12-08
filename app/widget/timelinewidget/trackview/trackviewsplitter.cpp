@@ -3,8 +3,6 @@
 #include <QDebug>
 #include <QPainter>
 
-#include "trackviewitem.h"
-
 TrackViewSplitter::TrackViewSplitter(Qt::Alignment vertical_alignment, QWidget* parent) :
   QSplitter(Qt::Vertical, parent),
   alignment_(vertical_alignment)
@@ -13,22 +11,8 @@ TrackViewSplitter::TrackViewSplitter(Qt::Alignment vertical_alignment, QWidget* 
 
   int initial_height = 0;
 
-  if (alignment_ == Qt::AlignBottom) {
-    // Add empty spacer so we get a splitter handle after the last element
-    addWidget(new QWidget());
-  }
-
-  for (int i=0;i<3;i++) {
-    TrackViewItem* w = new TrackViewItem();
-    addWidget(w);
-
-    initial_height += w->sizeHint().height() + handleWidth();
-  }
-
-  if (alignment_ == Qt::AlignTop) {
-    // Add empty spacer so we get a splitter handle after the last element
-    addWidget(new QWidget());
-  }
+  // Add empty spacer so we get a splitter handle after the last element
+  addWidget(new QWidget());
 
   setFixedHeight(initial_height);
 }
@@ -64,12 +48,69 @@ void TrackViewSplitter::HandleReceiver(TrackViewSplitterHandle *h, int diff)
   // Correct diff
   diff = new_ele_sz - old_ele_sz;
 
+  SetTrackHeight(ele_id, new_ele_sz);
+
+  if (alignment_ == Qt::AlignBottom) {
+    ele_id = count() - ele_id - 1;
+  }
+
+  emit TrackHeightChanged(ele_id, new_ele_sz);
+}
+
+void TrackViewSplitter::SetTrackHeight(int index, int h)
+{
+  QList<int> element_sizes = sizes();
+
+  int old_ele_sz = element_sizes.at(index);
+
+  int diff = h - old_ele_sz;
+
   // Set new size on element
-  element_sizes.replace(ele_id, new_ele_sz);
+  element_sizes.replace(index, h);
   setSizes(element_sizes);
 
   // Increase height by the difference
   setFixedHeight(height() + diff);
+}
+
+void TrackViewSplitter::SetHeightWithSizes(const QList<int> &sizes)
+{
+  int start_height = 0;
+
+  foreach (int s, sizes) {
+    start_height += s + handleWidth();
+  }
+
+  setFixedHeight(start_height);
+  setSizes(sizes);
+}
+
+void TrackViewSplitter::Insert(int index, int height, QWidget *item)
+{
+  QList<int> sz = sizes();
+
+  if (alignment_ == Qt::AlignBottom) {
+    index = count() - index;
+  }
+
+  sz.insert(index, height);
+  insertWidget(index, item);
+
+  SetHeightWithSizes(sz);
+}
+
+void TrackViewSplitter::Remove(int index)
+{
+  QList<int> sz = sizes();
+
+  if (alignment_ == Qt::AlignBottom) {
+    index = count() - index;
+  }
+
+  sz.removeAt(index);
+  delete widget(index);
+
+  SetHeightWithSizes(sz);
 }
 
 QSplitterHandle *TrackViewSplitter::createHandle()

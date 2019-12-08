@@ -379,6 +379,8 @@ private slots:
 
   void UpdateTimecodeWidthFromSplitters(QSplitter *s);
 
+  void TrackHeightChanged(TrackType type, int index, int height);
+
 };
 
 #endif // TIMELINEWIDGET_H

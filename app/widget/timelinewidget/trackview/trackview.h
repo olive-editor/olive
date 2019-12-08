@@ -4,6 +4,8 @@
 #include <QScrollArea>
 #include <QSplitter>
 
+#include "node/output/timeline/tracklist.h"
+#include "trackviewitem.h"
 #include "trackviewsplitter.h"
 
 class TrackView : public QScrollArea
@@ -13,10 +15,14 @@ public:
   TrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
             QWidget* parent = nullptr);
 
-protected:
-  virtual void resizeEvent(QResizeEvent* event) override;
+  void ConnectTrackList(TrackList* list);
+  void DisconnectTrackList();
 
 private:
+  QList<TrackViewItem*> items_;
+
+  TrackList* list_;
+
   TrackViewSplitter* splitter_;
 
   Qt::Alignment alignment_;
@@ -27,6 +33,12 @@ private:
 
 private slots:
   void ScrollbarRangeChanged(int min, int max);
+
+  void TrackHeightChanged(int index, int height);
+
+  void InsertTrack(TrackOutput* track);
+
+  void RemoveTrack(TrackOutput* track);
 
 };
 

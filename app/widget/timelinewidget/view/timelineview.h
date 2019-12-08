@@ -64,6 +64,8 @@ public:
   QPoint GetScrollCoordinates();
   void SetScrollCoordinates(const QPoint& pt);
 
+  void ConnectTrackList(TrackList* list);
+
 public slots:
   void SetTimebase(const rational& timebase);
 
@@ -110,19 +112,19 @@ private:
 
   void UserSetTime(const int64_t& time);
 
+  rational GetPlayheadTime();
+
+  void UpdatePlayheadRect();
+
+  TrackList* connected_track_list_;
+
   QGraphicsScene scene_;
 
   int64_t playhead_;
 
-  QVector<int> track_heights_;
-
   TimelineViewEndItem* end_item_;
 
   TimelinePlayhead playhead_style_;
-
-  rational GetPlayheadTime();
-
-  void UpdatePlayheadRect();
 
   QRect playhead_rect_;
 

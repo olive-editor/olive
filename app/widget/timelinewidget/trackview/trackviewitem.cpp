@@ -6,7 +6,7 @@
 #include <QPainter>
 #include <QtMath>
 
-TrackViewItem::TrackViewItem(Qt::Alignment alignment, QWidget *parent) :
+TrackViewItem::TrackViewItem(const QString& name, Qt::Alignment alignment, QWidget *parent) :
   QWidget(parent),
   alignment_(alignment)
 {
@@ -14,8 +14,17 @@ TrackViewItem::TrackViewItem(Qt::Alignment alignment, QWidget *parent) :
   layout->setSpacing(0);
   layout->setMargin(0);
 
-  label_ = new QLabel(tr("Track"));
-  layout->addWidget(label_);
+  stack_ = new QStackedWidget();
+  layout->addWidget(stack_);
+
+  label_ = new ClickableLabel(name);
+  connect(label_, SIGNAL(MouseDoubleClicked()), this, SLOT(LabelClicked()));
+  stack_->addWidget(label_);
+
+  line_edit_ = new FocusableLineEdit();
+  connect(line_edit_, SIGNAL(Confirmed()), this, SLOT(LineEditConfirmed()));
+  connect(line_edit_, SIGNAL(Cancelled()), this, SLOT(LineEditCancelled()));
+  stack_->addWidget(line_edit_);
 
   mute_button_ = CreateMSLButton(tr("M"), Qt::red);
   layout->addWidget(mute_button_);
@@ -41,4 +50,35 @@ QPushButton *TrackViewItem::CreateMSLButton(const QString& text, const QColor& c
   button->setFixedSize(size, size);
 
   return button;
+}
+
+void TrackViewItem::LabelClicked()
+{
+  stack_->setCurrentWidget(line_edit_);
+  line_edit_->setFocus();
+  line_edit_->selectAll();
+}
+
+void TrackViewItem::LineEditConfirmed()
+{
+  line_edit_->blockSignals(true);
+
+  QString line_edit_str = line_edit_->text();
+  if (!line_edit_str.isEmpty()) {
+    label_->setText(line_edit_str);
+    emit NameChanged(line_edit_str);
+  }
+
+  stack_->setCurrentWidget(label_);
+
+  line_edit_->blockSignals(false);
+}
+
+void TrackViewItem::LineEditCancelled()
+{
+  line_edit_->blockSignals(true);
+
+  stack_->setCurrentWidget(label_);
+
+  line_edit_->blockSignals(false);
 }

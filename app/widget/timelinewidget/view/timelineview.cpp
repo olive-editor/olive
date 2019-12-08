@@ -35,6 +35,7 @@
 
 TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignment, QWidget *parent) :
   QGraphicsView(parent),
+  connected_track_list_(nullptr),
   playhead_(0),
   type_(type)
 {
@@ -230,12 +231,16 @@ int TimelineView::GetTrackY(int track_index)
 {
   int y = 0;
 
+  if (alignment() & Qt::AlignBottom) {
+    track_index++;
+  }
+
   for (int i=0;i<track_index;i++) {
     y += GetTrackHeight(i);
   }
 
   if (alignment() & Qt::AlignBottom) {
-    y = -y - GetTrackHeight(0);
+    y = -y;
   }
 
   return y;
@@ -243,10 +248,11 @@ int TimelineView::GetTrackY(int track_index)
 
 int TimelineView::GetTrackHeight(int track_index)
 {
-  // FIXME: Make this adjustable
-  Q_UNUSED(track_index)
+  if (!connected_track_list_ || track_index >= connected_track_list_->TrackCount()) {
+    return TrackOutput::GetDefaultTrackHeight();
+  }
 
-  return fontMetrics().height() * 3;
+  return connected_track_list_->TrackAt(track_index)->GetTrackHeight();
 }
 
 QPoint TimelineView::GetScrollCoordinates()
@@ -258,6 +264,11 @@ void TimelineView::SetScrollCoordinates(const QPoint &pt)
 {
   horizontalScrollBar()->setValue(pt.x());
   verticalScrollBar()->setValue(pt.y());
+}
+
+void TimelineView::ConnectTrackList(TrackList *list)
+{
+  connected_track_list_ = list;
 }
 
 int TimelineView::SceneToTrack(double y)

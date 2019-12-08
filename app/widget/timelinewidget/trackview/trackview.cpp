@@ -10,6 +10,7 @@
 
 TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QScrollArea(parent),
+  list_(nullptr),
   alignment_(vertical_alignment)
 {
   QWidget* central = new QWidget();
@@ -30,13 +31,40 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   splitter_ = new TrackViewSplitter(alignment_);
   splitter_->setChildrenCollapsible(false);
   layout->addWidget(splitter_);
+  connect(splitter_, SIGNAL(TrackHeightChanged(int, int)), this, SLOT(TrackHeightChanged(int, int)));
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
-void TrackView::resizeEvent(QResizeEvent *event)
+void TrackView::ConnectTrackList(TrackList *list)
 {
-  QScrollArea::resizeEvent(event);
+  if (list_ != nullptr) {
+    foreach (TrackViewItem* item, items_) {
+      delete item;
+    }
+    items_.clear();
 
-  //splitter_->setFixedWidth(viewport()->width());
+    disconnect(list_, SIGNAL(TrackHeightChanged(int, int)), splitter_, SLOT(SetTrackHeight(int, int)));
+    disconnect(list_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(InsertTrack(TrackOutput*)));
+    disconnect(list_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+  }
+
+  list_ = list;
+
+  if (list_ != nullptr) {
+    foreach (TrackOutput* track, list_->Tracks()) {
+      splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track->GetTrackName()));
+    }
+
+    connect(list_, SIGNAL(TrackHeightChanged(int, int)), splitter_, SLOT(SetTrackHeight(int, int)));
+    connect(list_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(InsertTrack(TrackOutput*)));
+    connect(list_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+  }
+}
+
+void TrackView::DisconnectTrackList()
+{
+  ConnectTrackList(nullptr);
 }
 
 void TrackView::ScrollbarRangeChanged(int, int max)
@@ -49,4 +77,19 @@ void TrackView::ScrollbarRangeChanged(int, int max)
 
     last_scrollbar_max_ = max;
   }
+}
+
+void TrackView::TrackHeightChanged(int index, int height)
+{
+  list_->TrackAt(index)->SetTrackHeight(height);
+}
+
+void TrackView::InsertTrack(TrackOutput *track)
+{
+  splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track->GetTrackName()));
+}
+
+void TrackView::RemoveTrack(TrackOutput *track)
+{
+  splitter_->Remove(track->Index());
 }

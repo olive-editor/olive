@@ -52,7 +52,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.fill(nullptr);
 
   tools_.replace(olive::tool::kPointer, std::make_shared<PointerTool>(this));
-  // tools_.replace(olive::tool::kEdit, new PointerTool(this)); FIXME: Implement
+  // tools_.replace(olive::tool::kEdit, new PointerTool(this));   FIXME: Implement
   tools_.replace(olive::tool::kRipple, std::make_shared<RippleTool>(this));
   tools_.replace(olive::tool::kRolling, std::make_shared<RollingTool>(this));
   tools_.replace(olive::tool::kRazor, std::make_shared<RazorTool>(this));
@@ -60,9 +60,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(olive::tool::kSlide, std::make_shared<SlideTool>(this));
   tools_.replace(olive::tool::kHand, std::make_shared<HandTool>(this));
   tools_.replace(olive::tool::kZoom, std::make_shared<ZoomTool>(this));
-  //tools_.replace(olive::tool::kTransition, new (this)); FIXME: Implement
-  //tools_.replace(olive::tool::kRecord, new PointerTool(this)); FIXME: Implement
-  //tools_.replace(olive::tool::kAdd, new PointerTool(this)); FIXME: Implement
+  //tools_.replace(olive::tool::kTransition, new (this));         FIXME: Implement
+  //tools_.replace(olive::tool::kRecord, new PointerTool(this));  FIXME: Implement
+  //tools_.replace(olive::tool::kAdd, new PointerTool(this));     FIXME: Implement
 
   import_tool_ = std::make_shared<ImportTool>(this);
 
@@ -178,10 +178,16 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*, TrackType)), this, SLOT(AddTrack(TrackOutput*, TrackType)));
     disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
     disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    disconnect(timeline_node_, SIGNAL(TrackHeightChanged(TrackType, int, int)), this, SLOT(TrackHeightChanged(TrackType, int, int)));
 
     SetTimebase(0);
 
     Clear();
+
+    for (int i=0;i<views_.size();i++) {
+      TrackView* track_view = views_.at(i)->track_view();
+      track_view->DisconnectTrackList();
+    }
   }
 
   timeline_node_ = node;
@@ -193,14 +199,18 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*, TrackType)), this, SLOT(AddTrack(TrackOutput*, TrackType)));
     connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
+    connect(timeline_node_, SIGNAL(TrackHeightChanged(TrackType, int, int)), this, SLOT(TrackHeightChanged(TrackType, int, int)));
 
     SetTimebase(timeline_node_->timebase());
 
     for (int i=0;i<views_.size();i++) {
       TrackType track_type = static_cast<TrackType>(i);
-
       TimelineView* view = views_.at(i)->view();
+      TrackList* track_list = timeline_node_->track_list(track_type);
+      TrackView* track_view = views_.at(i)->track_view();
 
+      track_view->ConnectTrackList(track_list);
+      view->ConnectTrackList(track_list);
       view->SetEndTime(timeline_node_->timeline_length());
 
       // Defer to the track to make all the block UI items necessary
@@ -673,6 +683,24 @@ void TimelineWidget::UpdateHorizontalSplitters()
 void TimelineWidget::UpdateTimecodeWidthFromSplitters(QSplitter* s)
 {
   timecode_label_->setFixedWidth(s->sizes().first() + s->handleWidth());
+}
+
+void TimelineWidget::TrackHeightChanged(TrackType type, int index, int height)
+{
+  Q_UNUSED(index)
+  Q_UNUSED(height)
+
+  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
+  TimelineView* view = views_.at(type)->view();
+
+  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
+    TimelineViewBlockItem* block_item = iterator.value();
+
+    if (block_item->Track().type() == type) {
+      block_item->SetYCoords(view->GetTrackY(block_item->Track().index()),
+                             view->GetTrackHeight(block_item->Track().index()));
+    }
+  }
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

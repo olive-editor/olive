@@ -20,7 +20,9 @@
 
 #include "track.h"
 
+#include <QApplication>
 #include <QDebug>
+#include <QFontMetrics>
 
 #include "node/block/gap/gap.h"
 #include "node/graph.h"
@@ -35,6 +37,9 @@ TrackOutput::TrackOutput() :
   connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
+
+  // Set default height
+  track_height_ = GetDefaultTrackHeight();
 }
 
 void TrackOutput::set_track_type(const TrackType &track_type)
@@ -76,6 +81,26 @@ QString TrackOutput::Description() const
 {
   return tr("Node for representing and processing a single array of Blocks sorted by time. Also represents the end of "
             "a Sequence.");
+}
+
+QString TrackOutput::GetTrackName()
+{
+  if (track_name_.isEmpty()) {
+    return GetDefaultTrackName(track_type_, index_);
+  }
+
+  return track_name_;
+}
+
+const int &TrackOutput::GetTrackHeight() const
+{
+  return track_height_;
+}
+
+void TrackOutput::SetTrackHeight(const int &height)
+{
+  track_height_ = height;
+  emit TrackHeightChanged(track_height_);
 }
 
 void TrackOutput::Retranslate()
@@ -308,6 +333,33 @@ const rational &TrackOutput::track_length() const
 bool TrackOutput::IsTrack() const
 {
   return true;
+}
+
+int TrackOutput::GetDefaultTrackHeight()
+{
+  return qApp->fontMetrics().height() * 3;
+}
+
+QString TrackOutput::GetDefaultTrackName(TrackType type, int index)
+{
+  // Starts tracks at 1 rather than 0
+  int user_friendly_index = index+1;
+
+  switch (type) {
+  case kTrackTypeVideo: return tr("Video %1").arg(user_friendly_index);
+  case kTrackTypeAudio: return tr("Audio %1").arg(user_friendly_index);
+  case kTrackTypeSubtitle: return tr("Subtitle %1").arg(user_friendly_index);
+  case kTrackTypeNone:
+  case kTrackTypeCount:
+    break;
+  }
+
+  return tr("Track %1").arg(user_friendly_index);
+}
+
+void TrackOutput::SetTrackName(const QString &name)
+{
+  track_name_ = name;
 }
 
 void TrackOutput::UpdateInOutFrom(int index)
