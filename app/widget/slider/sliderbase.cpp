@@ -40,7 +40,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
 
   addWidget(label_);
 
-  editor_ = new SliderLineEdit(this);
+  editor_ = new FocusableLineEdit(this);
   addWidget(editor_);
 
   connect(label_, SIGNAL(drag_start()), this, SLOT(LabelPressed()));

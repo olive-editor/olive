@@ -16,17 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/slider/floatslider.h
-  widget/slider/floatslider.cpp
-  widget/slider/integerslider.h
-  widget/slider/integerslider.cpp
-  widget/slider/sliderbase.h
-  widget/slider/sliderbase.cpp
-  widget/slider/sliderlabel.h
-  widget/slider/sliderlabel.cpp
-  widget/slider/stringslider.h
-  widget/slider/stringslider.cpp
-  widget/slider/timeslider.h
-  widget/slider/timeslider.cpp
+  widget/focusablelineedit/focusablelineedit.h
+  widget/focusablelineedit/focusablelineedit.cpp
   PARENT_SCOPE
 )

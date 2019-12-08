@@ -24,7 +24,7 @@
 #include <QStackedWidget>
 
 #include "sliderlabel.h"
-#include "sliderlineedit.h"
+#include "widget/focusablelineedit/focusablelineedit.h"
 
 class SliderBase : public QStackedWidget
 {
@@ -73,7 +73,7 @@ private:
 
   SliderLabel* label_;
 
-  SliderLineEdit* editor_;
+  FocusableLineEdit* editor_;
 
   QVariant value_;
 
