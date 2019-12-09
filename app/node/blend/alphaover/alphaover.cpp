@@ -52,19 +52,5 @@ bool AlphaOverBlend::IsAccelerated() const
 
 QString AlphaOverBlend::CodeFragment() const
 {
-  return "#version 110"
-         "\n"
-         "varying vec2 ove_texcoord;\n"
-         "\n"
-         "uniform sampler2D base_in;\n"
-         "uniform sampler2D blend_in;\n"
-         "\n"
-         "void main(void) {\n"
-         "  vec4 base_col = texture2D(base_in, ove_texcoord);\n"
-         "  vec4 blend_col = texture2D(blend_in, ove_texcoord);\n"
-         "  base_col *= 1.0 - blend_col.a;\n"
-         "  base_col += blend_col;\n"
-         "  \n"
-         "  gl_FragColor = base_col;\n"
-         "}\n";
+  return ReadFileAsString(":/shaders/alphaover.frag");
 }

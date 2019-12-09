@@ -60,13 +60,7 @@ bool SolidGenerator::IsAccelerated() const
 
 QString SolidGenerator::CodeFragment() const
 {
-  return "#version 110\n"
-         "\n"
-         "uniform vec4 color_in;\n"
-         "\n"
-         "void main(void) {\n"
-         "  gl_FragColor = color_in;\n"
-         "}\n";
+  return ReadFileAsString(":/shaders/solid.frag");
 }
 
 void SolidGenerator::Retranslate()

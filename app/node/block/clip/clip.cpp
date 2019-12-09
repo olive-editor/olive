@@ -87,9 +87,3 @@ TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &inpu
 
   return Block::InputTimeAdjustment(input, input_time);
 }
-
-NodeValueTable ClipBlock::Value(const NodeValueDatabase &value) const
-{
-  // We just pass through the data here, the renderer should have gotten the correct time from InputTimeAdjustment
-  return value.Merge();
-}

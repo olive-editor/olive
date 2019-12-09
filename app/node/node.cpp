@@ -91,9 +91,7 @@ void Node::AddParameter(NodeParam *param)
 
 NodeValueTable Node::Value(const NodeValueDatabase &value) const
 {
-  Q_UNUSED(value)
-
-  return NodeValueTable();
+  return value.Merge();
 }
 
 void Node::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)

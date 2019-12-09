@@ -46,8 +46,6 @@ public:
 
   virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const override;
 
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
-
 private:
   NodeInput* texture_input_;
 

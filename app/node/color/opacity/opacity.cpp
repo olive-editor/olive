@@ -72,16 +72,7 @@ bool OpacityNode::IsAccelerated() const
 
 QString OpacityNode::CodeFragment() const
 {
-  return "#version 110"
-         "\n"
-         "varying vec2 olive_tex_coord;\n"
-         "\n"
-         "uniform sampler2D tex_in;\n"
-         "uniform float opacity_in;\n"
-         "\n"
-         "void main(void) {\n"
-         "  gl_FragColor = texture2D(tex_in, olive_tex_coord) * (opacity_in * 0.01);\n"
-         "}\n";
+  return ReadFileAsString(":/shaders/opacity.frag");
 }
 
 NodeInput *OpacityNode::texture_input() const
