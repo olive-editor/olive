@@ -55,6 +55,11 @@ bool OIIODecoder::Probe(Footage *f)
   image_stream->set_width(spec.width);
   image_stream->set_height(spec.height);
 
+  // OIIO automatically premultiplies alpha
+  // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this likely reduces the
+  //        fidelity?
+  image_stream->set_premultiplied_alpha(true);
+
   f->add_stream(image_stream);
 
   // If we're here, we have a successful image open
@@ -100,6 +105,7 @@ bool OIIODecoder::Open()
   return true;
 }
 
+#include <QFile>
 FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 {
   if (!open_ && !Open()) {
