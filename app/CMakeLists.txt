@@ -21,6 +21,10 @@ set(OLIVE_SOURCES
   main.cpp
 )
 
+set(OLIVE_RESOURCES
+  ${OLIVE_RESOURCES}
+)
+
 add_subdirectory(audio)
 add_subdirectory(common)
 add_subdirectory(config)
@@ -30,6 +34,7 @@ add_subdirectory(node)
 add_subdirectory(panel)
 add_subdirectory(project)
 add_subdirectory(render)
+add_subdirectory(shaders)
 add_subdirectory(task)
 add_subdirectory(timeline)
 add_subdirectory(tool)
@@ -42,11 +47,6 @@ set(OLIVE_TARGET "olive-editor")
 if(APPLE)
   set(OLIVE_TARGET "Olive")
 endif()
-
-set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  #effects/internal/internalshaders.qrc
-)
 
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}

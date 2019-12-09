@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/shaders">
+        <file>videoinput.frag</file>
+        <file>videoinput.vert</file>
+    </qresource>
+</RCC>
