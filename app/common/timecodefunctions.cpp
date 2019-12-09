@@ -33,15 +33,14 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
                                      const TimecodeDisplay& display,
                                      bool show_plus_if_positive)
 {
+  if (timebase.isNull()) {
+    return QString();
+  }
+
   double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
 
   switch (display) {
   case kTimecodeNonDropFrame:
-    // Convert timestamp from drop frame to non-drop frame
-    if (timebase.numerator() == 1001) {
-      timestamp_dbl = timestamp_dbl / timebase.flipped().toDouble() * (static_cast<double>(timebase.denominator())/1000.0);
-    }
-    /* fall-through */
   case kTimecodeDropFrame:
   case kTimecodeSeconds:
   {
