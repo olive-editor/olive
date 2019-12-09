@@ -87,3 +87,16 @@ TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &inpu
 
   return Block::InputTimeAdjustment(input, input_time);
 }
+
+NodeValueTable ClipBlock::Value(const NodeValueDatabase &value) const
+{
+  // We discard most values here except for the buffer we received
+  NodeValueTable table;
+  NodeValue data = value[texture_input()].GetWithMeta(NodeParam::kBuffer);
+
+  if (data.type() != NodeParam::kNone) {
+    table.Push(data);
+  }
+
+  return table;
+}

@@ -33,7 +33,6 @@ public:
   static QString CodeAlphaAssociate(const QString& function_name);
 
 private:
-
 };
 
 #endif // OPENGLSHADER_H

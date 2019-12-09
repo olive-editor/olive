@@ -103,10 +103,8 @@ void Node::InvalidateCache(const rational &start_range, const rational &end_rang
 
 TimeRange Node::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
 {
-  Q_UNUSED(input)
-
   // Default behavior is no time adjustment at all
-
+  Q_UNUSED(input)
   return input_time;
 }
 

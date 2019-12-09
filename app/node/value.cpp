@@ -67,6 +67,17 @@ QVariant NodeValueTable::Get(const NodeParam::DataType &type, const QString &tag
   return QVariant();
 }
 
+NodeValue NodeValueTable::GetWithMeta(const NodeParam::DataType &type, const QString &tag) const
+{
+  int value_index = GetInternal(type, tag);
+
+  if (value_index >= 0) {
+    return values_.at(value_index);
+  }
+
+  return NodeValue(NodeParam::kNone, 0);
+}
+
 QVariant NodeValueTable::Take(const NodeParam::DataType &type, const QString &tag)
 {
   int value_index = GetInternal(type, tag);

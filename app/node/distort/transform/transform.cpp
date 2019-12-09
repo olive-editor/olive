@@ -94,7 +94,7 @@ NodeValueTable TransformDistort::Value(const NodeValueDatabase &value) const
   mat.translate(-value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>());
 
   // Push matrix output
-  NodeValueTable output = value.Merge();
+  NodeValueTable output;
   output.Push(NodeParam::kMatrix, mat);
   return output;
 }
