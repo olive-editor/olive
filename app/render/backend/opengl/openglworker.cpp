@@ -208,21 +208,27 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
 
           functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
 
-          if (texture) {
-            functions_->glBindTexture(GL_TEXTURE_2D, texture->texture());
-          } else {
-            functions_->glBindTexture(GL_TEXTURE_2D, 0);
-          }
+          GLuint tex_id = texture ? texture->texture() : 0;
+          functions_->glBindTexture(GL_TEXTURE_2D, tex_id);
 
           // Set value to bound texture
           shader->setUniformValue(variable_location, input_texture_count);
 
-          // Set texture resolution if shader wants it
-          int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
-          if (res_param_location > -1) {
-            shader->setUniformValue(res_param_location,
-                                    static_cast<GLfloat>(texture->width()),
-                                    static_cast<GLfloat>(texture->height()));
+          // Set enable flag if shader wants it
+          int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(input->id()));
+          if (enable_param_location > -1) {
+            shader->setUniformValue(enable_param_location,
+                                    tex_id > 0);
+          }
+
+          if (tex_id > 0) {
+            // Set texture resolution if shader wants it
+            int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
+            if (res_param_location > -1) {
+              shader->setUniformValue(res_param_location,
+                                      static_cast<GLfloat>(texture->width()),
+                                      static_cast<GLfloat>(texture->height()));
+            }
           }
 
           olive::gl::PrepareToDraw(functions_);
