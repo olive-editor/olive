@@ -10,8 +10,7 @@ RenderBackend::RenderBackend(QObject *parent) :
   viewer_node_(nullptr),
   copied_viewer_node_(nullptr),
   recompile_queued_(false),
-  input_update_queued_(false),
-  blocking_(false)
+  input_update_queued_(false)
 {
 }
 
@@ -220,36 +219,19 @@ void RenderBackend::CacheNext()
   }
 
   if ((input_update_queued_ || recompile_queued_) && !AllProcessorsAreAvailable()) {
-    if (input_update_queued_ && recompile_queued_) {
-      qDebug() << "Input update and recompile queued, blocking while processors are busy...";
-    } else if (input_update_queued_) {
-      qDebug() << "Input update queued, blocking while processors are busy...";
-    } else {
-      qDebug() << "Recompile queued, blocking while processors are busy...";
-    }
-    blocking_ = true;
     return;
   }
 
-  if (blocking_) {
-    qDebug() << "Processors are free now";
-    blocking_ = false;
-  }
-
   if (recompile_queued_) {
-    qDebug() << "Recompile requested, decompiling now...";
     Decompile();
     recompile_queued_ = false;
   }
 
   if (!compiled_ && !Compile()) {
-    qDebug() << "Graph remains uncompiled, nothing to be done";
     return;
   }
 
   if (input_update_queued_) {
-    qDebug() << "Copied inputs from UI graph";
-
     for (int i=0;i<source_node_list_.size();i++) {
       Node* src = source_node_list_.at(i);
       Node* dst = copied_graph_.nodes().at(i);

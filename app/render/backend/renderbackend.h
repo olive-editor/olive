@@ -133,8 +133,6 @@ private:
 
   QVector<bool> processor_busy_state_;
 
-  bool blocking_;
-
 private slots:
   void QueueRecompile();
 
