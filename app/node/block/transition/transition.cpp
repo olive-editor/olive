@@ -3,15 +3,22 @@
 TransitionBlock::TransitionBlock()
 {
   out_block_input_ = new NodeInput("out_block_in");
+  out_block_input_->set_data_type(NodeParam::kBuffer);
   AddInput(out_block_input_);
 
   in_block_input_ = new NodeInput("in_block_in");
+  in_block_input_->set_data_type(NodeParam::kBuffer);
   AddInput(in_block_input_);
 }
 
 Block::Type TransitionBlock::type() const
 {
   return kTransition;
+}
+
+QString TransitionBlock::Category() const
+{
+  return tr("Transition");
 }
 
 NodeInput *TransitionBlock::out_block_input() const
