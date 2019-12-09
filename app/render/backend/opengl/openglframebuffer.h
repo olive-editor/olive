@@ -45,8 +45,6 @@ public:
 
   void Attach(OpenGLTexturePtr texture);
 
-  void AttachBackBuffer(OpenGLTexturePtr texture);
-
   void Detach();
 
   const GLuint& buffer() const;

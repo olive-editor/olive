@@ -35,19 +35,12 @@ class OpenGLTexture : public QObject
 {
   Q_OBJECT
 public:
-  enum Type {
-    kSingleBuffer,
-    kDoubleBuffer
-  };
-
   OpenGLTexture();
   virtual ~OpenGLTexture() override;
 
   DISABLE_COPY_MOVE(OpenGLTexture)
 
   void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, void *data = nullptr);
-  void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const Type& type, void *data = nullptr);
-  void Create(QOpenGLContext* ctx, FramePtr frame, const Type& type);
   void Create(QOpenGLContext* ctx, FramePtr frame);
 
   bool IsCreated() const;
@@ -65,8 +58,6 @@ public:
   QOpenGLContext* context() const;
 
   const GLuint& texture() const;
-  const GLuint& back_texture() const;
-  void SwapFrontAndBack();
 
   void Upload(const void *data);
 
@@ -81,8 +72,6 @@ private:
   QOpenGLContext* context_;
 
   GLuint texture_;
-
-  GLuint back_texture_;
 
   int width_;
 

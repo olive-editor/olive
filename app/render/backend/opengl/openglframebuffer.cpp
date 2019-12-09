@@ -98,16 +98,6 @@ void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture)
   AttachInternal(texture_->texture(), false);
 }
 
-void OpenGLFramebuffer::AttachBackBuffer(OpenGLTexturePtr texture)
-{
-  if (context_ == nullptr) {
-    return;
-  }
-
-  texture_ = texture;
-  AttachInternal(texture_->back_texture(), true);
-}
-
 void OpenGLFramebuffer::Detach()
 {
   if (context_ == nullptr) {

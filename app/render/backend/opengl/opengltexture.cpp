@@ -28,7 +28,6 @@
 OpenGLTexture::OpenGLTexture() :
   context_(nullptr),
   texture_(0),
-  back_texture_(0),
   width_(0),
   height_(0),
   format_(olive::PIX_FMT_INVALID)
@@ -47,11 +46,6 @@ bool OpenGLTexture::IsCreated() const
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, void* data)
 {
-  Create(ctx, width, height, format, kSingleBuffer, data);
-}
-
-void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const OpenGLTexture::Type &type, void *data)
-{
   if (ctx == nullptr) {
     qWarning() << "RenderTexture::Create was passed an invalid context";
     return;
@@ -68,21 +62,11 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const oli
 
   // Create main texture
   CreateInternal(&texture_, data);
-
-  if (type == kDoubleBuffer) {
-    // Create back texture
-    CreateInternal(&back_texture_, nullptr);
-  }
-}
-
-void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame, const Type &type)
-{
-  Create(ctx, frame->width(), frame->height(), frame->format(), type, frame->data());
 }
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
 {
-  Create(ctx, frame, kSingleBuffer);
+  Create(ctx, frame->width(), frame->height(), frame->format(), frame->data());
 }
 
 void OpenGLTexture::Destroy()
@@ -92,9 +76,6 @@ void OpenGLTexture::Destroy()
 
     context_->functions()->glDeleteTextures(1, &texture_);
     texture_ = 0;
-
-    context_->functions()->glDeleteTextures(1, &back_texture_);
-    back_texture_ = 0;
 
     context_ = nullptr;
   }
@@ -143,18 +124,6 @@ QOpenGLContext *OpenGLTexture::context() const
 const GLuint &OpenGLTexture::texture() const
 {
   return texture_;
-}
-
-const GLuint &OpenGLTexture::back_texture() const
-{
-  return back_texture_;
-}
-
-void OpenGLTexture::SwapFrontAndBack()
-{
-  GLuint temp = texture_;
-  texture_ = back_texture_;
-  back_texture_ = temp;
 }
 
 void OpenGLTexture::Upload(const void *data)
