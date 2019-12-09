@@ -157,6 +157,8 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
 
   buffer_.Bind();
 
+  // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
+  shader->Lock();
   shader->bind();
 
   unsigned int input_texture_count = 0;
@@ -266,6 +268,11 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   // Blit this texture through this shader
   olive::gl::Blit(shader);
 
+  // Make sure all OpenGL functions are complete by this point before unlocking the shader (or another thread may
+  // change its parameters before our drawing in this thread is done)
+  functions_->glFinish();
+  shader->Unlock();
+
   // Release any textures we bound before
   while (input_texture_count > 0) {
     input_texture_count--;
@@ -280,8 +287,6 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   buffer_.Release();
 
   buffer_.Detach();
-
-  functions_->glFinish();
 
   output_params->Push(NodeParam::kTexture, QVariant::fromValue(output));
 }

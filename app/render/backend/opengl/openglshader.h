@@ -2,6 +2,7 @@
 #define OPENGLSHADER_H
 
 #include <memory>
+#include <QMutex>
 #include <QOpenGLShaderProgram>
 
 #include <OpenColorIO/OpenColorIO.h>
@@ -32,7 +33,11 @@ public:
   static QString CodeAlphaReassociate(const QString& function_name);
   static QString CodeAlphaAssociate(const QString& function_name);
 
+  void Lock();
+  void Unlock();
+
 private:
+  QMutex lock_;
 };
 
 #endif // OPENGLSHADER_H

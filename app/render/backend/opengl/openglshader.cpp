@@ -230,3 +230,13 @@ QString OpenGLShader::CodeAlphaAssociate(const QString &function_name)
                         "  return vec4(col.rgb * col.a, col.a);\n"
                         "}\n").arg(function_name);
 }
+
+void OpenGLShader::Lock()
+{
+  lock_.lock();
+}
+
+void OpenGLShader::Unlock()
+{
+  lock_.unlock();
+}
