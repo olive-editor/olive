@@ -30,7 +30,6 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
                                          OCIO::ConstProcessorRcPtr processor,
                                          bool alpha_is_associated)
 {
-
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
 
   // Create LUT texture
@@ -94,9 +93,9 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
     shader_text.append(CodeAlphaReassociate(reassociate_func_name));
 
     // Make OCIO call pass through disassociate and reassociate function
-    shader_call = QString("%3(%1(%2(col), tex2));").arg(ocio_func_name,
-                                                        disassociate_func_name,
-                                                        reassociate_func_name);
+    shader_call = QStringLiteral("%3(%1(%2(col), ove_ociolut));").arg(ocio_func_name,
+                                                               disassociate_func_name,
+                                                               reassociate_func_name);
 
   } else {
 
@@ -107,18 +106,18 @@ OpenGLShaderPtr OpenGLShader::CreateOCIO(QOpenGLContext* ctx,
     shader_text.append(CodeAlphaAssociate(associate_func_name));
 
     // Make OCIO call pass through associate function
-    shader_call = QString("%2(%1(col, tex2));").arg(ocio_func_name, associate_func_name);
+    shader_call = QStringLiteral("%2(%1(col, ove_ociolut));").arg(ocio_func_name, associate_func_name);
 
   }
 
   // Add process() function, which GetPipeline() will call if specified
   QString process_function_name = "process";
-  shader_text.append(QString("\n"
-                             "uniform sampler3D tex2;\n"
-                             "\n"
-                             "vec4 %2(vec4 col) {\n"
-                             "  return %1\n"
-                             "}\n").arg(shader_call, process_function_name));
+  shader_text.append(QStringLiteral("\n"
+                                    "uniform sampler3D ove_ociolut;\n"
+                                    "\n"
+                                    "vec4 %2(vec4 col) {\n"
+                                    "  return %1\n"
+                                    "}\n").arg(shader_call, process_function_name));
 
 
   // Get pipeline-based shader to inject OCIO shader into
@@ -139,10 +138,10 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
                                      "precision highp float;\n"
                                      "#endif\n"
                                      "\n"
-                                     "uniform sampler2D texture;\n"
+                                     "uniform sampler2D ove_maintex;\n"
                                      "uniform bool color_only;\n"
                                      "uniform vec4 color_only_color;\n"
-                                     "varying vec2 v_texcoord;\n"
+                                     "varying vec2 ove_texcoord;\n"
                                      "\n");
 
   // Finish the function with the main function
@@ -157,7 +156,7 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
                                     "  if (color_only) {\n"
                                     "    gl_FragColor = color_only_color;"
                                     "  } else {\n"
-                                    "    vec4 color = texture2D(texture, v_texcoord);\n"
+                                    "    vec4 color = texture2D(ove_maintex, ove_texcoord);\n"
                                     "    gl_FragColor = color;\n"
                                     "  }\n"
                                     "}\n"));
@@ -167,13 +166,13 @@ QString OpenGLShader::CodeDefaultFragment(const QString &function_name, const QS
     // If additional code was passed, add it and reference it in main().
     //
     // The function in the additional code is expected to be `vec4 function_name(vec4 color)`. The texture coordinate
-    // can be acquired through `v_texcoord`.
+    // can be acquired through `ove_texcoord`.
 
     frag_code.append(shader_code);
 
     frag_code.append(QStringLiteral("\n"
                                     "void main() {\n"
-                                    "  vec4 color = %1(texture2D(texture, v_texcoord));\n"
+                                    "  vec4 color = %1(texture2D(ove_maintex, ove_texcoord));\n"
                                     "  gl_FragColor = color;\n"
                                     "}\n").arg(function_name));
 
@@ -192,16 +191,16 @@ QString OpenGLShader::CodeDefaultVertex()
                         "precision highp float;\n"
                         "#endif\n"
                         "\n"
-                        "uniform mat4 mvp_matrix;\n"
+                        "uniform mat4 ove_mvpmat;\n"
                         "\n"
                         "attribute vec4 a_position;\n"
                         "attribute vec2 a_texcoord;\n"
                         "\n"
-                        "varying vec2 v_texcoord;\n"
+                        "varying vec2 ove_texcoord;\n"
                         "\n"
                         "void main() {\n"
-                        "  gl_Position = mvp_matrix * a_position;\n"
-                        "  v_texcoord = a_texcoord;\n"
+                        "  gl_Position = ove_mvpmat * a_position;\n"
+                        "  ove_texcoord = a_texcoord;\n"
                         "}\n");
 }
 

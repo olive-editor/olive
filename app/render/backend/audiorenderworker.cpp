@@ -28,7 +28,7 @@ FramePtr AudioRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRa
   return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_);
 }
 
-NodeValueTable AudioRenderWorker::RenderBlock(TrackOutput *track, const TimeRange &range)
+NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)
 {
   QList<Block*> active_blocks = track->BlocksAtTimeRange(range);
 
@@ -42,8 +42,8 @@ NodeValueTable AudioRenderWorker::RenderBlock(TrackOutput *track, const TimeRang
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
 
-    NodeValueTable table = RenderAsSibling(NodeDependency(b,
-                                                          range_for_block));
+    NodeValueTable table = ProcessNode(NodeDependency(b,
+                                                      range_for_block));
 
     QByteArray samples_from_this_block = table.Take(NodeParam::kSamples).toByteArray();
     int destination_offset = audio_params_.time_to_bytes(range_for_block.in() - range.in());

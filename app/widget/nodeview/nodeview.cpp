@@ -49,8 +49,6 @@ void NodeView::SetGraph(NodeGraph *graph)
     disconnect(graph_, SIGNAL(NodeRemoved(Node*)), this, SLOT(RemoveNode(Node*)));
     disconnect(graph_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(AddEdge(NodeEdgePtr)));
     disconnect(graph_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(RemoveEdge(NodeEdgePtr)));
-
-    graph_->Release();
   }
 
   // Clear the scene of all UI objects

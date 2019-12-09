@@ -41,7 +41,8 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  virtual QString Code() const override;
+  virtual bool IsAccelerated() const override;
+  virtual QString CodeFragment() const override;
 
   virtual void Retranslate() override;
 

@@ -18,11 +18,11 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  virtual void Release() override;
-
   NodeInput* matrix_input() const;
 
-  virtual QString Code() const override;
+  virtual bool IsAccelerated() const override;
+  virtual QString CodeVertex() const override;
+  virtual QString CodeFragment() const override;
 
   virtual void Retranslate() override;
 

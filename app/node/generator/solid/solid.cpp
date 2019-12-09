@@ -53,7 +53,12 @@ QString SolidGenerator::Description() const
   return tr("Generate a solid color.");
 }
 
-QString SolidGenerator::Code() const
+bool SolidGenerator::IsAccelerated() const
+{
+  return true;
+}
+
+QString SolidGenerator::CodeFragment() const
 {
   return "#version 110\n"
          "\n"

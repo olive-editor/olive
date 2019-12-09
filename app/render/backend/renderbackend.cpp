@@ -9,9 +9,9 @@ RenderBackend::RenderBackend(QObject *parent) :
   started_(false),
   viewer_node_(nullptr),
   copied_viewer_node_(nullptr),
-  value_update_queued_(false),
   recompile_queued_(false),
-  input_update_queued_(false)
+  input_update_queued_(false),
+  blocking_(false)
 {
 }
 
@@ -50,6 +50,8 @@ void RenderBackend::Close()
   }
 
   started_ = false;
+
+  Decompile();
 
   CloseInternal();
 
@@ -127,11 +129,13 @@ bool RenderBackend::Compile()
   foreach (Node* n, source_node_list_) {
     Node* copy = n->copy();
 
-    // Copy values (but not connections yet)
     Node::CopyInputs(n, copy, false);
 
     copied_graph_.AddNode(copy);
   }
+
+  // We just copied the inputs, so if an input update is queued, it's unnecessary
+  input_update_queued_ = false;
 
   // We know that the first node will be the viewer node since we appended that first in the copy
   copied_viewer_node_ = static_cast<ViewerOutput*>(copied_graph_.nodes().first());
@@ -183,7 +187,7 @@ void RenderBackend::RegenerateCacheID()
   CacheIDChangedEvent(cache_id_);
 }
 
-rational RenderBackend::SequenceLength()
+rational RenderBackend::GetSequenceLength()
 {
   if (viewer_node_ == nullptr) {
     return 0;
@@ -216,22 +220,49 @@ void RenderBackend::CacheNext()
   }
 
   if ((input_update_queued_ || recompile_queued_) && !AllProcessorsAreAvailable()) {
-    qDebug() << "Blocking render while we wait for all workers to finish...";
+    if (input_update_queued_ && recompile_queued_) {
+      qDebug() << "Input update and recompile queued, blocking while processors are busy...";
+    } else if (input_update_queued_) {
+      qDebug() << "Input update queued, blocking while processors are busy...";
+    } else {
+      qDebug() << "Recompile queued, blocking while processors are busy...";
+    }
+    blocking_ = true;
     return;
   }
 
-  if (input_update_queued_) {
-    UpdateNodeInputs();
-    input_update_queued_ = false;
+  if (blocking_) {
+    qDebug() << "Processors are free now";
+    blocking_ = false;
   }
 
   if (recompile_queued_) {
+    qDebug() << "Recompile requested, decompiling now...";
     Decompile();
     recompile_queued_ = false;
   }
 
   if (!compiled_ && !Compile()) {
     qDebug() << "Graph remains uncompiled, nothing to be done";
+    return;
+  }
+
+  if (input_update_queued_) {
+    qDebug() << "Copied inputs from UI graph";
+
+    for (int i=0;i<source_node_list_.size();i++) {
+      Node* src = source_node_list_.at(i);
+      Node* dst = copied_graph_.nodes().at(i);
+
+      Node::CopyInputs(src, dst, false);
+    }
+
+    input_update_queued_ = false;
+  }
+
+  Node* node_connected_to_viewer = GetDependentInput()->get_connected_node();
+
+  if (!node_connected_to_viewer) {
     return;
   }
 
@@ -243,14 +274,16 @@ void RenderBackend::CacheNext()
     if (!WorkerIsBusy(worker)) {
       TimeRange cache_frame = cache_queue_.takeFirst();
 
-      NodeDependency dep = NodeDependency(GetDependentInput()->get_connected_node(), cache_frame.in(), cache_frame.out());
+      //qDebug() << "Rendering" << cache_frame.in().toDouble() << "-" << cache_frame.out().toDouble();
+
+      NodeDependency dep = NodeDependency(node_connected_to_viewer, cache_frame.in(), cache_frame.out());
+
+      SetWorkerBusyState(worker, true);
 
       QMetaObject::invokeMethod(worker,
                                 "Render",
                                 Qt::QueuedConnection,
                                 Q_ARG(NodeDependency, dep));
-
-      SetWorkerBusyState(worker, true);
     }
   }
 }
@@ -270,24 +303,9 @@ const QString &RenderBackend::cache_id() const
   return cache_id_;
 }
 
-void RenderBackend::QueueValueUpdate(const TimeRange &range)
+void RenderBackend::QueueValueUpdate()
 {
-  value_update_queued_ = true;
-  value_update_range_ = range;
-}
-
-void RenderBackend::UpdateNodeInputs()
-{
-  if (value_update_queued_) {
-    for (int i=0;i<source_node_list_.size();i++) {
-      Node* src = source_node_list_.at(i);
-      Node* dst = copied_graph_.nodes().at(i);
-
-      Node::CopyInputs(src, dst, false);
-    }
-
-    value_update_queued_ = false;
-  }
+  input_update_queued_ = true;
 }
 
 bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const

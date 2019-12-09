@@ -98,11 +98,6 @@ public:
   virtual QString Description() const;
 
   /**
-   * @brief Signals the Node that it won't be used for a while and can deallocate some memory
-   */
-  virtual void Release();
-
-  /**
    * @brief Function called to retranslate parameter names (should be overridden in derivatives)
    */
   virtual void Retranslate();
@@ -136,10 +131,17 @@ public:
    */
   QList<Node*> GetImmediateDependencies() const;
 
+  virtual bool IsAccelerated() const;
+
   /**
-   * @brief Generate OpenCL hardware accelerated code for this Node
+   * @brief Generate hardware accelerated code for this Node
    */
-  virtual QString Code() const;
+  virtual QString CodeVertex() const;
+
+  /**
+   * @brief Generate hardware accelerated code for this Node
+   */
+  virtual QString CodeFragment() const;
 
   /**
    * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)
@@ -266,6 +268,8 @@ public:
 
   NodeOutput* output() const;
 
+  virtual QVariant InputValueFromTable(NodeInput* input, const NodeValueTable& table) const;
+
 protected:
   void AddInput(NodeInput* input);
 
@@ -274,6 +278,8 @@ protected:
   void SendInvalidateCache(const rational& start_range, const rational& end_range);
 
   virtual void DependentEdgeChanged(NodeInput* from);
+
+  static QString ReadFileAsString(const QString& filename);
 
 public slots:
 

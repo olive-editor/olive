@@ -46,8 +46,6 @@ bool OpenGLBackend::InitInternal()
 
 void OpenGLBackend::CloseInternal()
 {
-  Decompile();
-
   master_texture_ = nullptr;
 }
 
@@ -79,15 +77,25 @@ bool OpenGLBackend::CompileInternal()
     // Check if we have a shader or not
     if (!shader_cache_.Has(n->id()))  {
       // Since we don't have a shader, compile one now
-      QString node_code = n->Code();
 
       // If the node has no code, it mustn't be GPU accelerated
-      if (node_code.isEmpty()) {
+      if (!n->IsAccelerated()) {
         // We enter a null shader so we don't try to compile this again
         shader_cache_.Add(n->id(), nullptr);
       } else {
         // Since we have shader code, compile it now
         OpenGLShaderPtr program;
+
+        QString frag_code = n->CodeFragment();
+        QString vert_code = n->CodeVertex();
+
+        if (frag_code.isEmpty()) {
+          frag_code = OpenGLShader::CodeDefaultFragment();
+        }
+
+        if (vert_code.isEmpty()) {
+          vert_code = OpenGLShader::CodeDefaultVertex();
+        }
 
         if (!(program = std::make_shared<OpenGLShader>())) {
           SetError(QStringLiteral("Failed to create OpenGL shader object"));
@@ -99,12 +107,12 @@ bool OpenGLBackend::CompileInternal()
           return false;
         }
 
-        if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, node_code)) {
+        if (!program->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code)) {
           SetError(QStringLiteral("Failed to add OpenGL fragment shader code"));
           return false;
         }
 
-        if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex())) {
+        if (!program->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code)) {
           SetError(QStringLiteral("Failed to add OpenGL vertex shader code"));
           return false;
         }
@@ -115,8 +123,6 @@ bool OpenGLBackend::CompileInternal()
         }
 
         shader_cache_.Add(n->id(), program);
-
-        //qDebug() << "Compiled" <<  connected_output->parent()->id() << "->" << connected_output->id();
       }
     }
   }

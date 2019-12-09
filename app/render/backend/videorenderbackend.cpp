@@ -47,7 +47,7 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
 
   // Adjust range to min/max values
   rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(SequenceLength(), end_range);
+  rational end_range_adj = qMin(GetSequenceLength(), end_range);
 
   qDebug() << "Cache invalidated between"
            << start_range_adj.toDouble()
@@ -99,10 +99,10 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
   }
 
   // Remove frames after this time code if it's changed
-  frame_cache_.Truncate(SequenceLength());
+  frame_cache_.Truncate(GetSequenceLength());
 
   // Queue value update
-  QueueValueUpdate(TimeRange(start_range, end_range));
+  QueueValueUpdate();
 
   CacheNext();
 }

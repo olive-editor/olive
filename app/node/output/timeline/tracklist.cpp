@@ -102,16 +102,31 @@ TrackOutput* TrackList::AddTrack()
   NodeParam::ConnectEdge(track->output(), assoc_input);
 
   // FIXME: Test code only
-  /*if (track_input_->GetSize() > 1) {
-    if (current_last_track->output()->IsConnected()) {
-      AlphaOverBlend* blend = new AlphaOverBlend();
-      GetParentGraph()->AddNode(blend);
+  if (track_input_->GetSize() > 1) {
+    TrackOutput* last_track = nullptr;
 
-      NodeParam::ConnectEdge(track->output(), blend->blend_input());
-      NodeParam::ConnectEdge(current_last_track->output(), blend->base_input());
-      NodeParam::ConnectEdge(blend->output(), current_last_track->output()->edges().first()->input());
+    for (int i=track_cache_.size()-1;i>=0;i--) {
+      TrackOutput* test_track = track_cache_.at(i);
+
+      if (test_track && test_track != track) {
+        last_track = test_track;
+        break;
+      }
     }
-  }*/
+
+    if (last_track && last_track->output()->IsConnected()) {
+      foreach (NodeEdgePtr edge, last_track->output()->edges()) {
+        if (edge->input()->parentNode() != track_input_->parentNode()) {
+          AlphaOverBlend* blend = new AlphaOverBlend();
+          GetParentGraph()->AddNode(blend);
+
+          NodeParam::ConnectEdge(track->output(), blend->blend_input());
+          NodeParam::ConnectEdge(last_track->output(), blend->base_input());
+          NodeParam::ConnectEdge(blend->output(), edge->input());
+        }
+      }
+    }
+  }
   // End test code
 
   return track;

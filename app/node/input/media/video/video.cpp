@@ -1,6 +1,7 @@
 #include "video.h"
 
 #include <QDebug>
+#include <QMatrix4x4>
 #include <QOpenGLPixelTransferOptions>
 
 #include "core.h"
@@ -40,28 +41,24 @@ QString VideoInput::Description() const
   return tr("Import a video footage stream.");
 }
 
-void VideoInput::Release()
-{
-  MediaInput::Release();
-}
-
 NodeInput *VideoInput::matrix_input() const
 {
   return matrix_input_;
 }
 
-QString VideoInput::Code() const
+bool VideoInput::IsAccelerated() const
 {
-  return "#version 110\n"
-         "\n"
-         "varying vec2 v_texcoord;\n"
-         "\n"
-         "uniform sampler2D footage_in;\n"
-         "uniform mat4 matrix_in;\n"
-         "\n"
-         "void main(void) {\n"
-         "  gl_FragColor = texture2D(footage_in, vec2(vec4(v_texcoord, 0.0, 1.0) * matrix_in));\n"
-         "}\n";
+  return true;
+}
+
+QString VideoInput::CodeVertex() const
+{
+  return ReadFileAsString(":/shaders/videoinput.vert");
+}
+
+QString VideoInput::CodeFragment() const
+{
+  return ReadFileAsString(":/shaders/videoinput.frag");
 }
 
 void VideoInput::Retranslate()

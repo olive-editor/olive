@@ -85,11 +85,6 @@ public:
    */
   bool ContainsNode(Node* n);
 
-  /**
-   * @brief Releases all Nodes in this NodeGraph
-   */
-  void Release();
-
 signals:
   /**
    * @brief Signal emitted when a Node is added to the graph

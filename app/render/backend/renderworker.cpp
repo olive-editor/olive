@@ -37,31 +37,9 @@ void RenderWorker::Render(NodeDependency path)
   emit CompletedCache(path, RenderInternal(path));
 }
 
-NodeValueTable RenderWorker::RenderAsSibling(NodeDependency dep)
-{
-  Node* node = dep.node();
-  QList<NodeInput*> connected_inputs;
-  NodeValueTable value;
-
-  //qDebug() << "Processing" << node->id();
-
-  // Firstly we check if this node is a "Block", if it is that means it's part of a linked list of mutually exclusive
-  // nodes based on time and we might need to locate which Block to attach to
-  if (node->IsTrack()) {
-    // If the range is not wholly contained in this Block, we'll need to do some extra processing
-    value = RenderBlock(static_cast<TrackOutput*>(node), dep.range());
-  } else {
-    value = ProcessNodeNormally(NodeDependency(node, dep.range()));
-  }
-
-  // We're done!
-
-  return value;
-}
-
 NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path)
 {
-  return RenderAsSibling(path);
+  return ProcessNode(path);
 }
 
 bool RenderWorker::OutputIsAccelerated(Node *output)
@@ -70,7 +48,7 @@ bool RenderWorker::OutputIsAccelerated(Node *output)
   return false;
 }
 
-void RenderWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params)
+void RenderWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params)
 {
   Q_UNUSED(node)
   Q_UNUSED(input_params)
@@ -102,9 +80,14 @@ bool RenderWorker::IsStarted()
   return started_;
 }
 
-NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
+NodeValueTable RenderWorker::ProcessNode(const NodeDependency& dep)
 {
-  Node* node = dep.node();
+  const Node* node = dep.node();
+
+  if (node->IsTrack()) {
+    // If the range is not wholly contained in this Block, we'll need to do some extra processing
+    return RenderBlock(static_cast<const TrackOutput*>(node), dep.range());
+  }
 
   // FIXME: Cache certain values here if we've already processed them before
 
@@ -119,8 +102,8 @@ NodeValueTable RenderWorker::ProcessNodeNormally(const NodeDependency& dep)
 
       if (input->IsConnected()) {
         // Value will equal something from the connected node, follow it
-        table = ProcessNodeNormally(NodeDependency(input->get_connected_node(),
-                                                   input_time));
+        table = ProcessNode(NodeDependency(input->get_connected_node(),
+                                           input_time));
       } else {
         // Push onto the table the value at this time from the input
         QVariant input_value = input->get_value_at_time(input_time.in());

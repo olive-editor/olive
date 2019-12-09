@@ -141,7 +141,7 @@ void OpenGLWorker::ParametersChangedEvent()
   }
 }
 
-void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable *output_params)
+void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase *input_params, NodeValueTable *output_params)
 {
   OpenGLShaderPtr shader = shader_cache_->Get(node->id());
 
@@ -174,15 +174,7 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
         // Get value from database at this input
         const NodeValueTable& input_data = (*input_params)[input];
 
-        NodeParam::DataType find_data_type = input->data_type();
-
-        // Exception for Footage types (try to get a Texture instead)
-        if (find_data_type == NodeParam::kFootage) {
-          find_data_type = NodeParam::kTexture;
-        }
-
-        // Try to get a value from it
-        QVariant value = input_data.Get(find_data_type);
+        QVariant value = node->InputValueFromTable(input, input_data);
 
         switch (input->data_type()) {
         case NodeInput::kInt:
@@ -225,6 +217,16 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
           // Set value to bound texture
           shader->setUniformValue(variable_location, input_texture_count);
 
+          // Set texture resolution if shader wants it
+          int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
+          if (res_param_location > -1) {
+            shader->setUniformValue(res_param_location,
+                                    static_cast<GLfloat>(texture->width()),
+                                    static_cast<GLfloat>(texture->height()));
+          }
+
+          olive::gl::PrepareToDraw(functions_);
+
           input_texture_count++;
           break;
         }
@@ -247,8 +249,13 @@ void OpenGLWorker::RunNodeAccelerated(Node *node, const NodeValueDatabase *input
     }
   }
 
-  // Ensure viewport is correct
+  // Set up OpenGL parameters as necessary
   functions_->glViewport(0, 0, video_params().effective_width(), video_params().effective_height());
+
+  // Provide some standard args
+  shader->setUniformValue("ove_resolution",
+                          static_cast<GLfloat>(video_params().width()),
+                          static_cast<GLfloat>(video_params().height()));
 
   // Blit this texture through this shader
   olive::gl::Blit(shader);
@@ -305,9 +312,8 @@ void OpenGLWorker::FinishInit()
 
   // Store OpenGL functions instance
   functions_ = ctx_->functions();
+  functions_->glBlendFunc(GL_ONE, GL_ZERO);
 
-  // Set up OpenGL parameters as necessary
-  functions_->glEnable(GL_BLEND);
   ParametersChangedEvent();
 
   buffer_.Create(ctx_);

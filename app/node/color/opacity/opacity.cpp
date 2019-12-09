@@ -65,7 +65,12 @@ void OpacityNode::Retranslate()
   texture_input_->set_name(tr("Texture"));
 }
 
-QString OpacityNode::Code() const
+bool OpacityNode::IsAccelerated() const
+{
+  return true;
+}
+
+QString OpacityNode::CodeFragment() const
 {
   return "#version 110"
          "\n"

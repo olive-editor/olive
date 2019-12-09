@@ -47,7 +47,7 @@ protected:
 
   virtual void DecompileInternal() = 0;
 
-  rational SequenceLength();
+  rational GetSequenceLength();
 
   const QVector<QThread*>& threads();
 
@@ -82,9 +82,7 @@ protected:
 
   const QString& cache_id() const;
 
-  void QueueValueUpdate(const TimeRange& range);
-
-  void UpdateNodeInputs();
+  void QueueValueUpdate();
 
   bool WorkerIsBusy(RenderWorker* worker) const;
   void SetWorkerBusyState(RenderWorker* worker, bool busy);
@@ -130,13 +128,12 @@ private:
   QList<Node*> source_node_list_;
   NodeGraph copied_graph_;
 
-  bool value_update_queued_;
-  TimeRange value_update_range_;
-
   bool recompile_queued_;
   bool input_update_queued_;
 
   QVector<bool> processor_busy_state_;
+
+  bool blocking_;
 
 private slots:
   void QueueRecompile();

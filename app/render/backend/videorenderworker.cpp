@@ -31,7 +31,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
     emit HashAlreadyExists(path, hash);
   } else if (frame_cache_->TryCache(hash)) {
     // This hash is available for us to cache, start traversing graph
-    value = RenderAsSibling(path);
+    value = ProcessNode(path);
 
     emit CompletedFrame(path, hash, value);
   } else {
@@ -47,11 +47,11 @@ FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRa
   return decoder->RetrieveVideo(range.in());
 }
 
-void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, const rational& time)
+void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node* n, const rational& time)
 {
   // Resolve BlockList
   if (n->IsTrack()) {
-    n = static_cast<TrackOutput*>(n)->BlockAtTime(time);
+    n = static_cast<const TrackOutput*>(n)->BlockAtTime(time);
 
     if (!n) {
       return;
@@ -66,52 +66,50 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, Node* n, c
     if (param->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(param);
 
-      if (input->dependent()) {
-        // Get time adjustment
-        TimeRange range = n->InputTimeAdjustment(input, TimeRange(time, time));
+      // Get time adjustment
+      TimeRange range = n->InputTimeAdjustment(input, TimeRange(time, time));
 
-        // For a single frame, we only care about one of the times
-        rational input_time = range.in();
+      // For a single frame, we only care about one of the times
+      rational input_time = range.in();
 
-        if (input->IsConnected()) {
-          // Traverse down this edge
-          HashNodeRecursively(hash, input->get_connected_node(), input_time);
-        } else {
-          // Grab the value at this time
-          QVariant value = input->get_value_at_time(input_time);
-          hash->addData(NodeParam::ValueToBytes(input->data_type(), value));
-        }
+      if (input->IsConnected()) {
+        // Traverse down this edge
+        HashNodeRecursively(hash, input->get_connected_node(), input_time);
+      } else {
+        // Grab the value at this time
+        QVariant value = input->get_value_at_time(input_time);
+        hash->addData(NodeParam::ValueToBytes(input->data_type(), value));
+      }
 
-        // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
-        if (input->data_type() == NodeParam::kFootage) {
-          StreamPtr stream = ResolveStreamFromInput(input);
-          DecoderPtr decoder = ResolveDecoderFromInput(stream);
+      // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
+      if (input->data_type() == NodeParam::kFootage) {
+        StreamPtr stream = ResolveStreamFromInput(input);
+        DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
-          if (decoder != nullptr) {
-            // Add footage details to hash
+        if (decoder != nullptr) {
+          // Add footage details to hash
 
-            // Footage filename
-            hash->addData(stream->footage()->filename().toUtf8());
+          // Footage filename
+          hash->addData(stream->footage()->filename().toUtf8());
 
-            // Footage last modified date
-            hash->addData(stream->footage()->timestamp().toString().toUtf8());
+          // Footage last modified date
+          hash->addData(stream->footage()->timestamp().toString().toUtf8());
 
-            // Footage stream
-            hash->addData(QString::number(stream->index()).toUtf8());
+          // Footage stream
+          hash->addData(QString::number(stream->index()).toUtf8());
 
-            if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
-              ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+          if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
+            ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
-              // Footage timestamp
-              hash->addData(QString::number(decoder->GetTimestampFromTime(time)).toUtf8());
+            // Footage timestamp
+            hash->addData(QString::number(decoder->GetTimestampFromTime(time)).toUtf8());
 
-              // Current colorspace
-              // FIXME: Handle empty colorspace...
-              hash->addData(video_stream->colorspace().toUtf8());
+            // Current colorspace
+            // FIXME: Handle empty colorspace...
+            hash->addData(video_stream->colorspace().toUtf8());
 
-              // Alpha associated setting
-              hash->addData(QString::number(video_stream->premultiplied_alpha()).toUtf8());
-            }
+            // Alpha associated setting
+            hash->addData(QString::number(video_stream->premultiplied_alpha()).toUtf8());
           }
         }
       }
@@ -162,7 +160,7 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
   }
 }
 
-NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRange &range)
+NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)
 {
   // A frame can only have one active block so we just validate the in point of the range
   Block* active_block = track->BlockAtTime(range.in());
@@ -170,8 +168,8 @@ NodeValueTable VideoRenderWorker::RenderBlock(TrackOutput *track, const TimeRang
   NodeValueTable table;
 
   if (active_block) {
-    table = RenderAsSibling(NodeDependency(active_block,
-                                           range));
+    table = ProcessNode(NodeDependency(active_block,
+                                       range));
   }
 
   return table;

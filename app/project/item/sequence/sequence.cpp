@@ -70,6 +70,7 @@ void Sequence::add_default_nodes()
   Node* audio_track_output = timeline_output_->track_list(TrackType::kTrackTypeAudio)->AddTrack();
   NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
   NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
+  //timeline_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
 
   // Update the timebase on these nodes
   set_video_params(video_params_);

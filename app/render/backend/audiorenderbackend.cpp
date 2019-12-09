@@ -32,7 +32,7 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
   RenderBackend::InvalidateCache(start_range, end_range);
 
   rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(SequenceLength(), end_range);
+  rational end_range_adj = qMin(GetSequenceLength(), end_range);
 
   // Add the range to the list
   cache_queue_.append(TimeRange(start_range_adj, end_range_adj));
@@ -41,7 +41,7 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
   ValidateRanges();
 
   // Queue value update
-  QueueValueUpdate(TimeRange(start_range, end_range));
+  QueueValueUpdate();
 
   // Start caching cycle if it hasn't started already
   CacheNext();

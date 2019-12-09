@@ -20,7 +20,6 @@
 
 #include "functions.h"
 
-#include <QOpenGLFunctions>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
@@ -64,7 +63,7 @@ const GLfloat flipped_blit_texcoords[] = {
  *
  * Currently active QOpenGLFunctions object (use context()->functions() if unsure).
  */
-void PrepareToDraw(QOpenGLFunctions* f) {
+void olive::gl::PrepareToDraw(QOpenGLFunctions* f) {
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -96,8 +95,8 @@ void olive::gl::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) 
 
   pipeline->bind();
 
-  pipeline->setUniformValue("mvp_matrix", matrix);
-  pipeline->setUniformValue("texture", 0);
+  pipeline->setUniformValue("ove_mvpmat", matrix);
+  pipeline->setUniformValue("ove_maintex", 0);
 
   GLuint vertex_location = static_cast<GLuint>(pipeline->attributeLocation("a_position"));
   m_vbo.bind();
@@ -135,7 +134,7 @@ void olive::gl::OCIOBlit(OpenGLShaderPtr pipeline,
 
   pipeline->bind();
 
-  pipeline->setUniformValue("tex2", 2);
+  pipeline->setUniformValue("ove_ociolut", 2);
 
   olive::gl::Blit(pipeline, flipped, matrix);
 

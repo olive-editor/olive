@@ -43,14 +43,12 @@ protected:
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
 
-  virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) override;
+  virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
   ColorProcessorCache* color_cache();
 
 private:
-  void ProcessNode();
-
-  void HashNodeRecursively(QCryptographicHash* hash, Node *n, const rational &time);
+  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
 
   VideoRenderingParams video_params_;
 

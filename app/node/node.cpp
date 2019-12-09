@@ -21,6 +21,7 @@
 #include "node.h"
 
 #include <QDebug>
+#include <QFile>
 
 Node::Node() :
   can_be_deleted_(true)
@@ -56,10 +57,6 @@ QString Node::Description() const
 {
   // Return an empty string by default
   return QString();
-}
-
-void Node::Release()
-{
 }
 
 void Node::Retranslate()
@@ -153,6 +150,18 @@ void Node::DependentEdgeChanged(NodeInput *from)
   }
 }
 
+QString Node::ReadFileAsString(const QString &filename)
+{
+  QFile f(filename);
+  QString file_data;
+  if (f.open(QFile::ReadOnly | QFile::Text)) {
+    QTextStream text_stream(&f);
+    file_data = text_stream.readAll();
+    f.close();
+  }
+  return file_data;
+}
+
 void Node::LockUserInput()
 {
   user_input_lock_.lock();
@@ -179,11 +188,9 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
     if (p->type() == NodeParam::kInput) {
       NodeInput* src = static_cast<NodeInput*>(p);
 
-      if (src->dependent()) {
-        NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
+      NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
 
-        NodeInput::CopyValues(src, dst, include_connections, false);
-      }
+      NodeInput::CopyValues(src, dst, include_connections, false);
     }
   }
 
@@ -359,7 +366,17 @@ QList<Node *> Node::GetImmediateDependencies() const
   return node_list;
 }
 
-QString Node::Code() const
+bool Node::IsAccelerated() const
+{
+  return false;
+}
+
+QString Node::CodeVertex() const
+{
+  return QString();
+}
+
+QString Node::CodeFragment() const
 {
   return QString();
 }
@@ -440,6 +457,19 @@ bool Node::HasParamWithID(const QString &id) const
 NodeOutput *Node::output() const
 {
   return output_;
+}
+
+QVariant Node::InputValueFromTable(NodeInput *input, const NodeValueTable &table) const
+{
+  NodeParam::DataType find_data_type = input->data_type();
+
+  // Exception for Footage types (try to get a Texture instead)
+  if (find_data_type == NodeParam::kFootage) {
+    find_data_type = NodeParam::kTexture;
+  }
+
+  // Try to get a value from it
+  return table.Get(find_data_type);
 }
 
 void Node::AddInput(NodeInput *input)

@@ -25,8 +25,6 @@ public slots:
 
   void Render(NodeDependency path);
 
-  NodeValueTable RenderAsSibling(NodeDependency dep);
-
 signals:
   void CompletedCache(NodeDependency dep, NodeValueTable data);
 
@@ -39,7 +37,7 @@ protected:
 
   virtual bool OutputIsAccelerated(Node *output);
 
-  virtual void RunNodeAccelerated(Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params);
+  virtual void RunNodeAccelerated(const Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params);
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
@@ -48,9 +46,9 @@ protected:
 
   virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) = 0;
 
-  NodeValueTable ProcessNodeNormally(const NodeDependency &dep);
+  NodeValueTable ProcessNode(const NodeDependency &dep);
 
-  virtual NodeValueTable RenderBlock(TrackOutput *track, const TimeRange& range) = 0;
+  virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) = 0;
 
 private:
   bool started_;
