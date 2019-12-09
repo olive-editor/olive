@@ -30,16 +30,16 @@ class Node;
 class NodeDependency {
 public:
   NodeDependency();
-  NodeDependency(Node* node, const TimeRange& range);
-  NodeDependency(Node* node, const rational& in, const rational &out);
+  NodeDependency(const Node* node, const TimeRange& range);
+  NodeDependency(const Node* node, const rational& in, const rational &out);
 
-  Node* node() const;
+  const Node* node() const;
   const rational& in() const;
   const rational& out() const;
   const TimeRange& range() const;
 
 private:
-  Node* node_;
+  const Node* node_;
   TimeRange range_;
 };
 

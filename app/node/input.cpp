@@ -55,7 +55,7 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
-const NodeParam::DataType &NodeInput::data_type()
+const NodeParam::DataType &NodeInput::data_type() const
 {
   return data_type_;
 }
@@ -65,7 +65,7 @@ void NodeInput::set_data_type(const NodeParam::DataType &type)
   data_type_ = type;
 }
 
-NodeOutput *NodeInput::get_connected_output()
+NodeOutput *NodeInput::get_connected_output() const
 {
   if (!edges_.isEmpty()) {
     return edges_.first()->output();
@@ -74,7 +74,7 @@ NodeOutput *NodeInput::get_connected_output()
   return nullptr;
 }
 
-Node *NodeInput::get_connected_node()
+Node *NodeInput::get_connected_node() const
 {
   NodeOutput* output = get_connected_output();
 
@@ -85,7 +85,7 @@ Node *NodeInput::get_connected_node()
   return nullptr;
 }
 
-QVariant NodeInput::get_value_at_time(const rational &time)
+QVariant NodeInput::get_value_at_time(const rational &time) const
 {
   if (is_keyframing()) {
     if (keyframes_.first().time() >= time) {
@@ -231,7 +231,7 @@ void NodeInput::set_value_at_time(const rational &time, const QVariant &value)
     emit ValueChanged(signal_vc_range.in(), signal_vc_range.out());
 }
 
-bool NodeInput::is_keyframing()
+bool NodeInput::is_keyframing() const
 {
   return keyframing_;
 }
@@ -241,22 +241,12 @@ void NodeInput::set_is_keyframing(bool k)
   keyframing_ = k;
 }
 
-bool NodeInput::dependent()
-{
-  return dependent_;
-}
-
-void NodeInput::set_dependent(bool d)
-{
-  dependent_ = d;
-}
-
-const QVariant &NodeInput::minimum()
+const QVariant &NodeInput::minimum() const
 {
   return minimum_;
 }
 
-bool NodeInput::has_minimum()
+bool NodeInput::has_minimum() const
 {
   return has_minimum_;
 }
@@ -267,12 +257,12 @@ void NodeInput::set_minimum(const QVariant &min)
   has_minimum_ = true;
 }
 
-const QVariant &NodeInput::maximum()
+const QVariant &NodeInput::maximum() const
 {
   return maximum_;
 }
 
-bool NodeInput::has_maximum()
+bool NodeInput::has_maximum() const
 {
   return has_maximum_;
 }

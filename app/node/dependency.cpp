@@ -27,19 +27,19 @@ NodeDependency::NodeDependency() :
 {
 }
 
-NodeDependency::NodeDependency(Node *node, const TimeRange &range) :
+NodeDependency::NodeDependency(const Node *node, const TimeRange &range) :
   node_(node),
   range_(range)
 {
 }
 
-NodeDependency::NodeDependency(Node *node, const rational &in, const rational &out) :
+NodeDependency::NodeDependency(const Node *node, const rational &in, const rational &out) :
   node_(node),
   range_(in, out)
 {
 }
 
-Node *NodeDependency::node() const
+const Node *NodeDependency::node() const
 {
   return node_;
 }

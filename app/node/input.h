@@ -57,7 +57,7 @@ public:
    * This can be used in conjunction with NodeInput::can_accept_type() to determine whether this parameter can be
    * connected to it.
    */
-  const DataType& data_type();
+  const DataType& data_type() const;
   void set_data_type(const DataType& type);
 
   /**
@@ -67,7 +67,7 @@ public:
    *
    * The output parameter if connected or nullptr if not
    */
-  NodeOutput* get_connected_output();
+  NodeOutput* get_connected_output() const;
 
   /**
    * @brief If this input is connected to an output, retrieve the Node whose output is connected
@@ -76,12 +76,12 @@ public:
    *
    * The connected Node if connected or nullptr if not
    */
-  Node* get_connected_node();
+  Node* get_connected_node() const;
 
   /**
    * @brief Calculate what the stored value should be at a certain time
    */
-  QVariant get_value_at_time(const rational& time);
+  QVariant get_value_at_time(const rational& time) const;
 
   /**
    * @brief Sets what value should be seen at a specific time
@@ -91,31 +91,19 @@ public:
   /**
    * @brief Return whether keyframing is enabled on this input or not
    */
-  bool is_keyframing();
+  bool is_keyframing() const;
 
   /**
    * @brief Set whether keyframing is enabled on this input or not
    */
   void set_is_keyframing(bool k);
 
-  /**
-   * @brief Return whether the Node is dependent on this input or not
-   *
-   * \see set_dependent()
-   */
-  bool dependent();
-
-  /**
-   * @brief Set whether the Node is dependent on this input
-   */
-  void set_dependent(bool d);
-
-  const QVariant& minimum();
-  bool has_minimum();
+  const QVariant& minimum() const;
+  bool has_minimum() const;
   void set_minimum(const QVariant& min);
 
-  const QVariant& maximum();
-  bool has_maximum();
+  const QVariant& maximum() const;
+  bool has_maximum() const;
   void set_maximum(const QVariant& max);
 
   /**
