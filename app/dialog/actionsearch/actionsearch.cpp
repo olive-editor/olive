@@ -157,7 +157,7 @@ void ActionSearch::search_update(const QString &s, const QString &p, QMenu *pare
           if (comp.contains(s, Qt::CaseInsensitive)) {
 
             // If so, we add it to the list widget.
-            QListWidgetItem* item = new QListWidgetItem(QString("%1\n(%2)").arg(comp, menu_text), list_widget);
+            QListWidgetItem* item = new QListWidgetItem(QStringLiteral("%1\n(%2)").arg(comp, menu_text), list_widget);
 
             // Add a pointer to the original QAction in the item's data
             item->setData(Qt::UserRole+1, reinterpret_cast<quintptr>(a));

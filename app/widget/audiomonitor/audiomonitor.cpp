@@ -72,7 +72,7 @@ void AudioMonitor::paintEvent(QPaintEvent *)
     if (i <= kDecibelMinimum) {
       db_label = "-∞";
     } else {
-      db_label = QString("%1").arg(i);
+      db_label = QStringLiteral("%1").arg(i);
     }
 
     qreal log_val = QAudio::convertVolume(i, QAudio::DecibelVolumeScale, QAudio::LogarithmicVolumeScale);

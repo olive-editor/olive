@@ -25,7 +25,7 @@
 #include "config/config.h"
 
 QString padded(int64_t arg, int padding) {
-  return QString("%1").arg(arg, padding, 10, QChar('0'));
+  return QStringLiteral("%1").arg(arg, padding, 10, QChar('0'));
 }
 
 QString olive::timestamp_to_timecode(const int64_t &timestamp,
@@ -62,11 +62,11 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
       int64_t secs = total_seconds - mins * 60;
       int64_t fraction = qRound64((timestamp_dbl - static_cast<double>(total_seconds)) * 1000);
 
-      return QString("%1%2:%3:%4.%5").arg(prefix,
-                                          padded(hours, 2),
-                                          padded(mins, 2),
-                                          padded(secs, 2),
-                                          padded(fraction, 3));
+      return QStringLiteral("%1%2:%3:%4.%5").arg(prefix,
+                                                 padded(hours, 2),
+                                                 padded(mins, 2),
+                                                 padded(secs, 2),
+                                                 padded(fraction, 3));
     } else {
       // Determine what symbol to separate frames (";" is used for drop frame, ":" is non-drop frame)
       QString frame_token;
@@ -112,12 +112,12 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
       secs = f / rounded_frame_rate % 60;
       frames = f % rounded_frame_rate;
 
-      return QString("%1%2:%3:%4%5%6").arg(prefix,
-                                           padded(hours, 2),
-                                           padded(mins, 2),
-                                           padded(secs, 2),
-                                           frame_token,
-                                           padded(frames, 2));
+      return QStringLiteral("%1%2:%3:%4%5%6").arg(prefix,
+                                                  padded(hours, 2),
+                                                  padded(mins, 2),
+                                                  padded(secs, 2),
+                                                  frame_token,
+                                                  padded(frames, 2));
     }
   }
   case kFrames:

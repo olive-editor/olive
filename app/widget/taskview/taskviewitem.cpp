@@ -70,7 +70,7 @@ void TaskViewItem::SetTask(Task *t)
   task_ = t;
 
   // Set name label to the name (bolded)
-  task_name_lbl_->setText(QString("<b>%1</b>").arg(task_->text()));
+  task_name_lbl_->setText(QStringLiteral("<b>%1</b>").arg(task_->text()));
 
   // Connect to the task
   connect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));

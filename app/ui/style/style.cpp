@@ -143,7 +143,7 @@ void StyleManager::SetStyle(const QString &style_path)
   olive::icon::LoadAll(style_path);
 
   // Set palette for this
-  QString palette_file = QString("%1/palette.ini").arg(style_path);
+  QString palette_file = QStringLiteral("%1/palette.ini").arg(style_path);
   if (QFileInfo::exists(palette_file)) {
     qApp->setPalette(ParsePalette(palette_file));
   } else {
@@ -151,7 +151,7 @@ void StyleManager::SetStyle(const QString &style_path)
   }
 
   // Set CSS style for this
-  QFile css_file(QString("%1/style.css").arg(style_path));
+  QFile css_file(QStringLiteral("%1/style.css").arg(style_path));
 
   if (css_file.exists() && css_file.open(QFile::ReadOnly | QFile::Text)) {
     // Read in entire CSS from file and set as the application stylesheet
