@@ -319,6 +319,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeDependency>();
   qRegisterMetaType<rational>();
   qRegisterMetaType<OpenGLTexturePtr>();
+  qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValueTable>();
 }
 

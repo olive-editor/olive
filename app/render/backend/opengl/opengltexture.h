@@ -40,7 +40,7 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTexture)
 
-  void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, void *data = nullptr);
+  void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const void *data = nullptr);
   void Create(QOpenGLContext* ctx, FramePtr frame);
 
   bool IsCreated() const;
@@ -67,7 +67,7 @@ public slots:
   void Destroy();
 
 private:
-  void CreateInternal(GLuint *tex, void *data = nullptr);
+  void CreateInternal(GLuint *tex, const void *data = nullptr);
 
   QOpenGLContext* context_;
 

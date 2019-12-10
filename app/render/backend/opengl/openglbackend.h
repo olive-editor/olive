@@ -5,6 +5,7 @@
 #include "openglframebuffer.h"
 #include "openglworker.h"
 #include "opengltexture.h"
+#include "opengltexturecache.h"
 #include "openglshader.h"
 #include "openglshadercache.h"
 
@@ -33,6 +34,8 @@ private:
   OpenGLTexturePtr master_texture_;
 
   OpenGLShaderCache shader_cache_;
+
+  OpenGLTextureCache texture_cache_;
 
   int last_download_thread_;
 

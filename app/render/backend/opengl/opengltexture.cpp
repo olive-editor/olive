@@ -44,7 +44,7 @@ bool OpenGLTexture::IsCreated() const
   return (texture_ != 0);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, void* data)
+void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const void* data)
 {
   if (ctx == nullptr) {
     qWarning() << "RenderTexture::Create was passed an invalid context";
@@ -182,7 +182,7 @@ uchar *OpenGLTexture::Download() const
   return data;
 }
 
-void OpenGLTexture::CreateInternal(GLuint* tex, void *data)
+void OpenGLTexture::CreateInternal(GLuint* tex, const void *data)
 {
   QOpenGLFunctions* f = context_->functions();
 

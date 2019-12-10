@@ -7,12 +7,14 @@
 #include "../videorenderworker.h"
 #include "openglframebuffer.h"
 #include "openglshadercache.h"
+#include "opengltexturecache.h"
 
 class OpenGLWorker : public VideoRenderWorker {
   Q_OBJECT
 public:
   OpenGLWorker(QOpenGLContext* share_ctx,
                OpenGLShaderCache* shader_cache,
+               OpenGLTextureCache* texture_cache,
                VideoRenderFrameCache* frame_cache,
                QObject* parent = nullptr);
 
@@ -63,6 +65,8 @@ private:
   OpenGLFramebuffer buffer_;
 
   OpenGLShaderCache* shader_cache_;
+
+  OpenGLTextureCache* texture_cache_;
 
 private slots:
   void FinishInit();

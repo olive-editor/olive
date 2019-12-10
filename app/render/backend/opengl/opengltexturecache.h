@@ -3,6 +3,7 @@
 
 #include <QMutex>
 
+#include "openglframebuffer.h"
 #include "opengltexture.h"
 #include "render/videoparams.h"
 
@@ -34,7 +35,7 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTextureCache)
 
-  ReferencePtr Get(const VideoRenderingParams& params);
+  ReferencePtr Get(const VideoRenderingParams& params, const void *data = nullptr);
 
 private:
   void Relinquish(Reference* ref);
@@ -46,5 +47,7 @@ private:
   QList<Reference*> existing_references_;
 
 };
+
+Q_DECLARE_METATYPE(OpenGLTextureCache::ReferencePtr)
 
 #endif // OPENGLTEXTURECACHE_H

@@ -32,7 +32,7 @@ bool OpenGLBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, frame_cache());
+    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, &texture_cache_, frame_cache());
     processor->SetParameters(params());
     processors_.append(processor);
   }
@@ -145,9 +145,8 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   QVariant value = table.Get(NodeParam::kTexture);
-  OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
 
-  if (!texture) {
+  if (value.isNull()) {
     // No frame received, we set hash to an empty
     frame_cache()->RemoveHash(path.in(), hash);
   } else {
@@ -159,7 +158,7 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
                               "Download",
                               Q_ARG(NodeDependency, path),
                               Q_ARG(QByteArray, hash),
-                              Q_ARG(QVariant, QVariant::fromValue(texture)),
+                              Q_ARG(QVariant, value),
                               Q_ARG(QString, cache_fn));
 
     last_download_thread_++;

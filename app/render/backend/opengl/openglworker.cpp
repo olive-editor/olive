@@ -7,12 +7,13 @@
 #include "render/colormanager.h"
 #include "render/pixelservice.h"
 
-OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
+OpenGLWorker::OpenGLWorker(QOpenGLContext *share_ctx, OpenGLShaderCache *shader_cache, OpenGLTextureCache *texture_cache, VideoRenderFrameCache *frame_cache, QObject *parent) :
   VideoRenderWorker(frame_cache, parent),
   share_ctx_(share_ctx),
   ctx_(nullptr),
   functions_(nullptr),
-  shader_cache_(shader_cache)
+  shader_cache_(shader_cache),
+  texture_cache_(texture_cache)
 {
   surface_.create();
 }
@@ -95,8 +96,9 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     }
   }
 
-  OpenGLTexturePtr footage_tex = std::make_shared<OpenGLTexture>();
-  footage_tex->Create(ctx_, frame);
+  VideoRenderingParams footage_params(frame->width(), frame->height(), stream->timebase(), frame->format(), video_params().mode());
+
+  OpenGLTextureCache::ReferencePtr footage_tex_ref = texture_cache_->Get(footage_params, frame->data());
 
   if (video_params().mode() == olive::kOffline) {
     if (!color_processor->IsEnabled()) {
@@ -104,27 +106,29 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     }
 
     // Create destination texture
-    OpenGLTexturePtr associated_tex = std::make_shared<OpenGLTexture>();
-    associated_tex->Create(ctx_, footage_tex->width(), footage_tex->height(), footage_tex->format());
+    OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_->Get(footage_params);
 
     // Set viewport for texture size
-    functions_->glViewport(0, 0, footage_tex->width(), footage_tex->height());
+    functions_->glViewport(0, 0, footage_tex_ref->texture()->width(), footage_tex_ref->texture()->height());
 
-    buffer_.Attach(associated_tex);
+    buffer_.Attach(associated_tex_ref->texture());
     buffer_.Bind();
-    footage_tex->Bind();
+    footage_tex_ref->texture()->Bind();
+
+    functions_->glClearColor(0.0, 0.0, 0.0, 0.0);
+    functions_->glClear(GL_COLOR_BUFFER_BIT);
 
     // Blit old texture to new texture through OCIO shader
     color_processor->ProcessOpenGL();
 
-    footage_tex->Release();
+    footage_tex_ref->texture()->Release();
     buffer_.Release();
     buffer_.Detach();
 
-    footage_tex = associated_tex;
+    footage_tex_ref = associated_tex_ref;
   }
 
-  table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex));
+  table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex_ref));
 }
 
 void OpenGLWorker::CloseInternal()
@@ -150,12 +154,14 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   }
 
   // Create the output texture
-  OpenGLTexturePtr output = std::make_shared<OpenGLTexture>();
-  output->Create(ctx_, video_params().effective_width(), video_params().effective_height(), video_params().format());
+  OpenGLTextureCache::ReferencePtr output_ref = texture_cache_->Get(video_params());
 
-  buffer_.Attach(output);
+  buffer_.Attach(output_ref->texture());
 
   buffer_.Bind();
+
+  functions_->glClearColor(0.0, 0.0, 0.0, 0.0);
+  functions_->glClear(GL_COLOR_BUFFER_BIT);
 
   // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
   shader->Lock();
@@ -206,11 +212,11 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
         case NodeInput::kFootage:
         case NodeInput::kTexture:
         {
-          OpenGLTexturePtr texture = value.value<OpenGLTexturePtr>();
+          OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
 
           functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
 
-          GLuint tex_id = texture ? texture->texture() : 0;
+          GLuint tex_id = texture ? texture->texture()->texture() : 0;
           functions_->glBindTexture(GL_TEXTURE_2D, tex_id);
 
           // Set value to bound texture
@@ -228,8 +234,8 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
             int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
             if (res_param_location > -1) {
               shader->setUniformValue(res_param_location,
-                                      static_cast<GLfloat>(texture->width()),
-                                      static_cast<GLfloat>(texture->height()));
+                                      static_cast<GLfloat>(texture->texture()->width()),
+                                      static_cast<GLfloat>(texture->texture()->height()));
             }
           }
 
@@ -288,23 +294,23 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
 
   buffer_.Detach();
 
-  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output));
+  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_ref));
 }
 
 void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 {
-  OpenGLTexturePtr texture = tex_in.value<OpenGLTexturePtr>();
+  OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
   PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-  buffer_.Attach(texture);
+  buffer_.Attach(texture->texture());
   f->glBindFramebuffer(GL_READ_FRAMEBUFFER, buffer_.buffer());
 
   f->glReadPixels(0,
                   0,
-                  texture->width(),
-                  texture->height(),
+                  texture->texture()->width(),
+                  texture->texture()->height(),
                   format_info.pixel_format,
                   format_info.gl_pixel_type,
                   buffer.data());
