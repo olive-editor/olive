@@ -98,7 +98,7 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
 
   VideoRenderingParams footage_params(frame->width(), frame->height(), stream->timebase(), frame->format(), video_params().mode());
 
-  OpenGLTextureCache::ReferencePtr footage_tex_ref = texture_cache_->Get(footage_params, frame->data());
+  OpenGLTextureCache::ReferencePtr footage_tex_ref = texture_cache_->Get(ctx_, footage_params, frame->data());
 
   if (video_params().mode() == olive::kOffline) {
     if (!color_processor->IsEnabled()) {
@@ -106,14 +106,14 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     }
 
     // Create destination texture
-    OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_->Get(footage_params);
-
-    // Set viewport for texture size
-    functions_->glViewport(0, 0, footage_tex_ref->texture()->width(), footage_tex_ref->texture()->height());
+    OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_->Get(ctx_, footage_params);
 
     buffer_.Attach(associated_tex_ref->texture(), true);
     buffer_.Bind();
     footage_tex_ref->texture()->Bind();
+
+    // Set viewport for texture size
+    functions_->glViewport(0, 0, footage_tex_ref->texture()->width(), footage_tex_ref->texture()->height());
 
     // Blit old texture to new texture through OCIO shader
     color_processor->ProcessOpenGL();
@@ -123,6 +123,8 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     buffer_.Detach();
 
     footage_tex_ref = associated_tex_ref;
+
+    functions_->glFinish();
   }
 
   table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex_ref));
@@ -151,7 +153,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   }
 
   // Create the output texture
-  OpenGLTextureCache::ReferencePtr output_ref = texture_cache_->Get(video_params());
+  OpenGLTextureCache::ReferencePtr output_ref = texture_cache_->Get(ctx_, video_params());
 
   buffer_.Attach(output_ref->texture(), true);
   buffer_.Bind();
@@ -284,7 +286,6 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   shader->release();
 
   buffer_.Release();
-
   buffer_.Detach();
 
   output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_ref));

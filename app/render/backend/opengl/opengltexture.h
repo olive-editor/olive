@@ -55,8 +55,6 @@ public:
 
   const olive::PixelFormat &format() const;
 
-  QOpenGLContext* context() const;
-
   const GLuint& texture() const;
 
   void Upload(const void *data);
@@ -67,9 +65,9 @@ public slots:
   void Destroy();
 
 private:
-  void CreateInternal(GLuint *tex, const void *data = nullptr);
+  void CreateInternal(QOpenGLContext *create_ctx, GLuint *tex, const void *data = nullptr);
 
-  QOpenGLContext* context_;
+  QOpenGLContext* created_ctx_;
 
   GLuint texture_;
 

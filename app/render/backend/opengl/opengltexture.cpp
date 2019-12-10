@@ -26,7 +26,7 @@
 #include "render/pixelservice.h"
 
 OpenGLTexture::OpenGLTexture() :
-  context_(nullptr),
+  created_ctx_(nullptr),
   texture_(0),
   width_(0),
   height_(0),
@@ -41,27 +41,27 @@ OpenGLTexture::~OpenGLTexture()
 
 bool OpenGLTexture::IsCreated() const
 {
-  return (texture_ != 0);
+  return (texture_);
 }
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const void* data)
 {
-  if (ctx == nullptr) {
+  if (!ctx) {
     qWarning() << "RenderTexture::Create was passed an invalid context";
     return;
   }
 
   Destroy();
 
-  context_ = ctx;
+  created_ctx_ = ctx;
   width_ = width;
   height_ = height;
   format_ = format;
 
-  connect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+  connect(created_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
 
   // Create main texture
-  CreateInternal(&texture_, data);
+  CreateInternal(created_ctx_, &texture_, data);
 }
 
 void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
@@ -71,34 +71,38 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, FramePtr frame)
 
 void OpenGLTexture::Destroy()
 {
-  if (context_ != nullptr) {
-    disconnect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+  if (created_ctx_) {
+    disconnect(created_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
 
-    context_->functions()->glDeleteTextures(1, &texture_);
+    created_ctx_->functions()->glDeleteTextures(1, &texture_);
     texture_ = 0;
 
-    context_ = nullptr;
+    created_ctx_ = nullptr;
   }
 }
 
 void OpenGLTexture::Bind()
 {
-  if (context_ == nullptr) {
+  QOpenGLContext* context = QOpenGLContext::currentContext();
+
+  if (!context) {
     qWarning() << "RenderTexture::Bind() called with an invalid context";
     return;
   }
 
-  context_->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
+  context->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 }
 
 void OpenGLTexture::Release()
 {
-  if (context_ == nullptr) {
+  QOpenGLContext* context = QOpenGLContext::currentContext();
+
+  if (!context) {
     qWarning() << "RenderTexture::Release() called with an invalid context";
     return;
   }
 
-  context_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+  context->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 const int &OpenGLTexture::width() const
@@ -116,11 +120,6 @@ const olive::PixelFormat &OpenGLTexture::format() const
   return format_;
 }
 
-QOpenGLContext *OpenGLTexture::context() const
-{
-  return context_;
-}
-
 const GLuint &OpenGLTexture::texture() const
 {
   return texture_;
@@ -133,19 +132,26 @@ void OpenGLTexture::Upload(const void *data)
     return;
   }
 
+  QOpenGLContext* context = QOpenGLContext::currentContext();
+
+  if (!context) {
+    qWarning() << "RenderTexture::Release() called with an invalid context";
+    return;
+  }
+
   Bind();
 
   PixelFormatInfo info = PixelService::GetPixelFormatInfo(format_);
 
-  context_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
-                                         0,
-                                         0,
-                                         0,
-                                         width_,
-                                         height_,
-                                         info.pixel_format,
-                                         info.gl_pixel_type,
-                                         data);
+  context->functions()->glTexSubImage2D(GL_TEXTURE_2D,
+                                        0,
+                                        0,
+                                        0,
+                                        width_,
+                                        height_,
+                                        info.pixel_format,
+                                        info.gl_pixel_type,
+                                        data);
 
   Release();
 }
@@ -157,7 +163,8 @@ uchar *OpenGLTexture::Download() const
     return nullptr;
   }
 
-  QOpenGLFunctions* f = context_->functions();
+  QOpenGLContext* context = QOpenGLContext::currentContext();
+  QOpenGLFunctions* f = context->functions();
 
   GLuint read_fbo;
 
@@ -165,7 +172,7 @@ uchar *OpenGLTexture::Download() const
 
   f->glBindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
 
-  context_->extraFunctions()->glFramebufferTexture2D(
+  context->extraFunctions()->glFramebufferTexture2D(
         GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_, 0
         );
 
@@ -182,9 +189,9 @@ uchar *OpenGLTexture::Download() const
   return data;
 }
 
-void OpenGLTexture::CreateInternal(GLuint* tex, const void *data)
+void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, const void *data)
 {
-  QOpenGLFunctions* f = context_->functions();
+  QOpenGLFunctions* f = create_ctx->functions();
 
   // Create texture
   f->glGenTextures(1, tex);

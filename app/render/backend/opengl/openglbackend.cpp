@@ -135,7 +135,7 @@ void OpenGLBackend::DecompileInternal()
   shader_cache_.Clear();
 }
 
-bool OpenGLBackend::TimeIsCached(const TimeRange &time)
+bool OpenGLBackend::TimeIsQueued(const TimeRange &time)
 {
   return cache_queue_.contains(time);
 }
@@ -164,9 +164,10 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
     last_download_thread_++;
   }
 
-  // Set as push texture
-  if (!TimeIsCached(TimeRange(path.in(), path.in()))) {
-    emit CachedFrameReady(path.in(), value);
+  // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
+  if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
+    // FIXME: This texture is part of the texture cache and therefore volatile, we should probably copy it here instead
+    emit CachedFrameReady(path.in(), QVariant::fromValue(value.value<OpenGLTextureCache::ReferencePtr>()->texture()));
   }
 
   // Queue up a new frame for this worker

@@ -256,8 +256,6 @@ void RenderBackend::CacheNext()
     if (!WorkerIsBusy(worker)) {
       TimeRange cache_frame = cache_queue_.takeFirst();
 
-      qDebug() << "Rendering" << cache_frame.in().toDouble();
-
       NodeDependency dep = NodeDependency(node_connected_to_viewer, cache_frame.in(), cache_frame.out());
 
       SetWorkerBusyState(worker, true);

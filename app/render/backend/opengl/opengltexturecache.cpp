@@ -7,7 +7,7 @@ OpenGLTextureCache::~OpenGLTextureCache()
   }
 }
 
-OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(const VideoRenderingParams &params, const void *data)
+OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, const VideoRenderingParams &params, const void *data)
 {
   OpenGLTexturePtr texture = nullptr;
 
@@ -28,8 +28,6 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(const VideoRenderingPar
 
   lock_.unlock();
 
-  QOpenGLContext* ctx = QOpenGLContext::currentContext();
-
   // If we didn't find a texture, we'll need to create one
   if (!texture) {
     texture = std::make_shared<OpenGLTexture>();
@@ -38,15 +36,19 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(const VideoRenderingPar
     texture->Upload(data);
   }
 
-  return std::make_shared<Reference>(this, texture);
+  ReferencePtr ref = std::make_shared<Reference>(this, texture);
+  existing_references_.append(ref.get());
+  return ref;
 }
 
 void OpenGLTextureCache::Relinquish(OpenGLTextureCache::Reference *ref)
 {
+  OpenGLTexturePtr tex = ref->texture();
+
   lock_.lock();
 
   existing_references_.removeOne(ref);
-  available_textures_.append(ref->texture());
+  available_textures_.append(tex);
 
   lock_.unlock();
 }

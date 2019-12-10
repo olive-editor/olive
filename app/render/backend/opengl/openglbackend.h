@@ -29,7 +29,7 @@ protected:
   virtual void DecompileInternal() override;
 
 private:
-  bool TimeIsCached(const TimeRange &time);
+  bool TimeIsQueued(const TimeRange &time);
 
   OpenGLTexturePtr master_texture_;
 

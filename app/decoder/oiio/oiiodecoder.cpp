@@ -105,7 +105,6 @@ bool OIIODecoder::Open()
   return true;
 }
 
-#include <QFile>
 FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 {
   if (!open_ && !Open()) {
@@ -114,7 +113,7 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 
   Q_UNUSED(timecode)
 
-  if (frame_ == nullptr) {
+  if (!frame_) {
     frame_ = Frame::Create();
 
     frame_->set_width(width_);
