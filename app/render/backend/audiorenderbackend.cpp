@@ -29,6 +29,10 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 
 void AudioRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
 {
+  if (!params_.is_valid()) {
+    return;
+  }
+
   RenderBackend::InvalidateCache(start_range, end_range);
 
   rational start_range_adj = qMax(rational(0), start_range);

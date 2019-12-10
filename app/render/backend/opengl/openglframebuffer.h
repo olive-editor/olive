@@ -43,7 +43,7 @@ public:
 
   void Release();
 
-  void Attach(OpenGLTexturePtr texture);
+  void Attach(OpenGLTexturePtr texture, bool clear = false);
 
   void Detach();
 

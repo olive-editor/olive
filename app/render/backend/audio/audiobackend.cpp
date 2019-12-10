@@ -19,19 +19,6 @@ QIODevice *AudioBackend::GetAudioPullDevice()
   return &pull_device_;
 }
 
-void AudioBackend::InvalidateCache(const rational &start_range, const rational &end_range)
-{
-  /*
-  // Truncate to length if necessary
-  int max_length_in_bytes = params().time_to_bytes(viewer_node()->Length());
-  if (pcm_data_.size() > max_length_in_bytes) {
-    pcm_data_.resize(max_length_in_bytes);
-  }
-  */
-
-  AudioRenderBackend::InvalidateCache(start_range, end_range);
-}
-
 bool AudioBackend::InitInternal()
 {
   // Initiate one thread per CPU core

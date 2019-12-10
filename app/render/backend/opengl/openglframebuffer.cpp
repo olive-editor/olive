@@ -88,14 +88,14 @@ void OpenGLFramebuffer::Release()
   context_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture)
+void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture, bool clear)
 {
   if (context_ == nullptr) {
     return;
   }
 
   texture_ = texture;
-  AttachInternal(texture_->texture(), false);
+  AttachInternal(texture_->texture(), clear);
 }
 
 void OpenGLFramebuffer::Detach()

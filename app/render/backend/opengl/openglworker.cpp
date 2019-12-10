@@ -111,12 +111,9 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     // Set viewport for texture size
     functions_->glViewport(0, 0, footage_tex_ref->texture()->width(), footage_tex_ref->texture()->height());
 
-    buffer_.Attach(associated_tex_ref->texture());
+    buffer_.Attach(associated_tex_ref->texture(), true);
     buffer_.Bind();
     footage_tex_ref->texture()->Bind();
-
-    functions_->glClearColor(0.0, 0.0, 0.0, 0.0);
-    functions_->glClear(GL_COLOR_BUFFER_BIT);
 
     // Blit old texture to new texture through OCIO shader
     color_processor->ProcessOpenGL();
@@ -156,12 +153,8 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   // Create the output texture
   OpenGLTextureCache::ReferencePtr output_ref = texture_cache_->Get(video_params());
 
-  buffer_.Attach(output_ref->texture());
-
+  buffer_.Attach(output_ref->texture(), true);
   buffer_.Bind();
-
-  functions_->glClearColor(0.0, 0.0, 0.0, 0.0);
-  functions_->glClear(GL_COLOR_BUFFER_BIT);
 
   // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
   shader->Lock();

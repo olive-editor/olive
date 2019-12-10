@@ -81,13 +81,13 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
       rational compare = cache_queue_.at(i).in();
       rational compare_diff = compare - last_time;
 
-      if (compare_diff > diff) {
-        cache_queue_.insert(i, new_range);
+      if (compare == r) {
         added = true;
         break;
       }
 
-      if (compare == r) {
+      if (compare_diff > diff)  {
+        cache_queue_.insert(i, new_range);
         added = true;
         break;
       }
