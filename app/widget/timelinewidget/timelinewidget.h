@@ -287,6 +287,29 @@ private:
     virtual void MouseRelease(TimelineViewMouseEvent *event);
   };
 
+  class TransitionTool : public Tool
+  {
+  public:
+    TransitionTool(TimelineWidget* parent);
+
+    virtual void MousePress(TimelineViewMouseEvent *event);
+    virtual void MouseMove(TimelineViewMouseEvent *event);
+    virtual void MouseRelease(TimelineViewMouseEvent *event);
+  };
+
+  class AddTool : public Tool
+  {
+  public:
+    AddTool(TimelineWidget* parent);
+
+    virtual void MousePress(TimelineViewMouseEvent *event);
+    virtual void MouseMove(TimelineViewMouseEvent *event);
+    virtual void MouseRelease(TimelineViewMouseEvent *event);
+
+  private:
+    TimelineViewGhostItem* ghost_;
+  };
+
   void SetBlockLinksSelected(Block *block, bool selected);
 
   QPoint drag_origin_;

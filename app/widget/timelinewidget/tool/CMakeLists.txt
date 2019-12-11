@@ -16,6 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/timelinewidget/tool/add.cpp
   widget/timelinewidget/tool/hand.cpp
   widget/timelinewidget/tool/import.cpp
   widget/timelinewidget/tool/pointer.cpp
@@ -24,6 +25,7 @@ set(OLIVE_SOURCES
   widget/timelinewidget/tool/rolling.cpp
   widget/timelinewidget/tool/slide.cpp
   widget/timelinewidget/tool/slip.cpp
+  widget/timelinewidget/tool/transition.cpp
   widget/timelinewidget/tool/tool.cpp
   widget/timelinewidget/tool/zoom.cpp
   PARENT_SCOPE

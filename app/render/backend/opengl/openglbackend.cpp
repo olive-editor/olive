@@ -144,9 +144,9 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
-  QVariant value = table.Get(NodeParam::kTexture);
+  OpenGLTextureCache::ReferencePtr ref = table.Get(NodeParam::kTexture).value<OpenGLTextureCache::ReferencePtr>();
 
-  if (value.isNull()) {
+  if (!ref) {
     // No frame received, we set hash to an empty
     frame_cache()->RemoveHash(path.in(), hash);
   } else {
@@ -158,7 +158,7 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
                               "Download",
                               Q_ARG(NodeDependency, path),
                               Q_ARG(QByteArray, hash),
-                              Q_ARG(QVariant, value),
+                              Q_ARG(QVariant, QVariant::fromValue(ref)),
                               Q_ARG(QString, cache_fn));
 
     last_download_thread_++;
@@ -169,8 +169,8 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
     // FIXME: This texture is part of the texture cache and therefore volatile, we should probably copy it here instead
     OpenGLTexturePtr tex = nullptr;
 
-    if (!value.isNull()) {
-      tex = value.value<OpenGLTextureCache::ReferencePtr>()->texture();
+    if (ref) {
+      tex = ref->texture();
     }
 
     emit CachedFrameReady(path.in(), QVariant::fromValue(tex));
