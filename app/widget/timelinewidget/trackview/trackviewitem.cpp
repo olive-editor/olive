@@ -6,9 +6,9 @@
 #include <QPainter>
 #include <QtMath>
 
-TrackViewItem::TrackViewItem(const QString& name, Qt::Alignment alignment, QWidget *parent) :
+TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   QWidget(parent),
-  alignment_(alignment)
+  track_(track)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
@@ -17,7 +17,7 @@ TrackViewItem::TrackViewItem(const QString& name, Qt::Alignment alignment, QWidg
   stack_ = new QStackedWidget();
   layout->addWidget(stack_);
 
-  label_ = new ClickableLabel(name);
+  label_ = new ClickableLabel(track_->GetTrackName());
   connect(label_, SIGNAL(MouseDoubleClicked()), this, SLOT(LabelClicked()));
   stack_->addWidget(label_);
 
@@ -27,6 +27,7 @@ TrackViewItem::TrackViewItem(const QString& name, Qt::Alignment alignment, QWidg
   stack_->addWidget(line_edit_);
 
   mute_button_ = CreateMSLButton(tr("M"), Qt::red);
+  connect(mute_button_, SIGNAL(toggled(bool)), track_, SLOT(SetMuted(bool)));
   layout->addWidget(mute_button_);
 
   solo_button_ = CreateMSLButton(tr("S"), Qt::yellow);
@@ -66,7 +67,7 @@ void TrackViewItem::LineEditConfirmed()
   QString line_edit_str = line_edit_->text();
   if (!line_edit_str.isEmpty()) {
     label_->setText(line_edit_str);
-    emit NameChanged(line_edit_str);
+    track_->SetTrackName(line_edit_str);
   }
 
   stack_->setCurrentWidget(label_);

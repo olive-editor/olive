@@ -5,6 +5,7 @@
 #include <QStackedWidget>
 #include <QWidget>
 
+#include "node/output/track/track.h"
 #include "widget/clickablelabel/clickablelabel.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
 
@@ -12,17 +13,11 @@ class TrackViewItem : public QWidget
 {
   Q_OBJECT
 public:
-  TrackViewItem(const QString& name,
-                Qt::Alignment alignment = Qt::AlignTop,
+  TrackViewItem(TrackOutput* track,
                 QWidget* parent = nullptr);
-
-signals:
-  void NameChanged(const QString& name);
 
 private:
   QPushButton* CreateMSLButton(const QString &text, const QColor &checked_color) const;
-
-  Qt::Alignment alignment_;
 
   QStackedWidget* stack_;
 
@@ -32,6 +27,8 @@ private:
   QPushButton* mute_button_;
   QPushButton* solo_button_;
   QPushButton* lock_button_;
+
+  TrackOutput* track_;
 
 private slots:
   void LabelClicked();

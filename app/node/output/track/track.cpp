@@ -38,6 +38,10 @@ TrackOutput::TrackOutput() :
   connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
 
+  muted_input_ = new NodeInput("muted_in");
+  muted_input_->set_data_type(NodeParam::kBoolean);
+  AddInput(muted_input_);
+
   // Set default height
   track_height_ = GetDefaultTrackHeight();
 }
@@ -157,6 +161,10 @@ Block *TrackOutput::NearestBlockAfter(const rational &time) const
 
 Block *TrackOutput::BlockAtTime(const rational &time) const
 {
+  if (IsMuted()) {
+    return nullptr;
+  }
+
   foreach (Block* block, block_cache_) {
     if (block
         && block->in() <= time
@@ -171,6 +179,10 @@ Block *TrackOutput::BlockAtTime(const rational &time) const
 QList<Block *> TrackOutput::BlocksAtTimeRange(const TimeRange &range) const
 {
   QList<Block*> list;
+
+  if (IsMuted()) {
+    return list;
+  }
 
   foreach (Block* block, block_cache_) {
     if (block
@@ -190,12 +202,7 @@ const QVector<Block *> &TrackOutput::Blocks() const
 
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
-  /*// We intercept IC signals from Blocks since we may be performing several options and they may over-signal
-  if (from == previous_input() && block_invalidate_cache_stack_ == 0) {
-    Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, in()), from);
-  } else {
-  }*/
-  Node::InvalidateCache(start_range, end_range, from);
+  Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, track_length()), from);
 }
 
 void TrackOutput::InsertBlockBefore(Block* block, Block* after)
@@ -357,9 +364,20 @@ QString TrackOutput::GetDefaultTrackName(TrackType type, int index)
   return tr("Track %1").arg(user_friendly_index);
 }
 
+bool TrackOutput::IsMuted() const
+{
+  return muted_input_->get_value_at_time(0).toBool();
+}
+
 void TrackOutput::SetTrackName(const QString &name)
 {
   track_name_ = name;
+}
+
+void TrackOutput::SetMuted(bool e)
+{
+  muted_input_->set_value_at_time(0, e);
+  InvalidateCache(0, track_length());
 }
 
 void TrackOutput::UpdateInOutFrom(int index)

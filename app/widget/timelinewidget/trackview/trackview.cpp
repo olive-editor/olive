@@ -53,7 +53,7 @@ void TrackView::ConnectTrackList(TrackList *list)
 
   if (list_ != nullptr) {
     foreach (TrackOutput* track, list_->Tracks()) {
-      splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track->GetTrackName()));
+      splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track));
     }
 
     connect(list_, SIGNAL(TrackHeightChanged(int, int)), splitter_, SLOT(SetTrackHeight(int, int)));
@@ -86,7 +86,7 @@ void TrackView::TrackHeightChanged(int index, int height)
 
 void TrackView::InsertTrack(TrackOutput *track)
 {
-  splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track->GetTrackName()));
+  splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track));
 }
 
 void TrackView::RemoveTrack(TrackOutput *track)

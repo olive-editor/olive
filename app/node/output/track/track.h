@@ -136,8 +136,12 @@ public:
 
   static QString GetDefaultTrackName(TrackType type, int index);
 
+  bool IsMuted() const;
+
 public slots:
   void SetTrackName(const QString& name);
+
+  void SetMuted(bool e);
 
 signals:
   /**
@@ -170,6 +174,8 @@ private:
   QVector<Block*> block_cache_;
 
   NodeInputArray* block_input_;
+
+  NodeInput* muted_input_;
 
   TrackType track_type_;
 
