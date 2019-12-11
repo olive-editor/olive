@@ -167,7 +167,13 @@ void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, N
   // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
   if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
     // FIXME: This texture is part of the texture cache and therefore volatile, we should probably copy it here instead
-    emit CachedFrameReady(path.in(), QVariant::fromValue(value.value<OpenGLTextureCache::ReferencePtr>()->texture()));
+    OpenGLTexturePtr tex = nullptr;
+
+    if (!value.isNull()) {
+      tex = value.value<OpenGLTextureCache::ReferencePtr>()->texture();
+    }
+
+    emit CachedFrameReady(path.in(), QVariant::fromValue(tex));
   }
 
   // Queue up a new frame for this worker
