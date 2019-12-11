@@ -62,7 +62,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(olive::tool::kZoom, std::make_shared<ZoomTool>(this));
   //tools_.replace(olive::tool::kTransition, new (this));         FIXME: Implement
   //tools_.replace(olive::tool::kRecord, new PointerTool(this));  FIXME: Implement
-  //tools_.replace(olive::tool::kAdd, new PointerTool(this));     FIXME: Implement
+  tools_.replace(olive::tool::kAdd, std::make_shared<AddTool>(this));
 
   import_tool_ = std::make_shared<ImportTool>(this);
 
@@ -756,8 +756,13 @@ void TimelineWidget::MoveRubberBandSelect(bool select_links)
   }
 
   foreach (QGraphicsItem* item, new_selected_list) {
-    TimelineViewBlockItem* block_item = static_cast<TimelineViewBlockItem*>(item);
-    if (GetTrackFromReference(block_item->Track())->IsLocked()) {
+    TimelineViewBlockItem* block_item = dynamic_cast<TimelineViewBlockItem*>(item);
+    if (!block_item) {
+      continue;
+    }
+
+    TrackOutput* t = GetTrackFromReference(block_item->Track());
+    if (t && t->IsLocked()) {
       continue;
     }
 
