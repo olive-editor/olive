@@ -46,7 +46,9 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
 
   TimelineViewBlockItem* item = GetItemAtScenePos(event->GetCoordinates());
 
-  bool selectable_item = (item != nullptr && item->flags() & QGraphicsItem::ItemIsSelectable);
+  bool selectable_item = (item != nullptr
+      && item->flags() & QGraphicsItem::ItemIsSelectable
+      && !parent()->GetTrackFromReference(item->Track())->IsLocked());
 
   if (selectable_item) {
     // Cache the clip's type for use later

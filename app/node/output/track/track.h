@@ -138,10 +138,14 @@ public:
 
   bool IsMuted() const;
 
+  bool IsLocked() const;
+
 public slots:
   void SetTrackName(const QString& name);
 
   void SetMuted(bool e);
+
+  void SetLocked(bool e);
 
 signals:
   /**
@@ -188,6 +192,8 @@ private:
   int block_invalidate_cache_stack_;
 
   int index_;
+
+  bool locked_;
 
 private slots:
   void BlockConnected(NodeEdgePtr edge);

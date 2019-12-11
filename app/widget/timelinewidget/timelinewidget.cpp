@@ -756,11 +756,16 @@ void TimelineWidget::MoveRubberBandSelect(bool select_links)
   }
 
   foreach (QGraphicsItem* item, new_selected_list) {
-    item->setSelected(true);
+    TimelineViewBlockItem* block_item = static_cast<TimelineViewBlockItem*>(item);
+    if (GetTrackFromReference(block_item->Track())->IsLocked()) {
+      continue;
+    }
+
+    block_item->setSelected(true);
 
     if (select_links) {
       // Select the block's links
-      Block* b = static_cast<TimelineViewBlockItem*>(item)->block();
+      Block* b = block_item->block();
       SetBlockLinksSelected(b, true);
 
       // Add its links to the list

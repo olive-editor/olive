@@ -30,10 +30,11 @@ TrackViewItem::TrackViewItem(TrackOutput* track, QWidget *parent) :
   connect(mute_button_, SIGNAL(toggled(bool)), track_, SLOT(SetMuted(bool)));
   layout->addWidget(mute_button_);
 
-  solo_button_ = CreateMSLButton(tr("S"), Qt::yellow);
-  layout->addWidget(solo_button_);
+  /*solo_button_ = CreateMSLButton(tr("S"), Qt::yellow);
+  layout->addWidget(solo_button_);*/
 
   lock_button_ = CreateMSLButton(tr("L"), Qt::gray);
+  connect(lock_button_, SIGNAL(toggled(bool)), track_, SLOT(SetLocked(bool)));
   layout->addWidget(lock_button_);
 
   setMinimumHeight(mute_button_->height());

@@ -30,7 +30,8 @@
 TrackOutput::TrackOutput() :
   track_type_(kTrackTypeNone),
   block_invalidate_cache_stack_(0),
-  index_(-1)
+  index_(-1),
+  locked_(false)
 {
   block_input_ = new NodeInputArray("block_in");
   AddInput(block_input_);
@@ -369,6 +370,11 @@ bool TrackOutput::IsMuted() const
   return muted_input_->get_value_at_time(0).toBool();
 }
 
+bool TrackOutput::IsLocked() const
+{
+  return locked_;
+}
+
 void TrackOutput::SetTrackName(const QString &name)
 {
   track_name_ = name;
@@ -378,6 +384,11 @@ void TrackOutput::SetMuted(bool e)
 {
   muted_input_->set_value_at_time(0, e);
   InvalidateCache(0, track_length());
+}
+
+void TrackOutput::SetLocked(bool e)
+{
+  locked_ = e;
 }
 
 void TrackOutput::UpdateInOutFrom(int index)
