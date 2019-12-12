@@ -313,6 +313,8 @@ private:
     virtual void MouseMove(TimelineViewMouseEvent *event) override;
     virtual void MouseRelease(TimelineViewMouseEvent *event) override;
   protected:
+  private:
+    bool dual_transition_;
   };
 
   void SetBlockLinksSelected(Block *block, bool selected);

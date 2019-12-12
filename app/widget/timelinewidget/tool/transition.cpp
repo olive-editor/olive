@@ -27,12 +27,15 @@ void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
   rational transition_start_point;
   olive::timeline::MovementMode trim_mode;
   rational halfway_point = block_at_time->in() + block_at_time->length() / 2;
+  rational tenth_point = block_at_time->in() + block_at_time->length() / 10;
   if (cursor_frame < halfway_point) {
     transition_start_point = block_at_time->in();
     trim_mode = olive::timeline::kTrimIn;
+    dual_transition_ = (cursor_frame < tenth_point);
   } else {
     transition_start_point = block_at_time->out();
     trim_mode = olive::timeline::kTrimOut;
+    dual_transition_ = (cursor_frame > block_at_time->length() - tenth_point);
   }
 
   // Create ghost
@@ -57,7 +60,7 @@ void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
     return;
   }
 
-  MouseMoveInternal(event->GetCoordinates().GetFrame(), false);
+  MouseMoveInternal(event->GetCoordinates().GetFrame(), dual_transition_);
 }
 
 void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
