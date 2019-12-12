@@ -35,6 +35,7 @@
 #include "dialog/sequence/sequence.h"
 #include "dialog/preferences/preferences.h"
 #include "dialog/projectproperties/projectproperties.h"
+#include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "project/item/footage/footage.h"
@@ -91,6 +92,9 @@ void Core::Start()
   // Declare custom types for Qt signal/slot syste
   DeclareTypesForQt();
 
+  // Set up node factory/library
+  NodeFactory::Initialize();
+
   // Load application config
   Config::Load();
 
@@ -117,6 +121,8 @@ void Core::Stop()
   AudioManager::DestroyInstance();
 
   ColorManager::DestroyInstance();
+
+  NodeFactory::Destroy();
 
   delete main_window_;
 }

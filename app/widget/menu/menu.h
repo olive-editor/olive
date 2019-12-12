@@ -61,7 +61,7 @@ public:
   /**
    * @brief Construct a popup menu
    */
-  Menu(QWidget* parent);
+  Menu(QWidget* parent = nullptr);
 
   /**
    * @brief Create a menu item and add it to this menu
@@ -159,7 +159,7 @@ public:
   static void SetBooleanAction(QAction* a, bool *boolean);
 
 private:
-  
+
 };
 
 #endif // WIDGETMENU_H
