@@ -18,7 +18,6 @@ void main(void) {
 
   if (in_block_in_enabled) {
     vec4 in_block_col = texture2D(in_block_in, ove_texcoord) * ove_tprog_all;
-    composite *= 1.0 - in_block_col.a;
     composite += in_block_col;
   }
   
