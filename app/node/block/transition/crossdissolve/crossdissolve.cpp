@@ -1,10 +1,5 @@
 #include "crossdissolve.h"
 
-CrossDissolveTransition::CrossDissolveTransition()
-{
-
-}
-
 Node *CrossDissolveTransition::copy() const
 {
   CrossDissolveTransition* c = new CrossDissolveTransition();

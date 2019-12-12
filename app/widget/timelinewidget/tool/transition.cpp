@@ -1,6 +1,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/transition/crossdissolve/crossdissolve.h"
+#include "node/block/transition/diptoblack/diptoblack.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::TransitionTool::TransitionTool(TimelineWidget *parent) :
@@ -88,17 +89,7 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 
   if (ghost_) {
     if (!ghost_->AdjustedLength().isNull()) {
-      Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
       CrossDissolveTransition* transition = new CrossDissolveTransition();
-      NodeInput* transition_input_to_connect;
-
-      if (ghost_->mode() == olive::timeline::kTrimIn) {
-        transition->set_in_and_out_offset(ghost_->AdjustedLength(), 0);
-        transition_input_to_connect = transition->in_block_input();
-      } else {
-        transition->set_in_and_out_offset(0, ghost_->AdjustedLength());
-        transition_input_to_connect = transition->out_block_input();
-      }
 
       QUndoCommand* command = new QUndoCommand();
 
@@ -109,19 +100,42 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                  ghost_->GetAdjustedIn(),
                                  command);
 
-      // Connect block to transition
-      new NodeEdgeAddCommand(block_to_transition->output(),
-                             transition_input_to_connect,
-                             command);
-
-      // Connect other block to transition
       if (dual_transition_) {
-        Block* other_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kReferenceBlock));
-        NodeInput* alternate_transition_input = (transition_input_to_connect == transition->out_block_input())
-                                              ? transition->in_block_input()
-                                              : transition->out_block_input();
-        new NodeEdgeAddCommand(other_block->output(),
-                               alternate_transition_input,
+        transition->set_in_and_out_offset(ghost_->AdjustedLength()/2, ghost_->AdjustedLength()/2);
+
+        // Block mouse is hovering over
+        Block* active_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
+
+        // Block mouse is next to
+        Block* friend_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kReferenceBlock));
+
+        // Use ghost mode to determine which block is which
+        Block* out_block = (ghost_->mode() == olive::timeline::kTrimIn) ? friend_block : active_block;
+        Block* in_block = (ghost_->mode() == olive::timeline::kTrimIn) ? active_block : friend_block;
+
+        // Connect block to transition
+        new NodeEdgeAddCommand(out_block->output(),
+                               transition->out_block_input(),
+                               command);
+
+        new NodeEdgeAddCommand(in_block->output(),
+                               transition->in_block_input(),
+                               command);
+      } else {
+        Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
+        NodeInput* transition_input_to_connect;
+
+        if (ghost_->mode() == olive::timeline::kTrimIn) {
+          transition->set_in_and_out_offset(ghost_->AdjustedLength(), 0);
+          transition_input_to_connect = transition->in_block_input();
+        } else {
+          transition->set_in_and_out_offset(0, ghost_->AdjustedLength());
+          transition_input_to_connect = transition->out_block_input();
+        }
+
+        // Connect block to transition
+        new NodeEdgeAddCommand(block_to_transition->output(),
+                               transition_input_to_connect,
                                command);
       }
 

@@ -2,6 +2,7 @@
     <qresource prefix="/shaders">
         <file>alphaover.frag</file>
         <file>crossdissolve.frag</file>
+        <file>diptoblack.frag</file>
         <file>opacity.frag</file>
         <file>solid.frag</file>
         <file>videoinput.frag</file>

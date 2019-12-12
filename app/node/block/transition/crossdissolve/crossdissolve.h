@@ -6,7 +6,7 @@
 class CrossDissolveTransition : public TransitionBlock
 {
 public:
-  CrossDissolveTransition();
+  CrossDissolveTransition() = default;
 
   virtual Node* copy() const override;
 

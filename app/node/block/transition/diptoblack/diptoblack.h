@@ -6,7 +6,16 @@
 class DipToBlackTransition : public TransitionBlock
 {
 public:
-  DipToBlackTransition();
+  DipToBlackTransition() = default;
+
+  virtual Node* copy() const override;
+
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Description() const override;
+
+  virtual bool IsAccelerated() const override;
+  virtual QString CodeFragment() const override;
 };
 
 #endif // DIPTOBLACKTRANSITION_H

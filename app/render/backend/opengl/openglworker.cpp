@@ -275,19 +275,28 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
       const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
 
       // Provide transition information
-      rational internal_time = range.in() - block_node->in();
+      double internal_time = (range.in() - block_node->in()).toDouble();
+
+      GLfloat all_prog = static_cast<GLfloat>(internal_time / block_node->length().toDouble());
+      GLfloat out_prog = 0;
+      GLfloat in_prog = 0;
+
+      if (transition_node->out_offset() != 0) {
+        out_prog = static_cast<GLfloat>(clamp(1.0 - (internal_time / transition_node->out_offset().toDouble()), 0.0, 1.0));
+      }
+
+      if (transition_node->in_offset() != 0) {
+        in_prog = static_cast<GLfloat>(clamp((internal_time - transition_node->out_offset().toDouble()) / transition_node->in_offset().toDouble(), 0.0, 1.0));
+      }
 
       // Provides total transition progress from 0.0 (start) - 1.0 (end)
-      shader->setUniformValue("ove_tprog_all",
-                              static_cast<GLfloat>(internal_time.toDouble() / block_node->length().toDouble()));
+      shader->setUniformValue("ove_tprog_all", all_prog);
 
       // Provides progress of out section from 1.0 (start) - 0.0 (end)
-      shader->setUniformValue("ove_tprog_out",
-                              static_cast<GLfloat>(clamp(internal_time.toDouble() / transition_node->out_offset().toDouble(), 0.0, 1.0)));
+      shader->setUniformValue("ove_tprog_out", out_prog);
 
       // Provides progress of in section from 0.0 (start) - 1.0 (end)
-      shader->setUniformValue("ove_tprog_in",
-                              static_cast<GLfloat>(clamp((internal_time - transition_node->out_offset()).toDouble() / transition_node->in_offset().toDouble(), 0.0, 1.0)));
+      shader->setUniformValue("ove_tprog_in", in_prog);
     }
   }
 
