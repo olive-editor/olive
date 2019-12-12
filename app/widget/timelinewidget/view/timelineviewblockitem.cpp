@@ -46,7 +46,10 @@ void TimelineViewBlockItem::SetBlock(Block *block)
 {
   block_ = block;
 
-  setFlag(QGraphicsItem::ItemIsSelectable, block_->type() == Block::kClip);
+  setFlag(QGraphicsItem::ItemIsSelectable,
+          block_->type() == Block::kClip
+          || block_->type() == Block::kGap
+          || block_->type() == Block::kTransition);
 
   UpdateRect();
 }
