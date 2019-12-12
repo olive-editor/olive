@@ -35,6 +35,8 @@ public:
 
   static Menu* CreateMenu();
 
+  static Node *CreateFromMenuAction(QAction* action);
+
 private:
   static Node* CreateInternal(const InternalID& id);
 

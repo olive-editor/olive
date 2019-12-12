@@ -137,6 +137,11 @@ private slots:
    */
   void ShowContextMenu(const QPoint &pos);
 
+  /**
+   * @brief Receiver for when the user requests a new node from the add menu
+   */
+  void CreateNodeSlot(QAction* action);
+
 };
 
 #endif // NODEVIEW_H

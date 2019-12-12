@@ -37,7 +37,10 @@ Menu *NodeFactory::CreateMenu()
 {
   Menu* menu = new Menu();
 
-  foreach (Node* n, library_) {
+  for (int i=0;i<library_.size();i++) {
+    Node* n = library_.at(i);
+
+    // Make sure nodes are up-to-date with the current translation
     n->Retranslate();
 
     QStringList path = n->Category().split('/');
@@ -72,10 +75,22 @@ Menu *NodeFactory::CreateMenu()
 
     // Add entry to menu
     QAction* a = destination->InsertAlphabetically(n->Name());
+    a->setData(i);
     a->setToolTip(n->Description());
   }
 
   return menu;
+}
+
+Node* NodeFactory::CreateFromMenuAction(QAction *action)
+{
+  int library_index = action->data().toInt();
+
+  if (library_index >= 0 && library_index < library_.size()) {
+    return library_.at(library_index)->copy();
+  }
+
+  return nullptr;
 }
 
 Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)

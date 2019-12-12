@@ -199,6 +199,25 @@ void NodeView::SceneSelectionChangedSlot()
 
 void NodeView::ShowContextMenu(const QPoint &pos)
 {
-  Menu* m = NodeFactory::CreateMenu();
-  m->exec(pos);
+  if (!graph_) {
+    return;
+  }
+
+  Menu* m = new Menu();
+
+  Menu* add_menu = NodeFactory::CreateMenu();
+  add_menu->setTitle(tr("Add"));
+  connect(add_menu, SIGNAL(triggered(QAction*)), this, SLOT(CreateNodeSlot(QAction*)));
+  m->addMenu(add_menu);
+
+  m->exec(mapToGlobal(pos));
+}
+
+void NodeView::CreateNodeSlot(QAction *action)
+{
+  Node* new_node = NodeFactory::CreateFromMenuAction(action);
+
+  if (new_node) {
+    graph_->AddNode(new_node);
+  }
 }
