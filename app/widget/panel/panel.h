@@ -106,6 +106,8 @@ public:
 
   virtual void GoToNextCut(){}
 
+  virtual void DeleteSelected(){}
+
 protected:
   /**
    * @brief Set panel's title

@@ -71,6 +71,8 @@ private:
 private slots:
   void SplitAtPlayhead();
 
+  void DeleteSelected();
+
 };
 
 namespace olive {

@@ -20,7 +20,9 @@
 
 #include "nodeview.h"
 
+#include "nodeviewundo.h"
 #include "node/factory.h"
+#include "undo/undostack.h"
 
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
@@ -117,6 +119,30 @@ NodeViewItem *NodeView::NodeToUIObject(Node *n)
 NodeViewEdge *NodeView::EdgeToUIObject(NodeEdgePtr n)
 {
   return EdgeToUIObject(&scene_, n);
+}
+
+void NodeView::DeleteSelected()
+{
+  if (!graph_) {
+    return;
+  }
+
+  QList<QGraphicsItem*> selected = scene_.selectedItems();
+  QList<Node*> selected_nodes;
+
+  foreach (QGraphicsItem* item, selected) {
+    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
+
+    if (node_item) {
+      selected_nodes.append(node_item->node());
+    }
+  }
+
+  if (selected_nodes.isEmpty()) {
+    return;
+  }
+
+  olive::undo_stack.push(new NodeRemoveCommand(graph_, selected_nodes));
 }
 
 void NodeView::AddNode(Node* node)
@@ -218,6 +244,6 @@ void NodeView::CreateNodeSlot(QAction *action)
   Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
-    graph_->AddNode(new_node);
+    olive::undo_stack.push(new NodeAddCommand(graph_, new_node));
   }
 }

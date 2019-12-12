@@ -3,6 +3,7 @@
 
 #include <QUndoCommand>
 
+#include "node/graph.h"
 #include "node/node.h"
 
 /**
@@ -43,6 +44,35 @@ private:
   NodeInput* input_;
 
   bool done_;
+};
+
+class NodeAddCommand : public QUndoCommand {
+public:
+  NodeAddCommand(NodeGraph* graph, Node* node, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  QObject memory_manager_;
+
+  NodeGraph* graph_;
+  Node* node_;
+};
+
+class NodeRemoveCommand : public QUndoCommand {
+public:
+  NodeRemoveCommand(NodeGraph* graph, const QList<Node*>& nodes, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  QObject memory_manager_;
+
+  NodeGraph* graph_;
+  QList<Node*> nodes_;
+  QList<NodeEdgePtr> edges_;
 };
 
 #endif // NODEVIEWUNDO_H

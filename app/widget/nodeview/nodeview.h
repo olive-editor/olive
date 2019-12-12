@@ -76,6 +76,11 @@ public:
    */
   NodeViewEdge* EdgeToUIObject(NodeEdgePtr n);
 
+  /**
+   * @brief Delete selected nodes from graph (user-friendly/undoable)
+   */
+  void DeleteSelected();
+
 signals:
   /**
    * @brief Signal emitted when the selected nodes have changed

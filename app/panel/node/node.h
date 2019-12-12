@@ -35,6 +35,8 @@ public:
 
   void SetGraph(NodeGraph* graph);
 
+  virtual void DeleteSelected() override;
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 

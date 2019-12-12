@@ -43,7 +43,7 @@ void MenuShared::Initialize()
   edit_paste_item_ = Menu::CreateItem(this, "paste", nullptr, nullptr, "Ctrl+V");
   edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", nullptr, nullptr, "Ctrl+Shift+V");
   edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
-  edit_delete_item_ = Menu::CreateItem(this, "delete", nullptr, nullptr, "Del");
+  edit_delete_item_ = Menu::CreateItem(this, "delete", this, SLOT(DeleteSelected()), "Del");
   edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", nullptr, nullptr, "Shift+Del");
   edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayhead()), "Ctrl+K");
 
@@ -108,6 +108,11 @@ void MenuShared::SplitAtPlayhead()
   if (timeline != nullptr) {
     timeline->SplitAtPlayhead();
   }
+}
+
+void MenuShared::DeleteSelected()
+{
+  olive::panel_manager->CurrentlyFocused()->DeleteSelected();
 }
 
 void MenuShared::Retranslate()

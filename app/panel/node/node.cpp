@@ -44,6 +44,11 @@ void NodePanel::SetGraph(NodeGraph *graph)
   node_view_->SetGraph(graph);
 }
 
+void NodePanel::DeleteSelected()
+{
+  node_view_->DeleteSelected();
+}
+
 void NodePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
