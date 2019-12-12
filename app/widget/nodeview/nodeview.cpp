@@ -20,16 +20,19 @@
 
 #include "nodeview.h"
 
+#include "node/factory.h"
+
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
   graph_(nullptr)
 {
   setScene(&scene_);
-
   setDragMode(RubberBandDrag);
+  setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(ItemsChanged()));
   connect(&scene_, SIGNAL(selectionChanged()), this, SLOT(SceneSelectionChangedSlot()));
+  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu(const QPoint &)));
 }
 
 NodeView::~NodeView()
@@ -192,4 +195,10 @@ void NodeView::SceneSelectionChangedSlot()
   }
 
   emit SelectionChanged(selected_nodes);
+}
+
+void NodeView::ShowContextMenu(const QPoint &pos)
+{
+  Menu* m = NodeFactory::CreateMenu();
+  m->exec(pos);
 }

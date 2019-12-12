@@ -64,6 +64,11 @@ public:
   Menu(QWidget* parent = nullptr);
 
   /**
+   * @brief Construct a popup menu
+   */
+  Menu(const QString& s, QWidget* parent = nullptr);
+
+  /**
    * @brief Create a menu item and add it to this menu
    *
    * @param id
@@ -90,6 +95,10 @@ public:
                    const QObject* receiver,
                    const char* member,
                    const QString &key = QString());
+
+  QAction *InsertAlphabetically(const QString& s);
+  void InsertAlphabetically(QAction* entry);
+  void InsertAlphabetically(Menu* menu);
 
   /**
    * @brief Create a menu item

@@ -13,6 +13,8 @@
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 
+QList<Node*> NodeFactory::library_;
+
 void NodeFactory::Initialize()
 {
   Destroy();
@@ -40,7 +42,7 @@ Menu *NodeFactory::CreateMenu()
 
     QStringList path = n->Category().split('/');
 
-    QMenu* destination = menu;
+    Menu* destination = menu;
 
     // Find destination menu based on category hierarchy
     foreach (const QString& dir_name, path) {
@@ -53,8 +55,8 @@ Menu *NodeFactory::CreateMenu()
       bool found_cat = false;
       QList<QAction*> menu_actions = destination->actions();
       foreach (QAction* action, menu_actions) {
-        if (action->text() == dir_name && action->menu()) {
-          destination = action->menu();
+        if (action->menu() && action->menu()->title() == dir_name) {
+          destination = static_cast<Menu*>(action->menu());
           found_cat = true;
           break;
         }
@@ -62,14 +64,14 @@ Menu *NodeFactory::CreateMenu()
 
       // Create menu here if it doesn't exist
       if (!found_cat) {
-        Menu* new_category = new Menu();
-        destination->addMenu(new_category);
+        Menu* new_category = new Menu(dir_name);
+        destination->InsertAlphabetically(new_category);
         destination = new_category;
       }
     }
 
     // Add entry to menu
-    QAction* a = destination->addAction(n->Name());
+    QAction* a = destination->InsertAlphabetically(n->Name());
     a->setToolTip(n->Description());
   }
 

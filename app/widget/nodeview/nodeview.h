@@ -132,6 +132,11 @@ private slots:
    */
   void SceneSelectionChangedSlot();
 
+  /**
+   * @brief Receiver for when the user right clicks (or otherwise requests a context menu)
+   */
+  void ShowContextMenu(const QPoint &pos);
+
 };
 
 #endif // NODEVIEW_H

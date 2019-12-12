@@ -10,18 +10,18 @@ class NodeFactory
 {
 public:
   enum InternalID {
-    kAlphaOverBlend,
+    kViewerOutput,
     kClipBlock,
     kGapBlock,
+    kAlphaOverBlend,
+    kSolidGenerator,
+    kAudioInput,
+    kTransformDistort,
     kTransitionBlock,
     kOpacity,
-    kTransformDistort,
-    kSolidGenerator,
     kVideoInput,
-    kAudioInput,
     kTimelineOutput,
     kTrackOutput,
-    kViewerOutput,
 
     // Count value
     kInternalNodeCount
@@ -32,8 +32,6 @@ public:
   static void Initialize();
 
   static void Destroy();
-
-  static void Create(const Entry& create_info);
 
   static Menu* CreateMenu();
 

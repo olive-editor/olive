@@ -47,6 +47,11 @@ Menu::Menu(QWidget *parent) :
 {
 }
 
+Menu::Menu(const QString &s, QWidget *parent) :
+  QMenu(s, parent)
+{
+}
+
 QAction *Menu::AddItem(const QString &id,
                        const QObject *receiver,
                        const char *member,
@@ -57,6 +62,34 @@ QAction *Menu::AddItem(const QString &id,
   addAction(a);
 
   return a;
+}
+
+QAction* Menu::InsertAlphabetically(const QString &s)
+{
+  QAction* action = new QAction(s);
+  InsertAlphabetically(action);
+  return action;
+}
+
+void Menu::InsertAlphabetically(QAction *entry)
+{
+  QList<QAction*> actions = this->actions();
+
+  foreach (QAction* action, actions) {
+    if (action->text() > entry->text()) {
+      insertAction(action, entry);
+      return;
+    }
+  }
+
+  addAction(entry);
+}
+
+void Menu::InsertAlphabetically(Menu *menu)
+{
+  QAction* action = new QAction(menu->title());
+  action->setMenu(menu);
+  InsertAlphabetically(action);
 }
 
 QAction *Menu::CreateItem(QObject* parent,

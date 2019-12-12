@@ -38,8 +38,6 @@ set(OLIVE_SOURCES
   node/inputarray.cpp
   node/keyframe.h
   node/keyframe.cpp
-  node/menu.h
-  node/menu.cpp
   node/node.h
   node/node.cpp
   node/output.h
