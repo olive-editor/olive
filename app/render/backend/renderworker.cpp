@@ -48,9 +48,10 @@ bool RenderWorker::OutputIsAccelerated(Node *output)
   return false;
 }
 
-void RenderWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase *input_params, NodeValueTable* output_params)
+void RenderWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase *input_params, NodeValueTable* output_params)
 {
   Q_UNUSED(node)
+  Q_UNUSED(range)
   Q_UNUSED(input_params)
   Q_UNUSED(output_params)
 }
@@ -136,7 +137,7 @@ NodeValueTable RenderWorker::ProcessNode(const NodeDependency& dep)
   NodeValueTable table = node->Value(database);
 
   // Check if we have a shader for this output
-  RunNodeAccelerated(node, &database, &table);
+  RunNodeAccelerated(node, dep.range(), &database, &table);
 
   return table;
 }

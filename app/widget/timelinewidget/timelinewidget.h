@@ -206,9 +206,9 @@ private:
   public:
     RazorTool(TimelineWidget* parent);
 
-    virtual void MousePress(TimelineViewMouseEvent *event);
-    virtual void MouseMove(TimelineViewMouseEvent *event);
-    virtual void MouseRelease(TimelineViewMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
 
   private:
     QVector<TrackReference> split_tracks_;
@@ -269,9 +269,9 @@ private:
   public:
     HandTool(TimelineWidget* parent);
 
-    virtual void MousePress(TimelineViewMouseEvent *event);
-    virtual void MouseMove(TimelineViewMouseEvent *event);
-    virtual void MouseRelease(TimelineViewMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
   private:
     QPoint screen_drag_start_;
     QPoint scrollbar_start_;
@@ -282,19 +282,9 @@ private:
   public:
     ZoomTool(TimelineWidget* parent);
 
-    virtual void MousePress(TimelineViewMouseEvent *event);
-    virtual void MouseMove(TimelineViewMouseEvent *event);
-    virtual void MouseRelease(TimelineViewMouseEvent *event);
-  };
-
-  class TransitionTool : public Tool
-  {
-  public:
-    TransitionTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event);
-    virtual void MouseMove(TimelineViewMouseEvent *event);
-    virtual void MouseRelease(TimelineViewMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
   };
 
   class AddTool : public Tool
@@ -302,12 +292,27 @@ private:
   public:
     AddTool(TimelineWidget* parent);
 
-    virtual void MousePress(TimelineViewMouseEvent *event);
-    virtual void MouseMove(TimelineViewMouseEvent *event);
-    virtual void MouseRelease(TimelineViewMouseEvent *event);
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
 
-  private:
+  protected:
+    void MouseMoveInternal(const rational& cursor_frame, bool outwards);
+
     TimelineViewGhostItem* ghost_;
+
+    rational drag_start_point_;
+  };
+
+  class TransitionTool : public AddTool
+  {
+  public:
+    TransitionTool(TimelineWidget* parent);
+
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+  protected:
   };
 
   void SetBlockLinksSelected(Block *block, bool selected);

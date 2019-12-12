@@ -51,14 +51,19 @@ void TransitionBlock::set_length_and_media_in(const rational &length)
   abort();
 }
 
-void TransitionBlock::set_in_offset(const rational &in_offset)
+const rational &TransitionBlock::in_offset() const
 {
-  in_offset_ = in_offset;
-  RecalculateLength();
+  return in_offset_;
 }
 
-void TransitionBlock::set_out_offset(const rational &out_offset)
+const rational &TransitionBlock::out_offset() const
 {
+  return out_offset_;
+}
+
+void TransitionBlock::set_in_and_out_offset(const rational &in_offset, const rational &out_offset)
+{
+  in_offset_ = in_offset;
   out_offset_ = out_offset;
   RecalculateLength();
 }

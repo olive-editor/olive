@@ -28,6 +28,7 @@
 #include <QStyleOptionGraphicsItem>
 
 #include "common/qtversionabstraction.h"
+#include "node/block/transition/transition.h"
 
 TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
   TimelineViewRect(parent),
@@ -80,14 +81,14 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
   switch (block_->type()) {
   case Block::kClip:
-  case Block::kTransition: // FIXME: Temporary, the transition should have its own UI representation at some point
-    /*QLinearGradient grad;
+  {
+    QLinearGradient grad;
     grad.setStart(0, rect().top());
     grad.setFinalStop(0, rect().bottom());
     grad.setColorAt(0.0, QColor(160, 160, 240));
     grad.setColorAt(1.0, QColor(128, 128, 192));
-    painter->fillRect(rect(), grad);*/
-    painter->fillRect(rect(), QColor(128, 128, 192));
+    painter->fillRect(rect(), grad);
+    //painter->fillRect(rect(), QColor(128, 128, 192));
 
     if (option->state & QStyle::State_Selected) {
       painter->fillRect(rect(), QColor(0, 0, 0, 64));
@@ -114,12 +115,39 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawLine(QPointF(rect().left(), rect().bottom() - 1), QPointF(rect().right(), rect().bottom() - 1));
     painter->drawLine(QPointF(rect().right(), rect().bottom() - 1), QPointF(rect().right(), rect().top()));
     break;
+  }
   case Block::kGap:
     if (option->state & QStyle::State_Selected) {
       // FIXME: Make this palette or CSS
       painter->fillRect(rect(), Qt::white);
     }
     break;
+  case Block::kTransition:
+  {
+    painter->setBrush(QColor(128, 96, 192));
+    painter->setPen(QColor(48, 32, 64));
+    painter->drawRect(rect());
+
+    TransitionBlock* t = static_cast<TransitionBlock*>(block_);
+    if (t->out_block_input()->IsConnected()) {
+      // Transition fades something out, we'll draw a line
+      painter->drawLine(rect().topLeft(), rect().bottomRight());
+    }
+    if (t->in_block_input()->IsConnected()) {
+      // Transition fades something in, we'll draw a line
+      painter->drawLine(rect().bottomLeft(), rect().topRight());
+    }
+    if (t->out_block_input()->IsConnected() && t->in_block_input()->IsConnected()) {
+      // Draw line between out offset and in offset
+      qreal crossover_line = rect().left();
+      crossover_line += TimeToScene(t->out_offset());
+      painter->drawLine(qRound(crossover_line),
+                        qRound(rect().top()),
+                        qRound(crossover_line),
+                        qRound(rect().bottom()));
+    }
+    break;
+  }
   case Block::kTrack:
     break;
   }

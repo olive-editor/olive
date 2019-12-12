@@ -12,7 +12,6 @@ public:
   virtual QString Category() const override;
 
   NodeInput* out_block_input() const;
-
   NodeInput* in_block_input() const;
 
   virtual void Retranslate() override;
@@ -20,8 +19,9 @@ public:
   virtual void set_length(const rational &length) override;
   virtual void set_length_and_media_in(const rational &length) override;
 
-  void set_in_offset(const rational& in_offset);
-  void set_out_offset(const rational& out_offset);
+  const rational& in_offset() const;
+  const rational& out_offset() const;
+  void set_in_and_out_offset(const rational& in_offset, const rational& out_offset);
 
 private:
   void RecalculateLength();

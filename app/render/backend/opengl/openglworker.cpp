@@ -1,7 +1,9 @@
 #include "openglworker.h"
 
+#include "common/clamp.h"
 #include "core.h"
 #include "functions.h"
+#include "node/block/transition/transition.h"
 #include "node/node.h"
 #include "openglcolorprocessor.h"
 #include "render/colormanager.h"
@@ -144,7 +146,7 @@ void OpenGLWorker::ParametersChangedEvent()
   }
 }
 
-void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase *input_params, NodeValueTable *output_params)
+void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase *input_params, NodeValueTable *output_params)
 {
   OpenGLShaderPtr shader = shader_cache_->Get(node->id());
 
@@ -206,6 +208,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
           break;
         case NodeInput::kFootage:
         case NodeInput::kTexture:
+        case NodeInput::kBuffer:
         {
           OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
 
@@ -248,7 +251,6 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
         case NodeInput::kWholeNumber:
         case NodeInput::kNumber:
         case NodeInput::kString:
-        case NodeInput::kBuffer:
         case NodeInput::kVector:
         case NodeInput::kNone:
         case NodeInput::kAny:
@@ -265,6 +267,29 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const NodeValueDatabase 
   shader->setUniformValue("ove_resolution",
                           static_cast<GLfloat>(video_params().width()),
                           static_cast<GLfloat>(video_params().height()));
+
+  if (node->IsBlock()) {
+    const Block* block_node = static_cast<const Block*>(node);
+
+    if (block_node->type() == Block::kTransition) {
+      const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
+
+      // Provide transition information
+      rational internal_time = range.in() - block_node->in();
+
+      // Provides total transition progress from 0.0 (start) - 1.0 (end)
+      shader->setUniformValue("ove_tprog_all",
+                              static_cast<GLfloat>(internal_time.toDouble() / block_node->length().toDouble()));
+
+      // Provides progress of out section from 1.0 (start) - 0.0 (end)
+      shader->setUniformValue("ove_tprog_out",
+                              static_cast<GLfloat>(clamp(internal_time.toDouble() / transition_node->out_offset().toDouble(), 0.0, 1.0)));
+
+      // Provides progress of in section from 0.0 (start) - 1.0 (end)
+      shader->setUniformValue("ove_tprog_in",
+                              static_cast<GLfloat>(clamp((internal_time - transition_node->out_offset()).toDouble() / transition_node->in_offset().toDouble(), 0.0, 1.0)));
+    }
+  }
 
   // Blit this texture through this shader
   olive::gl::Blit(shader);

@@ -7,7 +7,11 @@ CrossDissolveTransition::CrossDissolveTransition()
 
 Node *CrossDissolveTransition::copy() const
 {
-  return new CrossDissolveTransition();
+  CrossDissolveTransition* c = new CrossDissolveTransition();
+
+  CopyParameters(this, c);
+
+  return c;
 }
 
 QString CrossDissolveTransition::Name() const

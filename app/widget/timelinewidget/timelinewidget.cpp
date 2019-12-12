@@ -60,7 +60,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(olive::tool::kSlide, std::make_shared<SlideTool>(this));
   tools_.replace(olive::tool::kHand, std::make_shared<HandTool>(this));
   tools_.replace(olive::tool::kZoom, std::make_shared<ZoomTool>(this));
-  //tools_.replace(olive::tool::kTransition, new (this));         FIXME: Implement
+  tools_.replace(olive::tool::kTransition, std::make_shared<TransitionTool>(this));
   //tools_.replace(olive::tool::kRecord, new PointerTool(this));  FIXME: Implement
   tools_.replace(olive::tool::kAdd, std::make_shared<AddTool>(this));
 
