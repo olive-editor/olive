@@ -21,6 +21,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
@@ -48,13 +49,15 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
       if (ghost->AdjustedLength() > 0) {
         GapBlock* gap = new GapBlock();
         gap->set_length(ghost->AdjustedLength());
+        new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()), gap, command);
 
         Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
 
         new TrackInsertBlockBetweenBlocksCommand(parent()->GetTrackFromReference(ghost->Track()),
                                                  gap,
                                                  block_to_append_gap_to,
-                                                 block_to_append_gap_to->next());
+                                                 block_to_append_gap_to->next(),
+                                                 command);
       }
     } else {
       // This was a Block that already existed
@@ -68,6 +71,8 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
       } else {
         // Assumed the Block was a Gap and it was reduced to zero length, remove it here
         new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
+
+        new NodeRemoveCommand(static_cast<NodeGraph*>(b->parent()), {b}, command);
       }
     }
   }

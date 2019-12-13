@@ -94,6 +94,9 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       QUndoCommand* command = new QUndoCommand();
 
       // Place transition in place
+      new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()),
+                         transition,
+                         command);
       new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track.type()),
                                  track.index(),
                                  transition,

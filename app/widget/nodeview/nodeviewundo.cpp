@@ -70,8 +70,8 @@ NodeAddCommand::NodeAddCommand(NodeGraph *graph, Node *node, QUndoCommand *paren
   graph_(graph),
   node_(node)
 {
-  // Ensures that when this command is destroyed, if redo() hasn't been called, the node will be destroyed too
-  node->setParent(&memory_manager_);
+  // Ensures that when this command is destroyed, if redo() is never called again, the node will be destroyed too
+  node_->setParent(&memory_manager_);
 }
 
 void NodeAddCommand::redo()

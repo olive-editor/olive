@@ -47,6 +47,7 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   // Set flags for this widget
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
+  setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
   //
   // We use font metrics to set all the UI measurements for DPI-awareness
@@ -76,6 +77,8 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 void NodeViewItem::SetNode(Node *n)
 {
   node_ = n;
+
+  setPos(node_->GetPosition());
 
   update();
 }
@@ -255,8 +258,6 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->drawText(text_rect, static_cast<int>(Qt::AlignVCenter | Qt::AlignLeft), node_->Name());
   }
 }
-
-#include "node/block/block.h"
 
 void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -469,4 +470,13 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   if (standard_click_) {
     QGraphicsRectItem::mouseReleaseEvent(event);
   }
+}
+
+QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+  if (change == ItemPositionHasChanged && node_) {
+    node_->SetPosition(value.toPointF());
+  }
+
+  return QGraphicsItem::itemChange(change, value);
 }

@@ -30,6 +30,7 @@
 #include "node/color/opacity/opacity.h"
 #include "node/input/media/audio/audio.h"
 #include "node/input/media/video/video.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
@@ -207,6 +208,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
     QUndoCommand* command = new QUndoCommand();
+    NodeGraph* dst_graph = static_cast<NodeGraph*>(parent()->timeline_node_->parent());
 
     QVector<Block*> block_items(parent()->ghost_items_.size());
 
@@ -218,6 +220,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       ClipBlock* clip = new ClipBlock();
       clip->set_length(ghost->Length());
       clip->set_block_name(footage_stream->footage()->name());
+      new NodeAddCommand(dst_graph, clip, command);
 
       switch (footage_stream->type()) {
       case Stream::kVideo:
@@ -225,10 +228,12 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       {
         VideoInput* video_input = new VideoInput();
         video_input->SetFootage(footage_stream);
-        NodeParam::ConnectEdge(video_input->output(), clip->texture_input());
+        new NodeAddCommand(dst_graph, video_input, command);
+        new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
 
         TransformDistort* transform = new TransformDistort();
-        NodeParam::ConnectEdge(transform->output(), video_input->matrix_input());
+        new NodeAddCommand(dst_graph, transform, command);
+        new NodeEdgeAddCommand(transform->output(), video_input->matrix_input(), command);
 
         //OpacityNode* opacity = new OpacityNode();
         //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
@@ -239,7 +244,8 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       {
         AudioInput* audio_input = new AudioInput();
         audio_input->SetFootage(footage_stream);
-        NodeParam::ConnectEdge(audio_input->output(), clip->texture_input());
+        new NodeAddCommand(dst_graph, audio_input, command);
+        new NodeEdgeAddCommand(audio_input->output(), clip->texture_input(), command);
         break;
       }
       default:

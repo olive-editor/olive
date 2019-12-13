@@ -21,6 +21,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
   PointerTool(parent)
@@ -46,6 +47,7 @@ void TimelineWidget::SlideTool::MouseReleaseInternal(TimelineViewMouseEvent *eve
     } else if (ghost->mode() == olive::timeline::kMove && b->previous() == nullptr) {
       GapBlock* gap = new GapBlock();
       gap->set_length(ghost->InAdjustment());
+      new NodeAddCommand(static_cast<NodeGraph*>(b->parent()), gap, command);
       new TrackPrependBlockCommand(parent()->GetTrackFromReference(ghost->Track()), gap, command);
     }
   }

@@ -116,10 +116,7 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lo
   }
 
   // Ensure both nodes are in the same graph
-  if (output->parentNode()->parent() != input->parentNode()->parent()) {
-    qWarning() << "Tried to connect two nodes that aren't part of the same graph";
-    return nullptr;
-  }
+  Q_ASSERT(output->parentNode()->parent() == input->parentNode()->parent());
 
   NodeEdgePtr edge = std::make_shared<NodeEdge>(output, input);
 

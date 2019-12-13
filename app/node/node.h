@@ -24,6 +24,7 @@
 #include <QCryptographicHash>
 #include <QMutex>
 #include <QObject>
+#include <QPointF>
 
 #include "common/rational.h"
 #include "node/dependency.h"
@@ -270,6 +271,10 @@ public:
 
   virtual QVariant InputValueFromTable(NodeInput* input, const NodeValueTable& table) const;
 
+  const QPointF& GetPosition();
+
+  void SetPosition(const QPointF& pos);
+
 protected:
   void AddInput(NodeInput* input);
 
@@ -338,6 +343,11 @@ private:
    * @brief Primary node output
    */
   NodeOutput* output_;
+
+  /**
+   * @brief UI position for NodeViews
+   */
+  QPointF position_;
 
 private slots:
   void InputChanged(rational start, rational end);

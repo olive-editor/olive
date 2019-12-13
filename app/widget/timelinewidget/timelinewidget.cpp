@@ -8,6 +8,7 @@
 #include "common/timecodefunctions.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
@@ -382,6 +383,18 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
+void TimelineWidget::DeleteSelected()
+{
+  QList<TimelineViewBlockItem *> list = GetSelectedBlocks();
+
+  // No-op if nothing is selected
+  if (list.isEmpty()) {
+    return;
+  }
+
+
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;
@@ -440,14 +453,19 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
   rational ripple_length = out_ripple - in_ripple;
 
   foreach (TrackOutput* track, timeline_node_->Tracks()) {
+    GapBlock* gap = nullptr;
+    if (insert_gaps) {
+      gap = new GapBlock();
+      gap->set_length(ripple_length);
+      new NodeAddCommand(static_cast<NodeGraph*>(track->parent()), gap, command);
+    }
+
     TrackRippleRemoveAreaCommand* ripple_command = new TrackRippleRemoveAreaCommand(track,
                                                                                     in_ripple,
                                                                                     out_ripple,
                                                                                     command);
 
     if (insert_gaps) {
-      GapBlock* gap = new GapBlock();
-      gap->set_length(ripple_length);
       ripple_command->SetInsert(gap);
     }
   }

@@ -231,17 +231,19 @@ void TrackOutput::PrependBlock(Block *block)
 
 void TrackOutput::InsertBlockAtIndex(Block *block, int index)
 {
-  AddBlockToGraph(block);
+  BlockInvalidateCache();
 
   block_input_->InsertAt(index);
   NodeParam::ConnectEdge(block->output(),
                          block_input_->At(index));
+
+  UnblockInvalidateCache();
+
+  InvalidateCache(block->in(), track_length());
 }
 
 void TrackOutput::AppendBlock(Block *block)
 {
-  AddBlockToGraph(block);
-
   BlockInvalidateCache();
 
   int last_index = block_input_->GetSize();
@@ -255,13 +257,6 @@ void TrackOutput::AppendBlock(Block *block)
   InvalidateCache(block->in(), track_length());
 }
 
-void TrackOutput::AddBlockToGraph(Block *block)
-{
-  // Find the parent graph
-  NodeGraph* graph = static_cast<NodeGraph*>(parent());
-  graph->AddNodeWithDependencies(block);
-}
-
 void TrackOutput::BlockInvalidateCache()
 {
   block_invalidate_cache_stack_++;
@@ -270,14 +265,6 @@ void TrackOutput::BlockInvalidateCache()
 void TrackOutput::UnblockInvalidateCache()
 {
   block_invalidate_cache_stack_--;
-}
-
-void TrackOutput::RemoveBlock(Block *block)
-{
-  GapBlock* gap = new GapBlock();
-  gap->set_length(block->length());
-
-  ReplaceBlock(block, gap);
 }
 
 void TrackOutput::RippleRemoveBlock(Block *block)
@@ -293,8 +280,6 @@ void TrackOutput::RippleRemoveBlock(Block *block)
   UnblockInvalidateCache();
 
   InvalidateCache(remove_in, track_length());
-
-  // FIXME: Should there be removing the Blocks from the graph?
 }
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)
@@ -302,8 +287,6 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   Q_ASSERT(old->length() == replace->length());
 
   BlockInvalidateCache();
-
-  AddBlockToGraph(replace);
 
   int index_of_old_block = block_cache_.indexOf(old);
 

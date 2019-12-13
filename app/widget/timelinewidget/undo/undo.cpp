@@ -183,7 +183,7 @@ void TrackRippleRemoveAreaCommand::redo()
     splice_original_length_ = splice_->length();
     splice_->set_length(out_ - splice_->in());
 
-    track_->AddBlockToGraph(copy);
+    static_cast<NodeGraph*>(track_->parent())->AddNode(copy);
     Node::CopyInputs(splice_, copy);
 
     track_->InsertBlockAfter(copy, splice_);
@@ -213,6 +213,8 @@ void TrackRippleRemoveAreaCommand::redo()
   // Remove all blocks that are flagged for removal
   foreach (Block* remove_block, removed_blocks_) {
     track_->RippleRemoveBlock(remove_block);
+
+    // FIXME: Delete blocks from graph and restore them in undo
   }
 
   // If we picked up a block to trim the out point of
@@ -221,13 +223,12 @@ void TrackRippleRemoveAreaCommand::redo()
   }
 
   // If we were given a block to insert, insert it here
-  if (insert_ != nullptr) {
-    track_->AddBlockToGraph(insert_);
-
-    if (trim_out_ == nullptr) {
+  if (insert_) {
+    qDebug() << "Insert is" << insert_ << ", parent is" << insert_->parent();
+    if (!trim_out_) {
       // This is the start of the Sequence
       track_->PrependBlock(insert_);
-    } else if (trim_in_ == nullptr) {
+    } else if (!trim_in_) {
       // This is the end of the Sequence
       track_->AppendBlock(insert_);
     } else {
@@ -291,7 +292,6 @@ TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, B
   gap_(nullptr)
 {
   insert_ = block;
-  insert_->setParent(&memory_manager_);
 }
 
 void TrackPlaceBlockCommand::redo()
@@ -315,6 +315,7 @@ void TrackPlaceBlockCommand::redo()
       // If so, insert a gap here
       gap_ = new GapBlock();
       gap_->set_length(in_ - track_->track_length());
+      static_cast<NodeGraph*>(track_->parent())->AddNode(gap_);
       track_->AppendBlock(gap_);
     }
 
@@ -331,7 +332,6 @@ void TrackPlaceBlockCommand::undo()
 {
   if (append_) {
     track_->RippleRemoveBlock(insert_);
-    TakeNodeFromParentGraph(insert_, &memory_manager_);
 
     if (gap_ != nullptr) {
       track_->RippleRemoveBlock(gap_);
@@ -365,7 +365,7 @@ void BlockSplitCommand::redo()
 
   block_->set_length(new_length_);
 
-  track_->AddBlockToGraph(new_block_);
+  static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
 
   // Will re-parent new_block_ to the track's graph

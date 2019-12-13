@@ -5,6 +5,7 @@
 
 #include "node/graph.h"
 #include "node/node.h"
+#include "nodeviewitem.h"
 
 /**
  * @brief An undoable commnd for connecting two NodeParams together
@@ -62,7 +63,9 @@ private:
 
 class NodeRemoveCommand : public QUndoCommand {
 public:
-  NodeRemoveCommand(NodeGraph* graph, const QList<Node*>& nodes, QUndoCommand* parent = nullptr);
+  NodeRemoveCommand(NodeGraph* graph,
+                    const QList<Node*>& nodes,
+                    QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;

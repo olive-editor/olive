@@ -99,11 +99,6 @@ public:
   void AppendBlock(Block* block);
 
   /**
-   * @brief Removes a Block and places a Gap in its place
-   */
-  void RemoveBlock(Block* block);
-
-  /**
    * @brief Removes a Block pushing all subsequent Blocks earlier to take up the space
    */
   void RippleRemoveBlock(Block* block);
@@ -118,13 +113,6 @@ public:
   void BlockInvalidateCache();
 
   void UnblockInvalidateCache();
-
-  /**
-   * @brief Adds a Block to the parent graph so it can be connected to other Nodes
-   *
-   * Also runs through Node's dependencies (the Nodes whose outputs are connected to this Node's inputs)
-   */
-  void AddBlockToGraph(Block* block);
 
   static TrackOutput* TrackFromBlock(Block* block);
 

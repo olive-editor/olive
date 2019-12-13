@@ -49,18 +49,6 @@ void NodeGraph::AddNode(Node *node)
   emit NodeAdded(node);
 }
 
-void NodeGraph::AddNodeWithDependencies(Node *node)
-{
-  // Add node and its connected nodes to graph
-  AddNode(node);
-
-  // Add all of Block's dependencies
-  QList<Node*> node_dependencies = node->GetDependencies();
-  foreach (Node* dep, node_dependencies) {
-    AddNode(dep);
-  }
-}
-
 void NodeGraph::TakeNode(Node *node, QObject* new_parent)
 {
   if (!ContainsNode(node)) {
@@ -82,21 +70,6 @@ void NodeGraph::TakeNode(Node *node, QObject* new_parent)
   node_children_.removeAll(node);
 
   emit NodeRemoved(node);
-}
-
-QList<Node *> NodeGraph::TakeNodeWithItsDependencies(Node *node, QObject *new_parent)
-{
-  if (!ContainsNode(node)) {
-    return QList<Node*>();
-  }
-
-  QList<Node*> deps = node->GetExclusiveDependencies();
-
-  foreach (Node* d, deps) {
-    TakeNode(d, new_parent);
-  }
-
-  return deps;
 }
 
 const QList<Node *> &NodeGraph::nodes()

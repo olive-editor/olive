@@ -1,6 +1,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "core.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
   Tool(parent),
@@ -46,12 +47,21 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
   if (ghost_) {
     if (!ghost_->AdjustedLength().isNull()) {
+      QUndoCommand* command = new QUndoCommand();
+
       ClipBlock* clip = new ClipBlock();
       clip->set_length(ghost_->AdjustedLength());
-      olive::undo_stack.push(new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track.type()),
-                                                        track.index(),
-                                                        clip,
-                                                        ghost_->GetAdjustedIn()));
+      new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()),
+                         clip,
+                         command);
+
+      new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track.type()),
+                                 track.index(),
+                                 clip,
+                                 ghost_->GetAdjustedIn(),
+                                 command);
+
+      olive::undo_stack.push(command);
     }
 
     parent()->ClearGhosts();

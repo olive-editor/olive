@@ -51,29 +51,9 @@ public:
   void AddNode(Node* node);
 
   /**
-   * @brief Adds a node to this graph and all nodes connected to its inputs
-   *
-   * Adds the Node to the graph and runs through its inputs adding all of its dependencies (and all of their
-   * dependencies and so forth). The graph takes ownershi of all Nodes added through this process.
-   */
-  void AddNodeWithDependencies(Node* node);
-
-  /**
    * @brief Removes a Node from the graph BUT doesn't destroy it. Ownership is passed to `new_parent`.
    */
   void TakeNode(Node* node, QObject* new_parent = nullptr);
-
-  /**
-   * @brief Removes a Node from the graph and its dependencies (ONLY if the dependencies are exclusive to this Node).
-   *
-   * Returns a list of all Nodes that were removed in this process (except the Node used as a parameter)
-   *
-   * Only dependencies that are exclusively dependencies of this Node are removed. If a dependency Node is also
-   * used as the dependency of another Node, it is not removed and not returned in the list.
-   *
-   * Ownership of all Nodes is passed to `new_parent`.
-   */
-  QList<Node*> TakeNodeWithItsDependencies(Node* node, QObject* new_parent = nullptr);
 
   /**
    * @brief Retrieve a complete list of the nodes belonging to this graph

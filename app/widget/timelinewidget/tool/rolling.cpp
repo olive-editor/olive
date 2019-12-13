@@ -21,6 +21,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "node/block/gap/gap.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::RollingTool::RollingTool(TimelineWidget* parent) :
   PointerTool(parent)
@@ -43,6 +44,9 @@ void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *e
         // We'll need to insert a gap here, so we'll do a Place command instead
         GapBlock* gap = new GapBlock();
         gap->set_length(ghost->Length());
+        new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
+                           gap,
+                           command);
 
         new TrackReplaceBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, gap, command);
       }

@@ -82,6 +82,8 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
+  virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
+
 private:
   /**
    * @brief Get the relative position to draw text for a parameter at a certain index

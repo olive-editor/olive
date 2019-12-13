@@ -30,6 +30,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
   Tool(parent),
@@ -158,10 +159,6 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 {
   Q_UNUSED(event)
 
-  // We create a QObject on the stack so that when we allocate objects on the heap, they aren't parent-less and will
-  // get cleaned up if they aren't re-parented by the attached NodeGraph
-  QObject block_memory_manager;
-
   QUndoCommand* command = new QUndoCommand();
 
   // Since all the ghosts will be leaving their old position in some way, we replace all of them with gaps here so the
@@ -171,8 +168,11 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
     // Replace old Block with a new Gap
     GapBlock* gap = new GapBlock();
-    gap->setParent(&block_memory_manager);
     gap->set_length(b->length());
+
+    new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
+                       gap,
+                       command);
 
     new TrackReplaceBlockCommand(parent()->GetTrackFromReference(ghost->Track()),
                                  b,

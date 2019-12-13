@@ -51,6 +51,8 @@ public:
 
   void SplitAtPlayhead();
 
+  void DeleteSelected();
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 public slots:

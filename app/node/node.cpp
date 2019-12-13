@@ -468,6 +468,16 @@ QVariant Node::InputValueFromTable(NodeInput *input, const NodeValueTable &table
   return table.Get(find_data_type);
 }
 
+const QPointF &Node::GetPosition()
+{
+  return position_;
+}
+
+void Node::SetPosition(const QPointF &pos)
+{
+  position_ = pos;
+}
+
 void Node::AddInput(NodeInput *input)
 {
   AddParameter(input);
