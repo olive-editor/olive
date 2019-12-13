@@ -91,7 +91,6 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     grad.setColorAt(0.0, QColor(160, 160, 240));
     grad.setColorAt(1.0, QColor(128, 128, 192));
     painter->fillRect(rect(), grad);
-    //painter->fillRect(rect(), QColor(128, 128, 192));
 
     if (option->state & QStyle::State_Selected) {
       painter->fillRect(rect(), QColor(0, 0, 0, 64));
@@ -101,6 +100,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->drawLine(rect().topLeft(), QPointF(rect().right(), rect().top()));
     painter->drawLine(rect().topLeft(), QPointF(rect().left(), rect().bottom() - 1));
 
+    painter->setPen(Qt::white);
     painter->drawText(rect(), static_cast<int>(Qt::AlignLeft | Qt::AlignTop), block_->block_name());
 
     // Linked clips are underlined
@@ -127,9 +127,21 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     break;
   case Block::kTransition:
   {
-    painter->setBrush(QColor(128, 96, 192));
-    painter->setPen(QColor(48, 32, 64));
+    QLinearGradient grad;
+    grad.setStart(0, rect().top());
+    grad.setFinalStop(0, rect().bottom());
+    grad.setColorAt(0.0, QColor(192, 160, 224));
+    grad.setColorAt(1.0, QColor(160, 128, 192));
+    painter->setBrush(grad);
+    painter->setPen(QPen(QColor(96, 80, 112), 1));
     painter->drawRect(rect());
+
+    if (option->state & QStyle::State_Selected) {
+      painter->fillRect(rect(), QColor(0, 0, 0, 64));
+    }
+
+    // Draw lines antialiased
+    painter->setRenderHint(QPainter::Antialiasing);
 
     TransitionBlock* t = static_cast<TransitionBlock*>(block_);
     if (t->out_block_input()->IsConnected()) {
