@@ -122,7 +122,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
   case Block::kGap:
     if (option->state & QStyle::State_Selected) {
       // FIXME: Make this palette or CSS
-      painter->fillRect(rect(), Qt::white);
+      painter->fillRect(rect(), QColor(255, 255, 255, 128));
     }
     break;
   case Block::kTransition:

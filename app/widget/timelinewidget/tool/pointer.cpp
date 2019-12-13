@@ -163,26 +163,72 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
   // Since all the ghosts will be leaving their old position in some way, we replace all of them with gaps here so the
   // entire timeline isn't disrupted in the process
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  for (int i=0;i<parent()->ghost_items_.size();i++) {
+    TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
+
+    // If the ghost has not been adjusted nothing needs to be done
+    if (!ghost->HasBeenAdjusted()) {
+      continue;
+    }
+
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    // Replace old Block with a new Gap
-    GapBlock* gap = new GapBlock();
-    gap->set_length(b->length());
+    bool previous_is_gap = (b->previous() && b->previous()->type() == Block::kGap);
+    bool next_is_gap = (b->next() && b->next()->type() == Block::kGap);
 
-    new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
-                       gap,
-                       command);
+    TrackOutput* original_track = parent()->GetTrackFromReference(ghost->Track());
 
-    new TrackReplaceBlockCommand(parent()->GetTrackFromReference(ghost->Track()),
-                                 b,
-                                 gap,
-                                 command);
+    if (!previous_is_gap && !next_is_gap) {
+      // Make new gap and replace old Block with it for now
+      GapBlock* gap = new GapBlock();
+      gap->set_length(b->length());
+
+      new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
+                         gap,
+                         command);
+
+      new TrackReplaceBlockCommand(original_track,
+                                   b,
+                                   gap,
+                                   command);
+    } else {
+      // Remove the block from the track (this does NOT remove the block from the graph however)
+      new TrackRippleRemoveBlockCommand(original_track,
+                                        b,
+                                        command);
+
+      if (previous_is_gap && next_is_gap) {
+        // Clip is surrounded by gaps, merge both together
+
+        // Remove one of the gaps
+        new TrackRippleRemoveBlockCommand(original_track,
+                                          b->next(),
+                                          command);
+
+        // Resize the other to match both
+        new BlockResizeCommand(b->previous(),
+                               b->previous()->length() + b->length() + b->next()->length(),
+                               command);
+      } else {
+        // Resize the surrounding block to take its place
+        Block* gap_to_resize = previous_is_gap ? b->previous() : b->next();
+        new BlockResizeCommand(gap_to_resize,
+                               gap_to_resize->length() + b->length(),
+                               command);
+      }
+    }
   }
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
   // all of the gaps we inserted earlier
-  foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+  for (int i=0;i<parent()->ghost_items_.size();i++) {
+    TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
+
+    // If the ghost has not been adjusted nothing needs to be done
+    if (!ghost->HasBeenAdjusted()) {
+      continue;
+    }
+
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
     // Normal blocks work in conjunction with the gap made above
@@ -330,8 +376,8 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
 }
 
 void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                               olive::timeline::MovementMode trim_mode,
-                                               bool allow_gap_trimming)
+                                                 olive::timeline::MovementMode trim_mode,
+                                                 bool allow_gap_trimming)
 {
   // Convert selected items list to clips list
   QList<TimelineViewBlockItem*> clips = parent()->GetSelectedBlocks();
@@ -432,8 +478,8 @@ void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost,
 }
 
 bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
-                                                const QList<TimelineViewBlockItem*>& items,
-                                                const olive::timeline::MovementMode& mode)
+                                                  const QList<TimelineViewBlockItem*>& items,
+                                                  const olive::timeline::MovementMode& mode)
 {
   foreach (TimelineViewBlockItem* compare, items) {
     if (clip->Track() == compare->Track()
@@ -448,8 +494,8 @@ bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
 }
 
 rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
-                                                       const QVector<TimelineViewGhostItem *> ghosts,
-                                                       bool prevent_overwriting)
+                                                         const QVector<TimelineViewGhostItem *> ghosts,
+                                                         bool prevent_overwriting)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     if (ghost->mode() != olive::timeline::kTrimIn) {
@@ -493,8 +539,8 @@ rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
 }
 
 rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
-                                                        const QVector<TimelineViewGhostItem *> ghosts,
-                                                        bool prevent_overwriting)
+                                                          const QVector<TimelineViewGhostItem *> ghosts,
+                                                          bool prevent_overwriting)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     if (ghost->mode() != olive::timeline::kTrimOut) {

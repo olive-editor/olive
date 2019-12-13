@@ -77,6 +77,8 @@ public:
   const olive::timeline::MovementMode& mode() const;
   void SetMode(const olive::timeline::MovementMode& mode);
 
+  bool HasBeenAdjusted() const;
+
   virtual void UpdateRect() override;
 
 protected:

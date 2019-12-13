@@ -184,6 +184,14 @@ void TimelineViewGhostItem::SetMode(const olive::timeline::MovementMode &mode)
   mode_ = mode;
 }
 
+bool TimelineViewGhostItem::HasBeenAdjusted() const
+{
+  return InAdjustment() != 0
+      || OutAdjustment() != 0
+      || MediaInAdjustment() != 0
+      || TrackAdjustment() != 0;
+}
+
 void TimelineViewGhostItem::UpdateRect()
 {
   rational length = GetAdjustedOut() - GetAdjustedIn();
