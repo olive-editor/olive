@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<effect id="org.olivevideoeditor.Olive.gaussianblur">
+    <!-- Effect Name -->
+    <name lang="en_US">Gaussian Blur</name>
+    
+    <!-- Effect Category -->
+    <category lang="en_US">Blur</category>
+
+    <!-- Effect Description -->
+    <description lang="en_US">
+        A smooth blur using the gaussian function. Slower than box blur but also prettier.
+    </description>
+
+    <!-- Parameter: Texture Input -->
+    <param id="tex_in" type="texture" iteration_in="1">
+        <name lang="en_US">Input</name>
+    </param>
+
+    <!-- Parameter: Sigma Value -->
+    <param id="sigma_in" type="float">
+        <name lang="en_US">Sigma</name>
+        <min>0</min>
+        <default>5.5</default>
+    </param>
+    
+    <!-- Parameter: Horizontal Enable -->
+    <param id="horiz_in" type="bool">
+        <name lang="en_US">Horizontal</name>
+        <field type="bool" default="1" id=""/>
+    </param>
+
+    <!-- Parameter: Vertical Enable -->
+    <param id="vert_in" type="bool">
+        <name lang="en_US">Vertical</name>
+        <default>true</default>
+    </param>
+
+    <!-- Qt Resource path to fragment shader -->
+    <fragment url=":/shaders/gaussianblur.frag" />
+
+    <!-- Blur uses two iterations for horizontal and vertical since calculating 2*radius is faster than radius^2 -->
+    <iterations>2</iterations>
+</effect>
