@@ -2,6 +2,8 @@
 
 #include <QFile>
 
+#include "config/config.h"
+
 ExternalNode::ExternalNode(const QString &xml_meta_filename) :
   xml_filename_(xml_meta_filename),
   iterations_(1),
@@ -33,8 +35,7 @@ Node *ExternalNode::copy() const
 
 QString ExternalNode::Name() const
 {
-  // FIXME: Update to get currently selected language from core
-  return names_.first();
+  return GetStringForCurrentLanguage(&names_);
 }
 
 QString ExternalNode::id() const
@@ -44,14 +45,12 @@ QString ExternalNode::id() const
 
 QString ExternalNode::Category() const
 {
-  // FIXME: Update to get currently selected language from core
-  return categories_.first();
+  return GetStringForCurrentLanguage(&categories_);
 }
 
 QString ExternalNode::Description() const
 {
-  // FIXME: Update to get currently selected language from core
-  return descriptions_.first();
+  return GetStringForCurrentLanguage(&descriptions_);
 }
 
 void ExternalNode::Retranslate()
@@ -61,9 +60,7 @@ void ExternalNode::Retranslate()
   // Iterate through parameter language tables that we have
   for (iterator=param_names_.begin();iterator!=param_names_.end();iterator++) {
     NodeInput* this_input = static_cast<NodeInput*>(GetParameterWithID(iterator.key()));
-
-    // FIXME: Update to get currently selected language from core
-    this_input->set_name(iterator.value().first());
+    this_input->set_name(GetStringForCurrentLanguage(&iterator.value()));
   }
 }
 
@@ -257,4 +254,35 @@ void ExternalNode::XMLReadShader(QXmlStreamReader *reader, QString &destination)
   if (!element_text.isEmpty()) {
     destination.append(element_text);
   }
+}
+
+QString ExternalNode::GetStringForCurrentLanguage(const QMap<QString, QString> *language_map)
+{
+  if (language_map->isEmpty()) {
+    // There are no entries for this map, this must be an empty string
+    return QString();
+  }
+
+  // Get current language config
+  QString language = Config::Current()["Language"].toString();
+
+  // See if our map has an exact language match
+  QString str_for_lang = language_map->value(language);
+  if (!str_for_lang.isEmpty()) {
+    return str_for_lang;
+  }
+
+  // If not, try to find a match with the same language but not the same derivation
+  QString base_lang = language.split('_').first();
+  QList<QString> available_languages = language_map->keys();
+  foreach (const QString& l, available_languages) {
+    if (l.startsWith(base_lang)) {
+      // This is the same language, so we can return this
+      return language_map->value(l);
+    }
+  }
+
+  // We couldn't find an exact or close match, just return the first in the list
+  // (assume a string in the wrong language is better than no string at all)
+  return language_map->first();
 }

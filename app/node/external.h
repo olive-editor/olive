@@ -35,6 +35,8 @@ private:
   void XMLReadParam(QXmlStreamReader* reader);
   void XMLReadShader(QXmlStreamReader* reader, QString& destination);
 
+  static QString GetStringForCurrentLanguage(const QMap<QString, QString> *language_map);
+
   QString xml_filename_;
 
   QMap<QString, QString> names_;

@@ -54,6 +54,7 @@ void Config::SetDefaults()
   config_map_["HoverFocus"] = false;
   config_map_["AudioScrubbing"] = true;
   config_map_["AutorecoveryInterval"] = 1;
+  config_map_["Language"] = "en_US";
 }
 
 void Config::Load()
