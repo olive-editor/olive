@@ -266,6 +266,9 @@ public:
    */
   bool IsConnected();
 
+  bool IsConnectable() const;
+  void SetConnectable(bool connectable);
+
   /**
    * @brief Return a list of edges (aka connections to other nodes)
    *
@@ -386,6 +389,11 @@ private:
    * @brief Internal ID string
    */
   QString id_;
+
+  /**
+   * @brief Internal connectable value
+   */
+  bool connectable_;
 
 };
 

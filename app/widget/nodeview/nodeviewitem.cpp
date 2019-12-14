@@ -199,8 +199,11 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     for (int i=0;i<node_->parameters().size();i++) {
       NodeParam* param = node_->parameters().at(i);
 
-      // Draw connector square
-      painter->fillRect(GetParameterConnectorRect(i), connector_brush);
+      // If parameter is not connectable, don't draw its slot
+      if (param->IsConnectable()) {
+        // Draw connector square
+        painter->fillRect(GetParameterConnectorRect(i), connector_brush);
+      }
 
       // Draw text
       QPointF text_pt = GetParameterTextPoint(i);
@@ -380,7 +383,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         // Get the parameter we're dragging into
         NodeParam* comp_param = drop_item->node()->parameters().at(i);
 
-        if (param_hitbox.contains(drop_item->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
+        if (comp_param->IsConnectable() && param_hitbox.contains(drop_item->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
 
           // Prevent circular dependency - check if the Node we'll be outputting to already outputs to this Node
           Node* outputting_node;

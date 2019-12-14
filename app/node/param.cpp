@@ -32,7 +32,8 @@
 #include "node/output.h"
 
 NodeParam::NodeParam(const QString &id) :
-  id_(id)
+  id_(id),
+  connectable_(true)
 {
   Q_ASSERT(!id_.isEmpty());
 }
@@ -91,6 +92,16 @@ bool NodeParam::IsConnected()
   return !edges_.isEmpty();
 }
 
+bool NodeParam::IsConnectable() const
+{
+  return connectable_;
+}
+
+void NodeParam::SetConnectable(bool connectable)
+{
+  connectable_ = connectable;
+}
+
 const QVector<NodeEdgePtr> &NodeParam::edges()
 {
   return edges_;
@@ -105,6 +116,10 @@ void NodeParam::DisconnectAll()
 
 NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lock)
 {
+  if (!input->IsConnectable()) {
+    return nullptr;
+  }
+
   // If the input can only accept one input (the default) and has one already, disconnect it
   DisconnectForNewOutput(input);
 

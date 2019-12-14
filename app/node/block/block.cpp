@@ -29,11 +29,13 @@ Block::Block() :
   next_(nullptr)
 {
   length_input_ = new NodeInput("length_in");
+  length_input_->SetConnectable(false);
   length_input_->set_data_type(NodeParam::kRational);
   AddInput(length_input_);
   connect(length_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(LengthInputChanged()));
 
   media_in_input_ = new NodeInput("media_in_in");
+  media_in_input_->SetConnectable(false);
   media_in_input_->set_data_type(NodeParam::kRational);
   AddInput(media_in_input_);
 }
