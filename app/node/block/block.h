@@ -55,7 +55,7 @@ public:
   void set_in(const rational& in);
   void set_out(const rational& out);
 
-  const rational& length() const;
+  rational length() const;
   virtual void set_length(const rational &length);
   virtual void set_length_and_media_in(const rational &length);
 
@@ -64,7 +64,7 @@ public:
   void set_previous(Block* previous);
   void set_next(Block* next);
 
-  const rational& media_in() const;
+  rational media_in() const;
   void set_media_in(const rational& media_in);
 
   const QString& block_name() const;
@@ -102,8 +102,8 @@ protected:
   Block* next_;
 
 private:
-  rational length_;
-  rational media_in_;
+  NodeInput* length_input_;
+  NodeInput* media_in_input_;
 
   rational in_point_;
   rational out_point_;
@@ -111,6 +111,9 @@ private:
   QString block_name_;
 
   QVector<Block*> linked_clips_;
+
+private slots:
+  void LengthInputChanged();
 
 };
 

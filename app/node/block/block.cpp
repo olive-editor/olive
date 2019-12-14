@@ -28,6 +28,14 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
+  length_input_ = new NodeInput("length_in");
+  length_input_->set_data_type(NodeParam::kRational);
+  AddInput(length_input_);
+  connect(length_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(LengthInputChanged()));
+
+  media_in_input_ = new NodeInput("media_in_in");
+  media_in_input_->set_data_type(NodeParam::kRational);
+  AddInput(media_in_input_);
 }
 
 QString Block::Category() const
@@ -55,32 +63,26 @@ void Block::set_out(const rational &out)
   out_point_ = out;
 }
 
-const rational& Block::length() const
+rational Block::length() const
 {
-  return length_;
+  return length_input_->get_value_at_time(0).value<rational>();
 }
 
 void Block::set_length(const rational &length)
 {
   Q_ASSERT(length > 0);
 
-  if (length == length_) {
+  if (length == this->length()) {
     return;
   }
 
-  LockUserInput();
-
-  length_ = length;
-
-  UnlockUserInput();
-
-  emit LengthChanged(length_);
+  length_input_->set_value_at_time(0, QVariant::fromValue(length));
 }
 
 void Block::set_length_and_media_in(const rational &length)
 {
   // Calculate media_in adjustment
-  set_media_in(media_in_ + (length_ - length));
+  set_media_in(media_in() + (this->length() - length));
 
   // Set the length
   set_length(length);
@@ -106,26 +108,14 @@ void Block::set_next(Block *next)
   next_ = next;
 }
 
-const rational &Block::media_in() const
+rational Block::media_in() const
 {
-  return media_in_;
+  return media_in_input_->get_value_at_time(0).value<rational>();
 }
 
 void Block::set_media_in(const rational &media_in)
 {
-  bool changed = false;
-
-  LockUserInput();
-  if (media_in_ != media_in) {
-    media_in_ = media_in;
-    changed = true;
-  }
-  UnlockUserInput();
-
-  if (changed) {
-    // Signal that this clips contents have changed
-    SendInvalidateCache(in(), out());
-  }
+  media_in_input_->set_value_at_time(0, QVariant::fromValue(media_in));
 }
 
 const QString &Block::block_name() const
@@ -171,6 +161,11 @@ void Block::CopyParameters(const Block *source, Block *dest)
   } else {
     dest->set_length(source->length());
   }
+}
+
+void Block::LengthInputChanged()
+{
+  emit LengthChanged(length());
 }
 
 void Block::Link(Block *a, Block *b)
