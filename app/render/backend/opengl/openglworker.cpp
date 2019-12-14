@@ -311,9 +311,12 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
 
   // Some nodes use multiple iterations for optimization
   OpenGLTextureCache::ReferencePtr output_tex;
+
   for (int iteration=0;iteration<node->AcceleratedCodeIterations();iteration++) {
     // Set iteration number
+    shader->bind();
     shader->setUniformValue("ove_iteration", iteration);
+    shader->release();
 
     // If this is not the first iteration, set the parameter that will receive the last iteration's texture
     OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
