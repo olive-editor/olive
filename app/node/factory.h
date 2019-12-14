@@ -14,7 +14,6 @@ public:
     kClipBlock,
     kGapBlock,
     kAlphaOverBlend,
-    kSolidGenerator,
     kAudioInput,
     kTransformDistort,
     kTransitionBlock,
@@ -34,7 +33,9 @@ public:
 
   static Menu* CreateMenu();
 
-  static Node *CreateFromMenuAction(QAction* action);
+  static Node* CreateFromMenuAction(QAction* action);
+
+  static Node* CreateFromID(const QString& id);
 
 private:
   static Node* CreateInternal(const InternalID& id);

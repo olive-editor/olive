@@ -5,7 +5,6 @@
 #include "block/gap/gap.h"
 #include "block/transition/crossdissolve/crossdissolve.h"
 #include "distort/transform/transform.h"
-#include "generator/solid/solid.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
 #include "output/timeline/timeline.h"
@@ -27,6 +26,7 @@ void NodeFactory::Initialize()
   library_.append(new ExternalNode(":/shaders/gaussianblur.xml"));
   library_.append(new ExternalNode(":/shaders/boxblur.xml"));
   library_.append(new ExternalNode(":/shaders/opacity.xml"));
+  library_.append(new ExternalNode(":/shaders/solid.xml"));
 }
 
 void NodeFactory::Destroy()
@@ -98,6 +98,17 @@ Node* NodeFactory::CreateFromMenuAction(QAction *action)
   return nullptr;
 }
 
+Node *NodeFactory::CreateFromID(const QString &id)
+{
+  foreach (Node* n, library_) {
+    if (n->id() == id) {
+      return n->copy();
+    }
+  }
+
+  return nullptr;
+}
+
 Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
 {
   switch (id) {
@@ -111,8 +122,6 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new CrossDissolveTransition();
   case kTransformDistort:
     return new TransformDistort();
-  case kSolidGenerator:
-    return new SolidGenerator();
   case kVideoInput:
     return new VideoInput();
   case kAudioInput:

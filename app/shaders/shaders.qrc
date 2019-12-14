@@ -10,6 +10,7 @@
         <file>opacity.frag</file>
         <file>opacity.xml</file>
         <file>solid.frag</file>
+        <file>solid.xml</file>
         <file>videoinput.frag</file>
         <file>videoinput.vert</file>
     </qresource>

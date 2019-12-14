@@ -17,7 +17,6 @@
 add_subdirectory(blend)
 add_subdirectory(block)
 add_subdirectory(distort)
-add_subdirectory(generator)
 add_subdirectory(input)
 add_subdirectory(output)
 
