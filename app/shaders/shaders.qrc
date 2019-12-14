@@ -3,6 +3,8 @@
         <file>alphaover.frag</file>
         <file>crossdissolve.frag</file>
         <file>diptoblack.frag</file>
+        <file>gaussianblur.frag</file>
+        <file>gaussianblur.xml</file>
         <file>opacity.frag</file>
         <file>solid.frag</file>
         <file>videoinput.frag</file>
