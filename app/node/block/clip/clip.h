@@ -48,6 +48,8 @@ public:
 
   virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
+  virtual void Retranslate() override;
+
 private:
   NodeInput* texture_input_;
 

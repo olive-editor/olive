@@ -79,6 +79,8 @@ public:
 
   virtual bool IsBlock() const override;
 
+  virtual void Retranslate() override;
+
 public slots:
 
 signals:

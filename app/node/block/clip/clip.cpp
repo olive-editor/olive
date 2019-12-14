@@ -100,3 +100,10 @@ NodeValueTable ClipBlock::Value(const NodeValueDatabase &value) const
 
   return table;
 }
+
+void ClipBlock::Retranslate()
+{
+  Block::Retranslate();
+
+  texture_input_->set_name(tr("Buffer"));
+}

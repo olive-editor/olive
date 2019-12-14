@@ -218,3 +218,11 @@ bool Block::IsBlock() const
   return true;
 }
 
+void Block::Retranslate()
+{
+  Node::Retranslate();
+
+  length_input_->set_name(tr("Length"));
+  media_in_input_->set_name(tr("Media In"));
+}
+
