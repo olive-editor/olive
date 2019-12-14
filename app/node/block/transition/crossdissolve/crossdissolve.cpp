@@ -29,7 +29,7 @@ bool CrossDissolveTransition::IsAccelerated() const
   return true;
 }
 
-QString CrossDissolveTransition::CodeFragment() const
+QString CrossDissolveTransition::AcceleratedCodeFragment() const
 {
   return ReadFileAsString(":/shaders/crossdissolve.frag");
 }

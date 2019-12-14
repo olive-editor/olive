@@ -29,7 +29,7 @@ bool DipToBlackTransition::IsAccelerated() const
   return true;
 }
 
-QString DipToBlackTransition::CodeFragment() const
+QString DipToBlackTransition::AcceleratedCodeFragment() const
 {
   return ReadFileAsString(":/shaders/diptoblack.frag");
 }

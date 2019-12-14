@@ -21,8 +21,8 @@ public:
   NodeInput* matrix_input() const;
 
   virtual bool IsAccelerated() const override;
-  virtual QString CodeVertex() const override;
-  virtual QString CodeFragment() const override;
+  virtual QString AcceleratedCodeVertex() const override;
+  virtual QString AcceleratedCodeFragment() const override;
 
   virtual void Retranslate() override;
 

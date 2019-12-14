@@ -154,11 +154,15 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
     return;
   }
 
-  // Create the output texture
-  OpenGLTextureCache::ReferencePtr output_ref = texture_cache_->Get(ctx_, video_params());
+  // Create the output textures
+  QList<OpenGLTextureCache::ReferencePtr> dst_refs;
+  dst_refs.append(texture_cache_->Get(ctx_, video_params()));
+  GLuint iterative_input = 0;
 
-  buffer_.Attach(output_ref->texture(), true);
-  buffer_.Bind();
+  // If this node requires multiple iterations, get a texture for it too
+  if (node->AcceleratedCodeIterations() > 1 && node->AcceleratedCodeIterativeInput()) {
+    dst_refs.append(texture_cache_->Get(ctx_, video_params()));
+  }
 
   // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
   shader->Lock();
@@ -237,6 +241,11 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
             }
           }
 
+          // If this texture binding is the iterative input, set it here
+          if (input == node->AcceleratedCodeIterativeInput()) {
+            iterative_input = input_texture_count;
+          }
+
           olive::gl::PrepareToDraw(functions_);
 
           input_texture_count++;
@@ -300,8 +309,32 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
     }
   }
 
-  // Blit this texture through this shader
-  olive::gl::Blit(shader);
+  // Some nodes use multiple iterations for optimization
+  OpenGLTextureCache::ReferencePtr output_tex;
+  for (int iteration=0;iteration<node->AcceleratedCodeIterations();iteration++) {
+    // Set iteration number
+    shader->setUniformValue("ove_iteration", iteration);
+
+    // If this is not the first iteration, set the parameter that will receive the last iteration's texture
+    OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
+    OpenGLTextureCache::ReferencePtr destination_tex = dst_refs.at(iteration%dst_refs.size());
+    if (iteration > 0) {
+      functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
+      functions_->glBindTexture(GL_TEXTURE_2D, source_tex->texture()->texture());
+    }
+
+    buffer_.Attach(destination_tex->texture(), true);
+    buffer_.Bind();
+
+    // Blit this texture through this shader
+    olive::gl::Blit(shader);
+
+    buffer_.Release();
+    buffer_.Detach();
+
+    // Update output reference to the last texture we wrote to
+    output_tex = destination_tex;
+  }
 
   // Make sure all OpenGL functions are complete by this point before unlocking the shader (or another thread may
   // change its parameters before our drawing in this thread is done)
@@ -319,10 +352,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
 
   shader->release();
 
-  buffer_.Release();
-  buffer_.Detach();
-
-  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_ref));
+  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
 }
 
 void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)

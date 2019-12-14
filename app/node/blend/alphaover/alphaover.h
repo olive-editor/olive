@@ -35,7 +35,7 @@ public:
   virtual QString Description() const override;
 
   virtual bool IsAccelerated() const override;
-  virtual QString CodeFragment() const override;
+  virtual QString AcceleratedCodeFragment() const override;
 
 protected:
 

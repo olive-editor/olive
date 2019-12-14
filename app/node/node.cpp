@@ -370,14 +370,24 @@ bool Node::IsAccelerated() const
   return false;
 }
 
-QString Node::CodeVertex() const
+QString Node::AcceleratedCodeVertex() const
 {
   return QString();
 }
 
-QString Node::CodeFragment() const
+QString Node::AcceleratedCodeFragment() const
 {
   return QString();
+}
+
+int Node::AcceleratedCodeIterations() const
+{
+  return 1;
+}
+
+NodeInput *Node::AcceleratedCodeIterativeInput() const
+{
+  return nullptr;
 }
 
 NodeParam *Node::GetParameterWithID(const QString &id) const

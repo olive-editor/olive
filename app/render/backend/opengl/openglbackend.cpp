@@ -86,8 +86,8 @@ bool OpenGLBackend::CompileInternal()
         // Since we have shader code, compile it now
         OpenGLShaderPtr program;
 
-        QString frag_code = n->CodeFragment();
-        QString vert_code = n->CodeVertex();
+        QString frag_code = n->AcceleratedCodeFragment();
+        QString vert_code = n->AcceleratedCodeVertex();
 
         if (frag_code.isEmpty()) {
           frag_code = OpenGLShader::CodeDefaultFragment();

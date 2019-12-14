@@ -51,12 +51,12 @@ bool VideoInput::IsAccelerated() const
   return true;
 }
 
-QString VideoInput::CodeVertex() const
+QString VideoInput::AcceleratedCodeVertex() const
 {
   return ReadFileAsString(":/shaders/videoinput.vert");
 }
 
-QString VideoInput::CodeFragment() const
+QString VideoInput::AcceleratedCodeFragment() const
 {
   return ReadFileAsString(":/shaders/videoinput.frag");
 }

@@ -58,7 +58,7 @@ bool SolidGenerator::IsAccelerated() const
   return true;
 }
 
-QString SolidGenerator::CodeFragment() const
+QString SolidGenerator::AcceleratedCodeFragment() const
 {
   return ReadFileAsString(":/shaders/solid.frag");
 }

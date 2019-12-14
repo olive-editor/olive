@@ -70,7 +70,7 @@ bool OpacityNode::IsAccelerated() const
   return true;
 }
 
-QString OpacityNode::CodeFragment() const
+QString OpacityNode::AcceleratedCodeFragment() const
 {
   return ReadFileAsString(":/shaders/opacity.frag");
 }

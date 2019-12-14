@@ -137,12 +137,24 @@ public:
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual QString CodeVertex() const;
+  virtual QString AcceleratedCodeVertex() const;
 
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual QString CodeFragment() const;
+  virtual QString AcceleratedCodeFragment() const;
+
+  /**
+   * @brief Number of iterations to run the accelerated code
+   *
+   * Some code is faster if it's merely repeated on a resulting texture rather than run once on the same buffer.
+   */
+  virtual int AcceleratedCodeIterations() const;
+
+  /**
+   * @brief Parameter that should receive the buffer on an iteration past the first
+   */
+  virtual NodeInput* AcceleratedCodeIterativeInput() const;
 
   /**
    * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)

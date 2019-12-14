@@ -40,7 +40,7 @@ public:
   virtual void Retranslate() override;
 
   virtual bool IsAccelerated() const override;
-  virtual QString CodeFragment() const override;
+  virtual QString AcceleratedCodeFragment() const override;
 
   NodeInput* texture_input() const;
 

@@ -50,7 +50,7 @@ bool AlphaOverBlend::IsAccelerated() const
   return true;
 }
 
-QString AlphaOverBlend::CodeFragment() const
+QString AlphaOverBlend::AcceleratedCodeFragment() const
 {
   return ReadFileAsString(":/shaders/alphaover.frag");
 }
