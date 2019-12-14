@@ -73,7 +73,7 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
       double frame_rate = timebase.flipped().toDouble();
       int rounded_frame_rate = qRound(frame_rate);
       int64_t frames, secs, mins, hours;
-      int64_t f = timestamp;
+      int64_t f = qAbs(timestamp);
 
       if (display == kTimecodeDropFrame && timebase.numerator() == 1001) {
         frame_token = ";";
