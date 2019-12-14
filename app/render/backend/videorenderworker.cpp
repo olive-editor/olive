@@ -67,10 +67,8 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
       NodeInput* input = static_cast<NodeInput*>(param);
 
       // Get time adjustment
-      TimeRange range = n->InputTimeAdjustment(input, TimeRange(time, time));
-
       // For a single frame, we only care about one of the times
-      rational input_time = range.in();
+      rational input_time = n->InputTimeAdjustment(input, TimeRange(time, time)).in();
 
       if (input->IsConnected()) {
         // Traverse down this edge
@@ -102,7 +100,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
             ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
             // Footage timestamp
-            hash->addData(QString::number(decoder->GetTimestampFromTime(time)).toUtf8());
+            hash->addData(QString::number(decoder->GetTimestampFromTime(input_time)).toUtf8());
 
             // Current colorspace
             // FIXME: Handle empty colorspace...
