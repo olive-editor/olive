@@ -57,8 +57,20 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kInt:
   {
     IntegerSlider* slider = new IntegerSlider();
-    widgets_.append(slider);
+
+    slider->SetValue(base_input->get_value_at_time(0).toLongLong());
+
+    if (base_input->has_minimum()) {
+      slider->SetMinimum(base_input->minimum().toLongLong());
+    }
+
+    if (base_input->has_maximum()) {
+      slider->SetMaximum(base_input->maximum().toLongLong());
+    }
+
     connect(slider, SIGNAL(ValueChanged(int64_t)), this, SLOT(WidgetCallback()));
+
+    widgets_.append(slider);
     break;
   }
   case NodeParam::kFloat:
@@ -156,7 +168,9 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kBoolean:
   {
     QCheckBox* check_box = new QCheckBox();
+    check_box->setChecked(base_input->get_value_at_time(0).toBool());
     widgets_.append(check_box);
+    connect(check_box, SIGNAL(toggled(bool)), this, SLOT(WidgetCallback()));
     break;
   }
   case NodeParam::kFont:
