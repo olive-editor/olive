@@ -299,4 +299,6 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
       CopyValues(src_array->At(i), dst_array->At(i), include_connections);
     }
   }
+
+  emit dest->ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
 }
