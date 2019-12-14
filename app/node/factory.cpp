@@ -1,6 +1,5 @@
 #include "factory.h"
 
-#include "blend/alphaover/alphaover.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
 #include "block/transition/crossdissolve/crossdissolve.h"
@@ -27,6 +26,7 @@ void NodeFactory::Initialize()
   library_.append(new ExternalNode(":/shaders/boxblur.xml"));
   library_.append(new ExternalNode(":/shaders/opacity.xml"));
   library_.append(new ExternalNode(":/shaders/solid.xml"));
+  library_.append(new ExternalNode(":/shaders/alphaover.xml"));
 }
 
 void NodeFactory::Destroy()
@@ -112,8 +112,6 @@ Node *NodeFactory::CreateFromID(const QString &id)
 Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
 {
   switch (id) {
-  case kAlphaOverBlend:
-    return new AlphaOverBlend();
   case kClipBlock:
     return new ClipBlock();
   case kGapBlock:

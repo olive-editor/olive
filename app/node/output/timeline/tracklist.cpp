@@ -20,7 +20,7 @@
 
 #include "tracklist.h"
 
-#include "node/blend/alphaover/alphaover.h"
+#include "node/factory.h"
 #include "timeline.h"
 
 TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInputArray *track_input) :
@@ -117,11 +117,11 @@ TrackOutput* TrackList::AddTrack()
     if (last_track && last_track->output()->IsConnected()) {
       foreach (NodeEdgePtr edge, last_track->output()->edges()) {
         if (edge->input()->parentNode() != track_input_->parentNode()) {
-          AlphaOverBlend* blend = new AlphaOverBlend();
+          Node* blend = NodeFactory::CreateFromID("org.olivevideoeditor.Olive.alphaoverblend");
           GetParentGraph()->AddNode(blend);
 
-          NodeParam::ConnectEdge(track->output(), blend->blend_input());
-          NodeParam::ConnectEdge(last_track->output(), blend->base_input());
+          NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("blend_in")));
+          NodeParam::ConnectEdge(last_track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("base_in")));
           NodeParam::ConnectEdge(blend->output(), edge->input());
         }
       }

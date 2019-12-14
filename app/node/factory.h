@@ -13,7 +13,6 @@ public:
     kViewerOutput,
     kClipBlock,
     kGapBlock,
-    kAlphaOverBlend,
     kAudioInput,
     kTransformDistort,
     kTransitionBlock,

@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/shaders">
         <file>alphaover.frag</file>
+        <file>alphaover.xml</file>
         <file>boxblur.frag</file>
         <file>boxblur.xml</file>
         <file>crossdissolve.frag</file>
