@@ -40,6 +40,7 @@ void NodeFactory::Destroy()
 Menu *NodeFactory::CreateMenu()
 {
   Menu* menu = new Menu();
+  menu->setToolTipsVisible(true);
 
   for (int i=0;i<library_.size();i++) {
     Node* n = library_.at(i);
