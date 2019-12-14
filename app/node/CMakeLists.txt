@@ -28,6 +28,8 @@ set(OLIVE_SOURCES
   node/dependency.cpp
   node/edge.h
   node/edge.cpp
+  node/external.h
+  node/external.cpp
   node/factory.h
   node/factory.cpp
   node/graph.h
