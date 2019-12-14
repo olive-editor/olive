@@ -12,6 +12,7 @@
 #include "output/timeline/timeline.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
+#include "external.h"
 
 QList<Node*> NodeFactory::library_;
 
@@ -23,6 +24,9 @@ void NodeFactory::Initialize()
   for (int i=0;i<kInternalNodeCount;i++) {
     library_.append(CreateInternal(static_cast<InternalID>(i)));
   }
+
+  library_.append(new ExternalNode(":/shaders/gaussianblur.xml"));
+  library_.append(new ExternalNode(":/shaders/boxblur.xml"));
 }
 
 void NodeFactory::Destroy()
