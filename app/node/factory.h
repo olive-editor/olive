@@ -18,7 +18,6 @@ public:
     kAudioInput,
     kTransformDistort,
     kTransitionBlock,
-    kOpacity,
     kVideoInput,
     kTimelineOutput,
     kTrackOutput,

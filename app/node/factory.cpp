@@ -4,7 +4,6 @@
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
 #include "block/transition/crossdissolve/crossdissolve.h"
-#include "color/opacity/opacity.h"
 #include "distort/transform/transform.h"
 #include "generator/solid/solid.h"
 #include "input/media/video/video.h"
@@ -27,6 +26,7 @@ void NodeFactory::Initialize()
 
   library_.append(new ExternalNode(":/shaders/gaussianblur.xml"));
   library_.append(new ExternalNode(":/shaders/boxblur.xml"));
+  library_.append(new ExternalNode(":/shaders/opacity.xml"));
 }
 
 void NodeFactory::Destroy()
@@ -109,8 +109,6 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new GapBlock();
   case kTransitionBlock:
     return new CrossDissolveTransition();
-  case kOpacity:
-    return new OpacityNode();
   case kTransformDistort:
     return new TransformDistort();
   case kSolidGenerator:

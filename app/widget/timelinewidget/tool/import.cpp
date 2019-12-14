@@ -27,7 +27,6 @@
 #include "common/qtversionabstraction.h"
 #include "core.h"
 #include "node/distort/transform/transform.h"
-#include "node/color/opacity/opacity.h"
 #include "node/input/media/audio/audio.h"
 #include "node/input/media/video/video.h"
 #include "widget/nodeview/nodeviewundo.h"

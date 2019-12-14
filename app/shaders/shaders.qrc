@@ -8,6 +8,7 @@
         <file>gaussianblur.frag</file>
         <file>gaussianblur.xml</file>
         <file>opacity.frag</file>
+        <file>opacity.xml</file>
         <file>solid.frag</file>
         <file>videoinput.frag</file>
         <file>videoinput.vert</file>
