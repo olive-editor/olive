@@ -107,7 +107,11 @@ void TrackRippleRemoveBlockCommand::redo()
 
 void TrackRippleRemoveBlockCommand::undo()
 {
-  track_->InsertBlockAfter(block_, before_);
+  if (before_) {
+    track_->InsertBlockAfter(block_, before_);
+  } else {
+    track_->AppendBlock(block_);
+  }
 }
 
 TrackInsertBlockBetweenBlocksCommand::TrackInsertBlockBetweenBlocksCommand(TrackOutput *track,
@@ -224,7 +228,6 @@ void TrackRippleRemoveAreaCommand::redo()
 
   // If we were given a block to insert, insert it here
   if (insert_) {
-    qDebug() << "Insert is" << insert_ << ", parent is" << insert_->parent();
     if (!trim_out_) {
       // This is the start of the Sequence
       track_->PrependBlock(insert_);

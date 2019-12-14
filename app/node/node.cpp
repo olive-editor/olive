@@ -324,33 +324,36 @@ QList<Node *> Node::GetDependencies() const
 
 QList<Node *> Node::GetExclusiveDependencies() const
 {
-  QList<Node*> deps = GetDependencies();
+  QList<Node*> dependency_tree = GetDependencies();
 
-  // Filter out any dependencies that are used elsewhere
-  for (int i=0;i<deps.size();i++) {
-    QList<NodeParam*> params = deps.at(i)->params_;
+  QList<Node*> exclusive_deps;
 
-    // See if any of this Node's outputs are used outside of this dep list
-    for (int j=0;j<params.size();j++) {
-      NodeParam* p = params.at(j);
+  // See if any nodes in the list output somewhere else
+  foreach (Node* dep, dependency_tree) {
+    bool is_exclusive = true;
 
-      if (p->type() == NodeParam::kOutput) {
-        foreach (NodeEdgePtr edge, p->edges()) {
-          // If any edge goes to from an output here to an input of a Node that isn't in this dep list, it's NOT an
-          // exclusive dependency
-          if (deps.contains(edge->input()->parentNode())) {
-            deps.removeAt(i);
-
-            i--;                // -1 since we just removed a Node in this list
-            j = params.size();  // No need to keep looking at this Node's params
-            break;              // Or this param's edges
+    foreach (NodeParam* param, dep->parameters()) {
+      if (param->type() == NodeParam::kOutput) {
+        foreach (NodeEdgePtr edge, param->edges()) {
+          Node* node_param_outputs_to = edge->input()->parentNode();
+          if (node_param_outputs_to != this && !dependency_tree.contains(node_param_outputs_to)) {
+            is_exclusive = false;
+            break;
           }
         }
       }
+
+      if (!is_exclusive) {
+        break;
+      }
+    }
+
+    if (is_exclusive) {
+      exclusive_deps.append(dep);
     }
   }
 
-  return deps;
+  return exclusive_deps;
 }
 
 QList<Node *> Node::GetImmediateDependencies() const

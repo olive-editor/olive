@@ -303,7 +303,7 @@ public:
    *
    * Edge to disconnect.
    */
-  static void DisconnectEdge(NodeEdgePtr edge);
+  static void DisconnectEdge(NodeEdgePtr edge, bool lock = true);
 
   /**
    * @brief Disconnect an edge

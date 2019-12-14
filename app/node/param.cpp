@@ -143,19 +143,23 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lo
   return edge;
 }
 
-void NodeParam::DisconnectEdge(NodeEdgePtr edge)
+void NodeParam::DisconnectEdge(NodeEdgePtr edge, bool lock)
 {
   NodeOutput* output = edge->output();
   NodeInput* input = edge->input();
 
-  output->parentNode()->LockUserInput();
-  input->parentNode()->LockUserInput();
+  if (lock) {
+    output->parentNode()->LockUserInput();
+    input->parentNode()->LockUserInput();
+  }
 
   output->edges_.removeOne(edge);
   input->edges_.removeOne(edge);
 
-  output->parentNode()->UnlockUserInput();
-  input->parentNode()->UnlockUserInput();
+  if (lock) {
+    output->parentNode()->UnlockUserInput();
+    input->parentNode()->UnlockUserInput();
+  }
 
   emit input->EdgeRemoved(edge);
 }

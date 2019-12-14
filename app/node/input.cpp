@@ -293,7 +293,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
     NodeInputArray* src_array = static_cast<NodeInputArray*>(source);
     NodeInputArray* dst_array = static_cast<NodeInputArray*>(dest);
 
-    dst_array->SetSize(src_array->GetSize());
+    dst_array->SetSize(src_array->GetSize(), lock_connections);
 
     for (int i=0;i<dst_array->GetSize();i++) {
       CopyValues(src_array->At(i), dst_array->At(i), include_connections);

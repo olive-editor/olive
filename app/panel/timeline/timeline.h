@@ -62,6 +62,8 @@ public:
 
   virtual void GoToNextCut() override;
 
+  virtual void DeleteSelected() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

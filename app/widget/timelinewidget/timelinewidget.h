@@ -319,6 +319,8 @@ private:
     bool dual_transition_;
   };
 
+  void DeleteSelectedInternal(const QList<Block*> blocks, bool remove_from_graph, QUndoCommand* command);
+
   void SetBlockLinksSelected(Block *block, bool selected);
 
   QPoint drag_origin_;

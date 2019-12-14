@@ -161,6 +161,8 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
   QUndoCommand* command = new QUndoCommand();
 
+  QList<Block*> blocks_to_temp_remove;
+
   // Since all the ghosts will be leaving their old position in some way, we replace all of them with gaps here so the
   // entire timeline isn't disrupted in the process
   for (int i=0;i<parent()->ghost_items_.size();i++) {
@@ -173,51 +175,10 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    bool previous_is_gap = (b->previous() && b->previous()->type() == Block::kGap);
-    bool next_is_gap = (b->next() && b->next()->type() == Block::kGap);
-
-    TrackOutput* original_track = parent()->GetTrackFromReference(ghost->Track());
-
-    if (!previous_is_gap && !next_is_gap) {
-      // Make new gap and replace old Block with it for now
-      GapBlock* gap = new GapBlock();
-      gap->set_length(b->length());
-
-      new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
-                         gap,
-                         command);
-
-      new TrackReplaceBlockCommand(original_track,
-                                   b,
-                                   gap,
-                                   command);
-    } else {
-      // Remove the block from the track (this does NOT remove the block from the graph however)
-      new TrackRippleRemoveBlockCommand(original_track,
-                                        b,
-                                        command);
-
-      if (previous_is_gap && next_is_gap) {
-        // Clip is surrounded by gaps, merge both together
-
-        // Remove one of the gaps
-        new TrackRippleRemoveBlockCommand(original_track,
-                                          b->next(),
-                                          command);
-
-        // Resize the other to match both
-        new BlockResizeCommand(b->previous(),
-                               b->previous()->length() + b->length() + b->next()->length(),
-                               command);
-      } else {
-        // Resize the surrounding block to take its place
-        Block* gap_to_resize = previous_is_gap ? b->previous() : b->next();
-        new BlockResizeCommand(gap_to_resize,
-                               gap_to_resize->length() + b->length(),
-                               command);
-      }
-    }
+    blocks_to_temp_remove.append(b);
   }
+
+  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, command);
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
   // all of the gaps we inserted earlier

@@ -114,6 +114,11 @@ void TimelinePanel::GoToNextCut()
   timeline_widget_->GoToNextCut();
 }
 
+void TimelinePanel::DeleteSelected()
+{
+  timeline_widget_->DeleteSelected();
+}
+
 void TimelinePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

@@ -22,7 +22,7 @@ void NodeInputArray::Prepend()
   InsertAt(0);
 }
 
-void NodeInputArray::SetSize(int size)
+void NodeInputArray::SetSize(int size, bool lock)
 {
   int old_size = GetSize();
 
@@ -33,9 +33,13 @@ void NodeInputArray::SetSize(int size)
   if (size < old_size) {
     // If the new size is less, delete all extraneous parameters
     for (int i=size;i<old_size;i++) {
-      delete sub_params_.at(i);
+      NodeInput* sub_param = sub_params_.at(i);
+      delete sub_param;
     }
   }
+
+  if (lock)
+    parentNode()->LockUserInput();
 
   sub_params_.resize(size);
 
@@ -56,6 +60,9 @@ void NodeInputArray::SetSize(int size)
       connect(new_param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
     }
   }
+
+  if (lock)
+    parentNode()->UnlockUserInput();
 
   emit SizeChanged(size);
 }
@@ -126,28 +133,28 @@ void NodeInputArray::RemoveLast()
 
 void NodeInputArray::RemoveAt(int index)
 {
-  int limit = sub_params_.size() - 1;
-
   // Shift all connections from index down
-  for (int i=index;i<limit;i++) {
+  for (int i=index;i<sub_params_.size();i++) {
     NodeInput* this_param = sub_params_.at(i);
-    NodeInput* next_param = sub_params_.at(i + 1);
 
     if (this_param->IsConnected()) {
       // Disconnect current edge
       NodeParam::DisconnectEdge(this_param->edges().first());
     }
 
-    if (next_param->IsConnected()) {
-      // Get edge from next param
-      NodeEdgePtr edge = next_param->edges().first();
+    if (i < sub_params_.size() - 1) {
+      NodeInput* next_param = sub_params_.at(i + 1);
+      if (next_param->IsConnected()) {
+        // Get edge from next param
+        NodeEdgePtr edge = next_param->edges().first();
 
-      // Disconnect it
-      NodeParam::DisconnectEdge(edge);
+        // Disconnect it
+        NodeParam::DisconnectEdge(edge);
 
-      // Reconnect it to this param
-      NodeParam::ConnectEdge(edge->output(),
-                             this_param);
+        // Reconnect it to this param
+        NodeParam::ConnectEdge(edge->output(),
+                               this_param);
+      }
     }
   }
 
