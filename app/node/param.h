@@ -342,6 +342,11 @@ public:
    */
   static QByteArray ValueToBytes(const DataType &type, const QVariant& value);
 
+  /**
+   * @brief Convert a string to a data type
+   */
+  static DataType StringToDataType(const QString& s);
+
 signals:
   /**
    * @brief Signal emitted when an edge is added to this parameter

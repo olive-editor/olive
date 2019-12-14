@@ -223,6 +223,37 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   return QByteArray();
 }
 
+NodeParam::DataType NodeParam::StringToDataType(const QString &s)
+{
+  QString type_id = s.toLower();
+
+  if (type_id == "float") {
+    return kFloat;
+  } else if (type_id == "int") {
+    return kInt;
+  } else if (type_id == "rational") {
+    return kRational;
+  } else if (type_id == "bool") {
+    return kBoolean;
+  } else if (type_id == "color") {
+    return kColor;
+  } else if (type_id == "matrix") {
+    return kMatrix;
+  } else if (type_id == "text") {
+    return kText;
+  } else if (type_id == "texture") {
+    return kTexture;
+  } else if (type_id == "vec2") {
+    return kVec2;
+  } else if (type_id == "vec3") {
+    return kVec3;
+  } else if (type_id == "vec4") {
+    return kVec4;
+  }
+
+  return kAny;
+}
+
 template<typename T>
 QByteArray NodeParam::ValueToBytesInternal(const QVariant &v)
 {
