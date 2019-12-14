@@ -189,7 +189,10 @@ private:
 
   Block* new_block_;
 
+  QList<NodeInput*> transitions_to_move_;
+
   QObject memory_manager_;
+
 };
 
 class TrackSplitAtTimeCommand : public QUndoCommand {

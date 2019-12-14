@@ -21,6 +21,7 @@
 #include "undo.h"
 
 #include "node/graph.h"
+#include "node/block/transition/transition.h"
 
 Block* CreateSplitBlock(Block* block, rational point, QObject* parent = nullptr)
 {
@@ -360,6 +361,15 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
 
   // Ensures that this block is deleted if this action is undone
   new_block_ = CreateSplitBlock(block_, point, &memory_manager_);
+
+  // Determine if the block outputs to an "out" transition
+  foreach (NodeEdgePtr edge, block_->output()->edges()) {
+    if (edge->input()->parentNode()->IsBlock()
+        && static_cast<Block*>(edge->input()->parentNode())->type() == Block::kTransition
+        && edge->input() == static_cast<TransitionBlock*>(edge->input()->parentNode())->out_block_input()) {
+      transitions_to_move_.append(edge->input());
+    }
+  }
 }
 
 void BlockSplitCommand::redo()
@@ -375,6 +385,11 @@ void BlockSplitCommand::redo()
   track_->InsertBlockAfter(new_block_, block_);
 
   track_->UnblockInvalidateCache();
+
+  foreach (NodeInput* transition, transitions_to_move_) {
+    NodeParam::DisconnectEdge(block_->output(), transition);
+    NodeParam::ConnectEdge(new_block_->output(), transition);
+  }
 }
 
 void BlockSplitCommand::undo()
@@ -387,6 +402,11 @@ void BlockSplitCommand::undo()
   TakeNodeFromParentGraph(new_block_, &memory_manager_);
 
   track_->UnblockInvalidateCache();
+
+  foreach (NodeInput* transition, transitions_to_move_) {
+    NodeParam::DisconnectEdge(new_block_->output(), transition);
+    NodeParam::ConnectEdge(block_->output(), transition);
+  }
 }
 
 Block *BlockSplitCommand::new_block()
