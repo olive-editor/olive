@@ -12,7 +12,7 @@
     </description>
 
     <!-- Parameter: Texture Input -->
-    <param id="tex_in" type="texture" iteration_in="1">
+    <param id="tex_in" type="texture" iterative_input="1">
         <name lang="en_US">Input</name>
     </param>
 
@@ -26,13 +26,13 @@
     <!-- Parameter: Horizontal Enable -->
     <param id="horiz_in" type="bool">
         <name lang="en_US">Horizontal</name>
-        <field type="bool" default="1" id=""/>
+        <default>1</default>
     </param>
 
     <!-- Parameter: Vertical Enable -->
     <param id="vert_in" type="bool">
         <name lang="en_US">Vertical</name>
-        <default>true</default>
+        <default>1</default>
     </param>
 
     <!-- Qt Resource path to fragment shader -->

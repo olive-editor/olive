@@ -37,7 +37,7 @@ void main(void) {
 
     // Using (3 * sigma) because 3 standard deviations covers 97% of the blur according to this document:
     // http://chemaguerra.com/gaussian-filter-radius/
-    float radius = ceil(3.0 * sigma);
+    float radius = ceil(3.0 * sigma_in);
 
     // Use gaussian formula to calculate the weight of all pixels
     float sum = 0.0;

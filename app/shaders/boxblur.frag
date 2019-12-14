@@ -11,14 +11,14 @@ uniform bool vert_in;
 
 void main(void) {
     if (radius_in == 0.0
-        || (iteration == 0 && !horiz_in)
-        || (iteration == 1 && !vert_in)) {
-        gl_FragColor = texture2D(image, ove_texcoord);
+        || (ove_iteration == 0 && !horiz_in)
+        || (ove_iteration == 1 && !vert_in)) {
+        gl_FragColor = texture2D(tex_in, ove_texcoord);
         return;
     }
     
     // We only sample on hard pixels, so we don't accept decimal radii
-    float real_radius = ceil(radius);
+    float real_radius = ceil(radius_in);
 
     // Calculate the weight of each pixel based on the radius
     float divider = 1.0 / real_radius;      
@@ -26,12 +26,12 @@ void main(void) {
     vec4 composite = vec4(0.0);
     for (float i=-real_radius+0.5;i<=real_radius;i+=2.0) {
         vec2 pixel_coord = ove_texcoord;
-        if (iteration == 0) {
+        if (ove_iteration == 0) {
             pixel_coord.x += i/ove_resolution.x;
-        } else if (iteration == 1) {
+        } else if (ove_iteration == 1) {
             pixel_coord.y += i/ove_resolution.y;
         }
-        composite += texture2D(image, pixel_coord) * divider;
+        composite += texture2D(tex_in, pixel_coord) * divider;
     }
     gl_FragColor = composite;
 }
