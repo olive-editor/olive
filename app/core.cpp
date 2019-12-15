@@ -32,6 +32,7 @@
 #include "audio/audiomanager.h"
 #include "config/config.h"
 #include "dialog/about/about.h"
+#include "dialog/export/export.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/preferences/preferences.h"
 #include "dialog/projectproperties/projectproperties.h"
@@ -228,6 +229,12 @@ void Core::DialogProjectPropertiesShow()
 {
   ProjectPropertiesDialog ppd(main_window_);
   ppd.exec();
+}
+
+void Core::DialogExportShow()
+{
+  ExportDialog ed(main_window_);
+  ed.exec();
 }
 
 void Core::CreateNewFolder()

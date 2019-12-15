@@ -161,6 +161,11 @@ public slots:
   void DialogProjectPropertiesShow();
 
   /**
+   * @brief Show Export dialog
+   */
+  void DialogExportShow();
+
+  /**
    * @brief Create a new folder in the currently active project
    */
   void CreateNewFolder();

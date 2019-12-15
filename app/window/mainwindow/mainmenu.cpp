@@ -47,7 +47,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", &olive::core, SLOT(DialogImportShow()), "Ctrl+I");
   file_menu_->addSeparator();
-  file_export_item_ = file_menu_->AddItem("export", nullptr, nullptr, "Ctrl+M");
+  file_export_item_ = file_menu_->AddItem("export", &olive::core, SLOT(DialogExportShow()), "Ctrl+M");
   file_menu_->addSeparator();
   file_project_properties_item_ = file_menu_->AddItem("projectproperties", &olive::core, SLOT(DialogProjectPropertiesShow()));
   file_menu_->addSeparator();
@@ -476,7 +476,7 @@ void MainMenu::GoToNextCutTriggered()
 }
 
 void MainMenu::Retranslate()
-{ 
+{
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
   olive::menu_shared.Retranslate();
 
