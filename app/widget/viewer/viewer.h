@@ -45,7 +45,7 @@ class ViewerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ViewerWidget(QWidget* parent);
+  ViewerWidget(QWidget* parent = nullptr);
 
   void SetPlaybackControlsEnabled(bool enabled);
 

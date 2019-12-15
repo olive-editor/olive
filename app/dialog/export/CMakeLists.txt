@@ -18,5 +18,9 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   dialog/export/export.h
   dialog/export/export.cpp
+  dialog/export/exportaudiotab.h
+  dialog/export/exportaudiotab.cpp
+  dialog/export/exportvideotab.h
+  dialog/export/exportvideotab.cpp
   PARENT_SCOPE
 )
