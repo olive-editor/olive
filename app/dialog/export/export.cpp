@@ -2,9 +2,9 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
@@ -29,11 +29,13 @@ ExportDialog::ExportDialog(QWidget *parent) :
   QLabel* fn_lbl = new QLabel(tr("Filename:"));
   fn_lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   preferences_layout->addWidget(fn_lbl, row, 0);
-  QLineEdit* filename_edit = new QLineEdit();
-  preferences_layout->addWidget(filename_edit, row, 1, 1, 2);
+  filename_edit_ = new QLineEdit();
+  preferences_layout->addWidget(filename_edit_, row, 1, 1, 2);
   QPushButton* file_browse_btn = new QPushButton();
   file_browse_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   file_browse_btn->setIcon(olive::icon::Folder);
+  file_browse_btn->setToolTip(tr("Browse for exported file filename"));
+  connect(file_browse_btn, SIGNAL(clicked(bool)), this, SLOT(BrowseFilename()));
   preferences_layout->addWidget(file_browse_btn, row, 3);
 
   row++;
@@ -95,4 +97,13 @@ ExportDialog::ExportDialog(QWidget *parent) :
   preview_viewer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   preview_layout->addWidget(preview_viewer_);
   splitter->addWidget(preview_area);
+}
+
+void ExportDialog::BrowseFilename()
+{
+  QString browsed_fn = QFileDialog::getSaveFileName();
+
+  if (!browsed_fn.isEmpty()) {
+    filename_edit_->setText(browsed_fn);
+  }
 }
