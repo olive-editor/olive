@@ -11,8 +11,9 @@
 
 #include "ui/icons/icons.h"
 
-ExportDialog::ExportDialog(QWidget *parent) :
+ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
+  viewer_node_(viewer_node),
   previously_selected_format_(0)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -124,6 +125,17 @@ ExportDialog::ExportDialog(QWidget *parent) :
 
   // Set defaults
   format_combobox_->setCurrentIndex(kFormatMPEG4);
+  video_tab_->width_slider()->SetValue(viewer_node_->video_params().width());
+  video_tab_->height_slider()->SetValue(viewer_node_->video_params().height());
+  video_tab_->set_frame_rate(viewer_node_->video_params().time_base().flipped());
+  audio_tab_->set_sample_rate(viewer_node_->audio_params().sample_rate());
+  audio_tab_->set_channel_layout(viewer_node_->audio_params().channel_layout());
+
+  video_aspect_ratio_ = static_cast<double>(viewer_node_->video_params().width()) / static_cast<double>(viewer_node_->video_params().height());
+
+  connect(video_tab_->width_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
+  connect(video_tab_->height_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
+  connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
 }
 
 void ExportDialog::BrowseFilename()
@@ -171,6 +183,24 @@ void ExportDialog::FormatChanged(int index)
   }
 }
 
+void ExportDialog::ResolutionChanged()
+{
+  if (video_tab_->maintain_aspect_checkbox()->isChecked()) {
+    // Keep aspect ratio maintained
+    if (sender() == video_tab_->height_slider()) {
+      video_tab_->width_slider()->SetValue(qRound(static_cast<double>(video_tab_->height_slider()->GetValue()) * video_aspect_ratio_));
+    } else {
+      // This catches both the width slider changing and the maintain aspect ratio checkbox changing
+      video_tab_->height_slider()->SetValue(qRound(static_cast<double>(video_tab_->width_slider()->GetValue()) / video_aspect_ratio_));
+    }
+  } else {
+    double current_ratio = static_cast<double>(video_tab_->width_slider()->GetValue()) / static_cast<double>(video_tab_->height_slider()->GetValue());
+
+    // Enable scaling method combobox only if width/height are not equal to sequence size
+    video_tab_->scaling_method_combobox()->setEnabled(!qFuzzyCompare(current_ratio, video_aspect_ratio_));
+  }
+}
+
 void ExportDialog::SetUpFormats()
 {
   // Set up codecs
@@ -206,8 +236,8 @@ void ExportDialog::SetUpFormats()
     case kCodecAAC:
       codecs_.append(ExportCodec(tr("AAC"), "aac"));
       break;
-    case kCodecPCMS16LE:
-      codecs_.append(ExportCodec(tr("PCM (Signed 16-Bit Little Endian)"), "pcms16le"));
+    case kCodecPCM:
+      codecs_.append(ExportCodec(tr("PCM (Uncompressed)"), "pcm"));
       break;
     case kCodecCount:
       break;
@@ -218,19 +248,19 @@ void ExportDialog::SetUpFormats()
   for (int i=0;i<kFormatCount;i++) {
     switch (static_cast<Format>(i)) {
     case kFormatDNxHD:
-      formats_.append(ExportFormat(tr("DNxHD"), "mxf", {kCodecDNxHD}, {kCodecPCMS16LE}));
+      formats_.append(ExportFormat(tr("DNxHD"), "mxf", {kCodecDNxHD}, {kCodecPCM}));
       break;
     case kFormatMatroska:
-      formats_.append(ExportFormat(tr("Matroska Video"), "mkv", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCMS16LE}));
+      formats_.append(ExportFormat(tr("Matroska Video"), "mkv", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
       break;
     case kFormatMPEG4:
-      formats_.append(ExportFormat(tr("MPEG-4 Video"), "mp4", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCMS16LE}));
+      formats_.append(ExportFormat(tr("MPEG-4 Video"), "mp4", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
       break;
     case kFormatOpenEXR:
       formats_.append(ExportFormat(tr("OpenEXR"), "exr", {kCodecOpenEXR}, {}));
       break;
     case kFormatQuickTime:
-      formats_.append(ExportFormat(tr("QuickTime"), "mov", {kCodecH264, kCodecH265, kCodecProRes}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCMS16LE}));
+      formats_.append(ExportFormat(tr("QuickTime"), "mov", {kCodecH264, kCodecH265, kCodecProRes}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
       break;
     case kFormatPNG:
       formats_.append(ExportFormat(tr("PNG"), "png", {kCodecPNG}, {}));

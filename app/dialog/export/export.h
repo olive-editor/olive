@@ -15,12 +15,14 @@ class ExportDialog : public QDialog
 {
   Q_OBJECT
 public:
-  ExportDialog(QWidget* parent = nullptr);
+  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
 
 private:
   void SetUpFormats();
   void LoadPresets();
   void SetDefaultFilename();
+
+  ViewerOutput* viewer_node_;
 
   QList<ExportFormat> formats_;
   int previously_selected_format_;
@@ -33,6 +35,8 @@ private:
 
   ExportVideoTab* video_tab_;
   ExportAudioTab* audio_tab_;
+
+  double video_aspect_ratio_;
 
   enum Format {
     kFormatDNxHD,
@@ -58,7 +62,7 @@ private:
     kCodecMP2,
     kCodecMP3,
     kCodecAAC,
-    kCodecPCMS16LE,
+    kCodecPCM,
 
     kCodecCount
   };
@@ -67,6 +71,8 @@ private slots:
   void BrowseFilename();
 
   void FormatChanged(int index);
+
+  void ResolutionChanged();
 
 };
 

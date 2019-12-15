@@ -25,8 +25,8 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   layout->addWidget(new QLabel(tr("Sample Rate:")), row, 0);
 
   sample_rate_combobox_ = new QComboBox();
-  QList<int> sample_rates = Core::SupportedSampleRates();
-  foreach (const int& sr, sample_rates) {
+  sample_rates_ = Core::SupportedSampleRates();
+  foreach (const int& sr, sample_rates_) {
     sample_rate_combobox_->addItem(Core::SampleRateToString(sr));
   }
   layout->addWidget(sample_rate_combobox_, row, 1);
@@ -34,7 +34,13 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   row++;
 
   layout->addWidget(new QLabel(tr("Channel Layout:")), row, 0);
-  layout->addWidget(new QComboBox(), row, 1);
+
+  channel_layout_combobox_ = new QComboBox();
+  channel_layouts_ = Core::SupportedChannelLayouts();
+  foreach (const uint64_t& layout, channel_layouts_) {
+    channel_layout_combobox_->addItem(Core::ChannelLayoutToString(layout));
+  }
+  layout->addWidget(channel_layout_combobox_, row, 1);
 
   row++;
 
@@ -52,4 +58,14 @@ QComboBox *ExportAudioTab::codec_combobox() const
 QComboBox *ExportAudioTab::sample_rate_combobox() const
 {
   return sample_rate_combobox_;
+}
+
+void ExportAudioTab::set_sample_rate(int rate)
+{
+  sample_rate_combobox_->setCurrentIndex(sample_rates_.indexOf(rate));
+}
+
+void ExportAudioTab::set_channel_layout(uint64_t layout)
+{
+  channel_layout_combobox_->setCurrentIndex(channel_layouts_.indexOf(layout));
 }

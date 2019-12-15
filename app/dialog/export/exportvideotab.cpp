@@ -6,8 +6,6 @@
 #include <QLabel>
 
 #include "core.h"
-#include "common/rational.h"
-#include "widget/slider/integerslider.h"
 
 ExportVideoTab::ExportVideoTab(QWidget *parent) :
   QWidget(parent)
@@ -16,9 +14,9 @@ ExportVideoTab::ExportVideoTab(QWidget *parent) :
 
   outer_layout->addWidget(SetupResolutionSection());
 
-  outer_layout->addWidget(SetupColorSection());
-
   outer_layout->addWidget(SetupCodecSection());
+
+  outer_layout->addWidget(SetupColorSection());
 
   outer_layout->addStretch();
 }
@@ -26,6 +24,31 @@ ExportVideoTab::ExportVideoTab(QWidget *parent) :
 QComboBox *ExportVideoTab::codec_combobox() const
 {
   return codec_combobox_;
+}
+
+IntegerSlider *ExportVideoTab::width_slider() const
+{
+  return width_slider_;
+}
+
+IntegerSlider *ExportVideoTab::height_slider() const
+{
+  return height_slider_;
+}
+
+QCheckBox *ExportVideoTab::maintain_aspect_checkbox() const
+{
+  return maintain_aspect_checkbox_;
+}
+
+QComboBox *ExportVideoTab::scaling_method_combobox() const
+{
+  return scaling_method_combobox_;
+}
+
+void ExportVideoTab::set_frame_rate(const rational &frame_rate)
+{
+  frame_rate_combobox_->setCurrentIndex(frame_rates_.indexOf(frame_rate));
 }
 
 QWidget* ExportVideoTab::SetupResolutionSection()
@@ -39,33 +62,42 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   layout->addWidget(new QLabel(tr("Width:")), row, 0);
 
-  IntegerSlider* width_slider = new IntegerSlider();
-  layout->addWidget(width_slider, row, 1);
+  width_slider_ = new IntegerSlider();
+  layout->addWidget(width_slider_, row, 1);
 
   row++;
 
   layout->addWidget(new QLabel(tr("Height:")), row, 0);
 
-  IntegerSlider* height_slider = new IntegerSlider();
-  layout->addWidget(height_slider, row, 1);
+  height_slider_ = new IntegerSlider();
+  layout->addWidget(height_slider_, row, 1);
 
   row++;
 
   layout->addWidget(new QLabel(tr("Maintain Aspect Ratio:")), row, 0);
-  layout->addWidget(new QCheckBox(), row, 1);
+
+  maintain_aspect_checkbox_ = new QCheckBox();
+  maintain_aspect_checkbox_->setChecked(true);
+  layout->addWidget(maintain_aspect_checkbox_, row, 1);
 
   row++;
 
   layout->addWidget(new QLabel(tr("Scaling Method:")), row, 0);
-  layout->addWidget(new QComboBox(), row, 1);
+
+  scaling_method_combobox_ = new QComboBox();
+  scaling_method_combobox_->setEnabled(false);
+  scaling_method_combobox_->addItem(tr("Fit"));
+  scaling_method_combobox_->addItem(tr("Stretch"));
+  scaling_method_combobox_->addItem(tr("Crop"));
+  layout->addWidget(scaling_method_combobox_, row, 1);
 
   row++;
 
   layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
 
   frame_rate_combobox_ = new QComboBox();
-  QList<rational> frame_rates = Core::SupportedFrameRates();
-  foreach (const rational& fr, frame_rates) {
+  frame_rates_ = Core::SupportedFrameRates();
+  foreach (const rational& fr, frame_rates_) {
     frame_rate_combobox_->addItem(Core::FrameRateToString(fr));
   }
 
