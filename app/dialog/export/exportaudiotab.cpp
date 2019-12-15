@@ -1,8 +1,9 @@
 #include "exportaudiotab.h"
 
-#include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
+
+#include "core.h"
 
 ExportAudioTab::ExportAudioTab(QWidget* parent) :
   QWidget(parent)
@@ -15,12 +16,20 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   int row = 0;
 
   layout->addWidget(new QLabel(tr("Codec:")), row, 0);
-  layout->addWidget(new QComboBox(), row, 1);
+
+  codec_combobox_ = new QComboBox();
+  layout->addWidget(codec_combobox_, row, 1);
 
   row++;
 
   layout->addWidget(new QLabel(tr("Sample Rate:")), row, 0);
-  layout->addWidget(new QComboBox(), row, 1);
+
+  sample_rate_combobox_ = new QComboBox();
+  QList<int> sample_rates = Core::SupportedSampleRates();
+  foreach (const int& sr, sample_rates) {
+    sample_rate_combobox_->addItem(Core::SampleRateToString(sr));
+  }
+  layout->addWidget(sample_rate_combobox_, row, 1);
 
   row++;
 
@@ -33,4 +42,14 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   layout->addWidget(new QComboBox(), row, 1);
 
   outer_layout->addStretch();
+}
+
+QComboBox *ExportAudioTab::codec_combobox() const
+{
+  return codec_combobox_;
+}
+
+QComboBox *ExportAudioTab::sample_rate_combobox() const
+{
+  return sample_rate_combobox_;
 }

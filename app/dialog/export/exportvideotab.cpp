@@ -1,11 +1,12 @@
 #include "exportvideotab.h"
 
 #include <QCheckBox>
-#include <QComboBox>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 
+#include "core.h"
+#include "common/rational.h"
 #include "widget/slider/integerslider.h"
 
 ExportVideoTab::ExportVideoTab(QWidget *parent) :
@@ -20,6 +21,11 @@ ExportVideoTab::ExportVideoTab(QWidget *parent) :
   outer_layout->addWidget(SetupCodecSection());
 
   outer_layout->addStretch();
+}
+
+QComboBox *ExportVideoTab::codec_combobox() const
+{
+  return codec_combobox_;
 }
 
 QWidget* ExportVideoTab::SetupResolutionSection()
@@ -56,7 +62,14 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   row++;
 
   layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
-  layout->addWidget(new QComboBox(), row, 1);
+
+  frame_rate_combobox_ = new QComboBox();
+  QList<rational> frame_rates = Core::SupportedFrameRates();
+  foreach (const rational& fr, frame_rates) {
+    frame_rate_combobox_->addItem(Core::FrameRateToString(fr));
+  }
+
+  layout->addWidget(frame_rate_combobox_, row, 1);
 
   return resolution_group;
 }
@@ -98,7 +111,9 @@ QWidget *ExportVideoTab::SetupCodecSection()
   QGridLayout* codec_layout = new QGridLayout(codec_group);
 
   codec_layout->addWidget(new QLabel(tr("Codec:")), row, 0);
-  codec_layout->addWidget(new QComboBox(), row, 1);
+
+  codec_combobox_ = new QComboBox();
+  codec_layout->addWidget(codec_combobox_, row, 1);
 
   return codec_group;
 }

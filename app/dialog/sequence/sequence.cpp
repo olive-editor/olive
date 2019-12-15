@@ -27,6 +27,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 
+#include "core.h"
 #include "common/channellayout.h"
 #include "common/rational.h"
 #include "undo/undostack.h"
@@ -93,7 +94,7 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   // Set window title based on type
   switch (t) {
   case kNew:
-    setWindowTitle("New Sequence");
+    setWindowTitle(tr("New Sequence"));
     break;
   case kExisting:
     setWindowTitle(tr("Editing \"%1\"").arg(sequence_->name()));
@@ -101,30 +102,16 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   }
 
   // Set up available frame rates
-  AddFrameRate(rational(10, 1));            // 10 FPS
-  AddFrameRate(rational(15, 1));            // 15 FPS
-  AddFrameRate(rational(24000, 1001));      // 23.976 FPS
-  AddFrameRate(rational(24, 1));            // 24 FPS
-  AddFrameRate(rational(25, 1));            // 25 FPS
-  AddFrameRate(rational(30000, 1001));      // 29.97 FPS
-  AddFrameRate(rational(30, 1));            // 30 FPS
-  AddFrameRate(rational(48000, 1001));      // 47.952 FPS
-  AddFrameRate(rational(48, 1));            // 48 FPS
-  AddFrameRate(rational(50, 1));            // 50 FPS
-  AddFrameRate(rational(60000, 1001));      // 59.94 FPS
-  AddFrameRate(rational(60, 1));            // 60 FPS
+  frame_rate_list_ = Core::SupportedFrameRates();
+  foreach (const rational& fr, frame_rate_list_) {
+    video_frame_rate_field_->addItem(Core::FrameRateToString(fr));
+  }
 
   // Set up available sample rates
-  AddSampleRate(8000);         // 8000 Hz
-  AddSampleRate(11025);        // 11025 Hz
-  AddSampleRate(16000);        // 16000 Hz
-  AddSampleRate(22050);        // 22050 Hz
-  AddSampleRate(24000);        // 24000 Hz
-  AddSampleRate(32000);        // 32000 Hz
-  AddSampleRate(44100);        // 44100 Hz
-  AddSampleRate(48000);        // 48000 Hz
-  AddSampleRate(88200);        // 88200 Hz
-  AddSampleRate(96000);        // 96000 Hz
+  sample_rate_list_ = Core::SupportedSampleRates();
+  foreach (const int& sr, sample_rate_list_) {
+    audio_sample_rate_field_->addItem(Core::SampleRateToString(sr));
+  }
 
   // Set up available channel layouts
   AddChannelLayout(AV_CH_LAYOUT_MONO);
@@ -200,20 +187,6 @@ void SequenceDialog::accept()
   }
 
   QDialog::accept();
-}
-
-void SequenceDialog::AddFrameRate(const rational &r)
-{
-  frame_rate_list_.append(r);
-
-  video_frame_rate_field_->addItem(tr("%1 FPS").arg(r.toDouble()));
-}
-
-void SequenceDialog::AddSampleRate(const int &rate)
-{
-  sample_rate_list_.append(rate);
-
-  audio_sample_rate_field_->addItem(tr("%1 Hz").arg(rate));
 }
 
 void SequenceDialog::AddChannelLayout(int layout)

@@ -83,16 +83,6 @@ public slots:
 
 private:
   /**
-   * @brief Internal function for adding a selectable frame rate
-   */
-  void AddFrameRate(const rational& r);
-
-  /**
-   * @brief Internal function for adding a selectable sample rate
-   */
-  void AddSampleRate(const int &rate);
-
-  /**
    * @brief Internal function for adding a selectable channel layout
    */
   void AddChannelLayout(int layout);
@@ -113,9 +103,9 @@ private:
 
   QLineEdit* name_field_;
 
-  QVector<rational> frame_rate_list_;
+  QList<rational> frame_rate_list_;
 
-  QVector<int> sample_rate_list_;
+  QList<int> sample_rate_list_;
 
   /**
    * @brief A QUndoCommand for setting the parameters on a sequence

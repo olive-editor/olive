@@ -24,6 +24,7 @@
 #include <QList>
 #include <QTimer>
 
+#include "common/rational.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "window/mainwindow/mainwindow.h"
@@ -126,6 +127,28 @@ public:
    * @brief Set how frequently an autorecovery should be saved (if the project has changed, see SetProjectModified())
    */
   void SetAutorecoveryInterval(int minutes);
+
+  /**
+   * @brief Return a list of supported frame rates in rational form
+   *
+   * These rationals can be flipped to create a timebase in this frame rate.
+   */
+  static QList<rational> SupportedFrameRates();
+
+  /**
+   * @brief Return a list of supported sample rates in integer form
+   */
+  static QList<int> SupportedSampleRates();
+
+  /**
+   * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
+   */
+  static QString FrameRateToString(const rational& frame_rate);
+
+  /**
+   * @brief Convert integer sample rate to a user-friendly string
+   */
+  static QString SampleRateToString(const int &sample_rate);
 
 public slots:
   /**

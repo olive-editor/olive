@@ -407,3 +407,51 @@ void Core::SetAutorecoveryInterval(int minutes)
   // Convert minutes to milliseconds
   autorecovery_timer_.setInterval(minutes * 60000);
 }
+
+QList<rational> Core::SupportedFrameRates()
+{
+  QList<rational> frame_rates;
+
+  frame_rates.append(rational(10, 1));            // 10 FPS
+  frame_rates.append(rational(15, 1));            // 15 FPS
+  frame_rates.append(rational(24000, 1001));      // 23.976 FPS
+  frame_rates.append(rational(24, 1));            // 24 FPS
+  frame_rates.append(rational(25, 1));            // 25 FPS
+  frame_rates.append(rational(30000, 1001));      // 29.97 FPS
+  frame_rates.append(rational(30, 1));            // 30 FPS
+  frame_rates.append(rational(48000, 1001));      // 47.952 FPS
+  frame_rates.append(rational(48, 1));            // 48 FPS
+  frame_rates.append(rational(50, 1));            // 50 FPS
+  frame_rates.append(rational(60000, 1001));      // 59.94 FPS
+  frame_rates.append(rational(60, 1));            // 60 FPS
+
+  return frame_rates;
+}
+
+QList<int> Core::SupportedSampleRates()
+{
+  QList<int> sample_rates;
+
+  sample_rates.append(8000);         // 8000 Hz
+  sample_rates.append(11025);        // 11025 Hz
+  sample_rates.append(16000);        // 16000 Hz
+  sample_rates.append(22050);        // 22050 Hz
+  sample_rates.append(24000);        // 24000 Hz
+  sample_rates.append(32000);        // 32000 Hz
+  sample_rates.append(44100);        // 44100 Hz
+  sample_rates.append(48000);        // 48000 Hz
+  sample_rates.append(88200);        // 88200 Hz
+  sample_rates.append(96000);        // 96000 Hz
+
+  return sample_rates;
+}
+
+QString Core::FrameRateToString(const rational &frame_rate)
+{
+  return tr("%1 FPS").arg(frame_rate.toDouble());
+}
+
+QString Core::SampleRateToString(const int &sample_rate)
+{
+  return tr("%1 Hz").arg(sample_rate);
+}
