@@ -30,11 +30,13 @@ public:
   SliderLabel(QWidget* parent);
 
 protected:
-  void mousePressEvent(QMouseEvent *ev) override;
+  virtual void mousePressEvent(QMouseEvent *ev) override;
 
-  void mouseMoveEvent(QMouseEvent *ev) override;
+  virtual void mouseMoveEvent(QMouseEvent *ev) override;
 
-  void mouseReleaseEvent(QMouseEvent *ev) override;
+  virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+
+  virtual void focusInEvent(QFocusEvent *event) override;
 
 signals:
   void dragged(int x);
@@ -42,6 +44,8 @@ signals:
   void drag_start();
 
   void drag_stop();
+
+  void focused();
 
 private:
   QPoint drag_start_;

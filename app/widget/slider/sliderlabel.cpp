@@ -33,6 +33,9 @@ SliderLabel::SliderLabel(QWidget *parent) :
   QFont f = font();
   f.setUnderline(true);
   setFont(f);
+
+  // Allow users to tab to this widget
+  setFocusPolicy(Qt::TabFocus);
 }
 
 void SliderLabel::mousePressEvent(QMouseEvent *ev)
@@ -69,4 +72,11 @@ void SliderLabel::mouseReleaseEvent(QMouseEvent *ev)
   emit drag_stop();
 
   static_cast<QGuiApplication*>(QApplication::instance())->restoreOverrideCursor();
+}
+
+void SliderLabel::focusInEvent(QFocusEvent *event)
+{
+  QWidget::focusInEvent(event);
+
+  emit focused();
 }

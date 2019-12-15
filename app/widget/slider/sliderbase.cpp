@@ -46,6 +46,7 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   connect(label_, SIGNAL(drag_start()), this, SLOT(LabelPressed()));
   connect(label_, SIGNAL(dragged(int)), this, SLOT(LabelDragged(int)));
   connect(label_, SIGNAL(drag_stop()), this, SLOT(LabelClicked()));
+  connect(label_, SIGNAL(focused()), this, SLOT(LabelClicked()));
   connect(editor_, SIGNAL(Confirmed()), this, SLOT(LineEditConfirmed()));
   connect(editor_, SIGNAL(Cancelled()), this, SLOT(LineEditCancelled()));
 
