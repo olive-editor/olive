@@ -233,6 +233,7 @@ void SliderBase::LineEditConfirmed()
 
   // Ensure editor doesn't signal that the focus is lost
   editor_->blockSignals(true);
+  label_->blockSignals(true);
 
   if (is_valid) {
     SetValue(test_val);
@@ -251,15 +252,18 @@ void SliderBase::LineEditConfirmed()
   }
 
   editor_->blockSignals(false);
+  label_->blockSignals(false);
 }
 
 void SliderBase::LineEditCancelled()
 {
   // Ensure editor doesn't signal that the focus is lost
   editor_->blockSignals(true);
+  label_->blockSignals(true);
 
   // Set widget back to label
   setCurrentWidget(label_);
 
   editor_->blockSignals(false);
+  label_->blockSignals(false);
 }
