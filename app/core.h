@@ -139,6 +139,10 @@ public:
    * @brief Return a list of supported sample rates in integer form
    */
   static QList<int> SupportedSampleRates();
+  /**
+   * @brief Return a list of supported channel layouts as or'd flags
+   */
+  static QList<uint64_t> SupportedChannelLayouts();
 
   /**
    * @brief Convert rational frame rate (i.e. flipped timebase) to a user-friendly string
@@ -149,6 +153,11 @@ public:
    * @brief Convert integer sample rate to a user-friendly string
    */
   static QString SampleRateToString(const int &sample_rate);
+
+  /**
+   * @brief Convert channel layout to a user-friendly string
+   */
+  static QString ChannelLayoutToString(const uint64_t &layout);
 
 public slots:
   /**

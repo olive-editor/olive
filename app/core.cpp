@@ -233,8 +233,12 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ExportDialog ed(main_window_);
-  ed.exec();
+  ViewerPanel* latest_viewer = olive::panel_manager->MostRecentlyFocused<ViewerPanel>();
+
+  if (latest_viewer && latest_viewer->GetConnectedViewer()) {
+    ExportDialog ed(latest_viewer->GetConnectedViewer(), main_window_);
+    ed.exec();
+  }
 }
 
 void Core::CreateNewFolder()
@@ -446,6 +450,18 @@ QList<int> Core::SupportedSampleRates()
   return sample_rates;
 }
 
+QList<uint64_t> Core::SupportedChannelLayouts()
+{
+  QList<uint64_t> channel_layouts;
+
+  channel_layouts.append(AV_CH_LAYOUT_MONO);
+  channel_layouts.append(AV_CH_LAYOUT_STEREO);
+  channel_layouts.append(AV_CH_LAYOUT_5POINT1);
+  channel_layouts.append(AV_CH_LAYOUT_7POINT1);
+
+  return channel_layouts;
+}
+
 QString Core::FrameRateToString(const rational &frame_rate)
 {
   return tr("%1 FPS").arg(frame_rate.toDouble());
@@ -454,4 +470,20 @@ QString Core::FrameRateToString(const rational &frame_rate)
 QString Core::SampleRateToString(const int &sample_rate)
 {
   return tr("%1 Hz").arg(sample_rate);
+}
+
+QString Core::ChannelLayoutToString(const uint64_t &layout)
+{
+  switch (layout) {
+  case AV_CH_LAYOUT_MONO:
+    return tr("Mono");
+  case AV_CH_LAYOUT_STEREO:
+    return tr("Stereo");
+  case AV_CH_LAYOUT_5POINT1:
+    return tr("5.1");
+  case AV_CH_LAYOUT_7POINT1:
+    return tr("7.1");
+  default:
+    return tr("Unknown (0x%1)").arg(layout, 1, 16);
+  }
 }

@@ -82,11 +82,6 @@ public slots:
   virtual void accept() override;
 
 private:
-  /**
-   * @brief Internal function for adding a selectable channel layout
-   */
-  void AddChannelLayout(int layout);
-
   Sequence* sequence_;
 
   bool make_undoable_;

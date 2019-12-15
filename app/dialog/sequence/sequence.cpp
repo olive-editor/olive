@@ -114,10 +114,10 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   }
 
   // Set up available channel layouts
-  AddChannelLayout(AV_CH_LAYOUT_MONO);
-  AddChannelLayout(AV_CH_LAYOUT_STEREO);
-  AddChannelLayout(AV_CH_LAYOUT_5POINT1);
-  AddChannelLayout(AV_CH_LAYOUT_7POINT1);
+  QList<uint64_t> channel_layouts = Core::SupportedChannelLayouts();
+  foreach (const uint64_t& layout, channel_layouts) {
+    audio_channels_field_->addItem(Core::ChannelLayoutToString(layout), layout);
+  }
 
   // Set values based on input sequence
   video_width_field_->setValue(sequence_->video_params().width());
@@ -187,30 +187,6 @@ void SequenceDialog::accept()
   }
 
   QDialog::accept();
-}
-
-void SequenceDialog::AddChannelLayout(int layout)
-{
-  QString layout_name;
-
-  switch (layout) {
-  case AV_CH_LAYOUT_MONO:
-    layout_name = tr("Mono");
-    break;
-  case AV_CH_LAYOUT_STEREO:
-    layout_name = tr("Stereo");
-    break;
-  case AV_CH_LAYOUT_5POINT1:
-    layout_name = tr("5.1");
-    break;
-  case AV_CH_LAYOUT_7POINT1:
-    layout_name = tr("7.1");
-    break;
-  default:
-    layout_name = tr("Unknown (0x%1)").arg(layout, 1, 16);
-  }
-
-  audio_channels_field_->addItem(layout_name, layout);
 }
 
 SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
