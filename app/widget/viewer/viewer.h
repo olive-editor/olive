@@ -67,6 +67,8 @@ public:
 
   void DisconnectViewerNode();
 
+  ViewerOutput* GetConnectedViewer() const;
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it

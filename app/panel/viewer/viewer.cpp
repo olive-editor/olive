@@ -107,6 +107,11 @@ rational ViewerPanel::GetTime()
   return viewer_->GetTime();
 }
 
+ViewerOutput *ViewerPanel::GetConnectedViewer() const
+{
+  return viewer_->GetConnectedViewer();
+}
+
 void ViewerPanel::SetTime(const int64_t &timestamp)
 {
   viewer_->SetTime(timestamp);

@@ -62,6 +62,8 @@ public:
 
   rational GetTime();
 
+  ViewerOutput* GetConnectedViewer() const;
+
 public slots:
   void SetTime(const int64_t& timestamp);
 

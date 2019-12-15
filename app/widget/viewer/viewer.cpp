@@ -166,6 +166,11 @@ void ViewerWidget::DisconnectViewerNode()
   ConnectViewerNode(nullptr);
 }
 
+ViewerOutput *ViewerWidget::GetConnectedViewer() const
+{
+  return viewer_node_;
+}
+
 void ViewerWidget::SetTexture(OpenGLTexturePtr tex)
 {
   if (tex == nullptr) {
