@@ -29,6 +29,8 @@
 
 #include "common/threadedobject.h"
 
+class Project;
+
 class Item;
 using ItemPtr = std::shared_ptr<Item>;
 
@@ -101,6 +103,9 @@ public:
   Item *parent() const;
   const Item* root() const;
 
+  Project* project() const;
+  void set_project(Project* project);
+
   virtual bool CanHaveChildren() const;
 
   bool ChildExistsWithName(const QString& name);
@@ -111,6 +116,8 @@ private:
   QList<ItemPtr> children_;
 
   Item* parent_;
+
+  Project* project_;
 
   QString name_;
 

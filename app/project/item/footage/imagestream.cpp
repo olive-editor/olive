@@ -20,6 +20,8 @@
 
 #include "imagestream.h"
 
+#include "footage.h"
+#include "project/project.h"
 #include "render/colormanager.h"
 
 ImageStream::ImageStream() :
@@ -69,7 +71,11 @@ void ImageStream::set_premultiplied_alpha(bool e)
 
 const QString &ImageStream::colorspace()
 {
-  return colorspace_;
+  if (colorspace_.isEmpty()) {
+    return footage()->project()->default_input_colorspace();
+  } else {
+    return colorspace_;
+  }
 }
 
 void ImageStream::set_colorspace(const QString &color)
@@ -81,6 +87,15 @@ void ImageStream::set_colorspace(const QString &color)
 
 void ImageStream::ColorConfigChangedSlot()
 {
-  // FIXME: Update colorspace correctly
-  colorspace_.clear();
+  // Check if this colorspace is in the new config
+  if (!colorspace_.isEmpty()) {
+    QStringList colorspaces = ColorManager::ListAvailableInputColorspaces(OCIO::GetCurrentConfig());
+    if (!colorspaces.contains(colorspace_)) {
+      // Set to empty if not
+      colorspace_.clear();
+    }
+  }
+
+  // Either way, the color calculation has likely changed so we signal here
+  emit ColorSpaceChanged();
 }

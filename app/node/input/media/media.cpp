@@ -20,10 +20,13 @@
 
 #include "media.h"
 
-MediaInput::MediaInput()
+MediaInput::MediaInput() :
+  connected_footage_(nullptr)
 {
   footage_input_ = new NodeInput("footage_in");
   footage_input_->set_data_type(NodeInput::kFootage);
+  footage_input_->SetConnectable(false);
+  connect(footage_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(FootageChanged()));
   AddInput(footage_input_);
 }
 
@@ -40,4 +43,28 @@ void MediaInput::SetFootage(StreamPtr f)
 void MediaInput::Retranslate()
 {
   footage_input_->set_name(tr("Footage"));
+}
+
+void MediaInput::FootageChanged()
+{
+  StreamPtr new_footage = footage_input_->get_value_at_time(0).value<StreamPtr>();
+
+  if (new_footage == connected_footage_) {
+    return;
+  }
+
+  if (connected_footage_ != nullptr) {
+    disconnect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
+  }
+
+  connected_footage_ = new_footage;
+
+  if (connected_footage_ != nullptr) {
+    connect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
+  }
+}
+
+void MediaInput::FootageColorSpaceChanged()
+{
+  InvalidateCache(0, RATIONAL_MAX, footage_input_);
 }

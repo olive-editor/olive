@@ -55,9 +55,6 @@ bool OpenGLWorker::InitInternal()
 
 void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *table)
 {
-  // Set up OCIO context
-  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache()->Get(stream.get()));
-
   // Ensure stream is video or image type
   if (stream->type() != Stream::kVideo && stream->type() != Stream::kImage) {
     return;
@@ -65,16 +62,13 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
 
   ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
-  if (!color_processor) {
-    QString input_colorspace = video_stream->colorspace();
-    if (input_colorspace.isEmpty()) {
-      // FIXME: Should use Stream->Footage to find the Project* since that's a direct chain
-      input_colorspace = olive::core.GetActiveProject()->default_input_colorspace();
-    }
+  // Set up OCIO context
+  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache()->Get(video_stream->colorspace()));
 
-    color_processor = OpenGLColorProcessor::CreateOpenGL(input_colorspace,
+  if (!color_processor) {
+    color_processor = OpenGLColorProcessor::CreateOpenGL(video_stream->colorspace(),
                                                          OCIO::ROLE_SCENE_LINEAR);
-    color_cache()->Add(stream.get(), color_processor);
+    color_cache()->Add(video_stream->colorspace(), color_processor);
   }
 
   // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU

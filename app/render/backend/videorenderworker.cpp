@@ -2,6 +2,7 @@
 
 #include "common/define.h"
 #include "node/node.h"
+#include "project/project.h"
 #include "render/pixelservice.h"
 
 VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
@@ -102,8 +103,8 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
             // Footage timestamp
             hash->addData(QString::number(decoder->GetTimestampFromTime(input_time)).toUtf8());
 
-            // Current colorspace
-            // FIXME: Handle empty colorspace...
+            // Current color config and space
+            hash->addData(video_stream->footage()->project()->ocio_config().toUtf8());
             hash->addData(video_stream->colorspace().toUtf8());
 
             // Alpha associated setting

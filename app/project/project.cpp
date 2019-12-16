@@ -23,6 +23,7 @@
 Project::Project()
 {
   name_ = tr("(untitled)");
+  root_.set_project(this);
 }
 
 Folder *Project::root()

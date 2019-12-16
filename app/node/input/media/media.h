@@ -41,6 +41,13 @@ public:
 protected:
   NodeInput* footage_input_;
 
+  StreamPtr connected_footage_;
+
+private slots:
+  void FootageChanged();
+
+  void FootageColorSpaceChanged();
+
 };
 
 #endif // MEDIAINPUT_H

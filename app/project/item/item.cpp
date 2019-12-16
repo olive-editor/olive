@@ -21,7 +21,8 @@
 #include "item.h"
 
 Item::Item() :
-  parent_(nullptr)
+  parent_(nullptr),
+  project_(nullptr)
 {
 }
 
@@ -125,6 +126,18 @@ const Item *Item::root() const
   }
 
   return item;
+}
+
+Project *Item::project() const
+{
+  const Item* root_item = root();
+
+  return root_item->project_;
+}
+
+void Item::set_project(Project *project)
+{
+  project_ = project;
 }
 
 bool Item::CanHaveChildren() const

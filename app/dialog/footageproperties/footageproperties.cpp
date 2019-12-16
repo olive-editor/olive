@@ -31,6 +31,7 @@
 #include <QCheckBox>
 #include <QSpinBox>
 
+#include "render/colormanager.h"
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
 #include "undo/undostack.h"
