@@ -74,6 +74,8 @@ private slots:
 
   void ResolutionChanged();
 
+  void VideoCodecChanged();
+
 };
 
 #endif // EXPORTDIALOG_H

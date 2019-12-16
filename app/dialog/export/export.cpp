@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
@@ -93,6 +94,13 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
+  QProgressBar* progress_bar = new QProgressBar();
+  progress_bar->setEnabled(false);
+  progress_bar->setValue(0);
+  preferences_layout->addWidget(progress_bar, row, 0, 1, 4);
+
+  row++;
+
   QDialogButtonBox* buttons = new QDialogButtonBox();
   buttons->setCenterButtons(true);
   buttons->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
@@ -136,6 +144,15 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   connect(video_tab_->width_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
   connect(video_tab_->height_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
   connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
+  connect(video_tab_->codec_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(VideoCodecChanged()));
+  connect(video_tab_, SIGNAL(DisplayChanged(const QString&)), preview_viewer_, SLOT(SetOCIODisplay(const QString&)));
+  connect(video_tab_, SIGNAL(ViewChanged(const QString&)), preview_viewer_, SLOT(SetOCIOView(const QString&)));
+  connect(video_tab_, SIGNAL(LookChanged(const QString&)), preview_viewer_, SLOT(SetOCIOLook(const QString&)));
+
+  // Set viewer to view the node
+  preview_viewer_->ConnectViewerNode(viewer_node_);
+  preview_viewer_->SetColorMenuEnabled(false);
+  preview_viewer_->SetOCIOParameters(video_tab_->CurrentOCIODisplay(), video_tab_->CurrentOCIOView(), video_tab_->CurrentOCIOLook());
 }
 
 void ExportDialog::BrowseFilename()
@@ -174,12 +191,13 @@ void ExportDialog::FormatChanged(int index)
   // Update video and audio comboboxes
   video_tab_->codec_combobox()->clear();
   foreach (int vcodec, current_format.video_codecs()) {
-    video_tab_->codec_combobox()->addItem(codecs_.at(vcodec).name());
+    video_tab_->codec_combobox()->addItem(codecs_.at(vcodec).name(), vcodec);
   }
+  VideoCodecChanged();
 
   audio_tab_->codec_combobox()->clear();
   foreach (int acodec, current_format.audio_codecs()) {
-    audio_tab_->codec_combobox()->addItem(codecs_.at(acodec).name());
+    audio_tab_->codec_combobox()->addItem(codecs_.at(acodec).name(), acodec);
   }
 }
 
@@ -199,6 +217,13 @@ void ExportDialog::ResolutionChanged()
     // Enable scaling method combobox only if width/height are not equal to sequence size
     video_tab_->scaling_method_combobox()->setEnabled(!qFuzzyCompare(current_ratio, video_aspect_ratio_));
   }
+}
+
+void ExportDialog::VideoCodecChanged()
+{
+  const ExportCodec& codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
+
+  video_tab_->show_image_sequence_section(codec.flags() & ExportCodec::kStillImage);
 }
 
 void ExportDialog::SetUpFormats()

@@ -6,6 +6,7 @@
 #include <QLabel>
 
 #include "core.h"
+#include "render/colormanager.h"
 
 ExportVideoTab::ExportVideoTab(QWidget *parent) :
   QWidget(parent)
@@ -46,9 +47,35 @@ QComboBox *ExportVideoTab::scaling_method_combobox() const
   return scaling_method_combobox_;
 }
 
+QCheckBox *ExportVideoTab::image_sequence_checkbox() const
+{
+  return image_sequence_checkbox_;
+}
+
+void ExportVideoTab::show_image_sequence_section(bool visible)
+{
+  image_sequence_checkbox_->setVisible(visible);
+  image_sequence_label_->setVisible(visible);
+}
+
 void ExportVideoTab::set_frame_rate(const rational &frame_rate)
 {
   frame_rate_combobox_->setCurrentIndex(frame_rates_.indexOf(frame_rate));
+}
+
+QString ExportVideoTab::CurrentOCIODisplay()
+{
+  return display_combobox_->currentData().toString();
+}
+
+QString ExportVideoTab::CurrentOCIOView()
+{
+  return views_combobox_->currentData().toString();
+}
+
+QString ExportVideoTab::CurrentOCIOLook()
+{
+  return looks_combobox_->currentData().toString();
 }
 
 QWidget* ExportVideoTab::SetupResolutionSection()
@@ -116,19 +143,35 @@ QWidget* ExportVideoTab::SetupColorSection()
   QGridLayout* color_layout = new QGridLayout(color_group);
 
   color_layout->addWidget(new QLabel(tr("Display:")), row, 0);
-  color_layout->addWidget(new QComboBox(), row, 1);
+
+  QStringList displays = ColorManager::ListAvailableDisplays();
+  display_combobox_ = new QComboBox();
+  foreach (const QString& display, displays) {
+    display_combobox_->addItem(display, display);
+  }
+  connect(display_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(ColorDisplayChanged()));
+  color_layout->addWidget(display_combobox_, row, 1);
 
   row++;
 
+  views_combobox_ = new QComboBox();
   color_layout->addWidget(new QLabel(tr("View:")), row, 0);
-  color_layout->addWidget(new QComboBox(), row, 1);
+  color_layout->addWidget(views_combobox_, row, 1);
 
   row++;
 
+  QStringList looks = ColorManager::ListAvailableLooks();
+  looks_combobox_ = new QComboBox();
+  looks_combobox_->addItem(tr("(None)"), QString());
+  foreach (const QString& look, looks) {
+    looks_combobox_->addItem(look, look);
+  }
   color_layout->addWidget(new QLabel(tr("Look:")), row, 0);
-  color_layout->addWidget(new QComboBox(), row, 1);
+  color_layout->addWidget(looks_combobox_, row, 1);
 
   row++;
+
+  ColorDisplayChanged();
 
   return color_group;
 }
@@ -147,5 +190,35 @@ QWidget *ExportVideoTab::SetupCodecSection()
   codec_combobox_ = new QComboBox();
   codec_layout->addWidget(codec_combobox_, row, 1);
 
+  row++;
+
+  image_sequence_label_ = new QLabel(tr("Image Sequence:"));
+  codec_layout->addWidget(image_sequence_label_, row, 0);
+
+  image_sequence_checkbox_ = new QCheckBox();
+  codec_layout->addWidget(image_sequence_checkbox_, row, 1);
+
   return codec_group;
+}
+
+void ExportVideoTab::ColorDisplayChanged()
+{
+  views_combobox_->clear();
+
+  QStringList views = ColorManager::ListAvailableViews(display_combobox_->currentData().toString());
+  foreach (const QString& view, views) {
+    views_combobox_->addItem(view, view);
+  }
+
+  emit DisplayChanged(display_combobox_->currentData().toString());
+}
+
+void ExportVideoTab::ColorViewChanged()
+{
+  emit ViewChanged(views_combobox_->currentData().toString());
+}
+
+void ExportVideoTab::ColorLookChanged()
+{
+  emit LookChanged(looks_combobox_->currentData().toString());
 }
