@@ -57,7 +57,7 @@ public:
   Decoder(Stream* fs);
 
   // Necessary for subclassing, it's empty
-  virtual ~Decoder();
+  virtual ~Decoder() override;
 
   DISABLE_COPY_MOVE(Decoder)
 
