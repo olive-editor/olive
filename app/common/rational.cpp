@@ -9,6 +9,12 @@ rational::rational(const AVRational &r) :
 {
 }
 
+rational rational::fromDouble(const double &flt)
+{
+  // Use FFmpeg function for the time being
+  return av_d2q(flt, INT_MAX);
+}
+
 //Function: print number to cout
 
 void rational::print(ostream &out) const

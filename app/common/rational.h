@@ -55,6 +55,8 @@ public:
 
   rational(const AVRational& r);
 
+  static rational fromDouble(const double& flt);
+
   //Assignment Operators
   const rational& operator=(const rational &rhs);
   const rational& operator+=(const rational &rhs);

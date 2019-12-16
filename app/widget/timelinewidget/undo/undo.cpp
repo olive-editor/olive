@@ -57,6 +57,24 @@ void BlockResizeCommand::undo()
   block_->set_length_and_media_out(old_length_);
 }
 
+BlockResizeWithoutMediaOutCommand::BlockResizeWithoutMediaOutCommand(Block *block, rational new_length, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  block_(block),
+  old_length_(block->length()),
+  new_length_(new_length)
+{
+}
+
+void BlockResizeWithoutMediaOutCommand::redo()
+{
+  block_->set_length(new_length_);
+}
+
+void BlockResizeWithoutMediaOutCommand::undo()
+{
+  block_->set_length(old_length_);
+}
+
 BlockResizeWithMediaInCommand::BlockResizeWithMediaInCommand(Block *block, rational new_length, QUndoCommand *parent) :
   QUndoCommand(parent),
   block_(block),
@@ -103,12 +121,12 @@ BlockSetMediaOutCommand::BlockSetMediaOutCommand(Block *block, rational new_medi
 
 void BlockSetMediaOutCommand::redo()
 {
-  block_->set_media_in(new_media_out_);
+  block_->set_media_out(new_media_out_);
 }
 
 void BlockSetMediaOutCommand::undo()
 {
-  block_->set_media_in(old_media_out_);
+  block_->set_media_out(old_media_out_);
 }
 
 TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :

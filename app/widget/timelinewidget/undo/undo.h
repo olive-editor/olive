@@ -41,6 +41,19 @@ private:
   rational new_length_;
 };
 
+class BlockResizeWithoutMediaOutCommand : public QUndoCommand {
+public:
+  BlockResizeWithoutMediaOutCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  Block* block_;
+  rational old_length_;
+  rational new_length_;
+};
+
 class BlockResizeWithMediaInCommand : public QUndoCommand {
 public:
   BlockResizeWithMediaInCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr);

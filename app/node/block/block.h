@@ -72,6 +72,7 @@ public:
   void set_media_out(const rational& media_out);
 
   rational media_length() const;
+  double speed() const;
 
   const QString& block_name() const;
   void set_block_name(const QString& name);

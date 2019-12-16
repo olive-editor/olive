@@ -182,6 +182,10 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
     QString tooltip_text = olive::timestamp_to_timecode(earliest_timestamp,
                                                         parent()->timebase(),
                                                         olive::CurrentTimecodeDisplay());
+
+    // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
+    // of the cursor)
+    QToolTip::hideText();
     QToolTip::showText(QCursor::pos(),
                        tooltip_text,
                        parent());

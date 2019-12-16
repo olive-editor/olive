@@ -415,6 +415,10 @@ private slots:
 
   void TrackHeightChanged(TrackType type, int index, int height);
 
+  void ShowContextMenu();
+
+  void ShowSpeedDurationDialog();
+
 };
 
 #endif // TIMELINEWIDGET_H

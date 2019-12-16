@@ -6,8 +6,10 @@
 
 #include "core.h"
 #include "common/timecodefunctions.h"
+#include "dialog/speedduration/speedduration.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
+#include "widget/menu/menu.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
@@ -86,6 +88,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), view, SLOT(SetTime(const int64_t&)));
     connect(view, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
     connect(view, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
+    connect(view, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu()));
     connect(horizontal_scroll_, SIGNAL(valueChanged(int)), view->horizontalScrollBar(), SLOT(setValue(int)));
     connect(view->horizontalScrollBar(), SIGNAL(valueChanged(int)), horizontal_scroll_, SLOT(setValue(int)));
 
@@ -800,6 +803,32 @@ void TimelineWidget::TrackHeightChanged(TrackType type, int index, int height)
                              view->GetTrackHeight(block_item->Track().index()));
     }
   }
+}
+
+void TimelineWidget::ShowContextMenu()
+{
+  Menu menu(this);
+
+  //QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+  QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
+  connect(speed_duration_action, SIGNAL(triggered(bool)), this, SLOT(ShowSpeedDurationDialog()));
+
+  menu.exec(QCursor::pos());
+}
+
+void TimelineWidget::ShowSpeedDurationDialog()
+{
+  QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+  QList<ClipBlock*> selected_clips;
+
+  foreach (TimelineViewBlockItem* item, selected) {
+    if (item->block()->type() == Block::kClip) {
+      selected_clips.append(static_cast<ClipBlock*>(item->block()));
+    }
+  }
+
+  SpeedDurationDialog speed_diag(timebase(), selected_clips, this);
+  speed_diag.exec();
 }
 
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)

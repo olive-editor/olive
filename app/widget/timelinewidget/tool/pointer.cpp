@@ -331,6 +331,10 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
                                                       parent()->timebase(),
                                                       olive::CurrentTimecodeDisplay(),
                                                       true);
+
+  // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
+  // of the cursor)
+  QToolTip::hideText();
   QToolTip::showText(QCursor::pos(),
                      tooltip_text,
                      parent());

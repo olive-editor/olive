@@ -46,6 +46,7 @@ TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignme
   setDragMode(NoDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
+  setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
 

@@ -159,6 +159,11 @@ rational Block::media_length() const
   return media_out() - media_in();
 }
 
+double Block::speed() const
+{
+  return media_length().toDouble() / length().toDouble();
+}
+
 const QString &Block::block_name() const
 {
   return block_name_;
