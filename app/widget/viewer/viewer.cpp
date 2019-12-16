@@ -90,6 +90,9 @@ void ViewerWidget::SetTimebase(const rational &r)
   ruler_->SetTimebase(r);
   controls_->SetTimebase(r);
 
+  controls_->SetTime(ruler_->GetTime());
+  LengthChangedSlot(viewer_node_ ? viewer_node_->Length() : 0);
+
   playback_timer_.setInterval(qFloor(r.toDouble()));
 }
 
