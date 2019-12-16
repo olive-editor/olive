@@ -57,6 +57,7 @@ public:
 
   rational length() const;
   virtual void set_length(const rational &length);
+  virtual void set_length_and_media_out(const rational &length);
   virtual void set_length_and_media_in(const rational &length);
 
   Block* previous();
@@ -66,6 +67,11 @@ public:
 
   rational media_in() const;
   void set_media_in(const rational& media_in);
+
+  rational media_out() const;
+  void set_media_out(const rational& media_out);
+
+  rational media_length() const;
 
   const QString& block_name() const;
   void set_block_name(const QString& name);
@@ -106,6 +112,7 @@ protected:
 private:
   NodeInput* length_input_;
   NodeInput* media_in_input_;
+  NodeInput* media_out_input_;
 
   rational in_point_;
   rational out_point_;

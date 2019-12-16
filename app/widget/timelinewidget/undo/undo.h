@@ -67,6 +67,19 @@ private:
   rational new_media_in_;
 };
 
+class BlockSetMediaOutCommand : public QUndoCommand {
+public:
+  BlockSetMediaOutCommand(Block* block, rational new_media_out, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  Block* block_;
+  rational old_media_out_;
+  rational new_media_out_;
+};
+
 class TrackRippleRemoveBlockCommand : public QUndoCommand {
 public:
   TrackRippleRemoveBlockCommand(TrackOutput* track, Block* block, QUndoCommand* parent = nullptr);

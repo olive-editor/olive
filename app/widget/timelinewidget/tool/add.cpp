@@ -50,7 +50,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
       QUndoCommand* command = new QUndoCommand();
 
       ClipBlock* clip = new ClipBlock();
-      clip->set_length(ghost_->AdjustedLength());
+      clip->set_length_and_media_out(ghost_->AdjustedLength());
       new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()),
                          clip,
                          command);

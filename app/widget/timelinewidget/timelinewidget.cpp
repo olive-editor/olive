@@ -404,7 +404,7 @@ void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool re
     } else if (!previous_is_gap && !next_is_gap) {
       // Make new gap and replace old Block with it for now
       GapBlock* gap = new GapBlock();
-      gap->set_length(b->length());
+      gap->set_length_and_media_out(b->length());
 
       new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
                          gap,
@@ -536,7 +536,7 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
     GapBlock* gap = nullptr;
     if (insert_gaps) {
       gap = new GapBlock();
-      gap->set_length(ripple_length);
+      gap->set_length_and_media_out(ripple_length);
       new NodeAddCommand(static_cast<NodeGraph*>(track->parent()), gap, command);
     }
 

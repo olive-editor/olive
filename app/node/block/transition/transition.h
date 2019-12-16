@@ -16,7 +16,7 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void set_length(const rational &length) override;
+  virtual void set_length_and_media_out(const rational &length) override;
   virtual void set_length_and_media_in(const rational &length) override;
 
   const rational& in_offset() const;

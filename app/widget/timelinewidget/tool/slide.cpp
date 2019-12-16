@@ -46,7 +46,7 @@ void TimelineWidget::SlideTool::MouseReleaseInternal(TimelineViewMouseEvent *eve
       new BlockResizeCommand(b, ghost->AdjustedLength(), command);
     } else if (ghost->mode() == olive::timeline::kMove && b->previous() == nullptr) {
       GapBlock* gap = new GapBlock();
-      gap->set_length(ghost->InAdjustment());
+      gap->set_length_and_media_out(ghost->InAdjustment());
       new NodeAddCommand(static_cast<NodeGraph*>(b->parent()), gap, command);
       new TrackPrependBlockCommand(parent()->GetTrackFromReference(ghost->Track()), gap, command);
     }

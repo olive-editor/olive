@@ -38,6 +38,11 @@ Block::Block() :
   media_in_input_->SetConnectable(false);
   media_in_input_->set_data_type(NodeParam::kRational);
   AddInput(media_in_input_);
+
+  media_out_input_ = new NodeInput("media_out_in");
+  media_out_input_->SetConnectable(false);
+  media_out_input_->set_data_type(NodeParam::kRational);
+  AddInput(media_out_input_);
 }
 
 QString Block::Category() const
@@ -81,12 +86,31 @@ void Block::set_length(const rational &length)
   length_input_->set_value_at_time(0, QVariant::fromValue(length));
 }
 
+void Block::set_length_and_media_out(const rational &length)
+{
+  Q_ASSERT(length > 0);
+
+  if (length == this->length()) {
+    return;
+  }
+
+  set_media_out(media_out() + (length - this->length()));
+
+  set_length(length);
+}
+
 void Block::set_length_and_media_in(const rational &length)
 {
+  Q_ASSERT(length > 0);
+
+  if (length == this->length()) {
+    return;
+  }
+
   // Calculate media_in adjustment
   set_media_in(media_in() + (this->length() - length));
 
-  // Set the length
+  // Set the length without setting media out
   set_length(length);
 }
 
@@ -120,6 +144,21 @@ void Block::set_media_in(const rational &media_in)
   media_in_input_->set_value_at_time(0, QVariant::fromValue(media_in));
 }
 
+rational Block::media_out() const
+{
+  return media_out_input_->get_value_at_time(0).value<rational>();
+}
+
+void Block::set_media_out(const rational &media_out)
+{
+  media_out_input_->set_value_at_time(0, QVariant::fromValue(media_out));
+}
+
+rational Block::media_length() const
+{
+  return media_out() - media_in();
+}
+
 const QString &Block::block_name() const
 {
   return block_name_;
@@ -137,7 +176,7 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
     return sequence_time;
   }
 
-  return sequence_time - in() + media_in();
+  return (sequence_time - in() + media_in()) * media_length() / length();
 }
 
 rational Block::MediaToSequenceTime(const rational &media_time) const
@@ -147,7 +186,7 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     return media_time;
   }
 
-  return media_time - media_in() + in();
+  return media_time * length() / media_length() - media_in() + in();
 }
 
 void Block::CopyParameters(const Block *source, Block *dest)
@@ -161,7 +200,7 @@ void Block::CopyParameters(const Block *source, Block *dest)
 
     dst_t->set_in_and_out_offset(src_t->in_offset(), src_t->out_offset());
   } else {
-    dest->set_length(source->length());
+    dest->set_length_and_media_out(source->length());
   }
 }
 

@@ -37,7 +37,7 @@ void TransitionBlock::Retranslate()
   in_block_input_->set_name(tr("To"));
 }
 
-void TransitionBlock::set_length(const rational &length)
+void TransitionBlock::set_length_and_media_out(const rational &length)
 {
   Q_UNUSED(length)
   qCritical() << "Set length is not permitted on a transition";
@@ -70,5 +70,5 @@ void TransitionBlock::set_in_and_out_offset(const rational &in_offset, const rat
 
 void TransitionBlock::RecalculateLength()
 {
-  Block::set_length(in_offset_ + out_offset_);
+  Block::set_length_and_media_out(in_offset_ + out_offset_);
 }

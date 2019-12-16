@@ -48,7 +48,7 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
       // Make sure there's actually a gap being created
       if (ghost->AdjustedLength() > 0) {
         GapBlock* gap = new GapBlock();
-        gap->set_length(ghost->AdjustedLength());
+        gap->set_length_and_media_out(ghost->AdjustedLength());
         new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()), gap, command);
 
         Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));

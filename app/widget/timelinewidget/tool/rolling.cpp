@@ -43,7 +43,7 @@ void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       if (b->previous() == nullptr) {
         // We'll need to insert a gap here, so we'll do a Place command instead
         GapBlock* gap = new GapBlock();
-        gap->set_length(ghost->Length());
+        gap->set_length_and_media_out(ghost->Length());
         new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
                            gap,
                            command);

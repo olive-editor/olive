@@ -49,12 +49,12 @@ BlockResizeCommand::BlockResizeCommand(Block *block, rational new_length, QUndoC
 
 void BlockResizeCommand::redo()
 {
-  block_->set_length(new_length_);
+  block_->set_length_and_media_out(new_length_);
 }
 
 void BlockResizeCommand::undo()
 {
-  block_->set_length(old_length_);
+  block_->set_length_and_media_out(old_length_);
 }
 
 BlockResizeWithMediaInCommand::BlockResizeWithMediaInCommand(Block *block, rational new_length, QUndoCommand *parent) :
@@ -91,6 +91,24 @@ void BlockSetMediaInCommand::redo()
 void BlockSetMediaInCommand::undo()
 {
   block_->set_media_in(old_media_in_);
+}
+
+BlockSetMediaOutCommand::BlockSetMediaOutCommand(Block *block, rational new_media_out, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  block_(block),
+  old_media_out_(block->media_out()),
+  new_media_out_(new_media_out)
+{
+}
+
+void BlockSetMediaOutCommand::redo()
+{
+  block_->set_media_in(new_media_out_);
+}
+
+void BlockSetMediaOutCommand::undo()
+{
+  block_->set_media_in(old_media_out_);
 }
 
 TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
@@ -186,7 +204,7 @@ void TrackRippleRemoveAreaCommand::redo()
     Block* copy = CreateSplitBlock(splice_, out_);
 
     splice_original_length_ = splice_->length();
-    splice_->set_length(out_ - splice_->in());
+    splice_->set_length_and_media_out(out_ - splice_->in());
 
     static_cast<NodeGraph*>(track_->parent())->AddNode(copy);
     Node::CopyInputs(splice_, copy);
@@ -224,7 +242,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
   // If we picked up a block to trim the out point of
   if (trim_out_old_length_ != trim_out_new_length_) {
-    trim_out_->set_length(trim_out_new_length_);
+    trim_out_->set_length_and_media_out(trim_out_new_length_);
   }
 
   // If we were given a block to insert, insert it here
@@ -257,7 +275,7 @@ void TrackRippleRemoveAreaCommand::undo()
 
   // If we picked up a block to trim the out point of
   if (trim_out_old_length_ != trim_out_new_length_) {
-    trim_out_->set_length(trim_out_old_length_);
+    trim_out_->set_length_and_media_out(trim_out_old_length_);
   }
 
   // Remove all blocks that are flagged for removal
@@ -281,7 +299,7 @@ void TrackRippleRemoveAreaCommand::undo()
     // Remove node
     TakeNodeFromParentGraph(trim_in_, &memory_manager_);
 
-    splice_->set_length(splice_original_length_);
+    splice_->set_length_and_media_out(splice_original_length_);
   }
 
   track_->UnblockInvalidateCache();
@@ -318,7 +336,7 @@ void TrackPlaceBlockCommand::redo()
     if (in_ > track_->track_length()) {
       // If so, insert a gap here
       gap_ = new GapBlock();
-      gap_->set_length(in_ - track_->track_length());
+      gap_->set_length_and_media_out(in_ - track_->track_length());
       static_cast<NodeGraph*>(track_->parent())->AddNode(gap_);
       track_->AppendBlock(gap_);
     }
@@ -376,7 +394,7 @@ void BlockSplitCommand::redo()
 {
   track_->BlockInvalidateCache();
 
-  block_->set_length(new_length_);
+  block_->set_length_and_media_out(new_length_);
 
   static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
@@ -396,7 +414,7 @@ void BlockSplitCommand::undo()
 {
   track_->BlockInvalidateCache();
 
-  block_->set_length(old_length_);
+  block_->set_length_and_media_out(old_length_);
   track_->RippleRemoveBlock(new_block_);
 
   TakeNodeFromParentGraph(new_block_, &memory_manager_);

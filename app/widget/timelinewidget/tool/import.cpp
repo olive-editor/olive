@@ -217,7 +217,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
 
       ClipBlock* clip = new ClipBlock();
-      clip->set_length(ghost->Length());
+      clip->set_length_and_media_out(ghost->Length());
       clip->set_block_name(footage_stream->footage()->name());
       new NodeAddCommand(dst_graph, clip, command);
 
