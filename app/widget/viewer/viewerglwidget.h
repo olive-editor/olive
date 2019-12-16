@@ -76,6 +76,27 @@ public:
    */
   ViewerGLWidget& operator=(ViewerGLWidget&& other) = delete;
 
+  /**
+   * @brief Externally set the OCIO display to use
+   *
+   * This value must be a valid display in the current OCIO configuration.
+   */
+  void SetOCIODisplay(const QString& display);
+
+  /**
+   * @brief Externally set the OCIO view to use
+   *
+   * This value must be a valid display in the current OCIO configuration.
+   */
+  void SetOCIOView(const QString& view);
+
+  /**
+   * @brief Externally set the OCIO look to use (use empty string if none)
+   *
+   * This value must be a valid display in the current OCIO configuration.
+   */
+  void SetOCIOLook(const QString& look);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -103,21 +124,14 @@ protected:
 
 private:
   /**
-   * @brief Creates the render pipeline shader
-   *
-   * If it already exists, it will be deleted.
-   */
-  void SetupPipeline();
-
-  /**
-   * @brief Sets all color settings to the defaults pertaining to this configuration
-   */
-  void RefreshColorSettings();
-
-  /**
    * @brief Call this if this user has selected a different display/view/look to recreate the processor
    */
   void SetupColorProcessor();
+
+  /**
+   * @brief Cleanup function
+   */
+  void ClearOCIOLutTexture();
 
   /**
    * @brief Internal variable to set color space to
@@ -168,9 +182,25 @@ private slots:
   void ShowContextMenu(const QPoint& pos);
 
   /**
-   * @brief Slot called whenever the color configuration changes
+   * @brief Sets all color settings to the defaults pertaining to this configuration
    */
-  void ColorConfigChangedSlot();
+  void RefreshColorPipeline();
+
+  /**
+   * @brief Slot called whenever this viewer's OCIO display setting has changed
+   */
+  void ColorDisplayChanged(QAction* action);
+
+  /**
+   * @brief Slot called whenever this viewer's OCIO view setting has changed
+   */
+  void ColorViewChanged(QAction* action);
+
+  /**
+   * @brief Slot called whenever this viewer's OCIO look setting has changed
+   */
+  void ColorLookChanged(QAction* action);
+
 };
 
 #endif // VIEWERGLWIDGET_H
