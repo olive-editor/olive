@@ -31,7 +31,8 @@
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
   texture_(0),
-  ocio_lut_(0)
+  ocio_lut_(0),
+  color_menu_enabled_(true)
 {
   connect(ColorManager::instance(), SIGNAL(ConfigChanged()), this, SLOT(RefreshColorPipeline()));
 
@@ -42,6 +43,11 @@ ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
 ViewerGLWidget::~ViewerGLWidget()
 {
   ContextCleanup();
+}
+
+void ViewerGLWidget::SetColorMenuEnabled(bool enabled)
+{
+  color_menu_enabled_ = enabled;
 }
 
 void ViewerGLWidget::SetOCIODisplay(const QString &display)
@@ -71,6 +77,15 @@ void ViewerGLWidget::SetTexture(GLuint tex)
   texture_ = tex;
 
   // Paint the texture
+  update();
+}
+
+void ViewerGLWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
+{
+  ocio_display_ = display;
+  ocio_view_ = view;
+  ocio_look_ = look;
+  SetupColorProcessor();
   update();
 }
 
@@ -126,6 +141,10 @@ void ViewerGLWidget::RefreshColorPipeline()
 
 void ViewerGLWidget::SetupColorProcessor()
 {
+  if (!context()) {
+    return;
+  }
+
   ClearOCIOLutTexture();
 
   // (Re)create color processor
@@ -161,37 +180,39 @@ void ViewerGLWidget::ShowContextMenu(const QPoint &pos)
 {
   QMenu menu;
 
-  QStringList displays = ColorManager::ListAvailableDisplays();
-  QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
-  connect(ocio_display_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorDisplayChanged(QAction*)));
-  foreach (const QString& d, displays) {
-    QAction* action = ocio_display_menu->addAction(d);
-    action->setCheckable(true);
-    action->setChecked(ocio_display_ == d);
-    action->setData(d);
-  }
+  if (color_menu_enabled_) {
+    QStringList displays = ColorManager::ListAvailableDisplays();
+    QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
+    connect(ocio_display_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorDisplayChanged(QAction*)));
+    foreach (const QString& d, displays) {
+      QAction* action = ocio_display_menu->addAction(d);
+      action->setCheckable(true);
+      action->setChecked(ocio_display_ == d);
+      action->setData(d);
+    }
 
-  QStringList views = ColorManager::ListAvailableViews(ocio_display_);
-  QMenu* ocio_view_menu = menu.addMenu(tr("View"));
-  connect(ocio_view_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorViewChanged(QAction*)));
-  foreach (const QString& v, views) {
-    QAction* action = ocio_view_menu->addAction(v);
-    action->setCheckable(true);
-    action->setChecked(ocio_view_ == v);
-    action->setData(v);
-  }
+    QStringList views = ColorManager::ListAvailableViews(ocio_display_);
+    QMenu* ocio_view_menu = menu.addMenu(tr("View"));
+    connect(ocio_view_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorViewChanged(QAction*)));
+    foreach (const QString& v, views) {
+      QAction* action = ocio_view_menu->addAction(v);
+      action->setCheckable(true);
+      action->setChecked(ocio_view_ == v);
+      action->setData(v);
+    }
 
-  QStringList looks = ColorManager::ListAvailableLooks();
-  QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
-  connect(ocio_look_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorLookChanged(QAction*)));
-  QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
-  no_look_action->setCheckable(true);
-  no_look_action->setChecked(ocio_look_.isEmpty());
-  foreach (const QString& l, looks) {
-    QAction* action = ocio_look_menu->addAction(l);
-    action->setCheckable(true);
-    action->setChecked(ocio_look_ == l);
-    action->setData(l);
+    QStringList looks = ColorManager::ListAvailableLooks();
+    QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
+    connect(ocio_look_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorLookChanged(QAction*)));
+    QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
+    no_look_action->setCheckable(true);
+    no_look_action->setChecked(ocio_look_.isEmpty());
+    foreach (const QString& l, looks) {
+      QAction* action = ocio_look_menu->addAction(l);
+      action->setCheckable(true);
+      action->setChecked(ocio_look_ == l);
+      action->setData(l);
+    }
   }
 
   menu.exec(mapToGlobal(pos));

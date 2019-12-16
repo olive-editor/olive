@@ -77,6 +77,26 @@ public:
   ViewerGLWidget& operator=(ViewerGLWidget&& other) = delete;
 
   /**
+   * @brief Enable or disable the color management menu
+   *
+   * While the Viewer is _always_ color managed, In some contexts, the color management may be controlled from an
+   * external UI making the menu unnecessary.
+   */
+  void SetColorMenuEnabled(bool enabled);
+
+public slots:
+  /**
+   * @brief Set the texture to draw and draw it
+   *
+   * Use this function to update the viewer.
+   *
+   * @param tex
+   */
+  void SetTexture(GLuint tex);
+
+  void SetOCIOParameters(const QString& display, const QString& view, const QString& look);
+
+  /**
    * @brief Externally set the OCIO display to use
    *
    * This value must be a valid display in the current OCIO configuration.
@@ -96,16 +116,6 @@ public:
    * This value must be a valid display in the current OCIO configuration.
    */
   void SetOCIOLook(const QString& look);
-
-public slots:
-  /**
-   * @brief Set the texture to draw and draw it
-   *
-   * Use this function to update the viewer.
-   *
-   * @param tex
-   */
-  void SetTexture(GLuint tex);
 
 protected:
   /**
@@ -169,6 +179,8 @@ private:
    * @brief Color management service
    */
   ColorProcessorPtr color_service_;
+
+  bool color_menu_enabled_;
 
 private slots:
   /**

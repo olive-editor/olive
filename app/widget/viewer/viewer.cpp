@@ -93,12 +93,12 @@ void ViewerWidget::SetTimebase(const rational &r)
   playback_timer_.setInterval(qFloor(r.toDouble()));
 }
 
-const double &ViewerWidget::scale()
+const double &ViewerWidget::scale() const
 {
   return ruler_->scale();
 }
 
-rational ViewerWidget::GetTime()
+rational ViewerWidget::GetTime() const
 {
   return olive::timestamp_to_time(ruler_->GetTime(), time_base_);
 }
@@ -123,7 +123,7 @@ void ViewerWidget::TogglePlayPause()
   }
 }
 
-bool ViewerWidget::IsPlaying()
+bool ViewerWidget::IsPlaying() const
 {
   return playback_timer_.isActive();
 }
@@ -169,6 +169,11 @@ void ViewerWidget::DisconnectViewerNode()
 ViewerOutput *ViewerWidget::GetConnectedViewer() const
 {
   return viewer_node_;
+}
+
+void ViewerWidget::SetColorMenuEnabled(bool enabled)
+{
+  gl_widget_->SetColorMenuEnabled(enabled);
 }
 
 void ViewerWidget::SetTexture(OpenGLTexturePtr tex)
@@ -335,6 +340,26 @@ void ViewerWidget::ShuttleRight()
   if (current_speed != 0) {
     PlayInternal(current_speed);
   }
+}
+
+void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
+{
+  gl_widget_->SetOCIOParameters(display, view, look);
+}
+
+void ViewerWidget::SetOCIODisplay(const QString &display)
+{
+  gl_widget_->SetOCIODisplay(display);
+}
+
+void ViewerWidget::SetOCIOView(const QString &view)
+{
+  gl_widget_->SetOCIOView(view);
+}
+
+void ViewerWidget::SetOCIOLook(const QString &look)
+{
+  gl_widget_->SetOCIOLook(look);
 }
 
 void ViewerWidget::PlaybackTimerUpdate()

@@ -51,9 +51,9 @@ public:
 
   void SetTimeRulerEnabled(bool enabled);
 
-  const double& scale();
+  const double& scale() const;
 
-  rational GetTime();
+  rational GetTime() const;
 
   void SetScale(const double& scale_);
 
@@ -61,13 +61,15 @@ public:
 
   void TogglePlayPause();
 
-  bool IsPlaying();
+  bool IsPlaying() const;
 
   void ConnectViewerNode(ViewerOutput* node);
 
   void DisconnectViewerNode();
 
   ViewerOutput* GetConnectedViewer() const;
+
+  void SetColorMenuEnabled(bool enabled);
 
 public slots:
   /**
@@ -98,6 +100,29 @@ public slots:
   void ShuttleStop();
 
   void ShuttleRight();
+
+  void SetOCIOParameters(const QString& display, const QString& view, const QString& look);
+
+  /**
+   * @brief Externally set the OCIO display to use
+   *
+   * This value must be a valid display in the current OCIO configuration.
+   */
+  void SetOCIODisplay(const QString& display);
+
+  /**
+   * @brief Externally set the OCIO view to use
+   *
+   * This value must be a valid display in the current OCIO configuration.
+   */
+  void SetOCIOView(const QString& view);
+
+  /**
+   * @brief Externally set the OCIO look to use (use empty string if none)
+   *
+   * This value must be a valid display in the current OCIO configuration.
+   */
+  void SetOCIOLook(const QString& look);
 
 signals:
   void TimeChanged(const int64_t&);
