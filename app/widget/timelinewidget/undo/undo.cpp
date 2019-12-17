@@ -23,15 +23,6 @@
 #include "node/graph.h"
 #include "node/block/transition/transition.h"
 
-Block* CreateSplitBlock(Block* block, rational point, QObject* parent = nullptr)
-{
-  Block* copy = static_cast<Block*>(block->copy());
-  copy->set_length_and_media_in(block->length() - (point - block->in()));
-  copy->setParent(parent);
-
-  return copy;
-}
-
 Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 {
   static_cast<NodeGraph*>(n->parent())->TakeNode(n, new_parent);
@@ -219,13 +210,14 @@ void TrackRippleRemoveAreaCommand::redo()
   if (splice_ != nullptr) {
 
     // Split the block here
-    Block* copy = CreateSplitBlock(splice_, out_);
+    Block* copy = static_cast<Block*>(splice_->copy());
 
     splice_original_length_ = splice_->length();
     splice_->set_length_and_media_out(out_ - splice_->in());
 
     static_cast<NodeGraph*>(track_->parent())->AddNode(copy);
     Node::CopyInputs(splice_, copy);
+    copy->set_length_and_media_in(splice_->length() - (out_ - splice_->in()));
 
     track_->InsertBlockAfter(copy, splice_);
 
@@ -391,12 +383,14 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
   track_(track),
   block_(block),
   new_length_(point - block->in()),
-  old_length_(block->length())
+  old_length_(block->length()),
+  point_(point)
 {
   Q_ASSERT(point > block_->in() && point < block_->out());
 
   // Ensures that this block is deleted if this action is undone
-  new_block_ = CreateSplitBlock(block_, point, &memory_manager_);
+  new_block_ = static_cast<Block*>(block_->copy());
+  new_block_->setParent(&memory_manager_);
 
   // Determine if the block outputs to an "out" transition
   foreach (NodeEdgePtr edge, block_->output()->edges()) {
@@ -412,10 +406,17 @@ void BlockSplitCommand::redo()
 {
   track_->BlockInvalidateCache();
 
-  block_->set_length_and_media_out(new_length_);
-
   static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
+
+  rational new_part_length = block_->length() - (point_ - block_->in());
+  rational original_media_out = block_->media_out();
+
+  block_->set_length_and_media_out(new_length_);
+
+  new_block_->set_length(new_part_length);
+  new_block_->set_media_in(block_->media_out());
+  new_block_->set_media_out(original_media_out);
 
   // Will re-parent new_block_ to the track's graph
   track_->InsertBlockAfter(new_block_, block_);

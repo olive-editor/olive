@@ -45,7 +45,7 @@ Block::Block() :
   AddInput(media_out_input_);
 
   // A block's length must be greater than 0
-  set_length(1);
+  set_length_and_media_out(1);
 }
 
 QString Block::Category() const

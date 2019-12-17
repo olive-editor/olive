@@ -212,6 +212,7 @@ private:
 
   rational new_length_;
   rational old_length_;
+  rational point_;
 
   Block* new_block_;
 
