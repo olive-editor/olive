@@ -5,6 +5,7 @@
         <file>boxblur.frag</file>
         <file>boxblur.xml</file>
         <file>crossdissolve.frag</file>
+        <file>crossdissolve.xml</file>
         <file>diptoblack.frag</file>
         <file>gaussianblur.frag</file>
         <file>gaussianblur.xml</file>

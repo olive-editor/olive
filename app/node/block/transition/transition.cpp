@@ -9,6 +9,9 @@ TransitionBlock::TransitionBlock()
   in_block_input_ = new NodeInput("in_block_in");
   in_block_input_->set_data_type(NodeParam::kBuffer);
   AddInput(in_block_input_);
+
+  // A block's length must be greater than 0
+  set_in_and_out_offset(1, 1);
 }
 
 Block::Type TransitionBlock::type() const

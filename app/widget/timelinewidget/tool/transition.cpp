@@ -1,7 +1,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
-#include "node/block/transition/crossdissolve/crossdissolve.h"
-#include "node/block/transition/diptoblack/diptoblack.h"
+#include "node/block/transition/transition.h"
+#include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::TransitionTool::TransitionTool(TimelineWidget *parent) :
@@ -89,7 +89,7 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
 
   if (ghost_) {
     if (!ghost_->AdjustedLength().isNull()) {
-      CrossDissolveTransition* transition = new CrossDissolveTransition();
+      TransitionBlock* transition = static_cast<TransitionBlock*>(NodeFactory::CreateFromID("org.olivevideoeditor.Olive.crossdissolve"));
 
       QUndoCommand* command = new QUndoCommand();
 

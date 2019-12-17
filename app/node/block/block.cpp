@@ -43,6 +43,9 @@ Block::Block() :
   media_out_input_->SetConnectable(false);
   media_out_input_->set_data_type(NodeParam::kRational);
   AddInput(media_out_input_);
+
+  // A block's length must be greater than 0
+  set_length(1);
 }
 
 QString Block::Category() const

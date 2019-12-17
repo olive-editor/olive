@@ -10,7 +10,11 @@ ExternalTransition::ExternalTransition(const QString &xml_meta_filename) :
 
 Node *ExternalTransition::copy() const
 {
-  return new ExternalTransition(meta_.filename());
+  ExternalTransition* t = new ExternalTransition(meta_.filename());
+
+  CopyParameters(this, t);
+
+  return t;
 }
 
 QString ExternalTransition::Name() const

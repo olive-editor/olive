@@ -2,7 +2,7 @@
 
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
-#include "block/transition/crossdissolve/crossdissolve.h"
+#include "block/transition/externaltransition.h"
 #include "distort/transform/transform.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
@@ -26,7 +26,7 @@ void NodeFactory::Initialize()
   library_.append(new ExternalNode(":/shaders/boxblur.xml"));
   library_.append(new ExternalNode(":/shaders/opacity.xml"));
   library_.append(new ExternalNode(":/shaders/solid.xml"));
-  library_.append(new ExternalNode(":/shaders/alphaover.xml"));
+  library_.append(new ExternalTransition(":/shaders/crossdissolve.xml"));
 }
 
 void NodeFactory::Destroy()
@@ -116,8 +116,6 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new ClipBlock();
   case kGapBlock:
     return new GapBlock();
-  case kTransitionBlock:
-    return new CrossDissolveTransition();
   case kTransformDistort:
     return new TransformDistort();
   case kVideoInput:
