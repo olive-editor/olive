@@ -29,6 +29,12 @@ class FloatSlider : public SliderBase
 public:
   FloatSlider(QWidget* parent = nullptr);
 
+  enum DisplayType {
+    kNormal,
+    kDecibel,
+    kPercentage
+  };
+
   double GetValue();
 
   void SetValue(const double& d);
@@ -39,16 +45,23 @@ public:
 
   void SetDecimalPlaces(int i);
 
+  void SetDisplayType(const DisplayType& type);
+
 protected:
   virtual QString ValueToString(const QVariant& v) override;
 
   virtual QVariant StringToValue(const QString& s, bool* ok) override;
+
+  virtual double AdjustDragDistanceInternal(const double& start, const double& drag) override;
 
 signals:
   void ValueChanged(double);
 
 private slots:
   void ConvertValue(QVariant v);
+
+private:
+  DisplayType display_type_;
 };
 
 #endif // FLOATSLIDER_H

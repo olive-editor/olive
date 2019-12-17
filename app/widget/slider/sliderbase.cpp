@@ -162,6 +162,12 @@ void SliderBase::UpdateLabel(const QVariant &v)
   }
 }
 
+double SliderBase::AdjustDragDistanceInternal(const double &start, const double &drag)
+{
+  Q_UNUSED(start)
+  return drag;
+}
+
 QString SliderBase::ValueToString(const QVariant &v)
 {
   return v.toString();
@@ -178,23 +184,25 @@ void SliderBase::LabelPressed()
   dragged_ = false;
 
   if (mode_ != kString) {
-    dragged_diff_ = value_.toDouble();
+    dragged_diff_ = 0;
   }
 }
 
 void SliderBase::LabelClicked()
 {
   if (dragged_) {
+    double drag_val = value_.toDouble() + AdjustDragDistanceInternal(value_.toDouble(), dragged_diff_);
+
     // This was a drag
     switch (mode_) {
     case kString:
       // No-op
       break;
     case kInteger:
-      SetValue(qRound(dragged_diff_));
+      SetValue(qRound(drag_val));
       break;
     case kFloat:
-      SetValue(dragged_diff_);
+      SetValue(drag_val);
       break;
     }
   } else {
@@ -227,11 +235,13 @@ void SliderBase::LabelDragged(int i)
 
     dragged_diff_ += real_drag;
 
+    double drag_val = value_.toDouble() + AdjustDragDistanceInternal(value_.toDouble(), dragged_diff_);
+
     // Update temporary value
     if (mode_ == kInteger) {
-      temp_dragged_value_ = qRound(dragged_diff_);
+      temp_dragged_value_ = qRound(drag_val);
     } else {
-      temp_dragged_value_ = dragged_diff_;
+      temp_dragged_value_ = drag_val;
     }
 
     temp_dragged_value_ = ClampValue(temp_dragged_value_);
@@ -260,7 +270,7 @@ void SliderBase::LineEditConfirmed()
     setCurrentWidget(label_);
 
     emit ValueChanged(value_);
-  } else if (require_valid_input_) {
+  } else if (require_valid_input_ && !IsTristate()) {
     QMessageBox::critical(this,
                           tr("Invalid Value"),
                           tr("The entered value is not valid for this field."),

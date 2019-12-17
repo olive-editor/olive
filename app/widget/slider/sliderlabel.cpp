@@ -78,5 +78,7 @@ void SliderLabel::focusInEvent(QFocusEvent *event)
 {
   QWidget::focusInEvent(event);
 
-  emit focused();
+  if (event->reason() == Qt::TabFocusReason) {
+    emit focused();
+  }
 }
