@@ -9,7 +9,6 @@ public:
   TransitionBlock();
 
   virtual Type type() const override;
-  virtual QString Category() const override;
 
   NodeInput* out_block_input() const;
   NodeInput* in_block_input() const;

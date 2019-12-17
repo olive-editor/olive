@@ -6,7 +6,10 @@
         <file>boxblur.xml</file>
         <file>crossdissolve.frag</file>
         <file>crossdissolve.xml</file>
+        <file>dropshadow.frag</file>
+        <file>dropshadow.xml</file>
         <file>diptoblack.frag</file>
+        <file>diptoblack.xml</file>
         <file>gaussianblur.frag</file>
         <file>gaussianblur.xml</file>
         <file>opacity.frag</file>

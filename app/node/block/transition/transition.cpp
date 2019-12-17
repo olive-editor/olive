@@ -19,11 +19,6 @@ Block::Type TransitionBlock::type() const
   return kTransition;
 }
 
-QString TransitionBlock::Category() const
-{
-  return tr("Transition");
-}
-
 NodeInput *TransitionBlock::out_block_input() const
 {
   return out_block_input_;

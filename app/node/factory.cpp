@@ -26,7 +26,10 @@ void NodeFactory::Initialize()
   library_.append(new ExternalNode(":/shaders/boxblur.xml"));
   library_.append(new ExternalNode(":/shaders/opacity.xml"));
   library_.append(new ExternalNode(":/shaders/solid.xml"));
+  library_.append(new ExternalNode(":/shaders/alphaover.xml"));
+  library_.append(new ExternalNode(":/shaders/dropshadow.xml"));
   library_.append(new ExternalTransition(":/shaders/crossdissolve.xml"));
+  library_.append(new ExternalTransition(":/shaders/diptoblack.xml"));
 }
 
 void NodeFactory::Destroy()
