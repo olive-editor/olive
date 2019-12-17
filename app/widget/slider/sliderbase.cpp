@@ -32,7 +32,8 @@ SliderBase::SliderBase(Mode mode, QWidget *parent) :
   has_max_(false),
   mode_(mode),
   dragged_(false),
-  require_valid_input_(true)
+  require_valid_input_(true),
+  tristate_(false)
 {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
@@ -79,6 +80,17 @@ void SliderBase::SetAlignment(Qt::Alignment alignment)
   label_->setAlignment(alignment);
 }
 
+bool SliderBase::IsTristate() const
+{
+  return tristate_;
+}
+
+void SliderBase::SetTristate()
+{
+  tristate_ = true;
+  UpdateLabel(0);
+}
+
 const QVariant &SliderBase::Value()
 {
   if (dragged_) {
@@ -91,6 +103,9 @@ const QVariant &SliderBase::Value()
 void SliderBase::SetValue(const QVariant &v)
 {
   value_ = ClampValue(v);
+
+  // Disable tristate
+  tristate_ = false;
 
   UpdateLabel(value_);
 }
@@ -140,7 +155,11 @@ const QVariant &SliderBase::ClampValue(const QVariant &v)
 
 void SliderBase::UpdateLabel(const QVariant &v)
 {
-  label_->setText(ValueToString(v));
+  if (tristate_) {
+    label_->setText("---");
+  } else {
+    label_->setText(ValueToString(v));
+  }
 }
 
 QString SliderBase::ValueToString(const QVariant &v)

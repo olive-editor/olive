@@ -19,6 +19,12 @@ public slots:
   virtual void accept() override;
 
 private:
+  double GetUnadjustedLengthTimestamp(ClipBlock* clip) const;
+
+  int64_t GetAdjustedDuration(ClipBlock* clip, const double& new_speed) const;
+
+  double GetAdjustedSpeed(ClipBlock* clip, const int64_t& new_duration) const;
+
   QList<ClipBlock*> clips_;
 
   FloatSlider* speed_slider_;
@@ -26,15 +32,15 @@ private:
 
   rational timebase_;
 
-  double original_speed_;
-  int64_t original_length_;
-
+  QCheckBox* link_speed_and_duration_;
   QCheckBox* reverse_speed_checkbox_;
   QCheckBox* maintain_audio_pitch_checkbox_;
   QCheckBox* ripple_clips_checkbox_;
 
 private slots:
   void SpeedChanged();
+
+  void DurationChanged();
 };
 
 #endif // SPEEDDURATIONDIALOG_H

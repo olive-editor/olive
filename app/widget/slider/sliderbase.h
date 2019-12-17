@@ -44,6 +44,9 @@ public:
 
   void SetAlignment(Qt::Alignment alignment);
 
+  bool IsTristate() const;
+  void SetTristate();
+
 signals:
   void ValueChanged(QVariant v);
 
@@ -92,6 +95,8 @@ private:
   QVariant temp_dragged_value_;
 
   bool require_valid_input_;
+
+  bool tristate_;
 
 private slots:
   void LabelPressed();
