@@ -29,7 +29,8 @@ ImageStream::ImageStream() :
 {
   set_type(kImage);
 
-  connect(ColorManager::instance(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChangedSlot()));
+  // For some reason this connection fails if we don't explicitly specify DirectConnection
+  connect(ColorManager::instance(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChangedSlot()), Qt::DirectConnection);
 }
 
 QString ImageStream::description()
