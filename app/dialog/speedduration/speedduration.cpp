@@ -61,11 +61,12 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     // Create "Speed" slider
     speed_slider_ = new FloatSlider();
     speed_slider_->SetMinimum(0);
+    speed_slider_->SetDisplayType(FloatSlider::kPercentage);
     speed_layout->addWidget(speed_slider_, row, 1);
 
     if (same_speed) {
-      // All clips share the same speed so we can show the value (converted to a percentage)
-      speed_slider_->SetValue(clips_.first()->speed() * 100.0);
+      // All clips share the same speed so we can show the value
+      speed_slider_->SetValue(clips_.first()->speed());
     } else {
       // Else, we show an invalid initial state
       speed_slider_->SetTristate();
@@ -128,7 +129,7 @@ void SpeedDurationDialog::accept()
     bool change_duration = !duration_slider_->IsTristate() || link_speed_and_duration_->isChecked();
     bool change_speed = !speed_slider_->IsTristate() || link_speed_and_duration_->isChecked();
 
-    double new_speed = speed_slider_->GetValue()*0.01;
+    double new_speed = speed_slider_->GetValue();
 
     rational new_clip_length = clip->length();
 
@@ -259,7 +260,7 @@ double SpeedDurationDialog::GetAdjustedSpeed(ClipBlock *clip, const int64_t &new
 void SpeedDurationDialog::SpeedChanged()
 {
   if (link_speed_and_duration_->isChecked()) {
-    double new_speed = speed_slider_->GetValue()*0.01;
+    double new_speed = speed_slider_->GetValue();
 
     if (qIsNull(new_speed)) {
       // A speed of 0 is considered a still frame. Since we can't divide by zero and a still frame could be any length,
@@ -307,7 +308,7 @@ void SpeedDurationDialog::DurationChanged()
     }
 
     if (same_speeds) {
-      speed_slider_->SetValue(new_speed*100.0);
+      speed_slider_->SetValue(new_speed);
     } else {
       speed_slider_->SetTristate();
     }
