@@ -10,15 +10,13 @@ class ColorManager : public QObject
 {
   Q_OBJECT
 public:
+  ColorManager();
+
+  OCIO::ConstConfigRcPtr GetConfig() const;
+
   void SetConfig(const QString& filename);
 
   void SetConfig(OCIO::ConstConfigRcPtr config);
-
-  static void CreateInstance();
-
-  static ColorManager* instance();
-
-  static void DestroyInstance();
 
   static void DisassociateAlpha(FramePtr f);
 
@@ -26,15 +24,17 @@ public:
 
   static void ReassociateAlpha(FramePtr f);
 
-  static QStringList ListAvailableDisplays();
+  QStringList ListAvailableDisplays();
 
-  static QString GetDefaultDisplay();
+  QString GetDefaultDisplay();
 
-  static QStringList ListAvailableViews(QString display);
+  QStringList ListAvailableViews(QString display);
 
-  static QString GetDefaultView(const QString& display);
+  QString GetDefaultView(const QString& display);
 
-  static QStringList ListAvailableLooks();
+  QStringList ListAvailableLooks();
+
+  QStringList ListAvailableInputColorspaces();
 
   static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
 
@@ -42,9 +42,7 @@ signals:
   void ConfigChanged();
 
 private:
-  ColorManager();
-
-  static ColorManager* instance_;
+  OCIO::ConstConfigRcPtr config_;
 
   enum AlphaAction {
     kAssociate,

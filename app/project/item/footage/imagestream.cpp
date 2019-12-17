@@ -28,9 +28,12 @@ ImageStream::ImageStream() :
   premultiplied_alpha_(false)
 {
   set_type(kImage);
+}
 
+void ImageStream::FootageSetEvent(Footage *f)
+{
   // For some reason this connection fails if we don't explicitly specify DirectConnection
-  connect(ColorManager::instance(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChangedSlot()), Qt::DirectConnection);
+  connect(f->project()->color_manager(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChanged()), Qt::DirectConnection);
 }
 
 QString ImageStream::description()
@@ -86,11 +89,13 @@ void ImageStream::set_colorspace(const QString &color)
   emit ColorSpaceChanged();
 }
 
-void ImageStream::ColorConfigChangedSlot()
+void ImageStream::ColorConfigChanged()
 {
+  ColorManager* color_manager = static_cast<ColorManager*>(sender());
+
   // Check if this colorspace is in the new config
   if (!colorspace_.isEmpty()) {
-    QStringList colorspaces = ColorManager::ListAvailableInputColorspaces(OCIO::GetCurrentConfig());
+    QStringList colorspaces = color_manager->ListAvailableInputColorspaces();
     if (!colorspaces.contains(colorspace_)) {
       // Set to empty if not
       colorspace_.clear();
@@ -99,4 +104,12 @@ void ImageStream::ColorConfigChangedSlot()
 
   // Either way, the color calculation has likely changed so we signal here
   emit ColorSpaceChanged();
+}
+
+void ImageStream::DefaultColorSpaceChanged()
+{
+  // If no colorspace is set, this stream uses the default color space and it's just changed
+  if (colorspace_.isEmpty()) {
+    emit ColorSpaceChanged();
+  }
 }

@@ -25,6 +25,8 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "project/item/footage/footage.h"
+#include "project/project.h"
 #include "undo/undostack.h"
 
 VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
@@ -36,7 +38,7 @@ VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
   video_layout->addWidget(new QLabel(tr("Color Space:")), 0, 0);
 
   video_color_space_ = new QComboBox();
-  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
+  OCIO::ConstConfigRcPtr config = stream->footage()->project()->color_manager()->GetConfig();
   int number_of_colorspaces = config->getNumColorSpaces();
 
   for (int i=0;i<number_of_colorspaces;i++) {

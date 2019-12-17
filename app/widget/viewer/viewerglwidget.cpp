@@ -32,10 +32,9 @@ ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
   texture_(0),
   ocio_lut_(0),
+  color_manager_(nullptr),
   color_menu_enabled_(true)
 {
-  connect(ColorManager::instance(), SIGNAL(ConfigChanged()), this, SLOT(RefreshColorPipeline()));
-
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu(const QPoint&)));
 }
@@ -48,6 +47,26 @@ ViewerGLWidget::~ViewerGLWidget()
 void ViewerGLWidget::SetColorMenuEnabled(bool enabled)
 {
   color_menu_enabled_ = enabled;
+}
+
+void ViewerGLWidget::ConnectColorManager(ColorManager *color_manager)
+{
+  if (color_manager_ != nullptr) {
+    disconnect(color_manager_, SIGNAL(ConfigChanged()), this, SLOT(RefreshColorPipeline()));
+  }
+
+  color_manager_ = color_manager;
+
+  if (color_manager_ != nullptr) {
+    connect(color_manager_, SIGNAL(ConfigChanged()), this, SLOT(RefreshColorPipeline()));
+  }
+
+  RefreshColorPipeline();
+}
+
+void ViewerGLWidget::DisconnectColorManager()
+{
+  ConnectColorManager(nullptr);
 }
 
 void ViewerGLWidget::SetOCIODisplay(const QString &display)
@@ -98,6 +117,11 @@ void ViewerGLWidget::initializeGL()
 
 void ViewerGLWidget::paintGL()
 {
+  // We only draw if we have a pipeline
+  if (!pipeline_) {
+    return;
+  }
+
   // Get functions attached to this context (they will already be initialized)
   QOpenGLFunctions* f = context()->functions();
 
@@ -120,17 +144,17 @@ void ViewerGLWidget::paintGL()
 
 void ViewerGLWidget::RefreshColorPipeline()
 {
-  QStringList displays = ColorManager::ListAvailableDisplays();
+  QStringList displays = color_manager_->ListAvailableDisplays();
   if (!displays.contains(ocio_display_)) {
-    ocio_display_ = ColorManager::GetDefaultDisplay();
+    ocio_display_ = color_manager_->GetDefaultDisplay();
   }
 
-  QStringList views = ColorManager::ListAvailableViews(ocio_display_);
+  QStringList views = color_manager_->ListAvailableViews(ocio_display_);
   if (!views.contains(ocio_view_)) {
-    ocio_view_ = ColorManager::GetDefaultView(ocio_display_);
+    ocio_view_ = color_manager_->GetDefaultView(ocio_display_);
   }
 
-  QStringList looks = ColorManager::ListAvailableLooks();
+  QStringList looks = color_manager_->ListAvailableLooks();
   if (!looks.contains(ocio_look_)) {
     ocio_look_.clear();
   }
@@ -147,14 +171,19 @@ void ViewerGLWidget::SetupColorProcessor()
 
   ClearOCIOLutTexture();
 
-  // (Re)create color processor
-  color_service_ = ColorProcessor::Create(OCIO::ROLE_SCENE_LINEAR, ocio_display_, ocio_view_, ocio_look_);
+  if (color_manager_) {
+    // (Re)create color processor
+    color_service_ = ColorProcessor::Create(color_manager_->GetConfig(), OCIO::ROLE_SCENE_LINEAR, ocio_display_, ocio_view_, ocio_look_);
 
-  // (Re)create pipeline from color processor
-  pipeline_ = OpenGLShader::CreateOCIO(context(),
-                                       ocio_lut_,
-                                       color_service_->GetProcessor(),
-                                       true);
+    // (Re)create pipeline from color processor
+    pipeline_ = OpenGLShader::CreateOCIO(context(),
+                                         ocio_lut_,
+                                         color_service_->GetProcessor(),
+                                         true);
+  } else {
+    color_service_ = nullptr;
+    pipeline_ = nullptr;
+  }
 }
 
 void ViewerGLWidget::ClearOCIOLutTexture()
@@ -181,7 +210,7 @@ void ViewerGLWidget::ShowContextMenu(const QPoint &pos)
   QMenu menu;
 
   if (color_menu_enabled_) {
-    QStringList displays = ColorManager::ListAvailableDisplays();
+    QStringList displays = color_manager_->ListAvailableDisplays();
     QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
     connect(ocio_display_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorDisplayChanged(QAction*)));
     foreach (const QString& d, displays) {
@@ -191,7 +220,7 @@ void ViewerGLWidget::ShowContextMenu(const QPoint &pos)
       action->setData(d);
     }
 
-    QStringList views = ColorManager::ListAvailableViews(ocio_display_);
+    QStringList views = color_manager_->ListAvailableViews(ocio_display_);
     QMenu* ocio_view_menu = menu.addMenu(tr("View"));
     connect(ocio_view_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorViewChanged(QAction*)));
     foreach (const QString& v, views) {
@@ -201,7 +230,7 @@ void ViewerGLWidget::ShowContextMenu(const QPoint &pos)
       action->setData(v);
     }
 
-    QStringList looks = ColorManager::ListAvailableLooks();
+    QStringList looks = color_manager_->ListAvailableLooks();
     QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
     connect(ocio_look_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorLookChanged(QAction*)));
     QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));

@@ -14,18 +14,19 @@ using ColorProcessorPtr = std::shared_ptr<ColorProcessor>;
 class ColorProcessor
 {
 public:
-  ColorProcessor(const QString &source_space, const QString &dest_space);
+  ColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space);
 
-  ColorProcessor(const QString& source_space,
+  ColorProcessor(OCIO::ConstConfigRcPtr config, const QString& source_space,
                  QString display,
                  QString view,
                  const QString& look);
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
-  static ColorProcessorPtr Create(const QString& source_space, const QString& dest_space);
+  static ColorProcessorPtr Create(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space);
 
-  static ColorProcessorPtr Create(const QString& source_space,
+  static ColorProcessorPtr Create(OCIO::ConstConfigRcPtr config,
+                                  const QString& source_space,
                                   const QString& display,
                                   const QString& view,
                                   const QString& look);

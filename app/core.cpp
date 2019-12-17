@@ -99,9 +99,6 @@ void Core::Start()
   // Load application config
   Config::Load();
 
-  // Set up color manager
-  ColorManager::CreateInstance();
-
 
   //
   // Start GUI (FIXME CLI mode)
@@ -120,8 +117,6 @@ void Core::Stop()
   //Config::Save();
 
   AudioManager::DestroyInstance();
-
-  ColorManager::DestroyInstance();
 
   NodeFactory::Destroy();
 

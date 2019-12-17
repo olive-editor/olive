@@ -5,7 +5,16 @@
 #include "common/define.h"
 #include "config/config.h"
 
-ColorManager* ColorManager::instance_ = nullptr;
+ColorManager::ColorManager()
+{
+  // Ensures config is set to something
+  config_ = OCIO::GetCurrentConfig();
+}
+
+OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
+{
+  return config_;
+}
 
 void ColorManager::SetConfig(const QString &filename)
 {
@@ -14,27 +23,9 @@ void ColorManager::SetConfig(const QString &filename)
 
 void ColorManager::SetConfig(OCIO::ConstConfigRcPtr config)
 {
-  OCIO::SetCurrentConfig(config);
+  config_ = config;
 
   emit ConfigChanged();
-}
-
-void ColorManager::CreateInstance()
-{
-  if (instance_ == nullptr) {
-    instance_ = new ColorManager();
-  }
-}
-
-ColorManager *ColorManager::instance()
-{
-  return instance_;
-}
-
-void ColorManager::DestroyInstance()
-{
-  delete instance_;
-  instance_ = nullptr;
 }
 
 void ColorManager::DisassociateAlpha(FramePtr f)
@@ -56,12 +47,10 @@ QStringList ColorManager::ListAvailableDisplays()
 {
   QStringList displays;
 
-  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
-
-  int number_of_displays = config->getNumDisplays();
+  int number_of_displays = config_->getNumDisplays();
 
   for (int i=0;i<number_of_displays;i++) {
-    displays.append(config->getDisplay(i));
+    displays.append(config_->getDisplay(i));
   }
 
   return displays;
@@ -69,19 +58,17 @@ QStringList ColorManager::ListAvailableDisplays()
 
 QString ColorManager::GetDefaultDisplay()
 {
-  return OCIO::GetCurrentConfig()->getDefaultDisplay();
+  return config_->getDefaultDisplay();
 }
 
 QStringList ColorManager::ListAvailableViews(QString display)
 {
   QStringList views;
 
-  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
-
-  int number_of_views = config->getNumViews(display.toUtf8());
+  int number_of_views = config_->getNumViews(display.toUtf8());
 
   for (int i=0;i<number_of_views;i++) {
-    views.append(config->getView(display.toUtf8(), i));
+    views.append(config_->getView(display.toUtf8(), i));
   }
 
   return views;
@@ -89,25 +76,28 @@ QStringList ColorManager::ListAvailableViews(QString display)
 
 QString ColorManager::GetDefaultView(const QString &display)
 {
-  return OCIO::GetCurrentConfig()->getDefaultView(display.toUtf8());
+  return config_->getDefaultView(display.toUtf8());
 }
 
 QStringList ColorManager::ListAvailableLooks()
 {
   QStringList looks;
 
-  OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
-
-  int number_of_looks = config->getNumLooks();
+  int number_of_looks = config_->getNumLooks();
 
   for (int i=0;i<number_of_looks;i++) {
-    looks.append(config->getLookNameByIndex(i));
+    looks.append(config_->getLookNameByIndex(i));
   }
 
   return looks;
 }
 
-QStringList ColorManager::ListAvailableInputColorspaces(OpenColorIO::v1::ConstConfigRcPtr config)
+QStringList ColorManager::ListAvailableInputColorspaces()
+{
+  return ListAvailableInputColorspaces(config_);
+}
+
+QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config)
 {
   QStringList spaces;
 
@@ -118,10 +108,6 @@ QStringList ColorManager::ListAvailableInputColorspaces(OpenColorIO::v1::ConstCo
   }
 
   return spaces;
-}
-
-ColorManager::ColorManager()
-{
 }
 
 void ColorManager::AssociateAlphaPixFmtFilter(ColorManager::AlphaAction action, FramePtr f)

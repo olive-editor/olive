@@ -84,6 +84,16 @@ public:
    */
   void SetColorMenuEnabled(bool enabled);
 
+  /**
+   * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
+   */
+  void ConnectColorManager(ColorManager* color_manager);
+
+  /**
+   * @brief Disconnect a ColorManager (equivalent to ConnectColorManager(nullptr))
+   */
+  void DisconnectColorManager();
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -174,6 +184,11 @@ private:
    * @brief OCIO LUT texture used for conversions
    */
   GLuint ocio_lut_;
+
+  /**
+   * @brief Connected color manager
+   */
+  ColorManager* color_manager_;
 
   /**
    * @brief Color management service

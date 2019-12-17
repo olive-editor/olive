@@ -97,6 +97,9 @@ public:
 
   StreamID ToID() const;
 
+protected:
+  virtual void FootageSetEvent(Footage*){}
+
 private:
   Footage* footage_;
 

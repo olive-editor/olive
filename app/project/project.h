@@ -24,6 +24,7 @@
 #include <QObject>
 #include <memory>
 
+#include "render/colormanager.h"
 #include "project/item/folder/folder.h"
 
 /**
@@ -54,6 +55,8 @@ public:
   const QString& default_input_colorspace();
   void set_default_input_colorspace(const QString& colorspace);
 
+  ColorManager* color_manager();
+
 private:
   Folder root_;
 
@@ -61,6 +64,9 @@ private:
 
   QString ocio_config_;
   QString default_input_colorspace_;
+
+  ColorManager color_manager_;
+
 };
 
 using ProjectPtr = std::shared_ptr<Project>;

@@ -58,6 +58,7 @@ Footage *Stream::footage() const
 void Stream::set_footage(Footage *f)
 {
   footage_ = f;
+  FootageSetEvent(footage_);
 }
 
 const rational &Stream::timebase() const

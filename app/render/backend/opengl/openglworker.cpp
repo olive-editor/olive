@@ -66,7 +66,9 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
   OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache()->Get(video_stream->colorspace()));
 
   if (!color_processor) {
-    color_processor = OpenGLColorProcessor::CreateOpenGL(video_stream->colorspace(),
+    // FIXME: We match with the colorspace string, but this won't change if the user sets a new config with a colorspace with the same string
+    color_processor = OpenGLColorProcessor::CreateOpenGL(video_stream->footage()->project()->color_manager()->GetConfig(),
+                                                         video_stream->colorspace(),
                                                          OCIO::ROLE_SCENE_LINEAR);
     color_cache()->Add(video_stream->colorspace(), color_processor);
   }

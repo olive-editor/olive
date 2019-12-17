@@ -6,13 +6,14 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "render/colormanager.h"
 #include "widget/slider/integerslider.h"
 
 class ExportVideoTab : public QWidget
 {
   Q_OBJECT
 public:
-  ExportVideoTab(QWidget* parent = nullptr);
+  ExportVideoTab(ColorManager* color_manager, QWidget* parent = nullptr);
 
   QComboBox* codec_combobox() const;
 
@@ -54,6 +55,8 @@ private:
   QComboBox* looks_combobox_;
 
   QList<rational> frame_rates_;
+
+  ColorManager* color_manager_;
 
 private slots:
   void ColorDisplayChanged();

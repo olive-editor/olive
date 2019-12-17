@@ -49,6 +49,9 @@ public:
 signals:
   void ColorSpaceChanged();
 
+protected:
+  virtual void FootageSetEvent(Footage*) override;
+
 private:
   int width_;
   int height_;
@@ -56,7 +59,9 @@ private:
   QString colorspace_;
 
 private slots:
-  void ColorConfigChangedSlot();
+  void ColorConfigChanged();
+
+  void DefaultColorSpaceChanged();
 };
 
 using ImageStreamPtr = std::shared_ptr<ImageStream>;

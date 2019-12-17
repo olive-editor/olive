@@ -8,8 +8,9 @@
 #include "core.h"
 #include "render/colormanager.h"
 
-ExportVideoTab::ExportVideoTab(QWidget *parent) :
-  QWidget(parent)
+ExportVideoTab::ExportVideoTab(ColorManager* color_manager, QWidget *parent) :
+  QWidget(parent),
+  color_manager_(color_manager)
 {
   QVBoxLayout* outer_layout = new QVBoxLayout(this);
 
@@ -144,7 +145,7 @@ QWidget* ExportVideoTab::SetupColorSection()
 
   color_layout->addWidget(new QLabel(tr("Display:")), row, 0);
 
-  QStringList displays = ColorManager::ListAvailableDisplays();
+  QStringList displays = color_manager_->ListAvailableDisplays();
   display_combobox_ = new QComboBox();
   foreach (const QString& display, displays) {
     display_combobox_->addItem(display, display);
@@ -160,7 +161,7 @@ QWidget* ExportVideoTab::SetupColorSection()
 
   row++;
 
-  QStringList looks = ColorManager::ListAvailableLooks();
+  QStringList looks = color_manager_->ListAvailableLooks();
   looks_combobox_ = new QComboBox();
   looks_combobox_->addItem(tr("(None)"), QString());
   foreach (const QString& look, looks) {
@@ -205,7 +206,7 @@ void ExportVideoTab::ColorDisplayChanged()
 {
   views_combobox_->clear();
 
-  QStringList views = ColorManager::ListAvailableViews(display_combobox_->currentData().toString());
+  QStringList views = color_manager_->ListAvailableViews(display_combobox_->currentData().toString());
   foreach (const QString& view, views) {
     views_combobox_->addItem(view, view);
   }

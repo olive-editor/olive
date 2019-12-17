@@ -97,7 +97,7 @@ void ProjectPropertiesDialog::accept()
     working_project_->set_ocio_config(ocio_filename_->text());
 
     // This should ripple changes throughout the program that the color config has changed, therefore must be done last
-    ColorManager::instance()->SetConfig(config);
+    working_project_->color_manager()->SetConfig(config);
 
     QDialog::accept();
   } catch (OCIO::Exception& e) {

@@ -34,14 +34,14 @@ void OpenGLColorProcessor::ProcessOpenGL()
   olive::gl::OCIOBlit(pipeline_, ocio_lut_);
 }
 
-OpenGLColorProcessor::OpenGLColorProcessor(const QString &source_space, const QString &dest_space) :
-  ColorProcessor(source_space, dest_space),
+OpenGLColorProcessor::OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space) :
+  ColorProcessor(config, source_space, dest_space),
   ocio_lut_(0)
 {
 }
 
-OpenGLColorProcessor::OpenGLColorProcessor(const QString &source_space, QString display, QString view, const QString &look) :
-  ColorProcessor(source_space, display, view, look),
+OpenGLColorProcessor::OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, QString display, QString view, const QString &look) :
+  ColorProcessor(config, source_space, display, view, look),
   ocio_lut_(0)
 {
 }
@@ -55,12 +55,12 @@ OpenGLColorProcessor::~OpenGLColorProcessor()
   }
 }
 
-OpenGLColorProcessorPtr OpenGLColorProcessor::CreateOpenGL(const QString &source_space, const QString &dest_space)
+OpenGLColorProcessorPtr OpenGLColorProcessor::CreateOpenGL(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space)
 {
-  return std::make_shared<OpenGLColorProcessor>(source_space, dest_space);
+  return std::make_shared<OpenGLColorProcessor>(config, source_space, dest_space);
 }
 
-OpenGLColorProcessorPtr OpenGLColorProcessor::CreateOpenGL(const QString &source_space, const QString &display, const QString &view, const QString &look)
+OpenGLColorProcessorPtr OpenGLColorProcessor::CreateOpenGL(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look)
 {
-  return std::make_shared<OpenGLColorProcessor>(source_space, display, view, look);
+  return std::make_shared<OpenGLColorProcessor>(config, source_space, display, view, look);
 }

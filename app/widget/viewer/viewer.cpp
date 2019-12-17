@@ -29,6 +29,8 @@
 #include "audio/audiomanager.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
+#include "project/item/sequence/sequence.h"
+#include "project/project.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
@@ -142,6 +144,8 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 
     // Effectively disables the viewer and clears the state
     SizeChangedSlot(0, 0);
+
+    gl_widget_->DisconnectColorManager();
   }
 
   viewer_node_ = node;
@@ -158,6 +162,8 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
 
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
     LengthChangedSlot(viewer_node_->Length());
+
+    gl_widget_->ConnectColorManager(static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager());
   }
 
   video_renderer_->SetViewerNode(viewer_node_);

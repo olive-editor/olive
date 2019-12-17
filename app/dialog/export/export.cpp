@@ -10,6 +10,8 @@
 #include <QSplitter>
 #include <QStandardPaths>
 
+#include "project/item/sequence/sequence.h"
+#include "project/project.h"
 #include "ui/icons/icons.h"
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
@@ -81,7 +83,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   QTabWidget* preferences_tabs = new QTabWidget();
   QScrollArea* video_area = new QScrollArea();
-  video_tab_ = new ExportVideoTab();
+  video_tab_ = new ExportVideoTab(static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager());
   video_area->setWidgetResizable(true);
   video_area->setWidget(video_tab_);
   preferences_tabs->addTab(video_area, tr("Video"));

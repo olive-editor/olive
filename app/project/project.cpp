@@ -60,3 +60,8 @@ void Project::set_default_input_colorspace(const QString &colorspace)
 {
   default_input_colorspace_ = colorspace;
 }
+
+ColorManager *Project::color_manager()
+{
+  return &color_manager_;
+}
