@@ -117,8 +117,14 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
             footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
           } else {
             // Use duration from file
-            footage_duration = rational(stream->timebase().numerator() * stream->duration(),
-                                        stream->timebase().denominator());
+            int64_t stream_duration = stream->duration();
+
+            // Rescale to timeline timebase
+            stream_duration = qCeil(static_cast<double>(stream_duration) * stream->timebase().toDouble() / parent()->timebase_dbl());
+
+            // Convert to rational time
+            footage_duration = rational(parent()->timebase().numerator() * stream_duration,
+                                        parent()->timebase().denominator());
           }
 
           ghost->SetIn(ghost_start);
