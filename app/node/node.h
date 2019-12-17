@@ -287,6 +287,8 @@ public:
 
   void SetPosition(const QPointF& pos);
 
+  static QString ReadFileAsString(const QString& filename);
+
 protected:
   void AddInput(NodeInput* input);
 
@@ -295,8 +297,6 @@ protected:
   void SendInvalidateCache(const rational& start_range, const rational& end_range);
 
   virtual void DependentEdgeChanged(NodeInput* from);
-
-  static QString ReadFileAsString(const QString& filename);
 
 public slots:
 

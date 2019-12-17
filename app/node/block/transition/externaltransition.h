@@ -1,18 +1,14 @@
-#ifndef EXTERNALNODE_H
-#define EXTERNALNODE_H
+#ifndef EXTERNALTRANSITION_H
+#define EXTERNALTRANSITION_H
 
-#include <QXmlStreamReader>
+#include "transition.h"
 
-#include "node.h"
-#include "metareader.h"
+#include "node/metareader.h"
 
-/**
- * @brief A node generated from an external XML metadata file
- */
-class ExternalNode : public Node
+class ExternalTransition : public TransitionBlock
 {
 public:
-  ExternalNode(const QString& xml_meta_filename);
+  ExternalTransition(const QString& xml_meta_filename);
 
   virtual Node* copy() const override;
 
@@ -33,4 +29,4 @@ private:
   NodeMetaReader meta_;
 };
 
-#endif // EXTERNALNODE_H
+#endif // EXTERNALTRANSITION_H

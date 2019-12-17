@@ -37,6 +37,8 @@ set(OLIVE_SOURCES
   node/inputarray.cpp
   node/keyframe.h
   node/keyframe.cpp
+  node/metareader.h
+  node/metareader.cpp
   node/node.h
   node/node.cpp
   node/output.h
