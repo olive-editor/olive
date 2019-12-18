@@ -52,7 +52,6 @@ endif()
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
-  ${OLIVE_EFFECTS}
   ${OLIVE_QM_FILES}
 )
 
@@ -98,10 +97,6 @@ target_link_libraries(${OLIVE_TARGET}
   ${OIIO_LIBRARIES}
 )
 
-set(OLIVE_EFFECTS
-  # FIXME: Empty variable
-)
-
 set(OLIVE_TS_FILES
   # FIXME: Empty variable
 )
@@ -114,7 +109,6 @@ endif()
 
 if(UNIX AND NOT APPLE)
   install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
-  install(FILES ${OLIVE_EFFECTS} DESTINATION share/olive-editor/effects)
   install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
 endif()
 
