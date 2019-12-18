@@ -39,6 +39,7 @@
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
+#include "panel/viewer/viewer.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "render/colormanager.h"

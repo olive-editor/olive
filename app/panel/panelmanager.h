@@ -24,7 +24,6 @@
 #include <QObject>
 #include <QList>
 
-#include "panel/viewer/viewer.h"
 #include "widget/panel/panel.h"
 
 /**
