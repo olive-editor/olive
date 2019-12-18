@@ -83,6 +83,8 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data)
     }
 
     f.close();
+  } else {
+    qWarning() << "Failed to write to cached PCM file";
   }
 
   CacheNext();

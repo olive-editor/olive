@@ -1,8 +1,11 @@
 #include "nodeparamviewwidgetbridge.h"
 
+#include <QCheckBox>
 #include <QFontComboBox>
 #include <QLineEdit>
-#include <QCheckBox>
+#include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
 
 #include "node/node.h"
 #include "widget/footagecombobox/footagecombobox.h"
