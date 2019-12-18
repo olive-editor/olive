@@ -381,27 +381,26 @@ void TrackOutput::UpdateInOutFrom(int index)
 
   rational new_track_length;
 
+  // Find block just before this one to find the last out point
+  for (int i=index-1;i>=0;i--) {
+    Block* b = block_cache_.at(i);
+
+    if (b) {
+      new_track_length = b->out();
+      break;
+    }
+  }
+
   for (int i=index;i<block_cache_.size();i++) {
     Block* b = block_cache_.at(i);
 
     if (b) {
-      rational prev_out;
+      // Set in
+      b->set_in(new_track_length);
 
-      // Find previous block and retrieve its out point (if there isn't one, this in will be set to 0)
-      for (int j=i-1;j>=0;j--) {
-        Block* previous = block_cache_.at(j);
-        if (previous) {
-          prev_out = previous->out();
-          break;
-        }
-      }
-
-      rational new_out = prev_out + b->length();
-
-      b->set_in(prev_out);
-      b->set_out(new_out);
-
-      new_track_length = new_out;
+      // Set out
+      new_track_length += b->length();
+      b->set_out(new_track_length);
 
       emit b->Refreshed();
     }
