@@ -54,13 +54,17 @@ void MediaInput::FootageChanged()
   }
 
   if (connected_footage_ != nullptr) {
-    disconnect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
+    if (connected_footage_->type() == Stream::kImage || connected_footage_->type() == Stream::kVideo) {
+      disconnect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
+    }
   }
 
   connected_footage_ = new_footage;
 
   if (connected_footage_ != nullptr) {
-    connect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
+    if (connected_footage_->type() == Stream::kImage || connected_footage_->type() == Stream::kVideo) {
+      connect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
+    }
   }
 }
 
