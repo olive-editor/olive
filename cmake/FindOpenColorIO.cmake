@@ -1,94 +1,110 @@
-# - Find OpenColorIO library
-# Find the native OpenColorIO includes and library
-# This module defines
-#  OPENCOLORIO_INCLUDE_DIRS, where to find OpenColorIO.h, Set when
-#                            OPENCOLORIO_INCLUDE_DIR is found.
-#  OPENCOLORIO_LIBRARIES, libraries to link against to use OpenColorIO.
-#  OPENCOLORIO_ROOT_DIR, The base directory to search for OpenColorIO.
-#                        This can also be an environment variable.
-#  OPENCOLORIO_FOUND, If false, do not try to use OpenColorIO.
 #
-# also defined, but not for general use are
-#  OPENCOLORIO_LIBRARY, where to find the OpenColorIO library.
-
-#=============================================================================
-# Copyright 2012 Blender Foundation.
+# Copyright 2019 Pixar
 #
-# Distributed under the OSI-approved BSD License (the "License");
-# see accompanying file Copyright.txt for details.
+# Licensed under the Apache License, Version 2.0 (the "Apache License")
+# with the following modification; you may not use this file except in
+# compliance with the Apache License and the following modification to it:
+# Section 6. Trademarks. is deleted and replaced with:
 #
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
+# 6. Trademarks. This License does not grant permission to use the trade
+#    names, trademarks, service marks, or product names of the Licensor
+#    and its affiliates, except as required to comply with Section 4(c) of
+#    the License and to reproduce the content of the NOTICE file.
+#
+# You may obtain a copy of the Apache License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the Apache License with the above modification is
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the Apache License for the specific
+# language governing permissions and limitations under the Apache License.
+#
 
-# If OPENCOLORIO_ROOT_DIR was defined in the environment, use it.
-IF(NOT OPENCOLORIO_ROOT_DIR AND NOT $ENV{OPENCOLORIO_ROOT_DIR} STREQUAL "")
-  SET(OPENCOLORIO_ROOT_DIR $ENV{OPENCOLORIO_ROOT_DIR})
-ENDIF()
-
-SET(_opencolorio_FIND_COMPONENTS
-  OpenColorIO
-  yaml-cpp
-  tinyxml
-)
-
-SET(_opencolorio_SEARCH_DIRS
-  ${OPENCOLORIO_ROOT_DIR}
-  /usr/local
-  /sw # Fink
-  /opt/local # DarwinPorts
-  /opt/lib/ocio
-)
-
-FIND_PATH(OPENCOLORIO_INCLUDE_DIR
-  NAMES
-    OpenColorIO/OpenColorIO.h
-  HINTS
-    ${_opencolorio_SEARCH_DIRS}
-  PATH_SUFFIXES
-    include
-)
-
-SET(_opencolorio_LIBRARIES)
-FOREACH(COMPONENT ${_opencolorio_FIND_COMPONENTS})
-  STRING(TOUPPER ${COMPONENT} UPPERCOMPONENT)
-
-  FIND_LIBRARY(OPENCOLORIO_${UPPERCOMPONENT}_LIBRARY
-    NAMES
-      ${COMPONENT}
-    HINTS
-      ${_opencolorio_SEARCH_DIRS}
-    PATH_SUFFIXES
-      lib64 lib lib64/static lib/static
+if(UNIX)
+    find_path(OCIO_BASE_DIR
+            include/OpenColorIO/OpenColorABI.h
+        HINTS
+            "${OCIO_LOCATION}"
+            "$ENV{OCIO_LOCATION}"
+            "/opt/ocio"
     )
-  IF(OPENCOLORIO_${UPPERCOMPONENT}_LIBRARY)
-    LIST(APPEND _opencolorio_LIBRARIES "${OPENCOLORIO_${UPPERCOMPONENT}_LIBRARY}")
-  ENDIF()
-ENDFOREACH()
+    find_path(OCIO_LIBRARY_DIR
+            libOpenColorIO.so
+        HINTS
+            "${OCIO_LOCATION}"
+            "$ENV{OCIO_LOCATION}"
+            "${OCIO_BASE_DIR}"
+        PATH_SUFFIXES
+            lib/
+        DOC
+            "OpenColorIO library path"
+    )
+elseif(WIN32)
+    find_path(OCIO_BASE_DIR
+            include/OpenColorIO/OpenColorABI.h
+        HINTS
+            "${OCIO_LOCATION}"
+            "$ENV{OCIO_LOCATION}"
+    )
+    find_path(OCIO_LIBRARY_DIR
+            OpenColorIO.lib
+        HINTS
+            "${OCIO_LOCATION}"
+            "$ENV{OCIO_LOCATION}"
+            "${OCIO_BASE_DIR}"
+        PATH_SUFFIXES
+            lib/
+        DOC
+            "OpenColorIO library path"
+    )
+endif()
 
-
-# handle the QUIETLY and REQUIRED arguments and set OPENCOLORIO_FOUND to TRUE if
-# all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(OpenColorIO DEFAULT_MSG
-    _opencolorio_LIBRARIES OPENCOLORIO_INCLUDE_DIR)
-
-IF(OPENCOLORIO_FOUND)
-  SET(OPENCOLORIO_LIBRARIES ${_opencolorio_LIBRARIES})
-  SET(OPENCOLORIO_INCLUDE_DIRS ${OPENCOLORIO_INCLUDE_DIR})
-ENDIF(OPENCOLORIO_FOUND)
-
-MARK_AS_ADVANCED(
-  OPENCOLORIO_INCLUDE_DIR
-  OPENCOLORIO_LIBRARY
-  OPENCOLORIO_OPENCOLORIO_LIBRARY
-  OPENCOLORIO_TINYXML_LIBRARY
-  OPENCOLORIO_YAML-CPP_LIBRARY
+find_path(OCIO_INCLUDE_DIR
+        OpenColorIO/OpenColorABI.h
+    HINTS
+        "${OCIO_LOCATION}"
+        "$ENV{OCIO_LOCATION}"
+        "${OCIO_BASE_DIR}"
+    PATH_SUFFIXES
+        include/
+    DOC
+        "OpenColorIO headers path"
 )
 
-UNSET(COMPONENT)
-UNSET(UPPERCOMPONENT)
-UNSET(_opencolorio_FIND_COMPONENTS)
-UNSET(_opencolorio_LIBRARIES)
-UNSET(_opencolorio_SEARCH_DIRS)
+list(APPEND OCIO_INCLUDE_DIRS ${OCIO_INCLUDE_DIR})
+
+find_library(OCIO_LIBRARY
+        OpenColorIO
+    HINTS
+        "${OCIO_LOCATION}"
+        "$ENV{OCIO_LOCATION}"
+        "${OCIO_BASE_DIR}"
+    PATH_SUFFIXES
+        lib/
+    DOC
+        "OCIO's ${OCIO_LIB} library path"
+)
+
+list(APPEND OCIO_LIBRARIES ${OCIO_LIBRARY})
+
+if(OCIO_INCLUDE_DIRS AND EXISTS "${OCIO_INCLUDE_DIR}/OpenColorIO/OpenColorABI.h")
+    file(STRINGS ${OCIO_INCLUDE_DIR}/OpenColorIO/OpenColorABI.h
+        fullVersion
+        REGEX
+        "#define OCIO_VERSION .*$")
+    string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]+" OCIO_VERSION ${fullVersion})
+endif()
+
+# handle the QUIETLY and REQUIRED arguments and set OCIO_FOUND to TRUE if
+# all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+
+find_package_handle_standard_args(OpenColorIO
+    REQUIRED_VARS
+        OCIO_LIBRARIES
+        OCIO_INCLUDE_DIRS
+    VERSION_VAR
+        OCIO_VERSION
+)

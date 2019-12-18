@@ -95,7 +95,8 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::avfilter
   FFMPEG::swscale
   FFMPEG::swresample
-  ${OPENCOLORIO_LIBRARIES}
+  ${OCIO_LIBRARIES}
+  #OpenColorIO
   ${OIIO_LIBRARIES}
 )
 
