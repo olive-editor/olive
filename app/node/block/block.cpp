@@ -184,7 +184,7 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
     return sequence_time;
   }
 
-  return (sequence_time - in() + media_in()) * media_length() / length();
+  return ((sequence_time - in()) * media_length() / length()) + media_in();
 }
 
 rational Block::MediaToSequenceTime(const rational &media_time) const
@@ -194,7 +194,7 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     return media_time;
   }
 
-  return media_time * length() / media_length() - media_in() + in();
+  return (media_time - media_in()) * length() / media_length() + in();
 }
 
 void Block::CopyParameters(const Block *source, Block *dest)
