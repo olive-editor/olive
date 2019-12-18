@@ -6,6 +6,7 @@
 #include <QUndoCommand>
 
 #include "node/block/clip/clip.h"
+#include "node/output/track/track.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/timeslider.h"
 

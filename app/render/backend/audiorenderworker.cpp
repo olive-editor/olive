@@ -54,18 +54,14 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
       // Stretch samples here
       if (b->media_length() != b->length()) {
         QByteArray speed_adjusted_samples;
-        double clip_speed = b->speed();
-        int sample_count = audio_params_.bytes_to_samples(samples_from_this_block.size());
 
-        qDebug() << "Adjusting audio to speed" << clip_speed;
+        double clip_speed = b->speed();
+
+        int sample_count = audio_params_.bytes_to_samples(samples_from_this_block.size());
 
         for (double i=0;i<sample_count;i+=clip_speed) {
           int sample_index = qFloor(i);
           int byte_index = audio_params_.samples_to_bytes(sample_index);
-
-          if (byte_index >= samples_from_this_block.size() || (byte_index + audio_params_.samples_to_bytes(1)) > samples_from_this_block.size()) {
-            qDebug() << "Tried to access" << byte_index << "-" << (byte_index + audio_params_.samples_to_bytes(1)) << "of" << samples_from_this_block.size();
-          }
 
           QByteArray sample_at_this_index = samples_from_this_block.mid(byte_index, audio_params_.samples_to_bytes(1));
           speed_adjusted_samples.append(sample_at_this_index);

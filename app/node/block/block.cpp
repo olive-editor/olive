@@ -97,7 +97,14 @@ void Block::set_length_and_media_out(const rational &length)
     return;
   }
 
-  set_media_out(media_out() + (length - this->length()));
+  rational media_out_diff = length - this->length();
+
+  // Try to maintain the same speed (which is determined by the media in to out points)
+  if (media_length() != this->length()) {
+    media_out_diff  = media_out_diff / this->length() * media_length();
+  }
+
+  set_media_out(media_out() + media_out_diff);
 
   set_length(length);
 }
@@ -110,8 +117,15 @@ void Block::set_length_and_media_in(const rational &length)
     return;
   }
 
+  rational media_in_diff = this->length() - length;
+
+  // Try to maintain the same speed (which is determined by the media in to out points)
+  if (media_length() != this->length()) {
+    media_in_diff  = media_in_diff / this->length() * media_length();
+  }
+
   // Calculate media_in adjustment
-  set_media_in(media_in() + (this->length() - length));
+  set_media_in(media_in() + media_in_diff);
 
   // Set the length without setting media out
   set_length(length);
