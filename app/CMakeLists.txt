@@ -66,8 +66,7 @@ endif()
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
 if(MSVC)
-  # Enabling this threw warnings from FFmpeg headers that broke compilation. See if this is fixable.
-  #target_compile_options(${OLIVE_TARGET} PRIVATE /W4 /WX)
+  target_compile_options(${OLIVE_TARGET} PRIVATE /WX /O2 /experimental:external /external:anglebrackets /external:W0)
 else()
   target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion)
 endif()
@@ -96,7 +95,6 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swscale
   FFMPEG::swresample
   ${OCIO_LIBRARIES}
-  #OpenColorIO
   ${OIIO_LIBRARIES}
 )
 
