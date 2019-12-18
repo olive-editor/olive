@@ -96,6 +96,9 @@ int PixelService::BytesPerChannel(const olive::PixelFormat &format)
   }
 
   qFatal("Invalid pixel format requested");
+
+  // qFatal will abort so we won't get here, but this suppresses compiler warnings
+  return 0;
 }
 
 FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelFormat &dest_format)
