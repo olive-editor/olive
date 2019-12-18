@@ -78,4 +78,14 @@ private:
   QList<NodeEdgePtr> edges_;
 };
 
+class NodeRemoveWithExclusiveDeps : public QUndoCommand {
+public:
+  NodeRemoveWithExclusiveDeps(NodeGraph* graph,
+                              Node* node,
+                              QUndoCommand* parent = nullptr);
+
+private:
+  NodeRemoveCommand* remove_command_;
+};
+
 #endif // NODEVIEWUNDO_H

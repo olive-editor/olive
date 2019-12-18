@@ -445,12 +445,7 @@ void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool re
     }
 
     if (remove_from_graph) {
-      QList<Node*> block_and_its_exclusive_deps;
-
-      block_and_its_exclusive_deps.append(b);
-      block_and_its_exclusive_deps.append(b->GetExclusiveDependencies());
-
-      new NodeRemoveCommand(static_cast<NodeGraph*>(b->parent()), block_and_its_exclusive_deps, command);
+      new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
     }
   }
 }

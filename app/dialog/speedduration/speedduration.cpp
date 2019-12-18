@@ -172,10 +172,7 @@ void SpeedDurationDialog::accept()
                 new TrackRippleRemoveBlockCommand(TrackOutput::TrackFromBlock(next_block), next_block, command);
 
                 // Delete node and its exclusive deps
-                QList<Node*> gap_and_its_deps;
-                gap_and_its_deps.append(next_block);
-                gap_and_its_deps.append(next_block->GetExclusiveDependencies());
-                new NodeRemoveCommand(static_cast<NodeGraph*>(next_block->parent()), gap_and_its_deps, command);
+                new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(next_block->parent()), next_block, command);
               } else {
                 // Otherwise we can just resize it
                 new BlockResizeCommand(next_block, next_block->out() - new_clip_length, command);

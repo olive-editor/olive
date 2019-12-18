@@ -72,7 +72,7 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
         // Assumed the Block was a Gap and it was reduced to zero length, remove it here
         new TrackRippleRemoveBlockCommand(parent()->GetTrackFromReference(ghost->Track()), b, command);
 
-        new NodeRemoveCommand(static_cast<NodeGraph*>(b->parent()), {b}, command);
+        new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
       }
     }
   }

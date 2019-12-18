@@ -125,3 +125,12 @@ void NodeRemoveCommand::undo()
 
   edges_.clear();
 }
+
+NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node *node, QUndoCommand *parent)
+{
+  QList<Node*> node_and_its_deps;
+  node_and_its_deps.append(node);
+  node_and_its_deps.append(node->GetExclusiveDependencies());
+
+  remove_command_ = new NodeRemoveCommand(graph, node_and_its_deps, this);
+}
