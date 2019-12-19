@@ -167,7 +167,10 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   video_renderer_->SetViewerNode(viewer_node_);
+  video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
+
   audio_renderer_->SetViewerNode(viewer_node_);
+  audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));
 }
 
 void ViewerWidget::DisconnectViewerNode()
@@ -193,6 +196,11 @@ void ViewerWidget::SetOverrideSize(int width, int height)
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
   gl_widget_->SetMatrix(mat);
+}
+
+VideoRenderBackend *ViewerWidget::video_renderer() const
+{
+  return video_renderer_;
 }
 
 void ViewerWidget::SetTexture(OpenGLTexturePtr tex)

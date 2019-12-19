@@ -75,6 +75,8 @@ public:
 
   void SetMatrix(const QMatrix4x4& mat);
 
+  VideoRenderBackend* video_renderer() const;
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
