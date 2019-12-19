@@ -33,6 +33,9 @@ ViewerOutput::ViewerOutput()
   length_input_ = new NodeInput("length_in");
   length_input_->set_data_type(NodeInput::kRational);
   AddInput(length_input_);
+
+  // Create UUID for this node
+  uuid_ = QUuid::createUuid();
 }
 
 Node *ViewerOutput::copy() const
@@ -123,6 +126,11 @@ rational ViewerOutput::Length()
   }
 
   return 0;
+}
+
+const QUuid &ViewerOutput::uuid() const
+{
+  return uuid_;
 }
 
 void ViewerOutput::DependentEdgeChanged(NodeInput *from)

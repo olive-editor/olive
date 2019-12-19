@@ -21,6 +21,8 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#include <QUuid>
+
 #include "node/node.h"
 #include "render/videoparams.h"
 #include "render/audioparams.h"
@@ -57,6 +59,8 @@ public:
 
   rational Length();
 
+  const QUuid& uuid() const;
+
 protected:
   virtual void DependentEdgeChanged(NodeInput* from) override;
 
@@ -76,13 +80,13 @@ signals:
   void SizeChanged(int width, int height);
 
 private:
+  QUuid uuid_;
+
   NodeInput* texture_input_;
 
   NodeInput* samples_input_;
 
   NodeInput* length_input_;
-
-  rational timebase_;
 
   VideoParams video_params_;
 
