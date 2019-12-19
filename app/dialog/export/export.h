@@ -22,6 +22,8 @@ private:
   void LoadPresets();
   void SetDefaultFilename();
 
+  QMatrix4x4 GenerateMatrix(ExportVideoTab::ScalingMethod method, int source_width, int source_height, int dest_width, int height);
+
   ViewerOutput* viewer_node_;
 
   QList<ExportFormat> formats_;
@@ -75,6 +77,8 @@ private slots:
   void ResolutionChanged();
 
   void VideoCodecChanged();
+
+  void UpdateViewerDimensions();
 
 };
 

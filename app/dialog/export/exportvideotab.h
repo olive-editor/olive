@@ -15,6 +15,12 @@ class ExportVideoTab : public QWidget
 public:
   ExportVideoTab(ColorManager* color_manager, QWidget* parent = nullptr);
 
+  enum ScalingMethod {
+    kFit,
+    kStretch,
+    kCrop
+  };
+
   QComboBox* codec_combobox() const;
 
   IntegerSlider* width_slider() const;

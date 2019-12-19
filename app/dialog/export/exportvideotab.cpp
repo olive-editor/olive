@@ -114,9 +114,9 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
   scaling_method_combobox_ = new QComboBox();
   scaling_method_combobox_->setEnabled(false);
-  scaling_method_combobox_->addItem(tr("Fit"));
-  scaling_method_combobox_->addItem(tr("Stretch"));
-  scaling_method_combobox_->addItem(tr("Crop"));
+  scaling_method_combobox_->addItem(tr("Fit"), kFit);
+  scaling_method_combobox_->addItem(tr("Stretch"), kStretch);
+  scaling_method_combobox_->addItem(tr("Crop"), kCrop);
   layout->addWidget(scaling_method_combobox_, row, 1);
 
   row++;

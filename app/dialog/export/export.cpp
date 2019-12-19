@@ -145,6 +145,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   connect(video_tab_->width_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
   connect(video_tab_->height_slider(), SIGNAL(ValueChanged(int64_t)), this, SLOT(ResolutionChanged()));
+  connect(video_tab_->scaling_method_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(UpdateViewerDimensions()));
   connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
   connect(video_tab_->codec_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(VideoCodecChanged()));
   connect(video_tab_, SIGNAL(DisplayChanged(const QString&)), preview_viewer_, SLOT(SetOCIODisplay(const QString&)));
@@ -155,6 +156,11 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preview_viewer_->ConnectViewerNode(viewer_node_);
   preview_viewer_->SetColorMenuEnabled(false);
   preview_viewer_->SetOCIOParameters(video_tab_->CurrentOCIODisplay(), video_tab_->CurrentOCIOView(), video_tab_->CurrentOCIOLook());
+
+  // Update renderer
+  // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
+  //        the renderer save the map as some sort of file that this can load.
+  viewer_node_->InvalidateCache(0, viewer_node_->Length(), viewer_node_->texture_input());
 }
 
 void ExportDialog::BrowseFilename()
@@ -219,6 +225,8 @@ void ExportDialog::ResolutionChanged()
     // Enable scaling method combobox only if width/height are not equal to sequence size
     video_tab_->scaling_method_combobox()->setEnabled(!qFuzzyCompare(current_ratio, video_aspect_ratio_));
   }
+
+  UpdateViewerDimensions();
 }
 
 void ExportDialog::VideoCodecChanged()
@@ -311,4 +319,39 @@ void ExportDialog::SetDefaultFilename()
   QString doc_location = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
   QString file_location = QDir(doc_location).filePath("export");
   filename_edit_->setText(file_location);
+}
+
+QMatrix4x4 ExportDialog::GenerateMatrix(ExportVideoTab::ScalingMethod method, int source_width, int source_height, int dest_width, int dest_height)
+{
+  QMatrix4x4 preview_matrix;
+
+  if (method == ExportVideoTab::kStretch) {
+    return preview_matrix;
+  }
+
+  float export_ar = static_cast<float>(dest_width) / static_cast<float>(dest_height);
+  float source_ar = static_cast<float>(source_width) / static_cast<float>(source_height);
+
+  if (qFuzzyCompare(export_ar, source_ar)) {
+    return preview_matrix;
+  }
+
+  if ((export_ar > source_ar) == (method == ExportVideoTab::kFit)) {
+    preview_matrix.scale(source_ar / export_ar, 1.0F);
+  } else {
+    preview_matrix.scale(1.0F, export_ar / source_ar);
+  }
+
+  return preview_matrix;
+}
+
+void ExportDialog::UpdateViewerDimensions()
+{
+  preview_viewer_->SetOverrideSize(video_tab_->width_slider()->GetValue(), video_tab_->height_slider()->GetValue());
+
+  preview_viewer_->SetMatrix(GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+                                            viewer_node_->video_params().width(),
+                                            viewer_node_->video_params().height(),
+                                            video_tab_->width_slider()->GetValue(),
+                                            video_tab_->height_slider()->GetValue()));
 }
