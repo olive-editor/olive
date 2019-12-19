@@ -31,10 +31,10 @@
 #include "videorenderworker.h"
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
-  RenderBackend(parent)
+  RenderBackend(parent),
+  export_mode_(false),
+  last_download_thread_(0)
 {
-  // FIXME: Cache name should actually be the name of the sequence
-  SetCacheName("Test");
 }
 
 void VideoRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
@@ -122,9 +122,6 @@ void VideoRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
   connect(node, SIGNAL(VideoGraphChanged()), this, SLOT(QueueRecompile()));
-
-  // FIXME: Hardcoded format, mode, and divider
-  SetParameters(VideoRenderingParams(node->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
 }
 
 void VideoRenderBackend::DisconnectViewer(ViewerOutput *node)
@@ -152,6 +149,11 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 
   // Regenerate the cache ID
   RegenerateCacheID();
+}
+
+void VideoRenderBackend::SetExportMode(bool enabled)
+{
+  export_mode_ = enabled;
 }
 
 bool VideoRenderBackend::GenerateCacheIDInternal(QCryptographicHash& hash)
@@ -233,4 +235,85 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 NodeInput *VideoRenderBackend::GetDependentInput()
 {
   return viewer_node()->texture_input();
+}
+
+bool VideoRenderBackend::CanRender()
+{
+  return params_.is_valid();
+}
+
+void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table)
+{
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
+  QVariant texture = table.Get(NodeParam::kTexture);
+
+  if (!export_mode_) {
+    if (texture.isNull()) {
+      // No frame received, we set hash to an empty
+      frame_cache()->RemoveHash(path.in(), hash);
+    } else {
+      // Received a texture, let's download it
+      QString cache_fn = frame_cache()->CachePathName(hash);
+
+      // Find an available worker to download this texture
+      QMetaObject::invokeMethod(processors_.at(last_download_thread_%processors_.size()),
+                                "Download",
+                                Q_ARG(NodeDependency, path),
+                                Q_ARG(QByteArray, hash),
+                                Q_ARG(QVariant, texture),
+                                Q_ARG(QString, cache_fn));
+
+      last_download_thread_++;
+    }
+  }
+
+  // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
+  if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
+    EmitCachedFrameReady(path.in(), texture);
+
+    if (export_mode_) {
+      QList<rational> times_with_this_hash = frame_cache()->TimesWithHash(hash);
+      foreach (const rational& t, times_with_this_hash) {
+        EmitCachedFrameReady(t, texture);
+      }
+    }
+  }
+
+  // Queue up a new frame for this worker
+  CacheNext();
+}
+
+void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
+{
+  frame_cache()->SetHash(dep.in(), hash);
+
+  // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
+  QList<rational> times_with_this_hash = frame_cache()->TimesWithHash(hash);
+  foreach (const rational& t, times_with_this_hash) {
+    emit CachedTimeReady(t);
+  }
+}
+
+void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
+{
+  frame_cache()->SetHash(dep.in(), hash);
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
+  // Queue up a new frame for this worker
+  CacheNext();
+}
+
+void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
+{
+  ThreadCompletedDownload(dep, hash);
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
+  // Queue up a new frame for this worker
+  CacheNext();
+}
+
+bool VideoRenderBackend::TimeIsQueued(const TimeRange &time)
+{
+  return cache_queue_.contains(time);
 }

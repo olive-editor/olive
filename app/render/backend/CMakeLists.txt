@@ -21,6 +21,9 @@ add_subdirectory(vulkan)
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
 
+  render/backend/exporter.h
+  render/backend/exporter.cpp
+
   render/backend/renderbackend.h
   render/backend/renderbackend.cpp
   render/backend/renderworker.h

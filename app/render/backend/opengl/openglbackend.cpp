@@ -6,8 +6,7 @@
 #include "functions.h"
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
-  VideoRenderBackend(parent),
-  last_download_thread_(0)
+  VideoRenderBackend(parent)
 {
 }
 
@@ -135,76 +134,15 @@ void OpenGLBackend::DecompileInternal()
   shader_cache_.Clear();
 }
 
-bool OpenGLBackend::TimeIsQueued(const TimeRange &time)
+void OpenGLBackend::EmitCachedFrameReady(const rational &time, const QVariant &value)
 {
-  return cache_queue_.contains(time);
-}
+  // FIXME: This texture is part of the texture cache and therefore volatile, we should probably copy it here instead
+  OpenGLTextureCache::ReferencePtr ref = value.value<OpenGLTextureCache::ReferencePtr>();
+  OpenGLTexturePtr tex = nullptr;
 
-void OpenGLBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table)
-{
-  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
-
-  OpenGLTextureCache::ReferencePtr ref = table.Get(NodeParam::kTexture).value<OpenGLTextureCache::ReferencePtr>();
-
-  if (!ref) {
-    // No frame received, we set hash to an empty
-    frame_cache()->RemoveHash(path.in(), hash);
-  } else {
-    // Received a texture, let's download it
-    QString cache_fn = frame_cache()->CachePathName(hash);
-
-    // Find an available worker to download this texture
-    QMetaObject::invokeMethod(processors_.at(last_download_thread_%processors_.size()),
-                              "Download",
-                              Q_ARG(NodeDependency, path),
-                              Q_ARG(QByteArray, hash),
-                              Q_ARG(QVariant, QVariant::fromValue(ref)),
-                              Q_ARG(QString, cache_fn));
-
-    last_download_thread_++;
+  if (ref) {
+    tex = ref->texture();
   }
 
-  // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
-  if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
-    // FIXME: This texture is part of the texture cache and therefore volatile, we should probably copy it here instead
-    OpenGLTexturePtr tex = nullptr;
-
-    if (ref) {
-      tex = ref->texture();
-    }
-
-    emit CachedFrameReady(path.in(), QVariant::fromValue(tex));
-  }
-
-  // Queue up a new frame for this worker
-  CacheNext();
-}
-
-void OpenGLBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
-{
-  frame_cache()->SetHash(dep.in(), hash);
-
-  // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
-  QList<rational> times_with_this_hash = frame_cache()->TimesWithHash(hash);
-  foreach (const rational& t, times_with_this_hash) {
-    emit CachedTimeReady(t);
-  }
-}
-
-void OpenGLBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
-{
-  frame_cache()->SetHash(dep.in(), hash);
-  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
-
-  // Queue up a new frame for this worker
-  CacheNext();
-}
-
-void OpenGLBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
-{
-  ThreadCompletedDownload(dep, hash);
-  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
-
-  // Queue up a new frame for this worker
-  CacheNext();
+  emit CachedFrameReady(time, QVariant::fromValue(tex));
 }

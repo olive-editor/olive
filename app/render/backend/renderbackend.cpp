@@ -90,15 +90,9 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 
   if (viewer_node_ != nullptr) {
     ConnectViewer(viewer_node_);
+
+    RegenerateCacheID();
   }
-}
-
-void RenderBackend::SetCacheName(const QString &s)
-{
-  cache_name_ = s;
-  cache_time_ = QDateTime::currentMSecsSinceEpoch();
-
-  RegenerateCacheID();
 }
 
 bool RenderBackend::IsInitiated()
@@ -170,20 +164,23 @@ void RenderBackend::RegenerateCacheID()
 {
   QCryptographicHash hash(QCryptographicHash::Sha1);
 
-  if (cache_name_.isEmpty()
-      || !cache_time_
+  if (!viewer_node_
       || !GenerateCacheIDInternal(hash)) {
     cache_id_.clear();
     CacheIDChangedEvent(QString());
     return;
   }
 
-  hash.addData(cache_name_.toUtf8());
-  hash.addData(QString::number(cache_time_).toUtf8());
+  hash.addData(viewer_node_->uuid().toByteArray());
 
   QByteArray bytes = hash.result();
   cache_id_ = bytes.toHex();
   CacheIDChangedEvent(cache_id_);
+}
+
+bool RenderBackend::CanRender()
+{
+  return true;
 }
 
 rational RenderBackend::GetSequenceLength()
@@ -214,7 +211,8 @@ void RenderBackend::CacheNext()
 {
   if (!Init()
       || cache_queue_.isEmpty()
-      || !ViewerIsConnected()) {
+      || !ViewerIsConnected()
+      || !CanRender()) {
     return;
   }
 

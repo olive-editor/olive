@@ -28,22 +28,14 @@ protected:
 
   virtual void DecompileInternal() override;
 
-private:
-  bool TimeIsQueued(const TimeRange &time);
+  virtual void EmitCachedFrameReady(const rational& time, const QVariant& value) override;
 
+private:
   OpenGLTexturePtr master_texture_;
 
   OpenGLShaderCache shader_cache_;
 
   OpenGLTextureCache texture_cache_;
-
-  int last_download_thread_;
-
-private slots:
-  void ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table);
-  void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
-  void ThreadSkippedFrame(NodeDependency dep, QByteArray hash);
-  void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);
 
 };
 

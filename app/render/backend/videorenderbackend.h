@@ -53,6 +53,8 @@ public:
    */
   void SetParameters(const VideoRenderingParams &params);
 
+  void SetExportMode(bool enabled);
+
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
@@ -80,6 +82,8 @@ protected:
 
   virtual NodeInput* GetDependentInput() override;
 
+  virtual bool CanRender() override;
+
   VideoRenderFrameCache* frame_cache();
 
   const VideoRenderingParams& params() const;
@@ -93,11 +97,17 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
+  virtual void EmitCachedFrameReady(const rational& time, const QVariant& value) = 0;
+
+  bool export_mode_;
+
 signals:
   void CachedFrameReady(const rational& time, QVariant value);
   void CachedTimeReady(const rational& time);
 
 private:
+  bool TimeIsQueued(const TimeRange &time);
+
   VideoRenderingParams params_;
 
   QByteArray cache_frame_load_buffer_;
@@ -106,8 +116,13 @@ private:
 
   rational last_time_requested_;
 
-private slots:
+  int last_download_thread_;
 
+private slots:
+  void ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table);
+  void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
+  void ThreadSkippedFrame(NodeDependency dep, QByteArray hash);
+  void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);
 
 };
 

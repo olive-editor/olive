@@ -25,9 +25,9 @@ public:
 
   void SetViewerNode(ViewerOutput* viewer_node);
 
-  void SetCacheName(const QString& s);
-
   bool IsInitiated();
+
+  ViewerOutput* viewer_node() const;
 
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range);
@@ -46,6 +46,8 @@ protected:
   virtual bool CompileInternal() = 0;
 
   virtual void DecompileInternal() = 0;
+
+  virtual bool CanRender();
 
   rational GetSequenceLength();
 
@@ -75,8 +77,6 @@ protected:
   virtual NodeInput* GetDependentInput() = 0;
 
   virtual void ConnectWorkerToThis(RenderWorker* worker) = 0;
-
-  ViewerOutput* viewer_node() const;
 
   bool ViewerIsConnected() const;
 
@@ -121,8 +121,6 @@ private:
    */
   QString error_;
 
-  QString cache_name_;
-  qint64 cache_time_;
   QString cache_id_;
 
   QList<Node*> source_node_list_;

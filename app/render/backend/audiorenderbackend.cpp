@@ -55,9 +55,6 @@ void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
   connect(node, SIGNAL(AudioGraphChanged()), this, SLOT(QueueRecompile()));
-
-  // FIXME: Hardcoded format, though I doubt this will change any time soon (maybe we'll shift to DBL at some point)
-  SetParameters(AudioRenderingParams(node->audio_params(), SAMPLE_FMT_FLT));
 }
 
 void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
@@ -116,4 +113,9 @@ QString AudioRenderBackend::CachePathName()
   this_cache_dir.mkpath(".");
 
   return this_cache_dir.filePath(QStringLiteral("pcm"));
+}
+
+bool AudioRenderBackend::CanRender()
+{
+  return params_.is_valid();
 }

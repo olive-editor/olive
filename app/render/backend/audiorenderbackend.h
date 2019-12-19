@@ -39,6 +39,8 @@ protected:
 
   QString CachePathName();
 
+  virtual bool CanRender() override;
+
 private:
   void ValidateRanges();
 
