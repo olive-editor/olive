@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QLineEdit>
+#include <QProgressBar>
 
 #include "exportaudiotab.h"
 #include "exportcodec.h"
@@ -16,6 +17,9 @@ class ExportDialog : public QDialog
   Q_OBJECT
 public:
   ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr);
+
+public slots:
+  virtual void accept() override;
 
 private:
   void SetUpFormats();
@@ -39,6 +43,10 @@ private:
   ExportAudioTab* audio_tab_;
 
   double video_aspect_ratio_;
+
+  ColorManager* color_manager_;
+
+  QProgressBar* progress_bar_;
 
   enum Format {
     kFormatDNxHD,
@@ -79,6 +87,8 @@ private slots:
   void VideoCodecChanged();
 
   void UpdateViewerDimensions();
+
+  void ExporterIsDone();
 
 };
 

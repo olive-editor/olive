@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QProgressBar>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
@@ -12,6 +12,7 @@
 
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
+#include "render/backend/opengl/openglexporter.h"
 #include "ui/icons/icons.h"
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
@@ -83,7 +84,8 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   QTabWidget* preferences_tabs = new QTabWidget();
   QScrollArea* video_area = new QScrollArea();
-  video_tab_ = new ExportVideoTab(static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager());
+  color_manager_ = static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager();
+  video_tab_ = new ExportVideoTab(color_manager_);
   video_area->setWidgetResizable(true);
   video_area->setWidget(video_tab_);
   preferences_tabs->addTab(video_area, tr("Video"));
@@ -96,10 +98,10 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
-  QProgressBar* progress_bar = new QProgressBar();
-  progress_bar->setEnabled(false);
-  progress_bar->setValue(0);
-  preferences_layout->addWidget(progress_bar, row, 0, 1, 4);
+  progress_bar_ = new QProgressBar();
+  progress_bar_->setEnabled(false);
+  progress_bar_->setValue(0);
+  preferences_layout->addWidget(progress_bar_, row, 0, 1, 4);
 
   row++;
 
@@ -160,7 +162,38 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   // Update renderer
   // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
   //        the renderer save the map as some sort of file that this can load.
-  viewer_node_->InvalidateCache(0, viewer_node_->Length(), viewer_node_->texture_input());
+  preview_viewer_->video_renderer()->InvalidateCache(0, viewer_node_->Length());
+}
+
+void ExportDialog::accept()
+{
+  int source_width = viewer_node_->video_params().width();
+  int source_height = viewer_node_->video_params().height();
+  int dest_width = video_tab_->width_slider()->GetValue();
+  int dest_height = video_tab_->height_slider()->GetValue();
+
+  QMatrix4x4 transform = GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+                                        source_width,
+                                        source_height,
+                                        dest_width,
+                                        dest_height);
+
+  // FIXME: Hardcoded pixel format
+  //VideoRenderingParams video_render_params(dest_width, dest_height, 0, olive::PIX_FMT_RGBA32F, olive::kOnline);
+  VideoRenderingParams video_render_params(dest_width, dest_height, 0, olive::PIX_FMT_RGBA16F, olive::kOffline, 2);
+
+  ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
+                                                             OCIO::ROLE_SCENE_LINEAR,
+                                                             video_tab_->CurrentOCIODisplay(),
+                                                             video_tab_->CurrentOCIOView(),
+                                                             video_tab_->CurrentOCIOLook());
+
+  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, video_render_params, transform, color_processor);
+
+  connect(exporter, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
+  connect(exporter, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
+
+  QMetaObject::invokeMethod(exporter, "StartExporting", Qt::QueuedConnection);
 }
 
 void ExportDialog::BrowseFilename()
@@ -354,4 +387,21 @@ void ExportDialog::UpdateViewerDimensions()
                                             viewer_node_->video_params().height(),
                                             video_tab_->width_slider()->GetValue(),
                                             video_tab_->height_slider()->GetValue()));
+}
+
+void ExportDialog::ExporterIsDone()
+{
+  Exporter* exporter = static_cast<Exporter*>(sender());
+
+  if (exporter->GetExportStatus()) {
+    QMessageBox::information(this,
+                             tr("Export Status"),
+                             tr("Export completed successfully!"),
+                             QMessageBox::Ok);
+  } else {
+    QMessageBox::critical(this,
+                          tr("Export Status"),
+                          tr("Export failed: %1").arg(exporter->GetExportError()),
+                          QMessageBox::Ok);
+  }
 }
