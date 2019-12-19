@@ -94,6 +94,13 @@ public:
    */
   void DisconnectColorManager();
 
+  /**
+   * @brief Set the transformation matrix to draw with
+   *
+   * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
+   */
+  void SetMatrix(const QMatrix4x4& mat);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -194,6 +201,11 @@ private:
    * @brief Color management service
    */
   ColorProcessorPtr color_service_;
+
+  /**
+   * @brief Drawing matrix (defaults to identity)
+   */
+  QMatrix4x4 matrix_;
 
   bool color_menu_enabled_;
 

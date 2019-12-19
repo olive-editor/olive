@@ -185,6 +185,16 @@ void ViewerWidget::SetColorMenuEnabled(bool enabled)
   gl_widget_->SetColorMenuEnabled(enabled);
 }
 
+void ViewerWidget::SetOverrideSize(int width, int height)
+{
+  SizeChangedSlot(width, height);
+}
+
+void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
+{
+  gl_widget_->SetMatrix(mat);
+}
+
 void ViewerWidget::SetTexture(OpenGLTexturePtr tex)
 {
   if (tex == nullptr) {

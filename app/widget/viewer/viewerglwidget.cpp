@@ -69,6 +69,12 @@ void ViewerGLWidget::DisconnectColorManager()
   ConnectColorManager(nullptr);
 }
 
+void ViewerGLWidget::SetMatrix(const QMatrix4x4 &mat)
+{
+  matrix_ = mat;
+  update();
+}
+
 void ViewerGLWidget::SetOCIODisplay(const QString &display)
 {
   ocio_display_ = display;
@@ -135,7 +141,7 @@ void ViewerGLWidget::paintGL()
     f->glBindTexture(GL_TEXTURE_2D, texture_);
 
     // Blit using the pipeline retrieved in initializeGL()
-    olive::gl::OCIOBlit(pipeline_, ocio_lut_, true);
+    olive::gl::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
 
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);

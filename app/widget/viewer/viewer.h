@@ -71,6 +71,10 @@ public:
 
   void SetColorMenuEnabled(bool enabled);
 
+  void SetOverrideSize(int width, int height);
+
+  void SetMatrix(const QMatrix4x4& mat);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
