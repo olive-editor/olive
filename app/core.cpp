@@ -232,8 +232,15 @@ void Core::DialogExportShow()
   ViewerPanel* latest_viewer = olive::panel_manager->MostRecentlyFocused<ViewerPanel>();
 
   if (latest_viewer && latest_viewer->GetConnectedViewer()) {
-    ExportDialog ed(latest_viewer->GetConnectedViewer(), main_window_);
-    ed.exec();
+    if (latest_viewer->GetConnectedViewer()->Length() == 0) {
+      QMessageBox::critical(main_window_,
+                            tr("Error"),
+                            tr("This Sequence is empty. There is nothing to export."),
+                            QMessageBox::Ok);
+    } else {
+      ExportDialog ed(latest_viewer->GetConnectedViewer(), main_window_);
+      ed.exec();
+    }
   }
 }
 
