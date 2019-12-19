@@ -179,8 +179,7 @@ void ExportDialog::accept()
                                         dest_height);
 
   // FIXME: Hardcoded pixel format
-  //VideoRenderingParams video_render_params(dest_width, dest_height, 0, olive::PIX_FMT_RGBA32F, olive::kOnline);
-  VideoRenderingParams video_render_params(dest_width, dest_height, 0, olive::PIX_FMT_RGBA16F, olive::kOffline, 2);
+  VideoRenderingParams video_render_params(dest_width, dest_height, rational(), olive::PIX_FMT_RGBA32F, olive::kOnline);
 
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
                                                              OCIO::ROLE_SCENE_LINEAR,
