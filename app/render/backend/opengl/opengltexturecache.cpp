@@ -26,8 +26,6 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, co
     }
   }
 
-  lock_.unlock();
-
   // If we didn't find a texture, we'll need to create one
   if (!texture) {
     texture = std::make_shared<OpenGLTexture>();
@@ -38,6 +36,9 @@ OpenGLTextureCache::ReferencePtr OpenGLTextureCache::Get(QOpenGLContext* ctx, co
 
   ReferencePtr ref = std::make_shared<Reference>(this, texture);
   existing_references_.append(ref.get());
+
+  lock_.unlock();
+
   return ref;
 }
 
