@@ -118,6 +118,9 @@ void olive::gl::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) 
   m_vbo.destroy();
   m_vao.release();
   m_vao.destroy();
+
+  // Make sure drawing is actually complete before this function returns
+  func->glFinish();
 }
 
 void olive::gl::OCIOBlit(OpenGLShaderPtr pipeline,

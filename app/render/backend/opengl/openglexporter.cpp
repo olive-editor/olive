@@ -45,12 +45,12 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
   frame->set_format(params_.format());
   frame->allocate();
 
-  QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-  f->glViewport(0, 0, texture_->width(), texture_->height());
-
   // Blit for transform if the width/height are different
   OpenGLTexturePtr input_tex = texture.value<OpenGLTexturePtr>();
   if (input_tex) {
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    f->glViewport(0, 0, texture_->width(), texture_->height());
+
     buffer_.Attach(texture_);
     buffer_.Bind();
     input_tex->Bind();
@@ -60,24 +60,24 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
     input_tex->Release();
     buffer_.Release();
     buffer_.Detach();
+
+    // Perform OpenGL read
+    buffer_.Attach(texture_);
+    buffer_.Bind();
+
+    PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params_.format());
+
+    f->glReadPixels(0,
+                    0,
+                    texture_->width(),
+                    texture_->height(),
+                    format_info.pixel_format,
+                    format_info.gl_pixel_type,
+                    frame->data());
+
+    buffer_.Release();
+    buffer_.Detach();
   }
-
-  // Perform OpenGL read
-  buffer_.Attach(texture_);
-  buffer_.Bind();
-
-  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params_.format());
-
-  f->glReadPixels(0,
-                  0,
-                  texture_->width(),
-                  texture_->height(),
-                  format_info.pixel_format,
-                  format_info.gl_pixel_type,
-                  frame->data());
-
-  buffer_.Release();
-  buffer_.Detach();
 
   return frame;
 }
