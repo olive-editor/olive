@@ -31,11 +31,16 @@ protected:
   virtual void EmitCachedFrameReady(const rational& time, const QVariant& value) override;
 
 private:
-  OpenGLTexturePtr master_texture_;
+  OpenGLTexturePtr CopyTexture(OpenGLTexturePtr input);
 
   OpenGLShaderCache shader_cache_;
 
   OpenGLTextureCache texture_cache_;
+
+  OpenGLTexturePtr master_texture_;
+
+  OpenGLFramebuffer copy_buffer_;
+  OpenGLShaderPtr copy_pipeline_;
 
 };
 

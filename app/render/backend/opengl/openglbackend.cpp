@@ -6,7 +6,8 @@
 #include "functions.h"
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
-  VideoRenderBackend(parent)
+  VideoRenderBackend(parent),
+  master_texture_(nullptr)
 {
 }
 
@@ -31,7 +32,8 @@ bool OpenGLBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, &texture_cache_, frame_cache());
+    //OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, &texture_cache_, frame_cache());
+    OpenGLWorker* processor = new OpenGLWorker(share_ctx, &shader_cache_, new OpenGLTextureCache(), frame_cache());
     processor->SetParameters(params());
     processors_.append(processor);
   }
@@ -40,11 +42,17 @@ bool OpenGLBackend::InitInternal()
   master_texture_ = std::make_shared<OpenGLTexture>();
   master_texture_->Create(share_ctx, params().effective_width(), params().effective_height(), params().format());
 
+  // Create copy buffer/pipeline
+  copy_buffer_.Create(share_ctx);
+  copy_pipeline_ = OpenGLShader::CreateDefault();
+
   return true;
 }
 
 void OpenGLBackend::CloseInternal()
 {
+  copy_buffer_.Destroy();
+  copy_pipeline_ = nullptr;
   master_texture_ = nullptr;
 }
 
@@ -136,13 +144,36 @@ void OpenGLBackend::DecompileInternal()
 
 void OpenGLBackend::EmitCachedFrameReady(const rational &time, const QVariant &value)
 {
-  // FIXME: This texture is part of the texture cache and therefore volatile, we should probably copy it here instead
   OpenGLTextureCache::ReferencePtr ref = value.value<OpenGLTextureCache::ReferencePtr>();
-  OpenGLTexturePtr tex = nullptr;
+  OpenGLTexturePtr tex;
 
-  if (ref) {
-    tex = ref->texture();
+  if (ref && ref->texture()) {
+    tex = CopyTexture(ref->texture());
+  } else {
+    tex = nullptr;
   }
 
   emit CachedFrameReady(time, QVariant::fromValue(tex));
+}
+
+OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)
+{
+  QOpenGLContext* ctx = QOpenGLContext::currentContext();
+
+  OpenGLTexturePtr copy = std::make_shared<OpenGLTexture>();
+  copy->Create(ctx, input->width(), input->height(), input->format());
+
+  ctx->functions()->glViewport(0, 0, input->width(), input->height());
+
+  copy_buffer_.Attach(copy);
+  copy_buffer_.Bind();
+  input->Bind();
+
+  olive::gl::Blit(copy_pipeline_);
+
+  input->Release();
+  copy_buffer_.Release();
+  copy_buffer_.Detach();
+
+  return copy;
 }
