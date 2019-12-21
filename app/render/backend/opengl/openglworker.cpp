@@ -121,8 +121,6 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     buffer_.Detach();
 
     footage_tex_ref = associated_tex_ref;
-
-    functions_->glFinish();
   }
 
   table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex_ref));
@@ -337,7 +335,6 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
 
   // Make sure all OpenGL functions are complete by this point before unlocking the shader (or another thread may
   // change its parameters before our drawing in this thread is done)
-  functions_->glFinish();
   shader->Unlock();
 
   // Release any textures we bound before
@@ -362,7 +359,7 @@ void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   buffer_.Attach(texture->texture());
-  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, buffer_.buffer());
+  buffer_.Bind();
 
   f->glReadPixels(0,
                   0,
@@ -372,7 +369,7 @@ void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
                   format_info.gl_pixel_type,
                   buffer.data());
 
-  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  buffer_.Release();
   buffer_.Detach();
 }
 

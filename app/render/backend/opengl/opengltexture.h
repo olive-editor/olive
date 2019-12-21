@@ -59,8 +59,6 @@ public:
 
   void Upload(const void *data);
 
-  uchar *Download() const;
-
 public slots:
   void Destroy();
 

@@ -156,39 +156,6 @@ void OpenGLTexture::Upload(const void *data)
   Release();
 }
 
-uchar *OpenGLTexture::Download() const
-{
-  if (!IsCreated()) {
-    qWarning() << "OpenGLTexture::Download() called while it wasn't created";
-    return nullptr;
-  }
-
-  QOpenGLContext* context = QOpenGLContext::currentContext();
-  QOpenGLFunctions* f = context->functions();
-
-  GLuint read_fbo;
-
-  f->glGenFramebuffers(1, &read_fbo);
-
-  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, read_fbo);
-
-  context->extraFunctions()->glFramebufferTexture2D(
-        GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_, 0
-        );
-
-  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(format_);
-
-  uchar* data = new uchar[PixelService::GetBufferSize(format_, width_, height_)];
-
-  f->glReadPixels(0, 0, width_, height_, format_info.pixel_format, format_info.gl_pixel_type, data);
-
-  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-
-  f->glDeleteFramebuffers(1, &read_fbo);
-
-  return data;
-}
-
 void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, const void *data)
 {
   QOpenGLFunctions* f = create_ctx->functions();

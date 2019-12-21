@@ -64,7 +64,7 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
 
   // Perform OpenGL read
   buffer_.Attach(texture_);
-  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, buffer_.buffer());
+  buffer_.Bind();
 
   PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params_.format());
 
@@ -76,7 +76,7 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
                   format_info.gl_pixel_type,
                   frame->data());
 
-  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  buffer_.Release();
   buffer_.Detach();
 
   return frame;
