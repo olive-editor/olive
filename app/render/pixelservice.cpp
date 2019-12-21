@@ -248,7 +248,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
     {
       uint16_t* destination = reinterpret_cast<uint16_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
-        destination[i] = static_cast<uint16_t>(source[i] * 255.0f);
+        destination[i] = static_cast<uint16_t>(source[i] * 65535.0f);
       }
       break;
     }
