@@ -77,7 +77,7 @@ void OpenGLFramebuffer::Bind()
   if (context_ == nullptr) {
     return;
   }
-  context_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
+  context_->functions()->glBindFramebuffer(GL_FRAMEBUFFER, buffer_);
 }
 
 void OpenGLFramebuffer::Release()
@@ -85,7 +85,7 @@ void OpenGLFramebuffer::Release()
   if (context_ == nullptr) {
     return;
   }
-  context_->functions()->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  context_->functions()->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture, bool clear)
@@ -94,47 +94,17 @@ void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture, bool clear)
     return;
   }
 
-  texture_ = texture;
-  AttachInternal(texture_->texture(), clear);
-}
-
-void OpenGLFramebuffer::Detach()
-{
-  if (context_ == nullptr) {
-    return;
-  }
-
-  QOpenGLFunctions* f = context_->functions();
-
-  // bind framebuffer for attaching
-  f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
-
-  context_->extraFunctions()->glFramebufferTexture2D(
-        GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0
-        );
-
-  // release framebuffer
-  f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-  texture_ = nullptr;
-}
-
-const GLuint &OpenGLFramebuffer::buffer() const
-{
-  return buffer_;
-}
-
-void OpenGLFramebuffer::AttachInternal(GLuint tex, bool clear)
-{
   Detach();
 
+  texture_ = texture;
+
   QOpenGLFunctions* f = context_->functions();
 
   // bind framebuffer for attaching
-  f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, buffer_);
+  f->glBindFramebuffer(GL_FRAMEBUFFER, buffer_);
 
   context_->extraFunctions()->glFramebufferTexture2D(
-        GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0
+        GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_->texture(), 0
         );
 
   if (clear) {
@@ -143,5 +113,33 @@ void OpenGLFramebuffer::AttachInternal(GLuint tex, bool clear)
   }
 
   // release framebuffer
-  f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OpenGLFramebuffer::Detach()
+{
+  if (context_ == nullptr) {
+    return;
+  }
+
+  if (texture_) {
+    QOpenGLFunctions* f = context_->functions();
+
+    // bind framebuffer for attaching
+    f->glBindFramebuffer(GL_FRAMEBUFFER, buffer_);
+
+    context_->extraFunctions()->glFramebufferTexture2D(
+          GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0
+          );
+
+    // release framebuffer
+    f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    texture_ = nullptr;
+  }
+}
+
+const GLuint &OpenGLFramebuffer::buffer() const
+{
+  return buffer_;
 }

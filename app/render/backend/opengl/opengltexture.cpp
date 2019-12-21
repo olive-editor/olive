@@ -47,7 +47,7 @@ bool OpenGLTexture::IsCreated() const
 void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const void* data)
 {
   if (!ctx) {
-    qWarning() << "RenderTexture::Create was passed an invalid context";
+    qWarning() << "OpenGLTexture::Create was passed an invalid context";
     return;
   }
 
@@ -86,7 +86,7 @@ void OpenGLTexture::Bind()
   QOpenGLContext* context = QOpenGLContext::currentContext();
 
   if (!context) {
-    qWarning() << "RenderTexture::Bind() called with an invalid context";
+    qWarning() << "OpenGLTexture::Bind() called with an invalid context";
     return;
   }
 
@@ -98,7 +98,7 @@ void OpenGLTexture::Release()
   QOpenGLContext* context = QOpenGLContext::currentContext();
 
   if (!context) {
-    qWarning() << "RenderTexture::Release() called with an invalid context";
+    qWarning() << "OpenGLTexture::Release() called with an invalid context";
     return;
   }
 
@@ -128,14 +128,14 @@ const GLuint &OpenGLTexture::texture() const
 void OpenGLTexture::Upload(const void *data)
 {
   if (!IsCreated()) {
-    qWarning() << "RenderTexture::Upload() called while it wasn't created";
+    qWarning() << "OpenGLTexture::Upload() called while it wasn't created";
     return;
   }
 
   QOpenGLContext* context = QOpenGLContext::currentContext();
 
   if (!context) {
-    qWarning() << "RenderTexture::Release() called with an invalid context";
+    qWarning() << "OpenGLTexture::Release() called with an invalid context";
     return;
   }
 
@@ -159,7 +159,7 @@ void OpenGLTexture::Upload(const void *data)
 uchar *OpenGLTexture::Download() const
 {
   if (!IsCreated()) {
-    qWarning() << "RenderTexture::Download() called while it wasn't created";
+    qWarning() << "OpenGLTexture::Download() called while it wasn't created";
     return nullptr;
   }
 

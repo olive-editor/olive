@@ -53,8 +53,6 @@ public slots:
   void Destroy();
 
 private:
-  void AttachInternal(GLuint tex, bool clear);
-
   QOpenGLContext* context_;
 
   GLuint buffer_;
