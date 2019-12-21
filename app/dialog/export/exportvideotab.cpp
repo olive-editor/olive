@@ -59,6 +59,11 @@ void ExportVideoTab::show_image_sequence_section(bool visible)
   image_sequence_label_->setVisible(visible);
 }
 
+const rational &ExportVideoTab::frame_rate() const
+{
+  return frame_rates_.at(frame_rate_combobox_->currentIndex());
+}
+
 void ExportVideoTab::set_frame_rate(const rational &frame_rate)
 {
   frame_rate_combobox_->setCurrentIndex(frame_rates_.indexOf(frame_rate));
@@ -158,6 +163,7 @@ QWidget* ExportVideoTab::SetupColorSection()
   views_combobox_ = new QComboBox();
   color_layout->addWidget(new QLabel(tr("View:")), row, 0);
   color_layout->addWidget(views_combobox_, row, 1);
+  connect(views_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(ColorViewChanged()));
 
   row++;
 
@@ -167,6 +173,7 @@ QWidget* ExportVideoTab::SetupColorSection()
   foreach (const QString& look, looks) {
     looks_combobox_->addItem(look, look);
   }
+  connect(looks_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(ColorLookChanged()));
   color_layout->addWidget(new QLabel(tr("Look:")), row, 0);
   color_layout->addWidget(looks_combobox_, row, 1);
 
