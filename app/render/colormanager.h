@@ -3,8 +3,8 @@
 
 #include <memory>
 
+#include "codec/frame.h"
 #include "colorprocessor.h"
-#include "decoder/frame.h"
 
 class ColorManager : public QObject
 {

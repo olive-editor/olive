@@ -22,7 +22,7 @@
 
 #include <QFileInfo>
 
-#include "decoder/decoder.h"
+#include "codec/decoder.h"
 
 ProbeTask::ProbeTask(FootagePtr footage) :
   footage_(footage)

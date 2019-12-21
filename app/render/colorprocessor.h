@@ -4,8 +4,8 @@
 #include <OpenColorIO/OpenColorIO.h>
 namespace OCIO = OCIO_NAMESPACE::v1;
 
+#include "codec/frame.h"
 #include "common/constructors.h"
-#include "decoder/frame.h"
 
 
 class ColorProcessor;

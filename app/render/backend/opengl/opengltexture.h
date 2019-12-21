@@ -24,8 +24,8 @@
 #include <memory>
 #include <QOpenGLFunctions>
 
+#include "codec/frame.h"
 #include "common/constructors.h"
-#include "decoder/frame.h"
 #include "render/pixelformat.h"
 
 /**
@@ -76,6 +76,7 @@ private:
   int height_;
 
   olive::PixelFormat format_;
+
 };
 
 using OpenGLTexturePtr = std::shared_ptr<OpenGLTexture>;

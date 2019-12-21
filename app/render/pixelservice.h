@@ -25,7 +25,7 @@
 #include <QOpenGLExtraFunctions>
 #include <OpenImageIO/imageio.h>
 
-#include "decoder/frame.h"
+#include "codec/frame.h"
 #include "pixelformat.h"
 
 /**
