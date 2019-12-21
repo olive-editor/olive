@@ -179,7 +179,7 @@ void ExportDialog::accept()
                                         dest_height);
 
   // FIXME: Hardcoded pixel format
-  VideoRenderingParams video_render_params(dest_width, dest_height, rational(), olive::PIX_FMT_RGBA32F, olive::kOnline);
+  VideoRenderingParams video_render_params(dest_width, dest_height, video_tab_->frame_rate().flipped(), olive::PIX_FMT_RGBA32F, olive::kOnline);
 
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
                                                              OCIO::ROLE_SCENE_LINEAR,
@@ -192,7 +192,7 @@ void ExportDialog::accept()
   encoding_params.SetFilename(filename_edit_->text()); // FIXME: Validate extension
 
   const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
-  encoding_params.EnableVideo(VideoRenderingParams(dest_width, dest_height, video_tab_->frame_rate().flipped(), olive::PIX_FMT_RGBA32F, olive::kOnline),
+  encoding_params.EnableVideo(video_render_params,
                               video_codec.id());
 
 
