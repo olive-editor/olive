@@ -32,9 +32,10 @@ extern "C" {
 #include <QString>
 #include <QtMath>
 
+#include "codec/waveinput.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
-#include "decoder/waveinput.h"
+#include "ffmpegcommon.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -58,7 +59,7 @@ bool FFmpegDecoder::Open()
 
   int error_code;
 
-  // Convert QString to a C strng
+  // Convert QString to a C string
   QByteArray ba = stream()->footage()->filename().toUtf8();
   const char* filename = ba.constData();
 
@@ -134,7 +135,7 @@ bool FFmpegDecoder::Open()
     AVPixelFormat pix_fmt = static_cast<AVPixelFormat>(avstream_->codecpar->format);
 
     // Get an Olive compatible AVPixelFormat
-    AVPixelFormat ideal_pix_fmt = GetCompatiblePixelFormat(pix_fmt);
+    AVPixelFormat ideal_pix_fmt = FFmpegCommon::GetCompatiblePixelFormat(pix_fmt);
 
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
@@ -224,7 +225,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     frame_container->set_width(frame->width);
     frame_container->set_height(frame->height);
     frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
-    frame_container->set_timestamp(olive::timestamp_to_time(frame->pts, avstream_->time_base));
+    frame_container->set_timestamp(olive::timestamp_to_time(target_ts, avstream_->time_base));
     frame_container->allocate();
 
     // Convert pixel format/linesize if necessary
@@ -370,10 +371,10 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
     // Set up resampler
     SwrContext* resampler = swr_alloc_set_opts(nullptr,
                                                static_cast<int64_t>(params.channel_layout()),
-                                               GetFFmpegSampleFormat(params.format()),
+                                               FFmpegCommon::GetFFmpegSampleFormat(params.format()),
                                                params.sample_rate(),
                                                static_cast<int64_t>(input.params().channel_layout()),
-                                               GetFFmpegSampleFormat(input.params().format()),
+                                               FFmpegCommon::GetFFmpegSampleFormat(input.params().format()),
                                                input.params().sample_rate(),
                                                0,
                                                nullptr);
@@ -765,7 +766,7 @@ void FFmpegDecoder::IndexAudio(AVPacket *pkt, AVFrame *frame)
   WaveOutput wave_out(GetIndexFilename(),
                       AudioRenderingParams(avstream_->codecpar->sample_rate,
                                            channel_layout,
-                                           GetNativeSampleFormat(dst_sample_fmt)));
+                                           FFmpegCommon::GetNativeSampleFormat(dst_sample_fmt)));
 
   int ret;
 
@@ -911,72 +912,6 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
   }
 
   return ret;
-}
-
-AVPixelFormat FFmpegDecoder::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
-{
-  AVPixelFormat possible_pix_fmts[] = {
-    AV_PIX_FMT_RGBA,
-    AV_PIX_FMT_RGBA64,
-    AV_PIX_FMT_NONE
-  };
-
-  return avcodec_find_best_pix_fmt_of_list(possible_pix_fmts,
-                                           pix_fmt,
-                                           1,
-                                           nullptr);
-}
-
-SampleFormat FFmpegDecoder::GetNativeSampleFormat(const AVSampleFormat &smp_fmt)
-{
-  switch (smp_fmt) {
-  case AV_SAMPLE_FMT_U8:
-    return SAMPLE_FMT_U8;
-  case AV_SAMPLE_FMT_S16:
-    return SAMPLE_FMT_S16;
-  case AV_SAMPLE_FMT_S32:
-    return SAMPLE_FMT_S32;
-  case AV_SAMPLE_FMT_S64:
-    return SAMPLE_FMT_S64;
-  case AV_SAMPLE_FMT_FLT:
-    return SAMPLE_FMT_FLT;
-  case AV_SAMPLE_FMT_DBL:
-    return SAMPLE_FMT_DBL;
-  case AV_SAMPLE_FMT_U8P :
-  case AV_SAMPLE_FMT_S16P:
-  case AV_SAMPLE_FMT_S32P:
-  case AV_SAMPLE_FMT_S64P:
-  case AV_SAMPLE_FMT_FLTP:
-  case AV_SAMPLE_FMT_DBLP:
-  case AV_SAMPLE_FMT_NONE:
-  case AV_SAMPLE_FMT_NB:
-    break;
-  }
-
-  return SAMPLE_FMT_INVALID;
-}
-
-AVSampleFormat FFmpegDecoder::GetFFmpegSampleFormat(const SampleFormat &smp_fmt)
-{
-  switch (smp_fmt) {
-  case SAMPLE_FMT_U8:
-    return AV_SAMPLE_FMT_U8;
-  case SAMPLE_FMT_S16:
-    return AV_SAMPLE_FMT_S16;
-  case SAMPLE_FMT_S32:
-    return AV_SAMPLE_FMT_S32;
-  case SAMPLE_FMT_S64:
-    return AV_SAMPLE_FMT_S64;
-  case SAMPLE_FMT_FLT:
-    return AV_SAMPLE_FMT_FLT;
-  case SAMPLE_FMT_DBL:
-    return AV_SAMPLE_FMT_DBL;
-  case SAMPLE_FMT_INVALID:
-  case SAMPLE_FMT_COUNT:
-    break;
-  }
-
-  return AV_SAMPLE_FMT_NONE;
 }
 
 int FFmpegDecoder::CalculatePlaneHeight(int frame_height, const AVPixelFormat &format, int plane)

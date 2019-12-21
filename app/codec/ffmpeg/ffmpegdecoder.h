@@ -30,8 +30,8 @@ extern "C" {
 #include <QVector>
 
 #include "audio/sampleformat.h"
-#include "decoder/decoder.h"
-#include "decoder/waveoutput.h"
+#include "codec/decoder.h"
+#include "codec/waveoutput.h"
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -138,15 +138,6 @@ private:
   int64_t GetClosestTimestampInIndex(const int64_t& ts);
 
   void Seek(int64_t timestamp);
-
-  /**
-   * @brief Returns an AVPixelFormat that can be used in Olive and causes minimal data loss
-   */
-  AVPixelFormat GetCompatiblePixelFormat(const AVPixelFormat& pix_fmt);
-
-  SampleFormat GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
-
-  AVSampleFormat GetFFmpegSampleFormat(const SampleFormat& smp_fmt);
 
   int CalculatePlaneHeight(int frame_height, const AVPixelFormat& format, int plane);
 

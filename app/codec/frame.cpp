@@ -30,8 +30,7 @@ Frame::Frame() :
   height_(0),
   format_(olive::PIX_FMT_INVALID),
   sample_count_(0),
-  timestamp_(0),
-  native_timestamp_(0)
+  timestamp_(0)
 {
 }
 

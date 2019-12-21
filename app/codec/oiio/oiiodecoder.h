@@ -23,7 +23,7 @@
 
 #include <OpenImageIO/imageio.h>
 
-#include "decoder/decoder.h"
+#include "codec/decoder.h"
 #include "render/pixelservice.h"
 
 class OIIODecoder : public Decoder

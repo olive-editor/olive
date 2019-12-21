@@ -24,10 +24,10 @@
 #include <QObject>
 #include <stdint.h>
 
+#include "codec/frame.h"
 #include "common/constructors.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
-#include "decoder/frame.h"
 
 class Decoder;
 using DecoderPtr = std::shared_ptr<Decoder>;

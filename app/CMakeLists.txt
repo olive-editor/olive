@@ -26,11 +26,10 @@ set(OLIVE_RESOURCES
 )
 
 add_subdirectory(audio)
+add_subdirectory(codec)
 add_subdirectory(common)
 add_subdirectory(config)
-add_subdirectory(decoder)
 add_subdirectory(dialog)
-add_subdirectory(encoder)
 add_subdirectory(node)
 add_subdirectory(panel)
 add_subdirectory(project)

@@ -19,13 +19,15 @@ add_subdirectory(oiio)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  decoder/decoder.h
-  decoder/decoder.cpp
-  decoder/frame.h
-  decoder/frame.cpp
-  decoder/waveinput.h
-  decoder/waveinput.cpp
-  decoder/waveoutput.h
-  decoder/waveoutput.cpp
+  codec/decoder.h
+  codec/decoder.cpp
+  codec/encoder.h
+  codec/encoder.cpp
+  codec/frame.h
+  codec/frame.cpp
+  codec/waveinput.h
+  codec/waveinput.cpp
+  codec/waveoutput.h
+  codec/waveoutput.cpp
   PARENT_SCOPE
 )

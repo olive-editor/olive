@@ -138,8 +138,6 @@ private:
 
   rational timestamp_;
 
-  int64_t native_timestamp_;
-
 };
 
 #endif // FRAME_H

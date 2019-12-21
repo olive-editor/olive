@@ -24,8 +24,8 @@
 #include <QDebug>
 #include <QFileInfo>
 
-#include "decoder/ffmpeg/ffmpegdecoder.h"
-#include "decoder/oiio/oiiodecoder.h"
+#include "codec/ffmpeg/ffmpegdecoder.h"
+#include "codec/oiio/oiiodecoder.h"
 
 Decoder::Decoder() :
   open_(false),
