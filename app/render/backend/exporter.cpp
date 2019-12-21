@@ -9,11 +9,13 @@ Exporter::Exporter(ViewerOutput* viewer, const VideoRenderingParams& params, con
   audio_backend_(nullptr),
   viewer_node_(viewer),
   params_(params),
+  transform_(transform),
   color_processor_(color_processor),
   encoder_(encoder),
   export_status_(false),
   export_msg_(tr("Export hasn't started yet"))
 {
+  connect(this, SIGNAL(ExportEnded()), this, SLOT(deleteLater()));
 }
 
 bool Exporter::GetExportStatus() const
@@ -38,7 +40,11 @@ void Exporter::StartExporting()
   }
 
   video_backend_->SetViewerNode(viewer_node_);
-  video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), olive::PIX_FMT_RGBA32F, olive::kOnline));
+  video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
+                                                     viewer_node_->video_params().height(),
+                                                     params_.time_base(),
+                                                     olive::PIX_FMT_RGBA32F,
+                                                     olive::kOnline));
   video_backend_->SetExportMode(true);
   video_backend_->Compile();
   //audio_backend_->SetViewerNode(viewer_node_);
@@ -71,10 +77,10 @@ void Exporter::ExportSucceeded()
   audio_backend_->deleteLater();
 
   export_status_ = true;
-  export_msg_ = tr("Export succeeded");
 
   encoder_->Close();
 
+  emit ProgressChanged(100);
   emit ExportEnded();
 }
 
@@ -85,6 +91,8 @@ void Exporter::ExportFailed()
 
 void Exporter::FrameRendered(const rational &time, QVariant value)
 {
+  qDebug() << "Received" << time.toDouble() << "- waiting for" << waiting_for_frame_.toDouble();
+
   if (time == waiting_for_frame_) {
     bool get_cached = false;
 
@@ -115,7 +123,7 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
       // Encode (may require re-associating alpha?)
       encoder_->Write(frame);
 
-      waiting_for_frame_ += viewer_node_->video_params().time_base();
+      waiting_for_frame_ += params_.time_base();
 
       // Calculate progress
       int progress = qRound(100.0 * (waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble()));
@@ -123,7 +131,7 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
 
     } while (cached_frames_.contains(waiting_for_frame_));
 
-    if (waiting_for_frame_ > viewer_node_->Length()) {
+    if (waiting_for_frame_ >= viewer_node_->Length()) {
       ExportSucceeded();
     }
   } else {
