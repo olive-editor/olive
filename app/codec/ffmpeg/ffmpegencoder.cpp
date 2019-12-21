@@ -308,8 +308,11 @@ bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ct
     codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
   }
 
+  AVDictionary* codec_opts = nullptr;
+  av_dict_set(&codec_opts, "threads", "auto", 0);
+
   // Try to open encoder
-  error_code = avcodec_open2(codec_ctx, codec, nullptr);
+  error_code = avcodec_open2(codec_ctx, codec, &codec_opts);
   if (error_code < 0) {
     FFmpegError(error_code);
     return false;
