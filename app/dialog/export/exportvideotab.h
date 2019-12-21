@@ -30,6 +30,8 @@ public:
   QCheckBox* image_sequence_checkbox() const;
 
   void show_image_sequence_section(bool visible);
+
+  const rational& frame_rate() const;
   void set_frame_rate(const rational& frame_rate);
 
   QString CurrentOCIODisplay();
