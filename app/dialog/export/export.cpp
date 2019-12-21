@@ -187,7 +187,18 @@ void ExportDialog::accept()
                                                              video_tab_->CurrentOCIOView(),
                                                              video_tab_->CurrentOCIOLook());
 
-  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, video_render_params, transform, color_processor);
+  // Set up encoder
+  EncodingParams encoding_params;
+  encoding_params.SetFilename(filename_edit_->text()); // FIXME: Validate extension
+
+  const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
+  encoding_params.EnableVideo(VideoRenderingParams(dest_width, dest_height, video_tab_->frame_rate().flipped(), olive::PIX_FMT_RGBA32F, olive::kOnline),
+                              video_codec.id());
+
+
+  EncoderPtr encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
+
+  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, video_render_params, transform, color_processor, encoder);
 
   connect(exporter, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
   connect(exporter, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);

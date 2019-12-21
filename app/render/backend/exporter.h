@@ -5,6 +5,7 @@
 #include <QString>
 #include <QObject>
 
+#include "codec/encoder.h"
 #include "node/output/viewer/viewer.h"
 #include "render/backend/audiorenderbackend.h"
 #include "render/backend/videorenderbackend.h"
@@ -14,7 +15,12 @@ class Exporter : public QObject
 {
   Q_OBJECT
 public:
-  Exporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4& transform, ColorProcessorPtr color_processor, QObject* parent = nullptr);
+  Exporter(ViewerOutput* viewer,
+           const VideoRenderingParams& params,
+           const QMatrix4x4& transform,
+           ColorProcessorPtr color_processor,
+           EncoderPtr encoder,
+           QObject* parent = nullptr);
 
   bool GetExportStatus() const;
   const QString& GetExportError() const;
@@ -48,15 +54,14 @@ protected:
   // Export transform
   QMatrix4x4 transform_;
 
-  // Copied graph
-  NodeGraph copied_graph_;
-
 private:
   void ExportSucceeded();
 
   void ExportFailed();
 
   ColorProcessorPtr color_processor_;
+
+  EncoderPtr encoder_;
 
   bool export_status_;
 
@@ -68,7 +73,6 @@ private:
 
 private slots:
   void FrameRendered(const rational& time, QVariant value);
-  void TimeRendered(const rational& time);
 
 };
 

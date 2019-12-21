@@ -3,13 +3,14 @@
 #include "render/colormanager.h"
 #include "render/pixelservice.h"
 
-Exporter::Exporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, QObject* parent) :
+Exporter::Exporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, EncoderPtr encoder, QObject* parent) :
   QObject(parent),
   video_backend_(nullptr),
   audio_backend_(nullptr),
   viewer_node_(viewer),
   params_(params),
   color_processor_(color_processor),
+  encoder_(encoder),
   export_status_(false),
   export_msg_(tr("Export hasn't started yet"))
 {
@@ -45,10 +46,12 @@ void Exporter::StartExporting()
 
   // Connect to renderers
   connect(video_backend_, SIGNAL(CachedFrameReady(const rational&, QVariant)), this, SLOT(FrameRendered(const rational&, QVariant)));
-  connect(video_backend_, SIGNAL(CachedTimeReady(const rational&)), this, SLOT(TimeRendered(const rational&)));
 
   // Create renderers
   waiting_for_frame_ = 0;
+
+  // Open encoder
+  encoder_->Open();
 
   // Invalidate caches
   video_backend_->InvalidateCache(0, viewer_node_->Length());
@@ -64,11 +67,13 @@ void Exporter::ExportSucceeded()
 {
   Cleanup();
 
-  delete video_backend_;
-  delete audio_backend_;
+  video_backend_->deleteLater();
+  audio_backend_->deleteLater();
 
   export_status_ = true;
   export_msg_ = tr("Export succeeded");
+
+  encoder_->Close();
 
   emit ExportEnded();
 }
@@ -80,8 +85,6 @@ void Exporter::ExportFailed()
 
 void Exporter::FrameRendered(const rational &time, QVariant value)
 {
-  qDebug() << "Retrieved frame" << time.toDouble() << "- waiting for frame" << waiting_for_frame_.toDouble();
-
   if (time == waiting_for_frame_) {
     bool get_cached = false;
 
@@ -106,26 +109,24 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
       // Convert color space
       color_processor_->ConvertFrame(frame);
 
+      // Set frame timestamp
+      frame->set_timestamp(waiting_for_frame_);
+
       // Encode (may require re-associating alpha?)
+      encoder_->Write(frame);
 
       waiting_for_frame_ += viewer_node_->video_params().time_base();
 
       // Calculate progress
       int progress = qRound(100.0 * (waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble()));
-      qDebug() << "Hello progress" << progress;
       emit ProgressChanged(progress);
 
     } while (cached_frames_.contains(waiting_for_frame_));
+
+    if (waiting_for_frame_ > viewer_node_->Length()) {
+      ExportSucceeded();
+    }
   } else {
     cached_frames_.insert(time, value);
   }
-
-  /*if (time == viewer_node_->Length()) {
-    ExportSucceeded();
-  }*/
-}
-
-void Exporter::TimeRendered(const rational &time)
-{
-  qDebug() << "Retrieved time rendered!" << time.toDouble();
 }
