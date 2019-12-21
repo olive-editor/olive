@@ -10,7 +10,12 @@
 class OpenGLExporter : public Exporter
 {
 public:
-  OpenGLExporter(ViewerOutput *viewer, const VideoRenderingParams &params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, QObject* parent = nullptr);
+  OpenGLExporter(ViewerOutput* viewer,
+                 const VideoRenderingParams& params,
+                 const QMatrix4x4& transform,
+                 ColorProcessorPtr color_processor,
+                 EncoderPtr encoder,
+                 QObject* parent = nullptr);
 
   virtual ~OpenGLExporter() override;
 

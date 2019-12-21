@@ -1,9 +1,10 @@
 #include "openglexporter.h"
 
 #include "render/backend/opengl/functions.h"
+#include "render/pixelservice.h"
 
-OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4& transform, ColorProcessorPtr color_processor, QObject* parent) :
-  Exporter(viewer, params, transform, color_processor, parent)
+OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, EncoderPtr encoder, QObject* parent) :
+  Exporter(viewer, params, transform, color_processor, encoder, parent)
 {
 }
 
@@ -44,6 +45,9 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
   frame->set_format(params_.format());
   frame->allocate();
 
+  QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+  f->glViewport(0, 0, texture_->width(), texture_->height());
+
   // Blit for transform if the width/height are different
   OpenGLTexturePtr input_tex = texture.value<OpenGLTexturePtr>();
   if (input_tex) {
@@ -59,6 +63,21 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
   }
 
   // Perform OpenGL read
+  buffer_.Attach(texture_);
+  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, buffer_.buffer());
+
+  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params_.format());
+
+  f->glReadPixels(0,
+                  0,
+                  texture_->width(),
+                  texture_->height(),
+                  format_info.pixel_format,
+                  format_info.gl_pixel_type,
+                  frame->data());
+
+  f->glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  buffer_.Detach();
 
   return frame;
 }
