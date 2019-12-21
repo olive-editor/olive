@@ -30,7 +30,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
   if (frame_cache_->HasHash(hash)) {
     // We've already cached this hash, no need to continue
     emit HashAlreadyExists(path, hash);
-  } else if (frame_cache_->TryCache(hash)) {
+  } else if (frame_cache_->TryCache(path.in(), hash)) {
     // This hash is available for us to cache, start traversing graph
     value = ProcessNode(path);
 

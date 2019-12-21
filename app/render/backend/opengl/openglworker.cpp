@@ -45,8 +45,6 @@ bool OpenGLWorker::InitInternal()
 
   ctx_->moveToThread(this->thread());
 
-  //qDebug() << "Processor initialized in thread" << thread() << "- context is in" << ctx_->thread();
-
   // The rest of the initialization needs to occur in the other thread, so we signal for it to start
   QMetaObject::invokeMethod(this, "FinishInit", Qt::QueuedConnection);
 

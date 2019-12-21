@@ -23,7 +23,7 @@ public:
   /**
    * @brief Check if a frame is currently being cached, and if not reserve it
    */
-  bool TryCache(const QByteArray& hash);
+  bool TryCache(const rational &time, const QByteArray& hash);
 
   /**
    * @brief Return the path of the cached image at this time
@@ -39,12 +39,13 @@ public:
 
   void Truncate(const rational& time);
 
-  QList<rational> TimesWithHash(const QByteArray& hash);
+  QList<rational> DeferredMapsWithHash(const QByteArray& hash);
 
 private:
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
 
   QMap<rational, QByteArray> time_hash_map_;
+  QMap<rational, QByteArray> deferred_maps_;
 
   QMutex currently_caching_lock_;
   QVector<QByteArray> currently_caching_list_;

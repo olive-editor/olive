@@ -26,13 +26,15 @@ bool VideoRenderFrameCache::IsCaching(const QByteArray &hash)
   return is_caching;
 }
 
-bool VideoRenderFrameCache::TryCache(const QByteArray &hash)
+bool VideoRenderFrameCache::TryCache(const rational& time, const QByteArray &hash)
 {
   currently_caching_lock_.lock();
 
   bool is_caching = currently_caching_list_.contains(hash);
 
-  if (!is_caching) {
+  if (is_caching) {
+    deferred_maps_.insert(time, hash);
+  } else {
     currently_caching_list_.append(hash);
   }
 
@@ -80,17 +82,26 @@ void VideoRenderFrameCache::Truncate(const rational &time)
   }
 }
 
-QList<rational> VideoRenderFrameCache::TimesWithHash(const QByteArray &hash)
+QList<rational> VideoRenderFrameCache::DeferredMapsWithHash(const QByteArray &hash)
 {
   QList<rational> list;
 
-  QMap<rational, QByteArray>::const_iterator iterator;
+  currently_caching_lock_.lock();
 
-  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+  QMap<rational, QByteArray>::iterator iterator = deferred_maps_.begin();
+
+  while (iterator != deferred_maps_.end()) {
     if (iterator.value() == hash) {
       list.append(iterator.key());
+      iterator = deferred_maps_.erase(iterator);
+    } else {
+      iterator++;
     }
   }
+
+  currently_caching_list_.removeOne(hash);
+
+  currently_caching_lock_.unlock();
 
   return list;
 }

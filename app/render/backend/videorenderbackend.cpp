@@ -27,6 +27,7 @@
 #include <QDir>
 #include <QtMath>
 
+#include "common/timecodefunctions.h"
 #include "render/pixelservice.h"
 #include "videorenderworker.h"
 
@@ -55,12 +56,10 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
            << end_range_adj.toDouble();
 
   // Snap start_range to timebase
-  double start_range_dbl = start_range_adj.toDouble();
-  double start_range_numf = start_range_dbl * static_cast<double>(params_.time_base().denominator());
-  int64_t start_range_numround = qFloor(start_range_numf/static_cast<double>(params_.time_base().numerator())) * params_.time_base().numerator();
-  rational true_start_range(start_range_numround, params_.time_base().denominator());
+  int64_t timestamp = olive::time_to_timestamp(start_range_adj, params_.time_base());
+  rational true_start = olive::timestamp_to_time(timestamp, params_.time_base());
 
-  for (rational r=true_start_range;r<=end_range_adj;r+=params_.time_base()) {
+  for (rational r=true_start;r<end_range_adj;r+=params_.time_base()) {
     // Try to order the queue from closest to the playhead to furthest
     rational last_time = last_time_requested_;
 
@@ -248,6 +247,18 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray ha
 
   QVariant texture = table.Get(NodeParam::kTexture);
 
+  // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
+  if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
+    EmitCachedFrameReady(path.in(), texture);
+
+    if (export_mode_) {
+      QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
+      foreach (const rational& t, times_with_this_hash) {
+        EmitCachedFrameReady(t, texture);
+      }
+    }
+  }
+
   if (!export_mode_) {
     if (texture.isNull()) {
       // No frame received, we set hash to an empty
@@ -268,18 +279,6 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray ha
     }
   }
 
-  // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
-  if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
-    EmitCachedFrameReady(path.in(), texture);
-
-    if (export_mode_) {
-      QList<rational> times_with_this_hash = frame_cache()->TimesWithHash(hash);
-      foreach (const rational& t, times_with_this_hash) {
-        EmitCachedFrameReady(t, texture);
-      }
-    }
-  }
-
   // Queue up a new frame for this worker
   CacheNext();
 }
@@ -287,17 +286,18 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray ha
 void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 {
   frame_cache()->SetHash(dep.in(), hash);
+  emit CachedTimeReady(dep.in());
 
   // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
-  QList<rational> times_with_this_hash = frame_cache()->TimesWithHash(hash);
+  QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
   foreach (const rational& t, times_with_this_hash) {
+    frame_cache()->SetHash(t, hash);
     emit CachedTimeReady(t);
   }
 }
 
 void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
 {
-  frame_cache()->SetHash(dep.in(), hash);
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   // Queue up a new frame for this worker
