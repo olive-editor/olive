@@ -1,7 +1,7 @@
 #ifndef DECODERCACHE_H
 #define DECODERCACHE_H
 
-#include "decoder/decoder.h"
+#include "codec/decoder.h"
 #include "project/item/footage/stream.h"
 #include "rendercache.h"
 

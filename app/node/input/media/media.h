@@ -21,7 +21,7 @@
 #ifndef MEDIAINPUT_H
 #define MEDIAINPUT_H
 
-#include "decoder/decoder.h"
+#include "codec/decoder.h"
 #include "node/node.h"
 
 /**

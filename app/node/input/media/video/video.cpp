@@ -4,8 +4,8 @@
 #include <QMatrix4x4>
 #include <QOpenGLPixelTransferOptions>
 
+#include "codec/ffmpeg/ffmpegdecoder.h"
 #include "core.h"
-#include "decoder/ffmpeg/ffmpegdecoder.h"
 #include "project/item/footage/footage.h"
 #include "render/pixelservice.h"
 
