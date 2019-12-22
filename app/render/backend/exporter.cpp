@@ -3,12 +3,19 @@
 #include "render/colormanager.h"
 #include "render/pixelservice.h"
 
-Exporter::Exporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, EncoderPtr encoder, QObject* parent) :
+Exporter::Exporter(ViewerOutput* viewer,
+                   const VideoRenderingParams& video_params,
+                   const AudioRenderingParams& audio_params,
+                   const QMatrix4x4 &transform,
+                   ColorProcessorPtr color_processor,
+                   Encoder *encoder,
+                   QObject* parent) :
   QObject(parent),
   video_backend_(nullptr),
   audio_backend_(nullptr),
   viewer_node_(viewer),
-  params_(params),
+  video_params_(video_params),
+  audio_params_(audio_params),
   transform_(transform),
   color_processor_(color_processor),
   encoder_(encoder),
@@ -35,6 +42,7 @@ void Exporter::StartExporting()
 
   // Create renderers
   if (!Initialize()) {
+    SetExportMessage("Failed to initialize exporter");
     ExportFailed();
     return;
   }
@@ -42,26 +50,28 @@ void Exporter::StartExporting()
   video_backend_->SetViewerNode(viewer_node_);
   video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
                                                      viewer_node_->video_params().height(),
-                                                     params_.time_base(),
-                                                     olive::PIX_FMT_RGBA32F,
-                                                     olive::kOnline));
+                                                     video_params_.time_base(),
+                                                     video_params_.format(),
+                                                     video_params_.mode()));
   video_backend_->SetExportMode(true);
-  video_backend_->Compile();
-  //audio_backend_->SetViewerNode(viewer_node_);
-  //audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));
+  audio_backend_->SetViewerNode(viewer_node_);
+  audio_backend_->SetParameters(audio_params_);
 
   // Connect to renderers
   connect(video_backend_, SIGNAL(CachedFrameReady(const rational&, QVariant)), this, SLOT(FrameRendered(const rational&, QVariant)));
+  connect(audio_backend_, SIGNAL(QueueComplete()), this, SLOT(AudioRendered()));
 
   // Create renderers
   waiting_for_frame_ = 0;
 
-  // Open encoder
-  encoder_->Open();
+  // Open encoder and wait for result
+  connect(encoder_, SIGNAL(OpenSucceeded()), this, SLOT(EncoderOpenedSuccessfully()), Qt::QueuedConnection);
+  connect(encoder_, SIGNAL(OpenFailed()), this, SLOT(EncoderOpenFailed()), Qt::QueuedConnection);
+  connect(encoder_, SIGNAL(Closed()), encoder_, SLOT(deleteLater()), Qt::QueuedConnection);
 
-  // Invalidate caches
-  video_backend_->InvalidateCache(0, viewer_node_->Length());
-  //viewer_node_->InvalidateCache(0, viewer_node_->Length(), viewer_node_->samples_input());
+  QMetaObject::invokeMethod(encoder_,
+                            "Open",
+                            Qt::QueuedConnection);
 }
 
 void Exporter::SetExportMessage(const QString &s)
@@ -74,14 +84,14 @@ void Exporter::ExportSucceeded()
   Cleanup();
 
   video_backend_->deleteLater();
-  audio_backend_->deleteLater();
 
   export_status_ = true;
 
-  encoder_->Close();
+  connect(encoder_, SIGNAL(Closed()), this, SLOT(EncoderClosed()));
 
-  emit ProgressChanged(100);
-  emit ExportEnded();
+  QMetaObject::invokeMethod(encoder_,
+                            "Close",
+                            Qt::QueuedConnection);
 }
 
 void Exporter::ExportFailed()
@@ -121,9 +131,12 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
       frame->set_timestamp(waiting_for_frame_);
 
       // Encode (may require re-associating alpha?)
-      encoder_->Write(frame);
+      QMetaObject::invokeMethod(encoder_,
+                                "Write",
+                                Qt::QueuedConnection,
+                                Q_ARG(FramePtr, frame));
 
-      waiting_for_frame_ += params_.time_base();
+      waiting_for_frame_ += video_params_.time_base();
 
       // Calculate progress
       int progress = qRound(100.0 * (waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble()));
@@ -132,9 +145,48 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
     } while (cached_frames_.contains(waiting_for_frame_));
 
     if (waiting_for_frame_ >= viewer_node_->Length()) {
-      ExportSucceeded();
+S      ExportSucceeded();
     }
   } else {
     cached_frames_.insert(time, value);
   }
+}
+
+void Exporter::AudioRendered()
+{
+  // Retrieve the audio filename
+  QString cache_fn = audio_backend_->CachePathName();
+
+  QMetaObject::invokeMethod(encoder_,
+                            "WriteAudio",
+                            Qt::QueuedConnection,
+                            Q_ARG(const AudioRenderingParams&, audio_backend_->params()),
+                            Q_ARG(const QString&, cache_fn));
+
+  // We don't need the audio backend anymore
+  audio_backend_->deleteLater();
+}
+
+void Exporter::EncoderOpenedSuccessfully()
+{
+  // Invalidate caches
+  if (encoder_->params().video_enabled()) {
+    video_backend_->InvalidateCache(0, viewer_node_->Length());
+  }
+
+  if (encoder_->params().audio_enabled()) {
+    audio_backend_->InvalidateCache(0, viewer_node_->Length());
+  }
+}
+
+void Exporter::EncoderOpenFailed()
+{
+  SetExportMessage("Failed to open encoder");
+  ExportFailed();
+}
+
+void Exporter::EncoderClosed()
+{
+  emit ProgressChanged(100);
+  emit ExportEnded();
 }

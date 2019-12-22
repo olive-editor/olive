@@ -1,5 +1,7 @@
 #include "ffmpegencoder.h"
 
+#include <QFile>
+
 #include "ffmpegcommon.h"
 #include "render/pixelservice.h"
 
@@ -15,12 +17,82 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
 {
 }
 
-bool FFmpegEncoder::Open()
+void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QString &pcm_filename)
 {
-  if (open_) {
-    return true;
-  }
+  QFile pcm(pcm_filename);
+  if (pcm.open(QFile::ReadOnly)) {
+    // Divide PCM stream into AVFrames
 
+    // See if the codec defines a number of samples per frame
+    int maximum_frame_samples = audio_codec_ctx_->frame_size;
+    if (!maximum_frame_samples) {
+      // If not, use another frame size
+      if (params().video_enabled()) {
+        // If we're encoding video, use enough samples to cover roughly one frame of video
+        maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().time_base());
+      } else {
+        // If no video, just use an arbitary number
+        maximum_frame_samples = 256;
+      }
+    }
+
+    SwrContext* swr_ctx = swr_alloc_set_opts(nullptr,
+                                             audio_codec_ctx_->channel_layout,
+                                             audio_codec_ctx_->sample_fmt,
+                                             audio_codec_ctx_->sample_rate,
+                                             pcm_info.channel_layout(),
+                                             FFmpegCommon::GetFFmpegSampleFormat(pcm_info.format()),
+                                             pcm_info.sample_rate(),
+                                             0,
+                                             nullptr);
+
+    swr_init(swr_ctx);
+
+    // Loop through PCM queueing write events
+    AVFrame* frame = av_frame_alloc();
+
+    // Set up frame
+    frame->channel_layout = audio_codec_ctx_->channel_layout;
+    frame->nb_samples = maximum_frame_samples;
+    frame->format = audio_codec_ctx_->sample_fmt;
+
+    // Allocate its buffers
+    av_frame_get_buffer(frame, 0);
+    int sample_counter = 0;
+
+    while (!pcm.atEnd()) {
+      int samples_needed = static_cast<int>(frame->nb_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()));
+
+      QByteArray input_data;
+      input_data = pcm.read(pcm_info.samples_to_bytes(samples_needed));
+      const char* input_data_array = input_data.constData();
+      samples_needed = pcm_info.bytes_to_samples(input_data.size());
+
+      // Use swresample to convert the data into the correct format/linesize
+      int converted = swr_convert(swr_ctx,
+                                  frame->data,
+                                  maximum_frame_samples,
+                                  reinterpret_cast<const uint8_t**>(&input_data_array),
+                                  samples_needed);
+
+      //qDebug() << "swr_convert returned" << converted << "samples";
+      frame->pts = sample_counter;
+
+      sample_counter += converted;
+
+      WriteAVFrame(frame, audio_codec_ctx_, audio_stream_);
+    }
+
+    av_frame_free(&frame);
+
+    swr_free(&swr_ctx);
+
+    pcm.close();
+  }
+}
+
+bool FFmpegEncoder::OpenInternal()
+{
   int error_code;
 
   // Convert QString to C string that FFmpeg expects
@@ -32,7 +104,7 @@ bool FFmpegEncoder::Open()
 
   // Check error code
   if (error_code < 0) {
-    FFmpegError(error_code);
+    FFmpegError("Failed to allocate output context", error_code);
     return false;
   }
 
@@ -41,8 +113,6 @@ bool FFmpegEncoder::Open()
     if (!InitializeStream(AVMEDIA_TYPE_VIDEO, &video_stream_, &video_codec_ctx_, params().video_codec())) {
       return false;
     }
-
-
 
     // This is the format we will expect frames received in Write() to be in
     olive::PixelFormat native_pixel_fmt = params().video_params().format();
@@ -81,112 +151,70 @@ bool FFmpegEncoder::Open()
   // Open output file for writing
   error_code = avio_open(&fmt_ctx_->pb, filename_c_str, AVIO_FLAG_WRITE);
   if (error_code < 0) {
-    FFmpegError(error_code);
+    FFmpegError("Failed to open IO context", error_code);
     return false;
   }
 
   // Write header
   error_code = avformat_write_header(fmt_ctx_, nullptr);
   if (error_code < 0) {
-    FFmpegError(error_code);
+    FFmpegError("Failed to write format header", error_code);
     return false;
   }
-
-  open_ = true;
 
   return true;
 }
 
-void FFmpegEncoder::Write(FramePtr frame)
+void FFmpegEncoder::WriteInternal(FramePtr frame)
 {
   AVFrame* encoded_frame = av_frame_alloc();
-  AVPacket* pkt = av_packet_alloc();
 
   int error_code;
+  const char* input_data;
+  int input_linesize;
 
-  AVCodecContext* codec_ctx;
-  AVStream* stream;
+  // Frame must be video
+  encoded_frame->width = frame->width();
+  encoded_frame->height = frame->height();
+  encoded_frame->format = video_codec_ctx_->pix_fmt;
 
-  if (frame->width() > 0) {
-    // Frame must be video
-    encoded_frame->width = frame->width();
-    encoded_frame->height = frame->height();
-    encoded_frame->format = video_codec_ctx_->pix_fmt;
-
-    error_code = av_frame_get_buffer(encoded_frame, 0);
-    if (error_code < 0) {
-      FFmpegError(error_code);
-      goto fail;
-    }
-
-    // We may need to convert this frame to a frame that swscale will understand
-    if (frame->format() != video_conversion_fmt_) {
-      frame = PixelService::ConvertPixelFormat(frame, video_conversion_fmt_);
-    }
-
-    // Use swscale context to convert formats/linesizes
-    const char* input_data = frame->const_data();
-    int input_linesize = frame->width() * PixelService::BytesPerPixel(video_conversion_fmt_);
-    error_code = sws_scale(video_scale_ctx_,
-                           reinterpret_cast<const uint8_t**>(&input_data),
-                           &input_linesize,
-                           0,
-                           frame->height(),
-                           encoded_frame->data,
-                           encoded_frame->linesize);
-    if (error_code < 0) {
-      goto fail;
-    }
-
-    codec_ctx = video_codec_ctx_;
-    stream = video_stream_;
-  } else {
-    // Frame must be audio
-    codec_ctx = audio_codec_ctx_;
-    stream = audio_stream_;
-  }
-
-  encoded_frame->pts = qRound(frame->timestamp().toDouble() / av_q2d(codec_ctx->time_base));
-
-  // Send raw frame to the encoder
-  error_code = avcodec_send_frame(codec_ctx, encoded_frame);
+  error_code = av_frame_get_buffer(encoded_frame, 0);
   if (error_code < 0) {
-    FFmpegError(error_code);
+    FFmpegError("Failed to create AVFrame buffer", error_code);
     goto fail;
   }
 
-  // Retrieve packets from encoder
-  while (error_code >= 0) {
-    error_code = avcodec_receive_packet(codec_ctx, pkt);
-
-    // EAGAIN just means the encoder wants another frame before encoding
-    if (error_code == AVERROR(EAGAIN)) {
-      break;
-    } else if (error_code < 0) {
-      FFmpegError(error_code);
-      goto fail;
-    }
-
-    // Set packet stream index
-    pkt->stream_index = stream->index;
-
-    av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
-
-    // Write packet to file
-    av_interleaved_write_frame(fmt_ctx_, pkt);
-
-    // Unref packet in case we're getting another
-    av_packet_unref(pkt);
+  // We may need to convert this frame to a frame that swscale will understand
+  if (frame->format() != video_conversion_fmt_) {
+    frame = PixelService::ConvertPixelFormat(frame, video_conversion_fmt_);
   }
 
+  // Use swscale context to convert formats/linesizes
+  input_data = frame->const_data();
+  input_linesize = frame->width() * PixelService::BytesPerPixel(video_conversion_fmt_);
+  error_code = sws_scale(video_scale_ctx_,
+                         reinterpret_cast<const uint8_t**>(&input_data),
+                         &input_linesize,
+                         0,
+                         frame->height(),
+                         encoded_frame->data,
+                         encoded_frame->linesize);
+  if (error_code < 0) {
+    FFmpegError("Failed to scale frame", error_code);
+    goto fail;
+  }
+
+  encoded_frame->pts = qRound(frame->timestamp().toDouble() / av_q2d(video_codec_ctx_->time_base));
+
+  WriteAVFrame(encoded_frame, video_codec_ctx_, video_stream_);
+
 fail:
-  av_packet_free(&pkt);
   av_frame_free(&encoded_frame);
 }
 
-void FFmpegEncoder::Close()
+void FFmpegEncoder::CloseInternal()
 {
-  if (open_) {
+  if (IsOpen()) {
     // Flush encoders
     FlushEncoders();
 
@@ -217,14 +245,54 @@ void FFmpegEncoder::Close()
   }
 }
 
-void FFmpegEncoder::FFmpegError(int error_code)
+void FFmpegEncoder::FFmpegError(const char* context, int error_code)
 {
-  char err[1024];
-  av_strerror(error_code, err, 1024);
+  char err[128];
+  av_strerror(error_code, err, 128);
 
-  Error(QStringLiteral("Error encoding %1 - %2 %3").arg(params().filename(),
-                                                        QString::number(error_code),
-                                                        err));
+  Error(QStringLiteral("%1 for %2 - %3 %4").arg(context,
+                                                params().filename(),
+                                                QString::number(error_code),
+                                                err));
+}
+
+void FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVStream* stream)
+{
+  // Send raw frame to the encoder
+  int error_code = avcodec_send_frame(codec_ctx, frame);
+  if (error_code < 0) {
+    FFmpegError("Failed to send frame to encoder", error_code);
+    return;
+  }
+
+  AVPacket* pkt = av_packet_alloc();
+
+  // Retrieve packets from encoder
+  while (error_code >= 0) {
+    error_code = avcodec_receive_packet(codec_ctx, pkt);
+
+    // EAGAIN just means the encoder wants another frame before encoding
+    if (error_code == AVERROR(EAGAIN)) {
+      break;
+    } else if (error_code < 0) {
+      FFmpegError("Failed to receive packet from decoder", error_code);
+      goto fail;
+    }
+
+    // Set packet stream index
+    pkt->stream_index = stream->index;
+
+    av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
+
+    // Write packet to file
+    av_interleaved_write_frame(fmt_ctx_, pkt);
+
+    // Unref packet in case we're getting another
+    av_packet_unref(pkt);
+  }
+
+fail:
+  av_packet_free(&pkt);
 }
 
 bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const QString& codec)
@@ -314,14 +382,14 @@ bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ct
   // Try to open encoder
   error_code = avcodec_open2(codec_ctx, codec, &codec_opts);
   if (error_code < 0) {
-    FFmpegError(error_code);
+    FFmpegError("Failed to open encoder", error_code);
     return false;
   }
 
   // Copy context settings to codecpar object
   error_code = avcodec_parameters_from_context(stream->codecpar, codec_ctx);
   if (error_code < 0) {
-    FFmpegError(error_code);
+    FFmpegError("Failed to copy codec parameters to stream", error_code);
     return false;
   }
 

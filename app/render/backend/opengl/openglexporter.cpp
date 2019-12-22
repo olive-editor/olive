@@ -3,8 +3,8 @@
 #include "render/backend/opengl/functions.h"
 #include "render/pixelservice.h"
 
-OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, const VideoRenderingParams& params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, EncoderPtr encoder, QObject* parent) :
-  Exporter(viewer, params, transform, color_processor, encoder, parent)
+OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, const VideoRenderingParams& video_params, const AudioRenderingParams &audio_params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, Encoder *encoder, QObject* parent) :
+  Exporter(viewer, video_params, audio_params, transform, color_processor, encoder, parent)
 {
 }
 
@@ -24,7 +24,7 @@ bool OpenGLExporter::Initialize()
   buffer_.Create(ctx);
 
   texture_ = std::make_shared<OpenGLTexture>();
-  texture_->Create(ctx, params_.effective_width(), params_.effective_height(), params_.format());
+  texture_->Create(ctx, video_params_.effective_width(), video_params_.effective_height(), video_params_.format());
 
   pipeline_ = OpenGLShader::CreateDefault();
 
@@ -40,9 +40,9 @@ void OpenGLExporter::Cleanup()
 FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
 {
   FramePtr frame = Frame::Create();
-  frame->set_width(params_.width());
-  frame->set_height(params_.height());
-  frame->set_format(params_.format());
+  frame->set_width(video_params_.width());
+  frame->set_height(video_params_.height());
+  frame->set_format(video_params_.format());
   frame->allocate();
 
   // Blit for transform if the width/height are different
@@ -65,7 +65,7 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
     buffer_.Attach(texture_);
     buffer_.Bind();
 
-    PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(params_.format());
+    PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params_.format());
 
     f->glReadPixels(0,
                     0,

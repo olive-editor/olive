@@ -3,8 +3,8 @@
 #include "ffmpeg/ffmpegencoder.h"
 
 Encoder::Encoder(const EncodingParams &params) :
-  open_(false),
-  params_(params)
+  params_(params),
+  open_(false)
 {
 }
 
@@ -73,7 +73,43 @@ const AudioRenderingParams &EncodingParams::audio_params() const
   return audio_params_;
 }
 
-EncoderPtr Encoder::CreateFromID(const QString &id, const EncodingParams& params)
+Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
 {
-  return std::make_shared<FFmpegEncoder>(params);
+  return new FFmpegEncoder(params);
+}
+
+bool Encoder::IsOpen() const
+{
+  return open_;
+}
+
+void Encoder::Open()
+{
+  if (!open_) {
+    open_ = OpenInternal();
+  }
+
+  if (open_) {
+    emit OpenSucceeded();
+  } else {
+    emit OpenFailed();
+  }
+}
+
+void Encoder::Write(FramePtr frame)
+{
+  if (open_) {
+    WriteInternal(frame);
+  }
+}
+
+void Encoder::Close()
+{
+  if (open_) {
+    CloseInternal();
+
+    open_ = false;
+  }
+
+  emit Closed();
 }

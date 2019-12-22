@@ -11,12 +11,17 @@ extern "C" {
 
 class FFmpegEncoder : public Encoder
 {
+  Q_OBJECT
 public:
   FFmpegEncoder(const EncodingParams &params);
 
-  virtual bool Open() override;
-  virtual void Write(FramePtr frame) override;
-  virtual void Close() override;
+public slots:
+  virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename) override;
+
+protected:
+  virtual bool OpenInternal() override;
+  virtual void WriteInternal(FramePtr frame) override;
+  virtual void CloseInternal() override;
 
 private:
   /**
@@ -36,7 +41,9 @@ private:
    *
    * @param error_code
    */
-  void FFmpegError(int error_code);
+  void FFmpegError(const char *context, int error_code);
+
+  void WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
 
   bool InitializeStream(enum AVMediaType type, AVStream** stream, AVCodecContext** codec_ctx, const QString& codec);
   bool InitializeCodecContext(AVStream** stream, AVCodecContext** codec_ctx, AVCodec* codec);

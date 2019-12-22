@@ -46,4 +46,6 @@ private:
   SampleFormat format_;
 };
 
+Q_DECLARE_METATYPE(AudioRenderingParams)
+
 #endif // AUDIOPARAMS_H

@@ -341,6 +341,8 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<OpenGLTexturePtr>();
   qRegisterMetaType<OpenGLTextureCache::ReferencePtr>();
   qRegisterMetaType<NodeValueTable>();
+  qRegisterMetaType<FramePtr>();
+  qRegisterMetaType<AudioRenderingParams>();
 }
 
 void Core::StartGUI(bool full_screen)

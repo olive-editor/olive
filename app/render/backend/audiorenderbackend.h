@@ -22,6 +22,8 @@ public:
 
   const AudioRenderingParams& params();
 
+  QString CachePathName();
+
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
@@ -36,8 +38,6 @@ protected:
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) override;
 
   virtual NodeInput* GetDependentInput() override;
-
-  QString CachePathName();
 
   virtual bool CanRender() override;
 

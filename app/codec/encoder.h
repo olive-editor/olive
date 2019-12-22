@@ -42,16 +42,11 @@ private:
   AudioRenderingParams audio_params_;
 };
 
-class Encoder
+class Encoder : public QObject
 {
+  Q_OBJECT
 public:
   Encoder(const EncodingParams& params);
-
-  DISABLE_COPY_MOVE(Encoder)
-
-  virtual bool Open() = 0;
-  virtual void Write(FramePtr frame) = 0;
-  virtual void Close() = 0;
 
   /**
    * @brief Create a Encoder instance using a Encoder ID
@@ -60,15 +55,33 @@ public:
    *
    * A Encoder instance or nullptr if a Decoder with this ID does not exist
    */
-  static EncoderPtr CreateFromID(const QString& id, const EncodingParams &params);
+  static Encoder *CreateFromID(const QString& id, const EncodingParams &params);
 
-protected:
   const EncodingParams& params() const;
 
-  bool open_;
+public slots:
+  void Open();
+  void Write(FramePtr frame);
+  virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename) = 0;
+  void Close();
+
+signals:
+  void OpenSucceeded();
+  void OpenFailed();
+
+  void Closed();
+
+protected:
+  virtual bool OpenInternal() = 0;
+  virtual void WriteInternal(FramePtr frame) = 0;
+  virtual void CloseInternal() = 0;
+
+  bool IsOpen() const;
 
 private:
   EncodingParams params_;
+
+  bool open_;
 };
 
 #endif // ENCODER_H

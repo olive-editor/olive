@@ -140,4 +140,6 @@ private:
 
 };
 
+Q_DECLARE_METATYPE(FramePtr)
+
 #endif // FRAME_H

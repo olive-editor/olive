@@ -38,6 +38,8 @@ extern "C" {
 #include "common/debug.h"
 
 int main(int argc, char *argv[]) {
+  av_log_set_level(AV_LOG_QUIET);
+
   QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
   // Set OpenGL display profile (3.2 Core)

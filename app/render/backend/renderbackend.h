@@ -36,6 +36,9 @@ public slots:
 
   void Decompile();
 
+signals:
+  void QueueComplete();
+
 protected:
   void RegenerateCacheID();
 

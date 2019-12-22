@@ -27,7 +27,7 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   sample_rate_combobox_ = new QComboBox();
   sample_rates_ = Core::SupportedSampleRates();
   foreach (const int& sr, sample_rates_) {
-    sample_rate_combobox_->addItem(Core::SampleRateToString(sr));
+    sample_rate_combobox_->addItem(Core::SampleRateToString(sr), sr);
   }
   layout->addWidget(sample_rate_combobox_, row, 1);
 
@@ -38,7 +38,7 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   channel_layout_combobox_ = new QComboBox();
   channel_layouts_ = Core::SupportedChannelLayouts();
   foreach (const uint64_t& layout, channel_layouts_) {
-    channel_layout_combobox_->addItem(Core::ChannelLayoutToString(layout));
+    channel_layout_combobox_->addItem(Core::ChannelLayoutToString(layout), layout);
   }
   layout->addWidget(channel_layout_combobox_, row, 1);
 
@@ -58,6 +58,11 @@ QComboBox *ExportAudioTab::codec_combobox() const
 QComboBox *ExportAudioTab::sample_rate_combobox() const
 {
   return sample_rate_combobox_;
+}
+
+QComboBox *ExportAudioTab::channel_layout_combobox() const
+{
+  return channel_layout_combobox_;
 }
 
 void ExportAudioTab::set_sample_rate(int rate)

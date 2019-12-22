@@ -210,9 +210,13 @@ void RenderBackend::DisconnectViewer(ViewerOutput *node)
 void RenderBackend::CacheNext()
 {
   if (!Init()
-      || cache_queue_.isEmpty()
       || !ViewerIsConnected()
       || !CanRender()) {
+    return;
+  }
+
+  if (cache_queue_.isEmpty()) {
+    emit QueueComplete();
     return;
   }
 

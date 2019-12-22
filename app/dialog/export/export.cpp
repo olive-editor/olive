@@ -181,6 +181,11 @@ void ExportDialog::accept()
   // FIXME: Hardcoded pixel format
   VideoRenderingParams video_render_params(dest_width, dest_height, video_tab_->frame_rate().flipped(), olive::PIX_FMT_RGBA32F, olive::kOnline);
 
+  // FIXME: Hardcoded sample format
+  AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
+                                           audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
+                                           SAMPLE_FMT_FLT);
+
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
                                                              OCIO::ROLE_SCENE_LINEAR,
                                                              video_tab_->CurrentOCIODisplay(),
@@ -192,13 +197,15 @@ void ExportDialog::accept()
   encoding_params.SetFilename(filename_edit_->text()); // FIXME: Validate extension
 
   const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
+  const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
   encoding_params.EnableVideo(video_render_params,
                               video_codec.id());
+  encoding_params.EnableAudio(audio_render_params,
+                              audio_codec.id());
 
+  Encoder* encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
 
-  EncoderPtr encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
-
-  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, video_render_params, transform, color_processor, encoder);
+  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, video_render_params, audio_render_params, transform, color_processor, encoder);
 
   connect(exporter, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
   connect(exporter, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
@@ -326,25 +333,25 @@ void ExportDialog::SetUpFormats()
   for (int i=0;i<kFormatCount;i++) {
     switch (static_cast<Format>(i)) {
     case kFormatDNxHD:
-      formats_.append(ExportFormat(tr("DNxHD"), "mxf", {kCodecDNxHD}, {kCodecPCM}));
+      formats_.append(ExportFormat(tr("DNxHD"), "mxf", "ffmpeg", {kCodecDNxHD}, {kCodecPCM}));
       break;
     case kFormatMatroska:
-      formats_.append(ExportFormat(tr("Matroska Video"), "mkv", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
+      formats_.append(ExportFormat(tr("Matroska Video"), "mkv", "ffmpeg", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
       break;
     case kFormatMPEG4:
-      formats_.append(ExportFormat(tr("MPEG-4 Video"), "mp4", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
+      formats_.append(ExportFormat(tr("MPEG-4 Video"), "mp4", "ffmpeg", {kCodecH264, kCodecH265}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
       break;
     case kFormatOpenEXR:
-      formats_.append(ExportFormat(tr("OpenEXR"), "exr", {kCodecOpenEXR}, {}));
+      formats_.append(ExportFormat(tr("OpenEXR"), "exr", "oiio", {kCodecOpenEXR}, {}));
       break;
     case kFormatQuickTime:
-      formats_.append(ExportFormat(tr("QuickTime"), "mov", {kCodecH264, kCodecH265, kCodecProRes}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
+      formats_.append(ExportFormat(tr("QuickTime"), "mov", "ffmpeg", {kCodecH264, kCodecH265, kCodecProRes}, {kCodecAAC, kCodecMP2, kCodecMP3, kCodecPCM}));
       break;
     case kFormatPNG:
-      formats_.append(ExportFormat(tr("PNG"), "png", {kCodecPNG}, {}));
+      formats_.append(ExportFormat(tr("PNG"), "png", "oiio", {kCodecPNG}, {}));
       break;
     case kFormatTIFF:
-      formats_.append(ExportFormat(tr("TIFF"), "tiff", {kCodecTIFF}, {}));
+      formats_.append(ExportFormat(tr("TIFF"), "tiff", "oiio", {kCodecTIFF}, {}));
       break;
     case kFormatCount:
       break;

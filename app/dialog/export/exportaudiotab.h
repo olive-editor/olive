@@ -11,6 +11,7 @@ public:
 
   QComboBox* codec_combobox() const;
   QComboBox* sample_rate_combobox() const;
+  QComboBox* channel_layout_combobox() const;
 
   void set_sample_rate(int rate);
   void set_channel_layout(uint64_t layout);
