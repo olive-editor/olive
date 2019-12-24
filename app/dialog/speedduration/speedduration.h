@@ -44,4 +44,15 @@ private slots:
   void DurationChanged();
 };
 
+class BlockReverseCommand : public QUndoCommand {
+public:
+  BlockReverseCommand(Block* block, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  Block* block_;
+};
+
 #endif // SPEEDDURATIONDIALOG_H

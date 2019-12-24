@@ -70,6 +70,24 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         samples_from_this_block = speed_adjusted_samples;
       }
 
+      if (b->is_reversed()) {
+        int sample_size = audio_params_.samples_to_bytes(1);
+        int half_buffer_sz = samples_from_this_block.size() / 2;
+        char* temp_buffer = new char[sample_size];
+
+        for (int src_index=0;src_index<half_buffer_sz;src_index+=sample_size) {
+          char* src_ptr = samples_from_this_block.data() + src_index;
+          char* dst_ptr = samples_from_this_block.data() + samples_from_this_block.size() - sample_size - src_index;
+
+          // Simple swap
+          memcpy(temp_buffer, src_ptr, sample_size);
+          memcpy(src_ptr, dst_ptr, sample_size);
+          memcpy(dst_ptr, temp_buffer, sample_size);
+        }
+
+        delete [] temp_buffer;
+      }
+
       copied_size = samples_from_this_block.size();
 
       memcpy(block_range_buffer.data()+destination_offset,

@@ -73,6 +73,8 @@ public:
 
   rational media_length() const;
   double speed() const;
+  bool is_still() const;
+  bool is_reversed() const;
 
   const QString& block_name() const;
   void set_block_name(const QString& name);

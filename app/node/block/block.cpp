@@ -178,7 +178,17 @@ rational Block::media_length() const
 
 double Block::speed() const
 {
-  return media_length().toDouble() / length().toDouble();
+  return qAbs(media_length().toDouble() / length().toDouble());
+}
+
+bool Block::is_still() const
+{
+  return (media_in() == media_out());
+}
+
+bool Block::is_reversed() const
+{
+  return (media_out() < media_in());
 }
 
 const QString &Block::block_name() const

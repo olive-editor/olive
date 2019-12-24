@@ -33,6 +33,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     // show them all as having the same parameters
     bool same_speed = true;
     bool same_duration = true;
+    bool all_reversed = true;
 
     for (int i=1;i<clips.size();i++) {
       ClipBlock* prev_clip = clips_.at(i-1);
@@ -50,8 +51,16 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
         same_duration = false;
       }
 
+      // Check if all are reversed
+      if (all_reversed
+          && prev_clip->is_reversed() != this_clip->is_reversed()) {
+        all_reversed = false;
+      }
+
       // If we've already determined both are different, no need to continue
-      if (!same_speed && !same_duration) {
+      if (!same_speed
+          && !same_duration
+          && !all_reversed) {
         break;
       }
     }
@@ -97,10 +106,15 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     // Pick up when the speed or duration slider changes so we can programmatically link them
     connect(speed_slider_, SIGNAL(ValueChanged(double)), this, SLOT(SpeedChanged()));
     connect(duration_slider_, SIGNAL(ValueChanged(int64_t)), this, SLOT(DurationChanged()));
-  }
 
-  reverse_speed_checkbox_ = new QCheckBox(tr("Reverse Speed"));
-  layout->addWidget(reverse_speed_checkbox_);
+    reverse_speed_checkbox_ = new QCheckBox(tr("Reverse Speed"));
+    if (all_reversed) {
+      reverse_speed_checkbox_->setChecked(clips_.first()->is_reversed());
+    } else {
+      reverse_speed_checkbox_->setTristate();
+    }
+    layout->addWidget(reverse_speed_checkbox_);
+  }
 
   maintain_audio_pitch_checkbox_ = new QCheckBox(tr("Maintain Audio Pitch"));
   layout->addWidget(maintain_audio_pitch_checkbox_);
@@ -216,6 +230,10 @@ void SpeedDurationDialog::accept()
       // Change the speed by calculating the appropriate media out point for this clip
       new BlockSetMediaOutCommand(clip, new_media_out, command);
     }
+
+    if (!reverse_speed_checkbox_->isTristate() && clip->is_reversed() != reverse_speed_checkbox_->isChecked()) {
+      new BlockReverseCommand(clip, command);
+    }
   }
 
   olive::undo_stack.pushIfHasChildren(command);
@@ -310,4 +328,23 @@ void SpeedDurationDialog::DurationChanged()
       speed_slider_->SetTristate();
     }
   }
+}
+
+BlockReverseCommand::BlockReverseCommand(Block *block, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  block_(block)
+{
+}
+
+void BlockReverseCommand::redo()
+{
+  rational temp = block_->media_in();
+  block_->set_media_in(block_->media_out());
+  block_->set_media_out(temp);
+}
+
+void BlockReverseCommand::undo()
+{
+  // Since it's a simple swap, we can just run redo() again
+  redo();
 }
