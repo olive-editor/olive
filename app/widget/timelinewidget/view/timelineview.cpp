@@ -34,9 +34,8 @@
 #include "project/item/footage/footage.h"
 
 TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignment, QWidget *parent) :
-  QGraphicsView(parent),
+  TimelineViewBase(parent),
   connected_track_list_(nullptr),
-  playhead_(0),
   type_(type)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
@@ -68,14 +67,6 @@ void TimelineView::SetScale(const double &scale)
   end_item_->SetScale(scale_);
 }
 
-void TimelineView::SetTimebase(const rational &timebase)
-{
-  SetTimebaseInternal(timebase);
-
-  // Timebase influences position/visibility of playhead
-  viewport()->update();
-}
-
 void TimelineView::SelectAll()
 {
   QList<QGraphicsItem*> all_items = items();
@@ -94,26 +85,26 @@ void TimelineView::DeselectAll()
   }
 }
 
-void TimelineView::SetTime(const int64_t time)
-{
-  playhead_ = time;
-
-  // Force redraw for playhead
-  viewport()->update();
-}
-
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
+  if (PlayheadPress(event)) {
+    // Let the parent handle this
+    return;
+  }
+
   TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
                                         event->modifiers());
 
   emit MousePressed(&timeline_event);
-
-
 }
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
+  if (PlayheadMove(event)) {
+    // Let the parent handle this
+    return;
+  }
+
   TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
                                         event->modifiers());
 
@@ -122,6 +113,11 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 {
+  if (PlayheadRelease(event)) {
+    // Let the parent handle this
+    return;
+  }
+
   TimelineViewMouseEvent timeline_event(ScreenToCoordinate(event->pos()),
                                         event->modifiers());
 
@@ -179,26 +175,6 @@ void TimelineView::resizeEvent(QResizeEvent *event)
   QGraphicsView::resizeEvent(event);
 
   UpdateSceneRect();
-}
-
-void TimelineView::drawForeground(QPainter *painter, const QRectF &rect)
-{
-  QGraphicsView::drawForeground(painter, rect);
-
-  if (!timebase().isNull()) {
-    double x = TimeToScene(rational(playhead_ * timebase().numerator(), timebase().denominator()));
-    double width = TimeToScene(timebase());
-
-    QRectF playhead_rect(x, rect.top(), width, rect.height());
-
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(playhead_style_.PlayheadHighlightColor());
-    painter->drawRect(playhead_rect);
-
-    painter->setPen(playhead_style_.PlayheadColor());
-    painter->setBrush(Qt::NoBrush);
-    painter->drawLine(QLineF(playhead_rect.topLeft(), playhead_rect.bottomLeft()));
-  }
 }
 
 Stream::Type TimelineView::TrackTypeToStreamType(TrackType track_type)
@@ -293,11 +269,6 @@ void TimelineView::UserSetTime(const int64_t &time)
 {
   SetTime(time);
   emit TimeChanged(time);
-}
-
-rational TimelineView::GetPlayheadTime()
-{
-  return rational(playhead_ * timebase().numerator(), timebase().denominator());
 }
 
 void TimelineView::UpdateSceneRect()

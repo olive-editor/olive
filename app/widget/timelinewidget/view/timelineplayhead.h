@@ -34,13 +34,15 @@ class TimelinePlayhead : public QWidget
   Q_PROPERTY(QColor playheadColor READ PlayheadColor WRITE SetPlayheadColor DESIGNABLE true)
   Q_PROPERTY(QColor playheadHighlightColor READ PlayheadHighlightColor WRITE SetPlayheadHighlightColor DESIGNABLE true)
 public:
-  TimelinePlayhead();
+  TimelinePlayhead() = default;
 
-  QColor PlayheadColor();
-  QColor PlayheadHighlightColor();
+  const QColor& PlayheadColor() const;
+  const QColor& PlayheadHighlightColor() const;
 
   void SetPlayheadColor(QColor c);
   void SetPlayheadHighlightColor(QColor c);
+
+  void Draw(QPainter *painter, const QRectF &rect) const;
 
 private:
   QColor playhead_color_;

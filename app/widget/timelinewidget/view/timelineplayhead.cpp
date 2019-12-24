@@ -20,17 +20,14 @@
 
 #include "timelineplayhead.h"
 
-TimelinePlayhead::TimelinePlayhead()
-{
+#include <QPainter>
 
-}
-
-QColor TimelinePlayhead::PlayheadColor()
+const QColor &TimelinePlayhead::PlayheadColor() const
 {
   return playhead_color_;
 }
 
-QColor TimelinePlayhead::PlayheadHighlightColor()
+const QColor &TimelinePlayhead::PlayheadHighlightColor() const
 {
   return playhead_highlight_color_;
 }
@@ -43,4 +40,15 @@ void TimelinePlayhead::SetPlayheadColor(QColor c)
 void TimelinePlayhead::SetPlayheadHighlightColor(QColor c)
 {
   playhead_highlight_color_ = c;
+}
+
+void TimelinePlayhead::Draw(QPainter* painter, const QRectF& playhead_rect) const
+{
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(PlayheadHighlightColor());
+  painter->drawRect(playhead_rect);
+
+  painter->setPen(PlayheadColor());
+  painter->setBrush(Qt::NoBrush);
+  painter->drawLine(QLineF(playhead_rect.topLeft(), playhead_rect.bottomLeft()));
 }

@@ -29,7 +29,7 @@
 
 #include "node/block/clip/clip.h"
 #include "node/output/timeline/timeline.h"
-#include "timelineplayhead.h"
+#include "timelineviewbase.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"
 #include "timelineviewenditem.h"
@@ -42,7 +42,7 @@
  *
  * This widget primarily exposes users to viewing and modifying Block nodes, usually through a TimelineOutput node.
  */
-class TimelineView : public QGraphicsView, public TimelineScaledObject
+class TimelineView : public TimelineViewBase
 {
   Q_OBJECT
 public:
@@ -66,15 +66,8 @@ public:
 
   void ConnectTrackList(TrackList* list);
 
-public slots:
-  void SetTimebase(const rational& timebase);
-
-  void SetTime(const int64_t time);
-
 signals:
   void ScaleChanged(double scale);
-
-  void TimeChanged(const int64_t& time);
 
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
@@ -99,8 +92,6 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
-
 private:
   TrackType ConnectedTrackType();
   Stream::Type TrackTypeToStreamType(TrackType track_type);
@@ -112,21 +103,13 @@ private:
 
   void UserSetTime(const int64_t& time);
 
-  rational GetPlayheadTime();
-
   void UpdatePlayheadRect();
 
   TrackList* connected_track_list_;
 
   QGraphicsScene scene_;
 
-  int64_t playhead_;
-
   TimelineViewEndItem* end_item_;
-
-  TimelinePlayhead playhead_style_;
-
-  QRect playhead_rect_;
 
   TrackType type_;
 
