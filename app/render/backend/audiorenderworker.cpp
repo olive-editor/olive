@@ -80,9 +80,9 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
           char* dst_ptr = samples_from_this_block.data() + samples_from_this_block.size() - sample_size - src_index;
 
           // Simple swap
-          memcpy(temp_buffer, src_ptr, sample_size);
-          memcpy(src_ptr, dst_ptr, sample_size);
-          memcpy(dst_ptr, temp_buffer, sample_size);
+          memcpy(temp_buffer, src_ptr, static_cast<size_t>(sample_size));
+          memcpy(src_ptr, dst_ptr, static_cast<size_t>(sample_size));
+          memcpy(dst_ptr, temp_buffer, static_cast<size_t>(sample_size));
         }
 
         delete [] temp_buffer;
