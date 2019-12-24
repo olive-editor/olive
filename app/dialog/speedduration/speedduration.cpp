@@ -225,6 +225,11 @@ void SpeedDurationDialog::accept()
       int64_t new_clip_duration = olive::time_to_timestamp(new_clip_length, timebase_);
       int64_t new_media_duration = qRound(static_cast<double>(new_clip_duration) * new_speed);
       rational new_media_length = olive::timestamp_to_time(new_media_duration, timebase_);
+
+      if (clip->is_reversed()) {
+        new_media_length = -new_media_length;
+      }
+
       rational new_media_out = clip->media_in() + new_media_length;
 
       // Change the speed by calculating the appropriate media out point for this clip
