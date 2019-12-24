@@ -90,3 +90,8 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
 
   return merged_table;
 }
+
+const AudioRenderingParams &AudioRenderWorker::audio_params() const
+{
+  return audio_params_;
+}

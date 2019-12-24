@@ -39,14 +39,25 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
-bool VolumeNode::ProcessesSamples() const
+NodeInput *VolumeNode::ProcessesSamplesFrom() const
 {
-  return true;
+  return samples_input_;
 }
 
-void VolumeNode::ProcessSamples(const NodeValueDatabase& values, const AudioRenderingParams& params, const float* input, float* output, int index) const
+void VolumeNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams& params, const float* input, float* output, int index) const
 {
-  float volume_val = values[volume_input_].Get(NodeParam::kFloat).toFloat();
+  float volume_val = (*values)[volume_input_].Get(NodeParam::kFloat).toFloat();
 
   output[index] = input[index] * volume_val;
+}
+
+void VolumeNode::Retranslate()
+{
+  samples_input_->set_name(tr("Samples"));
+  volume_input_->set_name(tr("Volume"));
+}
+
+NodeInput *VolumeNode::samples_input() const
+{
+  return samples_input_;
 }

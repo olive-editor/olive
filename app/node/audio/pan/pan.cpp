@@ -39,19 +39,19 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
-bool PanNode::ProcessesSamples() const
+NodeInput *PanNode::ProcessesSamplesFrom() const
 {
-  return true;
+  return samples_input_;
 }
 
-void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const float *input, float *output, int index) const
+void PanNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams &params, const float *input, float *output, int index) const
 {
   if (params.channel_count() != 2) {
     // This node currently only works for stereo audio
     return;
   }
 
-  float pan_val = values[panning_input_].Get(NodeParam::kFloat).toFloat();
+  float pan_val = (*values)[panning_input_].Get(NodeParam::kFloat).toFloat();
 
   if (index%2 == 0) {
     // Sample is left channel
@@ -64,4 +64,10 @@ void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderi
       output[index] = input[index] * (1.0F - qAbs(pan_val));
     }
   }
+}
+
+void PanNode::Retranslate()
+{
+  samples_input_->set_name(tr("Samples"));
+  panning_input_->set_name(tr("Pan"));
 }

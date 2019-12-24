@@ -26,6 +26,7 @@
 #include "config/config.h"
 #include "common/qtversionabstraction.h"
 #include "core.h"
+#include "node/audio/volume/volume.h"
 #include "node/distort/transform/transform.h"
 #include "node/input/media/audio/audio.h"
 #include "node/input/media/video/video.h"
@@ -254,7 +255,12 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
         AudioInput* audio_input = new AudioInput();
         audio_input->SetFootage(footage_stream);
         new NodeAddCommand(dst_graph, audio_input, command);
-        new NodeEdgeAddCommand(audio_input->output(), clip->texture_input(), command);
+
+        VolumeNode* volume_node = new VolumeNode();
+        new NodeAddCommand(dst_graph, volume_node, command);
+
+        new NodeEdgeAddCommand(audio_input->output(), volume_node->samples_input(), command);
+        new NodeEdgeAddCommand(volume_node->output(), clip->texture_input(), command);
         break;
       }
       default:

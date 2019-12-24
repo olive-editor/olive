@@ -15,8 +15,10 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  virtual bool ProcessesSamples() const override;
-  virtual void ProcessSamples(const NodeValueDatabase& values, const AudioRenderingParams& params, const float* input, float* output, int index) const override;
+  virtual NodeInput* ProcessesSamplesFrom() const override;
+  virtual void ProcessSamples(const NodeValueDatabase* values, const AudioRenderingParams& params, const float* input, float* output, int index) const override;
+
+  virtual void Retranslate() override;
 
 private:
   NodeInput* samples_input_;

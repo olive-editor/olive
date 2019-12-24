@@ -20,6 +20,8 @@ protected:
 
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
+  const AudioRenderingParams& audio_params() const;
+
 private:
   AudioRenderingParams audio_params_;
 

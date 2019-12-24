@@ -390,12 +390,12 @@ NodeInput *Node::AcceleratedCodeIterativeInput() const
   return nullptr;
 }
 
-bool Node::ProcessesSamples() const
+NodeInput* Node::ProcessesSamplesFrom() const
 {
-  return false;
+  return nullptr;
 }
 
-void Node::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const float *input, float *output, int index) const
+void Node::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams &params, const float *input, float *output, int index) const
 {
   Q_UNUSED(values)
   Q_UNUSED(params)

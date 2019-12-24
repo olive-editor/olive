@@ -42,12 +42,6 @@ NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path)
   return ProcessNode(path);
 }
 
-bool RenderWorker::OutputIsAccelerated(Node *output)
-{
-  Q_UNUSED(output)
-  return false;
-}
-
 void RenderWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase *input_params, NodeValueTable* output_params)
 {
   Q_UNUSED(node)

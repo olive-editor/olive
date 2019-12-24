@@ -160,12 +160,12 @@ public:
   /**
    * @brief Return whether this node processes samples or not
    */
-  virtual bool ProcessesSamples() const;
+  virtual NodeInput* ProcessesSamplesFrom() const;
 
   /**
    * @brief If ProcessesSamples() is true, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueDatabase& values, const AudioRenderingParams& params, const float* input, float* output, int index) const;
+  virtual void ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams& params, const float* input, float* output, int index) const;
 
   /**
    * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)

@@ -35,8 +35,6 @@ protected:
 
   virtual NodeValueTable RenderInternal(const NodeDependency& path);
 
-  virtual bool OutputIsAccelerated(Node *output);
-
   virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, const NodeValueDatabase *input_params, NodeValueTable* output_params);
 
   StreamPtr ResolveStreamFromInput(NodeInput* input);
