@@ -3,25 +3,36 @@
 #include <QVBoxLayout>
 
 KeyframeView::KeyframeView(QWidget *parent) :
-  QWidget(parent)
+  TimelineViewBase(parent)
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setSpacing(0);
-  layout->setMargin(0);
-
-  ruler_ = new TimeRuler();
-  ruler_->SetTextVisible(true);
-  layout->addWidget(ruler_);
-
-  view_ = new QGraphicsView();
-  view_->setScene(&scene_);
-  view_->setBackgroundRole(QPalette::Base);
-  view_->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-  view_->setDragMode(QGraphicsView::RubberBandDrag);
-  layout->addWidget(view_);
+  setBackgroundRole(QPalette::Base);
+  setAlignment(Qt::AlignLeft | Qt::AlignTop);
+  setDragMode(QGraphicsView::RubberBandDrag);
 }
 
-void KeyframeView::SetTimebase(const rational &timebase)
+void KeyframeView::mousePressEvent(QMouseEvent *event)
 {
-  ruler_->SetTimebase(timebase);
+  if (PlayheadPress(event)) {
+    return;
+  }
+
+  QGraphicsView::mousePressEvent(event);
+}
+
+void KeyframeView::mouseMoveEvent(QMouseEvent *event)
+{
+  if (PlayheadMove(event)) {
+    return;
+  }
+
+  QGraphicsView::mouseMoveEvent(event);
+}
+
+void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
+{
+  if (PlayheadRelease(event)) {
+    return;
+  }
+
+  QGraphicsView::mouseReleaseEvent(event);
 }

@@ -30,11 +30,15 @@ class ParamPanel : public PanelWidget
 public:
   ParamPanel(QWidget* parent);
 
+  virtual void ZoomIn() override;
+
+  virtual void ZoomOut() override;
+
 public slots:
   void SetNodes(QList<Node*> nodes);
 
 protected:
-  virtual void changeEvent(QEvent* e);
+  virtual void changeEvent(QEvent* e) override;
 
 private:
   void Retranslate();

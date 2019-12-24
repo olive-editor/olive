@@ -33,6 +33,16 @@ ParamPanel::ParamPanel(QWidget* parent) :
   Retranslate();
 }
 
+void ParamPanel::ZoomIn()
+{
+  view_->SetScale(view_->GetScale() * 2);
+}
+
+void ParamPanel::ZoomOut()
+{
+  view_->SetScale(view_->GetScale() * 0.5);
+}
+
 void ParamPanel::SetNodes(QList<Node *> nodes)
 {
   view_->SetNodes(nodes);

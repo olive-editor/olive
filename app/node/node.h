@@ -202,6 +202,12 @@ public:
    */
   void DisconnectAll();
 
+  template<class T>
+  /**
+   * @brief Find a node of a certain type that this Node outputs to
+   */
+  const T* FindOutputNode() const;
+
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
    */
@@ -383,6 +389,31 @@ template<class T>
 T* Node::ValueToPtr(const QVariant &ptr)
 {
   return reinterpret_cast<T*>(ptr.value<quintptr>());
+}
+
+template<class T>
+const Node* FindOutputNodeInternal(const Node* n) {
+  foreach (NodeEdgePtr edge, n->output()->edges()) {
+    Node* connected = edge->input()->parentNode();
+    T* cast_test = dynamic_cast<T*>(connected);
+
+    if (cast_test) {
+      return cast_test;
+    } else {
+      const Node* drill_test = FindOutputNodeInternal<T>(connected);
+      if (drill_test) {
+        return drill_test;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+template<class T>
+const T* Node::FindOutputNode() const
+{
+  return static_cast<const T*>(FindOutputNodeInternal<T>(this));
 }
 
 #endif // NODE_H

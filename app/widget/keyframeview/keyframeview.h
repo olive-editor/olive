@@ -5,22 +5,22 @@
 
 #include "common/rational.h"
 #include "keyframeviewitem.h"
-#include "widget/timeruler/timeruler.h"
+#include "widget/timelinewidget/view/timelineviewbase.h"
 
-class KeyframeView : public QWidget
+class KeyframeView : public TimelineViewBase
 {
 public:
   KeyframeView(QWidget* parent = nullptr);
 
   void AddKeyframe(const rational& time, int y);
 
-  void SetTimebase(const rational& timebase);
+protected:
+  virtual void mousePressEvent(QMouseEvent *event) override;
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
+  virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-  TimeRuler* ruler_;
-  QGraphicsView* view_;
 
-  QGraphicsScene scene_;
 };
 
 #endif // KEYFRAMEVIEW_H

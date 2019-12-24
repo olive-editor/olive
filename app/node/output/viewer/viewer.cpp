@@ -93,12 +93,12 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
   SendInvalidateCache(start_range, end_range);
 }
 
-const VideoParams &ViewerOutput::video_params()
+const VideoParams &ViewerOutput::video_params() const
 {
   return video_params_;
 }
 
-const AudioParams &ViewerOutput::audio_params()
+const AudioParams &ViewerOutput::audio_params() const
 {
   return audio_params_;
 }

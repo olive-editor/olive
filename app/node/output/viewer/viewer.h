@@ -51,8 +51,8 @@ public:
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
 
-  const VideoParams& video_params();
-  const AudioParams& audio_params();
+  const VideoParams& video_params() const;
+  const AudioParams& audio_params() const;
 
   void set_video_params(const VideoParams& video);
   void set_audio_params(const AudioParams& audio);

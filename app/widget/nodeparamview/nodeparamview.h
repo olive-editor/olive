@@ -27,6 +27,7 @@
 #include "node/node.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
+#include "widget/timeruler/timeruler.h"
 
 class NodeParamView : public QWidget
 {
@@ -36,10 +37,17 @@ public:
   void SetNodes(QList<Node*> nodes);
   const QList<Node*>& nodes();
 
+  const double& GetScale() const;
+  void SetScale(const double &scale);
+
 private:
+  void SetTimebase(const rational& timebase);
+
   QVBoxLayout* param_layout_;
 
   KeyframeView* keyframe_view_;
+
+  TimeRuler* ruler_;
 
   QList<Node*> nodes_;
 
