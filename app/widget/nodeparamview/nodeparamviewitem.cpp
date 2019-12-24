@@ -23,10 +23,14 @@
 #include <QCheckBox>
 #include <QDebug>
 #include <QEvent>
+#include <QMessageBox>
 #include <QPainter>
 
+#include "nodeparamviewkeyframecontrol.h"
+#include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
+#include "undo/undostack.h"
 
 NodeParamViewItem::NodeParamViewItem(QWidget *parent) :
   QWidget(parent)
@@ -110,6 +114,7 @@ void NodeParamViewItem::SetupUI()
   foreach (NodeParam* param, first_node->parameters()) {
     // This widget only needs to show input parameters
     if (param->type() == NodeParam::kInput) {
+      NodeInput* input = static_cast<NodeInput*>(param);
 
       // Add descriptor label
       QLabel* param_label = new QLabel();
@@ -119,13 +124,22 @@ void NodeParamViewItem::SetupUI()
 
       // Create a widget/input bridge for this input
       NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(this);
-      bridge->AddInput(static_cast<NodeInput*>(param));
+      bridge->AddInput(input);
       bridges_.append(bridge);
 
       // Add widgets for this parameter ot the layout
       const QList<QWidget*>& widgets_for_param = bridge->widgets();
       for (int i=0;i<widgets_for_param.size();i++) {
         content_layout_->addWidget(widgets_for_param.at(i), row_count, i + 1);
+      }
+
+      // Add keyframe control to this layout if parameter is keyframable
+      if (input->is_keyframable()) {
+        // Hacky but effective way to make sure this widget is always as far right as possible
+        int control_column = 10;
+
+        NodeParamViewKeyframeControl* key_control = new NodeParamViewKeyframeControl(input);
+        content_layout_->addWidget(key_control, row_count, control_column);
       }
 
       row_count++;
@@ -178,6 +192,49 @@ void NodeParamViewItem::SetExpanded(bool e)
     title_bar_collapse_btn_->setIcon(olive::icon::TriDown);
   } else {
     title_bar_collapse_btn_->setIcon(olive::icon::TriRight);
+  }
+}
+
+void NodeParamViewItem::KeyframeEnableChanged(bool e)
+{
+  NodeParamViewKeyframeControl* control = static_cast<NodeParamViewKeyframeControl*>(sender());
+  NodeInput* input = control->GetConnectedInput();
+
+  if (e == input->is_keyframing()) {
+    // No-op
+    return;
+  }
+
+  if (e) {
+    QUndoCommand* command = new QUndoCommand();
+
+    // Enable keyframing
+    new NodeParamSetKeyframing(input, true, command);
+
+    // FIXME: Create a keyframe at this time
+
+    olive::undo_stack.push(command);
+  } else {
+    // Confirm the user wants to clear all keyframes
+    if (QMessageBox::warning(this,
+                         tr("Warning"),
+                         tr("Are you sure you want to disable keyframing on this value? This will clear all existing keyframes."),
+                         QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+
+      // Disable keyframing
+      QUndoCommand* command = new QUndoCommand();
+
+      // FIXME: Delete all keyframes
+
+      // Disable keyframing
+      new NodeParamSetKeyframing(input, false, command);
+
+      olive::undo_stack.push(command);
+
+    } else {
+      // Disable action has effectively been ignored
+      control->SetKeyframeEnabled(true);
+    }
   }
 }
 

@@ -27,6 +27,7 @@
 
 NodeInput::NodeInput(const QString& id) :
   NodeParam(id),
+  keyframable_(true),
   keyframing_(false),
   dependent_(true),
   has_minimum_(false),
@@ -239,6 +240,16 @@ bool NodeInput::is_keyframing() const
 void NodeInput::set_is_keyframing(bool k)
 {
   keyframing_ = k;
+}
+
+bool NodeInput::is_keyframable() const
+{
+  return keyframable_;
+}
+
+void NodeInput::set_is_keyframable(bool k)
+{
+  keyframable_ = k;
 }
 
 const QVariant &NodeInput::minimum() const

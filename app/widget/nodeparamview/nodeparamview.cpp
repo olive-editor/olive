@@ -21,6 +21,7 @@
 #include "nodeparamview.h"
 
 #include <QScrollArea>
+#include <QSplitter>
 
 NodeParamView::NodeParamView(QWidget *parent) :
   QWidget(parent)
@@ -30,10 +31,13 @@ NodeParamView::NodeParamView(QWidget *parent) :
   widget_layout->setSpacing(0);
   widget_layout->setMargin(0);
 
+  QSplitter* splitter = new QSplitter(Qt::Horizontal);
+  widget_layout->addWidget(splitter);
+
   // Set up scroll area for params
   QScrollArea* scroll_area = new QScrollArea();
   scroll_area->setWidgetResizable(true);
-  widget_layout->addWidget(scroll_area);
+  splitter->addWidget(scroll_area);
 
   // Param widget
   QWidget* param_widget_area = new QWidget();
@@ -46,6 +50,13 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   // Add a stretch to allow empty space at the bottom of the layout
   param_layout_->addStretch();
+
+  // Set up keyframe view
+  keyframe_view_ = new KeyframeView();
+  splitter->addWidget(keyframe_view_);
+
+  // Disable collapsing param view (but collapsing keyframe view is permitted)
+  splitter->setCollapsible(0, false);
 }
 
 void NodeParamView::SetNodes(QList<Node *> nodes)

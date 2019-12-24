@@ -69,6 +69,8 @@ QIcon olive::icon::Record;
 QIcon olive::icon::Add;
 QIcon olive::icon::Error;
 QIcon olive::icon::DirUp;
+QIcon olive::icon::Clock;
+QIcon olive::icon::Diamond;
 
 void olive::icon::LoadAll(const QString& theme)
 {
@@ -116,6 +118,8 @@ void olive::icon::LoadAll(const QString& theme)
   Add = Create(theme, "add-button");
   Error = Create(theme, "error");
   DirUp = Create(theme, "dirup");
+  Clock = Create(theme, "clock");
+  Diamond = Create(theme, "diamond");
 }
 
 QIcon olive::icon::Create(const QString& theme, const QString &name)

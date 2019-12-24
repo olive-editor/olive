@@ -26,6 +26,7 @@
 
 #include "node/node.h"
 #include "nodeparamviewitem.h"
+#include "widget/keyframeview/keyframeview.h"
 
 class NodeParamView : public QWidget
 {
@@ -37,6 +38,8 @@ public:
 
 private:
   QVBoxLayout* param_layout_;
+
+  KeyframeView* keyframe_view_;
 
   QList<Node*> nodes_;
 

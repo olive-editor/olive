@@ -16,15 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  widget/nodeparamview/nodeparamview.h
-  widget/nodeparamview/nodeparamview.cpp
-  widget/nodeparamview/nodeparamviewitem.h
-  widget/nodeparamview/nodeparamviewitem.cpp
-  widget/nodeparamview/nodeparamviewkeyframecontrol.h
-  widget/nodeparamview/nodeparamviewkeyframecontrol.cpp
-  widget/nodeparamview/nodeparamviewundo.h
-  widget/nodeparamview/nodeparamviewundo.cpp
-  widget/nodeparamview/nodeparamviewwidgetbridge.h
-  widget/nodeparamview/nodeparamviewwidgetbridge.cpp
+  widget/keyframeview/keyframeview.h
+  widget/keyframeview/keyframeview.cpp
+  widget/keyframeview/keyframeviewitem.h
+  widget/keyframeview/keyframeviewitem.cpp
   PARENT_SCOPE
 )

@@ -98,6 +98,16 @@ public:
    */
   void set_is_keyframing(bool k);
 
+  /**
+   * @brief Return whether this input can be keyframed or not
+   */
+  bool is_keyframable() const;
+
+  /**
+   * @brief Set whether this input can be keyframed or not
+   */
+  void set_is_keyframable(bool k);
+
   const QVariant& minimum() const;
   bool has_minimum() const;
   void set_minimum(const QVariant& min);
@@ -121,6 +131,11 @@ private:
    * Use can_accept_type() to check if a type is in this list
    */
   DataType data_type_;
+
+  /**
+   * @brief Internal keyframable value
+   */
+  bool keyframable_;
 
   /**
    * @brief Internal keyframe array

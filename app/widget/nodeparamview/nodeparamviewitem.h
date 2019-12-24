@@ -78,6 +78,8 @@ private:
 
 private slots:
   void SetExpanded(bool e);
+
+  void KeyframeEnableChanged(bool e);
 };
 
 #endif // NODEPARAMVIEWITEM_H
