@@ -14,39 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audio)
-add_subdirectory(block)
-add_subdirectory(distort)
-add_subdirectory(input)
-add_subdirectory(output)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  node/dependency.h
-  node/dependency.cpp
-  node/edge.h
-  node/edge.cpp
-  node/external.h
-  node/external.cpp
-  node/factory.h
-  node/factory.cpp
-  node/graph.h
-  node/graph.cpp
-  node/input.h
-  node/input.cpp
-  node/inputarray.h
-  node/inputarray.cpp
-  node/keyframe.h
-  node/keyframe.cpp
-  node/metareader.h
-  node/metareader.cpp
-  node/node.h
-  node/node.cpp
-  node/output.h
-  node/output.cpp
-  node/param.h
-  node/param.cpp
-  node/value.h
-  node/value.cpp
+  node/audio/pan/pan.h
+  node/audio/pan/pan.cpp
   PARENT_SCOPE
 )

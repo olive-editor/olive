@@ -145,7 +145,7 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
     } while (cached_frames_.contains(waiting_for_frame_));
 
     if (waiting_for_frame_ >= viewer_node_->Length()) {
-S      ExportSucceeded();
+      ExportSucceeded();
     }
   } else {
     cached_frames_.insert(time, value);

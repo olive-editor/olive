@@ -390,6 +390,20 @@ NodeInput *Node::AcceleratedCodeIterativeInput() const
   return nullptr;
 }
 
+bool Node::ProcessesSamples() const
+{
+  return false;
+}
+
+void Node::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const float *input, float *output, int index) const
+{
+  Q_UNUSED(values)
+  Q_UNUSED(params)
+  Q_UNUSED(input)
+  Q_UNUSED(output)
+  Q_UNUSED(index)
+}
+
 NodeParam *Node::GetParameterWithID(const QString &id) const
 {
   foreach (NodeParam* param, params_) {

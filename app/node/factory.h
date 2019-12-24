@@ -18,6 +18,8 @@ public:
     kVideoInput,
     kTimelineOutput,
     kTrackOutput,
+    kAudioVolume,
+    kAudioPanning,
 
     // Count value
     kInternalNodeCount

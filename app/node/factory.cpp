@@ -1,5 +1,7 @@
 #include "factory.h"
 
+#include "audio/pan/pan.h"
+#include "audio/volume/volume.h"
 #include "block/clip/clip.h"
 #include "block/gap/gap.h"
 #include "block/transition/externaltransition.h"
@@ -131,6 +133,10 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new TrackOutput();
   case kViewerOutput:
     return new ViewerOutput();
+  case kAudioVolume:
+    return new VolumeNode();
+  case kAudioPanning:
+    return new PanNode();
 
   case kInternalNodeCount:
     break;
