@@ -32,7 +32,6 @@
 #include "timelineviewbase.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"
-#include "timelineviewenditem.h"
 #include "timelineviewghostitem.h"
 #include "widget/timelinewidget/undo/undo.h"
 #include "undo/undostack.h"
@@ -50,13 +49,9 @@ public:
                Qt::Alignment vertical_alignment = Qt::AlignTop,
                QWidget* parent = nullptr);
 
-  void SetScale(const double& scale);
-
   void SelectAll();
 
   void DeselectAll();
-
-  void SetEndTime(const rational& length);
 
   int GetTrackY(int track_index);
   int GetTrackHeight(int track_index);
@@ -67,8 +62,6 @@ public:
   void ConnectTrackList(TrackList* list);
 
 signals:
-  void ScaleChanged(double scale);
-
   void MousePressed(TimelineViewMouseEvent* event);
   void MouseMoved(TimelineViewMouseEvent* event);
   void MouseReleased(TimelineViewMouseEvent* event);
@@ -90,8 +83,6 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
   virtual void dropEvent(QDropEvent *event) override;
 
-  virtual void resizeEvent(QResizeEvent *event) override;
-
 private:
   TrackType ConnectedTrackType();
   Stream::Type TrackTypeToStreamType(TrackType track_type);
@@ -107,17 +98,7 @@ private:
 
   TrackList* connected_track_list_;
 
-  QGraphicsScene scene_;
-
-  TimelineViewEndItem* end_item_;
-
   TrackType type_;
-
-private slots:
-  /**
-   * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
-   */
-  void UpdateSceneRect();
 
 };
 

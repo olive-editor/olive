@@ -41,30 +41,10 @@ TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignme
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
 
-  setScene(&scene_);
   setDragMode(NoDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
-
-  connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
-
-  // Create end item
-  end_item_ = new TimelineViewEndItem();
-  scene_.addItem(end_item_);
-
-  // Set default scale
-  SetScale(1.0);
-}
-
-void TimelineView::SetScale(const double &scale)
-{
-  scale_ = scale;
-
-  // Force redraw for playhead
-  viewport()->update();
-
-  end_item_->SetScale(scale_);
 }
 
 void TimelineView::SelectAll()
@@ -170,13 +150,6 @@ void TimelineView::dropEvent(QDropEvent *event)
   emit DragDropped(&timeline_event);
 }
 
-void TimelineView::resizeEvent(QResizeEvent *event)
-{
-  QGraphicsView::resizeEvent(event);
-
-  UpdateSceneRect();
-}
-
 Stream::Type TimelineView::TrackTypeToStreamType(TrackType track_type)
 {
   switch (track_type) {
@@ -269,44 +242,4 @@ void TimelineView::UserSetTime(const int64_t &time)
 {
   SetTime(time);
   emit TimeChanged(time);
-}
-
-void TimelineView::UpdateSceneRect()
-{
-  QRectF bounding_rect = scene_.itemsBoundingRect();
-
-  // Ensure the scene height is always AT LEAST the height of the view
-  // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
-  int minimum_height = height() - horizontalScrollBar()->height() - 2;
-
-  if (alignment() & Qt::AlignBottom) {
-    // Ensure the scene left and bottom are always 0
-    bounding_rect.setBottomLeft(QPointF(0, 0));
-
-    if (bounding_rect.top() > minimum_height) {
-      bounding_rect.setTop(-minimum_height);
-    }
-  } else {
-    // Ensure the scene left and top are always 0
-    bounding_rect.setTopLeft(QPointF(0, 0));
-
-    if (bounding_rect.height() < minimum_height) {
-      bounding_rect.setHeight(minimum_height);
-    }
-  }
-
-  // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  end_item_->SetEndPadding(width()/4);
-
-  // If the scene is already this rect, do nothing
-  if (scene_.sceneRect() == bounding_rect) {
-    return;
-  }
-
-  scene_.setSceneRect(bounding_rect);
-}
-
-void TimelineView::SetEndTime(const rational &length)
-{
-  end_item_->SetEndTime(length);
 }
