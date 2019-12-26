@@ -21,15 +21,20 @@
 #ifndef NODEKEYFRAME_H
 #define NODEKEYFRAME_H
 
+#include <memory>
 #include <QVariant>
 
 #include "common/rational.h"
 
+class NodeKeyframe;
+using NodeKeyframePtr = std::shared_ptr<NodeKeyframe>;
+
 /**
  * @brief A point of data to be used at a certain time and interpolated with other data
  */
-class NodeKeyframe
+class NodeKeyframe : public QObject
 {
+  Q_OBJECT
 public:
 
   /**
@@ -70,6 +75,22 @@ public:
    */
   const Type& type() const;
   void set_type(const Type& type);
+
+signals:
+  /**
+   * @brief Signal emitted when this keyframe's time is changed
+   */
+  void TimeChanged(const rational& time);
+
+  /**
+   * @brief Signal emitted when this keyframe's value is changed
+   */
+  void ValueChanged(const QVariant& value);
+
+  /**
+   * @brief Signal emitted when this keyframe's value is changed
+   */
+  void TypeChanged(const Type& type);
 
 private:
   rational time_;

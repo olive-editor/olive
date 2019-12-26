@@ -25,7 +25,6 @@ NodeKeyframe::NodeKeyframe() :
   value_(0),
   type_(kLinear)
 {
-
 }
 
 NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type) :
@@ -43,6 +42,7 @@ const rational &NodeKeyframe::time() const
 void NodeKeyframe::set_time(const rational &time)
 {
   time_ = time;
+  emit TimeChanged(time_);
 }
 
 const QVariant &NodeKeyframe::value() const
@@ -53,6 +53,7 @@ const QVariant &NodeKeyframe::value() const
 void NodeKeyframe::set_value(const QVariant &value)
 {
   value_ = value;
+  emit ValueChanged(value_);
 }
 
 const NodeKeyframe::Type &NodeKeyframe::type() const
@@ -63,4 +64,5 @@ const NodeKeyframe::Type &NodeKeyframe::type() const
 void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
 {
   type_ = type;
+  emit TypeChanged(type_);
 }
