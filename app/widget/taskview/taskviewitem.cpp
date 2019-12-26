@@ -49,7 +49,7 @@ TaskViewItem::TaskViewItem(QWidget *parent) :
 
   // Create cancel button
   cancel_btn_ = new QPushButton(this);
-  cancel_btn_->setIcon(olive::icon::Error);
+  cancel_btn_->setIcon(icon::Error);
   middle_layout->addWidget(cancel_btn_);
 
   // Create status label

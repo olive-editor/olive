@@ -88,7 +88,7 @@ void ProjectExplorerNavigation::Retranslate()
 
 void ProjectExplorerNavigation::UpdateIcons()
 {
-  dir_up_btn_->setIcon(olive::icon::DirUp);
+  dir_up_btn_->setIcon(icon::DirUp);
   size_slider_->setMinimum(olive::kProjectIconSizeMinimum);
   size_slider_->setMaximum(olive::kProjectIconSizeMaximum);
   size_slider_->setValue(olive::kProjectIconSizeDefault);

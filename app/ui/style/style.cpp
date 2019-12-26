@@ -140,7 +140,7 @@ void StyleManager::SetStyle(const StyleDescriptor &style)
 void StyleManager::SetStyle(const QString &style_path)
 {
   // Load all icons for this style (icons must be loaded first because the style change below triggers the icon change)
-  olive::icon::LoadAll(style_path);
+  icon::LoadAll(style_path);
 
   // Set palette for this
   QString palette_file = QStringLiteral("%1/palette.ini").arg(style_path);

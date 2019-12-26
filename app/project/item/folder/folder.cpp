@@ -38,5 +38,5 @@ bool Folder::CanHaveChildren() const
 
 QIcon Folder::icon()
 {
-  return olive::icon::Folder;
+  return icon::Folder;
 }

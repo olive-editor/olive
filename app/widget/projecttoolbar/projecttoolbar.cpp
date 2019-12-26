@@ -126,14 +126,14 @@ void ProjectToolbar::Retranslate()
 
 void ProjectToolbar::UpdateIcons()
 {
-  new_button_->setIcon(olive::icon::New);
-  open_button_->setIcon(olive::icon::Open);
-  save_button_->setIcon(olive::icon::Save);
-  undo_button_->setIcon(olive::icon::Undo);
-  redo_button_->setIcon(olive::icon::Redo);
-  tree_button_->setIcon(olive::icon::TreeView);
-  list_button_->setIcon(olive::icon::ListView);
-  icon_button_->setIcon(olive::icon::IconView);
+  new_button_->setIcon(icon::New);
+  open_button_->setIcon(icon::Open);
+  save_button_->setIcon(icon::Save);
+  undo_button_->setIcon(icon::Undo);
+  redo_button_->setIcon(icon::Redo);
+  tree_button_->setIcon(icon::TreeView);
+  list_button_->setIcon(icon::ListView);
+  icon_button_->setIcon(icon::IconView);
 }
 
 void ProjectToolbar::ViewButtonClicked()

@@ -23,7 +23,6 @@
 
 #include <QIcon>
 
-namespace olive {
 namespace icon {
 
 // Playback Icons
@@ -118,7 +117,6 @@ QIcon Create(const QString &theme, const QString& name);
  */
 void LoadAll(const QString &theme);
 
-}
 }
 
 #endif // ICONS_H

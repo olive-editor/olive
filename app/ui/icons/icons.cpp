@@ -30,49 +30,49 @@ const int ICON_SIZES[] = {
 };
 
 /// Internal icon library for use throughout Olive without having to regenerate constantly
-QIcon olive::icon::GoToStart;
-QIcon olive::icon::PrevFrame;
-QIcon olive::icon::Play;
-QIcon olive::icon::Pause;
-QIcon olive::icon::NextFrame;
-QIcon olive::icon::GoToEnd;
-QIcon olive::icon::New;
-QIcon olive::icon::Open;
-QIcon olive::icon::Save;
-QIcon olive::icon::Undo;
-QIcon olive::icon::Redo;
-QIcon olive::icon::TreeView;
-QIcon olive::icon::ListView;
-QIcon olive::icon::IconView;
-QIcon olive::icon::ToolPointer;
-QIcon olive::icon::ToolEdit;
-QIcon olive::icon::ToolRipple;
-QIcon olive::icon::ToolRolling;
-QIcon olive::icon::ToolRazor;
-QIcon olive::icon::ToolSlip;
-QIcon olive::icon::ToolSlide;
-QIcon olive::icon::ToolHand;
-QIcon olive::icon::ToolTransition;
-QIcon olive::icon::Folder;
-QIcon olive::icon::Sequence;
-QIcon olive::icon::Video;
-QIcon olive::icon::Audio;
-QIcon olive::icon::Image;
-QIcon olive::icon::TriUp;
-QIcon olive::icon::TriLeft;
-QIcon olive::icon::TriDown;
-QIcon olive::icon::TriRight;
-QIcon olive::icon::Snapping;
-QIcon olive::icon::ZoomIn;
-QIcon olive::icon::ZoomOut;
-QIcon olive::icon::Record;
-QIcon olive::icon::Add;
-QIcon olive::icon::Error;
-QIcon olive::icon::DirUp;
-QIcon olive::icon::Clock;
-QIcon olive::icon::Diamond;
+QIcon icon::GoToStart;
+QIcon icon::PrevFrame;
+QIcon icon::Play;
+QIcon icon::Pause;
+QIcon icon::NextFrame;
+QIcon icon::GoToEnd;
+QIcon icon::New;
+QIcon icon::Open;
+QIcon icon::Save;
+QIcon icon::Undo;
+QIcon icon::Redo;
+QIcon icon::TreeView;
+QIcon icon::ListView;
+QIcon icon::IconView;
+QIcon icon::ToolPointer;
+QIcon icon::ToolEdit;
+QIcon icon::ToolRipple;
+QIcon icon::ToolRolling;
+QIcon icon::ToolRazor;
+QIcon icon::ToolSlip;
+QIcon icon::ToolSlide;
+QIcon icon::ToolHand;
+QIcon icon::ToolTransition;
+QIcon icon::Folder;
+QIcon icon::Sequence;
+QIcon icon::Video;
+QIcon icon::Audio;
+QIcon icon::Image;
+QIcon icon::TriUp;
+QIcon icon::TriLeft;
+QIcon icon::TriDown;
+QIcon icon::TriRight;
+QIcon icon::Snapping;
+QIcon icon::ZoomIn;
+QIcon icon::ZoomOut;
+QIcon icon::Record;
+QIcon icon::Add;
+QIcon icon::Error;
+QIcon icon::DirUp;
+QIcon icon::Clock;
+QIcon icon::Diamond;
 
-void olive::icon::LoadAll(const QString& theme)
+void icon::LoadAll(const QString& theme)
 {
   GoToStart = Create(theme, "prev");
   PrevFrame = Create(theme, "rew");
@@ -122,7 +122,7 @@ void olive::icon::LoadAll(const QString& theme)
   Diamond = Create(theme, "diamond");
 }
 
-QIcon olive::icon::Create(const QString& theme, const QString &name)
+QIcon icon::Create(const QString& theme, const QString &name)
 {
   QIcon icon;
 

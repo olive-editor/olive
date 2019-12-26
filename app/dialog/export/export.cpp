@@ -40,7 +40,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   QPushButton* file_browse_btn = new QPushButton();
   file_browse_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-  file_browse_btn->setIcon(olive::icon::Folder);
+  file_browse_btn->setIcon(icon::Folder);
   file_browse_btn->setToolTip(tr("Browse for exported file filename"));
   connect(file_browse_btn, SIGNAL(clicked(bool)), this, SLOT(BrowseFilename()));
   preferences_layout->addWidget(file_browse_btn, row, 3);
@@ -57,12 +57,12 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preferences_layout->addWidget(preset_combobox, row, 1);
 
   QPushButton* preset_load_btn = new QPushButton();
-  preset_load_btn->setIcon(olive::icon::Open);
+  preset_load_btn->setIcon(icon::Open);
   preset_load_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   preferences_layout->addWidget(preset_load_btn, row, 2);
 
   QPushButton* preset_save_btn = new QPushButton();
-  preset_save_btn->setIcon(olive::icon::Save);
+  preset_save_btn->setIcon(icon::Save);
   preset_save_btn->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
   preferences_layout->addWidget(preset_save_btn, row, 3);
 

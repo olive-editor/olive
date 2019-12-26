@@ -162,12 +162,12 @@ void PlaybackControls::changeEvent(QEvent *e)
 
 void PlaybackControls::UpdateIcons()
 {
-  go_to_start_btn_->setIcon(olive::icon::GoToStart);
-  prev_frame_btn_->setIcon(olive::icon::PrevFrame);
-  play_btn_->setIcon(olive::icon::Play);
-  pause_btn_->setIcon(olive::icon::Pause);
-  next_frame_btn_->setIcon(olive::icon::NextFrame);
-  go_to_end_btn_->setIcon(olive::icon::GoToEnd);
+  go_to_start_btn_->setIcon(icon::GoToStart);
+  prev_frame_btn_->setIcon(icon::PrevFrame);
+  play_btn_->setIcon(icon::Play);
+  pause_btn_->setIcon(icon::Pause);
+  next_frame_btn_->setIcon(icon::NextFrame);
+  go_to_end_btn_->setIcon(icon::GoToEnd);
 }
 
 void PlaybackControls::SetTimeLabelInternal(QLabel* label, const int64_t& time)

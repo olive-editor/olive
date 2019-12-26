@@ -15,20 +15,20 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(NodeInput* input, QWi
   // Automatically right aligns all buttons
   layout->addStretch();
 
-  prev_key_btn_ = CreateNewToolButton(olive::icon::TriLeft);
+  prev_key_btn_ = CreateNewToolButton(icon::TriLeft);
   prev_key_btn_->setIconSize(prev_key_btn_->iconSize() / 2);
   layout->addWidget(prev_key_btn_);
 
-  toggle_key_btn_ = CreateNewToolButton(olive::icon::Diamond);
+  toggle_key_btn_ = CreateNewToolButton(icon::Diamond);
   toggle_key_btn_->setCheckable(true);
   toggle_key_btn_->setIconSize(toggle_key_btn_->iconSize() / 2);
   layout->addWidget(toggle_key_btn_);
 
-  next_key_btn_ = CreateNewToolButton(olive::icon::TriRight);
+  next_key_btn_ = CreateNewToolButton(icon::TriRight);
   next_key_btn_->setIconSize(next_key_btn_->iconSize() / 2);
   layout->addWidget(next_key_btn_);
 
-  enable_key_btn_ = CreateNewToolButton(olive::icon::Clock);
+  enable_key_btn_ = CreateNewToolButton(icon::Clock);
   enable_key_btn_->setCheckable(true);
   enable_key_btn_->setIconSize(enable_key_btn_->iconSize() / 4 * 3);
   layout->addWidget(enable_key_btn_);

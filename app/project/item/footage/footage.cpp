@@ -126,22 +126,22 @@ QIcon Footage::icon()
     if (HasStreamsOfType(Stream::kVideo)) {
 
       // Prioritize the video icon
-      return olive::icon::Video;
+      return icon::Video;
 
     } else if (HasStreamsOfType(Stream::kAudio)) {
 
       // Otherwise assume it's audio only
-      return olive::icon::Audio;
+      return icon::Audio;
 
     } else if (HasStreamsOfType(Stream::kImage)) {
 
       // Otherwise assume it's an image
-      return olive::icon::Image;
+      return icon::Image;
 
     }
     /* fall-through */
   case kInvalid:
-    return olive::icon::Error;
+    return icon::Error;
   }
 
   return QIcon();

@@ -209,9 +209,9 @@ void NodeParamViewItem::SetExpanded(bool e)
   contents_->setVisible(e);
 
   if (expanded_) {
-    title_bar_collapse_btn_->setIcon(olive::icon::TriDown);
+    title_bar_collapse_btn_->setIcon(icon::TriDown);
   } else {
-    title_bar_collapse_btn_->setIcon(olive::icon::TriRight);
+    title_bar_collapse_btn_->setIcon(icon::TriRight);
   }
 }
 

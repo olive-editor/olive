@@ -105,11 +105,11 @@ QIcon Stream::IconFromType(const Stream::Type &type)
 {
   switch (type) {
   case Stream::kVideo:
-    return olive::icon::Video;
+    return icon::Video;
   case Stream::kImage:
-    return olive::icon::Image;
+    return icon::Image;
   case Stream::kAudio:
-    return olive::icon::Audio;
+    return icon::Audio;
   default:
     break;
   }

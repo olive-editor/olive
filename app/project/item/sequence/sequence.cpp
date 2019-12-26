@@ -84,7 +84,7 @@ Item::Type Sequence::type() const
 
 QIcon Sequence::icon()
 {
-  return olive::icon::Sequence;
+  return icon::Sequence;
 }
 
 QString Sequence::duration()

@@ -100,19 +100,19 @@ void Toolbar::Retranslate()
 
 void Toolbar::UpdateIcons()
 {
-  btn_pointer_tool_->setIcon(olive::icon::ToolPointer);
-  btn_edit_tool_->setIcon(olive::icon::ToolEdit);
-  btn_ripple_tool_->setIcon(olive::icon::ToolRipple);
-  btn_rolling_tool_->setIcon(olive::icon::ToolRolling);
-  btn_razor_tool_->setIcon(olive::icon::ToolRazor);
-  btn_slip_tool_->setIcon(olive::icon::ToolSlip);
-  btn_slide_tool_->setIcon(olive::icon::ToolSlide);
-  btn_hand_tool_->setIcon(olive::icon::ToolHand);
-  btn_zoom_tool_->setIcon(olive::icon::ZoomIn);
-  btn_record_->setIcon(olive::icon::Record);
-  btn_transition_tool_->setIcon(olive::icon::ToolTransition);
-  btn_add_->setIcon(olive::icon::Add);
-  btn_snapping_toggle_->setIcon(olive::icon::Snapping);
+  btn_pointer_tool_->setIcon(icon::ToolPointer);
+  btn_edit_tool_->setIcon(icon::ToolEdit);
+  btn_ripple_tool_->setIcon(icon::ToolRipple);
+  btn_rolling_tool_->setIcon(icon::ToolRolling);
+  btn_razor_tool_->setIcon(icon::ToolRazor);
+  btn_slip_tool_->setIcon(icon::ToolSlip);
+  btn_slide_tool_->setIcon(icon::ToolSlide);
+  btn_hand_tool_->setIcon(icon::ToolHand);
+  btn_zoom_tool_->setIcon(icon::ZoomIn);
+  btn_record_->setIcon(icon::Record);
+  btn_transition_tool_->setIcon(icon::ToolTransition);
+  btn_add_->setIcon(icon::Add);
+  btn_snapping_toggle_->setIcon(icon::Snapping);
 }
 
 ToolbarButton* Toolbar::CreateToolButton(const Tool::Item& tool)
