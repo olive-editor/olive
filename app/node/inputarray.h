@@ -7,7 +7,7 @@ class NodeInputArray : public NodeInput
 {
   Q_OBJECT
 public:
-  NodeInputArray(const QString &id);
+  NodeInputArray(const QString &id, const DataType& type, const QVariant& default_value = 0);
 
   virtual bool IsArray() override;
 
@@ -33,6 +33,8 @@ signals:
 
 private:
   QVector<NodeInput*> sub_params_;
+
+  QVariant default_value_;
 
 };
 

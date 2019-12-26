@@ -33,14 +33,14 @@ TrackOutput::TrackOutput() :
   index_(-1),
   locked_(false)
 {
-  block_input_ = new NodeInputArray("block_in");
+  block_input_ = new NodeInputArray("block_in", NodeParam::kAny);
   AddInput(block_input_);
   connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
 
-  muted_input_ = new NodeInput("muted_in");
-  muted_input_->set_data_type(NodeParam::kBoolean);
+  muted_input_ = new NodeInput("muted_in", NodeParam::kBoolean);
+  muted_input_->set_is_keyframable(false);
   AddInput(muted_input_);
 
   // Set default height
@@ -365,7 +365,7 @@ void TrackOutput::SetTrackName(const QString &name)
 
 void TrackOutput::SetMuted(bool e)
 {
-  muted_input_->set_value_at_time(0, e);
+  muted_input_->set_override_value(e);
   InvalidateCache(0, track_length());
 }
 

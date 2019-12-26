@@ -22,16 +22,13 @@
 
 ViewerOutput::ViewerOutput()
 {
-  texture_input_ = new NodeInput("tex_in");
-  texture_input_->set_data_type(NodeInput::kTexture);
+  texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
   AddInput(texture_input_);
 
-  samples_input_ = new NodeInput("samples_in");
-  samples_input_->set_data_type(NodeInput::kSamples);
+  samples_input_ = new NodeInput("samples_in", NodeInput::kSamples);
   AddInput(samples_input_);
 
-  length_input_ = new NodeInput("length_in");
-  length_input_->set_data_type(NodeInput::kRational);
+  length_input_ = new NodeInput("length_in", NodeInput::kRational);
   AddInput(length_input_);
 
   // Create UUID for this node

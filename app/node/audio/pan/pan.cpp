@@ -2,15 +2,12 @@
 
 PanNode::PanNode()
 {
-  samples_input_ = new NodeInput("samples_in");
-  samples_input_->set_data_type(NodeParam::kSamples);
+  samples_input_ = new NodeInput("samples_in", NodeParam::kSamples);
   AddInput(samples_input_);
 
-  panning_input_ = new NodeInput("panning_in");
-  panning_input_->set_data_type(NodeParam::kFloat);
+  panning_input_ = new NodeInput("panning_in", NodeParam::kFloat);
   panning_input_->set_minimum(-1);
   panning_input_->set_maximum(1);
-  panning_input_->set_value_at_time(0, 0);
   AddInput(panning_input_);
 }
 

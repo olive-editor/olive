@@ -28,20 +28,20 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
-  length_input_ = new NodeInput("length_in");
+  length_input_ = new NodeInput("length_in", NodeParam::kRational);
   length_input_->SetConnectable(false);
-  length_input_->set_data_type(NodeParam::kRational);
+  length_input_->set_is_keyframable(false);
   AddInput(length_input_);
   connect(length_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(LengthInputChanged()));
 
-  media_in_input_ = new NodeInput("media_in_in");
+  media_in_input_ = new NodeInput("media_in_in", NodeParam::kRational);
   media_in_input_->SetConnectable(false);
-  media_in_input_->set_data_type(NodeParam::kRational);
+  media_in_input_->set_is_keyframable(false);
   AddInput(media_in_input_);
 
-  media_out_input_ = new NodeInput("media_out_in");
+  media_out_input_ = new NodeInput("media_out_in", NodeParam::kRational);
   media_out_input_->SetConnectable(false);
-  media_out_input_->set_data_type(NodeParam::kRational);
+  media_out_input_->set_is_keyframable(false);
   AddInput(media_out_input_);
 
   // A block's length must be greater than 0
@@ -86,7 +86,7 @@ void Block::set_length(const rational &length)
     return;
   }
 
-  length_input_->set_value_at_time(0, QVariant::fromValue(length));
+  length_input_->set_override_value(QVariant::fromValue(length));
 }
 
 void Block::set_length_and_media_out(const rational &length)
@@ -158,7 +158,7 @@ rational Block::media_in() const
 
 void Block::set_media_in(const rational &media_in)
 {
-  media_in_input_->set_value_at_time(0, QVariant::fromValue(media_in));
+  media_in_input_->set_override_value(QVariant::fromValue(media_in));
 }
 
 rational Block::media_out() const
@@ -168,7 +168,7 @@ rational Block::media_out() const
 
 void Block::set_media_out(const rational &media_out)
 {
-  media_out_input_->set_value_at_time(0, QVariant::fromValue(media_out));
+  media_out_input_->set_override_value(QVariant::fromValue(media_out));
 }
 
 rational Block::media_length() const

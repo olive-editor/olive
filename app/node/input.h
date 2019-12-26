@@ -40,7 +40,7 @@ public:
    * saving/loading data from this Node so that parameter order can be changed without issues loading data saved by an
    * older version. This of course assumes that parameters don't change their ID.
    */
-  NodeInput(const QString &id);
+  NodeInput(const QString &id, const DataType& type, const QVariant& default_value = 0);
 
   virtual bool IsArray();
 
@@ -58,7 +58,6 @@ public:
    * connected to it.
    */
   const DataType& data_type() const;
-  void set_data_type(const DataType& type);
 
   /**
    * @brief If this input is connected to an output, retrieve the output parameter
@@ -84,9 +83,37 @@ public:
   QVariant get_value_at_time(const rational& time) const;
 
   /**
-   * @brief Sets what value should be seen at a specific time
+   * @brief Retrieve the keyframe object at a given time
+   *
+   * @return
+   *
+   * The keyframe object at this time or nullptr if there isn't one or if is_keyframing() is false.
    */
-  void set_value_at_time(const rational& time, const QVariant& value);
+  NodeKeyframePtr get_keyframe_at_time(const rational& time) const;
+
+  /**
+   * @brief Gets the closest keyframe to a time
+   *
+   * If is_keyframing() is false, this will return nullptr. Otherwise, this is guaranteed to return a keyframe.
+   */
+  NodeKeyframePtr get_closest_keyframe_to_time(const rational& time) const;
+
+  /**
+   * @brief Inserts a keyframe at the given time and returns a reference to it
+   */
+  void insert_keyframe(NodeKeyframePtr key);
+
+  /**
+   * @brief Removes the keyframe
+   */
+  void remove_keyframe(NodeKeyframePtr key);
+
+  /**
+   * @brief Return whether a keyframe exists at this time
+   *
+   * If is_keyframing() is false, this will always return false.
+   */
+  bool has_keyframe_at_time(const rational &time) const;
 
   /**
    * @brief Return whether keyframing is enabled on this input or not
@@ -102,6 +129,18 @@ public:
    * @brief Return whether this input can be keyframed or not
    */
   bool is_keyframable() const;
+
+  /**
+   * @brief Replaces all values with this value
+   *
+   * This can only be used on inputs where keyframing is disabled.
+   */
+  void set_override_value(const QVariant& value);
+
+  /**
+   * @brief Return list of keyframes in this parameter
+   */
+  const QList<NodeKeyframePtr>& keyframes() const;
 
   /**
    * @brief Set whether this input can be keyframed or not
@@ -124,7 +163,24 @@ public:
 signals:
   void ValueChanged(const rational& start, const rational& end);
 
+  void KeyframeEnableChanged(bool);
+
+  void KeyframeAdded(NodeKeyframePtr key);
+
+  void KeyframeRemoved(NodeKeyframePtr key);
+
 private:
+  /**
+   * @brief We use Qt signals/slots for keyframe communication but store them as shared ptrs. This function converts
+   * a raw ptr to a list index
+   */
+  int FindIndexOfKeyframeFromRawPtr(NodeKeyframe* raw_ptr) const;
+
+  /**
+   * @brief Internal insert function, automatically does an insertion sort based on the keyframe's time
+   */
+  void insert_keyframe_internal(NodeKeyframePtr key);
+
   /**
    * @brief Internal list of accepted data types
    *
@@ -143,7 +199,7 @@ private:
    * All internal/user-defined data is stored in this array. Even if keyframing is not enabled, this array will contain
    * one entry which will be used, and its time value will be ignored.
    */
-  QList<NodeKeyframe> keyframes_;
+  QList<NodeKeyframePtr> keyframes_;
 
   /**
    * @brief Internal keyframing enabled setting
@@ -174,6 +230,17 @@ private:
    * @brief Internal maximum value
    */
   QVariant maximum_;
+
+private slots:
+  /**
+   * @brief Slot when a keyframe's time changes to keep the keyframes correctly sorted by time
+   */
+  void KeyframeTimeChanged();
+
+  /**
+   * @brief Slot when a keyframe's value changes to signal that the cache needs updating
+   */
+  void KeyframeValueChanged();
 
 };
 

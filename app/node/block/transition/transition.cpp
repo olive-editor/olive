@@ -2,12 +2,10 @@
 
 TransitionBlock::TransitionBlock()
 {
-  out_block_input_ = new NodeInput("out_block_in");
-  out_block_input_->set_data_type(NodeParam::kBuffer);
+  out_block_input_ = new NodeInput("out_block_in", NodeParam::kBuffer);
   AddInput(out_block_input_);
 
-  in_block_input_ = new NodeInput("in_block_in");
-  in_block_input_->set_data_type(NodeParam::kBuffer);
+  in_block_input_ = new NodeInput("in_block_in", NodeParam::kBuffer);
   AddInput(in_block_input_);
 
   // A block's length must be greater than 0

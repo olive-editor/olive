@@ -2,8 +2,9 @@
 
 #include "node.h"
 
-NodeInputArray::NodeInputArray(const QString &id) :
-  NodeInput(id)
+NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QVariant &default_value) :
+  NodeInput(id, type, default_value),
+  default_value_(default_value)
 {
 }
 
@@ -51,7 +52,7 @@ void NodeInputArray::SetSize(int size, bool lock)
 
       Q_ASSERT(!parentNode()->HasParamWithID(sub_id));
 
-      NodeInput* new_param = new NodeInput(sub_id);
+      NodeInput* new_param = new NodeInput(sub_id, data_type(), default_value_);
       new_param->setParent(this);
       sub_params_.replace(i, new_param);
 

@@ -2,15 +2,12 @@
 
 VolumeNode::VolumeNode()
 {
-  samples_input_ = new NodeInput("samples_in");
-  samples_input_->set_data_type(NodeParam::kSamples);
+  samples_input_ = new NodeInput("samples_in", NodeParam::kSamples);
   AddInput(samples_input_);
 
-  volume_input_ = new NodeInput("volume_in");
-  volume_input_->set_data_type(NodeParam::kFloat);
+  volume_input_ = new NodeInput("volume_in", NodeParam::kFloat, 1);
   volume_input_->set_minimum(0);
   volume_input_->set_maximum(1);
-  volume_input_->set_value_at_time(0, 1);
   AddInput(volume_input_);
 }
 

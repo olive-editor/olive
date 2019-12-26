@@ -23,9 +23,9 @@
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
 {
-  footage_input_ = new NodeInput("footage_in");
-  footage_input_->set_data_type(NodeInput::kFootage);
+  footage_input_ = new NodeInput("footage_in", NodeInput::kFootage);
   footage_input_->SetConnectable(false);
+  footage_input_->set_is_keyframable(false);
   connect(footage_input_, SIGNAL(ValueChanged(const rational&, const rational&)), this, SLOT(FootageChanged()));
   AddInput(footage_input_);
 }
@@ -37,7 +37,7 @@ StreamPtr MediaInput::footage()
 
 void MediaInput::SetFootage(StreamPtr f)
 {
-  footage_input_->set_value_at_time(0, QVariant::fromValue(f));
+  footage_input_->set_override_value(QVariant::fromValue(f));
 }
 
 void MediaInput::Retranslate()

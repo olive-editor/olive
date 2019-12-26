@@ -34,7 +34,7 @@ TimelineOutput::TimelineOutput()
 
   for (int i=0;i<kTrackTypeCount;i++) {
     // Create track input
-    NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i));
+    NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i), NodeParam::kAny);
     AddInput(track_input);
     track_inputs_.replace(i, track_input);
 

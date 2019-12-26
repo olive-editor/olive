@@ -11,8 +11,7 @@
 
 VideoInput::VideoInput()
 {
-  matrix_input_ = new NodeInput("matrix_in");
-  matrix_input_->set_data_type(NodeInput::kMatrix);
+  matrix_input_ = new NodeInput("matrix_in", NodeInput::kMatrix);
   AddInput(matrix_input_);
 }
 

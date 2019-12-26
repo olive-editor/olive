@@ -25,21 +25,16 @@
 
 TransformDistort::TransformDistort()
 {
-  position_input_ = new NodeInput("pos_in");
-  position_input_->set_data_type(NodeParam::kVec2);
+  position_input_ = new NodeInput("pos_in", NodeParam::kVec2);
   AddInput(position_input_);
 
-  rotation_input_ = new NodeInput("rot_in");
-  rotation_input_->set_data_type(NodeParam::kFloat);
+  rotation_input_ = new NodeInput("rot_in", NodeParam::kFloat);
   AddInput(rotation_input_);
 
-  scale_input_ = new NodeInput("scale_in");
-  scale_input_->set_data_type(NodeParam::kVec2);
-  scale_input_->set_value_at_time(0, QVector2D(100.0f, 100.0f));
+  scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(100.0f, 100.0f));
   AddInput(scale_input_);
 
-  anchor_input_ = new NodeInput("anchor_in");
-  anchor_input_->set_data_type(NodeParam::kVec2);
+  anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2);
   AddInput(anchor_input_);
 }
 

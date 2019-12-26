@@ -193,12 +193,11 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
     return;
   }
 
-  NodeInput* input = new NodeInput(param_id);
-  input->set_data_type(param_type);
-
-  if (is_iterative) {
-    iteration_input_ = input;
-  }
+  QVariant default_val;
+  QVariant min_val;
+  bool has_min = false;
+  QVariant max_val;
+  bool has_max = false;
 
   // Traverse through param contents for more data
   while (!reader->atEnd() && !(reader->isEndElement() && reader->name() == "param")) {
@@ -218,13 +217,29 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
         XMLReadLanguageString(reader, &param_names_[param_id]);
 
       } else if (reader->name() == "default") {
-        input->set_value_at_time(0, reader->readElementText());
+        default_val = reader->readElementText();
       } else if (reader->name() == "min") {
-        input->set_minimum(reader->readElementText());
+        has_min = true;
+        min_val = reader->readElementText();
       } else if (reader->name() == "max") {
-        input->set_maximum(reader->readElementText());
+        has_max = true;
+        max_val = reader->readElementText();
       }
     }
+  }
+
+  NodeInput* input = new NodeInput(param_id, param_type, default_val);
+
+  if (has_min) {
+    input->set_minimum(min_val);
+  }
+
+  if (has_max) {
+    input->set_maximum(max_val);
+  }
+
+  if (is_iterative) {
+    iteration_input_ = input;
   }
 
   inputs_.append(input);
