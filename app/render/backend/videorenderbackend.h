@@ -108,6 +108,8 @@ signals:
 private:
   bool TimeIsQueued(const TimeRange &time);
 
+  void DumpDeferredMappings(const QList<rational> &times_with_this_hash, const QByteArray &hash);
+
   VideoRenderingParams params_;
 
   QByteArray cache_frame_load_buffer_;

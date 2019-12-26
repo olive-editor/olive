@@ -59,6 +59,11 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
   int64_t timestamp = Timecode::time_to_timestamp(start_range_adj, params_.time_base());
   rational true_start = Timecode::timestamp_to_time(timestamp, params_.time_base());
 
+  if (true_start == end_range_adj) {
+    // Ensure that a single frame is always rendered
+    end_range_adj += params_.time_base();
+  }
+
   for (rational r=true_start;r<end_range_adj;r+=params_.time_base()) {
     // Try to order the queue from closest to the playhead to furthest
     rational last_time = last_time_requested_;
@@ -248,18 +253,16 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray ha
   QVariant texture = table.Get(NodeParam::kTexture);
 
   // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
-  if (!TimeIsQueued(TimeRange(path.in(), path.in()))) {
+  if (last_time_requested_ == path.in() || export_mode_) {
     EmitCachedFrameReady(path.in(), texture);
-
-    if (export_mode_) {
-      QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
-      foreach (const rational& t, times_with_this_hash) {
-        EmitCachedFrameReady(t, texture);
-      }
-    }
   }
 
-  if (!export_mode_) {
+  if (export_mode_) {
+    QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
+    foreach (const rational& t, times_with_this_hash) {
+      EmitCachedFrameReady(t, texture);
+    }
+  } else {
     if (texture.isNull()) {
       // No frame received, we set hash to an empty
       frame_cache()->RemoveHash(path.in(), hash);
@@ -285,15 +288,11 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray ha
 
 void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
 {
+  // Set hash, but DON'T signal time because it's most likely this frame has been signalled in ThreadCompletedFrame()
   frame_cache()->SetHash(dep.in(), hash);
-  emit CachedTimeReady(dep.in());
 
   // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
-  QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
-  foreach (const rational& t, times_with_this_hash) {
-    frame_cache()->SetHash(t, hash);
-    emit CachedTimeReady(t);
-  }
+  DumpDeferredMappings(frame_cache()->DeferredMapsWithHash(hash), hash);
 }
 
 void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
@@ -306,7 +305,12 @@ void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
 
 void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
 {
-  ThreadCompletedDownload(dep, hash);
+  // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
+  QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
+  times_with_this_hash.append(dep.in());
+  DumpDeferredMappings(times_with_this_hash, hash);
+
+  //ThreadCompletedDownload(dep, hash);
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   // Queue up a new frame for this worker
@@ -316,4 +320,16 @@ void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray 
 bool VideoRenderBackend::TimeIsQueued(const TimeRange &time)
 {
   return cache_queue_.contains(time);
+}
+
+void VideoRenderBackend::DumpDeferredMappings(const QList<rational>& times_with_this_hash, const QByteArray& hash)
+{
+  foreach (const rational& t, times_with_this_hash) {
+    if (frame_cache()->TimeToHash(t) != hash) {
+      frame_cache()->SetHash(t, hash);
+      if (last_time_requested_ == t && !TimeIsQueued(TimeRange(t, t))) {
+        emit CachedTimeReady(t);
+      }
+    }
+  }
 }
