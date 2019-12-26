@@ -253,16 +253,21 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray ha
   QVariant texture = table.Get(NodeParam::kTexture);
 
   // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
+  QList<rational> times_with_this_hash;
+
   if (last_time_requested_ == path.in() || export_mode_) {
-    EmitCachedFrameReady(path.in(), texture);
+    times_with_this_hash.append(path.in());
   }
 
   if (export_mode_) {
-    QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
-    foreach (const rational& t, times_with_this_hash) {
-      EmitCachedFrameReady(t, texture);
-    }
-  } else {
+    times_with_this_hash.append(frame_cache()->DeferredMapsWithHash(hash));
+  }
+
+  if (!times_with_this_hash.isEmpty()) {
+    EmitCachedFrameReady(times_with_this_hash, texture);
+  }
+
+  if (!export_mode_) {
     if (texture.isNull()) {
       // No frame received, we set hash to an empty
       frame_cache()->RemoveHash(path.in(), hash);

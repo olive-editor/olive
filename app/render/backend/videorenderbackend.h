@@ -97,7 +97,7 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void EmitCachedFrameReady(const rational& time, const QVariant& value) = 0;
+  virtual void EmitCachedFrameReady(const QList<rational> &times, const QVariant& value) = 0;
 
   bool export_mode_;
 
