@@ -79,7 +79,7 @@ void olive::MainWindow::ToggleMaximizedPanel()
     // Assume nothing is maximized at the moment
 
     // Find the currently focused panel
-    PanelWidget* currently_hovered = olive::panel_manager->CurrentlyHovered();
+    PanelWidget* currently_hovered = PanelManager::instance()->CurrentlyHovered();
 
     // If no panel is hovered, do nothing
     if (currently_hovered == nullptr) {
@@ -95,7 +95,7 @@ void olive::MainWindow::ToggleMaximizedPanel()
     premaximized_state_ = saveState();
 
     // For every other panel that is on the main window, hide it
-    foreach (PanelWidget* panel, olive::panel_manager->panels()) {
+    foreach (PanelWidget* panel, PanelManager::instance()->panels()) {
       if (!panel->isFloating() && panel != currently_hovered) {
         panel->setVisible(false);
       }
@@ -110,29 +110,29 @@ void olive::MainWindow::ToggleMaximizedPanel()
 void olive::MainWindow::ProjectOpen(Project* p)
 {
   // FIXME Use settings data to create panels and restore state if they exist
-  NodePanel* node_panel = olive::panel_manager->CreatePanel<NodePanel>(this);
+  NodePanel* node_panel = PanelManager::instance()->CreatePanel<NodePanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, node_panel);
 
-  ParamPanel* param_panel = olive::panel_manager->CreatePanel<ParamPanel>(this);
+  ParamPanel* param_panel = PanelManager::instance()->CreatePanel<ParamPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, param_panel);
 
-  ViewerPanel* viewer_panel2 = olive::panel_manager->CreatePanel<ViewerPanel>(this);
+  ViewerPanel* viewer_panel2 = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
 
-  ProjectPanel* project_panel = olive::panel_manager->CreatePanel<ProjectPanel>(this);
+  ProjectPanel* project_panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
   project_panel->set_project(p);
   addDockWidget(Qt::BottomDockWidgetArea, project_panel);
 
-  ToolPanel* tool_panel = olive::panel_manager->CreatePanel<ToolPanel>(this);
+  ToolPanel* tool_panel = PanelManager::instance()->CreatePanel<ToolPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
 
-  TimelinePanel* timeline_panel = olive::panel_manager->CreatePanel<TimelinePanel>(this);
+  TimelinePanel* timeline_panel = PanelManager::instance()->CreatePanel<TimelinePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
 
-  AudioMonitorPanel* audio_monitor_panel = olive::panel_manager->CreatePanel<AudioMonitorPanel>(this);
+  AudioMonitorPanel* audio_monitor_panel = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel);
 
-  TaskManagerPanel* task_man_panel = olive::panel_manager->CreatePanel<TaskManagerPanel>(this);
+  TaskManagerPanel* task_man_panel = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, task_man_panel);
   task_man_panel->setFloating(true);
   task_man_panel->setVisible(false);
@@ -147,7 +147,7 @@ void olive::MainWindow::ProjectOpen(Project* p)
 
 void olive::MainWindow::closeEvent(QCloseEvent *e)
 {
-  olive::panel_manager->DeleteAllPanels();
+  PanelManager::instance()->DeleteAllPanels();
 
   // FIXME: Test code - We have no cache management and the cache is very much testing only, so we delete it on close
   //                    as to not clog up HDD space

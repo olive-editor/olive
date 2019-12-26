@@ -103,7 +103,7 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
 
 void MenuShared::SplitAtPlayhead()
 {
-  TimelinePanel* timeline = olive::panel_manager->MostRecentlyFocused<TimelinePanel>();
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
 
   if (timeline != nullptr) {
     timeline->SplitAtPlayhead();
@@ -112,7 +112,7 @@ void MenuShared::SplitAtPlayhead()
 
 void MenuShared::DeleteSelected()
 {
-  olive::panel_manager->CurrentlyFocused()->DeleteSelected();
+  PanelManager::instance()->CurrentlyFocused()->DeleteSelected();
 }
 
 void MenuShared::Retranslate()

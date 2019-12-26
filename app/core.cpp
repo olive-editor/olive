@@ -117,6 +117,8 @@ void Core::Stop()
   // Save Config
   //Config::Save();
 
+  PanelManager::DestroyInstance();
+
   AudioManager::DestroyInstance();
 
   NodeFactory::Destroy();
@@ -199,7 +201,7 @@ void Core::DialogImportShow()
   if (!files.isEmpty()) {
 
     // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-    ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
+    ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
     Project* active_project;
 
     if (active_project_panel == nullptr // Check that we found a Project panel
@@ -229,7 +231,7 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerPanel* latest_viewer = olive::panel_manager->MostRecentlyFocused<ViewerPanel>();
+  ViewerPanel* latest_viewer = PanelManager::instance()->MostRecentlyFocused<ViewerPanel>();
 
   if (latest_viewer && latest_viewer->GetConnectedViewer()) {
     if (latest_viewer->GetConnectedViewer()->Length() == 0) {
@@ -247,7 +249,7 @@ void Core::DialogExportShow()
 void Core::CreateNewFolder()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
+  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
   Project* active_project;
 
   if (active_project_panel == nullptr // Check that we found a Project panel
@@ -279,7 +281,7 @@ void Core::CreateNewFolder()
 void Core::CreateNewSequence()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
+  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
   Project* active_project;
 
   if (active_project_panel == nullptr // Check that we found a Project panel
@@ -355,12 +357,12 @@ void Core::StartGUI(bool full_screen)
   olive::menu_shared.Initialize();
 
   // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
-  olive::panel_manager = new PanelManager(this);
+  PanelManager::CreateInstance();
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
           SIGNAL(focusChanged(QWidget*, QWidget*)),
-          olive::panel_manager,
+          PanelManager::instance(),
           SLOT(FocusChanged(QWidget*, QWidget*)));
 
   // Create main window and open it
@@ -394,7 +396,7 @@ void Core::SaveAutorecovery()
 Project *Core::GetActiveProject()
 {
   // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = olive::panel_manager->MostRecentlyFocused<ProjectPanel>();
+  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
   // If we couldn't find one, return nullptr
   if (active_project_panel == nullptr) {

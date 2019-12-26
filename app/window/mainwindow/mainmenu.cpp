@@ -198,7 +198,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   connect(window_menu_, SIGNAL(aboutToHide()), this, SLOT(WindowMenuAboutToHide()));
   window_menu_separator_ = window_menu_->addSeparator();
   window_maximize_panel_item_ = window_menu_->AddItem("maximizepanel", parent, SLOT(ToggleMaximizedPanel()), "`");
-  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", olive::panel_manager, SLOT(SetPanelsLocked(bool)));
+  window_lock_layout_item_ = window_menu_->AddItem("lockpanels", PanelManager::instance(), SLOT(SetPanelsLocked(bool)));
   window_lock_layout_item_->setCheckable(true);
   window_menu_->addSeparator();
   window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", nullptr, nullptr);
@@ -368,7 +368,7 @@ void MainMenu::WindowMenuAboutToShow()
 
   window_menu_->insertActions(window_menu_separator_, panel_menu_actions);
 
-  window_lock_layout_item_->setChecked(olive::panel_manager->ArePanelsLocked());
+  window_lock_layout_item_->setChecked(PanelManager::instance()->ArePanelsLocked());
 }
 
 void MainMenu::WindowMenuAboutToHide()
@@ -380,67 +380,67 @@ void MainMenu::WindowMenuAboutToHide()
 
 void MainMenu::ZoomInTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->ZoomIn();
+  PanelManager::instance()->CurrentlyFocused()->ZoomIn();
 }
 
 void MainMenu::ZoomOutTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->ZoomOut();
+  PanelManager::instance()->CurrentlyFocused()->ZoomOut();
 }
 
 void MainMenu::GoToStartTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->GoToStart();
+  PanelManager::instance()->CurrentlyFocused()->GoToStart();
 }
 
 void MainMenu::PrevFrameTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->PrevFrame();
+  PanelManager::instance()->CurrentlyFocused()->PrevFrame();
 }
 
 void MainMenu::PlayPauseTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->PlayPause();
+  PanelManager::instance()->CurrentlyFocused()->PlayPause();
 }
 
 void MainMenu::NextFrameTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->NextFrame();
+  PanelManager::instance()->CurrentlyFocused()->NextFrame();
 }
 
 void MainMenu::GoToEndTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->GoToEnd();
+  PanelManager::instance()->CurrentlyFocused()->GoToEnd();
 }
 
 void MainMenu::SelectAllTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->SelectAll();
+  PanelManager::instance()->CurrentlyFocused()->SelectAll();
 }
 
 void MainMenu::DeselectAllTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->DeselectAll();
+  PanelManager::instance()->CurrentlyFocused()->DeselectAll();
 }
 
 void MainMenu::RippleToInTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->RippleToIn();
+  PanelManager::instance()->CurrentlyFocused()->RippleToIn();
 }
 
 void MainMenu::RippleToOutTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->RippleToOut();
+  PanelManager::instance()->CurrentlyFocused()->RippleToOut();
 }
 
 void MainMenu::EditToInTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->EditToIn();
+  PanelManager::instance()->CurrentlyFocused()->EditToIn();
 }
 
 void MainMenu::EditToOutTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->EditToOut();
+  PanelManager::instance()->CurrentlyFocused()->EditToOut();
 }
 
 void MainMenu::ActionSearchTriggered()
@@ -452,27 +452,27 @@ void MainMenu::ActionSearchTriggered()
 
 void MainMenu::ShuttleLeftTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->ShuttleLeft();
+  PanelManager::instance()->CurrentlyFocused()->ShuttleLeft();
 }
 
 void MainMenu::ShuttleStopTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->ShuttleStop();
+  PanelManager::instance()->CurrentlyFocused()->ShuttleStop();
 }
 
 void MainMenu::ShuttleRightTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->ShuttleRight();
+  PanelManager::instance()->CurrentlyFocused()->ShuttleRight();
 }
 
 void MainMenu::GoToPrevCutTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->GoToPrevCut();
+  PanelManager::instance()->CurrentlyFocused()->GoToPrevCut();
 }
 
 void MainMenu::GoToNextCutTriggered()
 {
-  olive::panel_manager->CurrentlyFocused()->GoToNextCut();
+  PanelManager::instance()->CurrentlyFocused()->GoToNextCut();
 }
 
 void MainMenu::Retranslate()

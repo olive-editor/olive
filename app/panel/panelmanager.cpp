@@ -22,7 +22,7 @@
 
 #include "config/config.h"
 
-PanelManager* olive::panel_manager = nullptr;
+PanelManager* PanelManager::instance_ = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
   QObject(parent),
@@ -76,6 +76,21 @@ PanelWidget *PanelManager::CurrentlyHovered() const
 bool PanelManager::ArePanelsLocked()
 {
   return locked_;
+}
+
+void PanelManager::CreateInstance()
+{
+  instance_ = new PanelManager();
+}
+
+void PanelManager::DestroyInstance()
+{
+  delete instance_;
+}
+
+PanelManager *PanelManager::instance()
+{
+  return instance_;
 }
 
 void PanelManager::FocusChanged(QWidget *old, QWidget *now)

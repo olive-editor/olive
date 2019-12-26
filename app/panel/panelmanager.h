@@ -44,7 +44,7 @@ class PanelManager : public QObject
 {
   Q_OBJECT
 public:
-  PanelManager(QObject* parent);
+  PanelManager(QObject* parent = nullptr);
 
   /**
    * @brief Destroy all panels
@@ -97,6 +97,23 @@ public:
    */
   bool ArePanelsLocked();
 
+  /**
+   * @brief Create PanelManager singleton instance
+   */
+  static void CreateInstance();
+
+  /**
+   * @brief Destroy PanelManager singleton instance
+   *
+   * If no PanelManager was created, this is a no-op.
+   */
+  static void DestroyInstance();
+
+  /**
+   * @brief Access to PanelManager singleton instance
+   */
+  static PanelManager* instance();
+
 public slots:
   /**
    * @brief Connect this to a QApplication's SIGNAL(focusChanged())
@@ -120,6 +137,11 @@ private:
    * @brief Internal panel movement is locked value
    */
   bool locked_;
+
+  /**
+   * @brief PanelManager singleton instance
+   */
+  static PanelManager* instance_;
 };
 
 template<class T>
@@ -149,10 +171,6 @@ T* PanelManager::MostRecentlyFocused()
   }
 
   return nullptr;
-}
-
-namespace olive {
-extern PanelManager* panel_manager;
 }
 
 #endif // PANELFOCUSMANAGER_H
