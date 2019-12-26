@@ -205,11 +205,7 @@ VideoRenderBackend *ViewerWidget::video_renderer() const
 
 void ViewerWidget::SetTexture(OpenGLTexturePtr tex)
 {
-  if (tex == nullptr) {
-    gl_widget_->SetTexture(0);
-  } else {
-    gl_widget_->SetTexture(tex->texture());
-  }
+  gl_widget_->SetTexture(tex);
 }
 
 void ViewerWidget::UpdateTimeInternal(int64_t i)

@@ -96,7 +96,7 @@ void ViewerGLWidget::SetOCIOLook(const QString &look)
   update();
 }
 
-void ViewerGLWidget::SetTexture(GLuint tex)
+void ViewerGLWidget::SetTexture(OpenGLTexturePtr tex)
 {
   // Update the texture
   texture_ = tex;
@@ -124,7 +124,7 @@ void ViewerGLWidget::initializeGL()
 void ViewerGLWidget::paintGL()
 {
   // We only draw if we have a pipeline
-  if (!pipeline_) {
+  if (!pipeline_ || !texture_) {
     return;
   }
 
@@ -135,17 +135,14 @@ void ViewerGLWidget::paintGL()
   f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   f->glClear(GL_COLOR_BUFFER_BIT);
 
-  // Check if we have a texture to draw
-  if (texture_ > 0) {
-    // Bind retrieved texture
-    f->glBindTexture(GL_TEXTURE_2D, texture_);
+  // Bind retrieved texture
+  f->glBindTexture(GL_TEXTURE_2D, texture_->texture());
 
-    // Blit using the pipeline retrieved in initializeGL()
-    OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
+  // Blit using the pipeline retrieved in initializeGL()
+  OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
 
-    // Release retrieved texture
-    f->glBindTexture(GL_TEXTURE_2D, 0);
-  }
+  // Release retrieved texture
+  f->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void ViewerGLWidget::RefreshColorPipeline()

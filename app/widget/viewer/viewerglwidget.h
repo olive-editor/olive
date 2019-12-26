@@ -23,8 +23,9 @@
 
 #include <QOpenGLWidget>
 
-#include "render/colormanager.h"
 #include "render/backend/opengl/openglshader.h"
+#include "render/backend/opengl/opengltexture.h"
+#include "render/colormanager.h"
 
 /**
  * @brief The inner display/rendering widget of a Viewer class.
@@ -109,7 +110,7 @@ public slots:
    *
    * @param tex
    */
-  void SetTexture(GLuint tex);
+  void SetTexture(OpenGLTexturePtr tex);
 
   void SetOCIOParameters(const QString& display, const QString& view, const QString& look);
 
@@ -178,7 +179,7 @@ private:
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  GLuint texture_;
+  OpenGLTexturePtr texture_;
 
   /**
    * @brief Internal shader object to use as the pipeline shader
