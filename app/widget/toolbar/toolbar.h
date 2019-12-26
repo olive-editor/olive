@@ -65,7 +65,7 @@ public slots:
    *
    * Tool to show as selected
    */
-  void SetTool(const olive::tool::Tool &tool);
+  void SetTool(const Tool::Item &tool);
 
   /**
    * @brief Set snapping checked value
@@ -95,7 +95,7 @@ signals:
    *
    * Tool that was selected
    */
-  void ToolChanged(const olive::tool::Tool& t);
+  void ToolChanged(const Tool::Item& t);
 
   /**
    * @brief Emitted whenever the snapping setting is changed
@@ -130,7 +130,7 @@ private:
    *
    * The created ToolbarButton. The button parent is automatically set to `this`.
    */
-  ToolbarButton* CreateToolButton(const olive::tool::Tool& tool);
+  ToolbarButton* CreateToolButton(const Tool::Item& tool);
 
   /**
    * @brief Internal convenience function for creating buttons quickly

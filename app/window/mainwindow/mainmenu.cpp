@@ -213,52 +213,52 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   tools_pointer_item_ = tools_menu_->AddItem("pointertool", this, SLOT(ToolItemTriggered()), "V");
   tools_pointer_item_->setCheckable(true);
-  tools_pointer_item_->setData(olive::tool::kPointer);
+  tools_pointer_item_->setData(Tool::kPointer);
   tools_group_->addAction(tools_pointer_item_);
 
   tools_edit_item_ = tools_menu_->AddItem("edittool", this, SLOT(ToolItemTriggered()), "X");
   tools_edit_item_->setCheckable(true);
-  tools_edit_item_->setData(olive::tool::kEdit);
+  tools_edit_item_->setData(Tool::kEdit);
   tools_group_->addAction(tools_edit_item_);
 
   tools_ripple_item_ = tools_menu_->AddItem("rippletool", this, SLOT(ToolItemTriggered()), "B");
   tools_ripple_item_->setCheckable(true);
-  tools_ripple_item_->setData(olive::tool::kRipple);
+  tools_ripple_item_->setData(Tool::kRipple);
   tools_group_->addAction(tools_ripple_item_);
 
   tools_rolling_item_ = tools_menu_->AddItem("rollingtool", this, SLOT(ToolItemTriggered()), "N");
   tools_rolling_item_->setCheckable(true);
-  tools_rolling_item_->setData(olive::tool::kRolling);
+  tools_rolling_item_->setData(Tool::kRolling);
   tools_group_->addAction(tools_rolling_item_);
 
   tools_razor_item_ = tools_menu_->AddItem("razortool", this, SLOT(ToolItemTriggered()), "C");
   tools_razor_item_->setCheckable(true);
-  tools_razor_item_->setData(olive::tool::kRazor);
+  tools_razor_item_->setData(Tool::kRazor);
   tools_group_->addAction(tools_razor_item_);
 
   tools_slip_item_ = tools_menu_->AddItem("sliptool", this, SLOT(ToolItemTriggered()), "Y");
   tools_slip_item_->setCheckable(true);
-  tools_slip_item_->setData(olive::tool::kSlip);
+  tools_slip_item_->setData(Tool::kSlip);
   tools_group_->addAction(tools_slip_item_);
 
   tools_slide_item_ = tools_menu_->AddItem("slidetool", this, SLOT(ToolItemTriggered()), "U");
   tools_slide_item_->setCheckable(true);
-  tools_slide_item_->setData(olive::tool::kSlide);
+  tools_slide_item_->setData(Tool::kSlide);
   tools_group_->addAction(tools_slide_item_);
 
   tools_hand_item_ = tools_menu_->AddItem("handtool", this, SLOT(ToolItemTriggered()), "H");
   tools_hand_item_->setCheckable(true);
-  tools_hand_item_->setData(olive::tool::kHand);
+  tools_hand_item_->setData(Tool::kHand);
   tools_group_->addAction(tools_hand_item_);
 
   tools_zoom_item_ = tools_menu_->AddItem("zoomtool", this, SLOT(ToolItemTriggered()), "Z");
   tools_zoom_item_->setCheckable(true);
-  tools_zoom_item_->setData(olive::tool::kZoom);
+  tools_zoom_item_->setData(Tool::kZoom);
   tools_group_->addAction(tools_zoom_item_);
 
   tools_transition_item_ = tools_menu_->AddItem("transitiontool", this, SLOT(ToolItemTriggered()), "T");
   tools_transition_item_->setCheckable(true);
-  tools_transition_item_->setData(olive::tool::kTransition);
+  tools_transition_item_->setData(Tool::kTransition);
   tools_group_->addAction(tools_transition_item_);
 
   tools_menu_->addSeparator();
@@ -320,8 +320,8 @@ void MainMenu::ToolItemTriggered()
   // Assume the sender is a QAction
   QAction* action = static_cast<QAction*>(sender());
 
-  // Assume its data() is a member of olive::tool::Tool
-  olive::tool::Tool tool = static_cast<olive::tool::Tool>(action->data().toInt());
+  // Assume its data() is a member of Tool::Item
+  Tool::Item tool = static_cast<Tool::Item>(action->data().toInt());
 
   // Set the Tool in Core
   olive::core.SetTool(tool);

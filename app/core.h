@@ -87,7 +87,7 @@ public:
   /**
    * @brief Get the currently active tool
    */
-  const olive::tool::Tool& tool();
+  const Tool::Item& tool();
 
   /**
    * @brief Get current snapping value
@@ -165,7 +165,7 @@ public slots:
    *
    * @param tool
    */
-  void SetTool(const olive::tool::Tool& tool);
+  void SetTool(const Tool::Item& tool);
 
   /**
    * @brief Set the current snapping setting
@@ -220,7 +220,7 @@ signals:
   /**
    * @brief Signal emitted when the tool is changed from somewhere
    */
-  void ToolChanged(const olive::tool::Tool& tool);
+  void ToolChanged(const Tool::Item& tool);
 
   /**
    * @brief Signal emitted when the snapping setting is changed
@@ -270,7 +270,7 @@ private:
   /**
    * @brief Currently active tool
    */
-  olive::tool::Tool tool_;
+  Tool::Item tool_;
 
   /**
    * @brief Current snapping toggle

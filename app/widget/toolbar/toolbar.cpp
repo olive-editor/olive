@@ -34,18 +34,18 @@ Toolbar::Toolbar(QWidget *parent) :
   layout_->setMargin(0);
 
   // Create standard tool buttons
-  btn_pointer_tool_ = CreateToolButton(olive::tool::kPointer);
-  btn_edit_tool_ = CreateToolButton(olive::tool::kEdit);
-  btn_ripple_tool_ = CreateToolButton(olive::tool::kRipple);
-  btn_rolling_tool_ = CreateToolButton(olive::tool::kRolling);
-  btn_razor_tool_ = CreateToolButton(olive::tool::kRazor);
-  btn_slip_tool_ = CreateToolButton(olive::tool::kSlip);
-  btn_slide_tool_ = CreateToolButton(olive::tool::kSlide);
-  btn_hand_tool_ = CreateToolButton(olive::tool::kHand);
-  btn_zoom_tool_ = CreateToolButton(olive::tool::kZoom);
-  btn_record_ = CreateToolButton(olive::tool::kRecord);
-  btn_transition_tool_ = CreateToolButton(olive::tool::kTransition);
-  btn_add_ = CreateToolButton(olive::tool::kAdd);
+  btn_pointer_tool_ = CreateToolButton(Tool::kPointer);
+  btn_edit_tool_ = CreateToolButton(Tool::kEdit);
+  btn_ripple_tool_ = CreateToolButton(Tool::kRipple);
+  btn_rolling_tool_ = CreateToolButton(Tool::kRolling);
+  btn_razor_tool_ = CreateToolButton(Tool::kRazor);
+  btn_slip_tool_ = CreateToolButton(Tool::kSlip);
+  btn_slide_tool_ = CreateToolButton(Tool::kSlide);
+  btn_hand_tool_ = CreateToolButton(Tool::kHand);
+  btn_zoom_tool_ = CreateToolButton(Tool::kZoom);
+  btn_record_ = CreateToolButton(Tool::kRecord);
+  btn_transition_tool_ = CreateToolButton(Tool::kTransition);
+  btn_add_ = CreateToolButton(Tool::kAdd);
 
   // Create snapping button, which is not actually a tool, it's a toggle option
   btn_snapping_toggle_ = CreateNonToolButton();
@@ -55,7 +55,7 @@ Toolbar::Toolbar(QWidget *parent) :
   UpdateIcons();
 }
 
-void Toolbar::SetTool(const olive::tool::Tool& tool)
+void Toolbar::SetTool(const Tool::Item& tool)
 {
   // For each tool, set the "checked" state to whether the button's tool is the current tool
   for (int i=0;i<toolbar_btns_.size();i++) {
@@ -115,7 +115,7 @@ void Toolbar::UpdateIcons()
   btn_snapping_toggle_->setIcon(olive::icon::Snapping);
 }
 
-ToolbarButton* Toolbar::CreateToolButton(const olive::tool::Tool& tool)
+ToolbarButton* Toolbar::CreateToolButton(const Tool::Item& tool)
 {
   // Create a ToolbarButton object
   ToolbarButton* b = new ToolbarButton(this, tool);
@@ -135,7 +135,7 @@ ToolbarButton* Toolbar::CreateToolButton(const olive::tool::Tool& tool)
 ToolbarButton *Toolbar::CreateNonToolButton()
 {
   // Create a ToolbarButton object
-  ToolbarButton* b = new ToolbarButton(this, olive::tool::kNone);
+  ToolbarButton* b = new ToolbarButton(this, Tool::kNone);
 
   // Add it to the layout
   layout_->addWidget(b);
@@ -146,7 +146,7 @@ ToolbarButton *Toolbar::CreateNonToolButton()
 void Toolbar::ToolButtonClicked()
 {
   // Get new tool from ToolbarButton object
-  olive::tool::Tool new_tool = static_cast<ToolbarButton*>(sender())->tool();
+  Tool::Item new_tool = static_cast<ToolbarButton*>(sender())->tool();
 
   // Set checked state of all tool buttons
   // NOTE: Not necessary if this is appropriately connected to Core

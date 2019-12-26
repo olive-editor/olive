@@ -51,21 +51,21 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   views_.append(new TimelineAndTrackView(kTrackTypeAudio, Qt::AlignTop));
 
   // Create tools
-  tools_.resize(olive::tool::kCount);
+  tools_.resize(::Tool::kCount);
   tools_.fill(nullptr);
 
-  tools_.replace(olive::tool::kPointer, std::make_shared<PointerTool>(this));
-  // tools_.replace(olive::tool::kEdit, new PointerTool(this));   FIXME: Implement
-  tools_.replace(olive::tool::kRipple, std::make_shared<RippleTool>(this));
-  tools_.replace(olive::tool::kRolling, std::make_shared<RollingTool>(this));
-  tools_.replace(olive::tool::kRazor, std::make_shared<RazorTool>(this));
-  tools_.replace(olive::tool::kSlip, std::make_shared<SlipTool>(this));
-  tools_.replace(olive::tool::kSlide, std::make_shared<SlideTool>(this));
-  tools_.replace(olive::tool::kHand, std::make_shared<HandTool>(this));
-  tools_.replace(olive::tool::kZoom, std::make_shared<ZoomTool>(this));
-  tools_.replace(olive::tool::kTransition, std::make_shared<TransitionTool>(this));
-  //tools_.replace(olive::tool::kRecord, new PointerTool(this));  FIXME: Implement
-  tools_.replace(olive::tool::kAdd, std::make_shared<AddTool>(this));
+  tools_.replace(::Tool::kPointer, std::make_shared<PointerTool>(this));
+  // tools_.replace(::Tool::kEdit, new PointerTool(this));   FIXME: Implement
+  tools_.replace(::Tool::kRipple, std::make_shared<RippleTool>(this));
+  tools_.replace(::Tool::kRolling, std::make_shared<RollingTool>(this));
+  tools_.replace(::Tool::kRazor, std::make_shared<RazorTool>(this));
+  tools_.replace(::Tool::kSlip, std::make_shared<SlipTool>(this));
+  tools_.replace(::Tool::kSlide, std::make_shared<SlideTool>(this));
+  tools_.replace(::Tool::kHand, std::make_shared<HandTool>(this));
+  tools_.replace(::Tool::kZoom, std::make_shared<ZoomTool>(this));
+  tools_.replace(::Tool::kTransition, std::make_shared<TransitionTool>(this));
+  //tools_.replace(::Tool::kRecord, new PointerTool(this));  FIXME: Implement
+  tools_.replace(::Tool::kAdd, std::make_shared<AddTool>(this));
 
   import_tool_ = std::make_shared<ImportTool>(this);
 

@@ -21,57 +21,54 @@
 #ifndef TOOL_H
 #define TOOL_H
 
-namespace olive {
-namespace tool {
+class Tool {
+public:
+  /**
+   * @brief A list of tools that can be used throughout the application
+   */
+  enum Item {
+    /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
+    /// a tool somewhere similar to nullptr.
+    kNone,
 
-/**
- * @brief A list of tools that can be used throughout the application
- */
-enum Tool {
-  /// No tool. This should never be set as the application tool, its only real purpose is to indicate the lack of
-  /// a tool somewhere.
-  kNone,
+    /// Pointer tool
+    kPointer,
 
-  /// Pointer tool
-  kPointer,
+    /// Edit tool
+    kEdit,
 
-  /// Edit tool
-  kEdit,
+    /// Ripple tool
+    kRipple,
 
-  /// Ripple tool
-  kRipple,
+    /// Rolling tool
+    kRolling,
 
-  /// Rolling tool
-  kRolling,
+    /// Razor tool
+    kRazor,
 
-  /// Razor tool
-  kRazor,
+    /// Slip tool
+    kSlip,
 
-  /// Slip tool
-  kSlip,
+    /// Slide tool
+    kSlide,
 
-  /// Slide tool
-  kSlide,
+    /// Hand tool
+    kHand,
 
-  /// Hand tool
-  kHand,
+    /// Zoom tool
+    kZoom,
 
-  /// Zoom tool
-  kZoom,
+    /// Transition tool
+    kTransition,
 
-  /// Transition tool
-  kTransition,
+    /// Record tool
+    kRecord,
 
-  /// Record tool
-  kRecord,
+    /// Add tool
+    kAdd,
 
-  /// Add tool
-  kAdd,
-
-  kCount
+    kCount
+  };
 };
-
-}
-}
 
 #endif // TOOL_H

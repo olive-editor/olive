@@ -20,14 +20,14 @@
 
 #include "toolbarbutton.h"
 
-ToolbarButton::ToolbarButton(QWidget *parent, const olive::tool::Tool &tool) :
+ToolbarButton::ToolbarButton(QWidget *parent, const Tool::Item &tool) :
   QPushButton(parent),
   tool_(tool)
 {
   setCheckable(true);
 }
 
-const olive::tool::Tool &ToolbarButton::tool()
+const Tool::Item &ToolbarButton::tool()
 {
   return tool_;
 }

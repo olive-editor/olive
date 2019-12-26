@@ -54,7 +54,7 @@ Core olive::core;
 
 Core::Core() :
   main_window_(nullptr),
-  tool_(olive::tool::kPointer),
+  tool_(Tool::kPointer),
   snapping_(true),
   queue_autorecovery_(false)
 {
@@ -141,7 +141,7 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
   olive::task_manager.AddTask(std::make_shared<ImportTask>(model, parent, urls));
 }
 
-const olive::tool::Tool &Core::tool()
+const Tool::Item &Core::tool()
 {
   return tool_;
 }
@@ -171,7 +171,7 @@ void Core::StartModalTask(Task *t)
   }
 }
 
-void Core::SetTool(const olive::tool::Tool &tool)
+void Core::SetTool(const Tool::Item &tool)
 {
   tool_ = tool;
 

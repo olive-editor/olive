@@ -40,21 +40,21 @@ public:
    *
    * @param tool
    *
-   * Tool object. Must be a member of enum olive::tool::Tool, including kNone if this button does not represent a tool.
+   * Tool object. Must be a member of enum Tool::Item, including kNone if this button does not represent a tool.
    */
-  ToolbarButton(QWidget* parent, const olive::tool::Tool& tool);
+  ToolbarButton(QWidget* parent, const Tool::Item& tool);
 
   /**
    * @brief Retrieve tool ID that this button represents
    *
    * Set in the constructor and shouldn't change throughout its lifetime.
    */
-  const olive::tool::Tool& tool();
+  const Tool::Item& tool();
 private:
   /**
    * @brief Internal tool value
    */
-  olive::tool::Tool tool_;
+  Tool::Item tool_;
 };
 
 #endif // TOOLBARBUTTON_H
