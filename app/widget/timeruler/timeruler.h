@@ -64,6 +64,15 @@ signals:
   void TimeChanged(int64_t);
 
 private:
+  enum Component {
+    kNone,
+    kDay,
+    kHour,
+    kMinute,
+    kSecond,
+    kFrame
+  };
+
   void DrawPlayhead(QPainter* p, int x, int y);
 
   double ScreenToUnitFloat(int screen);

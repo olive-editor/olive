@@ -127,108 +127,143 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   QPainter p(this);
 
-  int64_t last_unit = -1;
-  int last_sec = -1;
+  double width_of_frame = timebase_dbl_ * scale_;
+  double width_of_second = 0;
+  do {
+    width_of_second += timebase_dbl_;
+  } while (width_of_second < 1.0);
+  width_of_second *= scale_;
+  double width_of_minute = width_of_second * 60;
+  double width_of_hour = width_of_minute * 60;
+  double width_of_day = width_of_hour * 24;
 
-  // Depending on the scale, we don't need all the lines drawn or else they'll start to become unhelpful
-  // Determine an even number to divide the frame count by
-  int rough_frames_in_second = qRound(timebase_flipped_dbl_);
-  int test_divider = 1;
-  while (!((rough_frames_in_second%test_divider == 0 || test_divider > rough_frames_in_second)
-         && scale_ * test_divider * timebase_dbl_ >= minimum_gap_between_lines_)) {
-    if (test_divider < rough_frames_in_second) {
-      test_divider++;
-    } else {
-      test_divider += rough_frames_in_second;
-    }
+  double long_interval, short_interval;
+  int long_rate;
+
+  // Used for comparison, even if one unit can technically fit, we have to fit at least two for it to matter
+  int doubled_gap = minimum_gap_between_lines_ * 2;
+
+  if (width_of_day < doubled_gap) {
+    long_interval = -1;
+    short_interval = width_of_day;
+  } else if (width_of_hour < doubled_gap) {
+    long_interval = width_of_day;
+    long_rate = 24;
+    short_interval = width_of_hour;
+  } else if (width_of_minute < doubled_gap) {
+    long_interval = width_of_hour;
+    long_rate = 60;
+    short_interval = width_of_minute;
+  } else if (width_of_second < doubled_gap) {
+    long_interval = width_of_minute;
+    long_rate = 60;
+    short_interval = width_of_second;
+  } else if (width_of_frame < doubled_gap) {
+    long_interval = width_of_second;
+    long_rate = qRound(timebase_flipped_dbl_);
+    short_interval = width_of_frame;
+  } else {
+    // FIXME: Implement this...
+    long_interval = width_of_second;
+    short_interval = width_of_frame;
   }
-  double reverse_divider = double(rough_frames_in_second) / double(test_divider);
-  qreal real_divider = qMax(1.0, timebase_flipped_dbl_ / reverse_divider);
 
-  // Set where the loop ends (affected by text)
-  int loop_start = - playhead_width_;
-  int loop_end = width() + playhead_width_;
-
-  // Determine where it can draw text
-  int text_skip = 1;
-  int half_average_text_width = 0;
-  int text_y = 0;
-  if (text_visible_) {
-    QFontMetrics fm = p.fontMetrics();
-    double width_of_second = scale_;
-    int average_text_width = QFontMetricsWidth(fm, Timecode::timestamp_to_timecode(0, timebase_, Timecode::CurrentDisplay()));
-    half_average_text_width = average_text_width/2;
-    while (width_of_second * text_skip < average_text_width) {
-      text_skip++;
-    }
-
-    if (centered_text_) {
-      loop_start = -half_average_text_width;
-      loop_end += half_average_text_width;
+  if (short_interval < minimum_gap_between_lines_) {
+    if (long_interval == -1) {
+      do {
+        short_interval *= 2;
+      } while (short_interval < minimum_gap_between_lines_);
     } else {
-      loop_start = -average_text_width;
-    }
+      int div;
 
-    text_y = fm.ascent();
+      short_interval = long_interval;
+
+      for (div=long_rate;div>0;div--) {
+        if (long_rate%div == 0) {
+          // This division produces a whole number
+          double test_frame_width = long_interval / static_cast<double>(div);
+
+          if (test_frame_width >= minimum_gap_between_lines_) {
+            short_interval = test_frame_width;
+            break;
+          }
+        }
+      }
+    }
   }
 
   // Set line color to main text color
   p.setBrush(Qt::NoBrush);
   p.setPen(palette().text().color());
 
-  // Calculate where each line starts
-  int line_top = text_visible_ ? text_height_ : 0;
+  // Calculate line dimensions
+  QFontMetrics fm = p.fontMetrics();
+  int long_height = fm.height();
+  int short_height = long_height/2;
+  int long_y = height() - long_height;
+  int short_y = height() - short_height;
+  int line_bottom = height();
 
-  // Calculate all three line lengths
-  int line_length = text_height_;
-  int line_sec_bottom = line_top + line_length;
-  int line_halfsec_bottom = line_top + line_length / 3 * 2;
-  int line_frame_bottom = line_top + line_length / 3;
+  // Draw long lines
+  int last_long_unit = -1;
+  int last_short_unit = -1;
+  int last_text_draw = INT_MIN;
 
-  for (int i=loop_start;i<loop_end;i++) {
-    int64_t unit = ScreenToUnit(i);
+  // FIXME: Hardcoded number
+  const int kAverageTextWidth = 200;
 
-    // Check if enough space has passed since the last line drawn
-    if (qFloor(double(unit)/real_divider) > qFloor(double(last_unit)/real_divider)) {
+  for (int i=-kAverageTextWidth;i<width()+kAverageTextWidth;i++) {
+    double screen_pt = static_cast<double>(i + scroll_);
 
-      // Determine if this unit is a whole second or not
-      int sec = qFloor(double(unit) * timebase_dbl_);
+    if (long_interval > -1) {
+      int this_long_unit = qFloor(screen_pt/long_interval);
+      if (this_long_unit != last_long_unit) {
+        int line_y = long_y;
 
-      if (sec > last_sec) {
-        // This line marks a second so we make it long
-        p.drawLine(i, line_top, i, line_sec_bottom);
-
-        last_sec = sec;
-
-        // Try to draw text here
-        if (text_visible_ && sec%text_skip == 0) {
-          int64_t timestamp_here = Timecode::time_to_timestamp(rational(sec), timebase_);
-          QString timecode_string = Timecode::timestamp_to_timecode(timestamp_here, timebase_, Timecode::CurrentDisplay());
-
-          int text_x = i;
+        if (text_visible_) {
+          QRect text_rect;
+          Qt::Alignment text_align;
+          QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase_, Timecode::CurrentDisplay());
+          int timecode_width = QFontMetricsWidth(fm, timecode_str);
+          int timecode_left;
 
           if (centered_text_) {
-            text_x -= half_average_text_width;
+            text_rect = QRect(i - kAverageTextWidth/2, 0, kAverageTextWidth, fm.height());
+            text_align = Qt::AlignCenter;
+            timecode_left = i - timecode_width/2;
           } else {
-            timecode_string.prepend(" ");
-            p.drawLine(i, 0, i, line_top);
+            text_rect = QRect(i, 0, kAverageTextWidth, fm.height());
+            text_align = Qt::AlignLeft | Qt::AlignVCenter;
+            timecode_left = i;
+
+            // Add gap to left between line and text
+            timecode_str.prepend(' ');
           }
 
-          p.drawText(text_x, text_y, timecode_string);
+          if (timecode_left > last_text_draw) {
+            p.drawText(text_rect,
+                       text_align,
+                       timecode_str);
+
+            last_text_draw = timecode_left + timecode_width;
+
+            if (!centered_text_) {
+              line_y = 0;
+            }
+          }
         }
-      } else if (unit%rough_frames_in_second == rough_frames_in_second/2) {
 
-        // This line marks the half second point so we make it somewhere in between
-        p.drawLine(i, line_top, i, line_halfsec_bottom);
-
-      } else {
-
-        // This line just marks a frame so we make it short
-        p.drawLine(i, line_top, i, line_frame_bottom);
-
+        p.drawLine(i, line_y, i, line_bottom);
+        last_long_unit = this_long_unit;
       }
+    }
 
-      last_unit = unit;
+    if (short_interval > -1) {
+      int this_short_unit = qFloor(screen_pt/short_interval);
+      if (this_short_unit != last_short_unit) {
+        p.drawLine(i, short_y, i, line_bottom);
+        last_short_unit = this_short_unit;
+      }
     }
   }
 
