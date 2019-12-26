@@ -47,6 +47,8 @@ public:
   bool IsTristate() const;
   void SetTristate();
 
+  bool IsDragging() const;
+
 signals:
   void ValueChanged(QVariant v);
 

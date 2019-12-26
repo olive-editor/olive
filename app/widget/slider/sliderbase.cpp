@@ -91,6 +91,11 @@ void SliderBase::SetTristate()
   UpdateLabel(0);
 }
 
+bool SliderBase::IsDragging() const
+{
+  return dragged_;
+}
+
 const QVariant &SliderBase::Value()
 {
   if (dragged_) {
@@ -205,6 +210,9 @@ void SliderBase::LabelClicked()
       SetValue(drag_val);
       break;
     }
+
+    dragged_ = false;
+    emit ValueChanged(value_);
   } else {
     // This was a simple click
 
@@ -218,12 +226,12 @@ void SliderBase::LabelClicked()
     editor_->setFocus();
     editor_->selectAll();
   }
-
-  dragged_ = false;
 }
 
 void SliderBase::LabelDragged(int i)
 {
+  dragged_ = true;
+
   switch (mode_) {
   case kString:
     // No dragging supported for strings
@@ -251,8 +259,6 @@ void SliderBase::LabelDragged(int i)
     break;
   }
   }
-
-  dragged_ = true;
 }
 
 void SliderBase::LineEditConfirmed()
