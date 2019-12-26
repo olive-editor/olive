@@ -27,11 +27,11 @@
 
 #include "project/project.h"
 #include "project/projectviewmodel.h"
-#include "project/projectviewtype.h"
 #include "widget/projectexplorer/projectexplorericonview.h"
 #include "widget/projectexplorer/projectexplorerlistview.h"
 #include "widget/projectexplorer/projectexplorertreeview.h"
 #include "widget/projectexplorer/projectexplorernavigation.h"
+#include "widget/projecttoolbar/projecttoolbar.h"
 
 /**
  * @brief A widget for browsing through a Project structure.
@@ -47,7 +47,7 @@ class ProjectExplorer : public QWidget
 public:
   ProjectExplorer(QWidget* parent);
 
-  const olive::ProjectViewType& view_type();
+  const ProjectToolbar::ViewType& view_type();
 
   Project* project();
   void set_project(Project* p);
@@ -74,7 +74,7 @@ public:
   ProjectViewModel* model();
 
 public slots:
-  void set_view_type(olive::ProjectViewType type);
+  void set_view_type(ProjectToolbar::ViewType type);
 
   void Edit(Item* item);
 
@@ -124,7 +124,7 @@ private:
   ProjectExplorerListView* list_view_;
   ProjectExplorerTreeView* tree_view_;
 
-  olive::ProjectViewType view_type_;
+  ProjectToolbar::ViewType view_type_;
 
   ProjectViewModel model_;
 

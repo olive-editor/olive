@@ -18,12 +18,12 @@ public:
   /**
    * @brief Returns a native pixel format that can be used to convert from a native frame to an AVFrame with minimal data loss
    */
-  static olive::PixelFormat GetCompatiblePixelFormat(const olive::PixelFormat& pix_fmt);
+  static PixelFormat::Format GetCompatiblePixelFormat(const PixelFormat::Format& pix_fmt);
 
   /**
    * @brief Returns an FFmpeg pixel format for a given native pixel format
    */
-  static AVPixelFormat GetFFmpegPixelFormat(const olive::PixelFormat& pix_fmt);
+  static AVPixelFormat GetFFmpegPixelFormat(const PixelFormat::Format& pix_fmt);
 
   /**
    * @brief Returns a native sample format type for a given AVSampleFormat

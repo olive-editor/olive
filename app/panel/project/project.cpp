@@ -57,9 +57,9 @@ ProjectPanel::ProjectPanel(QWidget *parent) :
 
   // Connect toolbar's view change signal to the explorer's view change slot
   connect(toolbar,
-          SIGNAL(ViewChanged(olive::ProjectViewType)),
+          &ProjectToolbar::ViewChanged,
           explorer_,
-          SLOT(set_view_type(olive::ProjectViewType)));
+          &ProjectExplorer::set_view_type);
 
   // Set strings
   Retranslate();
@@ -120,7 +120,7 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
 {
   if (item == nullptr) {
     // If the user double clicks on empty space, show the import dialog
-    olive::core.DialogImportShow();
+    Core::instance()->DialogImportShow();
   }
 
   // FIXME: Double click Item should do something
@@ -130,7 +130,7 @@ void ProjectPanel::ShowNewMenu()
 {
   Menu new_menu(this);
 
-  olive::menu_shared.AddItemsForNewMenu(&new_menu);
+  MenuShared::instance()->AddItemsForNewMenu(&new_menu);
 
   new_menu.exec(QCursor::pos());
 }

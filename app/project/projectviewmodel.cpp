@@ -25,7 +25,6 @@
 #include <QUrl>
 
 #include "core.h"
-#include "undo/undostack.h"
 
 ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
@@ -197,7 +196,7 @@ bool ProjectViewModel::setData(const QModelIndex &index, const QVariant &value, 
 
     RenameItemCommand* ric = new RenameItemCommand(this, item, value.toString());
 
-    olive::undo_stack.push(ric);
+    Core::instance()->undo_stack()->push(ric);
 
     return true;
   }
@@ -338,7 +337,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
       }
     }
 
-    olive::undo_stack.pushIfHasChildren(move_command);
+    Core::instance()->undo_stack()->pushIfHasChildren(move_command);
 
     return true;
 
@@ -368,7 +367,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     }
 
     // Trigger an import
-    olive::core.ImportFiles(urls, this, static_cast<Folder*>(drop_item));
+    Core::instance()->ImportFiles(urls, this, static_cast<Folder*>(drop_item));
   }
 
   return false;

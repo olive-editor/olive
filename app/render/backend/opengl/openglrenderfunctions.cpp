@@ -18,7 +18,7 @@
 
 ***/
 
-#include "functions.h"
+#include "openglrenderfunctions.h"
 
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLVertexArrayObject>
@@ -63,7 +63,7 @@ const GLfloat flipped_blit_texcoords[] = {
  *
  * Currently active QOpenGLFunctions object (use context()->functions() if unsure).
  */
-void olive::gl::PrepareToDraw(QOpenGLFunctions* f) {
+void OpenGLRenderFunctions::PrepareToDraw(QOpenGLFunctions* f) {
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -71,7 +71,7 @@ void olive::gl::PrepareToDraw(QOpenGLFunctions* f) {
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-void olive::gl::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
+void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   // FIXME: is currentContext() reliable here?
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
@@ -123,7 +123,7 @@ void olive::gl::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) 
   func->glFinish();
 }
 
-void olive::gl::OCIOBlit(OpenGLShaderPtr pipeline,
+void OpenGLRenderFunctions::OCIOBlit(OpenGLShaderPtr pipeline,
                          GLuint lut,
                          bool flipped,
                          QMatrix4x4 matrix)
@@ -139,7 +139,7 @@ void olive::gl::OCIOBlit(OpenGLShaderPtr pipeline,
 
   pipeline->setUniformValue("ove_ociolut", 2);
 
-  olive::gl::Blit(pipeline, flipped, matrix);
+  OpenGLRenderFunctions::Blit(pipeline, flipped, matrix);
 
   pipeline->release();
 

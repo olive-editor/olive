@@ -3,7 +3,7 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 
-#include "functions.h"
+#include "openglrenderfunctions.h"
 
 void OpenGLColorProcessor::Enable(QOpenGLContext *context, bool alpha_is_associated)
 {
@@ -31,7 +31,7 @@ OpenGLShaderPtr OpenGLColorProcessor::pipeline() const
 
 void OpenGLColorProcessor::ProcessOpenGL()
 {
-  olive::gl::OCIOBlit(pipeline_, ocio_lut_);
+  OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_);
 }
 
 OpenGLColorProcessor::OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space) :

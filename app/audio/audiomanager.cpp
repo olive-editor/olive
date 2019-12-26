@@ -130,11 +130,11 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
     }
 
     output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
-    connect(output_.get(), SIGNAL(notify()), this, SLOT(OutputNotified()));
+    connect(output_.get(), &QAudioOutput::notify, this, &AudioManager::OutputNotified);
   }
 
   // Un-comment this to get debug information about what the audio output is doing
-  //connect(output_.get(), SIGNAL(stateChanged(QAudio::State)), this, SLOT(OutputStateChanged(QAudio::State)));
+  //connect(output_.get(), &QAudioOutput::stateChanged, this, &AudioManager::OutputStateChanged);
 }
 
 void AudioManager::SetOutputParams(const AudioRenderingParams &params)
@@ -169,12 +169,12 @@ AudioManager::AudioManager() :
   input_file_(nullptr),
   refreshing_devices_(false)
 {
-  connect(&refresh_thread_, SIGNAL(ListsReady()), this, SLOT(RefreshThreadDone()));
+  connect(&refresh_thread_, &AudioRefreshDevicesThread::ListsReady, this, &AudioManager::RefreshThreadDone);
 
   RefreshDevices();
 
-  connect(&output_manager_, SIGNAL(HasSamples()), this, SLOT(OutputManagerHasSamples()));
-  connect(&output_manager_, SIGNAL(SentSamples(QVector<double>)), this, SIGNAL(SentSamples(QVector<double>)));
+  connect(&output_manager_, &AudioHybridDevice::HasSamples, this, &AudioManager::OutputManagerHasSamples);
+  connect(&output_manager_, &AudioHybridDevice::SentSamples, this, &AudioManager::SentSamples);
 
   output_manager_.SetEnableSendingSamples(true);
   output_manager_.open(AudioHybridDevice::ReadOnly);

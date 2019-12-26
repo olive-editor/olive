@@ -115,7 +115,7 @@ bool FFmpegEncoder::OpenInternal()
     }
 
     // This is the format we will expect frames received in Write() to be in
-    olive::PixelFormat native_pixel_fmt = params().video_params().format();
+    PixelFormat::Format native_pixel_fmt = params().video_params().format();
 
     // This is the format we will need to convert the frame to for swscale to understand it
     video_conversion_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(native_pixel_fmt);

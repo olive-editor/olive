@@ -30,6 +30,7 @@
 #include "window/mainwindow/mainwindow.h"
 #include "task/task.h"
 #include "tool/tool.h"
+#include "undo/undostack.h"
 
 /**
  * @brief The main central Olive application instance
@@ -50,6 +51,13 @@ public:
    * Currently empty
    */
   Core();
+
+  /**
+   * @brief Core object accessible from anywhere in the code
+   *
+   * Use this to access Core functions.
+   */
+  static Core* instance();
 
   /**
    * @brief Start Olive Core
@@ -73,6 +81,11 @@ public:
    * Pointer to the olive::MainWindow object, or nullptr if running in CLI mode.
    */
   MainWindow* main_window();
+
+  /**
+   * @brief Retrieve UndoStack object
+   */
+  UndoStack* undo_stack();
 
   /**
    * @brief Import a list of files
@@ -290,18 +303,19 @@ private:
    */
   QTimer autorecovery_timer_;
 
+  /**
+   * @brief Application-wide undo stack instance
+   */
+  UndoStack undo_stack_;
+
+  /**
+   * @brief Static singleton core instance
+   */
+  static Core instance_;
+
 private slots:
   void SaveAutorecovery();
 
 };
-
-namespace olive {
-/**
- * @brief Core object accessible from anywhere in the code
- *
- * Use this to access Core functions.
- */
-extern Core core;
-}
 
 #endif // CORE_H

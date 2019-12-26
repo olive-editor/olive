@@ -7,8 +7,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include "core.h"
 #include "common/timecodefunctions.h"
-#include "undo/undostack.h"
 #include "widget/nodeview/nodeviewundo.h"
 #include "widget/timelinewidget/undo/undo.h"
 
@@ -241,7 +241,7 @@ void SpeedDurationDialog::accept()
     }
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   QDialog::accept();
 }

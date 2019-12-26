@@ -52,10 +52,18 @@ private slots:
   /**
    * @brief A slot for the Tool selection items
    *
-   * Assumes a QAction* sender() and its data() is a member of enum olive::tool:Tool. Uses the data() to signal a
+   * Assumes a QAction* sender() and its data() is a member of enum Tool::Item. Uses the data() to signal a
    * Tool change throughout the rest of the application.
    */
   void ToolItemTriggered();
+
+  /**
+   * @brief A slot for the timecode display menu items
+   *
+   * Assumes a QAction* sender() and its data() is a member of enum Timecode::Display. Uses the data() to signal a
+   * timecode change throughout the rest of the application.
+   */
+  void TimecodeDisplayTriggered();
 
   /**
    * @brief Slot triggered just before the File menu shows
@@ -164,9 +172,11 @@ private:
   QAction* view_decrease_track_height_item_;
   QAction* view_show_all_item_;
   QAction* view_rectified_waveforms_item_;
-  QAction* view_timecode_view_frames_item_;
+  QActionGroup* frame_view_mode_group_;
   QAction* view_timecode_view_dropframe_item_;
   QAction* view_timecode_view_nondropframe_item_;
+  QAction* view_timecode_view_seconds_item_;
+  QAction* view_timecode_view_frames_item_;
   QAction* view_timecode_view_milliseconds_item_;
   Menu* view_title_safe_area_menu_;
   QAction* title_safe_off_item_;

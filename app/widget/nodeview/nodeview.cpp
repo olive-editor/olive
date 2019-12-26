@@ -20,9 +20,9 @@
 
 #include "nodeview.h"
 
+#include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
-#include "undo/undostack.h"
 
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
@@ -142,7 +142,7 @@ void NodeView::DeleteSelected()
     return;
   }
 
-  olive::undo_stack.push(new NodeRemoveCommand(graph_, selected_nodes));
+  Core::instance()->undo_stack()->push(new NodeRemoveCommand(graph_, selected_nodes));
 }
 
 void NodeView::AddNode(Node* node)
@@ -244,6 +244,6 @@ void NodeView::CreateNodeSlot(QAction *action)
   Node* new_node = NodeFactory::CreateFromMenuAction(action);
 
   if (new_node) {
-    olive::undo_stack.push(new NodeAddCommand(graph_, new_node));
+    Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
   }
 }

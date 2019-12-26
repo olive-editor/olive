@@ -56,7 +56,7 @@ private:
   AVStream* video_stream_;
   AVCodecContext* video_codec_ctx_;
   SwsContext* video_scale_ctx_;
-  olive::PixelFormat video_conversion_fmt_;
+  PixelFormat::Format video_conversion_fmt_;
 
   AVStream* audio_stream_;
   AVCodecContext* audio_codec_ctx_;

@@ -255,3 +255,8 @@ Timecode::Display Timecode::CurrentDisplay()
 {
   return static_cast<Timecode::Display>(Config::Current()["TimecodeDisplay"].toInt());
 }
+
+void Timecode::SetCurrentDisplay(Timecode::Display d)
+{
+  Config::Current()["TimecodeDisplay"] = d;
+}

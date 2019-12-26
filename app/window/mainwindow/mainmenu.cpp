@@ -22,6 +22,7 @@
 
 #include <QEvent>
 
+#include "common/timecodefunctions.h"
 #include "core.h"
 #include "dialog/actionsearch/actionsearch.h"
 #include "panel/panelmanager.h"
@@ -38,18 +39,18 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   file_menu_ = new Menu(this, this, SLOT(FileMenuAboutToShow()));
   file_new_menu_ = new Menu(file_menu_);
-  olive::menu_shared.AddItemsForNewMenu(file_new_menu_);
+  MenuShared::instance()->AddItemsForNewMenu(file_new_menu_);
   file_open_item_ = file_menu_->AddItem("openproj", nullptr, nullptr, "Ctrl+O");
   file_open_recent_menu_ = new Menu(file_menu_);
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", nullptr, nullptr);
   file_save_item_ = file_menu_->AddItem("saveproj", nullptr, nullptr, "Ctrl+S");
   file_save_as_item_ = file_menu_->AddItem("saveprojas", nullptr, nullptr, "Ctrl+Shift+S");
   file_menu_->addSeparator();
-  file_import_item_ = file_menu_->AddItem("import", &olive::core, SLOT(DialogImportShow()), "Ctrl+I");
+  file_import_item_ = file_menu_->AddItem("import", Core::instance(), SLOT(DialogImportShow()), "Ctrl+I");
   file_menu_->addSeparator();
-  file_export_item_ = file_menu_->AddItem("export", &olive::core, SLOT(DialogExportShow()), "Ctrl+M");
+  file_export_item_ = file_menu_->AddItem("export", Core::instance(), SLOT(DialogExportShow()), "Ctrl+M");
   file_menu_->addSeparator();
-  file_project_properties_item_ = file_menu_->AddItem("projectproperties", &olive::core, SLOT(DialogProjectPropertiesShow()));
+  file_project_properties_item_ = file_menu_->AddItem("projectproperties", Core::instance(), SLOT(DialogProjectPropertiesShow()));
   file_menu_->addSeparator();
   file_exit_item_ = file_menu_->AddItem("exit", parent, SLOT(close()), "Ctrl+Q");
 
@@ -58,27 +59,27 @@ MainMenu::MainMenu(QMainWindow *parent) :
   //
   edit_menu_ = new Menu(this);
 
-  edit_undo_item_ = olive::undo_stack.createUndoAction(this);
+  edit_undo_item_ = Core::instance()->undo_stack()->createUndoAction(this);
   Menu::ConformItem(edit_undo_item_, "undo", nullptr, nullptr, "Ctrl+Z");
   edit_menu_->addAction(edit_undo_item_);
-  edit_redo_item_ = olive::undo_stack.createRedoAction(this);
+  edit_redo_item_ = Core::instance()->undo_stack()->createRedoAction(this);
   Menu::ConformItem(edit_redo_item_, "redo", nullptr, nullptr, "Ctrl+Shift+Z");
   edit_menu_->addAction(edit_redo_item_);
 
   edit_menu_->addSeparator();
-  olive::menu_shared.AddItemsForEditMenu(edit_menu_);
+  MenuShared::instance()->AddItemsForEditMenu(edit_menu_);
   edit_menu_->addSeparator();
   edit_select_all_item_ = edit_menu_->AddItem("selectall", this, SLOT(SelectAllTriggered()), "Ctrl+A");
   edit_deselect_all_item_ = edit_menu_->AddItem("deselectall", this, SLOT(DeselectAllTriggered()), "Ctrl+Shift+A");
   edit_menu_->addSeparator();
-  olive::menu_shared.AddItemsForClipEditMenu(edit_menu_);
+  MenuShared::instance()->AddItemsForClipEditMenu(edit_menu_);
   edit_menu_->addSeparator();
   edit_ripple_to_in_item_ = edit_menu_->AddItem("rippletoin", this, SLOT(RippleToInTriggered()), "Q");
   edit_ripple_to_out_item_ = edit_menu_->AddItem("rippletoout", this, SLOT(RippleToOutTriggered()), "W");
   edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", this, SLOT(EditToInTriggered()), "Ctrl+Alt+Q");
   edit_edit_to_out_item_ = edit_menu_->AddItem("edittoout", this, SLOT(EditToOutTriggered()), "Ctrl+Alt+W");
   edit_menu_->addSeparator();
-  olive::menu_shared.AddItemsForInOutMenu(edit_menu_);
+  MenuShared::instance()->AddItemsForInOutMenu(edit_menu_);
   edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", nullptr, nullptr, ";");
   edit_ripple_delete_inout_item_ = edit_menu_->AddItem("rippledeleteinout", nullptr, nullptr, "'");
   edit_menu_->addSeparator();
@@ -99,27 +100,32 @@ MainMenu::MainMenu(QMainWindow *parent) :
   view_rectified_waveforms_item_->setCheckable(true);
   view_menu_->addSeparator();
 
-  QActionGroup* frame_view_mode_group = new QActionGroup(this);
+  frame_view_mode_group_ = new QActionGroup(this);
 
-  view_timecode_view_frames_item_ = view_menu_->AddItem("modeframes", nullptr, nullptr);
-  //view_timecode_view_frames_item_->setData(olive::kTimecodeFrames);
-  view_timecode_view_frames_item_->setCheckable(true);
-  frame_view_mode_group->addAction(view_timecode_view_frames_item_);
-
-  view_timecode_view_dropframe_item_ = view_menu_->AddItem("modedropframe", nullptr, nullptr);
-  //view_timecode_view_dropframe_item_->setData(olive::kTimecodeDrop);
+  view_timecode_view_dropframe_item_ = view_menu_->AddItem("modedropframe", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_dropframe_item_->setData(Timecode::kTimecodeDropFrame);
   view_timecode_view_dropframe_item_->setCheckable(true);
-  frame_view_mode_group->addAction(view_timecode_view_dropframe_item_);
+  frame_view_mode_group_->addAction(view_timecode_view_dropframe_item_);
 
-  view_timecode_view_nondropframe_item_ = view_menu_->AddItem("modenondropframe", nullptr, nullptr);
-  //view_timecode_view_nondropframe_item_->setData(olive::kTimecodeNonDrop);
+  view_timecode_view_nondropframe_item_ = view_menu_->AddItem("modenondropframe", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_nondropframe_item_->setData(Timecode::kTimecodeNonDropFrame);
   view_timecode_view_nondropframe_item_->setCheckable(true);
-  frame_view_mode_group->addAction(view_timecode_view_nondropframe_item_);
+  frame_view_mode_group_->addAction(view_timecode_view_nondropframe_item_);
 
-  view_timecode_view_milliseconds_item_ = view_menu_->AddItem("milliseconds", nullptr, nullptr);
-  //view_timecode_view_milliseconds_item_->setData(olive::kTimecodeMilliseconds);
+  view_timecode_view_seconds_item_ = view_menu_->AddItem("modeseconds", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_seconds_item_->setData(Timecode::kTimecodeSeconds);
+  view_timecode_view_seconds_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_seconds_item_);
+
+  view_timecode_view_frames_item_ = view_menu_->AddItem("modeframes", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_frames_item_->setData(Timecode::kFrames);
+  view_timecode_view_frames_item_->setCheckable(true);
+  frame_view_mode_group_->addAction(view_timecode_view_frames_item_);
+
+  view_timecode_view_milliseconds_item_ = view_menu_->AddItem("milliseconds", this, SLOT(TimecodeDisplayTriggered()));
+  view_timecode_view_milliseconds_item_->setData(Timecode::kMilliseconds);
   view_timecode_view_milliseconds_item_->setCheckable(true);
-  frame_view_mode_group->addAction(view_timecode_view_milliseconds_item_);
+  frame_view_mode_group_->addAction(view_timecode_view_milliseconds_item_);
 
   view_menu_->addSeparator();
 
@@ -265,7 +271,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   tools_snapping_item_ = tools_menu_->AddItem("snapping", nullptr, nullptr, "S");
   tools_snapping_item_->setCheckable(true);
-  connect(tools_snapping_item_, SIGNAL(triggered(bool)), &olive::core, SLOT(SetSnapping(bool)));
+  connect(tools_snapping_item_, SIGNAL(triggered(bool)), Core::instance(), SLOT(SetSnapping(bool)));
 
   tools_menu_->addSeparator();
 
@@ -292,7 +298,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   tools_menu_->addSeparator();
 
-  tools_preferences_item_ = tools_menu_->AddItem("prefs", &olive::core, SLOT(DialogPreferencesShow()), "Ctrl+,");
+  tools_preferences_item_ = tools_menu_->AddItem("prefs", Core::instance(), SLOT(DialogPreferencesShow()), "Ctrl+,");
 
   //
   // HELP MENU
@@ -302,7 +308,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   help_menu_->addSeparator();
   help_debug_log_item_ = help_menu_->AddItem("debuglog", nullptr, nullptr);
   help_menu_->addSeparator();
-  help_about_item_ = help_menu_->AddItem("about", &olive::core, SLOT(DialogAboutShow()));
+  help_about_item_ = help_menu_->AddItem("about", Core::instance(), SLOT(DialogAboutShow()));
 
   Retranslate();
 }
@@ -324,18 +330,39 @@ void MainMenu::ToolItemTriggered()
   Tool::Item tool = static_cast<Tool::Item>(action->data().toInt());
 
   // Set the Tool in Core
-  olive::core.SetTool(tool);
+  Core::instance()->SetTool(tool);
+}
+
+void MainMenu::TimecodeDisplayTriggered()
+{
+  // Assume the sender is a QAction
+  QAction* action = static_cast<QAction*>(sender());
+
+  // Assume its data() is a member of Timecode::Display
+  Timecode::Display display = static_cast<Timecode::Display>(action->data().toInt());
+
+  // Set the current display mode
+  Timecode::SetCurrentDisplay(display);
 }
 
 void MainMenu::FileMenuAboutToShow()
 {
-  file_project_properties_item_->setEnabled(olive::core.GetActiveProject() != nullptr);
+  file_project_properties_item_->setEnabled(Core::instance()->GetActiveProject() != nullptr);
 }
 
 void MainMenu::ViewMenuAboutToShow()
 {
   // Parent is QMainWindow
   view_full_screen_item_->setChecked(parentWidget()->isFullScreen());
+
+  // Ensure checked timecode display mode is correct
+  QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
+  foreach (QAction* a, timecode_display_actions) {
+    if (a->data() == Timecode::CurrentDisplay()) {
+      a->setChecked(true);
+      break;
+    }
+  }
 }
 
 void MainMenu::ToolsMenuAboutToShow()
@@ -343,14 +370,14 @@ void MainMenu::ToolsMenuAboutToShow()
   // Ensure checked Tool is correct
   QList<QAction*> tool_actions = tools_group_->actions();
   foreach (QAction* a, tool_actions) {
-    if (a->data() == olive::core.tool()) {
+    if (a->data() == Core::instance()->tool()) {
       a->setChecked(true);
       break;
     }
   }
 
   // Ensure snapping value is correct
-  tools_snapping_item_->setChecked(olive::core.snapping());
+  tools_snapping_item_->setChecked(Core::instance()->snapping());
 }
 
 void MainMenu::WindowMenuAboutToShow()
@@ -478,7 +505,7 @@ void MainMenu::GoToNextCutTriggered()
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
-  olive::menu_shared.Retranslate();
+  MenuShared::instance()->Retranslate();
 
   // File menu
   file_menu_->setTitle(tr("&File"));
@@ -519,6 +546,7 @@ void MainMenu::Retranslate()
   view_timecode_view_dropframe_item_->setText(tr("Drop Frame"));
   view_timecode_view_nondropframe_item_->setText(tr("Non-Drop Frame"));
   view_timecode_view_milliseconds_item_->setText(tr("Milliseconds"));
+  view_timecode_view_seconds_item_->setText(tr("Seconds"));
 
   // View->Title/Action Safe Area Menu
   view_title_safe_area_menu_->setTitle(tr("Title/Action Safe Area"));

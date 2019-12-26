@@ -2,10 +2,10 @@
 
 #include "common/clamp.h"
 #include "core.h"
-#include "functions.h"
 #include "node/block/transition/transition.h"
 #include "node/node.h"
 #include "openglcolorprocessor.h"
+#include "openglrenderfunctions.h"
 #include "render/colormanager.h"
 #include "render/pixelservice.h"
 
@@ -72,14 +72,14 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
   }
 
   // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
-  if (video_params().mode() == olive::kOnline) {
+  if (video_params().mode() == RenderMode::kOnline) {
     // If alpha is associated, disassociate for the color transform
     if (video_stream->premultiplied_alpha()) {
       ColorManager::DisassociateAlpha(frame);
     }
 
     // Convert frame to float for OCIO
-    frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
+    frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
 
     // Perform color transform
     color_processor->ConvertFrame(frame);
@@ -96,7 +96,7 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
 
   OpenGLTextureCache::ReferencePtr footage_tex_ref = texture_cache_->Get(ctx_, footage_params, frame->data());
 
-  if (video_params().mode() == olive::kOffline) {
+  if (video_params().mode() == RenderMode::kOffline) {
     if (!color_processor->IsEnabled()) {
       color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
     }
@@ -238,7 +238,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
             iterative_input = input_texture_count;
           }
 
-          olive::gl::PrepareToDraw(functions_);
+          OpenGLRenderFunctions::PrepareToDraw(functions_);
 
           input_texture_count++;
           break;
@@ -322,7 +322,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
     buffer_.Bind();
 
     // Blit this texture through this shader
-    olive::gl::Blit(shader);
+    OpenGLRenderFunctions::Blit(shader);
 
     buffer_.Release();
     buffer_.Detach();
@@ -353,7 +353,7 @@ void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
-  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params().format());
+  PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   buffer_.Attach(texture->texture());

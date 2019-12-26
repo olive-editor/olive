@@ -18,7 +18,6 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/projectexplorer/projectexplorer.h
   widget/projectexplorer/projectexplorer.cpp
-  widget/projectexplorer/projectexplorerdefines.h
   widget/projectexplorer/projectexplorertreeview.h
   widget/projectexplorer/projectexplorertreeview.cpp
   widget/projectexplorer/projectexplorerlistview.h

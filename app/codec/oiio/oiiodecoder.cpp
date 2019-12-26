@@ -84,13 +84,13 @@ bool OIIODecoder::Open()
 
   // Weirdly, switch statement doesn't work correctly here
   if (spec.format == OIIO::TypeDesc::UINT8) {
-    pix_fmt_ = olive::PIX_FMT_RGBA8;
+    pix_fmt_ = PixelFormat::PIX_FMT_RGBA8;
   } else if (spec.format == OIIO::TypeDesc::UINT16) {
-    pix_fmt_ = olive::PIX_FMT_RGBA16U;
+    pix_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
   } else if (spec.format == OIIO::TypeDesc::HALF) {
-    pix_fmt_ = olive::PIX_FMT_RGBA16F;
+    pix_fmt_ = PixelFormat::PIX_FMT_RGBA16F;
   } else if (spec.format == OIIO::TypeDesc::FLOAT) {
-    pix_fmt_ = olive::PIX_FMT_RGBA32F;
+    pix_fmt_ = PixelFormat::PIX_FMT_RGBA32F;
   } else {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
     return false;
@@ -100,7 +100,7 @@ bool OIIODecoder::Open()
 
   is_rgba_ = (spec.nchannels == kRGBAChannels);
 
-  pix_fmt_info_ = PixelService::GetPixelFormatInfo(static_cast<olive::PixelFormat>(pix_fmt_));
+  pix_fmt_info_ = PixelService::GetPixelFormatInfo(static_cast<PixelFormat::Format>(pix_fmt_));
 
   return true;
 }

@@ -25,8 +25,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "project/projectviewtype.h"
-
 /**
  * @brief The ProjectToolbar class
  *
@@ -41,8 +39,14 @@ class ProjectToolbar : public QWidget
 public:
   ProjectToolbar(QWidget* parent);
 
+  enum ViewType {
+    TreeView,
+    ListView,
+    IconView
+  };
+
 public slots:
-  void SetView(olive::ProjectViewType type);
+  void SetView(ViewType type);
 
 protected:
   void changeEvent(QEvent *) override;
@@ -57,7 +61,7 @@ signals:
 
   void SearchChanged(const QString&);
 
-  void ViewChanged(olive::ProjectViewType type);
+  void ViewChanged(ViewType type);
 
 private:
   void Retranslate();

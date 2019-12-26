@@ -34,7 +34,7 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
   Q_UNUSED(event)
 
   // For ripple operations, all ghosts will be moving the same way
-  olive::timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
+  Timeline::MovementMode movement_mode = parent()->ghost_items_.first()->mode();
 
   QUndoCommand* command = new QUndoCommand();
 
@@ -62,7 +62,7 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
     } else {
       // This was a Block that already existed
       if (ghost->AdjustedLength() > 0) {
-        if (movement_mode == olive::timeline::kTrimIn) {
+        if (movement_mode == Timeline::kTrimIn) {
           // We'll need to shift the media in point too
           new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
         } else {
@@ -77,7 +77,7 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
     }
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 rational TimelineWidget::RippleTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
@@ -90,7 +90,7 @@ rational TimelineWidget::RippleTool::FrameValidateInternal(rational time_movemen
 }
 
 void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
-                                                olive::timeline::MovementMode trim_mode,
+                                                Timeline::MovementMode trim_mode,
                                                 bool allow_gap_trimming)
 {
   Q_UNUSED(allow_gap_trimming)
@@ -107,7 +107,7 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     rational ghost_ripple_point;
 
-    if (trim_mode == olive::timeline::kTrimIn) {
+    if (trim_mode == Timeline::kTrimIn) {
       ghost_ripple_point = ghost->In();
     } else {
       ghost_ripple_point = ghost->Out();

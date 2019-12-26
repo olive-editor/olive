@@ -30,11 +30,11 @@ const rational &VideoParams::time_base() const
 }
 
 VideoRenderingParams::VideoRenderingParams() :
-  format_(olive::PIX_FMT_INVALID)
+  format_(PixelFormat::PIX_FMT_INVALID)
 {
 }
 
-VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const rational &time_base, const olive::PixelFormat &format, const olive::RenderMode& mode, const int &divider) :
+VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const rational &time_base, const PixelFormat::Format &format, const RenderMode::Mode& mode, const int &divider) :
   VideoParams(width, height, time_base),
   format_(format),
   mode_(mode),
@@ -43,7 +43,7 @@ VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, 
   calculate_effective_size();
 }
 
-VideoRenderingParams::VideoRenderingParams(const VideoParams &params, const olive::PixelFormat &format, const olive::RenderMode& mode, const int& divider) :
+VideoRenderingParams::VideoRenderingParams(const VideoParams &params, const PixelFormat::Format &format, const RenderMode::Mode& mode, const int& divider) :
   VideoParams(params),
   format_(format),
   mode_(mode),
@@ -67,12 +67,12 @@ const int& VideoRenderingParams::effective_height() const
   return effective_height_;
 }
 
-const olive::PixelFormat &VideoRenderingParams::format() const
+const PixelFormat::Format &VideoRenderingParams::format() const
 {
   return format_;
 }
 
-const olive::RenderMode &VideoRenderingParams::mode() const
+const RenderMode::Mode &VideoRenderingParams::mode() const
 {
   return mode_;
 }
@@ -88,6 +88,6 @@ bool VideoRenderingParams::is_valid() const
   return (width() > 0
           && height() > 0
           && !time_base().isNull()
-          && format_ != olive::PIX_FMT_INVALID
-          && format_ != olive::PIX_FMT_COUNT);
+          && format_ != PixelFormat::PIX_FMT_INVALID
+          && format_ != PixelFormat::PIX_FMT_COUNT);
 }

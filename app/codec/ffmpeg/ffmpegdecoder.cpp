@@ -141,10 +141,10 @@ bool FFmpegDecoder::Open()
     // Note that FFmpeg doesn't support float formats
     switch (ideal_pix_fmt) {
     case AV_PIX_FMT_RGBA:
-      output_fmt_ = olive::PIX_FMT_RGBA8;
+      output_fmt_ = PixelFormat::PIX_FMT_RGBA8;
       break;
     case AV_PIX_FMT_RGBA64:
-      output_fmt_ = olive::PIX_FMT_RGBA16U;
+      output_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
       break;
     default:
       // We should never get here, but if we do there's nothing we can do with this format
@@ -224,13 +224,13 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     FramePtr frame_container = Frame::Create();
     frame_container->set_width(frame->width);
     frame_container->set_height(frame->height);
-    frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
+    frame_container->set_format(static_cast<PixelFormat::Format>(output_fmt_));
     frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
     frame_container->allocate();
 
     // Convert pixel format/linesize if necessary
     uint8_t* dst_data = reinterpret_cast<uint8_t*>(frame_container->data());
-    int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<olive::PixelFormat>(output_fmt_));
+    int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<PixelFormat::Format>(output_fmt_));
 
     // Perform pixel conversion
     sws_scale(scale_ctx_,

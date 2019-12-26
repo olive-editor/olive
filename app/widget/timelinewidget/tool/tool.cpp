@@ -39,14 +39,14 @@ TimelineWidget *TimelineWidget::Tool::parent()
   return parent_;
 }
 
-olive::timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const olive::timeline::MovementMode &trim_mode)
+Timeline::MovementMode TimelineWidget::Tool::FlipTrimMode(const Timeline::MovementMode &trim_mode)
 {
-  if (trim_mode == olive::timeline::kTrimIn) {
-    return olive::timeline::kTrimOut;
+  if (trim_mode == Timeline::kTrimIn) {
+    return Timeline::kTrimOut;
   }
 
-  if (trim_mode == olive::timeline::kTrimOut) {
-    return olive::timeline::kTrimIn;
+  if (trim_mode == Timeline::kTrimOut) {
+    return Timeline::kTrimIn;
   }
 
   return trim_mode;
@@ -97,7 +97,7 @@ void AttemptSnap(const QList<double>& proposed_pts,
 rational TimelineWidget::Tool::ValidateFrameMovement(rational movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != olive::timeline::kMove) {
+    if (ghost->mode() != Timeline::kMove) {
       continue;
     }
 
@@ -115,7 +115,7 @@ int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<Time
   foreach (TimelineViewGhostItem* ghost, ghosts) {
     // Prevents any ghosts from going to a non-existent negative track
     if (ghost->Track().index() + movement < 0) {
-      if (ghost->mode() != olive::timeline::kMove) {
+      if (ghost->mode() != Timeline::kMove) {
         continue;
       }
 

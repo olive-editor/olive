@@ -78,6 +78,6 @@ void TimelineWidget::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *even
     new BlockSetMediaOutCommand(b, ghost->GetAdjustedMediaIn() + b->media_length(), command);
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 

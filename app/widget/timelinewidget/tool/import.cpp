@@ -139,7 +139,7 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
           snap_points_.append(ghost->Out());
 
           ghost->setData(TimelineViewGhostItem::kAttachedFootage, QVariant::fromValue(stream));
-          ghost->SetMode(olive::timeline::kMove);
+          ghost->SetMode(Timeline::kMove);
 
           parent()->AddGhost(ghost);
         }
@@ -163,7 +163,7 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
     int track_movement = event->GetCoordinates().GetTrack().index() - drag_start_.GetTrack().index();
 
     // If snapping is enabled, check for snap points
-    if (olive::core.snapping()) {
+    if (Core::instance()->snapping()) {
       SnapPoint(snap_points_, &time_movement);
     }
 
@@ -289,7 +289,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       }
     }
 
-    olive::undo_stack.pushIfHasChildren(command);
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
 
     parent()->ClearGhosts();
 

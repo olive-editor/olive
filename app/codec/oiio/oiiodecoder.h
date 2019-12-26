@@ -52,9 +52,9 @@ private:
 
   int height_;
 
-  olive::PixelFormat pix_fmt_;
+  PixelFormat::Format pix_fmt_;
 
-  PixelFormatInfo pix_fmt_info_;
+  PixelFormat::Info pix_fmt_info_;
 
   bool is_rgba_;
 

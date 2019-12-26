@@ -28,7 +28,7 @@
 Frame::Frame() :
   width_(0),
   height_(0),
-  format_(olive::PIX_FMT_INVALID),
+  format_(PixelFormat::PIX_FMT_INVALID),
   sample_count_(0),
   timestamp_(0)
 {
@@ -89,12 +89,12 @@ void Frame::set_native_timestamp(const int64_t &timestamp)
   native_timestamp_ = timestamp;
 }*/
 
-const olive::PixelFormat &Frame::format()
+const PixelFormat::Format &Frame::format()
 {
   return format_;
 }
 
-void Frame::set_format(const olive::PixelFormat &format)
+void Frame::set_format(const PixelFormat::Format &format)
 {
   format_ = format;
 }
@@ -128,7 +128,7 @@ void Frame::allocate()
 {
   // Assume this frame is intended to be a video frame
   if (width_ > 0 && height_ > 0) {
-    data_.resize(PixelService::GetBufferSize(static_cast<olive::PixelFormat>(format_), width_, height_));
+    data_.resize(PixelService::GetBufferSize(static_cast<PixelFormat::Format>(format_), width_, height_));
   } else if (sample_count_ > 0) {
     data_.resize(audio_params_.samples_to_bytes(sample_count_));
   }

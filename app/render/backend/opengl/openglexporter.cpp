@@ -1,6 +1,6 @@
 #include "openglexporter.h"
 
-#include "render/backend/opengl/functions.h"
+#include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/pixelservice.h"
 
 OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, const VideoRenderingParams& video_params, const AudioRenderingParams &audio_params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, Encoder *encoder, QObject* parent) :
@@ -55,7 +55,7 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
     buffer_.Bind();
     input_tex->Bind();
 
-    olive::gl::Blit(pipeline_, false, transform_);
+    OpenGLRenderFunctions::Blit(pipeline_, false, transform_);
 
     input_tex->Release();
     buffer_.Release();
@@ -65,7 +65,7 @@ FramePtr OpenGLExporter::TextureToFrame(const QVariant& texture)
     buffer_.Attach(texture_);
     buffer_.Bind();
 
-    PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params_.format());
+    PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params_.format());
 
     f->glReadPixels(0,
                     0,

@@ -26,7 +26,7 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   TimelineViewRect(parent),
   track_adj_(0),
   stream_(nullptr),
-  mode_(olive::timeline::kNone),
+  mode_(Timeline::kNone),
   can_have_zero_length_(true)
 {
   SetInvisible(false);
@@ -174,12 +174,12 @@ TrackReference TimelineViewGhostItem::GetAdjustedTrack() const
   return TrackReference(track_.type(), track_.index() + track_adj_);
 }
 
-const olive::timeline::MovementMode &TimelineViewGhostItem::mode() const
+const Timeline::MovementMode &TimelineViewGhostItem::mode() const
 {
   return mode_;
 }
 
-void TimelineViewGhostItem::SetMode(const olive::timeline::MovementMode &mode)
+void TimelineViewGhostItem::SetMode(const Timeline::MovementMode &mode)
 {
   mode_ = mode;
 }

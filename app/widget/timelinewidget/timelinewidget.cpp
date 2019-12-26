@@ -256,22 +256,22 @@ void TimelineWidget::DeselectAll()
 
 void TimelineWidget::RippleToIn()
 {
-  RippleEditTo(olive::timeline::kTrimIn, false);
+  RippleEditTo(Timeline::kTrimIn, false);
 }
 
 void TimelineWidget::RippleToOut()
 {
-  RippleEditTo(olive::timeline::kTrimOut, false);
+  RippleEditTo(Timeline::kTrimOut, false);
 }
 
 void TimelineWidget::EditToIn()
 {
-  RippleEditTo(olive::timeline::kTrimIn, true);
+  RippleEditTo(Timeline::kTrimIn, true);
 }
 
 void TimelineWidget::EditToOut()
 {
-  RippleEditTo(olive::timeline::kTrimOut, true);
+  RippleEditTo(Timeline::kTrimOut, true);
 }
 
 void TimelineWidget::GoToPrevCut()
@@ -382,7 +382,7 @@ void TimelineWidget::SplitAtPlayhead()
   }
 
   if (!blocks_to_split.isEmpty()) {
-    olive::undo_stack.push(new BlockSplitPreservingLinksCommand(blocks_to_split, {playhead_time}));
+    Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {playhead_time}));
   }
 }
 
@@ -470,7 +470,7 @@ void TimelineWidget::DeleteSelected()
 
   DeleteSelectedInternal(blocks_to_delete, true, command);
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
@@ -492,12 +492,12 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
   return list;
 }
 
-void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps)
+void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
 {
   rational playhead_time = Timecode::timestamp_to_time(playhead_, timebase());
 
   rational closest_point_to_playhead;
-  if (mode == olive::timeline::kTrimIn) {
+  if (mode == Timeline::kTrimIn) {
     closest_point_to_playhead = 0;
   } else {
     closest_point_to_playhead = RATIONAL_MAX;
@@ -507,7 +507,7 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
     Block* b = track->NearestBlockBefore(playhead_time);
 
     if (b != nullptr) {
-      if (mode == olive::timeline::kTrimIn) {
+      if (mode == Timeline::kTrimIn) {
         closest_point_to_playhead = qMax(b->in(), closest_point_to_playhead);
       } else {
         closest_point_to_playhead = qMin(b->out(), closest_point_to_playhead);
@@ -519,7 +519,7 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
 
   if (closest_point_to_playhead == playhead_time) {
     // Remove one frame only
-    if (mode == olive::timeline::kTrimIn) {
+    if (mode == Timeline::kTrimIn) {
       playhead_time += timebase();
     } else {
       playhead_time -= timebase();
@@ -548,9 +548,9 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
     }
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 
-  if (mode == olive::timeline::kTrimIn && !insert_gaps) {
+  if (mode == Timeline::kTrimIn && !insert_gaps) {
     int64_t new_time = Timecode::time_to_timestamp(closest_point_to_playhead, timebase());
 
     SetTimeAndSignal(new_time);
@@ -639,7 +639,7 @@ void TimelineWidget::UpdateTimelineLength(const rational &length)
 
 TimelineWidget::Tool *TimelineWidget::GetActiveTool()
 {
-  return tools_.at(olive::core.tool()).get();
+  return tools_.at(Core::instance()->tool()).get();
 }
 
 void TimelineWidget::ViewMousePressed(TimelineViewMouseEvent *event)

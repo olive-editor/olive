@@ -74,8 +74,8 @@ public:
   rational GetAdjustedMediaIn() const;
   TrackReference GetAdjustedTrack() const;
 
-  const olive::timeline::MovementMode& mode() const;
-  void SetMode(const olive::timeline::MovementMode& mode);
+  const Timeline::MovementMode& mode() const;
+  void SetMode(const Timeline::MovementMode& mode);
 
   bool HasBeenAdjusted() const;
 
@@ -96,7 +96,7 @@ private:
 
   StreamPtr stream_;
 
-  olive::timeline::MovementMode mode_;
+  Timeline::MovementMode mode_;
 
   bool can_have_zero_length_;
 };

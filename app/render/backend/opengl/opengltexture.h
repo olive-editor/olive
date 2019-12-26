@@ -40,7 +40,7 @@ public:
 
   DISABLE_COPY_MOVE(OpenGLTexture)
 
-  void Create(QOpenGLContext* ctx, int width, int height, const olive::PixelFormat &format, const void *data = nullptr);
+  void Create(QOpenGLContext* ctx, int width, int height, const PixelFormat::Format &format, const void *data = nullptr);
   void Create(QOpenGLContext* ctx, FramePtr frame);
 
   bool IsCreated() const;
@@ -53,7 +53,7 @@ public:
 
   const int& height() const;
 
-  const olive::PixelFormat &format() const;
+  const PixelFormat::Format &format() const;
 
   const GLuint& texture() const;
 
@@ -73,7 +73,7 @@ private:
 
   int height_;
 
-  olive::PixelFormat format_;
+  PixelFormat::Format format_;
 
 };
 

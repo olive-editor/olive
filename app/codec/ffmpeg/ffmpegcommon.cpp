@@ -66,36 +66,36 @@ AVSampleFormat FFmpegCommon::GetFFmpegSampleFormat(const SampleFormat &smp_fmt)
   return AV_SAMPLE_FMT_NONE;
 }
 
-AVPixelFormat FFmpegCommon::GetFFmpegPixelFormat(const olive::PixelFormat &pix_fmt)
+AVPixelFormat FFmpegCommon::GetFFmpegPixelFormat(const PixelFormat::Format &pix_fmt)
 {
   switch (pix_fmt) {
-  case olive::PIX_FMT_RGBA8:
+  case PixelFormat::PIX_FMT_RGBA8:
     return AV_PIX_FMT_RGBA;
-  case olive::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_RGBA16U:
     return AV_PIX_FMT_RGBA64;
-  case olive::PIX_FMT_RGBA16F:
-  case olive::PIX_FMT_RGBA32F:
-  case olive::PIX_FMT_INVALID:
-  case olive::PIX_FMT_COUNT:
+  case PixelFormat::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGBA32F:
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
     break;
   }
 
   return AV_PIX_FMT_NONE;
 }
 
-olive::PixelFormat FFmpegCommon::GetCompatiblePixelFormat(const olive::PixelFormat &pix_fmt)
+PixelFormat::Format FFmpegCommon::GetCompatiblePixelFormat(const PixelFormat::Format &pix_fmt)
 {
   switch (pix_fmt) {
-  case olive::PIX_FMT_RGBA8:
-    return olive::PIX_FMT_RGBA8;
-  case olive::PIX_FMT_RGBA16U:
-  case olive::PIX_FMT_RGBA16F:
-  case olive::PIX_FMT_RGBA32F:
-    return olive::PIX_FMT_RGBA16U;
-  case olive::PIX_FMT_INVALID:
-  case olive::PIX_FMT_COUNT:
+  case PixelFormat::PIX_FMT_RGBA8:
+    return PixelFormat::PIX_FMT_RGBA8;
+  case PixelFormat::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGBA32F:
+    return PixelFormat::PIX_FMT_RGBA16U;
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
     break;
   }
 
-  return olive::PIX_FMT_INVALID;
+  return PixelFormat::PIX_FMT_INVALID;
 }

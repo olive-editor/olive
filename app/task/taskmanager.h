@@ -70,6 +70,8 @@ public:
    */
   TaskManager& operator=(TaskManager&& other) = delete;
 
+  static TaskManager* instance();
+
   /**
    * @brief Add a new Task
    *
@@ -165,6 +167,11 @@ private:
    */
   int maximum_task_count_;
 
+  /**
+   * @brief TaskManager singleton instance
+   */
+  static TaskManager instance_;
+
 private slots:
   /**
    * @brief Callback when a Task's status changes
@@ -179,9 +186,5 @@ private slots:
   void TaskCallback(Task::Status status);
 
 };
-
-namespace olive {
-extern TaskManager task_manager;
-}
 
 #endif // TASKMANAGER_H

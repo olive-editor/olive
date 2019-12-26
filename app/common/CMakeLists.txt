@@ -18,22 +18,25 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   common/channellayout.h
   common/clamp.h
+  common/constructors.h
   common/debug.h
   common/debug.cpp
+  common/define.h
   common/filefunctions.h
   common/filefunctions.cpp
   common/flipmodifiers.h
   common/flipmodifiers.cpp
   common/lerp.h
+  common/qtversionabstraction.h
+  common/qtversionabstraction.cpp
   common/range.h
   common/rational.h
   common/rational.cpp
-  common/qtversionabstraction.h
-  common/qtversionabstraction.cpp
   common/threadedobject.h
   common/threadedobject.cpp
   common/timecodefunctions.h
   common/timecodefunctions.cpp
+  common/timelinecommon.h
   common/timerange.h
   common/timerange.cpp
   PARENT_SCOPE

@@ -26,13 +26,13 @@ void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
 
   // Determine which side of the clip the transition belongs to
   rational transition_start_point;
-  olive::timeline::MovementMode trim_mode;
+  Timeline::MovementMode trim_mode;
   rational halfway_point = block_at_time->in() + block_at_time->length() / 2;
   rational tenth_point = block_at_time->in() + block_at_time->length() / 10;
   Block* other_block = nullptr;
   if (cursor_frame < halfway_point) {
     transition_start_point = block_at_time->in();
-    trim_mode = olive::timeline::kTrimIn;
+    trim_mode = Timeline::kTrimIn;
 
     if (cursor_frame < tenth_point
         && block_at_time->previous()
@@ -41,7 +41,7 @@ void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
     }
   } else {
     transition_start_point = block_at_time->out();
-    trim_mode = olive::timeline::kTrimOut;
+    trim_mode = Timeline::kTrimOut;
     dual_transition_ = (cursor_frame > block_at_time->length() - tenth_point);
 
     if (cursor_frame > block_at_time->length() - tenth_point
@@ -113,8 +113,8 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* friend_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kReferenceBlock));
 
         // Use ghost mode to determine which block is which
-        Block* out_block = (ghost_->mode() == olive::timeline::kTrimIn) ? friend_block : active_block;
-        Block* in_block = (ghost_->mode() == olive::timeline::kTrimIn) ? active_block : friend_block;
+        Block* out_block = (ghost_->mode() == Timeline::kTrimIn) ? friend_block : active_block;
+        Block* in_block = (ghost_->mode() == Timeline::kTrimIn) ? active_block : friend_block;
 
         // Connect block to transition
         new NodeEdgeAddCommand(out_block->output(),
@@ -128,7 +128,7 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         Block* block_to_transition = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
         NodeInput* transition_input_to_connect;
 
-        if (ghost_->mode() == olive::timeline::kTrimIn) {
+        if (ghost_->mode() == Timeline::kTrimIn) {
           transition->set_in_and_out_offset(ghost_->AdjustedLength(), 0);
           transition_input_to_connect = transition->in_block_input();
         } else {
@@ -142,7 +142,7 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                command);
       }
 
-      olive::undo_stack.push(command);
+      Core::instance()->undo_stack()->push(command);
     }
 
     parent()->ClearGhosts();

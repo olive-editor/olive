@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QThread>
 
-TaskManager olive::task_manager;
+TaskManager TaskManager::instance_;
 
 TaskManager::TaskManager()
 {
@@ -35,8 +35,13 @@ TaskManager::~TaskManager()
   Clear();
 }
 
+TaskManager *TaskManager::instance()
+{
+  return &instance_;
+}
+
 void TaskManager::AddTask(TaskPtr t)
-{  
+{
   // Connect Task's status signal to the Callback
   connect(t.get(), SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskCallback(Task::Status)));
 
@@ -125,12 +130,12 @@ TaskManager::AddTaskCommand::AddTaskCommand(TaskPtr t, QUndoCommand *parent) :
 
 void TaskManager::AddTaskCommand::redo()
 {
-  olive::task_manager.AddTask(task_);
+  TaskManager::instance()->AddTask(task_);
 }
 
 void TaskManager::AddTaskCommand::undo()
 {
-  olive::task_manager.DeleteTask(task_.get());
+  TaskManager::instance()->DeleteTask(task_.get());
 
   task_->ResetState();
 }

@@ -30,37 +30,37 @@ PixelService::PixelService()
 {
 }
 
-PixelFormatInfo PixelService::GetPixelFormatInfo(const olive::PixelFormat &format)
+PixelFormat::Info PixelService::GetPixelFormatInfo(const PixelFormat::Format &format)
 {
-  PixelFormatInfo info;
+  PixelFormat::Info info;
 
   switch (format) {
-  case olive::PIX_FMT_RGBA8:
+  case PixelFormat::PIX_FMT_RGBA8:
     info.name = tr("8-bit");
     info.internal_format = GL_RGBA8;
     info.gl_pixel_type = GL_UNSIGNED_BYTE;
     info.oiio_desc = OIIO::TypeDesc::UINT8;
     break;
-  case olive::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_RGBA16U:
     info.name = tr("16-bit Integer");
     info.internal_format = GL_RGBA16;
     info.gl_pixel_type = GL_UNSIGNED_SHORT;
     info.oiio_desc = OIIO::TypeDesc::UINT16;
     break;
-  case olive::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGBA16F:
     info.name = tr("Half-Float (16-bit)");
     info.internal_format = GL_RGBA16F;
     info.gl_pixel_type = GL_HALF_FLOAT;
     info.oiio_desc = OIIO::TypeDesc::HALF;
     break;
-  case olive::PIX_FMT_RGBA32F:
+  case PixelFormat::PIX_FMT_RGBA32F:
     info.name = tr("Full-Float (32-bit)");
     info.internal_format = GL_RGBA32F;
     info.gl_pixel_type = GL_FLOAT;
     info.oiio_desc = OIIO::TypeDesc::FLOAT;
     break;
-  case olive::PIX_FMT_INVALID:
-  case olive::PIX_FMT_COUNT:
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
     qFatal("Invalid pixel format requested");
   }
 
@@ -70,28 +70,28 @@ PixelFormatInfo PixelService::GetPixelFormatInfo(const olive::PixelFormat &forma
   return info;
 }
 
-int PixelService::GetBufferSize(const olive::PixelFormat &format, const int &width, const int &height)
+int PixelService::GetBufferSize(const PixelFormat::Format &format, const int &width, const int &height)
 {
   return BytesPerPixel(format) * width * height;
 }
 
-int PixelService::BytesPerPixel(const olive::PixelFormat &format)
+int PixelService::BytesPerPixel(const PixelFormat::Format &format)
 {
   return BytesPerChannel(format) * kRGBAChannels;
 }
 
-int PixelService::BytesPerChannel(const olive::PixelFormat &format)
+int PixelService::BytesPerChannel(const PixelFormat::Format &format)
 {
   switch (format) {
-  case olive::PIX_FMT_RGBA8:
+  case PixelFormat::PIX_FMT_RGBA8:
     return 1;
-  case olive::PIX_FMT_RGBA16U:
-  case olive::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_RGBA16F:
     return 2;
-  case olive::PIX_FMT_RGBA32F:
+  case PixelFormat::PIX_FMT_RGBA32F:
     return 4;
-  case olive::PIX_FMT_INVALID:
-  case olive::PIX_FMT_COUNT:
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
     break;
   }
 
@@ -101,7 +101,7 @@ int PixelService::BytesPerChannel(const olive::PixelFormat &format)
   return 0;
 }
 
-FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelFormat &dest_format)
+FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const PixelFormat::Format &dest_format)
 {
   if (frame->format() == dest_format) {
     return frame;
@@ -122,13 +122,13 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
 
   bool valid = true;
 
-  switch (static_cast<olive::PixelFormat>(frame->format())) {
-  case olive::PIX_FMT_RGBA8:
+  switch (static_cast<PixelFormat::Format>(frame->format())) {
+  case PixelFormat::PIX_FMT_RGBA8:
   {
     uint8_t* source = reinterpret_cast<uint8_t*>(frame->data());
 
     switch (dest_format) {
-    case olive::PIX_FMT_RGBA16U: // 8-bit Integer -> 16-bit Integer
+    case PixelFormat::PIX_FMT_RGBA16U: // 8-bit Integer -> 16-bit Integer
     {
       uint16_t* destination = reinterpret_cast<uint16_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -136,7 +136,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA16F: // 8-bit Integer -> 16-bit Float
+    case PixelFormat::PIX_FMT_RGBA16F: // 8-bit Integer -> 16-bit Float
     {
       qfloat16* destination = reinterpret_cast<qfloat16*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -144,7 +144,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA32F: // 8-bit Integer -> 32-bit Float
+    case PixelFormat::PIX_FMT_RGBA32F: // 8-bit Integer -> 32-bit Float
     {
       float* destination = reinterpret_cast<float*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -152,19 +152,19 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_INVALID:
-    case olive::PIX_FMT_RGBA8:
-    case olive::PIX_FMT_COUNT:
+    case PixelFormat::PIX_FMT_INVALID:
+    case PixelFormat::PIX_FMT_RGBA8:
+    case PixelFormat::PIX_FMT_COUNT:
       valid = false;
     }
     break;
   }
-  case olive::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_RGBA16U:
   {
     uint16_t* source = reinterpret_cast<uint16_t*>(frame->data());
 
     switch (dest_format) {
-    case olive::PIX_FMT_RGBA8: // 16-bit Integer -> 8-bit Integer
+    case PixelFormat::PIX_FMT_RGBA8: // 16-bit Integer -> 8-bit Integer
     {
       uint8_t* destination = reinterpret_cast<uint8_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -172,7 +172,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA16F: // 16-bit Integer -> 16-bit Float
+    case PixelFormat::PIX_FMT_RGBA16F: // 16-bit Integer -> 16-bit Float
     {
       qfloat16* destination = reinterpret_cast<qfloat16*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -180,7 +180,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA32F: // 16-bit Integer -> 32-bit Float
+    case PixelFormat::PIX_FMT_RGBA32F: // 16-bit Integer -> 32-bit Float
     {
       float* destination = reinterpret_cast<float*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -188,19 +188,19 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_INVALID:
-    case olive::PIX_FMT_RGBA16U:
-    case olive::PIX_FMT_COUNT:
+    case PixelFormat::PIX_FMT_INVALID:
+    case PixelFormat::PIX_FMT_RGBA16U:
+    case PixelFormat::PIX_FMT_COUNT:
       valid = false;
     }
     break;
   }
-  case olive::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGBA16F:
   {
     qfloat16* source = reinterpret_cast<qfloat16*>(frame->data());
 
     switch (dest_format) {
-    case olive::PIX_FMT_RGBA8: // 16-bit Float -> 8-bit Integer
+    case PixelFormat::PIX_FMT_RGBA8: // 16-bit Float -> 8-bit Integer
     {
       uint8_t* destination = reinterpret_cast<uint8_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -208,7 +208,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA16U: // 16-bit Float -> 16-bit Integer
+    case PixelFormat::PIX_FMT_RGBA16U: // 16-bit Float -> 16-bit Integer
     {
       uint16_t* destination = reinterpret_cast<uint16_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -216,7 +216,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA32F: // 16-bit Float -> 32-bit Float
+    case PixelFormat::PIX_FMT_RGBA32F: // 16-bit Float -> 32-bit Float
     {
       float* destination = reinterpret_cast<float*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -224,19 +224,19 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_INVALID:
-    case olive::PIX_FMT_RGBA16F:
-    case olive::PIX_FMT_COUNT:
+    case PixelFormat::PIX_FMT_INVALID:
+    case PixelFormat::PIX_FMT_RGBA16F:
+    case PixelFormat::PIX_FMT_COUNT:
       valid = false;
     }
     break;
   }
-  case olive::PIX_FMT_RGBA32F:
+  case PixelFormat::PIX_FMT_RGBA32F:
   {
     float* source = reinterpret_cast<float*>(frame->data());
 
     switch (dest_format) {
-    case olive::PIX_FMT_RGBA8: // 32-bit Float -> 8-bit Integer
+    case PixelFormat::PIX_FMT_RGBA8: // 32-bit Float -> 8-bit Integer
     {
       uint8_t* destination = reinterpret_cast<uint8_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -244,7 +244,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA16U: // 32-bit Float -> 16-bit Integer
+    case PixelFormat::PIX_FMT_RGBA16U: // 32-bit Float -> 16-bit Integer
     {
       uint16_t* destination = reinterpret_cast<uint16_t*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -252,7 +252,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_RGBA16F: // 32-bit Float -> 16-bit Float
+    case PixelFormat::PIX_FMT_RGBA16F: // 32-bit Float -> 16-bit Float
     {
       qfloat16* destination = reinterpret_cast<qfloat16*>(converted->data());
       for (int i=0;i<pix_count;i++) {
@@ -260,15 +260,15 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
       }
       break;
     }
-    case olive::PIX_FMT_INVALID:
-    case olive::PIX_FMT_RGBA32F:
-    case olive::PIX_FMT_COUNT:
+    case PixelFormat::PIX_FMT_INVALID:
+    case PixelFormat::PIX_FMT_RGBA32F:
+    case PixelFormat::PIX_FMT_COUNT:
       valid = false;
     }
     break;
   }
-  case olive::PIX_FMT_INVALID:
-  case olive::PIX_FMT_COUNT:
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
     valid = false;
   }
 
@@ -282,7 +282,7 @@ FramePtr PixelService::ConvertPixelFormat(FramePtr frame, const olive::PixelForm
 
 void PixelService::ConvertRGBtoRGBA(FramePtr frame)
 {
-  olive::PixelFormat dest_format = static_cast<olive::PixelFormat>(frame->format());
+  PixelFormat::Format dest_format = static_cast<PixelFormat::Format>(frame->format());
 
   int rgb_pixel_size = BytesPerChannel(dest_format) * kRGBChannels;
   int rgb_frame_size = frame->width() * frame->height() * rgb_pixel_size;
@@ -300,20 +300,20 @@ void PixelService::ConvertRGBtoRGBA(FramePtr frame)
 
     // Write a full alpha value according to the format
     switch (dest_format) {
-    case olive::PIX_FMT_RGBA8:
+    case PixelFormat::PIX_FMT_RGBA8:
       *alpha_ptr = UINT8_MAX;
       break;
-    case olive::PIX_FMT_RGBA16U:
+    case PixelFormat::PIX_FMT_RGBA16U:
       *reinterpret_cast<uint16_t*>(alpha_ptr) = UINT16_MAX;
       break;
-    case olive::PIX_FMT_RGBA16F:
+    case PixelFormat::PIX_FMT_RGBA16F:
       *reinterpret_cast<qfloat16*>(alpha_ptr) = 1.0f;
       break;
-    case olive::PIX_FMT_RGBA32F:
+    case PixelFormat::PIX_FMT_RGBA32F:
       *reinterpret_cast<float*>(alpha_ptr) = 1.0f;
       break;
-    case olive::PIX_FMT_INVALID:
-    case olive::PIX_FMT_COUNT:
+    case PixelFormat::PIX_FMT_INVALID:
+    case PixelFormat::PIX_FMT_COUNT:
       qFatal("Invalid pixel format requested");
     }
 

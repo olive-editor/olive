@@ -46,6 +46,7 @@ public:
   };
 
   static Display CurrentDisplay();
+  static void SetCurrentDisplay(Display d);
 
   /**
    * @brief Convert a timestamp (according to a rational timebase) to a user-friendly string representation

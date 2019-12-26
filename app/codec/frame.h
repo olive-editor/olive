@@ -82,8 +82,8 @@ public:
    *
    * Currently this will either be an olive::PixelFormat (video) or an olive::SampleFormat (audio).
    */
-  const olive::PixelFormat& format();
-  void set_format(const olive::PixelFormat& format);
+  const PixelFormat::Format& format();
+  void set_format(const PixelFormat::Format& format);
 
   /**
    * @brief Returns a copy of the data in this frame as a QByteArray
@@ -128,7 +128,7 @@ private:
 
   int height_;
 
-  olive::PixelFormat format_;
+  PixelFormat::Format format_;
 
   AudioRenderingParams audio_params_;
 

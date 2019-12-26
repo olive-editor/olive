@@ -35,15 +35,15 @@
  * * Double clicking a Folder in those views will enter that folder
  * * This navigation bar offers a "directory up" button for leaving a folder
  *
- * This navbar also provides an icon size slider for those views (between olive::kProjectIconSizeMinimum and
- * olive::kProjectIconSizeMaximum) as well as text that's intended to be set to the current Folder's name (or
+ * This navbar also provides an icon size slider for those views (between kProjectIconSizeMinimum and
+ * kProjectIconSizeMaximum) as well as text that's intended to be set to the current Folder's name (or
  * empty for the root folder).
  *
  * This widget does not actually communicate to Project or ProjectExplorer classes. It is simply UI widgets that are
  * intended to be connected in ways that do. This is the primarily responsibility of ProjectExplorer.
  *
  * By default, the directory up button is disabled (assuming root folder), the text is empty, and the icon size slider
- * is set to olive::kProjectIconSizeDefault.
+ * is set to kProjectIconSizeDefault.
  */
 class ProjectExplorerNavigation : public QWidget
 {

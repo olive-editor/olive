@@ -25,7 +25,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 
-#include "render/backend/opengl/functions.h"
+#include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
@@ -141,7 +141,7 @@ void ViewerGLWidget::paintGL()
     f->glBindTexture(GL_TEXTURE_2D, texture_);
 
     // Blit using the pipeline retrieved in initializeGL()
-    olive::gl::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
+    OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
 
     // Release retrieved texture
     f->glBindTexture(GL_TEXTURE_2D, 0);

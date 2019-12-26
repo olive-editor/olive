@@ -36,7 +36,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
   QDialog(parent),
-  working_project_(olive::core.GetActiveProject())
+  working_project_(Core::instance()->GetActiveProject())
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 

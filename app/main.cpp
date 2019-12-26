@@ -85,13 +85,13 @@ int main(int argc, char *argv[]) {
 #endif
 
   // Start core
-  olive::core.Start();
+  Core::instance()->Start();
 
   // Run application loop and receive exit code
   int exit_code = a.exec();
 
   // Clear core memory
-  olive::core.Stop();
+  Core::instance()->Stop();
 
   return exit_code;
 }

@@ -26,31 +26,28 @@
 
 #include "openglshader.h"
 
-namespace olive {
-namespace gl {
+class OpenGLRenderFunctions {
+public:
+  /**
+   * @brief Draw texture on screen
+   *
+   * @param pipeline
+   *
+   * Shader to use for the texture drawing
+   *
+   * @param flipped
+   *
+   * Draw the texture vertically flipped (defaults to FALSE)
+   *
+   * @param matrix
+   *
+   * Transformation matrix to use when drawing (defaults to no transform)
+   */
+  static void Blit(OpenGLShaderPtr pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
-/**
- * @brief Draw texture on screen
- *
- * @param pipeline
- *
- * Shader to use for the texture drawing
- *
- * @param flipped
- *
- * Draw the texture vertically flipped (defaults to FALSE)
- *
- * @param matrix
- *
- * Transformation matrix to use when drawing (defaults to no transform)
- */
-void Blit(OpenGLShaderPtr pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+  static void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
-void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
-
-void PrepareToDraw(QOpenGLFunctions* f);
-
-}
-}
+  static void PrepareToDraw(QOpenGLFunctions* f);
+};
 
 #endif // OPENGLFUNCTIONS_H

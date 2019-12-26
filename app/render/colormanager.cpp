@@ -114,21 +114,21 @@ void ColorManager::AssociateAlphaPixFmtFilter(ColorManager::AlphaAction action, 
 {
   int pixel_count = f->width() * f->height() * kRGBAChannels;
 
-  switch (static_cast<olive::PixelFormat>(f->format())) {
-  case olive::PIX_FMT_INVALID:
-  case olive::PIX_FMT_COUNT:
+  switch (static_cast<PixelFormat::Format>(f->format())) {
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
     qWarning() << "Alpha association functions received an invalid pixel format";
     break;
-  case olive::PIX_FMT_RGBA8:
-  case olive::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_RGBA8:
+  case PixelFormat::PIX_FMT_RGBA16U:
     qWarning() << "Alpha association functions only works on float-based pixel formats at this time";
     break;
-  case olive::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGBA16F:
   {
     AssociateAlphaInternal<qfloat16>(action, reinterpret_cast<qfloat16*>(f->data()), pixel_count);
     break;
   }
-  case olive::PIX_FMT_RGBA32F:
+  case PixelFormat::PIX_FMT_RGBA32F:
   {
     AssociateAlphaInternal<float>(action, reinterpret_cast<float*>(f->data()), pixel_count);
     break;

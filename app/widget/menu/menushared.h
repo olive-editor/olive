@@ -31,13 +31,17 @@ class MenuShared : public QObject {
 public:
   MenuShared();
 
-  void Initialize();
+  static void CreateInstance();
+  static void DestroyInstance();
+
   void Retranslate();
 
   void AddItemsForNewMenu(Menu* m);
   void AddItemsForEditMenu(Menu* m);
   void AddItemsForInOutMenu(Menu* m);
   void AddItemsForClipEditMenu(Menu* m);
+
+  static MenuShared* instance();
 
 private:
   // "New" menu shared items
@@ -68,15 +72,13 @@ private:
   QAction* clip_enable_disable_item_;
   QAction* clip_nest_item_;
 
+  static MenuShared* instance_;
+
 private slots:
   void SplitAtPlayhead();
 
   void DeleteSelected();
 
 };
-
-namespace olive {
-extern MenuShared menu_shared;
-}
 
 #endif // MENUSHARED_H

@@ -31,10 +31,10 @@
 #include <QCheckBox>
 #include <QSpinBox>
 
+#include "core.h"
 #include "render/colormanager.h"
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
-#include "undo/undostack.h"
 
 FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *footage) :
   QDialog(parent),
@@ -117,7 +117,7 @@ void FootagePropertiesDialog::accept() {
     static_cast<StreamProperties*>(stacked_widget_->widget(i))->Accept(command);
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   QDialog::accept();
 }

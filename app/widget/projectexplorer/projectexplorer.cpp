@@ -24,12 +24,11 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
+#include "common/define.h"
 #include "dialog/footageproperties/footageproperties.h"
-#include "projectexplorerdefines.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
-  view_type_(olive::TreeView),
   model_(this)
 {
   // Create layout
@@ -63,40 +62,40 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
   AddView(icon_view_);
 
   // Set default view to tree view
-  set_view_type(olive::TreeView);
+  set_view_type(ProjectToolbar::TreeView);
 
   // Set default icon size
-  SizeChangedSlot(olive::kProjectIconSizeDefault);
+  SizeChangedSlot(kProjectIconSizeDefault);
 
   // Set rename timer timeout
   rename_timer_.setInterval(500);
-  connect(&rename_timer_, SIGNAL(timeout()), this, SLOT(RenameTimerSlot()));
+  connect(&rename_timer_, &QTimer::timeout, this, &ProjectExplorer::RenameTimerSlot);
 
-  connect(tree_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
-  connect(list_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
-  connect(icon_view_, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu()));
+  connect(tree_view_, &ProjectExplorerTreeView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+  connect(list_view_, &ProjectExplorerListView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
+  connect(icon_view_, &ProjectExplorerIconView::customContextMenuRequested, this, &ProjectExplorer::ShowContextMenu);
 }
 
-const olive::ProjectViewType &ProjectExplorer::view_type()
+const ProjectToolbar::ViewType &ProjectExplorer::view_type()
 {
   return view_type_;
 }
 
-void ProjectExplorer::set_view_type(olive::ProjectViewType type)
+void ProjectExplorer::set_view_type(ProjectToolbar::ViewType type)
 {
   view_type_ = type;
 
   // Set widget based on view type
   switch (view_type_) {
-  case olive::TreeView:
+  case ProjectToolbar::TreeView:
     stacked_widget_->setCurrentWidget(tree_view_);
     nav_bar_->setVisible(false);
     break;
-  case olive::ListView:
+  case ProjectToolbar::ListView:
     stacked_widget_->setCurrentWidget(list_view_);
     nav_bar_->setVisible(true);
     break;
-  case olive::IconView:
+  case ProjectToolbar::IconView:
     stacked_widget_->setCurrentWidget(icon_view_);
     nav_bar_->setVisible(true);
     break;
@@ -172,7 +171,7 @@ void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
 
     // If the item is a folder, browse to it
     if (i->CanHaveChildren()
-        && (view_type() == olive::ListView || view_type() == olive::IconView)) {
+        && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
 
       BrowseToFolder(index);
 
@@ -232,12 +231,12 @@ void ProjectExplorer::ShowContextMenu()
   if (selected_items.isEmpty()) {
     // FIXME: These are both duplicates of items from MainMenu, is there any way to re-use the code?
     QAction* import_action = menu.addAction(tr("&Import..."));
-    connect(import_action, SIGNAL(triggered(bool)), &olive::core, SLOT(DialogImportShow()));
+    connect(import_action, SIGNAL(triggered(bool)), Core::instance(), SLOT(DialogImportShow()));
 
     menu.addSeparator();
 
     QAction* project_properties = menu.addAction(tr("&Project Properties..."));
-    connect(project_properties, SIGNAL(triggered(bool)), &olive::core, SLOT(DialogProjectPropertiesShow()));
+    connect(project_properties, SIGNAL(triggered(bool)), Core::instance(), SLOT(DialogProjectPropertiesShow()));
   } else {
     QAction* properties_action = menu.addAction(tr("P&roperties"));
 

@@ -31,10 +31,10 @@
 #include "panel/project/project.h"
 // End test code
 
+#include "core.h"
 #include "project/item/footage/footage.h"
 #include "task/probe/probe.h"
 #include "task/taskmanager.h"
-#include "undo/undostack.h"
 
 ImportTask::ImportTask(ProjectViewModel *model, Folder *parent, const QStringList &urls) :
   model_(model),
@@ -67,7 +67,7 @@ bool ImportTask::Action()
 bool ImportTask::Epilogue()
 {
   if (command_ != nullptr) {
-    olive::undo_stack.push(command_);
+    Core::instance()->undo_stack()->push(command_);
   }
 
   parent_->UnlockDeletes();

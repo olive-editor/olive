@@ -179,7 +179,7 @@ void ExportDialog::accept()
                                         dest_height);
 
   // FIXME: Hardcoded pixel format
-  VideoRenderingParams video_render_params(dest_width, dest_height, video_tab_->frame_rate().flipped(), olive::PIX_FMT_RGBA32F, olive::kOnline);
+  VideoRenderingParams video_render_params(dest_width, dest_height, video_tab_->frame_rate().flipped(), PixelFormat::PIX_FMT_RGBA32F, RenderMode::kOnline);
 
   // FIXME: Hardcoded sample format
   AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),

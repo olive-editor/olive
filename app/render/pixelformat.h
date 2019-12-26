@@ -21,22 +21,44 @@
 #ifndef BITDEPTHS_H
 #define BITDEPTHS_H
 
-namespace olive {
+#include <OpenImageIO/imageio.h>
+#include <QOpenGLExtraFunctions>
+#include <QString>
 
-/**
- * @brief Olive's internal supported pixel formats.
- */
-enum PixelFormat {
-  PIX_FMT_INVALID = -1,
+class PixelFormat {
+public:
+  /**
+   * @brief Olive's internal supported pixel formats.
+   */
+  enum Format {
+    PIX_FMT_INVALID = -1,
 
-  PIX_FMT_RGBA8,
-  PIX_FMT_RGBA16U,
-  PIX_FMT_RGBA16F,
-  PIX_FMT_RGBA32F,
+    PIX_FMT_RGBA8,
+    PIX_FMT_RGBA16U,
+    PIX_FMT_RGBA16F,
+    PIX_FMT_RGBA32F,
 
-  PIX_FMT_COUNT
+    PIX_FMT_COUNT
+  };
+
+  /**
+   * @brief A struct of information pertaining to each enum PixelFormat.
+   *
+   * Primarily this is a means of retrieving OpenGL texture information for different pixel formats/bit depths. Both
+   * RAM and VRAM buffers will need a PixelFormat. To keep consistency between the OpenGL code and CPU code when using
+   * a given PixelFormat, the PixelFormatInfo struct contains all necessary variables that you'll need to plug into
+   * OpenGL.
+   *
+   * Use the static function PixelService::GetPixelFormatInfo to generate a PixelFormatInfo object.
+   */
+  struct Info {
+    QString name;
+    GLint internal_format;
+    GLenum pixel_format;
+    GLenum gl_pixel_type;
+    int bytes_per_pixel;
+    OIIO::TypeDesc oiio_desc;
+  };
 };
-
-}
 
 #endif // BITDEPTHS_H

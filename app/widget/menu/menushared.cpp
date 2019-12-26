@@ -24,18 +24,14 @@
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 
-MenuShared olive::menu_shared;
+MenuShared* MenuShared::instance_ = nullptr;
 
 MenuShared::MenuShared()
 {
-}
-
-void MenuShared::Initialize()
-{
   // "New" menu shared items
   new_project_item_ = Menu::CreateItem(this, "newproj", nullptr, nullptr, "Ctrl+N");
-  new_sequence_item_ = Menu::CreateItem(this, "newseq", &olive::core, SLOT(CreateNewSequence()), "Ctrl+Shift+N");
-  new_folder_item_ = Menu::CreateItem(this, "newfolder", &olive::core, SLOT(CreateNewFolder()));
+  new_sequence_item_ = Menu::CreateItem(this, "newseq", Core::instance(), SLOT(CreateNewSequence()), "Ctrl+Shift+N");
+  new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), SLOT(CreateNewFolder()));
 
   // "Edit" menu shared items
   edit_cut_item_ = Menu::CreateItem(this, "cut", nullptr, nullptr, "Ctrl+X");
@@ -61,6 +57,16 @@ void MenuShared::Initialize()
   clip_nest_item_ = Menu::CreateItem(this, "nest", nullptr, nullptr);
 
   Retranslate();
+}
+
+void MenuShared::CreateInstance()
+{
+  instance_ = new MenuShared();
+}
+
+void MenuShared::DestroyInstance()
+{
+  delete instance_;
 }
 
 void MenuShared::AddItemsForNewMenu(Menu *m)
@@ -99,6 +105,11 @@ void MenuShared::AddItemsForClipEditMenu(Menu *m)
   m->addAction(clip_link_unlink_item_);
   m->addAction(clip_enable_disable_item_);
   m->addAction(clip_nest_item_);
+}
+
+MenuShared *MenuShared::instance()
+{
+  return instance_;
 }
 
 void MenuShared::SplitAtPlayhead()

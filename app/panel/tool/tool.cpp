@@ -31,16 +31,16 @@ ToolPanel::ToolPanel(QWidget *parent) :
 
   Toolbar* t = new Toolbar(this);
 
-  t->SetTool(olive::core.tool());
-  t->SetSnapping(olive::core.snapping());
+  t->SetTool(Core::instance()->tool());
+  t->SetSnapping(Core::instance()->snapping());
 
   setWidget(t);
 
-  connect(t, SIGNAL(ToolChanged(const olive::tool::Tool&)), &olive::core, SLOT(SetTool(const olive::tool::Tool&)));
-  connect(&olive::core, SIGNAL(ToolChanged(const olive::tool::Tool&)), t, SLOT(SetTool(const olive::tool::Tool&)));
+  connect(t, SIGNAL(ToolChanged(const Tool::Item&)), Core::instance(), SLOT(SetTool(const Tool::Item&)));
+  connect(Core::instance(), SIGNAL(ToolChanged(const Tool::Item&)), t, SLOT(SetTool(const Tool::Item&)));
 
-  connect(t, SIGNAL(SnappingChanged(const bool&)), &olive::core, SLOT(SetSnapping(const bool&)));
-  connect(&olive::core, SIGNAL(SnappingChanged(const bool&)), t, SLOT(SetSnapping(const bool&)));
+  connect(t, SIGNAL(SnappingChanged(const bool&)), Core::instance(), SLOT(SetSnapping(const bool&)));
+  connect(Core::instance(), SIGNAL(SnappingChanged(const bool&)), t, SLOT(SetSnapping(const bool&)));
 
   Retranslate();
 }

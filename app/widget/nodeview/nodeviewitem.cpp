@@ -31,7 +31,6 @@
 #include "nodeview.h"
 #include "nodeviewundo.h"
 #include "ui/icons/icons.h"
-#include "undo/undostack.h"
 #include "window/mainwindow/mainwindow.h"
 
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
@@ -169,7 +168,7 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
 {
   // HACK for getting the main QWidget palette color (the `widget`'s palette uses the NodeView color instead which we
   // don't want here)
-  QPalette app_pal = olive::core.main_window()->palette();
+  QPalette app_pal = Core::instance()->main_window()->palette();
 
   // Set up border, which will change color if selected
   QPen border_pen(css_proxy_.BorderColor(), node_border_width_);
@@ -460,7 +459,7 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     dragging_edge_ = nullptr;
 
-    olive::undo_stack.pushIfHasChildren(node_edge_change_command_);
+    Core::instance()->undo_stack()->pushIfHasChildren(node_edge_change_command_);
     node_edge_change_command_ = nullptr;
     return;
   }

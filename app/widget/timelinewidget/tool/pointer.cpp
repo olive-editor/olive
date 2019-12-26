@@ -193,11 +193,11 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
     // Normal blocks work in conjunction with the gap made above
-    if (ghost->mode() == olive::timeline::kTrimIn || ghost->mode() == olive::timeline::kTrimOut) {
+    if (ghost->mode() == Timeline::kTrimIn || ghost->mode() == Timeline::kTrimOut) {
       // If we were trimming, we'll need to change the length
 
       // If we were trimming the in point, we'll need to adjust the media in too
-      if (ghost->mode() == olive::timeline::kTrimIn) {
+      if (ghost->mode() == Timeline::kTrimIn) {
         new BlockResizeWithMediaInCommand(b, ghost->AdjustedLength(), command);
       } else {
         new BlockResizeCommand(b, ghost->AdjustedLength(), command);
@@ -213,7 +213,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
                                command);
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 rational TimelineWidget::PointerTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *>& ghosts)
@@ -245,7 +245,7 @@ void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_p
     track_start_ = mouse_pos.GetTrack();
 
     // Determine whether we're trimming or moving based on the position of the cursor
-    olive::timeline::MovementMode trim_mode = olive::timeline::kNone;
+    Timeline::MovementMode trim_mode = Timeline::kNone;
 
     // FIXME: Hardcoded number
     const int kTrimHandle = 10;
@@ -253,21 +253,21 @@ void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_p
     qreal mouse_x = parent()->TimeToScene(mouse_pos.GetFrame());
 
     if (trimming_allowed_ && mouse_x < clicked_item->x() + kTrimHandle) {
-      trim_mode = olive::timeline::kTrimIn;
+      trim_mode = Timeline::kTrimIn;
     } else if (trimming_allowed_ && mouse_x > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
-      trim_mode = olive::timeline::kTrimOut;
+      trim_mode = Timeline::kTrimOut;
     } else if (movement_allowed_) {
       // Some derived classes don't allow movement
-      trim_mode = olive::timeline::kMove;
+      trim_mode = Timeline::kMove;
     }
 
     // Gaps can't be moved, only trimmed
-    if (clicked_item->block()->type() == Block::kGap && trim_mode == olive::timeline::kMove) {
-      trim_mode = olive::timeline::kNone;
+    if (clicked_item->block()->type() == Block::kGap && trim_mode == Timeline::kMove) {
+      trim_mode = Timeline::kNone;
     }
 
     // Make sure we can actually perform an action here
-    if (trim_mode != olive::timeline::kNone) {
+    if (trim_mode != Timeline::kNone) {
       InitiateGhosts(clicked_item, trim_mode, false);
     }
   }
@@ -287,7 +287,7 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
   rational time_movement = mouse_pos.GetFrame() - drag_start_.GetFrame();
 
   // Perform snapping if enabled (adjusts time_movement if it's close to any potential snap points)
-  if (olive::core.snapping()) {
+  if (Core::instance()->snapping()) {
     SnapPoint(snap_points_, &time_movement);
   }
 
@@ -298,15 +298,15 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
   // Perform movement
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     switch (ghost->mode()) {
-    case olive::timeline::kNone:
+    case Timeline::kNone:
       break;
-    case olive::timeline::kTrimIn:
+    case Timeline::kTrimIn:
       ghost->SetInAdjustment(time_movement);
       break;
-    case olive::timeline::kTrimOut:
+    case Timeline::kTrimOut:
       ghost->SetOutAdjustment(time_movement);
       break;
-    case olive::timeline::kMove:
+    case Timeline::kMove:
     {
       ghost->SetInAdjustment(time_movement);
       ghost->SetOutAdjustment(time_movement);
@@ -341,7 +341,7 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
 }
 
 void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                                 olive::timeline::MovementMode trim_mode,
+                                                 Timeline::MovementMode trim_mode,
                                                  bool allow_gap_trimming)
 {
   // Convert selected items list to clips list
@@ -352,8 +352,8 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
   bool multitrim_enabled = true;
 
   // Determine if the clicked item is the earliest/latest in the track for in/out trimming respectively
-  if (trim_mode == olive::timeline::kTrimIn
-      || trim_mode == olive::timeline::kTrimOut) {
+  if (trim_mode == Timeline::kTrimIn
+      || trim_mode == Timeline::kTrimOut) {
     multitrim_enabled = IsClipTrimmable(clicked_item, clips, trim_mode);
   }
 
@@ -367,16 +367,16 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
     bool include_this_clip = true;
 
     if (clip_item != clicked_item
-        && (trim_mode == olive::timeline::kTrimIn || trim_mode == olive::timeline::kTrimOut)) {
+        && (trim_mode == Timeline::kTrimIn || trim_mode == Timeline::kTrimOut)) {
       include_this_clip = multitrim_enabled ? IsClipTrimmable(clip_item, clips, trim_mode) : false;
     }
 
     if (include_this_clip) {
       Block* block = clip_item->block();
-      olive::timeline::MovementMode block_mode = trim_mode;
+      Timeline::MovementMode block_mode = trim_mode;
 
       if (block->type() == Block::kGap && !allow_gap_trimming) {
-        if (trim_mode == olive::timeline::kTrimIn) {
+        if (trim_mode == Timeline::kTrimIn) {
           // Trim the previous clip's out point instead
           block = block->previous();
         } else {
@@ -393,7 +393,7 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
   }
 }
 
-TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromBlock(Block* block, const TrackReference& track, olive::timeline::MovementMode mode)
+TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromBlock(Block* block, const TrackReference& track, Timeline::MovementMode mode)
 {
   TimelineViewGhostItem* ghost = TimelineViewGhostItem::FromBlock(block,
                                                                   track,
@@ -405,7 +405,7 @@ TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromBlock(Block* blo
   return ghost;
 }
 
-TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const rational &in, const rational &out, const TrackReference& track, olive::timeline::MovementMode mode)
+TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const rational &in, const rational &out, const TrackReference& track, Timeline::MovementMode mode)
 {
   TimelineViewGhostItem* ghost = new TimelineViewGhostItem();
 
@@ -419,20 +419,20 @@ TimelineViewGhostItem* TimelineWidget::PointerTool::AddGhostFromNull(const ratio
   return ghost;
 }
 
-void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode)
+void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode)
 {
   ghost->SetMode(mode);
 
   // Prepare snap points (optimizes snapping for later)
   switch (mode) {
-  case olive::timeline::kMove:
+  case Timeline::kMove:
     snap_points_.append(ghost->In());
     snap_points_.append(ghost->Out());
     break;
-  case olive::timeline::kTrimIn:
+  case Timeline::kTrimIn:
     snap_points_.append(ghost->In());
     break;
-  case olive::timeline::kTrimOut:
+  case Timeline::kTrimOut:
     snap_points_.append(ghost->Out());
     break;
   default:
@@ -444,13 +444,13 @@ void TimelineWidget::PointerTool::AddGhostInternal(TimelineViewGhostItem* ghost,
 
 bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
                                                   const QList<TimelineViewBlockItem*>& items,
-                                                  const olive::timeline::MovementMode& mode)
+                                                  const Timeline::MovementMode& mode)
 {
   foreach (TimelineViewBlockItem* compare, items) {
     if (clip->Track() == compare->Track()
         && clip != compare
-        && ((compare->block()->in() < clip->block()->in() && mode == olive::timeline::kTrimIn)
-            || (compare->block()->out() > clip->block()->out() && mode == olive::timeline::kTrimOut))) {
+        && ((compare->block()->in() < clip->block()->in() && mode == Timeline::kTrimIn)
+            || (compare->block()->out() > clip->block()->out() && mode == Timeline::kTrimOut))) {
       return false;
     }
   }
@@ -463,7 +463,7 @@ rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
                                                          bool prevent_overwriting)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != olive::timeline::kTrimIn) {
+    if (ghost->mode() != Timeline::kTrimIn) {
       continue;
     }
 
@@ -508,7 +508,7 @@ rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
                                                           bool prevent_overwriting)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    if (ghost->mode() != olive::timeline::kTrimOut) {
+    if (ghost->mode() != Timeline::kTrimOut) {
       continue;
     }
 

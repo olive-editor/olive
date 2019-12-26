@@ -26,10 +26,10 @@
 #include <QMessageBox>
 #include <QPainter>
 
+#include "core.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
-#include "undo/undostack.h"
 
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QWidget(parent),
@@ -260,7 +260,7 @@ void NodeParamViewItem::UserChangedKeyframeEnable(bool e)
     }
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeParamViewItem::UserToggledKeyframe(bool e)
@@ -283,7 +283,7 @@ void NodeParamViewItem::UserToggledKeyframe(bool e)
     new NodeParamRemoveKeyframeCommand(input, key, command);
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeParamViewItem::InputKeyframeEnableChanged(bool e)

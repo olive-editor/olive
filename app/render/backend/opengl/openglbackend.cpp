@@ -3,7 +3,7 @@
 #include <QEventLoop>
 #include <QThread>
 
-#include "functions.h"
+#include "openglrenderfunctions.h"
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
   VideoRenderBackend(parent),
@@ -168,7 +168,7 @@ OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)
   copy_buffer_.Bind();
   input->Bind();
 
-  olive::gl::Blit(copy_pipeline_);
+  OpenGLRenderFunctions::Blit(copy_pipeline_);
 
   input->Release();
   copy_buffer_.Release();

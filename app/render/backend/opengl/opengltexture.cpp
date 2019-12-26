@@ -30,7 +30,7 @@ OpenGLTexture::OpenGLTexture() :
   texture_(0),
   width_(0),
   height_(0),
-  format_(olive::PIX_FMT_INVALID)
+  format_(PixelFormat::PIX_FMT_INVALID)
 {
 }
 
@@ -44,7 +44,7 @@ bool OpenGLTexture::IsCreated() const
   return (texture_);
 }
 
-void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const olive::PixelFormat &format, const void* data)
+void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const PixelFormat::Format &format, const void* data)
 {
   if (!ctx) {
     qWarning() << "OpenGLTexture::Create was passed an invalid context";
@@ -115,7 +115,7 @@ const int &OpenGLTexture::height() const
   return height_;
 }
 
-const olive::PixelFormat &OpenGLTexture::format() const
+const PixelFormat::Format &OpenGLTexture::format() const
 {
   return format_;
 }
@@ -141,7 +141,7 @@ void OpenGLTexture::Upload(const void *data)
 
   Bind();
 
-  PixelFormatInfo info = PixelService::GetPixelFormatInfo(format_);
+  PixelFormat::Info info = PixelService::GetPixelFormatInfo(format_);
 
   context->functions()->glTexSubImage2D(GL_TEXTURE_2D,
                                         0,
@@ -173,7 +173,7 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
   f->glBindTexture(GL_TEXTURE_2D, *tex);
 
   // Allocate storage for texture
-  const PixelFormatInfo& bit_depth = PixelService::GetPixelFormatInfo(format_);
+  const PixelFormat::Info& bit_depth = PixelService::GetPixelFormatInfo(format_);
 
   f->glTexImage2D(
         GL_TEXTURE_2D,

@@ -136,7 +136,7 @@ void VideoRenderWorker::CloseInternal()
 
 void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)
 {
-  PixelFormatInfo format_info = PixelService::GetPixelFormatInfo(video_params().format());
+  PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
   // Set up OIIO::ImageSpec for compressing cached images on disk
   OIIO::ImageSpec spec(video_params().effective_width(), video_params().effective_height(), kRGBAChannels, format_info.oiio_desc);

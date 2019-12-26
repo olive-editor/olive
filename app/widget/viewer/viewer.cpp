@@ -167,7 +167,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   }
 
   video_renderer_->SetViewerNode(viewer_node_);
-  video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), olive::PIX_FMT_RGBA16F, olive::kOffline, 2));
+  video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), PixelFormat::PIX_FMT_RGBA16F, RenderMode::kOffline, 2));
 
   audio_renderer_->SetViewerNode(viewer_node_);
   audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));

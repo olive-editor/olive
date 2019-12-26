@@ -39,7 +39,7 @@ void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *e
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    if (ghost->mode() == olive::timeline::kTrimIn) {
+    if (ghost->mode() == Timeline::kTrimIn) {
       if (b->previous() == nullptr) {
         // We'll need to insert a gap here, so we'll do a Place command instead
         GapBlock* gap = new GapBlock();
@@ -62,12 +62,12 @@ void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *e
                                    ghost->GetAdjustedIn(),
                                    command);
       }
-    } else if (ghost->mode() == olive::timeline::kTrimOut) {
+    } else if (ghost->mode() == Timeline::kTrimOut) {
       new BlockResizeCommand(b, ghost->AdjustedLength(), command);
     }
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 rational TimelineWidget::RollingTool::FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts)
@@ -80,7 +80,7 @@ rational TimelineWidget::RollingTool::FrameValidateInternal(rational time_moveme
 }
 
 void TimelineWidget::RollingTool::InitiateGhosts(TimelineViewBlockItem *clicked_item,
-                                               olive::timeline::MovementMode trim_mode,
+                                               Timeline::MovementMode trim_mode,
                                                bool allow_gap_trimming)
 {
   Q_UNUSED(allow_gap_trimming)
@@ -91,11 +91,11 @@ void TimelineWidget::RollingTool::InitiateGhosts(TimelineViewBlockItem *clicked_
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
     Block* ghost_block = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    if (ghost->mode() == olive::timeline::kTrimIn && ghost_block->previous() != nullptr) {
+    if (ghost->mode() == Timeline::kTrimIn && ghost_block->previous() != nullptr) {
       // Add an extra Ghost for the previous block
-      AddGhostFromBlock(ghost_block->previous(), ghost->Track(), olive::timeline::kTrimOut);
-    } else if (ghost->mode() == olive::timeline::kTrimOut && ghost_block->next() != nullptr) {
-      AddGhostFromBlock(ghost_block->next(), ghost->Track(), olive::timeline::kTrimIn);
+      AddGhostFromBlock(ghost_block->previous(), ghost->Track(), Timeline::kTrimOut);
+    } else if (ghost->mode() == Timeline::kTrimOut && ghost_block->next() != nullptr) {
+      AddGhostFromBlock(ghost_block->next(), ghost->Track(), Timeline::kTrimIn);
     }
   }
 }

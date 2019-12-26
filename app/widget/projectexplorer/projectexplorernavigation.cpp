@@ -23,8 +23,8 @@
 #include <QEvent>
 #include <QHBoxLayout>
 
+#include "common/define.h"
 #include "ui/icons/icons.h"
-#include "widget/projectexplorer/projectexplorerdefines.h"
 
 ProjectExplorerNavigation::ProjectExplorerNavigation(QWidget *parent) :
   QWidget(parent)
@@ -89,7 +89,7 @@ void ProjectExplorerNavigation::Retranslate()
 void ProjectExplorerNavigation::UpdateIcons()
 {
   dir_up_btn_->setIcon(icon::DirUp);
-  size_slider_->setMinimum(olive::kProjectIconSizeMinimum);
-  size_slider_->setMaximum(olive::kProjectIconSizeMaximum);
-  size_slider_->setValue(olive::kProjectIconSizeDefault);
+  size_slider_->setMinimum(kProjectIconSizeMinimum);
+  size_slider_->setMaximum(kProjectIconSizeMaximum);
+  size_slider_->setValue(kProjectIconSizeDefault);
 }

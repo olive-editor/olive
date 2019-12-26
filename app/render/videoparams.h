@@ -25,22 +25,22 @@ private:
 class VideoRenderingParams : public VideoParams {
 public:
   VideoRenderingParams();
-  VideoRenderingParams(const int& width, const int& height, const rational& time_base, const olive::PixelFormat& format, const olive::RenderMode& mode, const int& divider = 1);
-  VideoRenderingParams(const VideoParams& params, const olive::PixelFormat& format, const olive::RenderMode& mode, const int& divider = 1);
+  VideoRenderingParams(const int& width, const int& height, const rational& time_base, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
+  VideoRenderingParams(const VideoParams& params, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
 
   const int& divider() const;
   const int& effective_width() const;
   const int& effective_height() const;
 
   bool is_valid() const;
-  const olive::PixelFormat& format() const;
-  const olive::RenderMode& mode() const;
+  const PixelFormat::Format& format() const;
+  const RenderMode::Mode& mode() const;
 
 private:
   void calculate_effective_size();
 
-  olive::PixelFormat format_;
-  olive::RenderMode mode_;
+  PixelFormat::Format format_;
+  RenderMode::Mode mode_;
 
   int divider_;
   int effective_width_;

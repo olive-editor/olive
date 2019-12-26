@@ -5,6 +5,7 @@
 #include <QRubberBand>
 #include <QWidget>
 
+#include "core.h"
 #include "timelineandtrackview.h"
 #include "widget/slider/timeslider.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
@@ -83,7 +84,7 @@ private:
 
     TimelineWidget* parent();
 
-    static olive::timeline::MovementMode FlipTrimMode(const olive::timeline::MovementMode& trim_mode);
+    static Timeline::MovementMode FlipTrimMode(const Timeline::MovementMode& trim_mode);
 
   protected:
     /**
@@ -147,12 +148,12 @@ private:
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem *> &ghosts);
 
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                olive::timeline::MovementMode trim_mode,
+                                Timeline::MovementMode trim_mode,
                                 bool allow_gap_trimming);
 
-    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, olive::timeline::MovementMode mode);
+    TimelineViewGhostItem* AddGhostFromBlock(Block *block, const TrackReference& track, Timeline::MovementMode mode);
 
-    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, olive::timeline::MovementMode mode);
+    TimelineViewGhostItem* AddGhostFromNull(const rational& in, const rational& out, const TrackReference& track, Timeline::MovementMode mode);
 
     /**
      * @brief Validates Ghosts that are getting their in points trimmed
@@ -175,11 +176,11 @@ private:
   private:
     void InitiateDrag(const TimelineCoordinate &mouse_pos);
 
-    void AddGhostInternal(TimelineViewGhostItem* ghost, olive::timeline::MovementMode mode);
+    void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
     bool IsClipTrimmable(TimelineViewBlockItem* clip,
                          const QList<TimelineViewBlockItem*>& items,
-                         const olive::timeline::MovementMode& mode);
+                         const Timeline::MovementMode& mode);
 
     TrackReference track_start_;
     bool movement_allowed_;
@@ -225,7 +226,7 @@ private:
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
 
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                olive::timeline::MovementMode trim_mode,
+                                Timeline::MovementMode trim_mode,
                                 bool allow_gap_trimming) override;
   };
 
@@ -239,7 +240,7 @@ private:
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
 
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                olive::timeline::MovementMode trim_mode,
+                                Timeline::MovementMode trim_mode,
                                 bool allow_gap_trimming) override;
   };
 
@@ -252,7 +253,7 @@ private:
     virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
     virtual rational FrameValidateInternal(rational time_movement, const QVector<TimelineViewGhostItem*>& ghosts) override;
     virtual void InitiateGhosts(TimelineViewBlockItem* clicked_item,
-                                olive::timeline::MovementMode trim_mode,
+                                Timeline::MovementMode trim_mode,
                                 bool allow_gap_trimming) override;
   };
 
@@ -353,7 +354,7 @@ private:
 
   QMap<Block*, TimelineViewBlockItem*> block_items_;
 
-  void RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps);
+  void RippleEditTo(Timeline::MovementMode mode, bool insert_gaps);
 
   void SetTimeAndSignal(const int64_t& t);
 

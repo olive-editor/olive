@@ -61,7 +61,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                  ghost_->GetAdjustedIn(),
                                  command);
 
-      olive::undo_stack.push(command);
+      Core::instance()->undo_stack()->push(command);
     }
 
     parent()->ClearGhosts();

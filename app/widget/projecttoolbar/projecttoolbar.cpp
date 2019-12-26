@@ -84,16 +84,16 @@ ProjectToolbar::ProjectToolbar(QWidget *parent) :
   UpdateIcons();
 }
 
-void ProjectToolbar::SetView(olive::ProjectViewType type)
+void ProjectToolbar::SetView(ViewType type)
 {
   switch (type) {
-  case olive::TreeView:
+  case TreeView:
     tree_button_->setChecked(true);
     break;
-  case olive::IconView:
+  case IconView:
     icon_button_->setChecked(true);
     break;
-  case olive::ListView:
+  case ListView:
     list_button_->setChecked(true);
     break;
   }
@@ -140,11 +140,11 @@ void ProjectToolbar::ViewButtonClicked()
 {
   // Determine which view button triggered this slot and emit a signal accordingly
   if (sender() == tree_button_) {
-    emit ViewChanged(olive::TreeView);
+    emit ViewChanged(ProjectToolbar::TreeView);
   } else if (sender() == icon_button_) {
-    emit ViewChanged(olive::IconView);
+    emit ViewChanged(ProjectToolbar::IconView);
   } else if (sender() == list_button_) {
-    emit ViewChanged(olive::ListView);
+    emit ViewChanged(ProjectToolbar::ListView);
   } else {
     // Assert that it was one of the above buttons
     abort();

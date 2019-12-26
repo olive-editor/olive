@@ -35,7 +35,7 @@ TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   setWidget(view_);
 
   // Connect task view to the task manager
-  connect(&olive::task_manager, SIGNAL(TaskAdded(Task*)), view_, SLOT(AddTask(Task*)));
+  connect(TaskManager::instance(), &TaskManager::TaskAdded, view_, &TaskView::AddTask);
 
   // Set strings
   Retranslate();

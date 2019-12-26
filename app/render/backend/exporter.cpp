@@ -117,8 +117,8 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
       FramePtr frame = TextureToFrame(value);
 
       // OCIO conversion requires a frame in 32F format
-      if (frame->format() != olive::PIX_FMT_RGBA32F) {
-        frame = PixelService::ConvertPixelFormat(frame, olive::PIX_FMT_RGBA32F);
+      if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
+        frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
       }
 
       // Color conversion must be done with unassociated alpha, and the pipeline is always associated

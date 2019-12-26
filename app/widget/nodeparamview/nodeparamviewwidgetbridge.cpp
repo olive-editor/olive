@@ -7,6 +7,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "core.h"
 #include "node/node.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
@@ -262,7 +263,7 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
     new NodeParamSetKeyframeValueCommand(input_->keyframes().first(), value, command);
   }
 
-  olive::undo_stack.pushIfHasChildren(command);
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeParamViewWidgetBridge::WidgetCallback()

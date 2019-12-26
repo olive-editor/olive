@@ -50,7 +50,7 @@
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
 
-Core olive::core;
+Core Core::instance_;
 
 Core::Core() :
   main_window_(nullptr),
@@ -58,6 +58,11 @@ Core::Core() :
   snapping_(true),
   queue_autorecovery_(false)
 {
+}
+
+Core *Core::instance()
+{
+  return &instance_;
 }
 
 void Core::Start()
@@ -117,6 +122,8 @@ void Core::Stop()
   // Save Config
   //Config::Save();
 
+  MenuShared::DestroyInstance();
+
   PanelManager::DestroyInstance();
 
   AudioManager::DestroyInstance();
@@ -131,6 +138,11 @@ MainWindow *Core::main_window()
   return main_window_;
 }
 
+UndoStack *Core::undo_stack()
+{
+  return &undo_stack_;
+}
+
 void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder* parent)
 {
   if (urls.isEmpty()) {
@@ -138,7 +150,7 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  olive::task_manager.AddTask(std::make_shared<ImportTask>(model, parent, urls));
+  TaskManager::instance()->AddTask(std::make_shared<ImportTask>(model, parent, urls));
 }
 
 const Tool::Item &Core::tool()
@@ -272,7 +284,7 @@ void Core::CreateNewFolder()
                                                                                folder,
                                                                                new_folder);
 
-  olive::undo_stack.push(aic);
+  Core::instance()->undo_stack()->push(aic);
 
   // Trigger an automatic rename so users can enter the folder name
   active_project_panel->Edit(new_folder.get());
@@ -322,7 +334,7 @@ void Core::CreateNewSequence()
 
     new_sequence->add_default_nodes();
 
-    olive::undo_stack.push(aic);
+    Core::instance()->undo_stack()->push(aic);
 
     Sequence::Open(new_sequence);
   }
@@ -354,7 +366,7 @@ void Core::StartGUI(bool full_screen)
   StyleManager::SetStyle(StyleManager::DefaultStyle());
 
   // Set up shared menus
-  olive::menu_shared.Initialize();
+  MenuShared::CreateInstance();
 
   // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
   PanelManager::CreateInstance();

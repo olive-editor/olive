@@ -177,7 +177,7 @@ void SequenceDialog::accept()
                                                                    audio_params,
                                                                    name_field_->text());
 
-    olive::undo_stack.push(param_command);
+    Core::instance()->undo_stack()->push(param_command);
 
   } else {
     // Set sequence values directly with no undo command

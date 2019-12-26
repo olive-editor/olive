@@ -99,7 +99,7 @@ void Config::Load()
   }
 
   if (reader.hasError()) {
-    QMessageBox::critical(olive::core.main_window(),
+    QMessageBox::critical(Core::instance()->main_window(),
                           QCoreApplication::translate("Config", "Error loading settings"),
                           QCoreApplication::translate("Config", "Failed to load application settings. This session will "
                                                                 "use defaults."),
@@ -115,7 +115,7 @@ void Config::Save()
   QFile config_file(GetConfigFilePath());
 
   if (!config_file.open(QFile::WriteOnly)) {
-    QMessageBox::critical(olive::core.main_window(),
+    QMessageBox::critical(Core::instance()->main_window(),
                           QCoreApplication::translate("Config", "Error saving settings"),
                           QCoreApplication::translate("Config", "Failed to save application settings. The application "
                                                                 "may lack write permissions to this location."),

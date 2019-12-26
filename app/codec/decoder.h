@@ -45,8 +45,8 @@ using DecoderPtr = std::shared_ptr<Decoder>;
  * necessitate pre-emptively caching, indexing, or even fully transcoding media before using it which can be implemented
  * through the Analyze() function.
  *
- * A decoder does NOT perform any pixel/sample format conversion. Frames should pass through the PixelFormatConverter
- * (olive::pix_fmt_conv) to be utilized in the rest of the rendering pipeline.
+ * A decoder does NOT perform any pixel/sample format conversion. Frames should pass through the PixelService
+ * to be utilized in the rest of the rendering pipeline.
  */
 class Decoder : public QObject
 {
