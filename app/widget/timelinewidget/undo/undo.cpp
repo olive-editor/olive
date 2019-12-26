@@ -418,15 +418,14 @@ void BlockSplitCommand::redo()
   new_block_->set_media_in(block_->media_out());
   new_block_->set_media_out(original_media_out);
 
-  // Will re-parent new_block_ to the track's graph
   track_->InsertBlockAfter(new_block_, block_);
-
-  track_->UnblockInvalidateCache();
 
   foreach (NodeInput* transition, transitions_to_move_) {
     NodeParam::DisconnectEdge(block_->output(), transition);
     NodeParam::ConnectEdge(new_block_->output(), transition);
   }
+
+  track_->UnblockInvalidateCache();
 }
 
 void BlockSplitCommand::undo()
@@ -438,12 +437,12 @@ void BlockSplitCommand::undo()
 
   TakeNodeFromParentGraph(new_block_, &memory_manager_);
 
-  track_->UnblockInvalidateCache();
-
   foreach (NodeInput* transition, transitions_to_move_) {
     NodeParam::DisconnectEdge(new_block_->output(), transition);
     NodeParam::ConnectEdge(block_->output(), transition);
   }
+
+  track_->UnblockInvalidateCache();
 }
 
 Block *BlockSplitCommand::new_block()

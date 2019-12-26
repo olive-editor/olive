@@ -224,7 +224,6 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
 void Block::CopyParameters(const Block *source, Block *dest)
 {
   dest->set_block_name(source->block_name());
-  dest->set_media_in(source->media_in());
 
   if (source->type() == kTransition && dest->type() == kTransition) {
     const TransitionBlock* src_t = static_cast<const TransitionBlock*>(source);
