@@ -108,6 +108,9 @@ void NodeParamViewItem::InputAddedKeyframeInternal(NodeInput *input, NodeKeyfram
   // Find global position
   lbl_center = lbl->mapToGlobal(lbl_center);
 
+  // Update keyframe control widget
+  UpdateKeyframeControl(KeyframeControlFromInput(input));
+
   emit KeyframeAdded(keyframe, lbl_center.y());
 }
 
@@ -186,8 +189,8 @@ void NodeParamViewItem::UpdateKeyframeControl(NodeParamViewKeyframeControl *key_
   NodeInput* input = key_control->GetConnectedInput();
 
   // Update UI based on time
-  key_control->SetPreviousButtonEnabled(time_ > input->keyframes().first()->time());
-  key_control->SetNextButtonEnabled(time_ < input->keyframes().last()->time());
+  key_control->SetPreviousButtonEnabled(!input->keyframes().isEmpty() && time_ > input->keyframes().first()->time());
+  key_control->SetNextButtonEnabled(!input->keyframes().isEmpty() && time_ < input->keyframes().last()->time());
   key_control->SetToggleButtonChecked(input->has_keyframe_at_time(time_));
 }
 
@@ -232,7 +235,8 @@ void NodeParamViewItem::UserChangedKeyframeEnable(bool e)
     new NodeParamSetKeyframingCommand(input, true, command);
 
     // NodeInputs already have one keyframe by default, we move it to the current time here
-    new NodeParamSetKeyframeTimeCommand(input->keyframes().first(), time_, command);
+    NodeKeyframePtr key = std::make_shared<NodeKeyframe>(time_, input->get_standard_value(), NodeKeyframe::kDefaultType);
+    new NodeParamInsertKeyframeCommand(input, key, command);
   } else {
     // Confirm the user wants to clear all keyframes
     if (QMessageBox::warning(this,
@@ -243,13 +247,13 @@ void NodeParamViewItem::UserChangedKeyframeEnable(bool e)
       // Store value at this time, we'll set this as the persistent value later
       QVariant stored_val = input->get_value_at_time(time_);
 
-      // Delete all keyframes EXCEPT ONE
-      for (int i=input->keyframes().size()-1;i>0;i--) {
+      // Delete all keyframes
+      for (int i=input->keyframes().size()-1;i>=0;i--) {
         new NodeParamRemoveKeyframeCommand(input, input->keyframes().at(i), command);
       }
 
-      // Update value with this one
-      new NodeParamSetKeyframeValueCommand(input->keyframes().first(), stored_val, command);
+      // Update standard value
+      new NodeParamSetStandardValueCommand(input, stored_val, command);
 
       // Disable keyframing
       new NodeParamSetKeyframingCommand(input, false, command);
@@ -273,9 +277,9 @@ void NodeParamViewItem::UserToggledKeyframe(bool e)
 
   if (e && !key) {
     // Add a keyframe here
-    NodeKeyframePtr closest_key = input->get_closest_keyframe_to_time(time_);
-
-    key = std::make_shared<NodeKeyframe>(time_, input->get_value_at_time(time_), closest_key->type());
+    key = std::make_shared<NodeKeyframe>(time_,
+                                         input->get_value_at_time(time_),
+                                         input->get_best_keyframe_type_for_time(time_));
 
     new NodeParamInsertKeyframeCommand(input, key, command);
   } else if (!e && key) {
@@ -307,8 +311,6 @@ void NodeParamViewItem::InputAddedKeyframe(NodeKeyframePtr key)
   NodeInput* input = static_cast<NodeInput*>(sender());
 
   InputAddedKeyframeInternal(input, key);
-
-  UpdateKeyframeControl(KeyframeControlFromInput(input));
 }
 
 void NodeParamViewItem::GoToPreviousKey()

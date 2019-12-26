@@ -254,13 +254,14 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
       new NodeParamSetKeyframeValueCommand(existing_key, value, command);
     } else {
       // No existing key, create a new one
-      NodeKeyframePtr closest_key = input_->get_closest_keyframe_to_time(time_);
-      NodeKeyframePtr new_key = std::make_shared<NodeKeyframe>(time_, value, closest_key->type());
+      NodeKeyframePtr new_key = std::make_shared<NodeKeyframe>(time_,
+                                                               value,
+                                                               input_->get_best_keyframe_type_for_time(time_));
 
       new NodeParamInsertKeyframeCommand(input_, new_key, command);
     }
   } else {
-    new NodeParamSetKeyframeValueCommand(input_->keyframes().first(), value, command);
+    new NodeParamSetStandardValueCommand(input_, value, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

@@ -87,3 +87,21 @@ void NodeParamSetKeyframeTimeCommand::undo()
 {
   key_->set_time(old_time_);
 }
+
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, const QVariant &value, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  input_(input),
+  old_value_(input_->get_standard_value()),
+  new_value_(value)
+{
+}
+
+void NodeParamSetStandardValueCommand::redo()
+{
+  input_->set_standard_value(new_value_);
+}
+
+void NodeParamSetStandardValueCommand::undo()
+{
+  input_->set_standard_value(old_value_);
+}

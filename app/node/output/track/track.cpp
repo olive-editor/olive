@@ -350,7 +350,7 @@ QString TrackOutput::GetDefaultTrackName(TrackType type, int index)
 
 bool TrackOutput::IsMuted() const
 {
-  return muted_input_->get_value_at_time(0).toBool();
+  return muted_input_->get_standard_value().toBool();
 }
 
 bool TrackOutput::IsLocked() const
@@ -365,7 +365,7 @@ void TrackOutput::SetTrackName(const QString &name)
 
 void TrackOutput::SetMuted(bool e)
 {
-  muted_input_->set_override_value(e);
+  muted_input_->set_standard_value(e);
   InvalidateCache(0, track_length());
 }
 

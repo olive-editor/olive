@@ -75,7 +75,7 @@ void Block::set_out(const rational &out)
 
 rational Block::length() const
 {
-  return length_input_->get_value_at_time(0).value<rational>();
+  return length_input_->get_standard_value().value<rational>();
 }
 
 void Block::set_length(const rational &length)
@@ -86,7 +86,7 @@ void Block::set_length(const rational &length)
     return;
   }
 
-  length_input_->set_override_value(QVariant::fromValue(length));
+  length_input_->set_standard_value(QVariant::fromValue(length));
 }
 
 void Block::set_length_and_media_out(const rational &length)
@@ -153,22 +153,22 @@ void Block::set_next(Block *next)
 
 rational Block::media_in() const
 {
-  return media_in_input_->get_value_at_time(0).value<rational>();
+  return media_in_input_->get_standard_value().value<rational>();
 }
 
 void Block::set_media_in(const rational &media_in)
 {
-  media_in_input_->set_override_value(QVariant::fromValue(media_in));
+  media_in_input_->set_standard_value(QVariant::fromValue(media_in));
 }
 
 rational Block::media_out() const
 {
-  return media_out_input_->get_value_at_time(0).value<rational>();
+  return media_out_input_->get_standard_value().value<rational>();
 }
 
 void Block::set_media_out(const rational &media_out)
 {
-  media_out_input_->set_override_value(QVariant::fromValue(media_out));
+  media_out_input_->set_standard_value(QVariant::fromValue(media_out));
 }
 
 rational Block::media_length() const

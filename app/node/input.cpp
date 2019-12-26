@@ -29,13 +29,12 @@ NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &de
   NodeParam(id),
   data_type_(type),
   keyframable_(true),
+  standard_value_(default_value),
   keyframing_(false),
   dependent_(true),
   has_minimum_(false),
   has_maximum_(false)
 {
-  // Have at least one keyframe/value active at any time
-  insert_keyframe(std::make_shared<NodeKeyframe>(0, default_value, NodeKeyframe::kLinear));
 }
 
 bool NodeInput::IsArray()
@@ -84,50 +83,52 @@ Node *NodeInput::get_connected_node() const
 
 QVariant NodeInput::get_value_at_time(const rational &time) const
 {
-  if (is_keyframing()) {
-    if (keyframes_.first()->time() >= time) {
-      // This time precedes any keyframe, so we just return the first value
-      return keyframes_.first()->value();
-    }
+  if (!is_keyframing() || keyframes_.isEmpty()) {
+    return standard_value_;
+  }
 
-    if (keyframes_.last()->time() <= time) {
-      // This time is after any keyframes so we return the last value
-      return keyframes_.last()->value();
-    }
+  if (keyframes_.first()->time() >= time) {
+    // This time precedes any keyframe, so we just return the first value
+    return keyframes_.first()->value();
+  }
 
-    // If we're here, the time must be somewhere in between the keyframes
-    for (int i=0;i<keyframes_.size()-1;i++) {
-      NodeKeyframePtr before = keyframes_.at(i);
-      NodeKeyframePtr after = keyframes_.at(i+1);
+  if (keyframes_.last()->time() <= time) {
+    // This time is after any keyframes so we return the last value
+    return keyframes_.last()->value();
+  }
 
-      if (before->time() == time
-          || data_type() != kFloat // FIXME: Expand this to other types that can be interpolated
-          || (before->time() < time && before->type() == NodeKeyframe::kHold)) {
+  // If we're here, the time must be somewhere in between the keyframes
+  for (int i=0;i<keyframes_.size()-1;i++) {
+    NodeKeyframePtr before = keyframes_.at(i);
+    NodeKeyframePtr after = keyframes_.at(i+1);
 
-        // Time == keyframe time, so value is precise
-        return before->value();
+    if (before->time() == time
+        || data_type() != kFloat // FIXME: Expand this to other types that can be interpolated
+        || (before->time() < time && before->type() == NodeKeyframe::kHold)) {
 
-      } else if (before->time() < time && after->time() > time) {
-        // We must interpolate between these keyframes
+      // Time == keyframe time, so value is precise
+      return before->value();
 
-        if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
-          // FIXME: Perform a cubic bezier interpolation
-        } else if (before->type() == NodeKeyframe::kLinear && after->type() == NodeKeyframe::kBezier) {
-          // FIXME: Perform a quadratic bezier interpolation with anchors from the AFTER keyframe
-        } else if (before->type() == NodeKeyframe::kLinear && after->type() == NodeKeyframe::kBezier) {
-          // FIXME: Perform a quadratic bezier interpolation with anchors from the BEFORE keyframe
-        } else {
-          // To have arrived here, the keyframes must both be linear
-          qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
-          qreal interpolated_value = lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+    } else if (before->time() < time && after->time() > time) {
+      // We must interpolate between these keyframes
 
-          return interpolated_value;
-        }
+      if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+        // FIXME: Perform a cubic bezier interpolation
+      } else if (before->type() == NodeKeyframe::kLinear && after->type() == NodeKeyframe::kBezier) {
+        // FIXME: Perform a quadratic bezier interpolation with anchors from the AFTER keyframe
+      } else if (before->type() == NodeKeyframe::kLinear && after->type() == NodeKeyframe::kBezier) {
+        // FIXME: Perform a quadratic bezier interpolation with anchors from the BEFORE keyframe
+      } else {
+        // To have arrived here, the keyframes must both be linear
+        qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
+        qreal interpolated_value = lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+
+        return interpolated_value;
       }
     }
   }
 
-  return keyframes_.first()->value();
+  return standard_value_;
 }
 
 NodeKeyframePtr NodeInput::get_keyframe_at_time(const rational &time) const
@@ -147,7 +148,7 @@ NodeKeyframePtr NodeInput::get_keyframe_at_time(const rational &time) const
 
 NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time) const
 {
-  if (!is_keyframing()) {
+  if (!is_keyframing() || keyframes_.isEmpty()) {
     return nullptr;
   }
 
@@ -177,6 +178,17 @@ NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time) co
   }
 
   return nullptr;
+}
+
+NodeKeyframe::Type NodeInput::get_best_keyframe_type_for_time(const rational &time) const
+{
+  NodeKeyframePtr closest_key = get_closest_keyframe_to_time(time);
+
+  if (closest_key) {
+    return closest_key->type();
+  }
+
+  return NodeKeyframe::kDefaultType;
 }
 
 void NodeInput::insert_keyframe(NodeKeyframePtr key)
@@ -293,11 +305,18 @@ bool NodeInput::is_keyframable() const
   return keyframable_;
 }
 
-void NodeInput::set_override_value(const QVariant &value)
+const QVariant &NodeInput::get_standard_value() const
 {
-  Q_ASSERT(!is_keyframable());
+  return standard_value_;
+}
 
-  keyframes_.first()->set_value(value);
+void NodeInput::set_standard_value(const QVariant &value)
+{
+  standard_value_ = value;
+
+  if (!is_keyframing()) {
+    emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+  }
 }
 
 const QList<NodeKeyframePtr> &NodeInput::keyframes() const
@@ -346,7 +365,10 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
 {
   Q_ASSERT(source->id() == dest->id());
 
-  // Copy values
+  // Copy standard value
+  dest->standard_value_ = source->standard_value_;
+
+  // Copy keyframes
   dest->keyframes_.clear();
   foreach (NodeKeyframePtr key, source->keyframes_) {
     NodeKeyframePtr copy = std::make_shared<NodeKeyframe>(key->time(), key->value(), key->type());

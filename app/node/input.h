@@ -94,9 +94,14 @@ public:
   /**
    * @brief Gets the closest keyframe to a time
    *
-   * If is_keyframing() is false, this will return nullptr. Otherwise, this is guaranteed to return a keyframe.
+   * If is_keyframing() is false or keyframes_ is empty, this will return nullptr.
    */
   NodeKeyframePtr get_closest_keyframe_to_time(const rational& time) const;
+
+  /**
+   * @brief A heuristic to determine what type a keyframe should be if it's inserted at a certain time (between keyframes)
+   */
+  NodeKeyframe::Type get_best_keyframe_type_for_time(const rational& time) const;
 
   /**
    * @brief Inserts a keyframe at the given time and returns a reference to it
@@ -131,11 +136,14 @@ public:
   bool is_keyframable() const;
 
   /**
-   * @brief Replaces all values with this value
-   *
-   * This can only be used on inputs where keyframing is disabled.
+   * @brief Get non-keyframed value
    */
-  void set_override_value(const QVariant& value);
+  const QVariant& get_standard_value() const;
+
+  /**
+   * @brief Set non-keyframed value
+   */
+  void set_standard_value(const QVariant& value);
 
   /**
    * @brief Return list of keyframes in this parameter
@@ -194,10 +202,14 @@ private:
   bool keyframable_;
 
   /**
+   * @brief Non-keyframed value
+   */
+  QVariant standard_value_;
+
+  /**
    * @brief Internal keyframe array
    *
-   * All internal/user-defined data is stored in this array. Even if keyframing is not enabled, this array will contain
-   * one entry which will be used, and its time value will be ignored.
+   * If keyframing is enabled, this data is used instead of standard_value.
    */
   QList<NodeKeyframePtr> keyframes_;
 

@@ -32,12 +32,12 @@ MediaInput::MediaInput() :
 
 StreamPtr MediaInput::footage()
 {
-  return footage_input_->get_value_at_time(0).value<StreamPtr>();
+  return footage_input_->get_standard_value().value<StreamPtr>();
 }
 
 void MediaInput::SetFootage(StreamPtr f)
 {
-  footage_input_->set_override_value(QVariant::fromValue(f));
+  footage_input_->set_standard_value(QVariant::fromValue(f));
 }
 
 void MediaInput::Retranslate()
@@ -47,7 +47,7 @@ void MediaInput::Retranslate()
 
 void MediaInput::FootageChanged()
 {
-  StreamPtr new_footage = footage_input_->get_value_at_time(0).value<StreamPtr>();
+  StreamPtr new_footage = footage_input_->get_standard_value().value<StreamPtr>();
 
   if (new_footage == connected_footage_) {
     return;
