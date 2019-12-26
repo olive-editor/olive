@@ -24,7 +24,7 @@ bool WaveInput::open()
 
   if (file_.read(4) != "RIFF") {
     close();
-    qDebug() << "No RIFF found";
+    qCritical() << "No RIFF found";
     return false;
   }
 
@@ -33,14 +33,14 @@ bool WaveInput::open()
 
   if (file_.read(4) != "WAVE") {
     close();
-    qDebug() << "No WAVE found";
+    qCritical() << "No WAVE found";
     return false;
   }
 
   // Find fmt_ section
   if (!find_str(&file_, "fmt ")) {
     close();
-    qDebug() << "No fmt  found";
+    qCritical() << "No fmt  found";
     return false;
   }
 
@@ -66,7 +66,7 @@ bool WaveInput::open()
   default:
     // If it's neither float nor int, we can't work with this file
     close();
-    qDebug() << "Invalid WAV type" << data_type;
+    qCritical() << "Invalid WAV type" << data_type;
     return false;
   }
 
@@ -111,7 +111,7 @@ bool WaveInput::open()
   default:
     // We don't know this format...
     close();
-    qDebug() << "Invalid format found" << bits_per_sample;
+    qCritical() << "Invalid format found" << bits_per_sample;
     return false;
   }
 
@@ -120,7 +120,7 @@ bool WaveInput::open()
 
   if (!find_str(&file_, "data")) {
     close();
-    qDebug() << "No data tag found";
+    qCritical() << "No data tag found";
     return false;
   }
 
