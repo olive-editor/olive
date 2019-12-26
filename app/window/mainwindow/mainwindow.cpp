@@ -38,7 +38,7 @@
 // Main menu bar
 #include "mainmenu.h"
 
-olive::MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
 {
 #ifdef Q_OS_WINDOWS
@@ -64,7 +64,7 @@ olive::MainWindow::MainWindow(QWidget *parent) :
   setMenuBar(main_menu);
 }
 
-void olive::MainWindow::SetFullscreen(bool fullscreen)
+void MainWindow::SetFullscreen(bool fullscreen)
 {
   if (fullscreen) {
     setWindowState(windowState() | Qt::WindowFullScreen);
@@ -73,7 +73,7 @@ void olive::MainWindow::SetFullscreen(bool fullscreen)
   }
 }
 
-void olive::MainWindow::ToggleMaximizedPanel()
+void MainWindow::ToggleMaximizedPanel()
 {
   if (premaximized_state_.isEmpty()) {
     // Assume nothing is maximized at the moment
@@ -107,7 +107,7 @@ void olive::MainWindow::ToggleMaximizedPanel()
   }
 }
 
-void olive::MainWindow::ProjectOpen(Project* p)
+void MainWindow::ProjectOpen(Project* p)
 {
   // FIXME Use settings data to create panels and restore state if they exist
   NodePanel* node_panel = PanelManager::instance()->CreatePanel<NodePanel>(this);
@@ -145,7 +145,7 @@ void olive::MainWindow::ProjectOpen(Project* p)
 #include "common/filefunctions.h"
 // End test code
 
-void olive::MainWindow::closeEvent(QCloseEvent *e)
+void MainWindow::closeEvent(QCloseEvent *e)
 {
   PanelManager::instance()->DeleteAllPanels();
 

@@ -126,7 +126,7 @@ void Core::Stop()
   delete main_window_;
 }
 
-olive::MainWindow *Core::main_window()
+MainWindow *Core::main_window()
 {
   return main_window_;
 }
@@ -366,7 +366,7 @@ void Core::StartGUI(bool full_screen)
           SLOT(FocusChanged(QWidget*, QWidget*)));
 
   // Create main window and open it
-  main_window_ = new olive::MainWindow();
+  main_window_ = new MainWindow();
   if (full_screen) {
     main_window_->showFullScreen();
   } else {

@@ -72,7 +72,7 @@ public:
    *
    * Pointer to the olive::MainWindow object, or nullptr if running in CLI mode.
    */
-  olive::MainWindow* main_window();
+  MainWindow* main_window();
 
   /**
    * @brief Import a list of files
@@ -252,7 +252,7 @@ private:
   /**
    * @brief Internal main window object
    */
-  olive::MainWindow* main_window_;
+  MainWindow* main_window_;
 
   /**
    * @brief Internal startup project object

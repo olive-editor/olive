@@ -25,8 +25,6 @@
 
 #include "project/project.h"
 
-namespace olive {
-
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
@@ -47,7 +45,5 @@ private:
   QByteArray premaximized_state_;
 
 };
-
-}
 
 #endif
