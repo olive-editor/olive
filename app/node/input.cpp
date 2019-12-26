@@ -201,11 +201,15 @@ void NodeInput::insert_keyframe(NodeKeyframePtr key)
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
 
   emit KeyframeAdded(key);
+
+  emit_range_affected_by_keyframe(key.get());
 }
 
 void NodeInput::remove_keyframe(NodeKeyframePtr key)
 {
   Q_ASSERT(is_keyframable() && keyframes_.size() > 1);
+
+  TimeRange time_affected = get_range_affected_by_keyframe(key.get());
 
   disconnect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
   disconnect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
@@ -213,6 +217,7 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
   keyframes_.removeOne(key);
 
   emit KeyframeRemoved(key);
+  emit_time_range(time_affected);
 }
 
 void NodeInput::KeyframeTimeChanged()
@@ -222,54 +227,30 @@ void NodeInput::KeyframeTimeChanged()
 
   Q_ASSERT(keyframe_index > -1);
 
+  TimeRange original_range = get_range_around_index(keyframe_index);
+
   if ((keyframe_index > 0 && keyframes_.at(keyframe_index - 1)->time() > key->time())
       || (keyframe_index < keyframes_.size() - 1 && keyframes_.at(keyframe_index + 1)->time() < key->time())) {
     // This keyframe needs resorting, store it and remove it from the list
     NodeKeyframePtr key_shared_ptr = keyframes_.at(keyframe_index);
+
     keyframes_.removeAt(keyframe_index);
 
     // Automatically insertion sort
     insert_keyframe_internal(key_shared_ptr);
+
+    // Invalidate new area that the keyframe has been moved to
+    emit_range_affected_by_keyframe(key_shared_ptr.get());
   }
+
+  // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it
+  // was resorted in the if block above)
+  emit_time_range(original_range);
 }
 
 void NodeInput::KeyframeValueChanged()
 {
-  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
-
-  rational range_begin = RATIONAL_MIN;
-  rational range_end = RATIONAL_MAX;
-
-  if (keyframes_.size() > 1) {
-    if (keyframe_index == 0) {
-      // This is the earliest keyframe, all we need to do is invalidate the earliest point up until the next keyframe
-      range_end = keyframes_.at(1)->time();
-    } else {
-      // Range is somewhere in the middle or towards the end
-
-      // Check previous keyframe
-      NodeKeyframePtr previous_key = keyframes_.at(keyframe_index - 1);
-      if (previous_key->type() == NodeKeyframe::kHold) {
-        // If the PREVIOUS keyframe is a hold, it won't be affected by this
-        range_begin = key->time();
-      } else {
-        // Otherwise, the frames between the previous and this keyframe will be affected too
-        range_begin = previous_key->time();
-      }
-
-      // Check if this keyframe is the last keyframe
-      if (keyframe_index == keyframes_.size() - 1) {
-        // If so, we'll invalidate until the latest point
-        range_end = RATIONAL_MAX;
-      } else {
-        // Otherwise, we only need to invalidate up until the next keyframe
-        range_end = keyframes_.at(keyframe_index + 1)->time();
-      }
-    }
-  }
-
-  emit ValueChanged(range_begin, range_end);
+  emit_range_affected_by_keyframe(static_cast<NodeKeyframe*>(sender()));
 }
 
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
@@ -303,6 +284,51 @@ void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
 bool NodeInput::is_using_standard_value() const
 {
   return (!is_keyframing() || keyframes_.isEmpty());
+}
+
+TimeRange NodeInput::get_range_affected_by_keyframe(NodeKeyframe *key) const
+{
+  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+
+  TimeRange range = get_range_around_index(keyframe_index);
+
+  // If a previous key exists and it's a hold, we don't need to invalidate those frames
+  if (keyframes().size() > 1
+      && keyframe_index > 0
+      && keyframes_.at(keyframe_index - 1)->type() == NodeKeyframe::kHold) {
+    range.set_in(key->time());
+  }
+
+  return range;
+}
+
+TimeRange NodeInput::get_range_around_index(int index) const
+{
+  rational range_begin = RATIONAL_MIN;
+  rational range_end = RATIONAL_MAX;
+
+  if (keyframes_.size() > 1) {
+    if (index > 0) {
+      // If this is not the first key, we'll need to limit it to the key just before
+      range_begin = keyframes_.at(index - 1)->time();
+    }
+    if (index < keyframes_.size() - 1) {
+      // If this is not the last key, we'll need to limit it to the key just after
+      range_end = keyframes_.at(index + 1)->time();
+    }
+  }
+
+  return TimeRange(range_begin, range_end);
+}
+
+void NodeInput::emit_time_range(const TimeRange &range)
+{
+  emit ValueChanged(range.in(), range.out());
+}
+
+void NodeInput::emit_range_affected_by_keyframe(NodeKeyframe *key)
+{
+  emit_time_range(get_range_affected_by_keyframe(key));
 }
 
 bool NodeInput::has_keyframe_at_time(const rational &time) const

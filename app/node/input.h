@@ -21,6 +21,7 @@
 #ifndef NODEINPUT_H
 #define NODEINPUT_H
 
+#include "common/timerange.h"
 #include "keyframe.h"
 #include "param.h"
 
@@ -193,6 +194,26 @@ private:
    * @brief Return whether the standard value should be used over keyframe data
    */
   bool is_using_standard_value() const;
+
+  /**
+   * @brief Intelligently determine how what time range is affected by a keyframe
+   */
+  TimeRange get_range_affected_by_keyframe(NodeKeyframe *key) const;
+
+  /**
+   * @brief Gets a time range between the previous and next keyframes of index
+   */
+  TimeRange get_range_around_index(int index) const;
+
+  /**
+   * @brief Convenience function - equivalent to calling `emit ValueChanged(range.in(), range.out())`
+   */
+  void emit_time_range(const TimeRange& range);
+
+  /**
+   * @brief Convenience function - equivalent to calling `emit_time_range(get_range_affected_by_keyframe(key))`
+   */
+  void emit_range_affected_by_keyframe(NodeKeyframe* key);
 
   /**
    * @brief Internal list of accepted data types
