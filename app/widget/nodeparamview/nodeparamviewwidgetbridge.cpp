@@ -242,24 +242,24 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   }
 }
 
-void NodeParamViewWidgetBridge::SetInputValue(NodeInput *input, const QVariant &value)
+void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
 {
   QUndoCommand* command = new QUndoCommand();
 
-  if (input->is_keyframing()) {
-    NodeKeyframePtr existing_key = input->get_keyframe_at_time(time_);
+  if (input_->is_keyframing()) {
+    NodeKeyframePtr existing_key = input_->get_keyframe_at_time(time_);
 
     if (existing_key) {
       new NodeParamSetKeyframeValueCommand(existing_key, value, command);
     } else {
       // No existing key, create a new one
-      NodeKeyframePtr closest_key = input->get_closest_keyframe_to_time(time_);
+      NodeKeyframePtr closest_key = input_->get_closest_keyframe_to_time(time_);
       NodeKeyframePtr new_key = std::make_shared<NodeKeyframe>(time_, value, closest_key->type());
 
-      new NodeParamInsertKeyframeCommand(input, new_key, command);
+      new NodeParamInsertKeyframeCommand(input_, new_key, command);
     }
   } else {
-    new NodeParamSetKeyframeValueCommand(input->keyframes().first(), value, command);
+    new NodeParamSetKeyframeValueCommand(input_->keyframes().first(), value, command);
   }
 
   olive::undo_stack.pushIfHasChildren(command);
@@ -285,78 +285,38 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kInt:
   {
     // Widget is a IntegerSlider
-//      IntegerSlider* int_slider = static_cast<IntegerSlider*>(sender());
-//      input->set_default_value(time_, int_slider->GetValue());
+    SetInputValue(static_cast<IntegerSlider*>(sender())->GetValue());
     break;
   }
   case NodeParam::kFloat:
   {
     // Widget is a FloatSlider
-    FloatSlider* float_slider = static_cast<FloatSlider*>(sender());
-    SetInputValue(input_, float_slider->GetValue());
+    SetInputValue(static_cast<FloatSlider*>(sender())->GetValue());
     break;
   }
   case NodeParam::kVec2:
-  {
-    // Widgets are two FloatSliders
-    FloatSlider* slider = static_cast<FloatSlider*>(sender());
-
-    QVector2D val = input_->get_value_at_time(0).value<QVector2D>();
-
-    if (slider == widgets_.at(0)) {
-      // Slider is X slider
-      val.setX(static_cast<float>(slider->GetValue()));
-    } else {
-      // Slider is Y slider
-      val.setY(static_cast<float>(slider->GetValue()));
-    }
-
-//      input->set_default_value(0, val);
+    SetInputValue(QVector2D(
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue())
+                  ));
     break;
-  }
   case NodeParam::kVec3:
-  {
     // Widgets are three FloatSliders
-    FloatSlider* slider = static_cast<FloatSlider*>(sender());
-
-    QVector3D val = input_->get_value_at_time(0).value<QVector3D>();
-
-    if (slider == widgets_.at(0)) {
-      // Slider is X slider
-      val.setX(static_cast<float>(slider->GetValue()));
-    } else if (slider == widgets_.at(1)) {
-      // Slider is Y slider
-      val.setY(static_cast<float>(slider->GetValue()));
-    } else {
-      // Slider is Z slider
-      val.setZ(static_cast<float>(slider->GetValue()));
-    }
-
-//      input->set_default_value(0, val);
+    SetInputValue(QVector3D(
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue())
+                  ));
     break;
-  }
   case NodeParam::kVec4:
   {
     // Widgets are three FloatSliders
-    FloatSlider* slider = static_cast<FloatSlider*>(sender());
-
-    QVector4D val = input_->get_value_at_time(0).value<QVector4D>();
-
-    if (slider == widgets_.at(0)) {
-      // Slider is X slider
-      val.setX(static_cast<float>(slider->GetValue()));
-    } else if (slider == widgets_.at(1)) {
-      // Slider is Y slider
-      val.setY(static_cast<float>(slider->GetValue()));
-    } else if (slider == widgets_.at(2)) {
-      // Slider is Z slider
-      val.setZ(static_cast<float>(slider->GetValue()));
-    } else {
-      // Slider is W slider
-      val.setW(static_cast<float>(slider->GetValue()));
-    }
-
-//      input->set_default_value(0, val);
+    SetInputValue(QVector4D(
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue()),
+                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(3))->GetValue())
+                  ));
     break;
   }
   case NodeParam::kFile:
@@ -368,29 +328,25 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kText:
   {
     // Sender is a QLineEdit
-//      QLineEdit* line_edit = static_cast<QLineEdit*>(sender());
-//      input->set_default_value(time_, line_edit->text());
+    SetInputValue(static_cast<QLineEdit*>(sender())->text());
     break;
   }
   case NodeParam::kBoolean:
   {
     // Widget is a QCheckBox
-//      QCheckBox* check_box = static_cast<QCheckBox*>(sender());
-//      input->set_default_value(0, check_box->isChecked());
+    SetInputValue(static_cast<QCheckBox*>(sender())->isChecked());
     break;
   }
   case NodeParam::kFont:
   {
     // Widget is a QFontComboBox
-//      QFontComboBox* font_combobox = static_cast<QFontComboBox*>(sender());
-//      input->set_default_value(time_, font_combobox->currentFont());
+    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont());
     break;
   }
   case NodeParam::kFootage:
   {
     // Widget is a FootageComboBox
-//      FootageComboBox* footage_combobox = static_cast<FootageComboBox*>(sender());
-//      input->set_default_value(time_, QVariant::fromValue(footage_combobox->SelectedFootage()));
+    SetInputValue(QVariant::fromValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()));
     break;
   }
   }
