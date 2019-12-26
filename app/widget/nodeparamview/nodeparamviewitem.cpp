@@ -54,7 +54,7 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   // FIXME: Revise icon sizing algorithm (share with NodeViewItem)
   title_bar_collapse_btn_->setIconSize(QSize(fontMetrics().height()/2, fontMetrics().height()/2));
 
-  connect(title_bar_collapse_btn_, SIGNAL(clicked(bool)), this, SLOT(SetExpanded(bool)));
+  connect(title_bar_collapse_btn_, &QPushButton::clicked, this, &NodeParamViewItem::SetExpanded);
   title_bar_layout->addWidget(title_bar_collapse_btn_);
 
   title_bar_lbl_ = new QLabel(title_bar_);
@@ -285,6 +285,11 @@ void NodeParamViewItem::UserToggledKeyframe(bool e)
   } else if (!e && key) {
     // Remove a keyframe here
     new NodeParamRemoveKeyframeCommand(input, key, command);
+
+    // If this was the last keyframe, we'll set the standard value to the value at this time too
+    if (input->keyframes().size() == 1) {
+      new NodeParamSetStandardValueCommand(input, key->value(), command);
+    }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

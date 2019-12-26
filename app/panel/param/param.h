@@ -37,6 +37,11 @@ public:
 public slots:
   void SetNodes(QList<Node*> nodes);
 
+  void SetTime(const int64_t& timestamp);
+
+signals:
+  void TimeChanged(const int64_t& timestamp);
+
 protected:
   virtual void changeEvent(QEvent* e) override;
 

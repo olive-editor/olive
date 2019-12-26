@@ -27,6 +27,7 @@ ParamPanel::ParamPanel(QWidget* parent) :
   setObjectName("ParamPanel");
 
   view_ = new NodeParamView(this);
+  connect(view_, &NodeParamView::TimeChanged, this, &ParamPanel::TimeChanged);
 
   setWidget(view_);
 
@@ -48,6 +49,11 @@ void ParamPanel::SetNodes(QList<Node *> nodes)
   view_->SetNodes(nodes);
 
   Retranslate();
+}
+
+void ParamPanel::SetTime(const int64_t &timestamp)
+{
+  view_->SetTime(timestamp);
 }
 
 void ParamPanel::changeEvent(QEvent *e)

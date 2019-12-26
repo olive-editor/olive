@@ -136,7 +136,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       slider->SetMaximum(input_->maximum().toLongLong());
     }
 
-    connect(slider, SIGNAL(ValueChanged(int64_t)), this, SLOT(WidgetCallback()));
+    connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     widgets_.append(slider);
     break;
@@ -153,7 +153,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
       slider->SetMaximum(input_->maximum().toDouble());
     }
 
-    connect(slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     widgets_.append(slider);
     break;
@@ -162,45 +162,45 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   {
     FloatSlider* x_slider = new FloatSlider();
     widgets_.append(x_slider);
-    connect(x_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(x_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     FloatSlider* y_slider = new FloatSlider();
     widgets_.append(y_slider);
-    connect(y_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(y_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
   }
   case NodeParam::kVec3:
   {
     FloatSlider* x_slider = new FloatSlider();
     widgets_.append(x_slider);
-    connect(x_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(x_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     FloatSlider* y_slider = new FloatSlider();
     widgets_.append(y_slider);
-    connect(y_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(y_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     FloatSlider* z_slider = new FloatSlider();
     widgets_.append(z_slider);
-    connect(z_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(z_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
   }
   case NodeParam::kVec4:
   {
     FloatSlider* x_slider = new FloatSlider();
     widgets_.append(x_slider);
-    connect(x_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(x_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     FloatSlider* y_slider = new FloatSlider();
     widgets_.append(y_slider);
-    connect(y_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(y_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     FloatSlider* z_slider = new FloatSlider();
     widgets_.append(z_slider);
-    connect(z_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(z_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     FloatSlider* w_slider = new FloatSlider();
     widgets_.append(w_slider);
-    connect(w_slider, SIGNAL(ValueChanged(double)), this, SLOT(WidgetCallback()));
+    connect(w_slider, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
   }
   case NodeParam::kFile:
@@ -213,14 +213,14 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   {
     QLineEdit* line_edit = new QLineEdit();
     widgets_.append(line_edit);
-    connect(line_edit, SIGNAL(textEdited(const QString &text)), this, SLOT(WidgetCallback()));
+    connect(line_edit, &QLineEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
   }
   case NodeParam::kBoolean:
   {
     QCheckBox* check_box = new QCheckBox();
     widgets_.append(check_box);
-    connect(check_box, SIGNAL(toggled(bool)), this, SLOT(WidgetCallback()));
+    connect(check_box, &QCheckBox::toggled, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
   }
   case NodeParam::kFont:
@@ -234,7 +234,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     FootageComboBox* footage_combobox = new FootageComboBox();
     footage_combobox->SetRoot(static_cast<Sequence*>(input_->parentNode()->parent())->project()->root());
 
-    connect(footage_combobox, SIGNAL(FootageChanged(StreamPtr)), this, SLOT(WidgetCallback()));
+    connect(footage_combobox, &FootageComboBox::FootageChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
 
     widgets_.append(footage_combobox);
 

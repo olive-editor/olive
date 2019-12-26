@@ -42,12 +42,15 @@ public:
   void SetScale(const double &scale);
 
 public slots:
-  void SetTime(const rational& time);
+  void SetTime(const int64_t& timestamp);
+
+signals:
+  void TimeChanged(const int64_t& timestamp);
 
 private:
   void SetTimebase(const rational& timebase);
 
-  void UpdateItemTime(const rational& time);
+  void UpdateItemTime(const int64_t &timestamp);
 
   QVBoxLayout* param_layout_;
 
@@ -61,6 +64,8 @@ private:
 
 private slots:
   void RulerTimeChanged(const int64_t& timestamp);
+
+  void ItemRequestedTimeChanged(const rational& time);
 
 };
 

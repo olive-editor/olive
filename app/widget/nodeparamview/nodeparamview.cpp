@@ -69,15 +69,18 @@ NodeParamView::NodeParamView(QWidget *parent) :
   keyframe_area_layout->addWidget(keyframe_view_);
 
   // Connect ruler and keyframe view together
-  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), keyframe_view_, SLOT(SetTime(const int64_t&)));
-  connect(keyframe_view_, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
-  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SLOT(RulerTimeChanged(const int64_t&)));
-  connect(keyframe_view_, SIGNAL(TimeChanged(const int64_t&)), this, SLOT(RulerTimeChanged(const int64_t&)));
+  connect(ruler_, &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
+  connect(keyframe_view_, &KeyframeView::TimeChanged, ruler_, &TimeRuler::SetTime);
+  connect(ruler_, &TimeRuler::TimeChanged, this, &NodeParamView::RulerTimeChanged);
+  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::RulerTimeChanged);
 
   splitter->addWidget(keyframe_area);
 
   // Disable collapsing param view (but collapsing keyframe view is permitted)
   splitter->setCollapsible(0, false);
+
+  // Set a default scale - FIXME: Hardcoded
+  SetScale(120);
 }
 
 void NodeParamView::SetNodes(QList<Node *> nodes)
@@ -101,9 +104,9 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     // Insert the widget before the stretch
     param_layout_->insertWidget(param_layout_->count() - 1, item);
 
-    connect(item, SIGNAL(KeyframeAdded(NodeKeyframePtr, int)), keyframe_view_, SLOT(AddKeyframe(NodeKeyframePtr, int)));
-    connect(item, SIGNAL(KeyframeRemoved(NodeKeyframePtr)), keyframe_view_, SLOT(RemoveKeyframe(NodeKeyframePtr)));
-    connect(item, SIGNAL(RequestSetTime(const rational&)), this, SLOT(SetTime(const rational&)));
+    connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+    connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+    connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
 
     items_.append(item);
   }
@@ -135,14 +138,12 @@ void NodeParamView::SetScale(const double& scale)
   keyframe_view_->SetScale(scale);
 }
 
-void NodeParamView::SetTime(const rational &time)
+void NodeParamView::SetTime(const int64_t &timestamp)
 {
-  int64_t timestamp = Timecode::time_to_timestamp(time, keyframe_view_->timebase());
-
   ruler_->SetTime(timestamp);
   keyframe_view_->SetTime(timestamp);
 
-  UpdateItemTime(time);
+  UpdateItemTime(timestamp);
 }
 
 void NodeParamView::SetTimebase(const rational &timebase)
@@ -151,8 +152,10 @@ void NodeParamView::SetTimebase(const rational &timebase)
   keyframe_view_->SetTimebase(timebase);
 }
 
-void NodeParamView::UpdateItemTime(const rational &time)
+void NodeParamView::UpdateItemTime(const int64_t &timestamp)
 {
+  rational time = Timecode::timestamp_to_time(timestamp, keyframe_view_->timebase());
+
   foreach (NodeParamViewItem* item, items_) {
     item->SetTime(time);
   }
@@ -160,7 +163,14 @@ void NodeParamView::UpdateItemTime(const rational &time)
 
 void NodeParamView::RulerTimeChanged(const int64_t &timestamp)
 {
-  rational time = Timecode::timestamp_to_time(timestamp, keyframe_view_->timebase());
+  UpdateItemTime(timestamp);
 
-  UpdateItemTime(time);
+  emit TimeChanged(timestamp);
+}
+
+void NodeParamView::ItemRequestedTimeChanged(const rational &time)
+{
+  int64_t timestamp = Timecode::time_to_timestamp(time, keyframe_view_->timebase());
+  SetTime(timestamp);
+  emit TimeChanged(timestamp);
 }

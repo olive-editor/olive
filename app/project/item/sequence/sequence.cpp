@@ -26,6 +26,7 @@
 #include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
+#include "panel/param/param.h"
 #include "panel/timeline/timeline.h"
 #include "panel/viewer/viewer.h"
 #include "ui/icons/icons.h"
@@ -43,13 +44,18 @@ void Sequence::Open(SequencePtr sequence)
   ViewerPanel* viewer_panel = PanelManager::instance()->MostRecentlyFocused<ViewerPanel>();
   TimelinePanel* timeline_panel = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
   NodePanel* node_panel = PanelManager::instance()->MostRecentlyFocused<NodePanel>();
+  ParamPanel* param_panel = PanelManager::instance()->MostRecentlyFocused<ParamPanel>();
 
   viewer_panel->ConnectViewerNode(sequence->viewer_output_);
   timeline_panel->ConnectTimelineNode(sequence->timeline_output_);
   node_panel->SetGraph(sequence.get());
 
-  connect(timeline_panel, SIGNAL(TimeChanged(const int64_t&)), viewer_panel, SLOT(SetTime(const int64_t&)));
-  connect(viewer_panel, SIGNAL(TimeChanged(const int64_t&)), timeline_panel, SLOT(SetTime(const int64_t&)));
+  connect(timeline_panel, &TimelinePanel::TimeChanged, param_panel, &ParamPanel::SetTime);
+  connect(timeline_panel, &TimelinePanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
+  connect(viewer_panel, &ViewerPanel::TimeChanged, param_panel, &ParamPanel::SetTime);
+  connect(viewer_panel, &ViewerPanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
+  connect(param_panel, &ParamPanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
+  connect(param_panel, &ParamPanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
 }
 
 void Sequence::add_default_nodes()
