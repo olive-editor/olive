@@ -18,7 +18,7 @@ public:
 private:
   void CreateWidgets();
 
-  void SetInputValue(NodeInput* input, const QVariant& value);
+  void SetInputValue(const QVariant& value);
 
   NodeInput* input_;
 

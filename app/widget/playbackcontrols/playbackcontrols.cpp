@@ -176,7 +176,7 @@ void PlaybackControls::SetTimeLabelInternal(QLabel* label, const int64_t& time)
     return;
   }
 
-  label->setText(olive::timestamp_to_timecode(time,
-                                              time_base_,
-                                              olive::CurrentTimecodeDisplay()));
+  label->setText(Timecode::timestamp_to_timecode(time,
+                                                 time_base_,
+                                                 Timecode::CurrentDisplay()));
 }

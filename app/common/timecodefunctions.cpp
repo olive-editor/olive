@@ -28,10 +28,10 @@ QString padded(int64_t arg, int padding) {
   return QStringLiteral("%1").arg(arg, padding, 10, QChar('0'));
 }
 
-QString olive::timestamp_to_timecode(const int64_t &timestamp,
-                                     const rational& timebase,
-                                     const TimecodeDisplay& display,
-                                     bool show_plus_if_positive)
+QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
+                                        const rational& timebase,
+                                        const Display& display,
+                                        bool show_plus_if_positive)
 {
   if (timebase.isNull()) {
     return QString();
@@ -75,7 +75,7 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
       int64_t frames, secs, mins, hours;
       int64_t f = qAbs(timestamp);
 
-      if (display == kTimecodeDropFrame && timebase.numerator() == 1001) {
+      if (display == kTimecodeDropFrame && TimebaseIsDropFrame(timebase)) {
         frame_token = ";";
 
         /**
@@ -129,7 +129,7 @@ QString olive::timestamp_to_timecode(const int64_t &timestamp,
   return QString();
 }
 
-int64_t olive::timecode_to_timestamp(const QString &timecode, const rational &timebase, const olive::TimecodeDisplay &display, bool* ok)
+int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational &timebase, const Display &display, bool* ok)
 {
   double timebase_dbl = timebase.toDouble();
 
@@ -182,7 +182,7 @@ int64_t olive::timecode_to_timestamp(const QString &timecode, const rational &ti
     int64_t sec_count = (hours*3600 + mins*60 + secs);
     int64_t timestamp = sec_count*rounded_frame_rate + frames;
 
-    if (display == kTimecodeDropFrame && timebase.numerator() == 1001) {
+    if (display == kTimecodeDropFrame && TimebaseIsDropFrame(timebase)) {
 
       // Number of frames to drop on the minute marks is the nearest integer to 6% of the framerate
       int64_t dropFrames = qRound64(frame_rate * (2.0/30.0));
@@ -231,22 +231,27 @@ err_fatal:
   return 0;
 }
 
-rational olive::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
+rational Timecode::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
 {
   return rational(timestamp) * timebase;
 }
 
-int64_t olive::time_to_timestamp(const rational &time, const rational &timebase)
+bool Timecode::TimebaseIsDropFrame(const rational &timebase)
+{
+  return (timebase.numerator() == 1001);
+}
+
+int64_t Timecode::time_to_timestamp(const rational &time, const rational &timebase)
 {
   return time_to_timestamp(time.toDouble(), timebase);
 }
 
-int64_t olive::time_to_timestamp(const double &time, const rational &timebase)
+int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase)
 {
   return qRound64(time * timebase.flipped().toDouble());
 }
 
-olive::TimecodeDisplay olive::CurrentTimecodeDisplay()
+Timecode::Display Timecode::CurrentDisplay()
 {
-  return static_cast<olive::TimecodeDisplay>(Config::Current()["TimecodeDisplay"].toInt());
+  return static_cast<Timecode::Display>(Config::Current()["TimecodeDisplay"].toInt());
 }

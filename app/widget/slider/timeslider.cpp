@@ -23,12 +23,12 @@ QString TimeSlider::ValueToString(const QVariant &v)
     return IntegerSlider::ValueToString(v);
   }
 
-  return olive::timestamp_to_timecode(v.toLongLong(),
-                                      timebase_,
-                                      olive::CurrentTimecodeDisplay());
+  return Timecode::timestamp_to_timecode(v.toLongLong(),
+                                         timebase_,
+                                         Timecode::CurrentDisplay());
 }
 
 QVariant TimeSlider::StringToValue(const QString &s, bool *ok)
 {
-  return olive::timecode_to_timestamp(s, timebase_, olive::CurrentTimecodeDisplay(), ok);
+  return Timecode::timecode_to_timestamp(s, timebase_, Timecode::CurrentDisplay(), ok);
 }

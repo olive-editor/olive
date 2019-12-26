@@ -49,7 +49,7 @@ Config &Config::Current()
 void Config::SetDefaults()
 {
   config_map_.clear();
-  config_map_["TimecodeDisplay"] = olive::kTimecodeDropFrame;
+  config_map_["TimecodeDisplay"] = Timecode::kTimecodeDropFrame;
   config_map_["DefaultStillLength"] = QVariant::fromValue(rational(2));
   config_map_["HoverFocus"] = false;
   config_map_["AudioScrubbing"] = true;

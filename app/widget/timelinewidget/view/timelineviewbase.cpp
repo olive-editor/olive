@@ -89,7 +89,7 @@ bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
   QPointF scene_pos = mapToScene(event->pos());
   rational mouse_time = SceneToTime(scene_pos.x());
 
-  int64_t target_ts = olive::time_to_timestamp(mouse_time, timebase());
+  int64_t target_ts = Timecode::time_to_timestamp(mouse_time, timebase());
 
   SetTime(target_ts);
   emit TimeChanged(target_ts);

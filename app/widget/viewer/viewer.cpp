@@ -105,7 +105,7 @@ const double &ViewerWidget::scale() const
 
 rational ViewerWidget::GetTime() const
 {
-  return olive::timestamp_to_time(ruler_->GetTime(), time_base_);
+  return Timecode::timestamp_to_time(ruler_->GetTime(), time_base_);
 }
 
 void ViewerWidget::SetScale(const double &scale_)
@@ -330,7 +330,7 @@ void ViewerWidget::GoToEnd()
   if (viewer_node_ != nullptr) {
     Pause();
 
-    SetTime(olive::time_to_timestamp(viewer_node_->Length(), time_base_));
+    SetTime(Timecode::time_to_timestamp(viewer_node_->Length(), time_base_));
   }
 }
 
@@ -426,7 +426,7 @@ void ViewerWidget::SizeChangedSlot(int width, int height)
 
 void ViewerWidget::LengthChangedSlot(const rational &length)
 {
-  controls_->SetEndTime(olive::time_to_timestamp(length, time_base_));
+  controls_->SetEndTime(Timecode::time_to_timestamp(length, time_base_));
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

@@ -156,7 +156,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   if (text_visible_) {
     QFontMetrics fm = p.fontMetrics();
     double width_of_second = scale_;
-    int average_text_width = QFontMetricsWidth(fm, olive::timestamp_to_timecode(0, timebase_, olive::CurrentTimecodeDisplay()));
+    int average_text_width = QFontMetricsWidth(fm, Timecode::timestamp_to_timecode(0, timebase_, Timecode::CurrentDisplay()));
     half_average_text_width = average_text_width/2;
     while (width_of_second * text_skip < average_text_width) {
       text_skip++;
@@ -202,7 +202,8 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
         // Try to draw text here
         if (text_visible_ && sec%text_skip == 0) {
-          QString timecode_string = olive::timestamp_to_timecode(sec, timebase_, olive::CurrentTimecodeDisplay());
+          int64_t timestamp_here = Timecode::time_to_timestamp(rational(sec), timebase_);
+          QString timecode_string = Timecode::timestamp_to_timecode(timestamp_here, timebase_, Timecode::CurrentDisplay());
 
           int text_x = i;
 

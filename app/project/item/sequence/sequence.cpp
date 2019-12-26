@@ -95,9 +95,9 @@ QString Sequence::duration()
 
   rational timeline_length = timeline_output_->length();
 
-  int64_t timestamp = olive::time_to_timestamp(timeline_length, video_params_.time_base());
+  int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params_.time_base());
 
-  return olive::timestamp_to_timecode(timestamp, video_params_.time_base(), olive::CurrentTimecodeDisplay());
+  return Timecode::timestamp_to_timecode(timestamp, video_params_.time_base(), Timecode::CurrentDisplay());
 }
 
 QString Sequence::rate()

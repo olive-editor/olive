@@ -290,7 +290,7 @@ void TimelineWidget::GoToPrevCut()
     int64_t this_track_closest_cut = 0;
 
     foreach (Block* block, track->Blocks()) {
-      int64_t block_out_ts = olive::time_to_timestamp(block->out(), timebase());
+      int64_t block_out_ts = Timecode::time_to_timestamp(block->out(), timebase());
 
       if (block_out_ts < playhead_) {
         this_track_closest_cut = block_out_ts;
@@ -314,14 +314,14 @@ void TimelineWidget::GoToNextCut()
   int64_t closest_cut = INT64_MAX;
 
   foreach (TrackOutput* track, timeline_node_->Tracks()) {
-    int64_t this_track_closest_cut = olive::time_to_timestamp(track->track_length(), timebase());
+    int64_t this_track_closest_cut = Timecode::time_to_timestamp(track->track_length(), timebase());
 
     if (this_track_closest_cut <= playhead_) {
       this_track_closest_cut = INT64_MAX;
     }
 
     foreach (Block* block, track->Blocks()) {
-      int64_t block_in_ts = olive::time_to_timestamp(block->in(), timebase());
+      int64_t block_in_ts = Timecode::time_to_timestamp(block->in(), timebase());
 
       if (block_in_ts > playhead_) {
         this_track_closest_cut = block_in_ts;
@@ -339,7 +339,7 @@ void TimelineWidget::GoToNextCut()
 
 void TimelineWidget::SplitAtPlayhead()
 {
-  rational playhead_time = olive::timestamp_to_time(playhead_, timebase());
+  rational playhead_time = Timecode::timestamp_to_time(playhead_, timebase());
 
   QList<TimelineViewBlockItem *> selected_blocks = GetSelectedBlocks();
 
@@ -494,7 +494,7 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 
 void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool insert_gaps)
 {
-  rational playhead_time = olive::timestamp_to_time(playhead_, timebase());
+  rational playhead_time = Timecode::timestamp_to_time(playhead_, timebase());
 
   rational closest_point_to_playhead;
   if (mode == olive::timeline::kTrimIn) {
@@ -551,7 +551,7 @@ void TimelineWidget::RippleEditTo(olive::timeline::MovementMode mode, bool inser
   olive::undo_stack.pushIfHasChildren(command);
 
   if (mode == olive::timeline::kTrimIn && !insert_gaps) {
-    int64_t new_time = olive::time_to_timestamp(closest_point_to_playhead, timebase());
+    int64_t new_time = Timecode::time_to_timestamp(closest_point_to_playhead, timebase());
 
     SetTimeAndSignal(new_time);
   }

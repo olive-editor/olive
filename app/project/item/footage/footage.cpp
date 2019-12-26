@@ -162,19 +162,19 @@ QString Footage::duration()
 
     if (video_stream->timebase() != frame_rate_timebase) {
       // Convert from timebase to frame rate
-      rational duration_time = olive::timestamp_to_time(duration, video_stream->timebase());
-      duration = olive::time_to_timestamp(duration_time, frame_rate_timebase);
+      rational duration_time = Timecode::timestamp_to_time(duration, video_stream->timebase());
+      duration = Timecode::time_to_timestamp(duration_time, frame_rate_timebase);
     }
 
-    return olive::timestamp_to_timecode(duration,
-                                        frame_rate_timebase,
-                                        olive::CurrentTimecodeDisplay());
+    return Timecode::timestamp_to_timecode(duration,
+                                           frame_rate_timebase,
+                                           Timecode::CurrentDisplay());
   } else if (streams_.first()->type() == Stream::kAudio) {
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
 
-    return olive::timestamp_to_timecode(streams_.first()->duration(),
-                                        streams_.first()->timebase(),
-                                        olive::CurrentTimecodeDisplay());
+    return Timecode::timestamp_to_timecode(streams_.first()->duration(),
+                                           streams_.first()->timebase(),
+                                           Timecode::CurrentDisplay());
   }
 
   return QString();

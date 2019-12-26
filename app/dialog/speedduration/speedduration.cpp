@@ -92,7 +92,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
     speed_layout->addWidget(duration_slider_, row, 1);
 
     if (same_duration) {
-      duration_slider_->SetValue(olive::time_to_timestamp(clips_.first()->length(), timebase_));
+      duration_slider_->SetValue(Timecode::time_to_timestamp(clips_.first()->length(), timebase_));
     } else {
       duration_slider_->SetTristate();
     }
@@ -149,7 +149,7 @@ void SpeedDurationDialog::accept()
 
     if (change_duration) {
       // Change the duration
-      int64_t current_duration = olive::time_to_timestamp(clip->length(), timebase_);
+      int64_t current_duration = Timecode::time_to_timestamp(clip->length(), timebase_);
       int64_t new_duration = current_duration;
 
       // Check if we're getting the duration value directly from the slider or calculating it from the speed
@@ -168,7 +168,7 @@ void SpeedDurationDialog::accept()
       }
 
       if (new_duration != current_duration) {
-        new_clip_length = olive::timestamp_to_time(new_duration, timebase_);
+        new_clip_length = Timecode::timestamp_to_time(new_duration, timebase_);
         Block* next_block = clip->next();
 
         // If "ripple clips" isn't checked, we need to calculate around the timeline as-is
@@ -222,9 +222,9 @@ void SpeedDurationDialog::accept()
     }
 
     if (change_speed) {
-      int64_t new_clip_duration = olive::time_to_timestamp(new_clip_length, timebase_);
+      int64_t new_clip_duration = Timecode::time_to_timestamp(new_clip_length, timebase_);
       int64_t new_media_duration = qRound(static_cast<double>(new_clip_duration) * new_speed);
-      rational new_media_length = olive::timestamp_to_time(new_media_duration, timebase_);
+      rational new_media_length = Timecode::timestamp_to_time(new_media_duration, timebase_);
 
       if (clip->is_reversed()) {
         new_media_length = -new_media_length;
@@ -248,7 +248,7 @@ void SpeedDurationDialog::accept()
 
 double SpeedDurationDialog::GetUnadjustedLengthTimestamp(ClipBlock *clip) const
 {
-  double duration = static_cast<double>(olive::time_to_timestamp(clip->length(), timebase_));
+  double duration = static_cast<double>(Timecode::time_to_timestamp(clip->length(), timebase_));
 
   // Convert duration to non-speed adjusted duration
   duration *= clip->speed();

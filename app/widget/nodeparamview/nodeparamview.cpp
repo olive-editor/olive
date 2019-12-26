@@ -137,7 +137,7 @@ void NodeParamView::SetScale(const double& scale)
 
 void NodeParamView::SetTime(const rational &time)
 {
-  int64_t timestamp = olive::time_to_timestamp(time, keyframe_view_->timebase());
+  int64_t timestamp = Timecode::time_to_timestamp(time, keyframe_view_->timebase());
 
   ruler_->SetTime(timestamp);
   keyframe_view_->SetTime(timestamp);
@@ -160,7 +160,7 @@ void NodeParamView::UpdateItemTime(const rational &time)
 
 void NodeParamView::RulerTimeChanged(const int64_t &timestamp)
 {
-  rational time = olive::timestamp_to_time(timestamp, keyframe_view_->timebase());
+  rational time = Timecode::timestamp_to_time(timestamp, keyframe_view_->timebase());
 
   UpdateItemTime(time);
 }

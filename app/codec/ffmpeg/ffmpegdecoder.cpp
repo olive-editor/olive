@@ -225,7 +225,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     frame_container->set_width(frame->width);
     frame_container->set_height(frame->height);
     frame_container->set_format(static_cast<olive::PixelFormat>(output_fmt_));
-    frame_container->set_timestamp(olive::timestamp_to_time(target_ts, avstream_->time_base));
+    frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
     frame_container->allocate();
 
     // Convert pixel format/linesize if necessary
@@ -326,7 +326,7 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
   }
 
   // Convert timecode to AVStream timebase
-  int64_t target_ts = olive::time_to_timestamp(time, avstream_->time_base);
+  int64_t target_ts = Timecode::time_to_timestamp(time, avstream_->time_base);
 
   // Find closest actual timebase in the file
   target_ts = GetClosestTimestampInIndex(target_ts);

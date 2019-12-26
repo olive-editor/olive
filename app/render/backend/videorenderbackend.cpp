@@ -56,8 +56,8 @@ void VideoRenderBackend::InvalidateCache(const rational &start_range, const rati
            << end_range_adj.toDouble();
 
   // Snap start_range to timebase
-  int64_t timestamp = olive::time_to_timestamp(start_range_adj, params_.time_base());
-  rational true_start = olive::timestamp_to_time(timestamp, params_.time_base());
+  int64_t timestamp = Timecode::time_to_timestamp(start_range_adj, params_.time_base());
+  rational true_start = Timecode::timestamp_to_time(timestamp, params_.time_base());
 
   for (rational r=true_start;r<end_range_adj;r+=params_.time_base()) {
     // Try to order the queue from closest to the playhead to furthest
