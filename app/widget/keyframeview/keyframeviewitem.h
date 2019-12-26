@@ -5,14 +5,11 @@
 
 #include "node/keyframe.h"
 
-class KeyframeViewItem : public QGraphicsRectItem
+class KeyframeViewItem : public QObject, public QGraphicsRectItem
 {
+  Q_OBJECT
 public:
-  KeyframeViewItem(QGraphicsItem *parent = nullptr);
-
-  void SetKeyframe(NodeKeyframe* key);
-
-  void SetVerticalCenter(int middle);
+  KeyframeViewItem(NodeKeyframePtr key, qreal vcenter, QGraphicsItem *parent = nullptr);
 
   void SetScale(double scale);
 
@@ -20,15 +17,17 @@ protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
 private:
-  void UpdateRect();
-
-  NodeKeyframe* key_;
+  NodeKeyframePtr key_;
 
   double scale_;
 
-  int middle_;
+  qreal middle_;
 
   int keyframe_size_;
+
+private slots:
+  void UpdateRect();
+
 };
 
 #endif // KEYFRAMEVIEWITEM_H

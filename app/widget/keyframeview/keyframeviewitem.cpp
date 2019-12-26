@@ -7,25 +7,18 @@
 
 #include "common/qtversionabstraction.h"
 
-KeyframeViewItem::KeyframeViewItem(QGraphicsItem *parent) :
+KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, qreal vcenter, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
-  key_(nullptr),
-  scale_(1.0)
+  key_(key),
+  scale_(1.0),
+  middle_(vcenter)
 {
   keyframe_size_ = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   setFlag(QGraphicsItem::ItemIsSelectable);
   setFlag(QGraphicsItem::ItemIsMovable);
-}
 
-void KeyframeViewItem::SetKeyframe(NodeKeyframe *key)
-{
-  key_ = key;
-  UpdateRect();
-}
+  connect(key.get(), SIGNAL(TimeChanged(const rational&)), this, SLOT(UpdateRect()));
 
-void KeyframeViewItem::SetVerticalCenter(int middle)
-{
-  middle_ = middle;
   UpdateRect();
 }
 
@@ -37,10 +30,6 @@ void KeyframeViewItem::SetScale(double scale)
 
 void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  if (!key_) {
-    return;
-  }
-
   painter->setPen(Qt::black);
 
   if (option->state & QStyle::State_Selected) {
@@ -73,10 +62,6 @@ void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
 void KeyframeViewItem::UpdateRect()
 {
-  if (!key_) {
-    return;
-  }
-
   double x_center = key_->time().toDouble() * scale_;
 
   setRect(x_center - keyframe_size_/2, middle_ - keyframe_size_/2, keyframe_size_, keyframe_size_);

@@ -9,18 +9,24 @@
 
 class KeyframeView : public TimelineViewBase
 {
+  Q_OBJECT
 public:
   KeyframeView(QWidget* parent = nullptr);
 
-  void AddKeyframe(const rational& time, int y);
+public slots:
+  void AddKeyframe(NodeKeyframePtr key, int y);
+
+  void RemoveKeyframe(NodeKeyframePtr key);
 
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
-private:
+  virtual void ScaleChangedEvent(double scale) override;
 
+private:
+  QMap<NodeKeyframe*, KeyframeViewItem*> item_map_;
 };
 
 #endif // KEYFRAMEVIEW_H

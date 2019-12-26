@@ -31,6 +31,7 @@
 
 class NodeParamView : public QWidget
 {
+  Q_OBJECT
 public:
   NodeParamView(QWidget* parent);
 
@@ -40,8 +41,13 @@ public:
   const double& GetScale() const;
   void SetScale(const double &scale);
 
+public slots:
+  void SetTime(const rational& time);
+
 private:
   void SetTimebase(const rational& timebase);
+
+  void UpdateItemTime(const rational& time);
 
   QVBoxLayout* param_layout_;
 
@@ -52,6 +58,10 @@ private:
   QList<Node*> nodes_;
 
   QList<NodeParamViewItem*> items_;
+
+private slots:
+  void RulerTimeChanged(const int64_t& timestamp);
+
 };
 
 #endif // NODEPARAMVIEW_H

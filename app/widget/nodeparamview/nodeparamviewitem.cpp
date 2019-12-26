@@ -26,14 +26,14 @@
 #include <QMessageBox>
 #include <QPainter>
 
-#include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 #include "undo/undostack.h"
 
-NodeParamViewItem::NodeParamViewItem(QWidget *parent) :
-  QWidget(parent)
+NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
+  QWidget(parent),
+  node_(node)
 {
   QVBoxLayout* main_layout = new QVBoxLayout(this);
   main_layout->setSpacing(0);
@@ -70,48 +70,52 @@ NodeParamViewItem::NodeParamViewItem(QWidget *parent) :
 
   // Set correct widget state
   SetExpanded(title_bar_collapse_btn_->isChecked());
+
+  SetupUI();
 }
 
-void NodeParamViewItem::AttachNode(Node *n)
+void NodeParamViewItem::SetTime(const rational &time)
 {
-  // Make sure we can attach this node (CanAddNode() should be run by the caller to make sure this node is valid)
-  Q_ASSERT(CanAddNode(n));
+  time_ = time;
 
-  // Add node to the list
-  nodes_.append(n);
-
-  // If the added node was the first node, set up the UI
-  if (nodes_.size() == 1) {
-    SetupUI();
-  } else {
-    AddAdditionalNode(n);
+  foreach (NodeParamViewWidgetBridge* bridge, bridges_) {
+    // Updates the UI widgets from the time
+    bridge->SetTime(time_);
   }
-}
 
-bool NodeParamViewItem::CanAddNode(Node* n)
-{
-  // Ensures that all Nodes have the same ID
-  return (nodes_.isEmpty() || nodes_.first()->id() == n->id());
+  foreach (NodeParamViewKeyframeControl* key_control, key_control_list_) {
+    UpdateKeyframeControl(key_control);
+  }
 }
 
 void NodeParamViewItem::changeEvent(QEvent *e)
 {
-  if (e->type() == QEvent::LanguageChange && !nodes_.isEmpty()) {
+  if (e->type() == QEvent::LanguageChange) {
     Retranslate();
   }
 
   QWidget::changeEvent(e);
 }
 
+void NodeParamViewItem::InputAddedKeyframeInternal(NodeInput *input, NodeKeyframePtr keyframe)
+{
+  // Find its row in the parameters
+  QLabel* lbl = label_map_.value(input);
+
+  // Find label's Y position
+  QPoint lbl_center = lbl->rect().center();
+
+  // Find global position
+  lbl_center = lbl->mapToGlobal(lbl_center);
+
+  emit KeyframeAdded(keyframe, lbl_center.y());
+}
+
 void NodeParamViewItem::SetupUI()
 {
-  Q_ASSERT(!nodes_.isEmpty());
-
-  Node* first_node = nodes_.first();
-
   int row_count = 0;
 
-  foreach (NodeParam* param, first_node->parameters()) {
+  foreach (NodeParam* param, node_->parameters()) {
     // This widget only needs to show input parameters
     if (param->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(param);
@@ -120,11 +124,12 @@ void NodeParamViewItem::SetupUI()
       QLabel* param_label = new QLabel();
       param_lbls_.append(param_label);
 
+      label_map_.insert(input, param_label);
+
       content_layout_->addWidget(param_label, row_count, 0);
 
       // Create a widget/input bridge for this input
-      NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(this);
-      bridge->AddInput(input);
+      NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(input, this);
       bridges_.append(bridge);
 
       // Add widgets for this parameter ot the layout
@@ -140,6 +145,15 @@ void NodeParamViewItem::SetupUI()
 
         NodeParamViewKeyframeControl* key_control = new NodeParamViewKeyframeControl(input);
         content_layout_->addWidget(key_control, row_count, control_column);
+        connect(key_control, &NodeParamViewKeyframeControl::KeyframeEnableChanged, this, &NodeParamViewItem::UserChangedKeyframeEnable);
+        connect(key_control, &NodeParamViewKeyframeControl::GoToPreviousKey, this, &NodeParamViewItem::GoToPreviousKey);
+        connect(key_control, &NodeParamViewKeyframeControl::GoToNextKey, this, &NodeParamViewItem::GoToNextKey);
+        connect(key_control, &NodeParamViewKeyframeControl::KeyframeToggled, this, &NodeParamViewItem::UserToggledKeyframe);
+        key_control_list_.append(key_control);
+
+        connect(input, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewItem::InputKeyframeEnableChanged);
+        connect(input, &NodeInput::KeyframeAdded, this, &NodeParamViewItem::InputAddedKeyframe);
+        connect(input, &NodeInput::KeyframeRemoved, this, &NodeParamViewItem::KeyframeRemoved);
       }
 
       row_count++;
@@ -149,30 +163,15 @@ void NodeParamViewItem::SetupUI()
   Retranslate();
 }
 
-void NodeParamViewItem::AddAdditionalNode(Node *n)
-{
-  int bridge_count = 0;
-
-  foreach (NodeParam* param, n->parameters()) {
-    if (param->type() == NodeParam::kInput) {
-      bridges_.at(bridge_count)->AddInput(static_cast<NodeInput*>(param));
-
-      bridge_count++;
-    }
-  }
-}
-
 void NodeParamViewItem::Retranslate()
 {
-  Node* first_node = nodes_.first();
+  node_->Retranslate();
 
-  first_node->Retranslate();
-
-  title_bar_lbl_->setText(first_node->Name());
+  title_bar_lbl_->setText(node_->Name());
 
   int row_count = 0;
 
-  foreach (NodeParam* param, first_node->parameters()) {
+  foreach (NodeParam* param, node_->parameters()) {
     // This widget only needs to show input parameters
     if (param->type() == NodeParam::kInput) {
       param_lbls_.at(row_count)->setText(tr("%1:").arg(param->name()));
@@ -180,6 +179,27 @@ void NodeParamViewItem::Retranslate()
       row_count++;
     }
   }
+}
+
+void NodeParamViewItem::UpdateKeyframeControl(NodeParamViewKeyframeControl *key_control)
+{
+  NodeInput* input = key_control->GetConnectedInput();
+
+  // Update UI based on time
+  key_control->SetPreviousButtonEnabled(time_ > input->keyframes().first()->time());
+  key_control->SetNextButtonEnabled(time_ < input->keyframes().last()->time());
+  key_control->SetToggleButtonChecked(input->has_keyframe_at_time(time_));
+}
+
+NodeParamViewKeyframeControl *NodeParamViewItem::KeyframeControlFromInput(NodeInput *input) const
+{
+  foreach (NodeParamViewKeyframeControl* key_control, key_control_list_) {
+    if (key_control->GetConnectedInput() == input) {
+      return key_control;
+    }
+  }
+
+  return nullptr;
 }
 
 void NodeParamViewItem::SetExpanded(bool e)
@@ -195,7 +215,7 @@ void NodeParamViewItem::SetExpanded(bool e)
   }
 }
 
-void NodeParamViewItem::KeyframeEnableChanged(bool e)
+void NodeParamViewItem::UserChangedKeyframeEnable(bool e)
 {
   NodeParamViewKeyframeControl* control = static_cast<NodeParamViewKeyframeControl*>(sender());
   NodeInput* input = control->GetConnectedInput();
@@ -205,15 +225,14 @@ void NodeParamViewItem::KeyframeEnableChanged(bool e)
     return;
   }
 
+  QUndoCommand* command = new QUndoCommand();
+
   if (e) {
-    QUndoCommand* command = new QUndoCommand();
-
     // Enable keyframing
-    new NodeParamSetKeyframing(input, true, command);
+    new NodeParamSetKeyframingCommand(input, true, command);
 
-    // FIXME: Create a keyframe at this time
-
-    olive::undo_stack.push(command);
+    // NodeInputs already have one keyframe by default, we move it to the current time here
+    new NodeParamSetKeyframeTimeCommand(input->keyframes().first(), time_, command);
   } else {
     // Confirm the user wants to clear all keyframes
     if (QMessageBox::warning(this,
@@ -221,19 +240,105 @@ void NodeParamViewItem::KeyframeEnableChanged(bool e)
                          tr("Are you sure you want to disable keyframing on this value? This will clear all existing keyframes."),
                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
+      // Store value at this time, we'll set this as the persistent value later
+      QVariant stored_val = input->get_value_at_time(time_);
+
+      // Delete all keyframes EXCEPT ONE
+      for (int i=input->keyframes().size()-1;i>0;i--) {
+        new NodeParamRemoveKeyframeCommand(input, input->keyframes().at(i), command);
+      }
+
+      // Update value with this one
+      new NodeParamSetKeyframeValueCommand(input->keyframes().first(), stored_val, command);
+
       // Disable keyframing
-      QUndoCommand* command = new QUndoCommand();
-
-      // FIXME: Delete all keyframes
-
-      // Disable keyframing
-      new NodeParamSetKeyframing(input, false, command);
-
-      olive::undo_stack.push(command);
+      new NodeParamSetKeyframingCommand(input, false, command);
 
     } else {
       // Disable action has effectively been ignored
       control->SetKeyframeEnabled(true);
+    }
+  }
+
+  olive::undo_stack.pushIfHasChildren(command);
+}
+
+void NodeParamViewItem::UserToggledKeyframe(bool e)
+{
+  NodeParamViewKeyframeControl* control = static_cast<NodeParamViewKeyframeControl*>(sender());
+  NodeInput* input = control->GetConnectedInput();
+  NodeKeyframePtr key = input->get_keyframe_at_time(time_);
+
+  QUndoCommand* command = new QUndoCommand();
+
+  if (e && !key) {
+    // Add a keyframe here
+    NodeKeyframePtr closest_key = input->get_closest_keyframe_to_time(time_);
+
+    key = std::make_shared<NodeKeyframe>(time_, input->get_value_at_time(time_), closest_key->type());
+
+    new NodeParamInsertKeyframeCommand(input, key, command);
+  } else if (!e && key) {
+    // Remove a keyframe here
+    new NodeParamRemoveKeyframeCommand(input, key, command);
+  }
+
+  olive::undo_stack.pushIfHasChildren(command);
+}
+
+void NodeParamViewItem::InputKeyframeEnableChanged(bool e)
+{
+  NodeInput* input = static_cast<NodeInput*>(sender());
+
+  foreach (NodeKeyframePtr key, input->keyframes()) {
+    if (e) {
+      // Add a keyframe item for each keyframe
+      InputAddedKeyframeInternal(input, key);
+    } else {
+      // Remove each keyframe item
+      emit KeyframeRemoved(key);
+    }
+  }
+}
+
+void NodeParamViewItem::InputAddedKeyframe(NodeKeyframePtr key)
+{
+  // Get NodeInput that emitted this signal
+  NodeInput* input = static_cast<NodeInput*>(sender());
+
+  InputAddedKeyframeInternal(input, key);
+
+  UpdateKeyframeControl(KeyframeControlFromInput(input));
+}
+
+void NodeParamViewItem::GoToPreviousKey()
+{
+  NodeParamViewKeyframeControl* key_control = static_cast<NodeParamViewKeyframeControl*>(sender());
+  NodeInput* input = key_control->GetConnectedInput();
+
+  for (int i=input->keyframes().size()-1;i>=0;i--) {
+    // Find closest keyframe that is before this time
+    const rational& this_key_time = input->keyframes().at(i)->time();
+
+    if (this_key_time < time_) {
+      emit RequestSetTime(this_key_time);
+      break;
+    }
+  }
+}
+
+void NodeParamViewItem::GoToNextKey()
+{
+  NodeParamViewKeyframeControl* key_control = static_cast<NodeParamViewKeyframeControl*>(sender());
+  NodeInput* input = key_control->GetConnectedInput();
+
+  for (int i=0;i<input->keyframes().size();i++) {
+    // Find closest keyframe that is before this time
+    const rational& this_key_time = input->keyframes().at(i)->time();
+
+    if (this_key_time > time_) {
+      emit RequestSetTime(this_key_time);
+      break;
     }
   }
 }

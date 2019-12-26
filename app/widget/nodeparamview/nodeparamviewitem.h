@@ -28,6 +28,7 @@
 #include <QWidget>
 
 #include "node/node.h"
+#include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewwidgetbridge.h"
 
 class NodeParamViewItemTitleBar : public QWidget {
@@ -42,21 +43,30 @@ class NodeParamViewItem : public QWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewItem(QWidget* parent);
+  NodeParamViewItem(Node* node, QWidget* parent = nullptr);
 
-  void AttachNode(Node* n);
+  void SetTime(const rational& time);
 
-  bool CanAddNode(Node *n);
+signals:
+  void KeyframeAdded(NodeKeyframePtr key, int y);
+
+  void KeyframeRemoved(NodeKeyframePtr key);
+
+  void RequestSetTime(const rational& time);
 
 protected:
-  void changeEvent(QEvent *e) override;
+  virtual void changeEvent(QEvent *e) override;
 
 private:
+  void InputAddedKeyframeInternal(NodeInput* input, NodeKeyframePtr keyframe);
+
   void SetupUI();
 
-  void AddAdditionalNode(Node* n);
-
   void Retranslate();
+
+  void UpdateKeyframeControl(NodeParamViewKeyframeControl* key_control);
+
+  NodeParamViewKeyframeControl* KeyframeControlFromInput(NodeInput* input) const;
 
   bool expanded_;
 
@@ -72,14 +82,31 @@ private:
 
   QGridLayout* content_layout_;
 
-  QList<Node*> nodes_;
+  Node* node_;
 
   QList<NodeParamViewWidgetBridge*> bridges_;
+
+  rational time_;
+
+  QMap<NodeInput*, QLabel*> label_map_;
+
+  QList<NodeParamViewKeyframeControl*> key_control_list_;
 
 private slots:
   void SetExpanded(bool e);
 
-  void KeyframeEnableChanged(bool e);
+  void UserChangedKeyframeEnable(bool e);
+
+  void UserToggledKeyframe(bool e);
+
+  void InputKeyframeEnableChanged(bool e);
+
+  void InputAddedKeyframe(NodeKeyframePtr key);
+
+  void GoToPreviousKey();
+
+  void GoToNextKey();
+
 };
 
 #endif // NODEPARAMVIEWITEM_H

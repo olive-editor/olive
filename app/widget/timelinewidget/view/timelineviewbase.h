@@ -32,6 +32,8 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
+  virtual void ScaleChangedEvent(double scale);
+
   rational GetPlayheadTime();
 
   bool PlayheadPress(QMouseEvent* event);

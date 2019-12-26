@@ -33,8 +33,12 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(NodeInput* input, QWi
   enable_key_btn_->setIconSize(enable_key_btn_->iconSize() / 4 * 3);
   layout->addWidget(enable_key_btn_);
 
-  connect(enable_key_btn_, SIGNAL(toggled(bool)), this, SLOT(ShowButtonsFromKeyframeEnable(bool)));
-  connect(enable_key_btn_, SIGNAL(toggled(bool)), this, SIGNAL(KeyframeEnableChanged(bool)));
+  connect(prev_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::GoToPreviousKey);
+  connect(next_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::GoToNextKey);
+  connect(toggle_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::KeyframeToggled);
+  connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable);
+  connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
+  connect(input_, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::SetKeyframeEnabled);
 
   // Pick up keyframing value
   ShowButtonsFromKeyframeEnable(input_->is_keyframing());
@@ -43,6 +47,26 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(NodeInput* input, QWi
 NodeInput *NodeParamViewKeyframeControl::GetConnectedInput() const
 {
   return input_;
+}
+
+void NodeParamViewKeyframeControl::SetPreviousButtonEnabled(bool enabled)
+{
+  prev_key_btn_->setEnabled(enabled);
+}
+
+void NodeParamViewKeyframeControl::SetNextButtonEnabled(bool enabled)
+{
+  next_key_btn_->setEnabled(enabled);
+}
+
+void NodeParamViewKeyframeControl::SetToggleButtonChecked(bool checked)
+{
+  // Suppress KeyframeToggled() signal from this object
+  blockSignals(true);
+
+  toggle_key_btn_->setChecked(checked);
+
+  blockSignals(false);
 }
 
 void NodeParamViewKeyframeControl::SetKeyframeEnabled(bool e)

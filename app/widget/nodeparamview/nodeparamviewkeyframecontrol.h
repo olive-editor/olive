@@ -14,11 +14,20 @@ public:
 
   NodeInput* GetConnectedInput() const;
 
+  void SetPreviousButtonEnabled(bool enabled);
+  void SetNextButtonEnabled(bool enabled);
+  void SetToggleButtonChecked(bool checked);
+
 public slots:
   void SetKeyframeEnabled(bool e);
 
 signals:
   void KeyframeEnableChanged(bool);
+
+  void GoToPreviousKey();
+  void GoToNextKey();
+
+  void KeyframeToggled(bool);
 
 private:
   QPushButton* CreateNewToolButton(const QIcon &icon) const;

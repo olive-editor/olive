@@ -32,6 +32,8 @@ void TimelineViewBase::SetScale(const double &scale)
   viewport()->update();
 
   end_item_->SetScale(scale_);
+
+  ScaleChangedEvent(scale_);
 }
 
 void TimelineViewBase::SetTimebase(const rational &timebase)
@@ -145,4 +147,9 @@ void TimelineViewBase::resizeEvent(QResizeEvent *event)
   QGraphicsView::resizeEvent(event);
 
   UpdateSceneRect();
+}
+
+void TimelineViewBase::ScaleChangedEvent(double scale)
+{
+  Q_UNUSED(scale)
 }

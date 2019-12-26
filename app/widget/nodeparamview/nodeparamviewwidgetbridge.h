@@ -9,18 +9,22 @@ class NodeParamViewWidgetBridge : public QObject
 {
   Q_OBJECT
 public:
-  NodeParamViewWidgetBridge(QObject* parent);
+  NodeParamViewWidgetBridge(NodeInput* input, QObject* parent);
 
-  void AddInput(NodeInput* input);
+  void SetTime(const rational& time);
 
   const QList<QWidget*>& widgets();
 
 private:
-  QList<NodeInput*> inputs_;
+  void CreateWidgets();
+
+  void SetInputValue(NodeInput* input, const QVariant& value);
+
+  NodeInput* input_;
 
   QList<QWidget*> widgets_;
 
-  void CreateWidgets();
+  rational time_;
 
 private slots:
   void WidgetCallback();

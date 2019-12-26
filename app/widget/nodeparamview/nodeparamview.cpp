@@ -23,6 +23,7 @@
 #include <QScrollArea>
 #include <QSplitter>
 
+#include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 
 NodeParamView::NodeParamView(QWidget *parent) :
@@ -70,6 +71,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Connect ruler and keyframe view together
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), keyframe_view_, SLOT(SetTime(const int64_t&)));
   connect(keyframe_view_, SIGNAL(TimeChanged(const int64_t&)), ruler_, SLOT(SetTime(const int64_t&)));
+  connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SLOT(RulerTimeChanged(const int64_t&)));
+  connect(keyframe_view_, SIGNAL(TimeChanged(const int64_t&)), this, SLOT(RulerTimeChanged(const int64_t&)));
 
   splitter->addWidget(keyframe_area);
 
@@ -93,30 +96,16 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
   // For each node, create a widget
   foreach (Node* node, nodes_) {
+    NodeParamViewItem* item = new NodeParamViewItem(node);
 
-    // See if we already have an item for this node type
+    // Insert the widget before the stretch
+    param_layout_->insertWidget(param_layout_->count() - 1, item);
 
-    bool merged_node = false;
+    connect(item, SIGNAL(KeyframeAdded(NodeKeyframePtr, int)), keyframe_view_, SLOT(AddKeyframe(NodeKeyframePtr, int)));
+    connect(item, SIGNAL(KeyframeRemoved(NodeKeyframePtr)), keyframe_view_, SLOT(RemoveKeyframe(NodeKeyframePtr)));
+    connect(item, SIGNAL(RequestSetTime(const rational&)), this, SLOT(SetTime(const rational&)));
 
-    foreach (NodeParamViewItem* existing_item, items_) {
-      if (existing_item->CanAddNode(node)) {
-        existing_item->AttachNode(node);
-        merged_node = true;
-        break;
-      }
-    }
-
-    // If we couldn't merge this node into the existing item, create a new one
-    if (!merged_node) {
-      NodeParamViewItem* item = new NodeParamViewItem(this);
-
-      item->AttachNode(node);
-
-      // Insert the widget before the stretch
-      param_layout_->insertWidget(param_layout_->count() - 1, item);
-
-      items_.append(item);
-    }
+    items_.append(item);
   }
 
   if (!nodes_.isEmpty()) {
@@ -126,6 +115,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
       SetTimebase(viewer->video_params().time_base());
     }
   }
+
+  SetTime(0);
 }
 
 const QList<Node *> &NodeParamView::nodes()
@@ -144,8 +135,32 @@ void NodeParamView::SetScale(const double& scale)
   keyframe_view_->SetScale(scale);
 }
 
+void NodeParamView::SetTime(const rational &time)
+{
+  int64_t timestamp = olive::time_to_timestamp(time, keyframe_view_->timebase());
+
+  ruler_->SetTime(timestamp);
+  keyframe_view_->SetTime(timestamp);
+
+  UpdateItemTime(time);
+}
+
 void NodeParamView::SetTimebase(const rational &timebase)
 {
   ruler_->SetTimebase(timebase);
   keyframe_view_->SetTimebase(timebase);
+}
+
+void NodeParamView::UpdateItemTime(const rational &time)
+{
+  foreach (NodeParamViewItem* item, items_) {
+    item->SetTime(time);
+  }
+}
+
+void NodeParamView::RulerTimeChanged(const int64_t &timestamp)
+{
+  rational time = olive::timestamp_to_time(timestamp, keyframe_view_->timebase());
+
+  UpdateItemTime(time);
 }
