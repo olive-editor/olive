@@ -83,7 +83,7 @@ Node *NodeInput::get_connected_node() const
 
 QVariant NodeInput::get_value_at_time(const rational &time) const
 {
-  if (!is_keyframing() || keyframes_.isEmpty()) {
+  if (is_using_standard_value()) {
     return standard_value_;
   }
 
@@ -133,7 +133,7 @@ QVariant NodeInput::get_value_at_time(const rational &time) const
 
 NodeKeyframePtr NodeInput::get_keyframe_at_time(const rational &time) const
 {
-  if (!is_keyframing()) {
+  if (is_using_standard_value()) {
     return nullptr;
   }
 
@@ -148,7 +148,7 @@ NodeKeyframePtr NodeInput::get_keyframe_at_time(const rational &time) const
 
 NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time) const
 {
-  if (!is_keyframing() || keyframes_.isEmpty()) {
+  if (is_using_standard_value()) {
     return nullptr;
   }
 
@@ -235,11 +235,41 @@ void NodeInput::KeyframeTimeChanged()
 
 void NodeInput::KeyframeValueChanged()
 {
-  //NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  //int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
 
-  // FIXME: Finish this partial stub
-  emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+  rational range_begin = RATIONAL_MIN;
+  rational range_end = RATIONAL_MAX;
+
+  if (keyframes_.size() > 1) {
+    if (keyframe_index == 0) {
+      // This is the earliest keyframe, all we need to do is invalidate the earliest point up until the next keyframe
+      range_end = keyframes_.at(1)->time();
+    } else {
+      // Range is somewhere in the middle or towards the end
+
+      // Check previous keyframe
+      NodeKeyframePtr previous_key = keyframes_.at(keyframe_index - 1);
+      if (previous_key->type() == NodeKeyframe::kHold) {
+        // If the PREVIOUS keyframe is a hold, it won't be affected by this
+        range_begin = key->time();
+      } else {
+        // Otherwise, the frames between the previous and this keyframe will be affected too
+        range_begin = previous_key->time();
+      }
+
+      // Check if this keyframe is the last keyframe
+      if (keyframe_index == keyframes_.size() - 1) {
+        // If so, we'll invalidate until the latest point
+        range_end = RATIONAL_MAX;
+      } else {
+        // Otherwise, we only need to invalidate up until the next keyframe
+        range_end = keyframes_.at(keyframe_index + 1)->time();
+      }
+    }
+  }
+
+  emit ValueChanged(range_begin, range_end);
 }
 
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
@@ -270,10 +300,15 @@ void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
   keyframes_.append(key);
 }
 
+bool NodeInput::is_using_standard_value() const
+{
+  return (!is_keyframing() || keyframes_.isEmpty());
+}
+
 bool NodeInput::has_keyframe_at_time(const rational &time) const
 {
   // If we aren't keyframing, there definitely isn't a keyframe at a given time
-  if (!is_keyframing()) {
+  if (is_using_standard_value()) {
     return false;
   }
 
@@ -314,7 +349,8 @@ void NodeInput::set_standard_value(const QVariant &value)
 {
   standard_value_ = value;
 
-  if (!is_keyframing()) {
+  if (is_using_standard_value()) {
+    // If this standard value is being used, we need to send a value changed signal
     emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
   }
 }

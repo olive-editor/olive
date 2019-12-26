@@ -190,6 +190,11 @@ private:
   void insert_keyframe_internal(NodeKeyframePtr key);
 
   /**
+   * @brief Return whether the standard value should be used over keyframe data
+   */
+  bool is_using_standard_value() const;
+
+  /**
    * @brief Internal list of accepted data types
    *
    * Use can_accept_type() to check if a type is in this list
