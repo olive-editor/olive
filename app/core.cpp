@@ -49,6 +49,7 @@
 #include "undo/undostack.h"
 #include "widget/menu/menushared.h"
 #include "widget/taskview/taskviewitem.h"
+#include "window/mainwindow/mainwindow.h"
 
 Core Core::instance_;
 

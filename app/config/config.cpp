@@ -28,6 +28,7 @@
 
 #include "core.h"
 #include "common/filefunctions.h"
+#include "window/mainwindow/mainwindow.h"
 
 Config Config::current_config_;
 

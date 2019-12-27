@@ -81,6 +81,9 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   splitter->addWidget(keyframe_area);
 
+  // Set both widgets to 50/50
+  splitter->setSizes({INT_MAX, INT_MAX});
+
   // Disable collapsing param view (but collapsing keyframe view is permitted)
   splitter->setCollapsible(0, false);
 

@@ -27,10 +27,11 @@
 #include "common/rational.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
-#include "window/mainwindow/mainwindow.h"
 #include "task/task.h"
 #include "tool/tool.h"
 #include "undo/undostack.h"
+
+class MainWindow;
 
 /**
  * @brief The main central Olive application instance

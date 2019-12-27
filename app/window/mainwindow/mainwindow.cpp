@@ -24,19 +24,6 @@
 #include <QDebug>
 #include <QDesktopWidget>
 
-// Panel objects
-#include "panel/panelmanager.h"
-#include "panel/audiomonitor/audiomonitor.h"
-#include "panel/curve/curve.h"
-#include "panel/node/node.h"
-#include "panel/param/param.h"
-#include "panel/project/project.h"
-#include "panel/taskmanager/taskmanager.h"
-#include "panel/timeline/timeline.h"
-#include "panel/tool/tool.h"
-#include "panel/viewer/viewer.h"
-
-// Main menu bar
 #include "mainmenu.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -63,6 +50,28 @@ MainWindow::MainWindow(QWidget *parent) :
   // Create and set main menu
   MainMenu* main_menu = new MainMenu(this);
   setMenuBar(main_menu);
+
+  // Create standard panels
+  node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, node_panel_);
+  param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, param_panel_);
+  viewer_panel_ = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, viewer_panel_);
+  project_panel_ = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
+  tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
+  timeline_panel_ = PanelManager::instance()->CreatePanel<TimelinePanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, timeline_panel_);
+  audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
+  task_man_panel_ = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, task_man_panel_);
+  curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, curve_panel_);
+
+  connect(node_panel_, SIGNAL(SelectionChanged(QList<Node*>)), param_panel_, SLOT(SetNodes(QList<Node*>)));
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)
@@ -111,38 +120,9 @@ void MainWindow::ToggleMaximizedPanel()
 void MainWindow::ProjectOpen(Project* p)
 {
   // FIXME Use settings data to create panels and restore state if they exist
-  NodePanel* node_panel = PanelManager::instance()->CreatePanel<NodePanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, node_panel);
+  project_panel_->set_project(p);
 
-  ParamPanel* param_panel = PanelManager::instance()->CreatePanel<ParamPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, param_panel);
-
-  ViewerPanel* viewer_panel2 = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, viewer_panel2);
-
-  ProjectPanel* project_panel = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
-  project_panel->set_project(p);
-  addDockWidget(Qt::BottomDockWidgetArea, project_panel);
-
-  ToolPanel* tool_panel = PanelManager::instance()->CreatePanel<ToolPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, tool_panel);
-
-  TimelinePanel* timeline_panel = PanelManager::instance()->CreatePanel<TimelinePanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, timeline_panel);
-
-  AudioMonitorPanel* audio_monitor_panel = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel);
-
-  TaskManagerPanel* task_man_panel = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, task_man_panel);
-  task_man_panel->setFloating(true);
-  task_man_panel->setVisible(false);
-
-  CurvePanel* curve_panel = PanelManager::instance()->CreatePanel<CurvePanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, curve_panel);
-  task_man_panel->setFloating(true);
-
-  connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
+  SetDefaultLayout();
 }
 
 // FIXME: Test code
@@ -161,4 +141,19 @@ void MainWindow::closeEvent(QCloseEvent *e)
   // End test code
 
   QMainWindow::closeEvent(e);
+}
+
+void MainWindow::SetDefaultLayout()
+{
+  task_man_panel_->setFloating(true);
+  task_man_panel_->setVisible(false);
+  curve_panel_->setFloating(true);
+
+  resizeDocks({node_panel_, param_panel_, viewer_panel_},
+              {width()/3, width()/3, width()/3},
+              Qt::Horizontal);
+
+  resizeDocks({project_panel_, tool_panel_, timeline_panel_, audio_monitor_panel_},
+              {width()/4, 0, width(), 0},
+              Qt::Horizontal);
 }

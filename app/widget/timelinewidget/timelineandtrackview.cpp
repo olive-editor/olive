@@ -18,6 +18,8 @@ TimelineAndTrackView::TimelineAndTrackView(const TrackType &type, Qt::Alignment 
 
   view_ = new TimelineView(type, vertical_alignment);
   splitter_->addWidget(view_);
+
+  splitter_->setSizes({1, width()});
 }
 
 QSplitter *TimelineAndTrackView::splitter() const
