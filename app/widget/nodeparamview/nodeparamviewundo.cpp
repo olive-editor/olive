@@ -99,6 +99,14 @@ NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframePtr
 {
 }
 
+NodeParamSetKeyframeTimeCommand::NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational &new_time, const rational &old_time, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  key_(key),
+  old_time_(old_time),
+  new_time_(new_time)
+{
+}
+
 void NodeParamSetKeyframeTimeCommand::redo()
 {
   key_->set_time(new_time_);

@@ -1,21 +1,23 @@
 #include "keyframeview.h"
 
+#include <QMouseEvent>
 #include <QVBoxLayout>
 
-#include "core.h"
 #include "keyframeviewundo.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
 
 KeyframeView::KeyframeView(QWidget *parent) :
   TimelineViewBase(parent)
 {
   setBackgroundRole(QPalette::Base);
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
-  setDragMode(NoDrag);
+  setDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &KeyframeView::customContextMenuRequested, this, &KeyframeView::ShowContextMenu);
+  connect(Core::instance(), &Core::ToolChanged, this, &KeyframeView::ApplicationToolChanged);
 }
 
 void KeyframeView::Clear()
@@ -52,7 +54,31 @@ void KeyframeView::mousePressEvent(QMouseEvent *event)
     return;
   }
 
-  QGraphicsView::mousePressEvent(event);
+  active_tool_ = Core::instance()->tool();
+
+  rubberBandSelectionMode();
+
+  if (event->button() == Qt::LeftButton) {
+    QGraphicsView::mousePressEvent(event);
+
+    if (active_tool_ == Tool::kPointer) {
+      QGraphicsItem* item_under_cursor = itemAt(event->pos());
+
+      if (item_under_cursor) {
+        QList<QGraphicsItem*> selected_items = scene()->selectedItems();
+
+        drag_start_ = event->pos();
+
+        selected_keys_.resize(selected_items.size());
+
+        for (int i=0;i<selected_items.size();i++) {
+          KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
+
+          selected_keys_.replace(i, {key, key->x(), key->key()->time()});
+        }
+      }
+    }
+  }
 }
 
 void KeyframeView::mouseMoveEvent(QMouseEvent *event)
@@ -61,7 +87,19 @@ void KeyframeView::mouseMoveEvent(QMouseEvent *event)
     return;
   }
 
-  QGraphicsView::mouseMoveEvent(event);
+  if (event->buttons() & Qt::LeftButton) {
+    QGraphicsView::mouseMoveEvent(event);
+
+    if (active_tool_ == Tool::kPointer && !selected_keys_.isEmpty()) {
+      int x_diff = event->pos().x() - drag_start_.x();
+
+      foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+        KeyframeViewItem* item = keypair.key;
+
+        item->setX(keypair.item_x + x_diff);
+      }
+    }
+  }
 }
 
 void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
@@ -70,7 +108,37 @@ void KeyframeView::mouseReleaseEvent(QMouseEvent *event)
     return;
   }
 
-  QGraphicsView::mouseReleaseEvent(event);
+  if (event->button() == Qt::LeftButton) {
+    QGraphicsView::mouseReleaseEvent(event);
+
+    if (active_tool_ == Tool::kPointer && !selected_keys_.isEmpty()) {
+      QUndoCommand* command = new QUndoCommand();
+
+      // Calculate X movement and scaling to timeline time
+      int x_diff = event->pos().x() - drag_start_.x();
+      double x_diff_scaled = static_cast<double>(x_diff) / scale_;
+
+      foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+        KeyframeViewItem* item = keypair.key;
+
+        // Calculate the new time for this keyframe
+        double position = keypair.time.toDouble();
+        position += x_diff_scaled;
+
+        // Commit movement
+        qDebug() << "Moving key to" << rational::fromDouble(position);
+
+        new NodeParamSetKeyframeTimeCommand(item->key(),
+                                            rational::fromDouble(position),
+                                            keypair.time,
+                                            command);
+      }
+
+      Core::instance()->undo_stack()->push(command);
+
+      selected_keys_.clear();
+    }
+  }
 }
 
 void KeyframeView::ScaleChangedEvent(double scale)
@@ -153,5 +221,14 @@ void KeyframeView::ShowContextMenu()
       }
       Core::instance()->undo_stack()->pushIfHasChildren(command);
     }
+  }
+}
+
+void KeyframeView::ApplicationToolChanged(Tool::Item tool)
+{
+  if (tool == Tool::kHand) {
+    setDragMode(ScrollHandDrag);
+  } else {
+    setDragMode(RubberBandDrag);
   }
 }

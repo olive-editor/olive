@@ -262,8 +262,7 @@ void NodeInput::KeyframeTimeChanged()
 
   TimeRange original_range = get_range_around_index(keyframe_index);
 
-  if ((keyframe_index > 0 && keyframes_.at(keyframe_index - 1)->time() > key->time())
-      || (keyframe_index < keyframes_.size() - 1 && keyframes_.at(keyframe_index + 1)->time() < key->time())) {
+  if (!(original_range.in() < key->time() && original_range.out() > key->time())) {
     // This keyframe needs resorting, store it and remove it from the list
     NodeKeyframePtr key_shared_ptr = keyframes_.at(keyframe_index);
 
@@ -273,7 +272,7 @@ void NodeInput::KeyframeTimeChanged()
     insert_keyframe_internal(key_shared_ptr);
 
     // Invalidate new area that the keyframe has been moved to
-    emit_range_affected_by_keyframe(key_shared_ptr.get());
+    emit_time_range(get_range_around_index(FindIndexOfKeyframeFromRawPtr(key)));
   }
 
   // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it

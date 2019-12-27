@@ -28,7 +28,7 @@ private:
   int keyframe_size_;
 
 private slots:
-  void UpdateRect();
+  void UpdatePos();
 
   void Redraw();
 

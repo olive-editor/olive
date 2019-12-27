@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 
 #include "common/rational.h"
+#include "core.h"
 #include "keyframeviewitem.h"
 #include "widget/timelinewidget/view/timelineviewbase.h"
 
@@ -28,10 +29,25 @@ protected:
   virtual void ScaleChangedEvent(double scale) override;
 
 private:
+  struct KeyframeItemAndTime {
+    KeyframeViewItem* key;
+    qreal item_x;
+    rational time;
+  };
+
   QMap<NodeKeyframe*, KeyframeViewItem*> item_map_;
+
+  Tool::Item active_tool_;
+
+  QPoint drag_start_;
+
+  QVector<KeyframeItemAndTime> selected_keys_;
 
 private slots:
   void ShowContextMenu();
+
+  void ApplicationToolChanged(Tool::Item tool);
+
 };
 
 #endif // KEYFRAMEVIEW_H

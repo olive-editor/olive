@@ -34,6 +34,7 @@ TrackOutput::TrackOutput() :
   locked_(false)
 {
   block_input_ = new NodeInputArray("block_in", NodeParam::kAny);
+  block_input_->set_is_keyframable(false);
   AddInput(block_input_);
   connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
   connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
@@ -111,6 +112,7 @@ void TrackOutput::SetTrackHeight(const int &height)
 void TrackOutput::Retranslate()
 {
   block_input_->set_name(tr("Blocks"));
+  muted_input_->set_name(tr("Muted"));
 }
 
 const int &TrackOutput::Index()

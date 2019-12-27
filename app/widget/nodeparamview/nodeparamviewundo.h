@@ -51,6 +51,7 @@ private:
 class NodeParamSetKeyframeTimeCommand : public QUndoCommand {
 public:
   NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& time, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeTimeCommand(NodeKeyframePtr key, const rational& new_time, const rational& old_time, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
