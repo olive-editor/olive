@@ -18,9 +18,13 @@
 
 NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput *input, QObject *parent) :
   QObject(parent),
-  input_(input)
+  input_(input),
+  dragging_(false),
+  drag_created_keyframe_(false)
 {
   CreateWidgets();
+
+  connect(input_, &NodeInput::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
@@ -267,6 +271,80 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant &value)
+{
+  if (slider->IsDragging()) {
+
+    // While we're dragging, we block the input's normal signalling and create our own
+    input_->blockSignals(true);
+
+    if (!dragging_) {
+      // Set up new drag
+      dragging_ = true;
+
+      // Cache current value
+      drag_old_value_ = input_->get_value_at_time(time_);
+
+      // Determine whether we are creating a keyframe or not
+      if (input_->is_keyframing()) {
+        dragging_keyframe_ = input_->get_keyframe_at_time(time_);
+        drag_created_keyframe_ = !dragging_keyframe_;
+
+        if (drag_created_keyframe_) {
+          dragging_keyframe_ = std::make_shared<NodeKeyframe>(time_,
+                                                              value,
+                                                              input_->get_best_keyframe_type_for_time(time_));
+
+          input_->insert_keyframe(dragging_keyframe_);
+
+          // We re-enable signals temporarily to emit the keyframe added signal
+          input_->blockSignals(false);
+          emit input_->KeyframeAdded(dragging_keyframe_);
+          input_->blockSignals(true);
+        }
+      }
+    }
+
+    if (input_->is_keyframing()) {
+      dragging_keyframe_->set_value(value);
+    } else {
+      input_->set_standard_value(value);
+    }
+
+    input_->blockSignals(false);
+    emit input_->ValueChanged(time_, time_);
+
+  } else {
+    if (dragging_) {
+      // We were dragging and just stopped
+      dragging_ = false;
+
+      QUndoCommand* command = new QUndoCommand();
+
+      if (input_->is_keyframing()) {
+        if (drag_created_keyframe_) {
+          // We created a keyframe in this process
+          new NodeParamInsertKeyframeCommand(input_, dragging_keyframe_, true, command);
+        }
+
+        // We just set a keyframe's value
+        // We do this even when inserting a keyframe because we don't actually perform an insert in this undo command
+        // so this will ensure the ValueChanged() signal is sent correctly
+        new NodeParamSetKeyframeValueCommand(dragging_keyframe_, value, drag_old_value_, command);
+      } else {
+        // We just set the standard value
+        new NodeParamSetStandardValueCommand(input_, value, drag_old_value_, command);
+      }
+
+      Core::instance()->undo_stack()->push(command);
+
+    } else {
+      // No drag was involved, we can just push the value
+      SetInputValue(value);
+    }
+  }
+}
+
 void NodeParamViewWidgetBridge::WidgetCallback()
 {
   switch (input_->data_type()) {
@@ -287,38 +365,59 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kInt:
   {
     // Widget is a IntegerSlider
-    SetInputValue(static_cast<IntegerSlider*>(sender())->GetValue());
+    IntegerSlider* slider = static_cast<IntegerSlider*>(sender());
+
+    ProcessSlider(slider, slider->GetValue());
     break;
   }
   case NodeParam::kFloat:
   {
     // Widget is a FloatSlider
-    SetInputValue(static_cast<FloatSlider*>(sender())->GetValue());
+    FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+    ProcessSlider(slider, slider->GetValue());
     break;
   }
   case NodeParam::kVec2:
-    SetInputValue(QVector2D(
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue())
-                  ));
+  {
+    // Widget is a FloatSlider
+    FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+    QVector2D value(
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue())
+          );
+
+    ProcessSlider(slider, value);
     break;
+  }
   case NodeParam::kVec3:
-    // Widgets are three FloatSliders
-    SetInputValue(QVector3D(
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue())
-                  ));
+  {
+    // Widget is a FloatSlider
+    FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+    QVector3D value(
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue())
+          );
+
+    ProcessSlider(slider, value);
     break;
+  }
   case NodeParam::kVec4:
   {
-    // Widgets are three FloatSliders
-    SetInputValue(QVector4D(
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue()),
-                    static_cast<float>(static_cast<FloatSlider*>(widgets_.at(3))->GetValue())
-                  ));
+    // Widget is a FloatSlider
+    FloatSlider* slider = static_cast<FloatSlider*>(sender());
+
+    QVector4D value(
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue()),
+          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(3))->GetValue())
+          );
+
+    ProcessSlider(slider, value);
     break;
   }
   case NodeParam::kFile:
@@ -351,5 +450,13 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValue(QVariant::fromValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()));
     break;
   }
+  }
+}
+
+void NodeParamViewWidgetBridge::InputValueChanged(const rational &start, const rational &end)
+{
+  if (!dragging_ && start <= time_ && end >= time_) {
+    // We'll need to update the widgets because the values have changed on our current time
+    SetTime(time_);
   }
 }

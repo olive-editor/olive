@@ -26,6 +26,15 @@ NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframeP
 {
 }
 
+NodeParamSetKeyframeValueCommand::NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant &new_value, const QVariant &old_value, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  key_(key),
+  old_value_(old_value),
+  new_value_(new_value)
+{
+
+}
+
 void NodeParamSetKeyframeValueCommand::redo()
 {
   key_->set_value(new_value_);
@@ -39,18 +48,30 @@ void NodeParamSetKeyframeValueCommand::undo()
 NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input, NodeKeyframePtr keyframe, QUndoCommand* parent) :
   QUndoCommand(parent),
   input_(input),
-  keyframe_(keyframe)
+  keyframe_(keyframe),
+  done_(false)
+{
+}
+
+NodeParamInsertKeyframeCommand::NodeParamInsertKeyframeCommand(NodeInput *input, NodeKeyframePtr keyframe, bool already_done, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  input_(input),
+  keyframe_(keyframe),
+  done_(already_done)
 {
 }
 
 void NodeParamInsertKeyframeCommand::redo()
 {
-  input_->insert_keyframe(keyframe_);
+  if (!done_) {
+    input_->insert_keyframe(keyframe_);
+  }
 }
 
 void NodeParamInsertKeyframeCommand::undo()
 {
   input_->remove_keyframe(keyframe_);
+  done_ = false;
 }
 
 NodeParamRemoveKeyframeCommand::NodeParamRemoveKeyframeCommand(NodeInput *input, NodeKeyframePtr keyframe, QUndoCommand *parent) :
@@ -93,6 +114,14 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *in
   input_(input),
   old_value_(input_->get_standard_value()),
   new_value_(value)
+{
+}
+
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, const QVariant &new_value, const QVariant &old_value, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  input_(input),
+  old_value_(old_value),
+  new_value_(new_value)
 {
 }
 

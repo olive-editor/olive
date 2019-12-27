@@ -20,6 +20,7 @@ private:
 class NodeParamInsertKeyframeCommand : public QUndoCommand {
 public:
   NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, QUndoCommand *parent = nullptr);
+  NodeParamInsertKeyframeCommand(NodeInput* input, NodeKeyframePtr keyframe, bool already_done, QUndoCommand *parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
@@ -28,6 +29,8 @@ private:
   NodeInput* input_;
 
   NodeKeyframePtr keyframe_;
+
+  bool done_;
 
 };
 
@@ -63,6 +66,7 @@ private:
 class NodeParamSetKeyframeValueCommand : public QUndoCommand {
 public:
   NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& value, QUndoCommand* parent = nullptr);
+  NodeParamSetKeyframeValueCommand(NodeKeyframePtr key, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
@@ -78,6 +82,7 @@ private:
 class NodeParamSetStandardValueCommand : public QUndoCommand {
 public:
   NodeParamSetStandardValueCommand(NodeInput* input, const QVariant& value, QUndoCommand* parent = nullptr);
+  NodeParamSetStandardValueCommand(NodeInput* input, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;

@@ -180,6 +180,11 @@ signals:
 
 private:
   /**
+   * @brief Returns whether a data type can be interpolated or not
+   */
+  static bool type_can_be_interpolated(DataType type);
+
+  /**
    * @brief We use Qt signals/slots for keyframe communication but store them as shared ptrs. This function converts
    * a raw ptr to a list index
    */

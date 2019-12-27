@@ -32,4 +32,9 @@ T lerp(T a, T b, double t) {
   return (a * (1.0 - t)) + (b * t);
 }
 
+template<typename T>
+T lerp(T a, T b, float t) {
+  return (a * (1.0f - t)) + (b * t);
+}
+
 #endif // LERP_H

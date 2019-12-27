@@ -20,6 +20,10 @@
 
 #include "input.h"
 
+#include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
+
 #include "common/lerp.h"
 #include "node.h"
 #include "output.h"
@@ -81,6 +85,15 @@ Node *NodeInput::get_connected_node() const
   return nullptr;
 }
 
+bool NodeInput::type_can_be_interpolated(NodeParam::DataType type)
+{
+  return type == kFloat
+      || type == kVec2
+      || type == kVec3
+      || type == kVec4
+      || type == kColor;
+}
+
 QVariant NodeInput::get_value_at_time(const rational &time) const
 {
   if (is_using_standard_value()) {
@@ -103,7 +116,7 @@ QVariant NodeInput::get_value_at_time(const rational &time) const
     NodeKeyframePtr after = keyframes_.at(i+1);
 
     if (before->time() == time
-        || data_type() != kFloat // FIXME: Expand this to other types that can be interpolated
+        || !type_can_be_interpolated(data_type())
         || (before->time() < time && before->type() == NodeKeyframe::kHold)) {
 
       // Time == keyframe time, so value is precise
@@ -121,7 +134,25 @@ QVariant NodeInput::get_value_at_time(const rational &time) const
       } else {
         // To have arrived here, the keyframes must both be linear
         qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
-        qreal interpolated_value = lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+
+        QVariant interpolated_value;
+
+        switch (data_type()) {
+        case kFloat:
+          interpolated_value = lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
+          break;
+        case kVec2:
+          interpolated_value = lerp(before->value().value<QVector2D>(), after->value().value<QVector2D>(), static_cast<float>(period_progress));
+          break;
+        case kVec3:
+          interpolated_value = lerp(before->value().value<QVector3D>(), after->value().value<QVector3D>(), static_cast<float>(period_progress));
+          break;
+        case kVec4:
+          interpolated_value = lerp(before->value().value<QVector4D>(), after->value().value<QVector4D>(), static_cast<float>(period_progress));
+          break;
+        default:
+          interpolated_value = before->value();
+        }
 
         return interpolated_value;
       }
