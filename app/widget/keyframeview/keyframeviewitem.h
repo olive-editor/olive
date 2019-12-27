@@ -13,6 +13,8 @@ public:
 
   void SetScale(double scale);
 
+  NodeKeyframePtr key() const;
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -27,6 +29,8 @@ private:
 
 private slots:
   void UpdateRect();
+
+  void Redraw();
 
 };
 

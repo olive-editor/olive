@@ -100,4 +100,6 @@ private:
   Type type_;
 };
 
+Q_DECLARE_METATYPE(NodeKeyframe::Type)
+
 #endif // NODEKEYFRAME_H

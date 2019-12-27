@@ -285,6 +285,11 @@ private slots:
    */
   void KeyframeValueChanged();
 
+  /**
+   * @brief Slot when a keyframe's type changes to signal that the cache needs updating
+   */
+  void KeyframeTypeChanged();
+
 };
 
 #endif // NODEINPUT_H

@@ -357,6 +357,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeValueTable>();
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<AudioRenderingParams>();
+  qRegisterMetaType<NodeKeyframe::Type>();
 }
 
 void Core::StartGUI(bool full_screen)

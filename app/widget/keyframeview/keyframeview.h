@@ -13,6 +13,8 @@ class KeyframeView : public TimelineViewBase
 public:
   KeyframeView(QWidget* parent = nullptr);
 
+  void Clear();
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key, int y);
 
@@ -27,6 +29,9 @@ protected:
 
 private:
   QMap<NodeKeyframe*, KeyframeViewItem*> item_map_;
+
+private slots:
+  void ShowContextMenu();
 };
 
 #endif // KEYFRAMEVIEW_H

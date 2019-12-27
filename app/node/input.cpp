@@ -230,6 +230,7 @@ void NodeInput::insert_keyframe(NodeKeyframePtr key)
 
   connect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
+  connect(key.get(), &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
 
   emit KeyframeAdded(key);
 
@@ -244,6 +245,7 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
 
   disconnect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
   disconnect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
+  disconnect(key.get(), &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
 
   keyframes_.removeOne(key);
 
@@ -282,6 +284,20 @@ void NodeInput::KeyframeTimeChanged()
 void NodeInput::KeyframeValueChanged()
 {
   emit_range_affected_by_keyframe(static_cast<NodeKeyframe*>(sender()));
+}
+
+void NodeInput::KeyframeTypeChanged()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+
+  if (keyframes_.size() <= 1) {
+    // If there are no other frames, the interpolation won't do anything
+    return;
+  }
+
+  // Invalidate entire range
+  emit_time_range(get_range_around_index(keyframe_index));
 }
 
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const

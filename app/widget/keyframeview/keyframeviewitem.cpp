@@ -15,9 +15,9 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, qreal vcenter, QGraphics
 {
   keyframe_size_ = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   setFlag(QGraphicsItem::ItemIsSelectable);
-  setFlag(QGraphicsItem::ItemIsMovable);
 
-  connect(key.get(), SIGNAL(TimeChanged(const rational&)), this, SLOT(UpdateRect()));
+  connect(key.get(), &NodeKeyframe::TimeChanged, this, &KeyframeViewItem::UpdateRect);
+  connect(key.get(), &NodeKeyframe::TypeChanged, this, &KeyframeViewItem::Redraw);
 
   UpdateRect();
 }
@@ -26,6 +26,11 @@ void KeyframeViewItem::SetScale(double scale)
 {
   scale_ = scale;
   UpdateRect();
+}
+
+NodeKeyframePtr KeyframeViewItem::key() const
+{
+  return key_;
 }
 
 void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -65,4 +70,9 @@ void KeyframeViewItem::UpdateRect()
   double x_center = key_->time().toDouble() * scale_;
 
   setRect(x_center - keyframe_size_/2, middle_ - keyframe_size_/2, keyframe_size_, keyframe_size_);
+}
+
+void KeyframeViewItem::Redraw()
+{
+  QGraphicsItem::update();
 }
