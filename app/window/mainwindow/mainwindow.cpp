@@ -27,6 +27,7 @@
 // Panel objects
 #include "panel/panelmanager.h"
 #include "panel/audiomonitor/audiomonitor.h"
+#include "panel/curve/curve.h"
 #include "panel/node/node.h"
 #include "panel/param/param.h"
 #include "panel/project/project.h"
@@ -136,6 +137,10 @@ void MainWindow::ProjectOpen(Project* p)
   addDockWidget(Qt::BottomDockWidgetArea, task_man_panel);
   task_man_panel->setFloating(true);
   task_man_panel->setVisible(false);
+
+  CurvePanel* curve_panel = PanelManager::instance()->CreatePanel<CurvePanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, curve_panel);
+  task_man_panel->setFloating(true);
 
   connect(node_panel, SIGNAL(SelectionChanged(QList<Node*>)), param_panel, SLOT(SetNodes(QList<Node*>)));
 }

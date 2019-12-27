@@ -88,6 +88,19 @@ void NodeParamViewItem::SetTime(const rational &time)
   }
 }
 
+void NodeParamViewItem::SignalAllKeyframes()
+{
+  foreach (NodeParam* param, node_->parameters()) {
+    if (param->type() == NodeParam::kInput) {
+      NodeInput* input = static_cast<NodeInput*>(param);
+
+      foreach (NodeKeyframePtr key, input->keyframes()) {
+        InputAddedKeyframeInternal(input, key);
+      }
+    }
+  }
+}
+
 void NodeParamViewItem::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
@@ -146,7 +159,8 @@ void NodeParamViewItem::SetupUI()
         // Hacky but effective way to make sure this widget is always as far right as possible
         int control_column = 10;
 
-        NodeParamViewKeyframeControl* key_control = new NodeParamViewKeyframeControl(input);
+        NodeParamViewKeyframeControl* key_control = new NodeParamViewKeyframeControl();
+        key_control->SetInput(input);
         content_layout_->addWidget(key_control, row_count, control_column);
         connect(key_control, &NodeParamViewKeyframeControl::KeyframeEnableChanged, this, &NodeParamViewItem::UserChangedKeyframeEnable);
         connect(key_control, &NodeParamViewKeyframeControl::GoToPreviousKey, this, &NodeParamViewItem::GoToPreviousKey);

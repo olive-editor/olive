@@ -6,6 +6,10 @@ CurvePanel::CurvePanel(QWidget *parent) :
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("CurvePanel");
 
+  // Create main widget and set it
+  widget_ = new CurveWidget();
+  setWidget(widget_);
+
   // Set strings
   Retranslate();
 }

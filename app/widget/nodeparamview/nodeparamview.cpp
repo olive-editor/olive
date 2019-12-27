@@ -131,6 +131,8 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
 
     items_.append(item);
+
+    QTimer::singleShot(1, item, &NodeParamViewItem::SignalAllKeyframes);
   }
 
   if (!nodes_.isEmpty()) {

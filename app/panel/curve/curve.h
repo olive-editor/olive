@@ -1,6 +1,7 @@
 #ifndef CURVEPANEL_H
 #define CURVEPANEL_H
 
+#include "widget/curvewidget/curvewidget.h"
 #include "widget/panel/panel.h"
 
 class CurvePanel : public PanelWidget
@@ -13,6 +14,8 @@ protected:
 
 private:
   void Retranslate();
+
+  CurveWidget* widget_;
 
 };
 

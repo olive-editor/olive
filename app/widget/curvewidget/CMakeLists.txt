@@ -14,29 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audiomonitor)
-add_subdirectory(clickablelabel)
-add_subdirectory(columnedgridlayout)
-add_subdirectory(curvewidget)
-add_subdirectory(flowlayout)
-add_subdirectory(focusablelineedit)
-add_subdirectory(footagecombobox)
-add_subdirectory(keyframeview)
-add_subdirectory(menu)
-add_subdirectory(nodeview)
-add_subdirectory(nodeparamview)
-add_subdirectory(panel)
-add_subdirectory(playbackcontrols)
-add_subdirectory(projectexplorer)
-add_subdirectory(projecttoolbar)
-add_subdirectory(slider)
-add_subdirectory(taskview)
-add_subdirectory(timelinewidget)
-add_subdirectory(timeruler)
-add_subdirectory(toolbar)
-add_subdirectory(viewer)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/curvewidget/curveview.h
+  widget/curvewidget/curveview.cpp
+  widget/curvewidget/curvewidget.h
+  widget/curvewidget/curvewidget.cpp
   PARENT_SCOPE
 )

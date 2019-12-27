@@ -47,6 +47,9 @@ public:
 
   void SetTime(const rational& time);
 
+public slots:
+  void SignalAllKeyframes();
+
 signals:
   void KeyframeAdded(NodeKeyframePtr key, int y);
 

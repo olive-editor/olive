@@ -10,13 +10,17 @@ class NodeParamViewKeyframeControl : public QWidget
 {
   Q_OBJECT
 public:
-  NodeParamViewKeyframeControl(NodeInput* input, QWidget* parent = nullptr);
+  NodeParamViewKeyframeControl(bool right_align = true, QWidget* parent = nullptr);
 
   NodeInput* GetConnectedInput() const;
 
   void SetPreviousButtonEnabled(bool enabled);
   void SetNextButtonEnabled(bool enabled);
+  void SetToggleButtonEnabled(bool enable);
   void SetToggleButtonChecked(bool checked);
+  void SetEnableButtonVisible(bool visible);
+
+  void SetInput(NodeInput* input);
 
 public slots:
   void SetKeyframeEnabled(bool e);

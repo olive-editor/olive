@@ -4,16 +4,18 @@
 
 #include "ui/icons/icons.h"
 
-NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(NodeInput* input, QWidget *parent) :
+NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWidget *parent) :
   QWidget(parent),
-  input_(input)
+  input_(nullptr)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setMargin(0);
   layout->setSpacing(0);
 
-  // Automatically right aligns all buttons
-  layout->addStretch();
+  if (right_align) {
+    // Automatically right aligns all buttons
+    layout->addStretch();
+  }
 
   prev_key_btn_ = CreateNewToolButton(icon::TriLeft);
   prev_key_btn_->setIconSize(prev_key_btn_->iconSize() / 2);
@@ -38,10 +40,6 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(NodeInput* input, QWi
   connect(toggle_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::KeyframeToggled);
   connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable);
   connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
-  connect(input_, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::SetKeyframeEnabled);
-
-  // Pick up keyframing value
-  ShowButtonsFromKeyframeEnable(input_->is_keyframing());
 }
 
 NodeInput *NodeParamViewKeyframeControl::GetConnectedInput() const
@@ -59,6 +57,11 @@ void NodeParamViewKeyframeControl::SetNextButtonEnabled(bool enabled)
   next_key_btn_->setEnabled(enabled);
 }
 
+void NodeParamViewKeyframeControl::SetToggleButtonEnabled(bool enable)
+{
+  toggle_key_btn_->setEnabled(enable);
+}
+
 void NodeParamViewKeyframeControl::SetToggleButtonChecked(bool checked)
 {
   // Suppress KeyframeToggled() signal from this object
@@ -67,6 +70,27 @@ void NodeParamViewKeyframeControl::SetToggleButtonChecked(bool checked)
   toggle_key_btn_->setChecked(checked);
 
   blockSignals(false);
+}
+
+void NodeParamViewKeyframeControl::SetEnableButtonVisible(bool visible)
+{
+  enable_key_btn_->setVisible(visible);
+}
+
+void NodeParamViewKeyframeControl::SetInput(NodeInput *input)
+{
+  if (input_ != nullptr) {
+    disconnect(input_, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::SetKeyframeEnabled);
+  }
+
+  input_ = input;
+
+  if (input_ != nullptr) {
+    connect(input_, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::SetKeyframeEnabled);
+
+    // Pick up keyframing value
+    ShowButtonsFromKeyframeEnable(input_->is_keyframing());
+  }
 }
 
 void NodeParamViewKeyframeControl::SetKeyframeEnabled(bool e)
