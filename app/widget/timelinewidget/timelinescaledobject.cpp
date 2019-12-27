@@ -1,5 +1,7 @@
 #include "timelinescaledobject.h"
 
+#include <QtMath>
+
 TimelineScaledObject::TimelineScaledObject() :
   scale_(1.0)
 {
@@ -24,7 +26,7 @@ double TimelineScaledObject::TimeToScene(const rational &time)
 rational TimelineScaledObject::SceneToTime(const double &x)
 {
   // Adjust screen point by scale and timebase
-  qint64 scaled_x_mvmt = qRound64(x / scale_ / timebase_dbl_);
+  qint64 scaled_x_mvmt = qFloor(x / scale_ / timebase_dbl_);
 
   // Return a time in the timebase
   return rational(scaled_x_mvmt * timebase_.numerator(), timebase_.denominator());
