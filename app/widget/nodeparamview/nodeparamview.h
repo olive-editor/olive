@@ -47,6 +47,9 @@ public slots:
 signals:
   void TimeChanged(const int64_t& timestamp);
 
+protected:
+  virtual void resizeEvent(QResizeEvent *event) override;
+
 private:
   void SetTimebase(const rational& timebase);
 
@@ -62,10 +65,18 @@ private:
 
   QList<NodeParamViewItem*> items_;
 
+  QScrollBar* vertical_scrollbar_;
+
+  QGraphicsRectItem* bottom_item_;
+
+  int last_scroll_val_;
+
 private slots:
   void RulerTimeChanged(const int64_t& timestamp);
 
   void ItemRequestedTimeChanged(const rational& time);
+
+  void ForceKeyframeViewToScroll(int min, int max);
 
 };
 

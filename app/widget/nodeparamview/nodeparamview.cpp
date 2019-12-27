@@ -21,16 +21,18 @@
 #include "nodeparamview.h"
 
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QSplitter>
 
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 
 NodeParamView::NodeParamView(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  last_scroll_val_(0)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
-  QVBoxLayout* layout = new QVBoxLayout(this);
+  QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setSpacing(0);
   layout->setMargin(0);
 
@@ -39,6 +41,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   // Set up scroll area for params
   QScrollArea* scroll_area = new QScrollArea();
+  scroll_area->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scroll_area->setWidgetResizable(true);
   splitter->addWidget(scroll_area);
 
@@ -66,6 +69,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   // Create keyframe view
   keyframe_view_ = new KeyframeView();
+  keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  bottom_item_ = keyframe_view_->scene()->addRect(0, 0, 1, 1);
   keyframe_area_layout->addWidget(keyframe_view_);
 
   // Connect ruler and keyframe view together
@@ -78,6 +83,22 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   // Disable collapsing param view (but collapsing keyframe view is permitted)
   splitter->setCollapsible(0, false);
+
+  // Create global vertical scrollbar on the right
+  vertical_scrollbar_ = new QScrollBar();
+  vertical_scrollbar_->setMaximum(0);
+  layout->addWidget(vertical_scrollbar_);
+
+  // Connect scrollbars together
+  connect(scroll_area->verticalScrollBar(), &QScrollBar::rangeChanged, vertical_scrollbar_, &QScrollBar::setRange);
+  connect(scroll_area->verticalScrollBar(), &QScrollBar::rangeChanged, this, &NodeParamView::ForceKeyframeViewToScroll);
+
+  connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
+  connect(keyframe_view_->verticalScrollBar(), &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
+  connect(scroll_area->verticalScrollBar(), &QScrollBar::valueChanged, vertical_scrollbar_, &QScrollBar::setValue);
+  connect(scroll_area->verticalScrollBar(), &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
+  connect(vertical_scrollbar_, &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
+  connect(vertical_scrollbar_, &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
 
   // Set a default scale - FIXME: Hardcoded
   SetScale(120);
@@ -93,6 +114,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
   // Reset keyframe view
   SetTimebase(rational());
+  keyframe_view_->Clear();
 
   // Set the internal list to the one we've received
   nodes_ = nodes;
@@ -120,6 +142,13 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   }
 
   SetTime(0);
+}
+
+void NodeParamView::resizeEvent(QResizeEvent *event)
+{
+  QWidget::resizeEvent(event);
+
+  vertical_scrollbar_->setPageStep(vertical_scrollbar_->height());
 }
 
 const QList<Node *> &NodeParamView::nodes()
@@ -173,4 +202,9 @@ void NodeParamView::ItemRequestedTimeChanged(const rational &time)
   int64_t timestamp = Timecode::time_to_timestamp(time, keyframe_view_->timebase());
   SetTime(timestamp);
   emit TimeChanged(timestamp);
+}
+
+void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
+{
+  bottom_item_->setY(keyframe_view_->viewport()->height() + max);
 }
