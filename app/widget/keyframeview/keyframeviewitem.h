@@ -17,8 +17,6 @@ public:
 
   NodeKeyframePtr key() const;
 
-  QPointF center_pos() const;
-
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -28,8 +26,6 @@ private:
   double scale_;
 
   qreal vert_center_;
-
-  int keyframe_size_;
 
 private slots:
   void UpdatePos();

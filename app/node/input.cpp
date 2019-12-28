@@ -479,8 +479,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   // Copy keyframes
   dest->keyframes_.clear();
   foreach (NodeKeyframePtr key, source->keyframes_) {
-    NodeKeyframePtr copy = std::make_shared<NodeKeyframe>(key->time(), key->value(), key->type());
-    dest->keyframes_.append(copy);
+    dest->keyframes_.append(key->copy());
   }
 
   // Copy keyframing state

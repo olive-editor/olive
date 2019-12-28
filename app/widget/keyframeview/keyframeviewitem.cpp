@@ -13,13 +13,14 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   scale_(1.0),
   vert_center_(0)
 {
-  keyframe_size_ = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   setFlag(QGraphicsItem::ItemIsSelectable);
 
   connect(key.get(), &NodeKeyframe::TimeChanged, this, &KeyframeViewItem::UpdatePos);
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &KeyframeViewItem::Redraw);
 
-  setRect(0, 0, keyframe_size_, keyframe_size_);
+  int keyframe_size = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
+  int half_sz = keyframe_size/2;
+  setRect(-half_sz, -half_sz, keyframe_size, keyframe_size);
 
   UpdatePos();
 }
@@ -39,11 +40,6 @@ void KeyframeViewItem::SetScale(double scale)
 NodeKeyframePtr KeyframeViewItem::key() const
 {
   return key_;
-}
-
-QPointF KeyframeViewItem::center_pos() const
-{
-  return pos() + rect().center();
 }
 
 void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -82,7 +78,7 @@ void KeyframeViewItem::UpdatePos()
 {
   double x_center = key_->time().toDouble() * scale_;
 
-  setPos(x_center - keyframe_size_/2, vert_center_ - keyframe_size_/2);
+  setPos(x_center, vert_center_);
 }
 
 void KeyframeViewItem::Redraw()

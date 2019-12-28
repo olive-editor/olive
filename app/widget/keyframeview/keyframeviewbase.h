@@ -4,6 +4,7 @@
 #include "core.h"
 #include "keyframeviewitem.h"
 #include "node/keyframe.h"
+#include "widget/curvewidget/beziercontrolpointitem.h"
 #include "widget/timelinewidget/view/timelineviewbase.h"
 
 class KeyframeViewBase : public TimelineViewBase
@@ -33,6 +34,14 @@ protected:
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
 
+  static QPointF GenerateBezierControlPosition(const NodeKeyframe::BezierType mode,
+                                               const QPointF& start_point,
+                                               const QPointF& scaled_cursor_diff);
+
+  void ProcessBezierDrag(const QPointF& mouse_diff_scaled, bool include_opposing, bool undoable);
+
+  QPointF GetScaledCursorPos(const QPoint& cursor_pos);
+
   struct KeyframeItemAndTime {
     KeyframeViewItem* key;
     qreal item_x;
@@ -44,6 +53,10 @@ private:
   Tool::Item active_tool_;
 
   QPoint drag_start_;
+
+  BezierControlPointItem* dragging_bezier_point_;
+  QPointF dragging_bezier_point_start_;
+  QPointF dragging_bezier_point_opposing_start_;
 
   QVector<KeyframeItemAndTime> selected_keys_;
 

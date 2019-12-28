@@ -262,9 +262,9 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
       new NodeParamSetKeyframeValueCommand(existing_key, value, command);
     } else {
       // No existing key, create a new one
-      NodeKeyframePtr new_key = std::make_shared<NodeKeyframe>(time_,
-                                                               value,
-                                                               input_->get_best_keyframe_type_for_time(time_));
+      NodeKeyframePtr new_key = NodeKeyframe::Create(time_,
+                                                     value,
+                                                     input_->get_best_keyframe_type_for_time(time_));
 
       new NodeParamInsertKeyframeCommand(input_, new_key, command);
     }
@@ -295,9 +295,9 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
         drag_created_keyframe_ = !dragging_keyframe_;
 
         if (drag_created_keyframe_) {
-          dragging_keyframe_ = std::make_shared<NodeKeyframe>(time_,
-                                                              value,
-                                                              input_->get_best_keyframe_type_for_time(time_));
+          dragging_keyframe_ = NodeKeyframe::Create(time_,
+                                                    value,
+                                                    input_->get_best_keyframe_type_for_time(time_));
 
           input_->insert_keyframe(dragging_keyframe_);
 

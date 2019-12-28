@@ -1,7 +1,10 @@
 #include "nodeparamviewkeyframecontrol.h"
 
 #include <QHBoxLayout>
+#include <QMessageBox>
 
+#include "core.h"
+#include "nodeparamviewundo.h"
 #include "ui/icons/icons.h"
 
 NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWidget *parent) :
@@ -37,9 +40,13 @@ NodeParamViewKeyframeControl::NodeParamViewKeyframeControl(bool right_align, QWi
 
   connect(prev_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::GoToPreviousKey);
   connect(next_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::GoToNextKey);
-  connect(toggle_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::KeyframeToggled);
+  connect(toggle_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::ToggleKeyframe);
   connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable);
-  connect(enable_key_btn_, &QPushButton::toggled, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
+  connect(enable_key_btn_, &QPushButton::clicked, this, &NodeParamViewKeyframeControl::KeyframeEnableChanged);
+
+  // Set defaults
+  SetInput(nullptr);
+  ShowButtonsFromKeyframeEnable(false);
 }
 
 NodeInput *NodeParamViewKeyframeControl::GetConnectedInput() const
@@ -47,60 +54,35 @@ NodeInput *NodeParamViewKeyframeControl::GetConnectedInput() const
   return input_;
 }
 
-void NodeParamViewKeyframeControl::SetPreviousButtonEnabled(bool enabled)
-{
-  prev_key_btn_->setEnabled(enabled);
-}
-
-void NodeParamViewKeyframeControl::SetNextButtonEnabled(bool enabled)
-{
-  next_key_btn_->setEnabled(enabled);
-}
-
-void NodeParamViewKeyframeControl::SetToggleButtonEnabled(bool enable)
-{
-  toggle_key_btn_->setEnabled(enable);
-}
-
-void NodeParamViewKeyframeControl::SetToggleButtonChecked(bool checked)
-{
-  // Suppress KeyframeToggled() signal from this object
-  blockSignals(true);
-
-  toggle_key_btn_->setChecked(checked);
-
-  blockSignals(false);
-}
-
-void NodeParamViewKeyframeControl::SetEnableButtonVisible(bool visible)
-{
-  enable_key_btn_->setVisible(visible);
-}
-
 void NodeParamViewKeyframeControl::SetInput(NodeInput *input)
 {
   if (input_ != nullptr) {
-    disconnect(input_, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::SetKeyframeEnabled);
+    disconnect(input_, &NodeInput::KeyframeEnableChanged, enable_key_btn_, &QPushButton::setChecked);
+    disconnect(input_, &NodeInput::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
+    disconnect(input_, &NodeInput::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
   }
 
   input_ = input;
+  SetButtonsEnabled(input_);
+
+  // Pick up keyframing value
+  enable_key_btn_->setChecked(input_ && input_->is_keyframing());
+
+  // Update buttons
+  UpdateState();
 
   if (input_ != nullptr) {
-    connect(input_, &NodeInput::KeyframeEnableChanged, this, &NodeParamViewKeyframeControl::SetKeyframeEnabled);
-
-    // Pick up keyframing value
-    ShowButtonsFromKeyframeEnable(input_->is_keyframing());
+    connect(input_, &NodeInput::KeyframeEnableChanged, enable_key_btn_, &QPushButton::setChecked);
+    connect(input_, &NodeInput::KeyframeAdded, this, &NodeParamViewKeyframeControl::UpdateState);
+    connect(input_, &NodeInput::KeyframeRemoved, this, &NodeParamViewKeyframeControl::UpdateState);
   }
 }
 
-void NodeParamViewKeyframeControl::SetKeyframeEnabled(bool e)
+void NodeParamViewKeyframeControl::SetTime(const rational &time)
 {
-  // Suppress KeyframeEnableChanged() signal from this object
-  blockSignals(true);
+  time_ = time;
 
-  enable_key_btn_->setChecked(e);
-
-  blockSignals(false);
+  UpdateState();
 }
 
 QPushButton *NodeParamViewKeyframeControl::CreateNewToolButton(const QIcon& icon) const
@@ -112,9 +94,126 @@ QPushButton *NodeParamViewKeyframeControl::CreateNewToolButton(const QIcon& icon
   return btn;
 }
 
+void NodeParamViewKeyframeControl::SetButtonsEnabled(bool e)
+{
+  prev_key_btn_->setEnabled(e);
+  toggle_key_btn_->setEnabled(e);
+  next_key_btn_->setEnabled(e);
+  enable_key_btn_->setEnabled(e);
+}
+
 void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable(bool e)
 {
   prev_key_btn_->setVisible(e);
   toggle_key_btn_->setVisible(e);
   next_key_btn_->setVisible(e);
+}
+
+void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
+{
+  NodeKeyframePtr key = input_->get_keyframe_at_time(time_);
+
+  QUndoCommand* command = new QUndoCommand();
+
+  if (e && !key) {
+    // Add a keyframe here
+    key = NodeKeyframe::Create(time_,
+                               input_->get_value_at_time(time_),
+                               input_->get_best_keyframe_type_for_time(time_));
+
+    new NodeParamInsertKeyframeCommand(input_, key, command);
+  } else if (!e && key) {
+    // Remove a keyframe here
+    new NodeParamRemoveKeyframeCommand(input_, key, command);
+
+    // If this was the last keyframe, we'll set the standard value to the value at this time too
+    if (input_->keyframes().size() == 1) {
+      new NodeParamSetStandardValueCommand(input_, key->value(), command);
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
+void NodeParamViewKeyframeControl::UpdateState()
+{
+  if (!input_) {
+    return;
+  }
+
+  prev_key_btn_->setEnabled(!input_->keyframes().isEmpty() && time_ > input_->keyframes().first()->time());
+  next_key_btn_->setEnabled(!input_->keyframes().isEmpty() && time_ < input_->keyframes().last()->time());
+  toggle_key_btn_->setChecked(input_->has_keyframe_at_time(time_));
+}
+
+void NodeParamViewKeyframeControl::GoToPreviousKey()
+{
+  for (int i=input_->keyframes().size()-1;i>=0;i--) {
+    // Find closest keyframe that is before this time
+    const rational& this_key_time = input_->keyframes().at(i)->time();
+
+    if (this_key_time < time_) {
+      emit RequestSetTime(this_key_time);
+      break;
+    }
+  }
+}
+
+void NodeParamViewKeyframeControl::GoToNextKey()
+{
+  for (int i=0;i<input_->keyframes().size();i++) {
+    // Find closest keyframe that is before this time
+    const rational& this_key_time = input_->keyframes().at(i)->time();
+
+    if (this_key_time > time_) {
+      emit RequestSetTime(this_key_time);
+      break;
+    }
+  }
+}
+
+void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
+{
+  if (e == input_->is_keyframing()) {
+    // No-op
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  if (e) {
+    // Enable keyframing
+    new NodeParamSetKeyframingCommand(input_, true, command);
+
+    // NodeInputs already have one keyframe by default, we move it to the current time here
+    NodeKeyframePtr key = NodeKeyframe::Create(time_, input_->get_standard_value(), NodeKeyframe::kDefaultType);
+    new NodeParamInsertKeyframeCommand(input_, key, command);
+  } else {
+    // Confirm the user wants to clear all keyframes
+    if (QMessageBox::warning(this,
+                             tr("Warning"),
+                             tr("Are you sure you want to disable keyframing on this value? This will clear all existing keyframes."),
+                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+
+      // Store value at this time, we'll set this as the persistent value later
+      QVariant stored_val = input_->get_value_at_time(time_);
+
+      // Delete all keyframes
+      for (int i=input_->keyframes().size()-1;i>=0;i--) {
+        new NodeParamRemoveKeyframeCommand(input_, input_->keyframes().at(i), command);
+      }
+
+      // Update standard value
+      new NodeParamSetStandardValueCommand(input_, stored_val, command);
+
+      // Disable keyframing
+      new NodeParamSetKeyframingCommand(input_, false, command);
+
+    } else {
+      // Disable action has effectively been ignored
+      enable_key_btn_->setChecked(true);
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }

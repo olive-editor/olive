@@ -36,7 +36,6 @@ class NodeKeyframe : public QObject
 {
   Q_OBJECT
 public:
-
   /**
    * @brief Methods of interpolation to use with this keyframe
    */
@@ -46,17 +45,24 @@ public:
     kBezier
   };
 
-  static const Type kDefaultType = kLinear;
-
   /**
-   * @brief NodeKeyframe Constructor
+   * @brief The two types of bezier handles that are available on bezier keyframes
    */
-  NodeKeyframe();
+  enum BezierType {
+    kInHandle,
+    kOutHandle
+  };
 
   /**
    * @brief NodeKeyframe Constructor
    */
   NodeKeyframe(const rational& time, const QVariant& value, const Type& type);
+
+  static const Type kDefaultType = kLinear;
+
+  static NodeKeyframePtr Create(const rational& time, const QVariant& value, const Type& type);
+
+  NodeKeyframePtr copy() const;
 
   /**
    * @brief The time this keyframe is set at
@@ -76,6 +82,26 @@ public:
   const Type& type() const;
   void set_type(const Type& type);
 
+  /**
+   * @brief For bezier interpolation, the control point leading into this keyframe
+   */
+  const QPointF &bezier_control_in() const;
+  void set_bezier_control_in(const QPointF& control);
+
+  /**
+   * @brief For bezier interpolation, the control point leading out of this keyframe
+   */
+  const QPointF& bezier_control_out() const;
+  void set_bezier_control_out(const QPointF& control);
+
+  /**
+   * @brief Convenience functions for retrieving/setting bezier handle information with a BezierType
+   */
+  const QPointF& bezier_control(BezierType type) const;
+  void set_bezier_control(BezierType type, const QPointF& control);
+
+  static BezierType get_opposing_bezier_type(BezierType type);
+
 signals:
   /**
    * @brief Signal emitted when this keyframe's time is changed
@@ -92,12 +118,26 @@ signals:
    */
   void TypeChanged(const Type& type);
 
+  /**
+   * @brief Signal emitted when this keyframe's bezier in control point is changed
+   */
+  void BezierControlInChanged(const QPointF& d);
+
+  /**
+   * @brief Signal emitted when this keyframe's bezier out control point is changed
+   */
+  void BezierControlOutChanged(const QPointF& d);
+
 private:
   rational time_;
 
   QVariant value_;
 
   Type type_;
+
+  QPointF bezier_control_in_;
+
+  QPointF bezier_control_out_;
 };
 
 Q_DECLARE_METATYPE(NodeKeyframe::Type)

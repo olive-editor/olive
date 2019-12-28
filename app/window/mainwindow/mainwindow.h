@@ -48,6 +48,8 @@ public slots:
   void SetFullscreen(bool fullscreen);
   void ToggleMaximizedPanel();
 
+  void SetDefaultLayout();
+
 protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
@@ -64,9 +66,6 @@ private:
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
   CurvePanel* curve_panel_;
-
-private slots:
-  void SetDefaultLayout();
 
 };
 

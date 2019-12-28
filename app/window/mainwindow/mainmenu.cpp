@@ -30,6 +30,7 @@
 #include "ui/style/style.h"
 #include "undo/undostack.h"
 #include "widget/menu/menushared.h"
+#include "mainwindow.h"
 
 MainMenu::MainMenu(QMainWindow *parent) :
   QMenuBar(parent)
@@ -207,7 +208,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   window_lock_layout_item_ = window_menu_->AddItem("lockpanels", PanelManager::instance(), SLOT(SetPanelsLocked(bool)));
   window_lock_layout_item_->setCheckable(true);
   window_menu_->addSeparator();
-  window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", nullptr, nullptr);
+  window_reset_layout_item_ = window_menu_->AddItem("resetdefaultlayout", Core::instance()->main_window(), SLOT(SetDefaultLayout()));
 
   //
   // TOOLS MENU

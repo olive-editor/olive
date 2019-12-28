@@ -70,8 +70,6 @@ private:
 
   void Retranslate();
 
-  void UpdateKeyframeControl(NodeParamViewKeyframeControl* key_control);
-
   NodeParamViewKeyframeControl* KeyframeControlFromInput(NodeInput* input) const;
 
   bool expanded_;
@@ -101,17 +99,9 @@ private:
 private slots:
   void SetExpanded(bool e);
 
-  void UserChangedKeyframeEnable(bool e);
-
-  void UserToggledKeyframe(bool e);
-
   void InputKeyframeEnableChanged(bool e);
 
   void InputAddedKeyframe(NodeKeyframePtr key);
-
-  void GoToPreviousKey();
-
-  void GoToNextKey();
 
   void LabelClicked();
 

@@ -7,6 +7,7 @@
 
 #include "curveview.h"
 #include "node/input.h"
+#include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -60,12 +61,16 @@ private:
 
   NodeParamViewWidgetBridge* bridge_;
 
+  NodeParamViewKeyframeControl* key_control_;
+
 private slots:
   void UpdateBridgeTime(const int64_t& timestamp);
 
   void SelectionChanged();
 
   void KeyframeTypeButtonTriggered(bool checked);
+
+  void KeyControlRequestedTimeChanged(const rational& time);
 
 };
 

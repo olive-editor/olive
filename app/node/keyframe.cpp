@@ -20,18 +20,26 @@
 
 #include "keyframe.h"
 
-NodeKeyframe::NodeKeyframe() :
-  time_(0),
-  value_(0),
-  type_(kLinear)
-{
-}
-
 NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type) :
   time_(time),
   value_(value),
-  type_(type)
+  type_(type),
+  bezier_control_in_(QPointF(-1.0, 0.0)),
+  bezier_control_out_(QPointF(1.0, 0.0))
 {
+}
+
+NodeKeyframePtr NodeKeyframe::Create(const rational &time, const QVariant &value, const NodeKeyframe::Type &type)
+{
+  return std::make_shared<NodeKeyframe>(time, value, type);
+}
+
+NodeKeyframePtr NodeKeyframe::copy() const
+{
+  NodeKeyframePtr copy = std::make_shared<NodeKeyframe>(time_, value_, type_);
+  copy->bezier_control_in_ = bezier_control_in_;
+  copy->bezier_control_out_ = bezier_control_out_;
+  return copy;
 }
 
 const rational &NodeKeyframe::time() const
@@ -65,4 +73,53 @@ void NodeKeyframe::set_type(const NodeKeyframe::Type &type)
 {
   type_ = type;
   emit TypeChanged(type_);
+}
+
+const QPointF &NodeKeyframe::bezier_control_in() const
+{
+  return bezier_control_in_;
+}
+
+void NodeKeyframe::set_bezier_control_in(const QPointF &control)
+{
+  bezier_control_in_ = control;
+  emit BezierControlInChanged(bezier_control_in_);
+}
+
+const QPointF &NodeKeyframe::bezier_control_out() const
+{
+  return bezier_control_out_;
+}
+
+void NodeKeyframe::set_bezier_control_out(const QPointF &control)
+{
+  bezier_control_out_ = control;
+  emit BezierControlOutChanged(bezier_control_out_);
+}
+
+const QPointF &NodeKeyframe::bezier_control(NodeKeyframe::BezierType type) const
+{
+  if (type == kInHandle) {
+    return bezier_control_in();
+  } else {
+    return bezier_control_out();
+  }
+}
+
+void NodeKeyframe::set_bezier_control(NodeKeyframe::BezierType type, const QPointF &control)
+{
+  if (type == kInHandle) {
+    set_bezier_control_in(control);
+  } else {
+    set_bezier_control_out(control);
+  }
+}
+
+NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::BezierType type)
+{
+  if (type == kInHandle) {
+    return kOutHandle;
+  } else {
+    return kInHandle;
+  }
 }

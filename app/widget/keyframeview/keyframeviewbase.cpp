@@ -9,7 +9,8 @@
 #include "widget/nodeparamview/nodeparamviewundo.h"
 
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
-  TimelineViewBase(parent)
+  TimelineViewBase(parent),
+  dragging_bezier_point_(nullptr)
 {
   setDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -62,16 +63,25 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
       QGraphicsItem* item_under_cursor = itemAt(event->pos());
 
       if (item_under_cursor) {
-        QList<QGraphicsItem*> selected_items = scene()->selectedItems();
 
         drag_start_ = event->pos();
 
-        selected_keys_.resize(selected_items.size());
+        // Determine what type of item is under the cursor
+        dragging_bezier_point_ = dynamic_cast<BezierControlPointItem*>(item_under_cursor);
 
-        for (int i=0;i<selected_items.size();i++) {
-          KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
+        if (dragging_bezier_point_) {
+          dragging_bezier_point_start_ = dragging_bezier_point_->GetCorrespondingKeyframeHandle();
+          dragging_bezier_point_opposing_start_ = dragging_bezier_point_->key()->bezier_control(NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode()));
+        } else {
+          QList<QGraphicsItem*> selected_items = scene()->selectedItems();
 
-          selected_keys_.replace(i, {key, key->x(), key->key()->time()});
+          selected_keys_.resize(selected_items.size());
+
+          for (int i=0;i<selected_items.size();i++) {
+            KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
+
+            selected_keys_.replace(i, {key, key->x(), key->key()->time()});
+          }
         }
       }
     }
@@ -87,13 +97,19 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
   if (event->buttons() & Qt::LeftButton) {
     QGraphicsView::mouseMoveEvent(event);
 
-    if (active_tool_ == Tool::kPointer && !selected_keys_.isEmpty()) {
-      int x_diff = event->pos().x() - drag_start_.x();
-      double x_diff_scaled = static_cast<double>(x_diff) / scale_;
+    if (active_tool_ == Tool::kPointer) {
+      // Calculate cursor difference and scale it
+      QPointF mouse_diff_scaled = GetScaledCursorPos(event->pos() - drag_start_);
 
-      foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-        // FIXME: Find some way to do single frame updates as the NodeParamViewWidgetBridge does?
-        keypair.key->key()->set_time(CalculateNewTimeFromScreen(keypair.time, x_diff_scaled));
+      if (dragging_bezier_point_) {
+        ProcessBezierDrag(mouse_diff_scaled,
+                          !(event->modifiers() & Qt::ControlModifier),
+                          false);
+      } else if (!selected_keys_.isEmpty()) {
+        foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+          // FIXME: Find some way to do single frame updates as the NodeParamViewWidgetBridge does?
+          keypair.key->key()->set_time(CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()));
+        }
       }
     }
   }
@@ -108,29 +124,38 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
   if (event->button() == Qt::LeftButton) {
     QGraphicsView::mouseReleaseEvent(event);
 
-    if (active_tool_ == Tool::kPointer && !selected_keys_.isEmpty()) {
-      QUndoCommand* command = new QUndoCommand();
+    if (active_tool_ == Tool::kPointer) {
+      QPoint mouse_diff = event->pos() - drag_start_;
+      QPointF mouse_diff_scaled = GetScaledCursorPos(mouse_diff);
 
-      // Calculate X movement and scaling to timeline time
-      int x_diff = event->pos().x() - drag_start_.x();
-      double x_diff_scaled = static_cast<double>(x_diff) / scale_;
+      if (!mouse_diff.isNull()) {
+        if (dragging_bezier_point_) {
+          ProcessBezierDrag(mouse_diff_scaled,
+                            !(event->modifiers() & Qt::ControlModifier),
+                            true);
 
-      foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-        KeyframeViewItem* item = keypair.key;
+          dragging_bezier_point_ = nullptr;
+        } else if (!selected_keys_.isEmpty()) {
+          QUndoCommand* command = new QUndoCommand();
 
-        // Calculate the new time for this keyframe
-        rational new_time = CalculateNewTimeFromScreen(keypair.time, x_diff_scaled);
+          foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
+            KeyframeViewItem* item = keypair.key;
 
-        // Commit movement
-        new NodeParamSetKeyframeTimeCommand(item->key(),
-                                            new_time,
-                                            keypair.time,
-                                            command);
+            // Calculate the new time for this keyframe
+            rational new_time = CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x());
+
+            // Commit movement
+            new NodeParamSetKeyframeTimeCommand(item->key(),
+                                                new_time,
+                                                keypair.time,
+                                                command);
+          }
+
+          Core::instance()->undo_stack()->push(command);
+
+          selected_keys_.clear();
+        }
       }
-
-      Core::instance()->undo_stack()->push(command);
-
-      selected_keys_.clear();
     }
   }
 }
@@ -156,6 +181,77 @@ void KeyframeViewBase::KeyframeAboutToBeRemoved(NodeKeyframe *)
 rational KeyframeViewBase::CalculateNewTimeFromScreen(const rational &old_time, double cursor_diff)
 {
   return rational::fromDouble(old_time.toDouble() + cursor_diff);
+}
+
+QPointF KeyframeViewBase::GenerateBezierControlPosition(const NodeKeyframe::BezierType mode, const QPointF &start_point, const QPointF &scaled_cursor_diff)
+{
+  QPointF new_bezier_pos = start_point;
+
+  new_bezier_pos += scaled_cursor_diff;
+
+  // LIMIT bezier handles from overlapping each other
+  if (mode == NodeKeyframe::kInHandle) {
+    if (new_bezier_pos.x() > 0) {
+      new_bezier_pos.setX(0);
+    }
+  } else {
+    if (new_bezier_pos.x() < 0) {
+      new_bezier_pos.setX(0);
+    }
+  }
+
+  return new_bezier_pos;
+}
+
+void KeyframeViewBase::ProcessBezierDrag(const QPointF& mouse_diff_scaled, bool include_opposing, bool undoable)
+{
+  QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_point_->mode(),
+                                                         dragging_bezier_point_start_,
+                                                         mouse_diff_scaled);
+
+  // If the user is NOT holding control, we set the other handle to the exact negative of this handle
+  QPointF new_opposing_pos;
+  NodeKeyframe::BezierType opposing_type = NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode());
+
+  if (include_opposing) {
+    new_opposing_pos = GenerateBezierControlPosition(opposing_type,
+                                                     dragging_bezier_point_opposing_start_,
+                                                     -mouse_diff_scaled);
+  } else {
+    new_opposing_pos = dragging_bezier_point_opposing_start_;
+  }
+
+  dragging_bezier_point_->key()->set_bezier_control(dragging_bezier_point_->mode(),
+                                                    new_bezier_pos);
+
+  dragging_bezier_point_->key()->set_bezier_control(opposing_type,
+                                                    new_opposing_pos);
+
+  if (undoable) {
+    QUndoCommand* command = new QUndoCommand();
+
+    new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                      dragging_bezier_point_->mode(),
+                                      new_bezier_pos,
+                                      dragging_bezier_point_start_,
+                                      command);
+
+    if (include_opposing) {
+      new KeyframeSetBezierControlPoint(dragging_bezier_point_->key(),
+                                        opposing_type,
+                                        new_opposing_pos,
+                                        dragging_bezier_point_opposing_start_,
+                                        command);
+    }
+
+    Core::instance()->undo_stack()->push(command);
+  }
+}
+
+QPointF KeyframeViewBase::GetScaledCursorPos(const QPoint &cursor_pos)
+{
+  return QPointF (static_cast<double>(cursor_pos.x()) / scale_,
+                                   cursor_pos.y());;
 }
 
 void KeyframeViewBase::ShowContextMenu()

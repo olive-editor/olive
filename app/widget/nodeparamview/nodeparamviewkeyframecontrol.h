@@ -14,27 +14,17 @@ public:
 
   NodeInput* GetConnectedInput() const;
 
-  void SetPreviousButtonEnabled(bool enabled);
-  void SetNextButtonEnabled(bool enabled);
-  void SetToggleButtonEnabled(bool enable);
-  void SetToggleButtonChecked(bool checked);
-  void SetEnableButtonVisible(bool visible);
-
   void SetInput(NodeInput* input);
 
-public slots:
-  void SetKeyframeEnabled(bool e);
+  void SetTime(const rational& time);
 
 signals:
-  void KeyframeEnableChanged(bool);
-
-  void GoToPreviousKey();
-  void GoToNextKey();
-
-  void KeyframeToggled(bool);
+  void RequestSetTime(const rational& time);
 
 private:
   QPushButton* CreateNewToolButton(const QIcon &icon) const;
+
+  void SetButtonsEnabled(bool e);
 
   QPushButton* prev_key_btn_;
   QPushButton* toggle_key_btn_;
@@ -43,8 +33,21 @@ private:
 
   NodeInput* input_;
 
+  rational time_;
+
 private slots:
   void ShowButtonsFromKeyframeEnable(bool e);
+
+  void ToggleKeyframe(bool e);
+
+  void UpdateState();
+
+  void GoToPreviousKey();
+
+  void GoToNextKey();
+
+  void KeyframeEnableChanged(bool e);
+
 };
 
 #endif // NODEPARAMVIEWKEYFRAMECONTROL_H

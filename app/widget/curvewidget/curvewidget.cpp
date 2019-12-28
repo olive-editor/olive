@@ -9,7 +9,6 @@
 #include "common/timecodefunctions.h"
 #include "node/node.h"
 #include "widget/keyframeview/keyframeviewundo.h"
-#include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 
 CurveWidget::CurveWidget(QWidget *parent) :
   QWidget(parent),
@@ -20,12 +19,9 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   QHBoxLayout* top_controls = new QHBoxLayout();
 
-  NodeParamViewKeyframeControl* key_controls = new NodeParamViewKeyframeControl(false);
-  key_controls->SetEnableButtonVisible(false);
-  key_controls->SetPreviousButtonEnabled(false);
-  key_controls->SetToggleButtonEnabled(false);
-  key_controls->SetNextButtonEnabled(false);
-  top_controls->addWidget(key_controls);
+  key_control_ = new NodeParamViewKeyframeControl(false);
+  connect(key_control_, &NodeParamViewKeyframeControl::RequestSetTime, this, &CurveWidget::KeyControlRequestedTimeChanged);
+  top_controls->addWidget(key_control_);
 
   top_controls->addStretch();
 
@@ -83,7 +79,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
 CurveWidget::~CurveWidget()
 {
-  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after the buttons have been destroyed
+  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other memebers have been destroyed
   view_->Clear();
 }
 
@@ -105,6 +101,7 @@ void CurveWidget::SetInput(NodeInput *input)
   view_->Clear();
 
   input_ = input;
+  key_control_->SetInput(input_);
 
   if (input_) {
     bridge_ = new NodeParamViewWidgetBridge(input_, this);
@@ -195,6 +192,7 @@ void CurveWidget::UpdateBridgeTime(const int64_t &timestamp)
 
   rational time = Timecode::timestamp_to_time(timestamp, view_->timebase());
   bridge_->SetTime(time);
+  key_control_->SetTime(time);
 }
 
 void CurveWidget::SelectionChanged()
@@ -264,4 +262,13 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
   }
 
   Core::instance()->undo_stack()->push(command);
+}
+
+void CurveWidget::KeyControlRequestedTimeChanged(const rational &time)
+{
+  int64_t timestamp = Timecode::time_to_timestamp(time, view_->timebase());
+
+  SetTime(timestamp);
+
+  emit TimeChanged(timestamp);
 }
