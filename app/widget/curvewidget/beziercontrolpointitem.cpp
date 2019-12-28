@@ -74,7 +74,9 @@ void BezierControlPointItem::UpdatePos()
 
   // Scale handle offset
   handle_offset.setX(handle_offset.x() * x_scale_);
-  handle_offset.setY(handle_offset.y() * y_scale_);
+
+  // Flip the Y coordinate because bezier curves are drawn bottom to top
+  handle_offset.setY(-handle_offset.y() * y_scale_);
 
   setPos(handle_offset - rect().center());
 }

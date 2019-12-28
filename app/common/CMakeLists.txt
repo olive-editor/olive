@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  common/bezier.h
+  common/bezier.cpp
   common/channellayout.h
   common/clamp.h
   common/constructors.h

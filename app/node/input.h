@@ -290,6 +290,16 @@ private slots:
    */
   void KeyframeTypeChanged();
 
+  /**
+   * @brief Slot when a keyframe's bezier in value changes to signal that the cache needs updating
+   */
+  void KeyframeBezierInChanged();
+
+  /**
+   * @brief Slot when a keyframe's bezier out value changes to signal that the cache needs updating
+   */
+  void KeyframeBezierOutChanged();
+
 };
 
 #endif // NODEINPUT_H

@@ -54,8 +54,6 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 
   active_tool_ = Core::instance()->tool();
 
-  rubberBandSelectionMode();
-
   if (event->button() == Qt::LeftButton) {
     QGraphicsView::mousePressEvent(event);
 
@@ -203,8 +201,11 @@ QPointF KeyframeViewBase::GenerateBezierControlPosition(const NodeKeyframe::Bezi
   return new_bezier_pos;
 }
 
-void KeyframeViewBase::ProcessBezierDrag(const QPointF& mouse_diff_scaled, bool include_opposing, bool undoable)
+void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include_opposing, bool undoable)
 {
+  // Flip the mouse Y because bezier control points are drawn bottom to top, not top to bottom
+  mouse_diff_scaled.setY(-mouse_diff_scaled.y());
+
   QPointF new_bezier_pos = GenerateBezierControlPosition(dragging_bezier_point_->mode(),
                                                          dragging_bezier_point_start_,
                                                          mouse_diff_scaled);

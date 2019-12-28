@@ -24,6 +24,7 @@
 #include <QVector3D>
 #include <QVector4D>
 
+#include "common/bezier.h"
 #include "common/lerp.h"
 #include "node.h"
 #include "output.h"
@@ -126,11 +127,47 @@ QVariant NodeInput::get_value_at_time(const rational &time) const
       // We must interpolate between these keyframes
 
       if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
-        // FIXME: Perform a cubic bezier interpolation
-      } else if (before->type() == NodeKeyframe::kLinear && after->type() == NodeKeyframe::kBezier) {
-        // FIXME: Perform a quadratic bezier interpolation with anchors from the AFTER keyframe
-      } else if (before->type() == NodeKeyframe::kLinear && after->type() == NodeKeyframe::kBezier) {
-        // FIXME: Perform a quadratic bezier interpolation with anchors from the BEFORE keyframe
+        // Perform a cubic bezier with two control points
+
+        double t = Bezier::CubicXtoT(time.toDouble(),
+                                     before->time().toDouble(),
+                                     before->time().toDouble() + before->bezier_control_out().x(),
+                                     after->time().toDouble() + after->bezier_control_in().x(),
+                                     after->time().toDouble());
+
+        double y = Bezier::CubicTtoY(before->value().toDouble(),
+                                     before->value().toDouble() + before->bezier_control_out().y(),
+                                     after->value().toDouble() + after->bezier_control_in().y(),
+                                     after->value().toDouble(),
+                                     t);
+
+        return y;
+
+      } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
+        // Perform a quadratic bezier with only one control point
+
+        QPointF control_point;
+        double control_point_time;
+        double control_point_value;
+
+        if (before->type() == NodeKeyframe::kBezier) {
+          control_point = before->bezier_control_out();
+          control_point_time = before->time().toDouble() + control_point.x();
+          control_point_value = before->value().toDouble() + control_point.y();
+        } else {
+          control_point = after->bezier_control_in();
+          control_point_time = after->time().toDouble() + control_point.x();
+          control_point_value = after->value().toDouble() + control_point.y();
+        }
+
+        // Generate T from time values - used to determine bezier progress
+        double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
+
+        // Generate value using T
+        double y = Bezier::QuadraticTtoY(before->value().toDouble(), control_point_value, after->value().toDouble(), t);
+
+        return y;
+
       } else {
         // To have arrived here, the keyframes must both be linear
         qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
@@ -231,6 +268,8 @@ void NodeInput::insert_keyframe(NodeKeyframePtr key)
   connect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
+  connect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
+  connect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
 
   emit KeyframeAdded(key);
 
@@ -246,6 +285,8 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
   disconnect(key.get(), &NodeKeyframe::TimeChanged, this, &NodeInput::KeyframeTimeChanged);
   disconnect(key.get(), &NodeKeyframe::ValueChanged, this, &NodeInput::KeyframeValueChanged);
   disconnect(key.get(), &NodeKeyframe::TypeChanged, this, &NodeInput::KeyframeTypeChanged);
+  disconnect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
+  disconnect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
 
   keyframes_.removeOne(key);
 
@@ -297,6 +338,36 @@ void NodeInput::KeyframeTypeChanged()
 
   // Invalidate entire range
   emit_time_range(get_range_around_index(keyframe_index));
+}
+
+void NodeInput::KeyframeBezierInChanged()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+
+  rational start = RATIONAL_MIN;
+  rational end = key->time();
+
+  if (keyframe_index > 0) {
+    start = keyframes_.at(keyframe_index - 1)->time();
+  }
+
+  emit ValueChanged(start, end);
+}
+
+void NodeInput::KeyframeBezierOutChanged()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
+
+  rational start = key->time();
+  rational end = RATIONAL_MAX;
+
+  if (keyframe_index < keyframes_.size() - 1) {
+    end = keyframes_.at(keyframe_index + 1)->time();
+  }
+
+  emit ValueChanged(start, end);
 }
 
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const

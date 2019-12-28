@@ -236,7 +236,8 @@ void CurveView::SetItemYFromKeyframeValue(NodeKeyframe *key, KeyframeViewItem *i
 
 QPointF CurveView::ScalePoint(const QPointF &point)
 {
-  return QPointF(point.x() * scale_, point.y() * y_scale_);
+  // Flips Y coordinate because curves are drawn bottom to top
+  return QPointF(point.x() * scale_, - point.y() * y_scale_);
 }
 
 void CurveView::KeyframeValueChanged()
