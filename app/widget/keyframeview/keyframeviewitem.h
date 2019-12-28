@@ -9,11 +9,15 @@ class KeyframeViewItem : public QObject, public QGraphicsRectItem
 {
   Q_OBJECT
 public:
-  KeyframeViewItem(NodeKeyframePtr key, qreal vcenter, QGraphicsItem *parent = nullptr);
+  KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent = nullptr);
+
+  void SetOverrideY(qreal vertical_center);
 
   void SetScale(double scale);
 
   NodeKeyframePtr key() const;
+
+  QPointF center_pos() const;
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -23,7 +27,7 @@ private:
 
   double scale_;
 
-  qreal middle_;
+  qreal vert_center_;
 
   int keyframe_size_;
 

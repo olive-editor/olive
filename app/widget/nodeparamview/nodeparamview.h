@@ -47,6 +47,10 @@ public slots:
 signals:
   void TimeChanged(const int64_t& timestamp);
 
+  void SelectedInputChanged(NodeInput* input);
+
+  void TimebaseChanged(const rational& timebase);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 

@@ -132,6 +132,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
     connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
     connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
+    connect(item, &NodeParamViewItem::InputClicked, this, &NodeParamView::SelectedInputChanged);
 
     items_.append(item);
 
@@ -147,6 +148,13 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   }
 
   SetTime(0);
+
+  // FIXME: Test code only!
+  if (nodes_.isEmpty()) {
+    emit SelectedInputChanged(nullptr);
+  } else {
+    emit SelectedInputChanged(static_cast<NodeInput*>(nodes_.first()->parameters().first()));
+  }
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)
@@ -184,6 +192,8 @@ void NodeParamView::SetTimebase(const rational &timebase)
 {
   ruler_->SetTimebase(timebase);
   keyframe_view_->SetTimebase(timebase);
+
+  emit TimebaseChanged(timebase);
 }
 
 void NodeParamView::UpdateItemTime(const int64_t &timestamp)

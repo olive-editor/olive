@@ -10,8 +10,35 @@ CurvePanel::CurvePanel(QWidget *parent) :
   widget_ = new CurveWidget();
   setWidget(widget_);
 
+  connect(widget_, &CurveWidget::TimeChanged, this, &CurvePanel::TimeChanged);
+
   // Set strings
   Retranslate();
+}
+
+void CurvePanel::SetInput(NodeInput *input)
+{
+  widget_->SetInput(input);
+}
+
+void CurvePanel::SetTimebase(const rational &timebase)
+{
+  widget_->SetTimebase(timebase);
+}
+
+void CurvePanel::SetTime(const int64_t &timestamp)
+{
+  widget_->SetTime(timestamp);
+}
+
+void CurvePanel::ZoomIn()
+{
+  widget_->SetScale(widget_->GetScale() * 2);
+}
+
+void CurvePanel::ZoomOut()
+{
+  widget_->SetScale(widget_->GetScale() * 0.5);
 }
 
 void CurvePanel::changeEvent(QEvent *e)

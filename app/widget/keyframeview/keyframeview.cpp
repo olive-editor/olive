@@ -37,7 +37,8 @@ void KeyframeView::AddKeyframe(NodeKeyframePtr key, int y)
   QPoint local_pt = mapFromGlobal(global_pt);
   QPointF scene_pt = mapToScene(local_pt);
 
-  KeyframeViewItem* item = new KeyframeViewItem(key, scene_pt.y());
+  KeyframeViewItem* item = new KeyframeViewItem(key);
+  item->SetOverrideY(scene_pt.y());
   item->SetScale(scale_);
   item_map_.insert(key.get(), item);
   scene()->addItem(item);
@@ -45,7 +46,7 @@ void KeyframeView::AddKeyframe(NodeKeyframePtr key, int y)
 
 void KeyframeView::RemoveKeyframe(NodeKeyframePtr key)
 {
-  delete item_map_.value(key.get());
+  delete item_map_.take(key.get());
 }
 
 void KeyframeView::mousePressEvent(QMouseEvent *event)

@@ -31,6 +31,10 @@ void NodeParamViewWidgetBridge::SetTime(const rational &time)
 {
   time_ = time;
 
+  if (!input_) {
+    return;
+  }
+
   // We assume the first data type is the "primary" type
   switch (input_->data_type()) {
   // None of these inputs have applicable UI widgets

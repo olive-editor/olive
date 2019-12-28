@@ -7,11 +7,11 @@
 
 #include "common/qtversionabstraction.h"
 
-KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, qreal vcenter, QGraphicsItem *parent) :
+KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   key_(key),
   scale_(1.0),
-  middle_(vcenter)
+  vert_center_(0)
 {
   keyframe_size_ = QFontMetricsWidth(qApp->fontMetrics(), "Oi");
   setFlag(QGraphicsItem::ItemIsSelectable);
@@ -24,6 +24,12 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, qreal vcenter, QGraphics
   UpdatePos();
 }
 
+void KeyframeViewItem::SetOverrideY(qreal vertical_center)
+{
+  vert_center_ = vertical_center;
+  UpdatePos();
+}
+
 void KeyframeViewItem::SetScale(double scale)
 {
   scale_ = scale;
@@ -33,6 +39,11 @@ void KeyframeViewItem::SetScale(double scale)
 NodeKeyframePtr KeyframeViewItem::key() const
 {
   return key_;
+}
+
+QPointF KeyframeViewItem::center_pos() const
+{
+  return pos() + rect().center();
 }
 
 void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -71,7 +82,7 @@ void KeyframeViewItem::UpdatePos()
 {
   double x_center = key_->time().toDouble() * scale_;
 
-  setPos(x_center - keyframe_size_/2, middle_ - keyframe_size_/2);
+  setPos(x_center - keyframe_size_/2, vert_center_ - keyframe_size_/2);
 }
 
 void KeyframeViewItem::Redraw()

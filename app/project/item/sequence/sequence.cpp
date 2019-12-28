@@ -26,6 +26,7 @@
 #include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
+#include "panel/curve/curve.h"
 #include "panel/param/param.h"
 #include "panel/timeline/timeline.h"
 #include "panel/viewer/viewer.h"
@@ -45,6 +46,7 @@ void Sequence::Open(SequencePtr sequence)
   TimelinePanel* timeline_panel = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
   NodePanel* node_panel = PanelManager::instance()->MostRecentlyFocused<NodePanel>();
   ParamPanel* param_panel = PanelManager::instance()->MostRecentlyFocused<ParamPanel>();
+  CurvePanel* curve_panel = PanelManager::instance()->MostRecentlyFocused<CurvePanel>();
 
   viewer_panel->ConnectViewerNode(sequence->viewer_output_);
   timeline_panel->ConnectTimelineNode(sequence->timeline_output_);
@@ -52,10 +54,16 @@ void Sequence::Open(SequencePtr sequence)
 
   connect(timeline_panel, &TimelinePanel::TimeChanged, param_panel, &ParamPanel::SetTime);
   connect(timeline_panel, &TimelinePanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
+  connect(timeline_panel, &TimelinePanel::TimeChanged, curve_panel, &CurvePanel::SetTime);
   connect(viewer_panel, &ViewerPanel::TimeChanged, param_panel, &ParamPanel::SetTime);
   connect(viewer_panel, &ViewerPanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
+  connect(viewer_panel, &ViewerPanel::TimeChanged, curve_panel, &CurvePanel::SetTime);
   connect(param_panel, &ParamPanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
   connect(param_panel, &ParamPanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
+  connect(param_panel, &ParamPanel::TimeChanged, curve_panel, &CurvePanel::SetTime);
+  connect(curve_panel, &CurvePanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
+  connect(curve_panel, &CurvePanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
+  connect(curve_panel, &CurvePanel::TimeChanged, param_panel, &ParamPanel::SetTime);
 }
 
 void Sequence::add_default_nodes()

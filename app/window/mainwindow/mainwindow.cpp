@@ -71,7 +71,9 @@ MainWindow::MainWindow(QWidget *parent) :
   curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, curve_panel_);
 
-  connect(node_panel_, SIGNAL(SelectionChanged(QList<Node*>)), param_panel_, SLOT(SetNodes(QList<Node*>)));
+  connect(node_panel_, &NodePanel::SelectionChanged, param_panel_, &ParamPanel::SetNodes);
+  connect(param_panel_, &ParamPanel::SelectedInputChanged, curve_panel_, &CurvePanel::SetInput);
+  connect(param_panel_, &ParamPanel::TimebaseChanged, curve_panel_, &CurvePanel::SetTimebase);
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)
@@ -154,6 +156,6 @@ void MainWindow::SetDefaultLayout()
               Qt::Horizontal);
 
   resizeDocks({project_panel_, tool_panel_, timeline_panel_, audio_monitor_panel_},
-              {width()/4, 0, width(), 0},
+              {width()/4, 1, width(), 1},
               Qt::Horizontal);
 }

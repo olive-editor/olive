@@ -373,6 +373,9 @@ void Core::StartGUI(bool full_screen)
   // Since we're starting GUI mode, create a PanelFocusManager (auto-deletes with QObject)
   PanelManager::CreateInstance();
 
+  // Initialize audio service
+  AudioManager::CreateInstance();
+
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
           SIGNAL(focusChanged(QWidget*, QWidget*)),
@@ -389,9 +392,6 @@ void Core::StartGUI(bool full_screen)
 
   // When a new project is opened, update the mainwindow
   connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
-
-  // Initialize audio service
-  AudioManager::CreateInstance();
 
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());

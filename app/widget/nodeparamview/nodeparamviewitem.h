@@ -30,6 +30,7 @@
 #include "node/node.h"
 #include "nodeparamviewkeyframecontrol.h"
 #include "nodeparamviewwidgetbridge.h"
+#include "widget/clickablelabel/clickablelabel.h"
 
 class NodeParamViewItemTitleBar : public QWidget {
 public:
@@ -57,6 +58,8 @@ signals:
 
   void RequestSetTime(const rational& time);
 
+  void InputClicked(NodeInput* input);
+
 protected:
   virtual void changeEvent(QEvent *e) override;
 
@@ -77,7 +80,7 @@ private:
 
   QLabel* title_bar_lbl_;
 
-  QVector<QLabel*> param_lbls_;
+  QVector<ClickableLabel*> param_lbls_;
 
   QPushButton* title_bar_collapse_btn_;
 
@@ -109,6 +112,8 @@ private slots:
   void GoToPreviousKey();
 
   void GoToNextKey();
+
+  void LabelClicked();
 
 };
 

@@ -137,7 +137,8 @@ void NodeParamViewItem::SetupUI()
       NodeInput* input = static_cast<NodeInput*>(param);
 
       // Add descriptor label
-      QLabel* param_label = new QLabel();
+      ClickableLabel* param_label = new ClickableLabel();
+      connect(param_label, &ClickableLabel::MouseClicked, this, &NodeParamViewItem::LabelClicked);
       param_lbls_.append(param_label);
 
       label_map_.insert(input, param_label);
@@ -361,6 +362,17 @@ void NodeParamViewItem::GoToNextKey()
       emit RequestSetTime(this_key_time);
       break;
     }
+  }
+}
+
+void NodeParamViewItem::LabelClicked()
+{
+  ClickableLabel* lbl = static_cast<ClickableLabel*>(sender());
+
+  NodeInput* input = label_map_.key(lbl, nullptr);
+
+  if (input) {
+    emit InputClicked(input);
   }
 }
 

@@ -28,6 +28,8 @@ ParamPanel::ParamPanel(QWidget* parent) :
 
   view_ = new NodeParamView(this);
   connect(view_, &NodeParamView::TimeChanged, this, &ParamPanel::TimeChanged);
+  connect(view_, &NodeParamView::SelectedInputChanged, this, &ParamPanel::SelectedInputChanged);
+  connect(view_, &NodeParamView::TimebaseChanged, this, &ParamPanel::TimebaseChanged);
 
   setWidget(view_);
 

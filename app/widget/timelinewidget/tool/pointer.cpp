@@ -248,13 +248,14 @@ void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_p
     Timeline::MovementMode trim_mode = Timeline::kNone;
 
     // FIXME: Hardcoded number
-    const int kTrimHandle = 10;
+    double kTrimHandle = qMax(10.0, parent()->TimeToScene(parent()->timebase()));
 
     qreal mouse_x = parent()->TimeToScene(mouse_pos.GetFrame());
 
-    if (trimming_allowed_ && mouse_x < clicked_item->x() + kTrimHandle) {
+
+    if (trimming_allowed_ && mouse_x <= clicked_item->x() + kTrimHandle) {
       trim_mode = Timeline::kTrimIn;
-    } else if (trimming_allowed_ && mouse_x > clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
+    } else if (trimming_allowed_ && mouse_x >= clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
       trim_mode = Timeline::kTrimOut;
     } else if (movement_allowed_) {
       // Some derived classes don't allow movement
