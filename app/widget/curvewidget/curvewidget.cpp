@@ -146,7 +146,7 @@ const double &CurveWidget::GetScale()
 void CurveWidget::SetScale(const double &scale)
 {
   ruler_->SetScale(scale);
-  view_->SetXScale(scale);
+  view_->SetScale(scale);
 }
 
 void CurveWidget::changeEvent(QEvent *e)

@@ -2,27 +2,25 @@
 #define CURVEVIEW_H
 
 #include "node/keyframe.h"
+#include "widget/keyframeview/keyframeview.h"
 #include "widget/keyframeview/keyframeviewitem.h"
-#include "widget/timelinewidget/view/timelineviewbase.h"
 
-class CurveView : public TimelineViewBase
+class CurveView : public KeyframeViewBase
 {
 public:
   CurveView(QWidget* parent = nullptr);
 
-  void Clear();
-
-  void SetXScale(const double& x_scale);
+  virtual void Clear() override;
 
   void SetYScale(const double& y_scale);
 
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
 
-  void RemoveKeyframe(NodeKeyframePtr key);
-
 protected:
   virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
+
+  virtual void KeyframeAboutToBeRemoved(NodeKeyframe *key) override;
 
 private:
   QList<NodeKeyframe*> GetKeyframesSortedByTime();
@@ -38,8 +36,6 @@ private:
   double y_scale_;
 
   int minimum_grid_space_;
-
-  QMap<NodeKeyframe*, KeyframeViewItem*> key_item_map_;
 
   QList<QGraphicsLineItem*> lines_;
 

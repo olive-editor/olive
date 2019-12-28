@@ -5,7 +5,7 @@
 #include "common/qtversionabstraction.h"
 
 CurveView::CurveView(QWidget *parent) :
-  TimelineViewBase(parent),
+  KeyframeViewBase(parent),
   y_scale_(1.0)
 {
   setAlignment(Qt::AlignLeft | Qt::AlignBottom);
@@ -19,23 +19,13 @@ CurveView::CurveView(QWidget *parent) :
 
 void CurveView::Clear()
 {
-  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
-
-  for (iterator=key_item_map_.begin();iterator!=key_item_map_.end();iterator++) {
-    delete iterator.value();
-  }
+  KeyframeViewBase::Clear();
 
   foreach (QGraphicsLineItem* line, lines_) {
     delete line;
   }
 
-  key_item_map_.clear();
   lines_.clear();
-}
-
-void CurveView::SetXScale(const double& x_scale)
-{
-  SetScale(x_scale);
 }
 
 void CurveView::SetYScale(const double &y_scale)
@@ -99,7 +89,7 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
     QVector<QLineF> keyframe_lines;
 
     // Draw straight line leading to first keyframe
-    QPointF first_key_pos = key_item_map_.value(keys.first())->center_pos();
+    QPointF first_key_pos = item_map().value(keys.first())->center_pos();
     keyframe_lines.append(QLineF(QPointF(scene_bottom_left.x(), first_key_pos.y()), first_key_pos));
 
     // Draw lines between each keyframe
@@ -107,8 +97,8 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
       NodeKeyframe* before = keys.at(i-1);
       NodeKeyframe* after = keys.at(i);
 
-      KeyframeViewItem* before_item = key_item_map_.value(before);
-      KeyframeViewItem* after_item = key_item_map_.value(after);
+      KeyframeViewItem* before_item = item_map().value(before);
+      KeyframeViewItem* after_item = item_map().value(after);
 
       if (before->type() == NodeKeyframe::kHold) {
         // Draw a hold keyframe (basically a right angle)
@@ -131,11 +121,16 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     // Draw straight line leading from end keyframe
-    QPointF last_key_pos = key_item_map_.value(keys.last())->center_pos();
+    QPointF last_key_pos = item_map().value(keys.last())->center_pos();
     keyframe_lines.append(QLineF(last_key_pos, QPointF(scene_top_right.x(), last_key_pos.y())));
 
     painter->drawLines(keyframe_lines);
   }
+}
+
+void CurveView::KeyframeAboutToBeRemoved(NodeKeyframe *key)
+{
+  disconnect(key, &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
 }
 
 QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime()
@@ -144,7 +139,7 @@ QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime()
 
   QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
 
-  for (iterator=key_item_map_.begin();iterator!=key_item_map_.end();iterator++) {
+  for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {
     NodeKeyframe* key = iterator.key();
     bool inserted = false;
 
@@ -177,25 +172,15 @@ void CurveView::SetItemYFromKeyframeValue(NodeKeyframe *key, KeyframeViewItem *i
 void CurveView::KeyframeValueChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
-  KeyframeViewItem* item = key_item_map_.value(key);
+  KeyframeViewItem* item = item_map().value(key);
 
   SetItemYFromKeyframeValue(key, item);
 }
 
 void CurveView::AddKeyframe(NodeKeyframePtr key)
 {
-  KeyframeViewItem* item = new KeyframeViewItem(key);
+  KeyframeViewItem* item = AddKeyframeInternal(key);
   SetItemYFromKeyframeValue(key.get(), item);
-  item->SetScale(scale_);
-  scene()->addItem(item);
-  key_item_map_.insert(key.get(), item);
 
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
-}
-
-void CurveView::RemoveKeyframe(NodeKeyframePtr key)
-{
-  disconnect(key.get(), &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
-
-  delete key_item_map_.take(key.get());
 }
