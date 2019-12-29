@@ -117,17 +117,19 @@ void NodeParamSetKeyframeTimeCommand::undo()
   key_->set_time(old_time_);
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, const QVariant &value, QUndoCommand *parent) :
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, const QVariant &value, QUndoCommand *parent) :
   QUndoCommand(parent),
   input_(input),
+  track_(track),
   old_value_(input_->get_standard_value()),
   new_value_(value)
 {
 }
 
-NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, const QVariant &new_value, const QVariant &old_value, QUndoCommand *parent) :
+NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *input, int track, const QVariant &new_value, const QVariant &old_value, QUndoCommand *parent) :
   QUndoCommand(parent),
   input_(input),
+  track_(track),
   old_value_(old_value),
   new_value_(new_value)
 {
@@ -135,10 +137,10 @@ NodeParamSetStandardValueCommand::NodeParamSetStandardValueCommand(NodeInput *in
 
 void NodeParamSetStandardValueCommand::redo()
 {
-  input_->set_standard_value(new_value_);
+  input_->set_standard_value(new_value_, track_);
 }
 
 void NodeParamSetStandardValueCommand::undo()
 {
-  input_->set_standard_value(old_value_);
+  input_->set_standard_value(old_value_, track_);
 }

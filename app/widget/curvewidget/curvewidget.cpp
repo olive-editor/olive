@@ -114,8 +114,10 @@ void CurveWidget::SetInput(NodeInput *input)
     connect(input_, &NodeInput::KeyframeAdded, view_, &CurveView::AddKeyframe);
     connect(input_, &NodeInput::KeyframeRemoved, view_, &CurveView::RemoveKeyframe);
 
-    foreach (NodeKeyframePtr key, input_->keyframes()) {
-      view_->AddKeyframe(key);
+    foreach (const NodeInput::KeyframeTrack& track, input_->keyframe_tracks()) {
+      foreach (NodeKeyframePtr key, track) {
+        view_->AddKeyframe(key);
+      }
     }
   }
 

@@ -93,8 +93,10 @@ void NodeParamViewItem::SignalAllKeyframes()
     if (param->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(param);
 
-      foreach (NodeKeyframePtr key, input->keyframes()) {
-        InputAddedKeyframeInternal(input, key);
+      foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
+        foreach (NodeKeyframePtr key, track) {
+          InputAddedKeyframeInternal(input, key);
+        }
       }
     }
   }
@@ -220,13 +222,15 @@ void NodeParamViewItem::InputKeyframeEnableChanged(bool e)
 {
   NodeInput* input = static_cast<NodeInput*>(sender());
 
-  foreach (NodeKeyframePtr key, input->keyframes()) {
-    if (e) {
-      // Add a keyframe item for each keyframe
-      InputAddedKeyframeInternal(input, key);
-    } else {
-      // Remove each keyframe item
-      emit KeyframeRemoved(key);
+  foreach (const NodeInput::KeyframeTrack& track, input->keyframe_tracks()) {
+    foreach (NodeKeyframePtr key, track) {
+      if (e) {
+        // Add a keyframe item for each keyframe
+        InputAddedKeyframeInternal(input, key);
+      } else {
+        // Remove each keyframe item
+        emit KeyframeRemoved(key);
+      }
     }
   }
 }

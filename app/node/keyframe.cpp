@@ -37,7 +37,7 @@ NodeKeyframePtr NodeKeyframe::Create(const rational &time, const QVariant &value
 
 NodeKeyframePtr NodeKeyframe::copy() const
 {
-  NodeKeyframePtr copy = std::make_shared<NodeKeyframe>(time_, value_, type_);
+  NodeKeyframePtr copy = std::make_shared<NodeKeyframe>(time_, value_, type_, track_);
   copy->bezier_control_in_ = bezier_control_in_;
   copy->bezier_control_out_ = bezier_control_out_;
   return copy;
@@ -114,6 +114,11 @@ void NodeKeyframe::set_bezier_control(NodeKeyframe::BezierType type, const QPoin
   } else {
     set_bezier_control_out(control);
   }
+}
+
+const int &NodeKeyframe::track() const
+{
+  return track_;
 }
 
 NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::BezierType type)

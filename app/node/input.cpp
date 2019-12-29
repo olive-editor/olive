@@ -34,24 +34,35 @@ NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &de
   NodeParam(id),
   data_type_(type),
   keyframable_(true),
-  standard_value_(default_value),
   keyframing_(false),
   dependent_(true),
   has_minimum_(false),
   has_maximum_(false)
 {
+  int track_size;
+
   switch (data_type_) {
   case kVec2:
-    keyframes_.resize(2);
+    track_size = 2;
     break;
   case kVec3:
-    keyframes_.resize(3);
+    track_size = 3;
     break;
   case kVec4:
-    keyframes_.resize(4);
+    track_size = 4;
     break;
   default:
-    keyframes_.resize(1);
+    track_size = 1;
+  }
+
+  keyframe_tracks_.resize(track_size);
+
+  if (!default_value.isNull()) {
+    standard_value_ = split_normal_value_into_track_values(default_value);
+
+    Q_ASSERT(standard_value_.size() == track_size);
+  } else {
+    standard_value_.resize(track_size);
   }
 }
 
@@ -110,145 +121,120 @@ bool NodeInput::type_can_be_interpolated(NodeParam::DataType type)
 
 QVariant NodeInput::get_value_at_time(const rational &time) const
 {
-  switch (data_type_) {
-  case kVec2:
-  {
-    QVariant x = get_value_at_time_for_track(time, 0);
-    QVariant y = get_value_at_time_for_track(time, 1);
-    return QVector2D(x.toFloat(), y.toFloat());
+  return combine_track_values_into_normal_value(get_split_values_at_time(time));
+}
+
+QVector<QVariant> NodeInput::get_split_values_at_time(const rational &time) const
+{
+  QVector<QVariant> vals;
+
+  for (int i=0;i<get_number_of_keyframe_tracks();i++) {
+    if (is_using_standard_value(i)) {
+      vals.append(standard_value_.at(i));
+    } else {
+      vals.append(get_value_at_time_for_track(time, i));
+    }
   }
-  case kVec3:
-  {
-    QVariant x = get_value_at_time_for_track(time, 0);
-    QVariant y = get_value_at_time_for_track(time, 1);
-    QVariant z = get_value_at_time_for_track(time, 2);
-    return QVector3D(x.toFloat(), y.toFloat(), z.toFloat());
-  }
-  case kVec4:
-  {
-    QVariant x = get_value_at_time_for_track(time, 0);
-    QVariant y = get_value_at_time_for_track(time, 1);
-    QVariant z = get_value_at_time_for_track(time, 2);
-    QVariant w = get_value_at_time_for_track(time, 3);
-    return QVector4D(x.toFloat(), y.toFloat(), z.toFloat(), w.toFloat());
-  }
-  default:
-    return get_value_at_time_for_track(time, 0);
-  }
+
+  return vals;
 }
 
 QVariant NodeInput::get_value_at_time_for_track(const rational& time, int track) const
 {
-  if (is_using_standard_value()) {
-    return standard_value_;
-  }
+  if (!is_using_standard_value(track)) {
+    const KeyframeTrack& key_track = keyframe_tracks_.at(track);
 
-  const QList<NodeKeyframePtr>& key_track = keyframes_.at(track);
+    if (key_track.first()->time() >= time) {
+      // This time precedes any keyframe, so we just return the first value
+      return key_track.first()->value();
+    }
 
-  if (key_track.first()->time() >= time) {
-    // This time precedes any keyframe, so we just return the first value
-    return key_track.first()->value();
-  }
+    if (key_track.last()->time() <= time) {
+      // This time is after any keyframes so we return the last value
+      return key_track.last()->value();
+    }
 
-  if (key_track.last()->time() <= time) {
-    // This time is after any keyframes so we return the last value
-    return key_track.last()->value();
-  }
+    // If we're here, the time must be somewhere in between the keyframes
+    for (int i=0;i<key_track.size()-1;i++) {
+      NodeKeyframePtr before = key_track.at(i);
+      NodeKeyframePtr after = key_track.at(i+1);
 
-  // If we're here, the time must be somewhere in between the keyframes
-  for (int i=0;i<key_track.size()-1;i++) {
-    NodeKeyframePtr before = key_track.at(i);
-    NodeKeyframePtr after = key_track.at(i+1);
+      if (before->time() == time
+          || !type_can_be_interpolated(data_type())
+          || (before->time() < time && before->type() == NodeKeyframe::kHold)) {
 
-    if (before->time() == time
-        || !type_can_be_interpolated(data_type())
-        || (before->time() < time && before->type() == NodeKeyframe::kHold)) {
+        // Time == keyframe time, so value is precise
+        return before->value();
 
-      // Time == keyframe time, so value is precise
-      return before->value();
+      } else if (after->time() == time) {
 
-    } else if (before->time() < time && after->time() > time) {
-      // We must interpolate between these keyframes
+        // Time == keyframe time, so value is precise
+        return after->value();
 
-      if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
-        // Perform a cubic bezier with two control points
+      } else if (before->time() < time && after->time() > time) {
+        // We must interpolate between these keyframes
 
-        double t = Bezier::CubicXtoT(time.toDouble(),
-                                     before->time().toDouble(),
-                                     before->time().toDouble() + before->bezier_control_out().x(),
-                                     after->time().toDouble() + after->bezier_control_in().x(),
-                                     after->time().toDouble());
+        if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+          // Perform a cubic bezier with two control points
 
-        double y = Bezier::CubicTtoY(before->value().toDouble(),
-                                     before->value().toDouble() + before->bezier_control_out().y(),
-                                     after->value().toDouble() + after->bezier_control_in().y(),
-                                     after->value().toDouble(),
-                                     t);
+          double t = Bezier::CubicXtoT(time.toDouble(),
+                                       before->time().toDouble(),
+                                       before->time().toDouble() + before->bezier_control_out().x(),
+                                       after->time().toDouble() + after->bezier_control_in().x(),
+                                       after->time().toDouble());
 
-        return y;
+          double y = Bezier::CubicTtoY(before->value().toDouble(),
+                                       before->value().toDouble() + before->bezier_control_out().y(),
+                                       after->value().toDouble() + after->bezier_control_in().y(),
+                                       after->value().toDouble(),
+                                       t);
 
-      } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
-        // Perform a quadratic bezier with only one control point
+          return y;
 
-        QPointF control_point;
-        double control_point_time;
-        double control_point_value;
+        } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
+          // Perform a quadratic bezier with only one control point
 
-        if (before->type() == NodeKeyframe::kBezier) {
-          control_point = before->bezier_control_out();
-          control_point_time = before->time().toDouble() + control_point.x();
-          control_point_value = before->value().toDouble() + control_point.y();
+          QPointF control_point;
+          double control_point_time;
+          double control_point_value;
+
+          if (before->type() == NodeKeyframe::kBezier) {
+            control_point = before->bezier_control_out();
+            control_point_time = before->time().toDouble() + control_point.x();
+            control_point_value = before->value().toDouble() + control_point.y();
+          } else {
+            control_point = after->bezier_control_in();
+            control_point_time = after->time().toDouble() + control_point.x();
+            control_point_value = after->value().toDouble() + control_point.y();
+          }
+
+          // Generate T from time values - used to determine bezier progress
+          double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
+
+          // Generate value using T
+          double y = Bezier::QuadraticTtoY(before->value().toDouble(), control_point_value, after->value().toDouble(), t);
+
+          return y;
+
         } else {
-          control_point = after->bezier_control_in();
-          control_point_time = after->time().toDouble() + control_point.x();
-          control_point_value = after->value().toDouble() + control_point.y();
+          // To have arrived here, the keyframes must both be linear
+          qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
+
+          return lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
         }
-
-        // Generate T from time values - used to determine bezier progress
-        double t = Bezier::QuadraticXtoT(time.toDouble(), before->time().toDouble(), control_point_time, after->time().toDouble());
-
-        // Generate value using T
-        double y = Bezier::QuadraticTtoY(before->value().toDouble(), control_point_value, after->value().toDouble(), t);
-
-        return y;
-
-      } else {
-        // To have arrived here, the keyframes must both be linear
-        qreal period_progress = (time.toDouble() - before->time().toDouble()) / (after->time().toDouble() - before->time().toDouble());
-
-        QVariant interpolated_value;
-
-        switch (data_type()) {
-        case kFloat:
-          interpolated_value = lerp(before->value().toDouble(), after->value().toDouble(), period_progress);
-          break;
-        case kVec2:
-          interpolated_value = lerp(before->value().value<QVector2D>(), after->value().value<QVector2D>(), static_cast<float>(period_progress));
-          break;
-        case kVec3:
-          interpolated_value = lerp(before->value().value<QVector3D>(), after->value().value<QVector3D>(), static_cast<float>(period_progress));
-          break;
-        case kVec4:
-          interpolated_value = lerp(before->value().value<QVector4D>(), after->value().value<QVector4D>(), static_cast<float>(period_progress));
-          break;
-        default:
-          interpolated_value = before->value();
-        }
-
-        return interpolated_value;
       }
     }
   }
 
-  return standard_value_;
+  return standard_value_.at(track);
 }
 
 QList<NodeKeyframePtr> NodeInput::get_keyframe_at_time(const rational &time) const
 {
   QList<NodeKeyframePtr> keys;
 
-  if (!is_using_standard_value()) {
-    for (int i=0;i<keyframes_.size();i++) {
+  for (int i=0;i<keyframe_tracks_.size();i++) {
+    if (!is_using_standard_value(i)) {
       keys.append(get_keyframe_at_time_on_track(time, i));
     }
   }
@@ -258,8 +244,8 @@ QList<NodeKeyframePtr> NodeInput::get_keyframe_at_time(const rational &time) con
 
 NodeKeyframePtr NodeInput::get_keyframe_at_time_on_track(const rational &time, int track) const
 {
-  if (!is_using_standard_value()) {
-    foreach (NodeKeyframePtr key, keyframes_.at(track)) {
+  if (!is_using_standard_value(track)) {
+    foreach (NodeKeyframePtr key, keyframe_tracks_.at(track)) {
       if (key->time() == time) {
         return key;
       }
@@ -269,13 +255,13 @@ NodeKeyframePtr NodeInput::get_keyframe_at_time_on_track(const rational &time, i
   return nullptr;
 }
 
-NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time, int track) const
+NodeKeyframePtr NodeInput::get_closest_keyframe_to_time_on_track(const rational &time, int track) const
 {
-  if (is_using_standard_value()) {
+  if (is_using_standard_value(track)) {
     return nullptr;
   }
 
-  const QList<NodeKeyframePtr>& key_track = keyframes_.at(track);
+  const KeyframeTrack& key_track = keyframe_tracks_.at(track);
 
   if (time <= key_track.first()->time()) {
     return key_track.first();
@@ -305,9 +291,45 @@ NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time, in
   return nullptr;
 }
 
+NodeKeyframePtr NodeInput::get_closest_keyframe_before_time(const rational &time) const
+{
+  NodeKeyframePtr key = nullptr;
+
+  foreach (const KeyframeTrack& track, keyframe_tracks_) {
+    foreach (NodeKeyframePtr k, track) {
+      if (k->time() >= time) {
+        break;
+      } else if (!key || k->time() > key->time()) {
+        key = k;
+      }
+    }
+  }
+
+  return key;
+}
+
+NodeKeyframePtr NodeInput::get_closest_keyframe_after_time(const rational &time) const
+{
+  NodeKeyframePtr key = nullptr;
+
+  foreach (const KeyframeTrack& track, keyframe_tracks_) {
+    for (int i=track.size()-1;i>=0;i--) {
+      NodeKeyframePtr k = track.at(i);
+
+      if (k->time() <= time) {
+        break;
+      } else if (!key || k->time() < key->time()) {
+        key = k;
+      }
+    }
+  }
+
+  return key;
+}
+
 NodeKeyframe::Type NodeInput::get_best_keyframe_type_for_time(const rational &time, int track) const
 {
-  NodeKeyframePtr closest_key = get_closest_keyframe_to_time(time, track);
+  NodeKeyframePtr closest_key = get_closest_keyframe_to_time_on_track(time, track);
 
   if (closest_key) {
     return closest_key->type();
@@ -316,9 +338,50 @@ NodeKeyframe::Type NodeInput::get_best_keyframe_type_for_time(const rational &ti
   return NodeKeyframe::kDefaultType;
 }
 
+int NodeInput::get_number_of_keyframe_tracks() const
+{
+  return keyframe_tracks_.size();
+}
+
+NodeKeyframePtr NodeInput::get_earliest_keyframe() const
+{
+  NodeKeyframePtr earliest = nullptr;
+
+  foreach (const KeyframeTrack& track, keyframe_tracks_) {
+    if (!track.isEmpty()) {
+      NodeKeyframePtr earliest_in_track = track.first();
+
+      if (!earliest
+          || earliest_in_track->time() < earliest->time()) {
+        earliest = earliest_in_track;
+      }
+    }
+  }
+
+  return earliest;
+}
+
+NodeKeyframePtr NodeInput::get_latest_keyframe() const
+{
+  NodeKeyframePtr latest = nullptr;
+
+  foreach (const KeyframeTrack& track, keyframe_tracks_) {
+    if (!track.isEmpty()) {
+      NodeKeyframePtr latest_in_track = track.last();
+
+      if (!latest
+          || latest_in_track->time() > latest->time()) {
+        latest = latest_in_track;
+      }
+    }
+  }
+
+  return latest;
+}
+
 void NodeInput::insert_keyframe(NodeKeyframePtr key)
 {
-  Q_ASSERT(is_keyframable() || keyframes_.isEmpty());
+  Q_ASSERT(is_keyframable());
 
   insert_keyframe_internal(key);
 
@@ -335,7 +398,7 @@ void NodeInput::insert_keyframe(NodeKeyframePtr key)
 
 void NodeInput::remove_keyframe(NodeKeyframePtr key)
 {
-  Q_ASSERT(is_keyframable() && keyframes_.size() > 1);
+  Q_ASSERT(is_keyframable());
 
   TimeRange time_affected = get_range_affected_by_keyframe(key.get());
 
@@ -345,7 +408,7 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
   disconnect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
   disconnect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
 
-  keyframes_[key->track()].removeOne(key);
+  keyframe_tracks_[key->track()].removeOne(key);
 
   emit KeyframeRemoved(key);
   emit_time_range(time_affected);
@@ -362,9 +425,9 @@ void NodeInput::KeyframeTimeChanged()
 
   if (!(original_range.in() < key->time() && original_range.out() > key->time())) {
     // This keyframe needs resorting, store it and remove it from the list
-    NodeKeyframePtr key_shared_ptr = keyframes_.at(key->track()).at(keyframe_index);
+    NodeKeyframePtr key_shared_ptr = keyframe_tracks_.at(key->track()).at(keyframe_index);
 
-    keyframes_.removeAt(keyframe_index);
+    keyframe_tracks_.removeAt(keyframe_index);
 
     // Automatically insertion sort
     insert_keyframe_internal(key_shared_ptr);
@@ -388,7 +451,7 @@ void NodeInput::KeyframeTypeChanged()
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
 
-  if (keyframes_.size() <= 1) {
+  if (keyframe_tracks_.at(key->track()).size() == 1) {
     // If there are no other frames, the interpolation won't do anything
     return;
   }
@@ -406,7 +469,7 @@ void NodeInput::KeyframeBezierInChanged()
   rational end = key->time();
 
   if (keyframe_index > 0) {
-    start = keyframes_.at(key->track()).at(keyframe_index - 1)->time();
+    start = keyframe_tracks_.at(key->track()).at(keyframe_index - 1)->time();
   }
 
   emit ValueChanged(start, end);
@@ -420,8 +483,8 @@ void NodeInput::KeyframeBezierOutChanged()
   rational start = key->time();
   rational end = RATIONAL_MAX;
 
-  if (keyframe_index < keyframes_.size() - 1) {
-    end = keyframes_.at(key->track()).at(keyframe_index + 1)->time();
+  if (keyframe_index < keyframe_tracks_.at(key->track()).size() - 1) {
+    end = keyframe_tracks_.at(key->track()).at(keyframe_index + 1)->time();
   }
 
   emit ValueChanged(start, end);
@@ -429,8 +492,10 @@ void NodeInput::KeyframeBezierOutChanged()
 
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
 {
-  for (int i=0;i<keyframes_.size();i++) {
-    if (keyframes_.at(raw_ptr->track()).at(i).get() == raw_ptr) {
+  const KeyframeTrack& track = keyframe_tracks_.at(raw_ptr->track());
+
+  for (int i=0;i<track.size();i++) {
+    if (track.at(i).get() == raw_ptr) {
       return i;
     }
   }
@@ -440,7 +505,7 @@ int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
 
 void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
 {
-  QList<NodeKeyframePtr>& key_track = keyframes_[key->track()];
+  KeyframeTrack& key_track = keyframe_tracks_[key->track()];
 
   for (int i=0;i<key_track.size();i++) {
     NodeKeyframePtr compare = key_track.at(i);
@@ -457,9 +522,9 @@ void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
   key_track.append(key);
 }
 
-bool NodeInput::is_using_standard_value() const
+bool NodeInput::is_using_standard_value(int track) const
 {
-  return (!is_keyframing() || keyframes_.isEmpty());
+  return (!is_keyframing() || keyframe_tracks_.at(track).isEmpty());
 }
 
 TimeRange NodeInput::get_range_affected_by_keyframe(NodeKeyframe *key) const
@@ -468,10 +533,12 @@ TimeRange NodeInput::get_range_affected_by_keyframe(NodeKeyframe *key) const
 
   TimeRange range = get_range_around_index(keyframe_index, key->track());
 
+  const KeyframeTrack& key_track = keyframe_tracks_.at(key->track());
+
   // If a previous key exists and it's a hold, we don't need to invalidate those frames
-  if (keyframes().size() > 1
+  if (key_track.size() > 1
       && keyframe_index > 0
-      && keyframes_.at(key->track()).at(keyframe_index - 1)->type() == NodeKeyframe::kHold) {
+      && key_track.at(keyframe_index - 1)->type() == NodeKeyframe::kHold) {
     range.set_in(key->time());
   }
 
@@ -483,14 +550,16 @@ TimeRange NodeInput::get_range_around_index(int index, int track) const
   rational range_begin = RATIONAL_MIN;
   rational range_end = RATIONAL_MAX;
 
-  if (keyframes_.size() > 1) {
+  const KeyframeTrack& key_track = keyframe_tracks_.at(track);
+
+  if (key_track.size() > 1) {
     if (index > 0) {
       // If this is not the first key, we'll need to limit it to the key just before
-      range_begin = keyframes_.at(track).at(index - 1)->time();
+      range_begin = key_track.at(index - 1)->time();
     }
-    if (index < keyframes_.size() - 1) {
+    if (index < key_track.size() - 1) {
       // If this is not the last key, we'll need to limit it to the key just after
-      range_end = keyframes_.at(track).at(index + 1)->time();
+      range_end = key_track.at(index + 1)->time();
     }
   }
 
@@ -509,13 +578,12 @@ void NodeInput::emit_range_affected_by_keyframe(NodeKeyframe *key)
 
 bool NodeInput::has_keyframe_at_time(const rational &time) const
 {
-  // If we aren't keyframing, there definitely isn't a keyframe at a given time
-  if (is_using_standard_value()) {
+  if (!is_keyframing()) {
     return false;
   }
 
   // Loop through keyframes to see if any match
-  foreach (const QList<NodeKeyframePtr>& track, keyframes_) {
+  foreach (const KeyframeTrack& track, keyframe_tracks_) {
     foreach (NodeKeyframePtr key, track) {
       if (key->time() == time) {
         return true;
@@ -544,24 +612,29 @@ bool NodeInput::is_keyframable() const
   return keyframable_;
 }
 
-const QVariant &NodeInput::get_standard_value() const
+QVariant NodeInput::get_standard_value() const
+{
+  return combine_track_values_into_normal_value(standard_value_);
+}
+
+const QVector<QVariant> &NodeInput::get_split_standard_value() const
 {
   return standard_value_;
 }
 
-void NodeInput::set_standard_value(const QVariant &value)
+void NodeInput::set_standard_value(const QVariant &value, int track)
 {
-  standard_value_ = value;
+  standard_value_.replace(track, value);
 
-  if (is_using_standard_value()) {
+  if (is_using_standard_value(track)) {
     // If this standard value is being used, we need to send a value changed signal
     emit ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
   }
 }
 
-const QVector< QList<NodeKeyframePtr> > &NodeInput::keyframes() const
+const QVector<NodeInput::KeyframeTrack> &NodeInput::keyframe_tracks() const
 {
-  return keyframes_;
+  return keyframe_tracks_;
 }
 
 void NodeInput::set_is_keyframable(bool k)
@@ -609,10 +682,10 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   dest->standard_value_ = source->standard_value_;
 
   // Copy keyframes
-  for (int i=0;i<source->keyframes_.size();i++) {
-    dest->keyframes_[i].clear();
-    foreach (NodeKeyframePtr key, source->keyframes_.at(i)) {
-      dest->keyframes_[i].append(key->copy());
+  for (int i=0;i<source->keyframe_tracks_.size();i++) {
+    dest->keyframe_tracks_[i].clear();
+    foreach (NodeKeyframePtr key, source->keyframe_tracks_.at(i)) {
+      dest->keyframe_tracks_[i].append(key->copy());
     }
   }
 
@@ -637,4 +710,66 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   }
 
   emit dest->ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+}
+
+QVector<QVariant> NodeInput::split_normal_value_into_track_values(const QVariant &value) const
+{
+  QVector<QVariant> vals(get_number_of_keyframe_tracks());
+
+  switch (data_type_) {
+  case kVec2:
+  {
+    QVector2D vec = value.value<QVector2D>();
+    vals.replace(0, vec.x());
+    vals.replace(1, vec.y());
+    break;
+  }
+  case kVec3:
+  {
+    QVector3D vec = value.value<QVector3D>();
+    vals.replace(0, vec.x());
+    vals.replace(1, vec.y());
+    vals.replace(2, vec.z());
+    break;
+  }
+  case kVec4:
+  {
+    QVector4D vec = value.value<QVector4D>();
+    vals.replace(0, vec.x());
+    vals.replace(1, vec.y());
+    vals.replace(2, vec.z());
+    vals.replace(3, vec.w());
+    break;
+  }
+  default:
+    vals.replace(0, value);
+  }
+
+  return vals;
+}
+
+QVariant NodeInput::combine_track_values_into_normal_value(const QVector<QVariant> &split) const
+{
+  switch (data_type_) {
+  case kVec2:
+  {
+    return QVector2D(split.at(0).toFloat(),
+                     split.at(1).toFloat());
+  }
+  case kVec3:
+  {
+    return QVector3D(split.at(0).toFloat(),
+                     split.at(1).toFloat(),
+                     split.at(2).toFloat());
+  }
+  case kVec4:
+  {
+    return QVector4D(split.at(0).toFloat(),
+                     split.at(1).toFloat(),
+                     split.at(2).toFloat(),
+                     split.at(3).toFloat());
+  }
+  default:
+    return split.first();
+  }
 }

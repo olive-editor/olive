@@ -19,7 +19,7 @@ public:
 private:
   void CreateWidgets();
 
-  void SetInputValue(const QVariant& value);
+  void SetInputValue(const QVariant& value, int track);
 
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 

@@ -82,17 +82,19 @@ private:
 
 class NodeParamSetStandardValueCommand : public QUndoCommand {
 public:
-  NodeParamSetStandardValueCommand(NodeInput* input, const QVariant& value, QUndoCommand* parent = nullptr);
-  NodeParamSetStandardValueCommand(NodeInput* input, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
+  NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& value, QUndoCommand* parent = nullptr);
+  NodeParamSetStandardValueCommand(NodeInput* input, int track, const QVariant& new_value, const QVariant& old_value, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
 
 private:
   NodeInput* input_;
+  int track_;
 
   QVariant old_value_;
   QVariant new_value_;
+
 };
 
 #endif // NODEPARAMVIEWUNDO_H

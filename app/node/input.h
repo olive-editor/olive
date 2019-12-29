@@ -32,6 +32,8 @@ class NodeInput : public NodeParam
 {
   Q_OBJECT
 public:
+  using KeyframeTrack = QList<NodeKeyframePtr>;
+
   /**
    * @brief NodeInput Constructor
    *
@@ -85,6 +87,8 @@ public:
    */
   QVariant get_value_at_time(const rational& time) const;
 
+  QVector<QVariant> get_split_values_at_time(const rational& time) const;
+
   /**
    * @brief Calculate the stored value for a specific track
    *
@@ -114,12 +118,41 @@ public:
    *
    * If is_keyframing() is false or keyframes_ is empty, this will return nullptr.
    */
-  NodeKeyframePtr get_closest_keyframe_to_time(const rational& time, int track) const;
+  NodeKeyframePtr get_closest_keyframe_to_time_on_track(const rational& time, int track) const;
+
+  /**
+   * @brief Get closest keyframe that's before the time on any track
+   *
+   * If no keyframe is before this time, returns nullptr.
+   */
+  NodeKeyframePtr get_closest_keyframe_before_time(const rational& time) const;
+
+  /**
+   * @brief Get closest keyframe that's before the time on any track
+   *
+   * If no keyframe is before this time, returns nullptr.
+   */
+  NodeKeyframePtr get_closest_keyframe_after_time(const rational& time) const;
 
   /**
    * @brief A heuristic to determine what type a keyframe should be if it's inserted at a certain time (between keyframes)
    */
   NodeKeyframe::Type get_best_keyframe_type_for_time(const rational& time, int track) const;
+
+  /**
+   * @brief Retrieve the number of
+   */
+  int get_number_of_keyframe_tracks() const;
+
+  /**
+   * @brief Gets the earliest keyframe on any track
+   */
+  NodeKeyframePtr get_earliest_keyframe() const;
+
+  /**
+   * @brief Gets the latest keyframe on any track
+   */
+  NodeKeyframePtr get_latest_keyframe() const;
 
   /**
    * @brief Inserts a keyframe at the given time and returns a reference to it
@@ -157,17 +190,22 @@ public:
   /**
    * @brief Get non-keyframed value
    */
-  const QVariant& get_standard_value() const;
+  QVariant get_standard_value() const;
+
+  /**
+   * @brief Get non-keyframed value split into components (the way it's stored)
+   */
+  const QVector<QVariant>& get_split_standard_value() const;
 
   /**
    * @brief Set non-keyframed value
    */
-  void set_standard_value(const QVariant& value);
+  void set_standard_value(const QVariant& value, int track = 0);
 
   /**
    * @brief Return list of keyframes in this parameter
    */
-  const QVector<QList<NodeKeyframePtr> > &keyframes() const;
+  const QVector<KeyframeTrack> &keyframe_tracks() const;
 
   /**
    * @brief Set whether this input can be keyframed or not
@@ -186,6 +224,10 @@ public:
    * @brief Copy all values including keyframe information and connections from another NodeInput
    */
   static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true, bool lock_connections = true);
+
+  QVector<QVariant> split_normal_value_into_track_values(const QVariant &value) const;
+
+  QVariant combine_track_values_into_normal_value(const QVector<QVariant>& split) const;
 
 signals:
   void ValueChanged(const rational& start, const rational& end);
@@ -216,7 +258,7 @@ private:
   /**
    * @brief Return whether the standard value should be used over keyframe data
    */
-  bool is_using_standard_value() const;
+  bool is_using_standard_value(int track) const;
 
   /**
    * @brief Intelligently determine how what time range is affected by a keyframe
@@ -253,14 +295,14 @@ private:
   /**
    * @brief Non-keyframed value
    */
-  QVariant standard_value_;
+  QVector<QVariant> standard_value_;
 
   /**
    * @brief Internal keyframe array
    *
    * If keyframing is enabled, this data is used instead of standard_value.
    */
-  QVector< QList<NodeKeyframePtr> > keyframes_;
+  QVector< QList<NodeKeyframePtr> > keyframe_tracks_;
 
   /**
    * @brief Internal keyframing enabled setting

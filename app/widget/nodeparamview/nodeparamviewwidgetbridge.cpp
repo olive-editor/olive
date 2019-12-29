@@ -251,12 +251,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   }
 }
 
-void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
+void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 {
   QUndoCommand* command = new QUndoCommand();
 
   if (input_->is_keyframing()) {
-    NodeKeyframePtr existing_key = input_->get_keyframe_at_time(time_);
+    NodeKeyframePtr existing_key = input_->get_keyframe_at_time_on_track(time_, track);
 
     if (existing_key) {
       new NodeParamSetKeyframeValueCommand(existing_key, value, command);
@@ -264,12 +264,13 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
       // No existing key, create a new one
       NodeKeyframePtr new_key = NodeKeyframe::Create(time_,
                                                      value,
-                                                     input_->get_best_keyframe_type_for_time(time_));
+                                                     input_->get_best_keyframe_type_for_time(time_, track),
+                                                     track);
 
       new NodeParamInsertKeyframeCommand(input_, new_key, command);
     }
   } else {
-    new NodeParamSetStandardValueCommand(input_, value, command);
+    new NodeParamSetStandardValueCommand(input_, track, value, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -277,6 +278,8 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value)
 
 void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant &value)
 {
+  int slider_track = widgets_.indexOf(slider);
+
   if (slider->IsDragging()) {
 
     // While we're dragging, we block the input's normal signalling and create our own
@@ -287,17 +290,18 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
       dragging_ = true;
 
       // Cache current value
-      drag_old_value_ = input_->get_value_at_time(time_);
+      drag_old_value_ = input_->get_value_at_time_for_track(time_, slider_track);
 
       // Determine whether we are creating a keyframe or not
       if (input_->is_keyframing()) {
-        dragging_keyframe_ = input_->get_keyframe_at_time(time_);
+        dragging_keyframe_ = input_->get_keyframe_at_time_on_track(time_, slider_track);
         drag_created_keyframe_ = !dragging_keyframe_;
 
         if (drag_created_keyframe_) {
           dragging_keyframe_ = NodeKeyframe::Create(time_,
                                                     value,
-                                                    input_->get_best_keyframe_type_for_time(time_));
+                                                    input_->get_best_keyframe_type_for_time(time_, slider_track),
+                                                    slider_track);
 
           input_->insert_keyframe(dragging_keyframe_);
 
@@ -312,7 +316,7 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
     if (input_->is_keyframing()) {
       dragging_keyframe_->set_value(value);
     } else {
-      input_->set_standard_value(value);
+      input_->set_standard_value(value, slider_track);
     }
 
     input_->blockSignals(false);
@@ -337,14 +341,14 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
         new NodeParamSetKeyframeValueCommand(dragging_keyframe_, value, drag_old_value_, command);
       } else {
         // We just set the standard value
-        new NodeParamSetStandardValueCommand(input_, value, drag_old_value_, command);
+        new NodeParamSetStandardValueCommand(input_, slider_track, value, drag_old_value_, command);
       }
 
       Core::instance()->undo_stack()->push(command);
 
     } else {
       // No drag was involved, we can just push the value
-      SetInputValue(value);
+      SetInputValue(value, slider_track);
     }
   }
 }
@@ -387,12 +391,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector2D value(
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue())
-          );
-
-    ProcessSlider(slider, value);
+    ProcessSlider(slider, slider->GetValue());
     break;
   }
   case NodeParam::kVec3:
@@ -400,13 +399,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector3D value(
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue())
-          );
-
-    ProcessSlider(slider, value);
+    ProcessSlider(slider, slider->GetValue());
     break;
   }
   case NodeParam::kVec4:
@@ -414,14 +407,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a FloatSlider
     FloatSlider* slider = static_cast<FloatSlider*>(sender());
 
-    QVector4D value(
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(0))->GetValue()),
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(1))->GetValue()),
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(2))->GetValue()),
-          static_cast<float>(static_cast<FloatSlider*>(widgets_.at(3))->GetValue())
-          );
-
-    ProcessSlider(slider, value);
+    ProcessSlider(slider, slider->GetValue());
     break;
   }
   case NodeParam::kFile:
@@ -433,25 +419,25 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kText:
   {
     // Sender is a QLineEdit
-    SetInputValue(static_cast<QLineEdit*>(sender())->text());
+    SetInputValue(static_cast<QLineEdit*>(sender())->text(), 0);
     break;
   }
   case NodeParam::kBoolean:
   {
     // Widget is a QCheckBox
-    SetInputValue(static_cast<QCheckBox*>(sender())->isChecked());
+    SetInputValue(static_cast<QCheckBox*>(sender())->isChecked(), 0);
     break;
   }
   case NodeParam::kFont:
   {
     // Widget is a QFontComboBox
-    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont());
+    SetInputValue(static_cast<QFontComboBox*>(sender())->currentFont(), 0);
     break;
   }
   case NodeParam::kFootage:
   {
     // Widget is a FootageComboBox
-    SetInputValue(QVariant::fromValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()));
+    SetInputValue(QVariant::fromValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()), 0);
     break;
   }
   }

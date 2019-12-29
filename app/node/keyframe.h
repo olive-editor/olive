@@ -58,9 +58,9 @@ public:
   /**
    * @brief NodeKeyframe Constructor
    */
-  NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track = 0);
+  NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track);
 
-  static NodeKeyframePtr Create(const rational& time, const QVariant& value, const Type& type, const int &track = 0);
+  static NodeKeyframePtr Create(const rational& time, const QVariant& value, const Type& type, const int &track);
 
   NodeKeyframePtr copy() const;
 
