@@ -53,14 +53,14 @@ public:
     kOutHandle
   };
 
+  static const Type kDefaultType = kLinear;
+
   /**
    * @brief NodeKeyframe Constructor
    */
-  NodeKeyframe(const rational& time, const QVariant& value, const Type& type);
+  NodeKeyframe(const rational& time, const QVariant& value, const Type& type, const int& track = 0);
 
-  static const Type kDefaultType = kLinear;
-
-  static NodeKeyframePtr Create(const rational& time, const QVariant& value, const Type& type);
+  static NodeKeyframePtr Create(const rational& time, const QVariant& value, const Type& type, const int &track = 0);
 
   NodeKeyframePtr copy() const;
 
@@ -100,6 +100,17 @@ public:
   const QPointF& bezier_control(BezierType type) const;
   void set_bezier_control(BezierType type, const QPointF& control);
 
+  /**
+   * @brief The track that this keyframe belongs to
+   *
+   * For the majority of keyfreames, this will be 0, but for some types, such as kVec2, this will be 0 for X keyframes
+   * and 1 for Y keyframes, etc.
+   */
+  const int& track() const;
+
+  /**
+   * @brief Convenience function for getting the opposite handle type (e.g. kInHandle <-> kOutHandle)
+   */
   static BezierType get_opposing_bezier_type(BezierType type);
 
 signals:
@@ -138,6 +149,9 @@ private:
   QPointF bezier_control_in_;
 
   QPointF bezier_control_out_;
+
+  int track_;
+
 };
 
 Q_DECLARE_METATYPE(NodeKeyframe::Type)

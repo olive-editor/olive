@@ -40,6 +40,19 @@ NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &de
   has_minimum_(false),
   has_maximum_(false)
 {
+  switch (data_type_) {
+  case kVec2:
+    keyframes_.resize(2);
+    break;
+  case kVec3:
+    keyframes_.resize(3);
+    break;
+  case kVec4:
+    keyframes_.resize(4);
+    break;
+  default:
+    keyframes_.resize(1);
+  }
 }
 
 bool NodeInput::IsArray()
@@ -97,24 +110,55 @@ bool NodeInput::type_can_be_interpolated(NodeParam::DataType type)
 
 QVariant NodeInput::get_value_at_time(const rational &time) const
 {
+  switch (data_type_) {
+  case kVec2:
+  {
+    QVariant x = get_value_at_time_for_track(time, 0);
+    QVariant y = get_value_at_time_for_track(time, 1);
+    return QVector2D(x.toFloat(), y.toFloat());
+  }
+  case kVec3:
+  {
+    QVariant x = get_value_at_time_for_track(time, 0);
+    QVariant y = get_value_at_time_for_track(time, 1);
+    QVariant z = get_value_at_time_for_track(time, 2);
+    return QVector3D(x.toFloat(), y.toFloat(), z.toFloat());
+  }
+  case kVec4:
+  {
+    QVariant x = get_value_at_time_for_track(time, 0);
+    QVariant y = get_value_at_time_for_track(time, 1);
+    QVariant z = get_value_at_time_for_track(time, 2);
+    QVariant w = get_value_at_time_for_track(time, 3);
+    return QVector4D(x.toFloat(), y.toFloat(), z.toFloat(), w.toFloat());
+  }
+  default:
+    return get_value_at_time_for_track(time, 0);
+  }
+}
+
+QVariant NodeInput::get_value_at_time_for_track(const rational& time, int track) const
+{
   if (is_using_standard_value()) {
     return standard_value_;
   }
 
-  if (keyframes_.first()->time() >= time) {
+  const QList<NodeKeyframePtr>& key_track = keyframes_.at(track);
+
+  if (key_track.first()->time() >= time) {
     // This time precedes any keyframe, so we just return the first value
-    return keyframes_.first()->value();
+    return key_track.first()->value();
   }
 
-  if (keyframes_.last()->time() <= time) {
+  if (key_track.last()->time() <= time) {
     // This time is after any keyframes so we return the last value
-    return keyframes_.last()->value();
+    return key_track.last()->value();
   }
 
   // If we're here, the time must be somewhere in between the keyframes
-  for (int i=0;i<keyframes_.size()-1;i++) {
-    NodeKeyframePtr before = keyframes_.at(i);
-    NodeKeyframePtr after = keyframes_.at(i+1);
+  for (int i=0;i<key_track.size()-1;i++) {
+    NodeKeyframePtr before = key_track.at(i);
+    NodeKeyframePtr after = key_track.at(i+1);
 
     if (before->time() == time
         || !type_can_be_interpolated(data_type())
@@ -199,38 +243,51 @@ QVariant NodeInput::get_value_at_time(const rational &time) const
   return standard_value_;
 }
 
-NodeKeyframePtr NodeInput::get_keyframe_at_time(const rational &time) const
+QList<NodeKeyframePtr> NodeInput::get_keyframe_at_time(const rational &time) const
 {
-  if (is_using_standard_value()) {
-    return nullptr;
+  QList<NodeKeyframePtr> keys;
+
+  if (!is_using_standard_value()) {
+    for (int i=0;i<keyframes_.size();i++) {
+      keys.append(get_keyframe_at_time_on_track(time, i));
+    }
   }
 
-  foreach (NodeKeyframePtr key, keyframes_) {
-    if (key->time() == time) {
-      return key;
+  return keys;
+}
+
+NodeKeyframePtr NodeInput::get_keyframe_at_time_on_track(const rational &time, int track) const
+{
+  if (!is_using_standard_value()) {
+    foreach (NodeKeyframePtr key, keyframes_.at(track)) {
+      if (key->time() == time) {
+        return key;
+      }
     }
   }
 
   return nullptr;
 }
 
-NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time) const
+NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time, int track) const
 {
   if (is_using_standard_value()) {
     return nullptr;
   }
 
-  if (time <= keyframes_.first()->time()) {
-    return keyframes_.first();
+  const QList<NodeKeyframePtr>& key_track = keyframes_.at(track);
+
+  if (time <= key_track.first()->time()) {
+    return key_track.first();
   }
 
-  if (time >= keyframes_.last()->time()) {
-    return keyframes_.last();
+  if (time >= key_track.last()->time()) {
+    return key_track.last();
   }
 
-  for (int i=1;i<keyframes_.size();i++) {
-    NodeKeyframePtr prev_key = keyframes_.at(i-1);
-    NodeKeyframePtr next_key = keyframes_.at(i);
+  for (int i=1;i<key_track.size();i++) {
+    NodeKeyframePtr prev_key = key_track.at(i-1);
+    NodeKeyframePtr next_key = key_track.at(i);
 
     if (prev_key->time() <= time && next_key->time() >= time) {
       // Return whichever is closer
@@ -248,9 +305,9 @@ NodeKeyframePtr NodeInput::get_closest_keyframe_to_time(const rational &time) co
   return nullptr;
 }
 
-NodeKeyframe::Type NodeInput::get_best_keyframe_type_for_time(const rational &time) const
+NodeKeyframe::Type NodeInput::get_best_keyframe_type_for_time(const rational &time, int track) const
 {
-  NodeKeyframePtr closest_key = get_closest_keyframe_to_time(time);
+  NodeKeyframePtr closest_key = get_closest_keyframe_to_time(time, track);
 
   if (closest_key) {
     return closest_key->type();
@@ -288,7 +345,7 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
   disconnect(key.get(), &NodeKeyframe::BezierControlInChanged, this, &NodeInput::KeyframeBezierInChanged);
   disconnect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
 
-  keyframes_.removeOne(key);
+  keyframes_[key->track()].removeOne(key);
 
   emit KeyframeRemoved(key);
   emit_time_range(time_affected);
@@ -301,11 +358,11 @@ void NodeInput::KeyframeTimeChanged()
 
   Q_ASSERT(keyframe_index > -1);
 
-  TimeRange original_range = get_range_around_index(keyframe_index);
+  TimeRange original_range = get_range_around_index(keyframe_index, key->track());
 
   if (!(original_range.in() < key->time() && original_range.out() > key->time())) {
     // This keyframe needs resorting, store it and remove it from the list
-    NodeKeyframePtr key_shared_ptr = keyframes_.at(keyframe_index);
+    NodeKeyframePtr key_shared_ptr = keyframes_.at(key->track()).at(keyframe_index);
 
     keyframes_.removeAt(keyframe_index);
 
@@ -313,7 +370,7 @@ void NodeInput::KeyframeTimeChanged()
     insert_keyframe_internal(key_shared_ptr);
 
     // Invalidate new area that the keyframe has been moved to
-    emit_time_range(get_range_around_index(FindIndexOfKeyframeFromRawPtr(key)));
+    emit_time_range(get_range_around_index(FindIndexOfKeyframeFromRawPtr(key), key->track()));
   }
 
   // Invalidate entire area surrounding the keyframe (either where it currently is, or where it used to be before it
@@ -337,7 +394,7 @@ void NodeInput::KeyframeTypeChanged()
   }
 
   // Invalidate entire range
-  emit_time_range(get_range_around_index(keyframe_index));
+  emit_time_range(get_range_around_index(keyframe_index, key->track()));
 }
 
 void NodeInput::KeyframeBezierInChanged()
@@ -349,7 +406,7 @@ void NodeInput::KeyframeBezierInChanged()
   rational end = key->time();
 
   if (keyframe_index > 0) {
-    start = keyframes_.at(keyframe_index - 1)->time();
+    start = keyframes_.at(key->track()).at(keyframe_index - 1)->time();
   }
 
   emit ValueChanged(start, end);
@@ -364,7 +421,7 @@ void NodeInput::KeyframeBezierOutChanged()
   rational end = RATIONAL_MAX;
 
   if (keyframe_index < keyframes_.size() - 1) {
-    end = keyframes_.at(keyframe_index + 1)->time();
+    end = keyframes_.at(key->track()).at(keyframe_index + 1)->time();
   }
 
   emit ValueChanged(start, end);
@@ -373,7 +430,7 @@ void NodeInput::KeyframeBezierOutChanged()
 int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
 {
   for (int i=0;i<keyframes_.size();i++) {
-    if (keyframes_.at(i).get() == raw_ptr) {
+    if (keyframes_.at(raw_ptr->track()).at(i).get() == raw_ptr) {
       return i;
     }
   }
@@ -383,19 +440,21 @@ int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
 
 void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
 {
-  for (int i=0;i<keyframes_.size();i++) {
-    NodeKeyframePtr compare = keyframes_.at(i);
+  QList<NodeKeyframePtr>& key_track = keyframes_[key->track()];
+
+  for (int i=0;i<key_track.size();i++) {
+    NodeKeyframePtr compare = key_track.at(i);
 
     // Ensure we aren't trying to insert two keyframes at the same time
     Q_ASSERT(compare->time() != key->time());
 
     if (compare->time() > key->time()) {
-      keyframes_.insert(i, key);
+      key_track.insert(i, key);
       return;
     }
   }
 
-  keyframes_.append(key);
+  key_track.append(key);
 }
 
 bool NodeInput::is_using_standard_value() const
@@ -407,19 +466,19 @@ TimeRange NodeInput::get_range_affected_by_keyframe(NodeKeyframe *key) const
 {
   int keyframe_index = FindIndexOfKeyframeFromRawPtr(key);
 
-  TimeRange range = get_range_around_index(keyframe_index);
+  TimeRange range = get_range_around_index(keyframe_index, key->track());
 
   // If a previous key exists and it's a hold, we don't need to invalidate those frames
   if (keyframes().size() > 1
       && keyframe_index > 0
-      && keyframes_.at(keyframe_index - 1)->type() == NodeKeyframe::kHold) {
+      && keyframes_.at(key->track()).at(keyframe_index - 1)->type() == NodeKeyframe::kHold) {
     range.set_in(key->time());
   }
 
   return range;
 }
 
-TimeRange NodeInput::get_range_around_index(int index) const
+TimeRange NodeInput::get_range_around_index(int index, int track) const
 {
   rational range_begin = RATIONAL_MIN;
   rational range_end = RATIONAL_MAX;
@@ -427,11 +486,11 @@ TimeRange NodeInput::get_range_around_index(int index) const
   if (keyframes_.size() > 1) {
     if (index > 0) {
       // If this is not the first key, we'll need to limit it to the key just before
-      range_begin = keyframes_.at(index - 1)->time();
+      range_begin = keyframes_.at(track).at(index - 1)->time();
     }
     if (index < keyframes_.size() - 1) {
       // If this is not the last key, we'll need to limit it to the key just after
-      range_end = keyframes_.at(index + 1)->time();
+      range_end = keyframes_.at(track).at(index + 1)->time();
     }
   }
 
@@ -456,9 +515,11 @@ bool NodeInput::has_keyframe_at_time(const rational &time) const
   }
 
   // Loop through keyframes to see if any match
-  foreach (NodeKeyframePtr key, keyframes_) {
-    if (key->time() == time) {
-      return true;
+  foreach (const QList<NodeKeyframePtr>& track, keyframes_) {
+    foreach (NodeKeyframePtr key, track) {
+      if (key->time() == time) {
+        return true;
+      }
     }
   }
 
@@ -498,7 +559,7 @@ void NodeInput::set_standard_value(const QVariant &value)
   }
 }
 
-const QList<NodeKeyframePtr> &NodeInput::keyframes() const
+const QVector< QList<NodeKeyframePtr> > &NodeInput::keyframes() const
 {
   return keyframes_;
 }
@@ -548,9 +609,11 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   dest->standard_value_ = source->standard_value_;
 
   // Copy keyframes
-  dest->keyframes_.clear();
-  foreach (NodeKeyframePtr key, source->keyframes_) {
-    dest->keyframes_.append(key->copy());
+  for (int i=0;i<source->keyframes_.size();i++) {
+    dest->keyframes_[i].clear();
+    foreach (NodeKeyframePtr key, source->keyframes_.at(i)) {
+      dest->keyframes_[i].append(key->copy());
+    }
   }
 
   // Copy keyframing state

@@ -80,29 +80,46 @@ public:
 
   /**
    * @brief Calculate what the stored value should be at a certain time
+   *
+   * If this is a multi-track data type (e.g. kVec2), this will automatically combine the result into a QVector2D.
    */
   QVariant get_value_at_time(const rational& time) const;
 
   /**
-   * @brief Retrieve the keyframe object at a given time
+   * @brief Calculate the stored value for a specific track
+   *
+   * For most data types, there is only one track (e.g. `track == 0`), but multi-track data types like kVec2 will
+   * produce the X value on track 0 and the Y value on track 1.
+   */
+  QVariant get_value_at_time_for_track(const rational& time, int track) const;
+
+  /**
+   * @brief Retrieve a list of keyframe objects for all tracks at a given time
+   *
+   * List may be empty if this input is not keyframing or has no keyframes at this time.
+   */
+  QList<NodeKeyframePtr> get_keyframe_at_time(const rational& time) const;
+
+  /**
+   * @brief Retrieve the keyframe object at a given time for a given track
    *
    * @return
    *
    * The keyframe object at this time or nullptr if there isn't one or if is_keyframing() is false.
    */
-  NodeKeyframePtr get_keyframe_at_time(const rational& time) const;
+  NodeKeyframePtr get_keyframe_at_time_on_track(const rational& time, int track) const;
 
   /**
    * @brief Gets the closest keyframe to a time
    *
    * If is_keyframing() is false or keyframes_ is empty, this will return nullptr.
    */
-  NodeKeyframePtr get_closest_keyframe_to_time(const rational& time) const;
+  NodeKeyframePtr get_closest_keyframe_to_time(const rational& time, int track) const;
 
   /**
    * @brief A heuristic to determine what type a keyframe should be if it's inserted at a certain time (between keyframes)
    */
-  NodeKeyframe::Type get_best_keyframe_type_for_time(const rational& time) const;
+  NodeKeyframe::Type get_best_keyframe_type_for_time(const rational& time, int track) const;
 
   /**
    * @brief Inserts a keyframe at the given time and returns a reference to it
@@ -117,7 +134,8 @@ public:
   /**
    * @brief Return whether a keyframe exists at this time
    *
-   * If is_keyframing() is false, this will always return false.
+   * If is_keyframing() is false, this will always return false. This checks all tracks and will return true if *any*
+   * track has a keyframe.
    */
   bool has_keyframe_at_time(const rational &time) const;
 
@@ -149,7 +167,7 @@ public:
   /**
    * @brief Return list of keyframes in this parameter
    */
-  const QList<NodeKeyframePtr>& keyframes() const;
+  const QVector<QList<NodeKeyframePtr> > &keyframes() const;
 
   /**
    * @brief Set whether this input can be keyframed or not
@@ -208,7 +226,7 @@ private:
   /**
    * @brief Gets a time range between the previous and next keyframes of index
    */
-  TimeRange get_range_around_index(int index) const;
+  TimeRange get_range_around_index(int index, int track) const;
 
   /**
    * @brief Convenience function - equivalent to calling `emit ValueChanged(range.in(), range.out())`
@@ -242,7 +260,7 @@ private:
    *
    * If keyframing is enabled, this data is used instead of standard_value.
    */
-  QList<NodeKeyframePtr> keyframes_;
+  QVector< QList<NodeKeyframePtr> > keyframes_;
 
   /**
    * @brief Internal keyframing enabled setting

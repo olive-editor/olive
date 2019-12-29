@@ -20,18 +20,19 @@
 
 #include "keyframe.h"
 
-NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type) :
+NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track) :
   time_(time),
   value_(value),
   type_(type),
   bezier_control_in_(QPointF(-1.0, 0.0)),
-  bezier_control_out_(QPointF(1.0, 0.0))
+  bezier_control_out_(QPointF(1.0, 0.0)),
+  track_(track)
 {
 }
 
-NodeKeyframePtr NodeKeyframe::Create(const rational &time, const QVariant &value, const NodeKeyframe::Type &type)
+NodeKeyframePtr NodeKeyframe::Create(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int& track)
 {
-  return std::make_shared<NodeKeyframe>(time, value, type);
+  return std::make_shared<NodeKeyframe>(time, value, type, track);
 }
 
 NodeKeyframePtr NodeKeyframe::copy() const
