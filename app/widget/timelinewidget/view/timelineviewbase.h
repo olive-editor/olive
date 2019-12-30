@@ -34,6 +34,8 @@ protected:
 
   virtual void ScaleChangedEvent(double scale);
 
+  void SetLimitYAxis(bool e);
+
   rational GetPlayheadTime();
 
   bool PlayheadPress(QMouseEvent* event);
@@ -53,6 +55,8 @@ private:
   TimelineViewEndItem* end_item_;
 
   QGraphicsScene scene_;
+
+  bool limit_y_axis_;
 
 private slots:
   /**

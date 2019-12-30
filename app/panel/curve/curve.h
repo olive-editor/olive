@@ -21,6 +21,10 @@ public slots:
 
   virtual void ZoomOut() override;
 
+  virtual void IncreaseTrackHeight() override;
+
+  virtual void DecreaseTrackHeight() override;
+
 signals:
   void TimeChanged(const int64_t& timestamp);
 

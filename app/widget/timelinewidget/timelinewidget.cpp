@@ -473,6 +473,34 @@ void TimelineWidget::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void TimelineWidget::IncreaseTrackHeight()
+{
+  if (!timeline_node_) {
+    return;
+  }
+
+  QVector<TrackOutput*> all_tracks = timeline_node_->Tracks();
+
+  // Increase the height of each track by one "unit"
+  foreach (TrackOutput* t, all_tracks) {
+    t->SetTrackHeight(t->GetTrackHeight() + t->GetTrackHeightIncrement());
+  }
+}
+
+void TimelineWidget::DecreaseTrackHeight()
+{
+  if (!timeline_node_) {
+    return;
+  }
+
+  QVector<TrackOutput*> all_tracks = timeline_node_->Tracks();
+
+  // Decrease the height of each track by one "unit"
+  foreach (TrackOutput* t, all_tracks) {
+    t->SetTrackHeight(qMax(t->GetTrackHeight() - t->GetTrackHeightIncrement(), t->GetTrackHeightMinimum()));
+  }
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;

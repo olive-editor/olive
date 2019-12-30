@@ -28,6 +28,9 @@ public:
   const double& GetScale();
   void SetScale(const double& scale);
 
+  const double& GetVerticalScale();
+  void SetVerticalScale(const double& vscale);
+
 signals:
   void TimeChanged(const int64_t& timestamp);
 

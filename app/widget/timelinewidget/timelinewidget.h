@@ -54,6 +54,10 @@ public:
 
   void DeleteSelected();
 
+  void IncreaseTrackHeight();
+
+  void DecreaseTrackHeight();
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 public slots:

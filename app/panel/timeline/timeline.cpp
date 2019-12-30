@@ -119,6 +119,16 @@ void TimelinePanel::DeleteSelected()
   timeline_widget_->DeleteSelected();
 }
 
+void TimelinePanel::IncreaseTrackHeight()
+{
+  timeline_widget_->IncreaseTrackHeight();
+}
+
+void TimelinePanel::DecreaseTrackHeight()
+{
+  timeline_widget_->DecreaseTrackHeight();
+}
+
 void TimelinePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

@@ -61,7 +61,13 @@ void TrackViewSplitter::SetTrackHeight(int index, int h)
 {
   QList<int> element_sizes = sizes();
 
+  if (alignment_ == Qt::AlignBottom) {
+    index = count() - index - 1;
+  }
+
   int old_ele_sz = element_sizes.at(index);
+
+  qDebug() << "Old ele sz" << old_ele_sz << "vs h" << h;
 
   int diff = h - old_ele_sz;
 

@@ -33,10 +33,20 @@ void KeyframeViewBase::Clear()
   item_map_.clear();
 }
 
+const double &KeyframeViewBase::GetYScale() const
+{
+  return y_scale_;
+}
+
 void KeyframeViewBase::SetYScale(const double &y_scale)
 {
   y_scale_ = y_scale;
-  viewport()->update();
+
+  if (y_axis_enabled_) {
+    VerticalScaleChangedEvent(y_scale_);
+
+    viewport()->update();
+  }
 }
 
 void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
@@ -186,6 +196,10 @@ void KeyframeViewBase::ScaleChangedEvent(double scale)
   for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
     iterator.value()->SetScale(scale);
   }
+}
+
+void KeyframeViewBase::VerticalScaleChangedEvent(double scale)
+{
 }
 
 const QMap<NodeKeyframe *, KeyframeViewItem *> &KeyframeViewBase::item_map() const

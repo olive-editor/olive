@@ -45,6 +45,7 @@ TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignme
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
+  SetLimitYAxis(true);
 }
 
 void TimelineView::SelectAll()

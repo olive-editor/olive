@@ -328,9 +328,19 @@ bool TrackOutput::IsTrack() const
   return true;
 }
 
+int TrackOutput::GetTrackHeightIncrement()
+{
+  return qApp->fontMetrics().height() / 2;
+}
+
 int TrackOutput::GetDefaultTrackHeight()
 {
   return qApp->fontMetrics().height() * 3;
+}
+
+int TrackOutput::GetTrackHeightMinimum()
+{
+  return qApp->fontMetrics().height() * 3 / 2;
 }
 
 QString TrackOutput::GetDefaultTrackName(TrackType type, int index)

@@ -41,6 +41,16 @@ void CurvePanel::ZoomOut()
   widget_->SetScale(widget_->GetScale() * 0.5);
 }
 
+void CurvePanel::IncreaseTrackHeight()
+{
+  widget_->SetVerticalScale(widget_->GetVerticalScale() * 2);
+}
+
+void CurvePanel::DecreaseTrackHeight()
+{
+  widget_->SetVerticalScale(widget_->GetVerticalScale() * 0.5);
+}
+
 void CurvePanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

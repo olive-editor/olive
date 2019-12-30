@@ -8,7 +8,7 @@
 CurveView::CurveView(QWidget *parent) :
   KeyframeViewBase(parent)
 {
-  setAlignment(Qt::AlignLeft | Qt::AlignBottom);
+  setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   setDragMode(RubberBandDrag);
   setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
@@ -181,6 +181,7 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
 void CurveView::KeyframeAboutToBeRemoved(NodeKeyframe *key)
 {
   disconnect(key, &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
+  disconnect(key, &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
 }
 
 void CurveView::ScaleChangedEvent(double scale)
@@ -189,6 +190,15 @@ void CurveView::ScaleChangedEvent(double scale)
 
   foreach (BezierControlPointItem* item, bezier_control_points_) {
     item->SetXScale(scale);
+  }
+}
+
+void CurveView::VerticalScaleChangedEvent(double scale)
+{
+  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
+
+  for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {
+    SetItemYFromKeyframeValue(iterator.value()->key().get(), iterator.value());
   }
 }
 
@@ -234,12 +244,36 @@ QPointF CurveView::ScalePoint(const QPointF &point)
   return QPointF(point.x() * scale_, - point.y() * y_scale_);
 }
 
+void CurveView::CreateBezierControlPoints(KeyframeViewItem* item)
+{
+  BezierControlPointItem* bezier_in_pt = new BezierControlPointItem(item->key(), NodeKeyframe::kInHandle, item);
+  bezier_in_pt->SetXScale(scale_);
+  bezier_control_points_.append(bezier_in_pt);
+  connect(bezier_in_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
+
+  BezierControlPointItem* bezier_out_pt = new BezierControlPointItem(item->key(), NodeKeyframe::kOutHandle, item);
+  bezier_out_pt->SetXScale(scale_);
+  bezier_control_points_.append(bezier_out_pt);
+  connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
+}
+
 void CurveView::KeyframeValueChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
   KeyframeViewItem* item = item_map().value(key);
 
   SetItemYFromKeyframeValue(key, item);
+}
+
+void CurveView::KeyframeTypeChanged()
+{
+  NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
+  KeyframeViewItem* item = item_map().value(key);
+
+  if (item->isSelected()) {
+    item->setSelected(false);
+    item->setSelected(true);
+  }
 }
 
 void CurveView::SelectionChanged()
@@ -255,15 +289,9 @@ void CurveView::SelectionChanged()
   foreach (QGraphicsItem* item, selected) {
     KeyframeViewItem* this_item = static_cast<KeyframeViewItem*>(item);
 
-    BezierControlPointItem* bezier_in_pt = new BezierControlPointItem(this_item->key(), NodeKeyframe::kInHandle, item);
-    bezier_in_pt->SetXScale(scale_);
-    bezier_control_points_.append(bezier_in_pt);
-    connect(bezier_in_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
-
-    BezierControlPointItem* bezier_out_pt = new BezierControlPointItem(this_item->key(), NodeKeyframe::kOutHandle, item);
-    bezier_out_pt->SetXScale(scale_);
-    bezier_control_points_.append(bezier_out_pt);
-    connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
+    if (this_item->key()->type() == NodeKeyframe::kBezier) {
+      CreateBezierControlPoints(this_item);
+    }
   }
 }
 
@@ -279,4 +307,5 @@ void CurveView::AddKeyframe(NodeKeyframePtr key)
   SetItemYFromKeyframeValue(key.get(), item);
 
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
+  connect(key.get(), &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
 }

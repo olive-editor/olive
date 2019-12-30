@@ -148,6 +148,16 @@ void CurveWidget::SetScale(const double &scale)
   view_->SetScale(scale);
 }
 
+const double &CurveWidget::GetVerticalScale()
+{
+  return view_->GetYScale();
+}
+
+void CurveWidget::SetVerticalScale(const double &vscale)
+{
+  view_->SetYScale(vscale);
+}
+
 void CurveWidget::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {

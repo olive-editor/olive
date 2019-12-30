@@ -15,6 +15,7 @@ public:
 
   virtual void Clear();
 
+  const double& GetYScale() const;
   void SetYScale(const double& y_scale);
 
 public slots:
@@ -28,6 +29,8 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
   virtual void ScaleChangedEvent(double scale) override;
+
+  virtual void VerticalScaleChangedEvent(double scale);
 
   const QMap<NodeKeyframe*, KeyframeViewItem*>& item_map() const;
 

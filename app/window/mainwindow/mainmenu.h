@@ -104,6 +104,9 @@ private slots:
    */
   void ZoomOutTriggered();
 
+  void IncreaseTrackHeightTriggered();
+  void DecreaseTrackHeightTriggered();
+
   void GoToStartTriggered();
   void PrevFrameTriggered();
 

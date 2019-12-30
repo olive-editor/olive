@@ -32,9 +32,9 @@ NodeView::NodeView(QWidget *parent) :
   setDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
-  connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(ItemsChanged()));
-  connect(&scene_, SIGNAL(selectionChanged()), this, SLOT(SceneSelectionChangedSlot()));
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu(const QPoint &)));
+  connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
+  connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
+  connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
 }
 
 NodeView::~NodeView()
@@ -50,10 +50,10 @@ void NodeView::SetGraph(NodeGraph *graph)
   }
 
   if (graph_ != nullptr) {
-    disconnect(graph_, SIGNAL(NodeAdded(Node*)), this, SLOT(AddNode(Node*)));
-    disconnect(graph_, SIGNAL(NodeRemoved(Node*)), this, SLOT(RemoveNode(Node*)));
-    disconnect(graph_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(AddEdge(NodeEdgePtr)));
-    disconnect(graph_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(RemoveEdge(NodeEdgePtr)));
+    disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+    disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
+    disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
+    disconnect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::RemoveEdge);
   }
 
   // Clear the scene of all UI objects
@@ -64,10 +64,10 @@ void NodeView::SetGraph(NodeGraph *graph)
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_ != nullptr) {
-    connect(graph_, SIGNAL(NodeAdded(Node*)), this, SLOT(AddNode(Node*)));
-    connect(graph_, SIGNAL(NodeRemoved(Node*)), this, SLOT(RemoveNode(Node*)));
-    connect(graph_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(AddEdge(NodeEdgePtr)));
-    connect(graph_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(RemoveEdge(NodeEdgePtr)));
+    connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
+    connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
+    connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
+    connect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::RemoveEdge);
 
     QList<Node*> graph_nodes = graph_->nodes();
 
@@ -233,7 +233,7 @@ void NodeView::ShowContextMenu(const QPoint &pos)
 
   Menu* add_menu = NodeFactory::CreateMenu();
   add_menu->setTitle(tr("Add"));
-  connect(add_menu, SIGNAL(triggered(QAction*)), this, SLOT(CreateNodeSlot(QAction*)));
+  connect(add_menu, &Menu::triggered, this, &NodeView::CreateNodeSlot);
   m->addMenu(add_menu);
 
   m->exec(mapToGlobal(pos));

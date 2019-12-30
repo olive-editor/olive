@@ -108,6 +108,10 @@ public:
 
   virtual void DeleteSelected(){}
 
+  virtual void IncreaseTrackHeight(){}
+
+  virtual void DecreaseTrackHeight(){}
+
 protected:
   /**
    * @brief Set panel's title

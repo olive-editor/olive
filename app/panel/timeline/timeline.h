@@ -64,6 +64,10 @@ public:
 
   virtual void DeleteSelected() override;
 
+  virtual void IncreaseTrackHeight() override;
+
+  virtual void DecreaseTrackHeight() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

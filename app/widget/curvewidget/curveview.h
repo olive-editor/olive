@@ -25,6 +25,8 @@ protected:
 
   virtual void ScaleChangedEvent(double scale) override;
 
+  virtual void VerticalScaleChangedEvent(double scale) override;
+
 private:
   QList<NodeKeyframe*> GetKeyframesSortedByTime();
 
@@ -36,6 +38,8 @@ private:
 
   void AdjustLines();
 
+  void CreateBezierControlPoints(KeyframeViewItem *item);
+
   int text_padding_;
 
   int minimum_grid_space_;
@@ -46,6 +50,8 @@ private:
 
 private slots:
   void KeyframeValueChanged();
+
+  void KeyframeTypeChanged();
 
   void SelectionChanged();
 

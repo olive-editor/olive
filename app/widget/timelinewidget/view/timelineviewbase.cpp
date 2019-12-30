@@ -10,7 +10,8 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   QGraphicsView(parent),
   playhead_(0),
   playhead_scene_left_(-1),
-  playhead_scene_right_(-1)
+  playhead_scene_right_(-1),
+  limit_y_axis_(false)
 {
   setScene(&scene_);
 
@@ -111,28 +112,33 @@ void TimelineViewBase::UpdateSceneRect()
 {
   QRectF bounding_rect = scene_.itemsBoundingRect();
 
-  // Ensure the scene height is always AT LEAST the height of the view
-  // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
-  int minimum_height = height() - horizontalScrollBar()->height() - 2;
+  if (limit_y_axis_) {
+    // Ensure the scene height is always AT LEAST the height of the view
+    // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
+    int minimum_height = height() - horizontalScrollBar()->height() - 2;
 
-  if (alignment() & Qt::AlignBottom) {
-    // Ensure the scene left and bottom are always 0
-    bounding_rect.setBottomLeft(QPointF(0, 0));
+    if (alignment() & Qt::AlignBottom) {
+      // Ensure the scene left and bottom are always 0
+      bounding_rect.setBottomLeft(QPointF(0, 0));
 
-    if (bounding_rect.top() > minimum_height) {
-      bounding_rect.setTop(-minimum_height);
+      if (bounding_rect.top() > minimum_height) {
+        bounding_rect.setTop(-minimum_height);
+      }
+    } else {
+      // Ensure the scene left and top are always 0
+      bounding_rect.setTopLeft(QPointF(0, 0));
+
+      if (bounding_rect.height() < minimum_height) {
+        bounding_rect.setHeight(minimum_height);
+      }
     }
   } else {
-    // Ensure the scene left and top are always 0
-    bounding_rect.setTopLeft(QPointF(0, 0));
-
-    if (bounding_rect.height() < minimum_height) {
-      bounding_rect.setHeight(minimum_height);
-    }
+    // We'll still limit the X to 0 since that behavior is desired by all TimelineViewBase derivatives
+    bounding_rect.setLeft(0);
   }
 
   // Ensure the scene is always the full length of the timeline with a gap at the end to work with
-  end_item_->SetEndPadding(width()/4);
+  end_item_->SetEndPadding(width()/2);
 
   // If the scene is already this rect, do nothing
   if (scene_.sceneRect() == bounding_rect) {
@@ -152,4 +158,10 @@ void TimelineViewBase::resizeEvent(QResizeEvent *event)
 void TimelineViewBase::ScaleChangedEvent(double scale)
 {
   Q_UNUSED(scale)
+}
+
+void TimelineViewBase::SetLimitYAxis(bool e)
+{
+  limit_y_axis_ = true;
+  UpdateSceneRect();
 }

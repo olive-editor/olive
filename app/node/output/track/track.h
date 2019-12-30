@@ -120,7 +120,11 @@ public:
 
   virtual bool IsTrack() const override;
 
+  static int GetTrackHeightIncrement();
+
   static int GetDefaultTrackHeight();
+
+  static int GetTrackHeightMinimum();
 
   static QString GetDefaultTrackName(TrackType type, int index);
 

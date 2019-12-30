@@ -92,8 +92,8 @@ MainMenu::MainMenu(QMainWindow *parent) :
   view_menu_ = new Menu(this, this, SLOT(ViewMenuAboutToShow()));
   view_zoom_in_item_ = view_menu_->AddItem("zoomin", this, SLOT(ZoomInTriggered()), "=");
   view_zoom_out_item_ = view_menu_->AddItem("zoomout", this, SLOT(ZoomOutTriggered()), "-");
-  view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", nullptr, nullptr, "Ctrl+=");
-  view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", nullptr, nullptr, "Ctrl+-");
+  view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", this, SLOT(IncreaseTrackHeightTriggered()), "Ctrl+=");
+  view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, SLOT(DecreaseTrackHeightTriggered()), "Ctrl+-");
   view_show_all_item_ = view_menu_->AddItem("showall", nullptr, nullptr, "\\");
   view_show_all_item_->setCheckable(true);
   view_menu_->addSeparator();
@@ -414,6 +414,16 @@ void MainMenu::ZoomInTriggered()
 void MainMenu::ZoomOutTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->ZoomOut();
+}
+
+void MainMenu::IncreaseTrackHeightTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->IncreaseTrackHeight();
+}
+
+void MainMenu::DecreaseTrackHeightTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->DecreaseTrackHeight();
 }
 
 void MainMenu::GoToStartTriggered()
