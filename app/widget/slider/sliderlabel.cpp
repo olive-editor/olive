@@ -26,6 +26,14 @@
 SliderLabel::SliderLabel(QWidget *parent) :
   QLabel(parent)
 {
+  QPalette p = palette();
+
+  p.setColor(QPalette::Disabled,
+             QPalette::Highlight,
+             p.color(QPalette::Disabled, QPalette::ButtonText));
+
+  setPalette(p);
+
   // Use highlight color as font color
   setForegroundRole(QPalette::Highlight);
 
