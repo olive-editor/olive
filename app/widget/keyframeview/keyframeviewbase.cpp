@@ -11,7 +11,9 @@
 
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimelineViewBase(parent),
-  dragging_bezier_point_(nullptr)
+  y_scale_(1.0),
+  dragging_bezier_point_(nullptr),
+  y_axis_enabled_(false)
 {
   setDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -29,6 +31,12 @@ void KeyframeViewBase::Clear()
   }
 
   item_map_.clear();
+}
+
+void KeyframeViewBase::SetYScale(const double &y_scale)
+{
+  y_scale_ = y_scale;
+  viewport()->update();
 }
 
 void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
@@ -79,7 +87,7 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
           for (int i=0;i<selected_items.size();i++) {
             KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
 
-            selected_keys_.replace(i, {key, key->x(), key->key()->time()});
+            selected_keys_.replace(i, {key, key->x(), key->key()->time(), key->key()->value().toDouble()});
           }
         }
       }
@@ -108,6 +116,10 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
           // FIXME: Find some way to do single frame updates as the NodeParamViewWidgetBridge does?
           keypair.key->key()->set_time(CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()));
+
+          if (y_axis_enabled_) {
+            keypair.key->key()->set_value(keypair.value - mouse_diff_scaled.y());
+          }
         }
       }
     }
@@ -148,6 +160,14 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
                                                 new_time,
                                                 keypair.time,
                                                 command);
+
+            // Commit value if we're setting a vaule
+            if (y_axis_enabled_) {
+              new NodeParamSetKeyframeValueCommand(item->key(),
+                                                   keypair.value - mouse_diff_scaled.y(),
+                                                   keypair.value,
+                                                   command);
+            }
           }
 
           Core::instance()->undo_stack()->push(command);
@@ -175,6 +195,11 @@ const QMap<NodeKeyframe *, KeyframeViewItem *> &KeyframeViewBase::item_map() con
 
 void KeyframeViewBase::KeyframeAboutToBeRemoved(NodeKeyframe *)
 {
+}
+
+void KeyframeViewBase::SetYAxisEnabled(bool e)
+{
+  y_axis_enabled_ = e;
 }
 
 rational KeyframeViewBase::CalculateNewTimeFromScreen(const rational &old_time, double cursor_diff)
@@ -252,8 +277,8 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
 
 QPointF KeyframeViewBase::GetScaledCursorPos(const QPoint &cursor_pos)
 {
-  return QPointF (static_cast<double>(cursor_pos.x()) / scale_,
-                                   cursor_pos.y());;
+  return QPointF(static_cast<double>(cursor_pos.x()) / scale_,
+                 static_cast<double>(cursor_pos.y()) / y_scale_);
 }
 
 void KeyframeViewBase::ShowContextMenu()

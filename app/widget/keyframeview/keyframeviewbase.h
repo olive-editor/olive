@@ -15,6 +15,8 @@ public:
 
   virtual void Clear();
 
+  void SetYScale(const double& y_scale);
+
 public slots:
   void RemoveKeyframe(NodeKeyframePtr key);
 
@@ -31,6 +33,10 @@ protected:
 
   virtual void KeyframeAboutToBeRemoved(NodeKeyframe* key);
 
+  void SetYAxisEnabled(bool e);
+
+  double y_scale_;
+
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
 
@@ -46,6 +52,7 @@ private:
     KeyframeViewItem* key;
     qreal item_x;
     rational time;
+    double value;
   };
 
   QMap<NodeKeyframe*, KeyframeViewItem*> item_map_;
@@ -59,6 +66,8 @@ private:
   QPointF dragging_bezier_point_opposing_start_;
 
   QVector<KeyframeItemAndTime> selected_keys_;
+
+  bool y_axis_enabled_;
 
 private slots:
   void ShowContextMenu();

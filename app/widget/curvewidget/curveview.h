@@ -15,8 +15,6 @@ public:
 
   virtual void Clear() override;
 
-  void SetYScale(const double& y_scale);
-
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
 
@@ -39,8 +37,6 @@ private:
   void AdjustLines();
 
   int text_padding_;
-
-  double y_scale_;
 
   int minimum_grid_space_;
 

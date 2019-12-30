@@ -6,12 +6,12 @@
 #include "common/qtversionabstraction.h"
 
 CurveView::CurveView(QWidget *parent) :
-  KeyframeViewBase(parent),
-  y_scale_(1.0)
+  KeyframeViewBase(parent)
 {
   setAlignment(Qt::AlignLeft | Qt::AlignBottom);
   setDragMode(RubberBandDrag);
   setViewportUpdateMode(FullViewportUpdate);
+  SetYAxisEnabled(true);
 
   text_padding_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
 
@@ -34,12 +34,6 @@ void CurveView::Clear()
     delete line;
   }
   lines_.clear();
-}
-
-void CurveView::SetYScale(const double &y_scale)
-{
-  y_scale_ = y_scale;
-  viewport()->update();
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
