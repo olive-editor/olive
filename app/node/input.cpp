@@ -234,8 +234,10 @@ QList<NodeKeyframePtr> NodeInput::get_keyframe_at_time(const rational &time) con
   QList<NodeKeyframePtr> keys;
 
   for (int i=0;i<keyframe_tracks_.size();i++) {
-    if (!is_using_standard_value(i)) {
-      keys.append(get_keyframe_at_time_on_track(time, i));
+    NodeKeyframePtr key_at_time = get_keyframe_at_time_on_track(time, i);
+
+    if (key_at_time) {
+      keys.append(key_at_time);
     }
   }
 
