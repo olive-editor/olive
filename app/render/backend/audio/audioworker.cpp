@@ -49,8 +49,11 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
           && param != node->ProcessesSamplesFrom()) {
         NodeInput* input = static_cast<NodeInput*>(param);
 
-        input_params.Insert(input, ProcessInput(input,
-                                                TimeRange(this_sample_time, this_sample_time)));
+        // If the input isn't keyframing, we don't need to update it unless it's connected, in which case it may change
+        if (input->IsConnected() || input->is_keyframing()) {
+          input_params.Insert(input, ProcessInput(input,
+                                                  TimeRange(this_sample_time, this_sample_time)));
+        }
       }
     }
 
