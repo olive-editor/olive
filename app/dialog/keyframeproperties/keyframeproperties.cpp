@@ -104,11 +104,9 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> 
     // Determine if any keyframes are on the same track (in which case we can't set the time)
     if (can_set_time) {
       for (int j=0;j<keys_.size();j++) {
-        if (i != j) {
-          can_set_time = (keys_.at(j)->track() == keys_.at(i)->track());
-        }
-
-        if (!can_set_time) {
+        if (i != j
+            && keys_.at(j)->track() == keys_.at(i)->track()) {
+          can_set_time = false;
           break;
         }
       }
@@ -131,9 +129,7 @@ KeyframePropertiesDialog::KeyframePropertiesDialog(const QList<NodeKeyframePtr> 
     time_slider_->SetTristate();
   }
 
-  if (!can_set_time) {
-    time_slider_->setEnabled(false);
-  }
+  time_slider_->setEnabled(can_set_time);
 
   if (!all_same_type) {
     // If all keyframes aren't the same type, add an empty item
