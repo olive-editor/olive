@@ -162,4 +162,8 @@ void MainWindow::SetDefaultLayout()
   resizeDocks({project_panel_, tool_panel_, timeline_panel_, audio_monitor_panel_},
               {width()/4, 1, width(), 1},
               Qt::Horizontal);
+
+  resizeDocks({node_panel_, project_panel_},
+              {height()/2, height()/2},
+              Qt::Vertical);
 }
