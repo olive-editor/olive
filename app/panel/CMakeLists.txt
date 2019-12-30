@@ -16,6 +16,7 @@
 
 add_subdirectory(audiomonitor)
 add_subdirectory(curve)
+add_subdirectory(footageviewer)
 add_subdirectory(node)
 add_subdirectory(param)
 add_subdirectory(project)

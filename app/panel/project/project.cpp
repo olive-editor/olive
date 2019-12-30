@@ -24,6 +24,8 @@
 #include <QVBoxLayout>
 
 #include "core.h"
+#include "panel/footageviewer/footageviewer.h"
+#include "panel/panelmanager.h"
 #include "widget/menu/menushared.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
@@ -121,9 +123,12 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
   if (item == nullptr) {
     // If the user double clicks on empty space, show the import dialog
     Core::instance()->DialogImportShow();
+  } else if (item->type() == Item::kFootage) {
+    // Open this footage in a FootageViewer
+    PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->SetFootage(static_cast<Footage*>(item));
+  } else if (item->type() == Item::kSequence) {
+    // FIXME: Open this sequence in the Timeline
   }
-
-  // FIXME: Double click Item should do something
 }
 
 void ProjectPanel::ShowNewMenu()

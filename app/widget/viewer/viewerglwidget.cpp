@@ -147,6 +147,12 @@ void ViewerGLWidget::paintGL()
 
 void ViewerGLWidget::RefreshColorPipeline()
 {
+  if (!color_manager_) {
+    color_service_ = nullptr;
+    pipeline_ = nullptr;
+    return;
+  }
+
   QStringList displays = color_manager_->ListAvailableDisplays();
   if (!displays.contains(ocio_display_)) {
     ocio_display_ = color_manager_->GetDefaultDisplay();

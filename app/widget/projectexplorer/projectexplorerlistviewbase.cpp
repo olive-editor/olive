@@ -43,9 +43,8 @@ void ProjectExplorerListViewBase::mouseDoubleClickEvent(QMouseEvent *event)
   // Perform default double click functions
   QListView::mouseDoubleClickEvent(event);
 
-  // Get the index at whatever position was double clicked
-  QModelIndex index = indexAt(event->pos());
-
-  // Emit the signal with this index
-  emit DoubleClickedView(index);
+  // QAbstractItemView already has a doubleClicked() signal, but we emit another here for double clicking empty space
+  if (!indexAt(event->pos()).isValid()) {
+    emit DoubleClickedEmptyArea();
+  }
 }

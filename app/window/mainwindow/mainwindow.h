@@ -32,6 +32,7 @@
 #include "panel/taskmanager/taskmanager.h"
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
+#include "panel/footageviewer/footageviewer.h"
 #include "panel/viewer/viewer.h"
 #include "project/project.h"
 
@@ -60,6 +61,7 @@ private:
   NodePanel* node_panel_;
   ParamPanel* param_panel_;
   ViewerPanel* viewer_panel_;
+  FootageViewerPanel* footage_viewer_panel_;
   ProjectPanel* project_panel_;
   ToolPanel* tool_panel_;
   TimelinePanel* timeline_panel_;

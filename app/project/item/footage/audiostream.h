@@ -37,8 +37,8 @@ public:
   const int& channels();
   void set_channels(const int& channels);
 
-  const uint64_t& layout();
-  void set_layout(const uint64_t& layout);
+  const uint64_t& channel_layout();
+  void set_channel_layout(const uint64_t& channel_layout);
 
   const int& sample_rate();
   void set_sample_rate(const int& sample_rate);

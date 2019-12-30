@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/viewer/footageviewer.h
+  widget/viewer/footageviewer.cpp
   widget/viewer/viewer.h
   widget/viewer/viewer.cpp
   widget/viewer/viewerglwidget.h

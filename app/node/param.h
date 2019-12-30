@@ -254,7 +254,7 @@ public:
    * Nodes and NodeParams use the QObject parent-child system. This function is a convenience function for
    * static_cast<Node*>(QObject::parent())
    */
-  Node* parentNode();
+  Node* parentNode() const;
 
   /**
    * @brief Return the row index of this parameter in the parent node (primarily used for UI drawing functions)
@@ -264,7 +264,7 @@ public:
   /**
    * @brief Returns whether anything is connected to this parameter or not
    */
-  bool IsConnected();
+  bool IsConnected() const;
 
   bool IsConnectable() const;
   void SetConnectable(bool connectable);

@@ -42,12 +42,12 @@ void AudioStream::set_channels(const int &channels)
   channels_ = channels;
 }
 
-const uint64_t &AudioStream::layout()
+const uint64_t &AudioStream::channel_layout()
 {
   return layout_;
 }
 
-void AudioStream::set_layout(const uint64_t &layout)
+void AudioStream::set_channel_layout(const uint64_t &layout)
 {
   layout_ = layout;
 }

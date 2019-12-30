@@ -119,7 +119,7 @@ rational ViewerOutput::Length()
   Node* connected_node = length_input_->get_connected_node();
 
   if (connected_node) {
-    return connected_node->Value(NodeValueDatabase()).Get(NodeParam::kNumber).value<rational>();
+    return connected_node->Value(NodeValueDatabase()).Get(NodeParam::kNumber, "length").value<rational>();
   }
 
   return 0;

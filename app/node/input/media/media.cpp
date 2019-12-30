@@ -20,6 +20,8 @@
 
 #include "media.h"
 
+#include "common/timecodefunctions.h"
+
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
 {
@@ -43,6 +45,20 @@ void MediaInput::SetFootage(StreamPtr f)
 void MediaInput::Retranslate()
 {
   footage_input_->set_name(tr("Footage"));
+}
+
+NodeValueTable MediaInput::Value(const NodeValueDatabase &value) const
+{
+  NodeValueTable table = value.Merge();
+
+  if (connected_footage_) {
+    rational media_duration = Timecode::timestamp_to_time(connected_footage_->duration(),
+                                                          connected_footage_->timebase());
+
+    table.Push(NodeInput::kRational, QVariant::fromValue(media_duration), "length");
+  }
+
+  return table;
 }
 
 void MediaInput::FootageChanged()

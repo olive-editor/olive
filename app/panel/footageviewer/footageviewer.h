@@ -18,38 +18,29 @@
 
 ***/
 
-#ifndef MEDIAINPUT_H
-#define MEDIAINPUT_H
+#ifndef FOOTAGE_VIEWER_PANEL_H
+#define FOOTAGE_VIEWER_PANEL_H
 
-#include "codec/decoder.h"
-#include "node/node.h"
+#include <QOpenGLFunctions>
+
+#include "panel/viewer/viewerbase.h"
 
 /**
- * @brief A node that imports an image
+ * @brief Dockable wrapper around a ViewerWidget
  */
-class MediaInput : public Node
-{
+class FootageViewerPanel : public ViewerPanelBase {
   Q_OBJECT
 public:
-  MediaInput();
+  FootageViewerPanel(QWidget* parent);
 
-  StreamPtr footage();
-  void SetFootage(StreamPtr f);
-
-  virtual void Retranslate() override;
-
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+  void SetFootage(Footage* f);
 
 protected:
-  NodeInput* footage_input_;
+  virtual void changeEvent(QEvent* e) override;
 
-  StreamPtr connected_footage_;
-
-private slots:
-  void FootageChanged();
-
-  void FootageColorSpaceChanged();
+private:
+  void Retranslate();
 
 };
 
-#endif // MEDIAINPUT_H
+#endif // FOOTAGE_VIEWER_PANEL_H

@@ -135,7 +135,9 @@ private:
 private slots:
   void ItemClickedSlot(const QModelIndex& index);
 
-  void DoubleClickViewSlot(const QModelIndex& index);
+  void ViewEmptyAreaDoubleClickedSlot();
+
+  void ItemDoubleClickedSlot(const QModelIndex& index);
 
   void SizeChangedSlot(int s);
 

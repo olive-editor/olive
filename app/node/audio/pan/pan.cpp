@@ -50,15 +50,17 @@ void PanNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderi
 
   float pan_val = (*values)[panning_input_].Get(NodeParam::kFloat).toFloat();
 
+  output[index] = input[index];
+
   if (index%2 == 0) {
     // Sample is left channel
     if (pan_val > 0) {
-      output[index] = input[index] * (1.0F - pan_val);
+      output[index] *= (1.0F - pan_val);
     }
   } else {
     // Sample is right channel
     if (pan_val < 0) {
-      output[index] = input[index] * (1.0F - qAbs(pan_val));
+      output[index] *= (1.0F - qAbs(pan_val));
     }
   }
 }

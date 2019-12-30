@@ -25,6 +25,7 @@
 #include <QVBoxLayout>
 
 #include "common/define.h"
+#include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
@@ -38,8 +39,8 @@ ProjectExplorer::ProjectExplorer(QWidget *parent) :
 
   // Set up navigation bar
   nav_bar_ = new ProjectExplorerNavigation(this);
-  connect(nav_bar_, SIGNAL(SizeChanged(int)), this, SLOT(SizeChangedSlot(int)));
-  connect(nav_bar_, SIGNAL(DirectoryUpClicked()), this, SLOT(DirUpSlot()));
+  connect(nav_bar_, &ProjectExplorerNavigation::SizeChanged, this, &ProjectExplorer::SizeChangedSlot);
+  connect(nav_bar_, &ProjectExplorerNavigation::DirectoryUpClicked, this, &ProjectExplorer::DirUpSlot);
   layout->addWidget(nav_bar_);
 
   // Set up stacked widget
@@ -111,8 +112,9 @@ void ProjectExplorer::AddView(QAbstractItemView *view)
 {
   view->setModel(&model_);
   view->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  connect(view, SIGNAL(DoubleClickedView(const QModelIndex&)), this, SLOT(DoubleClickViewSlot(const QModelIndex&)));
-  connect(view, SIGNAL(clicked(const QModelIndex&)), this, SLOT(ItemClickedSlot(const QModelIndex&)));
+  connect(view, &QAbstractItemView::clicked, this, &ProjectExplorer::ItemClickedSlot);
+  connect(view, &QAbstractItemView::doubleClicked, this, &ProjectExplorer::ItemDoubleClickedSlot);
+  connect(view, SIGNAL(DoubleClickedEmptyArea()), this, SLOT(ViewEmptyAreaDoubleClickedSlot()));
   stacked_widget_->addWidget(view);
 }
 
@@ -162,30 +164,34 @@ void ProjectExplorer::ItemClickedSlot(const QModelIndex &index)
   }
 }
 
-void ProjectExplorer::DoubleClickViewSlot(const QModelIndex &index)
+void ProjectExplorer::ViewEmptyAreaDoubleClickedSlot()
 {
-  if (index.isValid()) {
+  // Ensure no attempts to rename are made
+  clicked_index_ = QModelIndex();
+  rename_timer_.stop();
 
-    // Retrieve source item from index
-    Item* i = static_cast<Item*>(index.internalPointer());
+  emit DoubleClickedItem(nullptr);
+}
 
-    // If the item is a folder, browse to it
-    if (i->CanHaveChildren()
-        && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
+void ProjectExplorer::ItemDoubleClickedSlot(const QModelIndex &index)
+{
+  // Ensure no attempts to rename are made
+  clicked_index_ = QModelIndex();
+  rename_timer_.stop();
 
-      BrowseToFolder(index);
+  // Retrieve source item from index
+  Item* i = static_cast<Item*>(index.internalPointer());
 
-    }
+  // If the item is a folder, browse to it
+  if (i->CanHaveChildren()
+      && (view_type() == ProjectToolbar::ListView || view_type() == ProjectToolbar::IconView)) {
 
-    // Emit a signal
-    emit DoubleClickedItem(i);
-
-  } else {
-
-    // Emit nullptr since no item was actually clicked on
-    emit DoubleClickedItem(nullptr);
+    BrowseToFolder(index);
 
   }
+
+  // Emit a signal
+  emit DoubleClickedItem(i);
 }
 
 void ProjectExplorer::SizeChangedSlot(int s)
@@ -218,9 +224,6 @@ void ProjectExplorer::RenameTimerSlot()
   rename_timer_.stop();
 }
 
-// FIXME: This is down here because of the code in ShowContextMenu() which may be unnecessary allowing this to be removed
-#include "core.h"
-
 void ProjectExplorer::ShowContextMenu()
 {
   QMenu menu;
@@ -231,17 +234,17 @@ void ProjectExplorer::ShowContextMenu()
   if (selected_items.isEmpty()) {
     // FIXME: These are both duplicates of items from MainMenu, is there any way to re-use the code?
     QAction* import_action = menu.addAction(tr("&Import..."));
-    connect(import_action, SIGNAL(triggered(bool)), Core::instance(), SLOT(DialogImportShow()));
+    connect(import_action, &QAction::triggered, Core::instance(), &Core::DialogImportShow);
 
     menu.addSeparator();
 
     QAction* project_properties = menu.addAction(tr("&Project Properties..."));
-    connect(project_properties, SIGNAL(triggered(bool)), Core::instance(), SLOT(DialogProjectPropertiesShow()));
+    connect(project_properties, &QAction::triggered, Core::instance(), &Core::DialogProjectPropertiesShow);
   } else {
     QAction* properties_action = menu.addAction(tr("P&roperties"));
 
     if (selected_items.first()->type() == Item::kFootage) {
-      connect(properties_action, SIGNAL(triggered(bool)), this, SLOT(ShowFootagePropertiesDialog()));
+      connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowFootagePropertiesDialog);
     }
   }
 

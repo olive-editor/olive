@@ -50,9 +50,9 @@ signals:
   /**
    * @brief Unconditional double click signal
    *
-   * Emits a signal when the view is double clicked, regardless of whether the double clicked index was valid.
+   * Emits a signal when the view is double clicked but not on any particular item
    */
-  void DoubleClickedView(const QModelIndex& index);
+  void DoubleClickedEmptyArea();
 };
 
 #endif // PROJECTEXPLORERTREEVIEW_H

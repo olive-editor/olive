@@ -54,8 +54,11 @@ MainWindow::MainWindow(QWidget *parent) :
   // Create standard panels
   node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, node_panel_);
+  footage_viewer_panel_ = PanelManager::instance()->CreatePanel<FootageViewerPanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, footage_viewer_panel_);
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, param_panel_);
+  tabifyDockWidget(footage_viewer_panel_, param_panel_);
+  footage_viewer_panel_->raise();
   viewer_panel_ = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, viewer_panel_);
   project_panel_ = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
@@ -150,6 +153,7 @@ void MainWindow::SetDefaultLayout()
   task_man_panel_->setFloating(true);
   task_man_panel_->setVisible(false);
   curve_panel_->setFloating(true);
+  curve_panel_->setVisible(false);
 
   resizeDocks({node_panel_, param_panel_, viewer_panel_},
               {width()/3, width()/3, width()/3},

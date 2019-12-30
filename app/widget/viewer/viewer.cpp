@@ -133,7 +133,7 @@ bool ViewerWidget::IsPlaying() const
   return playback_timer_.isActive();
 }
 
-void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
+void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_manager)
 {
   if (viewer_node_ != nullptr) {
     SetTimebase(0);
@@ -153,6 +153,9 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
   // Set texture to new texture (or null if no viewer node is available)
   UpdateTextureFromNode(GetTime());
 
+  video_renderer_->SetViewerNode(viewer_node_);
+  audio_renderer_->SetViewerNode(viewer_node_);
+
   if (viewer_node_ != nullptr) {
     SetTimebase(viewer_node_->video_params().time_base());
 
@@ -163,14 +166,17 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node)
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
     LengthChangedSlot(viewer_node_->Length());
 
-    gl_widget_->ConnectColorManager(static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager());
+    if (color_manager) {
+      gl_widget_->ConnectColorManager(color_manager);
+    } else if (viewer_node_->parent()) {
+      gl_widget_->ConnectColorManager(static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager());
+    } else {
+      qWarning() << "Failed to find a suitable color manager for the connected viewer node";
+    }
+
+    video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), PixelFormat::PIX_FMT_RGBA16F, RenderMode::kOffline, 2));
+    audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));
   }
-
-  video_renderer_->SetViewerNode(viewer_node_);
-  video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), PixelFormat::PIX_FMT_RGBA16F, RenderMode::kOffline, 2));
-
-  audio_renderer_->SetViewerNode(viewer_node_);
-  audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));
 }
 
 void ViewerWidget::DisconnectViewerNode()

@@ -63,7 +63,7 @@ public:
 
   bool IsPlaying() const;
 
-  void ConnectViewerNode(ViewerOutput* node);
+  void ConnectViewerNode(ViewerOutput* node, ColorManager *color_manager = nullptr);
 
   void DisconnectViewerNode();
 
@@ -136,6 +136,9 @@ signals:
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
+  OpenGLBackend* video_renderer_;
+  AudioBackend* audio_renderer_;
+
 private:
   void UpdateTimeInternal(int64_t i);
 
@@ -144,9 +147,6 @@ private:
   void PlayInternal(int speed);
 
   void PushScrubbedAudio();
-
-  OpenGLBackend* video_renderer_;
-  AudioBackend* audio_renderer_;
 
   ViewerSizer* sizer_;
 

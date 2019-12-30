@@ -98,7 +98,7 @@ const rational &TimelineOutput::timebase() const
 NodeValueTable TimelineOutput::Value(const NodeValueDatabase &value) const
 {
   NodeValueTable table = value.Merge();
-  table.Push(NodeParam::kRational, QVariant::fromValue(length()));
+  table.Push(NodeParam::kRational, QVariant::fromValue(length()), "length");
   return table;
 }
 

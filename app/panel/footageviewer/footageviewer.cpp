@@ -18,17 +18,18 @@
 
 ***/
 
-#include "viewer.h"
+#include "footageviewer.h"
 
-ViewerPanel::ViewerPanel(QWidget *parent) :
+#include "widget/viewer/footageviewer.h"
+
+FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
   ViewerPanelBase(parent)
 {
   // FIXME: This won't work if there's ever more than one of this panel
-  setObjectName("ViewerPanel");
+  setObjectName("FootageViewerPanel");
 
   // QObject system handles deleting this
-  viewer_ = new ViewerWidget(this);
-  connect(viewer_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
+  viewer_ = new FootageViewerWidget(this);
 
   // Set ViewerWidget as the central widget
   setWidget(viewer_);
@@ -37,32 +38,12 @@ ViewerPanel::ViewerPanel(QWidget *parent) :
   Retranslate();
 }
 
-void ViewerPanel::ConnectViewerNode(ViewerOutput *node)
+void FootageViewerPanel::SetFootage(Footage *f)
 {
-  viewer_->ConnectViewerNode(node);
+  static_cast<FootageViewerWidget*>(viewer_)->SetFootage(f);
 }
 
-void ViewerPanel::DisconnectViewerNode()
-{
-  viewer_->DisconnectViewerNode();
-}
-
-rational ViewerPanel::GetTime()
-{
-  return viewer_->GetTime();
-}
-
-ViewerOutput *ViewerPanel::GetConnectedViewer() const
-{
-  return viewer_->GetConnectedViewer();
-}
-
-void ViewerPanel::SetTime(const int64_t &timestamp)
-{
-  viewer_->SetTime(timestamp);
-}
-
-void ViewerPanel::changeEvent(QEvent *e)
+void FootageViewerPanel::changeEvent(QEvent *e)
 {
   if (e->type() == QEvent::LanguageChange) {
     Retranslate();
@@ -70,8 +51,8 @@ void ViewerPanel::changeEvent(QEvent *e)
   PanelWidget::changeEvent(e);
 }
 
-void ViewerPanel::Retranslate()
+void FootageViewerPanel::Retranslate()
 {
-  SetTitle(tr("Viewer"));
+  SetTitle(tr("Footage Viewer"));
   SetSubtitle(tr("(none)"));
 }

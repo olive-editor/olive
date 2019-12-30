@@ -65,7 +65,7 @@ void NodeParam::set_name(const QString &name)
   name_ = name;
 }
 
-Node *NodeParam::parentNode()
+Node *NodeParam::parentNode() const
 {
   QObject* p = parent();
 
@@ -87,7 +87,7 @@ int NodeParam::index()
   return parentNode()->IndexOfParameter(this);
 }
 
-bool NodeParam::IsConnected()
+bool NodeParam::IsConnected() const
 {
   return !edges_.isEmpty();
 }

@@ -499,7 +499,12 @@ bool FFmpegDecoder::Probe(Footage *f)
         // Create an audio stream object
         AudioStreamPtr audio_stream = std::make_shared<AudioStream>();
 
-        audio_stream->set_layout(avstream_->codecpar->channel_layout);
+        uint64_t channel_layout = avstream_->codecpar->channel_layout;
+        if (!channel_layout) {
+          channel_layout = static_cast<uint64_t>(av_get_default_channel_layout(avstream_->codecpar->channels));
+        }
+
+        audio_stream->set_channel_layout(channel_layout);
         audio_stream->set_channels(avstream_->codecpar->channels);
         audio_stream->set_sample_rate(avstream_->codecpar->sample_rate);
 
