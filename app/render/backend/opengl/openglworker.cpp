@@ -138,7 +138,7 @@ void OpenGLWorker::ParametersChangedEvent()
   }
 }
 
-void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase *input_params, NodeValueTable *output_params)
+void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
 {
   OpenGLShaderPtr shader = shader_cache_->Get(node->id());
 
@@ -173,7 +173,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
         NodeInput* input = static_cast<NodeInput*>(param);
 
         // Get value from database at this input
-        const NodeValueTable& input_data = (*input_params)[input];
+        const NodeValueTable& input_data = input_params[input];
 
         QVariant value = node->InputValueFromTable(input, input_data);
 
