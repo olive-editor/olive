@@ -49,7 +49,6 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
     if (audio_stream) {
       audio_node_->SetFootage(audio_stream);
-      qDebug() << "Audio stream channel layout:" << audio_stream->channel_layout();
       viewer_node_->set_audio_params(AudioParams(audio_stream->sample_rate(), audio_stream->channel_layout()));
     }
 

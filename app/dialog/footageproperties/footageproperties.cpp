@@ -106,7 +106,7 @@ void FootagePropertiesDialog::accept() {
   for (int i=0;i<footage_->streams().size();i++) {
     bool stream_enabled = (track_list->item(i)->checkState() == Qt::Checked);
 
-    if (footage_->stream(i)->enabled() == stream_enabled) {
+    if (footage_->stream(i)->enabled() != stream_enabled) {
       new StreamEnableChangeCommand(footage_->stream(i),
                                     stream_enabled,
                                     command);
@@ -144,14 +144,13 @@ void FootagePropertiesDialog::FootageChangeCommand::undo()
 FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(StreamPtr stream, bool enabled, QUndoCommand *command) :
   QUndoCommand(command),
   stream_(stream),
+  old_enabled_(stream->enabled()),
   new_enabled_(enabled)
 {
 }
 
 void FootagePropertiesDialog::StreamEnableChangeCommand::redo()
 {
-  old_enabled_ = stream_->enabled();
-
   stream_->set_enabled(new_enabled_);
 }
 

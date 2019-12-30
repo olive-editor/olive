@@ -64,7 +64,6 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
 
   // Listen for MIME data from a ProjectViewModel
   if (mime_formats.contains("application/x-oliveprojectitemdata")) {
-    // FIXME: Implement audio insertion
 
     // Data is drag/drop data from a ProjectViewModel
     QByteArray model_data = event->GetMimeData()->data("application/x-oliveprojectitemdata");
@@ -107,7 +106,7 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
           TrackType track_type = TrackTypeFromStreamType(stream->type());
 
           // Check if this stream has a compatible TrackList
-          if (track_type == kTrackTypeNone) {
+          if (track_type == kTrackTypeNone || !stream->enabled()) {
             continue;
           }
 
