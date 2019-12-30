@@ -44,6 +44,8 @@ NodeKeyframePtr KeyframeViewItem::key() const
 
 void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+  painter->setRenderHint(QPainter::Antialiasing);
+
   painter->setPen(Qt::black);
 
   if (option->state & QStyle::State_Selected) {

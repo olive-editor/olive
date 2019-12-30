@@ -63,6 +63,8 @@ private:
 private slots:
   void ShowContextMenu();
 
+  void ShowKeyframePropertiesDialog();
+
   void ApplicationToolChanged(Tool::Item tool);
 
 };

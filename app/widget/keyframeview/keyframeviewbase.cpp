@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QVBoxLayout>
 
+#include "dialog/keyframeproperties/keyframeproperties.h"
 #include "keyframeviewundo.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
@@ -299,6 +300,11 @@ void KeyframeViewBase::ShowContextMenu()
         break;
       }
     }
+
+    m.addSeparator();
+
+    QAction* properties_action = m.addAction(tr("P&roperties"));
+    connect(properties_action, &QAction::triggered, this, &KeyframeViewBase::ShowKeyframePropertiesDialog);
   }
 
   QAction* selected = m.exec(QCursor::pos());
@@ -326,6 +332,21 @@ void KeyframeViewBase::ShowContextMenu()
       }
       Core::instance()->undo_stack()->pushIfHasChildren(command);
     }
+  }
+}
+
+void KeyframeViewBase::ShowKeyframePropertiesDialog()
+{
+  QList<QGraphicsItem*> items = scene()->selectedItems();
+  QList<NodeKeyframePtr> keys;
+
+  foreach (QGraphicsItem* item, items) {
+    keys.append(static_cast<KeyframeViewItem*>(item)->key());
+  }
+
+  if (!keys.isEmpty()) {
+    KeyframePropertiesDialog kd(keys, timebase(), this);
+    kd.exec();
   }
 }
 
