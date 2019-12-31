@@ -159,7 +159,6 @@ void SequenceDialog::accept()
   // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
   rational video_time_base = frame_rate_list_.at(video_frame_rate_field_->currentIndex()).flipped();
 
-
   // Get the rational at the combobox's index (which will be correct provided AddFrameRate() was used at all time)
   int audio_sample_rate = sample_rate_list_.at(audio_sample_rate_field_->currentIndex());
 

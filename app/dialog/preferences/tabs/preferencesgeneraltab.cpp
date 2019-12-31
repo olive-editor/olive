@@ -25,7 +25,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   language_combobox_ = new QComboBox();
 
   // Add default language (en-US)
-  language_combobox_->addItem(QLocale::languageToString(QLocale("en_US").language()));
+  language_combobox_->addItem(QLocale("en_US").nativeLanguageName());
 
   // Set sequence to pick up default parameters from the config
   default_sequence_.set_default_parameters();
