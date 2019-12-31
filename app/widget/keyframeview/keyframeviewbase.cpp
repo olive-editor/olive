@@ -181,10 +181,10 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
           }
 
           Core::instance()->undo_stack()->push(command);
-
-          selected_keys_.clear();
         }
       }
+
+      selected_keys_.clear();
     }
   }
 }
