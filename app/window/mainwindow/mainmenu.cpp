@@ -280,25 +280,6 @@ MainMenu::MainMenu(QMainWindow *parent) :
 
   tools_menu_->addSeparator();
 
-  QActionGroup* autoscroll_group = new QActionGroup(this);
-
-  tools_autoscroll_none_item_ = tools_menu_->AddItem("autoscrollno", nullptr, nullptr);
-  //tools_autoscroll_none_item_->setData(olive::AUTOSCROLL_NO_SCROLL);
-  tools_autoscroll_none_item_->setCheckable(true);
-  autoscroll_group->addAction(tools_autoscroll_none_item_);
-
-  tools_autoscroll_page_item_ = tools_menu_->AddItem("autoscrollpage", nullptr, nullptr);
-  //tools_autoscroll_page_item_->setData(olive::AUTOSCROLL_PAGE_SCROLL);
-  tools_autoscroll_page_item_->setCheckable(true);
-  autoscroll_group->addAction(tools_autoscroll_page_item_);
-
-  tools_autoscroll_smooth_item_ = tools_menu_->AddItem("autoscrollsmooth", nullptr, nullptr);
-  //tools_autoscroll_smooth_item_->setData(olive::AUTOSCROLL_SMOOTH_SCROLL);
-  tools_autoscroll_smooth_item_->setCheckable(true);
-  autoscroll_group->addAction(tools_autoscroll_smooth_item_);
-
-  tools_menu_->addSeparator();
-
   tools_preferences_item_ = tools_menu_->AddItem("prefs", Core::instance(), SLOT(DialogPreferencesShow()), "Ctrl+,");
 
   //
@@ -608,9 +589,6 @@ void MainMenu::Retranslate()
   tools_transition_item_->setText(tr("Transition Tool"));
   tools_snapping_item_->setText(tr("Enable Snapping"));
   tools_autocut_silence_item_->setText(tr("Auto-Cut Silence"));
-  tools_autoscroll_none_item_->setText(tr("No Auto-Scroll"));
-  tools_autoscroll_page_item_->setText(tr("Page Auto-Scroll"));
-  tools_autoscroll_smooth_item_->setText(tr("Smooth Auto-Scroll"));
   tools_preferences_item_->setText(tr("Preferences"));
 
   // Help menu

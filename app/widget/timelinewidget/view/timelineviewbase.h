@@ -71,6 +71,14 @@ private slots:
    */
   void CenterScrollOnPlayhead();
 
+  /**
+   * @brief Slot to handle page scrolling of the playhead
+   *
+   * If the playhead is outside the current scroll bounds, this function will scroll to where it is. Otherwise it will
+   * do nothing.
+   */
+  void PageScrollToPlayhead();
+
 };
 
 #endif // TIMELINEVIEWBASE_H

@@ -22,10 +22,9 @@ private slots:
   void edit_default_sequence_settings();
 
 private:
-  /**
-   * @brief UI widget for selecting the UI language
-   */
   QComboBox* language_combobox_;
+
+  QComboBox* autoscroll_method_;
 
   /**
    * @brief A sequence we can feed to a SequenceDialog to change the defaults

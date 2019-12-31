@@ -5,7 +5,9 @@
 #include <QScrollBar>
 #include <QTimer>
 
+#include "common/autoscroll.h"
 #include "common/timecodefunctions.h"
+#include "config/config.h"
 
 TimelineViewBase::TimelineViewBase(QWidget *parent) :
   QGraphicsView(parent),
@@ -55,6 +57,18 @@ void TimelineViewBase::SetTimebase(const rational &timebase)
 void TimelineViewBase::SetTime(const int64_t time)
 {
   playhead_ = time;
+
+  switch (static_cast<AutoScroll::Method>(Config::Current()["Autoscroll"].toInt())) {
+  case AutoScroll::kNone:
+    // Do nothing
+    break;
+  case AutoScroll::kPage:
+    PageScrollToPlayhead();
+    break;
+  case AutoScroll::kSmooth:
+    CenterScrollOnPlayhead();
+    break;
+  }
 
   // Force redraw for playhead
   viewport()->update();
@@ -170,6 +184,21 @@ void TimelineViewBase::UpdateSceneRect()
 void TimelineViewBase::CenterScrollOnPlayhead()
 {
   horizontalScrollBar()->setValue(qRound(GetPlayheadX()) - viewport()->width()/2);
+}
+
+void TimelineViewBase::PageScrollToPlayhead()
+{
+  int playhead_pos = qRound(GetPlayheadX());
+
+  int viewport_padding = viewport()->width() / 16;
+
+  if (playhead_pos < horizontalScrollBar()->value()) {
+    // Anchor the playhead to the RIGHT of where we scroll to
+    horizontalScrollBar()->setValue(playhead_pos - viewport()->width() + viewport_padding);
+  } else if (playhead_pos > horizontalScrollBar()->value() + viewport()->width()) {
+    // Anchor the playhead to the LEFT of where we scroll to
+    horizontalScrollBar()->setValue(playhead_pos - viewport_padding);
+  }
 }
 
 void TimelineViewBase::resizeEvent(QResizeEvent *event)

@@ -26,8 +26,9 @@
 #include <QMessageBox>
 #include <QXmlStreamWriter>
 
-#include "core.h"
+#include "common/autoscroll.h"
 #include "common/filefunctions.h"
+#include "core.h"
 #include "window/mainwindow/mainwindow.h"
 
 Config Config::current_config_;
@@ -70,6 +71,7 @@ void Config::SetDefaults()
   config_map_["DropFileOnMediaToReplace"] = false;
   config_map_["AddDefaultEffectsToClips"] = true;
   config_map_["AutoscaleByDefault"] = false;
+  config_map_["Autoscroll"] = AutoScroll::kPage;
 
   config_map_["DefaultSequenceWidth"] = 1920;
   config_map_["DefaultSequenceHeight"] = 1080;

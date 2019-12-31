@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QPushButton>
 
+#include "common/autoscroll.h"
 #include "dialog/sequence/sequence.h"
 #include "project/item/sequence/sequence.h"
 
@@ -61,6 +62,18 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   row++;
 
+  general_layout->addWidget(new QLabel(tr("Auto-Scroll Method:")), row, 0);
+
+  // ComboBox indices match enum indicies
+  autoscroll_method_ = new QComboBox();
+  autoscroll_method_->addItem(tr("None"), AutoScroll::kNone);
+  autoscroll_method_->addItem(tr("Page Scrolling"), AutoScroll::kPage);
+  autoscroll_method_->addItem(tr("Smooth Scrolling"), AutoScroll::kSmooth);
+  autoscroll_method_->setCurrentIndex(Config::Current()["Autoscroll"].toInt());
+  general_layout->addWidget(autoscroll_method_, row, 1);
+
+  row++;
+
   general_layout->addWidget(new QLabel(tr("Default Sequence Settings:")), row, 0);
 
   // General -> Default Sequence Settings
@@ -78,6 +91,8 @@ void PreferencesGeneralTab::Accept()
   Config::Current()["DefaultSequenceFrameRate"] = QVariant::fromValue(default_sequence_.video_params().time_base());
   Config::Current()["DefaultSequenceAudioFrequency"] = default_sequence_.audio_params().sample_rate();
   Config::Current()["DefaultSequenceAudioLayout"] = default_sequence_.audio_params().channel_layout();
+
+  Config::Current()["Autoscroll"] = autoscroll_method_->currentData();
 }
 
 void PreferencesGeneralTab::edit_default_sequence_settings()

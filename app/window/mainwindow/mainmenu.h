@@ -226,9 +226,6 @@ private:
   QAction* tools_transition_item_;
   QAction* tools_snapping_item_;
   QAction* tools_autocut_silence_item_;
-  QAction* tools_autoscroll_none_item_;
-  QAction* tools_autoscroll_page_item_;
-  QAction* tools_autoscroll_smooth_item_;
   QAction* tools_preferences_item_;
 
   Menu* help_menu_;
