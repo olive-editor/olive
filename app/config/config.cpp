@@ -96,6 +96,9 @@ void Config::Load()
   current_config_.SetDefaults();
 
   QXmlStreamReader reader(&config_file);
+
+  QString config_version;
+
   while (!reader.atEnd()) {
     reader.readNext();
 
@@ -111,9 +114,35 @@ void Config::Load()
     if (key == "Configuration") {
       // First element, ignore
     } else if (key == "Version") {
+      config_version = value;
+
       if (!value.contains(".")) {
-        qDebug() << "This is a 0.1.x config file, upconvert";
+        qDebug() << "CONFIG: This is a 0.1.x config file, upconvert";
       }
+    } else if (key == "DefaultSequenceFrameRate" && !config_version.contains(".")) {
+      // 0.1.x stored this value as a float while we now use rationals, we'll use a heuristic to find the closest
+      // supported rational
+      qDebug() << "  CONFIG: Finding closest match to" << value;
+
+      double config_fr = value.toDouble();
+
+      QList<rational> supported_frame_rates = Core::SupportedFrameRates();
+
+      rational match = supported_frame_rates.first();
+      double match_diff = qAbs(match.toDouble() - config_fr);
+
+      for (int i=1;i<supported_frame_rates.size();i++) {
+        double diff = qAbs(supported_frame_rates.at(i).toDouble() - config_fr);
+
+        if (diff < match_diff) {
+          match = supported_frame_rates.at(i);
+          match_diff = diff;
+        }
+      }
+
+      qDebug() << "  CONFIG: Closest match was" << match.toDouble();
+
+      current_config_[key] = QVariant::fromValue(match.flipped());
     } else {
       current_config_[key] = value;
     }
