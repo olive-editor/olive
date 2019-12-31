@@ -45,6 +45,7 @@ PreferencesBehaviorTab::PreferencesBehaviorTab()
           timeline_group);
   AddItem(tr("Invert Timeline Scroll Axes"),
           QStringLiteral("InvertTimelineScrollAxes"),
+          tr("Hold ALT on any UI element to switch scrolling axes"),
           timeline_group);
   AddItem(tr("Seek Also Selects"),
           QStringLiteral("SelectAlsoSeeks"),

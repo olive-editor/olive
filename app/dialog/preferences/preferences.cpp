@@ -69,13 +69,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
 
   connect(list_widget_, SIGNAL(currentRowChanged(int)), preference_pane_stack_, SLOT(setCurrentIndex(int)));
 
-  // set up default sequence
-  /*default_sequence.set_name(tr("Default Sequence"));
-  default_sequence.set_width(olive::config.default_sequence_width);
-  default_sequence.set_height(olive::config.default_sequence_height);
-  default_sequence.set_frame_rate(olive::config.default_sequence_framerate);
-  default_sequence.set_audio_frequency(olive::config.default_sequence_audio_frequency);
-  default_sequence.set_audio_layout(olive::config.default_sequence_audio_channel_layout);*/
 }
 
 void PreferencesDialog::AddBoolPair(QCheckBox *ui, bool *value, bool restart_required)

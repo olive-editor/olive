@@ -27,6 +27,7 @@
 #include <QtMath>
 #include <QPen>
 
+#include "config/config.h"
 #include "common/flipmodifiers.h"
 #include "common/timecodefunctions.h"
 #include "core.h"
@@ -111,6 +112,21 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
                                         event->modifiers());
 
   emit MouseDoubleClicked(&timeline_event);
+}
+
+void TimelineView::wheelEvent(QWheelEvent *event)
+{
+  if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+    QWheelEvent e(event->pos(),
+                  event->delta(),
+                  event->buttons(),
+                  event->modifiers(),
+                  event->orientation() == Qt::Horizontal ? Qt::Vertical : Qt::Horizontal);
+
+    QGraphicsView::wheelEvent(&e);
+  } else {
+    QGraphicsView::wheelEvent(event);
+  }
 }
 
 void TimelineView::dragEnterEvent(QDragEnterEvent *event)
