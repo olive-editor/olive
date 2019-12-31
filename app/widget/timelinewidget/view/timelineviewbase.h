@@ -43,6 +43,8 @@ protected:
   bool PlayheadRelease(QMouseEvent* event);
 
 private:
+  qreal GetPlayheadX();
+
   int64_t playhead_;
 
   TimelinePlayhead playhead_style_;
@@ -63,6 +65,11 @@ private slots:
    * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
    */
   void UpdateSceneRect();
+
+  /**
+   * @brief Slot to center the horizontal scroll bar on the playhead's current position
+   */
+  void CenterScrollOnPlayhead();
 
 };
 

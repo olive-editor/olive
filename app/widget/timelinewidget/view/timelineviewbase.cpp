@@ -3,6 +3,7 @@
 #include <QGraphicsRectItem>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QTimer>
 
 #include "common/timecodefunctions.h"
 
@@ -31,12 +32,16 @@ void TimelineViewBase::SetScale(const double &scale)
 {
   scale_ = scale;
 
-  // Force redraw for playhead
-  viewport()->update();
-
   end_item_->SetScale(scale_);
 
   ScaleChangedEvent(scale_);
+
+  // Force redraw for playhead
+  viewport()->update();
+
+  // Zoom towards the playhead
+  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
+  QTimer::singleShot(0, this, &TimelineViewBase::CenterScrollOnPlayhead);
 }
 
 void TimelineViewBase::SetTimebase(const rational &timebase)
@@ -62,7 +67,7 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
   if (!timebase().isNull()) {
     double width = TimeToScene(timebase());
 
-    playhead_scene_left_ = TimeToScene(rational(playhead_ * timebase().numerator(), timebase().denominator()));
+    playhead_scene_left_ = GetPlayheadX();
     playhead_scene_right_ = playhead_scene_left_ + width;
 
     playhead_style_.Draw(painter, QRectF(playhead_scene_left_, rect.top(), width, rect.height()));
@@ -103,6 +108,11 @@ bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
 bool TimelineViewBase::PlayheadRelease(QMouseEvent *event)
 {
   return dragging_playhead_;
+}
+
+qreal TimelineViewBase::GetPlayheadX()
+{
+  return TimeToScene(rational(playhead_ * timebase().numerator(), timebase().denominator()));
 }
 
 void TimelineViewBase::SetEndTime(const rational &length)
@@ -155,6 +165,11 @@ void TimelineViewBase::UpdateSceneRect()
   }
 
   scene_.setSceneRect(bounding_rect);
+}
+
+void TimelineViewBase::CenterScrollOnPlayhead()
+{
+  horizontalScrollBar()->setValue(qRound(GetPlayheadX()) - viewport()->width()/2);
 }
 
 void TimelineViewBase::resizeEvent(QResizeEvent *event)
