@@ -144,9 +144,14 @@ void SequenceDialog::SetUndoable(bool u)
   make_undoable_ = u;
 }
 
+void SequenceDialog::SetNameIsEditable(bool e)
+{
+  name_field_->setEnabled(e);
+}
+
 void SequenceDialog::accept()
 {
-  if (name_field_->text().isEmpty()) {
+  if (name_field_->isEnabled() && name_field_->text().isEmpty()) {
     QMessageBox::critical(this, tr("Error editing Sequence"), tr("Please enter a name for this Sequence."));
     return;
   }

@@ -5,6 +5,7 @@
 #include <QSpinBox>
 
 #include "preferencestab.h"
+#include "project/item/sequence/sequence.h"
 
 class PreferencesGeneralTab : public PreferencesTab
 {
@@ -24,17 +25,13 @@ private:
   /**
    * @brief UI widget for selecting the UI language
    */
-  QComboBox* language_combobox;
+  QComboBox* language_combobox_;
 
   /**
-   * @brief UI widget for selecting the resolution of the thumbnails to generate
+   * @brief A sequence we can feed to a SequenceDialog to change the defaults
    */
-  QSpinBox* thumbnail_res_spinbox;
+  Sequence default_sequence_;
 
-  /**
-   * @brief UI widget for selecting the resolution of the waveforms to generate
-   */
-  QSpinBox* waveform_res_spinbox;
 
 };
 

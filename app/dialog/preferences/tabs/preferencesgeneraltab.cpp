@@ -6,6 +6,9 @@
 #include <QCheckBox>
 #include <QPushButton>
 
+#include "dialog/sequence/sequence.h"
+#include "project/item/sequence/sequence.h"
+
 PreferencesGeneralTab::PreferencesGeneralTab()
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -19,10 +22,13 @@ PreferencesGeneralTab::PreferencesGeneralTab()
   // General -> Language
   general_layout->addWidget(new QLabel(tr("Language:")), row, 0);
 
-  language_combobox = new QComboBox();
+  language_combobox_ = new QComboBox();
 
-  // add default language (en-US)
-  language_combobox->addItem(QLocale::languageToString(QLocale("en-US").language()));
+  // Add default language (en-US)
+  language_combobox_->addItem(QLocale::languageToString(QLocale("en_US").language()));
+
+  // Set sequence to pick up default parameters from the config
+  default_sequence_.set_default_parameters();
 
   /*
     // add languages from file
@@ -51,56 +57,33 @@ PreferencesGeneralTab::PreferencesGeneralTab()
     }
     */
 
-  general_layout->addWidget(language_combobox, row, 1);
+  general_layout->addWidget(language_combobox_, row, 1);
 
   row++;
 
-  // General -> Thumbnail and Waveform Resolution
-  general_layout->addWidget(new QLabel(tr("Thumbnail Resolution:"), this), row, 0);
-
-  thumbnail_res_spinbox = new QSpinBox(this);
-  thumbnail_res_spinbox->setMinimum(0);
-  thumbnail_res_spinbox->setMaximum(INT_MAX);
-  general_layout->addWidget(thumbnail_res_spinbox, row, 1);
-
-  row++;
-
-  general_layout->addWidget(new QLabel(tr("Waveform Resolution:"), this), row, 0);
-
-  waveform_res_spinbox = new QSpinBox(this);
-  waveform_res_spinbox->setMinimum(0);
-  waveform_res_spinbox->setMaximum(INT_MAX);
-  general_layout->addWidget(waveform_res_spinbox, row, 1);
-
-  row++;
-
-  QPushButton* delete_preview_btn = new QPushButton(tr("Delete Previews"));
-  general_layout->addWidget(delete_preview_btn, row, 1);
-  //connect(delete_preview_btn, SIGNAL(clicked(bool)), this, SLOT(delete_all_previews()));
-
-  row++;
-
-  QHBoxLayout* misc_general = new QHBoxLayout();
+  general_layout->addWidget(new QLabel(tr("Default Sequence Settings:")), row, 0);
 
   // General -> Default Sequence Settings
-  QPushButton* default_sequence_settings = new QPushButton(tr("Default Sequence Settings"));
-  default_sequence_settings->setEnabled(false);
+  QPushButton* default_sequence_settings = new QPushButton(tr("Edit"));
   connect(default_sequence_settings, SIGNAL(clicked(bool)), this, SLOT(edit_default_sequence_settings()));
-  misc_general->addWidget(default_sequence_settings);
-
-  general_layout->addLayout(misc_general, row, 0);
+  general_layout->addWidget(default_sequence_settings, row, 1);
 
   layout->addStretch();
 }
 
 void PreferencesGeneralTab::Accept()
 {
-
+  Config::Current()["DefaultSequenceWidth"] = default_sequence_.video_params().width();
+  Config::Current()["DefaultSequenceHeight"] = default_sequence_.video_params().height();;
+  Config::Current()["DefaultSequenceFrameRate"] = QVariant::fromValue(default_sequence_.video_params().time_base());
+  Config::Current()["DefaultSequenceAudioFrequency"] = default_sequence_.audio_params().sample_rate();
+  Config::Current()["DefaultSequenceAudioLayout"] = default_sequence_.audio_params().channel_layout();
 }
 
 void PreferencesGeneralTab::edit_default_sequence_settings()
 {
-  /*NewSequenceDialog nsd(this, nullptr, &default_sequence);
-  nsd.SetNameEditable(false);
-  nsd.exec();*/
+  SequenceDialog sd(&default_sequence_, SequenceDialog::kExisting, this);
+  sd.SetUndoable(false);
+  sd.SetNameIsEditable(false);
+  sd.exec();
 }

@@ -4,3 +4,8 @@ PreferencesTab::PreferencesTab()
 {
 
 }
+
+bool PreferencesTab::Validate()
+{
+  return true;
+}

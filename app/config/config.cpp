@@ -56,6 +56,26 @@ void Config::SetDefaults()
   config_map_["AudioScrubbing"] = true;
   config_map_["AutorecoveryInterval"] = 1;
   config_map_["Language"] = "en_US";
+  config_map_["ScrollZooms"] = false;
+  config_map_["EnableSeekToImport"] = false;
+  config_map_["EditToolAlsoSeeks"] = false;
+  config_map_["EditToolSelectsLinks"] = false;
+  config_map_["EnableDragFilesToTimeline"] = true;
+  config_map_["InvertTimelineScrollAxes"] = true;
+  config_map_["SelectAlsoSeeks"] = false;
+  config_map_["PasteSeeks"] = true;
+  config_map_["SelectAlsoSeeks"] = false;
+  config_map_["SetNameWithMarker"] = false;
+  config_map_["AutoSeekToBeginning"] = true;
+  config_map_["DropFileOnMediaToReplace"] = false;
+  config_map_["AddDefaultEffectsToClips"] = true;
+  config_map_["AutoscaleByDefault"] = false;
+
+  config_map_["DefaultSequenceWidth"] = 1920;
+  config_map_["DefaultSequenceHeight"] = 1080;
+  config_map_["DefaultSequenceFrameRate"] = QVariant::fromValue(rational(1001, 30000));
+  config_map_["DefaultSequenceAudioFrequency"] = 48000;
+  config_map_["DefaultSequenceAudioLayout"] = AV_CH_LAYOUT_STEREO;
 }
 
 void Config::Load()

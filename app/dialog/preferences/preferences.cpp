@@ -90,6 +90,12 @@ void PreferencesDialog::AddBoolPair(QCheckBox *ui, bool *value, bool restart_req
 void PreferencesDialog::accept()
 {
   foreach (PreferencesTab* tab, tabs_) {
+    if (!tab->Validate()) {
+      return;
+    }
+  }
+
+  foreach (PreferencesTab* tab, tabs_) {
     tab->Accept();
   }
 

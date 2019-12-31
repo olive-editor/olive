@@ -22,6 +22,7 @@
 
 #include <QCoreApplication>
 
+#include "config/config.h"
 #include "common/channellayout.h"
 #include "common/timecodefunctions.h"
 #include "panel/panelmanager.h"
@@ -150,7 +151,9 @@ void Sequence::set_audio_params(const AudioParams &params)
 
 void Sequence::set_default_parameters()
 {
-  // FIXME: Make these configurable (hardcoded)
-  set_video_params(VideoParams(1920, 1080, rational(1001, 30000)));
-  set_audio_params(AudioParams(48000, AV_CH_LAYOUT_STEREO));
+  set_video_params(VideoParams(Config::Current()["DefaultSequenceWidth"].toInt(),
+                               Config::Current()["DefaultSequenceHeight"].toInt(),
+                               Config::Current()["DefaultSequenceFrameRate"].value<rational>()));
+  set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
+                               Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
 }

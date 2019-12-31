@@ -71,9 +71,16 @@ public:
   /**
    * @brief Set whether the parameter changes should be made into an undo command or not
    *
-   * @param u
+   * Defaults to true.
    */
   void SetUndoable(bool u);
+
+  /**
+   * @brief Set whether the name of this Sequence can be edited with this dialog
+   *
+   * Defaults to true.
+   */
+  void SetNameIsEditable(bool e);
 
 public slots:
   /**

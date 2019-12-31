@@ -10,6 +10,8 @@ class PreferencesTab : public QWidget
 public:
   PreferencesTab();
 
+  virtual bool Validate();
+
   virtual void Accept() = 0;
 };
 
