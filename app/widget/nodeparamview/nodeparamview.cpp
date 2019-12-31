@@ -79,6 +79,9 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(ruler_, &TimeRuler::TimeChanged, this, &NodeParamView::RulerTimeChanged);
   connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::RulerTimeChanged);
 
+  // Connect keyframe view scaling to this
+  connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
+
   splitter->addWidget(keyframe_area);
 
   // Set both widgets to 50/50

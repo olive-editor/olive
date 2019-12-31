@@ -39,9 +39,10 @@ public:
   const QList<Node*>& nodes();
 
   const double& GetScale() const;
-  void SetScale(const double &scale);
 
 public slots:
+  void SetScale(const double &scale);
+
   void SetTime(const int64_t& timestamp);
 
 signals:

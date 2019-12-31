@@ -27,6 +27,8 @@ protected:
 
   virtual void VerticalScaleChangedEvent(double scale) override;
 
+  virtual void wheelEvent(QWheelEvent* event) override;
+
 private:
   QList<NodeKeyframe*> GetKeyframesSortedByTime();
 

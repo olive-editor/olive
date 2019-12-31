@@ -201,6 +201,23 @@ void CurveView::VerticalScaleChangedEvent(double scale)
   }
 }
 
+void CurveView::wheelEvent(QWheelEvent *event)
+{
+  if (WheelEventIsAZoomEvent(event)) {
+    if (event->delta() != 0) {
+      if (event->delta() > 0) {
+        emit ScaleChanged(scale_ * 1.1);
+        SetYScale(y_scale_ * 1.1);
+      } else {
+        emit ScaleChanged(scale_ * 0.9);
+        SetYScale(y_scale_ * 0.9);
+      }
+    }
+  } else {
+    KeyframeViewBase::wheelEvent(event);
+  }
+}
+
 QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime()
 {
   QList<NodeKeyframe *> sorted;

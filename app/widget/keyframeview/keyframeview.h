@@ -9,6 +9,9 @@ class KeyframeView : public KeyframeViewBase
 public:
   KeyframeView(QWidget* parent = nullptr);
 
+protected:
+  virtual void wheelEvent(QWheelEvent* event) override;
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key, int y);
 

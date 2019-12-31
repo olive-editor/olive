@@ -26,10 +26,12 @@ public:
   void SetTime(const int64_t& timestamp);
 
   const double& GetScale();
-  void SetScale(const double& scale);
 
   const double& GetVerticalScale();
   void SetVerticalScale(const double& vscale);
+
+public slots:
+  void SetScale(const double& scale);
 
 signals:
   void TimeChanged(const int64_t& timestamp);

@@ -66,6 +66,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(ruler_, &TimeRuler::TimeChanged, this, &CurveWidget::UpdateBridgeTime);
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::UpdateBridgeTime);
   connect(view_->scene(), &QGraphicsScene::selectionChanged, this, &CurveWidget::SelectionChanged);
+  connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
 
   widget_bridge_layout_ = new QHBoxLayout();
   widget_bridge_layout_->addStretch();

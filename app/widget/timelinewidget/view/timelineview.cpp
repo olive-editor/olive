@@ -116,7 +116,9 @@ void TimelineView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void TimelineView::wheelEvent(QWheelEvent *event)
 {
-  if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
+  if (HandleZoomFromScroll(event)) {
+    return;
+  } else if (Config::Current()["InvertTimelineScrollAxes"].toBool()) {
     QWheelEvent e(event->pos(),
                   event->delta(),
                   event->buttons(),

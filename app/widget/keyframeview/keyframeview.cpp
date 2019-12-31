@@ -6,6 +6,13 @@ KeyframeView::KeyframeView(QWidget *parent) :
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
+void KeyframeView::wheelEvent(QWheelEvent *event)
+{
+  if (!HandleZoomFromScroll(event)) {
+    KeyframeViewBase::wheelEvent(event);
+  }
+}
+
 void KeyframeView::AddKeyframe(NodeKeyframePtr key, int y)
 {
   QPoint global_pt(0, y);

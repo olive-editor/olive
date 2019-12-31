@@ -213,6 +213,29 @@ void TimelineViewBase::ScaleChangedEvent(double scale)
   Q_UNUSED(scale)
 }
 
+bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
+{
+  if (WheelEventIsAZoomEvent(event)) {
+    // If CTRL is held (or a preference is set to swap CTRL behavior), we zoom instead of scrolling
+    if (event->delta() != 0) {
+      if (event->delta() > 0) {
+        emit ScaleChanged(scale_ * 2.0);
+      } else {
+        emit ScaleChanged(scale_ * 0.5);
+      }
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
+{
+  return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
+}
+
 void TimelineViewBase::SetLimitYAxis(bool e)
 {
   limit_y_axis_ = true;

@@ -34,6 +34,10 @@ protected:
 
   virtual void ScaleChangedEvent(double scale);
 
+  bool HandleZoomFromScroll(QWheelEvent* event);
+
+  bool WheelEventIsAZoomEvent(QWheelEvent* event);
+
   void SetLimitYAxis(bool e);
 
   rational GetPlayheadTime();
