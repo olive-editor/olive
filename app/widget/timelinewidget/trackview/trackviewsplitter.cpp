@@ -3,16 +3,20 @@
 #include <QDebug>
 #include <QPainter>
 
+#include "node/output/track/track.h"
+
 TrackViewSplitter::TrackViewSplitter(Qt::Alignment vertical_alignment, QWidget* parent) :
   QSplitter(Qt::Vertical, parent),
-  alignment_(vertical_alignment)
+  alignment_(vertical_alignment),
+  spacer_height_(0)
 {
   setHandleWidth(1);
 
   int initial_height = 0;
 
   // Add empty spacer so we get a splitter handle after the last element
-  addWidget(new QWidget());
+  QWidget* spacer = new QWidget();
+  addWidget(spacer);
 
   setFixedHeight(initial_height);
 }
@@ -42,17 +46,14 @@ void TrackViewSplitter::HandleReceiver(TrackViewSplitterHandle *h, int diff)
   // Transform element size by diff
   int new_ele_sz = old_ele_sz + diff;
 
-  // Validate it with the widget's minimum size
-  new_ele_sz = qMax(new_ele_sz, widget(ele_id)->minimumHeight());
-
-  // Correct diff
-  diff = new_ele_sz - old_ele_sz;
-
-  SetTrackHeight(ele_id, new_ele_sz);
+  // Limit by track minimum height
+  new_ele_sz = qMax(new_ele_sz, TrackOutput::GetTrackHeightMinimum());
 
   if (alignment_ == Qt::AlignBottom) {
     ele_id = count() - ele_id - 1;
   }
+
+  SetTrackHeight(ele_id, new_ele_sz);
 
   emit TrackHeightChanged(ele_id, new_ele_sz);
 }
@@ -67,8 +68,6 @@ void TrackViewSplitter::SetTrackHeight(int index, int h)
 
   int old_ele_sz = element_sizes.at(index);
 
-  qDebug() << "Old ele sz" << old_ele_sz << "vs h" << h;
-
   int diff = h - old_ele_sz;
 
   // Set new size on element
@@ -79,13 +78,23 @@ void TrackViewSplitter::SetTrackHeight(int index, int h)
   setFixedHeight(height() + diff);
 }
 
-void TrackViewSplitter::SetHeightWithSizes(const QList<int> &sizes)
+void TrackViewSplitter::SetHeightWithSizes(QList<int> sizes)
 {
   int start_height = 0;
+
+  // Add spacer height too
+  if (alignment_ == Qt::AlignBottom) {
+    sizes.replace(0, spacer_height_);
+  } else {
+    sizes.replace(count() - 1, spacer_height_);
+  }
 
   foreach (int s, sizes) {
     start_height += s + handleWidth();
   }
+
+  // The spacer doesn't need a handle width
+  start_height -= handleWidth();
 
   setFixedHeight(start_height);
   setSizes(sizes);
@@ -117,6 +126,12 @@ void TrackViewSplitter::Remove(int index)
   delete widget(index);
 
   SetHeightWithSizes(sz);
+}
+
+void TrackViewSplitter::SetSpacerHeight(int height)
+{
+  spacer_height_ = height;
+  SetHeightWithSizes(sizes());
 }
 
 QSplitterHandle *TrackViewSplitter::createHandle()

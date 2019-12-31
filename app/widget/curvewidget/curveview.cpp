@@ -10,7 +10,6 @@ CurveView::CurveView(QWidget *parent) :
 {
   setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   setDragMode(RubberBandDrag);
-  setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
 
   text_padding_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));

@@ -30,10 +30,12 @@ public:
 
   void HandleReceiver(TrackViewSplitterHandle* h, int diff);
 
-  void SetHeightWithSizes(const QList<int>& sizes);
+  void SetHeightWithSizes(QList<int> sizes);
 
   void Insert(int index, int height, QWidget* item);
   void Remove(int index);
+
+  void SetSpacerHeight(int height);
 
 public slots:
   void SetTrackHeight(int index, int h);
@@ -46,6 +48,9 @@ protected:
 
 private:
   Qt::Alignment alignment_;
+
+  int spacer_height_;
+
 };
 
 #endif // TRACKVIEWSPLITTER_H

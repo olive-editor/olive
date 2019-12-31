@@ -151,6 +151,34 @@ void TimelineView::dropEvent(QDropEvent *event)
   emit DragDropped(&timeline_event);
 }
 
+void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
+{
+  if (!connected_track_list_) {
+    return;
+  }
+
+  painter->setPen(palette().base().color());
+
+  int line_y = 0;
+
+  foreach (TrackOutput* track, connected_track_list_->Tracks()) {
+    line_y += track->GetTrackHeight();
+
+    // One px gap between tracks
+    line_y++;
+
+    int this_line_y;
+
+    if (alignment() & Qt::AlignTop) {
+      this_line_y = line_y;
+    } else {
+      this_line_y = -line_y;
+    }
+
+    painter->drawLine(qRound(rect.left()), this_line_y, qRound(rect.right()), this_line_y);
+  }
+}
+
 Stream::Type TimelineView::TrackTypeToStreamType(TrackType track_type)
 {
   switch (track_type) {
@@ -188,10 +216,13 @@ int TimelineView::GetTrackY(int track_index)
 
   for (int i=0;i<track_index;i++) {
     y += GetTrackHeight(i);
+
+    // One px line between each track
+    y++;
   }
 
   if (alignment() & Qt::AlignBottom) {
-    y = -y;
+    y = -y + 1;
   }
 
   return y;
@@ -219,7 +250,15 @@ void TimelineView::SetScrollCoordinates(const QPoint &pt)
 
 void TimelineView::ConnectTrackList(TrackList *list)
 {
+  if (connected_track_list_) {
+    disconnect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
+  }
+
   connected_track_list_ = list;
+
+  if (connected_track_list_) {
+    connect(connected_track_list_, SIGNAL(TrackHeightChanged(int, int)), viewport(), SLOT(update()));
+  }
 }
 
 int TimelineView::SceneToTrack(double y)

@@ -27,6 +27,11 @@ private:
 
   TrackView* track_view_;
 
+private slots:
+  void ViewValueChanged(int v);
+
+  void TracksValueChanged(int v);
+
 };
 
 #endif // TIMELINEANDTRACKVIEW_H

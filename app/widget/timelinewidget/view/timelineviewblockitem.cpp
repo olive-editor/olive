@@ -64,7 +64,7 @@ void TimelineViewBlockItem::UpdateRect()
   double item_width = TimeToScene(block_->length());
 
   // -1 on width and height so we don't overlap any adjacent clips
-  setRect(0, y_, item_width - 1, height_ - 1);
+  setRect(0, y_, item_width - 1, height_);
   setPos(item_left, 0.0);
 
   setToolTip(QCoreApplication::translate("TimelineViewBlockItem",

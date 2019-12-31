@@ -18,6 +18,9 @@ public:
   void ConnectTrackList(TrackList* list);
   void DisconnectTrackList();
 
+protected:
+  virtual void resizeEvent(QResizeEvent *e) override;
+
 private:
   QList<TrackViewItem*> items_;
 
@@ -28,8 +31,6 @@ private:
   Qt::Alignment alignment_;
 
   int last_scrollbar_max_;
-
-  QWidget* top_spacer_;
 
 private slots:
   void ScrollbarRangeChanged(int min, int max);

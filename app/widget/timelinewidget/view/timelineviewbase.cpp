@@ -22,6 +22,8 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   // Set default scale
   SetScale(1.0);
 
+  setViewportUpdateMode(FullViewportUpdate);
+
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
 }
 
@@ -113,6 +115,13 @@ void TimelineViewBase::UpdateSceneRect()
   QRectF bounding_rect = scene_.itemsBoundingRect();
 
   if (limit_y_axis_) {
+    // Make a gap of half the viewport height
+    if (alignment() & Qt::AlignBottom) {
+      bounding_rect.setTop(bounding_rect.top() - height()/2);
+    } else {
+      bounding_rect.setBottom(bounding_rect.bottom() + height()/2);
+    }
+
     // Ensure the scene height is always AT LEAST the height of the view
     // The scrollbar appears to have a 1px margin on the top and bottom, hence the -2
     int minimum_height = height() - horizontalScrollBar()->height() - 2;

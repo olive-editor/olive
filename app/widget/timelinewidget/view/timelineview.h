@@ -83,6 +83,8 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
   virtual void dropEvent(QDropEvent *event) override;
 
+  virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+
 private:
   TrackType ConnectedTrackType();
   Stream::Type TrackTypeToStreamType(TrackType track_type);

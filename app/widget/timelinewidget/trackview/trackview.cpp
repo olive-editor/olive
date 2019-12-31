@@ -13,6 +13,8 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   list_(nullptr),
   alignment_(vertical_alignment)
 {
+  setAlignment(Qt::AlignLeft | alignment_);
+
   QWidget* central = new QWidget();
   setWidget(central);
   setWidgetResizable(true);
@@ -31,6 +33,11 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   splitter_ = new TrackViewSplitter(alignment_);
   splitter_->setChildrenCollapsible(false);
   layout->addWidget(splitter_);
+
+  if (alignment_ == Qt::AlignTop) {
+    layout->addStretch();
+  }
+
   connect(splitter_, SIGNAL(TrackHeightChanged(int, int)), this, SLOT(TrackHeightChanged(int, int)));
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -67,6 +74,13 @@ void TrackView::DisconnectTrackList()
   ConnectTrackList(nullptr);
 }
 
+void TrackView::resizeEvent(QResizeEvent *e)
+{
+  QScrollArea::resizeEvent(e);
+
+  splitter_->SetSpacerHeight(height()/2);
+}
+
 void TrackView::ScrollbarRangeChanged(int, int max)
 {
   if (max != last_scrollbar_max_) {
@@ -74,6 +88,7 @@ void TrackView::ScrollbarRangeChanged(int, int max)
     int new_val = max - ba_val;
 
     verticalScrollBar()->setValue(new_val);
+    emit verticalScrollBar()->valueChanged(new_val);
 
     last_scrollbar_max_ = max;
   }
