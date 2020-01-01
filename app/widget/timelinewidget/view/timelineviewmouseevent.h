@@ -30,15 +30,27 @@
 class TimelineViewMouseEvent
 {
 public:
-  TimelineViewMouseEvent(const TimelineCoordinate& coord,
-                         const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
-
-  TimelineViewMouseEvent(const rational& frame,
+  TimelineViewMouseEvent(const qreal& scene_x,
+                         const double& scale_x,
+                         const rational& timebase,
                          const TrackReference &track,
                          const Qt::KeyboardModifiers& modifiers = Qt::NoModifier);
 
-  const TimelineCoordinate& GetCoordinates();
-  const Qt::KeyboardModifiers GetModifiers();
+  TimelineCoordinate GetCoordinates(bool round_time = false) const;
+  const Qt::KeyboardModifiers GetModifiers() const;
+
+  /**
+   * @brief Gets the time at this cursor point
+   *
+   * @param round
+   *
+   * If set to true, the time will be rounded to the nearest time. If set to false, the time is floored so the time is
+   * always to the left of the cursor. The former behavior is better for clicking between frames (e.g. razor tool) and
+   * the latter is better for clicking directly on frames (e.g. pointer tool).
+   */
+  rational GetFrame(bool round = false) const;
+
+  const TrackReference& GetTrack() const;
 
   const QMimeData *GetMimeData();
   void SetMimeData(const QMimeData *data);
@@ -49,7 +61,11 @@ public:
   void ignore();
 
 private:
-  TimelineCoordinate coord_;
+  qreal scene_x_;
+  double scale_x_;
+  rational timebase_;
+
+  TrackReference track_;
 
   Qt::KeyboardModifiers modifiers_;
 

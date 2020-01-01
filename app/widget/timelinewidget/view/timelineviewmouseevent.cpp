@@ -22,33 +22,41 @@
 
 #include <QEvent>
 
-TimelineViewMouseEvent::TimelineViewMouseEvent(const TimelineCoordinate &coord,
-                                               const Qt::KeyboardModifiers &modifiers) :
-  coord_(coord),
-  modifiers_(modifiers),
-  source_event_(nullptr),
-  mime_data_(nullptr)
-{
-}
+#include "widget/timelinewidget/timelinescaledobject.h"
 
-TimelineViewMouseEvent::TimelineViewMouseEvent(const rational &frame,
+TimelineViewMouseEvent::TimelineViewMouseEvent(const qreal &scene_x,
+                                               const double &scale_x,
+                                               const rational &timebase,
                                                const TrackReference &track,
                                                const Qt::KeyboardModifiers &modifiers) :
-  coord_(frame, track),
+  scene_x_(scene_x),
+  scale_x_(scale_x),
+  timebase_(timebase),
+  track_(track),
   modifiers_(modifiers),
   source_event_(nullptr),
   mime_data_(nullptr)
 {
 }
 
-const TimelineCoordinate &TimelineViewMouseEvent::GetCoordinates()
+TimelineCoordinate TimelineViewMouseEvent::GetCoordinates(bool round_time) const
 {
-  return coord_;
+  return TimelineCoordinate(GetFrame(round_time), track_);
 }
 
-const Qt::KeyboardModifiers TimelineViewMouseEvent::GetModifiers()
+const Qt::KeyboardModifiers TimelineViewMouseEvent::GetModifiers() const
 {
   return modifiers_;
+}
+
+rational TimelineViewMouseEvent::GetFrame(bool round) const
+{
+  return TimelineScaledObject::SceneToTime(scene_x_, scale_x_, timebase_, round);
+}
+
+const TrackReference &TimelineViewMouseEvent::GetTrack() const
+{
+  return track_;
 }
 
 const QMimeData* TimelineViewMouseEvent::GetMimeData()

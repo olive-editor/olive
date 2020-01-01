@@ -11,14 +11,14 @@ TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
 
 void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = event->GetCoordinates().GetTrack();
+  const TrackReference& track = event->GetTrack();
   TrackOutput* t = parent()->GetTrackFromReference(track);
 
   if (t && t->IsLocked()) {
     return;
   }
 
-  drag_start_point_ = event->GetCoordinates().GetFrame();
+  drag_start_point_ = event->GetFrame();
 
   ghost_ = new TimelineViewGhostItem();
   ghost_->SetIn(drag_start_point_);
@@ -36,7 +36,7 @@ void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
     return;
   }
 
-  MouseMoveInternal(event->GetCoordinates().GetFrame(), event->GetModifiers() & Qt::AltModifier);
+  MouseMoveInternal(event->GetFrame(), event->GetModifiers() & Qt::AltModifier);
 }
 
 void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)

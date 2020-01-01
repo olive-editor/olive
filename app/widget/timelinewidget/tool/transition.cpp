@@ -11,15 +11,15 @@ TimelineWidget::TransitionTool::TransitionTool(TimelineWidget *parent) :
 
 void TimelineWidget::TransitionTool::MousePress(TimelineViewMouseEvent *event)
 {
-  const TrackReference& track = event->GetCoordinates().GetTrack();
+  const TrackReference& track = event->GetTrack();
   TrackOutput* t = parent()->GetTrackFromReference(track);
-  rational cursor_frame = event->GetCoordinates().GetFrame();
+  rational cursor_frame = event->GetFrame();
 
   if (!t || t->IsLocked()) {
     return;
   }
 
-  Block* block_at_time = t->BlockAtTime(event->GetCoordinates().GetFrame());
+  Block* block_at_time = t->BlockAtTime(event->GetFrame());
   if (!block_at_time || block_at_time->type() != Block::kClip) {
     return;
   }
@@ -78,7 +78,7 @@ void TimelineWidget::TransitionTool::MouseMove(TimelineViewMouseEvent *event)
     return;
   }
 
-  MouseMoveInternal(event->GetCoordinates().GetFrame(), dual_transition_);
+  MouseMoveInternal(event->GetFrame(), dual_transition_);
 }
 
 void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)

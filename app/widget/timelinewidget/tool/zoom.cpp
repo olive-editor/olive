@@ -40,7 +40,7 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
   double scale = parent()->scale_;
 
   // Normalize zoom location for 1.0 scale
-  double frame_x = parent()->TimeToScene(event->GetCoordinates().GetFrame());
+  double frame_x = parent()->TimeToScene(event->GetFrame());
 
   if (event->GetModifiers() & Qt::AltModifier) {
     // Zoom out if the user clicks while holding Alt

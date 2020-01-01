@@ -158,8 +158,8 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
 void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
-    rational time_movement = event->GetCoordinates().GetFrame() - drag_start_.GetFrame();
-    int track_movement = event->GetCoordinates().GetTrack().index() - drag_start_.GetTrack().index();
+    rational time_movement = event->GetFrame() - drag_start_.GetFrame();
+    int track_movement = event->GetTrack().index() - drag_start_.GetTrack().index();
 
     // If snapping is enabled, check for snap points
     if (Core::instance()->snapping()) {

@@ -35,12 +35,12 @@ void TimelineWidget::RazorTool::MousePress(TimelineViewMouseEvent *event)
 void TimelineWidget::RazorTool::MouseMove(TimelineViewMouseEvent *event)
 {
   if (!dragging_) {
-    drag_start_ = event->GetCoordinates();
+    drag_start_ = event->GetCoordinates(true);
     dragging_ = true;
   }
 
   // Split at the current cursor track
-  TrackReference split_track = event->GetCoordinates().GetTrack();
+  TrackReference split_track = event->GetTrack();
 
   if (!split_tracks_.contains(split_track)) {
     split_tracks_.append(split_track);
@@ -66,7 +66,7 @@ void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
     Block* block_at_time = track->NearestBlockBefore(split_time);
 
     // Ensure there's a valid block here
-    if (block_at_time != track
+    if (block_at_time
         && !blocks_to_split.contains(block_at_time)) {
       blocks_to_split.append(block_at_time);
 

@@ -94,6 +94,8 @@ private:
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
 
+  TimelineViewMouseEvent CreateMouseEvent(const QPoint &pos, Qt::KeyboardModifiers modifiers);
+
   int SceneToTrack(double y);
 
   void UserSetTime(const int64_t& time);
