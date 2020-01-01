@@ -249,25 +249,8 @@ bool VideoRenderBackend::CanRender()
 
 void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
 {
-  // Here, we received a frame resident in memory that can be forwarded along to a viewer or exporter if necessary.
-
-  QList<rational> times_with_this_hash;
-
-  // If the viewer last requested this time, presumably it hasn't moved from there and should know this frame has now
-  // changed
-  if (last_time_requested_ == path.in()
-      && JobIsCurrent(path, job_time)) {
-    times_with_this_hash.append(path.in());
-  }
-
-  // Send all deferred frames to the exporter
-  /*if (export_mode_) {
-    times_with_this_hash.append(frame_cache()->DeferredMapsWithHash(hash));
-  }*/
-
-  // If we have frames to forward along to a viewer/exporter, forward them here
-  if (!times_with_this_hash.isEmpty()) {
-    EmitCachedFrameReady(times_with_this_hash, value);
+  if (last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
+    EmitCachedFrameReady({last_time_requested_}, value);
   }
 }
 
@@ -285,7 +268,11 @@ void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, qint64 job_time,
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
-  SetFrameHash(dep, hash, job_time);
+  if (SetFrameHash(dep, hash, job_time)
+      && last_time_requested_ == dep.in()
+      && frame_cache_.HasHash(hash)) {
+    emit CachedTimeReady(dep.in());
+  }
 
   // Queue up a new frame for this worker
   CacheNext();
@@ -295,7 +282,8 @@ void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, qint64 job_
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
-  if (SetFrameHash(dep, hash, job_time) && dep.in() == last_time_requested_) {
+  if (SetFrameHash(dep, hash, job_time)
+      && dep.in() == last_time_requested_) {
     emit CachedTimeReady(dep.in());
   }
 
@@ -321,8 +309,6 @@ bool VideoRenderBackend::SetFrameHash(const NodeDependency &dep, const QByteArra
 
     return true;
   }
-
-  qDebug() << "Discarded frame" << dep.in().toDouble();
 
   return false;
 }

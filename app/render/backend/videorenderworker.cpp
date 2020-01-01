@@ -45,6 +45,8 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
       Download(path, hash, texture, frame_cache_->CachePathName(hash));
     }
 
+    frame_cache_->RemoveHashFromCurrentlyCaching(hash);
+
     // Signal that this job is complete
     emit CompletedDownload(path, job_time, hash);
   } else {
@@ -82,6 +84,17 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
       // Get time adjustment
       // For a single frame, we only care about one of the times
       rational input_time = n->InputTimeAdjustment(input, TimeRange(time, time)).in();
+
+      if (n->IsBlock()) {
+        const Block* b = static_cast<const Block*>(n);
+
+        // Ignore some Block attributes when hashing
+        if (input == b->media_in_input()
+            || input == b->media_out_input()
+            || input == b->length_input()) {
+          continue;
+        }
+      }
 
       if (input->IsConnected()) {
         // Traverse down this edge

@@ -53,17 +53,11 @@ QByteArray VideoRenderFrameCache::TimeToHash(const rational &time) const
 
 void VideoRenderFrameCache::SetHash(const rational &time, const QByteArray &hash)
 {
-  // No longer currently caching this frame
-  RemoveHashFromCurrentlyCaching(hash);
-
-  // Insert frame into map
   time_hash_map_.insert(time, hash);
 }
 
 void VideoRenderFrameCache::RemoveHash(const rational &time, const QByteArray &hash)
 {
-  RemoveHashFromCurrentlyCaching(hash);
-
   time_hash_map_.remove(time);
 }
 

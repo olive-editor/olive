@@ -39,9 +39,9 @@ public:
 
   void Truncate(const rational& time);
 
-private:
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
 
+private:
   QMap<rational, QByteArray> time_hash_map_;
 
   QMutex currently_caching_lock_;
