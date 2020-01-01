@@ -46,25 +46,10 @@ void Sequence::Open(SequencePtr sequence)
   ViewerPanel* viewer_panel = PanelManager::instance()->MostRecentlyFocused<ViewerPanel>();
   TimelinePanel* timeline_panel = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
   NodePanel* node_panel = PanelManager::instance()->MostRecentlyFocused<NodePanel>();
-  ParamPanel* param_panel = PanelManager::instance()->MostRecentlyFocused<ParamPanel>();
-  CurvePanel* curve_panel = PanelManager::instance()->MostRecentlyFocused<CurvePanel>();
 
   viewer_panel->ConnectViewerNode(sequence->viewer_output_);
   timeline_panel->ConnectTimelineNode(sequence->timeline_output_);
   node_panel->SetGraph(sequence.get());
-
-  connect(timeline_panel, &TimelinePanel::TimeChanged, param_panel, &ParamPanel::SetTime);
-  connect(timeline_panel, &TimelinePanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
-  connect(timeline_panel, &TimelinePanel::TimeChanged, curve_panel, &CurvePanel::SetTime);
-  connect(viewer_panel, &ViewerPanel::TimeChanged, param_panel, &ParamPanel::SetTime);
-  connect(viewer_panel, &ViewerPanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
-  connect(viewer_panel, &ViewerPanel::TimeChanged, curve_panel, &CurvePanel::SetTime);
-  connect(param_panel, &ParamPanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
-  connect(param_panel, &ParamPanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
-  connect(param_panel, &ParamPanel::TimeChanged, curve_panel, &CurvePanel::SetTime);
-  connect(curve_panel, &CurvePanel::TimeChanged, viewer_panel, &ViewerPanel::SetTime);
-  connect(curve_panel, &CurvePanel::TimeChanged, timeline_panel, &TimelinePanel::SetTime);
-  connect(curve_panel, &CurvePanel::TimeChanged, param_panel, &ParamPanel::SetTime);
 }
 
 void Sequence::add_default_nodes()

@@ -60,7 +60,9 @@ void TrackView::ConnectTrackList(TrackList *list)
 
   if (list_ != nullptr) {
     foreach (TrackOutput* track, list_->Tracks()) {
-      splitter_->Insert(track->Index(), track->GetTrackHeight(), new TrackViewItem(track));
+      TrackViewItem* item = new TrackViewItem(track);
+      items_.append(item);
+      splitter_->Insert(track->Index(), track->GetTrackHeight(), item);
     }
 
     connect(list_, SIGNAL(TrackHeightChanged(int, int)), splitter_, SLOT(SetTrackHeight(int, int)));

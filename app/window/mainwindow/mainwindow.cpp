@@ -74,9 +74,22 @@ MainWindow::MainWindow(QWidget *parent) :
   curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, curve_panel_);
 
+  // FIXME: This is fairly "hardcoded" behavior and doesn't support infinite panels
   connect(node_panel_, &NodePanel::SelectionChanged, param_panel_, &ParamPanel::SetNodes);
   connect(param_panel_, &ParamPanel::SelectedInputChanged, curve_panel_, &CurvePanel::SetInput);
   connect(param_panel_, &ParamPanel::TimebaseChanged, curve_panel_, &CurvePanel::SetTimebase);
+  connect(timeline_panel_, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(timeline_panel_, &TimelinePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
+  connect(timeline_panel_, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
+  connect(viewer_panel_, &ViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(viewer_panel_, &ViewerPanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
+  connect(viewer_panel_, &ViewerPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
+  connect(curve_panel_, &CurvePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
+  connect(curve_panel_, &CurvePanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
+  connect(curve_panel_, &CurvePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)
