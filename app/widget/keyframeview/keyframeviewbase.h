@@ -1,7 +1,6 @@
 #ifndef KEYFRAMEVIEWBASE_H
 #define KEYFRAMEVIEWBASE_H
 
-#include "core.h"
 #include "keyframeviewitem.h"
 #include "node/keyframe.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
@@ -76,8 +75,6 @@ private slots:
   void ShowContextMenu();
 
   void ShowKeyframePropertiesDialog();
-
-  void ApplicationToolChanged(Tool::Item tool);
 
 };
 

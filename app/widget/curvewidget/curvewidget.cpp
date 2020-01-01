@@ -2,6 +2,7 @@
 
 #include <QEvent>
 #include <QLabel>
+#include <QScrollBar>
 #include <QVBoxLayout>
 
 #include "core.h"
@@ -67,6 +68,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::UpdateBridgeTime);
   connect(view_->scene(), &QGraphicsScene::selectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
+  connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler_, &TimeRuler::SetScroll);
 
   widget_bridge_layout_ = new QHBoxLayout();
   widget_bridge_layout_->addStretch();

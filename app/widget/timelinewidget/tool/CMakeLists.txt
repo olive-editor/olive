@@ -17,7 +17,6 @@
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   widget/timelinewidget/tool/add.cpp
-  widget/timelinewidget/tool/hand.cpp
   widget/timelinewidget/tool/import.cpp
   widget/timelinewidget/tool/pointer.cpp
   widget/timelinewidget/tool/razor.cpp

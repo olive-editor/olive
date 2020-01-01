@@ -30,7 +30,6 @@
 #include "config/config.h"
 #include "common/flipmodifiers.h"
 #include "common/timecodefunctions.h"
-#include "core.h"
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 
@@ -42,7 +41,6 @@ TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignme
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
 
-  setDragMode(NoDrag);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -69,8 +67,13 @@ void TimelineView::DeselectAll()
 
 void TimelineView::mousePressEvent(QMouseEvent *event)
 {
-  if (PlayheadPress(event)) {
+  if (HandPress(event) || PlayheadPress(event)) {
     // Let the parent handle this
+    return;
+  }
+
+  if (dragMode() != GetDefaultDragMode()) {
+    TimelineViewBase::mousePressEvent(event);
     return;
   }
 
@@ -81,8 +84,13 @@ void TimelineView::mousePressEvent(QMouseEvent *event)
 
 void TimelineView::mouseMoveEvent(QMouseEvent *event)
 {
-  if (PlayheadMove(event)) {
+  if (HandMove(event) || PlayheadMove(event)) {
     // Let the parent handle this
+    return;
+  }
+
+  if (dragMode() != GetDefaultDragMode()) {
+    TimelineViewBase::mouseMoveEvent(event);
     return;
   }
 
@@ -93,8 +101,13 @@ void TimelineView::mouseMoveEvent(QMouseEvent *event)
 
 void TimelineView::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (PlayheadRelease(event)) {
+  if (HandRelease(event) || PlayheadRelease(event)) {
     // Let the parent handle this
+    return;
+  }
+
+  if (dragMode() != GetDefaultDragMode()) {
+    TimelineViewBase::mouseReleaseEvent(event);
     return;
   }
 

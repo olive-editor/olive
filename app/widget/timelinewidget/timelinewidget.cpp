@@ -15,7 +15,6 @@
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
   rubberband_(QRubberBand::Rectangle, this),
-  hand_drag_view_(nullptr),
   timeline_node_(nullptr),
   playhead_(0)
 {
@@ -61,7 +60,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(::Tool::kRazor, std::make_shared<RazorTool>(this));
   tools_.replace(::Tool::kSlip, std::make_shared<SlipTool>(this));
   tools_.replace(::Tool::kSlide, std::make_shared<SlideTool>(this));
-  tools_.replace(::Tool::kHand, std::make_shared<HandTool>(this));
+//  tools_.replace(::Tool::kHand, std::make_shared<HandTool>(this));
   tools_.replace(::Tool::kZoom, std::make_shared<ZoomTool>(this));
   tools_.replace(::Tool::kTransition, std::make_shared<TransitionTool>(this));
   //tools_.replace(::Tool::kRecord, new PointerTool(this));  FIXME: Implement
@@ -916,34 +915,4 @@ void TimelineWidget::EndRubberBandSelect(bool select_links)
   MoveRubberBandSelect(select_links);
   rubberband_.hide();
   rubberband_now_selected_.clear();
-}
-
-void TimelineWidget::StartHandDrag()
-{
-  // Determine which view to hand drag by which is under the cursor now
-  foreach (TimelineAndTrackView* tview, views_) {
-    TimelineView* view = tview->view();
-
-    if (view->underMouse()) {
-      hand_drag_view_ = view;
-      hand_drag_view_origin_ = view->GetScrollCoordinates();
-      drag_origin_ = QCursor::pos();
-      break;
-    }
-  }
-}
-
-void TimelineWidget::MoveHandDrag()
-{
-  if (hand_drag_view_ == nullptr) {
-    return;
-  }
-
-  // Drag the view if we found one in StartHandDrag()
-  hand_drag_view_->SetScrollCoordinates(hand_drag_view_origin_ + (drag_origin_ - QCursor::pos()));
-}
-
-void TimelineWidget::EndHandDrag()
-{
-  hand_drag_view_ = nullptr;
 }

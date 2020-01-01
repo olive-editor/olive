@@ -272,19 +272,6 @@ private:
     virtual void MouseReleaseInternal(TimelineViewMouseEvent *event) override;
   };
 
-  class HandTool : public Tool
-  {
-  public:
-    HandTool(TimelineWidget* parent);
-
-    virtual void MousePress(TimelineViewMouseEvent *event) override;
-    virtual void MouseMove(TimelineViewMouseEvent *event) override;
-    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-  private:
-    QPoint screen_drag_start_;
-    QPoint scrollbar_start_;
-  };
-
   class ZoomTool : public Tool
   {
   public:
@@ -336,12 +323,6 @@ private:
   void EndRubberBandSelect(bool select_links);
   QRubberBand rubberband_;
   QList<QGraphicsItem*> rubberband_now_selected_;
-
-  void StartHandDrag();
-  void MoveHandDrag();
-  void EndHandDrag();
-  TimelineView* hand_drag_view_;
-  QPoint hand_drag_view_origin_;
 
   Tool* GetActiveTool();
 

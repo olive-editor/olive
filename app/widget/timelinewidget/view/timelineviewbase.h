@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 
+#include "core.h"
 #include "timelineplayhead.h"
 #include "timelineviewenditem.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
@@ -42,9 +43,16 @@ protected:
 
   rational GetPlayheadTime();
 
+  void SetDefaultDragMode(DragMode mode);
+  const DragMode& GetDefaultDragMode() const;
+
   bool PlayheadPress(QMouseEvent* event);
   bool PlayheadMove(QMouseEvent* event);
   bool PlayheadRelease(QMouseEvent* event);
+
+  bool HandPress(QMouseEvent* event);
+  bool HandMove(QMouseEvent* event);
+  bool HandRelease(QMouseEvent* event);
 
 private:
   qreal GetPlayheadX();
@@ -58,11 +66,16 @@ private:
 
   bool dragging_playhead_;
 
+  bool dragging_hand_;
+  DragMode pre_hand_drag_mode_;
+
   TimelineViewEndItem* end_item_;
 
   QGraphicsScene scene_;
 
   bool limit_y_axis_;
+
+  DragMode default_drag_mode_;
 
 private slots:
   /**
@@ -82,6 +95,8 @@ private slots:
    * do nothing.
    */
   void PageScrollToPlayhead();
+
+  void ApplicationToolChanged(Tool::Item tool);
 
 };
 

@@ -106,6 +106,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
 
+  connect(keyframe_view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
+
   // Set a default scale - FIXME: Hardcoded
   SetScale(120);
 }

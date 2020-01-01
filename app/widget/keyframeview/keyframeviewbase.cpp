@@ -15,11 +15,10 @@ KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   dragging_bezier_point_(nullptr),
   y_axis_enabled_(false)
 {
-  setDragMode(RubberBandDrag);
+  SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &KeyframeViewBase::customContextMenuRequested, this, &KeyframeViewBase::ShowContextMenu);
-  connect(Core::instance(), &Core::ToolChanged, this, &KeyframeViewBase::ApplicationToolChanged);
 }
 
 void KeyframeViewBase::Clear()
@@ -67,7 +66,7 @@ KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
 
 void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 {
-  if (PlayheadPress(event)) {
+  if (HandPress(event) || PlayheadPress(event)) {
     return;
   }
 
@@ -107,7 +106,7 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
 
 void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 {
-  if (PlayheadMove(event)) {
+  if (HandMove(event) || PlayheadMove(event)) {
     return;
   }
 
@@ -138,7 +137,7 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
 void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (PlayheadRelease(event)) {
+  if (HandRelease(event) || PlayheadRelease(event)) {
     return;
   }
 
@@ -386,15 +385,6 @@ void KeyframeViewBase::ShowKeyframePropertiesDialog()
   if (!keys.isEmpty()) {
     KeyframePropertiesDialog kd(keys, timebase(), this);
     kd.exec();
-  }
-}
-
-void KeyframeViewBase::ApplicationToolChanged(Tool::Item tool)
-{
-  if (tool == Tool::kHand) {
-    setDragMode(ScrollHandDrag);
-  } else {
-    setDragMode(RubberBandDrag);
   }
 }
 
