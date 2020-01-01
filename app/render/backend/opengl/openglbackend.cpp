@@ -159,6 +159,8 @@ void OpenGLBackend::EmitCachedFrameReady(const QList<rational> &times, const QVa
 
 OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)
 {
+  input->Lock();
+
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
 
   OpenGLTexturePtr copy = std::make_shared<OpenGLTexture>();
@@ -175,6 +177,8 @@ OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)
   input->Release();
   copy_buffer_.Release();
   copy_buffer_.Detach();
+
+  input->Unlock();
 
   return copy;
 }

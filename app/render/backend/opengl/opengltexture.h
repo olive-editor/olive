@@ -22,6 +22,7 @@
 #define OPENGLTEXTURE_H
 
 #include <memory>
+#include <QMutex>
 #include <QOpenGLFunctions>
 
 #include "codec/frame.h"
@@ -59,6 +60,10 @@ public:
 
   void Upload(const void *data);
 
+  void Lock();
+
+  void Unlock();
+
 public slots:
   void Destroy();
 
@@ -74,6 +79,8 @@ private:
   int height_;
 
   PixelFormat::Format format_;
+
+  QMutex mutex_;
 
 };
 

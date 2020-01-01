@@ -355,6 +355,8 @@ void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 
   PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
+  texture->texture()->Lock();
+
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   buffer_.Attach(texture->texture());
   buffer_.Bind();
@@ -369,6 +371,8 @@ void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 
   buffer_.Release();
   buffer_.Detach();
+
+  texture->texture()->Unlock();
 }
 
 void OpenGLWorker::FinishInit()
