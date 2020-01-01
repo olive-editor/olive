@@ -35,7 +35,6 @@ NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &de
   data_type_(type),
   keyframable_(true),
   keyframing_(false),
-  dependent_(true),
   has_minimum_(false),
   has_maximum_(false)
 {

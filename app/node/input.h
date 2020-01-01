@@ -310,11 +310,6 @@ private:
   bool keyframing_;
 
   /**
-   * @brief Internal dependent setting
-   */
-  bool dependent_;
-
-  /**
    * @brief Sets whether this param has a minimum value or not
    */
   bool has_minimum_;
