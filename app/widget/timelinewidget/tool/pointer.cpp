@@ -162,6 +162,9 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
   QUndoCommand* command = new QUndoCommand();
 
   QList<Block*> blocks_to_temp_remove;
+  QList<TrackReference> tracks_affected;
+
+  bool duplicate_clips = (event->GetModifiers() & Qt::AltModifier);
 
   // Since all the ghosts will be leaving their old position in some way, we replace all of them with gaps here so the
   // entire timeline isn't disrupted in the process
@@ -175,9 +178,17 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    blocks_to_temp_remove.append(b);
+    // If we're duplicating (user is holding ALT), no need to remove the original clip. However if the ghost was
+    // trimmed, it can't be duplicated.
+    if (!duplicate_clips || ghost->mode() != Timeline::kMove) {
+      blocks_to_temp_remove.append(b);
+    }
+
+    tracks_affected.append(ghost->Track());
+    tracks_affected.append(ghost->GetAdjustedTrack());
   }
 
+  // If there are any blocks to remove, remove them
   parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, command);
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
@@ -189,6 +200,8 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
     if (!ghost->HasBeenAdjusted()) {
       continue;
     }
+
+    const TrackReference& track_ref = ghost->GetAdjustedTrack();
 
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
@@ -202,15 +215,33 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       } else {
         new BlockResizeCommand(b, ghost->AdjustedLength(), command);
       }
-    }
+    } else if (duplicate_clips && ghost->mode() == Timeline::kMove) {
+      // Duplicate rather than move
+      Node* copy = b->copy();
 
-    const TrackReference& track_ref = ghost->GetAdjustedTrack();
+      new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
+                         copy,
+                         command);
+
+      new NodeCopyInputsCommand(b, copy, true, command);
+
+      // Place the copy instead of the original block
+      b = static_cast<Block*>(copy);
+    }
 
     new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
                                track_ref.index(),
                                b,
                                ghost->GetAdjustedIn(),
                                command);
+  }
+
+  if (command->childCount() > 0) {
+    foreach (const TrackReference& t, tracks_affected) {
+      new TrackCleanGapsCommand(parent()->timeline_node_->track_list(t.type()),
+                                t.index(),
+                                command);
+    }
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -360,12 +391,19 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
 
   // For each selected item, create a "ghost", a visual representation of the action before it gets performed
   foreach (TimelineViewBlockItem* clip_item, clips) {
+
     // Determine correct mode for ghost
     //
     // Movement is indiscriminate, all the ghosts can be set to do this, however trimming is limited to one block
     // PER TRACK
 
     bool include_this_clip = true;
+
+    if (clip_item->block()->type() == Block::kGap
+        && trim_mode != Timeline::kTrimIn
+        && trim_mode != Timeline::kTrimOut) {
+      continue;
+    }
 
     if (clip_item != clicked_item
         && (trim_mode == Timeline::kTrimIn || trim_mode == Timeline::kTrimOut)) {
@@ -376,6 +414,7 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
       Block* block = clip_item->block();
       Timeline::MovementMode block_mode = trim_mode;
 
+      // If we don't allow gap trimming, we automatically switch to the next/previous block to trim
       if (block->type() == Block::kGap && !allow_gap_trimming) {
         if (trim_mode == Timeline::kTrimIn) {
           // Trim the previous clip's out point instead

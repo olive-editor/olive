@@ -134,3 +134,24 @@ NodeRemoveWithExclusiveDeps::NodeRemoveWithExclusiveDeps(NodeGraph *graph, Node 
 
   remove_command_ = new NodeRemoveCommand(graph, node_and_its_deps, this);
 }
+
+NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, bool include_connections, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  src_(src),
+  dest_(dest),
+  include_connections_(include_connections)
+{
+}
+
+NodeCopyInputsCommand::NodeCopyInputsCommand(Node *src, Node *dest, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  src_(src),
+  dest_(dest),
+  include_connections_(true)
+{
+}
+
+void NodeCopyInputsCommand::redo()
+{
+  Node::CopyInputs(src_, dest_, include_connections_);
+}

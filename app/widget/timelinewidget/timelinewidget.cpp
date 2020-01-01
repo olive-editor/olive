@@ -389,60 +389,20 @@ void TimelineWidget::SplitAtPlayhead()
 void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool remove_from_graph, QUndoCommand *command)
 {
   foreach (Block* b, blocks) {
-    // All this function does is replace blocks with gaps, nothing to do if the block is already a gap
-    if (b->type() == Block::kGap) {
-      continue;
-    }
-
-    bool previous_is_gap = (b->previous() && b->previous()->type() == Block::kGap);
-    bool next_is_gap = (b->next() && b->next()->type() == Block::kGap);
-
     TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
 
-    if (!b->next()) {
-      // If the block has no next, presumably it's the last block and doesn't actually need a gap
-      new TrackRippleRemoveBlockCommand(original_track,
-                                        b,
-                                        command);
-    } else if (!previous_is_gap && !next_is_gap) {
-      // Make new gap and replace old Block with it for now
-      GapBlock* gap = new GapBlock();
-      gap->set_length_and_media_out(b->length());
+    // Make new gap and replace old Block with it for now
+    GapBlock* gap = new GapBlock();
+    gap->set_length_and_media_out(b->length());
 
-      new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
-                         gap,
-                         command);
+    new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
+                       gap,
+                       command);
 
-      new TrackReplaceBlockCommand(original_track,
-                                   b,
-                                   gap,
-                                   command);
-    } else {
-      // Remove the block from the track
-      new TrackRippleRemoveBlockCommand(original_track,
-                                        b,
-                                        command);
-
-      if (previous_is_gap && next_is_gap) {
-        // Clip is surrounded by gaps, merge both together
-
-        // Remove one of the gaps
-        new TrackRippleRemoveBlockCommand(original_track,
-                                          b->next(),
-                                          command);
-
-        // Resize the other to match both
-        new BlockResizeCommand(b->previous(),
-                               b->previous()->length() + b->length() + b->next()->length(),
-                               command);
-      } else {
-        // Resize the surrounding block to take its place
-        Block* gap_to_resize = previous_is_gap ? b->previous() : b->next();
-        new BlockResizeCommand(gap_to_resize,
-                               gap_to_resize->length() + b->length(),
-                               command);
-      }
-    }
+    new TrackReplaceBlockCommand(original_track,
+                                 b,
+                                 gap,
+                                 command);
 
     if (remove_from_graph) {
       new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);

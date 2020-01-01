@@ -255,4 +255,30 @@ private:
   Block* replace_;
 };
 
+class TrackCleanGapsCommand : public QUndoCommand {
+public:
+  TrackCleanGapsCommand(TrackList* track_list, int index, QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+  virtual void undo() override;
+
+private:
+  struct MergedGap {
+    GapBlock* merged;
+    rational original_length;
+    QList<GapBlock*> removed;
+  };
+
+  TrackList* track_list_;
+
+  int track_index_;
+
+  QObject memory_manager_;
+
+  QList<MergedGap> merged_gaps_;
+
+  QList<GapBlock*> removed_end_gaps_;
+
+};
+
 #endif // TIMELINEUNDOABLE_H

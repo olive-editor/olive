@@ -123,13 +123,13 @@ void BlockSetMediaOutCommand::undo()
 TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
   QUndoCommand(parent),
   track_(track),
-  block_(block),
-  before_(block->previous())
+  block_(block)
 {
 }
 
 void TrackRippleRemoveBlockCommand::redo()
 {
+  before_ = block_->previous();
   track_->RippleRemoveBlock(block_);
 }
 
@@ -217,7 +217,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
     static_cast<NodeGraph*>(track_->parent())->AddNode(copy);
     Node::CopyInputs(splice_, copy);
-    copy->set_length_and_media_in(splice_->length() - (out_ - splice_->in()));
+    copy->set_length_and_media_in(splice_original_length_ - (out_ - splice_->in()));
 
     track_->InsertBlockAfter(copy, splice_);
 
@@ -296,6 +296,7 @@ void TrackRippleRemoveAreaCommand::undo()
       track_->InsertBlockBefore(remove_block, trim_in_);
     }
   }
+  removed_blocks_.clear();
 
   // If we picked up a block to trim the in point of
   if (trim_in_old_length_ != trim_in_new_length_) {
@@ -551,4 +552,89 @@ BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector
       }
     }
   }
+}
+
+TrackCleanGapsCommand::TrackCleanGapsCommand(TrackList *track_list, int index, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  track_list_(track_list),
+  track_index_(index)
+{
+}
+
+void TrackCleanGapsCommand::redo()
+{
+  GapBlock* on_gap = nullptr;
+  QList<GapBlock*> consecutive_gaps;
+
+  TrackOutput* track = track_list_->TrackAt(track_index_);
+
+  foreach (Block* b, track->Blocks()) {
+    if (b) {
+      if (b->type() == Block::kGap) {
+        if (on_gap) {
+          consecutive_gaps.append(static_cast<GapBlock*>(b));
+        } else {
+          on_gap = static_cast<GapBlock*>(b);
+        }
+      } else if (on_gap) {
+        merged_gaps_.append({on_gap, on_gap->length(), consecutive_gaps});
+
+        // Remove each gap and add to the length of the merged
+        // We can block the IC signal because merging gaps won't actually change anything
+        track->BlockInvalidateCache();
+        rational new_gap_length = on_gap->length();
+        foreach (GapBlock* gap, consecutive_gaps) {
+          track->RippleRemoveBlock(gap);
+
+          new_gap_length += gap->length();
+        }
+        on_gap->set_length(new_gap_length);
+        track->UnblockInvalidateCache();
+
+        // Reset state
+        on_gap = nullptr;
+        consecutive_gaps.clear();
+      }
+    }
+  }
+
+  if (on_gap) {
+    // If we're here, we found at least one or several
+    removed_end_gaps_.append(on_gap);
+    removed_end_gaps_.append(consecutive_gaps);
+
+    foreach (GapBlock* gap, removed_end_gaps_) {
+      track->RippleRemoveBlock(gap);
+    }
+  }
+}
+
+void TrackCleanGapsCommand::undo()
+{
+  TrackOutput* track = track_list_->TrackAt(track_index_);
+
+  // Restored removed end gaps
+  foreach (GapBlock* gap, removed_end_gaps_) {
+    track->AppendBlock(gap);
+  }
+  removed_end_gaps_.clear();
+
+  track->BlockInvalidateCache();
+
+  for (int i=merged_gaps_.size()-1;i>=0;i--) {
+    const MergedGap& merge_info = merged_gaps_.at(i);
+
+    merge_info.merged->set_length(merge_info.original_length);
+
+    GapBlock* last_gap_added = merge_info.merged;
+
+    foreach (GapBlock* gap, merge_info.removed) {
+      track->InsertBlockAfter(gap, last_gap_added);
+      last_gap_added = gap;
+    }
+  }
+
+  track->UnblockInvalidateCache();
+
+  merged_gaps_.clear();
 }

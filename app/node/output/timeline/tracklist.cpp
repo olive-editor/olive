@@ -143,6 +143,8 @@ void TrackList::RemoveTrack()
   GetParentGraph()->TakeNode(track);
 
   delete track;
+
+  track_input_->RemoveLast();
 }
 
 void TrackList::TrackConnected(NodeEdgePtr edge)

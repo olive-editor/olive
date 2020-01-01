@@ -88,4 +88,26 @@ private:
   NodeRemoveCommand* remove_command_;
 };
 
+class NodeCopyInputsCommand : public QUndoCommand {
+public:
+  NodeCopyInputsCommand(Node* src,
+                        Node* dest,
+                        bool include_connections = true,
+                        QUndoCommand* parent = nullptr);
+
+  NodeCopyInputsCommand(Node* src,
+                        Node* dest,
+                        QUndoCommand* parent = nullptr);
+
+  virtual void redo() override;
+
+private:
+  Node* src_;
+
+  Node* dest_;
+
+  bool include_connections_;
+
+};
+
 #endif // NODEVIEWUNDO_H

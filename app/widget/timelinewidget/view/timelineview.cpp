@@ -180,6 +180,10 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
   int line_y = 0;
 
   foreach (TrackOutput* track, connected_track_list_->Tracks()) {
+    if (!track) {
+      continue;
+    }
+
     line_y += track->GetTrackHeight();
 
     // One px gap between tracks
