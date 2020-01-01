@@ -184,8 +184,13 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       blocks_to_temp_remove.append(b);
     }
 
-    tracks_affected.append(ghost->Track());
-    tracks_affected.append(ghost->GetAdjustedTrack());
+    if (!tracks_affected.contains(ghost->Track())) {
+      tracks_affected.append(ghost->Track());
+    }
+
+    if (!tracks_affected.contains(ghost->GetAdjustedTrack())) {
+      tracks_affected.append(ghost->GetAdjustedTrack());
+    }
   }
 
   // If there are any blocks to remove, remove them
