@@ -414,11 +414,16 @@ void TimelineWidget::DeleteSelected()
 {
   QList<TimelineViewBlockItem *> selected_list = GetSelectedBlocks();
   QList<Block*> blocks_to_delete;
+  QList<TrackReference> tracks_affected;
 
   foreach (TimelineViewBlockItem* item, selected_list) {
     Block* b = item->block();
 
     blocks_to_delete.append(b);
+
+    if (!tracks_affected.contains(item->Track())) {
+      tracks_affected.append(item->Track());
+    }
   }
 
   // No-op if nothing is selected
@@ -428,7 +433,15 @@ void TimelineWidget::DeleteSelected()
 
   QUndoCommand* command = new QUndoCommand();
 
+  // Replace blocks with gaps (effectively deleting them)
   DeleteSelectedInternal(blocks_to_delete, true, command);
+
+  // Clean each track
+  foreach (const TrackReference& track, tracks_affected) {
+    new TrackCleanGapsCommand(timeline_node_->track_list(track.type()),
+                              track.index(),
+                              command);
+  }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
@@ -867,7 +880,7 @@ void TimelineWidget::MoveRubberBandSelect(bool select_links)
 
   foreach (QGraphicsItem* item, new_selected_list) {
     TimelineViewBlockItem* block_item = dynamic_cast<TimelineViewBlockItem*>(item);
-    if (!block_item) {
+    if (!block_item || block_item->block()->type() == Block::kGap) {
       continue;
     }
 
