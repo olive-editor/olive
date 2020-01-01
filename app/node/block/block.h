@@ -90,6 +90,10 @@ public:
 
   virtual void Retranslate() override;
 
+  NodeInput* length_input() const;
+  NodeInput* media_in_input() const;
+  NodeInput* media_out_input() const;
+
 public slots:
 
 signals:

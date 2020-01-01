@@ -298,3 +298,18 @@ void Block::Retranslate()
   media_in_input_->set_name(tr("Media In"));
 }
 
+NodeInput *Block::length_input() const
+{
+  return length_input_;
+}
+
+NodeInput *Block::media_in_input() const
+{
+  return media_in_input_;
+}
+
+NodeInput *Block::media_out_input() const
+{
+  return media_out_input_;
+}
+
