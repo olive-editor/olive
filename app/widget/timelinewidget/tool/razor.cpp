@@ -83,7 +83,9 @@ void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
   split_tracks_.clear();
 
-  Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {split_time}));
+  if (!blocks_to_split.isEmpty()) {
+    Core::instance()->undo_stack()->push(new BlockSplitPreservingLinksCommand(blocks_to_split, {split_time}));
+  }
 
   dragging_ = false;
 }
