@@ -39,13 +39,10 @@ public:
 
   void Truncate(const rational& time);
 
-  QList<rational> DeferredMapsWithHash(const QByteArray& hash);
-
 private:
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
 
   QMap<rational, QByteArray> time_hash_map_;
-  QMap<rational, QByteArray> deferred_maps_;
 
   QMutex currently_caching_lock_;
   QVector<QByteArray> currently_caching_list_;

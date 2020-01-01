@@ -16,17 +16,14 @@ public:
 
   void SetParameters(const VideoRenderingParams& video_params);
 
-public slots:
-  void Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename);
-
 signals:
-  void CompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable value);
+  void CompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);
 
-  void CompletedDownload(NodeDependency path, QByteArray hash);
+  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash);
 
-  void HashAlreadyBeingCached(NodeDependency path, QByteArray hash);
+  void HashAlreadyBeingCached(NodeDependency path, qint64 job_time, QByteArray hash);
 
-  void HashAlreadyExists(NodeDependency path, QByteArray hash);
+  void HashAlreadyExists(NodeDependency path, qint64 job_time, QByteArray hash);
 
 protected:
   virtual bool InitInternal() override;
@@ -39,7 +36,7 @@ protected:
 
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) = 0;
 
-  virtual NodeValueTable RenderInternal(const NodeDependency& path) override;
+  virtual NodeValueTable RenderInternal(const NodeDependency& path, const qint64& job_time) override;
 
   virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
 
@@ -49,6 +46,8 @@ protected:
 
 private:
   void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
+
+  void Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename);
 
   VideoRenderingParams video_params_;
 

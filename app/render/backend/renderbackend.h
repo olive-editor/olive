@@ -96,6 +96,8 @@ protected:
 
   bool compiled_;
 
+  QHash<TimeRange, qint64> render_job_info_;
+
 private:
   bool AllProcessorsAreAvailable() const;
 

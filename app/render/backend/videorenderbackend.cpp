@@ -33,8 +33,7 @@
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
-  export_mode_(false),
-  last_download_thread_(0)
+  export_mode_(false)
 {
 }
 
@@ -182,10 +181,12 @@ void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
 
 void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 {
-  connect(processor, SIGNAL(CompletedFrame(NodeDependency, QByteArray, NodeValueTable)), this, SLOT(ThreadCompletedFrame(NodeDependency, QByteArray, NodeValueTable)));
-  connect(processor, SIGNAL(HashAlreadyBeingCached(NodeDependency, QByteArray)), this, SLOT(ThreadSkippedFrame(NodeDependency, QByteArray)));
-  connect(processor, SIGNAL(CompletedDownload(NodeDependency, QByteArray)), this, SLOT(ThreadCompletedDownload(NodeDependency, QByteArray)));
-  connect(processor, SIGNAL(HashAlreadyExists(NodeDependency, QByteArray)), this, SLOT(ThreadHashAlreadyExists(NodeDependency, QByteArray)));
+  VideoRenderWorker* video_processor = static_cast<VideoRenderWorker*>(processor);
+
+  connect(video_processor, &VideoRenderWorker::CompletedFrame, this, &VideoRenderBackend::ThreadCompletedFrame);
+  connect(video_processor, &VideoRenderWorker::HashAlreadyBeingCached, this, &VideoRenderBackend::ThreadSkippedFrame);
+  connect(video_processor, &VideoRenderWorker::CompletedDownload, this, &VideoRenderBackend::ThreadCompletedDownload);
+  connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists);
 }
 
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
@@ -246,95 +247,82 @@ bool VideoRenderBackend::CanRender()
   return params_.is_valid();
 }
 
-void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table)
+void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
 {
-  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+  // Here, we received a frame resident in memory that can be forwarded along to a viewer or exporter if necessary.
 
-  QVariant texture = table.Get(NodeParam::kTexture);
-
-  // Check if this frame has changed once again, in which case we may not want to draw it (it'll look jittery to the user)
   QList<rational> times_with_this_hash;
 
-  if (last_time_requested_ == path.in() || export_mode_) {
+  // If the viewer last requested this time, presumably it hasn't moved from there and should know this frame has now
+  // changed
+  if (last_time_requested_ == path.in()
+      && JobIsCurrent(path, job_time)) {
     times_with_this_hash.append(path.in());
   }
 
-  if (export_mode_) {
+  // Send all deferred frames to the exporter
+  /*if (export_mode_) {
     times_with_this_hash.append(frame_cache()->DeferredMapsWithHash(hash));
-  }
+  }*/
 
+  // If we have frames to forward along to a viewer/exporter, forward them here
   if (!times_with_this_hash.isEmpty()) {
-    EmitCachedFrameReady(times_with_this_hash, texture);
+    EmitCachedFrameReady(times_with_this_hash, value);
   }
-
-  if (!export_mode_) {
-    if (texture.isNull()) {
-      // No frame received, we set hash to an empty
-      frame_cache()->RemoveHash(path.in(), hash);
-    } else {
-      // Received a texture, let's download it
-      QString cache_fn = frame_cache()->CachePathName(hash);
-
-      // Find an available worker to download this texture
-      QMetaObject::invokeMethod(processors_.at(last_download_thread_%processors_.size()),
-                                "Download",
-                                Q_ARG(NodeDependency, path),
-                                Q_ARG(QByteArray, hash),
-                                Q_ARG(QVariant, texture),
-                                Q_ARG(QString, cache_fn));
-
-      last_download_thread_++;
-    }
-  }
-
-  // Queue up a new frame for this worker
-  CacheNext();
 }
 
-void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, QByteArray hash)
-{
-  // Set hash, but DON'T signal time because it's most likely this frame has been signalled in ThreadCompletedFrame()
-  frame_cache()->SetHash(dep.in(), hash);
-
-  // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
-  DumpDeferredMappings(frame_cache()->DeferredMapsWithHash(hash), hash);
-}
-
-void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, QByteArray hash)
+void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash)
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
+  SetFrameHash(dep, hash, job_time);
+
   // Queue up a new frame for this worker
   CacheNext();
 }
 
-void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash)
+void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, qint64 job_time, QByteArray hash)
 {
-  // Emit for each frame that has this hash (some may have been added in ThreadSkippedFrame)
-  QList<rational> times_with_this_hash = frame_cache()->DeferredMapsWithHash(hash);
-  times_with_this_hash.append(dep.in());
-  DumpDeferredMappings(times_with_this_hash, hash);
-
-  //ThreadCompletedDownload(dep, hash);
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
+  SetFrameHash(dep, hash, job_time);
+
   // Queue up a new frame for this worker
   CacheNext();
 }
 
-bool VideoRenderBackend::TimeIsQueued(const TimeRange &time)
+void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, qint64 job_time, QByteArray hash)
+{
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
+  if (SetFrameHash(dep, hash, job_time) && dep.in() == last_time_requested_) {
+    emit CachedTimeReady(dep.in());
+  }
+
+  // Queue up a new frame for this worker
+  CacheNext();
+}
+
+bool VideoRenderBackend::TimeIsQueued(const TimeRange &time) const
 {
   return cache_queue_.contains(time);
 }
 
-void VideoRenderBackend::DumpDeferredMappings(const QList<rational>& times_with_this_hash, const QByteArray& hash)
+bool VideoRenderBackend::JobIsCurrent(const NodeDependency &dep, const qint64& job_time) const
 {
-  foreach (const rational& t, times_with_this_hash) {
-    if (frame_cache()->TimeToHash(t) != hash) {
-      frame_cache()->SetHash(t, hash);
-      if (last_time_requested_ == t && !TimeIsQueued(TimeRange(t, t))) {
-        emit CachedTimeReady(t);
-      }
-    }
+  return (render_job_info_.value(dep.range()) == job_time && !TimeIsQueued(dep.range()));
+}
+
+bool VideoRenderBackend::SetFrameHash(const NodeDependency &dep, const QByteArray &hash, const qint64& job_time)
+{
+  if (JobIsCurrent(dep, job_time)) {
+    frame_cache_.SetHash(dep.in(), hash);
+    render_job_info_.remove(dep.range());
+
+    return true;
   }
+
+  qDebug() << "Discarded frame" << dep.in().toDouble();
+
+  return false;
 }

@@ -258,14 +258,25 @@ void RenderBackend::CacheNext()
     if (!WorkerIsBusy(worker)) {
       TimeRange cache_frame = cache_queue_.takeFirst();
 
-      NodeDependency dep = NodeDependency(node_connected_to_viewer, cache_frame.in(), cache_frame.out());
+      NodeDependency dep = NodeDependency(node_connected_to_viewer,
+                                          cache_frame);
+
+      // Timestamp this render job
+      qint64 job_time = QDateTime::currentMSecsSinceEpoch();
+      if (render_job_info_.contains(cache_frame)
+          && render_job_info_.value(cache_frame) == job_time) {
+        // Ensure the job's time is unique
+        job_time = render_job_info_.value(cache_frame) + 1;
+      }
+      render_job_info_.insert(cache_frame, job_time);
 
       SetWorkerBusyState(worker, true);
 
       QMetaObject::invokeMethod(worker,
                                 "Render",
                                 Qt::QueuedConnection,
-                                Q_ARG(NodeDependency, dep));
+                                Q_ARG(NodeDependency, dep),
+                                Q_ARG(qint64, job_time));
     }
   }
 }

@@ -23,17 +23,17 @@ public:
 public slots:
   void Close();
 
-  void Render(NodeDependency path);
+  void Render(NodeDependency path, qint64 job_time);
 
 signals:
-  void CompletedCache(NodeDependency dep, NodeValueTable data);
+  void CompletedCache(NodeDependency dep, NodeValueTable data, qint64 job_time);
 
 protected:
   virtual bool InitInternal() = 0;
 
   virtual void CloseInternal() = 0;
 
-  virtual NodeValueTable RenderInternal(const NodeDependency& path);
+  virtual NodeValueTable RenderInternal(const NodeDependency& path, const qint64& job_time);
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 

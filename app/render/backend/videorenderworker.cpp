@@ -17,7 +17,7 @@ const VideoRenderingParams &VideoRenderWorker::video_params()
   return video_params_;
 }
 
-NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
+NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, const qint64 &job_time)
 {
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
@@ -29,15 +29,27 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path)
 
   if (frame_cache_->HasHash(hash)) {
     // We've already cached this hash, no need to continue
-    emit HashAlreadyExists(path, hash);
+    emit HashAlreadyExists(path, job_time, hash);
   } else if (frame_cache_->TryCache(path.in(), hash)) {
     // This hash is available for us to cache, start traversing graph
     value = ProcessNode(path);
 
-    emit CompletedFrame(path, hash, value);
+    // Find texture in hash
+    QVariant texture = value.Get(NodeParam::kTexture);
+
+    // Signal that we have a frame in memory that could be shown right now
+    emit CompletedFrame(path, job_time, hash, texture);
+
+    // If we actually have a texture, download it into the disk cache
+    if (!texture.isNull()) {
+      Download(path, hash, texture, frame_cache_->CachePathName(hash));
+    }
+
+    // Signal that this job is complete
+    emit CompletedDownload(path, job_time, hash);
   } else {
     // Another thread must be caching this already, nothing to be done
-    emit HashAlreadyBeingCached(path, hash);
+    emit HashAlreadyBeingCached(path, job_time, hash);
   }
 
   return value;
@@ -152,8 +164,6 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
     out->open(working_fn_std, spec);
     out->write_image(format_info.oiio_desc, download_buffer_.data());
     out->close();
-
-    emit CompletedDownload(dep, hash);
   } else {
     qWarning() << "Failed to open output file:" << filename;
   }

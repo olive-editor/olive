@@ -106,9 +106,11 @@ signals:
   void CachedTimeReady(const rational& time);
 
 private:
-  bool TimeIsQueued(const TimeRange &time);
+  bool TimeIsQueued(const TimeRange &time) const;
 
-  void DumpDeferredMappings(const QList<rational> &times_with_this_hash, const QByteArray &hash);
+  bool JobIsCurrent(const NodeDependency &dep, const qint64& job_time) const;
+
+  bool SetFrameHash(const NodeDependency& dep, const QByteArray& hash, const qint64& job_time);
 
   VideoRenderingParams params_;
 
@@ -118,13 +120,11 @@ private:
 
   rational last_time_requested_;
 
-  int last_download_thread_;
-
 private slots:
-  void ThreadCompletedFrame(NodeDependency path, QByteArray hash, NodeValueTable table);
-  void ThreadCompletedDownload(NodeDependency dep, QByteArray hash);
-  void ThreadSkippedFrame(NodeDependency dep, QByteArray hash);
-  void ThreadHashAlreadyExists(NodeDependency dep, QByteArray hash);
+  void ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);
+  void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash);
+  void ThreadSkippedFrame(NodeDependency dep, qint64 job_time, QByteArray hash);
+  void ThreadHashAlreadyExists(NodeDependency dep, qint64 job_time, QByteArray hash);
 
 };
 

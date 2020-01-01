@@ -32,13 +32,15 @@ void RenderWorker::Close()
   started_ = false;
 }
 
-void RenderWorker::Render(NodeDependency path)
+void RenderWorker::Render(NodeDependency path, qint64 job_time)
 {
-  emit CompletedCache(path, RenderInternal(path));
+  emit CompletedCache(path, RenderInternal(path, job_time), job_time);
 }
 
-NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path)
+NodeValueTable RenderWorker::RenderInternal(const NodeDependency &path, const qint64 &job_time)
 {
+  Q_UNUSED(job_time)
+
   return ProcessNode(path);
 }
 
@@ -114,7 +116,7 @@ NodeValueTable RenderWorker::ProcessInput(const NodeInput *input, const TimeRang
   }
 }
 
-NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRange& range)
+NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRange &range)
 {
   NodeValueDatabase database;
 
