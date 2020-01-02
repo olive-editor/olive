@@ -25,6 +25,7 @@
 
 AudioHybridDevice::AudioHybridDevice(QObject *parent) :
   QIODevice(parent),
+  output_(nullptr),
   device_(nullptr),
   sample_index_(0),
   enable_sending_samples_(false)
@@ -32,20 +33,37 @@ AudioHybridDevice::AudioHybridDevice(QObject *parent) :
 
 }
 
+bool AudioHybridDevice::OutputIsSet()
+{
+  qDebug() << "OIS";
+
+  output_set_lock_.lock();
+
+  bool output_is_set = (output_.get());
+
+  output_set_lock_.unlock();
+
+  return output_is_set;
+}
+
 void AudioHybridDevice::Push(const QByteArray& samples)
 {
+  qDebug() << "push";
+
   Stop();
 
   pushed_samples_ = samples;
   sample_index_ = 0;
 
   if (!pushed_samples_.isEmpty()) {
-    emit HasSamples();
+    WakeOutputDevice();
   }
 }
 
 void AudioHybridDevice::Stop()
 {
+  qDebug() << "Stop";
+
   // Whatever is happening, stop it
   pushed_samples_.clear();
 
@@ -53,17 +71,27 @@ void AudioHybridDevice::Stop()
     device_->close();
     device_ = nullptr;
   }
+
+  if (output_) {
+    output_->stop();
+  }
 }
 
 void AudioHybridDevice::ConnectDevice(QIODevice *device)
 {
+  qDebug() << "CD";
+
+  if (!output_) {
+    return;
+  }
+
   // Clear any previous device or pushed sample
   Stop();
 
   device_ = device;
 
   if (device_ != nullptr) {
-    emit HasSamples();
+    WakeOutputDevice();
   }
 }
 
@@ -72,9 +100,34 @@ bool AudioHybridDevice::IsIdle()
   return device_ == nullptr && pushed_samples_.isEmpty();
 }
 
+void AudioHybridDevice::WakeOutputDevice()
+{
+  if (output_ != nullptr && output_->state() != QAudio::ActiveState) {
+    output_->start(this);
+  }
+}
+
 void AudioHybridDevice::SetEnableSendingSamples(bool e)
 {
   enable_sending_samples_ = e;
+}
+
+void AudioHybridDevice::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format)
+{
+  output_set_lock_.lock();
+
+  output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
+
+  output_set_lock_.unlock();
+
+  connect(output_.get(), &QAudioOutput::notify, this, &AudioHybridDevice::OutputNotified);
+}
+
+void AudioHybridDevice::OutputNotified()
+{
+  if (IsIdle()) {
+    static_cast<QAudioOutput*>(sender())->stop();
+  }
 }
 
 qint64 AudioHybridDevice::readData(char *data, qint64 maxSize)

@@ -111,7 +111,6 @@ private:
 
   AudioHybridDevice output_manager_;
 
-  std::unique_ptr<QAudioOutput> output_;
   QAudioDeviceInfo output_device_info_;
   AudioRenderingParams output_params_;
 
@@ -124,11 +123,7 @@ private:
 private slots:
   void RefreshThreadDone();
 
-  void OutputManagerHasSamples();
-
   void OutputStateChanged(QAudio::State state);
-
-  void OutputNotified();
 
 };
 
