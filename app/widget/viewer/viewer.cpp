@@ -49,7 +49,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_->SetWidget(gl_widget_);
 
   // Create time ruler
-  ruler_ = new TimeRuler(false);
+  ruler_ = new TimeRuler(false, true);
   layout->addWidget(ruler_);
   connect(ruler_, SIGNAL(TimeChanged(int64_t)), this, SLOT(RulerTimeChange(int64_t)));
 
@@ -79,8 +79,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Start background renderers
   video_renderer_ = new OpenGLBackend(this);
-  connect(video_renderer_, SIGNAL(CachedFrameReady(const rational&, QVariant)), this, SLOT(RendererCachedFrame(const rational&, QVariant)));
-  connect(video_renderer_, SIGNAL(CachedTimeReady(const rational&)), this, SLOT(RendererCachedTime(const rational&)));
+  connect(video_renderer_, &VideoRenderBackend::CachedFrameReady, this, &ViewerWidget::RendererCachedFrame);
+  connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
+  connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler_, &TimeRuler::CacheTimeReady);
   audio_renderer_ = new AudioBackend(this);
 }
 
@@ -138,9 +139,11 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
   if (viewer_node_ != nullptr) {
     SetTimebase(0);
 
-    disconnect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    disconnect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
-    disconnect(viewer_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(LengthChangedSlot(const rational&)));
+    disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
+    disconnect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+    disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+    disconnect(viewer_node_, &ViewerOutput::LengthChanged, ruler_, &TimeRuler::SetCacheStatusLength);
+    disconnect(viewer_node_, &ViewerOutput::VideoChangedBetween, ruler_, &TimeRuler::CacheInvalidatedRange);
 
     // Effectively disables the viewer and clears the state
     SizeChangedSlot(0, 0);
@@ -159,9 +162,11 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
   if (viewer_node_ != nullptr) {
     SetTimebase(viewer_node_->video_params().time_base());
 
-    connect(viewer_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    connect(viewer_node_, SIGNAL(SizeChanged(int, int)), this, SLOT(SizeChangedSlot(int, int)));
-    connect(viewer_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(LengthChangedSlot(const rational&)));
+    connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
+    connect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+    connect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+    connect(viewer_node_, &ViewerOutput::LengthChanged, ruler_, &TimeRuler::SetCacheStatusLength);
+    connect(viewer_node_, &ViewerOutput::VideoChangedBetween, ruler_, &TimeRuler::CacheInvalidatedRange);
 
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
     LengthChangedSlot(viewer_node_->Length());
@@ -407,16 +412,18 @@ void ViewerWidget::PlaybackTimerUpdate()
   SetTime(current_time);
 }
 
-void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value)
+void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value, qint64 job_time)
 {
   if (GetTime() == time) {
     SetTexture(value.value<OpenGLTexturePtr>());
+
+    frame_cache_job_time_ = job_time;
   }
 }
 
-void ViewerWidget::RendererCachedTime(const rational &time)
+void ViewerWidget::RendererCachedTime(const rational &time, qint64 job_time)
 {
-  if (GetTime() == time) {
+  if (GetTime() == time && job_time > frame_cache_job_time_) {
     UpdateTextureFromNode(GetTime());
   }
 }

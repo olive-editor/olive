@@ -55,6 +55,8 @@ public:
 
   void SetExportMode(bool enabled);
 
+  bool IsRendered(const rational& time) const;
+
 public slots:
   virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
 
@@ -97,13 +99,13 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void EmitCachedFrameReady(const QList<rational> &times, const QVariant& value) = 0;
+  virtual void EmitCachedFrameReady(const QList<rational> &times, const QVariant& value, qint64 job_time) = 0;
 
   bool export_mode_;
 
 signals:
-  void CachedFrameReady(const rational& time, QVariant value);
-  void CachedTimeReady(const rational& time);
+  void CachedFrameReady(const rational& time, QVariant value, qint64 job_time);
+  void CachedTimeReady(const rational& time, qint64 job_time);
 
 private:
   bool TimeIsQueued(const TimeRange &time) const;

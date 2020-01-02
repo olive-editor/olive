@@ -58,6 +58,11 @@ TimeRange TimeRange::CombineWith(const TimeRange &a) const
   return Combine(a, *this);
 }
 
+bool TimeRange::Contains(const TimeRange &a) const
+{
+  return (a.in() >= in() && a.out() <= out());
+}
+
 bool TimeRange::Overlap(const TimeRange &a, const TimeRange &b)
 {
   return !(a.out() < b.in() || a.in() > b.out());
@@ -84,4 +89,44 @@ void TimeRange::normalize()
 uint qHash(const TimeRange &r, uint seed)
 {
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
+}
+
+void TimeRangeList::InsertTimeRange(const TimeRange &range)
+{
+  for (int i=0;i<size();i++) {
+    const TimeRange& compare = at(i);
+
+    if (TimeRange::Overlap(range, compare)) {
+      replace(i, TimeRange::Combine(range, compare));
+      return;
+    }
+  }
+
+  append(range);
+}
+
+void TimeRangeList::RemoveTimeRange(const TimeRange &range)
+{
+  for (int i=0;i<size();i++) {
+    const TimeRange& compare = at(i);
+
+    if (range.Contains(compare)) {
+      // This element is entirely encompassed in this range, remove it
+      removeAt(i);
+      i--;
+    } else if (compare.Contains(range)) {
+      // The remove range is within this element, only choice is to split the element into two
+      TimeRange first(compare.in(), range.in());
+      TimeRange last(range.out(), compare.out());
+
+      replace(i, first);
+      append(last);
+    } else if (compare.in() < range.in() && compare.out() > range.in()) {
+      // This element's out point overlaps the range's in, we'll trim it
+      (*this)[i].set_out(range.in());
+    } else if (compare.in() < range.out() && compare.out() > range.out()) {
+      // This element's in point overlaps the range's out, we'll trim it
+      (*this)[i].set_in(range.out());
+    }
+  }
 }

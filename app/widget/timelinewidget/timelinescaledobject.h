@@ -22,10 +22,10 @@ protected:
   double scale_;
 
 private:
-
   rational timebase_;
 
   double timebase_dbl_;
+
 };
 
 #endif // TIMELINESCALEDOBJECT_H

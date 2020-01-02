@@ -42,8 +42,6 @@ protected:
   virtual bool CanRender() override;
 
 private:
-  void ValidateRanges();
-
   AudioRenderingParams params_;
 
 };

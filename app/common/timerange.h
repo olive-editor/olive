@@ -20,6 +20,7 @@ public:
 
   bool OverlapsWith(const TimeRange& a) const;
   TimeRange CombineWith(const TimeRange& a) const;
+  bool Contains(const TimeRange& a) const;
 
   static bool Overlap(const TimeRange& a, const TimeRange& b);
   static TimeRange Combine(const TimeRange &a, const TimeRange &b);
@@ -33,5 +34,15 @@ private:
 };
 
 uint qHash(const TimeRange& r, uint seed);
+
+class TimeRangeList : public QList<TimeRange> {
+public:
+  TimeRangeList() = default;
+
+  void InsertTimeRange(const TimeRange& range);
+
+  void RemoveTimeRange(const TimeRange& range);
+
+};
 
 #endif // TIMERANGE_H

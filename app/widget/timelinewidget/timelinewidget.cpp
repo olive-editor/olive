@@ -32,7 +32,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   connect(timecode_label_, SIGNAL(ValueChanged(int64_t)), this, SLOT(UpdateInternalTime(const int64_t&)));
   ruler_and_time_layout->addWidget(timecode_label_);
 
-  ruler_ = new TimeRuler(true);
+  ruler_ = new TimeRuler(true, true);
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
   connect(ruler_, SIGNAL(TimeChanged(const int64_t&)), this, SLOT(UpdateInternalTime(const int64_t&)));
   ruler_and_time_layout->addWidget(ruler_);
@@ -60,7 +60,6 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.replace(::Tool::kRazor, std::make_shared<RazorTool>(this));
   tools_.replace(::Tool::kSlip, std::make_shared<SlipTool>(this));
   tools_.replace(::Tool::kSlide, std::make_shared<SlideTool>(this));
-//  tools_.replace(::Tool::kHand, std::make_shared<HandTool>(this));
   tools_.replace(::Tool::kZoom, std::make_shared<ZoomTool>(this));
   tools_.replace(::Tool::kTransition, std::make_shared<TransitionTool>(this));
   //tools_.replace(::Tool::kRecord, new PointerTool(this));  FIXME: Implement

@@ -159,6 +159,13 @@ void VideoRenderBackend::SetExportMode(bool enabled)
   export_mode_ = enabled;
 }
 
+bool VideoRenderBackend::IsRendered(const rational &time) const
+{
+  TimeRange range(time, time);
+
+  return !TimeIsQueued(range) && !render_job_info_.contains(range);
+}
+
 bool VideoRenderBackend::GenerateCacheIDInternal(QCryptographicHash& hash)
 {
   if (!params_.is_valid()) {
@@ -250,7 +257,7 @@ bool VideoRenderBackend::CanRender()
 void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
 {
   if (last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
-    EmitCachedFrameReady({last_time_requested_}, value);
+    EmitCachedFrameReady({last_time_requested_}, value, job_time);
   }
 }
 
@@ -258,7 +265,13 @@ void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
-  SetFrameHash(dep, hash, job_time);
+  if (SetFrameHash(dep, hash, job_time)) {
+    QList<rational> hashes_with_time = frame_cache()->FramesWithHash(hash);
+
+    foreach (const rational& t, hashes_with_time) {
+      emit CachedTimeReady(t, job_time);
+    }
+  }
 
   // Queue up a new frame for this worker
   CacheNext();
@@ -269,9 +282,8 @@ void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, qint64 job_time,
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   if (SetFrameHash(dep, hash, job_time)
-      && last_time_requested_ == dep.in()
       && frame_cache_.HasHash(hash)) {
-    emit CachedTimeReady(dep.in());
+    emit CachedTimeReady(dep.in(), job_time);
   }
 
   // Queue up a new frame for this worker
@@ -282,9 +294,8 @@ void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, qint64 job_
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
-  if (SetFrameHash(dep, hash, job_time)
-      && dep.in() == last_time_requested_) {
-    emit CachedTimeReady(dep.in());
+  if (SetFrameHash(dep, hash, job_time)) {
+    emit CachedTimeReady(dep.in(), job_time);
   }
 
   // Queue up a new frame for this worker

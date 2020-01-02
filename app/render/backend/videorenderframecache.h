@@ -41,6 +41,8 @@ public:
 
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
 
+  QList<rational> FramesWithHash(const QByteArray& hash);
+
 private:
   QMap<rational, QByteArray> time_hash_map_;
 

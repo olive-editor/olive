@@ -14,6 +14,7 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   playhead_(0),
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
+  dragging_hand_(false),
   limit_y_axis_(false)
 {
   setScene(&scene_);

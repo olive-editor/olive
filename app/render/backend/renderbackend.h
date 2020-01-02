@@ -90,7 +90,7 @@ protected:
   bool WorkerIsBusy(RenderWorker* worker) const;
   void SetWorkerBusyState(RenderWorker* worker, bool busy);
 
-  QList<TimeRange> cache_queue_;
+  TimeRangeList cache_queue_;
 
   QVector<RenderWorker*> processors_;
 

@@ -30,13 +30,14 @@
 #include "config/config.h"
 #include "core.h"
 
-TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
+TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
   QWidget(parent),
   scroll_(0),
+  text_visible_(text_visible),
   centered_text_(true),
   scale_(1.0),
   time_(0),
-  snapping_(false)
+  show_cache_status_(cache_status_visible)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -44,6 +45,7 @@ TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
 
   // Text height is used to calculate widget height
   text_height_ = fm.height();
+  cache_status_height_ = text_height_ / 4;
 
   // Get the "minimum" space allowed between two line markers on the ruler (in screen pixels)
   // Mediocre but reliable way of scaling UI objects by font/DPI size
@@ -53,22 +55,7 @@ TimeRuler::TimeRuler(bool text_visible, QWidget* parent) :
   playhead_width_ = minimum_gap_between_lines_;
 
   // Text visibility affects height, so we set that here
-  SetTextVisible(text_visible);
-}
-
-void TimeRuler::SetTextVisible(bool e)
-{
-  text_visible_ = e;
-
-  // Text visibility affects height, if text is visible the widget doubles in height with the top half for text and
-  // the bottom half for ruler markings
-  if (text_visible_) {
-    setMinimumHeight(text_height_ * 2);
-  } else {
-    setMinimumHeight(text_height_);
-  }
-
-  update();
+  UpdateHeight();
 }
 
 const double &TimeRuler::scale()
@@ -94,14 +81,18 @@ void TimeRuler::SetTimebase(const rational &r)
   update();
 }
 
-void TimeRuler::SetSnapping(bool snapping)
-{
-  snapping_ = snapping;
-}
-
 const int64_t &TimeRuler::GetTime()
 {
   return time_;
+}
+
+void TimeRuler::SetCacheStatusLength(const rational &length)
+{
+  cache_length_ = length;
+
+  dirty_cache_ranges_.RemoveTimeRange(TimeRange(length, RATIONAL_MAX));
+
+  update();
 }
 
 void TimeRuler::SetTime(const int64_t &r)
@@ -114,6 +105,20 @@ void TimeRuler::SetTime(const int64_t &r)
 void TimeRuler::SetScroll(int s)
 {
   scroll_ = s;
+
+  update();
+}
+
+void TimeRuler::CacheInvalidatedRange(const rational& in, const rational& out)
+{
+  dirty_cache_ranges_.InsertTimeRange(TimeRange(in, out));
+
+  update();
+}
+
+void TimeRuler::CacheTimeReady(const rational &time)
+{
+  dirty_cache_ranges_.RemoveTimeRange(TimeRange(time, time + timebase_));
 
   update();
 }
@@ -198,11 +203,16 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   // Calculate line dimensions
   QFontMetrics fm = p.fontMetrics();
+  int line_bottom = height();
+
+  if (show_cache_status_) {
+    line_bottom -= cache_status_height_;
+  }
+
   int long_height = fm.height();
   int short_height = long_height/2;
-  int long_y = height() - long_height;
-  int short_y = height() - short_height;
-  int line_bottom = height();
+  int long_y = line_bottom - long_height;
+  int short_y = line_bottom - short_height;
 
   // Draw long lines
   int last_long_unit = -1;
@@ -267,12 +277,34 @@ void TimeRuler::paintEvent(QPaintEvent *)
     }
   }
 
+  // If cache status is enabled
+  if (show_cache_status_) {
+    int cache_screen_length = qMin(TimeToScreen(cache_length_), width());
+
+    if (cache_screen_length > 0) {
+      int cache_y = height() - cache_status_height_;
+
+      p.fillRect(0, cache_y, cache_screen_length , cache_status_height_, Qt::green);
+
+      foreach (const TimeRange& range, dirty_cache_ranges_) {
+        int range_left = TimeToScreen(range.in());
+        int range_right = TimeToScreen(range.out());
+
+        if (range_left >= width() || range_right < 0) {
+          continue;
+        }
+
+        p.fillRect(qMax(0, range_left), cache_y, qMin(width(), range_right) - range_left, cache_status_height_, Qt::red);
+      }
+    }
+  }
+
   // Draw the playhead if it's on screen at the moment
-  int playhead_pos = qFloor(static_cast<double>(time_) * scale_ * timebase_dbl_) - scroll_;
+  int playhead_pos = UnitToScreen(time_);
   if (playhead_pos + playhead_width_ >= 0 && playhead_pos - playhead_width_ < width()) {
     p.setPen(Qt::NoPen);
     p.setBrush(style_.PlayheadColor());
-    DrawPlayhead(&p, playhead_pos, height());
+    DrawPlayhead(&p, playhead_pos, line_bottom);
   }
 }
 
@@ -317,6 +349,16 @@ int64_t TimeRuler::ScreenToUnit(int screen)
   return qFloor(ScreenToUnitFloat(screen));
 }
 
+int TimeRuler::UnitToScreen(int64_t unit)
+{
+  return qFloor(static_cast<double>(unit) * scale_ * timebase_dbl_) - scroll_;
+}
+
+int TimeRuler::TimeToScreen(const rational &time)
+{
+  return qFloor(time.toDouble() * scale_) - scroll_;
+}
+
 void TimeRuler::SeekToScreenPoint(int screen)
 {
   int64_t timestamp = qMax(0, qRound(ScreenToUnitFloat(screen)));
@@ -324,4 +366,19 @@ void TimeRuler::SeekToScreenPoint(int screen)
   SetTime(timestamp);
 
   emit TimeChanged(timestamp);
+}
+
+void TimeRuler::UpdateHeight()
+{
+  int height = text_height_;
+
+  if (text_visible_) {
+    height += text_height_;
+  }
+
+  if (show_cache_status_) {
+    height += cache_status_height_;
+  }
+
+  setFixedHeight(height);
 }

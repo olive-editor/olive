@@ -28,7 +28,7 @@ protected:
 
   virtual void DecompileInternal() override;
 
-  virtual void EmitCachedFrameReady(const QList<rational> &times, const QVariant& value) override;
+  virtual void EmitCachedFrameReady(const QList<rational> &times, const QVariant& value, qint64 job_time) override;
 
 private:
   OpenGLTexturePtr CopyTexture(OpenGLTexturePtr input);

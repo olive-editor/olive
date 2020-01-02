@@ -81,6 +81,21 @@ void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &has
   currently_caching_lock_.unlock();
 }
 
+QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash)
+{
+  QList<rational> times;
+
+  QMap<rational, QByteArray>::const_iterator iterator;
+
+  for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
+    if (iterator.value() == hash) {
+      times.append(iterator.key());
+    }
+  }
+
+  return times;
+}
+
 QString VideoRenderFrameCache::CachePathName(const QByteArray &hash) const
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);

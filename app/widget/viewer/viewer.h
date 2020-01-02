@@ -171,13 +171,15 @@ private:
 
   int playback_speed_;
 
+  qint64 frame_cache_job_time_;
+
 private slots:
   void RulerTimeChange(int64_t);
 
   void PlaybackTimerUpdate();
 
-  void RendererCachedFrame(const rational& time, QVariant value);
-  void RendererCachedTime(const rational& time);
+  void RendererCachedFrame(const rational& time, QVariant value, qint64 job_time);
+  void RendererCachedTime(const rational& time, qint64 job_time);
 
   void SizeChangedSlot(int width, int height);
 

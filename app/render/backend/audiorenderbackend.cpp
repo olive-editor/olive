@@ -39,10 +39,7 @@ void AudioRenderBackend::InvalidateCache(const rational &start_range, const rati
   rational end_range_adj = qMin(GetSequenceLength(), end_range);
 
   // Add the range to the list
-  cache_queue_.append(TimeRange(start_range_adj, end_range_adj));
-
-  // Remove any overlaps so we don't render the same thing twice
-  ValidateRanges();
+  cache_queue_.InsertTimeRange(TimeRange(start_range_adj, end_range_adj));
 
   // Queue value update
   QueueValueUpdate();
@@ -85,26 +82,6 @@ const AudioRenderingParams &AudioRenderBackend::params()
 NodeInput *AudioRenderBackend::GetDependentInput()
 {
   return viewer_node()->samples_input();
-}
-
-void AudioRenderBackend::ValidateRanges()
-{
-  for (int i=0;i<cache_queue_.size();i++) {
-    const TimeRange& range1 = cache_queue_.at(i);
-
-    for (int j=0;j<cache_queue_.size();j++) {
-      const TimeRange& range2 = cache_queue_.at(j);
-
-      if (TimeRange::Overlap(range1, range2) && i != j) {
-        // Combine with the first range
-        cache_queue_[i] = TimeRange::Combine(range1, range2);
-
-        // Remove the second range
-        cache_queue_.removeAt(j);
-        j--;
-      }
-    }
-  }
 }
 
 QString AudioRenderBackend::CachePathName()

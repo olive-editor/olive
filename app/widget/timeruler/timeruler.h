@@ -25,15 +25,14 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "common/timerange.h"
 #include "widget/timelinewidget/view/timelineplayhead.h"
 
 class TimeRuler : public QWidget
 {
   Q_OBJECT
 public:
-  TimeRuler(bool text_visible = true, QWidget* parent = nullptr);
-
-  void SetTextVisible(bool e);
+  TimeRuler(bool text_visible = true, bool cache_status_visible = false, QWidget* parent = nullptr);
 
   const double& scale();
   void SetScale(const double& d);
@@ -42,14 +41,18 @@ public:
 
   void SetCenteredText(bool c);
 
-  void SetSnapping(bool snapping);
-
   const int64_t& GetTime();
 
 public slots:
   void SetTime(const int64_t &r);
 
   void SetScroll(int s);
+
+  void CacheInvalidatedRange(const rational& in, const rational& out);
+
+  void CacheTimeReady(const rational& time);
+
+  void SetCacheStatusLength(const rational& length);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -64,14 +67,7 @@ signals:
   void TimeChanged(int64_t);
 
 private:
-  enum Component {
-    kNone,
-    kDay,
-    kHour,
-    kMinute,
-    kSecond,
-    kFrame
-  };
+  void UpdateHeight();
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
@@ -79,9 +75,15 @@ private:
 
   int64_t ScreenToUnit(int screen);
 
+  int UnitToScreen(int64_t unit);
+
+  int TimeToScreen(const rational& time);
+
   void SeekToScreenPoint(int screen);
 
   int text_height_;
+
+  int cache_status_height_;
 
   int minimum_gap_between_lines_;
 
@@ -105,7 +107,11 @@ private:
 
   TimelinePlayhead style_;
 
-  bool snapping_;
+  bool show_cache_status_;
+
+  rational cache_length_;
+
+  TimeRangeList dirty_cache_ranges_;
 
 };
 
