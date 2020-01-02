@@ -26,7 +26,7 @@
 #include <QAudioOutput>
 #include <QThread>
 
-#include "audiohybriddevice.h"
+#include "outputmanager.h"
 #include "render/audioparams.h"
 
 /**
@@ -109,7 +109,7 @@ private:
 
   static AudioManager* instance_;
 
-  AudioHybridDevice output_manager_;
+  AudioOutputManager output_manager_;
 
   QAudioDeviceInfo output_device_info_;
   AudioRenderingParams output_params_;

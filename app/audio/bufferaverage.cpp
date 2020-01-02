@@ -1,4 +1,4 @@
-#include "audiobufferaverage.h"
+#include "bufferaverage.h"
 
 QVector<double> AudioBufferAverage::ProcessAverages(const char *data, int length)
 {

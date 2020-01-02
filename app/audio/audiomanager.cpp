@@ -174,7 +174,7 @@ AudioManager::AudioManager() :
 {
   RefreshDevices();
 
-  connect(&output_manager_, &AudioHybridDevice::SentSamples, this, &AudioManager::SentSamples);
+  connect(&output_manager_, &AudioOutputManager::SentSamples, this, &AudioManager::SentSamples);
 
   output_manager_.SetEnableSendingSamples(true);
 }

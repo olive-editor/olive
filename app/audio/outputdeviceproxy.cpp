@@ -1,6 +1,6 @@
-#include "audiooutputdeviceproxy.h"
+#include "outputdeviceproxy.h"
 
-#include "audiobufferaverage.h"
+#include "bufferaverage.h"
 
 AudioOutputDeviceProxy::AudioOutputDeviceProxy() :
   device_(nullptr),

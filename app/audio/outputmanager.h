@@ -26,13 +26,13 @@
 #include <QIODevice>
 #include <QMutex>
 
-#include "audiooutputdeviceproxy.h"
+#include "outputdeviceproxy.h"
 
-class AudioHybridDevice : public QObject
+class AudioOutputManager : public QObject
 {
   Q_OBJECT
 public:
-  AudioHybridDevice(QObject* parent = nullptr);
+  AudioOutputManager(QObject* parent = nullptr);
 
   bool OutputIsSet();
 

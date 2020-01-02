@@ -18,28 +18,28 @@
 
 ***/
 
-#include "audiohybriddevice.h"
+#include "outputmanager.h"
 
 #include <QDebug>
 #include <QtMath>
 
-#include "audiobufferaverage.h"
+#include "bufferaverage.h"
 
-AudioHybridDevice::AudioHybridDevice(QObject *parent) :
+AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
   output_(nullptr),
   push_device_(nullptr),
   enable_sending_samples_(false)
 {
-  connect(&device_proxy_, &AudioOutputDeviceProxy::ProcessedAverages, this, &AudioHybridDevice::SentSamples);
+  connect(&device_proxy_, &AudioOutputDeviceProxy::ProcessedAverages, this, &AudioOutputManager::SentSamples);
 }
 
-bool AudioHybridDevice::OutputIsSet()
+bool AudioOutputManager::OutputIsSet()
 {
   return (output_.get());
 }
 
-void AudioHybridDevice::Push(const QByteArray& samples)
+void AudioOutputManager::Push(const QByteArray& samples)
 {
   // If no output device, nothing to be done
   if (!output_) {
@@ -57,7 +57,7 @@ void AudioHybridDevice::Push(const QByteArray& samples)
   OutputNotified();
 }
 
-void AudioHybridDevice::ResetToPushMode()
+void AudioOutputManager::ResetToPushMode()
 {
   // If we have a null push device, then we currently have the output in pull mode. We restore it to push mode here.
   if (output_ && !push_device_) {
@@ -70,7 +70,7 @@ void AudioHybridDevice::ResetToPushMode()
   }
 }
 
-void AudioHybridDevice::PullFromDevice(QIODevice *device)
+void AudioOutputManager::PullFromDevice(QIODevice *device)
 {
   if (!output_ || !device) {
     return;
@@ -87,7 +87,7 @@ void AudioHybridDevice::PullFromDevice(QIODevice *device)
   output_->start(&device_proxy_);
 }
 
-void AudioHybridDevice::OutputNotified()
+void AudioOutputManager::OutputNotified()
 {
   // Check if we're currently in push mode and if we have samples to push
   if (!push_device_ || pushed_samples_.isEmpty()) {
@@ -112,14 +112,14 @@ void AudioHybridDevice::OutputNotified()
   }
 }
 
-void AudioHybridDevice::SetEnableSendingSamples(bool e)
+void AudioOutputManager::SetEnableSendingSamples(bool e)
 {
   enable_sending_samples_ = e;
 
   device_proxy_.SetSendAverages(e);
 }
 
-void AudioHybridDevice::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format)
+void AudioOutputManager::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format)
 {
   // Whatever the output is doing right now, stop it
   if (output_) {
@@ -134,10 +134,10 @@ void AudioHybridDevice::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat form
   output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
   output_->setNotifyInterval(1);
   push_device_ = output_->start();
-  connect(output_.get(), &QAudioOutput::notify, this, &AudioHybridDevice::OutputNotified);
+  connect(output_.get(), &QAudioOutput::notify, this, &AudioOutputManager::OutputNotified);
 }
 
-void AudioHybridDevice::ProcessAverages(const char *data, int length)
+void AudioOutputManager::ProcessAverages(const char *data, int length)
 {
   if (!enable_sending_samples_ || length == 0) {
     return;
