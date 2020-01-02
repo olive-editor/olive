@@ -22,25 +22,13 @@
 #define AUDIOHYBRIDDEVICE_H
 
 #include <QAudioOutput>
+#include <QBuffer>
 #include <QIODevice>
 #include <QMutex>
 
-/**
- * @brief A device that can be connected to QAudioOutput and provides both "push" and "pull" functionality
- *
- * By default, a QAudioOutput works in either "push" or "pull" mode. Either it can automatically "pull" from a
- * QIODevice (reading from it whenever it requires samples), or we can "push" samples to it constantly (on a timer and
- * often in another thread) to make sure the buffer never underruns.
- *
- * This class functions as a "pull" device for the QAudioOutput, so the audio device automatically reads from it, but
- * then provides both "pull" and "push" functionality to the rest of the system. A QIODevice (like a raw PCM file)
- * can be connected and pulled from (good for continuous audio playback), and any amount of samples can also be pushed
- * (good for short bursts of sound, e.g. audio scrubbing).
- *
- * This does not support any "queuing", running ConnectDevice() or Push() will immediately discard anything that's
- * currently being sent to the device and replace it.
- */
-class AudioHybridDevice : public QIODevice
+#include "audiooutputdeviceproxy.h"
+
+class AudioHybridDevice : public QObject
 {
   Q_OBJECT
 public:
@@ -53,24 +41,9 @@ public:
    */
   void SetEnableSendingSamples(bool e);
 
-public slots:
   void SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format);
 
   void Push(const QByteArray &samples);
-
-  /**
-   * @brief Stop all audio output
-   *
-   * Whatever is being done (pulling from QIODevice or samples), it is stopped and cleared placing this into
-   * "idle" state.
-   *
-   * Note that audio playback may not stop immediately after calling this function as the audio output may still have
-   * samples in its buffer to output (QAudioOutput::stop() should be called as well for more immediate feedback). This
-   * will prevent any further samples from being sent however.
-   *
-   * \see IsIdle()
-   */
-  void Stop();
 
   /**
    * @brief Connect a QIODevice (e.g. QFile) to start sending to the audio output
@@ -78,7 +51,9 @@ public slots:
    * This will clear any pushed samples or QIODevices currently being read and will start reading from this next time
    * the audio output requests data.
    */
-  void ConnectDevice(QIODevice* device);
+  void PullFromDevice(QIODevice* device);
+
+  void ResetToPushMode();
 
 signals:
   /**
@@ -91,64 +66,21 @@ signals:
    */
   void SentSamples(QVector<double> averages);
 
-protected:
-  /**
-   * @brief Internal QIODevice function for reading
-   *
-   * Returns either QIODevice::read() from the connected device, or samples from the pushed sample buffer if there is
-   * none.
-   *
-   * If there is neither, this function returns a complete buffer of zeroes (i.e. silence). This is to allow
-   * pushed samples that don't fulfill the QAudioOutput's internal buffer size. If it cannot fill its internal buffer
-   * with the samples we send, it won't play anything until it receives more samples (enough to fill the buffer)
-   * in an attempt to prevent buffer underrun).
-   *
-   * Since we don't care about buffer underrun with short bursts of sound, we return silent samples if the QAudioOutput
-   * requests it. However this does mean the QAudioOutput never returns to QAudio::IdleState (since we never know if a
-   * read is just to fill the "remainder" of a buffer - which needs zeroes - or just a general read - which technically
-   * doesn't). It's recommended to check IsIdle() in tandem with the QAudioOutput::notify() signal to
-   * determine whether the QAudioOutput is effectively idle and can be stopped.
-   */
-  virtual qint64 readData(char *data, qint64 maxSize) override;
-
-  /**
-   * @brief Internal QIODevice function for writing
-   *
-   * This class does not support writing, so this always returns -1 (QIODevice's documented error code for writing)
-   */
-  virtual qint64 writeData(const char *data, qint64 maxSize) override;
-
 private:
-  /**
-   * @brief Returns true if there are no more samples to be sent
-   *
-   * This is true if a device was connected or samples were pushed but we reached the end and no more data is available
-   * to be sent.
-   *
-   * In this state, this device will continue returning an empty buffer (all zeroes) to the device to workaround
-   * QAudioOutput's buffer underrun prevention with pushed samples. Therefore the QAudioOutput will never be put into
-   * QAudio::IdleState. Therefore only way to determine whether the output is no longer receiving usable audio is to
-   * check this function.
-   */
-  bool IsIdle();
+  void ProcessAverages(const char* data, int length);
 
-  void WakeOutputDevice();
-
-  qint64 read_internal(char *data, qint64 maxSize);
-
-  QMutex output_set_lock_;
   std::unique_ptr<QAudioOutput> output_;
-
-  QIODevice* device_;
+  QIODevice* push_device_;
 
   QByteArray pushed_samples_;
-  qint64 sample_index_;
+  int pushed_sample_index_;
 
-  QAtomicInt enable_sending_samples_;
+  bool enable_sending_samples_;
+
+  AudioOutputDeviceProxy device_proxy_;
 
 private slots:
   void OutputNotified();
-
 };
 
 #endif // AUDIOHYBRIDDEVICE_H

@@ -23,182 +23,125 @@
 #include <QDebug>
 #include <QtMath>
 
+#include "audiobufferaverage.h"
+
 AudioHybridDevice::AudioHybridDevice(QObject *parent) :
-  QIODevice(parent),
+  QObject(parent),
   output_(nullptr),
-  device_(nullptr),
-  sample_index_(0),
+  push_device_(nullptr),
   enable_sending_samples_(false)
 {
-
+  connect(&device_proxy_, &AudioOutputDeviceProxy::ProcessedAverages, this, &AudioHybridDevice::SentSamples);
 }
 
 bool AudioHybridDevice::OutputIsSet()
 {
-  qDebug() << "OIS";
-
-  output_set_lock_.lock();
-
-  bool output_is_set = (output_.get());
-
-  output_set_lock_.unlock();
-
-  return output_is_set;
+  return (output_.get());
 }
 
 void AudioHybridDevice::Push(const QByteArray& samples)
 {
-  qDebug() << "push";
-
-  Stop();
-
-  pushed_samples_ = samples;
-  sample_index_ = 0;
-
-  if (!pushed_samples_.isEmpty()) {
-    WakeOutputDevice();
-  }
-}
-
-void AudioHybridDevice::Stop()
-{
-  qDebug() << "Stop";
-
-  // Whatever is happening, stop it
-  pushed_samples_.clear();
-
-  if (device_ != nullptr) {
-    device_->close();
-    device_ = nullptr;
-  }
-
-  if (output_) {
-    output_->stop();
-  }
-}
-
-void AudioHybridDevice::ConnectDevice(QIODevice *device)
-{
-  qDebug() << "CD";
-
+  // If no output device, nothing to be done
   if (!output_) {
     return;
   }
 
-  // Clear any previous device or pushed sample
-  Stop();
+  // Replace sample buffer with this one
+  pushed_samples_ = samples;
+  pushed_sample_index_ = 0;
 
-  device_ = device;
+  // If we had another device connected, disconnect it now
+  ResetToPushMode();
 
-  if (device_ != nullptr) {
-    WakeOutputDevice();
+  // Start pushing samples to the output
+  OutputNotified();
+}
+
+void AudioHybridDevice::ResetToPushMode()
+{
+  // If we have a null push device, then we currently have the output in pull mode. We restore it to push mode here.
+  if (output_ && !push_device_) {
+    output_->stop();
+
+    device_proxy_.close();
+
+    // Put QAudioOutput back into push mode
+    push_device_ = output_->start();
   }
 }
 
-bool AudioHybridDevice::IsIdle()
+void AudioHybridDevice::PullFromDevice(QIODevice *device)
 {
-  return device_ == nullptr && pushed_samples_.isEmpty();
+  if (!output_ || !device) {
+    return;
+  }
+
+  // Stop any current output and disable push mode
+  output_->stop();
+  push_device_ = nullptr;
+  pushed_samples_.clear();
+
+  // Pull from the device
+  device_proxy_.SetDevice(device);
+  device_proxy_.open(QIODevice::ReadOnly);
+  output_->start(&device_proxy_);
 }
 
-void AudioHybridDevice::WakeOutputDevice()
+void AudioHybridDevice::OutputNotified()
 {
-  if (output_ != nullptr && output_->state() != QAudio::ActiveState) {
-    output_->start(this);
+  // Check if we're currently in push mode and if we have samples to push
+  if (!push_device_ || pushed_samples_.isEmpty()) {
+    return;
+  }
+
+  const char* read_ptr = pushed_samples_.constData() + pushed_sample_index_;
+
+  // Push the bytes we have to the audio output
+  qint64 write_count = push_device_->write(read_ptr,
+                                           pushed_samples_.size() - pushed_sample_index_);
+
+  // Emit the samples we just sent
+  ProcessAverages(read_ptr, static_cast<int>(write_count));
+
+  // Increment sample buffer index (faster than shift the bytes up)
+  pushed_sample_index_ += static_cast<int>(write_count);
+
+  // If we've pushed all samples, we can clear this array
+  if (pushed_sample_index_ == pushed_samples_.size()) {
+    pushed_samples_.clear();
   }
 }
 
 void AudioHybridDevice::SetEnableSendingSamples(bool e)
 {
   enable_sending_samples_ = e;
+
+  device_proxy_.SetSendAverages(e);
 }
 
 void AudioHybridDevice::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat format)
 {
-  output_set_lock_.lock();
+  // Whatever the output is doing right now, stop it
+  if (output_) {
+    output_->stop();
 
+    if (device_proxy_.isOpen()) {
+      device_proxy_.close();
+    }
+  }
+
+  // Create a new output device and start it in push mode
   output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
-
-  output_set_lock_.unlock();
-
+  output_->setNotifyInterval(1);
+  push_device_ = output_->start();
   connect(output_.get(), &QAudioOutput::notify, this, &AudioHybridDevice::OutputNotified);
 }
 
-void AudioHybridDevice::OutputNotified()
+void AudioHybridDevice::ProcessAverages(const char *data, int length)
 {
-  if (IsIdle()) {
-    static_cast<QAudioOutput*>(sender())->stop();
-  }
-}
-
-qint64 AudioHybridDevice::readData(char *data, qint64 maxSize)
-{
-  qint64 read_size = read_internal(data, maxSize);
-
-  if (enable_sending_samples_ && read_size > 0) {
-    // FIXME: Assumes float and stereo
-    float* samples = reinterpret_cast<float*>(data);
-    int sample_count = static_cast<int>(read_size / static_cast<int>(sizeof(float)));
-    int channels = 2;
-
-    // Create array of samples to send
-    QVector<double> averages(channels);
-    averages.fill(0);
-
-    // Add all samples together
-    for (int i=0;i<sample_count;i++) {
-      averages[i%channels] = qMax(averages[i%channels], static_cast<double>(qAbs(samples[i])));
-    }
-
-    emit SentSamples(averages);
+  if (!enable_sending_samples_ || length == 0) {
+    return;
   }
 
-  return read_size;
-}
-
-qint64 AudioHybridDevice::writeData(const char *data, qint64 maxSize)
-{
-  Q_UNUSED(data)
-  Q_UNUSED(maxSize)
-
-  // This device doesn't support writing
-
-  return -1;
-}
-
-qint64 AudioHybridDevice::read_internal(char *data, qint64 maxSize)
-{
-  // If a device is connected, passthrough to it
-  if (device_ != nullptr) {
-    qint64 read_count = device_->read(data, maxSize);
-
-    // Stop reading this device
-    if (device_->atEnd()) {
-      device_->close();
-      device_ = nullptr;
-    }
-
-    return read_count;
-  }
-
-  // If there are samples to push, push those
-  if (!pushed_samples_.isEmpty()) {
-    qint64 read_count = qMin(maxSize, pushed_samples_.size() - sample_index_);
-
-    memcpy(data, pushed_samples_.data()+sample_index_, static_cast<size_t>(read_count));
-
-    sample_index_ += read_count;
-
-    if (sample_index_ == pushed_samples_.size()) {
-      pushed_samples_.clear();
-    }
-
-    if (read_count < maxSize) {
-      memset(data + read_count, 0, static_cast<size_t>(maxSize - read_count));
-    }
-
-    return maxSize;
-  }
-
-  memset(data, 0, static_cast<size_t>(maxSize));
-  return maxSize;
+  emit SentSamples(AudioBufferAverage::ProcessAverages(data, length));
 }

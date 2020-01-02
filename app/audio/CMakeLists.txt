@@ -16,10 +16,14 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  audio/audiobufferaverage.h
+  audio/audiobufferaverage.cpp
   audio/audiohybriddevice.h
   audio/audiohybriddevice.cpp
   audio/audiomanager.h
   audio/audiomanager.cpp
+  audio/audiooutputdeviceproxy.h
+  audio/audiooutputdeviceproxy.cpp
   audio/sampleformat.h
   audio/sampleformat.cpp
   PARENT_SCOPE

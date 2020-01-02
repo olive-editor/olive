@@ -76,25 +76,17 @@ bool AudioManager::IsRefreshing()
 
 void AudioManager::PushToOutput(const QByteArray &samples)
 {
-  QMetaObject::invokeMethod(&output_manager_,
-                            "Push",
-                            Qt::QueuedConnection,
-                            Q_ARG(QByteArray, samples));
+  output_manager_.Push(samples);
 }
 
 void AudioManager::StartOutput(QIODevice *device)
 {
-  QMetaObject::invokeMethod(&output_manager_,
-                            "ConnectDevice",
-                            Qt::QueuedConnection,
-                            Q_ARG(QIODevice*, device));
+  output_manager_.PullFromDevice(device);
 }
 
 void AudioManager::StopOutput()
 {
-  QMetaObject::invokeMethod(&output_manager_,
-                            "Stop",
-                            Qt::QueuedConnection);
+  output_manager_.ResetToPushMode();
 }
 
 void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
@@ -142,11 +134,7 @@ void AudioManager::SetOutputDevice(const QAudioDeviceInfo &info)
       abort();
     }
 
-    QMetaObject::invokeMethod(&output_manager_,
-                              "SetOutputDevice",
-                              Qt::QueuedConnection,
-                              Q_ARG(QAudioDeviceInfo, info),
-                              Q_ARG(QAudioFormat, format));
+    output_manager_.SetOutputDevice(info, format);
   }
 
   // Un-comment this to get debug information about what the audio output is doing
@@ -189,12 +177,6 @@ AudioManager::AudioManager() :
   connect(&output_manager_, &AudioHybridDevice::SentSamples, this, &AudioManager::SentSamples);
 
   output_manager_.SetEnableSendingSamples(true);
-  output_manager_.open(AudioHybridDevice::ReadOnly);
-
-  QThread* output_thread = new QThread();
-  output_thread->start();
-
-  output_manager_.moveToThread(output_thread);
 }
 
 void AudioManager::RefreshThreadDone()
