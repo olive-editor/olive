@@ -58,6 +58,7 @@ void AudioManager::RefreshDevices()
   // Refreshing devices can take some time, so we do it in a separate thread
   QThread* thread = new QThread();
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+
   thread->start(QThread::LowPriority);
 
   AudioRefreshDevicesObject* refresher = new AudioRefreshDevicesObject();
@@ -221,6 +222,7 @@ void AudioManager::RefreshThreadDone()
   }
 
   // Clean up refresher object
+  refresher->thread()->quit();
   refresher->deleteLater();
 
   emit DeviceListReady();
@@ -249,9 +251,6 @@ void AudioRefreshDevicesObject::Refresh()
 {
   output_devices_ = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
   input_devices_ = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
-
-  // Move back to main thread
-  moveToThread(QApplication::instance()->thread());
 
   emit ListsReady();
 }
