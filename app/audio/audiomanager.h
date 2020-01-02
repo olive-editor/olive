@@ -34,15 +34,16 @@
  *
  * Refreshing devices causes a noticeable pause in execution. Doing it another thread is intended to avoid this.
  */
-class AudioRefreshDevicesThread : public QThread {
+class AudioRefreshDevicesObject : public QObject {
   Q_OBJECT
 public:
-  AudioRefreshDevicesThread();
-
-  virtual void run() override;
+  AudioRefreshDevicesObject();
 
   const QList<QAudioDeviceInfo>& input_devices();
   const QList<QAudioDeviceInfo>& output_devices();
+
+public slots:
+  void Refresh();
 
 signals:
   void ListsReady();
@@ -119,8 +120,6 @@ private:
   QIODevice* input_file_;
 
   bool refreshing_devices_;
-
-  AudioRefreshDevicesThread refresh_thread_;
 
 private slots:
   void RefreshThreadDone();
