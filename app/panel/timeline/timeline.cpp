@@ -49,7 +49,7 @@ void TimelinePanel::SetTime(const int64_t &timestamp)
   timeline_widget_->SetTime(timestamp);
 }
 
-void TimelinePanel::ConnectTimelineNode(TimelineOutput *node)
+void TimelinePanel::ConnectTimelineNode(ViewerOutput *node)
 {
   timeline_widget_->ConnectTimelineNode(node);
 }

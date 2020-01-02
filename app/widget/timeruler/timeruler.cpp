@@ -198,11 +198,11 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   // Calculate line dimensions
   QFontMetrics fm = p.fontMetrics();
+  int line_bottom = height();
   int long_height = fm.height();
   int short_height = long_height/2;
-  int long_y = height() - long_height;
-  int short_y = height() - short_height;
-  int line_bottom = height();
+  int long_y = line_bottom - long_height;
+  int short_y = line_bottom - short_height;
 
   // Draw long lines
   int last_long_unit = -1;
@@ -272,7 +272,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   if (playhead_pos + playhead_width_ >= 0 && playhead_pos - playhead_width_ < width()) {
     p.setPen(Qt::NoPen);
     p.setBrush(style_.PlayheadColor());
-    DrawPlayhead(&p, playhead_pos, height());
+    DrawPlayhead(&p, playhead_pos, line_bottom);
   }
 }
 
@@ -305,6 +305,11 @@ void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
   };
 
   p->drawPolygon(points, 6);
+}
+
+int TimeRuler::CacheStatusHeight() const
+{
+  return fontMetrics().height() / 4;
 }
 
 double TimeRuler::ScreenToUnitFloat(int screen)

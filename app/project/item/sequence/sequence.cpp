@@ -34,7 +34,6 @@
 #include "ui/icons/icons.h"
 
 Sequence::Sequence() :
-  timeline_output_(nullptr),
   viewer_output_(nullptr)
 {
 }
@@ -48,26 +47,19 @@ void Sequence::Open(SequencePtr sequence)
   NodePanel* node_panel = PanelManager::instance()->MostRecentlyFocused<NodePanel>();
 
   viewer_panel->ConnectViewerNode(sequence->viewer_output_);
-  timeline_panel->ConnectTimelineNode(sequence->timeline_output_);
+  timeline_panel->ConnectTimelineNode(sequence->viewer_output_);
   node_panel->SetGraph(sequence.get());
 }
 
 void Sequence::add_default_nodes()
 {
-  timeline_output_ = new TimelineOutput();
-  timeline_output_->SetCanBeDeleted(false);
-  AddNode(timeline_output_);
-
   viewer_output_ = new ViewerOutput();
   viewer_output_->SetCanBeDeleted(false);
   AddNode(viewer_output_);
 
-  // Connect timeline length to viewer
-  NodeParam::ConnectEdge(timeline_output_->output(), viewer_output_->length_input());
-
   // Create tracks and connect them to the viewer
-  Node* video_track_output = timeline_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
-  Node* audio_track_output = timeline_output_->track_list(TrackType::kTrackTypeAudio)->AddTrack();
+  Node* video_track_output = viewer_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
+  Node* audio_track_output = viewer_output_->track_list(TrackType::kTrackTypeAudio)->AddTrack();
   NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
   NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
   //timeline_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
@@ -89,11 +81,11 @@ QIcon Sequence::icon()
 
 QString Sequence::duration()
 {
-  if (timeline_output_ == nullptr) {
+  if (!viewer_output_) {
     return QString();
   }
 
-  rational timeline_length = timeline_output_->length();
+  rational timeline_length = viewer_output_->Length();
 
   int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params_.time_base());
 
@@ -116,9 +108,6 @@ void Sequence::set_video_params(const VideoParams &vparam)
 
   if (viewer_output_ != nullptr)
     viewer_output_->set_video_params(video_params_);
-
-  if (timeline_output_ != nullptr)
-    timeline_output_->SetTimebase(video_params_.time_base());
 }
 
 const AudioParams &Sequence::audio_params()

@@ -36,7 +36,7 @@ public:
 
   void Clear();
 
-  void ConnectTimelineNode(TimelineOutput* node);
+  void ConnectTimelineNode(ViewerOutput* node);
 
   void DisconnectTimelineNode();
 

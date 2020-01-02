@@ -18,5 +18,7 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   node/output/track/track.h
   node/output/track/track.cpp
+  node/output/track/tracklist.h
+  node/output/track/tracklist.cpp
   PARENT_SCOPE
 )
