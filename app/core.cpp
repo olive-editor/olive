@@ -337,7 +337,7 @@ void Core::CreateNewSequence()
 
     Core::instance()->undo_stack()->push(aic);
 
-    Sequence::Open(new_sequence);
+    Sequence::Open(new_sequence.get());
   }
 }
 

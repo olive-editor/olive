@@ -39,7 +39,7 @@ Sequence::Sequence() :
 {
 }
 
-void Sequence::Open(SequencePtr sequence)
+void Sequence::Open(Sequence* sequence)
 {
   // FIXME: This is fairly "hardcoded" behavior and doesn't support infinite panels
 
@@ -49,7 +49,7 @@ void Sequence::Open(SequencePtr sequence)
 
   viewer_panel->ConnectViewerNode(sequence->viewer_output_);
   timeline_panel->ConnectTimelineNode(sequence->timeline_output_);
-  node_panel->SetGraph(sequence.get());
+  node_panel->SetGraph(sequence);
 }
 
 void Sequence::add_default_nodes()

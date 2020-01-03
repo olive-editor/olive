@@ -26,6 +26,7 @@
 #include "core.h"
 #include "panel/footageviewer/footageviewer.h"
 #include "panel/panelmanager.h"
+#include "project/item/sequence/sequence.h"
 #include "widget/menu/menushared.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
@@ -127,7 +128,8 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
     // Open this footage in a FootageViewer
     PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->SetFootage(static_cast<Footage*>(item));
   } else if (item->type() == Item::kSequence) {
-    // FIXME: Open this sequence in the Timeline
+    // Open this sequence in the Timeline
+    Sequence::Open(static_cast<Sequence*>(item));
   }
 }
 

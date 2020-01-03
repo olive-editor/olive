@@ -39,7 +39,7 @@ class Sequence : public Item, public NodeGraph
 public:
   Sequence();
 
-  static void Open(SequencePtr sequence);
+  static void Open(Sequence *sequence);
 
   void add_default_nodes();
 
