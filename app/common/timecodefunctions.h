@@ -55,6 +55,8 @@ public:
 
   static int64_t timecode_to_timestamp(const QString& timecode, const rational& timebase, const Display& display, bool *ok = nullptr);
 
+  static rational snap_time_to_timebase(const rational& time, const rational& timebase);
+
   static int64_t time_to_timestamp(const rational& time, const rational& timebase);
   static int64_t time_to_timestamp(const double& time, const rational& timebase);
 

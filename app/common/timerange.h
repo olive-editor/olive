@@ -20,7 +20,7 @@ public:
 
   bool OverlapsWith(const TimeRange& a) const;
   TimeRange CombineWith(const TimeRange& a) const;
-  bool Contains(const TimeRange& a) const;
+  bool Contains(const TimeRange& a, bool inout_inclusive = true) const;
 
   static bool Overlap(const TimeRange& a, const TimeRange& b);
   static TimeRange Combine(const TimeRange &a, const TimeRange &b);
@@ -42,6 +42,8 @@ public:
   void InsertTimeRange(const TimeRange& range);
 
   void RemoveTimeRange(const TimeRange& range);
+
+  bool ContainsTimeRange(const TimeRange& range) const;
 
 };
 

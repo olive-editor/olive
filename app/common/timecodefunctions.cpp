@@ -231,6 +231,14 @@ err_fatal:
   return 0;
 }
 
+rational Timecode::snap_time_to_timebase(const rational &time, const rational &timebase)
+{
+  // Just convert to a timestamp in timebase units and back
+  int64_t timestamp = time_to_timestamp(time, timebase);
+
+  return timestamp_to_time(timestamp, timebase);
+}
+
 rational Timecode::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
 {
   return rational(timestamp) * timebase;

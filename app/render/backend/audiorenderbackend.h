@@ -24,9 +24,6 @@ public:
 
   QString CachePathName();
 
-public slots:
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
-
 protected:
   virtual void ConnectViewer(ViewerOutput* node) override;
 

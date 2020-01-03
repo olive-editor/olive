@@ -57,9 +57,6 @@ public:
 
   bool IsRendered(const rational& time) const;
 
-public slots:
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range) override;
-
 protected:
   /**
    * @brief Allocate and start the multithreaded backend
@@ -85,6 +82,8 @@ protected:
   virtual NodeInput* GetDependentInput() override;
 
   virtual bool CanRender() override;
+
+  virtual TimeRange PopNextFrameFromQueue() override;
 
   VideoRenderFrameCache* frame_cache();
 
@@ -127,6 +126,8 @@ private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash);
   void ThreadSkippedFrame(NodeDependency dep, qint64 job_time, QByteArray hash);
   void ThreadHashAlreadyExists(NodeDependency dep, qint64 job_time, QByteArray hash);
+
+  void TruncateFrameCacheLength(const rational& length);
 
 };
 

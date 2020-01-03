@@ -37,79 +37,6 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
 {
 }
 
-void VideoRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
-{
-  if (!params_.is_valid()) {
-    return;
-  }
-
-  RenderBackend::InvalidateCache(start_range, end_range);
-
-  // Adjust range to min/max values
-  rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(GetSequenceLength(), end_range);
-
-  qDebug() << "Cache invalidated between"
-           << start_range_adj.toDouble()
-           << "and"
-           << end_range_adj.toDouble();
-
-  // Snap start_range to timebase
-  int64_t timestamp = Timecode::time_to_timestamp(start_range_adj, params_.time_base());
-  rational true_start = Timecode::timestamp_to_time(timestamp, params_.time_base());
-
-  if (true_start == end_range_adj) {
-    // Ensure that a single frame is always rendered
-    end_range_adj += params_.time_base();
-  }
-
-  for (rational r=true_start;r<end_range_adj;r+=params_.time_base()) {
-    // Try to order the queue from closest to the playhead to furthest
-    rational last_time = last_time_requested_;
-
-    rational diff = r - last_time;
-
-    if (diff < 0) {
-      // FIXME: Hardcoded number
-      // If the number is before the playhead, we still prioritize its closeness but not nearly as much (5:1 in this
-      // example)
-      diff = qAbs(diff) * 5;
-    }
-
-    bool added = false;
-
-    TimeRange new_range(r, r);
-
-    for (int i=0;i<cache_queue_.size();i++) {
-      rational compare = cache_queue_.at(i).in();
-      rational compare_diff = compare - last_time;
-
-      if (compare == r) {
-        added = true;
-        break;
-      }
-
-      if (compare_diff > diff)  {
-        cache_queue_.insert(i, new_range);
-        added = true;
-        break;
-      }
-    }
-
-    if (!added) {
-      cache_queue_.append(new_range);
-    }
-  }
-
-  // Remove frames after this time code if it's changed
-  frame_cache_.Truncate(GetSequenceLength());
-
-  // Queue value update
-  QueueValueUpdate();
-
-  CacheNext();
-}
-
 bool VideoRenderBackend::InitInternal()
 {
   cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
@@ -123,14 +50,16 @@ void VideoRenderBackend::CloseInternal()
 
 void VideoRenderBackend::ConnectViewer(ViewerOutput *node)
 {
-  connect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
-  connect(node, SIGNAL(VideoGraphChanged()), this, SLOT(QueueRecompile()));
+  connect(node, &ViewerOutput::VideoChangedBetween, this, &VideoRenderBackend::InvalidateCache);
+  connect(node, &ViewerOutput::VideoGraphChanged, this, &VideoRenderBackend::QueueRecompile);
+  connect(node, &ViewerOutput::LengthChanged, this, &VideoRenderBackend::TruncateFrameCacheLength);
 }
 
 void VideoRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
-  disconnect(node, SIGNAL(VideoChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
-  disconnect(node, SIGNAL(VideoGraphChanged()), this, SLOT(QueueRecompile()));
+  disconnect(node, &ViewerOutput::VideoChangedBetween, this, &VideoRenderBackend::InvalidateCache);
+  disconnect(node, &ViewerOutput::VideoGraphChanged, this, &VideoRenderBackend::QueueRecompile);
+  disconnect(node, &ViewerOutput::LengthChanged, this, &VideoRenderBackend::TruncateFrameCacheLength);
 }
 
 const VideoRenderingParams &VideoRenderBackend::params() const
@@ -254,6 +183,25 @@ bool VideoRenderBackend::CanRender()
   return params_.is_valid();
 }
 
+TimeRange VideoRenderBackend::PopNextFrameFromQueue()
+{
+  TimeRange range = cache_queue_.first();
+
+  // Snap the range to a single discrete frame
+  rational snapped_in = Timecode::snap_time_to_timebase(range.in(), params_.time_base());
+
+  // Check if the range starts earlier, in which case we should render that frame instead
+  if (range.in() < snapped_in) {
+    snapped_in -= params_.time_base();
+  }
+
+  // Remove this particular frame from the queue
+  cache_queue_.RemoveTimeRange(TimeRange(snapped_in, snapped_in + params_.time_base()));
+
+  // Return the snapped frame
+  return TimeRange(snapped_in, snapped_in);
+}
+
 void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
 {
   if (last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
@@ -265,12 +213,12 @@ void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
-  if (SetFrameHash(dep, hash, job_time)) {
-    QList<rational> hashes_with_time = frame_cache()->FramesWithHash(hash);
+  SetFrameHash(dep, hash, job_time);
 
-    foreach (const rational& t, hashes_with_time) {
-      emit CachedTimeReady(t, job_time);
-    }
+  QList<rational> hashes_with_time = frame_cache()->FramesWithHash(hash);
+
+  foreach (const rational& t, hashes_with_time) {
+    emit CachedTimeReady(t, job_time);
   }
 
   // Queue up a new frame for this worker
@@ -302,9 +250,15 @@ void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, qint64 job_
   CacheNext();
 }
 
+void VideoRenderBackend::TruncateFrameCacheLength(const rational &length)
+{
+  // Remove frames after this time code if it's changed
+  frame_cache_.Truncate(length);
+}
+
 bool VideoRenderBackend::TimeIsQueued(const TimeRange &time) const
 {
-  return cache_queue_.contains(time);
+  return cache_queue_.ContainsTimeRange(time);
 }
 
 bool VideoRenderBackend::JobIsCurrent(const NodeDependency &dep, const qint64& job_time) const

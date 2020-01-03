@@ -30,7 +30,7 @@ public:
   ViewerOutput* viewer_node() const;
 
 public slots:
-  virtual void InvalidateCache(const rational &start_range, const rational &end_range);
+  void InvalidateCache(const rational &start_range, const rational &end_range);
 
   bool Compile();
 
@@ -51,6 +51,8 @@ protected:
   virtual void DecompileInternal() = 0;
 
   virtual bool CanRender();
+
+  virtual TimeRange PopNextFrameFromQueue();
 
   rational GetSequenceLength();
 
@@ -98,6 +100,9 @@ protected:
 
   QHash<TimeRange, qint64> render_job_info_;
 
+protected slots:
+  void QueueRecompile();
+
 private:
   bool AllProcessorsAreAvailable() const;
 
@@ -135,9 +140,6 @@ private:
   bool input_update_queued_;
 
   QVector<bool> processor_busy_state_;
-
-private slots:
-  void QueueRecompile();
 
 };
 

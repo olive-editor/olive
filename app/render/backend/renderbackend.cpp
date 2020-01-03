@@ -102,10 +102,26 @@ bool RenderBackend::IsInitiated()
 
 void RenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
 {
-  Q_UNUSED(start_range)
-  Q_UNUSED(end_range)
+  if (!CanRender()) {
+    return;
+  }
 
-  input_update_queued_ = true;
+  // Adjust range to min/max values
+  rational start_range_adj = qMax(rational(0), start_range);
+  rational end_range_adj = qMin(GetSequenceLength(), end_range);
+
+  qDebug() << "Cache invalidated between"
+           << start_range_adj.toDouble()
+           << "and"
+           << end_range_adj.toDouble();
+
+  // Add the range to the list
+  cache_queue_.InsertTimeRange(TimeRange(start_range_adj, end_range_adj));
+
+  // Queue value update
+  QueueValueUpdate();
+
+  CacheNext();
 }
 
 bool RenderBackend::Compile()
@@ -183,6 +199,11 @@ bool RenderBackend::CanRender()
   return true;
 }
 
+TimeRange RenderBackend::PopNextFrameFromQueue()
+{
+  return cache_queue_.takeFirst();
+}
+
 rational RenderBackend::GetSequenceLength()
 {
   if (viewer_node_ == nullptr) {
@@ -256,18 +277,23 @@ void RenderBackend::CacheNext()
     }
 
     if (!WorkerIsBusy(worker)) {
-      TimeRange cache_frame = cache_queue_.takeFirst();
+      TimeRange cache_frame = PopNextFrameFromQueue();
 
       NodeDependency dep = NodeDependency(node_connected_to_viewer,
                                           cache_frame);
 
       // Timestamp this render job
       qint64 job_time = QDateTime::currentMSecsSinceEpoch();
-      if (render_job_info_.contains(cache_frame)
-          && render_job_info_.value(cache_frame) == job_time) {
-        // Ensure the job's time is unique
-        job_time = render_job_info_.value(cache_frame) + 1;
+
+      // Ensure the job's time is unique (since that's the whole point)
+      // NOTE: This value will be 0 if it doesn't exist, which will never be the result of currentMSecsSinceEpoch so we
+      //       can safely assume 0 means it doesn't exist.
+      qint64 existing_job_time = render_job_info_.value(cache_frame);
+
+      if (existing_job_time == job_time) {
+        job_time = existing_job_time + 1;
       }
+
       render_job_info_.insert(cache_frame, job_time);
 
       SetWorkerBusyState(worker, true);

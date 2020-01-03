@@ -27,27 +27,6 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
   RegenerateCacheID();
 }
 
-void AudioRenderBackend::InvalidateCache(const rational &start_range, const rational &end_range)
-{
-  if (!params_.is_valid()) {
-    return;
-  }
-
-  RenderBackend::InvalidateCache(start_range, end_range);
-
-  rational start_range_adj = qMax(rational(0), start_range);
-  rational end_range_adj = qMin(GetSequenceLength(), end_range);
-
-  // Add the range to the list
-  cache_queue_.InsertTimeRange(TimeRange(start_range_adj, end_range_adj));
-
-  // Queue value update
-  QueueValueUpdate();
-
-  // Start caching cycle if it hasn't started already
-  CacheNext();
-}
-
 void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
