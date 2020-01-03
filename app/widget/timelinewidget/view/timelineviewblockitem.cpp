@@ -35,6 +35,7 @@ TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
   block_(nullptr)
 {
   setBrush(Qt::white);
+  setCursor(Qt::DragMoveCursor);
 }
 
 Block *TimelineViewBlockItem::block()

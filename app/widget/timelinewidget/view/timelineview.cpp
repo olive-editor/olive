@@ -45,6 +45,7 @@ TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignme
   setBackgroundRole(QPalette::Window);
   setContextMenuPolicy(Qt::CustomContextMenu);
   SetLimitYAxis(true);
+  viewport()->setMouseTracking(true);
 }
 
 void TimelineView::SelectAll()
@@ -204,6 +205,25 @@ void TimelineView::drawBackground(QPainter *painter, const QRectF &rect)
     }
 
     painter->drawLine(qRound(rect.left()), this_line_y, qRound(rect.right()), this_line_y);
+  }
+}
+
+void TimelineView::ToolChangedEvent(Tool::Item tool)
+{
+  switch (tool) {
+  case Tool::kRazor:
+    setCursor(Qt::SplitHCursor);
+    break;
+  case Tool::kEdit:
+    setCursor(Qt::IBeamCursor);
+    break;
+  case Tool::kAdd:
+  case Tool::kTransition:
+  case Tool::kZoom:
+    setCursor(Qt::CrossCursor);
+    break;
+  default:
+    unsetCursor();
   }
 }
 

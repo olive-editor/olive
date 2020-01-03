@@ -25,6 +25,7 @@
 
 #include "common/clamp.h"
 #include "common/flipmodifiers.h"
+#include "common/qtversionabstraction.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"
@@ -140,6 +141,27 @@ void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
   dragging_ = false;
 }
 
+void TimelineWidget::PointerTool::HoverMove(TimelineViewMouseEvent *event)
+{
+  // No dragging, but we still want to process cursors
+  TimelineViewBlockItem* block_at_cursor = GetItemAtScenePos(event->GetCoordinates());
+
+  if (block_at_cursor) {
+    switch (IsCursorInTrimHandle(block_at_cursor, event->GetSceneX())) {
+    case Timeline::kTrimIn:
+      parent()->setCursor(Qt::SizeHorCursor);
+      break;
+    case Timeline::kTrimOut:
+      parent()->setCursor(Qt::SizeHorCursor);
+      break;
+    default:
+      parent()->unsetCursor();
+    }
+  } else {
+    parent()->unsetCursor();
+  }
+}
+
 void TimelineWidget::PointerTool::SetMovementAllowed(bool allowed)
 {
   movement_allowed_ = allowed;
@@ -211,7 +233,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
     // Normal blocks work in conjunction with the gap made above
-    if (ghost->mode() == Timeline::kTrimIn || ghost->mode() == Timeline::kTrimOut) {
+    if (Timeline::IsATrimMode(ghost->mode())) {
       // If we were trimming, we'll need to change the length
 
       // If we were trimming the in point, we'll need to adjust the media in too
@@ -280,21 +302,13 @@ void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_p
     // Record where the drag started in timeline coordinates
     track_start_ = mouse_pos.GetTrack();
 
-    // Determine whether we're trimming or moving based on the position of the cursor
-    Timeline::MovementMode trim_mode = Timeline::kNone;
-
-    // FIXME: Hardcoded number
-    double kTrimHandle = qMax(10.0, parent()->TimeToScene(parent()->timebase()));
-
     qreal mouse_x = parent()->TimeToScene(mouse_pos.GetFrame());
 
+    // Determine whether we're trimming or moving based on the position of the cursor
+    Timeline::MovementMode trim_mode = IsCursorInTrimHandle(clicked_item, mouse_x);
 
-    if (trimming_allowed_ && mouse_x <= clicked_item->x() + kTrimHandle) {
-      trim_mode = Timeline::kTrimIn;
-    } else if (trimming_allowed_ && mouse_x >= clicked_item->x() + clicked_item->rect().right() - kTrimHandle) {
-      trim_mode = Timeline::kTrimOut;
-    } else if (movement_allowed_) {
-      // Some derived classes don't allow movement
+    // Some derived classes don't allow movement
+    if (trim_mode == Timeline::kNone && movement_allowed_) {
       trim_mode = Timeline::kMove;
     }
 
@@ -377,6 +391,24 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
                      parent());
 }
 
+Timeline::MovementMode TimelineWidget::PointerTool::IsCursorInTrimHandle(TimelineViewBlockItem *block, qreal cursor_x)
+{
+  double kTrimHandle = QFontMetricsWidth(parent()->fontMetrics(), "H");
+
+  // Block is too narrow, no trimming allowed
+  if (block->rect().width() <= kTrimHandle * 2) {
+    return Timeline::kNone;
+  }
+
+  if (trimming_allowed_ && cursor_x <= block->x() + kTrimHandle) {
+    return Timeline::kTrimIn;
+  } else if (trimming_allowed_ && cursor_x >= block->x() + block->rect().right() - kTrimHandle) {
+    return Timeline::kTrimOut;
+  } else {
+    return Timeline::kNone;
+  }
+}
+
 void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_item,
                                                  Timeline::MovementMode trim_mode,
                                                  bool allow_gap_trimming)
@@ -389,8 +421,7 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
   bool multitrim_enabled = true;
 
   // Determine if the clicked item is the earliest/latest in the track for in/out trimming respectively
-  if (trim_mode == Timeline::kTrimIn
-      || trim_mode == Timeline::kTrimOut) {
+  if (Timeline::IsATrimMode(trim_mode)) {
     multitrim_enabled = IsClipTrimmable(clicked_item, clips, trim_mode);
   }
 
@@ -405,13 +436,12 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
     bool include_this_clip = true;
 
     if (clip_item->block()->type() == Block::kGap
-        && trim_mode != Timeline::kTrimIn
-        && trim_mode != Timeline::kTrimOut) {
+        && !Timeline::IsATrimMode(trim_mode)) {
       continue;
     }
 
     if (clip_item != clicked_item
-        && (trim_mode == Timeline::kTrimIn || trim_mode == Timeline::kTrimOut)) {
+        && (Timeline::IsATrimMode(trim_mode))) {
       include_this_clip = multitrim_enabled ? IsClipTrimmable(clip_item, clips, trim_mode) : false;
     }
 

@@ -54,6 +54,8 @@ protected:
   bool HandMove(QMouseEvent* event);
   bool HandRelease(QMouseEvent* event);
 
+  virtual void ToolChangedEvent(Tool::Item tool);
+
 private:
   qreal GetPlayheadX();
 

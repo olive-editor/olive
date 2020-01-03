@@ -15,6 +15,7 @@
 TimelineWidget::TimelineWidget(QWidget *parent) :
   QWidget(parent),
   rubberband_(QRubberBand::Rectangle, this),
+  active_tool_(nullptr),
   timeline_node_(nullptr),
   playhead_(0)
 {
@@ -652,8 +653,17 @@ void TimelineWidget::ViewMousePressed(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewMouseMoved(TimelineViewMouseEvent *event)
 {
-  if (timeline_node_ != nullptr && active_tool_ != nullptr) {
-    active_tool_->MouseMove(event);
+  if (timeline_node_) {
+    if (active_tool_) {
+      active_tool_->MouseMove(event);
+    } else {
+      // Mouse is not down, attempt a hover event
+      Tool* hover_tool = GetActiveTool();
+
+      if (hover_tool) {
+        hover_tool->HoverMove(event);
+      }
+    }
   }
 }
 
@@ -661,6 +671,7 @@ void TimelineWidget::ViewMouseReleased(TimelineViewMouseEvent *event)
 {
   if (timeline_node_ != nullptr && active_tool_ != nullptr) {
     active_tool_->MouseRelease(event);
+    active_tool_ = nullptr;
   }
 }
 
@@ -668,6 +679,7 @@ void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 {
   if (timeline_node_ != nullptr && active_tool_ != nullptr) {
     active_tool_->MouseDoubleClick(event);
+    active_tool_ = nullptr;
   }
 }
 

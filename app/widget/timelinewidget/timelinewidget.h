@@ -81,6 +81,8 @@ private:
     virtual void MouseRelease(TimelineViewMouseEvent *){}
     virtual void MouseDoubleClick(TimelineViewMouseEvent *){}
 
+    virtual void HoverMove(TimelineViewMouseEvent *){}
+
     virtual void DragEnter(TimelineViewMouseEvent *){}
     virtual void DragMove(TimelineViewMouseEvent *){}
     virtual void DragLeave(QDragLeaveEvent *){}
@@ -144,6 +146,9 @@ private:
     virtual void MousePress(TimelineViewMouseEvent *event) override;
     virtual void MouseMove(TimelineViewMouseEvent *event) override;
     virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+
+    virtual void HoverMove(TimelineViewMouseEvent *event) override;
+
   protected:
     void SetMovementAllowed(bool allowed);
     void SetTrackMovementAllowed(bool allowed);
@@ -178,6 +183,8 @@ private:
     virtual void ProcessDrag(const TimelineCoordinate &mouse_pos);
 
   private:
+    Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
+
     void InitiateDrag(const TimelineCoordinate &mouse_pos);
 
     void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);

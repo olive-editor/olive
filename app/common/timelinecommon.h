@@ -9,6 +9,8 @@ public:
     kTrimIn,
     kTrimOut
   };
+
+  static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}
 };
 
 #endif // TIMELINECOMMON_H

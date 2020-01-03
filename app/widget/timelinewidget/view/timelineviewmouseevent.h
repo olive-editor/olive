@@ -57,6 +57,8 @@ public:
 
   void SetEvent(QEvent* event);
 
+  const qreal& GetSceneX() const;
+
   void accept();
   void ignore();
 

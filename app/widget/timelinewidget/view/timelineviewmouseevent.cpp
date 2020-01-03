@@ -74,6 +74,11 @@ void TimelineViewMouseEvent::SetEvent(QEvent *event)
   source_event_ = event;
 }
 
+const qreal &TimelineViewMouseEvent::GetSceneX() const
+{
+  return scene_x_;
+}
+
 void TimelineViewMouseEvent::accept()
 {
   if (source_event_ != nullptr)

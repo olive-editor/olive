@@ -87,6 +87,8 @@ protected:
 
   virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
 
+  virtual void ToolChangedEvent(Tool::Item tool) override;
+
 private:
   TrackType ConnectedTrackType();
   Stream::Type TrackTypeToStreamType(TrackType track_type);

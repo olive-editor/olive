@@ -14,6 +14,7 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   playhead_(0),
   playhead_scene_left_(-1),
   playhead_scene_right_(-1),
+  dragging_playhead_(false),
   dragging_hand_(false),
   limit_y_axis_(false)
 {
@@ -136,7 +137,13 @@ bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
 
 bool TimelineViewBase::PlayheadRelease(QMouseEvent *event)
 {
-  return dragging_playhead_;
+  if (dragging_playhead_) {
+    dragging_playhead_ = false;
+
+    return true;
+  }
+
+  return false;
 }
 
 bool TimelineViewBase::HandPress(QMouseEvent *event)
@@ -197,6 +204,10 @@ bool TimelineViewBase::HandRelease(QMouseEvent *event)
   }
 
   return false;
+}
+
+void TimelineViewBase::ToolChangedEvent(Tool::Item tool)
+{
 }
 
 qreal TimelineViewBase::GetPlayheadX()
@@ -324,4 +335,6 @@ void TimelineViewBase::ApplicationToolChanged(Tool::Item tool)
   } else {
     setDragMode(default_drag_mode_);
   }
+
+  ToolChangedEvent(tool);
 }
