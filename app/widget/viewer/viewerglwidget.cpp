@@ -123,17 +123,17 @@ void ViewerGLWidget::initializeGL()
 
 void ViewerGLWidget::paintGL()
 {
-  // We only draw if we have a pipeline
-  if (!pipeline_ || !texture_) {
-    return;
-  }
-
   // Get functions attached to this context (they will already be initialized)
   QOpenGLFunctions* f = context()->functions();
 
   // Clear background to empty
   f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   f->glClear(GL_COLOR_BUFFER_BIT);
+
+  // We only draw if we have a pipeline
+  if (!pipeline_ || !texture_) {
+    return;
+  }
 
   // Bind retrieved texture
   f->glBindTexture(GL_TEXTURE_2D, texture_->texture());

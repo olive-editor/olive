@@ -142,7 +142,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
     disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
     disconnect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-    disconnect(viewer_node_, &ViewerOutput::LengthChanged, ruler_, &TimeRuler::SetCacheStatusLength);
     disconnect(viewer_node_, &ViewerOutput::VideoChangedBetween, ruler_, &TimeRuler::CacheInvalidatedRange);
 
     // Effectively disables the viewer and clears the state
@@ -153,11 +152,11 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
 
   viewer_node_ = node;
 
-  // Set texture to new texture (or null if no viewer node is available)
-  UpdateTextureFromNode(GetTime());
-
   video_renderer_->SetViewerNode(viewer_node_);
   audio_renderer_->SetViewerNode(viewer_node_);
+
+  // Set texture to new texture (or null if no viewer node is available)
+  UpdateTextureFromNode(GetTime());
 
   if (viewer_node_ != nullptr) {
     SetTimebase(viewer_node_->video_params().time_base());
@@ -165,7 +164,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
     connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
     connect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-    connect(viewer_node_, &ViewerOutput::LengthChanged, ruler_, &TimeRuler::SetCacheStatusLength);
     connect(viewer_node_, &ViewerOutput::VideoChangedBetween, ruler_, &TimeRuler::CacheInvalidatedRange);
 
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
@@ -181,6 +179,11 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
 
     video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), PixelFormat::PIX_FMT_RGBA16F, RenderMode::kOffline, 2));
     audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));
+
+    // Reload cache into these renderers
+    // FIXME: Slow, rather than invalidate, we should probably serialize the cache into and out of files
+    video_renderer_->InvalidateCache(0, viewer_node_->Length());
+    //audio_renderer_->InvalidateCache(0, viewer_node_->Length());
   }
 }
 
@@ -225,11 +228,13 @@ void ViewerWidget::UpdateTimeInternal(int64_t i)
 
   controls_->SetTime(i);
 
-  if (viewer_node_ != nullptr) {
+  if (viewer_node_ != nullptr && last_time_ != i) {
     UpdateTextureFromNode(time_set);
 
     PushScrubbedAudio();
   }
+
+  last_time_ = i;
 
   emit TimeChanged(i);
 }
@@ -436,6 +441,7 @@ void ViewerWidget::SizeChangedSlot(int width, int height)
 void ViewerWidget::LengthChangedSlot(const rational &length)
 {
   controls_->SetEndTime(Timecode::time_to_timestamp(length, time_base_));
+  ruler_->SetCacheStatusLength(length);
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

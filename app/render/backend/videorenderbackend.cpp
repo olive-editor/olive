@@ -60,6 +60,8 @@ void VideoRenderBackend::DisconnectViewer(ViewerOutput *node)
   disconnect(node, &ViewerOutput::VideoChangedBetween, this, &VideoRenderBackend::InvalidateCache);
   disconnect(node, &ViewerOutput::VideoGraphChanged, this, &VideoRenderBackend::QueueRecompile);
   disconnect(node, &ViewerOutput::LengthChanged, this, &VideoRenderBackend::TruncateFrameCacheLength);
+
+  frame_cache_.Clear();
 }
 
 const VideoRenderingParams &VideoRenderBackend::params() const

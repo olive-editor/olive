@@ -10,6 +10,17 @@ VideoRenderFrameCache::VideoRenderFrameCache()
 
 }
 
+void VideoRenderFrameCache::Clear()
+{
+  time_hash_map_.clear();
+
+  currently_caching_lock_.lock();
+  currently_caching_list_.clear();
+  currently_caching_lock_.unlock();
+
+  cache_id_.clear();
+}
+
 bool VideoRenderFrameCache::HasHash(const QByteArray &hash)
 {
   return QFileInfo::exists(CachePathName(hash)) && !IsCaching(hash);
@@ -43,6 +54,8 @@ bool VideoRenderFrameCache::TryCache(const rational& time, const QByteArray &has
 
 void VideoRenderFrameCache::SetCacheID(const QString &id)
 {
+  Clear();
+
   cache_id_ = id;
 }
 

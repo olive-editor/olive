@@ -10,6 +10,8 @@ class VideoRenderFrameCache
 public:
   VideoRenderFrameCache();
 
+  void Clear();
+
   /**
    * @brief Return whether a frame with this hash already exists
    */

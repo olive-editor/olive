@@ -173,6 +173,8 @@ private:
 
   qint64 frame_cache_job_time_;
 
+  int64_t last_time_;
+
 private slots:
   void RulerTimeChange(int64_t);
 
