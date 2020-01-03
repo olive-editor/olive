@@ -18,6 +18,13 @@ void AudioOutputDeviceProxy::SetSendAverages(bool send)
   send_averages_ = send;
 }
 
+void AudioOutputDeviceProxy::close()
+{
+  QIODevice::close();
+
+  device_->close();
+}
+
 qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
 {
   if (device_) {

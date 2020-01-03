@@ -13,6 +13,8 @@ public:
 
   void SetSendAverages(bool send);
 
+  virtual void close() override;
+
 signals:
   void ProcessedAverages(QVector<double> averages);
 
