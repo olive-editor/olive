@@ -31,6 +31,27 @@ ViewerOutput::ViewerOutput()
   length_input_ = new NodeInput("length_in", NodeInput::kRational);
   AddInput(length_input_);
 
+  // Create TrackList instances
+  track_inputs_.resize(kTrackTypeCount);
+  track_lists_.resize(kTrackTypeCount);
+
+  for (int i=0;i<kTrackTypeCount;i++) {
+    // Create track input
+    NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i), NodeParam::kAny);
+    AddInput(track_input);
+    track_inputs_.replace(i, track_input);
+
+    TrackList* list = new TrackList(this, static_cast<TrackType>(i), track_input);
+    track_lists_.replace(i, list);
+    connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
+    connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
+    connect(list, SIGNAL(BlockAdded(Block*, int)), this, SLOT(TrackListAddedBlock(Block*, int)));
+    connect(list, SIGNAL(BlockRemoved(Block*)), this, SIGNAL(BlockRemoved(Block*)));
+    connect(list, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(TrackListAddedTrack(TrackOutput*)));
+    connect(list, SIGNAL(TrackRemoved(TrackOutput*)), this, SIGNAL(TrackRemoved(TrackOutput*)));
+    connect(list, SIGNAL(TrackHeightChanged(int, int)), this, SLOT(TrackHeightChangedSlot(int, int)));
+  }
+
   // Create UUID for this node
   uuid_ = QUuid::createUuid();
 }
@@ -115,10 +136,14 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
 
 rational ViewerOutput::Length()
 {
-  // FIXME: This is pretty messy, there's probably a better way...
+  if (!length_input_->IsConnected()) {
+    return timeline_length_;
+  }
+
   Node* connected_node = length_input_->get_connected_node();
 
   if (connected_node) {
+    // This is kind of messy?
     return connected_node->Value(NodeValueDatabase()).Get(NodeParam::kNumber, "length").value<rational>();
   }
 
@@ -139,4 +164,103 @@ void ViewerOutput::DependentEdgeChanged(NodeInput *from)
   }
 
   Node::DependentEdgeChanged(from);
+}
+
+void ViewerOutput::UpdateTrackCache()
+{
+  track_cache_.clear();
+
+  foreach (TrackList* list, track_lists_) {
+    QVector<TrackOutput*> track_list = list->Tracks();
+
+    foreach (TrackOutput* track, track_list) {
+      if (track) {
+        track_cache_.append(list->Tracks());
+      }
+    }
+  }
+}
+
+void ViewerOutput::UpdateLength(const rational &length)
+{
+  // If this length is equal, no-op
+  if (length == timeline_length_) {
+    return;
+  }
+
+  // If this length is greater, this must be the new total length
+  if (length > timeline_length_) {
+    timeline_length_ = length;
+    emit LengthChanged(timeline_length_);
+    return;
+  }
+
+  // Otherwise, the new length is shorter and we'll have to manually determine what the new max length is
+  rational new_length = 0;
+
+  foreach (TrackList* list, track_lists_) {
+    new_length = qMax(new_length, list->TrackLength());
+  }
+
+  if (new_length != timeline_length_) {
+    timeline_length_ = new_length;
+    emit LengthChanged(timeline_length_);
+  }
+}
+
+void ViewerOutput::Retranslate()
+{
+  for (int i=0;i<track_inputs_.size();i++) {
+    QString input_name;
+
+    switch (static_cast<TrackType>(i)) {
+    case kTrackTypeVideo:
+      input_name = tr("Video Tracks");
+      break;
+    case kTrackTypeAudio:
+      input_name = tr("Audio Tracks");
+      break;
+    case kTrackTypeSubtitle:
+      input_name = tr("Subtitle Tracks");
+      break;
+    case kTrackTypeNone:
+    case kTrackTypeCount:
+      break;
+    }
+
+    if (!input_name.isEmpty())
+      track_inputs_.at(i)->set_name(input_name);
+  }
+}
+
+const QVector<TrackOutput *>& ViewerOutput::Tracks() const
+{
+  return track_cache_;
+}
+
+NodeInput *ViewerOutput::track_input(TrackType type) const
+{
+  return track_inputs_.at(type);
+}
+
+TrackList *ViewerOutput::track_list(TrackType type) const
+{
+  return track_lists_.at(type);
+}
+
+void ViewerOutput::TrackListAddedBlock(Block *block, int index)
+{
+  TrackType type = static_cast<TrackList*>(sender())->TrackType();
+  emit BlockAdded(block, TrackReference(type, index));
+}
+
+void ViewerOutput::TrackListAddedTrack(TrackOutput *track)
+{
+  TrackType type = static_cast<TrackList*>(sender())->TrackType();
+  emit TrackAdded(track, type);
+}
+
+void ViewerOutput::TrackHeightChangedSlot(int index, int height)
+{
+  emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }

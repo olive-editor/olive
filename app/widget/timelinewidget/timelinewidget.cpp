@@ -181,7 +181,7 @@ void TimelineWidget::SetTime(int64_t timestamp)
   UpdateInternalTime(timestamp);
 }
 
-void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
+void TimelineWidget::ConnectTimelineNode(ViewerOutput *node)
 {
   if (timeline_node_ != nullptr) {
     disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
@@ -213,7 +213,7 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
     connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
     connect(timeline_node_, SIGNAL(TrackHeightChanged(TrackType, int, int)), this, SLOT(TrackHeightChanged(TrackType, int, int)));
 
-    SetTimebase(timeline_node_->timebase());
+    SetTimebase(timeline_node_->video_params().time_base());
 
     for (int i=0;i<views_.size();i++) {
       TrackType track_type = static_cast<TrackType>(i);
@@ -223,7 +223,7 @@ void TimelineWidget::ConnectTimelineNode(TimelineOutput *node)
 
       track_view->ConnectTrackList(track_list);
       view->ConnectTrackList(track_list);
-      view->SetEndTime(timeline_node_->timeline_length());
+      view->SetEndTime(timeline_node_->Length());
 
       // Defer to the track to make all the block UI items necessary
       foreach (TrackOutput* track, timeline_node_->track_list(track_type)->Tracks()) {

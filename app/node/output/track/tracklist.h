@@ -27,12 +27,12 @@
 #include "node/output/track/track.h"
 #include "timeline/tracktypes.h"
 
-class TimelineOutput;
+class ViewerOutput;
 
 class TrackList : public QObject {
   Q_OBJECT
 public:
-  TrackList(TimelineOutput *parent, const enum TrackType& type, NodeInputArray* track_input);
+  TrackList(ViewerOutput *parent, const enum TrackType& type, NodeInputArray* track_input);
 
   const enum TrackType& type() const;
 

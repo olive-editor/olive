@@ -71,6 +71,8 @@ private:
 
   void DrawPlayhead(QPainter* p, int x, int y);
 
+  int CacheStatusHeight() const;
+
   double ScreenToUnitFloat(int screen);
 
   int64_t ScreenToUnit(int screen);

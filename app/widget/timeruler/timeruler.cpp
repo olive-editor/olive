@@ -339,6 +339,11 @@ void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
   p->drawPolygon(points, 6);
 }
 
+int TimeRuler::CacheStatusHeight() const
+{
+  return fontMetrics().height() / 4;
+}
+
 double TimeRuler::ScreenToUnitFloat(int screen)
 {
   return (screen + scroll_) / scale_ / timebase_dbl_;

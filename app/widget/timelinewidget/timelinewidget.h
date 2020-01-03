@@ -7,6 +7,7 @@
 
 #include "core.h"
 #include "timelineandtrackview.h"
+#include "node/output/viewer/viewer.h"
 #include "widget/slider/timeslider.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timeruler/timeruler.h"
@@ -28,7 +29,7 @@ public:
 
   void SetTime(int64_t timestamp);
 
-  void ConnectTimelineNode(TimelineOutput* node);
+  void ConnectTimelineNode(ViewerOutput *node);
 
   void DisconnectTimelineNode();
 
@@ -368,7 +369,7 @@ private:
 
   TimeRuler* ruler_;
 
-  TimelineOutput* timeline_node_;
+  ViewerOutput* timeline_node_;
 
   int64_t playhead_;
 

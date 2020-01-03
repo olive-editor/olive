@@ -28,7 +28,6 @@
 #include <QDropEvent>
 
 #include "node/block/clip/clip.h"
-#include "node/output/timeline/timeline.h"
 #include "timelineviewbase.h"
 #include "timelineviewblockitem.h"
 #include "timelineviewmouseevent.h"

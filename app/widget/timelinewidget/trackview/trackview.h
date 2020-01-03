@@ -4,7 +4,7 @@
 #include <QScrollArea>
 #include <QSplitter>
 
-#include "node/output/timeline/tracklist.h"
+#include "node/output/track/tracklist.h"
 #include "trackviewitem.h"
 #include "trackviewsplitter.h"
 

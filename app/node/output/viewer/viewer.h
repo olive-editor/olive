@@ -23,9 +23,15 @@
 
 #include <QUuid>
 
+#include "common/timelinecommon.h"
+#include "node/block/block.h"
+#include "node/output/track/track.h"
+#include "node/output/track/tracklist.h"
 #include "node/node.h"
 #include "render/videoparams.h"
 #include "render/audioparams.h"
+#include "timeline/trackreference.h"
+#include "timeline/tracktypes.h"
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -61,6 +67,14 @@ public:
 
   const QUuid& uuid() const;
 
+  const QVector<TrackOutput *> &Tracks() const;
+
+  NodeInput* track_input(TrackType type) const;
+
+  TrackList* track_list(TrackType type) const;
+
+  virtual void Retranslate() override;
+
 protected:
   virtual void DependentEdgeChanged(NodeInput* from) override;
 
@@ -79,6 +93,14 @@ signals:
 
   void SizeChanged(int width, int height);
 
+  void BlockAdded(Block* block, TrackReference track);
+  void BlockRemoved(Block* block);
+
+  void TrackAdded(TrackOutput* track, TrackType type);
+  void TrackRemoved(TrackOutput* track);
+
+  void TrackHeightChanged(TrackType type, int index, int height);
+
 private:
   QUuid uuid_;
 
@@ -91,6 +113,25 @@ private:
   VideoParams video_params_;
 
   AudioParams audio_params_;
+
+  QVector<NodeInput*> track_inputs_;
+
+  QVector<TrackList*> track_lists_;
+
+  QVector<TrackOutput*> track_cache_;
+
+  rational timeline_length_;
+
+private slots:
+  void UpdateTrackCache();
+
+  void UpdateLength(const rational &length);
+
+  void TrackListAddedBlock(Block* block, int index);
+
+  void TrackListAddedTrack(TrackOutput* track);
+
+  void TrackHeightChangedSlot(int index, int height);
 
 };
 

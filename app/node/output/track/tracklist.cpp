@@ -21,9 +21,9 @@
 #include "tracklist.h"
 
 #include "node/factory.h"
-#include "timeline.h"
+#include "node/output/viewer/viewer.h"
 
-TrackList::TrackList(TimelineOutput* parent, const enum TrackType &type, NodeInputArray *track_input) :
+TrackList::TrackList(ViewerOutput *parent, const enum TrackType &type, NodeInputArray *track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)

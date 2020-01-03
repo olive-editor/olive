@@ -23,7 +23,6 @@
 
 #include "common/rational.h"
 #include "node/graph.h"
-#include "node/output/timeline/timeline.h"
 #include "node/output/viewer/viewer.h"
 #include "render/videoparams.h"
 #include "project/item/item.h"
@@ -62,7 +61,6 @@ public:
   void set_default_parameters();
 
 private:
-  TimelineOutput* timeline_output_;
   ViewerOutput* viewer_output_;
 
   VideoParams video_params_;

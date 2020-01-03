@@ -25,8 +25,8 @@
 
 #include "node/block/block.h"
 #include "node/block/gap/gap.h"
-#include "node/output/timeline/timeline.h"
 #include "node/output/track/track.h"
+#include "node/output/track/tracklist.h"
 
 class BlockResizeCommand : public QUndoCommand {
 public:
