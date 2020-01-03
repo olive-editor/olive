@@ -43,7 +43,7 @@ public:
    * saving/loading data from this Node so that parameter order can be changed without issues loading data saved by an
    * older version. This of course assumes that parameters don't change their ID.
    */
-  NodeInput(const QString &id, const DataType& type, const QVariant& default_value = 0);
+  NodeInput(const QString &id, const DataType& type, const QVariant& default_value = QVariant());
 
   virtual bool IsArray();
 

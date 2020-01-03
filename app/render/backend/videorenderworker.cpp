@@ -41,7 +41,6 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     emit CompletedFrame(path, job_time, hash, texture);
 
     // If we actually have a texture, download it into the disk cache
-    qDebug() << "Texture was null:" << texture.isNull();
     if (!texture.isNull()) {
       Download(path, hash, texture, frame_cache_->CachePathName(hash));
     }
