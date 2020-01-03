@@ -22,6 +22,8 @@ class TimelineWidget : public QWidget, public TimelineScaledObject
 public:
   TimelineWidget(QWidget* parent = nullptr);
 
+  virtual ~TimelineWidget() override;
+
   void Clear();
 
   void SetTime(int64_t timestamp);
@@ -216,6 +218,16 @@ private:
     int import_pre_buffer_;
   };
 
+  class EditTool : public Tool
+  {
+  public:
+    EditTool(TimelineWidget* parent);
+
+    virtual void MousePress(TimelineViewMouseEvent *event) override;
+    virtual void MouseMove(TimelineViewMouseEvent *event) override;
+    virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+  };
+
   class RazorTool : public Tool
   {
   public:
@@ -314,7 +326,6 @@ private:
     virtual void MousePress(TimelineViewMouseEvent *event) override;
     virtual void MouseMove(TimelineViewMouseEvent *event) override;
     virtual void MouseRelease(TimelineViewMouseEvent *event) override;
-  protected:
   private:
     bool dual_transition_;
   };
@@ -333,9 +344,9 @@ private:
 
   Tool* GetActiveTool();
 
-  QVector< std::shared_ptr<Tool> > tools_;
+  QVector<Tool*> tools_;
 
-  std::shared_ptr<ImportTool> import_tool_;
+  Tool* import_tool_;
 
   Tool* active_tool_;
 

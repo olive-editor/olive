@@ -54,19 +54,23 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   tools_.resize(::Tool::kCount);
   tools_.fill(nullptr);
 
-  tools_.replace(::Tool::kPointer, std::make_shared<PointerTool>(this));
-  // tools_.replace(::Tool::kEdit, new PointerTool(this));   FIXME: Implement
-  tools_.replace(::Tool::kRipple, std::make_shared<RippleTool>(this));
-  tools_.replace(::Tool::kRolling, std::make_shared<RollingTool>(this));
-  tools_.replace(::Tool::kRazor, std::make_shared<RazorTool>(this));
-  tools_.replace(::Tool::kSlip, std::make_shared<SlipTool>(this));
-  tools_.replace(::Tool::kSlide, std::make_shared<SlideTool>(this));
-  tools_.replace(::Tool::kZoom, std::make_shared<ZoomTool>(this));
-  tools_.replace(::Tool::kTransition, std::make_shared<TransitionTool>(this));
+  tools_.replace(::Tool::kPointer, new PointerTool(this));
+  tools_.replace(::Tool::kEdit, new EditTool(this));
+  tools_.replace(::Tool::kRipple, new RippleTool(this));
+  tools_.replace(::Tool::kRolling, new RollingTool(this));
+  tools_.replace(::Tool::kRazor, new RazorTool(this));
+  tools_.replace(::Tool::kSlip, new SlipTool(this));
+  tools_.replace(::Tool::kSlide, new SlideTool(this));
+  tools_.replace(::Tool::kZoom, new ZoomTool(this));
+  tools_.replace(::Tool::kTransition, new TransitionTool(this));
   //tools_.replace(::Tool::kRecord, new PointerTool(this));  FIXME: Implement
-  tools_.replace(::Tool::kAdd, std::make_shared<AddTool>(this));
+  tools_.replace(::Tool::kAdd, new AddTool(this));
 
-  import_tool_ = std::make_shared<ImportTool>(this);
+  import_tool_ = new ImportTool(this);
+
+  // We add this to the list to make deleting all tools easier, it should never get accessed through the list under
+  // normal circumstances (but *technically* its index would be Tool::kCount)
+  tools_.append(import_tool_);
 
   // Global scrollbar
   horizontal_scroll_ = new QScrollBar(Qt::Horizontal);
@@ -117,6 +121,11 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
   // FIXME: Magic number
   SetScale(90.0);
+}
+
+TimelineWidget::~TimelineWidget()
+{
+  qDeleteAll(tools_);
 }
 
 void TimelineWidget::Clear()
@@ -639,7 +648,7 @@ void TimelineWidget::UpdateTimelineLength(const rational &length)
 
 TimelineWidget::Tool *TimelineWidget::GetActiveTool()
 {
-  return tools_.at(Core::instance()->tool()).get();
+  return tools_.at(Core::instance()->tool());
 }
 
 void TimelineWidget::ViewMousePressed(TimelineViewMouseEvent *event)
