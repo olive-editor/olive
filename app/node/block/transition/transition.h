@@ -18,6 +18,9 @@ public:
   rational in_offset() const;
   rational out_offset() const;
 
+  Block* connected_out_block() const;
+  Block* connected_in_block() const;
+
 private:
   NodeInput* out_block_input_;
 
@@ -26,6 +29,11 @@ private:
   Block* connected_out_block_;
 
   Block* connected_in_block_;
+
+private slots:
+  void BlockConnected(NodeEdgePtr edge);
+
+  void BlockDisconnected(NodeEdgePtr edge);
 
 };
 
