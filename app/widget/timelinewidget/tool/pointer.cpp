@@ -184,6 +184,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
   QList<Block*> blocks_to_temp_remove;
   QList<TrackReference> tracks_affected;
+  QList<TimelineViewGhostItem*> ignore_ghosts;
 
   bool duplicate_clips = (event->GetModifiers() & Qt::AltModifier);
 
@@ -194,14 +195,15 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
     // If the ghost has not been adjusted nothing needs to be done
     if (!ghost->HasBeenAdjusted()) {
+      ignore_ghosts.append(ghost);
       continue;
     }
 
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    // If we're duplicating (user is holding ALT), no need to remove the original clip. However if the ghost was
-    // trimmed, it can't be duplicated.
     if (!duplicate_clips || ghost->mode() != Timeline::kMove || b->type() == Block::kTransition) {
+      // If we're duplicating (user is holding ALT), no need to remove the original clip. However if the ghost was
+      // trimmed, it can't be duplicated.
       blocks_to_temp_remove.append(b);
     }
 
@@ -223,11 +225,12 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
     TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
 
     // If the ghost has not been adjusted nothing needs to be done
-    if (!ghost->HasBeenAdjusted()) {
+    if (ignore_ghosts.contains(ghost)) {
       continue;
     }
 
     const TrackReference& track_ref = ghost->GetAdjustedTrack();
+    TrackOutput* track = parent()->GetTrackFromReference(track_ref);
 
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
@@ -264,11 +267,18 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       }
     }
 
-    new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
-                               track_ref.index(),
-                               b,
-                               ghost->GetAdjustedIn(),
-                               command);
+    // Remove transitions that have been reduced to zero length
+    if (b->type() == Block::kTransition) {
+      new NodeRemoveCommand(static_cast<NodeGraph*>(b->parent()),
+                            {b},
+                            command);
+    } else {
+      new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
+                                 track_ref.index(),
+                                 b,
+                                 ghost->GetAdjustedIn(),
+                                 command);
+    }
   }
 
   if (command->childCount() > 0) {
