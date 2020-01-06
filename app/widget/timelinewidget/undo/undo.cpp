@@ -102,7 +102,7 @@ void TrackRippleRemoveBlockCommand::undo()
   if (before_) {
     track_->InsertBlockAfter(block_, before_);
   } else {
-    track_->AppendBlock(block_);
+    track_->PrependBlock(block_);
   }
 }
 
