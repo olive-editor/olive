@@ -43,13 +43,13 @@ ViewerOutput::ViewerOutput()
 
     TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
     track_lists_.replace(i, list);
-    connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
-    connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
-    connect(list, SIGNAL(BlockAdded(Block*, int)), this, SLOT(TrackListAddedBlock(Block*, int)));
-    connect(list, SIGNAL(BlockRemoved(Block*)), this, SIGNAL(BlockRemoved(Block*)));
-    connect(list, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(TrackListAddedTrack(TrackOutput*)));
-    connect(list, SIGNAL(TrackRemoved(TrackOutput*)), this, SIGNAL(TrackRemoved(TrackOutput*)));
-    connect(list, SIGNAL(TrackHeightChanged(int, int)), this, SLOT(TrackHeightChangedSlot(int, int)));
+    connect(list, &TrackList::TrackListChanged, this, &ViewerOutput::UpdateTrackCache);
+    connect(list, &TrackList::LengthChanged, this, &ViewerOutput::UpdateLength);
+    connect(list, &TrackList::BlockAdded, this, &ViewerOutput::TrackListAddedBlock);
+    connect(list, &TrackList::BlockRemoved, this, &ViewerOutput::BlockRemoved);
+    connect(list, &TrackList::TrackAdded, this, &ViewerOutput::TrackListAddedTrack);
+    connect(list, &TrackList::TrackRemoved, this, &ViewerOutput::TrackRemoved);
+    connect(list, &TrackList::TrackHeightChanged, this, &ViewerOutput::TrackHeightChangedSlot);
   }
 
   // Create UUID for this node

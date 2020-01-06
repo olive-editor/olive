@@ -26,7 +26,7 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   if (alignment_ == Qt::AlignBottom) {
     layout->addStretch();
 
-    connect(verticalScrollBar(), SIGNAL(rangeChanged(int, int)), this, SLOT(ScrollbarRangeChanged(int, int)));
+    connect(verticalScrollBar(), &QScrollBar::rangeChanged, this, &TrackView::ScrollbarRangeChanged);
     last_scrollbar_max_ = verticalScrollBar()->maximum();
   }
 
@@ -38,7 +38,7 @@ TrackView::TrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
     layout->addStretch();
   }
 
-  connect(splitter_, SIGNAL(TrackHeightChanged(int, int)), this, SLOT(TrackHeightChanged(int, int)));
+  connect(splitter_, &TrackViewSplitter::TrackHeightChanged, this, &TrackView::TrackHeightChanged);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
@@ -51,9 +51,9 @@ void TrackView::ConnectTrackList(TrackList *list)
     }
     items_.clear();
 
-    disconnect(list_, SIGNAL(TrackHeightChanged(int, int)), splitter_, SLOT(SetTrackHeight(int, int)));
-    disconnect(list_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(InsertTrack(TrackOutput*)));
-    disconnect(list_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+    disconnect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
+    disconnect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
+    disconnect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
   }
 
   list_ = list;
@@ -65,9 +65,9 @@ void TrackView::ConnectTrackList(TrackList *list)
       splitter_->Insert(track->Index(), track->GetTrackHeight(), item);
     }
 
-    connect(list_, SIGNAL(TrackHeightChanged(int, int)), splitter_, SLOT(SetTrackHeight(int, int)));
-    connect(list_, SIGNAL(TrackAdded(TrackOutput*)), this, SLOT(InsertTrack(TrackOutput*)));
-    connect(list_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
+    connect(list_, &TrackList::TrackHeightChanged, splitter_, &TrackViewSplitter::SetTrackHeight);
+    connect(list_, &TrackList::TrackAdded, this, &TrackView::InsertTrack);
+    connect(list_, &TrackList::TrackRemoved, this, &TrackView::RemoveTrack);
   }
 }
 

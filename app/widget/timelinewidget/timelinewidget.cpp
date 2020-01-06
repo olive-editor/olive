@@ -184,13 +184,13 @@ void TimelineWidget::SetTime(int64_t timestamp)
 void TimelineWidget::ConnectTimelineNode(ViewerOutput *node)
 {
   if (timeline_node_ != nullptr) {
-    disconnect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
-    disconnect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
-    disconnect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
-    disconnect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*, TrackType)), this, SLOT(AddTrack(TrackOutput*, TrackType)));
-    disconnect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
-    disconnect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    disconnect(timeline_node_, SIGNAL(TrackHeightChanged(TrackType, int, int)), this, SLOT(TrackHeightChanged(TrackType, int, int)));
+    disconnect(timeline_node_, &ViewerOutput::LengthChanged, this, &TimelineWidget::UpdateTimelineLength);
+    disconnect(timeline_node_, &ViewerOutput::BlockAdded, this, &TimelineWidget::AddBlock);
+    disconnect(timeline_node_, &ViewerOutput::BlockRemoved, this, &TimelineWidget::RemoveBlock);
+    disconnect(timeline_node_, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
+    disconnect(timeline_node_, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
+    disconnect(timeline_node_, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
+    disconnect(timeline_node_, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
     SetTimebase(0);
 
@@ -205,13 +205,13 @@ void TimelineWidget::ConnectTimelineNode(ViewerOutput *node)
   timeline_node_ = node;
 
   if (timeline_node_ != nullptr) {
-    connect(timeline_node_, SIGNAL(LengthChanged(const rational&)), this, SLOT(UpdateTimelineLength(const rational&)));
-    connect(timeline_node_, SIGNAL(BlockAdded(Block*, TrackReference)), this, SLOT(AddBlock(Block*, TrackReference)));
-    connect(timeline_node_, SIGNAL(BlockRemoved(Block*)), this, SLOT(RemoveBlock(Block*)));
-    connect(timeline_node_, SIGNAL(TrackAdded(TrackOutput*, TrackType)), this, SLOT(AddTrack(TrackOutput*, TrackType)));
-    connect(timeline_node_, SIGNAL(TrackRemoved(TrackOutput*)), this, SLOT(RemoveTrack(TrackOutput*)));
-    connect(timeline_node_, SIGNAL(TimebaseChanged(const rational&)), this, SLOT(SetTimebase(const rational&)));
-    connect(timeline_node_, SIGNAL(TrackHeightChanged(TrackType, int, int)), this, SLOT(TrackHeightChanged(TrackType, int, int)));
+    connect(timeline_node_, &ViewerOutput::LengthChanged, this, &TimelineWidget::UpdateTimelineLength);
+    connect(timeline_node_, &ViewerOutput::BlockAdded, this, &TimelineWidget::AddBlock);
+    connect(timeline_node_, &ViewerOutput::BlockRemoved, this, &TimelineWidget::RemoveBlock);
+    connect(timeline_node_, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
+    connect(timeline_node_, &ViewerOutput::TrackRemoved, this, &TimelineWidget::RemoveTrack);
+    connect(timeline_node_, &ViewerOutput::TimebaseChanged, this, &TimelineWidget::SetTimebase);
+    connect(timeline_node_, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
     SetTimebase(timeline_node_->video_params().time_base());
 

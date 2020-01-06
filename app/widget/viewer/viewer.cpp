@@ -51,28 +51,28 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Create time ruler
   ruler_ = new TimeRuler(false, true);
   layout->addWidget(ruler_);
-  connect(ruler_, SIGNAL(TimeChanged(int64_t)), this, SLOT(RulerTimeChange(int64_t)));
+  connect(ruler_, &TimeRuler::TimeChanged, this, &ViewerWidget::RulerTimeChange);
 
   // Create scrollbar
   scrollbar_ = new QScrollBar(Qt::Horizontal);
   layout->addWidget(scrollbar_);
-  connect(scrollbar_, SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
+  connect(scrollbar_, &QScrollBar::valueChanged, ruler_, &TimeRuler::SetScroll);
   scrollbar_->setPageStep(ruler_->width());
 
   // Create lower controls
   controls_ = new PlaybackControls();
   controls_->SetTimecodeEnabled(true);
   controls_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-  connect(controls_, SIGNAL(PlayClicked()), this, SLOT(Play()));
-  connect(controls_, SIGNAL(PauseClicked()), this, SLOT(Pause()));
-  connect(controls_, SIGNAL(PrevFrameClicked()), this, SLOT(PrevFrame()));
-  connect(controls_, SIGNAL(NextFrameClicked()), this, SLOT(NextFrame()));
-  connect(controls_, SIGNAL(BeginClicked()), this, SLOT(GoToStart()));
-  connect(controls_, SIGNAL(EndClicked()), this, SLOT(GoToEnd()));
+  connect(controls_, &PlaybackControls::PlayClicked, this, &ViewerWidget::Play);
+  connect(controls_, &PlaybackControls::PauseClicked, this, &ViewerWidget::Pause);
+  connect(controls_, &PlaybackControls::PrevFrameClicked, this, &ViewerWidget::PrevFrame);
+  connect(controls_, &PlaybackControls::NextFrameClicked, this, &ViewerWidget::NextFrame);
+  connect(controls_, &PlaybackControls::BeginClicked, this, &ViewerWidget::GoToStart);
+  connect(controls_, &PlaybackControls::EndClicked, this, &ViewerWidget::GoToEnd);
   layout->addWidget(controls_);
 
   // Connect timer
-  connect(&playback_timer_, SIGNAL(timeout()), this, SLOT(PlaybackTimerUpdate()));
+  connect(&playback_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
 
   // FIXME: Magic number
   ruler_->SetScale(48.0);
