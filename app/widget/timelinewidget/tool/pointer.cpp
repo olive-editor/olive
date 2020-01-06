@@ -180,8 +180,6 @@ void TimelineWidget::PointerTool::SetTrimmingAllowed(bool allowed)
 
 void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *event)
 {
-  Q_UNUSED(event)
-
   QUndoCommand* command = new QUndoCommand();
 
   QList<Block*> blocks_to_temp_remove;
@@ -203,7 +201,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
     // If we're duplicating (user is holding ALT), no need to remove the original clip. However if the ghost was
     // trimmed, it can't be duplicated.
-    if (!duplicate_clips || ghost->mode() != Timeline::kMove) {
+    if (!duplicate_clips || ghost->mode() != Timeline::kMove || b->type() == Block::kTransition) {
       blocks_to_temp_remove.append(b);
     }
 
@@ -243,7 +241,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       } else {
         new BlockResizeCommand(b, ghost->AdjustedLength(), command);
       }
-    } else if (duplicate_clips && ghost->mode() == Timeline::kMove) {
+    } else if (duplicate_clips && ghost->mode() == Timeline::kMove && b->type() != Block::kTransition) {
       // Duplicate rather than move
       Node* copy = b->copy();
 
@@ -255,6 +253,15 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
       // Place the copy instead of the original block
       b = static_cast<Block*>(copy);
+    } else if (b->type() == Block::kTransition) {
+      // If the block is a dual transition and we're moving it, the mid point should be moved
+      TransitionBlock* transition = static_cast<TransitionBlock*>(b);
+
+      if (transition->connected_in_block() && transition->connected_out_block()) {
+        new BlockSetMediaInCommand(transition,
+                                   transition->media_in() + ghost->InAdjustment(),
+                                   command);
+      }
     }
 
     new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
@@ -467,9 +474,11 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
           TransitionBlock* transition = static_cast<TransitionBlock*>(block);
 
           // Create a rolling effect with the attached block
-          if (transition->connected_in_block() && block_mode == Timeline::kTrimOut) {
+          if (transition->connected_in_block() && (block_mode == Timeline::kTrimOut || block_mode == Timeline::kMove)) {
             AddGhostFromBlock(transition->connected_in_block(), clip_item->Track(), Timeline::kTrimIn);
-          } else if (transition->connected_out_block() && block_mode == Timeline::kTrimIn) {
+          }
+
+          if (transition->connected_out_block() && (block_mode == Timeline::kTrimIn || block_mode == Timeline::kMove)) {
             AddGhostFromBlock(transition->connected_out_block(), clip_item->Track(), Timeline::kTrimOut);
           }
         }
