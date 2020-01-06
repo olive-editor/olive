@@ -20,6 +20,7 @@ public:
   void RemoveAt(int index);
   void SetSize(int size, bool lock = true);
 
+  bool ContainsSubParameter(NodeInput* input) const;
   int IndexOfSubParameter(NodeInput* input) const;
 
   NodeInput* First() const;

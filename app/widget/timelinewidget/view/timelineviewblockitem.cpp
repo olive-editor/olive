@@ -146,17 +146,8 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
     TransitionBlock* t = static_cast<TransitionBlock*>(block_);
 
-    if (t->connected_out_block()) {
-      // Transition fades something out, we'll draw a line
-      painter->drawLine(rect().topLeft(), rect().bottomRight());
-    }
-
-    if (t->connected_in_block()) {
-      // Transition fades something in, we'll draw a line
-      painter->drawLine(rect().bottomLeft(), rect().topRight());
-    }
-
     if (t->connected_out_block() && t->connected_in_block()) {
+
       // Draw line between out offset and in offset
       qreal crossover_line = rect().left();
       crossover_line += TimeToScene(t->out_offset());
@@ -164,6 +155,24 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
                         qRound(rect().top()),
                         qRound(crossover_line),
                         qRound(rect().bottom()));
+
+      // Draw lines to mid point
+      QPointF mid_point(crossover_line, rect().center().y());
+      painter->drawLine(rect().topLeft(), mid_point);
+      painter->drawLine(rect().bottomLeft(), mid_point);
+      painter->drawLine(rect().topRight(), mid_point);
+      painter->drawLine(rect().bottomRight(), mid_point);
+
+    } else if (t->connected_out_block()) {
+
+      // Transition fades something out, we'll draw a line
+      painter->drawLine(rect().topLeft(), rect().bottomRight());
+
+    } else if (t->connected_in_block()) {
+
+      // Transition fades something in, we'll draw a line
+      painter->drawLine(rect().bottomLeft(), rect().topRight());
+
     }
     break;
   }

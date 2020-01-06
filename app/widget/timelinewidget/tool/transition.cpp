@@ -97,6 +97,7 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
       new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()),
                          transition,
                          command);
+
       new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track.type()),
                                  track.index(),
                                  transition,
@@ -104,8 +105,8 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       if (dual_transition_) {
-        //transition->set_in_and_out_offset(ghost_->AdjustedLength()/2, ghost_->AdjustedLength()/2);
         transition->set_length_and_media_out(ghost_->AdjustedLength());
+        transition->set_media_in(-ghost_->AdjustedLength()/2);
 
         // Block mouse is hovering over
         Block* active_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));

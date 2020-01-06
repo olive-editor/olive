@@ -546,6 +546,7 @@ void TrackCleanGapsCommand::redo()
         rational new_gap_length = on_gap->length();
         foreach (GapBlock* gap, consecutive_gaps) {
           track->RippleRemoveBlock(gap);
+          static_cast<NodeGraph*>(gap->parent())->TakeNode(gap, &memory_manager_);
 
           new_gap_length += gap->length();
         }
@@ -566,6 +567,7 @@ void TrackCleanGapsCommand::redo()
 
     foreach (GapBlock* gap, removed_end_gaps_) {
       track->RippleRemoveBlock(gap);
+      static_cast<NodeGraph*>(gap->parent())->TakeNode(gap, &memory_manager_);
     }
   }
 }
@@ -576,6 +578,7 @@ void TrackCleanGapsCommand::undo()
 
   // Restored removed end gaps
   foreach (GapBlock* gap, removed_end_gaps_) {
+    static_cast<NodeGraph*>(gap->parent())->AddNode(gap);
     track->AppendBlock(gap);
   }
   removed_end_gaps_.clear();
@@ -590,6 +593,7 @@ void TrackCleanGapsCommand::undo()
     GapBlock* last_gap_added = merge_info.merged;
 
     foreach (GapBlock* gap, merge_info.removed) {
+      static_cast<NodeGraph*>(gap->parent())->AddNode(gap);
       track->InsertBlockAfter(gap, last_gap_added);
       last_gap_added = gap;
     }

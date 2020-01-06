@@ -91,10 +91,9 @@ TrackOutput* TrackList::AddTrack()
 
   track_input_->Append();
 
-  NodeInput* assoc_input = track_input_->At(track_input_->GetSize() - 1);
-
   // Connect this track directly to this output
-  NodeParam::ConnectEdge(track->output(), assoc_input);
+  NodeParam::ConnectEdge(track->output(),
+                         track_input_->At(track_input_->GetSize() - 1));
 
   // FIXME: Test code only
   if (track_input_->GetSize() > 1) {
@@ -111,7 +110,7 @@ TrackOutput* TrackList::AddTrack()
 
     if (last_track && last_track->output()->IsConnected()) {
       foreach (NodeEdgePtr edge, last_track->output()->edges()) {
-        if (edge->input()->parentNode() != track_input_->parentNode()) {
+        if (!track_input_->ContainsSubParameter(edge->input())) {
           Node* blend = NodeFactory::CreateFromID("org.olivevideoeditor.Olive.alphaoverblend");
           GetParentGraph()->AddNode(blend);
 

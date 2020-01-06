@@ -68,6 +68,11 @@ void NodeInputArray::SetSize(int size, bool lock)
   emit SizeChanged(size);
 }
 
+bool NodeInputArray::ContainsSubParameter(NodeInput *input) const
+{
+  return sub_params_.contains(input);
+}
+
 int NodeInputArray::IndexOfSubParameter(NodeInput *input) const
 {
   return sub_params_.indexOf(input);

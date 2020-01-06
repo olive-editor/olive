@@ -52,8 +52,8 @@ rational TransitionBlock::in_offset() const
     return length();
   }
 
-  // Assume both are connected, in which case the in offset will be <= length
-  return length() / 2 + media_in();
+  // Assume both are connected
+  return length() + media_in();
 }
 
 rational TransitionBlock::out_offset() const
@@ -68,8 +68,8 @@ rational TransitionBlock::out_offset() const
     return length();
   }
 
-  // Assume both are connected, in which case the in offset will be <= length
-  return length() / 2 - media_in();
+  // Assume both are connected
+  return -media_in();
 }
 
 Block *TransitionBlock::connected_out_block() const

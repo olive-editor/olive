@@ -31,6 +31,7 @@
 #include "config/config.h"
 #include "core.h"
 #include "node/block/gap/gap.h"
+#include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
@@ -216,7 +217,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
   }
 
   // If there are any blocks to remove, remove them
-  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, command);
+  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, false, command);
 
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
   // all of the gaps we inserted earlier
@@ -459,8 +460,19 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
         block_mode = FlipTrimMode(trim_mode);
       }
 
-      if (block != nullptr) {
+      if (block) {
         AddGhostFromBlock(block, clip_item->Track(), block_mode);
+
+        if (block->type() == Block::kTransition) {
+          TransitionBlock* transition = static_cast<TransitionBlock*>(block);
+
+          // Create a rolling effect with the attached block
+          if (transition->connected_in_block() && block_mode == Timeline::kTrimOut) {
+            AddGhostFromBlock(transition->connected_in_block(), clip_item->Track(), Timeline::kTrimIn);
+          } else if (transition->connected_out_block() && block_mode == Timeline::kTrimIn) {
+            AddGhostFromBlock(transition->connected_out_block(), clip_item->Track(), Timeline::kTrimOut);
+          }
+        }
       }
     }
   }
@@ -531,6 +543,11 @@ bool TimelineWidget::PointerTool::IsClipTrimmable(TimelineViewBlockItem* clip,
   return true;
 }
 
+rational GetEarliestPointForClip(Block* block)
+{
+  return qMax(rational(0), block->in() - block->media_in());
+}
+
 rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
                                                          const QVector<TimelineViewGhostItem *> ghosts,
                                                          bool prevent_overwriting)
@@ -542,8 +559,34 @@ rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
 
     Block* block = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
-    // Determine the earliest in point this block could have
-    rational earliest_in = qMax(rational(0), block->in() - block->media_in());
+    rational earliest_in = RATIONAL_MIN;
+    rational latest_in = ghost->Out();
+
+    if (block->type() == Block::kTransition) {
+      // For transitions, validate with the attached block
+      TransitionBlock* transition = static_cast<TransitionBlock*>(block);
+
+      if (transition->connected_in_block() && transition->connected_out_block()) {
+        // Here, we try to get the latest earliest point for both the in and out blocks, we do in here and out will
+        // be calculated later
+        earliest_in = GetEarliestPointForClip(transition->connected_in_block());
+
+        // We set the block to the out block since that will be before the in block and will be the one we use to
+        // prevent overwriting since we're trimming the in side of this transition
+        block = transition->connected_out_block();
+
+        latest_in = transition->in() + transition->out_offset();
+      } else {
+        // Use whatever block is attached
+        block = transition->connected_in_block() ? transition->connected_in_block() : transition->connected_out_block();
+      }
+    }
+
+    earliest_in = qMax(earliest_in, GetEarliestPointForClip(block));
+
+    if (!ghost->CanHaveZeroLength()) {
+      latest_in -= parent()->timebase();
+    }
 
     if (prevent_overwriting) {
       // Look for a Block in the way
@@ -555,13 +598,6 @@ rational TimelineWidget::PointerTool::ValidateInTrimming(rational movement,
         }
         prev = prev->previous();
       }
-    }
-
-    // Determine the latest point this block could have
-    rational latest_in = ghost->Out();
-
-    if (!ghost->CanHaveZeroLength()) {
-      latest_in -= parent()->timebase();
     }
 
     // Clamp adjusted value between the earliest and latest values
@@ -595,6 +631,24 @@ rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
     }
 
     rational latest_out = RATIONAL_MAX;
+
+    if (block->type() == Block::kTransition) {
+      // For transitions, validate with the attached block
+      TransitionBlock* transition = static_cast<TransitionBlock*>(block);
+
+      if (transition->connected_in_block() && transition->connected_out_block()) {
+        // We set the block to the out block since that will be before the in block and will be the one we use to
+        // prevent overwriting since we're trimming the in side of this transition
+
+        // FIXME: At some point we may add some better logic to `latest_out` akin to the logic in ValidateInTrimming
+        //        which is why this hasn't yet been collapsed into the ternary below.
+        block = transition->connected_in_block();
+
+        earliest_out = transition->out() - transition->in_offset();
+      } else {
+        block = transition->connected_in_block() ? transition->connected_in_block() : transition->connected_out_block();
+      }
+    }
 
     if (prevent_overwriting) {
       // Determine if there's a block in the way

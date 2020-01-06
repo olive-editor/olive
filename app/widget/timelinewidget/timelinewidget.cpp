@@ -7,6 +7,7 @@
 #include "core.h"
 #include "common/timecodefunctions.h"
 #include "dialog/speedduration/speedduration.h"
+#include "node/block/transition/transition.h"
 #include "tool/tool.h"
 #include "trackview/trackview.h"
 #include "widget/menu/menu.h"
@@ -394,23 +395,46 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
-void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool remove_from_graph, QUndoCommand *command)
+void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool transition_aware, bool remove_from_graph, QUndoCommand *command)
 {
   foreach (Block* b, blocks) {
     TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
 
-    // Make new gap and replace old Block with it for now
-    GapBlock* gap = new GapBlock();
-    gap->set_length_and_media_out(b->length());
+    if (transition_aware && b->type() == Block::kTransition) {
+      // Deleting transitions restores their in/out offsets to their attached blocks
+      TransitionBlock* transition = static_cast<TransitionBlock*>(b);
 
-    new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
-                       gap,
-                       command);
+      // Ripple remove transition
+      new TrackRippleRemoveBlockCommand(original_track,
+                                        transition,
+                                        command);
 
-    new TrackReplaceBlockCommand(original_track,
-                                 b,
-                                 gap,
-                                 command);
+      // Resize attached blocks to make up length
+      if (transition->connected_in_block()) {
+        new BlockResizeWithMediaInCommand(transition->connected_in_block(),
+                                          transition->connected_in_block()->length() + transition->in_offset(),
+                                          command);
+      }
+
+      if (transition->connected_out_block()) {
+        new BlockResizeCommand(transition->connected_out_block(),
+                               transition->connected_out_block()->length() + transition->out_offset(),
+                               command);
+      }
+    } else {
+      // Make new gap and replace old Block with it for now
+      GapBlock* gap = new GapBlock();
+      gap->set_length_and_media_out(b->length());
+
+      new NodeAddCommand(static_cast<NodeGraph*>(b->parent()),
+                         gap,
+                         command);
+
+      new TrackReplaceBlockCommand(original_track,
+                                   b,
+                                   gap,
+                                   command);
+    }
 
     if (remove_from_graph) {
       new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
@@ -442,7 +466,7 @@ void TimelineWidget::DeleteSelected()
   QUndoCommand* command = new QUndoCommand();
 
   // Replace blocks with gaps (effectively deleting them)
-  DeleteSelectedInternal(blocks_to_delete, true, command);
+  DeleteSelectedInternal(blocks_to_delete, true, true, command);
 
   // Clean each track
   foreach (const TrackReference& track, tracks_affected) {
