@@ -21,7 +21,13 @@ public:
   Block* connected_out_block() const;
   Block* connected_in_block() const;
 
+  double GetTotalProgress(const rational& time) const;
+  double GetOutProgress(const rational& time) const;
+  double GetInProgress(const rational& time) const;
+
 private:
+  double GetInternalTransitionTime(const rational& time) const;
+
   NodeInput* out_block_input_;
 
   NodeInput* in_block_input_;

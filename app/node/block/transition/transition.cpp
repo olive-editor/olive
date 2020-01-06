@@ -1,5 +1,7 @@
 #include "transition.h"
 
+#include "common/clamp.h"
+
 TransitionBlock::TransitionBlock() :
   connected_out_block_(nullptr),
   connected_in_block_(nullptr)
@@ -46,6 +48,44 @@ rational TransitionBlock::in_offset() const
 rational TransitionBlock::out_offset() const
 {
   return 0;
+}
+
+Block *TransitionBlock::connected_out_block() const
+{
+  return connected_out_block_;
+}
+
+Block *TransitionBlock::connected_in_block() const
+{
+  return connected_in_block_;
+}
+
+double TransitionBlock::GetTotalProgress(const rational &time) const
+{
+  return GetInternalTransitionTime(time) / length().toDouble();
+}
+
+double TransitionBlock::GetOutProgress(const rational &time) const
+{
+  if (out_offset() == 0) {
+    return 0;
+  }
+
+  return clamp(1.0 - (GetInternalTransitionTime(time) / out_offset().toDouble()), 0.0, 1.0);
+}
+
+double TransitionBlock::GetInProgress(const rational &time) const
+{
+  if (in_offset() == 0) {
+    return 0;
+  }
+
+  return clamp((GetInternalTransitionTime(time) - out_offset().toDouble()) / in_offset().toDouble(), 0.0, 1.0);
+}
+
+double TransitionBlock::GetInternalTransitionTime(const rational &time) const
+{
+  return time.toDouble() - in().toDouble();
 }
 
 void TransitionBlock::BlockConnected(NodeEdgePtr edge)
