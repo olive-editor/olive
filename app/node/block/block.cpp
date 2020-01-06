@@ -39,10 +39,11 @@ Block::Block() :
   media_in_input_->set_is_keyframable(false);
   AddInput(media_in_input_);
 
-  media_out_input_ = new NodeInput("media_out_in", NodeParam::kRational);
-  media_out_input_->SetConnectable(false);
-  media_out_input_->set_is_keyframable(false);
-  AddInput(media_out_input_);
+  speed_input_ = new NodeInput("speed_in", NodeParam::kRational);
+  speed_input_->set_standard_value(QVariant::fromValue(rational(1)));
+  speed_input_->SetConnectable(false);
+  speed_input_->set_is_keyframable(false);
+  AddInput(speed_input_);
 
   // A block's length must be greater than 0
   set_length_and_media_out(1);
@@ -78,7 +79,7 @@ rational Block::length() const
   return length_input_->get_standard_value().value<rational>();
 }
 
-void Block::set_length(const rational &length)
+void Block::set_length_and_media_out(const rational &length)
 {
   Q_ASSERT(length > 0);
 
@@ -89,26 +90,6 @@ void Block::set_length(const rational &length)
   length_input_->set_standard_value(QVariant::fromValue(length));
 }
 
-void Block::set_length_and_media_out(const rational &length)
-{
-  Q_ASSERT(length > 0);
-
-  if (length == this->length()) {
-    return;
-  }
-
-  rational media_out_diff = length - this->length();
-
-  // Try to maintain the same speed (which is determined by the media in to out points)
-  if (media_length() != this->length()) {
-    media_out_diff  = media_out_diff / this->length() * media_length();
-  }
-
-  set_media_out(media_out() + media_out_diff);
-
-  set_length(length);
-}
-
 void Block::set_length_and_media_in(const rational &length)
 {
   Q_ASSERT(length > 0);
@@ -117,18 +98,11 @@ void Block::set_length_and_media_in(const rational &length)
     return;
   }
 
-  rational media_in_diff = this->length() - length;
-
-  // Try to maintain the same speed (which is determined by the media in to out points)
-  if (media_length() != this->length()) {
-    media_in_diff  = media_in_diff / this->length() * media_length();
-  }
-
   // Calculate media_in adjustment
-  set_media_in(media_in() + media_in_diff);
+  set_media_in(media_in() + (this->length() - length) * speed());
 
   // Set the length without setting media out
-  set_length(length);
+  set_length_and_media_out(length);
 }
 
 Block *Block::previous()
@@ -163,32 +137,27 @@ void Block::set_media_in(const rational &media_in)
 
 rational Block::media_out() const
 {
-  return media_out_input_->get_standard_value().value<rational>();
+  return media_in() + length() * speed();
 }
 
-void Block::set_media_out(const rational &media_out)
+rational Block::speed() const
 {
-  media_out_input_->set_standard_value(QVariant::fromValue(media_out));
+  return speed_input_->get_standard_value().value<rational>();
 }
 
-rational Block::media_length() const
+void Block::set_speed(const rational &speed)
 {
-  return media_out() - media_in();
-}
-
-double Block::speed() const
-{
-  return qAbs(media_length().toDouble() / length().toDouble());
+  speed_input_->set_standard_value(QVariant::fromValue(speed));
 }
 
 bool Block::is_still() const
 {
-  return (media_in() == media_out());
+  return speed() == 0;
 }
 
 bool Block::is_reversed() const
 {
-  return (media_out() < media_in());
+  return speed() < 0;
 }
 
 const QString &Block::block_name() const
@@ -208,7 +177,7 @@ rational Block::SequenceToMediaTime(const rational &sequence_time) const
     return sequence_time;
   }
 
-  return ((sequence_time - in()) * media_length() / length()) + media_in();
+  return (sequence_time - in()) * speed() + media_in();
 }
 
 rational Block::MediaToSequenceTime(const rational &media_time) const
@@ -218,21 +187,12 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
     return media_time;
   }
 
-  return (media_time - media_in()) * length() / media_length() + in();
+  return (media_time - media_in()) / speed() + in();
 }
 
 void Block::CopyParameters(const Block *source, Block *dest)
 {
   dest->set_block_name(source->block_name());
-
-  if (source->type() == kTransition && dest->type() == kTransition) {
-    const TransitionBlock* src_t = static_cast<const TransitionBlock*>(source);
-    TransitionBlock* dst_t = static_cast<TransitionBlock*>(dest);
-
-    dst_t->set_in_and_out_offset(src_t->in_offset(), src_t->out_offset());
-  } else {
-    dest->set_length_and_media_out(source->length());
-  }
 }
 
 void Block::LengthInputChanged()
@@ -308,8 +268,8 @@ NodeInput *Block::media_in_input() const
   return media_in_input_;
 }
 
-NodeInput *Block::media_out_input() const
+NodeInput *Block::speed_input() const
 {
-  return media_out_input_;
+  return speed_input_;
 }
 

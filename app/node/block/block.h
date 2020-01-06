@@ -56,9 +56,8 @@ public:
   void set_out(const rational& out);
 
   rational length() const;
-  virtual void set_length(const rational &length);
-  virtual void set_length_and_media_out(const rational &length);
-  virtual void set_length_and_media_in(const rational &length);
+  void set_length_and_media_out(const rational &length);
+  void set_length_and_media_in(const rational &length);
 
   Block* previous();
   Block* next();
@@ -69,10 +68,9 @@ public:
   void set_media_in(const rational& media_in);
 
   rational media_out() const;
-  void set_media_out(const rational& media_out);
 
-  rational media_length() const;
-  double speed() const;
+  rational speed() const;
+  void set_speed(const rational& speed);
   bool is_still() const;
   bool is_reversed() const;
 
@@ -92,7 +90,7 @@ public:
 
   NodeInput* length_input() const;
   NodeInput* media_in_input() const;
-  NodeInput* media_out_input() const;
+  NodeInput* speed_input() const;
 
 public slots:
 
@@ -119,7 +117,7 @@ protected:
 private:
   NodeInput* length_input_;
   NodeInput* media_in_input_;
-  NodeInput* media_out_input_;
+  NodeInput* speed_input_;
 
   rational in_point_;
   rational out_point_;

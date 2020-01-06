@@ -15,23 +15,17 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual void set_length_and_media_out(const rational &length) override;
-  virtual void set_length_and_media_in(const rational &length) override;
-
-  const rational& in_offset() const;
-  const rational& out_offset() const;
-  void set_in_and_out_offset(const rational& in_offset, const rational& out_offset);
+  rational in_offset() const;
+  rational out_offset() const;
 
 private:
-  void RecalculateLength();
-
   NodeInput* out_block_input_;
 
   NodeInput* in_block_input_;
 
-  rational in_offset_;
+  Block* connected_out_block_;
 
-  rational out_offset_;
+  Block* connected_in_block_;
 
 };
 

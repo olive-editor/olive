@@ -75,7 +75,6 @@ void TimelineWidget::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *even
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
     new BlockSetMediaInCommand(b, ghost->GetAdjustedMediaIn(), command);
-    new BlockSetMediaOutCommand(b, ghost->GetAdjustedMediaIn() + b->media_length(), command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

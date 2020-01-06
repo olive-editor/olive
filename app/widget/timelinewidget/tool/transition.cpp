@@ -104,7 +104,8 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       if (dual_transition_) {
-        transition->set_in_and_out_offset(ghost_->AdjustedLength()/2, ghost_->AdjustedLength()/2);
+        //transition->set_in_and_out_offset(ghost_->AdjustedLength()/2, ghost_->AdjustedLength()/2);
+        transition->set_length_and_media_out(ghost_->AdjustedLength());
 
         // Block mouse is hovering over
         Block* active_block = Node::ValueToPtr<Block>(ghost_->data(TimelineViewGhostItem::kAttachedBlock));
@@ -129,10 +130,10 @@ void TimelineWidget::TransitionTool::MouseRelease(TimelineViewMouseEvent *event)
         NodeInput* transition_input_to_connect;
 
         if (ghost_->mode() == Timeline::kTrimIn) {
-          transition->set_in_and_out_offset(ghost_->AdjustedLength(), 0);
+          transition->set_length_and_media_out(ghost_->AdjustedLength());
           transition_input_to_connect = transition->in_block_input();
         } else {
-          transition->set_in_and_out_offset(0, ghost_->AdjustedLength());
+          transition->set_length_and_media_out(ghost_->AdjustedLength());
           transition_input_to_connect = transition->out_block_input();
         }
 

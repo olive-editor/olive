@@ -41,19 +41,6 @@ private:
   rational new_length_;
 };
 
-class BlockResizeWithoutMediaOutCommand : public QUndoCommand {
-public:
-  BlockResizeWithoutMediaOutCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr);
-
-  virtual void redo() override;
-  virtual void undo() override;
-
-private:
-  Block* block_;
-  rational old_length_;
-  rational new_length_;
-};
-
 class BlockResizeWithMediaInCommand : public QUndoCommand {
 public:
   BlockResizeWithMediaInCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr);
@@ -80,17 +67,18 @@ private:
   rational new_media_in_;
 };
 
-class BlockSetMediaOutCommand : public QUndoCommand {
+class BlockSetSpeedCommand : public QUndoCommand {
 public:
-  BlockSetMediaOutCommand(Block* block, rational new_media_out, QUndoCommand* parent = nullptr);
+  BlockSetSpeedCommand(Block* block, const rational& new_speed, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
 
 private:
   Block* block_;
-  rational old_media_out_;
-  rational new_media_out_;
+
+  rational old_speed_;
+  rational new_speed_;
 };
 
 class TrackRippleRemoveBlockCommand : public QUndoCommand {

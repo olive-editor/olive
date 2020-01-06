@@ -48,24 +48,6 @@ void BlockResizeCommand::undo()
   block_->set_length_and_media_out(old_length_);
 }
 
-BlockResizeWithoutMediaOutCommand::BlockResizeWithoutMediaOutCommand(Block *block, rational new_length, QUndoCommand *parent) :
-  QUndoCommand(parent),
-  block_(block),
-  old_length_(block->length()),
-  new_length_(new_length)
-{
-}
-
-void BlockResizeWithoutMediaOutCommand::redo()
-{
-  block_->set_length(new_length_);
-}
-
-void BlockResizeWithoutMediaOutCommand::undo()
-{
-  block_->set_length(old_length_);
-}
-
 BlockResizeWithMediaInCommand::BlockResizeWithMediaInCommand(Block *block, rational new_length, QUndoCommand *parent) :
   QUndoCommand(parent),
   block_(block),
@@ -100,24 +82,6 @@ void BlockSetMediaInCommand::redo()
 void BlockSetMediaInCommand::undo()
 {
   block_->set_media_in(old_media_in_);
-}
-
-BlockSetMediaOutCommand::BlockSetMediaOutCommand(Block *block, rational new_media_out, QUndoCommand *parent) :
-  QUndoCommand(parent),
-  block_(block),
-  old_media_out_(block->media_out()),
-  new_media_out_(new_media_out)
-{
-}
-
-void BlockSetMediaOutCommand::redo()
-{
-  block_->set_media_out(new_media_out_);
-}
-
-void BlockSetMediaOutCommand::undo()
-{
-  block_->set_media_out(old_media_out_);
 }
 
 TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
@@ -411,13 +375,10 @@ void BlockSplitCommand::redo()
   Node::CopyInputs(block_, new_block_);
 
   rational new_part_length = block_->length() - (point_ - block_->in());
-  rational original_media_out = block_->media_out();
 
   block_->set_length_and_media_out(new_length_);
 
-  new_block_->set_length(new_part_length);
-  new_block_->set_media_in(block_->media_out());
-  new_block_->set_media_out(original_media_out);
+  new_block_->set_length_and_media_in(new_part_length);
 
   track_->InsertBlockAfter(new_block_, block_);
 
@@ -588,7 +549,7 @@ void TrackCleanGapsCommand::redo()
 
           new_gap_length += gap->length();
         }
-        on_gap->set_length(new_gap_length);
+        on_gap->set_length_and_media_out(new_gap_length);
         track->UnblockInvalidateCache();
 
         // Reset state
@@ -624,7 +585,7 @@ void TrackCleanGapsCommand::undo()
   for (int i=merged_gaps_.size()-1;i>=0;i--) {
     const MergedGap& merge_info = merged_gaps_.at(i);
 
-    merge_info.merged->set_length(merge_info.original_length);
+    merge_info.merged->set_length_and_media_out(merge_info.original_length);
 
     GapBlock* last_gap_added = merge_info.merged;
 
@@ -637,4 +598,22 @@ void TrackCleanGapsCommand::undo()
   track->UnblockInvalidateCache();
 
   merged_gaps_.clear();
+}
+
+BlockSetSpeedCommand::BlockSetSpeedCommand(Block *block, const rational &new_speed, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  block_(block),
+  old_speed_(block->speed()),
+  new_speed_(new_speed)
+{
+}
+
+void BlockSetSpeedCommand::redo()
+{
+  block_->set_speed(new_speed_);
+}
+
+void BlockSetSpeedCommand::undo()
+{
+  block_->set_speed(old_speed_);
 }

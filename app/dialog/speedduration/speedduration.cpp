@@ -41,7 +41,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
 
       // Check if the speeds are different
       if (same_speed
-          && !qFuzzyCompare(prev_clip->speed(), this_clip->speed())) {
+          && prev_clip->speed() == this_clip->speed()) {
         same_speed = false;
       }
 
@@ -75,7 +75,7 @@ SpeedDurationDialog::SpeedDurationDialog(const rational& timebase, const QList<C
 
     if (same_speed) {
       // All clips share the same speed so we can show the value
-      speed_slider_->SetValue(clips_.first()->speed());
+      speed_slider_->SetValue(clips_.first()->speed().toDouble());
     } else {
       // Else, we show an invalid initial state
       speed_slider_->SetTristate();
@@ -208,7 +208,7 @@ void SpeedDurationDialog::accept()
             } else {
               // Otherwise we have to create a new gap
               GapBlock* gap = new GapBlock();
-              gap->set_length(gap_length);
+              gap->set_length_and_media_out(gap_length);
               new NodeAddCommand(static_cast<NodeGraph*>(clip->parent()), gap, command);
               new TrackInsertBlockBetweenBlocksCommand(TrackOutput::TrackFromBlock(clip), gap, clip, next_block, command);
             }
@@ -222,18 +222,15 @@ void SpeedDurationDialog::accept()
     }
 
     if (change_speed) {
-      int64_t new_clip_duration = Timecode::time_to_timestamp(new_clip_length, timebase_);
-      int64_t new_media_duration = qRound(static_cast<double>(new_clip_duration) * new_speed);
-      rational new_media_length = Timecode::timestamp_to_time(new_media_duration, timebase_);
+      rational new_block_speed = rational::fromDouble(new_speed);
 
       if (clip->is_reversed()) {
-        new_media_length = -new_media_length;
+        new_block_speed = -new_block_speed;
       }
 
-      rational new_media_out = clip->media_in() + new_media_length;
-
       // Change the speed by calculating the appropriate media out point for this clip
-      new BlockSetMediaOutCommand(clip, new_media_out, command);
+
+      new BlockSetSpeedCommand(clip, new_block_speed, command);
     }
 
     if (!reverse_speed_checkbox_->isTristate() && clip->is_reversed() != reverse_speed_checkbox_->isChecked()) {
@@ -251,7 +248,7 @@ double SpeedDurationDialog::GetUnadjustedLengthTimestamp(ClipBlock *clip) const
   double duration = static_cast<double>(Timecode::time_to_timestamp(clip->length(), timebase_));
 
   // Convert duration to non-speed adjusted duration
-  duration *= clip->speed();
+  duration *= clip->speed().toDouble();
 
   return duration;
 }
@@ -343,13 +340,11 @@ BlockReverseCommand::BlockReverseCommand(Block *block, QUndoCommand *parent) :
 
 void BlockReverseCommand::redo()
 {
-  rational temp = block_->media_in();
   block_->set_media_in(block_->media_out());
-  block_->set_media_out(temp);
+  block_->set_speed(-block_->speed());
 }
 
 void BlockReverseCommand::undo()
 {
-  // Since it's a simple swap, we can just run redo() again
   redo();
 }

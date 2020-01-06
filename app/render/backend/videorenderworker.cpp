@@ -90,7 +90,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
 
         // Ignore some Block attributes when hashing
         if (input == b->media_in_input()
-            || input == b->media_out_input()
+            || input == b->speed_input()
             || input == b->length_input()) {
           continue;
         }

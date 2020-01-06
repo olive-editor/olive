@@ -53,6 +53,7 @@ public:
 
 private:
   Block* block_;
+
 };
 
 #endif // SPEEDDURATIONDIALOG_H
