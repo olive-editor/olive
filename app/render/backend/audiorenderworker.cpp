@@ -52,10 +52,12 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
 
     if (!samples_from_this_block.isEmpty()) {
       // Stretch samples here
-      if (b->speed() != 1) {
+      rational abs_speed = qAbs(b->speed());
+
+      if (abs_speed != 1) {
         QByteArray speed_adjusted_samples;
 
-        double clip_speed = b->speed().toDouble();
+        double clip_speed = abs_speed.toDouble();
 
         int sample_count = audio_params_.bytes_to_samples(samples_from_this_block.size());
 

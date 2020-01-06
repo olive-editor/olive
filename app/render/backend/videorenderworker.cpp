@@ -81,10 +81,6 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
     if (param->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(param);
 
-      // Get time adjustment
-      // For a single frame, we only care about one of the times
-      rational input_time = n->InputTimeAdjustment(input, TimeRange(time, time)).in();
-
       if (n->IsBlock()) {
         const Block* b = static_cast<const Block*>(n);
 
@@ -95,6 +91,10 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
           continue;
         }
       }
+
+      // Get time adjustment
+      // For a single frame, we only care about one of the times
+      rational input_time = n->InputTimeAdjustment(input, TimeRange(time, time)).in();
 
       if (input->IsConnected()) {
         // Traverse down this edge
