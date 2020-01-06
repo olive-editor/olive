@@ -10,6 +10,14 @@ public:
     kTrimOut
   };
 
+  enum TrackType {
+    kTrackTypeNone = -1,
+    kTrackTypeVideo,
+    kTrackTypeAudio,
+    kTrackTypeSubtitle,
+    kTrackTypeCount
+  };
+
   static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}
 };
 

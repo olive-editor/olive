@@ -10,8 +10,7 @@
 class TimelineAndTrackView : public QWidget
 {
 public:
-  TimelineAndTrackView(const TrackType& type,
-                       Qt::Alignment vertical_alignment = Qt::AlignTop,
+  TimelineAndTrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
                        QWidget* parent = nullptr);
 
   QSplitter* splitter() const;

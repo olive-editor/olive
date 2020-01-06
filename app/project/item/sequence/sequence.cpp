@@ -58,8 +58,8 @@ void Sequence::add_default_nodes()
   AddNode(viewer_output_);
 
   // Create tracks and connect them to the viewer
-  Node* video_track_output = viewer_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
-  Node* audio_track_output = viewer_output_->track_list(TrackType::kTrackTypeAudio)->AddTrack();
+  Node* video_track_output = viewer_output_->track_list(Timeline::kTrackTypeVideo)->AddTrack();
+  Node* audio_track_output = viewer_output_->track_list(Timeline::kTrackTypeAudio)->AddTrack();
   NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
   NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
   //timeline_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();

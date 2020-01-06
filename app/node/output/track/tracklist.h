@@ -23,18 +23,18 @@
 
 #include <QObject>
 
+#include "common/timelinecommon.h"
 #include "node/graph.h"
 #include "node/output/track/track.h"
-#include "timeline/tracktypes.h"
 
 class ViewerOutput;
 
 class TrackList : public QObject {
   Q_OBJECT
 public:
-  TrackList(ViewerOutput *parent, const enum TrackType& type, NodeInputArray* track_input);
+  TrackList(ViewerOutput *parent, const Timeline::TrackType& type, NodeInputArray* track_input);
 
-  const enum TrackType& type() const;
+  const Timeline::TrackType& type() const;
 
   const QVector<TrackOutput*>& Tracks() const;
 
@@ -45,8 +45,6 @@ public:
   void RemoveTrack();
 
   const rational& TrackLength() const;
-
-  const enum TrackType& TrackType() const;
 
   int TrackCount() const;
 
@@ -77,7 +75,7 @@ private:
 
   rational total_length_;
 
-  enum TrackType type_;
+  enum Timeline::TrackType type_;
 
 private slots:
   /**

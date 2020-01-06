@@ -188,7 +188,7 @@ private:
   private:
     Timeline::MovementMode IsCursorInTrimHandle(TimelineViewBlockItem* block, qreal cursor_x);
 
-    void InitiateDrag(const TimelineCoordinate &mouse_pos);
+    void InitiateDrag(TimelineViewMouseEvent *mouse_pos);
 
     void AddGhostInternal(TimelineViewGhostItem* ghost, Timeline::MovementMode mode);
 
@@ -202,7 +202,7 @@ private:
     bool track_movement_allowed_;
     bool rubberband_selecting_;
 
-    TrackType drag_track_type_;
+    Timeline::TrackType drag_track_type_;
   };
 
   class ImportTool : public Tool
@@ -404,7 +404,7 @@ private slots:
   void AddBlock(Block* block, TrackReference track);
   void RemoveBlock(Block* block);
 
-  void AddTrack(TrackOutput* track, TrackType type);
+  void AddTrack(TrackOutput* track, Timeline::TrackType type);
   void RemoveTrack(TrackOutput* track);
 
   /**
@@ -419,7 +419,7 @@ private slots:
 
   void UpdateTimecodeWidthFromSplitters(QSplitter *s);
 
-  void TrackHeightChanged(TrackType type, int index, int height);
+  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
 
   void ShowContextMenu();
 

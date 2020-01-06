@@ -23,7 +23,7 @@
 #include "node/factory.h"
 #include "node/output/viewer/viewer.h"
 
-TrackList::TrackList(ViewerOutput *parent, const enum TrackType &type, NodeInputArray *track_input) :
+TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, NodeInputArray *track_input) :
   QObject(parent),
   track_input_(track_input),
   type_(type)
@@ -33,7 +33,7 @@ TrackList::TrackList(ViewerOutput *parent, const enum TrackType &type, NodeInput
   connect(track_input, SIGNAL(SizeChanged(int)), this, SLOT(TrackListSizeChanged(int)));
 }
 
-const TrackType &TrackList::type() const
+const Timeline::TrackType &TrackList::type() const
 {
   return type_;
 }
@@ -77,11 +77,6 @@ TrackOutput *TrackList::TrackAt(int index) const
 const rational &TrackList::TrackLength() const
 {
   return total_length_;
-}
-
-const enum TrackType &TrackList::TrackType() const
-{
-  return type_;
 }
 
 int TrackList::TrackCount() const
@@ -195,7 +190,7 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     emit TrackRemoved(track);
 
     track->SetIndex(-1);
-    track->set_track_type(kTrackTypeNone);
+    track->set_track_type(Timeline::kTrackTypeNone);
 
     disconnect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
     disconnect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));

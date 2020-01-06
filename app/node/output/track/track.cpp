@@ -28,7 +28,7 @@
 #include "node/graph.h"
 
 TrackOutput::TrackOutput() :
-  track_type_(kTrackTypeNone),
+  track_type_(Timeline::kTrackTypeNone),
   block_invalidate_cache_stack_(0),
   index_(-1),
   locked_(false)
@@ -48,12 +48,12 @@ TrackOutput::TrackOutput() :
   track_height_ = GetDefaultTrackHeight();
 }
 
-void TrackOutput::set_track_type(const TrackType &track_type)
+void TrackOutput::set_track_type(const Timeline::TrackType &track_type)
 {
   track_type_ = track_type;
 }
 
-const TrackType& TrackOutput::track_type()
+const Timeline::TrackType& TrackOutput::track_type()
 {
   return track_type_;
 }
@@ -343,17 +343,17 @@ int TrackOutput::GetTrackHeightMinimum()
   return qApp->fontMetrics().height() * 3 / 2;
 }
 
-QString TrackOutput::GetDefaultTrackName(TrackType type, int index)
+QString TrackOutput::GetDefaultTrackName(Timeline::TrackType type, int index)
 {
   // Starts tracks at 1 rather than 0
   int user_friendly_index = index+1;
 
   switch (type) {
-  case kTrackTypeVideo: return tr("Video %1").arg(user_friendly_index);
-  case kTrackTypeAudio: return tr("Audio %1").arg(user_friendly_index);
-  case kTrackTypeSubtitle: return tr("Subtitle %1").arg(user_friendly_index);
-  case kTrackTypeNone:
-  case kTrackTypeCount:
+  case Timeline::kTrackTypeVideo: return tr("Video %1").arg(user_friendly_index);
+  case Timeline::kTrackTypeAudio: return tr("Audio %1").arg(user_friendly_index);
+  case Timeline::kTrackTypeSubtitle: return tr("Subtitle %1").arg(user_friendly_index);
+  case Timeline::kTrackTypeNone:
+  case Timeline::kTrackTypeCount:
     break;
   }
 

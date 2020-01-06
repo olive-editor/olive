@@ -29,7 +29,7 @@ class TimelineCoordinate
 public:
   TimelineCoordinate();
   TimelineCoordinate(const rational& frame, const TrackReference& track);
-  TimelineCoordinate(const rational& frame, const TrackType& track_type, const int& track_index);
+  TimelineCoordinate(const rational& frame, const Timeline::TrackType& track_type, const int& track_index);
 
   const rational& GetFrame() const;
   const TrackReference& GetTrack() const;

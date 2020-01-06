@@ -32,23 +32,23 @@
 #include "node/input/media/video/video.h"
 #include "widget/nodeview/nodeviewundo.h"
 
-TrackType TrackTypeFromStreamType(Stream::Type stream_type)
+Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
   switch (stream_type) {
   case Stream::kVideo:
   case Stream::kImage:
-    return kTrackTypeVideo;
+    return Timeline::kTrackTypeVideo;
   case Stream::kAudio:
-    return kTrackTypeAudio;
+    return Timeline::kTrackTypeAudio;
   case Stream::kSubtitle:
-    return kTrackTypeSubtitle;
+    return Timeline::kTrackTypeSubtitle;
   case Stream::kUnknown:
   case Stream::kData:
   case Stream::kAttachment:
     break;
   }
 
-  return kTrackTypeNone;
+  return Timeline::kTrackTypeNone;
 }
 
 TimelineWidget::ImportTool::ImportTool(TimelineWidget *parent) :
@@ -96,17 +96,17 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
         Footage* footage = static_cast<Footage*>(item);
 
         // Each stream is offset by one track per track "type", we keep track of them in this vector
-        QVector<int> track_offsets(kTrackTypeCount);
+        QVector<int> track_offsets(Timeline::kTrackTypeCount);
         track_offsets.fill(drag_start_.GetTrack().index());
 
         rational footage_duration;
 
         // Loop through all streams in footage
         foreach (StreamPtr stream, footage->streams()) {
-          TrackType track_type = TrackTypeFromStreamType(stream->type());
+          Timeline::TrackType track_type = TrackTypeFromStreamType(stream->type());
 
           // Check if this stream has a compatible TrackList
-          if (track_type == kTrackTypeNone || !stream->enabled()) {
+          if (track_type == Timeline::kTrackTypeNone || !stream->enabled()) {
             continue;
           }
 

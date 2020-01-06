@@ -31,7 +31,6 @@
 #include "render/videoparams.h"
 #include "render/audioparams.h"
 #include "timeline/trackreference.h"
-#include "timeline/tracktypes.h"
 
 /**
  * @brief A bridge between a node system and a ViewerPanel
@@ -69,9 +68,9 @@ public:
 
   const QVector<TrackOutput *> &Tracks() const;
 
-  NodeInput* track_input(TrackType type) const;
+  NodeInput* track_input(Timeline::TrackType type) const;
 
-  TrackList* track_list(TrackType type) const;
+  TrackList* track_list(Timeline::TrackType type) const;
 
   virtual void Retranslate() override;
 
@@ -96,10 +95,10 @@ signals:
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);
 
-  void TrackAdded(TrackOutput* track, TrackType type);
+  void TrackAdded(TrackOutput* track, Timeline::TrackType type);
   void TrackRemoved(TrackOutput* track);
 
-  void TrackHeightChanged(TrackType type, int index, int height);
+  void TrackHeightChanged(Timeline::TrackType type, int index, int height);
 
 private:
   QUuid uuid_;

@@ -21,18 +21,18 @@
 #include "trackreference.h"
 
 TrackReference::TrackReference() :
-  type_(kTrackTypeNone),
+  type_(Timeline::kTrackTypeNone),
   index_(0)
 {
 }
 
-TrackReference::TrackReference(const TrackType &type, const int &index) :
+TrackReference::TrackReference(const Timeline::TrackType &type, const int &index) :
   type_(type),
   index_(index)
 {
 }
 
-const TrackType &TrackReference::type() const
+const Timeline::TrackType &TrackReference::type() const
 {
   return type_;
 }

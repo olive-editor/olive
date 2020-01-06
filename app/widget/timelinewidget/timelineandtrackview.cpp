@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
-TimelineAndTrackView::TimelineAndTrackView(const TrackType &type, Qt::Alignment vertical_alignment, QWidget *parent) :
+TimelineAndTrackView::TimelineAndTrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
   QWidget(parent)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -17,7 +17,7 @@ TimelineAndTrackView::TimelineAndTrackView(const TrackType &type, Qt::Alignment 
   track_view_ = new TrackView(vertical_alignment);
   splitter_->addWidget(track_view_);
 
-  view_ = new TimelineView(type, vertical_alignment);
+  view_ = new TimelineView(vertical_alignment);
   splitter_->addWidget(view_);
 
   connect(view_->verticalScrollBar(), &QScrollBar::valueChanged, this, &TimelineAndTrackView::ViewValueChanged);

@@ -21,7 +21,7 @@
 #include "timelinecoordinate.h"
 
 TimelineCoordinate::TimelineCoordinate() :
-  track_(kTrackTypeNone, 0)
+  track_(Timeline::kTrackTypeNone, 0)
 {
 }
 
@@ -31,7 +31,7 @@ TimelineCoordinate::TimelineCoordinate(const rational &frame, const TrackReferen
 {
 }
 
-TimelineCoordinate::TimelineCoordinate(const rational &frame, const TrackType &track_type, const int &track_index) :
+TimelineCoordinate::TimelineCoordinate(const rational &frame, const Timeline::TrackType &track_type, const int &track_index) :
   frame_(frame),
   track_(track_type, track_index)
 {

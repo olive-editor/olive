@@ -44,8 +44,7 @@ class TimelineView : public TimelineViewBase
 {
   Q_OBJECT
 public:
-  TimelineView(const TrackType& type,
-               Qt::Alignment vertical_alignment = Qt::AlignTop,
+  TimelineView(Qt::Alignment vertical_alignment = Qt::AlignTop,
                QWidget* parent = nullptr);
 
   void SelectAll();
@@ -89,8 +88,8 @@ protected:
   virtual void ToolChangedEvent(Tool::Item tool) override;
 
 private:
-  TrackType ConnectedTrackType();
-  Stream::Type TrackTypeToStreamType(TrackType track_type);
+  Timeline::TrackType ConnectedTrackType();
+  Stream::Type TrackTypeToStreamType(Timeline::TrackType track_type);
 
   TimelineCoordinate ScreenToCoordinate(const QPoint& pt);
   TimelineCoordinate SceneToCoordinate(const QPointF& pt);
@@ -104,8 +103,6 @@ private:
   void UpdatePlayheadRect();
 
   TrackList* connected_track_list_;
-
-  TrackType type_;
 
 };
 

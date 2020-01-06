@@ -107,7 +107,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
     // Now that the cursor has moved, we will assume the intention is to drag
 
     // If we haven't started dragging yet, we'll initiate a drag here
-    InitiateDrag(event->GetCoordinates());
+    InitiateDrag(event);
 
     // Set dragging to true here so no matter what, the drag isn't re-initiated until it's completed
     dragging_ = true;
@@ -284,10 +284,10 @@ rational TimelineWidget::PointerTool::FrameValidateInternal(rational time_moveme
   return time_movement;
 }
 
-void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_pos)
+void TimelineWidget::PointerTool::InitiateDrag(TimelineViewMouseEvent *mouse_pos)
 {
   // Record where the drag started in timeline coordinates
-  drag_start_ = mouse_pos;
+  drag_start_ = mouse_pos->GetCoordinates();
 
   // Get the item that was clicked
   TimelineViewBlockItem* clicked_item = GetItemAtScenePos(drag_start_);
@@ -300,12 +300,10 @@ void TimelineWidget::PointerTool::InitiateDrag(const TimelineCoordinate &mouse_p
     snap_points_.clear();
 
     // Record where the drag started in timeline coordinates
-    track_start_ = mouse_pos.GetTrack();
-
-    qreal mouse_x = parent()->TimeToScene(mouse_pos.GetFrame());
+    track_start_ = mouse_pos->GetTrack();
 
     // Determine whether we're trimming or moving based on the position of the cursor
-    Timeline::MovementMode trim_mode = IsCursorInTrimHandle(clicked_item, mouse_x);
+    Timeline::MovementMode trim_mode = IsCursorInTrimHandle(clicked_item, mouse_pos->GetSceneX());
 
     // Some derived classes don't allow movement
     if (trim_mode == Timeline::kNone && movement_allowed_) {

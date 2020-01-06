@@ -21,23 +21,23 @@
 #ifndef TRACKREFERENCE_H
 #define TRACKREFERENCE_H
 
-#include "timeline/tracktypes.h"
+#include "common/timelinecommon.h"
 
 class TrackReference
 {
 public:
   TrackReference();
 
-  TrackReference(const TrackType& type, const int& index);
+  TrackReference(const Timeline::TrackType& type, const int& index);
 
-  const TrackType& type() const;
+  const Timeline::TrackType& type() const;
 
   const int& index() const;
 
   bool operator==(const TrackReference& ref) const;
 
 private:
-  TrackType type_;
+  Timeline::TrackType type_;
 
   int index_;
 };

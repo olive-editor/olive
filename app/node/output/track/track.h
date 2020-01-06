@@ -21,8 +21,8 @@
 #ifndef TRACKOUTPUT_H
 #define TRACKOUTPUT_H
 
+#include "common/timelinecommon.h"
 #include "node/block/block.h"
-#include "timeline/tracktypes.h"
 
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
@@ -33,8 +33,8 @@ class TrackOutput : public Block
 public:
   TrackOutput();
 
-  const TrackType& track_type();
-  void set_track_type(const TrackType& track_type);
+  const Timeline::TrackType& track_type();
+  void set_track_type(const Timeline::TrackType& track_type);
 
   virtual Type type() const override;
 
@@ -126,7 +126,7 @@ public:
 
   static int GetTrackHeightMinimum();
 
-  static QString GetDefaultTrackName(TrackType type, int index);
+  static QString GetDefaultTrackName(Timeline::TrackType type, int index);
 
   bool IsMuted() const;
 
@@ -173,7 +173,7 @@ private:
 
   NodeInput* muted_input_;
 
-  TrackType track_type_;
+  Timeline::TrackType track_type_;
 
   rational track_length_;
 

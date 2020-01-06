@@ -20,6 +20,5 @@ set(OLIVE_SOURCES
   timeline/timelinecoordinate.cpp
   timeline/trackreference.h
   timeline/trackreference.cpp
-  timeline/tracktypes.h
   PARENT_SCOPE
 )

@@ -32,16 +32,16 @@ ViewerOutput::ViewerOutput()
   AddInput(length_input_);
 
   // Create TrackList instances
-  track_inputs_.resize(kTrackTypeCount);
-  track_lists_.resize(kTrackTypeCount);
+  track_inputs_.resize(Timeline::kTrackTypeCount);
+  track_lists_.resize(Timeline::kTrackTypeCount);
 
-  for (int i=0;i<kTrackTypeCount;i++) {
+  for (int i=0;i<Timeline::kTrackTypeCount;i++) {
     // Create track input
     NodeInputArray* track_input = new NodeInputArray(QStringLiteral("track_in_%1").arg(i), NodeParam::kAny);
     AddInput(track_input);
     track_inputs_.replace(i, track_input);
 
-    TrackList* list = new TrackList(this, static_cast<TrackType>(i), track_input);
+    TrackList* list = new TrackList(this, static_cast<Timeline::TrackType>(i), track_input);
     track_lists_.replace(i, list);
     connect(list, SIGNAL(TrackListChanged()), this, SLOT(UpdateTrackCache()));
     connect(list, SIGNAL(LengthChanged(const rational &)), this, SLOT(UpdateLength(const rational &)));
@@ -213,18 +213,18 @@ void ViewerOutput::Retranslate()
   for (int i=0;i<track_inputs_.size();i++) {
     QString input_name;
 
-    switch (static_cast<TrackType>(i)) {
-    case kTrackTypeVideo:
+    switch (static_cast<Timeline::TrackType>(i)) {
+    case Timeline::kTrackTypeVideo:
       input_name = tr("Video Tracks");
       break;
-    case kTrackTypeAudio:
+    case Timeline::kTrackTypeAudio:
       input_name = tr("Audio Tracks");
       break;
-    case kTrackTypeSubtitle:
+    case Timeline::kTrackTypeSubtitle:
       input_name = tr("Subtitle Tracks");
       break;
-    case kTrackTypeNone:
-    case kTrackTypeCount:
+    case Timeline::kTrackTypeNone:
+    case Timeline::kTrackTypeCount:
       break;
     }
 
@@ -238,25 +238,25 @@ const QVector<TrackOutput *>& ViewerOutput::Tracks() const
   return track_cache_;
 }
 
-NodeInput *ViewerOutput::track_input(TrackType type) const
+NodeInput *ViewerOutput::track_input(Timeline::TrackType type) const
 {
   return track_inputs_.at(type);
 }
 
-TrackList *ViewerOutput::track_list(TrackType type) const
+TrackList *ViewerOutput::track_list(Timeline::TrackType type) const
 {
   return track_lists_.at(type);
 }
 
 void ViewerOutput::TrackListAddedBlock(Block *block, int index)
 {
-  TrackType type = static_cast<TrackList*>(sender())->TrackType();
+  Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
   emit BlockAdded(block, TrackReference(type, index));
 }
 
 void ViewerOutput::TrackListAddedTrack(TrackOutput *track)
 {
-  TrackType type = static_cast<TrackList*>(sender())->TrackType();
+  Timeline::TrackType type = static_cast<TrackList*>(sender())->type();
   emit TrackAdded(track, type);
 }
 

@@ -45,10 +45,10 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   vert_layout->addWidget(view_splitter);
 
   // Video view
-  views_.append(new TimelineAndTrackView(kTrackTypeVideo, Qt::AlignBottom));
+  views_.append(new TimelineAndTrackView(Qt::AlignBottom));
 
   // Audio view
-  views_.append(new TimelineAndTrackView(kTrackTypeAudio, Qt::AlignTop));
+  views_.append(new TimelineAndTrackView(Qt::AlignTop));
 
   // Create tools
   tools_.resize(::Tool::kCount);
@@ -216,7 +216,7 @@ void TimelineWidget::ConnectTimelineNode(ViewerOutput *node)
     SetTimebase(timeline_node_->video_params().time_base());
 
     for (int i=0;i<views_.size();i++) {
-      TrackType track_type = static_cast<TrackType>(i);
+      Timeline::TrackType track_type = static_cast<Timeline::TrackType>(i);
       TimelineView* view = views_.at(i)->view();
       TrackList* track_list = timeline_node_->track_list(track_type);
       TrackView* track_view = views_.at(i)->track_view();
@@ -757,7 +757,7 @@ void TimelineWidget::RemoveBlock(Block *block)
   block_items_.remove(block);
 }
 
-void TimelineWidget::AddTrack(TrackOutput *track, TrackType type)
+void TimelineWidget::AddTrack(TrackOutput *track, Timeline::TrackType type)
 {
   foreach (Block* b, track->Blocks()) {
     AddBlock(b, TrackReference(type, track->Index()));
@@ -802,7 +802,7 @@ void TimelineWidget::UpdateTimecodeWidthFromSplitters(QSplitter* s)
   timecode_label_->setFixedWidth(s->sizes().first() + s->handleWidth());
 }
 
-void TimelineWidget::TrackHeightChanged(TrackType type, int index, int height)
+void TimelineWidget::TrackHeightChanged(Timeline::TrackType type, int index, int height)
 {
   Q_UNUSED(index)
   Q_UNUSED(height)

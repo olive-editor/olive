@@ -33,10 +33,9 @@
 #include "node/input/media/media.h"
 #include "project/item/footage/footage.h"
 
-TimelineView::TimelineView(const TrackType &type, Qt::Alignment vertical_alignment, QWidget *parent) :
+TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   TimelineViewBase(parent),
-  connected_track_list_(nullptr),
-  type_(type)
+  connected_track_list_(nullptr)
 {
   Q_ASSERT(vertical_alignment == Qt::AlignTop || vertical_alignment == Qt::AlignBottom);
   setAlignment(Qt::AlignLeft | vertical_alignment);
@@ -227,17 +226,26 @@ void TimelineView::ToolChangedEvent(Tool::Item tool)
   }
 }
 
-Stream::Type TimelineView::TrackTypeToStreamType(TrackType track_type)
+Timeline::TrackType TimelineView::ConnectedTrackType()
+{
+  if (connected_track_list_) {
+    return connected_track_list_->type();
+  }
+
+  return Timeline::kTrackTypeNone;
+}
+
+Stream::Type TimelineView::TrackTypeToStreamType(Timeline::TrackType track_type)
 {
   switch (track_type) {
-  case kTrackTypeNone:
-  case kTrackTypeCount:
+  case Timeline::kTrackTypeNone:
+  case Timeline::kTrackTypeCount:
     break;
-  case kTrackTypeVideo:
+  case Timeline::kTrackTypeVideo:
     return Stream::kVideo;
-  case kTrackTypeAudio:
+  case Timeline::kTrackTypeAudio:
     return Stream::kAudio;
-  case kTrackTypeSubtitle:
+  case Timeline::kTrackTypeSubtitle:
     return Stream::kSubtitle;
   }
 
@@ -251,7 +259,7 @@ TimelineCoordinate TimelineView::ScreenToCoordinate(const QPoint& pt)
 
 TimelineCoordinate TimelineView::SceneToCoordinate(const QPointF& pt)
 {
-  return TimelineCoordinate(SceneToTime(pt.x()), TrackReference(type_, SceneToTrack(pt.y())));
+  return TimelineCoordinate(SceneToTime(pt.x()), TrackReference(ConnectedTrackType(), SceneToTrack(pt.y())));
 }
 
 TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::KeyboardModifiers modifiers)
@@ -261,7 +269,7 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Key
   TimelineViewMouseEvent timeline_event(scene_pt.x(),
                                         scale_,
                                         timebase(),
-                                        TrackReference(type_, SceneToTrack(scene_pt.y())),
+                                        TrackReference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
                                         modifiers);
 
   return timeline_event;
