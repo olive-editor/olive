@@ -230,7 +230,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
     }
 
     const TrackReference& track_ref = ghost->GetAdjustedTrack();
-    TrackOutput* track = parent()->GetTrackFromReference(track_ref);
+    //TrackOutput* track = parent()->GetTrackFromReference(track_ref);
 
     Block* b = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kAttachedBlock));
 
@@ -267,12 +267,13 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       }
     }
 
-    // Remove transitions that have been reduced to zero length
-    if (b->type() == Block::kTransition) {
+    if (b->type() == Block::kTransition && ghost->AdjustedLength() == 0) {
+      // Remove transitions that have been reduced to zero length
       new NodeRemoveCommand(static_cast<NodeGraph*>(b->parent()),
                             {b},
                             command);
     } else {
+      // Normal block placement
       new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
                                  track_ref.index(),
                                  b,
@@ -478,19 +479,33 @@ void TimelineWidget::PointerTool::InitiateGhosts(TimelineViewBlockItem* clicked_
       }
 
       if (block) {
-        AddGhostFromBlock(block, clip_item->Track(), block_mode);
+        TimelineViewGhostItem* ghost = AddGhostFromBlock(block, clip_item->Track(), block_mode);
 
         if (block->type() == Block::kTransition) {
           TransitionBlock* transition = static_cast<TransitionBlock*>(block);
 
+          bool transition_can_move_tracks = false;
+
           // Create a rolling effect with the attached block
-          if (transition->connected_in_block() && (block_mode == Timeline::kTrimOut || block_mode == Timeline::kMove)) {
-            AddGhostFromBlock(transition->connected_in_block(), clip_item->Track(), Timeline::kTrimIn);
+          if (transition->connected_in_block()) {
+            if (parent()->block_items_.value(transition->connected_in_block())->isSelected()) {
+              // We'll be moving this item too, no need to create a ghost for it here
+              transition_can_move_tracks = true;
+            } else if (block_mode == Timeline::kTrimOut || block_mode == Timeline::kMove) {
+              AddGhostFromBlock(transition->connected_in_block(), clip_item->Track(), Timeline::kTrimIn);
+            }
           }
 
-          if (transition->connected_out_block() && (block_mode == Timeline::kTrimIn || block_mode == Timeline::kMove)) {
-            AddGhostFromBlock(transition->connected_out_block(), clip_item->Track(), Timeline::kTrimOut);
+          if (transition->connected_out_block()) {
+            if (parent()->block_items_.value(transition->connected_in_block())->isSelected()) {
+                // We'll be moving this item too, no need to create a ghost for it here
+              transition_can_move_tracks = true;
+            } else if (block_mode == Timeline::kTrimIn || block_mode == Timeline::kMove) {
+              AddGhostFromBlock(transition->connected_out_block(), clip_item->Track(), Timeline::kTrimOut);
+            }
           }
+
+          ghost->SetCanMoveTracks(transition_can_move_tracks);
         }
       }
     }

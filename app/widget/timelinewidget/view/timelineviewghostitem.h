@@ -44,7 +44,10 @@ public:
 
   static TimelineViewGhostItem* FromBlock(Block *block, const TrackReference &track, int y, int height);
 
-  bool CanHaveZeroLength();
+  bool CanHaveZeroLength() const;
+
+  bool CanMoveTracks() const;
+  void SetCanMoveTracks(bool e);
 
   void SetInvisible(bool invisible);
 
@@ -99,6 +102,7 @@ private:
   Timeline::MovementMode mode_;
 
   bool can_have_zero_length_;
+  bool can_move_tracks_;
 };
 
 #endif // TIMELINEVIEWGHOSTITEM_H

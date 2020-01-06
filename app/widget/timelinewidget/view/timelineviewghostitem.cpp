@@ -27,7 +27,8 @@ TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   track_adj_(0),
   stream_(nullptr),
   mode_(Timeline::kNone),
-  can_have_zero_length_(true)
+  can_have_zero_length_(true),
+  can_move_tracks_(true)
 {
   SetInvisible(false);
 }
@@ -50,9 +51,19 @@ TimelineViewGhostItem *TimelineViewGhostItem::FromBlock(Block *block, const Trac
   return ghost;
 }
 
-bool TimelineViewGhostItem::CanHaveZeroLength()
+bool TimelineViewGhostItem::CanHaveZeroLength() const
 {
   return can_have_zero_length_;
+}
+
+bool TimelineViewGhostItem::CanMoveTracks() const
+{
+  return can_move_tracks_;
+}
+
+void TimelineViewGhostItem::SetCanMoveTracks(bool e)
+{
+  can_move_tracks_ = e;
 }
 
 void TimelineViewGhostItem::SetInvisible(bool invisible)

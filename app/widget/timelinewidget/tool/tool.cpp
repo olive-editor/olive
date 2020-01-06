@@ -107,7 +107,7 @@ rational TimelineWidget::Tool::ValidateFrameMovement(rational movement, const QV
     if (block && block->type() == Block::kTransition) {
       TransitionBlock* transition = static_cast<TransitionBlock*>(block);
 
-      // Daul transitions are only allowed to move so that neither of their offsets are < 0
+      // Dual transitions are only allowed to move so that neither of their offsets are < 0
       if (transition->connected_in_block() && transition->connected_out_block()) {
         if (movement > transition->out_offset()) {
           movement = transition->out_offset();
@@ -131,13 +131,19 @@ rational TimelineWidget::Tool::ValidateFrameMovement(rational movement, const QV
 int TimelineWidget::Tool::ValidateTrackMovement(int movement, const QVector<TimelineViewGhostItem *> ghosts)
 {
   foreach (TimelineViewGhostItem* ghost, ghosts) {
-    // Prevents any ghosts from going to a non-existent negative track
-    if (ghost->Track().index() + movement < 0) {
-      if (ghost->mode() != Timeline::kMove) {
-        continue;
-      }
+    if (ghost->mode() != Timeline::kMove) {
+      continue;
+    }
 
+    if (!ghost->CanMoveTracks()) {
+
+      movement = 0;
+
+    } else if (ghost->Track().index() + movement < 0) {
+
+      // Prevents any ghosts from going to a non-existent negative track
       movement = -ghost->Track().index();
+
     }
   }
 
