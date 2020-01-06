@@ -42,12 +42,34 @@ void TransitionBlock::Retranslate()
 
 rational TransitionBlock::in_offset() const
 {
-  return 0;
+  // If no in block is connected, there's no in offset
+  if (!connected_in_block()) {
+    return 0;
+  }
+
+  if (!connected_out_block()) {
+    // Assume only an in block is connected, in which case this entire transition length
+    return length();
+  }
+
+  // Assume both are connected, in which case the in offset will be <= length
+  return length() / 2 + media_in();
 }
 
 rational TransitionBlock::out_offset() const
 {
-  return 0;
+  // If no in block is connected, there's no in offset
+  if (!connected_out_block()) {
+    return 0;
+  }
+
+  if (!connected_in_block()) {
+    // Assume only an in block is connected, in which case this entire transition length
+    return length();
+  }
+
+  // Assume both are connected, in which case the in offset will be <= length
+  return length() / 2 - media_in();
 }
 
 Block *TransitionBlock::connected_out_block() const

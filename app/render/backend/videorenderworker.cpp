@@ -1,6 +1,7 @@
 #include "videorenderworker.h"
 
 #include "common/define.h"
+#include "node/block/transition/transition.h"
 #include "node/node.h"
 #include "project/project.h"
 #include "render/pixelservice.h"
@@ -75,6 +76,18 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
 
   // Add this Node's ID
   hash->addData(n->id().toUtf8());
+
+  if (n->IsBlock() && static_cast<const Block*>(n)->type() == Block::kTransition) {
+    const TransitionBlock* transition = static_cast<const TransitionBlock*>(n);
+
+    double all_prog = transition->GetTotalProgress(time);
+    double in_prog = transition->GetInProgress(time);
+    double out_prog = transition->GetOutProgress(time);
+
+    hash->addData(reinterpret_cast<const char*>(&all_prog), sizeof(double));
+    hash->addData(reinterpret_cast<const char*>(&in_prog), sizeof(double));
+    hash->addData(reinterpret_cast<const char*>(&out_prog), sizeof(double));
+  }
 
   foreach (NodeParam* param, n->parameters()) {
     // For each input, try to hash its value

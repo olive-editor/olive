@@ -145,15 +145,18 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     painter->setRenderHint(QPainter::Antialiasing);
 
     TransitionBlock* t = static_cast<TransitionBlock*>(block_);
-    if (t->out_block_input()->IsConnected()) {
+
+    if (t->connected_out_block()) {
       // Transition fades something out, we'll draw a line
       painter->drawLine(rect().topLeft(), rect().bottomRight());
     }
-    if (t->in_block_input()->IsConnected()) {
+
+    if (t->connected_in_block()) {
       // Transition fades something in, we'll draw a line
       painter->drawLine(rect().bottomLeft(), rect().topRight());
     }
-    if (t->out_block_input()->IsConnected() && t->in_block_input()->IsConnected()) {
+
+    if (t->connected_out_block() && t->connected_in_block()) {
       // Draw line between out offset and in offset
       qreal crossover_line = rect().left();
       crossover_line += TimeToScene(t->out_offset());
