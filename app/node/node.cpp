@@ -172,9 +172,6 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
 
-  source->LockUserInput();
-  destination->LockUserInput();
-
   const QList<NodeParam*>& src_param = source->params_;
   const QList<NodeParam*>& dst_param = destination->params_;
 
@@ -186,12 +183,9 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 
       NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
 
-      NodeInput::CopyValues(src, dst, include_connections, false);
+      NodeInput::CopyValues(src, dst, include_connections, true);
     }
   }
-
-  source->UnlockUserInput();
-  destination->UnlockUserInput();
 }
 
 void DuplicateConnectionsBetweenListsInternal(const QList<Node *> &source, const QList<Node *> &destination, NodeInput* source_input, NodeInput* dest_input)

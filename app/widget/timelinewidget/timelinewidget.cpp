@@ -362,7 +362,7 @@ void TimelineWidget::SplitAtPlayhead()
   foreach (TrackOutput* track, timeline_node_->Tracks()) {
     Block* b = track->BlockContainingTime(playhead_time);
 
-    if (b) {
+    if (b && b->type() == Block::kClip) {
       bool selected = false;
 
       // See if this block is selected

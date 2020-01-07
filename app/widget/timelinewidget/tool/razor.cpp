@@ -67,6 +67,7 @@ void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
     // Ensure there's a valid block here
     if (block_at_time
+        && block_at_time->type() == Block::kClip
         && !blocks_to_split.contains(block_at_time)) {
       blocks_to_split.append(block_at_time);
 

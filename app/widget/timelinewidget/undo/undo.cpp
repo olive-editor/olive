@@ -351,7 +351,7 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
   old_length_(block->length()),
   point_(point)
 {
-  Q_ASSERT(point > block_->in() && point < block_->out());
+  Q_ASSERT(point > block_->in() && point < block_->out() && block_->type() == Block::kClip);
 
   // Ensures that this block is deleted if this action is undone
   new_block_ = static_cast<Block*>(block_->copy());
