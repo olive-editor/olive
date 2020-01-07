@@ -14,6 +14,7 @@ TempoProcessor::TempoProcessor() :
   filter_graph_(nullptr),
   buffersrc_ctx_(nullptr),
   buffersink_ctx_(nullptr),
+  processed_frame_(nullptr),
   open_(false)
 {
 
