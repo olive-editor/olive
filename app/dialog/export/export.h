@@ -33,6 +33,9 @@ private:
   QList<ExportFormat> formats_;
   int previously_selected_format_;
 
+  QCheckBox* video_enabled_;
+  QCheckBox* audio_enabled_;
+
   QList<ExportCodec> codecs_;
 
   ViewerWidget* preview_viewer_;

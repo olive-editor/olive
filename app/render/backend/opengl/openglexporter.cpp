@@ -3,8 +3,10 @@
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/pixelservice.h"
 
-OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, const VideoRenderingParams& video_params, const AudioRenderingParams &audio_params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor, Encoder *encoder, QObject* parent) :
-  Exporter(viewer, video_params, audio_params, transform, color_processor, encoder, parent)
+OpenGLExporter::OpenGLExporter(ViewerOutput* viewer, Encoder *encoder, QObject* parent) :
+  Exporter(viewer, encoder, parent),
+  texture_(nullptr),
+  pipeline_(nullptr)
 {
 }
 
@@ -17,23 +19,34 @@ bool OpenGLExporter::Initialize()
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
 
   // Create rendering backends
-  video_backend_ = new OpenGLBackend();
-  audio_backend_ = new AudioBackend();
+  if (!video_done_) {
+    video_backend_ = new OpenGLBackend();
 
-  // Create blitting framebuffer and texture
-  buffer_.Create(ctx);
+    // Create blitting framebuffer and texture
+    buffer_.Create(ctx);
 
-  texture_ = std::make_shared<OpenGLTexture>();
-  texture_->Create(ctx, video_params_.effective_width(), video_params_.effective_height(), video_params_.format());
+    texture_ = std::make_shared<OpenGLTexture>();
+    texture_->Create(ctx, video_params_.effective_width(), video_params_.effective_height(), video_params_.format());
 
-  pipeline_ = OpenGLShader::CreateDefault();
+    pipeline_ = OpenGLShader::CreateDefault();
+  }
+
+  if (!audio_done_) {
+    audio_backend_ = new AudioBackend();
+  }
 
   return true;
 }
 
 void OpenGLExporter::Cleanup()
 {
-  texture_->Destroy();
+  if (texture_) {
+    texture_->Destroy();
+    texture_ = nullptr;
+  }
+
+  pipeline_ = nullptr;
+
   buffer_.Destroy();
 }
 

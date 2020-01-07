@@ -71,6 +71,8 @@ private slots:
   void ColorViewChanged();
   void ColorLookChanged();
 
+  void MaintainAspectRatioChanged(bool val);
+
 };
 
 #endif // EXPORTVIDEOTAB_H

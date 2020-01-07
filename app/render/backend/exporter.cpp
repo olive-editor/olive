@@ -4,27 +4,35 @@
 #include "render/pixelservice.h"
 
 Exporter::Exporter(ViewerOutput* viewer,
-                   const VideoRenderingParams& video_params,
-                   const AudioRenderingParams& audio_params,
-                   const QMatrix4x4 &transform,
-                   ColorProcessorPtr color_processor,
                    Encoder *encoder,
                    QObject* parent) :
   QObject(parent),
   video_backend_(nullptr),
   audio_backend_(nullptr),
   viewer_node_(viewer),
-  video_params_(video_params),
-  audio_params_(audio_params),
-  transform_(transform),
-  color_processor_(color_processor),
+  video_done_(true),
+  audio_done_(true),
   encoder_(encoder),
   export_status_(false),
-  export_msg_(tr("Export hasn't started yet")),
-  video_done_(false),
-  audio_done_(false)
+  export_msg_(tr("Export hasn't started yet"))
 {
   connect(this, &Exporter::ExportEnded, this, &Exporter::deleteLater);
+}
+
+void Exporter::EnableVideo(const VideoRenderingParams &video_params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor)
+{
+  video_params_ = video_params;
+  transform_ = transform;
+  color_processor_ = color_processor;
+
+  video_done_ = false;
+}
+
+void Exporter::EnableAudio(const AudioRenderingParams &audio_params)
+{
+  audio_params_ = audio_params;
+
+  audio_done_ = false;
 }
 
 bool Exporter::GetExportStatus() const
@@ -49,17 +57,22 @@ void Exporter::StartExporting()
     return;
   }
 
-  video_backend_->SetViewerNode(viewer_node_);
-  video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
-                                                     viewer_node_->video_params().height(),
-                                                     video_params_.time_base(),
-                                                     video_params_.format(),
-                                                     video_params_.mode()));
-  audio_backend_->SetViewerNode(viewer_node_);
-  audio_backend_->SetParameters(audio_params_);
-
   // Create renderers
-  waiting_for_frame_ = 0;
+  if (!video_done_) {
+    video_backend_->SetViewerNode(viewer_node_);
+    video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
+                                                       viewer_node_->video_params().height(),
+                                                       video_params_.time_base(),
+                                                       video_params_.format(),
+                                                       video_params_.mode()));
+
+    waiting_for_frame_ = 0;
+  }
+
+  if (!audio_done_) {
+    audio_backend_->SetViewerNode(viewer_node_);
+    audio_backend_->SetParameters(audio_params_);
+  }
 
   // Open encoder and wait for result
   connect(encoder_, &Encoder::OpenSucceeded, this, &Exporter::EncoderOpenedSuccessfully, Qt::QueuedConnection);
@@ -85,7 +98,9 @@ void Exporter::ExportSucceeded()
 
   Cleanup();
 
-  video_backend_->deleteLater();
+  if (video_backend_) {
+    video_backend_->deleteLater();
+  }
 
   export_status_ = true;
 
@@ -196,7 +211,7 @@ void Exporter::AudioEncodeComplete()
 void Exporter::EncoderOpenedSuccessfully()
 {
   // Invalidate caches
-  if (encoder_->params().video_enabled()) {
+  if (!video_done_) {
     // First we generate the hashes so we know exactly how many frames we need
     video_backend_->SetOperatingMode(VideoRenderWorker::kHashOnly);
     connect(video_backend_, &VideoRenderBackend::QueueComplete, this, &Exporter::VideoHashesComplete);
@@ -204,7 +219,7 @@ void Exporter::EncoderOpenedSuccessfully()
     video_backend_->InvalidateCache(0, viewer_node_->Length());
   }
 
-  if (encoder_->params().audio_enabled()) {
+  if (!audio_done_) {
     // We set the audio backend to render the full sequence to the disk
     connect(audio_backend_, &AudioRenderBackend::QueueComplete, this, &Exporter::AudioRendered);
 

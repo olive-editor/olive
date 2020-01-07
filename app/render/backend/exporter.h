@@ -16,12 +16,11 @@ class Exporter : public QObject
   Q_OBJECT
 public:
   Exporter(ViewerOutput* viewer,
-           const VideoRenderingParams& video_params,
-           const AudioRenderingParams& audio_params,
-           const QMatrix4x4& transform,
-           ColorProcessorPtr color_processor,
            Encoder* encoder,
            QObject* parent = nullptr);
+
+  void EnableVideo(const VideoRenderingParams& video_params, const QMatrix4x4& transform, ColorProcessorPtr color_processor);
+  void EnableAudio(const AudioRenderingParams& audio_params);
 
   bool GetExportStatus() const;
   const QString& GetExportError() const;
@@ -56,6 +55,10 @@ protected:
   // Export transform
   QMatrix4x4 transform_;
 
+  bool video_done_;
+
+  bool audio_done_;
+
 private:
   void ExportSucceeded();
 
@@ -76,10 +79,6 @@ private:
   QHash<rational, QVariant> cached_frames_;
 
   QHash< QByteArray, QList<rational> > matched_frames_;
-
-  bool video_done_;
-
-  bool audio_done_;
 
 private slots:
   void FrameRendered(const rational& time, QVariant value);

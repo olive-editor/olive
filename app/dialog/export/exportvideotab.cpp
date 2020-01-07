@@ -124,6 +124,9 @@ QWidget* ExportVideoTab::SetupResolutionSection()
   scaling_method_combobox_->addItem(tr("Crop"), kCrop);
   layout->addWidget(scaling_method_combobox_, row, 1);
 
+  // Automatically enable/disable the scaling method depending on maintain aspect ratio
+  connect(maintain_aspect_checkbox_, &QCheckBox::toggled, this, &ExportVideoTab::MaintainAspectRatioChanged);
+
   row++;
 
   layout->addWidget(new QLabel(tr("Frame Rate:")), row, 0);
@@ -229,4 +232,9 @@ void ExportVideoTab::ColorViewChanged()
 void ExportVideoTab::ColorLookChanged()
 {
   emit LookChanged(looks_combobox_->currentData().toString());
+}
+
+void ExportVideoTab::MaintainAspectRatioChanged(bool val)
+{
+  scaling_method_combobox_->setEnabled(!val);
 }

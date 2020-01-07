@@ -82,6 +82,20 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
+  QHBoxLayout* av_enabled_layout = new QHBoxLayout();
+
+  video_enabled_ = new QCheckBox(tr("Export Video"));
+  video_enabled_->setChecked(true);
+  av_enabled_layout->addWidget(video_enabled_);
+
+  audio_enabled_ = new QCheckBox(tr("Export Audio"));
+  audio_enabled_->setChecked(true);
+  av_enabled_layout->addWidget(audio_enabled_);
+
+  preferences_layout->addLayout(av_enabled_layout, row, 0, 1, 4);
+
+  row++;
+
   QTabWidget* preferences_tabs = new QTabWidget();
   QScrollArea* video_area = new QScrollArea();
   color_manager_ = static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager();
@@ -167,16 +181,29 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
 void ExportDialog::accept()
 {
-  int source_width = viewer_node_->video_params().width();
-  int source_height = viewer_node_->video_params().height();
+  if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
+    QMessageBox::warning(this,
+                         tr("Invalid parameters"),
+                         tr("Both video and audio are disabled. There's nothing to export."),
+                         QMessageBox::Ok);
+    return;
+  }
+
+  QMatrix4x4 transform;
+
   int dest_width = video_tab_->width_slider()->GetValue();
   int dest_height = video_tab_->height_slider()->GetValue();
 
-  QMatrix4x4 transform = GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
-                                        source_width,
-                                        source_height,
-                                        dest_width,
-                                        dest_height);
+  if (video_tab_->scaling_method_combobox()->isEnabled()) {
+    int source_width = viewer_node_->video_params().width();
+    int source_height = viewer_node_->video_params().height();
+
+    transform = GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
+                               source_width,
+                               source_height,
+                               dest_width,
+                               dest_height);
+  }
 
   // FIXME: Hardcoded pixel format
   VideoRenderingParams video_render_params(dest_width, dest_height, video_tab_->frame_rate().flipped(), PixelFormat::PIX_FMT_RGBA32F, RenderMode::kOnline);
@@ -196,16 +223,29 @@ void ExportDialog::accept()
   EncodingParams encoding_params;
   encoding_params.SetFilename(filename_edit_->text()); // FIXME: Validate extension
 
-  const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
-  const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
-  encoding_params.EnableVideo(video_render_params,
-                              video_codec.id());
-  encoding_params.EnableAudio(audio_render_params,
-                              audio_codec.id());
+  if (video_enabled_->isChecked()) {
+    const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
+    encoding_params.EnableVideo(video_render_params,
+                                video_codec.id());
+  }
+
+  if (audio_enabled_->isChecked()) {
+    const ExportCodec& audio_codec = codecs_.at(audio_tab_->codec_combobox()->currentData().toInt());
+    encoding_params.EnableAudio(audio_render_params,
+                                audio_codec.id());
+  }
 
   Encoder* encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
 
-  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, video_render_params, audio_render_params, transform, color_processor, encoder);
+  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, encoder);
+
+  if (video_enabled_->isChecked()) {
+    exporter->EnableVideo(video_render_params, transform, color_processor);
+  }
+
+  if (audio_enabled_->isChecked()) {
+    exporter->EnableAudio(audio_render_params);
+  }
 
   connect(exporter, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
   connect(exporter, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
@@ -269,11 +309,6 @@ void ExportDialog::ResolutionChanged()
       // This catches both the width slider changing and the maintain aspect ratio checkbox changing
       video_tab_->height_slider()->SetValue(qRound(static_cast<double>(video_tab_->width_slider()->GetValue()) / video_aspect_ratio_));
     }
-  } else {
-    double current_ratio = static_cast<double>(video_tab_->width_slider()->GetValue()) / static_cast<double>(video_tab_->height_slider()->GetValue());
-
-    // Enable scaling method combobox only if width/height are not equal to sequence size
-    video_tab_->scaling_method_combobox()->setEnabled(!qFuzzyCompare(current_ratio, video_aspect_ratio_));
   }
 
   UpdateViewerDimensions();

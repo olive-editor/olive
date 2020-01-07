@@ -11,10 +11,6 @@ class OpenGLExporter : public Exporter
 {
 public:
   OpenGLExporter(ViewerOutput* viewer,
-                 const VideoRenderingParams& video_params,
-                 const AudioRenderingParams& audio_params,
-                 const QMatrix4x4& transform,
-                 ColorProcessorPtr color_processor,
                  Encoder* encoder,
                  QObject* parent = nullptr);
 
