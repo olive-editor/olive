@@ -22,7 +22,7 @@ Exporter::Exporter(ViewerOutput* viewer,
   export_status_(false),
   export_msg_(tr("Export hasn't started yet"))
 {
-  connect(this, SIGNAL(ExportEnded()), this, SLOT(deleteLater()));
+  connect(this, &Exporter::ExportEnded, this, &Exporter::deleteLater);
 }
 
 bool Exporter::GetExportStatus() const
@@ -58,16 +58,16 @@ void Exporter::StartExporting()
   audio_backend_->SetParameters(audio_params_);
 
   // Connect to renderers
-  connect(video_backend_, SIGNAL(CachedFrameReady(const rational&, QVariant)), this, SLOT(FrameRendered(const rational&, QVariant)));
-  connect(audio_backend_, SIGNAL(QueueComplete()), this, SLOT(AudioRendered()));
+  connect(video_backend_, &VideoRenderBackend::CachedFrameReady, this, &Exporter::FrameRendered);
+  connect(audio_backend_, &AudioRenderBackend::QueueComplete, this, &Exporter::AudioRendered);
 
   // Create renderers
   waiting_for_frame_ = 0;
 
   // Open encoder and wait for result
-  connect(encoder_, SIGNAL(OpenSucceeded()), this, SLOT(EncoderOpenedSuccessfully()), Qt::QueuedConnection);
-  connect(encoder_, SIGNAL(OpenFailed()), this, SLOT(EncoderOpenFailed()), Qt::QueuedConnection);
-  connect(encoder_, SIGNAL(Closed()), encoder_, SLOT(deleteLater()), Qt::QueuedConnection);
+  connect(encoder_, &Encoder::OpenSucceeded, this, &Exporter::EncoderOpenedSuccessfully, Qt::QueuedConnection);
+  connect(encoder_, &Encoder::OpenFailed, this, &Exporter::EncoderOpenFailed, Qt::QueuedConnection);
+  connect(encoder_, &Encoder::Closed, encoder_, &Encoder::deleteLater, Qt::QueuedConnection);
 
   QMetaObject::invokeMethod(encoder_,
                             "Open",
@@ -87,7 +87,7 @@ void Exporter::ExportSucceeded()
 
   export_status_ = true;
 
-  connect(encoder_, SIGNAL(Closed()), this, SLOT(EncoderClosed()));
+  connect(encoder_, &Encoder::Closed, this, &Exporter::EncoderClosed);
 
   QMetaObject::invokeMethod(encoder_,
                             "Close",
