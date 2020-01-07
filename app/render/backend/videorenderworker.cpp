@@ -8,7 +8,8 @@
 
 VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
   RenderWorker(parent),
-  frame_cache_(frame_cache)
+  frame_cache_(frame_cache),
+  operating_mode_(kHashRenderCache)
 {
 
 }
@@ -22,16 +23,27 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
 {
   // Get hash of node graph
   // We use SHA-1 for speed (benchmarks show it's the fastest hash available to us)
-  QCryptographicHash hasher(QCryptographicHash::Sha1);
-  HashNodeRecursively(&hasher, path.node(), path.in());
-  QByteArray hash = hasher.result();
+  QByteArray hash;
+  if (operating_mode_ & kHashOnly) {
+    QCryptographicHash hasher(QCryptographicHash::Sha1);
+    HashNodeRecursively(&hasher, path.node(), path.in());
+    hash = hasher.result();
+  }
 
   NodeValueTable value;
 
-  if (frame_cache_->HasHash(hash)) {
+  if (!(operating_mode_ & kRenderOnly)) {
+
+    // Emit only the hash
+    emit CompletedDownload(path, job_time, hash);
+
+  } else if ((operating_mode_ & kHashOnly) && frame_cache_->HasHash(hash)) {
+
     // We've already cached this hash, no need to continue
     emit HashAlreadyExists(path, job_time, hash);
-  } else if (frame_cache_->TryCache(path.in(), hash)) {
+
+  } else if (!(operating_mode_ & kHashOnly) || frame_cache_->TryCache(path.in(), hash)) {
+
     // This hash is available for us to cache, start traversing graph
     value = ProcessNode(path);
 
@@ -42,17 +54,22 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     emit CompletedFrame(path, job_time, hash, texture);
 
     // If we actually have a texture, download it into the disk cache
-    if (!texture.isNull()) {
+    if ((operating_mode_ & kDownloadOnly) && !texture.isNull()) {
       Download(path, hash, texture, frame_cache_->CachePathName(hash));
     }
 
     frame_cache_->RemoveHashFromCurrentlyCaching(hash);
 
-    // Signal that this job is complete
-    emit CompletedDownload(path, job_time, hash);
+    if (operating_mode_ & kDownloadOnly) {
+      // Signal that this job is complete
+      emit CompletedDownload(path, job_time, hash);
+    }
+
   } else {
+
     // Another thread must be caching this already, nothing to be done
     emit HashAlreadyBeingCached(path, job_time, hash);
+
   }
 
   return value;
@@ -159,6 +176,11 @@ void VideoRenderWorker::SetParameters(const VideoRenderingParams &video_params)
   video_params_ = video_params;
 
   ParametersChangedEvent();
+}
+
+void VideoRenderWorker::SetOperatingMode(const VideoRenderWorker::OperatingMode &mode)
+{
+  operating_mode_ = mode;
 }
 
 bool VideoRenderWorker::InitInternal()

@@ -61,6 +61,8 @@ private:
 
   void ExportFailed();
 
+  void EncodeFrame(const rational &time, QVariant value);
+
   ColorProcessorPtr color_processor_;
 
   Encoder* encoder_;
@@ -73,16 +75,26 @@ private:
 
   QHash<rational, QVariant> cached_frames_;
 
+  QHash< QByteArray, QList<rational> > matched_frames_;
+
+  bool video_done_;
+
+  bool audio_done_;
+
 private slots:
   void FrameRendered(const rational& time, QVariant value);
 
   void AudioRendered();
+
+  void AudioEncodeComplete();
 
   void EncoderOpenedSuccessfully();
 
   void EncoderOpenFailed();
 
   void EncoderClosed();
+
+  void VideoHashesComplete();
 
 };
 

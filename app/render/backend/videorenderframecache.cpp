@@ -109,6 +109,11 @@ QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash)
   return times;
 }
 
+const QMap<rational, QByteArray> &VideoRenderFrameCache::time_hash_map() const
+{
+  return time_hash_map_;
+}
+
 QString VideoRenderFrameCache::CachePathName(const QByteArray &hash) const
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);

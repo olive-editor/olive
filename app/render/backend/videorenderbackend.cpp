@@ -33,7 +33,8 @@
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
-  export_mode_(false)
+  operating_mode_(VideoRenderWorker::kHashRenderCache),
+  only_signal_last_frame_requested_(true)
 {
 }
 
@@ -71,12 +72,15 @@ const VideoRenderingParams &VideoRenderBackend::params() const
 
 void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 {
+  if (!AllProcessorsAreAvailable()) {
+    qCritical() << "Attempted to set parameters on a backend whose workers are still busy";
+    return;
+  }
+
   // Set new parameters
   params_ = params;
 
   // Set params on all processors
-  // FIXME: Undefined behavior if the processors are currently working, this may need to be delayed like the
-  //        recompile signal
   foreach (RenderWorker* worker, processors_) {
     static_cast<VideoRenderWorker*>(worker)->SetParameters(params_);
   }
@@ -85,9 +89,23 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
   RegenerateCacheID();
 }
 
-void VideoRenderBackend::SetExportMode(bool enabled)
+void VideoRenderBackend::SetOperatingMode(const VideoRenderWorker::OperatingMode &mode)
 {
-  export_mode_ = enabled;
+  if (!AllProcessorsAreAvailable()) {
+    qCritical() << "Attempted to set operating mode on a backend whose workers are still busy";
+    return;
+  }
+
+  operating_mode_ = mode;
+
+  foreach (RenderWorker* worker, processors_) {
+    static_cast<VideoRenderWorker*>(worker)->SetOperatingMode(operating_mode_);
+  }
+}
+
+void VideoRenderBackend::SetOnlySignalLastFrameRequested(bool enabled)
+{
+  only_signal_last_frame_requested_ = enabled;
 }
 
 bool VideoRenderBackend::IsRendered(const rational &time) const
@@ -120,6 +138,8 @@ void VideoRenderBackend::CacheIDChangedEvent(const QString &id)
 void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 {
   VideoRenderWorker* video_processor = static_cast<VideoRenderWorker*>(processor);
+
+  video_processor->SetOperatingMode(operating_mode_);
 
   connect(video_processor, &VideoRenderWorker::CompletedFrame, this, &VideoRenderBackend::ThreadCompletedFrame);
   connect(video_processor, &VideoRenderWorker::HashAlreadyBeingCached, this, &VideoRenderBackend::ThreadSkippedFrame);
@@ -206,8 +226,15 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
 
 void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
 {
-  if (last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
-    EmitCachedFrameReady({last_time_requested_}, value, job_time);
+  if (!only_signal_last_frame_requested_ || last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
+    EmitCachedFrameReady(path.in(), value, job_time);
+  }
+
+  if (!(operating_mode_ & VideoRenderWorker::kDownloadOnly)) {
+    // If we're not downloading, the worker is done here
+    SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
+    CacheNext();
   }
 }
 

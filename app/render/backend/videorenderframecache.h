@@ -45,6 +45,8 @@ public:
 
   QList<rational> FramesWithHash(const QByteArray& hash);
 
+  const QMap<rational, QByteArray>& time_hash_map() const;
+
 private:
   QMap<rational, QByteArray> time_hash_map_;
 

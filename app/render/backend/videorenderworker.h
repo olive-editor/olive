@@ -12,9 +12,40 @@
 class VideoRenderWorker : public RenderWorker {
   Q_OBJECT
 public:
+  /**
+   * @brief VideoRenderWorker uses hashes to recognize frames that are identical to others in the render queue
+   *
+   * This mode can modify the behavior of the worker, either to disable hash verification or only generate hashes and
+   * not render. These are only used in the context of exporting.
+   *
+   * These are also flags that can be or'd together, mostly for the convenience of checking which functionalities are
+   * disabled and enabled.
+   */
+  enum OperatingMode {
+    /// Generate hashes but don't render or download anything
+    kHashOnly = 0x1,
+
+    /// Render but don't download or hash
+    kRenderOnly = 0x2,
+
+    /// Enable download (NEVER USE THIS ON ITS OWN, this is only here for checking flags, download-only mode makes no sense)
+    kDownloadOnly = 0x4,
+
+    /// Use hash verification and render, but don't cache any frames to disk
+    kHashAndRenderOnly = 0x3,
+
+    /// Render and download, but don't use hash verification
+    kRenderAndCacheOnly = 0x6,
+
+    /// Render and use hashes to identify exact matches (default)
+    kHashRenderCache = 0x7
+  };
+
   VideoRenderWorker(VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
 
   void SetParameters(const VideoRenderingParams& video_params);
+
+  void SetOperatingMode(const OperatingMode& mode);
 
 signals:
   void CompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);
@@ -56,6 +87,8 @@ private:
   ColorProcessorCache color_cache_;
 
   QByteArray download_buffer_;
+
+  OperatingMode operating_mode_;
 
 private slots:
 

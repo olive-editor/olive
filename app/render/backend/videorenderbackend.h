@@ -29,6 +29,7 @@
 #include "render/pixelformat.h"
 #include "render/rendermodes.h"
 #include "videorenderframecache.h"
+#include "videorenderworker.h"
 
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
@@ -53,9 +54,15 @@ public:
    */
   void SetParameters(const VideoRenderingParams &params);
 
-  void SetExportMode(bool enabled);
+  void SetOperatingMode(const VideoRenderWorker::OperatingMode& mode);
+
+  void SetOnlySignalLastFrameRequested(bool enabled);
 
   bool IsRendered(const rational& time) const;
+
+  VideoRenderFrameCache* frame_cache();
+
+  const VideoRenderingParams& params() const;
 
 protected:
   /**
@@ -85,10 +92,6 @@ protected:
 
   virtual TimeRange PopNextFrameFromQueue() override;
 
-  VideoRenderFrameCache* frame_cache();
-
-  const VideoRenderingParams& params() const;
-
   /**
    * @brief Internal function for generating the cache ID
    */
@@ -98,9 +101,9 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void EmitCachedFrameReady(const QList<rational> &times, const QVariant& value, qint64 job_time) = 0;
+  virtual void EmitCachedFrameReady(const rational &time, const QVariant& value, qint64 job_time) = 0;
 
-  bool export_mode_;
+  VideoRenderWorker::OperatingMode operating_mode_;
 
 signals:
   void CachedFrameReady(const rational& time, QVariant value, qint64 job_time);
@@ -120,6 +123,8 @@ private:
   VideoRenderFrameCache frame_cache_;
 
   rational last_time_requested_;
+
+  bool only_signal_last_frame_requested_;
 
 private slots:
   void ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);

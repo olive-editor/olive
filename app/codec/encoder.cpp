@@ -96,7 +96,7 @@ void Encoder::Open()
   }
 }
 
-void Encoder::Write(FramePtr frame)
+void Encoder::WriteFrame(FramePtr frame)
 {
   if (open_) {
     WriteInternal(frame);

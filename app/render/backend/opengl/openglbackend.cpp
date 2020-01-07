@@ -141,7 +141,7 @@ void OpenGLBackend::DecompileInternal()
   shader_cache_.Clear();
 }
 
-void OpenGLBackend::EmitCachedFrameReady(const QList<rational> &times, const QVariant &value, qint64 job_time)
+void OpenGLBackend::EmitCachedFrameReady(const rational &time, const QVariant &value, qint64 job_time)
 {
   OpenGLTextureCache::ReferencePtr ref = value.value<OpenGLTextureCache::ReferencePtr>();
   OpenGLTexturePtr tex;
@@ -152,9 +152,7 @@ void OpenGLBackend::EmitCachedFrameReady(const QList<rational> &times, const QVa
     tex = nullptr;
   }
 
-  foreach (const rational& t, times) {
-    emit CachedFrameReady(t, QVariant::fromValue(tex), job_time);
-  }
+  emit CachedFrameReady(time, QVariant::fromValue(tex), job_time);
 }
 
 OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)

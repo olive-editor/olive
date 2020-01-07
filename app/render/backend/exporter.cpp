@@ -20,7 +20,9 @@ Exporter::Exporter(ViewerOutput* viewer,
   color_processor_(color_processor),
   encoder_(encoder),
   export_status_(false),
-  export_msg_(tr("Export hasn't started yet"))
+  export_msg_(tr("Export hasn't started yet")),
+  video_done_(false),
+  audio_done_(false)
 {
   connect(this, &Exporter::ExportEnded, this, &Exporter::deleteLater);
 }
@@ -53,13 +55,8 @@ void Exporter::StartExporting()
                                                      video_params_.time_base(),
                                                      video_params_.format(),
                                                      video_params_.mode()));
-  video_backend_->SetExportMode(true);
   audio_backend_->SetViewerNode(viewer_node_);
   audio_backend_->SetParameters(audio_params_);
-
-  // Connect to renderers
-  connect(video_backend_, &VideoRenderBackend::CachedFrameReady, this, &Exporter::FrameRendered);
-  connect(audio_backend_, &AudioRenderBackend::QueueComplete, this, &Exporter::AudioRendered);
 
   // Create renderers
   waiting_for_frame_ = 0;
@@ -67,6 +64,7 @@ void Exporter::StartExporting()
   // Open encoder and wait for result
   connect(encoder_, &Encoder::OpenSucceeded, this, &Exporter::EncoderOpenedSuccessfully, Qt::QueuedConnection);
   connect(encoder_, &Encoder::OpenFailed, this, &Exporter::EncoderOpenFailed, Qt::QueuedConnection);
+  connect(encoder_, &Encoder::AudioComplete, this, &Exporter::AudioEncodeComplete, Qt::QueuedConnection);
   connect(encoder_, &Encoder::Closed, encoder_, &Encoder::deleteLater, Qt::QueuedConnection);
 
   QMetaObject::invokeMethod(encoder_,
@@ -81,6 +79,10 @@ void Exporter::SetExportMessage(const QString &s)
 
 void Exporter::ExportSucceeded()
 {
+  if (!audio_done_ || !video_done_) {
+    return;
+  }
+
   Cleanup();
 
   video_backend_->deleteLater();
@@ -99,10 +101,8 @@ void Exporter::ExportFailed()
   emit ExportEnded();
 }
 
-void Exporter::FrameRendered(const rational &time, QVariant value)
+void Exporter::EncodeFrame(const rational &time, QVariant value)
 {
-  qDebug() << "Received" << time.toDouble() << "- waiting for" << waiting_for_frame_.toDouble();
-
   if (time == waiting_for_frame_) {
     bool get_cached = false;
 
@@ -132,7 +132,7 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
 
       // Encode (may require re-associating alpha?)
       QMetaObject::invokeMethod(encoder_,
-                                "Write",
+                                "WriteFrame",
                                 Qt::QueuedConnection,
                                 Q_ARG(FramePtr, frame));
 
@@ -145,10 +145,29 @@ void Exporter::FrameRendered(const rational &time, QVariant value)
     } while (cached_frames_.contains(waiting_for_frame_));
 
     if (waiting_for_frame_ >= viewer_node_->Length()) {
+      video_done_ = true;
+
       ExportSucceeded();
     }
   } else {
     cached_frames_.insert(time, value);
+  }
+}
+
+void Exporter::FrameRendered(const rational &time, QVariant value)
+{
+  qDebug() << "Received" << time.toDouble() << "- waiting for" << waiting_for_frame_.toDouble();
+
+  const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
+
+  QByteArray map_hash = time_hash_map.value(time);
+
+  EncodeFrame(time, value);
+
+  QList<rational> matching_times = matched_frames_.value(map_hash);
+  foreach (const rational& t, matching_times) {
+    qDebug() << "    Also matches" << t;
+    EncodeFrame(t, value);
   }
 }
 
@@ -167,14 +186,28 @@ void Exporter::AudioRendered()
   audio_backend_->deleteLater();
 }
 
+void Exporter::AudioEncodeComplete()
+{
+  audio_done_ = true;
+
+  ExportSucceeded();
+}
+
 void Exporter::EncoderOpenedSuccessfully()
 {
   // Invalidate caches
   if (encoder_->params().video_enabled()) {
+    // First we generate the hashes so we know exactly how many frames we need
+    video_backend_->SetOperatingMode(VideoRenderWorker::kHashOnly);
+    connect(video_backend_, &VideoRenderBackend::QueueComplete, this, &Exporter::VideoHashesComplete);
+
     video_backend_->InvalidateCache(0, viewer_node_->Length());
   }
 
   if (encoder_->params().audio_enabled()) {
+    // We set the audio backend to render the full sequence to the disk
+    connect(audio_backend_, &AudioRenderBackend::QueueComplete, this, &Exporter::AudioRendered);
+
     audio_backend_->InvalidateCache(0, viewer_node_->Length());
   }
 }
@@ -189,4 +222,50 @@ void Exporter::EncoderClosed()
 {
   emit ProgressChanged(100);
   emit ExportEnded();
+}
+
+void Exporter::VideoHashesComplete()
+{
+  // We've got our hashes, time to kick off actual rendering
+  disconnect(video_backend_, &VideoRenderBackend::QueueComplete, this, &Exporter::VideoHashesComplete);
+
+  // Determine what frames will be hashed
+  TimeRangeList ranges;
+  ranges.append(TimeRange(0, viewer_node_->Length()));
+
+  QMap<rational, QByteArray>::const_iterator i;
+  QMap<rational, QByteArray>::iterator j;
+
+  // Copy time hash map
+  QMap<rational, QByteArray> time_hash_map = video_backend_->frame_cache()->time_hash_map();
+
+  // Check for any times that share duplicate hashes
+  for (i=time_hash_map.begin();i!=time_hash_map.end();i++) {
+    j = time_hash_map.begin();
+
+    while (j != time_hash_map.end()) {
+      if (i != j && i.value() == j.value()) {
+        // Remove the time range from this and
+        ranges.RemoveTimeRange(TimeRange(j.key(), j.key() + video_backend_->params().time_base()));
+
+        QList<rational> times_with_this_hash = matched_frames_.value(i.value());
+        times_with_this_hash.append(j.key());
+        matched_frames_.insert(i.value(), times_with_this_hash);
+
+        j = time_hash_map.erase(j);
+      } else {
+        j++;
+      }
+    }
+  }
+
+  // Set video backend to render mode but NOT hash or download
+  video_backend_->SetOperatingMode(VideoRenderWorker::kRenderOnly);
+  video_backend_->SetOnlySignalLastFrameRequested(false);
+
+  connect(video_backend_, &VideoRenderBackend::CachedFrameReady, this, &Exporter::FrameRendered);
+
+  foreach (const TimeRange& range, ranges) {
+    video_backend_->InvalidateCache(range.in(), range.out());
+  }
 }

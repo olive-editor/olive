@@ -89,6 +89,7 @@ protected:
 
   void QueueValueUpdate();
 
+  bool AllProcessorsAreAvailable() const;
   bool WorkerIsBusy(RenderWorker* worker) const;
   void SetWorkerBusyState(RenderWorker* worker, bool busy);
 
@@ -104,8 +105,6 @@ protected slots:
   void QueueRecompile();
 
 private:
-  bool AllProcessorsAreAvailable() const;
-
   /**
    * @brief Internal list of RenderProcessThreads
    */

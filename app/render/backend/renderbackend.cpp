@@ -237,7 +237,10 @@ void RenderBackend::CacheNext()
   }
 
   if (cache_queue_.isEmpty()) {
-    emit QueueComplete();
+    if (AllProcessorsAreAvailable()) {
+      emit QueueComplete();
+    }
+
     return;
   }
 

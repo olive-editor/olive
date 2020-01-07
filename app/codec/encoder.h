@@ -61,7 +61,7 @@ public:
 
 public slots:
   void Open();
-  void Write(FramePtr frame);
+  void WriteFrame(FramePtr frame);
   virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename) = 0;
   void Close();
 
@@ -70,6 +70,8 @@ signals:
   void OpenFailed();
 
   void Closed();
+
+  void AudioComplete();
 
 protected:
   virtual bool OpenInternal() = 0;

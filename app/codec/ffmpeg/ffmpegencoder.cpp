@@ -89,6 +89,8 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
 
     pcm.close();
   }
+
+  emit AudioComplete();
 }
 
 bool FFmpegEncoder::OpenInternal()
