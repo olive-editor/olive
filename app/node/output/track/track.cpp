@@ -60,7 +60,7 @@ const Timeline::TrackType& TrackOutput::track_type()
 
 Block::Type TrackOutput::type() const
 {
-  return kTrack;
+  return kClip;
 }
 
 Block *TrackOutput::copy() const

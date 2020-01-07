@@ -179,10 +179,12 @@ const double &NodeParamView::GetScale() const
   return ruler_->scale();
 }
 
-void NodeParamView::SetScale(const double& scale)
+void NodeParamView::SetScale(double scale)
 {
+  scale = qMin(scale, TimelineViewBase::kMaximumScale);
+
   ruler_->SetScale(scale);
-  keyframe_view_->SetScale(scale);
+  keyframe_view_->SetScale(scale, true);
 }
 
 void NodeParamView::SetTime(const int64_t &timestamp)

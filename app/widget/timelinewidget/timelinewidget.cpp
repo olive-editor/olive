@@ -616,9 +616,9 @@ void TimelineWidget::CenterOn(qreal scene_pos)
   horizontal_scroll_->setValue(qRound(scene_pos - horizontal_scroll_->width()/2));
 }
 
-void TimelineWidget::SetScale(double scale)
+void TimelineWidget::SetScale(double scale, bool center_on_playhead)
 {
-  scale_ = scale;
+  scale_ = qMin(scale, TimelineViewBase::kMaximumScale);
 
   ruler_->SetScale(scale_);
 
@@ -637,7 +637,7 @@ void TimelineWidget::SetScale(double scale)
   }
 
   foreach (TimelineAndTrackView* view, views_) {
-    view->view()->SetScale(scale_);
+    view->view()->SetScale(scale_, center_on_playhead);
   }
 }
 
@@ -768,9 +768,6 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     connect(block, SIGNAL(Refreshed()), this, SLOT(BlockChanged()));
     break;
   }
-  case Block::kTrack:
-    // Do nothing
-    break;
   }
 }
 
@@ -870,6 +867,11 @@ void TimelineWidget::ShowSpeedDurationDialog()
   speed_diag.exec();
 }
 
+void TimelineWidget::DeferredScrollAction()
+{
+  horizontal_scroll_->setValue(deferred_scroll_value_);
+}
+
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
   ghost->SetScale(scale_);
@@ -888,19 +890,23 @@ void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)
   }
 }
 
-void TimelineWidget::StartRubberBandSelect(bool select_links)
+void TimelineWidget::StartRubberBandSelect(bool enable_selecting, bool select_links)
 {
   drag_origin_ = QCursor::pos();
   rubberband_.show();
 
-  MoveRubberBandSelect(select_links);
+  MoveRubberBandSelect(enable_selecting, select_links);
 }
 
-void TimelineWidget::MoveRubberBandSelect(bool select_links)
+void TimelineWidget::MoveRubberBandSelect(bool enable_selecting, bool select_links)
 {
   QPoint rubberband_now = QCursor::pos();
 
   rubberband_.setGeometry(QRect(mapFromGlobal(drag_origin_), mapFromGlobal(rubberband_now)).normalized());
+
+  if (!enable_selecting) {
+    return;
+  }
 
   QList<QGraphicsItem*> new_selected_list;
 
@@ -954,9 +960,9 @@ void TimelineWidget::MoveRubberBandSelect(bool select_links)
   rubberband_now_selected_ = new_selected_list;
 }
 
-void TimelineWidget::EndRubberBandSelect(bool select_links)
+void TimelineWidget::EndRubberBandSelect(bool enable_selecting, bool select_links)
 {
-  MoveRubberBandSelect(select_links);
+  MoveRubberBandSelect(enable_selecting, select_links);
   rubberband_.hide();
   rubberband_now_selected_.clear();
 }

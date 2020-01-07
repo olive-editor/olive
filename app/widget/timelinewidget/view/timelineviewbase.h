@@ -14,9 +14,11 @@ class TimelineViewBase : public QGraphicsView, public TimelineScaledObject
 public:
   TimelineViewBase(QWidget* parent = nullptr);
 
-  void SetScale(const double& scale);
+  void SetScale(const double& scale, bool center_on_playhead);
 
   void SetEndTime(const rational& length);
+
+  static const double kMaximumScale;
 
 public slots:
   void SetTimebase(const rational& timebase);

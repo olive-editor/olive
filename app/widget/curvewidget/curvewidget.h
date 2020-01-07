@@ -31,7 +31,7 @@ public:
   void SetVerticalScale(const double& vscale);
 
 public slots:
-  void SetScale(const double& scale);
+  void SetScale(double scale);
 
 signals:
   void TimeChanged(const int64_t& timestamp);

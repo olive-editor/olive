@@ -176,7 +176,5 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
     break;
   }
-  case Block::kTrack:
-    break;
   }
 }

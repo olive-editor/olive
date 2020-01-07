@@ -41,7 +41,7 @@ public:
   const double& GetScale() const;
 
 public slots:
-  void SetScale(const double &scale);
+  void SetScale(double scale);
 
   void SetTime(const int64_t& timestamp);
 

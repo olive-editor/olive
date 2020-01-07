@@ -145,10 +145,12 @@ const double &CurveWidget::GetScale()
   return ruler_->scale();
 }
 
-void CurveWidget::SetScale(const double &scale)
+void CurveWidget::SetScale(double scale)
 {
+  scale = qMin(scale, TimelineViewBase::kMaximumScale);
+
   ruler_->SetScale(scale);
-  view_->SetScale(scale);
+  view_->SetScale(scale, true);
 }
 
 const double &CurveWidget::GetVerticalScale()

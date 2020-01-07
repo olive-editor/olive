@@ -42,7 +42,6 @@ public:
   enum Type {
     kClip,
     kGap,
-    kTrack,
     kTransition
   };
 

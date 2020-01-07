@@ -300,6 +300,7 @@ private:
     virtual void MousePress(TimelineViewMouseEvent *event) override;
     virtual void MouseMove(TimelineViewMouseEvent *event) override;
     virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+
   };
 
   class AddTool : public Tool
@@ -337,9 +338,9 @@ private:
 
   QPoint drag_origin_;
 
-  void StartRubberBandSelect(bool select_links);
-  void MoveRubberBandSelect(bool select_links);
-  void EndRubberBandSelect(bool select_links);
+  void StartRubberBandSelect(bool enable_selecting, bool select_links);
+  void MoveRubberBandSelect(bool enable_selecting, bool select_links);
+  void EndRubberBandSelect(bool enable_selecting, bool select_links);
   QRubberBand rubberband_;
   QList<QGraphicsItem*> rubberband_now_selected_;
 
@@ -377,6 +378,8 @@ private:
 
   TimeSlider* timecode_label_;
 
+  int deferred_scroll_value_;
+
   int GetTrackY(const TrackReference& ref);
   int GetTrackHeight(const TrackReference& ref);
 
@@ -385,7 +388,7 @@ private:
   void AddGhost(TimelineViewGhostItem* ghost);
 
 private slots:
-  void SetScale(double scale);
+  void SetScale(double scale, bool center_on_playhead = true);
 
   void UpdateInternalTime(const int64_t& timestamp);
 
@@ -424,6 +427,8 @@ private slots:
   void ShowContextMenu();
 
   void ShowSpeedDurationDialog();
+
+  void DeferredScrollAction();
 
 };
 

@@ -91,7 +91,7 @@ void TimelineWidget::PointerTool::MousePress(TimelineViewMouseEvent *event)
     }
   } else {
     // Start rubberband drag
-    parent()->StartRubberBandSelect(!(event->GetModifiers() & Qt::AltModifier));
+    parent()->StartRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
 
     rubberband_selecting_ = true;
   }
@@ -102,7 +102,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
   if (rubberband_selecting_) {
 
     // Process rubberband select
-    parent()->MoveRubberBandSelect(!(event->GetModifiers() & Qt::AltModifier));
+    parent()->MoveRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
 
   } else if (!dragging_) {
     // Now that the cursor has moved, we will assume the intention is to drag
@@ -124,7 +124,7 @@ void TimelineWidget::PointerTool::MouseMove(TimelineViewMouseEvent *event)
 void TimelineWidget::PointerTool::MouseRelease(TimelineViewMouseEvent *event)
 {
   if (rubberband_selecting_) {
-    parent()->EndRubberBandSelect(!(event->GetModifiers() & Qt::AltModifier));
+    parent()->EndRubberBandSelect(true, !(event->GetModifiers() & Qt::AltModifier));
 
     rubberband_selecting_ = false;
     return;

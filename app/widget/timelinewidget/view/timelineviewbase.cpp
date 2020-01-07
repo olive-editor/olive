@@ -9,6 +9,8 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
+const double TimelineViewBase::kMaximumScale = 8192;
+
 TimelineViewBase::TimelineViewBase(QWidget *parent) :
   QGraphicsView(parent),
   playhead_(0),
@@ -25,7 +27,7 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   scene_.addItem(end_item_);
 
   // Set default scale
-  SetScale(1.0);
+  SetScale(1.0, true);
 
   SetDefaultDragMode(NoDrag);
 
@@ -35,9 +37,9 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineViewBase::ApplicationToolChanged);
 }
 
-void TimelineViewBase::SetScale(const double &scale)
+void TimelineViewBase::SetScale(const double &scale, bool center_on_playhead)
 {
-  scale_ = scale;
+  scale_ = qMin(scale, kMaximumScale);
 
   end_item_->SetScale(scale_);
 
@@ -46,9 +48,11 @@ void TimelineViewBase::SetScale(const double &scale)
   // Force redraw for playhead
   viewport()->update();
 
-  // Zoom towards the playhead
-  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
-  QTimer::singleShot(0, this, &TimelineViewBase::CenterScrollOnPlayhead);
+  if (center_on_playhead) {
+    // Zoom towards the playhead
+    // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
+    QTimer::singleShot(0, this, &TimelineViewBase::CenterScrollOnPlayhead);
+  }
 }
 
 void TimelineViewBase::SetTimebase(const rational &timebase)
