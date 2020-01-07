@@ -257,16 +257,17 @@ void ViewerWidget::PlayInternal(int speed)
     return;
   }
 
+  playback_speed_ = speed;
+
   QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
   if (audio_src != nullptr && audio_src->open(QIODevice::ReadOnly)) {
     audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
     AudioManager::instance()->SetOutputParams(audio_renderer_->params());
-    AudioManager::instance()->StartOutput(audio_src);
+    AudioManager::instance()->StartOutput(audio_src, playback_speed_);
   }
 
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
   start_timestamp_ = ruler_->GetTime();
-  playback_speed_ = speed;
 
   playback_timer_.start();
 

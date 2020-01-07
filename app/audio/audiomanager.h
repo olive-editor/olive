@@ -79,7 +79,7 @@ public:
    *
    * This takes ownership of the QIODevice and will delete it when StopOutput() is called
    */
-  void StartOutput(QIODevice* device);
+  void StartOutput(QIODevice* device, int playback_speed);
 
   /**
    * @brief Stop audio output immediately
@@ -94,6 +94,8 @@ public:
 
   const QList<QAudioDeviceInfo>& ListInputDevices();
   const QList<QAudioDeviceInfo>& ListOutputDevices();
+
+  static void ReverseBuffer(char* buffer, int size, int resolution);
 
 signals:
   void DeviceListReady();

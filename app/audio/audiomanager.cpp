@@ -80,9 +80,9 @@ void AudioManager::PushToOutput(const QByteArray &samples)
   output_manager_.Push(samples);
 }
 
-void AudioManager::StartOutput(QIODevice *device)
+void AudioManager::StartOutput(QIODevice *device, int playback_speed)
 {
-  output_manager_.PullFromDevice(device);
+  output_manager_.PullFromDevice(device, playback_speed);
 }
 
 void AudioManager::StopOutput()
@@ -147,6 +147,8 @@ void AudioManager::SetOutputParams(const AudioRenderingParams &params)
   if (output_params_ != params) {
     output_params_ = params;
 
+    output_manager_.SetParameters(params);
+
     // Refresh output device
     SetOutputDevice(output_device_info_);
   }
@@ -166,6 +168,24 @@ const QList<QAudioDeviceInfo> &AudioManager::ListInputDevices()
 const QList<QAudioDeviceInfo> &AudioManager::ListOutputDevices()
 {
   return output_devices_;
+}
+
+void AudioManager::ReverseBuffer(char *buffer, int buffer_size, int sample_size)
+{
+  int half_buffer_sz = buffer_size / 2;
+  char* temp_buffer = new char[sample_size];
+
+  for (int src_index=0;src_index<half_buffer_sz;src_index+=sample_size) {
+    char* src_ptr = buffer + src_index;
+    char* dst_ptr = buffer + buffer_size - sample_size - src_index;
+
+    // Simple swap
+    memcpy(temp_buffer, src_ptr, static_cast<size_t>(sample_size));
+    memcpy(src_ptr, dst_ptr, static_cast<size_t>(sample_size));
+    memcpy(dst_ptr, temp_buffer, static_cast<size_t>(sample_size));
+  }
+
+  delete [] temp_buffer;
 }
 
 AudioManager::AudioManager() :

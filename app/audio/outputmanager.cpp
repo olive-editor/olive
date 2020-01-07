@@ -70,7 +70,12 @@ void AudioOutputManager::ResetToPushMode()
   }
 }
 
-void AudioOutputManager::PullFromDevice(QIODevice *device)
+void AudioOutputManager::SetParameters(const AudioRenderingParams &params)
+{
+  device_proxy_.SetParameters(params);
+}
+
+void AudioOutputManager::PullFromDevice(QIODevice *device, int playback_speed)
 {
   if (!output_ || !device) {
     return;
@@ -82,7 +87,7 @@ void AudioOutputManager::PullFromDevice(QIODevice *device)
   pushed_samples_.clear();
 
   // Pull from the device
-  device_proxy_.SetDevice(device);
+  device_proxy_.SetDevice(device, playback_speed);
   device_proxy_.open(QIODevice::ReadOnly);
   output_->start(&device_proxy_);
 }
