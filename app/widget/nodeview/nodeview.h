@@ -22,6 +22,7 @@
 #define NODEVIEW_H
 
 #include <QGraphicsView>
+#include <QTimer>
 
 #include "node/graph.h"
 #include "widget/nodeview/nodeviewedge.h"
@@ -88,15 +89,21 @@ signals:
   void SelectionChanged(QList<Node*> selected_nodes);
 
 private:
+  QList<Node*> GetNodeDirectDescendants(Node* n, const QList<Node*> connected_nodes, QList<Node*>& processed_nodes);
+
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
 
-  void ReorganizeInternal(NodeViewItem *src_item, QList<Node *> &positioned_nodes);
+  int FindWeightsInternal(Node* node, QHash<Node*, int>& weights, QList<Node*>& weighted_nodes);
 
-  void Reorganize();
+  void ReorganizeInternal(NodeViewItem *src_item, QHash<Node*, int>& weights, QList<Node *> &positioned_nodes);
+
+  void QueueReorganize();
 
   NodeGraph* graph_;
 
   QGraphicsScene scene_;
+
+  QTimer reorganize_timer_;
 
 private slots:
   /**
@@ -152,6 +159,11 @@ private slots:
    * @brief Receiver for when the user requests a new node from the add menu
    */
   void CreateNodeSlot(QAction* action);
+
+  /**
+   * @brief Automatically reposition the nodes based on their connections
+   */
+  void Reorganize();
 
 };
 

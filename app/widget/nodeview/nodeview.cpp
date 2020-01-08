@@ -35,6 +35,8 @@ NodeView::NodeView(QWidget *parent) :
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
+  connect(&reorganize_timer_, &QTimer::timeout, &reorganize_timer_, &QTimer::stop);
+  connect(&reorganize_timer_, &QTimer::timeout, this, &NodeView::Reorganize);
 }
 
 NodeView::~NodeView()
@@ -167,7 +169,7 @@ void NodeView::AddNode(Node* node)
     }
   }
 
-  Reorganize();
+  QueueReorganize();
 }
 
 void NodeView::RemoveNode(Node *node)
@@ -185,7 +187,7 @@ void NodeView::AddEdge(NodeEdgePtr edge)
 
   scene_.addItem(edge_ui);
 
-  Reorganize();
+  QueueReorganize();
 }
 
 void NodeView::RemoveEdge(NodeEdgePtr edge)
@@ -386,39 +388,11 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
   }
 }
 
-void NodeView::ReorganizeInternal(NodeViewItem* src_item, QList<Node*>& positioned_nodes)
+QList<Node *> NodeView::GetNodeDirectDescendants(Node* n, const QList<Node*> connected_nodes, QList<Node*>& processed_nodes)
 {
-  Node* n = src_item->node();
+  QList<Node*> direct_descendants = connected_nodes;
 
-  QVector<Node*> connected_nodes;
-
-  foreach (NodeParam* param, n->parameters()) {
-    if (param->type() == NodeParam::kInput) {
-      NodeInput* input = static_cast<NodeInput*>(param);
-
-      if (input->IsConnected() && !connected_nodes.contains(input->get_connected_node())) {
-        connected_nodes.append(input->get_connected_node());
-      }
-
-      if (input->IsArray()) {
-        NodeInputArray* array = static_cast<NodeInputArray*>(input);
-
-        foreach (NodeInput* sub, array->sub_params()) {
-          if (sub->IsConnected() && !connected_nodes.contains(sub->get_connected_node())) {
-            connected_nodes.append(sub->get_connected_node());
-          }
-        }
-      }
-    }
-  }
-
-  if (connected_nodes.isEmpty()) {
-    return;
-  }
-
-  QVector<Node*> direct_descendants = connected_nodes;
-
-  positioned_nodes.append(n);
+  processed_nodes.append(n);
 
   // Remove any nodes that aren't necessarily attached directly
   for (int i=0;i<direct_descendants.size();i++) {
@@ -426,7 +400,7 @@ void NodeView::ReorganizeInternal(NodeViewItem* src_item, QList<Node*>& position
 
     for (int j=1;j<connected->output()->edges().size();j++) {
       Node* this_output_connection = connected->output()->edges().at(j)->input()->parentNode();
-      if (!positioned_nodes.contains(this_output_connection)) {
+      if (!processed_nodes.contains(this_output_connection)) {
         direct_descendants.removeAt(i);
         i--;
         break;
@@ -434,11 +408,53 @@ void NodeView::ReorganizeInternal(NodeViewItem* src_item, QList<Node*>& position
     }
   }
 
+  return direct_descendants;
+}
+
+int NodeView::FindWeightsInternal(Node *node, QHash<Node *, int> &weights, QList<Node*>& weighted_nodes)
+{
+  QList<Node*> connected_nodes = node->GetImmediateDependencies();
+
+  int weight = 0;
+
+  if (!connected_nodes.isEmpty()) {
+    QList<Node*> direct_descendants = GetNodeDirectDescendants(node, connected_nodes, weighted_nodes);
+
+    foreach (Node* dep, direct_descendants) {
+      weight += FindWeightsInternal(dep, weights, weighted_nodes);
+    }
+  }
+
+  weight = qMax(weight, 1);
+
+  weights.insert(node, weight);
+
+  return weight;
+}
+
+void NodeView::ReorganizeInternal(NodeViewItem* src_item, QHash<Node*, int>& weights, QList<Node*>& positioned_nodes)
+{
+  Node* n = src_item->node();
+
+  QList<Node*> connected_nodes = n->GetImmediateDependencies();
+
+  if (connected_nodes.isEmpty()) {
+    return;
+  }
+
+  QList<Node*> direct_descendants = GetNodeDirectDescendants(n, connected_nodes, positioned_nodes);
+
+  int descendant_weight = 0;
+  foreach (Node* dep, direct_descendants) {
+    descendant_weight += weights.value(dep);
+  }
+
   qreal center_y = src_item->y();
-  qreal total_height = direct_descendants.size() * src_item->rect().height() + (direct_descendants.size()-1) * src_item->rect().height()/2;
+  qreal total_height = descendant_weight * src_item->rect().height() + (direct_descendants.size()-1) * src_item->rect().height()/2;
   double item_top = center_y - (total_height/2) + src_item->rect().height()/2;
 
   // Set each node's position
+  int weight_index = 0;
   for (int i=0;i<direct_descendants.size();i++) {
     Node* connected = direct_descendants.at(i);
 
@@ -451,13 +467,14 @@ void NodeView::ReorganizeInternal(NodeViewItem* src_item, QList<Node*>& position
     double item_y = item_top;
 
     // Multiply the index by the item height (with 1.5 for padding)
-    item_y += i * src_item->rect().height() * 1.5;
+    item_y += weight_index * src_item->rect().height() * 1.5;
 
     QPointF item_pos(src_item->pos().x() - item->rect().width() * 3 / 2,
                      item_y);
 
-//    PlaceNode(item, item_pos);
     item->setPos(item_pos);
+
+    weight_index += weights.value(connected);
   }
 
   // Recursively work on each node
@@ -468,8 +485,16 @@ void NodeView::ReorganizeInternal(NodeViewItem* src_item, QList<Node*>& position
       continue;
     }
 
-    ReorganizeInternal(item, positioned_nodes);
+    ReorganizeInternal(item, weights, positioned_nodes);
   }
+}
+
+void NodeView::QueueReorganize()
+{
+  // Avoids the fairly complex Reorganize() function every single time a connection or node is added
+
+  reorganize_timer_.stop();
+  reorganize_timer_.start(20);
 }
 
 void NodeView::Reorganize()
@@ -487,8 +512,16 @@ void NodeView::Reorganize()
     }
   }
 
-  QList<Node*> positioned_nodes;
+  QList<Node*> processed_nodes;
+
+  QHash<Node*, int> node_weights;
   foreach (Node* end_node, end_nodes) {
-    ReorganizeInternal(NodeToUIObject(end_node), positioned_nodes);
+    FindWeightsInternal(end_node, node_weights, processed_nodes);
+  }
+
+  processed_nodes.clear();
+
+  foreach (Node* end_node, end_nodes) {
+    ReorganizeInternal(NodeToUIObject(end_node), node_weights, processed_nodes);
   }
 }
