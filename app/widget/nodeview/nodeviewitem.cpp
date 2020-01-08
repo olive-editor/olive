@@ -69,7 +69,9 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
 
   // Use the current default font height to size this widget
   // Set default "collapsed" size
-  title_bar_rect_ = QRectF(0, 0, widget_width, font_metrics.height() + node_text_padding_ * 2);
+  int widget_height = font_metrics.height() + node_text_padding_ * 2;
+
+  title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
 }
 
