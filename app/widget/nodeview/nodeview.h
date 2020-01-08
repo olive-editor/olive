@@ -88,6 +88,12 @@ signals:
   void SelectionChanged(QList<Node*> selected_nodes);
 
 private:
+  void PlaceNode(NodeViewItem* n, const QPointF& pos);
+
+  void ReorganizeInternal(NodeViewItem *src_item, QList<Node *> &positioned_nodes);
+
+  void Reorganize();
+
   NodeGraph* graph_;
 
   QGraphicsScene scene_;

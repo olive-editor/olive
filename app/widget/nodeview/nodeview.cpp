@@ -166,6 +166,8 @@ void NodeView::AddNode(Node* node)
       }
     }
   }
+
+  Reorganize();
 }
 
 void NodeView::RemoveNode(Node *node)
@@ -182,6 +184,8 @@ void NodeView::AddEdge(NodeEdgePtr edge)
   edge_ui->SetEdge(edge);
 
   scene_.addItem(edge_ui);
+
+  Reorganize();
 }
 
 void NodeView::RemoveEdge(NodeEdgePtr edge)
@@ -245,5 +249,246 @@ void NodeView::CreateNodeSlot(QAction *action)
 
   if (new_node) {
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
+  }
+}
+
+void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
+{
+  QRectF destination_rect = n->rect();
+  destination_rect.translate(n->pos());
+
+  double x_movement = destination_rect.width() * 1.5;
+  double y_movement = destination_rect.height() * 1.5;
+
+  QList<QGraphicsItem*> items = scene()->items(destination_rect);
+
+  n->setPos(pos);
+
+  foreach (QGraphicsItem* item, items) {
+    if (item == n) {
+      continue;
+    }
+
+    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
+
+    if (!node_item) {
+      continue;
+    }
+
+    qDebug() << "Moving" << node_item->node() << "for" << n->node();
+
+    QPointF new_pos;
+
+    if (item->pos() == pos) {
+      qDebug() << "Same pos, need more info";
+
+      // Item positions are exact, we'll need more information to determine where this item should go
+      Node* ours = n->node();
+      Node* theirs = node_item->node();
+
+      bool moved = false;
+
+      new_pos = item->pos();
+
+      // Heuristic to determine whether to move the other item above or below
+      foreach (NodeEdgePtr our_edge, ours->output()->edges()) {
+        foreach (NodeEdgePtr their_edge, theirs->output()->edges()) {
+          if (our_edge->output()->parentNode() == their_edge->output()->parentNode()) {
+            qDebug() << "  They share a node that they output to";
+            if (our_edge->input()->index() > their_edge->input()->index()) {
+              // Their edge should go above ours
+              qDebug() << "    Our edge goes BELOW theirs";
+              new_pos.setY(new_pos.y() - y_movement);
+            } else {
+              // Our edge should go below ours
+              qDebug() << "    Our edge goes ABOVE theirs";
+              new_pos.setY(new_pos.y() + y_movement);
+            }
+
+            moved = true;
+
+            break;
+          }
+        }
+      }
+
+      // If we find anything, just move at random
+      if (!moved) {
+        new_pos.setY(new_pos.y() - y_movement);
+      }
+
+    } else if (item->pos().x() == pos.x()) {
+      qDebug() << "Same X, moving vertically";
+
+      // Move strictly up or down
+      new_pos = item->pos();
+
+      if (item->pos().y() < pos.y()) {
+        // Move further up
+        new_pos.setY(pos.y() - y_movement);
+      } else {
+        // Move further down
+        new_pos.setY(pos.y() + y_movement);
+      }
+    } else if (item->pos().y() == pos.y()) {
+      qDebug() << "Same Y, moving horizontally";
+
+      // Move strictly left or right
+      new_pos = item->pos();
+
+      if (item->pos().x() < pos.x()) {
+        // Move further up
+        new_pos.setX(pos.x() - x_movement);
+      } else {
+        // Move further down
+        new_pos.setX(pos.x() + x_movement);
+      }
+    } else {
+      qDebug() << "Diff pos, pushing in angle";
+
+      // The item does not have equal X or Y, attempt to push it away from `pos` in the direction it's in
+      double x_diff = item->pos().x() - pos.x();
+      double y_diff = item->pos().y() - pos.y();
+
+      double slope = y_diff / x_diff;
+      double y_int = item->pos().y() - slope * item->pos().x();
+
+      if (qAbs(slope) > 1.0) {
+        // Vertical difference is greater than horizontal difference, prioritize vertical movement
+        double desired_y = pos.y();
+
+        if (item->pos().y() > pos.y()) {
+          desired_y += y_movement;
+        } else {
+          desired_y -= y_movement;
+        }
+
+        double x = (desired_y - y_int) / slope;
+
+        new_pos = QPointF(x, desired_y);
+      } else {
+        // Horizontal difference is greater than vertical difference, prioritize horizontal movement
+        double desired_x = pos.x();
+
+        if (item->pos().x() > pos.x()) {
+          desired_x += x_movement;
+        } else {
+          desired_x -= x_movement;
+        }
+
+        double y = slope * desired_x + y_int;
+
+        new_pos = QPointF(desired_x, y);
+      }
+    }
+
+    PlaceNode(node_item, new_pos);
+  }
+}
+
+void NodeView::ReorganizeInternal(NodeViewItem* src_item, QList<Node*>& positioned_nodes)
+{
+  Node* n = src_item->node();
+
+  QVector<Node*> connected_nodes;
+
+  foreach (NodeParam* param, n->parameters()) {
+    if (param->type() == NodeParam::kInput) {
+      NodeInput* input = static_cast<NodeInput*>(param);
+
+      if (input->IsConnected() && !connected_nodes.contains(input->get_connected_node())) {
+        connected_nodes.append(input->get_connected_node());
+      }
+
+      if (input->IsArray()) {
+        NodeInputArray* array = static_cast<NodeInputArray*>(input);
+
+        foreach (NodeInput* sub, array->sub_params()) {
+          if (sub->IsConnected() && !connected_nodes.contains(sub->get_connected_node())) {
+            connected_nodes.append(sub->get_connected_node());
+          }
+        }
+      }
+    }
+  }
+
+  if (connected_nodes.isEmpty()) {
+    return;
+  }
+
+  QVector<Node*> direct_descendants = connected_nodes;
+
+  positioned_nodes.append(n);
+
+  // Remove any nodes that aren't necessarily attached directly
+  for (int i=0;i<direct_descendants.size();i++) {
+    Node* connected = direct_descendants.at(i);
+
+    for (int j=1;j<connected->output()->edges().size();j++) {
+      Node* this_output_connection = connected->output()->edges().at(j)->input()->parentNode();
+      if (!positioned_nodes.contains(this_output_connection)) {
+        direct_descendants.removeAt(i);
+        i--;
+        break;
+      }
+    }
+  }
+
+  qreal center_y = src_item->y();
+  qreal total_height = direct_descendants.size() * src_item->rect().height() + (direct_descendants.size()-1) * src_item->rect().height()/2;
+  double item_top = center_y - (total_height/2) + src_item->rect().height()/2;
+
+  // Set each node's position
+  for (int i=0;i<direct_descendants.size();i++) {
+    Node* connected = direct_descendants.at(i);
+
+    NodeViewItem* item = NodeToUIObject(connected);
+
+    if (!item) {
+      continue;
+    }
+
+    double item_y = item_top;
+
+    // Multiply the index by the item height (with 1.5 for padding)
+    item_y += i * src_item->rect().height() * 1.5;
+
+    QPointF item_pos(src_item->pos().x() - item->rect().width() * 3 / 2,
+                     item_y);
+
+//    PlaceNode(item, item_pos);
+    item->setPos(item_pos);
+  }
+
+  // Recursively work on each node
+  foreach (Node* connected, connected_nodes) {
+    NodeViewItem* item = NodeToUIObject(connected);
+
+    if (!item) {
+      continue;
+    }
+
+    ReorganizeInternal(item, positioned_nodes);
+  }
+}
+
+void NodeView::Reorganize()
+{
+  if (!graph_) {
+    return;
+  }
+
+  QList<Node*> end_nodes;
+
+  // Calculate the nodes that don't output to anything, they'll be our anchors
+  foreach (Node* node, graph_->nodes()) {
+    if (!node->HasConnectedOutputs()) {
+      end_nodes.append(node);
+    }
+  }
+
+  QList<Node*> positioned_nodes;
+  foreach (Node* end_node, end_nodes) {
+    ReorganizeInternal(NodeToUIObject(end_node), positioned_nodes);
   }
 }
