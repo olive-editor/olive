@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QMessageBox>
+#include <QStandardPaths>
 #include <QXmlStreamWriter>
 
 #include "common/autoscroll.h"
@@ -72,6 +73,9 @@ void Config::SetDefaults()
   config_map_["AddDefaultEffectsToClips"] = true;
   config_map_["AutoscaleByDefault"] = false;
   config_map_["Autoscroll"] = AutoScroll::kPage;
+
+  config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+  config_map_["DiskCacheSize"] = 20.0;
 
   config_map_["DefaultSequenceWidth"] = 1920;
   config_map_["DefaultSequenceHeight"] = 1080;

@@ -49,6 +49,9 @@ public:
 
   bool IsDragging() const;
 
+  void SetPrefix(const QString& s);
+  void SetSuffix(const QString& s);
+
 signals:
   void ValueChanged(QVariant v);
 
@@ -101,6 +104,10 @@ private:
   bool require_valid_input_;
 
   bool tristate_;
+
+  QString prefix_;
+
+  QString suffix_;
 
 private slots:
   void LabelPressed();

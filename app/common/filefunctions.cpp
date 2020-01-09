@@ -27,6 +27,8 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 
+#include "config/config.h"
+
 QString GetUniqueFileIdentifier(const QString &filename)
 {
   QFileInfo info(filename);
@@ -48,7 +50,7 @@ QString GetUniqueFileIdentifier(const QString &filename)
 
 QString GetMediaIndexLocation()
 {
-  QDir local_appdata_dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+  QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
 
   QDir media_index_dir = local_appdata_dir.filePath("mediaindex");
 
@@ -65,7 +67,7 @@ QString GetMediaIndexFilename(const QString &filename)
 
 QString GetMediaCacheLocation()
 {
-  QDir local_appdata_dir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+  QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
 
   QDir media_cache_dir = local_appdata_dir.filePath("mediacache");
 

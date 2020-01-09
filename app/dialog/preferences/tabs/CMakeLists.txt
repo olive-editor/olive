@@ -20,6 +20,8 @@ set(OLIVE_SOURCES
   dialog/preferences/tabs/preferencesgeneraltab.cpp
   dialog/preferences/tabs/preferencesbehaviortab.h
   dialog/preferences/tabs/preferencesbehaviortab.cpp
+  dialog/preferences/tabs/preferencesdisktab.h
+  dialog/preferences/tabs/preferencesdisktab.cpp
   dialog/preferences/tabs/preferencesappearancetab.h
   dialog/preferences/tabs/preferencesappearancetab.cpp
   dialog/preferences/tabs/preferencesplaybacktab.h

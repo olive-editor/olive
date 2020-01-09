@@ -96,6 +96,18 @@ bool SliderBase::IsDragging() const
   return dragged_;
 }
 
+void SliderBase::SetPrefix(const QString &s)
+{
+  prefix_ = s;
+  UpdateLabel(value_);
+}
+
+void SliderBase::SetSuffix(const QString &s)
+{
+  suffix_ = s;
+  UpdateLabel(value_);
+}
+
 const QVariant &SliderBase::Value()
 {
   if (dragged_) {
@@ -163,7 +175,11 @@ void SliderBase::UpdateLabel(const QVariant &v)
   if (tristate_) {
     label_->setText("---");
   } else {
-    label_->setText(ValueToString(v));
+    QString comp = prefix_;
+    comp.append(ValueToString(v));
+    comp.append(suffix_);
+
+    label_->setText(comp);
   }
 }
 

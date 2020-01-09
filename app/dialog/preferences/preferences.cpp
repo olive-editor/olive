@@ -30,6 +30,7 @@
 #include "tabs/preferencesbehaviortab.h"
 #include "tabs/preferencesappearancetab.h"
 #include "tabs/preferencesplaybacktab.h"
+#include "tabs/preferencesdisktab.h"
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
 
@@ -51,6 +52,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   AddTab(new PreferencesGeneralTab(), tr("General"));
   AddTab(new PreferencesAppearanceTab(), tr("Appearance"));
   AddTab(new PreferencesBehaviorTab(), tr("Behavior"));
+  AddTab(new PreferencesDiskTab(), tr("Disk"));
   AddTab(new PreferencesPlaybackTab(), tr("Playback"));
   AddTab(new PreferencesAudioTab(), tr("Audio"));
   AddTab(new PreferencesKeyboardTab(main_menu_bar), tr("Keyboard"));
@@ -69,15 +71,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
 
   connect(list_widget_, SIGNAL(currentRowChanged(int)), preference_pane_stack_, SLOT(setCurrentIndex(int)));
 
-}
-
-void PreferencesDialog::AddBoolPair(QCheckBox *ui, bool *value, bool restart_required)
-{
-  bool_ui.append(ui);
-  bool_value.append(value);
-  bool_restart_required.append(restart_required);
-
-  ui->setChecked(*value);
 }
 
 void PreferencesDialog::accept()
