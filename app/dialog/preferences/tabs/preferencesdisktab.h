@@ -1,6 +1,7 @@
 #ifndef PREFERENCESDISKTAB_H
 #define PREFERENCESDISKTAB_H
 
+#include <QCheckBox>
 #include <QLineEdit>
 
 #include "preferencestab.h"
@@ -18,6 +19,8 @@ private:
   QLineEdit* disk_cache_location_;
 
   FloatSlider* maximum_cache_slider_;
+
+  QCheckBox* clear_disk_cache_;
 
 private slots:
   void DiskCacheLineEditChanged();

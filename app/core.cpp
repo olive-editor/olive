@@ -43,6 +43,7 @@
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "render/colormanager.h"
+#include "render/diskmanager.h"
 #include "task/import/import.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
@@ -128,6 +129,8 @@ void Core::Stop()
   PanelManager::DestroyInstance();
 
   AudioManager::DestroyInstance();
+
+  DiskManager::DestroyInstance();
 
   NodeFactory::Destroy();
 
@@ -375,6 +378,9 @@ void Core::StartGUI(bool full_screen)
 
   // Initialize audio service
   AudioManager::CreateInstance();
+
+  // Initialize disk service
+  DiskManager::CreateInstance();
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,

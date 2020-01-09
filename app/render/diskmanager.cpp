@@ -13,12 +13,13 @@ DiskManager* DiskManager::instance_ = nullptr;
 DiskManager::DiskManager() :
   consumption_(0)
 {
-
   // Try to load any current cache index from file
   QFile cache_index_file(QDir(GetMediaCacheLocation()).filePath("index"));
 
   if (cache_index_file.open(QFile::ReadOnly)) {
     QDataStream ds(&cache_index_file);
+
+    ds >> consumption_;
 
     while (!cache_index_file.atEnd()) {
       HashTime h;
@@ -30,28 +31,32 @@ DiskManager::DiskManager() :
 
       disk_data_.append(h);
     }
-  } else {
-    qWarning() << "Failed to read cache index";
   }
-
 }
 
 DiskManager::~DiskManager()
 {
-  // Save current cache index
-  QFile cache_index_file(QDir(GetMediaCacheLocation()).filePath("index"));
-
-  if (cache_index_file.open(QFile::WriteOnly)) {
-    QDataStream ds(&cache_index_file);
-
-    foreach (const HashTime& h, disk_data_) {
-      ds << h.file_name;
-      ds << h.hash;
-      ds << h.access_time;
-      ds << h.file_size;
-    }
+  if (Config::Current()["ClearDiskCacheOnClose"].toBool()) {
+    // Clear all cache data
+    QDir(GetMediaCacheLocation()).removeRecursively();
   } else {
-    qWarning() << "Failed to write cache index";
+    // Save current cache index
+    QFile cache_index_file(QDir(GetMediaCacheLocation()).filePath("index"));
+
+    if (cache_index_file.open(QFile::WriteOnly)) {
+      QDataStream ds(&cache_index_file);
+
+      ds << consumption_;
+
+      foreach (const HashTime& h, disk_data_) {
+        ds << h.file_name;
+        ds << h.hash;
+        ds << h.access_time;
+        ds << h.file_size;
+      }
+    } else {
+      qWarning() << "Failed to write cache index";
+    }
   }
 }
 

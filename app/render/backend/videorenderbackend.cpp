@@ -28,6 +28,7 @@
 #include <QtMath>
 
 #include "common/timecodefunctions.h"
+#include "render/diskmanager.h"
 #include "render/pixelservice.h"
 #include "videorenderworker.h"
 
@@ -181,6 +182,8 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
       auto in = OIIO::ImageInput::open(fn.toStdString());
 
       if (in) {
+        DiskManager::instance()->Accessed(frame_hash);
+
         in->read_image(PixelService::GetPixelFormatInfo(params_.format()).oiio_desc, cache_frame_load_buffer_.data());
 
         in->close();
@@ -243,6 +246,11 @@ void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   SetFrameHash(dep, hash, job_time);
+
+  // Register frame with the disk manager
+  if (operating_mode_ & VideoRenderWorker::kDownloadOnly) {
+    DiskManager::instance()->CreatedFile(frame_cache()->CachePathName(hash), hash);
+  }
 
   QList<rational> hashes_with_time = frame_cache()->FramesWithHash(hash);
 

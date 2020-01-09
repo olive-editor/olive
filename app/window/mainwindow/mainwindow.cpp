@@ -143,20 +143,11 @@ void MainWindow::ProjectOpen(Project* p)
   SetDefaultLayout();
 }
 
-// FIXME: Test code
-#include <QDir>
-#include "common/filefunctions.h"
-// End test code
-
 void MainWindow::closeEvent(QCloseEvent *e)
 {
   PanelManager::instance()->DeleteAllPanels();
 
-  // FIXME: Test code - We have no cache management and the cache is very much testing only, so we delete it on close
-  //                    as to not clog up HDD space
-  QDir(GetMediaCacheLocation()).removeRecursively();
-  //QDir(GetMediaIndexLocation()).removeRecursively();
-  // End test code
+
 
   QMainWindow::closeEvent(e);
 }
