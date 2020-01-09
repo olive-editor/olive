@@ -116,7 +116,7 @@ const QMap<rational, QByteArray> &VideoRenderFrameCache::time_hash_map() const
 
 QString VideoRenderFrameCache::CachePathName(const QByteArray &hash) const
 {
-  QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id_);
+  QDir this_cache_dir = QDir(GetMediaCacheLocation());
   this_cache_dir.mkpath(".");
 
   QString filename = QStringLiteral("%1.exr").arg(QString(hash.toHex()));

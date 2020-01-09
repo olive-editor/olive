@@ -65,10 +65,9 @@ NodeInput *AudioRenderBackend::GetDependentInput()
 
 QString AudioRenderBackend::CachePathName()
 {
-  QDir this_cache_dir = QDir(GetMediaCacheLocation()).filePath(cache_id());
-  this_cache_dir.mkpath(".");
-
-  return this_cache_dir.filePath(QStringLiteral("pcm"));
+  QString cache_fn = cache_id();
+  cache_fn.append(".pcm");
+  return QDir(GetMediaCacheLocation()).filePath(cache_fn);
 }
 
 bool AudioRenderBackend::CanRender()

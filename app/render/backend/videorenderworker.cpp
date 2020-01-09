@@ -26,6 +26,18 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   QByteArray hash;
   if (operating_mode_ & kHashOnly) {
     QCryptographicHash hasher(QCryptographicHash::Sha1);
+
+    // Embed video parameters into this hash
+    int vwidth = video_params_.effective_width();
+    int vheight = video_params_.effective_height();
+    PixelFormat::Format vfmt = video_params_.format();
+    RenderMode::Mode vmode = video_params_.mode();
+
+    hasher.addData(reinterpret_cast<const char*>(&vwidth), sizeof(int));
+    hasher.addData(reinterpret_cast<const char*>(&vheight), sizeof(int));
+    hasher.addData(reinterpret_cast<const char*>(&vfmt), sizeof(PixelFormat::Format));
+    hasher.addData(reinterpret_cast<const char*>(&vmode), sizeof(RenderMode::Mode));
+
     HashNodeRecursively(&hasher, path.node(), path.in());
     hash = hasher.result();
   }
