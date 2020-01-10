@@ -37,16 +37,15 @@ extern "C" {
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
+#include "render/diskmanager.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
-#ifndef CACHE_EVERY_FRAME
   scale_ctx_(nullptr),
   pkt_(nullptr),
   frame_(nullptr),
-#endif
   opts_(nullptr)
 {
 }
@@ -149,7 +148,6 @@ bool FFmpegDecoder::Open()
       qFatal("Invalid output format");
     }
 
-#ifndef CACHE_EVERY_FRAME
     scale_ctx_ = sws_getContext(avstream_->codecpar->width,
                                 avstream_->codecpar->height,
                                 static_cast<AVPixelFormat>(avstream_->codecpar->format),
@@ -163,7 +161,6 @@ bool FFmpegDecoder::Open()
 
     pkt_ = av_packet_alloc();
     frame_ = av_frame_alloc();
-#endif
   }
 
   // All allocation succeeded so we set the state to open
@@ -190,11 +187,13 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     return nullptr;
   }
 
-#ifdef CACHE_EVERY_FRAME
+  // See if we stored this frame in the disk cache
   QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
-  if (compressed_frame.open(QFile::ReadOnly)) {
+  if (compressed_frame.exists() && compressed_frame.open(QFile::ReadOnly)) {
+    DiskManager::instance()->Accessed(compressed_frame.fileName());
+
     // Read data
-    QByteArray frame_loader = compressed_frame.readAll();
+    QByteArray frame_loader = qUncompress(compressed_frame.readAll());
 
     // Frame was valid, now we convert it to a native Olive frame
     FramePtr frame_container = Frame::Create();
@@ -209,7 +208,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     return frame_container;
   }
-#else
+
+  // Otherwise, we'll need to find this frame ourselves
   int64_t second_ts = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
 
   bool got_frame = (frame_->pts == target_ts);
@@ -266,9 +266,17 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
               &output_data,
               &output_linesize);
 
+    QFile save_frame(GetIndexFilename().append(QString::number(frame_->pts)));
+    if (save_frame.open(QFile::WriteOnly)) {
+      QByteArray compressed = qCompress(reinterpret_cast<const uchar*>(output_frame->data()), output_frame->allocated_size());
+      save_frame.write(compressed);
+      save_frame.close();
+
+      DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
+    }
+
     return output_frame;
   }
-#endif
 
   return nullptr;
 }
@@ -318,7 +326,6 @@ void FFmpegDecoder::Close()
     opts_ = nullptr;
   }
 
-#ifndef CACHE_EVERY_FRAME
   if (frame_) {
     av_frame_free(&frame_);
     frame_ = nullptr;
@@ -333,7 +340,6 @@ void FFmpegDecoder::Close()
     sws_freeContext(scale_ctx_);
     scale_ctx_ = nullptr;
   }
-#endif
 
   if (codec_ctx_) {
     avcodec_free_context(&codec_ctx_);
@@ -644,33 +650,17 @@ void FFmpegDecoder::Index()
     return;
   }
 
-  // Allocate a packet and frame for decoding
-  AVPacket* pkt = av_packet_alloc();
-  AVFrame* frame = av_frame_alloc();
+  // Reset state
+  Seek(0);
 
-  if (pkt == nullptr || frame == nullptr) {
-    // Handle failure to allocate either
-    Error(QStringLiteral("Failed to allocate resources for indexing"));
-  } else {
-    // Reset state
-    Seek(0);
-
-    if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-      IndexVideo(pkt, frame);
-    } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-      IndexAudio(pkt, frame);
-    }
-
-    // Reset state
-    Seek(0);
+  if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+    IndexVideo(pkt_, frame_);
+  } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+    IndexAudio(pkt_, frame_);
   }
 
-  // Free resources
-  if (pkt != nullptr)
-    av_packet_free(&pkt);
-
-  if (frame != nullptr)
-    av_frame_free(&frame);
+  // Reset state
+  Seek(0);
 }
 
 QString FFmpegDecoder::GetIndexFilename()
@@ -879,61 +869,18 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
   // Iterate through every single frame and get each timestamp
   // NOTE: Expects no frames to have been read so far
 
-#ifdef CACHE_EVERY_FRAME
-  SwsContext* scale_ctx = sws_getContext(avstream_->codecpar->width,
-                                         avstream_->codecpar->height,
-                                         static_cast<AVPixelFormat>(avstream_->codecpar->format),
-                                         avstream_->codecpar->width,
-                                         avstream_->codecpar->height,
-                                         ideal_pix_fmt_,
-                                         0,
-                                         nullptr,
-                                         nullptr,
-                                         nullptr);
-#endif
-
   int ret;
 
   while (true) {
     ret = GetFrame(pkt, frame);
 
     if (ret >= 0) {
-#ifdef CACHE_EVERY_FRAME
-      // Save frame
-      int buffer_size = PixelService::GetBufferSize(native_pix_fmt_, avstream_->codecpar->width, avstream_->codecpar->height);
-
-      QByteArray frame_save(buffer_size, Qt::Uninitialized);
-
-      char* data = frame_save.data();
-      int line_size = avstream_->codecpar->width * kRGBAChannels;
-
-      // Perform pixel conversion
-
-      sws_scale(scale_ctx,
-                frame->data,
-                frame->linesize,
-                0,
-                avstream_->codecpar->height,
-                reinterpret_cast<uint8_t**>(&data),
-                &line_size);
-
-      QFile compressed_frame(GetIndexFilename().append(QString::number(frame->pts)));
-      if (compressed_frame.open(QFile::WriteOnly)) {
-        compressed_frame.write(frame_save);
-        compressed_frame.close();
-      }
-#endif
-
       frame_index_.append(frame->pts);
     } else {
       // Assume we've reached the end of the file
       break;
     }
   }
-
-#ifdef CACHE_EVERY_FRAME
-  sws_freeContext(scale_ctx);
-#endif
 
   // Save index to file
   SaveIndex();

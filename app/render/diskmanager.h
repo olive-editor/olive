@@ -15,6 +15,8 @@ public:
 
   void Accessed(const QByteArray& hash);
 
+  void Accessed(const QString& filename);
+
   void CreatedFile(const QString& file_name, const QByteArray& hash);
 
   bool ClearDiskCache();

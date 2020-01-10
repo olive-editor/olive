@@ -33,8 +33,6 @@ extern "C" {
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
 
-//#define CACHE_EVERY_FRAME
-
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
@@ -150,13 +148,11 @@ private:
   AVPixelFormat ideal_pix_fmt_;
   PixelFormat::Format native_pix_fmt_;
 
-#ifndef CACHE_EVERY_FRAME
   SwsContext* scale_ctx_;
 
   AVPacket* pkt_;
 
   AVFrame* frame_;
-#endif
 
   AVDictionary* opts_;
 

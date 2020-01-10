@@ -93,6 +93,23 @@ void DiskManager::Accessed(const QByteArray &hash)
   }
 }
 
+void DiskManager::Accessed(const QString &filename)
+{
+  for (int i=disk_data_.size()-1;i>=0;i--) {
+    const HashTime& h = disk_data_.at(i);
+
+    if (h.file_name == filename) {
+      HashTime moved_hash = h;
+
+      moved_hash.access_time = QDateTime::currentMSecsSinceEpoch();
+
+      disk_data_.removeAt(i);
+      disk_data_.append(moved_hash);
+      break;
+    }
+  }
+}
+
 void DiskManager::CreatedFile(const QString &file_name, const QByteArray &hash)
 {
   qint64 file_size = QFile(file_name).size();
