@@ -42,6 +42,11 @@ extern "C" {
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
+#ifndef CACHE_EVERY_FRAME
+  scale_ctx_(nullptr),
+  pkt_(nullptr),
+  frame_(nullptr),
+#endif
   opts_(nullptr)
 {
 }
@@ -143,6 +148,22 @@ bool FFmpegDecoder::Open()
       // We should never get here, but just in case...
       qFatal("Invalid output format");
     }
+
+#ifndef CACHE_EVERY_FRAME
+    scale_ctx_ = sws_getContext(avstream_->codecpar->width,
+                                avstream_->codecpar->height,
+                                static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                                avstream_->codecpar->width,
+                                avstream_->codecpar->height,
+                                ideal_pix_fmt_,
+                                0,
+                                nullptr,
+                                nullptr,
+                                nullptr);
+
+    pkt_ = av_packet_alloc();
+    frame_ = av_frame_alloc();
+#endif
   }
 
   // All allocation succeeded so we set the state to open
@@ -169,10 +190,11 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     return nullptr;
   }
 
+#ifdef CACHE_EVERY_FRAME
   QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
   if (compressed_frame.open(QFile::ReadOnly)) {
     // Read data
-    QByteArray frame_loader = qUncompress(compressed_frame.readAll());
+    QByteArray frame_loader = compressed_frame.readAll();
 
     // Frame was valid, now we convert it to a native Olive frame
     FramePtr frame_container = Frame::Create();
@@ -187,6 +209,66 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     return frame_container;
   }
+#else
+  int64_t second_ts = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
+
+  bool got_frame = (frame_->pts == target_ts);
+
+  if (!got_frame) {
+    if (frame_->pts < target_ts - 2*second_ts || frame_->pts > target_ts) {
+      Seek(target_ts);
+    }
+
+    int64_t seek_ts = target_ts;
+
+    int ret;
+
+    while (true) {
+      ret = GetFrame(pkt_, frame_);
+
+      if (ret < 0) {
+        FFmpegError(ret);
+        break;
+      }
+
+      if (frame_->pts > target_ts) {
+        // Seek failed, try again
+        seek_ts -= second_ts;
+        Seek(seek_ts);
+        continue;
+      }
+
+      if (frame_->pts == target_ts) {
+        // We found the frame we want
+        got_frame = true;
+        break;
+      }
+    }
+  }
+
+  if (got_frame) {
+    FramePtr output_frame = Frame::Create();
+    output_frame->set_width(avstream_->codecpar->width);
+    output_frame->set_height(avstream_->codecpar->height);
+    output_frame->set_format(native_pix_fmt_);
+    output_frame->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
+    output_frame->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
+    output_frame->allocate();
+
+    uint8_t* output_data = reinterpret_cast<uint8_t*>(output_frame->data());
+    int output_linesize = output_frame->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
+
+    sws_scale(scale_ctx_,
+              frame_->data,
+              frame_->linesize,
+              0,
+              frame_->height,
+              &output_data,
+              &output_linesize);
+
+    return output_frame;
+  }
+#endif
 
   return nullptr;
 }
@@ -201,9 +283,7 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
     return nullptr;
   }
 
-  if (!LoadIndex()) {
-    Index();
-  }
+  ValidateIndex();
 
   Conform(params);
 
@@ -233,17 +313,34 @@ void FFmpegDecoder::Close()
 {
   frame_index_.clear();
 
-  if (opts_ != nullptr) {
+  if (opts_) {
     av_dict_free(&opts_);
     opts_ = nullptr;
   }
 
-  if (codec_ctx_ != nullptr) {
+#ifndef CACHE_EVERY_FRAME
+  if (frame_) {
+    av_frame_free(&frame_);
+    frame_ = nullptr;
+  }
+
+  if (pkt_) {
+    av_packet_free(&pkt_);
+    pkt_ = nullptr;
+  }
+
+  if (scale_ctx_) {
+    sws_freeContext(scale_ctx_);
+    scale_ctx_ = nullptr;
+  }
+#endif
+
+  if (codec_ctx_) {
     avcodec_free_context(&codec_ctx_);
     codec_ctx_ = nullptr;
   }
 
-  if (fmt_ctx_ != nullptr) {
+  if (fmt_ctx_) {
     avformat_close_input(&fmt_ctx_);
     fmt_ctx_ = nullptr;
   }
@@ -278,9 +375,7 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
     return;
   }
 
-  if (!LoadIndex()) {
-    Index();
-  }
+  ValidateIndex();
 
   // Get indexed WAV file
   WaveInput input(GetIndexFilename());
@@ -502,10 +597,7 @@ bool FFmpegDecoder::Probe(Footage *f)
     Open();
 
     // Use index to find duration
-    // FIXME: Does nothing for sound
-    if (!LoadIndex()) {
-      Index();
-    }
+    ValidateIndex();
 
     // Use last frame index as the duration
     // FIXME: Does this skip the last frame?
@@ -616,6 +708,17 @@ QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
   index_fn.append(QString::number(params.channel_layout()));
 
   return index_fn;
+}
+
+void FFmpegDecoder::ValidateIndex()
+{
+  stream()->index_lock_.lock();
+
+  if (!LoadIndex()) {
+    Index();
+  }
+
+  stream()->index_lock_.unlock();
 }
 
 bool FFmpegDecoder::LoadIndex()
@@ -776,6 +879,7 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
   // Iterate through every single frame and get each timestamp
   // NOTE: Expects no frames to have been read so far
 
+#ifdef CACHE_EVERY_FRAME
   SwsContext* scale_ctx = sws_getContext(avstream_->codecpar->width,
                                          avstream_->codecpar->height,
                                          static_cast<AVPixelFormat>(avstream_->codecpar->format),
@@ -786,6 +890,7 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
                                          nullptr,
                                          nullptr,
                                          nullptr);
+#endif
 
   int ret;
 
@@ -793,6 +898,7 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
     ret = GetFrame(pkt, frame);
 
     if (ret >= 0) {
+#ifdef CACHE_EVERY_FRAME
       // Save frame
       int buffer_size = PixelService::GetBufferSize(native_pix_fmt_, avstream_->codecpar->width, avstream_->codecpar->height);
 
@@ -802,6 +908,7 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
       int line_size = avstream_->codecpar->width * kRGBAChannels;
 
       // Perform pixel conversion
+
       sws_scale(scale_ctx,
                 frame->data,
                 frame->linesize,
@@ -812,9 +919,10 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
 
       QFile compressed_frame(GetIndexFilename().append(QString::number(frame->pts)));
       if (compressed_frame.open(QFile::WriteOnly)) {
-        compressed_frame.write(qCompress(frame_save, 9));
+        compressed_frame.write(frame_save);
         compressed_frame.close();
       }
+#endif
 
       frame_index_.append(frame->pts);
     } else {
@@ -823,7 +931,9 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
     }
   }
 
+#ifdef CACHE_EVERY_FRAME
   sws_freeContext(scale_ctx);
+#endif
 
   // Save index to file
   SaveIndex();
@@ -877,8 +987,8 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
 int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
 {
   // Index now if we haven't already
-  if (frame_index_.isEmpty() && !LoadIndex()) {
-    Index();
+  if (frame_index_.isEmpty()) {
+    ValidateIndex();
   }
 
   if (frame_index_.isEmpty()) {

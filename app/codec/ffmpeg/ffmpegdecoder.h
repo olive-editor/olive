@@ -33,6 +33,8 @@ extern "C" {
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
 
+//#define CACHE_EVERY_FRAME
+
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
@@ -117,6 +119,8 @@ private:
    */
   QString GetConformedFilename(const AudioRenderingParams &params);
 
+  void ValidateIndex();
+
   /**
    * @brief Used internally to load a frame index into frame_index_
    *
@@ -142,10 +146,19 @@ private:
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
-  AVDictionary* opts_;
 
   AVPixelFormat ideal_pix_fmt_;
   PixelFormat::Format native_pix_fmt_;
+
+#ifndef CACHE_EVERY_FRAME
+  SwsContext* scale_ctx_;
+
+  AVPacket* pkt_;
+
+  AVFrame* frame_;
+#endif
+
+  AVDictionary* opts_;
 
   QVector<int64_t> frame_index_;
 

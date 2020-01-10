@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QCoreApplication>
+#include <QMutex>
 #include <QString>
 
 #include "common/rational.h"
@@ -96,6 +97,8 @@ public:
   static QIcon IconFromType(const Type& type);
 
   StreamID ToID() const;
+
+  QMutex index_lock_;
 
 protected:
   virtual void FootageSetEvent(Footage*){}
