@@ -101,6 +101,31 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
       color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
     }
 
+    // Check frame aspect ratio
+    rational literal_ar(frame->width(), frame->height());
+
+    if (literal_ar != frame->aspect_ratio()) {
+      qDebug() << "NON EQUAL ASPECT RATIO, adjusting!";
+
+      int new_width = frame->width();
+      int new_height = frame->height();
+
+      // Scale the frame in a way that does not reduce the resolution
+      if (frame->aspect_ratio() > literal_ar) {
+        // Make wider
+        new_width = qRound(static_cast<double>(new_width) * frame->aspect_ratio().toDouble() / literal_ar.toDouble());
+      } else {
+        // Make taller
+        new_height = qRound(static_cast<double>(new_height) * literal_ar.toDouble() / frame->aspect_ratio().toDouble());
+      }
+
+      footage_params = VideoRenderingParams(new_width,
+                                            new_height,
+                                            footage_params.time_base(),
+                                            footage_params.format(),
+                                            footage_params.mode());
+    }
+
     // Create destination texture
     OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_->Get(ctx_, footage_params);
 
@@ -109,7 +134,7 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     footage_tex_ref->texture()->Bind();
 
     // Set viewport for texture size
-    functions_->glViewport(0, 0, footage_tex_ref->texture()->width(), footage_tex_ref->texture()->height());
+    functions_->glViewport(0, 0, associated_tex_ref->texture()->width(), associated_tex_ref->texture()->height());
 
     // Blit old texture to new texture through OCIO shader
     color_processor->ProcessOpenGL();

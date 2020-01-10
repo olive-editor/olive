@@ -30,7 +30,8 @@ Frame::Frame() :
   height_(0),
   format_(PixelFormat::PIX_FMT_INVALID),
   sample_count_(0),
-  timestamp_(0)
+  timestamp_(0),
+  aspect_ratio_(1)
 {
 }
 
@@ -39,7 +40,7 @@ FramePtr Frame::Create()
   return std::make_shared<Frame>();
 }
 
-const int &Frame::width()
+const int &Frame::width() const
 {
   return width_;
 }
@@ -49,7 +50,7 @@ void Frame::set_width(const int &width)
   width_ = width;
 }
 
-const int &Frame::height()
+const int &Frame::height() const
 {
   return height_;
 }
@@ -59,7 +60,17 @@ void Frame::set_height(const int &height)
   height_ = height;
 }
 
-const AudioRenderingParams &Frame::audio_params()
+const rational &Frame::aspect_ratio() const
+{
+  return aspect_ratio_;
+}
+
+void Frame::set_aspect_ratio(const rational &aspect_ratio)
+{
+  aspect_ratio_ = aspect_ratio;
+}
+
+const AudioRenderingParams &Frame::audio_params() const
 {
   return audio_params_;
 }
@@ -69,7 +80,7 @@ void Frame::set_audio_params(const AudioRenderingParams &params)
   audio_params_ = params;
 }
 
-const rational &Frame::timestamp()
+const rational &Frame::timestamp() const
 {
   return timestamp_;
 }
@@ -89,7 +100,7 @@ void Frame::set_native_timestamp(const int64_t &timestamp)
   native_timestamp_ = timestamp;
 }*/
 
-const PixelFormat::Format &Frame::format()
+const PixelFormat::Format &Frame::format() const
 {
   return format_;
 }
@@ -99,12 +110,12 @@ void Frame::set_format(const PixelFormat::Format &format)
   format_ = format;
 }
 
-QByteArray Frame::ToByteArray()
+QByteArray Frame::ToByteArray() const
 {
   return data_;
 }
 
-const int &Frame::sample_count()
+const int &Frame::sample_count() const
 {
   return sample_count_;
 }
@@ -119,7 +130,7 @@ char *Frame::data()
   return data_.data();
 }
 
-const char *Frame::const_data()
+const char *Frame::const_data() const
 {
   return data_.constData();
 }

@@ -33,15 +33,10 @@ using FramePtr = std::shared_ptr<Frame>;
 
 /**
  * @brief Video frame data or audio sample data from a Decoder
- *
- * Abstraction from AVFrame. Currently a simple AVFrame wrapper.
- *
- * This class does not support copying at this time.
  */
 class Frame
 {
 public:
-  /// Normal constructor
   Frame();
 
   static FramePtr Create();
@@ -49,19 +44,22 @@ public:
   /**
    * @brief Get frame's width in pixels
    */
-  const int& width();
+  const int& width() const;
   void set_width(const int& width);
 
   /**
    * @brief Get frame's height in pixels
    */
-  const int& height();
+  const int& height() const;
   void set_height(const int& height);
 
-  const AudioRenderingParams& audio_params();
+  const rational& aspect_ratio() const;
+  void set_aspect_ratio(const rational& aspect_ratio);
+
+  const AudioRenderingParams& audio_params() const;
   void set_audio_params(const AudioRenderingParams& params);
 
-  const int &sample_count();
+  const int &sample_count() const;
   void set_sample_count(const int &sample_count);
 
   /**
@@ -69,7 +67,7 @@ public:
    *
    * This timestamp is always a rational that will equate to the time in seconds.
    */
-  const rational& timestamp();
+  const rational& timestamp() const;
   void set_timestamp(const rational& timestamp);
 
   /*const int64_t& native_timestamp();
@@ -82,7 +80,7 @@ public:
    *
    * Currently this will either be an olive::PixelFormat (video) or an olive::SampleFormat (audio).
    */
-  const PixelFormat::Format& format();
+  const PixelFormat::Format& format() const;
   void set_format(const PixelFormat::Format& format);
 
   /**
@@ -90,7 +88,7 @@ public:
    *
    * Will always do a deep copy. If you want to affect the data directly, use data() instead.
    */
-  QByteArray ToByteArray();
+  QByteArray ToByteArray() const;
 
   /**
    * @brief Get the data buffer of this frame
@@ -100,7 +98,7 @@ public:
   /**
    * @brief Get the const data buffer of this frame
    */
-  const char* const_data();
+  const char* const_data() const;
 
   /**
    * @brief Allocate memory buffer to store data based on parameters
@@ -137,6 +135,8 @@ private:
   QByteArray data_;
 
   rational timestamp_;
+
+  rational aspect_ratio_;
 
 };
 

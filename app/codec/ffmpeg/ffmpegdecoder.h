@@ -147,6 +147,8 @@ private:
   AVPixelFormat ideal_pix_fmt_;
   PixelFormat::Format native_pix_fmt_;
 
+  AVRational display_aspect_ratio_;
+
   QVector<int64_t> frame_index_;
 
 };
