@@ -75,7 +75,7 @@ void Config::SetDefaults()
   config_map_["Autoscroll"] = AutoScroll::kPage;
 
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-  config_map_["DiskCacheSize"] = 0.025;
+  config_map_["DiskCacheSize"] = 20.0;
   config_map_["DiskCacheBehind"] = QVariant::fromValue(rational(5));
   config_map_["DiskCacheAhead"] = QVariant::fromValue(rational(30));
   config_map_["ClearDiskCacheOnClose"] = false;
