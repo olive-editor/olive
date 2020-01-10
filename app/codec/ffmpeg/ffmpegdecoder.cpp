@@ -33,6 +33,7 @@ extern "C" {
 #include <QtMath>
 
 #include "codec/waveinput.h"
+#include "common/define.h"
 #include "common/filefunctions.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
@@ -41,8 +42,7 @@ extern "C" {
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
-  opts_(nullptr),
-  scale_ctx_(nullptr)
+  opts_(nullptr)
 {
 }
 
@@ -129,41 +129,20 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
-  // Set up
-  if (codec_ctx_->codec_type == AVMEDIA_TYPE_VIDEO) {
-    // Set up pixel format conversion for video
-    AVPixelFormat pix_fmt = static_cast<AVPixelFormat>(avstream_->codecpar->format);
-
+  if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
     // Get an Olive compatible AVPixelFormat
-    AVPixelFormat ideal_pix_fmt = FFmpegCommon::GetCompatiblePixelFormat(pix_fmt);
+    ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(static_cast<AVPixelFormat>(avstream_->codecpar->format));
 
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
-    switch (ideal_pix_fmt) {
-    case AV_PIX_FMT_RGBA:
-      output_fmt_ = PixelFormat::PIX_FMT_RGBA8;
-      break;
-    case AV_PIX_FMT_RGBA64:
-      output_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
-      break;
-    default:
-      // We should never get here, but if we do there's nothing we can do with this format
-      return false;
+    if (ideal_pix_fmt_ == AV_PIX_FMT_RGBA) {
+      native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA8;
+    } else if (ideal_pix_fmt_ == AV_PIX_FMT_RGBA64) {
+      native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
+    } else {
+      // We should never get here, but just in case...
+      qFatal("Invalid output format");
     }
-
-    scale_ctx_ = sws_getContext(avstream_->codecpar->width,
-                                avstream_->codecpar->height,
-                                pix_fmt,
-                                avstream_->codecpar->width,
-                                avstream_->codecpar->height,
-                                ideal_pix_fmt,
-                                0,
-                                nullptr,
-                                nullptr,
-                                nullptr);
-
-  } else if (codec_ctx_->codec_type == AVMEDIA_TYPE_AUDIO) {
-    // FIXME: Fill this in
   }
 
   // All allocation succeeded so we set the state to open
@@ -192,56 +171,18 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
   QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
   if (compressed_frame.open(QFile::ReadOnly)) {
-    QByteArray frame_loader = qUncompress(compressed_frame.readAll());
-    AVFrame* frame = av_frame_alloc();
-
-    if (frame == nullptr) {
-      qWarning() << "Failed to create AVFrame for swscale";
-      return nullptr;
-    }
-
-    frame->width = avstream_->codecpar->width;
-    frame->height = avstream_->codecpar->height;
-
-    QDataStream ds(&frame_loader, QIODevice::ReadOnly);
-    ds >> frame->format;
-
-    if (av_frame_get_buffer(frame, 0) != 0) {
-      qWarning() << "Failed to get AVFrame buffer";
-      av_frame_free(&frame);
-      return nullptr;
-    }
-
     // Read data
-    size_t pos = sizeof(int);
-    for (int i=0;i<AV_NUM_DATA_POINTERS;i++) {
-      size_t plane_size = static_cast<size_t>(frame->linesize[i] * CalculatePlaneHeight(frame->height, static_cast<AVPixelFormat>(frame->format), i));
-      memcpy(frame->data[i], frame_loader.data() + pos, plane_size);
-      pos += plane_size;
-    }
+    QByteArray frame_loader = qUncompress(compressed_frame.readAll());
 
     // Frame was valid, now we convert it to a native Olive frame
     FramePtr frame_container = Frame::Create();
-    frame_container->set_width(frame->width);
-    frame_container->set_height(frame->height);
-    frame_container->set_format(static_cast<PixelFormat::Format>(output_fmt_));
+    frame_container->set_width(avstream_->codecpar->width);
+    frame_container->set_height(avstream_->codecpar->height);
+    frame_container->set_format(native_pix_fmt_);
     frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
     frame_container->allocate();
 
-    // Convert pixel format/linesize if necessary
-    uint8_t* dst_data = reinterpret_cast<uint8_t*>(frame_container->data());
-    int dst_linesize = frame_container->width() * PixelService::BytesPerPixel(static_cast<PixelFormat::Format>(output_fmt_));
-
-    // Perform pixel conversion
-    sws_scale(scale_ctx_,
-              frame->data,
-              frame->linesize,
-              0,
-              frame->height,
-              &dst_data,
-              &dst_linesize);
-
-    av_frame_free(&frame);
+    memcpy(frame_container->data(), frame_loader.constData(), frame_loader.size());
 
     return frame_container;
   }
@@ -290,11 +231,6 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
 void FFmpegDecoder::Close()
 {
   frame_index_.clear();
-
-  if (scale_ctx_ != nullptr) {
-    sws_freeContext(scale_ctx_);
-    scale_ctx_ = nullptr;
-  }
 
   if (opts_ != nullptr) {
     av_dict_free(&opts_);
@@ -839,6 +775,17 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
   // Iterate through every single frame and get each timestamp
   // NOTE: Expects no frames to have been read so far
 
+  SwsContext* scale_ctx = sws_getContext(avstream_->codecpar->width,
+                                         avstream_->codecpar->height,
+                                         static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                                         avstream_->codecpar->width,
+                                         avstream_->codecpar->height,
+                                         ideal_pix_fmt_,
+                                         0,
+                                         nullptr,
+                                         nullptr,
+                                         nullptr);
+
   int ret;
 
   while (true) {
@@ -846,20 +793,25 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
 
     if (ret >= 0) {
       // Save frame
-      QByteArray frame_save;
-      QDataStream ds(&frame_save, QIODevice::WriteOnly);
+      int buffer_size = PixelService::GetBufferSize(native_pix_fmt_, avstream_->codecpar->width, avstream_->codecpar->height);
 
-      ds << frame->format;
+      QByteArray frame_save(buffer_size, Qt::Uninitialized);
 
-      // Save data
-      for (int i=0;i<AV_NUM_DATA_POINTERS;i++) {
-        frame_save.append(reinterpret_cast<const char*>(frame->data[i]),
-                          frame->linesize[i] * CalculatePlaneHeight(frame->height, static_cast<AVPixelFormat>(frame->format), i));
-      }
+      char* data = frame_save.data();
+      int line_size = avstream_->codecpar->width * kRGBAChannels;
+
+      // Perform pixel conversion
+      sws_scale(scale_ctx,
+                frame->data,
+                frame->linesize,
+                0,
+                avstream_->codecpar->height,
+                reinterpret_cast<uint8_t**>(&data),
+                &line_size);
 
       QFile compressed_frame(GetIndexFilename().append(QString::number(frame->pts)));
       if (compressed_frame.open(QFile::WriteOnly)) {
-        compressed_frame.write(qCompress(frame_save));
+        compressed_frame.write(qCompress(frame_save, 9));
         compressed_frame.close();
       }
 
@@ -869,6 +821,8 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
       break;
     }
   }
+
+  sws_freeContext(scale_ctx);
 
   // Save index to file
   SaveIndex();
@@ -917,17 +871,6 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
   }
 
   return ret;
-}
-
-int FFmpegDecoder::CalculatePlaneHeight(int frame_height, const AVPixelFormat &format, int plane)
-{
-  // FIXME: This seems dumb, but I can't find any FFmpeg function that returns this information
-
-  if ((plane == 1 || plane == 2)
-      && format == AV_PIX_FMT_YUV420P) {
-    return frame_height/2;
-  }
-  return frame_height;
 }
 
 int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)

@@ -20,6 +20,10 @@ private:
 
   FloatSlider* maximum_cache_slider_;
 
+  FloatSlider* cache_ahead_slider_;
+
+  FloatSlider* cache_behind_slider_;
+
   QCheckBox* clear_disk_cache_;
 
 private slots:

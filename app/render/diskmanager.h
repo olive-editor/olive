@@ -17,6 +17,8 @@ public:
 
   void CreatedFile(const QString& file_name, const QByteArray& hash);
 
+  bool ClearDiskCache();
+
 signals:
   void DeletedFrame(const QByteArray& hash);
 

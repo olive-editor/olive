@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 
 #include "common/filefunctions.h"
 #include "config/config.h"
@@ -19,8 +20,6 @@ DiskManager::DiskManager() :
   if (cache_index_file.open(QFile::ReadOnly)) {
     QDataStream ds(&cache_index_file);
 
-    ds >> consumption_;
-
     while (!cache_index_file.atEnd()) {
       HashTime h;
 
@@ -29,7 +28,10 @@ DiskManager::DiskManager() :
       ds >> h.access_time;
       ds >> h.file_size;
 
-      disk_data_.append(h);
+      if (QFileInfo::exists(h.file_name)) {
+        consumption_ += h.file_size;
+        disk_data_.append(h);
+      }
     }
   }
 }
@@ -38,15 +40,13 @@ DiskManager::~DiskManager()
 {
   if (Config::Current()["ClearDiskCacheOnClose"].toBool()) {
     // Clear all cache data
-    QDir(GetMediaCacheLocation()).removeRecursively();
+    ClearDiskCache();
   } else {
     // Save current cache index
     QFile cache_index_file(QDir(GetMediaCacheLocation()).filePath("index"));
 
     if (cache_index_file.open(QFile::WriteOnly)) {
       QDataStream ds(&cache_index_file);
-
-      ds << consumption_;
 
       foreach (const HashTime& h, disk_data_) {
         ds << h.file_name;
@@ -97,13 +97,20 @@ void DiskManager::CreatedFile(const QString &file_name, const QByteArray &hash)
 {
   qint64 file_size = QFile(file_name).size();
 
-  disk_data_.append({file_name, hash, QDateTime::currentMSecsSinceEpoch(), });
+  disk_data_.append({file_name, hash, QDateTime::currentMSecsSinceEpoch(), file_size});
 
   consumption_ += file_size;
 
   while (consumption_ > DiskLimit()) {
     DeleteLeastRecent();
   }
+}
+
+bool DiskManager::ClearDiskCache()
+{
+  disk_data_.clear();
+
+  return QDir(GetMediaCacheLocation()).removeRecursively();
 }
 
 void DiskManager::DeleteLeastRecent()

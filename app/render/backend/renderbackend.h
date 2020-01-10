@@ -63,6 +63,8 @@ protected:
    */
   virtual bool GenerateCacheIDInternal(QCryptographicHash& hash) = 0;
 
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range);
+
   virtual void CacheIDChangedEvent(const QString& id);
 
   void SetError(const QString& error);

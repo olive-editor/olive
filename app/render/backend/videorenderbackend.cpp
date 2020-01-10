@@ -28,6 +28,8 @@
 #include <QtMath>
 
 #include "common/timecodefunctions.h"
+#include "config/config.h"
+#include "render/diskmanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelservice.h"
 #include "videorenderworker.h"
@@ -37,6 +39,7 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   operating_mode_(VideoRenderWorker::kHashRenderCache),
   only_signal_last_frame_requested_(true)
 {
+  connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &VideoRenderBackend::FrameRemovedFromDiskCache);
 }
 
 bool VideoRenderBackend::InitInternal()
@@ -142,10 +145,21 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 
   video_processor->SetOperatingMode(operating_mode_);
 
-  connect(video_processor, &VideoRenderWorker::CompletedFrame, this, &VideoRenderBackend::ThreadCompletedFrame);
-  connect(video_processor, &VideoRenderWorker::HashAlreadyBeingCached, this, &VideoRenderBackend::ThreadSkippedFrame);
-  connect(video_processor, &VideoRenderWorker::CompletedDownload, this, &VideoRenderBackend::ThreadCompletedDownload);
-  connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists);
+  connect(video_processor, &VideoRenderWorker::CompletedFrame, this, &VideoRenderBackend::ThreadCompletedFrame, Qt::QueuedConnection);
+  connect(video_processor, &VideoRenderWorker::HashAlreadyBeingCached, this, &VideoRenderBackend::ThreadSkippedFrame, Qt::QueuedConnection);
+  connect(video_processor, &VideoRenderWorker::CompletedDownload, this, &VideoRenderBackend::ThreadCompletedDownload, Qt::QueuedConnection);
+  connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists, Qt::QueuedConnection);
+}
+
+void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
+{
+  TimeRange invalidated(start_range, end_range);
+
+  missing_cache_.InsertTimeRange(invalidated);
+
+  emit RangeInvalidated(invalidated);
+
+  Requeue();
 }
 
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
@@ -171,6 +185,8 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
     qWarning() << "Invalid parameters";
     return nullptr;
   }
+
+  Requeue();
 
   // Find frame in map
   QByteArray frame_hash = frame_cache_.TimeToHash(time);
@@ -220,8 +236,13 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
     snapped_in -= params_.time_base();
   }
 
+  TimeRange frame_range(snapped_in, snapped_in + params_.time_base());
+
   // Remove this particular frame from the queue
-  cache_queue_.RemoveTimeRange(TimeRange(snapped_in, snapped_in + params_.time_base()));
+  cache_queue_.RemoveTimeRange(frame_range);
+
+  // Remove this particular frame from missing frames
+  missing_cache_.RemoveTimeRange(frame_range);
 
   // Return the snapped frame
   return TimeRange(snapped_in, snapped_in);
@@ -293,6 +314,19 @@ void VideoRenderBackend::TruncateFrameCacheLength(const rational &length)
   frame_cache_.Truncate(length);
 }
 
+void VideoRenderBackend::FrameRemovedFromDiskCache(const QByteArray &hash)
+{
+  QList<rational> deleted_frames = frame_cache()->FramesWithHash(hash);
+
+  foreach (const rational& frame, deleted_frames) {
+    TimeRange invalidated(frame, frame+params_.time_base());
+
+    missing_cache_.InsertTimeRange(invalidated);
+
+    emit RangeInvalidated(invalidated);
+  }
+}
+
 bool VideoRenderBackend::TimeIsQueued(const TimeRange &time) const
 {
   return cache_queue_.ContainsTimeRange(time);
@@ -313,4 +347,17 @@ bool VideoRenderBackend::SetFrameHash(const NodeDependency &dep, const QByteArra
   }
 
   return false;
+}
+
+void VideoRenderBackend::Requeue()
+{
+  cache_queue_.clear();
+
+  // Reset queue around the last time requested
+  TimeRange queueable_range(last_time_requested_ - Config::Current()["DiskCacheBehind"].value<rational>(),
+                            last_time_requested_ + Config::Current()["DiskCacheAhead"].value<rational>());
+
+  cache_queue_ = missing_cache_.Intersects(queueable_range);
+
+  CacheNext();
 }

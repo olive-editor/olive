@@ -103,11 +103,15 @@ protected:
 
   virtual void EmitCachedFrameReady(const rational &time, const QVariant& value, qint64 job_time) = 0;
 
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
+
   VideoRenderWorker::OperatingMode operating_mode_;
 
 signals:
   void CachedFrameReady(const rational& time, QVariant value, qint64 job_time);
   void CachedTimeReady(const rational& time, qint64 job_time);
+
+  void RangeInvalidated(const TimeRange& range);
 
 private:
   bool TimeIsQueued(const TimeRange &time) const;
@@ -116,11 +120,15 @@ private:
 
   bool SetFrameHash(const NodeDependency& dep, const QByteArray& hash, const qint64& job_time);
 
+  void Requeue();
+
   VideoRenderingParams params_;
 
   QByteArray cache_frame_load_buffer_;
 
   VideoRenderFrameCache frame_cache_;
+
+  TimeRangeList missing_cache_;
 
   rational last_time_requested_;
 
@@ -133,6 +141,8 @@ private slots:
   void ThreadHashAlreadyExists(NodeDependency dep, qint64 job_time, QByteArray hash);
 
   void TruncateFrameCacheLength(const rational& length);
+
+  void FrameRemovedFromDiskCache(const QByteArray& hash);
 
 };
 

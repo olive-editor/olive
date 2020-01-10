@@ -109,9 +109,9 @@ void TimeRuler::SetScroll(int s)
   update();
 }
 
-void TimeRuler::CacheInvalidatedRange(const rational& in, const rational& out)
+void TimeRuler::CacheInvalidatedRange(const TimeRange& range)
 {
-  dirty_cache_ranges_.InsertTimeRange(TimeRange(in, out));
+  dirty_cache_ranges_.InsertTimeRange(range);
 
   update();
 }

@@ -149,3 +149,25 @@ bool TimeRangeList::ContainsTimeRange(const TimeRange &range) const
 
   return false;
 }
+
+TimeRangeList TimeRangeList::Intersects(const TimeRange &range)
+{
+  TimeRangeList intersect_list;
+
+  for (int i=0;i<size();i++) {
+    const TimeRange& compare = at(i);
+
+    if (compare.out() <= range.in() || compare.in() >= range.out()) {
+      // No intersect
+      continue;
+    } else {
+      // Crop the time range to the range and add it to the list
+      TimeRange cropped(qMax(range.in(), compare.in()),
+                        qMin(range.out(), compare.out()));
+
+      intersect_list.append(cropped);
+    }
+  }
+
+  return intersect_list;
+}

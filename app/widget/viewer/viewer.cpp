@@ -82,6 +82,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::CachedFrameReady, this, &ViewerWidget::RendererCachedFrame);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler_, &TimeRuler::CacheTimeReady);
+  connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler_, &TimeRuler::CacheInvalidatedRange);
   audio_renderer_ = new AudioBackend(this);
 }
 
@@ -142,7 +143,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
     disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
     disconnect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-    disconnect(viewer_node_, &ViewerOutput::VideoChangedBetween, ruler_, &TimeRuler::CacheInvalidatedRange);
 
     // Effectively disables the viewer and clears the state
     SizeChangedSlot(0, 0);
@@ -164,7 +164,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
     connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
     connect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-    connect(viewer_node_, &ViewerOutput::VideoChangedBetween, ruler_, &TimeRuler::CacheInvalidatedRange);
 
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
     LengthChangedSlot(viewer_node_->Length());

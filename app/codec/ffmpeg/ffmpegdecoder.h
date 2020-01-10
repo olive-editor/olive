@@ -139,15 +139,13 @@ private:
 
   void Seek(int64_t timestamp);
 
-  int CalculatePlaneHeight(int frame_height, const AVPixelFormat& format, int plane);
-
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
   AVDictionary* opts_;
 
-  SwsContext* scale_ctx_;
-  int output_fmt_;
+  AVPixelFormat ideal_pix_fmt_;
+  PixelFormat::Format native_pix_fmt_;
 
   QVector<int64_t> frame_index_;
 

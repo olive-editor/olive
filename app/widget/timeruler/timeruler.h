@@ -48,7 +48,7 @@ public slots:
 
   void SetScroll(int s);
 
-  void CacheInvalidatedRange(const rational& in, const rational& out);
+  void CacheInvalidatedRange(const TimeRange &range);
 
   void CacheTimeReady(const rational& time);
 

@@ -115,13 +115,10 @@ void RenderBackend::InvalidateCache(const rational &start_range, const rational 
            << "and"
            << end_range_adj.toDouble();
 
-  // Add the range to the list
-  cache_queue_.InsertTimeRange(TimeRange(start_range_adj, end_range_adj));
-
   // Queue value update
   QueueValueUpdate();
 
-  CacheNext();
+  InvalidateCacheInternal(start_range_adj, end_range_adj);
 }
 
 bool RenderBackend::Compile()
@@ -354,6 +351,14 @@ bool RenderBackend::AllProcessorsAreAvailable() const
 const QVector<QThread *> &RenderBackend::threads()
 {
   return threads_;
+}
+
+void RenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
+{
+  // Add the range to the list
+  cache_queue_.InsertTimeRange(TimeRange(start_range, end_range));
+
+  CacheNext();
 }
 
 void RenderBackend::CacheIDChangedEvent(const QString &id)

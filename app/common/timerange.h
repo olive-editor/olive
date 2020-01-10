@@ -45,6 +45,8 @@ public:
 
   bool ContainsTimeRange(const TimeRange& range) const;
 
+  TimeRangeList Intersects(const TimeRange& range);
+
 };
 
 #endif // TIMERANGE_H
