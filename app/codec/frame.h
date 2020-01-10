@@ -53,8 +53,8 @@ public:
   const int& height() const;
   void set_height(const int& height);
 
-  const rational& aspect_ratio() const;
-  void set_aspect_ratio(const rational& aspect_ratio);
+  const rational& sample_aspect_ratio() const;
+  void set_sample_aspect_ratio(const rational& sample_aspect_ratio);
 
   const AudioRenderingParams& audio_params() const;
   void set_audio_params(const AudioRenderingParams& params);
@@ -136,7 +136,7 @@ private:
 
   rational timestamp_;
 
-  rational aspect_ratio_;
+  rational sample_aspect_ratio_;
 
 };
 

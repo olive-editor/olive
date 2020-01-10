@@ -143,18 +143,6 @@ bool FFmpegDecoder::Open()
       // We should never get here, but just in case...
       qFatal("Invalid output format");
     }
-
-    // Determine sample aspect ratio
-    AVRational sar = av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr);
-
-    // Use it to determine the display aspect ratio
-    // I'll be honest, I'm not entirely sure how this works or what it does. This code is the DAR code from ffprobe
-    // and seems to retrieve the DAR accurately.
-    av_reduce(&display_aspect_ratio_.num,
-              &display_aspect_ratio_.den,
-              avstream_->codecpar->width * sar.num,
-              avstream_->codecpar->height * sar.den,
-              1024*1024);
   }
 
   // All allocation succeeded so we set the state to open
@@ -192,7 +180,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     frame_container->set_height(avstream_->codecpar->height);
     frame_container->set_format(native_pix_fmt_);
     frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
-    frame_container->set_aspect_ratio(display_aspect_ratio_);
+    frame_container->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
     frame_container->allocate();
 
     memcpy(frame_container->data(), frame_loader.constData(), frame_loader.size());

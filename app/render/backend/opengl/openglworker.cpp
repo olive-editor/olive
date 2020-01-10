@@ -102,21 +102,17 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     }
 
     // Check frame aspect ratio
-    rational literal_ar(frame->width(), frame->height());
-
-    if (literal_ar != frame->aspect_ratio()) {
-      qDebug() << "NON EQUAL ASPECT RATIO, adjusting!";
-
+    if (frame->sample_aspect_ratio() != 1) {
       int new_width = frame->width();
       int new_height = frame->height();
 
       // Scale the frame in a way that does not reduce the resolution
-      if (frame->aspect_ratio() > literal_ar) {
+      if (frame->sample_aspect_ratio() > 1) {
         // Make wider
-        new_width = qRound(static_cast<double>(new_width) * frame->aspect_ratio().toDouble() / literal_ar.toDouble());
+        new_width = qRound(static_cast<double>(new_width) * frame->sample_aspect_ratio().toDouble());
       } else {
         // Make taller
-        new_height = qRound(static_cast<double>(new_height) * literal_ar.toDouble() / frame->aspect_ratio().toDouble());
+        new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
       }
 
       footage_params = VideoRenderingParams(new_width,

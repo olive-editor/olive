@@ -31,7 +31,7 @@ Frame::Frame() :
   format_(PixelFormat::PIX_FMT_INVALID),
   sample_count_(0),
   timestamp_(0),
-  aspect_ratio_(1)
+  sample_aspect_ratio_(1)
 {
 }
 
@@ -60,14 +60,14 @@ void Frame::set_height(const int &height)
   height_ = height;
 }
 
-const rational &Frame::aspect_ratio() const
+const rational &Frame::sample_aspect_ratio() const
 {
-  return aspect_ratio_;
+  return sample_aspect_ratio_;
 }
 
-void Frame::set_aspect_ratio(const rational &aspect_ratio)
+void Frame::set_sample_aspect_ratio(const rational &aspect_ratio)
 {
-  aspect_ratio_ = aspect_ratio;
+  sample_aspect_ratio_ = aspect_ratio;
 }
 
 const AudioRenderingParams &Frame::audio_params() const
