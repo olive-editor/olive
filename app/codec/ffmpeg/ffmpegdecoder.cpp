@@ -23,6 +23,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
 #include <libavutil/pixdesc.h>
 }
 
@@ -158,6 +159,11 @@ bool FFmpegDecoder::Open()
                                 nullptr,
                                 nullptr,
                                 nullptr);
+
+    if (!scale_ctx_) {
+      Error(QStringLiteral("Failed to allocate SwsContext"));
+      return false;
+    }
   }
 
   pkt_ = av_packet_alloc();
@@ -196,35 +202,54 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     return nullptr;
   }
 
-  // See if we stored this frame in the disk cache
-  QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
-  if (compressed_frame.exists() && compressed_frame.open(QFile::ReadOnly)) {
-    DiskManager::instance()->Accessed(compressed_frame.fileName());
-
-    // Read data
-    //QByteArray frame_loader = qUncompress(compressed_frame.readAll());
-    QByteArray frame_loader = compressed_frame.readAll();
-
-    // Frame was valid, now we convert it to a native Olive frame
-    FramePtr frame_container = Frame::Create();
-    frame_container->set_width(avstream_->codecpar->width);
-    frame_container->set_height(avstream_->codecpar->height);
-    frame_container->set_format(native_pix_fmt_);
-    frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
-    frame_container->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
-    frame_container->allocate();
-
-    memcpy(frame_container->data(), frame_loader.constData(), frame_loader.size());
-
-    return frame_container;
-  }
-
-  // Otherwise, we'll need to find this frame ourselves
-  int64_t second_ts = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
+  // Allocate frame that we'll return
+  FramePtr frame_container = Frame::Create();
+  frame_container->set_width(avstream_->codecpar->width);
+  frame_container->set_height(avstream_->codecpar->height);
+  frame_container->set_format(native_pix_fmt_);
+  frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
+  frame_container->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
+  frame_container->allocate();
 
   bool got_frame = (frame_->pts == target_ts);
 
+  QByteArray frame_loader;
+  uint8_t* input_data[4];
+  int input_linesize[4];
+
+  // If we already have the frame, we'll need to set the pointers to it
+  for (int i=0;i<4;i++) {
+    input_data[i] = frame_->data[i];
+    input_linesize[i] = frame_->linesize[i];
+  }
+
+  // See if we stored this frame in the disk cache
   if (!got_frame) {
+    QFile compressed_frame(GetIndexFilename().append(QString::number(target_ts)));
+    if (compressed_frame.exists()
+        && compressed_frame.size() > 0
+        && compressed_frame.open(QFile::ReadOnly)) {
+      DiskManager::instance()->Accessed(compressed_frame.fileName());
+
+      // Read data
+      frame_loader = compressed_frame.readAll();
+
+      av_image_fill_arrays(input_data,
+                           input_linesize,
+                           reinterpret_cast<uint8_t*>(frame_loader.data()),
+                           static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                           avstream_->codecpar->width,
+                           avstream_->codecpar->height,
+                           1);
+
+      got_frame = true;
+    }
+  }
+
+  // If we have no disk cache, we'll need to find this frame ourselves
+  if (!got_frame) {
+    int64_t second_ts = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
+
     if (frame_->pts < target_ts - 2*second_ts || frame_->pts > target_ts) {
       Seek(target_ts);
     }
@@ -251,44 +276,59 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
       if (frame_->pts == target_ts) {
         // We found the frame we want
         got_frame = true;
+
+        // Set data arrays to the frame's data
+        for (int i=0;i<4;i++) {
+          input_data[i] = frame_->data[i];
+          input_linesize[i] = frame_->linesize[i];
+        }
+
+        // Save frame to media index
+        QFile save_frame(GetIndexFilename().append(QString::number(frame_->pts)));
+        if (save_frame.open(QFile::WriteOnly)) {
+          int cached_buffer_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(frame_->format),
+                                                          frame_->width,
+                                                          frame_->height,
+                                                          1);
+
+          QByteArray cached_frame(cached_buffer_sz, Qt::Uninitialized);
+
+          av_image_copy_to_buffer(reinterpret_cast<uint8_t*>(cached_frame.data()),
+                                  cached_frame.size(),
+                                  frame_->data,
+                                  frame_->linesize,
+                                  static_cast<AVPixelFormat>(frame_->format),
+                                  frame_->width,
+                                  frame_->height,
+                                  1);
+
+          // FIXME: No compression
+          save_frame.write(cached_frame);
+          save_frame.close();
+
+          DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
+        }
+
         break;
       }
     }
   }
 
+  // If we're here and got the frame, we'll convert it and return it
   if (got_frame) {
-    FramePtr output_frame = Frame::Create();
-    output_frame->set_width(avstream_->codecpar->width);
-    output_frame->set_height(avstream_->codecpar->height);
-    output_frame->set_format(native_pix_fmt_);
-    output_frame->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
-    output_frame->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
-    output_frame->allocate();
-
-    uint8_t* output_data = reinterpret_cast<uint8_t*>(output_frame->data());
-    int output_linesize = output_frame->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
+    // Convert frame to RGBA for the rest of the pipeline
+    uint8_t* output_data = reinterpret_cast<uint8_t*>(frame_container->data());
+    int output_linesize = frame_container->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
 
     sws_scale(scale_ctx_,
-              frame_->data,
-              frame_->linesize,
+              input_data,
+              input_linesize,
               0,
-              frame_->height,
+              avstream_->codecpar->height,
               &output_data,
               &output_linesize);
 
-    QFile save_frame(GetIndexFilename().append(QString::number(frame_->pts)));
-    if (save_frame.open(QFile::WriteOnly)) {
-      // FIXME: This compression is really slow
-      //QByteArray compressed = qCompress(reinterpret_cast<const uchar*>(output_frame->data()), output_frame->allocated_size());
-      //save_frame.write(compressed);
-
-      save_frame.write(output_frame->data(), output_frame->allocated_size());
-      save_frame.close();
-
-      DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
-    }
-
-    return output_frame;
+    return frame_container;
   }
 
   return nullptr;
