@@ -158,9 +158,18 @@ bool FFmpegDecoder::Open()
                                 nullptr,
                                 nullptr,
                                 nullptr);
+  }
 
-    pkt_ = av_packet_alloc();
-    frame_ = av_frame_alloc();
+  pkt_ = av_packet_alloc();
+  if (!pkt_) {
+    Error(QStringLiteral("Failed to allocate AVPacket"));
+    return false;
+  }
+
+  frame_ = av_frame_alloc();
+  if (!frame_) {
+    Error(QStringLiteral("Failed to allocate AVFrame"));
+    return false;
   }
 
   // All allocation succeeded so we set the state to open
@@ -367,6 +376,9 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
 
   // Convert timecode to AVStream timebase
   int64_t target_ts = Timecode::time_to_timestamp(time, avstream_->time_base);
+
+  // Adjust target by stream's start time
+  target_ts += avstream_->start_time;
 
   // Find closest actual timebase in the file
   target_ts = GetClosestTimestampInIndex(target_ts);
