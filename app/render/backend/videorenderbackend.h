@@ -128,7 +128,7 @@ private:
 
   VideoRenderFrameCache frame_cache_;
 
-  TimeRangeList missing_cache_;
+  TimeRangeList invalidated_;
 
   rational last_time_requested_;
 

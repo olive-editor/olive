@@ -202,7 +202,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     DiskManager::instance()->Accessed(compressed_frame.fileName());
 
     // Read data
-    QByteArray frame_loader = qUncompress(compressed_frame.readAll());
+    //QByteArray frame_loader = qUncompress(compressed_frame.readAll());
+    QByteArray frame_loader = compressed_frame.readAll();
 
     // Frame was valid, now we convert it to a native Olive frame
     FramePtr frame_container = Frame::Create();
@@ -277,8 +278,11 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     QFile save_frame(GetIndexFilename().append(QString::number(frame_->pts)));
     if (save_frame.open(QFile::WriteOnly)) {
-      QByteArray compressed = qCompress(reinterpret_cast<const uchar*>(output_frame->data()), output_frame->allocated_size());
-      save_frame.write(compressed);
+      // FIXME: This compression is really slow
+      //QByteArray compressed = qCompress(reinterpret_cast<const uchar*>(output_frame->data()), output_frame->allocated_size());
+      //save_frame.write(compressed);
+
+      save_frame.write(output_frame->data(), output_frame->allocated_size());
       save_frame.close();
 
       DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
@@ -374,7 +378,7 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
     return -1;
   }
 
-  // Convert timecode to AVStream timebase
+  // Get rough approximation of what the timestamp would be in this timebase
   int64_t target_ts = Timecode::time_to_timestamp(time, avstream_->time_base);
 
   // Adjust target by stream's start time

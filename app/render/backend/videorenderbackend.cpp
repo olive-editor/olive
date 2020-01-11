@@ -155,7 +155,7 @@ void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, co
 {
   TimeRange invalidated(start_range, end_range);
 
-  missing_cache_.InsertTimeRange(invalidated);
+  invalidated_.InsertTimeRange(invalidated);
 
   emit RangeInvalidated(invalidated);
 
@@ -226,26 +226,58 @@ bool VideoRenderBackend::CanRender()
 
 TimeRange VideoRenderBackend::PopNextFrameFromQueue()
 {
-  TimeRange range = cache_queue_.first();
+  // Try to find the frame that's closest to the last time requested (the playhead)
 
-  // Snap the range to a single discrete frame
-  rational snapped_in = Timecode::snap_time_to_timebase(range.in(), params_.time_base());
+  // Set up playhead frame range to see if the queue contains this frame precisely
+  TimeRange test_range(last_time_requested_, last_time_requested_ + params_.time_base());
 
-  // Check if the range starts earlier, in which case we should render that frame instead
-  if (range.in() < snapped_in) {
-    snapped_in -= params_.time_base();
+  // Use this variable to find the closest frame in the range
+  rational closest_time = -1;
+
+  for (int i=0;i<cache_queue_.size();i++) {
+    const TimeRange& range_here = cache_queue_.at(i);
+
+    if (range_here.Contains(test_range)) {
+      closest_time = -1;
+      break;
+    }
+
+    rational compare_in = range_here.in();
+    rational compare_out = range_here.out() - params_.time_base();
+
+    if (closest_time < 0 || qAbs(compare_in - last_time_requested_) < qAbs(closest_time - last_time_requested_)) {
+      closest_time = compare_in;
+    }
+
+    if (closest_time < 0 || qAbs(compare_out - last_time_requested_) < qAbs(closest_time - last_time_requested_)) {
+      closest_time = compare_out;
+    }
   }
 
-  TimeRange frame_range(snapped_in, snapped_in + params_.time_base());
+  TimeRange frame_range;
+
+  if (closest_time == -1) {
+    frame_range = test_range;
+  } else {
+    // Snap the range to a single discrete frame
+    rational snapped_in = Timecode::snap_time_to_timebase(closest_time, params_.time_base());
+
+    // Check if the range starts earlier, in which case we should render that frame instead
+    if (closest_time < snapped_in) {
+      frame_range = TimeRange(snapped_in - params_.time_base(), snapped_in);
+    } else {
+      frame_range = TimeRange(snapped_in, snapped_in + params_.time_base());
+    }
+  }
 
   // Remove this particular frame from the queue
   cache_queue_.RemoveTimeRange(frame_range);
 
   // Remove this particular frame from missing frames
-  missing_cache_.RemoveTimeRange(frame_range);
+  invalidated_.RemoveTimeRange(frame_range);
 
   // Return the snapped frame
-  return TimeRange(snapped_in, snapped_in);
+  return TimeRange(frame_range.in(), frame_range.in());
 }
 
 void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
@@ -321,7 +353,7 @@ void VideoRenderBackend::FrameRemovedFromDiskCache(const QByteArray &hash)
   foreach (const rational& frame, deleted_frames) {
     TimeRange invalidated(frame, frame+params_.time_base());
 
-    missing_cache_.InsertTimeRange(invalidated);
+    invalidated_.InsertTimeRange(invalidated);
 
     emit RangeInvalidated(invalidated);
   }
@@ -357,7 +389,7 @@ void VideoRenderBackend::Requeue()
   TimeRange queueable_range(last_time_requested_ - Config::Current()["DiskCacheBehind"].value<rational>(),
                             last_time_requested_ + Config::Current()["DiskCacheAhead"].value<rational>());
 
-  cache_queue_ = missing_cache_.Intersects(queueable_range);
+  cache_queue_ = invalidated_.Intersects(queueable_range);
 
   CacheNext();
 }
