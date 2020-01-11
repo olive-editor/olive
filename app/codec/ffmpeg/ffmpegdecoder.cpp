@@ -232,7 +232,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
       DiskManager::instance()->Accessed(compressed_frame.fileName());
 
       // Read data
-      frame_loader = compressed_frame.readAll();
+      frame_loader = qUncompress(compressed_frame.readAll());
+      //frame_loader = compressed_frame.readAll();
 
       av_image_fill_arrays(input_data,
                            input_linesize,
@@ -283,9 +284,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           input_linesize[i] = frame_->linesize[i];
         }
 
-        // Save frame to media index
         QFile save_frame(GetIndexFilename().append(QString::number(frame_->pts)));
         if (save_frame.open(QFile::WriteOnly)) {
+
+          // Save frame to media index
           int cached_buffer_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(frame_->format),
                                                           frame_->width,
                                                           frame_->height,
@@ -302,13 +304,11 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
                                   frame_->height,
                                   1);
 
-          // FIXME: No compression
-          save_frame.write(cached_frame);
+          save_frame.write(qCompress(cached_frame, 1));
           save_frame.close();
 
           DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
         }
-
         break;
       }
     }

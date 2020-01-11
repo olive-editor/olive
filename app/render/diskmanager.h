@@ -1,6 +1,7 @@
 #ifndef DISKMANAGER_H
 #define DISKMANAGER_H
 
+#include <QMutex>
 #include <QObject>
 
 class DiskManager : public QObject
@@ -31,7 +32,7 @@ private:
 
   static DiskManager* instance_;
 
-  void DeleteLeastRecent();
+  QByteArray DeleteLeastRecent();
 
   qint64 DiskLimit();
 
@@ -45,6 +46,8 @@ private:
   QList<HashTime> disk_data_;
 
   qint64 consumption_;
+
+  QMutex lock_;
 
 };
 

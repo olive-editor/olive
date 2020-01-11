@@ -78,6 +78,8 @@ DiskManager *DiskManager::instance()
 
 void DiskManager::Accessed(const QByteArray &hash)
 {
+  lock_.lock();
+
   for (int i=disk_data_.size()-1;i>=0;i--) {
     const HashTime& h = disk_data_.at(i);
 
@@ -91,10 +93,14 @@ void DiskManager::Accessed(const QByteArray &hash)
       break;
     }
   }
+
+  lock_.unlock();
 }
 
 void DiskManager::Accessed(const QString &filename)
 {
+  lock_.lock();
+
   for (int i=disk_data_.size()-1;i>=0;i--) {
     const HashTime& h = disk_data_.at(i);
 
@@ -108,29 +114,47 @@ void DiskManager::Accessed(const QString &filename)
       break;
     }
   }
+
+  lock_.unlock();
 }
 
 void DiskManager::CreatedFile(const QString &file_name, const QByteArray &hash)
 {
+  lock_.lock();
+
   qint64 file_size = QFile(file_name).size();
 
   disk_data_.append({file_name, hash, QDateTime::currentMSecsSinceEpoch(), file_size});
 
   consumption_ += file_size;
 
+  QList<QByteArray> deleted_hashes;
+
   while (consumption_ > DiskLimit()) {
-    DeleteLeastRecent();
+    deleted_hashes.append(DeleteLeastRecent());
+  }
+
+  lock_.unlock();
+
+  foreach (const QByteArray& hash, deleted_hashes) {
+    emit DeletedFrame(hash);
   }
 }
 
 bool DiskManager::ClearDiskCache()
 {
+  lock_.lock();
+
+  bool deleted_files = QDir(GetMediaCacheLocation()).removeRecursively();
+
   disk_data_.clear();
 
-  return QDir(GetMediaCacheLocation()).removeRecursively();
+  lock_.unlock();
+
+  return deleted_files;
 }
 
-void DiskManager::DeleteLeastRecent()
+QByteArray DiskManager::DeleteLeastRecent()
 {
   HashTime h = disk_data_.takeFirst();
 
@@ -138,7 +162,7 @@ void DiskManager::DeleteLeastRecent()
 
   consumption_ -= h.file_size;
 
-  emit DeletedFrame(h.hash);
+  return h.hash;
 }
 
 qint64 DiskManager::DiskLimit()
