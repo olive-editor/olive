@@ -20,9 +20,10 @@
 
 #include "project.h"
 
+#include <QFileInfo>
+
 Project::Project()
 {
-  name_ = tr("(untitled)");
   root_.set_project(this);
 }
 
@@ -31,17 +32,28 @@ Folder *Project::root()
   return &root_;
 }
 
-const QString &Project::name()
+QString Project::name() const
 {
-  return name_;
+  if (filename_.isEmpty()) {
+    return tr("(untitled)");
+  } else {
+    return QFileInfo(filename_).baseName();
+  }
 }
 
-void Project::set_name(const QString &s)
+const QString &Project::filename() const
 {
-  name_ = s;
+  return filename_;
 }
 
-const QString &Project::ocio_config()
+void Project::set_filename(const QString &s)
+{
+  filename_ = s;
+
+  emit NameChanged();
+}
+
+const QString &Project::ocio_config() const
 {
   return ocio_config_;
 }
@@ -51,7 +63,7 @@ void Project::set_ocio_config(const QString &ocio_config)
   ocio_config_ = ocio_config;
 }
 
-const QString &Project::default_input_colorspace()
+const QString &Project::default_input_colorspace() const
 {
   return default_input_colorspace_;
 }

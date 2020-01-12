@@ -175,6 +175,18 @@ public:
 
 public slots:
   /**
+   * @brief Save the currently active project
+   *
+   * If the project hasn't been saved before, this will be equivalent to calling SaveActiveProjectAs().
+   */
+  void SaveActiveProject();
+
+  /**
+   * @brief Save the currently active project with a new filename
+   */
+  void SaveActiveProjectAs();
+
+  /**
    * @brief Set the current application-wide tool
    *
    * @param tool
@@ -262,6 +274,11 @@ private:
    * create an application instance that is completely valid minus the UI (e.g. for CLI modes).
    */
   void StartGUI(bool full_screen);
+
+  /**
+   * @brief Internal function for saving a project to a file
+   */
+  void SaveProjectInternal(Project* project);
 
   /**
    * @brief Internal main window object

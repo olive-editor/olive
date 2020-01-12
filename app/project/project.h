@@ -46,21 +46,26 @@ public:
 
   Folder* root();
 
-  const QString& name();
-  void set_name(const QString& s);
+  QString name() const;
 
-  const QString& ocio_config();
+  const QString& filename() const;
+  void set_filename(const QString& s);
+
+  const QString& ocio_config() const;
   void set_ocio_config(const QString& ocio_config);
 
-  const QString& default_input_colorspace();
+  const QString& default_input_colorspace() const;
   void set_default_input_colorspace(const QString& colorspace);
 
   ColorManager* color_manager();
 
+signals:
+  void NameChanged();
+
 private:
   Folder root_;
 
-  QString name_;
+  QString filename_;
 
   QString ocio_config_;
   QString default_input_colorspace_;

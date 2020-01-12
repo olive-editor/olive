@@ -20,6 +20,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   project/project.h
   project/project.cpp
+  project/projectsavemanager.h
+  project/projectsavemanager.cpp
   project/projectviewmodel.h
   project/projectviewmodel.cpp
   PARENT_SCOPE

@@ -33,6 +33,7 @@
 #include "config/config.h"
 #include "dialog/about/about.h"
 #include "dialog/export/export.h"
+#include "dialog/loadsave/loadsave.h"
 #include "dialog/sequence/sequence.h"
 #include "dialog/preferences/preferences.h"
 #include "dialog/projectproperties/projectproperties.h"
@@ -40,6 +41,7 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
+#include "project/projectsavemanager.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "render/colormanager.h"
@@ -404,6 +406,36 @@ void Core::StartGUI(bool full_screen)
   autorecovery_timer_.start();
 }
 
+void Core::SaveProjectInternal(Project *project)
+{
+  // Create save dialog
+  LoadSaveDialog* lsd = new LoadSaveDialog(tr("Saving '%1'").arg(project->filename()), tr("Save Project"), main_window_);
+  lsd->open();
+
+  // Create save manager
+  ProjectSaveManager* psm = new ProjectSaveManager(project);
+
+  // Create a separate thread to save in
+  QThread* save_thread = new QThread();
+  save_thread->start();
+
+  // Move the save manager to this thread
+  psm->moveToThread(save_thread);
+
+  // Connect the save manager progress signal to the progress bar update on the dialog
+  connect(psm, &ProjectSaveManager::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
+
+  // Connect cleanup functions (ensure everything new'd in this function is deleteLater'd)
+  connect(psm, &ProjectSaveManager::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
+  connect(psm, &ProjectSaveManager::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);
+  connect(psm, &ProjectSaveManager::Finished, psm, &ProjectSaveManager::deleteLater, Qt::QueuedConnection);
+  connect(psm, &ProjectSaveManager::Finished, save_thread, &QThread::quit, Qt::QueuedConnection);
+  connect(psm, &ProjectSaveManager::Finished, save_thread, &QThread::deleteLater, Qt::QueuedConnection);
+
+  // Start the save process
+  QMetaObject::invokeMethod(psm, "Start", Qt::QueuedConnection);
+}
+
 void Core::SaveAutorecovery()
 {
   if (queue_autorecovery_) {
@@ -437,6 +469,41 @@ void Core::SetAutorecoveryInterval(int minutes)
 {
   // Convert minutes to milliseconds
   autorecovery_timer_.setInterval(minutes * 60000);
+}
+
+void Core::SaveActiveProject()
+{
+  Project* active_project = GetActiveProject();
+
+  if (!active_project) {
+    return;
+  }
+
+  if (active_project->filename().isEmpty()) {
+    SaveActiveProjectAs();
+  } else {
+    SaveProjectInternal(active_project);
+  }
+}
+
+void Core::SaveActiveProjectAs()
+{
+  Project* active_project = GetActiveProject();
+
+  if (!active_project) {
+    return;
+  }
+
+  QString fn = QFileDialog::getSaveFileName(main_window_,
+                                            tr("Save Project As"),
+                                            QString(),
+                                            tr("Olive Project (*.ove)"));
+
+  if (!fn.isEmpty()) {
+    active_project->set_filename(fn);
+
+    SaveProjectInternal(active_project);
+  }
 }
 
 QList<rational> Core::SupportedFrameRates()

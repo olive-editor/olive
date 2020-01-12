@@ -44,8 +44,8 @@ MainMenu::MainMenu(QMainWindow *parent) :
   file_open_item_ = file_menu_->AddItem("openproj", nullptr, nullptr, "Ctrl+O");
   file_open_recent_menu_ = new Menu(file_menu_);
   file_open_recent_clear_item_ = file_open_recent_menu_->AddItem("clearopenrecent", nullptr, nullptr);
-  file_save_item_ = file_menu_->AddItem("saveproj", nullptr, nullptr, "Ctrl+S");
-  file_save_as_item_ = file_menu_->AddItem("saveprojas", nullptr, nullptr, "Ctrl+Shift+S");
+  file_save_item_ = file_menu_->AddItem("saveproj", Core::instance(), SLOT(SaveActiveProject()), "Ctrl+S");
+  file_save_as_item_ = file_menu_->AddItem("saveprojas", Core::instance(), SLOT(SaveActiveProjectAs()), "Ctrl+Shift+S");
   file_menu_->addSeparator();
   file_import_item_ = file_menu_->AddItem("import", Core::instance(), SLOT(DialogImportShow()), "Ctrl+I");
   file_menu_->addSeparator();

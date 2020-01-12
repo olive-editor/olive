@@ -58,6 +58,8 @@ private slots:
   void ItemDoubleClickSlot(Item* item);
 
   void ShowNewMenu();
+
+  void ProjectNameChanged();
 };
 
 #endif // PROJECT_PANEL_H

@@ -75,9 +75,17 @@ Project *ProjectPanel::project()
 
 void ProjectPanel::set_project(Project *p)
 {
+  if (project()) {
+    disconnect(project(), &Project::NameChanged, this, &ProjectPanel::ProjectNameChanged);
+  }
+
   explorer_->set_project(p);
 
-  Retranslate();
+  if (project()) {
+    connect(project(), &Project::NameChanged, this, &ProjectPanel::ProjectNameChanged);
+  }
+
+  ProjectNameChanged();
 }
 
 QList<Item *> ProjectPanel::SelectedItems()
@@ -112,11 +120,7 @@ void ProjectPanel::Retranslate()
 {
   SetTitle(tr("Project"));
 
-  if (project() == nullptr) {
-    SetSubtitle(tr("(none)"));
-  } else {
-    SetSubtitle(project()->name());
-  }
+  ProjectNameChanged();
 }
 
 void ProjectPanel::ItemDoubleClickSlot(Item *item)
@@ -140,4 +144,13 @@ void ProjectPanel::ShowNewMenu()
   MenuShared::instance()->AddItemsForNewMenu(&new_menu);
 
   new_menu.exec(QCursor::pos());
+}
+
+void ProjectPanel::ProjectNameChanged()
+{
+  if (project() == nullptr) {
+    SetSubtitle(tr("(none)"));
+  } else {
+    SetSubtitle(project()->name());
+  }
 }
