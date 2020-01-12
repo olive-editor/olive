@@ -41,6 +41,7 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
+#include "project/projectloadmanager.h"
 #include "project/projectsavemanager.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
@@ -116,9 +117,13 @@ void Core::Start()
 
   StartGUI(parser.isSet(fullscreen_option));
 
-  // Create new project on startup
-  // FIXME: Load project from startup_project_ instead if not empty
-  AddOpenProject(std::make_shared<Project>());
+  // Load startup project
+  if (startup_project_.isEmpty()) {
+    // If no load project is set, create a new one on open
+    AddOpenProject(std::make_shared<Project>());
+  } else {
+
+  }
 }
 
 void Core::Stop()
@@ -408,35 +413,10 @@ void Core::StartGUI(bool full_screen)
 
 void Core::SaveProjectInternal(Project *project)
 {
-  // Create save dialog
-  LoadSaveDialog* lsd = new LoadSaveDialog(tr("Saving '%1'").arg(project->filename()), tr("Save Project"), main_window_);
-  lsd->open();
-
   // Create save manager
   ProjectSaveManager* psm = new ProjectSaveManager(project);
 
-  // Create a separate thread to save in
-  QThread* save_thread = new QThread();
-  save_thread->start();
-
-  // Move the save manager to this thread
-  psm->moveToThread(save_thread);
-
-  // Connect the save manager progress signal to the progress bar update on the dialog
-  connect(psm, &ProjectSaveManager::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
-
-  // Connect cancel signal (must be a direct connection or it'll be queued after the save is already finished)
-  connect(lsd, &LoadSaveDialog::Cancelled, psm, &ProjectSaveManager::Cancel, Qt::DirectConnection);
-
-  // Connect cleanup functions (ensure everything new'd in this function is deleteLater'd)
-  connect(psm, &ProjectSaveManager::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
-  connect(psm, &ProjectSaveManager::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);
-  connect(psm, &ProjectSaveManager::Finished, psm, &ProjectSaveManager::deleteLater, Qt::QueuedConnection);
-  connect(psm, &ProjectSaveManager::Finished, save_thread, &QThread::quit, Qt::QueuedConnection);
-  connect(psm, &ProjectSaveManager::Finished, save_thread, &QThread::deleteLater, Qt::QueuedConnection);
-
-  // Start the save process
-  QMetaObject::invokeMethod(psm, "Start", Qt::QueuedConnection);
+  InitiateOpenSaveProcess(psm, tr("Saving '%1'").arg(project->filename()), tr("Save Project"));
 }
 
 void Core::SaveAutorecovery()
@@ -500,7 +480,7 @@ void Core::SaveActiveProjectAs()
   QString fn = QFileDialog::getSaveFileName(main_window_,
                                             tr("Save Project As"),
                                             QString(),
-                                            tr("Olive Project (*.ove)"));
+                                            GetProjectFilter());
 
   if (!fn.isEmpty()) {
     active_project->set_filename(fn);
@@ -582,5 +562,63 @@ QString Core::ChannelLayoutToString(const uint64_t &layout)
     return tr("7.1");
   default:
     return tr("Unknown (0x%1)").arg(layout, 1, 16);
+  }
+}
+
+QString Core::GetProjectFilter() const
+{
+  return QStringLiteral("%1 (*.ove)").arg("Olive Project");
+}
+
+void Core::OpenProjectInternal(const QString &filename)
+{
+  ProjectLoadManager* plm = new ProjectLoadManager(filename);
+
+  // We use a blocking queued connection here because we want to ensure we have this project instance before the
+  // ProjectLoadManager is destroyed
+  connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
+
+  InitiateOpenSaveProcess(plm, tr("Loading '%1'").arg(filename), tr("Load Project"));
+}
+
+void Core::InitiateOpenSaveProcess(ProjectFileManagerBase *manager, const QString& dialog_text, const QString& dialog_title)
+{
+  // Create save dialog
+  LoadSaveDialog* lsd = new LoadSaveDialog(dialog_text, dialog_title, main_window_);
+  lsd->open();
+
+  // Create a separate thread to save in
+  QThread* save_thread = new QThread();
+  save_thread->start();
+
+  // Move the save manager to this thread
+  manager->moveToThread(save_thread);
+
+  // Connect the save manager progress signal to the progress bar update on the dialog
+  connect(manager, &ProjectFileManagerBase::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
+
+  // Connect cancel signal (must be a direct connection or it'll be queued after the save is already finished)
+  connect(lsd, &LoadSaveDialog::Cancelled, manager, &ProjectFileManagerBase::Cancel, Qt::DirectConnection);
+
+  // Connect cleanup functions (ensure everything new'd in this function is deleteLater'd)
+  connect(manager, &ProjectFileManagerBase::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
+  connect(manager, &ProjectFileManagerBase::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);
+  connect(manager, &ProjectFileManagerBase::Finished, manager, &ProjectFileManagerBase::deleteLater, Qt::QueuedConnection);
+  connect(manager, &ProjectFileManagerBase::Finished, save_thread, &QThread::quit, Qt::QueuedConnection);
+  connect(manager, &ProjectFileManagerBase::Finished, save_thread, &QThread::deleteLater, Qt::QueuedConnection);
+
+  // Start the save process
+  QMetaObject::invokeMethod(manager, "Start", Qt::QueuedConnection);
+}
+
+void Core::OpenProject()
+{
+  QString file = QFileDialog::getOpenFileName(main_window_,
+                                              tr("Open Project"),
+                                              QString(),
+                                              GetProjectFilter());
+
+  if (!file.isEmpty()) {
+    OpenProjectInternal(file);
   }
 }

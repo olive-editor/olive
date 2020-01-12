@@ -22,9 +22,23 @@
 
 #include <QFileInfo>
 
+#include "common/xmlreadloop.h"
+
 Project::Project()
 {
   root_.set_project(this);
+}
+
+void Project::Load(QXmlStreamReader *reader)
+{
+  XMLReadLoop(reader, "project") {
+    if (reader->isStartElement()) {
+      if (reader->name() == "folder") {
+        // Assume this folder is our root
+        root_.Load(reader);
+      }
+    }
+  }
 }
 
 void Project::Save(QXmlStreamWriter *writer) const
@@ -35,7 +49,7 @@ void Project::Save(QXmlStreamWriter *writer) const
 
   root_.Save(writer);
 
-
+  writer->writeTextElement("ocio", ocio_config_);
 
   writer->writeEndElement(); // project
 }

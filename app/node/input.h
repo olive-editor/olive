@@ -54,6 +54,8 @@ public:
 
   virtual QString name() override;
 
+  virtual void Load(QXmlStreamReader* reader) override;
+
   virtual void Save(QXmlStreamWriter* writer) const override;
 
   /**
@@ -241,6 +243,8 @@ signals:
   void KeyframeRemoved(NodeKeyframePtr key);
 
 protected:
+  virtual void LoadInternal(QXmlStreamReader* reader);
+
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
 private:

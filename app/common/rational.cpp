@@ -15,6 +15,20 @@ rational rational::fromDouble(const double &flt)
   return av_d2q(flt, INT_MAX);
 }
 
+rational rational::fromString(const QString &str)
+{
+  QStringList elements = str.split('/');
+
+  switch (elements.size()) {
+  case 0:
+    return rational();
+  case 1:
+    return rational(elements.first().toLongLong());
+  default:
+    return rational(elements.at(0).toLongLong(), elements.at(1).toLongLong());
+  }
+}
+
 //Function: print number to cout
 
 void rational::print(ostream &out) const

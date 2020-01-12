@@ -1,5 +1,6 @@
 #include "inputarray.h"
 
+#include "common/xmlreadloop.h"
 #include "node.h"
 
 NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QVariant &default_value) :
@@ -165,6 +166,18 @@ void NodeInputArray::RemoveAt(int index)
   }
 
   RemoveLast();
+}
+
+void NodeInputArray::LoadInternal(QXmlStreamReader *reader)
+{
+  if (reader->name() == "subparameters") {
+    XMLReadLoop(reader, "subparameters") {
+      if (reader->name() == "input") {
+        Append();
+        At(GetSize() - 1)->Load(reader);
+      }
+    }
+  }
 }
 
 void NodeInputArray::SaveInternal(QXmlStreamWriter *writer) const

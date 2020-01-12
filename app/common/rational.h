@@ -57,6 +57,8 @@ public:
 
   static rational fromDouble(const double& flt);
 
+  static rational fromString(const QString& str);
+
   //Assignment Operators
   const rational& operator=(const rational &rhs);
   const rational& operator+=(const rational &rhs);

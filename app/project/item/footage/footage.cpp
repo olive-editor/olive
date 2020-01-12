@@ -23,6 +23,7 @@
 #include <QCoreApplication>
 
 #include "common/timecodefunctions.h"
+#include "common/xmlreadloop.h"
 #include "ui/icons/icons.h"
 
 Footage::Footage()
@@ -33,6 +34,29 @@ Footage::Footage()
 Footage::~Footage()
 {
   ClearStreams();
+}
+
+void Footage::Load(QXmlStreamReader *reader)
+{
+  QXmlStreamAttributes attributes = reader->attributes();
+
+  foreach (const QXmlStreamAttribute& attr, attributes) {
+    if (attr.name() == "name") {
+      set_name(attr.value().toString());
+    } else if (attr.name() == "filename") {
+      set_filename(attr.value().toString());
+    }
+  }
+
+  // FIXME: Probe here
+
+  XMLReadLoop(reader, "footage") {
+    if (reader->isStartElement()) {
+      if (reader->name() == "stream") {
+        // FIXME: Load stream custom options here
+      }
+    }
+  }
 }
 
 void Footage::Save(QXmlStreamWriter *writer) const

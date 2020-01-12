@@ -25,6 +25,8 @@
 #include "config/config.h"
 #include "common/channellayout.h"
 #include "common/timecodefunctions.h"
+#include "common/xmlreadloop.h"
+#include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
 #include "panel/curve/curve.h"
@@ -36,6 +38,48 @@
 Sequence::Sequence() :
   viewer_output_(nullptr)
 {
+}
+
+void Sequence::Load(QXmlStreamReader *reader)
+{
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == "name") {
+      set_name(attr.value().toString());
+    }
+  }
+
+  XMLReadLoop(reader, "sequence") {
+    if (reader->isStartElement()) {
+      if (reader->name() == "node") {
+        QString node_id;
+
+        XMLAttributeLoop(reader, attr) {
+          if (attr.name() == "id") {
+            node_id = attr.value().toString();
+
+            // Currently the only thing we need
+            break;
+          }
+        }
+
+        if (node_id.isEmpty()) {
+          qDebug() << "Found node with no ID";
+          continue;
+        }
+
+        Node* node = NodeFactory::CreateFromID(node_id);
+
+        if (!node) {
+          qDebug() << "Failed to load" << node_id << "- no node with that ID is installed";
+          continue;
+        }
+
+        node->Load(reader);
+
+        AddNode(node);
+      }
+    }
+  }
 }
 
 void Sequence::Save(QXmlStreamWriter *writer) const

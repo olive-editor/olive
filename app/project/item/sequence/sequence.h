@@ -39,6 +39,11 @@ public:
   Sequence();
 
   /**
+   * @brief Load function
+   */
+  virtual void Load(QXmlStreamReader* reader) override;
+
+  /**
    * @brief Save function
    */
   virtual void Save(QXmlStreamWriter *writer) const override;

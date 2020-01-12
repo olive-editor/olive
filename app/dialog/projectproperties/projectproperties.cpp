@@ -40,7 +40,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
 {
   QVBoxLayout* layout = new QVBoxLayout(this);
 
-  setWindowTitle(tr("Project Properties"));
+  setWindowTitle(tr("Project Properties for '%1'").arg(working_project_->name()));
 
   QGroupBox* color_group = new QGroupBox();
   color_group->setTitle(tr("Color Management"));

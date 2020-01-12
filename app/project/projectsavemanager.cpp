@@ -1,10 +1,10 @@
 #include "projectsavemanager.h"
 
 #include <QFile>
+#include <QXmlStreamWriter>
 
 ProjectSaveManager::ProjectSaveManager(Project *project) :
-  project_(project),
-  cancelled_(false)
+  project_(project)
 {
 
 }
@@ -19,9 +19,13 @@ void ProjectSaveManager::Start()
 
     writer.writeStartDocument();
 
+    writer.writeStartElement("olive");
+
     writer.writeTextElement("version", "0.2.0");
 
     project_->Save(&writer);
+
+    writer.writeEndElement(); // olive
 
     writer.writeEndDocument();
 
@@ -29,9 +33,4 @@ void ProjectSaveManager::Start()
   }
 
   emit Finished();
-}
-
-void ProjectSaveManager::Cancel()
-{
-  cancelled_ = true;
 }

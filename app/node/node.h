@@ -66,6 +66,11 @@ public:
   virtual Node* copy() const = 0;
 
   /**
+   * @brief Clear current node variables and replace them with
+   */
+  void Load(QXmlStreamReader* reader);
+
+  /**
    * @brief Save this node into a text/XML format
    */
   void Save(QXmlStreamWriter* writer) const;

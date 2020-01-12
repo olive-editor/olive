@@ -26,6 +26,7 @@
 
 #include "common/bezier.h"
 #include "common/lerp.h"
+#include "common/xmlreadloop.h"
 #include "node.h"
 #include "output.h"
 #include "inputarray.h"
@@ -84,6 +85,85 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
+void NodeInput::Load(QXmlStreamReader *reader)
+{
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == "keyframing") {
+      set_is_keyframing(attr.value() == "1");
+    }
+  }
+
+  XMLReadLoop(reader, "input") {
+    if (reader->isStartElement()) {
+      if (reader->name() == "standard") {
+        // Load standard value
+        int val_index = 0;
+
+        XMLReadLoop(reader, "standard") {
+          if (reader->name() == "value") {
+            reader->readNext();
+
+            QString value_text = reader->text().toString();
+
+            if (value_text.isEmpty()) {
+              standard_value_.replace(val_index, QVariant());
+            } else {
+              standard_value_.replace(val_index, value_text);
+            }
+
+            val_index++;
+          }
+        }
+      } else if (reader->name() == "keyframes") {
+        int track = 0;
+
+        XMLReadLoop(reader, "keyframes") {
+          if (reader->name() == "track") {
+            XMLReadLoop(reader, "track") {
+              if (reader->name() == "key") {
+                rational key_time;
+                NodeKeyframe::Type key_type;
+                QVariant key_value;
+                QPointF key_in_handle;
+                QPointF key_out_handle;
+
+                XMLAttributeLoop(reader, attr) {
+                  if (attr.name() == "time") {
+                    key_time = rational::fromString(attr.value().toString());
+                  } else if (attr.name() == "type") {
+                    key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
+                  } else if (attr.name() == "inhandlex") {
+                    key_in_handle.setX(attr.value().toDouble());
+                  } else if (attr.name() == "inhandley") {
+                    key_in_handle.setY(attr.value().toDouble());
+                  } else if (attr.name() == "outhandlex") {
+                    key_out_handle.setX(attr.value().toDouble());
+                  } else if (attr.name() == "outhandley") {
+                    key_out_handle.setY(attr.value().toDouble());
+                  }
+                }
+
+                reader->readNext();
+
+                key_value = reader->text().toString();
+
+                NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
+                key->set_bezier_control_in(key_in_handle);
+                key->set_bezier_control_out(key_out_handle);
+                keyframe_tracks_[track].append(key);
+              }
+            }
+
+            track++;
+          }
+        }
+      } else {
+
+      }
+    }
+  }
+}
+
 void NodeInput::Save(QXmlStreamWriter *writer) const
 {
   writer->writeStartElement("input");
@@ -114,6 +194,10 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 
       writer->writeAttribute("time", key->time().toString());
       writer->writeAttribute("type", QString::number(key->type()));
+      writer->writeAttribute("inhandlex", QString::number(key->bezier_control_in().x()));
+      writer->writeAttribute("inhandley", QString::number(key->bezier_control_in().y()));
+      writer->writeAttribute("outhandlex", QString::number(key->bezier_control_out().x()));
+      writer->writeAttribute("outhandley", QString::number(key->bezier_control_out().y()));
 
       writer->writeCharacters(key->value().toString());
 
@@ -135,6 +219,10 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
 const NodeParam::DataType &NodeInput::data_type() const
 {
   return data_type_;
+}
+
+void NodeInput::LoadInternal(QXmlStreamReader *reader)
+{
 }
 
 void NodeInput::SaveInternal(QXmlStreamWriter *writer) const

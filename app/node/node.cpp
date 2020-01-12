@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QFile>
 
+#include "common/xmlreadloop.h"
+
 Node::Node() :
   can_be_deleted_(true)
 {
@@ -44,6 +46,39 @@ Node::~Node()
     }
 
     delete param;
+  }
+}
+
+void Node::Load(QXmlStreamReader *reader)
+{
+  XMLReadLoop(reader, "node") {
+    if (reader->isStartElement()) {
+      if (reader->name() == "input" || reader->name() == "output") {
+        QString param_id;
+
+        XMLAttributeLoop(reader, attr) {
+          if (attr.name() == "id") {
+            param_id = attr.value().toString();
+
+            break;
+          }
+        }
+
+        if (param_id.isEmpty()) {
+          qDebug() << "Found parameter with no ID";
+          continue;
+        }
+
+        NodeParam* param = GetParameterWithID(param_id);
+
+        if (!param) {
+          qDebug() << "No parameter in" << id() << "with parameter" << param_id;
+          continue;
+        }
+
+        param->Load(reader);
+      }
+    }
   }
 }
 

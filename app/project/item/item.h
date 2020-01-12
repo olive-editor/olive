@@ -63,6 +63,8 @@ public:
 
   DISABLE_COPY_MOVE(Item)
 
+  virtual void Load(QXmlStreamReader* reader) = 0;
+
   virtual void Save(QXmlStreamWriter* writer) const = 0;
 
   virtual Type type() const = 0;

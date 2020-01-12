@@ -26,6 +26,7 @@
 
 #include "common/rational.h"
 #include "project/project.h"
+#include "project/projectfilemanagerbase.h"
 #include "project/projectviewmodel.h"
 #include "task/task.h"
 #include "tool/tool.h"
@@ -175,6 +176,11 @@ public:
 
 public slots:
   /**
+   * @brief Starts an open file dialog to load a project from file
+   */
+  void OpenProject();
+
+  /**
    * @brief Save the currently active project
    *
    * If the project hasn't been saved before, this will be equivalent to calling SaveActiveProjectAs().
@@ -255,9 +261,22 @@ signals:
 
 private:
   /**
-   * @brief Creates an empty project and adds it to the "open projects"
+   * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects
    */
-  void AddOpenProject(ProjectPtr p);
+  QString GetProjectFilter() const;
+
+  /**
+   * @brief Internal project open
+   */
+  void OpenProjectInternal(const QString& filename);
+
+  /**
+   * @brief Initiate a project load or save
+   *
+   * The load and save process are largely similar, both OpenProjectInternal() and SaveProjectInternal() can run
+   * this function with some minor setup differences.
+   */
+  void InitiateOpenSaveProcess(ProjectFileManagerBase* manager, const QString &dialog_text, const QString &dialog_title);
 
   /**
    * @brief Declare custom types/classes for Qt's signal/slot system
@@ -333,6 +352,11 @@ private:
 
 private slots:
   void SaveAutorecovery();
+
+  /**
+   * @brief Adds a project to the "open projects" list
+   */
+  void AddOpenProject(ProjectPtr p);
 
 };
 

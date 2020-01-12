@@ -41,6 +41,10 @@ QString NodeOutput::name()
   return NodeParam::name();
 }
 
+void NodeOutput::Load(QXmlStreamReader *reader)
+{
+}
+
 void NodeOutput::Save(QXmlStreamWriter *writer) const
 {
   writer->writeStartElement("output");

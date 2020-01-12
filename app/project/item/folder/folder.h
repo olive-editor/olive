@@ -40,6 +40,8 @@ public:
 
   virtual QIcon icon() override;
 
+  virtual void Load(QXmlStreamReader* reader) override;
+
   virtual void Save(QXmlStreamWriter* writer) const override;
 
 private:

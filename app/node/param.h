@@ -231,6 +231,11 @@ public:
   virtual ~NodeParam() override;
 
   /**
+   * @brief Load function
+   */
+  virtual void Load(QXmlStreamReader* reader) = 0;
+
+  /**
    * @brief Save function
    */
   virtual void Save(QXmlStreamWriter* writer) const = 0;

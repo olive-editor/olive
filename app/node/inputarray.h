@@ -33,6 +33,8 @@ signals:
   void SizeChanged(int size);
 
 protected:
+  virtual void LoadInternal(QXmlStreamReader* reader) override;
+
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
 private:

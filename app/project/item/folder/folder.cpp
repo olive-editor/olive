@@ -20,6 +20,9 @@
 
 #include "folder.h"
 
+#include "common/xmlreadloop.h"
+#include "project/item/footage/footage.h"
+#include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
 Folder::Folder()
@@ -39,6 +42,34 @@ bool Folder::CanHaveChildren() const
 QIcon Folder::icon()
 {
   return icon::Folder;
+}
+
+void Folder::Load(QXmlStreamReader *reader)
+{
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == "name") {
+      set_name(attr.value().toString());
+    }
+  }
+
+  XMLReadLoop(reader, "folder") {
+    if (reader->isStartElement()) {
+      ItemPtr child = nullptr;
+
+      if (reader->name() == "folder") {
+        child = std::make_shared<Folder>();
+      } else if (reader->name() == "footage") {
+        child = std::make_shared<Footage>();
+      } else if (reader->name() == "sequence") {
+        child = std::make_shared<Sequence>();
+      }
+
+      if (child) {
+        child->Load(reader);
+        add_child(child);
+      }
+    }
+  }
 }
 
 void Folder::Save(QXmlStreamWriter *writer) const
