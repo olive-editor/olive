@@ -425,6 +425,9 @@ void Core::SaveProjectInternal(Project *project)
   // Connect the save manager progress signal to the progress bar update on the dialog
   connect(psm, &ProjectSaveManager::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
 
+  // Connect cancel signal (must be a direct connection or it'll be queued after the save is already finished)
+  connect(lsd, &LoadSaveDialog::Cancelled, psm, &ProjectSaveManager::Cancel, Qt::DirectConnection);
+
   // Connect cleanup functions (ensure everything new'd in this function is deleteLater'd)
   connect(psm, &ProjectSaveManager::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
   connect(psm, &ProjectSaveManager::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);

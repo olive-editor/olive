@@ -29,7 +29,6 @@ LoadSaveDialog::LoadSaveDialog(const QString& message, const QString& title, QWi
 
   QPushButton* cancel_btn = new QPushButton(tr("Cancel"));
   connect(cancel_btn, &QPushButton::clicked, this, &LoadSaveDialog::Cancelled);
-  connect(cancel_btn, &QPushButton::clicked, this, &LoadSaveDialog::reject);
   cancel_layout->addWidget(cancel_btn);
 
   cancel_layout->addStretch();
