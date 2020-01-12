@@ -44,6 +44,8 @@ class Project : public QObject
 public:
   Project();
 
+  void Save(QXmlStreamWriter* writer) const;
+
   Folder* root();
 
   QString name() const;

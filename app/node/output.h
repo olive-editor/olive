@@ -42,6 +42,8 @@ public:
 
   virtual QString name() override;
 
+  virtual void Save(QXmlStreamWriter* writer) const override;
+
 private:
 
 };

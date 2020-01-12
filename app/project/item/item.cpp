@@ -71,6 +71,11 @@ Item *Item::child(int i) const
   return children_.at(i).get();
 }
 
+const QList<ItemPtr> &Item::children() const
+{
+  return children_;
+}
+
 ItemPtr Item::shared_ptr_from_raw(Item *item)
 {
   for (int i=0;i<children_.size();i++) {

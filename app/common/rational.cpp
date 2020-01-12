@@ -117,6 +117,11 @@ const intType &rational::denominator() const
   return denom;
 }
 
+QString rational::toString() const
+{
+  return QStringLiteral("%1/%2").arg(QString::number(numer), QString::number(denom));
+}
+
 //Assignment Operators
 
 const rational& rational::operator=(const rational &rhs)

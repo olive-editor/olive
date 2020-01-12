@@ -40,3 +40,16 @@ QIcon Folder::icon()
 {
   return icon::Folder;
 }
+
+void Folder::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("folder");
+
+  writer->writeAttribute("name", name());
+
+  foreach (ItemPtr child, children()) {
+    child->Save(writer);
+  }
+
+  writer->writeEndElement(); // folder
+}

@@ -38,6 +38,19 @@ Sequence::Sequence() :
 {
 }
 
+void Sequence::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("sequence");
+
+  writer->writeAttribute("name", name());
+
+  foreach (Node* node, nodes()) {
+    node->Save(writer);
+  }
+
+  writer->writeEndElement(); // sequence
+}
+
 void Sequence::Open(Sequence* sequence)
 {
   // FIXME: This is fairly "hardcoded" behavior and doesn't support infinite panels
@@ -62,7 +75,6 @@ void Sequence::add_default_nodes()
   Node* audio_track_output = viewer_output_->track_list(Timeline::kTrackTypeAudio)->AddTrack();
   NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
   NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
-  //timeline_output_->track_list(TrackType::kTrackTypeVideo)->AddTrack();
 
   // Update the timebase on these nodes
   set_video_params(video_params_);

@@ -40,3 +40,16 @@ QString NodeOutput::name()
 
   return NodeParam::name();
 }
+
+void NodeOutput::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("output");
+
+  writer->writeAttribute("id", id());
+
+  writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
+
+  SaveConnections(writer);
+
+  writer->writeEndElement(); // output
+}

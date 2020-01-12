@@ -108,6 +108,8 @@ public:
   const intType& numerator() const;
   const intType& denominator() const;
 
+  QString toString() const;
+
 private:
   //numerator and denominator
   intType numer;

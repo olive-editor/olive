@@ -1,5 +1,7 @@
 #include "projectsavemanager.h"
 
+#include <QFile>
+
 ProjectSaveManager::ProjectSaveManager(Project *project) :
   project_(project),
   cancelled_(false)
@@ -9,19 +11,22 @@ ProjectSaveManager::ProjectSaveManager(Project *project) :
 
 void ProjectSaveManager::Start()
 {
-  int prog = 0;
+  QFile project_file(project_->filename());
 
-  do {
-    if (cancelled_) {
-      break;
-    }
+  if (project_file.open(QFile::WriteOnly | QFile::Text)) {
+    QXmlStreamWriter writer(&project_file);
+    writer.setAutoFormatting(true);
 
-    prog += 10;
+    writer.writeStartDocument();
 
-    emit ProgressChanged(prog);
+    writer.writeTextElement("version", "0.2.0");
 
-    Sleep(200);
-  } while (prog < 100);
+    project_->Save(&writer);
+
+    writer.writeEndDocument();
+
+    project_file.close();
+  }
 
   emit Finished();
 }

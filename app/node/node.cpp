@@ -47,6 +47,19 @@ Node::~Node()
   }
 }
 
+void Node::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("node");
+
+  writer->writeAttribute("id", id());
+
+  foreach (NodeParam* param, parameters()) {
+    param->Save(writer);
+  }
+
+  writer->writeEndElement(); // node
+}
+
 QString Node::Category() const
 {
   // Return an empty category for any nodes that don't use one

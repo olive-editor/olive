@@ -166,3 +166,14 @@ void NodeInputArray::RemoveAt(int index)
 
   RemoveLast();
 }
+
+void NodeInputArray::SaveInternal(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("subparameters");
+
+  foreach (NodeInput* sub, sub_params_) {
+    sub->Save(writer);
+  }
+
+  writer->writeEndElement(); // subparameters
+}

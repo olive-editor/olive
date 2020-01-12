@@ -58,12 +58,12 @@ public:
   /**
    * @brief Retrieve a complete list of the nodes belonging to this graph
    */
-  const QList<Node*>& nodes();
+  const QList<Node*>& nodes() const;
 
   /**
    * @brief Returns whether a certain Node is in the graph or not
    */
-  bool ContainsNode(Node* n);
+  bool ContainsNode(Node* n) const;
 
 signals:
   /**

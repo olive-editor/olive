@@ -72,12 +72,12 @@ void NodeGraph::TakeNode(Node *node, QObject* new_parent)
   emit NodeRemoved(node);
 }
 
-const QList<Node *> &NodeGraph::nodes()
+const QList<Node *> &NodeGraph::nodes() const
 {
   return node_children_;
 }
 
-bool NodeGraph::ContainsNode(Node *n)
+bool NodeGraph::ContainsNode(Node *n) const
 {
   return (n->parent() == this);
 }

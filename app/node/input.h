@@ -54,6 +54,8 @@ public:
 
   virtual QString name() override;
 
+  virtual void Save(QXmlStreamWriter* writer) const override;
+
   /**
    * @brief The data type this parameter outputs
    *
@@ -237,6 +239,9 @@ signals:
   void KeyframeAdded(NodeKeyframePtr key);
 
   void KeyframeRemoved(NodeKeyframePtr key);
+
+protected:
+  virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
 private:
   /**

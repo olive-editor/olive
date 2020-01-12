@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QVector>
+#include <QXmlStreamWriter>
 
 #include "common/rational.h"
 #include "node/edge.h"
@@ -230,6 +231,11 @@ public:
   virtual ~NodeParam() override;
 
   /**
+   * @brief Save function
+   */
+  virtual void Save(QXmlStreamWriter* writer) const = 0;
+
+  /**
    * @brief Return ID of this parameter
    */
   const QString id() const;
@@ -368,6 +374,8 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 protected:
+  void SaveConnections(QXmlStreamWriter* writer) const;
+
   /**
    * @brief Internal list of edges
    */

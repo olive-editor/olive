@@ -25,6 +25,7 @@
 #include <QCoreApplication>
 #include <QMutex>
 #include <QString>
+#include <QXmlStreamWriter>
 
 #include "common/rational.h"
 
@@ -74,6 +75,8 @@ public:
    */
   virtual ~Stream();
 
+  void Save(QXmlStreamWriter *writer) const;
+
   virtual QString description();
 
   const Type& type();
@@ -101,7 +104,9 @@ public:
   QMutex index_lock_;
 
 protected:
-  virtual void FootageSetEvent(Footage*){}
+  virtual void FootageSetEvent(Footage*);
+
+  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
 
 private:
   Footage* footage_;

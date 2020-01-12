@@ -35,6 +35,21 @@ Footage::~Footage()
   ClearStreams();
 }
 
+void Footage::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("footage");
+
+  writer->writeAttribute("name", name());
+  writer->writeAttribute("filename", filename());
+  writer->writeAttribute("ptr", FootageToString(this));
+
+  foreach (StreamPtr stream, streams_) {
+    stream->Save(writer);
+  }
+
+  writer->writeEndElement(); // footage
+}
+
 const Footage::Status& Footage::status() const
 {
   return status_;
@@ -147,7 +162,6 @@ QIcon Footage::icon()
   return QIcon();
 }
 
-#include <QDebug>
 QString Footage::duration()
 {
   if (streams_.isEmpty()) {
@@ -282,4 +296,9 @@ void Footage::UpdateTooltip()
     set_tooltip(QCoreApplication::translate("Footage", "An error occurred probing this footage"));
     break;
   }
+}
+
+QString FootageToString(const Footage *footage)
+{
+  return QString::number(reinterpret_cast<quintptr>(footage));
 }

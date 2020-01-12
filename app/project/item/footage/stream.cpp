@@ -35,6 +35,17 @@ Stream::~Stream()
 {
 }
 
+void Stream::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("stream");
+
+  writer->writeAttribute("index", QString::number(index_));
+
+  SaveCustomParameters(writer);
+
+  writer->writeEndElement(); // stream
+}
+
 QString Stream::description()
 {
   return QCoreApplication::translate("Stream", "%1: Unknown").arg(index());
@@ -120,6 +131,14 @@ QIcon Stream::IconFromType(const Stream::Type &type)
 StreamID Stream::ToID() const
 {
   return StreamID(footage_->filename(), index_);
+}
+
+void Stream::FootageSetEvent(Footage *)
+{
+}
+
+void Stream::SaveCustomParameters(QXmlStreamWriter *writer) const
+{
 }
 
 StreamID::StreamID(const QString &filename, const int &stream_index) :

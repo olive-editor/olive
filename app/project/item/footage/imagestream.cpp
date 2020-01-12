@@ -36,6 +36,11 @@ void ImageStream::FootageSetEvent(Footage *f)
   connect(f->project()->color_manager(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChanged()), Qt::DirectConnection);
 }
 
+void ImageStream::SaveCustomParameters(QXmlStreamWriter *writer) const
+{
+  writer->writeTextElement("colorspace", colorspace_);
+}
+
 QString ImageStream::description()
 {
   return QCoreApplication::translate("Stream", "%1: Image - %2x%3").arg(QString::number(index()),

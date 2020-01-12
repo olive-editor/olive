@@ -27,6 +27,19 @@ Project::Project()
   root_.set_project(this);
 }
 
+void Project::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("project");
+
+  writer->writeTextElement("url", filename_);
+
+  root_.Save(writer);
+
+
+
+  writer->writeEndElement(); // project
+}
+
 Folder *Project::root()
 {
   return &root_;

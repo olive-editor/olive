@@ -32,6 +32,9 @@ public:
 signals:
   void SizeChanged(int size);
 
+protected:
+  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
+
 private:
   QVector<NodeInput*> sub_params_;
 

@@ -25,6 +25,7 @@
 #include <QMutex>
 #include <QObject>
 #include <QPointF>
+#include <QXmlStreamWriter>
 
 #include "common/rational.h"
 #include "node/dependency.h"
@@ -63,6 +64,11 @@ public:
    * copying that data with functions like CopyInputs() as copies may be done for different reasons.
    */
   virtual Node* copy() const = 0;
+
+  /**
+   * @brief Save this node into a text/XML format
+   */
+  void Save(QXmlStreamWriter* writer) const;
 
   /**
    * @brief Return the name of the node

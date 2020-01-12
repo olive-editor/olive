@@ -38,6 +38,11 @@ class Sequence : public Item, public NodeGraph
 public:
   Sequence();
 
+  /**
+   * @brief Save function
+   */
+  virtual void Save(QXmlStreamWriter *writer) const override;
+
   static void Open(Sequence *sequence);
 
   void add_default_nodes();

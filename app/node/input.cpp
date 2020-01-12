@@ -84,9 +84,61 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
+void NodeInput::Save(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("input");
+
+  writer->writeAttribute("id", id());
+
+  writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
+
+  writer->writeAttribute("keyframing", QString::number(keyframing_));
+
+  // Write standard value
+  writer->writeStartElement("standard");
+
+  foreach (const QVariant& v, standard_value_) {
+    writer->writeTextElement("value", v.toString());
+  }
+
+  writer->writeEndElement(); // standard
+
+  // Write keyframes
+  writer->writeStartElement("keyframes");
+
+  foreach (const KeyframeTrack& track, keyframe_tracks()) {
+    writer->writeStartElement("track");
+
+    foreach (NodeKeyframePtr key, track) {
+      writer->writeStartElement("key");
+
+      writer->writeAttribute("time", key->time().toString());
+      writer->writeAttribute("type", QString::number(key->type()));
+
+      writer->writeCharacters(key->value().toString());
+
+      writer->writeEndElement(); // key
+    }
+
+    writer->writeEndElement(); // track
+  }
+
+  writer->writeEndElement(); // keyframes
+
+  SaveConnections(writer);
+
+  SaveInternal(writer);
+
+  writer->writeEndElement(); // input
+}
+
 const NodeParam::DataType &NodeInput::data_type() const
 {
   return data_type_;
+}
+
+void NodeInput::SaveInternal(QXmlStreamWriter *writer) const
+{
 }
 
 NodeOutput *NodeInput::get_connected_output() const

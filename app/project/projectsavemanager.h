@@ -2,6 +2,7 @@
 #define PROJECTSAVEMANAGER_H
 
 #include <QObject>
+#include <QXmlStreamWriter>
 
 #include "project.h"
 

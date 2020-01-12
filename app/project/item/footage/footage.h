@@ -60,7 +60,10 @@ public:
    */
   virtual ~Footage() override;
 
-  DISABLE_COPY_MOVE(Footage)
+  /**
+   * @brief Save function
+   */
+  virtual void Save(QXmlStreamWriter *writer) const override;
 
   /**
    * @brief Check the ready state of this Footage object
@@ -251,6 +254,8 @@ private:
   QString decoder_;
 
 };
+
+QString FootageToString(const Footage* footage);
 
 using FootagePtr = std::shared_ptr<Footage>;
 

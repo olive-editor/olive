@@ -26,7 +26,9 @@
 #include <QList>
 #include <QMutex>
 #include <QString>
+#include <QXmlStreamWriter>
 
+#include "common/constructors.h"
 #include "common/threadedobject.h"
 
 class Project;
@@ -59,25 +61,9 @@ public:
    */
   virtual ~Item();
 
-  /**
-   * @brief Deleted copy constructor
-   */
-  Item(const Item& other) = delete;
+  DISABLE_COPY_MOVE(Item)
 
-  /**
-   * @brief Deleted move constructor
-   */
-  Item(Item&& other) = delete;
-
-  /**
-   * @brief Deleted copy assignment
-   */
-  Item& operator=(const Item& other) = delete;
-
-  /**
-   * @brief Deleted move assignment
-   */
-  Item& operator=(Item&& other) = delete;
+  virtual void Save(QXmlStreamWriter* writer) const = 0;
 
   virtual Type type() const = 0;
 
@@ -85,6 +71,7 @@ public:
   void remove_child(Item* c);
   int child_count() const;
   Item* child(int i) const;
+  const QList<ItemPtr>& children() const;
 
   ItemPtr shared_ptr_from_raw(Item* item);
 

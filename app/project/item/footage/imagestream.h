@@ -52,6 +52,8 @@ signals:
 protected:
   virtual void FootageSetEvent(Footage*) override;
 
+  virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
+
 private:
   int width_;
   int height_;
