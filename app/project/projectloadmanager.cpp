@@ -1,5 +1,6 @@
 #include "projectloadmanager.h"
 
+#include <QApplication>
 #include <QFile>
 #include <QXmlStreamReader>
 

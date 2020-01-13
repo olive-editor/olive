@@ -26,11 +26,7 @@ GapBlock::GapBlock()
 
 Node *GapBlock::copy() const
 {
-  GapBlock* c = new GapBlock();
-
-  CopyParameters(this, c);
-
-  return c;
+  return new GapBlock();
 }
 
 Block::Type GapBlock::type() const

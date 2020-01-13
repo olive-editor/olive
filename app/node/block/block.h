@@ -73,7 +73,7 @@ public:
   bool is_still() const;
   bool is_reversed() const;
 
-  const QString& block_name() const;
+  QString block_name() const;
   void set_block_name(const QString& name);
 
   static void Link(Block* a, Block* b);
@@ -108,20 +108,17 @@ protected:
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
-  static void CopyParameters(const Block *source, Block* dest);
-
   Block* previous_;
   Block* next_;
 
 private:
+  NodeInput* name_input_;
   NodeInput* length_input_;
   NodeInput* media_in_input_;
   NodeInput* speed_input_;
 
   rational in_point_;
   rational out_point_;
-
-  QString block_name_;
 
   QVector<Block*> linked_clips_;
 

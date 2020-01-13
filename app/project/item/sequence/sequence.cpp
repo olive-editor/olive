@@ -141,7 +141,9 @@ void Sequence::Load(QXmlStreamReader *reader)
 
   // Ensure this and all children are in the main thread
   // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)
-  moveToThread(qApp->thread());
+  if (thread() != qApp->thread()) {
+    moveToThread(qApp->thread());
+  }
 }
 
 void Sequence::Save(QXmlStreamWriter *writer) const

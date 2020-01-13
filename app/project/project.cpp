@@ -50,7 +50,6 @@ void Project::Load(QXmlStreamReader *reader)
             set_default_input_colorspace(reader->text().toString());
           }
         }
-
       }
     }
   }

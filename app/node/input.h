@@ -248,6 +248,10 @@ protected:
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
 private:
+  static QString ValueToString(const DataType& type, const QVariant& value);
+
+  static QVariant StringToValue(const DataType& type, const QString &string);
+
   void SaveConnections(QXmlStreamWriter* writer) const;
 
   /**

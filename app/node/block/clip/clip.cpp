@@ -29,11 +29,7 @@ ClipBlock::ClipBlock()
 
 Node *ClipBlock::copy() const
 {
-  ClipBlock* c = new ClipBlock();
-
-  CopyParameters(this, c);
-
-  return c;
+  return new ClipBlock();
 }
 
 Block::Type ClipBlock::type() const

@@ -108,7 +108,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
             if (value_text.isEmpty()) {
               standard_value_.replace(val_index, QVariant());
             } else {
-              standard_value_.replace(val_index, value_text);
+              standard_value_.replace(val_index, StringToValue(data_type_, value_text));
             }
 
             val_index++;
@@ -145,7 +145,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
 
                 reader->readNext();
 
-                key_value = reader->text().toString();
+                key_value = StringToValue(data_type_, reader->text().toString());
 
                 NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
                 key->set_bezier_control_in(key_in_handle);
@@ -184,7 +184,7 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
   writer->writeStartElement("standard");
 
   foreach (const QVariant& v, standard_value_) {
-    writer->writeTextElement("value", v.toString());
+    writer->writeTextElement("value", ValueToString(data_type_, v));
   }
 
   writer->writeEndElement(); // standard
@@ -205,7 +205,7 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
       writer->writeAttribute("outhandlex", QString::number(key->bezier_control_out().x()));
       writer->writeAttribute("outhandley", QString::number(key->bezier_control_out().y()));
 
-      writer->writeCharacters(key->value().toString());
+      writer->writeCharacters(ValueToString(data_type_, key->value()));
 
       writer->writeEndElement(); // key
     }
@@ -246,6 +246,29 @@ void NodeInput::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutpu
 
 void NodeInput::SaveInternal(QXmlStreamWriter *writer) const
 {
+}
+
+QString NodeInput::ValueToString(const NodeParam::DataType &type, const QVariant &value)
+{
+  if (type == kRational) {
+    return value.value<rational>().toString();
+  }
+
+  if (value.canConvert<QString>()) {
+    return value.toString();
+  }
+
+  qWarning() << "Failed to convert type" << type << "to string";
+  return QString();
+}
+
+QVariant NodeInput::StringToValue(const NodeParam::DataType &type, const QString &string)
+{
+  if (type == kRational) {
+    return QVariant::fromValue(rational::fromString(string));
+  }
+
+  return string;
 }
 
 NodeOutput *NodeInput::get_connected_output() const

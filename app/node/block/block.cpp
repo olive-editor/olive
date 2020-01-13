@@ -28,6 +28,11 @@ Block::Block() :
   previous_(nullptr),
   next_(nullptr)
 {
+  name_input_ = new NodeInput("name_in", NodeParam::kString);
+  name_input_->SetConnectable(false);
+  name_input_->set_is_keyframable(false);
+  AddInput(name_input_);
+
   length_input_ = new NodeInput("length_in", NodeParam::kRational);
   length_input_->SetConnectable(false);
   length_input_->set_is_keyframable(false);
@@ -160,14 +165,16 @@ bool Block::is_reversed() const
   return speed() < 0;
 }
 
-const QString &Block::block_name() const
+QString Block::block_name() const
 {
-  return block_name_;
+  return name_input_->get_standard_value().toString();
 }
 
 void Block::set_block_name(const QString &name)
 {
-  block_name_ = name;
+  name_input_->set_standard_value(name);
+
+  // FIXME: Signal the name has changed to update UI objects
 }
 
 rational Block::SequenceToMediaTime(const rational &sequence_time) const
@@ -188,11 +195,6 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   }
 
   return (media_time - media_in()) / speed() + in();
-}
-
-void Block::CopyParameters(const Block *source, Block *dest)
-{
-  dest->set_block_name(source->block_name());
 }
 
 void Block::LengthInputChanged()
