@@ -41,8 +41,8 @@ void NodeGraph::AddNode(Node *node)
 
   node->setParent(this);
 
-  connect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
-  connect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+  connect(node, &Node::EdgeAdded, this, &NodeGraph::EdgeAdded);
+  connect(node, &Node::EdgeRemoved, this, &NodeGraph::EdgeRemoved);
 
   node_children_.append(node);
 
@@ -62,8 +62,8 @@ void NodeGraph::TakeNode(Node *node, QObject* new_parent)
 
   node->DisconnectAll();
 
-  disconnect(node, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
-  disconnect(node, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+  disconnect(node, &Node::EdgeAdded, this, &NodeGraph::EdgeAdded);
+  disconnect(node, &Node::EdgeRemoved, this, &NodeGraph::EdgeRemoved);
 
   node->setParent(new_parent);
 

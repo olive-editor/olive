@@ -30,6 +30,9 @@ void ProjectLoadManager::Start()
 
           project->Load(&reader);
 
+          // Ensure project is in main thread
+          moveToThread(qApp->thread());
+
           emit ProjectLoaded(project);
         }
       }

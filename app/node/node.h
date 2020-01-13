@@ -68,12 +68,12 @@ public:
   /**
    * @brief Clear current node variables and replace them with
    */
-  void Load(QXmlStreamReader* reader);
+  void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<NodeInput::SerializedConnection> &input_connections, const QString &element = QString());
 
   /**
    * @brief Save this node into a text/XML format
    */
-  void Save(QXmlStreamWriter* writer) const;
+  void Save(QXmlStreamWriter* writer, const QString& custom_name = QString()) const;
 
   /**
    * @brief Return the name of the node

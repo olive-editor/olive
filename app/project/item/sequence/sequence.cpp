@@ -35,9 +35,11 @@
 #include "panel/viewer/viewer.h"
 #include "ui/icons/icons.h"
 
-Sequence::Sequence() :
-  viewer_output_(nullptr)
+Sequence::Sequence()
 {
+  viewer_output_ = new ViewerOutput();
+  viewer_output_->SetCanBeDeleted(false);
+  AddNode(viewer_output_);
 }
 
 void Sequence::Load(QXmlStreamReader *reader)
@@ -45,41 +47,101 @@ void Sequence::Load(QXmlStreamReader *reader)
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == "name") {
       set_name(attr.value().toString());
+
+      // Currently the only thing we care about
     }
   }
+
+  QHash<quintptr, NodeOutput*> output_ptrs;
+  QList<NodeParam::SerializedConnection> desired_connections;
 
   XMLReadLoop(reader, "sequence") {
     if (reader->isStartElement()) {
-      if (reader->name() == "node") {
-        QString node_id;
+      if (reader->name() == "video") {
+        int video_width, video_height;
+        rational video_timebase;
 
-        XMLAttributeLoop(reader, attr) {
-          if (attr.name() == "id") {
-            node_id = attr.value().toString();
-
-            // Currently the only thing we need
-            break;
+        XMLReadLoop(reader, "video") {
+          if (reader->isStartElement()) {
+            if (reader->name() == "width") {
+              reader->readNext();
+              video_width = reader->text().toInt();
+            } else if (reader->name() == "height") {
+              reader->readNext();
+              video_height = reader->text().toInt();
+            } else if (reader->name() == "timebase") {
+              reader->readNext();
+              video_timebase = rational::fromString(reader->text().toString());
+            }
           }
         }
 
-        if (node_id.isEmpty()) {
-          qDebug() << "Found node with no ID";
-          continue;
+        set_video_params(VideoParams(video_width, video_height, video_timebase));
+      } else if (reader->name() == "audio") {
+        int rate;
+        uint64_t layout;
+
+        XMLReadLoop(reader, "audio") {
+          if (reader->isStartElement()) {
+            if (reader->name() == "rate") {
+              reader->readNext();
+              rate = reader->text().toInt();
+            } else if (reader->name() == "layout") {
+              reader->readNext();
+              layout = reader->text().toULongLong();
+            }
+          }
         }
 
-        Node* node = NodeFactory::CreateFromID(node_id);
+        set_audio_params(AudioParams(rate, layout));
+      } else if (reader->name() == "node" || reader->name() == "viewer") {
+        Node* node;
 
-        if (!node) {
-          qDebug() << "Failed to load" << node_id << "- no node with that ID is installed";
-          continue;
+        if (reader->name() == "node") {
+          QString node_id;
+
+          XMLAttributeLoop(reader, attr) {
+            if (attr.name() == "id") {
+              node_id = attr.value().toString();
+
+              // Currently the only thing we need
+              break;
+            }
+          }
+
+          if (node_id.isEmpty()) {
+            qDebug() << "Found node with no ID";
+            continue;
+          }
+
+          node = NodeFactory::CreateFromID(node_id);
+
+          if (!node) {
+            qDebug() << "Failed to load" << node_id << "- no node with that ID is installed";
+            continue;
+          }
+        } else {
+          node = viewer_output_;
         }
 
-        node->Load(reader);
+        if (node) {
+          node->Load(reader, output_ptrs, desired_connections, reader->name().toString());
 
-        AddNode(node);
+          AddNode(node);
+        }
       }
     }
   }
+
+  // Make connections
+  foreach (const NodeParam::SerializedConnection& con, desired_connections) {
+    NodeParam::ConnectEdge(output_ptrs.value(con.output),
+                           con.input);
+  }
+
+  // Ensure this and all children are in the main thread
+  // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)
+  moveToThread(qApp->thread());
 }
 
 void Sequence::Save(QXmlStreamWriter *writer) const
@@ -88,9 +150,28 @@ void Sequence::Save(QXmlStreamWriter *writer) const
 
   writer->writeAttribute("name", name());
 
+  writer->writeStartElement("video");
+
+  writer->writeTextElement("width", QString::number(video_params().width()));
+  writer->writeTextElement("height", QString::number(video_params().height()));
+  writer->writeTextElement("timebase", video_params().time_base().toString());
+
+  writer->writeEndElement(); // video
+
+  writer->writeStartElement("audio");
+
+  writer->writeTextElement("rate", QString::number(audio_params().sample_rate()));
+  writer->writeTextElement("layout", QString::number(audio_params().channel_layout()));
+
+  writer->writeEndElement(); // audio
+
   foreach (Node* node, nodes()) {
-    node->Save(writer);
+    if (node != viewer_output_) {
+      node->Save(writer);
+    }
   }
+
+  viewer_output_->Save(writer, "viewer");
 
   writer->writeEndElement(); // sequence
 }
@@ -110,19 +191,11 @@ void Sequence::Open(Sequence* sequence)
 
 void Sequence::add_default_nodes()
 {
-  viewer_output_ = new ViewerOutput();
-  viewer_output_->SetCanBeDeleted(false);
-  AddNode(viewer_output_);
-
   // Create tracks and connect them to the viewer
   Node* video_track_output = viewer_output_->track_list(Timeline::kTrackTypeVideo)->AddTrack();
   Node* audio_track_output = viewer_output_->track_list(Timeline::kTrackTypeAudio)->AddTrack();
   NodeParam::ConnectEdge(video_track_output->output(), viewer_output_->texture_input());
   NodeParam::ConnectEdge(audio_track_output->output(), viewer_output_->samples_input());
-
-  // Update the timebase on these nodes
-  set_video_params(video_params_);
-  set_audio_params(audio_params_);
 }
 
 Item::Type Sequence::type() const
@@ -137,46 +210,36 @@ QIcon Sequence::icon()
 
 QString Sequence::duration()
 {
-  if (!viewer_output_) {
-    return QString();
-  }
-
   rational timeline_length = viewer_output_->Length();
 
-  int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params_.time_base());
+  int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params().time_base());
 
-  return Timecode::timestamp_to_timecode(timestamp, video_params_.time_base(), Timecode::CurrentDisplay());
+  return Timecode::timestamp_to_timecode(timestamp, video_params().time_base(), Timecode::CurrentDisplay());
 }
 
 QString Sequence::rate()
 {
-  return QCoreApplication::translate("Sequence", "%1 FPS").arg(video_params_.time_base().flipped().toDouble());
+  return QCoreApplication::translate("Sequence", "%1 FPS").arg(video_params().time_base().flipped().toDouble());
 }
 
-const VideoParams &Sequence::video_params()
+const VideoParams &Sequence::video_params() const
 {
-  return video_params_;
+  return viewer_output_->video_params();
 }
 
 void Sequence::set_video_params(const VideoParams &vparam)
 {
-  video_params_ = vparam;
-
-  if (viewer_output_ != nullptr)
-    viewer_output_->set_video_params(video_params_);
+  viewer_output_->set_video_params(vparam);
 }
 
-const AudioParams &Sequence::audio_params()
+const AudioParams &Sequence::audio_params() const
 {
-  return audio_params_;
+  return viewer_output_->audio_params();
 }
 
 void Sequence::set_audio_params(const AudioParams &params)
 {
-  audio_params_ = params;
-
-  if (viewer_output_ != nullptr)
-    viewer_output_->set_audio_params(audio_params_);
+  viewer_output_->set_audio_params(params);
 }
 
 void Sequence::set_default_parameters()

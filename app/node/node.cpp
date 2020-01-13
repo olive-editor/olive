@@ -20,6 +20,7 @@
 
 #include "node.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QFile>
 
@@ -49,9 +50,9 @@ Node::~Node()
   }
 }
 
-void Node::Load(QXmlStreamReader *reader)
+void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_ptrs, QList<NodeInput::SerializedConnection>& input_connections, const QString& element)
 {
-  XMLReadLoop(reader, "node") {
+  XMLReadLoop(reader, (element.isEmpty() ? "node" : element)) {
     if (reader->isStartElement()) {
       if (reader->name() == "input" || reader->name() == "output") {
         QString param_id;
@@ -76,15 +77,15 @@ void Node::Load(QXmlStreamReader *reader)
           continue;
         }
 
-        param->Load(reader);
+        param->Load(reader, output_ptrs, input_connections);
       }
     }
   }
 }
 
-void Node::Save(QXmlStreamWriter *writer) const
+void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
 {
-  writer->writeStartElement("node");
+  writer->writeStartElement(custom_name.isEmpty() ? "node" : custom_name);
 
   writer->writeAttribute("id", id());
 
@@ -129,8 +130,8 @@ void Node::AddParameter(NodeParam *param)
     params_.insert(params_.size()-1, param);
   }
 
-  connect(param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
-  connect(param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+  connect(param, &NodeParam::EdgeAdded, this, &Node::EdgeAdded);
+  connect(param, &NodeParam::EdgeRemoved, this, &Node::EdgeRemoved);
 
   if (param->type() == NodeParam::kInput) {
     ConnectInput(static_cast<NodeInput*>(param));
@@ -566,16 +567,16 @@ bool Node::HasParamOfType(NodeParam::Type type, bool must_be_connected) const
 
 void Node::ConnectInput(NodeInput *input)
 {
-  connect(input, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
-  connect(input, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
-  connect(input, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+  connect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
+  connect(input, &NodeInput::EdgeAdded, this, &Node::InputConnectionChanged);
+  connect(input, &NodeInput::EdgeRemoved, this, &Node::InputConnectionChanged);
 }
 
 void Node::DisconnectInput(NodeInput *input)
 {
-  disconnect(input, SIGNAL(ValueChanged(rational, rational)), this, SLOT(InputChanged(rational, rational)));
-  disconnect(input, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
-  disconnect(input, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(InputConnectionChanged(NodeEdgePtr)));
+  disconnect(input, &NodeInput::ValueChanged, this, &Node::InputChanged);
+  disconnect(input, &NodeInput::EdgeAdded, this, &Node::InputConnectionChanged);
+  disconnect(input, &NodeInput::EdgeRemoved, this, &Node::InputConnectionChanged);
 }
 
 void Node::InputChanged(rational start, rational end)

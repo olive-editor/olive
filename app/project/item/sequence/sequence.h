@@ -62,10 +62,10 @@ public:
   virtual QString duration() override;
   virtual QString rate() override;
 
-  const VideoParams& video_params();
+  const VideoParams& video_params() const;
   void set_video_params(const VideoParams& vparam);
 
-  const AudioParams& audio_params();
+  const AudioParams& audio_params() const;
   void set_audio_params(const AudioParams& params);
 
   void set_default_parameters();
@@ -73,9 +73,6 @@ public:
 private:
   ViewerOutput* viewer_output_;
 
-  VideoParams video_params_;
-
-  AudioParams audio_params_;
 };
 
 #endif // SEQUENCE_H

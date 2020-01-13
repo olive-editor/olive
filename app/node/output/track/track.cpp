@@ -36,9 +36,9 @@ TrackOutput::TrackOutput() :
   block_input_ = new NodeInputArray("block_in", NodeParam::kAny);
   block_input_->set_is_keyframable(false);
   AddInput(block_input_);
-  connect(block_input_, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(BlockConnected(NodeEdgePtr)));
-  connect(block_input_, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(BlockDisconnected(NodeEdgePtr)));
-  connect(block_input_, SIGNAL(SizeChanged(int)), this, SLOT(BlockListSizeChanged(int)));
+  connect(block_input_, &NodeInputArray::EdgeAdded, this, &TrackOutput::BlockConnected);
+  connect(block_input_, &NodeInputArray::EdgeRemoved, this, &TrackOutput::BlockDisconnected);
+  connect(block_input_, &NodeInputArray::SizeChanged, this, &TrackOutput::BlockListSizeChanged);
 
   muted_input_ = new NodeInput("muted_in", NodeParam::kBoolean);
   muted_input_->set_is_keyframable(false);

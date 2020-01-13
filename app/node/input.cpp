@@ -85,7 +85,7 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
-void NodeInput::Load(QXmlStreamReader *reader)
+void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections)
 {
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == "keyframing") {
@@ -100,7 +100,7 @@ void NodeInput::Load(QXmlStreamReader *reader)
         int val_index = 0;
 
         XMLReadLoop(reader, "standard") {
-          if (reader->name() == "value") {
+          if (reader->isStartElement() && reader->name() == "value") {
             reader->readNext();
 
             QString value_text = reader->text().toString();
@@ -118,7 +118,7 @@ void NodeInput::Load(QXmlStreamReader *reader)
         int track = 0;
 
         XMLReadLoop(reader, "keyframes") {
-          if (reader->name() == "track") {
+          if (reader->isStartElement() && reader->name() == "track") {
             XMLReadLoop(reader, "track") {
               if (reader->name() == "key") {
                 rational key_time;
@@ -157,8 +157,16 @@ void NodeInput::Load(QXmlStreamReader *reader)
             track++;
           }
         }
-      } else {
+      } else if (reader->name() == "connections") {
+        XMLReadLoop(reader, "connections") {
+          if (reader->isStartElement() && reader->name() == "connection") {
+            reader->readNext();
 
+            input_connections.append({this, reader->text().toULongLong()});
+          }
+        }
+      } else {
+        LoadInternal(reader, param_ptrs, input_connections);
       }
     }
   }
@@ -169,8 +177,6 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
   writer->writeStartElement("input");
 
   writer->writeAttribute("id", id());
-
-  writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
 
   writer->writeAttribute("keyframing", QString::number(keyframing_));
 
@@ -216,12 +222,25 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // input
 }
 
+void NodeInput::SaveConnections(QXmlStreamWriter *writer) const
+{
+  writer->writeStartElement("connections");
+
+  foreach (NodeEdgePtr edge, edges_) {
+    writer->writeTextElement("connection",
+                             QString::number(reinterpret_cast<quintptr>(edge->output())));
+  }
+
+  writer->writeEndElement(); // connections
+}
+
+
 const NodeParam::DataType &NodeInput::data_type() const
 {
   return data_type_;
 }
 
-void NodeInput::LoadInternal(QXmlStreamReader *reader)
+void NodeInput::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &param_ptrs, QList<SerializedConnection> &input_connections)
 {
 }
 

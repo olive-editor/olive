@@ -34,8 +34,23 @@ void Project::Load(QXmlStreamReader *reader)
   XMLReadLoop(reader, "project") {
     if (reader->isStartElement()) {
       if (reader->name() == "folder") {
+
         // Assume this folder is our root
         root_.Load(reader);
+
+      } else if (reader->name() == "colormanagement") {
+
+        // Read color management info
+        XMLReadLoop(reader, "colormanagement") {
+          if (reader->name() == "config") {
+            reader->readNext();
+            set_ocio_config(reader->text().toString());
+          } else if (reader->name() == "default") {
+            reader->readNext();
+            set_default_input_colorspace(reader->text().toString());
+          }
+        }
+
       }
     }
   }
@@ -49,7 +64,13 @@ void Project::Save(QXmlStreamWriter *writer) const
 
   root_.Save(writer);
 
-  writer->writeTextElement("ocio", ocio_config_);
+  writer->writeStartElement("colormanagement");
+
+  writer->writeTextElement("config", ocio_config_);
+
+  writer->writeTextElement("default", default_input_colorspace_);
+
+  writer->writeEndElement(); // colormanagement
 
   writer->writeEndElement(); // project
 }

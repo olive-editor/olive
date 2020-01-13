@@ -230,10 +230,15 @@ public:
 
   virtual ~NodeParam() override;
 
+  struct SerializedConnection {
+    NodeInput* input;
+    quintptr output;
+  };
+
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader) = 0;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections) = 0;
 
   /**
    * @brief Save function
@@ -379,8 +384,6 @@ signals:
   void EdgeRemoved(NodeEdgePtr edge);
 
 protected:
-  void SaveConnections(QXmlStreamWriter* writer) const;
-
   /**
    * @brief Internal list of edges
    */

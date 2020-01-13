@@ -1,5 +1,7 @@
 #include "inputarray.h"
 
+#include <QApplication>
+
 #include "common/xmlreadloop.h"
 #include "node.h"
 
@@ -57,9 +59,9 @@ void NodeInputArray::SetSize(int size, bool lock)
       new_param->setParent(this);
       sub_params_.replace(i, new_param);
 
-      connect(new_param, SIGNAL(ValueChanged(rational, rational)), this, SIGNAL(ValueChanged(rational, rational)));
-      connect(new_param, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SIGNAL(EdgeAdded(NodeEdgePtr)));
-      connect(new_param, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SIGNAL(EdgeRemoved(NodeEdgePtr)));
+      connect(new_param, &NodeInput::ValueChanged, this, &NodeInput::ValueChanged);
+      connect(new_param, &NodeInput::EdgeAdded, this, &NodeInput::EdgeAdded);
+      connect(new_param, &NodeInput::EdgeRemoved, this, &NodeInput::EdgeRemoved);
     }
   }
 
@@ -168,13 +170,13 @@ void NodeInputArray::RemoveAt(int index)
   RemoveLast();
 }
 
-void NodeInputArray::LoadInternal(QXmlStreamReader *reader)
+void NodeInputArray::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections)
 {
   if (reader->name() == "subparameters") {
     XMLReadLoop(reader, "subparameters") {
       if (reader->name() == "input") {
         Append();
-        At(GetSize() - 1)->Load(reader);
+        At(GetSize() - 1)->Load(reader, param_ptrs, input_connections);
       }
     }
   }

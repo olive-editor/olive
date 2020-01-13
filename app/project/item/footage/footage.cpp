@@ -48,7 +48,7 @@ void Footage::Load(QXmlStreamReader *reader)
     }
   }
 
-  // FIXME: Probe here
+  // FIXME: Probe here?
 
   XMLReadLoop(reader, "footage") {
     if (reader->isStartElement()) {

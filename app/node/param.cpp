@@ -282,23 +282,3 @@ QByteArray NodeParam::ValueToBytesInternal(const QVariant &v)
 
   return bytes;
 }
-
-void NodeParam::SaveConnections(QXmlStreamWriter *writer) const
-{
-  writer->writeStartElement("connections");
-
-  foreach (NodeEdgePtr edge, edges_) {
-    NodeParam* other;
-
-    if (edge->input() == this) {
-      other = edge->output();
-    } else {
-      other = edge->input();
-    }
-
-    writer->writeTextElement("connection",
-                             QString::number(reinterpret_cast<quintptr>(other)));
-  }
-
-  writer->writeEndElement(); // connections
-}

@@ -54,7 +54,7 @@ void Folder::Load(QXmlStreamReader *reader)
 
   XMLReadLoop(reader, "folder") {
     if (reader->isStartElement()) {
-      ItemPtr child = nullptr;
+      ItemPtr child;
 
       if (reader->name() == "folder") {
         child = std::make_shared<Folder>();
@@ -62,12 +62,12 @@ void Folder::Load(QXmlStreamReader *reader)
         child = std::make_shared<Footage>();
       } else if (reader->name() == "sequence") {
         child = std::make_shared<Sequence>();
+      } else {
+        continue;
       }
 
-      if (child) {
-        child->Load(reader);
-        add_child(child);
-      }
+      child->Load(reader);
+      add_child(child);
     }
   }
 }

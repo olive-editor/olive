@@ -28,9 +28,9 @@ TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, Node
   track_input_(track_input),
   type_(type)
 {
-  connect(track_input, SIGNAL(EdgeAdded(NodeEdgePtr)), this, SLOT(TrackConnected(NodeEdgePtr)));
-  connect(track_input, SIGNAL(EdgeRemoved(NodeEdgePtr)), this, SLOT(TrackDisconnected(NodeEdgePtr)));
-  connect(track_input, SIGNAL(SizeChanged(int)), this, SLOT(TrackListSizeChanged(int)));
+  connect(track_input, &NodeInputArray::EdgeAdded, this, &TrackList::TrackConnected);
+  connect(track_input, &NodeInputArray::EdgeRemoved, this, &TrackList::TrackDisconnected);
+  connect(track_input, &NodeInputArray::SizeChanged, this, &TrackList::TrackListSizeChanged);
 }
 
 const Timeline::TrackType &TrackList::type() const
@@ -154,10 +154,10 @@ void TrackList::TrackConnected(NodeEdgePtr edge)
 
     track_cache_.replace(track_index, connected_track);
 
-    connect(connected_track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    connect(connected_track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-    connect(connected_track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
-    connect(connected_track, SIGNAL(TrackHeightChanged(int)), this, SLOT(TrackHeightChangedSlot(int)));
+    connect(connected_track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
+    connect(connected_track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
+    connect(connected_track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+    connect(connected_track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
 
     connected_track->SetIndex(track_index);
     connected_track->set_track_type(type_);
@@ -191,10 +191,10 @@ void TrackList::TrackDisconnected(NodeEdgePtr edge)
     track->SetIndex(-1);
     track->set_track_type(Timeline::kTrackTypeNone);
 
-    disconnect(track, SIGNAL(BlockAdded(Block*)), this, SLOT(TrackAddedBlock(Block*)));
-    disconnect(track, SIGNAL(BlockRemoved(Block*)), this, SLOT(TrackRemovedBlock(Block*)));
-    disconnect(track, SIGNAL(TrackLengthChanged()), this, SLOT(UpdateTotalLength()));
-    disconnect(track, SIGNAL(TrackHeightChanged(int)), this, SLOT(TrackHeightChangedSlot(int)));
+    disconnect(track, &TrackOutput::BlockAdded, this, &TrackList::TrackAddedBlock);
+    disconnect(track, &TrackOutput::BlockRemoved, this, &TrackList::TrackRemovedBlock);
+    disconnect(track, &TrackOutput::TrackLengthChanged, this, &TrackList::UpdateTotalLength);
+    disconnect(track, &TrackOutput::TrackHeightChanged, this, &TrackList::TrackHeightChangedSlot);
 
     emit TrackListChanged();
 

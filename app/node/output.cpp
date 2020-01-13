@@ -20,6 +20,7 @@
 
 #include "output.h"
 
+#include "common/xmlreadloop.h"
 #include "node/node.h"
 
 NodeOutput::NodeOutput(const QString &id) :
@@ -41,8 +42,15 @@ QString NodeOutput::name()
   return NodeParam::name();
 }
 
-void NodeOutput::Load(QXmlStreamReader *reader)
+void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections)
 {
+  XMLAttributeLoop(reader, attr) {
+    if (attr.name() == "ptr") {
+      quintptr saved_ptr = attr.value().toULongLong();
+
+      param_ptrs.insert(saved_ptr, this);
+    }
+  }
 }
 
 void NodeOutput::Save(QXmlStreamWriter *writer) const
@@ -52,8 +60,6 @@ void NodeOutput::Save(QXmlStreamWriter *writer) const
   writer->writeAttribute("id", id());
 
   writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
-
-  SaveConnections(writer);
 
   writer->writeEndElement(); // output
 }
