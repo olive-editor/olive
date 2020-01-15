@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   project/project.cpp
   project/projectfilemanagerbase.h
   project/projectfilemanagerbase.cpp
+  project/projectimportmanager.h
+  project/projectimportmanager.cpp
   project/projectloadmanager.h
   project/projectloadmanager.cpp
   project/projectsavemanager.h

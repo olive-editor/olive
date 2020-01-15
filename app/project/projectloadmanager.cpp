@@ -9,7 +9,7 @@ ProjectLoadManager::ProjectLoadManager(const QString &filename) :
 {
 }
 
-void ProjectLoadManager::Start()
+void ProjectLoadManager::Action()
 {
   QFile project_file(filename_);
 

@@ -37,7 +37,9 @@ QString OIIODecoder::id()
 
 bool OIIODecoder::Probe(Footage *f)
 {
-  auto in = OIIO::ImageInput::open(f->filename().toStdString());
+  std::string std_filename = f->filename().toStdString();
+
+  auto in = OIIO::ImageInput::open(std_filename);
 
   if (!in) {
     return false;

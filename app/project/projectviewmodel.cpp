@@ -354,7 +354,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
       QUrl url = stream.readLine();
 
       if (!url.isEmpty()) {
-        urls.append(url.path());
+        urls.append(url.toLocalFile());
       }
     }
 

@@ -24,6 +24,7 @@
 
 #include "common/timecodefunctions.h"
 #include "common/xmlreadloop.h"
+#include "codec/decoder.h"
 #include "ui/icons/icons.h"
 
 Footage::Footage()
@@ -48,7 +49,7 @@ void Footage::Load(QXmlStreamReader *reader)
     }
   }
 
-  // FIXME: Probe here?
+  Decoder::ProbeMedia(this);
 
   XMLReadLoop(reader, "footage") {
     if (reader->isStartElement()) {

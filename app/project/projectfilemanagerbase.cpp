@@ -6,7 +6,19 @@ ProjectFileManagerBase::ProjectFileManagerBase() :
 
 }
 
+void ProjectFileManagerBase::Start()
+{
+  Action();
+
+  emit Finished();
+}
+
 void ProjectFileManagerBase::Cancel()
 {
   cancelled_ = true;
+}
+
+const QAtomicInt &ProjectFileManagerBase::IsCancelled() const
+{
+  return cancelled_;
 }

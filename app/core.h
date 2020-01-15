@@ -21,10 +21,12 @@
 #ifndef CORE_H
 #define CORE_H
 
+#include <QFileInfoList>
 #include <QList>
 #include <QTimer>
 
 #include "common/rational.h"
+#include "project/item/footage/footage.h"
 #include "project/project.h"
 #include "project/projectfilemanagerbase.h"
 #include "project/projectviewmodel.h"
@@ -173,6 +175,11 @@ public:
    * @brief Convert channel layout to a user-friendly string
    */
   static QString ChannelLayoutToString(const uint64_t &layout);
+
+  /**
+   * @brief Recursively count files in a file/directory list
+   */
+  static int CountFilesInFileList(const QFileInfoList &filenames);
 
 public slots:
   /**
@@ -357,6 +364,8 @@ private slots:
    * @brief Adds a project to the "open projects" list
    */
   void AddOpenProject(ProjectPtr p);
+
+  void ImportTaskComplete(QUndoCommand* command);
 
 };
 

@@ -9,7 +9,7 @@ ProjectSaveManager::ProjectSaveManager(Project *project) :
 
 }
 
-void ProjectSaveManager::Start()
+void ProjectSaveManager::Action()
 {
   QFile project_file(project_->filename());
 

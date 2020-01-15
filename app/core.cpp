@@ -41,13 +41,13 @@
 #include "panel/panelmanager.h"
 #include "panel/project/project.h"
 #include "panel/viewer/viewer.h"
+#include "project/projectimportmanager.h"
 #include "project/projectloadmanager.h"
 #include "project/projectsavemanager.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "task/import/import.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -161,7 +161,17 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
     return;
   }
 
-  TaskManager::instance()->AddTask(std::make_shared<ImportTask>(model, parent, urls));
+  ProjectImportManager* pim = new ProjectImportManager(model, parent, urls);
+
+  if (!pim->GetFileCount()) {
+    // No files to import
+    delete pim;
+    return;
+  }
+
+  connect(pim, &ProjectImportManager::ImportComplete, this, &Core::ImportTaskComplete, Qt::BlockingQueuedConnection);
+
+  InitiateOpenSaveProcess(pim, tr("Importing %1 files").arg(pim->GetFileCount()), tr("Importing..."));
 }
 
 const Tool::Item &Core::tool()
@@ -356,6 +366,11 @@ void Core::AddOpenProject(ProjectPtr p)
   open_projects_.append(p);
 
   emit ProjectOpened(p.get());
+}
+
+void Core::ImportTaskComplete(QUndoCommand *command)
+{
+  undo_stack_.pushIfHasChildren(command);
 }
 
 void Core::DeclareTypesForQt()
@@ -579,6 +594,26 @@ void Core::OpenProjectInternal(const QString &filename)
   connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
 
   InitiateOpenSaveProcess(plm, tr("Loading '%1'").arg(filename), tr("Load Project"));
+}
+
+int Core::CountFilesInFileList(const QFileInfoList &filenames)
+{
+  int file_count = 0;
+
+  foreach (const QFileInfo& f, filenames) {
+    // For some reason QDir::NoDotAndDotDot	doesn't work with entryInfoList, so we have to check manually
+    if (f.fileName() == "." || f.fileName() == "..") {
+      continue;
+    } else if (f.isDir()) {
+      QFileInfoList info_list = QDir(f.absoluteFilePath()).entryInfoList();
+
+      file_count += CountFilesInFileList(info_list);
+    } else {
+      file_count++;
+    }
+  }
+
+  return file_count;
 }
 
 void Core::InitiateOpenSaveProcess(ProjectFileManagerBase *manager, const QString& dialog_text, const QString& dialog_title)

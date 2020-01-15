@@ -20,9 +20,13 @@
 
 #include "project.h"
 
+#include <QDir>
 #include <QFileInfo>
 
 #include "common/xmlreadloop.h"
+#include "core.h"
+#include "dialog/loadsave/loadsave.h"
+#include "window/mainwindow/mainwindow.h"
 
 Project::Project()
 {

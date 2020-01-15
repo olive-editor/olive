@@ -9,14 +9,8 @@ class ProjectLoadManager : public ProjectFileManagerBase
 public:
   ProjectLoadManager(const QString& filename);
 
-public slots:
-  /**
-   * @brief Start the load process
-   *
-   * It's recommended to invoke this through Qt signals/slots/QueuedConnection after moving this object to a separate
-   * thread.
-   */
-  virtual void Start() override;
+protected:
+  virtual void Action() override;
 
 signals:
   void ProjectLoaded(ProjectPtr project);

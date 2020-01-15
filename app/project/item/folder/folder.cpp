@@ -66,8 +66,8 @@ void Folder::Load(QXmlStreamReader *reader)
         continue;
       }
 
-      child->Load(reader);
       add_child(child);
+      child->Load(reader);
     }
   }
 }

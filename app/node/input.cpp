@@ -284,7 +284,7 @@ Node *NodeInput::get_connected_node() const
 {
   NodeOutput* output = get_connected_output();
 
-  if (output != nullptr) {
+  if (output) {
     return output->parentNode();
   }
 

@@ -18,7 +18,7 @@ public slots:
    * It's recommended to invoke this through Qt signals/slots/QueuedConnection after moving this object to a separate
    * thread.
    */
-  virtual void Start() = 0;
+  void Start();
 
   /**
    * @brief Cancel the current save
@@ -27,6 +27,11 @@ public slots:
    * complete.
    */
   void Cancel();
+
+protected:
+  virtual void Action() = 0;
+
+  const QAtomicInt& IsCancelled() const;
 
 signals:
   void ProgressChanged(int);
