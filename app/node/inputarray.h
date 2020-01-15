@@ -33,7 +33,7 @@ signals:
   void SizeChanged(int size);
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput *> &param_ptrs, QList<SerializedConnection> &input_connections) override;
+  virtual void LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput *> &param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections) override;
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 

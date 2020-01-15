@@ -21,6 +21,8 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
+#include "node/param.h"
+#include "project/item/footage/footage.h"
 #include "project/item/item.h"
 
 /**
@@ -40,7 +42,7 @@ public:
 
   virtual QIcon icon() override;
 
-  virtual void Load(QXmlStreamReader* reader) override;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections) override;
 
   virtual void Save(QXmlStreamWriter* writer) const override;
 

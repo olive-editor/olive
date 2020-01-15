@@ -32,18 +32,18 @@ class ImageStream : public Stream
 public:
   ImageStream();
 
-  virtual QString description() override;
+  virtual QString description() const override;
 
-  const int& width();
+  const int& width() const;
   void set_width(const int& width);
 
-  const int& height();
+  const int& height() const;
   void set_height(const int& height);
 
-  bool premultiplied_alpha();
+  bool premultiplied_alpha() const;
   void set_premultiplied_alpha(bool e);
 
-  const QString& colorspace();
+  const QString& colorspace() const;
   void set_colorspace(const QString& color);
 
 signals:
@@ -51,6 +51,8 @@ signals:
 
 protected:
   virtual void FootageSetEvent(Footage*) override;
+
+  virtual void LoadCustomParameters(QXmlStreamReader *reader) override;
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const override;
 

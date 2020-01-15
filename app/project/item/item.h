@@ -30,6 +30,8 @@
 
 #include "common/constructors.h"
 #include "common/threadedobject.h"
+#include "node/param.h"
+#include "project/item/footage/stream.h"
 
 class Project;
 
@@ -63,7 +65,7 @@ public:
 
   DISABLE_COPY_MOVE(Item)
 
-  virtual void Load(QXmlStreamReader* reader) = 0;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections) = 0;
 
   virtual void Save(QXmlStreamWriter* writer) const = 0;
 

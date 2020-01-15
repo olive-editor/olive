@@ -20,6 +20,7 @@
 
 #include "imagestream.h"
 
+#include "common/xmlreadloop.h"
 #include "footage.h"
 #include "project/project.h"
 #include "render/colormanager.h"
@@ -36,19 +37,29 @@ void ImageStream::FootageSetEvent(Footage *f)
   connect(f->project()->color_manager(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChanged()), Qt::DirectConnection);
 }
 
+void ImageStream::LoadCustomParameters(QXmlStreamReader *reader)
+{
+  XMLReadLoop(reader, "stream") {
+    if (reader->isStartElement() && reader->name() == "colorspace") {
+      reader->readNext();
+      set_colorspace(reader->text().toString());
+    }
+  }
+}
+
 void ImageStream::SaveCustomParameters(QXmlStreamWriter *writer) const
 {
   writer->writeTextElement("colorspace", colorspace_);
 }
 
-QString ImageStream::description()
+QString ImageStream::description() const
 {
   return QCoreApplication::translate("Stream", "%1: Image - %2x%3").arg(QString::number(index()),
                                                                         QString::number(width()),
                                                                         QString::number(height()));
 }
 
-const int &ImageStream::width()
+const int &ImageStream::width() const
 {
   return width_;
 }
@@ -58,7 +69,7 @@ void ImageStream::set_width(const int &width)
   width_ = width;
 }
 
-const int &ImageStream::height()
+const int &ImageStream::height() const
 {
   return height_;
 }
@@ -68,7 +79,7 @@ void ImageStream::set_height(const int &height)
   height_ = height;
 }
 
-bool ImageStream::premultiplied_alpha()
+bool ImageStream::premultiplied_alpha() const
 {
   return premultiplied_alpha_;
 }
@@ -78,7 +89,7 @@ void ImageStream::set_premultiplied_alpha(bool e)
   premultiplied_alpha_ = e;
 }
 
-const QString &ImageStream::colorspace()
+const QString &ImageStream::colorspace() const
 {
   if (colorspace_.isEmpty()) {
     return footage()->project()->default_input_colorspace();

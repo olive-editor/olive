@@ -63,7 +63,7 @@ public:
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader) override;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections) override;
 
   /**
    * @brief Save function
@@ -259,8 +259,6 @@ private:
   QString decoder_;
 
 };
-
-QString FootageToString(const Footage* footage);
 
 using FootagePtr = std::shared_ptr<Footage>;
 

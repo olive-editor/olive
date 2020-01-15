@@ -25,14 +25,14 @@ VideoStream::VideoStream()
   set_type(kVideo);
 }
 
-QString VideoStream::description()
+QString VideoStream::description() const
 {
   return QCoreApplication::translate("Stream", "%1: Video - %2x%3").arg(QString::number(index()),
                                                                         QString::number(width()),
                                                                         QString::number(height()));
 }
 
-const rational &VideoStream::frame_rate()
+const rational &VideoStream::frame_rate() const
 {
   return frame_rate_;
 }

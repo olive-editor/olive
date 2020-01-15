@@ -25,6 +25,7 @@
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
 #include "render/videoparams.h"
+#include "project/item/footage/stream.h"
 #include "project/item/item.h"
 
 class Sequence;
@@ -41,7 +42,7 @@ public:
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader) override;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections) override;
 
   /**
    * @brief Save function

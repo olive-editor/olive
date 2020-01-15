@@ -75,11 +75,13 @@ public:
    */
   virtual ~Stream();
 
+  void Load(QXmlStreamReader* reader);
+
   void Save(QXmlStreamWriter *writer) const;
 
-  virtual QString description();
+  virtual QString description() const;
 
-  const Type& type();
+  const Type& type() const;
   void set_type(const Type& type);
 
   Footage* footage() const;
@@ -94,7 +96,7 @@ public:
   const int64_t& duration() const;
   void set_duration(const int64_t& duration);
 
-  bool enabled();
+  bool enabled() const;
   void set_enabled(bool e);
 
   static QIcon IconFromType(const Type& type);
@@ -105,6 +107,8 @@ public:
 
 protected:
   virtual void FootageSetEvent(Footage*);
+
+  virtual void LoadCustomParameters(QXmlStreamReader *reader);
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
 

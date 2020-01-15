@@ -42,7 +42,7 @@ Sequence::Sequence()
   AddNode(viewer_output_);
 }
 
-void Sequence::Load(QXmlStreamReader *reader)
+void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeInput::FootageConnection>& footage_connections)
 {
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == "name") {
@@ -125,7 +125,7 @@ void Sequence::Load(QXmlStreamReader *reader)
         }
 
         if (node) {
-          node->Load(reader, output_ptrs, desired_connections, reader->name().toString());
+          node->Load(reader, output_ptrs, desired_connections, footage_connections, reader->name().toString());
 
           AddNode(node);
         }

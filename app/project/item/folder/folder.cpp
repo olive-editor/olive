@@ -44,7 +44,7 @@ QIcon Folder::icon()
   return icon::Folder;
 }
 
-void Folder::Load(QXmlStreamReader *reader)
+void Folder::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections)
 {
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == "name") {
@@ -67,7 +67,7 @@ void Folder::Load(QXmlStreamReader *reader)
       }
 
       add_child(child);
-      child->Load(reader);
+      child->Load(reader, footage_ptrs, footage_connections);
     }
   }
 }

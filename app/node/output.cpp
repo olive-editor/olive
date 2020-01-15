@@ -42,7 +42,7 @@ QString NodeOutput::name()
   return NodeParam::name();
 }
 
-void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections)
+void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections)
 {
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == "ptr") {

@@ -32,15 +32,15 @@ class AudioStream : public Stream
 public:
   AudioStream();
 
-  virtual QString description() override;
+  virtual QString description() const override;
 
-  const int& channels();
+  const int& channels() const;
   void set_channels(const int& channels);
 
-  const uint64_t& channel_layout();
+  const uint64_t& channel_layout() const;
   void set_channel_layout(const uint64_t& channel_layout);
 
-  const int& sample_rate();
+  const int& sample_rate() const;
   void set_sample_rate(const int& sample_rate);
 
 private:

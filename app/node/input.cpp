@@ -30,6 +30,7 @@
 #include "node.h"
 #include "output.h"
 #include "inputarray.h"
+#include "project/item/footage/stream.h"
 
 NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &default_value) :
   NodeParam(id),
@@ -85,7 +86,7 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
-void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections)
+void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections)
 {
   XMLAttributeLoop(reader, attr) {
     if (attr.name() == "keyframing") {
@@ -108,7 +109,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
             if (value_text.isEmpty()) {
               standard_value_.replace(val_index, QVariant());
             } else {
-              standard_value_.replace(val_index, StringToValue(data_type_, value_text));
+              standard_value_.replace(val_index, StringToValue(value_text, footage_connections));
             }
 
             val_index++;
@@ -145,7 +146,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
 
                 reader->readNext();
 
-                key_value = StringToValue(data_type_, reader->text().toString());
+                key_value = StringToValue(reader->text().toString(), footage_connections);
 
                 NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
                 key->set_bezier_control_in(key_in_handle);
@@ -166,7 +167,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
           }
         }
       } else {
-        LoadInternal(reader, param_ptrs, input_connections);
+        LoadInternal(reader, param_ptrs, input_connections, footage_connections);
       }
     }
   }
@@ -184,7 +185,7 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
   writer->writeStartElement("standard");
 
   foreach (const QVariant& v, standard_value_) {
-    writer->writeTextElement("value", ValueToString(data_type_, v));
+    writer->writeTextElement("value", ValueToString(v));
   }
 
   writer->writeEndElement(); // standard
@@ -205,7 +206,7 @@ void NodeInput::Save(QXmlStreamWriter *writer) const
       writer->writeAttribute("outhandlex", QString::number(key->bezier_control_out().x()));
       writer->writeAttribute("outhandley", QString::number(key->bezier_control_out().y()));
 
-      writer->writeCharacters(ValueToString(data_type_, key->value()));
+      writer->writeCharacters(ValueToString(key->value()));
 
       writer->writeEndElement(); // key
     }
@@ -240,7 +241,7 @@ const NodeParam::DataType &NodeInput::data_type() const
   return data_type_;
 }
 
-void NodeInput::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &param_ptrs, QList<SerializedConnection> &input_connections)
+void NodeInput::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections)
 {
 }
 
@@ -248,27 +249,33 @@ void NodeInput::SaveInternal(QXmlStreamWriter *writer) const
 {
 }
 
-QString NodeInput::ValueToString(const NodeParam::DataType &type, const QVariant &value)
+QString NodeInput::ValueToString(const QVariant &value) const
 {
-  if (type == kRational) {
+  switch (data_type_) {
+  case kRational:
     return value.value<rational>().toString();
-  }
+  case kFootage:
+    return QString::number(reinterpret_cast<quintptr>(value.value<StreamPtr>().get()));
+  default:
+    if (value.canConvert<QString>()) {
+      return value.toString();
+    }
 
-  if (value.canConvert<QString>()) {
-    return value.toString();
+    qWarning() << "Failed to convert type" << data_type_ << "to string";
+    return QString();
   }
-
-  qWarning() << "Failed to convert type" << type << "to string";
-  return QString();
 }
 
-QVariant NodeInput::StringToValue(const NodeParam::DataType &type, const QString &string)
+QVariant NodeInput::StringToValue(const QString &string, QList<NodeInput::FootageConnection>& footage_connections)
 {
-  if (type == kRational) {
+  switch (data_type_) {
+  case kRational:
     return QVariant::fromValue(rational::fromString(string));
+  case kFootage:
+    footage_connections.append({this, string.toULongLong()});
+  default:
+    return string;
   }
-
-  return string;
 }
 
 NodeOutput *NodeInput::get_connected_output() const

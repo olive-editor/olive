@@ -54,7 +54,7 @@ public:
 
   virtual QString name() override;
 
-  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections) override;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections) override;
 
   virtual void Save(QXmlStreamWriter* writer) const override;
 
@@ -243,14 +243,14 @@ signals:
   void KeyframeRemoved(NodeKeyframePtr key);
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections);
+  virtual void LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections);
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
 private:
-  static QString ValueToString(const DataType& type, const QVariant& value);
+  QString ValueToString(const QVariant& value) const;
 
-  static QVariant StringToValue(const DataType& type, const QString &string);
+  QVariant StringToValue(const QString &string, QList<FootageConnection> &footage_connections);
 
   void SaveConnections(QXmlStreamWriter* writer) const;
 

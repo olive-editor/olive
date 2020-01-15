@@ -37,7 +37,7 @@ Footage::~Footage()
   ClearStreams();
 }
 
-void Footage::Load(QXmlStreamReader *reader)
+void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections)
 {
   QXmlStreamAttributes attributes = reader->attributes();
 
@@ -54,7 +54,24 @@ void Footage::Load(QXmlStreamReader *reader)
   XMLReadLoop(reader, "footage") {
     if (reader->isStartElement()) {
       if (reader->name() == "stream") {
-        // FIXME: Load stream custom options here
+        int stream_index = -1;
+        quintptr stream_ptr = 0;
+
+        XMLAttributeLoop(reader, attr) {
+          if (attr.name() == "index") {
+            stream_index = attr.value().toInt();
+          } else if (attr.name() == "ptr") {
+            stream_ptr = attr.value().toULongLong();
+          }
+        }
+
+        if (stream_index > -1 && stream_ptr > 0) {
+          footage_ptrs.insert(stream_ptr, stream(stream_index));
+
+          stream(stream_index)->Load(reader);
+        } else {
+          qWarning() << "Invalid stream found in project file";
+        }
       }
     }
   }
@@ -66,7 +83,6 @@ void Footage::Save(QXmlStreamWriter *writer) const
 
   writer->writeAttribute("name", name());
   writer->writeAttribute("filename", filename());
-  writer->writeAttribute("ptr", FootageToString(this));
 
   foreach (StreamPtr stream, streams_) {
     stream->Save(writer);
@@ -321,9 +337,4 @@ void Footage::UpdateTooltip()
     set_tooltip(QCoreApplication::translate("Footage", "An error occurred probing this footage"));
     break;
   }
-}
-
-QString FootageToString(const Footage *footage)
-{
-  return QString::number(reinterpret_cast<quintptr>(footage));
 }

@@ -50,7 +50,7 @@ Node::~Node()
   }
 }
 
-void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_ptrs, QList<NodeInput::SerializedConnection>& input_connections, const QString& element)
+void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_ptrs, QList<NodeInput::SerializedConnection>& input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QString& element)
 {
   XMLReadLoop(reader, (element.isEmpty() ? "node" : element)) {
     if (reader->isStartElement()) {
@@ -77,7 +77,7 @@ void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_
           continue;
         }
 
-        param->Load(reader, output_ptrs, input_connections);
+        param->Load(reader, output_ptrs, input_connections, footage_connections);
       }
     }
   }

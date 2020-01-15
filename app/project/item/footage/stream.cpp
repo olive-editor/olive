@@ -35,9 +35,16 @@ Stream::~Stream()
 {
 }
 
+void Stream::Load(QXmlStreamReader *reader)
+{
+  LoadCustomParameters(reader);
+}
+
 void Stream::Save(QXmlStreamWriter *writer) const
 {
   writer->writeStartElement("stream");
+
+  writer->writeAttribute("ptr", QString::number(reinterpret_cast<quintptr>(this)));
 
   writer->writeAttribute("index", QString::number(index_));
 
@@ -46,12 +53,12 @@ void Stream::Save(QXmlStreamWriter *writer) const
   writer->writeEndElement(); // stream
 }
 
-QString Stream::description()
+QString Stream::description() const
 {
   return QCoreApplication::translate("Stream", "%1: Unknown").arg(index());
 }
 
-const Stream::Type &Stream::type()
+const Stream::Type &Stream::type() const
 {
   return type_;
 }
@@ -102,7 +109,7 @@ void Stream::set_duration(const int64_t &duration)
   duration_ = duration;
 }
 
-bool Stream::enabled()
+bool Stream::enabled() const
 {
   return enabled_;
 }
@@ -134,6 +141,10 @@ StreamID Stream::ToID() const
 }
 
 void Stream::FootageSetEvent(Footage *)
+{
+}
+
+void Stream::LoadCustomParameters(QXmlStreamReader* reader)
 {
 }
 

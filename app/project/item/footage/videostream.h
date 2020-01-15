@@ -28,14 +28,14 @@ class VideoStream : public ImageStream
 public:
   VideoStream();
 
-  virtual QString description() override;
+  virtual QString description() const override;
 
   /**
    * @brief Get this video stream's frame rate
    *
    * Used purely for metadata, rendering uses the timebase instead.
    */
-  const rational& frame_rate();
+  const rational& frame_rate() const;
   void set_frame_rate(const rational& frame_rate);
 
 private:
