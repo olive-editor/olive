@@ -29,14 +29,14 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 
 void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
-  connect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
-  connect(node, SIGNAL(AudioGraphChanged()), this, SLOT(QueueRecompile()));
+  connect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
+  connect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
 }
 
 void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
-  disconnect(node, SIGNAL(AudioChangedBetween(const rational&, const rational&)), this, SLOT(InvalidateCache(const rational&, const rational&)));
-  disconnect(node, SIGNAL(AudioGraphChanged()), this, SLOT(QueueRecompile()));
+  disconnect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
+  disconnect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
 }
 
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)

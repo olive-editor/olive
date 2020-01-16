@@ -28,7 +28,6 @@ OpenGLFramebuffer::OpenGLFramebuffer() :
   buffer_(0),
   texture_(nullptr)
 {
-
 }
 
 OpenGLFramebuffer::~OpenGLFramebuffer()
@@ -48,7 +47,7 @@ void OpenGLFramebuffer::Create(QOpenGLContext *ctx)
 
   context_ = ctx;
 
-  connect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+  connect(context_, &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLFramebuffer::Destroy);
 
   // Create framebuffer object
   context_->functions()->glGenFramebuffers(1, &buffer_);
@@ -57,7 +56,7 @@ void OpenGLFramebuffer::Create(QOpenGLContext *ctx)
 void OpenGLFramebuffer::Destroy()
 {
   if (context_ != nullptr) {
-    disconnect(context_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+    disconnect(context_, &QOpenGLContext::aboutToBeDestroyed, this, &OpenGLFramebuffer::Destroy);
 
     context_->functions()->glDeleteFramebuffers(1, &buffer_);
 

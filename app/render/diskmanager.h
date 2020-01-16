@@ -36,6 +36,8 @@ private:
 
   qint64 DiskLimit();
 
+  static QString GetCacheIndexFilename();
+
   struct HashTime {
     QString file_name;
     QByteArray hash;

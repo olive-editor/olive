@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QStandardPaths>
 
 #include "common/filefunctions.h"
 #include "config/config.h"
@@ -15,7 +16,7 @@ DiskManager::DiskManager() :
   consumption_(0)
 {
   // Try to load any current cache index from file
-  QFile cache_index_file(QDir(GetMediaCacheLocation()).filePath("index"));
+  QFile cache_index_file(GetCacheIndexFilename());
 
   if (cache_index_file.open(QFile::ReadOnly)) {
     QDataStream ds(&cache_index_file);
@@ -43,7 +44,7 @@ DiskManager::~DiskManager()
     ClearDiskCache();
   } else {
     // Save current cache index
-    QFile cache_index_file(QDir(GetMediaCacheLocation()).filePath("index"));
+    QFile cache_index_file(GetCacheIndexFilename());
 
     if (cache_index_file.open(QFile::WriteOnly)) {
       QDataStream ds(&cache_index_file);
@@ -171,4 +172,9 @@ qint64 DiskManager::DiskLimit()
 
   // Convert gigabytes to bytes
   return qRound64(gigabytes * 1073741824);
+}
+
+QString DiskManager::GetCacheIndexFilename()
+{
+  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("diskindex");
 }

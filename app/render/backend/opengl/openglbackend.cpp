@@ -61,7 +61,6 @@ OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
 
   if (cached_frame != nullptr) {
     master_texture_->Upload(cached_frame);
-
     return master_texture_;
   }
 
