@@ -63,6 +63,8 @@ public:
 
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
+  ViewerOutput* GetConnectedNode() const;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

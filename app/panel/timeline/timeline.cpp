@@ -51,7 +51,17 @@ void TimelinePanel::SetTime(const int64_t &timestamp)
 
 void TimelinePanel::ConnectTimelineNode(ViewerOutput *node)
 {
+  if (timeline_widget_->GetConnectedNode()) {
+    disconnect(timeline_widget_->GetConnectedNode(), &ViewerOutput::MediaNameChanged, this, &TimelinePanel::SetSubtitle);
+    Retranslate();
+  }
+
   timeline_widget_->ConnectTimelineNode(node);
+
+  if (node) {
+    connect(node, &ViewerOutput::MediaNameChanged, this, &TimelinePanel::SetSubtitle);
+    SetSubtitle(node->media_name());
+  }
 }
 
 void TimelinePanel::DisconnectTimelineNode()
@@ -140,5 +150,8 @@ void TimelinePanel::changeEvent(QEvent *e)
 void TimelinePanel::Retranslate()
 {
   SetTitle(tr("Timeline"));
-  SetSubtitle(tr("(none)"));
+
+  if (!timeline_widget_->GetConnectedNode()) {
+    SetSubtitle(tr("(none)"));
+  }
 }

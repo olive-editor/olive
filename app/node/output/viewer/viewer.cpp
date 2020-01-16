@@ -233,6 +233,18 @@ void ViewerOutput::Retranslate()
   }
 }
 
+const QString &ViewerOutput::media_name() const
+{
+  return media_name_;
+}
+
+void ViewerOutput::set_media_name(const QString &name)
+{
+  media_name_ = name;
+
+  emit MediaNameChanged(media_name_);
+}
+
 const QVector<TrackOutput *>& ViewerOutput::Tracks() const
 {
   return track_cache_;

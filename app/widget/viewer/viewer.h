@@ -65,8 +65,6 @@ public:
 
   void ConnectViewerNode(ViewerOutput* node, ColorManager *color_manager = nullptr);
 
-  void DisconnectViewerNode();
-
   ViewerOutput* GetConnectedViewer() const;
 
   void SetColorMenuEnabled(bool enabled);

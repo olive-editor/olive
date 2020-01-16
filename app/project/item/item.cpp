@@ -95,6 +95,8 @@ const QString &Item::name() const
 void Item::set_name(const QString &n)
 {
   name_ = n;
+
+  NameChangedEvent(n);
 }
 
 const QString &Item::tooltip() const
@@ -153,6 +155,10 @@ bool Item::CanHaveChildren() const
 bool Item::ChildExistsWithName(const QString &name)
 {
   return ChildExistsWithNameInternal(name, this);
+}
+
+void Item::NameChangedEvent(const QString &name)
+{
 }
 
 bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)

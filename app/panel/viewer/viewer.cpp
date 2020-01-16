@@ -39,12 +39,17 @@ ViewerPanel::ViewerPanel(QWidget *parent) :
 
 void ViewerPanel::ConnectViewerNode(ViewerOutput *node)
 {
-  viewer_->ConnectViewerNode(node);
-}
+  if (viewer_->GetConnectedViewer()) {
+    disconnect(viewer_->GetConnectedViewer(), &ViewerOutput::MediaNameChanged, this, &ViewerPanel::SetSubtitle);
+    Retranslate();
+  }
 
-void ViewerPanel::DisconnectViewerNode()
-{
-  viewer_->DisconnectViewerNode();
+  viewer_->ConnectViewerNode(node);
+
+  if (node) {
+    connect(node, &ViewerOutput::MediaNameChanged, this, &ViewerPanel::SetSubtitle);
+    SetSubtitle(node->media_name());
+  }
 }
 
 rational ViewerPanel::GetTime()
@@ -73,5 +78,8 @@ void ViewerPanel::changeEvent(QEvent *e)
 void ViewerPanel::Retranslate()
 {
   SetTitle(tr("Viewer"));
-  SetSubtitle(tr("(none)"));
+
+  if (!viewer_->GetConnectedViewer()) {
+    SetSubtitle(tr("(none)"));
+  }
 }

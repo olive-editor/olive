@@ -74,6 +74,9 @@ public:
 
   virtual void Retranslate() override;
 
+  const QString& media_name() const;
+  void set_media_name(const QString& name);
+
 protected:
   virtual void DependentEdgeChanged(NodeInput* from) override;
 
@@ -100,6 +103,8 @@ signals:
 
   void TrackHeightChanged(Timeline::TrackType type, int index, int height);
 
+  void MediaNameChanged(const QString& name);
+
 private:
   QUuid uuid_;
 
@@ -120,6 +125,8 @@ private:
   QVector<TrackOutput*> track_cache_;
 
   rational timeline_length_;
+
+  QString media_name_;
 
 private slots:
   void UpdateTrackCache();

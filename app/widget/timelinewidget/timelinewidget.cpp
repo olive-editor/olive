@@ -525,6 +525,11 @@ QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
   return list;
 }
 
+ViewerOutput *TimelineWidget::GetConnectedNode() const
+{
+  return timeline_node_;
+}
+
 void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
 {
   rational playhead_time = Timecode::timestamp_to_time(playhead_, timebase());

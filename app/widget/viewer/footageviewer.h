@@ -12,6 +12,7 @@ class FootageViewerWidget : public ViewerWidget
 public:
   FootageViewerWidget(QWidget* parent = nullptr);
 
+  Footage* GetFootage() const;
   void SetFootage(Footage* footage);
 
 private:

@@ -186,11 +186,6 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
   }
 }
 
-void ViewerWidget::DisconnectViewerNode()
-{
-  ConnectViewerNode(nullptr);
-}
-
 ViewerOutput *ViewerWidget::GetConnectedViewer() const
 {
   return viewer_node_;

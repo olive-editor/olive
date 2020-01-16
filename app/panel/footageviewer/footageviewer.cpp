@@ -41,6 +41,12 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 void FootageViewerPanel::SetFootage(Footage *f)
 {
   static_cast<FootageViewerWidget*>(viewer_)->SetFootage(f);
+
+  if (f) {
+    SetSubtitle(f->name());
+  } else {
+    Retranslate();
+  }
 }
 
 void FootageViewerPanel::changeEvent(QEvent *e)
@@ -54,5 +60,8 @@ void FootageViewerPanel::changeEvent(QEvent *e)
 void FootageViewerPanel::Retranslate()
 {
   SetTitle(tr("Footage Viewer"));
-  SetSubtitle(tr("(none)"));
+
+  if (!static_cast<FootageViewerWidget*>(viewer_)->GetFootage()) {
+    SetSubtitle(tr("(none)"));
+  }
 }

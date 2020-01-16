@@ -15,10 +15,15 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   NodeParam::ConnectEdge(video_node_->output(), viewer_node_->length_input());
 }
 
+Footage *FootageViewerWidget::GetFootage() const
+{
+  return footage_;
+}
+
 void FootageViewerWidget::SetFootage(Footage *footage)
 {
   if (footage_) {
-    DisconnectViewerNode();
+    ConnectViewerNode(nullptr);
   }
 
   footage_ = footage;

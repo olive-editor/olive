@@ -35,8 +35,6 @@ public:
 
   void ConnectViewerNode(ViewerOutput* node);
 
-  void DisconnectViewerNode();
-
   rational GetTime();
 
   ViewerOutput* GetConnectedViewer() const;

@@ -250,5 +250,11 @@ void Sequence::set_default_parameters()
                                Config::Current()["DefaultSequenceHeight"].toInt(),
                                Config::Current()["DefaultSequenceFrameRate"].value<rational>()));
   set_audio_params(AudioParams(Config::Current()["DefaultSequenceAudioFrequency"].toInt(),
-                               Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
+                   Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
+}
+
+void Sequence::NameChangedEvent(const QString &name)
+{
+  qDebug() << "Setting viewer output name to" << name;
+  viewer_output_->set_media_name(name);
 }
