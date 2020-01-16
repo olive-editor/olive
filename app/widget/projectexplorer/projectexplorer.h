@@ -148,6 +148,9 @@ private slots:
   void ShowContextMenu();
 
   void ShowFootagePropertiesDialog();
+
+  void ShowSequencePropertiesDialog();
+
 };
 
 #endif // PROJECTEXPLORER_H

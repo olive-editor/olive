@@ -27,6 +27,7 @@
 #include "common/define.h"
 #include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
+#include "dialog/sequence/sequence.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
@@ -243,8 +244,11 @@ void ProjectExplorer::ShowContextMenu()
   } else {
     QAction* properties_action = menu.addAction(tr("P&roperties"));
 
+    // FIXME: Support for multiple items
     if (selected_items.first()->type() == Item::kFootage) {
       connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowFootagePropertiesDialog);
+    } else if (selected_items.first()->type() == Item::kSequence) {
+      connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowSequencePropertiesDialog);
     }
   }
 
@@ -253,9 +257,16 @@ void ProjectExplorer::ShowContextMenu()
 
 void ProjectExplorer::ShowFootagePropertiesDialog()
 {
-  // FIXME: Support for multiple items and items other than Footage
+  // FIXME: Support for multiple items
   FootagePropertiesDialog fpd(this, static_cast<Footage*>(SelectedItems().first()));
   fpd.exec();
+}
+
+void ProjectExplorer::ShowSequencePropertiesDialog()
+{
+  // FIXME: Support for multiple items
+  SequenceDialog sd(static_cast<Sequence*>(SelectedItems().first()), SequenceDialog::kExisting, this);
+  sd.exec();
 }
 
 Project *ProjectExplorer::project()
