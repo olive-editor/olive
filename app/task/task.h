@@ -24,8 +24,6 @@
 #include <memory>
 #include <QObject>
 
-#include "task/taskthread.h"
-
 /**
  * @brief A base class for background tasks running in Olive.
  *
@@ -48,30 +46,16 @@ class Task : public QObject
   Q_OBJECT
 public:
   /**
-   * @brief The Status enum
-   *
-   * All states that a Task can be in. When subclassing, you don't need to set the Task's status as the base class
-   * does that automatically.
-   */
-  enum Status {
-    /// This Task is yet to start
-    kWaiting,
-
-    /// This Task is currently running (see Action())
-    kWorking,
-
-    /// This Task has completed successfully
-    kFinished,
-
-    /// This Task failed and could not complete
-    kError
-  };
-
-  /**
    * @brief Task Constructor
    */
   Task();
 
+  /**
+   * @brief Retrieve the current title of this Task
+   */
+  const QString& GetTitle();
+
+public slots:
   /**
    * @brief Try to start this Task
    *
@@ -81,29 +65,18 @@ public:
    * This function also checks its dependency Tasks and will only start if all of them are complete. If they are still
    * working, this function will return FALSE and the status will continue to be kWaiting. If any of them failed, this
    * Task will also fail - this function will return FALSE and the status will be set to kError.
-   *
-   * @return
-   *
-   * TRUE if the Task started, FALSE if not.
    */
-  bool Start();
+  void Start();
 
   /**
-   * @brief Perform opening tasks before main Task thread begins
+   * @brief Cancel the Task
    *
-   * If a Task needs to perform any actions in the main thread before starting the Task's thread, (e.g. copying or
-   * altering information) this function should be overridden and those actions should be performed here. It's
-   * guaranteed that Prologue() will run in the main thread, and as such, functions here should remain as minimal as
-   * possible as to not block the main thread for a noticeable amount of time. If your Task does not need any such
-   * actions, you don't need to override this.
-   *
-   * @return
-   *
-   * TRUE if the prologue was successful and we can start the Task now. If Prologue returns FALSE, the thread is never
-   * created and Action()/Epilogue() are never run.
+   * Sends a signal to the Task to stop as soon as possible. Always call this directly or connect with
+   * Qt::DirectConnection, or else it'll be queued *after* the task has already finished.
    */
-  virtual bool Prologue();
+  void Cancel();
 
+protected:
   /**
    * @brief The main Task function which is run in a separate thread
    *
@@ -119,86 +92,15 @@ public:
    * could not finish, not if the Task found a negative result (see Task documentation for details). Before returning
    * FALSE, it's recommended to use set_error() to signal to the user what caused the failure.
    */
-  virtual bool Action();
+  virtual void Action() = 0;
 
-  /**
-   * @brief Perform any closing Tasks in the main thread after the Task thread finishes
-   *
-   * It's likely your Task modifies data used throughout the program in some way, and to prevent race conditions, it's
-   * recommended to work with "copies" of that data in Action() (which is run in separate thread) and never
-   * access/modify any data used in other threads. Then, after the Action() thread is complete, that data can be used to
-   * "apply" that data in the main thread here.
-   *
-   * As this runs in the main thread, these functions shouldn't be kept fairly minimal to prevent blocking the main
-   * thread.
-   *
-   * @return
-   *
-   * TRUE if the Epilogue completed successfully. FALSE if not. A FALSE result here is considered a complete failure
-   * of the Task, even though the bulk of the processing has been performed in Action().
-   */
-  virtual bool Epilogue();
-
-  /**
-   * @brief Current status of the Task
-   *
-   * @return
-   *
-   * A member of the Task::Status enum.
-   */
-  const Status& status();
-
-  /**
-   * @brief Retrieve the current title of this Task
-   */
-  const QString& text();
-
-  /**
-   * @brief Retrieve the current error message (empty if no error)
-   */
-  const QString& error();
-
-  /**
-   * @brief Add a dependency Task
-   *
-   * If another Task needs to complete before this one can begin, it can be added as a "dependency task". If a task
-   * has dependencies, Start() will not start the task until the dependency tasks have all completed. If any of the
-   * dependency tasks fail, this Task will also fail before starting.
-   *
-   * Dependencies can only be added if the Task is kWaiting.
-   *
-   * Naturally Tasks should never be dependent on each other. Circular dependencies will result in Tasks that never
-   * begin.
-   *
-   * @param dependency
-   */
-  void AddDependency(Task* dependency);
-
-  /**
-   * @brief Reset this Task back to the waiting state
-   */
-  void ResetState();
-
-public slots:
-  /**
-   * @brief Cancel the Task
-   *
-   * Sends a signal to the Task to stop and waits for the Task to finish before returning. Tasks must be responsive to
-   * cancelling so that the main thread doesn't halt for too long.
-   *
-   * Cancel()'s function is fairly simple, it sets cancelled_ to TRUE and waits for the thread to return. It's the
-   * responsibility of the code in Action() to be able to respond quickly to cancelled_ changing.
-   */
-  void Cancel();
-
-protected:
   /**
    * @brief Set the error message
    *
    * It is recommended to use this if your Action() function ever returns FALSE to tell the user why the failure
    * occurred.
    */
-  void set_error(const QString& s);
+  void SetErrorText(const QString& s);
 
   /**
    * @brief Set the Task title
@@ -207,19 +109,14 @@ protected:
    * and shouldn't need to change during the life of the Task. To show an error message, it's recommended to use
    * set_error() instead.
    */
-  void set_text(const QString& s);
+  void SetTitle(const QString& s);
 
   /**
    * @brief Returns whether the thread has been explicitly cancelled or not
    */
-  bool cancelled();
+  bool IsCancelled();
 
 signals:
-  /**
-   * @brief Signal emitted whenever the Task status changes
-   */
-  void StatusChanged(Task::Status s);
-
   /**
    * @brief Signal emitted whenever progress is made
    *
@@ -231,9 +128,10 @@ signals:
    */
   void ProgressChanged(int p);
 
-  /**
-   * @brief Signal emitted when the Task finishes whether it succeeded or failed
-   */
+  void Succeeeded();
+
+  void Failed(const QString& error);
+
   void Finished();
 
   /**
@@ -242,30 +140,12 @@ signals:
   void Removed();
 
 private:
-  /**
-   * @brief Set the status of this Task (also emits StatusChanged())
-   */
-  void set_status(const Task::Status& status);
-
-  Status status_;
-
-  TaskThread thread_;
-
-  QString text_;
+  QString title_;
 
   QString error_;
 
-  QList<Task*> dependencies_;
+  QAtomicInt cancelled_;
 
-  bool cancelled_;
-
-private slots:
-  /**
-   * @brief A slot when the inner thread completes either successfully or unsuccessfully
-   */
-  void ThreadComplete();
 };
-
-using TaskPtr = std::shared_ptr<Task>;
 
 #endif // TASK_H

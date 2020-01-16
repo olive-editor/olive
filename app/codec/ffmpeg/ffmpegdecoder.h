@@ -92,18 +92,7 @@ private:
    */
   int GetFrame(AVPacket* pkt, AVFrame* frame);
 
-  /**
-   * @brief Create an index for this media
-   *
-   * Indexes are used to improve speed and reliability of imported media. Calling Retrieve() will automatically check
-   * for an index and create one if it doesn't exist.
-   *
-   * Indexing is slow so it's recommended to do it in a background thread. Index() must be called while the Decoder is
-   * open, and does not automatically call Open() and Close() the Decoder. The caller must call thse manually.
-   *
-   * FIXME: This should perhaps become a common function for the base Decoder class
-   */
-  void Index();
+  virtual void Index() override;
 
   /**
    * @brief Returns the filename for the index
@@ -116,8 +105,6 @@ private:
    * @brief Get the destination filename of an audio stream conformed to a set of parameters
    */
   QString GetConformedFilename(const AudioRenderingParams &params);
-
-  void ValidateIndex();
 
   /**
    * @brief Used internally to load a frame index into frame_index_

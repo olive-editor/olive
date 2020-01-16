@@ -28,7 +28,6 @@
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 #include "project/project.h"
-#include "project/projectfilemanagerbase.h"
 #include "project/projectviewmodel.h"
 #include "task/task.h"
 #include "tool/tool.h"
@@ -110,15 +109,6 @@ public:
    * @brief Get current snapping value
    */
   const bool& snapping();
-
-  /**
-   * @brief Starts a modal task
-   *
-   * This function does NOT take ownership of the Task.
-   *
-   * @param t
-   */
-  void StartModalTask(Task* t);
 
   /**
    * @brief Get the currently active project
@@ -283,7 +273,7 @@ private:
    * The load and save process are largely similar, both OpenProjectInternal() and SaveProjectInternal() can run
    * this function with some minor setup differences.
    */
-  void InitiateOpenSaveProcess(ProjectFileManagerBase* manager, const QString &dialog_text, const QString &dialog_title);
+  void InitiateOpenSaveProcess(Task* manager, const QString &dialog_text, const QString &dialog_title);
 
   /**
    * @brief Declare custom types/classes for Qt's signal/slot system

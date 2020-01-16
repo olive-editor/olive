@@ -133,6 +133,8 @@ void Core::Stop()
 
   MenuShared::DestroyInstance();
 
+  TaskManager::DestroyInstance();
+
   PanelManager::DestroyInstance();
 
   AudioManager::DestroyInstance();
@@ -182,26 +184,6 @@ const Tool::Item &Core::tool()
 const bool &Core::snapping()
 {
   return snapping_;
-}
-
-void Core::StartModalTask(Task *t)
-{
-  QDialog dialog(main_window_);
-
-  QHBoxLayout* layout = new QHBoxLayout(&dialog);
-  layout->setMargin(0);
-
-  TaskViewItem* task_view = new TaskViewItem(&dialog);
-  task_view->SetTask(t);
-  layout->addWidget(task_view);
-
-  connect(t, SIGNAL(Finished()), &dialog, SLOT(accept()));
-
-  // FIXME: Risk of task finishing before dialog execs?
-
-  if (t->Start()) {
-    dialog.exec();
-  }
 }
 
 void Core::SetTool(const Tool::Item &tool)
@@ -375,7 +357,6 @@ void Core::ImportTaskComplete(QUndoCommand *command)
 
 void Core::DeclareTypesForQt()
 {
-  qRegisterMetaType<Task::Status>("Task::Status");
   qRegisterMetaType<NodeDependency>();
   qRegisterMetaType<rational>();
   qRegisterMetaType<OpenGLTexturePtr>();
@@ -404,11 +385,14 @@ void Core::StartGUI(bool full_screen)
   // Initialize disk service
   DiskManager::CreateInstance();
 
+  // Initialize task manager
+  TaskManager::CreateInstance();
+
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,
-          SIGNAL(focusChanged(QWidget*, QWidget*)),
+          &QApplication::focusChanged,
           PanelManager::instance(),
-          SLOT(FocusChanged(QWidget*, QWidget*)));
+          &PanelManager::FocusChanged);
 
   // Create main window and open it
   main_window_ = new MainWindow();
@@ -419,7 +403,7 @@ void Core::StartGUI(bool full_screen)
   }
 
   // When a new project is opened, update the mainwindow
-  connect(this, SIGNAL(ProjectOpened(Project*)), main_window_, SLOT(ProjectOpen(Project*)));
+  connect(this, &Core::ProjectOpened, main_window_, &MainWindow::ProjectOpen);
 
   // Start autorecovery timer using the config value as its interval
   SetAutorecoveryInterval(Config::Current()["AutorecoveryInterval"].toInt());
@@ -616,7 +600,7 @@ int Core::CountFilesInFileList(const QFileInfoList &filenames)
   return file_count;
 }
 
-void Core::InitiateOpenSaveProcess(ProjectFileManagerBase *manager, const QString& dialog_text, const QString& dialog_title)
+void Core::InitiateOpenSaveProcess(Task *manager, const QString& dialog_text, const QString& dialog_title)
 {
   // Create save dialog
   LoadSaveDialog* lsd = new LoadSaveDialog(dialog_text, dialog_title, main_window_);
@@ -630,17 +614,17 @@ void Core::InitiateOpenSaveProcess(ProjectFileManagerBase *manager, const QStrin
   manager->moveToThread(save_thread);
 
   // Connect the save manager progress signal to the progress bar update on the dialog
-  connect(manager, &ProjectFileManagerBase::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
+  connect(manager, &Task::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
 
   // Connect cancel signal (must be a direct connection or it'll be queued after the save is already finished)
-  connect(lsd, &LoadSaveDialog::Cancelled, manager, &ProjectFileManagerBase::Cancel, Qt::DirectConnection);
+  connect(lsd, &LoadSaveDialog::Cancelled, manager, &Task::Cancel, Qt::DirectConnection);
 
   // Connect cleanup functions (ensure everything new'd in this function is deleteLater'd)
-  connect(manager, &ProjectFileManagerBase::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
-  connect(manager, &ProjectFileManagerBase::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);
-  connect(manager, &ProjectFileManagerBase::Finished, manager, &ProjectFileManagerBase::deleteLater, Qt::QueuedConnection);
-  connect(manager, &ProjectFileManagerBase::Finished, save_thread, &QThread::quit, Qt::QueuedConnection);
-  connect(manager, &ProjectFileManagerBase::Finished, save_thread, &QThread::deleteLater, Qt::QueuedConnection);
+  connect(manager, &Task::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
+  connect(manager, &Task::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);
+  connect(manager, &Task::Finished, manager, &Task::deleteLater, Qt::QueuedConnection);
+  connect(manager, &Task::Finished, save_thread, &QThread::quit, Qt::QueuedConnection);
+  connect(manager, &Task::Finished, save_thread, &QThread::deleteLater, Qt::QueuedConnection);
 
   // Start the save process
   QMetaObject::invokeMethod(manager, "Start", Qt::QueuedConnection);

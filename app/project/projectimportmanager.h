@@ -4,10 +4,10 @@
 #include <QFileInfoList>
 #include <QUndoCommand>
 
-#include "projectfilemanagerbase.h"
 #include "projectviewmodel.h"
+#include "task/task.h"
 
-class ProjectImportManager : public ProjectFileManagerBase
+class ProjectImportManager : public Task
 {
   Q_OBJECT
 public:

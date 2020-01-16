@@ -21,168 +21,39 @@
 #include "task.h"
 
 Task::Task() :
-  status_(kWaiting),
-  thread_(this),
-  text_(tr("Task")),
+  title_(tr("Task")),
   cancelled_(false)
 {
-  connect(&thread_, SIGNAL(finished()), this, SLOT(ThreadComplete()));
 }
 
-bool Task::Start()
+void Task::Start()
 {
-  // Tasks can only start if they're waiting
-  if (status_ != kWaiting) {
-    return false;
-  }
+  Action();
 
-  // Check if this task has any dependencies (tasks that should complete before this one starts)
-
-  for (int i=0;i<dependencies_.size();i++) {
-    Task* dependency = dependencies_.at(i);
-
-    if (dependency->status() == kWaiting || dependency->status() == kWorking) {
-
-      // We need this task to finish before this task can start, so keep waiting
-      return false;
-
-    } else if (dependency->status() == kError) {
-
-      // A dependency errored, so this task is likely invalid too
-      set_error(tr("A dependency task failed"));
-      set_status(kError);
-      return false;
-
-    }
-  }
-
-  cancelled_ = false;
-
-  // Run Prologue() function
-  if (!Prologue()) {
-    set_status(kError);
-    return false;
-  }
-
-  set_status(kWorking);
-
-  thread_.start();
-
-  return true;
+  emit Finished();
 }
 
-bool Task::Prologue()
+const QString &Task::GetTitle()
 {
-  return true;
-}
-
-bool Task::Action()
-{
-  return true;
-}
-
-bool Task::Epilogue()
-{
-  return true;
-}
-
-const Task::Status &Task::status()
-{
-  return status_;
-}
-
-const QString &Task::text()
-{
-  return text_;
-}
-
-const QString &Task::error()
-{
-  return error_;
-}
-
-void Task::AddDependency(Task *dependency)
-{
-  // Dependencies cannot be added if the Task is working or complete
-  Q_ASSERT(status_ == kWaiting);
-
-  dependencies_.append(dependency);
-}
-
-void Task::ResetState()
-{
-  if (status_ == kWaiting) {
-    return;
-  }
-
-  if (status_ == kWorking) {
-    Cancel();
-  }
-
-  cancelled_ = false;
-
-  set_error(QString());
-
-  set_status(kWaiting);
+  return title_;
 }
 
 void Task::Cancel()
 {
-  if (status_ == kWaiting) {
-    set_status(kFinished);
-  }
-
-  if (status_ != kWorking) {
-    return;
-  }
-
   cancelled_ = true;
-
-  // FIXME: Should we limit the wait time?
-  thread_.wait();
 }
 
-void Task::set_error(const QString &s)
+void Task::SetErrorText(const QString &s)
 {
   error_ = s;
 }
 
-void Task::set_text(const QString &s)
+void Task::SetTitle(const QString &s)
 {
-  text_ = s;
+  title_ = s;
 }
 
-bool Task::cancelled()
+bool Task::IsCancelled()
 {
   return cancelled_;
-}
-
-void Task::set_status(const Task::Status &status)
-{
-  status_ = status;
-
-  if (status_ == kFinished || status_ == kError) {
-    emit Finished();
-  }
-
-  emit StatusChanged(status_);
-}
-
-void Task::ThreadComplete()
-{
-  // thread_.result() will be set to the return value of Action()
-  bool succeeded = thread_.result();
-
-  // Run the Prologue() function for any final tasks
-  // User cancelling is not considered an error, so we need to check it too
-  if (succeeded && !cancelled()) {
-    succeeded = Epilogue();
-  }
-
-  // If everything succeeded, we set the status accordingly
-  if (succeeded) {
-    set_status(kFinished);
-  } else {
-    set_status(kError);
-  }
 }

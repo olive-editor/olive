@@ -46,5 +46,5 @@ void ProjectLoadManager::Action()
     project_file.close();
   }
 
-  emit Finished();
+  emit Succeeeded();
 }

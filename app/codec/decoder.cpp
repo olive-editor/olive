@@ -26,6 +26,8 @@
 
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
+#include "task/index/index.h"
+#include "task/taskmanager.h"
 
 Decoder::Decoder() :
   open_(false),
@@ -126,6 +128,14 @@ bool Decoder::ProbeMedia(Footage *f)
 
       // FIXME: Cache the results so we don't have to probe if this media is added a second time
 
+      // Start an index task
+      foreach (StreamPtr stream, f->streams()) {
+        qDebug() << "Starting index task on" << stream->footage()->filename() << stream->index();
+
+        IndexTask* index_task = new IndexTask(stream);
+        TaskManager::instance()->AddTask(index_task);
+      }
+
       return true;
     }
   }
@@ -160,4 +170,8 @@ void Decoder::Conform(const AudioRenderingParams &params)
   Q_UNUSED(params)
   qCritical() << "Conform called on an audio decoder that does not have a handler for it:" << id();
   abort();
+}
+
+void Decoder::Index()
+{
 }

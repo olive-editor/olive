@@ -1,9 +1,10 @@
 #ifndef PROJECTSAVEMANAGER_H
 #define PROJECTSAVEMANAGER_H
 
-#include "projectfilemanagerbase.h"
+#include "project/project.h"
+#include "task/task.h"
 
-class ProjectSaveManager : public ProjectFileManagerBase
+class ProjectSaveManager : public Task
 {
   Q_OBJECT
 public:

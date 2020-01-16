@@ -41,16 +41,7 @@ class TaskViewItem : public QFrame
 {
   Q_OBJECT
 public:
-  TaskViewItem(QWidget* parent);
-
-  /**
-   * @brief Connects a Task to this object
-   *
-   * If a Task has already been connected, this will disconnect this TaskViewItem from the previously connected
-   * Task before connecting to the next one - however there are very few circumstances where this would be necessary
-   * since TaskViewItem is designed to delete itself when a Task is complete.
-   */
-  void SetTask(Task* t);
+  TaskViewItem(Task *task, QWidget* parent = nullptr);
 
 private:
   QLabel* task_name_lbl_;
@@ -59,9 +50,6 @@ private:
   QLabel* task_status_lbl_;
 
   Task* task_;
-
-private slots:
-  void TaskStatusChange(Task::Status status);
 
 };
 

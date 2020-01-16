@@ -1,9 +1,10 @@
 #ifndef PROJECTLOADMANAGER_H
 #define PROJECTLOADMANAGER_H
 
-#include "projectfilemanagerbase.h"
+#include "project/project.h"
+#include "task/task.h"
 
-class ProjectLoadManager : public ProjectFileManagerBase
+class ProjectLoadManager : public Task
 {
   Q_OBJECT
 public:

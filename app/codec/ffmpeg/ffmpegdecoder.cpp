@@ -62,6 +62,11 @@ bool FFmpegDecoder::Open()
     return true;
   }
 
+  if (!stream()) {
+    Error(QStringLiteral("Tried to open a decoder with no footage stream set"));
+    return false;
+  }
+
   int error_code;
 
   // Convert QString to a C string
@@ -344,7 +349,7 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
     return nullptr;
   }
 
-  ValidateIndex();
+  Index();
 
   Conform(params);
 
@@ -437,7 +442,7 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
     return;
   }
 
-  ValidateIndex();
+  Index();
 
   // Get indexed WAV file
   WaveInput input(GetIndexFilename());
@@ -659,7 +664,7 @@ bool FFmpegDecoder::Probe(Footage *f)
     Open();
 
     // Use index to find duration
-    ValidateIndex();
+    Index();
 
     // Use last frame index as the duration
     // FIXME: Does this skip the last frame?
@@ -706,17 +711,25 @@ void FFmpegDecoder::Index()
     return;
   }
 
-  // Reset state
-  Seek(0);
+  stream()->index_lock_.lock();
 
-  if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-    IndexVideo(pkt_, frame_);
-  } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-    IndexAudio(pkt_, frame_);
+  if (!LoadIndex()) {
+
+    // Reset state
+    Seek(0);
+
+    if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+      IndexVideo(pkt_, frame_);
+    } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+      IndexAudio(pkt_, frame_);
+    }
+
+    // Reset state
+    Seek(0);
+
   }
 
-  // Reset state
-  Seek(0);
+  stream()->index_lock_.unlock();
 }
 
 QString FFmpegDecoder::GetIndexFilename()
@@ -754,17 +767,6 @@ QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
   index_fn.append(QString::number(params.channel_layout()));
 
   return index_fn;
-}
-
-void FFmpegDecoder::ValidateIndex()
-{
-  stream()->index_lock_.lock();
-
-  if (!LoadIndex()) {
-    Index();
-  }
-
-  stream()->index_lock_.unlock();
 }
 
 bool FFmpegDecoder::LoadIndex()
@@ -991,7 +993,7 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
 {
   // Index now if we haven't already
   if (frame_index_.isEmpty()) {
-    ValidateIndex();
+    Index();
   }
 
   if (frame_index_.isEmpty()) {

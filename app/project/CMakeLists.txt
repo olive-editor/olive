@@ -20,8 +20,6 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   project/project.h
   project/project.cpp
-  project/projectfilemanagerbase.h
-  project/projectfilemanagerbase.cpp
   project/projectimportmanager.h
   project/projectimportmanager.cpp
   project/projectloadmanager.h

@@ -134,11 +134,11 @@ void Footage::set_timestamp(const QDateTime &t)
 
 void Footage::add_stream(StreamPtr s)
 {
+  // Set its footage parent to this
+  s->set_footage(this);
+
   // Add a copy of this stream to the list
   streams_.append(s);
-
-  // Set its footage parent to this
-  streams_.last()->set_footage(this);
 }
 
 StreamPtr Footage::stream(int index) const

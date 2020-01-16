@@ -24,9 +24,9 @@
 
 #include "ui/icons/icons.h"
 
-TaskViewItem::TaskViewItem(QWidget *parent) :
+TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
   QFrame(parent),
-  task_(nullptr)
+  task_(task)
 {
   // Draw border around this item
   setFrameShape(QFrame::StyledPanel);
@@ -36,6 +36,7 @@ TaskViewItem::TaskViewItem(QWidget *parent) :
 
   // Create header label
   task_name_lbl_ = new QLabel(this);
+  task_name_lbl_->setText(task_->GetTitle());
   layout->addWidget(task_name_lbl_);
 
   // Create center layout (combines progress bar and a cancel button)
@@ -55,54 +56,9 @@ TaskViewItem::TaskViewItem(QWidget *parent) :
   // Create status label
   task_status_lbl_ = new QLabel(this);
   layout->addWidget(task_status_lbl_);
-}
-
-void TaskViewItem::SetTask(Task *t)
-{
-  // Check if we already have a task and disconnect from it if so
-  if (task_ != nullptr) {
-    disconnect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
-    disconnect(task_, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
-    disconnect(task_, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-  }
-
-  // Set task
-  task_ = t;
-
-  // Set name label to the name (bolded)
-  task_name_lbl_->setText(QStringLiteral("<b>%1</b>").arg(task_->text()));
 
   // Connect to the task
-  connect(task_, SIGNAL(StatusChanged(Task::Status)), this, SLOT(TaskStatusChange(Task::Status)));
-  connect(task_, SIGNAL(ProgressChanged(int)), progress_bar_, SLOT(setValue(int)));
-  connect(task_, SIGNAL(Removed()), this, SLOT(deleteLater()));
-  connect(cancel_btn_, SIGNAL(clicked(bool)), task_, SLOT(Cancel()));
-}
-
-void TaskViewItem::TaskStatusChange(Task::Status status)
-{
-  switch (status) {
-  case Task::kWaiting:
-    task_status_lbl_->setText(tr("Waiting..."));
-    progress_bar_->setValue(0);
-    cancel_btn_->setEnabled(true);
-    break;
-  case Task::kWorking:
-    task_status_lbl_->setText(tr("Working..."));
-    progress_bar_->setValue(0);
-    cancel_btn_->setEnabled(true);
-    break;
-  case Task::kFinished:
-    task_status_lbl_->setText(tr("Done"));
-    progress_bar_->setValue(100);
-    cancel_btn_->setEnabled(false);
-    break;
-  case Task::kError:
-    task_status_lbl_->setText(
-        tr("Error: %1").arg(static_cast<Task*>(sender())->error())
-    );
-    progress_bar_->setValue(0);
-    cancel_btn_->setEnabled(false);
-    break;
-  }
+  connect(task_, &Task::ProgressChanged, progress_bar_, &QProgressBar::setValue);
+  connect(task_, &Task::Removed, this, &TaskViewItem::deleteLater);
+  connect(cancel_btn_, &QPushButton::clicked, task_, &Task::Cancel, Qt::DirectConnection);
 }

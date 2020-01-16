@@ -24,6 +24,7 @@
 #include <QVector>
 #include <QUndoCommand>
 
+#include "common/constructors.h"
 #include "task/task.h"
 
 /**
@@ -50,25 +51,11 @@ public:
    */
   virtual ~TaskManager();
 
-  /**
-   * @brief Deleted copy constructor
-   */
-  TaskManager(const TaskManager& other) = delete;
+  DISABLE_COPY_MOVE(TaskManager)
 
-  /**
-   * @brief Deleted move constructor
-   */
-  TaskManager(TaskManager&& other) = delete;
+  static void CreateInstance();
 
-  /**
-   * @brief Deleted copy assignment
-   */
-  TaskManager& operator=(const TaskManager& other) = delete;
-
-  /**
-   * @brief Deleted move assignment
-   */
-  TaskManager& operator=(TaskManager&& other) = delete;
+  static void DestroyInstance();
 
   static TaskManager* instance();
 
@@ -87,38 +74,7 @@ public:
    *
    * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
    */
-  void AddTask(TaskPtr t);
-
-  /**
-   * @brief Forcibly cancel all commands and clear them
-   */
-  void Clear();
-
-  /**
-   * @brief Undoable command for adding a Task to the TaskManager
-   */
-  class AddTaskCommand : public QUndoCommand {
-  public:
-    AddTaskCommand(TaskPtr t, QUndoCommand* parent = nullptr);
-
-    /**
-     * @brief Adds the Task to the TaskManager
-     *
-     * If there are available threads, TaskManager will start running it.
-     */
-    virtual void redo() override;
-
-    /**
-     * @brief Undoes adding the Task
-     *
-     * If the Task is running, it is cancelled. Then the Task is removed from the TaskManager and the Task's state is
-     * reset.
-     */
-    virtual void undo() override;
-
-  private:
-    TaskPtr task_;
-  };
+  void AddTask(Task *t);
 
 signals:
   /**
@@ -131,6 +87,36 @@ signals:
   void TaskAdded(Task* t);
 
 private:
+  /**
+   * @brief The Status enum
+   *
+   * All states that a Task can be in. When subclassing, you don't need to set the Task's status as the base class
+   * does that automatically.
+   */
+  enum TaskStatus {
+    /// This Task is yet to start
+    kWaiting,
+
+    /// This Task is currently running (see Action())
+    kWorking,
+
+    /// This Task has completed successfully
+    kFinished,
+
+    /// This Task failed and could not complete
+    kError
+  };
+
+  struct TaskContainer {
+    Task* task;
+    TaskStatus status;
+  };
+
+  struct ThreadContainer {
+    QThread* thread;
+    bool active;
+  };
+
   /**
    * @brief Scan through the task queue and start any Tasks that are able to start
    *
@@ -155,35 +141,36 @@ private:
    */
   void DeleteTask(Task* t);
 
+  void TaskFinished(Task *task);
+
+  TaskStatus GetTaskStatus(Task* t);
+
+  void SetTaskStatus(Task* t, TaskStatus status);
+
   /**
    * @brief Internal task array
    */
-  QVector<TaskPtr> tasks_;
+  QVector<TaskContainer> tasks_;
 
   /**
-   * @brief Constant set at run-time of how many Tasks can run concurrently
-   *
-   * Currently set in the Constructor to QThread::idealThreadCount()
+   * @brief Background threads to run tasks on
    */
-  int maximum_task_count_;
+  QVector<ThreadContainer> threads_;
+
+  /**
+   * @brief Value for how many threads are currently active
+   */
+  int active_thread_count_;
 
   /**
    * @brief TaskManager singleton instance
    */
-  static TaskManager instance_;
+  static TaskManager* instance_;
 
 private slots:
-  /**
-   * @brief Callback when a Task's status changes
-   *
-   * When a Task is added, it's connected to this so TaskManager is alerted whenever a Task's status changes. It can
-   * therefore keep track of Tasks starting, completing, or failing.
-   *
-   * @param status
-   *
-   * The new status of the Task
-   */
-  void TaskCallback(Task::Status status);
+  void TaskSucceeded();
+
+  void TaskFailed();
 
 };
 
