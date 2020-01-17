@@ -192,7 +192,7 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
   QByteArray frame_hash = frame_cache_.TimeToHash(time);
 
   if (!frame_hash.isEmpty()) {
-    QString fn = frame_cache_.CachePathName(frame_hash);
+    QString fn = frame_cache_.CachePathName(frame_hash, params_.format());
 
     if (QFileInfo::exists(fn)) {
       auto in = OIIO::ImageInput::open(fn.toStdString());
@@ -304,7 +304,7 @@ void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_
 
   // Register frame with the disk manager
   if (operating_mode_ & VideoRenderWorker::kDownloadOnly) {
-    DiskManager::instance()->CreatedFile(frame_cache()->CachePathName(hash), hash);
+    DiskManager::instance()->CreatedFile(frame_cache()->CachePathName(hash, params_.format()), hash);
   }
 
   QList<rational> hashes_with_time = frame_cache()->FramesWithHash(hash);
@@ -322,7 +322,7 @@ void VideoRenderBackend::ThreadSkippedFrame(NodeDependency dep, qint64 job_time,
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   if (SetFrameHash(dep, hash, job_time)
-      && frame_cache_.HasHash(hash)) {
+      && frame_cache_.HasHash(hash, params_.format())) {
     emit CachedTimeReady(dep.in(), job_time);
   }
 

@@ -25,8 +25,8 @@ private:
 class AudioRenderingParams : public AudioParams {
 public:
   AudioRenderingParams();
-  AudioRenderingParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat& format);
-  AudioRenderingParams(const AudioParams& params, const SampleFormat& format);
+  AudioRenderingParams(const int& sample_rate, const uint64_t& channel_layout, const SampleFormat::Format& format);
+  AudioRenderingParams(const AudioParams& params, const SampleFormat::Format& format);
 
   int time_to_bytes(const rational& time) const;
   int time_to_samples(const rational& time) const;
@@ -37,13 +37,13 @@ public:
   int bits_per_sample() const;
   bool is_valid() const;
 
-  const SampleFormat& format() const;
+  const SampleFormat::Format &format() const;
 
   bool operator==(const AudioRenderingParams& other) const;
   bool operator!=(const AudioRenderingParams& other) const;
 
 private:
-  SampleFormat format_;
+  SampleFormat::Format format_;
 };
 
 Q_DECLARE_METATYPE(AudioRenderingParams)

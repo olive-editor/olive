@@ -28,12 +28,12 @@ public:
   /**
    * @brief Returns a native sample format type for a given AVSampleFormat
    */
-  static SampleFormat GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
+  static SampleFormat::Format GetNativeSampleFormat(const AVSampleFormat& smp_fmt);
 
   /**
    * @brief Returns an FFmpeg sample format type for a given native type
    */
-  static AVSampleFormat GetFFmpegSampleFormat(const SampleFormat& smp_fmt);
+  static AVSampleFormat GetFFmpegSampleFormat(const SampleFormat::Format &smp_fmt);
 };
 
 #endif // FFMPEGABSTRACTION_H

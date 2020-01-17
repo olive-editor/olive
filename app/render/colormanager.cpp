@@ -4,6 +4,7 @@
 
 #include "common/define.h"
 #include "config/config.h"
+#include "core.h"
 
 ColorManager::ColorManager()
 {
@@ -108,6 +109,16 @@ QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr c
   }
 
   return spaces;
+}
+
+ColorManager::OCIOMethod ColorManager::GetOCIOMethodForMode(RenderMode::Mode mode)
+{
+  return static_cast<OCIOMethod>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod")).toInt());
+}
+
+void ColorManager::SetOCIOMethodForMode(RenderMode::Mode mode, ColorManager::OCIOMethod method)
+{
+  Core::SetPreferenceForRenderMode(mode, QStringLiteral("OCIOMethod"), method);
 }
 
 void ColorManager::AssociateAlphaPixFmtFilter(ColorManager::AlphaAction action, FramePtr f)

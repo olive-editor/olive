@@ -49,7 +49,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     // Emit only the hash
     emit CompletedDownload(path, job_time, hash);
 
-  } else if ((operating_mode_ & kHashOnly) && frame_cache_->HasHash(hash)) {
+  } else if ((operating_mode_ & kHashOnly) && frame_cache_->HasHash(hash, video_params_.format())) {
 
     // We've already cached this hash, no need to continue
     emit HashAlreadyExists(path, job_time, hash);
@@ -67,7 +67,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
 
     // If we actually have a texture, download it into the disk cache
     if ((operating_mode_ & kDownloadOnly) && !texture.isNull()) {
-      Download(path, hash, texture, frame_cache_->CachePathName(hash));
+      Download(path, hash, texture, frame_cache_->CachePathName(hash, video_params_.format()));
     }
 
     frame_cache_->RemoveHashFromCurrentlyCaching(hash);
@@ -212,7 +212,11 @@ void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant t
 
   // Set up OIIO::ImageSpec for compressing cached images on disk
   OIIO::ImageSpec spec(video_params().effective_width(), video_params().effective_height(), kRGBAChannels, format_info.oiio_desc);
-  spec.attribute("compression", "dwaa:200");
+
+  if (video_params_.format() != PixelFormat::PIX_FMT_RGBA8) {
+    // 8-bit doesn't use EXR because EXR loading is really slow on 8-bit
+    spec.attribute("compression", "dwaa:200");
+  }
 
   TextureToBuffer(texture, download_buffer_);
 

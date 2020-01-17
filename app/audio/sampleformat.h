@@ -21,17 +21,34 @@
 #ifndef SAMPLEFORMAT_H
 #define SAMPLEFORMAT_H
 
-enum SampleFormat {
-  SAMPLE_FMT_INVALID = -1,
+#include <QObject>
 
-  SAMPLE_FMT_U8,
-  SAMPLE_FMT_S16,
-  SAMPLE_FMT_S32,
-  SAMPLE_FMT_S64,
-  SAMPLE_FMT_FLT,
-  SAMPLE_FMT_DBL,
+#include "render/rendermodes.h"
 
-  SAMPLE_FMT_COUNT
+class SampleFormat : public QObject
+{
+  Q_OBJECT
+public:
+  SampleFormat() = default;
+
+  enum Format {
+    SAMPLE_FMT_INVALID = -1,
+
+    SAMPLE_FMT_U8,
+    SAMPLE_FMT_S16,
+    SAMPLE_FMT_S32,
+    SAMPLE_FMT_S64,
+    SAMPLE_FMT_FLT,
+    SAMPLE_FMT_DBL,
+
+    SAMPLE_FMT_COUNT
+  };
+
+  static QString GetSampleFormatName(const Format& f);
+
+  static Format GetConfiguredFormatForMode(RenderMode::Mode mode);
+  static void SetConfiguredFormatForMode(RenderMode::Mode mode, Format format);
+
 };
 
 #endif // SAMPLEFORMAT_H

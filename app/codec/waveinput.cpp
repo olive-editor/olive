@@ -85,27 +85,27 @@ bool WaveInput::open()
   uint16_t bits_per_sample;
   data_stream >> bits_per_sample;
 
-  SampleFormat format;
+  SampleFormat::Format format;
 
   switch (bits_per_sample) {
   case 8:
-    format = SAMPLE_FMT_U8;
+    format = SampleFormat::SAMPLE_FMT_U8;
     break;
   case 16:
-    format = SAMPLE_FMT_S16;
+    format = SampleFormat::SAMPLE_FMT_S16;
     break;
   case 32:
     if (data_is_float) {
-      format = SAMPLE_FMT_FLT;
+      format = SampleFormat::SAMPLE_FMT_FLT;
     } else {
-      format = SAMPLE_FMT_S32;
+      format = SampleFormat::SAMPLE_FMT_S32;
     }
     break;
   case 64:
     if (data_is_float) {
-      format = SAMPLE_FMT_DBL;
+      format = SampleFormat::SAMPLE_FMT_DBL;
     } else {
-      format = SAMPLE_FMT_S64;
+      format = SampleFormat::SAMPLE_FMT_S64;
     }
     break;
   default:

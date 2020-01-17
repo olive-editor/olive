@@ -21,9 +21,9 @@ void VideoRenderFrameCache::Clear()
   cache_id_.clear();
 }
 
-bool VideoRenderFrameCache::HasHash(const QByteArray &hash)
+bool VideoRenderFrameCache::HasHash(const QByteArray &hash, const PixelFormat::Format& format)
 {
-  return QFileInfo::exists(CachePathName(hash)) && !IsCaching(hash);
+  return QFileInfo::exists(CachePathName(hash, format)) && !IsCaching(hash);
 }
 
 bool VideoRenderFrameCache::IsCaching(const QByteArray &hash)
@@ -114,12 +114,21 @@ const QMap<rational, QByteArray> &VideoRenderFrameCache::time_hash_map() const
   return time_hash_map_;
 }
 
-QString VideoRenderFrameCache::CachePathName(const QByteArray &hash) const
+QString VideoRenderFrameCache::CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt) const
 {
   QDir this_cache_dir = QDir(GetMediaCacheLocation());
   this_cache_dir.mkpath(".");
 
-  QString filename = QStringLiteral("%1.exr").arg(QString(hash.toHex()));
+  QString ext;
+
+  if (pix_fmt == PixelFormat::PIX_FMT_RGBA8) {
+    // For some reason, 8-bit EXRs are extremely slow to load, so we use TIFF instead.
+    ext = QStringLiteral("tiff");
+  } else {
+    ext = QStringLiteral("exr");
+  }
+
+  QString filename = QStringLiteral("%1.%2").arg(QString(hash.toHex()), ext);
 
   return this_cache_dir.filePath(filename);
 }

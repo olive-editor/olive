@@ -13,6 +13,7 @@
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/backend/opengl/openglexporter.h"
+#include "render/pixelservice.h"
 #include "ui/icons/icons.h"
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
@@ -205,13 +206,17 @@ void ExportDialog::accept()
                                dest_height);
   }
 
-  // FIXME: Hardcoded pixel format
-  VideoRenderingParams video_render_params(dest_width, dest_height, video_tab_->frame_rate().flipped(), PixelFormat::PIX_FMT_RGBA32F, RenderMode::kOnline);
+  RenderMode::Mode render_mode = RenderMode::kOnline;
 
-  // FIXME: Hardcoded sample format
+  VideoRenderingParams video_render_params(dest_width,
+                                           dest_height,
+                                           video_tab_->frame_rate().flipped(),
+                                           PixelService::GetConfiguredFormatForMode(render_mode),
+                                           render_mode);
+
   AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
                                            audio_tab_->channel_layout_combobox()->currentData().toULongLong(),
-                                           SAMPLE_FMT_FLT);
+                                           SampleFormat::GetConfiguredFormatForMode(render_mode));
 
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
                                                              OCIO::ROLE_SCENE_LINEAR,

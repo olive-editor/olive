@@ -85,6 +85,14 @@ void Config::SetDefaults()
   config_map_["DefaultSequenceFrameRate"] = QVariant::fromValue(rational(1001, 30000));
   config_map_["DefaultSequenceAudioFrequency"] = 48000;
   config_map_["DefaultSequenceAudioLayout"] = AV_CH_LAYOUT_STEREO;
+
+  // Online/offline settings
+  config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;
+  config_map_["OfflinePixelFormat"] = PixelFormat::PIX_FMT_RGBA16F;
+  config_map_["OnlineSampleFormat"] = SampleFormat::SAMPLE_FMT_FLT;
+  config_map_["OfflineSampleFormat"] = SampleFormat::SAMPLE_FMT_FLT;
+  config_map_["OnlineOCIOMethod"] = ColorManager::kOCIOAccurate;
+  config_map_["OfflineOCIOMethod"] = ColorManager::kOCIOFast;
 }
 
 void Config::Load()

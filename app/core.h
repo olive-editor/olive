@@ -171,6 +171,9 @@ public:
    */
   static int CountFilesInFileList(const QFileInfoList &filenames);
 
+  static QVariant GetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference);
+  static void SetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference, const QVariant& value);
+
 public slots:
   /**
    * @brief Starts an open file dialog to load a project from file

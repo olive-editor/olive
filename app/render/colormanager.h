@@ -38,6 +38,15 @@ public:
 
   static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
 
+  enum OCIOMethod {
+    kOCIOFast,
+    kOCIOAccurate
+  };
+
+  static OCIOMethod GetOCIOMethodForMode(RenderMode::Mode mode);
+
+  static void SetOCIOMethodForMode(RenderMode::Mode mode, OCIOMethod method);
+
 signals:
   void ConfigChanged();
 

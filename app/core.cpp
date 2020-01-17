@@ -600,6 +600,25 @@ int Core::CountFilesInFileList(const QFileInfoList &filenames)
   return file_count;
 }
 
+QString GetRenderModePreferencePrefix(RenderMode::Mode mode, const QString &preference) {
+  QString key;
+
+  key.append((mode == RenderMode::kOffline) ? QStringLiteral("Offline") : QStringLiteral("Online"));
+  key.append(preference);
+
+  return key;
+}
+
+QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference)
+{
+  return Config::Current()[GetRenderModePreferencePrefix(mode, preference)];
+}
+
+void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
+{
+  Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
+}
+
 void Core::InitiateOpenSaveProcess(Task *manager, const QString& dialog_text, const QString& dialog_title)
 {
   // Create save dialog

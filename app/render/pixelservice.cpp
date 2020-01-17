@@ -25,9 +25,20 @@
 #include <QFloat16>
 
 #include "common/define.h"
+#include "core.h"
 
 PixelService::PixelService()
 {
+}
+
+PixelFormat::Format PixelService::GetConfiguredFormatForMode(RenderMode::Mode mode)
+{
+  return static_cast<PixelFormat::Format>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("PixelFormat")).toInt());
+}
+
+void PixelService::SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format)
+{
+  Core::SetPreferenceForRenderMode(mode, QStringLiteral("PixelFormat"), format);
 }
 
 PixelFormat::Info PixelService::GetPixelFormatInfo(const PixelFormat::Format &format)

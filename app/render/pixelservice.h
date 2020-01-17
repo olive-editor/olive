@@ -25,11 +25,18 @@
 
 #include "codec/frame.h"
 #include "pixelformat.h"
+#include "render/rendermodes.h"
 
 class PixelService : public QObject {
 public:
 
   PixelService();
+
+  /**
+   * @brief Returns the configured pixel format for a given mode
+   */
+  static PixelFormat::Format GetConfiguredFormatForMode(RenderMode::Mode mode);
+  static void SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format);
 
   /**
    * @brief Return a PixelFormatInfo containing information for a certain format

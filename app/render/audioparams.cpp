@@ -27,23 +27,23 @@ const uint64_t &AudioParams::channel_layout() const
 }
 
 AudioRenderingParams::AudioRenderingParams() :
-  format_(SAMPLE_FMT_INVALID)
+  format_(SampleFormat::SAMPLE_FMT_INVALID)
 {
 }
 
-AudioRenderingParams::AudioRenderingParams(const int &sample_rate, const uint64_t &channel_layout, const SampleFormat &format) :
+AudioRenderingParams::AudioRenderingParams(const int &sample_rate, const uint64_t &channel_layout, const SampleFormat::Format &format) :
   AudioParams(sample_rate, channel_layout),
   format_(format)
 {
 }
 
-AudioRenderingParams::AudioRenderingParams(const AudioParams &params, const SampleFormat &format) :
+AudioRenderingParams::AudioRenderingParams(const AudioParams &params, const SampleFormat::Format &format) :
   AudioParams(params),
   format_(format)
 {
 }
 
-const SampleFormat &AudioRenderingParams::format() const
+const SampleFormat::Format &AudioRenderingParams::format() const
 {
   return format_;
 }
@@ -98,18 +98,18 @@ int AudioRenderingParams::channel_count() const
 int AudioRenderingParams::bytes_per_sample_per_channel() const
 {
   switch (format_) {
-  case SAMPLE_FMT_U8:
+  case SampleFormat::SAMPLE_FMT_U8:
     return 1;
-  case SAMPLE_FMT_S16:
+  case SampleFormat::SAMPLE_FMT_S16:
     return 2;
-  case SAMPLE_FMT_S32:
-  case SAMPLE_FMT_FLT:
+  case SampleFormat::SAMPLE_FMT_S32:
+  case SampleFormat::SAMPLE_FMT_FLT:
     return 4;
-  case SAMPLE_FMT_DBL:
-  case SAMPLE_FMT_S64:
+  case SampleFormat::SAMPLE_FMT_DBL:
+  case SampleFormat::SAMPLE_FMT_S64:
     return 8;
-  case SAMPLE_FMT_INVALID:
-  case SAMPLE_FMT_COUNT:
+  case SampleFormat::SAMPLE_FMT_INVALID:
+  case SampleFormat::SAMPLE_FMT_COUNT:
     break;
   }
 
@@ -125,8 +125,8 @@ bool AudioRenderingParams::is_valid() const
 {
   bool valid = (sample_rate() > 0
                 && channel_layout() > 0
-                && format_ != SAMPLE_FMT_INVALID
-                && format_ != SAMPLE_FMT_COUNT);
+                && format_ != SampleFormat::SAMPLE_FMT_INVALID
+                && format_ != SampleFormat::SAMPLE_FMT_COUNT);
 
   if (!valid) {
     qWarning() << "Invalid params found:" << sample_rate() << channel_layout() << format();

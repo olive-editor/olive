@@ -38,18 +38,18 @@ bool WaveOutput::open()
 
     // Type of format
     switch (params_.format()) {
-    case SAMPLE_FMT_U8:
-    case SAMPLE_FMT_S16:
-    case SAMPLE_FMT_S32:
-    case SAMPLE_FMT_S64:
+    case SampleFormat::SAMPLE_FMT_U8:
+    case SampleFormat::SAMPLE_FMT_S16:
+    case SampleFormat::SAMPLE_FMT_S32:
+    case SampleFormat::SAMPLE_FMT_S64:
       write_int<int16_t>(&file_, kWAVIntegerFormat);
       break;
-    case SAMPLE_FMT_FLT:
-    case SAMPLE_FMT_DBL:
+    case SampleFormat::SAMPLE_FMT_FLT:
+    case SampleFormat::SAMPLE_FMT_DBL:
       write_int<int16_t>(&file_, kWAVFloatFormat);
       break;
-    case SAMPLE_FMT_INVALID:
-    case SAMPLE_FMT_COUNT:
+    case SampleFormat::SAMPLE_FMT_INVALID:
+    case SampleFormat::SAMPLE_FMT_COUNT:
       qWarning() << "Invalid sample format for WAVE audio";
       file_.close();
       return false;

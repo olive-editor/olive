@@ -31,6 +31,7 @@
 #include "config/config.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
+#include "render/pixelservice.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
@@ -176,8 +177,14 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
       qWarning() << "Failed to find a suitable color manager for the connected viewer node";
     }
 
-    video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(), PixelFormat::PIX_FMT_RGBA16F, RenderMode::kOffline, 2));
-    audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(), SAMPLE_FMT_FLT));
+    RenderMode::Mode render_mode = RenderMode::kOffline;
+
+    video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(),
+                                                        PixelService::GetConfiguredFormatForMode(render_mode),
+                                                        render_mode,
+                                                        2));
+    audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(),
+                                                        SampleFormat::GetConfiguredFormatForMode(render_mode)));
 
     // Reload cache into these renderers
     // FIXME: Slow, rather than invalidate, we should probably serialize the cache into and out of files

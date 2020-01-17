@@ -4,6 +4,7 @@
 #include <QMutex>
 
 #include "common/rational.h"
+#include "render/pixelformat.h"
 
 class VideoRenderFrameCache
 {
@@ -15,7 +16,7 @@ public:
   /**
    * @brief Return whether a frame with this hash already exists
    */
-  bool HasHash(const QByteArray& hash);
+  bool HasHash(const QByteArray& hash, const PixelFormat::Format &format);
 
   /**
    * @brief Return whether a frame is currently being cached
@@ -30,7 +31,7 @@ public:
   /**
    * @brief Return the path of the cached image at this time
    */
-  QString CachePathName(const QByteArray &hash) const;
+  QString CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt) const;
 
   void SetCacheID(const QString& id);
 

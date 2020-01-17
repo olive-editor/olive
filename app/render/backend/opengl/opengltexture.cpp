@@ -185,17 +185,15 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
   // Allocate storage for texture
   const PixelFormat::Info& bit_depth = PixelService::GetPixelFormatInfo(format_);
 
-  f->glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        bit_depth.internal_format,
-        width_,
-        height_,
-        0,
-        bit_depth.pixel_format,
-        bit_depth.gl_pixel_type,
-        data
-        );
+  f->glTexImage2D(GL_TEXTURE_2D,
+                  0,
+                  bit_depth.internal_format,
+                  width_,
+                  height_,
+                  0,
+                  bit_depth.pixel_format,
+                  bit_depth.gl_pixel_type,
+                  data);
 
   // Set texture filtering to bilinear
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

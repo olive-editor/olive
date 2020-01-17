@@ -71,8 +71,10 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     color_cache()->Add(video_stream->colorspace(), color_processor);
   }
 
+  ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params().mode());
+
   // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
-  if (video_params().mode() == RenderMode::kOnline) {
+  if (ocio_method == ColorManager::kOCIOAccurate) {
     // If alpha is associated, disassociate for the color transform
     if (video_stream->premultiplied_alpha()) {
       ColorManager::DisassociateAlpha(frame);
@@ -96,7 +98,7 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
 
   OpenGLTextureCache::ReferencePtr footage_tex_ref = texture_cache_->Get(ctx_, footage_params, frame->data());
 
-  if (video_params().mode() == RenderMode::kOffline) {
+  if (ocio_method == ColorManager::kOCIOFast) {
     if (!color_processor->IsEnabled()) {
       color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
     }
