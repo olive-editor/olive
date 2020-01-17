@@ -130,8 +130,6 @@ bool Decoder::ProbeMedia(Footage *f)
 
       // Start an index task
       foreach (StreamPtr stream, f->streams()) {
-        qDebug() << "Starting index task on" << stream->footage()->filename() << stream->index();
-
         IndexTask* index_task = new IndexTask(stream);
         TaskManager::instance()->AddTask(index_task);
       }

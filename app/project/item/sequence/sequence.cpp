@@ -255,6 +255,5 @@ void Sequence::set_default_parameters()
 
 void Sequence::NameChangedEvent(const QString &name)
 {
-  qDebug() << "Setting viewer output name to" << name;
   viewer_output_->set_media_name(name);
 }
