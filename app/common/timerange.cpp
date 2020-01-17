@@ -48,9 +48,13 @@ bool TimeRange::operator==(const TimeRange &r) const
   return in() == r.in() && out() == r.out();
 }
 
-bool TimeRange::OverlapsWith(const TimeRange &a) const
+bool TimeRange::OverlapsWith(const TimeRange &a, bool in_inclusive, bool out_inclusive) const
 {
-  return Overlap(a, *this);
+  bool overlaps_in = (in_inclusive) ? (a.out() < in()) : (a.out() <= in());
+
+  bool overlaps_out = (out_inclusive) ? (a.in() > out()) : (a.in() >= out());
+
+  return !(overlaps_in || overlaps_out);
 }
 
 TimeRange TimeRange::CombineWith(const TimeRange &a) const
@@ -58,18 +62,13 @@ TimeRange TimeRange::CombineWith(const TimeRange &a) const
   return Combine(a, *this);
 }
 
-bool TimeRange::Contains(const TimeRange &compare, bool inout_inclusive) const
+bool TimeRange::Contains(const TimeRange &compare, bool in_inclusive, bool out_inclusive) const
 {
-  if (inout_inclusive) {
-    return (compare.in() >= in() && compare.out() <= out());
-  } else {
-    return (compare.in() > in() && compare.out() < out());
-  }
-}
+  bool contains_in = (in_inclusive) ? (compare.in() >= in()) : (compare.in() > in());
 
-bool TimeRange::Overlap(const TimeRange &a, const TimeRange &b)
-{
-  return !(a.out() < b.in() || a.in() > b.out());
+  bool contains_out = (out_inclusive) ? (compare.out() <= out()) : (compare.out() < out());
+
+  return contains_in && contains_out;
 }
 
 TimeRange TimeRange::Combine(const TimeRange &a, const TimeRange &b)
@@ -100,7 +99,7 @@ void TimeRangeList::InsertTimeRange(const TimeRange &range)
   for (int i=0;i<size();i++) {
     const TimeRange& compare = at(i);
 
-    if (TimeRange::Overlap(range, compare)) {
+    if (range.OverlapsWith(compare)) {
       replace(i, TimeRange::Combine(range, compare));
       return;
     }
@@ -118,7 +117,7 @@ void TimeRangeList::RemoveTimeRange(const TimeRange &range)
       // This element is entirely encompassed in this range, remove it
       removeAt(i);
       i--;
-    } else if (compare.Contains(range, false)) {
+    } else if (compare.Contains(range, false, false)) {
       // The remove range is within this element, only choice is to split the element into two
       TimeRange first(compare.in(), range.in());
       TimeRange last(range.out(), compare.out());
@@ -139,10 +138,10 @@ void TimeRangeList::RemoveTimeRange(const TimeRange &range)
   }
 }
 
-bool TimeRangeList::ContainsTimeRange(const TimeRange &range) const
+bool TimeRangeList::ContainsTimeRange(const TimeRange &range, bool in_inclusive, bool out_inclusive) const
 {
   for (int i=0;i<size();i++) {
-    if (at(i).Contains(range)) {
+    if (at(i).Contains(range, in_inclusive, out_inclusive)) {
       return true;
     }
   }

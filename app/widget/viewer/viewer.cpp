@@ -415,15 +415,17 @@ void ViewerWidget::PlaybackTimerUpdate()
 void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value, qint64 job_time)
 {
   if (GetTime() == time) {
-    SetTexture(value.value<OpenGLTexturePtr>());
-
     frame_cache_job_time_ = job_time;
+
+    SetTexture(value.value<OpenGLTexturePtr>());
   }
 }
 
 void ViewerWidget::RendererCachedTime(const rational &time, qint64 job_time)
 {
   if (GetTime() == time && job_time > frame_cache_job_time_) {
+    frame_cache_job_time_ = job_time;
+
     UpdateTextureFromNode(GetTime());
   }
 }

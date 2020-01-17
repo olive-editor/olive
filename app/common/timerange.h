@@ -18,11 +18,10 @@ public:
 
   bool operator==(const TimeRange& r) const;
 
-  bool OverlapsWith(const TimeRange& a) const;
-  TimeRange CombineWith(const TimeRange& a) const;
-  bool Contains(const TimeRange& a, bool inout_inclusive = true) const;
+  bool OverlapsWith(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
+  bool Contains(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
 
-  static bool Overlap(const TimeRange& a, const TimeRange& b);
+  TimeRange CombineWith(const TimeRange& a) const;
   static TimeRange Combine(const TimeRange &a, const TimeRange &b);
 
 private:
@@ -31,6 +30,7 @@ private:
   rational in_;
   rational out_;
   rational length_;
+
 };
 
 uint qHash(const TimeRange& r, uint seed);
@@ -43,7 +43,7 @@ public:
 
   void RemoveTimeRange(const TimeRange& range);
 
-  bool ContainsTimeRange(const TimeRange& range) const;
+  bool ContainsTimeRange(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
   TimeRangeList Intersects(const TimeRange& range);
 

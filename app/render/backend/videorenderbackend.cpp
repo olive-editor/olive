@@ -237,20 +237,30 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
   for (int i=0;i<cache_queue_.size();i++) {
     const TimeRange& range_here = cache_queue_.at(i);
 
-    if (range_here.Contains(test_range)) {
+    if (range_here.OverlapsWith(test_range, false, false)) {
       closest_time = -1;
       break;
     }
 
-    rational compare_in = range_here.in();
-    rational compare_out = range_here.out() - params_.time_base();
+    for (int i=0;i<2;i++) {
+      rational compare;
 
-    if (closest_time < 0 || qAbs(compare_in - last_time_requested_) < qAbs(closest_time - last_time_requested_)) {
-      closest_time = compare_in;
-    }
+      if (i == 0) {
+        compare = Timecode::snap_time_to_timebase(range_here.in(), params_.time_base());
+        if (compare > range_here.in()) {
+          compare -= params_.time_base();
+        }
+      } else {
+        compare = Timecode::snap_time_to_timebase(range_here.out(), params_.time_base());
+        if (compare >= range_here.out()) {
+          compare -= params_.time_base();
+        }
+      }
 
-    if (closest_time < 0 || qAbs(compare_out - last_time_requested_) < qAbs(closest_time - last_time_requested_)) {
-      closest_time = compare_out;
+      if (closest_time < 0
+          || qAbs(compare - last_time_requested_) < qAbs(closest_time - last_time_requested_)) {
+        closest_time = compare;
+      }
     }
   }
 
@@ -259,15 +269,7 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
   if (closest_time == -1) {
     frame_range = test_range;
   } else {
-    // Snap the range to a single discrete frame
-    rational snapped_in = Timecode::snap_time_to_timebase(closest_time, params_.time_base());
-
-    // Check if the range starts earlier, in which case we should render that frame instead
-    if (closest_time < snapped_in) {
-      frame_range = TimeRange(snapped_in - params_.time_base(), snapped_in);
-    } else {
-      frame_range = TimeRange(snapped_in, snapped_in + params_.time_base());
-    }
+    frame_range = TimeRange(closest_time, closest_time + params_.time_base());
   }
 
   // Remove this particular frame from the queue
@@ -372,7 +374,7 @@ void VideoRenderBackend::FrameRemovedFromDiskCache(const QByteArray &hash)
 
 bool VideoRenderBackend::TimeIsQueued(const TimeRange &time) const
 {
-  return cache_queue_.ContainsTimeRange(time);
+  return cache_queue_.ContainsTimeRange(time, true, false);
 }
 
 bool VideoRenderBackend::JobIsCurrent(const NodeDependency &dep, const qint64& job_time) const
