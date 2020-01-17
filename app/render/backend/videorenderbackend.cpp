@@ -344,6 +344,17 @@ void VideoRenderBackend::TruncateFrameCacheLength(const rational &length)
 {
   // Remove frames after this time code if it's changed
   frame_cache_.Truncate(length);
+
+  invalidated_.RemoveTimeRange(TimeRange(length, RATIONAL_MAX));
+
+  // If the playhead is past the length, update the viewer to a null texture because it won't be cached through the
+  // queue, but will now be a null texture
+  if (last_time_requested_ >= length) {
+    emit CachedFrameReady(last_time_requested_, QVariant(), QDateTime::currentMSecsSinceEpoch());
+  }
+
+  // Adjust queue for new invalidated range
+  Requeue();
 }
 
 void VideoRenderBackend::FrameRemovedFromDiskCache(const QByteArray &hash)
