@@ -30,5 +30,5 @@ QString TimeSlider::ValueToString(const QVariant &v)
 
 QVariant TimeSlider::StringToValue(const QString &s, bool *ok)
 {
-  return Timecode::timecode_to_timestamp(s, timebase_, Timecode::CurrentDisplay(), ok);
+  return QVariant::fromValue(Timecode::timecode_to_timestamp(s, timebase_, Timecode::CurrentDisplay(), ok));
 }

@@ -20,6 +20,7 @@
 
 #include "outputmanager.h"
 
+#include <memory>
 #include <QDebug>
 #include <QtMath>
 

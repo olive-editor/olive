@@ -23,6 +23,7 @@
 
 #include <memory>
 #include <QVariant>
+#include <QPointF>
 
 #include "common/rational.h"
 
@@ -42,7 +43,8 @@ public:
   enum Type {
     kLinear,
     kHold,
-    kBezier
+    kBezier,
+    kDefaultType = kLinear
   };
 
   /**
@@ -53,7 +55,7 @@ public:
     kOutHandle
   };
 
-  static const Type kDefaultType = kLinear;
+  // static const Type kDefaultType = kLinear;
 
   /**
    * @brief NodeKeyframe Constructor

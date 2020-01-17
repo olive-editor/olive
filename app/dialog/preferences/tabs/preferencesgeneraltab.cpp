@@ -90,7 +90,7 @@ void PreferencesGeneralTab::Accept()
   Config::Current()["DefaultSequenceHeight"] = default_sequence_.video_params().height();;
   Config::Current()["DefaultSequenceFrameRate"] = QVariant::fromValue(default_sequence_.video_params().time_base());
   Config::Current()["DefaultSequenceAudioFrequency"] = default_sequence_.audio_params().sample_rate();
-  Config::Current()["DefaultSequenceAudioLayout"] = default_sequence_.audio_params().channel_layout();
+  Config::Current()["DefaultSequenceAudioLayout"] = QVariant::fromValue(default_sequence_.audio_params().channel_layout());
 
   Config::Current()["Autoscroll"] = autoscroll_method_->currentData();
 }
