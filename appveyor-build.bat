@@ -1,3 +1,7 @@
+REM Get git hash in variable [this seems to be the most efficient way]
+git rev-parse --short=8 HEAD > hash.txt
+set /p GITHASH= < hash.txt
+
 REM Set up Visual Studio x64 environment
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
@@ -28,6 +32,34 @@ cmake -G "NMake Makefiles" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/build
 
 REM Build with JOM
 C:\Qt\Tools\QtCreator\bin\jom.exe
+
+REM Start building package
+mkdir olive-editor
+cd olive-editor
+copy ..\app\olive-editor.exe .
+windeployqt olive-editor.exe
+copy ..\%FFMPEG_VER%-shared\bin\*.dll .
+copy C:\Tools\vcpkg\packages\opencolorio_x64-windows\bin\OpenColorIO.dll .
+copy C:\Tools\vcpkg\packages\openimageio_x64-windows\bin\OpenImageIO.dll .
+copy C:\Tools\vcpkg\packages\yaml-cpp_x64-windows\bin\yaml-cpp.dll .
+copy C:\Tools\vcpkg\packages\openexr_x64-windows\bin\*.dll .
+copy C:\Tools\vcpkg\packages\libpng_x64-windows\bin\libpng16.dll .
+copy C:\Tools\vcpkg\packages\libjpeg-turbo_x64-windows\bin\jpeg62.dll .
+copy C:\Tools\vcpkg\packages\tiff_x64-windows\bin\tiff.dll .
+copy C:\Tools\vcpkg\packages\zlib_x64-windows\bin\zlib1.dll .
+copy C:\Tools\vcpkg\packages\liblzma_x64-windows\bin\lzma.dll .
+copy C:\Tools\vcpkg\packages\boost-date-time_x64-windows\bin\boost_date_time-vc141-mt-x64-1_71.dll .
+copy C:\Tools\vcpkg\packages\boost-filesystem_x64-windows\bin\boost_filesystem-vc141-mt-x64-1_71.dll .
+copy C:\Tools\vcpkg\packages\boost-thread_x64-windows\bin\boost_thread-vc141-mt-x64-1_71.dll .
+
+cd ..
+set PKGNAME=Olive-%GITHASH%-Windows-x86_64
+
+REM FIXME: Create installer
+
+REM Create portable
+copy nul olive-editor\portable
+7z a %PKGNAME%.zip olive
 
 REM Check if this build should set up a debugging session
 IF "%ENABLE_RDP%"=="1" (
