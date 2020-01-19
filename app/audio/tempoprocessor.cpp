@@ -162,7 +162,7 @@ void TempoProcessor::Push(const char *data, int length)
     }
 
     // Copy buffer from data array to frame
-    memcpy(src_frame->data[0], data, length);
+    memcpy(src_frame->data[0], data, static_cast<size_t>(length));
   }
 
   int ret = av_buffersrc_add_frame_flags(buffersrc_ctx_, src_frame, AV_BUFFERSRC_FLAG_KEEP_REF);
@@ -204,7 +204,7 @@ int TempoProcessor::Pull(char *data, int max_length)
   int copy_length = qMin(max_length, processed_frame_max_bytes_ - processed_frame_byte_index_);
 
   // Copy the bytes
-  memcpy(data, processed_frame_->data[0] + processed_frame_byte_index_, copy_length);
+  memcpy(data, processed_frame_->data[0] + processed_frame_byte_index_, static_cast<size_t>(copy_length));
 
   // Add the copied amount to the current index
   processed_frame_byte_index_ += copy_length;

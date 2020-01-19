@@ -75,6 +75,8 @@ const AudioRenderingParams &EncodingParams::audio_params() const
 
 Encoder* Encoder::CreateFromID(const QString &id, const EncodingParams& params)
 {
+  Q_UNUSED(id)
+  
   return new FFmpegEncoder(params);
 }
 

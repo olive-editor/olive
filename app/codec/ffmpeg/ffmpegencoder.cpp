@@ -37,10 +37,10 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
     }
 
     SwrContext* swr_ctx = swr_alloc_set_opts(nullptr,
-                                             audio_codec_ctx_->channel_layout,
+                                             static_cast<int64_t>(audio_codec_ctx_->channel_layout),
                                              audio_codec_ctx_->sample_fmt,
                                              audio_codec_ctx_->sample_rate,
-                                             pcm_info.channel_layout(),
+                                             static_cast<int64_t>(pcm_info.channel_layout()),
                                              FFmpegCommon::GetFFmpegSampleFormat(pcm_info.format()),
                                              pcm_info.sample_rate(),
                                              0,

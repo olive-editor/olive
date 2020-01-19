@@ -38,7 +38,7 @@ ExportAudioTab::ExportAudioTab(QWidget* parent) :
   channel_layout_combobox_ = new QComboBox();
   channel_layouts_ = Core::SupportedChannelLayouts();
   foreach (const uint64_t& layout, channel_layouts_) {
-    channel_layout_combobox_->addItem(Core::ChannelLayoutToString(layout), layout);
+    channel_layout_combobox_->addItem(Core::ChannelLayoutToString(layout), QVariant::fromValue(layout));
   }
   layout->addWidget(channel_layout_combobox_, row, 1);
 

@@ -20,6 +20,8 @@
 
 #include "keyframe.h"
 
+const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
+
 NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track) :
   time_(time),
   value_(value),

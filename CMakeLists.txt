@@ -54,7 +54,7 @@ find_package(Qt5 5.6 REQUIRED
   LinguistTools
 )
 
-find_package(FFMPEG 3.4 REQUIRED
+find_package(FFMPEG 3.0 REQUIRED
   COMPONENTS
   avutil
   avcodec

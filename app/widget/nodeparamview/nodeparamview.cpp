@@ -228,5 +228,7 @@ void NodeParamView::ItemRequestedTimeChanged(const rational &time)
 
 void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
 {
+  Q_UNUSED(min)
+
   bottom_item_->setY(keyframe_view_->viewport()->height() + max);
 }

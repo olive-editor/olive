@@ -78,7 +78,7 @@ protected:
 private:
   void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
 
-  void Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename);
+  void Download(QVariant texture, QString filename);
 
   VideoRenderingParams video_params_;
 

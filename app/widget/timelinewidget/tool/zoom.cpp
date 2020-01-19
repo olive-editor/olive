@@ -32,6 +32,8 @@ void TimelineWidget::ZoomTool::MousePress(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ZoomTool::MouseMove(TimelineViewMouseEvent *event)
 {
+  Q_UNUSED(event)
+
   if (dragging_) {
     parent()->MoveRubberBandSelect(false, false);
   } else {

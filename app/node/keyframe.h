@@ -22,6 +22,7 @@
 #define NODEKEYFRAME_H
 
 #include <memory>
+#include <QPointF>
 #include <QVariant>
 
 #include "common/rational.h"
@@ -53,7 +54,7 @@ public:
     kOutHandle
   };
 
-  static const Type kDefaultType = kLinear;
+  static const Type kDefaultType;
 
   /**
    * @brief NodeKeyframe Constructor

@@ -37,7 +37,7 @@ Footage::~Footage()
   ClearStreams();
 }
 
-void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections)
+void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>&)
 {
   QXmlStreamAttributes attributes = reader->attributes();
 

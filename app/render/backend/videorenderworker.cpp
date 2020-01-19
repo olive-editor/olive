@@ -54,7 +54,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     // We've already cached this hash, no need to continue
     emit HashAlreadyExists(path, job_time, hash);
 
-  } else if (!(operating_mode_ & kHashOnly) || frame_cache_->TryCache(path.in(), hash)) {
+  } else if (!(operating_mode_ & kHashOnly) || frame_cache_->TryCache(hash)) {
 
     // This hash is available for us to cache, start traversing graph
     value = ProcessNode(path);
@@ -67,7 +67,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
 
     // If we actually have a texture, download it into the disk cache
     if ((operating_mode_ & kDownloadOnly) && !texture.isNull()) {
-      Download(path, hash, texture, frame_cache_->CachePathName(hash, video_params_.format()));
+      Download(texture, frame_cache_->CachePathName(hash, video_params_.format()));
     }
 
     frame_cache_->RemoveHashFromCurrentlyCaching(hash);
@@ -206,7 +206,7 @@ void VideoRenderWorker::CloseInternal()
   download_buffer_.clear();
 }
 
-void VideoRenderWorker::Download(NodeDependency dep, QByteArray hash, QVariant texture, QString filename)
+void VideoRenderWorker::Download(QVariant texture, QString filename)
 {
   PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
