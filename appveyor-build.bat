@@ -1,8 +1,15 @@
-REM Set up MSYS environment
-set PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%
+REM Set up Visual Studio x64 environment
+call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
-REM Run MSYS script
-bash -c ./appveyor-build.sh
+REM Install Open*IO libraries
+vcpkg install opencolorio
+vcpkg install openimageio
+
+REM Run cmake
+cmake -G "NMake Makefiles" .
+
+REM Build
+nmake
 
 REM Check if this build should set up a debugging session
 IF "%ENABLE_RDP%"=="1" (

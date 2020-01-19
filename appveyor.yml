@@ -5,6 +5,11 @@ branches:
 image: Visual Studio 2015
 environment:
   TRAVIS_REPO_SLUG: olive-editor/olive
+install:
+- cd C:\Tools\vcpkg
+- git pull
+- .\bootstrap-vcpkg.bat
+- cd %APPVEYOR_BUILD_FOLDER%
 build_script:
 - cmd: appveyor-build.bat
 artifacts:
