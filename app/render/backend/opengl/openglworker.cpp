@@ -104,7 +104,7 @@ void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable
     }
 
     // Check frame aspect ratio
-    if (frame->sample_aspect_ratio() != 1) {
+    if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
       int new_width = frame->width();
       int new_height = frame->height();
 
