@@ -7,6 +7,7 @@ rational::rational(const AVRational &r) :
   numer(r.num),
   denom(r.den)
 {
+  validateConstructor();
 }
 
 rational rational::fromDouble(const double &flt)
@@ -134,6 +135,22 @@ const intType &rational::denominator() const
 QString rational::toString() const
 {
   return QStringLiteral("%1/%2").arg(QString::number(numer), QString::number(denom));
+}
+
+void rational::validateConstructor()
+{
+  if(denom != intType(0))
+    {
+      if(numer != intType(0))
+        {
+          fixSigns();
+          reduce();
+        }
+      else
+        denom = intType(0);
+    }
+  else
+    numer = intType(0);
 }
 
 //Assignment Operators

@@ -37,18 +37,7 @@ public:
   rational(const intType &numerator, const intType &denominator)
     :numer(numerator), denom(denominator)
   {
-    if(denom != intType(0))
-      {
-        if(numer != intType(0))
-          {
-            fixSigns();
-            reduce();
-          }
-        else
-          denom = intType(0);
-      }
-    else
-      numer = intType(0);
+    validateConstructor();
   }
 
   rational(const rational &rhs) = default;
@@ -116,6 +105,8 @@ private:
   //numerator and denominator
   intType numer;
   intType denom;
+
+  void validateConstructor();
 
   //Function: ensures denom >= 0
   void fixSigns();
