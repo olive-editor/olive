@@ -3,6 +3,7 @@
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
     #export PATH="/usr/local/opt/qt/bin:/usr/local/opt/python@2/libexec/bin:$PATH"
+    echo Attempting skip of Mac path export
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
