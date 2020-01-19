@@ -17,3 +17,4 @@ artifacts:
   name: Olive Portable
 - path: Olive*.exe
   name: Olive Installer
+cache: c:\tools\vcpkg\installed\

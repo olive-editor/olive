@@ -13,6 +13,9 @@ cd c:\tools\vcpkg
 vcpkg integrate install
 cd %APPVEYOR_BUILD_FOLDER%
 
+REM Add Qt directory to path
+set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64
+
 REM Run cmake
 cmake -G "NMake Makefiles" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 
