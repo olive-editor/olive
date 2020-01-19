@@ -8,6 +8,12 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     # Make
     make -j$(sysctl -n hw.ncpu)
 
+    # Handle compile failure
+    if [ "$?" != "0" ]
+    then
+        exit 1
+    fi
+
     BUNDLE_PATH=$(find . -name "Olive.app")
 
     echo Found app at: $BUNDLE_PATH
@@ -29,6 +35,12 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
     # Make
     make -j$(nproc)
+
+    # Handle compile failure
+    if [ "$?" != "0" ]
+    then
+        exit 1
+    fi
 
     # Use `make install` on `appdir` to place files in the correct place
     make DESTDIR=appdir -j$(nproc) install
