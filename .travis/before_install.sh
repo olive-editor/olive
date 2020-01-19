@@ -2,8 +2,8 @@
 
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
-    # Qt 5.10.1 (may have to source newer version at some point)
-    sudo add-apt-repository ppa:beineri/opt-qt-5.10.1-trusty -y
+    # Qt 5.11
+    sudo add-apt-repository ppa:beineri/opt-qt-5.11.0-xenial -y
 
     # FFmpeg 4.x
     sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
