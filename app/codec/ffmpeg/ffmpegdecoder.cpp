@@ -102,8 +102,10 @@ bool FFmpegDecoder::Open()
 
   // Handle failure to find decoder
   if (codec == nullptr) {
-    Error(QStringLiteral("Failed to find appropriate decoder for this codec (%1 :: %2)")
-          .arg(stream()->footage()->filename(), avstream_->codecpar->codec_id));
+    Error(QStringLiteral("Failed to find appropriate decoder for this codec (%1:%2 - %3)")
+          .arg(stream()->footage()->filename(),
+               QString::number(avstream_->index),
+               QString::number(avstream_->codecpar->codec_id)));
     return false;
   }
 
