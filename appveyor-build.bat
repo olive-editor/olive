@@ -8,6 +8,9 @@ call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary
 REM Install 64-bit
 set VCPKG_DEFAULT_TRIPLET=x64-windows
 
+REM Hack to only install release builds for time
+echo set(VCPKG_BUILD_TYPE release) >> C:\Tools\vcpkg\triplets\x64-windows.cmake
+
 REM Install Open*IO libraries
 vcpkg install opencolorio
 vcpkg install openimageio
@@ -28,7 +31,7 @@ REM Add Qt and FFmpeg directory to path
 set PATH=%PATH%;C:\Qt\5.13.2\msvc2017_64\bin;%APPVEYOR_BUILD_FOLDER%\%FFMPEG_VER%-dev
 
 REM Run cmake
-cmake -G "NMake Makefiles" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+cmake -G "NMake Makefiles" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
 REM Build with JOM
 C:\Qt\Tools\QtCreator\bin\jom.exe
@@ -37,6 +40,7 @@ REM Start building package
 mkdir olive-editor
 cd olive-editor
 copy ..\app\olive-editor.exe .
+copy ..\app\olive-editor.pdb .
 windeployqt olive-editor.exe
 copy ..\%FFMPEG_VER%-shared\bin\*.dll .
 copy C:\Tools\vcpkg\packages\opencolorio_x64-windows\bin\OpenColorIO.dll .
@@ -48,9 +52,9 @@ copy C:\Tools\vcpkg\packages\libjpeg-turbo_x64-windows\bin\jpeg62.dll .
 copy C:\Tools\vcpkg\packages\tiff_x64-windows\bin\tiff.dll .
 copy C:\Tools\vcpkg\packages\zlib_x64-windows\bin\zlib1.dll .
 copy C:\Tools\vcpkg\packages\liblzma_x64-windows\bin\lzma.dll .
-copy C:\Tools\vcpkg\packages\boost-date-time_x64-windows\bin\boost_date_time-vc141-mt-x64-1_71.dll .
-copy C:\Tools\vcpkg\packages\boost-filesystem_x64-windows\bin\boost_filesystem-vc141-mt-x64-1_71.dll .
-copy C:\Tools\vcpkg\packages\boost-thread_x64-windows\bin\boost_thread-vc141-mt-x64-1_71.dll .
+copy C:\Tools\vcpkg\packages\boost-date-time_x64-windows\bin\boost_date_time-vc141-mt-x64-1_72.dll .
+copy C:\Tools\vcpkg\packages\boost-filesystem_x64-windows\bin\boost_filesystem-vc141-mt-x64-1_72.dll .
+copy C:\Tools\vcpkg\packages\boost-thread_x64-windows\bin\boost_thread-vc141-mt-x64-1_72.dll .
 
 REM Package done, begin deployment
 cd ..
@@ -58,11 +62,11 @@ set PKGNAME=Olive-%GITHASH%-Windows-x86_64
 
 REM Create installer
 copy app\packaging\windows\nsis\* .
-"/c/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
+"C:/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
 
 REM Create portable
 copy nul olive-editor\portable
-7z a %PKGNAME%.zip olive
+7z a %PKGNAME%.zip olive-editor
 
 REM Check if this build should set up a debugging session
 IF "%ENABLE_RDP%"=="1" (
