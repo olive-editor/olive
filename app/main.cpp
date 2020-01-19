@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
   QCoreApplication::setOrganizationDomain("olivevideoeditor.org");
   QCoreApplication::setApplicationName("Olive");
 
-  QString app_version = "0.2.0";
+  QString app_version = APPVERSION;
 #ifdef GITHASH
   // Anything after the hyphen is considered "unimportant" information. Text BEFORE the hyphen is used in version
   // checking project files and config files

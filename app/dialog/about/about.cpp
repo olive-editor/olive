@@ -41,10 +41,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                 "<span style=\" text-decoration: underline; color:#007af4;\">"
                                 "https://www.olivevideoeditor.org/"
                                 "</span></a></p>"
-                                "<p><b>%1</b></p>" // AppName (version identifier)
-                                "<p>%2</p>" // First statement
-                                "<p>%3</p>" // Second statement
+                                "<p><b>%1</b> %2</p>" // AppName (version identifier)
+                                "<p>%3</p>" // First statement
+                                "<p>%4</p>" // Second statement
                                 "</body></html>").arg(QApplication::applicationName(),
+                                                      QApplication::applicationVersion(),
                                                       tr("Olive is a non-linear video editor. This software is free and "
                                                          "protected by the GNU GPL."),
                                                       tr("Olive Team is obliged to inform users that Olive source code is "
