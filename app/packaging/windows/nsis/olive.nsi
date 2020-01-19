@@ -38,7 +38,7 @@ Section "Olive (required)"
 
 	SetOutPath $INSTDIR
 
-	File /r olive\*
+	File /r olive-editor\*
 
 	WriteUninstaller "$INSTDIR\uninstall.exe"
 

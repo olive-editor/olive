@@ -52,10 +52,13 @@ copy C:\Tools\vcpkg\packages\boost-date-time_x64-windows\bin\boost_date_time-vc1
 copy C:\Tools\vcpkg\packages\boost-filesystem_x64-windows\bin\boost_filesystem-vc141-mt-x64-1_71.dll .
 copy C:\Tools\vcpkg\packages\boost-thread_x64-windows\bin\boost_thread-vc141-mt-x64-1_71.dll .
 
+REM Package done, begin deployment
 cd ..
 set PKGNAME=Olive-%GITHASH%-Windows-x86_64
 
-REM FIXME: Create installer
+REM Create installer
+copy app\packaging\windows\nsis\* .
+"/c/Program Files (x86)/NSIS/makensis.exe" -V4 -DX64 "-XOutFile %PKGNAME%.exe" olive.nsi
 
 REM Create portable
 copy nul olive-editor\portable
