@@ -26,7 +26,7 @@ public:
   /**
    * @brief Check if a frame is currently being cached, and if not reserve it
    */
-  bool TryCache(const rational &time, const QByteArray& hash);
+  bool TryCache(const QByteArray& hash);
 
   /**
    * @brief Return the path of the cached image at this time
@@ -38,7 +38,6 @@ public:
   QByteArray TimeToHash(const rational& time) const;
 
   void SetHash(const rational& time, const QByteArray& hash);
-  void RemoveHash(const rational& time, const QByteArray &hash);
 
   void Truncate(const rational& time);
 

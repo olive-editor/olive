@@ -143,7 +143,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   double width_of_day = width_of_hour * 24;
 
   double long_interval, short_interval;
-  int long_rate;
+  int long_rate = 0;
 
   // Used for comparison, even if one unit can technically fit, we have to fit at least two for it to matter
   int doubled_gap = minimum_gap_between_lines_ * 2;
@@ -252,7 +252,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
           if (timecode_left > last_text_draw) {
             p.drawText(text_rect,
-                       text_align,
+                       static_cast<int>(text_align),
                        timecode_str);
 
             last_text_draw = timecode_left + timecode_width;

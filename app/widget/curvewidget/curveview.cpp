@@ -194,6 +194,8 @@ void CurveView::ScaleChangedEvent(double scale)
 
 void CurveView::VerticalScaleChangedEvent(double scale)
 {
+  Q_UNUSED(scale)
+
   QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
 
   for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {

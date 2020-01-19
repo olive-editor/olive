@@ -37,7 +37,7 @@ bool VideoRenderFrameCache::IsCaching(const QByteArray &hash)
   return is_caching;
 }
 
-bool VideoRenderFrameCache::TryCache(const rational& time, const QByteArray &hash)
+bool VideoRenderFrameCache::TryCache(const QByteArray &hash)
 {
   currently_caching_lock_.lock();
 
@@ -67,11 +67,6 @@ QByteArray VideoRenderFrameCache::TimeToHash(const rational &time) const
 void VideoRenderFrameCache::SetHash(const rational &time, const QByteArray &hash)
 {
   time_hash_map_.insert(time, hash);
-}
-
-void VideoRenderFrameCache::RemoveHash(const rational &time, const QByteArray &hash)
-{
-  time_hash_map_.remove(time);
 }
 
 void VideoRenderFrameCache::Truncate(const rational &time)

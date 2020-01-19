@@ -21,6 +21,7 @@
 #ifndef AUDIOHYBRIDDEVICE_H
 #define AUDIOHYBRIDDEVICE_H
 
+#include <memory>
 #include <QAudioOutput>
 #include <QBuffer>
 #include <QIODevice>

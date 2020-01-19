@@ -33,17 +33,17 @@ int IntegerSlider::GetValue()
 
 void IntegerSlider::SetValue(const int64_t &v)
 {
-  SliderBase::SetValue(v);
+  SliderBase::SetValue(QVariant::fromValue(v));
 }
 
 void IntegerSlider::SetMinimum(const int64_t &d)
 {
-  SetMinimumInternal(d);
+  SetMinimumInternal(QVariant::fromValue(d));
 }
 
 void IntegerSlider::SetMaximum(const int64_t &d)
 {
-  SetMaximumInternal(d);
+  SetMaximumInternal(QVariant::fromValue(d));
 }
 
 QVariant IntegerSlider::StringToValue(const QString &s, bool *ok)

@@ -241,11 +241,11 @@ const NodeParam::DataType &NodeInput::data_type() const
   return data_type_;
 }
 
-void NodeInput::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections)
+void NodeInput::LoadInternal(QXmlStreamReader*, QHash<quintptr, NodeOutput *>&, QList<SerializedConnection>&, QList<FootageConnection>&)
 {
 }
 
-void NodeInput::SaveInternal(QXmlStreamWriter *writer) const
+void NodeInput::SaveInternal(QXmlStreamWriter*) const
 {
 }
 

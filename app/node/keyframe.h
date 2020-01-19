@@ -22,6 +22,7 @@
 #define NODEKEYFRAME_H
 
 #include <memory>
+#include <QPointF>
 #include <QVariant>
 
 #include "common/rational.h"

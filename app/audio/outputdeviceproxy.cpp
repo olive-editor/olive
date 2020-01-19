@@ -83,12 +83,15 @@ qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
 
 qint64 AudioOutputDeviceProxy::writeData(const char *data, qint64 maxSize)
 {
+  Q_UNUSED(data)
+  Q_UNUSED(maxSize)
+
   return -1;
 }
 
 qint64 AudioOutputDeviceProxy::ReverseAwareRead(char *data, qint64 maxlen)
 {
-  qint64 new_pos;
+  qint64 new_pos = -1;
 
   if (playback_speed_ < 0) {
     // If we're reversing, we'll seek back by maxlen bytes before we read

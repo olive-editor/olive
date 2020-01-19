@@ -140,15 +140,15 @@ StreamID Stream::ToID() const
   return StreamID(footage_->filename(), index_);
 }
 
-void Stream::FootageSetEvent(Footage *)
+void Stream::FootageSetEvent(Footage*)
 {
 }
 
-void Stream::LoadCustomParameters(QXmlStreamReader* reader)
+void Stream::LoadCustomParameters(QXmlStreamReader*)
 {
 }
 
-void Stream::SaveCustomParameters(QXmlStreamWriter *writer) const
+void Stream::SaveCustomParameters(QXmlStreamWriter*) const
 {
 }
 

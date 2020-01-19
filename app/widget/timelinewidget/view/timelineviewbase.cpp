@@ -139,7 +139,7 @@ bool TimelineViewBase::PlayheadMove(QMouseEvent *event)
   return true;
 }
 
-bool TimelineViewBase::PlayheadRelease(QMouseEvent *event)
+bool TimelineViewBase::PlayheadRelease(QMouseEvent*)
 {
   if (dragging_playhead_) {
     dragging_playhead_ = false;
@@ -210,7 +210,7 @@ bool TimelineViewBase::HandRelease(QMouseEvent *event)
   return false;
 }
 
-void TimelineViewBase::ToolChangedEvent(Tool::Item tool)
+void TimelineViewBase::ToolChangedEvent(Tool::Item)
 {
 }
 
@@ -326,7 +326,7 @@ bool TimelineViewBase::WheelEventIsAZoomEvent(QWheelEvent *event)
   return (static_cast<bool>(event->modifiers() & Qt::ControlModifier) == !Config::Current()["ScrollZooms"].toBool());
 }
 
-void TimelineViewBase::SetLimitYAxis(bool e)
+void TimelineViewBase::SetLimitYAxis(bool)
 {
   limit_y_axis_ = true;
   UpdateSceneRect();

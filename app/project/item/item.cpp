@@ -157,7 +157,7 @@ bool Item::ChildExistsWithName(const QString &name)
   return ChildExistsWithNameInternal(name, this);
 }
 
-void Item::NameChangedEvent(const QString &name)
+void Item::NameChangedEvent(const QString &)
 {
 }
 

@@ -197,7 +197,7 @@ void KeyframeViewBase::ScaleChangedEvent(double scale)
   }
 }
 
-void KeyframeViewBase::VerticalScaleChangedEvent(double scale)
+void KeyframeViewBase::VerticalScaleChangedEvent(double)
 {
 }
 
@@ -300,9 +300,9 @@ void KeyframeViewBase::ShowContextMenu()
 
   MenuShared::instance()->AddItemsForEditMenu(&m);
 
-  QAction* linear_key_action;
-  QAction* bezier_key_action;
-  QAction* hold_key_action;
+  QAction* linear_key_action = nullptr;
+  QAction* bezier_key_action = nullptr;
+  QAction* hold_key_action = nullptr;
 
   QList<QGraphicsItem*> items = scene()->selectedItems();
   if (!items.isEmpty()) {
