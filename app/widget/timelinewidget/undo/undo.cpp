@@ -106,25 +106,23 @@ void TrackRippleRemoveBlockCommand::undo()
   }
 }
 
-TrackInsertBlockBetweenBlocksCommand::TrackInsertBlockBetweenBlocksCommand(TrackOutput *track,
+TrackInsertBlockAfterCommand::TrackInsertBlockAfterCommand(TrackOutput *track,
                                                                            Block *block,
                                                                            Block *before,
-                                                                           Block *after,
                                                                            QUndoCommand *parent) :
   QUndoCommand(parent),
   track_(track),
   block_(block),
-  before_(before),
-  after_(after)
+  before_(before)
 {
 }
 
-void TrackInsertBlockBetweenBlocksCommand::redo()
+void TrackInsertBlockAfterCommand::redo()
 {
   track_->InsertBlockAfter(block_, before_);
 }
 
-void TrackInsertBlockBetweenBlocksCommand::undo()
+void TrackInsertBlockAfterCommand::undo()
 {
   track_->RippleRemoveBlock(block_);
 }

@@ -210,7 +210,7 @@ void SpeedDurationDialog::accept()
               GapBlock* gap = new GapBlock();
               gap->set_length_and_media_out(gap_length);
               new NodeAddCommand(static_cast<NodeGraph*>(clip->parent()), gap, command);
-              new TrackInsertBlockBetweenBlocksCommand(TrackOutput::TrackFromBlock(clip), gap, clip, next_block, command);
+              new TrackInsertBlockAfterCommand(TrackOutput::TrackFromBlock(clip), gap, clip, command);
             }
           }
         }

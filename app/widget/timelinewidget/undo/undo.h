@@ -108,9 +108,9 @@ private:
   Block* block_;
 };
 
-class TrackInsertBlockBetweenBlocksCommand : public QUndoCommand {
+class TrackInsertBlockAfterCommand : public QUndoCommand {
 public:
-  TrackInsertBlockBetweenBlocksCommand(TrackOutput* track, Block* block, Block* before, Block* after, QUndoCommand* parent = nullptr);
+  TrackInsertBlockAfterCommand(TrackOutput* track, Block* block, Block* before, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;
@@ -121,7 +121,6 @@ private:
   Block* block_;
 
   Block* before_;
-  Block* after_;
 };
 
 /**

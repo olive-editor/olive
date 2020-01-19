@@ -273,6 +273,7 @@ QVariant NodeInput::StringToValue(const QString &string, QList<NodeInput::Footag
     return QVariant::fromValue(rational::fromString(string));
   case kFootage:
     footage_connections.append({this, string.toULongLong()});
+    /* fall through */
   default:
     return string;
   }

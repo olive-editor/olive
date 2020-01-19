@@ -53,11 +53,10 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
 
         Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
 
-        new TrackInsertBlockBetweenBlocksCommand(parent()->GetTrackFromReference(ghost->Track()),
-                                                 gap,
-                                                 block_to_append_gap_to,
-                                                 block_to_append_gap_to->next(),
-                                                 command);
+        new TrackInsertBlockAfterCommand(parent()->GetTrackFromReference(ghost->Track()),
+                                         gap,
+                                         block_to_append_gap_to,
+                                         command);
       }
     } else {
       // This was a Block that already existed
