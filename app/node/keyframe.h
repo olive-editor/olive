@@ -54,7 +54,7 @@ public:
     kOutHandle
   };
 
-  static const Type kDefaultType = kLinear;
+  static const Type kDefaultType;
 
   /**
    * @brief NodeKeyframe Constructor
