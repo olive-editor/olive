@@ -31,7 +31,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
     # Generate Makefile
-    cmake . -DQt5LinguistTools_DIR=/usr/lib/x86_64-linux-gnu/cmake/Qt5LinguistTools
+    cmake .
 
     # Make
     make -j$(nproc)
@@ -43,7 +43,7 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     fi
 
     # Use `make install` on `appdir` to place files in the correct place
-    make DESTDIR=appdir -j$(nproc) install
+    make DESTDIR=appdir install
 
     # Download linuxdeployqt
     wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
