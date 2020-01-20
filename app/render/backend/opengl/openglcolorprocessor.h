@@ -7,8 +7,9 @@
 class OpenGLColorProcessor;
 using OpenGLColorProcessorPtr = std::shared_ptr<OpenGLColorProcessor>;
 
-class OpenGLColorProcessor : public ColorProcessor
+class OpenGLColorProcessor : public QObject, public ColorProcessor
 {
+  Q_OBJECT
 public:
   OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space);
 
@@ -41,6 +42,9 @@ private:
   GLuint ocio_lut_;
 
   OpenGLShaderPtr pipeline_;
+
+private slots:
+  void ClearTexture();
 
 };
 
