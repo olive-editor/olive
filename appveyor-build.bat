@@ -43,18 +43,28 @@ copy ..\app\olive-editor.exe .
 copy ..\app\olive-editor.pdb .
 windeployqt olive-editor.exe
 copy ..\%FFMPEG_VER%-shared\bin\*.dll .
-copy C:\Tools\vcpkg\packages\opencolorio_x64-windows\bin\OpenColorIO.dll .
-copy C:\Tools\vcpkg\packages\openimageio_x64-windows\bin\OpenImageIO.dll .
-copy C:\Tools\vcpkg\packages\yaml-cpp_x64-windows\bin\yaml-cpp.dll .
-copy C:\Tools\vcpkg\packages\openexr_x64-windows\bin\*.dll .
-copy C:\Tools\vcpkg\packages\libpng_x64-windows\bin\libpng16.dll .
-copy C:\Tools\vcpkg\packages\libjpeg-turbo_x64-windows\bin\jpeg62.dll .
-copy C:\Tools\vcpkg\packages\tiff_x64-windows\bin\tiff.dll .
-copy C:\Tools\vcpkg\packages\zlib_x64-windows\bin\zlib1.dll .
-copy C:\Tools\vcpkg\packages\liblzma_x64-windows\bin\lzma.dll .
-copy C:\Tools\vcpkg\packages\boost-date-time_x64-windows\bin\boost_date_time-vc141-mt-x64-1_72.dll .
-copy C:\Tools\vcpkg\packages\boost-filesystem_x64-windows\bin\boost_filesystem-vc141-mt-x64-1_72.dll .
-copy C:\Tools\vcpkg\packages\boost-thread_x64-windows\bin\boost_thread-vc141-mt-x64-1_72.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenColorIO.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenImageIO.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\yaml-cpp.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\Half-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\Iex-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\IexMath-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmImf-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmImfUtil-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\IlmThread-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\Imath-2_3.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\*.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\libpng16.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\jpeg62.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\tiff.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\zlib1.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\lzma.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_date_time-vc141-mt-x64-1_72.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_filesystem-vc141-mt-x64-1_72.dll .
+copy C:\Tools\vcpkg\installed\x64-windows\bin\boost_thread-vc141-mt-x64-1_72.dll .
 
 REM Package done, begin deployment
 cd ..
