@@ -74,6 +74,15 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   row++;
 
+  general_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
+
+  default_still_length_ = new FloatSlider();
+  default_still_length_->SetMinimum(0.1);
+  default_still_length_->SetValue(Config::Current()["DefaultStillLength"].value<rational>().toDouble());
+  general_layout->addWidget(default_still_length_);
+
+  row++;
+
   general_layout->addWidget(new QLabel(tr("Default Sequence Settings:")), row, 0);
 
   // General -> Default Sequence Settings
@@ -93,6 +102,8 @@ void PreferencesGeneralTab::Accept()
   Config::Current()["DefaultSequenceAudioLayout"] = QVariant::fromValue(default_sequence_.audio_params().channel_layout());
 
   Config::Current()["Autoscroll"] = autoscroll_method_->currentData();
+
+  Config::Current()["DefaultStillLength"] = QVariant::fromValue(rational::fromDouble(default_still_length_->GetValue()));
 }
 
 void PreferencesGeneralTab::edit_default_sequence_settings()

@@ -6,6 +6,7 @@
 
 #include "preferencestab.h"
 #include "project/item/sequence/sequence.h"
+#include "widget/slider/floatslider.h"
 
 class PreferencesGeneralTab : public PreferencesTab
 {
@@ -26,11 +27,12 @@ private:
 
   QComboBox* autoscroll_method_;
 
+  FloatSlider* default_still_length_;
+
   /**
    * @brief A sequence we can feed to a SequenceDialog to change the defaults
    */
   Sequence default_sequence_;
-
 
 };
 
