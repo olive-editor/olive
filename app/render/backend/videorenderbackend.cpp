@@ -76,10 +76,7 @@ const VideoRenderingParams &VideoRenderBackend::params() const
 
 void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 {
-  if (!AllProcessorsAreAvailable()) {
-    qCritical() << "Attempted to set parameters on a backend whose workers are still busy";
-    return;
-  }
+  CancelQueue();
 
   // Set new parameters
   params_ = params;

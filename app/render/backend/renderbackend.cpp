@@ -3,6 +3,9 @@
 #include <QDateTime>
 #include <QThread>
 
+#include "core.h"
+#include "window/mainwindow/mainwindow.h"
+
 RenderBackend::RenderBackend(QObject *parent) :
   QObject(parent),
   compiled_(false),
@@ -12,6 +15,8 @@ RenderBackend::RenderBackend(QObject *parent) :
   recompile_queued_(false),
   input_update_queued_(false)
 {
+  // FIXME: Don't create in CLI mode
+  cancel_dialog_ = new RenderCancelDialog(Core::instance()->main_window());
 }
 
 bool RenderBackend::Init()
@@ -29,6 +34,8 @@ bool RenderBackend::Init()
     // We use low priority to keep the app responsive at all times (GUI thread should always prioritize over this one)
     thread->start(QThread::LowPriority);
   }
+
+  cancel_dialog_->SetWorkerCount(threads_.size());
 
   started_ = InitInternal();
 
@@ -49,6 +56,8 @@ void RenderBackend::Close()
   }
 
   started_ = false;
+
+  CancelQueue();
 
   Decompile();
 
@@ -81,6 +90,8 @@ const QString &RenderBackend::GetError() const
 void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 {
   if (viewer_node_ != nullptr) {
+    CancelQueue();
+
     DisconnectViewer(viewer_node_);
 
     Decompile();
@@ -297,6 +308,7 @@ void RenderBackend::CacheNext()
       render_job_info_.insert(cache_frame, job_time);
 
       SetWorkerBusyState(worker, true);
+      cancel_dialog_->WorkerStarted();
 
       QMetaObject::invokeMethod(worker,
                                 "Render",
@@ -310,6 +322,20 @@ void RenderBackend::CacheNext()
 ViewerOutput *RenderBackend::viewer_node() const
 {
   return copied_viewer_node_;
+}
+
+void RenderBackend::CancelQueue()
+{
+  cache_queue_.clear();
+
+  int busy = 0;
+  for (int i=0;i<processor_busy_state_.size();i++) {
+    if (processor_busy_state_.at(i))
+      busy++;
+  }
+  qDebug() << this << "has" << busy << "busy workers";
+
+  cancel_dialog_->RunIfWorkersAreBusy();
 }
 
 bool RenderBackend::ViewerIsConnected() const
@@ -374,6 +400,9 @@ void RenderBackend::InitWorkers()
 
     // Connect to it
     ConnectWorkerToThis(processor);
+
+    // Connect cancel dialog to it
+    connect(processor, &RenderWorker::CompletedCache, cancel_dialog_, &RenderCancelDialog::WorkerDone, Qt::QueuedConnection);
 
     // Finally, we can move it to its own thread
     processor->moveToThread(thread);

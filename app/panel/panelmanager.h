@@ -87,8 +87,6 @@ public:
   template<class T>
   /**
    * @brief Create a panel
-   * @param parent
-   * @return
    */
   T* CreatePanel(QWidget* parent);
 
@@ -113,6 +111,12 @@ public:
    * @brief Access to PanelManager singleton instance
    */
   static PanelManager* instance();
+
+  template<class T>
+  /**
+   * @brief Get a list of panels of a certain type
+   */
+  QList<T*> GetPanelsOfType();
 
 public slots:
   /**
@@ -171,6 +175,24 @@ T* PanelManager::MostRecentlyFocused()
   }
 
   return nullptr;
+}
+
+template<class T>
+QList<T*> PanelManager::GetPanelsOfType()
+{
+  QList<T*> panels;
+
+  T* cast_test;
+
+  foreach (PanelWidget* panel, focus_history_) {
+    cast_test = dynamic_cast<T*>(panel);
+
+    if (cast_test) {
+      panels.append(cast_test);
+    }
+  }
+
+  return panels;
 }
 
 #endif // PANELFOCUSMANAGER_H

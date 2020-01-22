@@ -39,7 +39,10 @@ bool OpenGLBackend::InitInternal()
 
   // Create master texture (the one sent to the viewer)
   master_texture_ = std::make_shared<OpenGLTexture>();
-  master_texture_->Create(share_ctx, params().effective_width(), params().effective_height(), params().format());
+  master_texture_->Create(share_ctx,
+                          params().effective_width(),
+                          params().effective_height(),
+                          params().format());
 
   // Create copy buffer/pipeline
   copy_buffer_.Create(share_ctx);
@@ -156,11 +159,13 @@ void OpenGLBackend::EmitCachedFrameReady(const rational &time, const QVariant &v
 
 void OpenGLBackend::ParamsChangedEvent()
 {
-  // Assume if the texture is allocated, it needs to be changed. Otherwise the texture should be created through
-  // InitInternal() with the correct parameters
-  if (master_texture_) {
+  // If we're initiated, we need to recreate the texture. Otherwise this backend isn't active so it doesn't matter.
+  if (IsInitiated()) {
     master_texture_->Destroy();
-    master_texture_->Create(QOpenGLContext::currentContext(), params().effective_width(), params().effective_height(), params().format());
+    master_texture_->Create(QOpenGLContext::currentContext(),
+                            params().effective_width(),
+                            params().effective_height(),
+                            params().format());
   }
 }
 

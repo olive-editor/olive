@@ -105,12 +105,15 @@ void PreferencesAudioTab::Accept()
   // FIXME: Qt documentation states that QAudioDeviceInfo::deviceName() is a "unique identifiers", which would make them
   //        ideal for saving in preferences, but in practice they don't actually appear to be unique.
   //        See: https://bugreports.qt.io/browse/QTBUG-16841
-  Config::Current()["AudioOutput"] = selected_output_name;
-  Config::Current()["AudioInput"] = selected_input_name;
+  if (Config::Current()["AudioOutput"] != selected_output_name) {
+    Config::Current()["AudioOutput"] = selected_output_name;
+    AudioManager::instance()->SetOutputDevice(selected_output);
+  }
 
-  // Finally, set these as the current device
-  AudioManager::instance()->SetOutputDevice(selected_output);
-  AudioManager::instance()->SetInputDevice(selected_input);
+  if (Config::Current()["AudioInput"] != selected_input_name) {
+    Config::Current()["AudioInput"] = selected_input_name;
+    AudioManager::instance()->SetInputDevice(selected_input);
+  }
 }
 
 void PreferencesAudioTab::RefreshDevices()

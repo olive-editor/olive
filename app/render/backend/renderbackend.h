@@ -4,6 +4,7 @@
 #include <QLinkedList>
 
 #include "common/constructors.h"
+#include "dialog/rendercancel/rendercancel.h"
 #include "decodercache.h"
 #include "node/graph.h"
 #include "node/output/viewer/viewer.h"
@@ -14,8 +15,6 @@ class RenderBackend : public QObject
   Q_OBJECT
 public:
   RenderBackend(QObject* parent = nullptr);
-
-  DISABLE_COPY_MOVE(RenderBackend)
 
   bool Init();
 
@@ -28,6 +27,8 @@ public:
   bool IsInitiated();
 
   ViewerOutput* viewer_node() const;
+
+  void CancelQueue();
 
 public slots:
   void InvalidateCache(const rational &start_range, const rational &end_range);
@@ -141,6 +142,8 @@ private:
   bool input_update_queued_;
 
   QVector<bool> processor_busy_state_;
+
+  RenderCancelDialog* cancel_dialog_;
 
 };
 

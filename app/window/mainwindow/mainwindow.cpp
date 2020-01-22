@@ -145,9 +145,13 @@ void MainWindow::ProjectOpen(Project* p)
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
+  // Close viewers first since we don't want to delete any nodes while they might be mid-render
+  QList<ViewerPanel*> viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanel>();
+  foreach (ViewerPanel* viewer, viewers) {
+    viewer->ConnectViewerNode(nullptr);
+  }
+
   PanelManager::instance()->DeleteAllPanels();
-
-
 
   QMainWindow::closeEvent(e);
 }
