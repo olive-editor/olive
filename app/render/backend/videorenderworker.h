@@ -80,6 +80,8 @@ private:
 
   void Download(QVariant texture, QString filename);
 
+  void ResizeDownloadBuffer();
+
   VideoRenderingParams video_params_;
 
   VideoRenderFrameCache* frame_cache_;

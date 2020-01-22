@@ -85,6 +85,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler_, &TimeRuler::CacheTimeReady);
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler_, &TimeRuler::CacheInvalidatedRange);
   audio_renderer_ = new AudioBackend(this);
+
+  connect(PixelService::instance(), &PixelService::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 }
 
 void ViewerWidget::SetTimebase(const rational &r)
@@ -177,19 +179,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
       qWarning() << "Failed to find a suitable color manager for the connected viewer node";
     }
 
-    RenderMode::Mode render_mode = RenderMode::kOffline;
-
-    video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(),
-                                                        PixelService::GetConfiguredFormatForMode(render_mode),
-                                                        render_mode,
-                                                        2));
-    audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(),
-                                                        SampleFormat::GetConfiguredFormatForMode(render_mode)));
-
-    // Reload cache into these renderers
-    // FIXME: Slow, rather than invalidate, we should probably serialize the cache into and out of files
-    video_renderer_->InvalidateCache(0, viewer_node_->Length());
-    //audio_renderer_->InvalidateCache(0, viewer_node_->Length());
+    UpdateRendererParameters();
   }
 }
 
@@ -294,6 +284,24 @@ void ViewerWidget::PushScrubbedAudio()
       audio_src->close();
     }
   }
+}
+
+void ViewerWidget::UpdateRendererParameters()
+{
+  if (!viewer_node_) {
+    return;
+  }
+
+  RenderMode::Mode render_mode = RenderMode::kOffline;
+
+  video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(),
+                                                      PixelService::instance()->GetConfiguredFormatForMode(render_mode),
+                                                      render_mode,
+                                                      2));
+  audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(),
+                                                      SampleFormat::GetConfiguredFormatForMode(render_mode)));
+
+  video_renderer_->InvalidateCache(0, viewer_node_->Length());
 }
 
 void ViewerWidget::RulerTimeChange(int64_t i)

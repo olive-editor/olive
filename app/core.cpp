@@ -48,6 +48,7 @@
 #include "project/item/sequence/sequence.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
+#include "render/pixelservice.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -140,6 +141,8 @@ void Core::Stop()
   AudioManager::DestroyInstance();
 
   DiskManager::DestroyInstance();
+
+  PixelService::DestroyInstance();
 
   NodeFactory::Destroy();
 
@@ -387,6 +390,9 @@ void Core::StartGUI(bool full_screen)
 
   // Initialize task manager
   TaskManager::CreateInstance();
+
+  // Initialize pixel service
+  PixelService::CreateInstance();
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,

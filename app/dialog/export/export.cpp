@@ -211,7 +211,7 @@ void ExportDialog::accept()
   VideoRenderingParams video_render_params(dest_width,
                                            dest_height,
                                            video_tab_->frame_rate().flipped(),
-                                           PixelService::GetConfiguredFormatForMode(render_mode),
+                                           PixelService::instance()->GetConfiguredFormatForMode(render_mode),
                                            render_mode);
 
   AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),

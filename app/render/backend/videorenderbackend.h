@@ -105,6 +105,8 @@ protected:
 
   virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
 
+  virtual void ParamsChangedEvent();
+
   VideoRenderWorker::OperatingMode operating_mode_;
 
 signals:
@@ -121,6 +123,8 @@ private:
   bool SetFrameHash(const NodeDependency& dep, const QByteArray& hash, const qint64& job_time);
 
   void Requeue();
+
+  void ResizeCacheLoadBuffer();
 
   VideoRenderingParams params_;
 

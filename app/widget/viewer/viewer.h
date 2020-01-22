@@ -185,6 +185,8 @@ private slots:
 
   void LengthChangedSlot(const rational& length);
 
+  void UpdateRendererParameters();
+
 };
 
 #endif // VIEWER_WIDGET_H

@@ -26,13 +26,13 @@ PreferencesQualityTab::PreferencesQualityTab()
   quality_stack_ = new QStackedWidget();
 
   offline_group_ = new PreferencesQualityGroup(tr("Offline Quality"));
-  offline_group_->bit_depth_combobox()->setCurrentIndex(PixelService::GetConfiguredFormatForMode(RenderMode::kOffline));
+  offline_group_->bit_depth_combobox()->setCurrentIndex(PixelService::instance()->GetConfiguredFormatForMode(RenderMode::kOffline));
   offline_group_->sample_fmt_combobox()->setCurrentIndex(SampleFormat::GetConfiguredFormatForMode(RenderMode::kOffline));
   offline_group_->ocio_method()->setCurrentIndex(ColorManager::GetOCIOMethodForMode(RenderMode::kOffline));
   quality_stack_->addWidget(offline_group_);
 
   online_group_ = new PreferencesQualityGroup(tr("Online Quality"));
-  online_group_->bit_depth_combobox()->setCurrentIndex(PixelService::GetConfiguredFormatForMode(RenderMode::kOnline));
+  online_group_->bit_depth_combobox()->setCurrentIndex(PixelService::instance()->GetConfiguredFormatForMode(RenderMode::kOnline));
   online_group_->sample_fmt_combobox()->setCurrentIndex(SampleFormat::GetConfiguredFormatForMode(RenderMode::kOnline));
   online_group_->ocio_method()->setCurrentIndex(ColorManager::GetOCIOMethodForMode(RenderMode::kOnline));
   quality_stack_->addWidget(online_group_);
@@ -46,8 +46,8 @@ void PreferencesQualityTab::Accept()
 {
   ColorManager::SetOCIOMethodForMode(RenderMode::kOffline, static_cast<ColorManager::OCIOMethod>(offline_group_->ocio_method()->currentIndex()));
   ColorManager::SetOCIOMethodForMode(RenderMode::kOnline, static_cast<ColorManager::OCIOMethod>(online_group_->ocio_method()->currentIndex()));
-  PixelService::SetConfiguredFormatForMode(RenderMode::kOffline, static_cast<PixelFormat::Format>(offline_group_->bit_depth_combobox()->currentData().toInt()));
-  PixelService::SetConfiguredFormatForMode(RenderMode::kOnline, static_cast<PixelFormat::Format>(online_group_->bit_depth_combobox()->currentData().toInt()));
+  PixelService::instance()->SetConfiguredFormatForMode(RenderMode::kOffline, static_cast<PixelFormat::Format>(offline_group_->bit_depth_combobox()->currentData().toInt()));
+  PixelService::instance()->SetConfiguredFormatForMode(RenderMode::kOnline, static_cast<PixelFormat::Format>(online_group_->bit_depth_combobox()->currentData().toInt()));
   SampleFormat::SetConfiguredFormatForMode(RenderMode::kOffline, static_cast<SampleFormat::Format>(offline_group_->sample_fmt_combobox()->currentData().toInt()));
   SampleFormat::SetConfiguredFormatForMode(RenderMode::kOnline, static_cast<SampleFormat::Format>(online_group_->sample_fmt_combobox()->currentData().toInt()));
 }

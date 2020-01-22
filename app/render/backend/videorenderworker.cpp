@@ -187,6 +187,10 @@ void VideoRenderWorker::SetParameters(const VideoRenderingParams &video_params)
 {
   video_params_ = video_params;
 
+  if (IsStarted()) {
+    ResizeDownloadBuffer();
+  }
+
   ParametersChangedEvent();
 }
 
@@ -197,7 +201,7 @@ void VideoRenderWorker::SetOperatingMode(const VideoRenderWorker::OperatingMode 
 
 bool VideoRenderWorker::InitInternal()
 {
-  download_buffer_.resize(PixelService::GetBufferSize(video_params().format(), video_params().effective_width(), video_params().effective_height()));
+  ResizeDownloadBuffer();
   return true;
 }
 
@@ -231,6 +235,11 @@ void VideoRenderWorker::Download(QVariant texture, QString filename)
   } else {
     qWarning() << "Failed to open output file:" << filename;
   }
+}
+
+void VideoRenderWorker::ResizeDownloadBuffer()
+{
+  download_buffer_.resize(PixelService::GetBufferSize(video_params_.format(), video_params_.effective_width(), video_params_.effective_height()));
 }
 
 NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)

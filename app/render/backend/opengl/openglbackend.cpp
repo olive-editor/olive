@@ -59,7 +59,7 @@ OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
 {
   const char* cached_frame = GetCachedFrame(time);
 
-  if (cached_frame != nullptr) {
+  if (cached_frame) {
     master_texture_->Upload(cached_frame);
     return master_texture_;
   }
@@ -69,7 +69,7 @@ OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
 
 bool OpenGLBackend::CompileInternal()
 {
-  if (viewer_node() == nullptr || !viewer_node()->texture_input()->IsConnected()) {
+  if (!viewer_node() || !viewer_node()->texture_input()->IsConnected()) {
     // Nothing to be done, nothing to compile
     return true;
   }
@@ -152,6 +152,16 @@ void OpenGLBackend::EmitCachedFrameReady(const rational &time, const QVariant &v
   }
 
   emit CachedFrameReady(time, QVariant::fromValue(tex), job_time);
+}
+
+void OpenGLBackend::ParamsChangedEvent()
+{
+  // Assume if the texture is allocated, it needs to be changed. Otherwise the texture should be created through
+  // InitInternal() with the correct parameters
+  if (master_texture_) {
+    master_texture_->Destroy();
+    master_texture_->Create(QOpenGLContext::currentContext(), params().effective_width(), params().effective_height(), params().format());
+  }
 }
 
 OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)

@@ -44,7 +44,7 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
 
 bool VideoRenderBackend::InitInternal()
 {
-  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
+  ResizeCacheLoadBuffer();
   return true;
 }
 
@@ -83,6 +83,12 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 
   // Set new parameters
   params_ = params;
+
+  // Resize frame load buffer
+  ResizeCacheLoadBuffer();
+
+  // Handle custom events from derivatives
+  ParamsChangedEvent();
 
   // Set params on all processors
   foreach (RenderWorker* worker, processors_) {
@@ -160,6 +166,10 @@ void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, co
   emit RangeInvalidated(invalidated);
 
   Requeue();
+}
+
+void VideoRenderBackend::ParamsChangedEvent()
+{
 }
 
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
@@ -405,4 +415,9 @@ void VideoRenderBackend::Requeue()
   cache_queue_ = invalidated_.Intersects(queueable_range);
 
   CacheNext();
+}
+
+void VideoRenderBackend::ResizeCacheLoadBuffer()
+{
+  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
 }

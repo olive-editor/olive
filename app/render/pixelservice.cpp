@@ -27,8 +27,21 @@
 #include "common/define.h"
 #include "core.h"
 
-PixelService::PixelService()
+PixelService* PixelService::instance_ = nullptr;
+
+void PixelService::CreateInstance()
 {
+  instance_ = new PixelService();
+}
+
+void PixelService::DestroyInstance()
+{
+  delete instance_;
+}
+
+PixelService *PixelService::instance()
+{
+  return instance_;
 }
 
 PixelFormat::Format PixelService::GetConfiguredFormatForMode(RenderMode::Mode mode)
@@ -38,7 +51,11 @@ PixelFormat::Format PixelService::GetConfiguredFormatForMode(RenderMode::Mode mo
 
 void PixelService::SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format)
 {
-  Core::SetPreferenceForRenderMode(mode, QStringLiteral("PixelFormat"), format);
+  if (format != GetConfiguredFormatForMode(mode)) {
+    Core::SetPreferenceForRenderMode(mode, QStringLiteral("PixelFormat"), format);
+
+    emit FormatChanged();
+  }
 }
 
 PixelFormat::Info PixelService::GetPixelFormatInfo(const PixelFormat::Format &format)

@@ -20,7 +20,7 @@ bool RenderBackend::Init()
     return true;
   }
 
-  threads_.resize(qMax(1, QThread::idealThreadCount() / 2));
+  threads_.resize(qMax(1, QThread::idealThreadCount() - 1));
 
   for (int i=0;i<threads_.size();i++) {
     QThread* thread = new QThread(this);

@@ -116,8 +116,8 @@ QString VideoRenderFrameCache::CachePathName(const QByteArray &hash, const Pixel
 
   QString ext;
 
-  if (pix_fmt == PixelFormat::PIX_FMT_RGBA8) {
-    // For some reason, 8-bit EXRs are extremely slow to load, so we use TIFF instead.
+  if (pix_fmt == PixelFormat::PIX_FMT_RGBA8 || pix_fmt == PixelFormat::PIX_FMT_RGBA16U) {
+    // For some reason, integer EXRs are extremely slow to load, so we use TIFF instead.
     ext = QStringLiteral("tiff");
   } else {
     ext = QStringLiteral("exr");

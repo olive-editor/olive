@@ -27,16 +27,19 @@
 #include "pixelformat.h"
 #include "render/rendermodes.h"
 
-class PixelService : public QObject {
+class PixelService : public QObject
+{
+  Q_OBJECT
 public:
-
-  PixelService();
+  static void CreateInstance();
+  static void DestroyInstance();
+  static PixelService* instance();
 
   /**
    * @brief Returns the configured pixel format for a given mode
    */
-  static PixelFormat::Format GetConfiguredFormatForMode(RenderMode::Mode mode);
-  static void SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format);
+  PixelFormat::Format GetConfiguredFormatForMode(RenderMode::Mode mode);
+  void SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format);
 
   /**
    * @brief Return a PixelFormatInfo containing information for a certain format
@@ -87,6 +90,14 @@ public:
    * @brief Convert an RGB image to an RGBA image
    */
   static void ConvertRGBtoRGBA(FramePtr frame);
+
+signals:
+  void FormatChanged();
+
+private:
+  PixelService() = default;
+
+  static PixelService* instance_;
 
 };
 
