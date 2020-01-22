@@ -258,6 +258,13 @@ void ExportDialog::accept()
   QMetaObject::invokeMethod(exporter, "StartExporting", Qt::QueuedConnection);
 }
 
+void ExportDialog::closeEvent(QCloseEvent *e)
+{
+  preview_viewer_->ConnectViewerNode(nullptr);
+
+  QDialog::closeEvent(e);
+}
+
 void ExportDialog::BrowseFilename()
 {
   const ExportFormat& current_format = formats_.at(format_combobox_->currentIndex());

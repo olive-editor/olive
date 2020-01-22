@@ -238,17 +238,17 @@ void RenderBackend::DisconnectViewer(ViewerOutput *node)
 
 void RenderBackend::CacheNext()
 {
-  if (!Init()
-      || !ViewerIsConnected()
-      || !CanRender()) {
-    return;
-  }
-
   if (cache_queue_.isEmpty()) {
     if (AllProcessorsAreAvailable()) {
       emit QueueComplete();
     }
 
+    return;
+  }
+
+  if (!Init()
+      || !ViewerIsConnected()
+      || !CanRender()) {
     return;
   }
 
@@ -333,7 +333,7 @@ void RenderBackend::CancelQueue()
     if (processor_busy_state_.at(i))
       busy++;
   }
-  qDebug() << this << "has" << busy << "busy workers";
+  qDebug() << this << "is waiting for" << busy << "busy workers";
 
   cancel_dialog_->RunIfWorkersAreBusy();
 }
