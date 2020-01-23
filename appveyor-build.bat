@@ -1,11 +1,13 @@
 REM Get git hash in variable [this seems to be the most efficient way]
 git rev-parse --short=8 HEAD > hash.txt
+git rev-parse HEAD > longhash.txt
 set /p GITHASH= < hash.txt
+set /p GITLONGHASH= < longhash.txt
 
 REM Set up Visual Studio x64 environment
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
 
-REM Install 64-bit
+REM Install 64-bit packages
 set VCPKG_DEFAULT_TRIPLET=x64-windows
 
 REM Hack to only install release builds for time
@@ -78,6 +80,27 @@ REM Create portable
 copy nul olive-editor\portable
 7z a %PKGNAME%.zip olive-editor
 
+REM We're ready to upload, but we only upload *sometimes*
+REM set PATH=%PATH%;C:\msys64\usr\bin
+
+REM If this was a tagged build, upload
+if "%APPVEYOR_REPO_TAG%"=="true" GOTO upload
+
+REM Else, if this is a continuous build, check if this commit is the most recent
+curl -H "Authorization: token %GITHUB_TOKEN%" https://api.github.com/repos/olive-editor/olive/commits/master > repoinfo.txt
+grep -Po '(?^<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repoinfo.txt > latestcommit.txt
+set /p REMOTEHASH= < latestcommit.txt
+if "%REMOTEHASH%"=="%GITLONGHASH%" GOTO upload
+
+REM The previous if statements failed, skip to the end
+GOTO end
+
+:upload
+wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+bash upload.sh Olive*.zip
+bash upload.sh Olive*.exe
+
+:end
 REM Check if this build should set up a debugging session
 IF "%ENABLE_RDP%"=="1" (
     powershell -command  "$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))"

@@ -1,7 +1,4 @@
 version: "{build}"
-branches:
-  only:
-  - master
 image: Visual Studio 2017
 environment:
   TRAVIS_REPO_SLUG: olive-editor/olive
