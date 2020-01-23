@@ -39,6 +39,8 @@ void RenderCancelDialog::WorkerDone()
 
 void RenderCancelDialog::showEvent(QShowEvent *event)
 {
+  QDialog::showEvent(event);
+  
   UpdateProgress();
 }
 
