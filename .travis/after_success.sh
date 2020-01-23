@@ -12,7 +12,7 @@ fi
 REMOTE=$(curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/olive-editor/olive/commits/master | $GREP_PATH -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 --)
 LOCAL=$(git rev-parse HEAD)
 
-if [ "$TRAVIS_TAG" != "" || "$REMOTE" == "$LOCAL" ]
+if [ "$TRAVIS_TAG" != "" ] || [ "$REMOTE" == "$LOCAL" ]
 then
     echo "[INFO] Still current. Uploading..."
 
