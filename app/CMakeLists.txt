@@ -64,7 +64,7 @@ endif()
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
 if(MSVC)
-  target_compile_options(${OLIVE_TARGET} PRIVATE /WX /experimental:external /external:anglebrackets /external:W0 "$<$<CONFIG:RELEASE>:/O2>")
+  target_compile_options(${OLIVE_TARGET} PRIVATE /WX /W4 /experimental:external /external:anglebrackets /external:W0 "$<$<CONFIG:RELEASE>:/O2>")
 else()
   target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion)
 endif()
