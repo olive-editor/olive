@@ -1,10 +1,12 @@
 version: "{build}"
-branches:
-  except:
-    - continuous # Don't build the branch we create uploading to GitHub
 image: Visual Studio 2017
 environment:
   TRAVIS_REPO_SLUG: olive-editor/olive
+
+# Hack to not buid the "continuous" tag (https://github.com/appveyor/ci/issues/486)
+# FIXME: Will unforttunately skip release tags
+skip_tags: true
+
 install:
 - cd C:\Tools\vcpkg
 - git pull
