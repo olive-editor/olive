@@ -87,6 +87,10 @@ REM If this was a tagged build, upload
 if "%APPVEYOR_REPO_TAG%"=="true" GOTO upload
 
 REM Else, if this is a continuous build, check if this commit is the most recent
+
+REM Force locale to UTF-8 or grep -P fails
+set LC_ALL=en_US.UTF-8
+
 curl -H "Authorization: token %GITHUB_TOKEN%" https://api.github.com/repos/olive-editor/olive/commits/master > repoinfo.txt
 grep -Po '(?^<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repoinfo.txt > latestcommit.txt
 set /p REMOTEHASH= < latestcommit.txt
@@ -96,7 +100,7 @@ REM The previous if statements failed, skip to the end
 GOTO end
 
 :upload
-wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+curl https://github.com/probonopd/uploadtool/raw/master/upload.sh > upload.sh
 bash upload.sh Olive*.zip
 bash upload.sh Olive*.exe
 
