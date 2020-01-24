@@ -358,14 +358,14 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
   WaveInput input(GetConformedFilename(params));
 
   if (input.open()) {
-    const AudioRenderingParams& params = input.params();
+    const AudioRenderingParams& input_params = input.params();
 
     FramePtr audio_frame = Frame::Create();
-    audio_frame->set_audio_params(params);
-    audio_frame->set_sample_count(params.time_to_samples(length));
+    audio_frame->set_audio_params(input_params);
+    audio_frame->set_sample_count(input_params.time_to_samples(length));
     audio_frame->allocate();
 
-    input.read(params.time_to_bytes(timecode),
+    input.read(input_params.time_to_bytes(timecode),
                audio_frame->data(),
                audio_frame->allocated_size());
 
@@ -883,7 +883,7 @@ void FFmpegDecoder::IndexAudio(AVPacket *pkt, AVFrame *frame)
           data_frame->format = dst_sample_fmt;
           av_frame_make_writable(data_frame);
 
-          int ret = swr_convert_frame(resampler, data_frame, frame);
+          ret = swr_convert_frame(resampler, data_frame, frame);
 
           if (ret != 0) {
             char err_str[50];

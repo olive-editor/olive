@@ -137,8 +137,8 @@ void DiskManager::CreatedFile(const QString &file_name, const QByteArray &hash)
 
   lock_.unlock();
 
-  foreach (const QByteArray& hash, deleted_hashes) {
-    emit DeletedFrame(hash);
+  foreach (const QByteArray& h, deleted_hashes) {
+    emit DeletedFrame(h);
   }
 }
 
