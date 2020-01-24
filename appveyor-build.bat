@@ -36,7 +36,7 @@ REM Run cmake
 cmake -G "NMake Makefiles" . -DCMAKE_TOOLCHAIN_FILE=c:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
 REM Build with JOM
-C:\Qt\Tools\QtCreator\bin\jom.exe
+C:\Qt\Tools\QtCreator\bin\jom.exe || exit /B 1
 
 REM Start building package
 mkdir olive-editor
