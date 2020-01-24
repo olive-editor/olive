@@ -1,4 +1,7 @@
 version: "{build}"
+branches:
+  except:
+    - continuous # Don't build the branch we create uploading to GitHub
 image: Visual Studio 2017
 environment:
   TRAVIS_REPO_SLUG: olive-editor/olive
