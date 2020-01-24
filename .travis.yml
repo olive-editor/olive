@@ -8,6 +8,11 @@ matrix:
     sudo: require
     dist: xenial
   - os: osx
+    before_cache:
+      - brew cleanup
+    cache:
+      directories:
+        - $HOME/Library/Caches/Homebrew
     addons:
       homebrew:
         packages:
