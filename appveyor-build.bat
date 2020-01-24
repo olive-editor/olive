@@ -3,6 +3,7 @@ git rev-parse --short=8 HEAD > hash.txt
 git rev-parse HEAD > longhash.txt
 set /p GITHASH= < hash.txt
 set /p GITLONGHASH= < longhash.txt
+set /p TRAVIS_COMMIT= < longhash.txt
 
 REM Set up Visual Studio x64 environment
 call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
