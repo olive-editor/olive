@@ -50,7 +50,7 @@ public:
 signals:
   void CompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);
 
-  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash);
+  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash, bool texture_existed);
 
   void HashAlreadyBeingCached(NodeDependency path, qint64 job_time, QByteArray hash);
 

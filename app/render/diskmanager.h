@@ -20,7 +20,7 @@ public:
 
   void CreatedFile(const QString& file_name, const QByteArray& hash);
 
-  bool ClearDiskCache();
+  bool ClearDiskCache(bool quick_delete);
 
 signals:
   void DeletedFrame(const QByteArray& hash);

@@ -47,7 +47,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   if (!(operating_mode_ & kRenderOnly)) {
 
     // Emit only the hash
-    emit CompletedDownload(path, job_time, hash);
+    emit CompletedDownload(path, job_time, hash, false);
 
   } else if ((operating_mode_ & kHashOnly) && frame_cache_->HasHash(hash, video_params_.format())) {
 
@@ -74,7 +74,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
 
     if (operating_mode_ & kDownloadOnly) {
       // Signal that this job is complete
-      emit CompletedDownload(path, job_time, hash);
+      emit CompletedDownload(path, job_time, hash, !texture.isNull());
     }
 
   } else {

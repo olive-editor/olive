@@ -303,14 +303,14 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_ti
   }
 }
 
-void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash)
+void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed)
 {
   SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
 
   SetFrameHash(dep, hash, job_time);
 
   // Register frame with the disk manager
-  if (operating_mode_ & VideoRenderWorker::kDownloadOnly) {
+  if (texture_existed && operating_mode_ & VideoRenderWorker::kDownloadOnly) {
     DiskManager::instance()->CreatedFile(frame_cache()->CachePathName(hash, params_.format()), hash);
   }
 

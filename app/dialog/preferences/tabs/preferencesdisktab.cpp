@@ -112,7 +112,7 @@ void PreferencesDiskTab::ClearDiskCache()
                             tr("Clear Disk Cache"),
                             tr("Are you sure you want to clear the disk cache in '%1'?").arg(Config::Current()["DiskCachePath"].toString()),
                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-    if (DiskManager::instance()->ClearDiskCache()) {
+    if (DiskManager::instance()->ClearDiskCache(false)) {
       QMessageBox::information(this,
                                tr("Clear Disk Cache"),
                                tr("Disk cache cleared successfully"),

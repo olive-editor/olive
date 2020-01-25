@@ -41,7 +41,7 @@ DiskManager::~DiskManager()
 {
   if (Config::Current()["ClearDiskCacheOnClose"].toBool()) {
     // Clear all cache data
-    ClearDiskCache();
+    ClearDiskCache(true);
   } else {
     // Save current cache index
     QFile cache_index_file(GetCacheIndexFilename());
@@ -142,13 +142,33 @@ void DiskManager::CreatedFile(const QString &file_name, const QByteArray &hash)
   }
 }
 
-bool DiskManager::ClearDiskCache()
+bool DiskManager::ClearDiskCache(bool quick_delete)
 {
+  bool deleted_files;
+
   lock_.lock();
 
-  bool deleted_files = QDir(GetMediaCacheLocation()).removeRecursively();
+  if (quick_delete) {
+    deleted_files = QDir(GetMediaCacheLocation()).removeRecursively();
 
-  disk_data_.clear();
+    disk_data_.clear();
+  } else {
+    deleted_files = true;
+
+    for (int i=0;i<disk_data_.size();i++) {
+      const HashTime& ht = disk_data_.at(i);
+
+      // We return a false result if any of the files fail to delete, but still try to delete as many as we can
+      if (QFile::remove(ht.file_name)) {
+        emit DeletedFrame(ht.hash);
+        disk_data_.removeAt(i);
+        i--;
+      } else {
+        qWarning() << "Failed to delete" << ht.file_name;
+        deleted_files = false;
+      }
+    }
+  }
 
   lock_.unlock();
 
