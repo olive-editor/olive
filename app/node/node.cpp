@@ -318,14 +318,17 @@ int Node::IndexOfParameter(NodeParam *param) const
   return params_.indexOf(param);
 }
 
-void Node::TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse) {
-  Node* connected = input->get_connected_node();
+void Node::TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse, bool exclusive_only) {
+  if (input->IsConnected()
+      && (input->get_connected_output()->edges().size() == 1 || !exclusive_only)) {
+    Node* connected = input->get_connected_node();
 
-  if (connected != nullptr && !list.contains(connected)) {
-    list.append(connected);
+    if (!list.contains(connected)) {
+      list.append(connected);
 
-    if (traverse) {
-      GetDependenciesInternal(connected, list, traverse);
+      if (traverse) {
+        GetDependenciesInternal(connected, list, traverse, exclusive_only);
+      }
     }
   }
 
@@ -333,7 +336,7 @@ void Node::TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool trav
     NodeInputArray* input_array = static_cast<NodeInputArray*>(input);
 
     for (int i=0;i<input_array->GetSize();i++) {
-      TraverseInputInternal(list, input_array->At(i), traverse);
+      TraverseInputInternal(list, input_array->At(i), traverse, exclusive_only);
     }
   }
 }
@@ -346,12 +349,12 @@ void Node::TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool trav
  * TRUE to recursively traverse each node for a complete dependency graph. FALSE to return only the immediate
  * dependencies.
  */
-void Node::GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse) {
+void Node::GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse, bool exclusive_only) {
   foreach (NodeParam* p, n->parameters()) {
     if (p->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(p);
 
-      TraverseInputInternal(list, input, traverse);
+      TraverseInputInternal(list, input, traverse, exclusive_only);
     }
   }
 }
@@ -360,50 +363,25 @@ QList<Node *> Node::GetDependencies() const
 {
   QList<Node *> node_list;
 
-  GetDependenciesInternal(this, node_list, true);
+  GetDependenciesInternal(this, node_list, true, false);
 
   return node_list;
 }
 
 QList<Node *> Node::GetExclusiveDependencies() const
 {
-  QList<Node*> dependency_tree = GetDependencies();
+  QList<Node *> node_list;
 
-  QList<Node*> exclusive_deps;
+  GetDependenciesInternal(this, node_list, true, true);
 
-  // See if any nodes in the list output somewhere else
-  foreach (Node* dep, dependency_tree) {
-    bool is_exclusive = true;
-
-    foreach (NodeParam* param, dep->parameters()) {
-      if (param->type() == NodeParam::kOutput) {
-        foreach (NodeEdgePtr edge, param->edges()) {
-          Node* node_param_outputs_to = edge->input()->parentNode();
-          if (node_param_outputs_to != this && !dependency_tree.contains(node_param_outputs_to)) {
-            is_exclusive = false;
-            break;
-          }
-        }
-      }
-
-      if (!is_exclusive) {
-        break;
-      }
-    }
-
-    if (is_exclusive) {
-      exclusive_deps.append(dep);
-    }
-  }
-
-  return exclusive_deps;
+  return node_list;
 }
 
 QList<Node *> Node::GetImmediateDependencies() const
 {
   QList<Node *> node_list;
 
-  GetDependenciesInternal(this, node_list, false);
+  GetDependenciesInternal(this, node_list, false, false);
 
   return node_list;
 }

@@ -363,9 +363,9 @@ private:
 
   void DisconnectInput(NodeInput* input);
 
-  static void TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse);
+  static void TraverseInputInternal(QList<Node*>& list, NodeInput* input, bool traverse, bool exclusive_only);
 
-  static void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse);
+  static void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse, bool exclusive_only);
 
   QList<NodeParam *> params_;
 
