@@ -116,7 +116,7 @@ SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   // Set up available channel layouts
   QList<uint64_t> channel_layouts = Core::SupportedChannelLayouts();
   foreach (const uint64_t& ch_layout, channel_layouts) {
-    audio_channels_field_->addItem(Core::ChannelLayoutToString(ch_layout), QVariant::fromValue(layout));
+    audio_channels_field_->addItem(Core::ChannelLayoutToString(ch_layout), QVariant::fromValue(ch_layout));
   }
 
   // Set values based on input sequence
