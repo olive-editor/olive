@@ -205,7 +205,9 @@ const QVector<Block *> &TrackOutput::Blocks() const
 
 void TrackOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
-  Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, track_length()), from);
+  if (block_invalidate_cache_stack_ == 0) {
+    Node::InvalidateCache(qMax(start_range, rational(0)), qMin(end_range, track_length()), from);
+  }
 }
 
 void TrackOutput::InsertBlockBefore(Block* block, Block* after)
