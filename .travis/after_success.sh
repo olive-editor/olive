@@ -16,6 +16,8 @@ if [ "$TRAVIS_TAG" != "" ] || [ "$REMOTE" == "$LOCAL" ]
 then
     echo "[INFO] Still current. Uploading..."
 
+    UPLOADTOOL_BODY=$(cat release.txt)
+
     # Retrieve upload tool
     wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
 

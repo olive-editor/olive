@@ -101,6 +101,8 @@ REM The previous if statements failed, skip to the end
 GOTO end
 
 :upload
+set /p UPLOADTOOL_BODY= < latestcommit.txt
+
 curl -L https://github.com/probonopd/uploadtool/raw/master/upload.sh > upload.sh
 bash upload.sh Olive*.zip
 bash upload.sh Olive*.exe
