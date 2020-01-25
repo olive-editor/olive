@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# linuxdeployqt uses this for naming the file
+export VERSION=$(git rev-parse --short=8 HEAD)
+
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
     # Generate Makefile
@@ -26,7 +29,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     python2 macdeployqtfix.py $BUNDLE_PATH/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
 
     # Distribute in zip
-    zip -r Olive-$(git rev-parse --short HEAD)-macOS.zip $BUNDLE_PATH
+    zip -r Olive-$VERSION-macOS.zip $BUNDLE_PATH
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 
@@ -50,9 +53,6 @@ elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     chmod a+x linuxdeployqt-continuous-x86_64.AppImage
 
     unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-    
-    # linuxdeployqt uses this for naming the file
-    export VERSION=$(git rev-parse --short HEAD)
 
     # Use linuxdeployqt to set up dependencies
     ./linuxdeployqt-continuous-x86_64.AppImage appdir/usr/local/share/applications/*.desktop -extra-plugins=imageformats/libqsvg.so -appimage
