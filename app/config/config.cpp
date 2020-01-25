@@ -84,7 +84,7 @@ void Config::SetDefaults()
   config_map_["DefaultSequenceHeight"] = 1080;
   config_map_["DefaultSequenceFrameRate"] = QVariant::fromValue(rational(1001, 30000));
   config_map_["DefaultSequenceAudioFrequency"] = 48000;
-  config_map_["DefaultSequenceAudioLayout"] = AV_CH_LAYOUT_STEREO;
+  config_map_["DefaultSequenceAudioLayout"] = QVariant::fromValue(static_cast<uint64_t>(AV_CH_LAYOUT_STEREO));
 
   // Online/offline settings
   config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;

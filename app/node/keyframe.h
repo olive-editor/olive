@@ -27,6 +27,8 @@
 
 #include "common/rational.h"
 
+class NodeInput;
+
 class NodeKeyframe;
 using NodeKeyframePtr = std::shared_ptr<NodeKeyframe>;
 
@@ -114,6 +116,9 @@ public:
    */
   static BezierType get_opposing_bezier_type(BezierType type);
 
+  NodeInput* parent() const;
+  void set_parent(NodeInput* parent);
+
 signals:
   /**
    * @brief Signal emitted when this keyframe's time is changed
@@ -141,6 +146,8 @@ signals:
   void BezierControlOutChanged(const QPointF& d);
 
 private:
+  NodeInput* parent_;
+
   rational time_;
 
   QVariant value_;

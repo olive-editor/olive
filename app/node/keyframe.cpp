@@ -23,6 +23,7 @@
 const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
 
 NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track) :
+  parent_(nullptr),
   time_(time),
   value_(value),
   type_(type),
@@ -130,4 +131,14 @@ NodeKeyframe::BezierType NodeKeyframe::get_opposing_bezier_type(NodeKeyframe::Be
   } else {
     return kInHandle;
   }
+}
+
+NodeInput *NodeKeyframe::parent() const
+{
+  return parent_;
+}
+
+void NodeKeyframe::set_parent(NodeInput *parent)
+{
+  parent_ = parent;
 }

@@ -151,6 +151,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
                 NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
                 key->set_bezier_control_in(key_in_handle);
                 key->set_bezier_control_out(key_out_handle);
+                key->set_parent(this);
                 keyframe_tracks_[track].append(key);
               }
             }
@@ -600,6 +601,7 @@ void NodeInput::remove_keyframe(NodeKeyframePtr key)
   disconnect(key.get(), &NodeKeyframe::BezierControlOutChanged, this, &NodeInput::KeyframeBezierOutChanged);
 
   keyframe_tracks_[key->track()].removeOne(key);
+  key->set_parent(nullptr);
 
   emit KeyframeRemoved(key);
   emit_time_range(time_affected);
@@ -618,7 +620,7 @@ void NodeInput::KeyframeTimeChanged()
     // This keyframe needs resorting, store it and remove it from the list
     NodeKeyframePtr key_shared_ptr = keyframe_tracks_.at(key->track()).at(keyframe_index);
 
-    keyframe_tracks_.removeAt(keyframe_index);
+    keyframe_tracks_[key->track()].removeAt(keyframe_index);
 
     // Automatically insertion sort
     insert_keyframe_internal(key_shared_ptr);
@@ -697,6 +699,8 @@ int NodeInput::FindIndexOfKeyframeFromRawPtr(NodeKeyframe *raw_ptr) const
 void NodeInput::insert_keyframe_internal(NodeKeyframePtr key)
 {
   KeyframeTrack& key_track = keyframe_tracks_[key->track()];
+
+  key->set_parent(this);
 
   for (int i=0;i<key_track.size();i++) {
     NodeKeyframePtr compare = key_track.at(i);

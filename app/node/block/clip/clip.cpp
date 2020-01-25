@@ -64,12 +64,15 @@ void ClipBlock::InvalidateCache(const rational &start_range, const rational &end
     rational start = MediaToSequenceTime(start_range);
     rational end = MediaToSequenceTime(end_range);
 
+    // Ensure range actually covers this clip's area
     if (!(end < in() || start > out())) {
+
       // Limit cache invalidation to clip lengths
       start = qMax(start, in());
       end = qMin(end, out());
 
       Node::InvalidateCache(start, end, from);
+
     }
   } else {
     // Otherwise, pass signal along normally

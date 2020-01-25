@@ -8,8 +8,8 @@ class TimelineScaledObject
 public:
   TimelineScaledObject();
 
-  const rational& timebase();
-  const double& timebase_dbl();
+  const rational& timebase() const;
+  const double& timebase_dbl() const;
 
   static rational SceneToTime(const double &x, const double& x_scale, const rational& timebase, bool round = false);
 

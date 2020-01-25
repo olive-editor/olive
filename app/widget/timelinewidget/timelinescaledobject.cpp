@@ -8,12 +8,12 @@ TimelineScaledObject::TimelineScaledObject() :
 
 }
 
-const rational &TimelineScaledObject::timebase()
+const rational &TimelineScaledObject::timebase() const
 {
   return timebase_;
 }
 
-const double &TimelineScaledObject::timebase_dbl()
+const double &TimelineScaledObject::timebase_dbl() const
 {
   return timebase_dbl_;
 }

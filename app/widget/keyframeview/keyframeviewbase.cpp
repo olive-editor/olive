@@ -5,6 +5,7 @@
 
 #include "dialog/keyframeproperties/keyframeproperties.h"
 #include "keyframeviewundo.h"
+#include "node/node.h"
 #include "widget/menu/menu.h"
 #include "widget/menu/menushared.h"
 #include "widget/nodeparamview/nodeparamviewundo.h"
@@ -96,6 +97,9 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
           for (int i=0;i<selected_items.size();i++) {
             KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
 
+            // Block signals for dragging for now
+            key->key()->parent()->blockSignals(true);
+
             selected_keys_.replace(i, {key, key->x(), key->key()->time(), key->key()->value().toDouble()});
           }
         }
@@ -123,12 +127,17 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
                           false);
       } else if (!selected_keys_.isEmpty()) {
         foreach (const KeyframeItemAndTime& keypair, selected_keys_) {
-          // FIXME: Find some way to do single frame updates as the NodeParamViewWidgetBridge does?
           keypair.key->key()->set_time(CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()));
 
           if (y_axis_enabled_) {
             keypair.key->key()->set_value(keypair.value - mouse_diff_scaled.y());
           }
+
+          // We emit a custom value changed signal while the keyframe is being dragged so only the currently viewed
+          // frame gets rendered in this time
+          keypair.key->key()->parent()->blockSignals(false);
+          emit keypair.key->key()->parent()->ValueChanged(GetPlayheadTime(), GetPlayheadTime());
+          keypair.key->key()->parent()->blockSignals(true);
         }
       }
     }
@@ -164,19 +173,29 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
             // Calculate the new time for this keyframe
             rational new_time = CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x());
 
+
+
             // Commit movement
+
+            // Since we overrode the cache signalling while dragging, we simulate here precisely the change that
+            // occurred by first setting the keyframe to its original position, and then letting the input handle
+            // the signalling once the undo command is pushed.
+            item->key()->set_time(keypair.time);
             new NodeParamSetKeyframeTimeCommand(item->key(),
                                                 new_time,
                                                 keypair.time,
                                                 command);
 
-            // Commit value if we're setting a vaule
+            // Commit value if we're setting a value
             if (y_axis_enabled_) {
+              item->key()->set_value(keypair.value);
               new NodeParamSetKeyframeValueCommand(item->key(),
                                                    keypair.value - mouse_diff_scaled.y(),
                                                    keypair.value,
                                                    command);
             }
+
+            keypair.key->key()->parent()->blockSignals(false);
           }
 
           Core::instance()->undo_stack()->push(command);

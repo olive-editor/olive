@@ -43,7 +43,7 @@ protected:
 
   void SetLimitYAxis(bool e);
 
-  rational GetPlayheadTime();
+  rational GetPlayheadTime() const;
 
   void SetDefaultDragMode(DragMode mode);
   const DragMode& GetDefaultDragMode() const;

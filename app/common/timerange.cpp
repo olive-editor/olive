@@ -99,7 +99,9 @@ void TimeRangeList::InsertTimeRange(const TimeRange &range)
   for (int i=0;i<size();i++) {
     const TimeRange& compare = at(i);
 
-    if (range.OverlapsWith(compare)) {
+    if (compare == range) {
+      return;
+    } else if (range.OverlapsWith(compare)) {
       replace(i, TimeRange::Combine(range, compare));
       return;
     }

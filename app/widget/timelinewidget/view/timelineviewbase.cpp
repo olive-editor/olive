@@ -97,9 +97,9 @@ void TimelineViewBase::drawForeground(QPainter *painter, const QRectF &rect)
   }
 }
 
-rational TimelineViewBase::GetPlayheadTime()
+rational TimelineViewBase::GetPlayheadTime() const
 {
-  return rational(playhead_ * timebase().numerator(), timebase().denominator());
+  return Timecode::timestamp_to_time(playhead_, timebase());
 }
 
 void TimelineViewBase::SetDefaultDragMode(QGraphicsView::DragMode mode)
