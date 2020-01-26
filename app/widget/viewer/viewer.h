@@ -216,6 +216,8 @@ private slots:
 
   void SetDividerFromMenu(QAction* action);
 
+  void InvalidateVisible();
+
 };
 
 #endif // VIEWER_WIDGET_H

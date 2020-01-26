@@ -55,6 +55,7 @@ public:
   NodeInput* length_input();
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
+  virtual void InvalidateVisible(NodeInput *from) override;
 
   const VideoParams& video_params() const;
   const AudioParams& audio_params() const;
@@ -86,6 +87,8 @@ signals:
   void VideoChangedBetween(const rational&, const rational&);
 
   void AudioChangedBetween(const rational&, const rational&);
+
+  void VisibleInvalidated();
 
   void VideoGraphChanged();
 

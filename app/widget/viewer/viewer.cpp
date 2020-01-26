@@ -150,6 +150,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
     disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
     disconnect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+    disconnect(viewer_node_, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
 
     // Effectively disables the viewer and clears the state
     SizeChangedSlot(0, 0);
@@ -171,6 +172,7 @@ void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_man
     connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
     connect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+    connect(viewer_node_, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
 
     SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
     LengthChangedSlot(viewer_node_->Length());
@@ -554,4 +556,9 @@ void ViewerWidget::SetDividerFromMenu(QAction *action)
   divider_ = divider;
 
   UpdateRendererParameters();
+}
+
+void ViewerWidget::InvalidateVisible()
+{
+  video_renderer_->InvalidateCache(GetTime(), GetTime());
 }

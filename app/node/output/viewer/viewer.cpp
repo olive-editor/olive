@@ -111,6 +111,15 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
   SendInvalidateCache(start_range, end_range);
 }
 
+void ViewerOutput::InvalidateVisible(NodeInput* from)
+{
+  if (from == texture_input()) {
+    emit VisibleInvalidated();
+  }
+
+  Node::InvalidateVisible(from);
+}
+
 const VideoParams &ViewerOutput::video_params() const
 {
   return video_params_;

@@ -320,7 +320,8 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
     }
 
     input_->blockSignals(false);
-    emit input_->ValueChanged(time_, time_);
+
+    input_->parentNode()->InvalidateVisible(input_);
 
   } else {
     if (dragging_) {

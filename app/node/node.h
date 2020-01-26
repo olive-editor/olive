@@ -241,6 +241,11 @@ public:
    */
   virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr);
 
+  /**
+   * @brief Signal through node graph to only invalidate frames that are currently visible on a ViewerWidget
+   */
+  virtual void InvalidateVisible(NodeInput *from);
+
   virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
 
   /**
