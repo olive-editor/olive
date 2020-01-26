@@ -32,11 +32,14 @@
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/pixelservice.h"
+#include "widget/menu/menu.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
   QWidget(parent),
   viewer_node_(nullptr),
-  playback_speed_(0)
+  playback_speed_(0),
+  color_menu_enabled_(true),
+  divider_(Config::Current()["DefaultViewerDivider"].toInt())
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -47,6 +50,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   layout->addWidget(sizer_);
 
   gl_widget_ = new ViewerGLWidget();
+  connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   sizer_->SetWidget(gl_widget_);
 
   // Create time ruler
@@ -190,7 +194,7 @@ ViewerOutput *ViewerWidget::GetConnectedViewer() const
 
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
 {
-  gl_widget_->SetColorMenuEnabled(enabled);
+  color_menu_enabled_ = enabled;
 }
 
 void ViewerWidget::SetOverrideSize(int width, int height)
@@ -297,11 +301,72 @@ void ViewerWidget::UpdateRendererParameters()
   video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(),
                                                       PixelService::instance()->GetConfiguredFormatForMode(render_mode),
                                                       render_mode,
-                                                      2));
+                                                      divider_));
   audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(),
                                                       SampleFormat::GetConfiguredFormatForMode(render_mode)));
 
   video_renderer_->InvalidateCache(0, viewer_node_->Length());
+}
+
+void ViewerWidget::ShowContextMenu(const QPoint &pos)
+{
+  QMenu menu;
+
+  // Color options
+  if (gl_widget_->color_manager() && color_menu_enabled_) {
+    QStringList displays = gl_widget_->color_manager()->ListAvailableDisplays();
+    QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
+    connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ColorDisplayChanged);
+    foreach (const QString& d, displays) {
+      QAction* action = ocio_display_menu->addAction(d);
+      action->setCheckable(true);
+      action->setChecked(gl_widget_->ocio_display() == d);
+      action->setData(d);
+    }
+
+    QStringList views = gl_widget_->color_manager()->ListAvailableViews(gl_widget_->ocio_display());
+    QMenu* ocio_view_menu = menu.addMenu(tr("View"));
+    connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ColorViewChanged);
+    foreach (const QString& v, views) {
+      QAction* action = ocio_view_menu->addAction(v);
+      action->setCheckable(true);
+      action->setChecked(gl_widget_->ocio_view() == v);
+      action->setData(v);
+    }
+
+    QStringList looks = gl_widget_->color_manager()->ListAvailableLooks();
+    QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
+    connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ColorLookChanged);
+    QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
+    no_look_action->setCheckable(true);
+    no_look_action->setChecked(gl_widget_->ocio_look().isEmpty());
+    foreach (const QString& l, looks) {
+      QAction* action = ocio_look_menu->addAction(l);
+      action->setCheckable(true);
+      action->setChecked(gl_widget_->ocio_look() == l);
+      action->setData(l);
+    }
+
+    menu.addSeparator();
+  }
+
+  // Playback resolution
+  QMenu* playback_resolution_menu = menu.addMenu(tr("Resolution"));
+  playback_resolution_menu->addAction(tr("Full"))->setData(1);
+  playback_resolution_menu->addAction(tr("1/2"))->setData(2);
+  playback_resolution_menu->addAction(tr("1/4"))->setData(4);
+  playback_resolution_menu->addAction(tr("1/8"))->setData(8);
+  playback_resolution_menu->addAction(tr("1/16"))->setData(16);
+  connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
+
+  foreach (QAction* a, playback_resolution_menu->actions()) {
+    a->setCheckable(true);
+    if (a->data() == divider_) {
+      a->setChecked(true);
+    }
+  }
+
+  menu.exec(mapToGlobal(pos));
 }
 
 void ViewerWidget::RulerTimeChange(int64_t i)
@@ -460,4 +525,33 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 {
   // Set scrollbar page step to the width
   scrollbar_->setPageStep(event->size().width());
+}
+
+void ViewerWidget::ColorDisplayChanged(QAction* action)
+{
+  SetOCIODisplay(action->data().toString());
+}
+
+void ViewerWidget::ColorViewChanged(QAction *action)
+{
+  SetOCIOView(action->data().toString());
+}
+
+void ViewerWidget::ColorLookChanged(QAction *action)
+{
+  SetOCIOLook(action->data().toString());
+}
+
+void ViewerWidget::SetDividerFromMenu(QAction *action)
+{
+  int divider = action->data().toInt();
+
+  if (divider <= 0) {
+    qWarning() << "Tried to set invalid divider:" << divider;
+    return;
+  }
+
+  divider_ = divider;
+
+  UpdateRendererParameters();
 }

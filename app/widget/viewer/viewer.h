@@ -67,6 +67,12 @@ public:
 
   ViewerOutput* GetConnectedViewer() const;
 
+  /**
+   * @brief Enable or disable the color management menu
+   *
+   * While the Viewer is _always_ color managed, In some contexts, the color management may be controlled from an
+   * external UI making the menu unnecessary.
+   */
   void SetColorMenuEnabled(bool enabled);
 
   void SetOverrideSize(int width, int height);
@@ -173,6 +179,10 @@ private:
 
   int64_t last_time_;
 
+  bool color_menu_enabled_;
+
+  int divider_;
+
 private slots:
   void RulerTimeChange(int64_t);
 
@@ -186,6 +196,25 @@ private slots:
   void LengthChangedSlot(const rational& length);
 
   void UpdateRendererParameters();
+
+  void ShowContextMenu(const QPoint& pos);
+
+  /**
+   * @brief Slot called whenever this viewer's OCIO display setting has changed
+   */
+  void ColorDisplayChanged(QAction* action);
+
+  /**
+   * @brief Slot called whenever this viewer's OCIO view setting has changed
+   */
+  void ColorViewChanged(QAction* action);
+
+  /**
+   * @brief Slot called whenever this viewer's OCIO look setting has changed
+   */
+  void ColorLookChanged(QAction* action);
+
+  void SetDividerFromMenu(QAction* action);
 
 };
 

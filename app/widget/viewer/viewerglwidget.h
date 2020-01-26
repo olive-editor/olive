@@ -78,14 +78,6 @@ public:
   ViewerGLWidget& operator=(ViewerGLWidget&& other) = delete;
 
   /**
-   * @brief Enable or disable the color management menu
-   *
-   * While the Viewer is _always_ color managed, In some contexts, the color management may be controlled from an
-   * external UI making the menu unnecessary.
-   */
-  void SetColorMenuEnabled(bool enabled);
-
-  /**
    * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
    */
   void ConnectColorManager(ColorManager* color_manager);
@@ -134,6 +126,12 @@ public slots:
    * This value must be a valid display in the current OCIO configuration.
    */
   void SetOCIOLook(const QString& look);
+
+  ColorManager* color_manager() const;
+
+  const QString& ocio_display() const;
+  const QString& ocio_view() const;
+  const QString& ocio_look() const;
 
 protected:
   /**
@@ -208,8 +206,6 @@ private:
    */
   QMatrix4x4 matrix_;
 
-  bool color_menu_enabled_;
-
 private slots:
   /**
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
@@ -217,29 +213,9 @@ private slots:
   void ContextCleanup();
 
   /**
-   * @brief Show context menu
-   */
-  void ShowContextMenu(const QPoint& pos);
-
-  /**
    * @brief Sets all color settings to the defaults pertaining to this configuration
    */
   void RefreshColorPipeline();
-
-  /**
-   * @brief Slot called whenever this viewer's OCIO display setting has changed
-   */
-  void ColorDisplayChanged(QAction* action);
-
-  /**
-   * @brief Slot called whenever this viewer's OCIO view setting has changed
-   */
-  void ColorViewChanged(QAction* action);
-
-  /**
-   * @brief Slot called whenever this viewer's OCIO look setting has changed
-   */
-  void ColorLookChanged(QAction* action);
 
 };
 

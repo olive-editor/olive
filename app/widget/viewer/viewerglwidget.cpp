@@ -20,7 +20,6 @@
 
 #include "viewerglwidget.h"
 
-#include <QMenu>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
@@ -32,21 +31,14 @@ ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
   texture_(0),
   ocio_lut_(0),
-  color_manager_(nullptr),
-  color_menu_enabled_(true)
+  color_manager_(nullptr)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ShowContextMenu(const QPoint&)));
 }
 
 ViewerGLWidget::~ViewerGLWidget()
 {
   ContextCleanup();
-}
-
-void ViewerGLWidget::SetColorMenuEnabled(bool enabled)
-{
-  color_menu_enabled_ = enabled;
 }
 
 void ViewerGLWidget::ConnectColorManager(ColorManager *color_manager)
@@ -94,6 +86,26 @@ void ViewerGLWidget::SetOCIOLook(const QString &look)
   ocio_look_ = look;
   SetupColorProcessor();
   update();
+}
+
+ColorManager *ViewerGLWidget::color_manager() const
+{
+  return color_manager_;
+}
+
+const QString &ViewerGLWidget::ocio_display() const
+{
+  return ocio_display_;
+}
+
+const QString &ViewerGLWidget::ocio_view() const
+{
+  return ocio_view_;
+}
+
+const QString &ViewerGLWidget::ocio_look() const
+{
+  return ocio_look_;
 }
 
 void ViewerGLWidget::SetTexture(OpenGLTexturePtr tex)
@@ -212,61 +224,4 @@ void ViewerGLWidget::ContextCleanup()
   pipeline_ = nullptr;
 
   doneCurrent();
-}
-
-void ViewerGLWidget::ShowContextMenu(const QPoint &pos)
-{
-  QMenu menu;
-
-  if (color_menu_enabled_) {
-    QStringList displays = color_manager_->ListAvailableDisplays();
-    QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
-    connect(ocio_display_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorDisplayChanged(QAction*)));
-    foreach (const QString& d, displays) {
-      QAction* action = ocio_display_menu->addAction(d);
-      action->setCheckable(true);
-      action->setChecked(ocio_display_ == d);
-      action->setData(d);
-    }
-
-    QStringList views = color_manager_->ListAvailableViews(ocio_display_);
-    QMenu* ocio_view_menu = menu.addMenu(tr("View"));
-    connect(ocio_view_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorViewChanged(QAction*)));
-    foreach (const QString& v, views) {
-      QAction* action = ocio_view_menu->addAction(v);
-      action->setCheckable(true);
-      action->setChecked(ocio_view_ == v);
-      action->setData(v);
-    }
-
-    QStringList looks = color_manager_->ListAvailableLooks();
-    QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
-    connect(ocio_look_menu, SIGNAL(triggered(QAction*)), this, SLOT(ColorLookChanged(QAction*)));
-    QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
-    no_look_action->setCheckable(true);
-    no_look_action->setChecked(ocio_look_.isEmpty());
-    foreach (const QString& l, looks) {
-      QAction* action = ocio_look_menu->addAction(l);
-      action->setCheckable(true);
-      action->setChecked(ocio_look_ == l);
-      action->setData(l);
-    }
-  }
-
-  menu.exec(mapToGlobal(pos));
-}
-
-void ViewerGLWidget::ColorDisplayChanged(QAction* action)
-{
-  SetOCIODisplay(action->data().toString());
-}
-
-void ViewerGLWidget::ColorViewChanged(QAction *action)
-{
-  SetOCIOView(action->data().toString());
-}
-
-void ViewerGLWidget::ColorLookChanged(QAction *action)
-{
-  SetOCIOLook(action->data().toString());
 }
