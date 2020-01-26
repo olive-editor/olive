@@ -158,10 +158,10 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::SetDefaultLayout()
 {
+  task_man_panel_->close();
   task_man_panel_->setFloating(true);
-  task_man_panel_->setVisible(false);
+  curve_panel_->close();
   curve_panel_->setFloating(true);
-  curve_panel_->setVisible(false);
 
   resizeDocks({node_panel_, param_panel_, viewer_panel_},
               {width()/3, width()/3, width()/3},
