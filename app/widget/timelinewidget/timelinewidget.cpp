@@ -850,9 +850,12 @@ void TimelineWidget::ShowContextMenu()
 {
   Menu menu(this);
 
-  //QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
-  QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
-  connect(speed_duration_action, SIGNAL(triggered(bool)), this, SLOT(ShowSpeedDurationDialog()));
+  QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+
+  if (!selected.isEmpty()) {
+    QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
+    connect(speed_duration_action, SIGNAL(triggered(bool)), this, SLOT(ShowSpeedDurationDialog()));
+  }
 
   menu.exec(QCursor::pos());
 }
@@ -866,6 +869,11 @@ void TimelineWidget::ShowSpeedDurationDialog()
     if (item->block()->type() == Block::kClip) {
       selected_clips.append(static_cast<ClipBlock*>(item->block()));
     }
+  }
+
+  if (selected_clips.isEmpty()) {
+    // SpeedDurationDialog expects at least one clip
+    return;
   }
 
   SpeedDurationDialog speed_diag(timebase(), selected_clips, this);
