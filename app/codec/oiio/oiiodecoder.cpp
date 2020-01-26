@@ -42,17 +42,24 @@ bool OIIODecoder::Probe(Footage *f)
 {
   // We prioritize OIIO over FFmpeg to pick up still images more effectively, but some OIIO decoders (notably OpenJPEG)
   // will segfault entirely if given unexpected data (an MPEG-4 for instance). To workaround this issue, we use OIIO's
-  // "extension_list" attribute and match it with the extension of the file. 
+  // "extension_list" attribute and match it with the extension of the file.
 
   // Check if we've created the supported formats list, create it if not
   if (supported_formats_.isEmpty()) {
-    supported_formats_ = QString::fromStdString(OIIO::get_string_attribute("extension_list")).split(';');
+    QStringList extension_list = QString::fromStdString(OIIO::get_string_attribute("extension_list")).split(';');
+
+    // The format of "extension_list" is "format:ext", we want to separate it into a simple list of extensions
+    foreach (const QString& ext, extension_list) {
+      QStringList format_and_ext = ext.split(':');
+
+      supported_formats_.append(format_and_ext.at(1).split(','));
+    }
   }
 
-  // 
+  //
   QFileInfo file_info(f->filename());
 
-  if (!supported_formats_.contains(file_info.completeSuffix())) {
+  if (!supported_formats_.contains(file_info.completeSuffix(), Qt::CaseInsensitive)) {
     return false;
   }
 
