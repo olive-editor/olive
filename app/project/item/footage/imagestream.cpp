@@ -34,7 +34,11 @@ ImageStream::ImageStream() :
 void ImageStream::FootageSetEvent(Footage *f)
 {
   // For some reason this connection fails if we don't explicitly specify DirectConnection
-  connect(f->project()->color_manager(), SIGNAL(ConfigChanged()), this, SLOT(ColorConfigChanged()), Qt::DirectConnection);
+  connect(f->project()->color_manager(),
+          &ColorManager::ConfigChanged,
+          this,
+          &ImageStream::ColorConfigChanged,
+          Qt::DirectConnection);
 }
 
 void ImageStream::LoadCustomParameters(QXmlStreamReader *reader)
@@ -107,7 +111,7 @@ void ImageStream::set_colorspace(const QString &color)
 
 void ImageStream::ColorConfigChanged()
 {
-  ColorManager* color_manager = static_cast<ColorManager*>(sender());
+  ColorManager* color_manager = footage()->project()->color_manager();
 
   // Check if this colorspace is in the new config
   if (!colorspace_.isEmpty()) {
