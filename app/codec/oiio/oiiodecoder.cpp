@@ -139,6 +139,9 @@ void OIIODecoder::Close()
 {
   if (image_ != nullptr) {
     image_->close();
+#if OIIO_VERSION < 10903
+    OIIO::ImageInput::destroy(image_);
+#endif
     image_ = nullptr;
   }
 

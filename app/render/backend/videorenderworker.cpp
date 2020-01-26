@@ -226,12 +226,16 @@ void VideoRenderWorker::Download(QVariant texture, QString filename)
 
   std::string working_fn_std = filename.toStdString();
 
-  std::unique_ptr<OIIO::ImageOutput> out = OIIO::ImageOutput::create(working_fn_std);
+  auto out = OIIO::ImageOutput::create(working_fn_std);
 
   if (out) {
     out->open(working_fn_std, spec);
     out->write_image(format_info.oiio_desc, download_buffer_.data());
     out->close();
+
+#if OIIO_VERSION < 10903
+    OIIO::ImageOutput::destroy(out);
+#endif
   } else {
     qWarning() << "Failed to open output file:" << filename;
   }

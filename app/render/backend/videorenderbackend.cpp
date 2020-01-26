@@ -211,6 +211,10 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
 
         in->close();
 
+#if OIIO_VERSION < 10903
+        OIIO::ImageInput::destroy(in);
+#endif
+
         return cache_frame_load_buffer_.constData();
       } else {
         qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
