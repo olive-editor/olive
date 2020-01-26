@@ -21,8 +21,11 @@
 #include "oiiodecoder.h"
 
 #include <QDebug>
+#include <QFileInfo>
 
 #include "common/define.h"
+
+QStringList OIIODecoder::supported_formats_;
 
 OIIODecoder::OIIODecoder() :
   image_(nullptr),
@@ -37,6 +40,22 @@ QString OIIODecoder::id()
 
 bool OIIODecoder::Probe(Footage *f)
 {
+  // We prioritize OIIO over FFmpeg to pick up still images more effectively, but some OIIO decoders (notably OpenJPEG)
+  // will segfault entirely if given unexpected data (an MPEG-4 for instance). To workaround this issue, we use OIIO's
+  // "extension_list" attribute and match it with the extension of the file. 
+
+  // Check if we've created the supported formats list, create it if not
+  if (supported_formats_.isEmpty()) {
+    supported_formats_ = QString::fromStdString(OIIO::get_string_attribute("extension_list")).split(';');
+  }
+
+  // 
+  QFileInfo file_info(f->filename());
+
+  if (!supported_formats_.contains(file_info.completeSuffix())) {
+    return false;
+  }
+
   std::string std_filename = f->filename().toStdString();
 
   auto in = OIIO::ImageInput::open(std_filename);

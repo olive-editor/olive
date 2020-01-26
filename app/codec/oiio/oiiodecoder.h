@@ -64,6 +64,8 @@ private:
 
   FramePtr frame_;
 
+  static QStringList supported_formats_;
+
 };
 
 #endif // OIIODECODER_H
