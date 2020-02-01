@@ -74,6 +74,7 @@ void Config::SetDefaults()
   config_map_["AutoscaleByDefault"] = false;
   config_map_["Autoscroll"] = AutoScroll::kPage;
   config_map_["DefaultViewerDivider"] = 2;
+  config_map_["AutoSelectDivider"] = false;
 
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   config_map_["DiskCacheSize"] = 20.0;

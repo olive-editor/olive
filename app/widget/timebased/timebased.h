@@ -66,6 +66,8 @@ protected:
 
   virtual void DisconnectNodeInternal(ViewerOutput*){}
 
+  void SetAutoMaxScrollBar(bool e);
+
   virtual void resizeEvent(QResizeEvent *event) override;
 
 signals:
@@ -79,6 +81,11 @@ private:
   TimeRuler* ruler_;
 
   QScrollBar* scrollbar_;
+
+  bool auto_max_scrollbar_;
+
+private slots:
+  void UpdateMaximumScroll();
 
 };
 

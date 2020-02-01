@@ -78,7 +78,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(&playback_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
 
   // FIXME: Magic number
-  ruler()->SetScale(48.0);
+  SetScale(48.0);
 
   // Start background renderers
   video_renderer_ = new OpenGLBackend(this);
@@ -89,6 +89,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   audio_renderer_ = new AudioBackend(this);
 
   connect(PixelService::instance(), &PixelService::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
+
+  SetAutoMaxScrollBar(true);
 }
 
 void ViewerWidget::TimeChangedEvent(const int64_t &i)
@@ -130,6 +132,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
     qWarning() << "Failed to find a suitable color manager for the connected viewer node";
   }
 
+  divider_ = CalculateDivider();
+
   UpdateRendererParameters();
 }
 
@@ -152,6 +156,18 @@ void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
   video_renderer_->SetViewerNode(n);
   audio_renderer_->SetViewerNode(n);
+}
+
+void ViewerWidget::resizeEvent(QResizeEvent *event)
+{
+  TimeBasedWidget::resizeEvent(event);
+
+  int new_div = CalculateDivider();
+  if (new_div != divider_) {
+    divider_ = new_div;
+
+    UpdateRendererParameters();
+  }
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -259,6 +275,18 @@ void ViewerWidget::PushScrubbedAudio()
   }
 }
 
+int ViewerWidget::CalculateDivider()
+{
+  if (GetConnectedNode() && Config::Current()["AutoSelectDivider"].toBool()) {
+    int long_side_of_video = qMax(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
+    int long_side_of_widget = qMax(gl_widget_->width(), gl_widget_->height());
+
+    return qMax(1, long_side_of_video / long_side_of_widget);
+  }
+
+  return divider_;
+}
+
 void ViewerWidget::UpdateRendererParameters()
 {
   if (!GetConnectedNode()) {
@@ -279,7 +307,7 @@ void ViewerWidget::UpdateRendererParameters()
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
 {
-  QMenu menu;
+  QMenu menu(this);
 
   // Color options
   if (gl_widget_->color_manager() && color_menu_enabled_) {

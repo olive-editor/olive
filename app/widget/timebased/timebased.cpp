@@ -4,7 +4,8 @@
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
   QWidget(parent),
-  viewer_node_(nullptr)
+  viewer_node_(nullptr),
+  auto_max_scrollbar_(false)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
@@ -31,6 +32,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 {
   if (viewer_node_) {
     DisconnectNodeInternal(viewer_node_);
+
+    disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
   }
 
   viewer_node_ = node;
@@ -39,7 +42,18 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
   if (viewer_node_) {
     ConnectNodeInternal(viewer_node_);
+
+    connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
   }
+}
+
+void TimeBasedWidget::UpdateMaximumScroll()
+{
+  if (!viewer_node_ || !auto_max_scrollbar_) {
+    return;
+  }
+
+  scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(viewer_node_->Length())) - width()));
 }
 
 TimeRuler *TimeBasedWidget::ruler() const
@@ -66,6 +80,13 @@ void TimeBasedWidget::ScaleChangedEvent(const double &scale)
   TimelineScaledObject::ScaleChangedEvent(scale);
 
   ruler_->SetScale(scale);
+
+  UpdateMaximumScroll();
+}
+
+void TimeBasedWidget::SetAutoMaxScrollBar(bool e)
+{
+  auto_max_scrollbar_ = e;
 }
 
 void TimeBasedWidget::resizeEvent(QResizeEvent *event)
@@ -74,6 +95,8 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
 
   // Update horizontal scrollbar's page step to the width of the panel
   scrollbar()->setPageStep(scrollbar()->width());
+
+  UpdateMaximumScroll();
 }
 
 void TimeBasedWidget::SetTime(int64_t timestamp)

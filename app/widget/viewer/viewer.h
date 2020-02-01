@@ -122,6 +122,8 @@ protected:
   virtual void DisconnectNodeInternal(ViewerOutput *) override;
   virtual void ConnectedNodeChanged(ViewerOutput*n) override;
 
+  virtual void resizeEvent(QResizeEvent *event) override;
+
   OpenGLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
 
@@ -133,6 +135,8 @@ private:
   void PlayInternal(int speed);
 
   void PushScrubbedAudio();
+
+  int CalculateDivider();
 
   ViewerSizer* sizer_;
 
