@@ -45,14 +45,6 @@ ToolPanel::ToolPanel(QWidget *parent) :
   Retranslate();
 }
 
-void ToolPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void ToolPanel::Retranslate()
 {
   SetTitle(tr("Tools"));

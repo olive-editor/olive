@@ -32,11 +32,8 @@ class ToolPanel : public PanelWidget
 public:
   ToolPanel(QWidget* parent);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
 };
 
