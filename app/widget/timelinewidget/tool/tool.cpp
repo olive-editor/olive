@@ -20,7 +20,7 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
-#include <float.h>
+#include <cfloat>
 
 #include "common/range.h"
 #include "node/block/transition/transition.h"

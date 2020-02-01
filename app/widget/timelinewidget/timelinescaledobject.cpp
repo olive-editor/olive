@@ -1,5 +1,6 @@
 #include "timelinescaledobject.h"
 
+#include <cfloat>
 #include <QtMath>
 
 TimelineScaledObject::TimelineScaledObject() :
