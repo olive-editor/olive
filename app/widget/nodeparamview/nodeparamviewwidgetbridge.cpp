@@ -376,7 +376,7 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // Widget is a IntegerSlider
     IntegerSlider* slider = static_cast<IntegerSlider*>(sender());
 
-    ProcessSlider(slider, slider->GetValue());
+    ProcessSlider(slider, QVariant::fromValue(slider->GetValue()));
     break;
   }
   case NodeParam::kFloat:
