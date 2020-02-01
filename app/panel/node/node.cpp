@@ -49,14 +49,6 @@ void NodePanel::DeleteSelected()
   node_view_->DeleteSelected();
 }
 
-void NodePanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void NodePanel::Retranslate()
 {
   SetTitle(tr("Node Editor"));

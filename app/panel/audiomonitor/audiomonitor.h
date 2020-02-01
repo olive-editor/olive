@@ -12,13 +12,11 @@ class AudioMonitorPanel : public PanelWidget
 public:
   AudioMonitorPanel(QWidget* parent = nullptr);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
   AudioMonitor* audio_monitor_;
+
 };
 
 #endif // AUDIOMONITORPANEL_H

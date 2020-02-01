@@ -13,14 +13,6 @@ AudioMonitorPanel::AudioMonitorPanel(QWidget *parent) :
   Retranslate();
 }
 
-void AudioMonitorPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void AudioMonitorPanel::Retranslate()
 {
   SetTitle(tr("Audio Monitor"));

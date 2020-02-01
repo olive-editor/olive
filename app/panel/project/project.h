@@ -46,11 +46,8 @@ public:
 public slots:
   void Edit(Item *item);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
   ProjectExplorer* explorer_;
 

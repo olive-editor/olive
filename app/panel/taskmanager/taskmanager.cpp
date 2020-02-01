@@ -41,14 +41,6 @@ TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   Retranslate();
 }
 
-void TaskManagerPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void TaskManagerPanel::Retranslate()
 {
   SetTitle(tr("Task Manager"));

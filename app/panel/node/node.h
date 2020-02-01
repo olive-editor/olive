@@ -37,9 +37,6 @@ public:
 
   virtual void DeleteSelected() override;
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
 signals:
   /**
    * @brief Wrapper for NodeView::SelectionChanged()
@@ -47,7 +44,7 @@ signals:
   void SelectionChanged(QList<Node*> selected_nodes);
 
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
   NodeView* node_view_;
 };

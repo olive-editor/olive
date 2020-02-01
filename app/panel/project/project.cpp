@@ -108,14 +108,6 @@ void ProjectPanel::Edit(Item* item)
   explorer_->Edit(item);
 }
 
-void ProjectPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void ProjectPanel::Retranslate()
 {
   SetTitle(tr("Project"));

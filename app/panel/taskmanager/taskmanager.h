@@ -33,11 +33,8 @@ class TaskManagerPanel : public PanelWidget
 public:
   TaskManagerPanel(QWidget* parent);
 
-protected:
-  virtual void changeEvent(QEvent* e) override;
-
 private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
   TaskView* view_;
 };
