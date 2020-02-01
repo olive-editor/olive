@@ -21,59 +21,35 @@
 #include "param.h"
 
 ParamPanel::ParamPanel(QWidget* parent) :
-  PanelWidget(parent)
+  TimeBasedPanel(parent)
 {
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("ParamPanel");
 
-  view_ = new NodeParamView(this);
-  connect(view_, &NodeParamView::TimeChanged, this, &ParamPanel::TimeChanged);
-  connect(view_, &NodeParamView::SelectedInputChanged, this, &ParamPanel::SelectedInputChanged);
-  connect(view_, &NodeParamView::TimebaseChanged, this, &ParamPanel::TimebaseChanged);
-
-  setWidget(view_);
+  NodeParamView* view = new NodeParamView();
+  connect(view, &NodeParamView::SelectedInputChanged, this, &ParamPanel::SelectedInputChanged);
+  SetTimeBasedWidget(view);
 
   Retranslate();
-}
-
-void ParamPanel::ZoomIn()
-{
-  view_->SetScale(view_->GetScale() * 2);
-}
-
-void ParamPanel::ZoomOut()
-{
-  view_->SetScale(view_->GetScale() * 0.5);
 }
 
 void ParamPanel::SetNodes(QList<Node *> nodes)
 {
-  view_->SetNodes(nodes);
+  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetNodes(nodes);
 
   Retranslate();
-}
-
-void ParamPanel::SetTime(const int64_t &timestamp)
-{
-  view_->SetTime(timestamp);
-}
-
-void ParamPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
 }
 
 void ParamPanel::Retranslate()
 {
   SetTitle(tr("Parameter Editor"));
 
-  if (view_->nodes().isEmpty()) {
+  NodeParamView* view = static_cast<NodeParamView*>(GetTimeBasedWidget());
+
+  if (view->nodes().isEmpty()) {
     SetSubtitle(tr("(none)"));
-  } else if (view_->nodes().size() == 1) {
-    SetSubtitle(view_->nodes().first()->Name());
+  } else if (view->nodes().size() == 1) {
+    SetSubtitle(view->nodes().first()->Name());
   } else {
     SetSubtitle(tr("(multiple)"));
   }

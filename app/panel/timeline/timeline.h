@@ -21,14 +21,13 @@
 #ifndef TIMELINE_PANEL_H
 #define TIMELINE_PANEL_H
 
-#include "widget/panel/panel.h"
-
+#include "panel/timebased/timebased.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
 /**
  * @brief Panel container for a TimelineWidget
  */
-class TimelinePanel : public PanelWidget
+class TimelinePanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
@@ -36,15 +35,7 @@ public:
 
   void Clear();
 
-  void ConnectTimelineNode(ViewerOutput* node);
-
-  void DisconnectTimelineNode();
-
   void SplitAtPlayhead();
-
-  virtual void ZoomIn() override;
-
-  virtual void ZoomOut() override;
 
   virtual void SelectAll() override;
 
@@ -58,31 +49,14 @@ public:
 
   virtual void EditToOut() override;
 
-  virtual void GoToPrevCut() override;
-
-  virtual void GoToNextCut() override;
-
   virtual void DeleteSelected() override;
 
   virtual void IncreaseTrackHeight() override;
 
   virtual void DecreaseTrackHeight() override;
 
-public slots:
-  void SetTimebase(const rational& timebase);
-
-  void SetTime(const int64_t& timestamp);
-
 protected:
-  virtual void changeEvent(QEvent* e) override;
-
-signals:
-  void TimeChanged(const int64_t& time);
-
-private:
-  void Retranslate();
-
-  TimelineWidget* timeline_widget_;
+  virtual void Retranslate() override;
 
 };
 

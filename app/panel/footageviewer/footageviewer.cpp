@@ -28,11 +28,8 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("FootageViewerPanel");
 
-  // QObject system handles deleting this
-  viewer_ = new FootageViewerWidget(this);
-
   // Set ViewerWidget as the central widget
-  setWidget(viewer_);
+  SetTimeBasedWidget(new FootageViewerWidget());
 
   // Set strings
   Retranslate();
@@ -40,7 +37,7 @@ FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
 
 void FootageViewerPanel::SetFootage(Footage *f)
 {
-  static_cast<FootageViewerWidget*>(viewer_)->SetFootage(f);
+  static_cast<FootageViewerWidget*>(GetTimeBasedWidget())->SetFootage(f);
 
   if (f) {
     SetSubtitle(f->name());
@@ -49,19 +46,9 @@ void FootageViewerPanel::SetFootage(Footage *f)
   }
 }
 
-void FootageViewerPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void FootageViewerPanel::Retranslate()
 {
-  SetTitle(tr("Footage Viewer"));
+  ViewerPanelBase::Retranslate();
 
-  if (!static_cast<FootageViewerWidget*>(viewer_)->GetFootage()) {
-    SetSubtitle(tr("(none)"));
-  }
+  SetTitle(tr("Footage Viewer"));
 }

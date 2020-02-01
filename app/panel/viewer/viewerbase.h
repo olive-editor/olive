@@ -1,28 +1,16 @@
 #ifndef VIEWERPANELBASE_H
 #define VIEWERPANELBASE_H
 
-#include "widget/panel/panel.h"
+#include "panel/timebased/timebased.h"
 #include "widget/viewer/viewer.h"
 
-class ViewerPanelBase : public PanelWidget
+class ViewerPanelBase : public TimeBasedPanel
 {
   Q_OBJECT
 public:
   ViewerPanelBase(QWidget* parent = nullptr);
 
-  virtual void ZoomIn() override;
-
-  virtual void ZoomOut() override;
-
-  virtual void GoToStart() override;
-
-  virtual void PrevFrame() override;
-
   virtual void PlayPause() override;
-
-  virtual void NextFrame() override;
-
-  virtual void GoToEnd() override;
 
   virtual void ShuttleLeft() override;
 
@@ -30,10 +18,7 @@ public:
 
   virtual void ShuttleRight() override;
 
-protected:
-  ViewerWidget* viewer_;
-
-private:
+  void ConnectTimeBasedPanel(TimeBasedPanel* panel);
 
 };
 

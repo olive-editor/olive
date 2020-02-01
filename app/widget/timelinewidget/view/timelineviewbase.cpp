@@ -27,7 +27,7 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   scene_.addItem(end_item_);
 
   // Set default scale
-  SetScale(1.0, true);
+  SetScaleAndCenterOnPlayhead(1.0);
 
   SetDefaultDragMode(NoDrag);
 
@@ -35,30 +35,12 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
 
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineViewBase::ApplicationToolChanged);
+
+  SetMaximumScale(kMaximumScale);
 }
 
-void TimelineViewBase::SetScale(const double &scale, bool center_on_playhead)
+void TimelineViewBase::TimebaseChangedEvent(const rational &)
 {
-  scale_ = qMin(scale, kMaximumScale);
-
-  end_item_->SetScale(scale_);
-
-  ScaleChangedEvent(scale_);
-
-  // Force redraw for playhead
-  viewport()->update();
-
-  if (center_on_playhead) {
-    // Zoom towards the playhead
-    // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
-    QTimer::singleShot(0, this, &TimelineViewBase::CenterScrollOnPlayhead);
-  }
-}
-
-void TimelineViewBase::SetTimebase(const rational &timebase)
-{
-  SetTimebaseInternal(timebase);
-
   // Timebase influences position/visibility of playhead
   viewport()->update();
 }
@@ -298,9 +280,23 @@ void TimelineViewBase::resizeEvent(QResizeEvent *event)
   UpdateSceneRect();
 }
 
-void TimelineViewBase::ScaleChangedEvent(double scale)
+void TimelineViewBase::ScaleChangedEvent(const double &scale)
 {
-  Q_UNUSED(scale)
+  TimelineScaledObject::ScaleChangedEvent(scale);
+
+  end_item_->SetScale(scale);
+
+  // Force redraw for playhead
+  viewport()->update();
+}
+
+void TimelineViewBase::SetScaleAndCenterOnPlayhead(const double &scale)
+{
+  SetScale(scale);
+
+  // Zoom towards the playhead
+  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
+  QTimer::singleShot(0, this, &TimelineViewBase::CenterScrollOnPlayhead);
 }
 
 bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
@@ -309,9 +305,9 @@ bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)
     // If CTRL is held (or a preference is set to swap CTRL behavior), we zoom instead of scrolling
     if (event->delta() != 0) {
       if (event->delta() > 0) {
-        emit ScaleChanged(scale_ * 2.0);
+        emit ScaleChanged(GetScale() * 2.0);
       } else {
-        emit ScaleChanged(scale_ * 0.5);
+        emit ScaleChanged(GetScale() * 0.5);
       }
     }
 

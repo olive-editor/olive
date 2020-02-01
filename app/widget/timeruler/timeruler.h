@@ -34,7 +34,7 @@ class TimeRuler : public QWidget
 public:
   TimeRuler(bool text_visible = true, bool cache_status_visible = false, QWidget* parent = nullptr);
 
-  const double& scale();
+  const double& GetScale();
   void SetScale(const double& d);
 
   void SetTimebase(const rational& r);

@@ -274,7 +274,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
                             command);
     } else {
       // Normal block placement
-      new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
+      new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track_ref.type()),
                                  track_ref.index(),
                                  b,
                                  ghost->GetAdjustedIn(),
@@ -284,7 +284,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
 
   if (command->childCount() > 0) {
     foreach (const TrackReference& t, tracks_affected) {
-      new TrackCleanGapsCommand(parent()->timeline_node_->track_list(t.type()),
+      new TrackCleanGapsCommand(parent()->GetConnectedNode()->track_list(t.type()),
                                 t.index(),
                                 command);
     }

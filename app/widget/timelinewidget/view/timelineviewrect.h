@@ -39,11 +39,11 @@ public:
   const TrackReference& Track();
   void SetTrack(const TrackReference& track);
 
-  void SetScale(const double& scale);
-
   virtual void UpdateRect() = 0;
 
 protected:
+  virtual void ScaleChangedEvent(const double &) override;
+
   int y_;
 
   int height_;

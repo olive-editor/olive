@@ -53,7 +53,7 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   painter->setPen(QPen(palette().window().color(), 1));
 
   do {
-    x_grid_interval = qRound(x_interval * scale_ * timebase_dbl());
+    x_grid_interval = qRound(x_interval * GetScale() * timebase_dbl());
     x_interval *= 2.0;
   } while (x_grid_interval < minimum_grid_space_);
 
@@ -70,7 +70,7 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
 
   // Add vertical lines
   for (int i=x_start;i<rect.right();i+=x_grid_interval) {
-    int value = qRound(static_cast<double>(i) / scale_ / timebase_dbl());
+    int value = qRound(static_cast<double>(i) / GetScale() / timebase_dbl());
     painter->drawText(i + text_padding_, qRound(scene_bottom_left.y()) - text_padding_, QString::number(value));
     lines.append(QLine(i, qRound(rect.top()), i, qRound(rect.bottom())));
   }
@@ -183,7 +183,7 @@ void CurveView::KeyframeAboutToBeRemoved(NodeKeyframe *key)
   disconnect(key, &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);
 }
 
-void CurveView::ScaleChangedEvent(double scale)
+void CurveView::ScaleChangedEvent(const double& scale)
 {
   KeyframeViewBase::ScaleChangedEvent(scale);
 
@@ -208,10 +208,10 @@ void CurveView::wheelEvent(QWheelEvent *event)
   if (WheelEventIsAZoomEvent(event)) {
     if (event->delta() != 0) {
       if (event->delta() > 0) {
-        emit ScaleChanged(scale_ * 1.1);
+        emit ScaleChanged(GetScale() * 1.1);
         SetYScale(y_scale_ * 1.1);
       } else {
-        emit ScaleChanged(scale_ * 0.9);
+        emit ScaleChanged(GetScale() * 0.9);
         SetYScale(y_scale_ * 0.9);
       }
     }
@@ -259,18 +259,18 @@ void CurveView::SetItemYFromKeyframeValue(NodeKeyframe *key, KeyframeViewItem *i
 QPointF CurveView::ScalePoint(const QPointF &point)
 {
   // Flips Y coordinate because curves are drawn bottom to top
-  return QPointF(point.x() * scale_, - point.y() * y_scale_);
+  return QPointF(point.x() * GetScale(), - point.y() * y_scale_);
 }
 
 void CurveView::CreateBezierControlPoints(KeyframeViewItem* item)
 {
   BezierControlPointItem* bezier_in_pt = new BezierControlPointItem(item->key(), NodeKeyframe::kInHandle, item);
-  bezier_in_pt->SetXScale(scale_);
+  bezier_in_pt->SetXScale(GetScale());
   bezier_control_points_.append(bezier_in_pt);
   connect(bezier_in_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
 
   BezierControlPointItem* bezier_out_pt = new BezierControlPointItem(item->key(), NodeKeyframe::kOutHandle, item);
-  bezier_out_pt->SetXScale(scale_);
+  bezier_out_pt->SetXScale(GetScale());
   bezier_control_points_.append(bezier_out_pt);
   connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
 }

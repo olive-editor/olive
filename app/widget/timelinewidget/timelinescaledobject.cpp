@@ -3,9 +3,18 @@
 #include <QtMath>
 
 TimelineScaledObject::TimelineScaledObject() :
-  scale_(1.0)
+  scale_(1.0),
+  max_scale_(DBL_MAX)
 {
 
+}
+
+void TimelineScaledObject::SetTimebase(const rational &timebase)
+{
+  timebase_ = timebase;
+  timebase_dbl_ = timebase_.toDouble();
+
+  TimebaseChangedEvent(timebase);
 }
 
 const rational &TimelineScaledObject::timebase() const
@@ -45,8 +54,23 @@ rational TimelineScaledObject::SceneToTime(const double &x, bool round)
   return SceneToTime(x, scale_, timebase_, round);
 }
 
-void TimelineScaledObject::SetTimebaseInternal(const rational &timebase)
+void TimelineScaledObject::SetMaximumScale(const double &max)
 {
-  timebase_ = timebase;
-  timebase_dbl_ = timebase_.toDouble();
+  max_scale_ = max;
+
+  if (GetScale() > max_scale_) {
+    SetScale(max_scale_);
+  }
+}
+
+const double& TimelineScaledObject::GetScale() const
+{
+  return scale_;
+}
+
+void TimelineScaledObject::SetScale(const double& scale)
+{
+  scale_ = scale;
+
+  ScaleChangedEvent(scale_);
 }

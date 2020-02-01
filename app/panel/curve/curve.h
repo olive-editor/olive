@@ -1,10 +1,10 @@
 #ifndef CURVEPANEL_H
 #define CURVEPANEL_H
 
+#include "panel/timebased/timebased.h"
 #include "widget/curvewidget/curvewidget.h"
-#include "widget/panel/panel.h"
 
-class CurvePanel : public PanelWidget
+class CurvePanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
@@ -13,28 +13,12 @@ public:
 public slots:
   void SetInput(NodeInput* input);
 
-  void SetTimebase(const rational& timebase);
-
-  void SetTime(const int64_t& timestamp);
-
-  virtual void ZoomIn() override;
-
-  virtual void ZoomOut() override;
-
   virtual void IncreaseTrackHeight() override;
 
   virtual void DecreaseTrackHeight() override;
 
-signals:
-  void TimeChanged(const int64_t& timestamp);
-
 protected:
-  virtual void changeEvent(QEvent* e) override;
-
-private:
-  void Retranslate();
-
-  CurveWidget* widget_;
+  virtual void Retranslate() override;
 
 };
 

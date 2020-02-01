@@ -46,9 +46,9 @@ void TimelineViewRect::SetTrack(const TrackReference &track)
   track_ = track;
 }
 
-void TimelineViewRect::SetScale(const double &scale)
+void TimelineViewRect::ScaleChangedEvent(const double &scale)
 {
-  scale_ = scale;
+  TimelineScaledObject::ScaleChangedEvent(scale);
 
   UpdateRect();
 }

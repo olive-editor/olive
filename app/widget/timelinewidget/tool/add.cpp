@@ -51,11 +51,11 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->AdjustedLength());
-      new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()),
+      new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
                          clip,
                          command);
 
-      new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track.type()),
+      new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track.type()),
                                  track.index(),
                                  clip,
                                  ghost_->GetAdjustedIn(),

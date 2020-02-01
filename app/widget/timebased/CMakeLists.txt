@@ -14,21 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(audiomonitor)
-add_subdirectory(curve)
-add_subdirectory(footageviewer)
-add_subdirectory(node)
-add_subdirectory(param)
-add_subdirectory(project)
-add_subdirectory(taskmanager)
-add_subdirectory(timebased)
-add_subdirectory(timeline)
-add_subdirectory(tool)
-add_subdirectory(viewer)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  panel/panelmanager.h
-  panel/panelmanager.cpp
+  widget/timebased/timebased.h
+  widget/timebased/timebased.cpp
   PARENT_SCOPE
 )

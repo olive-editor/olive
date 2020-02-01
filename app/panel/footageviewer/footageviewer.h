@@ -36,10 +36,7 @@ public:
   void SetFootage(Footage* f);
 
 protected:
-  virtual void changeEvent(QEvent* e) override;
-
-private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
 };
 

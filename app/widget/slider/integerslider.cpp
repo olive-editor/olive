@@ -26,9 +26,9 @@ IntegerSlider::IntegerSlider(QWidget* parent) :
   connect(this, SIGNAL(ValueChanged(QVariant)), this, SLOT(ConvertValue(QVariant)));
 }
 
-int IntegerSlider::GetValue()
+int64_t IntegerSlider::GetValue()
 {
-  return Value().toInt();
+  return Value().toLongLong();
 }
 
 void IntegerSlider::SetValue(const int64_t &v)

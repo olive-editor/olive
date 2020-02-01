@@ -217,7 +217,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (parent()->HasGhosts()) {
     QUndoCommand* command = new QUndoCommand();
-    NodeGraph* dst_graph = static_cast<NodeGraph*>(parent()->timeline_node_->parent());
+    NodeGraph* dst_graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
     QVector<Block*> block_items(parent()->ghost_items_.size());
 
@@ -269,7 +269,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
       if (event->GetModifiers() & Qt::ControlModifier) {
         //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
       } else {
-        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(ghost->GetAdjustedTrack().type()),
+        new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(ghost->GetAdjustedTrack().type()),
                                    ghost->GetAdjustedTrack().index(),
                                    clip,
                                    ghost->GetAdjustedIn(),

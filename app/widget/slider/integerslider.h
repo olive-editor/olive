@@ -29,7 +29,7 @@ class IntegerSlider : public SliderBase
 public:
   IntegerSlider(QWidget* parent = nullptr);
 
-  int GetValue();
+  int64_t GetValue();
 
   void SetValue(const int64_t& v);
 

@@ -27,6 +27,7 @@
 #include <QStackedWidget>
 
 #include "common/rational.h"
+#include "widget/slider/timeslider.h"
 
 /**
  * @brief A playback controls widget providing buttons for navigating media
@@ -86,18 +87,18 @@ signals:
    */
   void EndClicked();
 
+  void TimeChanged(const int64_t& t);
+
 protected:
   virtual void changeEvent(QEvent *) override;
 
 private:
   void UpdateIcons();
 
-  void SetTimeLabelInternal(QLabel *label, const int64_t &time);
-
   QWidget* lower_left_container_;
   QWidget* lower_right_container_;
 
-  QLabel* cur_tc_lbl_;
+  TimeSlider* cur_tc_lbl_;
   QLabel* end_tc_lbl_;
 
   rational time_base_;

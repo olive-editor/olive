@@ -119,6 +119,10 @@ const QVariant &SliderBase::Value()
 
 void SliderBase::SetValue(const QVariant &v)
 {
+  if (IsDragging()) {
+    return;
+  }
+
   value_ = ClampValue(v);
 
   // Disable tristate
@@ -185,8 +189,7 @@ void SliderBase::UpdateLabel(const QVariant &v)
 
 double SliderBase::AdjustDragDistanceInternal(const double &start, const double &drag)
 {
-  Q_UNUSED(start)
-  return drag;
+  return start + drag;
 }
 
 QString SliderBase::ValueToString(const QVariant &v)
@@ -203,16 +206,13 @@ QVariant SliderBase::StringToValue(const QString &s, bool *ok)
 void SliderBase::LabelPressed()
 {
   dragged_ = false;
-
-  if (mode_ != kString) {
-    dragged_diff_ = 0;
-  }
+  dragged_diff_ = 0;
 }
 
 void SliderBase::LabelClicked()
 {
   if (dragged_) {
-    double drag_val = value_.toDouble() + AdjustDragDistanceInternal(value_.toDouble(), dragged_diff_);
+    dragged_ = false;
 
     // This was a drag
     switch (mode_) {
@@ -220,14 +220,13 @@ void SliderBase::LabelClicked()
       // No-op
       break;
     case kInteger:
-      SetValue(qRound(drag_val));
+      SetValue(temp_dragged_value_.toInt());
       break;
     case kFloat:
-      SetValue(drag_val);
+      SetValue(temp_dragged_value_.toDouble());
       break;
     }
 
-    dragged_ = false;
     emit ValueChanged(value_);
   } else {
     // This was a simple click
@@ -255,11 +254,9 @@ void SliderBase::LabelDragged(int i)
   case kInteger:
   case kFloat:
   {
-    double real_drag = static_cast<double>(i) * drag_multiplier_;
+    dragged_diff_ += static_cast<double>(i) * drag_multiplier_;
 
-    dragged_diff_ += real_drag;
-
-    double drag_val = value_.toDouble() + AdjustDragDistanceInternal(value_.toDouble(), dragged_diff_);
+    double drag_val = AdjustDragDistanceInternal(value_.toDouble(), dragged_diff_);
 
     // Update temporary value
     if (mode_ == kInteger) {

@@ -119,6 +119,9 @@ protected:
    */
   void paintEvent(QPaintEvent *event) override;
 
+  virtual void changeEvent(QEvent* e) override;
+
+  virtual void Retranslate();
 
 protected slots:
   /**

@@ -56,7 +56,7 @@ DiskManager::~DiskManager()
         ds << h.file_size;
       }
     } else {
-      qWarning() << "Failed to write cache index";
+      qWarning() << "Failed to write cache index:" << GetCacheIndexFilename();
     }
   }
 }
@@ -196,5 +196,7 @@ qint64 DiskManager::DiskLimit()
 
 QString DiskManager::GetCacheIndexFilename()
 {
-  return QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)).filePath("diskindex");
+  QDir d(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+  d.mkpath(".");
+  return d.filePath("diskindex");
 }

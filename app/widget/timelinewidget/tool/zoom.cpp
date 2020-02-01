@@ -59,17 +59,17 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
     double scene_right = scene_bottomright.x();
 
     // Normalize scale to 1.0 scale
-    double scene_width = (scene_right - scene_left) / parent()->scale_;
+    double scene_width = (scene_right - scene_left) / parent()->GetScale();
 
     double new_scale = qMin(TimelineViewBase::kMaximumScale, static_cast<double>(reference_view->viewport()->width()) / scene_width);
-    parent()->deferred_scroll_value_ = qMax(0, qRound(scene_left / parent()->scale_ * new_scale));
+    parent()->deferred_scroll_value_ = qMax(0, qRound(scene_left / parent()->GetScale() * new_scale));
 
-    parent()->SetScale(new_scale, false);
+    parent()->SetScale(new_scale);
 
     dragging_ = false;
   } else {
     // Simple zoom in/out at the cursor position
-    double scale = parent()->scale_;
+    double scale = parent()->GetScale();
 
     if (event->GetModifiers() & Qt::AltModifier) {
       // Zoom out if the user clicks while holding Alt
@@ -79,7 +79,7 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
       scale *= 2.0;
     }
 
-    parent()->SetScale(scale, false);
+    parent()->SetScale(scale);
 
     // Adjust scroll location for new scale
     double frame_x = event->GetFrame().toDouble() * scale;

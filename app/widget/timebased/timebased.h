@@ -1,0 +1,85 @@
+#ifndef TIMEBASEDWIDGET_H
+#define TIMEBASEDWIDGET_H
+
+#include <QScrollBar>
+#include <QWidget>
+
+#include "node/output/viewer/viewer.h"
+#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timeruler/timeruler.h"
+
+class TimeBasedWidget : public QWidget, public TimelineScaledObject
+{
+  Q_OBJECT
+public:
+  TimeBasedWidget(bool ruler_text_visible = true, bool ruler_cache_status_visible = false, QWidget* parent = nullptr);
+
+  rational GetTime() const;
+
+  const int64_t& GetTimestamp() const;
+
+  void ZoomIn();
+
+  void ZoomOut();
+
+  ViewerOutput* GetConnectedNode() const;
+
+  void ConnectViewerNode(ViewerOutput *node);
+
+public slots:
+  // FIXME: Rename this to SetTimestamp to reduce confusion
+  void SetTime(int64_t timestamp);
+
+  void SetTimebase(const rational& timebase);
+
+  void SetScale(const double& scale);
+
+  void GoToStart();
+
+  void PrevFrame();
+
+  void NextFrame();
+
+  void GoToEnd();
+
+  void GoToPrevCut();
+
+  void GoToNextCut();
+
+protected slots:
+  void SetTimeAndSignal(const int64_t& t);
+
+protected:
+  TimeRuler* ruler() const;
+
+  QScrollBar* scrollbar() const;
+
+  virtual void TimebaseChangedEvent(const rational&) override;
+
+  virtual void TimeChangedEvent(const int64_t&){}
+
+  virtual void ScaleChangedEvent(const double &) override;
+
+  virtual void ConnectedNodeChanged(ViewerOutput*){}
+
+  virtual void ConnectNodeInternal(ViewerOutput*){}
+
+  virtual void DisconnectNodeInternal(ViewerOutput*){}
+
+  virtual void resizeEvent(QResizeEvent *event) override;
+
+signals:
+  void TimeChanged(const int64_t&);
+
+  void TimebaseChanged(const rational&);
+
+private:
+  ViewerOutput* viewer_node_;
+
+  TimeRuler* ruler_;
+
+  QScrollBar* scrollbar_;
+
+};
+
+#endif // TIMEBASEDWIDGET_H

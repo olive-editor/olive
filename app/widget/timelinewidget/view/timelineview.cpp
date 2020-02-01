@@ -267,7 +267,7 @@ TimelineViewMouseEvent TimelineView::CreateMouseEvent(const QPoint& pos, Qt::Key
   QPointF scene_pt = mapToScene(pos);
 
   TimelineViewMouseEvent timeline_event(scene_pt.x(),
-                                        scale_,
+                                        GetScale(),
                                         timebase(),
                                         TrackReference(ConnectedTrackType(), SceneToTrack(scene_pt.y())),
                                         modifiers);

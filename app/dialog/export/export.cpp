@@ -192,8 +192,8 @@ void ExportDialog::accept()
 
   QMatrix4x4 transform;
 
-  int dest_width = video_tab_->width_slider()->GetValue();
-  int dest_height = video_tab_->height_slider()->GetValue();
+  int dest_width = static_cast<int>(video_tab_->width_slider()->GetValue());
+  int dest_height = static_cast<int>(video_tab_->height_slider()->GetValue());
 
   if (video_tab_->scaling_method_combobox()->isEnabled()) {
     int source_width = viewer_node_->video_params().width();
@@ -444,13 +444,14 @@ QMatrix4x4 ExportDialog::GenerateMatrix(ExportVideoTab::ScalingMethod method, in
 
 void ExportDialog::UpdateViewerDimensions()
 {
-  preview_viewer_->SetOverrideSize(video_tab_->width_slider()->GetValue(), video_tab_->height_slider()->GetValue());
+  preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                   static_cast<int>(video_tab_->height_slider()->GetValue()));
 
   preview_viewer_->SetMatrix(GenerateMatrix(static_cast<ExportVideoTab::ScalingMethod>(video_tab_->scaling_method_combobox()->currentData().toInt()),
                                             viewer_node_->video_params().width(),
                                             viewer_node_->video_params().height(),
-                                            video_tab_->width_slider()->GetValue(),
-                                            video_tab_->height_slider()->GetValue()));
+                                            static_cast<int>(video_tab_->width_slider()->GetValue()),
+                                            static_cast<int>(video_tab_->height_slider()->GetValue())));
 }
 
 void ExportDialog::ExporterIsDone()

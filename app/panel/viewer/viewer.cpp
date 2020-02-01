@@ -26,60 +26,16 @@ ViewerPanel::ViewerPanel(QWidget *parent) :
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("ViewerPanel");
 
-  // QObject system handles deleting this
-  viewer_ = new ViewerWidget(this);
-  connect(viewer_, SIGNAL(TimeChanged(const int64_t&)), this, SIGNAL(TimeChanged(const int64_t&)));
-
   // Set ViewerWidget as the central widget
-  setWidget(viewer_);
+  SetTimeBasedWidget(new ViewerWidget());
 
   // Set strings
   Retranslate();
 }
 
-void ViewerPanel::ConnectViewerNode(ViewerOutput *node)
-{
-  if (viewer_->GetConnectedViewer()) {
-    disconnect(viewer_->GetConnectedViewer(), &ViewerOutput::MediaNameChanged, this, &ViewerPanel::SetSubtitle);
-    Retranslate();
-  }
-
-  viewer_->ConnectViewerNode(node);
-
-  if (node) {
-    connect(node, &ViewerOutput::MediaNameChanged, this, &ViewerPanel::SetSubtitle);
-    SetSubtitle(node->media_name());
-  }
-}
-
-rational ViewerPanel::GetTime()
-{
-  return viewer_->GetTime();
-}
-
-ViewerOutput *ViewerPanel::GetConnectedViewer() const
-{
-  return viewer_->GetConnectedViewer();
-}
-
-void ViewerPanel::SetTime(const int64_t &timestamp)
-{
-  viewer_->SetTime(timestamp);
-}
-
-void ViewerPanel::changeEvent(QEvent *e)
-{
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  PanelWidget::changeEvent(e);
-}
-
 void ViewerPanel::Retranslate()
 {
-  SetTitle(tr("Viewer"));
+  ViewerPanelBase::Retranslate();
 
-  if (!viewer_->GetConnectedViewer()) {
-    SetSubtitle(tr("(none)"));
-  }
+  SetTitle(tr("Viewer"));
 }

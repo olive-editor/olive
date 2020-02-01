@@ -49,7 +49,7 @@ void TimelineWidget::RippleTool::MouseReleaseInternal(TimelineViewMouseEvent *ev
       if (ghost->AdjustedLength() > 0) {
         GapBlock* gap = new GapBlock();
         gap->set_length_and_media_out(ghost->AdjustedLength());
-        new NodeAddCommand(static_cast<NodeGraph*>(parent()->timeline_node_->parent()), gap, command);
+        new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), gap, command);
 
         Block* block_to_append_gap_to = Node::ValueToPtr<Block>(ghost->data(TimelineViewGhostItem::kReferenceBlock));
 
@@ -116,7 +116,7 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
   }
 
   // For each track that does NOT have a ghost, we need to make one for Gaps
-  foreach (TrackOutput* track, parent()->timeline_node_->Tracks()) {
+  foreach (TrackOutput* track, parent()->GetConnectedNode()->Tracks()) {
     // Determine if we've already created a ghost on this track
     bool ghost_on_this_track_exists = false;
 

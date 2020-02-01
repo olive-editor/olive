@@ -27,44 +27,33 @@
 #include "node/node.h"
 #include "nodeparamviewitem.h"
 #include "widget/keyframeview/keyframeview.h"
-#include "widget/timeruler/timeruler.h"
+#include "widget/timebased/timebased.h"
 
-class NodeParamView : public QWidget
+class NodeParamView : public TimeBasedWidget
 {
   Q_OBJECT
 public:
-  NodeParamView(QWidget* parent);
+  NodeParamView(QWidget* parent = nullptr);
 
   void SetNodes(QList<Node*> nodes);
   const QList<Node*>& nodes();
 
-  const double& GetScale() const;
-
-public slots:
-  void SetScale(double scale);
-
-  void SetTime(const int64_t& timestamp);
-
 signals:
-  void TimeChanged(const int64_t& timestamp);
-
   void SelectedInputChanged(NodeInput* input);
-
-  void TimebaseChanged(const rational& timebase);
 
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
-private:
-  void SetTimebase(const rational& timebase);
+  virtual void ScaleChangedEvent(const double &) override;
+  virtual void TimebaseChangedEvent(const rational&) override;
+  virtual void TimeChangedEvent(const int64_t &) override;
 
+private:
   void UpdateItemTime(const int64_t &timestamp);
 
   QVBoxLayout* param_layout_;
 
   KeyframeView* keyframe_view_;
-
-  TimeRuler* ruler_;
 
   QList<Node*> nodes_;
 
@@ -77,8 +66,6 @@ private:
   int last_scroll_val_;
 
 private slots:
-  void RulerTimeChanged(const int64_t& timestamp);
-
   void ItemRequestedTimeChanged(const rational& time);
 
   void ForceKeyframeViewToScroll(int min, int max);

@@ -56,7 +56,7 @@ void TimelineWidget::RollingTool::MouseReleaseInternal(TimelineViewMouseEvent *e
       if (b->previous() == nullptr) {
         const TrackReference& track_ref = ghost->Track();
 
-        new TrackPlaceBlockCommand(parent()->timeline_node_->track_list(track_ref.type()),
+        new TrackPlaceBlockCommand(parent()->GetConnectedNode()->track_list(track_ref.type()),
                                    track_ref.index(),
                                    b,
                                    ghost->GetAdjustedIn(),

@@ -23,7 +23,7 @@ protected:
 
   virtual void KeyframeAboutToBeRemoved(NodeKeyframe *key) override;
 
-  virtual void ScaleChangedEvent(double scale) override;
+  virtual void ScaleChangedEvent(const double &scale) override;
 
   virtual void VerticalScaleChangedEvent(double scale) override;
 

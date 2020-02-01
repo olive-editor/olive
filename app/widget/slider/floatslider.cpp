@@ -149,10 +149,10 @@ double FloatSlider::AdjustDragDistanceInternal(const double &start, const double
     current_db += drag;
     qreal adjusted_linear = QAudio::convertVolume(current_db, QAudio::DecibelVolumeScale, QAudio::LinearVolumeScale);
 
-    return adjusted_linear - start;
+    return adjusted_linear;
   }
   case kPercentage:
-    return drag * 0.01;
+    return SliderBase::AdjustDragDistanceInternal(start, drag * 0.01);
   }
 
   return SliderBase::AdjustDragDistanceInternal(start, drag);

@@ -12,7 +12,7 @@
 #include "widget/keyframeview/keyframeviewundo.h"
 
 CurveWidget::CurveWidget(QWidget *parent) :
-  QWidget(parent),
+  TimeBasedWidget(parent),
   input_(nullptr),
   bridge_(nullptr)
 {
@@ -51,8 +51,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   ruler_view_layout->setMargin(0);
   ruler_view_layout->setSpacing(0);
 
-  ruler_ = new TimeRuler();
-  ruler_view_layout->addWidget(ruler_);
+  ruler_view_layout->addWidget(ruler());
 
   view_ = new CurveView();
   ruler_view_layout->addWidget(view_);
@@ -60,15 +59,10 @@ CurveWidget::CurveWidget(QWidget *parent) :
   layout->addLayout(ruler_view_layout);
 
   // Connect ruler and view together
-  connect(ruler_, &TimeRuler::TimeChanged, view_, &CurveView::SetTime);
-  connect(view_, &CurveView::TimeChanged, ruler_, &TimeRuler::SetTime);
-  connect(ruler_, &TimeRuler::TimeChanged, this, &CurveWidget::TimeChanged);
-  connect(view_, &CurveView::TimeChanged, this, &CurveWidget::TimeChanged);
-  connect(ruler_, &TimeRuler::TimeChanged, this, &CurveWidget::UpdateBridgeTime);
-  connect(view_, &CurveView::TimeChanged, this, &CurveWidget::UpdateBridgeTime);
+  connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_->scene(), &QGraphicsScene::selectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
-  connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler_, &TimeRuler::SetScroll);
+  connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   widget_bridge_layout_ = new QHBoxLayout();
   widget_bridge_layout_->addStretch();
@@ -127,32 +121,6 @@ void CurveWidget::SetInput(NodeInput *input)
   UpdateInputLabel();
 }
 
-void CurveWidget::SetTimebase(const rational &timebase)
-{
-  ruler_->SetTimebase(timebase);
-  view_->SetTimebase(timebase);
-}
-
-void CurveWidget::SetTime(const int64_t &timestamp)
-{
-  ruler_->SetTime(timestamp);
-  view_->SetTime(timestamp);
-  UpdateBridgeTime(timestamp);
-}
-
-const double &CurveWidget::GetScale()
-{
-  return ruler_->scale();
-}
-
-void CurveWidget::SetScale(double scale)
-{
-  scale = qMin(scale, TimelineViewBase::kMaximumScale);
-
-  ruler_->SetScale(scale);
-  view_->SetScale(scale, true);
-}
-
 const double &CurveWidget::GetVerticalScale()
 {
   return view_->GetYScale();
@@ -169,6 +137,28 @@ void CurveWidget::changeEvent(QEvent *e)
     UpdateInputLabel();
   }
   QWidget::changeEvent(e);
+}
+
+void CurveWidget::TimeChangedEvent(const int64_t &timestamp)
+{
+  TimeBasedWidget::TimeChangedEvent(timestamp);
+
+  view_->SetTime(timestamp);
+  UpdateBridgeTime(timestamp);
+}
+
+void CurveWidget::TimebaseChangedEvent(const rational &timebase)
+{
+  TimeBasedWidget::TimebaseChangedEvent(timebase);
+
+  view_->SetTimebase(timebase);
+}
+
+void CurveWidget::ScaleChangedEvent(const double &scale)
+{
+  TimeBasedWidget::ScaleChangedEvent(scale);
+
+  view_->SetScaleAndCenterOnPlayhead(scale);
 }
 
 void CurveWidget::UpdateInputLabel()
@@ -283,9 +273,5 @@ void CurveWidget::KeyframeTypeButtonTriggered(bool checked)
 
 void CurveWidget::KeyControlRequestedTimeChanged(const rational &time)
 {
-  int64_t timestamp = Timecode::time_to_timestamp(time, view_->timebase());
-
-  SetTime(timestamp);
-
-  emit TimeChanged(timestamp);
+  SetTimeAndSignal(Timecode::time_to_timestamp(time, view_->timebase()));
 }

@@ -157,16 +157,16 @@ bool TimelineWidget::Tool::SnapPoint(QList<rational> start_times, rational* move
   QList<double> proposed_pts;
 
   foreach (rational s, start_times) {
-    proposed_pts.append((s + *movement).toDouble() * parent()->scale_);
+    proposed_pts.append((s + *movement).toDouble() * parent()->GetScale());
   }
 
   if (snap_points & kSnapToPlayhead) {
 
 
-    rational playhead_abs_time = rational(parent()->playhead_ * parent()->timebase().numerator(),
+    rational playhead_abs_time = rational(parent()->GetTimestamp() * parent()->timebase().numerator(),
                                           parent()->timebase().denominator());
 
-    qreal playhead_pos = playhead_abs_time.toDouble() * parent()->scale_;
+    qreal playhead_pos = playhead_abs_time.toDouble() * parent()->GetScale();
 
     AttemptSnap(proposed_pts, playhead_pos, start_times, playhead_abs_time, movement, &diff);
   }

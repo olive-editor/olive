@@ -101,3 +101,15 @@ void PanelWidget::UpdateTitle()
     setWindowTitle(tr("%1: %2").arg(title_, subtitle_));
   }
 }
+
+void PanelWidget::changeEvent(QEvent *e)
+{
+  if (e->type() == QEvent::LanguageChange) {
+    Retranslate();
+  }
+  QDockWidget::changeEvent(e);
+}
+
+void PanelWidget::Retranslate()
+{
+}

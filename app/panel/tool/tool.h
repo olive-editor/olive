@@ -37,6 +37,7 @@ protected:
 
 private:
   void Retranslate();
+
 };
 
 #endif // TOOL_PANEL_H

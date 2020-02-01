@@ -36,12 +36,12 @@
 #include "viewerglwidget.h"
 #include "viewersizer.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
-#include "widget/timeruler/timeruler.h"
+#include "widget/timebased/timebased.h"
 
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
-class ViewerWidget : public QWidget
+class ViewerWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
@@ -51,21 +51,11 @@ public:
 
   void SetTimeRulerEnabled(bool enabled);
 
-  const double& scale() const;
-
-  rational GetTime() const;
-
-  void SetScale(const double& scale_);
-
-  void SetTime(const int64_t& time);
-
   void TogglePlayPause();
 
   bool IsPlaying() const;
 
   void ConnectViewerNode(ViewerOutput* node, ColorManager *color_manager = nullptr);
-
-  ViewerOutput* GetConnectedViewer() const;
 
   /**
    * @brief Enable or disable the color management menu
@@ -91,19 +81,9 @@ public slots:
    */
   void SetTexture(OpenGLTexturePtr tex);
 
-  void SetTimebase(const rational& r);
-
-  void GoToStart();
-
-  void PrevFrame();
-
   void Play();
 
   void Pause();
-
-  void NextFrame();
-
-  void GoToEnd();
 
   void ShuttleLeft();
 
@@ -134,11 +114,13 @@ public slots:
    */
   void SetOCIOLook(const QString& look);
 
-signals:
-  void TimeChanged(const int64_t&);
-
 protected:
-  virtual void resizeEvent(QResizeEvent *event) override;
+  virtual void TimebaseChangedEvent(const rational &) override;
+  virtual void TimeChangedEvent(const int64_t &) override;
+
+  virtual void ConnectNodeInternal(ViewerOutput *) override;
+  virtual void DisconnectNodeInternal(ViewerOutput *) override;
+  virtual void ConnectedNodeChanged(ViewerOutput*n) override;
 
   OpenGLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
@@ -158,20 +140,10 @@ private:
 
   PlaybackControls* controls_;
 
-  TimeRuler* ruler_;
-
-  QScrollBar* scrollbar_;
-
-  rational time_base_;
-
-  double time_base_dbl_;
-
   QTimer playback_timer_;
 
   qint64 start_msec_;
   int64_t start_timestamp_;
-
-  ViewerOutput* viewer_node_;
 
   int playback_speed_;
 
@@ -183,9 +155,11 @@ private:
 
   int divider_;
 
-private slots:
-  void RulerTimeChange(int64_t);
+  ColorManager* override_color_manager_;
 
+  bool time_changed_from_timer_;
+
+private slots:
   void PlaybackTimerUpdate();
 
   void RendererCachedFrame(const rational& time, QVariant value, qint64 job_time);

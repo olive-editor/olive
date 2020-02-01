@@ -21,38 +21,24 @@
 #ifndef PARAM_H
 #define PARAM_H
 
+#include "panel/timebased/timebased.h"
 #include "widget/nodeparamview/nodeparamview.h"
-#include "widget/panel/panel.h"
 
-class ParamPanel : public PanelWidget
+class ParamPanel : public TimeBasedPanel
 {
   Q_OBJECT
 public:
   ParamPanel(QWidget* parent);
 
-  virtual void ZoomIn() override;
-
-  virtual void ZoomOut() override;
-
 public slots:
   void SetNodes(QList<Node*> nodes);
 
-  void SetTime(const int64_t& timestamp);
-
 signals:
-  void TimeChanged(const int64_t& timestamp);
-
   void SelectedInputChanged(NodeInput* input);
 
-  void TimebaseChanged(const rational& timebase);
-
 protected:
-  virtual void changeEvent(QEvent* e) override;
+  virtual void Retranslate() override;
 
-private:
-  void Retranslate();
-
-  NodeParamView* view_;
 };
 
 #endif // PARAM_H

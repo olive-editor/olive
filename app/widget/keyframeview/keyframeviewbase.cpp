@@ -59,7 +59,7 @@ void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
 {
   KeyframeViewItem* item = new KeyframeViewItem(key);
-  item->SetScale(scale_);
+  item->SetScale(GetScale());
   item_map_.insert(key.get(), item);
   scene()->addItem(item);
   return item;
@@ -210,8 +210,10 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
   }
 }
 
-void KeyframeViewBase::ScaleChangedEvent(double scale)
+void KeyframeViewBase::ScaleChangedEvent(const double &scale)
 {
+  TimelineViewBase::ScaleChangedEvent(scale);
+
   QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator iterator;
 
   for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
@@ -333,7 +335,7 @@ void KeyframeViewBase::ProcessBezierDrag(QPointF mouse_diff_scaled, bool include
 
 QPointF KeyframeViewBase::GetScaledCursorPos(const QPoint &cursor_pos)
 {
-  return QPointF(static_cast<double>(cursor_pos.x()) / scale_,
+  return QPointF(static_cast<double>(cursor_pos.x()) / GetScale(),
                  static_cast<double>(cursor_pos.y()) / y_scale_);
 }
 

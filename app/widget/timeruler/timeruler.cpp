@@ -58,7 +58,7 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   UpdateHeight();
 }
 
-const double &TimeRuler::scale()
+const double &TimeRuler::GetScale()
 {
   return scale_;
 }
@@ -174,7 +174,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   }
 
   if (short_interval < minimum_gap_between_lines_) {
-    if (long_interval == -1) {
+    if (long_interval <= 0) {
       do {
         short_interval *= 2;
       } while (short_interval < minimum_gap_between_lines_);

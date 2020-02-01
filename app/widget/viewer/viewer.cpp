@@ -35,11 +35,12 @@
 #include "widget/menu/menu.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
-  QWidget(parent),
-  viewer_node_(nullptr),
+  TimeBasedWidget(false, true, parent),
   playback_speed_(0),
   color_menu_enabled_(true),
-  divider_(Config::Current()["DefaultViewerDivider"].toInt())
+  divider_(Config::Current()["DefaultViewerDivider"].toInt()),
+  override_color_manager_(nullptr),
+  time_changed_from_timer_(false)
 {
   // Set up main layout
   QVBoxLayout* layout = new QVBoxLayout(this);
@@ -54,15 +55,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_->SetWidget(gl_widget_);
 
   // Create time ruler
-  ruler_ = new TimeRuler(false, true);
-  layout->addWidget(ruler_);
-  connect(ruler_, &TimeRuler::TimeChanged, this, &ViewerWidget::RulerTimeChange);
+  layout->addWidget(ruler());
 
   // Create scrollbar
-  scrollbar_ = new QScrollBar(Qt::Horizontal);
-  layout->addWidget(scrollbar_);
-  connect(scrollbar_, &QScrollBar::valueChanged, ruler_, &TimeRuler::SetScroll);
-  scrollbar_->setPageStep(ruler_->width());
+  layout->addWidget(scrollbar());
+  connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   // Create lower controls
   controls_ = new PlaybackControls();
@@ -74,58 +71,87 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(controls_, &PlaybackControls::NextFrameClicked, this, &ViewerWidget::NextFrame);
   connect(controls_, &PlaybackControls::BeginClicked, this, &ViewerWidget::GoToStart);
   connect(controls_, &PlaybackControls::EndClicked, this, &ViewerWidget::GoToEnd);
+  connect(controls_, &PlaybackControls::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
   layout->addWidget(controls_);
 
   // Connect timer
   connect(&playback_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
 
   // FIXME: Magic number
-  ruler_->SetScale(48.0);
+  ruler()->SetScale(48.0);
 
   // Start background renderers
   video_renderer_ = new OpenGLBackend(this);
   connect(video_renderer_, &VideoRenderBackend::CachedFrameReady, this, &ViewerWidget::RendererCachedFrame);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
-  connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler_, &TimeRuler::CacheTimeReady);
-  connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler_, &TimeRuler::CacheInvalidatedRange);
+  connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
+  connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
   audio_renderer_ = new AudioBackend(this);
 
   connect(PixelService::instance(), &PixelService::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 }
 
-void ViewerWidget::SetTimebase(const rational &r)
+void ViewerWidget::TimeChangedEvent(const int64_t &i)
 {
-  time_base_ = r;
-  time_base_dbl_ = r.toDouble();
+  if (!time_changed_from_timer_) {
+    Pause();
+  }
 
-  ruler_->SetTimebase(r);
-  controls_->SetTimebase(r);
+  controls_->SetTime(i);
 
-  controls_->SetTime(ruler_->GetTime());
-  LengthChangedSlot(viewer_node_ ? viewer_node_->Length() : 0);
+  if (GetConnectedNode() && last_time_ != i) {
+    rational time_set = Timecode::timestamp_to_time(i, timebase());
 
-  playback_timer_.setInterval(qFloor(r.toDouble()));
+    UpdateTextureFromNode(time_set);
+
+    PushScrubbedAudio();
+  }
+
+  last_time_ = i;
 }
 
-const double &ViewerWidget::scale() const
+void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  return ruler_->scale();
+  SetTimebase(n->video_params().time_base());
+
+  connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
+  connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+  connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+  connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+
+  SizeChangedSlot(n->video_params().width(), n->video_params().height());
+  LengthChangedSlot(n->Length());
+
+  if (override_color_manager_) {
+    gl_widget_->ConnectColorManager(override_color_manager_);
+  } else if (n->parent()) {
+    gl_widget_->ConnectColorManager(static_cast<Sequence*>(n->parent())->project()->color_manager());
+  } else {
+    qWarning() << "Failed to find a suitable color manager for the connected viewer node";
+  }
+
+  UpdateRendererParameters();
 }
 
-rational ViewerWidget::GetTime() const
+void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
-  return Timecode::timestamp_to_time(ruler_->GetTime(), time_base_);
+  SetTimebase(0);
+
+  disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
+  disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
+  disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+  disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+
+  // Effectively disables the viewer and clears the state
+  SizeChangedSlot(0, 0);
+
+  gl_widget_->DisconnectColorManager();
 }
 
-void ViewerWidget::SetScale(const double &scale_)
+void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
-  ruler_->SetScale(scale_);
-}
-
-void ViewerWidget::SetTime(const int64_t &time)
-{
-  ruler_->SetTime(time);
-  UpdateTimeInternal(time);
+  video_renderer_->SetViewerNode(n);
+  audio_renderer_->SetViewerNode(n);
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -144,54 +170,12 @@ bool ViewerWidget::IsPlaying() const
 
 void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_manager)
 {
-  if (viewer_node_ != nullptr) {
-    SetTimebase(0);
+  override_color_manager_ = color_manager;
 
-    disconnect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
-    disconnect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
-    disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-    disconnect(viewer_node_, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
-
-    // Effectively disables the viewer and clears the state
-    SizeChangedSlot(0, 0);
-
-    gl_widget_->DisconnectColorManager();
-  }
-
-  viewer_node_ = node;
-
-  video_renderer_->SetViewerNode(viewer_node_);
-  audio_renderer_->SetViewerNode(viewer_node_);
+  TimeBasedWidget::ConnectViewerNode(node);
 
   // Set texture to new texture (or null if no viewer node is available)
   UpdateTextureFromNode(GetTime());
-
-  if (viewer_node_ != nullptr) {
-    SetTimebase(viewer_node_->video_params().time_base());
-
-    connect(viewer_node_, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
-    connect(viewer_node_, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
-    connect(viewer_node_, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
-    connect(viewer_node_, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
-
-    SizeChangedSlot(viewer_node_->video_params().width(), viewer_node_->video_params().height());
-    LengthChangedSlot(viewer_node_->Length());
-
-    if (color_manager) {
-      gl_widget_->ConnectColorManager(color_manager);
-    } else if (viewer_node_->parent()) {
-      gl_widget_->ConnectColorManager(static_cast<Sequence*>(viewer_node_->parent())->project()->color_manager());
-    } else {
-      qWarning() << "Failed to find a suitable color manager for the connected viewer node";
-    }
-
-    UpdateRendererParameters();
-  }
-}
-
-ViewerOutput *ViewerWidget::GetConnectedViewer() const
-{
-  return viewer_node_;
 }
 
 void ViewerWidget::SetColorMenuEnabled(bool enabled)
@@ -219,26 +203,9 @@ void ViewerWidget::SetTexture(OpenGLTexturePtr tex)
   gl_widget_->SetTexture(tex);
 }
 
-void ViewerWidget::UpdateTimeInternal(int64_t i)
-{
-  rational time_set = rational(i) * time_base_;
-
-  controls_->SetTime(i);
-
-  if (viewer_node_ != nullptr && last_time_ != i) {
-    UpdateTextureFromNode(time_set);
-
-    PushScrubbedAudio();
-  }
-
-  last_time_ = i;
-
-  emit TimeChanged(i);
-}
-
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
-  if (viewer_node_ == nullptr) {
+  if (!GetConnectedNode()) {
     SetTexture(nullptr);
   } else {
     SetTexture(video_renderer_->GetCachedFrameAsTexture(time));
@@ -249,7 +216,7 @@ void ViewerWidget::PlayInternal(int speed)
 {
   Q_ASSERT(speed != 0);
 
-  if (time_base_.isNull()) {
+  if (timebase().isNull()) {
     qWarning() << "ViewerWidget can't play with an invalid timebase";
     return;
   }
@@ -264,7 +231,7 @@ void ViewerWidget::PlayInternal(int speed)
   }
 
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
-  start_timestamp_ = ruler_->GetTime();
+  start_timestamp_ = ruler()->GetTime();
 
   playback_timer_.start();
 
@@ -273,13 +240,13 @@ void ViewerWidget::PlayInternal(int speed)
 
 void ViewerWidget::PushScrubbedAudio()
 {
-  if (Config::Current()["AudioScrubbing"].toBool() && !IsPlaying()) {
+  if (!IsPlaying() && Config::Current()["AudioScrubbing"].toBool()) {
     // Get audio src device from renderer
     QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
 
-    if (audio_src != nullptr && audio_src->open(QFile::ReadOnly)) {
+    if (audio_src && audio_src->open(QFile::ReadOnly)) {
       // Try to get one "frame" of audio
-      int size_of_sample = audio_renderer_->params().time_to_bytes(time_base_);
+      int size_of_sample = audio_renderer_->params().time_to_bytes(timebase());
 
       // Push audio
       audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
@@ -294,20 +261,20 @@ void ViewerWidget::PushScrubbedAudio()
 
 void ViewerWidget::UpdateRendererParameters()
 {
-  if (!viewer_node_) {
+  if (!GetConnectedNode()) {
     return;
   }
 
   RenderMode::Mode render_mode = RenderMode::kOffline;
 
-  video_renderer_->SetParameters(VideoRenderingParams(viewer_node_->video_params(),
+  video_renderer_->SetParameters(VideoRenderingParams(GetConnectedNode()->video_params(),
                                                       PixelService::instance()->GetConfiguredFormatForMode(render_mode),
                                                       render_mode,
                                                       divider_));
-  audio_renderer_->SetParameters(AudioRenderingParams(viewer_node_->audio_params(),
+  audio_renderer_->SetParameters(AudioRenderingParams(GetConnectedNode()->audio_params(),
                                                       SampleFormat::GetConfiguredFormatForMode(render_mode)));
 
-  video_renderer_->InvalidateCache(0, viewer_node_->Length());
+  video_renderer_->InvalidateCache(0, GetConnectedNode()->Length());
 }
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
@@ -371,13 +338,6 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   menu.exec(mapToGlobal(pos));
 }
 
-void ViewerWidget::RulerTimeChange(int64_t i)
-{
-  Pause();
-
-  UpdateTimeInternal(i);
-}
-
 void ViewerWidget::Play()
 {
   PlayInternal(1);
@@ -390,36 +350,6 @@ void ViewerWidget::Pause()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
     playback_timer_.stop();
-  }
-}
-
-void ViewerWidget::GoToStart()
-{
-  Pause();
-
-  SetTime(0);
-}
-
-void ViewerWidget::PrevFrame()
-{
-  Pause();
-
-  SetTime(qMax(static_cast<int64_t>(0), ruler_->GetTime() - 1));
-}
-
-void ViewerWidget::NextFrame()
-{
-  Pause();
-
-  SetTime(ruler_->GetTime() + 1);
-}
-
-void ViewerWidget::GoToEnd()
-{
-  if (viewer_node_ != nullptr) {
-    Pause();
-
-    SetTime(Timecode::time_to_timestamp(viewer_node_->Length(), time_base_));
   }
 }
 
@@ -478,20 +408,33 @@ void ViewerWidget::SetOCIOLook(const QString &look)
   gl_widget_->SetOCIOLook(look);
 }
 
+void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
+{
+  TimeBasedWidget::TimebaseChangedEvent(timebase);
+
+  controls_->SetTimebase(timebase);
+
+  controls_->SetTime(ruler()->GetTime());
+  LengthChangedSlot(GetConnectedNode() ? GetConnectedNode()->Length() : 0);
+
+  playback_timer_.setInterval(qFloor(timebase.toDouble()));
+}
+
 void ViewerWidget::PlaybackTimerUpdate()
 {
   int64_t real_time = QDateTime::currentMSecsSinceEpoch() - start_msec_;
 
-  int64_t frames_since_start = qRound(static_cast<double>(real_time) / (time_base_dbl_ * 1000));
+  int64_t frames_since_start = qRound(static_cast<double>(real_time) / (timebase_dbl() * 1000));
 
   int64_t current_time = start_timestamp_ + frames_since_start * playback_speed_;
 
   if (current_time < 0) {
-    current_time = 0;
-    Pause();
+    SetTimeAndSignal(0);
+  } else {
+    time_changed_from_timer_ = true;
+    SetTimeAndSignal(current_time);
+    time_changed_from_timer_ = false;
   }
-
-  SetTime(current_time);
 }
 
 void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value, qint64 job_time)
@@ -519,14 +462,8 @@ void ViewerWidget::SizeChangedSlot(int width, int height)
 
 void ViewerWidget::LengthChangedSlot(const rational &length)
 {
-  controls_->SetEndTime(Timecode::time_to_timestamp(length, time_base_));
-  ruler_->SetCacheStatusLength(length);
-}
-
-void ViewerWidget::resizeEvent(QResizeEvent *event)
-{
-  // Set scrollbar page step to the width
-  scrollbar_->setPageStep(event->size().width());
+  controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
+  ruler()->SetCacheStatusLength(length);
 }
 
 void ViewerWidget::ColorDisplayChanged(QAction* action)

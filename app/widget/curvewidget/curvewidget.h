@@ -9,9 +9,9 @@
 #include "node/input.h"
 #include "widget/nodeparamview/nodeparamviewkeyframecontrol.h"
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
-#include "widget/timeruler/timeruler.h"
+#include "widget/timebased/timebased.h"
 
-class CurveWidget : public QWidget
+class CurveWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
@@ -21,23 +21,15 @@ public:
 
   void SetInput(NodeInput* input);
 
-  void SetTimebase(const rational& timebase);
-
-  void SetTime(const int64_t& timestamp);
-
-  const double& GetScale();
-
   const double& GetVerticalScale();
   void SetVerticalScale(const double& vscale);
 
-public slots:
-  void SetScale(double scale);
-
-signals:
-  void TimeChanged(const int64_t& timestamp);
-
 protected:
   virtual void changeEvent(QEvent *) override;
+
+  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void TimebaseChangedEvent(const rational &) override;
+  virtual void ScaleChangedEvent(const double &) override;
 
 private:
   void UpdateInputLabel();
@@ -48,13 +40,13 @@ private:
 
   void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
 
+  void UpdateBridgeTime(const int64_t& timestamp);
+
   QPushButton* linear_button_;
 
   QPushButton* bezier_button_;
 
   QPushButton* hold_button_;
-
-  TimeRuler* ruler_;
 
   CurveView* view_;
 
@@ -69,8 +61,6 @@ private:
   NodeParamViewKeyframeControl* key_control_;
 
 private slots:
-  void UpdateBridgeTime(const int64_t& timestamp);
-
   void SelectionChanged();
 
   void KeyframeTypeButtonTriggered(bool checked);

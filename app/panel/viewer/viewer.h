@@ -33,23 +33,8 @@ class ViewerPanel : public ViewerPanelBase {
 public:
   ViewerPanel(QWidget* parent);
 
-  void ConnectViewerNode(ViewerOutput* node);
-
-  rational GetTime();
-
-  ViewerOutput* GetConnectedViewer() const;
-
-public slots:
-  void SetTime(const int64_t& timestamp);
-
 protected:
-  virtual void changeEvent(QEvent* e) override;
-
-signals:
-  void TimeChanged(const int64_t&);
-
-private:
-  void Retranslate();
+  virtual void Retranslate() override;
 
 };
 

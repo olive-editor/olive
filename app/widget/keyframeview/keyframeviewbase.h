@@ -27,7 +27,7 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *event) override;
   virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
-  virtual void ScaleChangedEvent(double scale) override;
+  virtual void ScaleChangedEvent(const double& scale) override;
 
   virtual void VerticalScaleChangedEvent(double scale);
 

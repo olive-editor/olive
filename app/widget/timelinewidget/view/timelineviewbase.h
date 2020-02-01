@@ -14,15 +14,13 @@ class TimelineViewBase : public QGraphicsView, public TimelineScaledObject
 public:
   TimelineViewBase(QWidget* parent = nullptr);
 
-  void SetScale(const double& scale, bool center_on_playhead);
-
   void SetEndTime(const rational& length);
+
+  void SetScaleAndCenterOnPlayhead(const double& scale);
 
   static const double kMaximumScale;
 
 public slots:
-  void SetTimebase(const rational& timebase);
-
   void SetTime(const int64_t time);
 
 signals:
@@ -35,7 +33,7 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  virtual void ScaleChangedEvent(double scale);
+  virtual void ScaleChangedEvent(const double& scale) override;
 
   bool HandleZoomFromScroll(QWheelEvent* event);
 
@@ -57,6 +55,8 @@ protected:
   bool HandRelease(QMouseEvent* event);
 
   virtual void ToolChangedEvent(Tool::Item tool);
+
+  virtual void TimebaseChangedEvent(const rational &) override;
 
 private:
   qreal GetPlayheadX();

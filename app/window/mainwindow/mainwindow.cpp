@@ -90,6 +90,10 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(curve_panel_, &CurvePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
   connect(curve_panel_, &CurvePanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
   connect(curve_panel_, &CurvePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+
+  viewer_panel_->ConnectTimeBasedPanel(timeline_panel_);
+  viewer_panel_->ConnectTimeBasedPanel(param_panel_);
+  viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)

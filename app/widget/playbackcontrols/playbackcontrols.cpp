@@ -49,7 +49,8 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_left_layout->setSpacing(0);
   lower_left_layout->setMargin(0);
 
-  cur_tc_lbl_ = new QLabel();
+  cur_tc_lbl_ = new TimeSlider();
+  connect(cur_tc_lbl_, &TimeSlider::ValueChanged, this, &PlaybackControls::TimeChanged);
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();
 
@@ -67,12 +68,12 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   // Go To Start Button
   go_to_start_btn_ = new QPushButton();
   lower_middle_layout->addWidget(go_to_start_btn_);
-  connect(go_to_start_btn_, SIGNAL(clicked(bool)), this, SIGNAL(BeginClicked()));
+  connect(go_to_start_btn_, &QPushButton::clicked, this, &PlaybackControls::BeginClicked);
 
   // Prev Frame Button
   prev_frame_btn_ = new QPushButton();
   lower_middle_layout->addWidget(prev_frame_btn_);
-  connect(prev_frame_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PrevFrameClicked()));
+  connect(prev_frame_btn_, &QPushButton::clicked, this, &PlaybackControls::PrevFrameClicked);
 
   // Play/Pause Button
   playpause_stack_ = new QStackedWidget();
@@ -80,11 +81,11 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   play_btn_ = new QPushButton();
   playpause_stack_->addWidget(play_btn_);
-  connect(play_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PlayClicked()));
+  connect(play_btn_, &QPushButton::clicked, this, &PlaybackControls::PlayClicked);
 
   pause_btn_ = new QPushButton();
   playpause_stack_->addWidget(pause_btn_);
-  connect(pause_btn_, SIGNAL(clicked(bool)), this, SIGNAL(PauseClicked()));
+  connect(pause_btn_, &QPushButton::clicked, this, &PlaybackControls::PauseClicked);
 
   // Default to showing play button
   playpause_stack_->setCurrentWidget(play_btn_);
@@ -93,12 +94,12 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   // Next Frame Button
   next_frame_btn_ = new QPushButton();
   lower_middle_layout->addWidget(next_frame_btn_);
-  connect(next_frame_btn_, SIGNAL(clicked(bool)), this, SIGNAL(NextFrameClicked()));
+  connect(next_frame_btn_, &QPushButton::clicked, this, &PlaybackControls::NextFrameClicked);
 
   // Go To End Button
   go_to_end_btn_ = new QPushButton();
   lower_middle_layout->addWidget(go_to_end_btn_);
-  connect(go_to_end_btn_, SIGNAL(clicked(bool)), this, SIGNAL(EndClicked()));
+  connect(go_to_end_btn_, &QPushButton::clicked, this, &PlaybackControls::EndClicked);
 
   lower_middle_layout->addStretch();
 
@@ -117,6 +118,8 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_right_layout->addWidget(end_tc_lbl_);
 
   UpdateIcons();
+
+  SetTimebase(0);
 }
 
 void PlaybackControls::SetTimecodeEnabled(bool enabled)
@@ -128,16 +131,25 @@ void PlaybackControls::SetTimecodeEnabled(bool enabled)
 void PlaybackControls::SetTimebase(const rational &r)
 {
   time_base_ = r;
+  cur_tc_lbl_->SetTimebase(r);
+
+  cur_tc_lbl_->setEnabled(!r.isNull());
 }
 
 void PlaybackControls::SetTime(const int64_t &r)
 {
-  SetTimeLabelInternal(cur_tc_lbl_, r);
+  cur_tc_lbl_->SetValue(r);
 }
 
 void PlaybackControls::SetEndTime(const int64_t &r)
 {
-  SetTimeLabelInternal(end_tc_lbl_, r);
+  if (time_base_.isNull()) {
+    return;
+  }
+
+  end_tc_lbl_->setText(Timecode::timestamp_to_timecode(r,
+                                                       time_base_,
+                                                       Timecode::CurrentDisplay()));
 }
 
 void PlaybackControls::ShowPauseButton()
@@ -168,15 +180,4 @@ void PlaybackControls::UpdateIcons()
   pause_btn_->setIcon(icon::Pause);
   next_frame_btn_->setIcon(icon::NextFrame);
   go_to_end_btn_->setIcon(icon::GoToEnd);
-}
-
-void PlaybackControls::SetTimeLabelInternal(QLabel* label, const int64_t& time)
-{
-  if (time_base_.isNull()) {
-    return;
-  }
-
-  label->setText(Timecode::timestamp_to_timecode(time,
-                                                 time_base_,
-                                                 Timecode::CurrentDisplay()));
 }

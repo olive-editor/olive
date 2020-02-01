@@ -9,15 +9,14 @@
 #include "timelineandtrackview.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/slider/timeslider.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
-#include "widget/timeruler/timeruler.h"
+#include "widget/timebased/timebased.h"
 
 /**
  * @brief Full widget for working with TimelineOutput nodes
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public QWidget, public TimelineScaledObject
+class TimelineWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
@@ -26,16 +25,6 @@ public:
   virtual ~TimelineWidget() override;
 
   void Clear();
-
-  void SetTime(int64_t timestamp);
-
-  void ConnectTimelineNode(ViewerOutput *node);
-
-  void DisconnectTimelineNode();
-
-  void ZoomIn();
-
-  void ZoomOut();
 
   void SelectAll();
 
@@ -49,10 +38,6 @@ public:
 
   void EditToOut();
 
-  void GoToPrevCut();
-
-  void GoToNextCut();
-
   void SplitAtPlayhead();
 
   void DeleteSelected();
@@ -63,16 +48,15 @@ public:
 
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
-  ViewerOutput* GetConnectedNode() const;
-
-public slots:
-  void SetTimebase(const rational& timebase);
-
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
-signals:
-  void TimeChanged(const int64_t& time);
+  virtual void TimebaseChangedEvent(const rational &) override;
+  virtual void TimeChangedEvent(const int64_t &) override;
+  virtual void ScaleChangedEvent(const double &) override;
+
+  virtual void ConnectNodeInternal(ViewerOutput* n) override;
+  virtual void DisconnectNodeInternal(ViewerOutput* n) override;
 
 private:
   class Tool
@@ -364,19 +348,9 @@ private:
 
   void RippleEditTo(Timeline::MovementMode mode, bool insert_gaps);
 
-  void SetTimeAndSignal(const int64_t& t);
-
   TrackOutput* GetTrackFromReference(const TrackReference& ref);
 
   QList<TimelineAndTrackView*> views_;
-
-  TimeRuler* ruler_;
-
-  ViewerOutput* timeline_node_;
-
-  int64_t playhead_;
-
-  QScrollBar* horizontal_scroll_;
 
   TimeSlider* timecode_label_;
 
@@ -390,10 +364,6 @@ private:
   void AddGhost(TimelineViewGhostItem* ghost);
 
 private slots:
-  void SetScale(double scale, bool center_on_playhead = true);
-
-  void UpdateInternalTime(const int64_t& timestamp);
-
   void UpdateTimelineLength(const rational& length);
 
   void ViewMousePressed(TimelineViewMouseEvent* event);

@@ -187,7 +187,7 @@ void Sequence::Open(Sequence* sequence)
   NodePanel* node_panel = PanelManager::instance()->MostRecentlyFocused<NodePanel>();
 
   viewer_panel->ConnectViewerNode(sequence->viewer_output_);
-  timeline_panel->ConnectTimelineNode(sequence->viewer_output_);
+  timeline_panel->ConnectViewerNode(sequence->viewer_output_);
   node_panel->SetGraph(sequence);
 }
 

@@ -28,7 +28,7 @@
 #include "node/output/viewer/viewer.h"
 
 NodeParamView::NodeParamView(QWidget *parent) :
-  QWidget(parent),
+  TimeBasedWidget(true, false, parent),
   last_scroll_val_(0)
 {
   // Create horizontal layout to place scroll area in (and keyframe editing eventually)
@@ -64,8 +64,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   keyframe_area_layout->setMargin(0);
 
   // Create ruler object
-  ruler_ = new TimeRuler(true);
-  keyframe_area_layout->addWidget(ruler_);
+  keyframe_area_layout->addWidget(ruler());
 
   // Create keyframe view
   keyframe_view_ = new KeyframeView();
@@ -74,10 +73,9 @@ NodeParamView::NodeParamView(QWidget *parent) :
   keyframe_area_layout->addWidget(keyframe_view_);
 
   // Connect ruler and keyframe view together
-  connect(ruler_, &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
-  connect(keyframe_view_, &KeyframeView::TimeChanged, ruler_, &TimeRuler::SetTime);
-  connect(ruler_, &TimeRuler::TimeChanged, this, &NodeParamView::RulerTimeChanged);
-  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::RulerTimeChanged);
+  connect(ruler(), &TimeRuler::TimeChanged, keyframe_view_, &KeyframeView::SetTime);
+  connect(keyframe_view_, &KeyframeView::TimeChanged, ruler(), &TimeRuler::SetTime);
+  connect(keyframe_view_, &KeyframeView::TimeChanged, this, &NodeParamView::SetTime);
 
   // Connect keyframe view scaling to this
   connect(keyframe_view_, &KeyframeView::ScaleChanged, this, &NodeParamView::SetScale);
@@ -106,10 +104,12 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
 
-  connect(keyframe_view_->horizontalScrollBar(), SIGNAL(valueChanged(int)), ruler_, SLOT(SetScroll(int)));
+  connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   // Set a default scale - FIXME: Hardcoded
   SetScale(120);
+
+  SetMaximumScale(TimelineViewBase::kMaximumScale);
 }
 
 void NodeParamView::SetNodes(QList<Node *> nodes)
@@ -169,38 +169,32 @@ void NodeParamView::resizeEvent(QResizeEvent *event)
   vertical_scrollbar_->setPageStep(vertical_scrollbar_->height());
 }
 
-const QList<Node *> &NodeParamView::nodes()
+void NodeParamView::ScaleChangedEvent(const double &scale)
 {
-  return nodes_;
+  TimeBasedWidget::ScaleChangedEvent(scale);
+
+  keyframe_view_->SetScaleAndCenterOnPlayhead(scale);
 }
 
-const double &NodeParamView::GetScale() const
+void NodeParamView::TimebaseChangedEvent(const rational &timebase)
 {
-  return ruler_->scale();
+  TimeBasedWidget::TimebaseChangedEvent(timebase);
+
+  keyframe_view_->SetTimebase(timebase);
 }
 
-void NodeParamView::SetScale(double scale)
+void NodeParamView::TimeChangedEvent(const int64_t &timestamp)
 {
-  scale = qMin(scale, TimelineViewBase::kMaximumScale);
+  TimeBasedWidget::TimeChangedEvent(timestamp);
 
-  ruler_->SetScale(scale);
-  keyframe_view_->SetScale(scale, true);
-}
-
-void NodeParamView::SetTime(const int64_t &timestamp)
-{
-  ruler_->SetTime(timestamp);
   keyframe_view_->SetTime(timestamp);
 
   UpdateItemTime(timestamp);
 }
 
-void NodeParamView::SetTimebase(const rational &timebase)
+const QList<Node *> &NodeParamView::nodes()
 {
-  ruler_->SetTimebase(timebase);
-  keyframe_view_->SetTimebase(timebase);
-
-  emit TimebaseChanged(timebase);
+  return nodes_;
 }
 
 void NodeParamView::UpdateItemTime(const int64_t &timestamp)
@@ -212,18 +206,9 @@ void NodeParamView::UpdateItemTime(const int64_t &timestamp)
   }
 }
 
-void NodeParamView::RulerTimeChanged(const int64_t &timestamp)
-{
-  UpdateItemTime(timestamp);
-
-  emit TimeChanged(timestamp);
-}
-
 void NodeParamView::ItemRequestedTimeChanged(const rational &time)
 {
-  int64_t timestamp = Timecode::time_to_timestamp(time, keyframe_view_->timebase());
-  SetTime(timestamp);
-  emit TimeChanged(timestamp);
+  SetTimeAndSignal(Timecode::time_to_timestamp(time, keyframe_view_->timebase()));
 }
 
 void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
