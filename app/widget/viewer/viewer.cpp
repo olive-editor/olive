@@ -37,6 +37,7 @@
 ViewerWidget::ViewerWidget(QWidget *parent) :
   TimeBasedWidget(false, true, parent),
   playback_speed_(0),
+  frame_cache_job_time_(0),
   color_menu_enabled_(true),
   divider_(Config::Current()["DefaultViewerDivider"].toInt()),
   override_color_manager_(nullptr),
@@ -467,7 +468,7 @@ void ViewerWidget::PlaybackTimerUpdate()
 
 void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value, qint64 job_time)
 {
-  if (GetTime() == time) {
+  if (GetTime() == time && job_time > frame_cache_job_time_) {
     frame_cache_job_time_ = job_time;
 
     SetTexture(value.value<OpenGLTexturePtr>());

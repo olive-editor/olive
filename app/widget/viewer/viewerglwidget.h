@@ -58,26 +58,6 @@ public:
   virtual ~ViewerGLWidget() override;
 
   /**
-   * @brief Deleted copy constructor
-   */
-  ViewerGLWidget(const ViewerGLWidget& other) = delete;
-
-  /**
-   * @brief Deleted move constructor
-   */
-  ViewerGLWidget(ViewerGLWidget&& other) = delete;
-
-  /**
-   * @brief Deleted copy assignment
-   */
-  ViewerGLWidget& operator=(const ViewerGLWidget& other) = delete;
-
-  /**
-   * @brief Deleted move assignment
-   */
-  ViewerGLWidget& operator=(ViewerGLWidget&& other) = delete;
-
-  /**
    * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
    */
   void ConnectColorManager(ColorManager* color_manager);
