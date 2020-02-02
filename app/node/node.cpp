@@ -220,16 +220,6 @@ QString Node::ReadFileAsString(const QString &filename)
   return file_data;
 }
 
-void Node::LockUserInput()
-{
-  user_input_lock_.lock();
-}
-
-void Node::UnlockUserInput()
-{
-  user_input_lock_.unlock();
-}
-
 void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 {
   Q_ASSERT(source->id() == destination->id());
@@ -245,7 +235,7 @@ void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
 
       NodeInput* dst = static_cast<NodeInput*>(dst_param.at(i));
 
-      NodeInput::CopyValues(src, dst, include_connections, true);
+      NodeInput::CopyValues(src, dst, include_connections);
     }
   }
 }

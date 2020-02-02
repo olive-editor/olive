@@ -18,7 +18,7 @@ public:
   void InsertAt(int index);
   void RemoveLast();
   void RemoveAt(int index);
-  void SetSize(int size, bool lock = true);
+  void SetSize(int size);
 
   bool ContainsSubParameter(NodeInput* input) const;
   int IndexOfSubParameter(NodeInput* input) const;

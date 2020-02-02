@@ -869,7 +869,7 @@ void NodeInput::set_maximum(const QVariant &max)
   has_maximum_ = true;
 }
 
-void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections, bool lock_connections)
+void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
 {
   Q_ASSERT(source->id() == dest->id());
 
@@ -889,7 +889,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
 
   // Copy connections
   if (include_connections && source->get_connected_output() != nullptr) {
-    ConnectEdge(source->get_connected_output(), dest, lock_connections);
+    ConnectEdge(source->get_connected_output(), dest);
   }
 
   // If these inputs are an array, copy the subparams too
@@ -897,7 +897,7 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
     NodeInputArray* src_array = static_cast<NodeInputArray*>(source);
     NodeInputArray* dst_array = static_cast<NodeInputArray*>(dest);
 
-    dst_array->SetSize(src_array->GetSize(), lock_connections);
+    dst_array->SetSize(src_array->GetSize());
 
     for (int i=0;i<dst_array->GetSize();i++) {
       CopyValues(src_array->At(i), dst_array->At(i), include_connections);

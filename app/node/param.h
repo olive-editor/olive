@@ -316,7 +316,7 @@ public:
    *
    * This function emits EdgeAdded().
    */
-  static NodeEdgePtr ConnectEdge(NodeOutput *output, NodeInput *input, bool lock = true);
+  static NodeEdgePtr ConnectEdge(NodeOutput *output, NodeInput *input);
 
   /**
    * @brief Disconnect an edge
@@ -327,7 +327,7 @@ public:
    *
    * Edge to disconnect.
    */
-  static void DisconnectEdge(NodeEdgePtr edge, bool lock = true);
+  static void DisconnectEdge(NodeEdgePtr edge);
 
   /**
    * @brief Disconnect an edge

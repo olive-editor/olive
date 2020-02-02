@@ -114,7 +114,7 @@ void NodeParam::DisconnectAll()
   }
 }
 
-NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lock)
+NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input)
 {
   if (!input->IsConnectable()) {
     return nullptr;
@@ -139,18 +139,8 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lo
   // that's difficult to diagnose. This makes that issue very clear.
   Q_ASSERT(output->parentNode() != input->parentNode());
 
-  if (lock) {
-    output->parentNode()->LockUserInput();
-    input->parentNode()->LockUserInput();
-  }
-
   output->edges_.append(edge);
   input->edges_.append(edge);
-
-  if (lock) {
-    output->parentNode()->UnlockUserInput();
-    input->parentNode()->UnlockUserInput();
-  }
 
   // Emit a signal than an edge was added (only one signal needs emitting)
   emit input->EdgeAdded(edge);
@@ -158,23 +148,13 @@ NodeEdgePtr NodeParam::ConnectEdge(NodeOutput *output, NodeInput *input, bool lo
   return edge;
 }
 
-void NodeParam::DisconnectEdge(NodeEdgePtr edge, bool lock)
+void NodeParam::DisconnectEdge(NodeEdgePtr edge)
 {
   NodeOutput* output = edge->output();
   NodeInput* input = edge->input();
 
-  if (lock) {
-    output->parentNode()->LockUserInput();
-    input->parentNode()->LockUserInput();
-  }
-
   output->edges_.removeOne(edge);
   input->edges_.removeOne(edge);
-
-  if (lock) {
-    output->parentNode()->UnlockUserInput();
-    input->parentNode()->UnlockUserInput();
-  }
 
   emit input->EdgeRemoved(edge);
 }

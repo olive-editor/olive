@@ -249,12 +249,6 @@ public:
   virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
 
   /**
-   * @brief User input lock prevents any user changes while a graph is being rendered
-   */
-  void LockUserInput();
-  void UnlockUserInput();
-
-  /**
    * @brief Copies inputs from from Node to another including connections
    *
    * Nodes must be of the same types (i.e. have the same ID)
@@ -373,11 +367,6 @@ private:
   static void GetDependenciesInternal(const Node* n, QList<Node*>& list, bool traverse, bool exclusive_only);
 
   QList<NodeParam *> params_;
-
-  /**
-   * @brief Used for thread safety from main thread
-   */
-  QMutex user_input_lock_;
 
   /**
    * @brief Internal variable for whether this Node can be deleted or not

@@ -26,7 +26,7 @@ void NodeInputArray::Prepend()
   InsertAt(0);
 }
 
-void NodeInputArray::SetSize(int size, bool lock)
+void NodeInputArray::SetSize(int size)
 {
   int old_size = GetSize();
 
@@ -41,9 +41,6 @@ void NodeInputArray::SetSize(int size, bool lock)
       delete sub_param;
     }
   }
-
-  if (lock)
-    parentNode()->LockUserInput();
 
   sub_params_.resize(size);
 
@@ -64,9 +61,6 @@ void NodeInputArray::SetSize(int size, bool lock)
       connect(new_param, &NodeInput::EdgeRemoved, this, &NodeInput::EdgeRemoved);
     }
   }
-
-  if (lock)
-    parentNode()->UnlockUserInput();
 
   emit SizeChanged(size);
 }
