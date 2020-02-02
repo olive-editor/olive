@@ -245,18 +245,16 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
   // Use this variable to find the closest frame in the range
   rational closest_time = -1;
 
-  for (int i=0;i<cache_queue_.size();i++) {
-    const TimeRange& range_here = cache_queue_.at(i);
-
+  foreach (const TimeRange& range_here, cache_queue_) {
     if (range_here.OverlapsWith(test_range, false, false)) {
       closest_time = -1;
       break;
     }
 
-    for (int i=0;i<2;i++) {
+    for (int j=0;j<2;j++) {
       rational compare;
 
-      if (i == 0) {
+      if (j == 0) {
         compare = Timecode::snap_time_to_timebase(range_here.in(), params_.time_base());
         if (compare > range_here.in()) {
           compare -= params_.time_base();

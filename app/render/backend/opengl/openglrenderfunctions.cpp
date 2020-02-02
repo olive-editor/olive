@@ -139,7 +139,7 @@ void OpenGLRenderFunctions::OCIOBlit(OpenGLShaderPtr pipeline,
 
   pipeline->setUniformValue("ove_ociolut", 2);
 
-  OpenGLRenderFunctions::Blit(pipeline, flipped, matrix);
+  Blit(pipeline, flipped, matrix);
 
   pipeline->release();
 
