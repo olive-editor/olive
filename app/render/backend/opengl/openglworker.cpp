@@ -180,7 +180,6 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
   }
 
   // Lock the shader so no other thread interferes as we set parameters and draw (and we don't interfere with any others)
-  shader->Lock();
   shader->bind();
 
   unsigned int input_texture_count = 0;
@@ -292,35 +291,32 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
                           static_cast<GLfloat>(video_params().width()),
                           static_cast<GLfloat>(video_params().height()));
 
-  if (node->IsBlock()) {
-    const Block* block_node = static_cast<const Block*>(node);
+  if (node->IsBlock() && static_cast<const Block*>(node)->type() == Block::kTransition) {
+    const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
 
-    if (block_node->type() == Block::kTransition) {
-      const TransitionBlock* transition_node = static_cast<const TransitionBlock*>(node);
+    // Provides total transition progress from 0.0 (start) - 1.0 (end)
+    shader->setUniformValue("ove_tprog_all", static_cast<GLfloat>(transition_node->GetTotalProgress(range.in())));
 
-      // Provides total transition progress from 0.0 (start) - 1.0 (end)
-      shader->setUniformValue("ove_tprog_all", static_cast<GLfloat>(transition_node->GetTotalProgress(range.in())));
+    // Provides progress of out section from 1.0 (start) - 0.0 (end)
+    shader->setUniformValue("ove_tprog_out", static_cast<GLfloat>(transition_node->GetOutProgress(range.in())));
 
-      // Provides progress of out section from 1.0 (start) - 0.0 (end)
-      shader->setUniformValue("ove_tprog_out", static_cast<GLfloat>(transition_node->GetOutProgress(range.in())));
-
-      // Provides progress of in section from 0.0 (start) - 1.0 (end)
-      shader->setUniformValue("ove_tprog_in", static_cast<GLfloat>(transition_node->GetInProgress(range.in())));
-    }
+    // Provides progress of in section from 0.0 (start) - 1.0 (end)
+    shader->setUniformValue("ove_tprog_in", static_cast<GLfloat>(transition_node->GetInProgress(range.in())));
   }
 
   // Some nodes use multiple iterations for optimization
   OpenGLTextureCache::ReferencePtr output_tex;
 
   for (int iteration=0;iteration<node->AcceleratedCodeIterations();iteration++) {
+    // If this is not the first iteration, set the parameter that will receive the last iteration's texture
+    OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
+    OpenGLTextureCache::ReferencePtr destination_tex = dst_refs.at(iteration%dst_refs.size());
+
     // Set iteration number
     shader->bind();
     shader->setUniformValue("ove_iteration", iteration);
     shader->release();
 
-    // If this is not the first iteration, set the parameter that will receive the last iteration's texture
-    OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
-    OpenGLTextureCache::ReferencePtr destination_tex = dst_refs.at(iteration%dst_refs.size());
     if (iteration > 0) {
       functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
       functions_->glBindTexture(GL_TEXTURE_2D, source_tex->texture()->texture());
@@ -338,10 +334,6 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
     // Update output reference to the last texture we wrote to
     output_tex = destination_tex;
   }
-
-  // Make sure all OpenGL functions are complete by this point before unlocking the shader (or another thread may
-  // change its parameters before our drawing in this thread is done)
-  shader->Unlock();
 
   // Release any textures we bound before
   while (input_texture_count > 0) {
@@ -371,8 +363,8 @@ void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 
   f->glReadPixels(0,
                   0,
-                  texture->texture()->width(),
-                  texture->texture()->height(),
+                  video_params().effective_width(),
+                  video_params().effective_height(),
                   format_info.pixel_format,
                   format_info.gl_pixel_type,
                   buffer.data());

@@ -22,6 +22,7 @@
 #define OPENGLFUNCTIONS_H
 
 #include <QMatrix4x4>
+#include <QMutex>
 #include <QOpenGLFunctions>
 
 #include "openglshader.h"
@@ -48,6 +49,7 @@ public:
   static void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
   static void PrepareToDraw(QOpenGLFunctions* f);
+
 };
 
 #endif // OPENGLFUNCTIONS_H

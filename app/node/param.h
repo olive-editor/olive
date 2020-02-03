@@ -21,7 +21,6 @@
 #ifndef NODEPARAM_H
 #define NODEPARAM_H
 
-#include <QMutex>
 #include <QObject>
 #include <QVariant>
 #include <QVector>

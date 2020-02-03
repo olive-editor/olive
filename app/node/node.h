@@ -22,7 +22,6 @@
 #define NODE_H
 
 #include <QCryptographicHash>
-#include <QMutex>
 #include <QObject>
 #include <QPointF>
 #include <QXmlStreamWriter>
