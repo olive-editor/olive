@@ -294,7 +294,8 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
 void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
 {
   if (!only_signal_last_frame_requested_ || last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
-    EmitCachedFrameReady(path.in(), value, job_time);
+    Q_UNUSED(job_time)
+    //EmitCachedFrameReady(path.in(), value, job_time);
   }
 
   if (!(operating_mode_ & VideoRenderWorker::kDownloadOnly)) {

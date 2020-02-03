@@ -24,6 +24,8 @@ set(OLIVE_SOURCES
   render/backend/opengl/openglexporter.cpp
   render/backend/opengl/openglframebuffer.h
   render/backend/opengl/openglframebuffer.cpp
+  render/backend/opengl/openglproxy.h
+  render/backend/opengl/openglproxy.cpp
   render/backend/opengl/openglrenderfunctions.h
   render/backend/opengl/openglrenderfunctions.cpp
   render/backend/opengl/openglshader.h

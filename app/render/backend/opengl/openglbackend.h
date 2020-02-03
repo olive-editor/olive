@@ -2,12 +2,12 @@
 #define OPENGLBACKEND_H
 
 #include "../videorenderbackend.h"
+#include "openglbackend.h"
 #include "openglframebuffer.h"
-#include "openglworker.h"
-#include "opengltexture.h"
-#include "opengltexturecache.h"
+#include "openglproxy.h"
 #include "openglshader.h"
-#include "openglshadercache.h"
+#include "opengltexture.h"
+#include "openglworker.h"
 
 class OpenGLBackend : public VideoRenderBackend
 {
@@ -35,14 +35,12 @@ protected:
 private:
   OpenGLTexturePtr CopyTexture(OpenGLTexturePtr input);
 
-  OpenGLShaderCache shader_cache_;
-
-  OpenGLTextureCache texture_cache_;
-
   OpenGLTexturePtr master_texture_;
 
   OpenGLFramebuffer copy_buffer_;
   OpenGLShaderPtr copy_pipeline_;
+
+  OpenGLProxy* proxy_;
 
 };
 
