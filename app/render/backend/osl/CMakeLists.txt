@@ -16,7 +16,9 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  render/backend/vulkan/vulkanbackend.h
-  render/backend/vulkan/vulkanbackend.cpp
+  render/backend/osl/oslbackend.h
+  render/backend/osl/oslbackend.cpp
+  render/backend/osl/oslworker.h
+  render/backend/osl/oslworker.cpp
   PARENT_SCOPE
 )

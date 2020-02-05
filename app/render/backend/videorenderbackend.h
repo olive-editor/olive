@@ -101,7 +101,7 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void EmitCachedFrameReady(const rational &time, const QVariant& value, qint64 job_time) = 0;
+  virtual void EmitCachedFrameReady(const rational &time, const QVariant& value, qint64 job_time);
 
   virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
 

@@ -154,6 +154,11 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
   connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists, Qt::QueuedConnection);
 }
 
+void VideoRenderBackend::EmitCachedFrameReady(const rational &time, const QVariant &value, qint64 job_time)
+{
+  emit CachedFrameReady(time, value, job_time);
+}
+
 void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
 {
   TimeRange invalidated(start_range, end_range);
