@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
 
 #include "core.h"
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "common/timecodefunctions.h"
 #include "node/node.h"
 #include "widget/keyframeview/keyframeviewundo.h"

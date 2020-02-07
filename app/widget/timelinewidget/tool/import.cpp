@@ -24,7 +24,7 @@
 #include <QToolTip>
 
 #include "config/config.h"
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "core.h"
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transform.h"

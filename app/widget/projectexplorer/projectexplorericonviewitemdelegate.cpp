@@ -22,7 +22,7 @@
 
 #include <QPainter>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 
 ProjectExplorerIconViewItemDelegate::ProjectExplorerIconViewItemDelegate(QObject *parent) :
   QStyledItemDelegate (parent)

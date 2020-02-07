@@ -27,7 +27,7 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "node/block/transition/transition.h"
 
 TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :

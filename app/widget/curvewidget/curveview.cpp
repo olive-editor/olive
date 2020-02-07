@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 #include <QtMath>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 
 CurveView::CurveView(QWidget *parent) :
   KeyframeViewBase(parent)

@@ -26,7 +26,7 @@
 #include <QtMath>
 
 #include "common/timecodefunctions.h"
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "config/config.h"
 #include "core.h"
 

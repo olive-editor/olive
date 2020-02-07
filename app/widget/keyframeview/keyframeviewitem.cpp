@@ -5,7 +5,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QWidget>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 
 KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),

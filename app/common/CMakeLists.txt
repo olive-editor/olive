@@ -29,8 +29,8 @@ set(OLIVE_SOURCES
   common/flipmodifiers.h
   common/flipmodifiers.cpp
   common/lerp.h
-  common/qtversionabstraction.h
-  common/qtversionabstraction.cpp
+  common/qtutils.h
+  common/qtutils.cpp
   common/range.h
   common/rational.h
   common/rational.cpp

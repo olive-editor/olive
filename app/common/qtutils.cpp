@@ -18,7 +18,7 @@
 
 ***/
 
-#include "qtversionabstraction.h"
+#include "qtutils.h"
 
 int QFontMetricsWidth(QFontMetrics fm, const QString& s) {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)

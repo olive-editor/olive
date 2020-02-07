@@ -5,7 +5,7 @@
 #include <QPainter>
 
 #include "audio/audiomanager.h"
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 
 const int kDecibelStep = 6;
 const int kDecibelMinimum = -200;

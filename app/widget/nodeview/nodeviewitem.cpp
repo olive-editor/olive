@@ -26,7 +26,7 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "core.h"
 #include "nodeview.h"
 #include "nodeviewundo.h"

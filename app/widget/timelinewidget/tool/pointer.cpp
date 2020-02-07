@@ -25,7 +25,7 @@
 
 #include "common/clamp.h"
 #include "common/flipmodifiers.h"
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 #include "common/range.h"
 #include "common/timecodefunctions.h"
 #include "config/config.h"

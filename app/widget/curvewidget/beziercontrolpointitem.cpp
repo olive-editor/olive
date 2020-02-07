@@ -5,7 +5,7 @@
 #include <QStyleOptionGraphicsItem>
 #include <QWidget>
 
-#include "common/qtversionabstraction.h"
+#include "common/qtutils.h"
 
 BezierControlPointItem::BezierControlPointItem(NodeKeyframePtr key, NodeKeyframe::BezierType mode, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
