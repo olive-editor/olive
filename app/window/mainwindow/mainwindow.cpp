@@ -94,6 +94,8 @@ MainWindow::MainWindow(QWidget *parent) :
   viewer_panel_->ConnectTimeBasedPanel(timeline_panel_);
   viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+
+  UpdateTitle();
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)
@@ -158,6 +160,13 @@ void MainWindow::closeEvent(QCloseEvent *e)
   PanelManager::instance()->DeleteAllPanels();
 
   QMainWindow::closeEvent(e);
+}
+
+void MainWindow::UpdateTitle()
+{
+  setWindowTitle(QStringLiteral("%1 %2 - %3").arg(QApplication::applicationName(),
+                                                  QApplication::applicationVersion(),
+                                                  tr("<untitled>")));
 }
 
 void MainWindow::SetDefaultLayout()

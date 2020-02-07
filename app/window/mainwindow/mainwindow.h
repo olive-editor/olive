@@ -55,6 +55,8 @@ protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
+  void UpdateTitle();
+
   QByteArray premaximized_state_;
 
   // Standard panels
