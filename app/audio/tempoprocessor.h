@@ -1,6 +1,12 @@
 #ifndef TEMPOPROCESSOR_H
 #define TEMPOPROCESSOR_H
 
+#ifdef __MINGW32__
+#ifndef __USE_MINGW_ANSI_STDIO
+#define __USE_MINGW_ANSI_STDIO
+#endif
+#endif
+
 #include <inttypes.h>
 
 extern "C" {
