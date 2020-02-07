@@ -18,7 +18,7 @@ protected:
 
   virtual void DecompileInternal() override;
 
-  virtual void ParamsChangedEvent() override;
+  //virtual void ParamsChangedEvent() override;
 
 };
 

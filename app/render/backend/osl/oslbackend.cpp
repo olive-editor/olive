@@ -1,5 +1,6 @@
 #include "oslbackend.h"
 
+#include <OSL/oslexec.h>
 #include <QEventLoop>
 #include <QThread>
 
@@ -34,6 +35,8 @@ bool OSLBackend::InitInternal()
 
 bool OSLBackend::CompileInternal()
 {
+  //OSL::ShadingSystem;
+
   return true;
 }
 

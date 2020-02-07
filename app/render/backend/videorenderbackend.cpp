@@ -300,6 +300,7 @@ void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_ti
 {
   if (!only_signal_last_frame_requested_ || last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
     Q_UNUSED(job_time)
+    Q_UNUSED(value)
     //EmitCachedFrameReady(path.in(), value, job_time);
   }
 

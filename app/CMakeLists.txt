@@ -91,7 +91,6 @@ target_include_directories(
 
 target_link_libraries(${OLIVE_TARGET}
   PRIVATE
-  OpenGL::GL
   Qt5::Core
   Qt5::Gui
   Qt5::Widgets
