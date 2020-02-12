@@ -78,15 +78,17 @@ if(MSVC)
     "$<$<CONFIG:RELEASE>:/O2>"
   )
 else()
-  target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion)
+  target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wsign-conversion)
 endif()
 
 target_include_directories(
   ${OLIVE_TARGET}
   PRIVATE
-  ${OPENCOLORIO_INCLUDE_DIR}
-  ${OIIO_INCLUDE_DIRS}
   ${FFMPEG_INCLUDE_DIRS}
+  ${OCIO_INCLUDE_DIRS}
+  ${OIIO_INCLUDE_DIRS}
+  ${OSL_INCLUDE_DIRS}
+  ${OPENEXR_INCLUDE_DIRS}
 )
 
 target_link_libraries(${OLIVE_TARGET}
@@ -105,6 +107,8 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swresample
   ${OCIO_LIBRARIES}
   ${OIIO_LIBRARIES}
+  ${OSL_LIBRARIES}
+  ${OPENEXR_LIBRARIES}
 )
 
 set(OLIVE_TS_FILES

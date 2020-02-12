@@ -19,7 +19,7 @@ public:
   bool Has(K key) const {return values_.contains(key);}
 
 private:
-  QMap<K, V> values_;
+  QHash<K, V> values_;
 };
 
 template<class K, class V>
@@ -55,7 +55,7 @@ public:
   }
 
 private:
-  QMap<K, V> values_;
+  QHash<K, V> values_;
 
   QMutex lock_;
 

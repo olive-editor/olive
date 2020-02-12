@@ -18,6 +18,9 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/backend/osl/oslbackend.h
   render/backend/osl/oslbackend.cpp
+  render/backend/osl/oslrenderer.h
+  render/backend/osl/oslrenderer.cpp
+  render/backend/osl/oslshadercache.h
   render/backend/osl/oslworker.h
   render/backend/osl/oslworker.cpp
   PARENT_SCOPE
