@@ -70,6 +70,12 @@ void OSLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *t
 
 void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
 {
+  Q_UNUSED(node)
+  Q_UNUSED(range)
+  Q_UNUSED(input_params)
+  Q_UNUSED(output_params)
+
+  /*
   if (!node->IsAccelerated()) {
     return;
   }
@@ -294,6 +300,7 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
   }
 
   output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
+  */
 }
 
 void OSLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
