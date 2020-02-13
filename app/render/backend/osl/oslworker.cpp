@@ -7,6 +7,7 @@
 #include <QVector4D>
 
 #include "common/clamp.h"
+#include "common/define.h"
 #include "core.h"
 #include "node/block/transition/transition.h"
 #include "node/node.h"
@@ -45,14 +46,14 @@ void OSLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *t
     color_cache_->Add(video_stream->colorspace(), color_processor);
   }
 
+  // Convert frame to float for OCIO
+  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
+    frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+  }
+
   // If alpha is associated, disassociate for the color transform
   if (video_stream->premultiplied_alpha()) {
     ColorManager::DisassociateAlpha(frame);
-  }
-
-  // Convert frame to float for OCIO
-  if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-    frame = PixelService::ConvertPixelFormat(frame, frame->format());
   }
 
   // Perform color transform
@@ -65,17 +66,15 @@ void OSLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *t
     ColorManager::AssociateAlpha(frame);
   }
 
-  table->Push(NodeParam::kTexture, QVariant::fromValue(frame));
+  OIIOImageBufRef buf = std::make_shared<OIIO::ImageBuf>(OIIO::ImageSpec(frame->width(), frame->height(), kRGBAChannels, OIIO::TypeDesc::FLOAT));
+
+  memcpy(buf->localpixels(), frame->data(), frame->allocated_size());
+
+  table->Push(NodeParam::kTexture, QVariant::fromValue(buf));
 }
 
 void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
 {
-  Q_UNUSED(node)
-  Q_UNUSED(range)
-  Q_UNUSED(input_params)
-  Q_UNUSED(output_params)
-
-  /*
   if (!node->IsAccelerated()) {
     return;
   }
@@ -86,15 +85,10 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
     return;
   }
 
-  // Create the output textures
-  QList<OpenGLTextureCache::ReferencePtr> dst_refs;
-  dst_refs.append(texture_cache_.Get(ctx_, video_params_));
-  GLuint iterative_input = 0;
+  int input_texture_count = 0;
 
-  // If this node requires multiple iterations, get a texture for it too
-  if (node->AcceleratedCodeIterations() > 1 && node->AcceleratedCodeIterativeInput()) {
-    dst_refs.append(texture_cache_.Get(ctx_, video_params_));
-  }
+  OIIOImageBufRef iteration_buf = nullptr;
+  int iteration_id = -1;
 
   foreach (NodeParam* param, node->parameters()) {
     if (param->type() == NodeParam::kInput) {
@@ -160,16 +154,39 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
       case NodeInput::kTexture:
       case NodeInput::kBuffer:
       {
-        OpenGLTextureCache::ReferencePtr texture = value.value<OpenGLTextureCache::ReferencePtr>();
+        OIIOImageBufRef buf = value.value<OIIOImageBufRef>();
 
-        functions_->glActiveTexture(GL_TEXTURE0 + input_texture_count);
+        if (buf) {
 
-        GLuint tex_id = texture ? texture->texture()->texture() : 0;
-        functions_->glBindTexture(GL_TEXTURE_2D, tex_id);
+          QString tex_fn = ImageBufToTexture(*buf.get(), input_texture_count);
 
-        // Set value to bound texture
-        shader->setUniformValue(variable_location, input_texture_count);
+          if (!tex_fn.isEmpty()) {
+            QByteArray tex_fn_bytes = tex_fn.toUtf8();
+            const char* tex_fn_c_str = tex_fn_bytes.constData();
 
+            if (!shading_system_->ReParameter(*group.get(), "layer1", param->id().toStdString(), OIIO::TypeDesc::STRING, &tex_fn_c_str)) {
+              qDebug() << "Failed to set string parameter";
+            }
+          }
+
+        } else {
+
+          shading_system_->ReParameter(*group.get(), "layer1", param->id().toStdString(), OIIO::TypeDesc::STRING, nullptr);
+
+        }
+
+        if (node->AcceleratedCodeIterativeInput() == input) {
+          iteration_buf = buf;
+
+          iteration_id = input_texture_count;
+        }
+
+
+
+
+
+
+        /*
         // Set enable flag if shader wants it
         int enable_param_location = shader->uniformLocation(QStringLiteral("%1_enabled").arg(input->id()));
         if (enable_param_location > -1) {
@@ -187,12 +204,10 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
           }
         }
 
-        // If this texture binding is the iterative input, set it here
-        if (input == node->AcceleratedCodeIterativeInput()) {
-          iterative_input = input_texture_count;
-        }
+
 
         OpenGLRenderFunctions::PrepareToDraw(functions_);
+        */
 
         input_texture_count++;
         break;
@@ -253,14 +268,10 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
                                  &p);
   }
 
+  OIIOImageBufRef dest_buf = nullptr;
+
   // Some nodes use multiple iterations for optimization
-  OpenGLTextureCache::ReferencePtr output_tex;
-
   for (int iteration=0;iteration<node->AcceleratedCodeIterations();iteration++) {
-    // If this is not the first iteration, set the parameter that will receive the last iteration's texture
-    OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
-    OpenGLTextureCache::ReferencePtr destination_tex = dst_refs.at(iteration%dst_refs.size());
-
     // Set iteration number
     shading_system_->ReParameter(*group.get(),
                                  "layer1",
@@ -269,13 +280,28 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
                                  &iteration);
 
     if (iteration > 0) {
-      functions_->glActiveTexture(GL_TEXTURE0 + iterative_input);
-      functions_->glBindTexture(GL_TEXTURE_2D, source_tex->texture()->texture());
+      // Convert destination buffer into texture
+      QString s = ImageBufToTexture(*dest_buf.get(), iteration_id);
+
+      QByteArray s_bytes = s.toUtf8();
+      const char* s_c_str = s_bytes.constData();
+
+      // Set texture as iterative input
+      shading_system_->ReParameter(*group.get(), "layer1", node->AcceleratedCodeIterativeInput()->id().toStdString(), OIIO::TypeDesc::STRING, &s_c_str);
+
+      // Swap destination buffer and iteration buffer
+      std::swap(iteration_buf, dest_buf);
     }
 
-    destination_tex->texture(); // DESTINATION TEXTURE
+    // Ensure dest_buf exists
+    if (!dest_buf) {
+      dest_buf = std::make_shared<OIIO::ImageBuf>(OIIO::ImageSpec(video_params().width(),
+                                                                  video_params().height(),
+                                                                  kRGBAChannels,
+                                                                  PixelService::GetPixelFormatInfo(video_params().format()).oiio_desc));
+    }
 
-    static OIIO::array_view<OSL::ustring> outputs = {OSL::ustring("Cout")};
+    static OSL::ustring outputs[] = {OSL::ustring("Cout")};
 
     OIIO::ImageBufAlgo::parallel_image_options popt;
 #if OPENIMAGEIO_VERSION > 10902
@@ -284,28 +310,44 @@ void OSLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, con
     popt.recursive = true;
 #endif
 
-    OIIO::ImageBuf buffer;
-
     shade_image(*shading_system_,
                 *group.get(),
                 nullptr,
-                buffer,
+                *dest_buf.get(),
                 outputs,
                 OSL::ShadePixelCenters,
                 OIIO::ROI(),
                 popt);
-
-    // Update output reference to the last texture we wrote to
-    output_tex = destination_tex;
   }
 
-  output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
-  */
+  output_params->Push(NodeParam::kTexture, QVariant::fromValue(dest_buf));
 }
 
 void OSLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 {
-  FramePtr frame = tex_in.value<FramePtr>();
+  OIIOImageBufRef frame = tex_in.value<OIIOImageBufRef>();
 
-  memcpy(buffer.data(), frame->data(), static_cast<size_t>(buffer.size()));
+  memcpy(buffer.data(), frame->localpixels(), static_cast<size_t>(buffer.size()));
+}
+
+QString OSLWorker::ImageBufToTexture(const OpenImageIO_v2_1::ImageBuf &buf, int tex_no)
+{
+  OIIO::ImageSpec config;
+  config.attribute("maketx:filtername", "lanczos3");
+
+  QString tex_fn = QStringLiteral("C:/Users/Matt/Desktop/temp-%1-%2.tx").arg(QString::number(reinterpret_cast<quintptr>(this)), QString::number(tex_no));
+
+  stringstream s;
+
+  if (!OIIO::ImageBufAlgo::make_texture(OIIO::ImageBufAlgo::MakeTextureMode::MakeTxTexture,
+                                       buf,
+                                       tex_fn.toStdString(),
+                                       config,
+                                       &s)) {
+    qCritical() << "Failed to make_texture:" << s.str().c_str();
+
+    return QString();
+  }
+
+  return tex_fn;
 }

@@ -46,6 +46,7 @@
 #include "project/projectsavemanager.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
+#include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
 #include "render/pixelservice.h"

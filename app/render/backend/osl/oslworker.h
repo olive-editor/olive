@@ -25,6 +25,8 @@ protected:
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) override;
 
 private:
+  QString ImageBufToTexture(const OIIO::ImageBuf& buffer, int tex_no);
+
   OSL::ShadingSystem* shading_system_;
 
   OSLShaderCache* shader_cache_;
@@ -32,5 +34,8 @@ private:
   ColorProcessorCache* color_cache_;
 
 };
+
+using OIIOImageBufRef = std::shared_ptr<OIIO::ImageBuf>;
+Q_DECLARE_METATYPE(OIIOImageBufRef)
 
 #endif // OSLWORKER_H

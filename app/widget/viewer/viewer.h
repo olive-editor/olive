@@ -30,7 +30,7 @@
 
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
-#include "render/backend/opengl/openglbackend.h"
+#include "render/backend/osl/oslbackend.h"
 #include "render/backend/opengl/opengltexture.h"
 #include "render/backend/audio/audiobackend.h"
 #include "viewerglwidget.h"
@@ -124,7 +124,7 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  OpenGLBackend* video_renderer_;
+  OSLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
 
 private:

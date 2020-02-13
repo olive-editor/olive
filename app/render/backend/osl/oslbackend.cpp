@@ -65,21 +65,24 @@ bool OSLBackend::CompileInternal()
   foreach (Node* n, deps) {
     if (!shader_cache_.Has(n->id())) {
       if (n->IsAccelerated()) {
-        // FIXME: Compile here
 
         std::string oso_buffer;
+
+        QString function_name = n->id().replace('.', '_');
 
         if (!compiler.compile_buffer(n->AcceleratedCodeFragment().toStdString(),
                                      oso_buffer,
                                      std::vector<std::string>(),
                                      "",
-                                     n->id().toStdString())) {
+                                     function_name.toStdString())) {
           qWarning() << "Failed to compile" << n->id();
           return false;
         }
 
+        system->LoadMemoryCompiledShader(function_name.toStdString(), oso_buffer);
+
         OSL::ShaderGroupRef ref = system->ShaderGroupBegin(n->id().toStdString());
-        system->Shader("surface", n->id().toStdString(), "layer1");
+        system->Shader("shader", function_name.toStdString(), "layer1");
         system->ShaderGroupEnd();
 
         shader_cache_.Add(n->id(), ref);
