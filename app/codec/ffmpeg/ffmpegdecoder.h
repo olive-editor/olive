@@ -61,6 +61,8 @@ public:
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
+  void SetMultithreading(bool e);
+
 private:
   void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
 
@@ -144,6 +146,8 @@ private:
   AVDictionary* opts_;
 
   QVector<int64_t> frame_index_;
+
+  bool multithreading_;
 
 };
 

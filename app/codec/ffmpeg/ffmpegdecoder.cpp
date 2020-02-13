@@ -47,7 +47,8 @@ FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
   pkt_(nullptr),
   frame_(nullptr),
-  opts_(nullptr)
+  opts_(nullptr),
+  multithreading_(false)
 {
 }
 
@@ -125,8 +126,8 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
-  // enable multithreading on decoding
-  error_code = av_dict_set(&opts_, "threads", "auto", 0);
+  // Set multithreading setting
+  error_code = av_dict_set(&opts_, "threads", multithreading_ ? "auto" : "1", 0);
 
   // Handle failure to set multithreaded decoding
   if (error_code < 0) {
@@ -522,6 +523,11 @@ bool FFmpegDecoder::SupportsVideo()
 bool FFmpegDecoder::SupportsAudio()
 {
   return true;
+}
+
+void FFmpegDecoder::SetMultithreading(bool e)
+{
+  multithreading_ = e;
 }
 
 void FFmpegDecoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const char* in_data, int in_sample_count)
