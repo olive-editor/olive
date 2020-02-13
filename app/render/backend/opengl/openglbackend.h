@@ -2,7 +2,6 @@
 #define OPENGLBACKEND_H
 
 #include "../videorenderbackend.h"
-#include "openglbackend.h"
 #include "openglframebuffer.h"
 #include "openglproxy.h"
 #include "openglshader.h"

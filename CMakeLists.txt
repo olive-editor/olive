@@ -37,13 +37,11 @@ if(UNIX AND NOT APPLE AND NOT DEFINED OpenGL_GL_PREFERENCE)
   set(OpenGL_GL_PREFERENCE LEGACY)
 endif()
 
+find_package(OpenGL REQUIRED)
+
 find_package(OpenColorIO REQUIRED)
 
 find_package(OpenImageIO REQUIRED)
-
-find_package(OpenShadingLanguage REQUIRED)
-
-find_package(OpenEXR REQUIRED)
 
 find_package(Qt5 5.6 REQUIRED
   COMPONENTS

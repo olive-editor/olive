@@ -82,7 +82,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   SetScale(48.0);
 
   // Start background renderers
-  video_renderer_ = new OSLBackend(this);
+  video_renderer_ = new OpenGLBackend(this);
   connect(video_renderer_, &VideoRenderBackend::CachedFrameReady, this, &ViewerWidget::RendererCachedFrame);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
@@ -225,7 +225,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
   if (!GetConnectedNode()) {
     SetTexture(nullptr);
   } else {
-    //SetTexture(video_renderer_->GetCachedFrameAsTexture(time));
+    SetTexture(video_renderer_->GetCachedFrameAsTexture(time));
   }
 }
 

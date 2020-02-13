@@ -90,7 +90,7 @@ void Config::SetDefaults()
 
   // Online/offline settings
   config_map_["OnlinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;
-  config_map_["OfflinePixelFormat"] = PixelFormat::PIX_FMT_RGBA32F;
+  config_map_["OfflinePixelFormat"] = PixelFormat::PIX_FMT_RGBA16F;
   config_map_["OnlineSampleFormat"] = SampleFormat::SAMPLE_FMT_FLT;
   config_map_["OfflineSampleFormat"] = SampleFormat::SAMPLE_FMT_FLT;
   config_map_["OnlineOCIOMethod"] = ColorManager::kOCIOAccurate;

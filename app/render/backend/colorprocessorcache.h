@@ -5,6 +5,6 @@
 #include "render/colorprocessor.h"
 #include "rendercache.h"
 
-using ColorProcessorCache = ThreadSafeRenderCache<QString, ColorProcessorPtr>;
+using ColorProcessorCache = RenderCache<QString, ColorProcessorPtr>;
 
 #endif // COLORPROCESSORCACHE_H

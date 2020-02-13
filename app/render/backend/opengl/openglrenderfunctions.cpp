@@ -118,9 +118,6 @@ void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix
   m_vbo.destroy();
   m_vao.release();
   m_vao.destroy();
-
-  // Make sure drawing is actually complete before this function returns
-  func->glFinish();
 }
 
 void OpenGLRenderFunctions::OCIOBlit(OpenGLShaderPtr pipeline,

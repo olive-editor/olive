@@ -16,7 +16,6 @@
 
 add_subdirectory(audio)
 add_subdirectory(opengl)
-add_subdirectory(osl)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

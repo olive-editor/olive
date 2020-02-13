@@ -87,8 +87,6 @@ target_include_directories(
   ${FFMPEG_INCLUDE_DIRS}
   ${OCIO_INCLUDE_DIRS}
   ${OIIO_INCLUDE_DIRS}
-  ${OSL_INCLUDE_DIRS}
-  ${OPENEXR_INCLUDE_DIRS}
 )
 
 target_link_libraries(${OLIVE_TARGET}
@@ -99,6 +97,7 @@ target_link_libraries(${OLIVE_TARGET}
   Qt5::Multimedia
   Qt5::OpenGL
   Qt5::Svg
+  OpenGL::GL
   FFMPEG::avutil
   FFMPEG::avcodec
   FFMPEG::avformat
@@ -107,8 +106,6 @@ target_link_libraries(${OLIVE_TARGET}
   FFMPEG::swresample
   ${OCIO_LIBRARIES}
   ${OIIO_LIBRARIES}
-  ${OSL_LIBRARIES}
-  ${OPENEXR_LIBRARIES}
 )
 
 set(OLIVE_TS_FILES
