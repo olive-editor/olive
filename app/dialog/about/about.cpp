@@ -21,8 +21,8 @@
 #include "about.h"
 
 #include <QApplication>
-#include <QLabel>
 #include <QDialogButtonBox>
+#include <QLabel>
 #include <QVBoxLayout>
 
 AboutDialog::AboutDialog(QWidget *parent) :
