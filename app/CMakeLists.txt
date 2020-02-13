@@ -78,7 +78,7 @@ if(MSVC)
     "$<$<CONFIG:RELEASE>:/O2>"
   )
 else()
-  target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wsign-conversion)
+  target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wno-unused-parameter)
 endif()
 
 target_include_directories(
