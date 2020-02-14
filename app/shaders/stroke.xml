@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<effect id="org.olivevideoeditor.Olive.dropshadow">
+<effect id="org.olivevideoeditor.Olive.gaussianblur">
     <!-- Effect Name -->
-    <name lang="en_US">Drop Shadow</name>
-
+    <name lang="en_US">Stroke</name>
+    
     <!-- Effect Category -->
     <category lang="en_US">Stylize</category>
     <category lang="en_GB">Stylise</category>
 
     <!-- Effect Description -->
     <description lang="en_US">
-        Generate a drop shadow of a clip.
+        Creates a stroke outline around an image.
     </description>
 
     <!-- Parameter: Texture Input -->
@@ -17,40 +17,27 @@
         <name lang="en_US">Input</name>
     </param>
 
-    <!-- Parameter: Color Input -->
+    <!-- Parameter: Color Value -->
     <param id="color_in" type="color">
         <name lang="en_US">Color</name>
         <name lang="en_GB">Colour</name>
     </param>
 
-    <!-- Parameter: Softness Input -->
-    <param id="softness_in" type="float">
-        <name lang="en_US">Softness</name>
+    <!-- Parameter: Radius Value -->
+    <param id="radius_in" type="float">
+        <name lang="en_US">Radius</name>
         <min>0</min>
         <default>10</default>
     </param>
 
-    <!-- Parameter: Opacity Input -->
+    <!-- Parameter: Opacity Value -->
     <param id="opacity_in" type="float">
         <name lang="en_US">Opacity</name>
         <min>0</min>
-        <default>80</default>
+        <default>100</default>
         <max>100</max>
     </param>
 
-    <!-- Parameter: Distance Input -->
-    <param id="distance_in" type="float">
-        <name lang="en_US">Distance</name>
-        <min>0</min>
-        <default>10</default>
-    </param>
-
-    <!-- Parameter: Direction Input -->
-    <param id="direction_in" type="float">
-        <name lang="en_US">Direction</name>
-        <default>45</default>
-    </param>
-
     <!-- Qt Resource path to fragment shader -->
-    <fragment url=":/shaders/dropshadow.frag"/>
+    <fragment url=":/shaders/stroke.frag" />
 </effect>

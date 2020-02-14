@@ -16,6 +16,8 @@
         <file>opacity.xml</file>
         <file>solid.frag</file>
         <file>solid.xml</file>
+        <file>stroke.frag</file>
+        <file>stroke.xml</file>
         <file>videoinput.frag</file>
         <file>videoinput.vert</file>
     </qresource>
