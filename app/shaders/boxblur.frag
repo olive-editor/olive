@@ -8,6 +8,7 @@ uniform sampler2D tex_in;
 uniform float radius_in;
 uniform bool horiz_in;
 uniform bool vert_in;
+uniform bool repeat_edge_pixels_in;
 
 void main(void) {
     if (radius_in == 0.0
@@ -31,7 +32,14 @@ void main(void) {
         } else if (ove_iteration == 1) {
             pixel_coord.y += i/ove_resolution.y;
         }
-        composite += texture2D(tex_in, pixel_coord) * divider;
+
+        if (repeat_edge_pixels_in
+            || (pixel_coord.x >= 0.0
+                && pixel_coord.x < 1.0
+                && pixel_coord.y >= 0.0
+                && pixel_coord.y < 1.0)) {
+            composite += texture2D(tex_in, pixel_coord) * divider;
+        }
     }
     gl_FragColor = composite;
 }
