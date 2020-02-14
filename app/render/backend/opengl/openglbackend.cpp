@@ -73,6 +73,8 @@ void OpenGLBackend::CloseInternal()
   copy_buffer_.Destroy();
   copy_pipeline_ = nullptr;
   master_texture_ = nullptr;
+
+  VideoRenderBackend::CloseInternal();
 }
 
 OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
