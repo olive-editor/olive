@@ -217,8 +217,9 @@ void VideoRenderWorker::Download(QVariant texture, QString filename)
   // Set up OIIO::ImageSpec for compressing cached images on disk
   OIIO::ImageSpec spec(video_params().effective_width(), video_params().effective_height(), kRGBAChannels, format_info.oiio_desc);
 
-  if (video_params_.format() != PixelFormat::PIX_FMT_RGBA8) {
-    // 8-bit doesn't use EXR because EXR loading is really slow on 8-bit
+  if (video_params_.format() != PixelFormat::PIX_FMT_RGBA8
+      && video_params_.format() != PixelFormat::PIX_FMT_RGBA16U) {
+    // Integer types don't use EXR (they use TIFF instead) because EXR is very slow with integer formats
     spec.attribute("compression", "dwaa:200");
   }
 
@@ -227,6 +228,9 @@ void VideoRenderWorker::Download(QVariant texture, QString filename)
   std::string working_fn_std = filename.toStdString();
 
   auto out = OIIO::ImageOutput::create(working_fn_std);
+
+  // Keep export to this thread only
+  out->threads(1);
 
   if (out) {
     out->open(working_fn_std, spec);
