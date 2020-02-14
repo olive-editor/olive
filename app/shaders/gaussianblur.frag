@@ -10,6 +10,7 @@ uniform sampler2D tex_in;
 uniform float sigma_in;
 uniform bool horiz_in;
 uniform bool vert_in;
+uniform bool repeat_edge_pixels_in;
 
 // Gaussian function uses PI
 #define M_PI 3.1415926535897932384626433832795
@@ -62,7 +63,13 @@ void main(void) {
             pixel_coord.y += i/ove_resolution.y;
         }
 
-        composite += texture2D(tex_in, pixel_coord) * weight;
+        if (repeat_edge_pixels_in
+            || (pixel_coord.x >= 0.0
+                && pixel_coord.x < 1.0
+                && pixel_coord.y >= 0.0
+                && pixel_coord.y < 1.0)) {
+            composite += texture2D(tex_in, pixel_coord) * weight;
+        }
     }
     gl_FragColor = composite;
 }

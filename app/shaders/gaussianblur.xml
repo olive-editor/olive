@@ -35,6 +35,12 @@
         <default>1</default>
     </param>
 
+    <!-- Parameter: Repeat Edge Pixels -->
+    <param id="repeat_edge_pixels_in" type="bool">
+        <name lang="en_US">Repeat Edge Pixels</name>
+        <default>0</default>
+    </param>
+
     <!-- Qt Resource path to fragment shader -->
     <fragment url=":/shaders/gaussianblur.frag" />
 
