@@ -156,16 +156,6 @@ void OpenGLTexture::Upload(const void *data)
   Release();
 }
 
-void OpenGLTexture::Lock()
-{
-  mutex_.lock();
-}
-
-void OpenGLTexture::Unlock()
-{
-  mutex_.unlock();
-}
-
 void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, const void *data)
 {
   QOpenGLFunctions* f = create_ctx->functions();

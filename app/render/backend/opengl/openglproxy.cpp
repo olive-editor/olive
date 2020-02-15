@@ -364,8 +364,6 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 
   PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params_.format());
 
-  texture->texture()->Lock();
-
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   buffer_.Attach(texture->texture());
   buffer_.Bind();
@@ -380,8 +378,6 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
 
   buffer_.Release();
   buffer_.Detach();
-
-  texture->texture()->Unlock();
 }
 
 void OpenGLProxy::SetParameters(const VideoRenderingParams &params)
