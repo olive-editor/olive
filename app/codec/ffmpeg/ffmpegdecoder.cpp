@@ -912,7 +912,7 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
       // Send a null packet to signal end of
       avcodec_send_packet(codec_ctx_, nullptr);
     } else if (ret < 0) {
-      // Handle other error
+      // Handle other error by breaking loop and returning the code we received
       break;
     } else {
       // Successful read, send the packet
