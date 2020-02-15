@@ -59,6 +59,7 @@ public:
 
   static TaskManager* instance();
 
+public slots:
   /**
    * @brief Add a new Task
    *
