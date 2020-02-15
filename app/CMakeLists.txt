@@ -70,6 +70,7 @@ if(MSVC)
     /WX
     /W4
     /wd4127
+    /wd4267
     /wd4456
     /wd4706
     /experimental:external
@@ -78,7 +79,17 @@ if(MSVC)
     "$<$<CONFIG:RELEASE>:/O2>"
   )
 else()
-  target_compile_options(${OLIVE_TARGET} PRIVATE -O2 -Werror -Wuninitialized -pedantic-errors -Wall -Wextra -Wno-unused-parameter)
+  target_compile_options(
+    ${OLIVE_TARGET}
+    PRIVATE
+    -O2
+    -Werror
+    -Wuninitialized
+    -pedantic-errors
+    -Wall
+    -Wextra
+    -Wno-unused-parameter
+  )
 endif()
 
 target_include_directories(
