@@ -71,6 +71,7 @@ if(MSVC)
     /W4
     /wd4127
     /wd4267
+    /wd4100
     /wd4456
     /wd4706
     /experimental:external
