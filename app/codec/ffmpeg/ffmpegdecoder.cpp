@@ -334,6 +334,7 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
 
   WaveInput input(GetConformedFilename(params));
 
+  // FIXME: No handling if input failed to open/is corrupt
   if (input.open()) {
     const AudioRenderingParams& input_params = input.params();
 
@@ -424,6 +425,7 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
   // Get indexed WAV file
   WaveInput input(GetIndexFilename());
 
+  // FIXME: No handling if input failed to open/is corrupt
   if (input.open()) {
     // If the parameters are equal, nothing to be done
     // FIXME: Technically we only need to conform if the SAMPLE RATE is not equal. Format and channel layout conversion
@@ -722,6 +724,7 @@ QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
   QString index_fn = GetIndexFilename();
   WaveInput input(GetIndexFilename());
 
+  // FIXME: No handling if input failed to open/is corrupt
   if (input.open()) {
     // If the parameters are equal, nothing to be done
     AudioRenderingParams index_params = input.params();
