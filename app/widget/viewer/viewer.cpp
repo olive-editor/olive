@@ -364,7 +364,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
   }
 
-  menu.exec(mapToGlobal(pos));
+  menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
 }
 
 void ViewerWidget::Play()
