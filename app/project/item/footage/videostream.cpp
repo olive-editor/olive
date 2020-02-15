@@ -22,6 +22,8 @@
 
 #include <QFile>
 
+const int64_t VideoStream::kEndTimestamp = AV_NOPTS_VALUE;
+
 VideoStream::VideoStream()
 {
   set_type(kVideo);
@@ -48,12 +50,22 @@ int64_t VideoStream::get_closest_timestamp_in_frame_index(const int64_t &ts)
 {
   QMutexLocker locker(&index_access_lock_);
 
+  if (frame_index_.isEmpty()) {
+    return -1;
+  }
+
   if (ts <= 0) {
     return frame_index_.first();
   }
 
+  int index_size = frame_index_.size();
+
+  if (frame_index_.last() == kEndTimestamp) {
+    index_size--;
+  }
+
   // Use index to find closest frame in file
-  for (int i=0;i<frame_index_.size();i++) {
+  for (int i=0;i<index_size;i++) {
     int64_t this_ts = frame_index_.at(i);
 
     if (this_ts == ts) {
@@ -63,7 +75,13 @@ int64_t VideoStream::get_closest_timestamp_in_frame_index(const int64_t &ts)
     }
   }
 
-  return frame_index_.last();
+  if (frame_index_.last() == kEndTimestamp) {
+    // Index is done
+    return frame_index_.last();
+  } else {
+    // Index is not done yet
+    return -1;
+  }
 }
 
 void VideoStream::clear_frame_index()
@@ -80,11 +98,11 @@ void VideoStream::append_frame_index(const int64_t &ts)
   frame_index_.append(ts);
 }
 
-bool VideoStream::is_frame_index_empty()
+bool VideoStream::is_frame_index_ready()
 {
   QMutexLocker locker(&index_access_lock_);
 
-  return frame_index_.isEmpty();
+  return !frame_index_.isEmpty() && frame_index_.last() == VideoStream::kEndTimestamp;
 }
 
 int64_t VideoStream::last_frame_index_timestamp()
@@ -110,6 +128,8 @@ bool VideoStream::load_frame_index(const QString &s)
                     index_file.size());
 
     index_file.close();
+
+    return true;
   }
 
   return false;
@@ -127,6 +147,7 @@ bool VideoStream::save_frame_index(const QString &s)
                      frame_index_.size() * static_cast<int>(sizeof(int64_t)));
 
     index_file.close();
+
     return true;
   }
 

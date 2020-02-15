@@ -119,6 +119,8 @@ private:
 
   void Seek(int64_t timestamp);
 
+  void CacheFrameToDisk(AVFrame* f);
+
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;

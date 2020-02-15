@@ -28,6 +28,8 @@ class VideoStream : public ImageStream
 public:
   VideoStream();
 
+  static const int64_t kEndTimestamp;
+
   virtual QString description() const override;
 
   /**
@@ -41,7 +43,8 @@ public:
   int64_t get_closest_timestamp_in_frame_index(const int64_t& ts);
   void clear_frame_index();
   void append_frame_index(const int64_t& ts);
-  bool is_frame_index_empty();
+  //bool is_frame_index_empty();
+  bool is_frame_index_ready();
   int64_t last_frame_index_timestamp();
 
   bool load_frame_index(const QString& s);

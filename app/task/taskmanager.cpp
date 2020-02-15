@@ -75,6 +75,7 @@ void TaskManager::CreateInstance()
 void TaskManager::DestroyInstance()
 {
   delete instance_;
+  instance_ = nullptr;
 }
 
 TaskManager *TaskManager::instance()

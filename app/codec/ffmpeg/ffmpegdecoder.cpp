@@ -292,31 +292,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           input_linesize[i] = frame_->linesize[i];
         }
 
-        QFile save_frame(GetIndexFilename().append(QString::number(frame_->pts)));
-        if (save_frame.open(QFile::WriteOnly)) {
-
-          // Save frame to media index
-          int cached_buffer_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(frame_->format),
-                                                          frame_->width,
-                                                          frame_->height,
-                                                          1);
-
-          QByteArray cached_frame(cached_buffer_sz, Qt::Uninitialized);
-
-          av_image_copy_to_buffer(reinterpret_cast<uint8_t*>(cached_frame.data()),
-                                  cached_frame.size(),
-                                  frame_->data,
-                                  frame_->linesize,
-                                  static_cast<AVPixelFormat>(frame_->format),
-                                  frame_->width,
-                                  frame_->height,
-                                  1);
-
-          save_frame.write(qCompress(cached_frame, 1));
-          save_frame.close();
-
-          DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
-        }
+        CacheFrameToDisk(frame_);
         break;
       }
     }
@@ -887,12 +863,16 @@ void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame)
     ret = GetFrame(pkt, frame);
 
     if (ret >= 0) {
+      //CacheFrameToDisk(frame);
+
       video_stream->append_frame_index(frame->pts);
     } else {
       // Assume we've reached the end of the file
       break;
     }
   }
+
+  video_stream->append_frame_index(VideoStream::kEndTimestamp);
 
   // Save index to file
   if (!video_stream->save_frame_index(GetIndexFilename())) {
@@ -953,25 +933,19 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
 
   bool index_is_being_created = false;
 
-  // Check if the frame index has been populated
-  if (video_stream->is_frame_index_empty()) {
+  // Check if an index is being created right now
+  if (video_stream->index_process_lock()->tryLock()) {
 
-    // If not, check if one is being created right now
-    if (video_stream->index_process_lock()->tryLock()) {
-
-      // If not, make an index
+    // If not, check if the frame index has been populated
+    if (!video_stream->is_frame_index_ready()) {
+      // If not, make a frame index
       ValidateVideoIndex();
-
-      video_stream->index_process_lock()->unlock();
-
-      // If the index is still empty, the video must just be empty
-      if (video_stream->is_frame_index_empty()) {
-        return -1;
-      }
-    } else {
-      // The index is being created in another thread, wait until we have more information
-      index_is_being_created = true;
     }
+
+    video_stream->index_process_lock()->unlock();
+
+  } else {
+    index_is_being_created = true;
   }
 
   int64_t closest_ts = -1;
@@ -987,7 +961,7 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
 
     closest_ts = video_stream->get_closest_timestamp_in_frame_index(ts);
 
-  } while (index_is_being_created);
+  } while (closest_ts < 0 && index_is_being_created);
 
   return closest_ts;
 }
@@ -996,11 +970,11 @@ void FFmpegDecoder::ValidateVideoIndex()
 {
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
-  if (video_stream->is_frame_index_empty()) {
+  if (!video_stream->is_frame_index_ready()) {
     video_stream->load_frame_index(GetIndexFilename());
   }
 
-  if (video_stream->is_frame_index_empty()) {
+  if (!video_stream->is_frame_index_ready()) {
     // Reset state
     Seek(0);
 
@@ -1014,4 +988,33 @@ void FFmpegDecoder::Seek(int64_t timestamp)
 {
   avcodec_flush_buffers(codec_ctx_);
   av_seek_frame(fmt_ctx_, avstream_->index, timestamp, AVSEEK_FLAG_BACKWARD);
+}
+
+void FFmpegDecoder::CacheFrameToDisk(AVFrame *f)
+{
+  QFile save_frame(GetIndexFilename().append(QString::number(f->pts)));
+  if (save_frame.open(QFile::WriteOnly)) {
+
+    // Save frame to media index
+    int cached_buffer_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(f->format),
+                                                    f->width,
+                                                    f->height,
+                                                    1);
+
+    QByteArray cached_frame(cached_buffer_sz, Qt::Uninitialized);
+
+    av_image_copy_to_buffer(reinterpret_cast<uint8_t*>(cached_frame.data()),
+                            cached_frame.size(),
+                            f->data,
+                            f->linesize,
+                            static_cast<AVPixelFormat>(f->format),
+                            f->width,
+                            f->height,
+                            1);
+
+    save_frame.write(qCompress(cached_frame, 1));
+    save_frame.close();
+
+    DiskManager::instance()->CreatedFile(save_frame.fileName(), QByteArray());
+  }
 }
