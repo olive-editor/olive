@@ -20,6 +20,7 @@
 
 #include "viewerglwidget.h"
 
+#include <QMessageBox>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
@@ -194,13 +195,32 @@ void ViewerGLWidget::SetupColorProcessor()
 
   if (color_manager_) {
     // (Re)create color processor
-    color_service_ = ColorProcessor::Create(color_manager_->GetConfig(), OCIO::ROLE_SCENE_LINEAR, ocio_display_, ocio_view_, ocio_look_);
 
-    // (Re)create pipeline from color processor
-    pipeline_ = OpenGLShader::CreateOCIO(context(),
-                                         ocio_lut_,
-                                         color_service_->GetProcessor(),
-                                         true);
+    try {
+      ColorProcessorPtr new_service = ColorProcessor::Create(color_manager_->GetConfig(),
+                                                             OCIO::ROLE_SCENE_LINEAR,
+                                                             ocio_display_,
+                                                             ocio_view_,
+                                                             ocio_look_);
+
+      color_service_ = ColorProcessor::Create(color_manager_->GetConfig(),
+                                              OCIO::ROLE_SCENE_LINEAR,
+                                              ocio_display_,
+                                              ocio_view_,
+                                              ocio_look_);
+
+      // (Re)create pipeline from color processor
+      pipeline_ = OpenGLShader::CreateOCIO(context(),
+                                           ocio_lut_,
+                                           color_service_->GetProcessor(),
+                                           true);
+    } catch (OCIO::Exception& e) {
+      QMessageBox::critical(this,
+                            tr("OpenColorIO Error"),
+                            tr("Failed to set color configuration: %1").arg(e.what()),
+                            QMessageBox::Ok);
+    }
+
   } else {
     color_service_ = nullptr;
     pipeline_ = nullptr;
