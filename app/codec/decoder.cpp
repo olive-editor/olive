@@ -131,7 +131,12 @@ bool Decoder::ProbeMedia(Footage *f)
       // Start an index task
       foreach (StreamPtr stream, f->streams()) {
         IndexTask* index_task = new IndexTask(stream);
-        TaskManager::instance()->AddTask(index_task);
+        index_task->moveToThread(TaskManager::instance()->thread());
+
+        QMetaObject::invokeMethod(TaskManager::instance(),
+                                  "AddTask",
+                                  Qt::QueuedConnection,
+                                  Q_ARG(Task*, index_task));
       }
 
       return true;
