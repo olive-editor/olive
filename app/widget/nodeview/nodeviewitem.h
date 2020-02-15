@@ -62,6 +62,7 @@ public:
    * @brief Set expanded state
    */
   void SetExpanded(bool e);
+  void ToggleExpanded();
 
   /**
    * @brief Get the rectangle of a specific parameter connector
@@ -81,6 +82,7 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 

@@ -125,6 +125,11 @@ void NodeViewItem::SetExpanded(bool e)
   setRect(new_rect);
 }
 
+void NodeViewItem::ToggleExpanded()
+{
+  SetExpanded(!IsExpanded());
+}
+
 QRectF NodeViewItem::GetParameterConnectorRect(int index)
 {
   if (node_ == nullptr) {
@@ -468,12 +473,17 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
   // Check if we clicked the Expand/Collapse icon
   if (expand_hitbox_.contains(event->pos())) {
-    SetExpanded(!IsExpanded());
+    ToggleExpanded();
   }
 
   if (standard_click_) {
     QGraphicsRectItem::mouseReleaseEvent(event);
   }
+}
+
+void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+  ToggleExpanded();
 }
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
