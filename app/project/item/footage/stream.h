@@ -103,7 +103,7 @@ public:
 
   StreamID ToID() const;
 
-  QMutex index_lock_;
+  QMutex* index_process_lock();
 
 protected:
   virtual void FootageSetEvent(Footage*);
@@ -111,6 +111,9 @@ protected:
   virtual void LoadCustomParameters(QXmlStreamReader *reader);
 
   virtual void SaveCustomParameters(QXmlStreamWriter* writer) const;
+
+signals:
+  void IndexChanged();
 
 private:
   Footage* footage_;
@@ -124,6 +127,8 @@ private:
   Type type_;
 
   bool enabled_;
+
+  QMutex index_process_lock_;
 
 };
 

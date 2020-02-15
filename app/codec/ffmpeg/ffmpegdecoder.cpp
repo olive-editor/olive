@@ -380,8 +380,6 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
 
 void FFmpegDecoder::Close()
 {
-  frame_index_.clear();
-
   if (opts_) {
     av_dict_free(&opts_);
     opts_ = nullptr;
@@ -676,7 +674,7 @@ bool FFmpegDecoder::Probe(Footage *f)
 
     // Use last frame index as the duration
     // FIXME: Does this skip the last frame?
-    int64_t duration = frame_index_.last();
+    int64_t duration = std::static_pointer_cast<VideoStream>(stream())->last_frame_index_timestamp();
 
     f->stream(0)->set_duration(duration);
 
@@ -719,25 +717,17 @@ void FFmpegDecoder::Index()
     return;
   }
 
-  stream()->index_lock_.lock();
+  QMutexLocker locker(stream()->index_process_lock());
 
-  if (!LoadIndex()) {
+  if (stream()->type() == Stream::kVideo) {
 
-    // Reset state
-    Seek(0);
+    ValidateVideoIndex();
 
-    if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-      IndexVideo(pkt_, frame_);
-    } else if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-      IndexAudio(pkt_, frame_);
+  } else if (stream()->type() == Stream::kAudio) {
+    if (!QFileInfo::exists(GetIndexFilename())) {
+      UnconditionalAudioIndex(pkt_, frame_);
     }
-
-    // Reset state
-    Seek(0);
-
   }
-
-  stream()->index_lock_.unlock();
 }
 
 QString FFmpegDecoder::GetIndexFilename()
@@ -777,61 +767,11 @@ QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
   return index_fn;
 }
 
-bool FFmpegDecoder::LoadIndex()
-{
-  switch (avstream_->codecpar->codec_type) {
-  case AVMEDIA_TYPE_VIDEO:
-  {
-    // Load index from file
-    QFile index_file(GetIndexFilename());
-
-    if (!index_file.exists()) {
-      return false;
-    }
-
-    if (index_file.open(QFile::ReadOnly)) {
-      // Resize based on filesize
-      frame_index_.resize(static_cast<int>(static_cast<size_t>(index_file.size()) / sizeof(int64_t)));
-
-      // Read frame index into vector
-      index_file.read(reinterpret_cast<char*>(frame_index_.data()),
-                      index_file.size());
-
-      index_file.close();
-
-      return true;
-    }
-    break;
-  }
-  case AVMEDIA_TYPE_AUDIO:
-  {
-    return QFileInfo::exists(GetIndexFilename());
-  }
-  default:
-    break;
-  }
-
-  return false;
-}
-
-void FFmpegDecoder::SaveIndex()
-{
-  // Save index to file
-  QFile index_file(GetIndexFilename());
-  if (index_file.open(QFile::WriteOnly)) {
-    // Write index in binary
-    index_file.write(reinterpret_cast<const char*>(frame_index_.constData()),
-                     frame_index_.size() * static_cast<int>(sizeof(int64_t)));
-
-    index_file.close();
-  } else {
-    qWarning() << QStringLiteral("Failed to save index for %1").arg(stream()->footage()->filename());
-  }
-}
-
-void FFmpegDecoder::IndexAudio(AVPacket *pkt, AVFrame *frame)
+void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame)
 {
   // Iterate through each audio frame and extract the PCM data
+
+  Seek(0);
 
   uint64_t channel_layout = avstream_->codecpar->channel_layout;
   if (!channel_layout) {
@@ -925,12 +865,18 @@ void FFmpegDecoder::IndexAudio(AVPacket *pkt, AVFrame *frame)
   if (resampler != nullptr) {
     swr_free(&resampler);
   }
+
+  Seek(0);
 }
 
-void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
+void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame)
 {
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
+
+  Seek(0);
+
   // This should be unnecessary, but just in case...
-  frame_index_.clear();
+  video_stream->clear_frame_index();
 
   // Iterate through every single frame and get each timestamp
   // NOTE: Expects no frames to have been read so far
@@ -941,7 +887,7 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
     ret = GetFrame(pkt, frame);
 
     if (ret >= 0) {
-      frame_index_.append(frame->pts);
+      video_stream->append_frame_index(frame->pts);
     } else {
       // Assume we've reached the end of the file
       break;
@@ -949,7 +895,11 @@ void FFmpegDecoder::IndexVideo(AVPacket* pkt, AVFrame* frame)
   }
 
   // Save index to file
-  SaveIndex();
+  if (!video_stream->save_frame_index(GetIndexFilename())) {
+    qWarning() << QStringLiteral("Failed to save index for %1").arg(stream()->footage()->filename());
+  }
+
+  Seek(0);
 }
 
 int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
@@ -999,31 +949,65 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
 
 int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
 {
-  // Index now if we haven't already
-  if (frame_index_.isEmpty()) {
-    Index();
-  }
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
-  if (frame_index_.isEmpty()) {
-    return -1;
-  }
+  bool index_is_being_created = false;
 
-  if (ts <= 0) {
-    return frame_index_.first();
-  }
+  // Check if the frame index has been populated
+  if (video_stream->is_frame_index_empty()) {
 
-  // Use index to find closest frame in file
-  for (int i=1;i<frame_index_.size();i++) {
-    int64_t this_ts = frame_index_.at(i);
+    // If not, check if one is being created right now
+    if (video_stream->index_process_lock()->tryLock()) {
 
-    if (this_ts == ts) {
-      return ts;
-    } else if (this_ts > ts) {
-      return frame_index_.at(i - 1);
+      // If not, make an index
+      ValidateVideoIndex();
+
+      video_stream->index_process_lock()->unlock();
+
+      // If the index is still empty, the video must just be empty
+      if (video_stream->is_frame_index_empty()) {
+        return -1;
+      }
+    } else {
+      // The index is being created in another thread, wait until we have more information
+      index_is_being_created = true;
     }
   }
 
-  return frame_index_.last();
+  int64_t closest_ts = -1;
+
+  do {
+    if (index_is_being_created && video_stream->index_process_lock()->tryLock()) {
+      index_is_being_created = false;
+      video_stream->index_process_lock()->unlock();
+    }
+
+    // FIXME: Wait for update from index
+    //WaitForUpdate();
+
+    closest_ts = video_stream->get_closest_timestamp_in_frame_index(ts);
+
+  } while (index_is_being_created);
+
+  return closest_ts;
+}
+
+void FFmpegDecoder::ValidateVideoIndex()
+{
+  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
+
+  if (video_stream->is_frame_index_empty()) {
+    video_stream->load_frame_index(GetIndexFilename());
+  }
+
+  if (video_stream->is_frame_index_empty()) {
+    // Reset state
+    Seek(0);
+
+    UnconditionalVideoIndex(pkt_, frame_);
+
+    Seek(0);
+  }
 }
 
 void FFmpegDecoder::Seek(int64_t timestamp)

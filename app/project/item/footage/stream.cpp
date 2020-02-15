@@ -140,6 +140,11 @@ StreamID Stream::ToID() const
   return StreamID(footage_->filename(), index_);
 }
 
+QMutex* Stream::index_process_lock()
+{
+  return &index_process_lock_;
+}
+
 void Stream::FootageSetEvent(Footage*)
 {
 }

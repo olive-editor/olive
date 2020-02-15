@@ -32,12 +32,14 @@ extern "C" {
 #include "audio/sampleformat.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
+#include "project/item/footage/videostream.h"
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
 class FFmpegDecoder : public Decoder
 {
+  Q_OBJECT
 public:
   // Constructor
   FFmpegDecoder();
@@ -62,6 +64,8 @@ public:
   virtual bool SupportsAudio() override;
 
   void SetMultithreading(bool e);
+
+  virtual void Index() override;
 
 private:
   void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
@@ -94,8 +98,6 @@ private:
    */
   int GetFrame(AVPacket* pkt, AVFrame* frame);
 
-  virtual void Index() override;
-
   /**
    * @brief Returns the filename for the index
    *
@@ -108,25 +110,12 @@ private:
    */
   QString GetConformedFilename(const AudioRenderingParams &params);
 
-  /**
-   * @brief Used internally to load a frame index into frame_index_
-   *
-   * @return
-   *
-   * TRUE if a frame index was successfully loaded. FALSE usually means the file didn't exist and Index() should be
-   * run to create it.
-   */
-  bool LoadIndex();
-
-  /**
-   * @brief Used in Index() to save the just created frame index to a file that can be loaded later
-   */
-  void SaveIndex();
-
-  void IndexAudio(AVPacket* pkt, AVFrame* frame);
-  void IndexVideo(AVPacket* pkt, AVFrame* frame);
+  void UnconditionalAudioIndex(AVPacket* pkt, AVFrame* frame);
+  void UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame);
 
   int64_t GetClosestTimestampInIndex(const int64_t& ts);
+
+  void ValidateVideoIndex();
 
   void Seek(int64_t timestamp);
 
@@ -144,8 +133,6 @@ private:
   AVFrame* frame_;
 
   AVDictionary* opts_;
-
-  QVector<int64_t> frame_index_;
 
   bool multithreading_;
 

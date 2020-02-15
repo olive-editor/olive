@@ -20,6 +20,8 @@
 
 #include "videostream.h"
 
+#include <QFile>
+
 VideoStream::VideoStream()
 {
   set_type(kVideo);
@@ -40,4 +42,93 @@ const rational &VideoStream::frame_rate() const
 void VideoStream::set_frame_rate(const rational &frame_rate)
 {
   frame_rate_ = frame_rate;
+}
+
+int64_t VideoStream::get_closest_timestamp_in_frame_index(const int64_t &ts)
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  if (ts <= 0) {
+    return frame_index_.first();
+  }
+
+  // Use index to find closest frame in file
+  for (int i=0;i<frame_index_.size();i++) {
+    int64_t this_ts = frame_index_.at(i);
+
+    if (this_ts == ts) {
+      return ts;
+    } else if (this_ts > ts) {
+      return frame_index_.at(i - 1);
+    }
+  }
+
+  return frame_index_.last();
+}
+
+void VideoStream::clear_frame_index()
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  frame_index_.clear();
+}
+
+void VideoStream::append_frame_index(const int64_t &ts)
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  frame_index_.append(ts);
+}
+
+bool VideoStream::is_frame_index_empty()
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  return frame_index_.isEmpty();
+}
+
+int64_t VideoStream::last_frame_index_timestamp()
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  return frame_index_.last();
+}
+
+bool VideoStream::load_frame_index(const QString &s)
+{
+  // Load index from file
+  QFile index_file(s);
+
+  if (index_file.exists() && index_file.open(QFile::ReadOnly)) {
+    QMutexLocker locker(&index_access_lock_);
+
+    // Resize based on filesize
+    frame_index_.resize(static_cast<size_t>(index_file.size()) / sizeof(int64_t));
+
+    // Read frame index into vector
+    index_file.read(reinterpret_cast<char*>(frame_index_.data()),
+                    index_file.size());
+
+    index_file.close();
+  }
+
+  return false;
+}
+
+bool VideoStream::save_frame_index(const QString &s)
+{
+  QFile index_file(s);
+
+  if (index_file.open(QFile::WriteOnly)) {
+    // Write index in binary
+    QMutexLocker locker(&index_access_lock_);
+
+    index_file.write(reinterpret_cast<const char*>(frame_index_.constData()),
+                     frame_index_.size() * static_cast<int>(sizeof(int64_t)));
+
+    index_file.close();
+    return true;
+  }
+
+  return false;
 }
