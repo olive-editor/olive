@@ -34,6 +34,11 @@ TransformDistort::TransformDistort()
   scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(100.0f, 100.0f));
   AddInput(scale_input_);
 
+  uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
+  uniform_scale_input_->set_is_keyframable(false);
+  uniform_scale_input_->SetConnectable(false);
+  AddInput(uniform_scale_input_);
+
   anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2);
   AddInput(anchor_input_);
 }
@@ -68,6 +73,7 @@ void TransformDistort::Retranslate()
   position_input_->set_name(tr("Position"));
   rotation_input_->set_name(tr("Rotation"));
   scale_input_->set_name(tr("Scale"));
+  uniform_scale_input_->set_name(tr("Uniform Scale"));
   anchor_input_->set_name(tr("Anchor Point"));
 }
 
@@ -82,8 +88,12 @@ NodeValueTable TransformDistort::Value(const NodeValueDatabase &value) const
   // Rotation
   mat.rotate(value[rotation_input_].Get(NodeParam::kFloat).toFloat(), 0, 0, 1);
 
-  // Scale
-  mat.scale(value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>()*0.01f);
+  // Scale and Uniform Scale
+  QVector2D scale = value[scale_input_].Get(NodeParam::kVec2).value<QVector2D>()*0.01f;
+  if (value[uniform_scale_input_].Get(NodeParam::kBoolean).toBool()) {
+    scale.setY(scale.x());
+  }
+  mat.scale(scale);
 
   // Anchor Point
   mat.translate(-value[anchor_input_].Get(NodeParam::kVec2).value<QVector2D>());

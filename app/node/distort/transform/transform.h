@@ -47,6 +47,8 @@ private:
 
   NodeInput* scale_input_;
 
+  NodeInput* uniform_scale_input_;
+
   NodeInput* anchor_input_;
 
 };
