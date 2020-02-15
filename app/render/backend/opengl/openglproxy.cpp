@@ -53,14 +53,15 @@ void OpenGLProxy::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable 
   ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
   // Set up OCIO context
-  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(video_stream->colorspace()));
+  QString colorspace_match = QStringLiteral("%1:%2").arg(video_stream->footage()->project()->ocio_config(), video_stream->colorspace());
+
+  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(colorspace_match));
 
   if (!color_processor) {
-    // FIXME: We match with the colorspace string, but this won't change if the user sets a new config with a colorspace with the same string
     color_processor = OpenGLColorProcessor::CreateOpenGL(video_stream->footage()->project()->color_manager()->GetConfig(),
                                                          video_stream->colorspace(),
                                                          OCIO::ROLE_SCENE_LINEAR);
-    color_cache_.Add(video_stream->colorspace(), color_processor);
+    color_cache_.Add(colorspace_match, color_processor);
   }
 
   ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
