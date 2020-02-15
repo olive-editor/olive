@@ -181,6 +181,9 @@ void TaskManager::TaskFinished(Task* task)
 
   // Decrement the active thread count
   active_thread_count_--;
+
+  // Start any tasks that could start now
+  StartNextWaiting();
 }
 
 TaskManager::TaskStatus TaskManager::GetTaskStatus(Task *t)
