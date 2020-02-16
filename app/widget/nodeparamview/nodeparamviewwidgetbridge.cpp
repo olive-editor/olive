@@ -228,7 +228,7 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   {
     QCheckBox* check_box = new QCheckBox();
     widgets_.append(check_box);
-    connect(check_box, &QCheckBox::toggled, this, &NodeParamViewWidgetBridge::WidgetCallback);
+    connect(check_box, &QCheckBox::clicked, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
   }
   case NodeParam::kFont:
