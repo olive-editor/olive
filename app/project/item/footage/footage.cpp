@@ -37,7 +37,7 @@ Footage::~Footage()
   ClearStreams();
 }
 
-void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>&)
+void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>&, const QAtomicInt* cancelled)
 {
   QXmlStreamAttributes attributes = reader->attributes();
 
@@ -49,15 +49,23 @@ void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage
     }
   }
 
-  Decoder::ProbeMedia(this);
+  Decoder::ProbeMedia(this, cancelled);
 
   XMLReadLoop(reader, "footage") {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (reader->isStartElement()) {
       if (reader->name() == "stream") {
         int stream_index = -1;
         quintptr stream_ptr = 0;
 
         XMLAttributeLoop(reader, attr) {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
           if (attr.name() == "index") {
             stream_index = attr.value().toInt();
           } else if (attr.name() == "ptr") {

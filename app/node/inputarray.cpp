@@ -164,13 +164,13 @@ void NodeInputArray::RemoveAt(int index)
   RemoveLast();
 }
 
-void NodeInputArray::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections)
+void NodeInputArray::LoadInternal(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt* cancelled)
 {
   if (reader->name() == "subparameters") {
     XMLReadLoop(reader, "subparameters") {
       if (reader->name() == "input") {
         Append();
-        At(GetSize() - 1)->Load(reader, param_ptrs, input_connections, footage_connections);
+        At(GetSize() - 1)->Load(reader, param_ptrs, input_connections, footage_connections, cancelled);
       }
     }
   }

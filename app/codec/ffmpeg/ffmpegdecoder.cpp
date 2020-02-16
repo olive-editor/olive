@@ -192,7 +192,7 @@ bool FFmpegDecoder::Open()
   return true;
 }
 
-FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const QAtomicInt* cancelled)
 {
   if (!open_ && !Open()) {
     return nullptr;
@@ -203,7 +203,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   }
 
   // Convert timecode to AVStream timebase
-  int64_t target_ts = GetTimestampFromTime(timecode);
+  int64_t target_ts = GetTimestampFromTime(timecode, cancelled);
 
   if (target_ts < 0) {
     Error(QStringLiteral("Index failed to produce a valid timestamp"));
@@ -318,7 +318,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   return nullptr;
 }
 
-FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params)
+FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params, const QAtomicInt* cancelled)
 {
   if (!open_ && !Open()) {
     return nullptr;
@@ -328,9 +328,9 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
     return nullptr;
   }
 
-  Index();
+  Index(cancelled);
 
-  Conform(params);
+  Conform(params, cancelled);
 
   WaveInput input(GetConformedFilename(params));
 
@@ -395,7 +395,7 @@ QString FFmpegDecoder::id()
   return "ffmpeg";
 }
 
-int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
+int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time, const QAtomicInt* cancelled)
 {
   if (!open_ && !Open()) {
     return -1;
@@ -408,19 +408,19 @@ int64_t FFmpegDecoder::GetTimestampFromTime(const rational &time)
   target_ts += avstream_->start_time;
 
   // Find closest actual timebase in the file
-  target_ts = GetClosestTimestampInIndex(target_ts);
+  target_ts = GetClosestTimestampInIndex(target_ts, cancelled);
 
   return target_ts;
 }
 
-void FFmpegDecoder::Conform(const AudioRenderingParams &params)
+void FFmpegDecoder::Conform(const AudioRenderingParams &params, const QAtomicInt* cancelled)
 {
   if (avstream_->codecpar->codec_type != AVMEDIA_TYPE_AUDIO) {
     // Nothing to be done
     return;
   }
 
-  Index();
+  Index(cancelled);
 
   // Get indexed WAV file
   WaveInput input(GetIndexFilename());
@@ -470,6 +470,10 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
     int input_buffer_sz = input.params().time_to_bytes(1);
 
     while (!input.at_end()) {
+      if (cancelled && *cancelled) {
+        break;
+      }
+
       // Read up to one second of audio from WAV file
       QByteArray read_samples = input.read(input_buffer_sz);
 
@@ -486,6 +490,11 @@ void FFmpegDecoder::Conform(const AudioRenderingParams &params)
     swr_free(&resampler);
     conformed_output.close();
     input.close();
+
+    // If we cancelled, the conform didn't finish so remove it
+    if (cancelled && *cancelled) {
+      QFile(conformed_fn).remove();
+    }
   } else {
     qWarning() << "Failed to conform file:" << stream()->footage()->filename();
   }
@@ -531,7 +540,7 @@ void FFmpegDecoder::ConformInternal(SwrContext* resampler, WaveOutput* output, c
   output->write(out_samples);
 }
 
-bool FFmpegDecoder::Probe(Footage *f)
+bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 {
   if (open_) {
     qWarning() << "Probe must be called while the Decoder is closed";
@@ -648,7 +657,7 @@ bool FFmpegDecoder::Probe(Footage *f)
     Open();
 
     // Use index to find duration
-    Index();
+    Index(cancelled);
 
     // Use last frame index as the duration
     // FIXME: Does this skip the last frame?
@@ -688,7 +697,7 @@ void FFmpegDecoder::Error(const QString &s)
   Close();
 }
 
-void FFmpegDecoder::Index()
+void FFmpegDecoder::Index(const QAtomicInt* cancelled)
 {
   if (!open_) {
     qWarning() << "Indexing function tried to run while decoder was closed";
@@ -699,11 +708,11 @@ void FFmpegDecoder::Index()
 
   if (stream()->type() == Stream::kVideo) {
 
-    ValidateVideoIndex();
+    ValidateVideoIndex(cancelled);
 
   } else if (stream()->type() == Stream::kAudio) {
     if (!QFileInfo::exists(GetIndexFilename())) {
-      UnconditionalAudioIndex(pkt_, frame_);
+      UnconditionalAudioIndex(pkt_, frame_, cancelled);
     }
   }
 }
@@ -746,7 +755,7 @@ QString FFmpegDecoder::GetConformedFilename(const AudioRenderingParams &params)
   return index_fn;
 }
 
-void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame)
+void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame, const QAtomicInt* cancelled)
 {
   // Iterate through each audio frame and extract the PCM data
 
@@ -792,6 +801,11 @@ void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame)
 
   if (wave_out.open()) {
     while (true) {
+      // Check if we have a `cancelled` ptr and its value
+      if (cancelled && *cancelled) {
+        break;
+      }
+
       ret = GetFrame(pkt, frame);
 
       if (ret < 0) {
@@ -837,6 +851,11 @@ void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame)
     }
 
     wave_out.close();
+
+    if (cancelled && *cancelled) {
+      // Audio index didn't complete, delete it
+      QFile(GetIndexFilename()).remove();
+    }
   } else {
     qWarning() << "Failed to open WAVE output for indexing";
   }
@@ -848,7 +867,7 @@ void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame)
   Seek(0);
 }
 
-void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame)
+void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled)
 {
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
@@ -863,6 +882,11 @@ void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame)
   int ret;
 
   while (true) {
+    // Check if we have a `cancelled` ptr and its value
+    if (cancelled && *cancelled) {
+      break;
+    }
+
     ret = GetFrame(pkt, frame);
 
     if (ret >= 0) {
@@ -875,11 +899,16 @@ void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame)
     }
   }
 
-  video_stream->append_frame_index(VideoStream::kEndTimestamp);
+  // Check if we have a `cancelled` ptr and its value
+  if (cancelled && *cancelled) {
+    video_stream->clear_frame_index();
+  } else {
+    video_stream->append_frame_index(VideoStream::kEndTimestamp);
 
-  // Save index to file
-  if (!video_stream->save_frame_index(GetIndexFilename())) {
-    qWarning() << QStringLiteral("Failed to save index for %1").arg(stream()->footage()->filename());
+    // Save index to file
+    if (!video_stream->save_frame_index(GetIndexFilename())) {
+      qWarning() << QStringLiteral("Failed to save index for %1").arg(stream()->footage()->filename());
+    }
   }
 
   Seek(0);
@@ -930,7 +959,7 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
   return ret;
 }
 
-int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
+int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts, const QAtomicInt* cancelled)
 {
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
@@ -942,7 +971,7 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
     // If not, check if the frame index has been populated
     if (!video_stream->is_frame_index_ready()) {
       // If not, make a frame index
-      ValidateVideoIndex();
+      ValidateVideoIndex(cancelled);
     }
 
     video_stream->index_process_lock()->unlock();
@@ -954,6 +983,10 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
   int64_t closest_ts = -1;
 
   do {
+    if (cancelled && *cancelled) {
+      return -1;
+    }
+
     if (index_is_being_created && video_stream->index_process_lock()->tryLock()) {
       index_is_being_created = false;
       video_stream->index_process_lock()->unlock();
@@ -969,7 +1002,7 @@ int64_t FFmpegDecoder::GetClosestTimestampInIndex(const int64_t &ts)
   return closest_ts;
 }
 
-void FFmpegDecoder::ValidateVideoIndex()
+void FFmpegDecoder::ValidateVideoIndex(const QAtomicInt* cancelled)
 {
   VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
 
@@ -981,7 +1014,7 @@ void FFmpegDecoder::ValidateVideoIndex()
     // Reset state
     Seek(0);
 
-    UnconditionalVideoIndex(pkt_, frame_);
+    UnconditionalVideoIndex(pkt_, frame_, cancelled);
 
     Seek(0);
   }

@@ -91,7 +91,7 @@ public:
    * TRUE if the Decoder was able to decode this file. FALSE if not. This function should have filled the Footage
    * object with metadata if it returns TRUE. Otherwise, the Footage object should be untouched.
    */
-  virtual bool Probe(Footage* f) = 0;
+  virtual bool Probe(Footage* f, const QAtomicInt* cancelled) = 0;
 
   /**
    * @brief Open media/allocate memory
@@ -127,7 +127,7 @@ public:
    * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
    * the media could not be opened.
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode);
+  virtual FramePtr RetrieveVideo(const rational& timecode, const QAtomicInt* cancelled);
 
   /**
    * @brief Retrieve video frame
@@ -153,7 +153,7 @@ public:
    * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
    * the provided timecode or the media could not be opened.
    */
-  virtual FramePtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
+  virtual FramePtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params, const QAtomicInt* cancelled);
 
   virtual bool SupportsVideo();
   virtual bool SupportsAudio();
@@ -174,7 +174,7 @@ public:
    *
    * Used to determine which frame will be served at a given time, useful for caching.
    */
-  virtual int64_t GetTimestampFromTime(const rational& time) = 0;
+  virtual int64_t GetTimestampFromTime(const rational& time, const QAtomicInt* cancelled) = 0;
 
   /**
    * @brief Try to probe a Footage file by passing it through all available Decoders
@@ -195,7 +195,7 @@ public:
    *
    * TRUE if a Decoder was successfully able to parse and probe this file. FALSE if not.
    */
-  static bool ProbeMedia(Footage* f);
+  static bool ProbeMedia(Footage* f, const QAtomicInt *cancelled);
 
   /**
    * @brief Create a Decoder instance using a Decoder ID
@@ -217,7 +217,7 @@ public:
    * All audio decoders must override this. It's not pure since video decoders don't need to use this, but default
    * behavior will abort since it should never be called.
    */
-  virtual void Conform(const AudioRenderingParams& params);
+  virtual void Conform(const AudioRenderingParams& params, const QAtomicInt* cancelled);
 
   /**
    * @brief Create an index for this media
@@ -228,7 +228,7 @@ public:
    * Indexing is slow so it's recommended to do it in a background thread. Index() must be called while the Decoder is
    * open, and does not automatically call Open() and Close() the Decoder. The caller must call thse manually.
    */
-  virtual void Index();
+  virtual void Index(const QAtomicInt* cancelled);
 
 protected:
   bool open_;

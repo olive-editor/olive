@@ -47,25 +47,25 @@ public:
   // Destructor
   virtual ~FFmpegDecoder() override;
 
-  virtual bool Probe(Footage *f) override;
+  virtual bool Probe(Footage *f, const QAtomicInt *cancelled) override;
 
   virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode) override;
-  virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const QAtomicInt *cancelled) override;
+  virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params, const QAtomicInt *cancelled) override;
   virtual void Close() override;
 
   virtual QString id() override;
 
-  virtual int64_t GetTimestampFromTime(const rational& time) override;
+  virtual int64_t GetTimestampFromTime(const rational& time, const QAtomicInt *cancelled) override;
 
-  virtual void Conform(const AudioRenderingParams& params) override;
+  virtual void Conform(const AudioRenderingParams& params, const QAtomicInt *cancelled) override;
 
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
   void SetMultithreading(bool e);
 
-  virtual void Index() override;
+  virtual void Index(const QAtomicInt *cancelled) override;
 
 private:
   void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
@@ -110,12 +110,12 @@ private:
    */
   QString GetConformedFilename(const AudioRenderingParams &params);
 
-  void UnconditionalAudioIndex(AVPacket* pkt, AVFrame* frame);
-  void UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame);
+  void UnconditionalAudioIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
+  void UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
 
-  int64_t GetClosestTimestampInIndex(const int64_t& ts);
+  int64_t GetClosestTimestampInIndex(const int64_t& ts, const QAtomicInt *cancelled);
 
-  void ValidateVideoIndex();
+  void ValidateVideoIndex(const QAtomicInt* cancelled);
 
   void Seek(int64_t timestamp);
 

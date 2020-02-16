@@ -38,7 +38,7 @@ QString OIIODecoder::id()
   return "oiio";
 }
 
-bool OIIODecoder::Probe(Footage *f)
+bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
 {
   // We prioritize OIIO over FFmpeg to pick up still images more effectively, but some OIIO decoders (notably OpenJPEG)
   // will segfault entirely if given unexpected data (an MPEG-4 for instance). To workaround this issue, we use OIIO's
@@ -133,7 +133,7 @@ bool OIIODecoder::Open()
   return true;
 }
 
-FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
+FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const QAtomicInt *cancelled)
 {
   if (!open_ && !Open()) {
     return nullptr;
@@ -174,7 +174,7 @@ void OIIODecoder::Close()
   frame_ = nullptr;
 }
 
-int64_t OIIODecoder::GetTimestampFromTime(const rational &time)
+int64_t OIIODecoder::GetTimestampFromTime(const rational &time, const QAtomicInt *cancelled)
 {
   Q_UNUSED(time)
 

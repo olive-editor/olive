@@ -25,7 +25,7 @@
 
 #include "common/xmlreadloop.h"
 #include "core.h"
-#include "dialog/loadsave/loadsave.h"
+#include "dialog/progress/progress.h"
 #include "window/mainwindow/mainwindow.h"
 
 Project::Project()
@@ -33,7 +33,7 @@ Project::Project()
   root_.set_project(this);
 }
 
-void Project::Load(QXmlStreamReader *reader)
+void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
 {
   QHash<quintptr, StreamPtr> footage_ptrs;
   QList<NodeInput::FootageConnection> footage_connections;
@@ -43,7 +43,7 @@ void Project::Load(QXmlStreamReader *reader)
       if (reader->name() == "folder") {
 
         // Assume this folder is our root
-        root_.Load(reader, footage_ptrs, footage_connections);
+        root_.Load(reader, footage_ptrs, footage_connections, cancelled);
 
       } else if (reader->name() == "colormanagement") {
 

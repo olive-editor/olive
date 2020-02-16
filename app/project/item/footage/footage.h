@@ -63,7 +63,7 @@ public:
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections) override;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections, const QAtomicInt *cancelled) override;
 
   /**
    * @brief Save function

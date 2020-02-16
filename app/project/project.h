@@ -44,7 +44,7 @@ class Project : public QObject
 public:
   Project();
 
-  void Load(QXmlStreamReader* reader);
+  void Load(QXmlStreamReader* reader, const QAtomicInt* cancelled);
 
   void Save(QXmlStreamWriter* writer) const;
 

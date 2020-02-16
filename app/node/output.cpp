@@ -42,9 +42,13 @@ QString NodeOutput::name()
   return NodeParam::name();
 }
 
-void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection>&, QList<FootageConnection>&)
+void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection>&, QList<FootageConnection>&, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (attr.name() == "ptr") {
       quintptr saved_ptr = attr.value().toULongLong();
 

@@ -44,15 +44,23 @@ QIcon Folder::icon()
   return icon::Folder;
 }
 
-void Folder::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections)
+void Folder::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (attr.name() == "name") {
       set_name(attr.value().toString());
     }
   }
 
   XMLReadLoop(reader, "folder") {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (reader->isStartElement()) {
       ItemPtr child;
 
@@ -67,7 +75,7 @@ void Folder::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_
       }
 
       add_child(child);
-      child->Load(reader, footage_ptrs, footage_connections);
+      child->Load(reader, footage_ptrs, footage_connections, cancelled);
     }
   }
 }

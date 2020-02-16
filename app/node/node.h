@@ -67,7 +67,7 @@ public:
   /**
    * @brief Clear current node variables and replace them with
    */
-  void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<NodeInput::SerializedConnection> &input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QString &element = QString());
+  void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<NodeInput::SerializedConnection> &input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt *cancelled, const QString &element = QString());
 
   /**
    * @brief Save this node into a text/XML format

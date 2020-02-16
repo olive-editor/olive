@@ -33,15 +33,15 @@ public:
 
   virtual QString id() override;
 
-  virtual bool Probe(Footage *f) override;
+  virtual bool Probe(Footage *f, const QAtomicInt* cancelled) override;
 
   virtual bool Open() override;
 
-  virtual FramePtr RetrieveVideo(const rational &timecode) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const QAtomicInt* cancelled) override;
 
   virtual void Close() override;
 
-  virtual int64_t GetTimestampFromTime(const rational &time) override;
+  virtual int64_t GetTimestampFromTime(const rational &time, const QAtomicInt* cancelled) override;
 
   virtual bool SupportsVideo() override;
 

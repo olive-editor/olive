@@ -57,12 +57,12 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/)
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const QAtomicInt* cancelled)
 {
   return nullptr;
 }
 
-FramePtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
+FramePtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/, const QAtomicInt* cancelled)
 {
   return nullptr;
 }
@@ -93,7 +93,7 @@ QVector<DecoderPtr> ReceiveListOfAllDecoders() {
   return decoders;
 }
 
-bool Decoder::ProbeMedia(Footage *f)
+bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
 {
   // Check for a valid filename
   if (f->filename().isEmpty()) {
@@ -116,9 +116,13 @@ bool Decoder::ProbeMedia(Footage *f)
   // Pass Footage through each Decoder's probe function
   for (int i=0;i<decoder_list.size();i++) {
 
+    if (cancelled && *cancelled) {
+      return false;
+    }
+
     DecoderPtr decoder = decoder_list.at(i);
 
-    if (decoder->Probe(f)) {
+    if (decoder->Probe(f, cancelled)) {
 
       // We found a Decoder, so we can set this media as valid
       f->set_status(Footage::kReady);
@@ -168,13 +172,13 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
   return nullptr;
 }
 
-void Decoder::Conform(const AudioRenderingParams &params)
+void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* cancelled)
 {
   Q_UNUSED(params)
   qCritical() << "Conform called on an audio decoder that does not have a handler for it:" << id();
   abort();
 }
 
-void Decoder::Index()
+void Decoder::Index(const QAtomicInt *cancelled)
 {
 }

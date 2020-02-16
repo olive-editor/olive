@@ -86,21 +86,33 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
-void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections)
+void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (attr.name() == "keyframing") {
       set_is_keyframing(attr.value() == "1");
     }
   }
 
   XMLReadLoop(reader, "input") {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (reader->isStartElement()) {
       if (reader->name() == "standard") {
         // Load standard value
         int val_index = 0;
 
         XMLReadLoop(reader, "standard") {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
           if (reader->isStartElement() && reader->name() == "value") {
             reader->readNext();
 
@@ -119,8 +131,16 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
         int track = 0;
 
         XMLReadLoop(reader, "keyframes") {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
           if (reader->isStartElement() && reader->name() == "track") {
             XMLReadLoop(reader, "track") {
+              if (cancelled && *cancelled) {
+                return;
+              }
+
               if (reader->name() == "key") {
                 rational key_time;
                 NodeKeyframe::Type key_type;
@@ -129,6 +149,10 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
                 QPointF key_out_handle;
 
                 XMLAttributeLoop(reader, attr) {
+                  if (cancelled && *cancelled) {
+                    return;
+                  }
+
                   if (attr.name() == "time") {
                     key_time = rational::fromString(attr.value().toString());
                   } else if (attr.name() == "type") {
@@ -161,6 +185,10 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
         }
       } else if (reader->name() == "connections") {
         XMLReadLoop(reader, "connections") {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
           if (reader->isStartElement() && reader->name() == "connection") {
             reader->readNext();
 
@@ -168,7 +196,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
           }
         }
       } else {
-        LoadInternal(reader, param_ptrs, input_connections, footage_connections);
+        LoadInternal(reader, param_ptrs, input_connections, footage_connections, cancelled);
       }
     }
   }
@@ -242,7 +270,7 @@ const NodeParam::DataType &NodeInput::data_type() const
   return data_type_;
 }
 
-void NodeInput::LoadInternal(QXmlStreamReader*, QHash<quintptr, NodeOutput *>&, QList<SerializedConnection>&, QList<FootageConnection>&)
+void NodeInput::LoadInternal(QXmlStreamReader*, QHash<quintptr, NodeOutput *>&, QList<SerializedConnection>&, QList<FootageConnection>&, const QAtomicInt*)
 {
 }
 

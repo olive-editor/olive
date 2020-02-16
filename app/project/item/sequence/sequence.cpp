@@ -42,9 +42,13 @@ Sequence::Sequence()
   AddNode(viewer_output_);
 }
 
-void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QList<NodeInput::FootageConnection>& footage_connections)
+void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QList<NodeInput::FootageConnection>& footage_connections, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (attr.name() == "name") {
       set_name(attr.value().toString());
 
@@ -56,12 +60,20 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
   QList<NodeParam::SerializedConnection> desired_connections;
 
   XMLReadLoop(reader, "sequence") {
+    if (cancelled && *cancelled) {
+      return;
+    }
+
     if (reader->isStartElement()) {
       if (reader->name() == "video") {
         int video_width, video_height;
         rational video_timebase;
 
         XMLReadLoop(reader, "video") {
+          if (cancelled && *cancelled) {
+            return;
+          }
+
           if (reader->isStartElement()) {
             if (reader->name() == "width") {
               reader->readNext();
@@ -125,7 +137,7 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
         }
 
         if (node) {
-          node->Load(reader, output_ptrs, desired_connections, footage_connections, reader->name().toString());
+          node->Load(reader, output_ptrs, desired_connections, footage_connections, cancelled, reader->name().toString());
 
           AddNode(node);
         }

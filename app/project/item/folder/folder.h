@@ -42,7 +42,7 @@ public:
 
   virtual QIcon icon() override;
 
-  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections) override;
+  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection> &footage_connections, const QAtomicInt *cancelled) override;
 
   virtual void Save(QXmlStreamWriter* writer) const override;
 
