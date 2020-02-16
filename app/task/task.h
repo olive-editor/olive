@@ -24,6 +24,8 @@
 #include <memory>
 #include <QObject>
 
+#include "common/cancelableobject.h"
+
 /**
  * @brief A base class for background tasks running in Olive.
  *
@@ -41,7 +43,7 @@
  *
  * Tasks support "dependency tasks", i.e. a Task that should be complete before another Task begins.
  */
-class Task : public QObject
+class Task : public QObject, public CancelableObject
 {
   Q_OBJECT
 public:
@@ -111,11 +113,6 @@ protected:
    */
   void SetTitle(const QString& s);
 
-  /**
-   * @brief Returns whether the thread has been explicitly cancelled or not
-   */
-  bool IsCancelled();
-
 signals:
   /**
    * @brief Signal emitted whenever progress is made
@@ -128,7 +125,7 @@ signals:
    */
   void ProgressChanged(int p);
 
-  void Succeeeded();
+  void Succeeded();
 
   void Failed(const QString& error);
 
@@ -143,8 +140,6 @@ private:
   QString title_;
 
   QString error_;
-
-  QAtomicInt cancelled_;
 
 };
 

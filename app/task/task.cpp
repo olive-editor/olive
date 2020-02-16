@@ -21,8 +21,7 @@
 #include "task.h"
 
 Task::Task() :
-  title_(tr("Task")),
-  cancelled_(false)
+  title_(tr("Task"))
 {
 }
 
@@ -40,7 +39,7 @@ const QString &Task::GetTitle()
 
 void Task::Cancel()
 {
-  cancelled_ = true;
+  CancelableObject::Cancel();
 }
 
 void Task::SetErrorText(const QString &s)
@@ -51,9 +50,4 @@ void Task::SetErrorText(const QString &s)
 void Task::SetTitle(const QString &s)
 {
   title_ = s;
-}
-
-bool Task::IsCancelled()
-{
-  return cancelled_;
 }
