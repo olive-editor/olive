@@ -1,9 +1,9 @@
 #ifndef RENDERCANCELDIALOG_H
 #define RENDERCANCELDIALOG_H
 
-#include "dialog/loadsave/loadsave.h"
+#include "dialog/progress/progress.h"
 
-class RenderCancelDialog : public LoadSaveDialog
+class RenderCancelDialog : public ProgressDialog
 {
   Q_OBJECT
 public:

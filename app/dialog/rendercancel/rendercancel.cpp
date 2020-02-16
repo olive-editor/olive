@@ -1,7 +1,7 @@
 #include "rendercancel.h"
 
 RenderCancelDialog::RenderCancelDialog(QWidget *parent) :
-  LoadSaveDialog(tr("Waiting for workers to finish..."), tr("Renderer"), parent),
+  ProgressDialog(tr("Waiting for workers to finish..."), tr("Renderer"), parent),
   busy_workers_(0),
   total_workers_(0)
 {
