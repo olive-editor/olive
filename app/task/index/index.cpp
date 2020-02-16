@@ -18,9 +18,9 @@ void IndexTask::Action()
     decoder->set_stream(stream_);
 
     decoder->Open();
-    decoder->Index();
+    decoder->Index(&IsCancelled());
     decoder->Close();
 
-    emit Succeeeded();
+    emit Succeeded();
   }
 }
