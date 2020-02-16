@@ -56,6 +56,8 @@ signals:
 
   void HashAlreadyExists(NodeDependency path, qint64 job_time, QByteArray hash);
 
+  void Aborted();
+
 protected:
   virtual bool InitInternal() override;
 
@@ -69,14 +71,14 @@ protected:
 
   virtual NodeValueTable RenderInternal(const NodeDependency& path, const qint64& job_time) override;
 
-  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
+  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range, const QAtomicInt *cancelled) override;
 
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
   ColorProcessorCache* color_cache();
 
 private:
-  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
+  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time, const QAtomicInt *cancelled);
 
   void Download(QVariant texture, QString filename);
 

@@ -122,6 +122,10 @@ NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRan
 
   // We need to insert tables into the database for each input
   foreach (NodeParam* param, node->parameters()) {
+    if (IsCancelled()) {
+      return NodeValueDatabase();
+    }
+
     if (param->type() == NodeParam::kInput) {
       NodeInput* input = static_cast<NodeInput*>(param);
       TimeRange input_time = node->InputTimeAdjustment(input, range);
@@ -136,7 +140,7 @@ NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRan
           DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
           if (decoder) {
-            FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+            FramePtr frame = RetrieveFromDecoder(decoder, input_time, &IsCancelled());
 
             if (frame) {
               FrameToValue(stream, frame, &table);

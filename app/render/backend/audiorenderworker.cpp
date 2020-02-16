@@ -23,9 +23,9 @@ void AudioRenderWorker::CloseInternal()
   // Nothing to init yet
 }
 
-FramePtr AudioRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
+FramePtr AudioRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range, const QAtomicInt *cancelled)
 {
-  return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_);
+  return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_, cancelled);
 }
 
 NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)

@@ -3,12 +3,13 @@
 
 #include <QObject>
 
+#include "common/cancelableobject.h"
 #include "common/constructors.h"
 #include "node/output/track/track.h"
 #include "node/node.h"
 #include "decodercache.h"
 
-class RenderWorker : public QObject
+class RenderWorker : public QObject, public CancelableObject
 {
   Q_OBJECT
 public:
@@ -40,7 +41,7 @@ protected:
   StreamPtr ResolveStreamFromInput(NodeInput* input);
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
-  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) = 0;
+  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range, const QAtomicInt* cancelled) = 0;
 
   virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) = 0;
 

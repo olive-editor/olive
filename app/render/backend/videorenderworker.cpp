@@ -38,7 +38,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     hasher.addData(reinterpret_cast<const char*>(&vfmt), sizeof(PixelFormat::Format));
     hasher.addData(reinterpret_cast<const char*>(&vmode), sizeof(RenderMode::Mode));
 
-    HashNodeRecursively(&hasher, path.node(), path.in());
+    HashNodeRecursively(&hasher, path.node(), path.in(), &IsCancelled());
     hash = hasher.result();
   }
 
@@ -87,12 +87,12 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   return value;
 }
 
-FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
+FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range, const QAtomicInt* cancelled)
 {
-  return decoder->RetrieveVideo(range.in());
+  return decoder->RetrieveVideo(range.in(), cancelled);
 }
 
-void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node* n, const rational& time)
+void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node* n, const rational& time, const QAtomicInt* cancelled)
 {
   // Resolve BlockList
   if (n->IsTrack()) {
@@ -140,7 +140,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
 
       if (input->IsConnected()) {
         // Traverse down this edge
-        HashNodeRecursively(hash, input->get_connected_node(), input_time);
+        HashNodeRecursively(hash, input->get_connected_node(), input_time, cancelled);
       } else {
         // Grab the value at this time
         QVariant value = input->get_value_at_time(input_time);
@@ -168,7 +168,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
             ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
 
             // Footage timestamp
-            hash->addData(QString::number(decoder->GetTimestampFromTime(input_time)).toUtf8());
+            hash->addData(QString::number(decoder->GetTimestampFromTime(input_time, cancelled)).toUtf8());
 
             // Current color config and space
             hash->addData(video_stream->footage()->project()->ocio_config().toUtf8());
