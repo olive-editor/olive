@@ -20,6 +20,8 @@
 
 #include "viewerglwidget.h"
 
+#include <OpenImageIO/imagebuf.h>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
@@ -27,10 +29,10 @@
 
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
+#include "render/pixelservice.h"
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
-  texture_(0),
   ocio_lut_(0),
   color_manager_(nullptr)
 {
@@ -65,6 +67,51 @@ void ViewerGLWidget::DisconnectColorManager()
 void ViewerGLWidget::SetMatrix(const QMatrix4x4 &mat)
 {
   matrix_ = mat;
+  update();
+}
+
+void ViewerGLWidget::SetImage(const QString &fn)
+{
+  OIIO::ImageBuf* in;
+
+  if (fn.isEmpty()) {
+    // Backend had no filename
+    goto end;
+  }
+
+  if (!QFileInfo::exists(fn)) {
+    goto end;
+  }
+
+  in = new OIIO::ImageBuf(fn.toStdString());
+
+  if (in->read(0, 0, true)) {
+
+    PixelFormat::Format image_format = PixelService::OIIOFormatToOliveFormat(in->spec().format);
+
+    // Ensure the following texture operations are done in our context (in case we're in a separate window for instance)
+    makeCurrent();
+
+    if (!texture_.IsCreated()
+        || texture_.width() != in->spec().width
+        || texture_.height() != in->spec().height
+        || texture_.format() != image_format) {
+      texture_.Destroy();
+
+      texture_.Create(context(), in->spec().width, in->spec().height, image_format);
+    }
+
+    texture_.Upload(in->localpixels());
+
+    doneCurrent();
+
+  } else {
+    qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
+  }
+
+  delete in;
+
+end:
   update();
 }
 
@@ -109,15 +156,6 @@ const QString &ViewerGLWidget::ocio_look() const
   return ocio_look_;
 }
 
-void ViewerGLWidget::SetTexture(OpenGLTexturePtr tex)
-{
-  // Update the texture
-  texture_ = tex;
-
-  // Paint the texture
-  update();
-}
-
 void ViewerGLWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
 {
   ocio_display_ = display;
@@ -144,15 +182,16 @@ void ViewerGLWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (!pipeline_ || !texture_) {
+  if (!pipeline_ || !texture_.IsCreated()) {
     return;
   }
 
   // Bind retrieved texture
-  f->glBindTexture(GL_TEXTURE_2D, texture_->texture());
+  f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
 
   // Blit using the pipeline retrieved in initializeGL()
-  OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
+  //OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
+  OpenGLRenderFunctions::Blit(pipeline_, true, matrix_);
 
   // Release retrieved texture
   f->glBindTexture(GL_TEXTURE_2D, 0);
@@ -240,7 +279,7 @@ void ViewerGLWidget::ContextCleanup()
   makeCurrent();
 
   ClearOCIOLutTexture();
-
+  texture_.Destroy();
   pipeline_ = nullptr;
 
   doneCurrent();

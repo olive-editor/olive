@@ -72,15 +72,6 @@ public:
   VideoRenderBackend* video_renderer() const;
 
 public slots:
-  /**
-   * @brief Set the texture to draw and draw it
-   *
-   * Wrapper function for ViewerGLWidget::SetTexture().
-   *
-   * @param tex
-   */
-  void SetTexture(OpenGLTexturePtr tex);
-
   void Play();
 
   void Pause();
@@ -166,7 +157,6 @@ private:
 private slots:
   void PlaybackTimerUpdate();
 
-  void RendererCachedFrame(const rational& time, QVariant value, qint64 job_time);
   void RendererCachedTime(const rational& time, qint64 job_time);
 
   void SizeChangedSlot(int width, int height);

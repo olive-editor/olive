@@ -7,7 +7,6 @@
 
 OpenGLBackend::OpenGLBackend(QObject *parent) :
   VideoRenderBackend(parent),
-  master_texture_(nullptr),
   proxy_(nullptr)
 {
 }
@@ -49,17 +48,6 @@ bool OpenGLBackend::InitInternal()
     connect(processor, &OpenGLWorker::RequestRunNodeAccelerated, proxy_, &OpenGLProxy::RunNodeAccelerated, Qt::BlockingQueuedConnection);
   }
 
-  // Create master texture (the one sent to the viewer)
-  master_texture_ = std::make_shared<OpenGLTexture>();
-  master_texture_->Create(QOpenGLContext::currentContext(),
-                          params().effective_width(),
-                          params().effective_height(),
-                          params().format());
-
-  // Create copy buffer/pipeline
-  copy_buffer_.Create(QOpenGLContext::currentContext());
-  copy_pipeline_ = OpenGLShader::CreateDefault();
-
   return true;
 }
 
@@ -70,23 +58,7 @@ void OpenGLBackend::CloseInternal()
     proxy_ = nullptr;
   }
 
-  copy_buffer_.Destroy();
-  copy_pipeline_ = nullptr;
-  master_texture_ = nullptr;
-
   VideoRenderBackend::CloseInternal();
-}
-
-OpenGLTexturePtr OpenGLBackend::GetCachedFrameAsTexture(const rational &time)
-{
-  const char* cached_frame = GetCachedFrame(time);
-
-  if (cached_frame) {
-    master_texture_->Upload(cached_frame);
-    return master_texture_;
-  }
-
-  return nullptr;
 }
 
 bool OpenGLBackend::CompileInternal()
@@ -98,52 +70,10 @@ void OpenGLBackend::DecompileInternal()
 {
 }
 
-void OpenGLBackend::EmitCachedFrameReady(const rational &time, const QVariant &value, qint64 job_time)
-{
-  OpenGLTextureCache::ReferencePtr ref = value.value<OpenGLTextureCache::ReferencePtr>();
-  OpenGLTexturePtr tex;
-
-  if (ref && ref->texture()) {
-    tex = CopyTexture(ref->texture());
-  } else {
-    tex = nullptr;
-  }
-
-  emit CachedFrameReady(time, QVariant::fromValue(tex), job_time);
-}
-
 void OpenGLBackend::ParamsChangedEvent()
 {
   // If we're initiated, we need to recreate the texture. Otherwise this backend isn't active so it doesn't matter.
   if (IsInitiated()) {
-    master_texture_->Destroy();
-    master_texture_->Create(QOpenGLContext::currentContext(),
-                            params().effective_width(),
-                            params().effective_height(),
-                            params().format());
-
     proxy_->SetParameters(params());
   }
-}
-
-OpenGLTexturePtr OpenGLBackend::CopyTexture(OpenGLTexturePtr input)
-{
-  QOpenGLContext* ctx = QOpenGLContext::currentContext();
-
-  OpenGLTexturePtr copy = std::make_shared<OpenGLTexture>();
-  copy->Create(ctx, input->width(), input->height(), input->format());
-
-  ctx->functions()->glViewport(0, 0, input->width(), input->height());
-
-  copy_buffer_.Attach(copy);
-  copy_buffer_.Bind();
-  input->Bind();
-
-  OpenGLRenderFunctions::Blit(copy_pipeline_);
-
-  input->Release();
-  copy_buffer_.Release();
-  copy_buffer_.Detach();
-
-  return copy;
 }

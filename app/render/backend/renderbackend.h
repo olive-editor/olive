@@ -43,9 +43,9 @@ signals:
 protected:
   void RegenerateCacheID();
 
-  virtual bool InitInternal() = 0;
+  virtual bool InitInternal();
 
-  virtual void CloseInternal() = 0;
+  virtual void CloseInternal();
 
   virtual bool CompileInternal() = 0;
 

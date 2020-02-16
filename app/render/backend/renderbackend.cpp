@@ -202,6 +202,15 @@ void RenderBackend::RegenerateCacheID()
   CacheIDChangedEvent(cache_id_);
 }
 
+bool RenderBackend::InitInternal()
+{
+  return true;
+}
+
+void RenderBackend::CloseInternal()
+{
+}
+
 bool RenderBackend::CanRender()
 {
   return true;

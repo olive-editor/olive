@@ -42,17 +42,6 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &VideoRenderBackend::FrameRemovedFromDiskCache);
 }
 
-bool VideoRenderBackend::InitInternal()
-{
-  ResizeCacheLoadBuffer();
-  return true;
-}
-
-void VideoRenderBackend::CloseInternal()
-{
-  cache_frame_load_buffer_.clear();
-}
-
 void VideoRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, &ViewerOutput::VideoChangedBetween, this, &VideoRenderBackend::InvalidateCache);
@@ -80,9 +69,6 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 
   // Set new parameters
   params_ = params;
-
-  // Resize frame load buffer
-  ResizeCacheLoadBuffer();
 
   // Handle custom events from derivatives
   ParamsChangedEvent();
@@ -154,11 +140,6 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
   connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists, Qt::QueuedConnection);
 }
 
-void VideoRenderBackend::EmitCachedFrameReady(const rational &time, const QVariant &value, qint64 job_time)
-{
-  emit CachedFrameReady(time, value, job_time);
-}
-
 void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
 {
   TimeRange invalidated(start_range, end_range);
@@ -179,7 +160,7 @@ VideoRenderFrameCache *VideoRenderBackend::frame_cache()
   return &frame_cache_;
 }
 
-const char *VideoRenderBackend::GetCachedFrame(const rational &time)
+QString VideoRenderBackend::GetCachedFrame(const rational &time)
 {
   last_time_requested_ = time;
 
@@ -204,30 +185,12 @@ const char *VideoRenderBackend::GetCachedFrame(const rational &time)
   QByteArray frame_hash = frame_cache_.TimeToHash(time);
 
   if (!frame_hash.isEmpty()) {
-    QString fn = frame_cache_.CachePathName(frame_hash, params_.format());
+    DiskManager::instance()->Accessed(frame_hash);
 
-    if (QFileInfo::exists(fn)) {
-      auto in = OIIO::ImageInput::open(fn.toStdString());
-
-      if (in) {
-        DiskManager::instance()->Accessed(frame_hash);
-
-        in->read_image(PixelService::GetPixelFormatInfo(params_.format()).oiio_desc, cache_frame_load_buffer_.data());
-
-        in->close();
-
-#if OIIO_VERSION < 10903
-        OIIO::ImageInput::destroy(in);
-#endif
-
-        return cache_frame_load_buffer_.constData();
-      } else {
-        qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
-      }
-    }
+    return frame_cache_.CachePathName(frame_hash, params_.format());
   }
 
-  return nullptr;
+  return QString();
 }
 
 NodeInput *VideoRenderBackend::GetDependentInput()
@@ -368,7 +331,7 @@ void VideoRenderBackend::TruncateFrameCacheLength(const rational &length)
   // If the playhead is past the length, update the viewer to a null texture because it won't be cached through the
   // queue, but will now be a null texture
   if (last_time_requested_ >= length) {
-    emit CachedFrameReady(last_time_requested_, QVariant(), QDateTime::currentMSecsSinceEpoch());
+    emit CachedTimeReady(last_time_requested_, QDateTime::currentMSecsSinceEpoch());
   }
 
   // Adjust queue for new invalidated range
@@ -421,9 +384,4 @@ void VideoRenderBackend::Requeue()
   cache_queue_ = invalidated_.Intersects(queueable_range);
 
   CacheNext();
-}
-
-void VideoRenderBackend::ResizeCacheLoadBuffer()
-{
-  cache_frame_load_buffer_.resize(PixelService::GetBufferSize(params_.format(), params_.effective_width(), params_.effective_height()));
 }

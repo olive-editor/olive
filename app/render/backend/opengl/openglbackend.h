@@ -16,8 +16,6 @@ public:
 
   virtual ~OpenGLBackend() override;
 
-  OpenGLTexturePtr GetCachedFrameAsTexture(const rational& time);
-
 protected:
   virtual bool InitInternal() override;
 
@@ -27,18 +25,9 @@ protected:
 
   virtual void DecompileInternal() override;
 
-  virtual void EmitCachedFrameReady(const rational &time, const QVariant& value, qint64 job_time) override;
-
   virtual void ParamsChangedEvent() override;
 
 private:
-  OpenGLTexturePtr CopyTexture(OpenGLTexturePtr input);
-
-  OpenGLTexturePtr master_texture_;
-
-  OpenGLFramebuffer copy_buffer_;
-  OpenGLShaderPtr copy_pipeline_;
-
   OpenGLProxy* proxy_;
 
 };

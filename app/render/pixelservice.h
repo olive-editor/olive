@@ -41,6 +41,8 @@ public:
   PixelFormat::Format GetConfiguredFormatForMode(RenderMode::Mode mode);
   void SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format);
 
+  static PixelFormat::Format OIIOFormatToOliveFormat(OIIO::TypeDesc desc);
+
   /**
    * @brief Return a PixelFormatInfo containing information for a certain format
    *

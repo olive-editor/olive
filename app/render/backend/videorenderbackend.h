@@ -60,21 +60,13 @@ public:
 
   bool IsRendered(const rational& time) const;
 
+  QString GetCachedFrame(const rational& time);
+
   VideoRenderFrameCache* frame_cache();
 
   const VideoRenderingParams& params() const;
 
 protected:
-  /**
-   * @brief Allocate and start the multithreaded backend
-   */
-  virtual bool InitInternal() override;
-
-  /**
-   * @brief Terminate and deallocate the multithreaded backend
-   */
-  virtual void CloseInternal() override;
-
   struct HashTimeMapping {
     rational time;
     QByteArray hash;
@@ -83,8 +75,6 @@ protected:
   virtual void ConnectViewer(ViewerOutput* node) override;
 
   virtual void DisconnectViewer(ViewerOutput* node) override;
-
-  const char *GetCachedFrame(const rational& time);
 
   virtual NodeInput* GetDependentInput() override;
 
@@ -101,8 +91,6 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* processor) override;
 
-  virtual void EmitCachedFrameReady(const rational &time, const QVariant& value, qint64 job_time);
-
   virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
 
   virtual void ParamsChangedEvent();
@@ -110,7 +98,6 @@ protected:
   VideoRenderWorker::OperatingMode operating_mode_;
 
 signals:
-  void CachedFrameReady(const rational& time, QVariant value, qint64 job_time);
   void CachedTimeReady(const rational& time, qint64 job_time);
 
   void RangeInvalidated(const TimeRange& range);
@@ -124,11 +111,7 @@ private:
 
   void Requeue();
 
-  void ResizeCacheLoadBuffer();
-
   VideoRenderingParams params_;
-
-  QByteArray cache_frame_load_buffer_;
 
   VideoRenderFrameCache frame_cache_;
 

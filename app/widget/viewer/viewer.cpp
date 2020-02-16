@@ -83,7 +83,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   // Start background renderers
   video_renderer_ = new OpenGLBackend(this);
-  connect(video_renderer_, &VideoRenderBackend::CachedFrameReady, this, &ViewerWidget::RendererCachedFrame);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, this, &ViewerWidget::RendererCachedTime);
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
@@ -215,17 +214,16 @@ VideoRenderBackend *ViewerWidget::video_renderer() const
   return video_renderer_;
 }
 
-void ViewerWidget::SetTexture(OpenGLTexturePtr tex)
-{
-  gl_widget_->SetTexture(tex);
-}
-
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
-  if (!GetConnectedNode()) {
-    SetTexture(nullptr);
+  if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
+    gl_widget_->SetImage(QString());
   } else {
-    SetTexture(video_renderer_->GetCachedFrameAsTexture(time));
+    QString frame_fn = video_renderer_->GetCachedFrame(time);
+
+    if (!frame_fn.isEmpty()) {
+      gl_widget_->SetImage(frame_fn);
+    }
   }
 }
 
@@ -463,15 +461,6 @@ void ViewerWidget::PlaybackTimerUpdate()
     time_changed_from_timer_ = true;
     SetTimeAndSignal(current_time);
     time_changed_from_timer_ = false;
-  }
-}
-
-void ViewerWidget::RendererCachedFrame(const rational &time, QVariant value, qint64 job_time)
-{
-  if (GetTime() == time && job_time > frame_cache_job_time_) {
-    frame_cache_job_time_ = job_time;
-
-    SetTexture(value.value<OpenGLTexturePtr>());
   }
 }
 

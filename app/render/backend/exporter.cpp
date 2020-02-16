@@ -278,7 +278,8 @@ void Exporter::VideoHashesComplete()
   video_backend_->SetOperatingMode(VideoRenderWorker::kRenderOnly);
   video_backend_->SetOnlySignalLastFrameRequested(false);
 
-  connect(video_backend_, &VideoRenderBackend::CachedFrameReady, this, &Exporter::FrameRendered);
+  // FIXME: Exporting is now broken because of this
+  //connect(video_backend_, &VideoRenderBackend::CachedFrameReady, this, &Exporter::FrameRendered);
 
   foreach (const TimeRange& range, ranges) {
     video_backend_->InvalidateCache(range.in(), range.out());

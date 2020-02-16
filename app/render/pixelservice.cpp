@@ -58,6 +58,21 @@ void PixelService::SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat
   }
 }
 
+PixelFormat::Format PixelService::OIIOFormatToOliveFormat(OIIO::TypeDesc desc)
+{
+  if (desc == OIIO::TypeDesc::UINT8) {
+    return PixelFormat::PIX_FMT_RGBA8;
+  } else if (desc == OIIO::TypeDesc::UINT16) {
+    return PixelFormat::PIX_FMT_RGBA16U;
+  } else if (desc == OIIO::TypeDesc::HALF) {
+    return PixelFormat::PIX_FMT_RGBA16F;
+  } else if (desc == OIIO::TypeDesc::FLOAT) {
+    return PixelFormat::PIX_FMT_RGBA32F;
+  }
+
+  return PixelFormat::PIX_FMT_INVALID;
+}
+
 PixelFormat::Info PixelService::GetPixelFormatInfo(const PixelFormat::Format &format)
 {
   PixelFormat::Info info;

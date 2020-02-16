@@ -58,7 +58,7 @@ void OpenGLTexture::Create(QOpenGLContext *ctx, int width, int height, const Pix
   height_ = height;
   format_ = format;
 
-  connect(created_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()));
+  connect(created_ctx_, SIGNAL(aboutToBeDestroyed()), this, SLOT(Destroy()), Qt::DirectConnection);
 
   // Create main texture
   CreateInternal(created_ctx_, &texture_, data);
@@ -83,26 +83,12 @@ void OpenGLTexture::Destroy()
 
 void OpenGLTexture::Bind()
 {
-  QOpenGLContext* context = QOpenGLContext::currentContext();
-
-  if (!context) {
-    qWarning() << "OpenGLTexture::Bind() called with an invalid context";
-    return;
-  }
-
-  context->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
+  created_ctx_->functions()->glBindTexture(GL_TEXTURE_2D, texture_);
 }
 
 void OpenGLTexture::Release()
 {
-  QOpenGLContext* context = QOpenGLContext::currentContext();
-
-  if (!context) {
-    qWarning() << "OpenGLTexture::Release() called with an invalid context";
-    return;
-  }
-
-  context->functions()->glBindTexture(GL_TEXTURE_2D, 0);
+  created_ctx_->functions()->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 const int &OpenGLTexture::width() const
@@ -132,26 +118,19 @@ void OpenGLTexture::Upload(const void *data)
     return;
   }
 
-  QOpenGLContext* context = QOpenGLContext::currentContext();
-
-  if (!context) {
-    qWarning() << "OpenGLTexture::Release() called with an invalid context";
-    return;
-  }
-
   Bind();
 
   PixelFormat::Info info = PixelService::GetPixelFormatInfo(format_);
 
-  context->functions()->glTexSubImage2D(GL_TEXTURE_2D,
-                                        0,
-                                        0,
-                                        0,
-                                        width_,
-                                        height_,
-                                        info.pixel_format,
-                                        info.gl_pixel_type,
-                                        data);
+  created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
+                                             0,
+                                             0,
+                                             0,
+                                             width_,
+                                             height_,
+                                             info.pixel_format,
+                                             info.gl_pixel_type,
+                                             data);
 
   Release();
 }

@@ -74,6 +74,11 @@ public:
    */
   void SetMatrix(const QMatrix4x4& mat);
 
+  /**
+   * @brief Set an image to load and display on screen
+   */
+  void SetImage(const QString& fn);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -82,7 +87,7 @@ public slots:
    *
    * @param tex
    */
-  void SetTexture(OpenGLTexturePtr tex);
+  //void SetTexture(OpenGLTexturePtr tex);
 
   void SetOCIOParameters(const QString& display, const QString& view, const QString& look);
 
@@ -157,7 +162,7 @@ private:
   /**
    * @brief Internal reference to the OpenGL texture to draw. Set in SetTexture() and used in paintGL().
    */
-  OpenGLTexturePtr texture_;
+  OpenGLTexture texture_;
 
   /**
    * @brief Internal shader object to use as the pipeline shader
