@@ -29,7 +29,8 @@ TaskManager::TaskManager() :
   active_thread_count_(0)
 {
   // Initialize threads to run tasks on
-  threads_.resize(QThread::idealThreadCount());
+  //threads_.resize(QThread::idealThreadCount());
+  threads_.resize(1);
 
   for (int i=0;i<threads_.size();i++) {
     QThread* t = new QThread(this);
@@ -86,7 +87,7 @@ TaskManager *TaskManager::instance()
 void TaskManager::AddTask(Task* t)
 {
   // Connect Task's status signal to the Callback
-  connect(t, &Task::Succeeeded, this, &TaskManager::TaskSucceeded, Qt::QueuedConnection);
+  connect(t, &Task::Succeeded, this, &TaskManager::TaskSucceeded, Qt::QueuedConnection);
   connect(t, &Task::Failed, this, &TaskManager::TaskFailed, Qt::QueuedConnection);
   connect(t, &Task::Finished, this, &TaskManager::TaskFinished, Qt::QueuedConnection);
 
