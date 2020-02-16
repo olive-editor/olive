@@ -16,6 +16,8 @@ ProjectImportManager::ProjectImportManager(ProjectViewModel *model, Folder *fold
   }
 
   file_count_ = Core::CountFilesInFileList(filenames_);
+
+  SetTitle(tr("Importing %1 files").arg(file_count_));
 }
 
 const int &ProjectImportManager::GetFileCount()
@@ -91,7 +93,7 @@ void ProjectImportManager::Import(Folder *folder, const QFileInfoList &import, i
       // FIXME: Perhaps re-think this approach at some point
       f->set_project(model_->project());
 
-      Decoder::ProbeMedia(f.get());
+      Decoder::ProbeMedia(f.get(), &IsCancelled());
 
       f->set_project(nullptr);
 

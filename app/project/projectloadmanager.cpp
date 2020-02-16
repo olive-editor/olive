@@ -7,6 +7,7 @@
 ProjectLoadManager::ProjectLoadManager(const QString &filename) :
   filename_(filename)
 {
+  SetTitle(tr("Loading '%1'").arg(filename));
 }
 
 void ProjectLoadManager::Action()
@@ -29,22 +30,27 @@ void ProjectLoadManager::Action()
 
           project->set_filename(filename_);
 
-          project->Load(&reader);
+          project->Load(&reader, &IsCancelled());
 
           // Ensure project is in main thread
           moveToThread(qApp->thread());
 
-          emit ProjectLoaded(project);
+          if (!IsCancelled()) {
+            emit ProjectLoaded(project);
+          }
         }
       }
     }
 
     if (reader.hasError()) {
       qDebug() << "Found XML error:" << reader.errorString();
+      emit Failed(reader.errorString());
+    } else {
+      emit Succeeded();
     }
 
     project_file.close();
   }
 
-  emit Succeeeded();
+
 }

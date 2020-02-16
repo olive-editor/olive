@@ -6,7 +6,7 @@
 ProjectSaveManager::ProjectSaveManager(Project *project) :
   project_(project)
 {
-
+  SetTitle(tr("Saving '%1'").arg(project->filename()));
 }
 
 void ProjectSaveManager::Action()
@@ -32,5 +32,5 @@ void ProjectSaveManager::Action()
     project_file.close();
   }
 
-  emit Succeeeded();
+  emit Succeeded();
 }
