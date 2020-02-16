@@ -88,6 +88,11 @@ signals:
    */
   void SelectionChanged(QList<Node*> selected_nodes);
 
+protected:
+  virtual void mousePressEvent(QMouseEvent *event) override;
+
+  virtual void mouseMoveEvent(QMouseEvent *event) override;
+
 private:
   QList<Node*> GetNodeDirectDescendants(Node* n, const QList<Node*> connected_nodes, QList<Node*>& processed_nodes);
 
@@ -99,7 +104,13 @@ private:
 
   void QueueReorganize();
 
+  void AttachItemToCursor(NodeViewItem* item);
+
+  void DetachItemFromCursor();
+
   NodeGraph* graph_;
+
+  NodeViewItem* attached_item_;
 
   QGraphicsScene scene_;
 

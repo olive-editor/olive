@@ -20,13 +20,16 @@
 
 #include "nodeview.h"
 
+#include <QMouseEvent>
+
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
 
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
-  graph_(nullptr)
+  graph_(nullptr),
+  attached_item_(nullptr)
 {
   setScene(&scene_);
   setDragMode(RubberBandDrag);
@@ -37,6 +40,8 @@ NodeView::NodeView(QWidget *parent) :
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
   connect(&reorganize_timer_, &QTimer::timeout, &reorganize_timer_, &QTimer::stop);
   connect(&reorganize_timer_, &QTimer::timeout, this, &NodeView::Reorganize);
+
+  setMouseTracking(true);
 }
 
 NodeView::~NodeView()
@@ -210,6 +215,24 @@ void NodeView::ItemsChanged()
   }
 }
 
+void NodeView::mousePressEvent(QMouseEvent *event)
+{
+  if (attached_item_) {
+    DetachItemFromCursor();
+  }
+
+  QGraphicsView::mousePressEvent(event);
+}
+
+void NodeView::mouseMoveEvent(QMouseEvent *event)
+{
+  QGraphicsView::mouseMoveEvent(event);
+
+  if (attached_item_) {
+    attached_item_->setPos(mapToScene(event->pos()));
+  }
+}
+
 void NodeView::SceneSelectionChangedSlot()
 {
   // Get the scene's selected items and convert it into a list of selected nodes
@@ -251,6 +274,9 @@ void NodeView::CreateNodeSlot(QAction *action)
 
   if (new_node) {
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
+
+    NodeViewItem* item = NodeToUIObject(new_node);
+    AttachItemToCursor(item);
   }
 }
 
@@ -495,6 +521,18 @@ void NodeView::QueueReorganize()
 
   reorganize_timer_.stop();
   reorganize_timer_.start(20);
+}
+
+void NodeView::AttachItemToCursor(NodeViewItem *item)
+{
+  attached_item_ = item;
+
+  setMouseTracking(attached_item_);
+}
+
+void NodeView::DetachItemFromCursor()
+{
+  AttachItemToCursor(nullptr);
 }
 
 void NodeView::Reorganize()
