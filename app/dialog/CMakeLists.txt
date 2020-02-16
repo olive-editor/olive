@@ -19,12 +19,13 @@ add_subdirectory(actionsearch)
 add_subdirectory(export)
 add_subdirectory(footageproperties)
 add_subdirectory(keyframeproperties)
-add_subdirectory(loadsave)
 add_subdirectory(preferences)
+add_subdirectory(progress)
 add_subdirectory(projectproperties)
 add_subdirectory(rendercancel)
 add_subdirectory(sequence)
 add_subdirectory(speedduration)
+add_subdirectory(task)
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}

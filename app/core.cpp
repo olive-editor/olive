@@ -33,8 +33,8 @@
 #include "config/config.h"
 #include "dialog/about/about.h"
 #include "dialog/export/export.h"
-#include "dialog/loadsave/loadsave.h"
 #include "dialog/sequence/sequence.h"
+#include "dialog/task/task.h"
 #include "dialog/preferences/preferences.h"
 #include "dialog/projectproperties/projectproperties.h"
 #include "node/factory.h"
@@ -177,7 +177,8 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
 
   connect(pim, &ProjectImportManager::ImportComplete, this, &Core::ImportTaskComplete, Qt::BlockingQueuedConnection);
 
-  InitiateOpenSaveProcess(pim, tr("Importing %1 files").arg(pim->GetFileCount()), tr("Importing..."));
+  TaskDialog* task_dialog = new TaskDialog(pim, tr("Importing..."), main_window());
+  task_dialog->open();
 }
 
 const Tool::Item &Core::tool()
@@ -422,7 +423,8 @@ void Core::SaveProjectInternal(Project *project)
   // Create save manager
   ProjectSaveManager* psm = new ProjectSaveManager(project);
 
-  InitiateOpenSaveProcess(psm, tr("Saving '%1'").arg(project->filename()), tr("Save Project"));
+  TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window());
+  task_dialog->open();
 }
 
 void Core::SaveAutorecovery()
@@ -571,9 +573,9 @@ QString Core::ChannelLayoutToString(const uint64_t &layout)
   }
 }
 
-QString Core::GetProjectFilter() const
+QString Core::GetProjectFilter()
 {
-  return QStringLiteral("%1 (*.ove)").arg("Olive Project");
+  return QStringLiteral("%1 (*.ove)").arg(tr("Olive Project"));
 }
 
 void Core::OpenProjectInternal(const QString &filename)
@@ -584,7 +586,8 @@ void Core::OpenProjectInternal(const QString &filename)
   // ProjectLoadManager is destroyed
   connect(plm, &ProjectLoadManager::ProjectLoaded, this, &Core::AddOpenProject, Qt::BlockingQueuedConnection);
 
-  InitiateOpenSaveProcess(plm, tr("Loading '%1'").arg(filename), tr("Load Project"));
+  TaskDialog* task_dialog = new TaskDialog(plm, tr("Load Project"), main_window());
+  task_dialog->open();
 }
 
 int Core::CountFilesInFileList(const QFileInfoList &filenames)
@@ -624,36 +627,6 @@ QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &
 void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
 {
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
-}
-
-void Core::InitiateOpenSaveProcess(Task *manager, const QString& dialog_text, const QString& dialog_title)
-{
-  // Create save dialog
-  LoadSaveDialog* lsd = new LoadSaveDialog(dialog_text, dialog_title, main_window_);
-  lsd->open();
-
-  // Create a separate thread to save in
-  QThread* save_thread = new QThread();
-  save_thread->start();
-
-  // Move the save manager to this thread
-  manager->moveToThread(save_thread);
-
-  // Connect the save manager progress signal to the progress bar update on the dialog
-  connect(manager, &Task::ProgressChanged, lsd, &LoadSaveDialog::SetProgress, Qt::QueuedConnection);
-
-  // Connect cancel signal (must be a direct connection or it'll be queued after the save is already finished)
-  connect(lsd, &LoadSaveDialog::Cancelled, manager, &Task::Cancel, Qt::DirectConnection);
-
-  // Connect cleanup functions (ensure everything new'd in this function is deleteLater'd)
-  connect(manager, &Task::Finished, lsd, &LoadSaveDialog::accept, Qt::QueuedConnection);
-  connect(manager, &Task::Finished, lsd, &LoadSaveDialog::deleteLater, Qt::QueuedConnection);
-  connect(manager, &Task::Finished, manager, &Task::deleteLater, Qt::QueuedConnection);
-  connect(manager, &Task::Finished, save_thread, &QThread::quit, Qt::QueuedConnection);
-  connect(manager, &Task::Finished, save_thread, &QThread::deleteLater, Qt::QueuedConnection);
-
-  // Start the save process
-  QMetaObject::invokeMethod(manager, "Start", Qt::QueuedConnection);
 }
 
 void Core::OpenProject()

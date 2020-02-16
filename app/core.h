@@ -263,20 +263,12 @@ private:
   /**
    * @brief Get the file filter than can be used with QFileDialog to open and save compatible projects
    */
-  QString GetProjectFilter() const;
+  static QString GetProjectFilter();
 
   /**
    * @brief Internal project open
    */
   void OpenProjectInternal(const QString& filename);
-
-  /**
-   * @brief Initiate a project load or save
-   *
-   * The load and save process are largely similar, both OpenProjectInternal() and SaveProjectInternal() can run
-   * this function with some minor setup differences.
-   */
-  void InitiateOpenSaveProcess(Task* manager, const QString &dialog_text, const QString &dialog_title);
 
   /**
    * @brief Declare custom types/classes for Qt's signal/slot system
