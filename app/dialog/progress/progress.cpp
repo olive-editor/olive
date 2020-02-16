@@ -1,10 +1,10 @@
-#include "loadsave.h"
+#include "progress.h"
 
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
 
-LoadSaveDialog::LoadSaveDialog(const QString& message, const QString& title, QWidget *parent) :
+ProgressDialog::ProgressDialog(const QString& message, const QString& title, QWidget *parent) :
   QDialog(parent)
 {
   if (!title.isEmpty()) {
@@ -28,13 +28,13 @@ LoadSaveDialog::LoadSaveDialog(const QString& message, const QString& title, QWi
   cancel_layout->addStretch();
 
   QPushButton* cancel_btn = new QPushButton(tr("Cancel"));
-  connect(cancel_btn, &QPushButton::clicked, this, &LoadSaveDialog::Cancelled);
+  connect(cancel_btn, &QPushButton::clicked, this, &ProgressDialog::Cancelled);
   cancel_layout->addWidget(cancel_btn);
 
   cancel_layout->addStretch();
 }
 
-void LoadSaveDialog::SetProgress(int value)
+void ProgressDialog::SetProgress(int value)
 {
   bar_->setValue(value);
 }

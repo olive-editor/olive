@@ -16,7 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/loadsave/loadsave.h
-  dialog/loadsave/loadsave.cpp
+  dialog/progress/progress.h
+  dialog/progress/progress.cpp
   PARENT_SCOPE
 )
