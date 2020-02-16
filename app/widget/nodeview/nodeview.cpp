@@ -215,6 +215,19 @@ void NodeView::ItemsChanged()
   }
 }
 
+void NodeView::keyPressEvent(QKeyEvent *event)
+{
+  QGraphicsView::keyPressEvent(event);
+
+  if (event->key() == Qt::Key_Escape && attached_item_) {
+    DetachItemFromCursor();
+
+    // We undo the last action which SHOULD be adding the node
+    // FIXME: Possible danger of this not being the case?
+    Core::instance()->undo_stack()->undo();
+  }
+}
+
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (attached_item_) {

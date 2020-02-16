@@ -89,6 +89,8 @@ signals:
   void SelectionChanged(QList<Node*> selected_nodes);
 
 protected:
+  virtual void keyPressEvent(QKeyEvent *event) override;
+
   virtual void mousePressEvent(QMouseEvent *event) override;
 
   virtual void mouseMoveEvent(QMouseEvent *event) override;
