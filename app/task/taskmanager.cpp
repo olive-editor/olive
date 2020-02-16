@@ -88,6 +88,7 @@ void TaskManager::AddTask(Task* t)
   // Connect Task's status signal to the Callback
   connect(t, &Task::Succeeeded, this, &TaskManager::TaskSucceeded, Qt::QueuedConnection);
   connect(t, &Task::Failed, this, &TaskManager::TaskFailed, Qt::QueuedConnection);
+  connect(t, &Task::Finished, this, &TaskManager::TaskFinished, Qt::QueuedConnection);
 
   // Add the Task to the queue
   tasks_.append({t, kWaiting});
@@ -170,12 +171,33 @@ void TaskManager::DeleteTask(Task *t)
   }
 }
 
-void TaskManager::TaskFinished(Task* task)
+void TaskManager::TaskFinished()
 {
+  Task* task_sender = static_cast<Task*>(sender());
+
   // Set this thread's active value to false
   for (int i=0;i<threads_.size();i++) {
-    if (threads_.at(i).thread == task->thread()) {
+    if (threads_.at(i).thread == task_sender->thread()) {
       threads_[i].active = false;
+    }
+  }
+
+  // See if we can delete this task
+  if (GetTaskStatus(task_sender) == kFinished) {
+    DeleteTask(task_sender);
+  } else if (GetTaskStatus(task_sender) == kError) {
+    // If this task has already been deleted, we'll free its memory now
+    bool was_deleted = true;
+
+    for (int i=0;i<tasks_.size();i++) {
+      if (tasks_.at(i).task == task_sender) {
+        was_deleted = false;
+        break;
+      }
+    }
+
+    if (was_deleted) {
+      delete task_sender;
     }
   }
 
@@ -211,35 +233,10 @@ void TaskManager::SetTaskStatus(Task *t, TaskStatus status)
 
 void TaskManager::TaskSucceeded()
 {
-  Task* task_sender = static_cast<Task*>(sender());
-
-  SetTaskStatus(task_sender, kFinished);
-
-  TaskFinished(task_sender);
-
-  // Delete this task
-  DeleteTask(task_sender);
+  SetTaskStatus(static_cast<Task*>(sender()), kFinished);
 }
 
 void TaskManager::TaskFailed()
 {
-  Task* task_sender = static_cast<Task*>(sender());
-
-  SetTaskStatus(task_sender, kError);
-
-  TaskFinished(task_sender);
-
-  // If this task has already been deleted, we'll free its memory now
-  bool was_deleted = true;
-
-  for (int i=0;i<tasks_.size();i++) {
-    if (tasks_.at(i).task == task_sender) {
-      was_deleted = false;
-      break;
-    }
-  }
-
-  if (was_deleted) {
-    delete task_sender;
-  }
+  SetTaskStatus(static_cast<Task*>(sender()), kError);
 }

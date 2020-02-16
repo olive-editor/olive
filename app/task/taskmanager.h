@@ -142,8 +142,6 @@ private:
    */
   void DeleteTask(Task* t);
 
-  void TaskFinished(Task *task);
-
   TaskStatus GetTaskStatus(Task* t);
 
   void SetTaskStatus(Task* t, TaskStatus status);
@@ -172,6 +170,8 @@ private slots:
   void TaskSucceeded();
 
   void TaskFailed();
+
+  void TaskFinished();
 
 };
 
