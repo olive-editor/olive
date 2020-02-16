@@ -45,6 +45,14 @@ NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(NodeOutput *output, NodeInput *inpu
 {
 }
 
+NodeEdgeRemoveCommand::NodeEdgeRemoveCommand(NodeEdgePtr edge, QUndoCommand *parent) :
+  QUndoCommand(parent),
+  output_(edge->output()),
+  input_(edge->input()),
+  done_(false)
+{
+}
+
 void NodeEdgeRemoveCommand::redo()
 {
   if (done_) {

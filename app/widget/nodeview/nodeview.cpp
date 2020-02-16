@@ -29,7 +29,8 @@
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
   graph_(nullptr),
-  attached_item_(nullptr)
+  attached_item_(nullptr),
+  drop_edge_(nullptr)
 {
   setScene(&scene_);
   setDragMode(RubberBandDrag);
@@ -231,7 +232,25 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (attached_item_) {
+    Node* dropping_node = attached_item_->node();
+
     DetachItemFromCursor();
+
+    if (drop_edge_) {
+      NodeEdgePtr old_edge = drop_edge_->edge();
+
+      // We have everything we need to place the node in between
+      QUndoCommand* command = new QUndoCommand();
+
+      // Remove old edge
+      new NodeEdgeRemoveCommand(old_edge, command);
+
+      // Place new edges
+      new NodeEdgeAddCommand(old_edge->output(), drop_compatible_input_, command);
+      new NodeEdgeAddCommand(dropping_node->output(), old_edge->input(), command);
+
+      Core::instance()->undo_stack()->push(command);
+    }
   }
 
   QGraphicsView::mousePressEvent(event);
@@ -243,6 +262,57 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
   if (attached_item_) {
     attached_item_->setPos(mapToScene(event->pos()));
+
+    // See if the user clicked on an edge
+    QRect edge_detect_rect(event->pos(), event->pos());
+
+    // FIXME: Hardcoded numbers
+    edge_detect_rect.adjust(-20, -20, 20, 20);
+
+    QList<QGraphicsItem*> items = this->items(edge_detect_rect);
+
+    NodeViewEdge* new_drop_edge = nullptr;
+
+    foreach (QGraphicsItem* item, items) {
+      NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(item);
+
+      if (edge) {
+        // Try to place this node inside this edge
+
+        // See if the node we're dropping has an input of a compatible data type
+        NodeInput* edges_input = edge->edge()->input();
+        NodeParam::DataType input_type = edges_input->data_type();
+
+        NodeInput* compatible_input = nullptr;
+
+        foreach (NodeParam* drop_node_param, attached_item_->node()->parameters()) {
+          if (drop_node_param->type() == NodeParam::kInput
+              && static_cast<NodeInput*>(drop_node_param)->data_type() & input_type) {
+            compatible_input = static_cast<NodeInput*>(drop_node_param);
+            break;
+          }
+        }
+
+        if (compatible_input) {
+          new_drop_edge = edge;
+          drop_compatible_input_ = compatible_input;
+
+          break;
+        }
+      }
+    }
+
+    if (drop_edge_ != new_drop_edge) {
+      if (drop_edge_) {
+        drop_edge_->SetHighlighted(false);
+      }
+
+      drop_edge_ = new_drop_edge;
+
+      if (drop_edge_) {
+        drop_edge_->SetHighlighted(true);
+      }
+    }
   }
 }
 

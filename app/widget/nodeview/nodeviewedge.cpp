@@ -30,7 +30,8 @@
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsLineItem(parent),
   edge_(nullptr),
-  connected_(false)
+  connected_(false),
+  highlighted_(false)
 {
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
@@ -101,19 +102,29 @@ void NodeViewEdge::Adjust()
 void NodeViewEdge::SetConnected(bool c)
 {
   connected_ = c;
+  update();
+}
+
+void NodeViewEdge::SetHighlighted(bool e)
+{
+  highlighted_ = e;
+  update();
 }
 
 void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  QPalette::ColorGroup color_mode;
+  QPalette::ColorGroup color_group = QPalette::Active;
+  QPalette::ColorRole color_role = QPalette::Text;
 
-  if (connected_) {
-    color_mode = QPalette::Active;
-  } else {
-    color_mode = QPalette::Disabled;
+  if (highlighted_) {
+    color_role = QPalette::Highlight;
   }
 
-  setPen(QPen(widget->palette().color(color_mode, QPalette::Text), edge_width_));
+  if (!connected_) {
+    color_group = QPalette::Disabled;
+  }
+
+  setPen(QPen(widget->palette().color(color_group, color_role), edge_width_));
 
   QGraphicsLineItem::paint(painter, option, widget);
 }

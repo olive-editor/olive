@@ -36,6 +36,7 @@ private:
 class NodeEdgeRemoveCommand : public QUndoCommand {
 public:
   NodeEdgeRemoveCommand(NodeOutput* output, NodeInput* input, QUndoCommand* parent = nullptr);
+  NodeEdgeRemoveCommand(NodeEdgePtr edge, QUndoCommand* parent = nullptr);
 
   virtual void redo() override;
   virtual void undo() override;

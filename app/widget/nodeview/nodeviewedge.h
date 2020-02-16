@@ -68,6 +68,13 @@ public:
    */
   void SetConnected(bool c);
 
+  /**
+   * @brief Set highlighted state
+   *
+   * Changes color of edge.
+   */
+  void SetHighlighted(bool e);
+
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
 
@@ -77,6 +84,9 @@ private:
   int edge_width_;
 
   bool connected_;
+
+  bool highlighted_;
+
 };
 
 #endif // NODEEDGEITEM_H
