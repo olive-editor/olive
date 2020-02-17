@@ -81,17 +81,17 @@ QString ViewerOutput::Description() const
   return tr("Interface between a Viewer panel and the node system.");
 }
 
-NodeInput *ViewerOutput::texture_input()
+NodeInput *ViewerOutput::texture_input() const
 {
   return texture_input_;
 }
 
-NodeInput *ViewerOutput::samples_input()
+NodeInput *ViewerOutput::samples_input() const
 {
   return samples_input_;
 }
 
-NodeInput *ViewerOutput::length_input()
+NodeInput *ViewerOutput::length_input() const
 {
   return length_input_;
 }
@@ -136,6 +136,7 @@ void ViewerOutput::set_video_params(const VideoParams &video)
 
   emit SizeChanged(video_params_.width(), video_params_.height());
   emit TimebaseChanged(video_params_.time_base());
+  emit VideoParamsChanged();
 }
 
 void ViewerOutput::set_audio_params(const AudioParams &audio)

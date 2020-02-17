@@ -119,6 +119,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+  connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
@@ -144,6 +145,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
+  disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
 
   // Effectively disables the viewer and clears the state

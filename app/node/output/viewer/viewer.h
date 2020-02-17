@@ -50,9 +50,9 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-  NodeInput* texture_input();
-  NodeInput* samples_input();
-  NodeInput* length_input();
+  NodeInput* texture_input() const;
+  NodeInput* samples_input() const;
+  NodeInput* length_input() const;
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
   virtual void InvalidateVisible(NodeInput *from) override;
@@ -97,6 +97,8 @@ signals:
   void LengthChanged(const rational& length);
 
   void SizeChanged(int width, int height);
+
+  void VideoParamsChanged();
 
   void BlockAdded(Block* block, TrackReference track);
   void BlockRemoved(Block* block);
