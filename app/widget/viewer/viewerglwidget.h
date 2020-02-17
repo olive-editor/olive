@@ -186,6 +186,10 @@ private:
    */
   QMatrix4x4 matrix_;
 
+#ifdef Q_OS_LINUX
+  static bool nouveau_check_done_;
+#endif
+
 private slots:
   /**
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
@@ -196,6 +200,13 @@ private slots:
    * @brief Sets all color settings to the defaults pertaining to this configuration
    */
   void RefreshColorPipeline();
+
+#ifdef Q_OS_LINUX
+  /**
+   * @brief Shows warning messagebox if Nouveau is detected
+   */
+  void ShowNouveauWarning();
+#endif
 
 };
 
