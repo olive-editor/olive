@@ -13,6 +13,15 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   scrollbar_ = new QScrollBar(Qt::Horizontal, this);
 }
 
+void TimeBasedWidget::SetScaleAndCenterOnPlayhead(const double &scale)
+{
+  SetScale(scale);
+
+  // Zoom towards the playhead
+  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
+  QTimer::singleShot(0, this, &TimeBasedWidget::CenterScrollOnPlayhead);
+}
+
 rational TimeBasedWidget::GetTime() const
 {
   return Timecode::timestamp_to_time(ruler()->GetTime(), timebase());
@@ -118,12 +127,12 @@ void TimeBasedWidget::SetScale(const double &scale)
 
 void TimeBasedWidget::ZoomIn()
 {
-  SetScale(GetScale() * 2);
+  SetScaleAndCenterOnPlayhead(GetScale() * 2);
 }
 
 void TimeBasedWidget::ZoomOut()
 {
-  SetScale(GetScale() * 0.5);
+  SetScaleAndCenterOnPlayhead(GetScale() * 0.5);
 }
 
 void TimeBasedWidget::GoToPrevCut()
@@ -221,4 +230,9 @@ void TimeBasedWidget::SetTimeAndSignal(const int64_t &t)
 {
   SetTime(t);
   emit TimeChanged(t);
+}
+
+void TimeBasedWidget::CenterScrollOnPlayhead()
+{
+  scrollbar_->setValue(qRound(TimeToScene(Timecode::timestamp_to_time(ruler_->GetTime(), timebase()))) - scrollbar_->width()/2);
 }

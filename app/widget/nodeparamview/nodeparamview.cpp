@@ -69,6 +69,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Create keyframe view
   keyframe_view_ = new KeyframeView();
   keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  connect(keyframe_view_, &KeyframeView::RequestCenterScrollOnPlayhead, this, &NodeParamView::CenterScrollOnPlayhead);
   bottom_item_ = keyframe_view_->scene()->addRect(0, 0, 1, 1);
   keyframe_area_layout->addWidget(keyframe_view_);
 
@@ -103,6 +104,9 @@ NodeParamView::NodeParamView(QWidget *parent) :
   connect(scroll_area->verticalScrollBar(), &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, scroll_area->verticalScrollBar(), &QScrollBar::setValue);
   connect(vertical_scrollbar_, &QScrollBar::valueChanged, keyframe_view_->verticalScrollBar(), &QScrollBar::setValue);
+
+  // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
+  keyframe_view_->setHorizontalScrollBar(scrollbar());
 
   connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
@@ -173,7 +177,7 @@ void NodeParamView::ScaleChangedEvent(const double &scale)
 {
   TimeBasedWidget::ScaleChangedEvent(scale);
 
-  keyframe_view_->SetScaleAndCenterOnPlayhead(scale);
+  keyframe_view_->SetScale(scale);
 }
 
 void NodeParamView::TimebaseChangedEvent(const rational &timebase)

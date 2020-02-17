@@ -54,6 +54,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
   ruler_view_layout->addWidget(ruler());
 
   view_ = new CurveView();
+  connect(view_, &CurveView::RequestCenterScrollOnPlayhead, this, &CurveWidget::CenterScrollOnPlayhead);
   ruler_view_layout->addWidget(view_);
 
   layout->addLayout(ruler_view_layout);
@@ -62,6 +63,9 @@ CurveWidget::CurveWidget(QWidget *parent) :
   connect(view_, &CurveView::TimeChanged, this, &CurveWidget::SetTimeAndSignal);
   connect(view_->scene(), &QGraphicsScene::selectionChanged, this, &CurveWidget::SelectionChanged);
   connect(view_, &CurveView::ScaleChanged, this, &CurveWidget::SetScale);
+
+  // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
+  view_->setHorizontalScrollBar(scrollbar());
   connect(view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
   widget_bridge_layout_ = new QHBoxLayout();
@@ -158,7 +162,7 @@ void CurveWidget::ScaleChangedEvent(const double &scale)
 {
   TimeBasedWidget::ScaleChangedEvent(scale);
 
-  view_->SetScaleAndCenterOnPlayhead(scale);
+  view_->SetScale(scale);
 }
 
 void CurveWidget::UpdateInputLabel()

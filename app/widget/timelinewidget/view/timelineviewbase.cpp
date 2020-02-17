@@ -27,7 +27,7 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
   scene_.addItem(end_item_);
 
   // Set default scale
-  SetScaleAndCenterOnPlayhead(1.0);
+  SetScale(1.0);
 
   SetDefaultDragMode(NoDrag);
 
@@ -57,7 +57,7 @@ void TimelineViewBase::SetTime(const int64_t time)
     PageScrollToPlayhead();
     break;
   case AutoScroll::kSmooth:
-    CenterScrollOnPlayhead();
+    emit RequestCenterScrollOnPlayhead();
     break;
   }
 
@@ -198,7 +198,7 @@ void TimelineViewBase::ToolChangedEvent(Tool::Item)
 
 qreal TimelineViewBase::GetPlayheadX()
 {
-  return TimeToScene(rational(playhead_ * timebase().numerator(), timebase().denominator()));
+  return TimeToScene(Timecode::timestamp_to_time(playhead_, timebase()));
 }
 
 void TimelineViewBase::SetEndTime(const rational &length)
@@ -253,11 +253,6 @@ void TimelineViewBase::UpdateSceneRect()
   scene_.setSceneRect(bounding_rect);
 }
 
-void TimelineViewBase::CenterScrollOnPlayhead()
-{
-  horizontalScrollBar()->setValue(qRound(GetPlayheadX()) - viewport()->width()/2);
-}
-
 void TimelineViewBase::PageScrollToPlayhead()
 {
   int playhead_pos = qRound(GetPlayheadX());
@@ -288,15 +283,6 @@ void TimelineViewBase::ScaleChangedEvent(const double &scale)
 
   // Force redraw for playhead
   viewport()->update();
-}
-
-void TimelineViewBase::SetScaleAndCenterOnPlayhead(const double &scale)
-{
-  SetScale(scale);
-
-  // Zoom towards the playhead
-  // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
-  QTimer::singleShot(0, this, &TimelineViewBase::CenterScrollOnPlayhead);
 }
 
 bool TimelineViewBase::HandleZoomFromScroll(QWheelEvent *event)

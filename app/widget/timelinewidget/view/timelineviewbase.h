@@ -16,8 +16,6 @@ public:
 
   void SetEndTime(const rational& length);
 
-  void SetScaleAndCenterOnPlayhead(const double& scale);
-
   static const double kMaximumScale;
 
 public slots:
@@ -27,6 +25,8 @@ signals:
   void TimeChanged(const int64_t& time);
 
   void ScaleChanged(double scale);
+
+  void RequestCenterScrollOnPlayhead();
 
 protected:
   virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
@@ -86,11 +86,6 @@ private slots:
    * @brief Slot called whenever the view resizes or the scene contents change to enforce minimum scene sizes
    */
   void UpdateSceneRect();
-
-  /**
-   * @brief Slot to center the horizontal scroll bar on the playhead's current position
-   */
-  void CenterScrollOnPlayhead();
 
   /**
    * @brief Slot to handle page scrolling of the playhead

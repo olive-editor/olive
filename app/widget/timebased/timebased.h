@@ -26,6 +26,8 @@ public:
 
   void ConnectViewerNode(ViewerOutput *node);
 
+  void SetScaleAndCenterOnPlayhead(const double& scale);
+
 public slots:
   // FIXME: Rename this to SetTimestamp to reduce confusion
   void SetTime(int64_t timestamp);
@@ -69,6 +71,12 @@ protected:
   void SetAutoMaxScrollBar(bool e);
 
   virtual void resizeEvent(QResizeEvent *event) override;
+
+protected slots:
+  /**
+   * @brief Slot to center the horizontal scroll bar on the playhead's current position
+   */
+  void CenterScrollOnPlayhead();
 
 signals:
   void TimeChanged(const int64_t&);
