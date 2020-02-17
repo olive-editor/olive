@@ -66,13 +66,15 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data,
     int out_point = offset + length;
 
     QFile f(CachePathName());
-    if (f.open(QFile::WriteOnly | QFile::Append)) {
+    if (f.open(QFile::ReadWrite)) {
 
-      if (f.size() < out_point) {
-        f.resize(out_point);
+      if (f.size() < out_point && !f.resize(out_point)) {
+        qCritical() << "Failed to resize file" << CachePathName();
       }
 
-      f.seek(offset);
+      if (!f.seek(offset)) {
+        qCritical() << "Failed to seek file" << CachePathName();
+      }
 
       // Replace data with this data
       int copy_length = qMin(length, cached_samples.size());

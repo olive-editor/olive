@@ -8,9 +8,6 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     # FFmpeg 4.x
     sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
 
-    # OpenImageIO
-    sudo add-apt-repository ppa:olive-editor/openimageio -y
-
     # OpenColorIO
     sudo add-apt-repository ppa:olive-editor/opencolorio -y
 
