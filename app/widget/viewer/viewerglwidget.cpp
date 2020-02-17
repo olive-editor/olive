@@ -31,6 +31,10 @@
 #include "render/backend/opengl/openglshader.h"
 #include "render/pixelservice.h"
 
+#ifdef Q_OS_LINUX
+bool ViewerGLWidget::nouveau_check_done_ = false;
+#endif
+
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
   ocio_lut_(0),
@@ -170,6 +174,21 @@ void ViewerGLWidget::initializeGL()
   SetupColorProcessor();
 
   connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(ContextCleanup()), Qt::DirectConnection);
+
+#ifdef Q_OS_LINUX
+  if (!nouveau_check_done_) {
+    const char* vendor = reinterpret_cast<const char*>(context()->functions()->glGetString(GL_VENDOR));
+
+    if (!strcmp(vendor, "nouveau")) {
+      // Working with Qt widgets in this function segfaults, so we queue the messagebox for later
+      QMetaObject::invokeMethod(this,
+                                "ShowNouveauWarning",
+                                Qt::QueuedConnection);
+    }
+
+    nouveau_check_done_ = true;
+  }
+#endif
 }
 
 void ViewerGLWidget::paintGL()
@@ -223,6 +242,18 @@ void ViewerGLWidget::RefreshColorPipeline()
   SetupColorProcessor();
   update();
 }
+
+#ifdef Q_OS_LINUX
+void ViewerGLWidget::ShowNouveauWarning()
+{
+  QMessageBox::warning(this,
+                       tr("Driver Warning"),
+                       tr("Olive has detected your system is using the Nouveau graphics driver.\n\nThis driver is "
+                          "known to have stability and performance issues with Olive. It is highly recommended "
+                          "you install the proprietary NVIDIA driver before continuing to use Olive."),
+                       QMessageBox::Ok);
+}
+#endif
 
 void ViewerGLWidget::SetupColorProcessor()
 {
