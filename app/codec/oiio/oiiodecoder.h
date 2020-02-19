@@ -44,6 +44,8 @@ public:
 
   virtual bool SupportsVideo() override;
 
+  virtual QString GetIndexFilename() override;
+
 private:
 #if OIIO_VERSION < 10903
   OIIO::ImageInput* image_;

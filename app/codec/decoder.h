@@ -25,12 +25,15 @@
 #include <stdint.h>
 
 #include "codec/frame.h"
+#include "codec/waveoutput.h"
 #include "common/constructors.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 
 class Decoder;
 using DecoderPtr = std::shared_ptr<Decoder>;
+
+struct SwrContext;
 
 /**
  * @brief A decoder's is the main class for bringing external media into Olive
@@ -221,7 +224,7 @@ public:
    * All audio decoders must override this. It's not pure since video decoders don't need to use this, but default
    * behavior will abort since it should never be called.
    */
-  virtual void Conform(const AudioRenderingParams& params, const QAtomicInt* cancelled);
+  void Conform(const AudioRenderingParams& params, const QAtomicInt* cancelled);
 
   /**
    * @brief Create an index for this media
@@ -243,10 +246,25 @@ signals:
 protected:
   void SignalIndexProgress(const int64_t& ts);
 
+  /**
+   * @brief Returns the filename for the index
+   *
+   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for this to work correctly.
+   */
+  virtual QString GetIndexFilename() = 0;
+
+  /**
+   * @brief Get the destination filename of an audio stream conformed to a set of parameters
+   */
+  QString GetConformedFilename(const AudioRenderingParams &params);
+
   bool open_;
 
 private:
+  void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
+
   StreamPtr stream_;
+
 };
 
 Q_DECLARE_METATYPE(Decoder::RetrieveState)

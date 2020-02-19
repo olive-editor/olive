@@ -57,8 +57,6 @@ public:
 
   virtual QString id() override;
 
-  virtual void Conform(const AudioRenderingParams& params, const QAtomicInt *cancelled) override;
-
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
@@ -67,8 +65,6 @@ public:
   virtual void Index(const QAtomicInt *cancelled) override;
 
 private:
-  void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);
-
   /**
    * @brief Handle an error
    *
@@ -97,17 +93,7 @@ private:
    */
   int GetFrame(AVPacket* pkt, AVFrame* frame);
 
-  /**
-   * @brief Returns the filename for the index
-   *
-   * Retrieves the absolute filename of the index file for this stream. Decoder must be open for this to work correctly.
-   */
-  QString GetIndexFilename();
-
-  /**
-   * @brief Get the destination filename of an audio stream conformed to a set of parameters
-   */
-  QString GetConformedFilename(const AudioRenderingParams &params);
+  virtual QString GetIndexFilename() override;
 
   void UnconditionalAudioIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
   void UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);

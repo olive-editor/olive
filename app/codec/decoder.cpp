@@ -24,8 +24,11 @@
 #include <QDebug>
 #include <QFileInfo>
 
+#include "codec/ffmpeg/ffmpegcommon.h"
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
+#include "codec/waveinput.h"
+#include "codec/waveoutput.h"
 #include "render/indexmanager.h"
 #include "task/index/index.h"
 #include "task/taskmanager.h"
@@ -172,12 +175,144 @@ DecoderPtr Decoder::CreateFromID(const QString &id)
 
 void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* cancelled)
 {
-  Q_UNUSED(params)
-  qCritical() << "Conform called on an audio decoder that does not have a handler for it:" << id();
-  abort();
+  if (stream()->type() != Stream::kAudio) {
+    // Nothing to be done
+    return;
+  }
+
+  Index(cancelled);
+
+  // Get indexed WAV file
+  WaveInput input(GetIndexFilename());
+
+  // FIXME: No handling if input failed to open/is corrupt
+  if (input.open()) {
+    // If the parameters are equal, nothing to be done
+    // FIXME: Technically we only need to conform if the SAMPLE RATE is not equal. Format and channel layout conversion
+    //        could be done on the fly so we could perhaps conform less often at some point.
+    if (input.params() == params) {
+      input.close();
+      return;
+    }
+
+    // Otherwise, let's start converting the format
+
+    // Generate destination filename for this conversion to see if it exists
+    QString conformed_fn = GetConformedFilename(params);
+
+    if (QFileInfo::exists(conformed_fn)) {
+      // We must have already conformed this format
+      input.close();
+      return;
+    }
+
+    // Set up resampler
+    SwrContext* resampler = swr_alloc_set_opts(nullptr,
+                                               static_cast<int64_t>(params.channel_layout()),
+                                               FFmpegCommon::GetFFmpegSampleFormat(params.format()),
+                                               params.sample_rate(),
+                                               static_cast<int64_t>(input.params().channel_layout()),
+                                               FFmpegCommon::GetFFmpegSampleFormat(input.params().format()),
+                                               input.params().sample_rate(),
+                                               0,
+                                               nullptr);
+
+    swr_init(resampler);
+
+    WaveOutput conformed_output(conformed_fn, params);
+    if (!conformed_output.open()) {
+      qWarning() << "Failed to open conformed output:" << conformed_fn;
+      input.close();
+      return;
+    }
+
+    // Convert one second of audio at a time
+    int input_buffer_sz = input.params().time_to_bytes(1);
+
+    while (!input.at_end()) {
+      if (cancelled && *cancelled) {
+        break;
+      }
+
+      // Read up to one second of audio from WAV file
+      QByteArray read_samples = input.read(input_buffer_sz);
+
+      // Determine how many samples this is
+      int in_sample_count = input.params().bytes_to_samples(read_samples.size());
+
+      ConformInternal(resampler, &conformed_output, read_samples.data(), in_sample_count);
+    }
+
+    // Flush resampler
+    ConformInternal(resampler, &conformed_output, nullptr, 0);
+
+    // Clean up
+    swr_free(&resampler);
+    conformed_output.close();
+    input.close();
+
+    // If we cancelled, the conform didn't finish so remove it
+    if (cancelled && *cancelled) {
+      QFile(conformed_fn).remove();
+    }
+  } else {
+    qWarning() << "Failed to conform file:" << stream()->footage()->filename();
+  }
 }
 
-void Decoder::Index(const QAtomicInt *cancelled)
+void Decoder::ConformInternal(SwrContext* resampler, WaveOutput* output, const char* in_data, int in_sample_count)
+{
+  // Determine how many samples the output will be
+  int out_sample_count = swr_get_out_samples(resampler, in_sample_count);
+
+  // Allocate array for the amount of samples we'll need
+  QByteArray out_samples;
+  out_samples.resize(output->params().samples_to_bytes(out_sample_count));
+
+  char* out_data = out_samples.data();
+
+  // Convert samples
+  int convert_count = swr_convert(resampler,
+                                  reinterpret_cast<uint8_t**>(&out_data),
+                                  out_sample_count,
+                                  reinterpret_cast<const uint8_t**>(&in_data),
+                                  in_sample_count);
+
+  if (convert_count != out_sample_count) {
+    out_samples.resize(output->params().samples_to_bytes(convert_count));
+  }
+
+  output->write(out_samples);
+}
+
+QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
+{
+  QString index_fn = GetIndexFilename();
+  WaveInput input(GetIndexFilename());
+
+  // FIXME: No handling if input failed to open/is corrupt
+  if (input.open()) {
+    // If the parameters are equal, nothing to be done
+    AudioRenderingParams index_params = input.params();
+    input.close();
+
+    if (index_params == params) {
+      // Source file matches perfectly, no conform required
+      return index_fn;
+    }
+  }
+
+  index_fn.append('.');
+  index_fn.append(QString::number(params.sample_rate()));
+  index_fn.append('.');
+  index_fn.append(QString::number(params.format()));
+  index_fn.append('.');
+  index_fn.append(QString::number(params.channel_layout()));
+
+  return index_fn;
+}
+
+void Decoder::Index(const QAtomicInt *)
 {
 }
 

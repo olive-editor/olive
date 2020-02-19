@@ -187,3 +187,8 @@ bool OIIODecoder::SupportsVideo()
 {
   return true;
 }
+
+QString OIIODecoder::GetIndexFilename()
+{
+  return QString();
+}
