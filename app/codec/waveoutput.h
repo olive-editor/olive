@@ -25,6 +25,8 @@ public:
 
   void close();
 
+  const int& data_length() const;
+
   const AudioRenderingParams& params() const;
 
 private:

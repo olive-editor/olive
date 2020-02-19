@@ -29,6 +29,8 @@ public:
 
   void close();
 
+  const quint32& data_length() const;
+
   int sample_count() const;
 
 private:

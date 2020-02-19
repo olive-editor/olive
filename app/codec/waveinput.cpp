@@ -181,6 +181,11 @@ void WaveInput::close()
   }
 }
 
+const quint32 &WaveInput::data_length() const
+{
+  return data_size_;
+}
+
 int WaveInput::sample_count() const
 {
   return params_.bytes_to_samples(static_cast<int>(data_size_));

@@ -115,6 +115,11 @@ void WaveOutput::close()
   }
 }
 
+const int& WaveOutput::data_length() const
+{
+  return data_length_;
+}
+
 const AudioRenderingParams &WaveOutput::params() const
 {
   return params_;
