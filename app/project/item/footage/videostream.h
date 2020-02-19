@@ -40,10 +40,13 @@ public:
   const rational& frame_rate() const;
   void set_frame_rate(const rational& frame_rate);
 
-  int64_t get_closest_timestamp_in_frame_index(const int64_t& ts);
+  const int64_t& start_time() const;
+  void set_start_time(const int64_t& start_time);
+
+  int64_t get_closest_timestamp_in_frame_index(const rational& time);
+  int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);
   void clear_frame_index();
   void append_frame_index(const int64_t& ts);
-  //bool is_frame_index_empty();
   bool is_frame_index_ready();
   int64_t last_frame_index_timestamp();
 
@@ -54,6 +57,8 @@ private:
   rational frame_rate_;
 
   QVector<int64_t> frame_index_;
+
+  int64_t start_time_;
 
   QMutex index_access_lock_;
 

@@ -20,7 +20,8 @@
 
 #include "audiostream.h"
 
-AudioStream::AudioStream()
+AudioStream::AudioStream() :
+  index_done_(false)
 {
   set_type(kAudio);
 }
@@ -60,4 +61,48 @@ const int &AudioStream::sample_rate() const
 void AudioStream::set_sample_rate(const int &sample_rate)
 {
   sample_rate_ = sample_rate;
+}
+
+const rational &AudioStream::index_length()
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  return index_length_;
+}
+
+void AudioStream::set_index_length(const rational &index_length)
+{
+  {
+    QMutexLocker locker(&index_access_lock_);
+
+    index_length_ = index_length;
+  }
+
+  emit IndexChanged();
+}
+
+const bool &AudioStream::index_done()
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  return index_done_;
+}
+
+void AudioStream::set_index_done(const bool& index_done)
+{
+  {
+    QMutexLocker locker(&index_access_lock_);
+
+    index_done_ = index_done;
+  }
+
+  emit IndexChanged();
+}
+
+void AudioStream::clear_index()
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  index_done_ = false;
+  index_length_ = 0;
 }

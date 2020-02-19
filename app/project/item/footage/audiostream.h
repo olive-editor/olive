@@ -43,10 +43,23 @@ public:
   const int& sample_rate() const;
   void set_sample_rate(const int& sample_rate);
 
+  const rational& index_length();
+  void set_index_length(const rational& index_length);
+
+  const bool& index_done();
+  void set_index_done(const bool &index_done);
+
+  void clear_index();
+
 private:
   int channels_;
   uint64_t layout_;
   int sample_rate_;
+
+  QMutex index_access_lock_;
+  rational index_length_;
+  bool index_done_;
+
 };
 
 using AudioStreamPtr = std::shared_ptr<AudioStream>;
