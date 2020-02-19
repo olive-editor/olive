@@ -229,6 +229,8 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
     // Convert one second of audio at a time
     int input_buffer_sz = input.params().time_to_bytes(1);
 
+    int read_count = 0;
+
     while (!input.at_end()) {
       if (cancelled && *cancelled) {
         break;
@@ -241,6 +243,9 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
       int in_sample_count = input.params().bytes_to_samples(read_samples.size());
 
       ConformInternal(resampler, &conformed_output, read_samples.data(), in_sample_count);
+
+      read_count += read_samples.size();
+      emit IndexProgress(100.0 * static_cast<double>(read_count) / static_cast<double>(input.data_length()));
     }
 
     // Flush resampler
