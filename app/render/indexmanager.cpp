@@ -82,7 +82,6 @@ void IndexManager::IndexTaskFinished()
     const IndexPair& stp = indexing_.at(i);
 
     if (stp.task == sender()) {
-      //emit StreamIndexUpdated(stp.stream.get());
       indexing_.removeAt(i);
       return;
     }
@@ -96,6 +95,5 @@ void IndexManager::StreamIndexUpdatedEvent()
 
 void IndexManager::StreamConformAppendedEvent(const AudioRenderingParams &params)
 {
-  qDebug() << "Got stream conform appended event";
   emit StreamConformAppended(static_cast<Stream*>(sender()), params);
 }

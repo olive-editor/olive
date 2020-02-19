@@ -116,8 +116,6 @@ void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &r
 
 void AudioRenderBackend::ConformUpdated(Stream *stream, const AudioRenderingParams &params)
 {
-  qDebug() << "Got conform updated in ARB";
-
   for (int i=0;i<conform_wait_info_.size();i++) {
     const ConformWaitInfo& info = conform_wait_info_.at(i);
 
