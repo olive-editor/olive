@@ -5,6 +5,7 @@ extern "C" {
 }
 
 #include <QDataStream>
+#include <QtMath>
 
 WaveInput::WaveInput(const QString &f) :
   file_(f)
@@ -141,7 +142,7 @@ QByteArray WaveInput::read(int length)
     return QByteArray();
   }
 
-  return file_.read(length);
+  return file_.read(qMin(calculate_max_read(), static_cast<qint64>(length)));
 }
 
 QByteArray WaveInput::read(int offset, int length)
@@ -150,8 +151,8 @@ QByteArray WaveInput::read(int offset, int length)
     return QByteArray();
   }
 
-  file_.seek(offset + data_position_);
-  return file_.read(length);
+  seek(offset);
+  return file_.read(qMin(calculate_max_read(), static_cast<qint64>(length)));
 }
 
 void WaveInput::read(int offset, char *buffer, int length)
@@ -160,13 +161,18 @@ void WaveInput::read(int offset, char *buffer, int length)
     return;
   }
 
-  file_.seek(offset + data_position_);
-  file_.read(buffer, length);
+  seek(offset);
+  file_.read(buffer, qMin(calculate_max_read(), static_cast<qint64>(length)));
+}
+
+bool WaveInput::seek(qint64 pos)
+{
+  return file_.seek(data_position_ + qMin(pos, static_cast<qint64>(data_size_)));
 }
 
 bool WaveInput::at_end() const
 {
-  return file_.atEnd();
+  return file_.pos() == (data_position_ + data_size_);
 }
 
 const AudioRenderingParams &WaveInput::params() const
@@ -204,4 +210,9 @@ bool WaveInput::find_str(QFile *f, const char *str)
   }
 
   return true;
+}
+
+qint64 WaveInput::calculate_max_read() const
+{
+  return data_size_ - (file_.pos() - data_position_ );
 }

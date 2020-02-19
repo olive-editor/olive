@@ -23,6 +23,8 @@ public:
   QByteArray read(int offset, int length);
   void read(int offset, char *buffer, int length);
 
+  bool seek(qint64 pos);
+
   bool at_end() const;
 
   const AudioRenderingParams& params() const;
@@ -35,6 +37,8 @@ public:
 
 private:
   bool find_str(QFile* f, const char* str);
+
+  qint64 calculate_max_read() const;
 
   AudioRenderingParams params_;
 
