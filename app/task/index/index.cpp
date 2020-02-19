@@ -17,6 +17,8 @@ void IndexTask::Action()
 
     decoder->set_stream(stream_);
 
+    connect(decoder.get(), &Decoder::IndexProgress, this, &IndexTask::ProgressChanged);
+
     decoder->Open();
     decoder->Index(&IsCancelled());
     decoder->Close();

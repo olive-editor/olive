@@ -180,3 +180,10 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
 void Decoder::Index(const QAtomicInt *cancelled)
 {
 }
+
+void Decoder::SignalIndexProgress(const int64_t &ts)
+{
+  if (stream()->duration() != AV_NOPTS_VALUE && stream()->duration() != 0) {
+    emit IndexProgress(qRound(100.0 * static_cast<double>(ts) / static_cast<double>(stream()->duration())));
+  }
+}

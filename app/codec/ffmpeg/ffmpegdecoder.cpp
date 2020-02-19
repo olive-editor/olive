@@ -868,6 +868,8 @@ void FFmpegDecoder::UnconditionalAudioIndex(AVPacket *pkt, AVFrame *frame, const
         if (data_frame != frame) {
           av_frame_free(&data_frame);
         }
+
+        SignalIndexProgress(frame->pts);
       }
     }
 
@@ -917,6 +919,8 @@ void FFmpegDecoder::UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame, const
       //CacheFrameToDisk(frame);
 
       video_stream->append_frame_index(frame->pts);
+
+      SignalIndexProgress(frame->pts);
     } else {
       // Assume we've reached the end of the file
       break;
