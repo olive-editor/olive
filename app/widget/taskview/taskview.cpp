@@ -44,5 +44,5 @@ TaskView::TaskView(QWidget* parent) :
 void TaskView::AddTask(Task *t)
 {
   // Create TaskViewItem (UI representation of a Task) and connect it
-  layout_->addWidget(new TaskViewItem(t));
+  layout_->insertWidget(layout_->count()-1, new TaskViewItem(t));
 }
