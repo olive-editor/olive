@@ -14,14 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(conform)
-add_subdirectory(index)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  task/task.h
-  task/task.cpp
-  task/taskmanager.h
-  task/taskmanager.cpp
+  task/conform/conform.h
+  task/conform/conform.cpp
   PARENT_SCOPE
 )
