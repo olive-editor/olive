@@ -49,6 +49,7 @@
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
+#include "render/indexmanager.h"
 #include "render/pixelservice.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
@@ -109,6 +110,9 @@ void Core::Start()
   // Set up node factory/library
   NodeFactory::Initialize();
 
+  // Set up the index manager for renderers
+  IndexManager::CreateInstance();
+
   // Load application config
   Config::Load();
 
@@ -146,6 +150,8 @@ void Core::Stop()
   PixelService::DestroyInstance();
 
   NodeFactory::Destroy();
+
+  IndexManager::DestroyInstance();
 
   delete main_window_;
 }
@@ -370,6 +376,8 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<FramePtr>();
   qRegisterMetaType<AudioRenderingParams>();
   qRegisterMetaType<NodeKeyframe::Type>();
+  qRegisterMetaType<Decoder::RetrieveState>();
+  qRegisterMetaType<TimeRange>();
 }
 
 void Core::StartGUI(bool full_screen)

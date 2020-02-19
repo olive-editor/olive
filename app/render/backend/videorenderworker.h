@@ -48,13 +48,13 @@ public:
   void SetOperatingMode(const OperatingMode& mode);
 
 signals:
-  void CompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);
+  void CompletedFrame(NodeDependency CurrentPath, qint64 job_time, QByteArray hash, QVariant value);
 
-  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash, bool texture_existed);
+  void CompletedDownload(NodeDependency CurrentPath, qint64 job_time, QByteArray hash, bool texture_existed);
 
-  void HashAlreadyBeingCached(NodeDependency path, qint64 job_time, QByteArray hash);
+  void HashAlreadyBeingCached(NodeDependency CurrentPath, qint64 job_time, QByteArray hash);
 
-  void HashAlreadyExists(NodeDependency path, qint64 job_time, QByteArray hash);
+  void HashAlreadyExists(NodeDependency CurrentPath, qint64 job_time, QByteArray hash);
 
   void Aborted();
 
@@ -69,16 +69,18 @@ protected:
 
   virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) = 0;
 
-  virtual NodeValueTable RenderInternal(const NodeDependency& path, const qint64& job_time) override;
+  virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
 
-  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range, const QAtomicInt *cancelled) override;
+  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
 
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
+
+  virtual void ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time) override;
 
   ColorProcessorCache* color_cache();
 
 private:
-  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time, const QAtomicInt *cancelled);
+  void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
 
   void Download(QVariant texture, QString filename);
 

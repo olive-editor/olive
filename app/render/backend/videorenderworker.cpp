@@ -38,7 +38,7 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     hasher.addData(reinterpret_cast<const char*>(&vfmt), sizeof(PixelFormat::Format));
     hasher.addData(reinterpret_cast<const char*>(&vmode), sizeof(RenderMode::Mode));
 
-    HashNodeRecursively(&hasher, path.node(), path.in(), &IsCancelled());
+    HashNodeRecursively(&hasher, path.node(), path.in());
     hash = hasher.result();
   }
 
@@ -87,12 +87,12 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
   return value;
 }
 
-FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range, const QAtomicInt* cancelled)
+FramePtr VideoRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
 {
-  return decoder->RetrieveVideo(range.in(), cancelled);
+  return decoder->RetrieveVideo(range.in());
 }
 
-void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node* n, const rational& time, const QAtomicInt* cancelled)
+void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node* n, const rational& time)
 {
   // Resolve BlockList
   if (n->IsTrack()) {
@@ -140,7 +140,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
 
       if (input->IsConnected()) {
         // Traverse down this edge
-        HashNodeRecursively(hash, input->get_connected_node(), input_time, cancelled);
+        HashNodeRecursively(hash, input->get_connected_node(), input_time);
       } else {
         // Grab the value at this time
         QVariant value = input->get_value_at_time(input_time);
@@ -150,32 +150,48 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
       // We have one exception for FOOTAGE types, since we resolve the footage into a frame in the renderer
       if (input->data_type() == NodeParam::kFootage) {
         StreamPtr stream = ResolveStreamFromInput(input);
-        DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
-        if (decoder != nullptr) {
-          // Add footage details to hash
+        if (stream) {
+          DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
-          // Footage filename
-          hash->addData(stream->footage()->filename().toUtf8());
+          if (decoder) {
 
-          // Footage last modified date
-          hash->addData(stream->footage()->timestamp().toString().toUtf8());
+            // Add footage details to hash
 
-          // Footage stream
-          hash->addData(QString::number(stream->index()).toUtf8());
+            // Footage filename
+            hash->addData(stream->footage()->filename().toUtf8());
 
-          if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
-            ImageStreamPtr video_stream = std::static_pointer_cast<ImageStream>(stream);
+            // Footage last modified date
+            hash->addData(stream->footage()->timestamp().toString().toUtf8());
+
+            // Footage stream
+            hash->addData(QString::number(stream->index()).toUtf8());
+
+            if (stream->type() == Stream::kImage || stream->type() == Stream::kVideo) {
+              ImageStreamPtr image_stream = std::static_pointer_cast<ImageStream>(stream);
+
+              // Current color config and space
+              hash->addData(image_stream->footage()->project()->ocio_config().toUtf8());
+              hash->addData(image_stream->colorspace().toUtf8());
+
+              // Alpha associated setting
+              hash->addData(QString::number(image_stream->premultiplied_alpha()).toUtf8());
+            }
 
             // Footage timestamp
-            hash->addData(QString::number(decoder->GetTimestampFromTime(input_time, cancelled)).toUtf8());
+            if (stream->type() == Stream::kVideo) {
+              Decoder::RetrieveState state = decoder->GetRetrieveState(input_time);
 
-            // Current color config and space
-            hash->addData(video_stream->footage()->project()->ocio_config().toUtf8());
-            hash->addData(video_stream->colorspace().toUtf8());
+              if (state == Decoder::kReady) {
+                VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
 
-            // Alpha associated setting
-            hash->addData(QString::number(video_stream->premultiplied_alpha()).toUtf8());
+                int64_t timestamp_here = video_stream->get_closest_timestamp_in_frame_index(input_time);
+
+                hash->addData(QString::number(timestamp_here).toUtf8());
+              } else {
+                ReportUnavailableFootage(stream, state, input_time);
+              }
+            }
           }
         }
       }
@@ -258,11 +274,18 @@ NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const Ti
   NodeValueTable table;
 
   if (active_block) {
-    table = ProcessNode(NodeDependency(active_block,
-                                       range));
+    table = ProcessNode(NodeDependency(active_block, range));
   }
 
   return table;
+}
+
+void VideoRenderWorker::ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational &stream_time)
+{
+  emit FootageUnavailable(stream,
+                          state,
+                          TimeRange(CurrentPath().in(), CurrentPath().in() + video_params().time_base()),
+                          stream_time);
 }
 
 ColorProcessorCache *VideoRenderWorker::color_cache()

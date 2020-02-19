@@ -52,6 +52,12 @@ class Decoder : public QObject
 {
   Q_OBJECT
 public:
+  enum RetrieveState {
+    kReady,
+    kFailedToOpen,
+    kIndexUnavailable
+  };
+
   Decoder();
 
   Decoder(Stream* fs);
@@ -107,6 +113,11 @@ public:
   virtual bool Open() = 0;
 
   /**
+   * @brief Determine whether the Decoder is able to retrieve data
+   */
+  virtual RetrieveState GetRetrieveState(const rational& time) = 0;
+
+  /**
    * @brief Retrieve video frame
    *
    * The main function for retrieving video data from the Decoder. This function should always provide complete frame
@@ -127,7 +138,7 @@ public:
    * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
    * the media could not be opened.
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode, const QAtomicInt* cancelled);
+  virtual FramePtr RetrieveVideo(const rational& timecode);
 
   /**
    * @brief Retrieve video frame
@@ -153,7 +164,7 @@ public:
    * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
    * the provided timecode or the media could not be opened.
    */
-  virtual FramePtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params, const QAtomicInt* cancelled);
+  virtual FramePtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
 
   virtual bool SupportsVideo();
   virtual bool SupportsAudio();
@@ -168,13 +179,6 @@ public:
    * have been opened successfully.
    */
   virtual void Close() = 0;
-
-  /**
-   * @brief Get a media file's internal timestamp
-   *
-   * Used to determine which frame will be served at a given time, useful for caching.
-   */
-  virtual int64_t GetTimestampFromTime(const rational& time, const QAtomicInt* cancelled) = 0;
 
   /**
    * @brief Try to probe a Footage file by passing it through all available Decoders
@@ -236,5 +240,7 @@ protected:
 private:
   StreamPtr stream_;
 };
+
+Q_DECLARE_METATYPE(Decoder::RetrieveState)
 
 #endif // DECODER_H

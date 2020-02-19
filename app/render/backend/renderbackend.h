@@ -31,7 +31,7 @@ public:
   void CancelQueue();
 
 public slots:
-  void InvalidateCache(const rational &start_range, const rational &end_range);
+  void InvalidateCache(const TimeRange &range);
 
   bool Compile();
 
@@ -144,6 +144,19 @@ private:
   QVector<bool> processor_busy_state_;
 
   RenderCancelDialog* cancel_dialog_;
+
+  struct FootageWaitInfo {
+    StreamPtr stream;
+    TimeRange affected_range;
+    rational stream_time;
+  };
+
+  QList<FootageWaitInfo> footage_wait_info_;
+
+private slots:
+  void FootageUnavailable(StreamPtr stream, Decoder::RetrieveState state, const TimeRange& path, const rational& stream_time);
+
+  void IndexUpdated(Stream *stream);
 
 };
 

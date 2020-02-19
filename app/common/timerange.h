@@ -33,6 +33,8 @@ private:
 
 };
 
+Q_DECLARE_METATYPE(TimeRange)
+
 uint qHash(const TimeRange& r, uint seed);
 
 class TimeRangeList : public QList<TimeRange> {

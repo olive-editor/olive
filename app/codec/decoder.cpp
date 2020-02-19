@@ -26,6 +26,7 @@
 
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "codec/oiio/oiiodecoder.h"
+#include "render/indexmanager.h"
 #include "task/index/index.h"
 #include "task/taskmanager.h"
 
@@ -57,12 +58,12 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const QAtomicInt* cancelled)
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/)
 {
   return nullptr;
 }
 
-FramePtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/, const QAtomicInt* cancelled)
+FramePtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
 {
   return nullptr;
 }
@@ -134,13 +135,10 @@ bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
 
       // Start an index task
       foreach (StreamPtr stream, f->streams()) {
-        IndexTask* index_task = new IndexTask(stream);
-        index_task->moveToThread(TaskManager::instance()->thread());
-
-        QMetaObject::invokeMethod(TaskManager::instance(),
-                                  "AddTask",
+        QMetaObject::invokeMethod(IndexManager::instance(),
+                                  "StartIndexingStream",
                                   Qt::QueuedConnection,
-                                  Q_ARG(Task*, index_task));
+                                  Q_ARG(StreamPtr, stream));
       }
 
       return true;

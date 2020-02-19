@@ -58,7 +58,7 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     }
 
     ConnectViewerNode(viewer_node_, footage->project()->color_manager());
-    video_renderer_->InvalidateCache(0, viewer_node_->Length());
-    audio_renderer_->InvalidateCache(0, viewer_node_->Length());
+    video_renderer_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
+    audio_renderer_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
   }
 }

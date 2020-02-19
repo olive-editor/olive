@@ -177,7 +177,7 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   // Update renderer
   // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
   //        the renderer save the map as some sort of file that this can load.
-  preview_viewer_->video_renderer()->InvalidateCache(0, viewer_node_->Length());
+  preview_viewer_->video_renderer()->InvalidateCache(TimeRange(0, viewer_node_->Length()));
 }
 
 void ExportDialog::accept()

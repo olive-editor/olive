@@ -50,13 +50,12 @@ public:
   virtual bool Probe(Footage *f, const QAtomicInt *cancelled) override;
 
   virtual bool Open() override;
-  virtual FramePtr RetrieveVideo(const rational &timecode, const QAtomicInt *cancelled) override;
-  virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params, const QAtomicInt *cancelled) override;
+  virtual RetrieveState GetRetrieveState(const rational &time) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode) override;
+  virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
   virtual void Close() override;
 
   virtual QString id() override;
-
-  virtual int64_t GetTimestampFromTime(const rational& time, const QAtomicInt *cancelled) override;
 
   virtual void Conform(const AudioRenderingParams& params, const QAtomicInt *cancelled) override;
 
@@ -112,8 +111,6 @@ private:
 
   void UnconditionalAudioIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
   void UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
-
-  int64_t GetClosestTimestampInIndex(const int64_t& ts, const QAtomicInt *cancelled);
 
   void ValidateVideoIndex(const QAtomicInt* cancelled);
 

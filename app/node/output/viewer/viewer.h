@@ -84,9 +84,9 @@ protected:
 signals:
   void TimebaseChanged(const rational&);
 
-  void VideoChangedBetween(const rational&, const rational&);
+  void VideoChangedBetween(const TimeRange& range);
 
-  void AudioChangedBetween(const rational&, const rational&);
+  void AudioChangedBetween(const TimeRange& range);
 
   void VisibleInvalidated();
 

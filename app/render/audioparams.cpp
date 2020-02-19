@@ -83,11 +83,23 @@ int AudioRenderingParams::samples_to_bytes(const int &samples) const
   return samples * channel_count() * bytes_per_sample_per_channel();
 }
 
+rational AudioRenderingParams::samples_to_time(const int &samples) const
+{
+  return rational(samples, sample_rate());
+}
+
 int AudioRenderingParams::bytes_to_samples(const int &bytes) const
 {
   Q_ASSERT(is_valid());
 
   return bytes / (channel_count() * bytes_per_sample_per_channel());
+}
+
+rational AudioRenderingParams::bytes_to_time(const int &bytes) const
+{
+  Q_ASSERT(is_valid());
+
+  return samples_to_time(bytes_to_samples(bytes));
 }
 
 int AudioRenderingParams::channel_count() const

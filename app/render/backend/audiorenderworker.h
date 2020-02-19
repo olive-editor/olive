@@ -16,7 +16,7 @@ protected:
 
   virtual void CloseInternal() override;
 
-  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range, const QAtomicInt* cancelled) override;
+  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
 
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 

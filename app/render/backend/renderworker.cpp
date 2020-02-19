@@ -34,6 +34,8 @@ void RenderWorker::Close()
 
 void RenderWorker::Render(NodeDependency path, qint64 job_time)
 {
+  path_ = path;
+
   emit CompletedCache(path, RenderInternal(path, job_time), job_time);
 }
 
@@ -104,8 +106,7 @@ NodeValueTable RenderWorker::ProcessInput(const NodeInput *input, const TimeRang
 {
   if (input->IsConnected()) {
     // Value will equal something from the connected node, follow it
-    return ProcessNode(NodeDependency(input->get_connected_node(),
-                                      range));
+    return ProcessNode(NodeDependency(input->get_connected_node(), range));
   } else {
     // Push onto the table the value at this time from the input
     QVariant input_value = input->get_value_at_time(range.in());
@@ -114,6 +115,16 @@ NodeValueTable RenderWorker::ProcessInput(const NodeInput *input, const TimeRang
     table.Push(input->data_type(), input_value);
     return table;
   }
+}
+
+void RenderWorker::ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time)
+{
+  emit FootageUnavailable(stream, state, path_.range(), stream_time);
+}
+
+const NodeDependency &RenderWorker::CurrentPath() const
+{
+  return path_;
 }
 
 NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRange &range)
@@ -140,10 +151,17 @@ NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRan
           DecoderPtr decoder = ResolveDecoderFromInput(stream);
 
           if (decoder) {
-            FramePtr frame = RetrieveFromDecoder(decoder, input_time, &IsCancelled());
 
-            if (frame) {
-              FrameToValue(stream, frame, &table);
+            Decoder::RetrieveState state = decoder->GetRetrieveState(input_time.out());
+
+            if (state == Decoder::kReady) {
+              FramePtr frame = RetrieveFromDecoder(decoder, input_time);
+
+              if (frame) {
+                FrameToValue(stream, frame, &table);
+              }
+            } else {
+              ReportUnavailableFootage(stream, state, input_time.out());
             }
           }
         }

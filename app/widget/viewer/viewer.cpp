@@ -140,6 +140,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
+  Pause();
+
   SetTimebase(0);
 
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
@@ -303,7 +305,7 @@ void ViewerWidget::UpdateRendererParameters()
   audio_renderer_->SetParameters(AudioRenderingParams(GetConnectedNode()->audio_params(),
                                                       SampleFormat::GetConfiguredFormatForMode(render_mode)));
 
-  video_renderer_->InvalidateCache(0, GetConnectedNode()->Length());
+  video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()));
 }
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
@@ -517,5 +519,5 @@ void ViewerWidget::SetDividerFromMenu(QAction *action)
 
 void ViewerWidget::InvalidateVisible()
 {
-  video_renderer_->InvalidateCache(GetTime(), GetTime());
+  video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()));
 }

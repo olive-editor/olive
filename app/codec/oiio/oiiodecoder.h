@@ -37,11 +37,10 @@ public:
 
   virtual bool Open() override;
 
-  virtual FramePtr RetrieveVideo(const rational &timecode, const QAtomicInt* cancelled) override;
+  virtual RetrieveState GetRetrieveState(const rational &time) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode) override;
 
   virtual void Close() override;
-
-  virtual int64_t GetTimestampFromTime(const rational &time, const QAtomicInt* cancelled) override;
 
   virtual bool SupportsVideo() override;
 

@@ -101,9 +101,9 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
   Node::InvalidateCache(start_range, end_range, from);
 
   if (from == texture_input()) {
-    emit VideoChangedBetween(start_range, end_range);
+    emit VideoChangedBetween(TimeRange(start_range, end_range));
   } else if (from == samples_input()) {
-    emit AudioChangedBetween(start_range, end_range);
+    emit AudioChangedBetween(TimeRange(start_range, end_range));
   } else if (from == length_input()) {
     emit LengthChanged(Length());
   }

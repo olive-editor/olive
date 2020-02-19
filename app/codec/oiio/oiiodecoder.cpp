@@ -133,7 +133,16 @@ bool OIIODecoder::Open()
   return true;
 }
 
-FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const QAtomicInt *cancelled)
+Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
+{
+  if (!open_ && !Open()) {
+    return kFailedToOpen;
+  }
+
+  return kReady;
+}
+
+FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 {
   if (!open_ && !Open()) {
     return nullptr;
@@ -172,15 +181,6 @@ void OIIODecoder::Close()
   }
 
   frame_ = nullptr;
-}
-
-int64_t OIIODecoder::GetTimestampFromTime(const rational &time, const QAtomicInt *cancelled)
-{
-  Q_UNUSED(time)
-
-  // A still image will always return the same frame
-
-  return 0;
 }
 
 bool OIIODecoder::SupportsVideo()
