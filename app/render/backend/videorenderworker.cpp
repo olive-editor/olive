@@ -180,7 +180,8 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
 
             // Footage timestamp
             if (stream->type() == Stream::kVideo) {
-              Decoder::RetrieveState state = decoder->GetRetrieveState(input_time);
+              hash->addData(QStringLiteral("%1/%2").arg(input_time.numerator(), input_time.denominator()).toUtf8());
+              /*Decoder::RetrieveState state = decoder->GetRetrieveState(input_time);
 
               if (state == Decoder::kReady) {
                 VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream);
@@ -190,7 +191,7 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
                 hash->addData(QString::number(timestamp_here).toUtf8());
               } else {
                 ReportUnavailableFootage(stream, state, input_time);
-              }
+              }*/
             }
           }
         }
