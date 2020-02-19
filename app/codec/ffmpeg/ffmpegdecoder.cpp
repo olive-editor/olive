@@ -46,10 +46,18 @@ FFmpegDecoder::FFmpegDecoder() :
   codec_ctx_(nullptr),
   scale_ctx_(nullptr),
   pkt_(nullptr),
+#ifdef USE_VIDEO_INDEX
   frame_(nullptr),
+#else
+  last_retrieved_frame_(nullptr),
+#endif
   opts_(nullptr),
   multithreading_(false)
 {
+#ifndef USE_VIDEO_INDEX
+  frames_[0] = nullptr;
+  frames_[1] = nullptr;
+#endif
 }
 
 FFmpegDecoder::~FFmpegDecoder()
@@ -180,11 +188,16 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
+#ifdef USE_VIDEO_INDEX
   frame_ = av_frame_alloc();
   if (!frame_) {
     Error(QStringLiteral("Failed to allocate AVFrame"));
     return false;
   }
+#else
+  frames_[0] = av_frame_alloc();
+  frames_[1] = av_frame_alloc();
+#endif
 
   // All allocation succeeded so we set the state to open
   open_ = true;
@@ -243,17 +256,42 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   frame_container->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
   frame_container->allocate();
 
+#ifdef USE_VIDEO_INDEX
   bool got_frame = (frame_->pts == target_ts);
+#else
+  bool got_frame = false;
+#endif
 
   QByteArray frame_loader;
   uint8_t* input_data[4];
   int input_linesize[4];
 
+#ifdef USE_VIDEO_INDEX
   // If we already have the frame, we'll need to set the pointers to it
   for (int i=0;i<4;i++) {
     input_data[i] = frame_->data[i];
     input_linesize[i] = frame_->linesize[i];
   }
+#else
+  {
+    AVFrame* test_existing = nullptr;
+
+    if (frames_[0]->pts == target_ts) {
+      got_frame = frames_[0];
+    } else if (frames_[1]->pts == target_ts) {
+      got_frame = frames_[1];
+    }
+
+    if (test_existing) {
+      for (int i=0;i<4;i++) {
+        input_data[i] = test_existing->data[i];
+        input_linesize[i] = test_existing->linesize[i];
+      }
+
+      got_frame = true;
+    }
+  }
+#endif
 
   // See if we stored this frame in the disk cache
   if (!got_frame) {
@@ -283,7 +321,14 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   if (!got_frame) {
     int64_t second_ts = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
 
+#ifdef USE_VIDEO_INDEX
     if (frame_->pts < target_ts - 2*second_ts || frame_->pts > target_ts) {
+#else
+    if (!last_retrieved_frame_
+        || last_retrieved_frame_->pts == AV_NOPTS_VALUE
+        || last_retrieved_frame_->pts < target_ts - 2*second_ts
+        || last_retrieved_frame_->pts > target_ts) {
+#endif
       Seek(target_ts);
     }
 
@@ -291,6 +336,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     int ret;
 
+#ifdef USE_VIDEO_INDEX
     while (true) {
       ret = GetFrame(pkt_, frame_);
 
@@ -320,6 +366,56 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
         break;
       }
     }
+#else
+    bool frame_flipper = false;
+    bool still_seeking = true;
+
+    while (true) {
+      AVFrame* working_frame = frames_[frame_flipper];
+
+      ret = GetFrame(pkt_, working_frame);
+
+      if (ret < 0) {
+        FFmpegError(ret);
+        break;
+      }
+
+      if (still_seeking) {
+        if (working_frame->pts > target_ts) {
+          // Seek failed, try again
+          seek_ts -= second_ts;
+          Seek(seek_ts);
+          continue;
+        } else {
+          still_seeking = false;
+        }
+      }
+
+      AVFrame* found_frame = nullptr;
+
+      if (working_frame->pts == target_ts) {
+        found_frame = working_frame;
+      } else if (working_frame->pts > target_ts && frames_[!frame_flipper]->pts < target_ts) {
+        found_frame = frames_[!frame_flipper];
+      }
+
+      if (found_frame) {
+        // We found the frame we want
+        got_frame = true;
+
+        // Set data arrays to the frame's data
+        for (int i=0;i<4;i++) {
+          input_data[i] = found_frame->data[i];
+          input_linesize[i] = found_frame->linesize[i];
+        }
+
+        CacheFrameToDisk(found_frame);
+        break;
+      }
+
+      frame_flipper = !frame_flipper;
+    }
+#endif
   }
 
   // If we're here and got the frame, we'll convert it and return it
@@ -383,10 +479,24 @@ void FFmpegDecoder::Close()
     opts_ = nullptr;
   }
 
+#ifdef USE_VIDEO_INDEX
   if (frame_) {
     av_frame_free(&frame_);
     frame_ = nullptr;
   }
+#else
+  last_retrieved_frame_ = nullptr;
+
+  if (frames_[1]) {
+    av_frame_free(&frames_[1]);
+    frames_[1] = nullptr;
+  }
+
+  if (frames_[0]) {
+    av_frame_free(&frames_[0]);
+    frames_[0] = nullptr;
+  }
+#endif
 
   if (pkt_) {
     av_packet_free(&pkt_);
@@ -614,7 +724,11 @@ void FFmpegDecoder::Index(const QAtomicInt* cancelled)
       }
     }
 
+#ifdef USE_VIDEO_INDEX
     UnconditionalAudioIndex(pkt_, frame_, cancelled);
+#else
+    UnconditionalAudioIndex(pkt_, frames_[0], cancelled);
+#endif
 
   }
 }
@@ -860,7 +974,11 @@ void FFmpegDecoder::ValidateVideoIndex(const QAtomicInt* cancelled)
     // Reset state
     Seek(0);
 
+#ifdef USE_VIDEO_INDEX
     UnconditionalVideoIndex(pkt_, frame_, cancelled);
+#else
+    UnconditionalVideoIndex(pkt_, frames_[0], cancelled);
+#endif
 
     Seek(0);
   }

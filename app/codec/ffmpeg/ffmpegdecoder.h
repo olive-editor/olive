@@ -34,6 +34,8 @@ extern "C" {
 #include "codec/waveoutput.h"
 #include "project/item/footage/videostream.h"
 
+//#define USE_VIDEO_INDEX
+
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
@@ -115,7 +117,12 @@ private:
 
   AVPacket* pkt_;
 
+#ifdef USE_VIDEO_INDEX
   AVFrame* frame_;
+#else
+  AVFrame* frames_[2];
+  AVFrame* last_retrieved_frame_;
+#endif
 
   AVDictionary* opts_;
 
