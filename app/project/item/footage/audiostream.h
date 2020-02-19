@@ -21,7 +21,10 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
+#include <QVector>
+
 #include "common/rational.h"
+#include "render/audioparams.h"
 #include "stream.h"
 
 /**
@@ -29,6 +32,7 @@
  */
 class AudioStream : public Stream
 {
+  Q_OBJECT
 public:
   AudioStream();
 
@@ -51,6 +55,12 @@ public:
 
   void clear_index();
 
+  bool has_conformed_version(const AudioRenderingParams& params);
+  void append_conformed_version(const AudioRenderingParams& params);
+
+signals:
+  void ConformAppended(const AudioRenderingParams& params);
+
 private:
   int channels_;
   uint64_t layout_;
@@ -59,6 +69,8 @@ private:
   QMutex index_access_lock_;
   rational index_length_;
   bool index_done_;
+
+  QVector<AudioRenderingParams> conformed_;
 
 };
 

@@ -31,7 +31,7 @@ void IndexManager::StartIndexingStream(StreamPtr stream)
   }
 
   IndexTask* index_task = new IndexTask(stream);
-  threads_.append({stream, index_task});
+  indexing_.append({stream, index_task});
 
   connect(stream.get(), &Stream::IndexChanged, this, &IndexManager::StreamIndexUpdatedEvent, Qt::QueuedConnection);
   connect(index_task, &IndexTask::Succeeded, this, &IndexManager::IndexTaskFinished, Qt::QueuedConnection);
@@ -39,10 +39,36 @@ void IndexManager::StartIndexingStream(StreamPtr stream)
   TaskManager::instance()->AddTask(index_task);
 }
 
-bool IndexManager::IsIndexing(StreamPtr stream)
+void IndexManager::StartConformingStream(AudioStreamPtr stream, const AudioRenderingParams &params)
 {
-  foreach (const StreamThreadPair& stp, threads_) {
+  if (IsConforming(stream, params)) {
+    return;
+  }
+
+  ConformTask* conform_task = new ConformTask(stream, params);
+  conforming_.append({stream, params, conform_task});
+
+  connect(stream.get(), &AudioStream::ConformAppended, this, &IndexManager::StreamConformAppendedEvent, Qt::QueuedConnection);
+  connect(conform_task, &ConformTask::Succeeded, this, &IndexManager::IndexTaskFinished, Qt::QueuedConnection);
+
+  TaskManager::instance()->AddTask(conform_task);
+}
+
+bool IndexManager::IsIndexing(StreamPtr stream) const
+{
+  foreach (const IndexPair& stp, indexing_) {
     if (stp.stream == stream) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool IndexManager::IsConforming(AudioStreamPtr stream, const AudioRenderingParams &params) const
+{
+  foreach (const ConformPair& cfp, conforming_) {
+    if (cfp.stream == stream && cfp.params == params) {
       return true;
     }
   }
@@ -52,12 +78,12 @@ bool IndexManager::IsIndexing(StreamPtr stream)
 
 void IndexManager::IndexTaskFinished()
 {
-  for (int i=0;i<threads_.size();i++) {
-    const StreamThreadPair& stp = threads_.at(i);
+  for (int i=0;i<indexing_.size();i++) {
+    const IndexPair& stp = indexing_.at(i);
 
     if (stp.task == sender()) {
       //emit StreamIndexUpdated(stp.stream.get());
-      threads_.removeAt(i);
+      indexing_.removeAt(i);
       return;
     }
   }
@@ -66,4 +92,10 @@ void IndexManager::IndexTaskFinished()
 void IndexManager::StreamIndexUpdatedEvent()
 {
   emit StreamIndexUpdated(static_cast<Stream*>(sender()));
+}
+
+void IndexManager::StreamConformAppendedEvent(const AudioRenderingParams &params)
+{
+  qDebug() << "Got stream conform appended event";
+  emit StreamConformAppended(static_cast<Stream*>(sender()), params);
 }

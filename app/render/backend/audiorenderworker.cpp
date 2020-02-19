@@ -25,7 +25,12 @@ void AudioRenderWorker::CloseInternal()
 
 FramePtr AudioRenderWorker::RetrieveFromDecoder(DecoderPtr decoder, const TimeRange &range)
 {
-  return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_);
+  if (decoder->HasConformedVersion(audio_params_)) {
+    return decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params_);
+  } else {
+    emit ConformUnavailable(decoder->stream(), CurrentPath().range(), range.out(), audio_params_);
+    return nullptr;
+  }
 }
 
 NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)

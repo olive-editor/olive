@@ -443,12 +443,8 @@ void RenderBackend::FootageUnavailable(StreamPtr stream, Decoder::RetrieveState 
 
     FootageWaitInfo info = {stream, range, stream_time};
 
-    foreach (const FootageWaitInfo& compare, footage_wait_info_) {
-      if (info.stream == compare.stream
-          && info.stream_time == compare.stream_time
-          && info.affected_range == compare.affected_range) {
-        return;
-      }
+    if (footage_wait_info_.contains(info)) {
+      return;
     }
 
     qDebug() << "Waiting for" << stream.get() << "time" << stream_time.toDouble() << "for frame" << range.in();
@@ -512,4 +508,11 @@ void RenderBackend::IndexUpdated(Stream* stream)
       }
     }
   }
+}
+
+bool RenderBackend::FootageWaitInfo::operator==(const RenderBackend::FootageWaitInfo &rhs) const
+{
+  return rhs.stream == stream
+      && rhs.stream_time == stream_time
+      && rhs.affected_range == affected_range;
 }

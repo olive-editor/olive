@@ -149,6 +149,8 @@ private:
     StreamPtr stream;
     TimeRange affected_range;
     rational stream_time;
+
+    bool operator==(const FootageWaitInfo& rhs) const;
   };
 
   QList<FootageWaitInfo> footage_wait_info_;

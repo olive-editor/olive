@@ -164,6 +164,7 @@ void TaskManager::DeleteTask(Task *t)
       break;
     }
   }
+
   emit t->Removed();
 
   if (GetTaskStatus(t) != kWorking) {

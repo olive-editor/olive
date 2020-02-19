@@ -5,10 +5,12 @@
 
 #include "audiorenderworker.h"
 #include "common/filefunctions.h"
+#include "render/indexmanager.h"
 
 AudioRenderBackend::AudioRenderBackend(QObject *parent) :
   RenderBackend(parent)
 {
+  connect(IndexManager::instance(), &IndexManager::StreamConformAppended, this, &AudioRenderBackend::ConformUpdated);
 }
 
 void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
@@ -73,4 +75,67 @@ QString AudioRenderBackend::CachePathName()
 bool AudioRenderBackend::CanRender()
 {
   return params_.is_valid();
+}
+
+void AudioRenderBackend::ConnectWorkerToThis(RenderWorker *worker)
+{
+  AudioRenderWorker* arw = static_cast<AudioRenderWorker*>(worker);
+
+  connect(arw, &AudioRenderWorker::ConformUnavailable, this, &AudioRenderBackend::ConformUnavailable, Qt::QueuedConnection);
+}
+
+void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &range, const rational &stream_time, const AudioRenderingParams& params)
+{
+  ConformWaitInfo info = {stream, params, range, stream_time};
+
+  if (conform_wait_info_.contains(info)) {
+    return;
+  }
+
+  qDebug() << "Waiting for conformed" << stream.get() << "time" << stream_time.toDouble() << "for frame" << range.in();
+
+  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream);
+
+  if (IndexManager::instance()->IsConforming(audio_stream, params)) {
+
+    conform_wait_info_.append(info);
+
+  } else if (audio_stream->has_conformed_version(params)) {
+
+    // Index JUST finished, requeue this time
+    InvalidateCache(range);
+
+  } else {
+
+    // Start indexing process
+    conform_wait_info_.append(info);
+    IndexManager::instance()->StartConformingStream(audio_stream, params);
+
+  }
+}
+
+void AudioRenderBackend::ConformUpdated(Stream *stream, const AudioRenderingParams &params)
+{
+  qDebug() << "Got conform updated in ARB";
+
+  for (int i=0;i<conform_wait_info_.size();i++) {
+    const ConformWaitInfo& info = conform_wait_info_.at(i);
+
+    if (info.stream.get() == stream
+        && info.params == params) {
+
+      InvalidateCache(info.affected_range);
+      conform_wait_info_.removeAt(i);
+      i--;
+
+    }
+  }
+}
+
+bool AudioRenderBackend::ConformWaitInfo::operator==(const AudioRenderBackend::ConformWaitInfo &rhs) const
+{
+  return rhs.params == params
+      && rhs.stream == stream
+      && rhs.stream_time == stream_time
+      && rhs.affected_range == affected_range;
 }

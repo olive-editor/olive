@@ -237,6 +237,11 @@ public:
    */
   virtual void Index(const QAtomicInt* cancelled);
 
+  /**
+   * @brief AUDIO ONLY: Returns whether a cached transcode of this audio matching the specified params already exists
+   */
+  bool HasConformedVersion(const AudioRenderingParams& params);
+
 signals:
   /**
    * @brief While indexing, this signal will provide progress as a percentage (0-100 inclusive) if available

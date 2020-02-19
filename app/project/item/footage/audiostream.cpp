@@ -106,3 +106,27 @@ void AudioStream::clear_index()
   index_done_ = false;
   index_length_ = 0;
 }
+
+bool AudioStream::has_conformed_version(const AudioRenderingParams &params)
+{
+  QMutexLocker locker(&index_access_lock_);
+
+  foreach (const AudioRenderingParams& p, conformed_) {
+    if (p == params) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void AudioStream::append_conformed_version(const AudioRenderingParams &params)
+{
+  {
+    QMutexLocker locker(&index_access_lock_);
+
+    conformed_.append(params);
+  }
+
+  emit ConformAppended(params);
+}

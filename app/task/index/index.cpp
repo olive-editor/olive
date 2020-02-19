@@ -1,6 +1,7 @@
 #include "index.h"
 
 #include "codec/decoder.h"
+#include "codec/ffmpeg/ffmpegdecoder.h"
 
 IndexTask::IndexTask(StreamPtr stream) :
   stream_(stream)
@@ -16,6 +17,11 @@ void IndexTask::Action()
     DecoderPtr decoder = Decoder::CreateFromID(stream_->footage()->decoder());
 
     decoder->set_stream(stream_);
+
+    // Force multithreading for faster indexing
+    if (decoder->id() == "ffmpeg") {
+      static_cast<FFmpegDecoder*>(decoder.get())->SetMultithreading(true);
+    }
 
     connect(decoder.get(), &Decoder::IndexProgress, this, &IndexTask::ProgressChanged);
 

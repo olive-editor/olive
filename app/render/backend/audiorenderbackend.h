@@ -38,8 +38,26 @@ protected:
 
   virtual bool CanRender() override;
 
+  virtual void ConnectWorkerToThis(RenderWorker* worker) override;
+
 private:
+  struct ConformWaitInfo {
+    StreamPtr stream;
+    AudioRenderingParams params;
+    TimeRange affected_range;
+    rational stream_time;
+
+    bool operator==(const ConformWaitInfo& rhs) const;
+  };
+
+  QList<ConformWaitInfo> conform_wait_info_;
+
   AudioRenderingParams params_;
+
+private slots:
+  void ConformUnavailable(StreamPtr stream, const TimeRange& range, const rational& stream_time, const AudioRenderingParams &params);
+
+  void ConformUpdated(Stream *stream, const AudioRenderingParams& params);
 
 };
 

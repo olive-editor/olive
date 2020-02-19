@@ -6,6 +6,7 @@ ConformTask::ConformTask(AudioStreamPtr stream, const AudioRenderingParams& para
   stream_(stream),
   params_(params)
 {
+  SetTitle(tr("Conforming Audio %1:%2").arg(stream_->footage()->filename(), QString::number(stream_->index())));
 }
 
 void ConformTask::Action()

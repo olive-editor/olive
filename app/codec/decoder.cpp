@@ -180,8 +180,6 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
     return;
   }
 
-  Index(cancelled);
-
   // Get indexed WAV file
   WaveInput input(GetIndexFilename());
 
@@ -196,12 +194,14 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
     }
 
     // Otherwise, let's start converting the format
+    QMutexLocker locker(stream()->index_process_lock());
 
     // Generate destination filename for this conversion to see if it exists
     QString conformed_fn = GetConformedFilename(params);
 
     if (QFileInfo::exists(conformed_fn)) {
       // We must have already conformed this format
+      std::static_pointer_cast<AudioStream>(stream())->append_conformed_version(params);
       input.close();
       return;
     }
@@ -259,6 +259,8 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
     // If we cancelled, the conform didn't finish so remove it
     if (cancelled && *cancelled) {
       QFile(conformed_fn).remove();
+    } else {
+      std::static_pointer_cast<AudioStream>(stream())->append_conformed_version(params);
     }
   } else {
     qWarning() << "Failed to conform file:" << stream()->footage()->filename();
@@ -319,6 +321,32 @@ QString Decoder::GetConformedFilename(const AudioRenderingParams &params)
 
 void Decoder::Index(const QAtomicInt *)
 {
+}
+
+bool Decoder::HasConformedVersion(const AudioRenderingParams &params)
+{
+  if (stream()->type() != Stream::kAudio) {
+    return false;
+  }
+
+  AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream());
+
+  if (audio_stream->has_conformed_version(params)) {
+    return true;
+  }
+
+  // Get indexed WAV file
+  WaveInput input(GetIndexFilename());
+
+  bool index_already_matches = false;
+
+  if (input.open()) {
+    index_already_matches = (input.params() == params);
+
+    input.close();
+  }
+
+  return index_already_matches;
 }
 
 void Decoder::SignalIndexProgress(const int64_t &ts)

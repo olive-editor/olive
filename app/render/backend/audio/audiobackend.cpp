@@ -49,6 +49,8 @@ void AudioBackend::DecompileInternal()
 
 void AudioBackend::ConnectWorkerToThis(RenderWorker *worker)
 {
+  AudioRenderBackend::ConnectWorkerToThis(worker);
+
   connect(worker, &RenderWorker::CompletedCache, this, &AudioBackend::ThreadCompletedCache);
 }
 
