@@ -38,7 +38,8 @@ bool ViewerGLWidget::nouveau_check_done_ = false;
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
   ocio_lut_(0),
-  color_manager_(nullptr)
+  color_manager_(nullptr),
+  has_image_(false)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
@@ -78,6 +79,8 @@ void ViewerGLWidget::SetImage(const QString &fn)
 {
   OIIO::ImageBuf* in;
 
+  has_image_ = false;
+
   if (fn.isEmpty()) {
     // Backend had no filename
     goto end;
@@ -108,6 +111,8 @@ void ViewerGLWidget::SetImage(const QString &fn)
     texture_.Upload(in->localpixels());
 
     doneCurrent();
+
+    has_image_ = true;
 
   } else {
     qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
@@ -201,7 +206,7 @@ void ViewerGLWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (!pipeline_ || !texture_.IsCreated()) {
+  if (!has_image_ || !pipeline_ || !texture_.IsCreated()) {
     return;
   }
 

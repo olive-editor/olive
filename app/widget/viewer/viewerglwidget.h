@@ -195,6 +195,8 @@ private:
   static bool nouveau_check_done_;
 #endif
 
+  bool has_image_;
+
 private slots:
   /**
    * @brief Slot to connect just before the OpenGL context is destroyed to clean up resources
