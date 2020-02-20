@@ -135,8 +135,6 @@ private:
 
   PlaybackControls* controls_;
 
-  QTimer playback_timer_;
-
   qint64 start_msec_;
   int64_t start_timestamp_;
 

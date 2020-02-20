@@ -75,9 +75,6 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(controls_, &PlaybackControls::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
   layout->addWidget(controls_);
 
-  // Connect timer
-  connect(&playback_timer_, &QTimer::timeout, this, &ViewerWidget::PlaybackTimerUpdate);
-
   // FIXME: Magic number
   SetScale(48.0);
 
@@ -185,7 +182,7 @@ void ViewerWidget::TogglePlayPause()
 
 bool ViewerWidget::IsPlaying() const
 {
-  return playback_timer_.isActive();
+  return playback_speed_ != 0;
 }
 
 void ViewerWidget::ConnectViewerNode(ViewerOutput *node, ColorManager* color_manager)
@@ -252,9 +249,9 @@ void ViewerWidget::PlayInternal(int speed)
   start_msec_ = QDateTime::currentMSecsSinceEpoch();
   start_timestamp_ = ruler()->GetTime();
 
-  playback_timer_.start();
-
   controls_->ShowPauseButton();
+
+  connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
 }
 
 void ViewerWidget::PushScrubbedAudio()
@@ -380,7 +377,8 @@ void ViewerWidget::Pause()
     AudioManager::instance()->StopOutput();
     playback_speed_ = 0;
     controls_->ShowPlayButton();
-    playback_timer_.stop();
+
+    disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   }
 }
 
@@ -451,8 +449,6 @@ void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
 
   controls_->SetTime(ruler()->GetTime());
   LengthChangedSlot(GetConnectedNode() ? GetConnectedNode()->Length() : 0);
-
-  playback_timer_.setInterval(qFloor(timebase.toDouble()));
 }
 
 void ViewerWidget::PlaybackTimerUpdate()
