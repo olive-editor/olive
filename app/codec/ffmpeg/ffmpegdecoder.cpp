@@ -1007,6 +1007,28 @@ void FFmpegDecoder::CacheFrameToDisk(AVFrame *f)
   }
 }
 
+void FFmpegDecoder::RemoveFirstFromFrameCache()
+{
+  if (cached_frames_.isEmpty()) {
+    return;
+  }
+
+  av_frame_free(&cached_frames_.first());
+  cached_frames_.removeFirst();
+  cache_at_zero_ = false;
+}
+
+void FFmpegDecoder::RemoveLastFromFrameCache()
+{
+  if (cached_frames_.isEmpty()) {
+    return;
+  }
+
+  av_frame_free(&cached_frames_.last());
+  cached_frames_.removeLast();
+  cache_at_eof_ = false;
+}
+
 void FFmpegDecoder::ClearFrameCache()
 {
   for (int i=0;i<cached_frames_.size();i++) {

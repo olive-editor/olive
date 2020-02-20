@@ -104,6 +104,8 @@ private:
 
   void CacheFrameToDisk(AVFrame* f);
 
+  void RemoveFirstFromFrameCache();
+  void RemoveLastFromFrameCache();
   void ClearFrameCache();
 
   AVFormatContext* fmt_ctx_;
