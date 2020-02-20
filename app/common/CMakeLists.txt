@@ -29,6 +29,7 @@ set(OLIVE_SOURCES
   common/filefunctions.cpp
   common/flipmodifiers.h
   common/flipmodifiers.cpp
+  common/functiontimer.h
   common/lerp.h
   common/qtutils.h
   common/qtutils.cpp
