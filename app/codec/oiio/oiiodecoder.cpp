@@ -98,6 +98,8 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
 
 bool OIIODecoder::Open()
 {
+  QMutexLocker locker(&mutex_);
+
   image_ = OIIO::ImageInput::open(stream()->footage()->filename().toStdString());
 
   if (!image_) {
@@ -130,11 +132,15 @@ bool OIIODecoder::Open()
 
   pix_fmt_info_ = PixelService::GetPixelFormatInfo(static_cast<PixelFormat::Format>(pix_fmt_));
 
+  open_ = true;
+
   return true;
 }
 
 Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
 {
+  QMutexLocker locker(&mutex_);
+
   if (!open_) {
     return kFailedToOpen;
   }
@@ -144,7 +150,9 @@ Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
 
 FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 {
-  if (!open_ && !Open()) {
+  QMutexLocker locker(&mutex_);
+
+  if (!open_) {
     return nullptr;
   }
 
@@ -172,7 +180,9 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
 
 void OIIODecoder::Close()
 {
-  if (image_ != nullptr) {
+  QMutexLocker locker(&mutex_);
+
+  if (image_) {
     image_->close();
 #if OIIO_VERSION < 10903
     OIIO::ImageInput::destroy(image_);
