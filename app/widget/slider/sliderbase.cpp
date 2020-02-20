@@ -232,7 +232,7 @@ void SliderBase::LabelClicked()
     // This was a simple click
 
     // Load label's text into editor
-    editor_->setText(label_->text());
+    editor_->setText(ValueToString(value_));
 
     // Show editor
     setCurrentWidget(editor_);
