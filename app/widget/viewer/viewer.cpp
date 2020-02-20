@@ -394,9 +394,11 @@ void ViewerWidget::ShuttleLeft()
 
   current_speed--;
 
-  if (current_speed != 0) {
-    PlayInternal(current_speed);
+  if (current_speed == 0) {
+    current_speed--;
   }
+
+  PlayInternal(current_speed);
 }
 
 void ViewerWidget::ShuttleStop()
@@ -414,9 +416,11 @@ void ViewerWidget::ShuttleRight()
 
   current_speed++;
 
-  if (current_speed != 0) {
-    PlayInternal(current_speed);
+  if (current_speed == 0) {
+    current_speed++;
   }
+
+  PlayInternal(current_speed);
 }
 
 void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
