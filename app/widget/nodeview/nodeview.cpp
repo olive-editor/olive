@@ -251,6 +251,8 @@ void NodeView::mousePressEvent(QMouseEvent *event)
 
       Core::instance()->undo_stack()->push(command);
     }
+
+    drop_edge_ = nullptr;
   }
 
   QGraphicsView::mousePressEvent(event);
