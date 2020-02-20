@@ -6,7 +6,6 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
-#include <QPushButton>
 
 #include "render/diskmanager.h"
 
@@ -44,9 +43,9 @@ PreferencesDiskTab::PreferencesDiskTab()
 
   row++;
 
-  QPushButton* clear_cache_btn = new QPushButton(tr("Clear Disk Cache"));
-  connect(clear_cache_btn, &QPushButton::clicked, this, &PreferencesDiskTab::ClearDiskCache);
-  disk_management_layout->addWidget(clear_cache_btn, row, 1, 1, 2);
+  clear_cache_btn_ = new QPushButton(tr("Clear Disk Cache"));
+  connect(clear_cache_btn_, &QPushButton::clicked, this, &PreferencesDiskTab::ClearDiskCache);
+  disk_management_layout->addWidget(clear_cache_btn_, row, 1, 1, 2);
 
   row++;
 
@@ -112,16 +111,16 @@ void PreferencesDiskTab::ClearDiskCache()
                             tr("Clear Disk Cache"),
                             tr("Are you sure you want to clear the disk cache in '%1'?").arg(Config::Current()["DiskCachePath"].toString()),
                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+    clear_cache_btn_->setEnabled(false);
+
     if (DiskManager::instance()->ClearDiskCache(false)) {
-      QMessageBox::information(this,
-                               tr("Clear Disk Cache"),
-                               tr("Disk cache cleared successfully"),
-                               QMessageBox::Ok);
+      clear_cache_btn_->setText(tr("Disk Cache Cleared"));
     } else {
       QMessageBox::information(this,
                                tr("Clear Disk Cache"),
                                tr("Disk cache failed to fully clear. You may have to delete the cache files manually."),
                                QMessageBox::Ok);
+      clear_cache_btn_->setText(tr("Disk Cache Partially Cleared"));
     }
   }
 }

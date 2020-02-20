@@ -3,6 +3,7 @@
 
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QPushButton>
 
 #include "preferencestab.h"
 #include "widget/slider/floatslider.h"
@@ -25,6 +26,8 @@ private:
   FloatSlider* cache_behind_slider_;
 
   QCheckBox* clear_disk_cache_;
+
+  QPushButton* clear_cache_btn_;
 
 private slots:
   void DiskCacheLineEditChanged();
