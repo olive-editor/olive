@@ -7,7 +7,7 @@ class AudioRenderWorker : public RenderWorker
 {
   Q_OBJECT
 public:
-  AudioRenderWorker(QObject* parent = nullptr);
+  AudioRenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
 
   void SetParameters(const AudioRenderingParams& audio_params);
 

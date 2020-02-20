@@ -4,9 +4,10 @@
 
 #include "node/block/block.h"
 
-RenderWorker::RenderWorker(QObject *parent) :
+RenderWorker::RenderWorker(DecoderCache *decoder_cache, QObject *parent) :
   QObject(parent),
-  started_(false)
+  started_(false),
+  decoder_cache_(decoder_cache)
 {
 }
 
@@ -26,8 +27,6 @@ bool RenderWorker::Init()
 void RenderWorker::Close()
 {
   CloseInternal();
-
-  decoder_cache_.Clear();
 
   started_ = false;
 }
@@ -61,14 +60,22 @@ StreamPtr RenderWorker::ResolveStreamFromInput(NodeInput *input)
 
 DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
 {
+  QMutexLocker locker(decoder_cache_->lock());
+
   // Access a map of Node inputs and decoder instances and retrieve a frame!
-  DecoderPtr decoder = decoder_cache_.Get(stream.get());
+  DecoderPtr decoder = decoder_cache_->Get(stream.get());
 
   if (decoder == nullptr && stream != nullptr) {
     // Create a new Decoder here
     decoder = Decoder::CreateFromID(stream->footage()->decoder());
     decoder->set_stream(stream);
-    decoder_cache_.Add(stream.get(), decoder);
+
+    if (decoder->Open()) {
+      decoder_cache_->Add(stream.get(), decoder);
+    } else {
+      decoder = nullptr;
+      qWarning() << "Failed to open decoder for" << stream->footage()->filename();
+    }
   }
 
   return decoder;

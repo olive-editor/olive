@@ -135,7 +135,7 @@ bool OIIODecoder::Open()
 
 Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
 {
-  if (!open_ && !Open()) {
+  if (!open_) {
     return kFailedToOpen;
   }
 

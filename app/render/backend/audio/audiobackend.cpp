@@ -24,7 +24,7 @@ bool AudioBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    AudioWorker* processor = new AudioWorker();
+    AudioWorker* processor = new AudioWorker(decoder_cache());
     processor->SetParameters(params());
     processors_.append(processor);
   }

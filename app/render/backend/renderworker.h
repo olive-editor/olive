@@ -13,7 +13,7 @@ class RenderWorker : public QObject, public CancelableObject
 {
   Q_OBJECT
 public:
-  RenderWorker(QObject* parent = nullptr);
+  RenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
 
   DISABLE_COPY_MOVE(RenderWorker)
 
@@ -62,7 +62,7 @@ private:
 
   bool started_;
 
-  DecoderCache decoder_cache_;
+  DecoderCache* decoder_cache_;
 
   NodeDependency path_;
 

@@ -6,8 +6,8 @@
 #include "project/project.h"
 #include "render/pixelservice.h"
 
-VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
-  RenderWorker(parent),
+VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, DecoderCache* decoder_cache, QObject *parent) :
+  RenderWorker(decoder_cache, parent),
   frame_cache_(frame_cache),
   operating_mode_(kHashRenderCache)
 {

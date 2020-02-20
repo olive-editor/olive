@@ -21,6 +21,7 @@
 #ifndef DECODER_H
 #define DECODER_H
 
+#include <QMutex>
 #include <QObject>
 #include <stdint.h>
 
@@ -264,6 +265,8 @@ protected:
   QString GetConformedFilename(const AudioRenderingParams &params);
 
   bool open_;
+
+  QMutex mutex_;
 
 private:
   void ConformInternal(SwrContext *resampler, WaveOutput *output, const char *in_data, int in_sample_count);

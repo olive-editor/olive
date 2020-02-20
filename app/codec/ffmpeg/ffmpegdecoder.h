@@ -95,14 +95,16 @@ private:
 
   virtual QString GetIndexFilename() override;
 
-  void UnconditionalAudioIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
-  void UnconditionalVideoIndex(AVPacket* pkt, AVFrame* frame, const QAtomicInt* cancelled);
+  void UnconditionalAudioIndex(const QAtomicInt* cancelled);
+  void UnconditionalVideoIndex(const QAtomicInt* cancelled);
 
   void ValidateVideoIndex(const QAtomicInt* cancelled);
 
   void Seek(int64_t timestamp);
 
   void CacheFrameToDisk(AVFrame* f);
+
+  void ClearFrameCache();
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
@@ -113,10 +115,9 @@ private:
 
   SwsContext* scale_ctx_;
 
-  AVPacket* pkt_;
+  QList<AVFrame*> cached_frames_;
 
-  AVFrame* frames_[2];
-  AVFrame* last_retrieved_frame_;
+  int64_t second_ts_;
 
   AVDictionary* opts_;
 

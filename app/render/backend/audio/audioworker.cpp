@@ -1,7 +1,7 @@
 #include "audioworker.h"
 
-AudioWorker::AudioWorker(QObject *parent) :
-  AudioRenderWorker(parent)
+AudioWorker::AudioWorker(DecoderCache* decoder_cache, QObject *parent) :
+  AudioRenderWorker(decoder_cache, parent)
 {
 }
 

@@ -18,41 +18,11 @@ public:
 
   bool Has(K key) const {return values_.contains(key);}
 
-private:
-  QHash<K, V> values_;
-};
+  void Lock() { lock_.lock(); }
 
-template<class K, class V>
-class ThreadSafeRenderCache
-{
-public:
-  ThreadSafeRenderCache() = default;
+  void Unlock() { lock_.unlock(); }
 
-  void Clear() {
-    lock_.lock();
-    values_.clear();
-    lock_.unlock();
-  }
-
-  void Add(K key, V val) {
-    lock_.lock();
-    values_.insert(key, val);
-    lock_.unlock();
-  }
-
-  V Get(K key) {
-    lock_.lock();
-    V val = values_.value(key);
-    lock_.unlock();
-    return val;
-  }
-
-  bool Has(K key) {
-    lock_.lock();
-    bool has = values_.contains(key);
-    lock_.unlock();
-    return has;
-  }
+  QMutex* lock() { return &lock_; }
 
 private:
   QHash<K, V> values_;
