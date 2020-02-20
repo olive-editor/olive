@@ -191,6 +191,11 @@ private:
    */
   QMatrix4x4 matrix_;
 
+  /**
+   * @brief Buffer to load images into RAM before sending them to the display
+   */
+  Frame load_buffer_;
+
 #ifdef Q_OS_LINUX
   static bool nouveau_check_done_;
 #endif

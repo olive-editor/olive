@@ -77,50 +77,51 @@ void ViewerGLWidget::SetMatrix(const QMatrix4x4 &mat)
 
 void ViewerGLWidget::SetImage(const QString &fn)
 {
-  OIIO::ImageBuf* in;
-
   has_image_ = false;
 
-  if (fn.isEmpty()) {
-    // Backend had no filename
-    goto end;
-  }
+  if (!fn.isEmpty() && QFile::exists(fn)) {
+    auto input = OIIO::ImageInput::open(fn.toStdString());
 
-  if (!QFileInfo::exists(fn)) {
-    goto end;
-  }
+    if (input) {
 
-  in = new OIIO::ImageBuf(fn.toStdString());
+      PixelFormat::Format image_format = PixelService::OIIOFormatToOliveFormat(input->spec().format);
 
-  if (in->read(0, 0, true)) {
+      // Ensure the following texture operations are done in our context (in case we're in a separate window for instance)
+      makeCurrent();
 
-    PixelFormat::Format image_format = PixelService::OIIOFormatToOliveFormat(in->spec().format);
+      if (!texture_.IsCreated()
+          || texture_.width() != input->spec().width
+          || texture_.height() != input->spec().height
+          || texture_.format() != image_format) {
+        load_buffer_.destroy();
+        texture_.Destroy();
 
-    // Ensure the following texture operations are done in our context (in case we're in a separate window for instance)
-    makeCurrent();
+        load_buffer_.set_width(input->spec().width);
+        load_buffer_.set_height(input->spec().height);
+        load_buffer_.set_format(image_format);
+        load_buffer_.allocate();
 
-    if (!texture_.IsCreated()
-        || texture_.width() != in->spec().width
-        || texture_.height() != in->spec().height
-        || texture_.format() != image_format) {
-      texture_.Destroy();
+        texture_.Create(context(), input->spec().width, input->spec().height, image_format);
+      }
 
-      texture_.Create(context(), in->spec().width, in->spec().height, image_format);
+      input->read_image(input->spec().format, load_buffer_.data());
+      input->close();
+
+      texture_.Upload(load_buffer_.data());
+
+      doneCurrent();
+
+      has_image_ = true;
+
+#if OIIO_VERSION < 10903
+    OIIO::ImageInput::destroy(image_);
+#endif
+
+    } else {
+      qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
     }
-
-    texture_.Upload(in->localpixels());
-
-    doneCurrent();
-
-    has_image_ = true;
-
-  } else {
-    qWarning() << "OIIO Error:" << OIIO::geterror().c_str();
   }
 
-  delete in;
-
-end:
   update();
 }
 
