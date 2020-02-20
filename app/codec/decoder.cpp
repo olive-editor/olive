@@ -245,7 +245,7 @@ void Decoder::Conform(const AudioRenderingParams &params, const QAtomicInt* canc
       ConformInternal(resampler, &conformed_output, read_samples.data(), in_sample_count);
 
       read_count += read_samples.size();
-      emit IndexProgress(100.0 * static_cast<double>(read_count) / static_cast<double>(input.data_length()));
+      emit IndexProgress(qRound(100.0 * static_cast<double>(read_count) / static_cast<double>(input.data_length())));
     }
 
     // Flush resampler
