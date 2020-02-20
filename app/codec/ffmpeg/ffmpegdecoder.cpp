@@ -45,6 +45,7 @@ FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
   scale_ctx_(nullptr),
+  cache_at_zero_(false),
   cache_at_eof_(false),
   opts_(nullptr),
   multithreading_(true)
@@ -217,7 +218,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     return nullptr;
   }
 
-  int64_t target_ts = Timecode::time_to_timestamp(timecode, avstream_->time_base);
+  int64_t target_ts = Timecode::time_to_timestamp(timecode, avstream_->time_base) + avstream_->start_time;
 
   bool got_frame = false;
 
@@ -229,7 +230,11 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     AVFrame* found_frame = nullptr;
 
-    if (cache_at_eof_ && target_ts > cached_frames_.last()->pts) {
+    if (cache_at_zero_ && target_ts < cached_frames_.first()->pts) {
+
+      found_frame = cached_frames_.first();
+
+    } else if (cache_at_eof_ && target_ts > cached_frames_.last()->pts) {
 
       found_frame = cached_frames_.last();
 
@@ -301,6 +306,9 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
       ClearFrameCache();
 
       Seek(seek_ts);
+      if (seek_ts == 0) {
+        cache_at_zero_ = true;
+      }
 
       still_seeking = true;
     }
@@ -328,10 +336,13 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
       if (still_seeking) {
         // Handle a failure to seek (occurs on some media)
         // We'll only be here if the frame cache was emptied earlier
-        if (ret == AVERROR_EOF || working_frame->pts > target_ts) {
+        if (!cache_at_zero_ && (ret == AVERROR_EOF || working_frame->pts > target_ts)) {
 
-          seek_ts -= second_ts_;
+          seek_ts = qMax(0LL, seek_ts - second_ts_);
           Seek(seek_ts);
+          if (seek_ts == 0) {
+            cache_at_zero_ = true;
+          }
 
           av_frame_free(&working_frame);
           continue;
@@ -357,7 +368,11 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           if (working_frame->pts == target_ts) {
             found_frame = working_frame;
           } else if (working_frame->pts > target_ts) {
-            found_frame = cached_frames_.last();
+            if (cache_at_zero_) {
+              found_frame = working_frame;
+            } else {
+              found_frame = cached_frames_.last();
+            }
           }
         }
 
@@ -999,4 +1014,5 @@ void FFmpegDecoder::ClearFrameCache()
   }
   cached_frames_.clear();
   cache_at_eof_ = false;
+  cache_at_zero_ = false;
 }
