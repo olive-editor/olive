@@ -34,7 +34,7 @@ TaskManager::TaskManager() :
 
   for (int i=0;i<threads_.size();i++) {
     QThread* t = new QThread(this);
-    t->start(QThread::LowPriority);
+    t->start(QThread::IdlePriority);
     threads_.replace(i, {t, false});
   }
 }

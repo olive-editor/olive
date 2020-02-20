@@ -25,7 +25,7 @@ bool OpenGLBackend::InitInternal()
   proxy_ = new OpenGLProxy();
   proxy_->SetParameters(params());
   QThread* proxy_thread = new QThread();
-  proxy_thread->start(QThread::LowPriority);
+  proxy_thread->start(QThread::IdlePriority);
   proxy_->moveToThread(proxy_thread);
 
   if (!proxy_->Init()) {

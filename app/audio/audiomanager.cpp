@@ -59,7 +59,7 @@ void AudioManager::RefreshDevices()
   QThread* thread = new QThread();
   connect(thread, &QThread::finished, thread, &QThread::deleteLater);
 
-  thread->start(QThread::LowPriority);
+  thread->start(QThread::IdlePriority);
 
   AudioRefreshDevicesObject* refresher = new AudioRefreshDevicesObject();
   connect(refresher, &AudioRefreshDevicesObject::ListsReady, this, &AudioManager::RefreshThreadDone);

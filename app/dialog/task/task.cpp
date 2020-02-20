@@ -34,7 +34,7 @@ void TaskDialog::open()
   }
 
   // Create a separate thread to run this task in
-  thread_->start(QThread::LowPriority);
+  thread_->start();
 
   // Move the task to this thread
   task_->moveToThread(thread_);

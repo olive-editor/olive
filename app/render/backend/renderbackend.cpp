@@ -35,7 +35,7 @@ bool RenderBackend::Init()
     threads_.replace(i, thread);
 
     // We use low priority to keep the app responsive at all times (GUI thread should always prioritize over this one)
-    thread->start(QThread::LowPriority);
+    thread->start(QThread::IdlePriority);
   }
 
   cancel_dialog_->SetWorkerCount(threads_.size());
