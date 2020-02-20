@@ -180,7 +180,8 @@ void VideoRenderWorker::HashNodeRecursively(QCryptographicHash *hash, const Node
 
             // Footage timestamp
             if (stream->type() == Stream::kVideo) {
-              hash->addData(QStringLiteral("%1/%2").arg(input_time.numerator(), input_time.denominator()).toUtf8());
+              hash->addData(QStringLiteral("%1/%2").arg(QString::number(input_time.numerator()),
+                                                        QString::number(input_time.denominator())).toUtf8());
               /*Decoder::RetrieveState state = decoder->GetRetrieveState(input_time);
 
               if (state == Decoder::kReady) {
