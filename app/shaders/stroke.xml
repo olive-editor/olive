@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<effect id="org.olivevideoeditor.Olive.gaussianblur">
+<effect id="org.olivevideoeditor.Olive.stroke">
     <!-- Effect Name -->
     <name lang="en_US">Stroke</name>
     
