@@ -338,7 +338,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
         // We'll only be here if the frame cache was emptied earlier
         if (!cache_at_zero_ && (ret == AVERROR_EOF || working_frame->pts > target_ts)) {
 
-          seek_ts = qMax(0LL, seek_ts - second_ts_);
+          seek_ts = qMax(static_cast<int64_t>(0), seek_ts - second_ts_);
           Seek(seek_ts);
           if (seek_ts == 0) {
             cache_at_zero_ = true;
