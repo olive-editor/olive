@@ -110,6 +110,11 @@ public:
   void allocate();
 
   /**
+   * @brief Return whether the frame is allocated or not
+   */
+  bool is_allocated() const;
+
+  /**
    * @brief Destroy a memory buffer allocated with allocate()
    */
   void destroy();

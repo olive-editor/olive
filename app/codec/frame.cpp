@@ -145,6 +145,11 @@ void Frame::allocate()
   }
 }
 
+bool Frame::is_allocated() const
+{
+  return !data_.isEmpty();
+}
+
 void Frame::destroy()
 {
   data_.clear();
