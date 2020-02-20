@@ -45,8 +45,8 @@ FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
   scale_ctx_(nullptr),
+  cache_at_eof_(false),
   opts_(nullptr),
-//  multithreading_(false)
   multithreading_(true)
 {
 }
@@ -227,7 +227,13 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   // See if our RAM cache already has a frame that matches this timestamp
   if (!cached_frames_.isEmpty()) {
 
-    if (target_ts >= cached_frames_.first()->pts
+    AVFrame* found_frame = nullptr;
+
+    if (cache_at_eof_ && target_ts > cached_frames_.last()->pts) {
+
+      found_frame = cached_frames_.last();
+
+    } else if (target_ts >= cached_frames_.first()->pts
         && target_ts <= cached_frames_.last()->pts) {
 
       // We already have this frame in the cache, find it
@@ -237,18 +243,22 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
         if (this_frame->pts == target_ts // Test for an exact match
             || (i < cached_frames_.size() - 1 && cached_frames_.at(i+1)->pts > target_ts)) { // Or for this frame to be the "closest"
 
-          // This frame is appropriate, return it
-          for (int i=0;i<4;i++) {
-            input_data[i] = this_frame->data[i];
-            input_linesize[i] = this_frame->linesize[i];
-          }
-
-          got_frame = true;
+          found_frame = this_frame;
 
           break;
 
         }
       }
+    }
+
+    if (found_frame) {
+      // This frame is appropriate, return it
+      for (int i=0;i<4;i++) {
+        input_data[i] = found_frame->data[i];
+        input_linesize[i] = found_frame->linesize[i];
+      }
+
+      got_frame = true;
     }
   }
 
@@ -301,7 +311,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
       ret = GetFrame(pkt, working_frame);
 
-      if (ret < 0) {
+      if (ret < 0 && ret != AVERROR_EOF) {
         FFmpegError(ret);
 
         av_frame_free(&working_frame);
@@ -323,13 +333,19 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
       AVFrame* found_frame = nullptr;
 
-      if (working_frame->pts == target_ts) {
-        found_frame = working_frame;
-      } else if (working_frame->pts > target_ts) {
+      if (ret == AVERROR_EOF) {
+        cache_at_eof_ = true;
+        av_frame_free(&working_frame);
         found_frame = cached_frames_.last();
-      }
+      } else {
+        if (working_frame->pts == target_ts) {
+          found_frame = working_frame;
+        } else if (working_frame->pts > target_ts) {
+          found_frame = cached_frames_.last();
+        }
 
-      cached_frames_.append(working_frame);
+        cached_frames_.append(working_frame);
+      }
 
       if (found_frame) {
         // We found the frame we want
@@ -948,4 +964,5 @@ void FFmpegDecoder::ClearFrameCache()
     av_frame_free(&cached_frames_[i]);
   }
   cached_frames_.clear();
+  cache_at_eof_ = false;
 }

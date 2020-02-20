@@ -116,6 +116,7 @@ private:
   SwsContext* scale_ctx_;
 
   QList<AVFrame*> cached_frames_;
+  bool cache_at_eof_;
 
   int64_t second_ts_;
 
