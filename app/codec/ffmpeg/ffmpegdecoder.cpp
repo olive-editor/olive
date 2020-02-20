@@ -520,7 +520,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
   // Open file in a format context
   error_code = avformat_open_input(&fmt_ctx_, filename, nullptr, nullptr);
 
-  bool need_manual_duration = false;
+  QList<Stream*> streams_that_need_manual_duration;
 
   // Handle format context error
   if (error_code == 0) {
@@ -596,7 +596,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 
       // The container/stream info may not contain a duration, so we'll need to manually retrieve it
       if (avstream_->duration == AV_NOPTS_VALUE) {
-        need_manual_duration = true;
+        streams_that_need_manual_duration.append(str.get());
       }
 
       f->add_stream(str);
@@ -606,37 +606,47 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
     result = true;
   }
 
-  // Free all memory
-  Close();
-
   // If the metadata did not contain a duration, we'll need to loop through the file to retrieve it
-  if (need_manual_duration) {
-    // Index the first stream to retrieve the duration
+  if (!streams_that_need_manual_duration.isEmpty()) {
 
-    set_stream(f->stream(0));
+    AVPacket* pkt = av_packet_alloc();
 
-    Open();
+    QVector<int64_t> durations(streams_that_need_manual_duration.size());
+    durations.fill(0);
 
-    // Use index to find duration
-    Index(cancelled);
+    while (true) {
+      // Ensure previous buffers are cleared
+      av_packet_unref(pkt);
 
-    // Use last frame index as the duration
-    // FIXME: Does this skip the last frame?
-    int64_t duration = std::static_pointer_cast<VideoStream>(stream())->last_frame_index_timestamp();
+      // Read packet from file
+      int ret = av_read_frame(fmt_ctx_, pkt);
 
-    f->stream(0)->set_duration(duration);
-
-    // Assume all durations are the same and set for each
-    for (int i=1;i<f->stream_count();i++) {
-      int64_t new_dur = av_rescale_q(duration,
-                                     f->stream(0)->timebase().toAVRational(),
-                                     f->stream(i)->timebase().toAVRational());
-
-      f->stream(i)->set_duration(new_dur);
+      if (ret < 0) {
+        // Handle errors that aren't EOF (which simply means the file is finished)
+        if (ret != AVERROR_EOF) {
+          qWarning() << "Error while finding duration";
+        }
+        break;
+      } else {
+        for (int i=0;i<streams_that_need_manual_duration.size();i++) {
+          if (streams_that_need_manual_duration.at(i)->index() == pkt->stream_index
+              && pkt->pts > durations.at(i)) {
+            durations.replace(i, pkt->pts);
+          }
+        }
+      }
     }
 
-    Close();
+    av_packet_free(&pkt);
+
+    for (int i=0;i<streams_that_need_manual_duration.size();i++) {
+      streams_that_need_manual_duration.at(i)->set_duration(durations.at(i));
+    }
+
   }
+
+  // Free all memory
+  Close();
 
   return result;
 }
