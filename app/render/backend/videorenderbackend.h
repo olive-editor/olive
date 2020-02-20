@@ -93,7 +93,7 @@ protected:
 
   virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
 
-  virtual void ParamsChangedEvent();
+  virtual void ParamsChangedEvent(){}
 
   VideoRenderWorker::OperatingMode operating_mode_;
 

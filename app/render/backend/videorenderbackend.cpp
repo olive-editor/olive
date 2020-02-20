@@ -151,10 +151,6 @@ void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, co
   Requeue();
 }
 
-void VideoRenderBackend::ParamsChangedEvent()
-{
-}
-
 VideoRenderFrameCache *VideoRenderBackend::frame_cache()
 {
   return &frame_cache_;

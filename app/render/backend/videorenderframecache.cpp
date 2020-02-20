@@ -14,9 +14,10 @@ void VideoRenderFrameCache::Clear()
 {
   time_hash_map_.clear();
 
-  currently_caching_lock_.lock();
-  currently_caching_list_.clear();
-  currently_caching_lock_.unlock();
+  {
+    QMutexLocker locker(&currently_caching_lock_);
+    currently_caching_list_.clear();
+  }
 
   cache_id_.clear();
 }
@@ -28,28 +29,21 @@ bool VideoRenderFrameCache::HasHash(const QByteArray &hash, const PixelFormat::F
 
 bool VideoRenderFrameCache::IsCaching(const QByteArray &hash)
 {
-  currently_caching_lock_.lock();
+  QMutexLocker locker(&currently_caching_lock_);
 
-  bool is_caching = currently_caching_list_.contains(hash);
-
-  currently_caching_lock_.unlock();
-
-  return is_caching;
+  return currently_caching_list_.contains(hash);
 }
 
 bool VideoRenderFrameCache::TryCache(const QByteArray &hash)
 {
-  currently_caching_lock_.lock();
+  QMutexLocker locker(&currently_caching_lock_);
 
-  bool is_caching = currently_caching_list_.contains(hash);
-
-  if (!is_caching) {
+  if (!currently_caching_list_.contains(hash)) {
     currently_caching_list_.append(hash);
+    return true;
   }
 
-  currently_caching_lock_.unlock();
-
-  return !is_caching;
+  return false;
 }
 
 void VideoRenderFrameCache::SetCacheID(const QString &id)
@@ -84,9 +78,9 @@ void VideoRenderFrameCache::Truncate(const rational &time)
 
 void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &hash)
 {
-  currently_caching_lock_.lock();
+  QMutexLocker locker(&currently_caching_lock_);
+
   currently_caching_list_.removeOne(hash);
-  currently_caching_lock_.unlock();
 }
 
 QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash)
