@@ -615,6 +615,10 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
     durations.fill(0);
 
     while (true) {
+      if (cancelled && *cancelled) {
+        break;
+      }
+
       // Ensure previous buffers are cleared
       av_packet_unref(pkt);
 
@@ -639,8 +643,10 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
 
     av_packet_free(&pkt);
 
-    for (int i=0;i<streams_that_need_manual_duration.size();i++) {
-      streams_that_need_manual_duration.at(i)->set_duration(durations.at(i));
+    if (!cancelled || !*cancelled) {
+      for (int i=0;i<streams_that_need_manual_duration.size();i++) {
+        streams_that_need_manual_duration.at(i)->set_duration(durations.at(i));
+      }
     }
 
   }
