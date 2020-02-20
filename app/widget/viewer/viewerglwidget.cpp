@@ -114,7 +114,7 @@ void ViewerGLWidget::SetImage(const QString &fn)
       has_image_ = true;
 
 #if OIIO_VERSION < 10903
-    OIIO::ImageInput::destroy(image_);
+    OIIO::ImageInput::destroy(input);
 #endif
 
     } else {
