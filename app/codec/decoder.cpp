@@ -29,7 +29,7 @@
 #include "codec/oiio/oiiodecoder.h"
 #include "codec/waveinput.h"
 #include "codec/waveoutput.h"
-#include "render/indexmanager.h"
+#include "render/backend/indexmanager.h"
 #include "task/index/index.h"
 #include "task/taskmanager.h"
 

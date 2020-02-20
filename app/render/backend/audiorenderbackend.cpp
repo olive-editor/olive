@@ -5,7 +5,7 @@
 
 #include "audiorenderworker.h"
 #include "common/filefunctions.h"
-#include "render/indexmanager.h"
+#include "render/backend/indexmanager.h"
 
 AudioRenderBackend::AudioRenderBackend(QObject *parent) :
   RenderBackend(parent)

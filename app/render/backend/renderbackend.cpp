@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "core.h"
-#include "render/indexmanager.h"
+#include "render/backend/indexmanager.h"
 #include "window/mainwindow/mainwindow.h"
 
 RenderBackend::RenderBackend(QObject *parent) :
