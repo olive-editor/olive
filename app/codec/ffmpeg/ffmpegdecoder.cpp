@@ -291,26 +291,33 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   // If we have no disk cache, we'll need to find this frame ourselves
   if (!got_frame) {
 
+    int64_t seek_ts = target_ts;
+    bool still_seeking = false;
+
     // If the frame wasn't in the frame cache, see if this frame cache is too old to use
     if (cached_frames_.isEmpty()
         || target_ts < cached_frames_.first()->pts
         || target_ts > cached_frames_.last()->pts + 2*second_ts_) {
       ClearFrameCache();
-      Seek(target_ts);
-    }
 
-    int64_t seek_ts = target_ts;
+      Seek(seek_ts);
+
+      still_seeking = true;
+    }
 
     int ret;
     AVPacket* pkt = av_packet_alloc();
 
-    bool still_seeking = true;
+    AVFrame* found_frame = nullptr;
 
     while (true) {
+      // Allocate a new frame
       AVFrame* working_frame = av_frame_alloc();
 
+      // Pull from the decoder
       ret = GetFrame(pkt, working_frame);
 
+      // Handle any errors that aren't EOF (EOF is handled later on)
       if (ret < 0 && ret != AVERROR_EOF) {
         FFmpegError(ret);
 
@@ -319,31 +326,42 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
       }
 
       if (still_seeking) {
-        if (working_frame->pts > target_ts || working_frame->pts == AV_NOPTS_VALUE) {
-          // Seek failed, try again
+        // Handle a failure to seek (occurs on some media)
+        // We'll only be here if the frame cache was emptied earlier
+        if (ret == AVERROR_EOF || working_frame->pts > target_ts) {
+
           seek_ts -= second_ts_;
           Seek(seek_ts);
 
           av_frame_free(&working_frame);
           continue;
+
         } else {
+
           still_seeking = false;
+
         }
       }
 
-      AVFrame* found_frame = nullptr;
-
       if (ret == AVERROR_EOF) {
+
+        // Handle an "expected" EOF by using the last frame of our cache
         cache_at_eof_ = true;
         av_frame_free(&working_frame);
         found_frame = cached_frames_.last();
+
       } else {
-        if (working_frame->pts == target_ts) {
-          found_frame = working_frame;
-        } else if (working_frame->pts > target_ts) {
-          found_frame = cached_frames_.last();
+
+        // If this is a valid frame, see if this or the frame before it are the one we need
+        if (!found_frame) {
+          if (working_frame->pts == target_ts) {
+            found_frame = working_frame;
+          } else if (working_frame->pts > target_ts) {
+            found_frame = cached_frames_.last();
+          }
         }
 
+        // Whatever it is, keep this frame in memory for the time being just in case
         cached_frames_.append(working_frame);
       }
 
