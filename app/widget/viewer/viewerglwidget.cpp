@@ -37,7 +37,6 @@ bool ViewerGLWidget::nouveau_check_done_ = false;
 
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
-  ocio_lut_(0),
   color_manager_(nullptr),
   has_image_(false)
 {
@@ -207,16 +206,15 @@ void ViewerGLWidget::paintGL()
   f->glClear(GL_COLOR_BUFFER_BIT);
 
   // We only draw if we have a pipeline
-  if (!has_image_ || !pipeline_ || !texture_.IsCreated()) {
+  if (!has_image_ || !color_service_ || !texture_.IsCreated()) {
     return;
   }
 
   // Bind retrieved texture
   f->glBindTexture(GL_TEXTURE_2D, texture_.texture());
 
-  // Blit using the pipeline retrieved in initializeGL()
-  //OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, true, matrix_);
-  OpenGLRenderFunctions::Blit(pipeline_, true, matrix_);
+  // Blit using the color service
+  color_service_->ProcessOpenGL(true, matrix_);
 
   // Release retrieved texture
   f->glBindTexture(GL_TEXTURE_2D, 0);
@@ -226,7 +224,6 @@ void ViewerGLWidget::RefreshColorPipeline()
 {
   if (!color_manager_) {
     color_service_ = nullptr;
-    pipeline_ = nullptr;
     return;
   }
 
@@ -267,7 +264,7 @@ void ViewerGLWidget::SetupColorProcessor()
     return;
   }
 
-  ClearOCIOLutTexture();
+  color_service_ = nullptr;
 
   if (color_manager_) {
     // (Re)create color processor
@@ -279,17 +276,14 @@ void ViewerGLWidget::SetupColorProcessor()
                                                              ocio_view_,
                                                              ocio_look_);
 
-      color_service_ = ColorProcessor::Create(color_manager_->GetConfig(),
-                                              OCIO::ROLE_SCENE_LINEAR,
-                                              ocio_display_,
-                                              ocio_view_,
-                                              ocio_look_);
+      color_service_ = OpenGLColorProcessor::CreateOpenGL(color_manager_->GetConfig(),
+                                                          OCIO::ROLE_SCENE_LINEAR,
+                                                          ocio_display_,
+                                                          ocio_view_,
+                                                          ocio_look_);
 
-      // (Re)create pipeline from color processor
-      pipeline_ = OpenGLShader::CreateOCIO(context(),
-                                           ocio_lut_,
-                                           color_service_->GetProcessor(),
-                                           true);
+      color_service_->Enable(context(), true);
+
     } catch (OCIO::Exception& e) {
       QMessageBox::critical(this,
                             tr("OpenColorIO Error"),
@@ -299,15 +293,6 @@ void ViewerGLWidget::SetupColorProcessor()
 
   } else {
     color_service_ = nullptr;
-    pipeline_ = nullptr;
-  }
-}
-
-void ViewerGLWidget::ClearOCIOLutTexture()
-{
-  if (ocio_lut_ > 0) {
-    context()->functions()->glDeleteTextures(1, &ocio_lut_);
-    ocio_lut_ = 0;
   }
 }
 
@@ -315,9 +300,8 @@ void ViewerGLWidget::ContextCleanup()
 {
   makeCurrent();
 
-  ClearOCIOLutTexture();
+  color_service_ = nullptr;
   texture_.Destroy();
-  pipeline_ = nullptr;
 
   doneCurrent();
 }

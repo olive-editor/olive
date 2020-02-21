@@ -31,9 +31,9 @@ OpenGLShaderPtr OpenGLColorProcessor::pipeline() const
   return pipeline_;
 }
 
-void OpenGLColorProcessor::ProcessOpenGL()
+void OpenGLColorProcessor::ProcessOpenGL(bool flipped, const QMatrix4x4& matrix)
 {
-  OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_);
+  OpenGLRenderFunctions::OCIOBlit(pipeline_, ocio_lut_, flipped, matrix);
 }
 
 void OpenGLColorProcessor::ClearTexture()

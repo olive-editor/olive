@@ -23,6 +23,7 @@
 
 #include <QOpenGLWidget>
 
+#include "render/backend/opengl/openglcolorprocessor.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/backend/opengl/opengltexture.h"
 #include "render/colormanager.h"
@@ -165,18 +166,6 @@ private:
   OpenGLTexture texture_;
 
   /**
-   * @brief Internal shader object to use as the pipeline shader
-   *
-   * Retrieved every initializeGL() in order to stay up to date when new contexts are generated.
-   */
-  OpenGLShaderPtr pipeline_;
-
-  /**
-   * @brief OCIO LUT texture used for conversions
-   */
-  GLuint ocio_lut_;
-
-  /**
    * @brief Connected color manager
    */
   ColorManager* color_manager_;
@@ -184,7 +173,7 @@ private:
   /**
    * @brief Color management service
    */
-  ColorProcessorPtr color_service_;
+  OpenGLColorProcessorPtr color_service_;
 
   /**
    * @brief Drawing matrix (defaults to identity)

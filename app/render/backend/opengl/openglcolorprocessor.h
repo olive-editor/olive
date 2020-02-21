@@ -34,7 +34,7 @@ public:
 
   OpenGLShaderPtr pipeline() const;
 
-  void ProcessOpenGL();
+  void ProcessOpenGL(bool flipped = false, const QMatrix4x4& matrix = QMatrix4x4());
 
 private:
   QOpenGLContext* context_;

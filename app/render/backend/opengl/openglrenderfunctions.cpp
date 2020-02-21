@@ -121,9 +121,9 @@ void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix
 }
 
 void OpenGLRenderFunctions::OCIOBlit(OpenGLShaderPtr pipeline,
-                         GLuint lut,
-                         bool flipped,
-                         QMatrix4x4 matrix)
+                                     GLuint lut,
+                                     bool flipped,
+                                     QMatrix4x4 matrix)
 {
   QOpenGLContext* ctx = QOpenGLContext::currentContext();
   QOpenGLExtraFunctions* xf = ctx->extraFunctions();
