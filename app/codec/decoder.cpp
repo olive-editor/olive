@@ -138,10 +138,12 @@ bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
 
       // Start an index task
       foreach (StreamPtr stream, f->streams()) {
-        QMetaObject::invokeMethod(IndexManager::instance(),
-                                  "StartIndexingStream",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(StreamPtr, stream));
+        if (stream->type() == Stream::kAudio) {
+          QMetaObject::invokeMethod(IndexManager::instance(),
+                                    "StartIndexingStream",
+                                    Qt::QueuedConnection,
+                                    Q_ARG(StreamPtr, stream));
+        }
       }
 
       return true;
