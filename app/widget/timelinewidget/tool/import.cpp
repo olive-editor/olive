@@ -20,12 +20,14 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+#include <QMessageBox>
 #include <QMimeData>
 #include <QToolTip>
 
 #include "config/config.h"
 #include "common/qtutils.h"
 #include "core.h"
+#include "dialog/sequence/sequence.h"
 #include "node/audio/volume/volume.h"
 #include "node/distort/transform/transform.h"
 #include "node/input/media/audio/audio.h"
@@ -178,69 +180,99 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
     QUndoCommand* command = new QUndoCommand();
 
-    NodeGraph* dst_graph;
-    ViewerOutput* viewer_node;
+    NodeGraph* dst_graph = nullptr;
+    ViewerOutput* viewer_node = nullptr;
     Sequence* open_sequence = nullptr;
 
     if (parent()->GetConnectedNode()) {
       viewer_node = parent()->GetConnectedNode();
       dst_graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
     } else {
-      Project* active_project = Core::instance()->GetActiveProject();
+      // There's no active timeline here, ask the user what to do
 
-      if (active_project) {
-        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
+      QMessageBox mbox(parent());
 
-        new_sequence->set_default_parameters();
+      mbox.setWindowTitle(tr("No Active Sequence"));
+      mbox.setText(tr("No sequence is currently open. Would you like to create one and how should it be created?"));
 
-        bool found_video_params = false;
-        bool found_audio_params = false;
+      QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
+      /*QPushButton* manual_params_btn = */mbox.addButton(tr("Manually Set Parameters"), QMessageBox::NoRole);
+      QPushButton* cancel_btn = mbox.addButton(QMessageBox::Cancel);
 
-        foreach (Footage* f, dragged_footage_) {
-          foreach (StreamPtr s, f->streams()) {
-            if (!found_video_params && s->type() == Stream::kVideo) {
+      mbox.exec();
 
-              VideoStream* vs = static_cast<VideoStream*>(s.get());
+      if (mbox.clickedButton() != cancel_btn) {
+        Project* active_project = Core::instance()->GetActiveProject();
 
-              if (vs->frame_rate() != 0) {
-                new_sequence->set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
-                found_video_params = true;
+        if (active_project) {
+          SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
+
+          new_sequence->set_default_parameters();
+
+          bool sequence_is_valid = true;
+
+          if (mbox.clickedButton() == auto_params_btn) {
+
+            bool found_video_params = false;
+            bool found_audio_params = false;
+
+            foreach (Footage* f, dragged_footage_) {
+              foreach (StreamPtr s, f->streams()) {
+                if (!found_video_params && s->type() == Stream::kVideo) {
+
+                  VideoStream* vs = static_cast<VideoStream*>(s.get());
+
+                  if (vs->frame_rate() != 0) {
+                    new_sequence->set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
+                    found_video_params = true;
+                  }
+
+                } else if (!found_audio_params && s->type() == Stream::kAudio) {
+
+                  AudioStream* as = static_cast<AudioStream*>(s.get());
+                  new_sequence->set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
+                  found_audio_params = true;
+
+                }
+
+                if (found_video_params && found_audio_params) {
+                  break;
+                }
               }
 
-            } else if (!found_audio_params && s->type() == Stream::kAudio) {
-
-              AudioStream* as = static_cast<AudioStream*>(s.get());
-              new_sequence->set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
-              found_audio_params = true;
-
+              if (found_video_params && found_audio_params) {
+                break;
+              }
             }
 
-            if (found_video_params && found_audio_params) {
-              break;
+          } else {
+
+            SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, parent());
+            sd.SetUndoable(false);
+
+            if (sd.exec() != QDialog::Accepted) {
+              sequence_is_valid = false;
             }
+
           }
 
-          if (found_video_params && found_audio_params) {
-            break;
+          if (sequence_is_valid) {
+            new_sequence->add_default_nodes();
+
+            new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
+                                                 Core::instance()->GetSelectedFolderInActiveProject(),
+                                                 new_sequence,
+                                                 command);
+
+            FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
+
+            dst_graph = new_sequence.get();
+            viewer_node = new_sequence->viewer_output();
+
+            // Set this as the sequence to open
+            open_sequence = new_sequence.get();
           }
         }
-
-        new_sequence->add_default_nodes();
-
-        new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
-                                             Core::instance()->GetSelectedFolderInActiveProject(),
-                                             new_sequence,
-                                             command);
-
-        FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
-
-        dst_graph = new_sequence.get();
-        viewer_node = new_sequence->viewer_output();
-
-        // Set this as the sequence to open
-        open_sequence = new_sequence.get();
-      } else {
-        dst_graph = nullptr;
       }
     }
 
