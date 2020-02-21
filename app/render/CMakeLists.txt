@@ -26,6 +26,8 @@ set(OLIVE_SOURCES
   render/colorprocessor.cpp
   render/diskmanager.h
   render/diskmanager.cpp
+  render/memorymanager.h
+  render/memorymanager.cpp
   render/pixelformat.h
   render/pixelformat.cpp
   render/pixelservice.h

@@ -27,6 +27,8 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
+#include <QAtomicInt>
+#include <QTimer>
 #include <QVector>
 
 #include "audio/sampleformat.h"
@@ -64,6 +66,9 @@ public:
 
   virtual void Index(const QAtomicInt *cancelled) override;
 
+signals:
+  void ConsumedMemory();
+
 private:
   /**
    * @brief Handle an error
@@ -96,9 +101,6 @@ private:
   virtual QString GetIndexFilename() override;
 
   void UnconditionalAudioIndex(const QAtomicInt* cancelled);
-  void UnconditionalVideoIndex(const QAtomicInt* cancelled);
-
-  void ValidateVideoIndex(const QAtomicInt* cancelled);
 
   void Seek(int64_t timestamp);
 
@@ -126,6 +128,17 @@ private:
   AVDictionary* opts_;
 
   bool multithreading_;
+
+  QTimer clear_timer_;
+
+  QAtomicInt allow_clear_event_;
+
+private slots:
+  void FreeMemory();
+
+  void ClearTimerEvent();
+
+  void RestartClearTimer();
 
 };
 

@@ -39,6 +39,7 @@ extern "C" {
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
 #include "render/diskmanager.h"
+#include "render/memorymanager.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -48,8 +49,15 @@ FFmpegDecoder::FFmpegDecoder() :
   cache_at_zero_(false),
   cache_at_eof_(false),
   opts_(nullptr),
-  multithreading_(true)
+  multithreading_(true),
+  allow_clear_event_(false)
 {
+  connect(this, &FFmpegDecoder::ConsumedMemory, MemoryManager::instance(), &MemoryManager::ConsumedMemory, Qt::DirectConnection);
+  connect(MemoryManager::instance(), &MemoryManager::FreeMemory, this, &FFmpegDecoder::FreeMemory, Qt::DirectConnection);
+
+  clear_timer_.setInterval(5000);
+  clear_timer_.setSingleShot(true);
+  connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
 }
 
 FFmpegDecoder::~FFmpegDecoder()
@@ -208,6 +216,9 @@ Decoder::RetrieveState FFmpegDecoder::GetRetrieveState(const rational& time)
 FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 {
   QMutexLocker locker(&mutex_);
+
+  // Reset clear timer
+  QMetaObject::invokeMethod(this, "RestartClearTimer", Qt::QueuedConnection);
 
   if (!open_) {
     qWarning() << "Tried to retrieve video on a decoder that's still closed";
@@ -368,13 +379,17 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           if (working_frame->pts == target_ts) {
             found_frame = working_frame;
           } else if (working_frame->pts > target_ts) {
-            if (cache_at_zero_) {
+            if (cached_frames_.isEmpty() && cache_at_zero_) {
               found_frame = working_frame;
             } else {
               found_frame = cached_frames_.last();
             }
           }
         }
+
+        allow_clear_event_ = true;
+        emit ConsumedMemory();
+        allow_clear_event_ = false;
 
         // Whatever it is, keep this frame in memory for the time being just in case
         cached_frames_.append(working_frame);
@@ -497,7 +512,7 @@ void FFmpegDecoder::Close()
 
 QString FFmpegDecoder::id()
 {
-  return "ffmpeg";
+  return QStringLiteral("ffmpeg");
 }
 
 bool FFmpegDecoder::SupportsVideo()
@@ -855,60 +870,6 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
   Seek(0);
 }
 
-void FFmpegDecoder::UnconditionalVideoIndex(const QAtomicInt* cancelled)
-{
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
-
-  Seek(0);
-
-  // This should be unnecessary, but just in case...
-  video_stream->clear_frame_index();
-
-  // Iterate through every single frame and get each timestamp
-  // NOTE: Expects no frames to have been read so far
-
-  AVPacket* pkt = av_packet_alloc();
-  AVFrame* frame = av_frame_alloc();
-  int ret;
-
-  while (true) {
-    // Check if we have a `cancelled` ptr and its value
-    if (cancelled && *cancelled) {
-      break;
-    }
-
-    ret = GetFrame(pkt, frame);
-
-    if (ret >= 0) {
-      //CacheFrameToDisk(frame);
-
-      video_stream->append_frame_index(frame->pts);
-
-      SignalIndexProgress(frame->pts);
-    } else {
-      // Assume we've reached the end of the file
-      break;
-    }
-  }
-
-  // Check if we have a `cancelled` ptr and its value
-  if (cancelled && *cancelled) {
-    video_stream->clear_frame_index();
-  } else {
-    video_stream->append_frame_index(VideoStream::kEndTimestamp);
-
-    // Save index to file
-    if (!video_stream->save_frame_index(GetIndexFilename())) {
-      qWarning() << QStringLiteral("Failed to save index for %1").arg(stream()->footage()->filename());
-    }
-  }
-
-  av_frame_free(&frame);
-  av_packet_free(&pkt);
-
-  Seek(0);
-}
-
 int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
 {
   bool eof = false;
@@ -954,24 +915,6 @@ int FFmpegDecoder::GetFrame(AVPacket *pkt, AVFrame *frame)
   return ret;
 }
 
-void FFmpegDecoder::ValidateVideoIndex(const QAtomicInt* cancelled)
-{
-  VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream());
-
-  if (!video_stream->is_frame_index_ready()) {
-    video_stream->load_frame_index(GetIndexFilename());
-  }
-
-  if (!video_stream->is_frame_index_ready()) {
-    // Reset state
-    Seek(0);
-
-    UnconditionalVideoIndex(cancelled);
-
-    Seek(0);
-  }
-}
-
 void FFmpegDecoder::Seek(int64_t timestamp)
 {
   avcodec_flush_buffers(codec_ctx_);
@@ -1013,8 +956,8 @@ void FFmpegDecoder::RemoveFirstFromFrameCache()
     return;
   }
 
-  av_frame_free(&cached_frames_.first());
-  cached_frames_.removeFirst();
+  AVFrame* first = cached_frames_.takeFirst();
+  av_frame_free(&first);
   cache_at_zero_ = false;
 }
 
@@ -1024,17 +967,49 @@ void FFmpegDecoder::RemoveLastFromFrameCache()
     return;
   }
 
-  av_frame_free(&cached_frames_.last());
-  cached_frames_.removeLast();
+  AVFrame* last = cached_frames_.takeLast();
+  av_frame_free(&last);
   cache_at_eof_ = false;
 }
 
 void FFmpegDecoder::ClearFrameCache()
 {
   for (int i=0;i<cached_frames_.size();i++) {
-    av_frame_free(&cached_frames_[i]);
+    AVFrame* f = cached_frames_.at(i);
+    av_frame_free(&f);
   }
+
   cached_frames_.clear();
   cache_at_eof_ = false;
   cache_at_zero_ = false;
+}
+
+void FFmpegDecoder::FreeMemory()
+{
+  if (!allow_clear_event_) {
+    mutex_.lock();
+  }
+
+  if (cached_frames_.size() > 1) {
+    RemoveFirstFromFrameCache();
+  }
+
+  if (!allow_clear_event_) {
+    mutex_.unlock();
+  } else {
+    allow_clear_event_ = false;
+  }
+}
+
+void FFmpegDecoder::ClearTimerEvent()
+{
+  QMutexLocker locker(&mutex_);
+
+  ClearFrameCache();
+}
+
+void FFmpegDecoder::RestartClearTimer()
+{
+  clear_timer_.stop();
+  clear_timer_.start();
 }
