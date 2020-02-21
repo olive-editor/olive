@@ -132,7 +132,7 @@ TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, r
   track_(track),
   in_(in),
   out_(out),
-  splice_(nullptr),
+  splice_(false),
   trim_out_(nullptr),
   trim_in_(nullptr),
   insert_(nullptr)
@@ -150,7 +150,8 @@ void TrackRippleRemoveAreaCommand::redo()
   foreach (Block* block, track_->Blocks()) {
     if (block->in() < in_ && block->out() > out_) {
       // The area entirely within this Block
-      splice_ = block;
+      trim_out_ = block;
+      splice_ = true;
 
       // We don't need to do anything else here
       break;
@@ -169,53 +170,52 @@ void TrackRippleRemoveAreaCommand::redo()
   track_->BlockInvalidateCache();
 
   // If we picked up a block to splice
-  if (splice_ != nullptr) {
+  if (splice_) {
 
     // Split the block here
-    Block* copy = static_cast<Block*>(splice_->copy());
+    trim_in_ = static_cast<Block*>(trim_out_->copy());
 
-    splice_original_length_ = splice_->length();
-    splice_->set_length_and_media_out(out_ - splice_->in());
+    static_cast<NodeGraph*>(track_->parent())->AddNode(trim_in_);
+    Node::CopyInputs(trim_out_, trim_in_);
 
-    static_cast<NodeGraph*>(track_->parent())->AddNode(copy);
-    Node::CopyInputs(splice_, copy);
-
-    copy->set_length_and_media_in(splice_original_length_ - (out_ - splice_->in()));
-
-    track_->InsertBlockAfter(copy, splice_);
-
-    // Perform all further actions as if we were just trimming these clips
-    trim_out_ = splice_;
-    trim_in_ = copy;
-  }
-
-  // If we picked up a block to trim the in point of
-  if (trim_in_ != nullptr) {
-    trim_in_old_length_ = trim_in_->length();
-    trim_in_new_length_ = trim_in_->out() - out_;
-  }
-
-  // If we picked up a block to trim the out point of
-  if (trim_out_ != nullptr) {
     trim_out_old_length_ = trim_out_->length();
-    trim_out_new_length_ = in_ - trim_out_->in();
-  }
+    trim_out_->set_length_and_media_out(in_ - trim_out_->in());
 
-  // If we picked up a block to trim the in point of
-  if (trim_in_old_length_ != trim_in_new_length_) {
-    trim_in_->set_length_and_media_in(trim_in_new_length_);
-  }
+    trim_in_->set_length_and_media_in(trim_out_old_length_ - (out_ - trim_out_->in()));
 
-  // Remove all blocks that are flagged for removal
-  foreach (Block* remove_block, removed_blocks_) {
-    track_->RippleRemoveBlock(remove_block);
+    track_->InsertBlockAfter(trim_in_, trim_out_);
 
-    // FIXME: Delete blocks from graph and restore them in undo
-  }
+  } else {
 
-  // If we picked up a block to trim the out point of
-  if (trim_out_old_length_ != trim_out_new_length_) {
-    trim_out_->set_length_and_media_out(trim_out_new_length_);
+    // If we picked up a block to trim the in point of
+    if (trim_in_) {
+      trim_in_old_length_ = trim_in_->length();
+      trim_in_new_length_ = trim_in_->out() - out_;
+    }
+
+    // If we picked up a block to trim the out point of
+    if (trim_out_) {
+      trim_out_old_length_ = trim_out_->length();
+      trim_out_new_length_ = in_ - trim_out_->in();
+    }
+
+    // If we picked up a block to trim the in point of
+    if (trim_in_old_length_ != trim_in_new_length_) {
+      trim_in_->set_length_and_media_in(trim_in_new_length_);
+    }
+
+    // Remove all blocks that are flagged for removal
+    foreach (Block* remove_block, removed_blocks_) {
+      track_->RippleRemoveBlock(remove_block);
+
+      // FIXME: Delete blocks from graph and restore them in undo
+    }
+
+    // If we picked up a block to trim the out point of
+    if (trim_out_old_length_ != trim_out_new_length_) {
+      trim_out_->set_length_and_media_out(trim_out_new_length_);
+    }
+
   }
 
   // If we were given a block to insert, insert it here
@@ -234,7 +234,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, splice_ ? out_ : RATIONAL_MAX);
+  track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
 }
 
 void TrackRippleRemoveAreaCommand::undo()
@@ -246,39 +246,40 @@ void TrackRippleRemoveAreaCommand::undo()
     track_->RippleRemoveBlock(insert_);
   }
 
-  // If we picked up a block to trim the out point of
-  if (trim_out_old_length_ != trim_out_new_length_) {
-    trim_out_->set_length_and_media_out(trim_out_old_length_);
-  }
+  if (splice_) {
 
-  // Remove all blocks that are flagged for removal
-  foreach (Block* remove_block, removed_blocks_) {
-    if (trim_in_ == nullptr) {
-      track_->AppendBlock(remove_block);
-    } else {
-      track_->InsertBlockBefore(remove_block, trim_in_);
-    }
-  }
-  removed_blocks_.clear();
-
-  // If we picked up a block to trim the in point of
-  if (trim_in_old_length_ != trim_in_new_length_) {
-    trim_in_->set_length_and_media_in(trim_in_old_length_);
-  }
-
-  // If we're splicing, trim_in_ is a copy
-  if (splice_ != nullptr) {
+    // trim_in_ is our copy and trim_out_ is our original
     track_->RippleRemoveBlock(trim_in_);
+    delete TakeNodeFromParentGraph(trim_in_);
+    trim_out_->set_length_and_media_out(trim_out_old_length_);
 
-    // Remove node
-    TakeNodeFromParentGraph(trim_in_, &memory_manager_);
+  } else {
 
-    splice_->set_length_and_media_out(splice_original_length_);
+    // If we picked up a block to trim the out point of
+    if (trim_out_old_length_ != trim_out_new_length_) {
+      trim_out_->set_length_and_media_out(trim_out_old_length_);
+    }
+
+    // Remove all blocks that are flagged for removal
+    foreach (Block* remove_block, removed_blocks_) {
+      if (trim_in_ == nullptr) {
+        track_->AppendBlock(remove_block);
+      } else {
+        track_->InsertBlockBefore(remove_block, trim_in_);
+      }
+    }
+    removed_blocks_.clear();
+
+    // If we picked up a block to trim the in point of
+    if (trim_in_old_length_ != trim_in_new_length_) {
+      trim_in_->set_length_and_media_in(trim_in_old_length_);
+    }
+
   }
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, splice_ ? out_ : RATIONAL_MAX);
+  track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :

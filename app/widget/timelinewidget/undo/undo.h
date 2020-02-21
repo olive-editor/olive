@@ -144,12 +144,11 @@ protected:
   rational in_;
   rational out_;
 
-  Block* splice_;
-  rational splice_original_length_;
+  bool splice_;
 
   Block* trim_out_;
-  QVector<Block*> removed_blocks_;
   Block* trim_in_;
+  QVector<Block*> removed_blocks_;
 
   rational trim_in_old_length_;
   rational trim_out_old_length_;
