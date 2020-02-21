@@ -20,6 +20,13 @@ class TimelineWidget : public TimeBasedWidget
 {
   Q_OBJECT
 public:
+  enum DropWithoutSequenceBehavior {
+    kDWSAsk,
+    kDWSAuto,
+    kDWSManual,
+    kDWSDisable
+  };
+
   TimelineWidget(QWidget* parent = nullptr);
 
   virtual ~TimelineWidget() override;

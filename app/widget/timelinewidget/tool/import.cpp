@@ -20,6 +20,7 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+#include <QCheckBox>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QToolTip>
@@ -190,18 +191,37 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
     } else {
       // There's no active timeline here, ask the user what to do
 
-      QMessageBox mbox(parent());
+      DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
 
-      mbox.setWindowTitle(tr("No Active Sequence"));
-      mbox.setText(tr("No sequence is currently open. Would you like to create one and how should it be created?"));
+      if (behavior == kDWSAsk) {
+        QCheckBox* dont_ask_again_box = new QCheckBox(tr("Don't ask me again"));
 
-      QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
-      /*QPushButton* manual_params_btn = */mbox.addButton(tr("Manually Set Parameters"), QMessageBox::NoRole);
-      QPushButton* cancel_btn = mbox.addButton(QMessageBox::Cancel);
+        QMessageBox mbox(parent());
 
-      mbox.exec();
+        mbox.setWindowTitle(tr("No Active Sequence"));
+        mbox.setText(tr("No sequence is currently open. Would you like to create one?"));
+        mbox.setCheckBox(dont_ask_again_box);
 
-      if (mbox.clickedButton() != cancel_btn) {
+        QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
+        QPushButton* manual_params_btn = mbox.addButton(tr("Set Parameters Manually"), QMessageBox::NoRole);
+        mbox.addButton(QMessageBox::Cancel);
+
+        mbox.exec();
+
+        if (mbox.clickedButton() == auto_params_btn) {
+          behavior = kDWSAuto;
+        } else if (mbox.clickedButton() == manual_params_btn) {
+          behavior = kDWSManual;
+        } else {
+          behavior = kDWSDisable;
+        }
+
+        if (behavior != kDWSDisable && dont_ask_again_box->isChecked()) {
+          Config::Current()["DropWithoutSequenceBehavior"] = behavior;
+        }
+      }
+
+      if (behavior != kDWSDisable) {
         Project* active_project = Core::instance()->GetActiveProject();
 
         if (active_project) {
@@ -211,7 +231,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
           bool sequence_is_valid = true;
 
-          if (mbox.clickedButton() == auto_params_btn) {
+          if (behavior == kDWSAuto) {
 
             bool found_video_params = false;
             bool found_audio_params = false;
