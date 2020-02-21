@@ -4,10 +4,13 @@
 
 #ifdef Q_OS_WINDOWS
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 MemoryManager* MemoryManager::instance_ = nullptr;
 
+// FIXME: Hardcoded, should be a preference
 const uint64_t MemoryManager::minimum_available_memory_ = 2147483648;
 
 MemoryManager::MemoryManager(QObject* parent) :
@@ -51,7 +54,7 @@ uint64_t MemoryManager::GetAvailableMemory()
   GlobalMemoryStatusEx(&status);
   return status.ullAvailPhys;
 #else
-  long pages = sysconf(_SC_PHYS_PAGES);
+  long pages = sysconf(_SC_AVPHYS_PAGES);
   long page_size = sysconf(_SC_PAGE_SIZE);
   return pages * page_size;
 #endif
