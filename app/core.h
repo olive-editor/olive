@@ -27,6 +27,7 @@
 
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
+#include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "project/projectviewmodel.h"
 #include "task/task.h"
@@ -121,6 +122,8 @@ public:
    * The active Project file, or nullptr if the heuristic couldn't find one.
    */
   Project* GetActiveProject();
+  ProjectViewModel* GetActiveProjectModel();
+  Folder* GetSelectedFolderInActiveProject();
 
   /**
    * @brief Sets state to "modified" so that the GUI will prompt the user to save before closing
@@ -173,6 +176,11 @@ public:
 
   static QVariant GetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference);
   static void SetPreferenceForRenderMode(RenderMode::Mode mode, const QString& preference, const QVariant& value);
+
+  /**
+   * @brief Create a new sequence named appropriately for the active project
+   */
+  SequencePtr CreateNewSequenceForProject(Project *project) const;
 
 public slots:
   /**

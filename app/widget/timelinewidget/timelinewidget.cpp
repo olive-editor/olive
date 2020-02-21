@@ -616,30 +616,22 @@ void TimelineWidget::ViewMouseDoubleClicked(TimelineViewMouseEvent *event)
 
 void TimelineWidget::ViewDragEntered(TimelineViewMouseEvent *event)
 {
-  if (GetConnectedNode()) {
-    import_tool_->DragEnter(event);
-  }
+  import_tool_->DragEnter(event);
 }
 
 void TimelineWidget::ViewDragMoved(TimelineViewMouseEvent *event)
 {
-  if (GetConnectedNode()) {
-    import_tool_->DragMove(event);
-  }
+  import_tool_->DragMove(event);
 }
 
 void TimelineWidget::ViewDragLeft(QDragLeaveEvent *event)
 {
-  if (GetConnectedNode()) {
-    import_tool_->DragLeave(event);
-  }
+  import_tool_->DragLeave(event);
 }
 
 void TimelineWidget::ViewDragDropped(TimelineViewMouseEvent *event)
 {
-  if (GetConnectedNode()) {
-    import_tool_->DragDrop(event);
-  }
+  import_tool_->DragDrop(event);
 }
 
 void TimelineWidget::AddBlock(Block *block, TrackReference track)

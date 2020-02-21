@@ -71,6 +71,8 @@ public:
 
   void set_default_parameters();
 
+  ViewerOutput* viewer_output() const;
+
 protected:
   virtual void NameChangedEvent(const QString& name) override;
 

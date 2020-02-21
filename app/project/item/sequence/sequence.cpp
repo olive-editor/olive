@@ -265,6 +265,11 @@ void Sequence::set_default_parameters()
                    Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
 }
 
+ViewerOutput *Sequence::viewer_output() const
+{
+  return viewer_output_;
+}
+
 void Sequence::NameChangedEvent(const QString &name)
 {
   viewer_output_->set_media_name(name);

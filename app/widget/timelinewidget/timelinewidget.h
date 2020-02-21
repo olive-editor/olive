@@ -202,7 +202,12 @@ private:
     virtual void DragDrop(TimelineViewMouseEvent *event) override;
 
   private:
+    void FootageToGhosts(rational ghost_start, const QList<Footage*>& footage, const rational &dest_tb, const int &track_start);
+
+    QList<Footage*> dragged_footage_;
+
     int import_pre_buffer_;
+
   };
 
   class EditTool : public Tool

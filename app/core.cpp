@@ -44,8 +44,6 @@
 #include "project/projectimportmanager.h"
 #include "project/projectloadmanager.h"
 #include "project/projectsavemanager.h"
-#include "project/item/footage/footage.h"
-#include "project/item/sequence/sequence.h"
 #include "render/backend/indexmanager.h"
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
@@ -312,33 +310,18 @@ void Core::CreateNewFolder()
 
 void Core::CreateNewSequence()
 {
-  // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
-  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
-  Project* active_project;
+  Project* active_project = GetActiveProject();
 
-  if (active_project_panel == nullptr // Check that we found a Project panel
-      || (active_project = active_project_panel->project()) == nullptr) { // and that we could find an active Project
+  if (!active_project) {
     QMessageBox::critical(main_window_, tr("Failed to create new sequence"), tr("Failed to find active Project panel"));
     return;
   }
 
-  // Get the selected folder in this panel
-  Folder* folder = active_project_panel->GetSelectedFolder();
-
   // Create new sequence
-  SequencePtr new_sequence = std::make_shared<Sequence>();
+  SequencePtr new_sequence = CreateNewSequenceForProject(active_project);
 
   // Set all defaults for the sequence
   new_sequence->set_default_parameters();
-
-  // Get default name for this sequence (in the format "Sequence N", the first that doesn't exist)
-  int sequence_number = 1;
-  QString sequence_name;
-  do {
-    sequence_name = tr("Sequence %1").arg(sequence_number);
-    sequence_number++;
-  } while (active_project->root()->ChildExistsWithName(sequence_name));
-  new_sequence->set_name(sequence_name);
 
   SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, main_window_);
 
@@ -348,8 +331,8 @@ void Core::CreateNewSequence()
 
   if (sd.exec() == QDialog::Accepted) {
     // Create an undoable command
-    ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(active_project_panel->model(),
-                                                                                 folder,
+    ProjectViewModel::AddItemCommand* aic = new ProjectViewModel::AddItemCommand(GetActiveProjectModel(),
+                                                                                 GetSelectedFolderInActiveProject(),
                                                                                  new_sequence);
 
     new_sequence->add_default_nodes();
@@ -452,16 +435,35 @@ void Core::SaveAutorecovery()
 
 Project *Core::GetActiveProject()
 {
-  // Locate the most recently focused Project panel (assume that's the panel the user wants to import into)
   ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
 
-  // If we couldn't find one, return nullptr
-  if (active_project_panel == nullptr) {
+  if (active_project_panel) {
+    return active_project_panel->project();
+  } else {
     return nullptr;
   }
+}
 
-  // Otherwise, return the project panel's project (which may be nullptr but in most cases shouldn't be)
-  return active_project_panel->project();
+ProjectViewModel *Core::GetActiveProjectModel()
+{
+  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
+
+  if (active_project_panel) {
+    return active_project_panel->model();
+  } else {
+    return nullptr;
+  }
+}
+
+Folder *Core::GetSelectedFolderInActiveProject()
+{
+  ProjectPanel* active_project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
+
+  if (active_project_panel) {
+    return active_project_panel->GetSelectedFolder();
+  } else {
+    return nullptr;
+  }
 }
 
 void Core::SetProjectModified()
@@ -641,6 +643,22 @@ QVariant Core::GetPreferenceForRenderMode(RenderMode::Mode mode, const QString &
 void Core::SetPreferenceForRenderMode(RenderMode::Mode mode, const QString &preference, const QVariant &value)
 {
   Config::Current()[GetRenderModePreferencePrefix(mode, preference)] = value;
+}
+
+SequencePtr Core::CreateNewSequenceForProject(Project* project) const
+{
+  SequencePtr new_sequence = std::make_shared<Sequence>();
+
+  // Get default name for this sequence (in the format "Sequence N", the first that doesn't exist)
+  int sequence_number = 1;
+  QString sequence_name;
+  do {
+    sequence_name = tr("Sequence %1").arg(sequence_number);
+    sequence_number++;
+  } while (project->root()->ChildExistsWithName(sequence_name));
+  new_sequence->set_name(sequence_name);
+
+  return new_sequence;
 }
 
 void Core::OpenProject()
