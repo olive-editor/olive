@@ -35,7 +35,7 @@ OIIODecoder::OIIODecoder() :
 
 QString OIIODecoder::id()
 {
-  return "oiio";
+  return QStringLiteral("oiio");
 }
 
 bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
