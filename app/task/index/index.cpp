@@ -18,11 +18,6 @@ void IndexTask::Action()
 
     decoder->set_stream(stream_);
 
-    // Force multithreading for faster indexing
-    if (decoder->id() == "ffmpeg") {
-      static_cast<FFmpegDecoder*>(decoder.get())->SetMultithreading(true);
-    }
-
     connect(decoder.get(), &Decoder::IndexProgress, this, &IndexTask::ProgressChanged);
 
     decoder->Open();

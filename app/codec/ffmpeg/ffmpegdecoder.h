@@ -62,8 +62,6 @@ public:
   virtual bool SupportsVideo() override;
   virtual bool SupportsAudio() override;
 
-  void SetMultithreading(bool e);
-
   virtual void Index(const QAtomicInt *cancelled) override;
 
 signals:
@@ -110,6 +108,8 @@ private:
   void RemoveLastFromFrameCache();
   void ClearFrameCache();
 
+  void ClearResources();
+
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
@@ -126,8 +126,6 @@ private:
   int64_t second_ts_;
 
   AVDictionary* opts_;
-
-  bool multithreading_;
 
   QTimer clear_timer_;
 

@@ -49,7 +49,6 @@ FFmpegDecoder::FFmpegDecoder() :
   cache_at_zero_(false),
   cache_at_eof_(false),
   opts_(nullptr),
-  multithreading_(true),
   allow_clear_event_(false)
 {
   connect(this, &FFmpegDecoder::ConsumedMemory, MemoryManager::instance(), &MemoryManager::ConsumedMemory, Qt::DirectConnection);
@@ -138,7 +137,7 @@ bool FFmpegDecoder::Open()
   }
 
   // Set multithreading setting
-  error_code = av_dict_set(&opts_, "threads", multithreading_ ? "auto" : "1", 0);
+  error_code = av_dict_set(&opts_, "threads", "auto", 0);
 
   // Handle failure to set multithreaded decoding
   if (error_code < 0) {
@@ -486,29 +485,7 @@ void FFmpegDecoder::Close()
 {
   QMutexLocker locker(&mutex_);
 
-  if (opts_) {
-    av_dict_free(&opts_);
-    opts_ = nullptr;
-  }
-
-  ClearFrameCache();
-
-  if (scale_ctx_) {
-    sws_freeContext(scale_ctx_);
-    scale_ctx_ = nullptr;
-  }
-
-  if (codec_ctx_) {
-    avcodec_free_context(&codec_ctx_);
-    codec_ctx_ = nullptr;
-  }
-
-  if (fmt_ctx_) {
-    avformat_close_input(&fmt_ctx_);
-    fmt_ctx_ = nullptr;
-  }
-
-  open_ = false;
+  ClearResources();
 }
 
 QString FFmpegDecoder::id()
@@ -524,11 +501,6 @@ bool FFmpegDecoder::SupportsVideo()
 bool FFmpegDecoder::SupportsAudio()
 {
   return true;
-}
-
-void FFmpegDecoder::SetMultithreading(bool e)
-{
-  multithreading_ = e;
 }
 
 bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
@@ -702,7 +674,7 @@ void FFmpegDecoder::Error(const QString &s)
 {
   qWarning() << s;
 
-  Close();
+  ClearResources();
 }
 
 void FFmpegDecoder::Index(const QAtomicInt* cancelled)
@@ -983,6 +955,33 @@ void FFmpegDecoder::ClearFrameCache()
   cached_frames_.clear();
   cache_at_eof_ = false;
   cache_at_zero_ = false;
+}
+
+void FFmpegDecoder::ClearResources()
+{
+  if (opts_) {
+    av_dict_free(&opts_);
+    opts_ = nullptr;
+  }
+
+  ClearFrameCache();
+
+  if (scale_ctx_) {
+    sws_freeContext(scale_ctx_);
+    scale_ctx_ = nullptr;
+  }
+
+  if (codec_ctx_) {
+    avcodec_free_context(&codec_ctx_);
+    codec_ctx_ = nullptr;
+  }
+
+  if (fmt_ctx_) {
+    avformat_close_input(&fmt_ctx_);
+    fmt_ctx_ = nullptr;
+  }
+
+  open_ = false;
 }
 
 void FFmpegDecoder::FreeMemory()
