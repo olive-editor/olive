@@ -31,3 +31,7 @@ Please consider supporting Olive:
 Compiling instructions for Windows, macOS, and Linux can be found [on the main site](https://olivevideoeditor.org/compile.php).
 
 Olive has Doxygen-compatible documentation hosted at http://olivevideoeditor.org/doxygen/. You can also run `doxygen` in the source root directory to generate a local copy.
+
+## Getting Binaries:
+
+https://repology.org/project/olive-video-editor/versions
