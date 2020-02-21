@@ -40,9 +40,9 @@ extern "C" {
 int main(int argc, char *argv[]) {
   av_log_set_level(AV_LOG_QUIET);
 
-  // Set OpenGL display profile (3.0 Core)
+  // Set OpenGL display profile (3.2 Core)
   QSurfaceFormat format;
-  format.setVersion(3, 0);
+  format.setVersion(3, 2);
   format.setDepthBufferSize(24);
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
