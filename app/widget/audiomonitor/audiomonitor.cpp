@@ -15,10 +15,10 @@ AudioMonitor::AudioMonitor(QWidget *parent) :
   QWidget(parent)
 {
   clear_timer_.setInterval(kClearTimerInterval);
+  clear_timer_.setSingleShot(true);
 
   connect(AudioManager::instance(), &AudioManager::SentSamples, this, &AudioMonitor::SetValues);
   connect(&clear_timer_, &QTimer::timeout, this, &AudioMonitor::Clear);
-  connect(&clear_timer_, &QTimer::timeout, &clear_timer_, &QTimer::stop);
 }
 
 void AudioMonitor::SetValues(QVector<double> values)
