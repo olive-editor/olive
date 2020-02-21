@@ -63,6 +63,7 @@ FFmpegDecoder::FFmpegDecoder() :
 FFmpegDecoder::~FFmpegDecoder()
 {
   Close();
+  clear_timer_.stop();
 }
 
 bool FFmpegDecoder::Open()
