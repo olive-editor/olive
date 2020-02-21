@@ -29,8 +29,7 @@ TaskManager::TaskManager() :
   active_thread_count_(0)
 {
   // Initialize threads to run tasks on
-  //threads_.resize(QThread::idealThreadCount());
-  threads_.resize(1);
+  threads_.resize(QThread::idealThreadCount());
 
   for (int i=0;i<threads_.size();i++) {
     QThread* t = new QThread(this);
