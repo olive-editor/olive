@@ -15,8 +15,7 @@ public:
 
   static bool ShouldFreeMemory();
 
-public slots:
-  void ConsumedMemory();
+  bool RegisterMemory();
 
 signals:
   void FreeMemory();

@@ -48,10 +48,8 @@ FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
   cache_at_zero_(false),
   cache_at_eof_(false),
-  opts_(nullptr),
-  allow_clear_event_(false)
+  opts_(nullptr)
 {
-  connect(this, &FFmpegDecoder::ConsumedMemory, MemoryManager::instance(), &MemoryManager::ConsumedMemory, Qt::DirectConnection);
   connect(MemoryManager::instance(), &MemoryManager::FreeMemory, this, &FFmpegDecoder::FreeMemory, Qt::DirectConnection);
 
   clear_timer_.setInterval(5000);
@@ -387,9 +385,9 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           }
         }
 
-        allow_clear_event_ = true;
-        emit ConsumedMemory();
-        allow_clear_event_ = false;
+        if (MemoryManager::instance()->RegisterMemory()) {
+          RemoveFirstFromFrameCache();
+        }
 
         // Whatever it is, keep this frame in memory for the time being just in case
         cached_frames_.append(working_frame);
@@ -986,18 +984,12 @@ void FFmpegDecoder::ClearResources()
 
 void FFmpegDecoder::FreeMemory()
 {
-  if (!allow_clear_event_) {
-    mutex_.lock();
-  }
+  if (mutex_.tryLock()) {
+    if (cached_frames_.size() > 1) {
+      RemoveFirstFromFrameCache();
+    }
 
-  if (cached_frames_.size() > 1) {
-    RemoveFirstFromFrameCache();
-  }
-
-  if (!allow_clear_event_) {
     mutex_.unlock();
-  } else {
-    allow_clear_event_ = false;
   }
 }
 
