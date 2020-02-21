@@ -276,7 +276,7 @@ void ViewerGLWidget::SetupColorProcessor()
                                                              ocio_view_,
                                                              ocio_look_);
 
-      color_service_ = OpenGLColorProcessor::CreateOpenGL(color_manager_->GetConfig(),
+      color_service_ = OpenGLColorProcessor::Create(color_manager_->GetConfig(),
                                                           OCIO::ROLE_SCENE_LINEAR,
                                                           ocio_display_,
                                                           ocio_view_,

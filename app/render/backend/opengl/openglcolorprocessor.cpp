@@ -66,12 +66,12 @@ OpenGLColorProcessor::~OpenGLColorProcessor()
   ClearTexture();
 }
 
-OpenGLColorProcessorPtr OpenGLColorProcessor::CreateOpenGL(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space)
+OpenGLColorProcessorPtr OpenGLColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space)
 {
   return std::make_shared<OpenGLColorProcessor>(config, source_space, dest_space);
 }
 
-OpenGLColorProcessorPtr OpenGLColorProcessor::CreateOpenGL(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look)
+OpenGLColorProcessorPtr OpenGLColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look)
 {
   return std::make_shared<OpenGLColorProcessor>(config, source_space, display, view, look);
 }

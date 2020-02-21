@@ -21,13 +21,13 @@ public:
 
   ~OpenGLColorProcessor();
 
-  static OpenGLColorProcessorPtr CreateOpenGL(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space);
+  static OpenGLColorProcessorPtr Create(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space);
 
-  static OpenGLColorProcessorPtr CreateOpenGL(OCIO::ConstConfigRcPtr config,
-                                              const QString& source_space,
-                                              const QString& display,
-                                              const QString& view,
-                                              const QString& look);
+  static OpenGLColorProcessorPtr Create(OCIO::ConstConfigRcPtr config,
+                                        const QString& source_space,
+                                        const QString& display,
+                                        const QString& view,
+                                        const QString& look);
 
   void Enable(QOpenGLContext* context, bool alpha_is_associated);
   bool IsEnabled() const;
