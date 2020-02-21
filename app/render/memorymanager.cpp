@@ -39,11 +39,15 @@ bool MemoryManager::ShouldFreeMemory()
   return (GetAvailableMemory() < minimum_available_memory_);
 }
 
-void MemoryManager::ConsumedMemory()
+bool MemoryManager::RegisterMemory()
 {
   if (ShouldFreeMemory()) {
     emit FreeMemory();
+
+    return true;
   }
+
+  return false;
 }
 
 uint64_t MemoryManager::GetAvailableMemory()

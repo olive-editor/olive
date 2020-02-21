@@ -64,9 +64,6 @@ public:
 
   virtual void Index(const QAtomicInt *cancelled) override;
 
-signals:
-  void ConsumedMemory();
-
 private:
   /**
    * @brief Handle an error
@@ -128,8 +125,6 @@ private:
   AVDictionary* opts_;
 
   QTimer clear_timer_;
-
-  QAtomicInt allow_clear_event_;
 
 private slots:
   void FreeMemory();
