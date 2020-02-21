@@ -179,6 +179,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
     static_cast<NodeGraph*>(track_->parent())->AddNode(copy);
     Node::CopyInputs(splice_, copy);
+
     copy->set_length_and_media_in(splice_original_length_ - (out_ - splice_->in()));
 
     track_->InsertBlockAfter(copy, splice_);
@@ -233,7 +234,7 @@ void TrackRippleRemoveAreaCommand::redo()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, out_);
+  track_->InvalidateCache(in_, splice_ ? out_ : RATIONAL_MAX);
 }
 
 void TrackRippleRemoveAreaCommand::undo()
@@ -277,7 +278,7 @@ void TrackRippleRemoveAreaCommand::undo()
 
   track_->UnblockInvalidateCache();
 
-  track_->InvalidateCache(in_, out_);
+  track_->InvalidateCache(in_, splice_ ? out_ : RATIONAL_MAX);
 }
 
 TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block, rational in, QUndoCommand *parent) :
