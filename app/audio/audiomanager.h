@@ -105,6 +105,8 @@ signals:
 private:
   AudioManager();
 
+  virtual ~AudioManager() override;
+
   QList<QAudioDeviceInfo> input_devices_;
 
   QList<QAudioDeviceInfo> output_devices_;
@@ -120,7 +122,7 @@ private:
   QAudioDeviceInfo input_device_info_;
   QIODevice* input_file_;
 
-  bool refreshing_devices_;
+  QThread* refresh_thread_;
 
 private slots:
   void RefreshThreadDone();

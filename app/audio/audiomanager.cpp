@@ -46,24 +46,22 @@ AudioManager *AudioManager::instance()
 
 void AudioManager::RefreshDevices()
 {
-  if (refreshing_devices_) {
+  if (refresh_thread_) {
     return;
   }
 
   input_devices_.clear();
   output_devices_.clear();
 
-  refreshing_devices_ = true;
-
   // Refreshing devices can take some time, so we do it in a separate thread
-  QThread* thread = new QThread();
-  connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+  refresh_thread_ = new QThread(this);
+  connect(refresh_thread_, &QThread::finished, refresh_thread_, &QThread::deleteLater);
 
-  thread->start(QThread::IdlePriority);
+  refresh_thread_->start(QThread::IdlePriority);
 
   AudioRefreshDevicesObject* refresher = new AudioRefreshDevicesObject();
-  connect(refresher, &AudioRefreshDevicesObject::ListsReady, this, &AudioManager::RefreshThreadDone);
-  refresher->moveToThread(thread);
+  connect(refresher, &AudioRefreshDevicesObject::ListsReady, this, &AudioManager::RefreshThreadDone, Qt::QueuedConnection);
+  refresher->moveToThread(refresh_thread_);
 
   QMetaObject::invokeMethod(refresher,
                             "Refresh",
@@ -72,7 +70,7 @@ void AudioManager::RefreshDevices()
 
 bool AudioManager::IsRefreshing()
 {
-  return refreshing_devices_;
+  return refresh_thread_;
 }
 
 void AudioManager::PushToOutput(const QByteArray &samples)
@@ -191,13 +189,21 @@ void AudioManager::ReverseBuffer(char *buffer, int buffer_size, int sample_size)
 AudioManager::AudioManager() :
   input_(nullptr),
   input_file_(nullptr),
-  refreshing_devices_(false)
+  refresh_thread_(nullptr)
 {
   RefreshDevices();
 
   connect(&output_manager_, &AudioOutputManager::SentSamples, this, &AudioManager::SentSamples);
 
   output_manager_.SetEnableSendingSamples(true);
+}
+
+AudioManager::~AudioManager()
+{
+  if (refresh_thread_) {
+    refresh_thread_->quit();
+    refresh_thread_->wait();
+  }
 }
 
 void AudioManager::RefreshThreadDone()
@@ -207,7 +213,7 @@ void AudioManager::RefreshThreadDone()
   output_devices_ = refresher->output_devices();
   input_devices_ = refresher->input_devices();
 
-  refreshing_devices_ = false;
+
 
   QString preferred_audio_output = Config::Current()["PreferredAudioOutput"].toString();
 
@@ -242,7 +248,8 @@ void AudioManager::RefreshThreadDone()
   }
 
   // Clean up refresher object
-  refresher->thread()->quit();
+  refresh_thread_->quit();
+  refresh_thread_ = nullptr;
   refresher->deleteLater();
 
   emit DeviceListReady();
