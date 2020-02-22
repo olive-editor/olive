@@ -90,6 +90,8 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(curve_panel_, &CurvePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
   connect(curve_panel_, &CurvePanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
   connect(curve_panel_, &CurvePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(viewer_panel_->video_renderer(), &VideoRenderBackend::CachedTimeReady, timeline_panel_->ruler(), &TimeRuler::CacheTimeReady);
+  connect(viewer_panel_->video_renderer(), &VideoRenderBackend::RangeInvalidated, timeline_panel_->ruler(), &TimeRuler::CacheInvalidatedRange);
 
   viewer_panel_->ConnectTimeBasedPanel(timeline_panel_);
   viewer_panel_->ConnectTimeBasedPanel(param_panel_);

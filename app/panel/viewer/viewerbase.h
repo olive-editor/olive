@@ -20,6 +20,8 @@ public:
 
   void ConnectTimeBasedPanel(TimeBasedPanel* panel);
 
+  VideoRenderBackend* video_renderer() const;
+
 };
 
 #endif // VIEWERPANELBASE_H

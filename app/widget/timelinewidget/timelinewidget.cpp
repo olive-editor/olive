@@ -205,6 +205,7 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
   SetTimebase(n->video_params().time_base());
+  UpdateTimelineLength(n->Length());
 
   for (int i=0;i<views_.size();i++) {
     Timeline::TrackType track_type = static_cast<Timeline::TrackType>(i);
@@ -566,6 +567,7 @@ void TimelineWidget::UpdateTimelineLength(const rational &length)
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetEndTime(length);
   }
+  ruler()->SetCacheStatusLength(length);
 }
 
 TimelineWidget::Tool *TimelineWidget::GetActiveTool()

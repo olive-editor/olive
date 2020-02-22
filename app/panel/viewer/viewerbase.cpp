@@ -32,3 +32,8 @@ void ViewerPanelBase::ConnectTimeBasedPanel(TimeBasedPanel *panel)
   connect(panel, &TimeBasedPanel::ShuttleStopRequested, this, &ViewerPanelBase::ShuttleStop);
   connect(panel, &TimeBasedPanel::ShuttleRightRequested, this, &ViewerPanelBase::ShuttleRight);
 }
+
+VideoRenderBackend *ViewerPanelBase::video_renderer() const
+{
+  return static_cast<ViewerWidget*>(GetTimeBasedWidget())->video_renderer();
+}

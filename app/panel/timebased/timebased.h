@@ -18,6 +18,8 @@ public:
 
   ViewerOutput* GetConnectedViewer() const;
 
+  TimeRuler* ruler() const;
+
   virtual void ZoomIn() override;
 
   virtual void ZoomOut() override;

@@ -91,6 +91,11 @@ ViewerOutput *TimeBasedPanel::GetConnectedViewer() const
   return widget_->GetConnectedNode();
 }
 
+TimeRuler *TimeBasedPanel::ruler() const
+{
+  return widget_->ruler();
+}
+
 void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
   if (widget_->GetConnectedNode()) {

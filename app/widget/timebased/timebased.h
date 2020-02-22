@@ -48,12 +48,12 @@ public slots:
 
   void GoToNextCut();
 
+  TimeRuler* ruler() const;
+
 protected slots:
   void SetTimeAndSignal(const int64_t& t);
 
 protected:
-  TimeRuler* ruler() const;
-
   QScrollBar* scrollbar() const;
 
   virtual void TimebaseChangedEvent(const rational&) override;
