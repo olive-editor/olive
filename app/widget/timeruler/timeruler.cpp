@@ -294,7 +294,9 @@ void TimeRuler::paintEvent(QPaintEvent *)
           continue;
         }
 
-        p.fillRect(qMax(0, range_left), cache_y, qMin(width(), range_right) - range_left, cache_status_height_, Qt::red);
+        int adjusted_left = qMax(0, range_left);
+
+        p.fillRect(adjusted_left, cache_y, qMin(width(), range_right) - adjusted_left, cache_status_height_, Qt::red);
       }
     }
   }
