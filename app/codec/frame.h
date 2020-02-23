@@ -70,8 +70,8 @@ public:
   const rational& timestamp() const;
   void set_timestamp(const rational& timestamp);
 
-  /*const int64_t& native_timestamp();
-  void set_native_timestamp(const int64_t& timestamp);*/
+  const int64_t& native_timestamp();
+  void set_native_timestamp(const int64_t& timestamp);
 
   /**
    * @brief Get frame's format
@@ -140,6 +140,8 @@ private:
   QByteArray data_;
 
   rational timestamp_;
+
+  int64_t native_timestamp_;
 
   rational sample_aspect_ratio_;
 

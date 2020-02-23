@@ -117,7 +117,7 @@ private:
 
   SwsContext* scale_ctx_;
 
-  FFmpegFrameCache cached_frames_;
+  FFmpegFrameCache::Client cached_frames_;
   bool cache_at_zero_;
   bool cache_at_eof_;
 

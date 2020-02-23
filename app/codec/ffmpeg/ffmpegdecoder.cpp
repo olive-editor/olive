@@ -49,7 +49,7 @@ FFmpegDecoder::FFmpegDecoder() :
   cache_at_eof_(false),
   opts_(nullptr)
 {
-  clear_timer_.setInterval(5000);
+  clear_timer_.setInterval(2500);
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
 }
 
@@ -223,53 +223,38 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
   int64_t target_ts = Timecode::time_to_timestamp(timecode, avstream_->time_base) + avstream_->start_time;
 
-  bool got_frame = false;
-
-  uint8_t* input_data[4];
-  int input_linesize[4];
+  Frame* return_frame = nullptr;
 
   // See if our RAM cache already has a frame that matches this timestamp
   if (!cached_frames_.isEmpty()) {
 
-    AVFrame* found_frame = nullptr;
+    if (cache_at_zero_ && target_ts < cached_frames_.first()->native_timestamp()) {
 
-    if (cache_at_zero_ && target_ts < cached_frames_.first()->pts) {
-
-      found_frame = cached_frames_.first();
+      return_frame = cached_frames_.first();
       cached_frames_.accessedFirst();
 
-    } else if (cache_at_eof_ && target_ts > cached_frames_.last()->pts) {
+    } else if (cache_at_eof_ && target_ts > cached_frames_.last()->native_timestamp()) {
 
-      found_frame = cached_frames_.last();
+      return_frame = cached_frames_.last();
       cached_frames_.accessedLast();
 
-    } else if (target_ts >= cached_frames_.first()->pts
-        && target_ts <= cached_frames_.last()->pts) {
+    } else if (target_ts >= cached_frames_.first()->native_timestamp()
+        && target_ts <= cached_frames_.last()->native_timestamp()) {
 
       // We already have this frame in the cache, find it
       for (int i=0;i<cached_frames_.size();i++) {
-        AVFrame* this_frame = cached_frames_.at(i);
+        Frame* this_frame = cached_frames_.at(i);
 
-        if (this_frame->pts == target_ts // Test for an exact match
-            || (i < cached_frames_.size() - 1 && cached_frames_.at(i+1)->pts > target_ts)) { // Or for this frame to be the "closest"
+        if (this_frame->native_timestamp() == target_ts // Test for an exact match
+            || (i < cached_frames_.size() - 1 && cached_frames_.at(i+1)->native_timestamp() > target_ts)) { // Or for this frame to be the "closest"
 
-          found_frame = this_frame;
+          return_frame = this_frame;
           cached_frames_.accessed(i);
 
           break;
 
         }
       }
-    }
-
-    if (found_frame) {
-      // This frame is appropriate, return it
-      for (int i=0;i<4;i++) {
-        input_data[i] = found_frame->data[i];
-        input_linesize[i] = found_frame->linesize[i];
-      }
-
-      got_frame = true;
     }
   }
 
@@ -300,15 +285,15 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   */
 
   // If we have no disk cache, we'll need to find this frame ourselves
-  if (!got_frame) {
+  if (!return_frame) {
 
     int64_t seek_ts = target_ts;
     bool still_seeking = false;
 
     // If the frame wasn't in the frame cache, see if this frame cache is too old to use
     if (cached_frames_.isEmpty()
-        || target_ts < cached_frames_.first()->pts
-        || target_ts > cached_frames_.last()->pts + 2*second_ts_) {
+        || target_ts < cached_frames_.first()->native_timestamp()
+        || target_ts > cached_frames_.last()->native_timestamp() + 2*second_ts_) {
       ClearFrameCache();
 
       Seek(seek_ts);
@@ -321,8 +306,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     int ret;
     AVPacket* pkt = av_packet_alloc();
-
-    AVFrame* found_frame = nullptr;
 
     while (true) {
       // Allocate a new frame
@@ -365,71 +348,73 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
         // Handle an "expected" EOF by using the last frame of our cache
         cache_at_eof_ = true;
         av_frame_free(&working_frame);
-        found_frame = cached_frames_.last();
+        return_frame = cached_frames_.last();
 
       } else {
 
+        bool working_frame_is_the_one = false;
+
         // If this is a valid frame, see if this or the frame before it are the one we need
-        if (!found_frame) {
-          if (working_frame->pts == target_ts) {
-            found_frame = working_frame;
-          } else if (working_frame->pts > target_ts) {
-            if (cached_frames_.isEmpty() && cache_at_zero_) {
-              found_frame = working_frame;
-            } else {
-              found_frame = cached_frames_.last();
-            }
+        if (working_frame->pts == target_ts) {
+          working_frame_is_the_one = true;
+        } else if (working_frame->pts > target_ts) {
+          if (cached_frames_.isEmpty() && cache_at_zero_) {
+            working_frame_is_the_one = true;
+          } else {
+            return_frame = cached_frames_.last();
           }
         }
 
         // Whatever it is, keep this frame in memory for the time being just in case
-        cached_frames_.append(working_frame);
-      }
+        Frame* working_frame_converted = cached_frames_.append(VideoRenderingParams(avstream_->codecpar->width,
+                                                                                    avstream_->codecpar->height,
+                                                                                    avstream_->time_base,
+                                                                                    native_pix_fmt_,
+                                                                                    RenderMode::kOffline));
 
-      if (found_frame) {
-        // We found the frame we want
-        got_frame = true;
+        working_frame_converted->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
+        working_frame_converted->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
+        working_frame_converted->set_native_timestamp(working_frame->pts);
 
-        // Set data arrays to the frame's data
-        for (int i=0;i<4;i++) {
-          input_data[i] = found_frame->data[i];
-          input_linesize[i] = found_frame->linesize[i];
+        // Convert frame to RGBA for the rest of the pipeline
+        uint8_t* output_data = reinterpret_cast<uint8_t*>(working_frame_converted->data());
+        int output_linesize = working_frame_converted->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
+
+        sws_scale(scale_ctx_,
+                  working_frame->data,
+                  working_frame->linesize,
+                  0,
+                  avstream_->codecpar->height,
+                  &output_data,
+                  &output_linesize);
+
+        if (working_frame_is_the_one) {
+          // We found the frame we want
+          return_frame = working_frame_converted;
         }
 
-        //CacheFrameToDisk(found_frame);
-        break;
+        if (return_frame) {
+          break;
+        }
       }
     }
 
     av_packet_free(&pkt);
   }
 
-  // If we're here and got the frame, we'll convert it and return it
-  if (got_frame) {
+  // We found the frame, we'll return a copy
+  if (return_frame) {
+    FramePtr copy = Frame::Create();
+    copy->set_width(return_frame->width());
+    copy->set_height(return_frame->height());
+    copy->set_format(return_frame->format());
+    copy->set_timestamp(return_frame->timestamp());
+    copy->set_sample_aspect_ratio(return_frame->sample_aspect_ratio());
+    copy->allocate();
 
-    // Allocate frame that we'll return
-    FramePtr frame_container = Frame::Create();
-    frame_container->set_width(avstream_->codecpar->width);
-    frame_container->set_height(avstream_->codecpar->height);
-    frame_container->set_format(native_pix_fmt_);
-    frame_container->set_timestamp(Timecode::timestamp_to_time(target_ts, avstream_->time_base));
-    frame_container->set_sample_aspect_ratio(av_guess_sample_aspect_ratio(fmt_ctx_, avstream_, nullptr));
-    frame_container->allocate();
+    memcpy(copy->data(), return_frame->data(), copy->allocated_size());
 
-    // Convert frame to RGBA for the rest of the pipeline
-    uint8_t* output_data = reinterpret_cast<uint8_t*>(frame_container->data());
-    int output_linesize = frame_container->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
-
-    sws_scale(scale_ctx_,
-              input_data,
-              input_linesize,
-              0,
-              avstream_->codecpar->height,
-              &output_data,
-              &output_linesize);
-
-    return frame_container;
-
+    return copy;
   }
 
   return nullptr;
@@ -940,11 +925,6 @@ void FFmpegDecoder::RemoveLastFromFrameCache()
 
 void FFmpegDecoder::ClearFrameCache()
 {
-  for (int i=0;i<cached_frames_.size();i++) {
-    AVFrame* f = cached_frames_.at(i);
-    av_frame_free(&f);
-  }
-
   cached_frames_.clear();
   cache_at_eof_ = false;
   cache_at_zero_ = false;
@@ -981,5 +961,5 @@ void FFmpegDecoder::ClearTimerEvent()
 {
   QMutexLocker locker(&mutex_);
 
-  cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - 5000);
+  cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - 2500);
 }

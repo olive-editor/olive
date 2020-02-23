@@ -1,42 +1,55 @@
 #ifndef FFMPEGFRAMECACHE_H
 #define FFMPEGFRAMECACHE_H
 
-extern "C" {
-#include <libavformat/avformat.h>
-}
-
 #include <QList>
-#include <QTimer>
+#include <QMutex>
+
+#include "codec/frame.h"
+#include "render/videoparams.h"
 
 class FFmpegFrameCache
 {
 public:
-  FFmpegFrameCache();
+  FFmpegFrameCache() = default;
 
-  void append(AVFrame* f);
-  void clear();
+  static Frame* Get(const VideoRenderingParams& params);
 
-  bool isEmpty() const;
-  AVFrame* first() const;
-  AVFrame* at(int i) const;
-  AVFrame* last() const;
-  int size() const;
+  static void Release(Frame* f);
 
-  void accessedFirst();
-  void accessedLast();
-  void accessed(int i);
+  class Client
+  {
+  public:
+    Client() = default;
 
-  void remove_old_frames(qint64 older_than);
+    Frame* append(const VideoRenderingParams &params);
+    void clear();
 
-private:
-  struct CachedFrame {
-    AVFrame* frame;
-    qint64 accessed;
+    bool isEmpty() const;
+    Frame* first() const;
+    Frame* at(int i) const;
+    Frame* last() const;
+    int size() const;
+
+    void accessedFirst();
+    void accessedLast();
+    void accessed(int i);
+
+    void remove_old_frames(qint64 older_than);
+
+  private:
+    struct CachedFrame {
+      Frame* frame;
+      qint64 accessed;
+    };
+
+    QList<CachedFrame> frames_;
+
   };
 
-  QList<CachedFrame> frames_;
+private:
+  static QMutex pool_lock_;
 
-  static int global_frame_count_;
+  static QList<Frame*> frame_pool_;
 
 };
 
