@@ -53,8 +53,6 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
     int destination_offset = audio_params_.time_to_bytes(range_for_block.in() - range.in());
     int maximum_copy_size = audio_params_.time_to_bytes(range_for_block.length());
 
-    int copied_size = 0;
-
     if (!samples_from_this_block.isEmpty()) {
       // Stretch samples here
       rational abs_speed = qAbs(b->speed());
@@ -82,11 +80,11 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         AudioManager::ReverseBuffer(samples_from_this_block.data(), samples_from_this_block.size(), audio_params_.samples_to_bytes(1));
       }
 
-      copied_size = samples_from_this_block.size();
+      int actual_copy_size = qMin(maximum_copy_size, samples_from_this_block.size());
 
       memcpy(block_range_buffer.data()+destination_offset,
              samples_from_this_block.data(),
-             qMax(maximum_copy_size, copied_size));
+             actual_copy_size);
     }
 
     NodeValueTable::Merge({merged_table, table});
