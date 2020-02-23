@@ -168,7 +168,7 @@ void TaskManager::DeleteTask(Task *t)
 
   if (GetTaskStatus(t) != kWorking) {
     // If the task isn't doing anything, we can simply delete it
-    delete t;
+    t->deleteLater();
   }
 }
 
@@ -198,7 +198,7 @@ void TaskManager::TaskFinished()
     }
 
     if (was_deleted) {
-      delete task_sender;
+      task_sender->deleteLater();
     }
   }
 
