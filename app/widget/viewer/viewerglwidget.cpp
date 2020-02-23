@@ -78,7 +78,7 @@ void ViewerGLWidget::SetImage(const QString &fn)
 {
   has_image_ = false;
 
-  if (!fn.isEmpty() && QFile::exists(fn)) {
+  if (!fn.isEmpty()) {
     auto input = OIIO::ImageInput::open(fn.toStdString());
 
     if (input) {
@@ -113,7 +113,7 @@ void ViewerGLWidget::SetImage(const QString &fn)
       has_image_ = true;
 
 #if OIIO_VERSION < 10903
-    OIIO::ImageInput::destroy(input);
+      OIIO::ImageInput::destroy(input);
 #endif
 
     } else {
