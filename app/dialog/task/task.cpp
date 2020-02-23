@@ -21,7 +21,7 @@ TaskDialog::TaskDialog(Task* task, const QString& title, QWidget *parent) :
   connect(task_, &Task::Finished, this, &TaskDialog::deleteLater, Qt::QueuedConnection);
   connect(task_, &Task::Finished, task_, &Task::deleteLater, Qt::QueuedConnection);
   connect(task_, &Task::Finished, thread_, &QThread::quit, Qt::QueuedConnection);
-  connect(task_, &Task::Finished, thread_, &QThread::deleteLater, Qt::QueuedConnection);
+  connect(thread_, &QThread::finished, thread_, &QThread::deleteLater, Qt::QueuedConnection);
 }
 
 void TaskDialog::open()
