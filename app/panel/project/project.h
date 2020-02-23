@@ -43,6 +43,9 @@ public:
 
   ProjectViewModel* model();
 
+  virtual void SelectAll() override;
+  virtual void DeselectAll() override;
+
 public slots:
   void Edit(Item *item);
 

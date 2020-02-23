@@ -349,3 +349,13 @@ ProjectViewModel *ProjectExplorer::model()
 {
   return &model_;
 }
+
+void ProjectExplorer::SelectAll()
+{
+  CurrentView()->selectAll();
+}
+
+void ProjectExplorer::DeselectAll()
+{
+  CurrentView()->selectionModel()->clearSelection();
+}

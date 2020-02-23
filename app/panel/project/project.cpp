@@ -103,6 +103,16 @@ ProjectViewModel *ProjectPanel::model()
   return explorer_->model();
 }
 
+void ProjectPanel::SelectAll()
+{
+  explorer_->SelectAll();
+}
+
+void ProjectPanel::DeselectAll()
+{
+  explorer_->DeselectAll();
+}
+
 void ProjectPanel::Edit(Item* item)
 {
   explorer_->Edit(item);

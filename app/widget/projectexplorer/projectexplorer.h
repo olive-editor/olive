@@ -1,4 +1,4 @@
-﻿/***
+/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -72,6 +72,10 @@ public:
    * @brief Access the ViewModel model of the project
    */
   ProjectViewModel* model();
+
+  void SelectAll();
+
+  void DeselectAll();
 
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
