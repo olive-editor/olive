@@ -153,6 +153,24 @@ void NodeView::DeleteSelected()
   Core::instance()->undo_stack()->push(new NodeRemoveCommand(graph_, selected_nodes));
 }
 
+void NodeView::SelectAll()
+{
+  QList<QGraphicsItem *> all_items = this->items();
+
+  foreach (QGraphicsItem* i, all_items) {
+    i->setSelected(true);
+  }
+}
+
+void NodeView::DeselectAll()
+{
+  QList<QGraphicsItem *> all_items = this->items();
+
+  foreach (QGraphicsItem* i, all_items) {
+    i->setSelected(false);
+  }
+}
+
 void NodeView::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();

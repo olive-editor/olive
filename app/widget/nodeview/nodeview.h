@@ -82,6 +82,9 @@ public:
    */
   void DeleteSelected();
 
+  void SelectAll();
+  void DeselectAll();
+
 signals:
   /**
    * @brief Signal emitted when the selected nodes have changed

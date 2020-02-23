@@ -44,6 +44,16 @@ void NodePanel::SetGraph(NodeGraph *graph)
   node_view_->SetGraph(graph);
 }
 
+void NodePanel::SelectAll()
+{
+  node_view_->SelectAll();
+}
+
+void NodePanel::DeselectAll()
+{
+  node_view_->DeselectAll();
+}
+
 void NodePanel::DeleteSelected()
 {
   node_view_->DeleteSelected();

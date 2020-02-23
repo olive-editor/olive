@@ -35,6 +35,9 @@ public:
 
   void SetGraph(NodeGraph* graph);
 
+  virtual void SelectAll() override;
+  virtual void DeselectAll() override;
+
   virtual void DeleteSelected() override;
 
 signals:
