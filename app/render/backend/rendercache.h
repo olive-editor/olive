@@ -18,16 +18,8 @@ public:
 
   bool Has(K key) const {return values_.contains(key);}
 
-  void Lock() { lock_.lock(); }
-
-  void Unlock() { lock_.unlock(); }
-
-  QMutex* lock() { return &lock_; }
-
 private:
   QHash<K, V> values_;
-
-  QMutex lock_;
 
 };
 

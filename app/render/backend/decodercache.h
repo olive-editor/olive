@@ -5,6 +5,16 @@
 #include "project/item/footage/stream.h"
 #include "rendercache.h"
 
-using DecoderCache = RenderCache<Stream*, DecoderPtr>;
+class DecoderCache : public RenderCache<Stream*, DecoderPtr>
+{
+public:
+  DecoderCache() = default;
+
+  QMutex* lock() {return &lock_;}
+
+private:
+  QMutex lock_;
+
+};
 
 #endif // DECODERCACHE_H
