@@ -306,10 +306,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
     int ret;
     AVPacket* pkt = av_packet_alloc();
+    AVFrame* working_frame = av_frame_alloc();
 
     while (true) {
       // Allocate a new frame
-      AVFrame* working_frame = av_frame_alloc();
 
       // Pull from the decoder
       ret = GetFrame(pkt, working_frame);
@@ -317,8 +317,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
       // Handle any errors that aren't EOF (EOF is handled later on)
       if (ret < 0 && ret != AVERROR_EOF) {
         FFmpegError(ret);
-
-        av_frame_free(&working_frame);
         break;
       }
 
@@ -332,8 +330,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           if (seek_ts == 0) {
             cache_at_zero_ = true;
           }
-
-          av_frame_free(&working_frame);
           continue;
 
         } else {
@@ -347,7 +343,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
         // Handle an "expected" EOF by using the last frame of our cache
         cache_at_eof_ = true;
-        av_frame_free(&working_frame);
         return_frame = cached_frames_.last();
 
       } else {
@@ -400,6 +395,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     }
 
     av_packet_free(&pkt);
+    av_frame_free(&working_frame);
   }
 
   // We found the frame, we'll return a copy
