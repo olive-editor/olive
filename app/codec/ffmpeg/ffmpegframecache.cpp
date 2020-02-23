@@ -88,8 +88,6 @@ Frame* FFmpegFrameCache::Get(const VideoRenderingParams &params)
     }
   }
 
-  qDebug() << "Nothing in frame pool existed, have to create new...";
-
   // Otherwise we'll need to create one
   Frame* f = new Frame();
   f->set_width(params.width());
