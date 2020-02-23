@@ -34,6 +34,7 @@ extern "C" {
 #include "audio/sampleformat.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
+#include "ffmpegframecache.h"
 #include "project/item/footage/videostream.h"
 
 /**
@@ -101,8 +102,8 @@ private:
 
   void CacheFrameToDisk(AVFrame* f);
 
-  void RemoveFirstFromFrameCache();
-  void RemoveLastFromFrameCache();
+  //void RemoveFirstFromFrameCache();
+  //void RemoveLastFromFrameCache();
   void ClearFrameCache();
 
   void ClearResources();
@@ -116,7 +117,7 @@ private:
 
   SwsContext* scale_ctx_;
 
-  QList<AVFrame*> cached_frames_;
+  FFmpegFrameCache cached_frames_;
   bool cache_at_zero_;
   bool cache_at_eof_;
 
@@ -127,11 +128,7 @@ private:
   QTimer clear_timer_;
 
 private slots:
-  void FreeMemory();
-
   void ClearTimerEvent();
-
-  void RestartClearTimer();
 
 };
 

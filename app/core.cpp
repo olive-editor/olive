@@ -48,7 +48,6 @@
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "render/memorymanager.h"
 #include "render/pixelservice.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
@@ -112,9 +111,6 @@ void Core::Start()
   // Set up the index manager for renderers
   IndexManager::CreateInstance();
 
-  // Set up memory manager
-  MemoryManager::CreateInstance();
-
   // Load application config
   Config::Load();
 
@@ -154,8 +150,6 @@ void Core::Stop()
   NodeFactory::Destroy();
 
   IndexManager::DestroyInstance();
-
-  MemoryManager::DestroyInstance();
 
   delete main_window_;
 }

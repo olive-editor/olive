@@ -63,9 +63,10 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
   QMutexLocker locker(decoder_cache_->lock());
 
   // Access a map of Node inputs and decoder instances and retrieve a frame!
+
   DecoderPtr decoder = decoder_cache_->Get(stream.get());
 
-  if (decoder == nullptr && stream != nullptr) {
+  if (!decoder && stream) {
     // Create a new Decoder here
     decoder = Decoder::CreateFromID(stream->footage()->decoder());
     decoder->set_stream(stream);
@@ -74,7 +75,7 @@ DecoderPtr RenderWorker::ResolveDecoderFromInput(StreamPtr stream)
       decoder_cache_->Add(stream.get(), decoder);
     } else {
       decoder = nullptr;
-      qWarning() << "Failed to open decoder for" << stream->footage()->filename();
+      qWarning() << "Failed to open decoder for" << stream->footage()->filename() << "::" << stream->index();
     }
   }
 

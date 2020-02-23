@@ -1,4 +1,4 @@
-﻿/***
+/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -39,7 +39,6 @@ extern "C" {
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
 #include "render/diskmanager.h"
-#include "render/memorymanager.h"
 #include "render/pixelservice.h"
 
 FFmpegDecoder::FFmpegDecoder() :
@@ -50,17 +49,13 @@ FFmpegDecoder::FFmpegDecoder() :
   cache_at_eof_(false),
   opts_(nullptr)
 {
-  connect(MemoryManager::instance(), &MemoryManager::FreeMemory, this, &FFmpegDecoder::FreeMemory, Qt::DirectConnection);
-
   clear_timer_.setInterval(5000);
-  clear_timer_.setSingleShot(true);
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
 }
 
 FFmpegDecoder::~FFmpegDecoder()
 {
   Close();
-  clear_timer_.stop();
 }
 
 bool FFmpegDecoder::Open()
@@ -182,6 +177,8 @@ bool FFmpegDecoder::Open()
     }
 
     second_ts_ = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
+
+    clear_timer_.start();
   }
 
   // All allocation succeeded so we set the state to open
@@ -215,9 +212,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 {
   QMutexLocker locker(&mutex_);
 
-  // Reset clear timer
-  QMetaObject::invokeMethod(this, "RestartClearTimer", Qt::QueuedConnection);
-
   if (!open_) {
     qWarning() << "Tried to retrieve video on a decoder that's still closed";
     return nullptr;
@@ -242,10 +236,12 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
     if (cache_at_zero_ && target_ts < cached_frames_.first()->pts) {
 
       found_frame = cached_frames_.first();
+      cached_frames_.accessedFirst();
 
     } else if (cache_at_eof_ && target_ts > cached_frames_.last()->pts) {
 
       found_frame = cached_frames_.last();
+      cached_frames_.accessedLast();
 
     } else if (target_ts >= cached_frames_.first()->pts
         && target_ts <= cached_frames_.last()->pts) {
@@ -258,6 +254,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
             || (i < cached_frames_.size() - 1 && cached_frames_.at(i+1)->pts > target_ts)) { // Or for this frame to be the "closest"
 
           found_frame = this_frame;
+          cached_frames_.accessed(i);
 
           break;
 
@@ -385,10 +382,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           }
         }
 
-        if (MemoryManager::instance()->RegisterMemory()) {
-          RemoveFirstFromFrameCache();
-        }
-
         // Whatever it is, keep this frame in memory for the time being just in case
         cached_frames_.append(working_frame);
       }
@@ -484,6 +477,8 @@ void FFmpegDecoder::Close()
   QMutexLocker locker(&mutex_);
 
   ClearResources();
+
+  clear_timer_.stop();
 }
 
 QString FFmpegDecoder::id()
@@ -921,7 +916,7 @@ void FFmpegDecoder::CacheFrameToDisk(AVFrame *f)
   }
 }
 
-void FFmpegDecoder::RemoveFirstFromFrameCache()
+/*void FFmpegDecoder::RemoveFirstFromFrameCache()
 {
   if (cached_frames_.isEmpty()) {
     return;
@@ -941,7 +936,7 @@ void FFmpegDecoder::RemoveLastFromFrameCache()
   AVFrame* last = cached_frames_.takeLast();
   av_frame_free(&last);
   cache_at_eof_ = false;
-}
+}*/
 
 void FFmpegDecoder::ClearFrameCache()
 {
@@ -982,26 +977,9 @@ void FFmpegDecoder::ClearResources()
   open_ = false;
 }
 
-void FFmpegDecoder::FreeMemory()
-{
-  if (mutex_.tryLock()) {
-    if (cached_frames_.size() > 1) {
-      RemoveFirstFromFrameCache();
-    }
-
-    mutex_.unlock();
-  }
-}
-
 void FFmpegDecoder::ClearTimerEvent()
 {
   QMutexLocker locker(&mutex_);
 
-  ClearFrameCache();
-}
-
-void FFmpegDecoder::RestartClearTimer()
-{
-  clear_timer_.stop();
-  clear_timer_.start();
+  cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - 5000);
 }
