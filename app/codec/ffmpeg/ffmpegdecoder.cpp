@@ -49,7 +49,7 @@ FFmpegDecoder::FFmpegDecoder() :
   cache_at_eof_(false),
   opts_(nullptr)
 {
-  clear_timer_.setInterval(2500);
+  clear_timer_.setInterval(250);
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
 }
 
@@ -957,5 +957,5 @@ void FFmpegDecoder::ClearTimerEvent()
 {
   QMutexLocker locker(&mutex_);
 
-  cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - 2500);
+  cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - clear_timer_.interval());
 }
