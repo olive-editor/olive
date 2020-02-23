@@ -82,9 +82,7 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
       int actual_copy_size = qMin(audio_params_.time_to_bytes(range_for_block.length()), samples_from_this_block.size());
 
       if (destination_offset < 0
-          || destination_offset + actual_copy_size < 0
-          || destination_offset >= block_range_buffer.size()
-          || destination_offset + actual_copy_size >= block_range_buffer.size()) {
+          || destination_offset + actual_copy_size > block_range_buffer.size()) {
         qCritical() << "Tried to copy audio beyond the size of the destination buffer";
         qCritical() << "  Destination size:" << block_range_buffer.size();
         qCritical() << "  Destination offset:" << destination_offset;
