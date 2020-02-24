@@ -15,8 +15,6 @@ class RenderWorker : public QObject, public CancelableObject
 public:
   RenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
 
-  DISABLE_COPY_MOVE(RenderWorker)
-
   bool Init();
 
   bool IsStarted();
