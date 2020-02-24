@@ -103,11 +103,8 @@ const QMap<rational, QByteArray> &VideoRenderFrameCache::time_hash_map() const
   return time_hash_map_;
 }
 
-QString VideoRenderFrameCache::CachePathName(const QByteArray &hash, const PixelFormat::Format& pix_fmt) const
+QString VideoRenderFrameCache::CachePathName(const QByteArray& hash, const PixelFormat::Format& pix_fmt) const
 {
-  QDir this_cache_dir = QDir(GetMediaCacheLocation());
-  this_cache_dir.mkpath(".");
-
   QString ext;
 
   if (pix_fmt == PixelFormat::PIX_FMT_RGBA8 || pix_fmt == PixelFormat::PIX_FMT_RGBA16U) {
@@ -117,7 +114,10 @@ QString VideoRenderFrameCache::CachePathName(const QByteArray &hash, const Pixel
     ext = QStringLiteral("exr");
   }
 
-  QString filename = QStringLiteral("%1.%2").arg(QString(hash.toHex()), ext);
+  QDir cache_dir(QDir(GetMediaCacheLocation()).filePath(QString(hash.left(1).toHex())));
+  cache_dir.mkpath(".");
 
-  return this_cache_dir.filePath(filename);
+  QString filename = QStringLiteral("%1.%2").arg(QString(hash.mid(1).toHex()), ext);
+
+  return cache_dir.filePath(filename);
 }
