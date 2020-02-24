@@ -79,8 +79,8 @@ void Config::SetDefaults()
 
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
   config_map_["DiskCacheSize"] = 20.0;
-  config_map_["DiskCacheBehind"] = QVariant::fromValue(rational(5));
-  config_map_["DiskCacheAhead"] = QVariant::fromValue(rational(30));
+  config_map_["DiskCacheBehind"] = QVariant::fromValue(rational(2));
+  config_map_["DiskCacheAhead"] = QVariant::fromValue(rational(10));
   config_map_["ClearDiskCacheOnClose"] = false;
 
   config_map_["DefaultSequenceWidth"] = 1920;
