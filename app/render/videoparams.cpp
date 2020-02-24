@@ -77,6 +77,26 @@ const RenderMode::Mode &VideoRenderingParams::mode() const
   return mode_;
 }
 
+bool VideoRenderingParams::operator==(const VideoRenderingParams &rhs) const
+{
+  return width() == rhs.width()
+      && height() == rhs.height()
+      && time_base() == rhs.time_base()
+      && format() == rhs.format()
+      && mode() == rhs.mode()
+      && divider() == rhs.divider();
+}
+
+bool VideoRenderingParams::operator!=(const VideoRenderingParams &rhs) const
+{
+  return width() != rhs.width()
+      || height() != rhs.height()
+      || time_base() != rhs.time_base()
+      || format() != rhs.format()
+      || mode() != rhs.mode()
+      || divider() != rhs.divider();
+}
+
 void VideoRenderingParams::calculate_effective_size()
 {
   effective_width_ = width() / divider_;

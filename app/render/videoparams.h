@@ -36,6 +36,9 @@ public:
   const PixelFormat::Format& format() const;
   const RenderMode::Mode& mode() const;
 
+  bool operator==(const VideoRenderingParams& rhs) const;
+  bool operator!=(const VideoRenderingParams& rhs) const;
+
 private:
   void calculate_effective_size();
 

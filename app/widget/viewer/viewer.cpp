@@ -295,14 +295,23 @@ void ViewerWidget::UpdateRendererParameters()
 
   RenderMode::Mode render_mode = RenderMode::kOffline;
 
-  video_renderer_->SetParameters(VideoRenderingParams(GetConnectedNode()->video_params(),
-                                                      PixelService::instance()->GetConfiguredFormatForMode(render_mode),
-                                                      render_mode,
-                                                      divider_));
-  audio_renderer_->SetParameters(AudioRenderingParams(GetConnectedNode()->audio_params(),
-                                                      SampleFormat::GetConfiguredFormatForMode(render_mode)));
+  VideoRenderingParams vparam(GetConnectedNode()->video_params(),
+                              PixelService::instance()->GetConfiguredFormatForMode(render_mode),
+                              render_mode,
+                              divider_);
 
-  video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()));
+  if (video_renderer_->params() != vparam) {
+    video_renderer_->SetParameters(vparam);
+    video_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()));
+  }
+
+  AudioRenderingParams aparam(GetConnectedNode()->audio_params(),
+                              SampleFormat::GetConfiguredFormatForMode(render_mode));
+
+  if (audio_renderer_->params() != aparam) {
+    audio_renderer_->SetParameters(aparam);
+    audio_renderer_->InvalidateCache(TimeRange(0, GetConnectedNode()->Length()));
+  }
 }
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
