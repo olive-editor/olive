@@ -50,6 +50,7 @@ FFmpegDecoder::FFmpegDecoder() :
   opts_(nullptr)
 {
   clear_timer_.setInterval(250);
+  clear_timer_.moveToThread(qApp->thread());
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
 }
 
@@ -178,7 +179,7 @@ bool FFmpegDecoder::Open()
 
     second_ts_ = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
 
-    clear_timer_.start();
+    QMetaObject::invokeMethod(&clear_timer_, "start");
   }
 
   // All allocation succeeded so we set the state to open
