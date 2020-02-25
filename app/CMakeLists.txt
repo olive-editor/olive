@@ -48,6 +48,13 @@ if(APPLE)
   set(OLIVE_TARGET "Olive")
 endif()
 
+if (WIN32)
+  set(OLIVE_RESOURCES
+    ${OLIVE_RESOURCES}
+    packaging/windows/resources.rc
+  )
+endif()
+
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
