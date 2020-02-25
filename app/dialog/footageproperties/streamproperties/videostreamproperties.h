@@ -31,7 +31,7 @@
 class VideoStreamProperties : public StreamProperties
 {
 public:
-  VideoStreamProperties(VideoStreamPtr stream);
+  VideoStreamProperties(ImageStreamPtr stream);
 
   virtual void Accept(QUndoCommand* parent) override;
 
@@ -39,7 +39,7 @@ private:
   /**
    * @brief Attached video stream
    */
-  VideoStreamPtr stream_;
+  ImageStreamPtr stream_;
 
   /**
    * @brief Setting for associated/premultiplied alpha
@@ -53,7 +53,7 @@ private:
 
   class VideoStreamChangeCommand : public QUndoCommand {
   public:
-    VideoStreamChangeCommand(VideoStreamPtr stream,
+    VideoStreamChangeCommand(ImageStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
                              QUndoCommand* parent = nullptr);
@@ -62,7 +62,7 @@ private:
     virtual void undo() override;
 
   private:
-    VideoStreamPtr stream_;
+    ImageStreamPtr stream_;
 
     bool new_premultiplied_;
     QString new_colorspace_;

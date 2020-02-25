@@ -29,7 +29,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 #include "project/project.h"
 #include "undo/undostack.h"
 
-VideoStreamProperties::VideoStreamProperties(VideoStreamPtr stream) :
+VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
   stream_(stream)
 {
   QGridLayout* video_layout = new QGridLayout(this);
@@ -67,7 +67,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
   }
 }
 
-VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(VideoStreamPtr stream,
+VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageStreamPtr stream,
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           QUndoCommand *parent) :
