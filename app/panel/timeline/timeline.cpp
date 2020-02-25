@@ -26,9 +26,12 @@ TimelinePanel::TimelinePanel(QWidget *parent) :
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("TimelinePanel");
 
-  SetTimeBasedWidget(new TimelineWidget());
+  TimelineWidget* tw = new TimelineWidget();
+  SetTimeBasedWidget(tw);
 
   Retranslate();
+
+  connect(tw, &TimelineWidget::SelectionChanged, this, &TimelinePanel::SelectionChanged);
 }
 
 void TimelinePanel::Clear()

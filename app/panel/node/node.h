@@ -40,6 +40,10 @@ public:
 
   virtual void DeleteSelected() override;
 
+public slots:
+  void Select(const QList<Node*>& nodes);
+  void SelectWithDependencies(const QList<Node*>& nodes);
+
 signals:
   /**
    * @brief Wrapper for NodeView::SelectionChanged()
@@ -50,6 +54,7 @@ private:
   virtual void Retranslate() override;
 
   NodeView* node_view_;
+
 };
 
 #endif // NODEPANEL_H

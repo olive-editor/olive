@@ -98,6 +98,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
     connect(view, &TimelineView::DragMoved, this, &TimelineWidget::ViewDragMoved);
     connect(view, &TimelineView::DragLeft, this, &TimelineWidget::ViewDragLeft);
     connect(view, &TimelineView::DragDropped, this, &TimelineWidget::ViewDragDropped);
+    connect(view, &TimelineView::SelectionChanged, this, &TimelineWidget::ViewSelectionChanged);
 
     connect(tview->splitter(), &QSplitter::splitterMoved, this, &TimelineWidget::UpdateHorizontalSplitters);
 
@@ -682,6 +683,18 @@ void TimelineWidget::RemoveTrack(TrackOutput *track)
   foreach (Block* b, track->Blocks()) {
     RemoveBlock(b);
   }
+}
+
+void TimelineWidget::ViewSelectionChanged()
+{
+  QList<TimelineViewBlockItem*> selected_items = GetSelectedBlocks();
+  QList<Node*> selected_blocks;
+
+  foreach (TimelineViewBlockItem* item, selected_items) {
+    selected_blocks.append(item->block());
+  }
+
+  emit SelectionChanged(selected_blocks);
 }
 
 void TimelineWidget::BlockChanged()

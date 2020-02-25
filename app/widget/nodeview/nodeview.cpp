@@ -171,6 +171,44 @@ void NodeView::DeselectAll()
   }
 }
 
+void NodeView::Select(const QList<Node *> &nodes)
+{
+  DeselectAll();
+
+  foreach (Node* n, nodes) {
+    NodeViewItem* item = NodeToUIObject(n);
+
+    if (item) {
+      item->setSelected(true);
+    }
+  }
+}
+
+void NodeView::SelectWithDependencies(const QList<Node *> &nodes)
+{
+  DeselectAll();
+
+  QList<Node*> nodes_with_deps;
+
+  foreach (Node* n, nodes) {
+    NodeViewItem* item = NodeToUIObject(n);
+
+    if (item) {
+      item->setSelected(true);
+    }
+
+    QList<Node*> deps = n->GetDependencies();
+
+    foreach (Node* d, deps) {
+      item = NodeToUIObject(d);
+
+      if (item) {
+        item->setSelected(true);
+      }
+    }
+  }
+}
+
 void NodeView::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();

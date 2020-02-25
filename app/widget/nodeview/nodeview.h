@@ -85,6 +85,9 @@ public:
   void SelectAll();
   void DeselectAll();
 
+  void Select(const QList<Node*>& nodes);
+  void SelectWithDependencies(const QList<Node*>& nodes);
+
 signals:
   /**
    * @brief Signal emitted when the selected nodes have changed

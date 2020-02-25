@@ -45,6 +45,8 @@ TimelineView::TimelineView(Qt::Alignment vertical_alignment, QWidget *parent) :
   setContextMenuPolicy(Qt::CustomContextMenu);
   SetLimitYAxis(true);
   viewport()->setMouseTracking(true);
+
+  connect(scene(), &QGraphicsScene::selectionChanged, this, &TimelineView::SelectionChanged);
 }
 
 void TimelineView::SelectAll()

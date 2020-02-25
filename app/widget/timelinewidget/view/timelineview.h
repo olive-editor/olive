@@ -70,6 +70,8 @@ signals:
   void DragLeft(QDragLeaveEvent* event);
   void DragDropped(TimelineViewMouseEvent* event);
 
+  void SelectionChanged();
+
 protected:
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;

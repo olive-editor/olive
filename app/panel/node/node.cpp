@@ -59,6 +59,16 @@ void NodePanel::DeleteSelected()
   node_view_->DeleteSelected();
 }
 
+void NodePanel::Select(const QList<Node *> &nodes)
+{
+  node_view_->Select(nodes);
+}
+
+void NodePanel::SelectWithDependencies(const QList<Node *> &nodes)
+{
+  node_view_->SelectWithDependencies(nodes);
+}
+
 void NodePanel::Retranslate()
 {
   SetTitle(tr("Node Editor"));

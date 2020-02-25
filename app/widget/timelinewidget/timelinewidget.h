@@ -55,6 +55,9 @@ public:
 
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
+signals:
+  void SelectionChanged(const QList<Node*>& selected_blocks);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -393,6 +396,8 @@ private slots:
 
   void AddTrack(TrackOutput* track, Timeline::TrackType type);
   void RemoveTrack(TrackOutput* track);
+
+  void ViewSelectionChanged();
 
   /**
    * @brief Slot for when a Block node changes its parameters and the graphics need to update

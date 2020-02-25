@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(timeline_panel_, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(timeline_panel_, &TimelinePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
   connect(timeline_panel_, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
+  connect(timeline_panel_, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectWithDependencies);
   connect(viewer_panel_, &ViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(viewer_panel_, &ViewerPanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
   connect(viewer_panel_, &ViewerPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
