@@ -21,7 +21,8 @@
 #ifndef NODEEDGEITEM_H
 #define NODEEDGEITEM_H
 
-#include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
+#include <QPalette>
 
 #include "node/edge.h"
 
@@ -30,7 +31,7 @@
  *
  * A fairly simple line widget use to visualize a connection between two node parameters (a NodeEdge).
  */
-class NodeViewEdge : public QGraphicsLineItem
+class NodeViewEdge : public QGraphicsPathItem
 {
 public:
   NodeViewEdge(QGraphicsItem* parent = nullptr);
@@ -75,17 +76,21 @@ public:
    */
   void SetHighlighted(bool e);
 
-protected:
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+  /**
+   * @brief Set points to create curve from
+   */
+  void SetPoints(const QPointF& start, const QPointF& end);
 
 private:
+  void UpdatePen();
+
   NodeEdgePtr edge_;
 
   int edge_width_;
 
-  bool connected_;
+  QPalette::ColorGroup color_group_;
 
-  bool highlighted_;
+  QPalette::ColorRole color_role_;
 
 };
 

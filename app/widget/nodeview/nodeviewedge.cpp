@@ -20,6 +20,7 @@
 
 #include "nodeviewedge.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 
@@ -28,10 +29,10 @@
 #include "nodeview.h"
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
-  QGraphicsLineItem(parent),
+  QGraphicsPathItem(parent),
   edge_(nullptr),
-  connected_(false),
-  highlighted_(false)
+  color_group_(QPalette::Active),
+  color_role_(QPalette::Text)
 {
   // Ensures this UI object is drawn behind other objects
   setZValue(-1);
@@ -93,39 +94,44 @@ void NodeViewEdge::Adjust()
   input_point.setY(CalculateEdgeYPoint(input, edge_->input(), output));
 
   // Draw a line between the two
-  setLine(QLineF(
-            output_point,
-            input_point
-            ));
+  SetPoints(output_point, input_point);
 }
 
 void NodeViewEdge::SetConnected(bool c)
 {
-  connected_ = c;
-  update();
+  if (c) {
+    color_group_ = QPalette::Active;
+  } else {
+    color_group_ = QPalette::Disabled;
+  }
+
+  UpdatePen();
 }
 
 void NodeViewEdge::SetHighlighted(bool e)
 {
-  highlighted_ = e;
-  update();
+  if (e) {
+    color_role_ = QPalette::Highlight;
+  } else {
+    color_role_ = QPalette::Text;
+  }
+
+  UpdatePen();
 }
 
-void NodeViewEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
 {
-  QPalette::ColorGroup color_group = QPalette::Active;
-  QPalette::ColorRole color_role = QPalette::Text;
+  QPainterPath path;
+  float half_x = lerp(start.x(), end.x(), 0.5f);
+  path.moveTo(start);
+  path.cubicTo(QPointF(half_x, start.y()), QPointF(half_x, end.y()), end);
+  setPath(path);
+}
 
-  if (highlighted_) {
-    color_role = QPalette::Highlight;
-  }
+void NodeViewEdge::UpdatePen()
+{
+  setPen(QPen(qApp->palette().color(color_group_, color_role_), edge_width_));
 
-  if (!connected_) {
-    color_group = QPalette::Disabled;
-  }
-
-  setPen(QPen(widget->palette().color(color_group, color_role), edge_width_));
-
-  QGraphicsLineItem::paint(painter, option, widget);
+  //update();
 }
 

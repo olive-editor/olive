@@ -332,11 +332,13 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
           // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
           //  node is collapsed, therefore it's easier to just retrieve it from line itself)
           NodeViewEdge* existing_edge_ui = NodeView::EdgeToUIObject(scene(), edge);
-          QLineF existing_edge_line = existing_edge_ui->line();
-          if (existing_edge_ui->contains(existing_edge_line.p1())) {
-            dragging_edge_start_ = existing_edge_line.p1();
+          QPainterPath existing_edge_line = existing_edge_ui->path();
+          QPointF edge_start = existing_edge_line.pointAtPercent(0);
+          QPointF edge_end = existing_edge_line.pointAtPercent(1);
+          if (existing_edge_ui->contains(edge_start)) {
+            dragging_edge_start_ = edge_start;
           } else {
-            dragging_edge_start_ = existing_edge_line.p2();
+            dragging_edge_start_ = edge_end;
           }
 
 
@@ -429,7 +431,7 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     dragging_edge_->SetConnected(drag_dest_param_ != nullptr);
 
-    dragging_edge_->setLine(QLineF(dragging_edge_start_, end_point));
+    dragging_edge_->SetPoints(dragging_edge_start_, end_point);
 
     return;
   }
