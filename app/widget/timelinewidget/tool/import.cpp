@@ -238,13 +238,22 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
             foreach (Footage* f, dragged_footage_) {
               foreach (StreamPtr s, f->streams()) {
-                if (!found_video_params && s->type() == Stream::kVideo) {
+                if (!found_video_params) {
 
-                  VideoStream* vs = static_cast<VideoStream*>(s.get());
+                  if (s->type() == Stream::kVideo) {
+                    // If this is a video stream, use these parameters
+                    VideoStream* vs = static_cast<VideoStream*>(s.get());
 
-                  if (vs->frame_rate() != 0) {
-                    new_sequence->set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
-                    found_video_params = true;
+                    if (vs->frame_rate() != 0) {
+                      new_sequence->set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
+                      found_video_params = true;
+                    }
+                  } else if (s->type() == Stream::kImage) {
+                    // If this is an image stream, we'll use it's resolution but won't set `found_video_params` in case
+                    // something with a frame rate comes along which we'll prioritize
+                    ImageStream* is = static_cast<ImageStream*>(s.get());
+
+                    new_sequence->set_video_params(VideoParams(is->width(), is->height(), new_sequence->video_params().time_base()));
                   }
 
                 } else if (!found_audio_params && s->type() == Stream::kAudio) {
