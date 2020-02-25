@@ -49,6 +49,7 @@ FFmpegDecoder::FFmpegDecoder() :
   cache_at_eof_(false),
   opts_(nullptr)
 {
+  // FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
   clear_timer_.setInterval(250);
   clear_timer_.moveToThread(qApp->thread());
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);

@@ -18,6 +18,8 @@ public:
 
   bool Has(K key) const {return values_.contains(key);}
 
+  void Remove(K key) {values_.remove(key);}
+
 private:
   QHash<K, V> values_;
 

@@ -43,7 +43,7 @@ bool OpenGLProxy::Init()
   return true;
 }
 
-void OpenGLProxy::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *table)
+void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table)
 {
   // Ensure stream is video or image type
   if (stream->type() != Stream::kVideo && stream->type() != Stream::kImage) {
@@ -55,86 +55,107 @@ void OpenGLProxy::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable 
   // Set up OCIO context
   QString colorspace_match = QStringLiteral("%1:%2").arg(video_stream->footage()->project()->ocio_config(), video_stream->colorspace());
 
-  OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(colorspace_match));
+  OpenGLTextureCache::ReferencePtr footage_tex_ref = nullptr;
 
-  if (!color_processor) {
-    color_processor = OpenGLColorProcessor::Create(video_stream->footage()->project()->color_manager()->GetConfig(),
-                                                         video_stream->colorspace(),
-                                                         OCIO::ROLE_SCENE_LINEAR);
-    color_cache_.Add(colorspace_match, color_processor);
-  }
+  if (stream->type() == Stream::kImage && still_image_cache_.Has(stream.get())) {
+    CachedStill cs = still_image_cache_.Get(stream.get());
 
-  ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
-
-  // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
-  if (ocio_method == ColorManager::kOCIOAccurate) {
-    // If alpha is associated, disassociate for the color transform
-    if (video_stream->premultiplied_alpha()) {
-      ColorManager::DisassociateAlpha(frame);
-    }
-
-    // Convert frame to float for OCIO
-    frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
-
-    // Perform color transform
-    color_processor->ConvertFrame(frame);
-
-    // Associate alpha
-    if (video_stream->premultiplied_alpha()) {
-      ColorManager::ReassociateAlpha(frame);
+    if (cs.colorspace == colorspace_match && cs.alpha_is_associated == video_stream->premultiplied_alpha()) {
+      footage_tex_ref = cs.texture;
     } else {
-      ColorManager::AssociateAlpha(frame);
+      still_image_cache_.Remove(stream.get());
     }
   }
 
-  VideoRenderingParams footage_params(frame->width(), frame->height(), stream->timebase(), frame->format(), video_params_.mode());
+  // Since this is a still image, we could likely optimize this
+  if (!footage_tex_ref) {
+    OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(colorspace_match));
 
-  OpenGLTextureCache::ReferencePtr footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame->data());
-
-  if (ocio_method == ColorManager::kOCIOFast) {
-    if (!color_processor->IsEnabled()) {
-      color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
+    if (!color_processor) {
+      color_processor = OpenGLColorProcessor::Create(video_stream->footage()->project()->color_manager()->GetConfig(),
+                                                           video_stream->colorspace(),
+                                                           OCIO::ROLE_SCENE_LINEAR);
+      color_cache_.Add(colorspace_match, color_processor);
     }
 
-    // Check frame aspect ratio
-    if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
-      int new_width = frame->width();
-      int new_height = frame->height();
+    ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
 
-      // Scale the frame in a way that does not reduce the resolution
-      if (frame->sample_aspect_ratio() > 1) {
-        // Make wider
-        new_width = qRound(static_cast<double>(new_width) * frame->sample_aspect_ratio().toDouble());
-      } else {
-        // Make taller
-        new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
+    FramePtr frame = decoder->RetrieveVideo(range.in());;
+
+    // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
+    if (ocio_method == ColorManager::kOCIOAccurate) {
+      // If alpha is associated, disassociate for the color transform
+      if (video_stream->premultiplied_alpha()) {
+        ColorManager::DisassociateAlpha(frame);
       }
 
-      footage_params = VideoRenderingParams(new_width,
-                                            new_height,
-                                            footage_params.time_base(),
-                                            footage_params.format(),
-                                            footage_params.mode());
+      // Convert frame to float for OCIO
+      frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+
+      // Perform color transform
+      color_processor->ConvertFrame(frame);
+
+      // Associate alpha
+      if (video_stream->premultiplied_alpha()) {
+        ColorManager::ReassociateAlpha(frame);
+      } else {
+        ColorManager::AssociateAlpha(frame);
+      }
     }
 
-    // Create destination texture
-    OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_.Get(ctx_, footage_params);
+    VideoRenderingParams footage_params(frame->width(), frame->height(), stream->timebase(), frame->format(), video_params_.mode());
 
-    buffer_.Attach(associated_tex_ref->texture(), true);
-    buffer_.Bind();
-    footage_tex_ref->texture()->Bind();
+    footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame->data());
 
-    // Set viewport for texture size
-    functions_->glViewport(0, 0, associated_tex_ref->texture()->width(), associated_tex_ref->texture()->height());
+    if (ocio_method == ColorManager::kOCIOFast) {
+      if (!color_processor->IsEnabled()) {
+        color_processor->Enable(ctx_, video_stream->premultiplied_alpha());
+      }
 
-    // Blit old texture to new texture through OCIO shader
-    color_processor->ProcessOpenGL();
+      // Check frame aspect ratio
+      if (frame->sample_aspect_ratio() != 1 && frame->sample_aspect_ratio() != 0) {
+        int new_width = frame->width();
+        int new_height = frame->height();
 
-    footage_tex_ref->texture()->Release();
-    buffer_.Release();
-    buffer_.Detach();
+        // Scale the frame in a way that does not reduce the resolution
+        if (frame->sample_aspect_ratio() > 1) {
+          // Make wider
+          new_width = qRound(static_cast<double>(new_width) * frame->sample_aspect_ratio().toDouble());
+        } else {
+          // Make taller
+          new_height = qRound(static_cast<double>(new_height) / frame->sample_aspect_ratio().toDouble());
+        }
 
-    footage_tex_ref = associated_tex_ref;
+        footage_params = VideoRenderingParams(new_width,
+                                              new_height,
+                                              footage_params.time_base(),
+                                              footage_params.format(),
+                                              footage_params.mode());
+      }
+
+      // Create destination texture
+      OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_.Get(ctx_, footage_params);
+
+      buffer_.Attach(associated_tex_ref->texture(), true);
+      buffer_.Bind();
+      footage_tex_ref->texture()->Bind();
+
+      // Set viewport for texture size
+      functions_->glViewport(0, 0, associated_tex_ref->texture()->width(), associated_tex_ref->texture()->height());
+
+      // Blit old texture to new texture through OCIO shader
+      color_processor->ProcessOpenGL();
+
+      footage_tex_ref->texture()->Release();
+      buffer_.Release();
+      buffer_.Detach();
+
+      footage_tex_ref = associated_tex_ref;
+    }
+
+    if (stream->type() == Stream::kImage) {
+      still_image_cache_.Add(stream.get(), {footage_tex_ref, colorspace_match, video_stream->premultiplied_alpha()});
+    }
   }
 
   table->Push(NodeParam::kTexture, QVariant::fromValue(footage_tex_ref));

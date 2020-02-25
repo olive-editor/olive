@@ -16,14 +16,14 @@ public:
                QObject* parent = nullptr);
 
 signals:
-  void RequestFrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table);
+  void RequestFrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
 
   void RequestRunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 
   void RequestTextureToBuffer(const QVariant& texture, QByteArray& buffer);
 
 protected:
-  virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) override;
+  virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params) override;
 

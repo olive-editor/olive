@@ -5,11 +5,22 @@ AudioWorker::AudioWorker(DecoderCache* decoder_cache, QObject *parent) :
 {
 }
 
-void AudioWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *table)
+void AudioWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table)
 {
-  Q_UNUSED(stream)
+  if (stream->type() != Stream::kAudio) {
+    return;
+  }
 
-  table->Push(NodeParam::kSamples, frame->ToByteArray());
+  if (decoder->HasConformedVersion(audio_params())) {
+    FramePtr frame = nullptr;
+    frame = decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params());
+
+    if (frame) {
+      table->Push(NodeParam::kSamples, frame->ToByteArray());
+    }
+  } else {
+    emit ConformUnavailable(decoder->stream(), CurrentPath().range(), range.out(), audio_params());
+  }
 }
 
 void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params_in, NodeValueTable *output_params)

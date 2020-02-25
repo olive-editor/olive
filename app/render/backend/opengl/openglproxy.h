@@ -41,7 +41,7 @@ public:
 
   void Close();
 
-  void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table);
+  void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
 
   void RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 
@@ -64,6 +64,14 @@ private:
   OpenGLShaderCache shader_cache_;
 
   OpenGLTextureCache texture_cache_;
+
+  struct CachedStill {
+    OpenGLTextureCache::ReferencePtr texture;
+    QString colorspace;
+    bool alpha_is_associated;
+  };
+
+  RenderCache<Stream*, CachedStill> still_image_cache_;
 
 private slots:
   void FinishInit();

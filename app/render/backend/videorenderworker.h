@@ -71,8 +71,6 @@ protected:
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
 
-  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) override;
-
   virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) override;
 
   virtual void ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time) override;

@@ -14,9 +14,9 @@ OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, DecoderCache* dec
 {
 }
 
-void OpenGLWorker::FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable *table)
+void OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable *table)
 {
-  emit RequestFrameToValue(stream, frame, table);
+  emit RequestFrameToValue(decoder, stream, range, table);
 }
 
 void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)

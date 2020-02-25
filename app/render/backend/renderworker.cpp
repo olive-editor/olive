@@ -135,6 +135,8 @@ const NodeDependency &RenderWorker::CurrentPath() const
   return path_;
 }
 
+
+#include "common/functiontimer.h"
 NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRange &range)
 {
   NodeValueDatabase database;
@@ -163,11 +165,7 @@ NodeValueDatabase RenderWorker::GenerateDatabase(const Node* node, const TimeRan
             Decoder::RetrieveState state = decoder->GetRetrieveState(input_time.out());
 
             if (state == Decoder::kReady) {
-              FramePtr frame = RetrieveFromDecoder(decoder, input_time);
-
-              if (frame) {
-                FrameToValue(stream, frame, &table);
-              }
+              FrameToValue(decoder, stream, input_time, &table);
             } else {
               ReportUnavailableFootage(stream, state, input_time.out());
             }

@@ -41,9 +41,7 @@ protected:
   StreamPtr ResolveStreamFromInput(NodeInput* input);
   DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
-  virtual FramePtr RetrieveFromDecoder(DecoderPtr decoder, const TimeRange& range) = 0;
-
-  virtual void FrameToValue(StreamPtr stream, FramePtr frame, NodeValueTable* table) = 0;
+  virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) = 0;
 
   NodeValueTable ProcessNode(const NodeDependency &dep);
 
