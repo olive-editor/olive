@@ -56,6 +56,8 @@ signals:
 
   void HashAlreadyExists(NodeDependency CurrentPath, qint64 job_time, QByteArray hash);
 
+  void GeneratedFrame(const rational &time, FramePtr frame);
+
   void Aborted();
 
 protected:
@@ -67,7 +69,7 @@ protected:
 
   virtual void ParametersChangedEvent(){}
 
-  virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) = 0;
+  virtual void TextureToBuffer(const QVariant& texture, void *buffer) = 0;
 
   virtual NodeValueTable RenderInternal(const NodeDependency& CurrentPath, const qint64& job_time) override;
 
@@ -80,7 +82,7 @@ protected:
 private:
   void HashNodeRecursively(QCryptographicHash* hash, const Node *n, const rational &time);
 
-  void Download(QVariant texture, QString filename);
+  void Download(const rational &time, QVariant texture, QString filename);
 
   void ResizeDownloadBuffer();
 

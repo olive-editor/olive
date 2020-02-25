@@ -20,8 +20,6 @@ set(OLIVE_SOURCES
   render/backend/opengl/openglbackend.cpp
   render/backend/opengl/openglcolorprocessor.h
   render/backend/opengl/openglcolorprocessor.cpp
-  render/backend/opengl/openglexporter.h
-  render/backend/opengl/openglexporter.cpp
   render/backend/opengl/openglframebuffer.h
   render/backend/opengl/openglframebuffer.cpp
   render/backend/opengl/openglproxy.h

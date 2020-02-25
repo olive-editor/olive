@@ -1,6 +1,5 @@
 #include "export.h"
 
-#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -12,7 +11,7 @@
 
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/backend/opengl/openglexporter.h"
+#include "render/backend/exporter.h"
 #include "render/pixelservice.h"
 #include "ui/icons/icons.h"
 
@@ -27,8 +26,8 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   splitter->setChildrenCollapsible(false);
   layout->addWidget(splitter);
 
-  QWidget* preferences_area = new QWidget();
-  QGridLayout* preferences_layout = new QGridLayout(preferences_area);
+  preferences_area_ = new QWidget();
+  QGridLayout* preferences_layout = new QGridLayout(preferences_area_);
 
   int row = 0;
 
@@ -120,15 +119,15 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 
   row++;
 
-  QDialogButtonBox* buttons = new QDialogButtonBox();
-  buttons->setCenterButtons(true);
-  buttons->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
-  buttons->addButton(QDialogButtonBox::Cancel);
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
-  preferences_layout->addWidget(buttons, row, 0, 1, 4);
+  buttons_ = new QDialogButtonBox();
+  buttons_->setCenterButtons(true);
+  buttons_->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
+  buttons_->addButton(QDialogButtonBox::Cancel);
+  connect(buttons_, SIGNAL(accepted()), this, SLOT(accept()));
+  connect(buttons_, SIGNAL(rejected()), this, SLOT(reject()));
+  preferences_layout->addWidget(buttons_, row, 0, 1, 4);
 
-  splitter->addWidget(preferences_area);
+  splitter->addWidget(preferences_area_);
 
   QWidget* preview_area = new QWidget();
   QVBoxLayout* preview_layout = new QVBoxLayout(preview_area);
@@ -242,7 +241,7 @@ void ExportDialog::accept()
 
   Encoder* encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
 
-  OpenGLExporter* exporter = new OpenGLExporter(viewer_node_, encoder);
+  Exporter* exporter = new Exporter(viewer_node_, encoder);
 
   if (video_enabled_->isChecked()) {
     exporter->EnableVideo(video_render_params, transform, color_processor);
@@ -256,6 +255,8 @@ void ExportDialog::accept()
   connect(exporter, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
 
   QMetaObject::invokeMethod(exporter, "StartExporting", Qt::QueuedConnection);
+
+  SetUIElementsEnabled(false);
 }
 
 void ExportDialog::closeEvent(QCloseEvent *e)
@@ -442,6 +443,12 @@ QMatrix4x4 ExportDialog::GenerateMatrix(ExportVideoTab::ScalingMethod method, in
   return preview_matrix;
 }
 
+void ExportDialog::SetUIElementsEnabled(bool enabled)
+{
+  preferences_area_->setEnabled(enabled);
+  //buttons_->setEnabled(false);
+}
+
 void ExportDialog::UpdateViewerDimensions()
 {
   preview_viewer_->SetOverrideSize(static_cast<int>(video_tab_->width_slider()->GetValue()),
@@ -461,12 +468,16 @@ void ExportDialog::ExporterIsDone()
   if (exporter->GetExportStatus()) {
     QMessageBox::information(this,
                              tr("Export Status"),
-                             tr("Export completed successfully!"),
+                             tr("Export completed successfully."),
                              QMessageBox::Ok);
+
+    QDialog::accept();
   } else {
     QMessageBox::critical(this,
                           tr("Export Status"),
                           tr("Export failed: %1").arg(exporter->GetExportError()),
                           QMessageBox::Ok);
+
+    SetUIElementsEnabled(true);
   }
 }

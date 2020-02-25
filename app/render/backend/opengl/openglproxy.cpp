@@ -380,7 +380,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
   output_params->Push(NodeParam::kTexture, QVariant::fromValue(output_tex));
 }
 
-void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
+void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
@@ -396,7 +396,7 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
                   video_params_.effective_height(),
                   format_info.pixel_format,
                   format_info.gl_pixel_type,
-                  buffer.data());
+                  buffer);
 
   buffer_.Release();
   buffer_.Detach();

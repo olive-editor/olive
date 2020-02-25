@@ -37,7 +37,8 @@
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
   operating_mode_(VideoRenderWorker::kHashRenderCache),
-  only_signal_last_frame_requested_(true)
+  only_signal_last_frame_requested_(true),
+  limit_caching_(true)
 {
   connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &VideoRenderBackend::FrameRemovedFromDiskCache);
 }
@@ -108,6 +109,11 @@ bool VideoRenderBackend::IsRendered(const rational &time) const
   return !TimeIsQueued(range) && !render_job_info_.contains(range);
 }
 
+void VideoRenderBackend::SetLimitCaching(bool limit)
+{
+  limit_caching_ = limit;
+}
+
 bool VideoRenderBackend::GenerateCacheIDInternal(QCryptographicHash& hash)
 {
   if (!params_.is_valid()) {
@@ -138,6 +144,7 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
   connect(video_processor, &VideoRenderWorker::HashAlreadyBeingCached, this, &VideoRenderBackend::ThreadSkippedFrame, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::CompletedDownload, this, &VideoRenderBackend::ThreadCompletedDownload, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists, Qt::QueuedConnection);
+  connect(video_processor, &VideoRenderWorker::GeneratedFrame, this, &VideoRenderBackend::GeneratedFrame, Qt::QueuedConnection);
 }
 
 void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
@@ -371,13 +378,19 @@ bool VideoRenderBackend::SetFrameHash(const NodeDependency &dep, const QByteArra
 
 void VideoRenderBackend::Requeue()
 {
-  cache_queue_.clear();
+  if (limit_caching_) {
 
-  // Reset queue around the last time requested
-  TimeRange queueable_range(last_time_requested_ - Config::Current()["DiskCacheBehind"].value<rational>(),
-                            last_time_requested_ + Config::Current()["DiskCacheAhead"].value<rational>());
+    // Reset queue around the last time requested
+    TimeRange queueable_range(last_time_requested_ - Config::Current()["DiskCacheBehind"].value<rational>(),
+                              last_time_requested_ + Config::Current()["DiskCacheAhead"].value<rational>());
 
-  cache_queue_ = invalidated_.Intersects(queueable_range);
+    cache_queue_ = invalidated_.Intersects(queueable_range);
+
+  } else {
+
+    cache_queue_ = invalidated_;
+
+  }
 
   CacheNext();
 }

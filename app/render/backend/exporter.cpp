@@ -1,5 +1,7 @@
 #include "exporter.h"
 
+#include "render/backend/audio/audiobackend.h"
+#include "render/backend/opengl/openglbackend.h"
 #include "render/colormanager.h"
 #include "render/pixelservice.h"
 
@@ -51,14 +53,10 @@ void Exporter::StartExporting()
   export_status_ = false;
 
   // Create renderers
-  if (!Initialize()) {
-    SetExportMessage("Failed to initialize exporter");
-    ExportFailed();
-    return;
-  }
-
-  // Create renderers
   if (!video_done_) {
+    video_backend_ = new OpenGLBackend();
+
+    video_backend_->SetLimitCaching(false);
     video_backend_->SetViewerNode(viewer_node_);
     video_backend_->SetParameters(VideoRenderingParams(viewer_node_->video_params().width(),
                                                        viewer_node_->video_params().height(),
@@ -70,6 +68,8 @@ void Exporter::StartExporting()
   }
 
   if (!audio_done_) {
+    audio_backend_ = new AudioBackend();
+
     audio_backend_->SetViewerNode(viewer_node_);
     audio_backend_->SetParameters(audio_params_);
   }
@@ -96,8 +96,6 @@ void Exporter::ExportSucceeded()
     return;
   }
 
-  Cleanup();
-
   if (video_backend_) {
     video_backend_->deleteLater();
   }
@@ -116,74 +114,64 @@ void Exporter::ExportFailed()
   emit ExportEnded();
 }
 
-void Exporter::EncodeFrame(const rational &time, QVariant value)
+void Exporter::EncodeFrame()
 {
-  if (time == waiting_for_frame_) {
-    bool get_cached = false;
+  while (cached_frames_.contains(waiting_for_frame_)) {
+    FramePtr frame = cached_frames_.take(waiting_for_frame_);
 
-    do {
-      if (get_cached) {
-        value = cached_frames_.take(waiting_for_frame_);
-      } else {
-        get_cached = true;
-      }
-
-      // Convert texture to frame
-      FramePtr frame = TextureToFrame(value);
-
-      // OCIO conversion requires a frame in 32F format
-      if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-        frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
-      }
-
-      // Color conversion must be done with unassociated alpha, and the pipeline is always associated
-      ColorManager::DisassociateAlpha(frame);
-
-      // Convert color space
-      color_processor_->ConvertFrame(frame);
-
-      // Set frame timestamp
-      frame->set_timestamp(waiting_for_frame_);
-
-      // Encode (may require re-associating alpha?)
-      QMetaObject::invokeMethod(encoder_,
-                                "WriteFrame",
-                                Qt::QueuedConnection,
-                                Q_ARG(FramePtr, frame));
-
-      waiting_for_frame_ += video_params_.time_base();
-
-      // Calculate progress
-      int progress = qRound(100.0 * (waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble()));
-      emit ProgressChanged(progress);
-
-    } while (cached_frames_.contains(waiting_for_frame_));
-
-    if (waiting_for_frame_ >= viewer_node_->Length()) {
-      video_done_ = true;
-
-      ExportSucceeded();
+    // OCIO conversion requires a frame in 32F format
+    if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
+      frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
     }
-  } else {
-    cached_frames_.insert(time, value);
+
+    // Color conversion must be done with unassociated alpha, and the pipeline is always associated
+    ColorManager::DisassociateAlpha(frame);
+
+    // Convert color space
+    color_processor_->ConvertFrame(frame);
+
+    // Set frame timestamp
+    frame->set_timestamp(waiting_for_frame_);
+
+    // Encode (may require re-associating alpha?)
+    QMetaObject::invokeMethod(encoder_,
+                              "WriteFrame",
+                              Qt::QueuedConnection,
+                              Q_ARG(FramePtr, frame));
+
+    waiting_for_frame_ += video_params_.time_base();
+
+    // Calculate progress
+    int progress = qRound(100.0 * (waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble()));
+    emit ProgressChanged(progress);
+  }
+
+  if (waiting_for_frame_ >= viewer_node_->Length()) {
+    video_done_ = true;
+
+    ExportSucceeded();
   }
 }
 
-void Exporter::FrameRendered(const rational &time, QVariant value)
+void Exporter::FrameRendered(const rational &time, FramePtr value)
 {
-  qDebug() << "Received" << time.toDouble() << "- waiting for" << waiting_for_frame_.toDouble();
-
   const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
 
-  QByteArray map_hash = time_hash_map.value(time);
+  QByteArray this_hash = time_hash_map.value(time);
 
-  EncodeFrame(time, value);
+  qDebug() << "Received" << this_hash.toHex();
 
-  QList<rational> matching_times = matched_frames_.value(map_hash);
+  QList<rational> matching_times = time_hash_map.keys(this_hash);
+
   foreach (const rational& t, matching_times) {
-    qDebug() << "    Also matches" << t;
-    EncodeFrame(t, value);
+    qDebug() << "  Matches" << t.toDouble();
+
+    cached_frames_.insert(t, value);
   }
+
+  qDebug() << "    Waiting for" << waiting_for_frame_.toDouble();
+
+  EncodeFrame();
 }
 
 void Exporter::AudioRendered()
@@ -279,7 +267,7 @@ void Exporter::VideoHashesComplete()
   video_backend_->SetOnlySignalLastFrameRequested(false);
 
   // FIXME: Exporting is now broken because of this
-  //connect(video_backend_, &VideoRenderBackend::CachedFrameReady, this, &Exporter::FrameRendered);
+  connect(video_backend_, &VideoRenderBackend::GeneratedFrame, this, &Exporter::FrameRendered);
 
   foreach (const TimeRange& range, ranges) {
     video_backend_->InvalidateCache(range);

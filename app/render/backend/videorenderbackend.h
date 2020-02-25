@@ -60,6 +60,8 @@ public:
 
   bool IsRendered(const rational& time) const;
 
+  void SetLimitCaching(bool limit);
+
   QString GetCachedFrame(const rational& time);
 
   VideoRenderFrameCache* frame_cache();
@@ -102,6 +104,8 @@ signals:
 
   void RangeInvalidated(const TimeRange& range);
 
+  void GeneratedFrame(const rational &time, FramePtr frame);
+
 private:
   bool TimeIsQueued(const TimeRange &time) const;
 
@@ -120,6 +124,8 @@ private:
   rational last_time_requested_;
 
   bool only_signal_last_frame_requested_;
+
+  bool limit_caching_;
 
 private slots:
   void ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value);

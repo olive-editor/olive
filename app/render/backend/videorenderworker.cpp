@@ -66,14 +66,14 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     emit CompletedFrame(path, job_time, hash, texture);
 
     // If we actually have a texture, download it into the disk cache
-    if ((operating_mode_ & kDownloadOnly) && !texture.isNull()) {
-      Download(texture, frame_cache_->CachePathName(hash, video_params_.format()));
+    if (!texture.isNull()) {
+      Download(path.in(), texture, frame_cache_->CachePathName(hash, video_params_.format()));
     }
 
     frame_cache_->RemoveHashFromCurrentlyCaching(hash);
 
+    // Signal that this job is complete
     if (operating_mode_ & kDownloadOnly) {
-      // Signal that this job is complete
       emit CompletedDownload(path, job_time, hash, !texture.isNull());
     }
 
@@ -223,7 +223,7 @@ void VideoRenderWorker::CloseInternal()
   download_buffer_.clear();
 }
 
-void VideoRenderWorker::Download(QVariant texture, QString filename)
+void VideoRenderWorker::Download(const rational& time, QVariant texture, QString filename)
 {
   PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
 
@@ -236,25 +236,41 @@ void VideoRenderWorker::Download(QVariant texture, QString filename)
     spec.attribute("compression", "dwaa:200");
   }
 
-  TextureToBuffer(texture, download_buffer_);
+  if (operating_mode_ & kDownloadOnly) {
 
-  std::string working_fn_std = filename.toStdString();
+    TextureToBuffer(texture, download_buffer_.data());
 
-  auto out = OIIO::ImageOutput::create(working_fn_std);
+    std::string working_fn_std = filename.toStdString();
 
-  // Keep export to this thread only
-  out->threads(1);
+    auto out = OIIO::ImageOutput::create(working_fn_std);
 
-  if (out) {
-    out->open(working_fn_std, spec);
-    out->write_image(format_info.oiio_desc, download_buffer_.data());
-    out->close();
+    // Keep export to this thread only
+    out->threads(1);
+
+    if (out) {
+      out->open(working_fn_std, spec);
+      out->write_image(format_info.oiio_desc, download_buffer_.data());
+      out->close();
 
 #if OIIO_VERSION < 10903
-    OIIO::ImageOutput::destroy(out);
+      OIIO::ImageOutput::destroy(out);
 #endif
+    } else {
+      qWarning() << "Failed to open output file:" << filename;
+    }
+
   } else {
-    qWarning() << "Failed to open output file:" << filename;
+
+    FramePtr frame = Frame::Create();
+    frame->set_width(video_params().width());
+    frame->set_height(video_params().height());
+    frame->set_format(video_params().format());
+    frame->allocate();
+
+    TextureToBuffer(texture, frame->data());
+
+    emit GeneratedFrame(time, frame);
+
   }
 }
 

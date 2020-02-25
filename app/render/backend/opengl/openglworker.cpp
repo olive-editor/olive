@@ -24,7 +24,7 @@ void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, 
   emit RequestRunNodeAccelerated(node, range, input_params, output_params);
 }
 
-void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, QByteArray &buffer)
+void OpenGLWorker::TextureToBuffer(const QVariant &tex_in, void *buffer)
 {
   emit RequestTextureToBuffer(tex_in, buffer);
 }

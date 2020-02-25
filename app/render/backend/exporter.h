@@ -34,11 +34,6 @@ signals:
   void ExportEnded();
 
 protected:
-  virtual bool Initialize() = 0;
-  virtual void Cleanup() = 0;
-
-  virtual FramePtr TextureToFrame(const QVariant &texture) = 0;
-
   void SetExportMessage(const QString& s);
 
   // Renderers
@@ -64,7 +59,7 @@ private:
 
   void ExportFailed();
 
-  void EncodeFrame(const rational &time, QVariant value);
+  void EncodeFrame();
 
   ColorProcessorPtr color_processor_;
 
@@ -76,12 +71,12 @@ private:
 
   rational waiting_for_frame_;
 
-  QHash<rational, QVariant> cached_frames_;
+  QHash<rational, FramePtr> cached_frames_;
 
   QHash< QByteArray, QList<rational> > matched_frames_;
 
 private slots:
-  void FrameRendered(const rational& time, QVariant value);
+  void FrameRendered(const rational &time, FramePtr value);
 
   void AudioRendered();
 

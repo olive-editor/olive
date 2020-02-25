@@ -20,14 +20,14 @@ signals:
 
   void RequestRunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 
-  void RequestTextureToBuffer(const QVariant& texture, QByteArray& buffer);
+  void RequestTextureToBuffer(const QVariant& texture, void *buffer);
 
 protected:
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params) override;
 
-  virtual void TextureToBuffer(const QVariant& texture, QByteArray& buffer) override;
+  virtual void TextureToBuffer(const QVariant& texture, void *buffer) override;
 
 };
 

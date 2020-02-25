@@ -3,6 +3,7 @@
 
 #include <QComboBox>
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QProgressBar>
 
@@ -31,6 +32,8 @@ private:
 
   QMatrix4x4 GenerateMatrix(ExportVideoTab::ScalingMethod method, int source_width, int source_height, int dest_width, int height);
 
+  void SetUIElementsEnabled(bool enabled);
+
   ViewerOutput* viewer_node_;
 
   QList<ExportFormat> formats_;
@@ -53,6 +56,9 @@ private:
   ColorManager* color_manager_;
 
   QProgressBar* progress_bar_;
+
+  QWidget* preferences_area_;
+  QDialogButtonBox* buttons_;
 
   enum Format {
     kFormatDNxHD,
