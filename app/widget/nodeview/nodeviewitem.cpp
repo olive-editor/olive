@@ -154,6 +154,18 @@ QRectF NodeViewItem::GetParameterConnectorRect(int index)
   return connector_rect;
 }
 
+QRectF NodeViewItem::GetParameterConnectorRect(NodeParam *param)
+{
+  NodeParam* root_param = param;
+  Node* parent_node = param->parentNode();
+
+  while (root_param->parent() != parent_node) {
+    root_param = static_cast<NodeParam*>(root_param->parent());
+  }
+
+  return GetParameterConnectorRect(root_param->index());
+}
+
 QPointF NodeViewItem::GetParameterTextPoint(int index)
 {
   if (node_ == nullptr) {

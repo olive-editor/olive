@@ -75,6 +75,7 @@ public:
    * Index of the parameter of this node (see NodeParam::index()).
    */
   QRectF GetParameterConnectorRect(int index);
+  QRectF GetParameterConnectorRect(NodeParam* index);
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;

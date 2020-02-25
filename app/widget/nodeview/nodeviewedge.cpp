@@ -56,10 +56,10 @@ NodeEdgePtr NodeViewEdge::edge()
   return edge_;
 }
 
-qreal CalculateEdgeYPoint(NodeViewItem *item, int param_index, NodeViewItem *opposing)
+qreal CalculateEdgeYPoint(NodeViewItem *item, NodeParam* param, NodeViewItem *opposing)
 {
   if (item->IsExpanded()) {
-    return item->pos().y() + item->GetParameterConnectorRect(param_index).center().y();
+    return item->pos().y() + item->GetParameterConnectorRect(param).center().y();
   } else {
     qreal max_height = qMax(opposing->rect().height(), item->rect().height());
 
@@ -89,8 +89,8 @@ void NodeViewEdge::Adjust()
   QPointF input_point = QPointF(input->pos().x() + output->rect().left(), 0);
 
   // Calculate output/input points
-  output_point.setY(CalculateEdgeYPoint(output, edge_->output()->index(), input));
-  input_point.setY(CalculateEdgeYPoint(input, edge_->input()->index(), output));
+  output_point.setY(CalculateEdgeYPoint(output, edge_->output(), input));
+  input_point.setY(CalculateEdgeYPoint(input, edge_->input(), output));
 
   // Draw a line between the two
   setLine(QLineF(
