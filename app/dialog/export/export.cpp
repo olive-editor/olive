@@ -414,8 +414,18 @@ void ExportDialog::LoadPresets()
 
 void ExportDialog::SetDefaultFilename()
 {
-  QString doc_location = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-  QString file_location = QDir(doc_location).filePath("export");
+  Sequence* s = static_cast<Sequence*>(viewer_node_->parent());
+  Project* p = s->project();
+
+  QDir doc_location;
+
+  if (p->filename().isEmpty()) {
+    doc_location.setPath(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation));
+  } else {
+    doc_location = QFileInfo(p->filename()).dir();
+  }
+
+  QString file_location = doc_location.filePath(s->name());
   filename_edit_->setText(file_location);
 }
 
