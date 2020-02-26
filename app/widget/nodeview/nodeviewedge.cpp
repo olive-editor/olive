@@ -122,7 +122,7 @@ void NodeViewEdge::SetHighlighted(bool e)
 void NodeViewEdge::SetPoints(const QPointF &start, const QPointF &end)
 {
   QPainterPath path;
-  float half_x = lerp(start.x(), end.x(), 0.5f);
+  double half_x = lerp(start.x(), end.x(), 0.5);
   path.moveTo(start);
   path.cubicTo(QPointF(half_x, start.y()), QPointF(half_x, end.y()), end);
   setPath(path);
