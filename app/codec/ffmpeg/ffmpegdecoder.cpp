@@ -36,6 +36,7 @@ extern "C" {
 #include "codec/waveinput.h"
 #include "common/define.h"
 #include "common/filefunctions.h"
+#include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
 #include "render/diskmanager.h"
@@ -230,18 +231,21 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   // See if our RAM cache already has a frame that matches this timestamp
   if (!cached_frames_.isEmpty()) {
 
-    if (cache_at_zero_ && target_ts < cached_frames_.first()->native_timestamp()) {
+    if (target_ts < cached_frames_.first()->native_timestamp()) {
 
-      return_frame = cached_frames_.first();
-      cached_frames_.accessedFirst();
+      if (cache_at_zero_) {
+        return_frame = cached_frames_.first();
+        cached_frames_.accessedFirst();
+      }
 
-    } else if (cache_at_eof_ && target_ts > cached_frames_.last()->native_timestamp()) {
+    } else if (target_ts > cached_frames_.last()->native_timestamp()) {
 
-      return_frame = cached_frames_.last();
-      cached_frames_.accessedLast();
+      if (cache_at_eof_) {
+        return_frame = cached_frames_.last();
+        cached_frames_.accessedLast();
+      }
 
-    } else if (target_ts >= cached_frames_.first()->native_timestamp()
-        && target_ts <= cached_frames_.last()->native_timestamp()) {
+    } else {
 
       // We already have this frame in the cache, find it
       for (int i=0;i<cached_frames_.size();i++) {
@@ -288,7 +292,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
   // If we have no disk cache, we'll need to find this frame ourselves
   if (!return_frame) {
-
     int64_t seek_ts = target_ts;
     bool still_seeking = false;
 
