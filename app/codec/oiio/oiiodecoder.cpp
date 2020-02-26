@@ -83,6 +83,9 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
   image_stream->set_width(spec.width);
   image_stream->set_height(spec.height);
 
+  // Images will always have just one stream
+  image_stream->set_index(0);
+
   // OIIO automatically premultiplies alpha
   // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this likely reduces the
   //        fidelity?
