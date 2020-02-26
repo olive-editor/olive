@@ -236,32 +236,6 @@ void Exporter::VideoHashesComplete()
   TimeRangeList ranges;
   ranges.append(TimeRange(0, viewer_node_->Length()));
 
-  QMap<rational, QByteArray>::const_iterator i;
-  QMap<rational, QByteArray>::iterator j;
-
-  // Copy time hash map
-  QMap<rational, QByteArray> time_hash_map = video_backend_->frame_cache()->time_hash_map();
-
-  // Check for any times that share duplicate hashes
-  for (i=time_hash_map.begin();i!=time_hash_map.end();i++) {
-    j = time_hash_map.begin();
-
-    while (j != time_hash_map.end()) {
-      if (i != j && i.value() == j.value()) {
-        // Remove the time range from this and
-        ranges.RemoveTimeRange(TimeRange(j.key(), j.key() + video_backend_->params().time_base()));
-
-        QList<rational> times_with_this_hash = matched_frames_.value(i.value());
-        times_with_this_hash.append(j.key());
-        matched_frames_.insert(i.value(), times_with_this_hash);
-
-        j = time_hash_map.erase(j);
-      } else {
-        j++;
-      }
-    }
-  }
-
   // Set video backend to render mode but NOT hash or download
   video_backend_->SetOperatingMode(VideoRenderWorker::kRenderOnly);
   video_backend_->SetOnlySignalLastFrameRequested(false);
