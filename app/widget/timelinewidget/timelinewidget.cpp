@@ -122,6 +122,9 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
 TimelineWidget::~TimelineWidget()
 {
+  // Ensure no blocks are selected before any child widgets are destroyed (prevents corrupt ViewSelectionChanged() signal)
+  Clear();
+
   qDeleteAll(tools_);
 }
 
@@ -129,14 +132,14 @@ void TimelineWidget::Clear()
 {
   SetTimebase(0);
 
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
+  QMap<Block*, TimelineViewBlockItem*>::iterator iterator = block_items_.begin();
 
-  while (iterator.hasNext()) {
-    iterator.next();
+  while (iterator != block_items_.end()) {
+    TimelineViewBlockItem* item = iterator.value();
 
-    if (iterator.value() != nullptr) {
-      delete iterator.value();
-    }
+    iterator = block_items_.erase(iterator);
+
+    delete item;
   }
 
   block_items_.clear();
