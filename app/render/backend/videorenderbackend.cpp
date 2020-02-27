@@ -343,7 +343,7 @@ void VideoRenderBackend::TruncateFrameCacheLength(const rational &length)
 
 void VideoRenderBackend::FrameRemovedFromDiskCache(const QByteArray &hash)
 {
-  QList<rational> deleted_frames = frame_cache()->FramesWithHash(hash);
+  QList<rational> deleted_frames = frame_cache()->TakeFramesWithHash(hash);
 
   foreach (const rational& frame, deleted_frames) {
     TimeRange invalidated(frame, frame+params_.time_base());

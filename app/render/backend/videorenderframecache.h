@@ -43,7 +43,15 @@ public:
 
   void RemoveHashFromCurrentlyCaching(const QByteArray& hash);
 
-  QList<rational> FramesWithHash(const QByteArray& hash);
+  /**
+   * @brief Returns a list of frames that use a particular hash
+   */
+  QList<rational> FramesWithHash(const QByteArray& hash) const;
+
+  /**
+   * @brief Same as FramesWithHash() but also removes these frames from the map
+   */
+  QList<rational> TakeFramesWithHash(const QByteArray& hash);
 
   const QMap<rational, QByteArray>& time_hash_map() const;
 
