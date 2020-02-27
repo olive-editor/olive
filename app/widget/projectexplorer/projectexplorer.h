@@ -155,6 +155,8 @@ private slots:
 
   void ShowSequencePropertiesDialog();
 
+  void RevealSelectedFootage();
+
 };
 
 #endif // PROJECTEXPLORER_H
