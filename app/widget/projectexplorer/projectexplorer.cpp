@@ -249,9 +249,9 @@ void ProjectExplorer::ShowContextMenu()
     if (selected_items.first()->type() == Item::kFootage) {
       QString reveal_text;
 
-#ifdef Q_OS_WINDOWS
+#if defined(Q_OS_WINDOWS)
       reveal_text = tr("Reveal in Explorer");
-#elif Q_OS_MAC
+#elif defined(Q_OS_MAC)
       reveal_text = tr("Reveal in Finder");
 #else
       reveal_text = tr("Reveal in File Manager");
@@ -293,12 +293,12 @@ void ProjectExplorer::RevealSelectedFootage()
 {
   Footage* footage = static_cast<Footage*>(SelectedItems().first());
 
-#ifdef Q_OS_WINDOWS
+#if defined(Q_OS_WINDOWS)
   // Explorer
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(footage->filename());
   QProcess::startDetached("explorer", args);
-#elif Q_OS_MAC
+#elif defined(Q_OS_MAC)
   QStringList args;
   args << "-e";
   args << "tell application \"Finder\"";
