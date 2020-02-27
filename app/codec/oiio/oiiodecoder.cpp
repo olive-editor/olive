@@ -135,7 +135,11 @@ bool OIIODecoder::Open()
   // FIXME: Many OIIO pixel formats are not handled here
   type_ = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
 
+#if OIIO_VERSION < 20100
+  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type_));
+#else
   buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type_), OIIO::InitializePixels::No);
+#endif
   image_->read_image(type_, buffer_->localpixels());
 
   open_ = true;
