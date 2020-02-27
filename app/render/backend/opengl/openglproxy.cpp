@@ -60,7 +60,9 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
   if (stream->type() == Stream::kImage && still_image_cache_.Has(stream.get())) {
     CachedStill cs = still_image_cache_.Get(stream.get());
 
-    if (cs.colorspace == colorspace_match && cs.alpha_is_associated == video_stream->premultiplied_alpha()) {
+    if (cs.colorspace == colorspace_match
+        && cs.alpha_is_associated == video_stream->premultiplied_alpha()
+        && cs.divider == video_params_.divider()) {
       footage_tex_ref = cs.texture;
     } else {
       still_image_cache_.Remove(stream.get());
@@ -80,7 +82,7 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
 
     ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
 
-    FramePtr frame = decoder->RetrieveVideo(range.in());;
+    FramePtr frame = decoder->RetrieveVideo(range.in(), video_params_.divider());
 
     // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
     if (ocio_method == ColorManager::kOCIOAccurate) {
@@ -154,7 +156,7 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
     }
 
     if (stream->type() == Stream::kImage) {
-      still_image_cache_.Add(stream.get(), {footage_tex_ref, colorspace_match, video_stream->premultiplied_alpha()});
+      still_image_cache_.Add(stream.get(), {footage_tex_ref, colorspace_match, video_stream->premultiplied_alpha(), video_params_.divider()});
     }
   }
 
@@ -281,8 +283,8 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
             int res_param_location = shader->uniformLocation(QStringLiteral("%1_resolution").arg(input->id()));
             if (res_param_location > -1) {
               shader->setUniformValue(res_param_location,
-                                      static_cast<GLfloat>(texture->texture()->width()),
-                                      static_cast<GLfloat>(texture->texture()->height()));
+                                      static_cast<GLfloat>(texture->texture()->width() * video_params_.divider()),
+                                      static_cast<GLfloat>(texture->texture()->height() * video_params_.divider()));
             }
           }
 

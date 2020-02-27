@@ -46,6 +46,7 @@ FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
   scale_ctx_(nullptr),
+  scale_divider_(-1),
   cache_at_zero_(false),
   cache_at_eof_(false),
   opts_(nullptr)
@@ -172,22 +173,6 @@ bool FFmpegDecoder::Open()
       qFatal("Invalid output format");
     }
 
-    scale_ctx_ = sws_getContext(avstream_->codecpar->width,
-                                avstream_->codecpar->height,
-                                static_cast<AVPixelFormat>(avstream_->codecpar->format),
-                                avstream_->codecpar->width,
-                                avstream_->codecpar->height,
-                                ideal_pix_fmt_,
-                                0,
-                                nullptr,
-                                nullptr,
-                                nullptr);
-
-    if (!scale_ctx_) {
-      Error(QStringLiteral("Failed to allocate SwsContext"));
-      return false;
-    }
-
     second_ts_ = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
 
     QMetaObject::invokeMethod(&clear_timer_, "start");
@@ -220,7 +205,7 @@ Decoder::RetrieveState FFmpegDecoder::GetRetrieveState(const rational& time)
   return kReady;
 }
 
-FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
   QMutexLocker locker(&mutex_);
 
@@ -236,6 +221,12 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
   int64_t target_ts = Timecode::time_to_timestamp(timecode, avstream_->time_base) + avstream_->start_time;
 
   Frame* return_frame = nullptr;
+
+  if (divider != scale_divider_) {
+    ClearFrameCache();
+    FreeScaler();
+    SetupScaler(divider);
+  }
 
   // See if our RAM cache already has a frame that matches this timestamp
   if (!cached_frames_.isEmpty()) {
@@ -375,8 +366,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
         }
 
         // Whatever it is, keep this frame in memory for the time being just in case
-        Frame* working_frame_converted = cached_frames_.append(VideoRenderingParams(avstream_->codecpar->width,
-                                                                                    avstream_->codecpar->height,
+        Frame* working_frame_converted = cached_frames_.append(VideoRenderingParams(avstream_->codecpar->width / divider,
+                                                                                    avstream_->codecpar->height / divider,
                                                                                     avstream_->time_base,
                                                                                     native_pix_fmt_,
                                                                                     RenderMode::kOffline));
@@ -949,10 +940,7 @@ void FFmpegDecoder::ClearResources()
 
   ClearFrameCache();
 
-  if (scale_ctx_) {
-    sws_freeContext(scale_ctx_);
-    scale_ctx_ = nullptr;
-  }
+  FreeScaler();
 
   if (codec_ctx_) {
     avcodec_free_context(&codec_ctx_);
@@ -965,6 +953,35 @@ void FFmpegDecoder::ClearResources()
   }
 
   open_ = false;
+}
+
+void FFmpegDecoder::SetupScaler(const int &divider)
+{
+  scale_ctx_ = sws_getContext(avstream_->codecpar->width,
+                              avstream_->codecpar->height,
+                              static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                              avstream_->codecpar->width / divider,
+                              avstream_->codecpar->height / divider,
+                              ideal_pix_fmt_,
+                              SWS_FAST_BILINEAR,
+                              nullptr,
+                              nullptr,
+                              nullptr);
+
+  if (!scale_ctx_) {
+    Error(QStringLiteral("Failed to allocate SwsContext"));
+  } else {
+    scale_divider_ = divider;
+  }
+}
+
+void FFmpegDecoder::FreeScaler()
+{
+  if (scale_ctx_) {
+    sws_freeContext(scale_ctx_);
+    scale_ctx_ = nullptr;
+    scale_divider_ = -1;
+  }
 }
 
 void FFmpegDecoder::ClearTimerEvent()

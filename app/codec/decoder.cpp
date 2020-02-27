@@ -61,7 +61,7 @@ void Decoder::set_stream(StreamPtr fs)
   stream_ = fs;
 }
 
-FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/)
+FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divider*/)
 {
   return nullptr;
 }

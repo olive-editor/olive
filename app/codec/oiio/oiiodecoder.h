@@ -22,6 +22,7 @@
 #define OIIODECODER_H
 
 #include <OpenImageIO/imageio.h>
+#include <OpenImageIO/imagebuf.h>
 
 #include "codec/decoder.h"
 #include "render/pixelformat.h"
@@ -37,7 +38,7 @@ public:
 
   virtual bool Open() override;
   virtual RetrieveState GetRetrieveState(const rational &time) override;
-  virtual FramePtr RetrieveVideo(const rational &timecode) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
   virtual void Close() override;
 
   virtual bool SupportsVideo() override;
@@ -61,7 +62,7 @@ private:
 
   bool is_rgba_;
 
-  FramePtr frame_;
+  OIIO::ImageBuf* buffer_;
 
   static QStringList supported_formats_;
 

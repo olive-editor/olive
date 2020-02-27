@@ -20,6 +20,7 @@
 
 #include "oiiodecoder.h"
 
+#include <OpenImageIO/imagebufalgo.h>
 #include <QDebug>
 #include <QFileInfo>
 
@@ -29,7 +30,7 @@ QStringList OIIODecoder::supported_formats_;
 
 OIIODecoder::OIIODecoder() :
   image_(nullptr),
-  frame_(nullptr)
+  buffer_(nullptr)
 {
 }
 
@@ -134,6 +135,9 @@ bool OIIODecoder::Open()
   // FIXME: Many OIIO pixel formats are not handled here
   type_ = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
 
+  buffer_ = new OIIO::ImageBuf(OIIO::ImageSpec(spec.width, spec.height, spec.nchannels, type_), OIIO::InitializePixels::No);
+  image_->read_image(type_, buffer_->localpixels());
+
   open_ = true;
 
   return true;
@@ -150,7 +154,7 @@ Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
   return kReady;
 }
 
-FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
+FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
 {
   QMutexLocker locker(&mutex_);
 
@@ -158,21 +162,20 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
     return nullptr;
   }
 
-  Q_UNUSED(timecode)
+  FramePtr frame = Frame::Create();
 
-  if (!frame_) {
-    frame_ = Frame::Create();
+  frame->set_width(width_ / divider);
+  frame->set_height(height_ / divider);
+  frame->set_format(pix_fmt_);
+  frame->allocate();
 
-    frame_->set_width(width_);
-    frame_->set_height(height_);
-    frame_->set_format(pix_fmt_);
-    frame_->allocate();
+  OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format), frame->data());
 
-    // Use the native format to determine what format OIIO should return
-    image_->read_image(type_, frame_->data());
+  if (!OIIO::ImageBufAlgo::resize(dst, *buffer_)) {
+    qWarning() << "OIIO resize failed";
   }
 
-  return frame_;
+  return frame;
 }
 
 void OIIODecoder::Close()
@@ -187,7 +190,8 @@ void OIIODecoder::Close()
     image_ = nullptr;
   }
 
-  frame_ = nullptr;
+  delete buffer_;
+  buffer_ = nullptr;
 }
 
 bool OIIODecoder::SupportsVideo()
