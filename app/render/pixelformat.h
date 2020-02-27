@@ -117,7 +117,7 @@ public:
   /**
    * @brief Get corresponding OpenImageIO TypeDesc for a given pixel format
    */
-  static OIIO::TypeDesc GetOIIOTypeDesc(const Format& format);
+  static OIIO::TypeDesc::BASETYPE GetOIIOTypeDesc(const Format& format);
 
   /**
    * @brief Get format name

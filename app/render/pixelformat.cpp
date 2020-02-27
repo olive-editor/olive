@@ -20,6 +20,7 @@
 
 #include "pixelformat.h"
 
+#include "OpenImageIO/imagebuf.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFloat16>
@@ -47,7 +48,7 @@ bool PixelFormat::FormatHasAlphaChannel(const PixelFormat::Format &format)
   return false;
 }
 
-OIIO::TypeDesc PixelFormat::GetOIIOTypeDesc(const PixelFormat::Format &format)
+OIIO::TypeDesc::BASETYPE PixelFormat::GetOIIOTypeDesc(const PixelFormat::Format &format)
 {
   switch (format) {
   case PixelFormat::PIX_FMT_RGB8:
@@ -242,13 +243,12 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
   converted->set_format(dest_format);
   converted->allocate();
 
-  OIIO::TypeDesc src_type = GetOIIOTypeDesc(frame->format());
-  OIIO::TypeDesc dst_type = GetOIIOTypeDesc(dest_format);
+  OIIO::ImageBuf src(OIIO::ImageSpec(frame->width(), frame->height(), ChannelCount(frame->format()), GetOIIOTypeDesc(frame->format())), frame->data());
+  OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(), converted->height(), ChannelCount(converted->format()), GetOIIOTypeDesc(converted->format())), converted->data());
 
-  if (OIIO::convert_type(src_type, frame->data(), dst_type, converted->data())) {
+  if (dst.copy_pixels(src)) {
     return converted;
   } else {
-    qDebug() << "Failed to convert type:" << OIIO::geterror().c_str();
     return nullptr;
   }
 }
