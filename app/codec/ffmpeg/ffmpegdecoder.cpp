@@ -392,10 +392,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
           // We found the frame we want
           return_frame = working_frame_converted;
         }
+      }
 
-        if (return_frame) {
-          break;
-        }
+      if (return_frame) {
+        break;
       }
     }
 
