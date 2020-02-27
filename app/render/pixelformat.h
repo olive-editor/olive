@@ -25,7 +25,14 @@
 #include <QOpenGLExtraFunctions>
 #include <QString>
 
-class PixelFormat {
+#include "render/rendermodes.h"
+
+class Frame;
+using FramePtr = std::shared_ptr<Frame>;
+
+class PixelFormat : public QObject
+{
+  Q_OBJECT
 public:
   /**
    * @brief Olive's internal supported pixel formats.
@@ -38,27 +45,92 @@ public:
     PIX_FMT_RGBA16F,
     PIX_FMT_RGBA32F,
 
+    PIX_FMT_RGB8,
+    PIX_FMT_RGB16U,
+    PIX_FMT_RGB16F,
+    PIX_FMT_RGB32F,
+
     PIX_FMT_COUNT
   };
 
+  static void CreateInstance();
+  static void DestroyInstance();
+  static PixelFormat* instance();
+
   /**
-   * @brief A struct of information pertaining to each enum PixelFormat.
-   *
-   * Primarily this is a means of retrieving OpenGL texture information for different pixel formats/bit depths. Both
-   * RAM and VRAM buffers will need a PixelFormat. To keep consistency between the OpenGL code and CPU code when using
-   * a given PixelFormat, the PixelFormatInfo struct contains all necessary variables that you'll need to plug into
-   * OpenGL.
-   *
-   * Use the static function PixelService::GetPixelFormatInfo to generate a PixelFormatInfo object.
+   * @brief Returns the configured pixel format for a given mode
    */
-  struct Info {
-    QString name;
-    GLint internal_format;
-    GLenum pixel_format;
-    GLenum gl_pixel_type;
-    int bytes_per_pixel;
-    OIIO::TypeDesc oiio_desc;
-  };
+  Format GetConfiguredFormatForMode(RenderMode::Mode mode);
+  void SetConfiguredFormatForMode(RenderMode::Mode mode, PixelFormat::Format format);
+
+  static Format OIIOFormatToOliveFormat(OIIO::TypeDesc desc, bool has_alpha);
+
+  /**
+   * @brief Returns the minimum buffer size (in bytes) necessary for a given format, width, and height.
+   *
+   * @param format
+   *
+   * The format of the data the buffer should contain. Must be a member of the olive::PixelFormat enum.
+   *
+   * @param width
+   *
+   * The width (in pixels) of the buffer.
+   *
+   * @param height
+   *
+   * The height (in pixels) of the buffer.
+   */
+  static int GetBufferSize(const Format &format, const int& width, const int& height);
+
+  /**
+   * @brief Returns the number of bytes per pixel for a certain format
+   *
+   * Different formats use different sizes of data for pixels. Use this function to determine how many bytes a pixel
+   * requires for a certain format. The number of bytes will always be a multiple of 4 since all formats use RGBA and
+   * are at least 1 bpc.
+   */
+  static int BytesPerPixel(const Format &format);
+
+  /**
+   * @brief Returns the number of bytes per channel for a certain format
+   */
+  static int BytesPerChannel(const Format& format);
+
+  /**
+   * @brief Return the number of channels in this format
+   */
+  static int ChannelCount(const Format& format);
+
+  /**
+   * @brief Convert a frame to a pixel format
+   *
+   * If the frame's pixel format == the destination format, this just returns `frame`.
+   */
+  static FramePtr ConvertPixelFormat(FramePtr frame, const Format &dest_format);
+
+  /**
+   * @brief Simple convenience function returning whether a pixel format has an alpha channel or not
+   */
+  static bool FormatHasAlphaChannel(const Format& format);
+
+  /**
+   * @brief Get corresponding OpenImageIO TypeDesc for a given pixel format
+   */
+  static OIIO::TypeDesc GetOIIOTypeDesc(const Format& format);
+
+  /**
+   * @brief Get format name
+   */
+  static QString GetName(const Format& format);
+
+signals:
+  void FormatChanged();
+
+private:
+  PixelFormat() = default;
+
+  static PixelFormat* instance_;
+
 };
 
 #endif // BITDEPTHS_H

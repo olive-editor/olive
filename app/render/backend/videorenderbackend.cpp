@@ -31,7 +31,7 @@
 #include "config/config.h"
 #include "render/diskmanager.h"
 #include "render/diskmanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 #include "videorenderworker.h"
 
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :

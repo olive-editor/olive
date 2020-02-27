@@ -40,7 +40,7 @@ extern "C" {
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
 #include "render/diskmanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
@@ -154,11 +154,20 @@ bool FFmpegDecoder::Open()
 
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
-    if (ideal_pix_fmt_ == AV_PIX_FMT_RGBA) {
+    switch (ideal_pix_fmt_) {
+    case AV_PIX_FMT_RGB24:
+      native_pix_fmt_ = PixelFormat::PIX_FMT_RGB8;
+      break;
+    case AV_PIX_FMT_RGBA:
       native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA8;
-    } else if (ideal_pix_fmt_ == AV_PIX_FMT_RGBA64) {
+      break;
+    case AV_PIX_FMT_RGB48:
+      native_pix_fmt_ = PixelFormat::PIX_FMT_RGB16U;
+      break;
+    case AV_PIX_FMT_RGBA64:
       native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
-    } else {
+      break;
+    default:
       // We should never get here, but just in case...
       qFatal("Invalid output format");
     }
@@ -378,7 +387,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
         // Convert frame to RGBA for the rest of the pipeline
         uint8_t* output_data = reinterpret_cast<uint8_t*>(working_frame_converted->data());
-        int output_linesize = working_frame_converted->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
+        int output_linesize = working_frame_converted->width() * PixelFormat::ChannelCount(native_pix_fmt_) * PixelFormat::BytesPerChannel(native_pix_fmt_);
 
         sws_scale(scale_ctx_,
                   working_frame->data,

@@ -38,7 +38,7 @@ ColorProcessor::ColorProcessor(OCIO::ConstConfigRcPtr config,
 
 void ColorProcessor::ConvertFrame(FramePtr f)
 {
-  OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()), f->width(), f->height(), kRGBAChannels);
+  OCIO::PackedImageDesc img(reinterpret_cast<float*>(f->data()), f->width(), f->height(), PixelFormat::ChannelCount(f->format()));
 
   processor->apply(img);
 }

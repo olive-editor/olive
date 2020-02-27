@@ -115,25 +115,24 @@ bool OIIODecoder::Open()
   width_ = spec.width;
   height_ = spec.height;
 
+  is_rgba_ = (spec.nchannels == kRGBAChannels);
+
   // Weirdly, switch statement doesn't work correctly here
   if (spec.format == OIIO::TypeDesc::UINT8) {
-    pix_fmt_ = PixelFormat::PIX_FMT_RGBA8;
+    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA8 : PixelFormat::PIX_FMT_RGB8;
   } else if (spec.format == OIIO::TypeDesc::UINT16) {
-    pix_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
+    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA16U : PixelFormat::PIX_FMT_RGB16U;
   } else if (spec.format == OIIO::TypeDesc::HALF) {
-    pix_fmt_ = PixelFormat::PIX_FMT_RGBA16F;
+    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA16F : PixelFormat::PIX_FMT_RGB16F;
   } else if (spec.format == OIIO::TypeDesc::FLOAT) {
-    pix_fmt_ = PixelFormat::PIX_FMT_RGBA32F;
+    pix_fmt_ = is_rgba_ ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F;
   } else {
     qWarning() << "Failed to convert OIIO::ImageDesc to native pixel format";
     return false;
   }
 
   // FIXME: Many OIIO pixel formats are not handled here
-
-  is_rgba_ = (spec.nchannels == kRGBAChannels);
-
-  pix_fmt_info_ = PixelService::GetPixelFormatInfo(static_cast<PixelFormat::Format>(pix_fmt_));
+  type_ = PixelFormat::GetOIIOTypeDesc(pix_fmt_);
 
   open_ = true;
 
@@ -170,12 +169,7 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode)
     frame_->allocate();
 
     // Use the native format to determine what format OIIO should return
-    // FIXME: Behavior of RGB images as opposed to RGBA?
-    image_->read_image(pix_fmt_info_.oiio_desc, frame_->data());
-
-    if (!is_rgba_) {
-      PixelService::ConvertRGBtoRGBA(frame_);
-    }
+    image_->read_image(type_, frame_->data());
   }
 
   return frame_;

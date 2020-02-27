@@ -24,7 +24,7 @@
 #include <OpenImageIO/imageio.h>
 
 #include "codec/decoder.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 class OIIODecoder : public Decoder
 {
@@ -57,7 +57,7 @@ private:
 
   PixelFormat::Format pix_fmt_;
 
-  PixelFormat::Info pix_fmt_info_;
+  OIIO::TypeDesc type_;
 
   bool is_rgba_;
 

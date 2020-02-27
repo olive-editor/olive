@@ -9,7 +9,7 @@
 #include "openglcolorprocessor.h"
 #include "openglrenderfunctions.h"
 #include "render/colormanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 OpenGLProxy::OpenGLProxy(QObject *parent) :
   QObject(parent),
@@ -90,7 +90,7 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
       }
 
       // Convert frame to float for OCIO
-      frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+      frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
 
       // Perform color transform
       color_processor->ConvertFrame(frame);
@@ -384,8 +384,6 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
-  PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params_.format());
-
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   buffer_.Attach(texture->texture());
   buffer_.Bind();
@@ -394,8 +392,8 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
                   0,
                   video_params_.effective_width(),
                   video_params_.effective_height(),
-                  format_info.pixel_format,
-                  format_info.gl_pixel_type,
+                  OpenGLRenderFunctions::GetPixelFormat(video_params_.format()),
+                  OpenGLRenderFunctions::GetPixelType(video_params_.format()),
                   buffer);
 
   buffer_.Release();

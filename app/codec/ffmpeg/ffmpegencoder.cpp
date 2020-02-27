@@ -3,7 +3,7 @@
 #include <QFile>
 
 #include "ffmpegcommon.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
   Encoder(params),
@@ -188,12 +188,12 @@ void FFmpegEncoder::WriteInternal(FramePtr frame)
 
   // We may need to convert this frame to a frame that swscale will understand
   if (frame->format() != video_conversion_fmt_) {
-    frame = PixelService::ConvertPixelFormat(frame, video_conversion_fmt_);
+    frame = PixelFormat::ConvertPixelFormat(frame, video_conversion_fmt_);
   }
 
   // Use swscale context to convert formats/linesizes
   input_data = frame->const_data();
-  input_linesize = frame->width() * PixelService::BytesPerPixel(video_conversion_fmt_);
+  input_linesize = frame->width() * PixelFormat::BytesPerPixel(video_conversion_fmt_);
   error_code = sws_scale(video_scale_ctx_,
                          reinterpret_cast<const uint8_t**>(&input_data),
                          &input_linesize,

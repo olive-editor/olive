@@ -3,7 +3,7 @@
 #include "render/backend/audio/audiobackend.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/colormanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 Exporter::Exporter(ViewerOutput* viewer,
                    Encoder *encoder,
@@ -121,7 +121,7 @@ void Exporter::EncodeFrame()
 
     // OCIO conversion requires a frame in 32F format
     if (frame->format() != PixelFormat::PIX_FMT_RGBA32F) {
-      frame = PixelService::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
+      frame = PixelFormat::ConvertPixelFormat(frame, PixelFormat::PIX_FMT_RGBA32F);
     }
 
     // Color conversion must be done with unassociated alpha, and the pipeline is always associated

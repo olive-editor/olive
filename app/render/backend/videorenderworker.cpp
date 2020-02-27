@@ -1,17 +1,17 @@
 #include "videorenderworker.h"
 
 #include "common/define.h"
+#include "common/functiontimer.h"
 #include "node/block/transition/transition.h"
 #include "node/node.h"
 #include "project/project.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, DecoderCache* decoder_cache, QObject *parent) :
   RenderWorker(decoder_cache, parent),
   frame_cache_(frame_cache),
   operating_mode_(kHashRenderCache)
 {
-
 }
 
 const VideoRenderingParams &VideoRenderWorker::video_params()
@@ -225,10 +225,11 @@ void VideoRenderWorker::CloseInternal()
 
 void VideoRenderWorker::Download(const rational& time, QVariant texture, QString filename)
 {
-  PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
-
   // Set up OIIO::ImageSpec for compressing cached images on disk
-  OIIO::ImageSpec spec(video_params().effective_width(), video_params().effective_height(), kRGBAChannels, format_info.oiio_desc);
+  OIIO::ImageSpec spec(video_params().effective_width(),
+                       video_params().effective_height(),
+                       PixelFormat::ChannelCount(video_params().format()),
+                       PixelFormat::GetOIIOTypeDesc(video_params().format()));
 
   if (video_params_.format() != PixelFormat::PIX_FMT_RGBA8
       && video_params_.format() != PixelFormat::PIX_FMT_RGBA16U) {
@@ -249,7 +250,7 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
 
     if (out) {
       out->open(working_fn_std, spec);
-      out->write_image(format_info.oiio_desc, download_buffer_.data());
+      out->write_image(PixelFormat::GetOIIOTypeDesc(video_params().format()), download_buffer_.data());
       out->close();
 
 #if OIIO_VERSION < 10903
@@ -276,7 +277,7 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
 
 void VideoRenderWorker::ResizeDownloadBuffer()
 {
-  download_buffer_.resize(PixelService::GetBufferSize(video_params_.format(), video_params_.effective_width(), video_params_.effective_height()));
+  download_buffer_.resize(PixelFormat::GetBufferSize(video_params_.format(), video_params_.effective_width(), video_params_.effective_height()));
 }
 
 NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)

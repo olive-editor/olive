@@ -28,8 +28,6 @@ set(OLIVE_SOURCES
   render/diskmanager.cpp
   render/pixelformat.h
   render/pixelformat.cpp
-  render/pixelservice.h
-  render/pixelservice.cpp
   render/rendermodes.h
   render/videoparams.h
   render/videoparams.cpp

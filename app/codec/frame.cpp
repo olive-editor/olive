@@ -23,8 +23,6 @@
 #include <QDebug>
 #include <QtGlobal>
 
-#include "render/pixelservice.h"
-
 Frame::Frame() :
   width_(0),
   height_(0),
@@ -139,7 +137,7 @@ void Frame::allocate()
 {
   // Assume this frame is intended to be a video frame
   if (width_ > 0 && height_ > 0) {
-    data_.resize(PixelService::GetBufferSize(static_cast<PixelFormat::Format>(format_), width_, height_));
+    data_.resize(PixelFormat::GetBufferSize(static_cast<PixelFormat::Format>(format_), width_, height_));
   } else if (sample_count_ > 0) {
     data_.resize(audio_params_.samples_to_bytes(sample_count_));
   }

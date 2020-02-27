@@ -23,7 +23,8 @@
 #include <QDateTime>
 #include <QDebug>
 
-#include "render/pixelservice.h"
+#include "openglrenderfunctions.h"
+#include "render/pixelformat.h"
 
 OpenGLTexture::OpenGLTexture() :
   created_ctx_(nullptr),
@@ -120,16 +121,14 @@ void OpenGLTexture::Upload(const void *data)
 
   Bind();
 
-  PixelFormat::Info info = PixelService::GetPixelFormatInfo(format_);
-
   created_ctx_->functions()->glTexSubImage2D(GL_TEXTURE_2D,
                                              0,
                                              0,
                                              0,
                                              width_,
                                              height_,
-                                             info.pixel_format,
-                                             info.gl_pixel_type,
+                                             OpenGLRenderFunctions::GetPixelFormat(format_),
+                                             OpenGLRenderFunctions::GetPixelType(format_),
                                              data);
 
   Release();
@@ -152,16 +151,14 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
   f->glBindTexture(GL_TEXTURE_2D, *tex);
 
   // Allocate storage for texture
-  const PixelFormat::Info& bit_depth = PixelService::GetPixelFormatInfo(format_);
-
   f->glTexImage2D(GL_TEXTURE_2D,
                   0,
-                  bit_depth.internal_format,
+                  OpenGLRenderFunctions::GetInternalFormat(format_),
                   width_,
                   height_,
                   0,
-                  bit_depth.pixel_format,
-                  bit_depth.gl_pixel_type,
+                  OpenGLRenderFunctions::GetPixelFormat(format_),
+                  OpenGLRenderFunctions::GetPixelType(format_),
                   data);
 
   // Set texture filtering to bilinear

@@ -26,6 +26,7 @@
 #include <QOpenGLFunctions>
 
 #include "openglshader.h"
+#include "render/pixelformat.h"
 
 class OpenGLRenderFunctions {
 public:
@@ -49,6 +50,12 @@ public:
   static void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
   static void PrepareToDraw(QOpenGLFunctions* f);
+
+  static GLint GetInternalFormat(const PixelFormat::Format& format);
+
+  static GLenum GetPixelFormat(const PixelFormat::Format& format);
+
+  static GLenum GetPixelType(const PixelFormat::Format& format);
 
 };
 

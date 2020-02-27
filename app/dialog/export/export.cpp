@@ -12,7 +12,7 @@
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/backend/exporter.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 #include "ui/icons/icons.h"
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
@@ -210,7 +210,7 @@ void ExportDialog::accept()
   VideoRenderingParams video_render_params(dest_width,
                                            dest_height,
                                            video_tab_->frame_rate().flipped(),
-                                           PixelService::instance()->GetConfiguredFormatForMode(render_mode),
+                                           PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
                                            render_mode);
 
   AudioRenderingParams audio_render_params(audio_tab_->sample_rate_combobox()->currentData().toInt(),
