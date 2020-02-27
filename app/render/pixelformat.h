@@ -21,6 +21,7 @@
 #ifndef BITDEPTHS_H
 #define BITDEPTHS_H
 
+#include <memory>
 #include <OpenImageIO/imageio.h>
 #include <QOpenGLExtraFunctions>
 #include <QString>
