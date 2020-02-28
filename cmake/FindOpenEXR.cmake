@@ -1,94 +1,99 @@
+#
+# Copyright 2016 Pixar
+#
+# Licensed under the Apache License, Version 2.0 (the "Apache License")
+# with the following modification; you may not use this file except in
+# compliance with the Apache License and the following modification to it:
+# Section 6. Trademarks. is deleted and replaced with:
+#
+# 6. Trademarks. This License does not grant permission to use the trade
+#    names, trademarks, service marks, or product names of the Licensor
+#    and its affiliates, except as required to comply with Section 4(c) of
+#    the License and to reproduce the content of the NOTICE file.
+#
+# You may obtain a copy of the Apache License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the Apache License with the above modification is
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the Apache License for the specific
+# language governing permissions and limitations under the Apache License.
+#
+
+find_path(OPENEXR_INCLUDE_DIR
+    OpenEXR/half.h
+HINTS
+    "${OPENEXR_LOCATION}"
+    "$ENV{OPENEXR_LOCATION}"
+PATH_SUFFIXES
+    include/
+DOC
+    "OpenEXR headers path"
+)
+
+if(OPENEXR_INCLUDE_DIR)
+  set(openexr_config_file "${OPENEXR_INCLUDE_DIR}/OpenEXR/OpenEXRConfig.h")
+  if(EXISTS ${openexr_config_file})
+      file(STRINGS
+           ${openexr_config_file}
+           TMP
+           REGEX "#define OPENEXR_VERSION_STRING.*$")
+      string(REGEX MATCHALL "[0-9.]+" OPENEXR_VERSION ${TMP})
+
+      file(STRINGS
+           ${openexr_config_file}
+           TMP
+           REGEX "#define OPENEXR_VERSION_MAJOR.*$")
+      string(REGEX MATCHALL "[0-9]" OPENEXR_MAJOR_VERSION ${TMP})
+
+      file(STRINGS
+           ${openexr_config_file}
+           TMP
+           REGEX "#define OPENEXR_VERSION_MINOR.*$")
+      string(REGEX MATCHALL "[0-9]" OPENEXR_MINOR_VERSION ${TMP})
+  endif()
+endif()
+
+foreach(OPENEXR_LIB
+    Half
+    Iex
+    Imath
+    IlmImf
+    IlmThread
+    )
+
+    # OpenEXR libraries may be suffixed with the version number, so we search
+    # using both versioned and unversioned names.
+    find_library(OPENEXR_${OPENEXR_LIB}_LIBRARY
+        NAMES
+            ${OPENEXR_LIB}-${OPENEXR_MAJOR_VERSION}_${OPENEXR_MINOR_VERSION}
+            ${OPENEXR_LIB}
+        HINTS
+            "${OPENEXR_LOCATION}"
+            "$ENV{OPENEXR_LOCATION}"
+        PATH_SUFFIXES
+            lib/
+        DOC
+            "OPENEXR's ${OPENEXR_LIB} library path"
+    )
+
+    if(OPENEXR_${OPENEXR_LIB}_LIBRARY)
+        list(APPEND OPENEXR_LIBRARIES ${OPENEXR_${OPENEXR_LIB}_LIBRARY})
+    endif()
+endforeach(OPENEXR_LIB)
+
+# So #include <half.h> works
+list(APPEND OPENEXR_INCLUDE_DIRS ${OPENEXR_INCLUDE_DIR})
+list(APPEND OPENEXR_INCLUDE_DIRS ${OPENEXR_INCLUDE_DIR}/OpenEXR)
+
 include(FindPackageHandleStandardArgs)
-
-find_path(OpenEXR_INCLUDE_DIRS OpenEXR/OpenEXRConfig.h)
-find_path(OPENEXR_INCLUDE_PATHS NAMES ImfRgbaFile.h PATH_SUFFIXES OpenEXR)
-
-file(STRINGS "${OpenEXR_INCLUDE_DIRS}/OpenEXR/OpenEXRConfig.h" OPENEXR_CONFIG_H)
-
-string(REGEX REPLACE "^.*define OPENEXR_VERSION_MAJOR ([0-9]+).*$" "\\1" OpenEXR_VERSION_MAJOR "${OPENEXR_CONFIG_H}")
-string(REGEX REPLACE "^.*define OPENEXR_VERSION_MINOR ([0-9]+).*$" "\\1" OpenEXR_VERSION_MINOR "${OPENEXR_CONFIG_H}")
-set(OpenEXR_LIB_SUFFIX "${OpenEXR_VERSION_MAJOR}_${OpenEXR_VERSION_MINOR}")
-
-include(SelectLibraryConfigurations)
-
-if(NOT OpenEXR_BASE_LIBRARY)
-  find_library(OpenEXR_BASE_LIBRARY_RELEASE NAMES IlmImf-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_BASE_LIBRARY_DEBUG NAMES IlmImf-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_BASE)
-endif()
-
-if(NOT OpenEXR_UTIL_LIBRARY)
-  find_library(OpenEXR_UTIL_LIBRARY_RELEASE NAMES IlmImfUtil-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_UTIL_LIBRARY_DEBUG NAMES IlmImfUtil-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_UTIL)
-endif()
-
-if(NOT OpenEXR_HALF_LIBRARY)
-  find_library(OpenEXR_HALF_LIBRARY_RELEASE NAMES Half-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_HALF_LIBRARY_DEBUG NAMES Half-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_HALF)
-endif()
-
-if(NOT OpenEXR_IEX_LIBRARY)
-  find_library(OpenEXR_IEX_LIBRARY_RELEASE NAMES Iex-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_IEX_LIBRARY_DEBUG NAMES Iex-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_IEX)
-endif()
-
-if(NOT OpenEXR_MATH_LIBRARY)
-  find_library(OpenEXR_MATH_LIBRARY_RELEASE NAMES Imath-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_MATH_LIBRARY_DEBUG NAMES Imath-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_MATH)
-endif()
-
-if(NOT OpenEXR_THREAD_LIBRARY)
-  find_library(OpenEXR_THREAD_LIBRARY_RELEASE NAMES IlmThread-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_THREAD_LIBRARY_DEBUG NAMES IlmThread-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_THREAD)
-endif()
-
-if(NOT OpenEXR_IEXMATH_LIBRARY)
-  find_library(OpenEXR_IEXMATH_LIBRARY_RELEASE NAMES IexMath-${OpenEXR_LIB_SUFFIX})
-  find_library(OpenEXR_IEXMATH_LIBRARY_DEBUG NAMES IexMath-${OpenEXR_LIB_SUFFIX}_d)
-  select_library_configurations(OpenEXR_IEXMATH)
-endif()
-
-set(OPENEXR_HALF_LIBRARY "${OpenEXR_HALF_LIBRARY}")
-set(OPENEXR_Half_LIBRARY "${OpenEXR_HALF_LIBRARY}")
-set(OPENEXR_IEX_LIBRARY "${OpenEXR_IEX_LIBRARY}")
-set(OPENEXR_Iex_LIBRARY "${OpenEXR_IEX_LIBRARY}")
-set(OPENEXR_IMATH_LIBRARY "${OpenEXR_MATH_LIBRARY}")
-set(OPENEXR_ILMIMF_LIBRARY "${OpenEXR_BASE_LIBRARY}")
-set(OPENEXR_IlmImf_LIBRARY "${OpenEXR_BASE_LIBRARY}")
-set(OPENEXR_ILMIMFUTIL_LIBRARY "${OpenEXR_UTIL_LIBRARY}")
-set(OPENEXR_ILMTHREAD_LIBRARY "${OpenEXR_THREAD_LIBRARY}")
-
-set(OpenEXR_LIBRARY "${OpenEXR_BASE_LIBRARY}")
-
-set(OpenEXR_LIBRARIES
-    ${OpenEXR_LIBRARY}
-    ${OpenEXR_MATH_LIBRARY}
-    ${OpenEXR_IEXMATH_LIBRARY}
-    ${OpenEXR_UTIL_LIBRARY}
-    ${OpenEXR_HALF_LIBRARY}
-    ${OpenEXR_IEX_LIBRARY}
-    ${OpenEXR_THREAD_LIBRARY}
+find_package_handle_standard_args(OpenEXR
+    REQUIRED_VARS
+        OPENEXR_INCLUDE_DIRS
+        OPENEXR_LIBRARIES
+    VERSION_VAR
+        OPENEXR_VERSION
 )
 
-set(OPENEXR_LIBRARIES
-    ${OPENEXR_HALF_LIBRARY}
-    ${OPENEXR_IEX_LIBRARY}
-    ${OPENEXR_IMATH_LIBRARY}
-    ${OPENEXR_ILMIMF_LIBRARY}
-    ${OPENEXR_ILMTHREAD_LIBRARY}
-)
-
-set(OpenEXR_INCLUDE_DIR ${OpenEXR_INCLUDE_DIRS})
-set(OPENEXR_INCLUDE_DIRS ${OpenEXR_INCLUDE_DIRS})
-set(OPENEXR_INCLUDE_DIR ${OPENEXR_INCLUDE_PATHS})
-
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(OpenEXR REQUIRED_VARS OpenEXR_LIBRARIES OpenEXR_INCLUDE_DIRS)
-
-if(OpenEXR_FOUND)
-    set(OPENEXR_FOUND 1)
-endif()
