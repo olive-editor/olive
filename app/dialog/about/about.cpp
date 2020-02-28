@@ -28,9 +28,6 @@
 AboutDialog::AboutDialog(QWidget *parent) :
   QDialog(parent)
 {
-  char* test = nullptr;
-  test[250] = 69;
-
   setWindowTitle(tr("About %1").arg(QApplication::applicationName()));
 
   QVBoxLayout* layout = new QVBoxLayout(this);
