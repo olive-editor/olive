@@ -31,9 +31,9 @@ extern "C" {
 #include <libavfilter/avfilter.h>
 }
 
+#include <csignal>
 #include <QApplication>
 #include <QSurfaceFormat>
-#include <csignal>
 
 #include "core.h"
 #include "common/crashhandler.h"
