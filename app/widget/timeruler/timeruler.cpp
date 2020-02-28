@@ -88,11 +88,13 @@ const int64_t &TimeRuler::GetTime()
 
 void TimeRuler::SetCacheStatusLength(const rational &length)
 {
-  cache_length_ = length;
+  if (show_cache_status_) {
+    cache_length_ = length;
 
-  dirty_cache_ranges_.RemoveTimeRange(TimeRange(length, RATIONAL_MAX));
+    dirty_cache_ranges_.RemoveTimeRange(TimeRange(length, RATIONAL_MAX));
 
-  update();
+    update();
+  }
 }
 
 void TimeRuler::SetTime(const int64_t &r)
@@ -111,16 +113,20 @@ void TimeRuler::SetScroll(int s)
 
 void TimeRuler::CacheInvalidatedRange(const TimeRange& range)
 {
-  dirty_cache_ranges_.InsertTimeRange(range);
+  if (show_cache_status_) {
+    dirty_cache_ranges_.InsertTimeRange(range);
 
-  update();
+    update();
+  }
 }
 
 void TimeRuler::CacheTimeReady(const rational &time)
 {
-  dirty_cache_ranges_.RemoveTimeRange(TimeRange(time, time + timebase_));
+  if (show_cache_status_) {
+    dirty_cache_ranges_.RemoveTimeRange(TimeRange(time, time + timebase_));
 
-  update();
+    update();
+  }
 }
 
 void TimeRuler::paintEvent(QPaintEvent *)
