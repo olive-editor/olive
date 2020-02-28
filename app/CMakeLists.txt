@@ -108,7 +108,8 @@ target_include_directories(
   ${OIIO_INCLUDE_DIRS}
 )
 
-target_link_libraries(${OLIVE_TARGET}
+target_link_libraries(
+  ${OLIVE_TARGET}
   PRIVATE
   Qt5::Core
   Qt5::Gui
@@ -126,6 +127,14 @@ target_link_libraries(${OLIVE_TARGET}
   ${OCIO_LIBRARIES}
   ${OIIO_LIBRARIES}
 )
+
+if (WIN32)
+  target_link_libraries(
+    ${OLIVE_TARGET}
+    PRIVATE
+    DbgHelp
+  )
+endif()
 
 set(OLIVE_TS_FILES
   # FIXME: Empty variable
@@ -151,3 +160,32 @@ if(DOXYGEN_FOUND)
   set(DOXYGEN_EXTRACT_PRIVATE "YES")
   doxygen_add_docs(docs ALL ${OLIVE_SOURCES})
 endif()
+
+set(OLIVE_CRASH_TARGET "crashhandler")
+
+set(OLIVE_CRASH_SOURCES
+  dialog/crashhandler/crashhandler.h
+  dialog/crashhandler/crashhandler.cpp
+  dialog/crashhandler/crashhandlermain.cpp
+)
+
+if (WIN32)
+  add_executable(
+    ${OLIVE_CRASH_TARGET}
+    WIN32
+    ${OLIVE_CRASH_SOURCES}
+  )
+else()
+  add_executable(
+    ${OLIVE_CRASH_TARGET}
+    ${OLIVE_CRASH_SOURCES}
+  )
+endif()
+
+target_link_libraries(
+  ${OLIVE_CRASH_TARGET}
+  PRIVATE
+  Qt5::Core
+  Qt5::Gui
+  Qt5::Widgets
+)

@@ -35,10 +35,14 @@ extern "C" {
 #include <QSurfaceFormat>
 
 #include "core.h"
+#include "common/crashhandler.h"
 #include "common/debug.h"
 
 int main(int argc, char *argv[]) {
   av_log_set_level(AV_LOG_QUIET);
+
+  signal(SIGSEGV, crash_handler);
+  signal(SIGABRT, crash_handler);
 
   // Set OpenGL display profile (3.2 Core)
   QSurfaceFormat format;

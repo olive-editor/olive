@@ -22,6 +22,8 @@ set(OLIVE_SOURCES
   common/channellayout.h
   common/clamp.h
   common/constructors.h
+  common/crashhandler.h
+  common/crashhandler.cpp
   common/debug.h
   common/debug.cpp
   common/define.h
