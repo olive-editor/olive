@@ -19,6 +19,7 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
 
     BUNDLE_NAME=Olive.app
 
+    # Move bundle to working directory
     mv app/$BUNDLE_NAME .
 
     # Move Qt deps into bundle
@@ -27,6 +28,18 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     # Fix other deps that macdeployqt missed
     wget -c -nv https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
     python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+
+    # Fix OpenEXR libs that seem to be missed by both macdeployqt _and_ macdeployqtfix
+    cd $BUNDLE_NAME/Contents/Frameworks
+    exrlib=(libImath-*.dylib libHalf-*.dylib libIexMath-*.dylib libIex-*.dylib libIlmThread-*.dylib)
+
+    for a in ${exrlib[@]}; do
+        for b in ${exrlib[@]}; do
+            install_name_tool -change @rpath/$b @executable_path/../Frameworks/$b $a
+        done
+    done
+
+    cd ../../..
 
     # Distribute in zip
     zip -r Olive-$VERSION-macOS.zip $BUNDLE_NAME
