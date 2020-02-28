@@ -33,6 +33,7 @@ extern "C" {
 
 #include <QApplication>
 #include <QSurfaceFormat>
+#include <csignal>
 
 #include "core.h"
 #include "common/crashhandler.h"

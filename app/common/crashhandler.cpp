@@ -1,5 +1,6 @@
 #include "crashhandler.h"
 
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QProcess>
@@ -7,15 +8,17 @@
 #include <QTextStream>
 #include <QtGlobal>
 
-#ifdef Q_OS_WINDOWS
+#if defined(Q_OS_WINDOWS)
 #include <Windows.h>
 #include <DbgHelp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#elif defined(Q_OS_LINUX)
+#include <execinfo.h>
 #endif
 
 void crash_handler(int sig) {
-  QString log_path = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath("olive_crash");
+  QString log_path = QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation)).filePath(QStringLiteral("olive_crash"));
   QFile output(log_path);
 
   output.open(QFile::WriteOnly);
@@ -105,13 +108,13 @@ void crash_handler(int sig) {
   size = backtrace(array, 10);
 
   // print out all the frames to stderr
-  fprintf(stderr, "Error: signal %d:\n", sig);
-  backtrace_symbols_fd(array, size, STDERR_FILENO);
+  backtrace_symbols_fd(array, size, output.handle());
 #endif
 
   output.close();
 
-  QProcess::startDetached(QStringLiteral("crashhandler"), {log_path});
+  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("crashhandler"));
+  QProcess::startDetached(crash_handler_exe, {log_path});
 
   exit(1);
 }
