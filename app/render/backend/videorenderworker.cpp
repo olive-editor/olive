@@ -62,9 +62,6 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
     // Find texture in hash
     QVariant texture = value.Get(NodeParam::kTexture);
 
-    // Signal that we have a frame in memory that could be shown right now
-    emit CompletedFrame(path, job_time, hash, texture);
-
     // If we actually have a texture, download it into the disk cache
     if (!texture.isNull()) {
       Download(path.in(), texture, frame_cache_->CachePathName(hash, video_params_.format()));

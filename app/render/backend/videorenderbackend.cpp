@@ -140,7 +140,6 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
 
   video_processor->SetOperatingMode(operating_mode_);
 
-  connect(video_processor, &VideoRenderWorker::CompletedFrame, this, &VideoRenderBackend::ThreadCompletedFrame, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::HashAlreadyBeingCached, this, &VideoRenderBackend::ThreadSkippedFrame, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::CompletedDownload, this, &VideoRenderBackend::ThreadCompletedDownload, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists, Qt::QueuedConnection);
@@ -260,22 +259,6 @@ TimeRange VideoRenderBackend::PopNextFrameFromQueue()
 
   // Return the snapped frame
   return TimeRange(frame_range.in(), frame_range.in());
-}
-
-void VideoRenderBackend::ThreadCompletedFrame(NodeDependency path, qint64 job_time, QByteArray hash, QVariant value)
-{
-  if (!only_signal_last_frame_requested_ || last_time_requested_ == path.in() || frame_cache_.TimeToHash(last_time_requested_) == hash) {
-    Q_UNUSED(job_time)
-    Q_UNUSED(value)
-    //EmitCachedFrameReady(path.in(), value, job_time);
-  }
-
-  if (!(operating_mode_ & VideoRenderWorker::kDownloadOnly)) {
-    // If we're not downloading, the worker is done here
-    SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
-
-    CacheNext();
-  }
 }
 
 void VideoRenderBackend::ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed)
