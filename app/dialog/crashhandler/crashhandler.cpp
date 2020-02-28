@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QLabel>
 #include <QDialogButtonBox>
+#include <QScrollBar>
 #include <QTextEdit>
 #include <QVBoxLayout>
 
@@ -16,7 +17,14 @@ CrashHandlerDialog::CrashHandlerDialog(const char *log_file)
                                   "help resolve this.")));
 
   QTextEdit* edit = new QTextEdit();
+  edit->setReadOnly(true);
   layout->addWidget(edit);
+
+  edit->append(QStringLiteral("Build Environment: %1 (%2)").arg(QSysInfo::buildCpuArchitecture(), QSysInfo::buildAbi()));
+  edit->append(QStringLiteral("Run Environment: %1").arg(QSysInfo::currentCpuArchitecture()));
+  edit->append(QStringLiteral("Kernel: %1 %2").arg(QSysInfo::kernelType(), QSysInfo::kernelVersion()));
+  edit->append(QStringLiteral("System: %1 (%2 %3)").arg(QSysInfo::prettyProductName(), QSysInfo::productType(), QSysInfo::productVersion()));
+  edit->append(QString());
 
   QDialogButtonBox* buttons = new QDialogButtonBox();
 
@@ -31,7 +39,13 @@ CrashHandlerDialog::CrashHandlerDialog(const char *log_file)
 
   QFile log(log_file);
   if (log.open(QFile::ReadOnly | QFile::Text)) {
-    edit->setText(log.readAll());
+    edit->append(log.readAll());
+
+    QMetaObject::invokeMethod(edit->verticalScrollBar(),
+                              "setValue",
+                              Qt::QueuedConnection,
+                              Q_ARG(int, 0));
+
     log.close();
   }
 }
