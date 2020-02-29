@@ -508,7 +508,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
   if (error_code == 0) {
 
     // Retrieve metadata about the media
-    av_dump_format(fmt_ctx_, 0, filename, 0);
+    avformat_find_stream_info(fmt_ctx_, nullptr);
 
     // Dump it into the Footage object
     for (unsigned int i=0;i<fmt_ctx_->nb_streams;i++) {

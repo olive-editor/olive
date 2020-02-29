@@ -22,9 +22,10 @@
 
 #include <QCoreApplication>
 
+#include "codec/decoder.h"
 #include "common/timecodefunctions.h"
 #include "common/xmlreadloop.h"
-#include "codec/decoder.h"
+#include "config/config.h"
 #include "ui/icons/icons.h"
 
 Footage::Footage()
@@ -235,8 +236,14 @@ QString Footage::duration()
   } else if (streams_.first()->type() == Stream::kAudio) {
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
 
-    return Timecode::timestamp_to_timecode(streams_.first()->duration(),
-                                           streams_.first()->timebase(),
+    // We show audio time in a timecode corresponding to the default sequence frame rate
+
+    rational rtime = Timecode::timestamp_to_time(streams_.first()->duration(), streams_.first()->timebase());
+
+    int64_t time_in_default_tb = Timecode::time_to_timestamp(rtime, Config::Current()["DefaultSequenceFrameRate"].value<rational>());
+
+    return Timecode::timestamp_to_timecode(time_in_default_tb,
+                                           Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
                                            Timecode::CurrentDisplay());
   }
 
