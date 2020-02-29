@@ -99,9 +99,6 @@ bool FFmpegDecoder::Open()
     return false;
   }
 
-  // Dump format information
-  av_dump_format(fmt_ctx_, stream()->index(), filename, 0);
-
   // Get reference to correct AVStream
   avstream_ = fmt_ctx_->streams[stream()->index()];
 
