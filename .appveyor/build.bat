@@ -44,6 +44,7 @@ mkdir olive-editor
 cd olive-editor
 copy ..\app\olive-editor.exe .
 copy ..\app\olive-editor.pdb .
+copy ..\app\crashhandler.exe .
 windeployqt olive-editor.exe
 copy ..\%FFMPEG_VER%-shared\bin\*.dll .
 copy C:\Tools\vcpkg\installed\x64-windows\bin\OpenColorIO.dll .
