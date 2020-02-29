@@ -7,7 +7,7 @@
 #include "codec/ffmpeg/ffmpegdecoder.h"
 #include "core.h"
 #include "project/item/footage/footage.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 VideoInput::VideoInput()
 {

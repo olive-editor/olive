@@ -73,8 +73,6 @@ private:
 
   QHash<rational, FramePtr> cached_frames_;
 
-  QHash< QByteArray, QList<rational> > matched_frames_;
-
 private slots:
   void FrameRendered(const rational &time, FramePtr value);
 

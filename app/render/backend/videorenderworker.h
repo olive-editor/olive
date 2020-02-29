@@ -48,13 +48,11 @@ public:
   void SetOperatingMode(const OperatingMode& mode);
 
 signals:
-  void CompletedFrame(NodeDependency CurrentPath, qint64 job_time, QByteArray hash, QVariant value);
+  void CompletedDownload(NodeDependency path, qint64 job_time, QByteArray hash, bool texture_existed);
 
-  void CompletedDownload(NodeDependency CurrentPath, qint64 job_time, QByteArray hash, bool texture_existed);
+  void HashAlreadyBeingCached(NodeDependency path, qint64 job_time, QByteArray hash);
 
-  void HashAlreadyBeingCached(NodeDependency CurrentPath, qint64 job_time, QByteArray hash);
-
-  void HashAlreadyExists(NodeDependency CurrentPath, qint64 job_time, QByteArray hash);
+  void HashAlreadyExists(NodeDependency path, qint64 job_time, QByteArray hash);
 
   void GeneratedFrame(const rational &time, FramePtr frame);
 

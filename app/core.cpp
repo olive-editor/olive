@@ -48,7 +48,7 @@
 #include "render/backend/opengl/opengltexturecache.h"
 #include "render/colormanager.h"
 #include "render/diskmanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 #include "task/taskmanager.h"
 #include "ui/style/style.h"
 #include "undo/undostack.h"
@@ -145,7 +145,7 @@ void Core::Stop()
 
   DiskManager::DestroyInstance();
 
-  PixelService::DestroyInstance();
+  PixelFormat::DestroyInstance();
 
   NodeFactory::Destroy();
 
@@ -385,7 +385,7 @@ void Core::StartGUI(bool full_screen)
   TaskManager::CreateInstance();
 
   // Initialize pixel service
-  PixelService::CreateInstance();
+  PixelFormat::CreateInstance();
 
   // Connect the PanelFocusManager to the application's focus change signal
   connect(qApp,

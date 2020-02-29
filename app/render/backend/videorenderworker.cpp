@@ -1,17 +1,22 @@
 #include "videorenderworker.h"
 
+#include <OpenEXR/ImfFloatAttribute.h>
+#include <OpenEXR/ImfInputFile.h>
+#include <OpenEXR/ImfOutputFile.h>
+#include <OpenEXR/ImfChannelList.h>
+
 #include "common/define.h"
+#include "common/functiontimer.h"
 #include "node/block/transition/transition.h"
 #include "node/node.h"
 #include "project/project.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, DecoderCache* decoder_cache, QObject *parent) :
   RenderWorker(decoder_cache, parent),
   frame_cache_(frame_cache),
   operating_mode_(kHashRenderCache)
 {
-
 }
 
 const VideoRenderingParams &VideoRenderWorker::video_params()
@@ -61,9 +66,6 @@ NodeValueTable VideoRenderWorker::RenderInternal(const NodeDependency& path, con
 
     // Find texture in hash
     QVariant texture = value.Get(NodeParam::kTexture);
-
-    // Signal that we have a frame in memory that could be shown right now
-    emit CompletedFrame(path, job_time, hash, texture);
 
     // If we actually have a texture, download it into the disk cache
     if (!texture.isNull()) {
@@ -225,38 +227,89 @@ void VideoRenderWorker::CloseInternal()
 
 void VideoRenderWorker::Download(const rational& time, QVariant texture, QString filename)
 {
-  PixelFormat::Info format_info = PixelService::GetPixelFormatInfo(video_params().format());
-
-  // Set up OIIO::ImageSpec for compressing cached images on disk
-  OIIO::ImageSpec spec(video_params().effective_width(), video_params().effective_height(), kRGBAChannels, format_info.oiio_desc);
-
-  if (video_params_.format() != PixelFormat::PIX_FMT_RGBA8
-      && video_params_.format() != PixelFormat::PIX_FMT_RGBA16U) {
-    // Integer types don't use EXR (they use TIFF instead) because EXR is very slow with integer formats
-    spec.attribute("compression", "dwaa:200");
-  }
-
   if (operating_mode_ & kDownloadOnly) {
 
     TextureToBuffer(texture, download_buffer_.data());
 
-    std::string working_fn_std = filename.toStdString();
+    switch (video_params().format()) {
+    case PixelFormat::PIX_FMT_RGB8:
+    case PixelFormat::PIX_FMT_RGBA8:
+    case PixelFormat::PIX_FMT_RGB16U:
+    case PixelFormat::PIX_FMT_RGBA16U:
+    {
+      // Integer types are stored in JPEG which we run through OIIO
 
-    auto out = OIIO::ImageOutput::create(working_fn_std);
+      std::string fn_std = filename.toStdString();
 
-    // Keep export to this thread only
-    out->threads(1);
+      auto out = OIIO::ImageOutput::create(fn_std);
 
-    if (out) {
-      out->open(working_fn_std, spec);
-      out->write_image(format_info.oiio_desc, download_buffer_.data());
-      out->close();
+      if (out) {
+        // Attempt to keep this write to one thread
+        out->threads(1);
+
+        out->open(fn_std, OIIO::ImageSpec(video_params().effective_width(),
+                                          video_params().effective_height(),
+                                          PixelFormat::ChannelCount(video_params().format()),
+                                          PixelFormat::GetOIIOTypeDesc(video_params().format())));
+
+        out->write_image(PixelFormat::GetOIIOTypeDesc(video_params().format()), download_buffer_.data());
+
+        out->close();
 
 #if OIIO_VERSION < 10903
-      OIIO::ImageOutput::destroy(out);
+        OIIO::ImageOutput::destroy(out);
 #endif
-    } else {
-      qWarning() << "Failed to open output file:" << filename;
+      } else {
+        qCritical() << "Failed to write JPEG file:" << OIIO::geterror().c_str();
+      }
+      break;
+    }
+    case PixelFormat::PIX_FMT_RGB16F:
+    case PixelFormat::PIX_FMT_RGBA16F:
+    case PixelFormat::PIX_FMT_RGB32F:
+    case PixelFormat::PIX_FMT_RGBA32F:
+    {
+      // Floating point types are stored in EXR
+      Imf::PixelType pix_type;
+
+      if (video_params().format() == PixelFormat::PIX_FMT_RGB16F
+          || video_params().format() == PixelFormat::PIX_FMT_RGBA16F) {
+        pix_type = Imf::HALF;
+      } else {
+        pix_type = Imf::FLOAT;
+      }
+
+      Imf::Header header(video_params().effective_width(),
+                         video_params().effective_height());
+      header.channels().insert("R", Imf::Channel(pix_type));
+      header.channels().insert("G", Imf::Channel(pix_type));
+      header.channels().insert("B", Imf::Channel(pix_type));
+      header.channels().insert("A", Imf::Channel(pix_type));
+
+      header.compression() = Imf::DWAA_COMPRESSION;
+      header.insert("dwaCompressionLevel", Imf::FloatAttribute(200.0f));
+
+      Imf::OutputFile out(filename.toUtf8(), header, 0);
+
+      int bpc = PixelFormat::BytesPerChannel(video_params().format());
+
+      size_t xs = kRGBAChannels * bpc;
+      size_t ys = video_params().effective_width() * kRGBAChannels * bpc;
+
+      Imf::FrameBuffer framebuffer;
+      framebuffer.insert("R", Imf::Slice(pix_type, download_buffer_.data(), xs, ys));
+      framebuffer.insert("G", Imf::Slice(pix_type, download_buffer_.data() + bpc, xs, ys));
+      framebuffer.insert("B", Imf::Slice(pix_type, download_buffer_.data() + 2*bpc, xs, ys));
+      framebuffer.insert("A", Imf::Slice(pix_type, download_buffer_.data() + 3*bpc, xs, ys));
+      out.setFrameBuffer(framebuffer);
+
+      out.writePixels(video_params().effective_height());
+      break;
+    }
+    case PixelFormat::PIX_FMT_INVALID:
+    case PixelFormat::PIX_FMT_COUNT:
+      qCritical() << "Unable to cache invalid pixel format" << video_params().format();
+      break;
     }
 
   } else {
@@ -276,7 +329,7 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
 
 void VideoRenderWorker::ResizeDownloadBuffer()
 {
-  download_buffer_.resize(PixelService::GetBufferSize(video_params_.format(), video_params_.effective_width(), video_params_.effective_height()));
+  download_buffer_.resize(PixelFormat::GetBufferSize(video_params_.format(), video_params_.effective_width(), video_params_.effective_height()));
 }
 
 NodeValueTable VideoRenderWorker::RenderBlock(const TrackOutput *track, const TimeRange &range)

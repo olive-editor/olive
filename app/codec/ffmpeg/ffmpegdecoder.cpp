@@ -36,15 +36,17 @@ extern "C" {
 #include "codec/waveinput.h"
 #include "common/define.h"
 #include "common/filefunctions.h"
+#include "common/functiontimer.h"
 #include "common/timecodefunctions.h"
 #include "ffmpegcommon.h"
 #include "render/diskmanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
   scale_ctx_(nullptr),
+  scale_divider_(-1),
   cache_at_zero_(false),
   cache_at_eof_(false),
   opts_(nullptr)
@@ -153,29 +155,22 @@ bool FFmpegDecoder::Open()
 
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
-    if (ideal_pix_fmt_ == AV_PIX_FMT_RGBA) {
+    switch (ideal_pix_fmt_) {
+    case AV_PIX_FMT_RGB24:
+      native_pix_fmt_ = PixelFormat::PIX_FMT_RGB8;
+      break;
+    case AV_PIX_FMT_RGBA:
       native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA8;
-    } else if (ideal_pix_fmt_ == AV_PIX_FMT_RGBA64) {
+      break;
+    case AV_PIX_FMT_RGB48:
+      native_pix_fmt_ = PixelFormat::PIX_FMT_RGB16U;
+      break;
+    case AV_PIX_FMT_RGBA64:
       native_pix_fmt_ = PixelFormat::PIX_FMT_RGBA16U;
-    } else {
+      break;
+    default:
       // We should never get here, but just in case...
       qFatal("Invalid output format");
-    }
-
-    scale_ctx_ = sws_getContext(avstream_->codecpar->width,
-                                avstream_->codecpar->height,
-                                static_cast<AVPixelFormat>(avstream_->codecpar->format),
-                                avstream_->codecpar->width,
-                                avstream_->codecpar->height,
-                                ideal_pix_fmt_,
-                                0,
-                                nullptr,
-                                nullptr,
-                                nullptr);
-
-    if (!scale_ctx_) {
-      Error(QStringLiteral("Failed to allocate SwsContext"));
-      return false;
     }
 
     second_ts_ = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
@@ -210,7 +205,7 @@ Decoder::RetrieveState FFmpegDecoder::GetRetrieveState(const rational& time)
   return kReady;
 }
 
-FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
+FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divider)
 {
   QMutexLocker locker(&mutex_);
 
@@ -227,21 +222,30 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
   Frame* return_frame = nullptr;
 
+  if (divider != scale_divider_) {
+    ClearFrameCache();
+    FreeScaler();
+    SetupScaler(divider);
+  }
+
   // See if our RAM cache already has a frame that matches this timestamp
   if (!cached_frames_.isEmpty()) {
 
-    if (cache_at_zero_ && target_ts < cached_frames_.first()->native_timestamp()) {
+    if (target_ts < cached_frames_.first()->native_timestamp()) {
 
-      return_frame = cached_frames_.first();
-      cached_frames_.accessedFirst();
+      if (cache_at_zero_) {
+        return_frame = cached_frames_.first();
+        cached_frames_.accessedFirst();
+      }
 
-    } else if (cache_at_eof_ && target_ts > cached_frames_.last()->native_timestamp()) {
+    } else if (target_ts > cached_frames_.last()->native_timestamp()) {
 
-      return_frame = cached_frames_.last();
-      cached_frames_.accessedLast();
+      if (cache_at_eof_) {
+        return_frame = cached_frames_.last();
+        cached_frames_.accessedLast();
+      }
 
-    } else if (target_ts >= cached_frames_.first()->native_timestamp()
-        && target_ts <= cached_frames_.last()->native_timestamp()) {
+    } else {
 
       // We already have this frame in the cache, find it
       for (int i=0;i<cached_frames_.size();i++) {
@@ -288,7 +292,6 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
   // If we have no disk cache, we'll need to find this frame ourselves
   if (!return_frame) {
-
     int64_t seek_ts = target_ts;
     bool still_seeking = false;
 
@@ -363,8 +366,8 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
         }
 
         // Whatever it is, keep this frame in memory for the time being just in case
-        Frame* working_frame_converted = cached_frames_.append(VideoRenderingParams(avstream_->codecpar->width,
-                                                                                    avstream_->codecpar->height,
+        Frame* working_frame_converted = cached_frames_.append(VideoRenderingParams(avstream_->codecpar->width / divider,
+                                                                                    avstream_->codecpar->height / divider,
                                                                                     avstream_->time_base,
                                                                                     native_pix_fmt_,
                                                                                     RenderMode::kOffline));
@@ -375,7 +378,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
 
         // Convert frame to RGBA for the rest of the pipeline
         uint8_t* output_data = reinterpret_cast<uint8_t*>(working_frame_converted->data());
-        int output_linesize = working_frame_converted->width() * kRGBAChannels * PixelService::BytesPerChannel(native_pix_fmt_);
+        int output_linesize = working_frame_converted->width() * PixelFormat::ChannelCount(native_pix_fmt_) * PixelFormat::BytesPerChannel(native_pix_fmt_);
 
         sws_scale(scale_ctx_,
                   working_frame->data,
@@ -389,10 +392,10 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode)
           // We found the frame we want
           return_frame = working_frame_converted;
         }
+      }
 
-        if (return_frame) {
-          break;
-        }
+      if (return_frame) {
+        break;
       }
     }
 
@@ -937,10 +940,7 @@ void FFmpegDecoder::ClearResources()
 
   ClearFrameCache();
 
-  if (scale_ctx_) {
-    sws_freeContext(scale_ctx_);
-    scale_ctx_ = nullptr;
-  }
+  FreeScaler();
 
   if (codec_ctx_) {
     avcodec_free_context(&codec_ctx_);
@@ -953,6 +953,35 @@ void FFmpegDecoder::ClearResources()
   }
 
   open_ = false;
+}
+
+void FFmpegDecoder::SetupScaler(const int &divider)
+{
+  scale_ctx_ = sws_getContext(avstream_->codecpar->width,
+                              avstream_->codecpar->height,
+                              static_cast<AVPixelFormat>(avstream_->codecpar->format),
+                              avstream_->codecpar->width / divider,
+                              avstream_->codecpar->height / divider,
+                              ideal_pix_fmt_,
+                              SWS_FAST_BILINEAR,
+                              nullptr,
+                              nullptr,
+                              nullptr);
+
+  if (!scale_ctx_) {
+    Error(QStringLiteral("Failed to allocate SwsContext"));
+  } else {
+    scale_divider_ = divider;
+  }
+}
+
+void FFmpegDecoder::FreeScaler()
+{
+  if (scale_ctx_) {
+    sws_freeContext(scale_ctx_);
+    scale_ctx_ = nullptr;
+    scale_divider_ = -1;
+  }
 }
 
 void FFmpegDecoder::ClearTimerEvent()

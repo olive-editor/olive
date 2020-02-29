@@ -54,7 +54,7 @@ public:
 
   virtual bool Open() override;
   virtual RetrieveState GetRetrieveState(const rational &time) override;
-  virtual FramePtr RetrieveVideo(const rational &timecode) override;
+  virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
   virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
   virtual void Close() override;
 
@@ -102,11 +102,12 @@ private:
 
   void CacheFrameToDisk(AVFrame* f);
 
-  //void RemoveFirstFromFrameCache();
-  //void RemoveLastFromFrameCache();
   void ClearFrameCache();
 
   void ClearResources();
+
+  void SetupScaler(const int& divider);
+  void FreeScaler();
 
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
@@ -116,6 +117,7 @@ private:
   PixelFormat::Format native_pix_fmt_;
 
   SwsContext* scale_ctx_;
+  int scale_divider_;
 
   FFmpegFrameCache::Client cached_frames_;
   bool cache_at_zero_;

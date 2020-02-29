@@ -69,6 +69,7 @@ private:
     OpenGLTextureCache::ReferencePtr texture;
     QString colorspace;
     bool alpha_is_associated;
+    int divider;
   };
 
   RenderCache<Stream*, CachedStill> still_image_cache_;

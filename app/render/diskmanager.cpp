@@ -159,7 +159,7 @@ bool DiskManager::ClearDiskCache(bool quick_delete)
       const HashTime& ht = disk_data_.at(i);
 
       // We return a false result if any of the files fail to delete, but still try to delete as many as we can
-      if (QFile::remove(ht.file_name)) {
+      if (QFile::remove(ht.file_name) || !QFileInfo::exists(ht.file_name)) {
         emit DeletedFrame(ht.hash);
         disk_data_.removeAt(i);
         i--;

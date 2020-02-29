@@ -21,7 +21,11 @@
 #include "projectexplorer.h"
 
 #include <QDebug>
+#include <QDesktopServices>
+#include <QDir>
 #include <QMenu>
+#include <QProcess>
+#include <QUrl>
 #include <QVBoxLayout>
 
 #include "common/define.h"
@@ -242,9 +246,25 @@ void ProjectExplorer::ShowContextMenu()
     QAction* project_properties = menu.addAction(tr("&Project Properties..."));
     connect(project_properties, &QAction::triggered, Core::instance(), &Core::DialogProjectPropertiesShow);
   } else {
+    if (selected_items.first()->type() == Item::kFootage) {
+      QString reveal_text;
+
+#if defined(Q_OS_WINDOWS)
+      reveal_text = tr("Reveal in Explorer");
+#elif defined(Q_OS_MAC)
+      reveal_text = tr("Reveal in Finder");
+#else
+      reveal_text = tr("Reveal in File Manager");
+      #endif
+
+      QAction* reveal_action = menu.addAction(reveal_text);
+      connect(reveal_action, &QAction::triggered, this, &ProjectExplorer::RevealSelectedFootage);
+
+      menu.addSeparator();
+    }
+
     QAction* properties_action = menu.addAction(tr("P&roperties"));
 
-    // FIXME: Support for multiple items
     if (selected_items.first()->type() == Item::kFootage) {
       connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowFootagePropertiesDialog);
     } else if (selected_items.first()->type() == Item::kSequence) {
@@ -267,6 +287,31 @@ void ProjectExplorer::ShowSequencePropertiesDialog()
   // FIXME: Support for multiple items
   SequenceDialog sd(static_cast<Sequence*>(SelectedItems().first()), SequenceDialog::kExisting, this);
   sd.exec();
+}
+
+void ProjectExplorer::RevealSelectedFootage()
+{
+  Footage* footage = static_cast<Footage*>(SelectedItems().first());
+
+#if defined(Q_OS_WINDOWS)
+  // Explorer
+  QStringList args;
+  args << "/select," << QDir::toNativeSeparators(footage->filename());
+  QProcess::startDetached("explorer", args);
+#elif defined(Q_OS_MAC)
+  QStringList args;
+  args << "-e";
+  args << "tell application \"Finder\"";
+  args << "-e";
+  args << "activate";
+  args << "-e";
+  args << "select POSIX file \""+footage->filename()+"\"";
+  args << "-e";
+  args << "end tell";
+  QProcess::startDetached("osascript", args);
+#else
+  QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(footage->filename()).dir().absolutePath()));
+#endif
 }
 
 Project *ProjectExplorer::project()

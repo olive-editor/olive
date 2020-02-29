@@ -27,9 +27,10 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
 
+#include "common/define.h"
 #include "render/backend/opengl/openglrenderfunctions.h"
 #include "render/backend/opengl/openglshader.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 #ifdef Q_OS_LINUX
 bool ViewerGLWidget::nouveau_check_done_ = false;
@@ -83,7 +84,8 @@ void ViewerGLWidget::SetImage(const QString &fn)
 
     if (input) {
 
-      PixelFormat::Format image_format = PixelService::OIIOFormatToOliveFormat(input->spec().format);
+      PixelFormat::Format image_format = PixelFormat::OIIOFormatToOliveFormat(input->spec().format,
+                                                                              input->spec().nchannels == kRGBAChannels);
 
       // Ensure the following texture operations are done in our context (in case we're in a separate window for instance)
       makeCurrent();

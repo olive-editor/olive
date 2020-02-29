@@ -71,6 +71,67 @@ void OpenGLRenderFunctions::PrepareToDraw(QOpenGLFunctions* f) {
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
+GLint OpenGLRenderFunctions::GetInternalFormat(const PixelFormat::Format &format)
+{
+  switch (format) {
+  case PixelFormat::PIX_FMT_RGB8:
+    return GL_RGB8;
+  case PixelFormat::PIX_FMT_RGBA8:
+    return GL_RGBA8;
+  case PixelFormat::PIX_FMT_RGB16U:
+    return GL_RGB16;
+  case PixelFormat::PIX_FMT_RGBA16U:
+    return GL_RGBA16;
+  case PixelFormat::PIX_FMT_RGB16F:
+    return GL_RGB16F;
+  case PixelFormat::PIX_FMT_RGBA16F:
+    return GL_RGBA16F;
+  case PixelFormat::PIX_FMT_RGB32F:
+    return GL_RGB32F;
+  case PixelFormat::PIX_FMT_RGBA32F:
+    return GL_RGBA32F;
+
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
+    break;
+  }
+
+  return GL_INVALID_VALUE;
+}
+
+GLenum OpenGLRenderFunctions::GetPixelFormat(const PixelFormat::Format &format)
+{
+  if (PixelFormat::FormatHasAlphaChannel(format)) {
+    return GL_RGBA;
+  } else {
+    return GL_RGB;
+  }
+}
+
+GLenum OpenGLRenderFunctions::GetPixelType(const PixelFormat::Format &format)
+{
+  switch (format) {
+  case PixelFormat::PIX_FMT_RGB8:
+  case PixelFormat::PIX_FMT_RGBA8:
+    return GL_UNSIGNED_BYTE;
+  case PixelFormat::PIX_FMT_RGB16U:
+  case PixelFormat::PIX_FMT_RGBA16U:
+    return GL_UNSIGNED_SHORT;
+  case PixelFormat::PIX_FMT_RGB16F:
+  case PixelFormat::PIX_FMT_RGBA16F:
+    return GL_HALF_FLOAT;
+  case PixelFormat::PIX_FMT_RGB32F:
+  case PixelFormat::PIX_FMT_RGBA32F:
+    return GL_FLOAT;
+
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
+    break;
+  }
+
+  return GL_INVALID_VALUE;
+}
+
 void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
   // FIXME: is currentContext() reliable here?
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();

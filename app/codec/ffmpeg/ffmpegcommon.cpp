@@ -3,7 +3,9 @@
 AVPixelFormat FFmpegCommon::GetCompatiblePixelFormat(const AVPixelFormat &pix_fmt)
 {
   AVPixelFormat possible_pix_fmts[] = {
+    AV_PIX_FMT_RGB24,
     AV_PIX_FMT_RGBA,
+    AV_PIX_FMT_RGB48,
     AV_PIX_FMT_RGBA64,
     AV_PIX_FMT_NONE
   };
@@ -73,8 +75,14 @@ AVPixelFormat FFmpegCommon::GetFFmpegPixelFormat(const PixelFormat::Format &pix_
     return AV_PIX_FMT_RGBA;
   case PixelFormat::PIX_FMT_RGBA16U:
     return AV_PIX_FMT_RGBA64;
+  case PixelFormat::PIX_FMT_RGB8:
+    return AV_PIX_FMT_RGB24;
+  case PixelFormat::PIX_FMT_RGB16U:
+    return AV_PIX_FMT_RGB48;
   case PixelFormat::PIX_FMT_RGBA16F:
   case PixelFormat::PIX_FMT_RGBA32F:
+  case PixelFormat::PIX_FMT_RGB16F:
+  case PixelFormat::PIX_FMT_RGB32F:
   case PixelFormat::PIX_FMT_INVALID:
   case PixelFormat::PIX_FMT_COUNT:
     break;
@@ -86,8 +94,14 @@ AVPixelFormat FFmpegCommon::GetFFmpegPixelFormat(const PixelFormat::Format &pix_
 PixelFormat::Format FFmpegCommon::GetCompatiblePixelFormat(const PixelFormat::Format &pix_fmt)
 {
   switch (pix_fmt) {
+  case PixelFormat::PIX_FMT_RGB8:
+    return PixelFormat::PIX_FMT_RGB8;
   case PixelFormat::PIX_FMT_RGBA8:
     return PixelFormat::PIX_FMT_RGBA8;
+  case PixelFormat::PIX_FMT_RGB16U:
+  case PixelFormat::PIX_FMT_RGB16F:
+  case PixelFormat::PIX_FMT_RGB32F:
+    return PixelFormat::PIX_FMT_RGB16U;
   case PixelFormat::PIX_FMT_RGBA16U:
   case PixelFormat::PIX_FMT_RGBA16F:
   case PixelFormat::PIX_FMT_RGBA32F:

@@ -31,7 +31,7 @@
 #include "config/config.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 #include "widget/menu/menu.h"
 
 ViewerWidget::ViewerWidget(QWidget *parent) :
@@ -85,7 +85,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
   audio_renderer_ = new AudioBackend(this);
 
-  connect(PixelService::instance(), &PixelService::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
+  connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
   SetAutoMaxScrollBar(true);
 }
@@ -296,7 +296,7 @@ void ViewerWidget::UpdateRendererParameters()
   RenderMode::Mode render_mode = RenderMode::kOffline;
 
   VideoRenderingParams vparam(GetConnectedNode()->video_params(),
-                              PixelService::instance()->GetConfiguredFormatForMode(render_mode),
+                              PixelFormat::instance()->GetConfiguredFormatForMode(render_mode),
                               render_mode,
                               divider_);
 

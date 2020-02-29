@@ -83,7 +83,7 @@ void VideoRenderFrameCache::RemoveHashFromCurrentlyCaching(const QByteArray &has
   currently_caching_list_.removeOne(hash);
 }
 
-QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash)
+QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash) const
 {
   QList<rational> times;
 
@@ -92,6 +92,25 @@ QList<rational> VideoRenderFrameCache::FramesWithHash(const QByteArray &hash)
   for (iterator=time_hash_map_.begin();iterator!=time_hash_map_.end();iterator++) {
     if (iterator.value() == hash) {
       times.append(iterator.key());
+    }
+  }
+
+  return times;
+}
+
+QList<rational> VideoRenderFrameCache::TakeFramesWithHash(const QByteArray &hash)
+{
+  QList<rational> times;
+
+  QMap<rational, QByteArray>::iterator iterator = time_hash_map_.begin();
+
+  while (iterator != time_hash_map_.end()) {
+    if (iterator.value() == hash) {
+      times.append(iterator.key());
+
+      iterator = time_hash_map_.erase(iterator);
+    } else {
+      iterator++;
     }
   }
 
@@ -107,9 +126,11 @@ QString VideoRenderFrameCache::CachePathName(const QByteArray& hash, const Pixel
 {
   QString ext;
 
-  if (pix_fmt == PixelFormat::PIX_FMT_RGBA8 || pix_fmt == PixelFormat::PIX_FMT_RGBA16U) {
-    // For some reason, integer EXRs are extremely slow to load, so we use TIFF instead.
-    ext = QStringLiteral("tiff");
+  if (pix_fmt == PixelFormat::PIX_FMT_RGB8
+      || pix_fmt == PixelFormat::PIX_FMT_RGBA8
+      || pix_fmt == PixelFormat::PIX_FMT_RGB16U
+      || pix_fmt == PixelFormat::PIX_FMT_RGBA16U) {
+    ext = QStringLiteral("jpg");
   } else {
     ext = QStringLiteral("exr");
   }

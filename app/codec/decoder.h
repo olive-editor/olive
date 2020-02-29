@@ -142,7 +142,7 @@ public:
    * A FramePtr of valid data at this timecode or nullptr if there was nothing to retrieve at the provided timecode or
    * the media could not be opened.
    */
-  virtual FramePtr RetrieveVideo(const rational& timecode);
+  virtual FramePtr RetrieveVideo(const rational& timecode, const int& divider);
 
   /**
    * @brief Retrieve video frame

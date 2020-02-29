@@ -17,19 +17,19 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         exit 1
     fi
 
-    BUNDLE_PATH=$(find . -name "Olive.app")
+    BUNDLE_NAME=Olive.app
 
-    echo Found app at: $BUNDLE_PATH
+    mv app/$BUNDLE_NAME .
 
     # Move Qt deps into bundle
-    macdeployqt $BUNDLE_PATH
+    macdeployqt $BUNDLE_NAME
 
     # Fix other deps that macdeployqt missed
     wget -c -nv https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
-    python2 macdeployqtfix.py $BUNDLE_PATH/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
+    python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
 
     # Distribute in zip
-    zip -r Olive-$VERSION-macOS.zip $BUNDLE_PATH
+    zip -r Olive-$VERSION-macOS.zip $BUNDLE_NAME
 
 elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
 

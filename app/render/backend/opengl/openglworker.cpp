@@ -7,7 +7,7 @@
 #include "openglcolorprocessor.h"
 #include "openglrenderfunctions.h"
 #include "render/colormanager.h"
-#include "render/pixelservice.h"
+#include "render/pixelformat.h"
 
 OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, DecoderCache* decoder_cache, QObject *parent) :
   VideoRenderWorker(frame_cache, decoder_cache, parent)
