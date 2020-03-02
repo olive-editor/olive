@@ -163,7 +163,7 @@ if(DOXYGEN_FOUND)
   doxygen_add_docs(docs ALL ${OLIVE_SOURCES})
 endif()
 
-set(OLIVE_CRASH_TARGET "crashhandler")
+set(OLIVE_CRASH_TARGET "olive-crashhandler")
 
 set(OLIVE_CRASH_SOURCES
   dialog/crashhandler/crashhandler.h

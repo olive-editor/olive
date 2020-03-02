@@ -115,7 +115,7 @@ void crash_handler(int sig) {
 
   output.close();
 
-  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("crashhandler"));
+  QString crash_handler_exe = QDir(qApp->applicationDirPath()).filePath(QStringLiteral("olive-crashhandler"));
   QProcess::startDetached(crash_handler_exe, {log_path});
 
   exit(1);
