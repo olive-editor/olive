@@ -29,6 +29,7 @@
 
 class OIIODecoder : public Decoder
 {
+  Q_OBJECT
 public:
   OIIODecoder();
 
@@ -51,16 +52,23 @@ private:
 #else
   std::unique_ptr<OIIO::ImageInput> image_;
 #endif
+  static bool FileTypeIsSupported(const QString& fn);
 
-  int width_;
+  static int GetImageSequenceDigitCount(const QString& filename);
 
-  int height_;
+  static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
+
+  bool OpenImageHandler(const QString& fn);
+
+  void CloseImageHandle();
 
   PixelFormat::Format pix_fmt_;
 
   OIIO::TypeDesc type_;
 
   bool is_rgba_;
+
+  bool is_sequence_;
 
   OIIO::ImageBuf* buffer_;
 

@@ -360,6 +360,8 @@ private slots:
 
   void ImportTaskComplete(QUndoCommand* command);
 
+  bool ConfirmImageSequence(const QString &filename);
+
 };
 
 #endif // CORE_H

@@ -70,10 +70,7 @@ bool FFmpegDecoder::Open()
     return true;
   }
 
-  if (!stream()) {
-    Error(QStringLiteral("Tried to open a decoder with no footage stream set"));
-    return false;
-  }
+  Q_ASSERT(stream());
 
   int error_code;
 

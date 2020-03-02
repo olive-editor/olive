@@ -349,6 +349,21 @@ void Core::ImportTaskComplete(QUndoCommand *command)
   undo_stack_.pushIfHasChildren(command);
 }
 
+bool Core::ConfirmImageSequence(const QString& filename)
+{
+  QMessageBox mb;
+
+  mb.setIcon(QMessageBox::Question);
+  mb.setWindowTitle(tr("Possible image sequence detected"));
+  mb.setText(tr("The file '%1' looks like it might be part of an image "
+                "sequence. Would you like to import it as such?").arg(filename));
+
+  mb.addButton(QMessageBox::Yes);
+  mb.addButton(QMessageBox::No);
+
+  return (mb.exec() == QMessageBox::Yes);
+}
+
 void Core::DeclareTypesForQt()
 {
   qRegisterMetaType<NodeDependency>();

@@ -22,9 +22,13 @@
 
 #include <OpenImageIO/imagebufalgo.h>
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 
 #include "common/define.h"
+#include "config/config.h"
+#include "core.h"
 
 QStringList OIIODecoder::supported_formats_;
 
@@ -40,6 +44,164 @@ QString OIIODecoder::id()
 }
 
 bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
+{
+  if (!FileTypeIsSupported(f->filename())) {
+    return false;
+  }
+
+  std::string std_filename = f->filename().toStdString();
+
+  auto in = OIIO::ImageInput::open(std_filename);
+
+  if (!in) {
+    return false;
+  }
+
+  if (!strcmp(in->format_name(), "FFmpeg movie")) {
+    // If this is FFmpeg via OIIO, fall-through to our native FFmpeg decoder
+    return false;
+  }
+
+  // Heuristically determine whether this file is part of an image sequence or not
+  if (GetImageSequenceDigitCount(f->filename()) > 0) {
+    // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
+    // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
+    QMetaObject::invokeMethod(Core::instance(),
+                              "ConfirmImageSequence",
+                              Qt::BlockingQueuedConnection,
+                              Q_RETURN_ARG(bool, is_sequence_),
+                              Q_ARG(QString, f->filename()));
+  } else {
+    is_sequence_ = false;
+  }
+
+  ImageStreamPtr image_stream;
+
+  if (is_sequence_) {
+    VideoStreamPtr video_stream = std::make_shared<VideoStream>();
+    image_stream = video_stream;
+
+    rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
+    video_stream->set_timebase(default_timebase);
+    video_stream->set_frame_rate(default_timebase.flipped());
+
+    // FIXME: Get actual duration
+    video_stream->set_duration(200);
+  } else {
+    image_stream = std::make_shared<ImageStream>();
+  }
+
+  image_stream->set_width(in->spec().width);
+  image_stream->set_height(in->spec().height);
+
+  // Images will always have just one stream
+  image_stream->set_index(0);
+
+  // OIIO automatically premultiplies alpha
+  // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this likely reduces the
+  //        fidelity?
+  image_stream->set_premultiplied_alpha(true);
+
+  // Get stats for this image and dump them into the Footage file
+  f->add_stream(image_stream);
+
+  // If we're here, we have a successful image open
+  in->close();
+
+#if OIIO_VERSION < 10903
+  OIIO::ImageInput::destroy(in_);
+#endif
+
+  return true;
+}
+
+bool OIIODecoder::Open()
+{
+  QMutexLocker locker(&mutex_);
+
+  Q_ASSERT(stream());
+
+  if (stream()->type() != Stream::kVideo && !OpenImageHandler(stream()->footage()->filename())) {
+    return false;
+  }
+
+  open_ = true;
+
+  return true;
+}
+
+Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
+{
+  QMutexLocker locker(&mutex_);
+
+  if (!open_) {
+    return kFailedToOpen;
+  }
+
+  return kReady;
+}
+
+FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
+{
+  QMutexLocker locker(&mutex_);
+
+  if (!open_) {
+    return nullptr;
+  }
+
+  if (stream()->type() == Stream::kVideo) {
+    int64_t ts = Timecode::time_to_timestamp(timecode, stream()->timebase());
+
+    // FIXME: Many sequences start at 1 but not all
+    ts++;
+
+    OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), ts));
+
+    if (!image_) {
+      return nullptr;
+    }
+  }
+
+  FramePtr frame = Frame::Create();
+
+  frame->set_width(buffer_->spec().width / divider);
+  frame->set_height(buffer_->spec().height / divider);
+  frame->set_format(pix_fmt_);
+  frame->allocate();
+
+  OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format), frame->data());
+
+  // FIXME: This function is really slow, but is necessary to do. Is there a faster way to do it since it only needs to
+  //        be draft quality?
+  if (!OIIO::ImageBufAlgo::resize(dst, *buffer_)) {
+    qWarning() << "OIIO resize failed";
+  }
+
+  if (stream()->type() == Stream::kVideo) {
+    CloseImageHandle();
+  }
+
+  return frame;
+}
+
+void OIIODecoder::Close()
+{
+  QMutexLocker locker(&mutex_);
+
+  CloseImageHandle();
+}
+
+bool OIIODecoder::SupportsVideo()
+{
+  return true;
+}
+
+QString OIIODecoder::GetIndexFilename()
+{
+  return QString();
+}
+
+bool OIIODecoder::FileTypeIsSupported(const QString& fn)
 {
   // We prioritize OIIO over FFmpeg to pick up still images more effectively, but some OIIO decoders (notably OpenJPEG)
   // will segfault entirely if given unexpected data (an MPEG-4 for instance). To workaround this issue, we use OIIO's
@@ -57,54 +219,48 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
     }
   }
 
-  //
-  QFileInfo file_info(f->filename());
-
-  if (!supported_formats_.contains(file_info.completeSuffix(), Qt::CaseInsensitive)) {
+  if (!supported_formats_.contains(QFileInfo(fn).completeSuffix(), Qt::CaseInsensitive)) {
     return false;
   }
-
-  std::string std_filename = f->filename().toStdString();
-
-  auto in = OIIO::ImageInput::open(std_filename);
-
-  if (!in) {
-    return false;
-  }
-
-  if (!strcmp(in->format_name(), "FFmpeg movie")) {
-    // If this is FFmpeg via OIIO, fall-through to our native FFmpeg decoder
-    return false;
-  }
-
-  // Get stats for this image and dump them into the Footage file
-  const OIIO::ImageSpec& spec = in->spec();
-
-  ImageStreamPtr image_stream = std::make_shared<ImageStream>();
-  image_stream->set_width(spec.width);
-  image_stream->set_height(spec.height);
-
-  // Images will always have just one stream
-  image_stream->set_index(0);
-
-  // OIIO automatically premultiplies alpha
-  // FIXME: We usually disassociate the alpha for the color management later, for 8-bit images this likely reduces the
-  //        fidelity?
-  image_stream->set_premultiplied_alpha(true);
-
-  f->add_stream(image_stream);
-
-  // If we're here, we have a successful image open
-  in->close();
 
   return true;
 }
 
-bool OIIODecoder::Open()
+int OIIODecoder::GetImageSequenceDigitCount(const QString &filename)
 {
-  QMutexLocker locker(&mutex_);
+  QString basename = QFileInfo(filename).baseName();
 
-  image_ = OIIO::ImageInput::open(stream()->footage()->filename().toStdString());
+  // See if basename contains a number at the end
+  int digit_count = 0;
+
+  for (int i=basename.size()-1;i>=0;i--) {
+    if (basename.at(i).isDigit()) {
+      digit_count++;
+    } else {
+      break;
+    }
+  }
+
+  return digit_count;
+}
+
+QString OIIODecoder::TransformImageSequenceFileName(const QString &filename, const int64_t& number)
+{
+  int digit_count = GetImageSequenceDigitCount(filename);
+
+  QFileInfo file_info(filename);
+
+  QString original_basename = file_info.baseName();
+
+  QString new_basename = original_basename.left(original_basename.size() - digit_count)
+      .append(QStringLiteral("%1").arg(number, digit_count, 10, QChar('0')));
+
+  return file_info.dir().filePath(file_info.fileName().replace(original_basename, new_basename));
+}
+
+bool OIIODecoder::OpenImageHandler(const QString &fn)
+{
+  image_ = OIIO::ImageInput::open(fn.toStdString());
 
   if (!image_) {
     return false;
@@ -112,9 +268,6 @@ bool OIIODecoder::Open()
 
   // Check if we can work with this pixel format
   const OIIO::ImageSpec& spec = image_->spec();
-
-  width_ = spec.width;
-  height_ = spec.height;
 
   is_rgba_ = (spec.nchannels == kRGBAChannels);
 
@@ -142,50 +295,11 @@ bool OIIODecoder::Open()
 #endif
   image_->read_image(type_, buffer_->localpixels());
 
-  open_ = true;
-
   return true;
 }
 
-Decoder::RetrieveState OIIODecoder::GetRetrieveState(const rational &time)
+void OIIODecoder::CloseImageHandle()
 {
-  QMutexLocker locker(&mutex_);
-
-  if (!open_) {
-    return kFailedToOpen;
-  }
-
-  return kReady;
-}
-
-FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider)
-{
-  QMutexLocker locker(&mutex_);
-
-  if (!open_) {
-    return nullptr;
-  }
-
-  FramePtr frame = Frame::Create();
-
-  frame->set_width(width_ / divider);
-  frame->set_height(height_ / divider);
-  frame->set_format(pix_fmt_);
-  frame->allocate();
-
-  OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format), frame->data());
-
-  if (!OIIO::ImageBufAlgo::resize(dst, *buffer_)) {
-    qWarning() << "OIIO resize failed";
-  }
-
-  return frame;
-}
-
-void OIIODecoder::Close()
-{
-  QMutexLocker locker(&mutex_);
-
   if (image_) {
     image_->close();
 #if OIIO_VERSION < 10903
@@ -194,16 +308,8 @@ void OIIODecoder::Close()
     image_ = nullptr;
   }
 
-  delete buffer_;
-  buffer_ = nullptr;
-}
-
-bool OIIODecoder::SupportsVideo()
-{
-  return true;
-}
-
-QString OIIODecoder::GetIndexFilename()
-{
-  return QString();
+  if (buffer_) {
+    delete buffer_;
+    buffer_ = nullptr;
+  }
 }
