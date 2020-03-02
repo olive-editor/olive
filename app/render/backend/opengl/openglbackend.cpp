@@ -31,8 +31,10 @@ bool OpenGLBackend::InitInternal()
   if (!proxy_->Init()) {
     proxy_thread->quit();
     proxy_thread->wait();
-    delete proxy_thread;
-    delete proxy_;
+    proxy_thread->deleteLater();
+
+    proxy_->deleteLater();
+    proxy_ = nullptr;
     return false;
   }
 
@@ -54,7 +56,11 @@ bool OpenGLBackend::InitInternal()
 void OpenGLBackend::CloseInternal()
 {
   if (proxy_) {
-    delete proxy_;
+    proxy_->thread()->quit();
+    proxy_->thread()->wait();
+    proxy_->thread()->deleteLater();
+
+    proxy_->deleteLater();
     proxy_ = nullptr;
   }
 

@@ -21,6 +21,8 @@ OpenGLProxy::OpenGLProxy(QObject *parent) :
 
 OpenGLProxy::~OpenGLProxy()
 {
+  Close();
+
   surface_.destroy();
 }
 
@@ -178,6 +180,7 @@ void OpenGLProxy::Close()
   buffer_.Destroy();
   functions_ = nullptr;
   delete ctx_;
+  ctx_ = nullptr;
 }
 
 void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)

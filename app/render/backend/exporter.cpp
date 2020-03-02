@@ -50,6 +50,24 @@ const QString &Exporter::GetExportError() const
   return export_msg_;
 }
 
+void Exporter::Cancel()
+{
+  if (video_backend_) {
+    video_backend_->CancelQueue();
+    video_backend_->deleteLater();
+    video_backend_ = nullptr;
+  }
+
+  if (audio_backend_) {
+    audio_backend_->CancelQueue();
+    audio_backend_->deleteLater();
+    audio_backend_ = nullptr;
+  }
+
+  SetExportMessage(tr("User cancelled export"));
+  ExportStopped();
+}
+
 void Exporter::StartExporting()
 {
   // Default to error state until ExportEnd is called
@@ -101,6 +119,7 @@ void Exporter::ExportSucceeded()
 
   if (video_backend_) {
     video_backend_->deleteLater();
+    video_backend_ = nullptr;
   }
 
   export_status_ = true;
@@ -112,9 +131,10 @@ void Exporter::ExportSucceeded()
                             Qt::QueuedConnection);
 }
 
-void Exporter::ExportFailed()
+void Exporter::ExportStopped()
 {
   emit ExportEnded();
+  encoder_->deleteLater();
 }
 
 void Exporter::EncodeFrame()
@@ -195,6 +215,7 @@ void Exporter::AudioRendered()
 
   // We don't need the audio backend anymore
   audio_backend_->deleteLater();
+  audio_backend_ = nullptr;
 }
 
 void Exporter::AudioEncodeComplete()
@@ -225,14 +246,14 @@ void Exporter::EncoderOpenedSuccessfully()
 
 void Exporter::EncoderOpenFailed()
 {
-  SetExportMessage("Failed to open encoder");
-  ExportFailed();
+  SetExportMessage(tr("Failed to open encoder"));
+  ExportStopped();
 }
 
 void Exporter::EncoderClosed()
 {
   emit ProgressChanged(100);
-  emit ExportEnded();
+  ExportStopped();
 }
 
 void Exporter::VideoHashesComplete()

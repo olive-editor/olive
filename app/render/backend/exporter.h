@@ -26,6 +26,8 @@ public:
   bool GetExportStatus() const;
   const QString& GetExportError() const;
 
+  void Cancel();
+
 public slots:
   void StartExporting();
 
@@ -58,7 +60,7 @@ protected:
 private:
   void ExportSucceeded();
 
-  void ExportFailed();
+  void ExportStopped();
 
   void EncodeFrame();
 

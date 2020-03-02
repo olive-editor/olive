@@ -326,7 +326,10 @@ void RenderBackend::CancelQueue()
     if (processor_busy_state_.at(i))
       busy++;
   }
-  qDebug() << this << "is waiting for" << busy << "busy workers";
+
+  if (busy) {
+    qDebug() << this << "is waiting for" << busy << "busy workers";
+  }
 
   cancel_dialog_->RunIfWorkersAreBusy();
 }

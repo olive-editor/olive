@@ -1,5 +1,6 @@
 #include "export.h"
 
+#include <QCloseEvent>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -11,14 +12,15 @@
 
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
-#include "render/backend/exporter.h"
 #include "render/pixelformat.h"
 #include "ui/icons/icons.h"
 
 ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   QDialog(parent),
   viewer_node_(viewer_node),
-  previously_selected_format_(0)
+  previously_selected_format_(0),
+  exporter_(nullptr),
+  cancelled_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
 
@@ -26,8 +28,13 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   splitter->setChildrenCollapsible(false);
   layout->addWidget(splitter);
 
+  QWidget* outer_preferences_area = new QWidget();
+  QVBoxLayout* outer_preferences_layout = new QVBoxLayout(outer_preferences_area);
+
   preferences_area_ = new QWidget();
+  outer_preferences_layout->addWidget(preferences_area_);
   QGridLayout* preferences_layout = new QGridLayout(preferences_area_);
+  preferences_layout->setMargin(0);
 
   int row = 0;
 
@@ -110,14 +117,20 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   preferences_tabs->addTab(audio_area, tr("Audio"));
   preferences_layout->addWidget(preferences_tabs, row, 0, 1, 4);
 
-  row++;
+  QHBoxLayout* progress_bar_layout = new QHBoxLayout();
+  progress_bar_layout->setMargin(0);
+  outer_preferences_layout->addLayout(progress_bar_layout);
 
   progress_bar_ = new QProgressBar();
   progress_bar_->setEnabled(false);
   progress_bar_->setValue(0);
-  preferences_layout->addWidget(progress_bar_, row, 0, 1, 4);
+  progress_bar_layout->addWidget(progress_bar_);
 
-  row++;
+  export_cancel_btn_ = new QPushButton();
+  export_cancel_btn_->setIcon(icon::Error);
+  export_cancel_btn_->setEnabled(false);
+  connect(export_cancel_btn_, &QPushButton::clicked, this, &ExportDialog::CancelExport);
+  progress_bar_layout->addWidget(export_cancel_btn_);
 
   buttons_ = new QDialogButtonBox();
   buttons_->setCenterButtons(true);
@@ -125,9 +138,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   buttons_->addButton(QDialogButtonBox::Cancel);
   connect(buttons_, SIGNAL(accepted()), this, SLOT(accept()));
   connect(buttons_, SIGNAL(rejected()), this, SLOT(reject()));
-  preferences_layout->addWidget(buttons_, row, 0, 1, 4);
+  outer_preferences_layout->addWidget(buttons_);
 
-  splitter->addWidget(preferences_area_);
+  splitter->addWidget(outer_preferences_area);
 
   QWidget* preview_area = new QWidget();
   QVBoxLayout* preview_layout = new QVBoxLayout(preview_area);
@@ -244,26 +257,38 @@ void ExportDialog::accept()
 
   Encoder* encoder = Encoder::CreateFromID("ffmpeg", encoding_params);
 
-  Exporter* exporter = new Exporter(viewer_node_, encoder);
+  exporter_ = new Exporter(viewer_node_, encoder);
 
   if (video_enabled_->isChecked()) {
-    exporter->EnableVideo(video_render_params, transform, color_processor);
+    exporter_->EnableVideo(video_render_params, transform, color_processor);
   }
 
   if (audio_enabled_->isChecked()) {
-    exporter->EnableAudio(audio_render_params);
+    exporter_->EnableAudio(audio_render_params);
   }
 
-  connect(exporter, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
-  connect(exporter, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
+  connect(exporter_, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
+  connect(exporter_, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
 
-  QMetaObject::invokeMethod(exporter, "StartExporting", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(exporter_, "StartExporting", Qt::QueuedConnection);
 
   SetUIElementsEnabled(false);
 }
 
 void ExportDialog::closeEvent(QCloseEvent *e)
 {
+  if (exporter_) {
+    if (QMessageBox::question(this,
+                              tr("Still Exporting"),
+                              tr("This sequence is still being exported. Do you wish to cancel it?"),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+      CancelExport();
+    } else {
+      e->ignore();
+      return;
+    }
+  }
+
   preview_viewer_->ConnectViewerNode(nullptr);
 
   QDialog::closeEvent(e);
@@ -464,7 +489,9 @@ QMatrix4x4 ExportDialog::GenerateMatrix(ExportVideoTab::ScalingMethod method, in
 void ExportDialog::SetUIElementsEnabled(bool enabled)
 {
   preferences_area_->setEnabled(enabled);
-  //buttons_->setEnabled(false);
+  buttons_->setEnabled(enabled);
+
+  export_cancel_btn_->setEnabled(!enabled);
 }
 
 void ExportDialog::UpdateViewerDimensions()
@@ -481,9 +508,7 @@ void ExportDialog::UpdateViewerDimensions()
 
 void ExportDialog::ExporterIsDone()
 {
-  Exporter* exporter = static_cast<Exporter*>(sender());
-
-  if (exporter->GetExportStatus()) {
+  if (exporter_->GetExportStatus()) {
     QMessageBox::information(this,
                              tr("Export Status"),
                              tr("Export completed successfully."),
@@ -491,11 +516,25 @@ void ExportDialog::ExporterIsDone()
 
     QDialog::accept();
   } else {
-    QMessageBox::critical(this,
-                          tr("Export Status"),
-                          tr("Export failed: %1").arg(exporter->GetExportError()),
-                          QMessageBox::Ok);
+    if (!cancelled_) {
+      QMessageBox::critical(this,
+                            tr("Export Status"),
+                            tr("Export failed: %1").arg(exporter_->GetExportError()),
+                            QMessageBox::Ok);
+    }
 
     SetUIElementsEnabled(true);
+  }
+
+  exporter_->deleteLater();
+  exporter_ = nullptr;
+  cancelled_ = false;
+}
+
+void ExportDialog::CancelExport()
+{
+  if (exporter_) {
+    cancelled_ = true;
+    exporter_->Cancel();
   }
 }

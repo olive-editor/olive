@@ -11,6 +11,7 @@
 #include "exportcodec.h"
 #include "exportformat.h"
 #include "exportvideotab.h"
+#include "render/backend/exporter.h"
 #include "widget/viewer/viewer.h"
 
 class ExportDialog : public QDialog
@@ -48,6 +49,8 @@ private:
   QLineEdit* filename_edit_;
   QComboBox* format_combobox_;
 
+  Exporter* exporter_;
+
   ExportVideoTab* video_tab_;
   ExportAudioTab* audio_tab_;
 
@@ -59,6 +62,9 @@ private:
 
   QWidget* preferences_area_;
   QDialogButtonBox* buttons_;
+  QPushButton* export_cancel_btn_;
+
+  bool cancelled_;
 
   enum Format {
     kFormatDNxHD,
@@ -101,6 +107,8 @@ private slots:
   void UpdateViewerDimensions();
 
   void ExporterIsDone();
+
+  void CancelExport();
 
 };
 
