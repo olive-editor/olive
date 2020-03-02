@@ -47,6 +47,11 @@ const QHash<Node *, NodeViewItem *> &NodeViewScene::item_map() const
   return item_map_;
 }
 
+const QHash<NodeEdge *, NodeViewEdge *> &NodeViewScene::edge_map() const
+{
+  return edge_map_;
+}
+
 void NodeViewScene::AddNode(Node* node)
 {
   NodeViewItem* item = new NodeViewItem();

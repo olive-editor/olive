@@ -147,14 +147,10 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
 
 void NodeView::ItemsChanged()
 {
-  QList<QGraphicsItem*> items = scene_.items();
+  QHash<NodeEdge *, NodeViewEdge *>::const_iterator i;
 
-  foreach (QGraphicsItem* item, items) {
-    NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(item);
-
-    if (edge != nullptr) {
-      edge->Adjust();
-    }
+  for (i=scene_.edge_map().begin();i!=scene_.edge_map().end();i++) {
+    i.value()->Adjust();
   }
 }
 

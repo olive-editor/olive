@@ -39,6 +39,7 @@ public:
   void SetGraph(NodeGraph* graph);
 
   const QHash<Node*, NodeViewItem*>& item_map() const;
+  const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;
 
 public slots:
   /**
