@@ -55,7 +55,7 @@ public:
   void DeselectAll();
 
   void Select(const QList<Node*>& nodes);
-  void SelectWithDependencies(const QList<Node*>& nodes);
+  void SelectWithDependencies(QList<Node *> nodes);
 
 signals:
   /**

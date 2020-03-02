@@ -119,9 +119,9 @@ void NodeView::SelectAll()
 
 void NodeView::DeselectAll()
 {
-  QList<QGraphicsItem *> all_items = this->items();
+  QList<QGraphicsItem *> selected_items = scene_.selectedItems();
 
-  foreach (QGraphicsItem* i, all_items) {
+  foreach (QGraphicsItem* i, selected_items) {
     i->setSelected(false);
   }
 }
@@ -131,37 +131,18 @@ void NodeView::Select(const QList<Node *> &nodes)
   DeselectAll();
 
   foreach (Node* n, nodes) {
-    NodeViewItem* item = scene_.NodeToUIObject(n);
-
-    if (item) {
-      item->setSelected(true);
-    }
+    scene_.NodeToUIObject(n)->setSelected(true);
   }
 }
 
-void NodeView::SelectWithDependencies(const QList<Node *> &nodes)
+void NodeView::SelectWithDependencies(QList<Node *> nodes)
 {
-  DeselectAll();
-
-  QList<Node*> nodes_with_deps;
-
-  foreach (Node* n, nodes) {
-    NodeViewItem* item = scene_.NodeToUIObject(n);
-
-    if (item) {
-      item->setSelected(true);
-    }
-
-    QList<Node*> deps = n->GetDependencies();
-
-    foreach (Node* d, deps) {
-      item = scene_.NodeToUIObject(d);
-
-      if (item) {
-        item->setSelected(true);
-      }
-    }
+  int original_length = nodes.size();
+  for (int i=0;i<original_length;i++) {
+    nodes.append(nodes.at(i)->GetDependencies());
   }
+
+  Select(nodes);
 }
 
 void NodeView::ItemsChanged()
