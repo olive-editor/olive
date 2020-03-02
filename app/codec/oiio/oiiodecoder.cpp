@@ -85,6 +85,9 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
     video_stream->set_timebase(default_timebase);
     video_stream->set_frame_rate(default_timebase.flipped());
 
+    // FIXME: Get actual start number
+    video_stream->set_start_time(1);
+
     // FIXME: Get actual duration
     video_stream->set_duration(200);
   } else {
@@ -152,12 +155,9 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
   if (stream()->type() == Stream::kVideo) {
     int64_t ts = Timecode::time_to_timestamp(timecode, stream()->timebase());
 
-    // FIXME: Many sequences start at 1 but not all
-    ts++;
+    ts += static_cast<VideoStream*>(stream().get())->start_time();
 
-    OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), ts));
-
-    if (!image_) {
+    if (!OpenImageHandler(TransformImageSequenceFileName(stream()->footage()->filename(), ts))) {
       return nullptr;
     }
   }
@@ -169,12 +169,14 @@ FramePtr OIIODecoder::RetrieveVideo(const rational &timecode, const int& divider
   frame->set_format(pix_fmt_);
   frame->allocate();
 
-  OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format), frame->data());
+  if (divider == 1) {
+    memcpy(frame->data(), buffer_->localpixels(), frame->allocated_size());
+  } else {
+    OIIO::ImageBuf dst(OIIO::ImageSpec(frame->width(), frame->height(), buffer_->spec().nchannels, buffer_->spec().format), frame->data());
 
-  // FIXME: This function is really slow, but is necessary to do. Is there a faster way to do it since it only needs to
-  //        be draft quality?
-  if (!OIIO::ImageBufAlgo::resize(dst, *buffer_)) {
-    qWarning() << "OIIO resize failed";
+    if (!OIIO::ImageBufAlgo::resample(dst, *buffer_)) {
+      qWarning() << "OIIO resize failed";
+    }
   }
 
   if (stream()->type() == Stream::kVideo) {
