@@ -3,6 +3,7 @@
 
 #include <QMatrix4x4>
 #include <QString>
+#include <QTimer>
 #include <QObject>
 
 #include "codec/encoder.h"
@@ -73,6 +74,8 @@ private:
 
   QHash<rational, FramePtr> cached_frames_;
 
+  QTimer debug_timer_;
+
 private slots:
   void FrameRendered(const rational &time, FramePtr value);
 
@@ -87,6 +90,8 @@ private slots:
   void EncoderClosed();
 
   void VideoHashesComplete();
+
+  void DebugTimerMessage();
 
 };
 

@@ -18,6 +18,9 @@ Exporter::Exporter(ViewerOutput* viewer,
   export_status_(false),
   export_msg_(tr("Export hasn't started yet"))
 {
+  debug_timer_.setInterval(5000);
+  connect(&debug_timer_, &QTimer::timeout, this, &Exporter::DebugTimerMessage);
+
   connect(this, &Exporter::ExportEnded, this, &Exporter::deleteLater);
 }
 
@@ -148,6 +151,7 @@ void Exporter::EncodeFrame()
 
   if (waiting_for_frame_ >= viewer_node_->Length()) {
     video_done_ = true;
+    debug_timer_.stop();
 
     ExportSucceeded();
   }
@@ -155,6 +159,8 @@ void Exporter::EncodeFrame()
 
 void Exporter::FrameRendered(const rational &time, FramePtr value)
 {
+  debug_timer_.stop();
+
   const QMap<rational, QByteArray>& time_hash_map = video_backend_->frame_cache()->time_hash_map();
 
   QByteArray this_hash = time_hash_map.value(time);
@@ -172,6 +178,8 @@ void Exporter::FrameRendered(const rational &time, FramePtr value)
   qDebug() << "    Waiting for" << waiting_for_frame_.toDouble();
 
   EncodeFrame();
+
+  debug_timer_.start();
 }
 
 void Exporter::AudioRendered()
@@ -246,4 +254,9 @@ void Exporter::VideoHashesComplete()
   foreach (const TimeRange& range, ranges) {
     video_backend_->InvalidateCache(range);
   }
+}
+
+void Exporter::DebugTimerMessage()
+{
+  qDebug() << "Still waiting for" << waiting_for_frame_.toDouble();
 }
