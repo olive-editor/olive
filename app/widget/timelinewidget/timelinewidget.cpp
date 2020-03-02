@@ -690,6 +690,10 @@ void TimelineWidget::RemoveTrack(TrackOutput *track)
 
 void TimelineWidget::ViewSelectionChanged()
 {
+  if (rubberband_.isVisible()) {
+    return;
+  }
+
   QList<TimelineViewBlockItem*> selected_items = GetSelectedBlocks();
   QList<Node*> selected_blocks;
 
@@ -881,4 +885,6 @@ void TimelineWidget::EndRubberBandSelect(bool enable_selecting, bool select_link
   MoveRubberBandSelect(enable_selecting, select_links);
   rubberband_.hide();
   rubberband_now_selected_.clear();
+
+  ViewSelectionChanged();
 }
