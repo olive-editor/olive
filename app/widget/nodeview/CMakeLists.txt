@@ -24,6 +24,8 @@ set(OLIVE_SOURCES
   widget/nodeview/nodeviewitem.cpp
   widget/nodeview/nodeviewitemwidgetproxy.h
   widget/nodeview/nodeviewitemwidgetproxy.cpp
+  widget/nodeview/nodeviewscene.h
+  widget/nodeview/nodeviewscene.cpp
   widget/nodeview/nodeviewundo.h
   widget/nodeview/nodeviewundo.cpp
   PARENT_SCOPE

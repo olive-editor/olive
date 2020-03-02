@@ -39,8 +39,6 @@ NodeView::NodeView(QWidget *parent) :
   connect(&scene_, &QGraphicsScene::changed, this, &NodeView::ItemsChanged);
   connect(&scene_, &QGraphicsScene::selectionChanged, this, &NodeView::SceneSelectionChangedSlot);
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
-  connect(&reorganize_timer_, &QTimer::timeout, &reorganize_timer_, &QTimer::stop);
-  connect(&reorganize_timer_, &QTimer::timeout, this, &NodeView::Reorganize);
 
   setMouseTracking(true);
 }
@@ -58,10 +56,10 @@ void NodeView::SetGraph(NodeGraph *graph)
   }
 
   if (graph_ != nullptr) {
-    disconnect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
-    disconnect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
-    disconnect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
-    disconnect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::RemoveEdge);
+    disconnect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
+    disconnect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
+    disconnect(graph_, &NodeGraph::EdgeAdded, &scene_, &NodeViewScene::AddEdge);
+    disconnect(graph_, &NodeGraph::EdgeRemoved, &scene_, &NodeViewScene::RemoveEdge);
   }
 
   // Clear the scene of all UI objects
@@ -69,64 +67,21 @@ void NodeView::SetGraph(NodeGraph *graph)
 
   // Set reference to the graph
   graph_ = graph;
+  scene_.SetGraph(graph_);
 
   // If the graph is valid, add UI objects for each of its Nodes
   if (graph_ != nullptr) {
-    connect(graph_, &NodeGraph::NodeAdded, this, &NodeView::AddNode);
-    connect(graph_, &NodeGraph::NodeRemoved, this, &NodeView::RemoveNode);
-    connect(graph_, &NodeGraph::EdgeAdded, this, &NodeView::AddEdge);
-    connect(graph_, &NodeGraph::EdgeRemoved, this, &NodeView::RemoveEdge);
+    connect(graph_, &NodeGraph::NodeAdded, &scene_, &NodeViewScene::AddNode);
+    connect(graph_, &NodeGraph::NodeRemoved, &scene_, &NodeViewScene::RemoveNode);
+    connect(graph_, &NodeGraph::EdgeAdded, &scene_, &NodeViewScene::AddEdge);
+    connect(graph_, &NodeGraph::EdgeRemoved, &scene_, &NodeViewScene::RemoveEdge);
 
     QList<Node*> graph_nodes = graph_->nodes();
 
     foreach (Node* node, graph_nodes) {
-      AddNode(node);
+      scene_.AddNode(node);
     }
   }
-}
-
-NodeViewItem *NodeView::NodeToUIObject(QGraphicsScene *scene, Node *n)
-{
-  QList<QGraphicsItem*> graphics_items = scene->items();
-
-  for (int i=0;i<graphics_items.size();i++) {
-    NodeViewItem* item = dynamic_cast<NodeViewItem*>(graphics_items.at(i));
-
-    if (item != nullptr) {
-      if (item->node() == n) {
-        return item;
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-NodeViewEdge *NodeView::EdgeToUIObject(QGraphicsScene *scene, NodeEdgePtr n)
-{
-  QList<QGraphicsItem*> graphics_items = scene->items();
-
-  for (int i=0;i<graphics_items.size();i++) {
-    NodeViewEdge* edge = dynamic_cast<NodeViewEdge*>(graphics_items.at(i));
-
-    if (edge != nullptr) {
-      if (edge->edge() == n) {
-        return edge;
-      }
-    }
-  }
-
-  return nullptr;
-}
-
-NodeViewItem *NodeView::NodeToUIObject(Node *n)
-{
-  return NodeToUIObject(&scene_, n);
-}
-
-NodeViewEdge *NodeView::EdgeToUIObject(NodeEdgePtr n)
-{
-  return EdgeToUIObject(&scene_, n);
 }
 
 void NodeView::DeleteSelected()
@@ -176,7 +131,7 @@ void NodeView::Select(const QList<Node *> &nodes)
   DeselectAll();
 
   foreach (Node* n, nodes) {
-    NodeViewItem* item = NodeToUIObject(n);
+    NodeViewItem* item = scene_.NodeToUIObject(n);
 
     if (item) {
       item->setSelected(true);
@@ -191,7 +146,7 @@ void NodeView::SelectWithDependencies(const QList<Node *> &nodes)
   QList<Node*> nodes_with_deps;
 
   foreach (Node* n, nodes) {
-    NodeViewItem* item = NodeToUIObject(n);
+    NodeViewItem* item = scene_.NodeToUIObject(n);
 
     if (item) {
       item->setSelected(true);
@@ -200,63 +155,13 @@ void NodeView::SelectWithDependencies(const QList<Node *> &nodes)
     QList<Node*> deps = n->GetDependencies();
 
     foreach (Node* d, deps) {
-      item = NodeToUIObject(d);
+      item = scene_.NodeToUIObject(d);
 
       if (item) {
         item->setSelected(true);
       }
     }
   }
-}
-
-void NodeView::AddNode(Node* node)
-{
-  NodeViewItem* item = new NodeViewItem();
-
-  item->SetNode(node);
-
-  scene_.addItem(item);
-
-  // Add a NodeViewEdge for each connection
-  foreach (NodeParam* param, node->parameters()) {
-
-    // We only bother working with outputs since eventually this will cover all inputs too
-    // (covering both would lead to duplicates since every edge connects to one input and one output)
-    if (param->type() == NodeParam::kOutput) {
-      const QVector<NodeEdgePtr>& edges = param->edges();
-
-      foreach(NodeEdgePtr edge, edges) {
-        AddEdge(edge);
-      }
-    }
-  }
-
-  QueueReorganize();
-}
-
-void NodeView::RemoveNode(Node *node)
-{
-  NodeViewItem* item = NodeToUIObject(scene(), node);
-
-  delete item;
-}
-
-void NodeView::AddEdge(NodeEdgePtr edge)
-{
-  NodeViewEdge* edge_ui = new NodeViewEdge();
-
-  edge_ui->SetEdge(edge);
-
-  scene_.addItem(edge_ui);
-
-  QueueReorganize();
-}
-
-void NodeView::RemoveEdge(NodeEdgePtr edge)
-{
-  NodeViewEdge* edge_ui = EdgeToUIObject(scene(), edge);
-
-  delete edge_ui;
 }
 
 void NodeView::ItemsChanged()
@@ -416,7 +321,7 @@ void NodeView::CreateNodeSlot(QAction *action)
   if (new_node) {
     Core::instance()->undo_stack()->push(new NodeAddCommand(graph_, new_node));
 
-    NodeViewItem* item = NodeToUIObject(new_node);
+    NodeViewItem* item = scene_.NodeToUIObject(new_node);
     AttachItemToCursor(item);
   }
 }
@@ -555,115 +460,6 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
   }
 }
 
-QList<Node *> NodeView::GetNodeDirectDescendants(Node* n, const QList<Node*> connected_nodes, QList<Node*>& processed_nodes)
-{
-  QList<Node*> direct_descendants = connected_nodes;
-
-  processed_nodes.append(n);
-
-  // Remove any nodes that aren't necessarily attached directly
-  for (int i=0;i<direct_descendants.size();i++) {
-    Node* connected = direct_descendants.at(i);
-
-    for (int j=1;j<connected->output()->edges().size();j++) {
-      Node* this_output_connection = connected->output()->edges().at(j)->input()->parentNode();
-      if (!processed_nodes.contains(this_output_connection)) {
-        direct_descendants.removeAt(i);
-        i--;
-        break;
-      }
-    }
-  }
-
-  return direct_descendants;
-}
-
-int NodeView::FindWeightsInternal(Node *node, QHash<Node *, int> &weights, QList<Node*>& weighted_nodes)
-{
-  QList<Node*> connected_nodes = node->GetImmediateDependencies();
-
-  int weight = 0;
-
-  if (!connected_nodes.isEmpty()) {
-    QList<Node*> direct_descendants = GetNodeDirectDescendants(node, connected_nodes, weighted_nodes);
-
-    foreach (Node* dep, direct_descendants) {
-      weight += FindWeightsInternal(dep, weights, weighted_nodes);
-    }
-  }
-
-  weight = qMax(weight, 1);
-
-  weights.insert(node, weight);
-
-  return weight;
-}
-
-void NodeView::ReorganizeInternal(NodeViewItem* src_item, QHash<Node*, int>& weights, QList<Node*>& positioned_nodes)
-{
-  Node* n = src_item->node();
-
-  QList<Node*> connected_nodes = n->GetImmediateDependencies();
-
-  if (connected_nodes.isEmpty()) {
-    return;
-  }
-
-  QList<Node*> direct_descendants = GetNodeDirectDescendants(n, connected_nodes, positioned_nodes);
-
-  int descendant_weight = 0;
-  foreach (Node* dep, direct_descendants) {
-    descendant_weight += weights.value(dep);
-  }
-
-  qreal center_y = src_item->y();
-  qreal total_height = descendant_weight * src_item->rect().height() + (direct_descendants.size()-1) * src_item->rect().height()/2;
-  double item_top = center_y - (total_height/2) + src_item->rect().height()/2;
-
-  // Set each node's position
-  int weight_index = 0;
-  for (int i=0;i<direct_descendants.size();i++) {
-    Node* connected = direct_descendants.at(i);
-
-    NodeViewItem* item = NodeToUIObject(connected);
-
-    if (!item) {
-      continue;
-    }
-
-    double item_y = item_top;
-
-    // Multiply the index by the item height (with 1.5 for padding)
-    item_y += weight_index * src_item->rect().height() * 1.5;
-
-    QPointF item_pos(src_item->pos().x() - item->rect().width() * 3 / 2,
-                     item_y);
-
-    item->setPos(item_pos);
-
-    weight_index += weights.value(connected);
-  }
-
-  // Recursively work on each node
-  foreach (Node* connected, connected_nodes) {
-    NodeViewItem* item = NodeToUIObject(connected);
-
-    if (!item) {
-      continue;
-    }
-
-    ReorganizeInternal(item, weights, positioned_nodes);
-  }
-}
-
-void NodeView::QueueReorganize()
-{
-  // Avoids the fairly complex Reorganize() function every single time a connection or node is added
-
-  reorganize_timer_.stop();
-  reorganize_timer_.start(20);
-}
-
 void NodeView::AttachItemToCursor(NodeViewItem *item)
 {
   attached_item_ = item;
@@ -674,33 +470,4 @@ void NodeView::AttachItemToCursor(NodeViewItem *item)
 void NodeView::DetachItemFromCursor()
 {
   AttachItemToCursor(nullptr);
-}
-
-void NodeView::Reorganize()
-{
-  if (!graph_) {
-    return;
-  }
-
-  QList<Node*> end_nodes;
-
-  // Calculate the nodes that don't output to anything, they'll be our anchors
-  foreach (Node* node, graph_->nodes()) {
-    if (!node->HasConnectedOutputs()) {
-      end_nodes.append(node);
-    }
-  }
-
-  QList<Node*> processed_nodes;
-
-  QHash<Node*, int> node_weights;
-  foreach (Node* end_node, end_nodes) {
-    FindWeightsInternal(end_node, node_weights, processed_nodes);
-  }
-
-  processed_nodes.clear();
-
-  foreach (Node* end_node, end_nodes) {
-    ReorganizeInternal(NodeToUIObject(end_node), node_weights, processed_nodes);
-  }
 }

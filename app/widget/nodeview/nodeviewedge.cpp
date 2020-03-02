@@ -27,6 +27,7 @@
 #include "common/clamp.h"
 #include "common/lerp.h"
 #include "nodeview.h"
+#include "nodeviewscene.h"
 
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
@@ -77,13 +78,17 @@ qreal CalculateEdgeYPoint(NodeViewItem *item, NodeParam* param, NodeViewItem *op
 
 void NodeViewEdge::Adjust()
 {
-  if (edge_ == nullptr || scene() == nullptr) {
+  if (!edge_ || !scene()) {
     return;
   }
 
   // Get the UI objects of both nodes that this edge connects
-  NodeViewItem* output = NodeView::NodeToUIObject(scene(), edge_->output()->parentNode());
-  NodeViewItem* input = NodeView::NodeToUIObject(scene(), edge_->input()->parentNode());
+  NodeViewItem* output = static_cast<NodeViewScene*>(scene())->NodeToUIObject(edge_->output()->parentNode());
+  NodeViewItem* input = static_cast<NodeViewScene*>(scene())->NodeToUIObject(edge_->input()->parentNode());
+
+  if (!output || !input) {
+    return;
+  }
 
   // Create initial values
   QPointF output_point = QPointF(output->pos().x() + output->rect().left() + output->rect().width(), 0);

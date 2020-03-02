@@ -29,6 +29,7 @@
 #include "common/qtutils.h"
 #include "core.h"
 #include "nodeview.h"
+#include "nodeviewscene.h"
 #include "nodeviewundo.h"
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
@@ -326,12 +327,12 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
           drag_src_param_ = edge->output();
 
           // Get its Node UI object
-          drag_source_ = NodeView::NodeToUIObject(scene(), drag_src_param_->parentNode());
+          drag_source_ = static_cast<NodeViewScene*>(scene())->NodeToUIObject(drag_src_param_->parentNode());
 
           // Get the opposing parameter's rect center using the line's current coordinates
           // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
           //  node is collapsed, therefore it's easier to just retrieve it from line itself)
-          NodeViewEdge* existing_edge_ui = NodeView::EdgeToUIObject(scene(), edge);
+          NodeViewEdge* existing_edge_ui = static_cast<NodeViewScene*>(scene())->EdgeToUIObject(edge);
           QPainterPath existing_edge_line = existing_edge_ui->path();
           QPointF edge_start = existing_edge_line.pointAtPercent(0);
           QPointF edge_end = existing_edge_line.pointAtPercent(1);
