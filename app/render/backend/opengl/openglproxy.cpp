@@ -69,7 +69,6 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
     }
   }
 
-  // Since this is a still image, we could likely optimize this
   if (!footage_tex_ref) {
     OpenGLColorProcessorPtr color_processor = std::static_pointer_cast<OpenGLColorProcessor>(color_cache_.Get(colorspace_match));
 
@@ -83,6 +82,11 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
     ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
 
     FramePtr frame = decoder->RetrieveVideo(range.in(), video_params_.divider());
+
+    if (!frame) {
+      // Nothing to be done
+      return;
+    }
 
     // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
     if (ocio_method == ColorManager::kOCIOAccurate) {
@@ -160,6 +164,7 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
     }
 
     if (stream->type() == Stream::kImage) {
+      // Since this is a still image, we could likely optimize this
       still_image_cache_.Add(stream.get(), {footage_tex_ref, colorspace_match, video_stream->premultiplied_alpha(), video_params_.divider()});
     }
   }
