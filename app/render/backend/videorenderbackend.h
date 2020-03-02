@@ -131,6 +131,7 @@ private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed);
   void ThreadSkippedFrame(NodeDependency dep, qint64 job_time, QByteArray hash);
   void ThreadHashAlreadyExists(NodeDependency dep, qint64 job_time, QByteArray hash);
+  void ThreadGeneratedFrame();
 
   void TruncateFrameCacheLength(const rational& length);
 

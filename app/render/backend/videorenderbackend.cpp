@@ -144,6 +144,7 @@ void VideoRenderBackend::ConnectWorkerToThis(RenderWorker *processor)
   connect(video_processor, &VideoRenderWorker::CompletedDownload, this, &VideoRenderBackend::ThreadCompletedDownload, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::HashAlreadyExists, this, &VideoRenderBackend::ThreadHashAlreadyExists, Qt::QueuedConnection);
   connect(video_processor, &VideoRenderWorker::GeneratedFrame, this, &VideoRenderBackend::GeneratedFrame, Qt::QueuedConnection);
+  connect(video_processor, &VideoRenderWorker::GeneratedFrame, this, &VideoRenderBackend::ThreadGeneratedFrame, Qt::QueuedConnection);
 }
 
 void VideoRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
@@ -304,6 +305,13 @@ void VideoRenderBackend::ThreadHashAlreadyExists(NodeDependency dep, qint64 job_
   }
 
   // Queue up a new frame for this worker
+  CacheNext();
+}
+
+void VideoRenderBackend::ThreadGeneratedFrame()
+{
+  SetWorkerBusyState(static_cast<RenderWorker*>(sender()), false);
+
   CacheNext();
 }
 
