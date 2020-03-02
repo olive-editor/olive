@@ -48,17 +48,6 @@ QComboBox *ExportVideoTab::scaling_method_combobox() const
   return scaling_method_combobox_;
 }
 
-QCheckBox *ExportVideoTab::image_sequence_checkbox() const
-{
-  return image_sequence_checkbox_;
-}
-
-void ExportVideoTab::show_image_sequence_section(bool visible)
-{
-  image_sequence_checkbox_->setVisible(visible);
-  image_sequence_label_->setVisible(visible);
-}
-
 const rational &ExportVideoTab::frame_rate() const
 {
   return frame_rates_.at(frame_rate_combobox_->currentIndex());
@@ -82,6 +71,26 @@ QString ExportVideoTab::CurrentOCIOView()
 QString ExportVideoTab::CurrentOCIOLook()
 {
   return looks_combobox_->currentData().toString();
+}
+
+CodecSection *ExportVideoTab::GetCodecSection() const
+{
+  return static_cast<CodecSection*>(codec_stack_->currentWidget());
+}
+
+void ExportVideoTab::SetCodecSection(CodecSection *section)
+{
+  codec_stack_->setCurrentWidget(section);
+}
+
+ImageSection *ExportVideoTab::image_section() const
+{
+  return image_section_;
+}
+
+H264Section *ExportVideoTab::h264_section() const
+{
+  return h264_section_;
 }
 
 QWidget* ExportVideoTab::SetupResolutionSection()
@@ -203,11 +212,14 @@ QWidget *ExportVideoTab::SetupCodecSection()
 
   row++;
 
-  image_sequence_label_ = new QLabel(tr("Image Sequence:"));
-  codec_layout->addWidget(image_sequence_label_, row, 0);
+  codec_stack_ = new QStackedWidget();
+  codec_layout->addWidget(codec_stack_, row, 0, 1, 2);
 
-  image_sequence_checkbox_ = new QCheckBox();
-  codec_layout->addWidget(image_sequence_checkbox_, row, 1);
+  image_section_ = new ImageSection();
+  codec_stack_->addWidget(image_section_);
+
+  h264_section_ = new H264Section();
+  codec_stack_->addWidget(h264_section_);
 
   return codec_group;
 }

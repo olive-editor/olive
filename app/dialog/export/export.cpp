@@ -226,11 +226,14 @@ void ExportDialog::accept()
   // Set up encoder
   EncodingParams encoding_params;
   encoding_params.SetFilename(filename_edit_->text()); // FIXME: Validate extension
+  encoding_params.SetExportLength(viewer_node_->Length());
 
   if (video_enabled_->isChecked()) {
     const ExportCodec& video_codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
     encoding_params.EnableVideo(video_render_params,
                                 video_codec.id());
+
+    video_tab_->GetCodecSection()->AddOpts(&encoding_params);
   }
 
   if (audio_enabled_->isChecked()) {
@@ -329,9 +332,14 @@ void ExportDialog::ResolutionChanged()
 
 void ExportDialog::VideoCodecChanged()
 {
-  const ExportCodec& codec = codecs_.at(video_tab_->codec_combobox()->currentData().toInt());
+  int codec_index = video_tab_->codec_combobox()->currentData().toInt();
+  const ExportCodec& codec = codecs_.at(codec_index);
 
-  video_tab_->show_image_sequence_section(codec.flags() & ExportCodec::kStillImage);
+  if (codec_index == kCodecH264) {
+    video_tab_->SetCodecSection(video_tab_->h264_section());
+  } else if (codec.flags() & ExportCodec::kStillImage) {
+    video_tab_->SetCodecSection(video_tab_->image_section());
+  }
 }
 
 void ExportDialog::SetUpFormats()

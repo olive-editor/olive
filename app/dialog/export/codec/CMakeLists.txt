@@ -14,17 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(codec)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
-  dialog/export/export.h
-  dialog/export/export.cpp
-  dialog/export/exportaudiotab.h
-  dialog/export/exportaudiotab.cpp
-  dialog/export/exportcodec.h
-  dialog/export/exportformat.h
-  dialog/export/exportvideotab.h
-  dialog/export/exportvideotab.cpp
+  dialog/export/codec/codecsection.h
+  dialog/export/codec/codecsection.cpp
+  dialog/export/codec/h264section.h
+  dialog/export/codec/h264section.cpp
+  dialog/export/codec/imagesection.h
+  dialog/export/codec/imagesection.cpp
   PARENT_SCOPE
 )

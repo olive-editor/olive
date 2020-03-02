@@ -6,6 +6,8 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "dialog/export/codec/h264section.h"
+#include "dialog/export/codec/imagesection.h"
 #include "render/colormanager.h"
 #include "widget/slider/integerslider.h"
 
@@ -27,9 +29,6 @@ public:
   IntegerSlider* height_slider() const;
   QCheckBox* maintain_aspect_checkbox() const;
   QComboBox* scaling_method_combobox() const;
-  QCheckBox* image_sequence_checkbox() const;
-
-  void show_image_sequence_section(bool visible);
 
   const rational& frame_rate() const;
   void set_frame_rate(const rational& frame_rate);
@@ -37,6 +36,11 @@ public:
   QString CurrentOCIODisplay();
   QString CurrentOCIOView();
   QString CurrentOCIOLook();
+
+  CodecSection* GetCodecSection() const;
+  void SetCodecSection(CodecSection* section);
+  ImageSection* image_section() const;
+  H264Section* h264_section() const;
 
 signals:
   void DisplayChanged(const QString& display);
@@ -52,8 +56,10 @@ private:
   QComboBox* frame_rate_combobox_;
   QCheckBox* maintain_aspect_checkbox_;
   QComboBox* scaling_method_combobox_;
-  QCheckBox* image_sequence_checkbox_;
-  QLabel* image_sequence_label_;
+
+  QStackedWidget* codec_stack_;
+  ImageSection* image_section_;
+  H264Section* h264_section_;
 
   IntegerSlider* width_slider_;
   IntegerSlider* height_slider_;

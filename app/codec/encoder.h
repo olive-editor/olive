@@ -17,18 +17,31 @@ public:
   EncodingParams();
 
   void SetFilename(const QString& filename);
+
   void EnableVideo(const VideoRenderingParams& video_params, const QString& vcodec);
   void EnableAudio(const AudioRenderingParams& audio_params, const QString& acodec);
+
+  void SetVideoOption(const QString& key, const QString& value);
+  void SetVideoBitRate(const int64_t& rate);
+  void SetVideoMaxBitRate(const int64_t& rate);
+  void SetVideoBufferSize(const int64_t& sz);
 
   const QString& filename() const;
 
   bool video_enabled() const;
   const QString& video_codec() const;
   const VideoRenderingParams& video_params() const;
+  const QHash<QString, QString>& video_opts() const;
+  const int64_t& video_bit_rate() const;
+  const int64_t& video_max_bit_rate() const;
+  const int64_t& video_buffer_size() const;
 
   bool audio_enabled() const;
   const QString& audio_codec() const;
   const AudioRenderingParams& audio_params() const;
+
+  const rational& GetExportLength() const;
+  void SetExportLength(const rational& GetExportLength);
 
 private:
   QString filename_;
@@ -36,10 +49,17 @@ private:
   bool video_enabled_;
   QString video_codec_;
   VideoRenderingParams video_params_;
+  QHash<QString, QString> video_opts_;
+  int64_t video_bit_rate_;
+  int64_t video_max_bit_rate_;
+  int64_t video_buffer_size_;
 
   bool audio_enabled_;
   QString audio_codec_;
   AudioRenderingParams audio_params_;
+
+  rational export_length_;
+
 };
 
 class Encoder : public QObject

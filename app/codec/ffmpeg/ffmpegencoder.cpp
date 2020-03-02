@@ -337,6 +337,28 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
 
     // FIXME: Make this customizable again
     codec_ctx->pix_fmt = encoder->pix_fmts[0];
+
+    // Set custom options
+    {
+      QHash<QString, QString>::const_iterator i;
+
+      for (i=params().video_opts().begin();i!=params().video_opts().end();i++) {
+        av_opt_set(video_codec_ctx_->priv_data, i.key().toUtf8(), i.value().toUtf8(), AV_OPT_SEARCH_CHILDREN);
+      }
+
+      if (params().video_bit_rate() > 0) {
+        video_codec_ctx_->bit_rate = params().video_bit_rate();
+      }
+
+      if (params().video_max_bit_rate() > 0) {
+        video_codec_ctx_->rc_max_rate = params().video_max_bit_rate();
+      }
+
+      if (params().video_buffer_size() > 0) {
+        video_codec_ctx_->rc_buffer_size = params().video_buffer_size();
+      }
+    }
+
   } else {
     codec_ctx->sample_rate = params().audio_params().sample_rate();
     codec_ctx->channel_layout = params().audio_params().channel_layout();
