@@ -18,6 +18,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   window/mainwindow/mainmenu.h
   window/mainwindow/mainmenu.cpp
+  window/mainwindow/mainstatusbar.h
+  window/mainwindow/mainstatusbar.cpp
   window/mainwindow/mainwindow.h
   window/mainwindow/mainwindow.cpp
   PARENT_SCOPE

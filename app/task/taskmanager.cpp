@@ -83,6 +83,16 @@ TaskManager *TaskManager::instance()
   return instance_;
 }
 
+int TaskManager::GetTaskCount() const
+{
+  return tasks_.size();
+}
+
+Task *TaskManager::GetFirstTask() const
+{
+  return tasks_.first().task;
+}
+
 void TaskManager::AddTask(Task* t)
 {
   // Connect Task's status signal to the Callback
@@ -95,6 +105,7 @@ void TaskManager::AddTask(Task* t)
 
   // Emit signal that a Task was added
   emit TaskAdded(t);
+  emit TaskListChanged();
 
   // Scan through queue and start any Tasks that can (including this one)
   StartNextWaiting();
@@ -165,6 +176,7 @@ void TaskManager::DeleteTask(Task *t)
   }
 
   emit t->Removed();
+  emit TaskListChanged();
 
   if (GetTaskStatus(t) != kWorking) {
     // If the task isn't doing anything, we can simply delete it
@@ -204,6 +216,9 @@ void TaskManager::TaskFinished()
 
   // Decrement the active thread count
   active_thread_count_--;
+
+  // Signal that the task has finished
+  emit TaskListChanged();
 
   // Start any tasks that could start now
   StartNextWaiting();

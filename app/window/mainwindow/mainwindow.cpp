@@ -25,6 +25,7 @@
 #include <QDesktopWidget>
 
 #include "mainmenu.h"
+#include "mainstatusbar.h"
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
@@ -50,6 +51,11 @@ MainWindow::MainWindow(QWidget *parent) :
   // Create and set main menu
   MainMenu* main_menu = new MainMenu(this);
   setMenuBar(main_menu);
+
+  // Create and set status bar
+  MainStatusBar* status_bar = new MainStatusBar(this);
+  status_bar->ConnectTaskManager(TaskManager::instance());
+  setStatusBar(status_bar);
 
   // Create standard panels
   node_panel_ = PanelManager::instance()->CreatePanel<NodePanel>(this);

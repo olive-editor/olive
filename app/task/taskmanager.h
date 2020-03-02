@@ -51,13 +51,15 @@ public:
    */
   virtual ~TaskManager();
 
-  DISABLE_COPY_MOVE(TaskManager)
-
   static void CreateInstance();
 
   static void DestroyInstance();
 
   static TaskManager* instance();
+
+  int GetTaskCount() const;
+
+  Task* GetFirstTask() const;
 
 public slots:
   /**
@@ -86,6 +88,11 @@ signals:
    * Task that was added
    */
   void TaskAdded(Task* t);
+
+  /**
+   * @brief Signal emitted when any change to the running task list has been made
+   */
+  void TaskListChanged();
 
 private:
   /**
