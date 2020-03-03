@@ -273,64 +273,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
       // Check if we're inserting
       if (event->GetModifiers() & Qt::ControlModifier) {
-        // Get earliest point
-        rational earliest_point = RATIONAL_MAX;
-        rational latest_point = RATIONAL_MIN;
-
-        foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
-          earliest_point = qMin(earliest_point, ghost->GetAdjustedIn());
-          latest_point = qMax(latest_point, ghost->GetAdjustedOut());
-        }
-
-        rational insert_length = latest_point - earliest_point;
-
-        QVector<Block*> blocks_to_split;
-        QList<Block*> blocks_to_append_gap_to;
-        QList<Block*> gaps_to_extend;
-
-        foreach (TrackOutput* track, parent()->GetConnectedNode()->Tracks()) {
-          if (track->IsLocked()) {
-            continue;
-          }
-
-          foreach (Block* b, track->Blocks()) {
-            if (b->out() >= earliest_point) {
-              if (b->type() == Block::kClip) {
-
-                if (b->out() > earliest_point) {
-                  blocks_to_split.append(b);
-                }
-
-                blocks_to_append_gap_to.append(b);
-
-              } else if (b->type() == Block::kGap) {
-
-                gaps_to_extend.append(b);
-
-              }
-
-              break;
-            }
-          }
-        }
-
-        // Extend gaps that already exist
-        foreach (Block* gap, gaps_to_extend) {
-          new BlockResizeCommand(gap, gap->length() + insert_length, command);
-        }
-
-        // Split clips here
-        new BlockSplitPreservingLinksCommand(blocks_to_split, {earliest_point}, command);
-
-        // Insert gaps that don't exist yet
-        foreach (Block* b, blocks_to_append_gap_to) {
-          GapBlock* gap = new GapBlock();
-          gap->set_length_and_media_out(insert_length);
-          new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), gap, command);
-          new TrackInsertBlockAfterCommand(TrackOutput::TrackFromBlock(b), gap, b, command);
-
-          qDebug() << "Inserting block on" << TrackOutput::TrackFromBlock(b);
-        }
+        InsertGapsAtGhostDestination(parent()->ghost_items_, command);
       }
 
       for (int i=0;i<parent()->ghost_items_.size();i++) {

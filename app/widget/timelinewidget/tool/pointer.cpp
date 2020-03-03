@@ -219,6 +219,11 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
   // If there are any blocks to remove, remove them
   parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, false, command);
 
+  if (event->GetModifiers() & Qt::ControlModifier) {
+    // Make room to insert clips to
+    InsertGapsAtGhostDestination(parent()->ghost_items_, command);
+  }
+
   // Now we place the clips back in the timeline where the user moved them. It's legal for them to overwrite parts or
   // all of the gaps we inserted earlier
   for (int i=0;i<parent()->ghost_items_.size();i++) {

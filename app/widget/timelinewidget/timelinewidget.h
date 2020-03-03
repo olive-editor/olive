@@ -126,6 +126,12 @@ private:
      */
     bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll);
 
+    void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
+
+    void GetGhostData(const QVector<TimelineViewGhostItem*>& ghosts, rational *earliest_point, rational *latest_point);
+
+    void InsertGapsAtGhostDestination(const QVector<TimelineViewGhostItem*>& ghosts, QUndoCommand* command);
+
     QList<rational> snap_points_;
 
     bool dragging_;
