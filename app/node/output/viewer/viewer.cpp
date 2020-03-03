@@ -181,11 +181,9 @@ void ViewerOutput::UpdateTrackCache()
   track_cache_.clear();
 
   foreach (TrackList* list, track_lists_) {
-    QVector<TrackOutput*> track_list = list->Tracks();
-
-    foreach (TrackOutput* track, track_list) {
+    foreach (TrackOutput* track, list->Tracks()) {
       if (track) {
-        track_cache_.append(list->Tracks());
+        track_cache_.append(track);
       }
     }
   }
