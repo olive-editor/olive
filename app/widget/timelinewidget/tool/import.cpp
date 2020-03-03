@@ -234,46 +234,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
           if (behavior == kDWSAuto) {
 
-            bool found_video_params = false;
-            bool found_audio_params = false;
-
-            foreach (Footage* f, dragged_footage_) {
-              foreach (StreamPtr s, f->streams()) {
-                if (!found_video_params) {
-
-                  if (s->type() == Stream::kVideo) {
-                    // If this is a video stream, use these parameters
-                    VideoStream* vs = static_cast<VideoStream*>(s.get());
-
-                    if (vs->frame_rate() != 0) {
-                      new_sequence->set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
-                      found_video_params = true;
-                    }
-                  } else if (s->type() == Stream::kImage) {
-                    // If this is an image stream, we'll use it's resolution but won't set `found_video_params` in case
-                    // something with a frame rate comes along which we'll prioritize
-                    ImageStream* is = static_cast<ImageStream*>(s.get());
-
-                    new_sequence->set_video_params(VideoParams(is->width(), is->height(), new_sequence->video_params().time_base()));
-                  }
-
-                } else if (!found_audio_params && s->type() == Stream::kAudio) {
-
-                  AudioStream* as = static_cast<AudioStream*>(s.get());
-                  new_sequence->set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
-                  found_audio_params = true;
-
-                }
-
-                if (found_video_params && found_audio_params) {
-                  break;
-                }
-              }
-
-              if (found_video_params && found_audio_params) {
-                break;
-              }
-            }
+            new_sequence->set_parameters_from_footage(dragged_footage_);
 
           } else {
 
@@ -309,6 +270,68 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
     if (dst_graph) {
 
       QVector<Block*> block_items(parent()->ghost_items_.size());
+
+      // Check if we're inserting
+      if (event->GetModifiers() & Qt::ControlModifier) {
+        // Get earliest point
+        rational earliest_point = RATIONAL_MAX;
+        rational latest_point = RATIONAL_MIN;
+
+        foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
+          earliest_point = qMin(earliest_point, ghost->GetAdjustedIn());
+          latest_point = qMax(latest_point, ghost->GetAdjustedOut());
+        }
+
+        rational insert_length = latest_point - earliest_point;
+
+        QVector<Block*> blocks_to_split;
+        QList<Block*> blocks_to_append_gap_to;
+        QList<Block*> gaps_to_extend;
+
+        foreach (TrackOutput* track, parent()->GetConnectedNode()->Tracks()) {
+          if (track->IsLocked()) {
+            continue;
+          }
+
+          foreach (Block* b, track->Blocks()) {
+            if (b->out() >= earliest_point) {
+              if (b->type() == Block::kClip) {
+
+                if (b->out() > earliest_point) {
+                  blocks_to_split.append(b);
+                }
+
+                blocks_to_append_gap_to.append(b);
+
+              } else if (b->type() == Block::kGap) {
+
+                gaps_to_extend.append(b);
+
+              }
+
+              break;
+            }
+          }
+        }
+
+        // Extend gaps that already exist
+        foreach (Block* gap, gaps_to_extend) {
+          new BlockResizeCommand(gap, gap->length() + insert_length, command);
+        }
+
+        // Split clips here
+        new BlockSplitPreservingLinksCommand(blocks_to_split, {earliest_point}, command);
+
+        // Insert gaps that don't exist yet
+        foreach (Block* b, blocks_to_append_gap_to) {
+          GapBlock* gap = new GapBlock();
+          gap->set_length_and_media_out(insert_length);
+          new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()), gap, command);
+          new TrackInsertBlockAfterCommand(TrackOutput::TrackFromBlock(b), gap, b, command);
+
+          qDebug() << "Inserting block on" << TrackOutput::TrackFromBlock(b);
+        }
+      }
 
       for (int i=0;i<parent()->ghost_items_.size();i++) {
         TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
@@ -355,15 +378,11 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
           break;
         }
 
-        if (event->GetModifiers() & Qt::ControlModifier) {
-          //emit parent()->RequestInsertBlockAtTime(clip, ghost->GetAdjustedIn());
-        } else {
-          new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
-                                     ghost->GetAdjustedTrack().index(),
-                                     clip,
-                                     ghost->GetAdjustedIn(),
-                                     command);
-        }
+        new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
+                                   ghost->GetAdjustedTrack().index(),
+                                   clip,
+                                   ghost->GetAdjustedIn(),
+                                   command);
 
         block_items.replace(i, clip);
 
