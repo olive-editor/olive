@@ -186,6 +186,11 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 void TimelineWidget::ImportTool::PlaceAt(const QList<Footage *> &footage, const rational &start, bool insert)
 {
   dragged_footage_ = footage;
+
+  if (dragged_footage_.isEmpty()) {
+    return;
+  }
+
   PrepGhosts(start, 0);
   DropGhosts(insert);
 }

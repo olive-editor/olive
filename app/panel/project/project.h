@@ -41,6 +41,8 @@ public:
 
   Folder* GetSelectedFolder();
 
+  QList<Footage*> GetSelectedFootage();
+
   ProjectViewModel* model();
 
   virtual void SelectAll() override;
@@ -63,8 +65,6 @@ private slots:
   void ShowNewMenu();
 
   void ProjectNameChanged();
-
-  QList<Footage*> GetSelectedFootage();
 
 };
 

@@ -20,6 +20,9 @@
 
 #include "timeline.h"
 
+#include "panel/panelmanager.h"
+#include "panel/project/project.h"
+
 TimelinePanel::TimelinePanel(QWidget *parent) :
   TimeBasedPanel(parent)
 {
@@ -87,6 +90,24 @@ void TimelinePanel::IncreaseTrackHeight()
 void TimelinePanel::DecreaseTrackHeight()
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->DecreaseTrackHeight();
+}
+
+void TimelinePanel::Insert()
+{
+  ProjectPanel* project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
+
+  if (project_panel) {
+    InsertFootageAtPlayhead(project_panel->GetSelectedFootage());
+  }
+}
+
+void TimelinePanel::Overwrite()
+{
+  ProjectPanel* project_panel = PanelManager::instance()->MostRecentlyFocused<ProjectPanel>();
+
+  if (project_panel) {
+    OverwriteFootageAtPlayhead(project_panel->GetSelectedFootage());
+  }
 }
 
 void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)

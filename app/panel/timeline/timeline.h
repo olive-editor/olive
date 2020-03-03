@@ -55,6 +55,10 @@ public:
 
   virtual void DecreaseTrackHeight() override;
 
+  virtual void Insert() override;
+
+  virtual void Overwrite() override;
+
   void InsertFootageAtPlayhead(const QList<Footage *> &footage);
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
