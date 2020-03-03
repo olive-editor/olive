@@ -21,6 +21,7 @@
 #ifndef PROJECT_PANEL_H
 #define PROJECT_PANEL_H
 
+#include "footagemanagementpanel.h"
 #include "project/project.h"
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
@@ -28,7 +29,7 @@
 /**
  * @brief A PanelWidget wrapper around a ProjectExplorer and a ProjectToolbar
  */
-class ProjectPanel : public PanelWidget
+class ProjectPanel : public PanelWidget, public FootageManagementPanel
 {
   Q_OBJECT
 public:
@@ -41,7 +42,7 @@ public:
 
   Folder* GetSelectedFolder();
 
-  QList<Footage*> GetSelectedFootage();
+  virtual QList<Footage*> GetSelectedFootage() override;
 
   ProjectViewModel* model();
 

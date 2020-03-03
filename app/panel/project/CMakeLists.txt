@@ -16,6 +16,7 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  panel/project/footagemanagementpanel.h
   panel/project/project.h
   panel/project/project.cpp
   PARENT_SCOPE

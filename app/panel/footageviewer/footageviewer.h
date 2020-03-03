@@ -24,14 +24,17 @@
 #include <QOpenGLFunctions>
 
 #include "panel/viewer/viewerbase.h"
+#include "panel/project/footagemanagementpanel.h"
 
 /**
  * @brief Dockable wrapper around a ViewerWidget
  */
-class FootageViewerPanel : public ViewerPanelBase {
+class FootageViewerPanel : public ViewerPanelBase, public FootageManagementPanel {
   Q_OBJECT
 public:
   FootageViewerPanel(QWidget* parent);
+
+  virtual QList<Footage*> GetSelectedFootage() override;
 
   void SetFootage(Footage* f);
 
