@@ -79,6 +79,8 @@ private slots:
 
   void DeleteSelected();
 
+  void RippleDelete();
+
 };
 
 #endif // MENUSHARED_H

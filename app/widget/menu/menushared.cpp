@@ -40,7 +40,7 @@ MenuShared::MenuShared()
   edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", nullptr, nullptr, "Ctrl+Shift+V");
   edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
   edit_delete_item_ = Menu::CreateItem(this, "delete", this, SLOT(DeleteSelected()), "Del");
-  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", nullptr, nullptr, "Shift+Del");
+  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, SLOT(RippleDelete()), "Shift+Del");
   edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayhead()), "Ctrl+K");
 
   // "In/Out" menu shared items
@@ -124,6 +124,11 @@ void MenuShared::SplitAtPlayhead()
 void MenuShared::DeleteSelected()
 {
   PanelManager::instance()->CurrentlyFocused()->DeleteSelected();
+}
+
+void MenuShared::RippleDelete()
+{
+  PanelManager::instance()->CurrentlyFocused()->RippleDelete();
 }
 
 void MenuShared::Retranslate()
