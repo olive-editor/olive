@@ -75,6 +75,9 @@ MainMenu::MainMenu(QMainWindow *parent) :
   edit_menu_->addSeparator();
   MenuShared::instance()->AddItemsForClipEditMenu(edit_menu_);
   edit_menu_->addSeparator();
+  edit_insert_item_ = edit_menu_->AddItem("insert", this, SLOT(InsertTriggered()), ",");
+  edit_overwrite_item_ = edit_menu_->AddItem("overwrite", this, SLOT(OverwriteTriggered()), ".");
+  edit_menu_->addSeparator();
   edit_ripple_to_in_item_ = edit_menu_->AddItem("rippletoin", this, SLOT(RippleToInTriggered()), "Q");
   edit_ripple_to_out_item_ = edit_menu_->AddItem("rippletoout", this, SLOT(RippleToOutTriggered()), "W");
   edit_edit_to_in_item_ = edit_menu_->AddItem("edittoin", this, SLOT(EditToInTriggered()), "Ctrl+Alt+Q");
@@ -442,6 +445,16 @@ void MainMenu::DeselectAllTriggered()
   PanelManager::instance()->CurrentlyFocused()->DeselectAll();
 }
 
+void MainMenu::InsertTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->Insert();
+}
+
+void MainMenu::OverwriteTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->Overwrite();
+}
+
 void MainMenu::RippleToInTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->RippleToIn();
@@ -516,6 +529,8 @@ void MainMenu::Retranslate()
   edit_menu_->setTitle(tr("&Edit"));
   //edit_undo_item_->setText(tr("&Undo")); FIXME: Does Qt translate these automatically?
   //edit_redo_item_->setText(tr("Redo"));
+  edit_insert_item_->setText(tr("Insert"));
+  edit_overwrite_item_->setText(tr("Overwrite"));
   edit_select_all_item_->setText(tr("Select &All"));
   edit_deselect_all_item_->setText(tr("Deselect All"));
   edit_ripple_to_in_item_->setText(tr("Ripple to In Point"));

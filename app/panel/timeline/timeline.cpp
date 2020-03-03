@@ -89,6 +89,16 @@ void TimelinePanel::DecreaseTrackHeight()
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->DecreaseTrackHeight();
 }
 
+void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);
+}
+
+void TimelinePanel::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->OverwriteFootageAtPlayhead(footage);
+}
+
 void TimelinePanel::Retranslate()
 {
   TimeBasedPanel::Retranslate();

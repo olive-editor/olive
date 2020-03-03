@@ -123,6 +123,9 @@ private slots:
   void SelectAllTriggered();
   void DeselectAllTriggered();
 
+  void InsertTriggered();
+  void OverwriteTriggered();
+
   void RippleToInTriggered();
   void RippleToOutTriggered();
   void EditToInTriggered();
@@ -160,6 +163,8 @@ private:
   QAction* edit_redo_item_;
   QAction* edit_select_all_item_;
   QAction* edit_deselect_all_item_;
+  QAction* edit_insert_item_;
+  QAction* edit_overwrite_item_;
   QAction* edit_ripple_to_in_item_;
   QAction* edit_ripple_to_out_item_;
   QAction* edit_edit_to_in_item_;

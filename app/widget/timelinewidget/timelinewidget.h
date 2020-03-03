@@ -49,9 +49,15 @@ public:
 
   void DeleteSelected();
 
+  void RippleDelete();
+
   void IncreaseTrackHeight();
 
   void DecreaseTrackHeight();
+
+  void InsertFootageAtPlayhead(const QList<Footage *> &footage);
+
+  void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
 
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
@@ -217,8 +223,14 @@ private:
     virtual void DragLeave(QDragLeaveEvent *event) override;
     virtual void DragDrop(TimelineViewMouseEvent *event) override;
 
+    void PlaceAt(const QList<Footage*>& footage, const rational& start, bool insert);
+
   private:
     void FootageToGhosts(rational ghost_start, const QList<Footage*>& footage, const rational &dest_tb, const int &track_start);
+
+    void PrepGhosts(const rational &frame, const int &track_index);
+
+    void DropGhosts(bool insert);
 
     QList<Footage*> dragged_footage_;
 
@@ -355,7 +367,7 @@ private:
 
   QVector<Tool*> tools_;
 
-  Tool* import_tool_;
+  ImportTool* import_tool_;
 
   Tool* active_tool_;
 

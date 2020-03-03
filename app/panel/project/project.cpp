@@ -25,6 +25,7 @@
 
 #include "core.h"
 #include "panel/footageviewer/footageviewer.h"
+#include "panel/timeline/timeline.h"
 #include "panel/panelmanager.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/menu/menushared.h"
@@ -113,6 +114,24 @@ void ProjectPanel::DeselectAll()
   explorer_->DeselectAll();
 }
 
+void ProjectPanel::Insert()
+{
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+
+  if (timeline) {
+    timeline->InsertFootageAtPlayhead(GetSelectedFootage());
+  }
+}
+
+void ProjectPanel::Overwrite()
+{
+  TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
+
+  if (timeline) {
+    timeline->OverwriteFootageAtPlayhead(GetSelectedFootage());
+  }
+}
+
 void ProjectPanel::Edit(Item* item)
 {
   explorer_->Edit(item);
@@ -155,4 +174,18 @@ void ProjectPanel::ProjectNameChanged()
   } else {
     SetSubtitle(project()->name());
   }
+}
+
+QList<Footage *> ProjectPanel::GetSelectedFootage()
+{
+  QList<Item*> items = SelectedItems();
+  QList<Footage*> footage;
+
+  foreach (Item* i, items) {
+    if (i->type() == Item::kFootage) {
+      footage.append(static_cast<Footage*>(i));
+    }
+  }
+
+  return footage;
 }

@@ -418,6 +418,11 @@ void TimelineWidget::DeleteSelected()
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+void TimelineWidget::RippleDelete()
+{
+
+}
+
 void TimelineWidget::IncreaseTrackHeight()
 {
   if (!GetConnectedNode()) {
@@ -444,6 +449,16 @@ void TimelineWidget::DecreaseTrackHeight()
   foreach (TrackOutput* t, all_tracks) {
     t->SetTrackHeight(qMax(t->GetTrackHeight() - t->GetTrackHeightIncrement(), t->GetTrackHeightMinimum()));
   }
+}
+
+void TimelineWidget::InsertFootageAtPlayhead(const QList<Footage*>& footage)
+{
+  import_tool_->PlaceAt(footage, GetTime(), true);
+}
+
+void TimelineWidget::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
+{
+  import_tool_->PlaceAt(footage, GetTime(), false);
 }
 
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()

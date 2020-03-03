@@ -99,12 +99,8 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
       }
     }
 
-    if (parent()->GetConnectedNode()) {
-      FootageToGhosts(drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_),
-                      dragged_footage_,
-                      parent()->timebase(),
-                      drag_start_.GetTrack().index());
-    }
+    PrepGhosts(drag_start_.GetFrame() - parent()->SceneToTime(import_pre_buffer_),
+               drag_start_.GetTrack().index());
 
     event->accept();
   } else {
@@ -179,180 +175,19 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (!dragged_footage_.isEmpty()) {
 
-    QUndoCommand* command = new QUndoCommand();
-
-    NodeGraph* dst_graph = nullptr;
-    ViewerOutput* viewer_node = nullptr;
-    Sequence* open_sequence = nullptr;
-
-    if (parent()->GetConnectedNode()) {
-      viewer_node = parent()->GetConnectedNode();
-      dst_graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
-    } else {
-      // There's no active timeline here, ask the user what to do
-
-      DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
-
-      if (behavior == kDWSAsk) {
-        QCheckBox* dont_ask_again_box = new QCheckBox(tr("Don't ask me again"));
-
-        QMessageBox mbox(parent());
-
-        mbox.setIcon(QMessageBox::Question);
-        mbox.setWindowTitle(tr("No Active Sequence"));
-        mbox.setText(tr("No sequence is currently open. Would you like to create one?"));
-        mbox.setCheckBox(dont_ask_again_box);
-
-        QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
-        QPushButton* manual_params_btn = mbox.addButton(tr("Set Parameters Manually"), QMessageBox::NoRole);
-        mbox.addButton(QMessageBox::Cancel);
-
-        mbox.exec();
-
-        if (mbox.clickedButton() == auto_params_btn) {
-          behavior = kDWSAuto;
-        } else if (mbox.clickedButton() == manual_params_btn) {
-          behavior = kDWSManual;
-        } else {
-          behavior = kDWSDisable;
-        }
-
-        if (behavior != kDWSDisable && dont_ask_again_box->isChecked()) {
-          Config::Current()["DropWithoutSequenceBehavior"] = behavior;
-        }
-      }
-
-      if (behavior != kDWSDisable) {
-        Project* active_project = Core::instance()->GetActiveProject();
-
-        if (active_project) {
-          SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
-
-          new_sequence->set_default_parameters();
-
-          bool sequence_is_valid = true;
-
-          if (behavior == kDWSAuto) {
-
-            new_sequence->set_parameters_from_footage(dragged_footage_);
-
-          } else {
-
-            SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, parent());
-            sd.SetUndoable(false);
-
-            if (sd.exec() != QDialog::Accepted) {
-              sequence_is_valid = false;
-            }
-
-          }
-
-          if (sequence_is_valid) {
-            new_sequence->add_default_nodes();
-
-            new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
-                                                 Core::instance()->GetSelectedFolderInActiveProject(),
-                                                 new_sequence,
-                                                 command);
-
-            FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
-
-            dst_graph = new_sequence.get();
-            viewer_node = new_sequence->viewer_output();
-
-            // Set this as the sequence to open
-            open_sequence = new_sequence.get();
-          }
-        }
-      }
-    }
-
-    if (dst_graph) {
-
-      QVector<Block*> block_items(parent()->ghost_items_.size());
-
-      // Check if we're inserting
-      if (event->GetModifiers() & Qt::ControlModifier) {
-        InsertGapsAtGhostDestination(parent()->ghost_items_, command);
-      }
-
-      for (int i=0;i<parent()->ghost_items_.size();i++) {
-        TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
-
-        StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
-
-        ClipBlock* clip = new ClipBlock();
-        clip->set_length_and_media_out(ghost->Length());
-        clip->set_block_name(footage_stream->footage()->name());
-        new NodeAddCommand(dst_graph, clip, command);
-
-        switch (footage_stream->type()) {
-        case Stream::kVideo:
-        case Stream::kImage:
-        {
-          VideoInput* video_input = new VideoInput();
-          video_input->SetFootage(footage_stream);
-          new NodeAddCommand(dst_graph, video_input, command);
-          new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
-
-          TransformDistort* transform = new TransformDistort();
-          new NodeAddCommand(dst_graph, transform, command);
-          new NodeEdgeAddCommand(transform->output(), video_input->matrix_input(), command);
-
-          //OpacityNode* opacity = new OpacityNode();
-          //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
-          //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
-          break;
-        }
-        case Stream::kAudio:
-        {
-          AudioInput* audio_input = new AudioInput();
-          audio_input->SetFootage(footage_stream);
-          new NodeAddCommand(dst_graph, audio_input, command);
-
-          VolumeNode* volume_node = new VolumeNode();
-          new NodeAddCommand(dst_graph, volume_node, command);
-
-          new NodeEdgeAddCommand(audio_input->output(), volume_node->samples_input(), command);
-          new NodeEdgeAddCommand(volume_node->output(), clip->texture_input(), command);
-          break;
-        }
-        default:
-          break;
-        }
-
-        new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
-                                   ghost->GetAdjustedTrack().index(),
-                                   clip,
-                                   ghost->GetAdjustedIn(),
-                                   command);
-
-        block_items.replace(i, clip);
-
-        // Link any clips so far that share the same Footage with this one
-        for (int j=0;j<i;j++) {
-          StreamPtr footage_compare = parent()->ghost_items_.at(j)->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
-
-          if (footage_compare->footage() == footage_stream->footage()) {
-            Block::Link(block_items.at(j), clip);
-          }
-        }
-      }
-    }
-
-    Core::instance()->undo_stack()->pushIfHasChildren(command);
-
-    parent()->ClearGhosts();
-    dragged_footage_.clear();
-
-    if (open_sequence) {
-      Sequence::Open(open_sequence);
-    }
+    DropGhosts(event->GetModifiers() & Qt::ControlModifier);
 
     event->accept();
   } else {
     event->ignore();
   }
+}
+
+void TimelineWidget::ImportTool::PlaceAt(const QList<Footage *> &footage, const rational &start, bool insert)
+{
+  dragged_footage_ = footage;
+  PrepGhosts(start, 0);
+  DropGhosts(insert);
 }
 
 void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QList<Footage *> &footage_list, const rational& dest_tb, const int& track_start)
@@ -411,5 +246,188 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
     // Stack each ghost one after the other
     ghost_start += footage_duration;
 
+  }
+}
+
+void TimelineWidget::ImportTool::PrepGhosts(const rational& frame, const int& track_index)
+{
+  if (parent()->GetConnectedNode()) {
+    FootageToGhosts(frame,
+                    dragged_footage_,
+                    parent()->timebase(),
+                    track_index);
+  }
+}
+
+void TimelineWidget::ImportTool::DropGhosts(bool insert)
+{
+  QUndoCommand* command = new QUndoCommand();
+
+  NodeGraph* dst_graph = nullptr;
+  ViewerOutput* viewer_node = nullptr;
+  Sequence* open_sequence = nullptr;
+
+  if (parent()->GetConnectedNode()) {
+    viewer_node = parent()->GetConnectedNode();
+    dst_graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
+  } else {
+    // There's no active timeline here, ask the user what to do
+
+    DropWithoutSequenceBehavior behavior = static_cast<DropWithoutSequenceBehavior>(Config::Current()["DropWithoutSequenceBehavior"].toInt());
+
+    if (behavior == kDWSAsk) {
+      QCheckBox* dont_ask_again_box = new QCheckBox(tr("Don't ask me again"));
+
+      QMessageBox mbox(parent());
+
+      mbox.setIcon(QMessageBox::Question);
+      mbox.setWindowTitle(tr("No Active Sequence"));
+      mbox.setText(tr("No sequence is currently open. Would you like to create one?"));
+      mbox.setCheckBox(dont_ask_again_box);
+
+      QPushButton* auto_params_btn = mbox.addButton(tr("Automatically Detect Parameters From Footage"), QMessageBox::YesRole);
+      QPushButton* manual_params_btn = mbox.addButton(tr("Set Parameters Manually"), QMessageBox::NoRole);
+      mbox.addButton(QMessageBox::Cancel);
+
+      mbox.exec();
+
+      if (mbox.clickedButton() == auto_params_btn) {
+        behavior = kDWSAuto;
+      } else if (mbox.clickedButton() == manual_params_btn) {
+        behavior = kDWSManual;
+      } else {
+        behavior = kDWSDisable;
+      }
+
+      if (behavior != kDWSDisable && dont_ask_again_box->isChecked()) {
+        Config::Current()["DropWithoutSequenceBehavior"] = behavior;
+      }
+    }
+
+    if (behavior != kDWSDisable) {
+      Project* active_project = Core::instance()->GetActiveProject();
+
+      if (active_project) {
+        SequencePtr new_sequence = Core::instance()->CreateNewSequenceForProject(active_project);
+
+        new_sequence->set_default_parameters();
+
+        bool sequence_is_valid = true;
+
+        if (behavior == kDWSAuto) {
+
+          new_sequence->set_parameters_from_footage(dragged_footage_);
+
+        } else {
+
+          SequenceDialog sd(new_sequence.get(), SequenceDialog::kNew, parent());
+          sd.SetUndoable(false);
+
+          if (sd.exec() != QDialog::Accepted) {
+            sequence_is_valid = false;
+          }
+
+        }
+
+        if (sequence_is_valid) {
+          new_sequence->add_default_nodes();
+
+          new ProjectViewModel::AddItemCommand(Core::instance()->GetActiveProjectModel(),
+                                               Core::instance()->GetSelectedFolderInActiveProject(),
+                                               new_sequence,
+                                               command);
+
+          FootageToGhosts(0, dragged_footage_, new_sequence->video_params().time_base(), 0);
+
+          dst_graph = new_sequence.get();
+          viewer_node = new_sequence->viewer_output();
+
+          // Set this as the sequence to open
+          open_sequence = new_sequence.get();
+        }
+      }
+    }
+  }
+
+  if (dst_graph) {
+
+    QVector<Block*> block_items(parent()->ghost_items_.size());
+
+    // Check if we're inserting
+    if (insert) {
+      InsertGapsAtGhostDestination(parent()->ghost_items_, command);
+    }
+
+    for (int i=0;i<parent()->ghost_items_.size();i++) {
+      TimelineViewGhostItem* ghost = parent()->ghost_items_.at(i);
+
+      StreamPtr footage_stream = ghost->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+
+      ClipBlock* clip = new ClipBlock();
+      clip->set_length_and_media_out(ghost->Length());
+      clip->set_block_name(footage_stream->footage()->name());
+      new NodeAddCommand(dst_graph, clip, command);
+
+      switch (footage_stream->type()) {
+      case Stream::kVideo:
+      case Stream::kImage:
+      {
+        VideoInput* video_input = new VideoInput();
+        video_input->SetFootage(footage_stream);
+        new NodeAddCommand(dst_graph, video_input, command);
+        new NodeEdgeAddCommand(video_input->output(), clip->texture_input(), command);
+
+        TransformDistort* transform = new TransformDistort();
+        new NodeAddCommand(dst_graph, transform, command);
+        new NodeEdgeAddCommand(transform->output(), video_input->matrix_input(), command);
+
+        //OpacityNode* opacity = new OpacityNode();
+        //NodeParam::ConnectEdge(opacity->texture_output(), clip->texture_input());
+        //NodeParam::ConnectEdge(media->texture_output(), opacity->texture_input());
+        break;
+      }
+      case Stream::kAudio:
+      {
+        AudioInput* audio_input = new AudioInput();
+        audio_input->SetFootage(footage_stream);
+        new NodeAddCommand(dst_graph, audio_input, command);
+
+        VolumeNode* volume_node = new VolumeNode();
+        new NodeAddCommand(dst_graph, volume_node, command);
+
+        new NodeEdgeAddCommand(audio_input->output(), volume_node->samples_input(), command);
+        new NodeEdgeAddCommand(volume_node->output(), clip->texture_input(), command);
+        break;
+      }
+      default:
+        break;
+      }
+
+      new TrackPlaceBlockCommand(viewer_node->track_list(ghost->GetAdjustedTrack().type()),
+                                 ghost->GetAdjustedTrack().index(),
+                                 clip,
+                                 ghost->GetAdjustedIn(),
+                                 command);
+
+      block_items.replace(i, clip);
+
+      // Link any clips so far that share the same Footage with this one
+      for (int j=0;j<i;j++) {
+        StreamPtr footage_compare = parent()->ghost_items_.at(j)->data(TimelineViewGhostItem::kAttachedFootage).value<StreamPtr>();
+
+        if (footage_compare->footage() == footage_stream->footage()) {
+          Block::Link(block_items.at(j), clip);
+        }
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+
+  parent()->ClearGhosts();
+  dragged_footage_.clear();
+
+  if (open_sequence) {
+    Sequence::Open(open_sequence);
   }
 }

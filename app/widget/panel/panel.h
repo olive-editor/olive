@@ -108,6 +108,12 @@ public:
 
   virtual void DeleteSelected(){}
 
+  virtual void RippleDelete(){}
+
+  virtual void Insert(){}
+
+  virtual void Overwrite(){}
+
   virtual void IncreaseTrackHeight(){}
 
   virtual void DecreaseTrackHeight(){}

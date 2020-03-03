@@ -46,6 +46,9 @@ public:
   virtual void SelectAll() override;
   virtual void DeselectAll() override;
 
+  virtual void Insert() override;
+  virtual void Overwrite() override;
+
 public slots:
   void Edit(Item *item);
 
@@ -60,6 +63,9 @@ private slots:
   void ShowNewMenu();
 
   void ProjectNameChanged();
+
+  QList<Footage*> GetSelectedFootage();
+
 };
 
 #endif // PROJECT_PANEL_H
