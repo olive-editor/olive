@@ -119,7 +119,15 @@ public slots:
   const QString& ocio_view() const;
   const QString& ocio_look() const;
 
+signals:
+  void DragStarted();
+
 protected:
+  /**
+   * @brief Override the mouse press event simply to emit the DragStarted() signal
+   */
+  virtual void mousePressEvent(QMouseEvent* event) override;
+
   /**
    * @brief Initialize function to set up the OpenGL context upon its construction
    *

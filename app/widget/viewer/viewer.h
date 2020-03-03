@@ -118,6 +118,8 @@ protected:
   OpenGLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
 
+  ViewerGLWidget* gl_widget_;
+
 private:
   void UpdateTimeInternal(int64_t i);
 
@@ -130,8 +132,6 @@ private:
   int CalculateDivider();
 
   ViewerSizer* sizer_;
-
-  ViewerGLWidget* gl_widget_;
 
   PlaybackControls* controls_;
 

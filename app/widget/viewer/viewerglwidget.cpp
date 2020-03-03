@@ -167,6 +167,13 @@ const QString &ViewerGLWidget::ocio_look() const
   return ocio_look_;
 }
 
+void ViewerGLWidget::mousePressEvent(QMouseEvent *event)
+{
+  QOpenGLWidget::mousePressEvent(event);
+
+  emit DragStarted();
+}
+
 void ViewerGLWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
 {
   ocio_display_ = display;

@@ -24,6 +24,9 @@ private:
 
   ViewerOutput* viewer_node_;
 
+private slots:
+  void StartFootageDrag();
+
 };
 
 #endif // FOOTAGEVIEWERWIDGET_H

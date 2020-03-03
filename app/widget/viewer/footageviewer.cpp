@@ -1,5 +1,8 @@
 #include "footageviewer.h"
 
+#include <QDrag>
+#include <QMimeData>
+
 #include "project/project.h"
 
 FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
@@ -13,6 +16,8 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
   NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
   NodeParam::ConnectEdge(video_node_->output(), viewer_node_->length_input());
+
+  connect(gl_widget_, &ViewerGLWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 }
 
 Footage *FootageViewerWidget::GetFootage() const
@@ -61,4 +66,25 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     video_renderer_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
     audio_renderer_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
   }
+}
+
+void FootageViewerWidget::StartFootageDrag()
+{
+  if (!GetFootage()) {
+    return;
+  }
+
+  qDebug() << "Drag start!";
+  QDrag* drag = new QDrag(this);
+  QMimeData* mimedata = new QMimeData();
+
+  QByteArray encoded_data;
+  QDataStream stream(&encoded_data, QIODevice::WriteOnly);
+
+  stream << -1 << reinterpret_cast<quintptr>(GetFootage());
+
+  mimedata->setData("application/x-oliveprojectitemdata", encoded_data);
+  drag->setMimeData(mimedata);
+
+  drag->exec();
 }
