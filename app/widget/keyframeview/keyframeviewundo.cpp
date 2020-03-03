@@ -1,25 +1,25 @@
 #include "keyframeviewundo.h"
 
 KeyframeSetTypeCommand::KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   key_(key),
   old_type_(key->type()),
   new_type_(type)
 {
 }
 
-void KeyframeSetTypeCommand::redo()
+void KeyframeSetTypeCommand::redo_internal()
 {
   key_->set_type(new_type_);
 }
 
-void KeyframeSetTypeCommand::undo()
+void KeyframeSetTypeCommand::undo_internal()
 {
   key_->set_type(old_type_);
 }
 
 KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   key_(key),
   mode_(mode),
   old_point_(key->bezier_control(mode_)),
@@ -28,7 +28,7 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key
 }
 
 KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF &new_point, const QPointF &old_point, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   key_(key),
   mode_(mode),
   old_point_(old_point),
@@ -36,12 +36,12 @@ KeyframeSetBezierControlPoint::KeyframeSetBezierControlPoint(NodeKeyframePtr key
 {
 }
 
-void KeyframeSetBezierControlPoint::redo()
+void KeyframeSetBezierControlPoint::redo_internal()
 {
   key_->set_bezier_control(mode_, new_point_);
 }
 
-void KeyframeSetBezierControlPoint::undo()
+void KeyframeSetBezierControlPoint::undo_internal()
 {
   key_->set_bezier_control(mode_, old_point_);
 }

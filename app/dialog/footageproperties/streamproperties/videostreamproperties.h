@@ -23,10 +23,10 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QUndoCommand>
 
 #include "project/item/footage/videostream.h"
 #include "streamproperties.h"
+#include "undo/undocommand.h"
 
 class VideoStreamProperties : public StreamProperties
 {
@@ -51,15 +51,16 @@ private:
    */
   QComboBox* video_color_space_;
 
-  class VideoStreamChangeCommand : public QUndoCommand {
+  class VideoStreamChangeCommand : public UndoCommand {
   public:
     VideoStreamChangeCommand(ImageStreamPtr stream,
                              bool premultiplied,
                              QString colorspace,
                              QUndoCommand* parent = nullptr);
 
-    virtual void redo() override;
-    virtual void undo() override;
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
 
   private:
     ImageStreamPtr stream_;

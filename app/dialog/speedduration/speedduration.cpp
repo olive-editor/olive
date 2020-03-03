@@ -333,18 +333,18 @@ void SpeedDurationDialog::DurationChanged()
 }
 
 BlockReverseCommand::BlockReverseCommand(Block *block, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   block_(block)
 {
 }
 
-void BlockReverseCommand::redo()
+void BlockReverseCommand::redo_internal()
 {
   block_->set_media_in(block_->media_out());
   block_->set_speed(-block_->speed());
 }
 
-void BlockReverseCommand::undo()
+void BlockReverseCommand::undo_internal()
 {
-  redo();
+  redo_internal();
 }

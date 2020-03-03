@@ -23,6 +23,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QMessageBox>
 
 #include "mainmenu.h"
 #include "mainstatusbar.h"
@@ -160,6 +161,28 @@ void MainWindow::ProjectOpen(Project* p)
 
 void MainWindow::closeEvent(QCloseEvent *e)
 {
+  if (isWindowModified()) {
+    QMessageBox mb(this);
+
+    mb.setIcon(QMessageBox::Question);
+    mb.setWindowTitle(tr("Unsaved Changes"));
+    mb.setText(tr("The project '%1' has unsaved changes. Would you like to save them?")
+               .arg(Core::instance()->GetActiveProject()->name()));
+
+    QPushButton* yes_btn = mb.addButton(tr("Save"), QMessageBox::YesRole);
+    mb.addButton(tr("Don't Save"), QMessageBox::NoRole);
+    QPushButton* cancel_btn = mb.addButton(QMessageBox::Cancel);
+
+    mb.exec();
+
+    if (mb.clickedButton() == cancel_btn
+        || (mb.clickedButton() == yes_btn && !Core::instance()->SaveActiveProject())) {
+      // Don't close if the user clicked cancel on this messagebox OR they cancelled a save as operation
+      e->ignore();
+      return;
+    }
+  }
+
   // Close viewers first since we don't want to delete any nodes while they might be mid-render
   QList<ViewerPanel*> viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanel>();
   foreach (ViewerPanel* viewer, viewers) {
@@ -173,9 +196,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::UpdateTitle()
 {
-  setWindowTitle(QStringLiteral("%1 %2 - %3").arg(QApplication::applicationName(),
-                                                  QApplication::applicationVersion(),
-                                                  tr("<untitled>")));
+  setWindowTitle(QStringLiteral("%1 %2 - [*]%3").arg(QApplication::applicationName(),
+                                                     QApplication::applicationVersion(),
+                                                     tr("(untitled)")));
 }
 
 void MainWindow::SetDefaultLayout()
@@ -186,14 +209,14 @@ void MainWindow::SetDefaultLayout()
   curve_panel_->setFloating(true);
 
   resizeDocks({node_panel_, param_panel_, viewer_panel_},
-              {width()/3, width()/3, width()/3},
+  {width()/3, width()/3, width()/3},
               Qt::Horizontal);
 
   resizeDocks({project_panel_, tool_panel_, timeline_panel_, audio_monitor_panel_},
-              {width()/4, 1, width(), 1},
+  {width()/4, 1, width(), 1},
               Qt::Horizontal);
 
   resizeDocks({node_panel_, project_panel_},
-              {height()/2, height()/2},
+  {height()/2, height()/2},
               Qt::Vertical);
 }

@@ -131,7 +131,9 @@ public:
    * Call this function whenever a change is made to a currently active project. Saving the project will automatically
    * unset this.
    */
-  void SetProjectModified();
+  void SetProjectModified(bool e);
+
+  bool IsProjectModified() const;
 
   /**
    * @brief Set how frequently an autorecovery should be saved (if the project has changed, see SetProjectModified())
@@ -193,12 +195,12 @@ public slots:
    *
    * If the project hasn't been saved before, this will be equivalent to calling SaveActiveProjectAs().
    */
-  void SaveActiveProject();
+  bool SaveActiveProject();
 
   /**
    * @brief Save the currently active project with a new filename
    */
-  void SaveActiveProjectAs();
+  bool SaveActiveProjectAs();
 
   /**
    * @brief Set the current application-wide tool
@@ -352,6 +354,8 @@ private:
 
 private slots:
   void SaveAutorecovery();
+
+  void ProjectSaveSucceeded();
 
   /**
    * @brief Adds a project to the "open projects" list

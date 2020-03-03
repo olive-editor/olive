@@ -490,7 +490,7 @@ ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
                                                    Item *item,
                                                    Folder *destination,
                                                    QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   model_(model),
   item_(item),
   destination_(destination)
@@ -500,18 +500,18 @@ ProjectViewModel::MoveItemCommand::MoveItemCommand(ProjectViewModel *model,
   setText(tr("Move Item"));
 }
 
-void ProjectViewModel::MoveItemCommand::redo()
+void ProjectViewModel::MoveItemCommand::redo_internal()
 {
   model_->MoveItemInternal(item_, destination_);
 }
 
-void ProjectViewModel::MoveItemCommand::undo()
+void ProjectViewModel::MoveItemCommand::undo_internal()
 {
   model_->MoveItemInternal(item_, source_);
 }
 
 ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, Item *item, const QString &name, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   model_(model),
   item_(item),
   new_name_(name)
@@ -521,18 +521,18 @@ ProjectViewModel::RenameItemCommand::RenameItemCommand(ProjectViewModel* model, 
   setText(tr("Rename Item"));
 }
 
-void ProjectViewModel::RenameItemCommand::redo()
+void ProjectViewModel::RenameItemCommand::redo_internal()
 {
   model_->RenameChild(item_, new_name_);
 }
 
-void ProjectViewModel::RenameItemCommand::undo()
+void ProjectViewModel::RenameItemCommand::undo_internal()
 {
   model_->RenameChild(item_, old_name_);
 }
 
 ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   model_(model),
   parent_(folder),
   child_(child),
@@ -544,14 +544,14 @@ ProjectViewModel::AddItemCommand::~AddItemCommand()
 {
 }
 
-void ProjectViewModel::AddItemCommand::redo()
+void ProjectViewModel::AddItemCommand::redo_internal()
 {
   model_->AddChild(parent_, child_);
 
   done_ = true;
 }
 
-void ProjectViewModel::AddItemCommand::undo()
+void ProjectViewModel::AddItemCommand::undo_internal()
 {
   model_->RemoveChild(parent_, child_.get());
 

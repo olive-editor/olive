@@ -198,6 +198,7 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 
         QMessageBox mbox(parent());
 
+        mbox.setIcon(QMessageBox::Question);
         mbox.setWindowTitle(tr("No Active Sequence"));
         mbox.setText(tr("No sequence is currently open. Would you like to create one?"));
         mbox.setCheckBox(dont_ask_again_box);

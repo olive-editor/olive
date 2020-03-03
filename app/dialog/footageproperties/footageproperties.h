@@ -28,9 +28,9 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QStackedWidget>
-#include <QUndoCommand>
 
 #include "project/item/footage/footage.h"
+#include "undo/undocommand.h"
 
 /**
  * @brief The MediaPropertiesDialog class
@@ -54,14 +54,15 @@ public:
    */
   FootagePropertiesDialog(QWidget *parent, Footage* footage);
 private:
-  class FootageChangeCommand : public QUndoCommand {
+  class FootageChangeCommand : public UndoCommand {
   public:
     FootageChangeCommand(Footage* footage,
                          const QString& name,
                          QUndoCommand *command = nullptr);
 
-    virtual void redo() override;
-    virtual void undo() override;
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
 
   private:
     Footage* footage_;
@@ -70,14 +71,15 @@ private:
     QString old_name_;
   };
 
-  class StreamEnableChangeCommand : public QUndoCommand {
+  class StreamEnableChangeCommand : public UndoCommand {
   public:
     StreamEnableChangeCommand(StreamPtr stream,
                               bool enabled,
                               QUndoCommand* command = nullptr);
 
-    virtual void redo() override;
-    virtual void undo() override;
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
 
   private:
     StreamPtr stream_;

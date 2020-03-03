@@ -198,7 +198,7 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
                                                            const AudioParams& audio_params,
                                                            const QString& name,
                                                            QUndoCommand* parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   sequence_(s),
   new_video_params_(video_params),
   new_audio_params_(audio_params),
@@ -209,14 +209,14 @@ SequenceDialog::SequenceParamCommand::SequenceParamCommand(Sequence* s,
 {
 }
 
-void SequenceDialog::SequenceParamCommand::redo()
+void SequenceDialog::SequenceParamCommand::redo_internal()
 {
   sequence_->set_video_params(new_video_params_);
   sequence_->set_audio_params(new_audio_params_);
   sequence_->set_name(new_name_);
 }
 
-void SequenceDialog::SequenceParamCommand::undo()
+void SequenceDialog::SequenceParamCommand::undo_internal()
 {
   sequence_->set_video_params(old_video_params_);
   sequence_->set_audio_params(old_audio_params_);

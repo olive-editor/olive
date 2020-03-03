@@ -1,16 +1,16 @@
 #ifndef KEYFRAMEVIEWUNDO_H
 #define KEYFRAMEVIEWUNDO_H
 
-#include <QUndoCommand>
-
 #include "node/keyframe.h"
+#include "undo/undocommand.h"
 
-class KeyframeSetTypeCommand : public QUndoCommand {
+class KeyframeSetTypeCommand : public UndoCommand {
 public:
   KeyframeSetTypeCommand(NodeKeyframePtr key, NodeKeyframe::Type type, QUndoCommand* parent = nullptr);
 
-  virtual void redo() override;
-  virtual void undo() override;
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
 
 private:
   NodeKeyframePtr key_;
@@ -21,13 +21,14 @@ private:
 
 };
 
-class KeyframeSetBezierControlPoint : public QUndoCommand {
+class KeyframeSetBezierControlPoint : public UndoCommand {
 public:
   KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF& point, QUndoCommand* parent = nullptr);
   KeyframeSetBezierControlPoint(NodeKeyframePtr key, NodeKeyframe::BezierType mode, const QPointF& new_point, const QPointF& old_point, QUndoCommand* parent = nullptr);
 
-  virtual void redo() override;
-  virtual void undo() override;
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
 
 private:
   NodeKeyframePtr key_;

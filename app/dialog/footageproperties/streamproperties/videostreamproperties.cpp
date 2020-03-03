@@ -71,14 +71,14 @@ VideoStreamProperties::VideoStreamChangeCommand::VideoStreamChangeCommand(ImageS
                                                                           bool premultiplied,
                                                                           QString colorspace,
                                                                           QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   stream_(stream),
   new_premultiplied_(premultiplied),
   new_colorspace_(colorspace)
 {
 }
 
-void VideoStreamProperties::VideoStreamChangeCommand::redo()
+void VideoStreamProperties::VideoStreamChangeCommand::redo_internal()
 {
   old_premultiplied_ = stream_->premultiplied_alpha();
   old_colorspace_ = stream_->colorspace();
@@ -87,7 +87,7 @@ void VideoStreamProperties::VideoStreamChangeCommand::redo()
   stream_->set_colorspace(new_colorspace_);
 }
 
-void VideoStreamProperties::VideoStreamChangeCommand::undo()
+void VideoStreamProperties::VideoStreamChangeCommand::undo_internal()
 {
   stream_->set_premultiplied_alpha(old_premultiplied_);
   stream_->set_colorspace(old_colorspace_);

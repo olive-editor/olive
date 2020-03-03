@@ -24,9 +24,9 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QSpinBox>
-#include <QUndoCommand>
 
 #include "project/item/sequence/sequence.h"
+#include "undo/undocommand.h"
 
 /**
  * @brief A dialog for editing Sequence parameters
@@ -112,7 +112,7 @@ private:
   /**
    * @brief A QUndoCommand for setting the parameters on a sequence
    */
-  class SequenceParamCommand : public QUndoCommand {
+  class SequenceParamCommand : public UndoCommand {
   public:
     SequenceParamCommand(Sequence* s,
                          const VideoParams& video_params,
@@ -120,8 +120,10 @@ private:
                          const QString& name,
                          QUndoCommand* parent = nullptr);
 
-    virtual void redo() override;
-    virtual void undo() override;
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
+
   private:
     Sequence* sequence_;
 

@@ -124,38 +124,38 @@ void FootagePropertiesDialog::accept() {
 }
 
 FootagePropertiesDialog::FootageChangeCommand::FootageChangeCommand(Footage *footage, const QString &name, QUndoCommand* command) :
-  QUndoCommand(command),
+  UndoCommand(command),
   footage_(footage),
   new_name_(name)
 {
 }
 
-void FootagePropertiesDialog::FootageChangeCommand::redo()
+void FootagePropertiesDialog::FootageChangeCommand::redo_internal()
 {
   old_name_ = footage_->name();
 
   footage_->set_name(new_name_);
 }
 
-void FootagePropertiesDialog::FootageChangeCommand::undo()
+void FootagePropertiesDialog::FootageChangeCommand::undo_internal()
 {
   footage_->set_name(old_name_);
 }
 
 FootagePropertiesDialog::StreamEnableChangeCommand::StreamEnableChangeCommand(StreamPtr stream, bool enabled, QUndoCommand *command) :
-  QUndoCommand(command),
+  UndoCommand(command),
   stream_(stream),
   old_enabled_(stream->enabled()),
   new_enabled_(enabled)
 {
 }
 
-void FootagePropertiesDialog::StreamEnableChangeCommand::redo()
+void FootagePropertiesDialog::StreamEnableChangeCommand::redo_internal()
 {
   stream_->set_enabled(new_enabled_);
 }
 
-void FootagePropertiesDialog::StreamEnableChangeCommand::undo()
+void FootagePropertiesDialog::StreamEnableChangeCommand::undo_internal()
 {
   stream_->set_enabled(old_enabled_);
 }

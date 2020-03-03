@@ -20,6 +20,7 @@
 
 #include "undo.h"
 
+#include "core.h"
 #include "node/graph.h"
 #include "node/block/transition/transition.h"
 
@@ -31,73 +32,73 @@ Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 }
 
 BlockResizeCommand::BlockResizeCommand(Block *block, rational new_length, QUndoCommand* parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   block_(block),
   old_length_(block->length()),
   new_length_(new_length)
 {
 }
 
-void BlockResizeCommand::redo()
+void BlockResizeCommand::redo_internal()
 {
   block_->set_length_and_media_out(new_length_);
 }
 
-void BlockResizeCommand::undo()
+void BlockResizeCommand::undo_internal()
 {
   block_->set_length_and_media_out(old_length_);
 }
 
 BlockResizeWithMediaInCommand::BlockResizeWithMediaInCommand(Block *block, rational new_length, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   block_(block),
   old_length_(block->length()),
   new_length_(new_length)
 {
 }
 
-void BlockResizeWithMediaInCommand::redo()
+void BlockResizeWithMediaInCommand::redo_internal()
 {
   block_->set_length_and_media_in(new_length_);
 }
 
-void BlockResizeWithMediaInCommand::undo()
+void BlockResizeWithMediaInCommand::undo_internal()
 {
   block_->set_length_and_media_in(old_length_);
 }
 
 BlockSetMediaInCommand::BlockSetMediaInCommand(Block *block, rational new_media_in, QUndoCommand* parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   block_(block),
   old_media_in_(block->media_in()),
   new_media_in_(new_media_in)
 {
 }
 
-void BlockSetMediaInCommand::redo()
+void BlockSetMediaInCommand::redo_internal()
 {
   block_->set_media_in(new_media_in_);
 }
 
-void BlockSetMediaInCommand::undo()
+void BlockSetMediaInCommand::undo_internal()
 {
   block_->set_media_in(old_media_in_);
 }
 
 TrackRippleRemoveBlockCommand::TrackRippleRemoveBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_(track),
   block_(block)
 {
 }
 
-void TrackRippleRemoveBlockCommand::redo()
+void TrackRippleRemoveBlockCommand::redo_internal()
 {
   before_ = block_->previous();
   track_->RippleRemoveBlock(block_);
 }
 
-void TrackRippleRemoveBlockCommand::undo()
+void TrackRippleRemoveBlockCommand::undo_internal()
 {
   if (before_) {
     track_->InsertBlockAfter(block_, before_);
@@ -110,25 +111,25 @@ TrackInsertBlockAfterCommand::TrackInsertBlockAfterCommand(TrackOutput *track,
                                                                            Block *block,
                                                                            Block *before,
                                                                            QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_(track),
   block_(block),
   before_(before)
 {
 }
 
-void TrackInsertBlockAfterCommand::redo()
+void TrackInsertBlockAfterCommand::redo_internal()
 {
   track_->InsertBlockAfter(block_, before_);
 }
 
-void TrackInsertBlockAfterCommand::undo()
+void TrackInsertBlockAfterCommand::undo_internal()
 {
   track_->RippleRemoveBlock(block_);
 }
 
 TrackRippleRemoveAreaCommand::TrackRippleRemoveAreaCommand(TrackOutput *track, rational in, rational out, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_(track),
   in_(in),
   out_(out),
@@ -144,7 +145,7 @@ void TrackRippleRemoveAreaCommand::SetInsert(Block *insert)
   insert_ = insert;
 }
 
-void TrackRippleRemoveAreaCommand::redo()
+void TrackRippleRemoveAreaCommand::redo_internal()
 {
   // Iterate through blocks determining which need trimming/removing/splitting
   foreach (Block* block, track_->Blocks()) {
@@ -237,7 +238,7 @@ void TrackRippleRemoveAreaCommand::redo()
   track_->InvalidateCache(in_, insert_ ? out_ : RATIONAL_MAX);
 }
 
-void TrackRippleRemoveAreaCommand::undo()
+void TrackRippleRemoveAreaCommand::undo_internal()
 {
   track_->BlockInvalidateCache();
 
@@ -291,7 +292,7 @@ TrackPlaceBlockCommand::TrackPlaceBlockCommand(TrackList *timeline, int track, B
   insert_ = block;
 }
 
-void TrackPlaceBlockCommand::redo()
+void TrackPlaceBlockCommand::redo_internal()
 {
   added_track_count_ = 0;
 
@@ -321,11 +322,11 @@ void TrackPlaceBlockCommand::redo()
     out_ = in_ + insert_->length();
 
     // Place the Block at this point
-    TrackRippleRemoveAreaCommand::redo();
+    TrackRippleRemoveAreaCommand::redo_internal();
   }
 }
 
-void TrackPlaceBlockCommand::undo()
+void TrackPlaceBlockCommand::undo_internal()
 {
   if (append_) {
     track_->RippleRemoveBlock(insert_);
@@ -335,7 +336,7 @@ void TrackPlaceBlockCommand::undo()
       delete TakeNodeFromParentGraph(gap_);
     }
   } else {
-    TrackRippleRemoveAreaCommand::undo();
+    TrackRippleRemoveAreaCommand::undo_internal();
   }
 
   for (;added_track_count_>0;added_track_count_--) {
@@ -344,7 +345,7 @@ void TrackPlaceBlockCommand::undo()
 }
 
 BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational point, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_(track),
   block_(block),
   new_length_(point - block->in()),
@@ -367,7 +368,7 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
   }
 }
 
-void BlockSplitCommand::redo()
+void BlockSplitCommand::redo_internal()
 {
   track_->BlockInvalidateCache();
 
@@ -390,7 +391,7 @@ void BlockSplitCommand::redo()
   track_->UnblockInvalidateCache();
 }
 
-void BlockSplitCommand::undo()
+void BlockSplitCommand::undo_internal()
 {
   track_->BlockInvalidateCache();
 
@@ -413,7 +414,7 @@ Block *BlockSplitCommand::new_block()
 }
 
 TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(TrackOutput *track, rational point, QUndoCommand *parent) :
-  QUndoCommand(parent)
+  UndoCommand(parent)
 {
   // Find Block that contains this time
   foreach (Block* b, track->Blocks()) {
@@ -429,42 +430,42 @@ TrackSplitAtTimeCommand::TrackSplitAtTimeCommand(TrackOutput *track, rational po
 }
 
 TrackReplaceBlockCommand::TrackReplaceBlockCommand(TrackOutput* track, Block *old, Block *replace, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_(track),
   old_(old),
   replace_(replace)
 {
 }
 
-void TrackReplaceBlockCommand::redo()
+void TrackReplaceBlockCommand::redo_internal()
 {
   track_->ReplaceBlock(old_, replace_);
 }
 
-void TrackReplaceBlockCommand::undo()
+void TrackReplaceBlockCommand::undo_internal()
 {
   track_->ReplaceBlock(replace_, old_);
 }
 
 TrackPrependBlockCommand::TrackPrependBlockCommand(TrackOutput *track, Block *block, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_(track),
   block_(block)
 {
 }
 
-void TrackPrependBlockCommand::redo()
+void TrackPrependBlockCommand::redo_internal()
 {
   track_->PrependBlock(block_);
 }
 
-void TrackPrependBlockCommand::undo()
+void TrackPrependBlockCommand::undo_internal()
 {
   track_->RippleRemoveBlock(block_);
 }
 
 BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector<Block *> &blocks, const QList<rational> &times, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   blocks_(blocks),
   times_(times)
 {
@@ -516,13 +517,13 @@ BlockSplitPreservingLinksCommand::BlockSplitPreservingLinksCommand(const QVector
 }
 
 TrackCleanGapsCommand::TrackCleanGapsCommand(TrackList *track_list, int index, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   track_list_(track_list),
   track_index_(index)
 {
 }
 
-void TrackCleanGapsCommand::redo()
+void TrackCleanGapsCommand::redo_internal()
 {
   GapBlock* on_gap = nullptr;
   QList<GapBlock*> consecutive_gaps;
@@ -572,7 +573,7 @@ void TrackCleanGapsCommand::redo()
   }
 }
 
-void TrackCleanGapsCommand::undo()
+void TrackCleanGapsCommand::undo_internal()
 {
   TrackOutput* track = track_list_->TrackAt(track_index_);
 
@@ -605,19 +606,19 @@ void TrackCleanGapsCommand::undo()
 }
 
 BlockSetSpeedCommand::BlockSetSpeedCommand(Block *block, const rational &new_speed, QUndoCommand *parent) :
-  QUndoCommand(parent),
+  UndoCommand(parent),
   block_(block),
   old_speed_(block->speed()),
   new_speed_(new_speed)
 {
 }
 
-void BlockSetSpeedCommand::redo()
+void BlockSetSpeedCommand::redo_internal()
 {
   block_->set_speed(new_speed_);
 }
 
-void BlockSetSpeedCommand::undo()
+void BlockSetSpeedCommand::undo_internal()
 {
   block_->set_speed(old_speed_);
 }

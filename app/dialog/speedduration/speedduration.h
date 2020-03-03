@@ -3,12 +3,12 @@
 
 #include <QCheckBox>
 #include <QDialog>
-#include <QUndoCommand>
 
 #include "node/block/clip/clip.h"
 #include "node/output/track/track.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/timeslider.h"
+#include "undo/undocommand.h"
 
 class SpeedDurationDialog : public QDialog
 {
@@ -44,12 +44,13 @@ private slots:
   void DurationChanged();
 };
 
-class BlockReverseCommand : public QUndoCommand {
+class BlockReverseCommand : public UndoCommand {
 public:
   BlockReverseCommand(Block* block, QUndoCommand* parent = nullptr);
 
-  virtual void redo() override;
-  virtual void undo() override;
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
 
 private:
   Block* block_;

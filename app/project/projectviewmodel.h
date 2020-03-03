@@ -22,9 +22,9 @@
 #define VIEWMODEL_H
 
 #include <QAbstractItemModel>
-#include <QUndoCommand>
 
 #include "project.h"
+#include "undo/undocommand.h"
 
 /**
  * @brief An adapter that interprets the data in a Project into a Qt item model for usage in ViewModel Views.
@@ -108,13 +108,14 @@ public:
   /**
    * @brief A QUndoCommand for moving an item from one folder to another folder
    */
-  class MoveItemCommand : public QUndoCommand {
+  class MoveItemCommand : public UndoCommand {
   public:
     MoveItemCommand(ProjectViewModel* model, Item* item, Folder* destination, QUndoCommand* parent = nullptr);
 
-    virtual void redo() override;
+  protected:
+    virtual void redo_internal() override;
 
-    virtual void undo() override;
+    virtual void undo_internal() override;
 
   private:
     ProjectViewModel* model_;
@@ -127,13 +128,14 @@ public:
   /**
    * @brief A QUndoCommand for renaming an item
    */
-  class RenameItemCommand : public QUndoCommand {
+  class RenameItemCommand : public UndoCommand {
   public:
     RenameItemCommand(ProjectViewModel* model, Item* item, const QString& name, QUndoCommand* parent = nullptr);
 
-    virtual void redo() override;
+  protected:
+    virtual void redo_internal() override;
 
-    virtual void undo() override;
+    virtual void undo_internal() override;
 
   private:
     ProjectViewModel* model_;
@@ -145,15 +147,16 @@ public:
   /**
    * @brief A QUndoCommand for adding an item
    */
-  class AddItemCommand : public QUndoCommand {
+  class AddItemCommand : public UndoCommand {
   public:
     AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent = nullptr);
 
     virtual ~AddItemCommand() override;
 
-    virtual void redo() override;
+  protected:
+    virtual void redo_internal() override;
 
-    virtual void undo() override;
+    virtual void undo_internal() override;
 
   private:
     ProjectViewModel* model_;

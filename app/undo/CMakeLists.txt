@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  undo/undocommand.h
+  undo/undocommand.cpp
   undo/undostack.h
   undo/undostack.cpp
   PARENT_SCOPE

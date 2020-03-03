@@ -351,7 +351,7 @@ void Core::ImportTaskComplete(QUndoCommand *command)
 
 bool Core::ConfirmImageSequence(const QString& filename)
 {
-  QMessageBox mb;
+  QMessageBox mb(main_window_);
 
   mb.setIcon(QMessageBox::Question);
   mb.setWindowTitle(tr("Possible image sequence detected"));
@@ -429,6 +429,8 @@ void Core::SaveProjectInternal(Project *project)
   // Create save manager
   ProjectSaveManager* psm = new ProjectSaveManager(project);
 
+  connect(psm, &Task::Succeeded, this, &Core::ProjectSaveSucceeded);
+
   TaskDialog* task_dialog = new TaskDialog(psm, tr("Save Project"), main_window());
   task_dialog->open();
 }
@@ -440,6 +442,11 @@ void Core::SaveAutorecovery()
 
     queue_autorecovery_ = false;
   }
+}
+
+void Core::ProjectSaveSucceeded()
+{
+  SetProjectModified(false);
 }
 
 Project *Core::GetActiveProject()
@@ -475,10 +482,15 @@ Folder *Core::GetSelectedFolderInActiveProject()
   }
 }
 
-void Core::SetProjectModified()
+void Core::SetProjectModified(bool e)
 {
-  main_window()->setWindowModified(true);
-  queue_autorecovery_ = true;
+  main_window()->setWindowModified(e);
+  queue_autorecovery_ = e;
+}
+
+bool Core::IsProjectModified() const
+{
+  return main_window_->isWindowModified();
 }
 
 void Core::SetAutorecoveryInterval(int minutes)
@@ -487,27 +499,29 @@ void Core::SetAutorecoveryInterval(int minutes)
   autorecovery_timer_.setInterval(minutes * 60000);
 }
 
-void Core::SaveActiveProject()
+bool Core::SaveActiveProject()
 {
   Project* active_project = GetActiveProject();
 
   if (!active_project) {
-    return;
+    return false;
   }
 
   if (active_project->filename().isEmpty()) {
-    SaveActiveProjectAs();
+    return SaveActiveProjectAs();
   } else {
     SaveProjectInternal(active_project);
+
+    return true;
   }
 }
 
-void Core::SaveActiveProjectAs()
+bool Core::SaveActiveProjectAs()
 {
   Project* active_project = GetActiveProject();
 
   if (!active_project) {
-    return;
+    return false;
   }
 
   QString fn = QFileDialog::getSaveFileName(main_window_,
@@ -519,7 +533,11 @@ void Core::SaveActiveProjectAs()
     active_project->set_filename(fn);
 
     SaveProjectInternal(active_project);
+
+    return true;
   }
+
+  return false;
 }
 
 QList<rational> Core::SupportedFrameRates()
