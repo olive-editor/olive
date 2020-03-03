@@ -265,6 +265,50 @@ void Sequence::set_default_parameters()
                    Config::Current()["DefaultSequenceAudioLayout"].toULongLong()));
 }
 
+void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
+{
+  bool found_video_params = false;
+  bool found_audio_params = false;
+
+  foreach (Footage* f, footage) {
+    foreach (StreamPtr s, f->streams()) {
+      if (!found_video_params) {
+
+        if (s->type() == Stream::kVideo) {
+          // If this is a video stream, use these parameters
+          VideoStream* vs = static_cast<VideoStream*>(s.get());
+
+          if (vs->frame_rate() != 0) {
+            set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
+            found_video_params = true;
+          }
+        } else if (s->type() == Stream::kImage) {
+          // If this is an image stream, we'll use it's resolution but won't set `found_video_params` in case
+          // something with a frame rate comes along which we'll prioritize
+          ImageStream* is = static_cast<ImageStream*>(s.get());
+
+          set_video_params(VideoParams(is->width(), is->height(), video_params().time_base()));
+        }
+
+      } else if (!found_audio_params && s->type() == Stream::kAudio) {
+
+        AudioStream* as = static_cast<AudioStream*>(s.get());
+        set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
+        found_audio_params = true;
+
+      }
+
+      if (found_video_params && found_audio_params) {
+        break;
+      }
+    }
+
+    if (found_video_params && found_audio_params) {
+      break;
+    }
+  }
+}
+
 ViewerOutput *Sequence::viewer_output() const
 {
   return viewer_output_;

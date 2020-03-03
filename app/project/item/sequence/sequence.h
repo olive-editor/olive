@@ -71,6 +71,8 @@ public:
 
   void set_default_parameters();
 
+  void set_parameters_from_footage(const QList<Footage*> footage);
+
   ViewerOutput* viewer_output() const;
 
 protected:
