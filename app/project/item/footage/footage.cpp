@@ -236,15 +236,16 @@ QString Footage::duration()
   } else if (streams_.first()->type() == Stream::kAudio) {
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
 
-    // We show audio time in a timecode corresponding to the default sequence frame rate
+    // If we're showing in a timecode, we prefer showing audio in seconds instead
+    Timecode::Display display = Timecode::CurrentDisplay();
+    if (display == Timecode::kTimecodeDropFrame
+        || display == Timecode::kTimecodeNonDropFrame) {
+      display = Timecode::kTimecodeSeconds;
+    }
 
-    rational rtime = Timecode::timestamp_to_time(streams_.first()->duration(), streams_.first()->timebase());
-
-    int64_t time_in_default_tb = Timecode::time_to_timestamp(rtime, Config::Current()["DefaultSequenceFrameRate"].value<rational>());
-
-    return Timecode::timestamp_to_timecode(time_in_default_tb,
-                                           Config::Current()["DefaultSequenceFrameRate"].value<rational>(),
-                                           Timecode::CurrentDisplay());
+    return Timecode::timestamp_to_timecode(streams_.first()->duration(),
+                                           streams_.first()->timebase(),
+                                           display);
   }
 
   return QString();
