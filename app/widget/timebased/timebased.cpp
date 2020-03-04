@@ -10,7 +10,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
 
-  scrollbar_ = new QScrollBar(Qt::Horizontal, this);
+  scrollbar_ = new ResizableScrollBar(Qt::Horizontal, this);
+  connect(scrollbar_, &ResizableScrollBar::RequestScale, this, &TimeBasedWidget::ScrollBarResized);
 }
 
 void TimeBasedWidget::SetScaleAndCenterOnPlayhead(const double &scale)
@@ -65,12 +66,17 @@ void TimeBasedWidget::UpdateMaximumScroll()
   scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(viewer_node_->Length())) - width()));
 }
 
+void TimeBasedWidget::ScrollBarResized(const double &multiplier)
+{
+  SetScale(GetScale() * multiplier);
+}
+
 TimeRuler *TimeBasedWidget::ruler() const
 {
   return ruler_;
 }
 
-QScrollBar *TimeBasedWidget::scrollbar() const
+ResizableScrollBar *TimeBasedWidget::scrollbar() const
 {
   return scrollbar_;
 }

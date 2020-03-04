@@ -1,10 +1,10 @@
 #ifndef TIMEBASEDWIDGET_H
 #define TIMEBASEDWIDGET_H
 
-#include <QScrollBar>
 #include <QWidget>
 
 #include "node/output/viewer/viewer.h"
+#include "widget/resizablescrollbar/resizablescrollbar.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timeruler/timeruler.h"
 
@@ -54,7 +54,7 @@ protected slots:
   void SetTimeAndSignal(const int64_t& t);
 
 protected:
-  QScrollBar* scrollbar() const;
+  ResizableScrollBar* scrollbar() const;
 
   virtual void TimebaseChangedEvent(const rational&) override;
 
@@ -88,12 +88,14 @@ private:
 
   TimeRuler* ruler_;
 
-  QScrollBar* scrollbar_;
+  ResizableScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
 
 private slots:
   void UpdateMaximumScroll();
+
+  void ScrollBarResized(const double& multiplier);
 
 };
 
