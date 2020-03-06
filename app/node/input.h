@@ -232,6 +232,10 @@ public:
    * - `min` - For any numeral type represented with a slider, prevents values going BELOW this number
    * - `max` - For any numeral type represented with a slider, prevents values going ABOVE this number
    * - `view` - For any numeral type represented with a slider, shows number either as `db`, `percent`, or `normal`
+   * - `disablex` - For kVec2, kVec3, kVec4 and kColor types, disables the first/X/R UI widget
+   * - `disabley` - For kVec2, kVec3, kVec4 and kColor types, disables the second/Y/G UI widget
+   * - `disablez` - For kVec3, kVec4 and kColor types, disables the third/Z/B UI widget
+   * - `disablew` - For kVec4 and kColor types, disables the fourth/W/A UI widget
    */
   void set_property(const QString& key, const QVariant& value);
 
@@ -244,6 +248,11 @@ public:
    * @brief Return whether a certain property has been set or not
    */
   bool has_property(const QString& key) const;
+
+  /**
+   * @brief Get properties hashmap (useful for iterating)
+   */
+  const QHash<QString, QVariant>& properties() const;
 
   QVector<QVariant> split_normal_value_into_track_values(const QVariant &value) const;
 

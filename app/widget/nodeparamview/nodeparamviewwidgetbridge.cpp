@@ -25,6 +25,7 @@ NodeParamViewWidgetBridge::NodeParamViewWidgetBridge(NodeInput *input, QObject *
   CreateWidgets();
 
   connect(input_, &NodeInput::ValueChanged, this, &NodeParamViewWidgetBridge::InputValueChanged);
+  connect(input_, &NodeInput::PropertyChanged, this, &NodeParamViewWidgetBridge::PropertyChanged);
 }
 
 void NodeParamViewWidgetBridge::SetTime(const rational &time)
@@ -45,7 +46,6 @@ void NodeParamViewWidgetBridge::SetTime(const rational &time)
   case NodeParam::kRational:
   case NodeParam::kSamples:
   case NodeParam::kDecimal:
-  case NodeParam::kWholeNumber:
   case NodeParam::kNumber:
   case NodeParam::kString:
   case NodeParam::kBuffer:
@@ -126,7 +126,6 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   case NodeParam::kRational:
   case NodeParam::kSamples:
   case NodeParam::kDecimal:
-  case NodeParam::kWholeNumber:
   case NodeParam::kNumber:
   case NodeParam::kString:
   case NodeParam::kBuffer:
@@ -137,58 +136,26 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     IntegerSlider* slider = new IntegerSlider();
     widgets_.append(slider);
     connect(slider, &IntegerSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-
-    if (input_->has_property(QStringLiteral("min"))) {
-      slider->SetMinimum(input_->get_property(QStringLiteral("min")).value<int64_t>());
-    }
-
-    if (input_->has_property(QStringLiteral("max"))) {
-      slider->SetMinimum(input_->get_property(QStringLiteral("max")).value<int64_t>());
-    }
     break;
   }
   case NodeParam::kFloat:
   {
-    float min_flt = input_->get_property(QStringLiteral("min")).value<float>();
-    float max_flt = input_->get_property(QStringLiteral("max")).value<float>();
-
-    CreateSliders(1,
-                  input_->has_property(QStringLiteral("min")) ? &min_flt : nullptr,
-                  input_->has_property(QStringLiteral("max")) ? &max_flt : nullptr,
-                  input_->get_property(QStringLiteral("view")).toString());
+    CreateSliders(1);
     break;
   }
   case NodeParam::kVec2:
   {
-    QVector2D min_vec = input_->get_property(QStringLiteral("min")).value<QVector2D>();
-    QVector2D max_vec = input_->get_property(QStringLiteral("max")).value<QVector2D>();
-
-    CreateSliders(2,
-                  input_->has_property(QStringLiteral("min")) ? reinterpret_cast<float*>(&min_vec) : nullptr,
-                  input_->has_property(QStringLiteral("max")) ? reinterpret_cast<float*>(&max_vec) : nullptr,
-                  input_->get_property(QStringLiteral("view")).toString());
+    CreateSliders(2);
     break;
   }
   case NodeParam::kVec3:
   {
-    QVector3D min_vec = input_->get_property(QStringLiteral("min")).value<QVector3D>();
-    QVector3D max_vec = input_->get_property(QStringLiteral("max")).value<QVector3D>();
-
-    CreateSliders(3,
-                  input_->has_property(QStringLiteral("min")) ? reinterpret_cast<float*>(&min_vec) : nullptr,
-                  input_->has_property(QStringLiteral("max")) ? reinterpret_cast<float*>(&max_vec) : nullptr,
-                  input_->get_property(QStringLiteral("view")).toString());
+    CreateSliders(3);
     break;
   }
   case NodeParam::kVec4:
   {
-    QVector4D min_vec = input_->get_property(QStringLiteral("min")).value<QVector4D>();
-    QVector4D max_vec = input_->get_property(QStringLiteral("max")).value<QVector4D>();
-
-    CreateSliders(4,
-                  input_->has_property(QStringLiteral("min")) ? reinterpret_cast<float*>(&min_vec) : nullptr,
-                  input_->has_property(QStringLiteral("max")) ? reinterpret_cast<float*>(&max_vec) : nullptr,
-                  input_->get_property(QStringLiteral("view")).toString());
+    CreateSliders(4);
     break;
   }
   case NodeParam::kFile:
@@ -228,6 +195,13 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
     break;
   }
+  }
+
+  // Check all properties
+  QHash<QString, QVariant>::const_iterator iterator;
+
+  for (iterator=input_->properties().begin();iterator!=input_->properties().end();iterator++) {
+    PropertyChanged(iterator.key(), iterator.value());
   }
 }
 
@@ -345,7 +319,6 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   case NodeParam::kSamples:
   case NodeParam::kRational:
   case NodeParam::kDecimal:
-  case NodeParam::kWholeNumber:
   case NodeParam::kNumber:
   case NodeParam::kString:
   case NodeParam::kVector:
@@ -424,26 +397,12 @@ void NodeParamViewWidgetBridge::WidgetCallback()
   }
 }
 
-void NodeParamViewWidgetBridge::CreateSliders(int count, float *min, float *max, const QString &type)
+void NodeParamViewWidgetBridge::CreateSliders(int count)
 {
   for (int i=0;i<count;i++) {
     FloatSlider* fs = new FloatSlider();
     widgets_.append(fs);
     connect(fs, &FloatSlider::ValueChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
-
-    if (min) {
-      fs->SetMinimum(min[i]);
-    }
-
-    if (max) {
-      fs->SetMaximum(max[i]);
-    }
-
-    if (type == QStringLiteral("percent")) {
-      fs->SetDisplayType(FloatSlider::kPercentage);
-    } else if (type == QStringLiteral("db")) {
-      fs->SetDisplayType(FloatSlider::kDecibel);
-    }
   }
 }
 
@@ -452,5 +411,122 @@ void NodeParamViewWidgetBridge::InputValueChanged(const rational &start, const r
   if (!dragging_ && start <= time_ && end >= time_) {
     // We'll need to update the widgets because the values have changed on our current time
     SetTime(time_);
+  }
+}
+
+void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVariant &value)
+{
+  // Parameters for vectors only
+  if (input_->data_type() & NodeParam::kVector) {
+    if (key == QStringLiteral("disablex")) {
+      static_cast<FloatSlider*>(widgets_.at(0))->setEnabled(!value.toBool());
+    } else if (key == QStringLiteral("disabley")) {
+      static_cast<FloatSlider*>(widgets_.at(1))->setEnabled(!value.toBool());
+    } else if (widgets_.size() > 2 && key == QStringLiteral("disablez")) {
+      static_cast<FloatSlider*>(widgets_.at(2))->setEnabled(!value.toBool());
+    } else if (widgets_.size() > 3 && key == QStringLiteral("disablew")) {
+      static_cast<FloatSlider*>(widgets_.at(3))->setEnabled(!value.toBool());
+    }
+  }
+
+  // Parameters for integers, floats, and vectors
+  if (input_->data_type() & NodeParam::kNumber || input_->data_type() & NodeParam::kVector) {
+    if (key == QStringLiteral("min")) {
+      switch (input_->data_type()) {
+      case NodeParam::kInt:
+        static_cast<IntegerSlider*>(widgets_.first())->SetMinimum(value.value<int64_t>());
+        break;
+      case NodeParam::kFloat:
+        static_cast<FloatSlider*>(widgets_.first())->SetMinimum(value.toDouble());
+        break;
+      case NodeParam::kRational:
+        // FIXME: Rational doesn't have a UI implementation yet
+        break;
+      case NodeParam::kVec2:
+      {
+        QVector2D min = value.value<QVector2D>();
+        static_cast<FloatSlider*>(widgets_.at(0))->SetMinimum(min.x());
+        static_cast<FloatSlider*>(widgets_.at(1))->SetMinimum(min.y());
+        break;
+      }
+      case NodeParam::kVec3:
+      {
+        QVector3D min = value.value<QVector3D>();
+        static_cast<FloatSlider*>(widgets_.at(0))->SetMinimum(min.x());
+        static_cast<FloatSlider*>(widgets_.at(1))->SetMinimum(min.y());
+        static_cast<FloatSlider*>(widgets_.at(2))->SetMinimum(min.z());
+        break;
+      }
+      case NodeParam::kVec4:
+      {
+        QVector4D min = value.value<QVector4D>();
+        static_cast<FloatSlider*>(widgets_.at(0))->SetMinimum(min.x());
+        static_cast<FloatSlider*>(widgets_.at(1))->SetMinimum(min.y());
+        static_cast<FloatSlider*>(widgets_.at(2))->SetMinimum(min.z());
+        static_cast<FloatSlider*>(widgets_.at(3))->SetMinimum(min.w());
+        break;
+      }
+      default:
+        break;
+      }
+    } else if (key == QStringLiteral("max")) {
+      switch (input_->data_type()) {
+      case NodeParam::kInt:
+        static_cast<IntegerSlider*>(widgets_.first())->SetMaximum(value.value<int64_t>());
+        break;
+      case NodeParam::kFloat:
+        static_cast<FloatSlider*>(widgets_.first())->SetMaximum(value.toDouble());
+        break;
+      case NodeParam::kRational:
+        // FIXME: Rational doesn't have a UI implementation yet
+        break;
+      case NodeParam::kVec2:
+      {
+        QVector2D max = value.value<QVector2D>();
+        static_cast<FloatSlider*>(widgets_.at(0))->SetMaximum(max.x());
+        static_cast<FloatSlider*>(widgets_.at(1))->SetMaximum(max.y());
+        break;
+      }
+      case NodeParam::kVec3:
+      {
+        QVector3D max = value.value<QVector3D>();
+        static_cast<FloatSlider*>(widgets_.at(0))->SetMaximum(max.x());
+        static_cast<FloatSlider*>(widgets_.at(1))->SetMaximum(max.y());
+        static_cast<FloatSlider*>(widgets_.at(2))->SetMaximum(max.z());
+        break;
+      }
+      case NodeParam::kVec4:
+      {
+        QVector4D max = value.value<QVector4D>();
+        static_cast<FloatSlider*>(widgets_.at(0))->SetMaximum(max.x());
+        static_cast<FloatSlider*>(widgets_.at(1))->SetMaximum(max.y());
+        static_cast<FloatSlider*>(widgets_.at(2))->SetMaximum(max.z());
+        static_cast<FloatSlider*>(widgets_.at(3))->SetMaximum(max.w());
+        break;
+      }
+      default:
+        break;
+      }
+    }
+  }
+
+  // Parameters for floats and vectors only
+  if (input_->data_type() & NodeParam::kFloat || input_->data_type() & NodeParam::kVector) {
+    if (key == QStringLiteral("view")) {
+      FloatSlider::DisplayType display_type;
+
+      if (value == QStringLiteral("percent")) {
+        display_type = FloatSlider::kPercentage;
+      } else if (value == QStringLiteral("db")) {
+        display_type = FloatSlider::kDecibel;
+      } else {
+        // Avoid undefined behavior
+        return;
+      }
+
+      foreach (QWidget* w, widgets_) {
+        static_cast<FloatSlider*>(w)->SetDisplayType(display_type);
+      }
+    }
   }
 }

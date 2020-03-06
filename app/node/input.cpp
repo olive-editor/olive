@@ -917,6 +917,11 @@ bool NodeInput::has_property(const QString &key) const
   return properties_.contains(key);
 }
 
+const QHash<QString, QVariant> &NodeInput::properties() const
+{
+  return properties_;
+}
+
 QVector<QVariant> NodeInput::split_normal_value_into_track_values(const QVariant &value) const
 {
   QVector<QVariant> vals(get_number_of_keyframe_tracks());

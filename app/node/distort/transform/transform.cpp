@@ -34,11 +34,13 @@ TransformDistort::TransformDistort()
   scale_input_ = new NodeInput("scale_in", NodeParam::kVec2, QVector2D(1.0f, 1.0f));
   scale_input_->set_property("min", QVector2D(0, 0));
   scale_input_->set_property("view", "percent");
+  scale_input_->set_property("disabley", true);
   AddInput(scale_input_);
 
   uniform_scale_input_ = new NodeInput("uniform_scale_in", NodeParam::kBoolean, true);
   uniform_scale_input_->set_is_keyframable(false);
   uniform_scale_input_->SetConnectable(false);
+  connect(uniform_scale_input_, &NodeInput::ValueChanged, this, &TransformDistort::UniformScaleChanged);
   AddInput(uniform_scale_input_);
 
   anchor_input_ = new NodeInput("anchor_in", NodeParam::kVec2);
@@ -104,4 +106,9 @@ NodeValueTable TransformDistort::Value(const NodeValueDatabase &value) const
   NodeValueTable output;
   output.Push(NodeParam::kMatrix, mat);
   return output;
+}
+
+void TransformDistort::UniformScaleChanged()
+{
+  scale_input_->set_property("disabley", uniform_scale_input_->get_standard_value().toBool());
 }

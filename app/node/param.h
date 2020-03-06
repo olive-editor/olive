@@ -180,18 +180,11 @@ public:
     kDecimal = 0x6,
 
     /**
-     * Identifier for type that contains a whole number
-     *
-     * Includes kInt and kBoolean.
-     */
-    kWholeNumber = 0x9,
-
-    /**
      * Identifier for type that contains a number of any kind (whole or decimal)
      *
-     * Includes kInt, kFloat, kRational, and kBoolean.
+     * Includes kInt, kFloat, and kRational.
      */
-    kNumber = 0xF,
+    kNumber = 0x7,
 
     /**
      * Identifier for type that contains a text string of any kind.

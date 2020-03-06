@@ -206,7 +206,6 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kTexture:
   case kSamples:
   case kDecimal:
-  case kWholeNumber:
   case kNumber:
   case kString:
   case kBuffer:

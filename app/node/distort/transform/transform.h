@@ -51,6 +51,9 @@ private:
 
   NodeInput* anchor_input_;
 
+private slots:
+  void UniformScaleChanged();
+
 };
 
 #endif // TRANSFORMDISTORT_H

@@ -23,7 +23,7 @@ private:
 
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 
-  void CreateSliders(int count, float *min, float *max, const QString& type);
+  void CreateSliders(int count);
 
   NodeInput* input_;
 
@@ -40,6 +40,8 @@ private slots:
   void WidgetCallback();
 
   void InputValueChanged(const rational& start, const rational& end);
+
+  void PropertyChanged(const QString& key, const QVariant& value);
 
 };
 

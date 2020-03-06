@@ -316,7 +316,6 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
         case NodeInput::kFont:
         case NodeInput::kFile:
         case NodeInput::kDecimal:
-        case NodeInput::kWholeNumber:
         case NodeInput::kNumber:
         case NodeInput::kString:
         case NodeInput::kVector:
