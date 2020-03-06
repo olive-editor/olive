@@ -22,12 +22,16 @@
 
 #include <QBrush>
 #include <QCoreApplication>
+#include <QDir>
+#include <QFloat16>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+#include "audio/sumsamples.h"
 #include "common/qtutils.h"
+#include "config/config.h"
 #include "node/block/transition/transition.h"
 
 TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
@@ -95,6 +99,57 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
     if (option->state & QStyle::State_Selected) {
       painter->fillRect(rect(), QColor(0, 0, 0, 64));
+    }
+
+    // Draw waveform if one is available
+    QFile wave_file(QDir(QDir(Config::Current()["DiskCachePath"].toString()).filePath("waveform")).filePath(QString::number(reinterpret_cast<quintptr>(block_))));
+    if (wave_file.open(QFile::ReadOnly)){
+      painter->setPen(QColor(64, 64, 64));
+
+      QByteArray w = wave_file.readAll();
+
+      // FIXME: Hardcoded channel count
+      int channels = 2;
+
+      const SampleSummer::Sum* samples = reinterpret_cast<const SampleSummer::Sum*>(w.constData());
+      int nb_samples = w.size() / sizeof(SampleSummer::Sum);
+
+      int sample_index, next_sample_index = 0;
+
+      QVector<SampleSummer::Sum> summary;
+      int summary_index = -1;
+
+      int channel_height = rect().height() / channels;
+      int channel_half_height = channel_height / 2;
+
+      for (int i=0;i<rect().width();i++) {
+        sample_index = next_sample_index;
+
+        if (sample_index == nb_samples) {
+          break;
+        }
+
+        next_sample_index = qMin(nb_samples,
+                                 qFloor(static_cast<double>(SampleSummer::kSumSampleRate) * static_cast<double>(i+1) / this->GetScale()) * channels);
+
+        if (summary_index != sample_index) {
+          summary = SampleSummer::ReSumSamples(&samples[sample_index],
+                                               qMax(channels, next_sample_index - sample_index),
+                                               channels);
+          summary_index = sample_index;
+        }
+
+        for (int j=0;j<summary.size();j++) {
+          int channel_mid = channel_height * j + channel_half_height;
+
+          painter->drawLine(i,
+                            channel_mid + qRound(summary.at(j).min * channel_half_height),
+                            i,
+                            channel_mid + qRound(summary.at(j).max * channel_half_height));
+        }
+      }
+
+      wave_file.close();
     }
 
     painter->setPen(Qt::white);

@@ -29,6 +29,10 @@ protected:
 
   virtual void DisconnectViewer(ViewerOutput* node) override;
 
+  virtual bool CompileInternal() override;
+
+  virtual void DecompileInternal() override;
+
   /**
    * @brief Internal function for generating the cache ID
    */
@@ -39,6 +43,8 @@ protected:
   virtual bool CanRender() override;
 
   virtual void ConnectWorkerToThis(RenderWorker* worker) override;
+
+  QHash<Node*, Node*> copy_map_;
 
 private:
   struct ConformWaitInfo {

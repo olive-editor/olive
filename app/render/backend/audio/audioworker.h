@@ -6,7 +6,7 @@
 class AudioWorker : public AudioRenderWorker
 {
 public:
-  AudioWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
+  AudioWorker(DecoderCache* decoder_cache, QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
 
 protected:
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;

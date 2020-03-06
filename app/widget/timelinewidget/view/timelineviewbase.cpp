@@ -31,8 +31,6 @@ TimelineViewBase::TimelineViewBase(QWidget *parent) :
 
   SetDefaultDragMode(NoDrag);
 
-  setViewportUpdateMode(FullViewportUpdate);
-
   connect(&scene_, SIGNAL(changed(const QList<QRectF>&)), this, SLOT(UpdateSceneRect()));
   connect(Core::instance(), &Core::ToolChanged, this, &TimelineViewBase::ApplicationToolChanged);
 

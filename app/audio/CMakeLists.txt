@@ -26,6 +26,8 @@ set(OLIVE_SOURCES
   audio/outputmanager.cpp
   audio/sampleformat.h
   audio/sampleformat.cpp
+  audio/sumsamples.h
+  audio/sumsamples.cpp
   audio/tempoprocessor.h
   audio/tempoprocessor.cpp
   PARENT_SCOPE

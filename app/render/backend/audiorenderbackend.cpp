@@ -41,6 +41,20 @@ void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
   disconnect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
 }
 
+bool AudioRenderBackend::CompileInternal()
+{
+  for (int i=0;i<copied_graph_.nodes().size();i++) {
+    copy_map_.insert(copied_graph_.nodes().at(i), source_node_list_.at(i));
+  }
+
+  return true;
+}
+
+void AudioRenderBackend::DecompileInternal()
+{
+  copy_map_.clear();
+}
+
 bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)
 {
   if (!params_.is_valid()) {

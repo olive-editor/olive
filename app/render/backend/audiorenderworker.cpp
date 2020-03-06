@@ -1,9 +1,15 @@
 #include "audiorenderworker.h"
 
-#include "audio/audiomanager.h"
+#include <QDir>
+#include <QFloat16>
 
-AudioRenderWorker::AudioRenderWorker(DecoderCache* decoder_cache, QObject *parent) :
-  RenderWorker(decoder_cache, parent)
+#include "audio/audiomanager.h"
+#include "audio/sumsamples.h"
+#include "config/config.h"
+
+AudioRenderWorker::AudioRenderWorker(DecoderCache* decoder_cache, QHash<Node *, Node *> *copy_map, QObject *parent) :
+  RenderWorker(decoder_cache, parent),
+  copy_map_(copy_map)
 {
 }
 
@@ -82,6 +88,43 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         memcpy(block_range_buffer.data()+destination_offset,
                samples_from_this_block.data(),
                actual_copy_size);
+
+        // Save waveform to file
+        QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
+        QDir waveform_loc = local_appdata_dir.filePath("waveform");
+        waveform_loc.mkpath(".");
+        QFile wave_file(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(copy_map_->value(b)))));
+        wave_file.open(QFile::ReadWrite);
+
+        // FIXME: Assumes 32-bit float
+        float* flt_samples = reinterpret_cast<float*>(samples_from_this_block.data());
+        int nb_sample = samples_from_this_block.size() / sizeof(float);
+
+        // FIXME: Hardcoded sample rate
+        // We use S16 here as a size-compatible substitute for qfloat16/half
+        AudioRenderingParams waveform_params(SampleSummer::kSumSampleRate, audio_params_.channel_layout(), SampleFormat::SAMPLE_FMT_S16);
+        int chunk_size = (audio_params().sample_rate() / waveform_params.sample_rate()) * waveform_params.channel_count();
+
+        qint64 start_offset = waveform_params.time_to_bytes(range_for_block.in() - b->in()) * 2;
+        qint64 length_offset = waveform_params.time_to_bytes(range_for_block.length()) * 2;
+        qint64 end_offset = start_offset + length_offset;
+
+        if (wave_file.size() < end_offset) {
+          wave_file.resize(end_offset);
+        }
+
+        wave_file.seek(start_offset);
+
+        for (int i=0;i<nb_sample;i+=chunk_size) {
+          QVector<SampleSummer::Sum> summary = SampleSummer::SumSamples(&flt_samples[i],
+                                                                        qMin(chunk_size, nb_sample - i),
+                                                                        audio_params().channel_count());
+
+          wave_file.write(reinterpret_cast<const char*>(summary.constData()),
+                          summary.size() * sizeof(SampleSummer::Sum));
+        }
+
+        wave_file.close();
       }
     }
 

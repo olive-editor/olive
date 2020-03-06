@@ -108,6 +108,10 @@ protected:
 
   QHash<TimeRange, qint64> render_job_info_;
 
+  QList<Node*> source_node_list_;
+
+  NodeGraph copied_graph_;
+
 protected slots:
   void QueueRecompile();
 
@@ -138,9 +142,6 @@ private:
   QString error_;
 
   QString cache_id_;
-
-  QList<Node*> source_node_list_;
-  NodeGraph copied_graph_;
 
   bool recompile_queued_;
   bool input_update_queued_;

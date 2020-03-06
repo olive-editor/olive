@@ -1,7 +1,7 @@
 #include "audioworker.h"
 
-AudioWorker::AudioWorker(DecoderCache* decoder_cache, QObject *parent) :
-  AudioRenderWorker(decoder_cache, parent)
+AudioWorker::AudioWorker(DecoderCache* decoder_cache, QHash<Node *, Node *> *copy_map, QObject *parent) :
+  AudioRenderWorker(decoder_cache, copy_map, parent)
 {
 }
 
