@@ -7,7 +7,6 @@ VolumeNode::VolumeNode()
 
   volume_input_ = new NodeInput("volume_in", NodeParam::kFloat, 1);
   volume_input_->set_property("min", 0.0);
-  volume_input_->set_property("max", 1.0);
   volume_input_->set_property("view", "db");
   AddInput(volume_input_);
 }
@@ -44,8 +43,6 @@ NodeInput *VolumeNode::ProcessesSamplesFrom() const
 
 void VolumeNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams& params, const float* input, float* output, int index) const
 {
-  Q_UNUSED(params)
-
   float volume_val = (*values)[volume_input_].Get(NodeParam::kFloat).toFloat();
 
   output[index] = input[index] * volume_val;
