@@ -30,10 +30,9 @@
 class TimelineViewBlockItem : public TimelineViewRect
 {
 public:
-  TimelineViewBlockItem(QGraphicsItem* parent = nullptr);
+  TimelineViewBlockItem(Block* block, QGraphicsItem* parent = nullptr);
 
-  Block* block();
-  void SetBlock(Block *block);
+  Block* block() const;
 
   virtual void UpdateRect() override;
 

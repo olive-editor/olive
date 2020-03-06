@@ -662,10 +662,9 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
   case Block::kTransition:
   case Block::kGap:
   {
-    TimelineViewBlockItem* item = new TimelineViewBlockItem();
-
     // Set up clip with view parameters (clip item will automatically size its rect accordingly)
-    item->SetBlock(block);
+    TimelineViewBlockItem* item = new TimelineViewBlockItem(block);
+
     item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
     item->SetScale(GetScale());
     item->SetTrack(track);
@@ -677,6 +676,10 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     views_.at(track.type())->view()->scene()->addItem(item);
 
     connect(block, &Block::Refreshed, this, &TimelineWidget::BlockChanged);
+
+    if (block->type() == Block::kClip) {
+      connect(static_cast<ClipBlock*>(block), &ClipBlock::PreviewUpdated, this, &TimelineWidget::PreviewUpdated);
+    }
     break;
   }
   }
@@ -721,10 +724,19 @@ void TimelineWidget::ViewSelectionChanged()
 
 void TimelineWidget::BlockChanged()
 {
-  TimelineViewRect* rect = block_items_[static_cast<Block*>(sender())];
+  TimelineViewRect* rect = block_items_.value(static_cast<Block*>(sender()));
 
-  if (rect != nullptr) {
+  if (rect) {
     rect->UpdateRect();
+  }
+}
+
+void TimelineWidget::PreviewUpdated()
+{
+  TimelineViewRect* rect = block_items_.value(static_cast<Block*>(sender()));
+
+  if (rect) {
+    rect->update();
   }
 }
 

@@ -34,23 +34,12 @@
 #include "config/config.h"
 #include "node/block/transition/transition.h"
 
-TimelineViewBlockItem::TimelineViewBlockItem(QGraphicsItem* parent) :
+TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent) :
   TimelineViewRect(parent),
-  block_(nullptr)
+  block_(block)
 {
   setBrush(Qt::white);
   setCursor(Qt::DragMoveCursor);
-}
-
-Block *TimelineViewBlockItem::block()
-{
-  return block_;
-}
-
-void TimelineViewBlockItem::SetBlock(Block *block)
-{
-  block_ = block;
-
   setFlag(QGraphicsItem::ItemIsSelectable,
           block_->type() == Block::kClip
           || block_->type() == Block::kGap
@@ -59,12 +48,13 @@ void TimelineViewBlockItem::SetBlock(Block *block)
   UpdateRect();
 }
 
+Block *TimelineViewBlockItem::block() const
+{
+  return block_;
+}
+
 void TimelineViewBlockItem::UpdateRect()
 {
-  if (block_ == nullptr) {
-    return;
-  }
-
   double item_left = TimeToScene(block_->in());
   double item_width = TimeToScene(block_->length());
 
@@ -81,12 +71,6 @@ void TimelineViewBlockItem::UpdateRect()
 
 void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-  Q_UNUSED(widget)
-
-  if (block_ == nullptr) {
-    return;
-  }
-
   switch (block_->type()) {
   case Block::kClip:
   {

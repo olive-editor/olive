@@ -6,6 +6,7 @@
 #include "audio/audiomanager.h"
 #include "audio/sumsamples.h"
 #include "config/config.h"
+#include "node/block/clip/clip.h"
 
 AudioRenderWorker::AudioRenderWorker(DecoderCache* decoder_cache, QHash<Node *, Node *> *copy_map, QObject *parent) :
   RenderWorker(decoder_cache, parent),
@@ -90,10 +91,11 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
                actual_copy_size);
 
         // Save waveform to file
+        Block* src_block = static_cast<Block*>(copy_map_->value(b));
         QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
         QDir waveform_loc = local_appdata_dir.filePath("waveform");
         waveform_loc.mkpath(".");
-        QFile wave_file(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(copy_map_->value(b)))));
+        QFile wave_file(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(src_block))));
         wave_file.open(QFile::ReadWrite);
 
         // FIXME: Assumes 32-bit float
@@ -125,6 +127,10 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         }
 
         wave_file.close();
+
+        if (src_block->type() == Block::kClip) {
+          emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();
+        }
       }
     }
 

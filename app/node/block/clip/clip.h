@@ -50,6 +50,9 @@ public:
 
   virtual void Retranslate() override;
 
+signals:
+  void PreviewUpdated();
+
 private:
   NodeInput* texture_input_;
 

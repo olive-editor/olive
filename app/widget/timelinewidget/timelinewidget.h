@@ -425,6 +425,8 @@ private slots:
    */
   void BlockChanged();
 
+  void PreviewUpdated();
+
   void UpdateHorizontalSplitters();
 
   void UpdateTimecodeWidthFromSplitters(QSplitter *s);
