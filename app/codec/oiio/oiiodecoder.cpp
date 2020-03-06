@@ -112,7 +112,7 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
   in->close();
 
 #if OIIO_VERSION < 10903
-  OIIO::ImageInput::destroy(in_);
+  OIIO::ImageInput::destroy(in);
 #endif
 
   return true;
