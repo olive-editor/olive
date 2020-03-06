@@ -194,10 +194,7 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
   }
 
   QVariant default_val;
-  QVariant min_val;
-  bool has_min = false;
-  QVariant max_val;
-  bool has_max = false;
+  QHash<QString, QVariant> properties;
 
   // Traverse through param contents for more data
   while (!reader->atEnd() && !(reader->isEndElement() && reader->name() == "param")) {
@@ -218,24 +215,18 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
 
       } else if (reader->name() == "default") {
         default_val = reader->readElementText();
-      } else if (reader->name() == "min") {
-        has_min = true;
-        min_val = reader->readElementText();
-      } else if (reader->name() == "max") {
-        has_max = true;
-        max_val = reader->readElementText();
+      } else {
+        properties.insert(reader->name().toString(), reader->readElementText());
       }
     }
   }
 
   NodeInput* input = new NodeInput(param_id, param_type, default_val);
 
-  if (has_min) {
-    input->set_minimum(min_val);
-  }
+  QHash<QString, QVariant>::const_iterator iterator;
 
-  if (has_max) {
-    input->set_maximum(max_val);
+  for (iterator=properties.begin();iterator!=properties.end();iterator++) {
+    input->set_property(iterator.key(), iterator.value());
   }
 
   if (is_iterative) {

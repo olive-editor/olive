@@ -36,9 +36,7 @@ NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &de
   NodeParam(id),
   data_type_(type),
   keyframable_(true),
-  keyframing_(false),
-  has_minimum_(false),
-  has_maximum_(false)
+  keyframing_(false)
 {
   int track_size;
 
@@ -865,38 +863,6 @@ void NodeInput::set_is_keyframable(bool k)
   keyframable_ = k;
 }
 
-const QVariant &NodeInput::minimum() const
-{
-  return minimum_;
-}
-
-bool NodeInput::has_minimum() const
-{
-  return has_minimum_;
-}
-
-void NodeInput::set_minimum(const QVariant &min)
-{
-  minimum_ = min;
-  has_minimum_ = true;
-}
-
-const QVariant &NodeInput::maximum() const
-{
-  return maximum_;
-}
-
-bool NodeInput::has_maximum() const
-{
-  return has_maximum_;
-}
-
-void NodeInput::set_maximum(const QVariant &max)
-{
-  maximum_ = max;
-  has_maximum_ = true;
-}
-
 void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_connections)
 {
   Q_ASSERT(source->id() == dest->id());
@@ -933,6 +899,22 @@ void NodeInput::CopyValues(NodeInput *source, NodeInput *dest, bool include_conn
   }
 
   emit dest->ValueChanged(RATIONAL_MIN, RATIONAL_MAX);
+}
+
+void NodeInput::set_property(const QString &key, const QVariant &value)
+{
+  properties_.insert(key, value);
+  emit PropertyChanged(key, value);
+}
+
+QVariant NodeInput::get_property(const QString &key) const
+{
+  return properties_.value(key);
+}
+
+bool NodeInput::has_property(const QString &key) const
+{
+  return properties_.contains(key);
 }
 
 QVector<QVariant> NodeInput::split_normal_value_into_track_values(const QVariant &value) const

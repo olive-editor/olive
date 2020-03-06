@@ -23,6 +23,8 @@ private:
 
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 
+  void CreateSliders(int count, float *min, float *max, const QString& type);
+
   NodeInput* input_;
 
   QList<QWidget*> widgets_;

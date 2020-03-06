@@ -216,18 +216,34 @@ public:
    */
   void set_is_keyframable(bool k);
 
-  const QVariant& minimum() const;
-  bool has_minimum() const;
-  void set_minimum(const QVariant& min);
-
-  const QVariant& maximum() const;
-  bool has_maximum() const;
-  void set_maximum(const QVariant& max);
-
   /**
    * @brief Copy all values including keyframe information and connections from another NodeInput
    */
   static void CopyValues(NodeInput* source, NodeInput* dest, bool include_connections = true);
+
+  /**
+   * @brief Set an arbitrary property on this input to influence a UI representation's behavior
+   *
+   * NodeInputs also utilize QObject's property key/value system for arbitrary properties that can influence the UI
+   * representation's behavior.
+   *
+   * Currently supported properties:
+   *
+   * - `min` - For any numeral type represented with a slider, prevents values going BELOW this number
+   * - `max` - For any numeral type represented with a slider, prevents values going ABOVE this number
+   * - `view` - For any numeral type represented with a slider, shows number either as `db`, `percent`, or `normal`
+   */
+  void set_property(const QString& key, const QVariant& value);
+
+  /**
+   * @brief Retrieve a property (or an empty QVariant if it hasn't been set)
+   */
+  QVariant get_property(const QString& key) const;
+
+  /**
+   * @brief Return whether a certain property has been set or not
+   */
+  bool has_property(const QString& key) const;
 
   QVector<QVariant> split_normal_value_into_track_values(const QVariant &value) const;
 
@@ -241,6 +257,8 @@ signals:
   void KeyframeAdded(NodeKeyframePtr key);
 
   void KeyframeRemoved(NodeKeyframePtr key);
+
+  void PropertyChanged(const QString& s, const QVariant& v);
 
 protected:
   virtual void LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt* cancelled);
@@ -325,24 +343,9 @@ private:
   bool keyframing_;
 
   /**
-   * @brief Sets whether this param has a minimum value or not
+   * @brief Internal properties variable
    */
-  bool has_minimum_;
-
-  /**
-   * @brief Internal minimum value
-   */
-  QVariant minimum_;
-
-  /**
-   * @brief Sets whether this param has a maximum value or not
-   */
-  bool has_maximum_;
-
-  /**
-   * @brief Internal maximum value
-   */
-  QVariant maximum_;
+  QHash<QString, QVariant> properties_;
 
 private slots:
   /**
