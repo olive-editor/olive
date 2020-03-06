@@ -30,6 +30,7 @@
 #include <QStyleOptionGraphicsItem>
 
 #include "audio/sumsamples.h"
+#include "common/clamp.h"
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "node/block/transition/transition.h"
@@ -127,9 +128,9 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
           int channel_mid = channel_height * j + channel_half_height;
 
           painter->drawLine(i,
-                            channel_mid + qRound(summary.at(j).min * channel_half_height),
+                            channel_mid + clamp(qRound(summary.at(j).min * channel_half_height), -channel_half_height, channel_half_height),
                             i,
-                            channel_mid + qRound(summary.at(j).max * channel_half_height));
+                            channel_mid + clamp(qRound(summary.at(j).max * channel_half_height), -channel_half_height, channel_half_height));
         }
       }
 
