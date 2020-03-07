@@ -37,7 +37,8 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   centered_text_(true),
   scale_(1.0),
   time_(0),
-  show_cache_status_(cache_status_visible)
+  show_cache_status_(cache_status_visible),
+  timeline_points_(nullptr)
 {
   QFontMetrics fm = fontMetrics();
 
@@ -77,6 +78,23 @@ void TimeRuler::SetTimebase(const rational &r)
   timebase_dbl_ = timebase_.toDouble();
 
   timebase_flipped_dbl_ = timebase_.flipped().toDouble();
+
+  update();
+}
+
+void TimeRuler::ConnectTimelinePoints(TimelinePoints *points)
+{
+  if (timeline_points_) {
+    disconnect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, this, &TimeRuler::TimelineWorkareaChanged);
+    disconnect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, &TimeRuler::TimelineWorkareaChanged);
+  }
+
+  timeline_points_ = points;
+
+  if (timeline_points_) {
+    connect(timeline_points_->workarea(), &TimelineWorkArea::RangeChanged, this, &TimeRuler::TimelineWorkareaChanged);
+    connect(timeline_points_->workarea(), &TimelineWorkArea::EnabledChanged, this, &TimeRuler::TimelineWorkareaChanged);
+  }
 
   update();
 }
@@ -137,6 +155,22 @@ void TimeRuler::paintEvent(QPaintEvent *)
   }
 
   QPainter p(this);
+
+  // Draw timeline points if connected
+  if (timeline_points_) {
+    if (timeline_points_->workarea()->enabled()) {
+      int workarea_left = qMax(0, TimeToScreen(timeline_points_->workarea()->in()));
+      int workarea_right;
+
+      if (timeline_points_->workarea()->out() == TimelineWorkArea::kResetOut) {
+        workarea_right = width();
+      } else {
+        workarea_right = qMin(width(), TimeToScreen(timeline_points_->workarea()->out()));
+      }
+
+      p.fillRect(workarea_left, 0, workarea_right - workarea_left, height(), palette().highlight());
+    }
+  }
 
   double width_of_frame = timebase_dbl_ * scale_;
   double width_of_second = 0;
@@ -379,6 +413,11 @@ void TimeRuler::SeekToScreenPoint(int screen)
   SetTime(timestamp);
 
   emit TimeChanged(timestamp);
+}
+
+void TimeRuler::TimelineWorkareaChanged()
+{
+  update();
 }
 
 void TimeRuler::UpdateHeight()

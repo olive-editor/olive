@@ -18,6 +18,12 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   timeline/timelinecoordinate.h
   timeline/timelinecoordinate.cpp
+  timeline/timelinemarker.h
+  timeline/timelinemarker.cpp
+  timeline/timelinepoints.h
+  timeline/timelinepoints.cpp
+  timeline/timelineworkarea.h
+  timeline/timelineworkarea.cpp
   timeline/trackreference.h
   timeline/trackreference.cpp
   PARENT_SCOPE

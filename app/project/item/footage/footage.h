@@ -30,6 +30,7 @@
 #include "project/item/footage/audiostream.h"
 #include "project/item/footage/imagestream.h"
 #include "project/item/footage/videostream.h"
+#include "timeline/timelinepoints.h"
 
 /**
  * @brief A reference to an external media file with metadata in a project structure
@@ -38,7 +39,7 @@
  * Footage objects store a list of Stream objects which store the majority of video/audio metadata. These streams
  * are identical to the stream data in the files.
  */
-class Footage : public Item
+class Footage : public Item, public TimelinePoints
 {
 public:
   enum Status {

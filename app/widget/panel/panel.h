@@ -118,6 +118,16 @@ public:
 
   virtual void DecreaseTrackHeight(){}
 
+  virtual void SetIn(){}
+
+  virtual void SetOut(){}
+
+  virtual void ResetIn(){}
+
+  virtual void ResetOut(){}
+
+  virtual void ClearInOut(){}
+
 protected:
   /**
    * @brief paintEvent

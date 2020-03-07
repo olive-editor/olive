@@ -335,7 +335,7 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
-void TimelineWidget::DeleteSelectedInternal(QList<Block *> blocks,
+void TimelineWidget::DeleteSelectedInternal(const QList<Block *> &blocks,
                                             bool transition_aware,
                                             bool remove_from_graph,
                                             QUndoCommand *command)
@@ -426,7 +426,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
       range_list.InsertTimeRange(TimeRange(b->in(), b->out()));
     }
 
-    new TimelineRippleDeleteGapsAtRegions(GetConnectedNode(), range_list, command);
+    new TimelineRippleDeleteGapsAtRegionsCommand(GetConnectedNode(), range_list, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);

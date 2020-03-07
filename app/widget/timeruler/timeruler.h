@@ -26,6 +26,7 @@
 
 #include "common/rational.h"
 #include "common/timerange.h"
+#include "timeline/timelinepoints.h"
 #include "widget/timelinewidget/view/timelineplayhead.h"
 
 class TimeRuler : public QWidget
@@ -40,6 +41,8 @@ public:
   void SetTimebase(const rational& r);
 
   void SetCenteredText(bool c);
+
+  void ConnectTimelinePoints(TimelinePoints* points);
 
   const int64_t& GetTime();
 
@@ -114,6 +117,11 @@ private:
   rational cache_length_;
 
   TimeRangeList dirty_cache_ranges_;
+
+  TimelinePoints* timeline_points_;
+
+private slots:
+  void TimelineWorkareaChanged();
 
 };
 

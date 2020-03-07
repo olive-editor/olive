@@ -1,6 +1,11 @@
 #include "timebased.h"
 
+#include <QUndoCommand>
+
 #include "common/timecodefunctions.h"
+#include "core.h"
+#include "project/item/sequence/sequence.h"
+#include "widget/timelinewidget/undo/undo.h"
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
   QWidget(parent),
@@ -44,6 +49,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     DisconnectNodeInternal(viewer_node_);
 
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+
+    ruler()->ConnectTimelinePoints(nullptr);
   }
 
   viewer_node_ = node;
@@ -54,6 +61,8 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     ConnectNodeInternal(viewer_node_);
 
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+
+    ruler()->ConnectTimelinePoints(static_cast<Sequence*>(viewer_node_->parent()));
   }
 }
 
@@ -241,4 +250,100 @@ void TimeBasedWidget::SetTimeAndSignal(const int64_t &t)
 void TimeBasedWidget::CenterScrollOnPlayhead()
 {
   scrollbar_->setValue(qRound(TimeToScene(Timecode::timestamp_to_time(ruler_->GetTime(), timebase()))) - scrollbar_->width()/2);
+}
+
+void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  Sequence* s = static_cast<Sequence*>(GetConnectedNode()->parent());
+
+  // Enable workarea if it isn't already enabled
+  if (!s->workarea()->enabled()) {
+    new WorkareaSetEnabledCommand(s, true, command);
+  }
+
+  // Determine our new range
+  rational in_point, out_point;
+
+  if (m == Timeline::kTrimIn) {
+    in_point = time;
+
+    if (!s->workarea()->enabled() || s->workarea()->out() < in_point) {
+      out_point = TimelineWorkArea::kResetOut;
+    } else {
+      out_point = s->workarea()->out();
+    }
+  } else {
+    out_point = time;
+
+    if (!s->workarea()->enabled() || s->workarea()->in() > out_point) {
+      in_point = TimelineWorkArea::kResetIn;
+    } else {
+      in_point = s->workarea()->in();
+    }
+  }
+
+  // Set workarea
+  new WorkareaSetRangeCommand(s, TimeRange(in_point, out_point), command);
+
+  Core::instance()->undo_stack()->push(command);
+}
+
+void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  Sequence* s = static_cast<Sequence*>(GetConnectedNode()->parent());
+
+  if (!s->workarea()->enabled()) {
+    return;
+  }
+
+  TimeRange r = s->workarea()->range();
+
+  if (m == Timeline::kTrimIn) {
+    r.set_in(TimelineWorkArea::kResetIn);
+  } else {
+    r.set_out(TimelineWorkArea::kResetOut);
+  }
+
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(s, r));
+}
+
+void TimeBasedWidget::SetInAtPlayhead()
+{
+  SetPoint(Timeline::kTrimIn, GetTime());
+}
+
+void TimeBasedWidget::SetOutAtPlayhead()
+{
+  SetPoint(Timeline::kTrimOut, GetTime());
+}
+
+void TimeBasedWidget::ResetIn()
+{
+  ResetPoint(Timeline::kTrimIn);
+}
+
+void TimeBasedWidget::ResetOut()
+{
+  ResetPoint(Timeline::kTrimOut);
+}
+
+void TimeBasedWidget::ClearInOutPoints()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  Sequence* s = static_cast<Sequence*>(GetConnectedNode()->parent());
+
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(s, false));
 }
