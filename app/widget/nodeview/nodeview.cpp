@@ -131,7 +131,12 @@ void NodeView::Select(const QList<Node *> &nodes)
   DeselectAll();
 
   foreach (Node* n, nodes) {
-    scene_.NodeToUIObject(n)->setSelected(true);
+    NodeViewItem* item = scene_.NodeToUIObject(n);
+
+    Q_ASSERT(n);
+    Q_ASSERT(item);
+
+    item->setSelected(true);
   }
 }
 
