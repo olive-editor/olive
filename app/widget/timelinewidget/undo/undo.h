@@ -280,4 +280,20 @@ private:
 
 };
 
+class TimelineRippleDeleteGapsAtRegions : public UndoCommand {
+public:
+  TimelineRippleDeleteGapsAtRegions(ViewerOutput* vo, const TimeRangeList& regions, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  ViewerOutput* timeline_;
+  TimeRangeList regions_;
+
+  QList<UndoCommand*> commands_;
+
+};
+
 #endif // TIMELINEUNDOABLE_H

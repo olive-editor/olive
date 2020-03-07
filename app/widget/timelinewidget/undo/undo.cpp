@@ -547,7 +547,7 @@ void TrackCleanGapsCommand::redo_internal()
         rational new_gap_length = on_gap->length();
         foreach (GapBlock* gap, consecutive_gaps) {
           track->RippleRemoveBlock(gap);
-          static_cast<NodeGraph*>(gap->parent())->TakeNode(gap, &memory_manager_);
+          static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
 
           new_gap_length += gap->length();
         }
@@ -568,7 +568,7 @@ void TrackCleanGapsCommand::redo_internal()
 
     foreach (GapBlock* gap, removed_end_gaps_) {
       track->RippleRemoveBlock(gap);
-      static_cast<NodeGraph*>(gap->parent())->TakeNode(gap, &memory_manager_);
+      static_cast<NodeGraph*>(track->parent())->TakeNode(gap, &memory_manager_);
     }
   }
 }
@@ -579,7 +579,7 @@ void TrackCleanGapsCommand::undo_internal()
 
   // Restored removed end gaps
   foreach (GapBlock* gap, removed_end_gaps_) {
-    static_cast<NodeGraph*>(gap->parent())->AddNode(gap);
+    static_cast<NodeGraph*>(track->parent())->AddNode(gap);
     track->AppendBlock(gap);
   }
   removed_end_gaps_.clear();
@@ -594,7 +594,7 @@ void TrackCleanGapsCommand::undo_internal()
     GapBlock* last_gap_added = merge_info.merged;
 
     foreach (GapBlock* gap, merge_info.removed) {
-      static_cast<NodeGraph*>(gap->parent())->AddNode(gap);
+      static_cast<NodeGraph*>(track->parent())->AddNode(gap);
       track->InsertBlockAfter(gap, last_gap_added);
       last_gap_added = gap;
     }
@@ -621,4 +621,61 @@ void BlockSetSpeedCommand::redo_internal()
 void BlockSetSpeedCommand::undo_internal()
 {
   block_->set_speed(old_speed_);
+}
+
+TimelineRippleDeleteGapsAtRegions::TimelineRippleDeleteGapsAtRegions(ViewerOutput *vo, const TimeRangeList &regions, QUndoCommand *parent) :
+  UndoCommand(parent),
+  timeline_(vo),
+  regions_(regions)
+{
+}
+
+void TimelineRippleDeleteGapsAtRegions::redo_internal()
+{
+  foreach (const TimeRange& range, regions_) {
+    rational max_ripple_length = range.length();
+
+    QList<Block*> blocks_around_range;
+
+    foreach (TrackOutput* track, timeline_->Tracks()) {
+      // Get the block from every other track that is either at or just before our block's in point
+      Block* block_at_time = track->NearestBlockBeforeOrAt(range.in());
+
+      if (block_at_time) {
+        if (block_at_time->type() == Block::kGap) {
+          max_ripple_length = qMin(block_at_time->length(), max_ripple_length);
+        } else {
+          max_ripple_length = 0;
+          break;
+        }
+
+        blocks_around_range.append(block_at_time);
+      }
+    }
+
+    if (max_ripple_length > 0) {
+      foreach (Block* resize, blocks_around_range) {
+        if (resize->length() == max_ripple_length) {
+          // Remove block entirely
+          TrackRippleRemoveBlockCommand* remove_command = new TrackRippleRemoveBlockCommand(TrackOutput::TrackFromBlock(resize), resize);
+          remove_command->redo();
+          commands_.append(remove_command);
+        } else {
+          // Resize block
+          BlockResizeCommand* resize_command = new BlockResizeCommand(resize, resize->length() - max_ripple_length);
+          resize_command->redo();
+          commands_.append(resize_command);
+        }
+      }
+    }
+  }
+}
+
+void TimelineRippleDeleteGapsAtRegions::undo_internal()
+{
+  for (int i=commands_.size()-1;i>=0;i--) {
+    commands_.at(i)->undo();
+    delete commands_.at(i);
+  }
+  commands_.empty();
 }

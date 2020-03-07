@@ -219,7 +219,7 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
   bool inserting = (event->GetModifiers() & Qt::ControlModifier);
 
   // If there are any blocks to remove, remove them
-  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, false, inserting, command);
+  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, false, command);
 
   if (inserting) {
     // Make room to insert clips to
