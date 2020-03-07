@@ -79,7 +79,12 @@ void TimelinePanel::EditToOut()
 
 void TimelinePanel::DeleteSelected()
 {
-  static_cast<TimelineWidget*>(GetTimeBasedWidget())->DeleteSelected();
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->DeleteSelected(false);
+}
+
+void TimelinePanel::RippleDelete()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->DeleteSelected(true);
 }
 
 void TimelinePanel::IncreaseTrackHeight()

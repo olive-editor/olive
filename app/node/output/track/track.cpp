@@ -150,11 +150,35 @@ Block *TrackOutput::NearestBlockBefore(const rational &time) const
   return nullptr;
 }
 
-Block *TrackOutput::NearestBlockAfter(const rational &time) const
+Block *TrackOutput::NearestBlockBeforeOrAt(const rational &time) const
+{
+  foreach (Block* block, block_cache_) {
+    // Blocks are sorted by time, so the first Block who's out point is at/after this time is the correct Block
+    if (block->out() > time) {
+      return block;
+    }
+  }
+
+  return nullptr;
+}
+
+Block *TrackOutput::NearestBlockAfterOrAt(const rational &time) const
 {
   foreach (Block* block, block_cache_) {
     // Blocks are sorted by time, so the first Block after this time is the correct Block
     if (block->in() >= time) {
+      return block;
+    }
+  }
+
+  return nullptr;
+}
+
+Block *TrackOutput::NearestBlockAfter(const rational &time) const
+{
+  foreach (Block* block, block_cache_) {
+    // Blocks are sorted by time, so the first Block after this time is the correct Block
+    if (block->in() > time) {
       return block;
     }
   }
@@ -288,8 +312,6 @@ void TrackOutput::RippleRemoveBlock(Block *block)
 
 void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 {
-  Q_ASSERT(old->length() == replace->length());
-
   BlockInvalidateCache();
 
   int index_of_old_block = block_cache_.indexOf(old);
@@ -302,7 +324,11 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
 
   UnblockInvalidateCache();
 
-  InvalidateCache(replace->in(), replace->out());
+  if (old->length() == replace->length()) {
+    InvalidateCache(replace->in(), replace->out());
+  } else {
+    InvalidateCache(replace->in(), RATIONAL_MAX);
+  }
 }
 
 TrackOutput *TrackOutput::TrackFromBlock(Block *block)

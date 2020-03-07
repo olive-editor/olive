@@ -47,9 +47,7 @@ public:
 
   void SplitAtPlayhead();
 
-  void DeleteSelected();
-
-  void RippleDelete();
+  void DeleteSelected(bool ripple = false);
 
   void IncreaseTrackHeight();
 
@@ -351,7 +349,7 @@ private:
     bool dual_transition_;
   };
 
-  void DeleteSelectedInternal(const QList<Block*> blocks, bool transition_aware, bool remove_from_graph, QUndoCommand* command);
+  void DeleteSelectedInternal(QList<Block *> blocks, bool transition_aware, bool remove_from_graph, bool ripple, QUndoCommand* command);
 
   void SetBlockLinksSelected(Block *block, bool selected);
 

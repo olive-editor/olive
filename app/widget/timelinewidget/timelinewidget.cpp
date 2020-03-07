@@ -335,8 +335,92 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
-void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool transition_aware, bool remove_from_graph, QUndoCommand *command)
+void TimelineWidget::DeleteSelectedInternal(QList<Block *> blocks,
+                                            bool transition_aware,
+                                            bool remove_from_graph,
+                                            bool ripple,
+                                            QUndoCommand *command)
 {
+  if (ripple) {
+    for (int i=0;i<blocks.size();i++) {
+      Block* b = blocks.at(i);
+      TrackOutput* b_track = TrackOutput::TrackFromBlock(b);
+
+      // See if we can ripple the length of this block from all tracks
+      rational max_ripple_length = b->length();
+
+      QList<Block*> blocks_at_time;
+
+      foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+
+        // Ignore our track since we've already taking account of the block at this time on our track
+        if (track == b_track) {
+          continue;
+        }
+
+        // Get the block from every other track that is either at or just before our block's in point
+        Block* block_at_time = track->NearestBlockBeforeOrAt(b->in());
+
+        // If we found a block, see what it is
+        if (block_at_time) {
+
+          // If it's a gap, or we're deleting it (which means it will soon become a gap), it's viable for removing
+          // or resizing
+          if (block_at_time->type() == Block::kGap || blocks.contains(block_at_time)) {
+
+            // In an effort to keep all tracks synchronized, we can only ripple a maximum of the smallest gap we find
+            max_ripple_length = qMin(max_ripple_length, block_at_time->length());
+
+          } else {
+
+            // If there is no gap here, we cannot ripple at all and must abort this ripple
+            max_ripple_length = 0;
+            break;
+
+          }
+
+          blocks_at_time.append(block_at_time);
+        }
+      }
+
+      // If we can ripple all the tracks
+      if (max_ripple_length > 0) {
+
+        // Ripple everything including the main block
+        blocks_at_time.append(b);
+
+        foreach (Block* resize, blocks_at_time) {
+
+          // If we can remove this whole block, remove the whole block
+          if (resize->length() == max_ripple_length) {
+            new TrackRippleRemoveBlockCommand(TrackOutput::TrackFromBlock(resize), resize, command);
+
+            // Also remove this block from our block list so we don't bother replacing it with a gap later
+            int resize_index = blocks.indexOf(resize);
+
+            if (resize_index >= 0) {
+              blocks.removeOne(resize);
+
+              // Ensure our iteration remain correct after removing blocks
+              if (resize_index <= i) {
+                i--;
+              }
+            }
+          } else {
+
+            // Otherwise, we'll simply shorten the gap/clip
+            BlockResizeCommand* brc = new BlockResizeCommand(resize, resize->length() - max_ripple_length, command);
+
+            // Perform the resize NOW so that if it's a clip that we're replacing with a gap later, the gap will have
+            // the correct length
+            brc->redo();
+
+          }
+        }
+      }
+    }
+  }
+
   foreach (Block* b, blocks) {
     TrackOutput* original_track = TrackOutput::TrackFromBlock(b);
 
@@ -382,7 +466,7 @@ void TimelineWidget::DeleteSelectedInternal(const QList<Block *> blocks, bool tr
   }
 }
 
-void TimelineWidget::DeleteSelected()
+void TimelineWidget::DeleteSelected(bool ripple)
 {
   QList<TimelineViewBlockItem *> selected_list = GetSelectedBlocks();
   QList<Block*> blocks_to_delete;
@@ -406,7 +490,7 @@ void TimelineWidget::DeleteSelected()
   QUndoCommand* command = new QUndoCommand();
 
   // Replace blocks with gaps (effectively deleting them)
-  DeleteSelectedInternal(blocks_to_delete, true, true, command);
+  DeleteSelectedInternal(blocks_to_delete, true, true, ripple, command);
 
   // Clean each track
   foreach (const TrackReference& track, tracks_affected) {
@@ -416,11 +500,6 @@ void TimelineWidget::DeleteSelected()
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
-}
-
-void TimelineWidget::RippleDelete()
-{
-
 }
 
 void TimelineWidget::IncreaseTrackHeight()

@@ -57,8 +57,24 @@ public:
 
   Block* BlockContainingTime(const rational& time) const;
 
+  /**
+   * @brief Returns the block that starts BEFORE a given time and ends some time AFTER or precisely AT that time
+   */
   Block* NearestBlockBefore(const rational& time) const;
 
+  /**
+   * @brief Returns the block that starts BEFORE a given time OR the block that starts precisely at that time
+   */
+  Block* NearestBlockBeforeOrAt(const rational& time) const;
+
+  /**
+   * @brief Returns the block that starts either precisely AT a given time or the soonest block AFTER
+   */
+  Block* NearestBlockAfterOrAt(const rational& time) const;
+
+  /**
+   * @brief Returns the block that starts AFTER the given time (but never AT the given time)
+   */
   Block* NearestBlockAfter(const rational& time) const;
 
   Block* BlockAtTime(const rational& time) const;

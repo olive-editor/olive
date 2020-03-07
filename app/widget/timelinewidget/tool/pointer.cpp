@@ -216,10 +216,12 @@ void TimelineWidget::PointerTool::MouseReleaseInternal(TimelineViewMouseEvent *e
     }
   }
 
-  // If there are any blocks to remove, remove them
-  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, false, command);
+  bool inserting = (event->GetModifiers() & Qt::ControlModifier);
 
-  if (event->GetModifiers() & Qt::ControlModifier) {
+  // If there are any blocks to remove, remove them
+  parent()->DeleteSelectedInternal(blocks_to_temp_remove, false, false, inserting, command);
+
+  if (inserting) {
     // Make room to insert clips to
     InsertGapsAtGhostDestination(parent()->ghost_items_, command);
   }

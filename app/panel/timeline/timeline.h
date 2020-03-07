@@ -51,6 +51,8 @@ public:
 
   virtual void DeleteSelected() override;
 
+  virtual void RippleDelete() override;
+
   virtual void IncreaseTrackHeight() override;
 
   virtual void DecreaseTrackHeight() override;
