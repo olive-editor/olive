@@ -84,6 +84,7 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
     rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
     video_stream->set_timebase(default_timebase);
     video_stream->set_frame_rate(default_timebase.flipped());
+    video_stream->set_image_sequence(true);
 
     // FIXME: Get actual start number
     video_stream->set_start_time(1);
