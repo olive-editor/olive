@@ -58,6 +58,8 @@ private:
 
   static QString TransformImageSequenceFileName(const QString& filename, const int64_t& number);
 
+  static int64_t GetImageSequenceIndex(const QString& filename);
+
   bool OpenImageHandler(const QString& fn);
 
   void CloseImageHandle();
