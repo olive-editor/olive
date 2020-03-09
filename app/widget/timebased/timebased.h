@@ -83,6 +83,8 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
+  virtual TimelinePoints* ConnectTimelinePoints();
+
 protected slots:
   /**
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
@@ -122,6 +124,8 @@ private:
   ResizableScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
+
+  TimelinePoints* points_;
 
 private slots:
   void UpdateMaximumScroll();

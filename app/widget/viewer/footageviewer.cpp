@@ -68,6 +68,11 @@ void FootageViewerWidget::SetFootage(Footage *footage)
   }
 }
 
+TimelinePoints *FootageViewerWidget::ConnectTimelinePoints()
+{
+  return footage_ ? footage_ : nullptr;
+}
+
 void FootageViewerWidget::StartFootageDrag()
 {
   if (!GetFootage()) {

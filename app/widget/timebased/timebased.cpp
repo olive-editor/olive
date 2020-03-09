@@ -10,7 +10,8 @@
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
   QWidget(parent),
   viewer_node_(nullptr),
-  auto_max_scrollbar_(false)
+  auto_max_scrollbar_(false),
+  points_(nullptr)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
@@ -50,6 +51,7 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
+    points_ = nullptr;
     ruler()->ConnectTimelinePoints(nullptr);
   }
 
@@ -62,7 +64,9 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
-    ruler()->ConnectTimelinePoints(static_cast<Sequence*>(viewer_node_->parent()));
+    if ((points_ = ConnectTimelinePoints())) {
+      ruler()->ConnectTimelinePoints(points_);
+    }
   }
 }
 
@@ -121,6 +125,11 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
   scrollbar()->setPageStep(scrollbar()->width());
 
   UpdateMaximumScroll();
+}
+
+TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
+{
+  return static_cast<Sequence*>(viewer_node_->parent());
 }
 
 void TimeBasedWidget::SetTime(int64_t timestamp)
@@ -254,17 +263,15 @@ void TimeBasedWidget::CenterScrollOnPlayhead()
 
 void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
 {
-  if (!GetConnectedNode()) {
+  if (!points_) {
     return;
   }
 
   QUndoCommand* command = new QUndoCommand();
 
-  Sequence* s = static_cast<Sequence*>(GetConnectedNode()->parent());
-
   // Enable workarea if it isn't already enabled
-  if (!s->workarea()->enabled()) {
-    new WorkareaSetEnabledCommand(s, true, command);
+  if (!points_->workarea()->enabled()) {
+    new WorkareaSetEnabledCommand(points_, true, command);
   }
 
   // Determine our new range
@@ -273,40 +280,34 @@ void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
   if (m == Timeline::kTrimIn) {
     in_point = time;
 
-    if (!s->workarea()->enabled() || s->workarea()->out() < in_point) {
+    if (!points_->workarea()->enabled() || points_->workarea()->out() < in_point) {
       out_point = TimelineWorkArea::kResetOut;
     } else {
-      out_point = s->workarea()->out();
+      out_point = points_->workarea()->out();
     }
   } else {
     out_point = time;
 
-    if (!s->workarea()->enabled() || s->workarea()->in() > out_point) {
+    if (!points_->workarea()->enabled() || points_->workarea()->in() > out_point) {
       in_point = TimelineWorkArea::kResetIn;
     } else {
-      in_point = s->workarea()->in();
+      in_point = points_->workarea()->in();
     }
   }
 
   // Set workarea
-  new WorkareaSetRangeCommand(s, TimeRange(in_point, out_point), command);
+  new WorkareaSetRangeCommand(points_, TimeRange(in_point, out_point), command);
 
   Core::instance()->undo_stack()->push(command);
 }
 
 void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
 {
-  if (!GetConnectedNode()) {
+  if (!points_ || !points_->workarea()->enabled()) {
     return;
   }
 
-  Sequence* s = static_cast<Sequence*>(GetConnectedNode()->parent());
-
-  if (!s->workarea()->enabled()) {
-    return;
-  }
-
-  TimeRange r = s->workarea()->range();
+  TimeRange r = points_->workarea()->range();
 
   if (m == Timeline::kTrimIn) {
     r.set_in(TimelineWorkArea::kResetIn);
@@ -314,7 +315,7 @@ void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
     r.set_out(TimelineWorkArea::kResetOut);
   }
 
-  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(s, r));
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points_, r));
 }
 
 void TimeBasedWidget::SetInAtPlayhead()
@@ -339,11 +340,10 @@ void TimeBasedWidget::ResetOut()
 
 void TimeBasedWidget::ClearInOutPoints()
 {
-  if (!GetConnectedNode()) {
+  if (!points_) {
     return;
   }
 
-  Sequence* s = static_cast<Sequence*>(GetConnectedNode()->parent());
 
-  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(s, false));
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(points_, false));
 }

@@ -15,6 +15,9 @@ public:
   Footage* GetFootage() const;
   void SetFootage(Footage* footage);
 
+protected:
+  virtual TimelinePoints* ConnectTimelinePoints() override;
+
 private:
   Footage* footage_;
 
