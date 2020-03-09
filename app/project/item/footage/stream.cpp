@@ -107,6 +107,8 @@ const int64_t &Stream::duration() const
 void Stream::set_duration(const int64_t &duration)
 {
   duration_ = duration;
+
+  emit ParametersChanged();
 }
 
 bool Stream::enabled() const

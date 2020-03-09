@@ -115,6 +115,8 @@ protected:
 signals:
   void IndexChanged();
 
+  void ParametersChanged();
+
 private:
   Footage* footage_;
 

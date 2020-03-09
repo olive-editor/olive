@@ -48,7 +48,7 @@ protected:
 private slots:
   void FootageChanged();
 
-  void FootageColorSpaceChanged();
+  void FootageParametersChanged();
 
 };
 

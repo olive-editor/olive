@@ -25,6 +25,7 @@
 
 class VideoStream : public ImageStream
 {
+  Q_OBJECT
 public:
   VideoStream();
 
@@ -42,6 +43,9 @@ public:
 
   const int64_t& start_time() const;
   void set_start_time(const int64_t& start_time);
+
+  bool is_image_sequence() const;
+  void set_image_sequence(bool e);
 
   int64_t get_closest_timestamp_in_frame_index(const rational& time);
   int64_t get_closest_timestamp_in_frame_index(int64_t timestamp);
@@ -61,6 +65,8 @@ private:
   int64_t start_time_;
 
   QMutex index_access_lock_;
+
+  bool is_image_sequence_;
 
 };
 
