@@ -91,11 +91,22 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
   buttons->setCenterButtons(true);
   layout->addWidget(buttons, row, 0, 1, 2);
 
-  connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-  connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+  connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+  connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 void FootagePropertiesDialog::accept() {
+  // Perform sanity check on all pages
+  for (int i=0;i<stacked_widget_->count();i++) {
+    if (!static_cast<StreamProperties*>(stacked_widget_->widget(i))->SanityCheck()) {
+      // Switch to the failed panel in question
+      stacked_widget_->setCurrentIndex(i);
+
+      // Do nothing (it's up to the property panel itself to throw the error message)
+      return;
+    }
+  }
+
   QUndoCommand* command = new QUndoCommand();
 
   if (footage_->name() != footage_name_field_->text()) {
