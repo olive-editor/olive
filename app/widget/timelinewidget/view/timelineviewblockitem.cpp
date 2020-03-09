@@ -124,12 +124,14 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
           summary_index = sample_index;
         }
 
-        for (int j=0;j<summary.size();j++) {
-          int channel_mid = channel_height * j + channel_half_height;
+        int line_x = i + rect().x();
 
-          painter->drawLine(i,
+        for (int j=0;j<summary.size();j++) {
+          int channel_mid = rect().y() + channel_height * j + channel_half_height;
+
+          painter->drawLine(line_x,
                             channel_mid + clamp(qRound(summary.at(j).min * channel_half_height), -channel_half_height, channel_half_height),
-                            i,
+                            line_x,
                             channel_mid + clamp(qRound(summary.at(j).max * channel_half_height), -channel_half_height, channel_half_height));
         }
       }
