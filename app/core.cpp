@@ -102,7 +102,7 @@ void Core::Start()
     startup_project_ = args.first();
   }
 
-  // Declare custom types for Qt signal/slot syste
+  // Declare custom types for Qt signal/slot system
   DeclareTypesForQt();
 
   // Set up node factory/library

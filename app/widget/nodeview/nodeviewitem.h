@@ -49,7 +49,7 @@ public:
   void SetNode(Node* n);
 
   /**
-   * @brief Get currently attached noe
+   * @brief Get currently attached node
    */
   Node* node();
 

@@ -9,7 +9,7 @@
 #include "undo/undocommand.h"
 
 /**
- * @brief An undoable commnd for connecting two NodeParams together
+ * @brief An undoable command for connecting two NodeParams together
  *
  * Can be considered a QUndoCommand wrapper for NodeParam::ConnectEdge()/
  */
@@ -31,7 +31,7 @@ private:
 };
 
 /**
- * @brief An undoable commnd for disconnecting two NodeParams
+ * @brief An undoable command for disconnecting two NodeParams
  *
  * Can be considered a QUndoCommand wrapper for NodeParam::DisonnectEdge()/
  */

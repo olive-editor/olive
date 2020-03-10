@@ -67,7 +67,7 @@ void RenderBackend::Close()
   CloseInternal();
 
   for (int i=0;i<processors_.size();i++) {
-    // Invoke close and quit signals on processor and thred
+    // Invoke close and quit signals on processor and thread
     QMetaObject::invokeMethod(processors_.at(i),
                               "Close",
                               Qt::QueuedConnection);
