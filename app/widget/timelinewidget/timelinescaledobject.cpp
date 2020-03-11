@@ -71,7 +71,9 @@ const double& TimelineScaledObject::GetScale() const
 
 void TimelineScaledObject::SetScale(const double& scale)
 {
-  scale_ = scale;
+  Q_ASSERT(scale > 0);
+
+  scale_ = qMin(scale, max_scale_);
 
   ScaleChangedEvent(scale_);
 }

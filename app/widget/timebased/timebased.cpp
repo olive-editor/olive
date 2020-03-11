@@ -81,7 +81,22 @@ void TimeBasedWidget::UpdateMaximumScroll()
 
 void TimeBasedWidget::ScrollBarResized(const double &multiplier)
 {
-  SetScale(GetScale() * multiplier);
+  QScrollBar* bar = static_cast<QScrollBar*>(sender());
+
+  int current_max = bar->maximum();
+  double proposed_max = static_cast<double>(current_max) * multiplier;
+
+  proposed_max = proposed_max - (bar->width() * 0.5 / multiplier) + (bar->width() * 0.5);
+
+  double corrected_scale;
+
+  if (current_max == 0) {
+    corrected_scale = multiplier;
+  } else {
+    corrected_scale = (proposed_max / static_cast<double>(current_max));
+  }
+
+  SetScale(GetScale() * corrected_scale);
 }
 
 TimeRuler *TimeBasedWidget::ruler() const
@@ -146,6 +161,7 @@ void TimeBasedWidget::SetTimebase(const rational &timebase)
 
 void TimeBasedWidget::SetScale(const double &scale)
 {
+  // Simple QObject slot wrapper around TimelineScaledObject::SetScale()
   TimelineScaledObject::SetScale(scale);
 }
 
