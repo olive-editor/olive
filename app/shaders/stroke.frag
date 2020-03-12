@@ -10,11 +10,18 @@ uniform sampler2D tex_in;
 uniform vec3 color_in;
 uniform float radius_in;
 uniform float opacity_in;
+uniform bool inner_in;
 
 void main(void) {
-    if (radius_in == 0.0 || opacity_in == 0.0) {
+    vec4 pixel_here = texture2D(tex_in, ove_texcoord);
+
+    // Detect no-op situations
+    if (radius_in == 0.0
+        || opacity_in == 0.0
+        || (inner_in && pixel_here.a == 0.0)
+        || (!inner_in && pixel_here.a == 1.0)) {
         // No-op, do nothing
-        gl_FragColor = texture2D(tex_in, ove_texcoord);
+        gl_FragColor = pixel_here;
         return;
     }
 
@@ -31,7 +38,13 @@ void main(void) {
 
             if (abs(length(vec2(i, j))) < radius) {
                 // Get pixel here
-                stroke_weight += texture2D(tex_in, ove_texcoord + vec2(x_coord, y_coord)).a;
+                float alpha = texture2D(tex_in, ove_texcoord + vec2(x_coord, y_coord)).a;
+
+                if (inner_in) {
+                    alpha = 1.0 - alpha;
+                }
+
+                stroke_weight += alpha;
 
                 if (stroke_weight >= 1.0) {
                     break;
@@ -47,15 +60,21 @@ void main(void) {
 
     stroke_weight *= opacity_in * 0.01;
 
+    if (inner_in) {
+        stroke_weight *= pixel_here.a;
+    }
+
     // Make RGBA color
     vec4 stroke_col = vec4(vec3(1.0) * stroke_weight, stroke_weight);
     //vec4 stroke_col = vec4(color_in * stroke_weight, stroke_weight);
 
-    // Alpha over color here
-    vec4 pixel_here = texture2D(tex_in, ove_texcoord);
-
-    stroke_col *= 1.0 - pixel_here.a;
-    stroke_col += pixel_here;
+    if (inner_in) {
+        // Alpha over the stroke over the texture
+        stroke_col = pixel_here * (1.0 - stroke_col.a) + stroke_col;
+    } else {
+        // Alpha over the texture over the stroke
+        stroke_col = stroke_col * (1.0 - pixel_here.a) + pixel_here;
+    }
 
     gl_FragColor = stroke_col;
 }

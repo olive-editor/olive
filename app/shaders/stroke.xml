@@ -38,6 +38,12 @@
         <max>100</max>
     </param>
 
+    <!-- Parameter: Inner Value -->
+    <param id="inner_in" type="bool">
+        <name lang="en_US">Inner</name>
+        <default>false</default>
+    </param>
+
     <!-- Qt Resource path to fragment shader -->
     <fragment url=":/shaders/stroke.frag" />
 </effect>
