@@ -83,6 +83,9 @@ void TimeBasedWidget::ScrollBarResized(const double &multiplier)
 {
   QScrollBar* bar = static_cast<QScrollBar*>(sender());
 
+  // Our extension area (represented by a TimelineViewEndItem) is NOT scaled, but the ResizableScrollBar doesn't know
+  // this. Here we re-calculate the requested scale knowing that the end item is not affected by scale.
+
   int current_max = bar->maximum();
   double proposed_max = static_cast<double>(current_max) * multiplier;
 
