@@ -57,11 +57,11 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   gl_widget_ = new ViewerGLWidget();
   connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(sizer_, &ViewerSizer::RequestMatrix, gl_widget_, &ViewerGLWidget::SetMatrix);
   sizer_->SetWidget(gl_widget_);
 
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new WaveformView();
-
   stack_->addWidget(waveform_view_);
 
   // Create time ruler
@@ -272,7 +272,7 @@ void ViewerWidget::PlayInternal(int speed)
 
   controls_->ShowPauseButton();
 
-  if (stack_->currentWidget() == gl_widget_) {
+  if (stack_->currentWidget() == sizer_) {
     connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   } else {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
@@ -315,7 +315,7 @@ int ViewerWidget::CalculateDivider()
 void ViewerWidget::UpdateStack()
 {
   if (!GetConnectedNode() || GetConnectedNode()->texture_input()->IsConnected()) {
-    stack_->setCurrentWidget(gl_widget_);
+    stack_->setCurrentWidget(sizer_);
   } else {
     stack_->setCurrentWidget(waveform_view_);
   }
@@ -393,11 +393,20 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   // Playback resolution
   QMenu* playback_resolution_menu = menu.addMenu(tr("Resolution"));
   playback_resolution_menu->addAction(tr("Full"))->setData(1);
-  playback_resolution_menu->addAction(tr("1/2"))->setData(2);
-  playback_resolution_menu->addAction(tr("1/4"))->setData(4);
-  playback_resolution_menu->addAction(tr("1/8"))->setData(8);
-  playback_resolution_menu->addAction(tr("1/16"))->setData(16);
+  int dividers[] = {2, 4, 8, 16};
+  for (int i=0;i<4;i++) {
+    playback_resolution_menu->addAction(tr("1/%1").arg(dividers[i]))->setData(dividers[i]);
+  }
   connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
+
+  // Viewer Zoom Level
+  QMenu* zoom_menu = menu.addMenu(tr("Zoom"));
+  int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
+  zoom_menu->addAction(tr("Fit"))->setData(0);
+  for (int i=0;i<8;i++) {
+    zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
+  }
+  connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
 
   foreach (QAction* a, playback_resolution_menu->actions()) {
     a->setCheckable(true);
@@ -562,6 +571,11 @@ void ViewerWidget::SetDividerFromMenu(QAction *action)
   divider_ = divider;
 
   UpdateRendererParameters();
+}
+
+void ViewerWidget::SetZoomFromMenu(QAction *action)
+{
+  sizer_->SetZoom(action->data().toInt());
 }
 
 void ViewerWidget::InvalidateVisible()

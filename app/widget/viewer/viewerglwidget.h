@@ -69,16 +69,15 @@ public:
   void DisconnectColorManager();
 
   /**
-   * @brief Set the transformation matrix to draw with
-   *
-   * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
-   */
-  void SetMatrix(const QMatrix4x4& mat);
-
-  /**
    * @brief Set an image to load and display on screen
    */
   void SetImage(const QString& fn);
+
+  ColorManager* color_manager() const;
+
+  const QString& ocio_display() const;
+  const QString& ocio_view() const;
+  const QString& ocio_look() const;
 
 public slots:
   /**
@@ -113,11 +112,12 @@ public slots:
    */
   void SetOCIOLook(const QString& look);
 
-  ColorManager* color_manager() const;
-
-  const QString& ocio_display() const;
-  const QString& ocio_view() const;
-  const QString& ocio_look() const;
+  /**
+   * @brief Set the transformation matrix to draw with
+   *
+   * Set this if you want the drawing to pass through some sort of transform (most of the time you won't want this).
+   */
+  void SetMatrix(const QMatrix4x4& mat);
 
 signals:
   void DragStarted();

@@ -187,6 +187,8 @@ private slots:
 
   void SetDividerFromMenu(QAction* action);
 
+  void SetZoomFromMenu(QAction* action);
+
   void InvalidateVisible();
 
   void UpdateStack();

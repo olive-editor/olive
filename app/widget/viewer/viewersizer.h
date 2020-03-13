@@ -52,6 +52,16 @@ public:
    */
   void SetChildSize(int width, int height);
 
+  /**
+   * @brief Set the zoom value of the child widget
+   *
+   * The number is an integer percentage (100 = 100%). Set to 0 to auto-fit.
+   */
+  void SetZoom(int percent);
+
+signals:
+  void RequestMatrix(const QMatrix4x4& matrix);
+
 protected:
   /**
    * @brief Listen for resize events to ensure the child widget remains correctly sized
@@ -72,9 +82,20 @@ private:
   QWidget* widget_;
 
   /**
+   * @brief Internal resolution values
+   */
+  int width_;
+  int height_;
+
+  /**
    * @brief Aspect ratio calculated from the size provided by SetChildSize()
    */
   double aspect_ratio_;
+
+  /**
+   * @brief Internal zoom value
+   */
+  int zoom_;
 
 };
 
