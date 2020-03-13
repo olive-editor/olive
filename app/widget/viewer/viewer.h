@@ -115,6 +115,8 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
+  QStackedWidget* stack() const;
+
   OpenGLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
 
@@ -130,6 +132,8 @@ private:
   void PushScrubbedAudio();
 
   int CalculateDivider();
+
+  QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
 

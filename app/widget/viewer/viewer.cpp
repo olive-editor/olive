@@ -47,9 +47,13 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
 
+  // Set up stacked widget to allow switching away from the viewer widget
+  stack_ = new QStackedWidget();
+  layout->addWidget(stack_);
+
   // Create main OpenGL-based view
   sizer_ = new ViewerSizer();
-  layout->addWidget(sizer_);
+  stack_->addWidget(sizer_);
 
   gl_widget_ = new ViewerGLWidget();
   connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
@@ -111,7 +115,13 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
 
 void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  SetTimebase(n->video_params().time_base());
+  if (!n->video_params().time_base().isNull()) {
+    SetTimebase(n->video_params().time_base());
+  } else if (n->audio_params().sample_rate() > 0) {
+    SetTimebase(rational(1, n->audio_params().sample_rate()));
+  } else {
+    SetTimebase(rational());
+  }
 
   connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
@@ -139,7 +149,7 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
   Pause();
 
-  SetTimebase(0);
+  SetTimebase(rational());
 
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
@@ -169,6 +179,11 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 
     UpdateRendererParameters();
   }
+}
+
+QStackedWidget *ViewerWidget::stack() const
+{
+  return stack_;
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -251,7 +266,11 @@ void ViewerWidget::PlayInternal(int speed)
 
   controls_->ShowPauseButton();
 
-  connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+  if (stack_->currentWidget() == gl_widget_) {
+    connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+  } else {
+    connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+  }
 }
 
 void ViewerWidget::PushScrubbedAudio()
@@ -387,7 +406,11 @@ void ViewerWidget::Pause()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    if (stack_->currentWidget() == gl_widget_) {
+      disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    } else {
+      disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+    }
   }
 }
 

@@ -54,7 +54,7 @@ void AudioOutputManager::Push(const QByteArray& samples)
   ResetToPushMode();
 
   // Start pushing samples to the output
-  OutputNotified();
+  PushMoreSamples();
 }
 
 void AudioOutputManager::ResetToPushMode()
@@ -92,7 +92,7 @@ void AudioOutputManager::PullFromDevice(QIODevice *device, int playback_speed)
   output_->start(&device_proxy_);
 }
 
-void AudioOutputManager::OutputNotified()
+void AudioOutputManager::PushMoreSamples()
 {
   // Check if we're currently in push mode and if we have samples to push
   if (!push_device_ || pushed_samples_.isEmpty()) {
@@ -139,6 +139,7 @@ void AudioOutputManager::SetOutputDevice(QAudioDeviceInfo info, QAudioFormat for
   output_ = std::unique_ptr<QAudioOutput>(new QAudioOutput(info, format, this));
   output_->setNotifyInterval(1);
   push_device_ = output_->start();
+  connect(output_.get(), &QAudioOutput::notify, this, &AudioOutputManager::PushMoreSamples);
   connect(output_.get(), &QAudioOutput::notify, this, &AudioOutputManager::OutputNotified);
 }
 

@@ -3,13 +3,13 @@
 
 #include <QObject>
 
-#include "common/cancelableobject.h"
 #include "common/constructors.h"
-#include "node/output/track/track.h"
-#include "node/node.h"
 #include "decodercache.h"
+#include "node/node.h"
+#include "node/output/track/track.h"
+#include "node/traverser.h"
 
-class RenderWorker : public QObject, public CancelableObject
+class RenderWorker : public QObject, public NodeTraverser
 {
   Q_OBJECT
 public:
@@ -38,24 +38,21 @@ protected:
 
   virtual void RunNodeAccelerated(const Node *node, const TimeRange& range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 
-  StreamPtr ResolveStreamFromInput(NodeInput* input);
-  DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
-
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) = 0;
 
-  NodeValueTable ProcessNode(const NodeDependency &dep);
-
-  virtual NodeValueTable RenderBlock(const TrackOutput *track, const TimeRange& range) = 0;
-
-  NodeValueTable ProcessInput(const NodeInput* input, const TimeRange &range);
-
   virtual void ReportUnavailableFootage(StreamPtr stream, Decoder::RetrieveState state, const rational& stream_time);
+
+  virtual void InputProcessingEvent(NodeInput *input, const TimeRange &input_time, NodeValueTable* table) override;
+
+  virtual void ProcessNodeEvent(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params) override;
+
+  StreamPtr ResolveStreamFromInput(NodeInput* input);
+
+  DecoderPtr ResolveDecoderFromInput(StreamPtr stream);
 
   const NodeDependency& CurrentPath() const;
 
 private:
-  NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range);
-
   bool started_;
 
   DecoderCache* decoder_cache_;

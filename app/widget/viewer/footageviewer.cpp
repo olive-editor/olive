@@ -13,9 +13,13 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   audio_node_ = new AudioInput();
   viewer_node_ = new ViewerOutput();
 
+  waveform_view_ = new QWidget();
+  waveform_view_->setAutoFillBackground(true);
+  waveform_view_->setStyleSheet("background: black;");
+  stack()->addWidget(waveform_view_);
+
   NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
   NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
-  NodeParam::ConnectEdge(video_node_->output(), viewer_node_->length_input());
 
   connect(gl_widget_, &ViewerGLWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 }
@@ -55,6 +59,10 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     if (video_stream) {
       video_node_->SetFootage(video_stream);
       viewer_node_->set_video_params(VideoParams(video_stream->width(), video_stream->height(), video_stream->frame_rate().flipped()));
+
+      stack()->setCurrentWidget(gl_widget_);
+    } else {
+      stack()->setCurrentWidget(waveform_view_);
     }
 
     if (audio_stream) {
@@ -79,7 +87,6 @@ void FootageViewerWidget::StartFootageDrag()
     return;
   }
 
-  qDebug() << "Drag start!";
   QDrag* drag = new QDrag(this);
   QMimeData* mimedata = new QMimeData();
 

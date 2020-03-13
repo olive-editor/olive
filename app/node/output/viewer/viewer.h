@@ -52,7 +52,6 @@ public:
 
   NodeInput* texture_input() const;
   NodeInput* samples_input() const;
-  NodeInput* length_input() const;
 
   virtual void InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from = nullptr) override;
   virtual void InvalidateVisible(NodeInput *from) override;
@@ -116,8 +115,6 @@ private:
   NodeInput* texture_input_;
 
   NodeInput* samples_input_;
-
-  NodeInput* length_input_;
 
   VideoParams video_params_;
 

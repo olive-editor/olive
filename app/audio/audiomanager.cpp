@@ -194,6 +194,7 @@ AudioManager::AudioManager() :
   RefreshDevices();
 
   connect(&output_manager_, &AudioOutputManager::SentSamples, this, &AudioManager::SentSamples);
+  connect(&output_manager_, &AudioOutputManager::OutputNotified, this, &AudioManager::OutputNotified);
 
   output_manager_.SetEnableSendingSamples(true);
 }
