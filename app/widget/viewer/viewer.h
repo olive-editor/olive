@@ -35,6 +35,7 @@
 #include "render/backend/audio/audiobackend.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
+#include "waveformview.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timebased/timebased.h"
 
@@ -154,7 +155,7 @@ private:
 
   bool time_changed_from_timer_;
 
-  QWidget* waveform_view_;
+  WaveformView* waveform_view_;
 
 private slots:
   void PlaybackTimerUpdate();

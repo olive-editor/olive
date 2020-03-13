@@ -60,9 +60,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_->SetWidget(gl_widget_);
 
   // Create waveform view when audio is connected and video isn't
-  waveform_view_ = new QWidget();
-  waveform_view_->setAutoFillBackground(true);
-  waveform_view_->setStyleSheet("background: black;");
+  waveform_view_ = new WaveformView();
+
   stack_->addWidget(waveform_view_);
 
   // Create time ruler
