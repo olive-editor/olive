@@ -115,8 +115,6 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
-  QStackedWidget* stack() const;
-
   OpenGLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
 
@@ -156,6 +154,8 @@ private:
 
   bool time_changed_from_timer_;
 
+  QWidget* waveform_view_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -187,6 +187,8 @@ private slots:
   void SetDividerFromMenu(QAction* action);
 
   void InvalidateVisible();
+
+  void UpdateStack();
 
 };
 

@@ -51,13 +51,19 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   stack_ = new QStackedWidget();
   layout->addWidget(stack_);
 
-  // Create main OpenGL-based view
+  // Create main OpenGL-based view and sizer
   sizer_ = new ViewerSizer();
   stack_->addWidget(sizer_);
 
   gl_widget_ = new ViewerGLWidget();
   connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
   sizer_->SetWidget(gl_widget_);
+
+  // Create waveform view when audio is connected and video isn't
+  waveform_view_ = new QWidget();
+  waveform_view_->setAutoFillBackground(true);
+  waveform_view_->setStyleSheet("background: black;");
+  stack_->addWidget(waveform_view_);
 
   // Create time ruler
   layout->addWidget(ruler());
@@ -128,6 +134,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+  connect(n, &ViewerOutput::VideoGraphChanged, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::AudioGraphChanged, this, &ViewerWidget::UpdateStack);
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
   LengthChangedSlot(n->Length());
@@ -143,6 +151,8 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   divider_ = CalculateDivider();
 
   UpdateRendererParameters();
+
+  UpdateStack();
 }
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
@@ -156,6 +166,8 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+  disconnect(n, &ViewerOutput::VideoGraphChanged, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::AudioGraphChanged, this, &ViewerWidget::UpdateStack);
 
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
@@ -179,11 +191,6 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 
     UpdateRendererParameters();
   }
-}
-
-QStackedWidget *ViewerWidget::stack() const
-{
-  return stack_;
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -304,6 +311,15 @@ int ViewerWidget::CalculateDivider()
   }
 
   return divider_;
+}
+
+void ViewerWidget::UpdateStack()
+{
+  if (!GetConnectedNode() || GetConnectedNode()->texture_input()->IsConnected()) {
+    stack_->setCurrentWidget(gl_widget_);
+  } else {
+    stack_->setCurrentWidget(waveform_view_);
+  }
 }
 
 void ViewerWidget::UpdateRendererParameters()

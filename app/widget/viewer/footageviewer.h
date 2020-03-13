@@ -27,8 +27,6 @@ private:
 
   ViewerOutput* viewer_node_;
 
-  QWidget* waveform_view_;
-
 private slots:
   void StartFootageDrag();
 
