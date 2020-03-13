@@ -27,6 +27,8 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 
   // Regenerate the cache ID
   RegenerateCacheID();
+
+  emit ParamsChanged();
 }
 
 void AudioRenderBackend::ConnectViewer(ViewerOutput *node)

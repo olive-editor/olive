@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/timeruler/seekablewidget.h
+  widget/timeruler/seekablewidget.cpp
   widget/timeruler/timeruler.h
   widget/timeruler/timeruler.cpp
   PARENT_SCOPE

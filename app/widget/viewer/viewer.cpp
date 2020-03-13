@@ -96,6 +96,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   audio_renderer_ = new AudioBackend(this);
 
   waveform_view_->SetBackend(audio_renderer_);
+  connect(waveform_view_, &WaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
 
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
@@ -109,6 +110,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   }
 
   controls_->SetTime(i);
+  waveform_view_->SetTime(i);
 
   if (GetConnectedNode() && last_time_ != i) {
     rational time_set = Timecode::timestamp_to_time(i, timebase());

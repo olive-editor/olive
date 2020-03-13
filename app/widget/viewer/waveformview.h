@@ -6,9 +6,9 @@
 #include "audio/sumsamples.h"
 #include "render/audioparams.h"
 #include "render/backend/audiorenderbackend.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timeruler/seekablewidget.h"
 
-class WaveformView : public TimelineScaledWidget
+class WaveformView : public SeekableWidget
 {
   Q_OBJECT
 public:
@@ -20,20 +20,14 @@ public:
 
   static void DrawWaveform(QPainter* painter, const QRect &rect, const double &scale, const SampleSummer::Sum *samples, int nb_samples, int channels);
 
-public slots:
-  void SetScroll(int scroll);
-
 protected:
   virtual void paintEvent(QPaintEvent* event) override;
 
-  virtual void ScaleChangedEvent(const double& s) override;
-
 private:
-  int GetSampleIndexFromPixel(int x) const;
-
   AudioRenderBackend* backend_;
 
-  int scroll_;
+private slots:
+  void BackendParamsChanged();
 
 };
 

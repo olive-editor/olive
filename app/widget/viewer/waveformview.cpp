@@ -7,7 +7,7 @@
 #include "common/clamp.h"
 
 WaveformView::WaveformView(QWidget *parent) :
-  TimelineScaledWidget(parent),
+  SeekableWidget(parent),
   backend_(nullptr)
 {
   setAutoFillBackground(true);
@@ -18,12 +18,18 @@ void WaveformView::SetBackend(AudioRenderBackend *backend)
 {
   if (backend_) {
     disconnect(backend_, &AudioRenderBackend::QueueComplete, this, static_cast<void (WaveformView::*)()>(&WaveformView::update));
+    disconnect(backend_, &AudioRenderBackend::ParamsChanged, this, &WaveformView::BackendParamsChanged);
+
+    SetTimebase(0);
   }
 
   backend_ = backend;
 
   if (backend_) {
     connect(backend_, &AudioRenderBackend::QueueComplete, this, static_cast<void (WaveformView::*)()>(&WaveformView::update));
+    connect(backend_, &AudioRenderBackend::ParamsChanged, this, &WaveformView::BackendParamsChanged);
+
+    SetTimebase(rational(1, backend_->params().sample_rate()));
   }
 
   update();
@@ -69,15 +75,6 @@ void WaveformView::DrawWaveform(QPainter *painter, const QRect& rect, const doub
   }
 }
 
-void WaveformView::SetScroll(int scroll)
-{
-  scroll_ = scroll;
-
-  qDebug() << "Got scroll" << scroll_;
-
-  update();
-}
-
 void WaveformView::paintEvent(QPaintEvent *event)
 {
   QWidget::paintEvent(event);
@@ -94,6 +91,7 @@ void WaveformView::paintEvent(QPaintEvent *event)
 
     QPainter p(this);
 
+    // FIXME: Hardcoded color
     p.setPen(Qt::green);
 
     int channel_height = height() / params.channel_count();
@@ -101,11 +99,11 @@ void WaveformView::paintEvent(QPaintEvent *event)
 
     int drew = 0;
 
-    fs.seek(params.samples_to_bytes(GetSampleIndexFromPixel(0)));
+    fs.seek(params.samples_to_bytes(ScreenToUnitRounded(0)));
 
     for (int x=0; x<width() && !fs.atEnd(); x++) {
 
-      int samples_len = GetSampleIndexFromPixel(x+1) - GetSampleIndexFromPixel(x);
+      int samples_len = ScreenToUnitRounded(x+1) - ScreenToUnitRounded(x);
       int max_read_size = params.samples_to_bytes(samples_len);
 
       QByteArray read_buffer = fs.read(max_read_size);
@@ -133,16 +131,16 @@ void WaveformView::paintEvent(QPaintEvent *event)
 
     fs.close();
 
+    // Draw playhead
+    p.setPen(GetPlayheadColor());
+
+    int playhead_x = UnitToScreen(GetTime());
+    p.drawLine(playhead_x, 0, playhead_x, height());
+
   }
 }
 
-void WaveformView::ScaleChangedEvent(const double &)
+void WaveformView::BackendParamsChanged()
 {
-  update();
-}
-
-int WaveformView::GetSampleIndexFromPixel(int x) const
-{
-  qDebug() << "X was" << x << "scroll was" << scroll_ << "=" << (x + scroll_);
-  return qRound(static_cast<double>(x + scroll_) * static_cast<double>(backend_->params().sample_rate()) / GetScale());
+  SetTimebase(rational(1, backend_->params().sample_rate()));
 }

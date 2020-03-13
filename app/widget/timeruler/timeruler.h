@@ -24,13 +24,10 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "common/rational.h"
 #include "common/timerange.h"
-#include "timeline/timelinepoints.h"
-#include "widget/timelinewidget/timelinescaledobject.h"
-#include "widget/timelinewidget/view/timelineplayhead.h"
+#include "seekablewidget.h"
 
-class TimeRuler : public TimelineScaledWidget
+class TimeRuler : public SeekableWidget
 {
   Q_OBJECT
 public:
@@ -38,15 +35,7 @@ public:
 
   void SetCenteredText(bool c);
 
-  void ConnectTimelinePoints(TimelinePoints* points);
-
-  const int64_t& GetTime();
-
 public slots:
-  void SetTime(const int64_t &r);
-
-  void SetScroll(int s);
-
   void CacheInvalidatedRange(const TimeRange &range);
 
   void CacheTimeReady(const rational& time);
@@ -56,18 +45,7 @@ public slots:
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
 
-  virtual void mousePressEvent(QMouseEvent *event) override;
-  virtual void mouseMoveEvent(QMouseEvent *event) override;
-
   virtual void TimebaseChangedEvent(const rational& tb) override;
-
-  virtual void ScaleChangedEvent(const double&);
-
-signals:
-  /**
-   * @brief Signal emitted whenever the time changes on this ruler, either by user or programatically
-   */
-  void TimeChanged(int64_t);
 
 private:
   void UpdateHeight();
@@ -75,16 +53,6 @@ private:
   void DrawPlayhead(QPainter* p, int x, int y);
 
   int CacheStatusHeight() const;
-
-  double ScreenToUnitFloat(int screen);
-
-  int64_t ScreenToUnit(int screen);
-
-  int UnitToScreen(int64_t unit);
-
-  int TimeToScreen(const rational& time);
-
-  void SeekToScreenPoint(int screen);
 
   int text_height_;
 
@@ -94,28 +62,17 @@ private:
 
   int playhead_width_;
 
-  int scroll_;
-
   bool text_visible_;
 
   bool centered_text_;
 
   double timebase_flipped_dbl_;
 
-  int64_t time_;
-
-  TimelinePlayhead style_;
-
   bool show_cache_status_;
 
   rational cache_length_;
 
   TimeRangeList dirty_cache_ranges_;
-
-  TimelinePoints* timeline_points_;
-
-private slots:
-  void TimelineWorkareaChanged();
 
 };
 

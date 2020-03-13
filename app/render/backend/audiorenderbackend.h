@@ -24,6 +24,9 @@ public:
 
   QString CachePathName();
 
+signals:
+  void ParamsChanged();
+
 protected:
   virtual void ConnectViewer(ViewerOutput* node) override;
 
