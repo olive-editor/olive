@@ -27,18 +27,14 @@
 #include "common/rational.h"
 #include "common/timerange.h"
 #include "timeline/timelinepoints.h"
+#include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timelinewidget/view/timelineplayhead.h"
 
-class TimeRuler : public QWidget
+class TimeRuler : public QWidget, public TimelineScaledObject
 {
   Q_OBJECT
 public:
   TimeRuler(bool text_visible = true, bool cache_status_visible = false, QWidget* parent = nullptr);
-
-  const double& GetScale();
-  void SetScale(const double& d);
-
-  void SetTimebase(const rational& r);
 
   void SetCenteredText(bool c);
 
@@ -62,6 +58,10 @@ protected:
 
   virtual void mousePressEvent(QMouseEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *event) override;
+
+  virtual void TimebaseChangedEvent(const rational& tb) override;
+
+  virtual void ScaleChangedEvent(const double&);
 
 signals:
   /**
@@ -99,12 +99,6 @@ private:
   bool text_visible_;
 
   bool centered_text_;
-
-  double scale_;
-
-  rational timebase_;
-
-  double timebase_dbl_;
 
   double timebase_flipped_dbl_;
 
