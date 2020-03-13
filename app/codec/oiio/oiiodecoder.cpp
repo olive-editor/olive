@@ -62,17 +62,23 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
     return false;
   }
 
+  is_sequence_ = false;
+
   // Heuristically determine whether this file is part of an image sequence or not
   if (GetImageSequenceDigitCount(f->filename()) > 0) {
-    // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
-    // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
-    QMetaObject::invokeMethod(Core::instance(),
-                              "ConfirmImageSequence",
-                              Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(bool, is_sequence_),
-                              Q_ARG(QString, f->filename()));
-  } else {
-    is_sequence_ = false;
+    int64_t ind = GetImageSequenceIndex(f->filename());
+
+    // Check if files around exist around it with that follow a sequence
+    if (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), ind - 1))
+        || QFileInfo::exists(TransformImageSequenceFileName(f->filename(), ind + 1))) {
+      // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
+      // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
+      QMetaObject::invokeMethod(Core::instance(),
+                                "ConfirmImageSequence",
+                                Qt::BlockingQueuedConnection,
+                                Q_RETURN_ARG(bool, is_sequence_),
+                                Q_ARG(QString, f->filename()));
+    }
   }
 
   ImageStreamPtr image_stream;
