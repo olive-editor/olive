@@ -70,6 +70,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Create scrollbar
   layout->addWidget(scrollbar());
   connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
+  connect(scrollbar(), &QScrollBar::valueChanged, waveform_view_, &WaveformView::SetScroll);
 
   // Create lower controls
   controls_ = new PlaybackControls();
@@ -93,6 +94,8 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::CachedTimeReady, ruler(), &TimeRuler::CacheTimeReady);
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
   audio_renderer_ = new AudioBackend(this);
+
+  waveform_view_->SetBackend(audio_renderer_);
 
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
@@ -178,6 +181,13 @@ void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
   video_renderer_->SetViewerNode(n);
   audio_renderer_->SetViewerNode(n);
+}
+
+void ViewerWidget::ScaleChangedEvent(const double &s)
+{
+  TimeBasedWidget::ScaleChangedEvent(s);
+
+  waveform_view_->SetScale(s);
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)

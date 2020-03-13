@@ -114,6 +114,8 @@ protected:
   virtual void DisconnectNodeInternal(ViewerOutput *) override;
   virtual void ConnectedNodeChanged(ViewerOutput*n) override;
 
+  virtual void ScaleChangedEvent(const double& s) override;
+
   virtual void resizeEvent(QResizeEvent *event) override;
 
   OpenGLBackend* video_renderer_;

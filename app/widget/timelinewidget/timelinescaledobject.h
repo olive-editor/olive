@@ -45,6 +45,7 @@ private:
 
 class TimelineScaledWidget : public QWidget, public TimelineScaledObject
 {
+  Q_OBJECT
 public:
   TimelineScaledWidget(QWidget* parent = nullptr);
 };
