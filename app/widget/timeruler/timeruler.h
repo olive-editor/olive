@@ -30,7 +30,7 @@
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timelinewidget/view/timelineplayhead.h"
 
-class TimeRuler : public QWidget, public TimelineScaledObject
+class TimeRuler : public TimelineScaledWidget
 {
   Q_OBJECT
 public:

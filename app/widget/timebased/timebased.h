@@ -9,7 +9,7 @@
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timeruler/timeruler.h"
 
-class TimeBasedWidget : public QWidget, public TimelineScaledObject
+class TimeBasedWidget : public TimelineScaledWidget
 {
   Q_OBJECT
 public:

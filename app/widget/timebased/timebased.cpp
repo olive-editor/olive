@@ -8,7 +8,7 @@
 #include "widget/timelinewidget/undo/undo.h"
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
-  QWidget(parent),
+  TimelineScaledWidget(parent),
   viewer_node_(nullptr),
   auto_max_scrollbar_(false),
   points_(nullptr)

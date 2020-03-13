@@ -31,7 +31,7 @@
 #include "core.h"
 
 TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
-  QWidget(parent),
+  TimelineScaledWidget(parent),
   scroll_(0),
   text_visible_(text_visible),
   centered_text_(true),

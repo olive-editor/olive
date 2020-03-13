@@ -1,6 +1,8 @@
 #ifndef TIMELINESCALEDOBJECT_H
 #define TIMELINESCALEDOBJECT_H
 
+#include <QWidget>
+
 #include "common/rational.h"
 
 class TimelineScaledObject
@@ -39,6 +41,12 @@ private:
 
   double max_scale_;
 
+};
+
+class TimelineScaledWidget : public QWidget, public TimelineScaledObject
+{
+public:
+  TimelineScaledWidget(QWidget* parent = nullptr);
 };
 
 #endif // TIMELINESCALEDOBJECT_H

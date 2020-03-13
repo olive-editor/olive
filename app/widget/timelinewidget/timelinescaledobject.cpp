@@ -77,3 +77,8 @@ void TimelineScaledObject::SetScale(const double& scale)
 
   ScaleChangedEvent(scale_);
 }
+
+TimelineScaledWidget::TimelineScaledWidget(QWidget *parent) :
+  QWidget(parent)
+{
+}
