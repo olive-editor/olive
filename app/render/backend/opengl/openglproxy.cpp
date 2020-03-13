@@ -397,6 +397,10 @@ void OpenGLProxy::TextureToBuffer(const QVariant &tex_in, void *buffer)
 {
   OpenGLTextureCache::ReferencePtr texture = tex_in.value<OpenGLTextureCache::ReferencePtr>();
 
+  if (!texture) {
+    return;
+  }
+
   QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
   buffer_.Attach(texture->texture());
   buffer_.Bind();
