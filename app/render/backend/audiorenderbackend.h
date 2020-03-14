@@ -47,6 +47,8 @@ protected:
 
   virtual void ConnectWorkerToThis(RenderWorker* worker) override;
 
+  virtual TimeRange PopNextFrameFromQueue() override;
+
   QHash<Node*, Node*> copy_map_;
 
 private:
