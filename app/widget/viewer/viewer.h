@@ -134,6 +134,8 @@ private:
 
   int CalculateDivider();
 
+  void UpdateMinimumScale();
+
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;

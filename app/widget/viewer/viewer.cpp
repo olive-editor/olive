@@ -202,6 +202,8 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 
     UpdateRendererParameters();
   }
+
+  UpdateMinimumScale();
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -322,6 +324,15 @@ int ViewerWidget::CalculateDivider()
   }
 
   return divider_;
+}
+
+void ViewerWidget::UpdateMinimumScale()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  SetMinimumScale(static_cast<double>(ruler()->width()) / GetConnectedNode()->Length().toDouble());
 }
 
 void ViewerWidget::UpdateStack()
@@ -554,6 +565,7 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
 {
   controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
   ruler()->SetCacheStatusLength(length);
+  UpdateMinimumScale();
 }
 
 void ViewerWidget::ColorDisplayChanged(QAction* action)
