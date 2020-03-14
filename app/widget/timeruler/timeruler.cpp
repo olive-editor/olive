@@ -93,6 +93,8 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   // Draw timeline points if connected
   if (timeline_points()) {
+
+    // Draw in/out workarea
     if (timeline_points()->workarea()->enabled()) {
       int workarea_left = qMax(0, TimeToScreen(timeline_points()->workarea()->in()));
       int workarea_right;
@@ -104,6 +106,51 @@ void TimeRuler::paintEvent(QPaintEvent *)
       }
 
       p.fillRect(workarea_left, 0, workarea_right - workarea_left, height(), palette().highlight());
+    }
+
+    // Draw markers
+    if (!timeline_points()->markers()->list().isEmpty()) {
+      int marker_bottom = height() - text_height_;
+
+      if (show_cache_status_) {
+        marker_bottom -= cache_status_height_;
+      }
+
+      if (text_visible_) {
+        marker_bottom -= cache_status_height_;
+      }
+
+      int marker_top = marker_bottom - text_height_;
+
+      // FIXME: Hardcoded marker colors
+      p.setPen(Qt::black);
+      p.setBrush(Qt::green);
+
+      foreach (TimelineMarker* marker, timeline_points()->markers()->list()) {
+        int marker_left = TimeToScreen(marker->time().in());
+        int marker_right = TimeToScreen(marker->time().out());
+
+        if (marker_left >= width() || marker_right < 0)  {
+          continue;
+        }
+
+        if (marker->time().length() == 0) {
+          // Single point in time marker
+          DrawPlayhead(&p, marker_left, marker_bottom);
+        } else {
+          // Marker range
+          int rect_left = qMax(0, marker_left);
+          int rect_right = qMin(width(), marker_right);
+
+          QRect marker_rect(rect_left, marker_top, rect_right - rect_left, marker_bottom - marker_top);
+
+          p.drawRect(marker_rect);
+
+          if (!marker->name().isEmpty()) {
+            p.drawText(marker_rect, marker->name());
+          }
+        }
+      }
     }
   }
 
@@ -320,13 +367,18 @@ void TimeRuler::UpdateHeight()
 {
   int height = text_height_;
 
+  // Add text height
   if (text_visible_) {
     height += text_height_;
   }
 
+  // Add cache status height
   if (show_cache_status_) {
     height += cache_status_height_;
   }
+
+  // Add marker height
+  height += text_height_;
 
   setFixedHeight(height);
 }

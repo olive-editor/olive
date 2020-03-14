@@ -54,6 +54,8 @@ public:
 
   virtual void ClearInOut() override;
 
+  virtual void SetMarker() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

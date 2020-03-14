@@ -87,7 +87,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", nullptr, nullptr, ";");
   edit_ripple_delete_inout_item_ = edit_menu_->AddItem("rippledeleteinout", nullptr, nullptr, "'");
   edit_menu_->addSeparator();
-  edit_set_marker_item_ = edit_menu_->AddItem("marker", nullptr, nullptr, "M");
+  edit_set_marker_item_ = edit_menu_->AddItem("marker", this, SLOT(SetMarkerTriggered()), "M");
 
   //
   // VIEW MENU
@@ -505,6 +505,11 @@ void MainMenu::GoToPrevCutTriggered()
 void MainMenu::GoToNextCutTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->GoToNextCut();
+}
+
+void MainMenu::SetMarkerTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->SetMarker();
 }
 
 void MainMenu::Retranslate()

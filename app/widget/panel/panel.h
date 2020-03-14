@@ -128,6 +128,8 @@ public:
 
   virtual void ClearInOut(){}
 
+  virtual void SetMarker(){}
+
 protected:
   /**
    * @brief paintEvent

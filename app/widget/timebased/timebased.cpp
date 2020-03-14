@@ -1,8 +1,10 @@
 #include "timebased.h"
 
+#include <QInputDialog>
 #include <QUndoCommand>
 
 #include "common/timecodefunctions.h"
+#include "config/config.h"
 #include "core.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/timelinewidget/undo/undo.h"
@@ -365,4 +367,24 @@ void TimeBasedWidget::ClearInOutPoints()
 
 
   Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(points_, false));
+}
+
+void TimeBasedWidget::SetMarker()
+{
+  if (!points_) {
+    return;
+  }
+
+  bool ok;
+  QString marker_name;
+
+  if (Config::Current()["SetNameWithMarker"].toBool()) {
+    marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
+  } else {
+    ok = true;
+  }
+
+  if (ok) {
+    points_->markers()->AddMarker(TimeRange(GetTime(), GetTime()), marker_name);
+  }
 }

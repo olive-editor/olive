@@ -140,6 +140,8 @@ private slots:
   void GoToPrevCutTriggered();
   void GoToNextCutTriggered();
 
+  void SetMarkerTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.

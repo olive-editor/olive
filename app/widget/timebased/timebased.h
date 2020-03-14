@@ -59,6 +59,8 @@ public slots:
 
   void ClearInOutPoints();
 
+  void SetMarker();
+
   TimeRuler* ruler() const;
 
 protected slots:

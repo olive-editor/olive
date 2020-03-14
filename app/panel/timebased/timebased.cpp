@@ -159,3 +159,8 @@ void TimeBasedPanel::ClearInOut()
 {
   GetTimeBasedWidget()->ClearInOutPoints();
 }
+
+void TimeBasedPanel::SetMarker()
+{
+  GetTimeBasedWidget()->SetMarker();
+}
