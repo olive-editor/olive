@@ -204,11 +204,12 @@ void Block::LengthInputChanged()
 
 void Block::Link(Block *a, Block *b)
 {
-  if (a == b || a == nullptr || b == nullptr) {
+  if (a == b || !a || !b) {
     return;
   }
 
-  // Assume both clips are already linked since Link() and Unlink() should be the only entry points to this array
+  // Prevent duplicate link entries (assume that we only need to check one clip since this should be the only function
+  // that adds to the linked array)
   if (a->linked_clips_.contains(b)) {
     return;
   }
@@ -217,7 +218,7 @@ void Block::Link(Block *a, Block *b)
   b->linked_clips_.append(a);
 }
 
-void Block::Link(QList<Block *> blocks)
+void Block::Link(const QList<Block*>& blocks)
 {
   foreach (Block* a, blocks) {
     foreach (Block* b, blocks) {
@@ -228,8 +229,21 @@ void Block::Link(QList<Block *> blocks)
 
 void Block::Unlink(Block *a, Block *b)
 {
+  if (a == b || !a || !b) {
+    return;
+  }
+
   a->linked_clips_.removeOne(b);
   b->linked_clips_.removeOne(a);
+}
+
+void Block::Unlink(const QList<Block *> &blocks)
+{
+  foreach (Block* a, blocks) {
+    foreach (Block* b, blocks) {
+      Unlink(a, b);
+    }
+  }
 }
 
 bool Block::AreLinked(Block *a, Block *b)

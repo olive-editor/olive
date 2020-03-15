@@ -715,3 +715,52 @@ void WorkareaSetRangeCommand::undo_internal()
 {
   points_->workarea()->set_range(old_range_);
 }
+
+BlockLinkCommand::BlockLinkCommand(const QList<Block *> &blocks, bool link, QUndoCommand *parent) :
+  UndoCommand(parent),
+  blocks_(blocks),
+  link_(link)
+{
+}
+
+void BlockLinkCommand::redo_internal()
+{
+  if (link_) {
+    Block::Link(blocks_);
+  } else {
+    Block::Unlink(blocks_);
+  }
+}
+
+void BlockLinkCommand::undo_internal()
+{
+  if (link_) {
+    Block::Unlink(blocks_);
+  } else {
+    Block::Link(blocks_);
+  }
+}
+
+BlockUnlinkAllCommand::BlockUnlinkAllCommand(Block *block, QUndoCommand *parent) :
+  UndoCommand(parent),
+  block_(block)
+{
+}
+
+void BlockUnlinkAllCommand::redo_internal()
+{
+  unlinked_ = block_->linked_clips();
+
+  foreach (Block* link, unlinked_) {
+    Block::Unlink(block_, link);
+  }
+}
+
+void BlockUnlinkAllCommand::undo_internal()
+{
+  foreach (Block* link, unlinked_) {
+    Block::Link(block_, link);
+  }
+
+  unlinked_.clear();
+}

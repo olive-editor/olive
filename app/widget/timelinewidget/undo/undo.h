@@ -331,4 +331,34 @@ private:
 
 };
 
+class BlockLinkCommand : public UndoCommand {
+public:
+  BlockLinkCommand(const QList<Block*>& blocks, bool link, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  QList<Block*> blocks_;
+
+  bool link_;
+
+};
+
+class BlockUnlinkAllCommand : public UndoCommand {
+public:
+  BlockUnlinkAllCommand(Block* block, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  Block* block_;
+
+  QVector<Block*> unlinked_;
+
+};
+
 #endif // TIMELINEUNDOABLE_H

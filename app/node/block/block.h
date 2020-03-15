@@ -77,8 +77,9 @@ public:
   void set_block_name(const QString& name);
 
   static void Link(Block* a, Block* b);
-  static void Link(QList<Block*> blocks);
+  static void Link(const QList<Block*>& blocks);
   static void Unlink(Block* a, Block* b);
+  static void Unlink(const QList<Block*>& blocks);
   static bool AreLinked(Block* a, Block* b);
   const QVector<Block*>& linked_clips();
   bool HasLinks();
