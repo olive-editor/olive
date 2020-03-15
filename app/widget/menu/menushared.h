@@ -93,6 +93,14 @@ private slots:
 
   void ToggleLinksTriggered();
 
+  void CutTriggered();
+
+  void CopyTriggered();
+
+  void PasteTriggered();
+
+  void PasteInsertTriggered();
+
 };
 
 #endif // MENUSHARED_H

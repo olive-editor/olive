@@ -24,7 +24,7 @@
 
 #include "codec/decoder.h"
 #include "common/timecodefunctions.h"
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "config/config.h"
 #include "ui/icons/icons.h"
 

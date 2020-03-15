@@ -34,10 +34,10 @@ MenuShared::MenuShared()
   new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), SLOT(CreateNewFolder()));
 
   // "Edit" menu shared items
-  edit_cut_item_ = Menu::CreateItem(this, "cut", nullptr, nullptr, "Ctrl+X");
-  edit_copy_item_ = Menu::CreateItem(this, "copy", nullptr, nullptr, "Ctrl+C");
-  edit_paste_item_ = Menu::CreateItem(this, "paste", nullptr, nullptr, "Ctrl+V");
-  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", nullptr, nullptr, "Ctrl+Shift+V");
+  edit_cut_item_ = Menu::CreateItem(this, "cut", this, SLOT(CutTriggered()), "Ctrl+X");
+  edit_copy_item_ = Menu::CreateItem(this, "copy", this, SLOT(CopyTriggered()), "Ctrl+C");
+  edit_paste_item_ = Menu::CreateItem(this, "paste", this, SLOT(PasteTriggered()), "Ctrl+V");
+  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, SLOT(PasteInsertTriggered()), "Ctrl+Shift+V");
   edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
   edit_delete_item_ = Menu::CreateItem(this, "delete", this, SLOT(DeleteSelectedTriggered()), "Del");
   edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, SLOT(RippleDeleteTriggered()), "Shift+Del");
@@ -159,6 +159,26 @@ void MenuShared::ClearInOutTriggered()
 void MenuShared::ToggleLinksTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->ToggleLinks();
+}
+
+void MenuShared::CutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->CutSelected();
+}
+
+void MenuShared::CopyTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->CopySelected();
+}
+
+void MenuShared::PasteTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->Paste();
+}
+
+void MenuShared::PasteInsertTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->PasteInsert();
 }
 
 void MenuShared::Retranslate()

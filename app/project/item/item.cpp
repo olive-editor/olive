@@ -76,11 +76,19 @@ const QList<ItemPtr> &Item::children() const
   return children_;
 }
 
-ItemPtr Item::shared_ptr_from_raw(Item *item)
+ItemPtr Item::shared_ptr_from_raw(Item *item, bool traverse)
 {
   for (int i=0;i<children_.size();i++) {
-    if (children_.at(i).get() == item) {
-      return children_.at(i);
+    ItemPtr c = children_.at(i);
+
+    if (c.get() == item) {
+      return c;
+    } else if (traverse && c->CanHaveChildren()) {
+      ItemPtr grandchild = shared_ptr_from_raw(item);
+
+      if (grandchild) {
+        return grandchild;
+      }
     }
   }
 
@@ -145,6 +153,23 @@ Project *Item::project() const
 void Item::set_project(Project *project)
 {
   project_ = project;
+}
+
+QList<ItemPtr> Item::get_children_of_type(Type type, bool recursive) const
+{
+  QList<ItemPtr> list;
+
+  foreach (ItemPtr item, children_) {
+    if (item->type() == type) {
+      list.append(item);
+    }
+
+    if (recursive && item->CanHaveChildren()) {
+      list.append(item->get_children_of_type(type, recursive));
+    }
+  }
+
+  return list;
 }
 
 bool Item::CanHaveChildren() const

@@ -42,6 +42,34 @@ void NodeViewScene::SetGraph(NodeGraph *graph)
   graph_ = graph;
 }
 
+QList<Node *> NodeViewScene::GetSelectedNodes() const
+{
+  QHash<Node*, NodeViewItem*>::const_iterator iterator;
+  QList<Node *> selected;
+
+  for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
+    if (iterator.value()->isSelected()) {
+      selected.append(iterator.key());
+    }
+  }
+
+  return selected;
+}
+
+QList<NodeViewItem *> NodeViewScene::GetSelectedItems() const
+{
+  QHash<Node*, NodeViewItem*>::const_iterator iterator;
+  QList<NodeViewItem *> selected;
+
+  for (iterator=item_map_.begin();iterator!=item_map_.end();iterator++) {
+    if (iterator.value()->isSelected()) {
+      selected.append(iterator.value());
+    }
+  }
+
+  return selected;
+}
+
 const QHash<Node *, NodeViewItem *> &NodeViewScene::item_map() const
 {
   return item_map_;

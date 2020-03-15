@@ -24,7 +24,7 @@
 #include <QDebug>
 #include <QFile>
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 
 Node::Node() :
   can_be_deleted_(true)

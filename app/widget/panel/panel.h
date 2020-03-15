@@ -132,6 +132,14 @@ public:
 
   virtual void ToggleLinks(){}
 
+  virtual void CutSelected(){}
+
+  virtual void CopySelected(){}
+
+  virtual void Paste(){}
+
+  virtual void PasteInsert(){}
+
 protected:
   /**
    * @brief paintEvent

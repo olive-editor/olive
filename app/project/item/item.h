@@ -77,7 +77,7 @@ public:
   Item* child(int i) const;
   const QList<ItemPtr>& children() const;
 
-  ItemPtr shared_ptr_from_raw(Item* item);
+  ItemPtr shared_ptr_from_raw(Item* item, bool traverse = false);
 
   const QString& name() const;
   void set_name(const QString& n);
@@ -96,6 +96,8 @@ public:
 
   Project* project() const;
   void set_project(Project* project);
+
+  QList<ItemPtr> get_children_of_type(Type type, bool recursive) const;
 
   virtual bool CanHaveChildren() const;
 

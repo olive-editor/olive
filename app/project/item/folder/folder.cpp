@@ -20,7 +20,7 @@
 
 #include "folder.h"
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"

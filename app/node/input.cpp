@@ -26,7 +26,7 @@
 
 #include "common/bezier.h"
 #include "common/lerp.h"
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "node.h"
 #include "output.h"
 #include "inputarray.h"

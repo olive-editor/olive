@@ -25,7 +25,7 @@
 #include "config/config.h"
 #include "common/channellayout.h"
 #include "common/timecodefunctions.h"
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
@@ -110,28 +110,7 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
         Node* node;
 
         if (reader->name() == "node") {
-          QString node_id;
-
-          XMLAttributeLoop(reader, attr) {
-            if (attr.name() == "id") {
-              node_id = attr.value().toString();
-
-              // Currently the only thing we need
-              break;
-            }
-          }
-
-          if (node_id.isEmpty()) {
-            qDebug() << "Found node with no ID";
-            continue;
-          }
-
-          node = NodeFactory::CreateFromID(node_id);
-
-          if (!node) {
-            qDebug() << "Failed to load" << node_id << "- no node with that ID is installed";
-            continue;
-          }
+          node = XMLLoadNode(reader);
         } else {
           node = viewer_output_;
         }
@@ -146,10 +125,7 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
   }
 
   // Make connections
-  foreach (const NodeParam::SerializedConnection& con, desired_connections) {
-    NodeParam::ConnectEdge(output_ptrs.value(con.output),
-                           con.input);
-  }
+  XMLConnectNodes(output_ptrs, desired_connections);
 
   // Ensure this and all children are in the main thread
   // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)

@@ -23,7 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
 #include "window/mainwindow/mainwindow.h"
@@ -136,4 +136,9 @@ void Project::set_default_input_colorspace(const QString &colorspace)
 ColorManager *Project::color_manager()
 {
   return &color_manager_;
+}
+
+QList<ItemPtr> Project::get_items_of_type(Item::Type type) const
+{
+  return root_.get_children_of_type(type, true);
 }

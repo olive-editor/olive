@@ -2,7 +2,7 @@
 
 #include <QApplication>
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "node.h"
 
 NodeInputArray::NodeInputArray(const QString &id, const DataType &type, const QVariant &default_value) :

@@ -57,6 +57,9 @@ public:
   void Select(const QList<Node*>& nodes);
   void SelectWithDependencies(QList<Node *> nodes);
 
+  void CopySelected(bool cut);
+  void Paste();
+
 signals:
   /**
    * @brief Signal emitted when the selected nodes have changed

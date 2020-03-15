@@ -20,11 +20,14 @@
 
 #include "nodeview.h"
 
+#include <QClipboard>
 #include <QMouseEvent>
+#include <QGuiApplication>
 
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
+#include "common/xmlutils.h"
 
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
@@ -90,16 +93,7 @@ void NodeView::DeleteSelected()
     return;
   }
 
-  QList<QGraphicsItem*> selected = scene_.selectedItems();
-  QList<Node*> selected_nodes;
-
-  foreach (QGraphicsItem* item, selected) {
-    NodeViewItem* node_item = dynamic_cast<NodeViewItem*>(item);
-
-    if (node_item) {
-      selected_nodes.append(node_item->node());
-    }
-  }
+  QList<Node*> selected_nodes = scene_.GetSelectedNodes();
 
   if (selected_nodes.isEmpty()) {
     return;
@@ -133,9 +127,6 @@ void NodeView::Select(const QList<Node *> &nodes)
   foreach (Node* n, nodes) {
     NodeViewItem* item = scene_.NodeToUIObject(n);
 
-    Q_ASSERT(n);
-    Q_ASSERT(item);
-
     item->setSelected(true);
   }
 }
@@ -148,6 +139,117 @@ void NodeView::SelectWithDependencies(QList<Node *> nodes)
   }
 
   Select(nodes);
+}
+
+void NodeView::CopySelected(bool cut)
+{
+  if (!graph_) {
+    return;
+  }
+
+  QList<Node*> selected = scene_.GetSelectedNodes();
+
+  if (selected.isEmpty()) {
+    return;
+  }
+
+  QString copy_str;
+
+  QXmlStreamWriter writer(&copy_str);
+  writer.setAutoFormatting(true);
+
+  writer.writeStartDocument();
+  writer.writeStartElement(QStringLiteral("olive"));
+
+  foreach (Node* n, selected) {
+    n->Save(&writer);
+  }
+
+  writer.writeEndElement(); // clipboard
+  writer.writeEndDocument();
+
+  if (cut) {
+    DeleteSelected();
+  }
+
+  QGuiApplication::clipboard()->setText(copy_str);
+}
+
+void NodeView::Paste()
+{
+  if (!graph_) {
+    return;
+  }
+
+  QString clipboard = QGuiApplication::clipboard()->text();
+
+  if (clipboard.isEmpty()) {
+    return;
+  }
+
+  QXmlStreamReader reader(clipboard);
+
+  QList<Node*> pasted_nodes;
+  QHash<quintptr, NodeOutput*> output_ptrs;
+  QList<NodeParam::SerializedConnection> desired_connections;
+  QList<NodeInput::FootageConnection> footage_connections;
+
+  XMLReadLoop((&reader), QStringLiteral("olive")) {
+    if (reader.name() == QStringLiteral("node")) {
+      Node* node = XMLLoadNode(&reader);
+
+      if (node) {
+        node->Load(&reader, output_ptrs, desired_connections, footage_connections, nullptr, reader.name().toString());
+
+        graph_->AddNode(node);
+
+        pasted_nodes.append(node);
+      }
+    }
+  }
+
+  // Make connections
+  if (!desired_connections.isEmpty()) {
+    XMLConnectNodes(output_ptrs, desired_connections);
+  }
+
+  // Connect footage to existing footage if it exists
+  if (!footage_connections.isEmpty()) {
+    // Get list of all footage from project
+    // FIXME: Assumes sequence
+    QList<ItemPtr> footage = static_cast<Sequence*>(graph_)->project()->get_items_of_type(Item::kFootage);
+
+    if (!footage.isEmpty()) {
+      foreach (const NodeInput::FootageConnection& con, footage_connections) {
+        if (con.footage) {
+          // Assume this is a pointer to a Stream*
+          Stream* loaded_stream = reinterpret_cast<Stream*>(con.footage);
+
+          bool found = false;
+
+          foreach (ItemPtr item, footage) {
+            const QList<StreamPtr>& streams = std::static_pointer_cast<Footage>(item)->streams();
+
+            foreach (StreamPtr s, streams) {
+              if (s.get() == loaded_stream) {
+                con.input->set_standard_value(QVariant::fromValue(s));
+                found = true;
+                break;
+              }
+            }
+
+            if (found) {
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (!pasted_nodes.isEmpty()) {
+    // FIXME: Attach to cursor so user can drop in place
+  }
 }
 
 void NodeView::ItemsChanged()
@@ -263,21 +365,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
 void NodeView::SceneSelectionChangedSlot()
 {
-  // Get the scene's selected items and convert it into a list of selected nodes
-  QList<QGraphicsItem*> selected_items = scene_.selectedItems();
-
-  QList<Node*> selected_nodes;
-
-  for (int i=0;i<selected_items.size();i++) {
-    // Try to dynamically cast to a widget holding a Node
-    NodeViewItem* item = dynamic_cast<NodeViewItem*>(selected_items.at(i));
-
-    if (item != nullptr) {
-      selected_nodes.append(item->node());
-    }
-  }
-
-  emit SelectionChanged(selected_nodes);
+  emit SelectionChanged(scene_.GetSelectedNodes());
 }
 
 void NodeView::ShowContextMenu(const QPoint &pos)

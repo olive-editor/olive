@@ -63,6 +63,8 @@ public:
 
   ColorManager* color_manager();
 
+  QList<ItemPtr> get_items_of_type(Item::Type type) const;
+
 signals:
   void NameChanged();
 

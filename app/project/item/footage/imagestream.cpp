@@ -20,7 +20,7 @@
 
 #include "imagestream.h"
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "footage.h"
 #include "project/project.h"
 #include "render/colormanager.h"

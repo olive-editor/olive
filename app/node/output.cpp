@@ -20,7 +20,7 @@
 
 #include "output.h"
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "node/node.h"
 
 NodeOutput::NodeOutput(const QString &id) :
