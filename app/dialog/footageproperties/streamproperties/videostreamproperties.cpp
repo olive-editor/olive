@@ -113,10 +113,13 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
   if (IsImageSequence(stream_.get())) {
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream_);
 
-    if (video_stream->start_time() != imgseq_start_time_->GetValue()) {
+    int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue();
+
+    if (video_stream->start_time() != imgseq_start_time_->GetValue()
+        || video_stream->duration() != new_dur) {
       new ImageSequenceChangeCommand(video_stream,
                                      imgseq_start_time_->GetValue(),
-                                     imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue(),
+                                     new_dur,
                                      parent);
     }
   }

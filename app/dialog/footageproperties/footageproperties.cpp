@@ -87,7 +87,7 @@ FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *foota
 
   connect(track_list, SIGNAL(currentRowChanged(int)), stacked_widget_, SLOT(setCurrentIndex(int)));
 
-  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
+  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   buttons->setCenterButtons(true);
   layout->addWidget(buttons, row, 0, 1, 2);
 
