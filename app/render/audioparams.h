@@ -14,6 +14,7 @@ public:
 
   const int& sample_rate() const;
   const uint64_t& channel_layout() const;
+  rational time_base() const;
 
 private:
   int sample_rate_;

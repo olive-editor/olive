@@ -128,7 +128,7 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   if (!n->video_params().time_base().isNull()) {
     SetTimebase(n->video_params().time_base());
   } else if (n->audio_params().sample_rate() > 0) {
-    SetTimebase(rational(1, n->audio_params().sample_rate()));
+    SetTimebase(n->audio_params().time_base());
   } else {
     SetTimebase(rational());
   }
@@ -157,6 +157,10 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   UpdateRendererParameters();
 
   UpdateStack();
+
+  if (GetConnectedTimelinePoints()) {
+    waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
+  }
 }
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
@@ -177,6 +181,8 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   SizeChangedSlot(0, 0);
 
   gl_widget_->DisconnectColorManager();
+
+  waveform_view_->ConnectTimelinePoints(nullptr);
 }
 
 void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)

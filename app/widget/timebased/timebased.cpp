@@ -62,13 +62,13 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   ConnectedNodeChanged(viewer_node_);
 
   if (viewer_node_) {
-    ConnectNodeInternal(viewer_node_);
-
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
 
     if ((points_ = ConnectTimelinePoints())) {
       ruler()->ConnectTimelinePoints(points_);
     }
+
+    ConnectNodeInternal(viewer_node_);
   }
 }
 
@@ -150,6 +150,11 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
 TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
 {
   return static_cast<Sequence*>(viewer_node_->parent());
+}
+
+TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
+{
+  return points_;
 }
 
 void TimeBasedWidget::SetTime(int64_t timestamp)

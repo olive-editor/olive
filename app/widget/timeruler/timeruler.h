@@ -50,17 +50,11 @@ protected:
 private:
   void UpdateHeight();
 
-  void DrawPlayhead(QPainter* p, int x, int y);
-
   int CacheStatusHeight() const;
-
-  int text_height_;
 
   int cache_status_height_;
 
   int minimum_gap_between_lines_;
-
-  int playhead_width_;
 
   bool text_visible_;
 

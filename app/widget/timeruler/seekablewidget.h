@@ -31,6 +31,8 @@ protected:
 
   virtual void ScaleChangedEvent(const double&) override;
 
+  void DrawTimelinePoints(QPainter *p, int marker_bottom = 0);
+
   TimelinePoints* timeline_points() const;
 
   double ScreenToUnitFloat(int screen);
@@ -41,6 +43,16 @@ protected:
   int UnitToScreen(int64_t unit);
 
   int TimeToScreen(const rational& time);
+
+  void DrawPlayhead(QPainter* p, int x, int y);
+
+  inline const int& text_height() const {
+    return text_height_;
+  }
+
+  inline const int& playhead_width() const {
+    return playhead_width_;
+  }
 
   inline const QColor& GetPlayheadColor() const
   {
@@ -66,6 +78,10 @@ private:
   TimelinePoints* timeline_points_;
 
   int scroll_;
+
+  int text_height_;
+
+  int playhead_width_;
 
 };
 

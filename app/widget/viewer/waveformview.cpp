@@ -29,7 +29,7 @@ void WaveformView::SetBackend(AudioRenderBackend *backend)
     connect(backend_, &AudioRenderBackend::QueueComplete, this, static_cast<void (WaveformView::*)()>(&WaveformView::update));
     connect(backend_, &AudioRenderBackend::ParamsChanged, this, &WaveformView::BackendParamsChanged);
 
-    SetTimebase(rational(1, backend_->params().sample_rate()));
+    SetTimebase(backend_->params().time_base());
   }
 
   update();
@@ -90,6 +90,8 @@ void WaveformView::paintEvent(QPaintEvent *event)
   if (fs.open(QFile::ReadOnly)) {
 
     QPainter p(this);
+
+    DrawTimelinePoints(&p);
 
     // FIXME: Hardcoded color
     p.setPen(Qt::green);

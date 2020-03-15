@@ -39,15 +39,11 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   // Text height is used to calculate widget height
-  text_height_ = fm.height();
-  cache_status_height_ = text_height_ / 4;
+  cache_status_height_ = text_height() / 4;
 
   // Get the "minimum" space allowed between two line markers on the ruler (in screen pixels)
   // Mediocre but reliable way of scaling UI objects by font/DPI size
   minimum_gap_between_lines_ = QFontMetricsWidth(fm, "H");
-
-  // Set width of playhead marker
-  playhead_width_ = minimum_gap_between_lines_;
 
   // Text visibility affects height, so we set that here
   UpdateHeight();
@@ -93,65 +89,17 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   // Draw timeline points if connected
   if (timeline_points()) {
+    int marker_bottom = height() - text_height();
 
-    // Draw in/out workarea
-    if (timeline_points()->workarea()->enabled()) {
-      int workarea_left = qMax(0, TimeToScreen(timeline_points()->workarea()->in()));
-      int workarea_right;
-
-      if (timeline_points()->workarea()->out() == TimelineWorkArea::kResetOut) {
-        workarea_right = width();
-      } else {
-        workarea_right = qMin(width(), TimeToScreen(timeline_points()->workarea()->out()));
-      }
-
-      p.fillRect(workarea_left, 0, workarea_right - workarea_left, height(), palette().highlight());
+    if (show_cache_status_) {
+      marker_bottom -= cache_status_height_;
     }
 
-    // Draw markers
-    if (!timeline_points()->markers()->list().isEmpty()) {
-      int marker_bottom = height() - text_height_;
-
-      if (show_cache_status_) {
-        marker_bottom -= cache_status_height_;
-      }
-
-      if (text_visible_) {
-        marker_bottom -= cache_status_height_;
-      }
-
-      int marker_top = marker_bottom - text_height_;
-
-      // FIXME: Hardcoded marker colors
-      p.setPen(Qt::black);
-      p.setBrush(Qt::green);
-
-      foreach (TimelineMarker* marker, timeline_points()->markers()->list()) {
-        int marker_left = TimeToScreen(marker->time().in());
-        int marker_right = TimeToScreen(marker->time().out());
-
-        if (marker_left >= width() || marker_right < 0)  {
-          continue;
-        }
-
-        if (marker->time().length() == 0) {
-          // Single point in time marker
-          DrawPlayhead(&p, marker_left, marker_bottom);
-        } else {
-          // Marker range
-          int rect_left = qMax(0, marker_left);
-          int rect_right = qMin(width(), marker_right);
-
-          QRect marker_rect(rect_left, marker_top, rect_right - rect_left, marker_bottom - marker_top);
-
-          p.drawRect(marker_rect);
-
-          if (!marker->name().isEmpty()) {
-            p.drawText(marker_rect, marker->name());
-          }
-        }
-      }
+    if (text_visible_) {
+      marker_bottom -= cache_status_height_;
     }
+
+    DrawTimelinePoints(&p, marker_bottom);
   }
 
   double width_of_frame = timebase_dbl() * GetScale();
@@ -325,11 +273,9 @@ void TimeRuler::paintEvent(QPaintEvent *)
 
   // Draw the playhead if it's on screen at the moment
   int playhead_pos = UnitToScreen(GetTime());
-  if (playhead_pos + playhead_width_ >= 0 && playhead_pos - playhead_width_ < width()) {
-    p.setPen(Qt::NoPen);
-    p.setBrush(GetPlayheadColor());
-    DrawPlayhead(&p, playhead_pos, line_bottom);
-  }
+  p.setPen(Qt::NoPen);
+  p.setBrush(GetPlayheadColor());
+  DrawPlayhead(&p, playhead_pos, line_bottom);
 }
 
 void TimeRuler::TimebaseChangedEvent(const rational &tb)
@@ -339,25 +285,6 @@ void TimeRuler::TimebaseChangedEvent(const rational &tb)
   update();
 }
 
-void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
-{
-  p->setRenderHint(QPainter::Antialiasing);
-
-  int half_text_height = text_height_ / 3;
-  int half_width = playhead_width_ / 2;
-
-  QPoint points[] = {
-    QPoint(x, y),
-    QPoint(x - half_width, y - half_text_height),
-    QPoint(x - half_width, y - text_height_),
-    QPoint(x + 1 + half_width, y - text_height_),
-    QPoint(x + 1 + half_width, y - half_text_height),
-    QPoint(x + 1, y),
-  };
-
-  p->drawPolygon(points, 6);
-}
-
 int TimeRuler::CacheStatusHeight() const
 {
   return fontMetrics().height() / 4;
@@ -365,11 +292,11 @@ int TimeRuler::CacheStatusHeight() const
 
 void TimeRuler::UpdateHeight()
 {
-  int height = text_height_;
+  int height = text_height();
 
   // Add text height
   if (text_visible_) {
-    height += text_height_;
+    height += text_height();
   }
 
   // Add cache status height
@@ -378,7 +305,7 @@ void TimeRuler::UpdateHeight()
   }
 
   // Add marker height
-  height += text_height_;
+  height += text_height();
 
   setFixedHeight(height);
 }

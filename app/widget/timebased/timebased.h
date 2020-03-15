@@ -87,6 +87,8 @@ protected:
 
   virtual TimelinePoints* ConnectTimelinePoints();
 
+  TimelinePoints* GetConnectedTimelinePoints() const;
+
 protected slots:
   /**
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
