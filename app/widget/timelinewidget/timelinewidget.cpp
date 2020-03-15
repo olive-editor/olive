@@ -472,6 +472,30 @@ void TimelineWidget::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
   import_tool_->PlaceAt(footage, GetTime(), false);
 }
 
+void TimelineWidget::ToggleLinksOnSelected()
+{
+  QList<TimelineViewBlockItem*> sel = GetSelectedBlocks();
+
+  // Prioritize unlinking
+
+  QList<Block*> blocks;
+  bool link = true;
+
+  foreach (TimelineViewBlockItem* item, sel) {
+    if (link && item->block()->HasLinks()) {
+      link = false;
+    }
+
+    blocks.append(item->block());
+  }
+
+  if (link) {
+    Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, true));
+  } else {
+    Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, false));
+  }
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;
@@ -687,6 +711,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     views_.at(track.type())->view()->scene()->addItem(item);
 
     connect(block, &Block::Refreshed, this, &TimelineWidget::BlockChanged);
+    connect(block, &Block::LinksChanged, this, &TimelineWidget::PreviewUpdated);
 
     if (block->type() == Block::kClip) {
       connect(static_cast<ClipBlock*>(block), &ClipBlock::PreviewUpdated, this, &TimelineWidget::PreviewUpdated);

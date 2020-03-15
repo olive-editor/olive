@@ -130,6 +130,8 @@ public:
 
   virtual void SetMarker(){}
 
+  virtual void ToggleLinks(){}
+
 protected:
   /**
    * @brief paintEvent

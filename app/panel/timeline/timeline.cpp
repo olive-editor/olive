@@ -115,6 +115,11 @@ void TimelinePanel::Overwrite()
   }
 }
 
+void TimelinePanel::ToggleLinks()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->ToggleLinksOnSelected();
+}
+
 void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);

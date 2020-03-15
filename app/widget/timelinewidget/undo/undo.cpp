@@ -716,9 +716,10 @@ void WorkareaSetRangeCommand::undo_internal()
   points_->workarea()->set_range(old_range_);
 }
 
-BlockLinkCommand::BlockLinkCommand(const QList<Block *> &blocks, bool link, QUndoCommand *parent) :
+BlockLinkCommand::BlockLinkCommand(Block *a, Block *b, bool link, QUndoCommand *parent) :
   UndoCommand(parent),
-  blocks_(blocks),
+  a_(a),
+  b_(b),
   link_(link)
 {
 }
@@ -726,18 +727,20 @@ BlockLinkCommand::BlockLinkCommand(const QList<Block *> &blocks, bool link, QUnd
 void BlockLinkCommand::redo_internal()
 {
   if (link_) {
-    Block::Link(blocks_);
+    done_ = Block::Link(a_, b_);
   } else {
-    Block::Unlink(blocks_);
+    done_ = Block::Unlink(a_, b_);
   }
 }
 
 void BlockLinkCommand::undo_internal()
 {
-  if (link_) {
-    Block::Unlink(blocks_);
-  } else {
-    Block::Link(blocks_);
+  if (done_) {
+    if (link_) {
+      Block::Unlink(a_, b_);
+    } else {
+      Block::Link(a_, b_);
+    }
   }
 }
 
@@ -763,4 +766,16 @@ void BlockUnlinkAllCommand::undo_internal()
   }
 
   unlinked_.clear();
+}
+
+BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool link, QUndoCommand *parent) :
+  UndoCommand(parent)
+{
+  foreach (Block* a, blocks) {
+    foreach (Block* b, blocks) {
+      if (a != b) {
+        new BlockLinkCommand(a, b, link, this);
+      }
+    }
+  }
 }

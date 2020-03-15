@@ -202,20 +202,25 @@ void Block::LengthInputChanged()
   emit LengthChanged(length());
 }
 
-void Block::Link(Block *a, Block *b)
+bool Block::Link(Block *a, Block *b)
 {
   if (a == b || !a || !b) {
-    return;
+    return false;
   }
 
   // Prevent duplicate link entries (assume that we only need to check one clip since this should be the only function
   // that adds to the linked array)
-  if (a->linked_clips_.contains(b)) {
-    return;
+  if (Block::AreLinked(a, b)) {
+    return false;
   }
 
   a->linked_clips_.append(b);
   b->linked_clips_.append(a);
+
+  emit a->LinksChanged();
+  emit b->LinksChanged();
+
+  return true;
 }
 
 void Block::Link(const QList<Block*>& blocks)
@@ -227,14 +232,23 @@ void Block::Link(const QList<Block*>& blocks)
   }
 }
 
-void Block::Unlink(Block *a, Block *b)
+bool Block::Unlink(Block *a, Block *b)
 {
   if (a == b || !a || !b) {
-    return;
+    return false;
+  }
+
+  if (!Block::AreLinked(a, b)) {
+    return false;
   }
 
   a->linked_clips_.removeOne(b);
   b->linked_clips_.removeOne(a);
+
+  emit a->LinksChanged();
+  emit b->LinksChanged();
+
+  return true;
 }
 
 void Block::Unlink(const QList<Block *> &blocks)

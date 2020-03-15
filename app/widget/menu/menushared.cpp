@@ -52,7 +52,7 @@ MenuShared::MenuShared()
 
   // "Clip Edit" menu shared items
   clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", nullptr, nullptr, "Ctrl+Shift+D");
-  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", nullptr, nullptr, "Ctrl+L");
+  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, SLOT(ToggleLinksTriggered()), "Ctrl+L");
   clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", nullptr, nullptr, "Shift+E");
   clip_nest_item_ = Menu::CreateItem(this, "nest", nullptr, nullptr);
 
@@ -154,6 +154,11 @@ void MenuShared::ResetOutTriggered()
 void MenuShared::ClearInOutTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->ClearInOut();
+}
+
+void MenuShared::ToggleLinksTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ToggleLinks();
 }
 
 void MenuShared::Retranslate()

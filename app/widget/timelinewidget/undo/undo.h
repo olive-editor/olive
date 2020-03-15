@@ -331,18 +331,27 @@ private:
 
 };
 
+class BlockLinkManyCommand : public UndoCommand {
+public:
+  BlockLinkManyCommand(const QList<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
+};
+
 class BlockLinkCommand : public UndoCommand {
 public:
-  BlockLinkCommand(const QList<Block*>& blocks, bool link, QUndoCommand* parent = nullptr);
+  BlockLinkCommand(Block* a, Block* b, bool link, QUndoCommand* parent = nullptr);
 
 protected:
   virtual void redo_internal() override;
   virtual void undo_internal() override;
 
 private:
-  QList<Block*> blocks_;
+  Block* a_;
+
+  Block* b_;
 
   bool link_;
+
+  bool done_;
 
 };
 

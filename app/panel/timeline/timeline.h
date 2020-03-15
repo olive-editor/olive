@@ -61,6 +61,8 @@ public:
 
   virtual void Overwrite() override;
 
+  virtual void ToggleLinks() override;
+
   void InsertFootageAtPlayhead(const QList<Footage *> &footage);
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);

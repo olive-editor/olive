@@ -57,6 +57,8 @@ public:
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
 
+  void ToggleLinksOnSelected();
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 signals:

@@ -91,6 +91,8 @@ private slots:
 
   void ClearInOutTriggered();
 
+  void ToggleLinksTriggered();
+
 };
 
 #endif // MENUSHARED_H
