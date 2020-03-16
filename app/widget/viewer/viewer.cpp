@@ -459,7 +459,7 @@ void ViewerWidget::Pause()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    if (stack_->currentWidget() == gl_widget_) {
+    if (stack_->currentWidget() == sizer_) {
       disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
     } else {
       disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
