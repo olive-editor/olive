@@ -16,6 +16,9 @@ public:
 
   void clear();
 
+  void SelectAll();
+  void DeselectAll();
+
   /**
    * @brief Retrieve the graphical widget corresponding to a specific Node
    *

@@ -104,20 +104,12 @@ void NodeView::DeleteSelected()
 
 void NodeView::SelectAll()
 {
-  QList<QGraphicsItem *> all_items = this->items();
-
-  foreach (QGraphicsItem* i, all_items) {
-    i->setSelected(true);
-  }
+  scene_.SelectAll();
 }
 
 void NodeView::DeselectAll()
 {
-  QList<QGraphicsItem *> selected_items = scene_.selectedItems();
-
-  foreach (QGraphicsItem* i, selected_items) {
-    i->setSelected(false);
-  }
+  scene_.DeselectAll();
 }
 
 void NodeView::Select(const QList<Node *> &nodes)

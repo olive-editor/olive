@@ -10,6 +10,15 @@ NodeViewScene::NodeViewScene(QObject *parent) :
 
 void NodeViewScene::clear()
 {
+  // Deselect everything (prevents signals that a selection has changed after deleting an object)
+  DeselectAll();
+
+  // HACK: QGraphicsScene contains some sort of internal hashing of the selected items which doesn't update unless
+  //       we call a function like this. That means even though we deselect all items above, QGraphicsScene will
+  //       continue to incorrectly signal selectionChanged() when items that were selected (but are now not) get
+  //       deleted. Calling this function appears to update the internal cache and prevent this.
+  selectedItems();
+
   {
     QHash<Node*, NodeViewItem*>::const_iterator i;
     for (i=item_map_.begin();i!=item_map_.end();i++) {
@@ -24,6 +33,24 @@ void NodeViewScene::clear()
       delete i.value();
     }
     edge_map_.clear();
+  }
+}
+
+void NodeViewScene::SelectAll()
+{
+  QList<QGraphicsItem *> all_items = this->items();
+
+  foreach (QGraphicsItem* i, all_items) {
+    i->setSelected(true);
+  }
+}
+
+void NodeViewScene::DeselectAll()
+{
+  QList<QGraphicsItem *> selected_items = this->selectedItems();
+
+  foreach (QGraphicsItem* i, selected_items) {
+    i->setSelected(false);
   }
 }
 
