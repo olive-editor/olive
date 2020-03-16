@@ -151,8 +151,9 @@ void Stream::FootageSetEvent(Footage*)
 {
 }
 
-void Stream::LoadCustomParameters(QXmlStreamReader*)
+void Stream::LoadCustomParameters(QXmlStreamReader* reader)
 {
+  reader->skipCurrentElement();
 }
 
 void Stream::SaveCustomParameters(QXmlStreamWriter*) const

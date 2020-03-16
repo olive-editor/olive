@@ -43,10 +43,11 @@ void ImageStream::FootageSetEvent(Footage *f)
 
 void ImageStream::LoadCustomParameters(QXmlStreamReader *reader)
 {
-  XMLReadLoop(reader, "stream") {
-    if (reader->isStartElement() && reader->name() == "colorspace") {
-      reader->readNext();
-      set_colorspace(reader->text().toString());
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("colorspace")) {
+      set_colorspace(reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }

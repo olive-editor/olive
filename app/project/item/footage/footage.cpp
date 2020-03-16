@@ -40,48 +40,50 @@ Footage::~Footage()
 
 void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>&, const QAtomicInt* cancelled)
 {
+  qDebug() << "Hello?";
+
   QXmlStreamAttributes attributes = reader->attributes();
 
   foreach (const QXmlStreamAttribute& attr, attributes) {
-    if (attr.name() == "name") {
+    if (attr.name() == QStringLiteral("name")) {
       set_name(attr.value().toString());
-    } else if (attr.name() == "filename") {
+    } else if (attr.name() == QStringLiteral("filename")) {
       set_filename(attr.value().toString());
     }
   }
 
   Decoder::ProbeMedia(this, cancelled);
 
-  XMLReadLoop(reader, "footage") {
+  while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->isStartElement()) {
-      if (reader->name() == "stream") {
-        int stream_index = -1;
-        quintptr stream_ptr = 0;
+    if (reader->name() == QStringLiteral("stream")) {
+      int stream_index = -1;
+      quintptr stream_ptr = 0;
 
-        XMLAttributeLoop(reader, attr) {
-          if (cancelled && *cancelled) {
-            return;
-          }
-
-          if (attr.name() == "index") {
-            stream_index = attr.value().toInt();
-          } else if (attr.name() == "ptr") {
-            stream_ptr = attr.value().toULongLong();
-          }
+      XMLAttributeLoop(reader, attr) {
+        if (cancelled && *cancelled) {
+          return;
         }
 
-        if (stream_index > -1 && stream_ptr > 0) {
-          footage_ptrs.insert(stream_ptr, stream(stream_index));
-
-          stream(stream_index)->Load(reader);
-        } else {
-          qWarning() << "Invalid stream found in project file";
+        if (attr.name() == QStringLiteral("index")) {
+          stream_index = attr.value().toInt();
+        } else if (attr.name() == QStringLiteral("ptr")) {
+          stream_ptr = attr.value().toULongLong();
         }
       }
+
+      if (stream_index > -1 && stream_ptr > 0) {
+        footage_ptrs.insert(stream_ptr, stream(stream_index));
+
+        stream(stream_index)->Load(reader);
+      } else {
+        qWarning() << "Invalid stream found in project file";
+      }
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }

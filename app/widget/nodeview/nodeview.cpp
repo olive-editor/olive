@@ -186,17 +186,25 @@ void NodeView::Paste()
   QList<NodeParam::SerializedConnection> desired_connections;
   QList<NodeInput::FootageConnection> footage_connections;
 
-  XMLReadLoop((&reader), QStringLiteral("olive")) {
-    if (reader.name() == QStringLiteral("node")) {
-      Node* node = XMLLoadNode(&reader);
+  while (XMLReadNextStartElement(&reader)) {
+    if (reader.name() == QStringLiteral("olive")) {
+      while (XMLReadNextStartElement(&reader)) {
+        if (reader.name() == QStringLiteral("node")) {
+          Node* node = XMLLoadNode(&reader);
 
-      if (node) {
-        node->Load(&reader, output_ptrs, desired_connections, footage_connections, nullptr, reader.name().toString());
+          if (node) {
+            node->Load(&reader, output_ptrs, desired_connections, footage_connections, nullptr);
 
-        graph_->AddNode(node);
+            graph_->AddNode(node);
 
-        pasted_nodes.append(node);
+            pasted_nodes.append(node);
+          }
+        } else {
+          reader.skipCurrentElement();
+        }
       }
+    } else {
+      reader.skipCurrentElement();
     }
   }
 

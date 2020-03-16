@@ -4,6 +4,8 @@
 #include <QFile>
 #include <QXmlStreamReader>
 
+#include "common/xmlutils.h"
+
 ProjectLoadManager::ProjectLoadManager(const QString &filename) :
   filename_(filename)
 {
@@ -17,28 +19,32 @@ void ProjectLoadManager::Action()
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
 
-    while (!reader.atEnd()) {
-      reader.readNext();
+    qDebug() << "Hello?";
 
-      if (reader.isStartElement()) {
-        if (reader.name() == "version") {
-          reader.readNext();
+    while (XMLReadNextStartElement(&reader)) {
+      if (reader.name() == QStringLiteral("olive")) {
+        while(XMLReadNextStartElement(&reader)) {
+          if (reader.name() == QStringLiteral("version")) {
+            qDebug() << "Project version:" << reader.readElementText();
+          } else if (reader.name() == QStringLiteral("project")) {
+            ProjectPtr project = std::make_shared<Project>();
 
-          qDebug() << "Project version:" << reader.text();
-        } else if (reader.name() == "project") {
-          ProjectPtr project = std::make_shared<Project>();
+            project->set_filename(filename_);
 
-          project->set_filename(filename_);
+            project->Load(&reader, &IsCancelled());
 
-          project->Load(&reader, &IsCancelled());
+            // Ensure project is in main thread
+            moveToThread(qApp->thread());
 
-          // Ensure project is in main thread
-          moveToThread(qApp->thread());
-
-          if (!IsCancelled()) {
-            emit ProjectLoaded(project);
+            if (!IsCancelled()) {
+              emit ProjectLoaded(project);
+            }
+          } else {
+            reader.skipCurrentElement();
           }
         }
+      } else {
+        reader.skipCurrentElement();
       }
     }
 

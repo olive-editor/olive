@@ -55,6 +55,8 @@ void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& pa
       param_ptrs.insert(saved_ptr, this);
     }
   }
+
+  reader->skipCurrentElement();
 }
 
 void NodeOutput::Save(QXmlStreamWriter *writer) const

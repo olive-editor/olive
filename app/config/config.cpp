@@ -29,6 +29,7 @@
 
 #include "common/autoscroll.h"
 #include "common/filefunctions.h"
+#include "common/xmlutils.h"
 #include "core.h"
 #include "window/mainwindow/mainwindow.h"
 
@@ -120,52 +121,50 @@ void Config::Load()
 
   QString config_version;
 
-  while (!reader.atEnd()) {
-    reader.readNext();
+  while (XMLReadNextStartElement(&reader)) {
+    if (reader.name() == QStringLiteral("Configuration")) {
+      while (XMLReadNextStartElement(&reader)) {
+        QString key = reader.name().toString();
+        QString value = reader.readElementText();
 
-    if (!reader.isStartElement()) {
-      continue;
-    }
+        if (key == QStringLiteral("Version")) {
+          config_version = value;
 
-    QString key = reader.name().toString();
+          if (!value.contains(".")) {
+            qDebug() << "CONFIG: This is a 0.1.x config file, upconvert";
+          }
+        } else if (key == QStringLiteral("DefaultSequenceFrameRate") && !config_version.contains('.')) {
+          // 0.1.x stored this value as a float while we now use rationals, we'll use a heuristic to find the closest
+          // supported rational
+          qDebug() << "  CONFIG: Finding closest match to" << value;
 
-    reader.readNext();
-    QString value = reader.text().toString();
+          double config_fr = value.toDouble();
 
-    if (key == "Configuration") {
-      // First element, ignore
-    } else if (key == "Version") {
-      config_version = value;
+          QList<rational> supported_frame_rates = Core::SupportedFrameRates();
 
-      if (!value.contains(".")) {
-        qDebug() << "CONFIG: This is a 0.1.x config file, upconvert";
-      }
-    } else if (key == "DefaultSequenceFrameRate" && !config_version.contains(".")) {
-      // 0.1.x stored this value as a float while we now use rationals, we'll use a heuristic to find the closest
-      // supported rational
-      qDebug() << "  CONFIG: Finding closest match to" << value;
+          rational match = supported_frame_rates.first();
+          double match_diff = qAbs(match.toDouble() - config_fr);
 
-      double config_fr = value.toDouble();
+          for (int i=1;i<supported_frame_rates.size();i++) {
+            double diff = qAbs(supported_frame_rates.at(i).toDouble() - config_fr);
 
-      QList<rational> supported_frame_rates = Core::SupportedFrameRates();
+            if (diff < match_diff) {
+              match = supported_frame_rates.at(i);
+              match_diff = diff;
+            }
+          }
 
-      rational match = supported_frame_rates.first();
-      double match_diff = qAbs(match.toDouble() - config_fr);
+          qDebug() << "  CONFIG: Closest match was" << match.toDouble();
 
-      for (int i=1;i<supported_frame_rates.size();i++) {
-        double diff = qAbs(supported_frame_rates.at(i).toDouble() - config_fr);
-
-        if (diff < match_diff) {
-          match = supported_frame_rates.at(i);
-          match_diff = diff;
+          current_config_[key] = QVariant::fromValue(match.flipped());
+        } else {
+          current_config_[key] = value;
         }
       }
 
-      qDebug() << "  CONFIG: Closest match was" << match.toDouble();
-
-      current_config_[key] = QVariant::fromValue(match.flipped());
+      //reader.skipCurrentElement();
     } else {
-      current_config_[key] = value;
+      reader.skipCurrentElement();
     }
   }
 
@@ -173,7 +172,7 @@ void Config::Load()
     QMessageBox::critical(Core::instance()->main_window(),
                           QCoreApplication::translate("Config", "Error loading settings"),
                           QCoreApplication::translate("Config", "Failed to load application settings. This session will "
-                                                                "use defaults."),
+                                                                "use defaults.\n\n%1").arg(reader.errorString()),
                           QMessageBox::Ok);
     current_config_.SetDefaults();
   }

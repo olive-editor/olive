@@ -50,39 +50,39 @@ Node::~Node()
   }
 }
 
-void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_ptrs, QList<NodeInput::SerializedConnection>& input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt* cancelled, const QString& element)
+void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_ptrs, QList<NodeInput::SerializedConnection>& input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt* cancelled)
 {
-  XMLReadLoop(reader, (element.isEmpty() ? "node" : element)) {
+  while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->isStartElement()) {
-      if (reader->name() == "input" || reader->name() == "output") {
-        QString param_id;
+    if (reader->name() == QStringLiteral("input") || reader->name() == QStringLiteral("output")) {
+      QString param_id;
 
-        XMLAttributeLoop(reader, attr) {
-          if (attr.name() == "id") {
-            param_id = attr.value().toString();
+      XMLAttributeLoop(reader, attr) {
+        if (attr.name() == QStringLiteral("id")) {
+          param_id = attr.value().toString();
 
-            break;
-          }
+          break;
         }
-
-        if (param_id.isEmpty()) {
-          qDebug() << "Found parameter with no ID";
-          continue;
-        }
-
-        NodeParam* param = GetParameterWithID(param_id);
-
-        if (!param) {
-          qDebug() << "No parameter in" << id() << "with parameter" << param_id;
-          continue;
-        }
-
-        param->Load(reader, output_ptrs, input_connections, footage_connections, cancelled);
       }
+
+      if (param_id.isEmpty()) {
+        qDebug() << "Found parameter with no ID";
+        continue;
+      }
+
+      NodeParam* param = GetParameterWithID(param_id);
+
+      if (!param) {
+        qDebug() << "No parameter in" << id() << "with parameter" << param_id;
+        continue;
+      }
+
+      param->Load(reader, output_ptrs, input_connections, footage_connections, cancelled);
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }

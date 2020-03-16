@@ -31,7 +31,26 @@ Node* XMLLoadNode(QXmlStreamReader* reader) {
 void XMLConnectNodes(const QHash<quintptr, NodeOutput*>& output_ptrs, const QList<NodeParam::SerializedConnection>& desired_connections)
 {
   foreach (const NodeParam::SerializedConnection& con, desired_connections) {
-    NodeParam::ConnectEdge(output_ptrs.value(con.output),
-                           con.input);
+    NodeOutput* out = output_ptrs.value(con.output);
+
+    if (out) {
+      NodeParam::ConnectEdge(out, con.input);
+    }
   }
+}
+
+bool XMLReadNextStartElement(QXmlStreamReader *reader)
+{
+  QXmlStreamReader::TokenType token;
+
+  while ((token = reader->readNext()) != QXmlStreamReader::Invalid
+         && token != QXmlStreamReader::EndDocument) {
+    if (reader->isEndElement()) {
+      return false;
+    } else if (reader->isStartElement()) {
+      return true;
+    }
+  }
+
+  return false;
 }

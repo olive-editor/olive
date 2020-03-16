@@ -59,68 +59,63 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
   QHash<quintptr, NodeOutput*> output_ptrs;
   QList<NodeParam::SerializedConnection> desired_connections;
 
-  XMLReadLoop(reader, "sequence") {
+  while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->isStartElement()) {
-      if (reader->name() == "video") {
-        int video_width, video_height;
-        rational video_timebase;
+    if (reader->name() == QStringLiteral("video")) {
+      int video_width, video_height;
+      rational video_timebase;
 
-        XMLReadLoop(reader, "video") {
-          if (cancelled && *cancelled) {
-            return;
-          }
-
-          if (reader->isStartElement()) {
-            if (reader->name() == "width") {
-              reader->readNext();
-              video_width = reader->text().toInt();
-            } else if (reader->name() == "height") {
-              reader->readNext();
-              video_height = reader->text().toInt();
-            } else if (reader->name() == "timebase") {
-              reader->readNext();
-              video_timebase = rational::fromString(reader->text().toString());
-            }
-          }
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
         }
 
-        set_video_params(VideoParams(video_width, video_height, video_timebase));
-      } else if (reader->name() == "audio") {
-        int rate;
-        uint64_t layout;
-
-        XMLReadLoop(reader, "audio") {
-          if (reader->isStartElement()) {
-            if (reader->name() == "rate") {
-              reader->readNext();
-              rate = reader->text().toInt();
-            } else if (reader->name() == "layout") {
-              reader->readNext();
-              layout = reader->text().toULongLong();
-            }
-          }
-        }
-
-        set_audio_params(AudioParams(rate, layout));
-      } else if (reader->name() == "node" || reader->name() == "viewer") {
-        Node* node;
-
-        if (reader->name() == "node") {
-          node = XMLLoadNode(reader);
+        if (reader->name() == QStringLiteral("width")) {
+          video_width = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("height")) {
+          video_height = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("timebase")) {
+          video_timebase = rational::fromString(reader->readElementText());
         } else {
-          node = viewer_output_;
-        }
-
-        if (node) {
-          node->Load(reader, output_ptrs, desired_connections, footage_connections, cancelled, reader->name().toString());
-
-          AddNode(node);
+          reader->skipCurrentElement();
         }
       }
+
+      set_video_params(VideoParams(video_width, video_height, video_timebase));
+    } else if (reader->name() == QStringLiteral("audio")) {
+      int rate;
+      uint64_t layout;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("rate")) {
+          rate = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("layout")) {
+          layout = reader->readElementText().toULongLong();
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+      set_audio_params(AudioParams(rate, layout));
+    } else if (reader->name() == QStringLiteral("node") || reader->name() == QStringLiteral("viewer")) {
+      Node* node;
+
+      if (reader->name() == QStringLiteral("node")) {
+        node = XMLLoadNode(reader);
+      } else {
+        node = viewer_output_;
+      }
+
+      if (node) {
+        node->Load(reader, output_ptrs, desired_connections, footage_connections, cancelled);
+
+        AddNode(node);
+      }
+    } else {
+      reader->skipCurrentElement();
     }
   }
 
