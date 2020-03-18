@@ -258,13 +258,3 @@ int64_t Timecode::time_to_timestamp(const double &time, const rational &timebase
 {
   return qRound64(time * timebase.flipped().toDouble());
 }
-
-Timecode::Display Timecode::CurrentDisplay()
-{
-  return static_cast<Timecode::Display>(Config::Current()["TimecodeDisplay"].toInt());
-}
-
-void Timecode::SetCurrentDisplay(Timecode::Display d)
-{
-  Config::Current()["TimecodeDisplay"] = d;
-}

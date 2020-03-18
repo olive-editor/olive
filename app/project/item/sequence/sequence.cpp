@@ -199,7 +199,7 @@ QString Sequence::duration()
 
   int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params().time_base());
 
-  return Timecode::timestamp_to_timecode(timestamp, video_params().time_base(), Timecode::CurrentDisplay());
+  return Timecode::timestamp_to_timecode(timestamp, video_params().time_base(), Core::instance()->GetTimecodeDisplay());
 }
 
 QString Sequence::rate()

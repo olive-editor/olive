@@ -6,6 +6,7 @@
 
 class TimeSlider : public IntegerSlider
 {
+  Q_OBJECT
 public:
   TimeSlider(QWidget* parent = nullptr);
 
@@ -18,6 +19,9 @@ protected:
 
 private:
   rational timebase_;
+
+private slots:
+  void TimecodeDisplayChanged();
 
 };
 

@@ -24,7 +24,7 @@
 #include <QEvent>
 #include <QHBoxLayout>
 
-#include "common/timecodefunctions.h"
+#include "core.h"
 #include "config/config.h"
 #include "ui/icons/icons.h"
 
@@ -120,6 +120,8 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   UpdateIcons();
 
   SetTimebase(0);
+
+  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &PlaybackControls::TimecodeChanged);
 }
 
 void PlaybackControls::SetTimecodeEnabled(bool enabled)
@@ -147,9 +149,11 @@ void PlaybackControls::SetEndTime(const int64_t &r)
     return;
   }
 
-  end_tc_lbl_->setText(Timecode::timestamp_to_timecode(r,
+  end_time_ = r;
+
+  end_tc_lbl_->setText(Timecode::timestamp_to_timecode(end_time_,
                                                        time_base_,
-                                                       Timecode::CurrentDisplay()));
+                                                       Core::instance()->GetTimecodeDisplay()));
 }
 
 void PlaybackControls::ShowPauseButton()
@@ -180,4 +184,10 @@ void PlaybackControls::UpdateIcons()
   pause_btn_->setIcon(icon::Pause);
   next_frame_btn_->setIcon(icon::NextFrame);
   go_to_end_btn_->setIcon(icon::GoToEnd);
+}
+
+void PlaybackControls::TimecodeChanged()
+{
+  // Update end time
+  SetEndTime(end_time_);
 }
