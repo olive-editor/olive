@@ -77,6 +77,7 @@ void Config::SetDefaults()
   config_map_["DefaultViewerDivider"] = 2;
   config_map_["AutoSelectDivider"] = false;
   config_map_["SetNameWithMarker"] = false;
+  config_map_["RectifiedWaveforms"] = false;
   config_map_["DropWithoutSequenceBehavior"] = TimelineWidget::kDWSAsk;
 
   config_map_["DiskCachePath"] = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);

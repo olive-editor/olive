@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/viewer/audiowaveformview.h
+  widget/viewer/audiowaveformview.cpp
   widget/viewer/footageviewer.h
   widget/viewer/footageviewer.cpp
   widget/viewer/viewer.h
@@ -24,7 +26,5 @@ set(OLIVE_SOURCES
   widget/viewer/viewerglwidget.cpp
   widget/viewer/viewersizer.h
   widget/viewer/viewersizer.cpp
-  widget/viewer/waveformview.h
-  widget/viewer/waveformview.cpp
   PARENT_SCOPE
 )

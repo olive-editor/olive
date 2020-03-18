@@ -2,8 +2,6 @@
 
 #include <QGridLayout>
 #include <QLabel>
-#include <QComboBox>
-#include <QCheckBox>
 #include <QPushButton>
 
 #include "common/autoscroll.h"
@@ -74,6 +72,14 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   row++;
 
+  general_layout->addWidget(new QLabel(tr("Rectified Waveforms:")), row, 0);
+
+  rectified_waveforms_ = new QCheckBox();
+  rectified_waveforms_->setChecked(Config::Current()["RectifiedWaveforms"].toBool());
+  general_layout->addWidget(rectified_waveforms_, row, 1);
+
+  row++;
+
   general_layout->addWidget(new QLabel(tr("Default Still Image Length:")), row, 0);
 
   default_still_length_ = new FloatSlider();
@@ -100,6 +106,8 @@ void PreferencesGeneralTab::Accept()
   Config::Current()["DefaultSequenceFrameRate"] = QVariant::fromValue(default_sequence_.video_params().time_base());
   Config::Current()["DefaultSequenceAudioFrequency"] = default_sequence_.audio_params().sample_rate();
   Config::Current()["DefaultSequenceAudioLayout"] = QVariant::fromValue(default_sequence_.audio_params().channel_layout());
+
+  Config::Current()["RectifiedWaveforms"] = rectified_waveforms_->isChecked();
 
   Config::Current()["Autoscroll"] = autoscroll_method_->currentData();
 

@@ -47,6 +47,9 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
 
   // Text visibility affects height, so we set that here
   UpdateHeight();
+
+  // Force update if the default timecode display mode changes
+  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, static_cast<void (TimeRuler::*)()>(&TimeRuler::update));
 }
 
 void TimeRuler::SetCacheStatusLength(const rational &length)
@@ -203,7 +206,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         if (text_visible_) {
           QRect text_rect;
           Qt::Alignment text_align;
-          QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase(), Timecode::CurrentDisplay());
+          QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase(), Core::instance()->GetTimecodeDisplay());
           int timecode_width = QFontMetricsWidth(fm, timecode_str);
           int timecode_left;
 

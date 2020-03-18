@@ -61,7 +61,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_->SetWidget(gl_widget_);
 
   // Create waveform view when audio is connected and video isn't
-  waveform_view_ = new WaveformView();
+  waveform_view_ = new AudioWaveformView();
   stack_->addWidget(waveform_view_);
 
   // Create time ruler
@@ -70,7 +70,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Create scrollbar
   layout->addWidget(scrollbar());
   connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
-  connect(scrollbar(), &QScrollBar::valueChanged, waveform_view_, &WaveformView::SetScroll);
+  connect(scrollbar(), &QScrollBar::valueChanged, waveform_view_, &AudioWaveformView::SetScroll);
 
   // Create lower controls
   controls_ = new PlaybackControls();
@@ -96,7 +96,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   audio_renderer_ = new AudioBackend(this);
 
   waveform_view_->SetBackend(audio_renderer_);
-  connect(waveform_view_, &WaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
+  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
 
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
@@ -306,8 +306,8 @@ void ViewerWidget::PushScrubbedAudio()
     QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
 
     if (audio_src && audio_src->open(QFile::ReadOnly)) {
-      // Try to get one "frame" of audio
-      int size_of_sample = audio_renderer_->params().time_to_bytes(timebase());
+      // FIXME: Hardcoded scrubbing interval (20ms)
+      int size_of_sample = audio_renderer_->params().time_to_bytes(rational(20, 1000));
 
       // Push audio
       audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));

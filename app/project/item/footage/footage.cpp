@@ -23,9 +23,9 @@
 #include <QCoreApplication>
 
 #include "codec/decoder.h"
-#include "common/timecodefunctions.h"
 #include "common/xmlutils.h"
 #include "config/config.h"
+#include "core.h"
 #include "ui/icons/icons.h"
 
 Footage::Footage()
@@ -40,8 +40,6 @@ Footage::~Footage()
 
 void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>&, const QAtomicInt* cancelled)
 {
-  qDebug() << "Hello?";
-
   QXmlStreamAttributes attributes = reader->attributes();
 
   foreach (const QXmlStreamAttribute& attr, attributes) {
@@ -234,12 +232,12 @@ QString Footage::duration()
 
     return Timecode::timestamp_to_timecode(duration,
                                            frame_rate_timebase,
-                                           Timecode::CurrentDisplay());
+                                           Core::instance()->GetTimecodeDisplay());
   } else if (streams_.first()->type() == Stream::kAudio) {
     AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(streams_.first());
 
     // If we're showing in a timecode, we prefer showing audio in seconds instead
-    Timecode::Display display = Timecode::CurrentDisplay();
+    Timecode::Display display = Core::instance()->GetTimecodeDisplay();
     if (display == Timecode::kTimecodeDropFrame
         || display == Timecode::kTimecodeNonDropFrame) {
       display = Timecode::kTimecodeSeconds;
