@@ -148,11 +148,6 @@ else()
   qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
 endif()
 
-if(UNIX AND NOT APPLE)
-  install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
-  install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
-endif()
-
 add_subdirectory(packaging)
 
 if(DOXYGEN_FOUND)
@@ -182,6 +177,11 @@ else()
     ${OLIVE_CRASH_TARGET}
     ${OLIVE_CRASH_SOURCES}
   )
+endif()
+
+if(UNIX AND NOT APPLE)
+  install(TARGETS ${OLIVE_TARGET} ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
+  install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
 endif()
 
 target_link_libraries(
