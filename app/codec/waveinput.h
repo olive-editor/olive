@@ -21,7 +21,7 @@ public:
 
   QByteArray read(int length);
   QByteArray read(int offset, int length);
-  void read(int offset, char *buffer, int length);
+  qint64 read(int offset, char *buffer, int length);
 
   bool seek(qint64 pos);
 

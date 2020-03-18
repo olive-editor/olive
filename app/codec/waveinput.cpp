@@ -155,14 +155,14 @@ QByteArray WaveInput::read(int offset, int length)
   return file_.read(qMin(calculate_max_read(), static_cast<qint64>(length)));
 }
 
-void WaveInput::read(int offset, char *buffer, int length)
+qint64 WaveInput::read(int offset, char *buffer, int length)
 {
   if (!is_open()) {
-    return;
+    return 0;
   }
 
   seek(offset);
-  file_.read(buffer, qMin(calculate_max_read(), static_cast<qint64>(length)));
+  return file_.read(buffer, qMin(calculate_max_read(), static_cast<qint64>(length)));
 }
 
 bool WaveInput::seek(qint64 pos)
