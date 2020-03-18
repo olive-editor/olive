@@ -137,10 +137,10 @@ QIcon Stream::IconFromType(const Stream::Type &type)
   return QIcon();
 }
 
-StreamID Stream::ToID() const
+/*StreamID Stream::ToID() const
 {
   return StreamID(footage_->filename(), index_);
-}
+}*/
 
 QMutex* Stream::index_process_lock()
 {
@@ -160,8 +160,8 @@ void Stream::SaveCustomParameters(QXmlStreamWriter*) const
 {
 }
 
-StreamID::StreamID(const QString &filename, const int &stream_index) :
+/*StreamID::StreamID(const QString &filename, const int &stream_index) :
   filename_(filename),
   stream_index_(stream_index)
 {
-}
+}*/
