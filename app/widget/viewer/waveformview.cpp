@@ -69,7 +69,7 @@ void WaveformView::DrawWaveform(QPainter *painter, const QRect& rect, const doub
       if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
         int channel_bottom = rect.y() + channel_height * (j + 1);
 
-        int diff = qRound((summary.at(j).max - summary.at(j).min) * channel_height);
+        int diff = qRound((summary.at(j).max - summary.at(j).min) * channel_half_height);
 
         painter->drawLine(line_x,
                           channel_bottom - diff,
@@ -135,7 +135,7 @@ void WaveformView::paintEvent(QPaintEvent *event)
         if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
           int channel_bottom = channel_height * (i + 1);
 
-          int diff = qRound((samples.at(i).max - samples.at(i).min) * channel_height);
+          int diff = qRound((samples.at(i).max - samples.at(i).min) * channel_half_height);
 
           p.drawLine(x,
                      channel_bottom - diff,
