@@ -18,7 +18,7 @@ AudioWaveformView::AudioWaveformView(QWidget *parent) :
 void AudioWaveformView::SetBackend(AudioRenderBackend *backend)
 {
   if (backend_) {
-    disconnect(backend_, &AudioRenderBackend::QueueComplete, this, static_cast<void (AudioWaveformView::*)()>(&AudioWaveformView::update));
+    disconnect(backend_, &AudioRenderBackend::QueueComplete, this, &AudioWaveformView::ForceUpdate);
     disconnect(backend_, &AudioRenderBackend::ParamsChanged, this, &AudioWaveformView::BackendParamsChanged);
 
     SetTimebase(0);
@@ -27,13 +27,13 @@ void AudioWaveformView::SetBackend(AudioRenderBackend *backend)
   backend_ = backend;
 
   if (backend_) {
-    connect(backend_, &AudioRenderBackend::QueueComplete, this, static_cast<void (AudioWaveformView::*)()>(&AudioWaveformView::update));
+    connect(backend_, &AudioRenderBackend::QueueComplete, this, &AudioWaveformView::ForceUpdate);
     connect(backend_, &AudioRenderBackend::ParamsChanged, this, &AudioWaveformView::BackendParamsChanged);
 
     SetTimebase(backend_->params().time_base());
   }
 
-  update();
+  ForceUpdate();
 }
 
 void AudioWaveformView::DrawWaveform(QPainter *painter, const QRect& rect, const double& scale, const SampleSummer::Sum* samples, int nb_samples, int channels)
@@ -111,7 +111,7 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
       QPainter wave_painter(&cached_waveform_);
 
       // FIXME: Hardcoded color
-      wave_painter.setPen(Qt::green);
+      wave_painter.setPen(QColor(64, 255, 160));
 
       int channel_height = height() / params.channel_count();
       int channel_half_height = channel_height / 2;
@@ -186,4 +186,10 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
 void AudioWaveformView::BackendParamsChanged()
 {
   SetTimebase(backend_->params().time_base());
+}
+
+void AudioWaveformView::ForceUpdate()
+{
+  cached_size_  = QSize();
+  update();
 }

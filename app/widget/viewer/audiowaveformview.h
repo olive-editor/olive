@@ -34,6 +34,8 @@ private:
 private slots:
   void BackendParamsChanged();
 
+  void ForceUpdate();
+
 };
 
 #endif // WAVEFORMVIEW_H
