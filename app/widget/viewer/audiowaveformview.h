@@ -8,11 +8,11 @@
 #include "render/backend/audiorenderbackend.h"
 #include "widget/timeruler/seekablewidget.h"
 
-class WaveformView : public SeekableWidget
+class AudioWaveformView : public SeekableWidget
 {
   Q_OBJECT
 public:
-  WaveformView(QWidget* parent = nullptr);
+  AudioWaveformView(QWidget* parent = nullptr);
 
   //void SetData(const QString& file, const AudioRenderingParams& params);
 
@@ -25,6 +25,11 @@ protected:
 
 private:
   AudioRenderBackend* backend_;
+
+  QPixmap cached_waveform_;
+  QSize cached_size_;
+  double cached_scale_;
+  int cached_scroll_;
 
 private slots:
   void BackendParamsChanged();

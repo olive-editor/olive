@@ -32,7 +32,7 @@
 #include "common/qtutils.h"
 #include "config/config.h"
 #include "node/block/transition/transition.h"
-#include "widget/viewer/waveformview.h"
+#include "widget/viewer/audiowaveformview.h"
 
 TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent) :
   TimelineViewRect(parent),
@@ -93,7 +93,7 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
       QByteArray w = wave_file.readAll();
 
       // FIXME: Hardcoded channel count
-      WaveformView::DrawWaveform(painter,
+      AudioWaveformView::DrawWaveform(painter,
                                  rect().toRect(),
                                  this->GetScale(),
                                  reinterpret_cast<const SampleSummer::Sum*>(w.constData()),
