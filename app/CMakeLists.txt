@@ -205,4 +205,7 @@ endif()
 
 if(APPLE)
   # Move crash handler program inside Mac app bundle
+  add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+  )
 endif()
