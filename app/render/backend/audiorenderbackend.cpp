@@ -8,7 +8,8 @@
 #include "render/backend/indexmanager.h"
 
 AudioRenderBackend::AudioRenderBackend(QObject *parent) :
-  RenderBackend(parent)
+  RenderBackend(parent),
+  ic_from_conform_(false)
 {
   connect(IndexManager::instance(), &IndexManager::StreamConformAppended, this, &AudioRenderBackend::ConformUpdated);
 }
@@ -112,6 +113,38 @@ TimeRange AudioRenderBackend::PopNextFrameFromQueue()
   return range;
 }
 
+void AudioRenderBackend::InvalidateCacheInternal(const rational &start_range, const rational &end_range)
+{
+  if (!ic_from_conform_) {
+    // Cancel any ranges waiting on a conform here since obviously the contents have changed
+    TimeRange range(start_range, end_range);
+
+    for (int i=0;i<conform_wait_info_.size();i++) {
+      ConformWaitInfo& info = conform_wait_info_[i];
+
+      // FIXME: Code copied from TimeRangeList::RemoveTimeRange()
+
+      if (range.Contains(info.affected_range)) {
+        conform_wait_info_.removeAt(i);
+        i--;
+      } else if (info.affected_range.Contains(range, false, false)) {
+        ConformWaitInfo copy = info;
+
+        info.affected_range.set_out(start_range);
+        copy.affected_range.set_in(end_range);
+
+        conform_wait_info_.append(copy);
+      } else if (info.affected_range.in() < start_range && info.affected_range.out() > start_range) {
+        info.affected_range.set_out(start_range);
+      } else if (info.affected_range.in() < end_range && info.affected_range.out() > end_range) {
+        info.affected_range.set_in(end_range);
+      }
+    }
+  }
+
+  RenderBackend::InvalidateCacheInternal(start_range, end_range);
+}
+
 void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &range, const rational &stream_time, const AudioRenderingParams& params)
 {
   ConformWaitInfo info = {stream, params, range, stream_time};
@@ -119,8 +152,6 @@ void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &r
   if (conform_wait_info_.contains(info)) {
     return;
   }
-
-  qDebug() << "Waiting for conformed" << stream.get() << "time" << stream_time.toDouble() << "for frame" << range.in();
 
   AudioStreamPtr audio_stream = std::static_pointer_cast<AudioStream>(stream);
 
@@ -150,9 +181,12 @@ void AudioRenderBackend::ConformUpdated(Stream *stream, const AudioRenderingPara
     if (info.stream.get() == stream
         && info.params == params) {
 
-      InvalidateCache(info.affected_range);
       conform_wait_info_.removeAt(i);
       i--;
+
+      ic_from_conform_ = true;
+      InvalidateCache(info.affected_range);
+      ic_from_conform_ = false;
 
     }
   }

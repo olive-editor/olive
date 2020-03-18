@@ -49,6 +49,8 @@ protected:
 
   virtual TimeRange PopNextFrameFromQueue() override;
 
+  virtual void InvalidateCacheInternal(const rational &start_range, const rational &end_range) override;
+
   QHash<Node*, Node*> copy_map_;
 
 private:
@@ -64,6 +66,8 @@ private:
   QList<ConformWaitInfo> conform_wait_info_;
 
   AudioRenderingParams params_;
+
+  bool ic_from_conform_;
 
 private slots:
   void ConformUnavailable(StreamPtr stream, const TimeRange& range, const rational& stream_time, const AudioRenderingParams &params);
