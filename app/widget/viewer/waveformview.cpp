@@ -5,6 +5,7 @@
 #include <QtMath>
 
 #include "common/clamp.h"
+#include "config/config.h"
 
 WaveformView::WaveformView(QWidget *parent) :
   SeekableWidget(parent),
@@ -65,12 +66,23 @@ void WaveformView::DrawWaveform(QPainter *painter, const QRect& rect, const doub
     int line_x = i + rect.x();
 
     for (int j=0;j<summary.size();j++) {
-      int channel_mid = rect.y() + channel_height * j + channel_half_height;
+      if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
+        int channel_bottom = rect.y() + channel_height * (j + 1);
 
-      painter->drawLine(line_x,
-                        channel_mid + clamp(qRound(summary.at(j).min * channel_half_height), -channel_half_height, channel_half_height),
-                        line_x,
-                        channel_mid + clamp(qRound(summary.at(j).max * channel_half_height), -channel_half_height, channel_half_height));
+        int diff = qRound((summary.at(j).max - summary.at(j).min) * channel_height);
+
+        painter->drawLine(line_x,
+                          channel_bottom - diff,
+                          line_x,
+                          channel_bottom);
+      } else{
+        int channel_mid = rect.y() + channel_height * j + channel_half_height;
+
+        painter->drawLine(line_x,
+                          channel_mid + clamp(qRound(summary.at(j).min * channel_half_height), -channel_half_height, channel_half_height),
+                          line_x,
+                          channel_mid + clamp(qRound(summary.at(j).max * channel_half_height), -channel_half_height, channel_half_height));
+      }
     }
   }
 }
@@ -120,12 +132,23 @@ void WaveformView::paintEvent(QPaintEvent *event)
                                                                     params.channel_count());
 
       for (int i=0;i<params.channel_count();i++) {
-        int channel_mid = channel_height * i + channel_half_height;
+        if (Config::Current()[QStringLiteral("RectifiedWaveforms")].toBool()) {
+          int channel_bottom = channel_height * (i + 1);
 
-        p.drawLine(x,
-                   channel_mid + samples.at(i).min * static_cast<float>(channel_half_height),
-                   x,
-                   channel_mid + samples.at(i).max * static_cast<float>(channel_half_height));
+          int diff = qRound((samples.at(i).max - samples.at(i).min) * channel_height);
+
+          p.drawLine(x,
+                     channel_bottom - diff,
+                     x,
+                     channel_bottom);
+        } else {
+          int channel_mid = channel_height * i + channel_half_height;
+
+          p.drawLine(x,
+                     channel_mid + samples.at(i).min * static_cast<float>(channel_half_height),
+                     x,
+                     channel_mid + samples.at(i).max * static_cast<float>(channel_half_height));
+        }
 
         drew++;
       }
