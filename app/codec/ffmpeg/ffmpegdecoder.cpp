@@ -440,9 +440,13 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
     audio_frame->set_sample_count(input_params.time_to_samples(length));
     audio_frame->allocate();
 
-    input.read(input_params.time_to_bytes(timecode),
-               audio_frame->data(),
-               audio_frame->allocated_size());
+    qint64 actual_read = input.read(input_params.time_to_bytes(timecode),
+                                    audio_frame->data(),
+                                    audio_frame->allocated_size());
+
+    if (actual_read < audio_frame->allocated_size()) {
+      memset(audio_frame->data() + actual_read, 0, audio_frame->allocated_size() - actual_read);
+    }
 
     input.close();
 
@@ -725,6 +729,8 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
                                    avstream_->codecpar->sample_rate,
                                    0,
                                    nullptr);
+
+    swr_init(resampler);
   } else {
     dst_sample_fmt = src_sample_fmt;
   }
@@ -739,6 +745,8 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
   int ret;
 
   if (wave_out.open()) {
+    bool success = false;
+
     while (true) {
       // Check if we have a `cancelled` ptr and its value
       if (cancelled && *cancelled) {
@@ -748,45 +756,56 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
       ret = GetFrame(pkt, frame);
 
       if (ret < 0) {
-        break;
-      } else {
-        AVFrame* data_frame;
 
-        if (resampler != nullptr) {
-          // We must need to resample this (mainly just convert from planar to packed if necessary)
-          data_frame = av_frame_alloc();
-          data_frame->sample_rate = frame->sample_rate;
-          data_frame->channel_layout = frame->channel_layout;
-          data_frame->channels = frame->channels;
-          data_frame->format = dst_sample_fmt;
-          av_frame_make_writable(data_frame);
-
-          ret = swr_convert_frame(resampler, data_frame, frame);
-
-          if (ret != 0) {
-            char err_str[50];
-            av_strerror(ret, err_str, 50);
-            qWarning() << "libswresample failed with error:" << ret << err_str;
-          }
+        if (ret == AVERROR_EOF) {
+          success = true;
         } else {
+          char err_str[50];
+          av_strerror(ret, err_str, 50);
+          qWarning() << "Failed to index:" << ret << err_str;
+        }
+        break;
+
+      } else {
+        char* data;
+        int nb_samples;
+
+        if (resampler) {
+
+          nb_samples = swr_get_out_samples(resampler, frame->nb_samples);
+
+          data = new char[wave_params.samples_to_bytes(nb_samples)];
+
+          // We must need to resample this (mainly just convert from planar to packed if necessary)
+          nb_samples = swr_convert(resampler,
+                                   reinterpret_cast<uint8_t**>(&data),
+                                   nb_samples,
+                                   const_cast<const uint8_t**>(frame->data),
+                                   frame->nb_samples);
+
+          if (nb_samples < 0) {
+            char err_str[50];
+            av_strerror(nb_samples, err_str, 50);
+            qWarning() << "libswresample failed with error:" << nb_samples << err_str;
+            break;
+          }
+
+        } else {
+
           // No resampling required, we can write directly from te frame buffer
-          data_frame = frame;
+          data = reinterpret_cast<char*>(frame->data[0]);
+          nb_samples = frame->nb_samples;
+
         }
 
-        int buffer_sz = av_samples_get_buffer_size(nullptr,
-                                                   avstream_->codecpar->channels,
-                                                   data_frame->nb_samples,
-                                                   dst_sample_fmt,
-                                                   0); // FIXME: Documentation unclear - should this be 0 or 1?
-
         // Write packed WAV data to the disk cache
-        wave_out.write(reinterpret_cast<char*>(data_frame->data[0]), buffer_sz);
+        wave_out.write(data, wave_params.samples_to_bytes(nb_samples));
 
         audio_stream->set_index_length(wave_params.bytes_to_time(wave_out.data_length()));
 
         // If we allocated an output for the resampler, delete it here
-        if (data_frame != frame) {
-          av_frame_free(&data_frame);
+        if (data != reinterpret_cast<char*>(frame->data[0])) {
+          delete [] data;
         }
 
         SignalIndexProgress(frame->pts);
@@ -795,12 +814,12 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
 
     wave_out.close();
 
-    if (cancelled && *cancelled) {
+    if (success) {
+      audio_stream->set_index_done(true);
+    } else {
       // Audio index didn't complete, delete it
       QFile(GetIndexFilename()).remove();
       audio_stream->clear_index();
-    } else {
-      audio_stream->set_index_done(true);
     }
   } else {
     qWarning() << "Failed to open WAVE output for indexing";
