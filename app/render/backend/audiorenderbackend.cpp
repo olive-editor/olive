@@ -36,12 +36,14 @@ void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
 {
   connect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
   connect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
+  connect(node, &ViewerOutput::LengthChanged, this, &AudioRenderBackend::TruncateCache);
 }
 
 void AudioRenderBackend::DisconnectViewer(ViewerOutput *node)
 {
   disconnect(node, &ViewerOutput::AudioChangedBetween, this, &AudioRenderBackend::InvalidateCache);
   disconnect(node, &ViewerOutput::AudioGraphChanged, this, &AudioRenderBackend::QueueRecompile);
+  disconnect(node, &ViewerOutput::LengthChanged, this, &AudioRenderBackend::TruncateCache);
 }
 
 bool AudioRenderBackend::CompileInternal()
@@ -189,6 +191,17 @@ void AudioRenderBackend::ConformUpdated(Stream *stream, const AudioRenderingPara
       ic_from_conform_ = false;
 
     }
+  }
+}
+
+void AudioRenderBackend::TruncateCache(const rational &r)
+{
+  int seq_length = params_.time_to_bytes(r);
+
+  QFile cache_pcm(CachePathName());
+
+  if (cache_pcm.size() > seq_length) {
+    cache_pcm.resize(seq_length);
   }
 }
 

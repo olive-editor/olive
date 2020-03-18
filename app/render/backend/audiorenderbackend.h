@@ -74,6 +74,8 @@ private slots:
 
   void ConformUpdated(Stream *stream, const AudioRenderingParams& params);
 
+  void TruncateCache(const rational& r);
+
 };
 
 #endif // AUDIORENDERBACKEND_H

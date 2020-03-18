@@ -85,6 +85,7 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data,
       f.write(cached_samples.data(), copy_length);
 
       if (copy_length < length) {
+
         // Fill in remainder with silence
         QByteArray empty_space(length - copy_length, 0);
         f.write(empty_space);
