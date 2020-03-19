@@ -86,6 +86,7 @@ if(MSVC)
     PRIVATE
     /WX
     /wd4267
+    /wd4244
     /experimental:external
     /external:anglebrackets
     /external:W0
