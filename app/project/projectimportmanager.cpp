@@ -47,7 +47,7 @@ void ProjectImportManager::Import(Folder *folder, const QFileInfoList &import, i
       break;
     }
 
-    // Check if this file is a diretory
+    // Check if this file is a directory
     if (file_info.isDir()) {
 
       // QDir::entryList only returns filenames, we can use entryInfoList() to get full paths

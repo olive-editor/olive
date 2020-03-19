@@ -21,7 +21,7 @@ CurveView::CurveView(QWidget *parent) :
 
 CurveView::~CurveView()
 {
-  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other memebers have been destroyed
+  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other members have been destroyed
   Clear();
 }
 

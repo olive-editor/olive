@@ -248,7 +248,7 @@ public:
   const QString id() const;
 
   /**
-   * @brief The type of node paramter this is
+   * @brief The type of node parameter this is
    *
    * This must be set in subclasses, but most of the time you should probably subclass from NodeInput and NodeOutput
    * anyway.

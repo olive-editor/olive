@@ -147,7 +147,7 @@ void NodeParamViewItem::SetupUI()
       NodeParamViewWidgetBridge* bridge = new NodeParamViewWidgetBridge(input, this);
       bridges_.append(bridge);
 
-      // Add widgets for this parameter ot the layout
+      // Add widgets for this parameter to the layout
       const QList<QWidget*>& widgets_for_param = bridge->widgets();
       for (int i=0;i<widgets_for_param.size();i++) {
         content_layout_->addWidget(widgets_for_param.at(i), row_count, i + 1);

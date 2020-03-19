@@ -80,7 +80,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
 CurveWidget::~CurveWidget()
 {
-  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other memebers have been destroyed
+  // Quick way to avoid segfault when QGraphicsScene::selectionChanged is emitted after other members have been destroyed
   view_->Clear();
 }
 
