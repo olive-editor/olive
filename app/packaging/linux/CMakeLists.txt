@@ -35,17 +35,13 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/org.olivevideoeditor.Olive.appdata.xml
 install(FILES org.olivevideoeditor.Olive.desktop DESTINATION share/applications)
 install(FILES org.olivevideoeditor.Olive.xml DESTINATION share/mime/packages)
 
-install(FILES icons/16x16/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/16x16/apps)
-install(FILES icons/32x32/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/32x32/apps)
-install(FILES icons/48x48/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/48x48/apps)
-install(FILES icons/64x64/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/64x64/apps)
-install(FILES icons/128x128/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/128x128/apps)
-install(FILES icons/256x256/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/256x256/apps)
-install(FILES icons/512x512/org.olivevideoeditor.Olive.png DESTINATION share/icons/hicolor/512x512/apps)
-install(FILES icons/16x16/application-vnd.olive-project.png DESTINATION share/icons/hicolor/16x16/mimetypes)
-install(FILES icons/32x32/application-vnd.olive-project.png DESTINATION share/icons/hicolor/32x32/mimetypes)
-install(FILES icons/48x48/application-vnd.olive-project.png DESTINATION share/icons/hicolor/48x48/mimetypes)
-install(FILES icons/64x64/application-vnd.olive-project.png DESTINATION share/icons/hicolor/64x64/mimetypes)
-install(FILES icons/128x128/application-vnd.olive-project.png DESTINATION share/icons/hicolor/128x128/mimetypes)
-install(FILES icons/256x256/application-vnd.olive-project.png DESTINATION share/icons/hicolor/256x256/mimetypes)
-install(FILES icons/512x512/application-vnd.olive-project.png DESTINATION share/icons/hicolor/512x512/mimetypes)
+foreach(size 16 32 48 64 128 256 512)
+  install(
+    FILES icons/${size}x${size}/org.olivevideoeditor.Olive.png
+    DESTINATION share/icons/hicolor/${size}x${size}/apps
+  )
+  install(
+    FILES icons/${size}x${size}/application-vnd.olive-project.png
+    DESTINATION share/icons/hicolor/${size}x${size}/mimetypes
+  )
+endforeach()
