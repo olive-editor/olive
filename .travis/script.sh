@@ -29,6 +29,9 @@ if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     wget -c -nv https://github.com/arl/macdeployqtfix/raw/master/macdeployqtfix.py
     python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/Olive /usr/local/Cellar/qt5/5.*/
 
+    # Fix deps on crash handler
+    python2 macdeployqtfix.py $BUNDLE_NAME/Contents/MacOS/olive-crashhandler /usr/local/Cellar/qt5/5.*/
+
     # Fix OpenEXR libs that seem to be missed by both macdeployqt _and_ macdeployqtfix
     cd $BUNDLE_NAME/Contents/Frameworks
     exrlib=(libImath-*.dylib libHalf-*.dylib libIexMath-*.dylib libIex-*.dylib libIlmThread-*.dylib)

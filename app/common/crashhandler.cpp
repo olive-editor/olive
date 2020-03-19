@@ -13,7 +13,7 @@
 #include <DbgHelp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
 #include <execinfo.h>
 #endif
 
@@ -100,9 +100,7 @@ void crash_handler(int sig) {
   }
 
   SymCleanup(process);
-#elif defined(Q_OS_MAC)
-  // FIXME: No Mac backtrace support yet
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_MAC) || defined(Q_OS_LINUX)
   void *array[10];
   size_t size;
 
