@@ -150,9 +150,9 @@ void AudioWaveformView::paintEvent(QPaintEvent *event)
             int channel_mid = channel_height * i + channel_half_height;
 
             wave_painter.drawLine(x,
-                       channel_mid + samples.at(i).min * static_cast<float>(channel_half_height),
+                       channel_mid + qRound(samples.at(i).min * static_cast<float>(channel_half_height)),
                        x,
-                       channel_mid + samples.at(i).max * static_cast<float>(channel_half_height));
+                       channel_mid + qRound(samples.at(i).max * static_cast<float>(channel_half_height)));
           }
 
           drew++;
