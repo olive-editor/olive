@@ -256,7 +256,7 @@ public slots:
   void CreateNewFolder();
 
   /**
-   * @brief Createa a new sequence in the currently active project
+   * @brief Create a new sequence in the currently active project
    */
   void CreateNewSequence();
 

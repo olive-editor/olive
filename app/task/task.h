@@ -35,7 +35,7 @@
  * To subclass your own Task, override Action() and return TRUE on success or FALSE on failure. Note that a Task can
  * provide a "negative" output and still have succeeded. For example, the ProbeTask's role is to determine whether a
  * certain media file can be used in Olive. Even if the probe *fails* to find a Decoder for this file, the Task itself
- * has *suceeded* at discovering this. A failure of ProbeTask would indicate a catastrophic failure meaning it was
+ * has *succeeded* at discovering this. A failure of ProbeTask would indicate a catastrophic failure meaning it was
  * unable to determine anything about the file.
  *
  * Tasks should be used with the TaskManager which will manage starting and deleting them. It'll also only start as

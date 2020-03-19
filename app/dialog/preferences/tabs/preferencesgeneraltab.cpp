@@ -62,7 +62,7 @@ PreferencesGeneralTab::PreferencesGeneralTab()
 
   general_layout->addWidget(new QLabel(tr("Auto-Scroll Method:")), row, 0);
 
-  // ComboBox indices match enum indicies
+  // ComboBox indices match enum indices
   autoscroll_method_ = new QComboBox();
   autoscroll_method_->addItem(tr("None"), AutoScroll::kNone);
   autoscroll_method_->addItem(tr("Page Scrolling"), AutoScroll::kPage);
