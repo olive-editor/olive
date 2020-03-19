@@ -85,12 +85,6 @@ if(MSVC)
     ${OLIVE_TARGET}
     PRIVATE
     /WX
-    /W4
-    /wd4127
-    /wd4267
-    /wd4100
-    /wd4456
-    /wd4706
     /experimental:external
     /external:anglebrackets
     /external:W0
