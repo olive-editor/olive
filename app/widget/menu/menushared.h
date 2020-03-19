@@ -75,11 +75,31 @@ private:
   static MenuShared* instance_;
 
 private slots:
-  void SplitAtPlayhead();
+  void SplitAtPlayheadTriggered();
 
-  void DeleteSelected();
+  void DeleteSelectedTriggered();
 
-  void RippleDelete();
+  void RippleDeleteTriggered();
+
+  void SetInTriggered();
+
+  void SetOutTriggered();
+
+  void ResetInTriggered();
+
+  void ResetOutTriggered();
+
+  void ClearInOutTriggered();
+
+  void ToggleLinksTriggered();
+
+  void CutTriggered();
+
+  void CopyTriggered();
+
+  void PasteTriggered();
+
+  void PasteInsertTriggered();
 
 };
 

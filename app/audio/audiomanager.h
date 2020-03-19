@@ -102,6 +102,8 @@ signals:
 
   void SentSamples(QVector<double> averages);
 
+  void OutputNotified();
+
 private:
   AudioManager();
 

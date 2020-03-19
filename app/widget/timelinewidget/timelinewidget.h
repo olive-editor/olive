@@ -57,6 +57,8 @@ public:
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
 
+  void ToggleLinksOnSelected();
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 signals:
@@ -349,7 +351,7 @@ private:
     bool dual_transition_;
   };
 
-  void DeleteSelectedInternal(QList<Block *> blocks, bool transition_aware, bool remove_from_graph, QUndoCommand* command);
+  void DeleteSelectedInternal(const QList<Block *>& blocks, bool transition_aware, bool remove_from_graph, QUndoCommand* command);
 
   void SetBlockLinksSelected(Block *block, bool selected);
 

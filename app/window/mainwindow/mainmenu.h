@@ -140,6 +140,8 @@ private slots:
   void GoToPrevCutTriggered();
   void GoToNextCutTriggered();
 
+  void SetMarkerTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.
@@ -179,7 +181,6 @@ private:
   QAction* view_increase_track_height_item_;
   QAction* view_decrease_track_height_item_;
   QAction* view_show_all_item_;
-  QAction* view_rectified_waveforms_item_;
   QActionGroup* frame_view_mode_group_;
   QAction* view_timecode_view_dropframe_item_;
   QAction* view_timecode_view_nondropframe_item_;

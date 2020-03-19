@@ -59,6 +59,21 @@ void NodePanel::DeleteSelected()
   node_view_->DeleteSelected();
 }
 
+void NodePanel::CutSelected()
+{
+  node_view_->CopySelected(true);
+}
+
+void NodePanel::CopySelected()
+{
+  node_view_->CopySelected(false);
+}
+
+void NodePanel::Paste()
+{
+  node_view_->Paste();
+}
+
 void NodePanel::Select(const QList<Node *> &nodes)
 {
   node_view_->Select(nodes);

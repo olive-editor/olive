@@ -69,6 +69,8 @@ signals:
    */
   void SentSamples(QVector<double> averages);
 
+  void OutputNotified();
+
 private:
   void ProcessAverages(const char* data, int length);
 
@@ -83,7 +85,7 @@ private:
   AudioOutputDeviceProxy device_proxy_;
 
 private slots:
-  void OutputNotified();
+  void PushMoreSamples();
 };
 
 #endif // AUDIOHYBRIDDEVICE_H

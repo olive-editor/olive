@@ -62,17 +62,23 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
     return false;
   }
 
+  is_sequence_ = false;
+
   // Heuristically determine whether this file is part of an image sequence or not
   if (GetImageSequenceDigitCount(f->filename()) > 0) {
-    // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
-    // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
-    QMetaObject::invokeMethod(Core::instance(),
-                              "ConfirmImageSequence",
-                              Qt::BlockingQueuedConnection,
-                              Q_RETURN_ARG(bool, is_sequence_),
-                              Q_ARG(QString, f->filename()));
-  } else {
-    is_sequence_ = false;
+    int64_t ind = GetImageSequenceIndex(f->filename());
+
+    // Check if files around exist around it with that follow a sequence
+    if (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), ind - 1))
+        || QFileInfo::exists(TransformImageSequenceFileName(f->filename(), ind + 1))) {
+      // We need user feedback here and since UI must occur in the UI thread (and we could be in any thread), we defer
+      // to the Core which will definitely be in the UI thread and block here until we get an answer from the user
+      QMetaObject::invokeMethod(Core::instance(),
+                                "ConfirmImageSequence",
+                                Qt::BlockingQueuedConnection,
+                                Q_RETURN_ARG(bool, is_sequence_),
+                                Q_ARG(QString, f->filename()));
+    }
   }
 
   ImageStreamPtr image_stream;
@@ -84,12 +90,25 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
     rational default_timebase = Config::Current()["DefaultSequenceFrameRate"].value<rational>();
     video_stream->set_timebase(default_timebase);
     video_stream->set_frame_rate(default_timebase.flipped());
+    video_stream->set_image_sequence(true);
 
-    // FIXME: Get actual start number
-    video_stream->set_start_time(1);
+    int64_t seq_index = GetImageSequenceIndex(f->filename());
 
-    // FIXME: Get actual duration
-    video_stream->set_duration(200);
+    int64_t start_index = seq_index;
+    int64_t end_index = seq_index;
+
+    // Heuristic to find the first and last images (users can always override this later in FootagePropertiesDialog)
+    while (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), start_index-1))) {
+      start_index--;
+    }
+
+    while (QFileInfo::exists(TransformImageSequenceFileName(f->filename(), end_index+1))) {
+      end_index++;
+    }
+
+    video_stream->set_start_time(start_index);
+
+    video_stream->set_duration(end_index - start_index);
   } else {
     image_stream = std::make_shared<ImageStream>();
   }
@@ -258,6 +277,19 @@ QString OIIODecoder::TransformImageSequenceFileName(const QString &filename, con
       .append(QStringLiteral("%1").arg(number, digit_count, 10, QChar('0')));
 
   return file_info.dir().filePath(file_info.fileName().replace(original_basename, new_basename));
+}
+
+int64_t OIIODecoder::GetImageSequenceIndex(const QString &filename)
+{
+  int digit_count = GetImageSequenceDigitCount(filename);
+
+  QFileInfo file_info(filename);
+
+  QString original_basename = file_info.baseName();
+
+  QString number_only = original_basename.mid(original_basename.size() - digit_count);
+
+  return number_only.toLongLong();
 }
 
 bool OIIODecoder::OpenImageHandler(const QString &fn)

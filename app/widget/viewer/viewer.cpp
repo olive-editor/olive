@@ -47,13 +47,22 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   QVBoxLayout* layout = new QVBoxLayout(this);
   layout->setMargin(0);
 
-  // Create main OpenGL-based view
+  // Set up stacked widget to allow switching away from the viewer widget
+  stack_ = new QStackedWidget();
+  layout->addWidget(stack_);
+
+  // Create main OpenGL-based view and sizer
   sizer_ = new ViewerSizer();
-  layout->addWidget(sizer_);
+  stack_->addWidget(sizer_);
 
   gl_widget_ = new ViewerGLWidget();
   connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(sizer_, &ViewerSizer::RequestMatrix, gl_widget_, &ViewerGLWidget::SetMatrix);
   sizer_->SetWidget(gl_widget_);
+
+  // Create waveform view when audio is connected and video isn't
+  waveform_view_ = new AudioWaveformView();
+  stack_->addWidget(waveform_view_);
 
   // Create time ruler
   layout->addWidget(ruler());
@@ -61,6 +70,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   // Create scrollbar
   layout->addWidget(scrollbar());
   connect(scrollbar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
+  connect(scrollbar(), &QScrollBar::valueChanged, waveform_view_, &AudioWaveformView::SetScroll);
 
   // Create lower controls
   controls_ = new PlaybackControls();
@@ -85,6 +95,9 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   connect(video_renderer_, &VideoRenderBackend::RangeInvalidated, ruler(), &TimeRuler::CacheInvalidatedRange);
   audio_renderer_ = new AudioBackend(this);
 
+  waveform_view_->SetBackend(audio_renderer_);
+  connect(waveform_view_, &AudioWaveformView::TimeChanged, this, &ViewerWidget::SetTimeAndSignal);
+
   connect(PixelFormat::instance(), &PixelFormat::FormatChanged, this, &ViewerWidget::UpdateRendererParameters);
 
   SetAutoMaxScrollBar(true);
@@ -97,6 +110,7 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
   }
 
   controls_->SetTime(i);
+  waveform_view_->SetTime(i);
 
   if (GetConnectedNode() && last_time_ != i) {
     rational time_set = Timecode::timestamp_to_time(i, timebase());
@@ -111,13 +125,21 @@ void ViewerWidget::TimeChangedEvent(const int64_t &i)
 
 void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  SetTimebase(n->video_params().time_base());
+  if (!n->video_params().time_base().isNull()) {
+    SetTimebase(n->video_params().time_base());
+  } else if (n->audio_params().sample_rate() > 0) {
+    SetTimebase(n->audio_params().time_base());
+  } else {
+    SetTimebase(rational());
+  }
 
   connect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   connect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   connect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   connect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   connect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+  connect(n, &ViewerOutput::VideoGraphChanged, this, &ViewerWidget::UpdateStack);
+  connect(n, &ViewerOutput::AudioGraphChanged, this, &ViewerWidget::UpdateStack);
 
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
   LengthChangedSlot(n->Length());
@@ -133,30 +155,47 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   divider_ = CalculateDivider();
 
   UpdateRendererParameters();
+
+  UpdateStack();
+
+  if (GetConnectedTimelinePoints()) {
+    waveform_view_->ConnectTimelinePoints(GetConnectedTimelinePoints());
+  }
 }
 
 void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
   Pause();
 
-  SetTimebase(0);
+  SetTimebase(rational());
 
   disconnect(n, &ViewerOutput::TimebaseChanged, this, &ViewerWidget::SetTimebase);
   disconnect(n, &ViewerOutput::SizeChanged, this, &ViewerWidget::SizeChangedSlot);
   disconnect(n, &ViewerOutput::LengthChanged, this, &ViewerWidget::LengthChangedSlot);
   disconnect(n, &ViewerOutput::VideoParamsChanged, this, &ViewerWidget::UpdateRendererParameters);
   disconnect(n, &ViewerOutput::VisibleInvalidated, this, &ViewerWidget::InvalidateVisible);
+  disconnect(n, &ViewerOutput::VideoGraphChanged, this, &ViewerWidget::UpdateStack);
+  disconnect(n, &ViewerOutput::AudioGraphChanged, this, &ViewerWidget::UpdateStack);
 
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
 
   gl_widget_->DisconnectColorManager();
+
+  waveform_view_->ConnectTimelinePoints(nullptr);
 }
 
 void ViewerWidget::ConnectedNodeChanged(ViewerOutput *n)
 {
   video_renderer_->SetViewerNode(n);
   audio_renderer_->SetViewerNode(n);
+}
+
+void ViewerWidget::ScaleChangedEvent(const double &s)
+{
+  TimeBasedWidget::ScaleChangedEvent(s);
+
+  waveform_view_->SetScale(s);
 }
 
 void ViewerWidget::resizeEvent(QResizeEvent *event)
@@ -169,6 +208,8 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
 
     UpdateRendererParameters();
   }
+
+  UpdateMinimumScale();
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -251,7 +292,11 @@ void ViewerWidget::PlayInternal(int speed)
 
   controls_->ShowPauseButton();
 
-  connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+  if (stack_->currentWidget() == sizer_) {
+    connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+  } else {
+    connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+  }
 }
 
 void ViewerWidget::PushScrubbedAudio()
@@ -261,8 +306,8 @@ void ViewerWidget::PushScrubbedAudio()
     QIODevice* audio_src = audio_renderer_->GetAudioPullDevice();
 
     if (audio_src && audio_src->open(QFile::ReadOnly)) {
-      // Try to get one "frame" of audio
-      int size_of_sample = audio_renderer_->params().time_to_bytes(timebase());
+      // FIXME: Hardcoded scrubbing interval (20ms)
+      int size_of_sample = audio_renderer_->params().time_to_bytes(rational(20, 1000));
 
       // Push audio
       audio_src->seek(audio_renderer_->params().time_to_bytes(GetTime()));
@@ -285,6 +330,24 @@ int ViewerWidget::CalculateDivider()
   }
 
   return divider_;
+}
+
+void ViewerWidget::UpdateMinimumScale()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  SetMinimumScale(static_cast<double>(ruler()->width()) / GetConnectedNode()->Length().toDouble());
+}
+
+void ViewerWidget::UpdateStack()
+{
+  if (!GetConnectedNode() || GetConnectedNode()->texture_input()->IsConnected()) {
+    stack_->setCurrentWidget(sizer_);
+  } else {
+    stack_->setCurrentWidget(waveform_view_);
+  }
 }
 
 void ViewerWidget::UpdateRendererParameters()
@@ -359,11 +422,20 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   // Playback resolution
   QMenu* playback_resolution_menu = menu.addMenu(tr("Resolution"));
   playback_resolution_menu->addAction(tr("Full"))->setData(1);
-  playback_resolution_menu->addAction(tr("1/2"))->setData(2);
-  playback_resolution_menu->addAction(tr("1/4"))->setData(4);
-  playback_resolution_menu->addAction(tr("1/8"))->setData(8);
-  playback_resolution_menu->addAction(tr("1/16"))->setData(16);
+  int dividers[] = {2, 4, 8, 16};
+  for (int i=0;i<4;i++) {
+    playback_resolution_menu->addAction(tr("1/%1").arg(dividers[i]))->setData(dividers[i]);
+  }
   connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
+
+  // Viewer Zoom Level
+  QMenu* zoom_menu = menu.addMenu(tr("Zoom"));
+  int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
+  zoom_menu->addAction(tr("Fit"))->setData(0);
+  for (int i=0;i<8;i++) {
+    zoom_menu->addAction(tr("%1%").arg(zoom_levels[i]))->setData(zoom_levels[i]);
+  }
+  connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
 
   foreach (QAction* a, playback_resolution_menu->actions()) {
     a->setCheckable(true);
@@ -387,7 +459,11 @@ void ViewerWidget::Pause()
     playback_speed_ = 0;
     controls_->ShowPlayButton();
 
-    disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    if (stack_->currentWidget() == sizer_) {
+      disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    } else {
+      disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
+    }
   }
 }
 
@@ -495,6 +571,7 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
 {
   controls_->SetEndTime(Timecode::time_to_timestamp(length, timebase()));
   ruler()->SetCacheStatusLength(length);
+  UpdateMinimumScale();
 }
 
 void ViewerWidget::ColorDisplayChanged(QAction* action)
@@ -524,6 +601,11 @@ void ViewerWidget::SetDividerFromMenu(QAction *action)
   divider_ = divider;
 
   UpdateRendererParameters();
+}
+
+void ViewerWidget::SetZoomFromMenu(QAction *action)
+{
+  sizer_->SetZoom(action->data().toInt());
 }
 
 void ViewerWidget::InvalidateVisible()

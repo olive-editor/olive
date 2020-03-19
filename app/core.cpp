@@ -482,6 +482,18 @@ Folder *Core::GetSelectedFolderInActiveProject()
   }
 }
 
+Timecode::Display Core::GetTimecodeDisplay() const
+{
+  return static_cast<Timecode::Display>(Config::Current()["TimecodeDisplay"].toInt());
+}
+
+void Core::SetTimecodeDisplay(Timecode::Display d)
+{
+  Config::Current()["TimecodeDisplay"] = d;
+
+  emit TimecodeDisplayChanged(d);
+}
+
 void Core::SetProjectModified(bool e)
 {
   main_window()->setWindowModified(e);

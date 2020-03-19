@@ -16,6 +16,9 @@ public:
 
   void clear();
 
+  void SelectAll();
+  void DeselectAll();
+
   /**
    * @brief Retrieve the graphical widget corresponding to a specific Node
    *
@@ -37,6 +40,9 @@ public:
   NodeViewEdge* EdgeToUIObject(NodeEdgePtr n);
 
   void SetGraph(NodeGraph* graph);
+
+  QList<Node*> GetSelectedNodes() const;
+  QList<NodeViewItem*> GetSelectedItems() const;
 
   const QHash<Node*, NodeViewItem*>& item_map() const;
   const QHash<NodeEdge*, NodeViewEdge*>& edge_map() const;

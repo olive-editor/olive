@@ -1,11 +1,19 @@
 #include "timebased.h"
 
+#include <QInputDialog>
+#include <QUndoCommand>
+
 #include "common/timecodefunctions.h"
+#include "config/config.h"
+#include "core.h"
+#include "project/item/sequence/sequence.h"
+#include "widget/timelinewidget/undo/undo.h"
 
 TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_status_visible, QWidget *parent) :
-  QWidget(parent),
+  TimelineScaledWidget(parent),
   viewer_node_(nullptr),
-  auto_max_scrollbar_(false)
+  auto_max_scrollbar_(false),
+  points_(nullptr)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
@@ -44,6 +52,9 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
     DisconnectNodeInternal(viewer_node_);
 
     disconnect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+
+    points_ = nullptr;
+    ruler()->ConnectTimelinePoints(nullptr);
   }
 
   viewer_node_ = node;
@@ -51,9 +62,13 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
   ConnectedNodeChanged(viewer_node_);
 
   if (viewer_node_) {
-    ConnectNodeInternal(viewer_node_);
-
     connect(viewer_node_, &ViewerOutput::LengthChanged, this, &TimeBasedWidget::UpdateMaximumScroll);
+
+    if ((points_ = ConnectTimelinePoints())) {
+      ruler()->ConnectTimelinePoints(points_);
+    }
+
+    ConnectNodeInternal(viewer_node_);
   }
 }
 
@@ -68,7 +83,25 @@ void TimeBasedWidget::UpdateMaximumScroll()
 
 void TimeBasedWidget::ScrollBarResized(const double &multiplier)
 {
-  SetScale(GetScale() * multiplier);
+  QScrollBar* bar = static_cast<QScrollBar*>(sender());
+
+  // Our extension area (represented by a TimelineViewEndItem) is NOT scaled, but the ResizableScrollBar doesn't know
+  // this. Here we re-calculate the requested scale knowing that the end item is not affected by scale.
+
+  int current_max = bar->maximum();
+  double proposed_max = static_cast<double>(current_max) * multiplier;
+
+  proposed_max = proposed_max - (bar->width() * 0.5 / multiplier) + (bar->width() * 0.5);
+
+  double corrected_scale;
+
+  if (current_max == 0) {
+    corrected_scale = multiplier;
+  } else {
+    corrected_scale = (proposed_max / static_cast<double>(current_max));
+  }
+
+  SetScale(GetScale() * corrected_scale);
 }
 
 TimeRuler *TimeBasedWidget::ruler() const
@@ -114,6 +147,16 @@ void TimeBasedWidget::resizeEvent(QResizeEvent *event)
   UpdateMaximumScroll();
 }
 
+TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
+{
+  return static_cast<Sequence*>(viewer_node_->parent());
+}
+
+TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
+{
+  return points_;
+}
+
 void TimeBasedWidget::SetTime(int64_t timestamp)
 {
   ruler_->SetTime(timestamp);
@@ -128,6 +171,7 @@ void TimeBasedWidget::SetTimebase(const rational &timebase)
 
 void TimeBasedWidget::SetScale(const double &scale)
 {
+  // Simple QObject slot wrapper around TimelineScaledObject::SetScale()
   TimelineScaledObject::SetScale(scale);
 }
 
@@ -241,4 +285,111 @@ void TimeBasedWidget::SetTimeAndSignal(const int64_t &t)
 void TimeBasedWidget::CenterScrollOnPlayhead()
 {
   scrollbar_->setValue(qRound(TimeToScene(Timecode::timestamp_to_time(ruler_->GetTime(), timebase()))) - scrollbar_->width()/2);
+}
+
+void TimeBasedWidget::SetPoint(Timeline::MovementMode m, const rational& time)
+{
+  if (!points_) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  // Enable workarea if it isn't already enabled
+  if (!points_->workarea()->enabled()) {
+    new WorkareaSetEnabledCommand(points_, true, command);
+  }
+
+  // Determine our new range
+  rational in_point, out_point;
+
+  if (m == Timeline::kTrimIn) {
+    in_point = time;
+
+    if (!points_->workarea()->enabled() || points_->workarea()->out() < in_point) {
+      out_point = TimelineWorkArea::kResetOut;
+    } else {
+      out_point = points_->workarea()->out();
+    }
+  } else {
+    out_point = time;
+
+    if (!points_->workarea()->enabled() || points_->workarea()->in() > out_point) {
+      in_point = TimelineWorkArea::kResetIn;
+    } else {
+      in_point = points_->workarea()->in();
+    }
+  }
+
+  // Set workarea
+  new WorkareaSetRangeCommand(points_, TimeRange(in_point, out_point), command);
+
+  Core::instance()->undo_stack()->push(command);
+}
+
+void TimeBasedWidget::ResetPoint(Timeline::MovementMode m)
+{
+  if (!points_ || !points_->workarea()->enabled()) {
+    return;
+  }
+
+  TimeRange r = points_->workarea()->range();
+
+  if (m == Timeline::kTrimIn) {
+    r.set_in(TimelineWorkArea::kResetIn);
+  } else {
+    r.set_out(TimelineWorkArea::kResetOut);
+  }
+
+  Core::instance()->undo_stack()->push(new WorkareaSetRangeCommand(points_, r));
+}
+
+void TimeBasedWidget::SetInAtPlayhead()
+{
+  SetPoint(Timeline::kTrimIn, GetTime());
+}
+
+void TimeBasedWidget::SetOutAtPlayhead()
+{
+  SetPoint(Timeline::kTrimOut, GetTime());
+}
+
+void TimeBasedWidget::ResetIn()
+{
+  ResetPoint(Timeline::kTrimIn);
+}
+
+void TimeBasedWidget::ResetOut()
+{
+  ResetPoint(Timeline::kTrimOut);
+}
+
+void TimeBasedWidget::ClearInOutPoints()
+{
+  if (!points_) {
+    return;
+  }
+
+
+  Core::instance()->undo_stack()->push(new WorkareaSetEnabledCommand(points_, false));
+}
+
+void TimeBasedWidget::SetMarker()
+{
+  if (!points_) {
+    return;
+  }
+
+  bool ok;
+  QString marker_name;
+
+  if (Config::Current()["SetNameWithMarker"].toBool()) {
+    marker_name = QInputDialog::getText(this, tr("Set Marker"), tr("Marker name:"), QLineEdit::Normal, QString(), &ok);
+  } else {
+    ok = true;
+  }
+
+  if (ok) {
+    points_->markers()->AddMarker(TimeRange(GetTime(), GetTime()), marker_name);
+  }
 }

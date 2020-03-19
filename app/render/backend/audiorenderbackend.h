@@ -24,6 +24,9 @@ public:
 
   QString CachePathName();
 
+signals:
+  void ParamsChanged();
+
 protected:
   virtual void ConnectViewer(ViewerOutput* node) override;
 
@@ -43,6 +46,8 @@ protected:
   virtual bool CanRender() override;
 
   virtual void ConnectWorkerToThis(RenderWorker* worker) override;
+
+  virtual TimeRange PopNextFrameFromQueue() override;
 
   QHash<Node*, Node*> copy_map_;
 

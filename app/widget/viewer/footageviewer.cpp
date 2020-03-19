@@ -13,10 +13,6 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   audio_node_ = new AudioInput();
   viewer_node_ = new ViewerOutput();
 
-  NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
-  NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
-  NodeParam::ConnectEdge(video_node_->output(), viewer_node_->length_input());
-
   connect(gl_widget_, &ViewerGLWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
 }
 
@@ -29,6 +25,9 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 {
   if (footage_) {
     ConnectViewerNode(nullptr);
+
+    NodeParam::DisconnectEdge(video_node_->output(), viewer_node_->texture_input());
+    NodeParam::DisconnectEdge(audio_node_->output(), viewer_node_->samples_input());
   }
 
   footage_ = footage;
@@ -55,11 +54,13 @@ void FootageViewerWidget::SetFootage(Footage *footage)
     if (video_stream) {
       video_node_->SetFootage(video_stream);
       viewer_node_->set_video_params(VideoParams(video_stream->width(), video_stream->height(), video_stream->frame_rate().flipped()));
+      NodeParam::ConnectEdge(video_node_->output(), viewer_node_->texture_input());
     }
 
     if (audio_stream) {
       audio_node_->SetFootage(audio_stream);
       viewer_node_->set_audio_params(AudioParams(audio_stream->sample_rate(), audio_stream->channel_layout()));
+      NodeParam::ConnectEdge(audio_node_->output(), viewer_node_->samples_input());
     }
 
     ConnectViewerNode(viewer_node_, footage->project()->color_manager());
@@ -68,13 +69,17 @@ void FootageViewerWidget::SetFootage(Footage *footage)
   }
 }
 
+TimelinePoints *FootageViewerWidget::ConnectTimelinePoints()
+{
+  return footage_ ? footage_ : nullptr;
+}
+
 void FootageViewerWidget::StartFootageDrag()
 {
   if (!GetFootage()) {
     return;
   }
 
-  qDebug() << "Drag start!";
   QDrag* drag = new QDrag(this);
   QMimeData* mimedata = new QMimeData();
 

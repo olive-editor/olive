@@ -27,6 +27,7 @@
 #include "render/videoparams.h"
 #include "project/item/footage/stream.h"
 #include "project/item/item.h"
+#include "timeline/timelinepoints.h"
 
 class Sequence;
 using SequencePtr = std::shared_ptr<Sequence>;
@@ -34,7 +35,7 @@ using SequencePtr = std::shared_ptr<Sequence>;
 /**
  * @brief The main timeline object, an graph of edited clips that forms a complete edit
  */
-class Sequence : public Item, public NodeGraph
+class Sequence : public Item, public NodeGraph, public TimelinePoints
 {
 public:
   Sequence();

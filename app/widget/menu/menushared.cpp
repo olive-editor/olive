@@ -34,25 +34,25 @@ MenuShared::MenuShared()
   new_folder_item_ = Menu::CreateItem(this, "newfolder", Core::instance(), SLOT(CreateNewFolder()));
 
   // "Edit" menu shared items
-  edit_cut_item_ = Menu::CreateItem(this, "cut", nullptr, nullptr, "Ctrl+X");
-  edit_copy_item_ = Menu::CreateItem(this, "copy", nullptr, nullptr, "Ctrl+C");
-  edit_paste_item_ = Menu::CreateItem(this, "paste", nullptr, nullptr, "Ctrl+V");
-  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", nullptr, nullptr, "Ctrl+Shift+V");
+  edit_cut_item_ = Menu::CreateItem(this, "cut", this, SLOT(CutTriggered()), "Ctrl+X");
+  edit_copy_item_ = Menu::CreateItem(this, "copy", this, SLOT(CopyTriggered()), "Ctrl+C");
+  edit_paste_item_ = Menu::CreateItem(this, "paste", this, SLOT(PasteTriggered()), "Ctrl+V");
+  edit_paste_insert_item_ = Menu::CreateItem(this, "pasteinsert", this, SLOT(PasteInsertTriggered()), "Ctrl+Shift+V");
   edit_duplicate_item_ = Menu::CreateItem(this, "duplicate", nullptr, nullptr, "Ctrl+D");
-  edit_delete_item_ = Menu::CreateItem(this, "delete", this, SLOT(DeleteSelected()), "Del");
-  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, SLOT(RippleDelete()), "Shift+Del");
-  edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayhead()), "Ctrl+K");
+  edit_delete_item_ = Menu::CreateItem(this, "delete", this, SLOT(DeleteSelectedTriggered()), "Del");
+  edit_ripple_delete_item_ = Menu::CreateItem(this, "rippledelete", this, SLOT(RippleDeleteTriggered()), "Shift+Del");
+  edit_split_item_ = Menu::CreateItem(this, "split", this, SLOT(SplitAtPlayheadTriggered()), "Ctrl+K");
 
   // "In/Out" menu shared items
-  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", nullptr, nullptr, "I");
-  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", nullptr, nullptr, "O");
-  inout_reset_in_item_ = Menu::CreateItem(this, "resetin", nullptr, nullptr);
-  inout_reset_out_item_ = Menu::CreateItem(this, "resetout", nullptr, nullptr);
-  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", nullptr, nullptr, "G");
+  inout_set_in_item_ = Menu::CreateItem(this, "setinpoint", this, SLOT(SetInTriggered()), "I");
+  inout_set_out_item_ = Menu::CreateItem(this, "setoutpoint", this, SLOT(SetOutTriggered()), "O");
+  inout_reset_in_item_ = Menu::CreateItem(this, "resetin", this, SLOT(ResetInTriggered()));
+  inout_reset_out_item_ = Menu::CreateItem(this, "resetout", this, SLOT(ResetOutTriggered()));
+  inout_clear_inout_item_ = Menu::CreateItem(this, "clearinout", this, SLOT(ClearInOutTriggered()), "G");
 
   // "Clip Edit" menu shared items
   clip_add_default_transition_item_ = Menu::CreateItem(this, "deftransition", nullptr, nullptr, "Ctrl+Shift+D");
-  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", nullptr, nullptr, "Ctrl+L");
+  clip_link_unlink_item_ = Menu::CreateItem(this, "linkunlink", this, SLOT(ToggleLinksTriggered()), "Ctrl+L");
   clip_enable_disable_item_ = Menu::CreateItem(this, "enabledisable", nullptr, nullptr, "Shift+E");
   clip_nest_item_ = Menu::CreateItem(this, "nest", nullptr, nullptr);
 
@@ -112,7 +112,7 @@ MenuShared *MenuShared::instance()
   return instance_;
 }
 
-void MenuShared::SplitAtPlayhead()
+void MenuShared::SplitAtPlayheadTriggered()
 {
   TimelinePanel* timeline = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
 
@@ -121,14 +121,64 @@ void MenuShared::SplitAtPlayhead()
   }
 }
 
-void MenuShared::DeleteSelected()
+void MenuShared::DeleteSelectedTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->DeleteSelected();
 }
 
-void MenuShared::RippleDelete()
+void MenuShared::RippleDeleteTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->RippleDelete();
+}
+
+void MenuShared::SetInTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->SetIn();
+}
+
+void MenuShared::SetOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->SetOut();
+}
+
+void MenuShared::ResetInTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ResetIn();
+}
+
+void MenuShared::ResetOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ResetOut();
+}
+
+void MenuShared::ClearInOutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ClearInOut();
+}
+
+void MenuShared::ToggleLinksTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ToggleLinks();
+}
+
+void MenuShared::CutTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->CutSelected();
+}
+
+void MenuShared::CopyTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->CopySelected();
+}
+
+void MenuShared::PasteTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->Paste();
+}
+
+void MenuShared::PasteInsertTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->PasteInsert();
 }
 
 void MenuShared::Retranslate()

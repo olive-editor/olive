@@ -25,7 +25,7 @@
 #include "config/config.h"
 #include "common/channellayout.h"
 #include "common/timecodefunctions.h"
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "node/factory.h"
 #include "panel/panelmanager.h"
 #include "panel/node/node.h"
@@ -59,97 +59,68 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
   QHash<quintptr, NodeOutput*> output_ptrs;
   QList<NodeParam::SerializedConnection> desired_connections;
 
-  XMLReadLoop(reader, "sequence") {
+  while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->isStartElement()) {
-      if (reader->name() == "video") {
-        int video_width, video_height;
-        rational video_timebase;
+    if (reader->name() == QStringLiteral("video")) {
+      int video_width, video_height;
+      rational video_timebase;
 
-        XMLReadLoop(reader, "video") {
-          if (cancelled && *cancelled) {
-            return;
-          }
-
-          if (reader->isStartElement()) {
-            if (reader->name() == "width") {
-              reader->readNext();
-              video_width = reader->text().toInt();
-            } else if (reader->name() == "height") {
-              reader->readNext();
-              video_height = reader->text().toInt();
-            } else if (reader->name() == "timebase") {
-              reader->readNext();
-              video_timebase = rational::fromString(reader->text().toString());
-            }
-          }
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
         }
 
-        set_video_params(VideoParams(video_width, video_height, video_timebase));
-      } else if (reader->name() == "audio") {
-        int rate;
-        uint64_t layout;
-
-        XMLReadLoop(reader, "audio") {
-          if (reader->isStartElement()) {
-            if (reader->name() == "rate") {
-              reader->readNext();
-              rate = reader->text().toInt();
-            } else if (reader->name() == "layout") {
-              reader->readNext();
-              layout = reader->text().toULongLong();
-            }
-          }
-        }
-
-        set_audio_params(AudioParams(rate, layout));
-      } else if (reader->name() == "node" || reader->name() == "viewer") {
-        Node* node;
-
-        if (reader->name() == "node") {
-          QString node_id;
-
-          XMLAttributeLoop(reader, attr) {
-            if (attr.name() == "id") {
-              node_id = attr.value().toString();
-
-              // Currently the only thing we need
-              break;
-            }
-          }
-
-          if (node_id.isEmpty()) {
-            qDebug() << "Found node with no ID";
-            continue;
-          }
-
-          node = NodeFactory::CreateFromID(node_id);
-
-          if (!node) {
-            qDebug() << "Failed to load" << node_id << "- no node with that ID is installed";
-            continue;
-          }
+        if (reader->name() == QStringLiteral("width")) {
+          video_width = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("height")) {
+          video_height = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("timebase")) {
+          video_timebase = rational::fromString(reader->readElementText());
         } else {
-          node = viewer_output_;
-        }
-
-        if (node) {
-          node->Load(reader, output_ptrs, desired_connections, footage_connections, cancelled, reader->name().toString());
-
-          AddNode(node);
+          reader->skipCurrentElement();
         }
       }
+
+      set_video_params(VideoParams(video_width, video_height, video_timebase));
+    } else if (reader->name() == QStringLiteral("audio")) {
+      int rate;
+      uint64_t layout;
+
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("rate")) {
+          rate = reader->readElementText().toInt();
+        } else if (reader->name() == QStringLiteral("layout")) {
+          layout = reader->readElementText().toULongLong();
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+
+      set_audio_params(AudioParams(rate, layout));
+    } else if (reader->name() == QStringLiteral("node") || reader->name() == QStringLiteral("viewer")) {
+      Node* node;
+
+      if (reader->name() == QStringLiteral("node")) {
+        node = XMLLoadNode(reader);
+      } else {
+        node = viewer_output_;
+      }
+
+      if (node) {
+        node->Load(reader, output_ptrs, desired_connections, footage_connections, cancelled);
+
+        AddNode(node);
+      }
+    } else {
+      reader->skipCurrentElement();
     }
   }
 
   // Make connections
-  foreach (const NodeParam::SerializedConnection& con, desired_connections) {
-    NodeParam::ConnectEdge(output_ptrs.value(con.output),
-                           con.input);
-  }
+  XMLConnectNodes(output_ptrs, desired_connections);
 
   // Ensure this and all children are in the main thread
   // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)
@@ -228,7 +199,7 @@ QString Sequence::duration()
 
   int64_t timestamp = Timecode::time_to_timestamp(timeline_length, video_params().time_base());
 
-  return Timecode::timestamp_to_timecode(timestamp, video_params().time_base(), Timecode::CurrentDisplay());
+  return Timecode::timestamp_to_timecode(timestamp, video_params().time_base(), Core::instance()->GetTimecodeDisplay());
 }
 
 QString Sequence::rate()

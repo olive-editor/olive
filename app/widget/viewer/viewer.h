@@ -28,6 +28,7 @@
 #include <QTimer>
 #include <QWidget>
 
+#include "audiowaveformview.h"
 #include "common/rational.h"
 #include "node/output/viewer/viewer.h"
 #include "render/backend/opengl/openglbackend.h"
@@ -113,6 +114,8 @@ protected:
   virtual void DisconnectNodeInternal(ViewerOutput *) override;
   virtual void ConnectedNodeChanged(ViewerOutput*n) override;
 
+  virtual void ScaleChangedEvent(const double& s) override;
+
   virtual void resizeEvent(QResizeEvent *event) override;
 
   OpenGLBackend* video_renderer_;
@@ -130,6 +133,10 @@ private:
   void PushScrubbedAudio();
 
   int CalculateDivider();
+
+  void UpdateMinimumScale();
+
+  QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
 
@@ -151,6 +158,8 @@ private:
   ColorManager* override_color_manager_;
 
   bool time_changed_from_timer_;
+
+  AudioWaveformView* waveform_view_;
 
 private slots:
   void PlaybackTimerUpdate();
@@ -182,7 +191,11 @@ private slots:
 
   void SetDividerFromMenu(QAction* action);
 
+  void SetZoomFromMenu(QAction* action);
+
   void InvalidateVisible();
+
+  void UpdateStack();
 
 };
 

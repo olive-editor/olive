@@ -30,6 +30,9 @@ public:
   StreamProperties(QWidget* parent = nullptr);
 
   virtual void Accept(QUndoCommand*){}
+
+  virtual bool SanityCheck(){return true;}
+
 };
 
 #endif // STREAMPROPERTIES_H

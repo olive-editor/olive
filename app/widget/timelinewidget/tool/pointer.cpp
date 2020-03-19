@@ -404,7 +404,7 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
   int64_t earliest_timestamp = Timecode::time_to_timestamp(time_movement, parent()->timebase());
   QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
                                                          parent()->timebase(),
-                                                         Timecode::CurrentDisplay(),
+                                                         Core::instance()->GetTimecodeDisplay(),
                                                          true);
 
   // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way

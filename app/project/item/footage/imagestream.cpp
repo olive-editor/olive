@@ -20,7 +20,7 @@
 
 #include "imagestream.h"
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "footage.h"
 #include "project/project.h"
 #include "render/colormanager.h"
@@ -43,10 +43,11 @@ void ImageStream::FootageSetEvent(Footage *f)
 
 void ImageStream::LoadCustomParameters(QXmlStreamReader *reader)
 {
-  XMLReadLoop(reader, "stream") {
-    if (reader->isStartElement() && reader->name() == "colorspace") {
-      reader->readNext();
-      set_colorspace(reader->text().toString());
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("colorspace")) {
+      set_colorspace(reader->readElementText());
+    } else {
+      reader->skipCurrentElement();
     }
   }
 }
@@ -91,11 +92,13 @@ bool ImageStream::premultiplied_alpha() const
 void ImageStream::set_premultiplied_alpha(bool e)
 {
   premultiplied_alpha_ = e;
+
+  emit ParametersChanged();
 }
 
-const QString &ImageStream::colorspace() const
+const QString &ImageStream::colorspace(bool default_if_empty) const
 {
-  if (colorspace_.isEmpty()) {
+  if (colorspace_.isEmpty() && default_if_empty) {
     return footage()->project()->default_input_colorspace();
   } else {
     return colorspace_;
@@ -106,7 +109,7 @@ void ImageStream::set_colorspace(const QString &color)
 {
   colorspace_ = color;
 
-  emit ColorSpaceChanged();
+  emit ParametersChanged();
 }
 
 void ImageStream::ColorConfigChanged()
@@ -123,13 +126,13 @@ void ImageStream::ColorConfigChanged()
   }
 
   // Either way, the color calculation has likely changed so we signal here
-  emit ColorSpaceChanged();
+  emit ParametersChanged();
 }
 
 void ImageStream::DefaultColorSpaceChanged()
 {
   // If no colorspace is set, this stream uses the default color space and it's just changed
   if (colorspace_.isEmpty()) {
-    emit ColorSpaceChanged();
+    emit ParametersChanged();
   }
 }

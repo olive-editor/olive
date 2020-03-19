@@ -39,11 +39,8 @@ void ResizableScrollBar::mouseMoveEvent(QMouseEvent *event)
 
   QRect sr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                      QStyle::SC_ScrollBarSlider, this);
-  QRect gr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
-                                     QStyle::SC_ScrollBarGroove, this);
 
   if (mouse_dragging_) {
-
     int new_drag_pos = GetActiveMousePos(event);
     int mouse_movement = new_drag_pos - mouse_drag_start_;
     mouse_drag_start_ = new_drag_pos;
@@ -52,21 +49,29 @@ void ResizableScrollBar::mouseMoveEvent(QMouseEvent *event)
       mouse_movement = -mouse_movement;
     }
 
-    double scale_multiplier = static_cast<double>(sr.width()) / static_cast<double>(sr.width() + mouse_movement);
-    emit RequestScale(scale_multiplier);
+    double width_adjustment = static_cast<double>(sr.width() + mouse_movement);
 
-    if (mouse_handle_state_ == kInTopHandle) {
-      int slider_min = gr.x();
-      int slider_max = gr.right() - (sr.width() + mouse_movement);
-      int val = QStyle::sliderValueFromPosition(minimum(),
-                                                maximum(),
-                                                event->pos().x() - slider_min,
-                                                slider_max - slider_min,
-                                                opt.upsideDown);
+    // Prevent dividing by zero or emitting a negative scale
+    if (width_adjustment > 0) {
+      double scale_multiplier = static_cast<double>(sr.width()) / width_adjustment;
+      emit RequestScale(scale_multiplier);
 
-      setValue(val);
-    } else {
-      setValue(qRound(static_cast<double>(value()) * scale_multiplier));
+      if (mouse_handle_state_ == kInTopHandle) {
+        QRect gr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
+                                           QStyle::SC_ScrollBarGroove, this);
+
+        int slider_min = gr.x();
+        int slider_max = gr.right() - (sr.width() + mouse_movement);
+        int val = QStyle::sliderValueFromPosition(minimum(),
+                                                  maximum(),
+                                                  event->pos().x() - slider_min,
+                                                  slider_max - slider_min,
+                                                  opt.upsideDown);
+
+        setValue(val);
+      } else {
+        setValue(qRound(static_cast<double>(value()) * scale_multiplier));
+      }
     }
 
   } else {

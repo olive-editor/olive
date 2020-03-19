@@ -20,6 +20,8 @@
 
 #include "viewer.h"
 
+#include "node/traverser.h"
+
 ViewerOutput::ViewerOutput()
 {
   texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
@@ -27,9 +29,6 @@ ViewerOutput::ViewerOutput()
 
   samples_input_ = new NodeInput("samples_in", NodeInput::kSamples);
   AddInput(samples_input_);
-
-  length_input_ = new NodeInput("length_in", NodeInput::kRational);
-  AddInput(length_input_);
 
   // Create TrackList instances
   track_inputs_.resize(Timeline::kTrackTypeCount);
@@ -91,11 +90,6 @@ NodeInput *ViewerOutput::samples_input() const
   return samples_input_;
 }
 
-NodeInput *ViewerOutput::length_input() const
-{
-  return length_input_;
-}
-
 void ViewerOutput::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
 {
   Node::InvalidateCache(start_range, end_range, from);
@@ -104,8 +98,6 @@ void ViewerOutput::InvalidateCache(const rational &start_range, const rational &
     emit VideoChangedBetween(TimeRange(start_range, end_range));
   } else if (from == samples_input()) {
     emit AudioChangedBetween(TimeRange(start_range, end_range));
-  } else if (from == length_input()) {
-    emit LengthChanged(Length());
   }
 
   SendInvalidateCache(start_range, end_range);
@@ -146,18 +138,23 @@ void ViewerOutput::set_audio_params(const AudioParams &audio)
 
 rational ViewerOutput::Length()
 {
-  if (!length_input_->IsConnected()) {
-    return timeline_length_;
+  NodeTraverser traverser;
+
+  rational video_length;
+
+  if (texture_input_->IsConnected()) {
+    NodeValueTable t = traverser.ProcessNode(NodeDependency(texture_input_->get_connected_node(), 0, 0));
+    video_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
-  Node* connected_node = length_input_->get_connected_node();
+  rational audio_length;
 
-  if (connected_node) {
-    // This is kind of messy?
-    return connected_node->Value(NodeValueDatabase()).Get(NodeParam::kNumber, "length").value<rational>();
+  if (samples_input_->IsConnected()) {
+    NodeValueTable t = traverser.ProcessNode(NodeDependency(samples_input_->get_connected_node(), 0, 0));
+    audio_length = t.Get(NodeParam::kNumber, "length").value<rational>();
   }
 
-  return 0;
+  return qMax(video_length, qMax(audio_length, timeline_length_));
 }
 
 const QUuid &ViewerOutput::uuid() const

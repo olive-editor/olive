@@ -1,6 +1,7 @@
 #ifndef PREFERENCESGENERALTAB_H
 #define PREFERENCESGENERALTAB_H
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QSpinBox>
 
@@ -26,6 +27,8 @@ private:
   QComboBox* language_combobox_;
 
   QComboBox* autoscroll_method_;
+
+  QCheckBox* rectified_waveforms_;
 
   FloatSlider* default_still_length_;
 

@@ -27,7 +27,8 @@
 const int64_t VideoStream::kEndTimestamp = AV_NOPTS_VALUE;
 
 VideoStream::VideoStream() :
-  start_time_(0)
+  start_time_(0),
+  is_image_sequence_(false)
 {
   set_type(kVideo);
 }
@@ -57,6 +58,17 @@ const int64_t &VideoStream::start_time() const
 void VideoStream::set_start_time(const int64_t &start_time)
 {
   start_time_ = start_time;
+  emit ParametersChanged();
+}
+
+bool VideoStream::is_image_sequence() const
+{
+  return is_image_sequence_;
+}
+
+void VideoStream::set_image_sequence(bool e)
+{
+  is_image_sequence_ = e;
 }
 
 int64_t VideoStream::get_closest_timestamp_in_frame_index(const rational &time)

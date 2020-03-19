@@ -87,7 +87,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   edit_delete_inout_item_ = edit_menu_->AddItem("deleteinout", nullptr, nullptr, ";");
   edit_ripple_delete_inout_item_ = edit_menu_->AddItem("rippledeleteinout", nullptr, nullptr, "'");
   edit_menu_->addSeparator();
-  edit_set_marker_item_ = edit_menu_->AddItem("marker", nullptr, nullptr, "M");
+  edit_set_marker_item_ = edit_menu_->AddItem("marker", this, SLOT(SetMarkerTriggered()), "M");
 
   //
   // VIEW MENU
@@ -99,9 +99,6 @@ MainMenu::MainMenu(QMainWindow *parent) :
   view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, SLOT(DecreaseTrackHeightTriggered()), "Ctrl+-");
   view_show_all_item_ = view_menu_->AddItem("showall", nullptr, nullptr, "\\");
   view_show_all_item_->setCheckable(true);
-  view_menu_->addSeparator();
-  view_rectified_waveforms_item_ = view_menu_->AddItem("rectifiedwaveforms", nullptr, nullptr);
-  view_rectified_waveforms_item_->setCheckable(true);
   view_menu_->addSeparator();
 
   frame_view_mode_group_ = new QActionGroup(this);
@@ -327,7 +324,7 @@ void MainMenu::TimecodeDisplayTriggered()
   Timecode::Display display = static_cast<Timecode::Display>(action->data().toInt());
 
   // Set the current display mode
-  Timecode::SetCurrentDisplay(display);
+  Core::instance()->SetTimecodeDisplay(display);
 }
 
 void MainMenu::FileMenuAboutToShow()
@@ -343,7 +340,7 @@ void MainMenu::ViewMenuAboutToShow()
   // Ensure checked timecode display mode is correct
   QList<QAction*> timecode_display_actions = frame_view_mode_group_->actions();
   foreach (QAction* a, timecode_display_actions) {
-    if (a->data() == Timecode::CurrentDisplay()) {
+    if (a->data() == Core::instance()->GetTimecodeDisplay()) {
       a->setChecked(true);
       break;
     }
@@ -507,6 +504,11 @@ void MainMenu::GoToNextCutTriggered()
   PanelManager::instance()->CurrentlyFocused()->GoToNextCut();
 }
 
+void MainMenu::SetMarkerTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->SetMarker();
+}
+
 void MainMenu::Retranslate()
 {
   // MenuShared is not a QWidget and therefore does not receive a LanguageEvent, we use MainMenu's to update it
@@ -548,7 +550,6 @@ void MainMenu::Retranslate()
   view_increase_track_height_item_->setText(tr("Increase Track Height"));
   view_decrease_track_height_item_->setText(tr("Decrease Track Height"));
   view_show_all_item_->setText(tr("Toggle Show All"));
-  view_rectified_waveforms_item_->setText(tr("Rectified Waveforms"));
   view_timecode_view_frames_item_->setText(tr("Frames"));
   view_timecode_view_dropframe_item_->setText(tr("Drop Frame"));
   view_timecode_view_nondropframe_item_->setText(tr("Non-Drop Frame"));

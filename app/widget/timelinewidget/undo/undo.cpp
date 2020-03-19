@@ -623,14 +623,14 @@ void BlockSetSpeedCommand::undo_internal()
   block_->set_speed(old_speed_);
 }
 
-TimelineRippleDeleteGapsAtRegions::TimelineRippleDeleteGapsAtRegions(ViewerOutput *vo, const TimeRangeList &regions, QUndoCommand *parent) :
+TimelineRippleDeleteGapsAtRegionsCommand::TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput *vo, const TimeRangeList &regions, QUndoCommand *parent) :
   UndoCommand(parent),
   timeline_(vo),
   regions_(regions)
 {
 }
 
-void TimelineRippleDeleteGapsAtRegions::redo_internal()
+void TimelineRippleDeleteGapsAtRegionsCommand::redo_internal()
 {
   foreach (const TimeRange& range, regions_) {
     rational max_ripple_length = range.length();
@@ -671,11 +671,111 @@ void TimelineRippleDeleteGapsAtRegions::redo_internal()
   }
 }
 
-void TimelineRippleDeleteGapsAtRegions::undo_internal()
+void TimelineRippleDeleteGapsAtRegionsCommand::undo_internal()
 {
   for (int i=commands_.size()-1;i>=0;i--) {
     commands_.at(i)->undo();
     delete commands_.at(i);
   }
   commands_.empty();
+}
+
+WorkareaSetEnabledCommand::WorkareaSetEnabledCommand(TimelinePoints *points, bool enabled, QUndoCommand *parent) :
+  UndoCommand(parent),
+  points_(points),
+  old_enabled_(points_->workarea()->enabled()),
+  new_enabled_(enabled)
+{
+}
+
+void WorkareaSetEnabledCommand::redo_internal()
+{
+  points_->workarea()->set_enabled(new_enabled_);
+}
+
+void WorkareaSetEnabledCommand::undo_internal()
+{
+  points_->workarea()->set_enabled(old_enabled_);
+}
+
+WorkareaSetRangeCommand::WorkareaSetRangeCommand(TimelinePoints *points, const TimeRange &range, QUndoCommand *parent) :
+  UndoCommand(parent),
+  points_(points),
+  old_range_(points_->workarea()->range()),
+  new_range_(range)
+{
+}
+
+void WorkareaSetRangeCommand::redo_internal()
+{
+  points_->workarea()->set_range(new_range_);
+}
+
+void WorkareaSetRangeCommand::undo_internal()
+{
+  points_->workarea()->set_range(old_range_);
+}
+
+BlockLinkCommand::BlockLinkCommand(Block *a, Block *b, bool link, QUndoCommand *parent) :
+  UndoCommand(parent),
+  a_(a),
+  b_(b),
+  link_(link)
+{
+}
+
+void BlockLinkCommand::redo_internal()
+{
+  if (link_) {
+    done_ = Block::Link(a_, b_);
+  } else {
+    done_ = Block::Unlink(a_, b_);
+  }
+}
+
+void BlockLinkCommand::undo_internal()
+{
+  if (done_) {
+    if (link_) {
+      Block::Unlink(a_, b_);
+    } else {
+      Block::Link(a_, b_);
+    }
+  }
+}
+
+BlockUnlinkAllCommand::BlockUnlinkAllCommand(Block *block, QUndoCommand *parent) :
+  UndoCommand(parent),
+  block_(block)
+{
+}
+
+void BlockUnlinkAllCommand::redo_internal()
+{
+  unlinked_ = block_->linked_clips();
+
+  foreach (Block* link, unlinked_) {
+    Block::Unlink(block_, link);
+  }
+}
+
+void BlockUnlinkAllCommand::undo_internal()
+{
+  foreach (Block* link, unlinked_) {
+    Block::Link(block_, link);
+  }
+
+  unlinked_.clear();
+}
+
+BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool link, QUndoCommand *parent) :
+  UndoCommand(parent)
+{
+  foreach (Block* a, blocks) {
+    foreach (Block* b, blocks) {
+      if (a != b) {
+        new BlockLinkCommand(a, b, link, this);
+      }
+    }
+  }
 }

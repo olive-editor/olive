@@ -26,6 +26,7 @@
 #include <QTimer>
 
 #include "common/rational.h"
+#include "common/timecodefunctions.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
@@ -124,6 +125,16 @@ public:
   Project* GetActiveProject();
   ProjectViewModel* GetActiveProjectModel();
   Folder* GetSelectedFolderInActiveProject();
+
+  /**
+   * @brief Gets current timecode display mode
+   */
+  Timecode::Display GetTimecodeDisplay() const;
+
+  /**
+   * @brief Sets current timecode display mode
+   */
+  void SetTimecodeDisplay(Timecode::Display d);
 
   /**
    * @brief Sets state to "modified" so that the GUI will prompt the user to save before closing
@@ -268,6 +279,11 @@ signals:
    * @brief Signal emitted when the snapping setting is changed
    */
   void SnappingChanged(const bool& b);
+
+  /**
+   * @brief Signal emitted when the default timecode display mode changed
+   */
+  void TimecodeDisplayChanged(Timecode::Display d);
 
 private:
   /**

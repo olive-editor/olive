@@ -134,3 +134,33 @@ void TimeBasedPanel::Retranslate()
     SetSubtitle(tr("(none)"));
   }
 }
+
+void TimeBasedPanel::SetIn()
+{
+  GetTimeBasedWidget()->SetInAtPlayhead();
+}
+
+void TimeBasedPanel::SetOut()
+{
+  GetTimeBasedWidget()->SetOutAtPlayhead();
+}
+
+void TimeBasedPanel::ResetIn()
+{
+  GetTimeBasedWidget()->ResetIn();
+}
+
+void TimeBasedPanel::ResetOut()
+{
+  GetTimeBasedWidget()->ResetOut();
+}
+
+void TimeBasedPanel::ClearInOut()
+{
+  GetTimeBasedWidget()->ClearInOutPoints();
+}
+
+void TimeBasedPanel::SetMarker()
+{
+  GetTimeBasedWidget()->SetMarker();
+}

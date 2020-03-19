@@ -3,12 +3,13 @@
 
 #include <QWidget>
 
+#include "common/timelinecommon.h"
 #include "node/output/viewer/viewer.h"
 #include "widget/resizablescrollbar/resizablescrollbar.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
 #include "widget/timeruler/timeruler.h"
 
-class TimeBasedWidget : public QWidget, public TimelineScaledObject
+class TimeBasedWidget : public TimelineScaledWidget
 {
   Q_OBJECT
 public:
@@ -48,6 +49,18 @@ public slots:
 
   void GoToNextCut();
 
+  void SetInAtPlayhead();
+
+  void SetOutAtPlayhead();
+
+  void ResetIn();
+
+  void ResetOut();
+
+  void ClearInOutPoints();
+
+  void SetMarker();
+
   TimeRuler* ruler() const;
 
 protected slots:
@@ -72,6 +85,10 @@ protected:
 
   virtual void resizeEvent(QResizeEvent *event) override;
 
+  virtual TimelinePoints* ConnectTimelinePoints();
+
+  TimelinePoints* GetConnectedTimelinePoints() const;
+
 protected slots:
   /**
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
@@ -84,6 +101,26 @@ signals:
   void TimebaseChanged(const rational&);
 
 private:
+  /**
+   * @brief Set either in or out point to the current playhead
+   *
+   * @param m
+   *
+   * Set to kTrimIn or kTrimOut for setting the in point or out point respectively.
+   */
+  void SetPoint(Timeline::MovementMode m, const rational &time);
+
+  /**
+   * @brief Reset either the in or out point
+   *
+   * Sets either the in point to 0 or the out point to `RATIONAL_MAX`.
+   *
+   * @param m
+   *
+   * Set to kTrimIn or kTrimOut for setting the in point or out point respectively.
+   */
+  void ResetPoint(Timeline::MovementMode m);
+
   ViewerOutput* viewer_node_;
 
   TimeRuler* ruler_;
@@ -91,6 +128,8 @@ private:
   ResizableScrollBar* scrollbar_;
 
   bool auto_max_scrollbar_;
+
+  TimelinePoints* points_;
 
 private slots:
   void UpdateMaximumScroll();

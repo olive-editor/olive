@@ -26,7 +26,7 @@
 
 #include "common/bezier.h"
 #include "common/lerp.h"
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "node.h"
 #include "output.h"
 #include "inputarray.h"
@@ -91,111 +91,111 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
       return;
     }
 
-    if (attr.name() == "keyframing") {
-      set_is_keyframing(attr.value() == "1");
+    if (attr.name() == QStringLiteral("keyframing")) {
+      set_is_keyframing(attr.value() == QStringLiteral("1"));
     }
   }
 
-  XMLReadLoop(reader, "input") {
+  while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->isStartElement()) {
-      if (reader->name() == "standard") {
-        // Load standard value
-        int val_index = 0;
+    if (reader->name() == QStringLiteral("standard")) {
+      // Load standard value
+      int val_index = 0;
 
-        XMLReadLoop(reader, "standard") {
-          if (cancelled && *cancelled) {
-            return;
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (reader->name() == QStringLiteral("value")) {
+          QString value_text = reader->readElementText();
+
+          if (value_text.isEmpty()) {
+            standard_value_.replace(val_index, QVariant());
+          } else {
+            standard_value_.replace(val_index, StringToValue(value_text, footage_connections));
           }
 
-          if (reader->isStartElement() && reader->name() == "value") {
-            reader->readNext();
+          val_index++;
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else if (reader->name() == QStringLiteral("keyframes")) {
+      int track = 0;
 
-            QString value_text = reader->text().toString();
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
 
-            if (value_text.isEmpty()) {
-              standard_value_.replace(val_index, QVariant());
-            } else {
-              standard_value_.replace(val_index, StringToValue(value_text, footage_connections));
+        if (reader->name() == QStringLiteral("track")) {
+          while (XMLReadNextStartElement(reader)) {
+            if (cancelled && *cancelled) {
+              return;
             }
 
-            val_index++;
-          }
-        }
-      } else if (reader->name() == "keyframes") {
-        int track = 0;
+            if (reader->name() == QStringLiteral("key")) {
+              rational key_time;
+              NodeKeyframe::Type key_type;
+              QVariant key_value;
+              QPointF key_in_handle;
+              QPointF key_out_handle;
 
-        XMLReadLoop(reader, "keyframes") {
-          if (cancelled && *cancelled) {
-            return;
-          }
-
-          if (reader->isStartElement() && reader->name() == "track") {
-            XMLReadLoop(reader, "track") {
-              if (cancelled && *cancelled) {
-                return;
-              }
-
-              if (reader->name() == "key") {
-                rational key_time;
-                NodeKeyframe::Type key_type;
-                QVariant key_value;
-                QPointF key_in_handle;
-                QPointF key_out_handle;
-
-                XMLAttributeLoop(reader, attr) {
-                  if (cancelled && *cancelled) {
-                    return;
-                  }
-
-                  if (attr.name() == "time") {
-                    key_time = rational::fromString(attr.value().toString());
-                  } else if (attr.name() == "type") {
-                    key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
-                  } else if (attr.name() == "inhandlex") {
-                    key_in_handle.setX(attr.value().toDouble());
-                  } else if (attr.name() == "inhandley") {
-                    key_in_handle.setY(attr.value().toDouble());
-                  } else if (attr.name() == "outhandlex") {
-                    key_out_handle.setX(attr.value().toDouble());
-                  } else if (attr.name() == "outhandley") {
-                    key_out_handle.setY(attr.value().toDouble());
-                  }
+              XMLAttributeLoop(reader, attr) {
+                if (cancelled && *cancelled) {
+                  return;
                 }
 
-                reader->readNext();
-
-                key_value = StringToValue(reader->text().toString(), footage_connections);
-
-                NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
-                key->set_bezier_control_in(key_in_handle);
-                key->set_bezier_control_out(key_out_handle);
-                key->set_parent(this);
-                keyframe_tracks_[track].append(key);
+                if (attr.name() == QStringLiteral("time")) {
+                  key_time = rational::fromString(attr.value().toString());
+                } else if (attr.name() == QStringLiteral("type")) {
+                  key_type = static_cast<NodeKeyframe::Type>(attr.value().toInt());
+                } else if (attr.name() == QStringLiteral("inhandlex")) {
+                  key_in_handle.setX(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("inhandley")) {
+                  key_in_handle.setY(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("outhandlex")) {
+                  key_out_handle.setX(attr.value().toDouble());
+                } else if (attr.name() == QStringLiteral("outhandley")) {
+                  key_out_handle.setY(attr.value().toDouble());
+                }
               }
+
+              key_value = StringToValue(reader->readElementText(), footage_connections);
+
+              NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
+              key->set_bezier_control_in(key_in_handle);
+              key->set_bezier_control_out(key_out_handle);
+              key->set_parent(this);
+              keyframe_tracks_[track].append(key);
+            } else {
+              reader->skipCurrentElement();
             }
-
-            track++;
           }
+
+          track++;
+        } else {
+          reader->skipCurrentElement();
         }
-      } else if (reader->name() == "connections") {
-        XMLReadLoop(reader, "connections") {
-          if (cancelled && *cancelled) {
-            return;
-          }
-
-          if (reader->isStartElement() && reader->name() == "connection") {
-            reader->readNext();
-
-            input_connections.append({this, reader->text().toULongLong()});
-          }
-        }
-      } else {
-        LoadInternal(reader, param_ptrs, input_connections, footage_connections, cancelled);
       }
+    } else if (reader->name() == QStringLiteral("connections")) {
+      while (XMLReadNextStartElement(reader)) {
+        if (cancelled && *cancelled) {
+          return;
+        }
+
+        if (reader->name() == QStringLiteral("connection")) {
+          input_connections.append({this, reader->readElementText().toULongLong()});
+        } else {
+          reader->skipCurrentElement();
+        }
+      }
+    } else {
+      LoadInternal(reader, param_ptrs, input_connections, footage_connections, cancelled);
     }
   }
 }
@@ -268,8 +268,9 @@ const NodeParam::DataType &NodeInput::data_type() const
   return data_type_;
 }
 
-void NodeInput::LoadInternal(QXmlStreamReader*, QHash<quintptr, NodeOutput *>&, QList<SerializedConnection>&, QList<FootageConnection>&, const QAtomicInt*)
+void NodeInput::LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput *>&, QList<SerializedConnection>&, QList<FootageConnection>&, const QAtomicInt*)
 {
+  reader->skipCurrentElement();
 }
 
 void NodeInput::SaveInternal(QXmlStreamWriter*) const

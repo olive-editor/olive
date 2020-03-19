@@ -69,22 +69,18 @@ void MediaInput::FootageChanged()
     return;
   }
 
-  if (connected_footage_ != nullptr) {
-    if (connected_footage_->type() == Stream::kImage || connected_footage_->type() == Stream::kVideo) {
-      disconnect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
-    }
+  if (connected_footage_) {
+    disconnect(connected_footage_.get(), &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
   }
 
   connected_footage_ = new_footage;
 
-  if (connected_footage_ != nullptr) {
-    if (connected_footage_->type() == Stream::kImage || connected_footage_->type() == Stream::kVideo) {
-      connect(connected_footage_.get(), SIGNAL(ColorSpaceChanged()), this, SLOT(FootageColorSpaceChanged()));
-    }
+  if (connected_footage_) {
+    connect(connected_footage_.get(), &Stream::ParametersChanged, this, &MediaInput::FootageParametersChanged);
   }
 }
 
-void MediaInput::FootageColorSpaceChanged()
+void MediaInput::FootageParametersChanged()
 {
   InvalidateCache(0, RATIONAL_MAX, footage_input_);
 }

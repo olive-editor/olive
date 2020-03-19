@@ -27,6 +27,7 @@
 #include "project/item/footage/videostream.h"
 #include "streamproperties.h"
 #include "undo/undocommand.h"
+#include "widget/slider/integerslider.h"
 
 class VideoStreamProperties : public StreamProperties
 {
@@ -35,7 +36,11 @@ public:
 
   virtual void Accept(QUndoCommand* parent) override;
 
+  virtual bool SanityCheck() override;
+
 private:
+  static bool IsImageSequence(ImageStream* stream);
+
   /**
    * @brief Attached video stream
    */
@@ -50,6 +55,16 @@ private:
    * @brief Setting for this media's color space
    */
   QComboBox* video_color_space_;
+
+  /**
+   * @brief Sets the start index for image sequences
+   */
+  IntegerSlider* imgseq_start_time_;
+
+  /**
+   * @brief Sets the end index for image sequences
+   */
+  IntegerSlider* imgseq_end_time_;
 
   class VideoStreamChangeCommand : public UndoCommand {
   public:
@@ -70,6 +85,29 @@ private:
 
     bool old_premultiplied_;
     QString old_colorspace_;
+
+  };
+
+  class ImageSequenceChangeCommand : public UndoCommand {
+  public:
+    ImageSequenceChangeCommand(VideoStreamPtr video_stream,
+                               int64_t start_index,
+                               int64_t duration,
+                               QUndoCommand* parent = nullptr);
+
+  protected:
+    virtual void redo_internal() override;
+    virtual void undo_internal() override;
+
+  private:
+    VideoStreamPtr video_stream_;
+
+    int64_t new_start_index_;
+    int64_t old_start_index_;
+
+    int64_t new_duration_;
+    int64_t old_duration_;
+
   };
 };
 

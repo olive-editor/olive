@@ -26,6 +26,11 @@ const uint64_t &AudioParams::channel_layout() const
   return channel_layout_;
 }
 
+rational AudioParams::time_base() const
+{
+  return rational(1, sample_rate());
+}
+
 AudioRenderingParams::AudioRenderingParams() :
   format_(SampleFormat::SAMPLE_FMT_INVALID)
 {

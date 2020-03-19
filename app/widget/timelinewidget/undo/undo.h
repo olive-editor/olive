@@ -27,6 +27,7 @@
 #include "node/block/gap/gap.h"
 #include "node/output/track/track.h"
 #include "node/output/track/tracklist.h"
+#include "timeline/timelinepoints.h"
 #include "undo/undocommand.h"
 
 class BlockResizeCommand : public UndoCommand {
@@ -280,9 +281,9 @@ private:
 
 };
 
-class TimelineRippleDeleteGapsAtRegions : public UndoCommand {
+class TimelineRippleDeleteGapsAtRegionsCommand : public UndoCommand {
 public:
-  TimelineRippleDeleteGapsAtRegions(ViewerOutput* vo, const TimeRangeList& regions, QUndoCommand* parent = nullptr);
+  TimelineRippleDeleteGapsAtRegionsCommand(ViewerOutput* vo, const TimeRangeList& regions, QUndoCommand* parent = nullptr);
 
 protected:
   virtual void redo_internal() override;
@@ -293,6 +294,79 @@ private:
   TimeRangeList regions_;
 
   QList<UndoCommand*> commands_;
+
+};
+
+class WorkareaSetEnabledCommand : public UndoCommand {
+public:
+  WorkareaSetEnabledCommand(TimelinePoints* points, bool enabled, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TimelinePoints* points_;
+
+  bool old_enabled_;
+
+  bool new_enabled_;
+
+};
+
+class WorkareaSetRangeCommand : public UndoCommand {
+public:
+  WorkareaSetRangeCommand(TimelinePoints* points, const TimeRange& range, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  TimelinePoints* points_;
+
+  TimeRange old_range_;
+
+  TimeRange new_range_;
+
+};
+
+class BlockLinkManyCommand : public UndoCommand {
+public:
+  BlockLinkManyCommand(const QList<Block*> blocks, bool link, QUndoCommand* parent = nullptr);
+};
+
+class BlockLinkCommand : public UndoCommand {
+public:
+  BlockLinkCommand(Block* a, Block* b, bool link, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  Block* a_;
+
+  Block* b_;
+
+  bool link_;
+
+  bool done_;
+
+};
+
+class BlockUnlinkAllCommand : public UndoCommand {
+public:
+  BlockUnlinkAllCommand(Block* block, QUndoCommand* parent = nullptr);
+
+protected:
+  virtual void redo_internal() override;
+  virtual void undo_internal() override;
+
+private:
+  Block* block_;
+
+  QVector<Block*> unlinked_;
 
 };
 

@@ -23,7 +23,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "core.h"
 #include "dialog/progress/progress.h"
 #include "window/mainwindow/mainwindow.h"
@@ -35,29 +35,32 @@ Project::Project()
 
 void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
 {
+  qDebug() << "Hello?";
+
   QHash<quintptr, StreamPtr> footage_ptrs;
   QList<NodeInput::FootageConnection> footage_connections;
 
-  XMLReadLoop(reader, "project") {
-    if (reader->isStartElement()) {
-      if (reader->name() == "folder") {
+  while (XMLReadNextStartElement(reader)) {
+    if (reader->name() == QStringLiteral("folder")) {
 
-        // Assume this folder is our root
-        root_.Load(reader, footage_ptrs, footage_connections, cancelled);
+      // Assume this folder is our root
+      root_.Load(reader, footage_ptrs, footage_connections, cancelled);
 
-      } else if (reader->name() == "colormanagement") {
+    } else if (reader->name() == QStringLiteral("colormanagement")) {
 
-        // Read color management info
-        XMLReadLoop(reader, "colormanagement") {
-          if (reader->name() == "config") {
-            reader->readNext();
-            set_ocio_config(reader->text().toString());
-          } else if (reader->name() == "default") {
-            reader->readNext();
-            set_default_input_colorspace(reader->text().toString());
-          }
+      // Read color management info
+      while (XMLReadNextStartElement(reader)) {
+        if (reader->name() == QStringLiteral("config")) {
+          set_ocio_config(reader->readElementText());
+        } else if (reader->name() == QStringLiteral("default")) {
+          set_default_input_colorspace(reader->readElementText());
+        } else {
+          reader->skipCurrentElement();
         }
       }
+
+    } else {
+      reader->skipCurrentElement();
     }
   }
 
@@ -97,7 +100,7 @@ QString Project::name() const
   if (filename_.isEmpty()) {
     return tr("(untitled)");
   } else {
-    return QFileInfo(filename_).baseName();
+    return QFileInfo(filename_).completeBaseName();
   }
 }
 
@@ -136,4 +139,9 @@ void Project::set_default_input_colorspace(const QString &colorspace)
 ColorManager *Project::color_manager()
 {
   return &color_manager_;
+}
+
+QList<ItemPtr> Project::get_items_of_type(Item::Type type) const
+{
+  return root_.get_children_of_type(type, true);
 }

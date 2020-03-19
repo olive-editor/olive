@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# Set Olive sources and resources
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   core.h
@@ -21,9 +22,12 @@ set(OLIVE_SOURCES
   main.cpp
 )
 
-set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-)
+if (WIN32)
+  set(OLIVE_RESOURCES
+    ${OLIVE_RESOURCES}
+    packaging/windows/resources.rc
+  )
+endif()
 
 add_subdirectory(audio)
 add_subdirectory(codec)
@@ -43,18 +47,20 @@ add_subdirectory(undo)
 add_subdirectory(widget)
 add_subdirectory(window)
 
+# Create main application target
 set(OLIVE_TARGET "olive-editor")
 if(APPLE)
   set(OLIVE_TARGET "Olive")
-endif()
 
-if (WIN32)
+  set(OLIVE_ICON packaging/macos/olive.icns)
+
   set(OLIVE_RESOURCES
     ${OLIVE_RESOURCES}
-    packaging/windows/resources.rc
+    ${OLIVE_ICON}
   )
 endif()
 
+# Add executable
 add_executable(${OLIVE_TARGET}
   ${OLIVE_SOURCES}
   ${OLIVE_RESOURCES}
@@ -62,14 +68,18 @@ add_executable(${OLIVE_TARGET}
 )
 
 if(APPLE)
-  SET_TARGET_PROPERTIES(${OLIVE_TARGET} PROPERTIES
+  set_target_properties(${OLIVE_TARGET} PROPERTIES
     MACOSX_BUNDLE TRUE
-    MACOSX_FRAMEWORK_IDENTIFIER org.olivevideoeditor.Olive
+    MACOSX_BUNDLE_GUI_IDENTIFIER org.olivevideoeditor.Olive
+    MACOSX_BUNDLE_ICON_FILE olive.icns
+    RESOURCE "${OLIVE_ICON}"
   )
 endif()
 
+# Set compiler definitions
 target_compile_definitions(${OLIVE_TARGET} PRIVATE ${OLIVE_DEFINITIONS})
 
+# Set compiler options
 if(MSVC)
   target_compile_options(
     ${OLIVE_TARGET}
@@ -100,6 +110,7 @@ else()
   )
 endif()
 
+# Set include directories
 target_include_directories(
   ${OLIVE_TARGET}
   PRIVATE
@@ -109,6 +120,7 @@ target_include_directories(
   ${OPENEXR_INCLUDE_DIRS}
 )
 
+# Set link libraries
 target_link_libraries(
   ${OLIVE_TARGET}
   PRIVATE
@@ -146,11 +158,6 @@ if(UPDATE_TS)
   qt5_create_translation(OLIVE_QM_FILES ${CMAKE_SOURCE_DIR} ${OLIVE_TS_FILES})
 else()
   qt5_add_translation(OLIVE_QM_FILES ${OLIVE_TS_FILES})
-endif()
-
-if(UNIX AND NOT APPLE)
-  install(TARGETS ${OLIVE_TARGET} RUNTIME DESTINATION bin)
-  install(FILES ${OLIVE_QM_FILES} DESTINATION share/olive-editor/ts)
 endif()
 
 add_subdirectory(packaging)
@@ -191,3 +198,14 @@ target_link_libraries(
   Qt5::Gui
   Qt5::Widgets
 )
+
+if(UNIX AND NOT APPLE)
+  install(TARGETS ${OLIVE_TARGET} ${OLIVE_CRASH_TARGET} RUNTIME DESTINATION bin)
+endif()
+
+if(APPLE)
+  # Move crash handler program inside Mac app bundle
+  add_custom_command(TARGET ${OLIVE_CRASH_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${OLIVE_CRASH_TARGET} $<TARGET_FILE_DIR:${OLIVE_TARGET}>
+  )
+endif()

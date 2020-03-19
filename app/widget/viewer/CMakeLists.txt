@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/viewer/audiowaveformview.h
+  widget/viewer/audiowaveformview.cpp
   widget/viewer/footageviewer.h
   widget/viewer/footageviewer.cpp
   widget/viewer/viewer.h

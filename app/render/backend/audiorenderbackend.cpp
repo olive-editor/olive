@@ -27,6 +27,8 @@ void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 
   // Regenerate the cache ID
   RegenerateCacheID();
+
+  emit ParamsChanged();
 }
 
 void AudioRenderBackend::ConnectViewer(ViewerOutput *node)
@@ -96,6 +98,18 @@ void AudioRenderBackend::ConnectWorkerToThis(RenderWorker *worker)
   AudioRenderWorker* arw = static_cast<AudioRenderWorker*>(worker);
 
   connect(arw, &AudioRenderWorker::ConformUnavailable, this, &AudioRenderBackend::ConformUnavailable, Qt::QueuedConnection);
+}
+
+TimeRange AudioRenderBackend::PopNextFrameFromQueue()
+{
+  TimeRange range = cache_queue_.first();
+
+  // Limit range per worker to 2 seconds (FIXME: arbitrary, should be tweaked, maybe even in config?)
+  range.set_out(qMin(range.out(), range.in() + rational(2)));
+
+  cache_queue_.RemoveTimeRange(range);
+
+  return range;
 }
 
 void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &range, const rational &stream_time, const AudioRenderingParams& params)

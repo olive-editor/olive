@@ -43,11 +43,8 @@ public:
   bool premultiplied_alpha() const;
   void set_premultiplied_alpha(bool e);
 
-  const QString& colorspace() const;
+  const QString& colorspace(bool default_if_empty = true) const;
   void set_colorspace(const QString& color);
-
-signals:
-  void ColorSpaceChanged();
 
 protected:
   virtual void FootageSetEvent(Footage*) override;

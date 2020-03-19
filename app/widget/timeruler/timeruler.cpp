@@ -21,9 +21,7 @@
 #include "timeruler.h"
 
 #include <QDebug>
-#include <QMouseEvent>
 #include <QPainter>
-#include <QtMath>
 
 #include "common/timecodefunctions.h"
 #include "common/qtutils.h"
@@ -31,12 +29,9 @@
 #include "core.h"
 
 TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
-  QWidget(parent),
-  scroll_(0),
+  SeekableWidget(parent),
   text_visible_(text_visible),
   centered_text_(true),
-  scale_(1.0),
-  time_(0),
   show_cache_status_(cache_status_visible)
 {
   QFontMetrics fm = fontMetrics();
@@ -44,46 +39,17 @@ TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* pare
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   // Text height is used to calculate widget height
-  text_height_ = fm.height();
-  cache_status_height_ = text_height_ / 4;
+  cache_status_height_ = text_height() / 4;
 
   // Get the "minimum" space allowed between two line markers on the ruler (in screen pixels)
   // Mediocre but reliable way of scaling UI objects by font/DPI size
   minimum_gap_between_lines_ = QFontMetricsWidth(fm, "H");
 
-  // Set width of playhead marker
-  playhead_width_ = minimum_gap_between_lines_;
-
   // Text visibility affects height, so we set that here
   UpdateHeight();
-}
 
-const double &TimeRuler::GetScale()
-{
-  return scale_;
-}
-
-void TimeRuler::SetScale(const double &d)
-{
-  scale_ = d;
-
-  update();
-}
-
-void TimeRuler::SetTimebase(const rational &r)
-{
-  timebase_ = r;
-
-  timebase_dbl_ = timebase_.toDouble();
-
-  timebase_flipped_dbl_ = timebase_.flipped().toDouble();
-
-  update();
-}
-
-const int64_t &TimeRuler::GetTime()
-{
-  return time_;
+  // Force update if the default timecode display mode changes
+  connect(Core::instance(), &Core::TimecodeDisplayChanged, this, static_cast<void (TimeRuler::*)()>(&TimeRuler::update));
 }
 
 void TimeRuler::SetCacheStatusLength(const rational &length)
@@ -95,20 +61,6 @@ void TimeRuler::SetCacheStatusLength(const rational &length)
 
     update();
   }
-}
-
-void TimeRuler::SetTime(const int64_t &r)
-{
-  time_ = r;
-
-  update();
-}
-
-void TimeRuler::SetScroll(int s)
-{
-  scroll_ = s;
-
-  update();
 }
 
 void TimeRuler::CacheInvalidatedRange(const TimeRange& range)
@@ -123,7 +75,7 @@ void TimeRuler::CacheInvalidatedRange(const TimeRange& range)
 void TimeRuler::CacheTimeReady(const rational &time)
 {
   if (show_cache_status_) {
-    dirty_cache_ranges_.RemoveTimeRange(TimeRange(time, time + timebase_));
+    dirty_cache_ranges_.RemoveTimeRange(TimeRange(time, time + timebase()));
 
     update();
   }
@@ -132,18 +84,33 @@ void TimeRuler::CacheTimeReady(const rational &time)
 void TimeRuler::paintEvent(QPaintEvent *)
 {
   // Nothing to paint if the timebase is invalid
-  if (timebase_.isNull()) {
+  if (timebase().isNull()) {
     return;
   }
 
   QPainter p(this);
 
-  double width_of_frame = timebase_dbl_ * scale_;
+  // Draw timeline points if connected
+  if (timeline_points()) {
+    int marker_bottom = height() - text_height();
+
+    if (show_cache_status_) {
+      marker_bottom -= cache_status_height_;
+    }
+
+    if (text_visible_) {
+      marker_bottom -= cache_status_height_;
+    }
+
+    DrawTimelinePoints(&p, marker_bottom);
+  }
+
+  double width_of_frame = timebase_dbl() * GetScale();
   double width_of_second = 0;
   do {
-    width_of_second += timebase_dbl_;
+    width_of_second += timebase_dbl();
   } while (width_of_second < 1.0);
-  width_of_second *= scale_;
+  width_of_second *= GetScale();
   double width_of_minute = width_of_second * 60;
   double width_of_hour = width_of_minute * 60;
   double width_of_day = width_of_hour * 24;
@@ -229,7 +196,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
   const int kAverageTextWidth = 200;
 
   for (int i=-kAverageTextWidth;i<width()+kAverageTextWidth;i++) {
-    double screen_pt = static_cast<double>(i + scroll_);
+    double screen_pt = static_cast<double>(i + GetScroll());
 
     if (long_interval > -1) {
       int this_long_unit = qFloor(screen_pt/long_interval);
@@ -239,7 +206,7 @@ void TimeRuler::paintEvent(QPaintEvent *)
         if (text_visible_) {
           QRect text_rect;
           Qt::Alignment text_align;
-          QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase_, Timecode::CurrentDisplay());
+          QString timecode_str = Timecode::timestamp_to_timecode(ScreenToUnit(i), timebase(), Core::instance()->GetTimecodeDisplay());
           int timecode_width = QFontMetricsWidth(fm, timecode_str);
           int timecode_left;
 
@@ -308,43 +275,17 @@ void TimeRuler::paintEvent(QPaintEvent *)
   }
 
   // Draw the playhead if it's on screen at the moment
-  int playhead_pos = UnitToScreen(time_);
-  if (playhead_pos + playhead_width_ >= 0 && playhead_pos - playhead_width_ < width()) {
-    p.setPen(Qt::NoPen);
-    p.setBrush(style_.PlayheadColor());
-    DrawPlayhead(&p, playhead_pos, line_bottom);
-  }
+  int playhead_pos = UnitToScreen(GetTime());
+  p.setPen(Qt::NoPen);
+  p.setBrush(GetPlayheadColor());
+  DrawPlayhead(&p, playhead_pos, line_bottom);
 }
 
-void TimeRuler::mousePressEvent(QMouseEvent *event)
+void TimeRuler::TimebaseChangedEvent(const rational &tb)
 {
-  SeekToScreenPoint(event->pos().x());
-}
+  timebase_flipped_dbl_ = tb.flipped().toDouble();
 
-void TimeRuler::mouseMoveEvent(QMouseEvent *event)
-{
-  if (event->buttons() & Qt::LeftButton) {
-    SeekToScreenPoint(event->pos().x());
-  }
-}
-
-void TimeRuler::DrawPlayhead(QPainter *p, int x, int y)
-{
-  p->setRenderHint(QPainter::Antialiasing);
-
-  int half_text_height = text_height_ / 3;
-  int half_width = playhead_width_ / 2;
-
-  QPoint points[] = {
-    QPoint(x, y),
-    QPoint(x - half_width, y - half_text_height),
-    QPoint(x - half_width, y - text_height_),
-    QPoint(x + 1 + half_width, y - text_height_),
-    QPoint(x + 1 + half_width, y - half_text_height),
-    QPoint(x + 1, y),
-  };
-
-  p->drawPolygon(points, 6);
+  update();
 }
 
 int TimeRuler::CacheStatusHeight() const
@@ -352,46 +293,22 @@ int TimeRuler::CacheStatusHeight() const
   return fontMetrics().height() / 4;
 }
 
-double TimeRuler::ScreenToUnitFloat(int screen)
-{
-  return (screen + scroll_) / scale_ / timebase_dbl_;
-}
-
-int64_t TimeRuler::ScreenToUnit(int screen)
-{
-  return qFloor(ScreenToUnitFloat(screen));
-}
-
-int TimeRuler::UnitToScreen(int64_t unit)
-{
-  return qFloor(static_cast<double>(unit) * scale_ * timebase_dbl_) - scroll_;
-}
-
-int TimeRuler::TimeToScreen(const rational &time)
-{
-  return qFloor(time.toDouble() * scale_) - scroll_;
-}
-
-void TimeRuler::SeekToScreenPoint(int screen)
-{
-  int64_t timestamp = qMax(0, qRound(ScreenToUnitFloat(screen)));
-
-  SetTime(timestamp);
-
-  emit TimeChanged(timestamp);
-}
-
 void TimeRuler::UpdateHeight()
 {
-  int height = text_height_;
+  int height = text_height();
 
+  // Add text height
   if (text_visible_) {
-    height += text_height_;
+    height += text_height();
   }
 
+  // Add cache status height
   if (show_cache_status_) {
     height += cache_status_height_;
   }
+
+  // Add marker height
+  height += text_height();
 
   setFixedHeight(height);
 }

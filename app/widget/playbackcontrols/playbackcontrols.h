@@ -101,6 +101,8 @@ private:
   TimeSlider* cur_tc_lbl_;
   QLabel* end_tc_lbl_;
 
+  int64_t end_time_;
+
   rational time_base_;
 
   QPushButton* go_to_start_btn_;
@@ -113,7 +115,7 @@ private:
   QStackedWidget* playpause_stack_;
 
 private slots:
-
+  void TimecodeChanged();
 
 };
 

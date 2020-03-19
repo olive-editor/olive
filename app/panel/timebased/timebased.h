@@ -44,6 +44,18 @@ public:
 
   virtual void ShuttleRight() override;
 
+  virtual void SetIn() override;
+
+  virtual void SetOut() override;
+
+  virtual void ResetIn() override;
+
+  virtual void ResetOut() override;
+
+  virtual void ClearInOut() override;
+
+  virtual void SetMarker() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

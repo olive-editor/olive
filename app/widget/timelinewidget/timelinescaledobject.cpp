@@ -3,8 +3,11 @@
 #include <cfloat>
 #include <QtMath>
 
+#include "common/clamp.h"
+
 TimelineScaledObject::TimelineScaledObject() :
   scale_(1.0),
+  min_scale_(0),
   max_scale_(DBL_MAX)
 {
 
@@ -64,6 +67,15 @@ void TimelineScaledObject::SetMaximumScale(const double &max)
   }
 }
 
+void TimelineScaledObject::SetMinimumScale(const double &min)
+{
+  min_scale_ = min;
+
+  if (GetScale() < min_scale_) {
+    SetScale(min_scale_);
+  }
+}
+
 const double& TimelineScaledObject::GetScale() const
 {
   return scale_;
@@ -71,7 +83,14 @@ const double& TimelineScaledObject::GetScale() const
 
 void TimelineScaledObject::SetScale(const double& scale)
 {
-  scale_ = scale;
+  Q_ASSERT(scale > 0);
+
+  scale_ = clamp(scale, min_scale_, max_scale_);
 
   ScaleChangedEvent(scale_);
+}
+
+TimelineScaledWidget::TimelineScaledWidget(QWidget *parent) :
+  QWidget(parent)
+{
 }

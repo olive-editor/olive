@@ -129,6 +129,14 @@ void ViewerGLWidget::SetImage(const QString &fn)
 void ViewerGLWidget::SetOCIODisplay(const QString &display)
 {
   ocio_display_ = display;
+
+  // Determine if the selected view is available in this display
+  if (color_manager_
+      && !color_manager_->ListAvailableViews(ocio_display_).contains(ocio_view_)) {
+    // If not, set to the default view for this display
+    ocio_view_ = color_manager_->GetDefaultView(ocio_display_);
+  }
+
   SetupColorProcessor();
   update();
 }

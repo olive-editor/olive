@@ -335,7 +335,7 @@ void TimelineWidget::SplitAtPlayhead()
   }
 }
 
-void TimelineWidget::DeleteSelectedInternal(QList<Block *> blocks,
+void TimelineWidget::DeleteSelectedInternal(const QList<Block *> &blocks,
                                             bool transition_aware,
                                             bool remove_from_graph,
                                             QUndoCommand *command)
@@ -380,6 +380,8 @@ void TimelineWidget::DeleteSelectedInternal(QList<Block *> blocks,
     }
 
     if (remove_from_graph) {
+      new BlockUnlinkAllCommand(b, command);
+
       new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(b->parent()), b, command);
     }
   }
@@ -426,7 +428,7 @@ void TimelineWidget::DeleteSelected(bool ripple)
       range_list.InsertTimeRange(TimeRange(b->in(), b->out()));
     }
 
-    new TimelineRippleDeleteGapsAtRegions(GetConnectedNode(), range_list, command);
+    new TimelineRippleDeleteGapsAtRegionsCommand(GetConnectedNode(), range_list, command);
   }
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
@@ -468,6 +470,30 @@ void TimelineWidget::InsertFootageAtPlayhead(const QList<Footage*>& footage)
 void TimelineWidget::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
 {
   import_tool_->PlaceAt(footage, GetTime(), false);
+}
+
+void TimelineWidget::ToggleLinksOnSelected()
+{
+  QList<TimelineViewBlockItem*> sel = GetSelectedBlocks();
+
+  // Prioritize unlinking
+
+  QList<Block*> blocks;
+  bool link = true;
+
+  foreach (TimelineViewBlockItem* item, sel) {
+    if (link && item->block()->HasLinks()) {
+      link = false;
+    }
+
+    blocks.append(item->block());
+  }
+
+  if (link) {
+    Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, true));
+  } else {
+    Core::instance()->undo_stack()->push(new BlockLinkManyCommand(blocks, false));
+  }
 }
 
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
@@ -685,6 +711,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     views_.at(track.type())->view()->scene()->addItem(item);
 
     connect(block, &Block::Refreshed, this, &TimelineWidget::BlockChanged);
+    connect(block, &Block::LinksChanged, this, &TimelineWidget::PreviewUpdated);
 
     if (block->type() == Block::kClip) {
       connect(static_cast<ClipBlock*>(block), &ClipBlock::PreviewUpdated, this, &TimelineWidget::PreviewUpdated);

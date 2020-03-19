@@ -20,7 +20,7 @@
 
 #include "folder.h"
 
-#include "common/xmlreadloop.h"
+#include "common/xmlutils.h"
 #include "project/item/footage/footage.h"
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
@@ -46,37 +46,38 @@ QIcon Folder::icon()
 
 void Folder::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt *cancelled)
 {
+  qDebug() << "Hello?";
+
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (attr.name() == "name") {
+    if (attr.name() == QStringLiteral("name")) {
       set_name(attr.value().toString());
     }
   }
 
-  XMLReadLoop(reader, "folder") {
+  while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
       return;
     }
 
-    if (reader->isStartElement()) {
-      ItemPtr child;
+    ItemPtr child;
 
-      if (reader->name() == "folder") {
-        child = std::make_shared<Folder>();
-      } else if (reader->name() == "footage") {
-        child = std::make_shared<Footage>();
-      } else if (reader->name() == "sequence") {
-        child = std::make_shared<Sequence>();
-      } else {
-        continue;
-      }
-
-      add_child(child);
-      child->Load(reader, footage_ptrs, footage_connections, cancelled);
+    if (reader->name() == QStringLiteral("folder")) {
+      child = std::make_shared<Folder>();
+    } else if (reader->name() == QStringLiteral("footage")) {
+      child = std::make_shared<Footage>();
+    } else if (reader->name() == QStringLiteral("sequence")) {
+      child = std::make_shared<Sequence>();
+    } else {
+      reader->skipCurrentElement();
+      continue;
     }
+
+    add_child(child);
+    child->Load(reader, footage_ptrs, footage_connections, cancelled);
   }
 }
 

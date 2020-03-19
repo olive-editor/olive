@@ -118,6 +118,7 @@ private:
 
 QDebug operator<<(QDebug debug, const rational& r);
 
+// We define these limits at 32-bit to try avoiding integer overflow
 #define RATIONAL_MIN rational(INT32_MIN, 1)
 #define RATIONAL_MAX rational(INT32_MAX, 1)
 

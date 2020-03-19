@@ -355,7 +355,7 @@ bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AV
       }
 
       if (params().video_buffer_size() > 0) {
-        video_codec_ctx_->rc_buffer_size = params().video_buffer_size();
+        video_codec_ctx_->rc_buffer_size = static_cast<int>(params().video_buffer_size());
       }
     }
 

@@ -15,9 +15,6 @@ public:
   virtual QString Category() const override;
   virtual QString Description() const override;
 
-protected:
-  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
-
 private:
 };
 

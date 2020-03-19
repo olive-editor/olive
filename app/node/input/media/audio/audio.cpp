@@ -28,8 +28,3 @@ QString AudioInput::Description() const
 {
   return tr("Import an audio footage stream.");
 }
-
-NodeValueTable AudioInput::Value(const NodeValueDatabase &value) const
-{
-  return value[footage_input_];
-}

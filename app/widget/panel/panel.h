@@ -118,6 +118,28 @@ public:
 
   virtual void DecreaseTrackHeight(){}
 
+  virtual void SetIn(){}
+
+  virtual void SetOut(){}
+
+  virtual void ResetIn(){}
+
+  virtual void ResetOut(){}
+
+  virtual void ClearInOut(){}
+
+  virtual void SetMarker(){}
+
+  virtual void ToggleLinks(){}
+
+  virtual void CutSelected(){}
+
+  virtual void CopySelected(){}
+
+  virtual void Paste(){}
+
+  virtual void PasteInsert(){}
+
 protected:
   /**
    * @brief paintEvent

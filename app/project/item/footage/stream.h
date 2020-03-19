@@ -31,7 +31,7 @@
 
 class Footage;
 
-class StreamID {
+/*class StreamID {
 public:
   StreamID(const QString& filename, const int& stream_index);
 
@@ -40,7 +40,7 @@ private:
 
   int stream_index_;
 
-};
+};*/
 
 /**
  * @brief A base class for keeping metadata about a media stream.
@@ -101,7 +101,7 @@ public:
 
   static QIcon IconFromType(const Type& type);
 
-  StreamID ToID() const;
+  //StreamID ToID() const;
 
   QMutex* index_process_lock();
 
@@ -114,6 +114,8 @@ protected:
 
 signals:
   void IndexChanged();
+
+  void ParametersChanged();
 
 private:
   Footage* footage_;
