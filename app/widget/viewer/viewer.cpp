@@ -338,7 +338,12 @@ void ViewerWidget::UpdateMinimumScale()
     return;
   }
 
-  SetMinimumScale(static_cast<double>(ruler()->width()) / GetConnectedNode()->Length().toDouble());
+  if (GetConnectedNode()->Length().isNull()) {
+    // Avoids divide by zero
+    SetMinimumScale(0);
+  } else {
+    SetMinimumScale(static_cast<double>(ruler()->width()) / GetConnectedNode()->Length().toDouble());
+  }
 }
 
 void ViewerWidget::UpdateStack()
