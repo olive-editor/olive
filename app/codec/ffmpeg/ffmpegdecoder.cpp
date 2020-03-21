@@ -493,7 +493,7 @@ bool FFmpegDecoder::Probe(Footage *f, const QAtomicInt* cancelled)
   // Result to return
   bool result = false;
 
-  // Convert QString to a C strng
+  // Convert QString to a C string
   QByteArray ba = f->filename().toUtf8();
   const char* filename = ba.constData();
 
@@ -792,7 +792,7 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
 
         } else {
 
-          // No resampling required, we can write directly from te frame buffer
+          // No resampling required, we can write directly from the frame buffer
           data = reinterpret_cast<char*>(frame->data[0]);
           nb_samples = frame->nb_samples;
 

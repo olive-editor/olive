@@ -66,7 +66,7 @@ protected:
 
 signals:
   /**
-   * @brief Signal emitted whenever the time changes on this ruler, either by user or programatically
+   * @brief Signal emitted whenever the time changes on this ruler, either by user or programmatically
    */
   void TimeChanged(int64_t);
 

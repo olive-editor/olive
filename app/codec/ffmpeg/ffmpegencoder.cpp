@@ -31,7 +31,7 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
         // If we're encoding video, use enough samples to cover roughly one frame of video
         maximum_frame_samples = params().audio_params().time_to_samples(params().video_params().time_base());
       } else {
-        // If no video, just use an arbitary number
+        // If no video, just use an arbitrary number
         maximum_frame_samples = 256;
       }
     }

@@ -165,7 +165,7 @@ void NodeMetaReader::XMLReadIterations(QXmlStreamReader* reader)
   if (iterations_ > 0) {
     iterations_ = iteration_pickup;
   } else {
-    // If the iteration value is invalid, don't set it, print an error insteead
+    // If the iteration value is invalid, don't set it, print an error instead
     qWarning() << "Invalid iteration number in" << xml_filename_ << "- setting to default (1)";
   }
 }
