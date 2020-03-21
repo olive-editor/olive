@@ -116,7 +116,7 @@ ResizableScrollBar *TimeBasedWidget::scrollbar() const
 
 void TimeBasedWidget::TimebaseChangedEvent(const rational &timebase)
 {
-  TimelineScaledObject::TimebaseChangedEvent(timebase);
+  TimelineScaledWidget::TimebaseChangedEvent(timebase);
 
   ruler_->SetTimebase(timebase);
 
@@ -125,7 +125,7 @@ void TimeBasedWidget::TimebaseChangedEvent(const rational &timebase)
 
 void TimeBasedWidget::ScaleChangedEvent(const double &scale)
 {
-  TimelineScaledObject::ScaleChangedEvent(scale);
+  TimelineScaledWidget::ScaleChangedEvent(scale);
 
   ruler_->SetScale(scale);
 
@@ -166,13 +166,13 @@ void TimeBasedWidget::SetTime(int64_t timestamp)
 
 void TimeBasedWidget::SetTimebase(const rational &timebase)
 {
-  TimelineScaledObject::SetTimebase(timebase);
+  TimelineScaledWidget::SetTimebase(timebase);
 }
 
 void TimeBasedWidget::SetScale(const double &scale)
 {
-  // Simple QObject slot wrapper around TimelineScaledObject::SetScale()
-  TimelineScaledObject::SetScale(scale);
+  // Simple QObject slot wrapper around TimelineScaledWidget::SetScale()
+  TimelineScaledWidget::SetScale(scale);
 }
 
 void TimeBasedWidget::ZoomIn()

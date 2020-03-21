@@ -255,16 +255,16 @@ void Core::DialogProjectPropertiesShow()
 
 void Core::DialogExportShow()
 {
-  ViewerPanel* latest_viewer = PanelManager::instance()->MostRecentlyFocused<ViewerPanel>();
+  TimeBasedPanel* latest_time_based = PanelManager::instance()->MostRecentlyFocused<TimeBasedPanel>();
 
-  if (latest_viewer && latest_viewer->GetConnectedViewer()) {
-    if (latest_viewer->GetConnectedViewer()->Length() == 0) {
+  if (latest_time_based && latest_time_based->GetConnectedViewer()) {
+    if (latest_time_based->GetConnectedViewer()->Length() == 0) {
       QMessageBox::critical(main_window_,
                             tr("Error"),
                             tr("This Sequence is empty. There is nothing to export."),
                             QMessageBox::Ok);
     } else {
-      ExportDialog ed(latest_viewer->GetConnectedViewer(), main_window_);
+      ExportDialog ed(latest_time_based->GetConnectedViewer(), main_window_);
       ed.exec();
     }
   }
@@ -333,7 +333,7 @@ void Core::CreateNewSequence()
 
     Core::instance()->undo_stack()->push(aic);
 
-    Sequence::Open(new_sequence.get());
+    Core::instance()->main_window()->OpenSequence(new_sequence.get());
   }
 }
 

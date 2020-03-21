@@ -33,7 +33,7 @@
 #include "panel/timeline/timeline.h"
 #include "panel/tool/tool.h"
 #include "panel/footageviewer/footageviewer.h"
-#include "panel/viewer/viewer.h"
+#include "panel/sequenceviewer/sequenceviewer.h"
 #include "project/project.h"
 
 /**
@@ -43,6 +43,10 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 public:
   MainWindow(QWidget *parent = nullptr);
+
+  void OpenSequence(Sequence* sequence);
+
+  void CloseSequence(Sequence* sequence);
 
 public slots:
   void ProjectOpen(Project *p);
@@ -57,19 +61,26 @@ protected:
 private:
   void UpdateTitle();
 
+  TimelinePanel* AppendTimelinePanel();
+
+  void TimelineFocused(TimelinePanel *panel);
+
   QByteArray premaximized_state_;
 
   // Standard panels
   NodePanel* node_panel_;
   ParamPanel* param_panel_;
-  ViewerPanel* viewer_panel_;
+  SequenceViewerPanel* sequence_viewer_panel_;
   FootageViewerPanel* footage_viewer_panel_;
   ProjectPanel* project_panel_;
   ToolPanel* tool_panel_;
-  TimelinePanel* timeline_panel_;
+  QList<TimelinePanel*> timeline_panels_;
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
   CurvePanel* curve_panel_;
+
+private slots:
+  void TimelineFocusedSlot(bool visible);
 
 };
 

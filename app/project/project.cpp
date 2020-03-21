@@ -35,8 +35,6 @@ Project::Project()
 
 void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
 {
-  qDebug() << "Hello?";
-
   QHash<quintptr, StreamPtr> footage_ptrs;
   QList<NodeInput::FootageConnection> footage_connections;
 

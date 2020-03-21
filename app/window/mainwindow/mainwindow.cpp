@@ -66,46 +66,78 @@ MainWindow::MainWindow(QWidget *parent) :
   param_panel_ = PanelManager::instance()->CreatePanel<ParamPanel>(this);
   tabifyDockWidget(footage_viewer_panel_, param_panel_);
   footage_viewer_panel_->raise();
-  viewer_panel_ = PanelManager::instance()->CreatePanel<ViewerPanel>(this);
-  addDockWidget(Qt::TopDockWidgetArea, viewer_panel_);
+  sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);
   project_panel_ = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
   tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, tool_panel_);
-  timeline_panel_ = PanelManager::instance()->CreatePanel<TimelinePanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, timeline_panel_);
-  audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
-  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
   task_man_panel_ = PanelManager::instance()->CreatePanel<TaskManagerPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, task_man_panel_);
   curve_panel_ = PanelManager::instance()->CreatePanel<CurvePanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, curve_panel_);
+  AppendTimelinePanel();
+  audio_monitor_panel_ = PanelManager::instance()->CreatePanel<AudioMonitorPanel>(this);
+  addDockWidget(Qt::BottomDockWidgetArea, audio_monitor_panel_);
 
-  // FIXME: This is fairly "hardcoded" behavior and doesn't support infinite panels
+  // Make connections to sequence viewer
   connect(node_panel_, &NodePanel::SelectionChanged, param_panel_, &ParamPanel::SetNodes);
   connect(param_panel_, &ParamPanel::SelectedInputChanged, curve_panel_, &CurvePanel::SetInput);
   connect(param_panel_, &ParamPanel::TimebaseChanged, curve_panel_, &CurvePanel::SetTimebase);
-  connect(timeline_panel_, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(timeline_panel_, &TimelinePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
-  connect(timeline_panel_, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
-  connect(timeline_panel_, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectWithDependencies);
-  connect(viewer_panel_, &ViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(viewer_panel_, &ViewerPanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
-  connect(viewer_panel_, &ViewerPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
-  connect(param_panel_, &ParamPanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
+  connect(param_panel_, &ParamPanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(param_panel_, &ParamPanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
-  connect(curve_panel_, &CurvePanel::TimeChanged, viewer_panel_, &ViewerPanel::SetTime);
-  connect(curve_panel_, &CurvePanel::TimeChanged, timeline_panel_, &TimelinePanel::SetTime);
+  connect(curve_panel_, &CurvePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(curve_panel_, &CurvePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
-  connect(viewer_panel_->video_renderer(), &VideoRenderBackend::CachedTimeReady, timeline_panel_->ruler(), &TimeRuler::CacheTimeReady);
-  connect(viewer_panel_->video_renderer(), &VideoRenderBackend::RangeInvalidated, timeline_panel_->ruler(), &TimeRuler::CacheInvalidatedRange);
 
-  viewer_panel_->ConnectTimeBasedPanel(timeline_panel_);
-  viewer_panel_->ConnectTimeBasedPanel(param_panel_);
-  viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+  sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
+  sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
 
   UpdateTitle();
+}
+
+void MainWindow::OpenSequence(Sequence *sequence)
+{
+  // See if this sequence is already open, and switch to it if so
+  for (int i=0;i<timeline_panels_.size();i++) {
+    TimelinePanel* tl = timeline_panels_.at(i);
+
+    if (tl->GetConnectedViewer() == sequence->viewer_output()) {
+      tl->raise();
+      return;
+    }
+  }
+
+  // See if we have any sequences open or not
+  TimelinePanel* panel;
+
+  if (!timeline_panels_.first()->GetConnectedViewer()) {
+    panel = timeline_panels_.first();
+  } else {
+    panel = AppendTimelinePanel();
+  }
+
+  panel->ConnectViewerNode(sequence->viewer_output());
+
+  TimelineFocused(panel);
+}
+
+void MainWindow::CloseSequence(Sequence *sequence)
+{
+  for (int i=0;i<timeline_panels_.size();i++) {
+    TimelinePanel* tl = timeline_panels_.at(i);
+
+    if (tl->GetConnectedViewer() == sequence->viewer_output()) {
+      tl->ConnectViewerNode(nullptr);
+
+      if (timeline_panels_.size() > 1) {
+        delete tl;
+        timeline_panels_.removeAt(i);
+        i--;
+      }
+    }
+  }
 }
 
 void MainWindow::SetFullscreen(bool fullscreen)
@@ -184,8 +216,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 
   // Close viewers first since we don't want to delete any nodes while they might be mid-render
-  QList<ViewerPanel*> viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanel>();
-  foreach (ViewerPanel* viewer, viewers) {
+  QList<ViewerPanelBase*> viewers = PanelManager::instance()->GetPanelsOfType<ViewerPanelBase>();
+  foreach (ViewerPanelBase* viewer, viewers) {
     viewer->ConnectViewerNode(nullptr);
   }
 
@@ -201,6 +233,58 @@ void MainWindow::UpdateTitle()
                                                      tr("(untitled)")));
 }
 
+TimelinePanel* MainWindow::AppendTimelinePanel()
+{
+  TimelinePanel* panel = PanelManager::instance()->CreatePanel<TimelinePanel>(this);;
+
+  if (timeline_panels_.isEmpty()) {
+    addDockWidget(Qt::BottomDockWidgetArea, panel);
+  } else {
+    tabifyDockWidget(timeline_panels_.last(), panel);
+
+    // For some reason raise() on its own doesn't do anything, we need both
+    panel->show();
+    panel->raise();
+  }
+
+  timeline_panels_.append(panel);
+
+  connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
+  connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
+  connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
+  connect(panel, &TimelinePanel::SelectionChanged, node_panel_, &NodePanel::SelectWithDependencies);
+  connect(panel, &TimelinePanel::visibilityChanged, this, &MainWindow::TimelineFocusedSlot);
+  connect(param_panel_, &ParamPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(curve_panel_, &CurvePanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(sequence_viewer_panel_, &SequenceViewerPanel::TimeChanged, panel, &TimelinePanel::SetTime);
+  connect(sequence_viewer_panel_->video_renderer(), &VideoRenderBackend::CachedTimeReady, panel->ruler(), &TimeRuler::CacheTimeReady);
+  connect(sequence_viewer_panel_->video_renderer(), &VideoRenderBackend::RangeInvalidated, panel->ruler(), &TimeRuler::CacheInvalidatedRange);
+
+  sequence_viewer_panel_->ConnectTimeBasedPanel(panel);
+
+  return panel;
+}
+
+void MainWindow::TimelineFocused(TimelinePanel* panel)
+{
+  sequence_viewer_panel_->ConnectViewerNode(panel->GetConnectedViewer());
+
+  Sequence* seq = nullptr;
+
+  if (panel->GetConnectedViewer()) {
+    seq = static_cast<Sequence*>(panel->GetConnectedViewer()->parent());
+  }
+
+  node_panel_->SetGraph(seq);
+}
+
+void MainWindow::TimelineFocusedSlot(bool visible)
+{
+  if (visible) {
+    TimelineFocused(static_cast<TimelinePanel*>(sender()));
+  }
+}
+
 void MainWindow::SetDefaultLayout()
 {
   task_man_panel_->close();
@@ -208,11 +292,11 @@ void MainWindow::SetDefaultLayout()
   curve_panel_->close();
   curve_panel_->setFloating(true);
 
-  resizeDocks({node_panel_, param_panel_, viewer_panel_},
+  resizeDocks({node_panel_, param_panel_, sequence_viewer_panel_},
   {width()/3, width()/3, width()/3},
               Qt::Horizontal);
 
-  resizeDocks({project_panel_, tool_panel_, timeline_panel_, audio_monitor_panel_},
+  resizeDocks({project_panel_, tool_panel_, timeline_panels_.first(), audio_monitor_panel_},
   {width()/4, 1, width(), 1},
               Qt::Horizontal);
 

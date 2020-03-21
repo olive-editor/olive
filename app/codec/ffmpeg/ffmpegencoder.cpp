@@ -75,7 +75,6 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
                                   reinterpret_cast<const uint8_t**>(&input_data_array),
                                   samples_needed);
 
-      //qDebug() << "swr_convert returned" << converted << "samples";
       frame->pts = sample_counter;
 
       sample_counter += converted;

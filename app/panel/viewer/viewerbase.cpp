@@ -33,6 +33,14 @@ void ViewerPanelBase::ConnectTimeBasedPanel(TimeBasedPanel *panel)
   connect(panel, &TimeBasedPanel::ShuttleRightRequested, this, &ViewerPanelBase::ShuttleRight);
 }
 
+void ViewerPanelBase::DisconnectTimeBasedPanel(TimeBasedPanel *panel)
+{
+  disconnect(panel, &TimeBasedPanel::PlayPauseRequested, this, &ViewerPanelBase::PlayPause);
+  disconnect(panel, &TimeBasedPanel::ShuttleLeftRequested, this, &ViewerPanelBase::ShuttleLeft);
+  disconnect(panel, &TimeBasedPanel::ShuttleStopRequested, this, &ViewerPanelBase::ShuttleStop);
+  disconnect(panel, &TimeBasedPanel::ShuttleRightRequested, this, &ViewerPanelBase::ShuttleRight);
+}
+
 VideoRenderBackend *ViewerPanelBase::video_renderer() const
 {
   return static_cast<ViewerWidget*>(GetTimeBasedWidget())->video_renderer();

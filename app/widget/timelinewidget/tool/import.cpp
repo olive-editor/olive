@@ -35,6 +35,7 @@
 #include "node/input/media/video/video.h"
 #include "project/item/sequence/sequence.h"
 #include "widget/nodeview/nodeviewundo.h"
+#include "window/mainwindow/mainwindow.h"
 
 Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
@@ -433,6 +434,6 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
   dragged_footage_.clear();
 
   if (open_sequence) {
-    Sequence::Open(open_sequence);
+    Core::instance()->main_window()->OpenSequence(open_sequence);
   }
 }

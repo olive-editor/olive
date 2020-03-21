@@ -19,8 +19,6 @@ void ProjectLoadManager::Action()
   if (project_file.open(QFile::ReadOnly | QFile::Text)) {
     QXmlStreamReader reader(&project_file);
 
-    qDebug() << "Hello?";
-
     while (XMLReadNextStartElement(&reader)) {
       if (reader.name() == QStringLiteral("olive")) {
         while(XMLReadNextStartElement(&reader)) {

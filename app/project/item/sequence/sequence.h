@@ -50,8 +50,6 @@ public:
    */
   virtual void Save(QXmlStreamWriter *writer) const override;
 
-  static void Open(Sequence *sequence);
-
   void add_default_nodes();
 
   /**

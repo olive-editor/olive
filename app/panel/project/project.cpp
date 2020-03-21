@@ -30,6 +30,7 @@
 #include "project/item/sequence/sequence.h"
 #include "widget/menu/menushared.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
+#include "window/mainwindow/mainwindow.h"
 
 ProjectPanel::ProjectPanel(QWidget *parent) :
   PanelWidget(parent)
@@ -154,7 +155,7 @@ void ProjectPanel::ItemDoubleClickSlot(Item *item)
     PanelManager::instance()->MostRecentlyFocused<FootageViewerPanel>()->SetFootage(static_cast<Footage*>(item));
   } else if (item->type() == Item::kSequence) {
     // Open this sequence in the Timeline
-    Sequence::Open(static_cast<Sequence*>(item));
+    Core::instance()->main_window()->OpenSequence(static_cast<Sequence*>(item));
   }
 }
 

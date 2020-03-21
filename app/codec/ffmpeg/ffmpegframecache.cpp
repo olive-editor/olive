@@ -65,14 +65,9 @@ void FFmpegFrameCache::Client::accessed(int i)
 
 void FFmpegFrameCache::Client::remove_old_frames(qint64 older_than)
 {
-  //int counter = 0;
-
   while (!frames_.isEmpty() && frames_.first().accessed < older_than) {
     FFmpegFrameCache::Release(frames_.takeFirst().frame);
-    //counter++;
   }
-
-  //qDebug() << "  * Removed" << counter << "frames";
 }
 
 Frame* FFmpegFrameCache::Get(const VideoRenderingParams &params)

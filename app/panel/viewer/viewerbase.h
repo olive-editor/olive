@@ -20,6 +20,8 @@ public:
 
   void ConnectTimeBasedPanel(TimeBasedPanel* panel);
 
+  void DisconnectTimeBasedPanel(TimeBasedPanel* panel);
+
   VideoRenderBackend* video_renderer() const;
 
 };

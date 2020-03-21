@@ -32,7 +32,7 @@
 #include "panel/curve/curve.h"
 #include "panel/param/param.h"
 #include "panel/timeline/timeline.h"
-#include "panel/viewer/viewer.h"
+#include "panel/sequenceviewer/sequenceviewer.h"
 #include "ui/icons/icons.h"
 
 Sequence::Sequence()
@@ -159,19 +159,6 @@ void Sequence::Save(QXmlStreamWriter *writer) const
   viewer_output_->Save(writer, "viewer");
 
   writer->writeEndElement(); // sequence
-}
-
-void Sequence::Open(Sequence* sequence)
-{
-  // FIXME: This is fairly "hardcoded" behavior and doesn't support infinite panels
-
-  ViewerPanel* viewer_panel = PanelManager::instance()->MostRecentlyFocused<ViewerPanel>();
-  TimelinePanel* timeline_panel = PanelManager::instance()->MostRecentlyFocused<TimelinePanel>();
-  NodePanel* node_panel = PanelManager::instance()->MostRecentlyFocused<NodePanel>();
-
-  viewer_panel->ConnectViewerNode(sequence->viewer_output_);
-  timeline_panel->ConnectViewerNode(sequence->viewer_output_);
-  node_panel->SetGraph(sequence);
 }
 
 void Sequence::add_default_nodes()

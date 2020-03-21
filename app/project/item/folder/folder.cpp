@@ -46,8 +46,6 @@ QIcon Folder::icon()
 
 void Folder::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &footage_ptrs, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt *cancelled)
 {
-  qDebug() << "Hello?";
-
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
       return;
