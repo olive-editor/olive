@@ -51,14 +51,18 @@ ViewerGLWidget::~ViewerGLWidget()
 
 void ViewerGLWidget::ConnectColorManager(ColorManager *color_manager)
 {
+  if (color_manager_ == color_manager) {
+    return;
+  }
+
   if (color_manager_ != nullptr) {
-    disconnect(color_manager_, SIGNAL(ConfigChanged()), this, SLOT(RefreshColorPipeline()));
+    disconnect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::RefreshColorPipeline);
   }
 
   color_manager_ = color_manager;
 
   if (color_manager_ != nullptr) {
-    connect(color_manager_, SIGNAL(ConfigChanged()), this, SLOT(RefreshColorPipeline()));
+    connect(color_manager_, &ColorManager::ConfigChanged, this, &ViewerGLWidget::RefreshColorPipeline);
   }
 
   RefreshColorPipeline();
@@ -195,7 +199,7 @@ void ViewerGLWidget::initializeGL()
 {
   SetupColorProcessor();
 
-  connect(context(), SIGNAL(aboutToBeDestroyed()), this, SLOT(ContextCleanup()), Qt::DirectConnection);
+  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ViewerGLWidget::ContextCleanup, Qt::DirectConnection);
 
 #ifdef Q_OS_LINUX
   if (!nouveau_check_done_) {
@@ -287,25 +291,24 @@ void ViewerGLWidget::SetupColorProcessor()
     // (Re)create color processor
 
     try {
-      ColorProcessorPtr new_service = ColorProcessor::Create(color_manager_->GetConfig(),
-                                                             OCIO::ROLE_SCENE_LINEAR,
-                                                             ocio_display_,
-                                                             ocio_view_,
-                                                             ocio_look_);
 
       color_service_ = OpenGLColorProcessor::Create(color_manager_->GetConfig(),
-                                                          OCIO::ROLE_SCENE_LINEAR,
-                                                          ocio_display_,
-                                                          ocio_view_,
-                                                          ocio_look_);
+                                                    OCIO::ROLE_SCENE_LINEAR,
+                                                    ocio_display_,
+                                                    ocio_view_,
+                                                    ocio_look_);
 
+      makeCurrent();
       color_service_->Enable(context(), true);
+      doneCurrent();
 
     } catch (OCIO::Exception& e) {
+
       QMessageBox::critical(this,
                             tr("OpenColorIO Error"),
                             tr("Failed to set color configuration: %1").arg(e.what()),
                             QMessageBox::Ok);
+
     }
 
   } else {
