@@ -109,6 +109,8 @@ void RenderBackend::SetViewerNode(ViewerOutput *viewer_node)
 
     RegenerateCacheID();
   }
+
+  InvalidateCache(TimeRange(0, RATIONAL_MAX));
 }
 
 bool RenderBackend::IsInitiated()
