@@ -19,6 +19,8 @@ protected:
   virtual TimelinePoints* ConnectTimelinePoints() override;
 
 private:
+  void StartFootageDragInternal(bool enable_video, bool enable_audio);
+
   Footage* footage_;
 
   VideoInput* video_node_;
@@ -29,6 +31,10 @@ private:
 
 private slots:
   void StartFootageDrag();
+
+  void StartVideoDrag();
+
+  void StartAudioDrag();
 
 };
 

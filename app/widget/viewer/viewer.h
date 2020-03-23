@@ -123,6 +123,8 @@ protected:
 
   ViewerGLWidget* gl_widget_;
 
+  PlaybackControls* controls_;
+
 private:
   void UpdateTimeInternal(int64_t i);
 
@@ -139,8 +141,6 @@ private:
   QStackedWidget* stack_;
 
   ViewerSizer* sizer_;
-
-  PlaybackControls* controls_;
 
   qint64 start_msec_;
   int64_t start_timestamp_;

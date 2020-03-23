@@ -14,6 +14,10 @@ FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
   viewer_node_ = new ViewerOutput();
 
   connect(gl_widget_, &ViewerGLWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
+
+  controls_->SetAudioVideoDragButtonsVisible(true);
+  connect(controls_, &PlaybackControls::VideoPressed, this, &FootageViewerWidget::StartVideoDrag);
+  connect(controls_, &PlaybackControls::AudioPressed, this, &FootageViewerWidget::StartAudioDrag);
 }
 
 Footage *FootageViewerWidget::GetFootage() const
@@ -69,10 +73,10 @@ void FootageViewerWidget::SetFootage(Footage *footage)
 
 TimelinePoints *FootageViewerWidget::ConnectTimelinePoints()
 {
-  return footage_ ? footage_ : nullptr;
+  return footage_;
 }
 
-void FootageViewerWidget::StartFootageDrag()
+void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)
 {
   if (!GetFootage()) {
     return;
@@ -84,10 +88,41 @@ void FootageViewerWidget::StartFootageDrag()
   QByteArray encoded_data;
   QDataStream stream(&encoded_data, QIODevice::WriteOnly);
 
-  stream << -1 << reinterpret_cast<quintptr>(GetFootage());
+  quint64 enabled_stream_flags = GetFootage()->get_enabled_stream_flags();
+
+  // Disable streams that have been disabled
+  if (!enable_video || !enable_audio) {
+    quint64 stream_disabler = 0x1;
+
+    foreach (StreamPtr s, GetFootage()->streams()) {
+      if ((s->type() == Stream::kVideo && !enable_video)
+          || (s->type() == Stream::kAudio && !enable_audio)) {
+        enabled_stream_flags &= ~stream_disabler;
+      }
+
+      stream_disabler <<= 1;
+    }
+  }
+
+  stream << enabled_stream_flags << -1 << reinterpret_cast<quintptr>(GetFootage());
 
   mimedata->setData("application/x-oliveprojectitemdata", encoded_data);
   drag->setMimeData(mimedata);
 
   drag->exec();
+}
+
+void FootageViewerWidget::StartFootageDrag()
+{
+  StartFootageDragInternal(true, true);
+}
+
+void FootageViewerWidget::StartVideoDrag()
+{
+  StartFootageDragInternal(true, false);
+}
+
+void FootageViewerWidget::StartAudioDrag()
+{
+  StartFootageDragInternal(false, true);
 }

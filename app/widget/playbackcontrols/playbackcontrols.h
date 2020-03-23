@@ -27,6 +27,7 @@
 #include <QStackedWidget>
 
 #include "common/rational.h"
+#include "dragbutton.h"
 #include "widget/slider/timeslider.h"
 
 /**
@@ -46,6 +47,8 @@ public:
   void SetTimecodeEnabled(bool enabled);
 
   void SetTimebase(const rational& r);
+
+  void SetAudioVideoDragButtonsVisible(bool e);
 
 public slots:
   void SetTime(const int64_t &r);
@@ -87,6 +90,14 @@ signals:
    */
   void EndClicked();
 
+  void AudioClicked();
+
+  void VideoClicked();
+
+  void AudioPressed();
+
+  void VideoPressed();
+
   void TimeChanged(const int64_t& t);
 
 protected:
@@ -111,6 +122,8 @@ private:
   QPushButton* pause_btn_;
   QPushButton* next_frame_btn_;
   QPushButton* go_to_end_btn_;
+  DragButton* video_drag_btn_;
+  DragButton* audio_drag_btn_;
 
   QStackedWidget* playpause_stack_;
 

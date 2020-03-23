@@ -254,6 +254,22 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
   }
 }
 
+TimelineWidget::DraggedFootage TimelineWidget::FootageToDraggedFootage(Footage *f)
+{
+  return DraggedFootage(f, f->get_enabled_stream_flags());
+}
+
+QList<TimelineWidget::DraggedFootage> TimelineWidget::FootageToDraggedFootage(QList<Footage *> footage)
+{
+  QList<DraggedFootage> df;
+
+  foreach (Footage* f, footage) {
+    df.append(FootageToDraggedFootage(f));
+  }
+
+  return df;
+}
+
 void TimelineWidget::SelectAll()
 {
   foreach (TimelineAndTrackView* view, views_) {

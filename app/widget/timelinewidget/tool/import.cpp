@@ -79,6 +79,7 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
     // Variables to deserialize into
     quintptr item_ptr;
     int r;
+    quint64 enabled_streams;
 
     // Set drag start position
     drag_start_ = event->GetCoordinates();
@@ -86,7 +87,7 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
     snap_points_.clear();
 
     while (!stream.atEnd()) {
-      stream >> r >> item_ptr;
+      stream >> enabled_streams >> r >> item_ptr;
 
       // Get Item object
       Item* item = reinterpret_cast<Item*>(item_ptr);
@@ -95,7 +96,7 @@ void TimelineWidget::ImportTool::DragEnter(TimelineViewMouseEvent *event)
       if (item->type() == Item::kFootage) {
 
         // If the Item is Footage, we can create a Ghost from it
-        dragged_footage_.append(static_cast<Footage*>(item));
+        dragged_footage_.append(DraggedFootage(static_cast<Footage*>(item), enabled_streams));
 
       }
     }
@@ -175,7 +176,6 @@ void TimelineWidget::ImportTool::DragLeave(QDragLeaveEvent* event)
 void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 {
   if (!dragged_footage_.isEmpty()) {
-
     DropGhosts(event->GetModifiers() & Qt::ControlModifier);
 
     event->accept();
@@ -185,6 +185,11 @@ void TimelineWidget::ImportTool::DragDrop(TimelineViewMouseEvent *event)
 }
 
 void TimelineWidget::ImportTool::PlaceAt(const QList<Footage *> &footage, const rational &start, bool insert)
+{
+  PlaceAt(FootageToDraggedFootage(footage), start, insert);
+}
+
+void TimelineWidget::ImportTool::PlaceAt(const QList<DraggedFootage> &footage, const rational &start, bool insert)
 {
   dragged_footage_ = footage;
 
@@ -196,9 +201,9 @@ void TimelineWidget::ImportTool::PlaceAt(const QList<Footage *> &footage, const 
   DropGhosts(insert);
 }
 
-void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QList<Footage *> &footage_list, const rational& dest_tb, const int& track_start)
+void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QList<DraggedFootage> &footage_list, const rational& dest_tb, const int& track_start)
 {
-  foreach (Footage* footage, footage_list) {
+  foreach (const DraggedFootage& footage, footage_list) {
 
     // Each stream is offset by one track per track "type", we keep track of them in this vector
     QVector<int> track_offsets(Timeline::kTrackTypeCount);
@@ -206,12 +211,18 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
 
     rational footage_duration;
 
+    quint64 enabled_streams = footage.streams();
+
     // Loop through all streams in footage
-    foreach (StreamPtr stream, footage->streams()) {
+    foreach (StreamPtr stream, footage.footage()->streams()) {
       Timeline::TrackType track_type = TrackTypeFromStreamType(stream->type());
 
+      quint64 cached_enabled_streams = enabled_streams;
+      enabled_streams >>= 1;
+
       // Check if this stream has a compatible TrackList
-      if (track_type == Timeline::kTrackTypeNone || !stream->enabled()) {
+      if (track_type == Timeline::kTrackTypeNone
+          || !(cached_enabled_streams & 0x1)) {
         continue;
       }
 
@@ -322,7 +333,13 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
 
         if (behavior == kDWSAuto) {
 
-          new_sequence->set_parameters_from_footage(dragged_footage_);
+          QList<Footage*> footage_only;
+
+          foreach (const DraggedFootage& df, dragged_footage_) {
+            footage_only.append(df.footage());
+          }
+
+          new_sequence->set_parameters_from_footage(footage_only);
 
         } else {
 

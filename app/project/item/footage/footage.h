@@ -203,6 +203,8 @@ public:
 
   virtual QString rate() override;
 
+  quint64 get_enabled_stream_flags() const;
+
 private:
   /**
    * @brief Internal function to delete all Stream children and empty the array

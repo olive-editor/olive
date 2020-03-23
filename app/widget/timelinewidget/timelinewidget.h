@@ -79,6 +79,32 @@ protected:
   virtual void DisconnectNodeInternal(ViewerOutput* n) override;
 
 private:
+  class DraggedFootage {
+  public:
+    DraggedFootage(Footage* f, quint64 streams) :
+      footage_(f),
+      streams_(streams)
+    {
+    }
+
+    Footage* footage() const {
+      return footage_;
+    }
+
+    const quint64& streams() const {
+      return streams_;
+    }
+
+  private:
+    Footage* footage_;
+
+    quint64 streams_;
+
+  };
+
+  static DraggedFootage FootageToDraggedFootage(Footage* f);
+  static QList<DraggedFootage> FootageToDraggedFootage(QList<Footage*> footage);
+
   class Tool
   {
   public:
@@ -227,16 +253,17 @@ private:
     virtual void DragLeave(QDragLeaveEvent *event) override;
     virtual void DragDrop(TimelineViewMouseEvent *event) override;
 
-    void PlaceAt(const QList<Footage*>& footage, const rational& start, bool insert);
+    void PlaceAt(const QList<Footage*> &footage, const rational& start, bool insert);
+    void PlaceAt(const QList<DraggedFootage> &footage, const rational& start, bool insert);
 
   private:
-    void FootageToGhosts(rational ghost_start, const QList<Footage*>& footage, const rational &dest_tb, const int &track_start);
+    void FootageToGhosts(rational ghost_start, const QList<DraggedFootage>& footage, const rational &dest_tb, const int &track_start);
 
     void PrepGhosts(const rational &frame, const int &track_index);
 
     void DropGhosts(bool insert);
 
-    QList<Footage*> dragged_footage_;
+    QList<DraggedFootage> dragged_footage_;
 
     int import_pre_buffer_;
 

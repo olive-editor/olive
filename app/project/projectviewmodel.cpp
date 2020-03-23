@@ -272,7 +272,7 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
         // If not, add it to the stream (and also keep track of it in the vector)
-        stream << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
+        stream << static_cast<Footage*>(index.internalPointer())->get_enabled_stream_flags() << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
         dragged_items.append(index.internalPointer());
       }
     }
@@ -316,6 +316,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     // Variables to deserialize into
     quintptr item_ptr;
     int r;
+    quint64 enabled_streams;
 
     // Loop through all data
     QUndoCommand* move_command = new QUndoCommand();
@@ -323,7 +324,7 @@ bool ProjectViewModel::dropMimeData(const QMimeData *data, Qt::DropAction action
     move_command->setText(tr("Move Items"));
 
     while (!stream.atEnd()) {
-      stream >> r >> item_ptr;
+      stream >> enabled_streams >> r >> item_ptr;
 
       Item* item = reinterpret_cast<Item*>(item_ptr);
 

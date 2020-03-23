@@ -16,6 +16,8 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/playbackcontrols/dragbutton.h
+  widget/playbackcontrols/dragbutton.cpp
   widget/playbackcontrols/playbackcontrols.h
   widget/playbackcontrols/playbackcontrols.cpp
   PARENT_SCOPE

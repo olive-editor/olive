@@ -37,12 +37,14 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_control_layout->setSpacing(0);
   lower_control_layout->setMargin(0);
 
-  QSizePolicy lower_container_size_policy = QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+  QSizePolicy lower_container_size_policy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+  lower_container_size_policy.setHorizontalStretch(1);
 
   // In the lower-left, we create a current timecode label wrapped in a QWidget for fixed sizing
   lower_left_container_ = new QWidget();
   lower_left_container_->setVisible(false);
   lower_left_container_->setSizePolicy(lower_container_size_policy);
+
   lower_control_layout->addWidget(lower_left_container_);
 
   QHBoxLayout* lower_left_layout = new QHBoxLayout(lower_left_container_);
@@ -54,6 +56,12 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_left_layout->addWidget(cur_tc_lbl_);
   lower_left_layout->addStretch();
 
+  // This is only here
+  QWidget* blank_widget = new QWidget();
+  //new QHBoxLayout(blank_widget);
+  blank_widget->setSizePolicy(lower_container_size_policy);
+  lower_control_layout->addWidget(blank_widget);
+
   // In the lower-middle, we create playback control buttons
   QWidget* lower_middle_container = new QWidget();
   lower_middle_container->setSizePolicy(lower_container_size_policy);
@@ -62,8 +70,6 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   QHBoxLayout* lower_middle_layout = new QHBoxLayout(lower_middle_container);
   lower_middle_layout->setSpacing(0);
   lower_middle_layout->setMargin(0);
-
-  lower_middle_layout->addStretch();
 
   // Go To Start Button
   go_to_start_btn_ = new QPushButton();
@@ -101,7 +107,20 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
   lower_middle_layout->addWidget(go_to_end_btn_);
   connect(go_to_end_btn_, &QPushButton::clicked, this, &PlaybackControls::EndClicked);
 
-  lower_middle_layout->addStretch();
+  QWidget* av_btn_widget = new QWidget();
+  av_btn_widget->setSizePolicy(lower_container_size_policy);
+  QHBoxLayout* av_btn_layout = new QHBoxLayout(av_btn_widget);
+  av_btn_layout->setSpacing(0);
+  av_btn_layout->setMargin(0);
+  video_drag_btn_ = new DragButton();
+  connect(video_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::VideoClicked);
+  connect(video_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::VideoPressed);
+  av_btn_layout->addWidget(video_drag_btn_);
+  audio_drag_btn_ = new DragButton();
+  connect(audio_drag_btn_, &QPushButton::clicked, this, &PlaybackControls::AudioClicked);
+  connect(audio_drag_btn_, &DragButton::MousePressed, this, &PlaybackControls::AudioPressed);
+  av_btn_layout->addWidget(audio_drag_btn_);
+  lower_control_layout->addWidget(av_btn_widget);
 
   // The lower-right, we create another timecode label, this time to show the end timecode
   lower_right_container_ = new QWidget();
@@ -121,6 +140,8 @@ PlaybackControls::PlaybackControls(QWidget *parent) :
 
   SetTimebase(0);
 
+  SetAudioVideoDragButtonsVisible(false);
+
   connect(Core::instance(), &Core::TimecodeDisplayChanged, this, &PlaybackControls::TimecodeChanged);
 }
 
@@ -136,6 +157,12 @@ void PlaybackControls::SetTimebase(const rational &r)
   cur_tc_lbl_->SetTimebase(r);
 
   cur_tc_lbl_->setEnabled(!r.isNull());
+}
+
+void PlaybackControls::SetAudioVideoDragButtonsVisible(bool e)
+{
+  video_drag_btn_->setVisible(e);
+  audio_drag_btn_->setVisible(e);
 }
 
 void PlaybackControls::SetTime(const int64_t &r)
@@ -184,6 +211,8 @@ void PlaybackControls::UpdateIcons()
   pause_btn_->setIcon(icon::Pause);
   next_frame_btn_->setIcon(icon::NextFrame);
   go_to_end_btn_->setIcon(icon::GoToEnd);
+  video_drag_btn_->setIcon(icon::Video);
+  audio_drag_btn_->setIcon(icon::Audio);
 }
 
 void PlaybackControls::TimecodeChanged()

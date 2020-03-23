@@ -272,6 +272,22 @@ QString Footage::rate()
   return QString();
 }
 
+quint64 Footage::get_enabled_stream_flags() const
+{
+  quint64 enabled_streams = 0;
+  quint64 stream_enabler = 1;
+
+  foreach (StreamPtr s, streams_) {
+    if (s->enabled()) {
+      enabled_streams |= stream_enabler;
+    }
+
+    stream_enabler <<= 1;
+  }
+
+  return enabled_streams;
+}
+
 void Footage::ClearStreams()
 {
   if (streams_.empty()) {
