@@ -59,6 +59,10 @@ public:
 
   void ToggleLinksOnSelected();
 
+  void CopySelected(bool cut);
+
+  void Paste(bool insert);
+
   QList<TimelineViewBlockItem*> GetSelectedBlocks();
 
 signals:

@@ -52,3 +52,10 @@ void TimelineViewRect::ScaleChangedEvent(const double &scale)
 
   UpdateRect();
 }
+
+void TimelineViewRect::TimebaseChangedEvent(const rational &tb)
+{
+  TimelineScaledObject::TimebaseChangedEvent(tb);
+
+  UpdateRect();
+}

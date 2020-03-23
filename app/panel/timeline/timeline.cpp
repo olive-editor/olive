@@ -120,6 +120,26 @@ void TimelinePanel::ToggleLinks()
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->ToggleLinksOnSelected();
 }
 
+void TimelinePanel::CutSelected()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->CopySelected(true);
+}
+
+void TimelinePanel::CopySelected()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->CopySelected(false);
+}
+
+void TimelinePanel::Paste()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->Paste(false);
+}
+
+void TimelinePanel::PasteInsert()
+{
+  static_cast<TimelineWidget*>(GetTimeBasedWidget())->Paste(true);
+}
+
 void TimelinePanel::InsertFootageAtPlayhead(const QList<Footage *> &footage)
 {
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->InsertFootageAtPlayhead(footage);

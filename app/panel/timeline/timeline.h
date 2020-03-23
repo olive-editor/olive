@@ -63,6 +63,14 @@ public:
 
   virtual void ToggleLinks() override;
 
+  virtual void CutSelected() override;
+
+  virtual void CopySelected() override;
+
+  virtual void Paste() override;
+
+  virtual void PasteInsert() override;
+
   void InsertFootageAtPlayhead(const QList<Footage *> &footage);
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);

@@ -153,6 +153,14 @@ void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
 
   timecode_label_->setVisible(!timebase.isNull());
 
+  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
+
+  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
+    if (iterator.value()) {
+      iterator.value()->SetTimebase(timebase);
+    }
+  }
+
   foreach (TimelineAndTrackView* view, views_) {
     view->view()->SetTimebase(timebase);
   }
@@ -179,12 +187,10 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
 {
   TimeBasedWidget::ScaleChangedEvent(scale);
 
-  QMapIterator<Block*, TimelineViewBlockItem*> iterator(block_items_);
+  QMap<Block*, TimelineViewBlockItem*>::const_iterator iterator;
 
-  while (iterator.hasNext()) {
-    iterator.next();
-
-    if (iterator.value() != nullptr) {
+  for (iterator=block_items_.begin();iterator!=block_items_.end();iterator++) {
+    if (iterator.value()) {
       iterator.value()->SetScale(scale);
     }
   }
@@ -496,6 +502,61 @@ void TimelineWidget::ToggleLinksOnSelected()
   }
 }
 
+void TimelineWidget::CopySelected(bool cut)
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  QList<TimelineViewBlockItem*> selected = GetSelectedBlocks();
+
+  if (selected.isEmpty()) {
+    return;
+  }
+
+  QList<Node*> selected_nodes;
+
+  foreach (TimelineViewBlockItem* item, selected) {
+    Node* block = item->block();
+
+    selected_nodes.append(block);
+
+    QList<Node*> deps = block->GetDependencies();
+
+    foreach (Node* d, deps) {
+      if (!selected_nodes.contains(d)) {
+        selected_nodes.append(d);
+      }
+    }
+  }
+
+  Core::instance()->CopyNodesToClipboard(selected_nodes);
+
+  if (cut) {
+    DeleteSelected();
+  }
+}
+
+void TimelineWidget::Paste(bool insert)
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  QList<Node*> pasted = Core::instance()->PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()));
+
+  if (insert) {
+    // FIXME: Implement this
+  }
+
+  foreach (Node* n, pasted) {
+    // See if this block is a node and is a top level node
+    if (n->IsBlock() && !n->output()->IsConnected()) {
+
+    }
+  }
+}
+
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
 {
   QList<TimelineViewBlockItem *> list;
@@ -703,6 +764,7 @@ void TimelineWidget::AddBlock(Block *block, TrackReference track)
     item->SetYCoords(GetTrackY(track), GetTrackHeight(track));
     item->SetScale(GetScale());
     item->SetTrack(track);
+    item->SetTimebase(timebase());
 
     // Add to list of clip items that can be iterated through
     block_items_.insert(block, item);

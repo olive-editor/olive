@@ -44,6 +44,8 @@ public:
 protected:
   virtual void ScaleChangedEvent(const double &) override;
 
+  virtual void TimebaseChangedEvent(const rational&) override;
+
   int y_;
 
   int height_;

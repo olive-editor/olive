@@ -31,6 +31,7 @@
 
 #include "common/qtutils.h"
 #include "config/config.h"
+#include "core.h"
 #include "node/block/transition/transition.h"
 #include "widget/viewer/audiowaveformview.h"
 
@@ -63,13 +64,13 @@ void TimelineViewBlockItem::UpdateRect()
   setPos(item_left, 0.0);
 
   setToolTip(QCoreApplication::translate("TimelineViewBlockItem",
-                                         "%1\n\nIn: %2\nOut: %3\nMedia In: %4").arg(block_->Name(),
-                                                                                    QString::number(block_->in().toDouble()),
-                                                                                    QString::number(block_->out().toDouble()),
-                                                                                    QString::number(block_->media_in().toDouble())));
+                                         "%1\n\nIn: %2\nOut: %3\nLength: %4").arg(block_->Name(),
+                                                                                    Timecode::time_to_timecode(block_->in(), timebase(), Core::instance()->GetTimecodeDisplay()),
+                                                                                    Timecode::time_to_timecode(block_->out(), timebase(), Core::instance()->GetTimecodeDisplay()),
+                                                                                    Timecode::time_to_timecode(block_->out() - block_->in(), timebase(), Core::instance()->GetTimecodeDisplay())));
 }
 
-void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
 {
   switch (block_->type()) {
   case Block::kClip:
