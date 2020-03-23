@@ -59,6 +59,8 @@ public:
 
   static rational timestamp_to_time(const int64_t& timestamp, const rational& timebase);
 
+  static QString time_to_timecode(const rational& time, const rational& timebase, const Display &display, bool show_plus_if_positive = false);
+
   static bool TimebaseIsDropFrame(const rational& timebase);
 
 };

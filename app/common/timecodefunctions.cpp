@@ -34,7 +34,7 @@ QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
                                         bool show_plus_if_positive)
 {
   if (timebase.isNull()) {
-    return QString();
+    return QStringLiteral("INVALID TIMEBASE");
   }
 
   double timestamp_dbl = (rational(timestamp) * timebase).toDouble();
@@ -126,7 +126,7 @@ QString Timecode::timestamp_to_timecode(const int64_t &timestamp,
     return QString::number(qRound(timestamp_dbl * 1000));
   }
 
-  return QString();
+  return QStringLiteral("INVALID TIMECODE MODE");
 }
 
 int64_t Timecode::timecode_to_timestamp(const QString &timecode, const rational &timebase, const Display &display, bool* ok)
@@ -242,6 +242,11 @@ rational Timecode::snap_time_to_timebase(const rational &time, const rational &t
 rational Timecode::timestamp_to_time(const int64_t &timestamp, const rational &timebase)
 {
   return rational(timestamp) * timebase;
+}
+
+QString Timecode::time_to_timecode(const rational &time, const rational &timebase, const Timecode::Display &display, bool show_plus_if_positive)
+{
+  return timestamp_to_timecode(time_to_timestamp(time, timebase), timebase, display, show_plus_if_positive);
 }
 
 bool Timecode::TimebaseIsDropFrame(const rational &timebase)
