@@ -151,6 +151,10 @@ public:
    */
   void SetAutorecoveryInterval(int minutes);
 
+  void CopyNodesToClipboard(const QList<Node*>& nodes);
+
+  QList<Node*> PasteNodesFromClipboard(Sequence *graph);
+
   /**
    * @brief Return a list of supported frame rates in rational form
    *

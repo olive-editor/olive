@@ -20,14 +20,11 @@
 
 #include "nodeview.h"
 
-#include <QClipboard>
 #include <QMouseEvent>
-#include <QGuiApplication>
 
 #include "core.h"
 #include "nodeviewundo.h"
 #include "node/factory.h"
-#include "common/xmlutils.h"
 
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
@@ -145,26 +142,11 @@ void NodeView::CopySelected(bool cut)
     return;
   }
 
-  QString copy_str;
-
-  QXmlStreamWriter writer(&copy_str);
-  writer.setAutoFormatting(true);
-
-  writer.writeStartDocument();
-  writer.writeStartElement(QStringLiteral("olive"));
-
-  foreach (Node* n, selected) {
-    n->Save(&writer);
-  }
-
-  writer.writeEndElement(); // clipboard
-  writer.writeEndDocument();
+  Core::instance()->CopyNodesToClipboard(selected);
 
   if (cut) {
     DeleteSelected();
   }
-
-  QGuiApplication::clipboard()->setText(copy_str);
 }
 
 void NodeView::Paste()
@@ -173,79 +155,7 @@ void NodeView::Paste()
     return;
   }
 
-  QString clipboard = QGuiApplication::clipboard()->text();
-
-  if (clipboard.isEmpty()) {
-    return;
-  }
-
-  QXmlStreamReader reader(clipboard);
-
-  QList<Node*> pasted_nodes;
-  QHash<quintptr, NodeOutput*> output_ptrs;
-  QList<NodeParam::SerializedConnection> desired_connections;
-  QList<NodeInput::FootageConnection> footage_connections;
-
-  while (XMLReadNextStartElement(&reader)) {
-    if (reader.name() == QStringLiteral("olive")) {
-      while (XMLReadNextStartElement(&reader)) {
-        if (reader.name() == QStringLiteral("node")) {
-          Node* node = XMLLoadNode(&reader);
-
-          if (node) {
-            node->Load(&reader, output_ptrs, desired_connections, footage_connections, nullptr);
-
-            graph_->AddNode(node);
-
-            pasted_nodes.append(node);
-          }
-        } else {
-          reader.skipCurrentElement();
-        }
-      }
-    } else {
-      reader.skipCurrentElement();
-    }
-  }
-
-  // Make connections
-  if (!desired_connections.isEmpty()) {
-    XMLConnectNodes(output_ptrs, desired_connections);
-  }
-
-  // Connect footage to existing footage if it exists
-  if (!footage_connections.isEmpty()) {
-    // Get list of all footage from project
-    // FIXME: Assumes sequence
-    QList<ItemPtr> footage = static_cast<Sequence*>(graph_)->project()->get_items_of_type(Item::kFootage);
-
-    if (!footage.isEmpty()) {
-      foreach (const NodeInput::FootageConnection& con, footage_connections) {
-        if (con.footage) {
-          // Assume this is a pointer to a Stream*
-          Stream* loaded_stream = reinterpret_cast<Stream*>(con.footage);
-
-          bool found = false;
-
-          foreach (ItemPtr item, footage) {
-            const QList<StreamPtr>& streams = std::static_pointer_cast<Footage>(item)->streams();
-
-            foreach (StreamPtr s, streams) {
-              if (s.get() == loaded_stream) {
-                con.input->set_standard_value(QVariant::fromValue(s));
-                found = true;
-                break;
-              }
-            }
-
-            if (found) {
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
+  QList<Node*> pasted_nodes = Core::instance()->PasteNodesFromClipboard(static_cast<Sequence*>(graph_));
 
   if (!pasted_nodes.isEmpty()) {
     // FIXME: Attach to cursor so user can drop in place
