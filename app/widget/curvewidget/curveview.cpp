@@ -58,7 +58,7 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   } while (x_grid_interval < minimum_grid_space_);
 
   do {
-    y_grid_interval = qRound(y_interval * y_scale_);
+    y_grid_interval = qRound(y_interval * GetYScale());
     y_interval *= 2.0;
   } while (y_grid_interval < minimum_grid_space_);
 
@@ -77,7 +77,7 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
 
   // Add horizontal lines
   for (int i=y_start;i<rect.bottom();i+=y_grid_interval) {
-    int value = qRound(static_cast<double>(i) / y_scale_);
+    int value = qRound(static_cast<double>(i) / GetYScale());
     painter->drawText(qRound(scene_bottom_left.x()) + text_padding_, i - text_padding_, QString::number(-value));
     lines.append(QLine(qRound(rect.left()), i, qRound(rect.right()), i));
   }
@@ -209,10 +209,10 @@ void CurveView::wheelEvent(QWheelEvent *event)
     if (event->delta() != 0) {
       if (event->delta() > 0) {
         emit ScaleChanged(GetScale() * 1.1);
-        SetYScale(y_scale_ * 1.1);
+        SetYScale(GetYScale() * 1.1);
       } else {
         emit ScaleChanged(GetScale() * 0.9);
-        SetYScale(y_scale_ * 0.9);
+        SetYScale(GetYScale() * 0.9);
       }
     }
   } else {
@@ -248,7 +248,7 @@ QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime()
 
 qreal CurveView::GetItemYFromKeyframeValue(NodeKeyframe *key)
 {
-  return -key->value().toDouble() * y_scale_;
+  return -key->value().toDouble() * GetYScale();
 }
 
 void CurveView::SetItemYFromKeyframeValue(NodeKeyframe *key, KeyframeViewItem *item)
@@ -259,7 +259,7 @@ void CurveView::SetItemYFromKeyframeValue(NodeKeyframe *key, KeyframeViewItem *i
 QPointF CurveView::ScalePoint(const QPointF &point)
 {
   // Flips Y coordinate because curves are drawn bottom to top
-  return QPointF(point.x() * GetScale(), - point.y() * y_scale_);
+  return QPointF(point.x() * GetScale(), - point.y() * GetYScale());
 }
 
 void CurveView::CreateBezierControlPoints(KeyframeViewItem* item)

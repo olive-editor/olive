@@ -37,8 +37,6 @@ protected:
 
   void SetYAxisEnabled(bool e);
 
-  double y_scale_;
-
 private:
   rational CalculateNewTimeFromScreen(const rational& old_time, double cursor_diff);
 
@@ -70,6 +68,8 @@ private:
   QVector<KeyframeItemAndTime> selected_keys_;
 
   bool y_axis_enabled_;
+
+  double y_scale_;
 
 private slots:
   void ShowContextMenu();

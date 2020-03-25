@@ -12,9 +12,9 @@
 
 KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimelineViewBase(parent),
-  y_scale_(1.0),
   dragging_bezier_point_(nullptr),
-  y_axis_enabled_(false)
+  y_axis_enabled_(false),
+  y_scale_(1.0)
 {
   SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
