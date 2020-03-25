@@ -89,6 +89,15 @@ TimeRange ClipBlock::InputTimeAdjustment(NodeInput *input, const TimeRange &inpu
   return Block::InputTimeAdjustment(input, input_time);
 }
 
+TimeRange ClipBlock::OutputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
+{
+  if (input == texture_input_) {
+    return TimeRange(MediaToSequenceTime(input_time.in()), MediaToSequenceTime(input_time.out()));
+  }
+
+  return Block::InputTimeAdjustment(input, input_time);
+}
+
 NodeValueTable ClipBlock::Value(const NodeValueDatabase &value) const
 {
   // We discard most values here except for the buffer we received

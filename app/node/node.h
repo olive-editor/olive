@@ -212,6 +212,11 @@ public:
    */
   void DisconnectAll();
 
+  /**
+   * @brief Transforms time from this node through the connections it takes to get to the specified node
+   */
+  QList<TimeRange> TransformTimeTo(const TimeRange& time, Node* target, NodeParam::Type direction);
+
   template<class T>
   /**
    * @brief Find a node of a certain type that this Node outputs to
@@ -245,7 +250,18 @@ public:
    */
   virtual void InvalidateVisible(NodeInput *from);
 
+  /**
+   * @brief Adjusts time that should be sent to nodes connected to certain inputs.
+   *
+   * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be
+   * overridden to do so. Also make sure to override OutputTimeAdjustment() to provide the inverse function.
+   */
   virtual TimeRange InputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
+
+  /**
+   * @brief The inverse of InputTimeAdjustment()
+   */
+  virtual TimeRange OutputTimeAdjustment(NodeInput* input, const TimeRange& input_time) const;
 
   /**
    * @brief Copies inputs from from Node to another including connections
@@ -314,6 +330,10 @@ public:
   void SetPosition(const QPointF& pos);
 
   static QString ReadFileAsString(const QString& filename);
+
+  QList<NodeInput*> GetInputsIncludingArrays() const;
+
+  QList<NodeOutput*> GetOutputs() const;
 
 protected:
   void AddInput(NodeInput* input);

@@ -167,10 +167,15 @@ void Node::InvalidateVisible(NodeInput *from)
   }
 }
 
-TimeRange Node::InputTimeAdjustment(NodeInput *input, const TimeRange &input_time) const
+TimeRange Node::InputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
 {
   // Default behavior is no time adjustment at all
-  Q_UNUSED(input)
+  return input_time;
+}
+
+TimeRange Node::OutputTimeAdjustment(NodeInput *, const TimeRange &input_time) const
+{
+  // Default behavior is no time adjustment at all
   return input_time;
 }
 
@@ -222,6 +227,42 @@ QString Node::ReadFileAsString(const QString &filename)
     f.close();
   }
   return file_data;
+}
+
+void GetInputsIncludingArraysInternal(NodeInputArray* array, QList<NodeInput *>& list)
+{
+  foreach (NodeInput* input, array->sub_params()) {
+    list.append(input);
+
+    if (input->IsArray()) {
+      GetInputsIncludingArraysInternal(static_cast<NodeInputArray*>(input), list);
+    }
+  }
+}
+
+QList<NodeInput *> Node::GetInputsIncludingArrays() const
+{
+  QList<NodeInput *> inputs;
+
+  foreach (NodeParam* param, params_) {
+    if (param->type() == NodeParam::kInput) {
+      NodeInput* input = static_cast<NodeInput*>(param);
+
+      inputs.append(input);
+
+      if (input->IsArray()) {
+        GetInputsIncludingArraysInternal(static_cast<NodeInputArray*>(input), inputs);
+      }
+    }
+  }
+
+  return inputs;
+}
+
+QList<NodeOutput *> Node::GetOutputs() const
+{
+  // The current design only uses one output per node. This function returns a list just in case that changes.
+  return {output_};
 }
 
 void Node::CopyInputs(Node *source, Node *destination, bool include_connections)
@@ -485,6 +526,55 @@ void Node::DisconnectAll()
   foreach (NodeParam* param, params_) {
     param->DisconnectAll();
   }
+}
+
+QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, NodeParam::Type direction)
+{
+  QList<TimeRange> paths_found;
+
+  if (direction == NodeParam::kInput) {
+    // Get list of all inputs
+    QList<NodeInput *> inputs = GetInputsIncludingArrays();
+
+    // If this input is connected, traverse it to see if we stumble across the specified `node`
+    foreach (NodeInput* input, inputs) {
+      if (input->IsConnected()) {
+        TimeRange input_adjustment = InputTimeAdjustment(input, time);
+
+        if (input->get_connected_node() == target) {
+          // We found the target, no need to keep traversing
+          if (!paths_found.contains(input_adjustment)) {
+            paths_found.append(input_adjustment);
+          }
+        } else {
+          // We did NOT find the target, traverse this
+          paths_found.append(TransformTimeTo(input_adjustment, target, direction));
+        }
+      }
+    }
+  } else {
+    // Get list of all outputs
+    QList<NodeOutput*> outputs = GetOutputs();
+
+    // If this input is connected, traverse it to see if we stumble across the specified `node`
+    foreach (NodeOutput* output, outputs) {
+      if (output->IsConnected()) {
+        foreach (NodeEdgePtr edge, output->edges()) {
+          Node* input_node = edge->input()->parentNode();
+
+          TimeRange output_adjustment = input_node->OutputTimeAdjustment(edge->input(), time);
+
+          if (input_node == target) {
+            paths_found.append(output_adjustment);
+          } else {
+            paths_found.append(TransformTimeTo(output_adjustment, target, direction));
+          }
+        }
+      }
+    }
+  }
+
+  return paths_found;
 }
 
 QVariant Node::PtrToValue(void *ptr)
