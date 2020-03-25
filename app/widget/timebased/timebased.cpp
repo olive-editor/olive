@@ -48,6 +48,10 @@ ViewerOutput *TimeBasedWidget::GetConnectedNode() const
 
 void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 {
+  if (viewer_node_ == node) {
+    return;
+  }
+
   if (viewer_node_) {
     DisconnectNodeInternal(viewer_node_);
 
