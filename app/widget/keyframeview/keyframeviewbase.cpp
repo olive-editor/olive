@@ -59,6 +59,7 @@ void KeyframeViewBase::RemoveKeyframe(NodeKeyframePtr key)
 KeyframeViewItem *KeyframeViewBase::AddKeyframeInternal(NodeKeyframePtr key)
 {
   KeyframeViewItem* item = new KeyframeViewItem(key);
+  item->SetTimeTarget(GetTimeTarget());
   item->SetScale(GetScale());
   item_map_.insert(key.get(), item);
   scene()->addItem(item);
@@ -87,9 +88,12 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
         dragging_bezier_point_ = dynamic_cast<BezierControlPointItem*>(item_under_cursor);
 
         if (dragging_bezier_point_) {
+
           dragging_bezier_point_start_ = dragging_bezier_point_->GetCorrespondingKeyframeHandle();
           dragging_bezier_point_opposing_start_ = dragging_bezier_point_->key()->bezier_control(NodeKeyframe::get_opposing_bezier_type(dragging_bezier_point_->mode()));
+
         } else {
+
           QList<QGraphicsItem*> selected_items = scene()->selectedItems();
 
           selected_keys_.resize(selected_items.size());
@@ -97,8 +101,12 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
           for (int i=0;i<selected_items.size();i++) {
             KeyframeViewItem* key = static_cast<KeyframeViewItem*>(selected_items.at(i));
 
-            selected_keys_.replace(i, {key, key->x(), key->key()->time(), key->key()->value().toDouble()});
+            selected_keys_.replace(i, {key,
+                                       key->x(),
+                                       GetAdjustedTime(key->key()->parent()->parentNode(), GetTimeTarget(), key->key()->time(), NodeParam::kOutput),
+                                       key->key()->value().toDouble()});
           }
+
         }
       }
     }
@@ -128,7 +136,12 @@ void KeyframeViewBase::mouseMoveEvent(QMouseEvent *event)
 
           input_parent->blockSignals(true);
 
-          keypair.key->key()->set_time(CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()));
+          rational node_time = GetAdjustedTime(GetTimeTarget(),
+                                               keypair.key->key()->parent()->parentNode(),
+                                               CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
+                                               NodeParam::kInput);
+
+          keypair.key->key()->set_time(node_time);
 
           if (y_axis_enabled_) {
             keypair.key->key()->set_value(keypair.value - mouse_diff_scaled.y());
@@ -174,7 +187,10 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
             keypair.key->key()->parent()->blockSignals(true);
 
             // Calculate the new time for this keyframe
-            rational new_time = CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x());
+            rational node_time = GetAdjustedTime(GetTimeTarget(),
+                                                 keypair.key->key()->parent()->parentNode(),
+                                                 CalculateNewTimeFromScreen(keypair.time, mouse_diff_scaled.x()),
+                                                 NodeParam::kInput);
 
 
 
@@ -185,7 +201,7 @@ void KeyframeViewBase::mouseReleaseEvent(QMouseEvent *event)
             // the signalling once the undo command is pushed.
             item->key()->set_time(keypair.time);
             new NodeParamSetKeyframeTimeCommand(item->key(),
-                                                new_time,
+                                                node_time,
                                                 keypair.time,
                                                 command);
 
@@ -232,6 +248,15 @@ const QMap<NodeKeyframe *, KeyframeViewItem *> &KeyframeViewBase::item_map() con
 
 void KeyframeViewBase::KeyframeAboutToBeRemoved(NodeKeyframe *)
 {
+}
+
+void KeyframeViewBase::TimeTargetChangedEvent(Node *target)
+{
+  QMap<NodeKeyframe*, KeyframeViewItem*>::const_iterator i;
+
+  for (i=item_map_.begin();i!=item_map_.end();i++) {
+    i.value()->SetTimeTarget(target);
+  }
 }
 
 void KeyframeViewBase::SetYAxisEnabled(bool e)

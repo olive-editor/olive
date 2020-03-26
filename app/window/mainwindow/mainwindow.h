@@ -80,7 +80,7 @@ private:
   CurvePanel* curve_panel_;
 
 private slots:
-  void TimelineFocusedSlot(bool visible);
+  void FocusedPanelChanged(PanelWidget* panel);
 
 };
 

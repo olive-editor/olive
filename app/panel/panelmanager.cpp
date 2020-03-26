@@ -26,7 +26,8 @@ PanelManager* PanelManager::instance_ = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
   QObject(parent),
-  locked_(false)
+  locked_(false),
+  last_focused_panel_(nullptr)
 {
 }
 
@@ -106,25 +107,30 @@ void PanelManager::FocusChanged(QWidget *old, QWidget *now)
     // Use dynamic_cast to test if this object is a PanelWidget
     panel_cast_test = dynamic_cast<PanelWidget*>(parent);
 
-    if (panel_cast_test != nullptr) {
-      // If so, bump this to the top of the focus history
+    if (panel_cast_test) {
 
-      int panel_index = focus_history_.indexOf(panel_cast_test);
+      if (last_focused_panel_ != panel_cast_test) {
+        // If so, bump this to the top of the focus history
+        int panel_index = focus_history_.indexOf(panel_cast_test);
 
-      // Force the old panel to repaint (if there is one) so it hides its border
-      if (!focus_history_.isEmpty()) {
-        focus_history_.first()->SetBorderVisible(false);
+        // Disable highlight border on old panel
+        if (!focus_history_.isEmpty()) {
+          focus_history_.first()->SetBorderVisible(false);
+        }
+
+        // Enable new border's highlight
+        panel_cast_test->SetBorderVisible(true);
+
+        // If it's not in the focus history, prepend it, otherwise move it
+        if (panel_index == -1) {
+          focus_history_.prepend(panel_cast_test);
+        } else {
+          focus_history_.move(panel_index, 0);
+        }
+
+        last_focused_panel_ = panel_cast_test;
+        emit FocusedPanelChanged(panel_cast_test);
       }
-
-      // If it's not in the focus history, prepend it, otherwise move it
-      if (panel_index == -1) {
-        focus_history_.prepend(panel_cast_test);
-      } else {
-        focus_history_.move(panel_index, 0);
-      }
-
-      // Force the panel to repaint so it shows a border
-      panel_cast_test->SetBorderVisible(true);
 
       break;
     }

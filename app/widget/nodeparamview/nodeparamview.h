@@ -41,6 +41,8 @@ public:
 signals:
   void SelectedInputChanged(NodeInput* input);
 
+  void TimeTargetChanged(Node* target);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 

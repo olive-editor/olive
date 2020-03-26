@@ -11,7 +11,7 @@
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/timebased/timebased.h"
 
-class CurveWidget : public TimeBasedWidget
+class CurveWidget : public TimeBasedWidget, public TimeTargetObject
 {
   Q_OBJECT
 public:
@@ -30,6 +30,8 @@ protected:
   virtual void TimeChangedEvent(const int64_t &) override;
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void ScaleChangedEvent(const double &) override;
+
+  virtual void TimeTargetChangedEvent(Node* target) override;
 
 private:
   void UpdateInputLabel();

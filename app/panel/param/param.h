@@ -36,6 +36,8 @@ public slots:
 signals:
   void SelectedInputChanged(NodeInput* input);
 
+  void TimeTargetChanged(Node* node);
+
 protected:
   virtual void Retranslate() override;
 

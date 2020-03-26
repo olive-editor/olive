@@ -3,10 +3,11 @@
 
 #include "keyframeviewitem.h"
 #include "node/keyframe.h"
+#include "timetargetobject.h"
 #include "widget/curvewidget/beziercontrolpointitem.h"
 #include "widget/timelinewidget/view/timelineviewbase.h"
 
-class KeyframeViewBase : public TimelineViewBase
+class KeyframeViewBase : public TimelineViewBase, public TimeTargetObject
 {
   Q_OBJECT
 public:
@@ -34,6 +35,8 @@ protected:
   const QMap<NodeKeyframe*, KeyframeViewItem*>& item_map() const;
 
   virtual void KeyframeAboutToBeRemoved(NodeKeyframe* key);
+
+  virtual void TimeTargetChangedEvent(Node*) override;
 
   void SetYAxisEnabled(bool e);
 

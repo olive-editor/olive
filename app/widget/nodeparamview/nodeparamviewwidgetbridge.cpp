@@ -36,80 +36,10 @@ void NodeParamViewWidgetBridge::SetTime(const rational &time)
     return;
   }
 
-  // We assume the first data type is the "primary" type
-  switch (input_->data_type()) {
-  // None of these inputs have applicable UI widgets
-  case NodeParam::kNone:
-  case NodeParam::kAny:
-  case NodeParam::kTexture:
-  case NodeParam::kMatrix:
-  case NodeParam::kRational:
-  case NodeParam::kSamples:
-  case NodeParam::kDecimal:
-  case NodeParam::kNumber:
-  case NodeParam::kString:
-  case NodeParam::kBuffer:
-  case NodeParam::kVector:
-    break;
-  case NodeParam::kInt:
-    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(time).toLongLong());
-    break;
-  case NodeParam::kFloat:
-    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(time).toDouble());
-    break;
-  case NodeParam::kVec2:
-  {
-    QVector2D vec2 = input_->get_value_at_time(time).value<QVector2D>();
-
-    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x()));
-    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y()));
-    break;
-  }
-  case NodeParam::kVec3:
-  {
-    QVector3D vec3 = input_->get_value_at_time(time).value<QVector3D>();
-
-    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x()));
-    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y()));
-    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec3.z()));
-    break;
-  }
-  case NodeParam::kVec4:
-  {
-    QVector4D vec4 = input_->get_value_at_time(time).value<QVector4D>();
-
-    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x()));
-    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y()));
-    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec4.z()));
-    static_cast<FloatSlider*>(widgets_.at(3))->SetValue(static_cast<double>(vec4.w()));
-    break;
-  }
-  case NodeParam::kFile:
-    // FIXME: File selector
-    break;
-  case NodeParam::kColor:
-    // FIXME: Color selector
-    break;
-  case NodeParam::kText:
-  {
-    static_cast<QLineEdit*>(widgets_.first())->setText(input_->get_value_at_time(time).toString());
-    break;
-  }
-  case NodeParam::kBoolean:
-    static_cast<QCheckBox*>(widgets_.first())->setChecked(input_->get_value_at_time(time).toBool());
-    break;
-  case NodeParam::kFont:
-  {
-    // FIXME: Implement this
-    break;
-  }
-  case NodeParam::kFootage:
-    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(input_->get_value_at_time(time).value<StreamPtr>());
-    break;
-  }
+  UpdateWidgetValues();
 }
 
-const QList<QWidget *> &NodeParamViewWidgetBridge::widgets()
+const QList<QWidget *> &NodeParamViewWidgetBridge::widgets() const
 {
   return widgets_;
 }
@@ -207,18 +137,20 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
 void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 {
+  rational node_time = GetCurrentTimeAsNodeTime();
+
   QUndoCommand* command = new QUndoCommand();
 
   if (input_->is_keyframing()) {
-    NodeKeyframePtr existing_key = input_->get_keyframe_at_time_on_track(time_, track);
+    NodeKeyframePtr existing_key = input_->get_keyframe_at_time_on_track(node_time, track);
 
     if (existing_key) {
       new NodeParamSetKeyframeValueCommand(existing_key, value, command);
     } else {
       // No existing key, create a new one
-      NodeKeyframePtr new_key = NodeKeyframe::Create(time_,
+      NodeKeyframePtr new_key = NodeKeyframe::Create(node_time,
                                                      value,
-                                                     input_->get_best_keyframe_type_for_time(time_, track),
+                                                     input_->get_best_keyframe_type_for_time(node_time, track),
                                                      track);
 
       new NodeParamInsertKeyframeCommand(input_, new_key, command);
@@ -232,6 +164,8 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 
 void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant &value)
 {
+  rational node_time = GetCurrentTimeAsNodeTime();
+
   int slider_track = widgets_.indexOf(slider);
 
   if (slider->IsDragging()) {
@@ -244,17 +178,17 @@ void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant
       dragging_ = true;
 
       // Cache current value
-      drag_old_value_ = input_->get_value_at_time_for_track(time_, slider_track);
+      drag_old_value_ = input_->get_value_at_time_for_track(node_time, slider_track);
 
       // Determine whether we are creating a keyframe or not
       if (input_->is_keyframing()) {
-        dragging_keyframe_ = input_->get_keyframe_at_time_on_track(time_, slider_track);
+        dragging_keyframe_ = input_->get_keyframe_at_time_on_track(node_time, slider_track);
         drag_created_keyframe_ = !dragging_keyframe_;
 
         if (drag_created_keyframe_) {
-          dragging_keyframe_ = NodeKeyframe::Create(time_,
+          dragging_keyframe_ = NodeKeyframe::Create(node_time,
                                                     value,
-                                                    input_->get_best_keyframe_type_for_time(time_, slider_track),
+                                                    input_->get_best_keyframe_type_for_time(node_time, slider_track),
                                                     slider_track);
 
           input_->insert_keyframe(dragging_keyframe_);
@@ -406,11 +340,93 @@ void NodeParamViewWidgetBridge::CreateSliders(int count)
   }
 }
 
+void NodeParamViewWidgetBridge::UpdateWidgetValues()
+{
+  rational node_time = GetCurrentTimeAsNodeTime();
+
+  // We assume the first data type is the "primary" type
+  switch (input_->data_type()) {
+  // None of these inputs have applicable UI widgets
+  case NodeParam::kNone:
+  case NodeParam::kAny:
+  case NodeParam::kTexture:
+  case NodeParam::kMatrix:
+  case NodeParam::kRational:
+  case NodeParam::kSamples:
+  case NodeParam::kDecimal:
+  case NodeParam::kNumber:
+  case NodeParam::kString:
+  case NodeParam::kBuffer:
+  case NodeParam::kVector:
+    break;
+  case NodeParam::kInt:
+    static_cast<IntegerSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toLongLong());
+    break;
+  case NodeParam::kFloat:
+    static_cast<FloatSlider*>(widgets_.first())->SetValue(input_->get_value_at_time(node_time).toDouble());
+    break;
+  case NodeParam::kVec2:
+  {
+    QVector2D vec2 = input_->get_value_at_time(node_time).value<QVector2D>();
+
+    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec2.x()));
+    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec2.y()));
+    break;
+  }
+  case NodeParam::kVec3:
+  {
+    QVector3D vec3 = input_->get_value_at_time(node_time).value<QVector3D>();
+
+    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec3.x()));
+    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec3.y()));
+    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec3.z()));
+    break;
+  }
+  case NodeParam::kVec4:
+  {
+    QVector4D vec4 = input_->get_value_at_time(node_time).value<QVector4D>();
+
+    static_cast<FloatSlider*>(widgets_.at(0))->SetValue(static_cast<double>(vec4.x()));
+    static_cast<FloatSlider*>(widgets_.at(1))->SetValue(static_cast<double>(vec4.y()));
+    static_cast<FloatSlider*>(widgets_.at(2))->SetValue(static_cast<double>(vec4.z()));
+    static_cast<FloatSlider*>(widgets_.at(3))->SetValue(static_cast<double>(vec4.w()));
+    break;
+  }
+  case NodeParam::kFile:
+    // FIXME: File selector
+    break;
+  case NodeParam::kColor:
+    // FIXME: Color selector
+    break;
+  case NodeParam::kText:
+  {
+    static_cast<QLineEdit*>(widgets_.first())->setText(input_->get_value_at_time(node_time).toString());
+    break;
+  }
+  case NodeParam::kBoolean:
+    static_cast<QCheckBox*>(widgets_.first())->setChecked(input_->get_value_at_time(node_time).toBool());
+    break;
+  case NodeParam::kFont:
+  {
+    // FIXME: Implement this
+    break;
+  }
+  case NodeParam::kFootage:
+    static_cast<FootageComboBox*>(widgets_.first())->SetFootage(input_->get_value_at_time(node_time).value<StreamPtr>());
+    break;
+  }
+}
+
+rational NodeParamViewWidgetBridge::GetCurrentTimeAsNodeTime() const
+{
+  return GetAdjustedTime(GetTimeTarget(), input_->parentNode(), time_, NodeParam::kInput);
+}
+
 void NodeParamViewWidgetBridge::InputValueChanged(const rational &start, const rational &end)
 {
   if (!dragging_ && start <= time_ && end >= time_) {
     // We'll need to update the widgets because the values have changed on our current time
-    SetTime(time_);
+    UpdateWidgetValues();
   }
 }
 

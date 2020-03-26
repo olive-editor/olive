@@ -46,6 +46,8 @@ class NodeParamViewItem : public QWidget
 public:
   NodeParamViewItem(Node* node, QWidget* parent = nullptr);
 
+  void SetTimeTarget(Node* target);
+
   void SetTime(const rational& time);
 
 public slots:

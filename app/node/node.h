@@ -221,7 +221,7 @@ public:
   /**
    * @brief Find a node of a certain type that this Node outputs to
    */
-  const T* FindOutputNode() const;
+  T* FindOutputNode();
 
   /**
    * @brief Convert a pointer to a value that can be sent between NodeParams
@@ -416,7 +416,7 @@ T* Node::ValueToPtr(const QVariant &ptr)
 }
 
 template<class T>
-const Node* FindOutputNodeInternal(const Node* n) {
+Node* FindOutputNodeInternal(Node* n) {
   foreach (NodeEdgePtr edge, n->output()->edges()) {
     Node* connected = edge->input()->parentNode();
     T* cast_test = dynamic_cast<T*>(connected);
@@ -424,7 +424,7 @@ const Node* FindOutputNodeInternal(const Node* n) {
     if (cast_test) {
       return cast_test;
     } else {
-      const Node* drill_test = FindOutputNodeInternal<T>(connected);
+      Node* drill_test = FindOutputNodeInternal<T>(connected);
       if (drill_test) {
         return drill_test;
       }
@@ -435,9 +435,9 @@ const Node* FindOutputNodeInternal(const Node* n) {
 }
 
 template<class T>
-const T* Node::FindOutputNode() const
+T* Node::FindOutputNode()
 {
-  return static_cast<const T*>(FindOutputNodeInternal<T>(this));
+  return static_cast<T*>(FindOutputNodeInternal<T>(this));
 }
 
 #endif // NODE_H

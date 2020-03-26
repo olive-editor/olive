@@ -102,6 +102,16 @@ void NodeParamViewKeyframeControl::SetButtonsEnabled(bool e)
   enable_key_btn_->setEnabled(e);
 }
 
+rational NodeParamViewKeyframeControl::GetCurrentTimeAsNodeTime() const
+{
+  return GetAdjustedTime(GetTimeTarget(), input_->parentNode(), time_, NodeParam::kInput);
+}
+
+rational NodeParamViewKeyframeControl::ConvertToViewerTime(const rational &r) const
+{
+  return GetAdjustedTime(input_->parentNode(), GetTimeTarget(), r, NodeParam::kOutput);
+}
+
 void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable(bool e)
 {
   prev_key_btn_->setVisible(e);
@@ -111,16 +121,18 @@ void NodeParamViewKeyframeControl::ShowButtonsFromKeyframeEnable(bool e)
 
 void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
 {
-  QList<NodeKeyframePtr> keys = input_->get_keyframe_at_time(time_);
+  rational node_time = GetCurrentTimeAsNodeTime();
+
+  QList<NodeKeyframePtr> keys = input_->get_keyframe_at_time(node_time);
 
   QUndoCommand* command = new QUndoCommand();
 
   if (e && keys.isEmpty()) {
     // Add a keyframe here (one for each track)
     for (int i=0;i<input_->get_number_of_keyframe_tracks();i++) {
-      NodeKeyframePtr key = NodeKeyframe::Create(time_,
-                                                 input_->get_value_at_time_for_track(time_, i),
-                                                 input_->get_best_keyframe_type_for_time(time_, i),
+      NodeKeyframePtr key = NodeKeyframe::Create(node_time,
+                                                 input_->get_value_at_time_for_track(node_time, i),
+                                                 input_->get_best_keyframe_type_for_time(node_time, i),
                                                  i);
 
       new NodeParamInsertKeyframeCommand(input_, key, command);
@@ -134,7 +146,7 @@ void NodeParamViewKeyframeControl::ToggleKeyframe(bool e)
         // If this was the last keyframe on this track, set the standard value to the value at this time too
         new NodeParamSetStandardValueCommand(input_,
                                              key->track(),
-                                             input_->get_value_at_time_for_track(time_, key->track()),
+                                             input_->get_value_at_time_for_track(node_time, key->track()),
                                              command);
       }
     }
@@ -152,26 +164,36 @@ void NodeParamViewKeyframeControl::UpdateState()
   NodeKeyframePtr earliest_key = input_->get_earliest_keyframe();
   NodeKeyframePtr latest_key = input_->get_latest_keyframe();
 
-  prev_key_btn_->setEnabled(earliest_key && time_ > earliest_key->time());
-  next_key_btn_->setEnabled(latest_key && time_ < latest_key->time());
-  toggle_key_btn_->setChecked(input_->has_keyframe_at_time(time_));
+  rational node_time = GetCurrentTimeAsNodeTime();
+
+  prev_key_btn_->setEnabled(earliest_key && node_time > earliest_key->time());
+  next_key_btn_->setEnabled(latest_key && node_time < latest_key->time());
+  toggle_key_btn_->setChecked(input_->has_keyframe_at_time(node_time));
 }
 
 void NodeParamViewKeyframeControl::GoToPreviousKey()
 {
-  NodeKeyframePtr previous_key = input_->get_closest_keyframe_before_time(time_);
+  rational node_time = GetCurrentTimeAsNodeTime();
+
+  NodeKeyframePtr previous_key = input_->get_closest_keyframe_before_time(node_time);
 
   if (previous_key) {
-    emit RequestSetTime(previous_key->time());
+    rational key_time = ConvertToViewerTime(previous_key->time());
+
+    emit RequestSetTime(key_time);
   }
 }
 
 void NodeParamViewKeyframeControl::GoToNextKey()
 {
-  NodeKeyframePtr next_key = input_->get_closest_keyframe_after_time(time_);
+  rational node_time = GetCurrentTimeAsNodeTime();
+
+  NodeKeyframePtr next_key = input_->get_closest_keyframe_after_time(node_time);
 
   if (next_key) {
-    emit RequestSetTime(next_key->time());
+    rational key_time = ConvertToViewerTime(next_key->time());
+
+    emit RequestSetTime(key_time);
   }
 }
 
@@ -192,7 +214,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
     QVector<QVariant> key_vals = input_->get_split_standard_value();
 
     for (int i=0;i<key_vals.size();i++) {
-      NodeKeyframePtr key = NodeKeyframe::Create(time_,
+      NodeKeyframePtr key = NodeKeyframe::Create(GetCurrentTimeAsNodeTime(),
                                                  key_vals.at(i),
                                                  NodeKeyframe::kDefaultType,
                                                  i);
@@ -207,7 +229,7 @@ void NodeParamViewKeyframeControl::KeyframeEnableChanged(bool e)
                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
 
       // Store value at this time, we'll set this as the persistent value later
-      QVector<QVariant> stored_vals = input_->get_split_values_at_time(time_);
+      QVector<QVariant> stored_vals = input_->get_split_values_at_time(GetCurrentTimeAsNodeTime());
 
       // Delete all keyframes
       foreach (const NodeInput::KeyframeTrack& track, input_->keyframe_tracks()) {

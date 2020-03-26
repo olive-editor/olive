@@ -131,6 +131,12 @@ public slots:
    */
   void SetPanelsLocked(bool locked);
 
+signals:
+  /**
+   * @brief Signal emitted when the currently focused panel changes
+   */
+  void FocusedPanelChanged(PanelWidget* panel);
+
 private:
   /**
    * @brief History array for traversing through (see MostRecentlyFocused())
@@ -146,6 +152,14 @@ private:
    * @brief PanelManager singleton instance
    */
   static PanelManager* instance_;
+
+  /**
+   * @brief The last panel that was focused
+   *
+   * Stored to prevent emitting FocusedPanelChanged() multiple times for the same panel
+   */
+  PanelWidget* last_focused_panel_;
+
 };
 
 template<class T>

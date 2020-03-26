@@ -24,5 +24,7 @@ set(OLIVE_SOURCES
   widget/keyframeview/keyframeviewitem.cpp
   widget/keyframeview/keyframeviewundo.h
   widget/keyframeview/keyframeviewundo.cpp
+  widget/keyframeview/timetargetobject.h
+  widget/keyframeview/timetargetobject.cpp
   PARENT_SCOPE
 )

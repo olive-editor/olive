@@ -18,6 +18,11 @@ void CurvePanel::SetInput(NodeInput *input)
   static_cast<CurveWidget*>(GetTimeBasedWidget())->SetInput(input);
 }
 
+void CurvePanel::SetTimeTarget(Node *target)
+{
+  static_cast<CurveWidget*>(GetTimeBasedWidget())->SetTimeTarget(target);
+}
+
 void CurvePanel::IncreaseTrackHeight()
 {
   CurveWidget* c = static_cast<CurveWidget*>(GetTimeBasedWidget());

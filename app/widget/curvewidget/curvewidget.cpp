@@ -107,6 +107,8 @@ void CurveWidget::SetInput(NodeInput *input)
   if (input_) {
     bridge_ = new NodeParamViewWidgetBridge(input_, this);
 
+    bridge_->SetTimeTarget(GetTimeTarget());
+
     for (int i=0;i<bridge_->widgets().size();i++) {
       // Insert between two stretches to center the widget
       widget_bridge_layout_->insertWidget(2 + i, bridge_->widgets().at(i));
@@ -163,6 +165,17 @@ void CurveWidget::ScaleChangedEvent(const double &scale)
   TimeBasedWidget::ScaleChangedEvent(scale);
 
   view_->SetScale(scale);
+}
+
+void CurveWidget::TimeTargetChangedEvent(Node *target)
+{
+  key_control_->SetTimeTarget(target);
+
+  view_->SetTimeTarget(target);
+
+  if (bridge_) {
+    bridge_->SetTimeTarget(target);
+  }
 }
 
 void CurveWidget::UpdateInputLabel()

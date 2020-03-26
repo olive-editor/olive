@@ -4,9 +4,10 @@
 #include <QObject>
 
 #include "node/input.h"
+#include "widget/keyframeview/timetargetobject.h"
 #include "widget/slider/sliderbase.h"
 
-class NodeParamViewWidgetBridge : public QObject
+class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
 {
   Q_OBJECT
 public:
@@ -14,7 +15,7 @@ public:
 
   void SetTime(const rational& time);
 
-  const QList<QWidget*>& widgets();
+  const QList<QWidget*>& widgets() const;
 
 private:
   void CreateWidgets();
@@ -24,6 +25,10 @@ private:
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 
   void CreateSliders(int count);
+
+  void UpdateWidgetValues();
+
+  rational GetCurrentTimeAsNodeTime() const;
 
   NodeInput* input_;
 

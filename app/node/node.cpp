@@ -540,15 +540,16 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
     foreach (NodeInput* input, inputs) {
       if (input->IsConnected()) {
         TimeRange input_adjustment = InputTimeAdjustment(input, time);
+        Node* connected = input->get_connected_node();
 
-        if (input->get_connected_node() == target) {
+        if (connected == target) {
           // We found the target, no need to keep traversing
           if (!paths_found.contains(input_adjustment)) {
             paths_found.append(input_adjustment);
           }
         } else {
           // We did NOT find the target, traverse this
-          paths_found.append(TransformTimeTo(input_adjustment, target, direction));
+          paths_found.append(connected->TransformTimeTo(input_adjustment, target, direction));
         }
       }
     }
@@ -567,7 +568,7 @@ QList<TimeRange> Node::TransformTimeTo(const TimeRange &time, Node *target, Node
           if (input_node == target) {
             paths_found.append(output_adjustment);
           } else {
-            paths_found.append(TransformTimeTo(output_adjustment, target, direction));
+            paths_found.append(input_node->TransformTimeTo(output_adjustment, target, direction));
           }
         }
       }

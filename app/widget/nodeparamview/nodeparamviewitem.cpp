@@ -73,6 +73,17 @@ NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   SetupUI();
 }
 
+void NodeParamViewItem::SetTimeTarget(Node *target)
+{
+  foreach (NodeParamViewKeyframeControl* control, key_control_list_) {
+    control->SetTimeTarget(target);
+  }
+
+  foreach (NodeParamViewWidgetBridge* bridge, bridges_) {
+    bridge->SetTimeTarget(target);
+  }
+}
+
 void NodeParamViewItem::SetTime(const rational &time)
 {
   time_ = time;

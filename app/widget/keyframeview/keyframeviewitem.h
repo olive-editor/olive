@@ -4,8 +4,9 @@
 #include <QGraphicsRectItem>
 
 #include "node/keyframe.h"
+#include "timetargetobject.h"
 
-class KeyframeViewItem : public QObject, public QGraphicsRectItem
+class KeyframeViewItem : public QObject, public QGraphicsRectItem, public TimeTargetObject
 {
   Q_OBJECT
 public:
@@ -19,6 +20,8 @@ public:
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+
+  virtual void TimeTargetChangedEvent(Node* ) override;
 
 private:
   NodeKeyframePtr key_;

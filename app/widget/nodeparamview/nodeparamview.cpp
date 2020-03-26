@@ -123,6 +123,7 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
     delete item;
   }
   items_.clear();
+  emit TimeTargetChanged(nullptr);
 
   // Reset keyframe view
   SetTimebase(rational());
@@ -149,21 +150,23 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   }
 
   if (!nodes_.isEmpty()) {
-    const ViewerOutput* viewer = nodes_.first()->FindOutputNode<ViewerOutput>();
+    ViewerOutput* viewer = nodes_.first()->FindOutputNode<ViewerOutput>();
 
     if (viewer) {
       SetTimebase(viewer->video_params().time_base());
+
+      // Set viewer as a time target
+      keyframe_view_->SetTimeTarget(viewer);
+
+      foreach (NodeParamViewItem* item, items_) {
+        item->SetTimeTarget(viewer);
+      }
+
+      emit TimeTargetChanged(viewer);
     }
   }
 
   SetTime(0);
-
-  // FIXME: Test code only!
-  if (nodes_.isEmpty()) {
-    emit SelectedInputChanged(nullptr);
-  } else {
-    emit SelectedInputChanged(static_cast<NodeInput*>(nodes_.first()->parameters().first()));
-  }
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)

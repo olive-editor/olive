@@ -13,6 +13,8 @@ public:
 public slots:
   void SetInput(NodeInput* input);
 
+  void SetTimeTarget(Node* target);
+
   virtual void IncreaseTrackHeight() override;
 
   virtual void DecreaseTrackHeight() override;

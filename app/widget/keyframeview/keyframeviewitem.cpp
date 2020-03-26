@@ -6,6 +6,7 @@
 #include <QWidget>
 
 #include "common/qtutils.h"
+#include "node/input.h"
 
 KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
@@ -76,11 +77,16 @@ void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
   }
 }
 
+void KeyframeViewItem::TimeTargetChangedEvent(Node *)
+{
+  UpdatePos();
+}
+
 void KeyframeViewItem::UpdatePos()
 {
-  double x_center = key_->time().toDouble() * scale_;
+  rational adjusted = GetAdjustedTime(key_->parent()->parentNode(), GetTimeTarget(), key_->time(), NodeParam::kOutput);
 
-  setPos(x_center, vert_center_);
+  setPos(adjusted.toDouble() * scale_, vert_center_);
 }
 
 void KeyframeViewItem::Redraw()

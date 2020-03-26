@@ -5,8 +5,9 @@
 #include <QWidget>
 
 #include "node/input.h"
+#include "widget/keyframeview/timetargetobject.h"
 
-class NodeParamViewKeyframeControl : public QWidget
+class NodeParamViewKeyframeControl : public QWidget, public TimeTargetObject
 {
   Q_OBJECT
 public:
@@ -25,6 +26,10 @@ private:
   QPushButton* CreateNewToolButton(const QIcon &icon) const;
 
   void SetButtonsEnabled(bool e);
+
+  rational GetCurrentTimeAsNodeTime() const;
+
+  rational ConvertToViewerTime(const rational& r) const;
 
   QPushButton* prev_key_btn_;
   QPushButton* toggle_key_btn_;
