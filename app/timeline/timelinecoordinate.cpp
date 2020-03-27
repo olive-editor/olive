@@ -3,7 +3,7 @@
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
 
-  This program is free software: you can redistribute it and/or modify
+  This program is free and open source software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
@@ -19,6 +19,7 @@
 ***/
 
 #include "timelinecoordinate.h"
+#include <iostream>
 
 TimelineCoordinate::TimelineCoordinate() :
   track_(Timeline::kTrackTypeNone, 0)
@@ -55,4 +56,8 @@ void TimelineCoordinate::SetFrame(const rational &frame)
 void TimelineCoordinate::SetTrack(const TrackReference &track)
 {
   track_ = track;
+}
+
+void TimelineCoordinate::SetCoordinate(const TrackReference &TimelineCoordinate) {
+	coordinate_ = coordinate;
 }
