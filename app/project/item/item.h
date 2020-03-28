@@ -77,7 +77,7 @@ public:
   Item* child(int i) const;
   const QList<ItemPtr>& children() const;
 
-  ItemPtr shared_ptr_from_raw(Item* item, bool traverse = false);
+  ItemPtr get_shared_ptr() const;
 
   const QString& name() const;
   void set_name(const QString& n);

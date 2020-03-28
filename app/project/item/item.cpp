@@ -76,19 +76,13 @@ const QList<ItemPtr> &Item::children() const
   return children_;
 }
 
-ItemPtr Item::shared_ptr_from_raw(Item *item, bool traverse)
+ItemPtr Item::get_shared_ptr() const
 {
-  for (int i=0;i<children_.size();i++) {
-    ItemPtr c = children_.at(i);
+  QList<ItemPtr> siblings = parent()->children();
 
-    if (c.get() == item) {
-      return c;
-    } else if (traverse && c->CanHaveChildren()) {
-      ItemPtr grandchild = shared_ptr_from_raw(item);
-
-      if (grandchild) {
-        return grandchild;
-      }
+  foreach (ItemPtr s, siblings) {
+    if (s.get() == this) {
+      return s;
     }
   }
 
