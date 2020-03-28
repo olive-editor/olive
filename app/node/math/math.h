@@ -17,6 +17,13 @@ public:
 
   virtual void Retranslate() override;
 
+private:
+  NodeInput* method_in_;
+
+  NodeInput* param_a_in_;
+
+  NodeInput* param_b_in_;
+
 };
 
 #endif // MATHNODE_H
