@@ -86,7 +86,7 @@ VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
 
     imgseq_end_time_ = new IntegerSlider();
     imgseq_end_time_->SetMinimum(0);
-    imgseq_end_time_->SetValue(video_stream->start_time() + video_stream->duration());
+    imgseq_end_time_->SetValue(video_stream->start_time() + video_stream->duration() - 1);
     imgseq_layout->addWidget(imgseq_end_time_, imgseq_row, 1);
 
     video_layout->addWidget(imgseq_group, row, 0, 1, 2);
@@ -113,7 +113,7 @@ void VideoStreamProperties::Accept(QUndoCommand *parent)
   if (IsImageSequence(stream_.get())) {
     VideoStreamPtr video_stream = std::static_pointer_cast<VideoStream>(stream_);
 
-    int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue();
+    int64_t new_dur = imgseq_end_time_->GetValue() - imgseq_start_time_->GetValue() + 1;
 
     if (video_stream->start_time() != imgseq_start_time_->GetValue()
         || video_stream->duration() != new_dur) {

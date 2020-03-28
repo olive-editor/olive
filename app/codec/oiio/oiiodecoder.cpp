@@ -108,7 +108,7 @@ bool OIIODecoder::Probe(Footage *f, const QAtomicInt *cancelled)
 
     video_stream->set_start_time(start_index);
 
-    video_stream->set_duration(end_index - start_index);
+    video_stream->set_duration(end_index - start_index + 1);
   } else {
     image_stream = std::make_shared<ImageStream>();
   }
