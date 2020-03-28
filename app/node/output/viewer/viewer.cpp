@@ -67,7 +67,7 @@ QString ViewerOutput::Name() const
 
 QString ViewerOutput::id() const
 {
-  return "org.olivevideoeditor.Olive.vieweroutput";
+  return QStringLiteral("org.olivevideoeditor.Olive.vieweroutput");
 }
 
 QString ViewerOutput::Category() const

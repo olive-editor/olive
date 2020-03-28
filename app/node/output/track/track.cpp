@@ -75,7 +75,7 @@ QString TrackOutput::Name() const
 
 QString TrackOutput::id() const
 {
-  return "org.olivevideoeditor.Olive.track";
+  return QStringLiteral("org.olivevideoeditor.Olive.track");
 }
 
 QString TrackOutput::Category() const

@@ -27,7 +27,7 @@ QString VideoInput::Name() const
 
 QString VideoInput::id() const
 {
-  return "org.olivevideoeditor.Olive.videoinput";
+  return QStringLiteral("org.olivevideoeditor.Olive.videoinput");
 }
 
 QString VideoInput::Category() const

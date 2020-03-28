@@ -59,7 +59,7 @@ QString TransformDistort::Name() const
 
 QString TransformDistort::id() const
 {
-  return "org.olivevideoeditor.Olive.transform";
+  return QStringLiteral("org.olivevideoeditor.Olive.transform");
 }
 
 QString TransformDistort::Category() const

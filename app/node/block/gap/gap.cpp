@@ -41,7 +41,7 @@ QString GapBlock::Name() const
 
 QString GapBlock::id() const
 {
-  return "org.olivevideoeditor.Olive.gap";
+  return QStringLiteral("org.olivevideoeditor.Olive.gap");
 }
 
 QString GapBlock::Description() const

@@ -44,7 +44,7 @@ QString ClipBlock::Name() const
 
 QString ClipBlock::id() const
 {
-  return "org.olivevideoeditor.Olive.clip";
+  return QStringLiteral("org.olivevideoeditor.Olive.clip");
 }
 
 QString ClipBlock::Description() const

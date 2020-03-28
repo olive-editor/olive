@@ -111,7 +111,7 @@ TrackOutput* TrackList::AddTrack()
     if (last_track && last_track->output()->IsConnected()) {
       foreach (NodeEdgePtr edge, last_track->output()->edges()) {
         if (!track_input_->ContainsSubParameter(edge->input())) {
-          Node* blend = NodeFactory::CreateFromID("org.olivevideoeditor.Olive.alphaoverblend");
+          Node* blend = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.alphaoverblend"));
           GetParentGraph()->AddNode(blend);
 
           NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("blend_in")));
