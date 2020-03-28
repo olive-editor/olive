@@ -6,14 +6,14 @@
 
 class TaskDialog : public ProgressDialog
 {
+  Q_OBJECT
 public:
   TaskDialog(Task *task, const QString &title, QWidget* parent = nullptr);
 
-public slots:
-  virtual void open() override;
+protected:
+  virtual void showEvent(QShowEvent* e) override;
 
-  virtual void accept() override;
-  virtual void reject() override;
+  virtual void closeEvent(QCloseEvent* e) override;
 
 private:
   Task* task_;
