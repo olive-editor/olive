@@ -24,7 +24,7 @@ QString PanNode::Name() const
 
 QString PanNode::id() const
 {
-  return "org.olivevideoeditor.Olive.pan";
+  return QStringLiteral("org.olivevideoeditor.Olive.pan");
 }
 
 QString PanNode::Category() const

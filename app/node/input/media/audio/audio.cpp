@@ -16,7 +16,7 @@ QString AudioInput::Name() const
 
 QString AudioInput::id() const
 {
-  return "org.olivevideoeditor.Olive.audioinput";
+  return QStringLiteral("org.olivevideoeditor.Olive.audioinput");
 }
 
 QString AudioInput::Category() const

@@ -23,7 +23,7 @@ QString VolumeNode::Name() const
 
 QString VolumeNode::id() const
 {
-  return "org.olivevideoeditor.Olive.volume";
+  return QStringLiteral("org.olivevideoeditor.Olive.volume");
 }
 
 QString VolumeNode::Category() const
