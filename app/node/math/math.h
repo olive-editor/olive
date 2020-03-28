@@ -23,6 +23,11 @@ public:
 
   virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueTable& table) const override;
 
+  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+
+  NodeInput* param_a_in() const;
+  NodeInput* param_b_in() const;
+
 private:
   enum Operation {
     kOpAdd,

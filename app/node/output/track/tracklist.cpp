@@ -21,6 +21,7 @@
 #include "tracklist.h"
 
 #include "node/factory.h"
+#include "node/math/math.h"
 #include "node/output/viewer/viewer.h"
 
 TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, NodeInputArray *track_input) :
@@ -111,12 +112,30 @@ TrackOutput* TrackList::AddTrack()
     if (last_track && last_track->output()->IsConnected()) {
       foreach (NodeEdgePtr edge, last_track->output()->edges()) {
         if (!track_input_->ContainsSubParameter(edge->input())) {
-          Node* blend = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.alphaoverblend"));
-          GetParentGraph()->AddNode(blend);
+          switch (type_) {
+          case Timeline::kTrackTypeVideo:
+          {
+            Node* blend = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.alphaoverblend"));
+            GetParentGraph()->AddNode(blend);
 
-          NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("blend_in")));
-          NodeParam::ConnectEdge(last_track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("base_in")));
-          NodeParam::ConnectEdge(blend->output(), edge->input());
+            NodeParam::ConnectEdge(track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("blend_in")));
+            NodeParam::ConnectEdge(last_track->output(), static_cast<NodeInput*>(blend->GetParameterWithID("base_in")));
+            NodeParam::ConnectEdge(blend->output(), edge->input());
+            break;
+          }
+          case Timeline::kTrackTypeAudio:
+          {
+            MathNode* add = new MathNode();
+            GetParentGraph()->AddNode(add);
+
+            NodeParam::ConnectEdge(track->output(), add->param_a_in());
+            NodeParam::ConnectEdge(last_track->output(), add->param_b_in());
+            NodeParam::ConnectEdge(add->output(), edge->input());
+            break;
+          }
+          default:
+            break;
+          }
         }
       }
     }

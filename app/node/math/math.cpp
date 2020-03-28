@@ -51,8 +51,6 @@ Node::Capabilities MathNode::GetCapabilities(const NodeValueDatabase &input) con
 {
   if (input[param_a_in_].Has(NodeParam::kTexture) || input[param_b_in_].Has(NodeParam::kTexture)) {
     return kShader;
-  } else if (input[param_a_in_].Has(NodeParam::kSamples) || input[param_b_in_].Has(NodeParam::kSamples)) {
-    return kSampleProcessor;
   } else {
     return kNormal;
   }
@@ -102,12 +100,53 @@ NodeValue MathNode::InputValueFromTable(NodeInput *input, const NodeValueTable &
   return Node::InputValueFromTable(input, table);
 }
 
+NodeValueTable MathNode::Value(const NodeValueDatabase &value) const
+{
+  NodeValueTable output = value.Merge();
+
+  if (value[param_a_in_].Has(NodeParam::kSamples) && value[param_b_in_].Has(NodeParam::kSamples)) {
+    QByteArray samples_a_bytes = value[param_a_in_].Get(NodeParam::kSamples).toByteArray();
+    QByteArray samples_b_bytes = value[param_b_in_].Get(NodeParam::kSamples).toByteArray();
+
+    QByteArray mixed_bytes;
+
+    if (samples_a_bytes.size() > samples_b_bytes.size()) {
+      mixed_bytes = samples_a_bytes;
+    } else {
+      mixed_bytes = samples_b_bytes;
+    }
+
+    // FIXME: Assumes float
+    float* samples_a = reinterpret_cast<float*>(samples_a_bytes.data());
+    float* samples_b = reinterpret_cast<float*>(samples_b_bytes.data());
+    float* mixed = reinterpret_cast<float*>(mixed_bytes.data());
+
+    int nb_samples = qMin(samples_a_bytes.size(), samples_b_bytes.size()) / sizeof(float);
+
+    for (int i=0;i<nb_samples;i++) {
+      mixed[i] = samples_a[i] + samples_b[i];
+    }
+
+    output.Push(NodeParam::kSamples, mixed_bytes);
+  }
+
+  return output;
+}
+
+NodeInput *MathNode::param_a_in() const
+{
+  return param_a_in_;
+}
+
+NodeInput *MathNode::param_b_in() const
+{
+  return param_b_in_;
+}
+
 NodeParam::DataType MathNode::GuessTypeFromTable(const NodeValueTable &table)
 {
   if (table.Has(NodeParam::kTexture)) {
     return NodeParam::kTexture;
-  } else if (table.Has(NodeParam::kSamples)) {
-    return NodeParam::kSamples;
   } else {
     return NodeParam::kFloat;
   }
