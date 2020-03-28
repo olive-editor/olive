@@ -136,6 +136,8 @@ private:
 
   QTimer rename_timer_;
 
+  Item* context_menu_item_;
+
 private slots:
   void ItemClickedSlot(const QModelIndex& index);
 

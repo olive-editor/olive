@@ -246,7 +246,9 @@ void ProjectExplorer::ShowContextMenu()
     QAction* project_properties = menu.addAction(tr("&Project Properties..."));
     connect(project_properties, &QAction::triggered, Core::instance(), &Core::DialogProjectPropertiesShow);
   } else {
-    if (selected_items.first()->type() == Item::kFootage) {
+    context_menu_item_ = selected_items.first();
+
+    if (context_menu_item_->type() == Item::kFootage) {
       QString reveal_text;
 
 #if defined(Q_OS_WINDOWS)
@@ -265,9 +267,9 @@ void ProjectExplorer::ShowContextMenu()
 
     QAction* properties_action = menu.addAction(tr("P&roperties"));
 
-    if (selected_items.first()->type() == Item::kFootage) {
+    if (context_menu_item_->type() == Item::kFootage) {
       connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowFootagePropertiesDialog);
-    } else if (selected_items.first()->type() == Item::kSequence) {
+    } else if (context_menu_item_->type() == Item::kSequence) {
       connect(properties_action, &QAction::triggered, this, &ProjectExplorer::ShowSequencePropertiesDialog);
     }
   }
@@ -278,20 +280,20 @@ void ProjectExplorer::ShowContextMenu()
 void ProjectExplorer::ShowFootagePropertiesDialog()
 {
   // FIXME: Support for multiple items
-  FootagePropertiesDialog fpd(this, static_cast<Footage*>(SelectedItems().first()));
+  FootagePropertiesDialog fpd(this, static_cast<Footage*>(context_menu_item_));
   fpd.exec();
 }
 
 void ProjectExplorer::ShowSequencePropertiesDialog()
 {
   // FIXME: Support for multiple items
-  SequenceDialog sd(static_cast<Sequence*>(SelectedItems().first()), SequenceDialog::kExisting, this);
+  SequenceDialog sd(static_cast<Sequence*>(context_menu_item_), SequenceDialog::kExisting, this);
   sd.exec();
 }
 
 void ProjectExplorer::RevealSelectedFootage()
 {
-  Footage* footage = static_cast<Footage*>(SelectedItems().first());
+  Footage* footage = static_cast<Footage*>(context_menu_item_);
 
 #if defined(Q_OS_WINDOWS)
   // Explorer
