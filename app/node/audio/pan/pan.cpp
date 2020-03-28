@@ -37,6 +37,11 @@ QString PanNode::Description() const
   return tr("Adjust the stereo panning of an audio source.");
 }
 
+Node::Capabilities PanNode::GetCapabilities(const NodeValueDatabase &) const
+{
+  return kSampleProcessor;
+}
+
 NodeInput *PanNode::ProcessesSamplesFrom() const
 {
   return samples_input_;

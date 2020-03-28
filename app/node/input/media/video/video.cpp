@@ -45,17 +45,17 @@ NodeInput *VideoInput::matrix_input() const
   return matrix_input_;
 }
 
-bool VideoInput::IsAccelerated() const
+Node::Capabilities VideoInput::GetCapabilities(const NodeValueDatabase &) const
 {
-  return true;
+  return kShader;
 }
 
-QString VideoInput::AcceleratedCodeVertex() const
+QString VideoInput::ShaderVertexCode(const NodeValueDatabase&) const
 {
   return ReadFileAsString(":/shaders/videoinput.vert");
 }
 
-QString VideoInput::AcceleratedCodeFragment() const
+QString VideoInput::ShaderFragmentCode(const NodeValueDatabase&) const
 {
   return ReadFileAsString(":/shaders/videoinput.frag");
 }

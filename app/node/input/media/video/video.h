@@ -20,9 +20,9 @@ public:
 
   NodeInput* matrix_input() const;
 
-  virtual bool IsAccelerated() const override;
-  virtual QString AcceleratedCodeVertex() const override;
-  virtual QString AcceleratedCodeFragment() const override;
+  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
+  virtual QString ShaderVertexCode(const NodeValueDatabase&) const override;
+  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
   virtual void Retranslate() override;
 

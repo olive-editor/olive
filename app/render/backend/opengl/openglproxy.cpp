@@ -185,17 +185,17 @@ void OpenGLProxy::Close()
 
 void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
 {
-  if (!node->IsAccelerated()) {
+  if (!(node->GetCapabilities(input_params) & Node::kShader)) {
     return;
   }
 
-  OpenGLShaderPtr shader = shader_cache_.Get(node->id());
+  OpenGLShaderPtr shader = shader_cache_.Get(node->ShaderID(input_params));
 
   if (!shader) {
     // Since we have shader code, compile it now
 
-    QString frag_code = node->AcceleratedCodeFragment();
-    QString vert_code = node->AcceleratedCodeVertex();
+    QString frag_code = node->ShaderFragmentCode(input_params);
+    QString vert_code = node->ShaderVertexCode(input_params);
 
     if (frag_code.isEmpty()) {
       frag_code = OpenGLShader::CodeDefaultFragment();
@@ -220,7 +220,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
   GLuint iterative_input = 0;
 
   // If this node requires multiple iterations, get a texture for it too
-  if (node->AcceleratedCodeIterations() > 1 && node->AcceleratedCodeIterativeInput()) {
+  if (node->ShaderIterations() > 1 && node->ShaderIterativeInput()) {
     dst_refs.append(texture_cache_.Get(ctx_, video_params_));
   }
 
@@ -242,9 +242,10 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
         // Get value from database at this input
         const NodeValueTable& input_data = input_params[input];
 
-        QVariant value = node->InputValueFromTable(input, input_data);
+        NodeValue meta_value = node->InputValueFromTable(input, input_data);
+        const QVariant& value = meta_value.data();
 
-        switch (input->data_type()) {
+        switch (meta_value.type()) {
         case NodeInput::kInt:
           shader->setUniformValue(variable_location, value.toInt());
           break;
@@ -301,7 +302,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
           }
 
           // If this texture binding is the iterative input, set it here
-          if (input == node->AcceleratedCodeIterativeInput()) {
+          if (input == node->ShaderIterativeInput()) {
             iterative_input = input_texture_count;
           }
 
@@ -351,7 +352,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
   // Some nodes use multiple iterations for optimization
   OpenGLTextureCache::ReferencePtr output_tex;
 
-  for (int iteration=0;iteration<node->AcceleratedCodeIterations();iteration++) {
+  for (int iteration=0;iteration<node->ShaderIterations();iteration++) {
     // If this is not the first iteration, set the parameter that will receive the last iteration's texture
     OpenGLTextureCache::ReferencePtr source_tex = dst_refs.at((iteration+1)%dst_refs.size());
     OpenGLTextureCache::ReferencePtr destination_tex = dst_refs.at(iteration%dst_refs.size());

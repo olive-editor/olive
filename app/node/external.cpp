@@ -40,27 +40,27 @@ void ExternalNode::Retranslate()
   meta_.Retranslate();
 }
 
-bool ExternalNode::IsAccelerated() const
+Node::Capabilities ExternalNode::GetCapabilities(const NodeValueDatabase &) const
 {
-  return true;
+  return kShader;
 }
 
-QString ExternalNode::AcceleratedCodeVertex() const
+QString ExternalNode::ShaderVertexCode(const NodeValueDatabase&) const
 {
   return meta_.vert_code();
 }
 
-QString ExternalNode::AcceleratedCodeFragment() const
+QString ExternalNode::ShaderFragmentCode(const NodeValueDatabase&) const
 {
   return meta_.frag_code();
 }
 
-int ExternalNode::AcceleratedCodeIterations() const
+int ExternalNode::ShaderIterations() const
 {
   return meta_.iterations();
 }
 
-NodeInput *ExternalNode::AcceleratedCodeIterativeInput() const
+NodeInput *ExternalNode::ShaderIterativeInput() const
 {
   return meta_.iteration_input();
 }

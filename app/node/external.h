@@ -23,11 +23,11 @@ public:
 
   virtual void Retranslate() override;
 
-  virtual bool IsAccelerated() const override;
-  virtual QString AcceleratedCodeVertex() const override;
-  virtual QString AcceleratedCodeFragment() const override;
-  virtual int AcceleratedCodeIterations() const override;
-  virtual NodeInput* AcceleratedCodeIterativeInput() const override;
+  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
+  virtual QString ShaderVertexCode(const NodeValueDatabase&) const override;
+  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
+  virtual int ShaderIterations() const override;
+  virtual NodeInput* ShaderIterativeInput() const override;
 
 private:
   NodeMetaReader meta_;

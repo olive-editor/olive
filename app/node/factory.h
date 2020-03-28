@@ -19,6 +19,7 @@ public:
     kTrackOutput,
     kAudioVolume,
     kAudioPanning,
+    kMath,
 
     // Count value
     kInternalNodeCount

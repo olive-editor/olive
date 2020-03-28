@@ -26,7 +26,7 @@ void AudioWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
 void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params_in, NodeValueTable *output_params)
 {
   // Check if node processes samples
-  if (!node->ProcessesSamplesFrom()) {
+  if (!(node->GetCapabilities(input_params_in) & Node::kSampleProcessor)) {
     return;
   }
 

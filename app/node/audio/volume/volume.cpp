@@ -36,6 +36,11 @@ QString VolumeNode::Description() const
   return tr("Adjusts the volume of an audio source.");
 }
 
+Node::Capabilities VolumeNode::GetCapabilities(const NodeValueDatabase &) const
+{
+  return kSampleProcessor;
+}
+
 NodeInput *VolumeNode::ProcessesSamplesFrom() const
 {
   return samples_input_;

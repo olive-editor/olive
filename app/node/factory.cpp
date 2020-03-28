@@ -8,6 +8,7 @@
 #include "distort/transform/transform.h"
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
+#include "math/math.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "external.h"
@@ -135,6 +136,8 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new VolumeNode();
   case kAudioPanning:
     return new PanNode();
+  case kMath:
+    return new MathNode();
 
   case kInternalNodeCount:
     break;

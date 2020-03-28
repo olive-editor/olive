@@ -434,27 +434,32 @@ QList<Node *> Node::GetImmediateDependencies() const
   return node_list;
 }
 
-bool Node::IsAccelerated() const
+Node::Capabilities Node::GetCapabilities(const NodeValueDatabase &) const
 {
-  return false;
+  return kNormal;
 }
 
-QString Node::AcceleratedCodeVertex() const
+QString Node::ShaderID(const NodeValueDatabase &) const
+{
+  return id();
+}
+
+QString Node::ShaderVertexCode(const NodeValueDatabase &) const
 {
   return QString();
 }
 
-QString Node::AcceleratedCodeFragment() const
+QString Node::ShaderFragmentCode(const NodeValueDatabase&) const
 {
   return QString();
 }
 
-int Node::AcceleratedCodeIterations() const
+int Node::ShaderIterations() const
 {
   return 1;
 }
 
-NodeInput *Node::AcceleratedCodeIterativeInput() const
+NodeInput *Node::ShaderIterativeInput() const
 {
   return nullptr;
 }
@@ -601,7 +606,7 @@ NodeOutput *Node::output() const
   return output_;
 }
 
-QVariant Node::InputValueFromTable(NodeInput *input, const NodeValueTable &table) const
+NodeValue Node::InputValueFromTable(NodeInput *input, const NodeValueTable &table) const
 {
   NodeParam::DataType find_data_type = input->data_type();
 
@@ -611,7 +616,7 @@ QVariant Node::InputValueFromTable(NodeInput *input, const NodeValueTable &table
   }
 
   // Try to get a value from it
-  return table.Get(find_data_type);
+  return table.GetWithMeta(find_data_type);
 }
 
 const QPointF &Node::GetPosition()

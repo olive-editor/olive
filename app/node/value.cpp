@@ -117,6 +117,19 @@ int NodeValueTable::Count() const
   return values_.size();
 }
 
+bool NodeValueTable::Has(const NodeParam::DataType &type) const
+{
+  for (int i=values_.size() - 1;i>=0;i--) {
+    const NodeValue& v = values_.at(i);
+
+    if (v.type() & type) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool NodeValueTable::isEmpty() const
 {
   return values_.isEmpty();

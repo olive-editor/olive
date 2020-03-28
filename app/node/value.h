@@ -35,6 +35,7 @@ public:
   void Prepend(const NodeParam::DataType& type, const QVariant& data, const QString& tag = QString());
   const NodeValue& At(int index) const;
   int Count() const;
+  bool Has(const NodeParam::DataType& type) const;
 
   bool isEmpty() const;
 

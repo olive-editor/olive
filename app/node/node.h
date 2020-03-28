@@ -52,6 +52,12 @@ class Node : public QObject
 {
   Q_OBJECT
 public:
+  enum Capabilities {
+    kNormal = 0x0,
+    kShader = 0x1,
+    kSampleProcessor = 0x2
+  };
+
   Node();
 
   virtual ~Node() override;
@@ -143,29 +149,37 @@ public:
    */
   QList<Node*> GetImmediateDependencies() const;
 
-  virtual bool IsAccelerated() const;
+  /**
+   * @brief Return accelerated capabilities of this node (if any)
+   */
+  virtual Capabilities GetCapabilities(const NodeValueDatabase&) const;
+
+  /**
+   * @brief Generate a unique identifier for the shader code (if a node can produce multiple)
+   */
+  virtual QString ShaderID(const NodeValueDatabase&) const;
 
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual QString AcceleratedCodeVertex() const;
+  virtual QString ShaderVertexCode(const NodeValueDatabase&) const;
 
   /**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual QString AcceleratedCodeFragment() const;
+  virtual QString ShaderFragmentCode(const NodeValueDatabase&) const;
 
   /**
    * @brief Number of iterations to run the accelerated code
    *
    * Some code is faster if it's merely repeated on a resulting texture rather than run once on the same buffer.
    */
-  virtual int AcceleratedCodeIterations() const;
+  virtual int ShaderIterations() const;
 
   /**
    * @brief Parameter that should receive the buffer on an iteration past the first
    */
-  virtual NodeInput* AcceleratedCodeIterativeInput() const;
+  virtual NodeInput* ShaderIterativeInput() const;
 
   /**
    * @brief Return whether this node processes samples or not
@@ -323,7 +337,7 @@ public:
 
   NodeOutput* output() const;
 
-  virtual QVariant InputValueFromTable(NodeInput* input, const NodeValueTable& table) const;
+  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueTable& table) const;
 
   const QPointF& GetPosition();
 
