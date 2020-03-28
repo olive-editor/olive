@@ -406,3 +406,22 @@ void ProjectExplorer::DeselectAll()
 {
   CurrentView()->selectionModel()->clearSelection();
 }
+
+void ProjectExplorer::DeleteSelected()
+{
+  QList<Item*> selected = SelectedItems();
+
+  if (selected.isEmpty()) {
+    return;
+  }
+
+  QUndoCommand* command = new QUndoCommand();
+
+  foreach (Item* item, selected) {
+    ItemPtr item_ptr = item->get_shared_ptr();
+
+    new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}

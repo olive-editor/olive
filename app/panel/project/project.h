@@ -52,6 +52,8 @@ public:
   virtual void Insert() override;
   virtual void Overwrite() override;
 
+  virtual void DeleteSelected() override;
+
 public slots:
   void Edit(Item *item);
 

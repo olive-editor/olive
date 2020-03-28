@@ -151,8 +151,6 @@ public:
   public:
     AddItemCommand(ProjectViewModel* model, Item* folder, ItemPtr child, QUndoCommand* parent = nullptr);
 
-    virtual ~AddItemCommand() override;
-
   protected:
     virtual void redo_internal() override;
 
@@ -164,6 +162,28 @@ public:
     ItemPtr child_;
     bool done_;
   };
+
+  /**
+   * @brief An undo command for removing an item
+   */
+  class RemoveItemCommand : public UndoCommand {
+  public:
+    RemoveItemCommand(ProjectViewModel* model, ItemPtr item, QUndoCommand* parent = nullptr);
+
+  protected:
+    virtual void redo_internal() override;
+
+    virtual void undo_internal() override;
+
+  private:
+    ProjectViewModel* model_;
+
+    ItemPtr item_;
+
+    Item* parent_;
+
+  };
+
 private:
   /**
    * @brief Retrieve the index of `item` in its parent

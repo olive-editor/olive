@@ -133,6 +133,11 @@ void ProjectPanel::Overwrite()
   }
 }
 
+void ProjectPanel::DeleteSelected()
+{
+  explorer_->DeleteSelected();
+}
+
 void ProjectPanel::Edit(Item* item)
 {
   explorer_->Edit(item);

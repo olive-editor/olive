@@ -77,6 +77,8 @@ public:
 
   void DeselectAll();
 
+  void DeleteSelected();
+
 public slots:
   void set_view_type(ProjectToolbar::ViewType type);
 

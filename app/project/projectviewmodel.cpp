@@ -475,7 +475,7 @@ void ProjectViewModel::MoveItemInternal(Item *item, Item *destination)
 
   beginMoveRows(item_index.parent(), item_index.row(), item_index.row(), destination_index, destination->child_count());
 
-  ItemPtr item_ptr = item->parent()->shared_ptr_from_raw(item);
+  ItemPtr item_ptr = item->get_shared_ptr();
 
   destination->add_child(item_ptr);
 
@@ -541,10 +541,6 @@ ProjectViewModel::AddItemCommand::AddItemCommand(ProjectViewModel* model, Item* 
 {
 }
 
-ProjectViewModel::AddItemCommand::~AddItemCommand()
-{
-}
-
 void ProjectViewModel::AddItemCommand::redo_internal()
 {
   model_->AddChild(parent_, child_);
@@ -557,4 +553,22 @@ void ProjectViewModel::AddItemCommand::undo_internal()
   model_->RemoveChild(parent_, child_.get());
 
   done_ = false;
+}
+
+ProjectViewModel::RemoveItemCommand::RemoveItemCommand(ProjectViewModel *model, ItemPtr item, QUndoCommand *parent) :
+  UndoCommand(parent),
+  model_(model),
+  item_(item)
+{
+}
+
+void ProjectViewModel::RemoveItemCommand::redo_internal()
+{
+  parent_ = item_->parent();
+  model_->RemoveChild(parent_, item_.get());
+}
+
+void ProjectViewModel::RemoveItemCommand::undo_internal()
+{
+  model_->AddChild(parent_, item_);
 }
