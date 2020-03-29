@@ -41,6 +41,7 @@ NodeView::NodeView(QWidget *parent) :
   connect(this, &NodeView::customContextMenuRequested, this, &NodeView::ShowContextMenu);
 
   setMouseTracking(true);
+  setRenderHint(QPainter::Antialiasing);
 }
 
 NodeView::~NodeView()
@@ -270,6 +271,18 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
         drop_edge_->SetHighlighted(true);
       }
     }
+  }
+}
+
+void NodeView::wheelEvent(QWheelEvent *event)
+{
+  if (event->modifiers() & Qt::ControlModifier) {
+    // FIXME: Hardcoded divider (0.001)
+    qreal multiplier = 1.0 + (static_cast<qreal>(event->delta()) * 0.001);
+
+    scale(multiplier, multiplier);
+  } else {
+    QWidget::wheelEvent(event);
   }
 }
 

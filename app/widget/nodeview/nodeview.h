@@ -73,6 +73,8 @@ protected:
 
   virtual void mouseMoveEvent(QMouseEvent *event) override;
 
+  virtual void wheelEvent(QWheelEvent* event) override;
+
 private:
   void PlaceNode(NodeViewItem* n, const QPointF& pos);
 
