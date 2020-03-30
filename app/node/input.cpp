@@ -20,6 +20,7 @@
 
 #include "input.h"
 
+#include <QMatrix4x4>
 #include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
@@ -84,7 +85,7 @@ QString NodeInput::name()
   return NodeParam::name();
 }
 
-void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt *cancelled)
+void NodeInput::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
@@ -116,7 +117,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
           if (value_text.isEmpty()) {
             standard_value_.replace(val_index, QVariant());
           } else {
-            standard_value_.replace(val_index, StringToValue(value_text, footage_connections));
+            standard_value_.replace(val_index, StringToValue(value_text, xml_node_data.footage_connections));
           }
 
           val_index++;
@@ -165,7 +166,7 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
                 }
               }
 
-              key_value = StringToValue(reader->readElementText(), footage_connections);
+              key_value = StringToValue(reader->readElementText(), xml_node_data.footage_connections);
 
               NodeKeyframePtr key = NodeKeyframe::Create(key_time, key_value, key_type, track);
               key->set_bezier_control_in(key_in_handle);
@@ -189,13 +190,13 @@ void NodeInput::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput*>& par
         }
 
         if (reader->name() == QStringLiteral("connection")) {
-          input_connections.append({this, reader->readElementText().toULongLong()});
+          xml_node_data.desired_connections.append({this, reader->readElementText().toULongLong()});
         } else {
           reader->skipCurrentElement();
         }
       }
     } else {
-      LoadInternal(reader, param_ptrs, input_connections, footage_connections, cancelled);
+      LoadInternal(reader, xml_node_data, cancelled);
     }
   }
 }
@@ -268,7 +269,7 @@ const NodeParam::DataType &NodeInput::data_type() const
   return data_type_;
 }
 
-void NodeInput::LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput *>&, QList<SerializedConnection>&, QList<FootageConnection>&, const QAtomicInt*)
+void NodeInput::LoadInternal(QXmlStreamReader* reader, XMLNodeData &, const QAtomicInt*)
 {
   reader->skipCurrentElement();
 }
@@ -289,12 +290,21 @@ QString NodeInput::ValueToString(const QVariant &value) const
       return value.toString();
     }
 
-    qWarning() << "Failed to convert type" << data_type_ << "to string";
+    if (!value.isNull()) {
+      qWarning() << "Failed to convert type" << QStringLiteral("%1").arg(data_type_, 0, 16) << "to string";
+    }
+
+    /* fall through */
+
+  // These data types need no XML representation
+  case kTexture:
+  case kSamples:
+  case kBuffer:
     return QString();
   }
 }
 
-QVariant NodeInput::StringToValue(const QString &string, QList<NodeInput::FootageConnection>& footage_connections)
+QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::FootageConnection>& footage_connections)
 {
   switch (data_type_) {
   case kRational:

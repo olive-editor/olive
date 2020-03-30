@@ -35,14 +35,13 @@ Project::Project()
 
 void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
 {
-  QHash<quintptr, StreamPtr> footage_ptrs;
-  QList<NodeInput::FootageConnection> footage_connections;
+  XMLNodeData xml_node_data;
 
   while (XMLReadNextStartElement(reader)) {
     if (reader->name() == QStringLiteral("folder")) {
 
       // Assume this folder is our root
-      root_.Load(reader, footage_ptrs, footage_connections, cancelled);
+      root_.Load(reader, xml_node_data, cancelled);
 
     } else if (reader->name() == QStringLiteral("colormanagement")) {
 
@@ -62,9 +61,9 @@ void Project::Load(QXmlStreamReader *reader, const QAtomicInt* cancelled)
     }
   }
 
-  foreach (const NodeInput::FootageConnection& con, footage_connections) {
+  foreach (const XMLNodeData::FootageConnection& con, xml_node_data.footage_connections) {
     if (con.footage) {
-      con.input->set_standard_value(QVariant::fromValue(footage_ptrs.value(con.footage)));
+      con.input->set_standard_value(QVariant::fromValue(xml_node_data.footage_ptrs.value(con.footage)));
     }
   }
 }

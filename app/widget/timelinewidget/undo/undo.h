@@ -169,6 +169,9 @@ protected:
   Block* insert_;
 
   QObject memory_manager_;
+
+  QList<UndoCommand*> remove_block_commands_;
+
 };
 
 /**

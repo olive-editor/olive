@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "node/output/track/track.h"
 #include "transition/transition.h"
 
 Block::Block() :
@@ -197,6 +198,22 @@ rational Block::MediaToSequenceTime(const rational &media_time) const
   return (media_time - media_in()) / speed() + in();
 }
 
+void Block::LoadInternal(QXmlStreamReader *reader, XMLNodeData &xml_node_data)
+{
+  if (reader->name() == QStringLiteral("link")) {
+    xml_node_data.block_links.append({this, reader->readElementText().toULongLong()});
+  } else {
+    Node::LoadInternal(reader, xml_node_data);
+  }
+}
+
+void Block::SaveInternal(QXmlStreamWriter *writer) const
+{
+  foreach (Block* link, linked_clips_) {
+    writer->writeTextElement(QStringLiteral("link"), QString::number(reinterpret_cast<quintptr>(link)));
+  }
+}
+
 void Block::LengthInputChanged()
 {
   emit LengthChanged(length());
@@ -301,5 +318,15 @@ NodeInput *Block::media_in_input() const
 NodeInput *Block::speed_input() const
 {
   return speed_input_;
+}
+
+void Block::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+{
+  // We ignore length changes since they don't have an effect on our frames
+  if (from == length_input_) {
+    return;
+  }
+
+  Node::InvalidateCache(start_range, end_range, from);
 }
 

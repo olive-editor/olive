@@ -85,10 +85,7 @@ void VideoRenderBackend::SetParameters(const VideoRenderingParams& params)
 
 void VideoRenderBackend::SetOperatingMode(const VideoRenderWorker::OperatingMode &mode)
 {
-  if (!AllProcessorsAreAvailable()) {
-    qCritical() << "Attempted to set operating mode on a backend whose workers are still busy";
-    return;
-  }
+  CancelQueue();
 
   operating_mode_ = mode;
 

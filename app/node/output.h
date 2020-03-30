@@ -42,7 +42,7 @@ public:
 
   virtual QString name() override;
 
-  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt* cancelled) override;
+  virtual void Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled) override;
 
   virtual void Save(QXmlStreamWriter* writer) const override;
 

@@ -8,6 +8,7 @@
 #include "core.h"
 #include "timelineandtrackview.h"
 #include "node/output/viewer/viewer.h"
+#include "widget/nodecopypaste/nodecopypaste.h"
 #include "widget/slider/timeslider.h"
 #include "widget/timebased/timebased.h"
 
@@ -16,7 +17,7 @@
  *
  * Encapsulates TimelineViews, TimeRulers, and scrollbars for a complete widget to manipulate Timelines
  */
-class TimelineWidget : public TimeBasedWidget
+class TimelineWidget : public TimeBasedWidget, public NodeCopyPasteWidget
 {
   Q_OBJECT
 public:
@@ -77,6 +78,16 @@ protected:
 
   virtual void ConnectNodeInternal(ViewerOutput* n) override;
   virtual void DisconnectNodeInternal(ViewerOutput* n) override;
+
+  virtual void CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata) override;
+  virtual void PasteNodesFromClipboardInternal(QXmlStreamReader *reader, void* userdata) override;
+
+  struct BlockPasteData {
+    quintptr ptr;
+    rational in;
+    Timeline::TrackType track_type;
+    int track_index;
+  };
 
 private:
   class DraggedFootage {
@@ -161,8 +172,6 @@ private:
      * @brief Snaps point `start_point` that is moving by `movement` to currently existing clips
      */
     bool SnapPoint(QList<rational> start_times, rational *movement, int snap_points = kSnapAll);
-
-    void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
 
     void GetGhostData(const QVector<TimelineViewGhostItem*>& ghosts, rational *earliest_point, rational *latest_point);
 
@@ -381,6 +390,8 @@ private:
   private:
     bool dual_transition_;
   };
+
+  void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
 
   void DeleteSelectedInternal(const QList<Block *>& blocks, bool transition_aware, bool remove_from_graph, QUndoCommand* command);
 

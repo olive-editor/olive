@@ -92,6 +92,8 @@ public:
   NodeInput* media_in_input() const;
   NodeInput* speed_input() const;
 
+  virtual void InvalidateCache(const rational& start_range, const rational& end_range, NodeInput* from = nullptr) override;
+
 public slots:
 
 signals:
@@ -110,6 +112,10 @@ protected:
   rational SequenceToMediaTime(const rational& sequence_time) const;
 
   rational MediaToSequenceTime(const rational& media_time) const;
+
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+
+  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
 
   Block* previous_;
   Block* next_;

@@ -135,11 +135,8 @@ void TimelineWidget::Clear()
   QMap<Block*, TimelineViewBlockItem*>::iterator iterator = block_items_.begin();
 
   while (iterator != block_items_.end()) {
-    TimelineViewBlockItem* item = iterator.value();
-
+    delete iterator.value();
     iterator = block_items_.erase(iterator);
-
-    delete item;
   }
 
   block_items_.clear();
@@ -251,6 +248,72 @@ void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
   for (int i=0;i<views_.size();i++) {
     TrackView* track_view = views_.at(i)->track_view();
     track_view->DisconnectTrackList();
+  }
+}
+
+void TimelineWidget::CopyNodesToClipboardInternal(QXmlStreamWriter *writer, void* userdata)
+{
+  writer->writeStartElement(QStringLiteral("timeline"));
+
+  // Cache the earliest in point so all copied clips have a "relative" in point that can be pasted anywhere
+  QList<TimelineViewBlockItem*>& selected = *static_cast<QList<TimelineViewBlockItem*>*>(userdata);
+  rational earliest_in = RATIONAL_MAX;
+
+  foreach (TimelineViewBlockItem* item, selected) {
+    Block* block = item->block();
+
+    earliest_in = qMin(earliest_in, block->in());
+  }
+
+  foreach (TimelineViewBlockItem* item, selected) {
+    Block* block = item->block();
+
+    writer->writeStartElement(QStringLiteral("block"));
+
+    writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(block)));
+    writer->writeAttribute(QStringLiteral("in"), (block->in() - earliest_in).toString());
+
+    TrackOutput* track = TrackOutput::TrackFromBlock(block);
+
+    if (track) {
+      writer->writeAttribute(QStringLiteral("tracktype"), QString::number(track->track_type()));
+      writer->writeAttribute(QStringLiteral("trackindex"), QString::number(track->Index()));
+    }
+
+    writer->writeEndElement();
+  }
+
+  writer->writeEndElement(); // timeline
+}
+
+void TimelineWidget::PasteNodesFromClipboardInternal(QXmlStreamReader *reader, void *userdata)
+{
+  if (reader->name() == QStringLiteral("timeline")) {
+    QList<BlockPasteData>& paste_data = *static_cast<QList<BlockPasteData>*>(userdata);
+
+    while (XMLReadNextStartElement(reader)) {
+      if (reader->name() == QStringLiteral("block")) {
+        BlockPasteData bpd;
+
+        foreach (QXmlStreamAttribute attr, reader->attributes()) {
+          if (attr.name() == QStringLiteral("ptr")) {
+            bpd.ptr = attr.value().toULongLong();
+          } else if (attr.name() == QStringLiteral("in")) {
+            bpd.in = rational::fromString(attr.value().toString());
+          } else if (attr.name() == QStringLiteral("tracktype")) {
+            bpd.track_type = static_cast<Timeline::TrackType>(attr.value().toInt());
+          } else if (attr.name() == QStringLiteral("trackindex")) {
+            bpd.track_index = attr.value().toInt();
+          }
+        }
+
+        paste_data.append(bpd);
+
+        reader->skipCurrentElement();
+      }
+    }
+  } else {
+    NodeCopyPasteWidget::PasteNodesFromClipboardInternal(reader, userdata);
   }
 }
 
@@ -546,7 +609,7 @@ void TimelineWidget::CopySelected(bool cut)
     }
   }
 
-  Core::instance()->CopyNodesToClipboard(selected_nodes);
+  CopyNodesToClipboard(selected_nodes, &selected);
 
   if (cut) {
     DeleteSelected();
@@ -559,18 +622,45 @@ void TimelineWidget::Paste(bool insert)
     return;
   }
 
-  QList<Node*> pasted = Core::instance()->PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()));
+  QUndoCommand* command = new QUndoCommand();
+
+  QList<BlockPasteData> paste_data;
+  QList<Node*> pasted = PasteNodesFromClipboard(static_cast<Sequence*>(GetConnectedNode()->parent()), command, &paste_data);
+
+  rational paste_start = GetTime();
 
   if (insert) {
-    // FIXME: Implement this
-  }
+    rational paste_end = GetTime();
 
-  foreach (Node* n, pasted) {
-    // See if this block is a node and is a top level node
-    if (n->IsBlock() && !n->output()->IsConnected()) {
+    foreach (const BlockPasteData& bpd, paste_data) {
+      foreach (Node* n, pasted) {
+        if (n->property("xml_ptr") == bpd.ptr) {
+          paste_end = qMax(paste_end, paste_start + bpd.in + static_cast<Block*>(n)->length());
+          break;
+        }
+      }
+    }
 
+    if (paste_end != paste_start) {
+      InsertGapsAt(paste_start, paste_end - paste_start, command);
     }
   }
+
+  foreach (const BlockPasteData& bpd, paste_data) {
+    foreach (Node* n, pasted) {
+      if (n->property("xml_ptr") == bpd.ptr) {
+        qDebug() << "Placing" << n;
+        new TrackPlaceBlockCommand(GetConnectedNode()->track_list(bpd.track_type),
+                                   bpd.track_index,
+                                   static_cast<Block*>(n),
+                                   paste_start + bpd.in,
+                                   command);
+        break;
+      }
+    }
+  }
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 QList<TimelineViewBlockItem *> TimelineWidget::GetSelectedBlocks()
@@ -654,6 +744,55 @@ void TimelineWidget::RippleEditTo(Timeline::MovementMode mode, bool insert_gaps)
     int64_t new_time = Timecode::time_to_timestamp(closest_point_to_playhead, timebase());
 
     SetTimeAndSignal(new_time);
+  }
+}
+
+void TimelineWidget::InsertGapsAt(const rational &earliest_point, const rational &insert_length, QUndoCommand *command)
+{
+  QVector<Block*> blocks_to_split;
+  QList<Block*> blocks_to_append_gap_to;
+  QList<Block*> gaps_to_extend;
+
+  foreach (TrackOutput* track, GetConnectedNode()->Tracks()) {
+    if (track->IsLocked()) {
+      continue;
+    }
+
+    foreach (Block* b, track->Blocks()) {
+      if (b->out() >= earliest_point) {
+        if (b->type() == Block::kClip) {
+
+          if (b->out() > earliest_point) {
+            blocks_to_split.append(b);
+          }
+
+          blocks_to_append_gap_to.append(b);
+
+        } else if (b->type() == Block::kGap) {
+
+          gaps_to_extend.append(b);
+
+        }
+
+        break;
+      }
+    }
+  }
+
+  // Extend gaps that already exist
+  foreach (Block* gap, gaps_to_extend) {
+    new BlockResizeCommand(gap, gap->length() + insert_length, command);
+  }
+
+  // Split clips here
+  new BlockSplitPreservingLinksCommand(blocks_to_split, {earliest_point}, command);
+
+  // Insert gaps that don't exist yet
+  foreach (Block* b, blocks_to_append_gap_to) {
+    GapBlock* gap = new GapBlock();
+    gap->set_length_and_media_out(insert_length);
+    new NodeAddCommand(static_cast<NodeGraph*>(GetConnectedNode()->parent()), gap, command);
+    new TrackInsertBlockAfterCommand(TrackOutput::TrackFromBlock(b), gap, b, command);
   }
 }
 

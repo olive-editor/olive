@@ -38,7 +38,7 @@ Footage::~Footage()
   ClearStreams();
 }
 
-void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage_ptrs, QList<NodeParam::FootageConnection>&, const QAtomicInt* cancelled)
+void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const QAtomicInt* cancelled)
 {
   QXmlStreamAttributes attributes = reader->attributes();
 
@@ -74,7 +74,7 @@ void Footage::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr>& footage
       }
 
       if (stream_index > -1 && stream_ptr > 0) {
-        footage_ptrs.insert(stream_ptr, stream(stream_index));
+        xml_node_data.footage_ptrs.insert(stream_ptr, stream(stream_index));
 
         stream(stream_index)->Load(reader);
       } else {

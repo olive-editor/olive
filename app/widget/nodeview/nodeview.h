@@ -26,6 +26,7 @@
 
 #include "node/graph.h"
 #include "nodeviewscene.h"
+#include "widget/nodecopypaste/nodecopypaste.h"
 
 /**
  * @brief A widget for viewing and editing node graphs
@@ -33,7 +34,7 @@
  * This widget takes a NodeGraph object and constructs a QGraphicsScene representing its data, viewing and allowing
  * the user to make modifications to it.
  */
-class NodeView : public QGraphicsView
+class NodeView : public QGraphicsView, public NodeCopyPasteWidget
 {
   Q_OBJECT
 public:

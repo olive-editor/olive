@@ -130,7 +130,7 @@ public:
 
   void UnblockInvalidateCache();
 
-  static TrackOutput* TrackFromBlock(Block* block);
+  static TrackOutput* TrackFromBlock(const Block *block);
 
   const rational& track_length() const;
 

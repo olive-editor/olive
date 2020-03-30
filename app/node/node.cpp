@@ -50,7 +50,7 @@ Node::~Node()
   }
 }
 
-void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_ptrs, QList<NodeInput::SerializedConnection>& input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt* cancelled)
+void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled)
 {
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
@@ -80,22 +80,26 @@ void Node::Load(QXmlStreamReader *reader, QHash<quintptr, NodeOutput *> &output_
         continue;
       }
 
-      param->Load(reader, output_ptrs, input_connections, footage_connections, cancelled);
+      param->Load(reader, xml_node_data, cancelled);
     } else {
-      reader->skipCurrentElement();
+      LoadInternal(reader, xml_node_data);
     }
   }
 }
 
 void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
 {
-  writer->writeStartElement(custom_name.isEmpty() ? "node" : custom_name);
+  writer->writeStartElement(custom_name.isEmpty() ? QStringLiteral("node") : custom_name);
 
-  writer->writeAttribute("id", id());
+  writer->writeAttribute(QStringLiteral("id"), id());
+
+  writer->writeAttribute(QStringLiteral("ptr"), QString::number(reinterpret_cast<quintptr>(this)));
 
   foreach (NodeParam* param, parameters()) {
     param->Save(writer);
   }
+
+  SaveInternal(writer);
 
   writer->writeEndElement(); // node
 }
@@ -215,6 +219,15 @@ void Node::DependentEdgeChanged(NodeInput *from)
       }
     }
   }
+}
+
+void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
+{
+  reader->skipCurrentElement();
+}
+
+void Node::SaveInternal(QXmlStreamWriter *) const
+{
 }
 
 QString Node::ReadFileAsString(const QString &filename)
