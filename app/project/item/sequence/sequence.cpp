@@ -42,7 +42,7 @@ Sequence::Sequence()
   AddNode(viewer_output_);
 }
 
-void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QList<NodeInput::FootageConnection>& footage_connections, const QAtomicInt *cancelled)
+void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
@@ -55,9 +55,6 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
       // Currently the only thing we care about
     }
   }
-
-  QHash<quintptr, NodeOutput*> output_ptrs;
-  QList<NodeParam::SerializedConnection> desired_connections;
 
   while (XMLReadNextStartElement(reader)) {
     if (cancelled && *cancelled) {
@@ -110,7 +107,7 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
       }
 
       if (node) {
-        node->Load(reader, output_ptrs, desired_connections, footage_connections, cancelled);
+        node->Load(reader, xml_node_data, cancelled);
 
         AddNode(node);
       }
@@ -120,7 +117,7 @@ void Sequence::Load(QXmlStreamReader *reader, QHash<quintptr, StreamPtr> &, QLis
   }
 
   // Make connections
-  XMLConnectNodes(output_ptrs, desired_connections);
+  XMLConnectNodes(xml_node_data.output_ptrs, xml_node_data.desired_connections);
 
   // Ensure this and all children are in the main thread
   // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)

@@ -143,7 +143,7 @@ void NodeView::CopySelected(bool cut)
     return;
   }
 
-  Core::instance()->CopyNodesToClipboard(selected);
+  CopyNodesToClipboard(selected);
 
   if (cut) {
     DeleteSelected();
@@ -156,7 +156,11 @@ void NodeView::Paste()
     return;
   }
 
-  QList<Node*> pasted_nodes = Core::instance()->PasteNodesFromClipboard(static_cast<Sequence*>(graph_));
+  QUndoCommand* command = new QUndoCommand();
+
+  QList<Node*> pasted_nodes = PasteNodesFromClipboard(static_cast<Sequence*>(graph_), command);
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
 
   if (!pasted_nodes.isEmpty()) {
     // FIXME: Attach to cursor so user can drop in place

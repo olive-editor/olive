@@ -16,12 +16,12 @@ AudioRenderBackend::AudioRenderBackend(QObject *parent) :
 
 void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
 {
+  CancelQueue();
+
   // Set new parameters
   params_ = params;
 
   // Set params on all processors
-  // FIXME: Undefined behavior if the processors are currently working, this may need to be delayed like the
-  //        recompile signal
   foreach (RenderWorker* worker, processors_) {
     static_cast<AudioRenderWorker*>(worker)->SetParameters(params_);
   }

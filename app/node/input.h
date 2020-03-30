@@ -54,7 +54,7 @@ public:
 
   virtual QString name() override;
 
-  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt* cancelled) override;
+  virtual void Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled) override;
 
   virtual void Save(QXmlStreamWriter* writer) const override;
 
@@ -270,14 +270,14 @@ signals:
   void PropertyChanged(const QString& s, const QVariant& v);
 
 protected:
-  virtual void LoadInternal(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt* cancelled);
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled);
 
   virtual void SaveInternal(QXmlStreamWriter* writer) const;
 
 private:
   QString ValueToString(const QVariant& value) const;
 
-  QVariant StringToValue(const QString &string, QList<FootageConnection> &footage_connections);
+  QVariant StringToValue(const QString &string, QList<XMLNodeData::FootageConnection> &footage_connections);
 
   void SaveConnections(QXmlStreamWriter* writer) const;
 

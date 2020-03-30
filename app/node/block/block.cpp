@@ -22,6 +22,7 @@
 
 #include <QDebug>
 
+#include "node/output/track/track.h"
 #include "transition/transition.h"
 
 Block::Block() :

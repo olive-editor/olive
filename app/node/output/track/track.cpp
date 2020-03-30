@@ -331,7 +331,7 @@ void TrackOutput::ReplaceBlock(Block *old, Block *replace)
   }
 }
 
-TrackOutput *TrackOutput::TrackFromBlock(Block *block)
+TrackOutput *TrackOutput::TrackFromBlock(const Block *block)
 {
   NodeOutput* output = block->output();
 

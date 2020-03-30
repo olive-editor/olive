@@ -1,9 +1,15 @@
 #ifndef XMLREADLOOP_H
 #define XMLREADLOOP_H
 
+#include <QUndoCommand>
 #include <QXmlStreamReader>
 
-#include "node/node.h"
+class Node;
+class NodeParam;
+class NodeInput;
+class NodeOutput;
+
+#include "project/item/footage/stream.h"
 
 #define XMLAttributeLoop(reader, item) \
   QXmlStreamAttributes __attributes = reader->attributes(); \
@@ -11,7 +17,24 @@
 
 Node *XMLLoadNode(QXmlStreamReader* reader);
 
-void XMLConnectNodes(const QHash<quintptr, NodeOutput *> &output_ptrs, const QList<NodeParam::SerializedConnection> &desired_connections);
+struct XMLNodeData {
+  struct SerializedConnection {
+    NodeInput* input;
+    quintptr output;
+  };
+
+  struct FootageConnection {
+    NodeInput* input;
+    quintptr footage;
+  };
+
+  QHash<quintptr, NodeOutput*> output_ptrs;
+  QList<SerializedConnection> desired_connections;
+  QHash<quintptr, StreamPtr> footage_ptrs;
+  QList<FootageConnection> footage_connections;
+};
+
+void XMLConnectNodes(const QHash<quintptr, NodeOutput *> &output_ptrs, const QList<XMLNodeData::SerializedConnection> &desired_connections, QUndoCommand* command = nullptr);
 
 bool XMLReadNextStartElement(QXmlStreamReader* reader);
 

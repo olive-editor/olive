@@ -27,6 +27,7 @@
 #include <QXmlStreamWriter>
 
 #include "common/rational.h"
+#include "common/xmlutils.h"
 #include "node/dependency.h"
 #include "node/input.h"
 #include "node/inputarray.h"
@@ -67,7 +68,7 @@ public:
   /**
    * @brief Clear current node variables and replace them with
    */
-  void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<NodeInput::SerializedConnection> &input_connections, QList<NodeParam::FootageConnection>& footage_connections, const QAtomicInt *cancelled);
+  void Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled);
 
   /**
    * @brief Save this node into a text/XML format

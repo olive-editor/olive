@@ -27,6 +27,7 @@
 #include <QXmlStreamWriter>
 
 #include "common/rational.h"
+#include "common/xmlutils.h"
 #include "node/edge.h"
 
 class Node;
@@ -222,20 +223,10 @@ public:
 
   virtual ~NodeParam() override;
 
-  struct SerializedConnection {
-    NodeInput* input;
-    quintptr output;
-  };
-
-  struct FootageConnection {
-    NodeInput* input;
-    quintptr footage;
-  };
-
   /**
    * @brief Load function
    */
-  virtual void Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection> &input_connections, QList<FootageConnection>& footage_connections, const QAtomicInt* cancelled) = 0;
+  virtual void Load(QXmlStreamReader* reader, XMLNodeData& xml_node_data, const QAtomicInt* cancelled) = 0;
 
   /**
    * @brief Save function

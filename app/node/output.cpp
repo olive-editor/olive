@@ -42,7 +42,7 @@ QString NodeOutput::name()
   return NodeParam::name();
 }
 
-void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& param_ptrs, QList<SerializedConnection>&, QList<FootageConnection>&, const QAtomicInt *cancelled)
+void NodeOutput::Load(QXmlStreamReader* reader, XMLNodeData &xml_node_data, const QAtomicInt *cancelled)
 {
   XMLAttributeLoop(reader, attr) {
     if (cancelled && *cancelled) {
@@ -52,7 +52,7 @@ void NodeOutput::Load(QXmlStreamReader* reader, QHash<quintptr, NodeOutput*>& pa
     if (attr.name() == "ptr") {
       quintptr saved_ptr = attr.value().toULongLong();
 
-      param_ptrs.insert(saved_ptr, this);
+      xml_node_data.output_ptrs.insert(saved_ptr, this);
     }
   }
 
