@@ -23,6 +23,7 @@
 #include "core.h"
 #include "node/graph.h"
 #include "node/block/transition/transition.h"
+#include "widget/nodeview/nodeviewundo.h"
 
 Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 {
@@ -209,7 +210,9 @@ void TrackRippleRemoveAreaCommand::redo_internal()
     foreach (Block* remove_block, removed_blocks_) {
       track_->RippleRemoveBlock(remove_block);
 
-      // FIXME: Delete blocks from graph and restore them in undo
+      NodeRemoveWithExclusiveDeps* command = new NodeRemoveWithExclusiveDeps(static_cast<NodeGraph*>(remove_block->parent()), remove_block);
+      command->redo();
+      remove_block_commands_.append(command);
     }
 
     // If we picked up a block to trim the out point of
@@ -261,12 +264,21 @@ void TrackRippleRemoveAreaCommand::undo_internal()
       trim_out_->set_length_and_media_out(trim_out_old_length_);
     }
 
-    // Remove all blocks that are flagged for removal
-    foreach (Block* remove_block, removed_blocks_) {
-      if (trim_in_ == nullptr) {
-        track_->AppendBlock(remove_block);
-      } else {
+    // Restore blocks that were removed
+    for (int i=remove_block_commands_.size()-1;i>=0;i--) {
+      UndoCommand* command = remove_block_commands_.at(i);
+      command->undo();
+      delete command;
+    }
+    remove_block_commands_.clear();
+
+    for (int i=removed_blocks_.size();i>=0;i--) {
+      Block* remove_block = removed_blocks_.at(i);
+
+      if (trim_in_) {
         track_->InsertBlockBefore(remove_block, trim_in_);
+      } else {
+        track_->AppendBlock(remove_block);
       }
     }
     removed_blocks_.clear();
