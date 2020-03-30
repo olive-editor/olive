@@ -272,7 +272,7 @@ void TrackRippleRemoveAreaCommand::undo_internal()
     }
     remove_block_commands_.clear();
 
-    for (int i=removed_blocks_.size();i>=0;i--) {
+    for (int i=removed_blocks_.size()-1;i>=0;i--) {
       Block* remove_block = removed_blocks_.at(i);
 
       if (trim_in_) {
