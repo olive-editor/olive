@@ -65,9 +65,9 @@ void TimelineViewBlockItem::UpdateRect()
 
   setToolTip(QCoreApplication::translate("TimelineViewBlockItem",
                                          "%1\n\nIn: %2\nOut: %3\nLength: %4").arg(block_->Name(),
-                                                                                    Timecode::time_to_timecode(block_->in(), timebase(), Core::instance()->GetTimecodeDisplay()),
-                                                                                    Timecode::time_to_timecode(block_->out(), timebase(), Core::instance()->GetTimecodeDisplay()),
-                                                                                    Timecode::time_to_timecode(block_->out() - block_->in(), timebase(), Core::instance()->GetTimecodeDisplay())));
+                                                                                  Timecode::time_to_timecode(block_->in(), timebase(), Core::instance()->GetTimecodeDisplay()),
+                                                                                  Timecode::time_to_timecode(block_->out(), timebase(), Core::instance()->GetTimecodeDisplay()),
+                                                                                  Timecode::time_to_timecode(block_->out() - block_->in(), timebase(), Core::instance()->GetTimecodeDisplay())));
 }
 
 void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
@@ -95,11 +95,11 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
 
       // FIXME: Hardcoded channel count
       AudioWaveformView::DrawWaveform(painter,
-                                 rect().toRect(),
-                                 this->GetScale(),
-                                 reinterpret_cast<const SampleSummer::Sum*>(w.constData()),
-                                 w.size() / sizeof(SampleSummer::Sum),
-                                 2);
+                                      rect().toRect(),
+                                      this->GetScale(),
+                                      reinterpret_cast<const SampleSummer::Sum*>(w.constData()),
+                                      w.size() / sizeof(SampleSummer::Sum),
+                                      2);
 
       wave_file.close();
     }
