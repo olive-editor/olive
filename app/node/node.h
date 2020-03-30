@@ -345,6 +345,10 @@ protected:
 
   virtual void DependentEdgeChanged(NodeInput* from);
 
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data);
+
+  virtual void SaveInternal(QXmlStreamWriter* writer) const;
+
 public slots:
 
 signals:

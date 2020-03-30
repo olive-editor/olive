@@ -113,6 +113,10 @@ protected:
 
   rational MediaToSequenceTime(const rational& media_time) const;
 
+  virtual void LoadInternal(QXmlStreamReader* reader, XMLNodeData& xml_node_data) override;
+
+  virtual void SaveInternal(QXmlStreamWriter* writer) const override;
+
   Block* previous_;
   Block* next_;
 

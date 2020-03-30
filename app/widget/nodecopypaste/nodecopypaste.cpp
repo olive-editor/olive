@@ -89,8 +89,11 @@ QList<Node *> NodeCopyPasteWidget::PasteNodesFromClipboard(Sequence *graph, QUnd
 
   // Make connections
   if (!xml_node_data.desired_connections.isEmpty()) {
-    XMLConnectNodes(xml_node_data.output_ptrs, xml_node_data.desired_connections, command);
+    XMLConnectNodes(xml_node_data, command);
   }
+
+  // Link blocks
+  XMLLinkBlocks(xml_node_data);
 
   // Connect footage to existing footage if it exists
   if (!xml_node_data.footage_connections.isEmpty()) {

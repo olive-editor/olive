@@ -117,7 +117,10 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
   }
 
   // Make connections
-  XMLConnectNodes(xml_node_data.output_ptrs, xml_node_data.desired_connections);
+  XMLConnectNodes(xml_node_data);
+
+  // Link blocks
+  XMLLinkBlocks(xml_node_data);
 
   // Ensure this and all children are in the main thread
   // (FIXME: Weird place for this? This should probably be in ProjectLoadManager somehow)

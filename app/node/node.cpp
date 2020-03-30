@@ -82,7 +82,7 @@ void Node::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const QAto
 
       param->Load(reader, xml_node_data, cancelled);
     } else {
-      reader->skipCurrentElement();
+      LoadInternal(reader, xml_node_data);
     }
   }
 }
@@ -98,6 +98,8 @@ void Node::Save(QXmlStreamWriter *writer, const QString &custom_name) const
   foreach (NodeParam* param, parameters()) {
     param->Save(writer);
   }
+
+  SaveInternal(writer);
 
   writer->writeEndElement(); // node
 }
@@ -217,6 +219,15 @@ void Node::DependentEdgeChanged(NodeInput *from)
       }
     }
   }
+}
+
+void Node::LoadInternal(QXmlStreamReader *reader, XMLNodeData &)
+{
+  reader->skipCurrentElement();
+}
+
+void Node::SaveInternal(QXmlStreamWriter *) const
+{
 }
 
 QString Node::ReadFileAsString(const QString &filename)
