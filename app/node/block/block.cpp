@@ -303,3 +303,13 @@ NodeInput *Block::speed_input() const
   return speed_input_;
 }
 
+void Block::InvalidateCache(const rational &start_range, const rational &end_range, NodeInput *from)
+{
+  // We ignore length changes since they don't have an effect on our frames
+  if (from == length_input_) {
+    return;
+  }
+
+  Node::InvalidateCache(start_range, end_range, from);
+}
+
