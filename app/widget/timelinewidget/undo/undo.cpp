@@ -370,7 +370,8 @@ BlockSplitCommand::BlockSplitCommand(TrackOutput* track, Block *block, rational 
 
 void BlockSplitCommand::redo_internal()
 {
-  track_->BlockInvalidateCache();
+  // FIXME: Reintroduce this optimization when block waveforms update automatically
+//  track_->BlockInvalidateCache();
 
   static_cast<NodeGraph*>(block_->parent())->AddNode(new_block_);
   Node::CopyInputs(block_, new_block_);
@@ -388,12 +389,12 @@ void BlockSplitCommand::redo_internal()
     NodeParam::ConnectEdge(new_block_->output(), transition);
   }
 
-  track_->UnblockInvalidateCache();
+//  track_->UnblockInvalidateCache();
 }
 
 void BlockSplitCommand::undo_internal()
 {
-  track_->BlockInvalidateCache();
+//  track_->BlockInvalidateCache();
 
   block_->set_length_and_media_out(old_length_);
   track_->RippleRemoveBlock(new_block_);
@@ -405,7 +406,7 @@ void BlockSplitCommand::undo_internal()
     NodeParam::ConnectEdge(block_->output(), transition);
   }
 
-  track_->UnblockInvalidateCache();
+//  track_->UnblockInvalidateCache();
 }
 
 Block *BlockSplitCommand::new_block()
