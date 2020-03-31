@@ -51,6 +51,7 @@ private:
   bool SetupCodecContext(AVStream *stream, AVCodecContext *codec_ctx, AVCodec *codec);
 
   void FlushEncoders();
+  void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
 
   AVFormatContext* fmt_ctx_;
 

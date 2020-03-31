@@ -422,25 +422,34 @@ bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ct
 void FFmpegEncoder::FlushEncoders()
 {
   if (video_codec_ctx_) {
-    avcodec_send_frame(video_codec_ctx_, nullptr);
-    AVPacket* pkt = av_packet_alloc();
-
-    int error_code;
-    do {
-      error_code = avcodec_receive_packet(video_codec_ctx_, pkt);
-
-      if (error_code < 0) {
-        break;
-      }
-
-      pkt->stream_index = video_stream_->index;
-      av_packet_rescale_ts(pkt, video_codec_ctx_->time_base, video_stream_->time_base);
-      av_interleaved_write_frame(fmt_ctx_, pkt);
-      av_packet_unref(pkt);
-    } while (error_code >= 0);
-
-    av_packet_free(&pkt);
+    FlushCodecCtx(video_codec_ctx_, video_stream_);
   }
+
+  if (audio_codec_ctx_) {
+    FlushCodecCtx(audio_codec_ctx_, audio_stream_);
+  }
+}
+
+void FFmpegEncoder::FlushCodecCtx(AVCodecContext *codec_ctx, AVStream* stream)
+{
+  avcodec_send_frame(codec_ctx, nullptr);
+  AVPacket* pkt = av_packet_alloc();
+
+  int error_code;
+  do {
+    error_code = avcodec_receive_packet(codec_ctx, pkt);
+
+    if (error_code < 0) {
+      break;
+    }
+
+    pkt->stream_index = stream->index;
+    av_packet_rescale_ts(pkt, codec_ctx->time_base, stream->time_base);
+    av_interleaved_write_frame(fmt_ctx_, pkt);
+    av_packet_unref(pkt);
+  } while (error_code >= 0);
+
+  av_packet_free(&pkt);
 }
 
 void FFmpegEncoder::Error(const QString &s)
