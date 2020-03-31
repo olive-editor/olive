@@ -99,7 +99,6 @@ void Exporter::StartExporting()
   connect(encoder_, &Encoder::OpenSucceeded, this, &Exporter::EncoderOpenedSuccessfully, Qt::QueuedConnection);
   connect(encoder_, &Encoder::OpenFailed, this, &Exporter::EncoderOpenFailed, Qt::QueuedConnection);
   connect(encoder_, &Encoder::AudioComplete, this, &Exporter::AudioEncodeComplete, Qt::QueuedConnection);
-  connect(encoder_, &Encoder::Closed, encoder_, &Encoder::deleteLater, Qt::QueuedConnection);
 
   QMetaObject::invokeMethod(encoder_,
                             "Open",
