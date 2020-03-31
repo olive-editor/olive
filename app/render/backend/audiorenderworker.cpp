@@ -54,6 +54,10 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
 
     SampleBufferPtr samples_from_this_block = sample_val.value<SampleBufferPtr>();
 
+    if (!samples_from_this_block) {
+      continue;
+    }
+
     // Stretch samples here
     rational abs_speed = qAbs(b->speed());
 
@@ -68,16 +72,17 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
 
     int destination_offset = audio_params_.time_to_samples(range_for_block.in() - range.in()) * sizeof(float);
     int max_dest_sz = audio_params_.time_to_samples(range_for_block.length()) * sizeof(float);
-    int input_sz = samples_from_this_block->sample_count_per_channel() * sizeof(float);
-    int actual_copy_size = qMin(max_dest_sz, input_sz);
+    int actual_copy_size = qMin(max_dest_sz, static_cast<int>(samples_from_this_block->sample_count_per_channel() * sizeof(float)));
 
     for (int i=0;i<audio_params_.channel_count();i++) {
-      memcpy(block_range_buffer->data()[i] + destination_offset,
+      char* dst_ptr = reinterpret_cast<char*>(block_range_buffer->data()[i]) + destination_offset;
+
+      memcpy(dst_ptr,
              samples_from_this_block->data()[i],
              actual_copy_size);
 
-      if (input_sz < max_dest_sz) {
-        memset(block_range_buffer->data()[i] + destination_offset + input_sz, 0, max_dest_sz - input_sz);
+      if (actual_copy_size < max_dest_sz) {
+        memset(dst_ptr + actual_copy_size, 0, max_dest_sz - actual_copy_size);
       }
     }
 
