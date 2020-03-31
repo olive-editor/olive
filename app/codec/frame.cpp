@@ -109,6 +109,7 @@ void Frame::allocate()
   // Assume this frame is intended to be a video frame
   if (!params_.is_valid()) {
     qWarning() << "Tried to allocate a frame with invalid parameters";
+    return;
   }
 
   data_.resize(PixelFormat::GetBufferSize(params_.format(), params_.width(), params_.height()));
