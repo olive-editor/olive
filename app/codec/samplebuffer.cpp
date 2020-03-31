@@ -205,7 +205,7 @@ void SampleBuffer::destroy_sample_buffer(float ***data, int nb_channels)
       delete [] (*data)[i];
     }
 
-    delete *data;
+    delete [] *data;
     *data = nullptr;
   }
 }
