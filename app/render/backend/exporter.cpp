@@ -196,9 +196,9 @@ void Exporter::FrameRendered(const rational &time, FramePtr value)
 
   qDebug() << "    Waiting for" << waiting_for_frame_.toDouble();
 
-  EncodeFrame();
-
   debug_timer_.start();
+
+  EncodeFrame();
 }
 
 void Exporter::AudioRendered()
