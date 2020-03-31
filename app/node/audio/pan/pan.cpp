@@ -47,7 +47,7 @@ NodeInput *PanNode::ProcessesSamplesFrom() const
   return samples_input_;
 }
 
-void PanNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams &params, const float *input, float *output, int index) const
+void PanNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   if (params.channel_count() != 2) {
     // This node currently only works for stereo audio
@@ -56,18 +56,14 @@ void PanNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderi
 
   float pan_val = (*values)[panning_input_].Get(NodeParam::kFloat).toFloat();
 
-  output[index] = input[index];
+  for (int i=0;i<params.channel_count();i++) {
+    output->data()[i][index] = input->data()[i][index];
+  }
 
-  if (index%2 == 0) {
-    // Sample is left channel
-    if (pan_val > 0) {
-      output[index] *= (1.0F - pan_val);
-    }
-  } else {
-    // Sample is right channel
-    if (pan_val < 0) {
-      output[index] *= (1.0F - qAbs(pan_val));
-    }
+  if (pan_val > 0) {
+    output->data()[0][index] *= (1.0F - pan_val);
+  } else if (pan_val < 0) {
+    output->data()[1][index] *= (1.0F - qAbs(pan_val));
   }
 }
 

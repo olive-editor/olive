@@ -137,7 +137,7 @@ public:
     /**
      * Audio samples type
      *
-     * Resolves to `QVector4D`.
+     * Resolves to `SampleBufferPtr`.
      */
     kSamples = 0x400,
 

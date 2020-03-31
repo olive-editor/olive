@@ -62,7 +62,7 @@ void AudioBackend::ThreadCompletedCache(NodeDependency dep, NodeValueTable data,
   if (job_time == render_job_info_.value(dep.range())) {
     render_job_info_.remove(dep.range());
 
-    QByteArray cached_samples = data.Get(NodeParam::kSamples).toByteArray();
+    QByteArray cached_samples = data.Get(NodeParam::kSamples).value<SampleBufferPtr>()->toPackedData();
 
     int offset = params().time_to_bytes(dep.in());
     int length = params().time_to_bytes(dep.range().length());

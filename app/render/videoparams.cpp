@@ -34,6 +34,12 @@ VideoRenderingParams::VideoRenderingParams() :
 {
 }
 
+VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const PixelFormat::Format &format) :
+  VideoParams(width, height, rational()),
+  format_(format)
+{
+}
+
 VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const rational &time_base, const PixelFormat::Format &format, const RenderMode::Mode& mode, const int &divider) :
   VideoParams(width, height, time_base),
   format_(format),

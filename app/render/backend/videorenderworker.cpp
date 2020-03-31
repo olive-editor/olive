@@ -317,9 +317,7 @@ void VideoRenderWorker::Download(const rational& time, QVariant texture, QString
   } else {
 
     FramePtr frame = Frame::Create();
-    frame->set_width(video_params().width());
-    frame->set_height(video_params().height());
-    frame->set_format(video_params().format());
+    frame->set_video_params(video_params());
     frame->allocate();
 
     TextureToBuffer(texture, frame->data());

@@ -12,11 +12,10 @@ void AudioWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
   }
 
   if (decoder->HasConformedVersion(audio_params())) {
-    FramePtr frame = nullptr;
-    frame = decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params());
+    SampleBufferPtr frame = decoder->RetrieveAudio(range.in(), range.out() - range.in(), audio_params());
 
     if (frame) {
-      table->Push(NodeParam::kSamples, frame->ToByteArray());
+      table->Push(NodeParam::kSamples, QVariant::fromValue(frame));
     }
   } else {
     emit ConformUnavailable(decoder->stream(), CurrentPath().range(), range.out(), audio_params());
@@ -41,10 +40,10 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
     return;
   }
 
-  QByteArray input_buffer = samples_var.toByteArray();
-  QByteArray output_buffer(input_buffer.size(), 0);
+  SampleBufferPtr input_buffer = samples_var.value<SampleBufferPtr>();
+  SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(input_buffer->audio_params(), input_buffer->sample_count_per_channel());
 
-  int sample_count = input_buffer.size() / audio_params().bytes_per_sample_per_channel();
+  int sample_count = input_buffer->sample_count_per_channel();
 
   // FIXME: Hardcoded float sample format
   for (int i=0;i<sample_count;i++) {
@@ -69,10 +68,10 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
 
     node->ProcessSamples(&input_params,
                          audio_params(),
-                         reinterpret_cast<const float*>(input_buffer.constData()),
-                         reinterpret_cast<float*>(output_buffer.data()),
+                         input_buffer,
+                         output_buffer,
                          i);
   }
 
-  output_params->Push(NodeParam::kSamples, output_buffer);
+  output_params->Push(NodeParam::kSamples, QVariant::fromValue(output_buffer));
 }

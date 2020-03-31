@@ -66,7 +66,7 @@ FramePtr Decoder::RetrieveVideo(const rational &/*timecode*/, const int &/*divid
   return nullptr;
 }
 
-FramePtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
+SampleBufferPtr Decoder::RetrieveAudio(const rational &/*timecode*/, const rational &/*length*/, const AudioRenderingParams &/*params*/)
 {
   return nullptr;
 }

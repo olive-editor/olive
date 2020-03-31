@@ -85,9 +85,7 @@ Frame* FFmpegFrameCache::Get(const VideoRenderingParams &params)
 
   // Otherwise we'll need to create one
   Frame* f = new Frame();
-  f->set_width(params.width());
-  f->set_height(params.height());
-  f->set_format(params.format());
+  f->set_video_params(params);
   f->allocate();
 
   return f;

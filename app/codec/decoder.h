@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "codec/frame.h"
+#include "codec/samplebuffer.h"
 #include "codec/waveoutput.h"
 #include "common/constructors.h"
 #include "common/rational.h"
@@ -168,7 +169,7 @@ public:
    * A FramePtr of valid data at this timecode of the requested length or nullptr if there was nothing to retrieve at
    * the provided timecode or the media could not be opened.
    */
-  virtual FramePtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
+  virtual SampleBufferPtr RetrieveAudio(const rational& timecode, const rational& length, const AudioRenderingParams& params);
 
   virtual bool SupportsVideo();
   virtual bool SupportsAudio();

@@ -25,6 +25,8 @@ set(OLIVE_SOURCES
   codec/encoder.cpp
   codec/frame.h
   codec/frame.cpp
+  codec/samplebuffer.h
+  codec/samplebuffer.cpp
   codec/waveinput.h
   codec/waveinput.cpp
   codec/waveoutput.h

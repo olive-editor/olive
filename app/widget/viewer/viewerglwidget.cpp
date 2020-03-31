@@ -101,9 +101,7 @@ void ViewerGLWidget::SetImage(const QString &fn)
         load_buffer_.destroy();
         texture_.Destroy();
 
-        load_buffer_.set_width(input->spec().width);
-        load_buffer_.set_height(input->spec().height);
-        load_buffer_.set_format(image_format);
+        load_buffer_.set_video_params(VideoRenderingParams(input->spec().width, input->spec().height, image_format));
         load_buffer_.allocate();
 
         texture_.Create(context(), input->spec().width, input->spec().height, image_format);

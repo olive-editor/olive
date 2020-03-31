@@ -55,7 +55,7 @@ public:
   virtual bool Open() override;
   virtual RetrieveState GetRetrieveState(const rational &time) override;
   virtual FramePtr RetrieveVideo(const rational &timecode, const int& divider) override;
-  virtual FramePtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
+  virtual SampleBufferPtr RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams& params) override;
   virtual void Close() override;
 
   virtual QString id() override;

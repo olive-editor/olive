@@ -400,9 +400,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
   // We found the frame, we'll return a copy
   if (return_frame) {
     FramePtr copy = Frame::Create();
-    copy->set_width(return_frame->width());
-    copy->set_height(return_frame->height());
-    copy->set_format(return_frame->format());
+    copy->set_video_params(return_frame->video_params());
     copy->set_timestamp(return_frame->timestamp());
     copy->set_sample_aspect_ratio(return_frame->sample_aspect_ratio());
     copy->allocate();
@@ -415,7 +413,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
   return nullptr;
 }
 
-FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params)
+SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &length, const AudioRenderingParams &params)
 {
   QMutexLocker locker(&mutex_);
 
@@ -428,29 +426,19 @@ FramePtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rational &
     return nullptr;
   }
 
-  //Conform(params, cancelled);
-
   WaveInput input(GetConformedFilename(params));
 
   if (input.open()) {
     const AudioRenderingParams& input_params = input.params();
 
-    FramePtr audio_frame = Frame::Create();
-    audio_frame->set_audio_params(input_params);
-    audio_frame->set_sample_count(input_params.time_to_samples(length));
-    audio_frame->allocate();
-
-    qint64 actual_read = input.read(input_params.time_to_bytes(timecode),
-                                    audio_frame->data(),
-                                    audio_frame->allocated_size());
-
-    if (actual_read < audio_frame->allocated_size()) {
-      memset(audio_frame->data() + actual_read, 0, audio_frame->allocated_size() - actual_read);
-    }
-
+    // Read bytes from wav
+    QByteArray packed_data = input.read(input_params.time_to_bytes(timecode), input_params.time_to_bytes(length));
     input.close();
 
-    return audio_frame;
+    // Create sample buffer
+    SampleBufferPtr sample_buffer = SampleBuffer::CreateFromPackedData(input_params, packed_data);
+
+    return sample_buffer;
   }
 
   return nullptr;

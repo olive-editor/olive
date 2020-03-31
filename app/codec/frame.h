@@ -25,8 +25,8 @@
 #include <QVector>
 
 #include "common/rational.h"
-#include "render/audioparams.h"
 #include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 class Frame;
 using FramePtr = std::shared_ptr<Frame>;
@@ -41,26 +41,15 @@ public:
 
   static FramePtr Create();
 
-  /**
-   * @brief Get frame's width in pixels
-   */
-  const int& width() const;
-  void set_width(const int& width);
+  const VideoRenderingParams& video_params() const;
+  void set_video_params(const VideoRenderingParams& params);
 
-  /**
-   * @brief Get frame's height in pixels
-   */
+  const int& width() const;
   const int& height() const;
-  void set_height(const int& height);
+  const PixelFormat::Format& format() const;
 
   const rational& sample_aspect_ratio() const;
   void set_sample_aspect_ratio(const rational& sample_aspect_ratio);
-
-  const AudioRenderingParams& audio_params() const;
-  void set_audio_params(const AudioRenderingParams& params);
-
-  const int &sample_count() const;
-  void set_sample_count(const int &sample_count);
 
   /**
    * @brief Get frame's timestamp.
@@ -72,16 +61,6 @@ public:
 
   const int64_t& native_timestamp();
   void set_native_timestamp(const int64_t& timestamp);
-
-  /**
-   * @brief Get frame's format
-   *
-   * @return
-   *
-   * Currently this will either be an olive::PixelFormat (video) or an olive::SampleFormat (audio).
-   */
-  const PixelFormat::Format& format() const;
-  void set_format(const PixelFormat::Format& format);
 
   /**
    * @brief Returns a copy of the data in this frame as a QByteArray
@@ -127,15 +106,7 @@ public:
   int allocated_size() const;
 
 private:
-  int width_;
-
-  int height_;
-
-  PixelFormat::Format format_;
-
-  AudioRenderingParams audio_params_;
-
-  int sample_count_;
+  VideoRenderingParams params_;
 
   QByteArray data_;
 

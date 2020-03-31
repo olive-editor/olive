@@ -237,10 +237,8 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
   FramePtr converted = Frame::Create();
 
   // Copy parameters
-  converted->set_width(frame->width());
-  converted->set_height(frame->height());
+  converted->set_video_params(frame->video_params());
   converted->set_timestamp(frame->timestamp());
-  converted->set_format(dest_format);
   converted->allocate();
 
   OIIO::ImageBuf src(OIIO::ImageSpec(frame->width(), frame->height(), ChannelCount(frame->format()), GetOIIOTypeDesc(frame->format())), frame->data());

@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+#include "audio/sampleformat.h"
 #include "render/colormanager.h"
 #include "render/pixelformat.h"
 

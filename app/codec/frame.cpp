@@ -24,10 +24,6 @@
 #include <QtGlobal>
 
 Frame::Frame() :
-  width_(0),
-  height_(0),
-  format_(PixelFormat::PIX_FMT_INVALID),
-  sample_count_(0),
   timestamp_(0),
   sample_aspect_ratio_(1)
 {
@@ -38,24 +34,29 @@ FramePtr Frame::Create()
   return std::make_shared<Frame>();
 }
 
-const int &Frame::width() const
+const VideoRenderingParams &Frame::video_params() const
 {
-  return width_;
+  return params_;
 }
 
-void Frame::set_width(const int &width)
+void Frame::set_video_params(const VideoRenderingParams &params)
 {
-  width_ = width;
+  params_ = params;
+}
+
+const int &Frame::width() const
+{
+  return params_.width();
 }
 
 const int &Frame::height() const
 {
-  return height_;
+  return params_.height();
 }
 
-void Frame::set_height(const int &height)
+const PixelFormat::Format &Frame::format() const
 {
-  height_ = height;
+  return params_.format();
 }
 
 const rational &Frame::sample_aspect_ratio() const
@@ -66,16 +67,6 @@ const rational &Frame::sample_aspect_ratio() const
 void Frame::set_sample_aspect_ratio(const rational &aspect_ratio)
 {
   sample_aspect_ratio_ = aspect_ratio;
-}
-
-const AudioRenderingParams &Frame::audio_params() const
-{
-  return audio_params_;
-}
-
-void Frame::set_audio_params(const AudioRenderingParams &params)
-{
-  audio_params_ = params;
 }
 
 const rational &Frame::timestamp() const
@@ -98,29 +89,9 @@ void Frame::set_native_timestamp(const int64_t &timestamp)
   native_timestamp_ = timestamp;
 }
 
-const PixelFormat::Format &Frame::format() const
-{
-  return format_;
-}
-
-void Frame::set_format(const PixelFormat::Format &format)
-{
-  format_ = format;
-}
-
 QByteArray Frame::ToByteArray() const
 {
   return data_;
-}
-
-const int &Frame::sample_count() const
-{
-  return sample_count_;
-}
-
-void Frame::set_sample_count(const int &audio_sample_count)
-{
-  sample_count_ = audio_sample_count;
 }
 
 char *Frame::data()
@@ -136,11 +107,11 @@ const char *Frame::const_data() const
 void Frame::allocate()
 {
   // Assume this frame is intended to be a video frame
-  if (width_ > 0 && height_ > 0) {
-    data_.resize(PixelFormat::GetBufferSize(static_cast<PixelFormat::Format>(format_), width_, height_));
-  } else if (sample_count_ > 0) {
-    data_.resize(audio_params_.samples_to_bytes(sample_count_));
+  if (!params_.is_valid()) {
+    qWarning() << "Tried to allocate a frame with invalid parameters";
   }
+
+  data_.resize(PixelFormat::GetBufferSize(params_.format(), params_.width(), params_.height()));
 }
 
 bool Frame::is_allocated() const

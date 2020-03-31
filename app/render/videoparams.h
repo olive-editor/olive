@@ -25,6 +25,7 @@ private:
 class VideoRenderingParams : public VideoParams {
 public:
   VideoRenderingParams();
+  VideoRenderingParams(const int& width, const int& height, const PixelFormat::Format& format);
   VideoRenderingParams(const int& width, const int& height, const rational& time_base, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
   VideoRenderingParams(const VideoParams& params, const PixelFormat::Format& format, const RenderMode::Mode& mode, const int& divider = 1);
 

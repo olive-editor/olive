@@ -482,13 +482,8 @@ NodeInput* Node::ProcessesSamplesFrom() const
   return nullptr;
 }
 
-void Node::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams &params, const float *input, float *output, int index) const
+void Node::ProcessSamples(const NodeValueDatabase*, const AudioRenderingParams&, const SampleBufferPtr, SampleBufferPtr, int) const
 {
-  Q_UNUSED(values)
-  Q_UNUSED(params)
-  Q_UNUSED(input)
-  Q_UNUSED(output)
-  Q_UNUSED(index)
 }
 
 NodeParam *Node::GetParameterWithID(const QString &id) const
