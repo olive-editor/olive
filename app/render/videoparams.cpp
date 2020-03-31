@@ -113,7 +113,6 @@ bool VideoRenderingParams::is_valid() const
 {
   return (width() > 0
           && height() > 0
-          && !time_base().isNull()
           && format_ != PixelFormat::PIX_FMT_INVALID
           && format_ != PixelFormat::PIX_FMT_COUNT);
 }
