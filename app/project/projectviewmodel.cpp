@@ -272,7 +272,15 @@ QMimeData *ProjectViewModel::mimeData(const QModelIndexList &indexes) const
       // Check if we've dragged this item before
       if (!dragged_items.contains(index.internalPointer())) {
         // If not, add it to the stream (and also keep track of it in the vector)
-        stream << static_cast<Footage*>(index.internalPointer())->get_enabled_stream_flags() << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
+        quint64 stream_flags;
+
+        if (static_cast<Item*>(index.internalPointer())->type() == Item::kFootage) {
+          stream_flags = static_cast<Footage*>(index.internalPointer())->get_enabled_stream_flags();
+        } else {
+          stream_flags = UINT64_MAX;
+        }
+
+        stream << stream_flags << index.row() << reinterpret_cast<quintptr>(index.internalPointer());
         dragged_items.append(index.internalPointer());
       }
     }
