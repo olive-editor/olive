@@ -25,9 +25,10 @@ QString SampleFormat::GetSampleFormatName(const SampleFormat::Format &f)
   return tr("Invalid");
 }
 
-SampleFormat::Format SampleFormat::GetConfiguredFormatForMode(RenderMode::Mode mode)
+SampleFormat::Format SampleFormat::GetConfiguredFormatForMode(RenderMode::Mode /*mode*/)
 {
-  return static_cast<SampleFormat::Format>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("SampleFormat")).toInt());
+  //return static_cast<SampleFormat::Format>(Core::GetPreferenceForRenderMode(mode, QStringLiteral("SampleFormat")).toInt());
+  return SAMPLE_FMT_FLT;
 }
 
 void SampleFormat::SetConfiguredFormatForMode(RenderMode::Mode mode, SampleFormat::Format format)
