@@ -17,7 +17,7 @@ FFmpegEncoder::FFmpegEncoder(const EncodingParams &params) :
 {
 }
 
-void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QString &pcm_filename)
+void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QString &pcm_filename, const TimeRange& range)
 {
   QFile pcm(pcm_filename);
   if (pcm.open(QFile::ReadOnly)) {
@@ -60,11 +60,25 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
     av_frame_get_buffer(frame, 0);
     int sample_counter = 0;
 
-    while (!pcm.atEnd()) {
+    // Go to start range if one was set
+    if (range.in() > 0) {
+      pcm.seek(pcm_info.time_to_bytes(range.in()));
+    }
+
+    int end_in_bytes = pcm_info.time_to_bytes(range.out());
+
+    while (true) {
       int samples_needed = static_cast<int>(frame->nb_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()));
 
+      int max_read = pcm_info.samples_to_bytes(samples_needed);
+
+      // Limit read to end if necessary
+      if (pcm.pos() + max_read > end_in_bytes) {
+        max_read = end_in_bytes - pcm.pos();
+      }
+
       QByteArray input_data;
-      input_data = pcm.read(pcm_info.samples_to_bytes(samples_needed));
+      input_data = pcm.read(max_read);
       const char* input_data_array = input_data.constData();
       samples_needed = pcm_info.bytes_to_samples(input_data.size());
 
@@ -80,6 +94,10 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
       sample_counter += converted;
 
       WriteAVFrame(frame, audio_codec_ctx_, audio_stream_);
+
+      if (pcm.atEnd() || pcm.pos() == end_in_bytes) {
+        break;
+      }
     }
 
     av_frame_free(&frame);

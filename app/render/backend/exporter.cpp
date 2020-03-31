@@ -22,6 +22,8 @@ Exporter::Exporter(ViewerOutput* viewer,
   connect(&debug_timer_, &QTimer::timeout, this, &Exporter::DebugTimerMessage);
 
   connect(this, &Exporter::ExportEnded, this, &Exporter::deleteLater);
+
+  export_range_ = TimeRange(0, viewer_node_->Length());
 }
 
 void Exporter::EnableVideo(const VideoRenderingParams &video_params, const QMatrix4x4 &transform, ColorProcessorPtr color_processor)
@@ -38,6 +40,11 @@ void Exporter::EnableAudio(const AudioRenderingParams &audio_params)
   audio_params_ = audio_params;
 
   audio_done_ = false;
+}
+
+void Exporter::OverrideExportRange(const TimeRange &range)
+{
+  export_range_ = range;
 }
 
 bool Exporter::GetExportStatus() const
@@ -210,7 +217,8 @@ void Exporter::AudioRendered()
                             "WriteAudio",
                             Qt::QueuedConnection,
                             Q_ARG(const AudioRenderingParams&, audio_backend_->params()),
-                            Q_ARG(const QString&, cache_fn));
+                            Q_ARG(const QString&, cache_fn),
+                            Q_ARG(const TimeRange&, export_range_));
 
   // We don't need the audio backend anymore
   audio_backend_->deleteLater();

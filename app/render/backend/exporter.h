@@ -23,6 +23,8 @@ public:
   void EnableVideo(const VideoRenderingParams& video_params, const QMatrix4x4& transform, ColorProcessorPtr color_processor);
   void EnableAudio(const AudioRenderingParams& audio_params);
 
+  void OverrideExportRange(const TimeRange& range);
+
   bool GetExportStatus() const;
   const QString& GetExportError() const;
 
@@ -56,6 +58,8 @@ protected:
   bool video_done_;
 
   bool audio_done_;
+
+  TimeRange export_range_;
 
 private:
   void ExportSucceeded();

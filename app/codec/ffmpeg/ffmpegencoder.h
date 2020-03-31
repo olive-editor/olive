@@ -17,7 +17,7 @@ public:
   FFmpegEncoder(const EncodingParams &params);
 
 public slots:
-  virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename) override;
+  virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename, const TimeRange &range) override;
 
 protected:
   virtual bool OpenInternal() override;

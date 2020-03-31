@@ -6,6 +6,7 @@
 
 #include "codec/frame.h"
 #include "common/constructors.h"
+#include "common/timerange.h"
 #include "render/audioparams.h"
 #include "render/videoparams.h"
 
@@ -82,7 +83,7 @@ public:
 public slots:
   void Open();
   void WriteFrame(FramePtr frame);
-  virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename) = 0;
+  virtual void WriteAudio(const AudioRenderingParams& pcm_info, const QString& pcm_filename, const TimeRange &range) = 0;
   void Close();
 
 signals:
