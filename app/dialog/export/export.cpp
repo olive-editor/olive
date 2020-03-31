@@ -195,10 +195,48 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
 void ExportDialog::accept()
 {
   if (!video_enabled_->isChecked() && !audio_enabled_->isChecked()) {
-    QMessageBox::warning(this,
+    QMessageBox::critical(this,
                          tr("Invalid parameters"),
                          tr("Both video and audio are disabled. There's nothing to export."),
                          QMessageBox::Ok);
+    return;
+  }
+
+  // Validate if the entered filename contains the correct extension (the extension is necessary for both FFmpeg and
+  // OIIO to determine the output format)
+  QString necessary_ext = QStringLiteral(".%1").arg(formats_.at(format_combobox_->currentIndex()).extension());
+
+  // If it doesn't, see if the user wants to append it automatically. If not, we don't abort the export.
+  if (!filename_edit_->text().endsWith(necessary_ext, Qt::CaseInsensitive)) {
+    if (QMessageBox::warning(this,
+                             tr("Invalid filename"),
+                             tr("The filename must contain the extension \".%1\". Would you like to append it automatically?"),
+                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+      filename_edit_->setText(filename_edit_->text().append(necessary_ext));
+    } else {
+      return;
+    }
+  }
+
+  // Validate the intended path
+  QFileInfo file_info(filename_edit_->text());
+  QFileInfo dir_info(file_info.path());
+
+  // If the directory does not exist, try to create it
+  if (!QDir(file_info.path()).mkpath(QStringLiteral("."))) {
+    QMessageBox::critical(this,
+                          tr("Failed to create output directory"),
+                          tr("The intended output directory doesn't exist and Olive couldn't create it. Please choose a different filename."),
+                          QMessageBox::Ok);
+    return;
+  }
+
+  // Validate if the file exists and whether the user wishes to overwrite it
+  if (file_info.exists()
+      && QMessageBox::warning(this,
+                              tr("Confirm Overwrite"),
+                              tr("The file \"%1\" already exists. Do you want to overwrite it?").arg(filename_edit_->text()),
+                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
     return;
   }
 
@@ -238,7 +276,7 @@ void ExportDialog::accept()
 
   // Set up encoder
   EncodingParams encoding_params;
-  encoding_params.SetFilename(filename_edit_->text()); // FIXME: Validate extension
+  encoding_params.SetFilename(filename_edit_->text());
   encoding_params.SetExportLength(viewer_node_->Length());
 
   if (video_enabled_->isChecked()) {
@@ -301,7 +339,11 @@ void ExportDialog::BrowseFilename()
   QString browsed_fn = QFileDialog::getSaveFileName(this,
                                                     "",
                                                     filename_edit_->text(),
-                                                    QStringLiteral("%1 (*.%2)").arg(current_format.name(), current_format.extension()));
+                                                    QStringLiteral("%1 (*.%2)").arg(current_format.name(), current_format.extension()),
+                                                    nullptr,
+
+                                                    // We don't confirm overwrite here because we do it later
+                                                    QFileDialog::DontConfirmOverwrite);
 
   if (!browsed_fn.isEmpty()) {
     filename_edit_->setText(browsed_fn);
