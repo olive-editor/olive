@@ -477,12 +477,12 @@ NodeInput *Node::ShaderIterativeInput() const
   return nullptr;
 }
 
-NodeInput* Node::ProcessesSamplesFrom() const
+NodeInput* Node::ProcessesSamplesFrom(const NodeValueDatabase &value) const
 {
   return nullptr;
 }
 
-void Node::ProcessSamples(const NodeValueDatabase*, const AudioRenderingParams&, const SampleBufferPtr, SampleBufferPtr, int) const
+void Node::ProcessSamples(const NodeValueDatabase &, const AudioRenderingParams&, const SampleBufferPtr, SampleBufferPtr, int) const
 {
 }
 
@@ -614,7 +614,7 @@ NodeOutput *Node::output() const
   return output_;
 }
 
-NodeValue Node::InputValueFromTable(NodeInput *input, const NodeValueTable &table) const
+NodeValue Node::InputValueFromTable(NodeInput *input, const NodeValueDatabase &db) const
 {
   NodeParam::DataType find_data_type = input->data_type();
 
@@ -624,7 +624,7 @@ NodeValue Node::InputValueFromTable(NodeInput *input, const NodeValueTable &tabl
   }
 
   // Try to get a value from it
-  return table.GetWithMeta(find_data_type);
+  return db[input].GetWithMeta(find_data_type);
 }
 
 const QPointF &Node::GetPosition()

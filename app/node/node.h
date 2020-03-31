@@ -186,12 +186,12 @@ public:
   /**
    * @brief Return whether this node processes samples or not
    */
-  virtual NodeInput* ProcessesSamplesFrom() const;
+  virtual NodeInput* ProcessesSamplesFrom(const NodeValueDatabase &value) const;
 
   /**
    * @brief If ProcessesSamples() is true, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
+  virtual void ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const;
 
   /**
    * @brief Returns the parameter with the specified ID (or nullptr if it doesn't exist)
@@ -339,7 +339,7 @@ public:
 
   NodeOutput* output() const;
 
-  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueTable& table) const;
+  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueDatabase& db) const;
 
   const QPointF& GetPosition();
 

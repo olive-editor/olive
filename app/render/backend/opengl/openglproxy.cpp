@@ -240,9 +240,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
         NodeInput* input = static_cast<NodeInput*>(param);
 
         // Get value from database at this input
-        const NodeValueTable& input_data = input_params[input];
-
-        NodeValue meta_value = node->InputValueFromTable(input, input_data);
+        NodeValue meta_value = node->InputValueFromTable(input, input_params);
         const QVariant& value = meta_value.data();
 
         switch (meta_value.type()) {

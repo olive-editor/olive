@@ -8,6 +8,7 @@
 class NodeValue
 {
 public:
+  NodeValue() = default;
   NodeValue(const NodeParam::DataType& type, const QVariant& data, const QString& tag = QString());
 
   const NodeParam::DataType& type() const;

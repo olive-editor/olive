@@ -21,9 +21,12 @@ public:
   virtual QString ShaderID(const NodeValueDatabase&) const override;
   virtual QString ShaderFragmentCode(const NodeValueDatabase&) const override;
 
-  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueTable& table) const override;
+  virtual NodeValue InputValueFromTable(NodeInput* input, const NodeValueDatabase &db) const override;
 
   virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
+
+  virtual NodeInput* ProcessesSamplesFrom(const NodeValueDatabase &value) const override;
+  virtual void ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   NodeInput* param_a_in() const;
   NodeInput* param_b_in() const;
@@ -36,11 +39,44 @@ private:
     kOpDivide
   };
 
-  static NodeParam::DataType GuessTypeFromTable(const NodeValueTable& table);
+  Operation GetOperation() const;
 
-  static QString GetUniformTypeFromType(const NodeParam::DataType& type);
+  enum Pairing {
+    kPairNone = -1,
 
-  static QString GetVariableCall(const QString& input_id, const NodeParam::DataType& type);
+    kPairNumberNumber,
+    kPairVecVec,
+    kPairMatrixMatrix,
+    kPairColorColor,
+    kPairTextureTexture,
+
+    kPairVecNumber,
+    kPairMatrixVec,
+    kPairNumberColor,
+    kPairTextureNumber,
+    kPairTextureColor,
+    kPairSampleSample,
+    kPairSampleNumber,
+
+    kPairCount
+  };
+
+  template<typename T, typename U>
+  static T OperationAdd(T a, U b);
+
+  static QString GetShaderUniformType(const NodeParam::DataType& type);
+
+  static QString GetShaderVariableCall(const QString& input_id, const NodeParam::DataType& type);
+
+  static QVector<int> GetPairLikelihood(const NodeValueTable& table);
+
+  static Pairing GetMostLikelyPairing(const QVector<int> &a, const QVector<int> &b);
+
+  static QVector4D RetrieveVector(const NodeValue& val);
+
+  static void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec);
+
+  static float RetrieveNumber(const NodeValue& val);
 
   NodeInput* method_in_;
 

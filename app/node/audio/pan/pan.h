@@ -16,8 +16,8 @@ public:
   virtual QString Description() const override;
 
   virtual Capabilities GetCapabilities(const NodeValueDatabase&) const override;
-  virtual NodeInput* ProcessesSamplesFrom() const override;
-  virtual void ProcessSamples(const NodeValueDatabase* values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
+  virtual NodeInput* ProcessesSamplesFrom(const NodeValueDatabase &value) const override;
+  virtual void ProcessSamples(const NodeValueDatabase& values, const AudioRenderingParams& params, const SampleBufferPtr input, SampleBufferPtr output, int index) const override;
 
   virtual void Retranslate() override;
 

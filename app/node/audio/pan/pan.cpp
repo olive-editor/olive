@@ -42,19 +42,19 @@ Node::Capabilities PanNode::GetCapabilities(const NodeValueDatabase &) const
   return kSampleProcessor;
 }
 
-NodeInput *PanNode::ProcessesSamplesFrom() const
+NodeInput *PanNode::ProcessesSamplesFrom(const NodeValueDatabase &value) const
 {
   return samples_input_;
 }
 
-void PanNode::ProcessSamples(const NodeValueDatabase *values, const AudioRenderingParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
+void PanNode::ProcessSamples(const NodeValueDatabase &values, const AudioRenderingParams &params, const SampleBufferPtr input, SampleBufferPtr output, int index) const
 {
   if (params.channel_count() != 2) {
     // This node currently only works for stereo audio
     return;
   }
 
-  float pan_val = (*values)[panning_input_].Get(NodeParam::kFloat).toFloat();
+  float pan_val = values[panning_input_].Get(NodeParam::kFloat).toFloat();
 
   for (int i=0;i<params.channel_count();i++) {
     output->data()[i][index] = input->data()[i][index];

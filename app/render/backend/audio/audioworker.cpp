@@ -31,9 +31,10 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
 
   // Copy database so we can make some temporary modifications to it
   NodeValueDatabase input_params = input_params_in;
+  NodeInput* sample_input = node->ProcessesSamplesFrom(input_params);
 
   // Try to find the sample buffer in the table
-  QVariant samples_var = input_params[node->ProcessesSamplesFrom()].Get(NodeParam::kSamples);
+  QVariant samples_var = input_params[sample_input].Get(NodeParam::kSamples);
 
   // If there isn't one, there's nothing to do
   if (samples_var.isNull()) {
@@ -41,6 +42,11 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
   }
 
   SampleBufferPtr input_buffer = samples_var.value<SampleBufferPtr>();
+
+  if (!input_buffer) {
+    return;
+  }
+
   SampleBufferPtr output_buffer = SampleBuffer::CreateAllocated(input_buffer->audio_params(), input_buffer->sample_count_per_channel());
 
   int sample_count = input_buffer->sample_count_per_channel();
@@ -56,7 +62,7 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
     // Update all non-sample and non-footage inputs
     foreach (NodeParam* param, node->parameters()) {
       if (param->type() == NodeParam::kInput
-          && param != node->ProcessesSamplesFrom()) {
+          && param != sample_input) {
         NodeInput* input = static_cast<NodeInput*>(param);
 
         // If the input isn't keyframing, we don't need to update it unless it's connected, in which case it may change
@@ -66,7 +72,7 @@ void AudioWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, c
       }
     }
 
-    node->ProcessSamples(&input_params,
+    node->ProcessSamples(input_params,
                          audio_params(),
                          input_buffer,
                          output_buffer,
