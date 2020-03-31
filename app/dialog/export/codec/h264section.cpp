@@ -5,6 +5,7 @@
 #include <QGridLayout>
 #include <QLabel>
 
+#include "common/qtutils.h"
 #include "widget/slider/integerslider.h"
 
 H264Section::H264Section(QWidget *parent) :
@@ -88,14 +89,13 @@ H264CRFSection::H264CRFSection(QWidget *parent) :
   layout->setMargin(0);
 
   crf_slider_ = new QSlider(Qt::Horizontal);
-  crf_slider_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
   crf_slider_->setMinimum(kMinimumCRF);
   crf_slider_->setMaximum(kMaximumCRF);
   crf_slider_->setValue(kDefaultCRF);
   layout->addWidget(crf_slider_);
 
   IntegerSlider* crf_input = new IntegerSlider();
-  crf_input->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+  crf_input->setMaximumWidth(QFontMetricsWidth(crf_input->fontMetrics(), QStringLiteral("HHHH")));
   crf_input->SetMinimum(kMinimumCRF);
   crf_input->SetMaximum(kMaximumCRF);
   crf_input->SetValue(kDefaultCRF);
