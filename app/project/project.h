@@ -53,6 +53,7 @@ public:
   QString name() const;
 
   const QString& filename() const;
+  QString pretty_filename() const;
   void set_filename(const QString& s);
 
   const QString& ocio_config() const;

@@ -106,6 +106,17 @@ const QString &Project::filename() const
   return filename_;
 }
 
+QString Project::pretty_filename() const
+{
+  QString fn = filename();
+
+  if (fn.isEmpty()) {
+    return tr("(untitled)");
+  } else {
+    return fn;
+  }
+}
+
 void Project::set_filename(const QString &s)
 {
   filename_ = s;

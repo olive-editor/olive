@@ -57,6 +57,9 @@ public:
 public slots:
   void Edit(Item *item);
 
+signals:
+  void ProjectNameChanged();
+
 private:
   virtual void Retranslate() override;
 
@@ -67,7 +70,7 @@ private slots:
 
   void ShowNewMenu();
 
-  void ProjectNameChanged();
+  void UpdateSubtitle();
 
 };
 

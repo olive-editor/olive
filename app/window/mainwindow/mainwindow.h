@@ -59,8 +59,6 @@ protected:
   virtual void closeEvent(QCloseEvent* e) override;
 
 private:
-  void UpdateTitle();
-
   TimelinePanel* AppendTimelinePanel();
 
   void TimelineFocused(TimelinePanel *panel);
@@ -81,6 +79,8 @@ private:
 
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);
+
+  void UpdateTitle();
 
 };
 

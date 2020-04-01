@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
 
+  connect(project_panel_, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
   UpdateTitle();
 }
 
@@ -191,6 +192,8 @@ void MainWindow::ProjectOpen(Project* p)
   // FIXME Use settings data to create panels and restore state if they exist
   project_panel_->set_project(p);
 
+  UpdateTitle();
+
   SetDefaultLayout();
 }
 
@@ -231,9 +234,14 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::UpdateTitle()
 {
-  setWindowTitle(QStringLiteral("%1 %2 - [*]%3").arg(QApplication::applicationName(),
-                                                     QApplication::applicationVersion(),
-                                                     tr("(untitled)")));
+  if (project_panel_->project()) {
+    setWindowTitle(QStringLiteral("%1 %2 - [*]%3").arg(QApplication::applicationName(),
+                                                       QApplication::applicationVersion(),
+                                                       project_panel_->project()->pretty_filename()));
+  } else {
+    setWindowTitle(QStringLiteral("%1 %2").arg(QApplication::applicationName(),
+                                               QApplication::applicationVersion()));
+  }
 }
 
 TimelinePanel* MainWindow::AppendTimelinePanel()
