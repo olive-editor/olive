@@ -81,6 +81,10 @@ public:
   const QString& ocio_view() const;
   const QString& ocio_look() const;
 
+  const QMatrix4x4& GetMatrix();
+
+  void ConnectSibling(ViewerGLWidget* sibling);
+
 public slots:
   /**
    * @brief Set the texture to draw and draw it
@@ -130,6 +134,14 @@ public slots:
    */
   void SetSignalCursorColorEnabled(bool e);
 
+  /**
+   * @brief Overrides the image with the load buffer of another ViewerGLWidget
+   *
+   * If there are multiple ViewerGLWidgets showing the same thing, this is faster than decoding the image from file
+   * each time.
+   */
+  void SetImageFromLoadBuffer(Frame* in_buffer);
+
 signals:
   /**
    * @brief Signal emitted when the user starts dragging from the viewer
@@ -140,6 +152,11 @@ signals:
    * @brief Signal emitted when cursor color is enabled and the user's mouse position changes
    */
   void CursorColor(const Color& reference, const Color& display);
+
+  /**
+   * @brief Connect this to the SetImageFromLoadBuffer() slot of another ViewerGLWidget to show the same thing
+   */
+  void LoadedBuffer(Frame* load_buffer);
 
 protected:
   /**

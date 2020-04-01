@@ -53,3 +53,8 @@ void ViewerPanelBase::ConnectPixelSamplerPanel(PixelSamplerPanel *psp)
   connect(psp, &PixelSamplerPanel::visibilityChanged, vw, &ViewerWidget::SetSignalCursorColorEnabled);
   connect(vw, &ViewerWidget::CursorColor, psp, &PixelSamplerPanel::SetValues);
 }
+
+void ViewerPanelBase::SetFullScreen(QScreen *screen)
+{
+  static_cast<ViewerWidget*>(GetTimeBasedWidget())->SetFullScreen(screen);
+}

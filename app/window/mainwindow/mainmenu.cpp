@@ -164,7 +164,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   view_full_screen_item_ = view_menu_->AddItem("fullscreen", parent, SLOT(SetFullscreen(bool)), "F11");
   view_full_screen_item_->setCheckable(true);
 
-  view_full_screen_viewer_item_ = view_menu_->AddItem("fullscreenviewer", nullptr, nullptr);
+  view_full_screen_viewer_item_ = view_menu_->AddItem("fullscreenviewer", this, SLOT(FullScreenViewerTriggered()));
 
   //
   // PLAYBACK MENU
@@ -507,6 +507,11 @@ void MainMenu::GoToNextCutTriggered()
 void MainMenu::SetMarkerTriggered()
 {
   PanelManager::instance()->CurrentlyFocused()->SetMarker();
+}
+
+void MainMenu::FullScreenViewerTriggered()
+{
+  PanelManager::instance()->MostRecentlyFocused<ViewerPanel>()->SetFullScreen();
 }
 
 void MainMenu::Retranslate()

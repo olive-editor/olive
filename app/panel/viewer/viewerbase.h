@@ -27,6 +27,11 @@ public:
 
   void ConnectPixelSamplerPanel(PixelSamplerPanel *psp);
 
+  /**
+   * @brief Wrapper for ViewerWidget::SetFullScreen()
+   */
+  void SetFullScreen(QScreen* screen = nullptr);
+
 };
 
 #endif // VIEWERPANELBASE_H

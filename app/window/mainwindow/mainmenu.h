@@ -142,6 +142,8 @@ private slots:
 
   void SetMarkerTriggered();
 
+  void FullScreenViewerTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.

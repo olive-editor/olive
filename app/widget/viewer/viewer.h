@@ -36,6 +36,7 @@
 #include "render/backend/audio/audiobackend.h"
 #include "viewerglwidget.h"
 #include "viewersizer.h"
+#include "viewerwindow.h"
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timebased/timebased.h"
 
@@ -69,6 +70,13 @@ public:
   void SetOverrideSize(int width, int height);
 
   void SetMatrix(const QMatrix4x4& mat);
+
+  /**
+   * @brief Creates a ViewerWindow widget and places it full screen on another screen
+   *
+   * If `screen` is nullptr, the screen will be automatically selected as whichever one contains the mouse cursor.
+   */
+  void SetFullScreen(QScreen* screen = nullptr);
 
   VideoRenderBackend* video_renderer() const;
 
@@ -132,9 +140,10 @@ protected:
   OpenGLBackend* video_renderer_;
   AudioBackend* audio_renderer_;
 
-  ViewerGLWidget* gl_widget_;
-
   PlaybackControls* controls_;
+
+  const QList<ViewerGLWidget *> &gl_widgets() const;
+  ViewerGLWidget* main_gl_widget() const;
 
 private:
   void UpdateTimeInternal(int64_t i);
@@ -148,6 +157,11 @@ private:
   int CalculateDivider();
 
   void UpdateMinimumScale();
+
+  void SetOCIOParameters(const QString& display, const QString& view, const QString& look, ViewerGLWidget* sender);
+  void SetOCIODisplay(const QString& display, ViewerGLWidget* sender);
+  void SetOCIOView(const QString& view, ViewerGLWidget* sender);
+  void SetOCIOLook(const QString& look, ViewerGLWidget* sender);
 
   QStackedWidget* stack_;
 
@@ -172,6 +186,12 @@ private:
 
   AudioWaveformView* waveform_view_;
 
+  QList<ViewerWindow*> windows_;
+
+  QList<ViewerGLWidget*> gl_widgets_;
+
+  ViewerGLWidget* context_menu_widget_;
+
 private slots:
   void PlaybackTimerUpdate();
 
@@ -188,17 +208,17 @@ private slots:
   /**
    * @brief Slot called whenever this viewer's OCIO display setting has changed
    */
-  void ColorDisplayChanged(QAction* action);
+  void ContextMenuOCIODisplay(QAction* action);
 
   /**
    * @brief Slot called whenever this viewer's OCIO view setting has changed
    */
-  void ColorViewChanged(QAction* action);
+  void ContextMenuOCIOView(QAction* action);
 
   /**
    * @brief Slot called whenever this viewer's OCIO look setting has changed
    */
-  void ColorLookChanged(QAction* action);
+  void ContextMenuOCIOLook(QAction* action);
 
   void SetDividerFromMenu(QAction* action);
 
@@ -207,6 +227,10 @@ private slots:
   void InvalidateVisible();
 
   void UpdateStack();
+
+  void ContextMenuSetFullScreen(QAction* action);
+
+  void WindowAboutToClose();
 
 };
 
