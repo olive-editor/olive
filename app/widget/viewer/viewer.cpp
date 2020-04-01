@@ -21,8 +21,10 @@
 #include "viewer.h"
 
 #include <QDateTime>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QResizeEvent>
+#include <QScreen>
 #include <QtMath>
 #include <QVBoxLayout>
 
@@ -55,11 +57,12 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
   sizer_ = new ViewerSizer();
   stack_->addWidget(sizer_);
 
-  gl_widget_ = new ViewerGLWidget();
-  connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
-  connect(gl_widget_, &ViewerGLWidget::CursorColor, this, &ViewerWidget::CursorColor);
-  connect(sizer_, &ViewerSizer::RequestMatrix, gl_widget_, &ViewerGLWidget::SetMatrix);
-  sizer_->SetWidget(gl_widget_);
+  ViewerGLWidget* main_widget = new ViewerGLWidget();
+  connect(main_widget, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(main_widget, &ViewerGLWidget::CursorColor, this, &ViewerWidget::CursorColor);
+  connect(sizer_, &ViewerSizer::RequestMatrix, main_widget, &ViewerGLWidget::SetMatrix);
+  sizer_->SetWidget(main_widget);
+  gl_widgets_.append(main_widget);
 
   // Create waveform view when audio is connected and video isn't
   waveform_view_ = new AudioWaveformView();
@@ -145,12 +148,18 @@ void ViewerWidget::ConnectNodeInternal(ViewerOutput *n)
   SizeChangedSlot(n->video_params().width(), n->video_params().height());
   LengthChangedSlot(n->Length());
 
+  ColorManager* using_manager;
   if (override_color_manager_) {
-    gl_widget_->ConnectColorManager(override_color_manager_);
+    using_manager = override_color_manager_;
   } else if (n->parent()) {
-    gl_widget_->ConnectColorManager(static_cast<Sequence*>(n->parent())->project()->color_manager());
+    using_manager = static_cast<Sequence*>(n->parent())->project()->color_manager();
   } else {
     qWarning() << "Failed to find a suitable color manager for the connected viewer node";
+    using_manager = nullptr;
+  }
+
+  foreach (ViewerGLWidget* glw, gl_widgets_) {
+    glw->ConnectColorManager(using_manager);
   }
 
   divider_ = CalculateDivider();
@@ -181,7 +190,9 @@ void ViewerWidget::DisconnectNodeInternal(ViewerOutput *n)
   // Effectively disables the viewer and clears the state
   SizeChangedSlot(0, 0);
 
-  gl_widget_->DisconnectColorManager();
+  foreach (ViewerGLWidget* glw, gl_widgets_) {
+    glw->DisconnectColorManager();
+  }
 
   waveform_view_->ConnectTimelinePoints(nullptr);
 }
@@ -211,6 +222,16 @@ void ViewerWidget::resizeEvent(QResizeEvent *event)
   }
 
   UpdateMinimumScale();
+}
+
+const QList<ViewerGLWidget*> &ViewerWidget::gl_widgets() const
+{
+  return gl_widgets_;
+}
+
+ViewerGLWidget *ViewerWidget::main_gl_widget() const
+{
+  return gl_widgets_.first();
 }
 
 void ViewerWidget::TogglePlayPause()
@@ -249,7 +270,9 @@ void ViewerWidget::SetOverrideSize(int width, int height)
 
 void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
 {
-  gl_widget_->SetMatrix(mat);
+  foreach (ViewerGLWidget* glw, gl_widgets_) {
+    glw->SetMatrix(mat);
+  }
 }
 
 VideoRenderBackend *ViewerWidget::video_renderer() const
@@ -260,12 +283,12 @@ VideoRenderBackend *ViewerWidget::video_renderer() const
 void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
-    gl_widget_->SetImage(QString());
+    main_gl_widget()->SetImage(QString());
   } else {
     QString frame_fn = video_renderer_->GetCachedFrame(time);
 
     if (!frame_fn.isEmpty()) {
-      gl_widget_->SetImage(frame_fn);
+      main_gl_widget()->SetImage(frame_fn);
     }
   }
 }
@@ -294,7 +317,7 @@ void ViewerWidget::PlayInternal(int speed)
   controls_->ShowPauseButton();
 
   if (stack_->currentWidget() == sizer_) {
-    connect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+    connect(main_gl_widget(), &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
   } else {
     connect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
   }
@@ -325,7 +348,7 @@ int ViewerWidget::CalculateDivider()
 {
   if (GetConnectedNode() && Config::Current()["AutoSelectDivider"].toBool()) {
     int long_side_of_video = qMax(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
-    int long_side_of_widget = qMax(gl_widget_->width(), gl_widget_->height());
+    int long_side_of_widget = qMax(main_gl_widget()->width(), main_gl_widget()->height());
 
     return qMax(1, long_side_of_video / long_side_of_widget);
   }
@@ -354,6 +377,35 @@ void ViewerWidget::UpdateStack()
   } else {
     stack_->setCurrentWidget(waveform_view_);
   }
+}
+
+void ViewerWidget::SetFullScreenDisplay(QAction *action)
+{
+  QScreen* target = QGuiApplication::screens().at(action->data().toInt());
+
+  ViewerWindow* vw = new ViewerWindow(this);
+
+  vw->showFullScreen();
+  vw->setGeometry(target->geometry());
+  vw->gl_widget()->ConnectColorManager(main_gl_widget()->color_manager());
+  main_gl_widget()->ConnectSibling(vw->gl_widget());
+  connect(vw, &ViewerWindow::destroyed, this, &ViewerWidget::WindowAboutToClose);
+  connect(vw->gl_widget(), &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+
+  if (GetConnectedNode()) {
+    vw->SetResolution(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
+  }
+
+  windows_.append(vw);
+  gl_widgets_.append(vw->gl_widget());
+}
+
+void ViewerWidget::WindowAboutToClose()
+{
+  ViewerWindow* vw = static_cast<ViewerWindow*>(sender());
+
+  windows_.removeAll(vw);
+  gl_widgets_.removeAll(vw->gl_widget());
 }
 
 void ViewerWidget::UpdateRendererParameters()
@@ -385,40 +437,42 @@ void ViewerWidget::UpdateRendererParameters()
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
 {
-  QMenu menu(this);
+  QMenu menu(static_cast<QWidget*>(sender()));
+
+  context_menu_widget_ = static_cast<ViewerGLWidget*>(sender());
 
   // Color options
-  if (gl_widget_->color_manager() && color_menu_enabled_) {
-    QStringList displays = gl_widget_->color_manager()->ListAvailableDisplays();
+  if (context_menu_widget_->color_manager() && color_menu_enabled_) {
+    QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
     QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
-    connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ColorDisplayChanged);
+    connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIODisplay);
     foreach (const QString& d, displays) {
       QAction* action = ocio_display_menu->addAction(d);
       action->setCheckable(true);
-      action->setChecked(gl_widget_->ocio_display() == d);
+      action->setChecked(context_menu_widget_->ocio_display() == d);
       action->setData(d);
     }
 
-    QStringList views = gl_widget_->color_manager()->ListAvailableViews(gl_widget_->ocio_display());
+    QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(context_menu_widget_->ocio_display());
     QMenu* ocio_view_menu = menu.addMenu(tr("View"));
-    connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ColorViewChanged);
+    connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOView);
     foreach (const QString& v, views) {
       QAction* action = ocio_view_menu->addAction(v);
       action->setCheckable(true);
-      action->setChecked(gl_widget_->ocio_view() == v);
+      action->setChecked(context_menu_widget_->ocio_view() == v);
       action->setData(v);
     }
 
-    QStringList looks = gl_widget_->color_manager()->ListAvailableLooks();
+    QStringList looks = context_menu_widget_->color_manager()->ListAvailableLooks();
     QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
-    connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ColorLookChanged);
+    connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
     QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
     no_look_action->setCheckable(true);
-    no_look_action->setChecked(gl_widget_->ocio_look().isEmpty());
+    no_look_action->setChecked(context_menu_widget_->ocio_look().isEmpty());
     foreach (const QString& l, looks) {
       QAction* action = ocio_look_menu->addAction(l);
       action->setCheckable(true);
-      action->setChecked(gl_widget_->ocio_look() == l);
+      action->setChecked(context_menu_widget_->ocio_look() == l);
       action->setData(l);
     }
 
@@ -434,6 +488,13 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
   connect(playback_resolution_menu, &QMenu::triggered, this, &ViewerWidget::SetDividerFromMenu);
 
+  foreach (QAction* a, playback_resolution_menu->actions()) {
+    a->setCheckable(true);
+    if (a->data() == divider_) {
+      a->setChecked(true);
+    }
+  }
+
   // Viewer Zoom Level
   QMenu* zoom_menu = menu.addMenu(tr("Zoom"));
   int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
@@ -443,12 +504,18 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
   connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
 
-  foreach (QAction* a, playback_resolution_menu->actions()) {
-    a->setCheckable(true);
-    if (a->data() == divider_) {
-      a->setChecked(true);
-    }
+  // Full Screen Menu
+  QMenu* full_screen_menu = menu.addMenu(tr("Full Screen"));
+  for (int i=0;i<QGuiApplication::screens().size();i++) {
+    QScreen* s = QGuiApplication::screens().at(i);
+
+    QAction* a = full_screen_menu->addAction(tr("Screen %1: %2x%3").arg(QString::number(i),
+                                                                        QString::number(s->size().width()),
+                                                                        QString::number(s->size().height())));
+
+    a->setData(i);
   }
+  connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::SetFullScreenDisplay);
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
 }
@@ -466,7 +533,7 @@ void ViewerWidget::Pause()
     controls_->ShowPlayButton();
 
     if (stack_->currentWidget() == sizer_) {
-      disconnect(gl_widget_, &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
+      disconnect(main_gl_widget(), &ViewerGLWidget::frameSwapped, this, &ViewerWidget::PlaybackTimerUpdate);
     } else {
       disconnect(AudioManager::instance(), &AudioManager::OutputNotified, this, &ViewerWidget::PlaybackTimerUpdate);
     }
@@ -514,27 +581,49 @@ void ViewerWidget::ShuttleRight()
 
 void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)
 {
-  gl_widget_->SetOCIOParameters(display, view, look);
+  SetOCIOParameters(display, view, look, main_gl_widget());
+}
+
+void ViewerWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look, ViewerGLWidget* sender)
+{
+  sender->SetOCIOParameters(display, view, look);
 }
 
 void ViewerWidget::SetOCIODisplay(const QString &display)
 {
-  gl_widget_->SetOCIODisplay(display);
+  SetOCIODisplay(display, main_gl_widget());
+}
+
+void ViewerWidget::SetOCIODisplay(const QString &display, ViewerGLWidget* sender)
+{
+  sender->SetOCIODisplay(display);
 }
 
 void ViewerWidget::SetOCIOView(const QString &view)
 {
-  gl_widget_->SetOCIOView(view);
+  SetOCIOView(view, main_gl_widget());
 }
 
 void ViewerWidget::SetOCIOLook(const QString &look)
 {
-  gl_widget_->SetOCIOLook(look);
+  SetOCIOLook(look, main_gl_widget());
+}
+
+void ViewerWidget::SetOCIOView(const QString &view, ViewerGLWidget* sender)
+{
+  sender->SetOCIOView(view);
+}
+
+void ViewerWidget::SetOCIOLook(const QString &look, ViewerGLWidget* sender)
+{
+  sender->SetOCIOLook(look);
 }
 
 void ViewerWidget::SetSignalCursorColorEnabled(bool e)
 {
-  gl_widget_->SetSignalCursorColorEnabled(e);
+  foreach (ViewerGLWidget* glw, gl_widgets_) {
+    glw->SetSignalCursorColorEnabled(e);
+  }
 }
 
 void ViewerWidget::TimebaseChangedEvent(const rational &timebase)
@@ -576,6 +665,10 @@ void ViewerWidget::RendererCachedTime(const rational &time, qint64 job_time)
 void ViewerWidget::SizeChangedSlot(int width, int height)
 {
   sizer_->SetChildSize(width, height);
+
+  foreach (ViewerWindow* vw, windows_) {
+    vw->SetResolution(width, height);
+  }
 }
 
 void ViewerWidget::LengthChangedSlot(const rational &length)
@@ -585,19 +678,19 @@ void ViewerWidget::LengthChangedSlot(const rational &length)
   UpdateMinimumScale();
 }
 
-void ViewerWidget::ColorDisplayChanged(QAction* action)
+void ViewerWidget::ContextMenuOCIODisplay(QAction* action)
 {
-  SetOCIODisplay(action->data().toString());
+  SetOCIODisplay(action->data().toString(), context_menu_widget_);
 }
 
-void ViewerWidget::ColorViewChanged(QAction *action)
+void ViewerWidget::ContextMenuOCIOView(QAction *action)
 {
-  SetOCIOView(action->data().toString());
+  SetOCIOView(action->data().toString(), context_menu_widget_);
 }
 
-void ViewerWidget::ColorLookChanged(QAction *action)
+void ViewerWidget::ContextMenuOCIOLook(QAction *action)
 {
-  SetOCIOLook(action->data().toString());
+  SetOCIOLook(action->data().toString(), context_menu_widget_);
 }
 
 void ViewerWidget::SetDividerFromMenu(QAction *action)

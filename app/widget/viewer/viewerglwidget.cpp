@@ -114,6 +114,8 @@ void ViewerGLWidget::SetImage(const QString &fn)
 
       texture_.Upload(load_buffer_.data());
 
+      emit LoadedBuffer(&load_buffer_);
+
       doneCurrent();
 
       has_image_ = true;
@@ -128,12 +130,16 @@ void ViewerGLWidget::SetImage(const QString &fn)
   }
 
   update();
+
+  if (has_image_) {
+    emit LoadedBuffer(&load_buffer_);
+  } else {
+    emit LoadedBuffer(nullptr);
+  }
 }
 
 void ViewerGLWidget::SetSignalCursorColorEnabled(bool e)
 {
-  qDebug() << e;
-
   signal_cursor_color_ = e;
   setMouseTracking(e);
 
@@ -147,6 +153,28 @@ void ViewerGLWidget::SetSignalCursorColorEnabled(bool e)
     }
     doneCurrent();
   }
+}
+
+void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
+{
+  has_image_ = in_buffer;
+
+  if (has_image_) {
+    makeCurrent();
+
+    if (!texture_.IsCreated()
+        || texture_.width() != in_buffer->width()
+        || texture_.height() != in_buffer->height()
+        || texture_.format() != in_buffer->format()) {
+      texture_.Create(context(), in_buffer->width(), in_buffer->height(), in_buffer->format(), in_buffer->data());
+    } else {
+      texture_.Upload(in_buffer->data());
+    }
+
+    doneCurrent();
+  }
+
+  update();
 }
 
 void ViewerGLWidget::SetOCIODisplay(const QString &display)
@@ -196,6 +224,12 @@ const QString &ViewerGLWidget::ocio_view() const
 const QString &ViewerGLWidget::ocio_look() const
 {
   return ocio_look_;
+}
+
+void ViewerGLWidget::ConnectSibling(ViewerGLWidget *sibling)
+{
+  connect(this, &ViewerGLWidget::LoadedBuffer, sibling, &ViewerGLWidget::SetImageFromLoadBuffer, Qt::QueuedConnection);
+  sibling->SetImageFromLoadBuffer(&load_buffer_);
 }
 
 void ViewerGLWidget::mousePressEvent(QMouseEvent *event)
