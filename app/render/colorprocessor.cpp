@@ -43,6 +43,12 @@ void ColorProcessor::ConvertFrame(FramePtr f)
   processor->apply(img);
 }
 
+Color ColorProcessor::ConvertColor(Color in)
+{
+  processor->applyRGBA(in.data());
+  return in;
+}
+
 ColorProcessorPtr ColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString& source_space, const QString& dest_space)
 {
   return std::make_shared<ColorProcessor>(config, source_space, dest_space);

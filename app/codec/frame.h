@@ -25,6 +25,7 @@
 #include <QVector>
 
 #include "common/rational.h"
+#include "render/color.h"
 #include "render/pixelformat.h"
 #include "render/videoparams.h"
 
@@ -47,6 +48,9 @@ public:
   const int& width() const;
   const int& height() const;
   const PixelFormat::Format& format() const;
+
+  Color get_pixel(int x, int y) const;
+  bool contains_pixel(int x, int y) const;
 
   const rational& sample_aspect_ratio() const;
   void set_sample_aspect_ratio(const rational& sample_aspect_ratio);

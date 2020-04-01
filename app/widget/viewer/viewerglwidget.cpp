@@ -23,6 +23,7 @@
 #include <OpenImageIO/imagebuf.h>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
 #include <QOpenGLTexture>
@@ -39,7 +40,8 @@ bool ViewerGLWidget::nouveau_check_done_ = false;
 ViewerGLWidget::ViewerGLWidget(QWidget *parent) :
   QOpenGLWidget(parent),
   color_manager_(nullptr),
-  has_image_(false)
+  has_image_(false),
+  signal_cursor_color_(false)
 {
   setContextMenuPolicy(Qt::CustomContextMenu);
 }
@@ -128,6 +130,25 @@ void ViewerGLWidget::SetImage(const QString &fn)
   update();
 }
 
+void ViewerGLWidget::SetSignalCursorColorEnabled(bool e)
+{
+  qDebug() << e;
+
+  signal_cursor_color_ = e;
+  setMouseTracking(e);
+
+  // Create frame buffer for reading from texture
+  if (e != frame_buffer_.IsCreated()) {
+    makeCurrent();
+    if (e) {
+      frame_buffer_.Create(context());
+    } else {
+      frame_buffer_.Destroy();
+    }
+    doneCurrent();
+  }
+}
+
 void ViewerGLWidget::SetOCIODisplay(const QString &display)
 {
   ocio_display_ = display;
@@ -182,6 +203,31 @@ void ViewerGLWidget::mousePressEvent(QMouseEvent *event)
   QOpenGLWidget::mousePressEvent(event);
 
   emit DragStarted();
+}
+
+void ViewerGLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+  QOpenGLWidget::mouseMoveEvent(event);
+
+  if (signal_cursor_color_) {
+    Color reference, display;
+
+    if (has_image_) {
+      QVector3D pixel_pos(static_cast<float>(event->x()) / static_cast<float>(width()) * 2.0f - 1.0f,
+                          static_cast<float>(event->y()) / static_cast<float>(height()) * 2.0f - 1.0f,
+                          0);
+
+      pixel_pos = pixel_pos * matrix_.inverted();
+
+      int frame_x = qRound((pixel_pos.x() + 1.0f) * 0.5f * load_buffer_.width());
+      int frame_y = qRound((pixel_pos.y() + 1.0f) * 0.5f * load_buffer_.height());
+
+      reference = load_buffer_.get_pixel(frame_x, frame_y);
+      display = color_service_->ConvertColor(reference);
+    }
+
+    emit CursorColor(reference, display);
+  }
 }
 
 void ViewerGLWidget::SetOCIOParameters(const QString &display, const QString &view, const QString &look)

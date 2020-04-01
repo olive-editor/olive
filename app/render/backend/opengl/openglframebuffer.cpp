@@ -87,7 +87,7 @@ void OpenGLFramebuffer::Release()
   context_->functions()->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture, bool clear)
+void OpenGLFramebuffer::Attach(OpenGLTexture *texture, bool clear)
 {
   if (context_ == nullptr) {
     return;
@@ -113,6 +113,11 @@ void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture, bool clear)
 
   // release framebuffer
   f->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OpenGLFramebuffer::Attach(OpenGLTexturePtr texture, bool clear)
+{
+  Attach(texture.get(), clear);
 }
 
 void OpenGLFramebuffer::Detach()

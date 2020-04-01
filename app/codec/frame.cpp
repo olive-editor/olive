@@ -59,6 +59,24 @@ const PixelFormat::Format &Frame::format() const
   return params_.format();
 }
 
+Color Frame::get_pixel(int x, int y) const
+{
+  if (!contains_pixel(x, y)) {
+    return Color();
+  }
+
+  int pixel_index = y * width() + x;
+
+  int byte_offset = PixelFormat::GetBufferSize(video_params().format(), pixel_index, 1);
+
+  return Color(data_.data() + byte_offset, video_params().format());
+}
+
+bool Frame::contains_pixel(int x, int y) const
+{
+  return (is_allocated() && x >= 0 && x < width() && y >= 0 && y < height());
+}
+
 const rational &Frame::sample_aspect_ratio() const
 {
   return sample_aspect_ratio_;

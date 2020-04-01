@@ -6,7 +6,7 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "codec/frame.h"
 #include "common/constructors.h"
-
+#include "render/color.h"
 
 class ColorProcessor;
 using ColorProcessorPtr = std::shared_ptr<ColorProcessor>;
@@ -34,6 +34,8 @@ public:
   OCIO::ConstProcessorRcPtr GetProcessor();
 
   void ConvertFrame(FramePtr f);
+
+  Color ConvertColor(Color in);
 
 private:
   OCIO::ConstProcessorRcPtr processor;

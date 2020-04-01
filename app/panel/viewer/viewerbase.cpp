@@ -45,3 +45,11 @@ VideoRenderBackend *ViewerPanelBase::video_renderer() const
 {
   return static_cast<ViewerWidget*>(GetTimeBasedWidget())->video_renderer();
 }
+
+void ViewerPanelBase::ConnectPixelSamplerPanel(PixelSamplerPanel *psp)
+{
+  ViewerWidget* vw = static_cast<ViewerWidget*>(GetTimeBasedWidget());
+
+  connect(psp, &PixelSamplerPanel::visibilityChanged, vw, &ViewerWidget::SetSignalCursorColorEnabled);
+  connect(vw, &ViewerWidget::CursorColor, psp, &PixelSamplerPanel::SetValues);
+}

@@ -20,6 +20,8 @@ set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
   render/audioparams.h
   render/audioparams.cpp
+  render/color.h
+  render/color.cpp
   render/colormanager.h
   render/colormanager.cpp
   render/colorprocessor.h

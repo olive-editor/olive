@@ -43,6 +43,7 @@ public:
 
   void Release();
 
+  void Attach(OpenGLTexture* texture, bool clear = false);
   void Attach(OpenGLTexturePtr texture, bool clear = false);
 
   void Detach();
@@ -57,7 +58,7 @@ private:
 
   GLuint buffer_;
 
-  OpenGLTexturePtr texture_;
+  OpenGLTexture* texture_;
 };
 
 #endif // OPENGLFRAMEBUFFER_H

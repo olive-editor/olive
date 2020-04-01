@@ -106,6 +106,17 @@ public slots:
    */
   void SetOCIOLook(const QString& look);
 
+  /**
+   * @brief Wrapper for ViewerGLWidget::SetSignalCursorColorEnabled()
+   */
+  void SetSignalCursorColorEnabled(bool e);
+
+signals:
+  /**
+   * @brief Wrapper for ViewerGLWidget::CursorColor()
+   */
+  void CursorColor(const Color& reference, const Color& display);
+
 protected:
   virtual void TimebaseChangedEvent(const rational &) override;
   virtual void TimeChangedEvent(const int64_t &) override;

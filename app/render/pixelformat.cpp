@@ -140,50 +140,6 @@ PixelFormat::Format PixelFormat::OIIOFormatToOliveFormat(OIIO::TypeDesc desc, bo
   return PixelFormat::PIX_FMT_INVALID;
 }
 
-/*PixelFormat::Info PixelFormat::GetPixelFormatInfo(const PixelFormat::Format &format)
-{
-  PixelFormat::Info info;
-
-  switch (format) {
-  case PixelFormat::PIX_FMT_RGB8:
-  case PixelFormat::PIX_FMT_RGBA8:
-    info.name = tr("8-bit");
-    info.internal_format = (format == PixelFormat::PIX_FMT_RGB8) ? GL_RGB8 : GL_RGBA8;
-    info.gl_pixel_type = GL_UNSIGNED_BYTE;
-    info.oiio_desc = OIIO::TypeDesc::UINT8;
-    break;
-  case PixelFormat::PIX_FMT_RGB16U:
-  case PixelFormat::PIX_FMT_RGBA16U:
-    info.name = tr("16-bit Integer");
-    info.internal_format = (format == PixelFormat::PIX_FMT_RGB16U) ? GL_RGB8 : GL_RGBA16;
-    info.gl_pixel_type = GL_UNSIGNED_SHORT;
-    info.oiio_desc = OIIO::TypeDesc::UINT16;
-    break;
-  case PixelFormat::PIX_FMT_RGB16F:
-  case PixelFormat::PIX_FMT_RGBA16F:
-    info.name = tr("Half-Float (16-bit)");
-    info.internal_format = (format == PixelFormat::PIX_FMT_RGB8) ? GL_RGB8 : GL_RGBA16F;
-    info.gl_pixel_type = GL_HALF_FLOAT;
-    info.oiio_desc = OIIO::TypeDesc::HALF;
-    break;
-  case PixelFormat::PIX_FMT_RGB32F:
-  case PixelFormat::PIX_FMT_RGBA32F:
-    info.name = tr("Full-Float (32-bit)");
-    info.internal_format = (format == PixelFormat::PIX_FMT_RGB8) ? GL_RGB8 : GL_RGBA32F;
-    info.gl_pixel_type = GL_FLOAT;
-    info.oiio_desc = OIIO::TypeDesc::FLOAT;
-    break;
-  case PixelFormat::PIX_FMT_INVALID:
-  case PixelFormat::PIX_FMT_COUNT:
-    qFatal("Invalid pixel format requested");
-  }
-
-  info.pixel_format = GL_RGBA;
-  info.bytes_per_pixel = BytesPerPixel(format);
-
-  return info;
-}*/
-
 int PixelFormat::GetBufferSize(const PixelFormat::Format &format, const int &width, const int &height)
 {
   return BytesPerPixel(format) * width * height;

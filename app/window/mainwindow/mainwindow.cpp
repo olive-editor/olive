@@ -68,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
   footage_viewer_panel_->raise();
   sequence_viewer_panel_ = PanelManager::instance()->CreatePanel<SequenceViewerPanel>(this);
   addDockWidget(Qt::TopDockWidgetArea, sequence_viewer_panel_);
+  pixel_sampler_panel_ = PanelManager::instance()->CreatePanel<PixelSamplerPanel>(this);
+  addDockWidget(Qt::TopDockWidgetArea, pixel_sampler_panel_);
   project_panel_ = PanelManager::instance()->CreatePanel<ProjectPanel>(this);
   addDockWidget(Qt::BottomDockWidgetArea, project_panel_);
   tool_panel_ = PanelManager::instance()->CreatePanel<ToolPanel>(this);
@@ -96,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
   sequence_viewer_panel_->ConnectTimeBasedPanel(param_panel_);
   sequence_viewer_panel_->ConnectTimeBasedPanel(curve_panel_);
+
+  footage_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
+  sequence_viewer_panel_->ConnectPixelSamplerPanel(pixel_sampler_panel_);
 
   connect(project_panel_, &ProjectPanel::ProjectNameChanged, this, &MainWindow::UpdateTitle);
   UpdateTitle();
@@ -303,6 +308,8 @@ void MainWindow::SetDefaultLayout()
   task_man_panel_->setFloating(true);
   curve_panel_->close();
   curve_panel_->setFloating(true);
+  pixel_sampler_panel_->close();
+  pixel_sampler_panel_->setFloating(true);
 
   resizeDocks({node_panel_, param_panel_, sequence_viewer_panel_},
   {width()/3, width()/3, width()/3},

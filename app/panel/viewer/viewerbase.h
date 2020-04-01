@@ -1,6 +1,7 @@
 #ifndef VIEWERPANELBASE_H
 #define VIEWERPANELBASE_H
 
+#include "panel/pixelsampler/pixelsamplerpanel.h"
 #include "panel/timebased/timebased.h"
 #include "widget/viewer/viewer.h"
 
@@ -23,6 +24,8 @@ public:
   void DisconnectTimeBasedPanel(TimeBasedPanel* panel);
 
   VideoRenderBackend* video_renderer() const;
+
+  void ConnectPixelSamplerPanel(PixelSamplerPanel *psp);
 
 };
 

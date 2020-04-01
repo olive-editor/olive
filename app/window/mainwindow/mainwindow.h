@@ -34,6 +34,7 @@
 #include "panel/tool/tool.h"
 #include "panel/footageviewer/footageviewer.h"
 #include "panel/sequenceviewer/sequenceviewer.h"
+#include "panel/pixelsampler/pixelsamplerpanel.h"
 #include "project/project.h"
 
 /**
@@ -76,6 +77,7 @@ private:
   AudioMonitorPanel* audio_monitor_panel_;
   TaskManagerPanel* task_man_panel_;
   CurvePanel* curve_panel_;
+  PixelSamplerPanel* pixel_sampler_panel_;
 
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);

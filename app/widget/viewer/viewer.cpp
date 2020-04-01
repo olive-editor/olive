@@ -57,6 +57,7 @@ ViewerWidget::ViewerWidget(QWidget *parent) :
 
   gl_widget_ = new ViewerGLWidget();
   connect(gl_widget_, &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+  connect(gl_widget_, &ViewerGLWidget::CursorColor, this, &ViewerWidget::CursorColor);
   connect(sizer_, &ViewerSizer::RequestMatrix, gl_widget_, &ViewerGLWidget::SetMatrix);
   sizer_->SetWidget(gl_widget_);
 
@@ -529,6 +530,11 @@ void ViewerWidget::SetOCIOView(const QString &view)
 void ViewerWidget::SetOCIOLook(const QString &look)
 {
   gl_widget_->SetOCIOLook(look);
+}
+
+void ViewerWidget::SetSignalCursorColorEnabled(bool e)
+{
+  gl_widget_->SetSignalCursorColorEnabled(e);
 }
 
 void ViewerWidget::TimebaseChangedEvent(const rational &timebase)

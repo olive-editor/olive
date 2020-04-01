@@ -24,8 +24,10 @@
 #include <QOpenGLWidget>
 
 #include "render/backend/opengl/openglcolorprocessor.h"
+#include "render/backend/opengl/openglframebuffer.h"
 #include "render/backend/opengl/openglshader.h"
 #include "render/backend/opengl/opengltexture.h"
+#include "render/color.h"
 #include "render/colormanager.h"
 
 /**
@@ -119,14 +121,36 @@ public slots:
    */
   void SetMatrix(const QMatrix4x4& mat);
 
+  /**
+   * @brief Enables or disables whether this color at the cursor should be emitted
+   *
+   * Since tracking the mouse every movement, reading pixels, and doing color transforms are processor intensive, we
+   * have an option for it. Ideally, this should be connected to a PixelSamplerPanel::visibilityChanged signal so that
+   * it can automatically be enabled when the user is pixel sampling and disabled for optimization when they're not.
+   */
+  void SetSignalCursorColorEnabled(bool e);
+
 signals:
+  /**
+   * @brief Signal emitted when the user starts dragging from the viewer
+   */
   void DragStarted();
+
+  /**
+   * @brief Signal emitted when cursor color is enabled and the user's mouse position changes
+   */
+  void CursorColor(const Color& reference, const Color& display);
 
 protected:
   /**
    * @brief Override the mouse press event simply to emit the DragStarted() signal
    */
   virtual void mousePressEvent(QMouseEvent* event) override;
+
+  /**
+   * @brief Override mouse move to provide functionality for
+   */
+  virtual void mouseMoveEvent(QMouseEvent* event) override;
 
   /**
    * @brief Initialize function to set up the OpenGL context upon its construction
@@ -184,6 +208,11 @@ private:
   OpenGLColorProcessorPtr color_service_;
 
   /**
+   * @brief Framebuffer used for reading reference space pixels from the texture
+   */
+  OpenGLFramebuffer frame_buffer_;
+
+  /**
    * @brief Drawing matrix (defaults to identity)
    */
   QMatrix4x4 matrix_;
@@ -198,6 +227,8 @@ private:
 #endif
 
   bool has_image_;
+
+  bool signal_cursor_color_;
 
 private slots:
   /**
