@@ -116,6 +116,9 @@ void Menu::ConformItem(QAction* a, const QString &id, const QObject *receiver, c
   if (!key.isEmpty()) {
     a->setShortcut(key);
     a->setProperty("keydefault", key);
+
+    // Set to application context so that ViewerWindows still trigger shortcuts
+    a->setShortcutContext(Qt::ApplicationShortcut);
   }
 
   if (receiver != nullptr) {
