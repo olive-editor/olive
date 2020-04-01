@@ -71,6 +71,13 @@ public:
 
   void SetMatrix(const QMatrix4x4& mat);
 
+  /**
+   * @brief Creates a ViewerWindow widget and places it full screen on another screen
+   *
+   * If `screen` is nullptr, the screen will be automatically selected as whichever one contains the mouse cursor.
+   */
+  void SetFullScreen(QScreen* screen = nullptr);
+
   VideoRenderBackend* video_renderer() const;
 
 public slots:
@@ -221,7 +228,7 @@ private slots:
 
   void UpdateStack();
 
-  void SetFullScreenDisplay(QAction* action);
+  void ContextMenuSetFullScreen(QAction* action);
 
   void WindowAboutToClose();
 

@@ -275,6 +275,40 @@ void ViewerWidget::SetMatrix(const QMatrix4x4 &mat)
   }
 }
 
+void ViewerWidget::SetFullScreen(QScreen *screen)
+{
+  if (!screen) {
+    // Try to find the screen that contains the mouse cursor currently
+    foreach (QScreen* test, QGuiApplication::screens()) {
+      if (test->geometry().contains(QCursor::pos())) {
+        screen = test;
+        break;
+      }
+    }
+
+    // Fallback, just use the first screen
+    if (!screen) {
+      screen = QGuiApplication::screens().first();
+    }
+  }
+
+  ViewerWindow* vw = new ViewerWindow(this);
+
+  vw->showFullScreen();
+  vw->setGeometry(screen->geometry());
+  vw->gl_widget()->ConnectColorManager(main_gl_widget()->color_manager());
+  main_gl_widget()->ConnectSibling(vw->gl_widget());
+  connect(vw, &ViewerWindow::destroyed, this, &ViewerWidget::WindowAboutToClose);
+  connect(vw->gl_widget(), &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
+
+  if (GetConnectedNode()) {
+    vw->SetResolution(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
+  }
+
+  windows_.append(vw);
+  gl_widgets_.append(vw->gl_widget());
+}
+
 VideoRenderBackend *ViewerWidget::video_renderer() const
 {
   return video_renderer_;
@@ -379,25 +413,9 @@ void ViewerWidget::UpdateStack()
   }
 }
 
-void ViewerWidget::SetFullScreenDisplay(QAction *action)
+void ViewerWidget::ContextMenuSetFullScreen(QAction *action)
 {
-  QScreen* target = QGuiApplication::screens().at(action->data().toInt());
-
-  ViewerWindow* vw = new ViewerWindow(this);
-
-  vw->showFullScreen();
-  vw->setGeometry(target->geometry());
-  vw->gl_widget()->ConnectColorManager(main_gl_widget()->color_manager());
-  main_gl_widget()->ConnectSibling(vw->gl_widget());
-  connect(vw, &ViewerWindow::destroyed, this, &ViewerWidget::WindowAboutToClose);
-  connect(vw->gl_widget(), &ViewerGLWidget::customContextMenuRequested, this, &ViewerWidget::ShowContextMenu);
-
-  if (GetConnectedNode()) {
-    vw->SetResolution(GetConnectedNode()->video_params().width(), GetConnectedNode()->video_params().height());
-  }
-
-  windows_.append(vw);
-  gl_widgets_.append(vw->gl_widget());
+  SetFullScreen(QGuiApplication::screens().at(action->data().toInt()));
 }
 
 void ViewerWidget::WindowAboutToClose()
@@ -515,7 +533,7 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
 
     a->setData(i);
   }
-  connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::SetFullScreenDisplay);
+  connect(full_screen_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuSetFullScreen);
 
   menu.exec(static_cast<QWidget*>(sender())->mapToGlobal(pos));
 }
