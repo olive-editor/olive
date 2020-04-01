@@ -142,9 +142,9 @@ void TimelineWidget::ImportTool::DragMove(TimelineViewMouseEvent *event)
       }
 
       // Generate tooltip (showing earliest in point of imported clip)
-      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, parent()->timebase());
+      int64_t earliest_timestamp = Timecode::time_to_timestamp(earliest_ghost, parent()->GetToolTipTimebase());
       QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
-                                                             parent()->timebase(),
+                                                             parent()->GetToolTipTimebase(),
                                                              Core::instance()->GetTimecodeDisplay());
 
       // Force tooltip to update (otherwise the tooltip won't move as written in the documentation, and could get in the way
@@ -232,11 +232,8 @@ void TimelineWidget::ImportTool::FootageToGhosts(rational ghost_start, const QLi
         // Stream is essentially length-less - use config's default image length
         footage_duration = Config::Current()["DefaultStillLength"].value<rational>();
       } else {
-        // Use duration from file
-        int64_t stream_duration = stream->duration();
-
-        // Rescale to timeline timebase
-        stream_duration = qCeil(static_cast<double>(stream_duration) * stream->timebase().toDouble() / dest_tb.toDouble());
+        // Rescale stream duration to timeline timebase
+        int64_t stream_duration = Timecode::rescale_timestamp_ceil(stream->duration(), stream->timebase(), dest_tb);
 
         // Convert to rational time
         footage_duration = rational(dest_tb.numerator() * stream_duration,

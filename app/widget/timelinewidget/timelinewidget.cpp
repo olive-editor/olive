@@ -6,6 +6,7 @@
 
 #include "core.h"
 #include "common/timecodefunctions.h"
+#include "dialog/sequence/sequence.h"
 #include "dialog/speedduration/speedduration.h"
 #include "node/block/transition/transition.h"
 #include "tool/tool.h"
@@ -16,7 +17,8 @@
 TimelineWidget::TimelineWidget(QWidget *parent) :
   TimeBasedWidget(true, true, parent),
   rubberband_(QRubberBand::Rectangle, this),
-  active_tool_(nullptr)
+  active_tool_(nullptr),
+  use_audio_time_units_(false)
 {
   QVBoxLayout* vert_layout = new QVBoxLayout(this);
   vert_layout->setSpacing(0);
@@ -72,6 +74,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   connect(views_.first()->view()->horizontalScrollBar(), &QScrollBar::rangeChanged, scrollbar(), &QScrollBar::setRange);
   vert_layout->addWidget(scrollbar());
 
+  connect(ruler(), &TimeRuler::TimeChanged, this, &TimelineWidget::SetViewTimestamp);
+
   foreach (TimelineAndTrackView* tview, views_) {
     TimelineView* view = tview->view();
 
@@ -82,9 +86,7 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
     connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
-    connect(ruler(), &TimeRuler::TimeChanged, view, &TimelineView::SetTime);
-    connect(view, &TimelineView::TimeChanged, ruler(), &TimeRuler::SetTime);
-    connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::TimeChanged);
+    connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::ViewTimestampChanged);
     connect(view, &TimelineView::customContextMenuRequested, this, &TimelineWidget::ShowContextMenu);
     connect(scrollbar(), &QScrollBar::valueChanged, view->horizontalScrollBar(), &QScrollBar::setValue);
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, scrollbar(), &QScrollBar::setValue);
@@ -158,9 +160,7 @@ void TimelineWidget::TimebaseChangedEvent(const rational &timebase)
     }
   }
 
-  foreach (TimelineAndTrackView* view, views_) {
-    view->view()->SetTimebase(timebase);
-  }
+  UpdateViewTimebases();
 }
 
 void TimelineWidget::resizeEvent(QResizeEvent *event)
@@ -173,9 +173,7 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::TimeChangedEvent(const int64_t& timestamp)
 {
-  foreach (TimelineAndTrackView* view, views_) {
-    view->view()->SetTime(timestamp);
-  }
+  SetViewTimestamp(timestamp);
 
   timecode_label_->SetValue(timestamp);
 }
@@ -331,6 +329,14 @@ QList<TimelineWidget::DraggedFootage> TimelineWidget::FootageToDraggedFootage(QL
   }
 
   return df;
+}
+
+rational TimelineWidget::GetToolTipTimebase() const
+{
+  if (GetConnectedNode() && use_audio_time_units_) {
+    return GetConnectedNode()->audio_params().time_base();
+  }
+  return timebase();
 }
 
 void TimelineWidget::SelectAll()
@@ -1042,7 +1048,19 @@ void TimelineWidget::ShowContextMenu()
   if (!selected.isEmpty()) {
     QAction* speed_duration_action = menu.addAction(tr("Speed/Duration"));
     connect(speed_duration_action, &QAction::triggered, this, &TimelineWidget::ShowSpeedDurationDialog);
+
+    menu.addSeparator();
   }
+
+  QAction* toggle_audio_units = menu.addAction(tr("Use Audio Time Units"));
+  toggle_audio_units->setCheckable(true);
+  toggle_audio_units->setChecked(use_audio_time_units_);
+  connect(toggle_audio_units, &QAction::triggered, this, &TimelineWidget::SetUseAudioTimeUnits);
+
+  menu.addSeparator();
+
+  QAction* properties_action = menu.addAction(tr("Properties"));
+  connect(properties_action, &QAction::triggered, this, &TimelineWidget::ShowSequenceDialog);
 
   menu.exec(QCursor::pos());
 }
@@ -1072,11 +1090,75 @@ void TimelineWidget::DeferredScrollAction()
   scrollbar()->setValue(deferred_scroll_value_);
 }
 
+void TimelineWidget::ShowSequenceDialog()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  SequenceDialog sd(static_cast<Sequence*>(GetConnectedNode()->parent()), SequenceDialog::kExisting, this);
+  sd.exec();
+}
+
+void TimelineWidget::SetUseAudioTimeUnits(bool use)
+{
+  use_audio_time_units_ = use;
+
+  // Update timebases
+  UpdateViewTimebases();
+
+  // Force update of the viewer timestamps
+  SetViewTimestamp(GetTimestamp());
+}
+
+void TimelineWidget::SetViewTimestamp(const int64_t &ts)
+{
+  for (int i=0;i<views_.size();i++) {
+    TimelineAndTrackView* view = views_.at(i);
+
+    if (use_audio_time_units_ && i == Timeline::kTrackTypeAudio) {
+      view->view()->SetTime(Timecode::rescale_timestamp(ts,
+                                                        timebase(),
+                                                        GetConnectedNode()->audio_params().time_base()));
+    } else {
+      view->view()->SetTime(ts);
+    }
+  }
+}
+
+void TimelineWidget::ViewTimestampChanged(int64_t ts)
+{
+  if (use_audio_time_units_ && sender() == views_.at(Timeline::kTrackTypeAudio)) {
+    ts = Timecode::rescale_timestamp(ts,
+                                     GetConnectedNode()->audio_params().time_base(),
+                                     timebase());
+  }
+
+  // Update all other views
+  SetViewTimestamp(ts);
+
+  ruler()->SetTime(ts);
+  emit TimeChanged(ts);
+}
+
 void TimelineWidget::AddGhost(TimelineViewGhostItem *ghost)
 {
   ghost->SetScale(GetScale());
   ghost_items_.append(ghost);
   views_.at(ghost->Track().type())->view()->scene()->addItem(ghost);
+}
+
+void TimelineWidget::UpdateViewTimebases()
+{
+  for (int i=0;i<views_.size();i++) {
+    TimelineAndTrackView* view = views_.at(i);
+
+    if (use_audio_time_units_ && i == Timeline::kTrackTypeAudio) {
+      view->view()->SetTimebase(GetConnectedNode()->audio_params().time_base());
+    } else {
+      view->view()->SetTimebase(timebase());
+    }
+  }
 }
 
 void TimelineWidget::SetBlockLinksSelected(Block* block, bool selected)

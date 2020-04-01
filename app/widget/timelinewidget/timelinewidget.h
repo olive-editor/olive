@@ -391,6 +391,8 @@ private:
     bool dual_transition_;
   };
 
+  rational GetToolTipTimebase() const;
+
   void InsertGapsAt(const rational& time, const rational& length, QUndoCommand* command);
 
   void DeleteSelectedInternal(const QList<Block *>& blocks, bool transition_aware, bool remove_from_graph, QUndoCommand* command);
@@ -431,12 +433,16 @@ private:
 
   int deferred_scroll_value_;
 
+  bool use_audio_time_units_;
+
   int GetTrackY(const TrackReference& ref);
   int GetTrackHeight(const TrackReference& ref);
 
   void CenterOn(qreal scene_pos);
 
   void AddGhost(TimelineViewGhostItem* ghost);
+
+  void UpdateViewTimebases();
 
 private slots:
   void UpdateTimelineLength(const rational& length);
@@ -480,6 +486,14 @@ private slots:
   void ShowSpeedDurationDialog();
 
   void DeferredScrollAction();
+
+  void ShowSequenceDialog();
+
+  void SetUseAudioTimeUnits(bool use);
+
+  void SetViewTimestamp(const int64_t& ts);
+
+  void ViewTimestampChanged(int64_t ts);
 
 };
 

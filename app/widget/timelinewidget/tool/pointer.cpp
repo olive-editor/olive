@@ -401,9 +401,9 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
 
   // Show tooltip
   // Generate tooltip (showing earliest in point of imported clip)
-  int64_t earliest_timestamp = Timecode::time_to_timestamp(time_movement, parent()->timebase());
+  int64_t earliest_timestamp = Timecode::time_to_timestamp(time_movement, parent()->GetToolTipTimebase());
   QString tooltip_text = Timecode::timestamp_to_timecode(earliest_timestamp,
-                                                         parent()->timebase(),
+                                                         parent()->GetToolTipTimebase(),
                                                          Core::instance()->GetTimecodeDisplay(),
                                                          true);
 
