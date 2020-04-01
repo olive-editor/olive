@@ -12,6 +12,7 @@
 #include "nodeparamviewundo.h"
 #include "project/item/sequence/sequence.h"
 #include "undo/undostack.h"
+#include "widget/colorbutton/colorbutton.h"
 #include "widget/footagecombobox/footagecombobox.h"
 #include "widget/slider/floatslider.h"
 #include "widget/slider/integerslider.h"
@@ -92,8 +93,12 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     // FIXME: File selector
     break;
   case NodeParam::kColor:
-    // FIXME: Color selector
+  {
+    ColorButton* color_button = new ColorButton();
+    widgets_.append(color_button);
+    connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;
+  }
   case NodeParam::kText:
   {
     QLineEdit* line_edit = new QLineEdit();
