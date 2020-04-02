@@ -15,10 +15,12 @@ protected:
 
   virtual void paintEvent(QPaintEvent* e) override;
 
-  virtual void SelectedColorChangedEvent(const Color& c) override;
+  virtual void SelectedColorChangedEvent(const Color& c, bool external) override;
 
 private:
   static Color LerpColor(const Color& a, const Color& b, int i, int max);
+
+  QPixmap cached_gradient_;
 
   Qt::Orientation orientation_;
 

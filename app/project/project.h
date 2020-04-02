@@ -75,7 +75,6 @@ private:
   QString filename_;
 
   QString ocio_config_;
-  QString default_input_colorspace_;
 
   ColorManager color_manager_;
 

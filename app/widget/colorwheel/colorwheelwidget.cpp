@@ -49,7 +49,7 @@ void ColorWheelWidget::paintEvent(QPaintEvent *e)
         Triangle tri = GetTriangleFromCoords(center, j, i);
 
         if (tri.hypotenuse <= radius) {
-          QColor c = GetColorFromTriangle(tri).toQColor();
+          QColor c = GetManagedColor(GetColorFromTriangle(tri)).toQColor();
 
           // Very basic antialiasing around the edges of the wheel
           qreal alpha = qMin(1.0, radius - tri.hypotenuse);
@@ -93,10 +93,12 @@ void ColorWheelWidget::paintEvent(QPaintEvent *e)
   p.drawEllipse(GetCoordsFromColor(GetSelectedColor()), selector_radius, selector_radius);
 }
 
-void ColorWheelWidget::SelectedColorChangedEvent(const Color &c)
+void ColorWheelWidget::SelectedColorChangedEvent(const Color &c, bool external)
 {
-  force_redraw_ = true;
-  val_ = c.value();
+  if (external) {
+    force_redraw_ = true;
+    val_ = c.value();
+  }
 }
 
 int ColorWheelWidget::GetDiameter() const

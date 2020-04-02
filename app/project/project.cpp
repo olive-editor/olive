@@ -80,7 +80,7 @@ void Project::Save(QXmlStreamWriter *writer) const
 
   writer->writeTextElement("config", ocio_config_);
 
-  writer->writeTextElement("default", default_input_colorspace_);
+  writer->writeTextElement("default", default_input_colorspace());
 
   writer->writeEndElement(); // colormanagement
 
@@ -136,12 +136,12 @@ void Project::set_ocio_config(const QString &ocio_config)
 
 const QString &Project::default_input_colorspace() const
 {
-  return default_input_colorspace_;
+  return color_manager_.GetDefaultInputColorSpace();
 }
 
 void Project::set_default_input_colorspace(const QString &colorspace)
 {
-  default_input_colorspace_ = colorspace;
+  color_manager_.SetDefaultInputColorSpace(colorspace);
 }
 
 ColorManager *Project::color_manager()

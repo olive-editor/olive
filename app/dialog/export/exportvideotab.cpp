@@ -60,17 +60,17 @@ void ExportVideoTab::set_frame_rate(const rational &frame_rate)
 
 QString ExportVideoTab::CurrentOCIODisplay()
 {
-  return display_combobox_->currentData().toString();
+  return color_space_chooser_->display();
 }
 
 QString ExportVideoTab::CurrentOCIOView()
 {
-  return views_combobox_->currentData().toString();
+  return color_space_chooser_->view();
 }
 
 QString ExportVideoTab::CurrentOCIOLook()
 {
-  return looks_combobox_->currentData().toString();
+  return color_space_chooser_->look();
 }
 
 CodecSection *ExportVideoTab::GetCodecSection() const
@@ -153,47 +153,9 @@ QWidget* ExportVideoTab::SetupResolutionSection()
 
 QWidget* ExportVideoTab::SetupColorSection()
 {
-  int row = 0;
-
-  QGroupBox* color_group = new QGroupBox();
-  color_group->setTitle(tr("Color Management"));
-
-  QGridLayout* color_layout = new QGridLayout(color_group);
-
-  color_layout->addWidget(new QLabel(tr("Display:")), row, 0);
-
-  QStringList displays = color_manager_->ListAvailableDisplays();
-  display_combobox_ = new QComboBox();
-  foreach (const QString& display, displays) {
-    display_combobox_->addItem(display, display);
-  }
-  connect(display_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(ColorDisplayChanged()));
-  color_layout->addWidget(display_combobox_, row, 1);
-
-  row++;
-
-  views_combobox_ = new QComboBox();
-  color_layout->addWidget(new QLabel(tr("View:")), row, 0);
-  color_layout->addWidget(views_combobox_, row, 1);
-  connect(views_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(ColorViewChanged()));
-
-  row++;
-
-  QStringList looks = color_manager_->ListAvailableLooks();
-  looks_combobox_ = new QComboBox();
-  looks_combobox_->addItem(tr("(None)"), QString());
-  foreach (const QString& look, looks) {
-    looks_combobox_->addItem(look, look);
-  }
-  connect(looks_combobox_, SIGNAL(currentIndexChanged(int)), this, SLOT(ColorLookChanged()));
-  color_layout->addWidget(new QLabel(tr("Look:")), row, 0);
-  color_layout->addWidget(looks_combobox_, row, 1);
-
-  row++;
-
-  ColorDisplayChanged();
-
-  return color_group;
+  color_space_chooser_ = new ColorSpaceChooser(color_manager_, false);
+  connect(color_space_chooser_, &ColorSpaceChooser::DisplayColorSpaceChanged, this, &ExportVideoTab::DisplayColorSpaceChanged);
+  return color_space_chooser_;
 }
 
 QWidget *ExportVideoTab::SetupCodecSection()
@@ -222,28 +184,6 @@ QWidget *ExportVideoTab::SetupCodecSection()
   codec_stack_->addWidget(h264_section_);
 
   return codec_group;
-}
-
-void ExportVideoTab::ColorDisplayChanged()
-{
-  views_combobox_->clear();
-
-  QStringList views = color_manager_->ListAvailableViews(display_combobox_->currentData().toString());
-  foreach (const QString& view, views) {
-    views_combobox_->addItem(view, view);
-  }
-
-  emit DisplayChanged(display_combobox_->currentData().toString());
-}
-
-void ExportVideoTab::ColorViewChanged()
-{
-  emit ViewChanged(views_combobox_->currentData().toString());
-}
-
-void ExportVideoTab::ColorLookChanged()
-{
-  emit LookChanged(looks_combobox_->currentData().toString());
 }
 
 void ExportVideoTab::MaintainAspectRatioChanged(bool val)

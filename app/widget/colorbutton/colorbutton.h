@@ -4,12 +4,13 @@
 #include <QPushButton>
 
 #include "render/color.h"
+#include "render/colormanager.h"
 
 class ColorButton : public QPushButton
 {
   Q_OBJECT
 public:
-  ColorButton(QWidget* parent = nullptr);
+  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr);
 
 signals:
   void ColorChanged();
@@ -19,6 +20,8 @@ private slots:
 
 private:
   void UpdateColor();
+
+  ColorManager* color_manager_;
 
   Color color_;
 

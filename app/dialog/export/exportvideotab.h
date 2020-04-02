@@ -6,6 +6,7 @@
 #include <QWidget>
 
 #include "common/rational.h"
+#include "dialog/color/colorspacechooser.h"
 #include "dialog/export/codec/h264section.h"
 #include "dialog/export/codec/imagesection.h"
 #include "render/colormanager.h"
@@ -43,9 +44,7 @@ public:
   H264Section* h264_section() const;
 
 signals:
-  void DisplayChanged(const QString& display);
-  void ViewChanged(const QString& view);
-  void LookChanged(const QString& look);
+  void DisplayColorSpaceChanged(const QString& display, const QString& view, const QString& look);
 
 private:
   QWidget* SetupResolutionSection();
@@ -61,22 +60,16 @@ private:
   ImageSection* image_section_;
   H264Section* h264_section_;
 
+  ColorSpaceChooser* color_space_chooser_;
+
   IntegerSlider* width_slider_;
   IntegerSlider* height_slider_;
-
-  QComboBox* display_combobox_;
-  QComboBox* views_combobox_;
-  QComboBox* looks_combobox_;
 
   QList<rational> frame_rates_;
 
   ColorManager* color_manager_;
 
 private slots:
-  void ColorDisplayChanged();
-  void ColorViewChanged();
-  void ColorLookChanged();
-
   void MaintainAspectRatioChanged(bool val);
 
 };

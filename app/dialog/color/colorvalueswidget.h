@@ -15,17 +15,25 @@ public:
 
   Color GetColor() const;
 
+  ColorPreviewBox* preview_box() const;
+
 public slots:
   void SetColor(const Color& c);
 
+signals:
+  void ColorChanged(const Color& c);
+
 private:
-  static FloatSlider* CreateColorSlider();
+  FloatSlider* CreateColorSlider();
 
   ColorPreviewBox* preview_;
 
   FloatSlider* red_slider_;
   FloatSlider* green_slider_;
   FloatSlider* blue_slider_;
+
+private slots:
+  void SliderChanged();
 
 };
 

@@ -5,6 +5,7 @@
 
 #include "render/backend/opengl/openglshader.h"
 #include "render/color.h"
+#include "render/colorprocessor.h"
 
 class ColorSwatchWidget : public QWidget
 {
@@ -13,6 +14,8 @@ public:
   ColorSwatchWidget(QWidget* parent = nullptr);
 
   const Color& GetSelectedColor() const;
+
+  void SetColorProcessor(ColorProcessorPtr to_linear, ColorProcessorPtr to_display);
 
 public slots:
   void SetSelectedColor(const Color& c);
@@ -27,12 +30,20 @@ protected:
 
   virtual Color GetColorFromScreenPos(const QPoint& p) const = 0;
 
-  virtual void SelectedColorChangedEvent(const Color& c);
+  virtual void SelectedColorChangedEvent(const Color& c, bool external);
 
   Qt::GlobalColor GetUISelectorColor() const;
 
+  Color GetManagedColor(const Color& input) const;
+
 private:
+  void SetSelectedColorInternal(const Color& c, bool external);
+
   Color selected_color_;
+
+  ColorProcessorPtr to_linear_processor_;
+
+  ColorProcessorPtr to_display_processor_;
 
 };
 

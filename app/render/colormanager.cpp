@@ -98,6 +98,16 @@ QStringList ColorManager::ListAvailableInputColorspaces()
   return ListAvailableInputColorspaces(config_);
 }
 
+const QString &ColorManager::GetDefaultInputColorSpace() const
+{
+  return default_input_color_space_;
+}
+
+void ColorManager::SetDefaultInputColorSpace(const QString &s)
+{
+  default_input_color_space_ = s;
+}
+
 QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config)
 {
   QStringList spaces;

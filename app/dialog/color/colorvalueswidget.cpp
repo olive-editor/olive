@@ -44,6 +44,11 @@ Color ColorValuesWidget::GetColor() const
                blue_slider_->GetValue());
 }
 
+ColorPreviewBox *ColorValuesWidget::preview_box() const
+{
+  return preview_;
+}
+
 void ColorValuesWidget::SetColor(const Color &c)
 {
   red_slider_->SetValue(c.red());
@@ -58,5 +63,16 @@ FloatSlider *ColorValuesWidget::CreateColorSlider()
   fs->SetMinimum(0);
   fs->SetDragMultiplier(0.01);
   fs->SetMaximum(1);
+  fs->SetDecimalPlaces(3);
+  connect(fs, &FloatSlider::ValueChanged, this, &ColorValuesWidget::SliderChanged);
   return fs;
+}
+
+void ColorValuesWidget::SliderChanged()
+{
+  Color c(red_slider_->GetValue(), green_slider_->GetValue(), blue_slider_->GetValue());
+
+  preview_->SetColor(c);
+
+  emit ColorChanged(c);
 }

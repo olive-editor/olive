@@ -177,9 +177,10 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   connect(video_tab_->scaling_method_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(UpdateViewerDimensions()));
   connect(video_tab_->maintain_aspect_checkbox(), SIGNAL(toggled(bool)), this, SLOT(ResolutionChanged()));
   connect(video_tab_->codec_combobox(), SIGNAL(currentIndexChanged(int)), this, SLOT(VideoCodecChanged()));
-  connect(video_tab_, SIGNAL(DisplayChanged(const QString&)), preview_viewer_, SLOT(SetOCIODisplay(const QString&)));
-  connect(video_tab_, SIGNAL(ViewChanged(const QString&)), preview_viewer_, SLOT(SetOCIOView(const QString&)));
-  connect(video_tab_, SIGNAL(LookChanged(const QString&)), preview_viewer_, SLOT(SetOCIOLook(const QString&)));
+  connect(video_tab_,
+          &ExportVideoTab::DisplayColorSpaceChanged,
+          preview_viewer_,
+          static_cast<void (ViewerWidget::*)(const QString&, const QString&, const QString&)>(&ViewerWidget::SetOCIOParameters));
 
   // Set viewer to view the node
   preview_viewer_->ConnectViewerNode(viewer_node_);

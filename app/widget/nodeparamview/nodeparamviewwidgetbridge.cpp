@@ -94,7 +94,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     break;
   case NodeParam::kColor:
   {
-    ColorButton* color_button = new ColorButton();
+    // NOTE: Very convoluted way to get back to the project's color manager
+    ColorButton* color_button = new ColorButton(static_cast<Sequence*>(input_->parentNode()->parent())->project()->color_manager());
     widgets_.append(color_button);
     connect(color_button, &ColorButton::ColorChanged, this, &NodeParamViewWidgetBridge::WidgetCallback);
     break;

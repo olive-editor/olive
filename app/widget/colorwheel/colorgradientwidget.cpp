@@ -40,8 +40,7 @@ void ColorGradientWidget::paintEvent(QPaintEvent *e)
   }
 
   for (int i=0;i<max;i++) {
-    Color c = LerpColor(start_, end_, i, max);
-    p.setPen(c.toQColor());
+    p.setPen(GetManagedColor(LerpColor(start_, end_, i, max)).toQColor());
 
     if (orientation_ == Qt::Horizontal) {
       p.drawLine(i, 0, i, height());
@@ -56,20 +55,22 @@ void ColorGradientWidget::paintEvent(QPaintEvent *e)
   p.setBrush(Qt::NoBrush);
 
   if (orientation_ == Qt::Horizontal) {
-    p.drawRect(qRound(width() * (1.0 - val_)) - selector_radius, 0, selector_radius * 2, height());
+    p.drawRect(qRound(width() * (1.0 - val_)) - selector_radius, 0, selector_radius * 2, height() - 1);
   } else {
-    p.drawRect(0, qRound(height() * (1.0 - val_)) - selector_radius, width(), selector_radius * 2);
+    p.drawRect(0, qRound(height() * (1.0 - val_)) - selector_radius, width() - 1, selector_radius * 2);
   }
 }
 
-void ColorGradientWidget::SelectedColorChangedEvent(const Color &c)
+void ColorGradientWidget::SelectedColorChangedEvent(const Color &c, bool external)
 {
   float hue, sat;
 
   c.toHsv(&hue, &sat, &val_);
 
-  start_ = Color::fromHsv(hue, sat, 1.0);
-  end_ = Color::fromHsv(hue, sat, 0.0);
+  if (external) {
+    start_ = Color::fromHsv(hue, sat, 1.0);
+    end_ = Color::fromHsv(hue, sat, 0.0);
+  }
 }
 
 Color ColorGradientWidget::LerpColor(const Color &a, const Color &b, int i, int max)

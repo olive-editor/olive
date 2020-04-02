@@ -23,7 +23,7 @@ protected:
 
   virtual void paintEvent(QPaintEvent* e) override;
 
-  virtual void SelectedColorChangedEvent(const Color& c) override;
+  virtual void SelectedColorChangedEvent(const Color& c, bool external) override;
 
 private:
   int GetDiameter() const;

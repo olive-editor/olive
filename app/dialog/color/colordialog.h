@@ -3,6 +3,7 @@
 
 #include <QDialog>
 
+#include "colorspacechooser.h"
 #include "colorvalueswidget.h"
 #include "render/color.h"
 #include "render/colormanager.h"
@@ -15,7 +16,7 @@ class ColorDialog : public QDialog
 public:
   ColorDialog(ColorManager* color_manager, Color start = Color(1.0f, 1.0f, 1.0f), QWidget* parent = nullptr);
 
-  const Color& GetSelectedColor() const;
+  Color GetSelectedColor() const;
 
 private:
   ColorManager* color_manager_;
@@ -23,6 +24,13 @@ private:
   ColorWheelWidget* color_wheel_;
 
   ColorGradientWidget* hsv_value_gradient_;
+
+  ColorValuesWidget* color_values_widget_;
+
+  ColorProcessorPtr to_linear_processor_;
+
+private slots:
+  void ColorSpaceChanged(const QString& input, const QString& display, const QString& view, const QString& look);
 
 };
 
