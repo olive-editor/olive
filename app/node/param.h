@@ -93,7 +93,7 @@ public:
     /**
      * Floating-point type
      *
-     * Resolves to `QRgba64`.
+     * Resolves to `Color`.
      *
      * Colors passed around the nodes should always be in reference space and preferably use
      */

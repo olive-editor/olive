@@ -46,8 +46,10 @@ public:
    * Transformation matrix to use when drawing (defaults to no transform)
    */
   static void Blit(OpenGLShaderPtr pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+  static void Blit(OpenGLShader* pipeline, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
   static void OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
+  static void OCIOBlit(OpenGLShader* pipeline, GLuint lut, bool flipped = false, QMatrix4x4 matrix = QMatrix4x4());
 
   static void PrepareToDraw(QOpenGLFunctions* f);
 

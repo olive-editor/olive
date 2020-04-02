@@ -4,6 +4,8 @@
         <file>alphaover.xml</file>
         <file>boxblur.frag</file>
         <file>boxblur.xml</file>
+        <file>colorgradient.frag</file>
+        <file>colorwheel.frag</file>
         <file>crossdissolve.frag</file>
         <file>crossdissolve.xml</file>
         <file>dropshadow.frag</file>

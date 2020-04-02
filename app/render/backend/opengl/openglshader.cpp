@@ -7,9 +7,14 @@ OpenGLShader::OpenGLShader()
 
 }
 
+OpenGLShaderPtr OpenGLShader::Create()
+{
+  return std::make_shared<OpenGLShader>();
+}
+
 OpenGLShaderPtr OpenGLShader::CreateDefault(const QString &function_name, const QString &shader_code)
 {
-  OpenGLShaderPtr program = std::make_shared<OpenGLShader>();
+  OpenGLShaderPtr program = Create();
 
   // Add shaders to program
   program->addShaderFromSourceCode(QOpenGLShader::Vertex, CodeDefaultVertex());

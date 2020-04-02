@@ -17,6 +17,8 @@ class OpenGLShader : public QOpenGLShaderProgram {
 public:
   OpenGLShader();
 
+  static OpenGLShaderPtr Create();
+
   static OpenGLShaderPtr CreateDefault(const QString &function_name = QString(),
                                        const QString &shader_code = QString());
 

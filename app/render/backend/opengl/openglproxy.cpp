@@ -205,7 +205,7 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
       vert_code = OpenGLShader::CodeDefaultVertex();
     }
 
-    shader = std::make_shared<OpenGLShader>();
+    shader = OpenGLShader::Create();
     shader->create();
     shader->addShaderFromSourceCode(QOpenGLShader::Fragment, frag_code);
     shader->addShaderFromSourceCode(QOpenGLShader::Vertex, vert_code);

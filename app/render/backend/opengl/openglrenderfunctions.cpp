@@ -132,7 +132,13 @@ GLenum OpenGLRenderFunctions::GetPixelType(const PixelFormat::Format &format)
   return GL_INVALID_VALUE;
 }
 
-void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix) {
+void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix4x4 matrix)
+{
+  Blit(pipeline.get(), flipped, matrix);
+}
+
+void OpenGLRenderFunctions::Blit(OpenGLShader *pipeline, bool flipped, QMatrix4x4 matrix)
+{
   // FIXME: is currentContext() reliable here?
   QOpenGLFunctions* func = QOpenGLContext::currentContext()->functions();
 
@@ -181,7 +187,12 @@ void OpenGLRenderFunctions::Blit(OpenGLShaderPtr pipeline, bool flipped, QMatrix
   m_vao.destroy();
 }
 
-void OpenGLRenderFunctions::OCIOBlit(OpenGLShaderPtr pipeline,
+void OpenGLRenderFunctions::OCIOBlit(OpenGLShaderPtr pipeline, GLuint lut, bool flipped, QMatrix4x4 matrix)
+{
+  OCIOBlit(pipeline.get(), lut, flipped, matrix);
+}
+
+void OpenGLRenderFunctions::OCIOBlit(OpenGLShader *pipeline,
                                      GLuint lut,
                                      bool flipped,
                                      QMatrix4x4 matrix)

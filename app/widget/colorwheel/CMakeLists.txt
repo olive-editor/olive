@@ -16,6 +16,10 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  widget/colorwheel/colorgradientwidget.h
+  widget/colorwheel/colorgradientwidget.cpp
+  widget/colorwheel/colorswatchwidget.h
+  widget/colorwheel/colorswatchwidget.cpp
   widget/colorwheel/colorwheelwidget.h
   widget/colorwheel/colorwheelwidget.cpp
   PARENT_SCOPE

@@ -3,6 +3,8 @@
 
 #include <QPushButton>
 
+#include "render/color.h"
+
 class ColorButton : public QPushButton
 {
   Q_OBJECT
@@ -14,6 +16,9 @@ signals:
 
 private slots:
   void ShowColorDialog();
+
+private:
+  Color color_;
 
 };
 
