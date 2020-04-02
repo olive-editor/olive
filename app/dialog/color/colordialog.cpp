@@ -79,10 +79,10 @@ Color ColorDialog::GetSelectedColor() const
 
 void ColorDialog::ColorSpaceChanged(const QString &input, const QString &display, const QString &view, const QString &look)
 {
-  ColorProcessorPtr to_linear_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, OCIO::ROLE_SCENE_LINEAR);
+  ColorProcessorPtr to_linear_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, color_manager_->GetReferenceColorSpace());
 
   ColorProcessorPtr to_display = ColorProcessor::Create(color_manager_->GetConfig(),
-                                                        OCIO::ROLE_SCENE_LINEAR,
+                                                        color_manager_->GetReferenceColorSpace(),
                                                         display,
                                                         view,
                                                         look);

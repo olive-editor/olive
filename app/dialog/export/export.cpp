@@ -270,7 +270,7 @@ void ExportDialog::accept()
                                            SampleFormat::GetConfiguredFormatForMode(render_mode));
 
   ColorProcessorPtr color_processor = ColorProcessor::Create(color_manager_->GetConfig(),
-                                                             OCIO::ROLE_SCENE_LINEAR,
+                                                             color_manager_->GetReferenceColorSpace(),
                                                              video_tab_->CurrentOCIODisplay(),
                                                              video_tab_->CurrentOCIOView(),
                                                              video_tab_->CurrentOCIOLook());

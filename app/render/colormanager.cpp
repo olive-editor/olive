@@ -10,6 +10,9 @@ ColorManager::ColorManager()
 {
   // Ensures config is set to something
   config_ = OCIO::GetCurrentConfig();
+
+  // Default reference space is scene linear
+  reference_space_ = OCIO::ROLE_SCENE_LINEAR;
 }
 
 OCIO::ConstConfigRcPtr ColorManager::GetConfig() const
@@ -106,6 +109,16 @@ const QString &ColorManager::GetDefaultInputColorSpace() const
 void ColorManager::SetDefaultInputColorSpace(const QString &s)
 {
   default_input_color_space_ = s;
+}
+
+const QString &ColorManager::GetReferenceColorSpace() const
+{
+  return reference_space_;
+}
+
+void ColorManager::SetReferenceColorSpace(const QString &s)
+{
+  reference_space_ = s;
 }
 
 QStringList ColorManager::ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config)

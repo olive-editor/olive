@@ -76,8 +76,8 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
 
     if (!color_processor) {
       color_processor = OpenGLColorProcessor::Create(video_stream->footage()->project()->color_manager()->GetConfig(),
-                                                           video_stream->colorspace(),
-                                                           OCIO::ROLE_SCENE_LINEAR);
+                                                     video_stream->colorspace(),
+                                                     video_stream->footage()->project()->color_manager()->GetReferenceColorSpace());
       color_cache_.Add(colorspace_match, color_processor);
     }
 

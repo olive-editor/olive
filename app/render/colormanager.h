@@ -40,6 +40,10 @@ public:
 
   void SetDefaultInputColorSpace(const QString& s);
 
+  const QString& GetReferenceColorSpace() const;
+
+  void SetReferenceColorSpace(const QString& s);
+
   static QStringList ListAvailableInputColorspaces(OCIO::ConstConfigRcPtr config);
 
   enum OCIOMethod {
@@ -69,6 +73,8 @@ private:
   static void AssociateAlphaInternal(AlphaAction action, T* data, int pix_count);
 
   QString default_input_color_space_;
+
+  QString reference_space_;
 
 };
 
