@@ -70,7 +70,7 @@ void TimelineViewBlockItem::UpdateRect()
                                                                                   Timecode::time_to_timecode(block_->out() - block_->in(), timebase(), Core::instance()->GetTimecodeDisplay())));
 }
 
-void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget */*widget*/)
+void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
   switch (block_->type()) {
   case Block::kClip:
