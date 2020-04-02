@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 
+#include "common/flipmodifiers.h"
 #include "common/qtutils.h"
 #include "core.h"
 #include "nodeview.h"
@@ -37,11 +38,12 @@
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
-  font_metrics(font),
   dragging_edge_(nullptr),
-  drag_expanded_item_(nullptr),
+  cached_drop_item_(nullptr),
+  cached_drop_item_expanded_(false),
   expanded_(false),
   standard_click_(false),
+  highlighted_index_(-1),
   node_edge_change_command_(nullptr)
 {
   // Set flags for this widget
@@ -53,24 +55,21 @@ NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   // We use font metrics to set all the UI measurements for DPI-awareness
   //
 
-  // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
-  int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHHHH");
+  QFont default_font;
+  QFontMetrics font_metrics(default_font);
 
   // Set border width
   node_border_width_ = font_metrics.height() / 12;
 
-  // Set default node connector size
-  node_connector_size_ = font_metrics.height() / 3;
-
   // Set text and icon padding
-  node_text_padding_ = font_metrics.height() / 6;
+  int node_text_padding = font_metrics.height() / 4;
 
-  // FIXME: Revise icon sizing algorithm (share with NodeParamViewItem)
-  node_icon_padding_ = node_text_padding_ * 3;
+  // Not particularly great way of using text scaling to set the width (DPI-awareness, etc.)
+  int widget_width = QFontMetricsWidth(font_metrics, "HHHHHHHHHHHHHH");
 
   // Use the current default font height to size this widget
   // Set default "collapsed" size
-  int widget_height = font_metrics.height() + node_text_padding_ * 2;
+  int widget_height = font_metrics.height() + node_text_padding * 2;
 
   title_bar_rect_ = QRectF(-widget_width/2, -widget_height/2, widget_width, widget_height);
   setRect(title_bar_rect_);
@@ -80,17 +79,33 @@ void NodeViewItem::SetNode(Node *n)
 {
   node_ = n;
 
-  setPos(node_->GetPosition());
+  node_inputs_.clear();
+
+  if (node_) {
+    node_->Retranslate();
+
+    foreach (NodeParam* p, node_->parameters()) {
+      if (p->type() == NodeParam::kInput) {
+        NodeInput* input = static_cast<NodeInput*>(p);
+
+        if (input->IsConnectable()) {
+          node_inputs_.append(input);
+        }
+      }
+    }
+
+    setPos(node_->GetPosition());
+  }
 
   update();
 }
 
-Node *NodeViewItem::node()
+Node *NodeViewItem::GetNode() const
 {
   return node_;
 }
 
-bool NodeViewItem::IsExpanded()
+bool NodeViewItem::IsExpanded() const
 {
   return expanded_;
 }
@@ -103,85 +118,21 @@ void NodeViewItem::SetExpanded(bool e)
 
   expanded_ = e;
 
-  QRectF new_rect;
-
-  if (expanded_) {
-    QRectF full_size_rect = title_bar_rect_;
-
-    // If a node is connected, use its parameter count to set the height
-    if (node_ != nullptr) {
-      full_size_rect.adjust(0, 0, 0, node_text_padding_*2 + font_metrics.height() * node_->parameters().size());
-    }
-
-    // Store content_rect (the rect without the titlebar)
-    content_rect_ = full_size_rect.adjusted(0, title_bar_rect_.height(), 0, 0);
-
-    new_rect = full_size_rect;
+  if (expanded_ && !node_inputs_.isEmpty()) {
+    // Create new rect
+    QRectF new_rect = title_bar_rect_;
+    new_rect.setHeight(new_rect.height() * node_inputs_.size());
+    setRect(new_rect);
   } else {
-    new_rect = title_bar_rect_;
+    setRect(title_bar_rect_);
   }
 
   update();
-
-  setRect(new_rect);
 }
 
 void NodeViewItem::ToggleExpanded()
 {
   SetExpanded(!IsExpanded());
-}
-
-QRectF NodeViewItem::GetParameterConnectorRect(int index)
-{
-  if (node_ == nullptr) {
-    return QRectF();
-  }
-
-  NodeParam* param = node_->parameters().at(index);
-
-  QRectF connector_rect(rect().x(),
-                        content_rect_.y() + node_text_padding_ + font_metrics.height() / 2 - node_connector_size_ / 2,
-                        node_connector_size_,
-                        node_connector_size_);
-
-  if (index > 0) {
-    connector_rect.translate(0, font_metrics.height() * index);
-  }
-
-  if (param->type() == NodeParam::kOutput) {
-    connector_rect.translate(rect().width() - node_connector_size_, 0);
-  }
-
-  return connector_rect;
-}
-
-QRectF NodeViewItem::GetParameterConnectorRect(NodeParam *param)
-{
-  NodeParam* root_param = param;
-  Node* parent_node = param->parentNode();
-
-  while (root_param->parent() != parent_node) {
-    root_param = static_cast<NodeParam*>(root_param->parent());
-  }
-
-  return GetParameterConnectorRect(root_param->index());
-}
-
-QPointF NodeViewItem::GetParameterTextPoint(int index)
-{
-  if (node_ == nullptr) {
-    return QPointF();
-  }
-
-  NodeParam* param = node_->parameters().at(index);
-
-  if (param->type() == NodeParam::kOutput) {
-    return content_rect_.topRight() + QPointF(-(node_connector_size_ + node_text_padding_),
-                                              node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
-  } else {
-    return content_rect_.topLeft() + QPointF(node_connector_size_ + node_text_padding_,
-                                             node_text_padding_ + font_metrics.ascent() + font_metrics.height()*index);
-  }
 }
 
 void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
@@ -190,94 +141,49 @@ void NodeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
   // don't want here)
   QPalette app_pal = Core::instance()->main_window()->palette();
 
-  // Set up border, which will change color if selected
-  QPen border_pen(css_proxy_.BorderColor(), node_border_width_);
+  {
+    QPen border_pen;
+    border_pen.setWidth(node_border_width_);
 
-  QPen text_pen(app_pal.color(QPalette::Text));
+    QBrush bkg_color;
 
-  QBrush connector_brush(app_pal.color(QPalette::Text));
+    if (option->state & QStyle::State_Selected) {
+      border_pen.setColor(app_pal.color(QPalette::Highlight));
+    } else {
+      border_pen.setColor(css_proxy_.BorderColor());
+    }
 
-  painter->setPen(border_pen);
-
-  if (expanded_ && node_ != nullptr) {
-
-    // Use main widget color for node contents
-    painter->setBrush(app_pal.window());
-
-    // Draw background rect
-    painter->drawRect(rect());
-
-    // Set pen to draw text
-    painter->setPen(text_pen);
-
-    // Draw text and a connector rectangle for each parameter
-
-    // Store the text points which will steadily increase sa we loop
-
-    // Loop through all the parameters
-    for (int i=0;i<node_->parameters().size();i++) {
-      NodeParam* param = node_->parameters().at(i);
-
-      // If parameter is not connectable, don't draw its slot
-      if (param->IsConnectable()) {
-        // Draw connector square
-        painter->fillRect(GetParameterConnectorRect(i), connector_brush);
-      }
-
-      // Draw text
-      QPointF text_pt = GetParameterTextPoint(i);
-
-      if (param->type() == NodeParam::kOutput) {
-        text_pt -= QPointF(QFontMetricsWidth(font_metrics, param->name()), 0);
-      }
-
-      painter->drawText(text_pt, param->name());
+    if (IsExpanded()) {
+      bkg_color = app_pal.color(QPalette::Window);
+    } else {
+      bkg_color = css_proxy_.TitleBarColor();
     }
 
     painter->setPen(border_pen);
-  }
-
-  // Draw rect
-  painter->setBrush(css_proxy_.TitleBarColor());
-  painter->drawRect(title_bar_rect_);
-
-  // If selected, draw selection outline
-  if (option->state & QStyle::State_Selected) {
-    QPen pen = painter->pen();
-    pen.setColor(app_pal.color(QPalette::Highlight));
-    painter->setPen(pen);
-
-    painter->setBrush(Qt::transparent);
+    painter->setBrush(bkg_color);
 
     painter->drawRect(rect());
   }
 
-  // Draw text
-  if (node_ != nullptr) {
-    painter->setPen(text_pen);
+  painter->setPen(app_pal.color(QPalette::Text));
 
-    // Draw the expand icon
-    expand_hitbox_ = title_bar_rect_.adjusted(node_icon_padding_,
-                                              node_icon_padding_,
-                                              -node_icon_padding_,
-                                              -node_icon_padding_);
+  if (IsExpanded()) {
 
-    // Make the icon rect a square
-    expand_hitbox_.setWidth(expand_hitbox_.height());
+    for (int i=0;i<node_inputs_.size();i++) {
+      QRectF input_rect = GetInputRect(i);
 
-    // Draw the icon
-    if (IsExpanded()) {
-      icon::TriDown.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
-    } else {
-      icon::TriRight.paint(painter, expand_hitbox_.toRect(), Qt::AlignLeft | Qt::AlignVCenter);
+      if (highlighted_index_ == i) {
+        painter->fillRect(input_rect, QColor(255, 255, 255, 64));
+      }
+
+      painter->drawText(input_rect, Qt::AlignCenter, node_inputs_.at(i)->name());
     }
 
+  } else if (node_) {
+
     // Draw the text in a rect (the rect is sized around text already in the constructor)
-    QRectF text_rect = title_bar_rect_.adjusted(node_icon_padding_ + expand_hitbox_.width() + node_text_padding_,
-                                                node_text_padding_,
-                                                -node_text_padding_,
-                                                -node_text_padding_);
-    painter->drawText(text_rect, static_cast<int>(Qt::AlignVCenter | Qt::AlignLeft), node_->Name());
+    painter->drawText(title_bar_rect_, Qt::AlignCenter, node_->Name());
+
   }
 }
 
@@ -288,84 +194,78 @@ void NodeViewItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   // base class behavior is valid here.
   standard_click_ = false;
 
-  // Don't initiate a drag if we clicked the expand hitbox
-  if (expand_hitbox_.contains(event->pos())) {
-    return;
-  }
+  // If CTRL is held, we start a new edge
+  if (node_ && event->modifiers() & Qt::ControlModifier) {
 
-  // See if the mouse click was on a parameter connector
-  if (IsExpanded() // This is only possible if the node is expanded
-      && node_ != nullptr) { // We can only loop through a node's parameters if a valid node is attached
-    for (int i=0;i<node_->parameters().size();i++) {
+    NodeParam* param = node_->output();
 
-      if (GetParameterConnectorRect(i).contains(event->pos())) { // See if the cursor is in the rect
+    // Create draggable object
+    dragging_edge_ = new NodeViewEdge();
 
-        NodeParam* param = node_->parameters().at(i);
+    // Set up a QUndoCommand to make this action undoable
+    node_edge_change_command_ = new QUndoCommand();
 
-        // Create draggable object
-        dragging_edge_ = new NodeViewEdge();
+    if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
+      // For an output param (or an input param with no connections), we default to creating a new edge
+      drag_source_ = this;
+      drag_src_param_ = param;
 
-        // Set up a QUndoCommand to make this action undoable
-        node_edge_change_command_ = new QUndoCommand();
+      // Set the starting position to the current param's connector
+      dragging_edge_start_ = GetParamPoint(param);
 
-        if (param->type() == NodeParam::kOutput || param->edges().isEmpty()) {
-          // For an output param (or an input param with no connections), we default to creating a new edge
-          drag_source_ = this;
-          drag_src_param_ = param;
+    } else if (param->type() == NodeParam::kInput) {
+      // For an input param, we default to moving an existing edge
+      // (here we use the last one, which will usually also be the first)
+      NodeEdgePtr edge = param->edges().last();
 
-          // Set the starting position to the current param's connector
-          dragging_edge_start_ = mapToScene(GetParameterConnectorRect(i).center());
+      // The starting position will be the OPPOSING parameter's rectangle
 
-        } else if (param->type() == NodeParam::kInput) {
-          // For an input param, we default to moving an existing edge
-          // (here we use the last one, which will usually also be the first)
-          NodeEdgePtr edge = param->edges().last();
+      // Get the opposing parameter
+      drag_src_param_ = edge->output();
 
-          // The starting position will be the OPPOSING parameter's rectangle
+      // Get its Node UI object
+      drag_source_ = static_cast<NodeViewScene*>(scene())->NodeToUIObject(drag_src_param_->parentNode());
 
-          // Get the opposing parameter
-          drag_src_param_ = edge->output();
-
-          // Get its Node UI object
-          drag_source_ = static_cast<NodeViewScene*>(scene())->NodeToUIObject(drag_src_param_->parentNode());
-
-          // Get the opposing parameter's rect center using the line's current coordinates
-          // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
-          //  node is collapsed, therefore it's easier to just retrieve it from line itself)
-          NodeViewEdge* existing_edge_ui = static_cast<NodeViewScene*>(scene())->EdgeToUIObject(edge);
-          QPainterPath existing_edge_line = existing_edge_ui->path();
-          QPointF edge_start = existing_edge_line.pointAtPercent(0);
-          QPointF edge_end = existing_edge_line.pointAtPercent(1);
-          if (existing_edge_ui->contains(edge_start)) {
-            dragging_edge_start_ = edge_start;
-          } else {
-            dragging_edge_start_ = edge_end;
-          }
-
-
-          // Remove old edge
-          NodeEdgeRemoveCommand* remove_command = new NodeEdgeRemoveCommand(edge->output(),
-                                                                            edge->input(),
-                                                                            node_edge_change_command_);
-          remove_command->redo();
-
-        }
-
-        // Add it to the scene
-        scene()->addItem(dragging_edge_);
-
-        // Trigger initial line setting
-        mouseMoveEvent(event);
-
-        return;
+      // Get the opposing parameter's rect center using the line's current coordinates
+      // (we use the current coordinates because a complex formula is used for the line's coords if the opposing
+      //  node is collapsed, therefore it's easier to just retrieve it from line itself)
+      NodeViewEdge* existing_edge_ui = static_cast<NodeViewScene*>(scene())->EdgeToUIObject(edge);
+      QPainterPath existing_edge_line = existing_edge_ui->path();
+      QPointF edge_start = existing_edge_line.pointAtPercent(0);
+      QPointF edge_end = existing_edge_line.pointAtPercent(1);
+      if (existing_edge_ui->contains(edge_start)) {
+        dragging_edge_start_ = edge_start;
+      } else {
+        dragging_edge_start_ = edge_end;
       }
 
-    }
-  }
 
-  // We aren't using any override behaviors, switch back to standard click behavior
-  standard_click_ = true;
-  QGraphicsRectItem::mousePressEvent(event);
+      // Remove old edge
+      NodeEdgeRemoveCommand* remove_command = new NodeEdgeRemoveCommand(edge->output(),
+                                                                        edge->input(),
+                                                                        node_edge_change_command_);
+      remove_command->redo();
+
+    }
+
+    // Add it to the scene
+    scene()->addItem(dragging_edge_);
+
+    // Trigger initial line setting
+    mouseMoveEvent(event);
+
+    return;
+
+  } else {
+
+    // We aren't using any override behaviors, switch back to standard click behavior
+    standard_click_ = true;
+
+    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+
+    QGraphicsRectItem::mousePressEvent(event);
+
+  }
 }
 
 void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -375,59 +275,67 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     QPointF end_point = event->scenePos();
     drag_dest_param_ = nullptr;
 
-    // See if the mouse is currently inside a node
-    NodeViewItem* drop_item = dynamic_cast<NodeViewItem*>(scene()->itemAt(event->scenePos(), sceneTransform()));
+    if (!cached_drop_item_
+        || !cached_drop_item_->contains(cached_drop_item_->mapFromScene(event->scenePos()))) {
 
-    // If we expanded an item below but are no longer dragging over it, re-collapse it
-    if (drag_expanded_item_ != nullptr && drop_item != drag_expanded_item_) {
-      drag_expanded_item_->SetExpanded(false);
-      drag_expanded_item_ = nullptr;
-    }
+      // Cursor has left last entered item, we need to find a new one
+      if (cached_drop_item_) {
 
-    if (drop_item != nullptr && drop_item != drag_source_) {
+        // If we expanded an item below but are no longer dragging over it, re-collapse it
+        if (cached_drop_item_expanded_) {
+          cached_drop_item_->SetExpanded(false);
+        }
 
-      // If the item we're dragging over is collapsed, expand it
-      if (!drop_item->IsExpanded()) {
-        drag_expanded_item_ = drop_item;
-        drop_item->SetExpanded(true);
+        cached_drop_item_->setZValue(0);
+        cached_drop_item_ = nullptr;
       }
 
-      // See if the mouse is currently inside a connector rect
-      for (int i=0;i<drop_item->node()->parameters().size();i++) {
+      NodeViewItem* cursor_item  = dynamic_cast<NodeViewItem*>(scene()->itemAt(event->scenePos(), sceneTransform()));
 
-        // Make a larger "hitbox" rect to make it easier to drag into
-        QRectF param_hitbox = drop_item->GetParameterConnectorRect(i).adjusted(-node_connector_size_,
-                                                                               -node_connector_size_,
-                                                                               node_connector_size_,
-                                                                               node_connector_size_);
+      if (cursor_item
+          && cursor_item != drag_source_
+          && !cursor_item->node_inputs_.isEmpty()) {
+        cached_drop_item_ = cursor_item;
+
+        // If the item we're dragging over is collapsed, expand it
+        cached_drop_item_expanded_ = !cached_drop_item_->IsExpanded();
+
+        if (cached_drop_item_expanded_) {
+          cached_drop_item_->SetExpanded(true);
+        }
+
+        cached_drop_item_->setZValue(1);
+      } else {
+        cached_drop_item_ = nullptr;
+      }
+
+    }
+
+    if (cached_drop_item_) {
+
+      int highlight_their_index = -1;
+
+      // See if the mouse is currently inside a connector rect
+      for (int i=0;i<cached_drop_item_->node_inputs_.size();i++) {
 
         // Get the parameter we're dragging into
-        NodeParam* comp_param = drop_item->node()->parameters().at(i);
+        NodeParam* comp_param = cached_drop_item_->node_inputs_.at(i);
 
-        if (comp_param->IsConnectable() && param_hitbox.contains(drop_item->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
+        // See if cursor is inside its UI
+        if (cached_drop_item_->GetInputRect(i).contains(cached_drop_item_->mapFromScene(event->scenePos()))) { // See if we're dragging inside the hitbox
 
-          // Prevent circular dependency - check if the Node we'll be outputting to already outputs to this Node
-          Node* outputting_node;
-          Node* receiving_node;
-
-          // Determine which Node will be "submitting output" and which node will be "receiving input"
-          if (drag_src_param_->type() == NodeParam::kInput) {
-            receiving_node = drag_src_param_->parentNode();
-            outputting_node = drop_item->node();
-          } else {
-            receiving_node = drop_item->node();
-            outputting_node = drag_src_param_->parentNode();
-          }
-
-          // Ensure the receiving node doesn't output to the outputting node
-          if (!receiving_node->OutputsTo(outputting_node)) {
+          // Attempt to prevent circular dependency - ensure the receiving node doesn't output to the outputting node
+          if (!cached_drop_item_->GetNode()->OutputsTo(node_)) {
             drag_dest_param_ = comp_param;
-            end_point = drop_item->mapToScene(drop_item->GetParameterConnectorRect(i).center());
+            highlight_their_index = i;
+            end_point = cached_drop_item_->mapToScene(cached_drop_item_->GetInputPoint(i));
           }
 
           break;
         }
       }
+
+      cached_drop_item_->SetHighlightedIndex(highlight_their_index);
     }
 
     dragging_edge_->SetConnected(drag_dest_param_ != nullptr);
@@ -438,6 +346,8 @@ void NodeViewItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
   }
 
   if (standard_click_) {
+    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+
     QGraphicsRectItem::mouseMoveEvent(event);
   }
 }
@@ -451,9 +361,9 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     scene()->removeItem(dragging_edge_);
 
     // If we expanded an item in the drag, re-collapse it now
-    if (drag_expanded_item_ != nullptr) {
-      drag_expanded_item_->SetExpanded(false);
-      drag_expanded_item_ = nullptr;
+    if (cached_drop_item_ != nullptr) {
+      cached_drop_item_->SetExpanded(false);
+      cached_drop_item_ = nullptr;
     }
 
     if (drag_dest_param_ != nullptr) {
@@ -486,19 +396,11 @@ void NodeViewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     return;
   }
 
-  // Check if we clicked the Expand/Collapse icon
-  if (expand_hitbox_.contains(event->pos())) {
-    ToggleExpanded();
-  }
-
   if (standard_click_) {
+    event->setModifiers(FlipControlAndShiftModifiers(event->modifiers()));
+
     QGraphicsRectItem::mouseReleaseEvent(event);
   }
-}
-
-void NodeViewItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
-{
-  ToggleExpanded();
 }
 
 QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
@@ -508,4 +410,49 @@ QVariant NodeViewItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
   }
 
   return QGraphicsItem::itemChange(change, value);
+}
+
+void NodeViewItem::SetHighlightedIndex(int index)
+{
+  if (highlighted_index_ == index) {
+    return;
+  }
+
+  highlighted_index_ = index;
+
+  update();
+}
+
+QRectF NodeViewItem::GetInputRect(int index) const
+{
+  QRectF r = title_bar_rect_;
+
+  if (IsExpanded()) {
+    r.translate(0, r.height() * index);
+  }
+
+  return r;
+}
+
+QPointF NodeViewItem::GetParamPoint(NodeParam *param) const
+{
+  if (param->type() == NodeParam::kOutput) {
+    return pos() + QPointF(rect().right(), rect().center().y());
+  } else {
+    NodeInput* input = static_cast<NodeInput*>(param);
+
+    // Resolve NodeInputArray elements
+    while (input->parentNode() != input->parent()) {
+      input = static_cast<NodeInput*>(input->parent());
+    }
+
+    return pos() + GetInputPoint(node_inputs_.indexOf(input));
+  }
+}
+
+QPointF NodeViewItem::GetInputPoint(int index) const
+{
+  QRectF input_rect = GetInputRect(index);
+
+  return QPointF(input_rect.left(), input_rect.center().y());
 }

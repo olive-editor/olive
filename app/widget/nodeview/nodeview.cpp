@@ -192,7 +192,7 @@ void NodeView::keyPressEvent(QKeyEvent *event)
 void NodeView::mousePressEvent(QMouseEvent *event)
 {
   if (attached_item_) {
-    Node* dropping_node = attached_item_->node();
+    Node* dropping_node = attached_item_->GetNode();
 
     DetachItemFromCursor();
 
@@ -247,7 +247,7 @@ void NodeView::mouseMoveEvent(QMouseEvent *event)
 
         NodeInput* compatible_input = nullptr;
 
-        foreach (NodeParam* drop_node_param, attached_item_->node()->parameters()) {
+        foreach (NodeParam* drop_node_param, attached_item_->GetNode()->parameters()) {
           if (drop_node_param->type() == NodeParam::kInput
               && static_cast<NodeInput*>(drop_node_param)->data_type() & input_type) {
             compatible_input = static_cast<NodeInput*>(drop_node_param);
@@ -346,7 +346,7 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
       continue;
     }
 
-    qDebug() << "Moving" << node_item->node() << "for" << n->node();
+    qDebug() << "Moving" << node_item->GetNode() << "for" << n->GetNode();
 
     QPointF new_pos;
 
@@ -354,8 +354,8 @@ void NodeView::PlaceNode(NodeViewItem *n, const QPointF &pos)
       qDebug() << "Same pos, need more info";
 
       // Item positions are exact, we'll need more information to determine where this item should go
-      Node* ours = n->node();
-      Node* theirs = node_item->node();
+      Node* ours = n->GetNode();
+      Node* theirs = node_item->GetNode();
 
       bool moved = false;
 

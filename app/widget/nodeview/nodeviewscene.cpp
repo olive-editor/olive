@@ -213,7 +213,7 @@ void NodeViewScene::ReorganizeInternal(NodeViewItem* src_item, QHash<Node*, int>
     return;
   }
 
-  Node* n = src_item->node();
+  Node* n = src_item->GetNode();
 
   QList<Node*> connected_nodes = n->GetImmediateDependencies();
 

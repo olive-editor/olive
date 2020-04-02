@@ -58,24 +58,6 @@ NodeEdgePtr NodeViewEdge::edge()
   return edge_;
 }
 
-qreal CalculateEdgeYPoint(NodeViewItem *item, NodeParam* param, NodeViewItem *opposing)
-{
-  if (item->IsExpanded()) {
-    return item->pos().y() + item->GetParameterConnectorRect(param).center().y();
-  } else {
-    qreal max_height = qMax(opposing->rect().height(), item->rect().height());
-
-    // Calculate the Y distance between the two nodes and create a 0.0-1.0 range for lerping
-    qreal input_value = clamp(0.5 + ((opposing->pos().y() + opposing->rect().top()) - (item->pos().y() + item->rect().top())) / max_height / 4, 0.0, 1.0);
-
-    // Use a lerp function to draw the line between the two corners
-    qreal input_y = item->pos().y() + item->rect().top() + lerp(0.0, item->rect().height(), input_value);
-
-    // Set Y values according to calculations
-    return input_y;
-  }
-}
-
 void NodeViewEdge::Adjust()
 {
   if (!edge_ || !scene()) {
@@ -90,16 +72,8 @@ void NodeViewEdge::Adjust()
     return;
   }
 
-  // Create initial values
-  QPointF output_point = QPointF(output->pos().x() + output->rect().left() + output->rect().width(), 0);
-  QPointF input_point = QPointF(input->pos().x() + output->rect().left(), 0);
-
-  // Calculate output/input points
-  output_point.setY(CalculateEdgeYPoint(output, edge_->output(), input));
-  input_point.setY(CalculateEdgeYPoint(input, edge_->input(), output));
-
   // Draw a line between the two
-  SetPoints(output_point, input_point);
+  SetPoints(output->GetParamPoint(edge_->output()), input->GetParamPoint(edge_->input()));
 }
 
 void NodeViewEdge::SetConnected(bool c)

@@ -51,12 +51,12 @@ public:
   /**
    * @brief Get currently attached node
    */
-  Node* node();
+  Node* GetNode() const;
 
   /**
    * @brief Get expanded state
    */
-  bool IsExpanded();
+  bool IsExpanded() const;
 
   /**
    * @brief Set expanded state
@@ -65,17 +65,9 @@ public:
   void ToggleExpanded();
 
   /**
-   * @brief Get the rectangle of a specific parameter connector
-   *
-   * Useful for drawing parameter connectors (white squares where the Node edges attach) or determining whether a click
-   * or drag occurred within one.
-   *
-   * @param index
-   *
-   * Index of the parameter of this node (see NodeParam::index()).
+   * @brief Returns GLOBAL point that edges should connect to for any NodeParam member of this object
    */
-  QRectF GetParameterConnectorRect(int index);
-  QRectF GetParameterConnectorRect(NodeParam* index);
+  QPointF GetParamPoint(NodeParam* param) const;
 
 protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
@@ -83,25 +75,34 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
   virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
 
 private:
   /**
-   * @brief Get the relative position to draw text for a parameter at a certain index
+   * @brief Highlight an input (for instance when the user is dragging over it)
    */
-  QPointF GetParameterTextPoint(int index);
+  void SetHighlightedIndex(int index);
 
   /**
-   * @brief Variable for the expand/collapse button rect (stored for clicking)
+   * @brief Returns local rect of a NodeInput in array node_inputs_[index]
    */
-  QRectF expand_hitbox_;
+  QRectF GetInputRect(int index) const;
+
+  /**
+   * @brief Returns local point that edges should connect to for a NodeInput in array node_inputs_[index]
+   */
+  QPointF GetInputPoint(int index) const;
 
   /**
    * @brief Reference to attached Node
    */
   Node* node_;
+
+  /**
+   * @brief Cached list of node inputs
+   */
+  QList<NodeInput*> node_inputs_;
 
   /**
    * @brief A QWidget that can receive CSS properties that NodeViewItem can use
@@ -115,27 +116,17 @@ private:
    */
   QRectF title_bar_rect_;
 
-  /**
-   * @brief Rectangle of the Node's content (zero-size when collapsed, (rect() - title_bar_rect_) when expanded)
-   */
-  QRectF content_rect_;
-
-  /// Used to determine certain padding/margin variables for high DPI support
-  QFont font;
-  QFontMetrics font_metrics;
-
   /// Edge dragging variables
   NodeViewEdge* dragging_edge_;
   QPointF dragging_edge_start_;
   NodeParam* drag_src_param_;
   NodeParam* drag_dest_param_;
   NodeViewItem* drag_source_;
-  NodeViewItem* drag_expanded_item_;
+
+  NodeViewItem* cached_drop_item_;
+  bool cached_drop_item_expanded_;
 
   /// Sizing variables to use when drawing
-  int node_connector_size_;
-  int node_text_padding_;
-  int node_icon_padding_;
   int node_border_width_;
 
   /**
@@ -149,6 +140,8 @@ private:
    * \see mousePressEvent()
    */
   bool standard_click_;
+
+  int highlighted_index_;
 
   /**
    * @brief QUndoCommand for creating and deleting edges by dragging
