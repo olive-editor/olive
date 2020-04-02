@@ -1,57 +1,82 @@
 #include "colorgradientwidget.h"
 
+#include <QPainter>
+
+#include "common/clamp.h"
 #include "common/lerp.h"
 #include "node/node.h"
 
-ColorGradientGLWidget::ColorGradientGLWidget(Qt::Orientation orientation, QWidget *parent) :
+ColorGradientWidget::ColorGradientWidget(Qt::Orientation orientation, QWidget *parent) :
   ColorSwatchWidget(parent),
-  orientation_(orientation)
+  orientation_(orientation),
+  val_(1.0)
 {
 }
 
-void ColorGradientGLWidget::SetColors(const Color &a, const Color &b)
+Color ColorGradientWidget::GetColorFromScreenPos(const QPoint &p) const
 {
-  a_ = a;
-  b_ = b;
-
-  update();
+  if (orientation_ == Qt::Horizontal) {
+    return LerpColor(start_, end_, p.x(), width());
+  } else {
+    return LerpColor(start_, end_, p.y(), height());
+  }
 }
 
-Color ColorGradientGLWidget::GetColorFromCursorPos(const QPoint &p) const
+void ColorGradientWidget::paintEvent(QPaintEvent *e)
 {
-  float t;
+  QWidget::paintEvent(e);
+
+  QPainter p(this);
+
+  int min;
+  int max;
 
   if (orientation_ == Qt::Horizontal) {
-    t = static_cast<float>(p.x()) / static_cast<float>(width());
+    min = height();
+    max = width();
   } else {
-    t = static_cast<float>(p.y()) / static_cast<float>(height());
+    min = width();
+    max = height();
   }
 
-  return Color(lerp(a_.red(), b_.red(), t),
-               lerp(a_.green(), b_.green(), t),
-               lerp(a_.blue(), b_.blue(), t));
+  for (int i=0;i<max;i++) {
+    Color c = LerpColor(start_, end_, i, max);
+    p.setPen(c.toQColor());
+
+    if (orientation_ == Qt::Horizontal) {
+      p.drawLine(i, 0, i, height());
+    } else {
+      p.drawLine(0, i, width(), i);
+    }
+  }
+
+  // Draw selector
+  int selector_radius = qMax(2, min / 8);
+  p.setPen(QPen(GetUISelectorColor(), qMax(1, selector_radius / 2)));
+  p.setBrush(Qt::NoBrush);
+
+  if (orientation_ == Qt::Horizontal) {
+    p.drawRect(qRound(width() * (1.0 - val_)) - selector_radius, 0, selector_radius * 2, height());
+  } else {
+    p.drawRect(0, qRound(height() * (1.0 - val_)) - selector_radius, width(), selector_radius * 2);
+  }
 }
 
-bool ColorGradientGLWidget::PointIsValid(const QPoint &) const
+void ColorGradientWidget::SelectedColorChangedEvent(const Color &c)
 {
-  return true;
+  float hue, sat;
+
+  c.toHsv(&hue, &sat, &val_);
+
+  start_ = Color::fromHsv(hue, sat, 1.0);
+  end_ = Color::fromHsv(hue, sat, 0.0);
 }
 
-OpenGLShader *ColorGradientGLWidget::CreateShader() const
+Color ColorGradientWidget::LerpColor(const Color &a, const Color &b, int i, int max)
 {
-  OpenGLShader* s = new OpenGLShader();
+  float t = clamp(static_cast<float>(i) / static_cast<float>(max), 0.0f, 1.0f);
 
-  s->create();
-  s->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
-  s->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(QStringLiteral(":/shaders/colorgradient.frag")));
-  s->link();
-
-  return s;
-}
-
-void ColorGradientGLWidget::SetShaderUniformValues(OpenGLShader *shader) const
-{
-  shader->setUniformValue("orientation", orientation_);
-  shader->setUniformValue("color_a", a_.red(), a_.green(), a_.blue());
-  shader->setUniformValue("color_b", b_.red(), b_.green(), b_.blue());
+  return Color(lerp(a.red(), b.red(), t),
+               lerp(a.green(), b.green(), t),
+               lerp(a.blue(), b.blue(), t));
 }

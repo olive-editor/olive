@@ -18,6 +18,8 @@ private slots:
   void ShowColorDialog();
 
 private:
+  void UpdateColor();
+
   Color color_;
 
 };

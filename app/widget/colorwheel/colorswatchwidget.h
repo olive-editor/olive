@@ -6,39 +6,33 @@
 #include "render/backend/opengl/openglshader.h"
 #include "render/color.h"
 
-class ColorSwatchWidget : public QOpenGLWidget
+class ColorSwatchWidget : public QWidget
 {
   Q_OBJECT
 public:
   ColorSwatchWidget(QWidget* parent = nullptr);
 
-  virtual ~ColorSwatchWidget() override;
+  const Color& GetSelectedColor() const;
+
+public slots:
+  void SetSelectedColor(const Color& c);
 
 signals:
-  void ColorChanged(const Color& c);
+  void SelectedColorChanged(const Color& c);
 
 protected:
-  virtual void initializeGL() override;
-
-  virtual void paintGL() override;
-
   virtual void mousePressEvent(QMouseEvent* e) override;
 
   virtual void mouseMoveEvent(QMouseEvent* e) override;
 
-  virtual void SetShaderUniformValues(OpenGLShader*) const {}
+  virtual Color GetColorFromScreenPos(const QPoint& p) const = 0;
 
-  virtual Color GetColorFromCursorPos(const QPoint& p) const = 0;
+  virtual void SelectedColorChangedEvent(const Color& c);
 
-  virtual bool PointIsValid(const QPoint& p) const = 0;
-
-  virtual OpenGLShader* CreateShader() const = 0;
-
-private slots:
-  void CleanUp();
+  Qt::GlobalColor GetUISelectorColor() const;
 
 private:
-  OpenGLShader* shader_;
+  Color selected_color_;
 
 };
 

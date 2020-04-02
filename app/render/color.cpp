@@ -87,14 +87,14 @@ void Color::toHsv(float *hue, float *sat, float *val) const
   }
 }
 
-float Color::hue() const
+float Color::hsv_hue() const
 {
   float h, s, v;
   toHsv(&h, &s, &v);
   return h;
 }
 
-float Color::saturation() const
+float Color::hsv_saturation() const
 {
   float h, s, v;
   toHsv(&h, &s, &v);
@@ -106,4 +106,78 @@ float Color::value() const
   float h, s, v;
   toHsv(&h, &s, &v);
   return v;
+}
+
+void Color::toHsl(float *hue, float *sat, float *lightness) const
+{
+  float fCMin = qMin(red(), qMin(green(), blue()));
+  float fCMax = qMax(red(), qMax(green(), blue()));
+
+  *lightness = 0.5 * (fCMin + fCMax);
+
+  if (fCMin == fCMax)
+  {
+    *sat = 0;
+    *hue = 0;
+    return;
+
+  }
+  else if (*lightness < 0.5)
+  {
+    *sat = (fCMax - fCMin) / (fCMax + fCMin);
+  }
+  else
+  {
+    *sat = (fCMax - fCMin) / (2.0 - fCMax - fCMin);
+  }
+
+  if (fCMax == red())
+  {
+    *hue = 60 * (green() - blue()) / (fCMax - fCMin);
+  }
+  if (fCMax == green())
+  {
+    *hue = 60 * (blue() - red()) / (fCMax - fCMin) + 120;
+  }
+  if (fCMax == blue())
+  {
+    *hue = 60 * (red() - green()) / (fCMax - fCMin) + 240;
+  }
+  if (*hue < 0)
+  {
+    *hue = *hue + 360;
+  }
+}
+
+float Color::hsl_hue() const
+{
+  float h, s, l;
+  toHsl(&h, &s, &l);
+  return h;
+}
+
+float Color::hsl_saturation() const
+{
+  float h, s, l;
+  toHsl(&h, &s, &l);
+  return s;
+}
+
+float Color::lightness() const
+{
+  float h, s, l;
+  toHsl(&h, &s, &l);
+  return l;
+}
+
+QColor Color::toQColor() const
+{
+  QColor c;
+
+  c.setRedF(red());
+  c.setGreenF(green());
+  c.setBlueF(blue());
+  c.setAlphaF(alpha());
+
+  return c;
 }

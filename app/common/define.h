@@ -21,6 +21,7 @@
 #ifndef OLIVECOMMONDEFINE_H
 #define OLIVECOMMONDEFINE_H
 
+const int kHSVChannels = 3;
 const int kRGBChannels = 3;
 const int kRGBAChannels = 4;
 

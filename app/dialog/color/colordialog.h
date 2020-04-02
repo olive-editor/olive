@@ -15,19 +15,14 @@ class ColorDialog : public QDialog
 public:
   ColorDialog(ColorManager* color_manager, Color start = Color(1.0f, 1.0f, 1.0f), QWidget* parent = nullptr);
 
+  const Color& GetSelectedColor() const;
+
 private:
   ColorManager* color_manager_;
 
-  ColorWheelGLWidget* color_wheel_;
+  ColorWheelWidget* color_wheel_;
 
-  ColorGradientGLWidget* hsv_value_gradient_;
-
-private slots:
-  void UpdateValueGradient(const Color& c);
-
-  void UpdateWheelValue(const Color& c);
-
-  void UpdateValueGradientSize(int diameter);
+  ColorGradientWidget* hsv_value_gradient_;
 
 };
 

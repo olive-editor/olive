@@ -5,57 +5,51 @@
 #include "render/backend/opengl/openglrenderfunctions.h"
 
 ColorSwatchWidget::ColorSwatchWidget(QWidget *parent) :
-  QOpenGLWidget(parent),
-  shader_(nullptr)
+  QWidget(parent)
 {
-  // Render with transparent background
-  setAttribute(Qt::WA_AlwaysStackOnTop);
 }
 
-ColorSwatchWidget::~ColorSwatchWidget()
+const Color &ColorSwatchWidget::GetSelectedColor() const
 {
-  CleanUp();
+  return selected_color_;
 }
 
-void ColorSwatchWidget::initializeGL()
+void ColorSwatchWidget::SetSelectedColor(const Color &c)
 {
-  CleanUp();
-
-  shader_ = CreateShader();
-
-  connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &ColorSwatchWidget::CleanUp);
-}
-
-void ColorSwatchWidget::paintGL()
-{
-  shader_->bind();
-  shader_->setUniformValue("ove_resolution", width(), height());
-  SetShaderUniformValues(shader_);
-  shader_->release();
-
-  OpenGLRenderFunctions::Blit(shader_);
-}
-
-void ColorSwatchWidget::CleanUp()
-{
-  delete shader_;
-  shader_ = nullptr;
+  selected_color_ = c;
+  SelectedColorChangedEvent(c);
+  update();
 }
 
 void ColorSwatchWidget::mousePressEvent(QMouseEvent *e)
 {
-  QOpenGLWidget::mousePressEvent(e);
+  QWidget::mousePressEvent(e);
 
-  if (PointIsValid(e->pos())) {
-    emit ColorChanged(GetColorFromCursorPos(e->pos()));
-  }
+  SetSelectedColor(GetColorFromScreenPos(e->pos()));
+  emit SelectedColorChanged(GetSelectedColor());
 }
 
 void ColorSwatchWidget::mouseMoveEvent(QMouseEvent *e)
 {
-  QOpenGLWidget::mouseMoveEvent(e);
+  QWidget::mouseMoveEvent(e);
 
-  if (e->buttons() & Qt::LeftButton && PointIsValid(e->pos())) {
-    emit ColorChanged(GetColorFromCursorPos(e->pos()));
+  if (e->buttons() & Qt::LeftButton) {
+    SetSelectedColor(GetColorFromScreenPos(e->pos()));
+    emit SelectedColorChanged(GetSelectedColor());
+  }
+}
+
+void ColorSwatchWidget::SelectedColorChangedEvent(const Color &)
+{
+}
+
+Qt::GlobalColor ColorSwatchWidget::GetUISelectorColor() const
+{
+  float rough_color_luma = (GetSelectedColor().red()+GetSelectedColor().red()+GetSelectedColor().blue()+GetSelectedColor().green()+GetSelectedColor().green()+GetSelectedColor().green())/6;
+
+  if (rough_color_luma > 0.66) {
+    return Qt::black;
+  } else {
+    return Qt::white;
   }
 }

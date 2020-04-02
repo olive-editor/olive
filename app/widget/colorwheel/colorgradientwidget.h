@@ -4,29 +4,29 @@
 #include "colorswatchwidget.h"
 #include "render/color.h"
 
-class ColorGradientGLWidget : public ColorSwatchWidget
+class ColorGradientWidget : public ColorSwatchWidget
 {
   Q_OBJECT
 public:
-  ColorGradientGLWidget(Qt::Orientation orientation, QWidget* parent = nullptr);
-
-  void SetColors(const Color& a, const Color& b);
+  ColorGradientWidget(Qt::Orientation orientation, QWidget* parent = nullptr);
 
 protected:
-  virtual Color GetColorFromCursorPos(const QPoint& p) const override;
+  virtual Color GetColorFromScreenPos(const QPoint& p) const override;
 
-  virtual bool PointIsValid(const QPoint& p) const override;
+  virtual void paintEvent(QPaintEvent* e) override;
 
-  virtual OpenGLShader* CreateShader() const override;
-
-  virtual void SetShaderUniformValues(OpenGLShader* shader) const override;
+  virtual void SelectedColorChangedEvent(const Color& c) override;
 
 private:
+  static Color LerpColor(const Color& a, const Color& b, int i, int max);
+
   Qt::Orientation orientation_;
 
-  Color a_;
+  Color start_;
 
-  Color b_;
+  Color end_;
+
+  float val_;
 
 };
 

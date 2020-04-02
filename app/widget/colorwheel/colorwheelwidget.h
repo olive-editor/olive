@@ -7,45 +7,47 @@
 #include "render/backend/opengl/openglshader.h"
 #include "render/color.h"
 
-class ColorWheelGLWidget : public ColorSwatchWidget
+class ColorWheelWidget : public ColorSwatchWidget
 {
   Q_OBJECT
 public:
-  ColorWheelGLWidget(QWidget* parent = nullptr);
-
-  void SetHSVValue(float val);
+  ColorWheelWidget(QWidget* parent = nullptr);
 
 signals:
   void DiameterChanged(int radius);
 
 protected:
-  virtual Color GetColorFromCursorPos(const QPoint& p) const override;
-
-  virtual bool PointIsValid(const QPoint& p) const override;
-
-  virtual OpenGLShader* CreateShader() const override;
-
-  virtual void SetShaderUniformValues(OpenGLShader* shader) const override;
+  virtual Color GetColorFromScreenPos(const QPoint& p) const override;
 
   virtual void resizeEvent(QResizeEvent* e) override;
+
+  virtual void paintEvent(QPaintEvent* e) override;
+
+  virtual void SelectedColorChangedEvent(const Color& c) override;
 
 private:
   int GetDiameter() const;
 
   qreal GetRadius() const;
 
-  float hsv_value_;
+  struct Triangle {
+    qreal opposite;
+    qreal adjacent;
+    qreal hypotenuse;
+  };
+
+  Triangle GetTriangleFromCoords(const QPoint &center, const QPoint& p) const;
+  Triangle GetTriangleFromCoords(const QPoint &center, qreal y, qreal x) const;
+
+  Color GetColorFromTriangle(const Triangle& tri) const;
+  QPoint GetCoordsFromColor(const Color& c) const;
+
+  QPixmap cached_wheel_;
+
+  float val_;
+
+  bool force_redraw_;
 
 };
-
-/*class ColorWheelWidget : public QWidget
-{
-public:
-  ColorWheelWidget(QWidget* parent = nullptr);
-
-protected:
-  virtual void paintEvent(QPaintEvent* e) override;
-
-};*/
 
 #endif // COLORWHEELWIDGET_H

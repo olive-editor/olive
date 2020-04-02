@@ -1,6 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include <QColor>
+
 #include "common/define.h"
 #include "render/pixelformat.h"
 
@@ -40,9 +42,14 @@ public:
   const float& alpha() const {return data_[3];}
 
   void toHsv(float* hue, float* sat, float* val) const;
-  float hue() const;
-  float saturation() const;
+  float hsv_hue() const;
+  float hsv_saturation() const;
   float value() const;
+
+  void toHsl(float* hue, float* sat, float* lightness) const;
+  float hsl_hue() const;
+  float hsl_saturation() const;
+  float lightness() const;
 
   void set_red(const float& red) {data_[0] = red;}
   void set_green(const float& green) {data_[1] = green;}
@@ -53,6 +60,8 @@ public:
   const float* data() const {return data_;}
 
   static Color fromData(const char* data, const PixelFormat::Format& format);
+
+  QColor toQColor() const;
 
 private:
   float data_[kRGBAChannels];

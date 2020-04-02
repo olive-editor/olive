@@ -1,112 +1,152 @@
 #include "colorwheelwidget.h"
 
+#include <QPainter>
 #include <QtMath>
 
 #include "node/node.h"
 
 #define M_180_OVER_PI 57.295791433133264917914229473464
+#define M_RADIAN_TO_0_1 0.15915497620314795810531730409296
 
-ColorWheelGLWidget::ColorWheelGLWidget(QWidget *parent) :
+ColorWheelWidget::ColorWheelWidget(QWidget *parent) :
   ColorSwatchWidget(parent),
-  hsv_value_(1.0f)
+  val_(1.0f),
+  force_redraw_(false)
 {
 }
 
-void ColorWheelGLWidget::SetHSVValue(float val)
+Color ColorWheelWidget::GetColorFromScreenPos(const QPoint &p) const
 {
-  hsv_value_ = val;
-  update();
+  return GetColorFromTriangle(GetTriangleFromCoords(rect().center(), p));
 }
 
-Color ColorWheelGLWidget::GetColorFromCursorPos(const QPoint &p) const
-{
-  QPoint center = rect().center();
-
-  qreal opposite = p.y() - center.y();
-  qreal adjacent = p.x() - center.x();
-  qreal distance = qSqrt(qPow(adjacent, 2) + qPow(opposite, 2));
-
-  qreal hue = qAtan2(opposite, adjacent) * M_180_OVER_PI + 180.0;
-  qreal sat = (distance / GetRadius());
-  qreal value = hsv_value_;
-
-  return Color::fromHsv(hue, sat, value);
-}
-
-bool ColorWheelGLWidget::PointIsValid(const QPoint &p) const
-{
-  QPoint center = rect().center();
-  qreal distance = qSqrt(qPow(p.x() - center.x(), 2) + qPow(p.y() - center.y(), 2));
-
-  return (distance <= GetRadius());
-}
-
-OpenGLShader *ColorWheelGLWidget::CreateShader() const
-{
-  OpenGLShader* s = new OpenGLShader();
-
-  s->create();
-  s->addShaderFromSourceCode(QOpenGLShader::Vertex, OpenGLShader::CodeDefaultVertex());
-  s->addShaderFromSourceCode(QOpenGLShader::Fragment, Node::ReadFileAsString(QStringLiteral(":/shaders/colorwheel.frag")));
-  s->link();
-
-  return s;
-}
-
-void ColorWheelGLWidget::SetShaderUniformValues(OpenGLShader *shader) const
-{
-  shader->setUniformValue("hsv_value", hsv_value_);
-}
-
-void ColorWheelGLWidget::resizeEvent(QResizeEvent *e)
+void ColorWheelWidget::resizeEvent(QResizeEvent *e)
 {
   ColorSwatchWidget::resizeEvent(e);
 
   emit DiameterChanged(GetDiameter());
 }
 
-int ColorWheelGLWidget::GetDiameter() const
+void ColorWheelWidget::paintEvent(QPaintEvent *e)
+{
+  ColorSwatchWidget::paintEvent(e);
+
+  int diameter = GetDiameter();
+
+  // Half diameter (add one to ensure the division rounds up)
+  int radius = (diameter + 1) / 2;
+
+  if (cached_wheel_.width() != diameter || force_redraw_) {
+    cached_wheel_ = QPixmap(QSize(diameter, diameter));
+    cached_wheel_.fill(Qt::transparent);
+    force_redraw_ = false;
+
+    QPainter p(&cached_wheel_);
+    QPoint center(radius, radius);
+
+    for (int i=0;i<diameter;i++) {
+      for (int j=0;j<diameter;j++) {
+        Triangle tri = GetTriangleFromCoords(center, j, i);
+
+        if (tri.hypotenuse <= radius) {
+          QColor c = GetColorFromTriangle(tri).toQColor();
+
+          // Very basic antialiasing around the edges of the wheel
+          qreal alpha = qMin(1.0, radius - tri.hypotenuse);
+          c.setAlphaF(alpha);
+
+          p.setPen(c);
+
+          p.drawPoint(i, j);
+        }
+      }
+    }
+  }
+
+  QPainter p(this);
+
+  // Draw wheel pixmap
+  int x, y;
+
+  if (width() == height()) {
+    x = 0;
+    y = 0;
+  } else if (width() > height()) {
+    x = (width() - height()) / 2;
+    y = 0;
+  } else {
+    x = 0;
+    y = (height() - width()) / 2;
+  }
+
+  p.drawPixmap(x, y, cached_wheel_);
+
+
+  // Draw selection
+  // Really rough algorithm for determining whether the selector UI should be white or black
+
+
+  int selector_radius = qMax(1, radius / 32);
+  p.setPen(QPen(GetUISelectorColor(), qMax(1, selector_radius / 4)));
+  p.setBrush(Qt::NoBrush);
+
+  p.drawEllipse(GetCoordsFromColor(GetSelectedColor()), selector_radius, selector_radius);
+}
+
+void ColorWheelWidget::SelectedColorChangedEvent(const Color &c)
+{
+  force_redraw_ = true;
+  val_ = c.value();
+}
+
+int ColorWheelWidget::GetDiameter() const
 {
   return qMin(width(), height());
 }
 
-qreal ColorWheelGLWidget::GetRadius() const
+qreal ColorWheelWidget::GetRadius() const
 {
   return GetDiameter() * 0.5;
 }
 
-/* Software/QPainter-based color wheel
-void ColorWheelWidget::paintEvent(QPaintEvent *event)
+ColorWheelWidget::Triangle ColorWheelWidget::GetTriangleFromCoords(const QPoint &center, const QPoint &p) const
 {
-  QWidget::paintEvent(event);
+  return GetTriangleFromCoords(center, p.y(), p.x());
+}
 
-  QPainter p(this);
+ColorWheelWidget::Triangle ColorWheelWidget::GetTriangleFromCoords(const QPoint &center, qreal y, qreal x) const
+{
+  qreal opposite = y - center.y();
+  qreal adjacent = x - center.x();
+  qreal hypotenuse = qSqrt(qPow(adjacent, 2) + qPow(opposite, 2));
 
-  qreal radius = qMin(width(), height()) / 2;
-  QPoint center = rect().center();
+  return {opposite, adjacent, hypotenuse};
+}
 
-  int x_start = center.x() - radius;
-  int x_end = center.x() + radius;
-  int y_start = center.y() - radius;
-  int y_end = center.y() + radius;
+Color ColorWheelWidget::GetColorFromTriangle(const ColorWheelWidget::Triangle &tri) const
+{
+  qreal hue = qAtan2(tri.opposite, tri.adjacent) * M_180_OVER_PI + 180.0;
+  qreal sat = qMin(1.0, (tri.hypotenuse / GetRadius()));
 
-  for (int i=x_start;i<x_end;i++) {
-    for (int j=y_start;j<y_end;j++) {
-      qreal opposite = j - center.y();
-      qreal adjacent = i - center.x();
-      qreal pix_len = qSqrt(qPow(adjacent, 2) + qPow(opposite, 2));
+  return Color::fromHsv(hue, sat, val_);
+}
 
-      if (pix_len <= radius) {
-        qreal hue = qAtan2(opposite, adjacent) * RADIAN_TO_0_1_RANGE + 0.5;
-        qreal sat = (pix_len / radius);
-        qreal value = 1.0;
+QPoint ColorWheelWidget::GetCoordsFromColor(const Color &c) const
+{
+  float hue, sat, val;
+  c.toHsv(&hue, &sat, &val);
 
-        QColor c;
-        c.setHsvF(hue, sat, value);
-        p.setPen(c);
+  qreal hypotenuse = sat * GetRadius();
 
-        p.drawPoint(i, j);
-      }
-    }
-  }
-}*/
+  qreal radian_angle = (hue - 180.0) / M_180_OVER_PI;
+
+  qreal opposite = qSin(radian_angle) * hypotenuse;
+
+  qreal adjacent = qCos(radian_angle) * hypotenuse;
+
+  QPoint pos(qRound(adjacent), qRound(opposite));
+
+  pos += rect().center();
+
+  return pos;
+}
