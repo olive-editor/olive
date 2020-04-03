@@ -379,6 +379,7 @@ void Core::DeclareTypesForQt()
   qRegisterMetaType<NodeKeyframe::Type>();
   qRegisterMetaType<Decoder::RetrieveState>();
   qRegisterMetaType<TimeRange>();
+  qRegisterMetaType<Color>();
 }
 
 void Core::StartGUI(bool full_screen)
