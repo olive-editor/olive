@@ -19,11 +19,6 @@ QString AudioInput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.audioinput");
 }
 
-QString AudioInput::Category() const
-{
-  return tr("Input");
-}
-
 QString AudioInput::Description() const
 {
   return tr("Import an audio footage stream.");

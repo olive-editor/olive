@@ -32,6 +32,11 @@ MediaInput::MediaInput() :
   AddInput(footage_input_);
 }
 
+QString MediaInput::Category() const
+{
+  return tr("Input");
+}
+
 StreamPtr MediaInput::footage()
 {
   return footage_input_->get_standard_value().value<StreamPtr>();

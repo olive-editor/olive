@@ -30,11 +30,6 @@ QString VideoInput::id() const
   return QStringLiteral("org.olivevideoeditor.Olive.videoinput");
 }
 
-QString VideoInput::Category() const
-{
-  return tr("Input");
-}
-
 QString VideoInput::Description() const
 {
   return tr("Import a video footage stream.");
