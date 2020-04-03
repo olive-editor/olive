@@ -258,6 +258,10 @@ public:
 
   QVariant combine_track_values_into_normal_value(const QVector<QVariant>& split) const;
 
+  static QString ValueToString(const DataType& data_type, const QVariant& value);
+
+  static QVariant StringToValue(const DataType &data_type, const QString &string);
+
 signals:
   void ValueChanged(const rational& start, const rational& end);
 

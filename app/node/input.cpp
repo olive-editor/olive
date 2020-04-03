@@ -32,6 +32,7 @@
 #include "output.h"
 #include "inputarray.h"
 #include "project/item/footage/stream.h"
+#include "render/color.h"
 
 NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &default_value) :
   NodeParam(id),
@@ -49,6 +50,7 @@ NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &de
     track_size = 3;
     break;
   case kVec4:
+  case kColor:
     track_size = 4;
     break;
   default:
@@ -280,23 +282,34 @@ void NodeInput::SaveInternal(QXmlStreamWriter*) const
 
 QString NodeInput::ValueToString(const QVariant &value) const
 {
-  switch (data_type_) {
+  return ValueToString(data_type_, value);
+}
+
+QString NodeInput::ValueToString(const DataType& data_type, const QVariant &value)
+{
+  switch (data_type) {
   case kRational:
     return value.value<rational>().toString();
   case kFootage:
     return QString::number(reinterpret_cast<quintptr>(value.value<StreamPtr>().get()));
+  case kColor:
+  {
+    Color c = value.value<Color>();
+
+    return QStringLiteral("%1,%2,%3,%4").arg(c.red(), c.green(), c.blue(), c.alpha());
+  }
   default:
     if (value.canConvert<QString>()) {
       return value.toString();
     }
 
     if (!value.isNull()) {
-      qWarning() << "Failed to convert type" << QStringLiteral("%1").arg(data_type_, 0, 16) << "to string";
+      qWarning() << "Failed to convert type" << QStringLiteral("%1").arg(data_type, 0, 16) << "to string";
     }
 
     /* fall through */
 
-  // These data types need no XML representation
+    // These data types need no XML representation
   case kTexture:
   case kSamples:
   case kBuffer:
@@ -304,17 +317,37 @@ QString NodeInput::ValueToString(const QVariant &value) const
   }
 }
 
-QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::FootageConnection>& footage_connections)
+QVariant NodeInput::StringToValue(const DataType& data_type, const QString &string)
 {
-  switch (data_type_) {
+  switch (data_type) {
+  case kColor:
+  {
+    Color c;
+
+    QStringList s = string.split(',');
+
+    int ele_count = qMin(kRGBAChannels, s.size());
+
+    for (int i=0;i<ele_count;i++) {
+      c.data()[i] = s.at(i).toFloat();
+    }
+
+    return QVariant::fromValue(c);
+  }
   case kRational:
     return QVariant::fromValue(rational::fromString(string));
-  case kFootage:
-    footage_connections.append({this, string.toULongLong()});
-    /* fall through */
   default:
     return string;
   }
+}
+
+QVariant NodeInput::StringToValue(const QString &string, QList<XMLNodeData::FootageConnection>& footage_connections)
+{
+  if (data_type_ == NodeParam::kFootage) {
+    footage_connections.append({this, string.toULongLong()});
+  }
+
+  return StringToValue(data_type_, string);
 }
 
 NodeOutput *NodeInput::get_connected_output() const
@@ -962,6 +995,15 @@ QVector<QVariant> NodeInput::split_normal_value_into_track_values(const QVariant
     vals.replace(3, vec.w());
     break;
   }
+  case kColor:
+  {
+    Color c = value.value<Color>();
+    vals.replace(0, c.red());
+    vals.replace(1, c.green());
+    vals.replace(2, c.blue());
+    vals.replace(3, c.alpha());
+    break;
+  }
   default:
     vals.replace(0, value);
   }
@@ -989,6 +1031,13 @@ QVariant NodeInput::combine_track_values_into_normal_value(const QVector<QVarian
                      split.at(1).toFloat(),
                      split.at(2).toFloat(),
                      split.at(3).toFloat());
+  }
+  case kColor:
+  {
+    return QVariant::fromValue(Color(split.at(0).toFloat(),
+                                     split.at(1).toFloat(),
+                                     split.at(2).toFloat(),
+                                     split.at(3).toFloat()));
   }
   default:
     return split.first();
