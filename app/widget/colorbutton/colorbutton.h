@@ -12,8 +12,13 @@ class ColorButton : public QPushButton
 public:
   ColorButton(ColorManager* color_manager, QWidget* parent = nullptr);
 
+  const Color& GetColor() const;
+
+public slots:
+  void SetColor(const Color& c);
+
 signals:
-  void ColorChanged();
+  void ColorChanged(const Color& c);
 
 private slots:
   void ShowColorDialog();
@@ -24,6 +29,10 @@ private:
   ColorManager* color_manager_;
 
   Color color_;
+
+  QString cm_input_;
+
+  ColorProcessorPtr color_processor_;
 
 };
 
