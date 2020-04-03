@@ -2,6 +2,7 @@
 #define COLOR_H
 
 #include <QColor>
+#include <QDebug>
 
 #include "common/define.h"
 #include "render/pixelformat.h"
@@ -67,5 +68,9 @@ private:
   float data_[kRGBAChannels];
 
 };
+
+QDebug operator<<(QDebug debug, const Color& r);
+
+Q_DECLARE_METATYPE(Color)
 
 #endif // COLOR_H

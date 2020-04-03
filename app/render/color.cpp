@@ -181,3 +181,9 @@ QColor Color::toQColor() const
 
   return c;
 }
+
+QDebug operator<<(QDebug debug, const Color &r)
+{
+  debug.nospace() << "[R: " << r.red() << ", G: " << r.green() << ", B: " << r.blue() << ", A: " << r.alpha() << "]";
+  return debug.space();
+}
