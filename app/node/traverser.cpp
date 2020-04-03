@@ -29,6 +29,12 @@ NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRa
     }
   }
 
+  // Insert global variables
+  NodeValueTable global;
+  global.Push(NodeParam::kFloat, range.in().toDouble(), QStringLiteral("time_in"));
+  global.Push(NodeParam::kFloat, range.out().toDouble(), QStringLiteral("time_out"));
+  database.Insert(QStringLiteral("global"), global);
+
   return database;
 }
 

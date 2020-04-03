@@ -20,6 +20,7 @@ public:
     kAudioVolume,
     kAudioPanning,
     kMath,
+    kTime,
 
     // Count value
     kInternalNodeCount

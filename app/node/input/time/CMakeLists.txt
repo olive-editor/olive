@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(media)
-add_subdirectory(time)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/input/time/timeinput.h
+  node/input/time/timeinput.cpp
   PARENT_SCOPE
 )
