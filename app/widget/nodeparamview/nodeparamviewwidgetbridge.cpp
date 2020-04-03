@@ -143,9 +143,16 @@ void NodeParamViewWidgetBridge::CreateWidgets()
 
 void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
 {
-  rational node_time = GetCurrentTimeAsNodeTime();
-
   QUndoCommand* command = new QUndoCommand();
+
+  SetInputValueInternal(value, track, command);
+
+  Core::instance()->undo_stack()->pushIfHasChildren(command);
+}
+
+void NodeParamViewWidgetBridge::SetInputValueInternal(const QVariant &value, int track, QUndoCommand *command)
+{
+  rational node_time = GetCurrentTimeAsNodeTime();
 
   if (input_->is_keyframing()) {
     NodeKeyframePtr existing_key = input_->get_keyframe_at_time_on_track(node_time, track);
@@ -164,8 +171,6 @@ void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)
   } else {
     new NodeParamSetStandardValueCommand(input_, track, value, command);
   }
-
-  Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
 void NodeParamViewWidgetBridge::ProcessSlider(SliderBase *slider, const QVariant &value)
@@ -308,8 +313,20 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     // FIXME: File selector
     break;
   case NodeParam::kColor:
-    // FIXME: Color selector
+  {
+    // Sender is a ColorButton
+    Color c = static_cast<ColorButton*>(sender())->GetColor();
+
+    QUndoCommand* command = new QUndoCommand();
+
+    SetInputValueInternal(c.red(), 0, command);
+    SetInputValueInternal(c.green(), 1, command);
+    SetInputValueInternal(c.blue(), 2, command);
+    SetInputValueInternal(c.alpha(), 3, command);
+
+    Core::instance()->undo_stack()->pushIfHasChildren(command);
     break;
+  }
   case NodeParam::kText:
   {
     // Sender is a QLineEdit
@@ -402,8 +419,10 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
     // FIXME: File selector
     break;
   case NodeParam::kColor:
-    // FIXME: Color selector
+  {
+    static_cast<ColorButton*>(widgets_.first())->SetColor(input_->get_value_at_time(node_time).value<Color>());
     break;
+  }
   case NodeParam::kText:
   {
     static_cast<QLineEdit*>(widgets_.first())->setText(input_->get_value_at_time(node_time).toString());

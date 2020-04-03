@@ -22,6 +22,8 @@ private:
 
   void SetInputValue(const QVariant& value, int track);
 
+  void SetInputValueInternal(const QVariant& value, int track, QUndoCommand* command);
+
   void ProcessSlider(SliderBase* slider, const QVariant& value);
 
   void CreateSliders(int count);
