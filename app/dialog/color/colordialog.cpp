@@ -6,11 +6,15 @@
 
 #include "common/qtutils.h"
 
-ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QWidget *parent) :
+ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input_cs, QWidget *parent) :
   QDialog(parent),
   color_manager_(color_manager)
 {
   setWindowTitle(tr("Select Color"));
+
+  if (input_cs.isEmpty()) {
+    input_cs = color_manager_->GetDefaultInputColorSpace();
+  }
 
   QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -37,8 +41,9 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QWidget *pare
   color_values_widget_ = new ColorValuesWidget();
   value_layout->addWidget(color_values_widget_);
 
-  ColorSpaceChooser* chooser = new ColorSpaceChooser(color_manager_);
-  value_layout->addWidget(chooser);
+  chooser_ = new ColorSpaceChooser(color_manager_);
+  chooser_->set_input(input_cs);
+  value_layout->addWidget(chooser_);
 
   splitter->setSizes({INT_MAX, 0});
 
@@ -56,12 +61,23 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QWidget *pare
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
   layout->addWidget(buttons);
 
-  color_wheel_->SetSelectedColor(start);
-  hsv_value_gradient_->SetSelectedColor(start);
-  color_values_widget_->SetColor(start);
+  {
+    // Convert reference color to the input space
+    ColorProcessorPtr linear_to_input = ColorProcessor::Create(color_manager_->GetConfig(),
+                                                               color_manager_->GetReferenceColorSpace(),
+                                                               input_cs);
 
-  connect(chooser, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
-  ColorSpaceChanged(chooser->input(), chooser->display(), chooser->view(), chooser->look());
+    Color managed_start = linear_to_input->ConvertColor(start);
+
+    color_wheel_->SetSelectedColor(managed_start);
+    hsv_value_gradient_->SetSelectedColor(managed_start);
+    color_values_widget_->SetColor(managed_start);
+  }
+
+  connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
+  ColorSpaceChanged(chooser_->input(), chooser_->display(), chooser_->view(), chooser_->look());
+
+  resize(sizeHint().height() * 2, sizeHint().height());
 }
 
 Color ColorDialog::GetSelectedColor() const
@@ -77,9 +93,29 @@ Color ColorDialog::GetSelectedColor() const
   return selected;
 }
 
+QString ColorDialog::GetColorSpaceInput() const
+{
+  return chooser_->input();
+}
+
+QString ColorDialog::GetColorSpaceDisplay() const
+{
+  return chooser_->display();
+}
+
+QString ColorDialog::GetColorSpaceView() const
+{
+  return chooser_->view();
+}
+
+QString ColorDialog::GetColorSpaceLook() const
+{
+  return chooser_->look();
+}
+
 void ColorDialog::ColorSpaceChanged(const QString &input, const QString &display, const QString &view, const QString &look)
 {
-  ColorProcessorPtr to_linear_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, color_manager_->GetReferenceColorSpace());
+  to_linear_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, color_manager_->GetReferenceColorSpace());
 
   ColorProcessorPtr to_display = ColorProcessor::Create(color_manager_->GetConfig(),
                                                         color_manager_->GetReferenceColorSpace(),
