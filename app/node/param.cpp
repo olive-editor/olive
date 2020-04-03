@@ -20,7 +20,6 @@
 
 #include "param.h"
 
-#include <QColor>
 #include <QDebug>
 #include <QMatrix4x4>
 #include <QVector2D>
@@ -30,6 +29,7 @@
 #include "node/node.h"
 #include "node/input.h"
 #include "node/output.h"
+#include "render/color.h"
 
 NodeParam::NodeParam(const QString &id) :
   id_(id),
@@ -189,7 +189,7 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   switch (type) {
   case kInt: return ValueToBytesInternal<int>(value);
   case kFloat: return ValueToBytesInternal<float>(value);
-  case kColor: return ValueToBytesInternal<QColor>(value);
+  case kColor: return ValueToBytesInternal<Color>(value);
   case kText: return ValueToBytesInternal<QString>(value);
   case kBoolean: return ValueToBytesInternal<bool>(value);
   case kFont: return ValueToBytesInternal<QString>(value); // FIXME: This should probably be a QFont?
