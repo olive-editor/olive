@@ -214,7 +214,7 @@ void NodeMetaReader::XMLReadParam(QXmlStreamReader *reader)
         XMLReadLanguageString(reader, &param_names_[param_id]);
 
       } else if (reader->name() == "default") {
-        default_val = reader->readElementText();
+        default_val = NodeInput::StringToValue(param_type, reader->readElementText());
       } else {
         properties.insert(reader->name().toString(), reader->readElementText());
       }
