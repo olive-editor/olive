@@ -7,6 +7,8 @@ MathNode::MathNode()
 {
   // FIXME: Make this a combobox
   method_in_ = new NodeInput(QStringLiteral("method_in"), NodeParam::kText);
+  method_in_->SetConnectable(false);
+  method_in_->set_is_keyframable(false);
   AddInput(method_in_);
 
   param_a_in_ = new NodeInput(QStringLiteral("param_a_in"), NodeParam::kFloat);
