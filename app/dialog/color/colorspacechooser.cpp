@@ -109,6 +109,11 @@ QString ColorSpaceChooser::look() const
   return look_combobox_->currentText();
 }
 
+void ColorSpaceChooser::set_input(const QString &s)
+{
+  input_combobox_->setCurrentText(s);
+}
+
 void ColorSpaceChooser::UpdateViews(const QString& s)
 {
   QString v = view_combobox_->currentText();

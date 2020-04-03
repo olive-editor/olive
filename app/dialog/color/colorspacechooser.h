@@ -17,6 +17,8 @@ public:
   QString view() const;
   QString look() const;
 
+  void set_input(const QString& s);
+
 signals:
   void ColorSpaceChanged(const QString& input, const QString& display, const QString& view, const QString& look);
 
