@@ -263,8 +263,12 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
           shader->setUniformValue(variable_location, value.value<QMatrix4x4>());
           break;
         case NodeInput::kColor:
-          shader->setUniformValue(variable_location, value.value<QColor>());
+        {
+          Color color = value.value<Color>();
+
+          shader->setUniformValue(variable_location, color.red(), color.green(), color.blue(), color.alpha());
           break;
+        }
         case NodeInput::kBoolean:
           shader->setUniformValue(variable_location, value.toBool());
           break;
