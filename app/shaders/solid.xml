@@ -22,5 +22,5 @@
     </param>
 
     <!-- Qt Resource path to fragment shader -->
-    <fragment url=":/shaders/opacity.frag" />
+    <fragment url=":/shaders/solid.frag" />
 </effect>
