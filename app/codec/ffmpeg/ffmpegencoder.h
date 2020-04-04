@@ -44,7 +44,7 @@ private:
    */
   void FFmpegError(const char *context, int error_code);
 
-  void WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
+  bool WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
 
   bool InitializeStream(enum AVMediaType type, AVStream** stream, AVCodecContext** codec_ctx, const QString& codec);
   bool InitializeCodecContext(AVStream** stream, AVCodecContext** codec_ctx, AVCodec* codec);

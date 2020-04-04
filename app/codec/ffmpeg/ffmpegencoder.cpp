@@ -51,13 +51,13 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
     // Loop through PCM queueing write events
     AVFrame* frame = av_frame_alloc();
 
-    // Set up frame
+    // Set up frame and allocate its buffers
     frame->channel_layout = audio_codec_ctx_->channel_layout;
     frame->nb_samples = maximum_frame_samples;
     frame->format = audio_codec_ctx_->sample_fmt;
-
-    // Allocate its buffers
     av_frame_get_buffer(frame, 0);
+
+    // Keep track of sample count to use as each frame's timebase
     int sample_counter = 0;
 
     // Go to start range if one was set
@@ -68,33 +68,55 @@ void FFmpegEncoder::WriteAudio(const AudioRenderingParams &pcm_info, const QStri
     int end_in_bytes = pcm_info.time_to_bytes(range.out());
 
     while (true) {
-      int samples_needed = static_cast<int>(frame->nb_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()));
+      // Calculate how many samples should input this frame
+      int64_t samples_needed = av_rescale_rnd(maximum_frame_samples + swr_get_delay(swr_ctx, pcm_info.sample_rate()),
+                                              audio_codec_ctx_->sample_rate,
+                                              pcm_info.sample_rate(),
+                                              AV_ROUND_UP);
 
+      // Calculate how many bytes this is
       int max_read = pcm_info.samples_to_bytes(samples_needed);
 
-      // Limit read to end if necessary
+      // Limit read to end time if necessary
       if (pcm.pos() + max_read > end_in_bytes) {
         max_read = end_in_bytes - pcm.pos();
       }
 
-      QByteArray input_data;
-      input_data = pcm.read(max_read);
+      // Read bytes from PCM
+      QByteArray input_data = pcm.read(max_read);
+
+      // Use swresample to convert the data into the correct format
       const char* input_data_array = input_data.constData();
-      samples_needed = pcm_info.bytes_to_samples(input_data.size());
-
-      // Use swresample to convert the data into the correct format/linesize
       int converted = swr_convert(swr_ctx,
-                                  frame->data,
-                                  maximum_frame_samples,
-                                  reinterpret_cast<const uint8_t**>(&input_data_array),
-                                  samples_needed);
 
+                                  // output data
+                                  frame->data,
+
+                                  // output sample count (maximum amount of samples in output)
+                                  maximum_frame_samples,
+
+                                  // input data
+                                  reinterpret_cast<const uint8_t**>(&input_data_array),
+
+                                  // input sample count (maximum amount of samples we read from pcm file)
+                                  pcm_info.bytes_to_samples(input_data.size()));
+
+      // Update the frame's number of samples to the amount we actually received
+      frame->nb_samples = converted;
+
+      // Update frame timestamp
       frame->pts = sample_counter;
 
+      // Increment timestamp for the next frame by the amount of samples in this one
       sample_counter += converted;
 
-      WriteAVFrame(frame, audio_codec_ctx_, audio_stream_);
+      // Write the frame
+      if (!WriteAVFrame(frame, audio_codec_ctx_, audio_stream_)) {
+        qCritical() << "Failed to write audio AVFrame";
+        break;
+      }
 
+      // Break if we've reached the end point
       if (pcm.atEnd() || pcm.pos() == end_in_bytes) {
         break;
       }
@@ -275,14 +297,16 @@ void FFmpegEncoder::FFmpegError(const char* context, int error_code)
                                                 err));
 }
 
-void FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVStream* stream)
+bool FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVStream* stream)
 {
   // Send raw frame to the encoder
   int error_code = avcodec_send_frame(codec_ctx, frame);
   if (error_code < 0) {
     FFmpegError("Failed to send frame to encoder", error_code);
-    return;
+    return false;
   }
+
+  bool succeeded = false;
 
   AVPacket* pkt = av_packet_alloc();
 
@@ -310,8 +334,12 @@ void FFmpegEncoder::WriteAVFrame(AVFrame *frame, AVCodecContext* codec_ctx, AVSt
     av_packet_unref(pkt);
   }
 
+  succeeded = true;
+
 fail:
   av_packet_free(&pkt);
+
+  return succeeded;
 }
 
 bool FFmpegEncoder::InitializeStream(AVMediaType type, AVStream** stream_ptr, AVCodecContext** codec_ctx_ptr, const QString& codec)
