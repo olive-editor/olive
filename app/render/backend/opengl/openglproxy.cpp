@@ -245,7 +245,17 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
         NodeValue meta_value = node->InputValueFromTable(input, input_params);
         const QVariant& value = meta_value.data();
 
-        switch (meta_value.type()) {
+        NodeParam::DataType data_type;
+
+        if (meta_value.type() != NodeParam::kNone) {
+          // Use value's data type
+          data_type = meta_value.type();
+        } else {
+          // Fallback on null value, send the null to the parameter
+          data_type = input->data_type();
+        }
+
+        switch (data_type) {
         case NodeInput::kInt:
           shader->setUniformValue(variable_location, value.toInt());
           break;
