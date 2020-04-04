@@ -71,7 +71,7 @@ NodeValue NodeValueTable::GetWithMeta(const NodeParam::DataType &type, const QSt
     return values_.at(value_index);
   }
 
-  return NodeValue(NodeParam::kNone, 0);
+  return NodeValue(NodeParam::kNone, QVariant());
 }
 
 QVariant NodeValueTable::Take(const NodeParam::DataType &type, const QString &tag)
