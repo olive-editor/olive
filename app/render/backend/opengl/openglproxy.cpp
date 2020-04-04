@@ -94,13 +94,13 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
     if (ocio_method == ColorManager::kOCIOAccurate) {
       bool has_alpha = PixelFormat::FormatHasAlphaChannel(frame->format());
 
+      // Convert frame to float for OCIO
+      frame = PixelFormat::ConvertPixelFormat(frame, has_alpha ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F);
+
       // If alpha is associated, disassociate for the color transform
       if (has_alpha && video_stream->premultiplied_alpha()) {
         ColorManager::DisassociateAlpha(frame);
       }
-
-      // Convert frame to float for OCIO
-      frame = PixelFormat::ConvertPixelFormat(frame, has_alpha ? PixelFormat::PIX_FMT_RGBA32F : PixelFormat::PIX_FMT_RGB32F);
 
       // Perform color transform
       color_processor->ConvertFrame(frame);
