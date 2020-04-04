@@ -225,11 +225,6 @@ private:
   OpenGLColorProcessorPtr color_service_;
 
   /**
-   * @brief Framebuffer used for reading reference space pixels from the texture
-   */
-  OpenGLFramebuffer frame_buffer_;
-
-  /**
    * @brief Drawing matrix (defaults to identity)
    */
   QMatrix4x4 matrix_;

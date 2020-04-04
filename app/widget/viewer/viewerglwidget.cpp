@@ -142,17 +142,6 @@ void ViewerGLWidget::SetSignalCursorColorEnabled(bool e)
 {
   signal_cursor_color_ = e;
   setMouseTracking(e);
-
-  // Create frame buffer for reading from texture
-  if (e != frame_buffer_.IsCreated()) {
-    makeCurrent();
-    if (e) {
-      frame_buffer_.Create(context());
-    } else {
-      frame_buffer_.Destroy();
-    }
-    doneCurrent();
-  }
 }
 
 void ViewerGLWidget::SetImageFromLoadBuffer(Frame *in_buffer)
