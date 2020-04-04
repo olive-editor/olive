@@ -115,7 +115,7 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
       }
     }
 
-    VideoRenderingParams footage_params(frame->width(), frame->height(), stream->timebase(), frame->format(), video_params_.mode());
+    VideoRenderingParams footage_params(frame->width(), frame->height(), frame->format());
 
     footage_tex_ref = texture_cache_.Get(ctx_, footage_params, frame->data());
 
@@ -140,13 +140,15 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
 
         footage_params = VideoRenderingParams(new_width,
                                               new_height,
-                                              footage_params.time_base(),
-                                              footage_params.format(),
-                                              footage_params.mode());
+                                              footage_params.format());
       }
 
+      VideoRenderingParams dest_params(footage_params.width(),
+                                       footage_params.height(),
+                                       video_params_.format());
+
       // Create destination texture
-      OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_.Get(ctx_, footage_params);
+      OpenGLTextureCache::ReferencePtr associated_tex_ref = texture_cache_.Get(ctx_, dest_params);
 
       buffer_.Attach(associated_tex_ref->texture(), true);
       buffer_.Bind();
