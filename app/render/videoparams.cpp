@@ -34,10 +34,12 @@ VideoRenderingParams::VideoRenderingParams() :
 {
 }
 
-VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const PixelFormat::Format &format) :
+VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const PixelFormat::Format &format, const int& divider) :
   VideoParams(width, height, rational()),
-  format_(format)
+  format_(format),
+  divider_(divider)
 {
+  calculate_effective_size();
 }
 
 VideoRenderingParams::VideoRenderingParams(const int &width, const int &height, const rational &time_base, const PixelFormat::Format &format, const RenderMode::Mode& mode, const int &divider) :
