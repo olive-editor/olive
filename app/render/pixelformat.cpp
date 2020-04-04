@@ -193,7 +193,9 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
   FramePtr converted = Frame::Create();
 
   // Copy parameters
-  converted->set_video_params(frame->video_params());
+  converted->set_video_params(VideoRenderingParams(frame->video_params().width(),
+                                                   frame->video_params().height(),
+                                                   dest_format));
   converted->set_timestamp(frame->timestamp());
   converted->allocate();
 
