@@ -115,6 +115,11 @@ public:
   static bool FormatHasAlphaChannel(const Format& format);
 
   /**
+   * @brief Simple convenience function returning whether a pixel format is float-based or integer-based
+   */
+  static bool FormatIsFloat(const Format& format);
+
+  /**
    * @brief Get corresponding OpenImageIO TypeDesc for a given pixel format
    */
   static OIIO::TypeDesc::BASETYPE GetOIIOTypeDesc(const Format& format);

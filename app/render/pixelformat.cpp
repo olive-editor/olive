@@ -48,6 +48,27 @@ bool PixelFormat::FormatHasAlphaChannel(const PixelFormat::Format &format)
   return false;
 }
 
+bool PixelFormat::FormatIsFloat(const PixelFormat::Format &format)
+{
+  switch (format) {
+  case PixelFormat::PIX_FMT_RGB16F:
+  case PixelFormat::PIX_FMT_RGBA16F:
+  case PixelFormat::PIX_FMT_RGB32F:
+  case PixelFormat::PIX_FMT_RGBA32F:
+    return true;
+
+  case PixelFormat::PIX_FMT_RGB8:
+  case PixelFormat::PIX_FMT_RGBA8:
+  case PixelFormat::PIX_FMT_RGB16U:
+  case PixelFormat::PIX_FMT_RGBA16U:
+  case PixelFormat::PIX_FMT_INVALID:
+  case PixelFormat::PIX_FMT_COUNT:
+    break;
+  }
+
+  return false;
+}
+
 OIIO::TypeDesc::BASETYPE PixelFormat::GetOIIOTypeDesc(const PixelFormat::Format &format)
 {
   switch (format) {
