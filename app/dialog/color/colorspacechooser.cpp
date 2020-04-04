@@ -77,8 +77,10 @@ ColorSpaceChooser::ColorSpaceChooser(ColorManager* color_manager, bool enable_in
 
     QStringList looks = color_manager->ListAvailableLooks();
 
+    look_combobox_->addItem(tr("(None)"), QString());
+
     foreach (const QString& s, looks) {
-      look_combobox_->addItem(s);
+      look_combobox_->addItem(s, s);
     }
 
     connect(look_combobox_, &QComboBox::currentTextChanged, this, &ColorSpaceChooser::ComboBoxChanged);
@@ -106,7 +108,7 @@ QString ColorSpaceChooser::view() const
 
 QString ColorSpaceChooser::look() const
 {
-  return look_combobox_->currentText();
+  return look_combobox_->currentData().toString();
 }
 
 void ColorSpaceChooser::set_input(const QString &s)
