@@ -98,7 +98,7 @@ void PreferencesDiskTab::DiskCacheLineEditChanged()
 
 void PreferencesDiskTab::BrowseDiskCachePath()
 {
-  QString dir = QFileDialog::getExistingDirectory(this);
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Browse for disk cache path"), disk_cache_location_->text());
 
   if (!dir.isEmpty()) {
     disk_cache_location_->setText(dir);
