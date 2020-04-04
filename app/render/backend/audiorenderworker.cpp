@@ -77,9 +77,11 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
     for (int i=0;i<audio_params_.channel_count();i++) {
       char* dst_ptr = reinterpret_cast<char*>(block_range_buffer->data()[i]) + destination_offset;
 
-      memcpy(dst_ptr,
-             samples_from_this_block->data()[i],
-             actual_copy_size);
+      if (actual_copy_size > 0) {
+        memcpy(dst_ptr,
+               samples_from_this_block->data()[i],
+               actual_copy_size);
+      }
 
       if (actual_copy_size < max_dest_sz) {
         memset(dst_ptr + actual_copy_size, 0, max_dest_sz - actual_copy_size);
