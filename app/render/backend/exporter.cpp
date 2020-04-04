@@ -245,7 +245,7 @@ void Exporter::EncoderOpenedSuccessfully()
 
   if (!audio_done_) {
     // We set the audio backend to render the full sequence to the disk
-    connect(audio_backend_, &AudioRenderBackend::QueueComplete, this, &Exporter::AudioRendered);
+    connect(audio_backend_, &AudioRenderBackend::AudioComplete, this, &Exporter::AudioRendered);
 
     audio_backend_->InvalidateCache(TimeRange(0, viewer_node_->Length()));
   }

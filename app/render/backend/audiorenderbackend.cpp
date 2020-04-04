@@ -12,6 +12,7 @@ AudioRenderBackend::AudioRenderBackend(QObject *parent) :
   ic_from_conform_(false)
 {
   connect(IndexManager::instance(), &IndexManager::StreamConformAppended, this, &AudioRenderBackend::ConformUpdated);
+  connect(this, &AudioRenderBackend::QueueComplete, this, &AudioRenderBackend::FilterQueueCompleteSignal);
 }
 
 void AudioRenderBackend::SetParameters(const AudioRenderingParams &params)
@@ -202,6 +203,13 @@ void AudioRenderBackend::TruncateCache(const rational &r)
 
   if (cache_pcm.size() > seq_length) {
     cache_pcm.resize(seq_length);
+  }
+}
+
+void AudioRenderBackend::FilterQueueCompleteSignal()
+{
+  if (conform_wait_info_.isEmpty()) {
+    emit AudioComplete();
   }
 }
 

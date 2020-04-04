@@ -27,6 +27,8 @@ public:
 signals:
   void ParamsChanged();
 
+  void AudioComplete();
+
 protected:
   virtual void ConnectViewer(ViewerOutput* node) override;
 
@@ -75,6 +77,8 @@ private slots:
   void ConformUpdated(Stream *stream, const AudioRenderingParams& params);
 
   void TruncateCache(const rational& r);
+
+  void FilterQueueCompleteSignal();
 
 };
 
