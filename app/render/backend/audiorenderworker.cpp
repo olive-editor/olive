@@ -36,6 +36,7 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
 
   // All these blocks will need to output to a buffer so we create one here
   SampleBufferPtr block_range_buffer = SampleBuffer::CreateAllocated(audio_params_, audio_params_.time_to_samples(range.length()));
+  block_range_buffer->fill(0);
 
   NodeValueTable merged_table;
 
@@ -44,17 +45,17 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
     TimeRange range_for_block(qMax(b->in(), range.in()),
                               qMin(b->out(), range.out()));
 
+    int destination_offset = audio_params_.time_to_samples(range_for_block.in() - range.in());
+    int max_dest_sz = audio_params_.time_to_samples(range_for_block.length());
+
     // Destination buffer
     NodeValueTable table = ProcessNode(NodeDependency(b, range_for_block));
     QVariant sample_val = table.Take(NodeParam::kSamples);
+    SampleBufferPtr samples_from_this_block;
 
-    if (sample_val.isNull()) {
-      continue;
-    }
-
-    SampleBufferPtr samples_from_this_block = sample_val.value<SampleBufferPtr>();
-
-    if (!samples_from_this_block) {
+    if (sample_val.isNull()
+        || !(samples_from_this_block = sample_val.value<SampleBufferPtr>())) {
+      // If we retrieved no samples from this block, do nothing
       continue;
     }
 
@@ -70,23 +71,10 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
       samples_from_this_block->reverse();
     }
 
-    int destination_offset = audio_params_.time_to_samples(range_for_block.in() - range.in()) * sizeof(float);
-    int max_dest_sz = audio_params_.time_to_samples(range_for_block.length()) * sizeof(float);
-    int actual_copy_size = qMin(max_dest_sz, static_cast<int>(samples_from_this_block->sample_count_per_channel() * sizeof(float)));
+    int copy_length = qMin(max_dest_sz, samples_from_this_block->sample_count_per_channel());
 
-    for (int i=0;i<audio_params_.channel_count();i++) {
-      char* dst_ptr = reinterpret_cast<char*>(block_range_buffer->data()[i]) + destination_offset;
-
-      if (actual_copy_size > 0) {
-        memcpy(dst_ptr,
-               samples_from_this_block->data()[i],
-               actual_copy_size);
-      }
-
-      if (actual_copy_size < max_dest_sz) {
-        memset(dst_ptr + actual_copy_size, 0, max_dest_sz - actual_copy_size);
-      }
-    }
+    // Copy samples into destination buffer
+    block_range_buffer->set(samples_from_this_block->const_data(), destination_offset, copy_length);
 
     {
       // Save waveform to file

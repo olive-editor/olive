@@ -37,6 +37,7 @@ public:
   void set_sample_count_per_channel(const int &sample_count_per_channel);
 
   float** data();
+  const float** const_data() const;
   float* channel_data(int channel);
   float* sample_data(int index);
 
@@ -46,6 +47,12 @@ public:
 
   void reverse();
   void speed(double speed);
+
+  void fill(const float& f);
+  void fill(const float& f, int start_sample, int end_sample);
+
+  void set(const float** data, int sample_offset, int sample_length);
+  void set(const float** data, int sample_length);
 
   QByteArray toPackedData() const;
 

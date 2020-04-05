@@ -86,6 +86,11 @@ float **SampleBuffer::data()
   return data_;
 }
 
+const float **SampleBuffer::const_data() const
+{
+  return const_cast<const float**>(data_);
+}
+
 float *SampleBuffer::channel_data(int channel)
 {
   return data_[channel];
@@ -164,6 +169,44 @@ void SampleBuffer::speed(double speed)
   destroy_sample_buffer(&input_data, audio_params_.channel_count());
 
   data_ = output_data;
+}
+
+void SampleBuffer::fill(const float &f)
+{
+  fill(f, 0, sample_count_per_channel_);
+}
+
+void SampleBuffer::fill(const float &f, int start_sample, int end_sample)
+{
+  if (!is_allocated()) {
+    qWarning() << "Tried to fill an unallocated sample buffer";
+    return;
+  }
+
+  for (int i=0;i<audio_params().channel_count();i++) {
+    for (int j=start_sample;j<end_sample;j++) {
+      data_[i][j] = f;
+    }
+  }
+}
+
+void SampleBuffer::set(const float **data, int sample_offset, int sample_length)
+{
+  if (!is_allocated()) {
+    qWarning() << "Tried to fill an unallocated sample buffer";
+    return;
+  }
+
+  for (int i=0;i<audio_params().channel_count();i++) {
+    for (int j=0;j<sample_length;j++) {
+      data_[i][j + sample_offset] = data[i][j];
+    }
+  }
+}
+
+void SampleBuffer::set(const float **data, int sample_length)
+{
+  set(data, 0, sample_length);
 }
 
 QByteArray SampleBuffer::toPackedData() const
