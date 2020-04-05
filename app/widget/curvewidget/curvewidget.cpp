@@ -105,6 +105,8 @@ void CurveWidget::SetInput(NodeInput *input)
   key_control_->SetInput(input_);
 
   if (input_) {
+    view_->SetTrackCount(input_->get_number_of_keyframe_tracks());
+
     bridge_ = new NodeParamViewWidgetBridge(input_, this);
 
     bridge_->SetTimeTarget(GetTimeTarget());

@@ -10,6 +10,7 @@ CurveView::CurveView(QWidget *parent) :
 {
   setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
   setDragMode(RubberBandDrag);
+  setViewportUpdateMode(FullViewportUpdate);
   SetYAxisEnabled(true);
 
   text_padding_ = QFontMetricsWidth(fontMetrics(), QStringLiteral("i"));
@@ -33,6 +34,11 @@ void CurveView::Clear()
     delete line;
   }
   lines_.clear();
+}
+
+void CurveView::SetTrackCount(int count)
+{
+  track_count_ = count;
 }
 
 void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
@@ -86,80 +92,84 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   painter->drawLines(lines);
 
   // Draw keyframe lines
-  QList<NodeKeyframe*> keys = GetKeyframesSortedByTime();
-  painter->setPen(QPen(palette().text().color(), 2));
-  if (!keys.isEmpty()) {
-    QVector<QLineF> keyframe_lines;
+  painter->setPen(QPen(palette().text().color(), qMax(1, fontMetrics().height() / 4)));
 
-    // Draw straight line leading to first keyframe
-    QPointF first_key_pos = item_map().value(keys.first())->pos();
-    keyframe_lines.append(QLineF(QPointF(scene_bottom_left.x(), first_key_pos.y()), first_key_pos));
+  for (int j=0;j<track_count_;j++) {
+    QList<NodeKeyframe*> keys = GetKeyframesSortedByTime(j);
 
-    // Draw lines between each keyframe
-    for (int i=1;i<keys.size();i++) {
-      NodeKeyframe* before = keys.at(i-1);
-      NodeKeyframe* after = keys.at(i);
+    if (!keys.isEmpty()) {
+      QVector<QLineF> keyframe_lines;
 
-      KeyframeViewItem* before_item = item_map().value(before);
-      KeyframeViewItem* after_item = item_map().value(after);
+      // Draw straight line leading to first keyframe
+      QPointF first_key_pos = item_map().value(keys.first())->pos();
+      keyframe_lines.append(QLineF(QPointF(scene_bottom_left.x(), first_key_pos.y()), first_key_pos));
 
-      if (before->type() == NodeKeyframe::kHold) {
-        // Draw a hold keyframe (basically a right angle)
-        keyframe_lines.append(QLineF(before_item->pos().x(),
-                                     before_item->pos().y(),
-                                     after_item->pos().x(),
-                                     before_item->pos().y()));
-        keyframe_lines.append(QLineF(after_item->pos().x(),
-                                     before_item->pos().y(),
-                                     after_item->pos().x(),
-                                     after_item->pos().y()));
-      } else if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
-        // Draw a cubic bezier
+      // Draw lines between each keyframe
+      for (int i=1;i<keys.size();i++) {
+        NodeKeyframe* before = keys.at(i-1);
+        NodeKeyframe* after = keys.at(i);
 
-        // Cubic beziers have two control points, so we can just use both
-        QPointF before_control_point = before_item->pos() + ScalePoint(before->bezier_control_out());
-        QPointF after_control_point = after_item->pos() + ScalePoint(after->bezier_control_in());
+        KeyframeViewItem* before_item = item_map().value(before);
+        KeyframeViewItem* after_item = item_map().value(after);
 
-        QPainterPath path;
-        path.moveTo(before_item->pos());
-        path.cubicTo(before_control_point, after_control_point, after_item->pos());
-        painter->drawPath(path);
+        if (before->type() == NodeKeyframe::kHold) {
+          // Draw a hold keyframe (basically a right angle)
+          keyframe_lines.append(QLineF(before_item->pos().x(),
+                                       before_item->pos().y(),
+                                       after_item->pos().x(),
+                                       before_item->pos().y()));
+          keyframe_lines.append(QLineF(after_item->pos().x(),
+                                       before_item->pos().y(),
+                                       after_item->pos().x(),
+                                       after_item->pos().y()));
+        } else if (before->type() == NodeKeyframe::kBezier && after->type() == NodeKeyframe::kBezier) {
+          // Draw a cubic bezier
 
-      } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
-        // Draw a quadratic bezier
+          // Cubic beziers have two control points, so we can just use both
+          QPointF before_control_point = before_item->pos() + ScalePoint(before->bezier_control_out());
+          QPointF after_control_point = after_item->pos() + ScalePoint(after->bezier_control_in());
 
-        // Quadratic beziers have a single control point, we just have to determine which it is
-        QPointF key_anchor;
-        QPointF control_point;
+          QPainterPath path;
+          path.moveTo(before_item->pos());
+          path.cubicTo(before_control_point, after_control_point, after_item->pos());
+          painter->drawPath(path);
 
-        if (before->type() == NodeKeyframe::kBezier) {
-          key_anchor = before_item->pos();
-          control_point = before->bezier_control_out();
+        } else if (before->type() == NodeKeyframe::kBezier || after->type() == NodeKeyframe::kBezier) {
+          // Draw a quadratic bezier
+
+          // Quadratic beziers have a single control point, we just have to determine which it is
+          QPointF key_anchor;
+          QPointF control_point;
+
+          if (before->type() == NodeKeyframe::kBezier) {
+            key_anchor = before_item->pos();
+            control_point = before->bezier_control_out();
+          } else {
+            key_anchor = after_item->pos();
+            control_point = after->bezier_control_in();
+          }
+
+          // Scale control point
+          control_point = key_anchor + ScalePoint(control_point);
+
+          // Create the path from both keyframes
+          QPainterPath path;
+          path.moveTo(before_item->pos());
+          path.quadTo(control_point, after_item->pos());
+          painter->drawPath(path);
+
         } else {
-          key_anchor = after_item->pos();
-          control_point = after->bezier_control_in();
+          // Linear to linear
+          keyframe_lines.append(QLineF(before_item->pos(), after_item->pos()));
         }
-
-        // Scale control point
-        control_point = key_anchor + ScalePoint(control_point);
-
-        // Create the path from both keyframes
-        QPainterPath path;
-        path.moveTo(before_item->pos());
-        path.quadTo(control_point, after_item->pos());
-        painter->drawPath(path);
-
-      } else {
-        // Linear to linear
-        keyframe_lines.append(QLineF(before_item->pos(), after_item->pos()));
       }
+
+      // Draw straight line leading from end keyframe
+      QPointF last_key_pos = item_map().value(keys.last())->pos();
+      keyframe_lines.append(QLineF(last_key_pos, QPointF(scene_top_right.x(), last_key_pos.y())));
+
+      painter->drawLines(keyframe_lines);
     }
-
-    // Draw straight line leading from end keyframe
-    QPointF last_key_pos = item_map().value(keys.last())->pos();
-    keyframe_lines.append(QLineF(last_key_pos, QPointF(scene_top_right.x(), last_key_pos.y())));
-
-    painter->drawLines(keyframe_lines);
   }
 
   // Draw bezier control point lines
@@ -220,7 +230,7 @@ void CurveView::wheelEvent(QWheelEvent *event)
   }
 }
 
-QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime()
+QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime(int track)
 {
   QList<NodeKeyframe *> sorted;
 
@@ -228,6 +238,11 @@ QList<NodeKeyframe *> CurveView::GetKeyframesSortedByTime()
 
   for (iterator=item_map().begin();iterator!=item_map().end();iterator++) {
     NodeKeyframe* key = iterator.key();
+
+    if (key->track() != track) {
+      continue;
+    }
+
     bool inserted = false;
 
     for (int i=0;i<sorted.size();i++) {

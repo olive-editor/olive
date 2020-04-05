@@ -15,6 +15,8 @@ public:
 
   virtual void Clear() override;
 
+  void SetTrackCount(int count);
+
 public slots:
   void AddKeyframe(NodeKeyframePtr key);
 
@@ -30,7 +32,7 @@ protected:
   virtual void wheelEvent(QWheelEvent* event) override;
 
 private:
-  QList<NodeKeyframe*> GetKeyframesSortedByTime();
+  QList<NodeKeyframe*> GetKeyframesSortedByTime(int track);
 
   qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
 
@@ -49,6 +51,8 @@ private:
   QList<QGraphicsLineItem*> lines_;
 
   QList<BezierControlPointItem*> bezier_control_points_;
+
+  int track_count_;
 
 private slots:
   void KeyframeValueChanged();
