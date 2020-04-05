@@ -36,11 +36,13 @@ ToolPanel::ToolPanel(QWidget *parent) :
 
   setWidget(t);
 
-  connect(t, SIGNAL(ToolChanged(const Tool::Item&)), Core::instance(), SLOT(SetTool(const Tool::Item&)));
-  connect(Core::instance(), SIGNAL(ToolChanged(const Tool::Item&)), t, SLOT(SetTool(const Tool::Item&)));
+  connect(t, &Toolbar::ToolChanged, Core::instance(), &Core::SetTool);
+  connect(Core::instance(), &Core::ToolChanged, t, &Toolbar::SetTool);
 
-  connect(t, SIGNAL(SnappingChanged(const bool&)), Core::instance(), SLOT(SetSnapping(const bool&)));
-  connect(Core::instance(), SIGNAL(SnappingChanged(const bool&)), t, SLOT(SetSnapping(const bool&)));
+  connect(t, &Toolbar::SnappingChanged, Core::instance(), &Core::SetSnapping);
+  connect(Core::instance(), &Core::SnappingChanged, t, &Toolbar::SetSnapping);
+
+  connect(t, &Toolbar::AddableObjectChanged, Core::instance(), &Core::SetSelectedAddableObject);
 
   Retranslate();
 }

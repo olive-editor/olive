@@ -25,6 +25,7 @@
 #include <QButtonGroup>
 #include <QEvent>
 
+#include "widget/menu/menu.h"
 #include "ui/icons/icons.h"
 
 Toolbar::Toolbar(QWidget *parent) :
@@ -49,7 +50,10 @@ Toolbar::Toolbar(QWidget *parent) :
 
   // Create snapping button, which is not actually a tool, it's a toggle option
   btn_snapping_toggle_ = CreateNonToolButton();
-  connect(btn_snapping_toggle_, SIGNAL(clicked(bool)), this, SLOT(SnappingButtonClicked(bool)));
+  connect(btn_snapping_toggle_, &QPushButton::clicked, this, &Toolbar::SnappingButtonClicked);
+
+  // Connect add button to menu signal
+  connect(btn_add_, &QPushButton::clicked, this, &Toolbar::AddButtonClicked);
 
   Retranslate();
   UpdateIcons();
@@ -159,4 +163,23 @@ void Toolbar::ToolButtonClicked()
 void Toolbar::SnappingButtonClicked(bool b)
 {
   emit SnappingChanged(b);
+}
+
+void Toolbar::AddButtonClicked()
+{
+  QMenu m(this);
+
+  for (int i=0;i<Tool::kAddableCount;i++) {
+    QAction* action = m.addAction(Tool::GetAddableObjectName(static_cast<Tool::AddableObject>(i)));
+    action->setData(i);
+  }
+
+  connect(&m, &QMenu::triggered, this, &Toolbar::AddMenuItemTriggered);
+
+  m.exec(QCursor::pos());
+}
+
+void Toolbar::AddMenuItemTriggered(QAction* a)
+{
+  emit AddableObjectChanged(static_cast<Tool::AddableObject>(a->data().toInt()));
 }

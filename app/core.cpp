@@ -63,6 +63,7 @@ Core Core::instance_;
 Core::Core() :
   main_window_(nullptr),
   tool_(Tool::kPointer),
+  addable_object_(Tool::kAddableEmpty),
   snapping_(true),
   queue_autorecovery_(false)
 {
@@ -187,12 +188,22 @@ void Core::ImportFiles(const QStringList &urls, ProjectViewModel* model, Folder*
   task_dialog->open();
 }
 
-const Tool::Item &Core::tool()
+const Tool::Item &Core::tool() const
 {
   return tool_;
 }
 
-const bool &Core::snapping()
+const Tool::AddableObject &Core::selected_addable_object() const
+{
+  return addable_object_;
+}
+
+void Core::SetSelectedAddableObject(const Tool::AddableObject &obj)
+{
+  addable_object_ = obj;
+}
+
+const bool &Core::snapping() const
 {
   return snapping_;
 }

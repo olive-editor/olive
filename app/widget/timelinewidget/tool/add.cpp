@@ -1,6 +1,7 @@
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "core.h"
+#include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
 
 TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
@@ -18,16 +19,37 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
     return;
   }
 
-  drag_start_point_ = event->GetFrame();
+  Timeline::TrackType add_type = Timeline::kTrackTypeNone;
 
-  ghost_ = new TimelineViewGhostItem();
-  ghost_->SetIn(drag_start_point_);
-  ghost_->SetOut(drag_start_point_);
-  ghost_->SetTrack(track);
-  ghost_->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
-  parent()->AddGhost(ghost_);
+  switch (Core::instance()->selected_addable_object()) {
+  case ::Tool::kAddableBars:
+  case ::Tool::kAddableSolid:
+  case ::Tool::kAddableTitle:
+    add_type = Timeline::kTrackTypeVideo;
+    break;
+  case ::Tool::kAddableTone:
+    add_type = Timeline::kTrackTypeAudio;
+    break;
+  case ::Tool::kAddableEmpty:
+    // Leave as "none", which means this block can be placed on any track
+    break;
+  case ::Tool::kAddableCount:
+    return;
+  }
 
-  snap_points_.append(drag_start_point_);
+  if (add_type == Timeline::kTrackTypeNone
+      || add_type == track.type()) {
+    drag_start_point_ = event->GetFrame();
+
+    ghost_ = new TimelineViewGhostItem();
+    ghost_->SetIn(drag_start_point_);
+    ghost_->SetOut(drag_start_point_);
+    ghost_->SetTrack(track);
+    ghost_->SetYCoords(parent()->GetTrackY(track), parent()->GetTrackHeight(track));
+    parent()->AddGhost(ghost_);
+
+    snap_points_.append(drag_start_point_);
+  }
 }
 
 void TimelineWidget::AddTool::MouseMove(TimelineViewMouseEvent *event)
@@ -51,7 +73,11 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->AdjustedLength());
-      new NodeAddCommand(static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent()),
+      clip->set_block_name(::Tool::GetAddableObjectName(Core::instance()->selected_addable_object()));
+
+      NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
+
+      new NodeAddCommand(graph,
                          clip,
                          command);
 
@@ -60,6 +86,32 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                  clip,
                                  ghost_->GetAdjustedIn(),
                                  command);
+
+      switch (Core::instance()->selected_addable_object()) {
+      case ::Tool::kAddableEmpty:
+        // Empty, nothing to be done
+        break;
+      case ::Tool::kAddableSolid:
+      {
+        Node* solid = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.solidgenerator"));
+
+        new NodeAddCommand(graph,
+                           solid,
+                           command);
+
+        new NodeEdgeAddCommand(solid->output(), clip->texture_input(), command);
+        break;
+      }
+      case ::Tool::kAddableBars:
+      case ::Tool::kAddableTitle:
+      case ::Tool::kAddableTone:
+        // Not implemented yet
+        qWarning() << "Unimplemented add object:" << Core::instance()->selected_addable_object();
+        break;
+      case ::Tool::kAddableCount:
+        // Invalid value, do nothing
+        break;
+      }
 
       Core::instance()->undo_stack()->push(command);
     }

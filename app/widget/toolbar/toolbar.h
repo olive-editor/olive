@@ -106,6 +106,11 @@ signals:
    */
   void SnappingChanged(const bool& b);
 
+  /**
+   * @brief Emitted when the addable object is changed from the add tool menu
+   */
+  void AddableObjectChanged(const Tool::AddableObject& obj);
+
 private:
   /**
    * @brief Reset all strings based on the currently selected language
@@ -195,6 +200,19 @@ private slots:
    * The new snapping value received from the sender's clicked signal
    */
   void SnappingButtonClicked(bool b);
+
+  /**
+   * @brief Receiver for the add button
+   *
+   * The add button pops up a list for which object to create.
+   */
+  void AddButtonClicked();
+
+  /**
+   * @brief Receiver for the menu created by AddButtonClicked()
+   */
+  void AddMenuItemTriggered(QAction* a);
+
 };
 
 #endif // TOOLBAR_H

@@ -105,12 +105,17 @@ public:
   /**
    * @brief Get the currently active tool
    */
-  const Tool::Item& tool();
+  const Tool::Item& tool() const;
+
+  /**
+   * @brief Get the currently selected object that the add tool should make (if the add tool is active)
+   */
+  const Tool::AddableObject& selected_addable_object() const;
 
   /**
    * @brief Get current snapping value
    */
-  const bool& snapping();
+  const bool& snapping() const;
 
   /**
    * @brief Get the currently active project
@@ -264,6 +269,11 @@ public slots:
    */
   void CreateNewSequence();
 
+  /**
+   * @brief Set the currently selected object that the add tool should make
+   */
+  void SetSelectedAddableObject(const Tool::AddableObject& obj);
+
 signals:
   /**
    * @brief Signal emitted when a project is opened
@@ -345,7 +355,12 @@ private:
   Tool::Item tool_;
 
   /**
-   * @brief Current snapping toggle
+   * @brief Currently active addable object
+   */
+  Tool::AddableObject addable_object_;
+
+  /**
+   * @brief Current snapping setting
    */
   bool snapping_;
 

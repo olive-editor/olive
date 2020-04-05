@@ -21,6 +21,9 @@
 #ifndef TOOL_H
 #define TOOL_H
 
+#include <QCoreApplication>
+#include <QString>
+
 class Tool {
 public:
   /**
@@ -69,6 +72,49 @@ public:
 
     kCount
   };
+
+  /**
+   * @brief Tools that can be added using the kAdd tool
+   */
+  enum AddableObject {
+    /// An empty clip
+    kAddableEmpty,
+
+    /// A video clip showing a generic video placeholder
+    kAddableBars,
+
+    /// A video clip with a solid connected
+    kAddableSolid,
+
+    /// A video clip with a title connected
+    kAddableTitle,
+
+    /// An audio clip with a sine connected to it
+    kAddableTone,
+
+    kAddableCount
+  };
+
+  static QString GetAddableObjectName(const AddableObject& a)
+  {
+    switch (a) {
+    case kAddableEmpty:
+      return QCoreApplication::translate("Tool", "Empty");
+    case kAddableBars:
+      return QCoreApplication::translate("Tool", "Bars");
+    case kAddableSolid:
+      return QCoreApplication::translate("Tool", "Solid");
+    case kAddableTitle:
+      return QCoreApplication::translate("Tool", "Title");
+    case kAddableTone:
+      return QCoreApplication::translate("Tool", "Tone");
+    case kAddableCount:
+      break;
+    }
+
+    return QCoreApplication::translate("Tool", "Unknown");
+  }
+
 };
 
 #endif // TOOL_H
