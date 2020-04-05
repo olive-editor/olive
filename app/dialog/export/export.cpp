@@ -20,6 +20,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   viewer_node_(viewer_node),
   previously_selected_format_(0),
   exporter_(nullptr),
+#ifdef Q_OS_WINDOWS
+  taskbar_list_(nullptr),
+#endif
   cancelled_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -309,6 +312,12 @@ void ExportDialog::accept()
   connect(exporter_, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
   connect(exporter_, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
 
+#ifdef Q_OS_WINDOWS
+  CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_ALL, IID_ITaskbarList, reinterpret_cast<void**>(&taskbar_list_));
+  taskbar_list_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NORMAL);
+  connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::UpdateTaskbarProgress);
+#endif
+
   QMetaObject::invokeMethod(exporter_, "StartExporting", Qt::QueuedConnection);
 
   SetUIElementsEnabled(false);
@@ -560,6 +569,12 @@ void ExportDialog::ExporterIsDone()
     QDialog::accept();
   } else {
     if (!cancelled_) {
+#ifdef Q_OS_WINDOWS
+      if (taskbar_list_) {
+        taskbar_list_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_ERROR);
+      }
+#endif
+
       QMessageBox::critical(this,
                             tr("Export Status"),
                             tr("Export failed: %1").arg(exporter_->GetExportError()),
@@ -572,6 +587,14 @@ void ExportDialog::ExporterIsDone()
   exporter_->deleteLater();
   exporter_ = nullptr;
   cancelled_ = false;
+
+#ifdef Q_OS_WINDOWS
+  if (taskbar_list_) {
+    taskbar_list_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NOPROGRESS);
+    taskbar_list_->Release();
+    taskbar_list_ = nullptr;
+  }
+#endif
 }
 
 void ExportDialog::CancelExport()
@@ -581,3 +604,12 @@ void ExportDialog::CancelExport()
     exporter_->Cancel();
   }
 }
+
+#ifdef Q_OS_WINDOWS
+void ExportDialog::UpdateTaskbarProgress(int progress)
+{
+  if (taskbar_list_) {
+    taskbar_list_->SetProgressValue(reinterpret_cast<HWND>(this->winId()), progress, 100);
+  }
+}
+#endif

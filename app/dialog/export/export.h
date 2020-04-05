@@ -7,6 +7,10 @@
 #include <QLineEdit>
 #include <QProgressBar>
 
+#ifdef Q_OS_WINDOWS
+#include <shobjidl.h>
+#endif
+
 #include "exportaudiotab.h"
 #include "exportcodec.h"
 #include "exportformat.h"
@@ -64,6 +68,10 @@ private:
   QDialogButtonBox* buttons_;
   QPushButton* export_cancel_btn_;
 
+#ifdef Q_OS_WINDOWS
+  ITaskbarList3* taskbar_list_;
+#endif
+
   bool cancelled_;
 
   enum Format {
@@ -109,6 +117,10 @@ private slots:
   void ExporterIsDone();
 
   void CancelExport();
+
+#ifdef Q_OS_WINDOWS
+  void UpdateTaskbarProgress(int progress);
+#endif
 
 };
 
