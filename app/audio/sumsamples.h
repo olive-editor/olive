@@ -24,6 +24,12 @@ public:
 
   static QVector<Sum> ReSumSamples(const SampleSummer::Sum* samples, int nb_samples, int nb_channels);
 
+  struct Info {
+    Info();
+
+    int channels;
+  };
+
 private:
   template <typename T>
   static QVector<Sum> SumSamplesInternal(const T* samples, int nb_samples, int nb_channels);

@@ -79,3 +79,8 @@ void SampleSummer::ClampMinMax(SampleSummer::Sum &sum, T value)
     sum.max = value;
   }
 }
+
+SampleSummer::Info::Info()
+{
+  channels = 0;
+}

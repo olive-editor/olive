@@ -80,9 +80,10 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
       // Save waveform to file
       Block* src_block = static_cast<Block*>(copy_map_->value(b));
       QDir local_appdata_dir(Config::Current()["DiskCachePath"].toString());
-      QDir waveform_loc = local_appdata_dir.filePath("waveform");
+      QDir waveform_loc = local_appdata_dir.filePath(QStringLiteral("waveform"));
       waveform_loc.mkpath(".");
-      QFile wave_file(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(src_block))));
+      QString wave_fn(waveform_loc.filePath(QString::number(reinterpret_cast<quintptr>(src_block))));
+      QFile wave_file(wave_fn);
 
       if (wave_file.open(QFile::ReadWrite)) {
         // We use S32 as a size-compatible substitute for SampleSummer::Sum which is 4 bytes in size
@@ -109,6 +110,17 @@ NodeValueTable AudioRenderWorker::RenderBlock(const TrackOutput *track, const Ti
         }
 
         wave_file.close();
+
+        // Write metadata about this waveform file
+        QFile wave_metadata(wave_fn.append(QStringLiteral(".meta")));
+        if (wave_metadata.open(QFile::WriteOnly)) {
+          SampleSummer::Info info;
+          info.channels = audio_params_.channel_count();
+
+          wave_metadata.write(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
+
+          wave_metadata.close();
+        }
 
         if (src_block->type() == Block::kClip) {
           emit static_cast<ClipBlock*>(src_block)->PreviewUpdated();

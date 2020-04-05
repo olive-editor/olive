@@ -87,21 +87,32 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
     }
 
     // Draw waveform if one is available
-    QFile wave_file(QDir(QDir(Config::Current()["DiskCachePath"].toString()).filePath("waveform")).filePath(QString::number(reinterpret_cast<quintptr>(block_))));
+    QString wave_fn = QDir(QDir(Config::Current()["DiskCachePath"].toString()).filePath("waveform")).filePath(QString::number(reinterpret_cast<quintptr>(block_)));
+    QFile wave_file(wave_fn);
     if (wave_file.open(QFile::ReadOnly)){
       painter->setPen(QColor(64, 64, 64));
 
       QByteArray w = wave_file.readAll();
 
-      // FIXME: Hardcoded channel count
-      AudioWaveformView::DrawWaveform(painter,
-                                      rect().toRect(),
-                                      this->GetScale(),
-                                      reinterpret_cast<const SampleSummer::Sum*>(w.constData()),
-                                      w.size() / sizeof(SampleSummer::Sum),
-                                      2);
-
       wave_file.close();
+
+      // Read metadata
+      SampleSummer::Info info;
+      QFile wave_meta(wave_fn.append(QStringLiteral(".meta")));
+      if (wave_meta.open(QFile::ReadOnly)) {
+        wave_meta.read(reinterpret_cast<char*>(&info), sizeof(SampleSummer::Info));
+        wave_meta.close();
+      }
+
+      // Prevent divide by zero
+      if (info.channels) {
+        AudioWaveformView::DrawWaveform(painter,
+                                        rect().toRect(),
+                                        this->GetScale(),
+                                        reinterpret_cast<const SampleSummer::Sum*>(w.constData()),
+                                        w.size() / sizeof(SampleSummer::Sum),
+                                        info.channels);
+      }
     }
 
     painter->setPen(Qt::white);
