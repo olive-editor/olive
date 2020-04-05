@@ -455,7 +455,7 @@ void ViewerWidget::UpdateRendererParameters()
 
 void ViewerWidget::ShowContextMenu(const QPoint &pos)
 {
-  QMenu menu(static_cast<QWidget*>(sender()));
+  Menu menu(static_cast<QWidget*>(sender()));
 
   context_menu_widget_ = static_cast<ViewerGLWidget*>(sender());
 

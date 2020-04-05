@@ -48,6 +48,8 @@ public:
 
   static QList<StyleDescriptor> ListInternal();
 
+  static void UseNativeWindowsStyling(QWidget* widget);
+
 private:
   static QPalette ParsePalette(const QString& ini_path);
 

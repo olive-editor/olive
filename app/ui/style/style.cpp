@@ -40,6 +40,15 @@ QList<StyleDescriptor> StyleManager::ListInternal()
   return style_list;
 }
 
+void StyleManager::UseNativeWindowsStyling(QWidget *widget)
+{
+#ifdef Q_OS_WINDOWS
+  QStyle* s = QStyleFactory::create(QStringLiteral("windowsvista"));
+  widget->setStyle(s);
+  widget->setPalette(s->standardPalette());
+#endif
+}
+
 QPalette StyleManager::ParsePalette(const QString& ini_path)
 {
   QSettings ini(ini_path, QSettings::IniFormat);

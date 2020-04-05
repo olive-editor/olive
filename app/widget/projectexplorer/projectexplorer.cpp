@@ -23,7 +23,6 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
-#include <QMenu>
 #include <QProcess>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -32,6 +31,7 @@
 #include "core.h"
 #include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
+#include "widget/menu/menu.h"
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
@@ -231,7 +231,7 @@ void ProjectExplorer::RenameTimerSlot()
 
 void ProjectExplorer::ShowContextMenu()
 {
-  QMenu menu;
+  Menu menu;
 
   // FIXME: Support for multiple items and items other than Footage
   QList<Item*> selected_items = SelectedItems();

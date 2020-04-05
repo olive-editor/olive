@@ -21,6 +21,7 @@
 #include "mainmenu.h"
 
 #include <QEvent>
+#include <QStyleFactory>
 
 #include "common/timecodefunctions.h"
 #include "core.h"
@@ -35,6 +36,8 @@
 MainMenu::MainMenu(QMainWindow *parent) :
   QMenuBar(parent)
 {
+  StyleManager::UseNativeWindowsStyling(this);
+
   //
   // FILE MENU
   //

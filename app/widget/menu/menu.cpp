@@ -25,6 +25,8 @@
 Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
   QMenu(bar)
 {
+  StyleManager::UseNativeWindowsStyling(this);
+
   bar->addMenu(this);
 
   if (receiver != nullptr) {
@@ -35,6 +37,8 @@ Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
 Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
   QMenu(menu)
 {
+  StyleManager::UseNativeWindowsStyling(this);
+
   menu->addMenu(this);
 
   if (receiver != nullptr) {
@@ -45,11 +49,13 @@ Menu::Menu(Menu *menu, const QObject *receiver, const char *member) :
 Menu::Menu(QWidget *parent) :
   QMenu(parent)
 {
+  StyleManager::UseNativeWindowsStyling(this);
 }
 
 Menu::Menu(const QString &s, QWidget *parent) :
   QMenu(s, parent)
 {
+  StyleManager::UseNativeWindowsStyling(this);
 }
 
 QAction *Menu::AddItem(const QString &id,

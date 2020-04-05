@@ -167,7 +167,7 @@ void Toolbar::SnappingButtonClicked(bool b)
 
 void Toolbar::AddButtonClicked()
 {
-  QMenu m(this);
+  Menu m(this);
 
   for (int i=0;i<Tool::kAddableCount;i++) {
     QAction* action = m.addAction(Tool::GetAddableObjectName(static_cast<Tool::AddableObject>(i)));

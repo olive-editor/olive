@@ -2,9 +2,9 @@
 
 #include <QAction>
 #include <QDebug>
-#include <QMenu>
 
 #include "ui/icons/icons.h"
+#include "widget/menu/menu.h"
 
 FootageComboBox::FootageComboBox(QWidget *parent) :
   QComboBox(parent),
@@ -20,7 +20,7 @@ void FootageComboBox::showPopup()
     return;
   }
 
-  QMenu menu;
+  Menu menu;
 
   menu.setMinimumWidth(width());
 
