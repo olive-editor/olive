@@ -92,9 +92,9 @@ void CurveView::drawBackground(QPainter *painter, const QRectF &rect)
   painter->drawLines(lines);
 
   // Draw keyframe lines
-  painter->setPen(QPen(palette().text().color(), qMax(1, fontMetrics().height() / 4)));
 
   for (int j=0;j<track_count_;j++) {
+    painter->setPen(QPen(GetKeyframeColor(j), qMax(1, fontMetrics().height() / 4)));
     QList<NodeKeyframe*> keys = GetKeyframesSortedByTime(j);
 
     if (!keys.isEmpty()) {
@@ -290,6 +290,17 @@ void CurveView::CreateBezierControlPoints(KeyframeViewItem* item)
   connect(bezier_out_pt, &QObject::destroyed, this, &CurveView::BezierControlPointDestroyed, Qt::DirectConnection);
 }
 
+QColor CurveView::GetKeyframeColor(int track) const
+{
+  if (track_count_) {
+    QColor c;
+    c.setHsvF(static_cast<double>(track) / static_cast<double>(track_count_), 0.5, 1.0);
+    return c;
+  }
+
+  return palette().text().color();
+}
+
 void CurveView::KeyframeValueChanged()
 {
   NodeKeyframe* key = static_cast<NodeKeyframe*>(sender());
@@ -338,6 +349,7 @@ void CurveView::AddKeyframe(NodeKeyframePtr key)
 {
   KeyframeViewItem* item = AddKeyframeInternal(key);
   SetItemYFromKeyframeValue(key.get(), item);
+  item->SetOverrideBrush(GetKeyframeColor(key->track()));
 
   connect(key.get(), &NodeKeyframe::ValueChanged, this, &CurveView::KeyframeValueChanged);
   connect(key.get(), &NodeKeyframe::TypeChanged, this, &CurveView::KeyframeTypeChanged);

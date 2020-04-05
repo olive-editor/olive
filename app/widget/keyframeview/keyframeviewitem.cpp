@@ -12,7 +12,8 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   key_(key),
   scale_(1.0),
-  vert_center_(0)
+  vert_center_(0),
+  use_custom_brush_(false)
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
 
@@ -24,6 +25,8 @@ KeyframeViewItem::KeyframeViewItem(NodeKeyframePtr key, QGraphicsItem *parent) :
   setRect(-half_sz, -half_sz, keyframe_size, keyframe_size);
 
   UpdatePos();
+
+  // Set default brush
 }
 
 void KeyframeViewItem::SetOverrideY(qreal vertical_center)
@@ -36,6 +39,12 @@ void KeyframeViewItem::SetScale(double scale)
 {
   scale_ = scale;
   UpdatePos();
+}
+
+void KeyframeViewItem::SetOverrideBrush(const QBrush &b)
+{
+  use_custom_brush_ = true;
+  setBrush(b);
 }
 
 NodeKeyframePtr KeyframeViewItem::key() const
@@ -51,6 +60,8 @@ void KeyframeViewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 
   if (option->state & QStyle::State_Selected) {
     painter->setBrush(widget->palette().highlight());
+  } else if (use_custom_brush_) {
+    painter->setBrush(brush());
   } else {
     painter->setBrush(widget->palette().text());
   }

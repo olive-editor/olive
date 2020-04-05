@@ -16,6 +16,8 @@ public:
 
   void SetScale(double scale);
 
+  void SetOverrideBrush(const QBrush& b);
+
   NodeKeyframePtr key() const;
 
 protected:
@@ -29,6 +31,8 @@ private:
   double scale_;
 
   qreal vert_center_;
+
+  bool use_custom_brush_;
 
 private slots:
   void UpdatePos();

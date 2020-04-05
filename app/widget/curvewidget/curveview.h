@@ -44,6 +44,8 @@ private:
 
   void CreateBezierControlPoints(KeyframeViewItem *item);
 
+  QColor GetKeyframeColor(int track) const;
+
   int text_padding_;
 
   int minimum_grid_space_;
