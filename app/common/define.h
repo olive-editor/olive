@@ -34,4 +34,8 @@ const int kProjectIconSizeMaximum = 256;
 /// The default size an icon in ProjectExplorer can be
 const int kProjectIconSizeDefault = 64;
 
+#define OLIVE_NAMESPACE_ENTER namespace olive {
+
+#define OLIVE_NAMESPACE_EXIT }
+
 #endif // OLIVECOMMONDEFINE_H
