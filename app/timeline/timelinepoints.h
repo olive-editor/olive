@@ -1,6 +1,9 @@
 #ifndef TIMELINEPOINTS_H
 #define TIMELINEPOINTS_H
 
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+
 #include "timelinemarker.h"
 #include "timelineworkarea.h"
 
@@ -14,6 +17,9 @@ public:
 
   TimelineWorkArea* workarea();
   const TimelineWorkArea* workarea() const;
+
+  void Load(QXmlStreamReader* reader);
+  void Save(QXmlStreamWriter* writer) const;
 
 private:
   TimelineMarkerList markers_;

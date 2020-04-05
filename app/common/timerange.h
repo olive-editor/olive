@@ -17,6 +17,7 @@ public:
   void set_range(const rational& in, const rational& out);
 
   bool operator==(const TimeRange& r) const;
+  bool operator!=(const TimeRange& r) const;
 
   bool OverlapsWith(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
   bool Contains(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;

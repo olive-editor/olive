@@ -97,6 +97,10 @@ void Sequence::Load(QXmlStreamReader *reader, XMLNodeData& xml_node_data, const 
       }
 
       set_audio_params(AudioParams(rate, layout));
+    } else if (reader->name() == QStringLiteral("points")) {
+
+      TimelinePoints::Load(reader);
+
     } else if (reader->name() == QStringLiteral("node") || reader->name() == QStringLiteral("viewer")) {
       Node* node;
 
@@ -149,6 +153,9 @@ void Sequence::Save(QXmlStreamWriter *writer) const
   writer->writeTextElement("layout", QString::number(audio_params().channel_layout()));
 
   writer->writeEndElement(); // audio
+
+  // Write TimelinePoints
+  TimelinePoints::Save(writer);
 
   foreach (Node* node, nodes()) {
     if (node != viewer_output_) {

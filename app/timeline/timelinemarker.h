@@ -2,6 +2,8 @@
 #define TIMELINEMARKER_H
 
 #include <QString>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include "common/timerange.h"
 
@@ -42,6 +44,9 @@ public:
   void RemoveMarker(TimelineMarker* marker);
 
   const QList<TimelineMarker *> &list() const;
+
+  void Load(QXmlStreamReader* reader);
+  void Save(QXmlStreamWriter* writer) const;
 
 signals:
   void MarkerAdded(TimelineMarker* marker);

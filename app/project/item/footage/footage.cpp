@@ -80,6 +80,8 @@ void Footage::Load(QXmlStreamReader *reader, XMLNodeData &xml_node_data, const Q
       } else {
         qWarning() << "Invalid stream found in project file";
       }
+    } else if (reader->name() == QStringLiteral("points")) {
+      TimelinePoints::Load(reader);
     } else {
       reader->skipCurrentElement();
     }
@@ -92,6 +94,8 @@ void Footage::Save(QXmlStreamWriter *writer) const
 
   writer->writeAttribute("name", name());
   writer->writeAttribute("filename", filename());
+
+  TimelinePoints::Save(writer);
 
   foreach (StreamPtr stream, streams_) {
     stream->Save(writer);

@@ -48,6 +48,11 @@ bool TimeRange::operator==(const TimeRange &r) const
   return in() == r.in() && out() == r.out();
 }
 
+bool TimeRange::operator!=(const TimeRange &r) const
+{
+  return in() != r.in() || out() != r.out();
+}
+
 bool TimeRange::OverlapsWith(const TimeRange &a, bool in_inclusive, bool out_inclusive) const
 {
   bool overlaps_in = (in_inclusive) ? (a.out() < in()) : (a.out() <= in());

@@ -2,6 +2,8 @@
 #define TIMELINEWORKAREA_H
 
 #include <QObject>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include "common/timerange.h"
 
@@ -18,6 +20,9 @@ public:
   const rational& out() const;
   const TimeRange& range() const;
   void set_range(const TimeRange& range);
+
+  void Load(QXmlStreamReader* reader);
+  void Save(QXmlStreamWriter* writer) const;
 
   static const rational kResetIn;
   static const rational kResetOut;
