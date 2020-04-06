@@ -30,10 +30,12 @@
 #include <QSplitter>
 #include <QStandardPaths>
 
+#include "core.h"
 #include "project/item/sequence/sequence.h"
 #include "project/project.h"
 #include "render/pixelformat.h"
 #include "ui/icons/icons.h"
+#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -42,9 +44,6 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   viewer_node_(viewer_node),
   previously_selected_format_(0),
   exporter_(nullptr),
-#ifdef Q_OS_WINDOWS
-  taskbar_list_(nullptr),
-#endif
   cancelled_(false)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
@@ -335,8 +334,7 @@ void ExportDialog::accept()
   connect(exporter_, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
 
 #ifdef Q_OS_WINDOWS
-  CoCreateInstance(CLSID_TaskbarList, NULL, CLSCTX_ALL, IID_ITaskbarList, reinterpret_cast<void**>(&taskbar_list_));
-  taskbar_list_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NORMAL);
+  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
   connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::UpdateTaskbarProgress);
 #endif
 
@@ -592,9 +590,7 @@ void ExportDialog::ExporterIsDone()
   } else {
     if (!cancelled_) {
 #ifdef Q_OS_WINDOWS
-      if (taskbar_list_) {
-        taskbar_list_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_ERROR);
-      }
+      Core::instance()->main_window()->SetTaskbarButtonState(TBPF_ERROR);
 #endif
 
       QMessageBox::critical(this,
@@ -611,11 +607,7 @@ void ExportDialog::ExporterIsDone()
   cancelled_ = false;
 
 #ifdef Q_OS_WINDOWS
-  if (taskbar_list_) {
-    taskbar_list_->SetProgressState(reinterpret_cast<HWND>(this->winId()), TBPF_NOPROGRESS);
-    taskbar_list_->Release();
-    taskbar_list_ = nullptr;
-  }
+  Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NOPROGRESS);
 #endif
 }
 
@@ -630,9 +622,7 @@ void ExportDialog::CancelExport()
 #ifdef Q_OS_WINDOWS
 void ExportDialog::UpdateTaskbarProgress(int progress)
 {
-  if (taskbar_list_) {
-    taskbar_list_->SetProgressValue(reinterpret_cast<HWND>(this->winId()), progress, 100);
-  }
+  Core::instance()->main_window()->SetTaskbarButtonProgress(progress, 100);
 }
 #endif
 

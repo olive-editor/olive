@@ -37,6 +37,10 @@
 #include "panel/pixelsampler/pixelsamplerpanel.h"
 #include "project/project.h"
 
+#ifdef Q_OS_WINDOWS
+#include <shobjidl.h>
+#endif
+
 OLIVE_NAMESPACE_ENTER
 
 /**
@@ -47,9 +51,17 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget *parent = nullptr);
 
+  virtual ~MainWindow() override;
+
   void OpenSequence(Sequence* sequence);
 
   void CloseSequence(Sequence* sequence);
+
+#ifdef Q_OS_WINDOWS
+  void SetTaskbarButtonState(TBPFLAG flags);
+
+  void SetTaskbarButtonProgress(int value, int max);
+#endif
 
 public slots:
   void ProjectOpen(Project *p);
@@ -60,6 +72,10 @@ public slots:
 
 protected:
   virtual void closeEvent(QCloseEvent* e) override;
+
+#ifdef Q_OS_WINDOWS
+  virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+#endif
 
 private:
   TimelinePanel* AppendTimelinePanel();
@@ -80,6 +96,12 @@ private:
   TaskManagerPanel* task_man_panel_;
   CurvePanel* curve_panel_;
   PixelSamplerPanel* pixel_sampler_panel_;
+
+#ifdef Q_OS_WINDOWS
+  unsigned int taskbar_btn_id_;
+
+  ITaskbarList3* taskbar_interface_;
+#endif
 
 private slots:
   void FocusedPanelChanged(PanelWidget* panel);

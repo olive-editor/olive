@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) :
   // Qt on Windows has a bug that "de-maximizes" the window when widgets are added, resizing the window beforehand
   // works around that issue and we just set it to whatever size is available
   resize(qApp->desktop()->availableGeometry(this).size());
+
+  // Set up taskbar button progress bar (used for some modal tasks like exporting)
+  taskbar_btn_id_ = RegisterWindowMessage("TaskbarButtonCreated");
+  taskbar_interface_ = nullptr;
 #endif
 
   // Create empty central widget - we don't actually want a central widget but some of Qt's docking/undocking fails
@@ -108,6 +112,15 @@ MainWindow::MainWindow(QWidget *parent) :
   UpdateTitle();
 }
 
+MainWindow::~MainWindow()
+{
+#ifdef Q_OS_WINDOWS
+  if (taskbar_interface_) {
+    taskbar_interface_->Release();
+  }
+#endif
+}
+
 void MainWindow::OpenSequence(Sequence *sequence)
 {
   // See if this sequence is already open, and switch to it if so
@@ -150,6 +163,22 @@ void MainWindow::CloseSequence(Sequence *sequence)
     }
   }
 }
+
+#ifdef Q_OS_WINDOWS
+void MainWindow::SetTaskbarButtonState(TBPFLAG flags)
+{
+  if (taskbar_interface_) {
+    taskbar_interface_->SetProgressState(reinterpret_cast<HWND>(this->winId()), flags);
+  }
+}
+
+void MainWindow::SetTaskbarButtonProgress(int value, int max)
+{
+  if (taskbar_interface_) {
+    taskbar_interface_->SetProgressValue(reinterpret_cast<HWND>(this->winId()), value, max);
+  }
+}
+#endif
 
 void MainWindow::SetFullscreen(bool fullscreen)
 {
@@ -238,6 +267,31 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
   QMainWindow::closeEvent(e);
 }
+
+#ifdef Q_OS_WINDOWS
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+  if (static_cast<MSG*>(message)->message == taskbar_btn_id_) {
+    // Attempt to create taskbar button progress handle
+    HRESULT hr = CoCreateInstance(CLSID_TaskbarList,
+                                  NULL,
+                                  CLSCTX_INPROC_SERVER,
+                                  IID_ITaskbarList3,
+                                  reinterpret_cast<void**>(&taskbar_interface_));
+
+    if (SUCCEEDED(hr)) {
+      hr = taskbar_interface_->HrInit();
+
+      if (FAILED(hr)) {
+        taskbar_interface_->Release();
+        taskbar_interface_ = nullptr;
+      }
+    }
+  }
+
+  return QMainWindow::nativeEvent(eventType, message, result);
+}
+#endif
 
 void MainWindow::UpdateTitle()
 {

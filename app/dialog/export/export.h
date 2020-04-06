@@ -27,10 +27,6 @@
 #include <QLineEdit>
 #include <QProgressBar>
 
-#ifdef Q_OS_WINDOWS
-#include <shobjidl.h>
-#endif
-
 #include "exportaudiotab.h"
 #include "exportcodec.h"
 #include "exportformat.h"
@@ -89,10 +85,6 @@ private:
   QWidget* preferences_area_;
   QDialogButtonBox* buttons_;
   QPushButton* export_cancel_btn_;
-
-#ifdef Q_OS_WINDOWS
-  ITaskbarList3* taskbar_list_;
-#endif
 
   bool cancelled_;
 
