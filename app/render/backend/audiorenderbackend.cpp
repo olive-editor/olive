@@ -97,7 +97,7 @@ bool AudioRenderBackend::GenerateCacheIDInternal(QCryptographicHash &hash)
   return true;
 }
 
-const AudioRenderingParams &AudioRenderBackend::params()
+const AudioRenderingParams &AudioRenderBackend::params() const
 {
   return params_;
 }
@@ -107,7 +107,7 @@ NodeInput *AudioRenderBackend::GetDependentInput()
   return viewer_node()->samples_input();
 }
 
-QString AudioRenderBackend::CachePathName()
+QString AudioRenderBackend::CachePathName() const
 {
   QString cache_fn = cache_id();
   cache_fn.append(".pcm");
@@ -170,7 +170,7 @@ void AudioRenderBackend::InvalidateCacheInternal(const rational &start_range, co
   RenderBackend::InvalidateCacheInternal(start_range, end_range);
 }
 
-void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &range, const rational &stream_time, const AudioRenderingParams& params)
+void AudioRenderBackend::ConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params)
 {
   ConformWaitInfo info = {stream, params, range, stream_time};
 
@@ -198,7 +198,7 @@ void AudioRenderBackend::ConformUnavailable(StreamPtr stream, const TimeRange &r
   }
 }
 
-void AudioRenderBackend::ConformUpdated(Stream *stream, const AudioRenderingParams &params)
+void AudioRenderBackend::ConformUpdated(Stream *stream, AudioRenderingParams params)
 {
   for (int i=0;i<conform_wait_info_.size();i++) {
     const ConformWaitInfo& info = conform_wait_info_.at(i);
@@ -206,11 +206,16 @@ void AudioRenderBackend::ConformUpdated(Stream *stream, const AudioRenderingPara
     if (info.stream.get() == stream
         && info.params == params) {
 
+      // Make a copy so the values we use aren't corrupt
+      ConformWaitInfo copy = info;
+
+      // Remove this entry from the list
       conform_wait_info_.removeAt(i);
       i--;
 
+      // Send invalidate cache signal
       ic_from_conform_ = true;
-      InvalidateCache(info.affected_range);
+      InvalidateCache(copy.affected_range);
       ic_from_conform_ = false;
 
     }

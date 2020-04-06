@@ -34,7 +34,7 @@ public:
   void SetParameters(const AudioRenderingParams& audio_params);
 
 signals:
-  void ConformUnavailable(StreamPtr stream, const TimeRange& range, const rational& stream_time, const AudioRenderingParams& params);
+  void ConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params);
 
 protected:
   virtual bool InitInternal() override;

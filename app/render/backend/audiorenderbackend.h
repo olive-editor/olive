@@ -42,9 +42,9 @@ public:
 
   virtual QIODevice* GetAudioPullDevice() = 0;
 
-  const AudioRenderingParams& params();
+  const AudioRenderingParams& params() const;
 
-  QString CachePathName();
+  QString CachePathName() const;
 
 signals:
   void ParamsChanged();
@@ -94,9 +94,9 @@ private:
   bool ic_from_conform_;
 
 private slots:
-  void ConformUnavailable(StreamPtr stream, const TimeRange& range, const rational& stream_time, const AudioRenderingParams &params);
+  void ConformUnavailable(StreamPtr stream, TimeRange range, rational stream_time, AudioRenderingParams params);
 
-  void ConformUpdated(Stream *stream, const AudioRenderingParams& params);
+  void ConformUpdated(Stream *stream, AudioRenderingParams params);
 
   void TruncateCache(const rational& r);
 
