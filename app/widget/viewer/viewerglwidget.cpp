@@ -87,7 +87,7 @@ void ViewerGLWidget::SetImage(const QString &fn)
 {
   has_image_ = false;
 
-  if (!fn.isEmpty()) {
+  if (!fn.isEmpty() && QFileInfo::exists(fn)) {
     auto input = OIIO::ImageInput::open(fn.toStdString());
 
     if (input) {
