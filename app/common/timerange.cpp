@@ -195,9 +195,24 @@ TimeRangeList TimeRangeList::Intersects(const TimeRange &range)
   return intersect_list;
 }
 
+void TimeRangeList::PrintTimeList()
+{
+  qDebug() << "TimeRangeList now contains:";
+
+  for (int i=0;i<size();i++) {
+    qDebug() << "  " << at(i);
+  }
+}
+
 uint qHash(const TimeRange &r, uint seed)
 {
   return qHash(r.in(), seed) ^ qHash(r.out(), seed);
 }
 
 OLIVE_NAMESPACE_EXIT
+
+QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange &r)
+{
+  debug.nospace() << r.in() << " - " << r.out();
+  return debug.space();
+}

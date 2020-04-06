@@ -68,11 +68,16 @@ public:
 
   TimeRangeList Intersects(const TimeRange& range);
 
+private:
+  void PrintTimeList();
+
 };
 
 uint qHash(const TimeRange& r, uint seed);
 
 OLIVE_NAMESPACE_EXIT
+
+QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::TimeRange& r);
 
 Q_DECLARE_METATYPE(OLIVE_NAMESPACE::TimeRange)
 
