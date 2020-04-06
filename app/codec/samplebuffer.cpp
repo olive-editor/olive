@@ -1,4 +1,4 @@
-/***
+﻿/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -64,7 +64,7 @@ SampleBufferPtr SampleBuffer::CreateFromPackedData(const AudioRenderingParams &a
   const float* packed_data = reinterpret_cast<const float*>(bytes.constData());
 
   for (int i=0;i<total_samples;i++) {
-    int channel = i%audio_params.channel_count();
+    int channel = i % audio_params.channel_count();
     int index = i / audio_params.channel_count();
 
     buffer->data_[channel][index] = packed_data[i];
@@ -256,6 +256,8 @@ QByteArray SampleBuffer::toPackedData() const
 
 void SampleBuffer::allocate_sample_buffer(float ***data, int nb_channels, int nb_samples)
 {
+  Q_ASSERT(nb_samples > 0);
+
   *data = new float* [nb_channels];
 
   for (int i=0;i<nb_channels;i++) {
