@@ -27,6 +27,8 @@
 #include "render/colormanager.h"
 #include "project/item/folder/folder.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A project instance containing all the data pertaining to the user's project
  *
@@ -81,5 +83,7 @@ private:
 };
 
 using ProjectPtr = std::shared_ptr<Project>;
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECT_H

@@ -3,6 +3,8 @@
 
 #include "rational.h"
 
+OLIVE_NAMESPACE_ENTER
+
 rational::rational(const AVRational &r) :
   numer(r.num),
   denom(r.den)
@@ -32,7 +34,7 @@ rational rational::fromString(const QString &str)
 
 //Function: print number to cout
 
-void rational::print(ostream &out) const
+void rational::print(std::ostream &out) const
 {
   out << this->numer << "/" << this->denom;
 }
@@ -425,7 +427,7 @@ bool rational::operator!() const
 
 //IO
 
-ostream& operator<<(ostream &out, const rational &value)
+std::ostream& operator<<(std::ostream &out, const rational &value)
 {
   out << value.numer;
   if(value.denom != 1)
@@ -436,7 +438,7 @@ ostream& operator<<(ostream &out, const rational &value)
   return out;
 }
 
-istream& operator>>(istream &in, rational &value)
+std::istream& operator>>(std::istream &in, rational &value)
 {
   in >> value.numer;
   value.denom = 1;
@@ -458,13 +460,16 @@ istream& operator>>(istream &in, rational &value)
   return in;
 }
 
-QDebug operator<<(QDebug debug, const rational &r)
+uint qHash(const rational &r, uint seed)
+{
+  return ::qHash(r.toDouble(), seed);
+}
+
+OLIVE_NAMESPACE_EXIT
+
+QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational &r)
 {
   debug.nospace() << r.numerator() << "/" << r.denominator();
   return debug.space();
 }
 
-uint qHash(const rational &r, uint seed)
-{
-  return qHash(r.toDouble(), seed);
-}

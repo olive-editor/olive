@@ -20,6 +20,8 @@
 
 #include "item.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Item::Item() :
   parent_(nullptr),
   project_(nullptr)
@@ -200,3 +202,5 @@ bool Item::ChildExistsWithNameInternal(const QString &name, Item *folder)
 
   return false;
 }
+
+OLIVE_NAMESPACE_EXIT

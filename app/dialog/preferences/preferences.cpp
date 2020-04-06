@@ -34,6 +34,8 @@
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
 
+OLIVE_NAMESPACE_ENTER
+
 PreferencesDialog::PreferencesDialog(QWidget *parent, QMenuBar* main_menu_bar) :
   QDialog(parent)
 {
@@ -94,3 +96,5 @@ void PreferencesDialog::AddTab(PreferencesTab *tab, const QString &title)
 
   tabs_.append(tab);
 }
+
+OLIVE_NAMESPACE_EXIT

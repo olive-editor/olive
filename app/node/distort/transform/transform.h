@@ -23,6 +23,8 @@
 
 #include "node/node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class TransformDistort : public Node
 {
   Q_OBJECT
@@ -55,5 +57,7 @@ private slots:
   void UniformScaleChanged();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TRANSFORMDISTORT_H

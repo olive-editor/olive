@@ -21,6 +21,14 @@
 #ifndef OLIVECOMMONDEFINE_H
 #define OLIVECOMMONDEFINE_H
 
+#define OLIVE_NAMESPACE olive
+
+#define OLIVE_NAMESPACE_ENTER namespace OLIVE_NAMESPACE {
+
+#define OLIVE_NAMESPACE_EXIT }
+
+OLIVE_NAMESPACE_ENTER
+
 const int kHSVChannels = 3;
 const int kRGBChannels = 3;
 const int kRGBAChannels = 4;
@@ -34,8 +42,11 @@ const int kProjectIconSizeMaximum = 256;
 /// The default size an icon in ProjectExplorer can be
 const int kProjectIconSizeDefault = 64;
 
-#define OLIVE_NAMESPACE_ENTER namespace olive {
+OLIVE_NAMESPACE_EXIT
 
-#define OLIVE_NAMESPACE_EXIT }
+#define MACRO_NAME_AS_STR(s) #s
+#define MACRO_VAL_AS_STR(s) MACRO_NAME_AS_STR(s)
+
+#define OLIVE_NS_ARG(x, y) QArgument<OLIVE_NAMESPACE::x>(MACRO_VAL_AS_STR(OLIVE_NAMESPACE) "::" #x, y)
 
 #endif // OLIVECOMMONDEFINE_H

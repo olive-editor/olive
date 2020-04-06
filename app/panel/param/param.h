@@ -24,6 +24,8 @@
 #include "panel/timebased/timebased.h"
 #include "widget/nodeparamview/nodeparamview.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class ParamPanel : public TimeBasedPanel
 {
   Q_OBJECT
@@ -42,5 +44,7 @@ protected:
   virtual void Retranslate() override;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PARAM_H

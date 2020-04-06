@@ -23,6 +23,10 @@
 
 #include <QLabel>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class SliderLabel : public QLabel
 {
   Q_OBJECT
@@ -51,5 +55,7 @@ private:
   QPoint drag_start_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // SLIDERLABEL_H

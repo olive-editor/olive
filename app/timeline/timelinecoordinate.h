@@ -24,6 +24,8 @@
 #include "common/rational.h"
 #include "trackreference.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class TimelineCoordinate
 {
 public:
@@ -43,5 +45,7 @@ private:
   TrackReference track_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINECOORDINATE_H

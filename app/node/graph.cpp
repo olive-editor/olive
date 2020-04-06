@@ -20,6 +20,8 @@
 
 #include "graph.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeGraph::NodeGraph()
 {
 
@@ -81,3 +83,5 @@ bool NodeGraph::ContainsNode(Node *n) const
 {
   return (n->parent() == this);
 }
+
+OLIVE_NAMESPACE_EXIT

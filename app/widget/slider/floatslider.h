@@ -23,6 +23,8 @@
 
 #include "sliderbase.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class FloatSlider : public SliderBase
 {
   Q_OBJECT
@@ -63,5 +65,7 @@ private slots:
 private:
   DisplayType display_type_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // FLOATSLIDER_H

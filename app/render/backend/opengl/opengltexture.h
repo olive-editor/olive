@@ -28,6 +28,8 @@
 #include "common/constructors.h"
 #include "render/pixelformat.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A class wrapper around an OpenGL texture
  */
@@ -78,6 +80,9 @@ private:
 };
 
 using OpenGLTexturePtr = std::shared_ptr<OpenGLTexture>;
-Q_DECLARE_METATYPE(OpenGLTexturePtr)
+
+OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::OpenGLTexturePtr)
 
 #endif // OPENGLTEXTURE_H

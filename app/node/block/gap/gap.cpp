@@ -20,6 +20,8 @@
 
 #include "gap.h"
 
+OLIVE_NAMESPACE_ENTER
+
 GapBlock::GapBlock()
 {
 }
@@ -48,3 +50,5 @@ QString GapBlock::Description() const
 {
   return tr("A time-based node that represents an empty space.");
 }
+
+OLIVE_NAMESPACE_EXIT

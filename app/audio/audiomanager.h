@@ -26,8 +26,11 @@
 #include <QAudioOutput>
 #include <QThread>
 
+#include "common/define.h"
 #include "outputmanager.h"
 #include "render/audioparams.h"
+
+OLIVE_NAMESPACE_ENTER
 
 /**
  * @brief A thread for refreshing the total list of devices on the system
@@ -132,5 +135,7 @@ private slots:
   void OutputStateChanged(QAudio::State state);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // AUDIOMANAGER_H

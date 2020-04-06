@@ -24,6 +24,8 @@
 
 #include "common/timecodefunctions.h"
 
+OLIVE_NAMESPACE_ENTER
+
 const int64_t VideoStream::kEndTimestamp = AV_NOPTS_VALUE;
 
 VideoStream::VideoStream() :
@@ -202,3 +204,5 @@ bool VideoStream::save_frame_index(const QString &s)
 
   return false;
 }
+
+OLIVE_NAMESPACE_EXIT

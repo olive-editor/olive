@@ -33,6 +33,8 @@
 #include "dialog/sequence/sequence.h"
 #include "widget/menu/menu.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectExplorer::ProjectExplorer(QWidget *parent) :
   QWidget(parent),
   model_(this)
@@ -425,3 +427,5 @@ void ProjectExplorer::DeleteSelected()
 
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
+
+OLIVE_NAMESPACE_EXIT

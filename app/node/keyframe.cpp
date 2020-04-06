@@ -20,6 +20,8 @@
 
 #include "keyframe.h"
 
+OLIVE_NAMESPACE_ENTER
+
 const NodeKeyframe::Type NodeKeyframe::kDefaultType = kLinear;
 
 NodeKeyframe::NodeKeyframe(const rational &time, const QVariant &value, const NodeKeyframe::Type &type, const int &track) :
@@ -142,3 +144,5 @@ void NodeKeyframe::set_parent(NodeInput *parent)
 {
   parent_ = parent;
 }
+
+OLIVE_NAMESPACE_EXIT

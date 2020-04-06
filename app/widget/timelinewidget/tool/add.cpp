@@ -1,8 +1,30 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "widget/timelinewidget/timelinewidget.h"
 
 #include "core.h"
 #include "node/factory.h"
 #include "widget/nodeview/nodeviewundo.h"
+
+OLIVE_NAMESPACE_ENTER
 
 TimelineWidget::AddTool::AddTool(TimelineWidget *parent) :
   Tool(parent),
@@ -22,18 +44,18 @@ void TimelineWidget::AddTool::MousePress(TimelineViewMouseEvent *event)
   Timeline::TrackType add_type = Timeline::kTrackTypeNone;
 
   switch (Core::instance()->selected_addable_object()) {
-  case ::Tool::kAddableBars:
-  case ::Tool::kAddableSolid:
-  case ::Tool::kAddableTitle:
+  case OLIVE_NAMESPACE::Tool::kAddableBars:
+  case OLIVE_NAMESPACE::Tool::kAddableSolid:
+  case OLIVE_NAMESPACE::Tool::kAddableTitle:
     add_type = Timeline::kTrackTypeVideo;
     break;
-  case ::Tool::kAddableTone:
+  case OLIVE_NAMESPACE::Tool::kAddableTone:
     add_type = Timeline::kTrackTypeAudio;
     break;
-  case ::Tool::kAddableEmpty:
+  case OLIVE_NAMESPACE::Tool::kAddableEmpty:
     // Leave as "none", which means this block can be placed on any track
     break;
-  case ::Tool::kAddableCount:
+  case OLIVE_NAMESPACE::Tool::kAddableCount:
     return;
   }
 
@@ -73,7 +95,7 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
 
       ClipBlock* clip = new ClipBlock();
       clip->set_length_and_media_out(ghost_->AdjustedLength());
-      clip->set_block_name(::Tool::GetAddableObjectName(Core::instance()->selected_addable_object()));
+      clip->set_block_name(OLIVE_NAMESPACE::Tool::GetAddableObjectName(Core::instance()->selected_addable_object()));
 
       NodeGraph* graph = static_cast<NodeGraph*>(parent()->GetConnectedNode()->parent());
 
@@ -88,10 +110,10 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
                                  command);
 
       switch (Core::instance()->selected_addable_object()) {
-      case ::Tool::kAddableEmpty:
+      case OLIVE_NAMESPACE::Tool::kAddableEmpty:
         // Empty, nothing to be done
         break;
-      case ::Tool::kAddableSolid:
+      case OLIVE_NAMESPACE::Tool::kAddableSolid:
       {
         Node* solid = NodeFactory::CreateFromID(QStringLiteral("org.olivevideoeditor.Olive.solidgenerator"));
 
@@ -102,13 +124,13 @@ void TimelineWidget::AddTool::MouseRelease(TimelineViewMouseEvent *event)
         new NodeEdgeAddCommand(solid->output(), clip->texture_input(), command);
         break;
       }
-      case ::Tool::kAddableBars:
-      case ::Tool::kAddableTitle:
-      case ::Tool::kAddableTone:
+      case OLIVE_NAMESPACE::Tool::kAddableBars:
+      case OLIVE_NAMESPACE::Tool::kAddableTitle:
+      case OLIVE_NAMESPACE::Tool::kAddableTone:
         // Not implemented yet
         qWarning() << "Unimplemented add object:" << Core::instance()->selected_addable_object();
         break;
-      case ::Tool::kAddableCount:
+      case OLIVE_NAMESPACE::Tool::kAddableCount:
         // Invalid value, do nothing
         break;
       }
@@ -155,3 +177,5 @@ void TimelineWidget::AddTool::MouseMoveInternal(const rational &cursor_frame, bo
     ghost_->SetOutAdjustment(outwards ? -movement : 0);
   }
 }
+
+OLIVE_NAMESPACE_EXIT

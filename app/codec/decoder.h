@@ -21,6 +21,10 @@
 #ifndef DECODER_H
 #define DECODER_H
 
+extern "C" {
+#include <libswresample/swresample.h>
+}
+
 #include <QMutex>
 #include <QObject>
 #include <stdint.h>
@@ -32,10 +36,10 @@
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Decoder;
 using DecoderPtr = std::shared_ptr<Decoder>;
-
-struct SwrContext;
 
 /**
  * @brief A decoder's is the main class for bringing external media into Olive
@@ -276,6 +280,8 @@ private:
 
 };
 
-Q_DECLARE_METATYPE(Decoder::RetrieveState)
+OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Decoder::RetrieveState)
 
 #endif // DECODER_H

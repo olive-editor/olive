@@ -24,6 +24,8 @@
 
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
   QFrame(parent),
   task_(task)
@@ -62,3 +64,5 @@ TaskViewItem::TaskViewItem(Task* task, QWidget *parent) :
   connect(task_, &Task::Removed, this, &TaskViewItem::deleteLater);
   connect(cancel_btn_, &QPushButton::clicked, task_, &Task::Cancel, Qt::DirectConnection);
 }
+
+OLIVE_NAMESPACE_EXIT

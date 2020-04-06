@@ -20,6 +20,8 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::RazorTool::RazorTool(TimelineWidget* parent) :
   Tool(parent)
 {
@@ -90,3 +92,5 @@ void TimelineWidget::RazorTool::MouseRelease(TimelineViewMouseEvent *event)
 
   dragging_ = false;
 }
+
+OLIVE_NAMESPACE_EXIT

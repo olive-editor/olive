@@ -25,6 +25,8 @@
 
 #include "bufferaverage.h"
 
+OLIVE_NAMESPACE_ENTER
+
 AudioOutputManager::AudioOutputManager(QObject *parent) :
   QObject(parent),
   output_(nullptr),
@@ -151,3 +153,5 @@ void AudioOutputManager::ProcessAverages(const char *data, int length)
 
   emit SentSamples(AudioBufferAverage::ProcessAverages(data, length));
 }
+
+OLIVE_NAMESPACE_EXIT

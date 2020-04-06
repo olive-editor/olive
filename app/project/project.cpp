@@ -28,6 +28,8 @@
 #include "dialog/progress/progress.h"
 #include "window/mainwindow/mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Project::Project()
 {
   root_.set_project(this);
@@ -153,3 +155,5 @@ QList<ItemPtr> Project::get_items_of_type(Item::Type type) const
 {
   return root_.get_children_of_type(type, true);
 }
+
+OLIVE_NAMESPACE_EXIT

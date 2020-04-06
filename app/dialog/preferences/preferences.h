@@ -30,6 +30,8 @@
 
 #include "tabs/preferencestab.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The PreferencesDialog class
  *
@@ -66,5 +68,7 @@ private:
   QList<PreferencesTab*> tabs_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PREFERENCESDIALOG_H

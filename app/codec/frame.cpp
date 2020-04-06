@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QtGlobal>
 
+OLIVE_NAMESPACE_ENTER
+
 Frame::Frame() :
   timestamp_(0),
   sample_aspect_ratio_(1)
@@ -147,3 +149,5 @@ int Frame::allocated_size() const
 {
   return data_.size();
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -25,9 +25,7 @@
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
-Folder::Folder()
-{
-}
+OLIVE_NAMESPACE_ENTER
 
 Item::Type Folder::type() const
 {
@@ -91,3 +89,5 @@ void Folder::Save(QXmlStreamWriter *writer) const
 
   writer->writeEndElement(); // folder
 }
+
+OLIVE_NAMESPACE_EXIT

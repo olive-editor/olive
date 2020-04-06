@@ -29,6 +29,8 @@
 
 #include "config/config.h"
 
+OLIVE_NAMESPACE_ENTER
+
 QString GetUniqueFileIdentifier(const QString &filename)
 {
   QFileInfo info(filename);
@@ -95,3 +97,5 @@ QString GetApplicationPath()
 {
   return QCoreApplication::applicationDirPath();
 }
+
+OLIVE_NAMESPACE_EXIT

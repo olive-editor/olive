@@ -1,9 +1,31 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "exporter.h"
 
 #include "render/backend/audio/audiobackend.h"
 #include "render/backend/opengl/openglbackend.h"
 #include "render/colormanager.h"
 #include "render/pixelformat.h"
+
+OLIVE_NAMESPACE_ENTER
 
 Exporter::Exporter(ViewerOutput* viewer,
                    Encoder *encoder,
@@ -166,7 +188,7 @@ void Exporter::EncodeFrame()
     QMetaObject::invokeMethod(encoder_,
                               "WriteFrame",
                               Qt::QueuedConnection,
-                              Q_ARG(FramePtr, frame));
+                              OLIVE_NS_ARG(FramePtr, frame));
 
     waiting_for_frame_ += video_params_.time_base();
 
@@ -216,9 +238,9 @@ void Exporter::AudioRendered()
   QMetaObject::invokeMethod(encoder_,
                             "WriteAudio",
                             Qt::QueuedConnection,
-                            Q_ARG(const AudioRenderingParams&, audio_backend_->params()),
+                            OLIVE_NS_ARG(AudioRenderingParams, audio_backend_->params()),
                             Q_ARG(const QString&, cache_fn),
-                            Q_ARG(const TimeRange&, export_range_));
+                            OLIVE_NS_ARG(TimeRange, export_range_));
 
   // We don't need the audio backend anymore
   audio_backend_->deleteLater();
@@ -288,3 +310,5 @@ void Exporter::DebugTimerMessage()
 {
   qDebug() << "Still waiting for" << waiting_for_frame_.toDouble();
 }
+
+OLIVE_NAMESPACE_EXIT

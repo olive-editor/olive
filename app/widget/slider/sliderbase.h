@@ -26,6 +26,7 @@
 #include "sliderlabel.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
 
+OLIVE_NAMESPACE_ENTER
 class SliderBase : public QStackedWidget
 {
   Q_OBJECT
@@ -120,5 +121,7 @@ private slots:
 
   void LineEditCancelled();
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // SLIDERBASE_H

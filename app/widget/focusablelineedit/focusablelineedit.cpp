@@ -22,6 +22,8 @@
 
 #include <QKeyEvent>
 
+OLIVE_NAMESPACE_ENTER
+
 FocusableLineEdit::FocusableLineEdit(QWidget *parent) :
   QLineEdit(parent)
 {
@@ -49,3 +51,5 @@ void FocusableLineEdit::focusOutEvent(QFocusEvent *e)
 
   emit Confirmed();
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -26,6 +26,8 @@
 
 #include "common/xmlutils.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Node::Node() :
   can_be_deleted_(true)
 {
@@ -679,3 +681,5 @@ void Node::InputConnectionChanged(NodeEdgePtr edge)
 
   InvalidateCache(RATIONAL_MIN, RATIONAL_MAX, static_cast<NodeInput*>(sender()));
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -25,6 +25,10 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The ProjectToolbar class
  *
@@ -82,5 +86,7 @@ private:
 private slots:
   void ViewButtonClicked();
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECTTOOLBAR_H

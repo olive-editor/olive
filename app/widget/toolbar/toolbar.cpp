@@ -28,6 +28,8 @@
 #include "widget/menu/menu.h"
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Toolbar::Toolbar(QWidget *parent) :
   QWidget(parent)
 {
@@ -183,3 +185,5 @@ void Toolbar::AddMenuItemTriggered(QAction* a)
 {
   emit AddableObjectChanged(static_cast<Tool::AddableObject>(a->data().toInt()));
 }
+
+OLIVE_NAMESPACE_EXIT

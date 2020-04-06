@@ -37,6 +37,8 @@ extern "C" {
 #include "ffmpegframecache.h"
 #include "project/item/footage/videostream.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
  */
@@ -133,5 +135,7 @@ private slots:
   void ClearTimerEvent();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // FFMPEGDECODER_H

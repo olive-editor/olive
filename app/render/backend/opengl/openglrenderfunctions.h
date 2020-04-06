@@ -28,6 +28,8 @@
 #include "openglshader.h"
 #include "render/pixelformat.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class OpenGLRenderFunctions {
 public:
   /**
@@ -60,5 +62,7 @@ public:
   static GLenum GetPixelType(const PixelFormat::Format& format);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // OPENGLFUNCTIONS_H

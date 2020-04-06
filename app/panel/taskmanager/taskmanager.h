@@ -24,6 +24,8 @@
 #include "widget/taskview/taskview.h"
 #include "widget/panel/panel.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A PanelWidget wrapper around a TaskView widget
  */
@@ -38,5 +40,7 @@ private:
 
   TaskView* view_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TASKMANAGER_H

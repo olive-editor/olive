@@ -20,6 +20,8 @@
 
 #include "param.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ParamPanel::ParamPanel(QWidget* parent) :
   TimeBasedPanel(parent)
 {
@@ -55,3 +57,5 @@ void ParamPanel::Retranslate()
     SetSubtitle(tr("(multiple)"));
   }
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "audiorenderbackend.h"
 
 #include <QDir>
@@ -6,6 +26,8 @@
 #include "audiorenderworker.h"
 #include "common/filefunctions.h"
 #include "render/backend/indexmanager.h"
+
+OLIVE_NAMESPACE_ENTER
 
 AudioRenderBackend::AudioRenderBackend(QObject *parent) :
   RenderBackend(parent),
@@ -220,3 +242,5 @@ bool AudioRenderBackend::ConformWaitInfo::operator==(const AudioRenderBackend::C
       && rhs.stream_time == stream_time
       && rhs.affected_range == affected_range;
 }
+
+OLIVE_NAMESPACE_EXIT

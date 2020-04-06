@@ -27,6 +27,8 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Olive's main menubar attached to its main window.
  *
@@ -242,5 +244,7 @@ private:
   QAction* help_about_item_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // MAINMENU_H

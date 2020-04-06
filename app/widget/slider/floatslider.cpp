@@ -22,6 +22,8 @@
 
 #include <QAudio>
 
+OLIVE_NAMESPACE_ENTER
+
 FloatSlider::FloatSlider(QWidget *parent) :
   SliderBase(kFloat, parent),
   display_type_(kNormal)
@@ -162,3 +164,5 @@ void FloatSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.toDouble());
 }
+
+OLIVE_NAMESPACE_EXIT

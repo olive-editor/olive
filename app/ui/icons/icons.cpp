@@ -20,6 +20,8 @@
 
 #include "icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /// Works in conjunction with `genicons.sh` to generate and utilize icons of specific sizes
 const int ICON_SIZE_COUNT = 4;
 const int ICON_SIZES[] = {
@@ -133,3 +135,5 @@ QIcon icon::Create(const QString& theme, const QString &name)
 
   return icon;
 }
+
+OLIVE_NAMESPACE_EXIT

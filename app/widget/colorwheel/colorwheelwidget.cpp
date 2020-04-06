@@ -1,9 +1,31 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "colorwheelwidget.h"
 
 #include <QPainter>
 #include <QtMath>
 
 #include "node/node.h"
+
+OLIVE_NAMESPACE_ENTER
 
 #define M_180_OVER_PI 57.295791433133264917914229473464
 #define M_RADIAN_TO_0_1 0.15915497620314795810531730409296
@@ -152,3 +174,5 @@ QPoint ColorWheelWidget::GetCoordsFromColor(const Color &c) const
 
   return pos;
 }
+
+OLIVE_NAMESPACE_EXIT

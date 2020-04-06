@@ -20,6 +20,8 @@
 
 #include "undostack.h"
 
+OLIVE_NAMESPACE_ENTER
+
 void UndoStack::pushIfHasChildren(QUndoCommand *command)
 {
   if (command->childCount() > 0) {
@@ -28,3 +30,5 @@ void UndoStack::pushIfHasChildren(QUndoCommand *command)
     delete command;
   }
 }
+
+OLIVE_NAMESPACE_EXIT

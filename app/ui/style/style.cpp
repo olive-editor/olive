@@ -30,6 +30,8 @@
 
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 QList<StyleDescriptor> StyleManager::ListInternal()
 {
   QList<StyleDescriptor> style_list;
@@ -189,3 +191,5 @@ const QString &StyleDescriptor::path() const
 {
   return path_;
 }
+
+OLIVE_NAMESPACE_EXIT

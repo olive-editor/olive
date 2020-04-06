@@ -23,6 +23,8 @@
 #include "common/xmlutils.h"
 #include "node/node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeOutput::NodeOutput(const QString &id) :
   NodeParam(id)
 {
@@ -69,3 +71,5 @@ void NodeOutput::Save(QXmlStreamWriter *writer) const
 
   writer->writeEndElement(); // output
 }
+
+OLIVE_NAMESPACE_EXIT

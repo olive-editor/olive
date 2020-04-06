@@ -25,6 +25,8 @@
 #include <QMenuBar>
 #include <QLabel>
 
+OLIVE_NAMESPACE_ENTER
+
 ActionSearch::ActionSearch(QWidget *parent) :
   QDialog(parent),
   menu_bar_(nullptr)
@@ -251,3 +253,5 @@ void ActionSearchList::mouseDoubleClickEvent(QMouseEvent *) {
   emit dbl_click();
 
 }
+
+OLIVE_NAMESPACE_EXIT

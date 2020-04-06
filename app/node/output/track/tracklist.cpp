@@ -24,6 +24,8 @@
 #include "node/math/math.h"
 #include "node/output/viewer/viewer.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TrackList::TrackList(ViewerOutput *parent, const Timeline::TrackType &type, NodeInputArray *track_input) :
   QObject(parent),
   track_input_(track_input),
@@ -243,3 +245,5 @@ void TrackList::TrackHeightChangedSlot(int height)
 {
   emit TrackHeightChanged(static_cast<TrackOutput*>(sender())->Index(), height);
 }
+
+OLIVE_NAMESPACE_EXIT

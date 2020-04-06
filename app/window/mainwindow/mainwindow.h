@@ -37,6 +37,8 @@
 #include "panel/pixelsampler/pixelsamplerpanel.h"
 #include "project/project.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Olive's main window responsible for docking widgets and the main menu bar.
  */
@@ -85,5 +87,7 @@ private slots:
   void UpdateTitle();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif

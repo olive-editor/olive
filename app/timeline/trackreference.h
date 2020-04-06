@@ -23,6 +23,8 @@
 
 #include "common/timelinecommon.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class TrackReference
 {
 public:
@@ -41,5 +43,7 @@ private:
 
   int index_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TRACKREFERENCE_H

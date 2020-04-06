@@ -24,6 +24,10 @@
 #include <QUndoCommand>
 #include <QWidget>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class StreamProperties : public QWidget
 {
 public:
@@ -34,5 +38,7 @@ public:
   virtual bool SanityCheck(){return true;}
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // STREAMPROPERTIES_H

@@ -28,6 +28,8 @@
 #include "config/config.h"
 #include "core.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimeRuler::TimeRuler(bool text_visible, bool cache_status_visible, QWidget* parent) :
   SeekableWidget(parent),
   text_visible_(text_visible),
@@ -312,3 +314,5 @@ void TimeRuler::UpdateHeight()
 
   setFixedHeight(height);
 }
+
+OLIVE_NAMESPACE_EXIT

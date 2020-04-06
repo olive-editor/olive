@@ -20,6 +20,8 @@
 
 #include "task.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Task::Task() :
   title_(tr("Task"))
 {
@@ -51,3 +53,5 @@ void Task::SetTitle(const QString &s)
 {
   title_ = s;
 }
+
+OLIVE_NAMESPACE_EXIT

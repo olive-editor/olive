@@ -31,6 +31,8 @@
 #include "node/output.h"
 #include "render/color.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeParam::NodeParam(const QString &id) :
   id_(id),
   connectable_(true)
@@ -261,3 +263,5 @@ QByteArray NodeParam::ValueToBytesInternal(const QVariant &v)
 
   return bytes;
 }
+
+OLIVE_NAMESPACE_EXIT

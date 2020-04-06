@@ -31,6 +31,8 @@
 #include "videorenderframecache.h"
 #include "videorenderworker.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A multithreaded OpenGL based renderer for node systems
  */
@@ -138,5 +140,7 @@ private slots:
   void FrameRemovedFromDiskCache(const QByteArray& hash);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIDEORENDERERBACKEND_H

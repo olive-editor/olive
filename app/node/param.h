@@ -30,6 +30,8 @@
 #include "common/xmlutils.h"
 #include "node/edge.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Node;
 
 /**
@@ -400,5 +402,7 @@ private:
   bool connectable_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEPARAM_H

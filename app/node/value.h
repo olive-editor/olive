@@ -1,9 +1,31 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef VALUE_H
 #define VALUE_H
 
 #include <QString>
 
 #include "input.h"
+
+OLIVE_NAMESPACE_ENTER
 
 class NodeValue
 {
@@ -25,7 +47,7 @@ private:
 class NodeValueTable
 {
 public:
-  NodeValueTable();
+  NodeValueTable() = default;
 
   QVariant Get(const NodeParam::DataType& type, const QString& tag = QString()) const;
   NodeValue GetWithMeta(const NodeParam::DataType& type, const QString& tag = QString()) const;
@@ -52,7 +74,7 @@ private:
 class NodeValueDatabase
 {
 public:
-  NodeValueDatabase();
+  NodeValueDatabase() = default;
 
   NodeValueTable operator[](const QString& input_id) const;
   NodeValueTable operator[](const NodeInput* input) const;
@@ -67,6 +89,8 @@ private:
 
 };
 
-Q_DECLARE_METATYPE(NodeValueTable)
+OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeValueTable)
 
 #endif // VALUE_H

@@ -23,6 +23,10 @@
 
 #include <QString>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 bool IsPortable();
 
 QString GetUniqueFileIdentifier(const QString& filename);
@@ -36,5 +40,7 @@ QString GetMediaCacheLocation();
 QString GetConfigurationLocation();
 
 QString GetApplicationPath();
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // FILEFUNCTIONS_H

@@ -27,6 +27,8 @@
 #include "common/timecodefunctions.h"
 #include "node/output/viewer/viewer.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeParamView::NodeParamView(QWidget *parent) :
   TimeBasedWidget(true, false, parent),
   last_scroll_val_(0)
@@ -224,3 +226,5 @@ void NodeParamView::ForceKeyframeViewToScroll(int min, int max)
 
   bottom_item_->setY(keyframe_view_->viewport()->height() + max);
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -24,6 +24,8 @@
 #include "panel/timebased/timebased.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Panel container for a TimelineWidget
  */
@@ -82,5 +84,7 @@ signals:
   void SelectionChanged(const QList<Node*>& selected_blocks);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINE_PANEL_H

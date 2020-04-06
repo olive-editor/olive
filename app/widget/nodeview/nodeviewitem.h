@@ -31,6 +31,8 @@
 #include "nodeviewedge.h"
 #include "nodeviewitemwidgetproxy.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A visual widget representation of a Node object to be used in a NodeView
  *
@@ -152,5 +154,7 @@ private:
   QUndoCommand* node_edge_change_command_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEVIEWITEM_H

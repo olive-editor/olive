@@ -36,6 +36,8 @@
 #include "render/pixelformat.h"
 #include "widget/menu/menu.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ViewerWidget::ViewerWidget(QWidget *parent) :
   TimeBasedWidget(false, true, parent),
   playback_speed_(0),
@@ -734,3 +736,5 @@ void ViewerWidget::InvalidateVisible()
 {
   video_renderer_->InvalidateCache(TimeRange(GetTime(), GetTime()));
 }
+
+OLIVE_NAMESPACE_EXIT

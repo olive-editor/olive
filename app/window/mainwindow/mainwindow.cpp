@@ -28,6 +28,8 @@
 #include "mainmenu.h"
 #include "mainstatusbar.h"
 
+OLIVE_NAMESPACE_ENTER
+
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent)
 {
@@ -323,3 +325,5 @@ void MainWindow::SetDefaultLayout()
   {height()/2, height()/2},
               Qt::Vertical);
 }
+
+OLIVE_NAMESPACE_EXIT

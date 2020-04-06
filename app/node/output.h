@@ -24,6 +24,8 @@
 #include "common/timerange.h"
 #include "param.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A node parameter designed to serve data to the input of another node
  */
@@ -49,5 +51,7 @@ public:
 private:
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEOUTPUT_H

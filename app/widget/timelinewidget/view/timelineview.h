@@ -35,6 +35,8 @@
 #include "widget/timelinewidget/undo/undo.h"
 #include "undo/undostack.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget for viewing and interacting Sequences
  *
@@ -107,5 +109,7 @@ private:
   TrackList* connected_track_list_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEVIEW_H

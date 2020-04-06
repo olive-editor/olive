@@ -26,6 +26,8 @@
 #include "widget/panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A PanelWidget wrapper around a ProjectExplorer and a ProjectToolbar
  */
@@ -73,5 +75,7 @@ private slots:
   void UpdateSubtitle();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECT_PANEL_H

@@ -34,6 +34,8 @@
 #include "project/item/footage/stream.h"
 #include "render/color.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeInput::NodeInput(const QString& id, const DataType &type, const QVariant &default_value) :
   NodeParam(id),
   data_type_(type),
@@ -1043,3 +1045,5 @@ QVariant NodeInput::combine_track_values_into_normal_value(const QVector<QVarian
     return split.first();
   }
 }
+
+OLIVE_NAMESPACE_EXIT

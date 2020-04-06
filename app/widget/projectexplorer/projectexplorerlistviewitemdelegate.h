@@ -23,6 +23,10 @@
 
 #include <QStyledItemDelegate>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The delegate that's used to draw items when ProjectExplorer is in List view
  */
@@ -34,5 +38,7 @@ public:
   virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
   virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECTEXPLORERLISTVIEWITEMDELEGATE_H

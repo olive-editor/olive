@@ -26,6 +26,8 @@
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::Tool::Tool(TimelineWidget *parent) :
   dragging_(false),
   parent_(parent)
@@ -224,3 +226,5 @@ void TimelineWidget::Tool::InsertGapsAtGhostDestination(const QVector<TimelineVi
 
   parent()->InsertGapsAt(earliest_point, latest_point - earliest_point, command);
 }
+
+OLIVE_NAMESPACE_EXIT

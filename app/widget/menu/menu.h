@@ -24,6 +24,10 @@
 #include <QMenuBar>
 #include <QMenu>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A menu widget for context menus and menu bars
  *
@@ -170,5 +174,7 @@ public:
 private:
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // WIDGETMENU_H

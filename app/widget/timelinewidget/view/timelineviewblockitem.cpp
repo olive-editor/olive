@@ -35,6 +35,8 @@
 #include "node/block/transition/transition.h"
 #include "widget/viewer/audiowaveformview.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineViewBlockItem::TimelineViewBlockItem(Block *block, QGraphicsItem* parent) :
   TimelineViewRect(parent),
   block_(block)
@@ -196,3 +198,5 @@ void TimelineViewBlockItem::paint(QPainter *painter, const QStyleOptionGraphicsI
   }
   }
 }
+
+OLIVE_NAMESPACE_EXIT

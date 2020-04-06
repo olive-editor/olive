@@ -26,6 +26,8 @@
 
 #include "widget/taskview/taskviewitem.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget that shows a list of Tasks
  *
@@ -52,5 +54,7 @@ private:
   QWidget* central_widget_;
   QVBoxLayout* layout_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TASKVIEW_H

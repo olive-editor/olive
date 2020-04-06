@@ -20,6 +20,8 @@
 
 #include "widget/timelinewidget/timelinewidget.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::ZoomTool::ZoomTool(TimelineWidget *parent) :
   Tool(parent)
 {
@@ -90,3 +92,5 @@ void TimelineWidget::ZoomTool::MouseRelease(TimelineViewMouseEvent *event)
   // (using a hacky singleShot so the scroll occurs after the scene and its scrollbars have updated)
   QTimer::singleShot(0, parent(), &TimelineWidget::DeferredScrollAction);
 }
+
+OLIVE_NAMESPACE_EXIT

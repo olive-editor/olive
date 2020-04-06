@@ -27,6 +27,8 @@
 #include "codec/decoder.h"
 #include "render/pixelformat.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class OIIODecoder : public Decoder
 {
   Q_OBJECT
@@ -77,5 +79,7 @@ private:
   static QStringList supported_formats_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // OIIODECODER_H

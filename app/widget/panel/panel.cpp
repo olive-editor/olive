@@ -25,6 +25,8 @@
 #include <QStyleOption>
 #include <QVariant>
 
+OLIVE_NAMESPACE_ENTER
+
 PanelWidget::PanelWidget(QWidget *parent) :
   QDockWidget(parent),
   border_visible_(false)
@@ -113,3 +115,5 @@ void PanelWidget::changeEvent(QEvent *e)
 void PanelWidget::Retranslate()
 {
 }
+
+OLIVE_NAMESPACE_EXIT

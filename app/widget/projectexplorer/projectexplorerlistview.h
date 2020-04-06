@@ -24,6 +24,8 @@
 #include "projectexplorerlistviewbase.h"
 #include "projectexplorerlistviewitemdelegate.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The view widget used when ProjectExplorer is in List View
  */
@@ -36,5 +38,7 @@ public:
 private:
   ProjectExplorerListViewItemDelegate delegate_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECTEXPLORERLISTVIEW_H

@@ -26,6 +26,8 @@
 
 #include "node/edge.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A graphical representation of a NodeEdge to be used in NodeView
  *
@@ -93,5 +95,7 @@ private:
   QPalette::ColorRole color_role_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEEDGEITEM_H

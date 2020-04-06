@@ -27,6 +27,8 @@
 #include "node/block/gap/gap.h"
 #include "node/graph.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TrackOutput::TrackOutput() :
   track_type_(Timeline::kTrackTypeNone),
   block_invalidate_cache_stack_(0),
@@ -560,3 +562,5 @@ void TrackOutput::BlockLengthChanged()
 
   UpdateInOutFrom(index);
 }
+
+OLIVE_NAMESPACE_EXIT

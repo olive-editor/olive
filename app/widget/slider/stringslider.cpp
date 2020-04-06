@@ -20,6 +20,8 @@
 
 #include "stringslider.h"
 
+OLIVE_NAMESPACE_ENTER
+
 StringSlider::StringSlider(QWidget* parent) :
   SliderBase(kString, parent)
 {
@@ -46,3 +48,5 @@ void StringSlider::ConvertValue(QVariant v)
 {
   emit ValueChanged(v.toString());
 }
+
+OLIVE_NAMESPACE_EXIT

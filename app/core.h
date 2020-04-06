@@ -35,6 +35,8 @@
 #include "tool/tool.h"
 #include "undo/undostack.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class MainWindow;
 
 /**
@@ -402,5 +404,7 @@ private slots:
   bool ConfirmImageSequence(const QString &filename);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // CORE_H

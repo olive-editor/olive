@@ -25,6 +25,8 @@
 #include "node/output/track/track.h"
 #include "transition/transition.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Block::Block() :
   previous_(nullptr),
   next_(nullptr)
@@ -330,3 +332,4 @@ void Block::InvalidateCache(const rational &start_range, const rational &end_ran
   Node::InvalidateCache(start_range, end_range, from);
 }
 
+OLIVE_NAMESPACE_EXIT

@@ -34,6 +34,8 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 #include "core.h"
 #include "render/colormanager.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget *parent) :
   QDialog(parent),
   working_project_(Core::instance()->GetActiveProject())
@@ -153,3 +155,5 @@ void ProjectPropertiesDialog::BrowseForOCIOConfig()
     }
   }
 }
+
+OLIVE_NAMESPACE_EXIT

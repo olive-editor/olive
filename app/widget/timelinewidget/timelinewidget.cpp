@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #include "timelinewidget.h"
 
 #include <QSplitter>
@@ -13,6 +33,8 @@
 #include "trackview/trackview.h"
 #include "widget/menu/menu.h"
 #include "widget/nodeview/nodeviewundo.h"
+
+OLIVE_NAMESPACE_ENTER
 
 TimelineWidget::TimelineWidget(QWidget *parent) :
   TimeBasedWidget(true, true, parent),
@@ -48,20 +70,20 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
   views_.append(new TimelineAndTrackView(Qt::AlignTop));
 
   // Create tools
-  tools_.resize(::Tool::kCount);
+  tools_.resize(OLIVE_NAMESPACE::Tool::kCount);
   tools_.fill(nullptr);
 
-  tools_.replace(::Tool::kPointer, new PointerTool(this));
-  tools_.replace(::Tool::kEdit, new EditTool(this));
-  tools_.replace(::Tool::kRipple, new RippleTool(this));
-  tools_.replace(::Tool::kRolling, new RollingTool(this));
-  tools_.replace(::Tool::kRazor, new RazorTool(this));
-  tools_.replace(::Tool::kSlip, new SlipTool(this));
-  tools_.replace(::Tool::kSlide, new SlideTool(this));
-  tools_.replace(::Tool::kZoom, new ZoomTool(this));
-  tools_.replace(::Tool::kTransition, new TransitionTool(this));
-  //tools_.replace(::Tool::kRecord, new PointerTool(this));  FIXME: Implement
-  tools_.replace(::Tool::kAdd, new AddTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kPointer, new PointerTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kEdit, new EditTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kRipple, new RippleTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kRolling, new RollingTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kRazor, new RazorTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kSlip, new SlipTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kSlide, new SlideTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kZoom, new ZoomTool(this));
+  tools_.replace(OLIVE_NAMESPACE::Tool::kTransition, new TransitionTool(this));
+  //tools_.replace(OLIVE_NAMESPACE::Tool::kRecord, new PointerTool(this));  FIXME: Implement
+  tools_.replace(OLIVE_NAMESPACE::Tool::kAdd, new AddTool(this));
 
   import_tool_ = new ImportTool(this);
 
@@ -1250,3 +1272,5 @@ void TimelineWidget::EndRubberBandSelect(bool enable_selecting, bool select_link
 
   ViewSelectionChanged();
 }
+
+OLIVE_NAMESPACE_EXIT

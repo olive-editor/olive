@@ -20,6 +20,8 @@
 
 #include "edge.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeEdge::NodeEdge(NodeOutput *output, NodeInput *input) :
   output_(output),
   input_(input)
@@ -35,3 +37,5 @@ NodeInput *NodeEdge::input()
 {
   return input_;
 }
+
+OLIVE_NAMESPACE_EXIT

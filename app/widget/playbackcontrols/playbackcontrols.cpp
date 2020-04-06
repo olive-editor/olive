@@ -28,6 +28,8 @@
 #include "config/config.h"
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 PlaybackControls::PlaybackControls(QWidget *parent) :
   QWidget(parent),
   time_base_(0)
@@ -220,3 +222,5 @@ void PlaybackControls::TimecodeChanged()
   // Update end time
   SetEndTime(end_time_);
 }
+
+OLIVE_NAMESPACE_EXIT

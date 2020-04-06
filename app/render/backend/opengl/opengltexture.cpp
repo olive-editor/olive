@@ -26,6 +26,8 @@
 #include "openglrenderfunctions.h"
 #include "render/pixelformat.h"
 
+OLIVE_NAMESPACE_ENTER
+
 OpenGLTexture::OpenGLTexture() :
   created_ctx_(nullptr),
   texture_(0),
@@ -168,3 +170,5 @@ void OpenGLTexture::CreateInternal(QOpenGLContext* create_ctx, GLuint* tex, cons
   // Release texture
   f->glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+OLIVE_NAMESPACE_EXIT

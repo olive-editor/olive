@@ -33,6 +33,8 @@
 #include "render/backend/opengl/openglshader.h"
 #include "render/pixelformat.h"
 
+OLIVE_NAMESPACE_ENTER
+
 #ifdef Q_OS_LINUX
 bool ViewerGLWidget::nouveau_check_done_ = false;
 #endif
@@ -392,3 +394,5 @@ void ViewerGLWidget::ContextCleanup()
 
   doneCurrent();
 }
+
+OLIVE_NAMESPACE_EXIT

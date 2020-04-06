@@ -26,6 +26,8 @@
 #include "project.h"
 #include "undo/undocommand.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief An adapter that interprets the data in a Project into a Qt item model for usage in ViewModel Views.
  *
@@ -238,5 +240,7 @@ private:
 
   QVector<ColumnType> columns_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIEWMODEL_H

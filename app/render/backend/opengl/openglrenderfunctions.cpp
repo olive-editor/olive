@@ -24,6 +24,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 
+OLIVE_NAMESPACE_ENTER
+
 const GLfloat blit_vertices[] = {
   -1.0f, -1.0f, 0.0f,
   1.0f, -1.0f, 0.0f,
@@ -216,3 +218,5 @@ void OpenGLRenderFunctions::OCIOBlit(OpenGLShader *pipeline,
   xf->glBindTexture(GL_TEXTURE_3D, 0);
   xf->glActiveTexture(GL_TEXTURE0);
 }
+
+OLIVE_NAMESPACE_EXIT

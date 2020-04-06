@@ -22,6 +22,8 @@
 
 #include <QMouseEvent>
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectExplorerTreeView::ProjectExplorerTreeView(QWidget *parent) :
   QTreeView(parent)
 {
@@ -51,3 +53,5 @@ void ProjectExplorerTreeView::mouseDoubleClickEvent(QMouseEvent *event)
     emit DoubleClickedEmptyArea();
   }
 }
+
+OLIVE_NAMESPACE_EXIT

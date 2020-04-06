@@ -40,8 +40,8 @@ extern "C" {
 #include "common/debug.h"
 
 int main(int argc, char *argv[]) {
-  signal(SIGSEGV, crash_handler);
-  signal(SIGABRT, crash_handler);
+  signal(SIGSEGV, OLIVE_NAMESPACE::crash_handler);
+  signal(SIGABRT, OLIVE_NAMESPACE::crash_handler);
 
   // Set OpenGL display profile (3.2 Core)
   QSurfaceFormat format;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   // Set up debug handler
-  qInstallMessageHandler(DebugHandler);
+  qInstallMessageHandler(OLIVE_NAMESPACE::DebugHandler);
 
   // Register FFmpeg codecs and filters (deprecated in 4.0+)
 #if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(58, 9, 100)
@@ -86,13 +86,13 @@ int main(int argc, char *argv[]) {
 #endif
 
   // Start core
-  Core::instance()->Start();
+  OLIVE_NAMESPACE::Core::instance()->Start();
 
   // Run application loop and receive exit code
   int exit_code = a.exec();
 
   // Clear core memory
-  Core::instance()->Stop();
+  OLIVE_NAMESPACE::Core::instance()->Stop();
 
   return exit_code;
 }

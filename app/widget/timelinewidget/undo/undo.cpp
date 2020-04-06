@@ -25,6 +25,8 @@
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Node* TakeNodeFromParentGraph(Node* n, QObject* new_parent = nullptr)
 {
   static_cast<NodeGraph*>(n->parent())->TakeNode(n, new_parent);
@@ -796,3 +798,5 @@ BlockLinkManyCommand::BlockLinkManyCommand(const QList<Block *> blocks, bool lin
     }
   }
 }
+
+OLIVE_NAMESPACE_EXIT

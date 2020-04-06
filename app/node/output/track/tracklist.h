@@ -27,6 +27,8 @@
 #include "node/graph.h"
 #include "node/output/track/track.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class ViewerOutput;
 
 class TrackList : public QObject {
@@ -114,5 +116,7 @@ private slots:
   void TrackHeightChangedSlot(int height);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TRACKLIST_H

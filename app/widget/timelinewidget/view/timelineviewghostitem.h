@@ -28,6 +28,7 @@
 #include "timelineviewblockitem.h"
 #include "timelineviewrect.h"
 
+OLIVE_NAMESPACE_ENTER
 /**
  * @brief A graphical representation of changes the user is making before they apply it
  */
@@ -104,5 +105,7 @@ private:
   bool can_have_zero_length_;
   bool can_move_tracks_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEVIEWGHOSTITEM_H

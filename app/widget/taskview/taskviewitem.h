@@ -28,6 +28,8 @@
 
 #include "task/task.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget that visually represents the status of a Task
  *
@@ -52,5 +54,7 @@ private:
   Task* task_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TASKVIEWITEM_H

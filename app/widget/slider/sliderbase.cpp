@@ -24,6 +24,8 @@
 #include <QEvent>
 #include <QMessageBox>
 
+OLIVE_NAMESPACE_ENTER
+
 SliderBase::SliderBase(Mode mode, QWidget *parent) :
   QStackedWidget(parent),
   decimal_places_(1),
@@ -315,3 +317,5 @@ void SliderBase::LineEditCancelled()
   editor_->blockSignals(false);
   label_->blockSignals(false);
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -24,6 +24,10 @@
 #include <QSettings>
 #include <QWidget>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class StyleDescriptor {
 public:
   StyleDescriptor(const QString& name, const QString& path);
@@ -57,5 +61,7 @@ private:
 
   static void ParsePaletteColor(QSettings* ini, QPalette* palette, QPalette::ColorGroup group, const QString& role_name);
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // STYLEMANAGER_H

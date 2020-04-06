@@ -36,6 +36,8 @@
 #include "streamproperties/audiostreamproperties.h"
 #include "streamproperties/videostreamproperties.h"
 
+OLIVE_NAMESPACE_ENTER
+
 FootagePropertiesDialog::FootagePropertiesDialog(QWidget *parent, Footage *footage) :
   QDialog(parent),
   footage_(footage)
@@ -170,3 +172,5 @@ void FootagePropertiesDialog::StreamEnableChangeCommand::undo_internal()
 {
   stream_->set_enabled(old_enabled_);
 }
+
+OLIVE_NAMESPACE_EXIT

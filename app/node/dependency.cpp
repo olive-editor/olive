@@ -22,6 +22,8 @@
 
 #include "node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeDependency::NodeDependency() :
   node_(nullptr)
 {
@@ -58,3 +60,5 @@ const TimeRange &NodeDependency::range() const
 {
   return range_;
 }
+
+OLIVE_NAMESPACE_EXIT

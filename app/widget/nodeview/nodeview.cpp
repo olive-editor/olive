@@ -26,6 +26,8 @@
 #include "nodeviewundo.h"
 #include "node/factory.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeView::NodeView(QWidget *parent) :
   QGraphicsView(parent),
   graph_(nullptr),
@@ -468,3 +470,5 @@ void NodeView::DetachItemFromCursor()
 {
   AttachItemToCursor(nullptr);
 }
+
+OLIVE_NAMESPACE_EXIT

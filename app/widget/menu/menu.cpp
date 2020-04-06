@@ -22,6 +22,8 @@
 
 #include "ui/style/style.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Menu::Menu(QMenuBar *bar, const QObject* receiver, const char* member) :
   QMenu(bar)
 {
@@ -139,3 +141,5 @@ void Menu::SetBooleanAction(QAction *a, bool* boolean)
   a->setChecked(*boolean);
   a->setProperty("boolptr", reinterpret_cast<quintptr>(boolean));
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -1,3 +1,23 @@
+/***
+
+  Olive - Non-Linear Video Editor
+  Copyright (C) 2019 Olive Team
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+***/
+
 #ifndef COLOR_H
 #define COLOR_H
 
@@ -6,6 +26,8 @@
 
 #include "common/define.h"
 #include "render/pixelformat.h"
+
+OLIVE_NAMESPACE_ENTER
 
 /**
  * @brief High precision 32-bit float based RGBA color value
@@ -69,8 +91,10 @@ private:
 
 };
 
-QDebug operator<<(QDebug debug, const Color& r);
+OLIVE_NAMESPACE_EXIT
 
-Q_DECLARE_METATYPE(Color)
+QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::Color& r);
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::Color)
 
 #endif // COLOR_H

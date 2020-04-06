@@ -20,6 +20,8 @@
 
 #include "viewer.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ViewerPanel::ViewerPanel(QWidget *parent) :
   ViewerPanelBase(parent)
 {
@@ -39,3 +41,5 @@ void ViewerPanel::Retranslate()
 
   SetTitle(tr("Viewer"));
 }
+
+OLIVE_NAMESPACE_EXIT

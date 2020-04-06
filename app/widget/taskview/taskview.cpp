@@ -22,6 +22,8 @@
 
 #include <QPushButton>
 
+OLIVE_NAMESPACE_ENTER
+
 TaskView::TaskView(QWidget* parent) :
   QScrollArea(parent)
 {
@@ -46,3 +48,5 @@ void TaskView::AddTask(Task *t)
   // Create TaskViewItem (UI representation of a Task) and connect it
   layout_->insertWidget(layout_->count()-1, new TaskViewItem(t));
 }
+
+OLIVE_NAMESPACE_EXIT

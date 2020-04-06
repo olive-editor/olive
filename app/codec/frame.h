@@ -29,6 +29,8 @@
 #include "render/pixelformat.h"
 #include "render/videoparams.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Frame;
 using FramePtr = std::shared_ptr<Frame>;
 
@@ -122,6 +124,8 @@ private:
 
 };
 
-Q_DECLARE_METATYPE(FramePtr)
+OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::FramePtr)
 
 #endif // FRAME_H

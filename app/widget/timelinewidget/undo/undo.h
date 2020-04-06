@@ -30,6 +30,8 @@
 #include "timeline/timelinepoints.h"
 #include "undo/undocommand.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class BlockResizeCommand : public UndoCommand {
 public:
   BlockResizeCommand(Block* block, rational new_length, QUndoCommand* parent = nullptr);
@@ -372,5 +374,7 @@ private:
   QVector<Block*> unlinked_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEUNDOABLE_H

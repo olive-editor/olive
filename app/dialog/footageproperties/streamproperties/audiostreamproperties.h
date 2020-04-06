@@ -24,6 +24,8 @@
 #include "project/item/footage/audiostream.h"
 #include "streamproperties.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class AudioStreamProperties : public StreamProperties
 {
 public:
@@ -34,5 +36,7 @@ public:
 private:
   AudioStreamPtr stream_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // AUDIOSTREAMPROPERTIES_H

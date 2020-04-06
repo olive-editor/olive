@@ -23,6 +23,8 @@
 
 #include "widget/menu/menu.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A static object that provides various "stock" menus for use throughout the application
  */
@@ -102,5 +104,7 @@ private slots:
   void PasteInsertTriggered();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // MENUSHARED_H

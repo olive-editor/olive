@@ -23,6 +23,8 @@
 
 #include "node/block/block.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Node that represents a block of Media
  */
@@ -59,5 +61,7 @@ private:
   NodeInput* texture_input_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEBLOCK_H

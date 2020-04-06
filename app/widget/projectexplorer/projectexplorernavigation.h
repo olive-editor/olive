@@ -26,6 +26,10 @@
 #include <QSlider>
 #include <QWidget>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A navigation bar widget for ProjectExplorer's Icon and List views
  *
@@ -107,5 +111,7 @@ private:
 
   QSlider* size_slider_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECTEXPLORERLISTVIEWTOOLBAR_H

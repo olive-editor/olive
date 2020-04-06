@@ -23,6 +23,8 @@
 
 #include "sliderbase.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class StringSlider : public SliderBase
 {
   Q_OBJECT
@@ -44,5 +46,7 @@ signals:
 private slots:
   void ConvertValue(QVariant v);
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // STRINGSLIDER_H

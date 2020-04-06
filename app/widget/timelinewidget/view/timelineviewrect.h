@@ -26,6 +26,8 @@
 #include "timeline/timelinecoordinate.h"
 #include "../timelinescaledobject.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A base class for graphical representations of Block nodes
  */
@@ -52,5 +54,7 @@ protected:
 
   TrackReference track_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEVIEWRECT_H

@@ -23,6 +23,8 @@
 
 #include "imagestream.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class VideoStream : public ImageStream
 {
   Q_OBJECT
@@ -71,5 +73,7 @@ private:
 };
 
 using VideoStreamPtr = std::shared_ptr<VideoStream>;
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIDEOSTREAM_H

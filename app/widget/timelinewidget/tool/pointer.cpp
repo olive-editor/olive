@@ -34,6 +34,8 @@
 #include "node/block/transition/transition.h"
 #include "widget/nodeview/nodeviewundo.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::PointerTool::PointerTool(TimelineWidget *parent) :
   Tool(parent),
   movement_allowed_(true),
@@ -714,3 +716,5 @@ rational TimelineWidget::PointerTool::ValidateOutTrimming(rational movement,
 
   return movement;
 }
+
+OLIVE_NAMESPACE_EXIT

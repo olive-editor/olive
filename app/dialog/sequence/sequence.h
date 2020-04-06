@@ -28,6 +28,8 @@
 #include "project/item/sequence/sequence.h"
 #include "undo/undocommand.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A dialog for editing Sequence parameters
  *
@@ -136,5 +138,7 @@ private:
     QString old_name_;
   };
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // SEQUENCEDIALOG_H

@@ -25,6 +25,8 @@
 
 #include "viewerbase.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Dockable wrapper around a ViewerWidget
  */
@@ -37,5 +39,7 @@ protected:
   virtual void Retranslate() override;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIEWER_PANEL_H

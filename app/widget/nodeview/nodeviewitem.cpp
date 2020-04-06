@@ -35,6 +35,8 @@
 #include "ui/icons/icons.h"
 #include "window/mainwindow/mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeViewItem::NodeViewItem(QGraphicsItem *parent) :
   QGraphicsRectItem(parent),
   node_(nullptr),
@@ -456,3 +458,5 @@ QPointF NodeViewItem::GetInputPoint(int index) const
 
   return QPointF(input_rect.left(), input_rect.center().y());
 }
+
+OLIVE_NAMESPACE_EXIT

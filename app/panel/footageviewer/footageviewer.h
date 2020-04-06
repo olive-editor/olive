@@ -26,6 +26,8 @@
 #include "panel/viewer/viewerbase.h"
 #include "panel/project/footagemanagementpanel.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Dockable wrapper around a ViewerWidget
  */
@@ -42,5 +44,7 @@ protected:
   virtual void Retranslate() override;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // FOOTAGE_VIEWER_PANEL_H

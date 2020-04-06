@@ -23,6 +23,8 @@
 
 #include "stream.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A Stream derivative containing video-specific information
  */
@@ -66,5 +68,7 @@ private slots:
 };
 
 using ImageStreamPtr = std::shared_ptr<ImageStream>;
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // IMAGESTREAM_H

@@ -22,6 +22,8 @@
 
 #include <QPainter>
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectExplorerListViewItemDelegate::ProjectExplorerListViewItemDelegate(QObject *parent) :
   QStyledItemDelegate(parent)
 {
@@ -77,3 +79,5 @@ void ProjectExplorerListViewItemDelegate::paint(QPainter *painter, const QStyleO
 
   painter->drawText(text_rect, static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter), text);
 }
+
+OLIVE_NAMESPACE_EXIT

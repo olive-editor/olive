@@ -24,6 +24,8 @@
 #include "widget/nodeview/nodeview.h"
 #include "widget/panel/panel.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A PanelWidget wrapper around a NodeView
  */
@@ -61,5 +63,7 @@ private:
   NodeView* node_view_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEPANEL_H

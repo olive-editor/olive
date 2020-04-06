@@ -42,6 +42,8 @@ extern "C" {
 #include "render/diskmanager.h"
 #include "render/pixelformat.h"
 
+OLIVE_NAMESPACE_ENTER
+
 FFmpegDecoder::FFmpegDecoder() :
   fmt_ctx_(nullptr),
   codec_ctx_(nullptr),
@@ -992,3 +994,5 @@ void FFmpegDecoder::ClearTimerEvent()
   cache_at_zero_ = false;
   cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - clear_timer_.interval());
 }
+
+OLIVE_NAMESPACE_EXIT

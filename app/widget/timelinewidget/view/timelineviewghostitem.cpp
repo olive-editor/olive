@@ -22,6 +22,8 @@
 
 #include <QPainter>
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineViewGhostItem::TimelineViewGhostItem(QGraphicsItem *parent) :
   TimelineViewRect(parent),
   track_adj_(0),
@@ -211,3 +213,5 @@ void TimelineViewGhostItem::UpdateRect()
 
   setPos(TimeToScene(GetAdjustedIn()), 0);
 }
+
+OLIVE_NAMESPACE_EXIT

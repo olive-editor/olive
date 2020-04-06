@@ -23,6 +23,10 @@
 
 #include <QLineEdit>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class FocusableLineEdit : public QLineEdit
 {
   Q_OBJECT
@@ -41,5 +45,7 @@ protected:
 
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // SLIDERLINEEDIT_H

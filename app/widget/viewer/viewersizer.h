@@ -23,6 +23,10 @@
 
 #include <QWidget>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A container widget that enforces the aspect ratio of a child widget
  *
@@ -98,5 +102,7 @@ private:
   int zoom_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIEWERSIZER_H

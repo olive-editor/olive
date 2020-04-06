@@ -31,6 +31,8 @@ namespace OCIO = OCIO_NAMESPACE::v1;
 #include "project/project.h"
 #include "undo/undostack.h"
 
+OLIVE_NAMESPACE_ENTER
+
 VideoStreamProperties::VideoStreamProperties(ImageStreamPtr stream) :
   stream_(stream)
 {
@@ -193,3 +195,5 @@ void VideoStreamProperties::ImageSequenceChangeCommand::undo_internal()
   video_stream_->set_start_time(old_start_index_);
   video_stream_->set_duration(old_duration_);
 }
+
+OLIVE_NAMESPACE_EXIT

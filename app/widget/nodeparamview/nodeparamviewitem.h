@@ -32,6 +32,8 @@
 #include "nodeparamviewwidgetbridge.h"
 #include "widget/clickablelabel/clickablelabel.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class NodeParamViewItemTitleBar : public QWidget {
 public:
   NodeParamViewItemTitleBar(QWidget* parent = nullptr);
@@ -108,5 +110,7 @@ private slots:
   void LabelClicked();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEPARAMVIEWITEM_H

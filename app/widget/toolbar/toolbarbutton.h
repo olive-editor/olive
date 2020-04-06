@@ -25,6 +25,8 @@
 
 #include "tool/tool.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Simple derived class of QPushButton to contain an Tool ID. Used as the main widget through Toolbar.
  */
@@ -56,5 +58,7 @@ private:
    */
   Tool::Item tool_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TOOLBARBUTTON_H

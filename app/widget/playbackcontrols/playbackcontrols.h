@@ -30,6 +30,8 @@
 #include "dragbutton.h"
 #include "widget/slider/timeslider.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A playback controls widget providing buttons for navigating media
  *
@@ -131,5 +133,7 @@ private slots:
   void TimecodeChanged();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PLAYBACKCONTROLS_H

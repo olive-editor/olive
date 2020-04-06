@@ -23,6 +23,10 @@
 
 #include <QIcon>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 namespace icon {
 
 // Playback Icons
@@ -118,5 +122,7 @@ QIcon Create(const QString &theme, const QString& name);
 void LoadAll(const QString &theme);
 
 }
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // ICONS_H

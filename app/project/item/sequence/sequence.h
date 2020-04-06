@@ -29,6 +29,8 @@
 #include "project/item/item.h"
 #include "timeline/timelinepoints.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Sequence;
 using SequencePtr = std::shared_ptr<Sequence>;
 
@@ -81,5 +83,7 @@ private:
   ViewerOutput* viewer_output_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // SEQUENCE_H

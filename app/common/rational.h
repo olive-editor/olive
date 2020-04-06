@@ -14,7 +14,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-using namespace std;
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
 
 typedef int64_t intType;
 /*
@@ -90,11 +92,11 @@ public:
   bool isNull() const;
 
   //Function: print number to cout
-  void print(ostream &out = cout) const;
+  void print(std::ostream &out = std::cout) const;
 
   //IO
-  friend ostream& operator<<(ostream &out, const rational &value);
-  friend istream& operator>>(istream &in, rational &value);
+  friend std::ostream& operator<<(std::ostream &out, const rational &value);
+  friend std::istream& operator>>(std::istream &in, rational &value);
 
   const intType& numerator() const;
   const intType& denominator() const;
@@ -116,14 +118,16 @@ private:
   intType gcd(intType &x, intType &y);
 };
 
-QDebug operator<<(QDebug debug, const rational& r);
-
 // We define these limits at 32-bit to try avoiding integer overflow
 #define RATIONAL_MIN rational(INT32_MIN, 1)
 #define RATIONAL_MAX rational(INT32_MAX, 1)
 
-Q_DECLARE_METATYPE(rational)
-
 uint qHash(const rational& r, uint seed);
+
+OLIVE_NAMESPACE_EXIT
+
+QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::rational& r);
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::rational)
 
 #endif // RATIONAL_H

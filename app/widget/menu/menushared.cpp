@@ -24,6 +24,8 @@
 #include "panel/panelmanager.h"
 #include "panel/timeline/timeline.h"
 
+OLIVE_NAMESPACE_ENTER
+
 MenuShared* MenuShared::instance_ = nullptr;
 
 MenuShared::MenuShared()
@@ -211,3 +213,5 @@ void MenuShared::Retranslate()
   clip_enable_disable_item_->setText(tr("Enable/Disable"));
   clip_nest_item_->setText(tr("Nest"));
 }
+
+OLIVE_NAMESPACE_EXIT

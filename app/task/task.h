@@ -26,6 +26,8 @@
 
 #include "common/cancelableobject.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A base class for background tasks running in Olive.
  *
@@ -142,5 +144,7 @@ private:
   QString error_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TASK_H

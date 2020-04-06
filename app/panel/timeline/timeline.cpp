@@ -23,6 +23,8 @@
 #include "panel/panelmanager.h"
 #include "panel/project/footagemanagementpanel.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelinePanel::TimelinePanel(QWidget *parent) :
   TimeBasedPanel(parent)
 {
@@ -156,3 +158,5 @@ void TimelinePanel::Retranslate()
 
   SetTitle(tr("Timeline"));
 }
+
+OLIVE_NAMESPACE_EXIT

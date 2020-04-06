@@ -27,6 +27,8 @@
 #include "widget/toolbar/toolbarbutton.h"
 #include "tool/tool.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget containing buttons for all of Olive's application-wide tools.
  *
@@ -214,5 +216,7 @@ private slots:
   void AddMenuItemTriggered(QAction* a);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TOOLBAR_H

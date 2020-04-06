@@ -30,6 +30,8 @@
 #include "config/config.h"
 #include "core.h"
 
+OLIVE_NAMESPACE_ENTER
+
 QStringList OIIODecoder::supported_formats_;
 
 OIIODecoder::OIIODecoder() :
@@ -347,3 +349,5 @@ void OIIODecoder::CloseImageHandle()
     buffer_ = nullptr;
   }
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -24,6 +24,8 @@
 #include "common/timelinecommon.h"
 #include "node/block/block.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A time traversal Node for sorting through one channel/track of Blocks
  */
@@ -213,5 +215,7 @@ private slots:
   void BlockLengthChanged();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TRACKOUTPUT_H

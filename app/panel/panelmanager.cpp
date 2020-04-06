@@ -22,6 +22,8 @@
 
 #include "config/config.h"
 
+OLIVE_NAMESPACE_ENTER
+
 PanelManager* PanelManager::instance_ = nullptr;
 
 PanelManager::PanelManager(QObject *parent) :
@@ -147,3 +149,5 @@ void PanelManager::SetPanelsLocked(bool locked)
 
   locked_ = locked;
 }
+
+OLIVE_NAMESPACE_EXIT

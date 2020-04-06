@@ -34,6 +34,8 @@
 #include "render/pixelformat.h"
 #include "videorenderworker.h"
 
+OLIVE_NAMESPACE_ENTER
+
 VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
   operating_mode_(VideoRenderWorker::kHashRenderCache),
@@ -382,3 +384,5 @@ void VideoRenderBackend::Requeue()
 
   CacheNext();
 }
+
+OLIVE_NAMESPACE_EXIT

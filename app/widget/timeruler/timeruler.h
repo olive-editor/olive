@@ -27,6 +27,8 @@
 #include "common/timerange.h"
 #include "seekablewidget.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class TimeRuler : public SeekableWidget
 {
   Q_OBJECT
@@ -69,5 +71,7 @@ private:
   TimeRangeList dirty_cache_ranges_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMERULER_H

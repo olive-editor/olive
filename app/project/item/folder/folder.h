@@ -25,6 +25,8 @@
 #include "project/item/footage/footage.h"
 #include "project/item/item.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The Folder class representing a directory in a project structure
  *
@@ -34,7 +36,7 @@
 class Folder : public Item
 {
 public:
-  Folder();
+  Folder() = default;
 
   virtual Type type() const override;
 
@@ -49,5 +51,7 @@ public:
 private:
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // FOLDER_H

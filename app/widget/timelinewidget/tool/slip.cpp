@@ -25,6 +25,8 @@
 #include "common/timecodefunctions.h"
 #include "config/config.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::SlipTool::SlipTool(TimelineWidget *parent) :
   PointerTool(parent)
 {
@@ -80,3 +82,4 @@ void TimelineWidget::SlipTool::MouseReleaseInternal(TimelineViewMouseEvent *even
   Core::instance()->undo_stack()->pushIfHasChildren(command);
 }
 
+OLIVE_NAMESPACE_EXIT

@@ -29,6 +29,8 @@
 
 #include "outputdeviceproxy.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class AudioOutputManager : public QObject
 {
   Q_OBJECT
@@ -87,5 +89,7 @@ private:
 private slots:
   void PushMoreSamples();
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // AUDIOHYBRIDDEVICE_H

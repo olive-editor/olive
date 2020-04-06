@@ -29,6 +29,8 @@
 #include "nodeview.h"
 #include "nodeviewscene.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeViewEdge::NodeViewEdge(QGraphicsItem *parent) :
   QGraphicsPathItem(parent),
   edge_(nullptr),
@@ -114,3 +116,4 @@ void NodeViewEdge::UpdatePen()
   //update();
 }
 
+OLIVE_NAMESPACE_EXIT

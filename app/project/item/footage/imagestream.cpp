@@ -25,6 +25,8 @@
 #include "project/project.h"
 #include "render/colormanager.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ImageStream::ImageStream() :
   premultiplied_alpha_(false)
 {
@@ -136,3 +138,5 @@ void ImageStream::DefaultColorSpaceChanged()
     emit ParametersChanged();
   }
 }
+
+OLIVE_NAMESPACE_EXIT

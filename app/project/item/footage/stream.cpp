@@ -23,6 +23,8 @@
 #include "footage.h"
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Stream::Stream() :
   footage_(nullptr),
   type_(kUnknown),
@@ -165,3 +167,5 @@ void Stream::SaveCustomParameters(QXmlStreamWriter*) const
   stream_index_(stream_index)
 {
 }*/
+
+OLIVE_NAMESPACE_EXIT

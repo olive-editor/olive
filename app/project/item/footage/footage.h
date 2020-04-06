@@ -32,6 +32,8 @@
 #include "project/item/footage/videostream.h"
 #include "timeline/timelinepoints.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A reference to an external media file with metadata in a project structure
  *
@@ -264,5 +266,7 @@ private:
 };
 
 using FootagePtr = std::shared_ptr<Footage>;
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // FOOTAGE_H

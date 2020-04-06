@@ -33,6 +33,8 @@
 #include "core.h"
 #include "window/mainwindow/mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Config Config::current_config_;
 
 Config::Config()
@@ -225,3 +227,5 @@ QVariant &Config::operator[](const QString &key)
 {
   return config_map_[key];
 }
+
+OLIVE_NAMESPACE_EXIT

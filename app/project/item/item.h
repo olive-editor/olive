@@ -34,6 +34,8 @@
 #include "node/param.h"
 #include "project/item/footage/stream.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Project;
 
 class Item;
@@ -121,5 +123,7 @@ private:
   QString tooltip_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // ITEM_H

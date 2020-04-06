@@ -22,6 +22,8 @@
 
 #include <QAction>
 
+OLIVE_NAMESPACE_ENTER
+
 KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
   : QKeySequenceEdit(parent), action(a) {
   setKeySequence(action->shortcut());
@@ -46,3 +48,5 @@ QString KeySequenceEditor::export_shortcut() {
   }
   return nullptr;
 }
+
+OLIVE_NAMESPACE_EXIT

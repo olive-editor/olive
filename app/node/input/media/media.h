@@ -24,6 +24,8 @@
 #include "codec/decoder.h"
 #include "node/node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A node that imports an image
  */
@@ -53,5 +55,7 @@ private slots:
   void FootageParametersChanged();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // MEDIAINPUT_H

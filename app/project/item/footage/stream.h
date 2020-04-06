@@ -29,6 +29,8 @@
 
 #include "common/rational.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Footage;
 
 /*class StreamID {
@@ -136,7 +138,9 @@ private:
 
 using StreamPtr = std::shared_ptr<Stream>;
 
+OLIVE_NAMESPACE_EXIT
+
 #include <QMetaType>
-Q_DECLARE_METATYPE(StreamPtr)
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::StreamPtr)
 
 #endif // STREAM_H

@@ -22,6 +22,8 @@
 
 #include <QMouseEvent>
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectExplorerListViewBase::ProjectExplorerListViewBase(QWidget *parent) :
   QListView(parent)
 {
@@ -48,3 +50,5 @@ void ProjectExplorerListViewBase::mouseDoubleClickEvent(QMouseEvent *event)
     emit DoubleClickedEmptyArea();
   }
 }
+
+OLIVE_NAMESPACE_EXIT

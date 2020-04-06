@@ -28,6 +28,8 @@
 
 #include "render/rendermodes.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Frame;
 using FramePtr = std::shared_ptr<Frame>;
 
@@ -138,5 +140,7 @@ private:
   static PixelFormat* instance_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // BITDEPTHS_H

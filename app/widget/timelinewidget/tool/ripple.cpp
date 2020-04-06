@@ -23,6 +23,8 @@
 #include "node/block/gap/gap.h"
 #include "widget/nodeview/nodeviewundo.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::RippleTool::RippleTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
@@ -152,3 +154,5 @@ void TimelineWidget::RippleTool::InitiateGhosts(TimelineViewBlockItem *clicked_i
     }
   }
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -29,6 +29,8 @@
 #include "undo/undocommand.h"
 #include "widget/slider/integerslider.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class VideoStreamProperties : public StreamProperties
 {
 public:
@@ -110,5 +112,7 @@ private:
 
   };
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIDEOSTREAMPROPERTIES_H

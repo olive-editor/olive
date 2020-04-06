@@ -24,6 +24,8 @@
 
 #include "common/qtutils.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectExplorerIconViewItemDelegate::ProjectExplorerIconViewItemDelegate(QObject *parent) :
   QStyledItemDelegate (parent)
 {
@@ -97,3 +99,4 @@ void ProjectExplorerIconViewItemDelegate::paint(QPainter *painter, const QStyleO
   }
 }
 
+OLIVE_NAMESPACE_EXIT

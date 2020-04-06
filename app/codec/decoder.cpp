@@ -33,6 +33,8 @@
 #include "task/index/index.h"
 #include "task/taskmanager.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Decoder::Decoder() :
   open_(false),
   stream_(nullptr)
@@ -142,7 +144,7 @@ bool Decoder::ProbeMedia(Footage *f, const QAtomicInt* cancelled)
           QMetaObject::invokeMethod(IndexManager::instance(),
                                     "StartIndexingStream",
                                     Qt::QueuedConnection,
-                                    Q_ARG(StreamPtr, stream));
+                                    OLIVE_NS_ARG(StreamPtr, stream));
         }
       }
 
@@ -357,3 +359,5 @@ void Decoder::SignalIndexProgress(const int64_t &ts)
     emit IndexProgress(qRound(100.0 * static_cast<double>(ts) / static_cast<double>(stream()->duration())));
   }
 }
+
+OLIVE_NAMESPACE_EXIT

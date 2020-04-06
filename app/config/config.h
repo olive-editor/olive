@@ -27,6 +27,8 @@
 
 #include "common/timecodefunctions.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Config {
 public:
   static Config& Current();
@@ -50,5 +52,7 @@ private:
 
   static QString GetConfigFilePath();
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // CONFIG_H

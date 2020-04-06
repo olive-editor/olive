@@ -23,6 +23,10 @@
 
 #include <QUndoStack>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class UndoStack : public QUndoStack {
 public:
   /**
@@ -32,5 +36,7 @@ public:
    */
   void pushIfHasChildren(QUndoCommand* command);
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // UNDOSTACK_H

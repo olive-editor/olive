@@ -23,6 +23,10 @@
 
 #include <memory>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class NodeOutput;
 class NodeInput;
 
@@ -56,5 +60,7 @@ private:
 };
 
 using NodeEdgePtr = std::shared_ptr<NodeEdge>;
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // EDGE_H

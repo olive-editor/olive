@@ -22,6 +22,8 @@
 
 #include "task/taskmanager.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TaskManagerPanel::TaskManagerPanel(QWidget* parent) :
   PanelWidget(parent)
 {
@@ -45,3 +47,5 @@ void TaskManagerPanel::Retranslate()
 {
   SetTitle(tr("Task Manager"));
 }
+
+OLIVE_NAMESPACE_EXIT

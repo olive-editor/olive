@@ -23,6 +23,8 @@
 
 #include "node/node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A Node that represents a block of time, also displayable on a Timeline
  *
@@ -135,5 +137,7 @@ private slots:
   void LengthInputChanged();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // BLOCK_H

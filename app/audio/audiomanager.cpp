@@ -24,6 +24,8 @@
 
 #include "config/config.h"
 
+OLIVE_NAMESPACE_ENTER
+
 AudioManager* AudioManager::instance_ = nullptr;
 
 void AudioManager::CreateInstance()
@@ -282,3 +284,5 @@ void AudioRefreshDevicesObject::Refresh()
 
   emit ListsReady();
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -23,6 +23,8 @@
 #include "node/block/gap/gap.h"
 #include "widget/nodeview/nodeviewundo.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineWidget::SlideTool::SlideTool(TimelineWidget* parent) :
   PointerTool(parent)
 {
@@ -89,3 +91,4 @@ void TimelineWidget::SlideTool::InitiateGhosts(TimelineViewBlockItem *clicked_it
   }
 }
 
+OLIVE_NAMESPACE_EXIT

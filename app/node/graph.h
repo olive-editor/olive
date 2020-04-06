@@ -25,6 +25,8 @@
 
 #include "node/node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A collection of nodes
  */
@@ -89,5 +91,7 @@ signals:
 private:
   QList<Node*> node_children_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEGRAPH_H

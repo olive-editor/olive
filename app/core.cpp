@@ -58,6 +58,8 @@
 #include "widget/taskview/taskviewitem.h"
 #include "window/mainwindow/mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Core Core::instance_;
 
 Core::Core() :
@@ -736,3 +738,5 @@ void Core::OpenProject()
     OpenProjectInternal(file);
   }
 }
+
+OLIVE_NAMESPACE_EXIT

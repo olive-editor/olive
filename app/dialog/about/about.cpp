@@ -25,6 +25,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+OLIVE_NAMESPACE_ENTER
+
 AboutDialog::AboutDialog(QWidget *parent) :
   QDialog(parent)
 {
@@ -64,3 +66,5 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
   connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
 }
+
+OLIVE_NAMESPACE_EXIT

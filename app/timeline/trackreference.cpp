@@ -20,6 +20,8 @@
 
 #include "trackreference.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TrackReference::TrackReference() :
   type_(Timeline::kTrackTypeNone),
   index_(0)
@@ -46,3 +48,5 @@ bool TrackReference::operator==(const TrackReference &ref) const
 {
   return type_ == ref.type_ && index_ == ref.index_;
 }
+
+OLIVE_NAMESPACE_EXIT

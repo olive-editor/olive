@@ -27,6 +27,8 @@
 
 #include "project/project.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class ProjectPropertiesDialog : public QDialog
 {
   Q_OBJECT
@@ -51,5 +53,7 @@ private slots:
   void BrowseForOCIOConfig();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECTPROPERTIESDIALOG_H

@@ -40,6 +40,8 @@
 #include "widget/playbackcontrols/playbackcontrols.h"
 #include "widget/timebased/timebased.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
@@ -233,5 +235,7 @@ private slots:
   void WindowAboutToClose();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIEWER_WIDGET_H

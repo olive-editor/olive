@@ -28,6 +28,8 @@
 #include "common/define.h"
 #include "core.h"
 
+OLIVE_NAMESPACE_ENTER
+
 bool PixelFormat::FormatHasAlphaChannel(const PixelFormat::Format &format)
 {
   switch (format) {
@@ -230,3 +232,4 @@ FramePtr PixelFormat::ConvertPixelFormat(FramePtr frame, const PixelFormat::Form
   }
 }
 
+OLIVE_NAMESPACE_EXIT

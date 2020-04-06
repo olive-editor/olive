@@ -29,6 +29,8 @@
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/timebased/timebased.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class NodeParamView : public TimeBasedWidget
 {
   Q_OBJECT
@@ -73,5 +75,7 @@ private slots:
   void ForceKeyframeViewToScroll(int min, int max);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEPARAMVIEW_H

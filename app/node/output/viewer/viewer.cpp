@@ -22,6 +22,8 @@
 
 #include "node/traverser.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ViewerOutput::ViewerOutput()
 {
   texture_input_ = new NodeInput("tex_in", NodeInput::kTexture);
@@ -281,3 +283,5 @@ void ViewerOutput::TrackHeightChangedSlot(int index, int height)
 {
   emit TrackHeightChanged(static_cast<TrackList*>(sender())->type(), index, height);
 }
+
+OLIVE_NAMESPACE_EXIT

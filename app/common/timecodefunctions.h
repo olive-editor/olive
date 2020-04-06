@@ -25,6 +25,8 @@
 
 #include "common/rational.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Functions for converting times/timecodes/timestamps
  *
@@ -67,5 +69,7 @@ public:
   static bool TimebaseIsDropFrame(const rational& timebase);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMECODEFUNCTIONS_H

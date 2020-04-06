@@ -26,6 +26,8 @@
 
 #include "core.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectViewModel::ProjectViewModel(QObject *parent) :
   QAbstractItemModel(parent),
   project_(nullptr)
@@ -580,3 +582,5 @@ void ProjectViewModel::RemoveItemCommand::undo_internal()
 {
   model_->AddChild(parent_, item_);
 }
+
+OLIVE_NAMESPACE_EXIT

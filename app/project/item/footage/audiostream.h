@@ -27,6 +27,8 @@
 #include "render/audioparams.h"
 #include "stream.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A Stream derivative containing audio-specific information
  */
@@ -75,5 +77,7 @@ private:
 };
 
 using AudioStreamPtr = std::shared_ptr<AudioStream>;
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // AUDIOSTREAM_H

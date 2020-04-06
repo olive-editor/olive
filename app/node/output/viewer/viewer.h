@@ -32,6 +32,8 @@
 #include "render/audioparams.h"
 #include "timeline/trackreference.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A bridge between a node system and a ViewerPanel
  *
@@ -142,5 +144,7 @@ private slots:
   void TrackHeightChangedSlot(int index, int height);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIEWER_H

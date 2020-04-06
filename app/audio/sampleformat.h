@@ -23,7 +23,10 @@
 
 #include <QObject>
 
+#include "common/define.h"
 #include "render/rendermodes.h"
+
+OLIVE_NAMESPACE_ENTER
 
 class SampleFormat : public QObject
 {
@@ -50,5 +53,7 @@ public:
   static void SetConfiguredFormatForMode(RenderMode::Mode mode, Format format);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // SAMPLEFORMAT_H

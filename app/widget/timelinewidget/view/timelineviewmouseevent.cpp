@@ -24,6 +24,8 @@
 
 #include "widget/timelinewidget/timelinescaledobject.h"
 
+OLIVE_NAMESPACE_ENTER
+
 TimelineViewMouseEvent::TimelineViewMouseEvent(const qreal &scene_x,
                                                const double &scale_x,
                                                const rational &timebase,
@@ -90,3 +92,5 @@ void TimelineViewMouseEvent::ignore()
   if (source_event_ != nullptr)
     source_event_->ignore();
 }
+
+OLIVE_NAMESPACE_EXIT

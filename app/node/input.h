@@ -25,6 +25,8 @@
 #include "keyframe.h"
 #include "param.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A node parameter designed to take either user input or data from another node
  */
@@ -387,5 +389,7 @@ private slots:
   void KeyframeBezierOutChanged();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEINPUT_H

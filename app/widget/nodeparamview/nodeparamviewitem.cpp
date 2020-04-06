@@ -30,6 +30,8 @@
 #include "project/item/sequence/sequence.h"
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodeParamViewItem::NodeParamViewItem(Node *node, QWidget *parent) :
   QWidget(parent),
   node_(node)
@@ -281,3 +283,5 @@ void NodeParamViewItemTitleBar::paintEvent(QPaintEvent *event)
   p.setPen(palette().text().color());
   p.drawLine(0, bottom, width(), bottom);
 }
+
+OLIVE_NAMESPACE_EXIT

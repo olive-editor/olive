@@ -29,6 +29,10 @@
 
 #include <QFontMetrics>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Retrieves the width of a string according to certain QFontMetrics
  *
@@ -36,5 +40,7 @@
  * introduced in 5.11+. This function wraps the latter for 5.11+ and the former for earlier.
  */
 int QFontMetricsWidth(QFontMetrics fm, const QString& s);
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // QTVERSIONABSTRACTION_H

@@ -28,6 +28,8 @@
 #include "nodeviewscene.h"
 #include "widget/nodecopypaste/nodecopypaste.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget for viewing and editing node graphs
  *
@@ -116,5 +118,7 @@ private slots:
   void CreateNodeSlot(QAction* action);
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODEVIEW_H

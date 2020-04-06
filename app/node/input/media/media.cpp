@@ -22,6 +22,8 @@
 
 #include "common/timecodefunctions.h"
 
+OLIVE_NAMESPACE_ENTER
+
 MediaInput::MediaInput() :
   connected_footage_(nullptr)
 {
@@ -89,3 +91,5 @@ void MediaInput::FootageParametersChanged()
 {
   InvalidateCache(0, RATIONAL_MAX, footage_input_);
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -28,6 +28,8 @@
 #include "core.h"
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Footage::Footage()
 {
   Clear();
@@ -374,3 +376,5 @@ void Footage::UpdateTooltip()
     break;
   }
 }
+
+OLIVE_NAMESPACE_EXIT

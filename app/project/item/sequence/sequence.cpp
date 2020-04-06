@@ -35,6 +35,8 @@
 #include "panel/sequenceviewer/sequenceviewer.h"
 #include "ui/icons/icons.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Sequence::Sequence()
 {
   viewer_output_ = new ViewerOutput();
@@ -283,3 +285,5 @@ void Sequence::NameChangedEvent(const QString &name)
 {
   viewer_output_->set_media_name(name);
 }
+
+OLIVE_NAMESPACE_EXIT

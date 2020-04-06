@@ -20,6 +20,8 @@
 
 #include "projectexplorerlistview.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectExplorerListView::ProjectExplorerListView(QWidget *parent) :
   ProjectExplorerListViewBase(parent)
 {
@@ -27,3 +29,5 @@ ProjectExplorerListView::ProjectExplorerListView(QWidget *parent) :
 
   setItemDelegate(&delegate_);
 }
+
+OLIVE_NAMESPACE_EXIT

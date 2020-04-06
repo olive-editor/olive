@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QThread>
 
+OLIVE_NAMESPACE_ENTER
+
 TaskManager* TaskManager::instance_ = nullptr;
 
 TaskManager::TaskManager() :
@@ -256,3 +258,5 @@ void TaskManager::TaskFailed()
 {
   SetTaskStatus(static_cast<Task*>(sender()), kError);
 }
+
+OLIVE_NAMESPACE_EXIT

@@ -27,6 +27,8 @@
 
 #include "timeline/timelinecoordinate.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class TimelineViewMouseEvent
 {
 public:
@@ -76,5 +78,7 @@ private:
   const QMimeData* mime_data_;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEVIEWMOUSEEVENT_H

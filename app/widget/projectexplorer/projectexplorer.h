@@ -33,6 +33,8 @@
 #include "widget/projectexplorer/projectexplorernavigation.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget for browsing through a Project structure.
  *
@@ -162,5 +164,7 @@ private slots:
   void RevealSelectedFootage();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PROJECTEXPLORER_H

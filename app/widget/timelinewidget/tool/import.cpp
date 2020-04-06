@@ -37,6 +37,8 @@
 #include "widget/nodeview/nodeviewundo.h"
 #include "window/mainwindow/mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 Timeline::TrackType TrackTypeFromStreamType(Stream::Type stream_type)
 {
   switch (stream_type) {
@@ -451,3 +453,5 @@ void TimelineWidget::ImportTool::DropGhosts(bool insert)
     Core::instance()->main_window()->OpenSequence(open_sequence);
   }
 }
+
+OLIVE_NAMESPACE_EXIT

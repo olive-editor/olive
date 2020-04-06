@@ -33,6 +33,8 @@
 #include "widget/menu/menushared.h"
 #include "mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 MainMenu::MainMenu(QMainWindow *parent) :
   QMenuBar(parent)
 {
@@ -621,3 +623,5 @@ void MainMenu::Retranslate()
   help_debug_log_item_->setText(tr("Debug Log"));
   help_about_item_->setText(tr("&About..."));
 }
+
+OLIVE_NAMESPACE_EXIT

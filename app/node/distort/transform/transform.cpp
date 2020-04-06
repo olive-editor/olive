@@ -23,6 +23,8 @@
 #include <QMatrix4x4>
 #include <QVector2D>
 
+OLIVE_NAMESPACE_ENTER
+
 TransformDistort::TransformDistort()
 {
   position_input_ = new NodeInput("pos_in", NodeParam::kVec2);
@@ -112,3 +114,5 @@ void TransformDistort::UniformScaleChanged()
 {
   scale_input_->set_property("disabley", uniform_scale_input_->get_standard_value().toBool());
 }
+
+OLIVE_NAMESPACE_EXIT

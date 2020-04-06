@@ -23,6 +23,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 
+OLIVE_NAMESPACE_ENTER
+
 SliderLabel::SliderLabel(QWidget *parent) :
   QLabel(parent)
 {
@@ -90,3 +92,5 @@ void SliderLabel::focusInEvent(QFocusEvent *event)
     emit focused();
   }
 }
+
+OLIVE_NAMESPACE_EXIT

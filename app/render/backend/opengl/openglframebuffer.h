@@ -26,14 +26,14 @@
 #include "common/constructors.h"
 #include "opengltexture.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class OpenGLFramebuffer : public QObject
 {
   Q_OBJECT
 public:
   OpenGLFramebuffer();
   virtual ~OpenGLFramebuffer() override;
-
-  DISABLE_COPY_MOVE(OpenGLFramebuffer)
 
   void Create(QOpenGLContext *ctx);
 
@@ -60,5 +60,7 @@ private:
 
   OpenGLTexture* texture_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // OPENGLFRAMEBUFFER_H

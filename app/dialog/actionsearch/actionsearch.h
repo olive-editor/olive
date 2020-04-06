@@ -27,6 +27,10 @@
 #include <QMenu>
 #include <QMenuBar>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 class ActionSearchList;
 
 /**
@@ -177,5 +181,7 @@ signals:
    */
   void moveSelectionDown();
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // ACTIONSEARCH_H

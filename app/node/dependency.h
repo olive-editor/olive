@@ -25,6 +25,8 @@
 
 #include "common/timerange.h"
 
+OLIVE_NAMESPACE_ENTER
+
 class Node;
 
 class NodeDependency {
@@ -43,6 +45,8 @@ private:
   TimeRange range_;
 };
 
-Q_DECLARE_METATYPE(NodeDependency)
+OLIVE_NAMESPACE_EXIT
+
+Q_DECLARE_METATYPE(OLIVE_NAMESPACE::NodeDependency)
 
 #endif // NODEDEPENDENCY_H

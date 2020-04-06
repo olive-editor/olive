@@ -24,6 +24,10 @@
 #include <QDockWidget>
 #include <QEvent>
 
+#include "common/define.h"
+
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A widget that is always dockable within the MainWindow.
  */
@@ -203,5 +207,7 @@ private:
    */
   bool border_visible_;
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // PANEL_WIDGET_H

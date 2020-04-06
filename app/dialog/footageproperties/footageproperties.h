@@ -32,6 +32,8 @@
 #include "project/item/footage/footage.h"
 #include "undo/undocommand.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The MediaPropertiesDialog class
  *
@@ -125,5 +127,7 @@ private slots:
   void accept();
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // MEDIAPROPERTIESDIALOG_H

@@ -22,6 +22,8 @@
 
 #include "widget/viewer/footageviewer.h"
 
+OLIVE_NAMESPACE_ENTER
+
 FootageViewerPanel::FootageViewerPanel(QWidget *parent) :
   ViewerPanelBase(parent)
 {
@@ -57,3 +59,5 @@ void FootageViewerPanel::Retranslate()
 
   SetTitle(tr("Footage Viewer"));
 }
+
+OLIVE_NAMESPACE_EXIT

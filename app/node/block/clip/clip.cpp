@@ -20,6 +20,8 @@
 
 #include "clip.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ClipBlock::ClipBlock()
 {
   texture_input_ = new NodeInput("buffer_in", NodeInput::kBuffer);
@@ -117,3 +119,5 @@ void ClipBlock::Retranslate()
 
   texture_input_->set_name(tr("Buffer"));
 }
+
+OLIVE_NAMESPACE_EXIT

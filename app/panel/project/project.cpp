@@ -32,6 +32,8 @@
 #include "widget/projecttoolbar/projecttoolbar.h"
 #include "window/mainwindow/mainwindow.h"
 
+OLIVE_NAMESPACE_ENTER
+
 ProjectPanel::ProjectPanel(QWidget *parent) :
   PanelWidget(parent)
 {
@@ -197,3 +199,5 @@ QList<Footage *> ProjectPanel::GetSelectedFootage()
 
   return footage;
 }
+
+OLIVE_NAMESPACE_EXIT

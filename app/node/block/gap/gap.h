@@ -23,6 +23,8 @@
 
 #include "node/block/block.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief Node that represents nothing in its respective track for a certain period of time
  */
@@ -43,5 +45,7 @@ public:
 private:
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TIMELINEBLOCK_H

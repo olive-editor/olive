@@ -20,6 +20,8 @@
 
 #include "audiostream.h"
 
+OLIVE_NAMESPACE_ENTER
+
 AudioStream::AudioStream() :
   index_done_(false)
 {
@@ -130,3 +132,5 @@ void AudioStream::append_conformed_version(const AudioRenderingParams &params)
 
   emit ConformAppended(params);
 }
+
+OLIVE_NAMESPACE_EXIT

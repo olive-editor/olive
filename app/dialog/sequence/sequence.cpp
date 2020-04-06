@@ -32,6 +32,8 @@
 #include "common/rational.h"
 #include "undo/undostack.h"
 
+OLIVE_NAMESPACE_ENTER
+
 SequenceDialog::SequenceDialog(Sequence* s, Type t, QWidget* parent) :
   QDialog(parent),
   sequence_(s),
@@ -222,3 +224,5 @@ void SequenceDialog::SequenceParamCommand::undo_internal()
   sequence_->set_audio_params(old_audio_params_);
   sequence_->set_name(old_name_);
 }
+
+OLIVE_NAMESPACE_EXIT

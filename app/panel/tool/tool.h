@@ -23,6 +23,8 @@
 
 #include "widget/panel/panel.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A PanelWidget wrapper around a Toolbar
  */
@@ -36,5 +38,7 @@ private:
   virtual void Retranslate() override;
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // TOOL_PANEL_H

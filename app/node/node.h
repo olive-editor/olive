@@ -36,6 +36,8 @@
 #include "node/value.h"
 #include "render/audioparams.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief A single processing unit that can be connected with others to create intricate processing systems
  *
@@ -459,5 +461,7 @@ T* Node::FindOutputNode()
 {
   return static_cast<T*>(FindOutputNodeInternal<T>(this));
 }
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // NODE_H

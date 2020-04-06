@@ -20,6 +20,8 @@
 
 #include "node.h"
 
+OLIVE_NAMESPACE_ENTER
+
 NodePanel::NodePanel(QWidget *parent) :
   PanelWidget(parent)
 {
@@ -88,3 +90,5 @@ void NodePanel::Retranslate()
 {
   SetTitle(tr("Node Editor"));
 }
+
+OLIVE_NAMESPACE_EXIT

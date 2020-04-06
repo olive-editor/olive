@@ -30,6 +30,8 @@
 #include "render/color.h"
 #include "render/colormanager.h"
 
+OLIVE_NAMESPACE_ENTER
+
 /**
  * @brief The inner display/rendering widget of a Viewer class.
  *
@@ -261,5 +263,7 @@ private slots:
 #endif
 
 };
+
+OLIVE_NAMESPACE_EXIT
 
 #endif // VIEWERGLWIDGET_H

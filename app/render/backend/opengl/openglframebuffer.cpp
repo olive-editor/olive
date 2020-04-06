@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QOpenGLExtraFunctions>
 
+OLIVE_NAMESPACE_ENTER
+
 OpenGLFramebuffer::OpenGLFramebuffer() :
   context_(nullptr),
   buffer_(0),
@@ -147,3 +149,5 @@ const GLuint &OpenGLFramebuffer::buffer() const
 {
   return buffer_;
 }
+
+OLIVE_NAMESPACE_EXIT
