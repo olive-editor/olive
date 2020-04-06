@@ -5,6 +5,7 @@ effects/frei0r
 ts/*.qm
 docs
 history
+build/
 
 .vscode
 
