@@ -160,6 +160,17 @@ void MainWindow::CloseSequence(Sequence *sequence)
   }
 }
 
+bool MainWindow::IsSequenceOpen(Sequence *sequence) const
+{
+  foreach (TimelinePanel* tp, timeline_panels_) {
+    if (tp->GetConnectedViewer() == sequence->viewer_output()) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 #ifdef Q_OS_WINDOWS
 void MainWindow::SetTaskbarButtonState(TBPFLAG flags)
 {

@@ -57,6 +57,8 @@ public:
 
   void CloseSequence(Sequence* sequence);
 
+  bool IsSequenceOpen(Sequence* sequence) const;
+
 #ifdef Q_OS_WINDOWS
   void SetTaskbarButtonState(TBPFLAG flags);
 

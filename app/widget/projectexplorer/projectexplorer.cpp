@@ -32,6 +32,7 @@
 #include "dialog/footageproperties/footageproperties.h"
 #include "dialog/sequence/sequence.h"
 #include "widget/menu/menu.h"
+#include "window/mainwindow/mainwindow.h"
 
 OLIVE_NAMESPACE_ENTER
 
@@ -421,6 +422,15 @@ void ProjectExplorer::DeleteSelected()
 
   foreach (Item* item, selected) {
     ItemPtr item_ptr = item->get_shared_ptr();
+
+    // If this is a sequence, close it
+    if (item_ptr->type() == Item::kSequence) {
+      Sequence* s = static_cast<Sequence*>(item_ptr.get());
+
+      if (Core::instance()->main_window()->IsSequenceOpen(s)) {
+        Core::instance()->main_window()->CloseSequence(s);
+      }
+    }
 
     new ProjectViewModel::RemoveItemCommand(&model_, item_ptr, command);
   }
