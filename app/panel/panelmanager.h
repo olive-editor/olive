@@ -162,6 +162,12 @@ private:
    */
   PanelWidget* last_focused_panel_;
 
+private slots:
+  /**
+   * @brief Processing if a panel gets deleted
+   */
+  void PanelDestroyed();
+
 };
 
 template<class T>
@@ -170,6 +176,9 @@ T *PanelManager::CreatePanel(QWidget *parent)
   T* panel = new T(parent);
 
   panel->SetMovementLocked(locked_);
+
+  // Connect destroy signal so we can remove it from focus history
+  connect(panel, &PanelWidget::destroyed, this, &PanelManager::PanelDestroyed);
 
   // Add panel to the bottom of the focus history
   focus_history_.append(panel);

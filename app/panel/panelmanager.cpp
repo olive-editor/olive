@@ -150,4 +150,15 @@ void PanelManager::SetPanelsLocked(bool locked)
   locked_ = locked;
 }
 
+void PanelManager::PanelDestroyed()
+{
+  PanelWidget* panel = static_cast<PanelWidget*>(sender());
+
+  focus_history_.removeOne(panel);
+
+  if (last_focused_panel_ == panel) {
+    last_focused_panel_ = focus_history_.isEmpty() ? nullptr : focus_history_.first();
+  }
+}
+
 OLIVE_NAMESPACE_EXIT

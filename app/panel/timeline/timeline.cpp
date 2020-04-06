@@ -26,7 +26,8 @@
 OLIVE_NAMESPACE_ENTER
 
 TimelinePanel::TimelinePanel(QWidget *parent) :
-  TimeBasedPanel(parent)
+  TimeBasedPanel(parent),
+  signal_instead_of_close_(false)
 {
   // FIXME: This won't work if there's ever more than one of this panel
   setObjectName("TimelinePanel");
@@ -152,11 +153,26 @@ void TimelinePanel::OverwriteFootageAtPlayhead(const QList<Footage *> &footage)
   static_cast<TimelineWidget*>(GetTimeBasedWidget())->OverwriteFootageAtPlayhead(footage);
 }
 
+void TimelinePanel::SetSignalInsteadOfClose(bool e)
+{
+  signal_instead_of_close_ = e;
+}
+
 void TimelinePanel::Retranslate()
 {
   TimeBasedPanel::Retranslate();
 
   SetTitle(tr("Timeline"));
+}
+
+void TimelinePanel::closeEvent(QCloseEvent *event)
+{
+  if (signal_instead_of_close_) {
+    event->ignore();
+    emit CloseRequested();
+  } else {
+    PanelWidget::closeEvent(event);
+  }
 }
 
 OLIVE_NAMESPACE_EXIT

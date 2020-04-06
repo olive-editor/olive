@@ -77,11 +77,20 @@ public:
 
   void OverwriteFootageAtPlayhead(const QList<Footage *> &footage);
 
+  void SetSignalInsteadOfClose(bool e);
+
 protected:
   virtual void Retranslate() override;
 
+  virtual void closeEvent(QCloseEvent* event) override;
+
 signals:
   void SelectionChanged(const QList<Node*>& selected_blocks);
+
+  void CloseRequested();
+
+private:
+  bool signal_instead_of_close_;
 
 };
 

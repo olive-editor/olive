@@ -144,22 +144,18 @@ void MainWindow::OpenSequence(Sequence *sequence)
 
   panel->ConnectViewerNode(sequence->viewer_output());
 
-  TimelineFocused(panel);
+  TimelineFocused(sequence->viewer_output());
 }
 
 void MainWindow::CloseSequence(Sequence *sequence)
 {
-  for (int i=0;i<timeline_panels_.size();i++) {
-    TimelinePanel* tl = timeline_panels_.at(i);
+  // We defer to RemoveTimelinePanel() to close the panels, which may delete and remove indices from timeline_panels_.
+  // We make a copy so that our array here doesn't get ruined by what RemoveTimelinePanel() does
+  QList<TimelinePanel*> copy = timeline_panels_;
 
-    if (tl->GetConnectedViewer() == sequence->viewer_output()) {
-      tl->ConnectViewerNode(nullptr);
-
-      if (timeline_panels_.size() > 1) {
-        delete tl;
-        timeline_panels_.removeAt(i);
-        i--;
-      }
+  foreach (TimelinePanel* tp, copy) {
+    if (tp->GetConnectedViewer() == sequence->viewer_output()) {
+      RemoveTimelinePanel(tp);
     }
   }
 }
@@ -305,6 +301,11 @@ void MainWindow::UpdateTitle()
   }
 }
 
+void MainWindow::TimelineCloseRequested()
+{
+  RemoveTimelinePanel(static_cast<TimelinePanel*>(sender()));
+}
+
 TimelinePanel* MainWindow::AppendTimelinePanel()
 {
   TimelinePanel* panel = PanelManager::instance()->CreatePanel<TimelinePanel>(this);;
@@ -321,6 +322,10 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
 
   timeline_panels_.append(panel);
 
+  // Let us handle the panel closing rather than the panel itself
+  panel->SetSignalInsteadOfClose(true);
+  connect(panel, &TimelinePanel::CloseRequested, this, &MainWindow::TimelineCloseRequested);
+
   connect(panel, &TimelinePanel::TimeChanged, param_panel_, &ParamPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, sequence_viewer_panel_, &SequenceViewerPanel::SetTime);
   connect(panel, &TimelinePanel::TimeChanged, curve_panel_, &CurvePanel::SetTime);
@@ -336,14 +341,28 @@ TimelinePanel* MainWindow::AppendTimelinePanel()
   return panel;
 }
 
-void MainWindow::TimelineFocused(TimelinePanel* panel)
+void MainWindow::RemoveTimelinePanel(TimelinePanel *panel)
 {
-  sequence_viewer_panel_->ConnectViewerNode(panel->GetConnectedViewer());
+  // Stop showing this timeline in the viewer
+  TimelineFocused(nullptr);
+
+  if (timeline_panels_.size() == 1) {
+    // Leave our single remaining timeline panel open
+    panel->ConnectViewerNode(nullptr);
+  } else {
+    timeline_panels_.removeOne(panel);
+    panel->deleteLater();
+  }
+}
+
+void MainWindow::TimelineFocused(ViewerOutput* viewer)
+{
+  sequence_viewer_panel_->ConnectViewerNode(viewer);
 
   Sequence* seq = nullptr;
 
-  if (panel->GetConnectedViewer()) {
-    seq = static_cast<Sequence*>(panel->GetConnectedViewer()->parent());
+  if (viewer) {
+    seq = static_cast<Sequence*>(viewer->parent());
   }
 
   node_panel_->SetGraph(seq);
@@ -354,7 +373,7 @@ void MainWindow::FocusedPanelChanged(PanelWidget *panel)
   TimelinePanel* timeline = dynamic_cast<TimelinePanel*>(panel);
 
   if (timeline) {
-    TimelineFocused(timeline);
+    TimelineFocused(timeline->GetConnectedViewer());
   }
 }
 

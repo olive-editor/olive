@@ -80,7 +80,9 @@ protected:
 private:
   TimelinePanel* AppendTimelinePanel();
 
-  void TimelineFocused(TimelinePanel *panel);
+  void RemoveTimelinePanel(TimelinePanel *panel);
+
+  void TimelineFocused(ViewerOutput *viewer);
 
   QByteArray premaximized_state_;
 
@@ -107,6 +109,8 @@ private slots:
   void FocusedPanelChanged(PanelWidget* panel);
 
   void UpdateTitle();
+
+  void TimelineCloseRequested();
 
 };
 
