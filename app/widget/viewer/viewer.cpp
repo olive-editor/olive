@@ -464,7 +464,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   // Color options
   if (context_menu_widget_->color_manager() && color_menu_enabled_) {
     QStringList displays = context_menu_widget_->color_manager()->ListAvailableDisplays();
-    QMenu* ocio_display_menu = menu.addMenu(tr("Display"));
+    Menu* ocio_display_menu = new Menu(tr("Display"));
+    menu.addMenu(ocio_display_menu);
     connect(ocio_display_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIODisplay);
     foreach (const QString& d, displays) {
       QAction* action = ocio_display_menu->addAction(d);
@@ -474,7 +475,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
 
     QStringList views = context_menu_widget_->color_manager()->ListAvailableViews(context_menu_widget_->ocio_display());
-    QMenu* ocio_view_menu = menu.addMenu(tr("View"));
+    Menu* ocio_view_menu = new Menu(tr("View"));
+    menu.addMenu(ocio_view_menu);
     connect(ocio_view_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOView);
     foreach (const QString& v, views) {
       QAction* action = ocio_view_menu->addAction(v);
@@ -484,7 +486,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
     }
 
     QStringList looks = context_menu_widget_->color_manager()->ListAvailableLooks();
-    QMenu* ocio_look_menu = menu.addMenu(tr("Look"));
+    Menu* ocio_look_menu = new Menu(tr("Look"));
+    menu.addMenu(ocio_look_menu);
     connect(ocio_look_menu, &QMenu::triggered, this, &ViewerWidget::ContextMenuOCIOLook);
     QAction* no_look_action = ocio_look_menu->addAction(tr("(None)"));
     no_look_action->setCheckable(true);
@@ -500,7 +503,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
 
   // Playback resolution
-  QMenu* playback_resolution_menu = menu.addMenu(tr("Resolution"));
+  Menu* playback_resolution_menu = new Menu(tr("Resolution"));
+  menu.addMenu(playback_resolution_menu);
   playback_resolution_menu->addAction(tr("Full"))->setData(1);
   int dividers[] = {2, 4, 8, 16};
   for (int i=0;i<4;i++) {
@@ -516,7 +520,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   }
 
   // Viewer Zoom Level
-  QMenu* zoom_menu = menu.addMenu(tr("Zoom"));
+  Menu* zoom_menu = new Menu(tr("Zoom"));
+  menu.addMenu(zoom_menu);
   int zoom_levels[] = {10, 25, 50, 75, 100, 150, 200, 400};
   zoom_menu->addAction(tr("Fit"))->setData(0);
   for (int i=0;i<8;i++) {
@@ -525,7 +530,8 @@ void ViewerWidget::ShowContextMenu(const QPoint &pos)
   connect(zoom_menu, &QMenu::triggered, this, &ViewerWidget::SetZoomFromMenu);
 
   // Full Screen Menu
-  QMenu* full_screen_menu = menu.addMenu(tr("Full Screen"));
+  Menu* full_screen_menu = new Menu(tr("Full Screen"));
+  menu.addMenu(full_screen_menu);
   for (int i=0;i<QGuiApplication::screens().size();i++) {
     QScreen* s = QGuiApplication::screens().at(i);
 

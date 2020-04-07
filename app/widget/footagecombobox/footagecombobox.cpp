@@ -99,14 +99,17 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
 
     if (child->CanHaveChildren()) {
 
-      TraverseFolder(static_cast<Folder*>(child), m->addMenu(child->name()));
+      Menu* sub = new Menu(child->name());
+      m->addMenu(sub);
+      TraverseFolder(static_cast<Folder*>(child), sub);
 
     } else if (child->type() == Item::kFootage) {
 
       Footage* footage = static_cast<Footage*>(child);
 
       if (!only_show_ready_footage_ || footage->status() == Footage::kReady) {
-        QMenu* stream_menu = m->addMenu(footage->name());
+        Menu* stream_menu = new Menu(footage->name());
+        m->addMenu(stream_menu);
 
         foreach (StreamPtr stream, footage->streams()) {
           QAction* stream_action = stream_menu->addAction(stream->description());
