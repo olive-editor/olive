@@ -56,7 +56,7 @@ public slots:
   void StartExporting();
 
 signals:
-  void ProgressChanged(int);
+  void ProgressChanged(double);
 
   void ExportEnded();
 

@@ -156,6 +156,20 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   connect(export_cancel_btn_, &QPushButton::clicked, this, &ExportDialog::CancelExport);
   progress_bar_layout->addWidget(export_cancel_btn_);
 
+  QHBoxLayout* time_label_layout = new QHBoxLayout();
+  time_label_layout->setMargin(0);
+  outer_preferences_layout->addLayout(time_label_layout);
+
+  elapsed_label_ = new QLabel();
+  elapsed_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  time_label_layout->addWidget(elapsed_label_);
+
+  remaining_label_ = new QLabel();
+  remaining_label_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  time_label_layout->addWidget(remaining_label_);
+
+  UpdateTimeLabels();
+
   buttons_ = new QDialogButtonBox();
   buttons_->setCenterButtons(true);
   buttons_->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
@@ -215,6 +229,9 @@ ExportDialog::ExportDialog(ViewerOutput *viewer_node, QWidget *parent) :
   // FIXME: This is going to be VERY slow since it will need to hash every single frame. It would be better to have a
   //        the renderer save the map as some sort of file that this can load.
   preview_viewer_->video_renderer()->InvalidateCache(TimeRange(0, viewer_node_->Length()));
+
+  progress_timer_.setInterval(1000);
+  connect(&progress_timer_, &QTimer::timeout, this, &ExportDialog::UpdateTimeLabels);
 }
 
 void ExportDialog::accept()
@@ -331,12 +348,17 @@ void ExportDialog::accept()
   }
 
   connect(exporter_, &Exporter::ExportEnded, this, &ExportDialog::ExporterIsDone);
-  connect(exporter_, &Exporter::ProgressChanged, progress_bar_, &QProgressBar::setValue);
+  connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::ProgressUpdated);
 
 #ifdef Q_OS_WINDOWS
   Core::instance()->main_window()->SetTaskbarButtonState(TBPF_NORMAL);
-  connect(exporter_, &Exporter::ProgressChanged, this, &ExportDialog::UpdateTaskbarProgress);
 #endif
+
+  export_start_ = QDateTime::currentMSecsSinceEpoch();
+
+  flt_progress_ = 0;
+
+  progress_timer_.start();
 
   QMetaObject::invokeMethod(exporter_, "StartExporting", Qt::QueuedConnection);
 
@@ -564,6 +586,54 @@ void ExportDialog::SetUIElementsEnabled(bool enabled)
   buttons_->setEnabled(enabled);
 
   export_cancel_btn_->setEnabled(!enabled);
+  elapsed_label_->setEnabled(!enabled);
+}
+
+void ExportDialog::UpdateTimeLabels()
+{
+  qint64 elapsed, remaining;
+
+  if (exporter_) {
+    elapsed = QDateTime::currentMSecsSinceEpoch() - export_start_;
+
+    if (flt_progress_ > 0) {
+      remaining = qRound64((1.0 - flt_progress_) * static_cast<double>(elapsed) / flt_progress_);
+    } else {
+      remaining = 0;
+    }
+  } else {
+    elapsed = 0;
+    remaining = 0;
+  }
+
+  elapsed_label_->setText(tr("Elapsed: %1").arg(TimeToString(elapsed)));
+  remaining_label_->setText(tr("Remaining: %1").arg(TimeToString(remaining)));
+}
+
+void ExportDialog::ProgressUpdated(double p)
+{
+  int i_prog = qRound(100.0 * p);
+
+  progress_bar_->setValue(i_prog);
+
+#ifdef Q_OS_WINDOWS
+  UpdateTaskbarProgress(i_prog);
+#endif
+
+  flt_progress_ = p;
+}
+
+QString ExportDialog::TimeToString(int64_t ms)
+{
+  int64_t total_seconds = ms / 1000;
+  int64_t ss = total_seconds % 60;
+  int64_t mm = (total_seconds / 60) % 60;
+  int64_t hh = total_seconds / 3600;
+
+  return QStringLiteral("%1:%2:%3")
+      .arg(hh, 2, 10, QChar('0'))
+      .arg(mm, 2, 10, QChar('0'))
+      .arg(ss, 2, 10, QChar('0'));
 }
 
 void ExportDialog::UpdateViewerDimensions()
@@ -580,6 +650,8 @@ void ExportDialog::UpdateViewerDimensions()
 
 void ExportDialog::ExporterIsDone()
 {
+  progress_timer_.stop();
+
   if (exporter_->GetExportStatus()) {
     QMessageBox::information(this,
                              tr("Export Status"),

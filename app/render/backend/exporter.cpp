@@ -193,8 +193,7 @@ void Exporter::EncodeFrame()
     waiting_for_frame_ += video_params_.time_base();
 
     // Calculate progress
-    int progress = qRound(100.0 * (waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble()));
-    emit ProgressChanged(progress);
+    emit ProgressChanged(waiting_for_frame_.toDouble() / viewer_node_->Length().toDouble());
   }
 
   if (waiting_for_frame_ >= viewer_node_->Length()) {

@@ -57,6 +57,8 @@ private:
 
   void SetUIElementsEnabled(bool enabled);
 
+  static QString TimeToString(int64_t ms);
+
   ViewerOutput* viewer_node_;
 
   QList<ExportFormat> formats_;
@@ -81,6 +83,12 @@ private:
   ColorManager* color_manager_;
 
   QProgressBar* progress_bar_;
+
+  QTimer progress_timer_;
+  QLabel* elapsed_label_;
+  QLabel* remaining_label_;
+  qint64 export_start_;
+  double flt_progress_;
 
   QWidget* preferences_area_;
   QDialogButtonBox* buttons_;
@@ -131,6 +139,10 @@ private slots:
   void ExporterIsDone();
 
   void CancelExport();
+
+  void UpdateTimeLabels();
+
+  void ProgressUpdated(double p);
 
 #ifdef Q_OS_WINDOWS
   void UpdateTaskbarProgress(int progress);
