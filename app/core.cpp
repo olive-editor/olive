@@ -116,6 +116,10 @@ void Core::Start()
   // Set up the index manager for renderers
   IndexManager::CreateInstance();
 
+  // Reset config (Config sets to default on construction already, but we do it again here as a workaround that fixes
+  //               the fact that some of the config paths set by default rely on the app name having been set (in main())
+  Config::Current().SetDefaults();
+
   // Load application config
   Config::Load();
 
