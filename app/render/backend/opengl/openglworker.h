@@ -38,7 +38,7 @@ public:
                QObject* parent = nullptr);
 
 signals:
-  void RequestFrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
+  void RequestFrameToValue(FramePtr frame, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
 
   void RequestRunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 

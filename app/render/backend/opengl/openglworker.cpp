@@ -38,7 +38,11 @@ OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, QObject *parent) 
 
 void OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable *table)
 {
-  emit RequestFrameToValue(decoder, stream, range, table);
+  FramePtr frame = decoder->RetrieveVideo(range.in(), video_params().divider());
+
+  if (frame) {
+    emit RequestFrameToValue(frame, stream, range, table);
+  }
 }
 
 void OpenGLWorker::RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable *output_params)
