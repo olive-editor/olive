@@ -30,6 +30,7 @@ extern "C" {
 #include <QAtomicInt>
 #include <QTimer>
 #include <QVector>
+#include <QWaitCondition>
 
 #include "audio/sampleformat.h"
 #include "codec/decoder.h"
@@ -111,6 +112,13 @@ private:
   void SetupScaler(const int& divider);
   void FreeScaler();
 
+  int64_t RangeStart() const;
+  int64_t RangeEnd() const;
+  bool CacheContainsTime(const int64_t& t) const;
+  bool CacheWillContainTime(const rational& t) const;
+  bool CacheCouldContainTime(const rational& t) const;
+  AVFrame* GetFrameFromCache(const int64_t& t) const;
+
   AVFormatContext* fmt_ctx_;
   AVCodecContext* codec_ctx_;
   AVStream* avstream_;
@@ -121,7 +129,12 @@ private:
   SwsContext* scale_ctx_;
   int scale_divider_;
 
-  FFmpegFrameCache::Client cached_frames_;
+  QWaitCondition cache_wait_cond_;
+  QWaitCondition cache_retrieve_cond_;
+  QMutex cache_lock_;
+  QMutex retrieve_lock_;
+  QList<AVFrame*> cached_frames_;
+  rational cache_target_time_;
   bool cache_at_zero_;
   bool cache_at_eof_;
 
@@ -129,10 +142,13 @@ private:
 
   AVDictionary* opts_;
 
-  QTimer clear_timer_;
+  //QTimer clear_timer_;
+
+  static QHash< Stream*, QList<FFmpegDecoder*> > instances_;
+  static QMutex instance_lock_;
 
 private slots:
-  void ClearTimerEvent();
+  //void ClearTimerEvent();
 
 };
 
