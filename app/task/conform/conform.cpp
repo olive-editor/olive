@@ -42,9 +42,7 @@ void ConformTask::Action()
 
     connect(decoder.get(), &Decoder::IndexProgress, this, &ConformTask::ProgressChanged);
 
-    decoder->Open();
     decoder->Conform(params_, &IsCancelled());
-    decoder->Close();
 
     emit Succeeded();
   }
