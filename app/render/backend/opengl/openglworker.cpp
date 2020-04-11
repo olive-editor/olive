@@ -31,8 +31,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, DecoderCache* decoder_cache, QObject *parent) :
-  VideoRenderWorker(frame_cache, decoder_cache, parent)
+OpenGLWorker::OpenGLWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
+  VideoRenderWorker(frame_cache, parent)
 {
 }
 

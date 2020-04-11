@@ -29,7 +29,7 @@ class AudioRenderWorker : public RenderWorker
 {
   Q_OBJECT
 public:
-  AudioRenderWorker(DecoderCache* decoder_cache, QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
+  AudioRenderWorker(QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
 
   void SetParameters(const AudioRenderingParams& audio_params);
 

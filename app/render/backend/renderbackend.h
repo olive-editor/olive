@@ -118,13 +118,9 @@ protected:
   bool WorkerIsBusy(RenderWorker* worker) const;
   void SetWorkerBusyState(RenderWorker* worker, bool busy);
 
-  DecoderCache* decoder_cache();
-
   TimeRangeList cache_queue_;
 
   QVector<RenderWorker*> processors_;
-
-  DecoderCache decoder_cache_;
 
   bool compiled_;
 

@@ -34,7 +34,7 @@ OLIVE_NAMESPACE_ENTER
 class OpenGLWorker : public VideoRenderWorker {
   Q_OBJECT
 public:
-  OpenGLWorker(VideoRenderFrameCache* frame_cache, DecoderCache *decoder_cache,
+  OpenGLWorker(VideoRenderFrameCache* frame_cache,
                QObject* parent = nullptr);
 
 signals:

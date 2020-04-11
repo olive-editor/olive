@@ -105,8 +105,6 @@ void RenderBackend::Close()
 
   threads_.clear();
   processors_.clear();
-
-  decoder_cache_.Clear();
 }
 
 const QString &RenderBackend::GetError() const
@@ -402,11 +400,6 @@ bool RenderBackend::WorkerIsBusy(RenderWorker *worker) const
 void RenderBackend::SetWorkerBusyState(RenderWorker *worker, bool busy)
 {
   processor_busy_state_.replace(processors_.indexOf(worker), busy);
-}
-
-DecoderCache *RenderBackend::decoder_cache()
-{
-  return &decoder_cache_;
 }
 
 bool RenderBackend::AllProcessorsAreAvailable() const
