@@ -129,6 +129,8 @@ private:
 
   bool limit_caching_;
 
+  bool pop_toggle_;
+
 private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed);
   void ThreadSkippedFrame(NodeDependency dep, qint64 job_time, QByteArray hash);
