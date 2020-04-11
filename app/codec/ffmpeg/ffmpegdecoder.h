@@ -52,6 +52,7 @@ public:
   bool CacheContainsTime(const int64_t& t) const;
   bool CacheWillContainTime(const int64_t& t) const;
   bool CacheCouldContainTime(const int64_t& t) const;
+  bool CacheIsEmpty() const;
   AVFrame* GetFrameFromCache(const int64_t& t) const;
 
   rational sample_aspect_ratio() const;
@@ -73,6 +74,9 @@ public:
   QMutex* cache_lock();
   QWaitCondition* cache_wait_cond();
 
+  bool IsWorking() const;
+  void SetWorking(bool working);
+
   int64_t cache_target_time_;
 
 private:
@@ -90,6 +94,8 @@ private:
   QWaitCondition cache_wait_cond_;
   QMutex cache_lock_;
   QList<AVFrame*> cached_frames_;
+
+  bool is_working_;
 
   bool cache_at_zero_;
   bool cache_at_eof_;
@@ -166,11 +172,9 @@ private:
   SwsContext* scale_ctx_;
   int scale_divider_;
 
-  FFmpegDecoderInstance* instance_;
-
   //QTimer clear_timer_;
 
-  static QHash< Stream*, QList<FFmpegDecoder*> > instances_;
+  static QHash< Stream*, QList<FFmpegDecoderInstance*> > instances_;
   static QMutex instance_lock_;
 
 private slots:

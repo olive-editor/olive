@@ -44,17 +44,16 @@ extern "C" {
 
 OLIVE_NAMESPACE_ENTER
 
-QHash< Stream*, QList<FFmpegDecoder*> > FFmpegDecoder::instances_;
+QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instances_;
 QMutex FFmpegDecoder::instance_lock_;
 
 FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
-  scale_divider_(-1),
-  instance_(nullptr)
+  scale_divider_(-1)
 {
   /*
   // FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
-  clear_timer_.setInterval(250);
+  clear_timer_.setInterval(2000);
   clear_timer_.moveToThread(qApp->thread());
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
   */
@@ -78,16 +77,16 @@ bool FFmpegDecoder::Open()
   // Convert QString to a C string
   QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
 
-  instance_ = new FFmpegDecoderInstance(fn_bytes.constData(), stream()->index());
+  FFmpegDecoderInstance* instance = new FFmpegDecoderInstance(fn_bytes.constData(), stream()->index());
 
-  if (!instance_->IsValid()) {
-    delete instance_;
+  if (!instance->IsValid()) {
+    delete instance;
     return false;
   }
 
   if (stream()->type() == Stream::kVideo) {
     // Get an Olive compatible AVPixelFormat
-    src_pix_fmt_ = static_cast<AVPixelFormat>(instance_->stream()->codecpar->format);
+    src_pix_fmt_ = static_cast<AVPixelFormat>(instance->stream()->codecpar->format);
     ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(src_pix_fmt_);
 
     // Determine which Olive native pixel format we retrieved
@@ -110,13 +109,13 @@ bool FFmpegDecoder::Open()
       qFatal("Invalid output format");
     }
 
-    aspect_ratio_ = instance_->sample_aspect_ratio();
+    aspect_ratio_ = instance->sample_aspect_ratio();
 
     //QMetaObject::invokeMethod(&clear_timer_, "start");
   }
 
-  time_base_ = instance_->stream()->time_base;
-  start_time_ = instance_->stream()->start_time;
+  time_base_ = instance->stream()->time_base;
+  start_time_ = instance->stream()->start_time;
 
   // All allocation succeeded so we set the state to open
   open_ = true;
@@ -124,8 +123,8 @@ bool FFmpegDecoder::Open()
   {
     QMutexLocker l(&instance_lock_);
 
-    QList<FFmpegDecoder*> list = instances_.value(stream().get());
-    list.append(this);
+    QList<FFmpegDecoderInstance*> list = instances_.value(stream().get());
+    list.append(instance);
     instances_.insert(stream().get(), list);
   }
 
@@ -168,129 +167,112 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
     return nullptr;
   }
 
-  int decoder_index = instances_.value(stream().get()).indexOf(this);
-
   int64_t target_ts = Timecode::time_to_timestamp(timecode, time_base_) + start_time_;
 
-  qDebug() << decoder_index << "is retrieving time" << target_ts << "!";
-
+  FFmpegDecoderInstance* working_instance = nullptr;
   AVFrame* return_frame = nullptr;
 
-  // See if our RAM cache already has a frame that matches this timestamp
-  if (instance_->CacheContainsTime(target_ts)) {
-    qDebug() << decoder_index << "found this frame in its cache";
-    return_frame = instance_->GetFrameFromCache(target_ts);
-  } else {
-    // Check siblings for any others rendering at this time
-    qDebug() << decoder_index << "is waiting for list locker";
+  // Find instance
+  do {
     QMutexLocker list_locker(&instance_lock_);
-    qDebug() << decoder_index << "acquired list locker";
 
-    QList<FFmpegDecoder*> siblings = instances_.value(stream().get());
-    for (int i=0;i<siblings.size();i++) {
-    //foreach (FFmpegDecoder* sibling, siblings) {
-      FFmpegDecoder* sibling = siblings.at(i);
-      if (sibling == this) {
-        continue;
-      }
+    QList<FFmpegDecoderInstance*> non_ideal_contenders;
 
-      qDebug() << decoder_index << "waiting for sibling" << i << "'s cache";
-      FFmpegDecoderInstance* sibling_instance = sibling->instance_;
-      QMutexLocker sibling_cache_locker(sibling_instance->cache_lock());
+    QList<FFmpegDecoderInstance*> instances = instances_.value(stream().get());
 
-      qDebug() << decoder_index << "locked cache with range" << sibling_instance->RangeStart() << "-" << sibling_instance->RangeEnd();
+    foreach (FFmpegDecoderInstance* i, instances) {
+      i->cache_lock()->lock();
 
-      if (sibling_instance->CacheContainsTime(target_ts)) {
+      if (i->CacheContainsTime(target_ts)) {
 
-        qDebug() << decoder_index << "found the frame it needed in" << i << "'s cache";
+        // Found our instance, allow others to enter the list
 
-        // We don't need the list anymore
-        qDebug() << decoder_index << "is unlocking the list locker";
         list_locker.unlock();
 
-        // Retrieve the frame we need from our sibling
-        return_frame = sibling_instance->GetFrameFromCache(target_ts);
+        // Get the frame from this cache
+        return_frame = i->GetFrameFromCache(target_ts);
+
+        // Got our frame, allow cache to continue
+        i->cache_lock()->unlock();
         break;
+
+      } else if (i->CacheWillContainTime(target_ts)) {
+
+        // Found our instance, allow others to enter the list
+        list_locker.unlock();
+
+        do {
+          // Allow instance to continue to the next frame
+          i->cache_wait_cond()->wait(i->cache_lock());
+
+          // See if the cache now contains this frame, if so we'll exit this loop
+          if (i->CacheContainsTime(target_ts)) {
+            return_frame = i->GetFrameFromCache(target_ts);
+          }
+        } while (!return_frame);
+
+        // Got our frame, allow cache to continue
+        i->cache_lock()->unlock();
+        break;
+
+      } else if (i->CacheCouldContainTime(target_ts)) {
+
+        // Found our instance, allow others to enter the list
+        list_locker.unlock();
+
+        // Wait for this instance to finish working
+        while (i->IsWorking()) {
+          i->cache_wait_cond()->wait(i->cache_lock());
+        }
+
+        // Grab this instance
+        working_instance = i;
+
+        // We DON'T unlock here, since we'll be starting our own retrieve
+        break;
+
+      } else if (i->IsWorking()) {
+
+        // Ignore currently working instances
+        i->cache_lock()->unlock();
+
+      } else if (i->CacheIsEmpty()) {
+
+        // Prioritize this cache over others (leaves this instance LOCKED in case we end up using it later)
+        non_ideal_contenders.prepend(i);
 
       } else {
 
-        bool cache_will_contain = sibling_instance->CacheWillContainTime(target_ts);
-        bool cache_could_contain = sibling_instance->CacheCouldContainTime(target_ts);
+        // De-prioritize this cache (leaves this instance LOCKED in case we end up using it later)
+        non_ideal_contenders.append(i);
 
-        if (cache_will_contain || cache_could_contain) {
-          // We found an instance that we can use, we no longer need the list
-          if (cache_will_contain) {
-            qDebug() << decoder_index << "found that cache" << i << "WILL contain our time (Target:" << target_ts << "Cache Target:" << sibling_instance->cache_target_time_ << "End:" << sibling_instance->RangeEnd() << ")";
-          } else {
-            qDebug() << decoder_index << "found that cache" << i << "COULD contain our time";
-          }
-
-          qDebug() << decoder_index << "is unlocking the list locker since it found an instance to use";
-          list_locker.unlock();
-
-          do {
-            if (cache_will_contain) {
-
-              // Wait for next frame to arrive
-              qDebug() << decoder_index << "is WAITING for" << i << "to retrieve another frame";
-              sibling_instance->cache_wait_cond()->wait(sibling_instance->cache_lock());
-              qDebug() << decoder_index << "FINISHED waiting for" << i;
-
-              // Attempt to pull frame from other thread
-              return_frame = sibling_instance->GetFrameFromCache(target_ts);
-
-            } else if (cache_could_contain) {
-
-              // Allow sibling instance to continue
-              qDebug() << decoder_index << "is unlocking" << i << "'s cache lock preparing for swap";
-              sibling_cache_locker.unlock();
-
-              // Wait for sibling to finish its current job
-              qDebug() << decoder_index << "is waiting for sibling" << i << "to finish so we can swap";
-              QMutexLocker sibling_locker(&sibling->mutex_);
-
-              // Re-lock list
-              qDebug() << decoder_index << "is re-locking list locker for swap";
-              list_locker.relock();
-
-              // Check if another thread has already swapped this isntance
-              if (sibling->instance_ == sibling_instance) {
-
-                // Swap this instance with ours
-                qDebug() << decoder_index << "SWAPPING instance with" << i;
-                std::swap(sibling->instance_, instance_);
-
-                // Continue rendering ourselves
-                qDebug() << decoder_index << "is continuing on its own";
-                goto exit_sibling_loop;
-
-              } else {
-
-                // This instance has already swapped, see if they'll do anything about it
-                qDebug() << decoder_index << "waiting instance has already swapped, redoing loop";
-                cache_will_contain = sibling_instance->CacheWillContainTime(target_ts);
-                continue;
-
-              }
-
-            }
-          } while (!return_frame);
-        } else {
-          qDebug() << decoder_index << "is ignoring" << i;
-        }
       }
     }
 
-    if (!return_frame) {
-exit_sibling_loop:
-      // Before we unlock `list_locker`, we lock our own before we start encoding
-      instance_->cache_lock()->lock();
-
-      list_locker.unlock();
-
-      // If we have no RAM cache, we'll need to find this frame ourselves
-      return_frame = instance_->RetrieveFrame(target_ts, true);
+    // If we didn't find a suitable contender, grab the first non-suitable and roll with that
+    if (!return_frame && !working_instance && !non_ideal_contenders.isEmpty()) {
+      working_instance = non_ideal_contenders.takeFirst();
     }
+
+    // For all instances we left locked but didn't end up using, lock them now
+    foreach (FFmpegDecoderInstance* unsuitable_instance, non_ideal_contenders) {
+      unsuitable_instance->cache_lock()->unlock();
+    }
+  } while (!return_frame && !working_instance);
+
+  if (!return_frame && working_instance) {
+
+    // This instance SHOULD remain locked from our earlier loop, making this operation safe
+    working_instance->SetWorking(true);
+
+    // Retrieve frame
+    return_frame = working_instance->RetrieveFrame(target_ts, true);
+
+    // Set working to false and wake any threads waiting
+    working_instance->cache_lock()->lock();
+    working_instance->SetWorking(false);
+    working_instance->cache_wait_cond()->wakeAll();
+    working_instance->cache_lock()->unlock();
   }
 
   // We found the frame, we'll return a copy
@@ -363,6 +345,7 @@ void FFmpegDecoder::Close()
 {
   QMutexLocker locker(&mutex_);
 
+  /* FIXME: Consider methods of clearing an instance (whichever is the least useful)
   {
     QMutexLocker l(&instance_lock_);
 
@@ -370,6 +353,7 @@ void FFmpegDecoder::Close()
     list.removeOne(this);
     instances_.insert(stream().get(), list);
   }
+  */
 
   ClearResources();
 
@@ -739,6 +723,8 @@ void FFmpegDecoder::UnconditionalAudioIndex(const QAtomicInt* cancelled)
 
 int FFmpegDecoderInstance::GetFrame(AVPacket *pkt, AVFrame *frame)
 {
+  TIME_THIS_FUNCTION;
+
   bool eof = false;
 
   int ret;
@@ -792,8 +778,20 @@ QWaitCondition *FFmpegDecoderInstance::cache_wait_cond()
   return &cache_wait_cond_;
 }
 
+bool FFmpegDecoderInstance::IsWorking() const
+{
+  return is_working_;
+}
+
+void FFmpegDecoderInstance::SetWorking(bool working)
+{
+  is_working_ = working;
+}
+
 void FFmpegDecoderInstance::Seek(int64_t timestamp)
 {
+  TIME_THIS_FUNCTION;
+
   avcodec_flush_buffers(codec_ctx_);
   av_seek_frame(fmt_ctx_, avstream_->index, timestamp, AVSEEK_FLAG_BACKWARD);
 }
@@ -884,6 +882,10 @@ void FFmpegDecoderInstance::ClearFrameCache()
 
 AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cache_is_locked)
 {
+  if (!cache_is_locked) {
+    cache_lock_.lock();
+  }
+
   int64_t seek_ts = target_ts;
   bool still_seeking = false;
 
@@ -893,10 +895,6 @@ AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cac
   if (cached_frames_.isEmpty()
       || target_ts < cached_frames_.first()->pts
       || target_ts > cached_frames_.last()->pts + 2*second_ts_) {
-    if (!cache_is_locked) {
-      cache_lock_.lock();
-    }
-
     ClearFrameCache();
 
     Seek(seek_ts);
@@ -905,10 +903,6 @@ AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cac
     }
 
     still_seeking = true;
-
-    if (!cache_is_locked) {
-      cache_lock_.unlock();
-    }
   }
 
   int ret;
@@ -925,6 +919,7 @@ AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cac
     // Handle any errors that aren't EOF (EOF is handled later on)
     if (ret < 0 && ret != AVERROR_EOF) {
       av_frame_free(&working_frame);
+      cache_lock_.unlock();
       qCritical() << "Failed to retrieve frame:" << ret;
       break;
     }
@@ -949,10 +944,20 @@ AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cac
       }
     }
 
+    if (cache_is_locked) {
+      cache_is_locked = false;
+    } else {
+      cache_lock_.lock();
+    }
+
     if (ret == AVERROR_EOF) {
 
       // Handle an "expected" EOF by using the last frame of our cache
       cache_at_eof_ = true;
+
+      cache_wait_cond_.wakeAll();
+      cache_lock_.unlock();
+
       return_frame = cached_frames_.last();
       av_frame_free(&working_frame);
       break;
@@ -960,15 +965,9 @@ AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cac
     } else {
 
       // Whatever it is, keep this frame in memory for the time being just in case
-      if (cache_is_locked) {
-        cache_is_locked = false;
-      } else {
-        cache_lock_.lock();
-      }
-
       cached_frames_.append(working_frame);
-      cache_wait_cond_.wakeAll();
 
+      cache_wait_cond_.wakeAll();
       cache_lock_.unlock();
 
       // If this is a valid frame, see if this or the frame before it are the one we need
@@ -994,11 +993,6 @@ AVFrame *FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cac
 
 void FFmpegDecoder::ClearResources()
 {
-  if (instance_) {
-    delete instance_;
-    instance_ = nullptr;
-  }
-
   FreeScaler();
 
   open_ = false;
@@ -1053,7 +1047,10 @@ int64_t FFmpegDecoderInstance::RangeEnd() const
 
 bool FFmpegDecoderInstance::CacheContainsTime(const int64_t &t) const
 {
-  return (RangeStart() <= t && RangeEnd() >= t);
+  return !cached_frames_.isEmpty()
+      && ((RangeStart() <= t && RangeEnd() >= t)
+          || (cache_at_zero_ && t < cached_frames_.first()->pts)
+          || (cache_at_eof_ && t > cached_frames_.last()->pts));
 }
 
 bool FFmpegDecoderInstance::CacheWillContainTime(const int64_t &t) const
@@ -1064,6 +1061,11 @@ bool FFmpegDecoderInstance::CacheWillContainTime(const int64_t &t) const
 bool FFmpegDecoderInstance::CacheCouldContainTime(const int64_t &t) const
 {
   return !cached_frames_.isEmpty() && t >= cached_frames_.first()->pts && t <= (cache_target_time_ + 2*second_ts_);
+}
+
+bool FFmpegDecoderInstance::CacheIsEmpty() const
+{
+  return cached_frames_.isEmpty();
 }
 
 AVFrame *FFmpegDecoderInstance::GetFrameFromCache(const int64_t &t) const
@@ -1111,6 +1113,7 @@ AVStream *FFmpegDecoderInstance::stream() const
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :
   fmt_ctx_(nullptr),
   opts_(nullptr),
+  is_working_(false),
   cache_at_zero_(false),
   cache_at_eof_(false)
 {
@@ -1215,14 +1218,12 @@ void FFmpegDecoderInstance::ClearResources()
   }
 }
 
-/*
-void FFmpegDecoder::ClearTimerEvent()
+/*void FFmpegDecoder::ClearTimerEvent()
 {
   QMutexLocker locker(&mutex_);
 
   cache_at_zero_ = false;
   cached_frames_.remove_old_frames(QDateTime::currentMSecsSinceEpoch() - clear_timer_.interval());
-}
-*/
+}*/
 
 OLIVE_NAMESPACE_EXIT
