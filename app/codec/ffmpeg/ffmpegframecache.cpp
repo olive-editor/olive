@@ -26,21 +26,31 @@
 OLIVE_NAMESPACE_ENTER
 
 QMutex FFmpegFrameCache::pool_lock_;
-QList<Frame*> FFmpegFrameCache::frame_pool_;
+QLinkedList<AVFramePtr> FFmpegFrameCache::frame_pool_;
 
-Frame *FFmpegFrameCache::Client::append(const VideoRenderingParams& params)
+AVFramePtr FFmpegFrameCache::Client::append(int width, int height, int format)
 {
-  Frame* f = FFmpegFrameCache::Get(params);
+  AVFramePtr f = FFmpegFrameCache::Get(width, height, format);
 
-  frames_.append({f, QDateTime::currentMSecsSinceEpoch()});
+  frames_.append(f);
+
+  return f;
+}
+
+AVFramePtr FFmpegFrameCache::Client::append(AVFrame *copy)
+{
+  AVFramePtr f = append(copy->width, copy->height, copy->format);
+
+  av_frame_copy(f->frame(), copy);
+  f->frame()->pts = copy->pts;
 
   return f;
 }
 
 void FFmpegFrameCache::Client::clear()
 {
-  foreach (const CachedFrame& cf, frames_) {
-    FFmpegFrameCache::Release(cf.frame);
+  foreach (AVFramePtr cf, frames_) {
+    FFmpegFrameCache::Release(cf);
   }
   frames_.clear();
 }
@@ -50,19 +60,19 @@ bool FFmpegFrameCache::Client::isEmpty() const
   return frames_.isEmpty();
 }
 
-Frame *FFmpegFrameCache::Client::first() const
+AVFramePtr FFmpegFrameCache::Client::first() const
 {
-  return frames_.first().frame;
+  return frames_.first();
 }
 
-Frame *FFmpegFrameCache::Client::at(int i) const
+AVFramePtr FFmpegFrameCache::Client::at(int i) const
 {
-  return frames_.at(i).frame;
+  return frames_.at(i);
 }
 
-Frame *FFmpegFrameCache::Client::last() const
+AVFramePtr FFmpegFrameCache::Client::last() const
 {
-  return frames_.last().frame;
+  return frames_.last();
 }
 
 int FFmpegFrameCache::Client::size() const
@@ -72,48 +82,54 @@ int FFmpegFrameCache::Client::size() const
 
 void FFmpegFrameCache::Client::accessedFirst()
 {
-  frames_.first().accessed = QDateTime::currentMSecsSinceEpoch();
+  frames_.first()->access();
 }
 
 void FFmpegFrameCache::Client::accessedLast()
 {
-  frames_.last().accessed = QDateTime::currentMSecsSinceEpoch();
+  frames_.last()->access();
 }
 
 void FFmpegFrameCache::Client::accessed(int i)
 {
-  frames_[i].accessed = QDateTime::currentMSecsSinceEpoch();
+  frames_[i]->access();
 }
 
 void FFmpegFrameCache::Client::remove_old_frames(qint64 older_than)
 {
-  while (!frames_.isEmpty() && frames_.first().accessed < older_than) {
-    FFmpegFrameCache::Release(frames_.takeFirst().frame);
+  while (!frames_.isEmpty() && frames_.first()->last_accessed() < older_than) {
+    FFmpegFrameCache::Release(frames_.takeFirst());
   }
 }
 
-Frame* FFmpegFrameCache::Get(const VideoRenderingParams &params)
+AVFramePtr FFmpegFrameCache::Get(int width, int height, int format)
 {
   QMutexLocker locker(&pool_lock_);
 
   // See if we have a frame matching this description in the pool
-  for (int i=0;i<frame_pool_.size();i++) {
-    if (frame_pool_.at(i)->width() == params.width()
-        && frame_pool_.at(i)->height() == params.height()
-        && frame_pool_.at(i)->format() == params.format()) {
-      return frame_pool_.takeAt(i);
+  QLinkedList<AVFramePtr>::iterator i;
+  for (i=frame_pool_.begin();i!=frame_pool_.end();i++) {
+    AVFramePtr f = (*i);
+
+    if (f->frame()->width == width
+        && f->frame()->height == height
+        && f->frame()->format == format) {
+      frame_pool_.erase(i);
+      return f;
     }
   }
 
   // Otherwise we'll need to create one
-  Frame* f = new Frame();
-  f->set_video_params(params);
-  f->allocate();
+  AVFramePtr f = std::make_shared<AVFrameWrapper>();
+  f->frame()->width = width;
+  f->frame()->height = height;
+  f->frame()->format = format;
+  av_frame_get_buffer(f->frame(), 1);
 
   return f;
 }
 
-void FFmpegFrameCache::Release(Frame *f)
+void FFmpegFrameCache::Release(AVFramePtr f)
 {
   QMutexLocker locker(&pool_lock_);
 

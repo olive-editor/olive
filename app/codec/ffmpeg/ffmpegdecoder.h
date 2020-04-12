@@ -33,6 +33,7 @@ extern "C" {
 #include <QWaitCondition>
 
 #include "audio/sampleformat.h"
+#include "avframeptr.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
 #include "ffmpegframecache.h"
@@ -45,6 +46,8 @@ public:
   FFmpegDecoderInstance(const char* filename, int stream_index);
   virtual ~FFmpegDecoderInstance();
 
+  DISABLE_COPY_MOVE(FFmpegDecoderInstance)
+
   bool IsValid() const;
 
   int64_t RangeStart() const;
@@ -53,14 +56,16 @@ public:
   bool CacheWillContainTime(const int64_t& t) const;
   bool CacheCouldContainTime(const int64_t& t) const;
   bool CacheIsEmpty() const;
-  AVFrame* GetFrameFromCache(const int64_t& t) const;
+  AVFramePtr GetFrameFromCache(const int64_t& t) const;
+
+  void RemoveFramesBefore(const qint64& t);
 
   rational sample_aspect_ratio() const;
   AVStream* stream() const;
 
   void ClearFrameCache();
 
-  AVFrame* RetrieveFrame(const int64_t &target_ts, bool cache_is_locked);
+  AVFramePtr RetrieveFrame(const int64_t &target_ts, bool cache_is_locked);
 
   /**
    * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
@@ -77,8 +82,6 @@ public:
   bool IsWorking() const;
   void SetWorking(bool working);
 
-  int64_t cache_target_time_;
-
 private:
   void ClearResources();
 
@@ -93,7 +96,10 @@ private:
 
   QWaitCondition cache_wait_cond_;
   QMutex cache_lock_;
-  QList<AVFrame*> cached_frames_;
+  //QList<AVFramePtr> cached_frames_;
+  FFmpegFrameCache::Client cached_frames_;
+
+  int64_t cache_target_time_;
 
   bool is_working_;
 
@@ -172,13 +178,17 @@ private:
   SwsContext* scale_ctx_;
   int scale_divider_;
 
-  //QTimer clear_timer_;
+  QTimer clear_timer_;
+
+  FFmpegDecoderInstance* our_instance_;
 
   static QHash< Stream*, QList<FFmpegDecoderInstance*> > instances_;
   static QMutex instance_lock_;
 
+  static const int kMaxFrameLife;
+
 private slots:
-  //void ClearTimerEvent();
+  void ClearTimerEvent();
 
 };
 

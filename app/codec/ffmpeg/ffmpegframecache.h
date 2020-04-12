@@ -21,10 +21,10 @@
 #ifndef FFMPEGFRAMECACHE_H
 #define FFMPEGFRAMECACHE_H
 
-#include <QList>
+#include <QLinkedList>
 #include <QMutex>
 
-#include "codec/frame.h"
+#include "avframeptr.h"
 #include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -34,22 +34,23 @@ class FFmpegFrameCache
 public:
   FFmpegFrameCache() = default;
 
-  static Frame* Get(const VideoRenderingParams& params);
+  static AVFramePtr Get(int width, int height, int format);
 
-  static void Release(Frame* f);
+  static void Release(AVFramePtr f);
 
   class Client
   {
   public:
     Client() = default;
 
-    Frame* append(const VideoRenderingParams &params);
+    AVFramePtr append(int width, int height, int format);
+    AVFramePtr append(AVFrame *copy);
     void clear();
 
     bool isEmpty() const;
-    Frame* first() const;
-    Frame* at(int i) const;
-    Frame* last() const;
+    AVFramePtr first() const;
+    AVFramePtr at(int i) const;
+    AVFramePtr last() const;
     int size() const;
 
     void accessedFirst();
@@ -59,19 +60,14 @@ public:
     void remove_old_frames(qint64 older_than);
 
   private:
-    struct CachedFrame {
-      Frame* frame;
-      qint64 accessed;
-    };
-
-    QList<CachedFrame> frames_;
+    QList<AVFramePtr> frames_;
 
   };
 
 private:
   static QMutex pool_lock_;
 
-  static QList<Frame*> frame_pool_;
+  static QLinkedList<AVFramePtr> frame_pool_;
 
 };
 
