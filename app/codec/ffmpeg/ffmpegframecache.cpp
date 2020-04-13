@@ -95,11 +95,16 @@ void FFmpegFrameCache::Client::accessed(int i)
   frames_[i]->access();
 }
 
-void FFmpegFrameCache::Client::remove_old_frames(qint64 older_than)
+int FFmpegFrameCache::Client::remove_old_frames(qint64 older_than)
 {
-  while (!frames_.isEmpty() && frames_.first()->last_accessed() < older_than) {
+  int counter = 0;
+
+  while (frames_.size() > 1 && frames_.first()->last_accessed() < older_than) {
     FFmpegFrameCache::Release(frames_.takeFirst());
+    counter++;
   }
+
+  return counter;
 }
 
 AVFramePtr FFmpegFrameCache::Get(int width, int height, int format)

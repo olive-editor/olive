@@ -47,13 +47,13 @@ OLIVE_NAMESPACE_ENTER
 QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instances_;
 QMutex FFmpegDecoder::instance_lock_;
 
+// FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
 const int FFmpegDecoder::kMaxFrameLife = 5000;
 
 FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
   scale_divider_(-1)
 {
-  // FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
   clear_timer_.setInterval(kMaxFrameLife);
   clear_timer_.moveToThread(qApp->thread());
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
@@ -182,10 +182,7 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
     foreach (FFmpegDecoderInstance* i, instances) {
 
-      {
-        TIME_THIS_FUNCTION;
-        i->cache_lock()->lock();
-      }
+      i->cache_lock()->lock();
 
       if (i->CacheContainsTime(target_ts)) {
 
@@ -1100,7 +1097,9 @@ AVFramePtr FFmpegDecoderInstance::GetFrameFromCache(const int64_t &t) const
 
 void FFmpegDecoderInstance::RemoveFramesBefore(const qint64 &t)
 {
-  cached_frames_.remove_old_frames(t);
+  if (cached_frames_.remove_old_frames(t)) {
+    cache_at_zero_ = false;
+  }
 }
 
 rational FFmpegDecoderInstance::sample_aspect_ratio() const

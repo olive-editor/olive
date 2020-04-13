@@ -57,7 +57,7 @@ public:
     void accessedLast();
     void accessed(int i);
 
-    void remove_old_frames(qint64 older_than);
+    int remove_old_frames(qint64 older_than);
 
   private:
     QList<AVFramePtr> frames_;
