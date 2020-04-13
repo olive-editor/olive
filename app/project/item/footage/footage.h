@@ -24,7 +24,6 @@
 #include <QList>
 #include <QDateTime>
 
-#include "common/constructors.h"
 #include "common/rational.h"
 #include "project/item/item.h"
 #include "project/item/footage/audiostream.h"

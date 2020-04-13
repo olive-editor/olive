@@ -28,7 +28,6 @@
 #include <QString>
 #include <QXmlStreamWriter>
 
-#include "common/constructors.h"
 #include "common/threadedobject.h"
 #include "common/xmlutils.h"
 #include "node/param.h"

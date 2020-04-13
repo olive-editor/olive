@@ -23,7 +23,6 @@
 
 #include <QLinkedList>
 
-#include "common/constructors.h"
 #include "dialog/rendercancel/rendercancel.h"
 #include "decodercache.h"
 #include "node/graph.h"

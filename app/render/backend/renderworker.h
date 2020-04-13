@@ -23,7 +23,6 @@
 
 #include <QObject>
 
-#include "common/constructors.h"
 #include "decodercache.h"
 #include "node/node.h"
 #include "node/output/track/track.h"

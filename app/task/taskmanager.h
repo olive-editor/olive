@@ -24,7 +24,6 @@
 #include <QVector>
 #include <QUndoCommand>
 
-#include "common/constructors.h"
 #include "task/task.h"
 
 OLIVE_NAMESPACE_ENTER

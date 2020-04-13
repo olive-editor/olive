@@ -28,7 +28,6 @@ extern "C" {
 #include <memory>
 #include <QDateTime>
 
-#include "common/constructors.h"
 #include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER

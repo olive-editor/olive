@@ -25,7 +25,6 @@
 namespace OCIO = OCIO_NAMESPACE::v1;
 
 #include "codec/frame.h"
-#include "common/constructors.h"
 #include "render/color.h"
 
 OLIVE_NAMESPACE_ENTER
