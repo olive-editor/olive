@@ -57,6 +57,8 @@ FFmpegDecoder::FFmpegDecoder() :
   clear_timer_.setInterval(kMaxFrameLife);
   clear_timer_.moveToThread(qApp->thread());
   connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
+
+  av_buffer_pool_init(20, av_buffer_allocz);
 }
 
 FFmpegDecoder::~FFmpegDecoder()
@@ -197,39 +199,33 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
         i->cache_lock()->unlock();
         break;
 
-      } else if (i->CacheWillContainTime(target_ts)) {
+      } else if (i->CacheWillContainTime(target_ts) || i->CacheCouldContainTime(target_ts)) {
 
         // Found our instance, allow others to enter the list
         list_locker.unlock();
 
-        do {
-          // Allow instance to continue to the next frame
-          i->cache_wait_cond()->wait(i->cache_lock());
+        if (i->IsWorking()) {
+          do {
+            // Allow instance to continue to the next frame
+            i->cache_wait_cond()->wait(i->cache_lock());
 
-          // See if the cache now contains this frame, if so we'll exit this loop
-          if (i->CacheContainsTime(target_ts)) {
-            return_frame = i->GetFrameFromCache(target_ts);
+            // See if the cache now contains this frame, if so we'll exit this loop
+            if (i->CacheContainsTime(target_ts)) {
+              return_frame = i->GetFrameFromCache(target_ts);
+            } else if (!i->IsWorking()) {
+              // Grab this instance and continue it
+              working_instance = i;
+              break;
+            }
+          } while (!return_frame);
+
+          if (working_instance != i) {
+            // We don't unlock if we're continuing this instance ourselves
+            i->cache_lock()->unlock();
           }
-        } while (!return_frame);
-
-        // Got our frame, allow cache to continue
-        i->cache_lock()->unlock();
-        break;
-
-      } else if (i->CacheCouldContainTime(target_ts)) {
-
-        // Found our instance, allow others to enter the list
-        list_locker.unlock();
-
-        // Wait for this instance to finish working
-        while (i->IsWorking()) {
-          i->cache_wait_cond()->wait(i->cache_lock());
+        } else {
+          working_instance = i;
         }
-
-        // Grab this instance
-        working_instance = i;
-
-        // We DON'T unlock here, since we'll be starting our own retrieve
         break;
 
       } else if (i->IsWorking()) {
@@ -877,7 +873,7 @@ void FFmpegDecoderInstance::ClearFrameCache()
   cache_at_zero_ = false;
 }
 
-AVFramePtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cache_is_locked)
+FramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool cache_is_locked)
 {
   if (!cache_is_locked) {
     cache_lock_.lock();
@@ -889,9 +885,7 @@ AVFramePtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool c
   cache_target_time_ = target_ts;
 
   // If the frame wasn't in the frame cache, see if this frame cache is too old to use
-  if (cached_frames_.isEmpty()
-      || target_ts < cached_frames_.first()->frame()->pts
-      || target_ts > cached_frames_.last()->frame()->pts + 2*second_ts_) {
+  if (!CacheCouldContainTime(target_ts)) {
     ClearFrameCache();
 
     Seek(seek_ts);
@@ -904,7 +898,7 @@ AVFramePtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool c
 
   int ret;
   AVPacket* pkt = av_packet_alloc();
-  AVFramePtr return_frame = nullptr;
+  FramePool::ElementPtr return_frame = nullptr;
 
   // Allocate a new frame
   AVFrameWrapper working_frame;
@@ -960,16 +954,17 @@ AVFramePtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& target_ts, bool c
     } else {
 
       // Whatever it is, keep this frame in memory for the time being just in case
-      AVFramePtr cached = cached_frames_.append(working_frame.frame());
+      FramePool::ElementPtr cached = frame_pool_.Get();
+      cached->set_timestamp(working_frame.frame()->pts);
 
       cache_wait_cond_.wakeAll();
       cache_lock_.unlock();
 
       // If this is a valid frame, see if this or the frame before it are the one we need
-      if (cached->frame()->pts == target_ts) {
+      if (cached->timestamp() == target_ts) {
         return_frame = cached;
         break;
-      } else if (cached->frame()->pts > target_ts) {
+      } else if (cached->timestamp() > target_ts) {
         if (cached_frames_.isEmpty() && cache_at_zero_) {
           return_frame = cached;
           break;
@@ -1029,7 +1024,7 @@ int64_t FFmpegDecoderInstance::RangeStart() const
   if (cached_frames_.isEmpty()) {
     return AV_NOPTS_VALUE;
   }
-  return cached_frames_.first()->frame()->pts;
+  return cached_frames_.first()->timestamp();
 }
 
 int64_t FFmpegDecoderInstance::RangeEnd() const
@@ -1037,25 +1032,25 @@ int64_t FFmpegDecoderInstance::RangeEnd() const
   if (cached_frames_.isEmpty()) {
     return AV_NOPTS_VALUE;
   }
-  return cached_frames_.last()->frame()->pts;
+  return cached_frames_.last()->timestamp();
 }
 
 bool FFmpegDecoderInstance::CacheContainsTime(const int64_t &t) const
 {
   return !cached_frames_.isEmpty()
       && ((RangeStart() <= t && RangeEnd() >= t)
-          || (cache_at_zero_ && t < cached_frames_.first()->frame()->pts)
-          || (cache_at_eof_ && t > cached_frames_.last()->frame()->pts));
+          || (cache_at_zero_ && t < cached_frames_.first()->timestamp())
+          || (cache_at_eof_ && t > cached_frames_.last()->timestamp()));
 }
 
 bool FFmpegDecoderInstance::CacheWillContainTime(const int64_t &t) const
 {
-  return !cached_frames_.isEmpty() && t >= cached_frames_.first()->frame()->pts && t <= cache_target_time_;
+  return !cached_frames_.isEmpty() && t >= cached_frames_.first()->timestamp() && t <= cache_target_time_;
 }
 
 bool FFmpegDecoderInstance::CacheCouldContainTime(const int64_t &t) const
 {
-  return !cached_frames_.isEmpty() && t >= cached_frames_.first()->frame()->pts && t <= (cache_target_time_ + 2*second_ts_);
+  return !cached_frames_.isEmpty() && t >= cached_frames_.first()->timestamp() && t <= (cache_target_time_ + 2*second_ts_);
 }
 
 bool FFmpegDecoderInstance::CacheIsEmpty() const
@@ -1063,15 +1058,15 @@ bool FFmpegDecoderInstance::CacheIsEmpty() const
   return cached_frames_.isEmpty();
 }
 
-AVFramePtr FFmpegDecoderInstance::GetFrameFromCache(const int64_t &t) const
+FramePool::ElementPtr FFmpegDecoderInstance::GetFrameFromCache(const int64_t &t) const
 {
-  if (t < cached_frames_.first()->frame()->pts) {
+  if (t < cached_frames_.first()->timestamp()) {
 
     if (cache_at_zero_) {
       return cached_frames_.first();
     }
 
-  } else if (t > cached_frames_.last()->frame()->pts) {
+  } else if (t > cached_frames_.last()->timestamp()) {
 
     if (cache_at_eof_) {
       return cached_frames_.last();
@@ -1081,10 +1076,10 @@ AVFramePtr FFmpegDecoderInstance::GetFrameFromCache(const int64_t &t) const
 
     // We already have this frame in the cache, find it
     for (int i=0;i<cached_frames_.size();i++) {
-      AVFramePtr this_frame = cached_frames_.at(i);
+      FramePool::ElementPtr this_frame = cached_frames_.at(i);
 
-      if (this_frame->frame()->pts == t // Test for an exact match
-          || (i < cached_frames_.size() - 1 && cached_frames_.at(i+1)->frame()->pts > t)) { // Or for this frame to be the "closest"
+      if (this_frame->timestamp() == t // Test for an exact match
+          || (i < cached_frames_.size() - 1 && cached_frames_.at(i+1)->timestamp() > t)) { // Or for this frame to be the "closest"
 
         return this_frame;
 
@@ -1097,7 +1092,8 @@ AVFramePtr FFmpegDecoderInstance::GetFrameFromCache(const int64_t &t) const
 
 void FFmpegDecoderInstance::RemoveFramesBefore(const qint64 &t)
 {
-  if (cached_frames_.remove_old_frames(t)) {
+  while (cached_frames_.size() > 1 && cached_frames_.first()->last_accessed() < t) {
+    cached_frames_.removeFirst();
     cache_at_zero_ = false;
   }
 }
@@ -1186,6 +1182,14 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
     return;
   }
 
+  // Create buffer pool
+  if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO
+      && !frame_pool_.Allocate()) {
+    qDebug() << "Failed to allocate frame pool";
+    ClearResources();
+    return;
+  }
+
   // Store one second in the source's timebase
   second_ts_ = qRound64(av_q2d(av_inv_q(avstream_->time_base)));
 }
@@ -1218,6 +1222,8 @@ void FFmpegDecoderInstance::ClearResources()
     avformat_close_input(&fmt_ctx_);
     fmt_ctx_ = nullptr;
   }
+
+  frame_pool_.Destroy();
 }
 
 void FFmpegDecoder::ClearTimerEvent()

@@ -35,8 +35,8 @@ extern "C" {
 #include "audio/sampleformat.h"
 #include "avframeptr.h"
 #include "codec/decoder.h"
+#include "codec/framepool.h"
 #include "codec/waveoutput.h"
-#include "ffmpegframecache.h"
 #include "project/item/footage/videostream.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -56,7 +56,7 @@ public:
   bool CacheWillContainTime(const int64_t& t) const;
   bool CacheCouldContainTime(const int64_t& t) const;
   bool CacheIsEmpty() const;
-  AVFramePtr GetFrameFromCache(const int64_t& t) const;
+  FramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 
   void RemoveFramesBefore(const qint64& t);
 
@@ -65,7 +65,7 @@ public:
 
   void ClearFrameCache();
 
-  AVFramePtr RetrieveFrame(const int64_t &target_ts, bool cache_is_locked);
+  FramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, bool cache_is_locked);
 
   /**
    * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
@@ -96,8 +96,8 @@ private:
 
   QWaitCondition cache_wait_cond_;
   QMutex cache_lock_;
-  //QList<AVFramePtr> cached_frames_;
-  FFmpegFrameCache::Client cached_frames_;
+  QList<FramePool::ElementPtr> cached_frames_;
+  FramePool frame_pool_;
 
   int64_t cache_target_time_;
 
