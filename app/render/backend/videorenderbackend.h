@@ -66,6 +66,8 @@ public:
 
   QString GetCachedFrame(const rational& time);
 
+  void UpdateLastRequestedTime(const rational& time);
+
   VideoRenderFrameCache* frame_cache();
 
   const VideoRenderingParams& params() const;

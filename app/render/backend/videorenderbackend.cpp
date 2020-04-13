@@ -165,7 +165,7 @@ VideoRenderFrameCache *VideoRenderBackend::frame_cache()
 
 QString VideoRenderBackend::GetCachedFrame(const rational &time)
 {
-  last_time_requested_ = time;
+  UpdateLastRequestedTime(time);
 
   if (viewer_node() == nullptr) {
     // Nothing is connected - nothing to show or render
@@ -182,8 +182,6 @@ QString VideoRenderBackend::GetCachedFrame(const rational &time)
     return nullptr;
   }
 
-  Requeue();
-
   // Find frame in map
   QByteArray frame_hash = frame_cache_.TimeToHash(time);
 
@@ -194,6 +192,13 @@ QString VideoRenderBackend::GetCachedFrame(const rational &time)
   }
 
   return QString();
+}
+
+void VideoRenderBackend::UpdateLastRequestedTime(const rational &time)
+{
+  last_time_requested_ = time;
+
+  Requeue();
 }
 
 NodeInput *VideoRenderBackend::GetDependentInput()

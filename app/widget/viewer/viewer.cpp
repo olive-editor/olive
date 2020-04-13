@@ -320,6 +320,7 @@ void ViewerWidget::UpdateTextureFromNode(const rational& time)
 {
   if (!GetConnectedNode() || time >= GetConnectedNode()->Length()) {
     main_gl_widget()->SetImage(QString());
+    video_renderer_->UpdateLastRequestedTime(time);
   } else {
     QString frame_fn = video_renderer_->GetCachedFrame(time);
 
