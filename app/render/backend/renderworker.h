@@ -23,7 +23,6 @@
 
 #include <QObject>
 
-#include "common/constructors.h"
 #include "decodercache.h"
 #include "node/node.h"
 #include "node/output/track/track.h"
@@ -35,7 +34,7 @@ class RenderWorker : public QObject, public NodeTraverser
 {
   Q_OBJECT
 public:
-  RenderWorker(DecoderCache* decoder_cache, QObject* parent = nullptr);
+  RenderWorker(QObject* parent = nullptr);
 
   bool Init();
 
@@ -77,7 +76,7 @@ protected:
 private:
   bool started_;
 
-  DecoderCache* decoder_cache_;
+  DecoderCache decoder_cache_;
 
   NodeDependency path_;
 

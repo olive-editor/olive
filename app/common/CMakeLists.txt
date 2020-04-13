@@ -21,7 +21,6 @@ set(OLIVE_SOURCES
   common/cancelableobject.h
   common/channellayout.h
   common/clamp.h
-  common/constructors.h
   common/crashhandler.h
   common/crashhandler.cpp
   common/debug.h
@@ -33,6 +32,7 @@ set(OLIVE_SOURCES
   common/flipmodifiers.cpp
   common/functiontimer.h
   common/lerp.h
+  common/memorypool.h
   common/qtutils.h
   common/qtutils.cpp
   common/range.h

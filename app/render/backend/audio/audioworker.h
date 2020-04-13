@@ -28,7 +28,7 @@ OLIVE_NAMESPACE_ENTER
 class AudioWorker : public AudioRenderWorker
 {
 public:
-  AudioWorker(DecoderCache* decoder_cache, QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
+  AudioWorker(QHash<Node*, Node*>* copy_map, QObject* parent = nullptr);
 
 protected:
   virtual void FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table) override;

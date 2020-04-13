@@ -34,8 +34,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, DecoderCache* decoder_cache, QObject *parent) :
-  RenderWorker(decoder_cache, parent),
+VideoRenderWorker::VideoRenderWorker(VideoRenderFrameCache *frame_cache, QObject *parent) :
+  RenderWorker(parent),
   frame_cache_(frame_cache),
   operating_mode_(kHashRenderCache)
 {

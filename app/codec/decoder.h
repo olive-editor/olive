@@ -32,7 +32,6 @@ extern "C" {
 #include "codec/frame.h"
 #include "codec/samplebuffer.h"
 #include "codec/waveoutput.h"
-#include "common/constructors.h"
 #include "common/rational.h"
 #include "project/item/footage/footage.h"
 

@@ -34,11 +34,11 @@ OLIVE_NAMESPACE_ENTER
 class OpenGLWorker : public VideoRenderWorker {
   Q_OBJECT
 public:
-  OpenGLWorker(VideoRenderFrameCache* frame_cache, DecoderCache *decoder_cache,
+  OpenGLWorker(VideoRenderFrameCache* frame_cache,
                QObject* parent = nullptr);
 
 signals:
-  void RequestFrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
+  void RequestFrameToValue(FramePtr frame, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
 
   void RequestRunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 

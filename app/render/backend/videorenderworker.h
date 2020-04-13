@@ -63,7 +63,7 @@ public:
     kHashRenderCache = 0x7
   };
 
-  VideoRenderWorker(VideoRenderFrameCache* frame_cache, DecoderCache *decoder_cache, QObject* parent = nullptr);
+  VideoRenderWorker(VideoRenderFrameCache* frame_cache, QObject* parent = nullptr);
 
   void SetParameters(const VideoRenderingParams& video_params);
 

@@ -23,7 +23,6 @@
 
 #include <QLinkedList>
 
-#include "common/constructors.h"
 #include "dialog/rendercancel/rendercancel.h"
 #include "decodercache.h"
 #include "node/graph.h"
@@ -118,13 +117,9 @@ protected:
   bool WorkerIsBusy(RenderWorker* worker) const;
   void SetWorkerBusyState(RenderWorker* worker, bool busy);
 
-  DecoderCache* decoder_cache();
-
   TimeRangeList cache_queue_;
 
   QVector<RenderWorker*> processors_;
-
-  DecoderCache decoder_cache_;
 
   bool compiled_;
 

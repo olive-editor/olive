@@ -23,7 +23,6 @@
 
 #include <QOpenGLContext>
 
-#include "common/constructors.h"
 #include "opengltexture.h"
 
 OLIVE_NAMESPACE_ENTER

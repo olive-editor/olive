@@ -22,8 +22,8 @@
 
 OLIVE_NAMESPACE_ENTER
 
-AudioWorker::AudioWorker(DecoderCache* decoder_cache, QHash<Node *, Node *> *copy_map, QObject *parent) :
-  AudioRenderWorker(decoder_cache, copy_map, parent)
+AudioWorker::AudioWorker(QHash<Node *, Node *> *copy_map, QObject *parent) :
+  AudioRenderWorker(copy_map, parent)
 {
 }
 

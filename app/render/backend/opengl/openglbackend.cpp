@@ -63,7 +63,7 @@ bool OpenGLBackend::InitInternal()
   // Initiate one thread per CPU core
   for (int i=0;i<threads().size();i++) {
     // Create one processor object for each thread
-    OpenGLWorker* processor = new OpenGLWorker(frame_cache(), decoder_cache());
+    OpenGLWorker* processor = new OpenGLWorker(frame_cache());
     processor->SetParameters(params());
     processors_.append(processor);
 

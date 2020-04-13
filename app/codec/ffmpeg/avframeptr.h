@@ -18,34 +18,43 @@
 
 ***/
 
-#include "index.h"
+#ifndef AVFRAMEPTR_H
+#define AVFRAMEPTR_H
 
-#include "codec/decoder.h"
-#include "codec/ffmpeg/ffmpegdecoder.h"
+extern "C" {
+#include <libavcodec/avcodec.h>
+}
+
+#include <memory>
+#include <QDateTime>
+
+#include "common/define.h"
 
 OLIVE_NAMESPACE_ENTER
 
-IndexTask::IndexTask(StreamPtr stream) :
-  stream_(stream)
-{
-  SetTitle(tr("Indexing %1:%2").arg(stream_->footage()->filename(), QString::number(stream_->index())));
-}
-
-void IndexTask::Action()
-{
-  if (stream_->footage()->decoder().isEmpty()) {
-    emit Failed(QStringLiteral("Stream has no decoder"));
-  } else {
-    DecoderPtr decoder = Decoder::CreateFromID(stream_->footage()->decoder());
-
-    decoder->set_stream(stream_);
-
-    connect(decoder.get(), &Decoder::IndexProgress, this, &IndexTask::ProgressChanged);
-
-    decoder->Index(&IsCancelled());
-
-    emit Succeeded();
+class AVFrameWrapper {
+public:
+  AVFrameWrapper() {
+    frame_ = av_frame_alloc();
   }
-}
+
+  virtual ~AVFrameWrapper() {
+    av_frame_free(&frame_);
+  }
+
+  DISABLE_COPY_MOVE(AVFrameWrapper)
+
+  inline AVFrame* frame() const {
+    return frame_;
+  }
+
+private:
+  AVFrame* frame_;
+
+};
+
+using AVFramePtr = std::shared_ptr<AVFrameWrapper>;
 
 OLIVE_NAMESPACE_EXIT
+
+#endif // AVFRAMEPTR_H

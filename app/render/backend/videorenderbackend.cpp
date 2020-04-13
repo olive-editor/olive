@@ -40,7 +40,8 @@ VideoRenderBackend::VideoRenderBackend(QObject *parent) :
   RenderBackend(parent),
   operating_mode_(VideoRenderWorker::kHashRenderCache),
   only_signal_last_frame_requested_(true),
-  limit_caching_(true)
+  limit_caching_(true),
+  pop_toggle_(false)
 {
   connect(DiskManager::instance(), &DiskManager::DeletedFrame, this, &VideoRenderBackend::FrameRemovedFromDiskCache);
 }
@@ -164,7 +165,7 @@ VideoRenderFrameCache *VideoRenderBackend::frame_cache()
 
 QString VideoRenderBackend::GetCachedFrame(const rational &time)
 {
-  last_time_requested_ = time;
+  UpdateLastRequestedTime(time);
 
   if (viewer_node() == nullptr) {
     // Nothing is connected - nothing to show or render
@@ -181,8 +182,6 @@ QString VideoRenderBackend::GetCachedFrame(const rational &time)
     return nullptr;
   }
 
-  Requeue();
-
   // Find frame in map
   QByteArray frame_hash = frame_cache_.TimeToHash(time);
 
@@ -193,6 +192,13 @@ QString VideoRenderBackend::GetCachedFrame(const rational &time)
   }
 
   return QString();
+}
+
+void VideoRenderBackend::UpdateLastRequestedTime(const rational &time)
+{
+  last_time_requested_ = time;
+
+  Requeue();
 }
 
 NodeInput *VideoRenderBackend::GetDependentInput()
@@ -208,44 +214,35 @@ bool VideoRenderBackend::CanRender()
 TimeRange VideoRenderBackend::PopNextFrameFromQueue()
 {
   // Try to find the frame that's closest to the last time requested (the playhead)
+  rational earliest_allowed_time = (pop_toggle_) ? 0 : last_time_requested_;
+  pop_toggle_ = !pop_toggle_;
 
   // Set up playhead frame range to see if the queue contains this frame precisely
-  TimeRange test_range(last_time_requested_, last_time_requested_ + params_.time_base());
+  TimeRange test_range(earliest_allowed_time, earliest_allowed_time + params_.time_base());
 
   // Use this variable to find the closest frame in the range
-  rational closest_time = -1;
+  rational closest_time = RATIONAL_MAX;
 
   foreach (const TimeRange& range_here, cache_queue_) {
     if (range_here.OverlapsWith(test_range, false, false)) {
-      closest_time = -1;
+      closest_time = RATIONAL_MAX;
       break;
     }
 
-    for (int j=0;j<2;j++) {
-      rational compare;
+    if (range_here.in() >= earliest_allowed_time) {
+      rational frame_here = Timecode::snap_time_to_timebase(range_here.in(), params_.time_base());
 
-      if (j == 0) {
-        compare = Timecode::snap_time_to_timebase(range_here.in(), params_.time_base());
-        if (compare > range_here.in()) {
-          compare -= params_.time_base();
-        }
-      } else {
-        compare = Timecode::snap_time_to_timebase(range_here.out(), params_.time_base());
-        if (compare >= range_here.out()) {
-          compare -= params_.time_base();
-        }
+      if (frame_here > range_here.in()) {
+        frame_here = qMax(rational(), frame_here - params_.time_base());
       }
 
-      if (closest_time < 0
-          || qAbs(compare - last_time_requested_) < qAbs(closest_time - last_time_requested_)) {
-        closest_time = compare;
-      }
+      closest_time = qMin(closest_time, frame_here);
     }
   }
 
   TimeRange frame_range;
 
-  if (closest_time == -1) {
+  if (closest_time == RATIONAL_MAX) {
     frame_range = test_range;
   } else {
     frame_range = TimeRange(closest_time, closest_time + params_.time_base());

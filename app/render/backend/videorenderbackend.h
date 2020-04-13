@@ -66,6 +66,8 @@ public:
 
   QString GetCachedFrame(const rational& time);
 
+  void UpdateLastRequestedTime(const rational& time);
+
   VideoRenderFrameCache* frame_cache();
 
   const VideoRenderingParams& params() const;
@@ -128,6 +130,8 @@ private:
   bool only_signal_last_frame_requested_;
 
   bool limit_caching_;
+
+  bool pop_toggle_;
 
 private slots:
   void ThreadCompletedDownload(NodeDependency dep, qint64 job_time, QByteArray hash, bool texture_existed);

@@ -16,13 +16,14 @@
 
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  codec/ffmpeg/avframeptr.h
   codec/ffmpeg/ffmpegcommon.h
   codec/ffmpeg/ffmpegcommon.cpp
   codec/ffmpeg/ffmpegdecoder.h
   codec/ffmpeg/ffmpegdecoder.cpp
   codec/ffmpeg/ffmpegencoder.h
   codec/ffmpeg/ffmpegencoder.cpp
-  codec/ffmpeg/ffmpegframecache.h
-  codec/ffmpeg/ffmpegframecache.cpp
+  codec/ffmpeg/ffmpegframepool.h
+  codec/ffmpeg/ffmpegframepool.cpp
   PARENT_SCOPE
 )

@@ -25,7 +25,6 @@
 #include <QOpenGLFunctions>
 
 #include "codec/frame.h"
-#include "common/constructors.h"
 #include "render/pixelformat.h"
 
 OLIVE_NAMESPACE_ENTER

@@ -67,7 +67,7 @@ bool OpenGLProxy::Init()
   return true;
 }
 
-void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeRange &range, NodeValueTable* table)
+void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const TimeRange &range, NodeValueTable* table)
 {
   // Ensure stream is video or image type
   if (stream->type() != Stream::kVideo && stream->type() != Stream::kImage) {
@@ -104,13 +104,6 @@ void OpenGLProxy::FrameToValue(DecoderPtr decoder, StreamPtr stream, const TimeR
     }
 
     ColorManager::OCIOMethod ocio_method = ColorManager::GetOCIOMethodForMode(video_params_.mode());
-
-    FramePtr frame = decoder->RetrieveVideo(range.in(), video_params_.divider());
-
-    if (!frame) {
-      // Nothing to be done
-      return;
-    }
 
     // OCIO's CPU conversion is more accurate, so for online we render on CPU but offline we render GPU
     if (ocio_method == ColorManager::kOCIOAccurate) {

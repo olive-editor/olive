@@ -18,30 +18,36 @@
 
 ***/
 
-#ifndef CONSTRUCTORS_H
-#define CONSTRUCTORS_H
+#ifndef FFMPEGFRAMEPOOL_H
+#define FFMPEGFRAMEPOOL_H
 
-#include "common/define.h"
+#include "common/memorypool.h"
+#include "render/pixelformat.h"
+#include "render/videoparams.h"
 
 OLIVE_NAMESPACE_ENTER
 
-/**
- * Copy/move deleters. Similar to Q_DISABLE_COPY_MOVE, et al. but those functions are not present in Qt < 5.13 so we
- * use our own functions for portability.
- */
+class FFmpegFramePool : public MemoryPool<uint8_t>
+{
+public:
+  FFmpegFramePool();
 
-#define DISABLE_COPY(Class) \
-  Class(const Class &) = delete;\
-  Class &operator=(const Class &) = delete;
+  ElementPtr Get(AVFrame* copy);
 
-#define DISABLE_MOVE(Class) \
-  Class(Class &&) = delete; \
-  Class &operator=(Class &&) = delete;
+  void SetParams(int width, int height, AVPixelFormat format);
 
-#define DISABLE_COPY_MOVE(Class) \
-  DISABLE_COPY(Class) \
-  DISABLE_MOVE(Class)
+protected:
+  virtual size_t GetElementSize() override;
+
+private:
+  int width_;
+
+  int height_;
+
+  AVPixelFormat format_;
+
+};
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // CONSTRUCTORS_H
+#endif // FFMPEGFRAMEPOOL_H

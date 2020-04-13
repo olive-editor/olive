@@ -30,14 +30,83 @@ extern "C" {
 #include <QAtomicInt>
 #include <QTimer>
 #include <QVector>
+#include <QWaitCondition>
 
 #include "audio/sampleformat.h"
+#include "avframeptr.h"
 #include "codec/decoder.h"
 #include "codec/waveoutput.h"
-#include "ffmpegframecache.h"
+#include "ffmpegframepool.h"
 #include "project/item/footage/videostream.h"
 
 OLIVE_NAMESPACE_ENTER
+
+class FFmpegDecoderInstance {
+public:
+  FFmpegDecoderInstance(const char* filename, int stream_index);
+  virtual ~FFmpegDecoderInstance();
+
+  DISABLE_COPY_MOVE(FFmpegDecoderInstance)
+
+  bool IsValid() const;
+
+  int64_t RangeStart() const;
+  int64_t RangeEnd() const;
+  bool CacheContainsTime(const int64_t& t) const;
+  bool CacheWillContainTime(const int64_t& t) const;
+  bool CacheCouldContainTime(const int64_t& t) const;
+  bool CacheIsEmpty() const;
+  FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
+
+  void RemoveFramesBefore(const qint64& t);
+
+  rational sample_aspect_ratio() const;
+  AVStream* stream() const;
+
+  void ClearFrameCache();
+
+  FFmpegFramePool::ElementPtr RetrieveFrame(const int64_t &target_ts, bool cache_is_locked);
+
+  /**
+   * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
+   *
+   * @return
+   *
+   * An FFmpeg error code, or >= 0 on success
+   */
+  int GetFrame(AVPacket* pkt, AVFrame* frame);
+
+  QMutex* cache_lock();
+  QWaitCondition* cache_wait_cond();
+
+  bool IsWorking() const;
+  void SetWorking(bool working);
+
+private:
+  void ClearResources();
+
+  void Seek(int64_t timestamp);
+
+  AVFormatContext* fmt_ctx_;
+  AVCodecContext* codec_ctx_;
+  AVStream* avstream_;
+  AVDictionary* opts_;
+
+  int64_t second_ts_;
+
+  QWaitCondition cache_wait_cond_;
+  QMutex cache_lock_;
+  QList<FFmpegFramePool::ElementPtr> cached_frames_;
+  FFmpegFramePool frame_pool_;
+
+  int64_t cache_target_time_;
+
+  bool is_working_;
+
+  bool cache_at_zero_;
+  bool cache_at_eof_;
+
+};
 
 /**
  * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
@@ -87,49 +156,33 @@ private:
    */
   void FFmpegError(int error_code);
 
-  /**
-   * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
-   *
-   * @return
-   *
-   * An FFmpeg error code, or >= 0 on success
-   */
-  int GetFrame(AVPacket* pkt, AVFrame* frame);
-
   virtual QString GetIndexFilename() override;
 
   void UnconditionalAudioIndex(const QAtomicInt* cancelled);
 
-  void Seek(int64_t timestamp);
-
-  void CacheFrameToDisk(AVFrame* f);
-
-  void ClearFrameCache();
-
   void ClearResources();
 
-  void SetupScaler(const int& divider);
+  void InitScaler(int divider);
   void FreeScaler();
-
-  AVFormatContext* fmt_ctx_;
-  AVCodecContext* codec_ctx_;
-  AVStream* avstream_;
-
-  AVPixelFormat ideal_pix_fmt_;
-  PixelFormat::Format native_pix_fmt_;
 
   SwsContext* scale_ctx_;
   int scale_divider_;
+  AVPixelFormat src_pix_fmt_;
+  AVPixelFormat ideal_pix_fmt_;
+  PixelFormat::Format native_pix_fmt_;
 
-  FFmpegFrameCache::Client cached_frames_;
-  bool cache_at_zero_;
-  bool cache_at_eof_;
-
-  int64_t second_ts_;
-
-  AVDictionary* opts_;
+  rational time_base_;
+  rational aspect_ratio_;
+  int64_t start_time_;
 
   QTimer clear_timer_;
+
+  FFmpegDecoderInstance* our_instance_;
+
+  static QHash< Stream*, QList<FFmpegDecoderInstance*> > instances_;
+  static QMutex instance_lock_;
+
+  static const int kMaxFrameLife;
 
 private slots:
   void ClearTimerEvent();
