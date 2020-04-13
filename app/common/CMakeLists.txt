@@ -32,6 +32,7 @@ set(OLIVE_SOURCES
   common/flipmodifiers.cpp
   common/functiontimer.h
   common/lerp.h
+  common/memorypool.h
   common/qtutils.h
   common/qtutils.cpp
   common/range.h
