@@ -8,7 +8,6 @@ matrix:
     sudo: require
     dist: xenial
   - os: osx
-    osx_image: xcode10.3
     before_cache:
       - brew cleanup
     cache:
