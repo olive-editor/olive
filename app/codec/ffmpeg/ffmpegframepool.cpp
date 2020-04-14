@@ -26,10 +26,11 @@ extern "C" {
 
 OLIVE_NAMESPACE_ENTER
 
-FFmpegFramePool::FFmpegFramePool() :
-  width_(0),
-  height_(0),
-  format_(AV_PIX_FMT_NONE)
+FFmpegFramePool::FFmpegFramePool(int element_count, int width, int height, AVPixelFormat format) :
+  MemoryPool(element_count),
+  width_(width),
+  height_(height),
+  format_(format)
 {
 }
 
@@ -51,34 +52,8 @@ FFmpegFramePool::ElementPtr FFmpegFramePool::Get(AVFrame *copy)
   return ele;
 }
 
-void FFmpegFramePool::SetParams(int width, int height, AVPixelFormat format)
-{
-  int old_nb_elements;
-
-  if (IsAllocated()) {
-    old_nb_elements = GetElementCount();
-
-    Destroy();
-  } else {
-    old_nb_elements = 0;
-  }
-
-  width_ = width;
-  height_ = height;
-  format_ = format;
-
-  if (old_nb_elements) {
-    // Re-allocate automatically
-    Allocate(old_nb_elements);
-  }
-}
-
 size_t FFmpegFramePool::GetElementSize()
 {
-  if (width_ == 0 || height_ == 0 || format_ == AV_PIX_FMT_NONE) {
-    return 0;
-  }
-
   int buf_sz = av_image_get_buffer_size(static_cast<AVPixelFormat>(format_),
                                         width_,
                                         height_,

@@ -94,11 +94,10 @@ bool FFmpegDecoder::Open()
       FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
 
       if (!frame_pool) {
-        frame_pool = new FFmpegFramePool();
-        frame_pool->SetParams(our_instance_->stream()->codecpar->width,
-                              our_instance_->stream()->codecpar->height,
-                              static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format));
-        frame_pool->Allocate(256);
+        frame_pool = new FFmpegFramePool(256,
+                                         our_instance_->stream()->codecpar->width,
+                                         our_instance_->stream()->codecpar->height,
+                                         static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format));
         frame_pool_map_.insert(stream().get(), frame_pool);
       }
 
@@ -346,7 +345,8 @@ SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rat
     return nullptr;
   }
 
-  WaveInput input(GetConformedFilename(params));
+  QString wav_fn = GetConformedFilename(params);
+  WaveInput input(wav_fn);
 
   if (input.open()) {
     const AudioRenderingParams& input_params = input.params();
@@ -360,6 +360,8 @@ SampleBufferPtr FFmpegDecoder::RetrieveAudio(const rational &timecode, const rat
 
     return sample_buffer;
   }
+
+  qCritical() << "Failed to open cached file" << wav_fn;
 
   return nullptr;
 }
