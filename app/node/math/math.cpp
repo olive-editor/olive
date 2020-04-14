@@ -116,26 +116,36 @@ QString MathNode::ShaderFragmentCode(const NodeValueDatabase &input) const
 
   QString operation;
 
-  switch (GetOperation()) {
-  case kOpAdd:
-    operation = QStringLiteral("%1 + %2");
-    break;
-  case kOpSubtract:
-    operation = QStringLiteral("%1 - %2");
-    break;
-  case kOpMultiply:
-    operation = QStringLiteral("%1 * %2");
-    break;
-  case kOpDivide:
-    operation = QStringLiteral("%1 / %2");
-    break;
-  case kOpPower:
-    operation = QStringLiteral("pow(%1, %2)");
-    break;
-  }
+  if (calc.GetMostLikelyPairing() == kPairTextureMatrix && GetOperation() == kOpMultiply) {
 
-  operation = operation.arg(GetShaderVariableCall(param_a_in_->id(), type_a),
-                            GetShaderVariableCall(param_b_in_->id(), type_b));
+    // Override the operation for this operation since we multiply texture COORDS by the matrix rather than
+    NodeParam* tex_in = (type_a == NodeParam::kTexture) ? param_a_in_ : param_b_in_;
+    NodeParam* mat_in = (type_a == NodeParam::kTexture) ? param_b_in_ : param_a_in_;
+
+    operation = QStringLiteral("texture2D(%1, (vec4(ove_texcoord, 0.0, 1.0) * %2).xy)").arg(tex_in->id(), mat_in->id());
+
+  } else {
+    switch (GetOperation()) {
+    case kOpAdd:
+      operation = QStringLiteral("%1 + %2");
+      break;
+    case kOpSubtract:
+      operation = QStringLiteral("%1 - %2");
+      break;
+    case kOpMultiply:
+      operation = QStringLiteral("%1 * %2");
+      break;
+    case kOpDivide:
+      operation = QStringLiteral("%1 / %2");
+      break;
+    case kOpPower:
+      operation = QStringLiteral("pow(%1, %2)");
+      break;
+    }
+
+    operation = operation.arg(GetShaderVariableCall(param_a_in_->id(), type_a),
+                              GetShaderVariableCall(param_b_in_->id(), type_b));
+  }
 
   return QStringLiteral("#version 110\n"
                         "\n"
@@ -361,10 +371,10 @@ QString MathNode::GetShaderUniformType(const NodeParam::DataType &type)
   }
 }
 
-QString MathNode::GetShaderVariableCall(const QString &input_id, const NodeParam::DataType &type)
+QString MathNode::GetShaderVariableCall(const QString &input_id, const NodeParam::DataType &type, const QString& coord_op)
 {
   if (type == NodeParam::kTexture) {
-    return QStringLiteral("texture2D(%1, ove_texcoord)").arg(input_id);
+    return QStringLiteral("texture2D(%1, ove_texcoord%2)").arg(input_id, coord_op);
   }
 
   return input_id;

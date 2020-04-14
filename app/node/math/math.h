@@ -134,7 +134,7 @@ private:
 
   static QString GetShaderUniformType(const NodeParam::DataType& type);
 
-  static QString GetShaderVariableCall(const QString& input_id, const NodeParam::DataType& type);
+  static QString GetShaderVariableCall(const QString& input_id, const NodeParam::DataType& type, const QString &coord_op = QString());
 
   static QVector4D RetrieveVector(const NodeValue& val);
 
