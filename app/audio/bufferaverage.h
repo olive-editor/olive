@@ -32,7 +32,7 @@ class AudioBufferAverage
 public:
   AudioBufferAverage() = default;
 
-  static QVector<double> ProcessAverages(const char* data, int length);
+  static QVector<double> ProcessAverages(const char* data, int length, int channel_count);
 };
 
 OLIVE_NAMESPACE_EXIT

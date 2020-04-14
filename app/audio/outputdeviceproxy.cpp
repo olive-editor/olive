@@ -94,7 +94,7 @@ qint64 AudioOutputDeviceProxy::readData(char *data, qint64 maxlen)
 
     // If we read any
     if (read_count > 0 && send_averages_) {
-      emit ProcessedAverages(AudioBufferAverage::ProcessAverages(data, static_cast<int>(read_count)));
+      emit ProcessedAverages(AudioBufferAverage::ProcessAverages(data, static_cast<int>(read_count), params_.channel_count()));
     }
 
     return read_count;

@@ -151,7 +151,7 @@ void AudioOutputManager::ProcessAverages(const char *data, int length)
     return;
   }
 
-  emit SentSamples(AudioBufferAverage::ProcessAverages(data, length));
+  emit SentSamples(AudioBufferAverage::ProcessAverages(data, length, output_.get()->format().channelCount()));
 }
 
 OLIVE_NAMESPACE_EXIT
