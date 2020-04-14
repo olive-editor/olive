@@ -479,7 +479,10 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   }
   case NodeParam::kCombo:
   {
-    static_cast<QComboBox*>(widgets_.first())->setCurrentIndex(input_->get_value_at_time(node_time).toInt());
+    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
+    cb->blockSignals(true);
+    cb->setCurrentIndex(input_->get_value_at_time(node_time).toInt());
+    cb->blockSignals(false);
     break;
   }
   case NodeParam::kFootage:
