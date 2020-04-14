@@ -52,6 +52,10 @@ signals:
 private:
   void TraverseFolder(const Folder *f, QMenu* m);
 
+  void UpdateText();
+
+  static QString FootageToString(Stream* f);
+
   const Folder* root_;
 
   StreamPtr footage_;

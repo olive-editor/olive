@@ -55,11 +55,9 @@ void NodeParamViewWidgetBridge::SetTime(const rational &time)
 {
   time_ = time;
 
-  if (!input_) {
-    return;
+  if (input_) {
+    UpdateWidgetValues();
   }
-
-  UpdateWidgetValues();
 }
 
 const QList<QWidget *> &NodeParamViewWidgetBridge::widgets() const
@@ -174,6 +172,8 @@ void NodeParamViewWidgetBridge::CreateWidgets()
   for (iterator=input_->properties().begin();iterator!=input_->properties().end();iterator++) {
     PropertyChanged(iterator.key(), iterator.value());
   }
+
+  UpdateWidgetValues();
 }
 
 void NodeParamViewWidgetBridge::SetInputValue(const QVariant &value, int track)

@@ -1,4 +1,4 @@
-/***
+﻿/***
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
@@ -51,12 +51,7 @@ void FootageComboBox::showPopup()
   QAction* selected = menu.exec(parentWidget()->mapToGlobal(pos()));
 
   if (selected != nullptr) {
-    // Use combobox functions to show the footage name
-    clear();
-
-    addItem(selected->text());
-
-    footage_ = selected->data().value<StreamPtr>();
+    SetFootage(selected->data().value<StreamPtr>());
 
     emit FootageChanged(footage_);
   }
@@ -82,14 +77,9 @@ StreamPtr FootageComboBox::SelectedFootage()
 void FootageComboBox::SetFootage(StreamPtr f)
 {
   // Remove existing single item used to show the footage name
-  clear();
-
   footage_ = f;
 
-  if (footage_ != nullptr) {
-    // Use combobox functions to show the footage name
-    addItem(footage_->footage()->name());
-  }
+  UpdateText();
 }
 
 void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
@@ -112,13 +102,29 @@ void FootageComboBox::TraverseFolder(const Folder *f, QMenu *m)
         m->addMenu(stream_menu);
 
         foreach (StreamPtr stream, footage->streams()) {
-          QAction* stream_action = stream_menu->addAction(stream->description());
+          QAction* stream_action = stream_menu->addAction(FootageToString(stream.get()));
           stream_action->setData(QVariant::fromValue(stream));
           stream_action->setIcon(Stream::IconFromType(stream->type()));
         }
       }
     }
   }
+}
+
+void FootageComboBox::UpdateText()
+{
+  // Use combobox functions to show the footage name
+  clear();
+
+  if (footage_) {
+    // Use combobox functions to show the footage name
+    addItem(FootageToString(footage_.get()));
+  }
+}
+
+QString FootageComboBox::FootageToString(Stream *f)
+{
+  return f->description();
 }
 
 OLIVE_NAMESPACE_EXIT
