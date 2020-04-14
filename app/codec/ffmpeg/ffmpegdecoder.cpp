@@ -1297,7 +1297,9 @@ void FFmpegDecoderInstance::ClearResources()
   ClearFrameCache();
 
   // Stop timer
-  QMetaObject::invokeMethod(&clear_timer_, "stop", Qt::BlockingQueuedConnection);
+  if (clear_timer_.isActive()) {
+    QMetaObject::invokeMethod(&clear_timer_, "stop", Qt::BlockingQueuedConnection);
+  }
 
   if (opts_) {
     av_dict_free(&opts_);
