@@ -370,7 +370,16 @@ void TimelineWidget::PointerTool::ProcessDrag(const TimelineCoordinate &mouse_po
 
   // Validate movement (enforce all ghosts moving in legal ways)
   time_movement = FrameValidateInternal(time_movement, parent()->ghost_items_);
-  track_movement = ValidateTrackMovement(track_movement, parent()->ghost_items_);
+
+  // Validate ghosts that are being moved (clips from other track types do NOT get validated or moved)
+  QVector<TimelineViewGhostItem*> validate_track_ghosts = parent()->ghost_items_;
+  for (int i=0;i<validate_track_ghosts.size();i++) {
+    if (validate_track_ghosts.at(i)->Track().type() != drag_track_type_) {
+      validate_track_ghosts.removeAt(i);
+      i--;
+    }
+  }
+  track_movement = ValidateTrackMovement(track_movement, validate_track_ghosts);
 
   // Perform movement
   foreach (TimelineViewGhostItem* ghost, parent()->ghost_items_) {
