@@ -239,39 +239,45 @@ void Sequence::set_parameters_from_footage(const QList<Footage *> footage)
 
   foreach (Footage* f, footage) {
     foreach (StreamPtr s, f->streams()) {
-      if (!found_video_params) {
+      switch (s->type()) {
+      case Stream::kVideo:
+      {
+        VideoStream* vs = static_cast<VideoStream*>(s.get());
 
-        if (s->type() == Stream::kVideo) {
-          // If this is a video stream, use these parameters
-          VideoStream* vs = static_cast<VideoStream*>(s.get());
-
-          if (vs->frame_rate() != 0) {
-            set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
-            found_video_params = true;
-          }
-        } else if (s->type() == Stream::kImage) {
+        // If this is a video stream, use these parameters
+        if (!found_video_params && !vs->frame_rate().isNull()) {
+          set_video_params(VideoParams(vs->width(), vs->height(), vs->frame_rate().flipped()));
+          found_video_params = true;
+        }
+        break;
+      }
+      case Stream::kImage:
+        if (!found_video_params) {
           // If this is an image stream, we'll use it's resolution but won't set `found_video_params` in case
           // something with a frame rate comes along which we'll prioritize
           ImageStream* is = static_cast<ImageStream*>(s.get());
 
           set_video_params(VideoParams(is->width(), is->height(), video_params().time_base()));
         }
-
-      } else if (!found_audio_params && s->type() == Stream::kAudio) {
-
-        AudioStream* as = static_cast<AudioStream*>(s.get());
-        set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
-        found_audio_params = true;
-
+        break;
+      case Stream::kAudio:
+        if (!found_audio_params) {
+          AudioStream* as = static_cast<AudioStream*>(s.get());
+          set_audio_params(AudioParams(as->sample_rate(), as->channel_layout()));
+          found_audio_params = true;
+        }
+        break;
+      case Stream::kUnknown:
+      case Stream::kData:
+      case Stream::kSubtitle:
+      case Stream::kAttachment:
+        // Ignore these types
+        break;
       }
 
       if (found_video_params && found_audio_params) {
-        break;
+        return;
       }
-    }
-
-    if (found_video_params && found_audio_params) {
-      break;
     }
   }
 }
