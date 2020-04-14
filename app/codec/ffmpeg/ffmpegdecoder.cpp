@@ -44,21 +44,17 @@ extern "C" {
 
 OLIVE_NAMESPACE_ENTER
 
-QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instances_;
-QMutex FFmpegDecoder::instance_lock_;
+QHash< Stream*, QList<FFmpegDecoderInstance*> > FFmpegDecoder::instance_map_;
+QMutex FFmpegDecoder::instance_map_lock_;
+QHash< Stream*, FFmpegFramePool* > FFmpegDecoder::frame_pool_map_;
 
 // FIXME: Hardcoded, ideally this value is dynamically chosen based on memory restraints
-const int FFmpegDecoder::kMaxFrameLife = 2000;
+const int FFmpegDecoderInstance::kMaxFrameLife = 2000;
 
 FFmpegDecoder::FFmpegDecoder() :
   scale_ctx_(nullptr),
   scale_divider_(0)
 {
-  clear_timer_.setInterval(kMaxFrameLife);
-  clear_timer_.moveToThread(qApp->thread());
-  connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoder::ClearTimerEvent);
-
-  av_buffer_pool_init(20, av_buffer_allocz);
 }
 
 FFmpegDecoder::~FFmpegDecoder()
@@ -79,7 +75,7 @@ bool FFmpegDecoder::Open()
   // Convert QString to a C string
   QByteArray fn_bytes = stream()->footage()->filename().toUtf8();
 
-  our_instance_ = new FFmpegDecoderInstance(fn_bytes.constData(), stream()->index());
+  FFmpegDecoderInstance* our_instance_ = new FFmpegDecoderInstance(fn_bytes.constData(), stream()->index());
 
   if (!our_instance_->IsValid()) {
     delete our_instance_;
@@ -90,6 +86,25 @@ bool FFmpegDecoder::Open()
     // Get an Olive compatible AVPixelFormat
     src_pix_fmt_ = static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format);
     ideal_pix_fmt_ = FFmpegCommon::GetCompatiblePixelFormat(src_pix_fmt_);
+
+    {
+      QMutexLocker map_locker(&instance_map_lock_);
+
+      // FIXME: Test code, this should be changed later
+      FFmpegFramePool* frame_pool = frame_pool_map_.value(stream().get());
+
+      if (!frame_pool) {
+        frame_pool = new FFmpegFramePool();
+        frame_pool->SetParams(our_instance_->stream()->codecpar->width,
+                              our_instance_->stream()->codecpar->height,
+                              static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format));
+        frame_pool->Allocate(128);
+        frame_pool_map_.insert(stream().get(), frame_pool);
+      }
+
+      our_instance_->SetFramePool(frame_pool);
+      // End test code
+    }
 
     // Determine which Olive native pixel format we retrieved
     // Note that FFmpeg doesn't support float formats
@@ -112,8 +127,6 @@ bool FFmpegDecoder::Open()
     }
 
     aspect_ratio_ = our_instance_->sample_aspect_ratio();
-
-    QMetaObject::invokeMethod(&clear_timer_, "start");
   }
 
   time_base_ = our_instance_->stream()->time_base;
@@ -123,11 +136,11 @@ bool FFmpegDecoder::Open()
   open_ = true;
 
   {
-    QMutexLocker l(&instance_lock_);
+    QMutexLocker l(&instance_map_lock_);
 
-    QList<FFmpegDecoderInstance*> list = instances_.value(stream().get());
+    QList<FFmpegDecoderInstance*> list = instance_map_.value(stream().get());
     list.append(our_instance_);
-    instances_.insert(stream().get(), list);
+    instance_map_.insert(stream().get(), list);
   }
 
   return true;
@@ -176,11 +189,11 @@ FramePtr FFmpegDecoder::RetrieveVideo(const rational &timecode, const int &divid
 
   // Find instance
   do {
-    QMutexLocker list_locker(&instance_lock_);
+    QMutexLocker list_locker(&instance_map_lock_);
 
     QList<FFmpegDecoderInstance*> non_ideal_contenders;
 
-    QList<FFmpegDecoderInstance*> instances = instances_.value(stream().get());
+    QList<FFmpegDecoderInstance*> instances = instance_map_.value(stream().get());
 
     foreach (FFmpegDecoderInstance* i, instances) {
 
@@ -355,19 +368,51 @@ void FFmpegDecoder::Close()
 {
   QMutexLocker locker(&mutex_);
 
-  /* FIXME: Consider methods of clearing an instance (whichever is the least useful)
   {
-    QMutexLocker l(&instance_lock_);
+    // Clear whichever instance is not in use and is least useful (there are only ever as many instances as there are
+    // threads so if this thread is closing, an instance MUST be inactive)
+    QMutexLocker l(&instance_map_lock_);
 
-    QList<FFmpegDecoder*> list = instances_.value(stream().get());
-    list.removeOne(this);
-    instances_.insert(stream().get(), list);
+    QList<FFmpegDecoderInstance*> list = instance_map_.value(stream().get());
+
+    if (!list.isEmpty()) {
+      // Rank the instances by least useful (the top one should be one that isn't working and isn't in use)
+      QList<FFmpegDecoderInstance*> least_useful;
+
+      foreach (FFmpegDecoderInstance* i, list) {
+        i->cache_lock()->lock();
+
+        if (i->IsWorking()) {
+          // Don't bother any currently working instances
+          i->cache_lock()->unlock();
+          continue;
+        }
+
+        if (i->CacheIsEmpty()) {
+          least_useful.prepend(i);
+        } else {
+          least_useful.append(i);
+        }
+      }
+
+      // Remove the least useful from the list and re-insert it into the map
+      list.removeOne(least_useful.takeFirst());
+      instance_map_.insert(stream().get(), list);
+
+      // Unlock all the instances we locked
+      foreach (FFmpegDecoderInstance* i, least_useful) {
+        i->cache_lock()->unlock();
+      }
+
+      // If there are no more instances, destroy frame pool
+      if (list.isEmpty()) {
+        FFmpegFramePool* frame_pool = frame_pool_map_.take(stream().get());
+        delete frame_pool;
+      }
+    }
   }
-  */
 
   ClearResources();
-
-  clear_timer_.stop();
 }
 
 QString FFmpegDecoder::id()
@@ -947,8 +992,17 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
     } else {
 
       // Whatever it is, keep this frame in memory for the time being just in case
-      FFmpegFramePool::ElementPtr cached = frame_pool_.Get(working_frame.frame());
-      Q_ASSERT(cached);
+      if (!frame_pool_) {
+        qCritical() << "Cannot retrieve video without a valid frame pool";
+        break;
+      }
+
+      FFmpegFramePool::ElementPtr cached = frame_pool_->Get(working_frame.frame());
+
+      if (!cached) {
+        qCritical() << "Frame pool failed to return a valid frame - out of memory?";
+        break;
+      }
 
       // Set timestamp so this frame can be identified later
       cached->set_timestamp(working_frame.frame()->pts);
@@ -1123,6 +1177,7 @@ AVStream *FFmpegDecoderInstance::stream() const
 FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_index) :
   fmt_ctx_(nullptr),
   opts_(nullptr),
+  frame_pool_(nullptr),
   is_working_(false),
   cache_at_zero_(false),
   cache_at_eof_(false)
@@ -1196,17 +1251,11 @@ FFmpegDecoderInstance::FFmpegDecoderInstance(const char *filename, int stream_in
 
   // Create frame pool
   if (avstream_->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-
-    frame_pool_.SetParams(avstream_->codecpar->width,
-                          avstream_->codecpar->height,
-                          static_cast<AVPixelFormat>(avstream_->codecpar->format));
-
-    if (!frame_pool_.Allocate(64)) {
-      qDebug() << "Failed to allocate frame pool";
-      ClearResources();
-      return;
-    }
-
+    // Start clear timer
+    clear_timer_.setInterval(kMaxFrameLife);
+    clear_timer_.moveToThread(qApp->thread());
+    connect(&clear_timer_, &QTimer::timeout, this, &FFmpegDecoderInstance::ClearTimerEvent);
+    QMetaObject::invokeMethod(&clear_timer_, "start", Qt::QueuedConnection);
   }
 
   // Store one second in the source's timebase
@@ -1223,11 +1272,17 @@ bool FFmpegDecoderInstance::IsValid() const
   return codec_ctx_;
 }
 
+void FFmpegDecoderInstance::SetFramePool(FFmpegFramePool *frame_pool)
+{
+  frame_pool_ = frame_pool;
+}
+
 void FFmpegDecoderInstance::ClearResources()
 {
   ClearFrameCache();
 
-  frame_pool_.Destroy();
+  // Stop timer
+  QMetaObject::invokeMethod(&clear_timer_, "stop", Qt::BlockingQueuedConnection);
 
   if (opts_) {
     av_dict_free(&opts_);
@@ -1245,11 +1300,11 @@ void FFmpegDecoderInstance::ClearResources()
   }
 }
 
-void FFmpegDecoder::ClearTimerEvent()
+void FFmpegDecoderInstance::ClearTimerEvent()
 {
-  our_instance_->cache_lock()->lock();
-  our_instance_->RemoveFramesBefore(QDateTime::currentMSecsSinceEpoch() - kMaxFrameLife);
-  our_instance_->cache_lock()->unlock();
+  cache_lock()->lock();
+  RemoveFramesBefore(QDateTime::currentMSecsSinceEpoch() - kMaxFrameLife);
+  cache_lock()->unlock();
 }
 
 OLIVE_NAMESPACE_EXIT

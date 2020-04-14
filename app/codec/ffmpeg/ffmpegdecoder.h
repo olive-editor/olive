@@ -41,7 +41,8 @@ extern "C" {
 
 OLIVE_NAMESPACE_ENTER
 
-class FFmpegDecoderInstance {
+class FFmpegDecoderInstance : public QObject {
+  Q_OBJECT
 public:
   FFmpegDecoderInstance(const char* filename, int stream_index);
   virtual ~FFmpegDecoderInstance();
@@ -49,6 +50,8 @@ public:
   DISABLE_COPY_MOVE(FFmpegDecoderInstance)
 
   bool IsValid() const;
+
+  void SetFramePool(FFmpegFramePool* frame_pool);
 
   int64_t RangeStart() const;
   int64_t RangeEnd() const;
@@ -97,7 +100,7 @@ private:
   QWaitCondition cache_wait_cond_;
   QMutex cache_lock_;
   QList<FFmpegFramePool::ElementPtr> cached_frames_;
-  FFmpegFramePool frame_pool_;
+  FFmpegFramePool* frame_pool_;
 
   int64_t cache_target_time_;
 
@@ -105,6 +108,12 @@ private:
 
   bool cache_at_zero_;
   bool cache_at_eof_;
+
+  QTimer clear_timer_;
+  static const int kMaxFrameLife;
+
+private slots:
+  void ClearTimerEvent();
 
 };
 
@@ -175,17 +184,9 @@ private:
   rational aspect_ratio_;
   int64_t start_time_;
 
-  QTimer clear_timer_;
-
-  FFmpegDecoderInstance* our_instance_;
-
-  static QHash< Stream*, QList<FFmpegDecoderInstance*> > instances_;
-  static QMutex instance_lock_;
-
-  static const int kMaxFrameLife;
-
-private slots:
-  void ClearTimerEvent();
+  static QHash< Stream*, QList<FFmpegDecoderInstance*> > instance_map_;
+  static QHash< Stream*, FFmpegFramePool* > frame_pool_map_;
+  static QMutex instance_map_lock_;
 
 };
 
