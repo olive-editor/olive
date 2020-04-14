@@ -96,10 +96,14 @@ private:
 
   double y_scale_;
 
+  bool currently_autoselecting_;
+
 private slots:
   void ShowContextMenu();
 
   void ShowKeyframePropertiesDialog();
+
+  void AutoSelectKeyTimeNeighbors();
 
 };
 

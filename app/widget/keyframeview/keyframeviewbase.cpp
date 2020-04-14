@@ -36,12 +36,14 @@ KeyframeViewBase::KeyframeViewBase(QWidget *parent) :
   TimelineViewBase(parent),
   dragging_bezier_point_(nullptr),
   y_axis_enabled_(false),
-  y_scale_(1.0)
+  y_scale_(1.0),
+  currently_autoselecting_(false)
 {
   SetDefaultDragMode(RubberBandDrag);
   setContextMenuPolicy(Qt::CustomContextMenu);
 
   connect(this, &KeyframeViewBase::customContextMenuRequested, this, &KeyframeViewBase::ShowContextMenu);
+  connect(scene(), &QGraphicsScene::selectionChanged, this, &KeyframeViewBase::AutoSelectKeyTimeNeighbors);
 }
 
 void KeyframeViewBase::Clear()
@@ -128,7 +130,6 @@ void KeyframeViewBase::mousePressEvent(QMouseEvent *event)
                                        GetAdjustedTime(key->key()->parent()->parentNode(), GetTimeTarget(), key->key()->time(), NodeParam::kOutput),
                                        key->key()->value().toDouble()});
           }
-
         }
       }
     }
@@ -478,6 +479,39 @@ void KeyframeViewBase::ShowKeyframePropertiesDialog()
     KeyframePropertiesDialog kd(keys, timebase(), this);
     kd.exec();
   }
+}
+
+void KeyframeViewBase::AutoSelectKeyTimeNeighbors()
+{
+  if (currently_autoselecting_ || y_axis_enabled_) {
+    return;
+  }
+
+  // Prevents infinite loop
+  currently_autoselecting_ = true;
+
+  QList<QGraphicsItem*> selected_items = scene()->selectedItems();
+
+  foreach (QGraphicsItem* g, selected_items) {
+    KeyframeViewItem* key_item = static_cast<KeyframeViewItem*>(g);
+
+    rational key_time = key_item->key()->time();
+
+    QList<NodeKeyframePtr> keys = key_item->key()->parent()->get_keyframe_at_time(key_time);
+
+    foreach (NodeKeyframePtr k, keys) {
+      if (k == key_item->key()) {
+        continue;
+      }
+
+      // Ensure this key is not already selected
+      KeyframeViewItem* item = item_map_.value(k.get());
+
+      item->setSelected(true);
+    }
+  }
+
+  currently_autoselecting_ = false;
 }
 
 OLIVE_NAMESPACE_EXIT
