@@ -77,6 +77,7 @@ private:
     kPairNumberColor,
     kPairTextureNumber,
     kPairTextureColor,
+    kPairTextureMatrix,
     kPairSampleSample,
     kPairSampleNumber,
 

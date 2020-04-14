@@ -84,6 +84,7 @@ Node::Capabilities MathNode::GetCapabilities(const NodeValueDatabase &input) con
   case kPairTextureColor:
   case kPairTextureNumber:
   case kPairTextureTexture:
+  case kPairTextureMatrix:
     return kShader;
   case kPairSampleNumber:
     return kSampleProcessor;
@@ -260,6 +261,7 @@ NodeValueTable MathNode::Value(const NodeValueDatabase &value) const
   case kPairTextureColor:
   case kPairTextureNumber:
   case kPairTextureTexture:
+  case kPairTextureMatrix:
   case kPairSampleNumber:
     // Do nothing
     break;
@@ -319,6 +321,8 @@ QString MathNode::GetShaderUniformType(const NodeParam::DataType &type)
     return QStringLiteral("sampler2D");
   case NodeParam::kColor:
     return QStringLiteral("vec4");
+  case NodeParam::kMatrix:
+    return QStringLiteral("mat4");
   default:
     return QStringLiteral("float");
   }
@@ -349,6 +353,7 @@ QVector<int> MathNode::GetPairLikelihood(const NodeValueTable &table)
     } else if (type & NodeParam::kMatrix) {
       likelihood.replace(kPairMatrixMatrix, i);
       likelihood.replace(kPairMatrixVec, i);
+      likelihood.replace(kPairTextureMatrix, i);
     } else if (type & NodeParam::kColor) {
       likelihood.replace(kPairColorColor, i);
       likelihood.replace(kPairNumberColor, i);
@@ -366,6 +371,7 @@ QVector<int> MathNode::GetPairLikelihood(const NodeValueTable &table)
       likelihood.replace(kPairTextureTexture, i);
       likelihood.replace(kPairTextureNumber, i);
       likelihood.replace(kPairTextureColor, i);
+      likelihood.replace(kPairTextureMatrix, i);
     }
   }
 
