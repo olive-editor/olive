@@ -41,7 +41,7 @@ void OpenGLWorker::FrameToValue(DecoderPtr decoder, StreamPtr stream, const Time
   FramePtr frame = decoder->RetrieveVideo(range.in(), video_params().divider());
 
   if (frame) {
-    emit RequestFrameToValue(frame, stream, range, table);
+    emit RequestFrameToValue(frame, stream, table);
   }
 }
 

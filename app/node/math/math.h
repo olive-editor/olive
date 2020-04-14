@@ -56,9 +56,10 @@ public:
 private:
   enum Operation {
     kOpAdd,
-    kOpSubtrack,
+    kOpSubtract,
     kOpMultiply,
-    kOpDivide
+    kOpDivide,
+    kOpPower
   };
 
   Operation GetOperation() const;
@@ -84,22 +85,62 @@ private:
     kPairCount
   };
 
+  class PairingCalculator {
+  public:
+    PairingCalculator(const NodeValueTable& table_a, const NodeValueTable& table_b);
+
+    bool FoundMostLikelyPairing() const;
+    Pairing GetMostLikelyPairing() const;
+
+    NodeValue GetMostLikelyValueA() const;
+    NodeValue GetMostLikelyValueB() const;
+
+  private:
+    static Pairing GetMostLikelyPairingInternal(const QVector<int> &a, const QVector<int> &b);
+
+    static QVector<int> GetPairLikelihood(const NodeValueTable& table);
+
+    NodeValue GetMostLikelyValue(const NodeValueTable& table, const QVector<int>& likelihood) const;
+
+    Pairing most_likely_pairing_;
+
+    NodeValueTable table_a_;
+
+    NodeValueTable table_b_;
+
+    QVector<int> pair_likelihood_a_;
+
+    QVector<int> pair_likelihood_b_;
+
+  };
+
   template<typename T, typename U>
-  static T OperationAdd(T a, U b);
+  T PerformAll(T a, U b) const;
+
+  template<typename T, typename U>
+  T PerformMultDiv(T a, U b) const;
+
+  template<typename T, typename U>
+  T PerformAddSub(T a, U b) const;
+
+  template<typename T, typename U>
+  T PerformMult(T a, U b) const;
+
+  template<typename T, typename U>
+  T PerformAddSubMult(T a, U b) const;
+
+  template<typename T, typename U>
+  T PerformAddSubMultDiv(T a, U b) const;
 
   static QString GetShaderUniformType(const NodeParam::DataType& type);
 
   static QString GetShaderVariableCall(const QString& input_id, const NodeParam::DataType& type);
 
-  static QVector<int> GetPairLikelihood(const NodeValueTable& table);
-
-  static Pairing GetMostLikelyPairing(const QVector<int> &a, const QVector<int> &b);
-
   static QVector4D RetrieveVector(const NodeValue& val);
 
-  static void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec);
-
   static float RetrieveNumber(const NodeValue& val);
+
+  static void PushVector(NodeValueTable* output, NodeParam::DataType type, const QVector4D& vec);
 
   NodeInput* method_in_;
 

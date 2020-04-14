@@ -204,6 +204,70 @@ QColor Color::toQColor() const
   return c;
 }
 
+const Color &Color::operator+=(const Color &rhs)
+{
+  for (int i=0;i<kRGBAChannels;i++) {
+    data_[i] += rhs.data_[i];
+  }
+
+  return *this;
+}
+
+const Color &Color::operator-=(const Color &rhs)
+{
+  for (int i=0;i<kRGBAChannels;i++) {
+    data_[i] -= rhs.data_[i];
+  }
+
+  return *this;
+}
+
+const Color &Color::operator*=(const float &rhs)
+{
+  for (int i=0;i<kRGBAChannels;i++) {
+    data_[i] *= rhs;
+  }
+
+  return *this;
+}
+
+const Color &Color::operator/=(const float &rhs)
+{
+  for (int i=0;i<kRGBAChannels;i++) {
+    data_[i] /= rhs;
+  }
+
+  return *this;
+}
+
+Color Color::operator+(const Color &rhs) const
+{
+  Color c(*this);
+  c += rhs;
+  return c;
+}
+
+Color Color::operator-(const Color &rhs) const
+{
+  Color c(*this);
+  c -= rhs;
+  return c;
+}
+
+Color Color::operator*(const float &rhs) const
+{
+  Color c(*this);
+  c *= rhs;
+  return c;
+}
+
+Color Color::operator/(const float &rhs) const
+{
+  Color c(*this);
+  c /= rhs;
+  return c;
+}
+
 OLIVE_NAMESPACE_EXIT
 
 QDebug operator<<(QDebug debug, const OLIVE_NAMESPACE::Color &r)

@@ -1046,4 +1046,14 @@ QVariant NodeInput::combine_track_values_into_normal_value(const QVector<QVarian
   }
 }
 
+QStringList NodeInput::get_combobox_strings() const
+{
+  return get_property(QStringLiteral("combo_str")).toStringList();
+}
+
+void NodeInput::set_combobox_strings(const QStringList &strings)
+{
+  set_property(QStringLiteral("combo_str"), strings);
+}
+
 OLIVE_NAMESPACE_EXIT

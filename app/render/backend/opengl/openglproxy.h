@@ -63,7 +63,7 @@ public:
 
   void Close();
 
-  void FrameToValue(FramePtr frame, StreamPtr stream, const TimeRange &range, NodeValueTable* table);
+  void FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable* table);
 
   void RunNodeAccelerated(const Node *node, const TimeRange &range, const NodeValueDatabase &input_params, NodeValueTable* output_params);
 

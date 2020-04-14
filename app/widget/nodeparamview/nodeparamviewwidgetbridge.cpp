@@ -111,6 +111,19 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     CreateSliders(4);
     break;
   }
+  case NodeParam::kCombo:
+  {
+    QComboBox* combobox = new QComboBox();
+
+    QStringList items = input_->get_combobox_strings();
+    foreach (const QString& s, items) {
+      combobox->addItem(s);
+    }
+
+    widgets_.append(combobox);
+    connect(combobox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &NodeParamViewWidgetBridge::WidgetCallback);
+    break;
+  }
   case NodeParam::kFile:
     // FIXME: File selector
     break;
@@ -373,6 +386,12 @@ void NodeParamViewWidgetBridge::WidgetCallback()
     SetInputValue(QVariant::fromValue(static_cast<FootageComboBox*>(sender())->SelectedFootage()), 0);
     break;
   }
+  case NodeParam::kCombo:
+  {
+    // Widget is a QComboBox
+    SetInputValue(static_cast<QComboBox*>(widgets_.first())->currentIndex(), 0);
+    break;
+  }
   }
 }
 
@@ -456,6 +475,11 @@ void NodeParamViewWidgetBridge::UpdateWidgetValues()
   case NodeParam::kFont:
   {
     // FIXME: Implement this
+    break;
+  }
+  case NodeParam::kCombo:
+  {
+    static_cast<QComboBox*>(widgets_.first())->setCurrentIndex(input_->get_value_at_time(node_time).toInt());
     break;
   }
   case NodeParam::kFootage:
@@ -590,6 +614,33 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
       foreach (QWidget* w, widgets_) {
         static_cast<FloatSlider*>(w)->SetDisplayType(display_type);
       }
+    }
+  }
+
+  // ComboBox strings changing
+  if (input_->data_type() & NodeParam::kCombo) {
+    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
+
+    int old_index = cb->currentIndex();
+
+    // Block the combobox changed signals since we anticipate the index will be the same and not require a re-render
+    cb->blockSignals(true);
+
+    cb->clear();
+
+    QStringList items = input_->get_combobox_strings();
+    foreach (const QString& s, items) {
+      cb->addItem(s);
+    }
+
+    cb->setCurrentIndex(old_index);
+
+    cb->blockSignals(false);
+
+    // In case the amount of items is LESS and the previous index cannot be set, NOW we trigger a re-cache since the
+    // value has changed
+    if (cb->currentIndex() != old_index) {
+      WidgetCallback();
     }
   }
 }

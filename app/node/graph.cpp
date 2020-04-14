@@ -22,11 +22,6 @@
 
 OLIVE_NAMESPACE_ENTER
 
-NodeGraph::NodeGraph()
-{
-
-}
-
 void NodeGraph::Clear()
 {
   foreach (Node* node, node_children_) {

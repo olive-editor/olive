@@ -201,6 +201,7 @@ QByteArray NodeParam::ValueToBytes(const NodeParam::DataType &type, const QVaria
   case kVec2: return ValueToBytesInternal<QVector2D>(value);
   case kVec3: return ValueToBytesInternal<QVector3D>(value);
   case kVec4: return ValueToBytesInternal<QVector4D>(value);
+  case kCombo: return ValueToBytesInternal<int>(value);
 
   // These types have no persistent input
   case kNone:
@@ -223,28 +224,30 @@ NodeParam::DataType NodeParam::StringToDataType(const QString &s)
 {
   QString type_id = s.toLower();
 
-  if (type_id == "float") {
+  if (type_id == QStringLiteral("float")) {
     return kFloat;
-  } else if (type_id == "int") {
+  } else if (type_id == QStringLiteral("int")) {
     return kInt;
-  } else if (type_id == "rational") {
+  } else if (type_id == QStringLiteral("rational")) {
     return kRational;
-  } else if (type_id == "bool") {
+  } else if (type_id == QStringLiteral("bool")) {
     return kBoolean;
-  } else if (type_id == "color") {
+  } else if (type_id == QStringLiteral("color")) {
     return kColor;
-  } else if (type_id == "matrix") {
+  } else if (type_id == QStringLiteral("matrix")) {
     return kMatrix;
-  } else if (type_id == "text") {
+  } else if (type_id == QStringLiteral("text")) {
     return kText;
-  } else if (type_id == "texture") {
+  } else if (type_id == QStringLiteral("texture")) {
     return kTexture;
-  } else if (type_id == "vec2") {
+  } else if (type_id == QStringLiteral("vec2")) {
     return kVec2;
-  } else if (type_id == "vec3") {
+  } else if (type_id == QStringLiteral("vec3")) {
     return kVec3;
-  } else if (type_id == "vec4") {
+  } else if (type_id == QStringLiteral("vec4")) {
     return kVec4;
+  } else if (type_id == QStringLiteral("combo")) {
+    return kCombo;
   }
 
   return kAny;

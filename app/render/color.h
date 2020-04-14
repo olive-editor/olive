@@ -86,6 +86,18 @@ public:
 
   QColor toQColor() const;
 
+  // Assignment math operators
+  const Color& operator+=(const Color& rhs);
+  const Color& operator-=(const Color& rhs);
+  const Color& operator*=(const float& rhs);
+  const Color& operator/=(const float& rhs);
+
+  // Binary math operators
+  Color operator+(const Color& rhs) const;
+  Color operator-(const Color& rhs) const;
+  Color operator*(const float& rhs) const;
+  Color operator/(const float& rhs) const;
+
 private:
   float data_[kRGBAChannels];
 

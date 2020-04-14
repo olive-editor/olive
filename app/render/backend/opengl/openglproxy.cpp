@@ -67,7 +67,7 @@ bool OpenGLProxy::Init()
   return true;
 }
 
-void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, const TimeRange &range, NodeValueTable* table)
+void OpenGLProxy::FrameToValue(FramePtr frame, StreamPtr stream, NodeValueTable* table)
 {
   // Ensure stream is video or image type
   if (stream->type() != Stream::kVideo && stream->type() != Stream::kImage) {
@@ -288,6 +288,9 @@ void OpenGLProxy::RunNodeAccelerated(const Node *node, const TimeRange &range, c
           break;
         case NodeInput::kMatrix:
           shader->setUniformValue(variable_location, value.value<QMatrix4x4>());
+          break;
+        case NodeInput::kCombo:
+          shader->setUniformValue(variable_location, value.value<int>());
           break;
         case NodeInput::kColor:
         {

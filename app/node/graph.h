@@ -37,7 +37,7 @@ public:
   /**
    * @brief NodeGraph Constructor
    */
-  NodeGraph();
+  NodeGraph() = default;
 
   /**
    * @brief Destructively destroys all nodes in the graph

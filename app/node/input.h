@@ -260,6 +260,10 @@ public:
 
   QVariant combine_track_values_into_normal_value(const QVector<QVariant>& split) const;
 
+  QStringList get_combobox_strings() const;
+
+  void set_combobox_strings(const QStringList& strings);
+
   static QString ValueToString(const DataType& data_type, const QVariant& value);
 
   static QVariant StringToValue(const DataType &data_type, const QString &string);

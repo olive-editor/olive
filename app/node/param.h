@@ -172,6 +172,13 @@ public:
     kVec4 = 0x4000,
 
     /**
+     * ComboBox type
+     *
+     * Resolves to `int` - the index currently selected
+     */
+    kCombo = 0x8000,
+
+    /**
      ****************************** BROAD IDENTIFIERS ******************************
      */
 
