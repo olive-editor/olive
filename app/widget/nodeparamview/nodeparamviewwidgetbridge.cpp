@@ -597,6 +597,37 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
     }
   }
 
+  // ComboBox strings changing
+  if (input_->data_type() & NodeParam::kCombo) {
+    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
+
+    int old_index = cb->currentIndex();
+
+    // Block the combobox changed signals since we anticipate the index will be the same and not require a re-render
+    cb->blockSignals(true);
+
+    cb->clear();
+
+    QStringList items = input_->get_combobox_strings();
+    foreach (const QString& s, items) {
+      if (s.isEmpty()) {
+        cb->insertSeparator(cb->count());
+      } else {
+        cb->addItem(s);
+      }
+    }
+
+    cb->setCurrentIndex(old_index);
+
+    cb->blockSignals(false);
+
+    // In case the amount of items is LESS and the previous index cannot be set, NOW we trigger a re-cache since the
+    // value has changed
+    if (cb->currentIndex() != old_index) {
+      WidgetCallback();
+    }
+  }
+
   // Parameters for floats and vectors only
   if (input_->data_type() & NodeParam::kFloat || input_->data_type() & NodeParam::kVector) {
     if (key == QStringLiteral("view")) {
@@ -614,33 +645,6 @@ void NodeParamViewWidgetBridge::PropertyChanged(const QString &key, const QVaria
       foreach (QWidget* w, widgets_) {
         static_cast<FloatSlider*>(w)->SetDisplayType(display_type);
       }
-    }
-  }
-
-  // ComboBox strings changing
-  if (input_->data_type() & NodeParam::kCombo) {
-    QComboBox* cb = static_cast<QComboBox*>(widgets_.first());
-
-    int old_index = cb->currentIndex();
-
-    // Block the combobox changed signals since we anticipate the index will be the same and not require a re-render
-    cb->blockSignals(true);
-
-    cb->clear();
-
-    QStringList items = input_->get_combobox_strings();
-    foreach (const QString& s, items) {
-      cb->addItem(s);
-    }
-
-    cb->setCurrentIndex(old_index);
-
-    cb->blockSignals(false);
-
-    // In case the amount of items is LESS and the previous index cannot be set, NOW we trigger a re-cache since the
-    // value has changed
-    if (cb->currentIndex() != old_index) {
-      WidgetCallback();
     }
   }
 }
