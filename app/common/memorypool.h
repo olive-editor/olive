@@ -23,9 +23,8 @@
 
 #include <memory>
 #include <QDateTime>
+#include <QMutex>
 #include <stdint.h>
-
-#include <QDebug>
 
 #include "common/define.h"
 
@@ -39,7 +38,7 @@ public:
     data_ = nullptr;
   }
 
-  ~MemoryPool() {
+  virtual ~MemoryPool() {
     delete [] data_;
   }
 
@@ -67,6 +66,8 @@ public:
   }
 
   void Destroy() {
+    // FIXME: Invalidate elements sent out here?
+
     delete [] data_;
     data_ = nullptr;
 
@@ -127,6 +128,8 @@ public:
   using ElementPtr = std::shared_ptr<Element>;
 
   ElementPtr Get() {
+    QMutexLocker locker(&lock_);
+
     for (int i=0;i<available_.size();i++) {
       if (available_.at(i)) {
         // This buffer is available
@@ -141,6 +144,7 @@ public:
   }
 
   void Release(Element* e) {
+    QMutexLocker locker(&lock_);
     quintptr diff = reinterpret_cast<quintptr>(e->data()) - reinterpret_cast<quintptr>(data_);
 
     int index = diff / GetElementSize();
@@ -157,6 +161,8 @@ private:
   char* data_;
 
   QVector<bool> available_;
+
+  QMutex lock_;
 
 };
 
