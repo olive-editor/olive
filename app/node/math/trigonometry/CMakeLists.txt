@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(math)
-add_subdirectory(trigonometry)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/math/trigonometry/trigonometry.h
+  node/math/trigonometry/trigonometry.cpp
   PARENT_SCOPE
 )

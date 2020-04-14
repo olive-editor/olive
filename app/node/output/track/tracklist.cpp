@@ -21,7 +21,7 @@
 #include "tracklist.h"
 
 #include "node/factory.h"
-#include "node/math/math.h"
+#include "node/math/math/math.h"
 #include "node/output/viewer/viewer.h"
 
 OLIVE_NAMESPACE_ENTER

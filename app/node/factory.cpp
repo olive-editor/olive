@@ -29,7 +29,8 @@
 #include "input/media/video/video.h"
 #include "input/media/audio/audio.h"
 #include "input/time/timeinput.h"
-#include "math/math.h"
+#include "math/math/math.h"
+#include "math/trigonometry/trigonometry.h"
 #include "output/track/track.h"
 #include "output/viewer/viewer.h"
 #include "external.h"
@@ -160,6 +161,8 @@ Node *NodeFactory::CreateInternal(const NodeFactory::InternalID &id)
     return new PanNode();
   case kMath:
     return new MathNode();
+  case kTrigonometry:
+    return new TrigonometryNode();
   case kTime:
     return new TimeInput();
 

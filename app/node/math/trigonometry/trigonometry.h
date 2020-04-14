@@ -18,55 +18,48 @@
 
 ***/
 
-#ifndef NODEFACTORY_H
-#define NODEFACTORY_H
+#ifndef TRIGNODE_H
+#define TRIGNODE_H
 
-#include <QList>
-
-#include "node.h"
-#include "widget/menu/menu.h"
+#include "node/node.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class NodeFactory
+class TrigonometryNode : public Node
 {
 public:
-  enum InternalID {
-    kViewerOutput,
-    kClipBlock,
-    kGapBlock,
-    kAudioInput,
-    kTransformDistort,
-    kVideoInput,
-    kTrackOutput,
-    kAudioVolume,
-    kAudioPanning,
-    kMath,
-    kTime,
-    kTrigonometry,
+  TrigonometryNode();
 
-    // Count value
-    kInternalNodeCount
-  };
+  virtual Node* copy() const override;
 
-  NodeFactory() = default;
+  virtual QString Name() const override;
+  virtual QString id() const override;
+  virtual QString Category() const override;
+  virtual QString Description() const override;
 
-  static void Initialize();
+  virtual void Retranslate() override;
 
-  static void Destroy();
-
-  static Menu* CreateMenu();
-
-  static Node* CreateFromMenuAction(QAction* action);
-
-  static Node* CreateFromID(const QString& id);
+  virtual NodeValueTable Value(const NodeValueDatabase& value) const override;
 
 private:
-  static Node* CreateInternal(const InternalID& id);
+  enum Operation {
+    kOpSine,
+    kOpCosine,
+    kOpTangent,
+    kOpArcSine,
+    kOpArcCosine,
+    kOpArcTangent,
+    kOpHypSine,
+    kOpHypCosine,
+    kOpHypTangent
+  };
 
-  static QList<Node*> library_;
+  NodeInput* method_in_;
+
+  NodeInput* x_in_;
+
 };
 
 OLIVE_NAMESPACE_EXIT
 
-#endif // NODEFACTORY_H
+#endif // TRIGNODE_H

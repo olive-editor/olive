@@ -63,7 +63,7 @@ QString MathNode::Category() const
 
 QString MathNode::Description() const
 {
-  return tr("Perform a mathematical operation between two.");
+  return tr("Perform a mathematical operation between two values.");
 }
 
 void MathNode::Retranslate()
@@ -74,7 +74,13 @@ void MathNode::Retranslate()
   param_a_in_->set_name(tr("Value"));
   param_b_in_->set_name(tr("Value"));
 
-  QStringList operations = {tr("Add"), tr("Subtract"), tr("Multiply"), tr("Divide")};
+  QStringList operations = {tr("Add"),
+                            tr("Subtract"),
+                            tr("Multiply"),
+                            tr("Divide"),
+                            QString(),
+                            tr("Power")};
+
   method_in_->set_combobox_strings(operations);
 }
 
