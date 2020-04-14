@@ -98,7 +98,7 @@ bool FFmpegDecoder::Open()
         frame_pool->SetParams(our_instance_->stream()->codecpar->width,
                               our_instance_->stream()->codecpar->height,
                               static_cast<AVPixelFormat>(our_instance_->stream()->codecpar->format));
-        frame_pool->Allocate(128);
+        frame_pool->Allocate(256);
         frame_pool_map_.insert(stream().get(), frame_pool);
       }
 
@@ -1015,6 +1015,10 @@ FFmpegFramePool::ElementPtr FFmpegDecoderInstance::RetrieveFrame(const int64_t& 
         previous = cached_frames_.last();
       }
 
+      // Clear early frames
+      // FIXME: Hardcoded value (only stores a maximum of 2 seconds in the cache at any time)
+      TruncateCacheRangeTo(2*second_ts_);
+
       // Append this frame and signal to other threads that a new frame has arrived
       cached_frames_.append(cached);
 
@@ -1159,6 +1163,15 @@ void FFmpegDecoderInstance::RemoveFramesBefore(const qint64 &t)
 {
   // We keep one frame in memory as an identifier for what pts the decoder is up to
   while (cached_frames_.size() > 1 && cached_frames_.first()->last_accessed() < t) {
+    cached_frames_.removeFirst();
+    cache_at_zero_ = false;
+  }
+}
+
+void FFmpegDecoderInstance::TruncateCacheRangeTo(const qint64 &t)
+{
+  // We keep one frame in memory as an identifier for what pts the decoder is up to
+  while (cached_frames_.size() > 1 && (RangeEnd() - RangeStart()) > t) {
     cached_frames_.removeFirst();
     cache_at_zero_ = false;
   }

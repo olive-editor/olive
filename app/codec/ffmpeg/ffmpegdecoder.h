@@ -62,6 +62,7 @@ public:
   FFmpegFramePool::ElementPtr GetFrameFromCache(const int64_t& t) const;
 
   void RemoveFramesBefore(const qint64& t);
+  void TruncateCacheRangeTo(const qint64& t);
 
   rational sample_aspect_ratio() const;
   AVStream* stream() const;
