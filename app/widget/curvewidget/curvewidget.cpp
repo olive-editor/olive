@@ -77,6 +77,7 @@ CurveWidget::CurveWidget(QWidget *parent) :
 
   view_ = new CurveView();
   connect(view_, &CurveView::RequestCenterScrollOnPlayhead, this, &CurveWidget::CenterScrollOnPlayhead);
+  ConnectTimelineView(view_);
   ruler_view_layout->addWidget(view_);
 
   layout->addLayout(ruler_view_layout);

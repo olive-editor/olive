@@ -467,8 +467,6 @@ private:
   void UpdateViewTimebases();
 
 private slots:
-  void UpdateTimelineLength(const rational& length);
-
   void ViewMousePressed(TimelineViewMouseEvent* event);
   void ViewMouseMoved(TimelineViewMouseEvent* event);
   void ViewMouseReleased(TimelineViewMouseEvent* event);

@@ -106,6 +106,8 @@ TimelineWidget::TimelineWidget(QWidget *parent) :
 
     view_splitter->addWidget(tview);
 
+    ConnectTimelineView(view);
+
     connect(view->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
     connect(view, &TimelineView::ScaleChanged, this, &TimelineWidget::SetScale);
     connect(view, &TimelineView::TimeChanged, this, &TimelineWidget::ViewTimestampChanged);
@@ -223,7 +225,6 @@ void TimelineWidget::ScaleChangedEvent(const double &scale)
 
 void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
 {
-  connect(n, &ViewerOutput::LengthChanged, this, &TimelineWidget::UpdateTimelineLength);
   connect(n, &ViewerOutput::BlockAdded, this, &TimelineWidget::AddBlock);
   connect(n, &ViewerOutput::BlockRemoved, this, &TimelineWidget::RemoveBlock);
   connect(n, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
@@ -232,7 +233,6 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
   connect(n, &ViewerOutput::TrackHeightChanged, this, &TimelineWidget::TrackHeightChanged);
 
   SetTimebase(n->video_params().time_base());
-  UpdateTimelineLength(n->Length());
 
   for (int i=0;i<views_.size();i++) {
     Timeline::TrackType track_type = static_cast<Timeline::TrackType>(i);
@@ -242,7 +242,6 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
 
     track_view->ConnectTrackList(track_list);
     view->ConnectTrackList(track_list);
-    view->SetEndTime(n->Length());
 
     // Defer to the track to make all the block UI items necessary
     foreach (TrackOutput* track, n->track_list(track_type)->Tracks()) {
@@ -253,7 +252,6 @@ void TimelineWidget::ConnectNodeInternal(ViewerOutput *n)
 
 void TimelineWidget::DisconnectNodeInternal(ViewerOutput *n)
 {
-  disconnect(n, &ViewerOutput::LengthChanged, this, &TimelineWidget::UpdateTimelineLength);
   disconnect(n, &ViewerOutput::BlockAdded, this, &TimelineWidget::AddBlock);
   disconnect(n, &ViewerOutput::BlockRemoved, this, &TimelineWidget::RemoveBlock);
   disconnect(n, &ViewerOutput::TrackAdded, this, &TimelineWidget::AddTrack);
@@ -858,14 +856,6 @@ void TimelineWidget::ClearGhosts()
 bool TimelineWidget::HasGhosts()
 {
   return !ghost_items_.isEmpty();
-}
-
-void TimelineWidget::UpdateTimelineLength(const rational &length)
-{
-  foreach (TimelineAndTrackView* view, views_) {
-    view->view()->SetEndTime(length);
-  }
-  ruler()->SetCacheStatusLength(length);
 }
 
 TimelineWidget::Tool *TimelineWidget::GetActiveTool()

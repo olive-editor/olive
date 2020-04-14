@@ -74,7 +74,7 @@ void TimelineViewBase::SetTime(const int64_t time)
     // Do nothing
     break;
   case AutoScroll::kPage:
-    PageScrollToPlayhead();
+    QMetaObject::invokeMethod(this, "PageScrollToPlayhead", Qt::QueuedConnection);
     break;
   case AutoScroll::kSmooth:
     emit RequestCenterScrollOnPlayhead();

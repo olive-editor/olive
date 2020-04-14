@@ -71,6 +71,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
   // Create keyframe view
   keyframe_view_ = new KeyframeView();
   keyframe_view_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  ConnectTimelineView(keyframe_view_);
   connect(keyframe_view_, &KeyframeView::RequestCenterScrollOnPlayhead, this, &NodeParamView::CenterScrollOnPlayhead);
   bottom_item_ = keyframe_view_->scene()->addRect(0, 0, 1, 1);
   keyframe_area_layout->addWidget(keyframe_view_);
@@ -109,6 +110,7 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
   // TimeBasedWidget's scrollbar has extra functionality that we can take advantage of
   keyframe_view_->setHorizontalScrollBar(scrollbar());
+  keyframe_view_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
   connect(keyframe_view_->horizontalScrollBar(), &QScrollBar::valueChanged, ruler(), &TimeRuler::SetScroll);
 
@@ -120,6 +122,8 @@ NodeParamView::NodeParamView(QWidget *parent) :
 
 void NodeParamView::SetNodes(QList<Node *> nodes)
 {
+  ConnectViewerNode(nullptr);
+
   // If we already have item widgets, delete them all now
   foreach (NodeParamViewItem* item, items_) {
     delete item;
@@ -134,25 +138,27 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
   // Set the internal list to the one we've received
   nodes_ = nodes;
 
-  // For each node, create a widget
-  foreach (Node* node, nodes_) {
-    NodeParamViewItem* item = new NodeParamViewItem(node);
-
-    // Insert the widget before the stretch
-    param_layout_->insertWidget(param_layout_->count() - 1, item);
-
-    connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
-    connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
-    connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
-    connect(item, &NodeParamViewItem::InputClicked, this, &NodeParamView::SelectedInputChanged);
-
-    items_.append(item);
-
-    QTimer::singleShot(1, item, &NodeParamViewItem::SignalAllKeyframes);
-  }
-
   if (!nodes_.isEmpty()) {
+    // For each node, create a widget
+    foreach (Node* node, nodes_) {
+      NodeParamViewItem* item = new NodeParamViewItem(node);
+
+      // Insert the widget before the stretch
+      param_layout_->insertWidget(param_layout_->count() - 1, item);
+
+      connect(item, &NodeParamViewItem::KeyframeAdded, keyframe_view_, &KeyframeView::AddKeyframe);
+      connect(item, &NodeParamViewItem::KeyframeRemoved, keyframe_view_, &KeyframeView::RemoveKeyframe);
+      connect(item, &NodeParamViewItem::RequestSetTime, this, &NodeParamView::ItemRequestedTimeChanged);
+      connect(item, &NodeParamViewItem::InputClicked, this, &NodeParamView::SelectedInputChanged);
+
+      items_.append(item);
+
+      QTimer::singleShot(1, item, &NodeParamViewItem::SignalAllKeyframes);
+    }
+
     ViewerOutput* viewer = nodes_.first()->FindOutputNode<ViewerOutput>();
+
+    ConnectViewerNode(viewer);
 
     if (viewer) {
       SetTimebase(viewer->video_params().time_base());
@@ -166,9 +172,10 @@ void NodeParamView::SetNodes(QList<Node *> nodes)
 
       emit TimeTargetChanged(viewer);
     }
-  }
 
-  SetTime(0);
+    // Forces the scroll to update to this time
+    keyframe_view_->SetTime(ruler()->GetTime());
+  }
 }
 
 void NodeParamView::resizeEvent(QResizeEvent *event)

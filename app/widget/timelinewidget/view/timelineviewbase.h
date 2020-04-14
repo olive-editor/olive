@@ -36,12 +36,12 @@ class TimelineViewBase : public QGraphicsView, public TimelineScaledObject
 public:
   TimelineViewBase(QWidget* parent = nullptr);
 
-  void SetEndTime(const rational& length);
-
   static const double kMaximumScale;
 
 public slots:
   void SetTime(const int64_t time);
+
+  void SetEndTime(const rational& length);
 
 signals:
   void TimeChanged(const int64_t& time);

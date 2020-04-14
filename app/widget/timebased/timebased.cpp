@@ -96,15 +96,23 @@ void TimeBasedWidget::ConnectViewerNode(ViewerOutput *node)
 
     ConnectNodeInternal(viewer_node_);
   }
+
+  UpdateMaximumScroll();
 }
 
 void TimeBasedWidget::UpdateMaximumScroll()
 {
-  if (!viewer_node_ || !auto_max_scrollbar_) {
-    return;
+  rational length = (viewer_node_) ? viewer_node_->Length() : rational();
+
+  if (auto_max_scrollbar_) {
+    scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(length)) - width()));
   }
 
-  scrollbar_->setMaximum(qMax(0, qCeil(TimeToScene(viewer_node_->Length())) - width()));
+  foreach (TimelineViewBase* base, timeline_views_) {
+    base->SetEndTime(length);
+  }
+
+  ruler()->SetCacheStatusLength(length);
 }
 
 void TimeBasedWidget::ScrollBarResized(const double &multiplier)
@@ -181,6 +189,11 @@ TimelinePoints *TimeBasedWidget::ConnectTimelinePoints()
 TimelinePoints *TimeBasedWidget::GetConnectedTimelinePoints() const
 {
   return points_;
+}
+
+void TimeBasedWidget::ConnectTimelineView(TimelineViewBase *base)
+{
+  timeline_views_.append(base);
 }
 
 void TimeBasedWidget::SetTime(int64_t timestamp)

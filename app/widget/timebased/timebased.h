@@ -27,6 +27,7 @@
 #include "node/output/viewer/viewer.h"
 #include "widget/resizablescrollbar/resizablescrollbar.h"
 #include "widget/timelinewidget/timelinescaledobject.h"
+#include "widget/timelinewidget/view/timelineview.h"
 #include "widget/timeruler/timeruler.h"
 
 OLIVE_NAMESPACE_ENTER
@@ -111,6 +112,8 @@ protected:
 
   TimelinePoints* GetConnectedTimelinePoints() const;
 
+  void ConnectTimelineView(TimelineViewBase* base);
+
 protected slots:
   /**
    * @brief Slot to center the horizontal scroll bar on the playhead's current position
@@ -152,6 +155,8 @@ private:
   bool auto_max_scrollbar_;
 
   TimelinePoints* points_;
+
+  QList<TimelineViewBase*> timeline_views_;
 
 private slots:
   void UpdateMaximumScroll();
