@@ -47,10 +47,6 @@ Decoder::Decoder(Stream *fs) :
 {
 }
 
-Decoder::~Decoder()
-{
-}
-
 StreamPtr Decoder::stream()
 {
   return stream_;
