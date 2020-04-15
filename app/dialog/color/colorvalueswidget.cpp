@@ -21,23 +21,148 @@
 #include "colorvalueswidget.h"
 
 #include <QGridLayout>
+#include <QTabWidget>
 
 OLIVE_NAMESPACE_ENTER
 
-ColorValuesWidget::ColorValuesWidget(QWidget *parent) :
+ColorValuesWidget::ColorValuesWidget(ColorManager *manager, QWidget *parent) :
+  QWidget(parent),
+  manager_(manager),
+  input_to_ref_(nullptr),
+  ref_to_display_(nullptr),
+  display_to_ref_(nullptr),
+  ref_to_input_(nullptr)
+{
+  QVBoxLayout* layout = new QVBoxLayout(this);
+
+  // Create preview box
+  {
+    QHBoxLayout* preview_layout = new QHBoxLayout();
+
+    preview_layout->setMargin(0);
+
+    preview_layout->addWidget(new QLabel(tr("Preview")));
+
+    preview_ = new ColorPreviewBox();
+    preview_->setFixedHeight(fontMetrics().height() * 3 / 2);
+    preview_layout->addWidget(preview_);
+
+    layout->addLayout(preview_layout);
+  }
+
+  // Create value tabs
+  {
+    QTabWidget* tabs = new QTabWidget();
+
+    input_tab_ = new ColorValuesTab();
+    tabs->addTab(input_tab_, tr("Input"));
+    connect(input_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::UpdateValuesFromInput);
+    connect(input_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::ColorChanged);
+    connect(input_tab_, &ColorValuesTab::ColorChanged, preview_, &ColorPreviewBox::SetColor);
+
+    reference_tab_ = new ColorValuesTab();
+    tabs->addTab(reference_tab_, tr("Reference"));
+    connect(reference_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::UpdateValuesFromRef);
+
+    display_tab_ = new ColorValuesTab();
+    tabs->addTab(display_tab_, tr("Display"));
+    connect(display_tab_, &ColorValuesTab::ColorChanged, this, &ColorValuesWidget::UpdateValuesFromDisplay);
+
+    // FIXME: Display -> Ref temporarily disabled due to OCIO crash (see ColorDialog::ColorSpaceChanged for more info)
+    display_tab_->setEnabled(false);
+
+    layout->addWidget(tabs);
+  }
+}
+
+Color ColorValuesWidget::GetColor() const
+{
+  return reference_tab_->GetColor();
+}
+
+void ColorValuesWidget::SetColorProcessor(ColorProcessorPtr input_to_ref, ColorProcessorPtr ref_to_display, ColorProcessorPtr display_to_ref, ColorProcessorPtr ref_to_input)
+{
+  input_to_ref_ = input_to_ref;
+  ref_to_display_ = ref_to_display;
+  display_to_ref_ = display_to_ref;
+  ref_to_input_ = ref_to_input;
+
+  UpdateValuesFromInput();
+
+  preview_->SetColorProcessor(input_to_ref_, ref_to_display_);
+}
+
+void ColorValuesWidget::SetColor(const Color &c)
+{
+  input_tab_->SetColor(c);
+  preview_->SetColor(c);
+
+  UpdateValuesFromInput();
+}
+
+void ColorValuesWidget::UpdateValuesFromInput()
+{
+  UpdateRefFromInput();
+  UpdateDisplayFromRef();
+}
+
+void ColorValuesWidget::UpdateValuesFromRef()
+{
+  UpdateInputFromRef();
+  UpdateDisplayFromRef();
+}
+
+void ColorValuesWidget::UpdateValuesFromDisplay()
+{
+  UpdateRefFromDisplay();
+  UpdateInputFromRef();
+}
+
+void ColorValuesWidget::UpdateInputFromRef()
+{
+  if (ref_to_input_) {
+    input_tab_->SetColor(ref_to_input_->ConvertColor(reference_tab_->GetColor()));
+  } else {
+    input_tab_->SetColor(reference_tab_->GetColor());
+  }
+
+  preview_->SetColor(input_tab_->GetColor());
+  emit ColorChanged(input_tab_->GetColor());
+}
+
+void ColorValuesWidget::UpdateDisplayFromRef()
+{
+  if (ref_to_display_) {
+    display_tab_->SetColor(ref_to_display_->ConvertColor(reference_tab_->GetColor()));
+  } else {
+    display_tab_->SetColor(reference_tab_->GetColor());
+  }
+}
+
+void ColorValuesWidget::UpdateRefFromInput()
+{
+  if (input_to_ref_) {
+    reference_tab_->SetColor(input_to_ref_->ConvertColor(input_tab_->GetColor()));
+  } else {
+    reference_tab_->SetColor(input_tab_->GetColor());
+  }
+}
+
+void ColorValuesWidget::UpdateRefFromDisplay()
+{
+  if (display_to_ref_) {
+    reference_tab_->SetColor(display_to_ref_->ConvertColor(display_tab_->GetColor()));
+  } else {
+    reference_tab_->SetColor(display_tab_->GetColor());
+  }
+}
+
+ColorValuesTab::ColorValuesTab(QWidget *parent) :
   QWidget(parent)
 {
   QGridLayout* layout = new QGridLayout(this);
 
   int row = 0;
-
-  layout->addWidget(new QLabel(tr("Preview")), row, 0);
-
-  preview_ = new ColorPreviewBox();
-  preview_->setFixedHeight(fontMetrics().height() * 3 / 2);
-  layout->addWidget(preview_, row, 1);
-
-  row++;
 
   layout->addWidget(new QLabel(tr("Red")), row, 0);
 
@@ -59,44 +184,34 @@ ColorValuesWidget::ColorValuesWidget(QWidget *parent) :
   layout->addWidget(blue_slider_, row, 1);
 }
 
-Color ColorValuesWidget::GetColor() const
+Color ColorValuesTab::GetColor() const
 {
   return Color(red_slider_->GetValue(),
                green_slider_->GetValue(),
                blue_slider_->GetValue());
 }
 
-ColorPreviewBox *ColorValuesWidget::preview_box() const
-{
-  return preview_;
-}
-
-void ColorValuesWidget::SetColor(const Color &c)
+void ColorValuesTab::SetColor(const Color &c)
 {
   red_slider_->SetValue(c.red());
   green_slider_->SetValue(c.green());
   blue_slider_->SetValue(c.blue());
-  preview_->SetColor(c);
 }
 
-FloatSlider *ColorValuesWidget::CreateColorSlider()
+FloatSlider *ColorValuesTab::CreateColorSlider()
 {
   FloatSlider* fs = new FloatSlider();
   fs->SetMinimum(0);
   fs->SetDragMultiplier(0.01);
   fs->SetMaximum(1);
   fs->SetDecimalPlaces(3);
-  connect(fs, &FloatSlider::ValueChanged, this, &ColorValuesWidget::SliderChanged);
+  connect(fs, &FloatSlider::ValueChanged, this, &ColorValuesTab::SliderChanged);
   return fs;
 }
 
-void ColorValuesWidget::SliderChanged()
+void ColorValuesTab::SliderChanged()
 {
-  Color c(red_slider_->GetValue(), green_slider_->GetValue(), blue_slider_->GetValue());
-
-  preview_->SetColor(c);
-
-  emit ColorChanged(c);
+  emit ColorChanged(GetColor());
 }
 
 OLIVE_NAMESPACE_EXIT

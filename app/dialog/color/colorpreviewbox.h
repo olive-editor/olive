@@ -34,7 +34,7 @@ class ColorPreviewBox : public QWidget
 public:
   ColorPreviewBox(QWidget* parent = nullptr);
 
-  void SetColorProcessor(ColorProcessorPtr to_linear, ColorProcessorPtr to_display);
+  void SetColorProcessor(ColorProcessorPtr to_ref, ColorProcessorPtr to_display);
 
 public slots:
   void SetColor(const Color& c);
@@ -45,7 +45,7 @@ protected:
 private:
   Color color_;
 
-  ColorProcessorPtr to_linear_processor_;
+  ColorProcessorPtr to_ref_processor_;
 
   ColorProcessorPtr to_display_processor_;
 

@@ -25,13 +25,15 @@
 OLIVE_NAMESPACE_ENTER
 
 ColorPreviewBox::ColorPreviewBox(QWidget *parent) :
-  QWidget(parent)
+  QWidget(parent),
+  to_ref_processor_(nullptr),
+  to_display_processor_(nullptr)
 {
 }
 
-void ColorPreviewBox::SetColorProcessor(ColorProcessorPtr to_linear, ColorProcessorPtr to_display)
+void ColorPreviewBox::SetColorProcessor(ColorProcessorPtr to_ref, ColorProcessorPtr to_display)
 {
-  to_linear_processor_ = to_linear;
+  to_ref_processor_ = to_ref;
   to_display_processor_ = to_display;
 
   update();
@@ -50,8 +52,8 @@ void ColorPreviewBox::paintEvent(QPaintEvent *e)
   QColor c;
 
   // Color management
-  if (to_linear_processor_ && to_display_processor_) {
-    c = to_display_processor_->ConvertColor(to_linear_processor_->ConvertColor(color_)).toQColor();
+  if (to_ref_processor_ && to_display_processor_) {
+    c = to_display_processor_->ConvertColor(to_ref_processor_->ConvertColor(color_)).toQColor();
   } else {
     c = color_.toQColor();
   }
@@ -61,7 +63,7 @@ void ColorPreviewBox::paintEvent(QPaintEvent *e)
   p.setPen(Qt::black);
   p.setBrush(c);
 
-  p.drawRect(rect());
+  p.drawRect(rect().adjusted(0, 0, -1, -1));
 }
 
 OLIVE_NAMESPACE_EXIT

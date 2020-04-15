@@ -60,14 +60,15 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input
   value_layout->setSpacing(0);
   splitter->addWidget(value_area);
 
-  color_values_widget_ = new ColorValuesWidget();
+  color_values_widget_ = new ColorValuesWidget(color_manager_);
   value_layout->addWidget(color_values_widget_);
 
   chooser_ = new ColorSpaceChooser(color_manager_);
   chooser_->set_input(input_cs);
   value_layout->addWidget(chooser_);
 
-  splitter->setSizes({INT_MAX, 0});
+  // Split window 50/50
+  splitter->setSizes({INT_MAX, INT_MAX});
 
   connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, color_values_widget_, &ColorValuesWidget::SetColor);
   connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
@@ -99,6 +100,7 @@ ColorDialog::ColorDialog(ColorManager* color_manager, Color start, QString input
   connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
   ColorSpaceChanged(chooser_->input(), chooser_->display(), chooser_->view(), chooser_->look());
 
+  // Set default size ratio to 2:1
   resize(sizeHint().height() * 2, sizeHint().height());
 }
 
@@ -107,8 +109,8 @@ Color ColorDialog::GetSelectedColor() const
   Color selected = color_wheel_->GetSelectedColor();
 
   // Convert to linear and return a linear color
-  if (to_linear_processor_) {
-    return to_linear_processor_->ConvertColor(selected);
+  if (input_to_ref_processor_) {
+    return input_to_ref_processor_->ConvertColor(selected);
   }
 
   // Fallback if no processor is available
@@ -137,17 +139,29 @@ QString ColorDialog::GetColorSpaceLook() const
 
 void ColorDialog::ColorSpaceChanged(const QString &input, const QString &display, const QString &view, const QString &look)
 {
-  to_linear_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, color_manager_->GetReferenceColorSpace());
+  input_to_ref_processor_ = ColorProcessor::Create(color_manager_->GetConfig(), input, color_manager_->GetReferenceColorSpace());
 
-  ColorProcessorPtr to_display = ColorProcessor::Create(color_manager_->GetConfig(),
-                                                        color_manager_->GetReferenceColorSpace(),
-                                                        display,
-                                                        view,
-                                                        look);
+  ColorProcessorPtr ref_to_display = ColorProcessor::Create(color_manager_->GetConfig(),
+                                                            color_manager_->GetReferenceColorSpace(),
+                                                            display,
+                                                            view,
+                                                            look);
 
-  color_wheel_->SetColorProcessor(to_linear_processor_, to_display);
-  hsv_value_gradient_->SetColorProcessor(to_linear_processor_, to_display);
-  color_values_widget_->preview_box()->SetColorProcessor(to_linear_processor_, to_display);
+  ColorProcessorPtr ref_to_input = ColorProcessor::Create(color_manager_->GetConfig(), color_manager_->GetReferenceColorSpace(), input);
+
+  // FIXME: For some reason, using OCIO::TRANSFORM_DIR_INVERSE (wrapped by ColorProcessor::kInverse) causes OCIO to
+  //        crash. We've disabled that functionality for now (also disabling display_tab_ in ColorValuesWidget)
+
+  /*ColorProcessorPtr display_to_ref = ColorProcessor::Create(color_manager_->GetConfig(),
+                                                            color_manager_->GetReferenceColorSpace(),
+                                                            display,
+                                                            view,
+                                                            look,
+                                                            ColorProcessor::kInverse);*/
+
+  color_wheel_->SetColorProcessor(input_to_ref_processor_, ref_to_display);
+  hsv_value_gradient_->SetColorProcessor(input_to_ref_processor_, ref_to_display);
+  color_values_widget_->SetColorProcessor(input_to_ref_processor_, ref_to_display, nullptr, ref_to_input);
 }
 
 OLIVE_NAMESPACE_EXIT

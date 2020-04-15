@@ -35,12 +35,18 @@ using ColorProcessorPtr = std::shared_ptr<ColorProcessor>;
 class ColorProcessor
 {
 public:
+  enum Direction {
+    kNormal,
+    kInverse
+  };
+
   ColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &dest_space);
 
   ColorProcessor(OCIO::ConstConfigRcPtr config, const QString& source_space,
                  QString display,
                  QString view,
-                 const QString& look);
+                 const QString& look,
+                 Direction direction);
 
   DISABLE_COPY_MOVE(ColorProcessor)
 
@@ -50,7 +56,8 @@ public:
                                   const QString& source_space,
                                   const QString& display,
                                   const QString& view,
-                                  const QString& look);
+                                  const QString& look,
+                                  Direction direction = kNormal);
 
   OCIO::ConstProcessorRcPtr GetProcessor();
 

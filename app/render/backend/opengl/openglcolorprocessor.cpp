@@ -77,8 +77,8 @@ OpenGLColorProcessor::OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const 
 {
 }
 
-OpenGLColorProcessor::OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, QString display, QString view, const QString &look) :
-  ColorProcessor(config, source_space, display, view, look),
+OpenGLColorProcessor::OpenGLColorProcessor(OCIO::ConstConfigRcPtr config, const QString &source_space, QString display, QString view, const QString &look, Direction dir) :
+  ColorProcessor(config, source_space, display, view, look, dir),
   ocio_lut_(0)
 {
 }
@@ -93,9 +93,9 @@ OpenGLColorProcessorPtr OpenGLColorProcessor::Create(OCIO::ConstConfigRcPtr conf
   return std::make_shared<OpenGLColorProcessor>(config, source_space, dest_space);
 }
 
-OpenGLColorProcessorPtr OpenGLColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look)
+OpenGLColorProcessorPtr OpenGLColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look, Direction dir)
 {
-  return std::make_shared<OpenGLColorProcessor>(config, source_space, display, view, look);
+  return std::make_shared<OpenGLColorProcessor>(config, source_space, display, view, look, dir);
 }
 
 OLIVE_NAMESPACE_EXIT

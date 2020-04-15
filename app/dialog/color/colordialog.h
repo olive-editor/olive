@@ -77,11 +77,11 @@ private:
 
   ColorWheelWidget* color_wheel_;
 
-  ColorGradientWidget* hsv_value_gradient_;
-
   ColorValuesWidget* color_values_widget_;
 
-  ColorProcessorPtr to_linear_processor_;
+  ColorGradientWidget* hsv_value_gradient_;
+
+  ColorProcessorPtr input_to_ref_processor_;
 
   ColorSpaceChooser* chooser_;
 

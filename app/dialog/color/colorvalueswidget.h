@@ -25,21 +25,19 @@
 
 #include "colorpreviewbox.h"
 #include "render/color.h"
+#include "render/colormanager.h"
 #include "widget/slider/floatslider.h"
 
 OLIVE_NAMESPACE_ENTER
 
-class ColorValuesWidget : public QWidget
+class ColorValuesTab : public QWidget
 {
   Q_OBJECT
 public:
-  ColorValuesWidget(QWidget* parent = nullptr);
+  ColorValuesTab(QWidget* parent = nullptr);
 
   Color GetColor() const;
 
-  ColorPreviewBox* preview_box() const;
-
-public slots:
   void SetColor(const Color& c);
 
 signals:
@@ -48,14 +46,67 @@ signals:
 private:
   FloatSlider* CreateColorSlider();
 
-  ColorPreviewBox* preview_;
-
   FloatSlider* red_slider_;
   FloatSlider* green_slider_;
   FloatSlider* blue_slider_;
 
 private slots:
   void SliderChanged();
+
+};
+
+class ColorValuesWidget : public QWidget
+{
+  Q_OBJECT
+public:
+  ColorValuesWidget(ColorManager* manager, QWidget* parent = nullptr);
+
+  Color GetColor() const;
+
+  void SetColorProcessor(ColorProcessorPtr input_to_ref,
+                         ColorProcessorPtr ref_to_display,
+                         ColorProcessorPtr display_to_ref,
+                         ColorProcessorPtr ref_to_input);
+
+public slots:
+  void SetColor(const Color& c);
+
+signals:
+  void ColorChanged(const Color& c);
+
+private:
+  void UpdateInputFromRef();
+
+  void UpdateDisplayFromRef();
+
+  void UpdateRefFromInput();
+
+  void UpdateRefFromDisplay();
+
+  ColorManager* manager_;
+
+  ColorPreviewBox* preview_;
+
+  ColorValuesTab* input_tab_;
+
+  ColorValuesTab* reference_tab_;
+
+  ColorValuesTab* display_tab_;
+
+  ColorProcessorPtr input_to_ref_;
+
+  ColorProcessorPtr ref_to_display_;
+
+  ColorProcessorPtr display_to_ref_;
+
+  ColorProcessorPtr ref_to_input_;
+
+private slots:
+  void UpdateValuesFromInput();
+
+  void UpdateValuesFromRef();
+
+  void UpdateValuesFromDisplay();
 
 };
 

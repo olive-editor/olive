@@ -34,7 +34,8 @@ ColorProcessor::ColorProcessor(OCIO::ConstConfigRcPtr config,
                                const QString& source_space,
                                QString display,
                                QString view,
-                               const QString& look)
+                               const QString& look,
+                               Direction direction)
 {
   if (display.isEmpty()) {
     display = config->getDefaultDisplay();
@@ -55,7 +56,9 @@ ColorProcessor::ColorProcessor(OCIO::ConstConfigRcPtr config,
     transform->setLooksOverrideEnabled(true);
   }
 
-  processor = config->getProcessor(transform);
+  OCIO::TransformDirection dir = (direction == kInverse) ? OCIO::TRANSFORM_DIR_INVERSE : OCIO::TRANSFORM_DIR_FORWARD;
+
+  processor = config->getProcessor(transform, dir);
 }
 
 void ColorProcessor::ConvertFrame(FramePtr f)
@@ -76,12 +79,12 @@ ColorProcessorPtr ColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QS
   return std::make_shared<ColorProcessor>(config, source_space, dest_space);
 }
 
-ColorProcessorPtr ColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look)
+ColorProcessorPtr ColorProcessor::Create(OCIO::ConstConfigRcPtr config, const QString &source_space, const QString &display, const QString &view, const QString &look, Direction direction)
 {
-  return std::make_shared<ColorProcessor>(config, source_space, display, view, look);
+  return std::make_shared<ColorProcessor>(config, source_space, display, view, look, direction);
 }
 
-OpenColorIO::v1::ConstProcessorRcPtr ColorProcessor::GetProcessor()
+OCIO::ConstProcessorRcPtr ColorProcessor::GetProcessor()
 {
   return processor;
 }

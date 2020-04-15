@@ -39,7 +39,8 @@ public:
                        const QString& source_space,
                        QString display,
                        QString view,
-                       const QString& look);
+                       const QString& look,
+                       Direction dir);
 
   ~OpenGLColorProcessor();
 
@@ -49,7 +50,8 @@ public:
                                         const QString& source_space,
                                         const QString& display,
                                         const QString& view,
-                                        const QString& look);
+                                        const QString& look,
+                                        Direction dir = kNormal);
 
   void Enable(QOpenGLContext* context, bool alpha_is_associated);
   bool IsEnabled() const;

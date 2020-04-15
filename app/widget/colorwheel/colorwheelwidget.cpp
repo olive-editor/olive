@@ -55,8 +55,8 @@ void ColorWheelWidget::paintEvent(QPaintEvent *e)
 
   int diameter = GetDiameter();
 
-  // Half diameter (add one to ensure the division rounds up)
-  int radius = (diameter + 1) / 2;
+  // Half diameter
+  int radius = diameter / 2;
 
   if (cached_wheel_.width() != diameter || force_redraw_) {
     cached_wheel_ = QPixmap(QSize(diameter, diameter));
@@ -71,7 +71,8 @@ void ColorWheelWidget::paintEvent(QPaintEvent *e)
         Triangle tri = GetTriangleFromCoords(center, j, i);
 
         if (tri.hypotenuse <= radius) {
-          QColor c = GetManagedColor(GetColorFromTriangle(tri)).toQColor();
+          Color managed = GetManagedColor(GetColorFromTriangle(tri));
+          QColor c = managed.toQColor();
 
           // Very basic antialiasing around the edges of the wheel
           qreal alpha = qMin(1.0, radius - tri.hypotenuse);
