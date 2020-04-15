@@ -144,6 +144,8 @@ public:
 
   virtual void PasteInsert(){}
 
+  virtual void ToggleShowAll(){}
+
 protected:
   /**
    * @brief paintEvent

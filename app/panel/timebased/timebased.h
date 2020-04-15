@@ -78,6 +78,8 @@ public:
 
   virtual void SetMarker() override;
 
+  virtual void ToggleShowAll() override;
+
 public slots:
   void SetTimebase(const rational& timebase);
 

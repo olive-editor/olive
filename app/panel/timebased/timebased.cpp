@@ -187,4 +187,9 @@ void TimeBasedPanel::SetMarker()
   GetTimeBasedWidget()->SetMarker();
 }
 
+void TimeBasedPanel::ToggleShowAll()
+{
+  GetTimeBasedWidget()->ToggleShowAll();
+}
+
 OLIVE_NAMESPACE_EXIT

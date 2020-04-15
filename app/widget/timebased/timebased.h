@@ -84,6 +84,8 @@ public slots:
 
   void SetMarker();
 
+  void ToggleShowAll();
+
   TimeRuler* ruler() const;
 
 protected slots:
@@ -157,6 +159,10 @@ private:
   TimelinePoints* points_;
 
   QList<TimelineViewBase*> timeline_views_;
+
+  bool toggle_show_all_;
+
+  double toggle_show_all_old_scale_;
 
 private slots:
   void UpdateMaximumScroll();

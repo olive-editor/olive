@@ -35,7 +35,8 @@ TimeBasedWidget::TimeBasedWidget(bool ruler_text_visible, bool ruler_cache_statu
   TimelineScaledWidget(parent),
   viewer_node_(nullptr),
   auto_max_scrollbar_(false),
-  points_(nullptr)
+  points_(nullptr),
+  toggle_show_all_(false)
 {
   ruler_ = new TimeRuler(ruler_text_visible, ruler_cache_status_visible, this);
   connect(ruler_, &TimeRuler::TimeChanged, this, &TimeBasedWidget::SetTimeAndSignal);
@@ -164,6 +165,8 @@ void TimeBasedWidget::ScaleChangedEvent(const double &scale)
   ruler_->SetScale(scale);
 
   UpdateMaximumScroll();
+
+  toggle_show_all_ = false;
 }
 
 void TimeBasedWidget::SetAutoMaxScrollBar(bool e)
@@ -430,6 +433,32 @@ void TimeBasedWidget::SetMarker()
 
   if (ok) {
     points_->markers()->AddMarker(TimeRange(GetTime(), GetTime()), marker_name);
+  }
+}
+
+void TimeBasedWidget::ToggleShowAll()
+{
+  if (!GetConnectedNode()) {
+    return;
+  }
+
+  if (toggle_show_all_) {
+    SetScale(toggle_show_all_old_scale_);
+    toggle_show_all_ = false;
+  } else {
+    int w;
+
+    if (timeline_views_.isEmpty()) {
+      w = width();
+    } else {
+      w = timeline_views_.first()->width();
+    }
+
+    w = w / 10 * 9;
+
+    toggle_show_all_old_scale_ = GetScale();
+    SetScale(w / GetConnectedNode()->Length().toDouble());
+    toggle_show_all_ = true;
   }
 }
 

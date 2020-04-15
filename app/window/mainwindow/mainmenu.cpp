@@ -102,7 +102,7 @@ MainMenu::MainMenu(QMainWindow *parent) :
   view_zoom_out_item_ = view_menu_->AddItem("zoomout", this, SLOT(ZoomOutTriggered()), "-");
   view_increase_track_height_item_ = view_menu_->AddItem("vzoomin", this, SLOT(IncreaseTrackHeightTriggered()), "Ctrl+=");
   view_decrease_track_height_item_ = view_menu_->AddItem("vzoomout", this, SLOT(DecreaseTrackHeightTriggered()), "Ctrl+-");
-  view_show_all_item_ = view_menu_->AddItem("showall", nullptr, nullptr, "\\");
+  view_show_all_item_ = view_menu_->AddItem("showall", this, SLOT(ToggleShowAllTriggered()), "\\");
   view_show_all_item_->setCheckable(true);
   view_menu_->addSeparator();
 
@@ -517,6 +517,11 @@ void MainMenu::SetMarkerTriggered()
 void MainMenu::FullScreenViewerTriggered()
 {
   PanelManager::instance()->MostRecentlyFocused<ViewerPanel>()->SetFullScreen();
+}
+
+void MainMenu::ToggleShowAllTriggered()
+{
+  PanelManager::instance()->CurrentlyFocused()->ToggleShowAll();
 }
 
 void MainMenu::Retranslate()

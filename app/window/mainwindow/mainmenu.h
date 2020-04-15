@@ -146,6 +146,8 @@ private slots:
 
   void FullScreenViewerTriggered();
 
+  void ToggleShowAllTriggered();
+
 private:
   /**
    * @brief Set strings based on the current application language.
